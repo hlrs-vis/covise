@@ -96,7 +96,7 @@ ElevationWizard::init()
     foreach (Heightmap *map, projectData_->getScenerySystem()->getHeightmaps())
     {
         QListWidgetItem *item = new QListWidgetItem(map->getId().append(" (").append(map->getFilename()).append(")"));
-        item->setData(Qt::UserRole, qVariantFromValue((void *)map));
+        item->setData(Qt::UserRole, QVariant::fromValue((void *)map));
         ui->heightmapsList->addItem(item);
         if (map->isElementSelected())
         {

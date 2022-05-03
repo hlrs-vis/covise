@@ -45,7 +45,7 @@ BridgeTreeItem::updateName()
 {
     QString text = bridge_->getName();
     text.append(" (");
-    text.append(bridge_->getType());
+    text.append(QString("%1").arg(bridge_->getType()));
     text.append(QString(") %1").arg(bridge_->getSStart()));
     setText(0, text);
 }

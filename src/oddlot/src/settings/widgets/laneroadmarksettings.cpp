@@ -146,7 +146,7 @@ LaneRoadMarkSettings::on_offsetBox_editingFinished()
 }
 
 void
-LaneRoadMarkSettings::on_typeBox_currentIndexChanged(const QString &text)
+LaneRoadMarkSettings::on_typeBox_currentTextChanged(const QString &text)
 {
     if (init_ && text != LaneRoadMark::parseRoadMarkTypeBack(roadMark_->getRoadMarkType()))
     {
@@ -156,7 +156,7 @@ LaneRoadMarkSettings::on_typeBox_currentIndexChanged(const QString &text)
 }
 
 void
-LaneRoadMarkSettings::on_weightBox_currentIndexChanged(const QString &text)
+LaneRoadMarkSettings::on_weightBox_currentTextChanged(const QString &text)
 {
     if (init_ && text != LaneRoadMark::parseRoadMarkWeightBack(roadMark_->getRoadMarkWeight()))
     {
@@ -166,7 +166,7 @@ LaneRoadMarkSettings::on_weightBox_currentIndexChanged(const QString &text)
 }
 
 void
-LaneRoadMarkSettings::on_colorBox_currentIndexChanged(const QString &text)
+LaneRoadMarkSettings::on_colorBox_currentTextChanged(const QString &text)
 {
     if (init_ && text != LaneRoadMark::parseRoadMarkColorBack(roadMark_->getRoadMarkColor()))
     {
@@ -187,7 +187,7 @@ LaneRoadMarkSettings::on_widthBox_editingFinished()
 }
 
 void
-LaneRoadMarkSettings::on_laneChangeBox_currentIndexChanged(const QString &text)
+LaneRoadMarkSettings::on_laneChangeBox_currentTextChanged(const QString &text)
 {
     if (init_ && text != LaneRoadMark::parseRoadMarkLaneChangeBack(roadMark_->getRoadMarkLaneChange()))
     {

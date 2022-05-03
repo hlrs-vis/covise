@@ -185,7 +185,11 @@ LaneRoadMarkType::getRoadMarkTypeLine(int i, double &length, double &space, doub
         return false;
     }
 
-    QMap<double, LaneRoadMarkType::RoadMarkTypeLine *>::const_iterator it = lines_.constBegin() + i;
+    QMap<double, LaneRoadMarkType::RoadMarkTypeLine *>::const_iterator it = lines_.constBegin();
+    for (int j = 0; j < i; j++)
+    {
+        it++;
+    }
     RoadMarkTypeLine *line = it.value();
     length = line->getLineLength();
     space = line->getLineSpace();

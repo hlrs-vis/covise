@@ -52,7 +52,6 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
-#include <QMatrix>
 #include <QKeyEvent>
 
 BridgeItem::BridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos)

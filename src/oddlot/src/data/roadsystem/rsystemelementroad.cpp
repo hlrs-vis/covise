@@ -2229,7 +2229,7 @@ RSystemElementRoad::calculateLaneWidths(const QMultiMap<double, WidthPoints *> *
         return;
     }
 
-    QMap<double, WidthPoints *>::const_iterator it = points->constBegin();
+    QMultiMap<double, WidthPoints *>::const_iterator it = points->constBegin();
     WidthPoints *wpBefore = it.value();
     it++;
     int i = 1;
@@ -2456,14 +2456,14 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMultiMap<do
 QMultiMap<double, LaneMoveProperties *>
 RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool gradientChange, QList<Lane *> &lanes, QList<QMultiMap<double, WidthPoints *> *> &pointList)
 {
-    QMap<double, LaneMoveProperties *> newPropsList;
+    QMultiMap<double, LaneMoveProperties *> newPropsList;
 
     bool widthType;
-    QMapIterator<double, LaneMoveProperties *> it(propsList);
-    while (it.hasNext())
+
+    QMultiMap<double, LaneMoveProperties *>::iterator it = propsList.begin();
+    while (it != propsList.end())
     {
         QMultiMap<double, WidthPoints * > *points = new QMultiMap<double, WidthPoints * >();
-        it.next();
         double s = it.key();
         LaneMoveProperties *props = it.value();
         LaneWidth *low = props->lowSlot;
@@ -2979,6 +2979,8 @@ RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &
         {
             lanes.append(lane);
         }
+
+        it++;
     }
 
     return newPropsList;
@@ -2993,11 +2995,10 @@ RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &
 {
     QMultiMap<double, LaneMoveProperties *> newPropsList;
 
-    QMapIterator<double, LaneMoveProperties *> it(propsList);
-    while (it.hasNext())
+    QMultiMap<double, LaneMoveProperties *>::iterator it = propsList.begin();
+    while (it != propsList.end())
     {
         QMultiMap<double, WidthPoints * > *points = new QMultiMap<double, WidthPoints * >();
-        it.next();
         double s = it.key();
         LaneMoveProperties *props = it.value();
         LaneWidth *low = props->lowSlot;
@@ -3255,7 +3256,7 @@ RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &
         {
             lanes.append(lane);
         }
-
+        it++;
     }
 
     propsList.clear();
@@ -3272,11 +3273,11 @@ RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &
     QMultiMap<double, LaneMoveProperties *> newPropsList;
     bool widthType;
 
-    QMapIterator<double, LaneMoveProperties *> it(propsList);
-    while (it.hasNext())
+    QMultiMap<double, LaneMoveProperties *>::iterator it = propsList.begin();
+
+    while (it != propsList.end())
     {
         QMultiMap<double, WidthPoints * > *points = new QMultiMap<double, WidthPoints * >();
-        it.next();
         double s = it.key();
         LaneMoveProperties *props = it.value();
         LaneWidth *low = props->lowSlot;
@@ -3484,7 +3485,7 @@ RSystemElementRoad::getLaneWidthsLists(QMultiMap<double, LaneMoveProperties *> &
         {
             lanes.append(lane);
         }
-
+        it++;
     }
 
     return newPropsList;
@@ -3603,7 +3604,7 @@ RSystemElementRoad::moveObject(RoadSection *section, double newS)
 Object *
 RSystemElementRoad::getObject(const odrID &id)
 {
-    QMap<double, Object *>::ConstIterator iter = objects_.constBegin();
+    QMultiMap<double, Object *>::ConstIterator iter = objects_.constBegin();
 
     while (iter != objects_.constEnd())
     {
@@ -3704,7 +3705,7 @@ RSystemElementRoad::moveObjectReference(RoadSection *section, double newS)
 ObjectReference *
 RSystemElementRoad::getObjectReference(const odrID &id)
 {
-    QMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
+    QMultiMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
 
     while (iter != objectReferences_.constEnd())
     {
@@ -3970,7 +3971,7 @@ RSystemElementRoad::getValidLane(double s, double t)
 Signal *
 RSystemElementRoad::getSignal(const odrID &id)
 {
-    QMap<double, Signal *>::ConstIterator iter = signals_.constBegin();
+    QMultiMap<double, Signal *>::ConstIterator iter = signals_.constBegin();
 
     while (iter != signals_.constEnd())
     {
@@ -4072,7 +4073,7 @@ RSystemElementRoad::moveSignalReference(RoadSection *section, double newS)
 SignalReference *
 RSystemElementRoad::getSignalReference(const odrID &id)
 {
-    QMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
+    QMultiMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
 
     while (iter != signalReferences_.constEnd())
     {

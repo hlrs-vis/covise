@@ -57,7 +57,11 @@ LaneEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
 
     ribbonToolGroup_ = new QButtonGroup(toolManager_);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    connect(ribbonToolGroup_, SIGNAL(idClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+#else
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
+#endif
 
 
     ribbonToolGroup_->addButton(ui->select, ODD::TLE_SELECT);

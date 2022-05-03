@@ -1324,15 +1324,15 @@ ProjectWidget::importCSVSignFile(const QString &fileName)
 
                     if (list.size() > 0)
                     {
-                        type = list.at(0).toInt();
+                        type = list.at(0);
                         if (list.size() == 2) // type + subtype
                         {
-                            subtype = list.at(1).toInt();
+                            subtype = list.at(1);
                         }
                         else if (list.size() == 3) // type + typeSubclass + subtype
                         {
                             typeSubclass = list.at(1);
-                            subtype = list.at(2).toInt();
+                            subtype = list.at(2);
                         }
                     }
 
@@ -1527,7 +1527,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         if (strcmp(signName, "SCurveR") == 0)
                         {
                             type = "105";
-                            subType = 10;
+                            subType = "10";
                         }
                         if (strcmp(signName, "SCurveL") == 0)
                         {

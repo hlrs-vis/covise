@@ -2251,8 +2251,10 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                         }
 
                         QMap<RSystemElementRoad *, bool>::const_iterator incomingRoadsIterator = incomingRoads.constBegin();
+                        QMap<RSystemElementRoad *, bool>::const_iterator target = incomingRoads.constEnd();
+                        target--;
 
-                        while (incomingRoadsIterator != incomingRoads.constEnd() - 1)
+                        while (incomingRoadsIterator != target)
                         {
                             RSystemElementRoad *road1 = incomingRoadsIterator.key();
                             bool start1 = incomingRoadsIterator.value();
@@ -2271,7 +2273,8 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                 laneMap = road1->getLaneSection(road1->getLength())->getLanes();
                             }
 
-                            QMap<RSystemElementRoad *, bool>::const_iterator iter = incomingRoadsIterator + 1;
+                            QMap<RSystemElementRoad *, bool>::const_iterator iter = incomingRoadsIterator;
+                            iter++;
                             while (iter != incomingRoads.constEnd())
                             {
                                 RSystemElementRoad *road2 = iter.key();

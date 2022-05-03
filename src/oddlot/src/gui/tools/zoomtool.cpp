@@ -49,7 +49,7 @@ ZoomTool::ZoomTool(ToolManager *toolManager)
     zoomComboBox_->setCurrentIndex(2);
     zoomComboBox_->setStatusTip(tr("Zoom to."));
     zoomComboBox_->setToolTip(tr("Zoom To"));
-    connect(zoomComboBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(zoomTo(QString)));
+    connect(zoomComboBox_, SIGNAL(currentTextChanged(QString)), this, SLOT(zoomTo(QString)));
 
     zoomInAction_ = new QAction(tr("Zoom &In"), this);
     zoomInAction_->setShortcuts(QKeySequence::ZoomIn);

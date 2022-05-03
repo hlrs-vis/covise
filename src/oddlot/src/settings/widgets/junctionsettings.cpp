@@ -123,11 +123,15 @@ JunctionSettings::on_cleanConnectionsButton_released()
     }
     else
     {
-        auto iter = junction_->getConnections().constBegin();
         QList<JunctionConnection *> deleteList;
         for (int i = 0; i < selectedTableEntries.size(); i++)
         {
-            iter += selectedTableEntries.at(i)->row();
+            auto iter = junction_->getConnections().constBegin();
+            for (int j = 0; j < selectedTableEntries.at(i)->row(); j++)
+            {
+                iter++;
+            }
+
             if (iter != junction_->getConnections().constEnd())
             {
                 deleteList.append(iter.value());

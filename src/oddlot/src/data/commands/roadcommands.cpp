@@ -5130,7 +5130,10 @@ CreateInnerLaneLinksCommand::CreateInnerLaneLinksCommand(RSystemElementRoad *roa
     }
 
     QMap<double, LaneSection *>::const_iterator it = road_->getLaneSections().constBegin();
-    while (it != road_->getLaneSections().constEnd() - 1)
+    QMap<double, LaneSection *>::const_iterator target = road_->getLaneSections().constEnd();
+    target--;
+
+    while (it != target)
     {
         LaneSection *laneSection = it.value();
         double s = laneSection->getSStart();

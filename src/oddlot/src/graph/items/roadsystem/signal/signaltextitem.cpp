@@ -98,11 +98,11 @@ SignalTextItem::updateName()
     {
         QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
-        if (signal_->getType() >= 0)
+        if ((signal_->getType() != "-1") && (signal_->getType() != "none"))
         {
             if (!signal_->getTypeSubclass().isEmpty())
             {
-                if (signal_->getSubtype() >= 0)
+                if ((signal_->getSubtype() != "-1") && (signal_->getSubtype() != "none"))
                 {
                     signalName = signal_->getType() + "." + signal_->getTypeSubclass() + "-" + signal_->getSubtype();
                 }
@@ -111,7 +111,7 @@ SignalTextItem::updateName()
                     signalName = signal_->getType() + "." + signal_->getTypeSubclass();
                 }
             }
-            else if (signal_->getSubtype() >= 0)
+            else if ((signal_->getSubtype() != "-1") && (signal_->getSubtype() != "none"))
             {
                 signalName = signal_->getType() + "-" + signal_->getSubtype();
             }

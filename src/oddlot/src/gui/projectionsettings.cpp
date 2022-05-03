@@ -73,12 +73,14 @@ ProjectionSettings::ProjectionSettings()
 #ifdef WIN32
     char *pValue;
     size_t len;
+    std::string covisedir;
     errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
     if (err || pValue == NULL || strlen(pValue) == 0)
         err = _dupenv_s(&pValue, &len, "COVISEDIR");
     if (err)
-        pValue = "";
-    std::string covisedir = pValue;
+        covisedir = "";
+    else
+        covisedir = pValue;
     std::string dir = covisedir + "/share/covise/";
 #else
     QString covisedir = getenv("ODDLOTDIR");

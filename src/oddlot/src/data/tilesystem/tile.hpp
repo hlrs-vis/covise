@@ -19,7 +19,10 @@
 #include "src/data/tilesystem/tilesystem.hpp"
 #include "src/data/roadsystem/odrID.hpp"
 
- //
+ // Qt //
+//
+#include <QObject>
+
 class DataElement;
 
 class Tile : public QObject, public DataElement

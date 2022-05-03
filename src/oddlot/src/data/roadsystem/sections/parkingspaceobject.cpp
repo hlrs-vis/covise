@@ -259,7 +259,11 @@ ParkingSpace::getMarking(int i, QString &side, QString &type, double &width, QSt
         return false;
     }
 
-    QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *>::const_iterator it = markingList_.constBegin() + i;
+    QMap<ParkingSpaceMarking::ParkingSpaceMarkingSide, ParkingSpaceMarking *>::const_iterator it = markingList_.constBegin();
+    for (int j = 0; j < i; j++)
+    {
+        it++;
+    }
     ParkingSpaceMarking *marking = it.value();
     side = ParkingSpaceMarking::parseParkingSpaceMarkingSideBack(marking->getSide());
     type = LaneRoadMark::parseRoadMarkTypeBack(marking->getType());

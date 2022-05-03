@@ -185,7 +185,7 @@ LaneSettings::getFirstSelectedLaneWidthHandle()
 //################//
 
 void
-LaneSettings::on_typeBox_currentIndexChanged(const QString &text)
+LaneSettings::on_typeBox_currentTextChanged(const QString &text)
 {
     if (init_ && text != Lane::parseLaneTypeBack(lane_->getLaneType()))
     {

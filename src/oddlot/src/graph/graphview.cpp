@@ -76,6 +76,8 @@
 #include "math.h"
 #include "src/util/colorpalette.hpp"
 
+#include <memory>
+
 // DEFINES //
 //
 //#define USE_MIDMOUSE_PAN
@@ -136,7 +138,7 @@ GraphView::~GraphView()
 double
 GraphView::getScale() const
 {
-    QMatrix vm = matrix();
+    QTransform vm = transform();
     if (fabs(vm.m11()) != fabs(vm.m22()))
     {
         qDebug("View stretched! getScale() returns 0.0!");
@@ -159,7 +161,7 @@ GraphView::resetViewTransformation()
     QTransform trafo;
     trafo.rotate(180.0, Qt::XAxis);
 
-    resetMatrix();
+    resetTransform();
     setTransform(trafo);
 }
 
@@ -370,8 +372,8 @@ void
 GraphView::rebuildRulers()
 {
     QPointF pos = viewportTransform().inverted().map(QPointF(0.0, 0.0));
-    double width = viewport()->size().width() / matrix().m11();
-    double height = viewport()->size().height() / matrix().m22();
+    double width = viewport()->size().width() / transform().m11();
+    double height = viewport()->size().height() / transform().m22();
 
 #ifdef COVER_CONNECTION
     COVERConnection::instance()->resizeMap(pos.x(), pos.y(), width, height);
@@ -382,8 +384,8 @@ GraphView::rebuildRulers()
         return;
     }
 
-    horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
-    verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
+    horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), transform().m11(), transform().m22());
+    verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), transform().m11(), transform().m22());
     update();
 }
 
@@ -637,32 +639,32 @@ GraphView::loadGoogleMap()
 
             if (xmlReader.readNextStartElement())
             {
-                if (xmlReader.name() == "GeocodeResponse")
+                if (xmlReader.name().toString() == "GeocodeResponse")
                 {
                     while (xmlReader.readNextStartElement())
                     {
-                        if (xmlReader.name() == "status")
+                        if (xmlReader.name().toString() == "status")
                         {
                             xmlReader.skipCurrentElement();
                         }
-                        else if (xmlReader.name() == "result")
+                        else if (xmlReader.name().toString() == "result")
                         {
                             while (xmlReader.readNextStartElement())
                             {
-                                if (xmlReader.name() != "geometry")
+                                if (xmlReader.name().toString() != "geometry")
                                 {
                                     xmlReader.skipCurrentElement();
                                 }
-                                else if (xmlReader.name() == "geometry")
+                                else if (xmlReader.name().toString() == "geometry")
                                     while (xmlReader.readNextStartElement())
                                     {
-                                        if (xmlReader.name() == "location") {
+                                        if (xmlReader.name().toString() == "location") {
                                             while (xmlReader.readNextStartElement())
                                             {
-                                                if (xmlReader.name() == "lat") {
+                                                if (xmlReader.name().toString() == "lat") {
                                                     lat = xmlReader.readElementText();
                                                 }
-                                                if (xmlReader.name() == "lng") {
+                                                if (xmlReader.name().toString() == "lng") {
                                                     lon = xmlReader.readElementText();
                                                 }
                                             }
@@ -855,32 +857,32 @@ GraphView::loadBingMap()
 
             if (xmlReader.readNextStartElement())
             {
-                if (xmlReader.name() == "GeocodeResponse")
+                if (xmlReader.name().toString() == "GeocodeResponse")
                 {
                     while (xmlReader.readNextStartElement())
                     {
-                        if (xmlReader.name() == "status")
+                        if (xmlReader.name().toString() == "status")
                         {
                             xmlReader.skipCurrentElement();
                         }
-                        else if (xmlReader.name() == "result")
+                        else if (xmlReader.name().toString() == "result")
                         {
                             while (xmlReader.readNextStartElement())
                             {
-                                if (xmlReader.name() != "geometry")
+                                if (xmlReader.name().toString() != "geometry")
                                 {
                                     xmlReader.skipCurrentElement();
                                 }
-                                else if (xmlReader.name() == "geometry")
+                                else if (xmlReader.name().toString() == "geometry")
                                     while (xmlReader.readNextStartElement())
                                     {
-                                        if (xmlReader.name() == "location") {
+                                        if (xmlReader.name().toString() == "location") {
                                             while (xmlReader.readNextStartElement())
                                             {
-                                                if (xmlReader.name() == "lat") {
+                                                if (xmlReader.name().toString() == "lat") {
                                                     lat = xmlReader.readElementText();
                                                 }
-                                                if (xmlReader.name() == "lng") {
+                                                if (xmlReader.name().toString() == "lng") {
                                                     lon = xmlReader.readElementText();
                                                 }
                                             }
@@ -927,11 +929,11 @@ GraphView::loadBingMap()
 
         if (xmlReaderBing.readNextStartElement())
         {
-            if (xmlReaderBing.name() == "Response")
+            if (xmlReaderBing.name().toString() == "Response")
             {
                 while (xmlReaderBing.readNextStartElement())
                 {
-                    if (xmlReaderBing.name() != "ResourceSets")
+                    if (xmlReaderBing.name().toString() != "ResourceSets")
                     {
                         xmlReaderBing.skipCurrentElement();
                     }
@@ -939,7 +941,7 @@ GraphView::loadBingMap()
                     {
                         while (xmlReaderBing.readNextStartElement())
                         {
-                            if (xmlReaderBing.name() != "ResourceSet")
+                            if (xmlReaderBing.name().toString() != "ResourceSet")
                             {
                                 xmlReaderBing.skipCurrentElement();
                             }
@@ -947,7 +949,7 @@ GraphView::loadBingMap()
                             {
                                 while (xmlReaderBing.readNextStartElement())
                                 {
-                                    if (xmlReaderBing.name() != "Resources")
+                                    if (xmlReaderBing.name().toString() != "Resources")
                                     {
                                         xmlReaderBing.skipCurrentElement();
                                     }
@@ -955,27 +957,27 @@ GraphView::loadBingMap()
                                     {
                                         while (xmlReaderBing.readNextStartElement())
                                         {
-                                            if (xmlReaderBing.name() == "StaticMapMetadata")
+                                            if (xmlReaderBing.name().toString() == "StaticMapMetadata")
                                             {
                                                 while (xmlReaderBing.readNextStartElement())
                                                 {
-                                                    if (xmlReaderBing.name() == "BoundingBox")
+                                                    if (xmlReaderBing.name().toString() == "BoundingBox")
                                                     {
                                                         while (xmlReaderBing.readNextStartElement())
                                                         {
-                                                            if (xmlReaderBing.name() == "SouthLatitude")
+                                                            if (xmlReaderBing.name().toString() == "SouthLatitude")
                                                             {
                                                                 boundingSouth = xmlReaderBing.readElementText();
                                                             }
-                                                            if (xmlReaderBing.name() == "WestLongitude")
+                                                            if (xmlReaderBing.name().toString() == "WestLongitude")
                                                             {
                                                                 boundingWest = xmlReaderBing.readElementText();
                                                             }
-                                                            if (xmlReaderBing.name() == "NorthLatitude")
+                                                            if (xmlReaderBing.name().toString() == "NorthLatitude")
                                                             {
                                                                 boundingNorth = xmlReaderBing.readElementText();
                                                             }
-                                                            if (xmlReaderBing.name() == "EastLongitude")
+                                                            if (xmlReaderBing.name().toString() == "EastLongitude")
                                                             {
                                                                 boundingEast = xmlReaderBing.readElementText();
                                                             }
@@ -1170,7 +1172,7 @@ GraphView::mousePressEvent(QMouseEvent *event)
         QGraphicsView::mousePressEvent(event); // pass to baseclass
     }
 #ifdef USE_MIDMOUSE_PAN
-    else if (event->button() == Qt::MidButton)
+    else if (event->button() == Qt::MiddleButton)
     {
         doPan_ = true;
 
@@ -1181,7 +1183,11 @@ GraphView::mousePressEvent(QMouseEvent *event)
         // Harharhar Hack //
         //
         // Qt wants a LeftButton event for dragging, so feed Qt what it wants!
-        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->position(), event->globalPosition(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#else
+        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->pos(),Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#endif
         QGraphicsView::mousePressEvent(newEvent); // pass to baseclass
         delete newEvent;
         return;
@@ -1206,7 +1212,12 @@ GraphView::mousePressEvent(QMouseEvent *event)
             {
                 if (event != lastMouseEvent_)  // Remember Event in case tab is pressed
                 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                    lastMouseEvent_ = new QMouseEvent(event->type(), event->position(), event->scenePosition(), event->globalPosition(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
+#else
                     lastMouseEvent_ = new QMouseEvent(event->type(), event->localPos(), event->windowPos(), event->screenPos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
+
+#endif
                 }
 
                 QGraphicsView::mousePressEvent(event); // pass to baseclass
@@ -1279,8 +1290,13 @@ GraphView::mouseMoveEvent(QMouseEvent *event)
 #ifdef USE_MIDMOUSE_PAN
     else if (doPan_)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->position(), event->globalPosition(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#else
         QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#endif
         QGraphicsView::mouseMoveEvent(newEvent); // pass to baseclass
+
         delete newEvent;
     }
 #endif
@@ -1511,7 +1527,7 @@ GraphView::mouseReleaseEvent(QMouseEvent *event)
 void
 GraphView::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() > 0)
+    if (event->angleDelta().y() > 0)
     {
         zoomTool_->zoomIn();
     }
@@ -1708,7 +1724,7 @@ void GraphView::downloadFile(const QString &fn, const QString &url)
 
 QFile *GraphView::openFileForWrite(const QString &fileName)
 {
-    QScopedPointer<QFile> file(new QFile(fileName));
+    std::unique_ptr<QFile> file(new QFile(fileName));
     if (!file->open(QIODevice::WriteOnly)) {
         QMessageBox::information(this, tr("Error"),
             tr("Unable to save the file %1: %2.")
@@ -1716,7 +1732,7 @@ QFile *GraphView::openFileForWrite(const QString &fileName)
                 file->errorString()));
         return nullptr;
     }
-    return file.take();
+    return file.release();
 }
 
 void GraphView::cancelDownload()

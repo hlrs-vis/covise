@@ -19,7 +19,11 @@
 #include "osctextitem.hpp"
 #include "src/graph/items/svgelement.hpp"
 
-#include <QtSvg/QGraphicsSvgItem>
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    #include <QtSvgWidgets/QGraphicsSvgItem>
+#else
+    #include <QtSvg/QGraphicsSvgItem>
+#endif
 
 namespace OpenScenario
 {

@@ -123,10 +123,18 @@ ParameterDockWidget::enterEvent(QEvent *event)
             QEnterEvent *enterEvent = dynamic_cast<QEnterEvent *>(event);
             if (enterEvent)
             {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                int d = mapToParent(enterEvent->position().toPoint()).y() - pos().y();
+#else
                 int d = mapToParent(enterEvent->localPos().toPoint()).y() - pos().y();
+#endif
                 if ((d >= 0) && (d < 20))
                 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                    QToolTip::showText(enterEvent->globalPosition().toPoint(), whatsThis());
+#else
                     QToolTip::showText(enterEvent->globalPos(), whatsThis());
+#endif
                 }
             }
         }

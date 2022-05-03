@@ -80,7 +80,7 @@ ProfileGraphView::resetViewTransformation()
     QTransform trafo;
     trafo.rotate(180.0, Qt::XAxis);
 
-    resetMatrix();
+    resetTransform();
     setTransform(trafo);
 }
 
@@ -98,11 +98,11 @@ ProfileGraphView::rebuildRulers()
     // qDebug() << viewport()->size();
     // testrect_->setPos(viewportTransform().inverted().map(QPointF(1.0, 1.0)));
     QPointF pos = viewportTransform().inverted().map(QPointF(0.0, 0.0));
-    double width = viewport()->size().width() / matrix().m11();
-    double height = viewport()->size().height() / matrix().m22();
+    double width = viewport()->size().width() / transform().m11();
+    double height = viewport()->size().height() / transform().m22();
     // testrect_->setRectF(pos.x(), pos.y(), width, height);
-    horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
-    verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), matrix().m11(), matrix().m22());
+    horizontalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), transform().m11(), transform().m22());
+    verticalRuler_->updateRect(QRectF(pos.x(), pos.y(), width, height), transform().m11(), transform().m22());
     update();
 }
 
@@ -211,7 +211,7 @@ ProfileGraphView::mousePressEvent(QMouseEvent *event)
         setInteractive(false); // this prevents the event from being passed to the scene
     }
 #ifdef USE_MIDMOUSE_PAN
-    else if (event->button() == Qt::MidButton)
+    else if (event->button() == Qt::MiddleButton)
     {
         doPan_ = true;
 
@@ -221,7 +221,11 @@ ProfileGraphView::mousePressEvent(QMouseEvent *event)
         // Harharhar Hack //
         //
         // Qt wants a LeftButton event for dragging, so feed Qt what it wants!
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->position(), event->globalPosition(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#else
         QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#endif
         QGraphicsView::mousePressEvent(newEvent); // pass to baseclass
         delete newEvent;
         return;
@@ -291,7 +295,11 @@ ProfileGraphView::mouseMoveEvent(QMouseEvent *event)
 #ifdef USE_MIDMOUSE_PAN
     else if (doPan_)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->position(), event->globalPosition(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#else
         QMouseEvent *newEvent = new QMouseEvent(QEvent::MouseMove, event->pos(), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+#endif
         QGraphicsView::mouseMoveEvent(newEvent); // pass to baseclass
         delete newEvent;
     }
@@ -404,7 +412,7 @@ ProfileGraphView::mouseReleaseEvent(QMouseEvent *event)
             selectionArea.addPolygon(mapToScene(QRect(rubberBand_->pos(), rubberBand_->rect().size())));
             selectionArea.closeSubpath();
             scene()->clearSelection();
-            scene()->setSelectionArea(selectionArea, Qt::IntersectsItemShape, viewportTransform());
+            scene()->setSelectionArea(selectionArea, Qt::ReplaceSelection, Qt::IntersectsItemShape, viewportTransform());
 
             // Compare old and new selection lists and invert the selection state of elements contained in both
 
@@ -484,7 +492,7 @@ ProfileGraphView::keyReleaseEvent(QKeyEvent *event)
 void
 ProfileGraphView::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() > 0)
+    if (event->angleDelta().y() > 0)
     {
         if (event->modifiers() & Qt::ControlModifier)
         {

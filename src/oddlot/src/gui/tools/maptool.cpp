@@ -56,7 +56,7 @@ MapTool::MapTool(ToolManager *toolManager)
     opacityComboBox_->setCurrentIndex(0);
     opacityComboBox_->setStatusTip(tr("Set Map Opacity."));
     opacityComboBox_->setToolTip(tr("Set Map Opacity"));
-    connect(opacityComboBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(setOpacity(QString)));
+    connect(opacityComboBox_, SIGNAL(currentTextChanged(QString)), this, SLOT(setOpacity(QString)));
 
     loadMapAction_ = new QAction(tr("Load &Map"), this);
     loadMapAction_->setStatusTip(tr("Load a background image."));

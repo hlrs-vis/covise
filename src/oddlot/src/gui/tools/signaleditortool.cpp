@@ -56,7 +56,11 @@ SignalEditorTool::initToolWidget()
 
 
     ribbonToolGroup_ = new QButtonGroup(toolManager_);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    connect(ribbonToolGroup_, SIGNAL(idClicked(int)), this, SLOT(handleToolClick(int)));
+#else
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+#endif
 
     // move also selects ribbonToolGroup->addButton(ui->typeSelect, ODD::TRT_SELECT);
     ribbonToolGroup_->addButton(ui->newController, ODD::TSG_CONTROLLER);
@@ -101,7 +105,11 @@ SignalEditorTool::activateRibbonEditor()
             ribbonToolGroup_->button(action->getToolId())->click();
         } */
 
-    ribbonToolGroup_->button(action->getToolId())->click();
+    QAbstractButton *currentButton = ribbonToolGroup_->button(action->getToolId());
+    if (currentButton)
+    {
+        currentButton->click();
+    }
 
 }
 

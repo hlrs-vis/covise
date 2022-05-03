@@ -53,7 +53,6 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
-#include <QMatrix>
 #include <QKeyEvent>
 
 ObjectItem::ObjectItem(RoadSystemItem *roadSystemItem, Object *object, QPointF pos)
@@ -262,8 +261,8 @@ ObjectItem::createPath()
                 }
                 else
                 {
-                    QMatrix transformationMatrix;
-                    QMatrix rotationMatrix;
+                    QTransform transformationMatrix;
+                    QTransform rotationMatrix;
                     QPainterPath tmpPath;
 
                     transformationMatrix.translate(currentPos.x(), currentPos.y());
@@ -320,8 +319,8 @@ ObjectItem::createPath()
         }
         else
         {
-            QMatrix transformationMatrix;
-            QMatrix rotationMatrix;
+            QTransform transformationMatrix;
+            QTransform rotationMatrix;
 
             transformationMatrix.translate(pos_.x(), pos_.y());
 

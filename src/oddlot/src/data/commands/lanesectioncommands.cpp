@@ -2390,9 +2390,9 @@ TranslateLaneBorderCommand::mergeWith(const QUndoCommand *other)
             return false;
         }
 
-        QMap<double, LaneMoveProperties *> map = it.value();
-        QMap<double, LaneMoveProperties *> mapOther = itOther.value();
-        QMap<double, LaneMoveProperties *>::const_iterator mapIt = map.constBegin();
+        QMultiMap<double, LaneMoveProperties *> map = it.value();
+        QMultiMap<double, LaneMoveProperties *> mapOther = itOther.value();
+        QMultiMap<double, LaneMoveProperties *>::const_iterator mapIt = map.constBegin();
 
         while (mapIt != map.constEnd())
         {
@@ -2400,7 +2400,7 @@ TranslateLaneBorderCommand::mergeWith(const QUndoCommand *other)
             LaneWidth *low = props->lowSlot;
             LaneWidth *high = props->highSlot;
 
-            QMap<double, LaneMoveProperties *>::const_iterator mapOtherIt = mapOther.constBegin();
+            QMultiMap<double, LaneMoveProperties *>::const_iterator mapOtherIt = mapOther.constBegin();
             while (mapOtherIt != mapOther.constEnd())
             {
                 LaneMoveProperties *otherProps = mapOtherIt.value();

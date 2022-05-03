@@ -156,7 +156,12 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p)
                 p->setValid(true);
             }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+            connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::textChanged), [=](const QString &text) { onEditingFinished(name); });
+#else
             connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::valueChanged), [=](const QString &text) { onEditingFinished(name); });
+#endif
+
             spinBox = doubleSpinBox;
         }
         else
@@ -171,13 +176,18 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p)
                 p->setValid(true);
             }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+            connect(intSpinBox, QOverload<const QString &>::of(&QSpinBox::textChanged), [=](const QString &text) { onEditingFinished(name); });
+#else
             connect(intSpinBox, QOverload<const QString &>::of(&QSpinBox::valueChanged), [=](const QString &text) { onEditingFinished(name); });
+#endif
+
             spinBox = intSpinBox;
         }
 
         spinBox->setObjectName(name);
         memberWidgets_.insert(name, spinBox);
-        memberWidgets_.insertMulti(name, label);
+        memberWidgets_.insert(name, label);
 
         spinBox->installEventFilter(this);
         layout_->addWidget(spinBox);
@@ -193,7 +203,7 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p)
         {
             QLabel *label = new QLabel(p->getLabelText());
             layout_->addWidget(label);
-            memberWidgets_.insertMulti(name, label);
+            memberWidgets_.insert(name, label);
         }
 
         // List //
@@ -364,7 +374,7 @@ ToolParameterSettings::removeUI(unsigned int paramIndex)
                 QAbstractButton *button = buttonList.takeAt(i);
                 deleteButtonsAndLabels(button);
             }
-            QMap<QString, QWidget *>::iterator it = memberWidgets_.begin();
+            QMultiMap<QString, QWidget *>::iterator it = memberWidgets_.begin();
             while (it != memberWidgets_.end())
             {
                 QWidget *widget = it.value();
@@ -522,7 +532,11 @@ ToolParameterSettings::generateUI(QFrame *box)
     {
      //   buttonGroup_->setExclusive(false);
     }
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    connect(buttonGroup_, SIGNAL(idPressed(int)), this, SLOT(onButtonPressed(int)));
+#else
     connect(buttonGroup_, SIGNAL(buttonPressed(int)), this, SLOT(onButtonPressed(int)));
+#endif
 
     int checkedButton = buttonGroup_->checkedId(); // now the checked button can send an action
     if (checkedButton != -1)

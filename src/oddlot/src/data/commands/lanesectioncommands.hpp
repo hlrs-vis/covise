@@ -670,8 +670,8 @@ public:
 		int i = 0;
 		while ((i < pointList_.size()) && ((indexLow_ < 0) || (indexHigh_ < 0)))
 		{
-			QMap<double, WidthPoints*> *points = pointList_.at(i);
-			QMap<double, WidthPoints*>::const_iterator it = points->find(high->getSSectionStartAbs());
+			QMultiMap<double, WidthPoints*> *points = pointList_.at(i);
+			QMultiMap<double, WidthPoints*>::const_iterator it = points->find(high->getSSectionStartAbs());
 			if (it != points->end())
 			{
 				oldPoints_ = it.value();

@@ -44,7 +44,6 @@
 #include <QCursor>
 #include <QColor>
 #include <QString>
-#include <QMatrix>
 
 OSCBridgeItem::OSCBridgeItem(RoadSystemItem *roadSystemItem, Bridge *bridge, QPointF pos)
     : GraphElement(roadSystemItem, bridge)

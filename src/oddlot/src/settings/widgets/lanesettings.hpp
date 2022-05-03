@@ -68,7 +68,7 @@ private:
     //################//
 
 private slots:
-    void on_typeBox_currentIndexChanged(const QString &text);
+    void on_typeBox_currentTextChanged(const QString &text);
     void on_levelBox_stateChanged(int state);
     void on_predecessorCheckBox_stateChanged(int state);
     void on_predecessorBox_valueChanged(int i);

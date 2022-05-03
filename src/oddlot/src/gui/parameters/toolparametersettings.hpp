@@ -108,7 +108,7 @@ protected:
 
 private:
     QMap<unsigned int, QList<ToolParameter *>> *paramList_;
-    QMap<QString, QWidget *> memberWidgets_;
+    QMultiMap<QString, QWidget *> memberWidgets_;
     int currentParamId_;
 
     QGridLayout *layout_;

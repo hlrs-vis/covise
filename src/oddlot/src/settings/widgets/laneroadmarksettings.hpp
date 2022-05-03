@@ -53,11 +53,11 @@ private:
 
 private slots:
     void on_offsetBox_editingFinished();
-    void on_typeBox_currentIndexChanged(const QString &text);
-    void on_weightBox_currentIndexChanged(const QString &text);
-    void on_colorBox_currentIndexChanged(const QString &text);
+    void on_typeBox_currentTextChanged(const QString &text);
+    void on_weightBox_currentTextChanged(const QString &text);
+    void on_colorBox_currentTextChanged(const QString &text);
     void on_widthBox_editingFinished();
-    void on_laneChangeBox_currentIndexChanged(const QString &text);
+    void on_laneChangeBox_currentTextChanged(const QString &text);
 
     //################//
     // PROPERTIES     //

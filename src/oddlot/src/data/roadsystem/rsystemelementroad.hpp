@@ -331,7 +331,7 @@ public:
     // road:objects:object //
     //
     void addObject(Object *object);
-    QMap<double, Object *> getObjects() const
+    QMultiMap<double, Object *> getObjects() const
     {
         return objects_;
     }
@@ -353,7 +353,7 @@ public:
     // road:objects:bridge //
     //
     void addBridge(Bridge *bridge);
-    QMap<double, Bridge *> getBridges() const
+    QMultiMap<double, Bridge *> getBridges() const
     {
         return bridges_;
     }

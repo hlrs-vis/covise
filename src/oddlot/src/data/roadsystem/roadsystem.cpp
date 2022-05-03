@@ -534,7 +534,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
                         }
                     }
 
-                    QMap<odrID, odrID> idChanged;
+                    QMultiMap<odrID, odrID> idChanged;
                     idChanged.insert(element->getID(), newId);
                     junction->checkConnectionIds(idChanged);
                 }
@@ -584,7 +584,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
                         }
                     }
 
-                    QMap<odrID, odrID> idChanged;
+                    QMultiMap<odrID, odrID> idChanged;
                     idChanged.insert(element->getID(), newId);
                     junction->checkConnectionIds(idChanged);
                 }
@@ -593,7 +593,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
 
         else // Connecting road
         {
-            QMap<odrID, odrID> idChanged;
+            QMultiMap<odrID, odrID> idChanged;
             idChanged.insert(element->getID(), newId);
             getJunction(road->getJunction())->checkConnectionIds(idChanged);
         }

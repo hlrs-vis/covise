@@ -576,7 +576,7 @@ void OSCObjectSettings::formatLabel(QLabel *label, const QString &memberName)
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     if (memberName.size() > 16)
     {
-        QStringList list = memberName.split(QRegExp("[A-Z]"));
+        QStringList list = memberName.split(QRegularExpression("[A-Z]"));
 
         QString line;
         int separator = 16;
@@ -609,7 +609,7 @@ int OSCObjectSettings::formatDirLabel(QLabel *label, const QString &memberName)
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     if (memberName.size() > 30)
     {
-        QStringList list = memberName.split(QRegExp("/"));
+        QStringList list = memberName.split(QRegularExpression("/"));
 
         QString line;
         QString name;
@@ -817,7 +817,7 @@ OSCObjectSettings::loadProperties(OpenScenario::oscMember *member, QWidget *widg
         oscDateTimeValue *iv = dynamic_cast<oscDateTimeValue *>(value);
         if (iv)
         {
-            dateTimeEdit->setDateTime(QDateTime::fromTime_t(iv->getValue()));
+            dateTimeEdit->setDateTime(QDateTime::fromSecsSinceEpoch(iv->getValue()));
         }
     }
 
@@ -942,7 +942,7 @@ OSCObjectSettings::onEditingFinished(QString name)
         {
             QDateTimeEdit *dateTimeEdit = dynamic_cast<QDateTimeEdit *>(widget);
             QDateTime v = dateTimeEdit->dateTime();
-            SetOSCValuePropertiesCommand<time_t> *command = new SetOSCValuePropertiesCommand<time_t>(element_, object_, name.toStdString(), v.toTime_t());
+            SetOSCValuePropertiesCommand<time_t> *command = new SetOSCValuePropertiesCommand<time_t>(element_, object_, name.toStdString(), v.toSecsSinceEpoch());
             projectSettings_->executeCommand(command);
 
             break;

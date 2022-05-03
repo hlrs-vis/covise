@@ -51,7 +51,11 @@ TrackEditorTool::initToolWidget()
     ui->setupUi(ribbonWidget);
 
     ribbonToolGroup_ = new QButtonGroup(toolManager_);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    connect(ribbonToolGroup_, SIGNAL(idClicked(int)), this, SLOT(handleToolClick(int)));
+#else
     connect(ribbonToolGroup_, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
+#endif
     ribbonToolGroup_->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
     ribbonToolGroup_->addButton(ui->trackAppend, ODD::TTE_ADD);
     ribbonToolGroup_->addButton(ui->trackAddPrototype, ODD::TTE_ADD_PROTO);
