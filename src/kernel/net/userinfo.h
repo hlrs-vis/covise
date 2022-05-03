@@ -16,7 +16,7 @@ namespace covise
         UserInfo(covise::TokenBuffer &tb);
         UserInfo(Program type);
         const Program userType;
-        const std::string userName, ipAdress, hostName, email, url;
+        const std::string userName, ipAdress, hostName, email, url, icon;
     };
 
     NETEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const covise::UserInfo &userInfo);

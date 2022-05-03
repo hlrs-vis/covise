@@ -278,7 +278,8 @@ LaneEditor::toolAction(ToolAction *toolAction)
                             int rightmost = lane->getParentLaneSection()->getRightmostLaneId();
                             int leftmost = lane->getParentLaneSection()->getLeftmostLaneId();
 
-                            if (laneId = (laneId < rightmost) ? rightmost : (laneId > leftmost) ? leftmost : laneId)
+                            laneId = (laneId < rightmost) ? rightmost : (laneId > leftmost) ? leftmost : laneId;
+                            if (laneId != 0)
                             {
                                 v->setValue(laneId);
                                 updateToolParameterUI(p);

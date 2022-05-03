@@ -13,30 +13,31 @@
 #include <cctype>
 #include <stdlib.h>
 
-#include <osg/Texture2D>
-#include <osgText/Font>
-#include <util/unixcompat.h>
-#include <util/coFileUtil.h>
-#include <util/coHashIter.h>
 #include "OpenCOVER.h"
+#include "VRRegisterSceneGraph.h"
 #include "VRSceneGraph.h"
 #include "VRViewer.h"
-#include "coVRMSController.h"
-#include "coVRPluginSupport.h"
-#include "coVRPluginList.h"
-#include "coVRCommunication.h"
 #include "coTabletUI.h"
-#include "coVRIOReader.h"
-#include "VRRegisterSceneGraph.h"
+#include "coVRCommunication.h"
 #include "coVRConfig.h"
+#include "coVRIOReader.h"
+#include "coVRMSController.h"
+#include "coVRPartner.h"
+#include "coVRPluginList.h"
+#include "coVRPluginSupport.h"
 #include "coVRRenderer.h"
-#include <util/string_util.h>
-#include "ui/Owner.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
-#include "ui/Group.h"
 #include "ui/FileBrowser.h"
+#include "ui/Group.h"
 #include "ui/Menu.h"
+#include "ui/Owner.h"
+#include <osg/Texture2D>
+#include <osgText/Font>
+#include <util/coFileUtil.h>
+#include <util/coHashIter.h>
+#include <util/string_util.h>
+#include <util/unixcompat.h>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -582,62 +583,53 @@ osg::Node *LoadedFile::load()
     return node;
 }
 
+osg::Node *getNodeIfExists(const std::string &name, const std::string &path)
+{
+    if (fs::exists(path))
+    {
+        auto node = osgDB::readNodeFile(path);
+        if (node)
+            node->setName(name);
+        else
+        {
+            std::cerr << "Error loading icon " << name << std::endl;
+        }
+        return node;
+    }
+    return nullptr;
+}
+
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
 osg::Node *coVRFileManager::loadIcon(const char *filename)
 {
-    START("coVRFileManager::loadIcon");
-    osg::Node *node = NULL;
-    if (node == NULL)
+    static std::array<const char *, 4> suffixes = {"", ".osg", ".iv", ".obj"};
+
+    static std::array<const char *, 2> rawPrefixes = {
+        "share/covise/icons/osg/",
+        "share/covise/icons/"};
+
+    static std::array<std::string, rawPrefixes.size() + 1> prefixes = {""};
+    static bool init = false;
+    if(!init)
     {
-        const char *name = NULL;
         std::string look = coCoviseConfig::getEntry("COVER.LookAndFeel");
-        if (!look.empty())
+        for (size_t i = 0; i < rawPrefixes.size(); i++)
         {
-            std::string fn = "share/covise/icons/osg/" + look + "/" + filename + ".osg";
-            name = getName(fn.c_str());
-            if (!name)
-            {
-                std::string fn = "share/covise/icons/" + look + "/" + filename + ".iv";
-                name = getName(fn.c_str());
-            }
+            auto s = rawPrefixes[i] + (look.empty() ? look : look + "/");
+            prefixes[i + 1] = getName(s.c_str());
         }
-        if (name == NULL)
+        init = true;
+    }
+    for(const auto &prefix : prefixes){
+        for(const auto suffix : suffixes)
         {
-            std::string fn = "share/covise/icons/osg/";
-            fn += filename;
-            fn += ".osg";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            std::string fn = "share/covise/icons/";
-            fn += filename;
-            fn += ".iv";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            std::string fn = "share/covise/icons/";
-            fn += filename;
-            fn += ".obj";
-            name = getName(fn.c_str());
-        }
-        if (name == NULL)
-        {
-            if (cover->debugLevel(4))
-                fprintf(stderr, "Did not find icon %s\n", filename);
-            return NULL;
-        }
-        node = osgDB::readNodeFile(name);
-        if (node)
-            node->setName(filename);
-        else
-        {
-            fprintf(stderr, "Error loading icon %s\n", filename);
+            auto node = getNodeIfExists(filename, prefix + filename + suffix);
+            if(node)
+                return node;
         }
     }
-    return (node);
+    return nullptr;
 }
 
 // parmanently loads a texture, looks in covise/icons/$LookAndFeel or covise/icons for filename.rgb
@@ -1189,24 +1181,30 @@ coVRFileManager::coVRFileManager()
 
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
 	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
-	path = resolveEnvs(path);
-	if (fileExist(path))
-	{
-		remoteFetchPath = path;
-	}
-	else
-	{
-		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER"; 
-        try
-        {
-            fs::create_directory(tmp);
-        }
-        catch (...)
-        {
-            fprintf(stderr, "Could not create directory %s\n", tmp.c_str());
-        }
-		remoteFetchPath = tmp;
-	}
+    path = resolveEnvs(path);
+    fs::path p{path};
+    if (path.empty())
+    {
+#ifdef _WIN32
+        p = fs::temp_directory_path();
+#else
+        p = "/var/tmp";
+#endif
+        auto user = getenv("USER");
+        if(user)
+            p = p / user;
+        p = p / "OpenCOVER";
+    }
+    try
+    {
+        fs::create_directories(p);
+    }
+    catch (const fs::filesystem_error &e)
+    {
+        std::cerr << "Could not create directory: " << e.what() << std::endl;
+    }
+    remoteFetchPath = p.string();
+    std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
 }
 
 coVRFileManager::~coVRFileManager()
@@ -1359,16 +1357,16 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 	fileName.erase(0, abs.length());
 	return true;
 }
-std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *isTmp)
+std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
 {
 	coVRMSController* ms = coVRMSController::instance();
 	enum FilePlace
 	{
-		MISS = 0,		//file not found
+		MISS = 0,	//file not found
 		LOCAL,		//local file
 		WORK,		//in current working directory
 		LINK,		//under shared data link
-		FETCHED,		//already in remote fetch directory
+		FETCHED,	//already in remote fetch directory
 		REMOTE		//fetch from remote in tmp directory
 	};
 	FilePlace filePlace = MISS;
@@ -1461,7 +1459,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *is
 		{
 			path = "";
 			//fetch the file
-			int fileOwner = guessFileOwner(filePath);
+			int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
 			path = remoteFetch(filePath, fileOwner);
 			if (fileExist(path))
 			{
@@ -1946,8 +1944,13 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 				else
 				{
 					coVRCommunication::instance()->handleVRB(*msg);
-				}
-			}
+                    if(!coVRPartnerList::instance()->get(fileOwner))
+                    {
+                        std::cerr << "RemoteFetch aborted: file owner disconneted" << std::endl;
+                        return "";
+                    }
+                }
+            }
 			else
 			{
 					message = 0;
@@ -2208,8 +2211,14 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 				++it;
 			}
 
-			env = getenv(env.c_str());
-			env = cutStringAt(env, ';');
+			auto e = getenv(env.c_str());
+            if(!e){
+                std::cerr << "can not resolve environment variable " << env << "!" << std::endl;
+                return "";
+            }
+
+            env = e;
+            env = cutStringAt(env, ';');
 #ifndef WIN32
 			env.push_back(delimiter2);
 #endif // !WIN32

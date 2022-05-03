@@ -177,23 +177,29 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
         std::string proto = url.urlProtocol();
         if (proto.empty() || proto=="file")
             local = filename;
-        plugin->vrmlScene = new VrmlScene(filename, local);
-		if (plugin->vrmlScene->loadSucceeded())
-		{
-			if (group)
-				plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
-			else
-				plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
-			plugin->viewer->setPlayer(plugin->player);
-			plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
-			//worldChangedCB(VrmlScene::REPLACE_WORLD);
-			plugin->isNewVRML = true;
-		}
-		else
-		{
-			delete plugin->vrmlScene;
-			plugin->vrmlScene = NULL;
-		}
+        static bool creatingVrmlScene = false;
+        if (!creatingVrmlScene)
+        {
+            creatingVrmlScene = true;
+            plugin->vrmlScene = new VrmlScene(filename, local);
+            creatingVrmlScene = false;
+            if (plugin->vrmlScene->loadSucceeded())
+            {
+                if (group)
+                    plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
+                else
+                    plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
+                plugin->viewer->setPlayer(plugin->player);
+                plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
+                // worldChangedCB(VrmlScene::REPLACE_WORLD);
+                plugin->isNewVRML = true;
+            }
+            else
+            {
+                delete plugin->vrmlScene;
+                plugin->vrmlScene = NULL;
+            }
+        }
     }
 	if (plugin->vrmlScene)
 	{

@@ -130,8 +130,9 @@ public:
 	bool isInTmpDir(const std::string& fileName);
 	//changes fileName to be relative to basePath
 	bool makeRelativePath(std::string& fileName, const std::string& basePath);
-    //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
-    std::string findOrGetFile(const std::string &fileName, bool *isTmp = (bool *)false);
+    //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found.
+    //"where" can be set to the partner id that should provide the file 
+    std::string findOrGetFile(const std::string &fileName, int where = 0);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -283,12 +284,12 @@ private:
 	std::vector<covise::Message*> m_sendFileMessages;
 
 	//utility
-	public:
-		///return the substring of s until the delimiter(delimiter is cut off)
-		static std::string cutStringAt(const std::string &s, char delimiter);
-		///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
-		static std::string resolveEnvs(const std::string& s);
-        osg::ref_ptr<osgDB::ReaderWriter::Options> options;
+    
+    ///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
+    static std::string resolveEnvs(const std::string& s);
+    ///return the substring of s until the delimiter(delimiter is cut off)
+    static std::string cutStringAt(const std::string &s, char delimiter);
+    osg::ref_ptr<osgDB::ReaderWriter::Options> options;
 };
 }
 #endif

@@ -1807,6 +1807,8 @@ void VRSceneGraph::setMultisampling(osg::Multisample::Mode mode)
     m_Multisample->setHint(mode);
 }
 
+static const float Bright = 0.8f;
+
 osg::StateSet *
 VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
 {
@@ -1817,7 +1819,7 @@ VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
 
     material->setColorMode(mode);
     material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-    material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(Bright, Bright, Bright, 1.0f));
     material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0f));
     material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
     material->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
@@ -1853,7 +1855,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     osg::Material *material = new osg::Material();
     material->setColorMode(mode);
     material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 0.5f));
-    material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(Bright, Bright, Bright, 0.5f));
     material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 0.5f));
     material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
     material->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
