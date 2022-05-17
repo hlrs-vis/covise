@@ -615,12 +615,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         {
             commands.Add("\"");
             string fileName = Path.GetFileName(m_CasePath);
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
             string caseDir = Path.GetDirectoryName(m_CasePath);
 
             //Download directory from Server: scp -r user@ssh.example.com:/path/to/remote/source /path/to/local/destination
             if (FOAMInterface.Singleton.Settings.SSH.Download)
             {
-                string CasePathResults = caseDir + @"\" + Path.GetFileNameWithoutExtension(fileName) + "_result";
+                string CasePathResults = caseDir + @"\" + fileNameWithoutExtension + "_result";
                 if (!Directory.Exists(CasePathResults))
                 {
                     Directory.CreateDirectory(CasePathResults);
@@ -630,7 +631,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             if (FOAMInterface.Singleton.Settings.SSH.Delete)
             {
-                commands.Add("ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " \"rm -rf " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder);
+                commands.Add("ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " \"rm -rf " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + fileNameWithoutExtension + "*");
             }
             bool succeed = base.RunCommands(commands);
             return succeed;
