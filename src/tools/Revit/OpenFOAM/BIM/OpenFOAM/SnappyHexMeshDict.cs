@@ -9,6 +9,7 @@ using System.Windows;
 using Autodesk.Revit.DB;
 using System.Windows.Media.Media3D;
 using utils;
+using System.Collections;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -21,6 +22,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private const string nameGeometry = "name";
         private const string level = "level";
         private const string regions = "regions";
+        private const string wallName = "wallSTL";
 
         /// <summary>
         /// Name of the STL
@@ -175,7 +177,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private void InitGeometryRegions()
         {
             string name;
-            string wallName = "wallSTL";
             m_Regions.Add(wallName, new Dictionary<string, object> { { nameGeometry, wallName } });
             foreach (var face in m_Faces)
             {
@@ -207,9 +208,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitCastellatedMeshControls()
         {
+            InitFeatures();
             InitRefinementSurfaces();
             InitLocationInMesh();
-            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features" };
+            // List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features" };
+            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels" };
             foreach (var s in addAttributes)
             {
                 m_CastellatedMeshControls.Add(s, m_SettingsCMC[s]);
@@ -225,6 +228,16 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             m_CastellatedMeshControls.Add("allowFreeStandingZoneFaces", m_SettingsCMC["allowFreeStandingZoneFaces"]);
         }
 
+        private void InitFeatures()
+        {
+            ArrayList features = new();
+            features.Add(new Dictionary<string, object>{
+                {"file", m_STLName + ".eMesh" },
+                {"level", 1}
+            });
+            m_CastellatedMeshControls.Add("features", features);
+        }
+
         /// <summary>
         /// Initialize RefinementSurfaces in CastellatedMesh-Dictionary.
         /// </summary>
@@ -234,7 +247,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             bool singleSTLFile = false;
             if (!singleSTLFile)
             {
-
                 //m_StlRefinement.Add(regions, m_RegionsRefinementCastellated);
                 //m_RefinementSurfaces.Add(m_STLName, m_RegionsRefinementCastellated);
                 m_RefinementSurfaces.Add(m_STLName, m_StlRefinement);
