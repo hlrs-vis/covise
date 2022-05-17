@@ -126,7 +126,6 @@ namespace OpenFOAMInterface.BIM
         private KeyValuePair<string, string> m_snGradSchemes;
         private KeyValuePair<string, string> m_fluxRequired;
 
-
         //FvSolution
         Dictionary<string, object> m_FvParameter;
         Dictionary<string, object> m_RelaxationFactors;
@@ -236,6 +235,7 @@ namespace OpenFOAMInterface.BIM
         private SSH m_SSH;
 
         //General
+        private bool m_foamToEnsight;
         private bool m_IncludeLinkedModels;
         private bool m_exportColor;
         private bool m_exportSharedCoordinates;
@@ -369,6 +369,21 @@ namespace OpenFOAMInterface.BIM
             get
             {
                 return m_Mesh;
+            }
+        }
+
+        /// <summary>
+        /// Include linked models.
+        /// </summary>
+        public bool FoamToEnsight
+        {
+            get
+            {
+                return m_foamToEnsight;
+            }
+            set
+            {
+                m_foamToEnsight = value;
             }
         }
 
@@ -772,13 +787,13 @@ namespace OpenFOAMInterface.BIM
             // m_snappyHexMeshDict = SnappyHexMeshDict.Default;
             m_CastellatedMesh = true;
             m_Snap = true;
-            m_AddLayers = false;
+            m_AddLayers = true;
             m_Debug = 0;
             m_MergeTolerance = 1e-6;
 
             //SnappyHexMesh-CastellatedMeshControls
             m_MaxLocalCells = 100000;
-            m_MaxGlobalCells = 2000000;
+            m_MaxGlobalCells = 1000000;
             m_MinRefinementCalls = 10;
             m_MaxLoadUnbalance = 0.10;
             m_NCellsBetweenLevels = 3;
@@ -902,8 +917,8 @@ namespace OpenFOAMInterface.BIM
                 ip: GetString(instance, "host"),
                 alias: GetString(instance, "openFOAM alias"),
                 caseFolder: GetString(instance, "serverCaseFolder"),
-                download: true,
-                delete: false,
+                download: GetBool(instance, "download"),
+                delete: GetBool(instance, "delete"),
                 slurm: true,
                 port: GetInt(instance, "port"),
                 slurmCommand: GetString(instance, "batchCommand"));
@@ -1069,6 +1084,8 @@ namespace OpenFOAMInterface.BIM
 
                 //controldict
                 InitControlDictIntervals(instance);
+
+                m_foamToEnsight = GetBool(instance, "foamToEnsight");
             }
         }
 
