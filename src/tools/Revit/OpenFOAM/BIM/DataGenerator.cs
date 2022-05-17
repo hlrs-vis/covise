@@ -330,14 +330,16 @@ namespace OpenFOAMInterface.BIM
                 //Problem with regular allrun => bypass through recontstructParMesh and decompose the case again
                 // "\nrunApplication reconstructParMesh -constant" +
                 "\nrunApplication reconstructParMesh -constant " + FOAMInterface.Singleton.Settings.ReconstructParOption +
-                "\nrm -r processor*" +
-                "\nrm -rf log.decomposePar" +
-                "\nrunApplication decomposePar" +
+                // "\nrm -r processor*" +
+                // "\nrm -rf log.decomposePar" +
+                "\nrm log.decomposePar" +
+                "\nrunApplication decomposePar -force" +
                 //"\nrunParallel renumberMesh -overwrite" +
                 "\nrunParallel $(getApplication)" +
-                "\nrunApplication reconstructPar " + FOAMInterface.Singleton.Settings.ReconstructParOption +
-                "\nrunApplication foamToEnsight " +
-                "\n" +
+                "\nrunApplication reconstructPar " + FOAMInterface.Singleton.Settings.ReconstructParOption;
+                if (FOAMInterface.Singleton.Settings.FoamToEnsight)
+                    allrun += "\nrunApplication foamToEnsight ";
+                allrun += "\n" +
                 "\n#------------------------------------------------------------------------------";
             }
             else
