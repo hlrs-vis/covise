@@ -6,7 +6,7 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define COMMONDIR GetEnv("COVISEDIR") +"\..\common"
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
-#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2022"
+#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2023"
 
 #if ARCHSUFFIX == ""
   #define ARCHSUFFIX GetEnv("ARCHSUFFIX")
@@ -25,7 +25,7 @@ PrivilegesRequired=admin
 OutputDir={#COVISEDIR+"\DIST"}    
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2022_x64_VRML_Exporter   
+OutputBaseFilename=HLRS_Max2023_x64_VRML_Exporter   
 ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
@@ -34,14 +34,14 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-OutputBaseFilename=HLRS_Max2022_x64_VRML_Exporter    
+OutputBaseFilename=HLRS_Max2023_x64_VRML_Exporter    
 ArchitecturesInstallIn64BitMode="x64"  
 ;ProcessorsAllowed="x64"
 #endif
 
 ;installer-related
 AppName=VrmlExp
-AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2021
+AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2023
 AppPublisher=HLRS
 AppPublisherURL=http://www.hlrs.de
 AppSupportURL=http://www.hlrs.de/covise
@@ -126,6 +126,7 @@ var
 
 var
 
+
   MaxDirPage: TInputDirWizardPage;
 
 
@@ -175,7 +176,8 @@ begin
 
   MaxDirPage := CreateInputDirPage(wpSelectDir,
     'Select 3ds Max Directory', 'Where is 3ds Max installed?',
-    'Select the 3ds Max folder where setup should install the plugin.'#13#10#13#10 +    'To continue, click Next. If you would like to select a different 3ds Max installation, click Browse.',
+    'Select the 3ds Max folder where setup should install the plugin.'#13#10#13#10 +
+    'To continue, click Next. If you would like to select a different 3ds Max installation, click Browse.',
     False, '');
   MaxDirPage.Add('');
   MaxDirPage.Values[0] := MaxDir;
@@ -218,15 +220,15 @@ begin
   Result:=true;
                                
       
-  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\24.0','Installdir',MaxDir)) then
+  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\25.0','Installdir',MaxDir)) then
       begin
-          MaxVersion:=24;    
+          MaxVersion:=25;    
       end;
   
   if MaxVersion = 0 then
   begin
       Result:=false;
-      MsgBox('Did not find 3ds Max, please install 3ds Max 2022.0 first!', mbError, MB_OK);
+      MsgBox('Did not find 3ds Max, please install 3ds Max 2023.0 first!', mbError, MB_OK);
   end;
 
 end;
