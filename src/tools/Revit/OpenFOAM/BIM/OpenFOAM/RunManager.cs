@@ -86,7 +86,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         {
             m_Env = env;
             m_CasePath = casePath;
-            CreateEnvConfig();
+            //CreateEnvConfig();
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             m_EnvTag = "<" + m_Env + ">"; ;
 
             string assemblyDirCorrect = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            m_ConfigPath = assemblyDirCorrect + "openfoam_env_config.config";
+            m_ConfigPath = assemblyDirCorrect + @"\openfoam_env_config.config";
             switch (m_Env)
             {
                 case OpenFOAMEnvironment.blueCFD:
