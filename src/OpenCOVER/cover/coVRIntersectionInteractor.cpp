@@ -356,13 +356,11 @@ void coVRIntersectionInteractor::addIcon()
             osg::Material *selMaterial = new osg::Material();
             osg::Vec4 colDiff = osg::Vec4(0.5, 0.5, 0.5, 1.0);
             osg::Vec4 colAmb = osg::Vec4(0.5, 0.5, 0.5, 1.0);
-            osg::ref_ptr<osg::Drawable> drawable;
             osg::Geode *geode = findGeode(geometryNode.get());
 
             for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
             {
-                drawable = geode->getDrawable(i);
-                drawable->ref();
+                osg::ref_ptr<osg::Drawable> drawable = geode->getDrawable(i);
                 bool mtlOn = false;
                 if (drawable->getStateSet())
                     mtlOn = (drawable->getStateSet()->getMode(osg::StateAttribute::MATERIAL) == osg::StateAttribute::ON) || (drawable->getStateSet()->getMode(osg::StateAttribute::MATERIAL) == osg::StateAttribute::INHERIT);
@@ -381,7 +379,6 @@ void coVRIntersectionInteractor::addIcon()
                         colAmb = colDiff;
                     }
                 }
-                drawable->unref();
             }
 
             selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(colDiff.r() + 0.2, colDiff.g() + 0.2, colDiff.b() + 0.2, colDiff.a()));
@@ -431,13 +428,11 @@ void coVRIntersectionInteractor::startInteraction()
         osg::Material *selMaterial = new osg::Material();
         osg::Vec4 colDiff = osg::Vec4(0.5, 0.5, 0.5, 1.0);
         osg::Vec4 colAmb = osg::Vec4(0.5, 0.5, 0.5, 1.0);
-        osg::ref_ptr<osg::Drawable> drawable;
         osg::Geode *geode = findGeode(geometryNode.get());
 
         for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
         {
-            drawable = geode->getDrawable(i);
-            drawable->ref();
+            osg::ref_ptr<osg::Drawable> drawable = geode->getDrawable(i);
             bool mtlOn = false;
             if (drawable->getStateSet())
                 mtlOn = (drawable->getStateSet()->getMode(osg::StateAttribute::MATERIAL) == osg::StateAttribute::ON) || (drawable->getStateSet()->getMode(osg::StateAttribute::MATERIAL) == osg::StateAttribute::INHERIT);
@@ -456,7 +451,6 @@ void coVRIntersectionInteractor::startInteraction()
                     colAmb = colDiff;
                 }
             }
-            drawable->unref();
         }
 
         selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(colDiff.r() - 0.2, colDiff.g() - 0.2, colDiff.b() - 0.2, colDiff.a()));

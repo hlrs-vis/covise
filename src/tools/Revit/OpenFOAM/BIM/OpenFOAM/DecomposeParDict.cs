@@ -45,7 +45,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_NumberOfSubdomains = Exporter.Instance.settings.NumberOfSubdomains;
+            m_NumberOfSubdomains = FOAMInterface.Singleton.Settings.NumberOfSubdomains;
             FoamFile.Attributes.Add("numberOfSubdomains", m_NumberOfSubdomains);
             base.InitAttributes();
         }

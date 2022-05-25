@@ -119,7 +119,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitBoundingboxFromPoints()
         {
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength())
             {
                 m_Vertices.Add(m_VecLowerEdgeLeft);
@@ -134,22 +134,43 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             else
             { 
-                m_Vertices.Add(new Vector3D(s.DomainOrigin.X, s.DomainOrigin.Y, s.DomainOrigin.Z));
-                Autodesk.Revit.DB.XYZ tmp = s.DomainOrigin+s.DomainX;
+                // m_Vertices.Add(new Vector3D(s.DomainOrigin.X, s.DomainOrigin.Y, s.DomainOrigin.Z));
+                // Autodesk.Revit.DB.XYZ tmp = s.DomainOrigin+s.DomainX;
+                // m_VecLowerEdgeLeft = new Vector3D(tmp.X, tmp.Y, tmp.Z);
+                // m_Vertices.Add(new Vector3D(tmp.X,tmp.Y,tmp.Z));
+                // tmp = s.DomainOrigin + s.DomainX + s.DomainY;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                // tmp = s.DomainOrigin + s.DomainY;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                // tmp = s.DomainOrigin + s.DomainZ;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                // tmp = s.DomainOrigin + s.DomainZ + s.DomainX;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                // tmp = s.DomainOrigin + s.DomainZ + s.DomainX + s.DomainY;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                // m_VecUpperEdgeRight = new Vector3D(tmp.X, tmp.Y, tmp.Z);
+                // tmp = s.DomainOrigin + s.DomainZ + s.DomainY;
+                // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
+                Autodesk.Revit.DB.XYZ origin = s.DomainOrigin;
+                Autodesk.Revit.DB.XYZ domainX = s.DomainX; 
+                Autodesk.Revit.DB.XYZ domainY = s.DomainY; 
+                Autodesk.Revit.DB.XYZ domainZ = s.DomainZ; 
+                m_Vertices.Add(new Vector3D(origin.X, origin.Y, origin.Z));
+                Autodesk.Revit.DB.XYZ tmp = origin + domainX;
                 m_VecLowerEdgeLeft = new Vector3D(tmp.X, tmp.Y, tmp.Z);
                 m_Vertices.Add(new Vector3D(tmp.X,tmp.Y,tmp.Z));
-                tmp = s.DomainOrigin + s.DomainX + s.DomainY;
+                tmp = origin + domainX + domainY;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
-                tmp = s.DomainOrigin + s.DomainY;
+                tmp = origin + domainY;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
-                tmp = s.DomainOrigin + s.DomainZ;
+                tmp = origin + domainZ;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
-                tmp = s.DomainOrigin + s.DomainZ + s.DomainX;
+                tmp = origin + domainZ + domainX;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
-                tmp = s.DomainOrigin + s.DomainZ + s.DomainX + s.DomainY;
+                tmp = origin + domainZ + domainX + domainY;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
                 m_VecUpperEdgeRight = new Vector3D(tmp.X, tmp.Y, tmp.Z);
-                tmp = s.DomainOrigin + s.DomainZ + s.DomainY;
+                tmp = origin + domainZ + domainY;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
             }
 
@@ -160,10 +181,10 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitDefaultCellSize()
         {
-            double scalarRes = Exporter.Instance.settings.BlockMeshResolution;
+            double scalarRes = FOAMInterface.Singleton.Settings.BlockMeshResolution;
             //if (scalarRes < 1)
             //    scalarRes = 1;
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength())
             {
                 m_CellSize.X = Math.Round(m_VecUpperEdgeRight.X - m_VecLowerEdgeLeft.X) * scalarRes;
@@ -200,7 +221,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitBoundary()
         {
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.DomainX.IsZeroLength()) // no ComputationalDomain Family instance
             {
                 Dictionary<string, object> boundingBox = new Dictionary<string, object>()

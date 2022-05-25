@@ -40,7 +40,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_TransportModel = Exporter.Instance.settings.TransportModel;
+            m_TransportModel = FOAMInterface.Singleton.Settings.TransportModel;
             Dictionary<string, object> transportModelParameterSettings = m_DictFile["transportModelParameter"] as Dictionary<string, object>;
 
             //nu-Unit = default

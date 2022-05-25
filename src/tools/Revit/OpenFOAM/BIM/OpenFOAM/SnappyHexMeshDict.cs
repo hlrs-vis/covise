@@ -9,6 +9,7 @@ using System.Windows;
 using Autodesk.Revit.DB;
 using System.Windows.Media.Media3D;
 using utils;
+using System.Collections;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -21,6 +22,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private const string nameGeometry = "name";
         private const string level = "level";
         private const string regions = "regions";
+        private const string wallName = "wallSTL";
 
         /// <summary>
         /// Name of the STL
@@ -108,8 +110,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             FoamFile.Attributes.Add("snapControls", m_DictFile["snapControls"]);
             FoamFile.Attributes.Add("addLayersControls", m_DictFile["addLayersControls"]);
             FoamFile.Attributes.Add("meshQualityControls", m_DictFile["meshQualityControls"]);
-            FoamFile.Attributes.Add("debug", Exporter.Instance.settings.Debug);
-            FoamFile.Attributes.Add("mergeTolerance", Exporter.Instance.settings.MergeTolerance);
+            FoamFile.Attributes.Add("debug", FOAMInterface.Singleton.Settings.Debug);
+            FoamFile.Attributes.Add("mergeTolerance", FOAMInterface.Singleton.Settings.MergeTolerance);
         }
 
         /// <summary>
@@ -138,14 +140,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             else
             {
-
                 m_Stl.Add("type", "triSurfaceMesh");
                 m_Stl.Add(nameGeometry, m_STLName);
                 m_Stl.Add(regions, m_Regions);
                 string nameWithExtension = m_STLName + ".stl";
                 m_Geometry.Add(nameWithExtension, m_Stl);
             }
-            Settings s = Exporter.Instance.settings;
+            Settings s = FOAMInterface.Singleton.Settings;
             if (s.RefinementBoxOrigin[0] != 0)
             {
 
@@ -158,8 +159,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 e1.Normalize();
                 e2.Normalize();
                 e3.Normalize();
-
-
 
                 m_BoxGeometry.Add("type", "searchableRotatedBox");
                 m_BoxGeometry.Add("span", vecs);
@@ -178,7 +177,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private void InitGeometryRegions()
         {
             string name;
-            string wallName = "wallSTL";
             m_Regions.Add(wallName, new Dictionary<string, object> { { nameGeometry, wallName } });
             foreach (var face in m_Faces)
             {
@@ -188,17 +186,17 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 //m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
                 m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
             }
-            foreach (var entry in Exporter.Instance.settings.MeshResolution)
+            foreach (var entry in FOAMInterface.Singleton.Settings.MeshResolution)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
                 m_Regions.Add(name, new Dictionary<string, object> { { nameGeometry, name } });
             }
-            foreach (var entry in Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in FOAMInterface.Singleton.Settings.m_InletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 m_Regions.Add("Inlet_" + name, new Dictionary<string, object> { { nameGeometry, "Inlet_" + name } });
             }
-            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in FOAMInterface.Singleton.Settings.m_OutletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 m_Regions.Add("Outlet_" + name, new Dictionary<string, object> { { nameGeometry, "Outlet_" + name } });
@@ -210,9 +208,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitCastellatedMeshControls()
         {
+            InitFeatures();
             InitRefinementSurfaces();
             InitLocationInMesh();
-            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features" };
+            // List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels", "features" };
+            List<string> addAttributes = new List<string> { "maxLocalCells", "maxGlobalCells", "minRefinementCells", "maxLoadUnbalance", "nCellsBetweenLevels" };
             foreach (var s in addAttributes)
             {
                 m_CastellatedMeshControls.Add(s, m_SettingsCMC[s]);
@@ -228,6 +228,16 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             m_CastellatedMeshControls.Add("allowFreeStandingZoneFaces", m_SettingsCMC["allowFreeStandingZoneFaces"]);
         }
 
+        private void InitFeatures()
+        {
+            ArrayList features = new();
+            features.Add(new Dictionary<string, object>{
+                {"file", m_STLName + ".eMesh" },
+                {"level", 1}
+            });
+            m_CastellatedMeshControls.Add("features", features);
+        }
+
         /// <summary>
         /// Initialize RefinementSurfaces in CastellatedMesh-Dictionary.
         /// </summary>
@@ -237,7 +247,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             bool singleSTLFile = false;
             if (!singleSTLFile)
             {
-
                 //m_StlRefinement.Add(regions, m_RegionsRefinementCastellated);
                 //m_RefinementSurfaces.Add(m_STLName, m_RegionsRefinementCastellated);
                 m_RefinementSurfaces.Add(m_STLName, m_StlRefinement);
@@ -261,7 +270,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
 
             //patchtype dict
             Dictionary<string, object> patchType = new Dictionary<string, object> { { "type", "patch" } };
-            Settings s = Exporter.Instance.settings;
+            var s = FOAMInterface.Singleton.Settings;
             if (s.RefinementBoxOrigin[0] != 0)
             {
                 int lev = s.RefinementBoxLevel;
@@ -281,28 +290,20 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     vec = (Vector)m_SettingsCMC["outletLevel"];
                 }
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
-                //m_RegionsRefinementCastellated.Add(name, new Dictionary<string, object>() { { level, vec} });
             }
-            foreach (var entry in Exporter.Instance.settings.MeshResolution)
+            foreach (var entry in s.MeshResolution)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
-                //if(name.Contains("Zuluft") || name.Contains("Abluft") || name.Contains("Outlet") || name.Contains("Inlet"))
-                //{
-                //    //name = "Terminal_" + name;
-                //    m_RegionsRefinementCastellated[name] = ;
-                //    continue;
-                //}
                 vec = new Vector(entry.Value, entry.Value);
-                //m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", "wall" } });
                 m_RefinementSurfaces.Add(name, new Dictionary<string, object>() { { level, vec } });
             }
-            foreach (var entry in Exporter.Instance.settings.m_InletElements)
+            foreach (var entry in s.m_InletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["inletLevel"];
                 m_RefinementSurfaces.Add("Inlet_" + name, new Dictionary<string, object>() { { level, vec }, { "patchInfo", patchType } });
             }
-            foreach (var entry in Exporter.Instance.settings.m_OutletElements)
+            foreach (var entry in s.m_OutletElements)
             {
                 name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 vec = (Vector)m_SettingsCMC["outletLevel"];
@@ -315,7 +316,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitLocationInMesh()
         {
-            m_LocationInMesh = Exporter.Instance.settings.LocationInMesh;
+            m_LocationInMesh = FOAMInterface.Singleton.Settings.LocationInMesh;
         }
     }
 }

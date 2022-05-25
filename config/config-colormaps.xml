@@ -76,6 +76,13 @@
          <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3" />
          <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4" />
      </ANSYS>
+     <ANSA>
+         <Point r="0.0" g="0.0" b="1.0" a="1.0" index="0" />
+         <Point r="0.0" g="1.0" b="1.0" a="1.0" index="1" />
+         <Point r="0.0" g="1.0" b="0.0" a="1.0" index="2" />
+         <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3" />
+         <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4" />
+     </ANSA>
 
      <CoolWarm>
          <Point r="0.231" g="0.298" b="0.752" index="0" />

@@ -680,7 +680,8 @@ void AmberPlugin::tabletEvent(coTUIElement *elem)
             Amber *amber = (*i).second;
             // strip whitespace from user input
             std::string s(residue->getText());
-            std::string::iterator it = std::remove_if(s.begin(), s.end(), std::bind2nd(std::equal_to<char>(), ' '));
+            using namespace std::placeholders;
+            std::string::iterator it = std::remove_if(s.begin(), s.end(), std::bind(std::equal_to<char>(), _1, ' '));
             s = std::string(s.begin(), it);
             int from = 0, to = 0;
             int num = sscanf(s.c_str(), "%d-%d", &from, &to);

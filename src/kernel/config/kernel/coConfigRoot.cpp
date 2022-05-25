@@ -247,6 +247,7 @@ void coConfigRoot::reload()
 void coConfigXercesRoot::load(bool create)
 {
     auto configfile = findConfigFile(filename);
+    try {
     if (boost::filesystem::exists(configfile))
     {
         xercesc::DOMNode *globalConfigNode = loadFile(configfile);
@@ -267,6 +268,14 @@ void coConfigXercesRoot::load(bool create)
         {
             COCONFIGDBG("coConfigRoot::load warn: Could not open config file " << filename);
         }
+    }
+    } catch(const boost::filesystem::filesystem_error& e)
+    {
+       if(e.code() == boost::system::errc::permission_denied)
+           std::cout << "Search permission is denied for " << configfile << "\n";
+       else
+           std::cout << "exists(" << configfile << ") failed with "
+                     << e.code().message() << '\n';
     }
 
     hostnames.insert(coConfigConstants::getHostname());

@@ -90,7 +90,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to the foamfile.</param>
         /// <param name="attributes">Additional attributes besides default.</param>
         /// <param name="format">Ascii or Binary.</param>
-        public FOAMFile(string name, Version version, string path, string _class, Dictionary<string, object> attributes, SaveFormat format)
+        public FOAMFile(in string name, in Version version, in string path, in string _class, in Dictionary<string, object> attributes, in SaveFormat format)
         {
             m_Name = name;
             m_Path = path;
@@ -187,19 +187,19 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Implement interface for iterating through dictionaries.
         /// </summary>
         /// <param name="dict">Contains all attributes.</param>
-        public abstract void CreateDict(Dictionary<string, object> dict);
+        public abstract void CreateDict(in Dictionary<string, object> dict);
 
         /// <summary>
         /// Implement interface for iterating through a list.
         /// </summary>
         /// <param name="list">Contains Vector3D, double[] or Dictionaries<string,object></param>
-        public abstract void CreateList(ArrayList list);
+        public abstract void CreateList(in ArrayList list);
 
         /// <summary>
         /// Implement interface for creating a attribute of an KeyValuePair and write it to the File.
         /// </summary>
         /// <param name="attribute">Attribute of the Foamfile</param>
-        public abstract bool CreateAttribute(KeyValuePair<string, object> attribute, Type type);
+        public abstract bool CreateAttribute(in KeyValuePair<string, object> attribute, Type type);
 
         /// <summary>
         /// Close file here if user forget it.
@@ -232,7 +232,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to the foamfile.</param>
         /// <param name="attributes">Additional attributes besides default.</param>
         /// <param name="format">Ascii or Binary.</param>
-        public FoamFileAsBinary(string name, Version version, string path, string _class, Dictionary<string, object> attributes, SaveFormat format)
+        public FoamFileAsBinary(in string name, in Version version, in string path, in string _class, in Dictionary<string, object> attributes,in SaveFormat format)
             : base(name, version, path, _class, attributes, format)
         {
 
@@ -292,7 +292,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Iterates recursive through a dictionary and create inputs on depending entries in it.
         /// </summary>
         /// <param name="dict">Contains all attributes.</param>
-        public override void CreateDict(Dictionary<string, object> dict)
+        public override void CreateDict(in Dictionary<string, object> dict)
         {
             throw new NotImplementedException();
         }
@@ -301,7 +301,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create a list entry in the foamfile.
         /// </summary>
         /// <param name="list">Contains Vector3D, double[] or Dictionaries<string,object></param>
-        public override void CreateList(ArrayList list)
+        public override void CreateList(in ArrayList list)
         {
             throw new NotImplementedException();
         }
@@ -310,7 +310,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create attribute from given KeyValuePair and write it to foamfile.
         /// </summary>
         /// <param name="attribute">Attribute of the Foamfile</param>
-        public override bool CreateAttribute(KeyValuePair<string,object> attribute, Type type)
+        public override bool CreateAttribute(in KeyValuePair<string,object> attribute, Type type)
         {
             throw new NotImplementedException();
         }
@@ -345,7 +345,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to the foamfile.</param>
         /// <param name="attributes">Additional attributes besides default.</param>
         /// <param name="format">Ascii or Binary.</param>
-        public FoamFileAsAscII(string name, Version version, string path, string _class, Dictionary<string, object> attributes, SaveFormat format)
+        public FoamFileAsAscII(in string name, in Version version, in string path, in string _class, in Dictionary<string, object> attributes, in SaveFormat format)
             : base(name, version, path, _class, attributes, format)
         {
         }
@@ -433,7 +433,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Iterates recursive through a dictionary and create inputs on depending entries in it.
         /// </summary>
         /// <param name="dict">Contains all attributes.</param>
-        public override void CreateDict(Dictionary<string, object> dict)
+        public override void CreateDict(in Dictionary<string, object> dict)
         {
             foreach (var attribute in dict)
             {
@@ -475,7 +475,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create a list entry in the foamfile.
         /// </summary>
         /// <param name="list">Contains Vector3D, double[], int[] or Dictionaries<string,object></param>
-        public override void CreateList(ArrayList list)
+        public override void CreateList(in ArrayList list)
         {
             foreach (var obj in list)
             {
@@ -509,6 +509,14 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     WriteInFile("}");
                     continue;
                 }
+                else if(type == typeof(Dictionary<string, object>))
+                {
+                    var dict = obj as Dictionary<string, object>;
+                    WriteInFile("{");
+                    CreateDict(dict);
+                    WriteInFile("}");
+                    continue;
+                }
                 else if (type == typeof(string))
                 {
                     entry = obj as string;
@@ -523,7 +531,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create attribute from given KeyValuePair and write it to foamfile.
         /// </summary>
         /// <param name="attribute">Attribute of the Foamfile</param>
-        public override bool CreateAttribute(KeyValuePair<string,object> attribute, Type type)
+        public override bool CreateAttribute(in KeyValuePair<string,object> attribute, Type type)
         {
             //Type type = attribute.Value.GetType();
             string objectValue;
@@ -534,7 +542,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 WriteInFile(vecFoam);
                 return true;
             }
-            else if(typeof(int[]) == type)
+            else if (typeof(int[]) == type)
             {
                 var array = attribute.Value as int[];
                 string entry = ArrayToString(array);
@@ -565,7 +573,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <typeparam name="T">Type of give vector object.</typeparam>
         /// <param name="vec">Vector object.</param>
         /// <returns>Vector as string.</returns>
-        private string VectorToString<T>(T vec)
+        private string VectorToString<T>(in T vec)
         {
             string formatString = vec.ToString().Replace(";", " ");
             return formatString.Replace(",", ".");
@@ -576,7 +584,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         /// <param name="array">Array-object.</param>
         /// <returns>Entries as string.</returns>
-        private string ArrayToString(Array array)
+        private string ArrayToString(in Array array)
         {
             string entry = string.Empty;
             for (int i = 0; i < array.Length; i++)

@@ -177,10 +177,10 @@ namespace OpenFOAMInterface.BIM
             {
                 m_RevitApp = revitApp;
                 m_ActiveDocument = doc;
-                RevitView simulationView = Exporter.Instance.FindView(doc, "Simulation");
+                RevitView simulationView = FOAMInterface.Singleton.FindView(doc, "Simulation");
                 if (simulationView == null)
                 {
-                    simulationView = Exporter.Instance.FindView(doc, "{3D}");
+                    simulationView = FOAMInterface.Singleton.FindView(doc, "{3D}");
                 }
                 if (simulationView == null)
                 {
@@ -200,16 +200,16 @@ namespace OpenFOAMInterface.BIM
         /// <returns>Status of runmanager after initialization and generation of files.</returns>
         private GeneratorStatus InitRunManager(string casePath)
         {
-            switch (Exporter.Instance.settings.OpenFOAMEnvironment)
+            switch (FOAMInterface.Singleton.Settings.OpenFOAMEnvironment)
             {
                 case OpenFOAMEnvironment.blueCFD:
-                    m_RunManager = new RunManagerBlueCFD(casePath, Exporter.Instance.settings.OpenFOAMEnvironment);
+                    m_RunManager = new RunManagerBlueCFD(casePath, FOAMInterface.Singleton.Settings.OpenFOAMEnvironment);
                     break;
                 case OpenFOAMEnvironment.ssh:
-                    m_RunManager = new RunManagerSSH(casePath, Exporter.Instance.settings.OpenFOAMEnvironment);
+                    m_RunManager = new RunManagerSSH(casePath, FOAMInterface.Singleton.Settings.OpenFOAMEnvironment);
                     break;
                 case OpenFOAMEnvironment.wsl:
-                    m_RunManager = new RunManagerWSL(casePath, Exporter.Instance.settings.OpenFOAMEnvironment);
+                    m_RunManager = new RunManagerWSL(casePath, FOAMInterface.Singleton.Settings.OpenFOAMEnvironment);
                     break;
             }
             return m_RunManager.Status;
@@ -248,16 +248,12 @@ namespace OpenFOAMInterface.BIM
             }
             string zipPath = path;
 
-            if (Exporter.Instance.settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
-            {
+            if (FOAMInterface.Singleton.Settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
                 zipPath = path + ".zip";
-            }
 
             GeneratorStatus status = InitRunManager(zipPath);
             if (status != GeneratorStatus.SUCCESS)
-            {
                 return status;
-            }
 
             //generate files
             OpenFOAM.Version version = new();
@@ -267,9 +263,7 @@ namespace OpenFOAMInterface.BIM
             InitSystemFolder(version, system);
             InitConstantFolder(version, constant);
             if (InitNullFolder(version, nullFolder) == GeneratorStatus.FAILURE)
-            {
                 return GeneratorStatus.FAILURE;
-            }
 
             foreach (FOAMDict openFOAMDictionary in m_OpenFOAMDictionaries)
             {
@@ -279,7 +273,7 @@ namespace OpenFOAMInterface.BIM
             List<string> commands = new List<string>();
 
             //commands
-            if (Exporter.Instance.settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
+            if (FOAMInterface.Singleton.Settings.OpenFOAMEnvironment == OpenFOAMEnvironment.ssh)
             {
                 SetupLinux(path, commands);
             }
@@ -289,22 +283,18 @@ namespace OpenFOAMInterface.BIM
                 commands.Add("surfaceFeatureExtract");
                 commands.Add("snappyHexMesh");
                 commands.Add("rm -r processor*");
-                commands.Add(Exporter.Instance.settings.ControlDictParameters.AppControlDictSolver.ToString());
+                commands.Add(FOAMInterface.Singleton.Settings.ControlDictParameters.AppControlDictSolver.ToString());
                 commands.Add("rm -r processor*");
             }
 
             //zip file before pushing to cluster
             if (File.Exists(zipPath))
-            {
                 File.Delete(zipPath);
-            }
             ZipFile.CreateFromDirectory(path, zipPath);
 
             //run commands in windows-openfoam-environment
             if (!m_RunManager.RunCommands(commands))
-            {
                 return GeneratorStatus.FAILURE;
-            }
             return GeneratorStatus.SUCCESS;
         }
 
@@ -327,7 +317,7 @@ namespace OpenFOAMInterface.BIM
                 "\n# Source tutorial clean functions" +
                 "\n. $WM_PROJECT_DIR/bin/tools/CleanFunctions";
 
-            if (Exporter.Instance.settings.NumberOfSubdomains != 1)
+            if (FOAMInterface.Singleton.Settings.NumberOfSubdomains != 1)
             {
                 allrun = header_runFunction +
                 "\nrunApplication surfaceFeatureExtract" +
@@ -338,15 +328,18 @@ namespace OpenFOAMInterface.BIM
                 "\nrunParallel snappyHexMesh -overwrite" +
                 "\n" +
                 //Problem with regular allrun => bypass through recontstructParMesh and decompose the case again
-                "\nrunApplication reconstructParMesh -constant" +
-                "\nrm -r processor*" +
-                "\nrm -rf log.decomposePar" +
-                "\nrunApplication decomposePar" +
+                // "\nrunApplication reconstructParMesh -constant" +
+                "\nrunApplication reconstructParMesh -constant " + FOAMInterface.Singleton.Settings.ReconstructParOption +
+                // "\nrm -r processor*" +
+                // "\nrm -rf log.decomposePar" +
+                "\nrm log.decomposePar" +
+                "\nrunApplication decomposePar -force" +
                 //"\nrunParallel renumberMesh -overwrite" +
                 "\nrunParallel $(getApplication)" +
-                "\nrunApplication reconstructPar " + Exporter.Instance.settings.ReconstructParOption +
-                "\nrunApplication foamToEnsight " +
-                "\n" +
+                "\nrunApplication reconstructPar " + FOAMInterface.Singleton.Settings.ReconstructParOption;
+                if (FOAMInterface.Singleton.Settings.FoamToEnsight)
+                    allrun += "\nrunApplication foamToEnsight ";
+                allrun += "\n" +
                 "\n#------------------------------------------------------------------------------";
             }
             else
@@ -370,7 +363,7 @@ namespace OpenFOAMInterface.BIM
                     "\ncleanCase" +
                     "\n" +
                     "\nrm -rf constant/extendedFeatureEdgeMesh > /dev/null 2>&1" +
-                    "\nrm -f constant/triSurface/buildings.eMesh > /dev/null 2>&1" +
+                    "\nrm -rf constant/triSurface/*.eMesh > /dev/null 2>&1" +
                     "\nrm -f constant/polyMesh/boundary > /dev/null 2>&1" +
                     "\n" +
                     "\n#------------------------------------------------------------------------------";
@@ -486,7 +479,7 @@ namespace OpenFOAMInterface.BIM
             string fvSchemes = Path.Combine(system, "fvSchemes.");
             string fvSolution = Path.Combine(system, "fvSolution.");
             string meshDict = "";
-            switch (Exporter.Instance.settings.Mesh)
+            switch (FOAMInterface.Singleton.Settings.Mesh)
             {
                 case MeshType.Snappy:
                     {
@@ -526,7 +519,7 @@ namespace OpenFOAMInterface.BIM
             List<string> paramList = new List<string>();
 
             //Files in nullfolder
-            foreach (var param in Exporter.Instance.settings.SimulationDefault["0"] as Dictionary<string, object>)
+            foreach (var param in FOAMInterface.Singleton.Settings.SimulationDefault["0"] as Dictionary<string, object>)
             {
                 paramList.Add(Path.Combine(nullFolder, param.Key + "."));
             }
@@ -551,7 +544,7 @@ namespace OpenFOAMInterface.BIM
             wallNames.Add("wallSTL");
 
             // add ComputationalDomain in/and outlets
-            if (!Exporter.Instance.settings.DomainX.IsZeroLength()) // ComputationalDomain Family instance exists
+            if (!FOAMInterface.Singleton.Settings.DomainX.IsZeroLength()) // ComputationalDomain Family instance exists
             {
                 inletNames.Add("inlet");
                 outletNames.Add("outlet");
@@ -564,12 +557,12 @@ namespace OpenFOAMInterface.BIM
                 wallNames.Add("boundingBox");
             }
 
-            InitNullDirList(setList: Exporter.Instance.settings.MeshResolution.Keys.ToList(),
+            InitNullDirList(setList: FOAMInterface.Singleton.Settings.MeshResolution.Keys.ToList(),
                             output: ref wallNames);
-            InitNullDirList(setList: Exporter.Instance.settings.m_InletElements,
+            InitNullDirList(setList: FOAMInterface.Singleton.Settings.m_InletElements,
                             output: ref inletNames,
                             prefix: "Inlet_");
-            InitNullDirList(setList: Exporter.Instance.settings.m_OutletElements,
+            InitNullDirList(setList: FOAMInterface.Singleton.Settings.m_OutletElements,
                             output: ref outletNames,
                             prefix: "Outlet_");
 
@@ -631,7 +624,7 @@ namespace OpenFOAMInterface.BIM
             {
                 if (nameParam.Contains("p."))
                 {
-                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip);
+                    parameter = new OpenFOAM.P("p", version, nameParam, null, SaveFormat.ascii, FOAMInterface.Singleton.Settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip);
                     m_OpenFOAMDictionaries.Add(parameter);
                     continue;
                 }
@@ -643,7 +636,7 @@ namespace OpenFOAMInterface.BIM
                     ConstructorInfo foamParamConstructor = type.GetConstructor(m_foamParamConstType);
                     if (foamParamConstructor != null)
                     {
-                        parameter = (FOAMDict)foamParamConstructor.Invoke(new Object[] { version, nameParam, null, SaveFormat.ascii, Exporter.Instance.settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip });
+                        parameter = (FOAMDict)foamParamConstructor.Invoke(new Object[] { version, nameParam, null, SaveFormat.ascii, FOAMInterface.Singleton.Settings, ffd.Wall, ffd.Inlet, ffd.Outlet, ffd.Slip });
                         m_OpenFOAMDictionaries.Add(parameter);
                     }
                     else
@@ -673,7 +666,7 @@ namespace OpenFOAMInterface.BIM
             string turbulenceProperties = Path.Combine(constantFolder, "turbulenceProperties.");
 
             OpenFOAM.TransportProperties transportPropertiesDictionary = new(version, transportProperties, null, SaveFormat.ascii);
-            OpenFOAM.G gDictionary = new(version, g, null, SaveFormat.ascii, Exporter.Instance.settings);
+            OpenFOAM.G gDictionary = new(version, g, null, SaveFormat.ascii, FOAMInterface.Singleton.Settings);
             OpenFOAM.TurbulenceProperties turbulencePropertiesDictionary = new(version, turbulenceProperties, null, SaveFormat.ascii);
 
             m_OpenFOAMDictionaries.Add(transportPropertiesDictionary);
@@ -691,7 +684,7 @@ namespace OpenFOAMInterface.BIM
         public static List<Element> GetDefaultCategoryListOfClass<T>(in Document document, in BuiltInCategory category, in string viewName)
         {
             // find the view having the same name of ActiveView.Name in active and linked model documents.
-            ElementId viewId = Exporter.Instance.FindViewId(document, viewName);
+            ElementId viewId = FOAMInterface.Singleton.FindViewId(document, viewName);
 
             FilteredElementCollector collector = null;
             if (viewId != ElementId.InvalidElementId)
@@ -750,7 +743,7 @@ namespace OpenFOAMInterface.BIM
             try
             {
                 computeBoundingBox = false;
-                if (Exporter.Instance.settings.DomainX.IsZeroLength())
+                if (FOAMInterface.Singleton.Settings.DomainX.IsZeroLength())
                 {
                     computeBoundingBox = true;
                 }
@@ -758,18 +751,18 @@ namespace OpenFOAMInterface.BIM
                 m_StlCancel.Show();
 
                 // save data in certain STL file
-                if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                 {
-                    m_Writer = new SaveDataAsBinary(fileName, Exporter.Instance.settings.SaveFormat);
+                    m_Writer = new SaveDataAsBinary(fileName, FOAMInterface.Singleton.Settings.SaveFormat);
                 }
                 else
                 {
-                    m_Writer = new SaveDataAsAscII(fileName, Exporter.Instance.settings.SaveFormat);
+                    m_Writer = new SaveDataAsAscII(fileName, FOAMInterface.Singleton.Settings.SaveFormat);
                 }
 
                 m_Writer.CreateFile();
 
-                GeneratorStatus status = ScanElement(Exporter.Instance.settings.ExportRange);
+                GeneratorStatus status = ScanElement(FOAMInterface.Singleton.Settings.ExportRange);
 
                 Application.DoEvents();
 
@@ -785,15 +778,15 @@ namespace OpenFOAMInterface.BIM
                     return GeneratorStatus.CANCEL;
                 }
 
-                if (0 == m_TriangularNumber)
-                {
-                    OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_NOSOLID);
+                // if (0 == m_TriangularNumber)
+                // {
+                //     OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_NOSOLID);
 
-                    m_StlCancel.Close();
-                    return GeneratorStatus.FAILURE;
-                }
+                //     m_StlCancel.Close();
+                //     return GeneratorStatus.FAILURE;
+                // }
 
-                if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                 {
                     // add triangular number to STL file
                     m_Writer.TriangularNumber = m_TriangularNumber;
@@ -900,7 +893,7 @@ namespace OpenFOAMInterface.BIM
             string stlName = pathSTL.Substring(pathSTL.LastIndexOf("\\") + 1).Split('.')[0];
             m_STLName = stlName;
 
-            string pathFolder = Exporter.Instance.settings.LocalCaseFolder;
+            string pathFolder = FOAMInterface.Singleton.Settings.LocalCaseFolder;
 
             //contains all duct terminals lists of each document
             Dictionary<Document, List<Element>> terminalListOfAllDocuments = new Dictionary<Document, List<Element>>();
@@ -909,7 +902,7 @@ namespace OpenFOAMInterface.BIM
             documents.Add(m_ActiveDocument);
 
             // figure out if we need to get linked models
-            if (Exporter.Instance.settings.IncludeLinkedModels)
+            if (FOAMInterface.Singleton.Settings.IncludeLinkedModels)
             {
                 List<Document> linkedDocList = GetLinkedModels();
                 documents.AddRange(linkedDocList);
@@ -921,9 +914,9 @@ namespace OpenFOAMInterface.BIM
             m_UpperEdgeVector = new Vector3D(-1000000, -1000000, -1000000);
 
             m_Writer.WriteSolidName(stlName, true);
-            Exporter.Instance.settings.MeshResolution.Clear(); // clear all lists before we parse the database
-            Exporter.Instance.settings.m_InletElements.Clear(); // clear all lists before we parse the database
-            Exporter.Instance.settings.m_OutletElements.Clear(); // clear all lists before we parse the database
+            FOAMInterface.Singleton.Settings.MeshResolution.Clear(); // clear all lists before we parse the database
+            FOAMInterface.Singleton.Settings.m_InletElements.Clear(); // clear all lists before we parse the database
+            FOAMInterface.Singleton.Settings.m_OutletElements.Clear(); // clear all lists before we parse the database
 
             foreach (Document doc in documents)
             {
@@ -933,7 +926,7 @@ namespace OpenFOAMInterface.BIM
                 if (ElementsExportRange.OnlyVisibleOnes == exportRange)
                 {
                     // find the view having the same name of ActiveView.Name in active and linked model documents.
-                    ElementId viewId = Exporter.Instance.FindViewId(doc, m_ActiveView.Name);
+                    ElementId viewId = FOAMInterface.Singleton.FindViewId(doc, m_ActiveView.Name);
 
                     if (viewId != ElementId.InvalidElementId)
                         collector = new FilteredElementCollector(doc, viewId);
@@ -965,12 +958,12 @@ namespace OpenFOAMInterface.BIM
                     //Element element = iterator.Current;
                     Element currentElement = iterator.Current;
 
-                    if (currentElement.Name.Contains(Exporter.Instance.settings.OpenFOAMObjectName))
+                    if (currentElement.Name.Contains(FOAMInterface.Singleton.Settings.OpenFOAMObjectName))
                         continue;
 
                     // check if element's category is in the list, if it is continue.
                     // if there are no selected categories, take anything.
-                    if (Exporter.Instance.settings.SelectedCategories.Count > 0)
+                    if (FOAMInterface.Singleton.Settings.SelectedCategories.Count > 0)
                     {
                         if (currentElement.Category == null)
                         {
@@ -978,7 +971,7 @@ namespace OpenFOAMInterface.BIM
                         }
                         else
                         {
-                            IEnumerable<Category> cats = from cat in Exporter.Instance.settings.SelectedCategories
+                            IEnumerable<Category> cats = from cat in FOAMInterface.Singleton.Settings.SelectedCategories
                                                          where cat.Id == currentElement.Category.Id
                                                          select cat;
 
@@ -1010,8 +1003,8 @@ namespace OpenFOAMInterface.BIM
             }
 
 
-            m_InletOutletMaterials.AddRange(GetMaterialList(Exporter.Instance.settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
-            m_InletOutletMaterials.AddRange(GetMaterialList(Exporter.Instance.settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
             m_Writer.WriteSolidName(stlName, false);
             if (!singleFile)
             {
@@ -1022,9 +1015,9 @@ namespace OpenFOAMInterface.BIM
             WriteStage = WriteStages.MeshResolution;
             WriteMeshResolutionObjectsToSTL(stlName);
             WriteStage = WriteStages.Inlet;
-            WriteObjectListToSTL("Inlet_", Exporter.Instance.settings.m_InletElements);
+            WriteObjectListToSTL("Inlet_", FOAMInterface.Singleton.Settings.m_InletElements);
             WriteStage = WriteStages.Outlet;
-            WriteObjectListToSTL("Outlet_", Exporter.Instance.settings.m_OutletElements);
+            WriteObjectListToSTL("Outlet_", FOAMInterface.Singleton.Settings.m_OutletElements);
             if (singleFile)
             {
                 m_Writer.CloseFile();
@@ -1069,13 +1062,13 @@ namespace OpenFOAMInterface.BIM
                     // save data in certain STL file
                     if (!singleFile)
                     {
-                        if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                        if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                         {
-                            m_Writer = new SaveDataAsBinary(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsBinary(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
                         else
                         {
-                            m_Writer = new SaveDataAsAscII(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsAscII(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
 
                         m_Writer.CreateFile();
@@ -1118,13 +1111,13 @@ namespace OpenFOAMInterface.BIM
                 // save data in certain STL file
                 if (!singleFile)
                 {
-                    if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                    if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                     {
-                        m_Writer = new SaveDataAsBinary(face.Key.Key + ".stl", Exporter.Instance.settings.SaveFormat);
+                        m_Writer = new SaveDataAsBinary(face.Key.Key + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                     }
                     else
                     {
-                        m_Writer = new SaveDataAsAscII(face.Key.Key + ".stl", Exporter.Instance.settings.SaveFormat);
+                        m_Writer = new SaveDataAsAscII(face.Key.Key + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                     }
 
                     m_Writer.CreateFile();
@@ -1156,7 +1149,7 @@ namespace OpenFOAMInterface.BIM
         private void WriteMeshResolutionObjectsToSTL(string stlName)
         {
             WriteStage = WriteStages.MeshResolution;
-            foreach (var element in Exporter.Instance.settings.MeshResolution.Keys)
+            foreach (var element in FOAMInterface.Singleton.Settings.MeshResolution.Keys)
             {
                 GeometryElement geometry = null;
                 geometry = element.get_Geometry(m_ViewOptions);
@@ -1170,13 +1163,13 @@ namespace OpenFOAMInterface.BIM
                     if (!singleFile)
                     {
                         // save data in certain STL file
-                        if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                        if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                         {
-                            m_Writer = new SaveDataAsBinary(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsBinary(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
                         else
                         {
-                            m_Writer = new SaveDataAsAscII(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsAscII(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
 
                         m_Writer.CreateFile();
@@ -1210,13 +1203,13 @@ namespace OpenFOAMInterface.BIM
                     if (!singleFile)
                     {
                         // save data in certain STL file
-                        if (SaveFormat.binary == Exporter.Instance.settings.SaveFormat)
+                        if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
                         {
-                            m_Writer = new SaveDataAsBinary(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsBinary(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
                         else
                         {
-                            m_Writer = new SaveDataAsAscII(elemName + ".stl", Exporter.Instance.settings.SaveFormat);
+                            m_Writer = new SaveDataAsAscII(elemName + ".stl", FOAMInterface.Singleton.Settings.SaveFormat);
                         }
 
                         m_Writer.CreateFile();
@@ -1433,14 +1426,14 @@ namespace OpenFOAMInterface.BIM
             FamilyInstance instance = currentElement as FamilyInstance;
             if (instance != null)
             {
-                int meshResolution = Settings.getInt(instance, "Mesh Resolution");
+                int meshResolution = Settings.GetInt(instance, "Mesh Resolution");
                 if (meshResolution > 0)
                 {
                     if (hasMeshResolution == false) // don't add an instance twice if it is hierarchical
                     {
                         if (WriteStage == WriteStages.Wall) // only in first pass we collect the Mesh Resolution objects
                         {
-                            Exporter.Instance.settings.MeshResolution.Add(instance, meshResolution);
+                            FOAMInterface.Singleton.Settings.MeshResolution.Add(instance, meshResolution);
                         }
                         hasMeshResolution = true;
                     }
@@ -1507,13 +1500,13 @@ namespace OpenFOAMInterface.BIM
             }
             if (hasInlet)
             {
-                if (!Exporter.Instance.settings.m_InletElements.Contains(currentElement))
-                    Exporter.Instance.settings.m_InletElements.Add(currentElement);
+                if (!FOAMInterface.Singleton.Settings.m_InletElements.Contains(currentElement))
+                    FOAMInterface.Singleton.Settings.m_InletElements.Add(currentElement);
             }
             if (hasOutlet)
             {
-                if (!Exporter.Instance.settings.m_OutletElements.Contains(currentElement))
-                    Exporter.Instance.settings.m_OutletElements.Add(currentElement);
+                if (!FOAMInterface.Singleton.Settings.m_OutletElements.Contains(currentElement))
+                    FOAMInterface.Singleton.Settings.m_OutletElements.Add(currentElement);
             }
         }
 
@@ -1611,7 +1604,7 @@ namespace OpenFOAMInterface.BIM
                         {
                             point = transform.OfPoint(point);
                         }
-                        if (Exporter.Instance.settings.ExportSharedCoordinates)
+                        if (FOAMInterface.Singleton.Settings.ExportSharedCoordinates)
                         {
                             ProjectPosition ps = document.ActiveProjectLocation.GetProjectPosition(point);
                             x = ps.EastWest;
@@ -1653,7 +1646,7 @@ namespace OpenFOAMInterface.BIM
                     continue;
                 }
 
-                if (face != null && m_Writer is SaveDataAsBinary && Exporter.Instance.settings.ExportColor)
+                if (face != null && m_Writer is SaveDataAsBinary && FOAMInterface.Singleton.Settings.ExportColor)
                 {
                     Material material = document.GetElement(face.MaterialElementId) as Material;
                     if (material != null)
