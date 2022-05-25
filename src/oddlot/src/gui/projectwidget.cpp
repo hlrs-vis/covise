@@ -217,7 +217,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
-    editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
+    editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_, profileGraph_));
 
     OpenScenarioEditor *oscEditor = new OpenScenarioEditor(this, projectData_, topviewGraph_);
     editors_.insert(ODD::EOS, oscEditor);
@@ -326,7 +326,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // ProfileGraph //
         //
-        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF || id == ODD::ERS)
+        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF || id == ODD::ERS || id == ODD::ESG)
         {
             profileGraph_->show();
         }

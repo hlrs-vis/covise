@@ -68,6 +68,11 @@ public:
         return bridgeTextItem_;
     }
 
+    RSystemElementRoad *getClosestRoad() const
+    {
+        return closestRoad_;
+    }
+
     // Garbage //
     //
     // virtual void   notifyDeletion();

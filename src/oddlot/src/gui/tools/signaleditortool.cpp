@@ -18,9 +18,14 @@
 #include "toolmanager.hpp"
 #include "toolwidget.hpp"
 
- // Qt //
- //
+#include "src/mainwindow.hpp"
+
+// Qt //
+//
+#include <QGridLayout>
+#include <QPushButton>
 #include <QButtonGroup>
+#include <QGroupBox>
 
 // Utils //
 //
@@ -99,11 +104,6 @@ void
 SignalEditorTool::activateRibbonEditor()
 {
     ToolAction *action = toolManager_->getLastToolAction(ODD::ESG);
-
-    /* if (action->getToolId() == ODD::TSG_SELECT)
-        {
-            ribbonToolGroup_->button(action->getToolId())->click();
-        } */
 
     QAbstractButton *currentButton = ribbonToolGroup_->button(action->getToolId());
     if (currentButton)

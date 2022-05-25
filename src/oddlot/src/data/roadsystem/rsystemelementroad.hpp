@@ -367,6 +367,10 @@ public:
     {
         return signals_;
     }
+    QList<Signal *> getSignals(double s) const
+    {
+        return signals_.values(s);
+    }
     bool delSignal(Signal *signal);
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
@@ -400,6 +404,11 @@ public:
         return roadChanges_;
     }
     void addRoadChanges(int changes);
+    int getSignalChanges() const
+    {
+        return signalChanges_;
+    }
+    void addSignalChanges(int changes);
 
     // Prototype Pattern //
     //
@@ -462,6 +471,7 @@ private:
     // Change //
     //
     int roadChanges_;
+    int signalChanges_;
 
     // road //
     //

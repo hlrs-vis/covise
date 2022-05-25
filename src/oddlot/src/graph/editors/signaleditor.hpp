@@ -26,14 +26,17 @@ class TopviewGraph;
 class SignalRoadSystemItem;
 class SignalHandle;
 class SignalItem;
+
+class ProfileGraph;
+
 class ObjectItem;
 class BridgeItem;
 class Signal;
 class SignalTreeWidget;
+class SignalSectionPolynomialItems;
 class RSystemElementRoad;
 class SignalManager;
 class Object;
-class Bridge;
 class RSystemElementController;
 
 class SignalEditor : public ProjectEditor
@@ -45,7 +48,7 @@ class SignalEditor : public ProjectEditor
         //################//
 
 public:
-    explicit SignalEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
+    explicit SignalEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
     virtual ~SignalEditor();
 
     // Tool, Mouse & Key //
@@ -81,7 +84,10 @@ public:
 
     // New Signal with properties chosen in SignalTreeWidget //
     //
-    Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t);
+    Signal *addSignalToRoad(RSystemElementRoad *road, double s, double t, bool isProfileGraph = false, double zOffset = 0.0);
+
+	void addShieldToRoad(Signal *signal);
+    int delShieldFromRoad(Signal *signal);
 
     void translateObject(ObjectItem *objectItem, QPointF &diff);
 
@@ -93,10 +99,6 @@ public:
 
     void translate(QPointF &diff);
 
-    // RoadType //
-    //
-    // TypeSection::RoadType getCurrentRoadType() const { return currentRoadType_; }
-    // void       setCurrentRoadType(TypeSection::RoadType roadType);
 
 protected:
     virtual void init();
@@ -135,7 +137,17 @@ private:
     //
     SignalHandle *insertSignalHandle_;
 
-    ODD::ToolId lastTool_;
+    QMultiMap<double, SignalSectionPolynomialItems *> shieldScenes_;
+
+    // Signal Tree //
+    //
+    SignalTreeWidget *signalTree_;
+    SignalManager *signalManager_;
+
+	// Graph //
+    //
+    ProfileGraph *profileGraph_;
+    TopviewGraph *topviewGraph_;
 
     // List of selected signals //
     //
@@ -145,19 +157,9 @@ private:
     //
     RSystemElementController *controller_;
 
-
-    // Signal Tree //
-    //
-    SignalTreeWidget *signalTree_;
-    SignalManager *signalManager_;
-
     // necessary selected elements to make APPLY visible //
     //
     int applyCount_;
-
-    // RoadType //
-    //
-    // TypeSection::RoadType currentRoadType_;
 };
 
 #endif // ROADTYPEEDITOR_HPP

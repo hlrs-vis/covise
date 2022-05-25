@@ -44,8 +44,6 @@ public:
         return graphView_;
     }
 
-    void notifySignals();
-
     // Observer Pattern //
     //
     virtual void updateObserver();

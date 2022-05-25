@@ -1557,25 +1557,23 @@ GraphView::keyPressEvent(QKeyEvent *event)
         {
             topviewGraph_->getProjectData()->getUndoStack()->beginMacro(QObject::tr("Delete Elements"));
         }
-        bool deletedSomething = false;
-        do
-        {
-            deletedSomething = false;
-            QList<QGraphicsItem *> selectList = scene()->selectedItems();
 
-            foreach(QGraphicsItem * item, selectList)
+        QList<QGraphicsItem *> selectList = scene()->selectedItems();
+
+        QList<QGraphicsItem *>::iterator iter = selectList.begin();
+        while (iter != selectList.end())
+        {
+            GraphElement *graphElement = dynamic_cast<GraphElement *>(*iter);
+            if (graphElement)
             {
-                GraphElement *graphElement = dynamic_cast<GraphElement *>(item);
-                if (graphElement)
+                if (graphElement->deleteRequest())
                 {
-                    if (graphElement->deleteRequest())
-                    {
-                        deletedSomething = true;
-                        break;
-                    }
+                    selectList.erase(iter);
                 }
             }
-        } while (deletedSomething);
+            iter++;
+        }
+
 
         // Macro Command //
         //

@@ -43,7 +43,8 @@ public:
 		//
 		PATM_PRESS,
 		PATM_RELEASE,
-		PATM_MOVE
+		PATM_MOVE,
+        PATM_DROP
     };
 
     //################//

@@ -4374,6 +4374,19 @@ RSystemElementRoad::addRoadChanges(int changes)
     }
 }
 
+/*! \brief Add one or more change flags.
+*
+*/
+void
+RSystemElementRoad::addSignalChanges(int changes)
+{
+    if (changes)
+    {
+        signalChanges_ |= changes;
+        notifyObservers();
+    }
+}
+
 //###################//
 // Visitor Pattern   //
 //###################//

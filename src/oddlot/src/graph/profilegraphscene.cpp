@@ -49,9 +49,13 @@ void ProfileGraphScene::mousePressEvent(QGraphicsSceneMouseEvent *mevent)
 
     MouseAction *mouseAction = new MouseAction(MouseAction::PATM_PRESS, mevent);
     emit(mouseActionSignal(mouseAction));
-    delete mouseAction;
 
-    QGraphicsScene::mousePressEvent(mevent);
+   if (!mouseAction->isIntercepted())
+    {
+        QGraphicsScene::mousePressEvent(mevent);
+    }
+
+   delete mouseAction;
 }
 
 void
@@ -73,4 +77,13 @@ ProfileGraphScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     QGraphicsScene::mouseMoveEvent(event);
 }
+
+
+void
+ProfileGraphScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    MouseAction *mouseAction = new MouseAction(MouseAction::PATM_DROP, event);
+    emit(mouseActionSignal(mouseAction));
+    delete mouseAction;
+} 
 

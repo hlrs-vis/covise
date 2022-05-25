@@ -214,7 +214,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 {
     if (signalEditor_ && (selectedItems().size() > 0))
     {
-        toolManager_->activateSignalSelection(false);
+ //       toolManager_->activateSignalSelection(false);
 
         QTreeWidgetItem *item = selectedItems().at(0);
         const QString text = item->text(0);
@@ -244,7 +244,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
                 double value = signalContainer->getSignalValue();
 
 
-                foreach(DataElement * element, projectWidget_->getProjectData()->getSelectedElements())
+             /*   foreach(DataElement * element, projectWidget_->getProjectData()->getSelectedElements())
                 {
                     Signal *signal = dynamic_cast<Signal *>(element);
                     if (signal)
@@ -255,8 +255,8 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
                             signal->getWidth(), signal->getHeight(), signal->getPole(), signal->getSize(), signal->getValidFromLane(),
                             signal->getValidToLane(), signal->getCrossingProbability(), signal->getResetTime(), NULL);
                         projectWidget_->getProjectSettings()->executeCommand(command);
-                    }
-                }
+                    } 
+                } */
             }
         }
         else
@@ -280,7 +280,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
                     const QString &file = objectContainer->getObjectFile();
 
 
-                    foreach(DataElement * element, projectWidget_->getProjectData()->getSelectedElements())
+            /*        foreach(DataElement * element, projectWidget_->getProjectData()->getSelectedElements())
                     {
                         Object *object = dynamic_cast<Object *>(element);
 
@@ -293,7 +293,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
                             SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectProps, repeatProps, object->getTextureFileName());
                             projectWidget_->getProjectSettings()->executeCommand(command);
                         }
-                    }
+                    } */
                 }
             }
 
@@ -316,7 +316,7 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
             // Set a tool //
             //
             SignalEditorToolAction *action = new SignalEditorToolAction(currentTool_);
-            emit toolAction(action);
+            emit toolAction(action); 
             //  delete action;
         }
 
@@ -328,9 +328,9 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
         clearSelection();
         clearFocus();
         update();
-    }
+    } 
 
-}
+} 
 
 void SignalTreeWidget::mousePressEvent(QMouseEvent *event)
 {

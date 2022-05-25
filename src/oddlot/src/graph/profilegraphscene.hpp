@@ -20,6 +20,8 @@
 
 class MouseAction;
 
+class QGraphicsSceneDragDropEvent;
+
 class ProfileGraphScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -33,6 +35,12 @@ public:
     // virtual ~ProfileGraphScene(){ /* does nothing */ }
 
 protected:
+
+//################//
+    // Drop     //
+    //################//
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
+
     //################//
     // SIGNALS        //
     //################//

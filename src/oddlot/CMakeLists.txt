@@ -329,6 +329,8 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/junction/junctionlanesectionitem.cpp
 	src/graph/items/roadsystem/junction/junctionlaneitem.cpp
 	src/graph/items/roadsystem/junction/junctionlanewidthmovehandle.cpp
+    src/graph/items/roadsystem/signal/signalsectionpolynomialitems.cpp
+    src/graph/items/roadsystem/signal/signalpoleitem.cpp
 	src/graph/editors/signaleditor.cpp
 	src/graph/items/roadsystem/signal/signalroadsystemitem.cpp
 	src/graph/items/roadsystem/signal/signalroaditem.cpp
@@ -473,6 +475,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/roadsystem/sections/sectionitem.hpp
     src/graph/items/roadsystem/shape/shapesectionitem.hpp
     src/graph/items/roadsystem/shape/shapesectionpolynomialitem.hpp
+    src/graph/items/roadsystem/signal/signalsectionpolynomialitems.hpp
     src/graph/items/roadsystem/signal/bridgeitem.hpp
     src/graph/items/roadsystem/signal/bridgetextitem.hpp
     src/graph/items/roadsystem/signal/objectitem.hpp

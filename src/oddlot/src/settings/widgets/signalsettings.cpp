@@ -254,6 +254,13 @@ SignalSettings::onEditingFinished()
     if (valueChanged_)
     {
         double t = ui->tSpinBox->value();
+        double z = ui->zOffsetSpinBox->value();
+        bool posChanged;
+        if (posChanged = ((signal_->getT() != t) || (signal_->getZOffset() != z)))
+        {
+            signalEditor_->delShieldFromRoad(signal_);
+        }
+
         int fromLane = ui->fromLaneSpinBox->value();
         int toLane = ui->toLaneSpinBox->value();
 
@@ -318,7 +325,7 @@ SignalSettings::onEditingFinished()
             resetTime = ui->resetTimeSpinBox->value();
         }
 
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeBox->text(), ui->subclassLineEdit->text(), ui->subtypeBox->text(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->unitEdit->text(), ui->textEdit->text(), ui->widthSpinBox->value(), ui->heightSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), z, ui->countryBox->text(), ui->typeBox->text(), ui->subclassLineEdit->text(), ui->subtypeBox->text(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->unitEdit->text(), ui->textEdit->text(), ui->widthSpinBox->value(), ui->heightSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
@@ -326,6 +333,11 @@ SignalSettings::onEditingFinished()
         if (focusWidget)
         {
             focusWidget->clearFocus();
+        }
+
+        if (posChanged)
+        {
+            signalEditor_->addShieldToRoad(signal_);
         }
     }
 }
@@ -349,6 +361,7 @@ SignalSettings::on_sSpinBox_editingFinished()
 {
     if (valueChanged_)
     {
+        signalEditor_->delShieldFromRoad(signal_);
 
         MoveRoadSectionCommand *command = new MoveRoadSectionCommand(signal_, ui->sSpinBox->value(), RSystemElementRoad::DRS_SignalSection);
         getProjectSettings()->executeCommand(command);
@@ -359,6 +372,8 @@ SignalSettings::on_sSpinBox_editingFinished()
         {
             focusWidget->clearFocus();
         }
+
+        signalEditor_->addShieldToRoad(signal_);
     }
 
 }

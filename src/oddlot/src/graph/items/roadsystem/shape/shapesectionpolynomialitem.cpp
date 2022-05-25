@@ -26,9 +26,6 @@
 
 // Graph //
 //
-#include "src/graph/profilegraph.hpp"
-#include "src/graph/profilegraphview.hpp"
-#include "src/graph/profilegraphscene.hpp"
 #include "src/graph/items/roadsystem/shape/shapesectionpolynomialitems.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/shape/shapesectionitem.hpp"

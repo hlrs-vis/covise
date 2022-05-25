@@ -45,9 +45,13 @@
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
 #include "src/graph/graphview.hpp"
+#include "src/graph/profilegraph.hpp"
+#include "src/graph/profilegraphscene.hpp"
+#include "src/graph/profilegraphview.hpp"
 
 #include "src/graph/items/roadsystem/signal/signalroadsystemitem.hpp"
 #include "src/graph/items/roadsystem/signal/signalroaditem.hpp"
+#include "src/graph/items/roadsystem/signal/signalsectionpolynomialitems.hpp"
 #include "src/graph/items/roadsystem/signal/signalitem.hpp"
 #include "src/graph/items/roadsystem/signal/objectitem.hpp"
 #include "src/graph/items/roadsystem/signal/bridgeitem.hpp"
@@ -82,11 +86,12 @@
 // CONSTRUCTORS   //
 //################//
 
-SignalEditor::SignalEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
+SignalEditor::SignalEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
+    , topviewGraph_(topviewGraph)
+    , profileGraph_(profileGraph)
     , signalRoadSystemItem_(NULL)
     , insertSignalHandle_(NULL)
-    , lastTool_(ODD::TSG_NONE)
     , controller_(NULL)
 {
     MainWindow *mainWindow = projectWidget->getMainWindow();
@@ -113,8 +118,8 @@ SignalEditor::init()
     {
         // Root item //
         //
-        signalRoadSystemItem_ = new SignalRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
-        getTopviewGraph()->getScene()->addItem(signalRoadSystemItem_);
+        signalRoadSystemItem_ = new SignalRoadSystemItem(topviewGraph_, getProjectData()->getRoadSystem());
+        topviewGraph_->getScene()->addItem(signalRoadSystemItem_);
 
         signalRoadSystemItem_->setJunctionsSelectable(false);
 
@@ -122,9 +127,10 @@ SignalEditor::init()
         //
         insertSignalHandle_ = new SignalHandle(signalRoadSystemItem_);
         insertSignalHandle_->hide();
+
     }
 
-    lastTool_ = getCurrentTool();
+    profileGraph_->getScene()->setSceneRect(-200.0, -50.0, 400.0, 100.0);
 
     // Raise Signal Tree //
     //
@@ -147,6 +153,7 @@ SignalEditor::kill()
     signalTree_->setSignalEditor(NULL);
 }
 
+
 SignalHandle *
 SignalEditor::getInsertSignalHandle() const
 {
@@ -160,7 +167,7 @@ SignalEditor::getInsertSignalHandle() const
 void
 SignalEditor::duplicate()
 {
-    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+    QList<QGraphicsItem *> selectedItems = topviewGraph_->getScene()->selectedItems();
 
     foreach(QGraphicsItem * item, selectedItems)
     {
@@ -192,7 +199,7 @@ SignalEditor::duplicate()
 void
 SignalEditor::move(QPointF &diff)
 {
-    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+    QList<QGraphicsItem *> selectedItems = topviewGraph_->getScene()->selectedItems();
 
     foreach(QGraphicsItem * item, selectedItems)
     {
@@ -268,7 +275,7 @@ SignalEditor::translate(QPointF &diff)
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Move Signal"));
 
-    QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+    QList<QGraphicsItem *> selectedItems = topviewGraph_->getScene()->selectedItems();
 
     foreach(QGraphicsItem * item, selectedItems)
     {
@@ -299,7 +306,7 @@ SignalEditor::translate(QPointF &diff)
 }
 
 Signal *
-SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
+SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t, bool isProfileGraph, double zOffset)
 {
     int validToLane = 0; // make a new signal //
     int validFromLane = 0;
@@ -319,27 +326,70 @@ SignalEditor::addSignalToRoad(RSystemElementRoad *road, double s, double t)
 
     if (lastSignal)
     {
-        if (t < 0)
+        if (!isProfileGraph)
         {
-            t -= lastSignal->getSignalDistance();
+            if (t < 0)
+            {
+                t -= lastSignal->getSignalDistance();
+            }
+            else
+            {
+                t += lastSignal->getSignalDistance();
+            }
+            zOffset = lastSignal->getSignalheightOffset();
         }
-        else
-        {
-            t += lastSignal->getSignalDistance();
-        }
-        newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, lastSignal->getSignalheightOffset(), signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), 0.0, 0.0, 0.0, lastSignal->getSignalUnit(), lastSignal->getSignalText(), lastSignal->getSignalWidth(), lastSignal->getSignalHeight(), true, 2, validFromLane, validToLane);
+        newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, zOffset, signalManager_->getCountry(lastSignal), lastSignal->getSignalType(), lastSignal->getSignalTypeSubclass(), lastSignal->getSignalSubType(), lastSignal->getSignalValue(), 0.0, 0.0, 0.0, lastSignal->getSignalUnit(), lastSignal->getSignalText(), lastSignal->getSignalWidth(), lastSignal->getSignalHeight(), true, 2, validFromLane, validToLane);
         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
         getProjectGraph()->executeCommand(command);
     }
     else
     {
-        newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, 0.0, "Germany", "-1", "", "-1", 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
+        newSignal = new Signal(odrID::invalidID(), "signal", s, t, false, Signal::NEGATIVE_TRACK_DIRECTION, zOffset, "Germany", "-1", "", "-1", 0.0, 0.0, 0.0, 0.0, "hm/h", "", 0.0, 0.0, true, 2, validFromLane, validToLane);
         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
         getProjectGraph()->executeCommand(command);
     }
 
     return newSignal;
 }
+
+void
+SignalEditor::addShieldToRoad(Signal *signal)
+{
+    double s = signal->getSStart();
+    if (!shieldScenes_.contains(s))
+    {
+        SignalSectionPolynomialItems *signalSectionPolynomialItems = new SignalSectionPolynomialItems(this, signalManager_, signal->getParentRoad(), s);
+        shieldScenes_.insert(s, signalSectionPolynomialItems);
+        profileGraph_->getScene()->addItem(signalSectionPolynomialItems);
+    }
+
+    QRectF boundingBox = QRectF(-10.0, -5.0, 20.0, 10.0);
+    profileGraph_->getView()->fitInView(boundingBox, Qt::KeepAspectRatio);
+    profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
+
+}
+
+int
+SignalEditor::delShieldFromRoad(Signal *signal)
+{
+    double s = signal->getSStart();
+    SignalSectionPolynomialItems *signalSectionPolynomialItems = shieldScenes_.take(s);
+
+    if (!signalSectionPolynomialItems)
+    {
+        return 0;
+    }
+    else
+    {
+        signalSectionPolynomialItems->deselectSignalPoles(signal);
+        profileGraph_->getScene()->removeItem(signalSectionPolynomialItems);
+        signalSectionPolynomialItems->registerForDeletion();
+        signalSectionPolynomialItems->deleteLater();
+
+        return 1;
+    }
+}
+
 
 void
 SignalEditor::translateObject(ObjectItem *objectItem, QPointF &diff)
@@ -447,14 +497,6 @@ SignalEditor::translateBridge(BridgeItem *bridgeItem, QPointF &diff)
 }
 
 
-/*
-void
-    SignalEditor
-    ::setCurrentRoadType(TypeSection::RoadType roadType)
-{
-    currentRoadType_ = roadType;
-}*/
-
 //################//
 // MOUSE & KEY    //
 //################//
@@ -465,22 +507,19 @@ void
 void
 SignalEditor::mouseAction(MouseAction *mouseAction)
 {
-    static QList<QGraphicsItem *> oldSelectedItems;
-
-    QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
     ProjectEditor::mouseAction(mouseAction);
 
     // SELECT //
     //
     ODD::ToolId currentToolId = getCurrentTool();
-    if ((currentToolId == ODD::TSG_SIGNAL) || (currentToolId == ODD::TSG_OBJECT) || (currentToolId == ODD::TSG_BRIDGE) || (currentToolId == ODD::TSG_TUNNEL))
+    if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP)
     {
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP)
+        if ((currentToolId == ODD::TSG_SIGNAL) || (currentToolId == ODD::TSG_OBJECT) || (currentToolId == ODD::TSG_BRIDGE) || (currentToolId == ODD::TSG_TUNNEL))
         {
             QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
             QPointF mousePoint = mouseEvent->scenePos();
 
-            QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
+            QList<QGraphicsItem *> underMouseItems = topviewGraph_->getScene()->items(mousePoint);
 
             RSystemElementRoad *road = NULL;
             double s, t;
@@ -533,19 +572,41 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
                     break;
                 }
             }
-
-        }
-        else if (mouseAction->getMouseActionType() == MouseAction::ATM_DOUBLECLICK)
-        {
-            //opens the ui for shieldeditor
-
-            /*QMessageBox msg;
-            msg.setText("HELLO!");
-            msg.exec();*/
         }
     }
+    else if (mouseAction->getMouseActionType() == MouseAction::PATM_DROP)
+    {
+        if (currentToolId == ODD::TSG_SIGNAL)
+        {
+            if (!shieldScenes_.isEmpty())
+            {
+                SignalSectionPolynomialItems *signalSectionPolynomialItems = shieldScenes_.first();
+                RSystemElementRoad *road = signalSectionPolynomialItems->getRoad();
+                double s = signalSectionPolynomialItems->getS();
+
+                if (road)
+                {
+                    QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
+                    QPointF mousePoint = mouseEvent->scenePos();
+                    double t = mousePoint.x();
+                    double zOffset = mousePoint.y();
+
+                    if (signalManager_->getSelectedSignalContainer())
+                    {
+                        Signal *signal = addSignalToRoad(road, s, signalSectionPolynomialItems->getClosestT(t), true, zOffset);
+
+                        mouseAction->intercept();
+                        return;
+                    }
+                }
+            }
+        } 
+    }
+
  
+    ProjectEditor::mouseAction(mouseAction);
 }
+
 
 //################//
 // TOOL           //
@@ -720,23 +781,7 @@ SignalEditor::toolAction(ToolAction *toolAction)
             }
         }
     }
-    if (currentTool != lastTool_)
-    {
-        if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT)
-            || (currentTool == ODD::TSG_BRIDGE) || (currentTool == ODD::TSG_TUNNEL))
-        {
-            foreach(QGraphicsItem * item, getTopviewGraph()->getScene()->selectedItems())
-            {
-                item->setSelected(false);
-            }
-            // does nothing //
-            // Problem: The ToolAction is resent, after a warning message has been clicked away. (Due to resend on getting the
-        }
 
-
-        lastTool_ = currentTool;
-
-    }
 }
 
 void
@@ -744,7 +789,7 @@ SignalEditor::assignParameterSelection(ODD::ToolId toolId)
 {
     if ((toolId == ODD::TSG_CONTROLLER) || (toolId == ODD::TSG_ADD_CONTROL_ENTRY) || (toolId == ODD::TSG_REMOVE_CONTROL_ENTRY))
     {
-        QList<QGraphicsItem *> selectedItems = getTopviewGraph()->getScene()->selectedItems();
+        QList<QGraphicsItem *> selectedItems = topviewGraph_->getScene()->selectedItems();
 
         for (int i = 0; i < selectedItems.size(); i++)
         {

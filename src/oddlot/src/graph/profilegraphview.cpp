@@ -537,3 +537,22 @@ ProfileGraphView::wheelEvent(QWheelEvent *event)
         }
     }
 }
+
+void
+ProfileGraphView::dragEnterEvent(QDragEnterEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void
+ProfileGraphView::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void
+ProfileGraphView::dropEvent(QDropEvent *event)
+{
+    event->acceptProposedAction();
+    QGraphicsView::dropEvent(event);
+}

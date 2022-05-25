@@ -137,6 +137,7 @@ ShapeEditor::delSelectedShapeSection(ShapeSection *shapeSection)
         // Deactivate ShapeSectionPolynomials in ProfileGraph //
         //
         profileGraph_->getScene()->removeItem(shapeSectionPolynomialItems);
+        shapeSectionPolynomialItems->deleteLater();
         return 1;
     }
 }

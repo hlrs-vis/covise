@@ -71,6 +71,7 @@ SignalItem::SignalItem(RoadSystemItem *roadSystemItem, Signal *signal, QPointF p
     , signal_(signal)
     , pos_(pos)
     , pixmapItem_(NULL)
+    , signalEditor_(NULL)
 {
     init();
 }
@@ -446,6 +447,8 @@ SignalItem::deleteRequest()
 bool
 SignalItem::removeSignal()
 {
+    signalEditor_->delShieldFromRoad(signal_);
+
     RemoveSignalCommand *command = new RemoveSignalCommand(signal_, road_);
     return getProjectGraph()->executeCommand(command);
 }
@@ -473,19 +476,22 @@ SignalItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemSelectedHasChanged)
     {
-        ODD::ToolId tool = signalEditor_->getCurrentTool();
-        if (value.toBool())
+        if (signalEditor_)
         {
-            if (((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY)) && (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT))
+            ODD::ToolId tool = signalEditor_->getCurrentTool();
+            if (value.toBool())
             {
-                signalEditor_->registerSignal(signal_);
+                if (((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY)) && (signalEditor_->getCurrentParameterTool() == ODD::TPARAM_SELECT))
+                {
+                    signalEditor_->registerSignal(signal_);
+                }
             }
-        }
-        else
-        {
-            if ((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY))
+            else
             {
-                signalEditor_->deregisterSignal(signal_);
+                if ((tool == ODD::TSG_CONTROLLER) || (tool == ODD::TSG_ADD_CONTROL_ENTRY) || (tool == ODD::TSG_REMOVE_CONTROL_ENTRY))
+                {
+                    signalEditor_->deregisterSignal(signal_);
+                }
             }
         }
     }
@@ -555,7 +561,6 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             createPath();
         }
 
-        doPan_ = true;
         if (copyPan_)
         {
             signalEditor_->duplicate();
@@ -568,9 +573,13 @@ SignalItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void
 SignalItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (doPan_)
+    if (!doPan_ && ((lastPos_ - event->pos()).manhattanLength() >= QApplication::startDragDistance()))
     {
-
+        doPan_ = true;
+        signalEditor_->delShieldFromRoad(signal_);
+    }
+    else if (doPan_)
+    {
         QPointF newPos = event->scenePos();
         QPointF diff = newPos - lastPos_;
         signalEditor_->move(diff);
@@ -618,6 +627,7 @@ SignalItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             pos_ = lastPos_;
         }
 
+        signalEditor_->addShieldToRoad(signal_);
         doPan_ = false;
     }
 }
@@ -692,5 +702,22 @@ SignalItem::updateObserver()
     else if ((changes & Signal::CEL_ParameterChange))
     {
         updatePosition();
+    }
+
+    // DataElement //
+    //
+    int dataElementChanges = signal_->getDataElementChanges();
+    if (dataElementChanges & DataElement::CDE_SelectionChange)
+    {
+        // Selection //
+        //
+        if (signal_->isElementSelected())
+        {
+            signalEditor_->addShieldToRoad(signal_);
+        }
+        else
+        {
+            signalEditor_->delShieldFromRoad(signal_);
+        }
     }
 }
