@@ -80,7 +80,11 @@ void EarthViewpoint::computeToUpright()
     new_center = local2world.getTrans();
     const SpatialReference* srs = EarthPlugin::plugin->getSRS();
     toUpright.makeRotate(new_center.x() / 180.0 * M_PI, osg::X_AXIS, -(90.0 - new_center.y()) / 180.0 * M_PI, osg::Y_AXIS, 0 / 180.0 * M_PI, osg::Z_AXIS);
+#if OSGEARTH_VERSION_GREATER_THAN(3,0,0)
+    localUpVector = srs->getEllipsoid().geocentricToUpVector(osg::Vec3(osg::DegreesToRadians(new_center.y()), osg::DegreesToRadians(new_center.x()), new_center.z()));
+#else
     localUpVector = srs->getEllipsoid()->computeLocalUpVector(osg::DegreesToRadians(new_center.y()), osg::DegreesToRadians(new_center.x()), new_center.z());
+#endif
     // start by transforming the requested focal point into world coordinates:
    /* if (srs)
     {
