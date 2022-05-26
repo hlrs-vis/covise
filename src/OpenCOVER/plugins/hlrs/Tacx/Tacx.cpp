@@ -123,7 +123,7 @@ void Tacx::update()
                 memset(tmp, 0, sizeof(tmp));
                 tmp[0] = 2;
                 int bytesTransferred=0;
-                ret = libusb_bulk_transfer(handle, EP_OUT, tmp, 4,&bytesTransferred, 5000);
+                ret = libusb_bulk_transfer(handle, EP_OUT, tmp, 4,&bytesTransferred, 2000);
                 if (ret < 0 || bytesTransferred!=4)
                 {
                     printf("error writing:\n%s %d\n", libusb_error_name(ret),bytesTransferred);
@@ -143,7 +143,7 @@ void Tacx::update()
             int bytesTransferred=0;
             int retry = 0;
             do {
-                ret = libusb_bulk_transfer(handle, EP_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 200);
+                ret = libusb_bulk_transfer(handle, EP_IN, (unsigned char *)&vrdata, 64,&bytesTransferred, 40);
                 if (ret == LIBUSB_ERROR_PIPE) {
                     libusb_clear_halt(handle, EP_IN);
                     printf("error reading:LIBUSB_ERROR_PIPE \n%s count: %d ret: %d\n", libusb_error_name(ret),errorCounter, ret);
@@ -154,7 +154,7 @@ void Tacx::update()
             {
                     errorCounter++;
                     printf("error reading:\n%s count: %d ret: %d\n", libusb_error_name(ret),errorCounter, ret);
-                    if (errorCounter > 2)
+                    if (errorCounter > 1)
                     {
                         libusb_close(handle);
 			errorCounter=0;
@@ -174,14 +174,14 @@ void Tacx::update()
                 //fprintf(stderr,"ti: %1d ",vrdata.trittfreqenzimpuls);
                 
 */
-                //fprintf(stderr,"\n");
                 errorCounter = 0;
+                //fprintf(stderr,"\n");
                 vrdataout.unknown0 = 0x00010801;
                 //vrdataout.force = 0xF959;
                 vrdataout.unknown1 = 0;
                 vrdataout.unknown2 = 0x05145702;
                 int bytesTransferred=0;
-                ret = libusb_bulk_transfer(handle, EP_OUT, (unsigned char *)&vrdataout, 12,&bytesTransferred, 5000);
+                ret = libusb_bulk_transfer(handle, EP_OUT, (unsigned char *)&vrdataout, 12,&bytesTransferred, 50);
                 if (ret < 0 || bytesTransferred!=12)
                 {
                     printf("error writing:\n%s %d\n", libusb_error_name(ret),bytesTransferred);

@@ -35,7 +35,9 @@ Wheelchair::Wheelchair()
     wcData.countRight = 0;
     wcData.state = 0;
     float u = M_PI * 0.6;
-    mPerCount = u / 4800;
+    // 30000 counts /revolution 72/24 = 3 gear ratio
+    mPerCount = u / ((-30000)*3);
+
 
         stepSizeUp=200;
         stepSizeDown=2000;
