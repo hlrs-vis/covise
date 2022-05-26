@@ -961,7 +961,7 @@ void RevitViewpointEntry::activate()
 
 
 	osg::Matrix ivMat;
-	ivMat.invert(mat* myPlugin->RevitScale * myPlugin->NorthRotMat); // viewpoint positions are in the master project coordinate system, not in the local one.
+	ivMat.invert(mat* myPlugin->RevitScale * myPlugin->NorthRotMat * myPlugin->RevitGeoRefference); // viewpoint positions are in the master project coordinate system, not in the local one.
 	//ivMat.invert(mat*myTransform->getMatrix());
     ivMat =  ivMat * osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
 
@@ -2143,12 +2143,34 @@ RevitPlugin::handleMessage(Message *m)
         const char *fileName;
         tb >> fileName;
 		tb >> TrueNorthAngle;
+		double eastWest;
+		double northSouth;
+		float xo, yo, zo;
+		double pox, poy, poz;
+		int GeoReference;
+		tb >> eastWest;
+		tb >> northSouth;
+		tb >> xo;
+		tb >> yo;
+		tb >> zo;
+		tb >> pox;
+		tb >> poy;
+		tb >> poz;
+		tb >> GeoReference;
 		if(firstDocument)
 		{
-		    firstDocument = false;
-    	            NorthRotMat=osg::Matrix::rotate( TrueNorthAngle, osg::Vec3(0, 0, 1));
-                    RevitScale=osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
-		    revitGroup->setMatrix(NorthRotMat*RevitScale );
+            firstDocument = false;
+            NorthRotMat = osg::Matrix::rotate(TrueNorthAngle, osg::Vec3(0, 0, 1));
+            RevitScale = osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
+			if (GeoReference == 1)
+			{
+				RevitGeoRefference = osg::Matrix::translate((xo + pox * 1000.0) * REVIT_FEET_TO_M, (yo  + poy * 1000.0) * REVIT_FEET_TO_M, (zo + poz * 1000.0) * REVIT_FEET_TO_M);
+			}
+			else
+			{
+				RevitGeoRefference.makeIdentity();
+			}
+            revitGroup->setMatrix(RevitScale * NorthRotMat * RevitGeoRefference);
 		}
         if (fileName != currentRevitFile)
         {
@@ -2994,6 +3016,10 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
         {
             fn = fileName.substr(found+1);
         }
+		else
+		{
+			fn = fileName;
+		}
     }
     std::string localTextureFileOnly = textureDir + "/" + fn;
     std::string texFile = textureDir + "/" + fileName;
@@ -3004,16 +3030,20 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
         diffuseImage = osgDB::readImageFile(localTextureFile);
         if (diffuseImage == NULL)
         {
-            diffuseImage = osgDB::readImageFile(fileName);
-            if (diffuseImage == NULL)
-            {
-                diffuseImage = osgDB::readImageFile(localTextureFileOnly);
-                if (diffuseImage == NULL)
-                {
-			cerr << "did not find it under any of its names, even not " << localTextureFileOnly<< endl;
-                    return NULL;
-                }
-            }
+			diffuseImage = osgDB::readImageFile(textureDir+"/1/Mats/"+fn);
+			if (diffuseImage == NULL)
+			{
+				diffuseImage = osgDB::readImageFile(fileName);
+				if (diffuseImage == NULL)
+				{
+					diffuseImage = osgDB::readImageFile(localTextureFileOnly);
+					if (diffuseImage == NULL)
+					{
+						cerr << "did not find it under any of its names, even not " << localTextureFileOnly << endl;
+						return NULL;
+					}
+				}
+			}
         }
     }
     return diffuseImage;
@@ -3139,7 +3169,7 @@ RevitPlugin::preFrame()
 				TokenBuffer stb;
 				
 
-				osg::Matrix mat = RevitScale* NorthRotMat* cover->getBaseMat();
+				osg::Matrix mat = RevitScale * NorthRotMat * RevitGeoRefference * cover->getBaseMat();
 				osg::Matrix invMat;
 				invMat.invert(mat);
 				osg::Matrix viewerTrans = cover->getViewerMat() * invMat;
@@ -3575,6 +3605,7 @@ void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * ima
         textureUnit = 1;
 
     osg::Texture2D *texture = new osg::Texture2D(image);
+	texture->setResizeNonPowerOfTwoHint(false);
     texture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
     texture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
     texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
@@ -3605,6 +3636,7 @@ void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * ima
 
         osg::Image *ni = createNormalMap(image, bumpTexture->amount);
         osg::Texture2D *normalTexture = new osg::Texture2D(ni);
+		normalTexture->setResizeNonPowerOfTwoHint(false);
         normalTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
         normalTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
         normalTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);

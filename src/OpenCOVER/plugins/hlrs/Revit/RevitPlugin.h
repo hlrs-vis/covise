@@ -545,6 +545,7 @@ public:
     double TrueNorthAngle = 0.0;
     osg::Matrix NorthRotMat;
     osg::Matrix RevitScale;
+    osg::Matrix RevitGeoRefference;
     osg::Group* getCurrentGroup() { return currentGroup.top(); };
     ui::Button* toggleRoomLabels = nullptr;
 protected:

@@ -181,6 +181,7 @@ namespace OpenCOVERPlugin
             ref string message, ElementSet elements)
         {
             string CAVEHost = "visent.hlrs.de";
+
             try
             {
                 CAVEHost = System.Environment.GetEnvironmentVariable("CAVEHOST");
@@ -188,6 +189,18 @@ namespace OpenCOVERPlugin
             catch
             {
             }
+
+            IEnumerable<Element> instances = new FilteredElementCollector(commandData.Application.ActiveUIDocument.Document).OfClass(typeof(FamilyInstance)).Where(x => x.Name == "OpenCOVER");
+
+            foreach (Element e in instances)
+            {
+                IList<Parameter> parameters = e.GetParameters("CAVEHost");
+                if (parameters.Count > 0)
+                {
+                    CAVEHost = parameters[0].AsString();
+                }
+            }
+
             if (CAVEHost == null || CAVEHost.Length == 0)
             {
                 CAVEHost = "visent.hlrs.de";

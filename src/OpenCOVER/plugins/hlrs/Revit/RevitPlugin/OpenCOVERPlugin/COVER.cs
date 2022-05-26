@@ -457,10 +457,63 @@ namespace OpenCOVERPlugin
             }
             sendMessage(mb.buf, MessageTypes.DesignOptionSets);
 
-            double ProjectNorthAngle = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero).Angle;
+            ProjectPosition projectPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+            double ProjectNorthAngle = projectPos.Angle;
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             mbdocinfo.add(ProjectNorthAngle);
+
+            mbdocinfo.add(projectPos.EastWest);
+            mbdocinfo.add(projectPos.NorthSouth);
+
+            IEnumerable<Element> instances = new FilteredElementCollector(document).OfClass(typeof(FamilyInstance)).Where(x => x.Name == "OpenCOVER");
+
+            FilteredElementCollector a = new FilteredElementCollector(document).OfClass(typeof(BasePoint));
+
+            foreach (BasePoint b in a)
+            {
+                BasePoint bp = b as BasePoint;
+                if(bp.IsShared)
+                {
+                     // surveyPoint
+                }
+                else
+                {
+                    mbdocinfo.add(b.SharedPosition);
+                }
+            }
+            double xo = 0;
+            double yo = 0;
+            double zo = 0;
+            int GeoReference=0;
+            foreach (Element e in instances)
+            {
+                IList<Parameter> parameters = e.GetParameters("ProjectOffsetX");
+                if (parameters.Count > 0)
+                {
+                    xo = parameters[0].AsDouble();
+                }
+                parameters = e.GetParameters("ProjectOffsetY");
+                if (parameters.Count > 0)
+                {
+                    yo = parameters[0].AsDouble();
+                }
+                parameters = e.GetParameters("ProjectOffsetZ");
+                if (parameters.Count > 0)
+                {
+                    zo = parameters[0].AsDouble();
+                }
+                parameters = e.GetParameters("GeoReference");
+                if (parameters.Count > 0)
+                {
+                    GeoReference = parameters[0].AsInteger();
+                }
+            }
+            mbdocinfo.add(xo);
+            mbdocinfo.add(yo);
+            mbdocinfo.add(zo);
+            mbdocinfo.add(GeoReference);
+
             sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
             MessageBuffer mbPhases = new MessageBuffer();
             // Get the phase array which contains all the phases.
@@ -3328,7 +3381,7 @@ namespace OpenCOVERPlugin
         public void idleUpdate(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
         {
             UIApplication uiapp = sender as UIApplication;
-            if (uiapp.ActiveUIDocument != null)
+            if (uiapp.ActiveUIDocument != null && toCOVER !=null)
             {
                 e.SetRaiseWithoutDelay();
 
