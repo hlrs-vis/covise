@@ -1132,7 +1132,7 @@ if not defined PYTHONHOME  (
    ) ELSE ( 
     set "PYTHON_LIB=%EXTERNLIBS%\Python\PCbuild\python26_d.lib"
    )
-   set "PATH=%PATH%;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin"
+   set "PATH=%PATH%;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin;%EXTERNLIBS%\Python\Scripts"
 )
 
 if not defined PYTHON_HOME  (

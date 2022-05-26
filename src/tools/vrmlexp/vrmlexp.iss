@@ -6,6 +6,8 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define COMMONDIR GetEnv("COVISEDIR") +"\..\common"
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
+#define MAXVERSION "2023"
+; change Max Version in registry section from 25 to next
 #define MAXDIR "c:/Program Files/Autodesk/3ds Max 2023"
 
 #if ARCHSUFFIX == ""
@@ -22,10 +24,11 @@
 ;compiler-related
 PrivilegesRequired=admin
 
-OutputDir={#COVISEDIR+"\DIST"}    
+OutputDir={#COVISEDIR+"\DIST"}  
+#define ofName "HLRS_Max"+MAXVERSION+"_x64_VRML_Exporter"  
 
 #if ARCHSUFFIX == "zebuopt"
-OutputBaseFilename=HLRS_Max2023_x64_VRML_Exporter   
+OutputBaseFilename={#ofName}
 ArchitecturesInstallIn64BitMode="x64"  
 #elif ARCHSUFFIX == "zackelopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
@@ -34,14 +37,14 @@ OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #elif ARCHSUFFIX == "yorooopt"
 OutputBaseFilename=HLRS_Max2013_x86_VRML_Exporter
 #else
-OutputBaseFilename=HLRS_Max2023_x64_VRML_Exporter    
+OutputBaseFilename={#ofName}    
 ArchitecturesInstallIn64BitMode="x64"  
 ;ProcessorsAllowed="x64"
 #endif
 
 ;installer-related
 AppName=VrmlExp
-AppVerName=HLRS Version of the Vrml exporter for 3ds Max 2023
+AppVerName=HLRS Version of the Vrml exporter for 3ds Max {#MAXVERSION}
 AppPublisher=HLRS
 AppPublisherURL=http://www.hlrs.de
 AppSupportURL=http://www.hlrs.de/covise
@@ -112,6 +115,7 @@ Filename: {app}\vcredist_x86.exe; Description: Install VisualStudio 2008 Runtime
 Filename: {app}\bin\VC_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2015-2019 Runtime; Flags: postinstall  
 #endif
 
+
 [Code]
 
 program Setup;
@@ -125,7 +129,6 @@ var
 
 
 var
-
 
   MaxDirPage: TInputDirWizardPage;
 
@@ -228,7 +231,7 @@ begin
   if MaxVersion = 0 then
   begin
       Result:=false;
-      MsgBox('Did not find 3ds Max, please install 3ds Max 2023.0 first!', mbError, MB_OK);
+      MsgBox('Did not find 3ds Max, please install 3ds Max ' + '{#MAXVERSION}' + '.0 first!', mbError, MB_OK);
   end;
 
 end;
