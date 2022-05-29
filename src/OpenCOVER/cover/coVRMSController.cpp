@@ -2554,6 +2554,7 @@ bool coVRMSController::syncVRBMessages()
                 if (vrbMsg->type == COVISE_MESSAGE_SOCKET_CLOSED)
                 {
                     OpenCOVER::instance()->restartVrbc();
+                    delete udpMsg;
                     return false;
                 }
 
@@ -2601,21 +2602,20 @@ bool coVRMSController::syncVRBMessages()
 		}
 		sendSlaves(&numVrbMessages, sizeof(int));
 		//cerr << "numMasterMSGS " <<  numVrbMessages << endl;
-		int i;
-		for (i = 0; i < numVrbMessages; i++)
-		{
-			sendSlaves(vrbMsgs[i]);
+        for (int i = 0; i < numVrbMessages; i++)
+        {
+            sendSlaves(vrbMsgs[i]);
 			coVRCommunication::instance()->handleVRB(*vrbMsgs[i]);
 			delete vrbMsgs[i];
-		}
-		sendSlaves(&numUdpMessages, sizeof(int));
-		for (i = 0; i < numUdpMessages; i++)
-		{
-			sendSlaves(udpMsgs[i]);
+        }
+        sendSlaves(&numUdpMessages, sizeof(int));
+        for (int i = 0; i < numUdpMessages; i++)
+        {
+            sendSlaves(udpMsgs[i]);
 			coVRCommunication::instance()->handleUdp(udpMsgs[i]);
 			delete udpMsgs[i];
-		}
-	}
+        }
+    }
 	else
 	{
 		//get number of Messages
@@ -2625,35 +2625,34 @@ bool coVRMSController::syncVRBMessages()
 			exit(0);
 		}
 		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-		int i;
-		for (i = 0; i < numVrbMessages; i++)
-		{
-			if (readMaster(vrbMsg) < 0)
+        for (int i = 0; i < numVrbMessages; i++)
+        {
+            if (readMaster(vrbMsg) < 0)
 			{
 				cerr << "sync_exit17 myID=" << myID << endl;
 				exit(0);
 			}
 			coVRCommunication::instance()->handleVRB(*vrbMsg);
-		}
-		if (readMaster(&numUdpMessages, sizeof(int)) < 0)
+        }
+        if (readMaster(&numUdpMessages, sizeof(int)) < 0)
 		{
 			cerr << "sync_exit160 myID=" << myID << endl;
 			exit(0);
 		}
 		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-		for (i = 0; i < numUdpMessages; i++)
-		{
-			if (readMaster(udpMsg) < 0)
+        for (int i = 0; i < numUdpMessages; i++)
+        {
+            if (readMaster(udpMsg) < 0)
 			{
 				cerr << "sync_exit170 myID=" << myID << endl;
 				exit(0);
 			}
 			coVRCommunication::instance()->handleUdp(udpMsg);
-		}
-	}
+        }
+    }
     delete vrbMsg;
 	delete udpMsg;
-    return numVrbMessages>0;
+    return numVrbMessages > 0 || numUdpMessages > 0;
 }
 
 void coVRMSController::loadFile(const char *filename)
