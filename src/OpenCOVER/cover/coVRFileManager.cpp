@@ -1180,6 +1180,7 @@ coVRFileManager::coVRFileManager()
     osgDB::Registry::instance()->setOptions(options);
 
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
+        if (remoteFetchEnabled) {
 	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
     path = resolveEnvs(path);
     fs::path p{path};
@@ -1205,6 +1206,7 @@ coVRFileManager::coVRFileManager()
     }
     remoteFetchPath = p.string();
     std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
+        }
 }
 
 coVRFileManager::~coVRFileManager()
