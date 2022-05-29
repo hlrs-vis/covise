@@ -1225,7 +1225,11 @@ bool OpenCOVER::frame()
     }
 
     if (m_renderNext)
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because rendering of next frame was requested" << std::endl;
         render = true;
+    }
 
     if (coVRMSController::instance()->syncVRBMessages())
     {
