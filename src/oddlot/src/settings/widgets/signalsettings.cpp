@@ -255,8 +255,8 @@ SignalSettings::onEditingFinished()
     {
         double t = ui->tSpinBox->value();
         double z = ui->zOffsetSpinBox->value();
-        bool posChanged;
-        if (posChanged = ((signal_->getT() != t) || (signal_->getZOffset() != z)))
+        bool posChanged = signal_->getT();
+        if (posChanged || (signal_->getZOffset() != z))
         {
             signalEditor_->delShieldFromRoad(signal_);
         }
