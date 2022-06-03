@@ -33,23 +33,22 @@ enum ViewEye {
 };
 
 // Store data associated with one view (image rendered for a viewport)
-struct ViewData {
-    static const int NumImages = 1;
-
+struct ViewData
+{
     ViewEye eye = Invalid;
     int viewNum = -1;
     int geoWidth = 0, geoHeight = 0;
-    int width[NumImages], height[NumImages];
-    int depthWidth[NumImages], depthHeight[NumImages];
-    GLenum colorFormat[NumImages], depthFormat[NumImages];
+    int width, height;
+    int depthWidth, depthHeight;
+    GLenum colorFormat, depthFormat;
     osg::Matrix imgProj, imgView, imgModel;
     osg::Matrix newProj, newView, newModel;
 
     // geometry for mapping depth image
     osg::ref_ptr<osg::TextureRectangle> colorTex;
     osg::ref_ptr<osg::TextureRectangle> depthTex;
-    osg::ref_ptr<osg::Image> colorImg[NumImages];
-    osg::ref_ptr<osg::Image> depthImg[NumImages];
+    osg::ref_ptr<osg::Image> colorImg;
+    osg::ref_ptr<osg::Image> depthImg;
     osg::ref_ptr<osg::Vec2Array> texcoord;
     osg::ref_ptr<osg::Geometry> fixedGeo;
     osg::ref_ptr<osg::Geometry> reprojGeo;
@@ -68,14 +67,12 @@ struct ViewData {
     ViewData(int view=-1)
         : viewNum(view)
     {
-        for (int i=0; i<NumImages; ++i) {
-            width[i] = 0;
-            height[i] = 0;
-            depthWidth[i] = 0;
-            depthHeight[i] = 0;
-            colorFormat[i] = 0;
-            depthFormat[i] = 0;
-        }
+        width = 0;
+        height = 0;
+        depthWidth = 0;
+        depthHeight = 0;
+        colorFormat = 0;
+        depthFormat = 0;
     }
 
     ~ViewData();
@@ -206,7 +203,6 @@ private:
    bool m_flipped;
    Mode m_mode;
    ViewSelection m_viewsToRender = Same;
-   int renderTex=0, writeTex=0;
    struct AvailableEyes {
        bool middle=false;
        bool left=false;

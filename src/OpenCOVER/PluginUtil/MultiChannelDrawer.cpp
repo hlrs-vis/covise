@@ -707,16 +707,16 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
    else
 #endif
    {
-       for (int i=0; i<ViewData::NumImages; ++i) {
-           vd.colorImg[i] = new osg::Image;
-           auto pboc = new osg::PixelBufferObject(vd.colorImg[i]);
-           pboc->setUsage(GL_STREAM_DRAW);
-           vd.colorImg[i]->setPixelBufferObject(pboc);
-           vd.depthImg[i] = new osg::Image;
-           auto pbod = new osg::PixelBufferObject(vd.depthImg[i]);
-           pbod->setUsage(GL_STREAM_DRAW);
-           vd.depthImg[i]->setPixelBufferObject(pbod);
-       }
+       vd.colorImg = new osg::Image;
+       vd.colorImg->setDataVariance(osg::Object::DYNAMIC);
+       auto pboc = new osg::PixelBufferObject(vd.colorImg);
+       pboc->setUsage(GL_STREAM_DRAW);
+       vd.colorImg->setPixelBufferObject(pboc);
+       vd.depthImg = new osg::Image;
+       vd.depthImg->setDataVariance(osg::Object::DYNAMIC);
+       auto pbod = new osg::PixelBufferObject(vd.depthImg);
+       pbod->setUsage(GL_STREAM_DRAW);
+       vd.depthImg->setPixelBufferObject(pbod);
 
        vd.colorTex = new osg::TextureRectangle;
        vd.depthTex = new osg::TextureRectangle;
@@ -725,8 +725,8 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
            tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
            tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
        }
-       vd.colorTex->setImage(vd.colorImg[writeTex]);
-       vd.depthTex->setImage(vd.depthImg[writeTex]);
+       vd.colorTex->setImage(vd.colorImg);
+       vd.depthTex->setImage(vd.depthImg);
    }
 
    for (auto tex: {vd.colorTex, vd.depthTex}) {
@@ -791,8 +791,8 @@ void MultiChannelDrawer::swapFrame() {
       else
 #endif
       {
-          vd.colorImg[renderTex]->dirty();
-          vd.depthImg[renderTex]->dirty();
+          vd.depthImg->dirty();
+          vd.colorImg->dirty();
       }
    }
 }
@@ -814,7 +814,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             cd = m_channelData[idx].get();
     }
 
-    if (colorFormat && (vd.width[writeTex] != w || vd.height[writeTex] != h || vd.colorFormat[writeTex] != colorFormat))
+    if (colorFormat && (vd.width != w || vd.height != h || vd.colorFormat != colorFormat))
     {
         GLenum colorInternalFormat = 0;
         int colorTypeSize = 0;
@@ -847,17 +847,17 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
-            auto cimg = vd.colorImg[writeTex];
+            auto cimg = vd.colorImg;
             cimg->setInternalTextureFormat(colorFormat);
             cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
         }
 
-        vd.width[writeTex] = w;
-        vd.height[writeTex] = h;
-        vd.colorFormat[writeTex] = colorFormat;
+        vd.width = w;
+        vd.height = h;
+        vd.colorFormat = colorFormat;
     }
 
-    if (depthFormat != 0 && (vd.depthWidth[writeTex] != w || vd.depthHeight[writeTex] != h || vd.depthFormat[writeTex] != depthFormat))
+    if (depthFormat != 0 && (vd.depthWidth != w || vd.depthHeight != h || vd.depthFormat != depthFormat))
     {
         //std::cerr << "MultiChannelDrawer: need to update geo, format=" << depthFormat << ", w=" << w << ", h=" << h << std::endl;
         GLenum depthInternalFormat = 0;
@@ -891,29 +891,30 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
-            auto dimg = vd.depthImg[writeTex];
+            auto dimg = vd.depthImg;
             dimg->setInternalTextureFormat(depthInternalFormat);
             dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
 
-        vd.depthWidth[writeTex] = w;
-        vd.depthHeight[writeTex] = h;
-        vd.depthFormat[writeTex] = depthFormat;
+        vd.depthWidth = w;
+        vd.depthHeight = h;
+        vd.depthFormat = depthFormat;
     }
 }
 
 void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
-
-    if (vd.width[renderTex] != vd.depthWidth[renderTex]) {
-        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "), renderTex=" << renderTex
-                  << ": width mismatch: " << vd.width[renderTex] << " != " << vd.depthWidth[renderTex] << std::endl;
+    if (vd.width != vd.depthWidth)
+    {
+        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "): width mismatch: " << vd.width
+                  << " != " << vd.depthWidth << std::endl;
     }
-    if (vd.height[renderTex] != vd.depthHeight[renderTex]) {
-        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "), renderTex=" << renderTex
-                  << ": height mismatch: " << vd.height[renderTex] << " != " << vd.depthHeight[renderTex] << std::endl;
+    if (vd.height != vd.depthHeight)
+    {
+        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "): height mismatch: " << vd.height
+                  << " != " << vd.depthHeight << std::endl;
     }
 
-    int w = vd.width[renderTex], h = vd.height[renderTex];
+    int w = vd.width, h = vd.height;
 
     if (w == vd.geoWidth && h == vd.geoHeight)
         return;
@@ -1014,7 +1015,7 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
     else
 #endif
     {
-        return vd.colorImg[writeTex]->data();
+        return vd.colorImg->data();
     }
 }
 
@@ -1034,7 +1035,7 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
     else
 #endif
     {
-        return vd.depthImg[writeTex]->data();
+        return vd.depthImg->data();
     }
 }
 
@@ -1049,7 +1050,7 @@ void MultiChannelDrawer::clearColor(int idx) {
     else
 #endif
     {
-        osg::Image *color = vd.colorImg[writeTex];
+        osg::Image *color = vd.colorImg;
         memset(color->data(), 0, color->getTotalSizeInBytes());
         color->dirty();
     }
@@ -1066,7 +1067,7 @@ void MultiChannelDrawer::clearDepth(int idx) {
     else
 #endif
     {
-        osg::Image *depth = vd.depthImg[writeTex];
+        osg::Image *depth = vd.depthImg;
         memset(depth->data(), 0, depth->getTotalSizeInBytes());
         depth->dirty();
     }
