@@ -63,7 +63,14 @@ coConfigFloat::~coConfigFloat()
 
 float coConfigFloat::fromString(const std::string &value) const
 {
+    try{
     return std::stof(value);
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr << "invalid floating point number" << value << std::endl;
+        return 0.0;
+    }
 }
 
 std::string coConfigFloat::toString(const float &value) const
