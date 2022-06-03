@@ -8,6 +8,14 @@
 # included with the CEF binary distribution for usage information.
 #
 
+# in order for CEF to be found and usable on macOS, you should
+# - download a full (not minimal) binary release of CEF from https://cef-builds.spotifycdn.com/
+# - unpack the download, create a symlink to $EXTERNLIBS/cef
+# - go to $EXTERNLIBS/cef/Release
+# - build libcef_dll_wrapper: execute `cmake .`, followed by make/ninja
+# - use ad-hoc code signing: `codesign -s - "Chromium Embedded Framework.framework"`
+# - create symlinks to $EXTERNLIBS/ALL: go to $EXTERNLIBS, `stow -t ALL -d cef Release`
+
 # - Find CEF
 # Find the CEF includes and library
 #
