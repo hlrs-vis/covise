@@ -53,8 +53,8 @@ FIND_LIBRARY(CEF_WRAPPER_LIBRARY NAMES ${CEF_WRAPPER_NAMES}
   /opt/local
   /opt/cef
   /opt
-  PATH_SUFFIXES Release lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 libcef_dll_wrapper
-  DOC "CEF - Library"
+  PATH_SUFFIXES Release lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 Release/libcef_dll_wrapper libcef_dll_wrapper
+  DOC "CEF - Wrapper Library"
 )
 
 
@@ -79,8 +79,8 @@ IF(MSVC)
     /opt/local
     /opt/cef
     /opt
-    PATH_SUFFIXES Debug lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 libcef_dll_wrapper
-    DOC "CEF - _WRAPPER Library (Debug)"
+    PATH_SUFFIXES Debug lib/CEF lib64/CEF lib lib64 lib/win_64_VS2015 Debug/libcef_dll_wrapper libcef_dll_wrapper
+    DOC "CEF - Wrapper Library (Debug)"
   )
   
   
