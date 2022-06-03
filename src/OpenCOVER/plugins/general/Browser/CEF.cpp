@@ -268,6 +268,149 @@ CefRefPtr<CefContextMenuHandler> CEF_client::GetContextMenuHandler()
 
 CEF::CEF(): ui::Owner("BrowserPlugin", cover->ui)
 {
+    
+}
+
+CEF::~CEF()
+{
+    delete backButton;
+    delete forwardButton;
+    delete reloadButton;
+    delete urlLine;
+    delete menu;
+    if(!m_initFailed)
+    {
+        std::cout << "CEF destroyed " << client->HasOneRef() << " " << browser->HasOneRef() << std::endl;
+        browser->GetHost()->CloseBrowser(true);
+
+        for (int attempts = 0; browser != nullptr && attempts < 1000; ++attempts) // waiting for the Browser to close
+        {
+            usleep(100000);
+            CefDoMessageLoopWork();
+        }
+
+        CefShutdown();
+    }
+
+}
+
+
+int CEF_client::hit(vruiHit *hit)
+{
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling &&
+        !coVRCollaboration::instance()->isMaster())
+        return ACTION_DONE;
+
+    if (!interactionA->isRegistered())
+    {
+        coInteractionManager::the()->registerInteraction(interactionA);
+        interactionA->setHitByMouse(hit->isMouseHit());
+    }
+    if (!interactionB->isRegistered())
+    {
+        coInteractionManager::the()->registerInteraction(interactionB);
+        interactionB->setHitByMouse(hit->isMouseHit());
+    }
+    if (!interactionC->isRegistered())
+    {
+        coInteractionManager::the()->registerInteraction(interactionC);
+        interactionC->setHitByMouse(hit->isMouseHit());
+    }
+
+    osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
+
+    static char message[100];
+
+    float x = 0.f, y = 0.f;
+    if (osgHit.drawable.valid())
+    {
+        osg::Vec3 point = osgHit.getLocalIntersectPoint();
+        x = (point[0]) / width;
+        y = 1.0 - ((point[1]) / height);
+        if (x > 1)
+            x = 1;
+        if (x < 0)
+            x = 0;
+        if (y > 1)
+            y = 1;
+        if (y < 0)
+            y = 0;
+
+        if (!haveFocus)
+        {
+            cover->grabKeyboard(cef);
+            haveFocus = true;
+        }
+        CefMouseEvent me;
+        me.x = x * width;
+        me.y = y * height;
+        if ((interactionA->getState() == coInteraction::Idle) && (interactionB->getState() == coInteraction::Idle) &&
+            (interactionC->getState() == coInteraction::Idle))
+        {
+            cef->browser->GetHost()->SetFocus(true);
+        }
+        if (interactionA->wasStarted())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_LEFT, false, 1);
+            cerr << "ADown" << endl;
+        }
+        else if (interactionA->wasStopped())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_LEFT, true, 1);
+            cerr << "AUp" << endl;
+        }
+        else if (interactionB->wasStarted())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_MIDDLE, false, 1);
+        }
+        else if (interactionB->wasStopped())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_MIDDLE, true, 1);
+        }
+        else if (interactionC->wasStarted())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_RIGHT, false, 1);
+        }
+        else if (interactionC->wasStopped())
+        {
+            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_RIGHT, true, 1);
+        }
+        else
+        {
+            cef->browser->GetHost()->SendMouseMoveEvent(me, false);
+        }
+    }
+
+
+    if (interactionA->wasStarted() || interactionB->wasStarted() || interactionC->wasStarted())
+    {
+    }
+    return ACTION_CALL_ON_MISS;
+}
+
+void CEF_client::miss()
+{
+    cef->browser->GetHost()->SetFocus(false);
+    unregister = true;
+
+    if (haveFocus)
+    {
+        cover->releaseKeyboard(cef);
+        haveFocus = false;
+    }
+}
+const std::string &CEF::getURL()
+{
+    return url;
+}
+void CEF::reload()
+{
+    if (browser)
+        browser->Reload();
+}
+
+bool CEF::init()
+{
     AddRef(); // count our own reference as well.
 
     CEFCoim.reset(new coCOIM(this));
@@ -391,160 +534,32 @@ CEF::CEF(): ui::Owner("BrowserPlugin", cover->ui)
     settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
+    settings.external_message_pump = true;
+#ifndef __APPLE__
+    settings.multi_threaded_message_loop = false;
+#endif
 #ifdef _WIN32
     //settings.log_severity = LOGSEVERITY_VERBOSE;
 #endif
 
     CefMainArgs args;
 
-    CefInitialize(args, settings, this, 0);
-}
-
-
-CEF::~CEF()
-{
-    delete backButton;
-    delete forwardButton;
-    delete reloadButton;
-    delete urlLine;
-    delete menu;
-
-    std::cout << "CEF destroyed " << client->HasOneRef() << " " << browser->HasOneRef() << std::endl;
-    browser->GetHost()->CloseBrowser(true);
-
-    for (int attempts = 0; browser != nullptr && attempts < 1000; ++attempts) // waiting for the Browser to close
+    if(!CefInitialize(args, settings, this, nullptr))
     {
-        usleep(100000);
-        CefDoMessageLoopWork();
+        std::cerr << "CefInitialize failed" << std::endl;
+        m_initFailed = true;
+        return false;
     }
-
-    CefShutdown();
-}
-
-
-int CEF_client::hit(vruiHit *hit)
-{
-    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling &&
-        !coVRCollaboration::instance()->isMaster())
-        return ACTION_DONE;
-
-    if (!interactionA->isRegistered())
-    {
-        coInteractionManager::the()->registerInteraction(interactionA);
-        interactionA->setHitByMouse(hit->isMouseHit());
-    }
-    if (!interactionB->isRegistered())
-    {
-        coInteractionManager::the()->registerInteraction(interactionB);
-        interactionB->setHitByMouse(hit->isMouseHit());
-    }
-    if (!interactionC->isRegistered())
-    {
-        coInteractionManager::the()->registerInteraction(interactionC);
-        interactionC->setHitByMouse(hit->isMouseHit());
-    }
-
-    osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
-
-    static char message[100];
-
-    float x = 0.f, y = 0.f;
-    if (osgHit.drawable.valid())
-    {
-        osg::Vec3 point = osgHit.getLocalIntersectPoint();
-        x = (point[0]) / width;
-        y = 1.0 - ((point[1]) / height);
-        if (x > 1)
-            x = 1;
-        if (x < 0)
-            x = 0;
-        if (y > 1)
-            y = 1;
-        if (y < 0)
-            y = 0;
-
-        if (!haveFocus)
-        {
-            cover->grabKeyboard(cef);
-            haveFocus = true;
-        }
-        CefMouseEvent me;
-        me.x = x * width;
-        me.y = y * height;
-        if ((interactionA->getState() == coInteraction::Idle) && (interactionB->getState() == coInteraction::Idle) &&
-            (interactionC->getState() == coInteraction::Idle))
-        {
-            cef->browser->GetHost()->SetFocus(true);
-        }
-        if (interactionA->wasStarted())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_LEFT, false, 1);
-            cerr << "ADown" << endl;
-        }
-        else if (interactionA->wasStopped())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_LEFT, true, 1);
-            cerr << "AUp" << endl;
-        }
-        else if (interactionB->wasStarted())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_MIDDLE, false, 1);
-        }
-        else if (interactionB->wasStopped())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_MIDDLE, true, 1);
-        }
-        else if (interactionC->wasStarted())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_RIGHT, false, 1);
-        }
-        else if (interactionC->wasStopped())
-        {
-            cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_RIGHT, true, 1);
-        }
-        else
-        {
-            cef->browser->GetHost()->SendMouseMoveEvent(me, false);
-        }
-    }
-
-
-    if (interactionA->wasStarted() || interactionB->wasStarted() || interactionC->wasStarted())
-    {
-    }
-    return ACTION_CALL_ON_MISS;
-}
-
-void CEF_client::miss()
-{
-    cef->browser->GetHost()->SetFocus(false);
-    unregister = true;
-
-    if (haveFocus)
-    {
-        cover->releaseKeyboard(cef);
-        haveFocus = false;
-    }
-}
-const std::string &CEF::getURL()
-{
-    return url;
-}
-void CEF::reload()
-{
-    if (browser)
-        browser->Reload();
-}
-
-bool CEF::init()
-{
     return true;
 }
+
 bool CEF::update()
 {
     CefDoMessageLoopWork();
     if (client)
+    {
         client->update();
+    }
 
 
     return true;

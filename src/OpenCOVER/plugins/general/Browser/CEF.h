@@ -121,6 +121,7 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         float aspect = 1;
         bool focus = false;
         bool ctrlUsed = false;
+        bool m_initFailed = false;
         int mX = -1;
         int mY = -1;
 
