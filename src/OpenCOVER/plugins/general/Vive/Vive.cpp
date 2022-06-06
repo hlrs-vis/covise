@@ -406,6 +406,7 @@ void Vive::postFrame()
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
+			//fprintf(stderr, "NewMatrix n %d ID %d\n",nDevice, m_DeviceID[nDevice]);
 			m_bodyMatricesValid[m_DeviceID[nDevice]] = m_rTrackedDevicePose[nDevice].bPoseIsValid;
 			m_bodyMatrices[m_DeviceID[nDevice]] = convertMatrix34(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 		    // convert to mm
