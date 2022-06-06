@@ -3,12 +3,6 @@
 <COCONFIG version="1" >
 
  <GLOBAL>
-   <System>
-   <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31253"/>
-   </VRB>
-  </System>
-  
  <FlightGear>
         <serverHost value="140.221.131.37" />
    </FlightGear>
@@ -55,7 +49,8 @@
 
   <System>
   <VRB>
-    <!--Server value="169.254.32.217" port="31200" /-->
+    <Server value="vistidy.hlrs.de" tcpPort="31251" />
+		 <RemoteFetch value="off"/>
    </VRB>
 <!--   <ShmSize value="2097152"/> -->
    <!--<ShmSize value="33554432"/>-->
@@ -81,10 +76,8 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-        
-     <TabletPC>
-         <Server value="127.0.0.1"/>
-       </TabletPC>
+              
+     <TabletUI host="localhost" port="31808" name="0" />
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
@@ -102,7 +95,7 @@
      </VNC>
    </VRUI>
 
-    <FloorHeight value="-1500" />
+    <FloorHeight value="-1150" />
    <Input>
     <MouseNav value="ON" />
         <Device>
@@ -110,14 +103,28 @@
 		   
 		      <!--Offset x="0" y="0" z="-1500" />
               <Orientation h="-90" p="90" r="0" /-->
-		      <Offset x="-257.165" y="1050.65" z="-1191.64" />
-              <Orientation h="136.13" p="88.1898" r="-38.1315" />
+		      <Offset x="3274.26" y="-3223.79" z="-1280.78" />
+              <Orientation h="90" p="90" r="120" />
 			  
 			  
               <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
               <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
               <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>
-			  <Device serial = "LHR-93C74C3C" index = "0" controllerID = "-1" name="0" />
+			  <Device serial = "LHR-B677DDF8" index = "0" controllerID = "-1" name="0" />
+			  <Device serial = "LHR-970893C7" index = "1" controllerID = "1" name="1" />
+			  <Device serial = "LHR-12988AE9" index = "2" controllerID = "2" name="2" />
+			  <Device serial = "LHB-E5C1DFCB" index = "3" controllerID = "-1" name="3" />
+			  <Device serial = "LHB-629D1362" index = "4" controllerID = "-1" name="4" />
+			  <Device serial = "LHB-4ECF2E5A" index = "5" controllerID = "-1" name="5" />
+			  <Device serial = "LHB-BD8FE79D" index = "6" controllerID = "-1" name="6" />
+				<!--Device serial = "LHR-B677DDF8" index = "0" controllerID = "-1" name="0" />
+			   <Device serial = "LHR-12988AE9" index = "5" controllerID = "5" name="1" /-->
+			    <!--Device serial = "LHB-E5C1DFCB" index = "1" controllerID = "-1" name="1" />
+				<Device serial = "LHB-BD8FE79D" index = "2" controllerID = "-1" name="2" />
+				<Device serial = "LHB-629D1362" index = "3" controllerID = "-1" name="3" />
+			   <Device serial = "LHB-4ECF2E5A" index = "4" controllerID = "-1" name="4" />
+			   <Device serial = "LHR-12988AE9" index = "5" controllerID = "3" name="5" /-->
+			  <!--Device serial = "LHR-93C74C3C" index = "0" controllerID = "-1" name="0" />
 			  <Device serial = "LHB-4949C2CC" index = "1" controllerID = "-1" name="1" />
               <Device serial = "LHB-A0B479A6" index = "2" controllerID = "-1" name="2" />
               <Device serial = "LHR-FF479D45" index = "4" controllerID = "1" name="4" />
@@ -131,9 +138,7 @@
 				<Device serial = "LHB-20166447" index = "5" controllerID = "-1" name="10" />
 				<Device serial = "LHR-2DB3F634" index = "2" controllerID = "1" name="11" />
 				<Device serial = "LHR-12988AE9" index = "3" controllerID = "0" name="12" />
-				<Device serial = "LHB-4ECF2E5A" index = "6" controllerID = "-1" name="13" />
-			   
-			   
+				<Device serial = "LHB-4ECF2E5A" index = "6" controllerID = "-1" name="13" /-->
 			   <TransformOriginToCamera value="FALSE" />
            </Vive>
         </Device>
@@ -181,7 +186,7 @@
         </Valuator>
 
         <Persons>
-           <Person name="Vive" head="ViveHead" hand="ViveHand" buttons="ViveRight" />
+           <Person default="true" name="Vive" head="ViveHead" hand="ViveHand" buttons="ViveRight" />
            <Person name="ViveLeft" head="ViveHead" hand="ViveHandLeft" buttons="ViveLeft" />
            <Person name="Const" head="ConstHead" hand="ViveHand" buttons="ViveRight" />
         </Persons>

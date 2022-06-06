@@ -4,6 +4,8 @@
   <GLOBAL>
     <COVER>
       <FileManager>
+        <FileType name="bcrtf" plugin="Trajectories" />
+        <FileType name="crtf" plugin="Trajectories" />
         <FileType name="bcsv" plugin="Bore" />
         <FileType name="gpx" plugin="GPS" />
         <FileType name="top" plugin="Amber" />

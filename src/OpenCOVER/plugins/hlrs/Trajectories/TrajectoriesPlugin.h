@@ -45,13 +45,48 @@ using namespace covise;
 using namespace opencover;
 class Trajectory
 {
+    enum trajectoryType {
+        T_CAR,
+        T_PERSON,
+        T_BICYCLE
+    };
+#pragma pack(push, 1)
+    struct header1 {
+        int32_t globalID;
+        int32_t perClassID;
+        char type[21];
+    };
+    struct header2 {
+        int32_t numTimesteps;
+        double firstTimestep;
+        double lastTimestep;
+    };
+#pragma pack(pop)
+    struct timestep {
+        float x;
+        float y;
+        double timestep;
+    };
+    header1 h1;
+    header2 h2;
+    timestep* timesteps=nullptr;
+    osg::Vec3Array* vert;
+    osg::Vec4Array* color;
+    osg::DrawArrayLengths* primitives;
+    osg::ref_ptr<osg::Geometry> geom;
+    osg::ref_ptr<osg::Geode> geode;
     double startTime;
     double endTime;
     int numPoints;
     int objectType;
-    osg::Vec3Array *coordinates;
+    osg::Vec3Array* coordinates;
     double* timestamps;
-    void readData(FILE* fp);
+    trajectoryType type;
+public:
+    Trajectory::Trajectory();
+    Trajectory::~Trajectory();
+    int readData(int fd);
+    osg::Geode* getGeometry() { return geode; };
     
 };
 
@@ -90,18 +125,13 @@ public:
     void deleteColorMap(const std::string &name);
 private:
     bool playing;
-    int frameNumber;
     double recordRate;
+    int currentMap;
+    std::list< Trajectory*> trajectories;
     osg::Group *TrajectoriesRoot;
-    osg::Vec3Array *vert;
-    osg::Vec4Array *color;
-    osg::DrawArrayLengths *primitives;
 
     static TrajectoriesPlugin *thePlugin;
 
-    void save();
 
-    osg::ref_ptr<osg::Geometry> geom;
-    osg::ref_ptr<osg::Geode> geode;
 };
 #endif

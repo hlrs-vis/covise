@@ -23,6 +23,7 @@
 #include "TrajectoriesPlugin.h"
 #define USE_MATH_DEFINES
 #include <math.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <config/coConfig.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
@@ -34,6 +35,9 @@
 #include <osg/Material>
 #include <osg/PrimitiveSet>
 #include <osg/LineWidth>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <osg/LineSegment>
 #include <osg/Matrix>
@@ -56,95 +60,66 @@ TrajectoriesPlugin *TrajectoriesPlugin::instance()
 }
 
 TrajectoriesPlugin::TrajectoriesPlugin()
+    : ui::Owner("TrajectoriesPlugin", cover->ui)
 {
     thePlugin = this;
 }
-
-static FileHandler handlers[] = {
-    { NULL,
-      TrajectoriesPlugin::sloadTrajectories,
-      TrajectoriesPlugin::unloadTrajectories,
-      "gcode" }
-};
-
-int TrajectoriesPlugin::sloadGCode(const char *filename, osg::Group *loadParent, const char *)
+Trajectory::Trajectory()
 {
-
-    instance()->loadGCode(filename, loadParent);
-    return 0;
 }
 
-int TrajectoriesPlugin::loadGCode(const char *filename, osg::Group *loadParent)
+int Trajectory::readData(int fd)
 {
 
-    frameNumber = 0;
-    //delete[] positions;
-    //positions = new float [3*MAXSAMPLES+3];
+    if (read(fd, &h1, sizeof(h1)) < sizeof(h1))
+        return -1;
+    if (read(fd, &h2, sizeof(h2)) < sizeof(h2))
+        return -1;
+    if (strcmp(h1.type, "car") == 0)
+    {
+        type = T_CAR;
+    }
+    else if (strcmp(h1.type, "person") == 0)
+    {
+        type = T_PERSON;
+    }
+    else if (strcmp(h1.type, "bicycle") == 0)
+    {
+        type = T_BICYCLE;
+    }
+    timesteps = new timestep[h2.numTimesteps];
+    int numBytes = h2.numTimesteps * sizeof(timestep);
+    int nr = 0;
+    while (nr < numBytes)
+    {
+        int r = read(fd, ((char *)timesteps)+nr, numBytes-nr);
+        if (r < 0)
+            return -1;
+        nr += r;
+    }
+    if ( nr < numBytes)
+    {
+        return -1;
+    }
+    // set up geometry
+    vert = new osg::Vec3Array();
+    vert->resize(h2.numTimesteps);
+    for (int i = 0; i < h2.numTimesteps; i++)
+    {
+        (*vert)[i].set(timesteps[i].x, timesteps[i].y, 0.0);
+    }
 
     geode = new Geode();
     geom = new Geometry();
-    geode->setStateSet(geoState.get());
+    geode->setStateSet(TrajectoriesPlugin::instance()->geoState.get());
 
     geom->setColorBinding(Geometry::BIND_OFF);
 
     geode->addDrawable(geom.get());
-    geode->setName("Viewer Positions");
+    geode->setName("trajectories");
 
-    // set up geometry
-    vert = new osg::Vec3Array;
-    color = new osg::Vec4Array;
 
-    int status;
-    int do_next; /* 0=continue, 1=mdi, 2=stop */
-    int block_delete;
-    char buffer[80];
-    int tool_flag;
-    int gees[RS274NGC_ACTIVE_G_CODES];
-    int ems[RS274NGC_ACTIVE_M_CODES];
-    double sets[RS274NGC_ACTIVE_SETTINGS];
-    char default_name[] SET_TO "rs274ngc.var";
-    int print_stack;
 
-    do_next SET_TO 2; /* 2=stop */
-    block_delete SET_TO RS_OFF;
-    print_stack SET_TO RS_OFF;
-    tool_flag SET_TO 0;
-    
-    const char *varFileName = opencover::coVRFileManager::instance()->getName("share/covise/rs274ngc.var");
-    strcpy(_parameter_file_name, varFileName);
-    _outfile SET_TO stdout; /* may be reset below */
-
-    fprintf(stderr, "executing\n");
-    if (tool_flag IS 0)
-    {
-        const char *toolFileName = opencover::coVRFileManager::instance()->getName("share/covise/rs274ngc.tool_default");
-
-        if (read_tool_file(toolFileName) ISNT 0)
-            exit(1);
-    }
-
-    if ((status SET_TO rs274ngc_init())ISNT RS274NGC_OK)
-    {
-        report_error(status, print_stack);
-        exit(1);
-    }
-
-    status SET_TO rs274ngc_open(filename);
-    if (status ISNT RS274NGC_OK) /* do not need to close since not open */
-    {
-        report_error(status, print_stack);
-        exit(1);
-    }
-    status SET_TO interpret_from_file(do_next, block_delete, print_stack);
-    rs274ngc_file_name(buffer, 5); /* called to exercise the function */
-    rs274ngc_file_name(buffer, 79); /* called to exercise the function */
-    rs274ngc_close();
-    rs274ngc_line_length(); /* called to exercise the function */
-    rs274ngc_sequence_number(); /* called to exercise the function */
-    rs274ngc_active_g_codes(gees); /* called to exercise the function */
-    rs274ngc_active_m_codes(ems); /* called to exercise the function */
-    rs274ngc_active_settings(sets); /* called to exercise the function */
-    rs274ngc_exit(); /* saves parameters */
     primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
     primitives->push_back(vert->size());
 
@@ -152,24 +127,86 @@ int TrajectoriesPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     coVRAnimationManager::instance()->setNumTimesteps(vert->size(), this);
 
     geom->setVertexArray(vert);
+    //geom->setColorArray(color);
+    //geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    color = new osg::Vec4Array(1);
+    if (type == T_CAR)
+    {
+        (*color)[0].set(1, 0, 0, 1);
+    }
+    if (type == T_PERSON)
+    {
+        (*color)[0].set(0, 1, 0, 1);
+    }
+    if (type == T_BICYCLE)
+    {
+        (*color)[0].set(0, 0, 1, 1);
+    }
     geom->setColorArray(color);
-    geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
     geom->addPrimitiveSet(primitives);
     geom->dirtyDisplayList();
     geom->setUseDisplayList(false);
-    parentNode = loadParent;
-    if (parentNode == NULL)
-        parentNode = cover->getObjectsRoot();
-    parentNode->addChild(geode.get());
-    ;
+    return h2.numTimesteps;
+}
+Trajectory::~Trajectory()
+{
+    if (geode && geode->getNumParents() > 0)
+    {
+        osg::Group* parent = geode->getParent(0);
+        if (parent)
+            parent->removeChild(geode.get());
+    }
+    delete[] timesteps;
+}
+
+static FileHandler handlers[] = {
+    { NULL,
+      TrajectoriesPlugin::sloadTrajectories,
+      TrajectoriesPlugin::unloadTrajectories,
+      "bcrtf" }
+};
+
+int TrajectoriesPlugin::sloadTrajectories(const char *filename, osg::Group *loadParent, const char *)
+{
+
+    instance()->loadTrajectories(filename, loadParent);
     return 0;
+}
+int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadParent)
+{
+    int numTrajectories = 0;
+
+    TrajectoriesRoot = loadParent;
+    if (TrajectoriesRoot == NULL)
+        TrajectoriesRoot = cover->getObjectsRoot();
+    int fd = open(filename, O_RDONLY| O_BINARY);
+
+    if (fd >= 0)
+    {
+        while(1)//for (int i = 0; i < numTrajectories; i++)
+        {
+            Trajectory *tr = new Trajectory();
+            int numTimesteps = tr->readData(fd);
+            if (numTimesteps < 0)
+            {
+                delete tr;
+                break;
+            }
+            TrajectoriesRoot->addChild(tr->getGeometry());
+        }
+    }
+    else
+    {
+        return -1;
+    }
+    return -1;
 }
 
 //--------------------------------------------------------------------
 void TrajectoriesPlugin::setTimestep(int t)
 {
-    if (primitives)
-        primitives->at(0) = t;
+  
 }
 
 int TrajectoriesPlugin::unloadTrajectories(const char *filename, const char *)
@@ -195,7 +232,6 @@ bool TrajectoriesPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 
     recordRate = 1;
-    primitives = NULL;
 
     coConfig *config = coConfig::getInstance();
 
@@ -277,7 +313,6 @@ bool TrajectoriesPlugin::init()
     play->setCallback([this](bool) {
         
         });
-    frameNumber = 0;
     play->setState(false);
     playing = false;
 
@@ -308,20 +343,20 @@ TrajectoriesPlugin::~TrajectoriesPlugin()
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 
     delete play;
-    if (geode && geode->getNumParents() > 0)
+    for (const auto& t : trajectories)
     {
-        TrajectoriesRoot = geode->getParent(0);
-        if (TrajectoriesRoot)
-            TrajectoriesRoot->removeChild(geode.get());
+        delete t;
     }
 }
 
 bool
 TrajectoriesPlugin::update()
 {
-    if (play->getState())
+    if (play->state())
     {
+        return true;
     }
+    return false;
 }
 
 osg::Vec4 TrajectoriesPlugin::getColor(float pos)
