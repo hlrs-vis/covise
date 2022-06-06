@@ -14,6 +14,7 @@
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coPopupHandle.h>
 #include <osg/Material>
+#include <osg/Switch>
 #include <osg/StateSet>
 #include <osg/Array>
 #include <PluginUtil/coSphere.h>
@@ -341,6 +342,17 @@ public:
     // destructor
     virtual ~MidiPlugin();
     osg::Node *createGeometry(int i);
+	osg::ref_ptr < osg::Node> thereminObject;
+	osg::ref_ptr < osg::MatrixTransform> thereminTransform;
+	osg::ref_ptr<osg::Switch> thereminSwitch;
+	double lastThereminTime = 0;
+	osg::Vec3 thereminPos;
+	float thereminScaleX=1.0;
+	float thereminScaleY=1.0;
+	float thereminMinX = 0.3;
+	float thereminMinY = 0.3;
+	float thereminMaxX = 2.0;
+	float thereminMaxY = 2.0;
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
     osg::ref_ptr<osg::StateSet> lineStateSet;

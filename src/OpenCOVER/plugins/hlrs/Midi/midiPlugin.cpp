@@ -812,6 +812,18 @@ bool MidiPlugin::init()
 		//MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1)));
 	}
 
+	std::string objFileName = coCoviseConfig::getEntry("object", "COVER.Plugin.Midi.Theremin", "theremin.obj");
+	thereminMinX = coCoviseConfig::getFloat("minX", "COVER.Plugin.Midi.Theremin", 1.0);
+	thereminMinY = coCoviseConfig::getFloat("minY", "COVER.Plugin.Midi.Theremin", 1.0);
+	thereminMaxX = coCoviseConfig::getFloat("maxX", "COVER.Plugin.Midi.Theremin", 10.0);
+	thereminMaxY = coCoviseConfig::getFloat("maxY", "COVER.Plugin.Midi.Theremin", 10.0);
+	thereminObject = osgDB::readNodeFile(objFileName);
+	if (thereminObject.get())
+	{
+		thereminTransform->addChild(thereminObject.get());
+		thereminSwitch->addChild(thereminTransform.get());
+		MIDIRoot->addChild(thereminSwitch.get());
+	}
 
 	hint = new osg::TessellationHints();
 	hint->setDetailRatio(1.0);
@@ -986,6 +998,29 @@ bool MidiPlugin::update()
 	UDPPacket packet;
 
 
+	if (lastThereminTime - cover->frameTime() > 10)
+	{
+		thereminSwitch->setAllChildrenOff();
+	}
+	else
+	{
+		thereminSwitch->setAllChildrenOn();
+
+        osg::Matrix mat;
+        float sX = (thereminMaxX - thereminMinX) * thereminScaleX;
+        float sY = (thereminMaxY - thereminMinY) * thereminScaleY;
+        if (thereminMaxX < 0)
+        {
+            sX = ((-thereminMaxX) - thereminMinX) * (1.0 - thereminScaleX);
+        }
+        if (thereminMaxY < 0)
+        {
+            sY = ((-thereminMaxY) - thereminMinY) * (1.0 - thereminScaleY);
+        }
+		mat = osg::Matrix::scale(thereminMinX + sX, thereminMinY + sY, thereminMinY + sY);
+		mat.setTrans(thereminPos);
+		thereminTransform->setMatrix(mat);
+	}
 
 
 
@@ -1169,6 +1204,17 @@ void MidiPlugin::handleController(MidiEvent& me)
 	fprintf(stderr, "Controller Nr.%d, value %d\n", me.getP1(), me.getP2());
 	int controllerID = me.getP1();
 	int value = me.getP2();
+
+	if (controllerID == 2)
+	{
+		lastThereminTime = cover->frameTime();
+		thereminScaleX = value/128.0;
+	}
+	if (controllerID == 3)
+	{
+		lastThereminTime = cover->frameTime();
+		thereminScaleY = value / 128.0;
+	}
 	if (controllerID == 5)
 	{
 		if (value < 10)
