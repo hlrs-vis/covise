@@ -470,18 +470,20 @@ namespace OpenCOVERPlugin
 
             FilteredElementCollector a = new FilteredElementCollector(document).OfClass(typeof(BasePoint));
 
-            foreach (BasePoint b in a)
+/*            foreach (BasePoint b in a)
             {
                 BasePoint bp = b as BasePoint;
                 if(bp.IsShared)
                 {
-                     // surveyPoint
+                    // surveyPoint
+
+                    xo = parameters[0].AsDouble();
                 }
                 else
                 {
                     mbdocinfo.add(b.SharedPosition);
                 }
-            }
+            }*/
             double xo = 0;
             double yo = 0;
             double zo = 0;

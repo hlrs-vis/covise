@@ -134,7 +134,7 @@ namespace OpenCOVERPlugin
             Transform t = node.GetTransform();
             MessageBuffer mb = new MessageBuffer();
 
-            mb.add(node.GetSymbolId().IntegerValue);
+            mb.add(node.GetSymbolGeometryId().SymbolId.IntegerValue);// was GetSymbolId
             mb.add(node.NodeName);
             mb.add(t.BasisX.Multiply(t.Scale));
             mb.add(t.BasisY.Multiply(t.Scale));

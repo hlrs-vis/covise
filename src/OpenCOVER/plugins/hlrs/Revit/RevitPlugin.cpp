@@ -2145,17 +2145,17 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> TrueNorthAngle;
 		double eastWest;
 		double northSouth;
-		float xo, yo, zo;
-		double pox, poy, poz;
+		double xo=0.0, yo = 0.0, zo = 0.0;
+		double pox=0.0, poy = 0.0, poz = 0.0;
 		int GeoReference;
 		tb >> eastWest;
 		tb >> northSouth;
 		tb >> xo;
 		tb >> yo;
 		tb >> zo;
-		tb >> pox;
-		tb >> poy;
-		tb >> poz;
+		//tb >> pox;
+		//tb >> poy;
+		//tb >> poz;
 		tb >> GeoReference;
 		if(firstDocument)
 		{
