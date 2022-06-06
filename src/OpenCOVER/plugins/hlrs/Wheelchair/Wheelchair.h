@@ -82,6 +82,7 @@ private:
     float mPerCount;
     int64_t oldCountLeft=0;
     int64_t oldCountRight=0;
+    osg::Matrix WheelchairPos;
 };
 
 #endif /* Wheelchair_H */

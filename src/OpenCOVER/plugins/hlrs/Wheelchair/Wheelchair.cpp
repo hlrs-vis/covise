@@ -8,6 +8,7 @@
 
 #include "Wheelchair.h"
 #include <config/CoviseConfig.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
 #include <cover/coVRMSController.h>
@@ -52,10 +53,20 @@ Wheelchair::~Wheelchair()
 
 bool Wheelchair::init()
 {
+    float floorHeight = VRSceneGraph::instance()->floorHeight();
 
 	//const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
 	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
 	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31321);
+    float x = covise::coCoviseConfig::getFloat("x", "COVER.Plugin.Wheelchair.Position", 0);
+    float y = covise::coCoviseConfig::getFloat("y", "COVER.Plugin.Wheelchair.Position", 0);
+    float z = covise::coCoviseConfig::getFloat("z", "COVER.Plugin.Wheelchair.Position", floorHeight);
+    float h = covise::coCoviseConfig::getFloat("h", "COVER.Plugin.Wheelchair.Position", 0);
+    float p = covise::coCoviseConfig::getFloat("p", "COVER.Plugin.Wheelchair.Position", 0);
+    float r = covise::coCoviseConfig::getFloat("r", "COVER.Plugin.Wheelchair.Position", 0);
+
+    MAKE_EULER_MAT(WheelchairPos, h, p, r);
+    WheelchairPos.postMultTranslate(osg::Vec3(x, y, z));
 
     joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
     yIndex = covise::coCoviseConfig::getInt("Wheelchair.yIndex", 5);
@@ -221,8 +232,8 @@ void Wheelchair::MoveToFloor()
 
     //  just adjust height here
 
-    osg::Matrix viewer = cover->getViewerMat();
-    osg::Vec3 pos = viewer.getTrans();
+
+    osg::Vec3 pos = WheelchairPos.getTrans();
 
     // down segment
     osg::Vec3 p0, q0;
