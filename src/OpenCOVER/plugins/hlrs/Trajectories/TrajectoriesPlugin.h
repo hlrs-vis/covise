@@ -83,8 +83,8 @@ class Trajectory
     double* timestamps;
     trajectoryType type;
 public:
-    Trajectory::Trajectory();
-    Trajectory::~Trajectory();
+    Trajectory();
+    ~Trajectory();
     int readData(int fd);
     osg::Geode* getGeometry() { return geode; };
     
