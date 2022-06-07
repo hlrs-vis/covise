@@ -550,6 +550,9 @@ bool CEF::init()
         m_initFailed = true;
         return false;
     }
+    auto path = getenv("COVISE_BROWSER_HOME_SCREEN");
+    if(path)
+        open(path);
     return true;
 }
 
