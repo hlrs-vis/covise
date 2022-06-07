@@ -180,8 +180,11 @@ int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadP
     TrajectoriesRoot = loadParent;
     if (TrajectoriesRoot == NULL)
         TrajectoriesRoot = cover->getObjectsRoot();
+#ifdef _WIN32
     int fd = open(filename, O_RDONLY| O_BINARY);
-
+#else
+    int fd = open(filename, O_RDONLY);
+#endif
     if (fd >= 0)
     {
         while(1)//for (int i = 0; i < numTrajectories; i++)
