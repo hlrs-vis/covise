@@ -110,8 +110,6 @@ private:
     void createChannels(int i);
     void destroyChannels(int i);
 
-    int isHeadtracking;
-    bool fixViewer;
     osg::Vec4 backgroundColor;
 
     bool arTracking;
