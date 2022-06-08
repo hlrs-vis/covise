@@ -10,6 +10,7 @@ using Autodesk.Revit.DB;
 using System.Windows.Media.Media3D;
 using utils;
 using System.Collections;
+using System;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -231,10 +232,28 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private void InitFeatures()
         {
             ArrayList features = new();
-            features.Add(new Dictionary<string, object>{
-                {"file", m_STLName + ".eMesh" },
-                {"level", 1}
-            });
+            Action<string, int> add_feature_desc = (name, lvl) =>
+            {
+                features.Add(new Dictionary<string, object>{
+                    {"file", name + ".eMesh" },
+                    {"level", lvl}
+                });
+            };
+            add_feature_desc(m_STLName, 1);
+
+            foreach (var face in m_Faces)
+            {
+                var name = face.Key.Key;
+                add_feature_desc(name, 1);
+            }
+
+            var s = FOAMInterface.Singleton.Settings;
+            foreach (var entry in s.MeshResolution)
+            {
+                var name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);
+                add_feature_desc(name, 1);
+            }
+
             m_CastellatedMeshControls.Add("features", features);
         }
 
