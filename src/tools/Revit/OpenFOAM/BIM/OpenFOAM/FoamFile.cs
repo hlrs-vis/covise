@@ -12,6 +12,10 @@ using System.Windows.Forms;
 using System.Security;
 using System.Collections;
 using System.Windows;
+using System.Globalization;
+using System.Numerics;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -95,7 +99,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             m_Name = name;
             m_Path = path;
 
-            if(_class == string.Empty)
+            if (_class == string.Empty)
             {
                 m_Class = "dictionary";
             }
@@ -222,7 +226,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
     public class FoamFileAsBinary : FOAMFile
     {
         //
-       // private readonly BinaryWriter binaryWriter = null;
+        // private readonly BinaryWriter binaryWriter = null;
 
         /// <summary>
         /// Contructor.
@@ -232,7 +236,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to the foamfile.</param>
         /// <param name="attributes">Additional attributes besides default.</param>
         /// <param name="format">Ascii or Binary.</param>
-        public FoamFileAsBinary(in string name, in Version version, in string path, in string _class, in Dictionary<string, object> attributes,in SaveFormat format)
+        public FoamFileAsBinary(in string name, in Version version, in string path, in string _class, in Dictionary<string, object> attributes, in SaveFormat format)
             : base(name, version, path, _class, attributes, format)
         {
 
@@ -310,7 +314,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create attribute from given KeyValuePair and write it to foamfile.
         /// </summary>
         /// <param name="attribute">Attribute of the Foamfile</param>
-        public override bool CreateAttribute(in KeyValuePair<string,object> attribute, Type type)
+        public override bool CreateAttribute(in KeyValuePair<string, object> attribute, Type type)
         {
             throw new NotImplementedException();
         }
@@ -482,18 +486,23 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 string entry = string.Empty;
                 Type type = obj.GetType();
 
-                if(type == typeof(Vector3D) || type  == typeof(Vector))
+                // if(type == typeof(Vector3D) || type  == typeof(Vector))
+                if (type == typeof(Vector3D))
                 {
-                    entry = VectorToString(obj);
+                    entry = Vector3DToString((Vector3D)obj);
+                }
+                else if (type == typeof(Vector))
+                {
+                    entry = VectorToString((Vector)obj);
                 }
                 else if (type == typeof(double[]) || type == typeof(int[]))
                 {
                     Array moreDimVector = null;
-                    if(type == typeof(double[]))
+                    if (type == typeof(double[]))
                     {
                         moreDimVector = obj as double[];
                     }
-                    else if(type == typeof(int[]))
+                    else if (type == typeof(int[]))
                     {
                         moreDimVector = obj as int[];
                     }
@@ -509,7 +518,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     WriteInFile("}");
                     continue;
                 }
-                else if(type == typeof(Dictionary<string, object>))
+                else if (type == typeof(Dictionary<string, object>))
                 {
                     var dict = obj as Dictionary<string, object>;
                     WriteInFile("{");
@@ -531,13 +540,21 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Create attribute from given KeyValuePair and write it to foamfile.
         /// </summary>
         /// <param name="attribute">Attribute of the Foamfile</param>
-        public override bool CreateAttribute(in KeyValuePair<string,object> attribute, Type type)
+        public override bool CreateAttribute(in KeyValuePair<string, object> attribute, Type type)
         {
             //Type type = attribute.Value.GetType();
             string objectValue;
-            if (typeof(Vector3D) == type || typeof(Vector) == type)
+            // if (typeof(Vector3D) == type || typeof(Vector) == type)
+            if (typeof(Vector3D) == type)
             {
-                string vec = VectorToString(attribute.Value);
+                string vec = Vector3DToString((Vector3D)attribute.Value);
+                string vecFoam = attribute.Key + " (" + vec + ");";
+                WriteInFile(vecFoam);
+                return true;
+            }
+            else if (typeof(Vector) == type)
+            {
+                string vec = VectorToString((Vector)attribute.Value);
                 string vecFoam = attribute.Key + " (" + vec + ");";
                 WriteInFile(vecFoam);
                 return true;
@@ -558,7 +575,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             else
             {
                 objectValue = attribute.Value.ToString();
-                if(typeof(bool) == type)
+                if (typeof(bool) == type)
                 {
                     objectValue = objectValue.ToLower();
                 }
@@ -573,11 +590,35 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <typeparam name="T">Type of give vector object.</typeparam>
         /// <param name="vec">Vector object.</param>
         /// <returns>Vector as string.</returns>
-        private string VectorToString<T>(in T vec)
+        // private string VectorToString<T>(in T vec)
+        private string VectorToString(in Vector vec)
         {
-            string formatString = vec.ToString().Replace(";", " ");
-            return formatString.Replace(",", ".");
+            // string formatString = vec.ToString().Replace(";", " ");
+            // return formatString.Replace(",", ".");
+            string result = "";
+            result += vec.X.ToString(new CultureInfo("en-US")) + " ";
+            result += vec.Y.ToString(new CultureInfo("en-US")) + " ";
+            return result;
         }
+
+        private string Vector3DToString(in Vector3D vec)
+        {
+            string result = "";
+            result += vec.X.ToString(new CultureInfo("en-US")) + " ";
+            result += vec.Y.ToString(new CultureInfo("en-US")) + " ";
+            result += vec.Z.ToString(new CultureInfo("en-US"));
+            return result;
+        }
+
+        // private string VectorToString(in Vector vec)
+        // {
+        //     string result = "";
+        //     result = vec.X.ToString(new CultureInfo("en-US")) + " ";
+        //     result = vec.Y.ToString(new CultureInfo("en-US")) + " ";
+        //     // foreach(var elem in vec) 
+        //     //     result += elem.ToString(new CultureInfo("en-US")) + " ";
+        //     return result;
+        // }
 
         /// <summary>
         /// Return array entries as string with space in between.

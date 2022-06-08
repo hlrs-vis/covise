@@ -8,6 +8,7 @@ using System.Windows.Media.Media3D;
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using System.Globalization;
 
 namespace OpenFOAMInterface.BIM.OpenFOAM
 {
@@ -204,8 +205,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         private void InitBlocks()
         {
-            m_Blocks.Add("hex (0 1 2 3 4 5 6 7) (" + m_CellSize.ToString().Replace(';', ' ') + ")");
-            m_Blocks.Add("simpleGrading (" + m_SimpleGrading.ToString().Replace(';', ' ') + ")");
+            // m_Blocks.Add("hex (0 1 2 3 4 5 6 7) (" + m_CellSize.ToString().Replace(';', ' ') + ")");
+            // m_Blocks.Add("simpleGrading (" + m_SimpleGrading.ToString().Replace(';', ' ') + ")");
+            var culture = new CultureInfo("en-US");
+            m_Blocks.Add("hex (0 1 2 3 4 5 6 7) (" + m_CellSize.X.ToString(culture) + " " + m_CellSize.Y.ToString(culture) + " " + m_CellSize.Z.ToString(culture) + ")");
+            m_Blocks.Add("simpleGrading (" + m_SimpleGrading.X.ToString(culture) + " " + m_SimpleGrading.Y.ToString(culture) + " " + m_SimpleGrading.Z.ToString(culture) + ")");
         }
 
         /// <summary>
