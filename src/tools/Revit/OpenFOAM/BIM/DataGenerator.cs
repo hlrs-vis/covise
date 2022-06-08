@@ -501,7 +501,7 @@ namespace OpenFOAMInterface.BIM
 
             m_OpenFOAMDictionaries.Add(new OpenFOAM.BlockMeshDict(version, blockMeshDict, null, SaveFormat.ascii, m_LowerEdgeVector, m_UpperEdgeVector));
             m_OpenFOAMDictionaries.Add(new OpenFOAM.ControlDict(version, controlDict, null, SaveFormat.ascii, null));
-            m_OpenFOAMDictionaries.Add(new OpenFOAM.SurfaceFeatureExtract(version, surfaceFeatureExtractDict, null, SaveFormat.ascii, m_STLName));
+            m_OpenFOAMDictionaries.Add(new OpenFOAM.SurfaceFeatureExtract(version, surfaceFeatureExtractDict, null, m_FacesInletOutlet, SaveFormat.ascii, m_STLName));
             m_OpenFOAMDictionaries.Add(decomposeParDictionary);
             m_OpenFOAMDictionaries.Add(new OpenFOAM.FvSchemes(version, fvSchemes, null, SaveFormat.ascii));
             m_OpenFOAMDictionaries.Add(new OpenFOAM.FvSolution(version, fvSolution, null, SaveFormat.ascii));
@@ -744,21 +744,15 @@ namespace OpenFOAMInterface.BIM
             {
                 computeBoundingBox = false;
                 if (FOAMInterface.Singleton.Settings.DomainX.IsZeroLength())
-                {
                     computeBoundingBox = true;
-                }
 
                 m_StlCancel.Show();
 
                 // save data in certain STL file
                 if (SaveFormat.binary == FOAMInterface.Singleton.Settings.SaveFormat)
-                {
                     m_Writer = new SaveDataAsBinary(fileName, FOAMInterface.Singleton.Settings.SaveFormat);
-                }
                 else
-                {
                     m_Writer = new SaveDataAsAscII(fileName, FOAMInterface.Singleton.Settings.SaveFormat);
-                }
 
                 m_Writer.CreateFile();
 
@@ -888,6 +882,7 @@ namespace OpenFOAMInterface.BIM
         private GeneratorStatus ScanElement(ElementsExportRange exportRange)
         {
             List<Document> documents = new List<Document>();
+            List<string> matListNames = new List<string>{"Inlet", "Outlet"};
 
             string pathSTL = m_Writer.FileName;
             string stlName = pathSTL.Substring(pathSTL.LastIndexOf("\\") + 1).Split('.')[0];
@@ -940,7 +935,7 @@ namespace OpenFOAMInterface.BIM
 
                 //get the category list seperated via FamilyInstance in the current document
                 m_DuctTerminalsInDoc = GetDefaultCategoryListOfClass<FamilyInstance>(doc, BuiltInCategory.OST_DuctTerminal, m_ActiveView.Name);
-                m_InletOutletMaterials = GetMaterialList(m_DuctTerminalsInDoc, new List<string> { "Inlet", "Outlet" });
+                m_InletOutletMaterials = GetMaterialList(m_DuctTerminalsInDoc, matListNames);
 
                 collector.WhereElementIsNotElementType();
 
@@ -1002,9 +997,8 @@ namespace OpenFOAMInterface.BIM
                 terminalListOfAllDocuments.Add(doc, m_DuctTerminalsInDoc);
             }
 
-
-            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_InletElements, new List<string> { "Inlet", "Outlet" }));
-            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_OutletElements, new List<string> { "Inlet", "Outlet" }));
+            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_InletElements, matListNames));
+            m_InletOutletMaterials.AddRange(GetMaterialList(FOAMInterface.Singleton.Settings.m_OutletElements, matListNames));
             m_Writer.WriteSolidName(stlName, false);
             if (!singleFile)
             {
