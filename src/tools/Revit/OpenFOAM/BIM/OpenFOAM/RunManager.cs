@@ -592,7 +592,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + FOAMInterface.Singleton.Settings.SSH.OfAlias +
                 "; mkdir " + serverCaseDir +
                 "; cd " + serverDir +
-                "; unzip " + fileName + " -d " + serverCaseDir +
+                "; unzip -o " + fileName + " -d " + serverCaseDir +
                 "; rm " + fileName +
                 "; cd " + serverCaseDir
             };
@@ -600,8 +600,12 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             if (FOAMInterface.Singleton.Settings.SSH.Slurm)
                 shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + FOAMInterface.Singleton.Settings.SSH.SlurmCommand + " ./Allrun");
             shellCommands.Add("rm -r processor*");
-            shellCommands.Add("cd " + serverDir);
-            shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
+
+            if (FOAMInterface.Singleton.Settings.SSH.Download)
+            {
+                shellCommands.Add("cd " + serverDir);
+                shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
+            }
 
             return shellCommands;
         }
