@@ -274,7 +274,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// PurgeWrite for ControlDict.
             /// </summary>
             private int _purgeWrite;
-            public int PurgeWrite {  readonly get => _purgeWrite; set => _purgeWrite = value; }
+            public int PurgeWrite { readonly get => _purgeWrite; set => _purgeWrite = value; }
 
             /// <summary>
             /// WritePrecision for ControlDict.
@@ -713,11 +713,22 @@ namespace OpenFOAMInterface.BIM.Structs
                 this.Type = _patchType;
                 if (!_value.Equals(default) && !_uniform.Equals(""))
                 {
-                    this.Attributes = new Dictionary<string, object>
+                    if (_type.Equals("totalPressure"))
                     {
-                        { "type", _type },
-                        { "value " + _uniform, _value}
-                    };
+                        this.Attributes = new Dictionary<string, object>
+                        {
+                            { "type", _type },
+                            { "p0 " + _uniform, _value}
+                        };
+                    }
+                    else
+                    {
+                        this.Attributes = new Dictionary<string, object>
+                        {
+                            { "type", _type },
+                            { "value " + _uniform, _value}
+                        };
+                    }
                 }
                 else
                 {
@@ -937,7 +948,7 @@ namespace OpenFOAMInterface.BIM.Structs
         /// <summary>
         /// Turbulence attributes for the openfoam dictionary turbulenceProperties.
         /// </summary>
-        readonly public struct TurbulenceParameter
+        public struct TurbulenceParameter
         {
             /// <summary>
             /// Constructor.
@@ -975,7 +986,7 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <summary>
             /// Model for simulation
             /// </summary>
-            public ValueType StructModel { get; }
+            public ValueType StructModel { get; set; }
 
             /// <summary>
             /// This methode creates and returns the attributes as dictionary<string, object>.
