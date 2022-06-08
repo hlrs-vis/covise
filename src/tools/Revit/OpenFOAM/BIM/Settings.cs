@@ -29,6 +29,7 @@ namespace OpenFOAMInterface.BIM
     using System.Reflection;
     using System.Runtime.InteropServices.ComTypes;
     using System.Diagnostics.Contracts;
+    using OpenFOAMInterface.BIM.OpenFOAM;
 
     /// <summary>
     /// Settings made by user to export.
@@ -230,6 +231,8 @@ namespace OpenFOAMInterface.BIM
 
         //turbulenceProperties
         private TurbulenceParameter m_TurbulenceParameter;
+        private bool m_windAroundBuildings = false;
+        // private double m_turbulenceIntesity;
 
         //SSH
         private SSH m_SSH;
@@ -973,19 +976,17 @@ namespace OpenFOAMInterface.BIM
                 m_controlDictParam.WriteFormat = WriteFormat.binary;
         }
 
+        private void setTemp(in FamilyInstance instance, out double settingTempVar, in string tempVarName)
+        {
+            double temp = GetDouble(instance, tempVarName);
+            settingTempVar = temp;
+        }
+
         private void InitTemp(in FamilyInstance instance)
         {
-            double temp = GetDouble(instance, "inletTemp");
-            // var temp = getParam<double>(instance, "inletTemp");
-            m_TempInlet = temp;
-            //temp = getDouble(instance, "outletTemp");
-            //m_TempOutlet = temp;
-            temp = GetDouble(instance, "wallTemp");
-            m_TempWall = temp;
-            temp = GetDouble(instance, "internalTemp");
-            if (temp == -1)
-                temp = 298.15;
-            m_TempInternalField = temp;
+            setTemp(instance, out m_TempInlet, "inletTemp");
+            setTemp(instance, out m_TempWall, "wallTemp");
+            setTemp(instance, out m_TempInternalField, "internalTemp");
         }
 
         private void InitSnappy(in FamilyInstance instance)
@@ -1044,6 +1045,31 @@ namespace OpenFOAMInterface.BIM
             m_controlDictParam.PurgeWrite = purgeWrite;
         }
 
+        private RASModel switchTurbulenceModel(in string turbulenceStr)
+        {
+            return turbulenceStr switch
+            {
+                "kEpsilon" => RASModel.kEpsilon,
+                _ => RASModel.RNGkEpsilon,
+            };
+        }
+
+        // private void InitTurbulenceModel(in FamilyInstance instance)
+        // {
+        //     string turbulenceModel = GetString(instance, "turbulenceModel");
+        //     m_TurbulenceParameter.StructModel = switchTurbulenceModel(turbulenceModel);
+
+        //     double turbulenceIntensity = GetDouble(instance, "turbulenceIntesity");
+        //     if(turbulenceIntensity < 0)
+        //         turbulenceIntensity = 0.1;
+        //     m_turbulenceIntesity = turbulenceIntensity;
+        // }
+
+        private void InitWindAroundBuildings(in FamilyInstance instance)
+        {
+            m_windAroundBuildings = GetBool(instance, "windAroundBuildings");
+        }
+
         private void InitOpenFOAM(in FilteredElementCollector collector)
         {
             var query = QueryElemByName("OpenFOAM", collector);
@@ -1057,6 +1083,12 @@ namespace OpenFOAMInterface.BIM
 
                 //environment
                 InitEnvironment(instance);
+
+                // //turbulenceModel
+                // InitTurbulenceModel(instance);
+
+                //windaroundBuildings
+                InitWindAroundBuildings(instance);
 
                 //Solver
                 InitSolver(instance);
@@ -1193,7 +1225,7 @@ namespace OpenFOAMInterface.BIM
             return InitDuctParameters();
         }
 
-        private void getFlowParameters(FamilyInstance instance, ref double flowRate, ref double meanFlowVelocity, ref double staticPressure, ref int rpm, ref double surfaceArea, ref double temperature)
+        private void GetFlowParameters(FamilyInstance instance, ref double flowRate, ref double meanFlowVelocity, ref double staticPressure, ref int rpm, ref double surfaceArea, ref double temperature)
         {
             foreach (Parameter param in instance.Parameters)
             {
@@ -1236,7 +1268,7 @@ namespace OpenFOAMInterface.BIM
                         if (temperature != 0)
                             continue;
                         else
-                            temperature = m_TempInternalField;
+                            temperature = m_TempInlet;
                     }
                 }
                 catch (Exception e)
@@ -1269,7 +1301,7 @@ namespace OpenFOAMInterface.BIM
                 double staticPressure = 0;
                 int rpm = 0;
                 double temperature = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
+                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
 
                 if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
                 {
@@ -1300,7 +1332,7 @@ namespace OpenFOAMInterface.BIM
                 double staticPressure = 0;
                 int rpm = 0;
                 double temperature = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
+                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
@@ -1319,7 +1351,7 @@ namespace OpenFOAMInterface.BIM
                 double staticPressure = 0;
                 int rpm = 0;
                 double temperature = 0;
-                getFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
+                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
 
                 string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
                 DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
@@ -1482,7 +1514,7 @@ namespace OpenFOAMInterface.BIM
             {
                 RelTol = 0.01,
                 Solver = solverP_RGH,
-                Tolerance = 1e-8
+                Tolerance = 1e-6
             };
 
             m_FvParameter.Add("p_rgh", p_rgh);
@@ -1494,7 +1526,7 @@ namespace OpenFOAMInterface.BIM
             {
                 Solver = solver,
                 RelTol = 0.1,
-                Tolerance = 1e-7,
+                Tolerance = 1e-6,
                 NSweeps = 0
             };
 
@@ -1515,7 +1547,7 @@ namespace OpenFOAMInterface.BIM
             InitFvSol_P_RGH(solverP_RGH);
 
             //T-FvSolution-Solver
-            InitFvSol_Parameter("T", 0.1, 1e-8, 1, solverT, smootherT);
+            InitFvSol_Parameter("T", 0.1, 1e-6, 1, solverT, smootherT);
         }
 
         private void InitFvSol_SimpleFOAM(in SolverFV solver, in Agglomerator agglomerator, in CacheAgglomeration cacheAgglomeration)
@@ -1564,13 +1596,13 @@ namespace OpenFOAMInterface.BIM
                 InitFvSol_SimpleFOAM(solverP, agglomerator, cacheAgglomeration);
 
             //U-FvSolution-Solver
-            InitFvSol_Parameter("U", 0.1, 1e-8, 1, solverU, smootherU);
+            InitFvSol_Parameter("U", 0.1, 1e-6, 1, solverU, smootherU);
 
             //k-FvSolution-Solver
-            InitFvSol_Parameter("k", 0.1, 1e-8, 1, solverK, smootherK);
+            InitFvSol_Parameter("k", 0.1, 1e-6, 1, solverK, smootherK);
 
             //epsilon-FvSolution-Solver
-            InitFvSol_Parameter("epsilon", 0.1, 1e-8, 1, solverEpsilon, smootherEpsilon);
+            InitFvSol_Parameter("epsilon", 0.1, 1e-6, 1, solverEpsilon, smootherEpsilon);
         }
 
         /// <summary>
@@ -2122,7 +2154,10 @@ namespace OpenFOAMInterface.BIM
                         parameter = new NullParameter(param.ToString(), 0.0, model);
                         CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.wall, false);
                         CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.inlet, false);
-                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", -1.5, PatchType.outlet, true);
+                        if (m_windAroundBuildings)
+                            CreateFOAMParameterPatches(parameter, "totalPressure", "uniform", 0, PatchType.outlet, true);
+                        else
+                            CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0, PatchType.outlet, true);
                         CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.floor, false);
                         CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sky, false);
                         CreateFOAMParameterPatches<int>(parameter, "zeroGradient", "", default, PatchType.sidewalls, false);
@@ -2162,18 +2197,19 @@ namespace OpenFOAMInterface.BIM
                     }
                 case InitialFOAMParameter.k:
                     {
-                        parameter = new NullParameter(param.ToString(), 0.1, model);
-                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.wall, /*false*/true);
-                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", 0.1, PatchType.inlet, /*false*/true);
-                        CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", 0.1, PatchType.outlet, false/*true*/);
-                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.floor, true);
-                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sky, true);
-                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", 0.1, PatchType.sidewalls, true);
+                        double kVal = 0.1;
+                        parameter = new NullParameter(param.ToString(), kVal, model);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", kVal, PatchType.wall, /*false*/true);
+                        CreateFOAMParameterPatches(parameter, "fixedValue", "uniform", kVal, PatchType.inlet, /*false*/true);
+                        CreateFOAMParameterPatches(parameter, "inletOutlet", "uniform", kVal, PatchType.outlet, false/*true*/);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", kVal, PatchType.floor, true);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", kVal, PatchType.sky, true);
+                        CreateFOAMParameterPatches(parameter, "kqRWallFunction", "uniform", kVal, PatchType.sidewalls, true);
                         foreach (var outlet in parameter.Patches)
                         {
                             if (outlet.Value.Type == PatchType.outlet)
                             {
-                                outlet.Value.Attributes.Add("inletValue uniform", 0.1);
+                                outlet.Value.Attributes.Add("inletValue uniform", kVal);
                             }
                         }
                         break;
@@ -2537,6 +2573,8 @@ namespace OpenFOAMInterface.BIM
                                     }
                                     v = 0;
                                     type = "fixedValue";
+                                    if(m_windAroundBuildings)
+                                        type = "totalPressure";
                                     _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                 }
                                 else if (param.Name.Equals(InitialFOAMParameter.p_rgh.ToString()))
@@ -2588,7 +2626,6 @@ namespace OpenFOAMInterface.BIM
                                 double kappa = 0.41;
                                 double rho = 1.22;
                                 double u = Uref * kappa / Math.Log((Zref + z0) / z0);
-
                                 double tau = rho * (u * u); // = 0.390796574
 
                                 //tau(0.390796574 0 0);
