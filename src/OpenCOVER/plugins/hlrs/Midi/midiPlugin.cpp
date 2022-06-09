@@ -801,6 +801,9 @@ bool MidiPlugin::init()
 	MIDIRoot = new osg::Group;
 	MIDIRoot->setName("MIDIRoot");
 	cover->getScene()->addChild(MIDIRoot.get());
+	MIDIObjectsRoot = new osg::Group;
+	MIDIObjectsRoot->setName("MIDIObjectsRoot");
+	cover->getObjectsRoot()->addChild(MIDIObjectsRoot.get());
 	for (int i = 0; i < NUMMidiStreams; i++)
 	{
 		MIDITrans[i] = new osg::MatrixTransform();
@@ -817,12 +820,19 @@ bool MidiPlugin::init()
 	thereminMinY = coCoviseConfig::getFloat("minY", "COVER.Plugin.Midi.Theremin", 1.0);
 	thereminMaxX = coCoviseConfig::getFloat("maxX", "COVER.Plugin.Midi.Theremin", 10.0);
 	thereminMaxY = coCoviseConfig::getFloat("maxY", "COVER.Plugin.Midi.Theremin", 10.0);
+	float px = coCoviseConfig::getFloat("posX", "COVER.Plugin.Midi.Theremin", 0.0);
+	float py = coCoviseConfig::getFloat("posY", "COVER.Plugin.Midi.Theremin", 0.0);
+	float pz = coCoviseConfig::getFloat("posZ", "COVER.Plugin.Midi.Theremin", 0.0);
+
+	thereminPos.set(px, py, pz);
 	thereminObject = osgDB::readNodeFile(objFileName);
 	if (thereminObject.get())
 	{
+		thereminTransform = new osg::MatrixTransform();
+		thereminSwitch = new osg::Switch();
 		thereminTransform->addChild(thereminObject.get());
 		thereminSwitch->addChild(thereminTransform.get());
-		MIDIRoot->addChild(thereminSwitch.get());
+		MIDIObjectsRoot->addChild(thereminSwitch.get());
 	}
 
 	hint = new osg::TessellationHints();
@@ -970,7 +980,8 @@ bool MidiPlugin::destroy()
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
 
-	cover->getObjectsRoot()->removeChild(MIDIRoot.get());
+	cover->getScene()->removeChild(MIDIRoot.get());
+	cover->getObjectsRoot()->removeChild(MIDIObjectsRoot.get());
 
 	MIDItab_delete();
 
@@ -998,13 +1009,13 @@ bool MidiPlugin::update()
 	UDPPacket packet;
 
 
-	if (lastThereminTime - cover->frameTime() > 10)
+	/*if (cover->frameTime() - lastThereminTime > 10.0)
 	{
 		thereminSwitch->setAllChildrenOff();
 	}
 	else
 	{
-		thereminSwitch->setAllChildrenOn();
+		thereminSwitch->setAllChildrenOn();*/
 
         osg::Matrix mat;
         float sX = (thereminMaxX - thereminMinX) * thereminScaleX;
@@ -1020,7 +1031,7 @@ bool MidiPlugin::update()
 		mat = osg::Matrix::scale(thereminMinX + sX, thereminMinY + sY, thereminMinY + sY);
 		mat.setTrans(thereminPos);
 		thereminTransform->setMatrix(mat);
-	}
+	//}
 
 
 
@@ -1208,12 +1219,22 @@ void MidiPlugin::handleController(MidiEvent& me)
 	if (controllerID == 2)
 	{
 		lastThereminTime = cover->frameTime();
-		thereminScaleX = value/128.0;
+		thereminScaleX = value/125.0;
+		if (value < 1)
+		{
+			thereminSwitch->setAllChildrenOff();
+			thereminSwitch->setValue(0, false);
+		}
+		else
+		{
+			thereminSwitch->setAllChildrenOn();
+			thereminSwitch->setValue(0, true);
+		}
 	}
 	if (controllerID == 3)
 	{
 		lastThereminTime = cover->frameTime();
-		thereminScaleY = value / 128.0;
+		thereminScaleY = value / 125.0;
 	}
 	if (controllerID == 5)
 	{
