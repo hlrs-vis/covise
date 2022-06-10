@@ -331,6 +331,17 @@ void coVRPluginList::unmanage(coVRPlugin *plugin)
     if (!plugin)
         return;
 
+    if (plugin == viewerPlugin)
+    {
+        std::cerr << "Plugin " << plugin->getName() << " did not release viewer grab before unloading" << std::endl;
+        viewerPlugin = nullptr;
+    }
+    if (plugin == keyboardPlugin)
+    {
+        std::cerr << "Plugin " << plugin->getName() << " did not release keyboard grab before unloading" << std::endl;
+        keyboardPlugin = nullptr;
+    }
+
     auto it = m_plugins.find(plugin->getName());
     if (it == m_plugins.end())
     {
@@ -449,7 +460,11 @@ void coVRPluginList::requestTimestep(int t)
 
 void coVRPluginList::commitTimestep(int t, coVRPlugin *plugin)
 {
-    assert(m_requestedTimestep == t);
+    if (t != m_requestedTimestep)
+    {
+        std::cerr << "coVRPluginList: plugin " << plugin->getName() << " committed timestep " << t << ", but "
+                  << m_requestedTimestep << " was expected" << std::endl;
+    }
     assert(m_numOutstandingTimestepPlugins > 0);
     --m_numOutstandingTimestepPlugins;
     if (m_numOutstandingTimestepPlugins < 0)
