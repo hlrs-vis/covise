@@ -87,8 +87,13 @@ int Trajectory::readData(int fd)
     {
         type = T_BICYCLE;
     }
-    timesteps = new timestep[h2.numTimesteps];
     int numBytes = h2.numTimesteps * sizeof(timestep);
+    if (h2.numTimesteps < 30) // too short
+    {
+        lseek(fd, numBytes, SEEK_CUR);
+        return -2;
+    }
+    timesteps = new timestep[h2.numTimesteps];
     int nr = 0;
     while (nr < numBytes)
     {
@@ -194,7 +199,8 @@ int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadP
             if (numTimesteps < 0)
             {
                 delete tr;
-                break;
+                if(numTimesteps != -2)
+                    break;
             }
             TrajectoriesRoot->addChild(tr->getGeometry());
         }
