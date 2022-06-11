@@ -6,7 +6,7 @@
             <Plugin>
                 <Midi value="Off" InPort="0" OutPort="2">
 					       <Store posX="0" posY="0" posZ="0"   />
-					       <Theremin posX="0" posY="0" posZ="0"  object="/data/Jeremy/NOTES/theremin.obj" minX="1.0" minY="1.0" maxX="10.0" maxY="10.0" />
+					       <Theremin posX="0" posY="0" posZ="0"  object="/data/Jeremy/NOTES/Theremin.osgb" minX="1.0" minY="1.0" maxX="2.0" maxY="2.0" />
 				       <Instrument name="0" channel="9" type="Drumkit">
 					      
 					       <Key name="1"   r="3"   g="165" b="252"/>

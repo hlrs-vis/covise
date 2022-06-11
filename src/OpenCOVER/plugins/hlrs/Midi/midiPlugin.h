@@ -61,6 +61,22 @@ using namespace opencover;
 using namespace covise;
 using namespace smf;
 
+class ControllerInfo
+{
+public:
+	enum ControllerAction {NONE,Shader0,Shader1,Shader2,Shader3,Shader4,Shader5,rAcceleration};
+	ControllerInfo(std::string& configName);
+	~ControllerInfo();
+	std::string configName;
+	std::string actionName;
+	int controllerID =0;
+	float min = 0.0;
+	float max = 125.0;
+	float minOut = 0.0;
+	float maxOut = 1.0;
+	enum ControllerAction action = NONE;
+};
+
 class UDPMidiMessage
 {
 public:
@@ -313,6 +329,7 @@ public:
 	std::vector<std::unique_ptr<MidiDevice>> devices;
     std::vector<Track *> tracks;
     std::list<MidiEvent> eventqueue[NUMMidiStreams];
+	std::list<ControllerInfo *> controllers;
     static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
@@ -363,6 +380,7 @@ public:
 
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
+	std::vector<osg::Uniform*> shaderUniforms;
 
 #ifdef WIN32
     HMIDIOUT hMidiDeviceOut = NULL;

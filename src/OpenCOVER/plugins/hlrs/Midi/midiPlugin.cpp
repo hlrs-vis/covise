@@ -827,6 +827,26 @@ bool MidiPlugin::init()
 	float storePosX = coCoviseConfig::getFloat("posX", "COVER.Plugin.Midi.Store", 0.0);
 	float storePosY = coCoviseConfig::getFloat("posY", "COVER.Plugin.Midi.Store", 0.0);
 	float storePosZ = coCoviseConfig::getFloat("posZ", "COVER.Plugin.Midi.Store", 0.0);
+	coCoviseConfig::ScopeEntries ControllertEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Controller");
+	for (const auto& controllerEntry : ControllertEntries)
+	{
+		const string& n = controllerEntry.first;
+
+		std::string configName = "COVER.Plugin.Midi." + n;
+
+		ControllerInfo* controllerInfo = new ControllerInfo(configName);
+	}
+
+	shaderUniforms.push_back(new osg::Uniform("Shader0", (float)(0.0)));
+	shaderUniforms.push_back(new osg::Uniform("Shader1", (float)(0.0)));
+	shaderUniforms.push_back(new osg::Uniform("Shader2", (float)(0.0)));
+	shaderUniforms.push_back(new osg::Uniform("Shader3", (float)(0.0)));
+	shaderUniforms.push_back(new osg::Uniform("Shader4", (float)(0.0)));
+	shaderUniforms.push_back(new osg::Uniform("Shader5", (float)(0.0)));
+	for(const auto& su: shaderUniforms)
+	{
+		coVRShaderList::instance()->addGlobalUniform(su->getName(),su);
+	}
 
 	thereminPos.set(px, py, pz);
 	thereminTransform = new osg::MatrixTransform();
@@ -837,6 +857,10 @@ bool MidiPlugin::init()
 	if (thereminObject.get())
 	{
 		thereminTransform->addChild(thereminObject.get());
+	}
+	else
+	{
+		coVRFileManager::instance()->loadFile(objFileName.c_str(), 0, thereminTransform);
 	}
 
 	hint = new osg::TessellationHints();
@@ -873,6 +897,36 @@ bool MidiPlugin::init()
 	}
 	MIDItab_create();
 	return true;
+}
+
+ControllerInfo::ControllerInfo(std::string& cn)
+{
+	configName = cn;
+	controllerID = coCoviseConfig::getInt("controllerID", configName, 0);
+	min = coCoviseConfig::getFloat("min", configName, min);
+	max = coCoviseConfig::getFloat("max", configName, max);
+	minOut = coCoviseConfig::getFloat("minOut", configName, minOut);
+	maxOut = coCoviseConfig::getFloat("maxOut", configName, maxOut); 
+	actionName = coCoviseConfig::getEntry("action", configName, "NONE");
+	if (actionName == "Shader0")
+		action = Shader0;
+	else if (actionName == "Shader1")
+		action = Shader1;
+	else if (actionName == "Shader2")
+		action = Shader2;
+	else if (actionName == "Shader3")
+		action = Shader3;
+	else if (actionName == "Shader4")
+		action = Shader4;
+	else if (actionName == "Shader5")
+		action = Shader5;
+	else if (actionName == "rAcceleration")
+		action = rAcceleration;
+	MidiPlugin::instance()->controllers.push_back(this);
+}
+ControllerInfo::~ControllerInfo()
+{
+	MidiPlugin::instance()->controllers.remove(this);
 }
 
 bool MidiPlugin::openMidiIn(int streamNum, int device)
@@ -969,6 +1023,10 @@ MidiPlugin::~MidiPlugin()
 		if(midifd[i]>=0)
 		close(midifd[i]);
 #endif
+	}
+	for (const auto& su : shaderUniforms)
+	{
+		coVRShaderList::instance()->removeGlobalUniform(su);
 	}
 
 	SDL_Quit();
@@ -1219,8 +1277,44 @@ void MidiPlugin::handleController(MidiEvent& me)
 	fprintf(stderr, "Controller Nr.%d, value %d\n", me.getP1(), me.getP2());
 	int controllerID = me.getP1();
 	int value = me.getP2();
+	for (const auto& ci : controllers)
+	{
+		if (ci->controllerID == controllerID)
+		{
+			float val = ci->minOut + ((ci->maxOut - ci->minOut) * ((value - ci->min) / (ci->max - ci->min)));
+			if (ci->action == ControllerInfo::Shader0)
+			{
+				shaderUniforms[0]->set(val);
+			}
+			else if (ci->action == ControllerInfo::Shader1)
+			{
+				shaderUniforms[1]->set(val);
+			}
+			else if (ci->action == ControllerInfo::Shader2)
+			{
+				shaderUniforms[2]->set(val);
+			}
+			else if (ci->action == ControllerInfo::Shader3)
+			{
+				shaderUniforms[3]->set(val);
+			}
+			else if (ci->action == ControllerInfo::Shader4)
+			{
+				shaderUniforms[4]->set(val);
+			}
+			else if (ci->action == ControllerInfo::Shader5)
+			{
+				shaderUniforms[5]->set(val);
+			}
+			else if (ci->action == ControllerInfo::rAcceleration)
+			{
+				rAcceleration = val;
+				raccelSlider->setValue(val);
+			}
+		}
+	}
 
-	if (controllerID == 2)
+	if ((controllerID == 2)||(controllerID == 54))
 	{
 		thereminScaleX = value/125.0;
 		static float lastThereminScaleX = 0;
@@ -1230,7 +1324,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lastThereminScaleX = thereminScaleX;
 		}
 	}
-	if (controllerID == 3)
+	if ((controllerID == 3) || (controllerID == 59))
 	{
 		thereminScaleY = value / 125.0;
 		static float lastThereminScaleY = 0;

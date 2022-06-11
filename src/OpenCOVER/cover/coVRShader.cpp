@@ -58,149 +58,108 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
     value = v;
     overwrite = false;
     unique = false;
-    if (type == "bool")
+    uniform = coVRShaderList::instance()->getGlobalUniform(name);
+    if (uniform == nullptr)
     {
-        if (name == "Light0Enabled")
-        {
-            uniform = coVRShaderList::instance()->getLightEnabled(0);
-        }
-        else if (name == "Light1Enabled")
-        {
-            uniform = coVRShaderList::instance()->getLightEnabled(1);
-        }
-        else if (name == "Light2Enabled")
-        {
-            uniform = coVRShaderList::instance()->getLightEnabled(2);
-        }
-        else if (name == "Light3Enabled")
-        {
-            uniform = coVRShaderList::instance()->getLightEnabled(3);
-        }
-        else
+        if (type == "bool")
         {
             bool b = true;
             if (value == "false")
                 b = false;
-            char *end = nullptr;
+            char* end = nullptr;
             if (strtod(value.c_str(), &end) == 0 && end != value.c_str())
                 b = false;
             uniform = new osg::Uniform(name.c_str(), b);
         }
-    }
-    else if (type == "float")
-    {
-        float f = (float)strtod(value.c_str(), NULL);
-        uniform = new osg::Uniform(name.c_str(), f);
-    }
-    else if (type == "int")
-    {
-        if (name == "Time")
+        else if (type == "float")
         {
-            uniform = coVRShaderList::instance()->getTime();
+            float f = (float)strtod(value.c_str(), NULL);
+            uniform = new osg::Uniform(name.c_str(), f);
         }
-        else if (name == "TimeStep")
+        else if (type == "int")
         {
-            uniform = coVRShaderList::instance()->getTimeStep();
+            {
+                int i = atoi(value.c_str());
+                uniform = new osg::Uniform(name.c_str(), i);
+            }
         }
-        else if (name == "Stereo")
+        else if (type == "vec3")
         {
-            uniform = coVRShaderList::instance()->getStereo();
+            float u = 0.0, v = 0.0, w = 0.0;
+            sscanf(value.c_str(), "%f %f %f", &u, &v, &w);
+            uniform = new osg::Uniform(name.c_str(), osg::Vec3(u, v, w));
         }
+        else if (type == "vec2")
+        {
+            float u = 0.0, v = 0.0;
+            sscanf(value.c_str(), "%f %f", &u, &v);
+            uniform = new osg::Uniform(name.c_str(), osg::Vec2(u, v));
+        }
+        else if (type == "vec4")
+        {
+            float u = 0.0, v = 0.0, w = 0.0, a = 0.0;
+            sscanf(value.c_str(), "%f %f %f %f", &u, &v, &w, &a);
+            uniform = new osg::Uniform(name.c_str(), osg::Vec4(u, v, w, a));
+        }
+        else if (type == "sampler1D" || type == "sampler2D" || type == "sampler3D" || type == "samplerCube" || type == "sampler2DRect")
+        {
+            int texUnit = atoi(value.c_str());
+            uniform = new osg::Uniform(name.c_str(), texUnit);
+        }
+        else if (type == "dmat4")
+        {
+            osg::Matrixd m;
+            double values[16];
+            //ab hier neu
+            if (name == "Light")
+            {
+                uniform = coVRShaderList::instance()->getLight();
+            }
+            else
+            {
+                uniform = new osg::Uniform(name.c_str(), osg::Matrix::identity());
+            }
+            if (name == "Projection")
+            {
+                uniform = coVRShaderList::instance()->getProjection();
+            }
+            //bis hier neu
+            if (strcasecmp(value.c_str(), "identity") == 0)
+            {
+                uniform->set(osg::Matrix::identity());
+            }
+            else
+            {
+                sscanf(value.c_str(), "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+                uniform->set(osg::Matrix(values));
+            }
+        }
+        else if (type == "mat4")
+        {
+            osg::Matrixf m;
 
-        else if (name == "Duration")
-        {
-            uniform = coVRShaderList::instance()->getDuration();
-        }
-        else if (name == "ViewportWidth")
-        {
-            uniform = coVRShaderList::instance()->getViewportWidth();
-        }
-        else if (name == "ViewportHeight")
-        {
-            uniform = coVRShaderList::instance()->getViewportHeight();
-        }
-        else
-        {
-            int i = atoi(value.c_str());
-            uniform = new osg::Uniform(name.c_str(), i);
-        }
-    }
-    else if (type == "vec3")
-    {
-        float u = 0.0, v = 0.0, w = 0.0;
-        sscanf(value.c_str(), "%f %f %f", &u, &v, &w);
-        uniform = new osg::Uniform(name.c_str(), osg::Vec3(u, v, w));
-    }
-    else if (type == "vec2")
-    {
-        float u = 0.0, v = 0.0;
-        sscanf(value.c_str(), "%f %f", &u, &v);
-        uniform = new osg::Uniform(name.c_str(), osg::Vec2(u, v));
-    }
-    else if (type == "vec4")
-    {
-        float u = 0.0, v = 0.0, w = 0.0, a = 0.0;
-        sscanf(value.c_str(), "%f %f %f %f", &u, &v, &w, &a);
-        uniform = new osg::Uniform(name.c_str(), osg::Vec4(u, v, w, a));
-    }
-    else if (type == "sampler1D" || type == "sampler2D" || type == "sampler3D" || type == "samplerCube" || type == "sampler2DRect")
-    {
-        int texUnit = atoi(value.c_str());
-        uniform = new osg::Uniform(name.c_str(), texUnit);
-    }
-    else if (type == "dmat4")
-    {
-        osg::Matrixd m;
-        double values[16];
-        //ab hier neu
-        if (name == "Light")
-        {
-            uniform = coVRShaderList::instance()->getLight();
-        }
-        else
-        {
-            uniform = new osg::Uniform(name.c_str(), osg::Matrix::identity());
-        }
-        if (name == "Projection")
-        {
-            uniform = coVRShaderList::instance()->getProjection();
-        }
-        //bis hier neu
-        if (strcasecmp(value.c_str(), "identity") == 0)
-        {
-            uniform->set(osg::Matrix::identity());
-        }
-        else
-        {
-            sscanf(value.c_str(), "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
-            uniform->set(osg::Matrix(values));
-        }
-    }
-    else if (type == "mat4")
-    {
-        osg::Matrixf m;
-        
-        if (name == "Light")
-        {
-            uniform = coVRShaderList::instance()->getLight();
-        }
-        else
-        {
-            uniform = new osg::Uniform(name.c_str(), osg::Matrixf::identity());
-        }
-        if (name == "Projection")
-        {
-            uniform = coVRShaderList::instance()->getProjection();
-        }
-        if (strcasecmp(value.c_str(), "identity") == 0)
-        {
-            uniform->set(osg::Matrixf::identity());
-        }
-        else
-        {
-            float values[16];
-            sscanf(value.c_str(), "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
-            uniform->set(osg::Matrixf(values));
+            if (name == "Light")
+            {
+                uniform = coVRShaderList::instance()->getLight();
+            }
+            else
+            {
+                uniform = new osg::Uniform(name.c_str(), osg::Matrixf::identity());
+            }
+            if (name == "Projection")
+            {
+                uniform = coVRShaderList::instance()->getProjection();
+            }
+            if (strcasecmp(value.c_str(), "identity") == 0)
+            {
+                uniform->set(osg::Matrixf::identity());
+            }
+            else
+            {
+                float values[16];
+                sscanf(value.c_str(), "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
+                uniform->set(osg::Matrixf(values));
+            }
         }
     }
 }
@@ -1965,6 +1924,86 @@ void coVRShaderList::setData(TokenBuffer &tb)
         shader->setData(tb);
     }
 }
+
+osg::Uniform* coVRShaderList::getGlobalUniform(const std::string& name)
+{
+    if (name == "Light0Enabled")
+    {
+        return getLightEnabled(0);
+    }
+    else if (name == "Light1Enabled")
+    {
+        return getLightEnabled(1);
+    }
+    else if (name == "Light2Enabled")
+    {
+        return getLightEnabled(2);
+    }
+    else if (name == "Light3Enabled")
+    {
+        return getLightEnabled(3);
+    }
+    else if (name == "Time")
+    {
+        return getTime();
+    }
+    else if (name == "TimeStep")
+    {
+        return getTimeStep();
+    }
+    else if (name == "Stereo")
+    {
+        return getStereo();
+    }
+    else if (name == "Duration")
+    {
+        return getDuration();
+    }
+    else if (name == "ViewportWidth")
+    {
+        return getViewportWidth();
+    }
+    else if (name == "ViewportHeight")
+    {
+        return getViewportHeight();
+    }
+    else
+    {
+        auto it = globalUniforms.find(name);
+        if (it == globalUniforms.end())
+            return nullptr;
+        else
+            return it->second;
+    }
+}
+
+void coVRShaderList::addGlobalUniform(const std::string&n, osg::Uniform*u)
+{
+    globalUniforms[n]=u;
+    for (const auto& shader : *this)
+    {
+        for (const auto& un : shader->uniforms)
+        {
+            if (un->getName() == n)
+            {
+                un->uniform = u;
+            }
+        }
+    }
+}
+void coVRShaderList::removeGlobalUniform(osg::Uniform* un)
+{
+    for (const auto& u : globalUniforms)
+    {
+        if (u.second == un)
+        {
+            globalUniforms.erase(u.first);
+            break;
+        }
+    }
+}
+
+
 osg::Uniform *coVRShaderList::getTime()
 {
     return timeUniform.get();

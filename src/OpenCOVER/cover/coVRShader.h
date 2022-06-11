@@ -23,6 +23,7 @@
 
 #include <util/coExport.h>
 #include <list>
+#include <map>
 #include <string>
 #include <osg/Shader>
 #include <osg/Program>
@@ -291,6 +292,7 @@ private:
     osg::ref_ptr<osg::Uniform> viewportHeightUniform;
     osg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
     void applyParams(coVRShader *shader, std::map<std::string, std::string> *params);
+    std::map<std::string,osg::Uniform*> globalUniforms;
 public:
     ~coVRShaderList();
     coVRShader *get(const std::string &name, std::map<std::string, std::string> *params = NULL);
@@ -298,7 +300,10 @@ public:
     coVRShader *add(const std::string &name, std::string &dirName);
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);
-    osg::Uniform *getLightEnabled(size_t lightnum);
+    void addGlobalUniform(const std::string &, osg::Uniform *);
+    void removeGlobalUniform(osg::Uniform*);
+    osg::Uniform* getGlobalUniform(const std::string&);
+    osg::Uniform* getLightEnabled(size_t lightnum);
     osg::Uniform *getTime();
     osg::Uniform *getTimeStep();
     osg::Uniform *getLight();

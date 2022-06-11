@@ -17,7 +17,7 @@
  
   <System>
    <VRB>
-    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="51000"/>
+    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="49999"/>
     <!--Server value="visper.hlrs.de" tcpPort="31252" udpPort="49999"/-->
     <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
 	<RemoteFetch value="off" path="C:\src\covise\remoteFetch" />
@@ -84,8 +84,16 @@
                 <Revit value="on" ignoreDepthOnly="false" >
     </Revit>
                 <Midi value="Off" InPort="0" OutPort="2">
+					       <Store posX="0" posY="0" posZ="0"   />
+					       <Theremin posX="0" posY="50" posZ="0"  object="/data/Jeremy/NOTES/Theremin.wrl" minX="1.0" minY="1.0" maxX="2.0" maxY="2.0" />
 				       <Device name="0" instrument="0"/>
 				       <Device name="1" instrument="1"/>
+					   
+					   <Controller name="0" controllerID="54"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
+					   <Controller name="1" controllerID="59"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
+					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
+					   
+					   
 				       <Instrument name="0" type="Drumkit">
 					       <Key name="4"   r="1"   g="0"   b="0"  />
 					       <Key name="29"  r="1"   g="1"   b="102"/>
