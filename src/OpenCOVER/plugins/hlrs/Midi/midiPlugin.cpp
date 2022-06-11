@@ -824,15 +824,19 @@ bool MidiPlugin::init()
 	float py = coCoviseConfig::getFloat("posY", "COVER.Plugin.Midi.Theremin", 0.0);
 	float pz = coCoviseConfig::getFloat("posZ", "COVER.Plugin.Midi.Theremin", 0.0);
 
+	float storePosX = coCoviseConfig::getFloat("posX", "COVER.Plugin.Midi.Store", 0.0);
+	float storePosY = coCoviseConfig::getFloat("posY", "COVER.Plugin.Midi.Store", 0.0);
+	float storePosZ = coCoviseConfig::getFloat("posZ", "COVER.Plugin.Midi.Store", 0.0);
+
 	thereminPos.set(px, py, pz);
+	thereminTransform = new osg::MatrixTransform();
+	thereminSwitch = new osg::Switch();
+	thereminSwitch->addChild(thereminTransform.get());
+	MIDIObjectsRoot->addChild(thereminSwitch.get());
 	thereminObject = osgDB::readNodeFile(objFileName);
 	if (thereminObject.get())
 	{
-		thereminTransform = new osg::MatrixTransform();
-		thereminSwitch = new osg::Switch();
 		thereminTransform->addChild(thereminObject.get());
-		thereminSwitch->addChild(thereminTransform.get());
-		MIDIObjectsRoot->addChild(thereminSwitch.get());
 	}
 
 	hint = new osg::TessellationHints();
@@ -1004,19 +1008,19 @@ bool MidiPlugin::update()
 	    unsigned char key;
 	    unsigned char velocity;
 	    unsigned char channel;
+		UDPPacket() { command = '\0'; key = '\0';	velocity = '\0'; channel = '\0';};
 	};
 	int status = 0;
 	UDPPacket packet;
 
 
-	/*if (cover->frameTime() - lastThereminTime > 10.0)
+	if (cover->frameTime() - lastThereminTime > 10.0)
 	{
 		thereminSwitch->setAllChildrenOff();
 	}
 	else
 	{
-		thereminSwitch->setAllChildrenOn();*/
-
+		thereminSwitch->setAllChildrenOn();
         osg::Matrix mat;
         float sX = (thereminMaxX - thereminMinX) * thereminScaleX;
         float sY = (thereminMaxY - thereminMinY) * thereminScaleY;
@@ -1031,7 +1035,7 @@ bool MidiPlugin::update()
 		mat = osg::Matrix::scale(thereminMinX + sX, thereminMinY + sY, thereminMinY + sY);
 		mat.setTrans(thereminPos);
 		thereminTransform->setMatrix(mat);
-	//}
+	}
 
 
 
@@ -1218,23 +1222,23 @@ void MidiPlugin::handleController(MidiEvent& me)
 
 	if (controllerID == 2)
 	{
-		lastThereminTime = cover->frameTime();
 		thereminScaleX = value/125.0;
-		if (value < 1)
+		static float lastThereminScaleX = 0;
+		if (thereminScaleX != lastThereminScaleX)
 		{
-			thereminSwitch->setAllChildrenOff();
-			thereminSwitch->setValue(0, false);
-		}
-		else
-		{
-			thereminSwitch->setAllChildrenOn();
-			thereminSwitch->setValue(0, true);
+			lastThereminTime = cover->frameTime();
+			lastThereminScaleX = thereminScaleX;
 		}
 	}
 	if (controllerID == 3)
 	{
-		lastThereminTime = cover->frameTime();
 		thereminScaleY = value / 125.0;
+		static float lastThereminScaleY = 0;
+		if (thereminScaleY != lastThereminScaleY)
+		{
+			lastThereminTime = cover->frameTime();
+			lastThereminScaleY = thereminScaleY;
+		}
 	}
 	if (controllerID == 5)
 	{
@@ -1252,6 +1256,23 @@ void MidiPlugin::handleController(MidiEvent& me)
 			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
 		}
 		else if (value < 100)
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineWhite);
+		}
+		else
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
+		}
+
+	}
+	if (controllerID == 63)
+	{
+		if (value < 41)
+		{
+			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Points);
+			fprintf(stderr, "Points\n");
+		}
+		else if (value < 81)
 		{
 			VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineWhite);
 		}
@@ -1280,6 +1301,25 @@ void MidiPlugin::handleController(MidiEvent& me)
 			spiralSpeedSlider->setValue(spiralSpeed);
 		}
 	}
+	if (controllerID == 74)
+	{
+		if (value > 64)
+		{
+
+			spiralSpeed += 0.04;
+			if (spiralSpeed > 4)
+				spiralSpeed = 4;
+			spiralSpeedSlider->setValue(spiralSpeed);
+
+		}
+		else
+		{
+			spiralSpeed -= 0.04;
+			if (spiralSpeed < -4)
+				spiralSpeed = -4;
+			spiralSpeedSlider->setValue(spiralSpeed);
+		}
+	}
 	if (controllerID == 55)
 	{
 		frequencySurface->radius1 = value;
@@ -1295,7 +1335,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 		sphereScale = 0.1+((value/127.0)*10.0);
 		sphereScaleSlider->setValue(sphereScale);
 	}
-	if (controllerID == 56)
+	if ((controllerID == 56) || (controllerID == 69))
 	{
 		frequencySurface->yStep = value;
 		amplitudeSurface->yStep = value;
@@ -1322,18 +1362,18 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lTrack[i]->setRotation(rotSpeed);
 		}
 	}
-	if ((controllerID == 53)|| (controllerID == 32)) // slider right
+	if ((controllerID == 53)|| (controllerID == 32) || (controllerID == 71)) // slider right
 	{
 		float sliderValue = ((float)(value - 64) / 64.0)*0.3;
 		rAcceleration = sliderValue;
 		raccelSlider->setValue(sliderValue);
 	}
-	if ((controllerID == 63) || (controllerID == 15)) // distance sensor
+	if ((controllerID == 63) || (controllerID == 15) || (controllerID == 23)) // distance sensor
 	{
 		float sliderValue = value / 127.0;
 		speedFactor = (100.0 * sliderValue) + 1.0;
 	}
-	if (controllerID == 1) // PitchBendUp
+	if ((controllerID == 1) || (controllerID == 24)) // PitchBendUp
 	{
 		float sliderValue = ((float)(value ) / 127.0) * 5.0;
 		osg::Vec3 rotSpeed;
@@ -1345,7 +1385,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lTrack[i]->setRotation(rotSpeed);
 		}
 	}
-	if (controllerID == 2) // PitchBendDown
+	if ((controllerID == 2) || (controllerID == 25)) // PitchBendDown
 	{
 		float sliderValue = ((float)(value) / 127.0) * -5.0;
 		osg::Vec3 rotSpeed;
@@ -1782,7 +1822,7 @@ void Track::store()
 	osg::Matrix mat;
 	int xp = pos % 6;
 	int yp = pos / 6;
-	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, (0.5*yp) + 0.5);
+	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, (0.5*yp) + 0.5) * osg::Matrix::translate(MidiPlugin::instance()->storePosX, MidiPlugin::instance()->storePosY, MidiPlugin::instance()->storePosZ);
 	TrackRoot->setMatrix(mat);
 }
 void MidiPlugin::clearStore()

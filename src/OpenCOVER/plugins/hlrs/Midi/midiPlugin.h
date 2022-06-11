@@ -354,6 +354,9 @@ public:
 	float thereminMinY = 0.3;
 	float thereminMaxX = 2.0;
 	float thereminMaxY = 2.0;
+	float storePosX = 0.0;
+	float storePosY = 0.0;
+	float storePosZ = 0.0;
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
     osg::ref_ptr<osg::StateSet> lineStateSet;
