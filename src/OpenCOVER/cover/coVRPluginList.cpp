@@ -246,6 +246,10 @@ void coVRPluginList::loadDefault()
         }
     }
 
+    auto browserDefaultUrl = getenv("COVISE_BROWSER_INIT_URL");
+    if(browserDefaultUrl)
+        plugins.push_back("Browser");
+        
     std::vector<std::string> failed;
     for (size_t i = 0; i < plugins.size(); ++i)
     {
