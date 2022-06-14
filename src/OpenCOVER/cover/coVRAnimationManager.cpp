@@ -260,8 +260,8 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     }
     else
     {
-        if (currentFrame < 0)
-            currentFrame = (currentFrame % numFrames) + numFrames;
+        while (currentFrame < 0)
+            currentFrame += numFrames;
         currentFrame %= numFrames;
     }
 
