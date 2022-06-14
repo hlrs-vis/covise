@@ -2537,7 +2537,7 @@ bool coVRMSController::syncVRBMessages()
     int numVrbMessages = 0;
 	int numUdpMessages = 0;
 
-    if (cover->debugLevel(4))
+    if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
 
     Message *vrbMsg = new Message;
