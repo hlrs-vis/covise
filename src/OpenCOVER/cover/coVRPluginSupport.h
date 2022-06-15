@@ -364,7 +364,7 @@ public:
     void sendMessage(coVRPlugin *sender, int toWhom, int type, int len, const void *buf);
 
     //! send a message to a named plugins
-    void sendMessage(coVRPlugin *sender, const char *destination, int type, int len, const void *buf, bool localonly = false);
+    void sendMessage(const coVRPlugin *sender, const char *destination, int type, int len, const void *buf, bool localonly = false);
     //! grab keyboard input
     /*! other plugins will not get key event notifications,
           returns true if keyboard could be grabbed,

@@ -1070,7 +1070,7 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
     }
 }
 
-void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destination, int type, int len, const void *buf, bool localonly)
+void coVRPluginSupport::sendMessage(const coVRPlugin * /*sender*/, const char *destination, int type, int len, const void *buf, bool localonly)
 {
     START("coVRPluginSupport::sendMessage");
 
