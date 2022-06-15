@@ -19,6 +19,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginList.h>
 #include <PluginUtil/coSphere.h>
 #include <cover/coVRTui.h>
 #include <config/CoviseConfig.h>
@@ -498,6 +499,9 @@ MidiPlugin::MidiPlugin()
 {
 	plugin = this;
 	player = NULL;
+	coVRPluginList::instance()->addPlugin("Vrml97");
+	
+	initOPCUA();
 
 	MIDITab = NULL;
 	startTime = 0;
@@ -628,7 +632,13 @@ void NoteInfo::createGeom()
 		osg::MatrixTransform* mt = new osg::MatrixTransform();
 		mt->setName(modelName.c_str());
 		mt->setMatrix(osg::Matrix::scale(modelScale, modelScale, modelScale) * osg::Matrix::rotate(M_PI_2, 0, 0, 1));
-		mt->addChild(osgDB::readNodeFile(modelName.c_str()));
+		osg::Node* geo = osgDB::readNodeFile(modelName.c_str());
+		if (geo == nullptr)
+		{
+			coVRFileManager::instance()->loadFile(modelName.c_str(), 0, mt);
+		}
+		else
+		    mt->addChild(geo);
 		osg::StateSet *geoState = mt->getOrCreateStateSet();
 
 	osg::Material *colorMaterial = new osg::Material;
@@ -1028,7 +1038,10 @@ MidiPlugin::~MidiPlugin()
 	{
 		coVRShaderList::instance()->removeGlobalUniform(su);
 	}
-
+#ifdef OPCUA
+	UA_Server_run_shutdown(server);
+	UA_Server_delete(server);
+#endif
 	SDL_Quit();
 }
 
@@ -1232,6 +1245,11 @@ void MidiPlugin::preFrame()
 			else
 			{
 				int channel = me.getChannel();
+#ifdef OPCUA
+
+				UA_Server_run_iterate(server, true);
+#endif
+
 				if (lTrack[channel]->instrument != nullptr)
 				{
 					lTrack[channel]->handleEvent(me);
@@ -2477,4 +2495,158 @@ void WaveSurface::createNormals()
 bool WaveSurface::update()
 {
 	return false;
+}
+
+
+
+static volatile UA_Boolean running = true;
+
+static void stopHandler(int sig) {
+	UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "received ctrl-c");
+	running = false;
+}
+////////////////////Variable Value Callback: CurrentTime
+/*
+ * @Leonie
+ */
+UA_NodeId currenttimeOut;
+
+static void
+updateCurrentTime(UA_Server* server) {
+	UA_DateTime now = UA_DateTime_now();
+	UA_Variant value;
+	UA_Variant_setScalar(&value, &now, &UA_TYPES[UA_TYPES_DATETIME]);
+	UA_NodeId currentNodeId = UA_NODEID_STRING(1, "current-time-value-callback");
+	UA_Server_writeValue(server, currentNodeId, value);
+}
+
+static void
+addCurrentTimeVariable(UA_Server* server, UA_NodeId parentNodeId) {
+	UA_DateTime now = 0;
+	UA_VariableAttributes attr = UA_VariableAttributes_default;
+	attr.displayName = UA_LOCALIZEDTEXT("en-US", "Current time - value callback");
+	attr.accessLevel = UA_ACCESSLEVELMASK_READ | UA_ACCESSLEVELMASK_WRITE;
+	UA_Variant_setScalar(&attr.value, &now, &UA_TYPES[UA_TYPES_DATETIME]);
+
+	UA_NodeId currentNodeId = UA_NODEID_STRING(1, "current-time-value-callback");
+	UA_QualifiedName currentName = UA_QUALIFIEDNAME(1, "current-time-value-callback");
+	//UA_NodeId parentNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER);
+	UA_NodeId parentReferenceNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES);
+	UA_NodeId variableTypeNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE);
+
+	UA_Server_addVariableNode(server, currentNodeId, parentNodeId,
+		parentReferenceNodeId, currentName,
+		variableTypeNodeId, attr, NULL, &currenttimeOut);
+
+	updateCurrentTime(server);
+}
+
+static void
+beforeReadTime(UA_Server* server,
+	const UA_NodeId* sessionId, void* sessionContext,
+	const UA_NodeId* nodeid, void* nodeContext,
+	const UA_NumericRange* range, const UA_DataValue* data) {
+	updateCurrentTime(server);
+}
+
+static void
+afterWriteTime(UA_Server* server,
+	const UA_NodeId* sessionId, void* sessionContext,
+	const UA_NodeId* nodeId, void* nodeContext,
+	const UA_NumericRange* range, const UA_DataValue* data) {
+	UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+		"The variable was updated");
+}
+
+static void
+addValueCallbackToCurrentTimeVariable(UA_Server* server) {
+	UA_NodeId currentNodeId = UA_NODEID_STRING(1, "current-time-value-callback");
+	UA_ValueCallback callback;
+	callback.onRead = beforeReadTime;
+	callback.onWrite = afterWriteTime;
+	UA_Server_setVariableNode_valueCallback(server, currentNodeId, callback);
+}
+
+///////////////////end Variable Value Callback
+
+
+
+
+
+
+/*
+int run(UA_String* transportProfile,
+	UA_NetworkAddressUrlDataType* networkAddressUrl) {
+	UA_StatusCode retval = UA_Server_run(server, &running);
+
+	return retval == UA_STATUSCODE_GOOD ? EXIT_SUCCESS : EXIT_FAILURE;
+
+}*/
+
+
+int MidiPlugin::initOPCUA() {
+	
+
+	
+		/*if (strncmp(argv[1], "opc.udp://", 10) == 0) {
+			networkAddressUrl.url = UA_STRING(argv[1]);
+		}
+		else if (strncmp(argv[1], "opc.eth://", 10) == 0) {
+			transportProfile =
+				UA_STRING("http://opcfoundation.org/UA-Profile/Transport/pubsub-eth-uadp");
+			if (argc < 3) {
+				printf("Error: UADP/ETH needs an interface name\n");
+				return EXIT_FAILURE;
+			}
+			networkAddressUrl.networkInterface = UA_STRING(argv[2]);
+			networkAddressUrl.url = UA_STRING(argv[1]);
+		}
+		else {
+			printf("Error: unknown URI\n");
+			return EXIT_FAILURE;
+		}
+		*/
+#ifdef OPCUA
+
+		signal(SIGINT, stopHandler);
+		signal(SIGTERM, stopHandler);
+
+		server = UA_Server_new();
+		config = UA_Server_getConfig(server);
+		UA_ServerConfig_setDefault(config);
+
+		//Add new namespace to server
+		UA_Int16 ns_band = UA_Server_addNamespace(server, "RoboticBand");
+		UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "New namespace Nr. %d", ns_band);
+
+		addSongJobObject(server, 3);
+		addPublishObj(server);
+
+
+		/* Details about the connection configuration and handling are located in
+		 * the pubsub connection tutorial */
+		UA_ServerConfig_addPubSubTransportLayer(config, UA_PubSubTransportLayerUDPMP());
+#ifdef UA_ENABLE_PUBSUB_ETH_UADP
+		UA_ServerConfig_addPubSubTransportLayer(config, UA_PubSubTransportLayerEthernet());
+#endif
+
+		addPubSubConnection(server, &transportProfile, &networkAddressUrl); //#TODO Instrumentid publishen
+		addPublishedDataSet(server);
+		addDataSetField(server, b_pubDataID_Id, b_pubDataObj_Id);
+		for (int i = 0; i < numberPubDataBytes; i++) {
+			addDataSetField(server, b_pubData_Id[i], b_pubDataObj_Id);
+		}
+		addWriterGroup(server);
+		addDataSetWriter(server);
+
+
+
+		UA_StatusCode retval = UA_Server_run_startup(server);
+
+		
+#endif
+		
+
+		return 1;
+
 }

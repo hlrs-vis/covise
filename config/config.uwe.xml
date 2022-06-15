@@ -89,8 +89,8 @@
 				       <Device name="0" instrument="0"/>
 				       <Device name="1" instrument="1"/>
 					   
-					   <Controller name="0" controllerID="54"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
-					   <Controller name="1" controllerID="59"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
+					   <Controller name="0" controllerID="2"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
+					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   
 					   

@@ -35,6 +35,12 @@
 #include <SDL.h>
 #include <fftw3.h>
 
+#include "open62541.h"
+#include <signal.h>
+#include <stdlib.h>
+#include "pubFunctions.h"
+#include "server.h"
+
 #define BINSIZE 1024
 const int numChannels = 16;
 const int numKeys = 127;
@@ -432,7 +438,16 @@ public:
     float rAcceleration=0.2;
     float spiralSpeed=0.1;
 	float sphereScale = 1.0;
+#ifdef OPCUA
+	UA_NetworkAddressUrlDataType networkAddressUrl =
+	{ UA_STRING_NULL, UA_STRING("opc.udp://224.0.0.22:4840/") };
+    UA_String transportProfile =
+        UA_STRING("http://opcfoundation.org/UA-Profile/Transport/pubsub-udp-uadp");
+    UA_Server* server = nullptr;
+    UA_ServerConfig* config = nullptr;
+#endif
 private:
+	int initOPCUA();
 
     static MidiPlugin *plugin;
 
