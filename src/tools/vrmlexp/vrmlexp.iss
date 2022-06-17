@@ -214,7 +214,7 @@ procedure URLLabelOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
-  ShellExec('open', 'http://www.hlrs.de/organization/vis', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec('open', 'https://www.hlrs.de/solutions/types-of-computing/visualization/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
 function InitializeSetup(): Boolean;

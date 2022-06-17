@@ -403,7 +403,7 @@ void WindowTypeQtPlugin::aboutCover() const
         ui->textEdit->setPlainText(data);
     }
 
-    QString text("This is <a href='http://www.hlrs.de/de/solutions-services/service-portfolio/visualization/covise/opencover/'>COVER</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
+    QString text("This is <a href='https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2'>COVER</a> version %1.%2-<a href='https://github.com/hlrs-vis/covise/commit/%3'>%3</a> compiled on %4 for %5.");
     text = text.arg(CoviseVersion::year())
         .arg(CoviseVersion::month())
         .arg(CoviseVersion::hash())

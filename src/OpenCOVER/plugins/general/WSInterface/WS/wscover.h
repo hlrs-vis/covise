@@ -10,7 +10,7 @@ namespace opencover
 
 #import "stlvector.h"
 
-//gsoap opencover    schema namespace:	http://www.hlrs.de/organization/vis/opencover
+//gsoap opencover    schema namespace:	https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2
 //gsoap opencover    schema elementForm:	qualified
 //gsoap opencover    schema attributeForm:	unqualified
 
@@ -317,12 +317,12 @@ public:
 //gsoap opencover   service name:	COVER
 //gsoap opencover   service type:	ServiceSoap
 //gsoap opencover   service port:	http://localhost:32190/
-//gsoap opencover   service namespace:	http://www.hlrs.de/organization/vis/opencover
+//gsoap opencover   service namespace:	https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2
 //gsoap opencover   service transport:	http://schemas.xmlsoap.org/soap/http
 
 //gsoap opencover   service method-style:	  openFile document
 //gsoap opencover   service method-encoding: openFile literal
-//gsoap opencover   service method-action:	  openNet http://www.hlrs.de/organization/vis/opencover/openFile
+//gsoap opencover   service method-action:	  openNet https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/openFile
 
 int __opencover__openFile(
     _opencover__openFile *opencover__openFile, ///< Request parameter
@@ -331,7 +331,7 @@ int __opencover__openFile(
 
 //gsoap opencover   service method-style:	  quit document
 //gsoap opencover   service method-encoding:      quit literal
-//gsoap opencover   service method-action:	  quit http://www.hlrs.de/organization/vis/opencover/quit
+//gsoap opencover   service method-action:	  quit https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/quit
 
 int __opencover__quit(
     _opencover__quit *opencover__quit, ///< Request parameter
@@ -340,7 +340,7 @@ int __opencover__quit(
 
 //gsoap opencover   service method-style:	  connectToVnc document
 //gsoap opencover   service method-encoding:      connectToVnc literal
-//gsoap opencover   service method-action:	  connectToVnc http://www.hlrs.de/organization/vis/opencover/connectToVnc
+//gsoap opencover   service method-action:	  connectToVnc https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/connectToVnc
 
 int __opencover__connectToVnc(
     _opencover__connectToVnc *opencover__connectToVnc, ///< Request parameter
@@ -349,7 +349,7 @@ int __opencover__connectToVnc(
 
 //gsoap opencover   service method-style:	  disconnectFromVnc document
 //gsoap opencover   service method-encoding:      disconnectFromVnc literal
-//gsoap opencover   service method-action:	  disconnectFromVnc http://www.hlrs.de/organization/vis/opencover/disconnectFromVnc
+//gsoap opencover   service method-action:	  disconnectFromVnc https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/disconnectFromVnc
 
 int __opencover__disconnectFromVnc(
     _opencover__disconnectFromVnc *opencover__disconnectFromVnc, ///< Request parameter
@@ -358,7 +358,7 @@ int __opencover__disconnectFromVnc(
 
 //gsoap opencover   service method-style:	  setVisibleVnc document
 //gsoap opencover   service method-encoding:      setVisibleVnc literal
-//gsoap opencover   service method-action:	  setVisibleVnc http://www.hlrs.de/organization/vis/opencover/setVisibleVnc
+//gsoap opencover   service method-action:	  setVisibleVnc https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/setVisibleVnc
 
 int __opencover__setVisibleVnc(
     _opencover__setVisibleVnc *opencover__setVisibleVnc, ///< Request parameter
@@ -367,7 +367,7 @@ int __opencover__setVisibleVnc(
 
 //gsoap opencover   service method-style:	  sendCustomMessage document
 //gsoap opencover   service method-encoding:      sendCustomMessage literal
-//gsoap opencover   service method-action:	  sendCustomMessage http://www.hlrs.de/organization/vis/opencover/sendCustomMessage
+//gsoap opencover   service method-action:	  sendCustomMessage https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/sendCustomMessage
 
 int __opencover__sendCustomMessage(
     _opencover__sendCustomMessage *opencover__sendCustomMessage, ///< Request parameter
@@ -376,7 +376,7 @@ int __opencover__sendCustomMessage(
 
 //gsoap opencover   service method-style:	  show document
 //gsoap opencover   service method-encoding:      show literal
-//gsoap opencover   service method-action:	  show http://www.hlrs.de/organization/vis/opencover/show
+//gsoap opencover   service method-action:	  show https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/show
 
 int __opencover__show(
     _opencover__show *opencover__show, ///< Request parameter
@@ -385,7 +385,7 @@ int __opencover__show(
 
 //gsoap opencover   service method-style:	  hide document
 //gsoap opencover   service method-encoding:      hide literal
-//gsoap opencover   service method-action:	  hide http://www.hlrs.de/organization/vis/opencover/hide
+//gsoap opencover   service method-action:	  hide https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/hide
 
 int __opencover__hide(
     _opencover__hide *opencover__hide, ///< Request parameter
@@ -394,7 +394,7 @@ int __opencover__hide(
 
 //gsoap opencover   service method-style:	  viewAll document
 //gsoap opencover   service method-encoding:      viewAll literal
-//gsoap opencover   service method-action:	  viewAll http://www.hlrs.de/organization/vis/opencover/viewAll
+//gsoap opencover   service method-action:	  viewAll https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/viewAll
 
 int __opencover__viewAll(
     _opencover__viewAll *opencover__viewAll, ///< Request parameter
@@ -403,7 +403,7 @@ int __opencover__viewAll(
 
 //gsoap opencover   service method-style:	  resetView document
 //gsoap opencover   service method-encoding:      resetView literal
-//gsoap opencover   service method-action:	  resetView http://www.hlrs.de/organization/vis/opencover/resetView
+//gsoap opencover   service method-action:	  resetView https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/resetView
 
 int __opencover__resetView(
     _opencover__resetView *opencover__resetView, ///< Request parameter
@@ -412,7 +412,7 @@ int __opencover__resetView(
 
 //gsoap opencover   service method-style:	  walk document
 //gsoap opencover   service method-encoding:      walk literal
-//gsoap opencover   service method-action:	  walk http://www.hlrs.de/organization/vis/opencover/walk
+//gsoap opencover   service method-action:	  walk https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/walk
 
 int __opencover__walk(
     _opencover__walk *opencover__walk, ///< Request parameter
@@ -421,7 +421,7 @@ int __opencover__walk(
 
 //gsoap opencover   service method-style:	  fly document
 //gsoap opencover   service method-encoding:      fly literal
-//gsoap opencover   service method-action:	  fly http://www.hlrs.de/organization/vis/opencover/fly
+//gsoap opencover   service method-action:	  fly https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/fly
 
 int __opencover__fly(
     _opencover__fly *opencover__fly, ///< Request parameter
@@ -430,7 +430,7 @@ int __opencover__fly(
 
 //gsoap opencover   service method-style:	  drive document
 //gsoap opencover   service method-encoding:      drive literal
-//gsoap opencover   service method-action:	  drive http://www.hlrs.de/organization/vis/opencover/drive
+//gsoap opencover   service method-action:	  drive https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/drive
 
 int __opencover__drive(
     _opencover__drive *opencover__drive, ///< Request parameter
@@ -439,7 +439,7 @@ int __opencover__drive(
 
 //gsoap opencover   service method-style:	  scale document
 //gsoap opencover   service method-encoding:      scale literal
-//gsoap opencover   service method-action:	  scale http://www.hlrs.de/organization/vis/opencover/scale
+//gsoap opencover   service method-action:	  scale https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/scale
 
 int __opencover__scale(
     _opencover__scale *opencover__scale, ///< Request parameter
@@ -448,7 +448,7 @@ int __opencover__scale(
 
 //gsoap opencover   service method-style:	  xform document
 //gsoap opencover   service method-encoding:      xform literal
-//gsoap opencover   service method-action:	  xform http://www.hlrs.de/organization/vis/opencover/xform
+//gsoap opencover   service method-action:	  xform https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/xform
 
 int __opencover__xform(
     _opencover__xform *opencover__xform, ///< Request parameter
@@ -457,7 +457,7 @@ int __opencover__xform(
 
 //gsoap opencover   service method-style:	  wireframe document
 //gsoap opencover   service method-encoding:      wireframe literal
-//gsoap opencover   service method-action:	  wireframe http://www.hlrs.de/organization/vis/opencover/wireframe
+//gsoap opencover   service method-action:	  wireframe https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/wireframe
 
 int __opencover__wireframe(
     _opencover__wireframe *opencover__wireframe, ///< Request parameter
@@ -466,7 +466,7 @@ int __opencover__wireframe(
 
 //gsoap opencover   service method-style:	  addFile document
 //gsoap opencover   service method-encoding:      addFile literal
-//gsoap opencover   service method-action:	  addFile http://www.hlrs.de/organization/vis/opencover/addFile
+//gsoap opencover   service method-action:	  addFile https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/addFile
 
 int __opencover__addFile(
     _opencover__addFile *opencover__addFile, ///< Request parameter
@@ -475,7 +475,7 @@ int __opencover__addFile(
 
 //gsoap opencover   service method-style:	  snapshot document
 //gsoap opencover   service method-encoding:      snapshot literal
-//gsoap opencover   service method-action:	  snapshot http://www.hlrs.de/organization/vis/opencover/snapshot
+//gsoap opencover   service method-action:	  snapshot https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/snapshot
 
 int __opencover__snapshot(
     _opencover__snapshot *opencover__snapshot, ///< Request parameter

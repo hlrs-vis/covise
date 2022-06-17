@@ -336,7 +336,7 @@ begin
   ShellExec('open', 'http://www.visenso.de', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 #endif
 #else
-  ShellExec('open', 'http://www.hlrs.de/organization/vis', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec('open', 'https://www.hlrs.de/solutions/types-of-computing/visualization/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 #endif
 end;
 

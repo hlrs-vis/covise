@@ -22,7 +22,7 @@ class _opencover__$1Response\\
 /EndOfDeclarations/i\\
 //gsoap opencover   service method-style:	  $1 document\\
 //gsoap opencover   service method-encoding:      $1 literal\\
-//gsoap opencover   service method-action:	  $1 http://www.hlrs.de/organization/vis/opencover/$1\\
+//gsoap opencover   service method-action:	  $1 https://www.hlrs.de/solutions/types-of-computing/visualization//opencover/$1\\
 \\
 int __opencover__$1(\\
     _opencover__$1*              opencover__$1,	///< Request parameter\\

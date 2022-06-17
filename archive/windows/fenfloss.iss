@@ -362,7 +362,8 @@ begin
        end;
       end;
 
-      sedParams := '/c "'+sedApp+' -e "s^/mnt/raid/cod^' +appDir + '/simulation^g" -e "s/141.58.8.11/' + PostNode.Text + '/g" -e "s/visper.hlrs.de/' + PostNode.Text + '/g" -e "s/nero/' + HeadNode.Text + '/g" "'+tmpstr+'"';       Exec('cmd.exe', sedParams, '', SW_SHOW,ewWaitUntilTerminated, ResultCode);
+      sedParams := '/c "'+sedApp+' -e "s^/mnt/raid/cod^' +appDir + '/simulation^g" -e "s/141.58.8.11/' + PostNode.Text + '/g" -e "s/visper.hlrs.de/' + PostNode.Text + '/g" -e "s/nero/' + HeadNode.Text + '/g" "'+tmpstr+'"'; 
+      Exec('cmd.exe', sedParams, '', SW_SHOW,ewWaitUntilTerminated, ResultCode);
 
       {MsgBox('sedParams1:'+sedParams, mbInformation, MB_OK);}
       tmpstr:= appDir + '\covise\config\config.fenfloss.xml" > "'+appDir + '\covise\config\config.xml"';
@@ -375,7 +376,8 @@ begin
        end;
       end;
       {change config.xml}
-      sedParams := '/c "'+sedApp+' -e "s/vistablet/' + TabletPC.Text + '/g" -e "s^/mnt/raid/cod^' +appDir + '/simulation^g" -e "s/vistablet/' + TabletPC.Text + '/g" "'+tmpstr+'"';       Exec('cmd.exe', sedParams, '', SW_SHOW,ewWaitUntilTerminated, ResultCode);
+      sedParams := '/c "'+sedApp+' -e "s/vistablet/' + TabletPC.Text + '/g" -e "s^/mnt/raid/cod^' +appDir + '/simulation^g" -e "s/vistablet/' + TabletPC.Text + '/g" "'+tmpstr+'"'; 
+      Exec('cmd.exe', sedParams, '', SW_SHOW,ewWaitUntilTerminated, ResultCode);
 
     if mpichRadio.checked then
     begin
@@ -692,7 +694,7 @@ procedure URLLabelOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
-  ShellExec('open', 'http://www.hlrs.de/organization/vis', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExec('open', 'https://www.hlrs.de/solutions/types-of-computing/visualization/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 procedure InitializeWizard();
 var

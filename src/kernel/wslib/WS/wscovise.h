@@ -13,7 +13,7 @@ namespace covise
 #import "xop.h"
 #import "xmime5.h"
 
-//gsoap covise    schema namespace:	http://www.hlrs.de/organization/vis/covise
+//gsoap covise    schema namespace:	http://www.hlrs.de/covise
 //gsoap covise    service style:	rpc
 //gsoap covise    service encoding:	encoded
 
@@ -791,12 +791,12 @@ public:
 //gsoap covise   service name:	COVISE
 //gsoap covise   service type:	ServiceSoap
 //gsoap covise   service port:	http://localhost:31111/
-//gsoap covise   service namespace:	http://www.hlrs.de/organization/vis/covise
+//gsoap covise   service namespace:	http://www.hlrs.de/covise
 //gsoap covise   service transport:	http://schemas.xmlsoap.org/soap/http
 
 //gsoap covise   service method-style:	  addEventListener document
 //gsoap covise   service method-encoding: addEventListener literal
-//gsoap covise   service method-action:	  addEventListener http://www.hlrs.de/organization/vis/covise/addEventListener
+//gsoap covise   service method-action:	  addEventListener http://www.hlrs.de/covise/addEventListener
 
 int __covise__addEventListener(
     _covise__addEventListener *covise__addEventListener, ///< Request parameter
@@ -805,7 +805,7 @@ int __covise__addEventListener(
 
 //gsoap covise   service method-style:	  removeEventListener document
 //gsoap covise   service method-encoding: removeEventListener literal
-//gsoap covise   service method-action:	  removeEventListener http://www.hlrs.de/organization/vis/covise/removeEventListener
+//gsoap covise   service method-action:	  removeEventListener http://www.hlrs.de/covise/removeEventListener
 
 int __covise__removeEventListener(
     _covise__removeEventListener *covise__removeEventListener, ///< Request parameter
@@ -814,7 +814,7 @@ int __covise__removeEventListener(
 
 //gsoap covise   service method-style:	  executeNet document
 //gsoap covise   service method-encoding: executeNet literal
-//gsoap covise   service method-action:	  executeNet http://www.hlrs.de/organization/vis/covise/executeNet
+//gsoap covise   service method-action:	  executeNet http://www.hlrs.de/covise/executeNet
 
 int __covise__executeNet(
     _covise__executeNet *covise__executeNet, ///< Request parameter
@@ -823,7 +823,7 @@ int __covise__executeNet(
 
 //gsoap covise   service method-style:	  openNet document
 //gsoap covise   service method-encoding: openNet literal
-//gsoap covise   service method-action:	  openNet http://www.hlrs.de/organization/vis/covise/openNet
+//gsoap covise   service method-action:	  openNet http://www.hlrs.de/covise/openNet
 
 int __covise__openNet(
     _covise__openNet *covise__openNet, ///< Request parameter
@@ -832,7 +832,7 @@ int __covise__openNet(
 
 //gsoap covise   service method-style:	  addPartner document
 //gsoap covise   service method-encoding: addPartner literal
-//gsoap covise   service method-action:	  addPartner http://www.hlrs.de/organization/vis/covise/addPartner
+//gsoap covise   service method-action:	  addPartner http://www.hlrs.de/covise/addPartner
 
 int __covise__addPartner(
     _covise__addPartner *covise__addPartner, ///< Request parameter
@@ -841,7 +841,7 @@ int __covise__addPartner(
 
 //gsoap covise   service method-style:	  quit document
 //gsoap covise   service method-encoding: quit literal
-//gsoap covise   service method-action:	  quit http://www.hlrs.de/organization/vis/covise/quit
+//gsoap covise   service method-action:	  quit http://www.hlrs.de/covise/quit
 
 int __covise__quit(
     _covise__quit *covise__quit, ///< Request parameter
@@ -850,7 +850,7 @@ int __covise__quit(
 
 //gsoap covise   service method-style:	  listModules document
 //gsoap covise   service method-encoding:      listModules literal
-//gsoap covise   service method-action:	  listModules http://www.hlrs.de/organization/vis/covise/listModules
+//gsoap covise   service method-action:	  listModules http://www.hlrs.de/covise/listModules
 
 int __covise__listModules(
     _covise__listModules *covise__listModules, ///< Request parameter
@@ -859,7 +859,7 @@ int __covise__listModules(
 
 //gsoap covise   service method-style:	  listHosts document
 //gsoap covise   service method-encoding:      listHosts literal
-//gsoap covise   service method-action:	  listHosts http://www.hlrs.de/organization/vis/covise/listHosts
+//gsoap covise   service method-action:	  listHosts http://www.hlrs.de/covise/listHosts
 
 int __covise__listHosts(
     _covise__listHosts *covise__listHosts, ///< Request parameter
@@ -868,7 +868,7 @@ int __covise__listHosts(
 
 //gsoap covise   service method-style:	  getRunningModules document
 //gsoap covise   service method-encoding:      getRunningModules literal
-//gsoap covise   service method-action:	  getRunningModules http://www.hlrs.de/organization/vis/covise/getRunningModules
+//gsoap covise   service method-action:	  getRunningModules http://www.hlrs.de/covise/getRunningModules
 
 int __covise__getRunningModules(
     _covise__getRunningModules *covise__getRunningModules, ///< Request parameter
@@ -877,7 +877,7 @@ int __covise__getRunningModules(
 
 //gsoap covise   service method-style:	  setParameter document
 //gsoap covise   service method-encoding:      setParameter literal
-//gsoap covise   service method-action:	  setParameter http://www.hlrs.de/organization/vis/covise/setParameter
+//gsoap covise   service method-action:	  setParameter http://www.hlrs.de/covise/setParameter
 
 int __covise__setParameter(
     _covise__setParameter *covise__setParameter, ///< Request parameter
@@ -886,7 +886,7 @@ int __covise__setParameter(
 
 //gsoap covise   service method-style:	  setParameterFromString document
 //gsoap covise   service method-encoding:      setParameterFromString literal
-//gsoap covise   service method-action:	  setParameterFromString http://www.hlrs.de/organization/vis/covise/setParameterFromString
+//gsoap covise   service method-action:	  setParameterFromString http://www.hlrs.de/covise/setParameterFromString
 
 int __covise__setParameterFromString(
     _covise__setParameterFromString *covise__setParameterFromString, ///< Request parameter
@@ -895,7 +895,7 @@ int __covise__setParameterFromString(
 
 //gsoap covise   service method-style:	  getParameterAsString document
 //gsoap covise   service method-encoding:      getParameterAsString literal
-//gsoap covise   service method-action:	  getParameterAsString http://www.hlrs.de/organization/vis/covise/getParameterAsString
+//gsoap covise   service method-action:	  getParameterAsString http://www.hlrs.de/covise/getParameterAsString
 
 int __covise__getParameterAsString(
     _covise__getParameterAsString *covise__getParameterAsString, ///< Request parameter
@@ -904,7 +904,7 @@ int __covise__getParameterAsString(
 
 //gsoap covise   service method-style:	  executeModule document
 //gsoap covise   service method-encoding:      executeModule literal
-//gsoap covise   service method-action:	  executeModule http://www.hlrs.de/organization/vis/covise/executeModule
+//gsoap covise   service method-action:	  executeModule http://www.hlrs.de/covise/executeModule
 
 int __covise__executeModule(
     _covise__executeModule *covise__executeModule, ///< Request parameter
@@ -913,7 +913,7 @@ int __covise__executeModule(
 
 //gsoap covise   service method-style:	  getEvent document
 //gsoap covise   service method-encoding:      getEvent literal
-//gsoap covise   service method-action:	  getEvent http://www.hlrs.de/organization/vis/covise/getEvent
+//gsoap covise   service method-action:	  getEvent http://www.hlrs.de/covise/getEvent
 
 int __covise__getEvent(
     _covise__getEvent *covise__getEvent, ///< Request parameter
@@ -922,7 +922,7 @@ int __covise__getEvent(
 
 //gsoap covise   service method-style:	  getRunningModule document
 //gsoap covise   service method-encoding:      getRunningModule literal
-//gsoap covise   service method-action:	  getRunningModule http://www.hlrs.de/organization/vis/covise/getRunningModule
+//gsoap covise   service method-action:	  getRunningModule http://www.hlrs.de/covise/getRunningModule
 
 int __covise__getRunningModule(
     _covise__getRunningModule *covise__getRunningModule, ///< Request parameter
@@ -931,7 +931,7 @@ int __covise__getRunningModule(
 
 //gsoap covise   service method-style:	  getModuleID document
 //gsoap covise   service method-encoding:      getModuleID literal
-//gsoap covise   service method-action:	  getModuleID http://www.hlrs.de/organization/vis/covise/getModuleID
+//gsoap covise   service method-action:	  getModuleID http://www.hlrs.de/covise/getModuleID
 
 int __covise__getModuleID(
     _covise__getModuleID *covise__getModuleID, ///< Request parameter
@@ -940,7 +940,7 @@ int __covise__getModuleID(
 
 //gsoap covise   service method-style:	  getConfigEntry document
 //gsoap covise   service method-encoding:      getConfigEntry literal
-//gsoap covise   service method-action:	  getConfigEntry http://www.hlrs.de/organization/vis/covise/getConfigEntry
+//gsoap covise   service method-action:	  getConfigEntry http://www.hlrs.de/covise/getConfigEntry
 
 int __covise__getConfigEntry(
     _covise__getConfigEntry *covise__getConfigEntry, ///< Request parameter
@@ -949,7 +949,7 @@ int __covise__getConfigEntry(
 
 //gsoap covise   service method-style:	  deleteModule document
 //gsoap covise   service method-encoding:      deleteModule literal
-//gsoap covise   service method-action:	  deleteModule http://www.hlrs.de/organization/vis/covise/deleteModule
+//gsoap covise   service method-action:	  deleteModule http://www.hlrs.de/covise/deleteModule
 
 int __covise__deleteModule(
     _covise__deleteModule *covise__deleteModule, ///< Request parameter
@@ -958,7 +958,7 @@ int __covise__deleteModule(
 
 //gsoap covise   service method-style:	  instantiateModule document
 //gsoap covise   service method-encoding:      instantiateModule literal
-//gsoap covise   service method-action:	  instantiateModule http://www.hlrs.de/organization/vis/covise/instantiateModule
+//gsoap covise   service method-action:	  instantiateModule http://www.hlrs.de/covise/instantiateModule
 
 int __covise__instantiateModule(
     _covise__instantiateModule *covise__instantiateModule, ///< Request parameter
@@ -967,7 +967,7 @@ int __covise__instantiateModule(
 
 //gsoap covise   service method-style:	  link document
 //gsoap covise   service method-encoding:      link literal
-//gsoap covise   service method-action:	  link http://www.hlrs.de/organization/vis/covise/link
+//gsoap covise   service method-action:	  link http://www.hlrs.de/covise/link
 
 int __covise__link(
     _covise__link *covise__link, ///< Request parameter
@@ -976,7 +976,7 @@ int __covise__link(
 
 //gsoap covise   service method-style:	  getLinks document
 //gsoap covise   service method-encoding:      getLinks literal
-//gsoap covise   service method-action:	  getLinks http://www.hlrs.de/organization/vis/covise/getLinks
+//gsoap covise   service method-action:	  getLinks http://www.hlrs.de/covise/getLinks
 
 int __covise__getLinks(
     _covise__getLinks *covise__getLinks, ///< Request parameter
@@ -985,7 +985,7 @@ int __covise__getLinks(
 
 //gsoap covise   service method-style:	  unlink document
 //gsoap covise   service method-encoding:      unlink literal
-//gsoap covise   service method-action:	  unlink http://www.hlrs.de/organization/vis/covise/unlink
+//gsoap covise   service method-action:	  unlink http://www.hlrs.de/covise/unlink
 
 int __covise__unlink(
     _covise__unlink *covise__unlink, ///< Request parameter
@@ -994,7 +994,7 @@ int __covise__unlink(
 
 //gsoap covise   service method-style:    getFileInfoList document
 //gsoap covise   service method-encoding:      getFileInfoList literal
-//gsoap covise   service method-action:   getFileInfoList http://www.hlrs.de/organization/vis/covise/getFileInfoList
+//gsoap covise   service method-action:   getFileInfoList http://www.hlrs.de/covise/getFileInfoList
 
 int __covise__getFileInfoList(
     _covise__getFileInfoList *covise__getFileInfoList, ///< Request parameter
@@ -1003,7 +1003,7 @@ int __covise__getFileInfoList(
 
 //gsoap covise   service method-style:    uploadFile document
 //gsoap covise   service method-encoding:      uploadFile literal
-//gsoap covise   service method-action:   uploadFile http://www.hlrs.de/organization/vis/covise/uploadFile
+//gsoap covise   service method-action:   uploadFile http://www.hlrs.de/covise/uploadFile
 
 int __covise__uploadFile(
     _covise__uploadFile *covise__uploadFile, ///< Request parameter
@@ -1012,7 +1012,7 @@ int __covise__uploadFile(
 
 //gsoap covise   service method-style:    isFileExist document
 //gsoap covise   service method-encoding:      isFileExist literal
-//gsoap covise   service method-action:   isFileExist http://www.hlrs.de/organization/vis/covise/isFileExist
+//gsoap covise   service method-action:   isFileExist http://www.hlrs.de/covise/isFileExist
 
 int __covise__isFileExist(
     _covise__isFileExist *covise__isFileExist, ///< Request parameter
@@ -1021,7 +1021,7 @@ int __covise__isFileExist(
 
 //gsoap covise   service method-style:    isDirExist document
 //gsoap covise   service method-encoding:      isDirExist literal
-//gsoap covise   service method-action:   isDirExist http://www.hlrs.de/organization/vis/covise/isDirExist
+//gsoap covise   service method-action:   isDirExist http://www.hlrs.de/covise/isDirExist
 
 int __covise__isDirExist(
     _covise__isDirExist *covise__isDirExist, ///< Request parameter
@@ -1030,7 +1030,7 @@ int __covise__isDirExist(
 
 //gsoap covise   service method-style:    createNewDir document
 //gsoap covise   service method-encoding:      createNewDir literal
-//gsoap covise   service method-action:   createNewDir http://www.hlrs.de/organization/vis/covise/createNewDir
+//gsoap covise   service method-action:   createNewDir http://www.hlrs.de/covise/createNewDir
 
 int __covise__createNewDir(
     _covise__createNewDir *covise__createNewDir, ///< Request parameter
@@ -1039,7 +1039,7 @@ int __covise__createNewDir(
 
 //gsoap covise   service method-style:    deleteDir document
 //gsoap covise   service method-encoding:      deleteDir literal
-//gsoap covise   service method-action:   deleteDir http://www.hlrs.de/organization/vis/covise/deleteDir
+//gsoap covise   service method-action:   deleteDir http://www.hlrs.de/covise/deleteDir
 
 int __covise__deleteDir(
     _covise__deleteDir *covise__deleteDir, ///< Request parameter
@@ -1048,7 +1048,7 @@ int __covise__deleteDir(
 
 //gsoap covise   service method-style:	  setParameterFromUploadedFile document
 //gsoap covise   service method-encoding:     setParameterFromUploadedFile literal
-//gsoap covise   service method-action:	  setParameterFromUploadedFile http://www.hlrs.de/organization/vis/covise/setParameterFromUploadedFile
+//gsoap covise   service method-action:	  setParameterFromUploadedFile http://www.hlrs.de/covise/setParameterFromUploadedFile
 
 int __covise__setParameterFromUploadedFile(
     _covise__setParameterFromUploadedFile *covise__setParameterFromUploadedFile, ///< Request parameter
@@ -1057,7 +1057,7 @@ int __covise__setParameterFromUploadedFile(
 
 //gsoap covise   service method-style:    uploadFileMtom document
 //gsoap covise   service method-encoding:      uploadFileMtom literal
-//gsoap covise   service method-action:   uploadFileMtom http://www.hlrs.de/organization/vis/covise/uploadFileMtom
+//gsoap covise   service method-action:   uploadFileMtom http://www.hlrs.de/covise/uploadFileMtom
 
 int __covise__uploadFileMtom(
     _covise__uploadFileMtom *covise__uploadFileMtom, ///< Request parameter

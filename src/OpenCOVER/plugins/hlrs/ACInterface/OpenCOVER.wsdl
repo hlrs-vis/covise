@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="OpenCOVER"
- targetNamespace="http://www.hlrs.de/organization/vis/ac-opencover"
- xmlns:tns="http://www.hlrs.de/organization/vis/ac-opencover"
+ targetNamespace="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2"
+ xmlns:tns="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2"
  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
- xmlns:opencover="http://www.hlrs.de/organization/vis/ac-opencover"
+ xmlns:opencover="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2"
  xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
  xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
  xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
@@ -15,12 +15,12 @@
 
 <types>
 
- <schema targetNamespace="http://www.hlrs.de/organization/vis/ac-opencover"
+ <schema targetNamespace="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2"
   xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
   xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:opencover="http://www.hlrs.de/organization/vis/ac-opencover"
+  xmlns:opencover="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2"
   xmlns="http://www.w3.org/2001/XMLSchema"
   elementFormDefault="qualified"
   attributeFormDefault="unqualified">
@@ -60,7 +60,7 @@
 <binding name="OpenCOVER" type="tns:ServiceSoap">
  <SOAP:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
  <operation name="sendMessage">
-  <SOAP:operation soapAction="http://www.hlrs.de/organization/vis/ac-opencover/sendMessage"/>
+  <SOAP:operation soapAction="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/#heading2/sendMessage"/>
   <input>
      <SOAP:body parts="parameters" use="literal"/>
   </input>

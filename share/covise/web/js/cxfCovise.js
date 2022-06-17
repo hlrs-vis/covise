@@ -644,7 +644,7 @@ function getCoviseRunningModules()
    coviseServiceSoap.getRunningModules(getRunningModulesResponse, errorResponse);
    */
    
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:getRunningModules></covise:getRunningModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:getRunningModules></covise:getRunningModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true, getCoviseRunningModulesEnd);
 }
 
@@ -768,7 +768,7 @@ function executeModuleResponse() {
 // get event
 function getEvent()
 {
-   var request = ('<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"> <SOAP-ENV:Body> <covise:getEvent> <uuid xsi:type="xsd:string">' + uuid + '</uuid> <timeout xsi:type="xsd:int">500</timeout></covise:getEvent> </SOAP-ENV:Body></SOAP-ENV:Envelope>');
+   var request = ('<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"> <SOAP-ENV:Body> <covise:getEvent> <uuid xsi:type="xsd:string">' + uuid + '</uuid> <timeout xsi:type="xsd:int">500</timeout></covise:getEvent> </SOAP-ENV:Body></SOAP-ENV:Envelope>');
    sendSOAPRequest(request, true, getEventEnd);
 }
 
@@ -1224,7 +1224,7 @@ function sendColormapParameter(paramId)
          id += '_' + splits[ctr];
       }
 
-      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:setParameter><moduleID xsi:type="xsd:string">' + moduleId + '</moduleID>' + (new XMLSerializer()).serializeToString(colormap).replace('<parameters', '<parameter', '').replace('</parameters', '</parameter', '') + '</covise:setParameter></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:setParameter><moduleID xsi:type="xsd:string">' + moduleId + '</moduleID>' + (new XMLSerializer()).serializeToString(colormap).replace('<parameters', '<parameter', '').replace('</parameters', '</parameter', '') + '</covise:setParameter></SOAP-ENV:Body></SOAP-ENV:Envelope>';
       sendSOAPRequest(request, true);  
 
       // comment out on 20131128: execute covise by click button now

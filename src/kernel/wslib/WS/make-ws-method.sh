@@ -22,7 +22,7 @@ class _covise__$1Response\\
 /EndOfDeclarations/i\\
 //gsoap covise   service method-style:	  $1 document\\
 //gsoap covise   service method-encoding:      $1 literal\\
-//gsoap covise   service method-action:	  $1 http://www.hlrs.de/organization/vis/covise/$1\\
+//gsoap covise   service method-action:	  $1 http://www.hlrs.de/covise/$1\\
 \\
 int __covise__$1(\\
     _covise__$1*              covise__$1,	///< Request parameter\\

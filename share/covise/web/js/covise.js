@@ -26,7 +26,7 @@ function stop()
 
 function removeEventListener()
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:removeEventListener><uuid>' + uuid + '</uuid></covise:removeEventListener></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:removeEventListener><uuid>' + uuid + '</uuid></covise:removeEventListener></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, false);
 }
 
@@ -36,7 +36,7 @@ function addEventListener()
    if (uuid === "")
    {
       uuid = "_requested_";
-      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:addEventListener></covise:addEventListener></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:addEventListener></covise:addEventListener></SOAP-ENV:Body></SOAP-ENV:Envelope>';
       sendSOAPRequest(request, true, addEventListenerEnd);
    }
 
@@ -59,7 +59,7 @@ function addEventListenerEnd(httpRequest)
 
 function listHosts()
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"> <SOAP-ENV:Body><covise:listHosts></covise:listHosts></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"> <SOAP-ENV:Body><covise:listHosts></covise:listHosts></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true, listHostsEnd);
 }
 
@@ -86,7 +86,7 @@ function listHostsEnd(httpRequest)
 
 function listModules(hostname)
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:listModules><ipaddr>' + hostname + '</ipaddr></covise:listModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:listModules><ipaddr>' + hostname + '</ipaddr></covise:listModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true, listModulesEnd);  
 }
 
@@ -129,7 +129,7 @@ function listModulesEnd(httpRequest)
 
 function getRunningModules()
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:getRunningModules></covise:getRunningModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:getRunningModules></covise:getRunningModules></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true, getRunningModulesEnd);
 }
 
@@ -154,7 +154,7 @@ function getRunningModulesEnd(httpRequest)
 
 function getEvent()
 {
-   var request = ('<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"> <SOAP-ENV:Body> <covise:getEvent> <uuid xsi:type="xsd:string">' + uuid + '</uuid> <timeout xsi:type="xsd:int">500</timeout></covise:getEvent> </SOAP-ENV:Body></SOAP-ENV:Envelope>');
+   var request = ('<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"> <SOAP-ENV:Body> <covise:getEvent> <uuid xsi:type="xsd:string">' + uuid + '</uuid> <timeout xsi:type="xsd:int">500</timeout></covise:getEvent> </SOAP-ENV:Body></SOAP-ENV:Envelope>');
    sendSOAPRequest(request, true, getEventEnd);
 }
 
@@ -349,7 +349,7 @@ function setParameterFromString(parameter, value)
       variable += '_' + splits[ctr];
    }
 
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:setParameterFromString><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID><parameter xsi:type="xsd:string">' + variable + '</parameter><value xsi:type="xsd:string">' + value + '</value></covise:setParameterFromString></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:setParameterFromString><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID><parameter xsi:type="xsd:string">' + variable + '</parameter><value xsi:type="xsd:string">' + value + '</value></covise:setParameterFromString></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true);
 
 }
@@ -369,7 +369,7 @@ function setParameter(parameterID, parameter)
       variable += '_' + splits[ctr];
    }
 
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:setParameter><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID>' + (new XMLSerializer()).serializeToString(parameter).replace('<parameters', '<parameter', '').replace('</parameters', '</parameter', '') + '</covise:setParameter></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:setParameter><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID>' + (new XMLSerializer()).serializeToString(parameter).replace('<parameters', '<parameter', '').replace('</parameters', '</parameter', '') + '</covise:setParameter></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true);
 
 }
@@ -443,7 +443,7 @@ function setColormapChoiceParameter(parameter)
 
 function openCoviseNet()
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:openNet><filename xsi:type="xsd:string">' + document.form.filename.value + '</filename></covise:openNet></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:openNet><filename xsi:type="xsd:string">' + document.form.filename.value + '</filename></covise:openNet></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true, openCoviseNetEnd);
 }
 
@@ -463,13 +463,13 @@ function openCoviseNetEnd(httpRequest)
 
 function executeNet()
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:executeNet></covise:executeNet></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:executeNet></covise:executeNet></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true);
 }
 
 function executeModule(module)
 {
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:executeModule><moduleID>' + module + '</moduleID></covise:executeModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:executeModule><moduleID>' + module + '</moduleID></covise:executeModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, true);
 }
 
@@ -744,7 +744,7 @@ function deleteModule(id, sendEvent)
    {
 
       var moduleID = id.slice(7); // Slice 'Module_'
-      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"> <SOAP-ENV:Body><covise:deleteModule><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID></covise:deleteModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+      var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"> <SOAP-ENV:Body><covise:deleteModule><moduleID xsi:type="xsd:string">' + moduleID + '</moduleID></covise:deleteModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
       sendSOAPRequest(request, true);
 
    }
@@ -787,7 +787,7 @@ function removeWebGLRenderer(moduleid)
 function getConfigEntry(section, variable)
 {
 
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"> <SOAP-ENV:Body><covise:getConfigEntry><section xsi:type="xsd:string">' + section + '</section><variable xsi:type="xsd:string">' + variable + '</variable></covise:getConfigEntry></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"> <SOAP-ENV:Body><covise:getConfigEntry><section xsi:type="xsd:string">' + section + '</section><variable xsi:type="xsd:string">' + variable + '</variable></covise:getConfigEntry></SOAP-ENV:Body></SOAP-ENV:Envelope>';
 
    var httpRequest = sendSOAPRequest(request, false);
 
@@ -882,7 +882,7 @@ function instantiateModule()
 {
    var module  = document.getElementById('moduleselect').value;
    var host    = document.getElementById('hostselect').value;
-   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/organization/vis/covise"><SOAP-ENV:Body><covise:instantiateModule><module>' + module + '</module><host>' + host + '</host></covise:instantiateModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+   var request = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:covise="http://www.hlrs.de/covise"><SOAP-ENV:Body><covise:instantiateModule><module>' + module + '</module><host>' + host + '</host></covise:instantiateModule></SOAP-ENV:Body></SOAP-ENV:Envelope>';
    sendSOAPRequest(request, false);
 }
 

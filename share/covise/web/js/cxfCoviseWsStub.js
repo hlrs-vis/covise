@@ -148,11 +148,11 @@ function XOP_Include_deserialize (cxfjsutils, element) {
 }
 
 //
-// Definitions for schema: http://www.hlrs.de/organization/vis/covise
+// Definitions for schema: http://www.hlrs.de/covise
 //  file:/home/hpcaiyin/vis/wsdl/COVISE.wsdl#types1
 //
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}OpenNetDoneEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}OpenNetDoneEvent
 //
 function COVISE_OpenNetDoneEvent () {
     this.typeMarker = 'COVISE_OpenNetDoneEvent';
@@ -193,7 +193,7 @@ function COVISE_OpenNetDoneEvent_setMapname(value) { this._mapname = value;}
 
 COVISE_OpenNetDoneEvent.prototype.setMapname = COVISE_OpenNetDoneEvent_setMapname;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}OpenNetDoneEvent
+// Serialize {http://www.hlrs.de/covise}OpenNetDoneEvent
 //
 function COVISE_OpenNetDoneEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -260,7 +260,7 @@ function COVISE_OpenNetDoneEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}StringPair
+// Constructor for XML Schema item {http://www.hlrs.de/covise}StringPair
 //
 function COVISE_StringPair () {
     this.typeMarker = 'COVISE_StringPair';
@@ -301,7 +301,7 @@ function COVISE_StringPair_setSecond(value) { this._second = value;}
 
 COVISE_StringPair.prototype.setSecond = COVISE_StringPair_setSecond;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}StringPair
+// Serialize {http://www.hlrs.de/covise}StringPair
 //
 function COVISE_StringPair_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -368,7 +368,7 @@ function COVISE_StringPair_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Event
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Event
 //
 function COVISE_Event () {
     this.typeMarker = 'COVISE_Event';
@@ -392,7 +392,7 @@ function COVISE_Event_setType(value) { this._type = value;}
 
 COVISE_Event.prototype.setType = COVISE_Event_setType;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Event
+// Serialize {http://www.hlrs.de/covise}Event
 //
 function COVISE_Event_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -441,7 +441,7 @@ function COVISE_Event_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FileData
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FileData
 //
 function COVISE_FileData () {
     this.typeMarker = 'COVISE_FileData';
@@ -482,7 +482,7 @@ function COVISE_FileData_setContentType(value) { this._contentType = value;}
 
 COVISE_FileData.prototype.setContentType = COVISE_FileData_setContentType;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FileData
+// Serialize {http://www.hlrs.de/covise}FileData
 //
 function COVISE_FileData_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -530,14 +530,14 @@ function COVISE_FileData_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameterResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameterResponse
 //
 function COVISE_setParameterResponse () {
     this.typeMarker = 'COVISE_setParameterResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameterResponse
+// Serialize {http://www.hlrs.de/covise}setParameterResponse
 //
 function COVISE_setParameterResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -570,7 +570,7 @@ function COVISE_setParameterResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleExecuteStartEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleExecuteStartEvent
 //
 function COVISE_ModuleExecuteStartEvent () {
     this.typeMarker = 'COVISE_ModuleExecuteStartEvent';
@@ -611,7 +611,7 @@ function COVISE_ModuleExecuteStartEvent_setModuleID(value) { this._moduleID = va
 
 COVISE_ModuleExecuteStartEvent.prototype.setModuleID = COVISE_ModuleExecuteStartEvent_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleExecuteStartEvent
+// Serialize {http://www.hlrs.de/covise}ModuleExecuteStartEvent
 //
 function COVISE_ModuleExecuteStartEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -680,7 +680,7 @@ function COVISE_ModuleExecuteStartEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleAddEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleAddEvent
 //
 function COVISE_ModuleAddEvent () {
     this.typeMarker = 'COVISE_ModuleAddEvent';
@@ -707,7 +707,7 @@ COVISE_ModuleAddEvent.prototype.setType = COVISE_ModuleAddEvent_setType;
 //
 // accessor is COVISE_ModuleAddEvent.prototype.getModule
 // element get for module
-// - element type is {http://www.hlrs.de/organization/vis/covise}Module
+// - element type is {http://www.hlrs.de/covise}Module
 // - required element
 //
 // element set for module
@@ -721,7 +721,7 @@ function COVISE_ModuleAddEvent_setModule(value) { this._module = value;}
 
 COVISE_ModuleAddEvent.prototype.setModule = COVISE_ModuleAddEvent_setModule;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleAddEvent
+// Serialize {http://www.hlrs.de/covise}ModuleAddEvent
 //
 function COVISE_ModuleAddEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -787,7 +787,7 @@ function COVISE_ModuleAddEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleChangeEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleChangeEvent
 //
 function COVISE_ModuleChangeEvent () {
     this.typeMarker = 'COVISE_ModuleChangeEvent';
@@ -814,7 +814,7 @@ COVISE_ModuleChangeEvent.prototype.setType = COVISE_ModuleChangeEvent_setType;
 //
 // accessor is COVISE_ModuleChangeEvent.prototype.getModule
 // element get for module
-// - element type is {http://www.hlrs.de/organization/vis/covise}Module
+// - element type is {http://www.hlrs.de/covise}Module
 // - required element
 //
 // element set for module
@@ -828,7 +828,7 @@ function COVISE_ModuleChangeEvent_setModule(value) { this._module = value;}
 
 COVISE_ModuleChangeEvent.prototype.setModule = COVISE_ModuleChangeEvent_setModule;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleChangeEvent
+// Serialize {http://www.hlrs.de/covise}ModuleChangeEvent
 //
 function COVISE_ModuleChangeEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -894,7 +894,7 @@ function COVISE_ModuleChangeEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}QuitEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}QuitEvent
 //
 function COVISE_QuitEvent () {
     this.typeMarker = 'COVISE_QuitEvent';
@@ -918,7 +918,7 @@ function COVISE_QuitEvent_setType(value) { this._type = value;}
 
 COVISE_QuitEvent.prototype.setType = COVISE_QuitEvent_setType;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}QuitEvent
+// Serialize {http://www.hlrs.de/covise}QuitEvent
 //
 function COVISE_QuitEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -969,7 +969,7 @@ function COVISE_QuitEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getEventResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getEventResponse
 //
 function COVISE_getEventResponse () {
     this.typeMarker = 'COVISE_getEventResponse';
@@ -980,7 +980,7 @@ function COVISE_getEventResponse () {
 //
 // accessor is COVISE_getEventResponse.prototype.getEvent
 // element get for event
-// - element type is {http://www.hlrs.de/organization/vis/covise}Event
+// - element type is {http://www.hlrs.de/covise}Event
 // - optional element
 // - nillable
 //
@@ -1011,7 +1011,7 @@ function COVISE_getEventResponse_setUuid(value) { this._uuid = value;}
 
 COVISE_getEventResponse.prototype.setUuid = COVISE_getEventResponse_setUuid;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getEventResponse
+// Serialize {http://www.hlrs.de/covise}getEventResponse
 //
 function COVISE_getEventResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1085,7 +1085,7 @@ function COVISE_getEventResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}createNewDir
+// Constructor for XML Schema item {http://www.hlrs.de/covise}createNewDir
 //
 function COVISE_createNewDir () {
     this.typeMarker = 'COVISE_createNewDir';
@@ -1126,7 +1126,7 @@ function COVISE_createNewDir_setNewDir(value) { this._newDir = value;}
 
 COVISE_createNewDir.prototype.setNewDir = COVISE_createNewDir_setNewDir;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}createNewDir
+// Serialize {http://www.hlrs.de/covise}createNewDir
 //
 function COVISE_createNewDir_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1195,7 +1195,7 @@ function COVISE_createNewDir_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}LinkAddEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}LinkAddEvent
 //
 function COVISE_LinkAddEvent () {
     this.typeMarker = 'COVISE_LinkAddEvent';
@@ -1222,7 +1222,7 @@ COVISE_LinkAddEvent.prototype.setType = COVISE_LinkAddEvent_setType;
 //
 // accessor is COVISE_LinkAddEvent.prototype.getLink
 // element get for link
-// - element type is {http://www.hlrs.de/organization/vis/covise}Link
+// - element type is {http://www.hlrs.de/covise}Link
 // - required element
 //
 // element set for link
@@ -1236,7 +1236,7 @@ function COVISE_LinkAddEvent_setLink(value) { this._link = value;}
 
 COVISE_LinkAddEvent.prototype.setLink = COVISE_LinkAddEvent_setLink;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}LinkAddEvent
+// Serialize {http://www.hlrs.de/covise}LinkAddEvent
 //
 function COVISE_LinkAddEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1302,7 +1302,7 @@ function COVISE_LinkAddEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getParameterAsString
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getParameterAsString
 //
 function COVISE_getParameterAsString () {
     this.typeMarker = 'COVISE_getParameterAsString';
@@ -1343,7 +1343,7 @@ function COVISE_getParameterAsString_setParameter(value) { this._parameter = val
 
 COVISE_getParameterAsString.prototype.setParameter = COVISE_getParameterAsString_setParameter;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getParameterAsString
+// Serialize {http://www.hlrs.de/covise}getParameterAsString
 //
 function COVISE_getParameterAsString_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1412,7 +1412,7 @@ function COVISE_getParameterAsString_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getModuleID
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getModuleID
 //
 function COVISE_getModuleID () {
     this.typeMarker = 'COVISE_getModuleID';
@@ -1470,7 +1470,7 @@ function COVISE_getModuleID_setHost(value) { this._host = value;}
 
 COVISE_getModuleID.prototype.setHost = COVISE_getModuleID_setHost;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getModuleID
+// Serialize {http://www.hlrs.de/covise}getModuleID
 //
 function COVISE_getModuleID_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1557,7 +1557,7 @@ function COVISE_getModuleID_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}isFileExistResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}isFileExistResponse
 //
 function COVISE_isFileExistResponse () {
     this.typeMarker = 'COVISE_isFileExistResponse';
@@ -1598,7 +1598,7 @@ function COVISE_isFileExistResponse_setIsFileExist(value) { this._isFileExist = 
 
 COVISE_isFileExistResponse.prototype.setIsFileExist = COVISE_isFileExistResponse_setIsFileExist;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}isFileExistResponse
+// Serialize {http://www.hlrs.de/covise}isFileExistResponse
 //
 function COVISE_isFileExistResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1667,14 +1667,14 @@ function COVISE_isFileExistResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}instantiateModuleResponse
 //
 function COVISE_instantiateModuleResponse () {
     this.typeMarker = 'COVISE_instantiateModuleResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse
+// Serialize {http://www.hlrs.de/covise}instantiateModuleResponse
 //
 function COVISE_instantiateModuleResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1707,7 +1707,7 @@ function COVISE_instantiateModuleResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FloatSliderParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FloatSliderParameter
 //
 function COVISE_FloatSliderParameter () {
     this.typeMarker = 'COVISE_FloatSliderParameter';
@@ -1833,7 +1833,7 @@ function COVISE_FloatSliderParameter_setMax(value) { this._max = value;}
 
 COVISE_FloatSliderParameter.prototype.setMax = COVISE_FloatSliderParameter_setMax;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FloatSliderParameter
+// Serialize {http://www.hlrs.de/covise}FloatSliderParameter
 //
 function COVISE_FloatSliderParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -1992,7 +1992,7 @@ function COVISE_FloatSliderParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ExecuteStartEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ExecuteStartEvent
 //
 function COVISE_ExecuteStartEvent () {
     this.typeMarker = 'COVISE_ExecuteStartEvent';
@@ -2016,7 +2016,7 @@ function COVISE_ExecuteStartEvent_setType(value) { this._type = value;}
 
 COVISE_ExecuteStartEvent.prototype.setType = COVISE_ExecuteStartEvent_setType;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ExecuteStartEvent
+// Serialize {http://www.hlrs.de/covise}ExecuteStartEvent
 //
 function COVISE_ExecuteStartEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2067,7 +2067,7 @@ function COVISE_ExecuteStartEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ParameterChangeEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ParameterChangeEvent
 //
 function COVISE_ParameterChangeEvent () {
     this.typeMarker = 'COVISE_ParameterChangeEvent';
@@ -2111,7 +2111,7 @@ COVISE_ParameterChangeEvent.prototype.setModuleID = COVISE_ParameterChangeEvent_
 //
 // accessor is COVISE_ParameterChangeEvent.prototype.getParameter
 // element get for parameter
-// - element type is {http://www.hlrs.de/organization/vis/covise}Parameter
+// - element type is {http://www.hlrs.de/covise}Parameter
 // - required element
 // - nillable
 //
@@ -2126,7 +2126,7 @@ function COVISE_ParameterChangeEvent_setParameter(value) { this._parameter = val
 
 COVISE_ParameterChangeEvent.prototype.setParameter = COVISE_ParameterChangeEvent_setParameter;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ParameterChangeEvent
+// Serialize {http://www.hlrs.de/covise}ParameterChangeEvent
 //
 function COVISE_ParameterChangeEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2214,7 +2214,7 @@ function COVISE_ParameterChangeEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getParameterAsStringResponse
 //
 function COVISE_getParameterAsStringResponse () {
     this.typeMarker = 'COVISE_getParameterAsStringResponse';
@@ -2238,7 +2238,7 @@ function COVISE_getParameterAsStringResponse_setValue(value) { this._value = val
 
 COVISE_getParameterAsStringResponse.prototype.setValue = COVISE_getParameterAsStringResponse_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse
+// Serialize {http://www.hlrs.de/covise}getParameterAsStringResponse
 //
 function COVISE_getParameterAsStringResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2289,7 +2289,7 @@ function COVISE_getParameterAsStringResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getFileInfoList
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getFileInfoList
 //
 function COVISE_getFileInfoList () {
     this.typeMarker = 'COVISE_getFileInfoList';
@@ -2313,7 +2313,7 @@ function COVISE_getFileInfoList_setPath(value) { this._path = value;}
 
 COVISE_getFileInfoList.prototype.setPath = COVISE_getFileInfoList_setPath;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getFileInfoList
+// Serialize {http://www.hlrs.de/covise}getFileInfoList
 //
 function COVISE_getFileInfoList_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2364,14 +2364,14 @@ function COVISE_getFileInfoList_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}executeModuleResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}executeModuleResponse
 //
 function COVISE_executeModuleResponse () {
     this.typeMarker = 'COVISE_executeModuleResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}executeModuleResponse
+// Serialize {http://www.hlrs.de/covise}executeModuleResponse
 //
 function COVISE_executeModuleResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2404,14 +2404,14 @@ function COVISE_executeModuleResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getRunningModules
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getRunningModules
 //
 function COVISE_getRunningModules () {
     this.typeMarker = 'COVISE_getRunningModules';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getRunningModules
+// Serialize {http://www.hlrs.de/covise}getRunningModules
 //
 function COVISE_getRunningModules_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2444,7 +2444,7 @@ function COVISE_getRunningModules_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getRunningModulesResponse
 //
 function COVISE_getRunningModulesResponse () {
     this.typeMarker = 'COVISE_getRunningModulesResponse';
@@ -2455,7 +2455,7 @@ function COVISE_getRunningModulesResponse () {
 //
 // accessor is COVISE_getRunningModulesResponse.prototype.getModules
 // element get for modules
-// - element type is {http://www.hlrs.de/organization/vis/covise}Module
+// - element type is {http://www.hlrs.de/covise}Module
 // - required element
 // - array
 //
@@ -2486,7 +2486,7 @@ function COVISE_getRunningModulesResponse_setNetworkFile(value) { this._networkF
 
 COVISE_getRunningModulesResponse.prototype.setNetworkFile = COVISE_getRunningModulesResponse_setNetworkFile;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse
+// Serialize {http://www.hlrs.de/covise}getRunningModulesResponse
 //
 function COVISE_getRunningModulesResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2566,7 +2566,7 @@ function COVISE_getRunningModulesResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getModuleIDResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getModuleIDResponse
 //
 function COVISE_getModuleIDResponse () {
     this.typeMarker = 'COVISE_getModuleIDResponse';
@@ -2590,7 +2590,7 @@ function COVISE_getModuleIDResponse_setModuleID(value) { this._moduleID = value;
 
 COVISE_getModuleIDResponse.prototype.setModuleID = COVISE_getModuleIDResponse_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getModuleIDResponse
+// Serialize {http://www.hlrs.de/covise}getModuleIDResponse
 //
 function COVISE_getModuleIDResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2641,7 +2641,7 @@ function COVISE_getModuleIDResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}isFileExist
+// Constructor for XML Schema item {http://www.hlrs.de/covise}isFileExist
 //
 function COVISE_isFileExist () {
     this.typeMarker = 'COVISE_isFileExist';
@@ -2682,7 +2682,7 @@ function COVISE_isFileExist_setFileName(value) { this._fileName = value;}
 
 COVISE_isFileExist.prototype.setFileName = COVISE_isFileExist_setFileName;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}isFileExist
+// Serialize {http://www.hlrs.de/covise}isFileExist
 //
 function COVISE_isFileExist_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2751,7 +2751,7 @@ function COVISE_isFileExist_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getLinksResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getLinksResponse
 //
 function COVISE_getLinksResponse () {
     this.typeMarker = 'COVISE_getLinksResponse';
@@ -2761,7 +2761,7 @@ function COVISE_getLinksResponse () {
 //
 // accessor is COVISE_getLinksResponse.prototype.getLinks
 // element get for links
-// - element type is {http://www.hlrs.de/organization/vis/covise}Link
+// - element type is {http://www.hlrs.de/covise}Link
 // - required element
 // - array
 //
@@ -2776,7 +2776,7 @@ function COVISE_getLinksResponse_setLinks(value) { this._links = value;}
 
 COVISE_getLinksResponse.prototype.setLinks = COVISE_getLinksResponse_setLinks;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getLinksResponse
+// Serialize {http://www.hlrs.de/covise}getLinksResponse
 //
 function COVISE_getLinksResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2838,14 +2838,14 @@ function COVISE_getLinksResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}quitResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}quitResponse
 //
 function COVISE_quitResponse () {
     this.typeMarker = 'COVISE_quitResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}quitResponse
+// Serialize {http://www.hlrs.de/covise}quitResponse
 //
 function COVISE_quitResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -2878,7 +2878,7 @@ function COVISE_quitResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}uploadFile
+// Constructor for XML Schema item {http://www.hlrs.de/covise}uploadFile
 //
 function COVISE_uploadFile () {
     this.typeMarker = 'COVISE_uploadFile';
@@ -3022,7 +3022,7 @@ function COVISE_uploadFile_setFileTruncated(value) { this._fileTruncated = value
 
 COVISE_uploadFile.prototype.setFileTruncated = COVISE_uploadFile_setFileTruncated;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}uploadFile
+// Serialize {http://www.hlrs.de/covise}uploadFile
 //
 function COVISE_uploadFile_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3202,7 +3202,7 @@ function COVISE_uploadFile_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}uploadFileResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}uploadFileResponse
 //
 function COVISE_uploadFileResponse () {
     this.typeMarker = 'COVISE_uploadFileResponse';
@@ -3243,7 +3243,7 @@ function COVISE_uploadFileResponse_setLastChunk(value) { this._lastChunk = value
 
 COVISE_uploadFileResponse.prototype.setLastChunk = COVISE_uploadFileResponse_setLastChunk;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}uploadFileResponse
+// Serialize {http://www.hlrs.de/covise}uploadFileResponse
 //
 function COVISE_uploadFileResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3312,14 +3312,14 @@ function COVISE_uploadFileResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getLinks
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getLinks
 //
 function COVISE_getLinks () {
     this.typeMarker = 'COVISE_getLinks';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getLinks
+// Serialize {http://www.hlrs.de/covise}getLinks
 //
 function COVISE_getLinks_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3352,7 +3352,7 @@ function COVISE_getLinks_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}createNewDirResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}createNewDirResponse
 //
 function COVISE_createNewDirResponse () {
     this.typeMarker = 'COVISE_createNewDirResponse';
@@ -3376,7 +3376,7 @@ function COVISE_createNewDirResponse_setResult(value) { this._result = value;}
 
 COVISE_createNewDirResponse.prototype.setResult = COVISE_createNewDirResponse_setResult;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}createNewDirResponse
+// Serialize {http://www.hlrs.de/covise}createNewDirResponse
 //
 function COVISE_createNewDirResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3427,7 +3427,7 @@ function COVISE_createNewDirResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}listModules
+// Constructor for XML Schema item {http://www.hlrs.de/covise}listModules
 //
 function COVISE_listModules () {
     this.typeMarker = 'COVISE_listModules';
@@ -3451,7 +3451,7 @@ function COVISE_listModules_setIpaddr(value) { this._ipaddr = value;}
 
 COVISE_listModules.prototype.setIpaddr = COVISE_listModules_setIpaddr;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}listModules
+// Serialize {http://www.hlrs.de/covise}listModules
 //
 function COVISE_listModules_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3502,7 +3502,7 @@ function COVISE_listModules_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleDiedEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleDiedEvent
 //
 function COVISE_ModuleDiedEvent () {
     this.typeMarker = 'COVISE_ModuleDiedEvent';
@@ -3543,7 +3543,7 @@ function COVISE_ModuleDiedEvent_setModuleID(value) { this._moduleID = value;}
 
 COVISE_ModuleDiedEvent.prototype.setModuleID = COVISE_ModuleDiedEvent_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleDiedEvent
+// Serialize {http://www.hlrs.de/covise}ModuleDiedEvent
 //
 function COVISE_ModuleDiedEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3612,7 +3612,7 @@ function COVISE_ModuleDiedEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}deleteDir
+// Constructor for XML Schema item {http://www.hlrs.de/covise}deleteDir
 //
 function COVISE_deleteDir () {
     this.typeMarker = 'COVISE_deleteDir';
@@ -3636,7 +3636,7 @@ function COVISE_deleteDir_setPath(value) { this._path = value;}
 
 COVISE_deleteDir.prototype.setPath = COVISE_deleteDir_setPath;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}deleteDir
+// Serialize {http://www.hlrs.de/covise}deleteDir
 //
 function COVISE_deleteDir_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3687,7 +3687,7 @@ function COVISE_deleteDir_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}addPartnerResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}addPartnerResponse
 //
 function COVISE_addPartnerResponse () {
     this.typeMarker = 'COVISE_addPartnerResponse';
@@ -3712,7 +3712,7 @@ function COVISE_addPartnerResponse_setSuccess(value) { this._success = value;}
 
 COVISE_addPartnerResponse.prototype.setSuccess = COVISE_addPartnerResponse_setSuccess;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}addPartnerResponse
+// Serialize {http://www.hlrs.de/covise}addPartnerResponse
 //
 function COVISE_addPartnerResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3771,7 +3771,7 @@ function COVISE_addPartnerResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameter
 //
 function COVISE_setParameter () {
     this.typeMarker = 'COVISE_setParameter';
@@ -3798,7 +3798,7 @@ COVISE_setParameter.prototype.setModuleID = COVISE_setParameter_setModuleID;
 //
 // accessor is COVISE_setParameter.prototype.getParameter
 // element get for parameter
-// - element type is {http://www.hlrs.de/organization/vis/covise}Parameter
+// - element type is {http://www.hlrs.de/covise}Parameter
 // - required element
 // - nillable
 //
@@ -3813,7 +3813,7 @@ function COVISE_setParameter_setParameter(value) { this._parameter = value;}
 
 COVISE_setParameter.prototype.setParameter = COVISE_setParameter_setParameter;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameter
+// Serialize {http://www.hlrs.de/covise}setParameter
 //
 function COVISE_setParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -3883,7 +3883,7 @@ function COVISE_setParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FloatVectorParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FloatVectorParameter
 //
 function COVISE_FloatVectorParameter () {
     this.typeMarker = 'COVISE_FloatVectorParameter';
@@ -3976,7 +3976,7 @@ function COVISE_FloatVectorParameter_setValue(value) { this._value = value;}
 
 COVISE_FloatVectorParameter.prototype.setValue = COVISE_FloatVectorParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FloatVectorParameter
+// Serialize {http://www.hlrs.de/covise}FloatVectorParameter
 //
 function COVISE_FloatVectorParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4113,7 +4113,7 @@ function COVISE_FloatVectorParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}IntSliderParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}IntSliderParameter
 //
 function COVISE_IntSliderParameter () {
     this.typeMarker = 'COVISE_IntSliderParameter';
@@ -4239,7 +4239,7 @@ function COVISE_IntSliderParameter_setMax(value) { this._max = value;}
 
 COVISE_IntSliderParameter.prototype.setMax = COVISE_IntSliderParameter_setMax;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}IntSliderParameter
+// Serialize {http://www.hlrs.de/covise}IntSliderParameter
 //
 function COVISE_IntSliderParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4398,7 +4398,7 @@ function COVISE_IntSliderParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}addEventListenerResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}addEventListenerResponse
 //
 function COVISE_addEventListenerResponse () {
     this.typeMarker = 'COVISE_addEventListenerResponse';
@@ -4422,7 +4422,7 @@ function COVISE_addEventListenerResponse_setUuid(value) { this._uuid = value;}
 
 COVISE_addEventListenerResponse.prototype.setUuid = COVISE_addEventListenerResponse_setUuid;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}addEventListenerResponse
+// Serialize {http://www.hlrs.de/covise}addEventListenerResponse
 //
 function COVISE_addEventListenerResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4473,7 +4473,7 @@ function COVISE_addEventListenerResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getEvent
 //
 function COVISE_getEvent () {
     this.typeMarker = 'COVISE_getEvent';
@@ -4515,7 +4515,7 @@ function COVISE_getEvent_setTimeout(value) { this._timeout = value;}
 
 COVISE_getEvent.prototype.setTimeout = COVISE_getEvent_setTimeout;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getEvent
+// Serialize {http://www.hlrs.de/covise}getEvent
 //
 function COVISE_getEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4592,7 +4592,7 @@ function COVISE_getEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}instantiateModule
+// Constructor for XML Schema item {http://www.hlrs.de/covise}instantiateModule
 //
 function COVISE_instantiateModule () {
     this.typeMarker = 'COVISE_instantiateModule';
@@ -4669,7 +4669,7 @@ function COVISE_instantiateModule_setY(value) { this._y = value;}
 
 COVISE_instantiateModule.prototype.setY = COVISE_instantiateModule_setY;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}instantiateModule
+// Serialize {http://www.hlrs.de/covise}instantiateModule
 //
 function COVISE_instantiateModule_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4790,14 +4790,14 @@ function COVISE_instantiateModule_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}listHosts
+// Constructor for XML Schema item {http://www.hlrs.de/covise}listHosts
 //
 function COVISE_listHosts () {
     this.typeMarker = 'COVISE_listHosts';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}listHosts
+// Serialize {http://www.hlrs.de/covise}listHosts
 //
 function COVISE_listHosts_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4830,7 +4830,7 @@ function COVISE_listHosts_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getFileInfoListResponse
 //
 function COVISE_getFileInfoListResponse () {
     this.typeMarker = 'COVISE_getFileInfoListResponse';
@@ -4840,7 +4840,7 @@ function COVISE_getFileInfoListResponse () {
 //
 // accessor is COVISE_getFileInfoListResponse.prototype.getFileInfoList
 // element get for fileInfoList
-// - element type is {http://www.hlrs.de/organization/vis/covise}FileInfo
+// - element type is {http://www.hlrs.de/covise}FileInfo
 // - required element
 // - array
 //
@@ -4855,7 +4855,7 @@ function COVISE_getFileInfoListResponse_setFileInfoList(value) { this._fileInfoL
 
 COVISE_getFileInfoListResponse.prototype.setFileInfoList = COVISE_getFileInfoListResponse_setFileInfoList;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse
+// Serialize {http://www.hlrs.de/covise}getFileInfoListResponse
 //
 function COVISE_getFileInfoListResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -4917,7 +4917,7 @@ function COVISE_getFileInfoListResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}LinkDelEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}LinkDelEvent
 //
 function COVISE_LinkDelEvent () {
     this.typeMarker = 'COVISE_LinkDelEvent';
@@ -4958,7 +4958,7 @@ function COVISE_LinkDelEvent_setLinkID(value) { this._linkID = value;}
 
 COVISE_LinkDelEvent.prototype.setLinkID = COVISE_LinkDelEvent_setLinkID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}LinkDelEvent
+// Serialize {http://www.hlrs.de/covise}LinkDelEvent
 //
 function COVISE_LinkDelEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5027,7 +5027,7 @@ function COVISE_LinkDelEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Parameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Parameter
 //
 function COVISE_Parameter () {
     this.typeMarker = 'COVISE_Parameter';
@@ -5102,7 +5102,7 @@ function COVISE_Parameter_setMapped(value) { this._mapped = value;}
 
 COVISE_Parameter.prototype.setMapped = COVISE_Parameter_setMapped;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Parameter
+// Serialize {http://www.hlrs.de/covise}Parameter
 //
 function COVISE_Parameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5207,7 +5207,7 @@ function COVISE_Parameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getRunningModuleResponse
 //
 function COVISE_getRunningModuleResponse () {
     this.typeMarker = 'COVISE_getRunningModuleResponse';
@@ -5217,7 +5217,7 @@ function COVISE_getRunningModuleResponse () {
 //
 // accessor is COVISE_getRunningModuleResponse.prototype.getModule
 // element get for module
-// - element type is {http://www.hlrs.de/organization/vis/covise}Module
+// - element type is {http://www.hlrs.de/covise}Module
 // - required element
 //
 // element set for module
@@ -5231,7 +5231,7 @@ function COVISE_getRunningModuleResponse_setModule(value) { this._module = value
 
 COVISE_getRunningModuleResponse.prototype.setModule = COVISE_getRunningModuleResponse_setModule;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse
+// Serialize {http://www.hlrs.de/covise}getRunningModuleResponse
 //
 function COVISE_getRunningModuleResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5279,17 +5279,17 @@ function COVISE_getRunningModuleResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Simple type (enumeration) {http://www.hlrs.de/organization/vis/covise}AddPartnerMethod
+// Simple type (enumeration) {http://www.hlrs.de/covise}AddPartnerMethod
 //
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameterFromUploadedFileResponse
 //
 function COVISE_setParameterFromUploadedFileResponse () {
     this.typeMarker = 'COVISE_setParameterFromUploadedFileResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse
+// Serialize {http://www.hlrs.de/covise}setParameterFromUploadedFileResponse
 //
 function COVISE_setParameterFromUploadedFileResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5322,7 +5322,7 @@ function COVISE_setParameterFromUploadedFileResponse_deserialize (cxfjsutils, el
 }
 
 //
-// Simple type (enumeration) {http://www.hlrs.de/organization/vis/covise}covise-AddPartnerMethod
+// Simple type (enumeration) {http://www.hlrs.de/covise}covise-AddPartnerMethod
 //
 // - RExec
 // - RSH
@@ -5331,7 +5331,7 @@ function COVISE_setParameterFromUploadedFileResponse_deserialize (cxfjsutils, el
 // - Manual
 // - RemoteDaemon
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Colormap
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Colormap
 //
 function COVISE_Colormap () {
     this.typeMarker = 'COVISE_Colormap';
@@ -5358,7 +5358,7 @@ COVISE_Colormap.prototype.setName = COVISE_Colormap_setName;
 //
 // accessor is COVISE_Colormap.prototype.getPins
 // element get for pins
-// - element type is {http://www.hlrs.de/organization/vis/covise}ColormapPin
+// - element type is {http://www.hlrs.de/covise}ColormapPin
 // - required element
 // - array
 //
@@ -5373,7 +5373,7 @@ function COVISE_Colormap_setPins(value) { this._pins = value;}
 
 COVISE_Colormap.prototype.setPins = COVISE_Colormap_setPins;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Colormap
+// Serialize {http://www.hlrs.de/covise}Colormap
 //
 function COVISE_Colormap_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5453,7 +5453,7 @@ function COVISE_Colormap_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FileBrowserParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FileBrowserParameter
 //
 function COVISE_FileBrowserParameter () {
     this.typeMarker = 'COVISE_FileBrowserParameter';
@@ -5545,7 +5545,7 @@ function COVISE_FileBrowserParameter_setValue(value) { this._value = value;}
 
 COVISE_FileBrowserParameter.prototype.setValue = COVISE_FileBrowserParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FileBrowserParameter
+// Serialize {http://www.hlrs.de/covise}FileBrowserParameter
 //
 function COVISE_FileBrowserParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5668,7 +5668,7 @@ function COVISE_FileBrowserParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}addPartner
+// Constructor for XML Schema item {http://www.hlrs.de/covise}addPartner
 //
 function COVISE_addPartner () {
     this.typeMarker = 'COVISE_addPartner';
@@ -5683,7 +5683,7 @@ function COVISE_addPartner () {
 //
 // accessor is COVISE_addPartner.prototype.getMethod
 // element get for method
-// - element type is {http://www.hlrs.de/organization/vis/covise}AddPartnerMethod
+// - element type is {http://www.hlrs.de/covise}AddPartnerMethod
 // - required element
 // - nillable
 //
@@ -5783,7 +5783,7 @@ function COVISE_addPartner_setDisplay(value) { this._display = value;}
 
 COVISE_addPartner.prototype.setDisplay = COVISE_addPartner_setDisplay;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}addPartner
+// Serialize {http://www.hlrs.de/covise}addPartner
 //
 function COVISE_addPartner_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -5968,7 +5968,7 @@ function COVISE_addPartner_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}executeModule
+// Constructor for XML Schema item {http://www.hlrs.de/covise}executeModule
 //
 function COVISE_executeModule () {
     this.typeMarker = 'COVISE_executeModule';
@@ -5992,7 +5992,7 @@ function COVISE_executeModule_setModuleID(value) { this._moduleID = value;}
 
 COVISE_executeModule.prototype.setModuleID = COVISE_executeModule_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}executeModule
+// Serialize {http://www.hlrs.de/covise}executeModule
 //
 function COVISE_executeModule_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6043,7 +6043,7 @@ function COVISE_executeModule_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}isDirExist
+// Constructor for XML Schema item {http://www.hlrs.de/covise}isDirExist
 //
 function COVISE_isDirExist () {
     this.typeMarker = 'COVISE_isDirExist';
@@ -6084,7 +6084,7 @@ function COVISE_isDirExist_setNewDir(value) { this._newDir = value;}
 
 COVISE_isDirExist.prototype.setNewDir = COVISE_isDirExist_setNewDir;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}isDirExist
+// Serialize {http://www.hlrs.de/covise}isDirExist
 //
 function COVISE_isDirExist_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6153,7 +6153,7 @@ function COVISE_isDirExist_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Port
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Port
 //
 function COVISE_Port () {
     this.typeMarker = 'COVISE_Port';
@@ -6246,7 +6246,7 @@ function COVISE_Port_setModuleID(value) { this._moduleID = value;}
 
 COVISE_Port.prototype.setModuleID = COVISE_Port_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Port
+// Serialize {http://www.hlrs.de/covise}Port
 //
 function COVISE_Port_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6383,7 +6383,7 @@ function COVISE_Port_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Module
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Module
 //
 function COVISE_Module () {
     this.typeMarker = 'COVISE_Module';
@@ -6515,7 +6515,7 @@ COVISE_Module.prototype.setTitle = COVISE_Module_setTitle;
 //
 // accessor is COVISE_Module.prototype.getPosition
 // element get for position
-// - element type is {http://www.hlrs.de/organization/vis/covise}Point
+// - element type is {http://www.hlrs.de/covise}Point
 // - required element
 //
 // element set for position
@@ -6531,7 +6531,7 @@ COVISE_Module.prototype.setPosition = COVISE_Module_setPosition;
 //
 // accessor is COVISE_Module.prototype.getParameters
 // element get for parameters
-// - element type is {http://www.hlrs.de/organization/vis/covise}Parameter
+// - element type is {http://www.hlrs.de/covise}Parameter
 // - required element
 // - array
 // - nillable
@@ -6549,7 +6549,7 @@ COVISE_Module.prototype.setParameters = COVISE_Module_setParameters;
 //
 // accessor is COVISE_Module.prototype.getInputPorts
 // element get for inputPorts
-// - element type is {http://www.hlrs.de/organization/vis/covise}Port
+// - element type is {http://www.hlrs.de/covise}Port
 // - required element
 // - array
 //
@@ -6566,7 +6566,7 @@ COVISE_Module.prototype.setInputPorts = COVISE_Module_setInputPorts;
 //
 // accessor is COVISE_Module.prototype.getOutputPorts
 // element get for outputPorts
-// - element type is {http://www.hlrs.de/organization/vis/covise}Port
+// - element type is {http://www.hlrs.de/covise}Port
 // - required element
 // - array
 //
@@ -6581,7 +6581,7 @@ function COVISE_Module_setOutputPorts(value) { this._outputPorts = value;}
 
 COVISE_Module.prototype.setOutputPorts = COVISE_Module_setOutputPorts;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Module
+// Serialize {http://www.hlrs.de/covise}Module
 //
 function COVISE_Module_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6842,7 +6842,7 @@ function COVISE_Module_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}deleteDirResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}deleteDirResponse
 //
 function COVISE_deleteDirResponse () {
     this.typeMarker = 'COVISE_deleteDirResponse';
@@ -6866,7 +6866,7 @@ function COVISE_deleteDirResponse_setResult(value) { this._result = value;}
 
 COVISE_deleteDirResponse.prototype.setResult = COVISE_deleteDirResponse_setResult;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}deleteDirResponse
+// Serialize {http://www.hlrs.de/covise}deleteDirResponse
 //
 function COVISE_deleteDirResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6917,7 +6917,7 @@ function COVISE_deleteDirResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}unlink
+// Constructor for XML Schema item {http://www.hlrs.de/covise}unlink
 //
 function COVISE_unlink () {
     this.typeMarker = 'COVISE_unlink';
@@ -6941,7 +6941,7 @@ function COVISE_unlink_setLinkID(value) { this._linkID = value;}
 
 COVISE_unlink.prototype.setLinkID = COVISE_unlink_setLinkID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}unlink
+// Serialize {http://www.hlrs.de/covise}unlink
 //
 function COVISE_unlink_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -6992,14 +6992,14 @@ function COVISE_unlink_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}unlinkResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}unlinkResponse
 //
 function COVISE_unlinkResponse () {
     this.typeMarker = 'COVISE_unlinkResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}unlinkResponse
+// Serialize {http://www.hlrs.de/covise}unlinkResponse
 //
 function COVISE_unlinkResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7032,7 +7032,7 @@ function COVISE_unlinkResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}OpenNetEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}OpenNetEvent
 //
 function COVISE_OpenNetEvent () {
     this.typeMarker = 'COVISE_OpenNetEvent';
@@ -7073,7 +7073,7 @@ function COVISE_OpenNetEvent_setMapname(value) { this._mapname = value;}
 
 COVISE_OpenNetEvent.prototype.setMapname = COVISE_OpenNetEvent_setMapname;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}OpenNetEvent
+// Serialize {http://www.hlrs.de/covise}OpenNetEvent
 //
 function COVISE_OpenNetEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7142,7 +7142,7 @@ function COVISE_OpenNetEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getRunningModule
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getRunningModule
 //
 function COVISE_getRunningModule () {
     this.typeMarker = 'COVISE_getRunningModule';
@@ -7166,7 +7166,7 @@ function COVISE_getRunningModule_setModuleID(value) { this._moduleID = value;}
 
 COVISE_getRunningModule.prototype.setModuleID = COVISE_getRunningModule_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getRunningModule
+// Serialize {http://www.hlrs.de/covise}getRunningModule
 //
 function COVISE_getRunningModule_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7217,7 +7217,7 @@ function COVISE_getRunningModule_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ExecuteFinishEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ExecuteFinishEvent
 //
 function COVISE_ExecuteFinishEvent () {
     this.typeMarker = 'COVISE_ExecuteFinishEvent';
@@ -7241,7 +7241,7 @@ function COVISE_ExecuteFinishEvent_setType(value) { this._type = value;}
 
 COVISE_ExecuteFinishEvent.prototype.setType = COVISE_ExecuteFinishEvent_setType;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ExecuteFinishEvent
+// Serialize {http://www.hlrs.de/covise}ExecuteFinishEvent
 //
 function COVISE_ExecuteFinishEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7292,14 +7292,14 @@ function COVISE_ExecuteFinishEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}executeNet
+// Constructor for XML Schema item {http://www.hlrs.de/covise}executeNet
 //
 function COVISE_executeNet () {
     this.typeMarker = 'COVISE_executeNet';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}executeNet
+// Serialize {http://www.hlrs.de/covise}executeNet
 //
 function COVISE_executeNet_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7332,14 +7332,14 @@ function COVISE_executeNet_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}executeNetResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}executeNetResponse
 //
 function COVISE_executeNetResponse () {
     this.typeMarker = 'COVISE_executeNetResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}executeNetResponse
+// Serialize {http://www.hlrs.de/covise}executeNetResponse
 //
 function COVISE_executeNetResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7372,7 +7372,7 @@ function COVISE_executeNetResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleExecuteFinishEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleExecuteFinishEvent
 //
 function COVISE_ModuleExecuteFinishEvent () {
     this.typeMarker = 'COVISE_ModuleExecuteFinishEvent';
@@ -7413,7 +7413,7 @@ function COVISE_ModuleExecuteFinishEvent_setModuleID(value) { this._moduleID = v
 
 COVISE_ModuleExecuteFinishEvent.prototype.setModuleID = COVISE_ModuleExecuteFinishEvent_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleExecuteFinishEvent
+// Serialize {http://www.hlrs.de/covise}ModuleExecuteFinishEvent
 //
 function COVISE_ModuleExecuteFinishEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7482,7 +7482,7 @@ function COVISE_ModuleExecuteFinishEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ColormapPin
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ColormapPin
 //
 function COVISE_ColormapPin () {
     this.typeMarker = 'COVISE_ColormapPin';
@@ -7574,7 +7574,7 @@ function COVISE_ColormapPin_setPosition(value) { this._position = value;}
 
 COVISE_ColormapPin.prototype.setPosition = COVISE_ColormapPin_setPosition;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ColormapPin
+// Serialize {http://www.hlrs.de/covise}ColormapPin
 //
 function COVISE_ColormapPin_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7697,7 +7697,7 @@ function COVISE_ColormapPin_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getConfigEntryResponse
 //
 function COVISE_getConfigEntryResponse () {
     this.typeMarker = 'COVISE_getConfigEntryResponse';
@@ -7721,7 +7721,7 @@ function COVISE_getConfigEntryResponse_setValue(value) { this._value = value;}
 
 COVISE_getConfigEntryResponse.prototype.setValue = COVISE_getConfigEntryResponse_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse
+// Serialize {http://www.hlrs.de/covise}getConfigEntryResponse
 //
 function COVISE_getConfigEntryResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7772,7 +7772,7 @@ function COVISE_getConfigEntryResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Point
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Point
 //
 function COVISE_Point () {
     this.typeMarker = 'COVISE_Point';
@@ -7813,7 +7813,7 @@ function COVISE_Point_setY(value) { this._y = value;}
 
 COVISE_Point.prototype.setY = COVISE_Point_setY;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Point
+// Serialize {http://www.hlrs.de/covise}Point
 //
 function COVISE_Point_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -7882,7 +7882,7 @@ function COVISE_Point_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ChoiceParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ChoiceParameter
 //
 function COVISE_ChoiceParameter () {
     this.typeMarker = 'COVISE_ChoiceParameter';
@@ -7992,7 +7992,7 @@ function COVISE_ChoiceParameter_setChoices(value) { this._choices = value;}
 
 COVISE_ChoiceParameter.prototype.setChoices = COVISE_ChoiceParameter_setChoices;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ChoiceParameter
+// Serialize {http://www.hlrs.de/covise}ChoiceParameter
 //
 function COVISE_ChoiceParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8147,7 +8147,7 @@ function COVISE_ChoiceParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}deleteModule
+// Constructor for XML Schema item {http://www.hlrs.de/covise}deleteModule
 //
 function COVISE_deleteModule () {
     this.typeMarker = 'COVISE_deleteModule';
@@ -8171,7 +8171,7 @@ function COVISE_deleteModule_setModuleID(value) { this._moduleID = value;}
 
 COVISE_deleteModule.prototype.setModuleID = COVISE_deleteModule_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}deleteModule
+// Serialize {http://www.hlrs.de/covise}deleteModule
 //
 function COVISE_deleteModule_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8222,14 +8222,14 @@ function COVISE_deleteModule_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}openNetResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}openNetResponse
 //
 function COVISE_openNetResponse () {
     this.typeMarker = 'COVISE_openNetResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}openNetResponse
+// Serialize {http://www.hlrs.de/covise}openNetResponse
 //
 function COVISE_openNetResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8262,14 +8262,14 @@ function COVISE_openNetResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameterFromStringResponse
 //
 function COVISE_setParameterFromStringResponse () {
     this.typeMarker = 'COVISE_setParameterFromStringResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse
+// Serialize {http://www.hlrs.de/covise}setParameterFromStringResponse
 //
 function COVISE_setParameterFromStringResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8302,7 +8302,7 @@ function COVISE_setParameterFromStringResponse_deserialize (cxfjsutils, element)
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}StringParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}StringParameter
 //
 function COVISE_StringParameter () {
     this.typeMarker = 'COVISE_StringParameter';
@@ -8394,7 +8394,7 @@ function COVISE_StringParameter_setValue(value) { this._value = value;}
 
 COVISE_StringParameter.prototype.setValue = COVISE_StringParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}StringParameter
+// Serialize {http://www.hlrs.de/covise}StringParameter
 //
 function COVISE_StringParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8517,7 +8517,7 @@ function COVISE_StringParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}listHostsResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}listHostsResponse
 //
 function COVISE_listHostsResponse () {
     this.typeMarker = 'COVISE_listHostsResponse';
@@ -8542,7 +8542,7 @@ function COVISE_listHostsResponse_setHosts(value) { this._hosts = value;}
 
 COVISE_listHostsResponse.prototype.setHosts = COVISE_listHostsResponse_setHosts;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}listHostsResponse
+// Serialize {http://www.hlrs.de/covise}listHostsResponse
 //
 function COVISE_listHostsResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8607,7 +8607,7 @@ function COVISE_listHostsResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}getConfigEntry
+// Constructor for XML Schema item {http://www.hlrs.de/covise}getConfigEntry
 //
 function COVISE_getConfigEntry () {
     this.typeMarker = 'COVISE_getConfigEntry';
@@ -8648,7 +8648,7 @@ function COVISE_getConfigEntry_setVariable(value) { this._variable = value;}
 
 COVISE_getConfigEntry.prototype.setVariable = COVISE_getConfigEntry_setVariable;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}getConfigEntry
+// Serialize {http://www.hlrs.de/covise}getConfigEntry
 //
 function COVISE_getConfigEntry_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8717,7 +8717,7 @@ function COVISE_getConfigEntry_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}IntScalarParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}IntScalarParameter
 //
 function COVISE_IntScalarParameter () {
     this.typeMarker = 'COVISE_IntScalarParameter';
@@ -8809,7 +8809,7 @@ function COVISE_IntScalarParameter_setValue(value) { this._value = value;}
 
 COVISE_IntScalarParameter.prototype.setValue = COVISE_IntScalarParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}IntScalarParameter
+// Serialize {http://www.hlrs.de/covise}IntScalarParameter
 //
 function COVISE_IntScalarParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8932,14 +8932,14 @@ function COVISE_IntScalarParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}linkResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}linkResponse
 //
 function COVISE_linkResponse () {
     this.typeMarker = 'COVISE_linkResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}linkResponse
+// Serialize {http://www.hlrs.de/covise}linkResponse
 //
 function COVISE_linkResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -8972,7 +8972,7 @@ function COVISE_linkResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}IntVectorParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}IntVectorParameter
 //
 function COVISE_IntVectorParameter () {
     this.typeMarker = 'COVISE_IntVectorParameter';
@@ -9065,7 +9065,7 @@ function COVISE_IntVectorParameter_setValue(value) { this._value = value;}
 
 COVISE_IntVectorParameter.prototype.setValue = COVISE_IntVectorParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}IntVectorParameter
+// Serialize {http://www.hlrs.de/covise}IntVectorParameter
 //
 function COVISE_IntVectorParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9202,7 +9202,7 @@ function COVISE_IntVectorParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}isDirExistResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}isDirExistResponse
 //
 function COVISE_isDirExistResponse () {
     this.typeMarker = 'COVISE_isDirExistResponse';
@@ -9243,7 +9243,7 @@ function COVISE_isDirExistResponse_setIsDirExist(value) { this._isDirExist = val
 
 COVISE_isDirExistResponse.prototype.setIsDirExist = COVISE_isDirExistResponse_setIsDirExist;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}isDirExistResponse
+// Serialize {http://www.hlrs.de/covise}isDirExistResponse
 //
 function COVISE_isDirExistResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9312,7 +9312,7 @@ function COVISE_isDirExistResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}Link
+// Constructor for XML Schema item {http://www.hlrs.de/covise}Link
 //
 function COVISE_Link () {
     this.typeMarker = 'COVISE_Link';
@@ -9340,7 +9340,7 @@ COVISE_Link.prototype.setId = COVISE_Link_setId;
 //
 // accessor is COVISE_Link.prototype.getFrom
 // element get for from
-// - element type is {http://www.hlrs.de/organization/vis/covise}Port
+// - element type is {http://www.hlrs.de/covise}Port
 // - required element
 //
 // element set for from
@@ -9356,7 +9356,7 @@ COVISE_Link.prototype.setFrom = COVISE_Link_setFrom;
 //
 // accessor is COVISE_Link.prototype.getTo
 // element get for to
-// - element type is {http://www.hlrs.de/organization/vis/covise}Port
+// - element type is {http://www.hlrs.de/covise}Port
 // - required element
 //
 // element set for to
@@ -9370,7 +9370,7 @@ function COVISE_Link_setTo(value) { this._to = value;}
 
 COVISE_Link.prototype.setTo = COVISE_Link_setTo;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}Link
+// Serialize {http://www.hlrs.de/covise}Link
 //
 function COVISE_Link_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9451,14 +9451,14 @@ function COVISE_Link_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}quit
+// Constructor for XML Schema item {http://www.hlrs.de/covise}quit
 //
 function COVISE_quit () {
     this.typeMarker = 'COVISE_quit';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}quit
+// Serialize {http://www.hlrs.de/covise}quit
 //
 function COVISE_quit_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9491,7 +9491,7 @@ function COVISE_quit_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}uploadFileMtom
+// Constructor for XML Schema item {http://www.hlrs.de/covise}uploadFileMtom
 //
 function COVISE_uploadFileMtom () {
     this.typeMarker = 'COVISE_uploadFileMtom';
@@ -9583,7 +9583,7 @@ function COVISE_uploadFileMtom_setFileSize(value) { this._fileSize = value;}
 
 COVISE_uploadFileMtom.prototype.setFileSize = COVISE_uploadFileMtom_setFileSize;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}uploadFileMtom
+// Serialize {http://www.hlrs.de/covise}uploadFileMtom
 //
 function COVISE_uploadFileMtom_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9705,7 +9705,7 @@ function COVISE_uploadFileMtom_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}removeEventListener
+// Constructor for XML Schema item {http://www.hlrs.de/covise}removeEventListener
 //
 function COVISE_removeEventListener () {
     this.typeMarker = 'COVISE_removeEventListener';
@@ -9729,7 +9729,7 @@ function COVISE_removeEventListener_setUuid(value) { this._uuid = value;}
 
 COVISE_removeEventListener.prototype.setUuid = COVISE_removeEventListener_setUuid;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}removeEventListener
+// Serialize {http://www.hlrs.de/covise}removeEventListener
 //
 function COVISE_removeEventListener_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9780,14 +9780,14 @@ function COVISE_removeEventListener_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}deleteModuleResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}deleteModuleResponse
 //
 function COVISE_deleteModuleResponse () {
     this.typeMarker = 'COVISE_deleteModuleResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}deleteModuleResponse
+// Serialize {http://www.hlrs.de/covise}deleteModuleResponse
 //
 function COVISE_deleteModuleResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9820,14 +9820,14 @@ function COVISE_deleteModuleResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}addEventListener
+// Constructor for XML Schema item {http://www.hlrs.de/covise}addEventListener
 //
 function COVISE_addEventListener () {
     this.typeMarker = 'COVISE_addEventListener';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}addEventListener
+// Serialize {http://www.hlrs.de/covise}addEventListener
 //
 function COVISE_addEventListener_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9860,7 +9860,7 @@ function COVISE_addEventListener_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}openNet
+// Constructor for XML Schema item {http://www.hlrs.de/covise}openNet
 //
 function COVISE_openNet () {
     this.typeMarker = 'COVISE_openNet';
@@ -9884,7 +9884,7 @@ function COVISE_openNet_setFilename(value) { this._filename = value;}
 
 COVISE_openNet.prototype.setFilename = COVISE_openNet_setFilename;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}openNet
+// Serialize {http://www.hlrs.de/covise}openNet
 //
 function COVISE_openNet_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -9935,7 +9935,7 @@ function COVISE_openNet_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FloatScalarParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FloatScalarParameter
 //
 function COVISE_FloatScalarParameter () {
     this.typeMarker = 'COVISE_FloatScalarParameter';
@@ -10027,7 +10027,7 @@ function COVISE_FloatScalarParameter_setValue(value) { this._value = value;}
 
 COVISE_FloatScalarParameter.prototype.setValue = COVISE_FloatScalarParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FloatScalarParameter
+// Serialize {http://www.hlrs.de/covise}FloatScalarParameter
 //
 function COVISE_FloatScalarParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10150,7 +10150,7 @@ function COVISE_FloatScalarParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameterFromUploadedFile
 //
 function COVISE_setParameterFromUploadedFile () {
     this.typeMarker = 'COVISE_setParameterFromUploadedFile';
@@ -10208,7 +10208,7 @@ function COVISE_setParameterFromUploadedFile_setValue(value) { this._value = val
 
 COVISE_setParameterFromUploadedFile.prototype.setValue = COVISE_setParameterFromUploadedFile_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile
+// Serialize {http://www.hlrs.de/covise}setParameterFromUploadedFile
 //
 function COVISE_setParameterFromUploadedFile_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10295,7 +10295,7 @@ function COVISE_setParameterFromUploadedFile_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}link
+// Constructor for XML Schema item {http://www.hlrs.de/covise}link
 //
 function COVISE_link () {
     this.typeMarker = 'COVISE_link';
@@ -10370,7 +10370,7 @@ function COVISE_link_setToPort(value) { this._toPort = value;}
 
 COVISE_link.prototype.setToPort = COVISE_link_setToPort;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}link
+// Serialize {http://www.hlrs.de/covise}link
 //
 function COVISE_link_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10475,7 +10475,7 @@ function COVISE_link_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}BooleanParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}BooleanParameter
 //
 function COVISE_BooleanParameter () {
     this.typeMarker = 'COVISE_BooleanParameter';
@@ -10567,7 +10567,7 @@ function COVISE_BooleanParameter_setValue(value) { this._value = value;}
 
 COVISE_BooleanParameter.prototype.setValue = COVISE_BooleanParameter_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}BooleanParameter
+// Serialize {http://www.hlrs.de/covise}BooleanParameter
 //
 function COVISE_BooleanParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10690,14 +10690,14 @@ function COVISE_BooleanParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}removeEventListenerResponse
 //
 function COVISE_removeEventListenerResponse () {
     this.typeMarker = 'COVISE_removeEventListenerResponse';
 }
 
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse
+// Serialize {http://www.hlrs.de/covise}removeEventListenerResponse
 //
 function COVISE_removeEventListenerResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10730,7 +10730,7 @@ function COVISE_removeEventListenerResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}listModulesResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}listModulesResponse
 //
 function COVISE_listModulesResponse () {
     this.typeMarker = 'COVISE_listModulesResponse';
@@ -10757,7 +10757,7 @@ COVISE_listModulesResponse.prototype.setIpaddr = COVISE_listModulesResponse_setI
 //
 // accessor is COVISE_listModulesResponse.prototype.getModules
 // element get for modules
-// - element type is {http://www.hlrs.de/organization/vis/covise}StringPair
+// - element type is {http://www.hlrs.de/covise}StringPair
 // - required element
 // - array
 //
@@ -10772,7 +10772,7 @@ function COVISE_listModulesResponse_setModules(value) { this._modules = value;}
 
 COVISE_listModulesResponse.prototype.setModules = COVISE_listModulesResponse_setModules;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}listModulesResponse
+// Serialize {http://www.hlrs.de/covise}listModulesResponse
 //
 function COVISE_listModulesResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10852,7 +10852,7 @@ function COVISE_listModulesResponse_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}setParameterFromString
+// Constructor for XML Schema item {http://www.hlrs.de/covise}setParameterFromString
 //
 function COVISE_setParameterFromString () {
     this.typeMarker = 'COVISE_setParameterFromString';
@@ -10910,7 +10910,7 @@ function COVISE_setParameterFromString_setValue(value) { this._value = value;}
 
 COVISE_setParameterFromString.prototype.setValue = COVISE_setParameterFromString_setValue;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}setParameterFromString
+// Serialize {http://www.hlrs.de/covise}setParameterFromString
 //
 function COVISE_setParameterFromString_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -10997,7 +10997,7 @@ function COVISE_setParameterFromString_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ColormapChoiceParameter
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ColormapChoiceParameter
 //
 function COVISE_ColormapChoiceParameter () {
     this.typeMarker = 'COVISE_ColormapChoiceParameter';
@@ -11092,7 +11092,7 @@ COVISE_ColormapChoiceParameter.prototype.setSelected = COVISE_ColormapChoicePara
 //
 // accessor is COVISE_ColormapChoiceParameter.prototype.getColormaps
 // element get for colormaps
-// - element type is {http://www.hlrs.de/organization/vis/covise}Colormap
+// - element type is {http://www.hlrs.de/covise}Colormap
 // - required element
 // - array
 //
@@ -11107,7 +11107,7 @@ function COVISE_ColormapChoiceParameter_setColormaps(value) { this._colormaps = 
 
 COVISE_ColormapChoiceParameter.prototype.setColormaps = COVISE_ColormapChoiceParameter_setColormaps;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ColormapChoiceParameter
+// Serialize {http://www.hlrs.de/covise}ColormapChoiceParameter
 //
 function COVISE_ColormapChoiceParameter_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -11259,7 +11259,7 @@ function COVISE_ColormapChoiceParameter_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}FileInfo
+// Constructor for XML Schema item {http://www.hlrs.de/covise}FileInfo
 //
 function COVISE_FileInfo () {
     this.typeMarker = 'COVISE_FileInfo';
@@ -11334,7 +11334,7 @@ function COVISE_FileInfo_setFileDate(value) { this._fileDate = value;}
 
 COVISE_FileInfo.prototype.setFileDate = COVISE_FileInfo_setFileDate;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}FileInfo
+// Serialize {http://www.hlrs.de/covise}FileInfo
 //
 function COVISE_FileInfo_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -11439,7 +11439,7 @@ function COVISE_FileInfo_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}ModuleDelEvent
+// Constructor for XML Schema item {http://www.hlrs.de/covise}ModuleDelEvent
 //
 function COVISE_ModuleDelEvent () {
     this.typeMarker = 'COVISE_ModuleDelEvent';
@@ -11480,7 +11480,7 @@ function COVISE_ModuleDelEvent_setModuleID(value) { this._moduleID = value;}
 
 COVISE_ModuleDelEvent.prototype.setModuleID = COVISE_ModuleDelEvent_setModuleID;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}ModuleDelEvent
+// Serialize {http://www.hlrs.de/covise}ModuleDelEvent
 //
 function COVISE_ModuleDelEvent_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -11549,7 +11549,7 @@ function COVISE_ModuleDelEvent_deserialize (cxfjsutils, element) {
 }
 
 //
-// Constructor for XML Schema item {http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse
+// Constructor for XML Schema item {http://www.hlrs.de/covise}uploadFileMtomResponse
 //
 function COVISE_uploadFileMtomResponse () {
     this.typeMarker = 'COVISE_uploadFileMtomResponse';
@@ -11590,7 +11590,7 @@ function COVISE_uploadFileMtomResponse_setLastChunk(value) { this._lastChunk = v
 
 COVISE_uploadFileMtomResponse.prototype.setLastChunk = COVISE_uploadFileMtomResponse_setLastChunk;
 //
-// Serialize {http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse
+// Serialize {http://www.hlrs.de/covise}uploadFileMtomResponse
 //
 function COVISE_uploadFileMtomResponse_serialize(cxfjsutils, elementName, extraNamespaces) {
     var xml = '';
@@ -11663,10 +11663,10 @@ function COVISE_uploadFileMtomResponse_deserialize (cxfjsutils, element) {
 //  http://www.w3.org/2005/05/xmlmime
 //
 //
-// Definitions for service: {http://www.hlrs.de/organization/vis/covise}COVISE
+// Definitions for service: {http://www.hlrs.de/covise}COVISE
 //
 
-// Javascript for {http://www.hlrs.de/organization/vis/covise}ServiceSoap
+// Javascript for {http://www.hlrs.de/covise}ServiceSoap
 
 function COVISE_ServiceSoap () {
     this.jsutils = new CxfApacheOrgUtil();
@@ -11681,318 +11681,318 @@ function COVISE_ServiceSoap () {
     this.globalElementDeserializers['{http://www.w3.org/2004/08/xop/include}Include'] = XOP_Include_deserialize;
     this.globalElementSerializers['{http://www.w3.org/2004/08/xop/include}Include'] = XOP_Include_serialize;
     this.globalElementDeserializers['{http://www.w3.org/2004/08/xop/include}Include'] = XOP_Include_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterResponse'] = COVISE_setParameterResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterResponse'] = COVISE_setParameterResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addPartner'] = COVISE_addPartner_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addPartner'] = COVISE_addPartner_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeModule'] = COVISE_executeModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeModule'] = COVISE_executeModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isDirExist'] = COVISE_isDirExist_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isDirExist'] = COVISE_isDirExist_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getEventResponse'] = COVISE_getEventResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getEventResponse'] = COVISE_getEventResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}createNewDir'] = COVISE_createNewDir_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}createNewDir'] = COVISE_createNewDir_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isFileExistResponse'] = COVISE_isFileExistResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isFileExistResponse'] = COVISE_isFileExistResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getModuleID'] = COVISE_getModuleID_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getModuleID'] = COVISE_getModuleID_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsString'] = COVISE_getParameterAsString_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsString'] = COVISE_getParameterAsString_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteDirResponse'] = COVISE_deleteDirResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteDirResponse'] = COVISE_deleteDirResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}unlink'] = COVISE_unlink_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}unlink'] = COVISE_unlink_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}unlinkResponse'] = COVISE_unlinkResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}unlinkResponse'] = COVISE_unlinkResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModule'] = COVISE_getRunningModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModule'] = COVISE_getRunningModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoList'] = COVISE_getFileInfoList_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoList'] = COVISE_getFileInfoList_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeNet'] = COVISE_executeNet_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeNet'] = COVISE_executeNet_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeNetResponse'] = COVISE_executeNetResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeNetResponse'] = COVISE_executeNetResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeModuleResponse'] = COVISE_executeModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeModuleResponse'] = COVISE_executeModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModules'] = COVISE_getRunningModules_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModules'] = COVISE_getRunningModules_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isFileExist'] = COVISE_isFileExist_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isFileExist'] = COVISE_isFileExist_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getLinksResponse'] = COVISE_getLinksResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getLinksResponse'] = COVISE_getLinksResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}quitResponse'] = COVISE_quitResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}quitResponse'] = COVISE_quitResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileResponse'] = COVISE_uploadFileResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileResponse'] = COVISE_uploadFileResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFile'] = COVISE_uploadFile_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFile'] = COVISE_uploadFile_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteModule'] = COVISE_deleteModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteModule'] = COVISE_deleteModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getLinks'] = COVISE_getLinks_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getLinks'] = COVISE_getLinks_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}openNetResponse'] = COVISE_openNetResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}openNetResponse'] = COVISE_openNetResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}createNewDirResponse'] = COVISE_createNewDirResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}createNewDirResponse'] = COVISE_createNewDirResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listModules'] = COVISE_listModules_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listModules'] = COVISE_listModules_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntry'] = COVISE_getConfigEntry_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntry'] = COVISE_getConfigEntry_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listHostsResponse'] = COVISE_listHostsResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listHostsResponse'] = COVISE_listHostsResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}linkResponse'] = COVISE_linkResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}linkResponse'] = COVISE_linkResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteDir'] = COVISE_deleteDir_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteDir'] = COVISE_deleteDir_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameter'] = COVISE_setParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameter'] = COVISE_setParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addPartnerResponse'] = COVISE_addPartnerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addPartnerResponse'] = COVISE_addPartnerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isDirExistResponse'] = COVISE_isDirExistResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isDirExistResponse'] = COVISE_isDirExistResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}quit'] = COVISE_quit_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}quit'] = COVISE_quit_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getEvent'] = COVISE_getEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getEvent'] = COVISE_getEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtom'] = COVISE_uploadFileMtom_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtom'] = COVISE_uploadFileMtom_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}removeEventListener'] = COVISE_removeEventListener_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}removeEventListener'] = COVISE_removeEventListener_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}instantiateModule'] = COVISE_instantiateModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}instantiateModule'] = COVISE_instantiateModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listHosts'] = COVISE_listHosts_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listHosts'] = COVISE_listHosts_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addEventListener'] = COVISE_addEventListener_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addEventListener'] = COVISE_addEventListener_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}openNet'] = COVISE_openNet_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}openNet'] = COVISE_openNet_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}link'] = COVISE_link_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}link'] = COVISE_link_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listModulesResponse'] = COVISE_listModulesResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listModulesResponse'] = COVISE_listModulesResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromString'] = COVISE_setParameterFromString_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromString'] = COVISE_setParameterFromString_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}OpenNetDoneEvent'] = COVISE_OpenNetDoneEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}OpenNetDoneEvent'] = COVISE_OpenNetDoneEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}StringPair'] = COVISE_StringPair_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}StringPair'] = COVISE_StringPair_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Event'] = COVISE_Event_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Event'] = COVISE_Event_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FileData'] = COVISE_FileData_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FileData'] = COVISE_FileData_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterResponse'] = COVISE_setParameterResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterResponse'] = COVISE_setParameterResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleExecuteStartEvent'] = COVISE_ModuleExecuteStartEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleExecuteStartEvent'] = COVISE_ModuleExecuteStartEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleAddEvent'] = COVISE_ModuleAddEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleAddEvent'] = COVISE_ModuleAddEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleChangeEvent'] = COVISE_ModuleChangeEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleChangeEvent'] = COVISE_ModuleChangeEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}QuitEvent'] = COVISE_QuitEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}QuitEvent'] = COVISE_QuitEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getEventResponse'] = COVISE_getEventResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getEventResponse'] = COVISE_getEventResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}createNewDir'] = COVISE_createNewDir_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}createNewDir'] = COVISE_createNewDir_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}LinkAddEvent'] = COVISE_LinkAddEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}LinkAddEvent'] = COVISE_LinkAddEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsString'] = COVISE_getParameterAsString_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsString'] = COVISE_getParameterAsString_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getModuleID'] = COVISE_getModuleID_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getModuleID'] = COVISE_getModuleID_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isFileExistResponse'] = COVISE_isFileExistResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isFileExistResponse'] = COVISE_isFileExistResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FloatSliderParameter'] = COVISE_FloatSliderParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FloatSliderParameter'] = COVISE_FloatSliderParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ExecuteStartEvent'] = COVISE_ExecuteStartEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ExecuteStartEvent'] = COVISE_ExecuteStartEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ParameterChangeEvent'] = COVISE_ParameterChangeEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ParameterChangeEvent'] = COVISE_ParameterChangeEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoList'] = COVISE_getFileInfoList_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoList'] = COVISE_getFileInfoList_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeModuleResponse'] = COVISE_executeModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeModuleResponse'] = COVISE_executeModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModules'] = COVISE_getRunningModules_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModules'] = COVISE_getRunningModules_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isFileExist'] = COVISE_isFileExist_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isFileExist'] = COVISE_isFileExist_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getLinksResponse'] = COVISE_getLinksResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getLinksResponse'] = COVISE_getLinksResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}quitResponse'] = COVISE_quitResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}quitResponse'] = COVISE_quitResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFile'] = COVISE_uploadFile_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFile'] = COVISE_uploadFile_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileResponse'] = COVISE_uploadFileResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileResponse'] = COVISE_uploadFileResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getLinks'] = COVISE_getLinks_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getLinks'] = COVISE_getLinks_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}createNewDirResponse'] = COVISE_createNewDirResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}createNewDirResponse'] = COVISE_createNewDirResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listModules'] = COVISE_listModules_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listModules'] = COVISE_listModules_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleDiedEvent'] = COVISE_ModuleDiedEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleDiedEvent'] = COVISE_ModuleDiedEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteDir'] = COVISE_deleteDir_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteDir'] = COVISE_deleteDir_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addPartnerResponse'] = COVISE_addPartnerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addPartnerResponse'] = COVISE_addPartnerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameter'] = COVISE_setParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameter'] = COVISE_setParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FloatVectorParameter'] = COVISE_FloatVectorParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FloatVectorParameter'] = COVISE_FloatVectorParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}IntSliderParameter'] = COVISE_IntSliderParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}IntSliderParameter'] = COVISE_IntSliderParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getEvent'] = COVISE_getEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getEvent'] = COVISE_getEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}instantiateModule'] = COVISE_instantiateModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}instantiateModule'] = COVISE_instantiateModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listHosts'] = COVISE_listHosts_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listHosts'] = COVISE_listHosts_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}LinkDelEvent'] = COVISE_LinkDelEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}LinkDelEvent'] = COVISE_LinkDelEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Parameter'] = COVISE_Parameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Parameter'] = COVISE_Parameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Colormap'] = COVISE_Colormap_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Colormap'] = COVISE_Colormap_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FileBrowserParameter'] = COVISE_FileBrowserParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FileBrowserParameter'] = COVISE_FileBrowserParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addPartner'] = COVISE_addPartner_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addPartner'] = COVISE_addPartner_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeModule'] = COVISE_executeModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeModule'] = COVISE_executeModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isDirExist'] = COVISE_isDirExist_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isDirExist'] = COVISE_isDirExist_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Port'] = COVISE_Port_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Port'] = COVISE_Port_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Module'] = COVISE_Module_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Module'] = COVISE_Module_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteDirResponse'] = COVISE_deleteDirResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteDirResponse'] = COVISE_deleteDirResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}unlink'] = COVISE_unlink_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}unlink'] = COVISE_unlink_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}unlinkResponse'] = COVISE_unlinkResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}unlinkResponse'] = COVISE_unlinkResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}OpenNetEvent'] = COVISE_OpenNetEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}OpenNetEvent'] = COVISE_OpenNetEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getRunningModule'] = COVISE_getRunningModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getRunningModule'] = COVISE_getRunningModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ExecuteFinishEvent'] = COVISE_ExecuteFinishEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ExecuteFinishEvent'] = COVISE_ExecuteFinishEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeNet'] = COVISE_executeNet_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeNet'] = COVISE_executeNet_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}executeNetResponse'] = COVISE_executeNetResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}executeNetResponse'] = COVISE_executeNetResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleExecuteFinishEvent'] = COVISE_ModuleExecuteFinishEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleExecuteFinishEvent'] = COVISE_ModuleExecuteFinishEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ColormapPin'] = COVISE_ColormapPin_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ColormapPin'] = COVISE_ColormapPin_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Point'] = COVISE_Point_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Point'] = COVISE_Point_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ChoiceParameter'] = COVISE_ChoiceParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ChoiceParameter'] = COVISE_ChoiceParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteModule'] = COVISE_deleteModule_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteModule'] = COVISE_deleteModule_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}openNetResponse'] = COVISE_openNetResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}openNetResponse'] = COVISE_openNetResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}StringParameter'] = COVISE_StringParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}StringParameter'] = COVISE_StringParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listHostsResponse'] = COVISE_listHostsResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listHostsResponse'] = COVISE_listHostsResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntry'] = COVISE_getConfigEntry_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}getConfigEntry'] = COVISE_getConfigEntry_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}IntScalarParameter'] = COVISE_IntScalarParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}IntScalarParameter'] = COVISE_IntScalarParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}linkResponse'] = COVISE_linkResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}linkResponse'] = COVISE_linkResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}IntVectorParameter'] = COVISE_IntVectorParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}IntVectorParameter'] = COVISE_IntVectorParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}isDirExistResponse'] = COVISE_isDirExistResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}isDirExistResponse'] = COVISE_isDirExistResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}Link'] = COVISE_Link_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}Link'] = COVISE_Link_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}quit'] = COVISE_quit_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}quit'] = COVISE_quit_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtom'] = COVISE_uploadFileMtom_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtom'] = COVISE_uploadFileMtom_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}removeEventListener'] = COVISE_removeEventListener_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}removeEventListener'] = COVISE_removeEventListener_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}addEventListener'] = COVISE_addEventListener_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}addEventListener'] = COVISE_addEventListener_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}openNet'] = COVISE_openNet_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}openNet'] = COVISE_openNet_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FloatScalarParameter'] = COVISE_FloatScalarParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FloatScalarParameter'] = COVISE_FloatScalarParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}link'] = COVISE_link_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}link'] = COVISE_link_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}BooleanParameter'] = COVISE_BooleanParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}BooleanParameter'] = COVISE_BooleanParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}listModulesResponse'] = COVISE_listModulesResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}listModulesResponse'] = COVISE_listModulesResponse_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromString'] = COVISE_setParameterFromString_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}setParameterFromString'] = COVISE_setParameterFromString_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ColormapChoiceParameter'] = COVISE_ColormapChoiceParameter_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ColormapChoiceParameter'] = COVISE_ColormapChoiceParameter_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}FileInfo'] = COVISE_FileInfo_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}FileInfo'] = COVISE_FileInfo_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}ModuleDelEvent'] = COVISE_ModuleDelEvent_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}ModuleDelEvent'] = COVISE_ModuleDelEvent_deserialize;
-    this.globalElementSerializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_serialize;
-    this.globalElementDeserializers['{http://www.hlrs.de/organization/vis/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterResponse'] = COVISE_setParameterResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterResponse'] = COVISE_setParameterResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addPartner'] = COVISE_addPartner_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addPartner'] = COVISE_addPartner_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeModule'] = COVISE_executeModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeModule'] = COVISE_executeModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isDirExist'] = COVISE_isDirExist_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isDirExist'] = COVISE_isDirExist_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getEventResponse'] = COVISE_getEventResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getEventResponse'] = COVISE_getEventResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}createNewDir'] = COVISE_createNewDir_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}createNewDir'] = COVISE_createNewDir_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isFileExistResponse'] = COVISE_isFileExistResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isFileExistResponse'] = COVISE_isFileExistResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getModuleID'] = COVISE_getModuleID_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getModuleID'] = COVISE_getModuleID_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getParameterAsString'] = COVISE_getParameterAsString_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getParameterAsString'] = COVISE_getParameterAsString_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteDirResponse'] = COVISE_deleteDirResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteDirResponse'] = COVISE_deleteDirResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}unlink'] = COVISE_unlink_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}unlink'] = COVISE_unlink_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}unlinkResponse'] = COVISE_unlinkResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}unlinkResponse'] = COVISE_unlinkResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModule'] = COVISE_getRunningModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModule'] = COVISE_getRunningModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getFileInfoList'] = COVISE_getFileInfoList_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getFileInfoList'] = COVISE_getFileInfoList_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeNet'] = COVISE_executeNet_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeNet'] = COVISE_executeNet_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeNetResponse'] = COVISE_executeNetResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeNetResponse'] = COVISE_executeNetResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeModuleResponse'] = COVISE_executeModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeModuleResponse'] = COVISE_executeModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModules'] = COVISE_getRunningModules_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModules'] = COVISE_getRunningModules_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isFileExist'] = COVISE_isFileExist_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isFileExist'] = COVISE_isFileExist_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getLinksResponse'] = COVISE_getLinksResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getLinksResponse'] = COVISE_getLinksResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}quitResponse'] = COVISE_quitResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}quitResponse'] = COVISE_quitResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileResponse'] = COVISE_uploadFileResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileResponse'] = COVISE_uploadFileResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFile'] = COVISE_uploadFile_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFile'] = COVISE_uploadFile_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteModule'] = COVISE_deleteModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteModule'] = COVISE_deleteModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getLinks'] = COVISE_getLinks_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getLinks'] = COVISE_getLinks_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}openNetResponse'] = COVISE_openNetResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}openNetResponse'] = COVISE_openNetResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}createNewDirResponse'] = COVISE_createNewDirResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}createNewDirResponse'] = COVISE_createNewDirResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listModules'] = COVISE_listModules_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listModules'] = COVISE_listModules_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getConfigEntry'] = COVISE_getConfigEntry_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getConfigEntry'] = COVISE_getConfigEntry_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listHostsResponse'] = COVISE_listHostsResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listHostsResponse'] = COVISE_listHostsResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}linkResponse'] = COVISE_linkResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}linkResponse'] = COVISE_linkResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteDir'] = COVISE_deleteDir_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteDir'] = COVISE_deleteDir_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameter'] = COVISE_setParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameter'] = COVISE_setParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addPartnerResponse'] = COVISE_addPartnerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addPartnerResponse'] = COVISE_addPartnerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isDirExistResponse'] = COVISE_isDirExistResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isDirExistResponse'] = COVISE_isDirExistResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}quit'] = COVISE_quit_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}quit'] = COVISE_quit_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getEvent'] = COVISE_getEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getEvent'] = COVISE_getEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileMtom'] = COVISE_uploadFileMtom_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileMtom'] = COVISE_uploadFileMtom_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}removeEventListener'] = COVISE_removeEventListener_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}removeEventListener'] = COVISE_removeEventListener_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}instantiateModule'] = COVISE_instantiateModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}instantiateModule'] = COVISE_instantiateModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listHosts'] = COVISE_listHosts_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listHosts'] = COVISE_listHosts_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addEventListener'] = COVISE_addEventListener_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addEventListener'] = COVISE_addEventListener_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}openNet'] = COVISE_openNet_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}openNet'] = COVISE_openNet_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}link'] = COVISE_link_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}link'] = COVISE_link_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listModulesResponse'] = COVISE_listModulesResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listModulesResponse'] = COVISE_listModulesResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromString'] = COVISE_setParameterFromString_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromString'] = COVISE_setParameterFromString_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}OpenNetDoneEvent'] = COVISE_OpenNetDoneEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}OpenNetDoneEvent'] = COVISE_OpenNetDoneEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}StringPair'] = COVISE_StringPair_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}StringPair'] = COVISE_StringPair_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Event'] = COVISE_Event_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Event'] = COVISE_Event_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FileData'] = COVISE_FileData_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FileData'] = COVISE_FileData_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterResponse'] = COVISE_setParameterResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterResponse'] = COVISE_setParameterResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleExecuteStartEvent'] = COVISE_ModuleExecuteStartEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleExecuteStartEvent'] = COVISE_ModuleExecuteStartEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleAddEvent'] = COVISE_ModuleAddEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleAddEvent'] = COVISE_ModuleAddEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleChangeEvent'] = COVISE_ModuleChangeEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleChangeEvent'] = COVISE_ModuleChangeEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}QuitEvent'] = COVISE_QuitEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}QuitEvent'] = COVISE_QuitEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getEventResponse'] = COVISE_getEventResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getEventResponse'] = COVISE_getEventResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}createNewDir'] = COVISE_createNewDir_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}createNewDir'] = COVISE_createNewDir_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}LinkAddEvent'] = COVISE_LinkAddEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}LinkAddEvent'] = COVISE_LinkAddEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getParameterAsString'] = COVISE_getParameterAsString_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getParameterAsString'] = COVISE_getParameterAsString_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getModuleID'] = COVISE_getModuleID_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getModuleID'] = COVISE_getModuleID_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isFileExistResponse'] = COVISE_isFileExistResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isFileExistResponse'] = COVISE_isFileExistResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}instantiateModuleResponse'] = COVISE_instantiateModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FloatSliderParameter'] = COVISE_FloatSliderParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FloatSliderParameter'] = COVISE_FloatSliderParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ExecuteStartEvent'] = COVISE_ExecuteStartEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ExecuteStartEvent'] = COVISE_ExecuteStartEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ParameterChangeEvent'] = COVISE_ParameterChangeEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ParameterChangeEvent'] = COVISE_ParameterChangeEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getParameterAsStringResponse'] = COVISE_getParameterAsStringResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getFileInfoList'] = COVISE_getFileInfoList_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getFileInfoList'] = COVISE_getFileInfoList_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeModuleResponse'] = COVISE_executeModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeModuleResponse'] = COVISE_executeModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModules'] = COVISE_getRunningModules_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModules'] = COVISE_getRunningModules_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModulesResponse'] = COVISE_getRunningModulesResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getModuleIDResponse'] = COVISE_getModuleIDResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isFileExist'] = COVISE_isFileExist_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isFileExist'] = COVISE_isFileExist_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getLinksResponse'] = COVISE_getLinksResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getLinksResponse'] = COVISE_getLinksResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}quitResponse'] = COVISE_quitResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}quitResponse'] = COVISE_quitResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFile'] = COVISE_uploadFile_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFile'] = COVISE_uploadFile_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileResponse'] = COVISE_uploadFileResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileResponse'] = COVISE_uploadFileResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getLinks'] = COVISE_getLinks_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getLinks'] = COVISE_getLinks_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}createNewDirResponse'] = COVISE_createNewDirResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}createNewDirResponse'] = COVISE_createNewDirResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listModules'] = COVISE_listModules_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listModules'] = COVISE_listModules_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleDiedEvent'] = COVISE_ModuleDiedEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleDiedEvent'] = COVISE_ModuleDiedEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteDir'] = COVISE_deleteDir_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteDir'] = COVISE_deleteDir_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addPartnerResponse'] = COVISE_addPartnerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addPartnerResponse'] = COVISE_addPartnerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameter'] = COVISE_setParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameter'] = COVISE_setParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FloatVectorParameter'] = COVISE_FloatVectorParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FloatVectorParameter'] = COVISE_FloatVectorParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}IntSliderParameter'] = COVISE_IntSliderParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}IntSliderParameter'] = COVISE_IntSliderParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addEventListenerResponse'] = COVISE_addEventListenerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getEvent'] = COVISE_getEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getEvent'] = COVISE_getEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}instantiateModule'] = COVISE_instantiateModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}instantiateModule'] = COVISE_instantiateModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listHosts'] = COVISE_listHosts_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listHosts'] = COVISE_listHosts_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getFileInfoListResponse'] = COVISE_getFileInfoListResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}LinkDelEvent'] = COVISE_LinkDelEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}LinkDelEvent'] = COVISE_LinkDelEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Parameter'] = COVISE_Parameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Parameter'] = COVISE_Parameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModuleResponse'] = COVISE_getRunningModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromUploadedFileResponse'] = COVISE_setParameterFromUploadedFileResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Colormap'] = COVISE_Colormap_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Colormap'] = COVISE_Colormap_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FileBrowserParameter'] = COVISE_FileBrowserParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FileBrowserParameter'] = COVISE_FileBrowserParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addPartner'] = COVISE_addPartner_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addPartner'] = COVISE_addPartner_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeModule'] = COVISE_executeModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeModule'] = COVISE_executeModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isDirExist'] = COVISE_isDirExist_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isDirExist'] = COVISE_isDirExist_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Port'] = COVISE_Port_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Port'] = COVISE_Port_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Module'] = COVISE_Module_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Module'] = COVISE_Module_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteDirResponse'] = COVISE_deleteDirResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteDirResponse'] = COVISE_deleteDirResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}unlink'] = COVISE_unlink_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}unlink'] = COVISE_unlink_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}unlinkResponse'] = COVISE_unlinkResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}unlinkResponse'] = COVISE_unlinkResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}OpenNetEvent'] = COVISE_OpenNetEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}OpenNetEvent'] = COVISE_OpenNetEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getRunningModule'] = COVISE_getRunningModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getRunningModule'] = COVISE_getRunningModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ExecuteFinishEvent'] = COVISE_ExecuteFinishEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ExecuteFinishEvent'] = COVISE_ExecuteFinishEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeNet'] = COVISE_executeNet_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeNet'] = COVISE_executeNet_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}executeNetResponse'] = COVISE_executeNetResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}executeNetResponse'] = COVISE_executeNetResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleExecuteFinishEvent'] = COVISE_ModuleExecuteFinishEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleExecuteFinishEvent'] = COVISE_ModuleExecuteFinishEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ColormapPin'] = COVISE_ColormapPin_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ColormapPin'] = COVISE_ColormapPin_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getConfigEntryResponse'] = COVISE_getConfigEntryResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Point'] = COVISE_Point_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Point'] = COVISE_Point_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ChoiceParameter'] = COVISE_ChoiceParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ChoiceParameter'] = COVISE_ChoiceParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteModule'] = COVISE_deleteModule_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteModule'] = COVISE_deleteModule_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}openNetResponse'] = COVISE_openNetResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}openNetResponse'] = COVISE_openNetResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromStringResponse'] = COVISE_setParameterFromStringResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}StringParameter'] = COVISE_StringParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}StringParameter'] = COVISE_StringParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listHostsResponse'] = COVISE_listHostsResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listHostsResponse'] = COVISE_listHostsResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}getConfigEntry'] = COVISE_getConfigEntry_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}getConfigEntry'] = COVISE_getConfigEntry_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}IntScalarParameter'] = COVISE_IntScalarParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}IntScalarParameter'] = COVISE_IntScalarParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}linkResponse'] = COVISE_linkResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}linkResponse'] = COVISE_linkResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}IntVectorParameter'] = COVISE_IntVectorParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}IntVectorParameter'] = COVISE_IntVectorParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}isDirExistResponse'] = COVISE_isDirExistResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}isDirExistResponse'] = COVISE_isDirExistResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}Link'] = COVISE_Link_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}Link'] = COVISE_Link_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}quit'] = COVISE_quit_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}quit'] = COVISE_quit_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileMtom'] = COVISE_uploadFileMtom_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileMtom'] = COVISE_uploadFileMtom_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}removeEventListener'] = COVISE_removeEventListener_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}removeEventListener'] = COVISE_removeEventListener_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}deleteModuleResponse'] = COVISE_deleteModuleResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}addEventListener'] = COVISE_addEventListener_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}addEventListener'] = COVISE_addEventListener_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}openNet'] = COVISE_openNet_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}openNet'] = COVISE_openNet_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FloatScalarParameter'] = COVISE_FloatScalarParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FloatScalarParameter'] = COVISE_FloatScalarParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromUploadedFile'] = COVISE_setParameterFromUploadedFile_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}link'] = COVISE_link_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}link'] = COVISE_link_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}BooleanParameter'] = COVISE_BooleanParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}BooleanParameter'] = COVISE_BooleanParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}removeEventListenerResponse'] = COVISE_removeEventListenerResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}listModulesResponse'] = COVISE_listModulesResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}listModulesResponse'] = COVISE_listModulesResponse_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}setParameterFromString'] = COVISE_setParameterFromString_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}setParameterFromString'] = COVISE_setParameterFromString_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ColormapChoiceParameter'] = COVISE_ColormapChoiceParameter_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ColormapChoiceParameter'] = COVISE_ColormapChoiceParameter_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}FileInfo'] = COVISE_FileInfo_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}FileInfo'] = COVISE_FileInfo_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}ModuleDelEvent'] = COVISE_ModuleDelEvent_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}ModuleDelEvent'] = COVISE_ModuleDelEvent_deserialize;
+    this.globalElementSerializers['{http://www.hlrs.de/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_serialize;
+    this.globalElementDeserializers['{http://www.hlrs.de/covise}uploadFileMtomResponse'] = COVISE_uploadFileMtomResponse_deserialize;
 }
 
 function COVISE_setParameterFromUploadedFile_op_onsuccess(client, responseXml) {
@@ -12036,7 +12036,7 @@ function COVISE_setParameterFromUploadedFile_op_onerror(client) {
 COVISE_ServiceSoap.prototype.setParameterFromUploadedFile_onerror = COVISE_setParameterFromUploadedFile_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}setParameterFromUploadedFile
+// Operation {http://www.hlrs.de/covise}setParameterFromUploadedFile
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter parameter
@@ -12056,7 +12056,7 @@ function COVISE_setParameterFromUploadedFile_op(successCallback, errorCallback, 
     this.client.onsuccess = function(client, responseXml) { closureThis.setParameterFromUploadedFile_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.setParameterFromUploadedFile_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/setParameterFromUploadedFile';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/setParameterFromUploadedFile';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12069,7 +12069,7 @@ function COVISE_setParameterFromUploadedFile_serializeInput(cxfjsutils, args) {
     wrapperObj.setParameter(args[1]);
     wrapperObj.setValue(args[2]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:setParameterFromUploadedFile', null);
@@ -12123,7 +12123,7 @@ function COVISE_getLinks_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getLinks_onerror = COVISE_getLinks_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getLinks
+// Operation {http://www.hlrs.de/covise}getLinks
 // Wrapped operation.
 //
 function COVISE_getLinks_op(successCallback, errorCallback) {
@@ -12137,7 +12137,7 @@ function COVISE_getLinks_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.getLinks_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getLinks_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getLinks';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getLinks';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12147,7 +12147,7 @@ COVISE_ServiceSoap.prototype.getLinks = COVISE_getLinks_op;
 function COVISE_getLinks_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_getLinks();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getLinks', null);
@@ -12204,7 +12204,7 @@ function COVISE_removeEventListener_op_onerror(client) {
 COVISE_ServiceSoap.prototype.removeEventListener_onerror = COVISE_removeEventListener_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}removeEventListener
+// Operation {http://www.hlrs.de/covise}removeEventListener
 // Wrapped operation.
 // parameter uuid
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -12220,7 +12220,7 @@ function COVISE_removeEventListener_op(successCallback, errorCallback, uuid) {
     this.client.onsuccess = function(client, responseXml) { closureThis.removeEventListener_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.removeEventListener_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/removeEventListener';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/removeEventListener';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12231,7 +12231,7 @@ function COVISE_removeEventListener_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_removeEventListener();
     wrapperObj.setUuid(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:removeEventListener', null);
@@ -12285,7 +12285,7 @@ function COVISE_addEventListener_op_onerror(client) {
 COVISE_ServiceSoap.prototype.addEventListener_onerror = COVISE_addEventListener_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}addEventListener
+// Operation {http://www.hlrs.de/covise}addEventListener
 // Wrapped operation.
 //
 function COVISE_addEventListener_op(successCallback, errorCallback) {
@@ -12299,7 +12299,7 @@ function COVISE_addEventListener_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.addEventListener_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.addEventListener_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/addEventListener';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/addEventListener';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12309,7 +12309,7 @@ COVISE_ServiceSoap.prototype.addEventListener = COVISE_addEventListener_op;
 function COVISE_addEventListener_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_addEventListener();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:addEventListener', null);
@@ -12366,7 +12366,7 @@ function COVISE_getModuleID_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getModuleID_onerror = COVISE_getModuleID_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getModuleID
+// Operation {http://www.hlrs.de/covise}getModuleID
 // Wrapped operation.
 // parameter module
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter instance
@@ -12386,7 +12386,7 @@ function COVISE_getModuleID_op(successCallback, errorCallback, module, instance,
     this.client.onsuccess = function(client, responseXml) { closureThis.getModuleID_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getModuleID_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getModuleID';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getModuleID';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12399,7 +12399,7 @@ function COVISE_getModuleID_serializeInput(cxfjsutils, args) {
     wrapperObj.setInstance(args[1]);
     wrapperObj.setHost(args[2]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getModuleID', null);
@@ -12456,7 +12456,7 @@ function COVISE_createNewDir_op_onerror(client) {
 COVISE_ServiceSoap.prototype.createNewDir_onerror = COVISE_createNewDir_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}createNewDir
+// Operation {http://www.hlrs.de/covise}createNewDir
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter newDir
@@ -12474,7 +12474,7 @@ function COVISE_createNewDir_op(successCallback, errorCallback, path, newDir) {
     this.client.onsuccess = function(client, responseXml) { closureThis.createNewDir_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.createNewDir_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/createNewDir';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/createNewDir';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12486,7 +12486,7 @@ function COVISE_createNewDir_serializeInput(cxfjsutils, args) {
     wrapperObj.setPath(args[0]);
     wrapperObj.setNewDir(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:createNewDir', null);
@@ -12543,7 +12543,7 @@ function COVISE_unlink_op_onerror(client) {
 COVISE_ServiceSoap.prototype.unlink_onerror = COVISE_unlink_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}unlink
+// Operation {http://www.hlrs.de/covise}unlink
 // Wrapped operation.
 // parameter linkID
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -12559,7 +12559,7 @@ function COVISE_unlink_op(successCallback, errorCallback, linkID) {
     this.client.onsuccess = function(client, responseXml) { closureThis.unlink_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.unlink_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/unlink';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/unlink';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12570,7 +12570,7 @@ function COVISE_unlink_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_unlink();
     wrapperObj.setLinkID(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:unlink', null);
@@ -12624,7 +12624,7 @@ function COVISE_deleteDir_op_onerror(client) {
 COVISE_ServiceSoap.prototype.deleteDir_onerror = COVISE_deleteDir_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}deleteDir
+// Operation {http://www.hlrs.de/covise}deleteDir
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -12640,7 +12640,7 @@ function COVISE_deleteDir_op(successCallback, errorCallback, path) {
     this.client.onsuccess = function(client, responseXml) { closureThis.deleteDir_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.deleteDir_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/deleteDir';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/deleteDir';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12651,7 +12651,7 @@ function COVISE_deleteDir_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_deleteDir();
     wrapperObj.setPath(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:deleteDir', null);
@@ -12708,7 +12708,7 @@ function COVISE_setParameterFromString_op_onerror(client) {
 COVISE_ServiceSoap.prototype.setParameterFromString_onerror = COVISE_setParameterFromString_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}setParameterFromString
+// Operation {http://www.hlrs.de/covise}setParameterFromString
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter parameter
@@ -12728,7 +12728,7 @@ function COVISE_setParameterFromString_op(successCallback, errorCallback, module
     this.client.onsuccess = function(client, responseXml) { closureThis.setParameterFromString_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.setParameterFromString_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/setParameterFromString';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/setParameterFromString';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12741,7 +12741,7 @@ function COVISE_setParameterFromString_serializeInput(cxfjsutils, args) {
     wrapperObj.setParameter(args[1]);
     wrapperObj.setValue(args[2]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:setParameterFromString', null);
@@ -12795,7 +12795,7 @@ function COVISE_link_op_onerror(client) {
 COVISE_ServiceSoap.prototype.link_onerror = COVISE_link_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}link
+// Operation {http://www.hlrs.de/covise}link
 // Wrapped operation.
 // parameter fromModule
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter fromPort
@@ -12817,7 +12817,7 @@ function COVISE_link_op(successCallback, errorCallback, fromModule, fromPort, to
     this.client.onsuccess = function(client, responseXml) { closureThis.link_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.link_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/link';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/link';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12831,7 +12831,7 @@ function COVISE_link_serializeInput(cxfjsutils, args) {
     wrapperObj.setToModule(args[2]);
     wrapperObj.setToPort(args[3]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:link', null);
@@ -12885,7 +12885,7 @@ function COVISE_executeNet_op_onerror(client) {
 COVISE_ServiceSoap.prototype.executeNet_onerror = COVISE_executeNet_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}executeNet
+// Operation {http://www.hlrs.de/covise}executeNet
 // Wrapped operation.
 //
 function COVISE_executeNet_op(successCallback, errorCallback) {
@@ -12899,7 +12899,7 @@ function COVISE_executeNet_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.executeNet_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.executeNet_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/executeNet';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/executeNet';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12909,7 +12909,7 @@ COVISE_ServiceSoap.prototype.executeNet = COVISE_executeNet_op;
 function COVISE_executeNet_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_executeNet();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:executeNet', null);
@@ -12963,7 +12963,7 @@ function COVISE_getFileInfoList_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getFileInfoList_onerror = COVISE_getFileInfoList_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getFileInfoList
+// Operation {http://www.hlrs.de/covise}getFileInfoList
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -12979,7 +12979,7 @@ function COVISE_getFileInfoList_op(successCallback, errorCallback, path) {
     this.client.onsuccess = function(client, responseXml) { closureThis.getFileInfoList_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getFileInfoList_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getFileInfoList';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getFileInfoList';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -12990,7 +12990,7 @@ function COVISE_getFileInfoList_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_getFileInfoList();
     wrapperObj.setPath(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getFileInfoList', null);
@@ -13047,10 +13047,10 @@ function COVISE_addPartner_op_onerror(client) {
 COVISE_ServiceSoap.prototype.addPartner_onerror = COVISE_addPartner_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}addPartner
+// Operation {http://www.hlrs.de/covise}addPartner
 // Wrapped operation.
 // parameter method
-// - simple type {http://www.hlrs.de/organization/vis/covise}AddPartnerMethod// parameter ip
+// - simple type {http://www.hlrs.de/covise}AddPartnerMethod// parameter ip
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter user
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter password
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter timeout
@@ -13073,7 +13073,7 @@ function COVISE_addPartner_op(successCallback, errorCallback, method, ip, user, 
     this.client.onsuccess = function(client, responseXml) { closureThis.addPartner_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.addPartner_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/addPartner';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/addPartner';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13089,7 +13089,7 @@ function COVISE_addPartner_serializeInput(cxfjsutils, args) {
     wrapperObj.setTimeout(args[4]);
     wrapperObj.setDisplay(args[5]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:addPartner', null);
@@ -13146,7 +13146,7 @@ function COVISE_listHosts_op_onerror(client) {
 COVISE_ServiceSoap.prototype.listHosts_onerror = COVISE_listHosts_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}listHosts
+// Operation {http://www.hlrs.de/covise}listHosts
 // Wrapped operation.
 //
 function COVISE_listHosts_op(successCallback, errorCallback) {
@@ -13160,7 +13160,7 @@ function COVISE_listHosts_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.listHosts_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.listHosts_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/listHosts';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/listHosts';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13170,7 +13170,7 @@ COVISE_ServiceSoap.prototype.listHosts = COVISE_listHosts_op;
 function COVISE_listHosts_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_listHosts();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:listHosts', null);
@@ -13227,7 +13227,7 @@ function COVISE_uploadFileMtom_op_onerror(client) {
 COVISE_ServiceSoap.prototype.uploadFileMtom_onerror = COVISE_uploadFileMtom_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}uploadFileMtom
+// Operation {http://www.hlrs.de/covise}uploadFileMtom
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter fileName
@@ -13251,7 +13251,7 @@ function COVISE_uploadFileMtom_op(successCallback, errorCallback, path, fileName
     this.client.onsuccess = function(client, responseXml) { closureThis.uploadFileMtom_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.uploadFileMtom_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/uploadFileMtom';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/uploadFileMtom';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13266,7 +13266,7 @@ function COVISE_uploadFileMtom_serializeInput(cxfjsutils, args) {
     wrapperObj.setFileTrunc(args[3]);
     wrapperObj.setFileSize(args[4]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:uploadFileMtom', null);
@@ -13323,7 +13323,7 @@ function COVISE_listModules_op_onerror(client) {
 COVISE_ServiceSoap.prototype.listModules_onerror = COVISE_listModules_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}listModules
+// Operation {http://www.hlrs.de/covise}listModules
 // Wrapped operation.
 // parameter ipaddr
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -13339,7 +13339,7 @@ function COVISE_listModules_op(successCallback, errorCallback, ipaddr) {
     this.client.onsuccess = function(client, responseXml) { closureThis.listModules_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.listModules_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/listModules';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/listModules';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13350,7 +13350,7 @@ function COVISE_listModules_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_listModules();
     wrapperObj.setIpaddr(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:listModules', null);
@@ -13407,7 +13407,7 @@ function COVISE_getEvent_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getEvent_onerror = COVISE_getEvent_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getEvent
+// Operation {http://www.hlrs.de/covise}getEvent
 // Wrapped operation.
 // parameter uuid
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter timeout
@@ -13425,7 +13425,7 @@ function COVISE_getEvent_op(successCallback, errorCallback, uuid, timeout) {
     this.client.onsuccess = function(client, responseXml) { closureThis.getEvent_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getEvent_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getEvent';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getEvent';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13437,7 +13437,7 @@ function COVISE_getEvent_serializeInput(cxfjsutils, args) {
     wrapperObj.setUuid(args[0]);
     wrapperObj.setTimeout(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getEvent', null);
@@ -13494,7 +13494,7 @@ function COVISE_instantiateModule_op_onerror(client) {
 COVISE_ServiceSoap.prototype.instantiateModule_onerror = COVISE_instantiateModule_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}instantiateModule
+// Operation {http://www.hlrs.de/covise}instantiateModule
 // Wrapped operation.
 // parameter module
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter host
@@ -13516,7 +13516,7 @@ function COVISE_instantiateModule_op(successCallback, errorCallback, module, hos
     this.client.onsuccess = function(client, responseXml) { closureThis.instantiateModule_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.instantiateModule_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/instantiateModule';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/instantiateModule';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13530,7 +13530,7 @@ function COVISE_instantiateModule_serializeInput(cxfjsutils, args) {
     wrapperObj.setX(args[2]);
     wrapperObj.setY(args[3]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:instantiateModule', null);
@@ -13584,7 +13584,7 @@ function COVISE_getParameterAsString_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getParameterAsString_onerror = COVISE_getParameterAsString_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getParameterAsString
+// Operation {http://www.hlrs.de/covise}getParameterAsString
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter parameter
@@ -13602,7 +13602,7 @@ function COVISE_getParameterAsString_op(successCallback, errorCallback, moduleID
     this.client.onsuccess = function(client, responseXml) { closureThis.getParameterAsString_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getParameterAsString_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getParameterAsString';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getParameterAsString';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13614,7 +13614,7 @@ function COVISE_getParameterAsString_serializeInput(cxfjsutils, args) {
     wrapperObj.setModuleID(args[0]);
     wrapperObj.setParameter(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getParameterAsString', null);
@@ -13671,7 +13671,7 @@ function COVISE_isFileExist_op_onerror(client) {
 COVISE_ServiceSoap.prototype.isFileExist_onerror = COVISE_isFileExist_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}isFileExist
+// Operation {http://www.hlrs.de/covise}isFileExist
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter fileName
@@ -13689,7 +13689,7 @@ function COVISE_isFileExist_op(successCallback, errorCallback, path, fileName) {
     this.client.onsuccess = function(client, responseXml) { closureThis.isFileExist_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.isFileExist_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/isFileExist';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/isFileExist';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13701,7 +13701,7 @@ function COVISE_isFileExist_serializeInput(cxfjsutils, args) {
     wrapperObj.setPath(args[0]);
     wrapperObj.setFileName(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:isFileExist', null);
@@ -13758,7 +13758,7 @@ function COVISE_getRunningModules_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getRunningModules_onerror = COVISE_getRunningModules_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getRunningModules
+// Operation {http://www.hlrs.de/covise}getRunningModules
 // Wrapped operation.
 //
 function COVISE_getRunningModules_op(successCallback, errorCallback) {
@@ -13772,7 +13772,7 @@ function COVISE_getRunningModules_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.getRunningModules_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getRunningModules_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getRunningModules';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getRunningModules';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13782,7 +13782,7 @@ COVISE_ServiceSoap.prototype.getRunningModules = COVISE_getRunningModules_op;
 function COVISE_getRunningModules_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_getRunningModules();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getRunningModules', null);
@@ -13839,7 +13839,7 @@ function COVISE_quit_op_onerror(client) {
 COVISE_ServiceSoap.prototype.quit_onerror = COVISE_quit_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}quit
+// Operation {http://www.hlrs.de/covise}quit
 // Wrapped operation.
 //
 function COVISE_quit_op(successCallback, errorCallback) {
@@ -13853,7 +13853,7 @@ function COVISE_quit_op(successCallback, errorCallback) {
     this.client.onsuccess = function(client, responseXml) { closureThis.quit_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.quit_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/quit';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/quit';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13863,7 +13863,7 @@ COVISE_ServiceSoap.prototype.quit = COVISE_quit_op;
 function COVISE_quit_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_quit();
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:quit', null);
@@ -13917,7 +13917,7 @@ function COVISE_getConfigEntry_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getConfigEntry_onerror = COVISE_getConfigEntry_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getConfigEntry
+// Operation {http://www.hlrs.de/covise}getConfigEntry
 // Wrapped operation.
 // parameter section
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter variable
@@ -13935,7 +13935,7 @@ function COVISE_getConfigEntry_op(successCallback, errorCallback, section, varia
     this.client.onsuccess = function(client, responseXml) { closureThis.getConfigEntry_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getConfigEntry_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getConfigEntry';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getConfigEntry';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -13947,7 +13947,7 @@ function COVISE_getConfigEntry_serializeInput(cxfjsutils, args) {
     wrapperObj.setSection(args[0]);
     wrapperObj.setVariable(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getConfigEntry', null);
@@ -14004,7 +14004,7 @@ function COVISE_executeModule_op_onerror(client) {
 COVISE_ServiceSoap.prototype.executeModule_onerror = COVISE_executeModule_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}executeModule
+// Operation {http://www.hlrs.de/covise}executeModule
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -14020,7 +14020,7 @@ function COVISE_executeModule_op(successCallback, errorCallback, moduleID) {
     this.client.onsuccess = function(client, responseXml) { closureThis.executeModule_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.executeModule_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/executeModule';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/executeModule';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14031,7 +14031,7 @@ function COVISE_executeModule_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_executeModule();
     wrapperObj.setModuleID(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:executeModule', null);
@@ -14085,7 +14085,7 @@ function COVISE_setParameter_op_onerror(client) {
 COVISE_ServiceSoap.prototype.setParameter_onerror = COVISE_setParameter_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}setParameter
+// Operation {http://www.hlrs.de/covise}setParameter
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter parameter
@@ -14104,7 +14104,7 @@ function COVISE_setParameter_op(successCallback, errorCallback, moduleID, parame
     this.client.onsuccess = function(client, responseXml) { closureThis.setParameter_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.setParameter_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/setParameter';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/setParameter';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14116,7 +14116,7 @@ function COVISE_setParameter_serializeInput(cxfjsutils, args) {
     wrapperObj.setModuleID(args[0]);
     wrapperObj.setParameter(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:setParameter', null);
@@ -14170,7 +14170,7 @@ function COVISE_openNet_op_onerror(client) {
 COVISE_ServiceSoap.prototype.openNet_onerror = COVISE_openNet_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}openNet
+// Operation {http://www.hlrs.de/covise}openNet
 // Wrapped operation.
 // parameter filename
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -14186,7 +14186,7 @@ function COVISE_openNet_op(successCallback, errorCallback, filename) {
     this.client.onsuccess = function(client, responseXml) { closureThis.openNet_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.openNet_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/openNet';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/openNet';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14197,7 +14197,7 @@ function COVISE_openNet_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_openNet();
     wrapperObj.setFilename(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:openNet', null);
@@ -14251,7 +14251,7 @@ function COVISE_uploadFile_op_onerror(client) {
 COVISE_ServiceSoap.prototype.uploadFile_onerror = COVISE_uploadFile_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}uploadFile
+// Operation {http://www.hlrs.de/covise}uploadFile
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter fileName
@@ -14281,7 +14281,7 @@ function COVISE_uploadFile_op(successCallback, errorCallback, path, fileName, re
     this.client.onsuccess = function(client, responseXml) { closureThis.uploadFile_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.uploadFile_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/uploadFile';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/uploadFile';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14299,7 +14299,7 @@ function COVISE_uploadFile_serializeInput(cxfjsutils, args) {
     wrapperObj.setFileSize(args[6]);
     wrapperObj.setFileTruncated(args[7]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:uploadFile', null);
@@ -14356,7 +14356,7 @@ function COVISE_deleteModule_op_onerror(client) {
 COVISE_ServiceSoap.prototype.deleteModule_onerror = COVISE_deleteModule_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}deleteModule
+// Operation {http://www.hlrs.de/covise}deleteModule
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -14372,7 +14372,7 @@ function COVISE_deleteModule_op(successCallback, errorCallback, moduleID) {
     this.client.onsuccess = function(client, responseXml) { closureThis.deleteModule_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.deleteModule_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/deleteModule';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/deleteModule';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14383,7 +14383,7 @@ function COVISE_deleteModule_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_deleteModule();
     wrapperObj.setModuleID(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:deleteModule', null);
@@ -14437,7 +14437,7 @@ function COVISE_isDirExist_op_onerror(client) {
 COVISE_ServiceSoap.prototype.isDirExist_onerror = COVISE_isDirExist_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}isDirExist
+// Operation {http://www.hlrs.de/covise}isDirExist
 // Wrapped operation.
 // parameter path
 // - simple type {http://www.w3.org/2001/XMLSchema}string// parameter newDir
@@ -14455,7 +14455,7 @@ function COVISE_isDirExist_op(successCallback, errorCallback, path, newDir) {
     this.client.onsuccess = function(client, responseXml) { closureThis.isDirExist_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.isDirExist_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/isDirExist';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/isDirExist';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14467,7 +14467,7 @@ function COVISE_isDirExist_serializeInput(cxfjsutils, args) {
     wrapperObj.setPath(args[0]);
     wrapperObj.setNewDir(args[1]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:isDirExist', null);
@@ -14524,7 +14524,7 @@ function COVISE_getRunningModule_op_onerror(client) {
 COVISE_ServiceSoap.prototype.getRunningModule_onerror = COVISE_getRunningModule_op_onerror;
 
 //
-// Operation {http://www.hlrs.de/organization/vis/covise}getRunningModule
+// Operation {http://www.hlrs.de/covise}getRunningModule
 // Wrapped operation.
 // parameter moduleID
 // - simple type {http://www.w3.org/2001/XMLSchema}string//
@@ -14540,7 +14540,7 @@ function COVISE_getRunningModule_op(successCallback, errorCallback, moduleID) {
     this.client.onsuccess = function(client, responseXml) { closureThis.getRunningModule_onsuccess(client, responseXml); };
     this.client.onerror = function(client) { closureThis.getRunningModule_onerror(client); };
     var requestHeaders = [];
-    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/organization/vis/covise/getRunningModule';
+    requestHeaders['SOAPAction'] = 'http://www.hlrs.de/covise/getRunningModule';
     this.jsutils.trace('synchronous = ' + this.synchronous);
     this.client.request(this.url, xml, null, this.synchronous, requestHeaders);
 }
@@ -14551,7 +14551,7 @@ function COVISE_getRunningModule_serializeInput(cxfjsutils, args) {
     var wrapperObj = new COVISE_getRunningModule();
     wrapperObj.setModuleID(args[0]);
     var xml;
-    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/organization/vis/covise' ");
+    xml = cxfjsutils.beginSoap11Message("xmlns:jns0='http://www.w3.org/2004/08/xop/include' xmlns:jns1='http://www.w3.org/2005/05/xmlmime' xmlns:jns2='http://www.hlrs.de/covise' ");
     // block for local variables
     {
      xml = xml + wrapperObj.serialize(cxfjsutils, 'jns2:getRunningModule', null);
