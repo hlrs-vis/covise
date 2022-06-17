@@ -549,9 +549,11 @@ bool CEF::init()
     //settings.log_severity = LOGSEVERITY_VERBOSE;
 #endif
 
-    CefMainArgs args;
-
-    if(!CefInitialize(args, settings, this, nullptr))
+    std::vector<const char *> cmdArgs;
+    cmdArgs.push_back("--enable-media-stream=1");
+    cmdArgs.push_back("--use-fake-ui-for-media-stream=1");
+    CefMainArgs args(cmdArgs.size(), (char**)cmdArgs.data());
+    if (!CefInitialize(args, settings, this, nullptr))
     {
         std::cerr << "CefInitialize failed" << std::endl;
         m_initFailed = true;
