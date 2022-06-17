@@ -17,13 +17,13 @@ class PluginMessageTypes
 public:
     enum Type
     {
-        VruiCollabInterfaceNone = vrui::vruiCollabInterface::NONE, // = 10
-        VruiCollabInterfaceValuePoti = vrui::vruiCollabInterface::VALUEPOTI, // = 11
-        VruiCollabInterfaceHSVWheel = vrui::vruiCollabInterface::HSVWHEEL, // = 12
-        VruiCollabInterfacePushButton = vrui::vruiCollabInterface::PUSHBUTTON, // = 13
-        VruiCollabInterfaceToggleButton = vrui::vruiCollabInterface::TOGGLEBUTTON, // = 14
+        VruiCollabInterfaceNone = vrui::vruiCollabInterface::NONE,                     // = 10
+        VruiCollabInterfaceValuePoti = vrui::vruiCollabInterface::VALUEPOTI,           // = 11
+        VruiCollabInterfaceHSVWheel = vrui::vruiCollabInterface::HSVWHEEL,             // = 12
+        VruiCollabInterfacePushButton = vrui::vruiCollabInterface::PUSHBUTTON,         // = 13
+        VruiCollabInterfaceToggleButton = vrui::vruiCollabInterface::TOGGLEBUTTON,     // = 14
         VruiCollabInterfaceFunctionEditor = vrui::vruiCollabInterface::FunctionEditor, // = 15
-        VruiCollabInterfacePinEditor = vrui::vruiCollabInterface::PinEditor, // = 16
+        VruiCollabInterfacePinEditor = vrui::vruiCollabInterface::PinEditor,           // = 16
         AKToolbarInactive = 20,
         AKToolbarActive = 21,
         AnnotationMessage = 30,
@@ -61,7 +61,7 @@ public:
         PointCloudSelectionSetMsg = 263,
         Browser = 264,
 
-        //COVERScript
+        // COVERScript
         COVERScriptEvaluate = 300,
         COVERScriptLoad = 301,
         RemoteDTConnectToHost = 1230,
@@ -70,7 +70,7 @@ public:
         RemoteDTHideDesktop,
         WSInterfaceCustomMessage = 1240,
 
-        //Variant Messages
+        // Variant Messages
         VariantHide = 1301,
         VariantShow = 1302,
         SGBrowserHideNode = 2000,
@@ -91,8 +91,8 @@ public:
         SGBrowserSetInputType = 2015,
         SGBrowserSetOutputType = 2016,
 
-        //Vistle messages
-        VistleMessageIn = 9000, // distribute message received from Vistle to plugins
+        // Vistle messages
+        VistleMessageIn = 9000,  // distribute message received from Vistle to plugins
         VistleMessageOut = 9001, // let Vistle plugin forward message to Vistle
 
         // HLRS plugins start with 10000 ----------------------------------------
