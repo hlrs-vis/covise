@@ -34,6 +34,7 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Action.h>
+#include <PluginUtil/PluginMessageTypes.h>
 #include <algorithm>
 
 
@@ -67,6 +68,12 @@ CefRefPtr<CefClient> CEF::GetDefaultClient()
 {
     // Called when a new browser window is created via the Chrome runtime UI.
     return client;
+}
+
+void CEF::message(int toWhom, int type, int length, const void *data)
+{
+    if(type == opencover::PluginMessageTypes::Browser)
+        open((const char *)data);
 }
 
 

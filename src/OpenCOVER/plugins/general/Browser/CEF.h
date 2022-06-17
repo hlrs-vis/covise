@@ -135,7 +135,7 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         // CefBrowserProcessHandler methods:
         void OnContextInitialized() override;
         CefRefPtr<CefClient> GetDefaultClient() override;
-
+        void message(int toWhom, int type, int length, const void *data) override;
 
     public:
         CEF();

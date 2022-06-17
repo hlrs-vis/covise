@@ -59,6 +59,7 @@ public:
         PointCloudSurfaceMsg = 261,
         PointCloudSelectionIsBoundaryMsg = 262,
         PointCloudSelectionSetMsg = 263,
+        Browser = 264,
 
         //COVERScript
         COVERScriptEvaluate = 300,
