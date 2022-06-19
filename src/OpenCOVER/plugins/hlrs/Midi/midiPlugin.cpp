@@ -707,6 +707,7 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 		noteInfo->modelName = coCoviseConfig::getEntry("modelName", configName,  "");
 		noteInfos[keyNumber] = noteInfo;
 	}
+	float spiralRadius = coCoviseConfig::getFloat("spiralRadius", "COVER.Plugin.Midi", 800);
 
 	int i = 0;
 	for (auto &noteInfo : noteInfos)
@@ -715,7 +716,7 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 		{
 			noteInfo->createGeom();
 			float angle = ((float)i / noteInfos.size()) * 2.0 * M_PI * 2;
-			float radius = 800.0;
+			float radius = spiralRadius;
 			if (noteInfo->initialPosition == osg::Vec3(0, 0, 0))
 			{
 				noteInfo->initialPosition.set(sin(angle) * radius, 0, cos(angle) * radius);
@@ -828,7 +829,7 @@ bool MidiPlugin::init()
 	std::string objFileName = coCoviseConfig::getEntry("object", "COVER.Plugin.Midi.Theremin", "theremin.obj");
 	thereminMinX = coCoviseConfig::getFloat("minX", "COVER.Plugin.Midi.Theremin", 1.0);
 	thereminMinY = coCoviseConfig::getFloat("minY", "COVER.Plugin.Midi.Theremin", 1.0);
-	thereminMaxX = coCoviseConfig::getFloat("maxX", "COVER.Plugin.Midi.Theremin", 10.0);
+	thereminMaxX = coCoviseConfig::getFloat("maxX", "COVER.Plugin.Midi.o", 10.0);
 	thereminMaxY = coCoviseConfig::getFloat("maxY", "COVER.Plugin.Midi.Theremin", 10.0);
 	float px = coCoviseConfig::getFloat("posX", "COVER.Plugin.Midi.Theremin", 0.0);
 	float py = coCoviseConfig::getFloat("posY", "COVER.Plugin.Midi.Theremin", 0.0);
