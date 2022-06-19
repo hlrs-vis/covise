@@ -198,7 +198,7 @@ void AudioInStream::update()
 #ifdef WIN32
 		while (((gBufferBytePosition - bytesProcessed) / bytesPerSample >= inputSize))
 #else
-		if (((gBufferBytePosition - bytesProcessed) / bytesPerSample >= inputSize))
+		while (((gBufferBytePosition - bytesProcessed) / bytesPerSample >= inputSize))
 #endif
 		{
 			int sample = 0;
@@ -2498,7 +2498,7 @@ bool WaveSurface::update()
 	return false;
 }
 
-
+#ifdef OPCUA
 
 static volatile UA_Boolean running = true;
 
@@ -2572,7 +2572,7 @@ addValueCallbackToCurrentTimeVariable(UA_Server* server) {
 
 
 
-
+#endif
 
 
 /*

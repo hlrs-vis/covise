@@ -5,14 +5,21 @@
   <COVER>
             <Plugin>
                 <Midi value="Off" InPort="0" OutPort="2">
-					   <Theremin object="/data/Jeremy/NOTES/theremin.x3dv"   minX="1" maxX="2" minY="1" maxY="2" posX="0.0" posY="50.0" posZ="0.0" />
-				       <!--Theremin object="/data/Jeremy/NOTES/sphere.obj"   minX="0.01" maxX="0.2" minY="0.001" maxY="0.2" posX="0.0" posY="100.0" posZ="0.0" /-->
+						   <Theremin object="/data/Jeremy/NOTES/Theremin.wrl"   minX="1" maxX="2" minY="1" maxY="2" posX="0.0" posY="200.0" posZ="0.0" />
 				       <Store posX="0" posY="0" posZ="0"   />
 					   <Controller name="0" controllerID="2"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
 					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
-					   <Instrument name="0" channel="9" type="Drumkit">
-					      
+					   
+					   
+					   
+					   <Instrument name="5" channel="11" type="Drumkit">
+					       <Key name="49"   r="148"   g="0" b="211"/>
+					       <Key name="50"   r="75"  g="0" b="130"/>
+					       <Key name="51"   r="0"  g="0"  b="255"/>
+					       <Key name="52"   r="80"  g="0"  b="255"/>
+                                           </Instrument>
+					   <Instrument name="0" channel="8" type="Drumkit">
 					       <Key name="1"   r="148"   g="0" b="211"/>
 					       <Key name="2"   r="75"  g="0" b="130"/>
 					       <Key name="3"   r="0"  g="0"  b="255"/>
@@ -147,7 +154,142 @@
 					       <Key name="127"  r="150" g="33" b="29"/>
 					   
 					   </Instrument>
-				       <Instrument name="1" channel="1" type="keyboard" description="mininova">
+					   <Instrument name="1" channel="9" type="Drumkit">
+					       <Key name="1"   r="148"   g="0" b="211"/>
+					       <Key name="2"   r="75"  g="0" b="130"/>
+					       <Key name="3"   r="0"  g="0"  b="255"/>
+					       <Key name="4"   r="0"  g="255" b="0"/>
+					       <Key name="5"   r="255"  g="255"  b="0"/>
+						   <Key name="6"   r="255"  g="200" b="0"/>
+					       <Key name="7"   r="255"  g="127"  b="0"/>
+					       <Key name="8"   r="255"  g="65" b="0"/>
+					       <Key name="9"   r="255"  g="0"  b="0"/>
+						   
+					       <Key name="10"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/e1.obj" modelScale = "1.0" description="MYSTERIOUS OVALS"/>
+						   <Key name="11"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/e2.obj" modelScale = "1.0"/>
+					       <Key name="12"  r="250" g="110" b="10" modelName = "/data/Jeremy/NOTES/e3.obj" modelScale = "1.0"/>
+					       <Key name="13"  r="250" g="170" b="10" modelName = "/data/Jeremy/NOTES/e4.obj" modelScale = "1.0"/>
+					       <Key name="14"  r="250" g="214" b="10" modelName = "/data/Jeremy/NOTES/e5.obj" modelScale = "1.0"/>
+					       <Key name="15"  r="246" g="250" b="10" modelName = "/data/Jeremy/NOTES/e6.obj" modelScale = "1.0"/>
+					       <Key name="16"  r="198" g="250" b="10" modelName = "/data/Jeremy/NOTES/e7.obj" modelScale = "1.0"/>
+					       <Key name="17"  r="10" g="250" b="42" modelName  = "/data/Jeremy/NOTES/e8.obj" modelScale = "1.0"/>
+					       <Key name="18"  r="29" g="181" b="49" modelName  = "/data/Jeremy/NOTES/e9.obj" modelScale = "1.0"/>
+						   <Key name="19"  r="29" g="181" b="49" modelName  = "/data/Jeremy/NOTES/e10.obj" modelScale = "1.0"/>
+						   
+						   <Key name="21"   r="148"   g="0" b="211" description="FATLOOSE NOTES"/>
+					       <Key name="22"   r="75"  g="0" b="130"/>
+					       <Key name="23"   r="0"  g="0"  b="255"/>
+					       <Key name="24"   r="0"  g="255" b="0"/>
+					       <Key name="25"   r="255"  g="255"  b="0"/>
+						   <Key name="26"   r="255"  g="200" b="0"/>
+					       <Key name="27"   r="255"  g="127"  b="0"/>
+					       <Key name="28"   r="255"  g="65" b="0"/>
+					       <Key name="29"   r="255"  g="0"  b="0"/>
+						   
+						   <Key name="30"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/a1.obj" modelScale = "1.0" description="HEART OF ASIA 03 LATTICES"/>
+						   <Key name="31"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/a2.obj" modelScale = "1.0"/>
+					       <Key name="32"  r="250" g="110" b="10" modelName = "/data/Jeremy/NOTES/a3.obj" modelScale = "1.0"/>
+					       <Key name="33"  r="250" g="170" b="10" modelName = "/data/Jeremy/NOTES/a4.obj" modelScale = "1.0"/>
+					       <Key name="34"  r="250" g="214" b="10" modelName = "/data/Jeremy/NOTES/a5.obj" modelScale = "1.0"/>
+					       <Key name="35"  r="246" g="250" b="10" modelName = "/data/Jeremy/NOTES/a6.obj" modelScale = "1.0"/>
+					       <Key name="36"  r="198" g="250" b="10" x="0" y="0" z="-1000" modelName = "/data/Jeremy/NOTES/SoapBuble.wrl" modelScale = "40.0"/>
+					       <Key name="37"  r="10" g="250" b="42" modelName  = "/data/Jeremy/NOTES/a8.obj" modelScale = "1.0"/>
+					       <Key name="38"  r="29" g="181" b="49"  modelName = "/data/Jeremy/NOTES/d7.obj" modelScale = "0.5"/>
+						   <Key name="39"  r="29" g="181" b="49" modelName  = "/data/Jeremy/NOTES/a10.obj" modelScale = "1.0"/>
+						   
+						   <Key name="40"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/ao1.obj" modelScale = "1.0" description="DRUM CHORD TITLES"/>
+						   <Key name="41"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/ao2.obj" modelScale = "1.0"/>
+						   <Key name="42"   r="255"  g="200" b="0" x="-1000" y="0" z="200" modelName = "/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale = "10.0"/>
+					       <Key name="43"  r="250" g="170" b="10"  x="1000" y="0" z="-1000" modelScale = "1.0"/>
+					       <Key name="45"   r="255"  g="255"  b="0" x="1000" y="0" z="1000"/>
+						   <Key name="46"   r="255"  g="200" b="0" x="-1000" y="0" z="200" modelName  = "/data/Jeremy/NOTES/ThereminSphere.wrl" modelScale = "15.0"/>
+					       <Key name="47"   r="255"  g="127"  b="0"/>
+					       <Key name="48"   r="255"  g="65" b="0" x="-1000" y="0" z="1000"/>
+					       <Key name="49"   r="255"  g="0"  b="0" x="-500" y="0" z="1000" modelName = "/data/Jeremy/NOTES/GoldSphere.wrl" modelScale = "10.0"/>
+						   
+						   <Key name="51"   r="148"   g="0" b="211" x="5000" y="0" z="1000"  modelName = "/data/Jeremy/NOTES/SpaceSphere.wrl" modelScale = "20.0"/>
+					       <Key name="52"   r="75"  g="0" b="130"/>
+					       <Key name="53"   r="0"  g="0"  b="255"/>
+					       <Key name="54"   r="0"  g="255" b="0"/>
+					       <Key name="55"   r="255"  g="255"  b="0"/>
+						   <Key name="56"   r="255"  g="200" b="0"/>
+					       <Key name="57"   r="255"  g="127"  b="0"/>
+					       <Key name="58"   r="255"  g="65" b="0"/>
+					       <Key name="59"   r="255"  g="0"  b="0"/>
+
+					       <Key name="61"   r="148"   g="0" b="211"/>
+					       <Key name="62"   r="75"  g="0" b="130"/>
+					       <Key name="63"   r="0"  g="0"  b="255"/>
+					       <Key name="64"   r="0"  g="255" b="0"/>
+					       <Key name="65"   r="255"  g="255"  b="0"/>
+						   <Key name="66"   r="255"  g="200" b="0"/>
+					       <Key name="67"   r="255"  g="127"  b="0"/>
+					       <Key name="68"   r="255"  g="65" b="0"/>
+					       <Key name="69"   r="255"  g="0"  b="0"/>
+						   
+						   <Key name="71"   r="148"   g="0" b="211"/>
+					       <Key name="72"   r="75"  g="0" b="130"/>
+					       <Key name="73"   r="0"  g="0"  b="255"/>
+					       <Key name="74"   r="0"  g="255" b="0"/>
+					       <Key name="75"   r="255"  g="255"  b="0"/>
+						   <Key name="76"   r="255"  g="200" b="0"/>
+					       <Key name="77"   r="255"  g="127"  b="0"/>
+					       <Key name="78"   r="255"  g="65" b="0"/>
+					       <Key name="79"   r="255"  g="0"  b="0"/>
+						   
+						   <Key name="81"   r="148"   g="0" b="211"/>
+					       <Key name="82"   r="75"  g="0" b="130"/>
+					       <Key name="83"   r="0"  g="0"  b="255"/>
+					       <Key name="84"   r="0"  g="255" b="0"/>
+					       <Key name="85"   r="255"  g="255"  b="0"/>
+						   <Key name="86"   r="255"  g="200" b="0"/>
+					       <Key name="87"   r="255"  g="127"  b="0"/>
+					       <Key name="88"   r="255"  g="65" b="0"/>
+					       <Key name="89"   r="255"  g="0"  b="0"/>
+						   
+						   <Key name="91"   r="148"   g="0" b="211"/>
+					       <Key name="92"   r="75"  g="0" b="130"/>
+					       <Key name="93"   r="0"  g="0"  b="255"/>
+					       <Key name="94"   r="0"  g="255" b="0"/>
+					       <Key name="95"   r="255"  g="255"  b="0"/>
+						   <Key name="96"   r="255"  g="200" b="0"/>
+					       <Key name="97"   r="255"  g="127"  b="0"/>
+					       <Key name="98"   r="255"  g="65" b="0"/>
+					       <Key name="99"   r="255"  g="0"  b="0"/>
+						   
+						   <Key name="100"  r="128" g="128"  b="0"/>
+					       <Key name="101"  r="153" g="153"  b="0"/>
+					       <Key name="102"  r="255" g="255" b="200"/>
+					       <Key name="103"  r="230" g="92" b="0"/>
+					       <Key name="104"  r="204" g="82" b="0"/>
+					       <Key name="105"  r="255" g="102" b="20"/>
+					       <Key name="106"  r="255" g="102" b="0"/>
+					       <Key name="107"  r="179" g="204" b="255"/>
+					       <Key name="108"  r="128"  g="170" b="255"/>
+					       <Key name="109"  r="77"  g="136" b="255"/>
+						   
+						   <Key name="110"  r="84" g="33"  b="31"/>
+					       <Key name="111"  r="66" g="62"  b="52"/>
+					       <Key name="112"  r="107" g="41" b="39"/>
+					       <Key name="113"  r="122" g="24" b="21"/>
+					       <Key name="114"  r="74" g="12" b="10"/>
+					       <Key name="115"  r="99" g="22" b="18"/>
+					       <Key name="116"  r="158" g="128" b="126"/>
+					       <Key name="117"  r="150" g="33" b="29"/>
+					       <Key name="118"  r="51"  g="19" b="18"/>
+					       <Key name="119"  r="74"  g="7" b="4"/>
+						   
+						   <Key name="120"  r="84" g="33"  b="31"/>
+					       <Key name="121"  r="66" g="62"  b="52"/>
+					       <Key name="122"  r="107" g="41" b="39"/>
+					       <Key name="123"  r="122" g="24" b="21"/>
+					       <Key name="124"  r="74" g="12" b="10"/>
+					       <Key name="125"  r="99" g="22" b="18"/>
+					       <Key name="126"  r="158" g="128" b="126"/>
+					       <Key name="127"  r="150" g="33" b="29"/>
+					   
+					   </Instrument>
+				       <Instrument name="2" channel="1" type="keyboard" description="mininova">
 					       
 						   <Key name="20" modelScale = "1" r="255" g="0"  b="0"/>
 					       <Key name="21" modelScale = "1" r="255" g="127"  b="0"/>
@@ -283,7 +425,7 @@
 					       <Key name="127" modelScale = "1" r="255" g="127"  b="0"/>
 					       
 					   </Instrument>
-					   <Instrument name="2" channel="10" type="Drumkit" description="td50">
+					   <Instrument name="3" channel="10" type="Drumkit" description="td50">
 					      
 					       <Key name="1"   r="3"   g="165" b="252"/>
 					       <Key name="2"   r="36"  g="148" b="209"/>
@@ -424,6 +566,143 @@
 					       <Key name="125"  r="99" g="22" b="18"/>
 					       <Key name="126"  r="158" g="128" b="126"/>
 					       <Key name="127"  r="150" g="33" b="29"/>
+					   </Instrument>
+					   
+				       <Instrument name="4" channel="0" type="keyboard" description="mininova">
+					       
+						   <Key name="20" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="21" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="22" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="23" modelName  = "/data/Jeremy/NOTES/ukraine.wrl" modelScale = "40.0" x="1000" y="0" z="1000" r="127" g="255"  b="0"/>
+					       <Key name="24" modelName  = "/data/Jeremy/NOTES/Germany.wrl" modelScale = "40.0" x="500" y="0" z="1000" r="0" g="255"  b="0"/>
+					       <Key name="25" modelName  = "/data/Jeremy/NOTES/New_Zealand.wrl" modelScale = "40.0"  x="-500" y="0" z="500" r="0" g="255"  b="127"/>
+					       <Key name="26" modelName  = "/data/Jeremy/NOTES/Europe.wrl" modelScale = "40.0"  x="00" y="0" z="-1000" r="0" g="255"  b="255"/>
+					       <Key name="27" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="28" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="29" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="30" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="31" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="20" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="21" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="22" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="23" modelScale = "1" r="127" g="255"  b="0"/>
+					       <Key name="24" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="25" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="26" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="27" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="28" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="29" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="30" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="31" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="20" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="21" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="22" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="23" modelScale = "1" r="127" g="255"  b="0"/>
+					       <Key name="24" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="25" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="26" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="27" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="28" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="29" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="30" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="31" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="32" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="33" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="34" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="35" modelScale = "1" r="127" g="255"  b="0"/>
+					       <Key name="36" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="37" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="38" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="39" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="40" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="41" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="42" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="43" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="44" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="45" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="46" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="47" modelScale = "1" r="127" g="255"  b="0"/>
+					       <Key name="48" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="49" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="50" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="51" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="52" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="53" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="54" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="55" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="56" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="57" modelScale = "1" r="255" g="127"  b="0"/>
+					       <Key name="58" modelScale = "1" r="255" g="255"  b="0"/>
+					       <Key name="59" modelScale = "1" r="127" g="255"  b="0"/>
+					       <Key name="60" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="61" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="62" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="63" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="64" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="65" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="66" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="67" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="68" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="69" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="70" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="71" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="72" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="73" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="74" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="75" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="76" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="77" modelScale = "1" r="255" g="127"  b="0"/>
+						   <Key name="78" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="79" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="80" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="81" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="82" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="83" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="84" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="85" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="86" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="87" modelScale = "1" r="255" g="127"  b="0"/>
+						   <Key name="88" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="89" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="90" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="91" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="92" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="93" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="94" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="95" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="96" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="97" modelScale = "1" r="255" g="127"  b="0"/>
+						   <Key name="98" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="99" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="100" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="101" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="102" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="103" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="104" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="105" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="106" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="107" modelScale = "1" r="255" g="127"  b="0"/>
+						   <Key name="108" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="109" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="110" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="111" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="112" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="113" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="114" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="115" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="116" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="117" modelScale = "1" r="255" g="127"  b="0"/>
+						   <Key name="118" modelScale = "1" r="0" g="255"  b="0"/>
+					       <Key name="119" modelScale = "1" r="0" g="255"  b="127"/>
+					       <Key name="120" modelScale = "1" r="0" g="255"  b="255"/>
+					       <Key name="121" modelScale = "1" r="0" g="127"  b="255"/>
+					       <Key name="122" modelScale = "1" r="0" g="0"  b="255"/>
+					       <Key name="123" modelScale = "1" r="127" g="0"  b="255"/>
+					       <Key name="124" modelScale = "1" r="255" g="0"  b="255"/>
+					       <Key name="125" modelScale = "1" r="255" g="0"  b="127"/>
+						   <Key name="126" modelScale = "1" r="255" g="0"  b="0"/>
+					       <Key name="127" modelScale = "1" r="255" g="127"  b="0"/>
+					       
 					   </Instrument>
 				</Midi>
             </Plugin>
