@@ -78,6 +78,8 @@ bool VRBSClient::sendMessage(const covise::UdpMessage *msg) const
 
     if (udpConn)
     {
+        //if(userInfo().ipAdress == "130.195.253.79")
+        //    udpConn->send_udp_msg(msg, "130.195.22.20");
         return udpConn->send_udp_msg(msg, userInfo().ipAdress.c_str());
     }
     else if (m_firstTryUdp)
