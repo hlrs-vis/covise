@@ -2987,7 +2987,11 @@ void RevitPlugin::setPhase(std::string phaseName)
 
 osg::Image *RevitPlugin::readImage(std::string fileName)
 {
-
+	if (fileName.length() > 2 && fileName[1] == ':')
+	{
+		// this is an absolute windows path, remove the drive
+		fileName = fileName.substr(2);
+	}
     std::size_t found = fileName.find_first_of("|", 0);
     if (found != std::string::npos)
     {
