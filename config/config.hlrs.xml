@@ -261,7 +261,7 @@
 -->
 
    <VRB>
-    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="51000"/>
+    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="49999"/>
     <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
    </VRB>
    
