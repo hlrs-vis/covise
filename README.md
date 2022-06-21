@@ -181,18 +181,7 @@ Optional Dependencies
   Version 6 or newer is required.
 - **Flex** and **Bison**
   Lexer/Parser generators, required to build VRML plugin.
-<<<<<<< HEAD
-- **Open Inventor**
-  The old desktop renderer on Linux requires Open Inventor.
-  The binaries shipped with most Linux distributions do not correctly render fonts on 64
-  bit systems.
-  Install a fixed version:
 
-        git clone https://github.com/aumuell/open-inventor.git
-        cd open-inventor
-        cmake -DCMAKE_INSTALL_PREFIX=$EXTERNLIBS/inventor ..
-        cmake --build . --target all
-        cmake --build . --target install
 dependencies on Redhat8:
 dnf -y install xerces-c
 dnf -y install xerces-c-devel
@@ -239,8 +228,6 @@ dnf install gcc-gfortran
 dnf --enablerepo=PowerTools install libstdc++-static
 dnf --enablerepo=PowerTools install boost-static
 dnf install python3-pyqt5-sip
-=======
->>>>>>> eabdfcd88 (remove inventor and qt renderers)
 
 
 Tracking Dependencies
