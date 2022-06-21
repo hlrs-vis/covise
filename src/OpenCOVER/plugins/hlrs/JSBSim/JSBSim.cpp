@@ -26,6 +26,8 @@
 #include "models/propulsion/FGPiston.h"
 #include "cover/VRSceneGraph.h"
 #include "cover/coVRCollaboration.h"
+#include <cover/input/input.h>
+#include "cover/input/deviceDiscovery.h"
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
@@ -55,7 +57,6 @@ JSBSimPlugin::JSBSimPlugin() : ui::Owner("JSBSimPlugin", cover->ui), coVRNavigat
     float ts = coCoviseConfig::getFloat("scale", "COVER.Plugin.JSBSim.Geometry", 1000.0);
     osg::Matrix gt = osg::Matrix::scale(ts,ts,ts)*osg::Matrix::rotate(th, osg::Vec3(0,0,1), tp, osg::Vec3(1,0,0),  tr, osg::Vec3(0,1,0)) *  osg::Matrix::translate(tx, ty, tz);
     geometryTrans = new osg::MatrixTransform(gt);
-    cover->getScene()->addChild(geometryTrans);
     osg::Node* n = osgDB::readNodeFile(geometryFile.c_str());
     if(n!=nullptr)
     {
@@ -332,6 +333,9 @@ bool JSBSimPlugin::init()
 {
     delete udp;
 
+    host = covise::coCoviseConfig::getEntry("host", "COVER.Plugin.JSBSim.Glider", "141.58.8.212");
+    serverPort = covise::coCoviseConfig::getInt("serverPort","COVER.Plugin.JSBSim.Glider", 31319);
+    localPort = covise::coCoviseConfig::getInt("localPort","COVER.Plugin.JSBSim.Glider", 1234);
     const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
     if(rd==nullptr)
         rd="";
@@ -426,15 +430,40 @@ bool JSBSimPlugin::init()
     currentVelocity.set(WX->number(), WY->number(), WZ->number());
     currentTurbulence = 0;
 
-
-if (coVRMSController::instance()->isMaster())
+        bool ret = false;
+        if (coVRMSController::instance()->isMaster())
         {
-    initUDP();
+            std::string host = "";
+            for (const auto& i : opencover::Input::instance()->discovery()->getDevices())
+            {
+                if (i->pluginName == "JSBSim")
+                {
+                    host = i->address;
     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
     initJSB();
     reset();
+                    udp = new UDPComm(host.c_str(), serverPort, localPort);
+                    if (!udp->isBad())
+                    {
+                        ret = true;
+                        //start();
+                    }
+                    else
+                    {
+                        std::cerr << "Skateboard: falided to open local UDP port" << localPort << std::endl;
+                        ret = false;
+                    }
+                    break;
+                }
+            }
 
+            coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
         }
+        else
+        {
+            coVRMSController::instance()->readMaster(&ret, sizeof(ret));
+        }
+
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
@@ -663,6 +692,14 @@ else
 void JSBSimPlugin::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
+        if (flag)
+        {
+    cover->getScene()->addChild(geometryTrans.get());
+        }
+        else
+        {
+    cover->getScene()->removeChild(geometryTrans.get());
+        }
 if (coVRMSController::instance()->isMaster())
 {
     if (flag)
@@ -673,6 +710,17 @@ if (coVRMSController::instance()->isMaster())
     else
     {
         varioSound->stop();
+    }
+    if (udp)
+    {
+        if (flag)
+        {
+            udp->send("start");
+        }
+        else
+        {
+            udp->send("stop");
+        }
     }
 }
 }
@@ -714,13 +762,10 @@ JSBSimPlugin::updateUdp()
 
 void JSBSimPlugin::initUDP()
 {
-    delete udp;
+    /*delete udp;
 
-    host = covise::coCoviseConfig::getEntry("host", "COVER.Plugin.JSBSim.Glider", "141.58.8.212");
-    serverPort = covise::coCoviseConfig::getInt("serverPort","COVER.Plugin.JSBSim.Glider", 1236);
-    localPort = covise::coCoviseConfig::getInt("localPort","COVER.Plugin.JSBSim.Glider", 1234);
     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-    udp = new UDPComm(host.c_str(), serverPort, localPort);
+    udp = new UDPComm(host.c_str(), serverPort, localPort);*/
     return;
 }
 
