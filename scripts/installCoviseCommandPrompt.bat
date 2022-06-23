@@ -1,7 +1,7 @@
 :: edit your filepaths and make sure the linkpath exists:
 
 set linkpath=%HOMEPATH%\Desktop
-set linkname=test
+set linkname=coviseCmd
 set pathToCmd=C:\Windows\System32
 set ARCHSUFFIX=zebuopt
 set COVISEDIR=C:\src\covise
