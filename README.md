@@ -289,6 +289,7 @@ Also on Windows, you should work from a command prompt:
        REM open Visual Studio - either directly or with the button from CMake GUI
        devenv
 
+To create a permanent link to a covise command prompt edit and execute Scripts/installCoviseCommandPrompt.bat 
 
 Changing CMake Settings
 -----------------------
