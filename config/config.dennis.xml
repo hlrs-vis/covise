@@ -66,6 +66,11 @@
   </System>
 
   <COVER>
+    <Collaborative>
+      <UserName value="Dennis"/>
+      <Email value="grieger@hlrs.de"/>
+      <Icon value="/home/dennis/data/IronMan/ironman2.obj"/>
+    </Collaborative>
       <UI>
           <VRUI toolbar="false" />
           <NavigationManager>
