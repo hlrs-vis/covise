@@ -195,11 +195,7 @@ int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadP
     else {
         TrajectoriesRoot = cover->getObjectsRoot();
     }
-    /*
-    TrajectoriesRoot = loadParent;
-    if (TrajectoriesRoot == NULL)
-        TrajectoriesRoot = cover->getObjectsRoot();
-    */
+
     
 #ifdef _WIN32
     int fd = open(filename, O_RDONLY | O_BINARY);
@@ -263,39 +259,7 @@ void TrajectoriesPlugin::setTimestep(int t)
         }
     }
 }
-        
-    /*
-        if (tr->h2.firstTimestep < timeStepTime + threshold && timeStepTime - threshold < tr->h2.lastTimestep && (TrajectoriesRoot->containsNode(tr->getGeometry()) == 0))
-        {
-            //display it
-            TrajectoriesRoot->addChild(tr->getGeometry());
-            //std::cout << "Inside, add to root" << std::endl;
-        }
-        // tr is in the time t, but it is already shown, do nothing
-        else if (tr->h2.firstTimestep < timeStepTime && timeStepTime < tr->h2.lastTimestep && (TrajectoriesRoot->containsNode(tr->getGeometry()) != 0))
-        {
-            //do nothing
-            //std::cout << "Do nothing, inside and already shown" << std::endl;
-        }
-        // tr not in the specified time t and tr not shown, do nothing
-        else if ((tr->h2.firstTimestep > timeStepTime || timeStepTime > tr->h2.lastTimestep) && (TrajectoriesRoot->containsNode(tr->getGeometry()) == 1))
-        {
-            // tr not in the specified time t and tr is currently shown, remove tr
-            //TrajectoriesRoot->removeChild(tr->getGeometry());
-            //std::cout << "Less than First Time Step?:  ";
-            //std::cout << (tr->h2.firstTimestep > timeStepTime) << std::endl;
-            //std::cout << "Greater than Last Time Step?: ";
-            //std::cout << (timeStepTime > tr->h2.lastTimestep) << std::endl;
-            //std::cout << "timeStepTime: ";
-            //std::cout << timeStepTime << std::endl;
-            //std::cout << "Trajectories Root -> containsNode: ";
-            //std::cout << TrajectoriesRoot->containsNode(tr->getGeometry());
-            TrajectoriesRoot->removeChild(tr->getGeometry());
-            //std::cout << "Removed Child" << std::endl;
-            //std::cout << "Check Trajectories Root -> contains Node: ";
-            //std::cout << TrajectoriesRoot->containsNode(tr->getGeometry()) << std::endl;
-        }
-    }*/
+
 
 
 int TrajectoriesPlugin::unloadTrajectories(const char* filename, const char*)
