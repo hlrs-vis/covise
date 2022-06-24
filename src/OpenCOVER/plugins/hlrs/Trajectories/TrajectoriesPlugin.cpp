@@ -6,19 +6,19 @@
  * License: LGPL 2+ */
 
 
-/****************************************************************************\
-**                                                            (C)2005 HLRS  **
-**                                                                          **
-** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** April-05  v1	    				       		                         **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+ /****************************************************************************\
+ **                                                            (C)2005 HLRS  **
+ **                                                                          **
+ ** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+ **                                                                          **
+ **                                                                          **
+ ** Author: U.Woessner		                                                 **
+ **                                                                          **
+ ** History:  								                                 **
+ ** April-05  v1	    				       		                         **
+ **                                                                          **
+ **                                                                          **
+ \****************************************************************************/
 
 #include "TrajectoriesPlugin.h"
 #define USE_MATH_DEFINES
@@ -50,9 +50,9 @@ using namespace osgUtil;
 #include <stdlib.h> /* exit       */
 #include <string.h> /* strcpy     */
 
-TrajectoriesPlugin *TrajectoriesPlugin::thePlugin = NULL;
+TrajectoriesPlugin* TrajectoriesPlugin::thePlugin = NULL;
 
-TrajectoriesPlugin *TrajectoriesPlugin::instance()
+TrajectoriesPlugin* TrajectoriesPlugin::instance()
 {
     if (!thePlugin)
         thePlugin = new TrajectoriesPlugin();
@@ -68,7 +68,7 @@ Trajectory::Trajectory()
 {
 }
 
-int Trajectory::readData(int fd)
+int Trajectory::readData(int fd, int& first_start_time)
 {
 
     if (read(fd, &h1, sizeof(h1)) < sizeof(h1))
@@ -97,15 +97,21 @@ int Trajectory::readData(int fd)
     int nr = 0;
     while (nr < numBytes)
     {
-        int r = read(fd, ((char *)timesteps)+nr, numBytes-nr);
+        int r = read(fd, ((char*)timesteps) + nr, numBytes - nr);
         if (r < 0)
             return -1;
         nr += r;
     }
-    if ( nr < numBytes)
+    if (nr < numBytes)
     {
         return -1;
     }
+    //update first start time for the first trajectory
+    if (first_start_time == -1)
+    {
+        first_start_time = h2.firstTimestep;
+    }
+
     // set up geometry
     vert = new osg::Vec3Array();
     vert->resize(h2.numTimesteps);
@@ -129,7 +135,7 @@ int Trajectory::readData(int fd)
     primitives->push_back(vert->size());
 
     // Update animation frame:
-    coVRAnimationManager::instance()->setNumTimesteps(vert->size(), this);
+    coVRAnimationManager::instance()->setNumTimesteps((h2.lastTimestep - first_start_time) / TrajectoriesPlugin::timeStepLength, this);
 
     geom->setVertexArray(vert);
     //geom->setColorArray(color);
@@ -172,7 +178,7 @@ static FileHandler handlers[] = {
       "bcrtf" }
 };
 
-int TrajectoriesPlugin::sloadTrajectories(const char *filename, osg::Group *loadParent, const char *)
+int TrajectoriesPlugin::sloadTrajectories(const char* filename, osg::Group* loadParent, const char*)
 {
 
     instance()->loadTrajectories(filename, loadParent);
@@ -181,32 +187,44 @@ int TrajectoriesPlugin::sloadTrajectories(const char *filename, osg::Group *load
 int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadParent)
 {
     int numTrajectories = 0;
-
+    TrajectoriesRoot = new osg::Group();
+    if (loadParent != NULL)
+    {
+        loadParent->addChild(TrajectoriesRoot);
+    }
+    else {
+        TrajectoriesRoot = cover->getObjectsRoot();
+    }
+    /*
     TrajectoriesRoot = loadParent;
     if (TrajectoriesRoot == NULL)
         TrajectoriesRoot = cover->getObjectsRoot();
+    */
+    
 #ifdef _WIN32
-    int fd = open(filename, O_RDONLY| O_BINARY);
+    int fd = open(filename, O_RDONLY | O_BINARY);
 #else
     int fd = open(filename, O_RDONLY);
 #endif
-    int numTr=0;
     if (fd >= 0)
     {
-        while(1)//for (int i = 0; i < numTrajectories; i++)
+        while (1)//for (int i = 0; i < numTrajectories; i++)
         {
-            Trajectory *tr = new Trajectory();
-            int numTimesteps = tr->readData(fd);
+            Trajectory* tr = new Trajectory();
+            int numTimesteps = tr->readData(fd, first_start_time);
             if (numTimesteps < 0)
             {
                 delete tr;
-                if(numTimesteps != -2)
+                if (numTimesteps != -2)
                     break;
             }
-            TrajectoriesRoot->addChild(tr->getGeometry());
-	    numTr++;
+            else
+            {
+                //TrajectoriesRoot->addChild(tr->getGeometry());
+                trajectories.push_back(tr);
+            }
         }
-	fprintf(stderr,"%s num Trajectories: %d\n", filename,numTr);
+        fprintf(stderr, "%s num Trajectories: %d\n", filename, trajectories.size());
     }
     else
     {
@@ -218,17 +236,76 @@ int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadP
 //--------------------------------------------------------------------
 void TrajectoriesPlugin::setTimestep(int t)
 {
-  
-}
 
-int TrajectoriesPlugin::unloadTrajectories(const char *filename, const char *)
+    //TrajectoriesRoot = cover->getObjectsRoot();
+    double timeStepTime = first_start_time + TrajectoriesPlugin::timeStepLength * t;
+    for (const auto& tr : trajectories)
+    {
+
+        // tr is in between
+        if (tr->h2.firstTimestep < timeStepTime + threshold && timeStepTime - threshold < tr->h2.lastTimestep)
+        {
+            //display it
+            if (tr->h3.visible == 0) {
+                TrajectoriesRoot->addChild(tr->getGeometry());
+                tr->h3.visible = 1;
+            }
+        }
+
+        else
+        {
+            if (tr->h3.visible != 0)
+            {
+                TrajectoriesRoot->removeChild(tr->getGeometry());
+                tr->h3.visible = 0;
+            }
+
+        }
+    }
+}
+        
+    /*
+        if (tr->h2.firstTimestep < timeStepTime + threshold && timeStepTime - threshold < tr->h2.lastTimestep && (TrajectoriesRoot->containsNode(tr->getGeometry()) == 0))
+        {
+            //display it
+            TrajectoriesRoot->addChild(tr->getGeometry());
+            //std::cout << "Inside, add to root" << std::endl;
+        }
+        // tr is in the time t, but it is already shown, do nothing
+        else if (tr->h2.firstTimestep < timeStepTime && timeStepTime < tr->h2.lastTimestep && (TrajectoriesRoot->containsNode(tr->getGeometry()) != 0))
+        {
+            //do nothing
+            //std::cout << "Do nothing, inside and already shown" << std::endl;
+        }
+        // tr not in the specified time t and tr not shown, do nothing
+        else if ((tr->h2.firstTimestep > timeStepTime || timeStepTime > tr->h2.lastTimestep) && (TrajectoriesRoot->containsNode(tr->getGeometry()) == 1))
+        {
+            // tr not in the specified time t and tr is currently shown, remove tr
+            //TrajectoriesRoot->removeChild(tr->getGeometry());
+            //std::cout << "Less than First Time Step?:  ";
+            //std::cout << (tr->h2.firstTimestep > timeStepTime) << std::endl;
+            //std::cout << "Greater than Last Time Step?: ";
+            //std::cout << (timeStepTime > tr->h2.lastTimestep) << std::endl;
+            //std::cout << "timeStepTime: ";
+            //std::cout << timeStepTime << std::endl;
+            //std::cout << "Trajectories Root -> containsNode: ";
+            //std::cout << TrajectoriesRoot->containsNode(tr->getGeometry());
+            TrajectoriesRoot->removeChild(tr->getGeometry());
+            //std::cout << "Removed Child" << std::endl;
+            //std::cout << "Check Trajectories Root -> contains Node: ";
+            //std::cout << TrajectoriesRoot->containsNode(tr->getGeometry()) << std::endl;
+        }
+    }*/
+
+
+int TrajectoriesPlugin::unloadTrajectories(const char* filename, const char*)
 {
     (void)filename;
 
     return 0;
 }
 
-void TrajectoriesPlugin::deleteColorMap(const std::string &name)
+void TrajectoriesPlugin::deleteColorMap(const std::string& name)
 {
     auto it = mapValues.find(name);
     if (it != mapValues.end())
@@ -245,7 +322,7 @@ bool TrajectoriesPlugin::init()
 
     recordRate = 1;
 
-    coConfig *config = coConfig::getInstance();
+    coConfig* config = coConfig::getInstance();
 
     // read the name of all colormaps in file
     covise::coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries("Colormaps");
@@ -254,7 +331,7 @@ bool TrajectoriesPlugin::init()
 #else
     mapNames.push_back("Editable");
 #endif
-    for (const auto &key: keys)
+    for (const auto& key : keys)
         mapNames.push_back(key.first);
 
     // read the values for each colormap
@@ -266,13 +343,13 @@ bool TrajectoriesPlugin::init()
 
         int no = keys.size();
         mapSize.emplace(mapNames[k], no);
-        float *cval = new float[no * 5];
+        float* cval = new float[no * 5];
         mapValues.emplace(mapNames[k], cval);
 
         // read all sampling points
         float diff = 1.0f / (no - 1);
         float pos = 0.0f;
-        float *cur = cval;
+        float* cur = cval;
         for (int j = 0; j < no; j++)
         {
             ostringstream out;
@@ -323,7 +400,7 @@ bool TrajectoriesPlugin::init()
     play = new ui::Button(TrajectoriesTab, "Play");
     play->setText("Play");
     play->setCallback([this](bool) {
-        
+
         });
     play->setState(false);
     playing = false;
@@ -377,7 +454,7 @@ osg::Vec4 TrajectoriesPlugin::getColor(float pos)
     osg::Vec4 actCol;
     int idx = 0;
     //cerr << "name: " << (const char *)mapNames[currentMap].toAscii() << endl;
-    float *map = mapValues[mapNames[currentMap]];
+    float* map = mapValues[mapNames[currentMap]];
     int mapS = mapSize[mapNames[currentMap]];
     if (map == NULL)
     {
