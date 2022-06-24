@@ -100,6 +100,8 @@ public:
 	void addOnConnectCallback(std::function<void(void)> function);
 	//add callback that is called when vrb disconnects
 	void addOnDisconnectCallback(std::function<void(void)> function);
+    //called after new session is set
+    void addOnSessionChangedCallback(std::function<void(void)> function);
 	//set link to covise plugin function to get message from covise socket
 	void setWaitMessagesCallback(std::function<std::vector<covise::Message*>(void)> cb);
 	//set link to covise plugin function to handle a covise message
@@ -120,6 +122,7 @@ private:
     vrb::SessionID m_privateSessionID;
 	std::vector<std::function<void(void)>> onConnectCallbacks;
 	std::vector<std::function<void(void)>> onDisconnectCallbacks;
+	std::vector<std::function<void(void)>> onSessionChangedCallbacks;
 	//covise plugin callbacks
 	std::function <std::vector<covise::Message*>(void)> waitMessagesCallback;
 	std::function<void(covise::Message*)> handleMessageCallback;

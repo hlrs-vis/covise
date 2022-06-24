@@ -128,9 +128,9 @@ void coVRCommunication::init()
 	remoteNavInteraction = new vrui::coNavInteraction(vrui::coInteraction::NoButton, "remoteNavInteraction");
 }
 
-void coVRCommunication::connected()
+void handleEvents(const std::vector<std::function<void(void)>> &events)
 {
-	for (auto function : onConnectCallbacks)
+    for (auto function : events)
 	{
 		if (function)
 		{
@@ -139,15 +139,14 @@ void coVRCommunication::connected()
 	}
 }
 
+void coVRCommunication::connected()
+{
+    handleEvents(onConnectCallbacks);
+}
+
 void coVRCommunication::disconnected()
 {
-	for (auto function : onDisconnectCallbacks)
-	{
-		if (function)
-		{
-			function();
-		}
-	}
+    handleEvents(onDisconnectCallbacks);
 }
 
 void coVRCommunication::toggleClientState(bool state){
@@ -253,6 +252,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     tb << id;
     tb << me()->ID();
     send(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
+    handleEvents(onSessionChangedCallbacks);
 }
 
 const char *coVRCommunication::getHostaddress()
@@ -848,6 +848,11 @@ void opencover::coVRCommunication::addOnConnectCallback(std::function<void(void)
 void opencover::coVRCommunication::addOnDisconnectCallback(std::function<void(void)> function)
 {
 	onDisconnectCallbacks.push_back(function);
+}
+
+void opencover::coVRCommunication::addOnSessionChangedCallback(std::function<void(void)> function)
+{
+    onSessionChangedCallbacks.push_back(function);
 }
 
 void opencover::coVRCommunication::setWaitMessagesCallback(std::function<std::vector<Message*> (void)> cb)
