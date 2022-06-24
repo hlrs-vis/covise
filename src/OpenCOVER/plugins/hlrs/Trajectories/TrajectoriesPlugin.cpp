@@ -220,7 +220,7 @@ int TrajectoriesPlugin::loadTrajectories(const char* filename, osg::Group* loadP
                 trajectories.push_back(tr);
             }
         }
-        fprintf(stderr, "%s num Trajectories: %d\n", filename, trajectories.size());
+        fprintf(stderr, "%s num Trajectories: %lu\n", filename, (unsigned long)trajectories.size());
     }
     else
     {
