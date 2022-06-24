@@ -60,6 +60,8 @@ coConfigInt::coConfigInt(const coConfigInt &value)
 
 int coConfigInt::fromString(const std::string &value) const
 {
+    if (value.size() == 0)
+        return 0;
     std::string v = toLower(value);
     int mult = 1;
     char end = v[v.size() - 1];
