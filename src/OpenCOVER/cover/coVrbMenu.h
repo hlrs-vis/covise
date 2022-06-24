@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 namespace vrb
 {
@@ -49,11 +50,12 @@ private:
     ui::FileBrowser *m_saveSession, *m_loadSession;
     std::vector<std::string> m_savedRegistries;
     std::vector<vrb::SessionID> m_availiableSessions;
-
+    std::vector<std::function<void()>> m_onSessionChangedCallbacks;
     void saveSession(const std::string &file);
     void loadSession(const std::string &filename);
     void requestNewSession(const std::string & name);
     void selectSession(int id);
+    void lauchRemotePartner(int id);
 
 public:
     VrbMenu();

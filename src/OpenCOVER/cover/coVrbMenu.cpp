@@ -38,6 +38,14 @@ VrbMenu::VrbMenu(): ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSende
 {
     coVRCommunication::instance()->addOnConnectCallback([this]() { updateState(true); });
     coVRCommunication::instance()->addOnDisconnectCallback([this]() { updateState(false); });
+    coVRCommunication::instance()->addOnSessionChangedCallback([this]() { 
+        for(const auto cb : m_onSessionChangedCallbacks)
+            cb();
+        m_onSessionChangedCallbacks.clear();
+        std::cerr << "handles on session changed" << std::endl;
+
+     });
+
 }
 
     void VrbMenu::initFileMenu()
@@ -69,21 +77,13 @@ VrbMenu::VrbMenu(): ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSende
         m_remoteLauncher->setEnabled(false);
         m_remoteLauncher->setCallback([this](int index)
                                       {
-                                          std::vector<std::string> args;
-                                          args.push_back("-C");
-                                          const auto vrbc = OpenCOVER::instance()->vrbc();
-                                          args.push_back(vrbc->getCredentials().ipAddress() + ":" + std::to_string(vrbc->getCredentials().tcpPort()));
-                                          if (!coVRCommunication::instance()->getSessionID().isPrivate())
+                                          if(coVRCommunication::instance()->getSessionID().isPrivate())
                                           {
-                                              args.push_back("-g");
-                                              args.push_back(coVRCommunication::instance()->getSessionID().name());
+                                            m_onSessionChangedCallbacks.push_back(std::bind(&VrbMenu::lauchRemotePartner, this, getRemoteLauncherClientID(index)));
+                                            requestNewSession("");
                                           }
-                                          vrb::sendLaunchRequestToRemoteLaunchers(
-                                              vrb::VRB_MESSAGE{vrbc->ID(), covise::Program::opencover,
-                                                               getRemoteLauncherClientID(index),
-                                                               std::vector<std::string>(), args, 0},
-                                              sender.get());
-                                      });
+                                          else
+                                              lauchRemotePartner(getRemoteLauncherClientID(index));});
 
         //save and load sessions
         m_ioGroup = new ui::Group("IoGroup", this);
@@ -150,6 +150,22 @@ VrbMenu::VrbMenu(): ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSende
             //inform the server about the new session
             coVRCommunication::instance()->setSessionID(*it);
         }
+    }
+
+    void VrbMenu::lauchRemotePartner(int id)
+    {
+        std::vector<std::string> args;
+        args.push_back("-C");
+        const auto vrbc = OpenCOVER::instance()->vrbc();
+        args.push_back(vrbc->getCredentials().ipAddress() + ":" + std::to_string(vrbc->getCredentials().tcpPort()));
+        if (!coVRCommunication::instance()->getSessionID().isPrivate())
+        {
+            args.push_back("-g");
+            args.push_back(coVRCommunication::instance()->getSessionID().name());
+        }
+        vrb::sendLaunchRequestToRemoteLaunchers(
+            vrb::VRB_MESSAGE{vrbc->ID(), covise::Program::opencover, id, std::vector<std::string>(), args, 0},
+            sender.get());
     }
 
     //session functions : public
