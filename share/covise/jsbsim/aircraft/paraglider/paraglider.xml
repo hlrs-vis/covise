@@ -67,11 +67,11 @@
       <z> 0 </z>
     </location>
     <pointmass name="Pilot">
-      <weight unit="KG"> 80 </weight>
+      <weight unit="KG"> 60 </weight>
       <location name="POINTMASS" unit="IN">
-        <x>  1 </x>
+        <x>  0 </x>
         <y>  0 </y>
-        <z> -230 </z>
+        <z> -160 </z> <!---230 -->
       </location>
     </pointmass>
   </mass_balance>

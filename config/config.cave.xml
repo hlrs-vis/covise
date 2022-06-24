@@ -528,7 +528,7 @@
    </PointCloud>
    <JSBSim>
    <Geometry y="-800" z="200" />
-   <Glider serverPort="1235" localPort="1234" />
+   <Glider serverPort="31319" localPort="1234" />
    <!--Sound server="141.58.8.122" /-->
    <Sound server="141.58.8.223" />
 
