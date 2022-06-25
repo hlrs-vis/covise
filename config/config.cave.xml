@@ -523,10 +523,11 @@
    <!--Module value="vranim" name="vranim" /-->
    <!--Module value="SteeringWheel" name="SteeringWheel" /-->
    <Plugin>
+   <Tacx menu="on" />
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
-   <JSBSim>
+   <JSBSim menu="on" >
    <Geometry y="-800" z="200" />
    <Glider serverPort="31319" localPort="1234" />
    <!--Sound server="141.58.8.122" /-->
