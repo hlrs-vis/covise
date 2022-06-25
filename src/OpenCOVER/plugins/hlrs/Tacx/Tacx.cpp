@@ -10,7 +10,7 @@
 #include <config/CoviseConfig.h>
 #include <iostream>
 
-static float zeroAngle = 1278.;
+static float zeroAngle = 1481.0;
 
 int Tacx::usbOpenDevice(libusb_device_handle **device, int vendor, const char *vendorName, int product, const char *productName)
 {
@@ -207,15 +207,16 @@ float Tacx::getRPM()
 float Tacx::getAngle()
 {
 
-                    fprintf(stderr,"vrdata.Lenkwinkel %d\n",vrdata.Lenkwinkel);
+                    //fprintf(stderr,"vrdata.Lenkwinkel %d\n",vrdata.Lenkwinkel);
     float angle = (vrdata.Lenkwinkel - zeroAngle) / 300.0;
-    if (angle < 0.) {
-       return -angle*angle;
-    } 
+    int diff = (vrdata.Lenkwinkel - zeroAngle);
+    if(diff < 0)
+        angle = (diff/231.0);
     else
-    {   
-       return angle*angle;
-    }
+        angle = (diff/56.0);
+	
+                    fprintf(stderr,"diff %d %d\n",diff,angle);
+    return angle;
 } // -1 - 1 min-max
 
 int Tacx::getButtons()
