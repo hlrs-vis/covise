@@ -128,7 +128,7 @@ run_campus() {
 demo 40 "Campus with Sumo" run_campus
 
 run_marienplatz() {
-    bash /data/CapeReviso/SumoMarienplatz/250x250m/startSumo.sh &
+    bash /data/CapeReviso/SumoMarienplatz/250x250m2/startSumo.sh &
     SUMO=$!
     vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
