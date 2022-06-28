@@ -55,6 +55,7 @@ bool VRAvatar::init(const std::string &hostAdress)
 {
     if (!initialized)
     {
+        initialized = true;
         handTransform = new osg::MatrixTransform;
         headTransform = new osg::MatrixTransform;
         feetTransform = new osg::MatrixTransform;
@@ -106,7 +107,6 @@ bool VRAvatar::init(const std::string &hostAdress)
         {
             cover->getObjectsRoot()->addChild(avatarNodes.get());
         }
-        initialized = true;
         return true;
     }
     return false;
