@@ -281,7 +281,7 @@ private:
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
 	int guessFileOwner(const std::string& filePath);
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
-	std::vector<covise::Message*> m_sendFileMessages;
+	std::vector<std::unique_ptr<covise::Message>> m_sendFileMessages;
 
 	//utility
     

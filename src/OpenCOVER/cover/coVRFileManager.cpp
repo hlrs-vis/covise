@@ -1917,18 +1917,18 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 			cover->sendVrbMessage(&m);
 		}
 		int message = 1;
-		Message* msg= new Message; 
-		Message* mymsg = nullptr;
 		//wait for the file
+        std::unique_ptr<Message> mymsg;
 		do
 		{
-			if (OpenCOVER::instance()->isVRBconnected() || !coVRMSController::instance()->isMaster())
+            std::unique_ptr<Message> msg(new Message);
+            if (OpenCOVER::instance()->isVRBconnected() || !coVRMSController::instance()->isMaster())
 			{
 				if (coVRMSController::instance()->isMaster())
 				{
-					OpenCOVER::instance()->vrbc()->wait(msg);
+					OpenCOVER::instance()->vrbc()->wait(msg.get());
 					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
-					coVRMSController::instance()->sendSlaves(msg);
+					coVRMSController::instance()->sendSlaves(msg.get());
 				}
 				else
 				{
@@ -1936,12 +1936,12 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 					if (message == 0)
 						return "";
 					// wait for message from master instead
-					coVRMSController::instance()->readMaster(msg);
+					coVRMSController::instance()->readMaster(msg.get());
 				}
 				//cache all send file messages
 				if (msg->type == COVISE_MESSAGE_VRB_SEND_FILE)
 				{
-					m_sendFileMessages.push_back(msg);
+					m_sendFileMessages.push_back(std::move(msg));
 				}
 				else
 				{
@@ -1966,13 +1966,13 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 			//find out if my file has been received
 			while (m != m_sendFileMessages.end())
 			{
-				TokenBuffer tb(*m);
+				TokenBuffer tb(m->get());
 				tb.rewind();
 				tb >> myID;
 				tb >> fn;
 				if (fn == std::string(filePath) && myID == coVRCommunication::instance()->getID())
 				{
-					mymsg = *m;
+					mymsg = std::move(*m);
 					m_sendFileMessages.erase(m);
 					m = m_sendFileMessages.end();
 				}
@@ -1984,7 +1984,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		} while (!mymsg);
 
 		
-		TokenBuffer tb(mymsg);
+		TokenBuffer tb(mymsg.get());
 		int myID;
 		std::string fn;
 		tb >> myID; // this should be my ID
@@ -1996,8 +1996,6 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		}
 		buf = tb.getBinary(numBytes);
 		std::string pathToTmpFile = writeFile(getFileName(std::string(filePath)), buf, numBytes);
-		delete mymsg;
-		mymsg = nullptr;
 		return pathToTmpFile;
 	}
 
