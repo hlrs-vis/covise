@@ -120,9 +120,9 @@ bool AnnotationPlugin::init()
 
     
     // hide all annotations
-    hideMenuCheckbox = new coCheckboxMenuItem("Display Annotations", !coCoviseConfig::isOn("COVER.DisplayAnnotations", false));
-    annotationsMenu->add(hideMenuCheckbox);
-    hideMenuCheckbox->setMenuListener(this);
+    showMenuCheckbox = new coCheckboxMenuItem("Display Annotations", !coCoviseConfig::isOn("COVER.DisplayAnnotations", false));
+    annotationsMenu->add(showMenuCheckbox);
+    showMenuCheckbox->setMenuListener(this);
 
     // scale all annotations
     scaleMenuPoti = new coPotiMenuItem("Scale Annotations", 0.01, 10, 1);
@@ -568,10 +568,10 @@ void AnnotationPlugin::menuEvent(coMenuItem *item)
             //tuiNewButton->setState(annotationsMenuCheckbox->getState());
         }
     }
-    else if (item == hideMenuCheckbox)
+    else if (item == showMenuCheckbox)
     {
         //toggle all Annotations (in)visible
-        setAllVisible(hideMenuCheckbox->getState());
+        setAllVisible(showMenuCheckbox->getState());
 
         //update Tablet UI
         //tuiShowButton->setState(hideMenuCheckbox->getState());
@@ -925,7 +925,7 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 
                 curr
                     = new Annotation(mm->id, mm->sender, pick, scaleMenuPoti->getValue(), orientation);
-                if (hideMenuCheckbox->getState() == true)
+                if (showMenuCheckbox->getState() == false)
                     curr->setVisible(false);
                 curr->setOwnerID(mm->sender);
                 previousAnnotation = activeAnnotation; //remember last selected annotation

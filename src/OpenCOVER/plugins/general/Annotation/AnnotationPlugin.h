@@ -146,7 +146,7 @@ private:
     coCheckboxMenuItem *annotationsMenuCheckbox;
     coSubMenuItem *annotationsMenuItem;
     coPotiMenuItem *scaleMenuPoti;
-    coCheckboxMenuItem *hideMenuCheckbox;
+    coCheckboxMenuItem *showMenuCheckbox;
     coButtonMenuItem *deleteAllButton;
     coButtonMenuItem *unlockAllButton;
     coRowMenu *annotationsMenu;
