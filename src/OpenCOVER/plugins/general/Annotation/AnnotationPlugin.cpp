@@ -473,7 +473,7 @@ int AnnotationPlugin::getCollabID()
 {
     int id = coVRCommunication::instance()->getID();
 
-    if (false && id != collabID)
+    if (id != collabID)
     {
         // we've entered collaboration mode
         // we need to change annotation IDs to our new
