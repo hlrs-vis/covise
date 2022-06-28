@@ -1359,10 +1359,48 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 	fileName.erase(0, abs.length());
 	return true;
 }
+
+void coVRFileManager::fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner)
+{
+    std::cerr << "fetching obj materials for " << remotePath << " from  " << fileOwner << std::endl;
+    std::string ending = ".obj";
+    if (localPath.substr(localPath.size() - ending.size(), ending.size()) == ending)
+    {
+        auto f = fstream(localPath);
+        if(!f.is_open())
+        {
+            std::cerr << "fetchObjMaterials: failed to open file  " << localPath << std::endl;
+            return;
+        }
+        std::string line;
+        while (std::getline(f, line))
+        {
+            std::istringstream iss(line);
+            std::string keyword;
+            iss >> keyword;
+            if (keyword != "mtllib")
+                continue;
+            while(!iss.eof())
+            {
+                std::string mat;
+                iss >> mat;
+                if(mat[0] == '/' || remotePath.find('/') == std::string::npos)//absolute path
+                    remoteFetch(mat, fileOwner);
+                else if(remotePath.find('/') != std::string::npos){
+                    auto dir = remotePath.substr(0, remotePath.find_last_of('/') + 1);
+                    remoteFetch(dir + mat, fileOwner);
+                }
+            }
+
+        }
+
+    }
+}
+
 std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
 {
-	coVRMSController* ms = coVRMSController::instance();
-	enum FilePlace
+    coVRMSController *ms = coVRMSController::instance();
+    enum FilePlace
 	{
 		MISS = 0,	//file not found
 		LOCAL,		//local file
@@ -1466,6 +1504,8 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 			if (fileExist(path))
 			{
 				//isTmp = true; //dont ever delete tmp files
+                fetchObjMaterials(path, filePath, fileOwner);
+
 				filePlace = REMOTE;
 			}
 		}

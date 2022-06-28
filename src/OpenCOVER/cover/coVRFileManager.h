@@ -205,7 +205,10 @@ public:
 
 	///request the file from vrb -> file gets copied to tmp
 	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
-	///compares the url with m_sharedFiles. If found returns its position in, else -1;
+    //parse obj file and request the used material files
+    void fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner);
+
+    ///compares the url with m_sharedFiles. If found returns its position in, else -1;
 	int getFileId(const char* url);
 
 	///get the filename + extension from a path: path/fileName -> fileName
