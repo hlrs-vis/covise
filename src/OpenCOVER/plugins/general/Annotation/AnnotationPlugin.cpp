@@ -708,6 +708,7 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
             {
                 TokenBuffer tb2;
                 tb2 << activeAnnotation->getID();
+		tb2 << activeAnnotation->getDocumentID();
                 tb2 << activeAnnotation->getOwnerID();
                 tb2 << text;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
@@ -1182,6 +1183,8 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
         TokenBuffer tb(DataHandle((char *)buf, len, false));
         int id;
         tb >> id;
+        int document;
+        tb >> document;
         int owner;
         tb >> owner;
         const char *text;

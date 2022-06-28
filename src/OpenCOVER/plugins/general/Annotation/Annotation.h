@@ -32,6 +32,7 @@ class Annotation
 {
 private:
     int id; ///< id of this annotation
+    int documentID=-1; ///< id of this annotation
     int owner; ///< owner ID of this annotation
 
     osg::Group *mainGroup; ///< osg node for this instance
@@ -107,6 +108,9 @@ public:
 
     /// Returns the owner id; -1 in case of no owner
     int getOwnerID() const;
+    
+    /// Returns the owner documentID; -1 in case of no documentID
+    int getDocumentID() const {return documentID;};
 
     /// set the owner id; set to -1 if no owner
     void setOwnerID(const int id);
