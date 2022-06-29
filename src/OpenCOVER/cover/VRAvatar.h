@@ -54,7 +54,7 @@ public:
     osg::Node *hostIconNode;
     osg::ref_ptr<osg::Group> avatarNodes;
     ///create an Avatar that only holds the local tramsfom matrices 
-    ///Used to collect the date to send it to the partners
+    ///Used to collect the data to send it to the partners
     VRAvatar();
     ///create an Avatar for a remote partner that hold his informations
     VRAvatar(coVRPartner *partner);
