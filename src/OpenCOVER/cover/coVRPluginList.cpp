@@ -67,7 +67,30 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
     if (handle == NULL)
     {
         if (showErrors)
+        {
             cerr << "ERROR: could not load shared Library " << libName << endl;
+            auto showenv = [](const std::string &var)
+            {
+                const char *val = getenv(var.c_str());
+                if (val)
+                {
+                    std::cerr << var << "=" << val << std::endl;
+                }
+                else
+                {
+                    std::cerr << var << " not set" << std::endl;
+                }
+            };
+#if defined(__APPLE__)
+            showenv("VISTLE_DYLD_LIBRARY_PATH");
+            showenv("DYLD_LIBRARY_PATH");
+            showenv("DYLD_FRAMEWORK_PATH");
+#elif defined(__linux)
+            showenv("LD_LIBRARY_PATH");
+#else
+#endif
+            showenv("PATH");
+        }
         return NULL;
     }
     coVRPluginInitFunc *initFunc = (coVRPluginInitFunc *)coVRDynLib::dlsym(handle, "coVRPluginInit");
