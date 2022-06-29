@@ -72,8 +72,11 @@ CefRefPtr<CefClient> CEF::GetDefaultClient()
 
 void CEF::message(int toWhom, int type, int length, const void *data)
 {
-    if(type == opencover::PluginMessageTypes::Browser)
-        open((const char *)data);
+    if (type == opencover::PluginMessageTypes::Browser)
+    {
+        std::string url(static_cast<const char *>(data), length);
+        open(url.c_str());
+    }
 }
 
 
