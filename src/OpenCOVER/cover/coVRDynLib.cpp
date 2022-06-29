@@ -80,7 +80,15 @@ const char *coVRDynLib::dlerror(void)
 {
 
 #if defined(SVR4_DYNAMIC_LINKING)
-    return ::dlerror();
+    const char *err = ::dlerror();
+    if (err)
+    {
+        return err;
+    }
+    else
+    {
+        return "";
+    }
 
 #elif defined(__hpux)
     return ::strerror(errno);
