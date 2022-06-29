@@ -49,6 +49,8 @@ public:
     void addMessage(char *);
     void createCurves(VrbUiClient *);
     void removeCurves(VrbUiClient *);
+    void setPort(const std::string& name, int port);
+
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -78,7 +80,7 @@ private:
     QFrame *msgFrame;
     QTimer *timer, *start;
     QTabWidget *tabs;
-
+    QMenu *help = nullptr;
     QGridLayout *grid[MaxCurve];
     QFrame *wtab[MaxCurve];
 

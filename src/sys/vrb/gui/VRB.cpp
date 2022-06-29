@@ -88,9 +88,11 @@ int main(int argc, char **argv)
 		{
 			cerr << "failed to open udp socket" << endl;
 		}
-		int exitcode = a.exec();
+        mw->setPort("Tcp", server.getPort());
+        mw->setPort("Udp", server.getUdpPort());
+        int exitcode = a.exec();
 
-		server.closeServer();
+        server.closeServer();
 		return exitcode;
 	}
 	else

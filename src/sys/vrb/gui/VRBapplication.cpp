@@ -37,6 +37,8 @@
 #include <QWhatsThis>
 #include <QWidget>
 #include <qtutil/Qt5_15_deprecated.h>
+#include <QLineEdit>
+#include <QWidgetAction>
 //#include <QAccel>
 
 #include "icons/filenew.xpm"
@@ -229,7 +231,7 @@ void ApplicationWindow::createMenubar()
     styleMenu->addActions(ag->actions());
 
     // Help menu
-    QMenu *help = new QMenu(tr("&Help"), this);
+    help = new QMenu(tr("&Help"), this);
     help->addAction("&About", this, SLOT(about()), Qt::Key_F1);
     help->addSeparator();
     help->addAction("What's &This", this, SLOT(enterWhatsThis()), Qt::SHIFT + Qt::Key_F1);
@@ -239,6 +241,19 @@ void ApplicationWindow::createMenubar()
     menuBar()->addMenu(styleMenu);
     menuBar()->addMenu(help);
 }
+
+void ApplicationWindow::setPort(const std::string&name, int port)
+{
+    QString t = name.c_str();
+    t += "-port: " + QString::number(port);
+    QLineEdit *text = new QLineEdit(t);
+    text->setEnabled(false);
+    QWidgetAction *action1 = new QWidgetAction(help);
+    action1->setDefaultWidget(text);
+    help->addAction(action1);
+}
+
+
 
 //------------------------------------------------------------------------
 // create all stuff for the toolbar

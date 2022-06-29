@@ -133,6 +133,16 @@ void VRBServer::removeConnection(const covise::Connection * conn)
     }
 }
 
+int VRBServer::getPort()
+{
+    return m_tcpPort;
+}
+
+int VRBServer::getUdpPort()
+{
+    return m_udpPort;
+}
+
 int VRBServer::openServer(bool printport)
 {
     if (printport) {

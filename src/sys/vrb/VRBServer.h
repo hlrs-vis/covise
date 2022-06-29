@@ -47,7 +47,8 @@ public:
     int openServer(bool printport);
     void closeServer();
     void removeConnection(const covise::Connection *conn) override;
-
+    int getPort();
+    int getUdpPort();
 
 private:
     bool m_gui;
