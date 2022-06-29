@@ -21,6 +21,8 @@
 
 #include "VRBapplication.h"
 
+#include "listVRBs.h"
+
 ApplicationWindow *mw;
 
 int main(int argc, char **argv)
@@ -55,6 +57,16 @@ int main(int argc, char **argv)
         {
             help = true;
         }
+        if (strcmp(argv[i], "--list") == 0)
+        {
+            listShm();
+            return 0;
+        }
+        if (strcmp(argv[i], "--cleanShm") == 0)
+        {
+            cleanShm();
+            return 0;
+        }
     }
     if (help)
     {
@@ -62,6 +74,7 @@ int main(int argc, char **argv)
         std::cerr << "  --help:        print this message" << std::endl;
         std::cerr << "  --tui:         use text user interface" << std::endl;
         std::cerr << "  --console:     use text user interface" << std::endl;
+        std::cerr << "  --list:        list all running VRBs" << std::endl;
         std::cerr << "  --printport:   let VRB chose a port and print it to commandline" << std::endl;
 
         return 0;
@@ -90,6 +103,7 @@ int main(int argc, char **argv)
         }
         mw->setPort("Tcp", server.getPort());
         mw->setPort("Udp", server.getUdpPort());
+        auto remover = placeSharedProcessInfo(server.getPort());
         int exitcode = a.exec();
 
         server.closeServer();
@@ -106,6 +120,7 @@ int main(int argc, char **argv)
         {
             cerr << "failed to open udp socket" << endl;
         }
+        auto remover = placeSharedProcessInfo(server.getPort());
         if (!gui)
         {
             server.loop();

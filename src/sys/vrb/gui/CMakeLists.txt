@@ -15,26 +15,28 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(VRB_SOURCES
-  VRB.cpp
-  VRBapplication.cpp
-  VRBPopupMenu.cpp
-  VRBCurve.cpp
-  VRBFileDialog.cpp
-  coRegister.cpp
   ../VRBServer.cpp
   ../VrbUiClientList.cpp
   ../VrbUiMessageHandler.cpp
+  VRB.cpp
+  VRBCurve.cpp
+  VRBFileDialog.cpp
+  VRBPopupMenu.cpp
+  VRBapplication.cpp
+  coRegister.cpp
+  listVRBs.cpp
 )
 
 SET(VRB_MOC_HEADERS
-  VRBapplication.h
-  VRBPopupMenu.h
-  VRBCurve.h
-  VRBFileDialog.h
-  coRegister.h
   ../VRBServer.h
   ../VrbUiClientList.h
   ../VrbUiMessageHandler.h
+  VRBCurve.h
+  VRBFileDialog.h
+  VRBPopupMenu.h
+  VRBapplication.h
+  coRegister.h
+  listVRBs.h
 )
 
 SET(VRB_MOC_SRCS
