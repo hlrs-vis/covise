@@ -33,25 +33,25 @@ int main(int argc, char **argv)
     auto lastslash = exec.rfind('/');
     if (lastslash != std::string::npos)
     {
-        exec = exec.substr(lastslash+1);
+        exec = exec.substr(lastslash + 1);
     }
     bool gui = exec != "vrbc";
 
     for (size_t i = 0; i < argc; i++)
     {
-        if (strcmp(argv[i], "--console")==0)
+        if (strcmp(argv[i], "--console") == 0)
         {
             gui = false;
         }
-        if (strcmp(argv[i], "--tui")==0)
+        if (strcmp(argv[i], "--tui") == 0)
         {
             gui = false;
         }
-        if (strcmp(argv[i], "--printport")==0)
+        if (strcmp(argv[i], "--printport") == 0)
         {
             printport = true;
         }
-        if (strcmp(argv[i], "--help")==0)
+        if (strcmp(argv[i], "--help") == 0)
         {
             help = true;
         }
@@ -69,50 +69,50 @@ int main(int argc, char **argv)
 
     if (gui)
     {
-		QApplication a(argc, argv);
+        QApplication a(argc, argv);
 #ifdef __APPLE__
-		a.setAttribute(Qt::AA_DontShowIconsInMenus);
+        a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-		a.setWindowIcon(QIcon(":/icons/vrbIcon.png"));
+        a.setWindowIcon(QIcon(":/icons/vrbIcon.png"));
 
-		mw = new ApplicationWindow();
-		mw->setWindowTitle("VRB");
-		mw->show();
-		a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
-		VRBServer server(gui);
-		if (server.openServer(printport) < 0)
-		{
-			return -1;
-		}
-		if (!printport && !server.startUdpServer())
-		{
-			cerr << "failed to open udp socket" << endl;
-		}
+        mw = new ApplicationWindow();
+        mw->setWindowTitle("VRB");
+        mw->show();
+        a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+        VRBServer server(gui);
+        if (server.openServer(printport) < 0)
+        {
+            return -1;
+        }
+        if (!printport && !server.startUdpServer())
+        {
+            cerr << "failed to open udp socket" << endl;
+        }
         mw->setPort("Tcp", server.getPort());
         mw->setPort("Udp", server.getUdpPort());
         int exitcode = a.exec();
 
         server.closeServer();
-		return exitcode;
-	}
-	else
-	{
-		VRBServer server(gui);
-		if (server.openServer(printport) < 0)
-		{
-			return -1;
-		}
-		if (!printport && !server.startUdpServer())
-		{
-			cerr << "failed to open udp socket" << endl;
-		}
-		if (!gui)
-		{
-			server.loop();
-		}
-		int exitcode = 0;
+        return exitcode;
+    }
+    else
+    {
+        VRBServer server(gui);
+        if (server.openServer(printport) < 0)
+        {
+            return -1;
+        }
+        if (!printport && !server.startUdpServer())
+        {
+            cerr << "failed to open udp socket" << endl;
+        }
+        if (!gui)
+        {
+            server.loop();
+        }
+        int exitcode = 0;
 
-		server.closeServer();
-		return exitcode;
-	}
+        server.closeServer();
+        return exitcode;
+    }
 }
