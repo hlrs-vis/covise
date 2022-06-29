@@ -24,7 +24,7 @@ class SessionID;
 }
 namespace opencover
 {
-class VRAvatar;
+class PartnerAvatar;
 namespace ui
 {
 class ButtonGroup;
@@ -36,7 +36,7 @@ class COVEREXPORT coVRPartner: public ui::Owner, public vrb::RemoteClient
 
 private:
     ui::CollaborativePartner *m_ui = nullptr;
-    VRAvatar *m_avatar = nullptr;
+    PartnerAvatar *m_avatar = nullptr;
 
 public:
     coVRPartner();
@@ -49,8 +49,8 @@ public:
     void becomeMaster();
 
     void setFile(const char *fileName);
-    VRAvatar *getAvatar();
-    void setAvatar(VRAvatar *avatar);
+    PartnerAvatar *getAvatar();
+    void setAvatar(PartnerAvatar *avatar);
 
     virtual ~coVRPartner();
 };

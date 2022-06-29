@@ -41,7 +41,7 @@ opencover::VRAvatar::VRAvatar()
 
 }
 
-VRAvatar::VRAvatar(coVRPartner *partner)
+PartnerAvatar::PartnerAvatar(coVRPartner *partner)
     :m_partner(partner)
 {
    handTransform = nullptr; 
@@ -51,7 +51,7 @@ VRAvatar::VRAvatar(coVRPartner *partner)
    
 }
 
-bool VRAvatar::init(const std::string &hostAdress)
+bool PartnerAvatar::init(const std::string &hostAdress)
 {
     if (!initialized)
     {

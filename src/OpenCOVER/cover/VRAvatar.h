@@ -36,15 +36,12 @@ class MatrixTransform;
 namespace opencover
 {
 class coVRPartner;
+
+
 class COVEREXPORT VRAvatar
 {
-private:
-    //static float rc[10];
-    //static float gc[10];
-    //static float bc[10];
 public:
     bool initialized = false;
-    coVRPartner *m_partner;
     osg::MatrixTransform *handTransform;
     osg::Node *handNode;
     osg::MatrixTransform *headTransform;
@@ -56,15 +53,24 @@ public:
     ///create an Avatar that only holds the local tramsfom matrices 
     ///Used to collect the data to send it to the partners
     VRAvatar();
-    ///create an Avatar for a remote partner that hold his informations
-    VRAvatar(coVRPartner *partner);
-    ///initalize avatar if not initialized. Return true if sth. is done
-    bool init(const std::string &hostAdress);
+
+    /// initalize avatar if not initialized. Return true if sth. is done
     virtual ~VRAvatar();
     void show();
     void hide();
-    //osg::Node *genNode();
-    //void updateData(VRAvatarData &ad);
+
+};
+
+///create an Avatar for a remote partner that hold his informations
+class COVEREXPORT PartnerAvatar : public VRAvatar
+{
+public:
+    PartnerAvatar(coVRPartner *partner);
+    bool init(const std::string &hostAdress);
+private:
+    coVRPartner *m_partner;
+};
+
 };
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar);
 COVEREXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, opencover::VRAvatar &avatar);

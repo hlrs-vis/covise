@@ -43,14 +43,14 @@ coVRPartner::coVRPartner()
     : ui::Owner("VRPartner-Me", cover->ui)
     , vrb::RemoteClient(covise::Program::opencover)
 {
-    m_avatar = new VRAvatar(this);
+    m_avatar = new PartnerAvatar(this);
 }
 
 coVRPartner::coVRPartner(RemoteClient &&me)
     : ui::Owner("VRPartner_"+std::to_string(me.ID()), cover->ui)
     , vrb::RemoteClient(std::move(me))
 {
-    m_avatar = new VRAvatar(this);
+    m_avatar = new PartnerAvatar(this);
     updateUi();
 }
 
@@ -138,12 +138,12 @@ void coVRPartner::updateUi()
     m_ui->setState(isMaster());
 }
 
-VRAvatar * opencover::coVRPartner::getAvatar()
+PartnerAvatar * opencover::coVRPartner::getAvatar()
 {
     return m_avatar;
 }
 
-void opencover::coVRPartner::setAvatar(VRAvatar * avatar)
+void opencover::coVRPartner::setAvatar(PartnerAvatar * avatar)
 {
     m_avatar = avatar;
 }
@@ -311,7 +311,7 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
     tb >> sender; 
     tb >> adress;
     auto p = get(sender);
-    VRAvatar *av = p->getAvatar();
+    auto av = p->getAvatar();
     if (av->init(adress))
     {
         if (m_avatarsVisible && p->ID() != coVRCommunication::instance()->getID() && p->sessionID() == coVRCommunication::instance()->getSessionID())
