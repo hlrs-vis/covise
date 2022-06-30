@@ -43,20 +43,20 @@ namespace OpenFOAMInterface.BIM
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             m_Revit = commandData.Application;
-            FOAMInterface.Singleton.Settings.SetDocument(m_Revit);
+            FOAMInterface.Singleton.Data.SetDocument(m_Revit);
             string fileName = "wallSTL.stl";
 
             // save Revit document's triangular data in a temporary file, generate openFOAM-casefolder and start simulation
-            Directory.CreateDirectory(FOAMInterface.Singleton.Settings.LocalCaseFolder);
-            Directory.CreateDirectory(FOAMInterface.Singleton.Settings.LocalCaseFolder + "\\constant");
-            Directory.CreateDirectory(FOAMInterface.Singleton.Settings.LocalCaseFolder + "\\constant\\triSurface");
+            Directory.CreateDirectory(FOAMInterface.Singleton.Data.LocalCaseFolder);
+            Directory.CreateDirectory(FOAMInterface.Singleton.Data.LocalCaseFolder + "\\constant");
+            Directory.CreateDirectory(FOAMInterface.Singleton.Data.LocalCaseFolder + "\\constant\\triSurface");
 
             DataGenerator Generator = new(m_Revit.Application, m_Revit.ActiveUIDocument.Document);
             DataGenerator.GeneratorStatus succeed = Generator.SaveSTLFile(fileName);
             if (succeed == DataGenerator.GeneratorStatus.SUCCESS)
             {
-                FOAMInterface.Singleton.Settings.InitConfigs();
-                succeed = Generator.CreateOpenFOAMCase(FOAMInterface.Singleton.Settings.LocalCaseFolder);
+                FOAMInterface.Singleton.Data.InitConfigs();
+                succeed = Generator.CreateOpenFOAMCase(FOAMInterface.Singleton.Data.LocalCaseFolder);
             }
 
             if (succeed == DataGenerator.GeneratorStatus.SUCCESS)

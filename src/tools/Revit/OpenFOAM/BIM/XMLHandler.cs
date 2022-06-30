@@ -17,15 +17,15 @@ namespace BIM.OpenFOAMExport
     /// </summary>
     public class XMLHandler
     {
-        Settings m_Settings;
+        Data m_Data;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="settings">Settings-object for current project.</param>
-        public XMLHandler(Settings settings)
+        /// <param name="settings">Data-object for current project.</param>
+        public XMLHandler(Data settings)
         {
-            m_Settings = settings;
+            m_Data = settings;
             CreateConfig();
         }
 
@@ -40,11 +40,11 @@ namespace BIM.OpenFOAMExport
                 XmlDocument doc = new XmlDocument();
                 doc.Load(path);
 
-                Dictionary<string, object> dict = m_Settings.SimulationDefault;
+                Dictionary<string, object> dict = m_Data.SimulationDefault;
                 List<string> keyPath = new List<string>();
                 //keyPath.Add("OpenFOAMConfig");
                 //keyPath.Add("DefaultParameter");
-                UpdateSettings(doc, keyPath, dict);
+                UpdateData(doc, keyPath, dict);
 
                 //XmlTextReader reader = new XmlTextReader(path);
                 //while (reader.Read())
@@ -90,14 +90,14 @@ namespace BIM.OpenFOAMExport
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="dict"></param>
-        private void UpdateSettings(XmlDocument doc, List<string> keyPath, Dictionary<string, object> dict)
+        private void UpdateData(XmlDocument doc, List<string> keyPath, Dictionary<string, object> dict)
         {
             foreach (var entry in dict)
             {
                 if (entry.Value is Dictionary<string, object> newLevel)
                 {
                     keyPath.Add(entry.Key);
-                    UpdateSettings(doc, keyPath, newLevel);
+                    UpdateData(doc, keyPath, newLevel);
                     break;
                 }
                 else if (entry.Value is System.Collections.ArrayList newLevelArray)
@@ -106,11 +106,11 @@ namespace BIM.OpenFOAMExport
                 else if (entry.Value is FOAMParameterPatch<dynamic> patch)
                 {
                     keyPath.Add(entry.Key);
-                    UpdateSettings(doc, keyPath, patch.Attributes);
+                    UpdateData(doc, keyPath, patch.Attributes);
                 }
                 else
                 {
-                    UpdateSettingsBasedOnXmlEntry(doc, keyPath, entry.Key, entry.Value);
+                    UpdateDataBasedOnXmlEntry(doc, keyPath, entry.Key, entry.Value);
                 }
             }
         }
@@ -119,10 +119,10 @@ namespace BIM.OpenFOAMExport
         /// Update settings.
         /// </summary>
         /// <param name="doc">Xml document.</param>
-        /// <param name="keyPath">Path to attribute in SimulationDefault in Settings.</param>
+        /// <param name="keyPath">Path to attribute in SimulationDefault in Data.</param>
         /// <param name="entryName">Name of node in settings.</param>
         /// <param name="entryValue">Value in settings.</param>
-        private void UpdateSettingsBasedOnXmlEntry(XmlDocument doc, List<string> keyPath, string entryName, object entryValue)
+        private void UpdateDataBasedOnXmlEntry(XmlDocument doc, List<string> keyPath, string entryName, object entryValue)
         {
             keyPath.Add(entryName);
             string xmlPath = GetXmlPath(keyPath);
@@ -174,7 +174,7 @@ namespace BIM.OpenFOAMExport
             }
             if(value != null)
             {
-                m_Settings.UpdateSettingsEntry(keyPath, value);
+                m_Data.UpdateDataEntry(keyPath, value);
             }
         }
 
@@ -216,7 +216,7 @@ namespace BIM.OpenFOAMExport
                 );
 
                 var defaultElement = new XElement("DefaultParameter");
-                Dictionary<string, object> dict = m_Settings.SimulationDefault;
+                Dictionary<string, object> dict = m_Data.SimulationDefault;
                 CreateXMLTree(defaultElement, dict);
                 elements.Add(defaultElement);
 
@@ -224,15 +224,15 @@ namespace BIM.OpenFOAMExport
 
                 XElement ssh = config.Root.Element("SSH");
                 ssh.Add(
-                        new XElement("user", m_Settings.SSH.User),
-                        new XElement("host", m_Settings.SSH.ServerIP),
-                        new XElement("serverCasePath", m_Settings.SSH.ServerCaseFolder),
-                        new XElement("ofAlias", m_Settings.SSH.OfAlias),
-                        new XElement("port", m_Settings.SSH.Port.ToString()),
-                        new XElement("tasks", m_Settings.SSH.SlurmCommand.ToString()),
-                        new XElement("download", m_Settings.SSH.Download),
-                        new XElement("delete", m_Settings.SSH.Delete),
-                        new XElement("slurm", m_Settings.SSH.Slurm)
+                        new XElement("user", m_Data.SSH.User),
+                        new XElement("host", m_Data.SSH.ServerIP),
+                        new XElement("serverCasePath", m_Data.SSH.ServerCaseFolder),
+                        new XElement("ofAlias", m_Data.SSH.OfAlias),
+                        new XElement("port", m_Data.SSH.Port.ToString()),
+                        new XElement("tasks", m_Data.SSH.SlurmCommand.ToString()),
+                        new XElement("download", m_Data.SSH.Download),
+                        new XElement("delete", m_Data.SSH.Delete),
+                        new XElement("slurm", m_Data.SSH.Slurm)
                 );
                 config.Save(configPath);
             }

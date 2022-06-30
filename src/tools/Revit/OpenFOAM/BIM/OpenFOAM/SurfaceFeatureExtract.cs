@@ -33,7 +33,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this File.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary.</param>
-        /// <param name="settings">Settings-object</param>
+        /// <param name="settings">Data-object</param>
         /// <param name="stlName">Name of the stl</param>
         public SurfaceFeatureExtract(in Version version, in string path, in Dictionary<string, object> attributes, in Dictionary<KeyValuePair<string, Document>, KeyValuePair<List<Face>, Transform>> faces, in SaveFormat format, in string stlName)
             : base("surfaceFeatureExtractDict", "dictionary", version, path, attributes, format)
@@ -54,7 +54,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             foreach(var face in m_Faces)
                 FoamFile.Attributes.Add(face.Key.Key + ".stl", m_DictFile);
 
-            var s = FOAMInterface.Singleton.Settings;
+            var s = FOAMInterface.Singleton.Data;
             foreach (var entry in s.MeshResolution)
             {
                 var name = AutodeskHelperFunctions.GenerateNameFromElement(entry.Key);

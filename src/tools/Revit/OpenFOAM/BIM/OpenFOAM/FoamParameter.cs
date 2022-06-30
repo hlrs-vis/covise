@@ -88,13 +88,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this file.</param>
         /// <param name="attributes">Additional attributs.</param>
         /// <param name="format">Format of this file.</param>
-        /// <param name="settings">Settings-object</param>
+        /// <param name="settings">Data-object</param>
         /// <param name="_class">Specify class of Parameter.</param>
         /// <param name="_name">Name of the FoamParameter.</param>
         /// <param name="_wallName">Name of the patch wall.</param>
         /// <param name="_InletNames">Patchnames of the inlets as string-array.</param>
         /// <param name="_OutletNames">Patchnames of the outlets as string-array.</param>
-        public FOAMParameter(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Settings settings, string _name, string _class, List<string> _wallNames,
+        public FOAMParameter(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Data settings, string _name, string _class, List<string> _wallNames,
             List<string> _InletNames, List<string> _OutletNames, List<string> _SlipNames)
             : base(_name, _class, version, path, attributes, format)
         {

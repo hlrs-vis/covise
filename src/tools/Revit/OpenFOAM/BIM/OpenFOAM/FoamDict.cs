@@ -38,7 +38,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this File.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary.</param>
-        /// <param name="settings">Settings-object</param>
+        /// <param name="settings">Data-object</param>
         public FOAMDict(string _name, string _class, Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
         {
             if (format == SaveFormat.ascii)
@@ -49,7 +49,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             {
                 m_FoamFile = new FoamFileAsBinary(_name, version, path, _class, attributes, format);
             }
-            Dictionary<string, object> m_ParentDictionary = FOAMInterface.Singleton.Settings.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
+            Dictionary<string, object> m_ParentDictionary = FOAMInterface.Singleton.Data.SimulationDefault[FoamFile.Location.Trim('"')] as Dictionary<string, object>;
             m_DictFile = m_ParentDictionary[_name] as Dictionary<string, object>;
         }
 

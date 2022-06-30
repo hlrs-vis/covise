@@ -17,7 +17,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
     public class TransportProperties : FOAMDict
     {
         /// <summary>
-        /// Transportmodel that has to be set in Settings.
+        /// Transportmodel that has to be set in Data.
         /// </summary>
         private TransportModel m_TransportModel;
 
@@ -28,7 +28,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this File.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary.</param>
-        /// <param name="settings">Settings-objects</param>
+        /// <param name="settings">Data-objects</param>
         public TransportProperties(Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
             : base("transportProperties", "dictionary", version, path, attributes, format)
         {
@@ -40,8 +40,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_TransportModel = FOAMInterface.Singleton.Settings.TransportModel;
-            Dictionary<string, object> transportModelParameterSettings = m_DictFile["transportModelParameter"] as Dictionary<string, object>;
+            m_TransportModel = FOAMInterface.Singleton.Data.TransportModel;
+            Dictionary<string, object> transportModelParameterData = m_DictFile["transportModelParameter"] as Dictionary<string, object>;
 
             //nu-Unit = default
             int[] m_Unit = new int[] { 0, 2, -1, 0, 0, 0, 0 };
@@ -51,7 +51,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             if (m_TransportModel != TransportModel.Newtonian)
             {
                 Dictionary<string, object> transportModelParemeter = new Dictionary<string, object>();
-                foreach (var v in transportModelParameterSettings)
+                foreach (var v in transportModelParameterData)
                 {
                     if (v.Key.Equals("function polynomial"))
                     {
@@ -74,12 +74,12 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
             else
             {
-                foreach (var obj in transportModelParameterSettings)
+                foreach (var obj in transportModelParameterData)
                 {
                     m_Unit = ChangeDimension(obj.Key);
                     if (m_Unit != null)
                     {
-                        modelParameterValue = AddUnit(m_Unit, transportModelParameterSettings[obj.Key]);
+                        modelParameterValue = AddUnit(m_Unit, transportModelParameterData[obj.Key]);
                         FoamFile.Attributes.Add(obj.Key + " " + obj.Key, modelParameterValue);
                     }
                     else

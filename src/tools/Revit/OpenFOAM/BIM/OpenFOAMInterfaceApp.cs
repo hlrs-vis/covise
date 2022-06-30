@@ -21,7 +21,7 @@ namespace OpenFOAMInterface.BIM
     using Structs.General;
     public sealed class FOAMInterface
     {
-        public Settings Settings = null;
+        public Data Data = null;
         public static FOAMInterface Singleton
         {
             get
@@ -110,7 +110,7 @@ namespace OpenFOAMInterface.BIM
             try
             {
                 //set default settings
-                FOAMInterface.Singleton.Settings = Settings.Default;
+                FOAMInterface.Singleton.Data = Data.Default;
 
                 string appName = "OpenFOAM Interface";
                 RibbonPanel panel = application.CreateRibbonPanel(appName);

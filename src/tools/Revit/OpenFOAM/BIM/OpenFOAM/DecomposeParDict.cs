@@ -30,7 +30,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this File.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary.</param>
-        /// <param name="settings">Settings-objects</param>
+        /// <param name="settings">Data-objects</param>
         public DecomposeParDict(Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
             : base("decomposeParDict", "dictionary", version, path, attributes, format)
         {
@@ -45,7 +45,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            m_NumberOfSubdomains = FOAMInterface.Singleton.Settings.NumberOfSubdomains;
+            m_NumberOfSubdomains = FOAMInterface.Singleton.Data.NumberOfSubdomains;
             FoamFile.Attributes.Add("numberOfSubdomains", m_NumberOfSubdomains);
             base.InitAttributes();
         }

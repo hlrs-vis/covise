@@ -50,7 +50,7 @@ namespace OpenFOAMInterface.BIM
         /// <param name="format">File format.</param>
         public SaveData(string fileName, SaveFormat format)
         {
-            m_FileName = FOAMInterface.Singleton.Settings.LocalCaseFolder + "\\constant\\triSurface\\" + fileName;
+            m_FileName = FOAMInterface.Singleton.Data.LocalCaseFolder + "\\constant\\triSurface\\" + fileName;
             m_SaveFormat = format;
         }
 

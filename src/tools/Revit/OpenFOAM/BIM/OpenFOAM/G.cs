@@ -21,8 +21,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this file.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary</param>
-        /// <param name="settings">Settings-object</param>
-        public G(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Settings settings)
+        /// <param name="settings">Data-object</param>
+        public G(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, Data settings)
             : base("g", "uniformDimensionedVectorField", version, path, attributes, format)
         {
             InitAttributes();

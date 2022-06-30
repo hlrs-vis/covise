@@ -25,7 +25,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this file.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary</param>
-        /// <param name="settings">Settings-object</param>
+        /// <param name="settings">Data-object</param>
         /// <param name="_functions">Additional functions as string</param>
         public ControlDict(Version version, string path, Dictionary<string, object> attributes, SaveFormat format, string _functions)
             : base("controlDict", "dictionary", version, path, attributes, format)
@@ -40,7 +40,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// </summary>
         public override void InitAttributes()
         {
-            FoamFile.Attributes.Add("application", FOAMInterface.Singleton.Settings.ControlDictParameters.AppControlDictSolver);
+            FoamFile.Attributes.Add("application", FOAMInterface.Singleton.Data.ControlDictParameters.AppControlDictSolver);
             base.InitAttributes();
             FoamFile.Attributes.Add("functions", m_Functions);
         }

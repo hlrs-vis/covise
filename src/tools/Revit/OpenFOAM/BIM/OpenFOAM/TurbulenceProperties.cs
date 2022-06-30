@@ -20,7 +20,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this File.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary.</param>
-        /// <param name="settings">Settings-objects</param>
+        /// <param name="settings">Data-objects</param>
         public TurbulenceProperties(Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
             : base("turbulenceProperties", "dictionary", version, path, attributes, format)
         {

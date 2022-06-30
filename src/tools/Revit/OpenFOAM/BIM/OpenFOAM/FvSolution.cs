@@ -21,7 +21,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <param name="path">Path to this file.</param>
         /// <param name="attributes">Additional attributes.</param>
         /// <param name="format">Ascii or Binary</param>
-        /// <param name="settings">Settings-object</param>
+        /// <param name="settings">Data-object</param>
         public FvSolution(Version version, string path, Dictionary<string, object> attributes, SaveFormat format)
             : base("fvSolution", "dictionary", version, path, attributes, format)
         {
@@ -42,11 +42,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             object val = null;
             if (m_SIMPLE.TryGetValue("pRefPoint", out val) == true)
             {
-                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(FOAMInterface.Singleton.Settings.LocationInMesh);
+                m_SIMPLE["pRefPoint"] = ConvertToDisplayUnits(FOAMInterface.Singleton.Data.LocationInMesh);
             }
             else
             {
-                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(FOAMInterface.Singleton.Settings.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
+                m_SIMPLE.Add("pRefPoint", ConvertToDisplayUnits(FOAMInterface.Singleton.Data.LocationInMesh)/*"(" + BIM.OpenFOAMExport.Exporter.Instance.settings.LocationInMesh.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US").NumberFormat).Replace(';', ' ') + ")"*/);
             }
             base.InitAttributes();
         }

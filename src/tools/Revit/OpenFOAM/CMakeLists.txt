@@ -12,7 +12,7 @@ add_library(OpenFOAMInterface SHARED
   BIM/OpenFOAMInterfaceResource.Designer.cs
   BIM/OpenFOAMInterfaceResource.resx
   BIM/SaveData.cs
-  BIM/Settings.cs
+  BIM/Data.cs
   BIM/Structs.cs
   BIM/Enums.cs
   BIM/OpenFOAMCancelForm.cs

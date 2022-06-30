@@ -197,7 +197,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                             output.Add("decomposePar");
                             //runCommands.Add("mpirun -n " + DecomposeParDict.NumberOfSubdomains + " renumberMesh -overwrite -parallel");
                             output.Add("mpirun -np " + m_NumberOfSubdomains + " " + command + " -parallel " + log + command + ".log");
-                            output.Add("reconstructPar " + FOAMInterface.Singleton.Settings.ReconstructParOption);
+                            output.Add("reconstructPar " + FOAMInterface.Singleton.Data.ReconstructParOption);
                             continue;
                         }
                     }
@@ -580,16 +580,16 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         {
             string fileName = Path.GetFileName(m_CasePath);
             string caseDir = Path.GetDirectoryName(m_CasePath);
-            string serverDir = FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder;
-            string serverCaseDir = FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + Path.GetFileNameWithoutExtension(fileName);
+            string serverDir = FOAMInterface.Singleton.Data.SSH.ServerCaseFolder;
+            string serverCaseDir = FOAMInterface.Singleton.Data.SSH.ServerCaseFolder + Path.GetFileNameWithoutExtension(fileName);
 
             //***********************SSH FOR LINUX IMPLEMENTED*******************/
             List<string> shellCommands = new List<string>
             {
-                "ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " mkdir -p " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder +"\n",
-                "scp -P " + FOAMInterface.Singleton.Settings.SSH.Port + " -r " + m_CasePath + " " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder,
-                "ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() +
-                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + FOAMInterface.Singleton.Settings.SSH.OfAlias +
+                "ssh -p " + FOAMInterface.Singleton.Data.SSH.Port + " -t " + FOAMInterface.Singleton.Data.SSH.ConnectionString() + " mkdir -p " + FOAMInterface.Singleton.Data.SSH.ServerCaseFolder +"\n",
+                "scp -P " + FOAMInterface.Singleton.Data.SSH.Port + " -r " + m_CasePath + " " + FOAMInterface.Singleton.Data.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Data.SSH.ServerCaseFolder,
+                "ssh -p " + FOAMInterface.Singleton.Data.SSH.Port + " -t " + FOAMInterface.Singleton.Data.SSH.ConnectionString() +
+                " \"shopt -s expand_aliases ; source ~/.bash_aliases; eval " + FOAMInterface.Singleton.Data.SSH.OfAlias +
                 "; mkdir " + serverCaseDir +
                 "; cd " + serverDir +
                 "; unzip -o " + fileName + " -d " + serverCaseDir +
@@ -597,11 +597,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 "; cd " + serverCaseDir
             };
 
-            if (FOAMInterface.Singleton.Settings.SSH.Slurm)
-                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + FOAMInterface.Singleton.Settings.SSH.SlurmCommand + " ./Allrun");
+            if (FOAMInterface.Singleton.Data.SSH.Slurm)
+                shellCommands.Add("; chmod +x ./Allrun; chmod +x ./Allclean; ./Allclean; " + FOAMInterface.Singleton.Data.SSH.SlurmCommand + " ./Allrun");
             shellCommands.Add("rm -r processor*");
 
-            if (FOAMInterface.Singleton.Settings.SSH.Download)
+            if (FOAMInterface.Singleton.Data.SSH.Download)
             {
                 shellCommands.Add("cd " + serverDir);
                 shellCommands.Add("zip -r " + fileName + " " + Path.GetFileNameWithoutExtension(fileName));
@@ -623,7 +623,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             string caseDir = Path.GetDirectoryName(m_CasePath);
 
             //Download directory from Server: scp -r user@ssh.example.com:/path/to/remote/source /path/to/local/destination
-            if (FOAMInterface.Singleton.Settings.SSH.Download)
+            if (FOAMInterface.Singleton.Data.SSH.Download)
             {
                 string CasePathResults = caseDir + @"\" + fileNameWithoutExtension + "_result";
                 if (!Directory.Exists(CasePathResults))
@@ -631,11 +631,11 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                     Directory.CreateDirectory(CasePathResults);
                 }
 
-                commands.Add("scp -P " + FOAMInterface.Singleton.Settings.SSH.Port + " -r " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + fileName + " " + CasePathResults + ".zip");
+                commands.Add("scp -P " + FOAMInterface.Singleton.Data.SSH.Port + " -r " + FOAMInterface.Singleton.Data.SSH.ConnectionString() + ":" + FOAMInterface.Singleton.Data.SSH.ServerCaseFolder + fileName + " " + CasePathResults + ".zip");
             }
-            if (FOAMInterface.Singleton.Settings.SSH.Delete)
+            if (FOAMInterface.Singleton.Data.SSH.Delete)
             {
-                commands.Add("ssh -p " + FOAMInterface.Singleton.Settings.SSH.Port + " -t " + FOAMInterface.Singleton.Settings.SSH.ConnectionString() + " \"rm -rf " + FOAMInterface.Singleton.Settings.SSH.ServerCaseFolder + fileNameWithoutExtension + "*");
+                commands.Add("ssh -p " + FOAMInterface.Singleton.Data.SSH.Port + " -t " + FOAMInterface.Singleton.Data.SSH.ConnectionString() + " \"rm -rf " + FOAMInterface.Singleton.Data.SSH.ServerCaseFolder + fileNameWithoutExtension + "*");
             }
             bool succeed = base.RunCommands(commands);
             return succeed;
@@ -660,7 +660,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 return;
             }
 
-            if (FOAMInterface.Singleton.Settings.SSH.Slurm)
+            if (FOAMInterface.Singleton.Data.SSH.Slurm)
             {
                 //current state => only Allrun
                 sw.Write(command + ";");
