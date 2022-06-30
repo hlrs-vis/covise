@@ -47,7 +47,7 @@
   <System>
   
    <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/>
+    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
    </VRB>
 <!--   <ShmSize value="2097152"/> -->
    <!--<ShmSize value="33554432"/>-->
@@ -226,20 +226,21 @@
    
 
    <PipeConfig>
-       <Pipe name="0" useDISPLAY="true" />
+       <!--Pipe name="0" useDISPLAY="true" /-->
+	   <Pipe display="Sony" server="0" screen="1" name="0" useDisplay="true"/>
    </PipeConfig>
 
    <WindowConfig>
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-    <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
+    <Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" />
+    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" /-->
 	<!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
    </WindowConfig>
 
    <ScreenConfig>
    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-   <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="3840" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2160" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
 
 
@@ -621,7 +622,7 @@
                 <ALVAR value="ON">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="0" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
