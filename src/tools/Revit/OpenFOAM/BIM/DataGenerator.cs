@@ -758,8 +758,6 @@ namespace OpenFOAMInterface.BIM
 
                 GeneratorStatus status = ScanElement(FOAMInterface.Singleton.Data.ExportRange);
 
-                Application.DoEvents();
-
                 if (status != GeneratorStatus.SUCCESS)
                 {
                     m_StlCancel.Close();
@@ -771,6 +769,8 @@ namespace OpenFOAMInterface.BIM
                     m_StlCancel.Close();
                     return GeneratorStatus.CANCEL;
                 }
+
+                Application.DoEvents();
 
                 // if (0 == m_TriangularNumber)
                 // {
