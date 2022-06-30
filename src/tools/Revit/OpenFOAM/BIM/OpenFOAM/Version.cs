@@ -27,7 +27,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// <summary>
         /// Addin-Version.
         /// </summary>
-        public string AddinVer { set; get; } = "2.0.0.0";
+        public string AddinVer { set; get; } = "2.1.0.2";
 
         /// <summary>
         /// Header object.
