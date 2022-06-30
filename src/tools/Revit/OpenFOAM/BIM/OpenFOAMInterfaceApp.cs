@@ -112,8 +112,8 @@ namespace OpenFOAMInterface.BIM
                 //set default settings
                 FOAMInterface.Singleton.Data = Data.Default;
 
-                string appName = "OpenFOAM Interface";
-                RibbonPanel panel = application.CreateRibbonPanel(appName);
+                string ribbonName = "OpenFOAM";
+                RibbonPanel panel = application.CreateRibbonPanel(ribbonName);
                 string dirName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 string assemblyname = typeof(OpenFOAMInterfaceApp).Assembly.GetName().Name;
                 string dllName = dirName + @"\" + assemblyname + ".dll";
