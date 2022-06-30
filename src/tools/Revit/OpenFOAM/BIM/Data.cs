@@ -30,6 +30,7 @@ namespace OpenFOAMInterface.BIM
     using System.Runtime.InteropServices.ComTypes;
     using System.Diagnostics.Contracts;
     using OpenFOAMInterface.BIM.OpenFOAM;
+    using System.Globalization;
 
     /// <summary>
     /// Data made by user to export.
@@ -1280,6 +1281,42 @@ namespace OpenFOAMInterface.BIM
         }
 
         /// <summary>
+        /// Helper function for initializing the flow face lists Inlet/Outlet based on given element.
+        /// <param name="entry">Autodesk Element.</param>
+        /// <param name="typeName">Inlet/ Outlet.</param>
+        /// <param name="material">False will use a newer filter and true the old version.</param>
+        /// </summary>
+        private void InitFlowFace_Helper(in Element entry, in string typeName, bool material)
+        {
+            FamilyInstance instance = entry as FamilyInstance;
+            string nameDuct = typeName + AutodeskHelperFunctions.GenerateNameFromElement(entry);
+            XYZ faceNormal = GetSurfaceParameter(instance, GetFaceNormal);
+            double faceBoundary = GetSurfaceParameter(instance, GetFaceBoundary);
+            double surfaceArea = Math.Round(GetSurfaceParameter(instance, GetFaceArea), 2);
+            double flowRate = 0;
+            double meanFlowVelocity = 0;
+            double staticPressure = 0;
+            int rpm = 0;
+            double temperature = 0;
+            GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
+
+            string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
+            DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
+            if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet")) {
+                //negate faceNormal = outlet.
+                //...............................................
+                //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
+                // if (material)
+                //     dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
+                Outlet.Add(nameDuct, dProp);
+                outletCount++;
+            } else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet")) {
+                Inlet.Add(nameDuct, dProp);
+                inletCount++;
+            }
+        }
+
+        /// <summary>
         /// Initialize duct terminal parameters like flowRate, meanFlowVelocity and area.
         /// </summary>
         /// <returns>True, if there is no error while computing.</returns>
@@ -1290,75 +1327,11 @@ namespace OpenFOAMInterface.BIM
 
             //get inlet outlet passed on material (old approach)
             foreach (Element element in m_DuctTerminals)
-            {
-                FamilyInstance instance = element as FamilyInstance;
-                string nameDuct = AutodeskHelperFunctions.GenerateNameFromElement(element);
-                XYZ faceNormal = GetSurfaceParameter(instance, GetFaceNormal);
-                double faceBoundary = GetSurfaceParameter(instance, GetFaceBoundary);
-                double surfaceArea = Math.Round(GetSurfaceParameter(instance, GetFaceArea), 2);
-                double flowRate = 0;
-                double meanFlowVelocity = 0;
-                double staticPressure = 0;
-                int rpm = 0;
-                double temperature = 0;
-                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
-
-                if (nameDuct.Contains("Abluft") || nameDuct.Contains("Outlet"))
-                {
-                    //negate faceNormal = outlet.
-                    //...............................................
-                    //for swirlFlowRateInletVelocity as type => -(faceNormal) = flowRate direction default => the value is positive inwards => -flowRate
-                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, -flowRate, -meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    Outlet.Add(nameDuct, dProp);
-                    outletCount++;
-                }
-                else if (nameDuct.Contains("Zuluft") || nameDuct.Contains("Inlet"))
-                {
-                    DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                    Inlet.Add(nameDuct, dProp);
-                    inletCount++;
-                }
-
-            }
+                InitFlowFace_Helper(element, "", true);
             foreach (var entry in m_InletElements)
-            {
-                FamilyInstance instance = entry as FamilyInstance;
-                string nameDuct = "Inlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                XYZ faceNormal = GetSurfaceParameter(instance, GetFaceNormal);
-                double faceBoundary = GetSurfaceParameter(instance, GetFaceBoundary);
-                double surfaceArea = Math.Round(GetSurfaceParameter(instance, GetFaceArea), 2);
-                double flowRate = 0;
-                double meanFlowVelocity = 0;
-                double staticPressure = 0;
-                int rpm = 0;
-                double temperature = 0;
-                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
-
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                Inlet.Add(nameDuct, dProp);
-                inletCount++;
-            }
+                InitFlowFace_Helper(entry, "Inlet_", false);
             foreach (var entry in m_OutletElements)
-            {
-                FamilyInstance instance = entry as FamilyInstance;
-                string nameDuct = "Outlet_" + AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                XYZ faceNormal = GetSurfaceParameter(instance, GetFaceNormal);
-                double faceBoundary = GetSurfaceParameter(instance, GetFaceBoundary);
-                double surfaceArea = Math.Round(GetSurfaceParameter(instance, GetFaceArea), 2);
-                double flowRate = 0;
-                double meanFlowVelocity = 0;
-                double staticPressure = 0;
-                int rpm = 0;
-                double temperature = 0;
-                GetFlowParameters(instance, ref flowRate, ref meanFlowVelocity, ref staticPressure, ref rpm, ref surfaceArea, ref temperature);
-
-                string name = AutodeskHelperFunctions.GenerateNameFromElement(entry);
-                DuctProperties dProp = CreateDuctProperties(faceNormal, faceBoundary, flowRate, meanFlowVelocity, staticPressure, rpm, surfaceArea, temperature);
-                Outlet.Add(nameDuct, dProp);
-                outletCount++;
-            }
-
+                InitFlowFace_Helper(entry, "Outlet_", false);
             InletCount = inletCount;
             OutletCount = outletCount;
 
@@ -2573,7 +2546,7 @@ namespace OpenFOAMInterface.BIM
                                     }
                                     v = 0;
                                     type = "fixedValue";
-                                    if(m_windAroundBuildings)
+                                    if (m_windAroundBuildings)
                                         type = "totalPressure";
                                     _outlet = new FOAMParameterPatch<dynamic>(type, uniform, v, pType);
                                 }
