@@ -8,8 +8,32 @@
 #include <iostream>
 using namespace boost::interprocess;
 
+
+
+#ifdef _WIN32
+#include <windows.h>
+#include <Lmcons.h>
+#else
+    #include <sys/types.h>
+    #include <pwd.h>
+#endif
+
 const char *shmSegName = "CoviseVrbShmSeg";
 const char *shmVecName = "VrbPortList";
+
+std::string getUserName()
+{
+#ifdef _WIN32
+char username[UNLEN+1];
+DWORD username_len = UNLEN+1;
+GetUserName(username, &username_len);
+return username;
+#else
+    auto id = getuid();
+    auto pwd = getpwuid(id);
+    return pwd->pw_name;
+#endif
+}
 
 MyShmStringVector *getShmPortList()
 {
@@ -77,7 +101,7 @@ shm_remove placeSharedProcessInfo(int tcpPort)
 
     // shared memory
     MyShmString mystring(charallocator);
-    std::string s = std::to_string(tcpPort) + " " + std::to_string( boost::interprocess::ipcdetail::get_current_process_id());
+    std::string s = std::to_string(tcpPort) + " " + std::to_string( boost::interprocess::ipcdetail::get_current_process_id()) + " " + getUserName();
     mystring = s.c_str();
 
     MyShmStringVector *myshmvector =
@@ -104,7 +128,7 @@ void listShm()
                 if (p.c_str())
                 {
                     auto l = split(p.c_str());
-                    std::cerr << "VRB running on port " << l[0] << ", pid: " << l[1] << std::endl;
+                    std::cerr << "VRB running on port " << l[0] << ", pid: " << l[1] << ", from "  << l[2] << std::endl;
                 }
             }
         }/*  */
