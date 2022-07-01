@@ -63,7 +63,7 @@ extern ApplicationWindow *mw;
 //#include <QTreeWidget>
 
 #include <vrb/server/VrbClientList.h>
-
+#include <csignal>
 #include "gui/VRBapplication.h"
 
 #ifndef MAX_PATH
@@ -80,9 +80,11 @@ VRBServer::VRBServer(bool gui)
     :m_gui(gui)
 {
     covise::Socket::initialize();
-
+#ifndef _WIN32
+    std::signal(SIGUSR1, SIG_IGN); //ignore signal that is used to check if VRB process is running
+#endif
     m_tcpPort = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
-	m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort +1);
+    m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort +1);
     requestToQuit = false;
     if (gui)
     {

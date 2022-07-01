@@ -4,7 +4,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
-
+#include <signal.h>
 #include <iostream>
 using namespace boost::interprocess;
 
@@ -32,6 +32,29 @@ return username;
     auto id = getuid();
     auto pwd = getpwuid(id);
     return pwd->pw_name;
+#endif
+}
+
+bool processExists(int processID) {
+#ifdef _WIN32
+    HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, processID);
+    if (hProcess != NULL) {
+        DWORD w;
+        auto retval = WaitForSingleObject(hProcess, 0);
+        if (retval == WAIT_TIMEOUT)
+        {
+            CloseHandle(hProcess);
+            return true;
+        }
+        CloseHandle(hProcess);
+        return false;
+    }
+    // If the error code is access denied, the process exists but we don't have access to open a handle to it.
+    std::cerr << "process no access" << std::endl;
+
+    return GetLastError() == ERROR_ACCESS_DENIED;
+#else
+    return  !kill(processID, SIGUSR1);
 #endif
 }
 
@@ -123,15 +146,24 @@ void listShm()
         auto list = shm.find<MyShmStringVector>(shmVecName).first;
         if (list)
         {
-            for (const auto &p : *list)
+            for (auto i = list->begin(); i < list->end();)
             {
+                auto p = *i;
                 if (p.c_str())
                 {
                     auto l = split(p.c_str());
-                    std::cerr << "VRB running on port " << l[0] << ", pid: " << l[1] << ", from "  << l[2] << std::endl;
-                }
+                    if(!processExists(std::stoi(l[1])))
+                        i = list->erase(i);
+                    else{
+                        std::cerr << "VRB running on port " << l[0] << ", pid: " << l[1] << ", from "  << l[2] << std::endl;
+                        ++i;
+                    }
+                }else
+                    ++i;
             }
-        }/*  */
+        }
+        if (list->empty())
+            throw interprocess_exception{""};
     }
     catch (const interprocess_exception &e)
     {
