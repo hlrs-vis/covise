@@ -1255,11 +1255,18 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
 
 #include <util/covise_version.h>
 
+void writeQDocNode(QDomElement &viewpointElement, QDomDocument &doc, const std::string& nodeName, const std::string& text)
+{
+        auto  nameElement = doc.createElement(nodeName.c_str());
+        auto nameText = doc.createTextNode(text.c_str());
+        nameElement.appendChild(nameText);
+        viewpointElement.appendChild(nameElement);
+}
+
 void ViewPoints::saveAllViewPoints()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::saveAllViewPoints()\n");
-    int numVPs=0;
     QDomDocument doc;
     QDomElement rootElement;
     // create a dom
@@ -1272,90 +1279,50 @@ void ViewPoints::saveAllViewPoints()
 
     doc.appendChild(rootElement);
     // loop over all viewpoints
+    int numVPs=0;
     for (vector<ViewDesc *>::iterator it = viewpoints.begin() + numberOfDefaultVP; it < viewpoints.end(); ++it)
     {
         numVPs++;
         ViewDesc *viewDesc = (*it);
-            // add new viewpoint to dom
-            // append something
-            QDomElement viewpointElement, nameElement, scaleElement, posElement, eulerElement, tangentInElement, tangentOutElement;
         
-            //tangentOutElement, tangentInElement, stoptimeElement;
         QDomText nameText, scaleText, posText, eulerText;
-        viewpointElement = doc.createElement("VIEWPOINT");
+        QDomElement viewpointElement = doc.createElement("VIEWPOINT");
 
-        nameElement = doc.createElement("NAME");
-        nameText = doc.createTextNode(viewDesc->getName());
-        nameElement.appendChild(nameText);
+        writeQDocNode(viewpointElement, doc, "NAME", viewDesc->getName());
+        writeQDocNode(viewpointElement, doc, "SCALE", std::to_string(viewDesc->getScale()));
 
-        char scaleString[1024];
-        sprintf(scaleString, "%f", viewDesc->getScale());
-        scaleElement = doc.createElement("SCALE");
-        scaleText = doc.createTextNode(scaleString);
-        scaleElement.appendChild(scaleText);
+        std::stringstream posString;
+        for (size_t i = 0; i < 3; i++)
+            posString << viewDesc->coord.xyz[i] << " ";
+        writeQDocNode(viewpointElement, doc, "POSITION", posString.str());
 
-        char posString[1024];
-        sprintf(posString, "%f %f %f ", viewDesc->coord.xyz[0], viewDesc->coord.xyz[1], viewDesc->coord.xyz[2]);
-        posElement = doc.createElement("POSITION");
-        posText = doc.createTextNode(posString);
-        posElement.appendChild(posText);
+        std::stringstream eulerString;
+        for (size_t i = 0; i < 3; i++)
+            eulerString << viewDesc->coord.hpr[i] << " ";
+        writeQDocNode(viewpointElement, doc, "EULER", eulerString.str());
 
-        char eulerString[1024];
-        sprintf(eulerString, "%f %f %f ", viewDesc->coord.hpr[0], viewDesc->coord.hpr[1], viewDesc->coord.hpr[2]);
-        eulerElement = doc.createElement("EULER");
-        eulerText = doc.createTextNode(eulerString);
-        eulerElement.appendChild(eulerText);
+        std::stringstream tangentInString;
+        for (size_t i = 0; i < 3; i++)
+            tangentInString << viewDesc->getTangentIn()[i] << " ";
+        writeQDocNode(viewpointElement, doc, "TANGENT_IN", tangentInString.str());
 
-        char tangentInString[1024];
-        sprintf(tangentInString, "%f %f %f ", viewDesc->getTangentIn()[0], viewDesc->getTangentIn()[1], viewDesc->getTangentIn()[2]);
-        tangentInElement = doc.createElement("TANGENT_IN");
-        tangentInElement.appendChild(doc.createTextNode(tangentInString));
-
-        char tangentOutString[1024];
-        sprintf(tangentOutString, "%f %f %f ", viewDesc->getTangentOut()[0], viewDesc->getTangentOut()[1], viewDesc->getTangentOut()[2]);
-        tangentOutElement = doc.createElement("TANGENT_OUT");
-        tangentOutElement.appendChild(doc.createTextNode(tangentOutString));
-
-        /*    char stoptimeString[1024];
-        sprintf(stoptimeString, "%f ", viewDesc->stoptime);
-        stoptimeElement = doc.createElement("STOPTIME");
-        stoptimeElement.appendChild(doc.createTextNode(stoptimeString));
-        */
+        
+        std::stringstream tangentOutString;
+        for (size_t i = 0; i < 3; i++)
+            tangentOutString << viewDesc->getTangentOut()[i] << " ";
+        writeQDocNode(viewpointElement, doc, "TANGENT_IN", tangentOutString.str());
 
         coVRDOMDocument::instance()->getRootElement().appendChild(viewpointElement);
-        viewpointElement.appendChild(nameElement);
-        viewpointElement.appendChild(scaleElement);
-        viewpointElement.appendChild(posElement);
-        viewpointElement.appendChild(eulerElement);
-
-        viewpointElement.appendChild(tangentInElement);
-        viewpointElement.appendChild(tangentOutElement);
         //viewpointElement.appendChild(stoptimeElement);
-        
-        QDomElement inFlightPath;
-        inFlightPath = doc.createElement("inFlightPath");
-        if(viewDesc->getFlightState())
-        inFlightPath.appendChild(doc.createTextNode("true"));
-        else
-        inFlightPath.appendChild(doc.createTextNode("false"));
-        viewpointElement.appendChild(inFlightPath);
 
+        writeQDocNode(viewpointElement, doc, "inFlightPath", viewDesc->getFlightState() ? "true" : "false");
+        writeQDocNode(viewpointElement, doc, "isChangeable", viewDesc->isChangeable() ? "true" : "false");
         
-        QDomElement isChangeable;
-        isChangeable = doc.createElement("isChangeable");
-        if(viewDesc->isChangeable())
-        isChangeable.appendChild(doc.createTextNode("true"));
-        else
-        isChangeable.appendChild(doc.createTextNode("false"));
-        viewpointElement.appendChild(isChangeable);
-        
-        //fprintf(stderr,"ViewPoints::saveViewPoint NAME=%s; SCALE=%s; POSITION=%s; EULER=%s\n", newName, scaleString, posString, eulerString );
-
         // clipplanes
         stringstream ssplanes_final;
         ssplanes_final << "";
         
-    rootElement.appendChild(viewpointElement);
+        rootElement.appendChild(viewpointElement);
 
         ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
         ssplanes_final << clipNode->getNumClipPlanes() << " ";
