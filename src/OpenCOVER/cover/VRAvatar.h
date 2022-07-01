@@ -58,7 +58,10 @@ public:
     virtual ~VRAvatar();
     void show();
     void hide();
-
+protected:
+    //to skip initialization
+    VRAvatar(int dummy){};
+    bool init(const std::string &nodeName);
 };
 
 ///create an Avatar for a remote partner that hold his informations
