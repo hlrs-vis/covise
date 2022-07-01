@@ -54,7 +54,8 @@ bool processExists(int processID) {
 
     return GetLastError() == ERROR_ACCESS_DENIED;
 #else
-    return  !kill(processID, SIGUSR1);
+    return !(kill(processID, SIGUSR1) && errno != EPERM);
+
 #endif
 }
 
@@ -64,7 +65,6 @@ MyShmStringVector *getShmPortList()
     {
         managed_shared_memory shm(open_only, shmSegName);
         auto x = shm.find<MyShmStringVector>(shmVecName);
-        std::cerr << "shm.find<MyShmStringVector>(shmVecName)" << std::endl;
         return x.first;
     }
     catch (const interprocess_exception &e)
@@ -115,7 +115,9 @@ shm_remove &shm_remove::operator=(shm_remove &&other)
 shm_remove placeSharedProcessInfo(int tcpPort)
 {
     const size_t size = 10000;
-    managed_shared_memory shm(open_or_create, shmSegName, size);
+    boost::interprocess::permissions  unrestricted_permissions;
+    unrestricted_permissions.set_unrestricted();
+    managed_shared_memory shm(open_or_create, shmSegName, size, 0, unrestricted_permissions);
     shm_remove remover(tcpPort);
     // Create allocators
     CharAllocator charallocator(shm.get_segment_manager());
