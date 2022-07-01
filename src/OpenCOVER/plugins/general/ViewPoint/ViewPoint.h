@@ -161,6 +161,7 @@ private:
     ui::Slider *animPositionSlider;
     ui::Button *useClipPlanesCheck_;
     ui::Button *turnTableAnimationCheck_;
+    ui::Button *showAvatar_;
 
     osg::ref_ptr<osg::Geode> qnNode;
     std::vector<ViewDesc *> viewpoints; //< list of viewpoints

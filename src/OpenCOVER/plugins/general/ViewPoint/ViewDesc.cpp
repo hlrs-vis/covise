@@ -393,6 +393,11 @@ void ViewDesc::createButtons(const char *name,
         }
         master->saveAllViewPoints();
     });
+    showAvatar_ = new ui::Button(editVPMenu_, "ShowAvatar");
+    showAvatar_->setText("show avatar at viewpoints");
+    showAvatar_->setState(false);
+    showAvatar_->setCallback([this](bool state)
+                             { showAvatar(state); });
 
     if (isChangeable_ && isChangeableFromCover_)
     {
@@ -1623,6 +1628,23 @@ void ViewDesc::updateToViewAll()
     osg::Matrix euler;
     MAKE_EULER_MAT(euler, -coord.hpr[0], -coord.hpr[1], -coord.hpr[2]);
     coord.xyz = euler * matrix.getTrans();
+}
+
+void ViewDesc::showAvatar(bool state)
+{
+    showAvatar_->setState(state);
+    m_avatar.init();
+    state ? m_avatar.show() : m_avatar.hide(); 
+}
+
+const RecordedAvatar &ViewDesc::getAvatar() const
+{
+    return m_avatar;
+}
+
+RecordedAvatar &ViewDesc::getAvatar()
+{
+    return m_avatar;
 }
 
 void ViewDesc::setFlightPathActivated(bool active)

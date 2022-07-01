@@ -14,6 +14,7 @@
 #include "coVRFileManager.h"
 #include "coBillboard.h"
 #include "coVRPartner.h"
+#include <config/CoviseConfig.h>
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 
@@ -145,9 +146,32 @@ void VRAvatar::hide()
     }
 }
 
-//float VRAvatar::rc[10] = { 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 0.2f, 0.1f, 0.2f };
-//float VRAvatar::gc[10] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.5f, 0.4f, 0.4f, 0.0f };
-//float VRAvatar::bc[10] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.7f, 0.7f };
+RecordedAvatar::RecordedAvatar() : m_icon(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Icon", "$COVISE_PATH/share/covise/icons/hosts/localhost.obj"))
+{
+    m_head.push_back(headTransform->getMatrix());
+    m_hand.push_back(handTransform->getMatrix());
+    m_feet.push_back(feetTransform->getMatrix());
+}
+
+bool RecordedAvatar::init()
+{
+    if(!initialized)
+    {
+        static size_t num = 0;
+        if(!VRAvatar::init("Recorded avatar num " + std::to_string(num++)))
+            return false;
+        hostIconNode = coVRFileManager::instance()->loadIcon(UserInfo(Program::opencover).icon.c_str());
+        if (hostIconNode)
+        {
+            coBillboard *bb = new coBillboard;
+            feetTransform->addChild(bb);
+            bb->addChild(hostIconNode);
+        }
+        initialized = true;
+        return true;
+    }
+    return false;
+}
 
 covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar)
 {

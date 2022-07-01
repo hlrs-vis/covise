@@ -29,6 +29,7 @@
 #include <PluginUtil/coVR3DTransInteractor.h>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coInteractor.h>
+#include <cover/VRAvatar.h>
 
 #include <cover/coVRMSController.h>
 #include <grmsg/coGRActivatedViewpointMsg.h>
@@ -104,6 +105,7 @@ private:
     opencover::ui::Button *showMoveInteractorsCheck_ = nullptr;
     opencover::ui::Button *showTangentInteractorsCheck_ = nullptr;
     opencover::ui::Action *updateViewButton = nullptr;
+    opencover::ui::Button *showAvatar_ = nullptr;
 
     bool flightPathActivated = false;
     bool viewpointVisible = false;
@@ -160,6 +162,8 @@ private:
     opencover::coVR3DTransInteractor *tanInInteractor;
     opencover::coVR3DTransInteractor *scaleInteractor;
 
+    opencover::RecordedAvatar m_avatar;
+
     opencover::coVR3DTransRotInteractor *viewpointInteractor; // Angriffspunkt in Mitte
 
     //      coVRLabel *myLabel;
@@ -213,6 +217,9 @@ public:
     void setFlightState(bool state);
     void alignViewpoint(char alignment);
     void updateToViewAll();
+    void showAvatar(bool state);
+    const opencover::RecordedAvatar &getAvatar() const;
+    opencover::RecordedAvatar &getAvatar();
 
     const char *getName()
     {

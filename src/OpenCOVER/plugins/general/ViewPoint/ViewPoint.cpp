@@ -315,6 +315,14 @@ bool ViewPoints::init()
         startTurnTableAnimation(20.0);
     });
 
+    showAvatar_ = new ui::Button(editVPMenu_, "ShowAvatar");
+    showAvatar_->setText("show avatars at viewpoints");
+    showAvatar_->setState(false);
+    showAvatar_->setCallback([this](bool state)
+                             {
+        for(const auto viewDesc : viewpoints)
+        viewDesc->showAvatar(state); });
+
     // create the "flight" menu
     flightMenu_ = new ui::Menu(viewPointMenu_, "FlightConfig");
     flightMenu_->setText("Flight configuration");
@@ -692,6 +700,17 @@ void ViewPoints::readFromDom()
                             newVP->setFlightState(false);
                             if(element.text() == "true")
                                 newVP->setFlightState(true);
+                        }else if (tagName.compare("AVATAR") == 0)
+                        {
+                            if(element.hasChildNodes() && element.firstChild().isCDATASection())
+                            {
+                                auto dataSec = element.firstChild().toCDATASection();
+                                auto array =  QByteArray::fromBase64(dataSec.data().toLatin1());
+                                std::cerr << dataSec.data().toLatin1().toStdString() << std::endl;
+                                TokenBuffer tb(array.data(), array.size());
+
+                                tb >> newVP->getAvatar();
+                            }
                         }
                     }
                     else
@@ -1317,7 +1336,16 @@ void ViewPoints::saveAllViewPoints()
 
         writeQDocNode(viewpointElement, doc, "inFlightPath", viewDesc->getFlightState() ? "true" : "false");
         writeQDocNode(viewpointElement, doc, "isChangeable", viewDesc->isChangeable() ? "true" : "false");
-        
+
+        TokenBuffer tb;
+        tb << viewDesc->getAvatar();
+        auto avatarElement = doc.createElement("AVATAR");
+        auto avatarData = doc.createCDATASection("AVATAR");
+        QByteArray ba(tb.getData().data(), static_cast<qsizetype>(tb.getData().length()));
+        avatarData.setData(ba.toBase64());
+        avatarElement.appendChild(avatarData);
+        viewpointElement.appendChild(avatarElement);
+
         // clipplanes
         stringstream ssplanes_final;
         ssplanes_final << "";

@@ -74,7 +74,20 @@ private:
     coVRPartner *m_partner;
 };
 
+///Create an avatar that represents a recorded movement
+class COVEREXPORT RecordedAvatar : public VRAvatar
+{
+public:
+    RecordedAvatar();
+    bool init();
+
+private:
+    const std::string m_icon;
+    std::vector<osg::Matrix> m_hand;
+    std::vector<osg::Matrix> m_head;
+    std::vector<osg::Matrix> m_feet;
 };
+
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar);
 COVEREXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, opencover::VRAvatar &avatar);
 }
