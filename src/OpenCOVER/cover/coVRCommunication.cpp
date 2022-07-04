@@ -534,13 +534,23 @@ void coVRCommunication::handleVRB(const Message &msg)
     case COVISE_MESSAGE_RENDER_MODULE:
     {
         coVRPluginList::instance()->forwardMessage(msg.data);
+        std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER_MODULE, this might be deprecated." << std::endl
+                  << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
+        break;
     }
     case COVISE_MESSAGE_RENDER:
     {
-        std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER or COVISE_MESSAGE_RENDER_MODULE, this might be deprecated." << std::endl
-                  << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
+        if (msg.data.length() > 1 && strcmp(msg.data.data() + 1, "GRMSG") == 0)
+        {
+            cover->guiToRenderMsg(msg.data.data() + 1 + strlen("GRMSG") + 1);
+        }
+        else
+        {
+            std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER, this might be deprecated." << std::endl
+                      << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
+        }
+        break;
     }
-    break;
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
