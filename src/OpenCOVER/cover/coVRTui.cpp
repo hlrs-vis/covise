@@ -899,7 +899,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         PresentationStep->setValue(PresentationStep->getValue() + 1);
         char buf[100];
         sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
-        coVRPluginList::instance()->guiToRenderMsg(buf);
+        cover->guiToRenderMsg(buf);
     }
     else if (tUIItem == PresentationBack)
     {
@@ -909,13 +909,13 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         }
         char buf[100];
         sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
-        coVRPluginList::instance()->guiToRenderMsg(buf);
+        cover->guiToRenderMsg(buf);
     }
     else if (tUIItem == PresentationStep)
     {
         char buf[100];
         sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
-        coVRPluginList::instance()->guiToRenderMsg(buf);
+        cover->guiToRenderMsg(buf);
     }
 
     if (tUIItem == nearEdit || tUIItem == farEdit)

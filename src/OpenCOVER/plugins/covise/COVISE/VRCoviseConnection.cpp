@@ -554,42 +554,12 @@ VRCoviseConnection::receiveRenderMessage()
     }
     else if (strncmp(key, "GRMSG", 5) == 0)
     {
-        coVRPluginList::instance()->guiToRenderMsg(tmp);
+        cover->guiToRenderMsg(tmp);
         string fullMsg(string("GRMSG\n") + tmp);
         coGRMsg grMsg(fullMsg.c_str());
         if (grMsg.isValid())
         {
-            if (grMsg.getType() == coGRMsg::ANIMATION_ON)
-            {
-                coGRAnimationOnMsg animationModeMsg(fullMsg.c_str());
-                bool mode = animationModeMsg.getMode() != 0;
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "coGRMsg::ANIMATION_ON mode=%s\n", (mode ? "true" : "false"));
-                coVRAnimationManager::instance()->setRemoteAnimate(mode);
-            }
-
-            else if (grMsg.getType() == coGRMsg::ANIMATION_SPEED)
-            {
-                coGRSetAnimationSpeedMsg animationSpeedMsg(fullMsg.c_str());
-                float speed = animationSpeedMsg.getAnimationSpeed();
-                coVRAnimationManager::instance()->setAnimationSpeed(speed);
-            }
-
-            else if (grMsg.getType() == coGRMsg::ANIMATION_TIMESTEP)
-            {
-                coGRSetTimestepMsg timestepMsg(fullMsg.c_str());
-                int actStep = timestepMsg.getActualTimeStep();
-                int maxSteps = timestepMsg.getNumTimeSteps();
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "coGRMsg::ANIMATION_TIMESTEP actStep=%d numSteps=%d\n", actStep, maxSteps);
-                if (maxSteps > 0)
-                {
-                    coVRAnimationManager::instance()->setRemoteAnimationFrame(actStep);
-                    coVRAnimationManager::instance()->setNumTimesteps(maxSteps);
-                }
-            }
-
-            else if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+            if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
             {
                 coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
                 const char *objectName = geometryVisibleMsg.getObjName();
@@ -651,47 +621,6 @@ VRCoviseConnection::receiveRenderMessage()
                     fprintf(stderr, "in VRCoviseConnection  coGRMsg::SHADER_OBJECT object=%s\n", objectName);
 
                 setShader(objectName, shaderName);
-            }
-            else if (grMsg.getType() == coGRMsg::SET_TRACKING_PARAMS)
-            {
-                coGRSetTrackingParamsMsg trackingMsg(fullMsg.c_str());
-                // restrict rotation
-                if (trackingMsg.isRotatePoint())
-                    coVRNavigationManager::instance()->setRotationPoint(trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(), trackingMsg.getRotationPointSize());
-                else
-                    coVRNavigationManager::instance()->disableRotationPoint();
-                if (coCoviseConfig::isOn("COVER.showRotationPoint", true))
-                    coVRNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
-                else
-                    coVRNavigationManager::instance()->setRotationPointVisible(false);
-                if (trackingMsg.isRotateAxis())
-                    coVRNavigationManager::instance()->setRotationAxis(trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
-                else
-                    coVRNavigationManager::instance()->disableRotationAxis();
-
-                // restrict tranlsation
-                if (trackingMsg.isTranslateRestrict())
-                    VRSceneGraph::instance()->setRestrictBox(trackingMsg.getTranslateMinX(), trackingMsg.getTranslateMaxX(), trackingMsg.getTranslateMinY(), trackingMsg.getTranslateMaxY(), trackingMsg.getTranslateMinZ(), trackingMsg.getTranslateMaxZ());
-                else
-                    VRSceneGraph::instance()->setRestrictBox(0, 0, 0, 0, 0, 0);
-                coVRNavigationManager::instance()->setTranslateFactor(trackingMsg.getTranslateFactor());
-
-                // restrict scaling
-                if (trackingMsg.isScaleRestrict())
-                    VRSceneGraph::instance()->setScaleRestrictFactor(trackingMsg.getScaleMin(), trackingMsg.getScaleMax());
-                VRSceneGraph::instance()->setScaleFactorButton(trackingMsg.getScaleFactor());
-
-                // navigation
-                // enable navigationmode showName
-                //coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
-                // set navigationMode
-                std::string navmode(trackingMsg.getNavigationMode());
-                auto nav = coVRNavigationManager::instance();
-                nav->setNavMode(navmode);
-                //enable tracking in opencover
-
-                //vld: VRTracker use. Enable tracking. Add the method in input?
-                //VRTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
             }
             else if (grMsg.getType() == coGRMsg::MOVE_OBJECT)
             {
