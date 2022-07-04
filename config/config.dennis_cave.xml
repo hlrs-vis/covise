@@ -259,7 +259,7 @@
 
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31252"/>
-	<remoteFetch value = "true" />
+	<RemoteFetch value = "true" />
    </VRB>
    
    <RemoteDaemon>

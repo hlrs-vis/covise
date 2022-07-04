@@ -52,7 +52,7 @@
 	
    <VRB>
     <Server value="vistidy.hlrs.de" tcpPort="31201" udpPort="31202"/>
-	<remoteFetch value = "true" />
+	<RemoteFetch value = "true" />
    </VRB>
 
    <CRB>
