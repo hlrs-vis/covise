@@ -97,6 +97,7 @@ ENDIF()
 
 if (APPLE AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
     set(CMAKE_PREFIX_PATH /opt/homebrew ${CMAKE_PREFIX_PATH})
+    set(CMAKE_FRAMEWORK_PATH /opt/homebrew/Frameworks ${CMAKE_FRAMEWORK_PATH})
 endif()
 
 # figure out COVISE version
