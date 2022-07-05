@@ -147,7 +147,7 @@ void VrmlNodeTransform::render(Viewer *viewer)
                              d_translation.get(), d_modified);
 
         // Render children
-        VrmlNodeGroup::render(viewer);
+        VrmlNodeGroup::render(viewer);  
 
         // Reverse transforms (for immediate mode/no matrix stack renderer)
         viewer->unsetTransform(d_center.get(),

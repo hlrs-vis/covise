@@ -19,7 +19,11 @@
  **                                                                          **
 \****************************************************************************/
 
-#include <OpenVRUI/coTrackerButtonInteraction.h>
+#include "Brickwall.h"
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <osgViewer/Viewer>
 #include <osgDB/ReadFile>
 #include <osgDB/FileNameUtils>
@@ -67,37 +71,18 @@
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletSoftBody/btSoftBody.h>
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btAlignedObjectArray.h"
-
 #include "btBulletDynamicsCommon.h"
 #include "CommonInterfaces/CommonRigidBodyBase.h"
 #include "OpenGLWindow/ShapeData.h"
 
-#include <OpenVRUI/coPanel.h>
-#include <OpenVRUI/coFrame.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coNavInteraction.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coFlatPanelGeometry.h>
-#include <OpenVRUI/coFlatButtonGeometry.h>
-#include <OpenVRUI/coRectButtonGeometry.h>
-#include <OpenVRUI/coMouseButtonInteraction.h>
-
-
-
 #include <string>
 
-#include "Brickwall.h"
 #include <cover/coVRPluginSupport.h>
 
 using namespace opencover;
+using namespace vrui;
 Brickwall::Brickwall()
+    : ui::Owner("BrickWallPlugin", cover->ui)
 {
     fprintf(stderr, "Brickwall World\n");
 }
@@ -105,10 +90,28 @@ Brickwall::Brickwall()
 // this is called if the plugin is removed at runtime
 Brickwall::~Brickwall()
 {
+    if (InteractionA->isRegistered())
+    {
+        coInteractionManager::the()->unregisterInteraction(InteractionA);
+    }
+    
     fprintf(stderr, "Goodbye\n");
-    delete InteractionA;
-}
 
+}
+/*
+bool Brickwall::destroy()
+{
+    root->removeChild(bricks);
+    root->removeChild(ground);
+    root->removeChild(ball);
+    cover->getObjectsRoot()->removeChild(root);
+    bulletWorld->removeRigidBody(brickBody);
+    bulletWorld->removeRigidBody(groundBody);
+    bulletWorld->removeRigidBody(ballBody);
+
+    return true;
+}
+*/
 
 COVERPLUGIN(Brickwall)
 
@@ -203,7 +206,7 @@ osg::Transform* Brickwall::makeBrick(const osg::Vec3 lengths, osg::Vec4 rotation
 
 }
 
-osg::Node* Brickwall::createGround(float w, float h, const osg::Vec3& center, btSoftRigidDynamicsWorld* dw)
+osg::Node* Brickwall::createGround(float w, float h, const osg::Vec3& center, btDynamicsWorld* dw)
 {
     osg::Transform* ground = createOSGBox(osg::Vec3(w, h, 0.3), osg::Vec4(0., 0., 0., 45.), osg::Vec4(1., 1., 1., 1.));
 
@@ -214,16 +217,16 @@ osg::Node* Brickwall::createGround(float w, float h, const osg::Vec3& center, bt
     cr->_mass = 0.f;
     cr->_restitution = 0.5f;
     cr->_friction = 0.9f;
-    btRigidBody* body = osgbDynamics::createRigidBody(cr.get(), osgbCollision::btBoxCollisionShapeFromOSG(ground));
+    groundBody = osgbDynamics::createRigidBody(cr.get(), osgbCollision::btBoxCollisionShapeFromOSG(ground));
 
 
     // Transform the box explicitly.
-    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(body->getMotionState());
+    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(groundBody->getMotionState());
     osg::Matrix m(osg::Matrix::translate(center));
     motion->setParentTransform(m);
-    body->setWorldTransform(osgbCollision::asBtTransform(m));
+    groundBody->setWorldTransform(osgbCollision::asBtTransform(m));
 
-    dw->addRigidBody(body);
+    dw->addRigidBody(groundBody);
 
     return(ground);
 }
@@ -243,41 +246,36 @@ osg::Transform* Brickwall::createBall(float radius)
     return (mt);
 }
 
-osg::Transform* Brickwall::createDynamicBall(float mass, float radius, const osg::Vec3& center, btDynamicsWorld* dw) {
-    osg::Transform* ball = createBall(radius);
+osg::Transform* Brickwall::createDynamicBall(float mass, float radius, const osg::Vec3& center, btDynamicsWorld* dw,const osg::Vec3& direction) {
+    osg::Transform* sphere = createBall(radius);
     osgbCollision::AXIS axis(osgbCollision::Z);
 
     osg::ref_ptr< osgbDynamics::CreationRecord> cr = new osgbDynamics::CreationRecord;
-    cr->_sceneGraph = ball;
+    cr->_sceneGraph = sphere;
     cr->_shapeType = SPHERE_SHAPE_PROXYTYPE;
     cr->_mass = mass;
     cr->_axis = axis;
     cr->_restitution = 0.6;
     cr->_friction = 0.5f;
     cr->_reductionLevel = osgbDynamics::CreationRecord::MINIMAL;
-    btRigidBody* body = osgbDynamics::createRigidBody(cr.get(), osgbCollision::btBoxCollisionShapeFromOSG(ball));
-    body->applyImpulse(btVector3(0., 500., 0.), btVector3(0., -50., 50.));
+    ballBody = osgbDynamics::createRigidBody(cr.get(), osgbCollision::btBoxCollisionShapeFromOSG(sphere));
+    ballBody->applyImpulse(osgbCollision::asBtVector3(direction)*5000, osgbCollision::asBtVector3(center));
 
     // Transform the box explicitly.
-    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(body->getMotionState());
+    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(ballBody->getMotionState());
     osg::Matrix m(osg::Matrix::translate(center));
     motion->setParentTransform(m);
-    body->setWorldTransform(osgbCollision::asBtTransform(m));
+    ballBody->setWorldTransform(osgbCollision::asBtTransform(m));
 
-    dw->addRigidBody(body);
+    dw->addRigidBody(ballBody);
 
-    return(ball);
+    return(sphere);
 }
-osg::Node* Brickwall::createCube(const osg::Vec3& center, btSoftRigidDynamicsWorld* dw)
+osg::Node* Brickwall::createCube(const osg::Vec3& center, btDynamicsWorld* dw)
 {
-    osg::Node* brick = makeBrick(osg::Vec3(20, 5, 5), osg::Vec4(0, 0, 0, 0), osg::Vec4(255, 0, 0, 0.3));
-
-
-
-
-
+    osg::Node* brickNode = makeBrick(osg::Vec3(20, 5, 5), osg::Vec4(0, 0, 0, 0), osg::Vec4(255, 0, 0, 0.3));
     osg::ref_ptr< osgbDynamics::CreationRecord > cr = new osgbDynamics::CreationRecord;
-    cr->_sceneGraph = brick;
+    cr->_sceneGraph = brickNode;
     cr->_shapeType = BOX_SHAPE_PROXYTYPE;
     cr->_mass = 1.f;
     cr->_restitution = 0.f;
@@ -287,60 +285,80 @@ osg::Node* Brickwall::createCube(const osg::Vec3& center, btSoftRigidDynamicsWor
 
 
 
-    btRigidBody* body = osgbDynamics::createRigidBody(cr.get(),
-        osgbCollision::btBoxCollisionShapeFromOSG(brick));
+    brickBody = osgbDynamics::createRigidBody(cr.get(),
+        osgbCollision::btBoxCollisionShapeFromOSG(brickNode));
 
     // Transform the box explicitly.
-    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(body->getMotionState());
+    osgbDynamics::MotionState* motion = dynamic_cast<osgbDynamics::MotionState*>(brickBody->getMotionState());
     osg::Matrix m(osg::Matrix::translate(center));
     m = m * osg::Matrix::rotate(0, 0, 0., 0.);
     motion->setParentTransform(m);
-    body->setWorldTransform(osgbCollision::asBtTransform(m));
+    brickBody->setWorldTransform(osgbCollision::asBtTransform(m));
 
 
-
-
-
-    dw->addRigidBody(body);
-    return(brick);
+    dw->addRigidBody(brickBody);
+    return(brickNode);
 }
 
 
 
 bool Brickwall::init() {
 
-    //InteractionA = new coMouseButtonInteraction(coInteraction::ButtonA, "Shoot", coInteraction::Menu);
+    InteractionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "Shoot", coInteraction::Medium);
     bulletWorld = initPhysics();
     root = new osg::Group;
     btCompoundShape* cs = new btCompoundShape;
 
+    // create new Tab in TabFolder
+    BrickTab = new ui::Menu("BrickWall", this);
+
+
+    // create new ToggleButton in Tab1
+    enableShooting = new ui::Button(BrickTab, "Shooting");
+    enableShooting->setCallback([this](bool state) {
+        if (state)
+        {
+            if (!InteractionA->isRegistered())
+            {
+                coInteractionManager::the()->registerInteraction(InteractionA);
+            }
+        }
+        else
+        {
+            if (InteractionA->isRegistered())
+            {
+                coInteractionManager::the()->unregisterInteraction(InteractionA);
+            }
+        }
+        });
     //create Ground
     float xDim(20.);
     float yDim(20.);
-    osg::Vec3 centerOM(0., -50., 50.);
+    centerOM.set(0., -50., 50.);
 
-    osg::ref_ptr< osg::Node > ground = createGround(5 * xDim, 5 * yDim, osg::Vec3(0., 0., 0.), bulletWorld);
+    ground = createGround(5 * xDim, 5 * yDim, osg::Vec3(0., 0., 0.), bulletWorld);
     root->addChild(ground.get());
 
     //create brickwall
     float xCen(-2);
     int zCen(0.);
-
-    ->enableIntersection();
+    index = 0;
+   
 
     for (int u = 1; u <= 10; u++) {
 
         for (int i = 0; i <= 3; i++) {
 
             osg::Vec3 brickCenter(20 + 40 * xCen, 90, 5 + 10 * zCen);
-            osg::ref_ptr< osg::Node > brick = createCube(brickCenter, bulletWorld);
+            bricks = createCube(brickCenter, bulletWorld);
 
             osg::ref_ptr<osg::Material> mat = new osg::Material;
 
-            root->addChild(brick.get());
+            root->addChild(bricks.get());
             xCen++;
             if (u % 2 == 0 && i == 2) {
                 i++;
+                index++;
             }
 
         }
@@ -362,11 +380,8 @@ bool Brickwall::init() {
 
     bulletWorld -> addRigidBody(platform);
    */
-    float mass = 10;
-    float radius = 10;
-
-    osg::Transform* ball = createDynamicBall(mass, radius, centerOM, bulletWorld);
-    root->addChild(ball);
+  
+    
 
 
 
@@ -378,7 +393,16 @@ bool Brickwall::init() {
 }
 bool Brickwall::update() {
 
+    if (InteractionA->wasStarted())
+    {
+        osg::Matrix pm = cover->getPointerMat();
+        osg::Vec3 start = pm.getTrans() * cover->getInvBaseMat(), target = osg::Y_AXIS * pm * cover->getInvBaseMat();
+        target = (target - start);
+        target.normalize(); 
+        ball = createDynamicBall(4, 3, start, bulletWorld,target);
+        root->addChild(ball);
 
+    }
     
     static double lastTime = 0.;
     double curTime = cover->frameTime();
@@ -419,13 +443,13 @@ bool Brickwall::update() {
 
 }
 
-void Brickwall::preFrame() {
+/*void Brickwall::preFrame() {
     osg::Node* node;
-    node= node = cover->getIntersectedNode();
+    node = cover->getIntersectedNode();
     if (InteractionA->getState() == coInteraction::Active) {
         fprintf(stderr, "ESGEHT\n");
     }
-}
+}*/
 
 
 

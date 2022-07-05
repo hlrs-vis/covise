@@ -113,6 +113,8 @@ static const int NUM_TEXUNITS = 4;
 using namespace std;
 using covise::coCoviseConfig;
 
+
+
 #ifdef HAVE_SDL
 #include "SDLAudio.h"
 #endif
@@ -547,7 +549,10 @@ static int oldNumVert = 0;
 static int numPoly = 0;
 static int oldNumPoly = 0;
 static bool UseFieldOfViewForScaling = false;
-
+int singel = 0;
+int frameNmbr = 0;
+btAlignedObjectArray <osg::Node*> Knotenfeld;
+btAlignedObjectArray <btRigidBody*> Körperfeld;
 int textureMode = -1;
 static int textureQuality = 0;
 
@@ -600,6 +605,7 @@ static void worldChangedCB(int reason)
 
 void ViewerOsg::setRootNode(osg::Group *group)
 {
+
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setRootNode\n";
     if (VRMLRoot->getNumParents() > 0)
@@ -1780,6 +1786,8 @@ ViewerOsg::insertShell(unsigned int mask,
                        float *color, // colors
                        int nci,
                        int *ci,
+
+
                        const char *objName,
                        int *texCoordGeneratorMode,
                        float **texCoordGeneratorParameter,
@@ -5443,6 +5451,20 @@ osg::Vec3 closestPoint(osg::Vec3 a1, osg::Vec3 b1, osg::Vec3 a2, osg::Vec3 b2)
 // update is called from a timer callback
 bool ViewerOsg::update(double timeNow)
 {
+#ifdef HAVE_BULLET
+
+    //Update for the Physics Simulation
+    static double lastTime = 0.;
+    double curTime = cover->frameTime();
+    double dt = curTime - lastTime;
+    if (lastTime == 0.)
+        dt = 0.01;
+    VrmlNodePhysicsWorld::instance()->getWorld()->stepSimulation(curTime - lastTime);
+
+    lastTime = curTime;
+
+
+#endif
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::update" << endl;
     bool updated = false;
@@ -5505,6 +5527,9 @@ bool ViewerOsg::update(double timeNow)
         }
     }
 
+
+
+
     framebufferTextureUpdated = false;
     if (countTextures && texSize > oldTexSize)
     {
@@ -5531,7 +5556,9 @@ bool ViewerOsg::update(double timeNow)
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::update" << endl;
 
-    return updated;
+
+
+    return true;
 }
 
 void ViewerOsg::preFrame()

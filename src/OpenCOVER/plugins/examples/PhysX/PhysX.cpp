@@ -91,7 +91,7 @@ void PhysX::key(int type, int keySym, int mod)
         target = (target - start); target.normalize(); target *= 50.0f;
             if (keySym == '1' && _root.valid())
             {
-                physx::PxRigidActor* actor = osgPhysics::createBoxActor(osg::Vec3(1.0f, 1.0f, 1.0f), 5.0);
+                physx::PrtxRigidActor* actor = osgPhysics::createBoxActor(osg::Vec3(1.0f, 1.0f, 1.0f), 5.0);
                 actor->setGlobalPose(physx::PxTransform(osgPhysics::toPxMatrix(
                     osg::Matrix::translate(start))));
 

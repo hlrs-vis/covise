@@ -197,6 +197,7 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeTimeSensor.h"
 #include "VrmlNodeTouchSensor.h"
 #include "VrmlNodeTransform.h"
+//#include "VrmlNodeRigidBodyTransform.h"
 #include "VrmlNodeTriangleFanSet.h"
 #include "VrmlNodeTriangleSet.h"
 #include "VrmlNodeTriangleStripSet.h"
@@ -295,6 +296,7 @@ void VrmlNamespace::defineBuiltIns()
     addBuiltIn(VrmlNodeTimeSensor::defineType());
     addBuiltIn(VrmlNodeTouchSensor::defineType());
     addBuiltIn(VrmlNodeTransform::defineType());
+    //addBuiltIn(VrmlNodeRigidBodyTransform::defineType());
     addBuiltIn(VrmlNodeTriangleFanSet::defineType());
     addBuiltIn(VrmlNodeTriangleSet::defineType());
     addBuiltIn(VrmlNodeTriangleStripSet::defineType());

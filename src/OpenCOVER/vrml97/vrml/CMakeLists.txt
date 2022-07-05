@@ -173,6 +173,7 @@ SET(VRML_SOURCES
   VrmlNodeProto.cpp
   VrmlNodeProximitySensor.cpp
   VrmlNodeQuadSet.cpp
+  
   VrmlNodeScalarInt.cpp
   VrmlNodeScript.cpp
   VrmlNodeShape.cpp
@@ -327,6 +328,7 @@ SET(VRML_HEADERS
   VrmlNodeProto.h
   VrmlNodeProximitySensor.h
   VrmlNodeQuadSet.h
+
   VrmlNodeScalarInt.h
   VrmlNodeScript.h
   VrmlNodeShape.h

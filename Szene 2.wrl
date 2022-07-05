@@ -1,0 +1,180 @@
+#VRML V2.0 utf8
+
+# Produced by Uwes VRML Plugin, Version 8, Revision 06, .NET
+# MAX File: testbricks.max, Date: Tue Jun 14 12:14:22 2022
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.33333 },
+NavigationInfo { headlight TRUE }
+
+
+DEF Group001 RigidBodyTransform {
+	mass 1 
+ shapeType 1
+	
+  translation 0 0 0
+  children [
+    DEF Box026 Transform {
+      translation 1.2 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box027 Transform {
+      translation 1.2 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box028 Transform {
+      translation 1.2 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box029 Transform {
+      translation 1.2 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box030 Transform {
+      translation 1.2 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box031 Transform {
+      translation 0.599999 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box032 Transform {
+      translation 0.599999 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box033 Transform {
+      translation 0.599999 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box034 Transform {
+      translation 0.599999 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box035 Transform {
+      translation 0.599999 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box036 Transform {
+      translation 0 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box037 Transform {
+      translation 0 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box038 Transform {
+      translation 0 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box039 Transform {
+      translation 0 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box040 Transform {
+      translation 0 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box041 Transform {
+      translation -0.6 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box042 Transform {
+      translation -0.6 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box043 Transform {
+      translation -0.6 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box044 Transform {
+      translation -0.6 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box045 Transform {
+      translation -0.6 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box046 Transform {
+      translation -1.2 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box047 Transform {
+      translation -1.2 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box048 Transform {
+      translation -1.2 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box049 Transform {
+      translation -1.2 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box050 Transform {
+      translation -1.2 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    }
+  ]
+}
+
+
+
+RigidBodyTransform {
+
+translation 2 -1.5 3
+children [
+Shape {
+geometry Box { size 50 1 50}
+} # Ende von Shape
+] # Ende von children
+}
+
