@@ -57,6 +57,13 @@ TARGET_LINK_LIBRARIES(vrb
                         coVRBServer)
 QT_USE_MODULES(vrb Core Gui Widgets)
 
+IF(UNIX)
+  FIND_LIBRARY(RT rt)
+  IF(RT)
+  TARGET_LINK_LIBRARIES(vrb rt)
+  ENDIF()
+ENDIF()
+
 COVISE_INSTALL_TARGET(vrb)
 
 IF(UNIX)
