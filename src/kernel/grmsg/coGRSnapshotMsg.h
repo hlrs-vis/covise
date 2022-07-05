@@ -45,8 +45,8 @@ public:
     };
 
 private:
-    char *filename_;
-    char *intention_;
+    char *filename_ = nullptr;
+    char *intention_ = nullptr;
 };
 }
 

@@ -28,10 +28,10 @@ GRMSGEXPORT coGRSnapshotMsg::coGRSnapshotMsg(const char *msg)
 {
     vector<string> tok = getAllTokens();
 
+    is_valid_ = 1;
     if (!tok[0].empty())
     {
         filename_ = strdup(tok[0].c_str());
-        is_valid_ = 1;
     }
     else
     {
@@ -42,7 +42,6 @@ GRMSGEXPORT coGRSnapshotMsg::coGRSnapshotMsg(const char *msg)
     if (!tok[1].empty())
     {
         intention_ = strdup(tok[1].c_str());
-        is_valid_ = 1;
     }
     else
     {
