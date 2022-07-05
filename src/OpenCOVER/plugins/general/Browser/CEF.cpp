@@ -549,13 +549,13 @@ bool CEF::init()
     settings.multi_threaded_message_loop = false;
 #endif
 #ifdef _WIN32
-    //settings.log_severity = LOGSEVERITY_VERBOSE;
-#endif
-
+    CefMainArgs args;
+#else
     std::vector<const char *> cmdArgs;
     cmdArgs.push_back("--enable-media-stream=1");
     cmdArgs.push_back("--use-fake-ui-for-media-stream=1");
     CefMainArgs args(cmdArgs.size(), (char**)cmdArgs.data());
+#endif
     if (!CefInitialize(args, settings, this, nullptr))
     {
         std::cerr << "CefInitialize failed" << std::endl;
