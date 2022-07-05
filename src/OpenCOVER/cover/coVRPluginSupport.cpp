@@ -74,6 +74,7 @@
 #include <grmsg/coGRSetAnimationSpeedMsg.h>
 #include <grmsg/coGRSetTimestepMsg.h>
 #include <grmsg/coGRSetTrackingParamsMsg.h>
+#include <grmsg/coGRPluginMsg.h>
 
 
 using namespace vrui;
@@ -1155,7 +1156,20 @@ void coVRPluginSupport::guiToRenderMsg(const char *msg) const
     if (!grMsg.isValid())
         return;
 
-    if (grMsg.getType() == coGRMsg::ANIMATION_ON)
+    if (grMsg.getType() == coGRMsg::PLUGIN)
+    {
+        coGRPluginMsg pluginMsg(fullMsg.c_str());
+        std::string act(pluginMsg.getAction());
+        if (act == "load" || act == "add")
+        {
+            cover->addPlugin(pluginMsg.getPlugin());
+        }
+        else if (act == "unload" || act == "remove")
+        {
+            cover->removePlugin(pluginMsg.getPlugin());
+        }
+    }
+    else if (grMsg.getType() == coGRMsg::ANIMATION_ON)
     {
         coGRAnimationOnMsg animationModeMsg(fullMsg.c_str());
         bool mode = animationModeMsg.getMode() != 0;

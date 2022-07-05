@@ -55,6 +55,7 @@
 #include "grmsg/coGRObjSetMoveSelectedMsg.h"
 #include "grmsg/coGRObjSensorMsg.h"
 #include "grmsg/coGRObjSensorEventMsg.h"
+#include "grmsg/coGRPluginMsg.h"
 #include "grmsg/coGRSendDocNumbersMsg.h"
 #include "grmsg/coGRSendCurrentDocMsg.h"
 #include "grmsg/coGRAnimationOnMsg.h"
@@ -120,6 +121,7 @@
 %include coGRObjSetMoveSelectedMsg.h
 %include coGRObjSensorMsg.h
 %include coGRObjSensorEventMsg.h
+%include coGRPluginMsg.h
 %include coGRSendDocNumbersMsg.h
 %include coGRSendCurrentDocMsg.h
 %include coGRAnimationOnMsg.h
