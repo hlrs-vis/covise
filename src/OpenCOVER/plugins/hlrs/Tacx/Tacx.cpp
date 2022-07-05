@@ -215,7 +215,7 @@ float Tacx::getAngle()
     else
         angle = (diff/56.0);
 	
-                    fprintf(stderr,"diff %d %d\n",diff,angle);
+                    fprintf(stderr,"diff %d %f\n",diff,angle);
     return angle;
 } // -1 - 1 min-max
 
