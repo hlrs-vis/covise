@@ -91,24 +91,24 @@ private:
     };
 
     static Resolution resolutions[];
-    int NumResolutions;
+    int NumResolutions = 0;
 
-    coButtonMenuItem *snapButton;
+    coButtonMenuItem *snapButton = nullptr;
 
-    coTUITab *tuiSnapTab;
-    coTUIButton *tuiSnapButton;
-    coTUIComboBox *tuiResolution;
-    coTUILabel *tuiResolutionLabel;
-    coTUIEditIntField *tuiResolutionX;
-    coTUIEditIntField *tuiResolutionY;
-    coTUILabel *tuiFileNameLabel;
-    coTUIEditField *tuiFileName;
-    coTUILabel *tuiSavedFileLabel;
-    coTUILabel *tuiSavedFile;
-    coTUIComboBox *tuiRenderingMethod;
-    coTUIToggleButton *tuiStereoCheckbox;
-    coTUIToggleButton *tuiSnapOnSlaves;
-    coTUIToggleButton *tuiTransparentBackground;
+    coTUITab *tuiSnapTab = nullptr;
+    coTUIButton *tuiSnapButton = nullptr;
+    coTUIComboBox *tuiResolution = nullptr;
+    coTUILabel *tuiResolutionLabel = nullptr;
+    coTUIEditIntField *tuiResolutionX = nullptr;
+    coTUIEditIntField *tuiResolutionY = nullptr;
+    coTUILabel *tuiFileNameLabel = nullptr;
+    coTUIEditField *tuiFileName = nullptr;
+    coTUILabel *tuiSavedFileLabel = nullptr;
+    coTUILabel *tuiSavedFile = nullptr;
+    coTUIComboBox *tuiRenderingMethod = nullptr;
+    coTUIToggleButton *tuiStereoCheckbox = nullptr;
+    coTUIToggleButton *tuiSnapOnSlaves = nullptr;
+    coTUIToggleButton *tuiTransparentBackground = nullptr;
 
     void tabletEvent(coTUIElement *tUIItem) override;
     void tabletPressEvent(coTUIElement *tUIItem) override;

@@ -275,6 +275,8 @@ bool PBufferSnapShot::init()
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::init\n");
 
+    initUI();
+
     doInit = true;
     return true;
 }
@@ -348,7 +350,6 @@ void PBufferSnapShot::preSwapBuffers(int windowNumber)
     if (doInit)
     {
         doInit = false;
-        initUI();
     }
 }
 
