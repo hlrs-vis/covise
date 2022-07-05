@@ -12,10 +12,7 @@
 using namespace std;
 using namespace grmsg;
 
-GRMSGEXPORT coGRMsg::coGRMsg(Mtype type)
-    : is_valid_(1)
-    , SplitToken('\n')
-    , MsgID(string("GRMSG"))
+GRMSGEXPORT coGRMsg::coGRMsg(Mtype type): is_valid_(type != NO_TYPE), SplitToken('\n'), MsgID(string("GRMSG"))
 {
     type_ = type;
     str_ = NULL;
@@ -52,6 +49,12 @@ GRMSGEXPORT coGRMsg::coGRMsg(const char *msg)
     int typei;
     stream >> typei;
     type_ = (Mtype)typei;
+
+    if (type_ == NO_TYPE)
+    {
+        is_valid_ = 0;
+        return;
+    }
 }
 
 GRMSGEXPORT void coGRMsg::addToken(const char *token)
