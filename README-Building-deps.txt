@@ -698,8 +698,10 @@ download from
 https://cef-builds.spotifycdn.com/index.html#windows64
 cd c:/src/externlibs/zebu/cef/build
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cef -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/PhysX;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/schism;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/eigen3;c:/src/externlibs/zebu/ccd;c:/src/externlibs/zebu/fcl;c:/src/externlibs/zebu/assimp;c:/src/externlibs/zebu/boost;c:/src/externlibs/zebu/octomap;c:/src/externlibs/zebu/tinyxml2
-change runtime library to Debug DLL or DLL
-remove _HAS_ITERATOR_DEBUGGING=0 from preprocessor definitions in the debug config
+change runtime library to Debug DLL or DLL -->in visual studio right click libcef_dll_wrapper->properties->c/c++->Code Generation->Runtime Library to Md/MDd
+remove _HAS_ITERATOR_DEBUGGING=0 from preprocessor definitions in the debug config ->properties->c/c++ -> Preprocessor -> Preprocessor Definitions -> remove _HAS_ITERATOR_DEBUGGING=0
+Build 
+copy Release/libcef.ddl or Deubu/libcef.dll and contets of Resources to externlibs/zebu/all
 
 ########
 vrmlexp
