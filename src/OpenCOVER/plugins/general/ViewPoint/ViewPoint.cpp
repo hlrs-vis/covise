@@ -856,117 +856,117 @@ void ViewPoints::guiToRenderMsg(const char *msg)
     if (grMsg.isValid())
     {
         // gui  tells cover to load a certain viewpoint
-            switch (grMsg.getType())
-            {
-                // gui  tells cover to load a certain viewpoint
-            case coGRMsg::SHOW_VIEWPOINT:
-            {
-                coGRShowViewpointMsg vMsg(fullMsg.c_str());
-                loadViewpoint(vMsg.getViewpointId());
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- SHOW_VIEWPOINT id=%d\n", vMsg.getViewpointId());
-            }
-            break;
-            // when gui loads a project, it already has viewpoints with positions and orientations
-            case coGRMsg::CREATE_VIEWPOINT:
-            {
-                coGRCreateViewpointMsg vMsg(fullMsg.c_str());
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "ladeVP[%i]\n", vMsg.getViewpointId());
-                createViewPoint(vMsg.getName(), vMsg.getViewpointId(), vMsg.getView(), vMsg.getClipplane());
+        switch (grMsg.getType())
+        {
+            // gui  tells cover to load a certain viewpoint
+        case coGRMsg::SHOW_VIEWPOINT:
+        {
+            coGRShowViewpointMsg vMsg(fullMsg.c_str());
+            loadViewpoint(vMsg.getViewpointId());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- SHOW_VIEWPOINT id=%d\n", vMsg.getViewpointId());
+        }
+        break;
+        // when gui loads a project, it already has viewpoints with positions and orientations
+        case coGRMsg::CREATE_VIEWPOINT:
+        {
+            coGRCreateViewpointMsg vMsg(fullMsg.c_str());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "ladeVP[%i]\n", vMsg.getViewpointId());
+            createViewPoint(vMsg.getName(), vMsg.getViewpointId(), vMsg.getView(), vMsg.getClipplane());
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- CREATE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
-            }
-            break;
-            // when gui loads a project, it already has viewpoints with positions and orientations
-            case coGRMsg::CHANGE_VIEWPOINT:
-            {
-                coGRChangeViewpointMsg vMsg(fullMsg.c_str());
-                changeViewPoint(vMsg.getViewpointId());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- CREATE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
+        }
+        break;
+        // when gui loads a project, it already has viewpoints with positions and orientations
+        case coGRMsg::CHANGE_VIEWPOINT:
+        {
+            coGRChangeViewpointMsg vMsg(fullMsg.c_str());
+            changeViewPoint(vMsg.getViewpointId());
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- CHANGE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
-            }
-            break;
-            case coGRMsg::CHANGE_VIEWPOINT_NAME:
-            {
-                coGRChangeViewpointNameMsg vMsg(fullMsg.c_str());
-                changeViewPointName(vMsg.getId(), vMsg.getName());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- CHANGE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
+        }
+        break;
+        case coGRMsg::CHANGE_VIEWPOINT_NAME:
+        {
+            coGRChangeViewpointNameMsg vMsg(fullMsg.c_str());
+            changeViewPointName(vMsg.getId(), vMsg.getName());
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- CHANGE_VIEWPOINT id=%d\n", vMsg.getId());
-            }
-            break;
-            case coGRMsg::DELETE_VIEWPOINT:
-            {
-                coGRDeleteViewpointMsg vMsg(fullMsg.c_str());
-                deleteViewPoint(vMsg.getViewpointId());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- CHANGE_VIEWPOINT id=%d\n", vMsg.getId());
+        }
+        break;
+        case coGRMsg::DELETE_VIEWPOINT:
+        {
+            coGRDeleteViewpointMsg vMsg(fullMsg.c_str());
+            deleteViewPoint(vMsg.getViewpointId());
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- DELETE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
-            }
-            break;
-            // gui tells cover to create a new viewpoint, gui doesn't know the position yet
-            case coGRMsg::KEYWORD:
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- DELETE_VIEWPOINT id=%d\n", vMsg.getViewpointId());
+        }
+        break;
+        // gui tells cover to create a new viewpoint, gui doesn't know the position yet
+        case coGRMsg::KEYWORD:
+        {
+            coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
+            const char *keyword = keyWordMsg.getKeyWord();
+            if (strcmp(keyword, "saveViewPoint") == 0)
             {
-                coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
-                const char *keyword = keyWordMsg.getKeyWord();
-                if (strcmp(keyword, "saveViewPoint") == 0)
-                {
-                    saveViewPoint();
-                    if (cover->debugLevel(3))
-                        fprintf(stderr, "saveVP");
-                }
-                else if (strcmp(keyword, "sendDefaultViewPoint") == 0)
-                {
-                    sendDefaultViewPoint();
-                    if (cover->debugLevel(3))
-                        fprintf(stderr, "sendDefaultVP");
-                }
-                else if (strcmp(keyword, "turntableRotate45") == 0)
-                {
-                    turnTableStep();
-                }
+                saveViewPoint();
+                if (cover->debugLevel(3))
+                    fprintf(stderr, "saveVP");
+            }
+            else if (strcmp(keyword, "sendDefaultViewPoint") == 0)
+            {
+                sendDefaultViewPoint();
+                if (cover->debugLevel(3))
+                    fprintf(stderr, "sendDefaultVP");
+            }
+            else if (strcmp(keyword, "turntableRotate45") == 0)
+            {
+                turnTableStep();
+            }
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- KEYWORD [%s]\n", keyWordMsg.getKeyWord());
-            }
-            break;
-            // gui changed fly mode
-            case coGRMsg::FLYMODE_TOGGLE:
-            {
-                coGRToggleFlymodeMsg flymodeMsg(fullMsg.c_str());
-                // printf("GUI CHANGED FLYMODE %d\n", flymodeMsg.getMode());
-                flyingMode = (bool)flymodeMsg.getMode();
-                // set flyMode in menu
-                flyingModeCheck_->setState(flyingMode);
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- KEYWORD [%s]\n", keyWordMsg.getKeyWord());
+        }
+        break;
+        // gui changed fly mode
+        case coGRMsg::FLYMODE_TOGGLE:
+        {
+            coGRToggleFlymodeMsg flymodeMsg(fullMsg.c_str());
+            // printf("GUI CHANGED FLYMODE %d\n", flymodeMsg.getMode());
+            flyingMode = (bool)flymodeMsg.getMode();
+            // set flyMode in menu
+            flyingModeCheck_->setState(flyingMode);
 
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- FLYMODE_TOGGLE \n");
-            }
-            break;
-            // gui changed clipplane mode
-            case coGRMsg::VPCLIPPLANEMODE_TOGGLE:
-            {
-                coGRToggleVPClipPlaneModeMsg clipplanemodeMsg(fullMsg.c_str());
-                useClipPlanesCheck_->setState((bool)clipplanemodeMsg.getMode());
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "--- VPCLIPPLANEMODE_TOGGLE \n");
-            }
-            break;
-            case coGRMsg::TURNTABLE_ANIMATION:
-            {
-                coGRTurnTableAnimationMsg msg(fullMsg.c_str());
-                startTurnTableAnimation(msg.getAnimationTime());
-            }
-            break;
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- FLYMODE_TOGGLE \n");
+        }
+        break;
+        // gui changed clipplane mode
+        case coGRMsg::VPCLIPPLANEMODE_TOGGLE:
+        {
+            coGRToggleVPClipPlaneModeMsg clipplanemodeMsg(fullMsg.c_str());
+            useClipPlanesCheck_->setState((bool)clipplanemodeMsg.getMode());
+            if (cover->debugLevel(3))
+                fprintf(stderr, "--- VPCLIPPLANEMODE_TOGGLE \n");
+        }
+        break;
+        case coGRMsg::TURNTABLE_ANIMATION:
+        {
+            coGRTurnTableAnimationMsg msg(fullMsg.c_str());
+            startTurnTableAnimation(msg.getAnimationTime());
+        }
+        break;
 
-            default:
-            {
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "NOT-USED\n");
-            }
+        default:
+        {
+            if (cover->debugLevel(3))
+                fprintf(stderr, "NOT-USED\n");
+        }
         }
     }
 }
