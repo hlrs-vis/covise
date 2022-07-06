@@ -28,6 +28,7 @@
 #include "grmsg/coGRChangeViewpointMsg.h"
 #include "grmsg/coGRChangeViewpointIdMsg.h"
 #include "grmsg/coGRChangeViewpointNameMsg.h"
+#include "grmsg/coGRSetViewpointFile.h"
 #include "grmsg/coGRViewpointChangedMsg.h"
 #include "grmsg/coGRToggleFlymodeMsg.h"
 #include "grmsg/coGRObjSetCaseMsg.h"
@@ -92,6 +93,7 @@
 %include coGRChangeViewpointMsg.h
 %include coGRChangeViewpointIdMsg.h
 %include coGRChangeViewpointNameMsg.h
+%include coGRSetViewpointFile.h
 %include coGRViewpointChangedMsg.h
 %include coGRShowPresentationpointMsg.h
 %include coGRObjSetCaseMsg.h

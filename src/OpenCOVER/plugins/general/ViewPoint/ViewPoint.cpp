@@ -37,6 +37,7 @@
 #include <grmsg/coGRToggleFlymodeMsg.h>
 #include <grmsg/coGRToggleVPClipPlaneModeMsg.h>
 #include <grmsg/coGRTurnTableAnimationMsg.h>
+#include <grmsg/coGRSetViewpointFile.h>
 #include <grmsg/coGRViewpointChangedMsg.h>
 #include <net/message.h>
 #include <net/message_types.h>
@@ -961,7 +962,13 @@ void ViewPoints::guiToRenderMsg(const char *msg)
             startTurnTableAnimation(msg.getAnimationTime());
         }
         break;
-
+        case coGRMsg::SET_VIEWPOINT_FILE:
+        {
+            coGRSetViewpointFile msg(fullMsg.c_str());
+            vwpPath = msg.getFileName();
+            readFromDom();
+        }
+        break;
         default:
         {
             if (cover->debugLevel(3))
