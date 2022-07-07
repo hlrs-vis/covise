@@ -109,12 +109,8 @@ public:
 
     /// recreate class from a message string
     coGRMsg(const char *msg);
-
     /// destructor
-    virtual ~coGRMsg()
-    {
-        delete[] str_;
-    };
+    virtual ~coGRMsg() = default;
 
     /// whether recreate was succesful
     int isValid()
@@ -153,16 +149,8 @@ protected:
     int is_valid_;
 
 private:
-    /// split message string by this token
-    const char SplitToken;
-
-    /// string put to the header to identify the type Gui2RenderMessage
-    const std::string MsgID;
-
-    Mtype type_;
+    Mtype type_ = NO_TYPE;
     std::string content_;
-    /// char representation of content
-    char *str_;
 };
 }
 #endif

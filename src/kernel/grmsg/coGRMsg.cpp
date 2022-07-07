@@ -12,67 +12,49 @@
 using namespace std;
 using namespace grmsg;
 
-GRMSGEXPORT coGRMsg::coGRMsg(Mtype type): is_valid_(type != NO_TYPE), SplitToken('\n'), MsgID(string("GRMSG"))
+coGRMsg::coGRMsg(Mtype type): is_valid_(type != NO_TYPE), type_(type)
 {
-    type_ = type;
-    str_ = NULL;
-    ostringstream stream;
-    stream << type;
     addToken(MsgID.c_str());
-    addToken(stream.str().c_str());
+    addToken(std::to_string(type).c_str());
 }
 
-GRMSGEXPORT coGRMsg::coGRMsg(const char *msg)
-    : is_valid_(1)
-    , SplitToken('\n')
-    , MsgID(string("GRMSG"))
+coGRMsg::coGRMsg(const char *msg)
+    : is_valid_(true)
+    ,content_(msg)
 {
-    type_ = NO_TYPE;
-    str_ = NULL;
-    content_ = string(msg);
-
     /// parsed content will always be removed
     /// to enable all children to call extractFirstToken() to
     /// get their token
 
     /// parse for msg id
-    string id_str = extractFirstToken();
-    if (id_str != MsgID)
+    if (extractFirstToken() != MsgID)
     {
-        is_valid_ = 0;
+        is_valid_ = false;
         return;
     }
 
     /// parse message type
-    string type_str = extractFirstToken();
-    istringstream stream(type_str);
-    int typei;
-    stream >> typei;
-    type_ = (Mtype)typei;
-
+    type_ = (Mtype)std::stoi(extractFirstToken());
     if (type_ == NO_TYPE)
     {
         is_valid_ = 0;
-        return;
     }
 }
 
-GRMSGEXPORT void coGRMsg::addToken(const char *token)
+
+void coGRMsg::addToken(const char *token)
 {
-    if (token == NULL)
-    {
-        return;
-    }
-    content_ += string(token) + SplitToken;
+    if (token)
+        content_ += string(token) + SplitToken;
 }
 
-GRMSGEXPORT string coGRMsg::getFirstToken()
+string coGRMsg::getFirstToken()
 {
     size_t pos = content_.find(SplitToken);
     return content_.substr(0, pos);
 }
 
-GRMSGEXPORT string coGRMsg::extractFirstToken()
+string coGRMsg::extractFirstToken()
 {
     size_t pos = content_.find(SplitToken);
     string token = content_.substr(0, pos);
@@ -80,7 +62,7 @@ GRMSGEXPORT string coGRMsg::extractFirstToken()
     return token;
 }
 
-GRMSGEXPORT vector<string> coGRMsg::getAllTokens()
+vector<string> coGRMsg::getAllTokens()
 {
     vector<string> tok;
 
@@ -94,21 +76,9 @@ GRMSGEXPORT vector<string> coGRMsg::getAllTokens()
     return tok;
 }
 
-GRMSGEXPORT const char *coGRMsg::c_str() const
+const char *coGRMsg::c_str() const
 {
     return content_.c_str();
-    //if (str_ && strcmp(str_, content_.c_str()) == 0)
-    //{
-    //    return str_;
-    //}
-    //else
-    //{
-    //    delete[] str_;
-    //    str_ = strcpy(new char[content_.length() + 1], content_.c_str());
-    //}
-
-
-
 }
 
 string coGRMsg::getString() const
@@ -116,7 +86,7 @@ string coGRMsg::getString() const
     return content_;
 }
 
-GRMSGEXPORT void coGRMsg::print_stdout()
+void coGRMsg::print_stdout()
 {
     const char *typeStr[] = { "NO_TYPE", "GEO_VISIBLE", "REGISTER", "INTERACTOR_VISIBLE" };
     cout << "coGRMsg::Type = " << typeStr[type_] << endl;
