@@ -26,14 +26,14 @@ class GRMSGEXPORT coGRChangeViewpointNameMsg : public coGRMsg
 {
 public:
     int getId();
-    char *getName();
+    const char *getName();
 
     coGRChangeViewpointNameMsg(int id, const char *name);
     coGRChangeViewpointNameMsg(const char *msg);
 
 private:
     int id_;
-    char *name_;
+    std::string name_;
 };
 }
 #endif

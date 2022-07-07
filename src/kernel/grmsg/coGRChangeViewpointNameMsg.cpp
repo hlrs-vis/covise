@@ -20,7 +20,7 @@ GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(const char *m
     : coGRMsg(msg)
 {
     is_valid_ = 1;
-    name_ = NULL;
+    name_ = "";
     vector<string> tok = getAllTokens();
 
     if (!tok[0].empty())
@@ -35,8 +35,7 @@ GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(const char *m
 
     if (!tok[1].empty())
     {
-        name_ = new char[strlen(tok[1].c_str()) + 1];
-        strcpy(name_, tok[1].c_str());
+        name_ = tok[1];
     }
     else
     {
@@ -46,6 +45,7 @@ GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(const char *m
 
 GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(int id, const char *name)
     : coGRMsg(CHANGE_VIEWPOINT_NAME)
+    , name_(name)
 {
     is_valid_ = 1;
 
@@ -55,8 +55,7 @@ GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(int id, const
     addToken(stream.str().c_str());
 
     name_ = new char[strlen(name) + 1];
-    strcpy(name_, name);
-    addToken(name_);
+    addToken(name_.c_str());
 }
 
 GRMSGEXPORT int coGRChangeViewpointNameMsg::getId()
@@ -64,8 +63,8 @@ GRMSGEXPORT int coGRChangeViewpointNameMsg::getId()
     return id_;
 }
 
-GRMSGEXPORT char *coGRChangeViewpointNameMsg::getName()
+GRMSGEXPORT const char *coGRChangeViewpointNameMsg::getName()
 {
-    return name_;
+    return name_.c_str();
 }
 }
