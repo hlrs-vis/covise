@@ -132,6 +132,10 @@ if (coVRMSController::instance()->isMaster())
 
 void JSBSimPlugin::reset(double dz)
 {
+    if(FDMExec==nullptr)
+    {
+        initJSB();
+    }
     FDMExec->Setdt(1.0 / 120.0);
     frame_duration = FDMExec->GetDeltaT();
 
@@ -439,9 +443,8 @@ bool JSBSimPlugin::init()
                 if (i->pluginName == "JSBSim")
                 {
                     host = i->address;
-    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-    initJSB();
-    reset();
+                    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+                    reset();
                     udp = new UDPComm(host.c_str(), serverPort, localPort);
                     if (!udp->isBad())
                     {
