@@ -35,7 +35,7 @@ public:
     ~coGRObjSetNameMsg();
 
     // specific functions
-    const char *getNewName()
+    const char *getNewName() const
     {
         return newName_;
     };

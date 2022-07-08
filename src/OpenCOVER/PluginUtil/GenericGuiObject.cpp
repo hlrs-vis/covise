@@ -268,23 +268,18 @@ GuiParamMatrix *GenericGuiObject::addGuiParamMatrix(std::string paramName, osg::
     return param;
 }
 
-void GenericGuiObject::guiToRenderMsg(const char *msg)
+void GenericGuiObject::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::GENERIC_PARAM_CHANGED)
     {
-        if (grMsg.getType() == coGRMsg::GENERIC_PARAM_CHANGED)
+        auto &paramChangedMsg = msg.as<coGRGenericParamChangedMsg>();
+        if (genericObjectName_ == std::string(paramChangedMsg.getObjectName()))
         {
-            coGRGenericParamChangedMsg paramChangedMsg(fullMsg.c_str());
-            if (genericObjectName_ == std::string(paramChangedMsg.getObjectName()))
+            GuiParam *param = guiParams_[std::string(paramChangedMsg.getParamName())];
+            if (param != NULL)
             {
-                GuiParam *param = guiParams_[std::string(paramChangedMsg.getParamName())];
-                if (param != NULL)
-                {
-                    param->setValueFromGui(paramChangedMsg.getValue());
-                    guiParamChanged(param);
-                }
+                param->setValueFromGui(paramChangedMsg.getValue());
+                guiParamChanged(param);
             }
         }
     }

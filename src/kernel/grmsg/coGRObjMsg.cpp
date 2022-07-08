@@ -33,7 +33,7 @@ GRMSGEXPORT coGRObjMsg::~coGRObjMsg()
         delete[] obj_name_;
 }
 
-GRMSGEXPORT const char *coGRObjMsg::getObjName()
+GRMSGEXPORT const char *coGRObjMsg::getObjName() const
 {
     return obj_name_;
 }

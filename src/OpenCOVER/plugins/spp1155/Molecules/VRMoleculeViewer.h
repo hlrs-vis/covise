@@ -118,5 +118,5 @@ public:
     static int loadFile(const char *name, osg::Group *parent, const char *ck = "");
     static int unloadFile(const char *name, const char *ck = "");
 
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 };

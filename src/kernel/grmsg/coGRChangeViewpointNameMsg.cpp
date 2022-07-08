@@ -58,12 +58,12 @@ GRMSGEXPORT coGRChangeViewpointNameMsg::coGRChangeViewpointNameMsg(int id, const
     addToken(name_.c_str());
 }
 
-GRMSGEXPORT int coGRChangeViewpointNameMsg::getId()
+GRMSGEXPORT int coGRChangeViewpointNameMsg::getId() const
 {
     return id_;
 }
 
-GRMSGEXPORT const char *coGRChangeViewpointNameMsg::getName()
+GRMSGEXPORT const char *coGRChangeViewpointNameMsg::getName()  const
 {
     return name_.c_str();
 }

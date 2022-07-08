@@ -35,7 +35,7 @@ public:
     ~coGRObjRestrictAxisMsg();
 
     // specific functions
-    const char *getAxisName()
+    const char *getAxisName() const
     {
         return axisName_;
     };

@@ -28,7 +28,7 @@ GRMSGEXPORT coGRShowViewpointMsg::coGRShowViewpointMsg(int id)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRShowViewpointMsg::getViewpointId()
+GRMSGEXPORT int coGRShowViewpointMsg::getViewpointId() const
 {
     return id_;
 }

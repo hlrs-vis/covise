@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRDeleteViewpointMsg : public coGRMsg
 {
 public:
-    int getViewpointId();
+    int getViewpointId() const;
     coGRDeleteViewpointMsg(int id);
     coGRDeleteViewpointMsg(const char *msg);
 

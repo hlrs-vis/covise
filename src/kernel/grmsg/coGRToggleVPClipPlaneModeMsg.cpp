@@ -28,7 +28,7 @@ GRMSGEXPORT coGRToggleVPClipPlaneModeMsg::coGRToggleVPClipPlaneModeMsg(int mode)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRToggleVPClipPlaneModeMsg::getMode()
+GRMSGEXPORT int coGRToggleVPClipPlaneModeMsg::getMode() const
 {
     return mode_;
 }

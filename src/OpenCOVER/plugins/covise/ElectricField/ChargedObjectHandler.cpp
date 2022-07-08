@@ -169,7 +169,7 @@ void ChargedObjectHandler::preFrame()
     }
 }
 
-void ChargedObjectHandler::guiToRenderMsg(const char *msg)
+void ChargedObjectHandler::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     for (vector<ChargedObject *>::iterator it = chargedObjects.begin(); it < chargedObjects.end(); it++)
         (*it)->guiToRenderMsg(msg);

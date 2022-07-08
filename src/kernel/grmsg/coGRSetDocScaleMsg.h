@@ -32,7 +32,7 @@ public:
     coGRSetDocScaleMsg(const char *msg);
 
     // specific functions
-    void getScale(float &s);
+    float getScale() const;
 
 private:
     float scale_;

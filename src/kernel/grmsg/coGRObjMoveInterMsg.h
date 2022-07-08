@@ -35,21 +35,21 @@ public:
     ~coGRObjMoveInterMsg();
 
     // specific functions
-    const char *getInteractorName()
+    const char *getInteractorName() const
     {
         return interactorName_;
     };
 
     // get position or orientation
-    float getX()
+    float getX() const
     {
         return x_;
     };
-    float getY()
+    float getY() const
     {
         return y_;
     };
-    float getZ()
+    float getZ() const
     {
         return z_;
     };

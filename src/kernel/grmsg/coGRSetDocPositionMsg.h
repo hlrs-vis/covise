@@ -32,7 +32,7 @@ public:
     coGRSetDocPositionMsg(const char *msg);
 
     // specific functions
-    void getPosition(float &x, float &y, float &z);
+    void getPosition(float &x, float &y, float &z) const;
 
 private:
     float pos_[3];

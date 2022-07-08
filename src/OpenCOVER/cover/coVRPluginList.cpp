@@ -420,7 +420,7 @@ void coVRPluginList::coviseError(const char *error) const
     DOALL(plugin->coviseError(error));
 }
 
-void coVRPluginList::guiToRenderMsg(const char *msg) const
+void coVRPluginList::guiToRenderMsg(const grmsg::coGRMsg &msg)  const
 {
     DOALL(plugin->guiToRenderMsg(msg));
 }

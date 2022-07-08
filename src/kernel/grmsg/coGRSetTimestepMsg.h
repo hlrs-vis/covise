@@ -25,8 +25,8 @@ namespace grmsg
 class GRMSGEXPORT coGRSetTimestepMsg : public coGRMsg
 {
 public:
-    int getActualTimeStep();
-    int getNumTimeSteps();
+    int getActualTimeStep() const;
+    int getNumTimeSteps() const;
     coGRSetTimestepMsg(int step, int maxSteps);
     coGRSetTimestepMsg(const char *msg);
 

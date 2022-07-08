@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRObjMsg : public coGRMsg
 {
 public:
-    const char *getObjName();
+    const char *getObjName() const;
 
 protected:
     coGRObjMsg(coGRMsg::Mtype type, const char *obj_name);

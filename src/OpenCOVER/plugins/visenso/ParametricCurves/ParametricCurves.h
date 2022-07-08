@@ -212,7 +212,7 @@ private:
    *
    * return:       void
    */
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 
     /*
     * Controls which slider button in the slider menu is moved.

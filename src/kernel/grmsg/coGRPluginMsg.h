@@ -35,11 +35,11 @@ public:
     virtual ~coGRPluginMsg();
 
     // specific functions
-    const char *getPlugin()
+    const char *getPlugin() const
     {
         return plugin_;
     };
-    const char *getAction()
+    const char *getAction() const
     {
         return action_;
     };

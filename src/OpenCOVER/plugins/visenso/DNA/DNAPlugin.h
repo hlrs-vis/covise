@@ -46,7 +46,7 @@ public:
     virtual bool init();
 
     virtual void preFrame();
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void menuEvent(vrui::coMenuItem *menuItem);
 
 private:

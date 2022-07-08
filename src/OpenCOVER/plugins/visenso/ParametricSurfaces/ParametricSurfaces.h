@@ -485,7 +485,7 @@ private:
    *
    * return:       void
    */
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     //clear the Normalschnittanimation
     void clearNormalAnim();
     /*

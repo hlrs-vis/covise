@@ -26,7 +26,7 @@ class GRMSGEXPORT coGRObjTransformAbstractMsg : public coGRObjMsg
 {
 public:
     // get Matrix
-    float getMatrix(int i, int j)
+    float getMatrix(int i, int j) const
     {
         return mat_[i][j];
     };

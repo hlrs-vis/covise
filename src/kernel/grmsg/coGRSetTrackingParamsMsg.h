@@ -52,102 +52,102 @@ public:
         const char *navigationMode);
     coGRSetTrackingParamsMsg(const char *msg);
 
-    bool isRotatePoint()
+    bool isRotatePoint() const
     {
         return rotatePoint_;
     };
-    bool isRotatePointVisible()
+    bool isRotatePointVisible() const
     {
         return rotatePointShown_;
     };
-    float getRotationPointSize()
+    float getRotationPointSize() const
     {
         return rotationPointSize_;
     };
-    float getRotatePointX()
+    float getRotatePointX() const
     {
         return rotatePointX_;
     };
-    float getRotatePointY()
+    float getRotatePointY() const
     {
         return rotatePointY_;
     };
-    float getRotatePointZ()
+    float getRotatePointZ() const
     {
         return rotatePointZ_;
     };
-    bool isRotateAxis()
+    bool isRotateAxis() const
     {
         return rotateAxis_;
     };
-    float getRotateAxisX()
+    float getRotateAxisX() const
     {
         return rotateAxisX_;
     };
-    float getRotateAxisY()
+    float getRotateAxisY() const
     {
         return rotateAxisY_;
     };
-    float getRotateAxisZ()
+    float getRotateAxisZ() const
     {
         return rotateAxisZ_;
     };
 
-    bool isTranslateRestrict()
+    bool isTranslateRestrict() const
     {
         return translateRestrict_;
     };
-    float getTranslateMinX()
+    float getTranslateMinX() const
     {
         return translateMinX_;
     };
-    float getTranslateMaxX()
+    float getTranslateMaxX() const
     {
         return translateMaxX_;
     };
-    float getTranslateMinY()
+    float getTranslateMinY() const
     {
         return translateMinY_;
     };
-    float getTranslateMaxY()
+    float getTranslateMaxY() const
     {
         return translateMaxY_;
     };
-    float getTranslateMinZ()
+    float getTranslateMinZ() const
     {
         return translateMinZ_;
     };
-    float getTranslateMaxZ()
+    float getTranslateMaxZ() const
     {
         return translateMaxZ_;
     };
-    float getTranslateFactor()
+    float getTranslateFactor() const
     {
         return translateFactor_;
     };
 
-    bool isScaleRestrict()
+    bool isScaleRestrict() const
     {
         return scaleRestrict_;
     };
-    float getScaleMin()
+    float getScaleMin() const
     {
         return scaleMin_;
     };
-    float getScaleMax()
+    float getScaleMax() const
     {
         return scaleMax_;
     };
-    float getScaleFactor()
+    float getScaleFactor() const
     {
         return scaleFactor_;
     };
 
-    bool isTrackingOn()
+    bool isTrackingOn() const
     {
         return trackingEnable_;
     };
-    const char *getNavigationMode()
+    const char *getNavigationMode() const
     {
         return navigationMode_;
     };

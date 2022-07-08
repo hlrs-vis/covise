@@ -118,18 +118,18 @@ void GeneralGeometryPlugin::addObject(const RenderObject *baseObj, osg::Group *,
     ModuleFeedbackPlugin::add(baseObj, geometry);
 }
 
-void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
+void GeneralGeometryPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- Plugin GeneralGeometry coVRGuiToRenderMsg [%s]\n", msg);
+        fprintf(stderr, "\n--- Plugin GeneralGeometry coVRGuiToRenderMsg [%s]\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
         {
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+        case coGRMsg::GEO_VISIBLE:
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
             if (msgForGeneralGeometry(objectName))
             {
@@ -139,10 +139,10 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible());
             }
         }
-        else if (grMsg.getType() == coGRMsg::SET_CASE) // die visMsg ist eigentlich eine boolean msg
+        break;
+        case coGRMsg::SET_CASE:
         {
-
-            coGRObjSetCaseMsg setCaseMsg(fullMsg.c_str());
+            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
             const char *objectName = setCaseMsg.getObjName();
             if (msgForGeneralGeometry(objectName))
             {
@@ -152,19 +152,20 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 handleSetCaseMsg(objectName, caseName);
             }
         }
-        else if (grMsg.getType() == coGRMsg::SET_NAME)
+        break;
+        case coGRMsg::SET_NAME:
         {
-            coGRObjSetNameMsg setNameMsg(fullMsg.c_str());
+            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
             const char *coviseObjectName = setNameMsg.getObjName();
             const char *newName = setNameMsg.getNewName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "in GeneralGeometry coGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
             handleSetNameMsg(coviseObjectName, newName);
         }
-
-        else if (grMsg.getType() == coGRMsg::COLOR_OBJECT)
+        break;
+        case coGRMsg::COLOR_OBJECT:
         {
-            coGRObjColorObjMsg colorObjMsg(fullMsg.c_str());
+            auto &colorObjMsg = msg.as<coGRObjColorObjMsg>();
             const char *objectName = colorObjMsg.getObjName();
             if (msgForGeneralGeometry(objectName))
             {
@@ -179,36 +180,10 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 delete[] color;
             }
         }
-
-        //      else if (grMsg.getType()==coGRMsg::SHADER_OBJECT)
-        //      {
-        //         coGRObjShaderObjMsg shaderObjMsg(fullMsg.c_str());
-        //         const char* objectName = shaderObjMsg.getObjName();
-        //
-        //         if (msgForGeneralGeometry(objectName))
-        //         {
-        //            if (cover->debugLevel(3))
-        //               fprintf(stderr, "in GeneralGeometry  coGRMsg::SHADER_OBJECT object=%s\n",objectName);
-        //
-        //            const char* shaderName = shaderObjMsg.getShaderName();
-        //            const char* mapFloat = shaderObjMsg.getParaFloatName();
-        //            const char* mapVec2 = shaderObjMsg.getParaVec2Name();
-        //            const char* mapVec3 = shaderObjMsg.getParaVec3Name();
-        //            const char* mapVec4 = shaderObjMsg.getParaVec4Name();
-        //            const char* mapBool = shaderObjMsg.getParaBoolName();
-        //            const char* mapInt = shaderObjMsg.getParaIntName();
-        //            const char* mapMat2 = shaderObjMsg.getParaMat2Name();
-        //            const char* mapMat3 = shaderObjMsg.getParaMat3Name();
-        //            const char* mapMat4 = shaderObjMsg.getParaMat4Name();
-        //            if (cover->debugLevel(3))
-        //               fprintf(stderr, "coGRMsg::SHADER_OBJECT object=%s\n",objectName);
-        //            setShader(objectName, shaderName,mapFloat,mapVec2,mapVec3,mapVec4,mapInt,mapBool, mapMat2, mapMat3, mapMat4);
-        //         }
-        //      }
-
-        else if (grMsg.getType() == coGRMsg::SET_TRANSPARENCY)
+        break;
+        case coGRMsg::SET_TRANSPARENCY:
         {
-            coGRObjSetTransparencyMsg setTransparencyMsg(fullMsg.c_str());
+            auto &setTransparencyMsg = msg.as<coGRObjSetTransparencyMsg>();
             const char *objectName = setTransparencyMsg.getObjName();
 
             if (msgForGeneralGeometry(objectName))
@@ -219,10 +194,10 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 setTransparency(objectName, setTransparencyMsg.getTransparency());
             }
         }
-
-        else if (grMsg.getType() == coGRMsg::MATERIAL_OBJECT)
+        break;
+        case coGRMsg::MATERIAL_OBJECT:
         {
-            coGRObjMaterialObjMsg materialObjMsg(fullMsg.c_str());
+            auto &materialObjMsg = msg.as<coGRObjMaterialObjMsg>();
             const char *objectName = materialObjMsg.getObjName();
 
             if (msgForGeneralGeometry(objectName))
@@ -230,9 +205,9 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 if (cover->debugLevel(3))
                     fprintf(stderr, "in GeneralGeometry coGRMsg::MATERIAL_OBJECT object=%s\n", objectName);
 
-                int *ambient = materialObjMsg.getAmbient();
-                int *diffuse = materialObjMsg.getDiffuse();
-                int *specular = materialObjMsg.getSpecular();
+                const int *ambient = materialObjMsg.getAmbient();
+                const int *diffuse = materialObjMsg.getDiffuse();
+                const int *specular = materialObjMsg.getSpecular();
                 float shininess = materialObjMsg.getShininess();
                 float transparency = materialObjMsg.getTransparency();
                 if (cover->debugLevel(3))
@@ -240,10 +215,10 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 setMaterial(objectName, ambient, diffuse, specular, shininess, transparency);
             }
         }
-
-        else if (grMsg.getType() == coGRMsg::TRANSFORM_OBJECT)
+        break;
+        case coGRMsg::TRANSFORM_OBJECT:
         {
-            coGRObjTransformMsg transformMsg(fullMsg.c_str());
+            auto &transformMsg = msg.as<coGRObjTransformMsg>();
             const char *objectName = transformMsg.getObjName();
 
             if (msgForGeneralGeometry(objectName))
@@ -268,10 +243,13 @@ void GeneralGeometryPlugin::guiToRenderMsg(const char *msg)
                 setMatrix(objectName, row0, row1, row2, row3);
             }
         }
-        else
+        break;
+        default:
         {
             if (cover->debugLevel(3))
                 fprintf(stderr, "NOT-USED\n");
+        }
+        break;
         }
     }
 }
@@ -332,7 +310,7 @@ GeneralGeometryPlugin::setTransparency(const char *objectName, float transparenc
 }
 
 void
-GeneralGeometryPlugin::setMaterial(const char *objectName, int *ambient, int *diffuse, int *specular, float shininess, float transparency)
+GeneralGeometryPlugin::setMaterial(const char *objectName, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
     //fprintf(stderr,"******GeneralGeometryPlugin::setMaterial to %s\n", objectName);
 

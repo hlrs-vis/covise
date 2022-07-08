@@ -86,22 +86,22 @@ GRMSGEXPORT coGRCreateViewpointMsg::~coGRCreateViewpointMsg()
     COGRMSG_SAFEFREE(plane_);
 } //coGRCreateViewpointMsg::~coGRCreateViewpointMsg
 
-GRMSGEXPORT int coGRCreateViewpointMsg::getViewpointId()
+GRMSGEXPORT int coGRCreateViewpointMsg::getViewpointId() const
 {
     return id_;
 }
 
-GRMSGEXPORT const char *coGRCreateViewpointMsg::getName()
+GRMSGEXPORT const char *coGRCreateViewpointMsg::getName() const
 {
     return name_;
 }
 
-GRMSGEXPORT const char *coGRCreateViewpointMsg::getView()
+GRMSGEXPORT const char *coGRCreateViewpointMsg::getView() const
 {
     return view_;
 }
 
-GRMSGEXPORT const char *coGRCreateViewpointMsg::getClipplane()
+GRMSGEXPORT const char *coGRCreateViewpointMsg::getClipplane() const
 {
     return plane_;
 }

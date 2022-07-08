@@ -61,7 +61,7 @@ GRMSGEXPORT coGRChangeViewpointMsg::coGRChangeViewpointMsg(int id /*, const char
     //addToken( plane_ );
 }
 
-GRMSGEXPORT int coGRChangeViewpointMsg::getViewpointId()
+GRMSGEXPORT int coGRChangeViewpointMsg::getViewpointId() const
 {
     return id_;
 }

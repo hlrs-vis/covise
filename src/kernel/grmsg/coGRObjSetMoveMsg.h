@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRObjSetMoveMsg : public coGRObjMsg
 {
 public:
-    bool isMoveable();
+    bool isMoveable() const;
     coGRObjSetMoveMsg(Mtype type, const char *obj_name, bool moveable);
     coGRObjSetMoveMsg(const char *msg);
 

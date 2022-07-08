@@ -105,27 +105,27 @@ coGRObjSetAppearanceMsg::coGRObjSetAppearanceMsg(const char *msg)
     }
 }
 
-const char *coGRObjSetAppearanceMsg::getScopeName()
+const char *coGRObjSetAppearanceMsg::getScopeName() const
 {
     return scopeName_;
 }
 
-float coGRObjSetAppearanceMsg::getR()
+float coGRObjSetAppearanceMsg::getR() const
 {
     return r_;
 }
 
-float coGRObjSetAppearanceMsg::getG()
+float coGRObjSetAppearanceMsg::getG() const
 {
     return g_;
 }
 
-float coGRObjSetAppearanceMsg::getB()
+float coGRObjSetAppearanceMsg::getB() const
 {
     return b_;
 }
 
-float coGRObjSetAppearanceMsg::getA()
+float coGRObjSetAppearanceMsg::getA() const
 {
     return a_;
 }

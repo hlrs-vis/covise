@@ -70,17 +70,17 @@ GRMSGEXPORT coGRObjSensorEventMsg::coGRObjSensorEventMsg(Mtype type, const char 
     addToken(streamIsActive.str().c_str());
 }
 
-GRMSGEXPORT int coGRObjSensorEventMsg::getSensorId()
+GRMSGEXPORT int coGRObjSensorEventMsg::getSensorId() const
 {
     return sensorId_;
 }
 
-GRMSGEXPORT bool coGRObjSensorEventMsg::isOver()
+GRMSGEXPORT bool coGRObjSensorEventMsg::isOver() const
 {
     return isOver_;
 }
 
-GRMSGEXPORT bool coGRObjSensorEventMsg::isActive()
+GRMSGEXPORT bool coGRObjSensorEventMsg::isActive() const
 {
     return isActive_;
 }

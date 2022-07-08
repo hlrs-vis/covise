@@ -31,15 +31,15 @@ public:
     coGRObjGeometryMsg(const char *msg);
 
     // getter
-    float getWidth()
+    float getWidth() const
     {
         return width_;
     };
-    float getHeight()
+    float getHeight() const
     {
         return height_;
     };
-    float getLength()
+    float getLength() const
     {
         return length_;
     };

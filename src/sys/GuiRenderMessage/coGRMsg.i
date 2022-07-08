@@ -14,7 +14,7 @@
 //
 %module coGRMsg
 %{
-#include "grmsg/coGRMsg.h"
+#include "grmsg/coGRMsg_decl.h"
 #include "grmsg/coGRObjMsg.h"
 #include "grmsg/coGRObjRegisterMsg.h"
 #include "grmsg/coGRObjVisMsg.h"
@@ -79,7 +79,7 @@
 #include "grmsg/coGRObjSetAppearanceMsg.h"
 #include "grmsg/coGRObjKinematicsStateMsg.h"
 %}
-%include coGRMsg.h
+%include coGRMsg_decl.h
 %include coGRObjMsg.h
 %include coGRObjRegisterMsg.h
 %include coGRObjVisMsg.h

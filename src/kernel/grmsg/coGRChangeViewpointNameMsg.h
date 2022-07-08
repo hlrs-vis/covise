@@ -25,8 +25,8 @@ namespace grmsg
 class GRMSGEXPORT coGRChangeViewpointNameMsg : public coGRMsg
 {
 public:
-    int getId();
-    const char *getName();
+    int getId() const;
+    const char *getName() const;
 
     coGRChangeViewpointNameMsg(int id, const char *name);
     coGRChangeViewpointNameMsg(const char *msg);

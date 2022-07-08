@@ -31,8 +31,8 @@ public:
     coGRObjAddChildMsg(const char *msg);
     ~coGRObjAddChildMsg();
 
-    const char *getChildObjName();
-    int getRemove();
+    const char *getChildObjName() const;
+    int getRemove() const;
 
 private:
     char *childObjName_;

@@ -32,15 +32,15 @@ public:
     coGRObjAttachedClipPlaneMsg(const char *msg);
 
     // specific functions
-    int getClipPlaneIndex()
+    int getClipPlaneIndex() const
     {
         return index_;
     };
-    float getOffset()
+    float getOffset() const
     {
         return offset_;
     };
-    bool isFlipped()
+    bool isFlipped() const
     {
         return flip_;
     };

@@ -56,7 +56,7 @@ public:
     virtual bool init();
     void preFrame();
 
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 
 private:
     // variables

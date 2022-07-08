@@ -78,7 +78,7 @@ public:
     //-----------------inherit----------------------------//
     virtual bool init(); //Initialises
     virtual void preFrame(); //Defines which modifications will be done before the next rendering step
-    virtual void guiToRenderMsg(const char *msg); //Called if a message from the GUI is received
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ; //Called if a message from the GUI is received
     virtual void menuEvent(coMenuItem *menuItem); //Called if menu is used
     coRowMenu *getObjectsMenu()
     {

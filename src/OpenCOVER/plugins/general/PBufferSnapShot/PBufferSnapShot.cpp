@@ -652,52 +652,41 @@ void PBufferSnapShot::deleteUI()
     delete tuiSnapTab;
 }
 
-void PBufferSnapShot::guiToRenderMsg(const char *msg)
+void PBufferSnapShot::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- Plugin PBufferSnapShot guiToRenderMsg msg=[%s]\n", msg);
+        fprintf(stderr, "\n--- Plugin PBufferSnapShot guiToRenderMsg msg=[%s]\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::SNAPSHOT)
     {
-        if (grMsg.getType() == coGRMsg::SNAPSHOT)
-        {
-            coGRSnapshotMsg snapshotMsg(fullMsg.c_str());
-            //fprintf(stderr,"\n--- snapshotMsg PBufferSnapShot coVRGuiToRenderMsg msg=[%s]", msg);
+        auto &snapshotMsg = msg.as<coGRSnapshotMsg>();
+        // fprintf(stderr,"\n--- snapshotMsg PBufferSnapShot coVRGuiToRenderMsg msg=[%s]", msg);
 
-            if (strcmp(snapshotMsg.getIntention(), "snapOnce") == 0)
+        if (strcmp(snapshotMsg.getIntention(), "snapOnce") == 0)
+        {
+            snapID++;
+            tuiFileName->setText(suggestFileName(snapshotMsg.getFilename()).c_str());
+            //prepareSnapshot();
+            cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
+            doSnap = true;
+        }
+
+        if (strcmp(snapshotMsg.getIntention(), "snapAll") == 0)
+        {
+            doSnap = !doSnap;
+            if (!doSnap)
+            {
+                cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
+                counter = 0;
+            }
+            else
             {
                 snapID++;
-                tuiFileName->setText(suggestFileName(snapshotMsg.getFilename()).c_str());
-                //prepareSnapshot();
                 cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
-                doSnap = true;
+                tuiFileName->setText(suggestFileName(snapshotMsg.getFilename()).c_str());
             }
-
-            if (strcmp(snapshotMsg.getIntention(), "snapAll") == 0)
-            {
-                doSnap = !doSnap;
-                if (!doSnap)
-                {
-                    cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
-                    counter = 0;
-                }
-                else
-                {
-                    snapID++;
-                    cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
-                    tuiFileName->setText(suggestFileName(snapshotMsg.getFilename()).c_str());
-                }
-            }
-
-            fprintf(stderr, "Snapshot saved to %s intention=%s\n", tuiFileName->getText().c_str(), snapshotMsg.getIntention());
         }
-        else
-        {
-            if (cover->debugLevel(3))
-                fprintf(stderr, "NOT-USED\n");
-        }
+        fprintf(stderr, "Snapshot saved to %s intention=%s\n", tuiFileName->getText().c_str(), snapshotMsg.getIntention());
     }
 }
 

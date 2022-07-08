@@ -31,23 +31,23 @@ public:
     coGRObjMaterialObjMsg(const char *msg);
 
     // get Colors
-    int *getAmbient()
+    const int *getAmbient() const
     {
         return _ambient;
     };
-    int *getDiffuse()
+    const int *getDiffuse() const
     {
         return _diffuse;
     };
-    int *getSpecular()
+    const int *getSpecular() const
     {
         return _specular;
     };
-    float getShininess()
+    float getShininess() const
     {
         return _shininess;
     };
-    float getTransparency()
+    float getTransparency() const
     {
         return _transparency;
     };

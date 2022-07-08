@@ -74,26 +74,21 @@ bool ChemicalReactionPlugin::init()
     return true;
 }
 
-void ChemicalReactionPlugin::guiToRenderMsg(const char *msg)
+void ChemicalReactionPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     GenericGuiObject::guiToRenderMsg(msg);
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::KEYWORD)
     {
-        if (grMsg.getType() == coGRMsg::KEYWORD)
+        auto &keywordmsg = msg.as<coGRKeyWordMsg>();
+        const char *keyword = keywordmsg.getKeyWord();
+        if (strcmp(keyword, "showNotReady") == 0)
         {
-            coGRKeyWordMsg keywordmsg(fullMsg.c_str());
-            const char *keyword = keywordmsg.getKeyWord();
-            if (strcmp(keyword, "showNotReady") == 0)
-            {
-                hud->setText1(coTranslator::coTranslate("Die Antwort ist nicht korrekt! \n Versuchen Sie es noch einmal.").c_str());
-                hud->show();
-                hud->redraw();
-                if (hudTime == 0.0f)
-                    hudTime = 0.001f;
-            }
+            hud->setText1(coTranslator::coTranslate("Die Antwort ist nicht korrekt! \n Versuchen Sie es noch einmal.").c_str());
+            hud->show();
+            hud->redraw();
+            if (hudTime == 0.0f)
+                hudTime = 0.001f;
         }
     }
 }

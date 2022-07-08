@@ -32,7 +32,7 @@ public:
     coGRSetDocPageMsg(const char *msg);
 
     // specific functions
-    int getPage()
+    int getPage() const
     {
         return page_;
     };

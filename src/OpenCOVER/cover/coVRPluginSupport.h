@@ -367,7 +367,7 @@ public:
     void sendMessage(const coVRPlugin *sender, const char *destination, int type, int len, const void *buf, bool localonly = false);
 
     //! handle coGRMsgs and call guiToRenderMsg method of all plugins
-    void guiToRenderMsg(const char *msg) const;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg)  const;
 
     //! grab keyboard input
     /*! other plugins will not get key event notifications,

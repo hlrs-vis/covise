@@ -37,7 +37,7 @@ public:
     void registerObjAtUi(std::string name);
     void addObject(const RenderObject *container, osg::Group *root, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     void removeObject(const char *objName, bool replace);
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 
     coMenuItem *getMenuButton(const std::string &buttonName);
 

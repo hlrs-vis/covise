@@ -72,19 +72,19 @@ void CuttingSurfacePlugin::addNode(osg::Node *node, const RenderObject *obj)
     }
 }
 void
-CuttingSurfacePlugin::guiToRenderMsg(const char *msg)
+CuttingSurfacePlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
     {
         fprintf(stderr, "\n--- CuttingSurfacePlugin::guiToRenderMsg\n");
     }
-    std::string fullMsg(std::string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
         {
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+        case coGRMsg::GEO_VISIBLE:
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -93,19 +93,19 @@ CuttingSurfacePlugin::guiToRenderMsg(const char *msg)
             handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible());
             updateInteractorVisibility(objectName);
         }
-        else if (grMsg.getType() == coGRMsg::INTERACTOR_VISIBLE)
+        break;
+        case coGRMsg::INTERACTOR_VISIBLE:
         {
-
-            coGRObjVisMsg interactorVisibleMsg(fullMsg.c_str());
+            auto &interactorVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = interactorVisibleMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::INTERACTOR_VISIBLE object=%s\n", objectName);
             handleInteractorVisibleMsg(objectName, interactorVisibleMsg.isVisible());
         }
-        else if (grMsg.getType() == coGRMsg::SET_CASE)
+        break;
+        case coGRMsg::SET_CASE:
         {
-
-            coGRObjSetCaseMsg setCaseMsg(fullMsg.c_str());
+            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
             const char *objectName = setCaseMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::SET_CASE object=%s\n", objectName);
@@ -113,22 +113,22 @@ CuttingSurfacePlugin::guiToRenderMsg(const char *msg)
             handleSetCaseMsg(objectName, caseName);
             handleInteractorSetCaseMsg(objectName, caseName);
         }
-        else if (grMsg.getType() == coGRMsg::SET_NAME)
+        break;
+        case coGRMsg::SET_NAME:
         {
-
-            coGRObjSetNameMsg setNameMsg(fullMsg.c_str());
+            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
             const char *coviseObjectName = setNameMsg.getObjName();
             const char *newName = setNameMsg.getNewName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg oGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
             handleSetNameMsg(coviseObjectName, newName);
         }
-        else if (grMsg.getType() == coGRMsg::MOVE_INTERACTOR)
+        break;
+        case coGRMsg::MOVE_INTERACTOR:
         {
-
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::MOVE_INTERACTOR\n");
-            coGRObjMoveInterMsg moveInteractorMsg(fullMsg.c_str());
+            auto &moveInteractorMsg = msg.as<coGRObjMoveInterMsg>();
             const char *objectName = moveInteractorMsg.getObjName();
 
             const char *interactorName = moveInteractorMsg.getInteractorName();
@@ -139,27 +139,31 @@ CuttingSurfacePlugin::guiToRenderMsg(const char *msg)
             float z = moveInteractorMsg.getZ();
             handleMoveInteractorMsg(objectName, interactorName, x, y, z);
         }
-        else if (grMsg.getType() == coGRMsg::RESTRICT_AXIS)
+        break;
+        case coGRMsg::RESTRICT_AXIS:
         {
-            coGRObjRestrictAxisMsg restrictAxisMsg(fullMsg.c_str());
+            auto &restrictAxisMsg = msg.as<coGRObjRestrictAxisMsg>();
             const char *objectName = restrictAxisMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::RESTRICT_AXIS object=%s\n", objectName);
-            const char *axisName = restrictAxisMsg.getAxisName();
-            handleRestrictAxisMsg(objectName, axisName);
+            handleRestrictAxisMsg(objectName, restrictAxisMsg.getAxisName());
         }
-        else if (grMsg.getType() == coGRMsg::ATTACHED_CLIPPLANE)
+        break;
+        case coGRMsg::ATTACHED_CLIPPLANE:
         {
-            coGRObjAttachedClipPlaneMsg clipPlaneMsg(fullMsg.c_str());
+            auto &clipPlaneMsg = msg.as<coGRObjAttachedClipPlaneMsg>();
             const char *objectName = clipPlaneMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::ATTACHED_CLIPPLANE object=%s\n", objectName);
             handleAttachedClipPlaneMsg(objectName, clipPlaneMsg.getClipPlaneIndex(), clipPlaneMsg.getOffset(), clipPlaneMsg.isFlipped());
         }
-        else
+        break;
+        default:
         {
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg NOT-USED\n");
+        }
+        break;
         }
     }
 }

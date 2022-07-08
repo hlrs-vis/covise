@@ -32,7 +32,7 @@ public:
     coGRObjSetTransparencyMsg(const char *msg);
 
     // get Color
-    float getTransparency()
+    float getTransparency() const
     {
         return trans_;
     };

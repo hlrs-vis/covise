@@ -72,7 +72,7 @@ public:
     void key(int type, int keySym, int mod) override;
 
     void message(int toWhom, int type, int len, const void *buf) override;
-    void guiToRenderMsg(const char *msg) override;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg)  override;
 
     void addNode(osg::Node *, const RenderObject *) override;
 

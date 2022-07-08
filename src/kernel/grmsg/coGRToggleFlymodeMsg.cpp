@@ -28,7 +28,7 @@ GRMSGEXPORT coGRToggleFlymodeMsg::coGRToggleFlymodeMsg(int mode)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRToggleFlymodeMsg::getMode()
+GRMSGEXPORT int coGRToggleFlymodeMsg::getMode() const
 {
     return mode_;
 }

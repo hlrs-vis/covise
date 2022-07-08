@@ -27,6 +27,11 @@
 #include <cover/coVRDynLib.h>
 #include <cstdlib>
 
+namespace grmsg
+{
+class coGRMsg;
+}
+
 namespace osg
 {
 class Node;
@@ -177,7 +182,7 @@ public:
     }
 
     //! this function is called if a message from the gui is received
-    virtual void guiToRenderMsg(const char *msg)
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) 
     {
         (void)(msg);
     };

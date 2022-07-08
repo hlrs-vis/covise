@@ -58,7 +58,7 @@ public:
     void preFrame() override;
     void preSwapBuffers(int windowNumber) override;
 
-    void guiToRenderMsg(const char *msg) override;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg)  override;
     void message(int toWhom, int type, int len, const void *buf) override;
 
 private:

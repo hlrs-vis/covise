@@ -34,23 +34,23 @@ public:
 
     ~coGRObjSetConnectionMsg();
 
-    const char *getConnPoint1()
+    const char *getConnPoint1() const
     {
         return connPoint1_;
     };
-    const char *getConnPoint2()
+    const char *getConnPoint2() const
     {
         return connPoint2_;
     };
-    int isConnected()
+    int isConnected() const
     {
         return connected_;
     };
-    int isEnabled()
+    int isEnabled() const
     {
         return enabled_;
     }
-    const char *getSecondObjName()
+    const char *getSecondObjName() const
     {
         return obj_name2_;
     };

@@ -19,7 +19,7 @@ public:
     CuttingSurfacePlugin();
     virtual ~CuttingSurfacePlugin();
 
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void preFrame();
     void newInteractor(const RenderObject *container, coInteractor *i);
     void removeObject(const char *objName, bool r);

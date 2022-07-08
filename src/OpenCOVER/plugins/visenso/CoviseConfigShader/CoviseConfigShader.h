@@ -43,7 +43,7 @@ public:
 
     virtual bool init();
     virtual void addNode(osg::Node *, const RenderObject *);
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void preFrame();
 
 private:

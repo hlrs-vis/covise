@@ -47,7 +47,7 @@ GRMSGEXPORT coGRSetDocPositionMsg::coGRSetDocPositionMsg(const char *msg)
     }
 }
 
-GRMSGEXPORT void coGRSetDocPositionMsg::getPosition(float &x, float &y, float &z)
+GRMSGEXPORT void coGRSetDocPositionMsg::getPosition(float &x, float &y, float &z) const
 {
     x = pos_[0];
     y = pos_[1];

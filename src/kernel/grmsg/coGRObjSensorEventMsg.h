@@ -25,9 +25,9 @@ namespace grmsg
 class GRMSGEXPORT coGRObjSensorEventMsg : public coGRObjMsg
 {
 public:
-    int getSensorId();
-    bool isOver();
-    bool isActive();
+    int getSensorId() const;
+    bool isOver() const;
+    bool isActive() const;
 
     coGRObjSensorEventMsg(Mtype type, const char *obj_name, int sensorId, bool isOver, bool isActive);
     coGRObjSensorEventMsg(const char *msg);

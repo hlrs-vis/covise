@@ -91,7 +91,7 @@ bool ElectricFieldPlugin::init()
     return true;
 }
 
-void ElectricFieldPlugin::guiToRenderMsg(const char *msg)
+void ElectricFieldPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     GenericGuiObject::guiToRenderMsg(msg);
     ChargedObjectHandler::Instance()->guiToRenderMsg(msg);

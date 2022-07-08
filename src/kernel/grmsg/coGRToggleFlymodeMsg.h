@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRToggleFlymodeMsg : public coGRMsg
 {
 public:
-    int getMode();
+    int getMode() const;
     coGRToggleFlymodeMsg(int mode);
     coGRToggleFlymodeMsg(const char *msg);
 

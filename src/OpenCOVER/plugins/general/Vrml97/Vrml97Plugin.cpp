@@ -719,22 +719,22 @@ void Vrml97Plugin::addNode(osg::Node *node, const RenderObject *)
     VrmlNodeCOVISEObject::addNode(node);
 }
 
-void Vrml97Plugin::guiToRenderMsg(const char *msg)
+void Vrml97Plugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- Plugin Vrml97 coVRGuiToRenderMsg [%s]\n", msg);
+        fprintf(stderr, "\n--- Plugin Vrml97 coVRGuiToRenderMsg [%s]\n", msg.getString().c_str());
 
     if (!vrmlScene)
         return;
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
+        {
+        case coGRMsg::GEO_VISIBLE:
         {
             // The same message is handled in VRCoviseConnection (with the same result) so it might be safe to remove here.
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -753,10 +753,10 @@ void Vrml97Plugin::guiToRenderMsg(const char *msg)
                 }
             }
         }
-
-        else if (grMsg.getType() == coGRMsg::SET_MOVE)
+        break;
+                case coGRMsg::SET_MOVE:
         {
-            coGRObjSetMoveMsg setMoveMsg(fullMsg.c_str());
+            auto &setMoveMsg = msg.as<coGRObjSetMoveMsg>();
             const char *objectName = setMoveMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -776,9 +776,10 @@ void Vrml97Plugin::guiToRenderMsg(const char *msg)
                 //                }
             }
         }
-        else if (grMsg.getType() == coGRMsg::SENSOR_EVENT)
+        break;
+                case coGRMsg::SENSOR_EVENT:
         {
-            coGRObjSensorEventMsg sensorEventMsg(fullMsg.c_str());
+            auto &sensorEventMsg = msg.as<coGRObjSensorEventMsg>();
             const char *objectName = sensorEventMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -794,6 +795,10 @@ void Vrml97Plugin::guiToRenderMsg(const char *msg)
                 sensorEventMsg.isOver(), sensorEventMsg.isActive(),
                 dummyPoint,
                 dummyMatrix);
+        }
+        break;
+        default:
+            break;
         }
     }
 }

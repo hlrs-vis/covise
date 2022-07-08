@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRToggleVPClipPlaneModeMsg : public coGRMsg
 {
 public:
-    int getMode();
+    int getMode() const;
     coGRToggleVPClipPlaneModeMsg(int mode);
     coGRToggleVPClipPlaneModeMsg(const char *msg);
 

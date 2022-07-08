@@ -58,6 +58,7 @@
 #include <OpenVRUI/coNavInteraction.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include <config/CoviseConfig.h>
+#include <grmsg/coGRMsg.h>
 #include <net/covise_host.h>
 #include <net/message_types.h>
 #include <net/udpMessage.h>
@@ -540,14 +541,13 @@ void coVRCommunication::handleVRB(const Message &msg)
     }
     case COVISE_MESSAGE_RENDER:
     {
-        if (msg.data.length() > 1 && strcmp(msg.data.data() + 1, "GRMSG") == 0)
+        if(auto grmsg = grmsg::create(msg.data.data()))
         {
-            cover->guiToRenderMsg(msg.data.data() + 1 + strlen("GRMSG") + 1);
+            cover->guiToRenderMsg(*grmsg);
         }
         else
         {
-            std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER, this might be deprecated." << std::endl
-                      << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
+            std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER, this might be deprecated." << std::endl;
         }
         break;
     }

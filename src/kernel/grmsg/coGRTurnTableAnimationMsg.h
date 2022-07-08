@@ -32,7 +32,7 @@ public:
     coGRTurnTableAnimationMsg(const char *msg);
 
     // specific functions
-    float getAnimationTime()
+    float getAnimationTime() const
     {
         return time_;
     };

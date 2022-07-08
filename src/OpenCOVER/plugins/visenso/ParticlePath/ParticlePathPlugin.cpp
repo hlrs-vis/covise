@@ -200,7 +200,7 @@ void ParticlePathPlugin::rebuildMenu()
     }
 }
 
-void ParticlePathPlugin::guiToRenderMsg(const char *msg)
+void ParticlePathPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     GenericGuiObject::guiToRenderMsg(msg);
     if (target)

@@ -31,11 +31,11 @@ public:
     coGRObjSetAppearanceMsg(const char *msg);
     ~coGRObjSetAppearanceMsg();
 
-    const char *getScopeName();
-    float getR();
-    float getG();
-    float getB();
-    float getA();
+    const char *getScopeName() const;
+    float getR() const;
+    float getG() const;
+    float getB() const;
+    float getA() const;
 
 private:
     char *scopeName_;

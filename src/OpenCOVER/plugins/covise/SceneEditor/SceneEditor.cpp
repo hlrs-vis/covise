@@ -316,19 +316,20 @@ SceneEditor::preFrame()
 }
 
 void
-SceneEditor::guiToRenderMsg(const char *msg)
+SceneEditor::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (opencover::cover->debugLevel(3))
         fprintf(stderr, "\n--- Plugin SceneEditor coVRGuiToRenderMsg [%s]\n",
-                msg);
+                msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    grmsg::coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == grmsg::coGRMsg::KEYWORD)
+        using namespace grmsg;
+        switch (msg.getType())
         {
-            grmsg::coGRKeyWordMsg keywordMsg(fullMsg.c_str());
+        case coGRMsg::KEYWORD:
+        {
+            auto &keywordMsg = msg.as<coGRKeyWordMsg>();
             const char *keyword = keywordMsg.getKeyWord();
             if (strcmp(keyword, "toggleOperatingRange") == 0)
             {
@@ -347,9 +348,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                 }
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::GEO_VISIBLE)
+        break;
+        case coGRMsg::GEO_VISIBLE:
         {
-            grmsg::coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             if (opencover::cover->debugLevel(3))
@@ -367,9 +369,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                     n->setNodeMask(n->getNodeMask() & ~opencover::Isect::Visible);
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::DELETE_OBJECT)
+        break;
+        case coGRMsg::DELETE_OBJECT:
         {
-            grmsg::coGRObjDelMsg geometryDeleteMsg(fullMsg.c_str());
+            auto &geometryDeleteMsg = msg.as<coGRObjDelMsg>();
             const char *objectName = geometryDeleteMsg.getObjName();
 
             if (opencover::cover->debugLevel(3))
@@ -383,9 +386,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                 _sceneObjectManager->deletingSceneObject(so);
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::OBJECT_TRANSFORMED)
+        break;
+        case coGRMsg::OBJECT_TRANSFORMED:
         {
-            grmsg::coGRObjMovedMsg geometryMovedMsg(fullMsg.c_str());
+            auto &geometryMovedMsg = msg.as<coGRObjMovedMsg>();
             const char *objectName = geometryMovedMsg.getObjName();
 
             osg::Quat rot(geometryMovedMsg.getRotX(), geometryMovedMsg.getRotY(),
@@ -406,9 +410,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                 so->setTransform(mt, mr);
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::GEOMETRY_OBJECT)
+        break;
+        case coGRMsg::GEOMETRY_OBJECT:
         {
-            grmsg::coGRObjGeometryMsg geometryMsg(fullMsg.c_str());
+            auto &geometryMsg = msg.as<coGRObjGeometryMsg>();
             const char *objectName = geometryMsg.getObjName();
 
             SetSizeEvent sse;
@@ -425,9 +430,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
             if (so)
                 so->receiveEvent(&sse);
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::ADD_CHILD_OBJECT)
+        break;
+        case coGRMsg::ADD_CHILD_OBJECT:
         {
-            grmsg::coGRObjAddChildMsg childMsg(fullMsg.c_str());
+            auto &childMsg = msg.as<coGRObjAddChildMsg>();
             const char *objectName = childMsg.getObjName();
             const char *childObjectName = childMsg.getChildObjName();
 
@@ -463,9 +469,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                 so_child->receiveEvent(&ue);
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::SET_VARIANT)
+        break;
+        case coGRMsg::SET_VARIANT:
         {
-            grmsg::coGRObjSetVariantMsg variantMsg(fullMsg.c_str());
+            auto &variantMsg = msg.as<coGRObjSetVariantMsg>();
             const char *objectName = variantMsg.getObjName();
             const char *groupName = variantMsg.getGroupName();
             const char *variantName = variantMsg.getVariantName();
@@ -482,9 +489,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
             if (so)
                 so->receiveEvent(&sve);
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::SET_APPEARANCE)
+        break;
+        case coGRMsg::SET_APPEARANCE:
         {
-            grmsg::coGRObjSetAppearanceMsg appearanceMsg(fullMsg.c_str());
+            auto &appearanceMsg = msg.as<coGRObjSetAppearanceMsg>();
             const char *objectName = appearanceMsg.getObjName();
             const char *scopeName = appearanceMsg.getScopeName();
             osg::Vec4 color = osg::Vec4(appearanceMsg.getR(), appearanceMsg.getG(),
@@ -506,9 +514,10 @@ SceneEditor::guiToRenderMsg(const char *msg)
                     so->receiveEvent(&sace);
             }
         }
-        else if (grMsg.getType() == grmsg::coGRMsg::KINEMATICS_STATE)
+        break;
+        case coGRMsg::KINEMATICS_STATE:
         {
-            grmsg::coGRObjKinematicsStateMsg stateMsg(fullMsg.c_str());
+            auto &stateMsg = msg.as<coGRObjKinematicsStateMsg>();
 
             const char *objectName = stateMsg.getObjName();
             const char *state = stateMsg.getState();
@@ -523,6 +532,9 @@ SceneEditor::guiToRenderMsg(const char *msg)
                     so->receiveEvent(&ikse);
                 }
             }
+        }
+        default:
+            break;
         }
     }
 }

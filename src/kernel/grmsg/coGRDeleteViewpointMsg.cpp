@@ -28,7 +28,7 @@ GRMSGEXPORT coGRDeleteViewpointMsg::coGRDeleteViewpointMsg(int id)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRDeleteViewpointMsg::getViewpointId()
+GRMSGEXPORT int coGRDeleteViewpointMsg::getViewpointId() const
 {
     return id_;
 }

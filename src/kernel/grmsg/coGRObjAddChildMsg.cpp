@@ -70,12 +70,12 @@ coGRObjAddChildMsg::coGRObjAddChildMsg(const char *msg)
     }
 }
 
-const char *coGRObjAddChildMsg::getChildObjName()
+const char *coGRObjAddChildMsg::getChildObjName() const
 {
     return childObjName_;
 }
 
-int coGRObjAddChildMsg::getRemove()
+int coGRObjAddChildMsg::getRemove() const
 {
     return remove_;
 }

@@ -2450,21 +2450,21 @@ void ParametricSurfaces::changePresentationStep()
     }
 }
 //---------------------------------------------------
-//Implements ParametricSurfaces::guiToRenderMsg(const char *msg)
+//Implements ParametricSurfaces::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 //---------------------------------------------------
-void ParametricSurfaces::guiToRenderMsg(const char *msg)
+void ParametricSurfaces::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- ParametricSurfacesPlugin coVRGuiToRenderMsg %s\n", msg);
+        fprintf(stderr, "\n--- ParametricSurfacesPlugin coVRGuiToRenderMsg %s\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
     //string fullMsg_ = fullMsg;
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::KEYWORD)
+        switch (msg.getType())
         {
-            coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
+        case coGRMsg::KEYWORD:
+        {
+            auto &keyWordMsg = msg.as<coGRKeyWordMsg>();
             const char *keyword = keyWordMsg.getKeyWord();
 
             //fprintf(stderr,"\tcoGRMsg::KEYWORD keyword=%s\n", keyword);
@@ -2503,9 +2503,10 @@ void ParametricSurfaces::guiToRenderMsg(const char *msg)
                 VRSceneGraph::instance()->viewAll();
             }
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_POSITION)
+        break;
+        case coGRMsg::SET_DOCUMENT_POSITION:
         {
-            coGRSetDocPositionMsg setDocPositionMsg(fullMsg.c_str());
+            auto &setDocPositionMsg = msg.as<coGRSetDocPositionMsg>();
             setDocPositionMsg.getPosition(x_posDocView, y_posDocView, z_posDocView);
             createMenu3();
             OSGVruiMatrix *t, *r, *mat;
@@ -2520,21 +2521,27 @@ void ParametricSurfaces::guiToRenderMsg(const char *msg)
             imageMenu_->setTransformMatrix(mat);
             //imageMenu_->setScale(cover->getSceneSize()/2500);
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_SCALE)
+        break;
+        case coGRMsg::SET_DOCUMENT_SCALE:
         {
-            coGRSetDocScaleMsg setDocScaleMsg(fullMsg.c_str());
-            setDocScaleMsg.getScale(scale_DocView);
+            auto &setDocScaleMsg = msg.as<coGRSetDocScaleMsg>();
+            scale_DocView = setDocScaleMsg.getScale();
             createMenu3();
             imageMenu_->setScale(scale_DocView);
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_PAGESIZE)
+        break;
+        case coGRMsg::SET_DOCUMENT_PAGESIZE:
         {
             changesize = true;
-            coGRSetDocPageSizeMsg setDocPageSizeMsg(fullMsg.c_str());
+            auto &setDocPageSizeMsg = msg.as<coGRSetDocPageSizeMsg>();
             hsize_DocView = setDocPageSizeMsg.getHSize();
             vsize_DocView = setDocPageSizeMsg.getVSize();
             createMenu3();
             //imageItemList_->setSize(hsize_DocView, vsize_DocView);
+        }
+        break;
+        default:
+            break;
         }
     }
 }

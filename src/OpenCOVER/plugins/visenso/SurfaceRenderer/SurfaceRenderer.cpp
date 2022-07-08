@@ -599,13 +599,13 @@ void SurfaceRenderer::setVisible(char visible)
     }
 }
 //---------------------------------------------------
-//Implements SurfaceRenderer::guiToRenderMsg(const char *msg)
+//Implements SurfaceRenderer::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 //---------------------------------------------------
-void SurfaceRenderer::guiToRenderMsg(const char *msg)
+void SurfaceRenderer::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
 
     GenericGuiObject::guiToRenderMsg(msg);
-    fprintf(stderr, "SurfaceRenderer::guiToRenderMsg:  %s\n", msg);
+    fprintf(stderr, "SurfaceRenderer::guiToRenderMsg:  %s\n", msg.getString().c_str());
     // SphereSurface not available m_pSphereSurface->guiToRenderMsg(msg);
 }
 //--------------------------------------------

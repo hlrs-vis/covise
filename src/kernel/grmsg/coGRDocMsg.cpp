@@ -19,7 +19,7 @@ GRMSGEXPORT coGRDocMsg::coGRDocMsg(const char *msg)
 {
 }
 
-GRMSGEXPORT const char *coGRDocMsg::getDocumentName()
+GRMSGEXPORT const char *coGRDocMsg::getDocumentName() const
 {
     return getObjName();
 }

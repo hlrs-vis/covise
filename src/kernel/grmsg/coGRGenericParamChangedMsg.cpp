@@ -48,17 +48,17 @@ GRMSGEXPORT coGRGenericParamChangedMsg::coGRGenericParamChangedMsg(const char *o
     addToken(value_);
 }
 
-GRMSGEXPORT const char *coGRGenericParamChangedMsg::getObjectName()
+GRMSGEXPORT const char *coGRGenericParamChangedMsg::getObjectName() const
 {
     return objectName_;
 }
 
-GRMSGEXPORT const char *coGRGenericParamChangedMsg::getParamName()
+GRMSGEXPORT const char *coGRGenericParamChangedMsg::getParamName() const
 {
     return paramName_;
 }
 
-GRMSGEXPORT const char *coGRGenericParamChangedMsg::getValue()
+GRMSGEXPORT const char *coGRGenericParamChangedMsg::getValue() const
 {
     return value_;
 }

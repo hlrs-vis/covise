@@ -25,10 +25,10 @@ namespace grmsg
 class GRMSGEXPORT coGRCreateViewpointMsg : public coGRMsg
 {
 public:
-    int getViewpointId();
-    const char *getName();
-    const char *getView();
-    const char *getClipplane();
+    int getViewpointId() const;
+    const char *getName() const;
+    const char *getView() const;
+    const char *getClipplane() const;
 
     coGRCreateViewpointMsg(const char *name, int id, const char *view, const char *clipplane);
     coGRCreateViewpointMsg(const char *msg);

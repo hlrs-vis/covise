@@ -23,7 +23,7 @@ public:
     virtual ~GeneralGeometryPlugin();
 
     virtual bool init();
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 
     virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL);
     virtual void removeObject(const char *objName, bool replaceFlag);
@@ -35,6 +35,6 @@ public:
     void setColor(const char *objectName, int *color);
     //void setShader(const char *objectName, const char* shaderName, const char* paraFloat, const char* paraVec2, const char* paraVec3, const char* paraVec4, const char* paraInt, const char* paraBool, const char* paraMat2, const char* paraMat3, const char* paraMat4);
     void setTransparency(const char *objectName, float transparency);
-    void setMaterial(const char *objectName, int *ambient, int *diffuse, int *specular, float shininess, float transparency);
+    void setMaterial(const char *objectName, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency);
 };
 #endif

@@ -45,6 +45,10 @@
 #include <cstring>
 #include <cstdlib>
 
+namespace grmsg{
+class coGRMsg;
+}
+
 namespace opencover
 {
 
@@ -397,7 +401,7 @@ public:
     GuiParamVec3 *addGuiParamVec3(std::string paramName, osg::Vec3 defaultValue);
     GuiParamMatrix *addGuiParamMatrix(std::string paramName, osg::Matrix defaultValue);
 
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg);
     coTUITab *tab;
     int getNextPos()
     {

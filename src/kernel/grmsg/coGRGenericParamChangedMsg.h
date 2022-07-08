@@ -28,9 +28,9 @@ class GRMSGEXPORT coGRGenericParamChangedMsg : public coGRMsg
 public:
     coGRGenericParamChangedMsg(const char *objectName, const char *paramName, const char *value);
     coGRGenericParamChangedMsg(const char *msg);
-    const char *getObjectName();
-    const char *getParamName();
-    const char *getValue();
+    const char *getObjectName() const;
+    const char *getParamName() const;
+    const char *getValue() const;
 
 private:
     char *objectName_;

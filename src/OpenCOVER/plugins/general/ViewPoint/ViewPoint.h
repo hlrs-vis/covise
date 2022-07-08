@@ -58,7 +58,7 @@ public:
     void preFrame() override;
     void addNode(osg::Node *, const RenderObject *) override;
     void key(int type, int keySym, int mod) override;
-    void guiToRenderMsg(const char *msg) override;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg)  override;
     void message(int toWhom, int type, int length, const void *data) override;
     virtual ui::Action *getMenuButton(const std::string &buttonName);
 

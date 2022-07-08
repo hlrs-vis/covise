@@ -100,101 +100,91 @@ bool VideoPlugin::opt_frame_size(int w, int h)
     return (false);
 }
 
-void VideoPlugin::guiToRenderMsg(const char *msg)
+void VideoPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- Plugin Video coVRGuiToRenderMsg msg=%s\n", msg);
+        fprintf(stderr, "\n--- Plugin Video coVRGuiToRenderMsg msg=%s\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::SNAPSHOT)
     {
-        if (grMsg.getType() == coGRMsg::SNAPSHOT)
+        auto &snapshotMsg = msg.as<coGRSnapshotMsg>();
+        if (strcmp(snapshotMsg.getIntention(), "startCapturing") == 0)
         {
-            coGRSnapshotMsg snapshotMsg(fullMsg.c_str());
-            if (strcmp(snapshotMsg.getIntention(), "startCapturing") == 0)
+            if (!recordFromGui_)
             {
-                if (!recordFromGui_)
+                recordFromGui_ = true;
+                // set format to WMV
+                selectFormat->setSelectedEntry(1);
+                tabletEvent(selectFormat);
+
+                // set compression codex to Windows Media Video 9
+                /// sysPlug->selectCodec->setSelectedEntry(0);
+                sysPlug->selectCodec->setSelectedText("Windows Media Video 9");
+                tabletEvent(sysPlug->selectCodec);
+
+                // set bitrate choice to bitrate
+                //sysPlug->bitrate->setSelectedEntry(0);
+                sysPlug->bitrateField->setValue(12000000);
+                tabletEvent(sysPlug->bitrateField);
+
+                // set bitrate from config file again (the profile may have overwritten it)
+                sysPlug->bitrateField->setValue(bitrate_);
+                tabletEvent(sysPlug->bitrateField);
+
+                // set video size to cover window size
+                int x, y, width, height;
+                coVRConfig::instance()->windows[0].window->getWindowRectangle(x, y, width, height);
+                if ((width % 4) != 0) // 5
                 {
-                    recordFromGui_ = true;
-                    // set format to WMV
-                    selectFormat->setSelectedEntry(1);
-                    tabletEvent(selectFormat);
+                    x++;
+                    width--;
+                } // 5
+                while ((width % 4) != 0)
+                    width--;
 
-                    // set compression codex to Windows Media Video 9
-                    /// sysPlug->selectCodec->setSelectedEntry(0);
-                    sysPlug->selectCodec->setSelectedText("Windows Media Video 9");
-                    tabletEvent(sysPlug->selectCodec);
+                if ((height % 2) != 0)
+                    height -= 1;
 
-                    // set bitrate choice to bitrate
-                    //sysPlug->bitrate->setSelectedEntry(0);
-                    sysPlug->bitrateField->setValue(12000000);
-                    tabletEvent(sysPlug->bitrateField);
+                xPosField->setValue(x);
+                tabletEvent(xPosField);
+                yPosField->setValue(y);
+                tabletEvent(yPosField);
+                widthField->setValue(width);
+                tabletEvent(widthField);
+                heightField->setValue(height);
+                tabletEvent(heightField);
+                outWidthField->setValue(-1);
+                tabletEvent(outWidthField);
+                outHeightField->setValue(-1);
+                tabletEvent(outHeightField);
 
-                    // set bitrate from config file again (the profile may have overwritten it)
-                    sysPlug->bitrateField->setValue(bitrate_);
-                    tabletEvent(sysPlug->bitrateField);
+                // change filename
+                const char *filename = snapshotMsg.getFilename();
+                fileNameField->setText(filename);
+                changeFilename_ = false;
+                fillFilenameField(filename, false, changeFilename_);
 
-                    // set video size to cover window size
-                    int x, y, width, height;
-                    coVRConfig::instance()->windows[0].window->getWindowRectangle(x, y, width, height);
-                    if ((width % 4) != 0) // 5
-                    {
-                        x++;
-                        width--;
-                    } // 5
-                    while ((width % 4) != 0)
-                        width--;
+                coVRConfig::instance()->windows[0].window->grabFocus();
+                coVRConfig::instance()->windows[0].window->raiseWindow();
 
-                    if ((height % 2) != 0)
-                        height -= 1;
-
-                    xPosField->setValue(x);
-                    tabletEvent(xPosField);
-                    yPosField->setValue(y);
-                    tabletEvent(yPosField);
-                    widthField->setValue(width);
-                    tabletEvent(widthField);
-                    heightField->setValue(height);
-                    tabletEvent(heightField);
-                    outWidthField->setValue(-1);
-                    tabletEvent(outWidthField);
-                    outHeightField->setValue(-1);
-                    tabletEvent(outHeightField);
-
-                    // change filename
-                    const char *filename = snapshotMsg.getFilename();
-                    fileNameField->setText(filename);
-                    changeFilename_ = false;
-                    fillFilenameField(filename, false, changeFilename_);
-
-                    coVRConfig::instance()->windows[0].window->grabFocus();
-                    coVRConfig::instance()->windows[0].window->raiseWindow();
-
-                    // press capture button
-                    captureButton->setState(true);
-                    tabletEvent(captureButton);
-                }
+                // press capture button
+                captureButton->setState(true);
+                tabletEvent(captureButton);
             }
+        }
 
-            else if (strcmp(snapshotMsg.getIntention(), "stopCapturing") == 0)
+        else if (strcmp(snapshotMsg.getIntention(), "stopCapturing") == 0)
+        {
+            if (recordFromGui_)
             {
-                if (recordFromGui_)
-                {
-                    // press capture button again
-                    captureButton->setState(false);
-                    tabletReleaseEvent(captureButton);
-                }
-            }
-            else
-            {
-                fprintf(stderr, "VideoPlugin::guiToRenderMsg unknown intention %s\n", snapshotMsg.getIntention());
+                // press capture button again
+                captureButton->setState(false);
+                tabletReleaseEvent(captureButton);
             }
         }
         else
         {
-            if (cover->debugLevel(3))
-                fprintf(stderr, "MSG NOT-USED in this plugin\n");
+            fprintf(stderr, "VideoPlugin::guiToRenderMsg unknown intention %s\n", snapshotMsg.getIntention());
         }
     }
 }

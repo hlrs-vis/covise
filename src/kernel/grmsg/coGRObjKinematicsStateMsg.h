@@ -32,7 +32,7 @@ public:
     coGRObjKinematicsStateMsg(const char *msg);
     ~coGRObjKinematicsStateMsg();
 
-    const char *getState();
+    const char *getState() const;
 
 private:
     char *state_;

@@ -59,7 +59,7 @@ public:
 
     // inherit from coVRPlugin or MenuListener
     virtual bool init();
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void preFrame();
     virtual void menuEvent(coMenuItem *menuItem);
     virtual void menuReleaseEvent(coMenuItem *menuItem);

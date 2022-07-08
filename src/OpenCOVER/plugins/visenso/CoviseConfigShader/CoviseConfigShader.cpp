@@ -173,18 +173,13 @@ void CoviseConfigShader::addShader(osg::Node *node)
     }
 }
 
-void CoviseConfigShader::guiToRenderMsg(const char *msg)
+void CoviseConfigShader::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::SET_TRANSPARENCY)
     {
-        if (grMsg.getType() == coGRMsg::SET_TRANSPARENCY)
-        {
-            coGRObjSetTransparencyMsg setTransparencyMsg(fullMsg.c_str());
-            const char *objectName = setTransparencyMsg.getObjName();
-            transparencyList.push_back(objectName); // we have to delay setting the shader because the transparency needs to be set first
-        }
+        auto &setTransparencyMsg = msg.as<coGRObjSetTransparencyMsg>();
+        const char *objectName = setTransparencyMsg.getObjName();
+        transparencyList.push_back(objectName); // we have to delay setting the shader because the transparency needs to be set first
     }
 }
 

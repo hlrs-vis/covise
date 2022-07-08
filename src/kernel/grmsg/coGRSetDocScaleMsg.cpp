@@ -32,7 +32,7 @@ GRMSGEXPORT coGRSetDocScaleMsg::coGRSetDocScaleMsg(const char *msg)
     is_valid_ = 1;
 }
 
-GRMSGEXPORT void coGRSetDocScaleMsg::getScale(float &s)
+float coGRSetDocScaleMsg::getScale() const
 {
-    s = scale_;
+    return scale_;
 }

@@ -64,12 +64,12 @@ coGRObjSetVariantMsg::coGRObjSetVariantMsg(const char *msg)
     }
 }
 
-const char *coGRObjSetVariantMsg::getGroupName()
+const char *coGRObjSetVariantMsg::getGroupName() const 
 {
     return groupName_;
 }
 
-const char *coGRObjSetVariantMsg::getVariantName()
+const char *coGRObjSetVariantMsg::getVariantName() const
 {
     return variantName_;
 }

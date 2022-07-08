@@ -164,20 +164,19 @@ void DNAPlugin::menuEvent(coMenuItem *menuItem)
     }
 }
 
-void DNAPlugin::guiToRenderMsg(const char *msg)
+void DNAPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- DNAPlugin::guiToRenderMsg\n %s\n\n", msg);
+        fprintf(stderr, "\n--- DNAPlugin::guiToRenderMsg\n %s\n\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
 
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        // visible message from gui
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
         {
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+        case coGRMsg::GEO_VISIBLE: // visible message from gui
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             // check if message is for the plugin
@@ -220,10 +219,10 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
             menu_->setVisible(visible);
             VRSceneGraph::instance()->applyMenuModeToMenus(); // apply menuMode state to menus just made visible
         }
-        // new presentation step message -> disconnect all
-        else if (grMsg.getType() == coGRMsg::KEYWORD)
+        break;
+        case coGRMsg::KEYWORD: // new presentation step message -> disconnect all
         {
-            coGRKeyWordMsg keywordmsg(fullMsg.c_str());
+            auto &keywordmsg = msg.as<coGRKeyWordMsg>();
             const char *keyword = keywordmsg.getKeyWord();
             if ((strcmp(keyword, "presForward") == 0) || (strcmp(keyword, "presBackward") == 0) || (strcmp(keyword, "goToStep") == 0))
             {
@@ -246,10 +245,10 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
                 hudNotForward_ = true;
             }
         }
-        // transform message from gui
-        else if (grMsg.getType() == coGRMsg::TRANSFORM_OBJECT)
+        break;
+        case coGRMsg::TRANSFORM_OBJECT: // transform message from gui
         {
-            coGRObjTransformMsg geometryTransformMsg(fullMsg.c_str());
+            auto &geometryTransformMsg = msg.as<coGRObjTransformMsg>();
             const char *objectName = geometryTransformMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -268,35 +267,10 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
                 }
             }
         }
-        /*else  if( grMsg.getType()==coGRMsg::OBJECT_TRANSFORMED )
-      {
-         coGRObjMovedMsg geometryTransformMsg(fullMsg.c_str());
-			std::string objectName = geometryTransformMsg.getObjName();
-   
-         if (cover->debugLevel(0))
-				fprintf(stderr,"in DNA coGRMsg::TRANSFORMED_OBJECT object=%s \n", objectName.c_str());
-   
-         osg::Matrix m;
-         osg::Quat quat;
-         m.makeTranslate(osg::Vec3(geometryTransformMsg.getTransX(), geometryTransformMsg.getTransY(), geometryTransformMsg.getTransZ()));
-         quat.makeRotate(geometryTransformMsg.getRotAngle(), geometryTransformMsg.getRotX(), geometryTransformMsg.getRotY(), geometryTransformMsg.getRotZ());
-         m.setRotate(quat);
-   
-         std::list<DNABaseUnit*>::iterator it;
-         for (it=dnaBaseUnits.begin(); it!=dnaBaseUnits.end(); it++)
-         {
-            if ((*it)->getObjectName().compare(objectName)==0)
-            {
-               (*it)->unsetMoveByInteraction();
-               (*it)->sendUpdateTransform(m, true, false);
-               break;
-            }
-         }
-      }*/
-        // got connection form gui
-        else if (grMsg.getType() == coGRMsg::SET_CONNECTIONPOINT)
+        break;
+        case coGRMsg::SET_CONNECTIONPOINT: // got connection form gui
         {
-            coGRObjSetConnectionMsg connMsg(fullMsg.c_str());
+            auto &connMsg = msg.as<coGRObjSetConnectionMsg>();
             std::string objectName = connMsg.getObjName();
             std::string secondObj = connMsg.getSecondObjName();
 
@@ -354,6 +328,10 @@ void DNAPlugin::guiToRenderMsg(const char *msg)
                 else
                     availableConnectionPoints.remove((*it)->getConnectionPoint(connMsg.getConnPoint1()));
             }
+        }
+        break;
+        default:
+            break;
         }
     }
 }

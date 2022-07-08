@@ -933,19 +933,16 @@ void BezierSurfacePlugin::changeStatus()
     }
 }
 
-void BezierSurfacePlugin::guiToRenderMsg(const char *msg)
+void BezierSurfacePlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- BezierSurfacePlugin coVRGuiToRenderMsg %s\n", msg);
+        fprintf(stderr, "\n--- BezierSurfacePlugin coVRGuiToRenderMsg %s\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::KEYWORD)
+        if (msg.getType() == grmsg::coGRMsg::KEYWORD)
         {
-
-            coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
+            auto &keyWordMsg = msg.as<grmsg::coGRKeyWordMsg>();
             const char *keyword = keyWordMsg.getKeyWord();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::KEYWORD keyword=%s\n", keyword);

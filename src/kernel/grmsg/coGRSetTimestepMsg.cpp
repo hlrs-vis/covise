@@ -29,12 +29,12 @@ GRMSGEXPORT coGRSetTimestepMsg::coGRSetTimestepMsg(int step, int maxSteps)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRSetTimestepMsg::getActualTimeStep()
+int coGRSetTimestepMsg::getActualTimeStep() const
 {
     return step_;
 }
 
-GRMSGEXPORT int coGRSetTimestepMsg::getNumTimeSteps()
+int coGRSetTimestepMsg::getNumTimeSteps() const
 {
     return maxSteps_;
 }

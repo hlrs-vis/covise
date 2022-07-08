@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRChangeViewpointMsg : public coGRMsg
 {
 public:
-    int getViewpointId();
+    int getViewpointId() const;
     //const char *getClipplane();
 
     coGRChangeViewpointMsg(int id /*, const char *clipplane */);

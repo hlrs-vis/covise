@@ -28,7 +28,7 @@ GRMSGEXPORT coGRAnimationOnMsg::coGRAnimationOnMsg(int mode)
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT int coGRAnimationOnMsg::getMode()
+int coGRAnimationOnMsg::getMode() const
 {
     return mode_;
 }

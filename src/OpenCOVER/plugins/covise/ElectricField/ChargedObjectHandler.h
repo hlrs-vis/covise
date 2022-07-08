@@ -19,7 +19,7 @@ public:
     static ChargedObjectHandler *Instance();
 
     void preFrame();
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
 
     ChargedPoint *addPoint();
     ChargedPlate *addPlate();

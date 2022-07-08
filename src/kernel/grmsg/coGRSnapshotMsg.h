@@ -35,11 +35,11 @@ public:
     virtual ~coGRSnapshotMsg();
 
     // specific functions
-    const char *getFilename()
+    const char *getFilename() const
     {
         return filename_;
     };
-    const char *getIntention()
+    const char *getIntention() const
     {
         return intention_;
     };

@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRShowViewpointMsg : public coGRMsg
 {
 public:
-    int getViewpointId();
+    int getViewpointId() const;
     coGRShowViewpointMsg(int id);
     coGRShowViewpointMsg(const char *msg);
 

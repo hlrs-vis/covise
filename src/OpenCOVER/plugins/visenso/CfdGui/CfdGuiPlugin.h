@@ -31,7 +31,7 @@ public:
     virtual ~CfdGuiPlugin();
 
     virtual bool init();
-    virtual void guiToRenderMsg(const char *msg);
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void preFrame();
     virtual void key(int type, int keySym, int mod);
 

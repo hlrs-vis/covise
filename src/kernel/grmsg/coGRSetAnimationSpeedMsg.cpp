@@ -30,17 +30,17 @@ GRMSGEXPORT coGRSetAnimationSpeedMsg::coGRSetAnimationSpeedMsg(float speed, floa
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT float coGRSetAnimationSpeedMsg::getAnimationSpeed()
+float coGRSetAnimationSpeedMsg::getAnimationSpeed() const
 {
     return speed_;
 }
 
-GRMSGEXPORT float coGRSetAnimationSpeedMsg::getAnimationSpeedMin()
+float coGRSetAnimationSpeedMsg::getAnimationSpeedMin() const
 {
     return speedMin_;
 }
 
-GRMSGEXPORT float coGRSetAnimationSpeedMsg::getAnimationSpeedMax()
+float coGRSetAnimationSpeedMsg::getAnimationSpeedMax() const
 {
     return speedMax_;
 }

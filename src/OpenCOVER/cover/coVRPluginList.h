@@ -102,7 +102,7 @@ public:
     void coviseError(const char *error) const;
 
     //! call guiToRenderMsg method of all plugins
-    void guiToRenderMsg(const char *msg) const;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg)  const;
 
     //! call removeObject method of all plugins
     void removeObject(const char *objName, bool replaceFlag) const;

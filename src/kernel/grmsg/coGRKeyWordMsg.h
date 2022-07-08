@@ -33,7 +33,7 @@ public:
     virtual ~coGRKeyWordMsg();
 
     // specific functions
-    const char *getKeyWord()
+    const char *getKeyWord() const
     {
         return keyWord_;
     };

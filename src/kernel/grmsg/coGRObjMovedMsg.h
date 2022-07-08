@@ -31,31 +31,31 @@ public:
     coGRObjMovedMsg(const char *msg);
 
     // getter
-    float getTransX()
+    float getTransX() const
     {
         return transX_;
     };
-    float getTransY()
+    float getTransY() const
     {
         return transY_;
     };
-    float getTransZ()
+    float getTransZ() const
     {
         return transZ_;
     };
-    float getRotX()
+    float getRotX() const
     {
         return rotX_;
     };
-    float getRotY()
+    float getRotY() const
     {
         return rotY_;
     };
-    float getRotZ()
+    float getRotZ() const
     {
         return rotZ_;
     };
-    float getRotAngle()
+    float getRotAngle() const
     {
         return rotAngle_;
     };

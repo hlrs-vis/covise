@@ -29,7 +29,7 @@ public:
     void removeObject(const char *objName, bool r);
     void addObject(const RenderObject *container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
     virtual void addNode(osg::Node *, const RenderObject * = NULL);
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     // prepare smoke data for tracer line
     void addSmoke(const char *name, const RenderObject *, const RenderObject *);
     void removeSmoke(const char *name);

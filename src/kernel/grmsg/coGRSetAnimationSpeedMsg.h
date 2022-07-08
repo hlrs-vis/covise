@@ -25,9 +25,9 @@ namespace grmsg
 class GRMSGEXPORT coGRSetAnimationSpeedMsg : public coGRMsg
 {
 public:
-    float getAnimationSpeed();
-    float getAnimationSpeedMin();
-    float getAnimationSpeedMax();
+    float getAnimationSpeed() const;
+    float getAnimationSpeedMin() const;
+    float getAnimationSpeedMax() const;
     coGRSetAnimationSpeedMsg(float speed, float min, float max);
     coGRSetAnimationSpeedMsg(const char *msg);
 

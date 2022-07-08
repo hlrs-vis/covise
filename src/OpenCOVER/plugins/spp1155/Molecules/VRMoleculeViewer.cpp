@@ -1019,19 +1019,17 @@ void VRMoleculeViewer::clearUp()
     coVRAnimationManager::instance()->setNumTimesteps(0, plugin);
 }
 
-void VRMoleculeViewer::guiToRenderMsg(const char *msg)
+void VRMoleculeViewer::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- Plugin VRMoleculeViewer coVRGuiToRenderMsg %s\n", msg);
+        fprintf(stderr, "\n--- Plugin VRMoleculeViewer coVRGuiToRenderMsg %s\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    grmsg::coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == grmsg::coGRMsg::KEYWORD)
+        if (msg.getType() == grmsg::coGRMsg::KEYWORD)
         {
 
-            grmsg::coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
+            auto &keyWordMsg = msg.as<grmsg::coGRKeyWordMsg>();
             const char *keyword = keyWordMsg.getKeyWord();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::KEYWORD keyword=%s\n", keyword);

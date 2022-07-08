@@ -36,19 +36,19 @@ IsoSurfacePlugin::preFrame()
 }
 
 void
-IsoSurfacePlugin::guiToRenderMsg(const char *msg)
+IsoSurfacePlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
     {
         fprintf(stderr, "\n--- IsoSurfacePlugin:: guiToRenderMsg\n");
     }
-    std::string fullMsg(std::string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
         {
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+        case coGRMsg::GEO_VISIBLE:
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -56,31 +56,34 @@ IsoSurfacePlugin::guiToRenderMsg(const char *msg)
 
             handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible());
         }
-
-        else if (grMsg.getType() == coGRMsg::SET_CASE)
+        break;
+        case coGRMsg::SET_CASE:
         {
-
-            coGRObjSetCaseMsg setCaseMsg(fullMsg.c_str());
+            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
             const char *objectName = setCaseMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "IsoSurfacePlugin::guiToRenderMsg coGRMsg::SET_CASE object=%s\n", objectName);
             const char *caseName = setCaseMsg.getCaseName();
             handleSetCaseMsg(objectName, caseName);
         }
-        else if (grMsg.getType() == coGRMsg::SET_NAME)
+        break;
+        case coGRMsg::SET_NAME:
         {
-
-            coGRObjSetNameMsg setNameMsg(fullMsg.c_str());
+            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
             const char *coviseObjectName = setNameMsg.getObjName();
             const char *newName = setNameMsg.getNewName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg oGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
             handleSetNameMsg(coviseObjectName, newName);
         }
-        else
+        break;
+        
+        default:
         {
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg NOT-USED\n");
+        }
+        break;
         }
     }
 }

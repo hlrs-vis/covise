@@ -119,19 +119,17 @@ coMenuItem *CfdGuiPlugin::getMenuButton(const std::string &buttonName)
         return stopButton_;
 }
 
-void CfdGuiPlugin::guiToRenderMsg(const char *msg)
+void CfdGuiPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- Plugin CfdGui coVRGuiToRenderMsg\n");
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::TRANSFORM_CASE)
+        if (msg.getType() == coGRMsg::TRANSFORM_CASE)
         {
 
-            coGRObjTransformCaseMsg transformCaseMsg(fullMsg.c_str());
+            auto &transformCaseMsg = msg.as<coGRObjTransformCaseMsg>();
             const char *caseName = transformCaseMsg.getObjName();
             if (cover->debugLevel(5))
                 fprintf(stderr, "\tcoGRMsg::TRANSFORM_CASE case=%s\n", caseName);
@@ -150,10 +148,10 @@ void CfdGuiPlugin::guiToRenderMsg(const char *msg)
 
             handleTransformCaseMsg(caseName, row0, row1, row2, row3);
         }
-        else if (grMsg.getType() == coGRMsg::KEYWORD)
+        else if (msg.getType() == coGRMsg::KEYWORD)
         {
 
-            coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
+            auto &keyWordMsg = msg.as<coGRKeyWordMsg>();
             const char *keyword = keyWordMsg.getKeyWord();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::KEYWORD keyword=%s\n", keyword);

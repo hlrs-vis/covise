@@ -35,7 +35,7 @@ public:
     ~coGRAddDocMsg();
 
     // specific functions
-    const char *getImageName()
+    const char *getImageName() const
     {
         return imageName_;
     };

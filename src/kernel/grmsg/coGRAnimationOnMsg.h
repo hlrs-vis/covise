@@ -25,7 +25,7 @@ namespace grmsg
 class GRMSGEXPORT coGRAnimationOnMsg : public coGRMsg
 {
 public:
-    int getMode();
+    int getMode() const;
     coGRAnimationOnMsg(int mode);
     coGRAnimationOnMsg(const char *msg);
 

@@ -71,37 +71,29 @@ bool AlkaneBuilderPlugin::init()
     return true;
 }
 
-void AlkaneBuilderPlugin::guiToRenderMsg(const char *msg)
+void AlkaneBuilderPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
 
     GenericGuiObject::guiToRenderMsg(msg);
 
-    string fullMsg(string("GRMSG\n") + msg);
-    grmsg::coGRMsg grMsg(fullMsg.c_str());
-
-    if (grMsg.isValid())
+    if (msg.isValid()&& msg.getType() == grmsg::coGRMsg::KEYWORD)
     {
-        //fprintf(stderr,"AlkaneBuilderPlugin::guiToRenderMsg type=%d\n", grMsg.getType());
+        auto &keywordmsg = msg.as<grmsg::coGRKeyWordMsg>();
+        const char *keyword = keywordmsg.getKeyWord();
 
-        if (grMsg.getType() == grmsg::coGRMsg::KEYWORD)
+        if (strcmp(keyword, "presForward") == 0)
         {
-            grmsg::coGRKeyWordMsg keywordmsg(fullMsg.c_str());
-            const char *keyword = keywordmsg.getKeyWord();
-
-            if (strcmp(keyword, "presForward") == 0)
-            {
-                fprintf(stderr, "AlkaneBuilderPlugin::guiToRenderMsg msg=%s ---------\n", keyword);
-                //alkaneBuilder->presForward();
-            }
-            if (strcmp(keyword, "presBackward") == 0)
-            {
-                fprintf(stderr, "AlkaneBuilderPlugin::guiToRenderMsg msg=%s ---------\n", keyword);
-                //alkaneBuilder->presForward();
-            }
-            if (strcmp(keyword, "showNotReady") == 0)
-            {
-                alkaneBuilder->showErrorPanel();
-            }
+            fprintf(stderr, "AlkaneBuilderPlugin::guiToRenderMsg msg=%s ---------\n", keyword);
+            //alkaneBuilder->presForward();
+        }
+        if (strcmp(keyword, "presBackward") == 0)
+        {
+            fprintf(stderr, "AlkaneBuilderPlugin::guiToRenderMsg msg=%s ---------\n", keyword);
+            //alkaneBuilder->presForward();
+        }
+        if (strcmp(keyword, "showNotReady") == 0)
+        {
+            alkaneBuilder->showErrorPanel();
         }
     }
 }

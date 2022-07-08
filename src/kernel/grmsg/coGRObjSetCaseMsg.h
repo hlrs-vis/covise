@@ -35,7 +35,7 @@ public:
     ~coGRObjSetCaseMsg();
 
     // specific functions
-    const char *getCaseName()
+    const char *getCaseName() const
     {
         return caseName_;
     };

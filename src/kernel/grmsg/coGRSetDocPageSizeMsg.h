@@ -32,15 +32,15 @@ public:
     coGRSetDocPageSizeMsg(const char *msg);
 
     // specific functions
-    float getHSize()
+    float getHSize() const
     {
         return hSize_;
     };
-    float getVSize()
+    float getVSize() const
     {
         return vSize_;
     };
-    int getPageNo()
+    int getPageNo() const
     {
         return pageNo_;
     };

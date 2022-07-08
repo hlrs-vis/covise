@@ -40,7 +40,7 @@ coGRObjKinematicsStateMsg::coGRObjKinematicsStateMsg(const char *msg)
     strcpy(state_, tok[0].c_str());
 }
 
-const char *coGRObjKinematicsStateMsg::getState()
+const char *coGRObjKinematicsStateMsg::getState() const
 {
     return state_;
 }

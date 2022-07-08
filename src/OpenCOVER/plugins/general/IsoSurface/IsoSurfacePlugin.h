@@ -18,7 +18,7 @@ public:
     IsoSurfacePlugin();
     virtual ~IsoSurfacePlugin();
 
-    void guiToRenderMsg(const char *msg);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
     virtual void preFrame();
     void newInteractor(const opencover::RenderObject *container, opencover::coInteractor *i);
     void removeObject(const char *objName, bool replace);

@@ -64,24 +64,18 @@ bool AtomBuilderPlugin::init()
     return true;
 }
 
-void AtomBuilderPlugin::guiToRenderMsg(const char *msg)
+void AtomBuilderPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     GenericGuiObject::guiToRenderMsg(msg);
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::KEYWORD)
     {
-        if (grMsg.getType() == coGRMsg::KEYWORD)
+        auto &keywordmsg = msg.as<coGRKeyWordMsg>();
+        const char *keyword = keywordmsg.getKeyWord();
+        fprintf(stderr, "AtomBuilderPlugin::guiToRenderMsg msg=%s\n", keyword);
+        if (strcmp(keyword, "showNotReady") == 0)
         {
-            coGRKeyWordMsg keywordmsg(fullMsg.c_str());
-            const char *keyword = keywordmsg.getKeyWord();
-            fprintf(stderr, "AtomBuilderPlugin::guiToRenderMsg msg=%s\n", keyword);
-            if (strcmp(keyword, "showNotReady") == 0)
-            {
-                atomBuilder->showErrorPanel();
-            }
+            atomBuilder->showErrorPanel();
         }
     }
 }

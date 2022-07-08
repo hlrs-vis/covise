@@ -2625,55 +2625,50 @@ void TriangleBezierSurfaces::step6_interact()
     }
     segmentCounter = 0;
 }
-void TriangleBezierSurfaces::guiToRenderMsg(const char *msg)
+void TriangleBezierSurfaces::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-        fprintf(stderr, "\n--- RuledSurfacesPlugin coVRGuiToRenderMsg %s\n", msg);
+        fprintf(stderr, "\n--- RuledSurfacesPlugin coVRGuiToRenderMsg %s\n", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid() && msg.getType() == coGRMsg::KEYWORD)
     {
-        if (grMsg.getType() == coGRMsg::KEYWORD)
+        auto &keyWordMsg = msg.as<coGRKeyWordMsg>();
+        const char *keyword = keyWordMsg.getKeyWord();
+
+        //fprintf(stderr,"\tcoGRMsg::KEYWORD keyword=%s\n", keyword);
+
+        //Forward button pressed
+        if (strcmp(keyword, "presForward") == 0)
         {
-            coGRKeyWordMsg keyWordMsg(fullMsg.c_str());
-            const char *keyword = keyWordMsg.getKeyWord();
-
-            //fprintf(stderr,"\tcoGRMsg::KEYWORD keyword=%s\n", keyword);
-
-            //Forward button pressed
-            if (strcmp(keyword, "presForward") == 0)
-            {
-                //fprintf(stderr, "presForward\n");
-                m_presentationStepCounter++;
-                this->changePresentationStep();
-            }
-            //Backward button pressed
-            else if (strcmp(keyword, "presBackward") == 0)
-            {
-                //fprintf(stderr, "presBackward\n");
-                m_presentationStepCounter--;
-                this->changePresentationStep();
-            }
-            else if (strncmp(keyword, "goToStep", 8) == 0)
-            {
-                //fprintf(stderr,"\n--- RuledSurfacesPlugin coVRGuiToRenderMsg keyword %s\n", msg);
-                stringstream sstream(keyword);
-                string sub;
-                int step;
-                sstream >> sub;
-                sstream >> step;
-                //fprintf(stderr, "goToStep %d\n", step);
-                //fprintf(stderr,"VRMoleculeViewer::message for %s\n", chbuf );
-                m_presentationStepCounter = step;
-                //fprintf(stderr, "PresStepCounter %d\n", m_presentationStepCounter);
-                this->changePresentationStep();
-            }
-            else if (strcmp(keyword, "reload") == 0)
-            {
-                //fprintf(stderr, "reload\n");
-                VRSceneGraph::instance()->viewAll();
-            }
+            //fprintf(stderr, "presForward\n");
+            m_presentationStepCounter++;
+            this->changePresentationStep();
+        }
+        //Backward button pressed
+        else if (strcmp(keyword, "presBackward") == 0)
+        {
+            //fprintf(stderr, "presBackward\n");
+            m_presentationStepCounter--;
+            this->changePresentationStep();
+        }
+        else if (strncmp(keyword, "goToStep", 8) == 0)
+        {
+            //fprintf(stderr,"\n--- RuledSurfacesPlugin coVRGuiToRenderMsg keyword %s\n", msg);
+            stringstream sstream(keyword);
+            string sub;
+            int step;
+            sstream >> sub;
+            sstream >> step;
+            //fprintf(stderr, "goToStep %d\n", step);
+            //fprintf(stderr,"VRMoleculeViewer::message for %s\n", chbuf );
+            m_presentationStepCounter = step;
+            //fprintf(stderr, "PresStepCounter %d\n", m_presentationStepCounter);
+            this->changePresentationStep();
+        }
+        else if (strcmp(keyword, "reload") == 0)
+        {
+            //fprintf(stderr, "reload\n");
+            VRSceneGraph::instance()->viewAll();
         }
     }
 }

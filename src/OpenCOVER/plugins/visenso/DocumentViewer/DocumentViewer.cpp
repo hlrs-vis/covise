@@ -465,54 +465,56 @@ int DocumentViewerPlugin::findMinPage(const char *documentName)
     return num;
 }
 
-void DocumentViewerPlugin::guiToRenderMsg(const char *msg)
+void DocumentViewerPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(5))
-        fprintf(stderr, "\n--- Plugin DocumentViewer coVRGuiToRenderMsg msg=[%s]", msg);
+        fprintf(stderr, "\n--- Plugin DocumentViewer coVRGuiToRenderMsg msg=[%s]", msg.getString().c_str());
 
-    string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::ADD_DOCUMENT)
+        switch (msg.getType())
         {
-            coGRAddDocMsg addDocMsg(fullMsg.c_str());
+        case coGRMsg::ADD_DOCUMENT:
+        {
+            auto &addDocMsg = msg.as<coGRAddDocMsg>();
             const char *documentName = addDocMsg.getDocumentName();
             //fprintf(stderr,"\n--- Plugin DocumentViewer addDoc name=[%s]\n", documentName );
             const char *imageName = addDocMsg.getImageName();
             add(documentName, imageName);
             setVisible(documentName, true);
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_PAGE)
+        break;
+        case coGRMsg::SET_DOCUMENT_PAGE:
         {
-            coGRSetDocPageMsg setDocPageMsg(fullMsg.c_str());
+            auto &setDocPageMsg = msg.as<coGRSetDocPageMsg>();
             const char *documentName = setDocPageMsg.getDocumentName();
             int pageNo = setDocPageMsg.getPage();
             //fprintf(stderr,"\n--- Plugin DocumentViewer setDocPage name=[%s] page=%d\n", documentName, pageNo );
             setPageNo(documentName, pageNo);
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_POSITION)
+        break;
+        case coGRMsg::SET_DOCUMENT_POSITION:
         {
-            coGRSetDocPositionMsg setDocPositionMsg(fullMsg.c_str());
+            auto &setDocPositionMsg = msg.as<coGRSetDocPositionMsg>();
             const char *documentName = setDocPositionMsg.getDocumentName();
             float x, y, z;
             setDocPositionMsg.getPosition(x, y, z);
             //fprintf(stderr,"\n--- Plugin DocumentViewer setDocPos name=[%s] pos=%f %f %f\n", documentName, x, y, z );
             setPosition(documentName, x, y, z);
         }
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_SCALE)
+        break;
+        case coGRMsg::SET_DOCUMENT_SCALE:
         {
-            coGRSetDocScaleMsg setDocScaleMsg(fullMsg.c_str());
+            auto &setDocScaleMsg = msg.as<coGRSetDocScaleMsg>();
             const char *documentName = setDocScaleMsg.getDocumentName();
-            float s;
-            setDocScaleMsg.getScale(s);
+            float s = setDocScaleMsg.getScale();
             //fprintf(stderr,"\n--- Plugin DocumentViewer setDocPos name=[%s] scale=%f\n", documentName, s );
             setScale(documentName, s);
         }
-
-        else if (grMsg.getType() == coGRMsg::SET_DOCUMENT_PAGESIZE)
+        break;
+        case coGRMsg::SET_DOCUMENT_PAGESIZE:
         {
-            coGRSetDocPageSizeMsg setDocPageSizeMsg(fullMsg.c_str());
+            auto &setDocPageSizeMsg = msg.as<coGRSetDocPageSizeMsg>();
             const char *documentName = setDocPageSizeMsg.getDocumentName();
             float hsize = setDocPageSizeMsg.getHSize();
             float vsize = setDocPageSizeMsg.getVSize();
@@ -520,18 +522,22 @@ void DocumentViewerPlugin::guiToRenderMsg(const char *msg)
             //fprintf(stderr,"\n--- Plugin DocumentViewer SET_DOCUMENT_PAGESIZE name=[%s] pageNo=%d hsize%f vsize=%f\n", documentName, pageNo, hsize, vsize );
             setSize(documentName, pageNo, hsize, vsize);
         }
-        else if (grMsg.getType() == coGRMsg::DOC_VISIBLE)
+        break;
+        case coGRMsg::DOC_VISIBLE:
         {
-            coGRDocVisibleMsg docVisibleMsg(fullMsg.c_str());
+            auto &docVisibleMsg = msg.as<coGRDocVisibleMsg>();
             const char *documentName = docVisibleMsg.getDocumentName();
             bool show = docVisibleMsg.isVisible();
             //fprintf(stderr,"\n--- Plugin DocumentViewer docVis doc=[%s] vis=%d\n", documentName, show);
             setVisible(documentName, show);
         }
-        else
+        break;
+        default:
         {
             if (cover->debugLevel(3))
                 fprintf(stderr, "NOT-USED\n");
+        }
+            break;
         }
     }
 }

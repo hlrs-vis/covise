@@ -13,7 +13,7 @@
 using namespace std;
 using namespace grmsg;
 
-GRMSGEXPORT coGRObjSetMoveMsg::coGRObjSetMoveMsg(const char *msg)
+coGRObjSetMoveMsg::coGRObjSetMoveMsg(const char *msg)
     : coGRObjMsg(msg)
 {
     unsigned short dummy;
@@ -21,7 +21,7 @@ GRMSGEXPORT coGRObjSetMoveMsg::coGRObjSetMoveMsg(const char *msg)
     isMoveable_ = dummy != 0;
 }
 
-GRMSGEXPORT coGRObjSetMoveMsg::coGRObjSetMoveMsg(Mtype type, const char *obj_name, bool moveable)
+coGRObjSetMoveMsg::coGRObjSetMoveMsg(Mtype type, const char *obj_name, bool moveable)
     : coGRObjMsg(type, obj_name)
 {
     isMoveable_ = moveable;
@@ -30,7 +30,7 @@ GRMSGEXPORT coGRObjSetMoveMsg::coGRObjSetMoveMsg(Mtype type, const char *obj_nam
     addToken(stream.str().c_str());
 }
 
-GRMSGEXPORT bool coGRObjSetMoveMsg::isMoveable()
+bool coGRObjSetMoveMsg::isMoveable() const
 {
     return isMoveable_;
 }

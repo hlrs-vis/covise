@@ -119,19 +119,18 @@ void TracerPlugin::addNode(osg::Node *node, const RenderObject *obj)
 }
 
 void
-TracerPlugin::guiToRenderMsg(const char *msg)
+TracerPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
 {
     if (cover->debugLevel(3))
-    {
         fprintf(stderr, "\n--- TracerPlugin:: guiToRenderMsg\n");
-    }
-    std::string fullMsg(string("GRMSG\n") + msg);
-    coGRMsg grMsg(fullMsg.c_str());
-    if (grMsg.isValid())
+        
+    if (msg.isValid())
     {
-        if (grMsg.getType() == coGRMsg::GEO_VISIBLE)
+        switch (msg.getType())
         {
-            coGRObjVisMsg geometryVisibleMsg(fullMsg.c_str());
+        case coGRMsg::GEO_VISIBLE:
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = geometryVisibleMsg.getObjName();
 
             if (cover->debugLevel(3))
@@ -139,32 +138,32 @@ TracerPlugin::guiToRenderMsg(const char *msg)
 
             handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible() != 0);
             updateInteractorVisibility(objectName);
-        } ///////
-        else if (grMsg.getType() == coGRMsg::INTERACTOR_VISIBLE)
+        }
+        break;
+        case coGRMsg::INTERACTOR_VISIBLE:
         {
-
-            coGRObjVisMsg interactorVisibleMsg(fullMsg.c_str());
+            auto &interactorVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = interactorVisibleMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::INTERACTOR_VISIBLE object=%s\n", objectName);
             handleInteractorVisibleMsg(objectName, interactorVisibleMsg.isVisible() != 0);
         }
-        else if (grMsg.getType() == coGRMsg::SMOKE_VISIBLE)
+        break;
+                case coGRMsg::SMOKE_VISIBLE:
         {
-
-            coGRObjVisMsg smokeVisibleMsg(fullMsg.c_str());
+            auto &smokeVisibleMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = smokeVisibleMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::SMOKE_VISIBLE object=%s\n", objectName);
 
             handleSmokeVisibleMsg(objectName, smokeVisibleMsg.isVisible() != 0);
         }
-        else if (grMsg.getType() == coGRMsg::MOVE_INTERACTOR)
+        break;
+        case coGRMsg::MOVE_INTERACTOR:
         {
-
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::MOVE_INTERACTOR\n");
-            coGRObjMoveInterMsg moveInteractorMsg(fullMsg.c_str());
+            auto &moveInteractorMsg = msg.as<coGRObjMoveInterMsg>();
             const char *objectName = moveInteractorMsg.getObjName();
 
             const char *interactorName = moveInteractorMsg.getInteractorName();
@@ -178,20 +177,20 @@ TracerPlugin::guiToRenderMsg(const char *msg)
             float z = moveInteractorMsg.getZ();
             handleMoveInteractorMsg(objectName, interactorName, x, y, z);
         }
-        else if (grMsg.getType() == coGRMsg::INTERACTOR_USED) // die visMsg ist eigentlich eine boolean msg
+        break;
+        case coGRMsg::INTERACTOR_USED:
         {
-
-            coGRObjVisMsg interactorUsedMsg(fullMsg.c_str());
+            auto &interactorUsedMsg = msg.as<coGRObjVisMsg>();
             const char *objectName = interactorUsedMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::INTERACTOR_USED object=%s\n", objectName);
 
             handleUseInteractorMsg(objectName, interactorUsedMsg.isVisible() != 0);
         }
-        else if (grMsg.getType() == coGRMsg::SET_CASE) // die visMsg ist eigentlich eine boolean msg
+        break;
+        case coGRMsg::SET_CASE:
         {
-
-            coGRObjSetCaseMsg setCaseMsg(fullMsg.c_str());
+            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
             const char *objectName = setCaseMsg.getObjName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\tcoGRMsg::SET_CASE object=%s\n", objectName);
@@ -202,20 +201,24 @@ TracerPlugin::guiToRenderMsg(const char *msg)
             handleSetCaseMsg(objectName, caseName);
             handleInteractorSetCaseMsg(objectName, caseName);
         }
-        else if (grMsg.getType() == coGRMsg::SET_NAME)
+        break;
+                case coGRMsg::SET_NAME:
         {
-
-            coGRObjSetNameMsg setNameMsg(fullMsg.c_str());
+            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
             const char *coviseObjectName = setNameMsg.getObjName();
             const char *newName = setNameMsg.getNewName();
             if (cover->debugLevel(3))
                 fprintf(stderr, "\toGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
             handleSetNameMsg(coviseObjectName, newName);
         }
-        else
+        break;
+        
+        default:
         {
             if (cover->debugLevel(3))
                 fprintf(stderr, "\t msg NOT-USED\n");
+        }
+        break;
         }
     }
 }

@@ -31,8 +31,8 @@ public:
     coGRObjSetVariantMsg(const char *msg);
     ~coGRObjSetVariantMsg();
 
-    const char *getGroupName();
-    const char *getVariantName();
+    const char *getGroupName() const;
+    const char *getVariantName() const;
 
 private:
     char *groupName_;

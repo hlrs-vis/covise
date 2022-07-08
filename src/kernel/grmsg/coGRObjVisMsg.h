@@ -32,7 +32,7 @@ public:
     coGRObjVisMsg(const char *msg);
 
     // specific functions
-    bool isVisible()
+    bool isVisible() const
     {
         return is_visible_ != 0;
     };

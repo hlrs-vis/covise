@@ -32,15 +32,15 @@ public:
     coGRObjColorObjMsg(const char *msg);
 
     // get Color
-    int getR()
+    int getR() const
     {
         return r_;
     };
-    int getG()
+    int getG() const
     {
         return g_;
     };
-    int getB()
+    int getB() const
     {
         return b_;
     };
