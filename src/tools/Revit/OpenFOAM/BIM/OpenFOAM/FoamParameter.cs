@@ -150,7 +150,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Add patch to BoundaryField.
         /// </summary>
         /// <param name="s">Patch-name.</param>
-        private void AddPatchToBoundary(in string s, int inletOutlet)
+        private void AddPatchToBoundary(string s, int inletOutlet)
         {
             object patch;
             if (inletOutlet == 1)
