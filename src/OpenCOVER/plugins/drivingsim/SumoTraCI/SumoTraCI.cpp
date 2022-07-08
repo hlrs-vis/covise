@@ -99,6 +99,7 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 	cover->getObjectsRoot()->addChild(busGroup.get());
     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
+    getBicyclesFromConfig();
     getVehiclesFromConfig();
     loadAllVehicles(); 
 	lineUpAllPedestrianModels(); // preload pedestrians;
@@ -142,7 +143,7 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
 			parent = busGroup;
 		if (vehicleClass == "passenger")
 			parent = passengerGroup;
-		if (vehicleClass == "bicycle")
+		if (vehicleClass == "escooter")
 			parent = bicycleGroup;
         av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
         vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicles->at(vehicleIndex).vehicleName,av));
@@ -621,6 +622,16 @@ void SumoTraCI::processNewResults()
 				{
 					fprintf(stderr, "no pedestrians available\n");
 				}
+			}else if (!currentResults[i].vehicleClass.compare("bicycle"))
+			{
+				if (bicycleModels.size() > 0)
+				{
+					entity = createBicycle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID);
+				}
+				else
+				{
+					fprintf(stderr, "no bicycle available\n");
+				}
 			}
 			else
 			{
@@ -933,7 +944,7 @@ void SumoTraCI::loadAllVehicles()
 				parent = busGroup;
 			if (vehicleClass == "passenger")
 				parent = passengerGroup;
-			if (vehicleClass == "bicycle")
+			if (vehicleClass == "escooter")
 				parent = bicycleGroup;
             AgentVehicle * av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
@@ -1035,5 +1046,27 @@ bool SumoTraCI::balanceModalSplits()
         }
     }
     return 0;
+}
+
+PedestrianGeometry* SumoTraCI::createBicycle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
+{
+    std::string ID = vehicleID;
+    PedestrianAnimations a = PedestrianAnimations();
+    std::string modelFile;
+
+    static std::mt19937 gen(0);
+    std::uniform_int_distribution<> dis(0, bicycleModels.size()-1);
+    int bicycleIndex = dis(gen);
+
+    pedestrianModel p = bicycleModels[bicycleIndex];
+    const float pedestrianLODDistance = 40.0; //1600 
+    return new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, pedestrianGroup);
+}
+
+void SumoTraCI::getBicyclesFromConfig()
+{
+    covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Vehicles.Bicycle");
+    for (const auto &entry : entries)
+        bicycleModels.push_back(pedestrianModel(entry.first, atof(entry.second.c_str())));
 }
 COVERPLUGIN(SumoTraCI)
