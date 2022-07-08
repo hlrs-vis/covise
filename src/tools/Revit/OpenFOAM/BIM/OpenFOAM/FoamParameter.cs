@@ -121,7 +121,6 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             }
 
             //TODO Add SlipWalls
-
             foreach (string s in m_OutletNames)
             {
                 AddPatchToBoundary(s, 2);
@@ -130,6 +129,8 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             {
                 AddPatchToBoundary(s, 1);
             }
+            if (FOAMInterface.Singleton.Data.WindAroundBuildings)
+                IncludeEtc("\"caseDicts/setContraintTypes\"");
 
             FoamFile.Attributes.Add("dimensions", m_Dimensions);
             FoamFile.Attributes.Add("internalField", m_InternalFieldString);
@@ -137,28 +138,27 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         }
 
         /// <summary>
+        /// Add OpenFOAM-Module.
+        /// </summary>
+        /// <param name="moduleLocation">Location of the OpenFOAM module to include in root dir of OpenFOAM.</param>
+        private void IncludeEtc(in string moduleLocation)
+        {
+            m_BoundaryField.Add("#includeEtc", moduleLocation);
+        }
+
+        /// <summary>
         /// Add patch to BoundaryField.
         /// </summary>
         /// <param name="s">Patch-name.</param>
-        /// <returns></returns>
-        private void AddPatchToBoundary(string s, int inletOutlet)
+        private void AddPatchToBoundary(in string s, int inletOutlet)
         {
-            FOAMParameterPatch<dynamic> patch;
-            if (m_DictFile.ContainsKey(s))
-            {
-                patch = (FOAMParameterPatch<dynamic>)m_DictFile[s];
-                m_BoundaryField.Add(s, patch.Attributes);
-            }
-            else if (inletOutlet == 1)
-            {
-                patch = (FOAMParameterPatch<dynamic>)m_DictFile["inlet"];
-                m_BoundaryField.Add(s, patch.Attributes);
-            }
+            object patch;
+            if (inletOutlet == 1)
+                s = "inlet";
             else if (inletOutlet == 2)
-            {
-                patch = (FOAMParameterPatch<dynamic>)m_DictFile["outlet"];
-                m_BoundaryField.Add(s, patch.Attributes);
-            }
+                s ="outlet";
+            if (m_DictFile.TryGetValue(s, out patch))
+                m_BoundaryField.Add(s, ((FOAMParameterPatch<dynamic>)patch).Attributes);
         }
     }
 }
