@@ -2251,7 +2251,7 @@ void VRSceneGraph::setMaterial(const char *nodeName, int *ambient, int *diffuse,
 }
 
 // set opengl-material of node geode
-void VRSceneGraph::setMaterial(osg::Geode *geode, int *ambient, int *diffuse, int *specular, float shininess, float transparency)
+void VRSceneGraph::setMaterial(osg::Geode *geode, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "VRSceneGraph::setMaterial 2 %f\n", transparency);

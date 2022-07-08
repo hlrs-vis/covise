@@ -55,8 +55,8 @@ private:
     void transformSGItem(const char *objName, float *row0, float *row1, float *row2, float *row3);
     void setColor(osg::Node *node, int *color);
     void setColor(const char *objName, int *color);
-    void setMaterial(osg::Node *node, int *ambient, int *diffuse, int *specular, float shininess, float transparency);
-    void setMaterial(const char *objectName, int *ambient, int *diffuse, int *specular, float shininess, float transparency);
+    void setMaterial(osg::Node *node, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency);
+    void setMaterial(const char *objectName, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency);
     void setTransparency(osg::Node *node, float transparency);
     void setTransparency(const char *objectName, float transparency);
     void setShader(const char *objectName, const char *shaderName);

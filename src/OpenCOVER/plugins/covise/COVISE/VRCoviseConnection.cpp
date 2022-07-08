@@ -591,9 +591,9 @@ VRCoviseConnection::receiveRenderMessage()
                 if (cover->debugLevel(3))
                     fprintf(stderr, "in CoviseConnection coGRMsg::MATERIAL_OBJECT object=%s\n", objectName);
 
-                int *ambient = materialObjMsg.getAmbient();
-                int *diffuse = materialObjMsg.getDiffuse();
-                int *specular = materialObjMsg.getSpecular();
+                const int *ambient = materialObjMsg.getAmbient();
+                const int *diffuse = materialObjMsg.getDiffuse();
+                const int *specular = materialObjMsg.getSpecular();
                 float shininess = materialObjMsg.getShininess();
                 float transparency = materialObjMsg.getTransparency();
                 if (cover->debugLevel(3))
@@ -922,7 +922,7 @@ VRCoviseConnection::setColor(osg::Node *node, int *color)
 }
 
 void
-VRCoviseConnection::setMaterial(osg::Node *node, int *ambient, int *diffuse, int *specular, float shininess, float transparency)
+VRCoviseConnection::setMaterial(osg::Node *node, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
     //    fprintf(stderr, "VRCoviseConnection::setMaterial %f\n", transparency);
     if (node)
@@ -979,7 +979,7 @@ VRCoviseConnection::setColor(const char *objectName, int *color)
 }
 
 void
-VRCoviseConnection::setMaterial(const char *objectName, int *ambient, int *diffuse, int *specular, float shininess, float transparency)
+VRCoviseConnection::setMaterial(const char *objectName, const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
     //fprintf(stderr,"*****VRCoviseConnection::setMaterial(%s)\n", objectName);
 

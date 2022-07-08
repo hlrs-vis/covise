@@ -323,7 +323,7 @@ GeneralGeometryInteraction::setTransparency(float transparency)
 //}
 
 void
-GeneralGeometryInteraction::setMaterial(int *ambient, int *diffuse, int *specular, float shininess, float transparency)
+GeneralGeometryInteraction::setMaterial(const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
     //fprintf(stderr,"GeneralGeometryInteraction::setMaterial of object \n");
 
