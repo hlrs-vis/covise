@@ -37,6 +37,7 @@ namespace OpenFOAMInterface.BIM.Enums
         outlet,
         floor,
         sky,
+        symmetry,
         sidewalls,
         none
     }
