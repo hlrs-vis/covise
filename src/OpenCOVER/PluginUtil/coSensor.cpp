@@ -23,7 +23,7 @@
 
 using namespace vrui;
 
-coSensor::coSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
+coSensor::coSensor(osg::Node *n, bool mouseOver, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
 {
     START("coSensor::coSensor");
     node = n;
@@ -45,8 +45,10 @@ coSensor::coSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui
             name = "coSensor";
         }
     }
-
+    if(!mouseOver)
     interaction = new coCombinedButtonInteraction(type, name, priority);
+    else
+    interaction == nullptr;
 }
 
 void coSensor::setButtonSensitive(int s)
@@ -61,8 +63,8 @@ int coSensor::getType()
     return (NONE);
 }
 
-coPickSensor::coPickSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
-    : coSensor(n, type, priority)
+coPickSensor::coPickSensor(osg::Node *n, bool MouseOver, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
+    : coSensor(n,MouseOver, type, priority)
 {
     START("coPickSensor::coPickSensor");
     vNode = new OSGVruiNode(n);
@@ -86,17 +88,30 @@ int coPickSensor::hit(vruiHit *hit)
     hitActive = true;
     coVector v = hit->getWorldIntersectionPoint();
     hitPoint.set(v[0], v[1], v[2]);
-    if (!interaction->isRegistered())
-        vrui::coInteractionManager::the()->registerInteraction(interaction);
-    interaction->setHitByMouse(hit->isMouseHit());
+    if (interaction)
+    {
+        if (!interaction->isRegistered())
+            vrui::coInteractionManager::the()->registerInteraction(interaction);
+        interaction->setHitByMouse(hit->isMouseHit());
+    }
+    else
+    {
+        active = 1;
+        activate();
+    }
     return ACTION_CALL_ON_MISS;
 }
 
 /// Miss is called once after a hit, if the button is not intersected anymore.
 void coPickSensor::miss()
 {
-    if (interaction->isRegistered())
+    if (interaction && interaction->isRegistered())
         vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+    if (!interaction)
+    {
+        active = 0;
+        disactivate();
+    }
     hitActive = false;
 }
 
@@ -109,13 +124,13 @@ int coPickSensor::getType()
 void coPickSensor::update()
 {
     //START("coPickSensor::update");
-    if (interaction->wasStarted())
+    if (interaction && interaction->wasStarted())
     {
         assert(enabled);
         active = 1;
         activate();
     }
-    if (interaction->wasStopped())
+    if (interaction && interaction->wasStopped())
     {
         active = 0;
         disactivate();
@@ -127,27 +142,30 @@ void coSensor::update()
     //START("coSensor::update");
     calcDistance();
     bool newActiveFlag = sqrDistance <= threshold;
-    if (newActiveFlag)
+    if (interaction)
     {
-        if (enabled && !interaction->isRegistered())
-            vrui::coInteractionManager::the()->registerInteraction(interaction);
-    }
-    else
-    {
-        if (interaction->isRegistered())
-            vrui::coInteractionManager::the()->unregisterInteraction(interaction);
-    }
+	if (newActiveFlag)
+	{
+	 if (enabled &&  !interaction->isRegistered())
+	     vrui::coInteractionManager::the()->registerInteraction(interaction);
+	}
+	else
+	{
+	 if ( interaction->isRegistered())
+	     vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+	}
 
-    if (interaction->wasStarted())
-    {
-        assert(enabled);
-        active = 1;
-        activate();
-    }
-    if (interaction->wasStopped())
-    {
-        active = 0;
-        disactivate();
+	if(interaction->wasStarted())
+	{
+	 assert(enabled);
+	 active = 1;
+	 activate();
+	}
+	if (interaction->wasStopped())
+	{
+	 active = 0;
+	 disactivate();
+	}
     }
 }
 
@@ -173,7 +191,7 @@ void coSensor::disable()
 {
     START("coSensor::disable");
     enabled = 0;
-    if (interaction->isRegistered())
+    if (interaction && interaction->isRegistered())
         vrui::coInteractionManager::the()->unregisterInteraction(interaction);
 }
 
@@ -185,7 +203,7 @@ coSensor::~coSensor()
         active = 0;
         disactivate();
     }
-    if (interaction->isRegistered())
+    if (interaction && interaction->isRegistered())
         vrui::coInteractionManager::the()->unregisterInteraction(interaction);
     delete interaction;
 }

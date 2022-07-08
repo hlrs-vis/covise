@@ -8,7 +8,7 @@
 #include "AnnotationSensor.h"
 
 AnnotationSensor::AnnotationSensor(Annotation *a, osg::Node *n)
-    : coPickSensor(n)
+    : coPickSensor(n,true)
 {
     myAnnotation = a;
     setThreshold(50);

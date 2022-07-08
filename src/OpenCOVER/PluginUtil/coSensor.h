@@ -56,7 +56,7 @@ public:
         PICK,
         HAND
     };
-    coSensor(osg::Node *n, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
+    coSensor(osg::Node *n, bool mouseOver=false, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
     virtual ~coSensor();
 
     // this method is called if intersection just started
@@ -101,11 +101,12 @@ public:
 
     virtual int hit(vrui::vruiHit *hit);
     virtual void miss();
-    coPickSensor(osg::Node *n, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
+    coPickSensor(osg::Node *n, bool mouseOver=false, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
     virtual ~coPickSensor();
     virtual void update();
     virtual int getType();
 };
+
 
 class PLUGIN_UTILEXPORT coSensorList : public covise::DLinkList<coSensor *>
 {
