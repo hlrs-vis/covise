@@ -130,7 +130,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 AddPatchToBoundary(s, 1);
             }
             if (FOAMInterface.Singleton.Data.WindAroundBuildings)
-                IncludeEtc("\"caseDicts/setContraintTypes\"");
+                IncludeEtc("\"caseDicts/setConstraintTypes\"");
 
             FoamFile.Attributes.Add("dimensions", m_Dimensions);
             FoamFile.Attributes.Add("internalField", m_InternalFieldString);
