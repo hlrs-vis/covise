@@ -166,9 +166,12 @@ private:
 	EntityMap loadedEntities;
     
     TrafficSimulation::PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    TrafficSimulation::PedestrianGeometry* createBicycle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     std::vector<pedestrianModel> pedestrianModels;
+    std::vector<pedestrianModel> bicycleModels;
     void getPedestriansFromConfig();
+    void getBicyclesFromConfig();
     void lineUpAllPedestrianModels();
 
     std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle","escooter"};
