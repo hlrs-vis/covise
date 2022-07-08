@@ -10,7 +10,11 @@
 #include <config/CoviseConfig.h>
 #include <iostream>
 
+<<<<<<< HEAD
 static float zeroAngle = 1481.0;
+=======
+static float zeroAngle = 1467.;
+>>>>>>> 6a43a198b (fixed steering)
 
 int Tacx::usbOpenDevice(libusb_device_handle **device, int vendor, const char *vendorName, int product, const char *productName)
 {
@@ -208,10 +212,22 @@ float Tacx::getAngle()
 {
 
                     //fprintf(stderr,"vrdata.Lenkwinkel %d\n",vrdata.Lenkwinkel);
+/*
     float angle = (vrdata.Lenkwinkel - zeroAngle) / 300.0;
     int diff = (vrdata.Lenkwinkel - zeroAngle);
     if(diff < 0)
         angle = (diff/231.0);
+*/
+    int val =  (vrdata.Lenkwinkel - zeroAngle) ;
+    float angle = (vrdata.Lenkwinkel - zeroAngle) / 300.0;
+    if(val > 0)
+        angle = val/50.0*1.0;
+    else
+        angle = val/204.0*1.0;
+                    fprintf(stderr,"vrdata.Lenkwinkel %d angle %f\n",val,angle);
+    if (angle < 0.) {
+       return -angle*angle;
+    } 
     else
         angle = (diff/56.0);
 	
