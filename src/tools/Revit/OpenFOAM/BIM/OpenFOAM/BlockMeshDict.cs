@@ -134,7 +134,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
 
             }
             else
-            { 
+            {
                 // m_Vertices.Add(new Vector3D(s.DomainOrigin.X, s.DomainOrigin.Y, s.DomainOrigin.Z));
                 // Autodesk.Revit.DB.XYZ tmp = s.DomainOrigin+s.DomainX;
                 // m_VecLowerEdgeLeft = new Vector3D(tmp.X, tmp.Y, tmp.Z);
@@ -153,13 +153,13 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 // tmp = s.DomainOrigin + s.DomainZ + s.DomainY;
                 // m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
                 Autodesk.Revit.DB.XYZ origin = s.DomainOrigin;
-                Autodesk.Revit.DB.XYZ domainX = s.DomainX; 
-                Autodesk.Revit.DB.XYZ domainY = s.DomainY; 
-                Autodesk.Revit.DB.XYZ domainZ = s.DomainZ; 
+                Autodesk.Revit.DB.XYZ domainX = s.DomainX;
+                Autodesk.Revit.DB.XYZ domainY = s.DomainY;
+                Autodesk.Revit.DB.XYZ domainZ = s.DomainZ;
                 m_Vertices.Add(new Vector3D(origin.X, origin.Y, origin.Z));
                 Autodesk.Revit.DB.XYZ tmp = origin + domainX;
                 m_VecLowerEdgeLeft = new Vector3D(tmp.X, tmp.Y, tmp.Z);
-                m_Vertices.Add(new Vector3D(tmp.X,tmp.Y,tmp.Z));
+                m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
                 tmp = origin + domainX + domainY;
                 m_Vertices.Add(new Vector3D(tmp.X, tmp.Y, tmp.Z));
                 tmp = origin + domainY;
@@ -229,25 +229,29 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             if (s.DomainX.IsZeroLength()) // no ComputationalDomain Family instance
             {
                 Dictionary<string, object> boundingBox = new Dictionary<string, object>()
-            {
-                {"type", "wall"} ,
-                {"faces", new ArrayList {
-                          {new int[]{ 0, 3, 2, 1 } },
-                          {new int[]{ 4, 5, 6, 7 } },
-                          {new int[]{ 1, 2, 6, 5 } },
-                          {new int[]{ 3, 0, 4, 7 } },
-                          {new int[]{ 0, 1, 5, 4 } },
-                          {new int[]{ 2, 3, 7, 6 } } }
-                }
-            };
+                {
+                    {"type", "wall"} ,
+                    {"faces", new ArrayList {
+                              {new int[]{ 0, 3, 2, 1 } },
+                              {new int[]{ 4, 5, 6, 7 } },
+                              {new int[]{ 1, 2, 6, 5 } },
+                              {new int[]{ 3, 0, 4, 7 } },
+                              {new int[]{ 0, 1, 5, 4 } },
+                              {new int[]{ 2, 3, 7, 6 } } }
+                    }
+                };
                 m_Boundary.Add(new KeyValuePair<string, object>("boundingBox", boundingBox));
             }
             else
             {
-
+                string frontAndBackType = "symmetry";
+                string inletType = "patch";
+                string outletType = "patch";
+                string lowerWallType = "wall";
+                string upperWallType = "symmetry";
                 Dictionary<string, object> frontAndBack = new Dictionary<string, object>()
                 {
-                    {"type", "wall"} ,
+                    {"type", frontAndBackType} ,
                     {"faces", new ArrayList {
                               {new int[]{ 1, 2, 6, 5 } },
                               {new int[]{ 3, 0, 4, 7 } }}
@@ -257,7 +261,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
 
                 Dictionary<string, object> inlet = new Dictionary<string, object>()
                 {
-                    {"type", "patch"} ,
+                    {"type", inletType} ,
                     {"faces", new ArrayList {
                               {new int[]{ 0, 1, 5, 4 } }}
                     }
@@ -265,7 +269,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 m_Boundary.Add(new KeyValuePair<string, object>("inlet", inlet));
                 Dictionary<string, object> outlet = new Dictionary<string, object>()
                 {
-                    {"type", "patch"} ,
+                    {"type", outletType} ,
                     {"faces", new ArrayList {
                               {new int[]{ 2, 3, 7, 6 } }}
                     }
@@ -273,7 +277,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 m_Boundary.Add(new KeyValuePair<string, object>("outlet", outlet));
                 Dictionary<string, object> lowerWall = new Dictionary<string, object>()
                 {
-                    {"type", "wall"} ,
+                    {"type", lowerWallType} ,
                     {"faces", new ArrayList {
                               {new int[]{ 0, 3, 2, 1 } }}
                     }
@@ -281,7 +285,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
                 m_Boundary.Add(new KeyValuePair<string, object>("lowerWall", lowerWall));
                 Dictionary<string, object> upperWall = new Dictionary<string, object>()
                 {
-                    {"type", "wall"} ,
+                    {"type", upperWallType} ,
                     {"faces", new ArrayList {
                               {new int[]{ 4, 5, 6, 7 } }}
                     }
