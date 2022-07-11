@@ -46,9 +46,9 @@ coSensor::coSensor(osg::Node *n, bool mouseOver, vrui::coInteraction::Interactio
         }
     }
     if(!mouseOver)
-    interaction = new coCombinedButtonInteraction(type, name, priority);
+        interaction = new coCombinedButtonInteraction(type, name, priority);
     else
-    interaction == nullptr;
+        interaction = nullptr;
 }
 
 void coSensor::setButtonSensitive(int s)
