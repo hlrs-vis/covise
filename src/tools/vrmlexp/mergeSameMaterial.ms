@@ -129,7 +129,7 @@ sel = selection as array
 			while count <= sel.count do
 			(
 				select sel[count]
-				
+				--print $
 				--Find if any instance is there for this object
 				InstanceMgr.GetInstances $ &instances
 				
