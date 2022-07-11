@@ -78,6 +78,7 @@
 #include "grmsg/coGRObjSetVariantMsg.h"
 #include "grmsg/coGRObjSetAppearanceMsg.h"
 #include "grmsg/coGRObjKinematicsStateMsg.h"
+#include "grmsg/coGRColorBarPluginMsg.h"
 %}
 %include coGRMsg_decl.h
 %include coGRObjMsg.h
@@ -145,7 +146,7 @@
 %include coGRObjSetVariantMsg.h
 %include coGRObjSetAppearanceMsg.h
 %include coGRObjKinematicsStateMsg.h
-
+%include coGRColorBarPluginMsg.h
 using namespace std;
 
 

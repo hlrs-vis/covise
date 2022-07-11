@@ -62,29 +62,7 @@ ColorBar::ColorBar(ui::Menu *menu)
     show_->setVisible(false, ui::View::VR);
     show_->setState(hudVisible_);
     show_->setCallback([this](bool state){
-        hudVisible_ = state;
-        if (state)
-        {
-            if (!hudbar_)
-            {
-                hudbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data(), false);
-                hudbar_->getUIElement()->createGeometry();
-            }
-
-            auto vtr = hudbar_->getUIElement()->getDCS();
-            VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
-            hudbar_->setVisible(true);
-        }
-        else
-        {
-            if (hudbar_)
-            {
-                auto vtr = hudbar_->getUIElement()->getDCS();
-                VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
-                hudbar_->setVisible(false);
-            }
-        }
-
+        show(state);
     });
 
     if (cover->vruiView)
@@ -444,6 +422,32 @@ ColorBar::setName(const char *name)
         name_.clear();
 
     updateTitle();
+}
+
+void ColorBar::show(bool state)
+{
+    if (state && !hudVisible_)
+    {
+        if (!hudbar_)
+        {
+            hudbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data(), false);
+            hudbar_->getUIElement()->createGeometry();
+        }
+
+        auto vtr = hudbar_->getUIElement()->getDCS();
+        VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
+        hudbar_->setVisible(true);
+        hudVisible_ = true;
+        
+    }
+    else if(hudVisible_ && hudbar_)
+    {
+        auto vtr = hudbar_->getUIElement()->getDCS();
+        VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
+        hudbar_->setVisible(false);
+        hudVisible_ = false;
+    }
+    show_->setState(state);
 }
 
 const char *

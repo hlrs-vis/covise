@@ -109,10 +109,10 @@ public:
 
     /** set name */
     void setName(const char *name);
-
+    void show(bool state);
     /** get name
-       *  @return name the name of the colorbar, identical with module name, eg, g, Colors_1
-       */
+     *  @return name the name of the colorbar, identical with module name, eg, g, Colors_1
+     */
     const char *getName();
 
     /** parseAttrib

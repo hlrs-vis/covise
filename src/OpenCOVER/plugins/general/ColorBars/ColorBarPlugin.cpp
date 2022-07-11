@@ -16,19 +16,19 @@
 \****************************************************************************/
 
 #include "ColorBarPlugin.h"
-#include <cover/coVRPluginSupport.h>
-#include <cover/RenderObject.h>
-#include <cover/OpenCOVER.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <PluginUtil/ColorBar.h>
-#include <cover/ui/Menu.h>
+#include <config/CoviseConfig.h>
+#include <cover/OpenCOVER.h>
+#include <cover/RenderObject.h>
+#include <cover/coVRConfig.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
 #include <cover/ui/View.h>
 #include <cover/ui/VruiView.h>
-#include <cover/coVRMSController.h>
-#include <cover/coVRConfig.h>
-#include <OpenVRUI/osg/mathUtils.h>
-#include <config/CoviseConfig.h>
-
+#include <grmsg/coGRMsg.h>
 #include <osg/io_utils>
 
 using namespace opencover;
@@ -157,6 +157,20 @@ ColorBarPlugin::removeInteractor(const std::string &container)
         inter->decRefCount();
     }
 }
+
+void ColorBarPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
+{
+    if(msg.getType() == grmsg::coGRMsg::COLOR_BAR_PLUGIN)
+    {
+        for(auto &c : colorsModuleMap)
+        {
+            static bool state = true;
+            c.second.colorbar->show(state);
+            state = !state;
+        }
+    }
+};
+
 
 void
 ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)

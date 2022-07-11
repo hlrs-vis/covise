@@ -48,6 +48,7 @@ public:
 private:
     void removeInteractor(const std::string &container);
     std::vector<std::string> removeQueue;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) override;
 
     // VR Menu
     opencover::ui::Menu *colorSubmenu = nullptr;

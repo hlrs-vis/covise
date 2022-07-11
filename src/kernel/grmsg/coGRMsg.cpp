@@ -74,6 +74,7 @@
 #include "coGRToggleVPClipPlaneModeMsg.h"
 #include "coGRTurnTableAnimationMsg.h"
 #include "coGRViewpointChangedMsg.h"
+#include "coGRColorBarPluginMsg.h"
 
 
 
@@ -173,6 +174,7 @@ std::unique_ptr<coGRMsg> grmsg::create(const char *msg)
         CREATE_GRMSG(SET_APPEARANCE, coGRObjSetAppearanceMsg)
         CREATE_GRMSG(KINEMATICS_STATE, coGRObjKinematicsStateMsg)
         CREATE_GRMSG(PLUGIN, coGRPluginMsg)
+        CREATE_GRMSG(COLOR_BAR_PLUGIN, coGRColorBarPluginMsg)
         default:
             return nullptr;
          }

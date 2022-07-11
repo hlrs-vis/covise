@@ -101,7 +101,8 @@ public:
         SET_VARIANT, // KLSM
         SET_APPEARANCE, // KLSM
         KINEMATICS_STATE, // KLSM
-        PLUGIN
+        PLUGIN,
+        COLOR_BAR_PLUGIN
     } Mtype; //, PLANEINT, BBINT, COLOR, MATERIAL, SELECT, VIEWPOINT, CLIPLANE } Mtype;
 
     /// recreate class from a message string
