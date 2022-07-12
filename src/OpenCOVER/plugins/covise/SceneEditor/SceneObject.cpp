@@ -304,7 +304,7 @@ osg::Node *SceneObject::getGeometryNode(std::string geoNameSpace)
     osg::Group *group = _geometryNode->asGroup();
     if (group != NULL)
     {
-        for (int i = 0; i < group->getNumChildren(); i++)
+        for (unsigned int i = 0; i < group->getNumChildren(); i++)
         {
             osg::Node *child = group->getChild(i);
             if (child->getName() == "NAMESPACE:" + geoNameSpace)
