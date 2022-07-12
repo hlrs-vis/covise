@@ -535,8 +535,6 @@ void coVRCommunication::handleVRB(const Message &msg)
     case COVISE_MESSAGE_RENDER_MODULE:
     {
         coVRPluginList::instance()->forwardMessage(msg.data);
-        std::cerr << "coVRCommunication received COVISE_MESSAGE_RENDER_MODULE, this might be deprecated." << std::endl
-                  << "Please tell dennis.grieger@hlrs.de what you did to get this message." << std::endl;
         break;
     }
     case COVISE_MESSAGE_RENDER:
