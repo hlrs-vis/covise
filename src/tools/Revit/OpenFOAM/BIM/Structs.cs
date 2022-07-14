@@ -651,21 +651,25 @@ namespace OpenFOAMInterface.BIM.Structs
             /// <param name="_turbulenceModel">Turbulence-model.</param>
             /// <param name="_solverInc">Incompressible-Solver</param>
             /// <param name="_stype">Turbulence-type.</param>
-            public NullParameter(in string name, in dynamic internalField, in dynamic turbulenceModel,
+            public NullParameter(in InitialFOAMParameter param, in dynamic internalField, in dynamic turbulenceModel,
                 in SolverControlDict solverInc = SolverControlDict.simpleFoam, in SimulationType stype = SimulationType.RAS)
             {
-                this.Name = name;
+                this.Param = param;
                 this.InternalField = internalField;
                 this.TurbulenceModel = turbulenceModel;
                 this.Solver = solverInc;
                 this.SimulationType = stype;
                 _patches = new Dictionary<string, FOAMParameterPatch<dynamic>>();
             }
+            /// <summary>
+            /// InitialFOAMParameter.
+            /// </summary>
+            public readonly InitialFOAMParameter Param { get; }
 
             /// <summary>
             /// Name of Parameter.
             /// </summary>
-            public readonly string Name { get; }
+            public readonly string Name { get => Param.ToString(); }
 
             /// <summary>
             /// Value of internalField.
@@ -718,8 +722,11 @@ namespace OpenFOAMInterface.BIM.Structs
                         this.Attributes = new Dictionary<string, object>
                         {
                             { "type", _type },
-                            { "p0 " + _uniform, _value}
+                            { "p0 " + _uniform, _value},
+                            { "value " + _uniform, _value}
                         };
+                        if (FOAMInterface.Singleton.Data.WindAroundBuildings)
+                            this.Attributes.Add("rho", "none");
                     }
                     else
                     {
