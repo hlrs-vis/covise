@@ -541,16 +541,20 @@ namespace OpenFOAMInterface.BIM
                     outletNames.Add(name);
                 }
             }
-            wallNames.Add("wallSTL");
+
+            if (FOAMInterface.Singleton.Data.WindAroundBuildings)
+                wallNames.Add("wall");
+            else
+                wallNames.Add("wallSTL");
 
             // add ComputationalDomain in/and outlets
             if (!FOAMInterface.Singleton.Data.DomainX.IsZeroLength()) // ComputationalDomain Family instance exists
             {
                 inletNames.Add("inlet");
                 outletNames.Add("outlet");
-                wallNames.Add("frontAndBack");
-                wallNames.Add("lowerWall");
-                wallNames.Add("upperWall");
+                // wallNames.Add("frontAndBack");
+                // wallNames.Add("lowerWall");
+                // wallNames.Add("upperWall");
             }
             else
             {
@@ -882,7 +886,7 @@ namespace OpenFOAMInterface.BIM
         private GeneratorStatus ScanElement(ElementsExportRange exportRange)
         {
             List<Document> documents = new List<Document>();
-            List<string> matListNames = new List<string>{"Inlet", "Outlet"};
+            List<string> matListNames = new List<string> { "Inlet", "Outlet" };
 
             string pathSTL = m_Writer.FileName;
             string stlName = pathSTL.Substring(pathSTL.LastIndexOf("\\") + 1).Split('.')[0];
@@ -1742,6 +1746,11 @@ namespace OpenFOAMInterface.BIM
 
 namespace utils
 {
+    using OpenFOAMInterface.BIM.Structs.FOAM;
+    using OpenFOAMInterface.BIM.Enums;
+    using OpenFOAMInterface.BIM.OpenFOAMUI;
+    using OpenFOAMInterface.BIM;
+
     /// <summary>
     /// Unicode utizer.
     /// Source: http://codepad.org/dUMpGlgg
@@ -1850,6 +1859,40 @@ namespace utils
             string name = instance.Symbol.Family.Name.Replace(' ', '_') + "_" + instance.Name.Replace(' ', '_') + "_" + element.Id;
             name = UnicodeNormalizer.Normalize(name);
             return "Terminal_" + name;
+        }
+
+        public static Vector3D ConvertXYZToVec3D(XYZ val) => new Vector3D(val.X, val.Y, val.Z);
+    }
+
+    /// <summary>
+    /// Abstract class for switching between OpenFOAM Parameter in NullFolder.
+    /// </summary>
+    public abstract class NullParamSwitch
+    {
+        public abstract Delegate U { get; }
+        public abstract Delegate P { get; }
+        public abstract Delegate P_RGH { get; }
+        public abstract Delegate ALPHAT { get; }
+        public abstract Delegate NUT { get; }
+        public abstract Delegate T { get; }
+        public abstract Delegate EPSILON { get; }
+        public abstract Delegate K { get; }
+        protected object Switch(in NullParameter param, params object[] vargs)
+        {
+            var invokeDel = (Delegate del) => vargs.Length == 0 || vargs == null ? del.DynamicInvoke() : del.DynamicInvoke(vargs);
+            return param.Param switch
+            {
+                InitialFOAMParameter.U => invokeDel(U),
+                InitialFOAMParameter.p => invokeDel(P),
+                InitialFOAMParameter.p_rgh => invokeDel(P_RGH),
+                InitialFOAMParameter.alphat => invokeDel(ALPHAT),
+                InitialFOAMParameter.nut => invokeDel(NUT),
+                InitialFOAMParameter.T => invokeDel(T),
+                InitialFOAMParameter.epsilon => invokeDel(EPSILON),
+                InitialFOAMParameter.k => invokeDel(K),
+                _ => MessageBox.Show($"No implementation for Nullparameter {param.Name} available.",
+                    OpenFOAMInterfaceResource.MESSAGE_BOX_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            };
         }
     }
 }
