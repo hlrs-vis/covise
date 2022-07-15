@@ -845,7 +845,7 @@ namespace OpenFOAMInterface.BIM
             m_FinalLayerThickness = 0.7;
             m_MinThickness = 0.1;
             m_NGrow = 0;
-            m_FeatureAngle = 110;
+            m_FeatureAngle = 100;
             m_NRelaxeIterLayer = 3;
             m_nSmoothSurfaceNormals = 1;
             m_NSmoothThickness = 10;
@@ -2245,7 +2245,7 @@ namespace OpenFOAMInterface.BIM
                     {
                         parameter = new NullParameter(param, 0.0, model);
                         CreateFOAMParameterPatches(parameter, "alphatJayatillekeWallFunction", "uniform", 0.0, PatchType.wall, false);
-                        if(WindAroundBuildings)
+                        if (WindAroundBuildings)
                         {
                             CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.inlet, false);
                             CreateFOAMParameterPatches(parameter, "calculated", "uniform", 0.0, PatchType.outlet, false);
@@ -2353,8 +2353,10 @@ namespace OpenFOAMInterface.BIM
                         FOAMParameterPatch<dynamic> _inlet = default;
                         NullParamPatchAttributes<T> patchAtts = new(param, _inlet, type, uniform, value, pType);
                         if (!DomainX.IsZeroLength())
+                        {
                             DIS.Switch(param, ref patchAtts);
-                        param = patchAtts.Param;
+                            param = patchAtts.Param;
+                        }
 
                         if (Inlet.Count == 0 || !useBIM)
                         {
