@@ -141,10 +141,7 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         /// Add OpenFOAM-Module.
         /// </summary>
         /// <param name="moduleLocation">Location of the OpenFOAM module to include in root dir of OpenFOAM.</param>
-        private void IncludeEtc(in string moduleLocation)
-        {
-            m_BoundaryField.Add("#includeEtc", moduleLocation);
-        }
+        private void IncludeEtc(in string moduleLocation) => m_BoundaryField.Add("#includeEtc", moduleLocation);
 
         /// <summary>
         /// Add patch to BoundaryField.
@@ -153,12 +150,17 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
         private void AddPatchToBoundary(string s, int inletOutlet)
         {
             object patch;
-            if (inletOutlet == 1)
-                s = "inlet";
-            else if (inletOutlet == 2)
-                s ="outlet";
-            if (m_DictFile.TryGetValue(s, out patch))
-                m_BoundaryField.Add(s, ((FOAMParameterPatch<dynamic>)patch).Attributes);
+            if (!m_DictFile.TryGetValue(s, out patch))
+            {
+                string search = "";
+                if (inletOutlet == 1)
+                    search = "inlet";
+                else if (inletOutlet == 2)
+                    search = "outlet";
+                if (!m_DictFile.TryGetValue(search, out patch))
+                    return; // skip patch
+            }
+            m_BoundaryField.Add(s, ((FOAMParameterPatch<dynamic>)patch).Attributes);
         }
     }
 }
