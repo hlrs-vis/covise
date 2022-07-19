@@ -1911,7 +1911,7 @@ RW_ASCII::readUNSGRD(const char *name, char *command, istream &str)
         {
             command = getLine(str, buffer, 100000);
 
-            while (readConn < numConn && readPart < numElem && command && isalpha(*command))
+            while (readConn < numConn && readPart < numElem && command)
             {
 
                 // the element starts here
@@ -2809,15 +2809,10 @@ RW_ASCII::writeObj(const char *offset, const coDistributedObject *new_data, FILE
         {
             fprintf(file, "%s%s%s", offset, sp, sp);
 
-            if (ht)
+            if (tl[i] > -1 && tl[i] < 9)
             {
-                if (tl[i] > -1 && tl[i] < 9)
-                    //               if (type[tl[i]] == (char *)"10")
-                    if (strncmp(type[tl[i]], "10", 2) == 0)
-                        fprintf(file, "%s ", type[8]);
+               fprintf(file, "%s ", type[tl[i]]);
             }
-            else
-                fprintf(file, "%s ", type[tl[i]]);
 
             for (j = el[i]; j < ((i < numE - 1) ? el[i + 1] : numC); j++)
                 fprintf(file, "%i ", cl[j]);

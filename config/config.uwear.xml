@@ -393,6 +393,18 @@
                         <Offset x="-1545.24" y="-1347.12" z="2852" h="180" p="180" r="180" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
+                    <Marker name="ObjectMarker15" >
+                        <Pattern value="21" />
+                        <Size value="20000" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
+                    <Marker name="ObjectMarker16" >
+                        <Pattern value="45" />
+                        <Size value="20000" />
+                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>
 					<!-- porsche
                     <Marker name="ObjectMarker12" >
                         <Pattern value="77" />
