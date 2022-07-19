@@ -22,13 +22,17 @@ namespace vrb
 {
 
 SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, const std::string& className)
-    : m_registry(SharedStateManager::instance()->getRegistry())
-    , variableName(name)
+    : variableName(name)
 	, m_className(className)
 {
-    auto news = SharedStateManager::instance()->add(this, mode);
-    sessionID = news.first;
-    muted = news.second;
+    m_registry = nullptr;
+    if(SharedStateManager::instance())
+    {
+        m_registry = SharedStateManager::instance()->getRegistry();
+        auto news = SharedStateManager::instance()->add(this, mode);
+        sessionID = news.first;
+        muted = news.second;
+    }
 }
 
 SharedStateBase::~SharedStateBase()
@@ -56,7 +60,10 @@ void SharedStateBase::setVar(const DataHandle & val)
     m_valueData = val;
 	if (syncInterval <= 0)
 	{
+            if(m_registry)
+            {
 		m_registry->setVar(sessionID, m_className, variableName, val, muted);
+            }
 	}
 	else
 	{
@@ -111,12 +118,15 @@ bool SharedStateBase::getMute()
 
 void SharedStateBase::resubscribe(const SessionID &id)
 {
-    if (m_registry && m_registry->getClass(m_className)->getVar(variableName))
+    if (m_registry)
     {
-        m_registry->unsubscribeVar(m_className, variableName, true);
-    }
+        if(m_registry->getClass(m_className)->getVar(variableName))
+        {
+            m_registry->unsubscribeVar(m_className, variableName, true);
+        }
 
-    m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
+        m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
+    }
 }
 
 void SharedStateBase::frame(double time)
