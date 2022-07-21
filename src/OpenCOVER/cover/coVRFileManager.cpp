@@ -1431,7 +1431,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 	{
 		filePlace = FETCHED;
 	}
-	if (remoteFetchEnabled) //check if all have found the find locally
+	if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
 	{
 		bool sync = true;
 		bool found = filePlace != MISS;
