@@ -233,24 +233,35 @@ void Wheelchair::MoveToFloor()
     //  just adjust height here
 
 
-    osg::Vec3 pos = WheelchairPos.getTrans();
+    //osg::Vec3 pos = WheelchairPos.getTrans();
+    osg::Vec3 pos(-wheelWidth/2.0, 0, 0);
+    pos = pos * WheelchairPos;
+    osg::Vec3 pos2(-wheelWidth / 2.0, wheelBase, 0);
+    pos2 = pos2 * WheelchairPos;
+    osg::Vec3 pos3(wheelWidth / 2.0, wheelBase, 0);
+    pos3 = pos3 * WheelchairPos;
 
     // down segment
     osg::Vec3 p0, q0;
-    p0.set(pos[0], pos[1], floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1], floorHeight - stepSizeDown);
+    p0.set(pos[0], pos[1], pos[2] + floorHeight + stepSizeUp);
+    q0.set(pos[0], pos[1], pos[2] + floorHeight - stepSizeDown);
 
-    osg::ref_ptr<osg::LineSegment> ray[2];
+    osg::ref_ptr<osg::LineSegment> ray[3];
     ray[0] = new osg::LineSegment(p0, q0);
 
     // down segment 2
-    p0.set(pos[0], pos[1] + 10, floorHeight + stepSizeUp);
-    q0.set(pos[0], pos[1] + 10, floorHeight - stepSizeDown);
+    p0.set(pos2[0], pos2[1], pos2[2] + floorHeight + stepSizeUp);
+    q0.set(pos2[0], pos2[1], pos2[2] + floorHeight - stepSizeDown);
     ray[1] = new osg::LineSegment(p0, q0);
 
+    // down segment 3
+    p0.set(pos3[0], pos3[1], pos3[2] + floorHeight + stepSizeUp);
+    q0.set(pos3[0], pos3[1], pos3[2] + floorHeight - stepSizeDown);
+    ray[2] = new osg::LineSegment(p0, q0);
+
     osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
-    for (int i=0; i<2; ++i)
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[3];
+    for (int i=0; i<3; ++i)
     {
         intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
         igroup->addIntersector(intersectors[i]);
@@ -260,8 +271,8 @@ void Wheelchair::MoveToFloor()
     visitor.setTraversalMask(Isect::Walk);
     VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-    bool haveIsect[2];
-    for (int i=0; i<2; ++i)
+    bool haveIsect[3];
+    for (int i=0; i<3; ++i)
         haveIsect[i] = intersectors[i]->containsIntersections();
     if (!haveIsect[0] && !haveIsect[1])
     {
@@ -348,7 +359,7 @@ void Wheelchair::MoveToFloor()
             visitor.setTraversalMask(Isect::Walk);
             VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-            for (int i=0; i<2; ++i)
+            for (int i=0; i<3; ++i)
                 haveIsect[i] = intersectors[i]->containsIntersections();
             dist = FLT_MAX;
             if (haveIsect[0])
@@ -364,6 +375,25 @@ void Wheelchair::MoveToFloor()
                 floorNode = isect.nodePath.back();
             }
         }
+    }
+
+    if (haveIsect[0] && haveIsect[1] && haveIsect[2])
+    {
+        isect = intersectors[0]->getFirstIntersection();
+        osg::Vec3 p0 = isect.getWorldIntersectPoint();
+        isect = intersectors[1]->getFirstIntersection();
+        osg::Vec3 p1 = isect.getWorldIntersectPoint();
+        isect = intersectors[2]->getFirstIntersection();
+        osg::Vec3 p2 = isect.getWorldIntersectPoint();
+        osg::Vec3 v1 = p1 - p0;
+        osg::Vec3 v2 = p2 - p0;
+        v1.normalize();
+        v2.normalize();
+        wcNormal = v1 ^ v2;
+        wcNormal.normalize();
+        wcDataOut.normal[0] = wcNormal[0];
+        wcDataOut.normal[1] = wcNormal[1];
+        wcDataOut.normal[2] = wcNormal[2];
     }
 
 
@@ -433,6 +463,7 @@ void Wheelchair::updateThread()
             {
                 OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
                 memcpy(&wcData, tmpBuf, sizeof(WCData));
+                udp->send(&wcDataOut, sizeof(wcDataOut));
             }
 
         }

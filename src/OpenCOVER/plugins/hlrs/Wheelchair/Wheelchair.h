@@ -39,6 +39,12 @@ struct WCData
     int64_t countRight;
     uint32_t state;
 };
+struct WCDataOut
+{
+
+    float normal[3];
+    uint32_t state;
+};
 #pragma pack(pop)
 
 
@@ -65,6 +71,7 @@ private:
     void updateThread();
     UDPComm* udp=nullptr;
     WCData wcData;
+    WCDataOut wcDataOut;
     int ret;
     OpenThreads::Mutex mutex;
     float speed=0.0;
@@ -83,6 +90,9 @@ private:
     int64_t oldCountLeft=0;
     int64_t oldCountRight=0;
     osg::Matrix WheelchairPos;
+    float wheelBase = 500;
+    float wheelWidth = 500;
+    osg::Vec3 wcNormal;
 };
 
 #endif /* Wheelchair_H */
