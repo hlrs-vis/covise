@@ -394,6 +394,9 @@ void Wheelchair::MoveToFloor()
         wcDataOut.normal[0] = wcNormal[0];
         wcDataOut.normal[1] = wcNormal[1];
         wcDataOut.normal[2] = wcNormal[2];
+        wcDataOut.direction[0] = WheelchairPos(0, 1);
+        wcDataOut.direction[1] = WheelchairPos(1, 1);
+        wcDataOut.direction[2] = WheelchairPos(2, 1);
     }
 
 

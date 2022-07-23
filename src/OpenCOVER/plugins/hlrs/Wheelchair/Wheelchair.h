@@ -41,8 +41,8 @@ struct WCData
 };
 struct WCDataOut
 {
-
     float normal[3];
+    float direction[3];
     uint32_t state;
 };
 #pragma pack(pop)
