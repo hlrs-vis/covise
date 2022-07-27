@@ -513,7 +513,7 @@ double SystemCover::time()
     return cover->frameTime();
 }
 
-std::string SystemCover::remoteFetch(const std::string& filename, bool isTmp)
+std::string SystemCover::remoteFetch(const std::string& filename)
 {
 	return coVRFileManager::instance()->findOrGetFile(filename);
 }

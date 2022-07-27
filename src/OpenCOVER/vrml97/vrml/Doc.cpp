@@ -323,7 +323,7 @@ bool Doc::filename(char *fn, int nfn)
         // if not, the try to fetch it from a remote site if possible
         cerr << "file " << s << " not local, try to get it from remote " << endl;
 
-		path = System::the->remoteFetch(d_url, d_isTmp);
+		path = System::the->remoteFetch(d_url);
 		if (path != "")
         {
             d_tmpfile = new char[path.length() + 1 + endLength];
@@ -361,7 +361,7 @@ bool Doc::filename(char *fn, int nfn)
             {
                 s = d_tmpfile;
             }
-            else if ((path = System::the->remoteFetch(s, d_isTmp)) != "")
+            else if ((path = System::the->remoteFetch(s)) != "")
             {
                 d_tmpfile = new char[path.length() + 1 + endLength];
                 strcpy(d_tmpfile, path.c_str());
