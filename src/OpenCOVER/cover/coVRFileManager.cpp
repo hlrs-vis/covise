@@ -1936,104 +1936,88 @@ void coVRFileManager::convertBackslash(std::string & path)
 std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOwner)
 {
 
-	const char *buf = nullptr;
+	if(!cover->isVRBconnected())
+        return "";
+    const char *buf = nullptr;
     int numBytes = 0;
-	if (OpenCOVER::instance()->isVRBconnected() ||!coVRMSController::instance()->isMaster())
-	{
-		if (coVRMSController::instance()->isMaster())
-		{
-			TokenBuffer rtb;
-			rtb << filePath;
-			rtb << coVRCommunication::instance()->getID();
-			rtb << fileOwner;
-			Message m(rtb);
-			m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
-			cover->sendVrbMessage(&m);
-		}
-		int message = 1;
-		//wait for the file
-        std::unique_ptr<Message> mymsg;
-		do
-		{
-            std::unique_ptr<Message> msg(new Message);
-            if (OpenCOVER::instance()->isVRBconnected() || !coVRMSController::instance()->isMaster())
-			{
-				if (coVRMSController::instance()->isMaster())
-				{
-					OpenCOVER::instance()->vrbc()->wait(msg.get());
-					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
-					coVRMSController::instance()->sendSlaves(msg.get());
-				}
-				else
-				{
-					coVRMSController::instance()->readMaster((char*)& message, sizeof(message));
-					if (message == 0)
-						return "";
-					// wait for message from master instead
-					coVRMSController::instance()->readMaster(msg.get());
-				}
-				//cache all send file messages
-				if (msg->type == COVISE_MESSAGE_VRB_SEND_FILE)
-				{
-					m_sendFileMessages.push_back(std::move(msg));
-				}
-				else
-				{
-					coVRCommunication::instance()->handleVRB(*msg);
-                    if(!coVRPartnerList::instance()->get(fileOwner))
-                    {
-                        std::cerr << "RemoteFetch aborted: file owner disconneted" << std::endl;
-                        return "";
-                    }
-                }
+    if (coVRMSController::instance()->isMaster())
+    {
+        TokenBuffer rtb;
+        rtb << filePath;
+        rtb << coVRCommunication::instance()->getID();
+        rtb << fileOwner;
+        Message m(rtb);
+        m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+        cover->sendVrbMessage(&m);
+    }
+    //wait for the file
+    std::unique_ptr<Message> mymsg;
+    do
+    {
+        std::unique_ptr<Message> msg(new Message);
+        if (coVRMSController::instance()->isMaster())
+        {
+            OpenCOVER::instance()->vrbc()->wait(msg.get());
+            coVRMSController::instance()->sendSlaves(msg.get());
+        }
+        else
+        {
+            // wait for message from master instead
+            coVRMSController::instance()->readMaster(msg.get());
+        }
+        //cache all send file messages
+        if (msg->type == COVISE_MESSAGE_VRB_SEND_FILE)
+        {
+            m_sendFileMessages.push_back(std::move(msg));
+        }
+        else
+        {
+            coVRCommunication::instance()->handleVRB(*msg);
+            if(!coVRPartnerList::instance()->get(fileOwner))
+            {
+                std::cerr << "RemoteFetch aborted: file owner disconneted" << std::endl;
+                return "";
             }
-			else
-			{
-					message = 0;
-					coVRMSController::instance()->sendSlaves((char*)& message, sizeof(message));
+        }
+        
+        int myID;
+        std::string fn;
+        auto m = m_sendFileMessages.begin();
+        //find out if my file has been received
+        while (m != m_sendFileMessages.end())
+        {
+            TokenBuffer tb(m->get());
+            tb.rewind();
+            tb >> myID;
+            tb >> fn;
+            if (fn == std::string(filePath) && myID == coVRCommunication::instance()->getID())
+            {
+                mymsg = std::move(*m);
+                m_sendFileMessages.erase(m);
+                m = m_sendFileMessages.end();
+            }
+            else
+            {
+                ++m;
+            }
+        }
+    } while (!mymsg);
 
-				return "";
-			}
-			int myID;
-			std::string fn;
-			auto m = m_sendFileMessages.begin();
-			//find out if my file has been received
-			while (m != m_sendFileMessages.end())
-			{
-				TokenBuffer tb(m->get());
-				tb.rewind();
-				tb >> myID;
-				tb >> fn;
-				if (fn == std::string(filePath) && myID == coVRCommunication::instance()->getID())
-				{
-					mymsg = std::move(*m);
-					m_sendFileMessages.erase(m);
-					m = m_sendFileMessages.end();
-				}
-				else
-				{
-					++m;
-				}
-			}
-		} while (!mymsg);
+    
+    TokenBuffer tb(mymsg.get());
+    int myID;
+    std::string fn;
+    tb >> myID; // this should be my ID
+    tb >> fn; //this should be the requested file
+    tb >> numBytes;
+    if (numBytes <= 0)
+    {
+        return "";
+    }
+    buf = tb.getBinary(numBytes);
+    std::string pathToTmpFile = writeFile(filePath, buf, numBytes);
+    return pathToTmpFile;
 
-		
-		TokenBuffer tb(mymsg.get());
-		int myID;
-		std::string fn;
-		tb >> myID; // this should be my ID
-		tb >> fn; //this should be the requested file
-		tb >> numBytes;
-		if (numBytes <= 0)
-		{
-			return "";
-		}
-		buf = tb.getBinary(numBytes);
-		std::string pathToTmpFile = writeFile(filePath, buf, numBytes);
-		return pathToTmpFile;
-	}
-
-	return "";
 }
 int coVRFileManager::getFileId(const char* url)
 {
