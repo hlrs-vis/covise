@@ -1924,19 +1924,8 @@ void coVRFileManager::getSharedDataPath()
 
 void coVRFileManager::convertBackslash(std::string & path)
 {
-    std::string convertedPath;
-    for (char c : path)
-    {
-        if (c == '\\')
-        {
-            convertedPath.push_back('/');
-        }
-        else
-        {
-            convertedPath.push_back(c);
-        }
-    }
-    path = convertedPath;
+    for (char &c : path)
+      c == '\\' ? c = '/' : c = c;
 }
 
 std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOwner)
