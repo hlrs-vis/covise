@@ -1178,7 +1178,7 @@ coVRFileManager::coVRFileManager()
     options = new osgDB::ReaderWriter::Options;
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
     osgDB::Registry::instance()->setOptions(options);
-
+    remoteFetchHashPrefix = coCoviseConfig::isOn("hash", "System.VRB.RemoteFetch", true, nullptr);
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
         if (remoteFetchEnabled) {
 	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
@@ -1397,6 +1397,11 @@ void coVRFileManager::fetchObjMaterials(const std::string & localPath, const std
     }
 }
 
+std::string getRemoteFetchHashPrefix(const std::string& filePath, bool doSth)
+{
+    return doSth ? std::to_string(std::hash<std::string>{}(fs::path{filePath}.parent_path().string())) + "/" : "";
+}
+
 std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
 {
     coVRMSController *ms = coVRMSController::instance();
@@ -1427,7 +1432,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 
 		filePlace = LINK;
 	}
-	else if (remoteFetchPath.size() != 0 && fileExist(path = remoteFetchPath + "/" + getFileName(filePath)))
+	else if (remoteFetchPath.size() != 0 && fileExist(path = remoteFetchPath + "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) + getFileName(filePath)))
 	{
 		filePlace = FETCHED;
 	}
@@ -2024,7 +2029,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 			return "";
 		}
 		buf = tb.getBinary(numBytes);
-		std::string pathToTmpFile = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+		std::string pathToTmpFile = writeFile(filePath, buf, numBytes);
 		return pathToTmpFile;
 	}
 
@@ -2110,13 +2115,16 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
     return red;
 }
 
-std::string coVRFileManager::writeFile(const std::string& fileName, const char* content, int size)
+std::string coVRFileManager::writeFile(const std::string& filePath, const char* content, int size)
 {
-	
-	std::string p(remoteFetchPath);
-	p += "/" + fileName;
+    fs::path path{filePath};
+    auto fileName = path.filename().string();
+    std::string p = remoteFetchPath + "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
+    if(!fs::exists(p))
+        fs::create_directories(p);
+    p += "/" + path.filename().string();
 
-	if ((size > 0) && !fileExist(p))
+    if ((size > 0) && !fileExist(p))
 	{
 #ifndef _WIN32
 		int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);

@@ -51,8 +51,8 @@
     <WSInterface value="false" />
 	
    <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999" />
-	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" />
+    <Server value="visent.hlrs.de" tcpPort="31253" udpPort="49999" />
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
     <CheckConnectionTimeout value ="5"/>
    </VRB>
 

@@ -219,8 +219,9 @@ private:
     int coLoadFontDefaultStyle();
 	//set in 'config/system/vrb/RemoteFetch value = "on" to enable remote fetch in local usr tmp directory. 
 	bool remoteFetchEnabled = false;
-	//set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to. 
-	std::string remoteFetchPath;
+    bool remoteFetchHashPrefix = true;
+    // set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to.
+    std::string remoteFetchPath;
     std::string viewPointFile;
     int m_loadCount = 0;
     std::unique_ptr<ui::Owner> m_owner;
@@ -279,8 +280,8 @@ private:
     ///removs non-aphanumeric characters
     std::string reduceToAlphanumeric(const std::string & str);
 
-	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
-	std::string writeFile(const std::string& fileName, const char* content, int size);
+	///writes content into a file unter remotefetchPath/hash/filename . Returns the path to the file or "" on failure
+	std::string writeFile(const std::string& filePath, const char* content, int size);
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
 	int guessFileOwner(const std::string& filePath);
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
