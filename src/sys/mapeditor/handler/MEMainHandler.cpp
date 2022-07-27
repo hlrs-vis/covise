@@ -29,6 +29,7 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <config/CoviseConfig.h>
 #include <covise/covise_appproc.h>
 #include <covise/covise_msg.h>
 #include <messages/NEW_UI.h>
@@ -349,21 +350,7 @@ void MEMainHandler::init()
 {
 
 // get local user name
-#ifdef _WIN32
-    //localUser = getenv("USERNAME");
-    localUser = QString::fromWCharArray(_wgetenv(L"USERNAME"));
-#else
-    char *login = getlogin();
-    if (!login)
-    {
-        qWarning() << "Getting user name failed";
-        login = getenv("USER");
-    }
-    if (login)
-        localUser = login;
-    else
-        localUser = "unknown";
-#endif
+    localUser = covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getUsername()).c_str();
 
     if (!messageHandler->isStandalone())
     {
