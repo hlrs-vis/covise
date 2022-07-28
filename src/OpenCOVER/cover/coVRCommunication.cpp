@@ -704,7 +704,16 @@ void coVRCommunication::handleVRB(const Message &msg)
         while (me()->ID() == 0)
         {
             Message m;
-            OpenCOVER::instance()->vrbc()->wait(&m);
+            if (coVRMSController::instance()->isMaster())
+            {
+                OpenCOVER::instance()->vrbc()->wait(&m);
+                coVRMSController::instance()->sendSlaves(&m);
+            }
+            else
+            {
+                coVRMSController::instance()->readMaster(&m);
+            }
+
             assert(m.type != COVISE_MESSAGE_VRBC_CHANGE_SESSION);
             handleVRB(m);
         }
