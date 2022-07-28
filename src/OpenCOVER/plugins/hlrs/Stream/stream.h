@@ -5,7 +5,7 @@
 #include <cover/coTabletUI.h>
 
 
-#include <PluginUtil/ffmpegUtil.h>
+#include <ffmpeg/ffmpegEncoder.h>
 namespace opencover
 {
 
