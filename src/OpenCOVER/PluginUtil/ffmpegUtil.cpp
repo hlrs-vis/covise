@@ -4,8 +4,10 @@
 
 #include <cassert>
 #include <iostream>
+
 constexpr int alignment = 32;
 using namespace opencover;
+
 void opencover::avFree(void *ptr)
 {
     av_free(ptr);
@@ -63,15 +65,12 @@ AVFormatContext *openOutputStream(const std::string& codecName, const std::strin
     oc->oformat = av_guess_format(codecName.c_str(), nullptr, nullptr);
     oc->audio_preload = (int)(100 * AV_TIME_BASE);
     oc->max_delay = (int)(0.7 * AV_TIME_BASE);
-    assert(oc->oformat->video_codec == AV_CODEC_ID_RAWVIDEO);
     oc->max_delay = (int)(0.7 * AV_TIME_BASE);
     oc->url = new char[outputFile.length() + 1];
     strcpy(oc->url, outputFile.c_str());
     auto video_st = avformat_new_stream(oc, NULL);
     if (video_st)
-    {
         video_st->id = 0;
-    }
     if (avio_open(&oc->pb, outputFile.c_str(), AVIO_FLAG_WRITE) < 0)
         std::cerr << "failed to open output file " << outputFile << std::endl;
 
@@ -98,7 +97,7 @@ AvWriter2::AvWriter2(const VideoFormat &input, const VideoFormat &output, const 
     auto outCodec = avcodec_find_encoder_by_name(output.codecName.c_str());
     if (!outCodec)
     {
-        fprintf(stderr, "codec not found\n");
+        std::cerr << "codec not found" << std::endl;
         m_error = true;
         return;
     }
@@ -123,7 +122,7 @@ AvWriter2::AvWriter2(const VideoFormat &input, const VideoFormat &output, const 
 
     if (avcodec_open2(m_outCodecContext, outCodec, nullptr) < 0)
     {
-        fprintf(stderr, "could not open codec\n");
+        std::cerr << "could not open codec" << std::endl;
         m_error = true;
         return;
     }
