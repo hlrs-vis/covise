@@ -1439,67 +1439,45 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 	if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
 	{
 		bool sync = true;
-		bool found = filePlace != MISS;
-		if (ms->isMaster())
-		{
-			coVRMSController::SlaveData sd(sizeof(bool));
-
-			ms->readSlaves(&sd);
-			for (size_t i = 0; i < sd.data.size(); i++)
-			{
-				if (*(bool*)sd.data[i] != found)
-				{
-					sync = false;
-				}
-			}
-			ms->sendSlaves(&sync, sizeof(sync));
-			if (!sync)
-			{
-				ms->sendSlaves(&found, sizeof(found));
-				if (found)
-				{
-					covise::TokenBuffer tb;
-					if (!serializeFile(path, tb))
-					{
-						cerr << "coVRFileManager::findOrGetFile error 1: file was there and is now gone" << endl;
-						exit(1);
-					}
-					covise::Message msg(tb);
-					ms->sendSlaves(&msg);
-				}
-			}
+        bool found = filePlace != MISS;
+        bool foundAll = ms->allReduceAnd(found);
+        ms->syncBool(found);
+        if (ms->isMaster())
+        {
+            if(found && !foundAll)
+            {
+                covise::TokenBuffer tb;
+                if (!serializeFile(path, tb))
+                {
+                    cerr << "coVRFileManager::findOrGetFile error 1: file was there and is now gone" << endl;
+                    exit(1);
+                }
+                covise::Message msg(tb);
+                ms->sendSlaves(&msg);
+            }
 		}
 		else //is slave
 		{
-			ms->sendMaster(&found, sizeof(found));
-			ms->readMaster(&sync, sizeof(sync));
-			if (!sync)
+			if (found && !foundAll)
 			{
-				bool master_found;
-				ms->readMaster(&master_found, sizeof(master_found));
-				if (master_found) //receive file from master
-				{
-					covise::Message msg;
-					ms->readMaster(&msg);
-					int numBytes = 0;
-					covise::TokenBuffer tb(&msg);
-					tb >> numBytes;
-					if (numBytes <= 0)
-					{
-						path = "";
-					}
-					else
-					{
-						const char* buf = tb.getBinary(numBytes);
-						path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
-					}
-				}
-				else
-				{
-					filePlace = MISS;
-				}
-			}
-		}
+                covise::Message msg;
+                ms->readMaster(&msg);
+                int numBytes = 0;
+                covise::TokenBuffer tb(&msg);
+                tb >> numBytes;
+                if (numBytes <= 0)
+                {
+                    std::cerr << "remote fetch may be out of sync" << std::endl;
+                    path = "";
+                }
+                else
+                {
+                    const char* buf = tb.getBinary(numBytes);
+                    path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+                }
+                filePlace = FETCHED;
+            }
+        }
 		if (filePlace == MISS)
 		{
 			path = "";
