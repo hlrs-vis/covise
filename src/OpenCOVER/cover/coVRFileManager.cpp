@@ -1412,30 +1412,25 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 		WORK,		//in current working directory
 		LINK,		//under shared data link
 		FETCHED,	//already in remote fetch directory
-		REMOTE		//fetch from remote in tmp directory
+		REMOTE		//fetch from remote in remoteFetchPath 
 	};
 	FilePlace filePlace = MISS;
 	std::string path;
-	//find local file
-	if (fileExist(filePath))
-	{
-		path = filePath;
-		convertBackslash(path);
-		filePlace = LOCAL;
-	}
-	else if (fileExist(path = fs::current_path().string() + filePath) || fileExist(path = fs::current_path().string() + "/" + filePath))//find file in working dir
-	{
-		filePlace = WORK;
-	}
-	else if (fileExist(path = m_sharedDataLink + filePath))//find file under sharedData link
-	{
-
-		filePlace = LINK;
-	}
-	else if (remoteFetchPath.size() != 0 && fileExist(path = remoteFetchPath + "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) + getFileName(filePath)))
-	{
-		filePlace = FETCHED;
-	}
+    const std::array<std::pair<fs::path, FilePlace>, 4> searchLocations = {
+        std::pair<fs::path, FilePlace>(fs::path{filePath}, LOCAL),
+        std::pair<fs::path, FilePlace>(fs::current_path() / filePath, WORK),
+        std::pair<fs::path, FilePlace>(fs::path{m_sharedDataLink} / filePath, LINK),
+        std::pair<fs::path, FilePlace>(fs::path{remoteFetchPath} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
+    };
+    for(const auto &p : searchLocations)
+    {
+        if(fs::exists(p.first))
+        {
+            path = p.first.string();
+            filePlace = p.second;
+            break;
+        }
+    }
 	if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
 	{
 		bool sync = true;
@@ -2038,6 +2033,8 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
 }
 std::string coVRFileManager::getFileName(const std::string &fileName)
 {
+    fs::path p(fileName);
+    return p.filename().string();
     std::string name;
     for (size_t i = fileName.length() - 1; i > 0; --i)
     {
