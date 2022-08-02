@@ -46,7 +46,7 @@ struct avFrameDeleter
 };
 using AvFramePtr = std::unique_ptr<AVFrame, avFrameDeleter>;
 
-class FFMPEGEXPORT AvWriter2
+class FFMPEGEXPORT FFmpegEncoder
 {
 public:
 
@@ -60,16 +60,21 @@ public:
     struct VideoFormat{
         Resolution resolution;
         std::string codecName;
+        const AVOutputFormat *outputFormat = nullptr;
         AVPixelFormat colorFormat;
+        int fps = 25;
+        int bitrate = 10000000;
+        int max_bitrate = 10000000;
     };
-    AvWriter2(const VideoFormat &input, const VideoFormat &output, const std::string &outPutFile);
-    
+    FFmpegEncoder(const VideoFormat &input, const VideoFormat &output, const std::string &outPutFile);
+    // check if encoder is ready to write video after instantiation
+    bool isValid() const;
     // write frame frameNum to the outPutFile
     // use getPixelBuffer to get pixels and fill them
-    // if mirror the pixels are mirrored horizontally 
+    // if mirror the pixels are mirrored horizontally
     void writeVideo(size_t frameNum, uint8_t *pixels, bool mirror);
     uint8_t *getPixelBuffer();
-    ~AvWriter2();
+    ~FFmpegEncoder();
 
 private:
     Resolution m_inputRes; //resolution of the source picture
@@ -84,7 +89,7 @@ private:
     int m_inSize = 0;
     bool m_error = false;
 #ifndef _M_CEE //no future in Managed OpenCOVER
-    std::unique_ptr<std::future<bool>> encodeFuture;
+    std::unique_ptr<std::future<bool>> m_encodeFuture;
 #endif
     void SwConvertScale(uint8_t *pixels, bool mirror);
 };

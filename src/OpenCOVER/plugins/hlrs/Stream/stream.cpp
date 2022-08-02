@@ -29,7 +29,7 @@ Stream::Stream()
 
     int x, y, width, height;
     coVRConfig::instance()->windows[0].window->getWindowRectangle(x, y, width, height);
-    m_inputFormat.resolution = AvWriter2::Resolution(width, height);
+    m_inputFormat.resolution = FFmpegEncoder::Resolution(width, height);
     m_inputFormat.colorFormat = AV_PIX_FMT_BGR32; // provided by open gl with GL_RGBA
 }
 
@@ -40,12 +40,12 @@ void Stream::tabletEvent(opencover::coTUIElement *elem)
         m_frameNum = 0;
 
         // as configured in akvcam init file
-        AvWriter2::VideoFormat output;
+        FFmpegEncoder::VideoFormat output;
         output.colorFormat = AV_PIX_FMT_RGB24;
         output.resolution.w = m_outputResolutionWidth.getValue();
         output.resolution.h = m_outputResolutionHeight.getValue();
         output.codecName = "rawvideo";
-        m_writer.reset(new AvWriter2(m_inputFormat, output, "/dev/video" + std::to_string(m_streamNumber.getValue())));
+        m_writer.reset(new FFmpegEncoder(m_inputFormat, output, "/dev/video" + std::to_string(m_streamNumber.getValue())));
         // AVOutputFormat *f = av_guess_format("rawvideo", nullptr, nullptr);
         preSwapBuffers(0);
     }

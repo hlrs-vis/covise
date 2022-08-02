@@ -22,9 +22,9 @@ class Stream : public coVRPlugin, public coTUIListener
         coTUIEditIntField m_streamNumber;
         coTUILabel m_outputResolutionLabel;
         coTUIEditIntField m_outputResolutionWidth, m_outputResolutionHeight;
-        AvWriter2::VideoFormat m_inputFormat;
+        FFmpegEncoder::VideoFormat m_inputFormat;
         coTUIToggleButton m_mirrorButton; //some conferencing tools mirror the image and sometimes we dont't want this 
-        std::unique_ptr<AvWriter2> m_writer;
+        std::unique_ptr<FFmpegEncoder> m_writer;
         void tabletEvent(opencover::coTUIElement *) override;
         size_t m_frameNum = 0;
 };

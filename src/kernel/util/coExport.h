@@ -404,7 +404,7 @@
 #endif
 #endif
 
-#if defined(COVISE_FFMPEG) || defined(FFMPEG_EXPORTS)
+#if defined(coFFmpegEncoder_EXPORTS)
 #define FFMPEGEXPORT COEXPORT
 #else
 #define FFMPEGEXPORT COIMPORT
