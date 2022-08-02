@@ -36,30 +36,12 @@ using std::endl;
 using namespace vrml;
 
 Doc::Doc(const char *url, const Doc *relative)
-    : d_url(0)
-    , d_ostream(0)
-    , d_fp(0)
-    ,
-#if HAVE_LIBPNG || HAVE_ZLIB
-    d_gz(0)
-    ,
-#endif
-    d_tmpfile(0)
 {
     if (url)
         seturl(url, relative);
 }
 
 Doc::Doc(Doc *doc)
-    : d_url(0)
-    , d_ostream(0)
-    , d_fp(0)
-    ,
-#if HAVE_LIBPNG || HAVE_ZLIB
-    d_gz(0)
-    ,
-#endif
-    d_tmpfile(0)
 {
     if (doc)
         seturl(doc->url());

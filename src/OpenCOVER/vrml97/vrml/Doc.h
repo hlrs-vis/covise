@@ -64,13 +64,13 @@ protected:
     static bool isAbsolute(const char *url);
     bool filename(char *fn, int nfn);
 
-    char *d_url;
-    std::ostream *d_ostream;
-    FILE *d_fp;
+    char *d_url = nullptr;
+    std::ostream *d_ostream = nullptr;
+    FILE *d_fp = nullptr;
 #if HAVE_LIBPNG || HAVE_ZLIB
-    gzFile d_gz;
+    gzFile d_gz = nullptr;
 #endif
-    char *d_tmpfile; // Local copy of http: files
+    char *d_tmpfile = nullptr; // Local copy of http: files
 	bool d_isTmp = false; //is local copy a temp file
 };
 }
