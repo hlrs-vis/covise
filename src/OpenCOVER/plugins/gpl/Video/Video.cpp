@@ -840,7 +840,7 @@ void VideoPlugin::preSwapBuffers(int windowNumber)
         glReadPixels(xPosField->getValue(), yPosField->getValue(), inWidth, inHeight, GL_fmt, GL_UNSIGNED_BYTE,
                      pixels);
 
-        //      recordingTime += cover->frameDuration();
+        //      recordingTime += cover->frameDuration(); 
         //      int frameDelta = int(recordingTime * double(time_base)) - recordingFrames;
         //      for (int i=0; i<frameDelta; ++i)
         //      {
