@@ -137,6 +137,7 @@ public:
     void sendMasterDraw(const void *c, int n);
     int readSlave(int slaveNum, void *data, int num);
     int readSlaves(SlaveData *c);
+    std::vector<std::string> readSlaves(const std::string &s);
     int readSlavesDraw(void *c, int n);
     void sendSlave(int i, const void *c, int n);
     void sendSlaves(const void *c, int n);
