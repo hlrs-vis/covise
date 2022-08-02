@@ -1156,12 +1156,7 @@ std::vector<std::string> coVRMSController::readSlaves(const std::string &s)
     assert(isMaster());
     std::vector<std::string> retval(numSlaves);
     for (int i = 0; i < numSlaves; i++)
-    {
-        int size = 0;
-        readSlave(i, &size, sizeof(int));
-        retval[i].resize(size);
-        readSlave(i, &retval[i], sizeof(size));
-    }
+        readSlave(i, retval[i]);
     return retval;
 }
 
