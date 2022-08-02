@@ -80,16 +80,14 @@
                         <bus>
                             <Shuttle value="/data/campus/Shuttle/Shuttle.wrl" />
                         </bus>
-						<escooter>
-							<ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/>
-							<ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
-						</escooter>
-						<Bicycle>
-							<!--ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
-							<ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/ -->
-                                                        <CH02_04_Bike value="0.04" />
-						</Bicycle>
+			            <bicycle>
+				        <ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/>
+				        <ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
+			            </bicycle>
                     </Vehicles>
+		    <Bicycle>
+                        <CH02_04_Bike value="0.04" />
+		    </Bicycle>
                 </SumoTraCI>
             </Plugin>
         </COVER>

@@ -94,7 +94,21 @@ void PedestrianGeometry::setWalkingSpeed(double speed)
 
         // Clear any cycles that are out of range
         //  and blend any cycles that are in range
-        if (speed <= 0.0001)
+        if (pedGroup->getName().find("bicycle") != std::string::npos) //if matches bicycleGroup
+        {
+            if (speed <= anim.slowVel)  
+            {
+                pedModel->clearCycle(0, blendTime);
+
+            }else{  
+                pedModel->blendCycle(0, 2*speed, blendTime);
+                if (!PedestrianUtils::floatEq(timeFactorScale, 1.0))
+                {
+                    timeFactorScale = 1.0;
+                    pedModel->setTimeFactor(timeFactorScale);
+                }
+            }
+        }else if (speed <= 0.0001)
         {
             pedModel->clearCycle(anim.slowIdx, blendTime);
             pedModel->clearCycle(anim.walkIdx, blendTime);

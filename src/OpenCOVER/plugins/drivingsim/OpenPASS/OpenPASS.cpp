@@ -671,7 +671,7 @@ void OpenPASS::loadAllVehicles()
                 parent = passengerGroup;
             if (vehicleClass == "bicycle")
                 parent = bicycleGroup;
-            if (vehicleClass == "escooter")
+            if (vehicleClass == "bicycle")
                 parent = escooterGroup;
             if (vehicleClass == "motorbike")
                 parent = motorbikeGroup;

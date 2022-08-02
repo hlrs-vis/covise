@@ -114,6 +114,7 @@ private:
     
 	ui::Button* pedestriansVisible;
 	ui::Button* busVisible;
+    ui::Button* escooterVisible;
 	ui::Button* passengerVisible;
 	ui::Button* bicycleVisible;
     ui::Button *pauseUI;
@@ -145,6 +146,8 @@ private:
 	void setBicycleVisible(bool);
 	bool m_busVisible = true;
 	void setBusVisible(bool);
+    bool m_escooterVisible = true;
+	void setEscooterVisible(bool);
 
     libsumo::SubscriptionResults simResults;
     libsumo::SubscriptionResults pedestrianSimResults;
@@ -160,6 +163,7 @@ private:
 	osg::ref_ptr<osg::Switch> passengerGroup;
 	osg::ref_ptr<osg::Switch> bicycleGroup;
 	osg::ref_ptr<osg::Switch> busGroup;
+    osg::ref_ptr<osg::Switch> escooterGroup;
 
     TrafficSimulation::PedestrianFactory *pf;
     typedef std::map<std::string, TrafficSimulation::coEntity *> EntityMap;

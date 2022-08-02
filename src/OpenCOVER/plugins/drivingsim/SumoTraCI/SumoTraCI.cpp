@@ -96,7 +96,10 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 	cover->getObjectsRoot()->addChild(bicycleGroup.get());
 	busGroup = new osg::Switch;
 	busGroup->setName("busGroup");
-	cover->getObjectsRoot()->addChild(busGroup.get());
+	cover->getObjectsRoot()->addChild(busGroup.get());	
+    escooterGroup = new osg::Switch;
+	escooterGroup->setName("escooterGroup");
+	cover->getObjectsRoot()->addChild(escooterGroup.get());
     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
     getBicyclesFromConfig();
@@ -143,9 +146,10 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
 			parent = busGroup;
 		if (vehicleClass == "passenger")
 			parent = passengerGroup;
-		if (vehicleClass == "escooter")
-			parent = bicycleGroup;
-        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
+		if (vehicleClass == "bicycle") //escooter is class bicycle
+            parent = escooterGroup;
+			
+        av = new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
         vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicles->at(vehicleIndex).vehicleName,av));
     }
     return av;
@@ -302,6 +306,11 @@ bool SumoTraCI::initUI()
 	busVisible->setState(true);
 	busVisible->setCallback([this](bool state) {
 		setBusVisible(state);
+		});
+    escooterVisible = new ui::Button(traciMenu, "Escooters");
+	escooterVisible->setState(true);
+	escooterVisible->setCallback([this](bool state) {
+		setEscooterVisible(state);
 		});
 	pauseUI = new ui::Button(traciMenu, "Pause");
 
@@ -622,7 +631,7 @@ void SumoTraCI::processNewResults()
 				{
 					fprintf(stderr, "no pedestrians available\n");
 				}
-			}else if (!currentResults[i].vehicleClass.compare("bicycle"))
+			}else if ((!currentResults[i].vehicleClass.compare("bicycle")) && (!currentResults[i].vehicleType.compare("bike_bicycle")))
 			{
 				if (bicycleModels.size() > 0)
 				{
@@ -881,7 +890,7 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
 
     VehicleParameters vp;
-    if (vehicleType.compare("escooter"))
+    if (vehicleType.compare("veh_scooter"))
     {
         vp.rangeLOD = 400;
     }
@@ -944,8 +953,8 @@ void SumoTraCI::loadAllVehicles()
 				parent = busGroup;
 			if (vehicleClass == "passenger")
 				parent = passengerGroup;
-			if (vehicleClass == "escooter")
-				parent = bicycleGroup;
+			if (vehicleClass == "bicycle")
+				parent = escooterGroup;
             AgentVehicle * av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
         }
@@ -985,6 +994,17 @@ void SumoTraCI::setBicycleVisible(bool vis)
 		else
 			cover->getObjectsRoot()->removeChild(bicycleGroup.get());
 		m_bicycleVisible = vis;
+	}
+}
+void SumoTraCI::setEscooterVisible(bool vis)
+{
+	if (m_escooterVisible != vis)
+	{
+		if (vis)
+			cover->getObjectsRoot()->addChild(escooterGroup.get());
+		else
+			cover->getObjectsRoot()->removeChild(escooterGroup.get());
+		m_escooterVisible = vis;
 	}
 }
 
@@ -1059,13 +1079,13 @@ PedestrianGeometry* SumoTraCI::createBicycle(const std::string &vehicleClass, co
     int bicycleIndex = dis(gen);
 
     pedestrianModel p = bicycleModels[bicycleIndex];
-    const float pedestrianLODDistance = 40.0; //1600 
-    return new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, pedestrianGroup);
+    const float pedestrianLODDistance = 40.0; //1600
+    return new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, bicycleGroup);
 }
 
 void SumoTraCI::getBicyclesFromConfig()
 {
-    covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Vehicles.Bicycle");
+    covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Bicycle");
     for (const auto &entry : entries)
         bicycleModels.push_back(pedestrianModel(entry.first, atof(entry.second.c_str())));
 }
