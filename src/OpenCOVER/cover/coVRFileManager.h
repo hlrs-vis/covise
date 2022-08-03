@@ -203,8 +203,10 @@ public:
     //send a requested File to vrb
     void sendFile(covise::TokenBuffer &tb);
 
-	///request the file from vrb -> file gets copied to tmp
+	///request the file from vrb -> file gets copied to configured dir
 	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
+    //download thie file from url to the same dir as remoteFetch
+    std::string httpFetch(const std::string &url);
     //parse obj file and request the used material files
     void fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner);
 

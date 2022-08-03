@@ -45,7 +45,10 @@
 #include <vrb/client/VRBClient.h>
 #include <fcntl.h>
 
-
+#ifdef HAVE_LIBCURL
+#include <curl/curl.h>
+#include <curl/easy.h>
+#endif
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -1412,11 +1415,11 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 		WORK,		//in current working directory
 		LINK,		//under shared data link
 		FETCHED,	//already in remote fetch directory
-		REMOTE		//fetch from remote in remoteFetchPath 
+		REMOTE,		//fetch from remote in remoteFetchPath 
 	};
 	FilePlace filePlace = MISS;
 	std::string path;
-    const std::array<std::pair<fs::path, FilePlace>, 4> searchLocations = {
+    const std::array<std::pair<fs::path, FilePlace>, 5> searchLocations = {
         std::pair<fs::path, FilePlace>(fs::path{filePath}, LOCAL),
         std::pair<fs::path, FilePlace>(fs::current_path() / filePath, WORK),
         std::pair<fs::path, FilePlace>(fs::path{m_sharedDataLink} / filePath, LINK),
@@ -1431,63 +1434,75 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
             break;
         }
     }
-	if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
-	{
-		bool sync = true;
-        bool found = filePlace != MISS;
-        bool foundAll = ms->allReduceAnd(found);
-        ms->syncBool(found);
-        if (ms->isMaster())
+    bool fileFound = filePlace != MISS;
+    ms->syncBool(fileFound);
+    assert(fileFound == (filePlace != MISS) && "findOrGetFileSyncError");
+
+    if (filePlace == MISS)
+    {
+        if(filePath.rfind("http", 0) != std::string::npos|| filePath.rfind("https", 0)!= std::string::npos)
         {
-            if(found && !foundAll)
+            path = httpFetch(filePath);
+            filePlace = FETCHED;
+        }
+        else if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
+        {
+            bool sync = true;
+            bool found = filePlace != MISS;
+            bool foundAll = ms->allReduceAnd(found);
+            ms->syncBool(found);
+            if (ms->isMaster())
             {
-                covise::TokenBuffer tb;
-                if (!serializeFile(path, tb))
+                if(found && !foundAll)
                 {
-                    cerr << "coVRFileManager::findOrGetFile error 1: file was there and is now gone" << endl;
-                    exit(1);
+                    covise::TokenBuffer tb;
+                    if (!serializeFile(path, tb))
+                    {
+                        cerr << "coVRFileManager::findOrGetFile error 1: file was there and is now gone" << endl;
+                        exit(1);
+                    }
+                    covise::Message msg(tb);
+                    ms->sendSlaves(&msg);
                 }
-                covise::Message msg(tb);
-                ms->sendSlaves(&msg);
             }
-		}
-		else //is slave
-		{
-			if (found && !foundAll)
-			{
-                covise::Message msg;
-                ms->readMaster(&msg);
-                int numBytes = 0;
-                covise::TokenBuffer tb(&msg);
-                tb >> numBytes;
-                if (numBytes <= 0)
+            else //is slave
+            {
+                if (found && !foundAll)
                 {
-                    std::cerr << "remote fetch may be out of sync" << std::endl;
-                    path = "";
+                    covise::Message msg;
+                    ms->readMaster(&msg);
+                    int numBytes = 0;
+                    covise::TokenBuffer tb(&msg);
+                    tb >> numBytes;
+                    if (numBytes <= 0)
+                    {
+                        std::cerr << "remote fetch may be out of sync" << std::endl;
+                        path = "";
+                    }
+                    else
+                    {
+                        const char* buf = tb.getBinary(numBytes);
+                        path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+                    }
+                    filePlace = FETCHED;
                 }
-                else
+            }
+            if (filePlace == MISS)
+            {
+                path = "";
+                //fetch the file
+                int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
+                path = remoteFetch(filePath, fileOwner);
+                if (fileExist(path))
                 {
-                    const char* buf = tb.getBinary(numBytes);
-                    path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+                    //isTmp = true; //dont ever delete tmp files
+                    fetchObjMaterials(path, filePath, fileOwner);
+
+                    filePlace = REMOTE;
                 }
-                filePlace = FETCHED;
             }
         }
-		if (filePlace == MISS)
-		{
-			path = "";
-			//fetch the file
-			int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
-			path = remoteFetch(filePath, fileOwner);
-			if (fileExist(path))
-			{
-				//isTmp = true; //dont ever delete tmp files
-                fetchObjMaterials(path, filePath, fileOwner);
-
-				filePlace = REMOTE;
-			}
-		}
-	}
+    }
 	if (filePlace == MISS)
 	{
 		path = "";
@@ -1992,6 +2007,36 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
     return pathToTmpFile;
 
 }
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
+                        assert(size == sizeof(char));
+                        auto buff = (std::vector<char> *)userp;
+                        buff->insert(buff->end(), (char *)contents, ((char *)contents) + nmemb);
+                        return size * nmemb;
+}
+
+std::string coVRFileManager::httpFetch(const std::string &url)
+{
+    
+#if defined(HAVE_LIBCURL)
+
+  CURLcode res;
+  std::vector<char> readBuffer;
+
+  auto curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+
+    return writeFile(url, readBuffer.data(), readBuffer.size());
+  }
+#endif
+    return "";
+}
+
 int coVRFileManager::getFileId(const char* url)
 {
 	if (!url)
