@@ -308,11 +308,6 @@ void Vrml97Plugin::worldChangedCB(int reason)
 
     case VrmlScene::REPLACE_WORLD:
         plugin->viewer->startLoadTime = 0;
-        Doc *urlDoc = plugin->vrmlScene->urlDoc();
-        if (urlDoc)
-        {
-            urlDoc->urlBase();
-        }
         break;
     }
 }
