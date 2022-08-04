@@ -128,7 +128,13 @@ public:
     bool makeRelativeToSharedDataLink(std::string &fileName);
 	//return true if fileName contains tmp path
 	bool isInTmpDir(const std::string& fileName);
-	//changes fileName to be relative to basePath
+
+    //return true if fineName is not in tmp dir and 
+    //not in the remoteFetchDir of remoteFetchDir is shared (from config)
+    bool isInSharedDir(const std::string &fileName);
+    void checkRemoteFetchDirShared();
+
+    //changes fileName to be relative to basePath
 	bool makeRelativePath(std::string& fileName, const std::string& basePath);
     //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found.
     //"where" can be set to the partner id that should provide the file 
@@ -224,6 +230,7 @@ private:
     bool remoteFetchHashPrefix = true;
     // set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to.
     std::string remoteFetchPath;
+    bool remoteFetchPathShared = false;
     std::string viewPointFile;
     int m_loadCount = 0;
     std::unique_ptr<ui::Owner> m_owner;

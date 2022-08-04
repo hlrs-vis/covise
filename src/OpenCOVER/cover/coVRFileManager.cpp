@@ -1183,33 +1183,34 @@ coVRFileManager::coVRFileManager()
     osgDB::Registry::instance()->setOptions(options);
     remoteFetchHashPrefix = coCoviseConfig::isOn("hash", "System.VRB.RemoteFetch", true, nullptr);
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
-        if (remoteFetchEnabled) {
-	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
-    path = resolveEnvs(path);
-    fs::path p{path};
-    if (path.empty())
-    {
-#ifdef _WIN32
-        p = fs::temp_directory_path();
-#else
-        p = "/var/tmp";
-#endif
-        auto user = getenv("USER");
-        if(user)
-            p = p / user;
-        p = p / "OpenCOVER";
-    }
-    try
-    {
-        fs::create_directories(p);
-    }
-    catch (const fs::filesystem_error &e)
-    {
-        std::cerr << "Could not create directory: " << e.what() << std::endl;
-    }
-    remoteFetchPath = p.string();
-    std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
+    if (remoteFetchEnabled) {
+        std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
+        path = resolveEnvs(path);
+        fs::path p{path};
+        if (path.empty())
+        {
+    #ifdef _WIN32
+            p = fs::temp_directory_path();
+    #else
+            p = "/var/tmp";
+    #endif
+            auto user = getenv("USER");
+            if(user)
+                p = p / user;
+            p = p / "OpenCOVER";
         }
+        try
+        {
+            fs::create_directories(p);
+        }
+        catch (const fs::filesystem_error &e)
+        {
+            std::cerr << "Could not create directory: " << e.what() << std::endl;
+        }
+        remoteFetchPath = p.string();
+        std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
+        checkRemoteFetchDirShared();
+    }
 }
 
 coVRFileManager::~coVRFileManager()
@@ -1331,11 +1332,60 @@ bool coVRFileManager::makeRelativeToSharedDataLink(std::string & fileName)
 	return false;
 	
 }
+
 bool coVRFileManager::isInTmpDir(const std::string& fileName)
 {
 	std::string f(fileName);
 	return makeRelativePath(f, fs::temp_directory_path().string());
 }
+
+bool coVRFileManager::isInSharedDir(const std::string& fileName)
+{
+	std::string f(fileName);
+    return (remoteFetchPathShared && makeRelativePath(f, remoteFetchPath)) || isInTmpDir(fileName);
+}
+
+void coVRFileManager::checkRemoteFetchDirShared()
+{
+    auto testFile = remoteFetchPath + "/coviseSharedFileSystemTest";
+    coVRMSController *ms = coVRMSController::instance();
+    
+    if(ms->isMaster())
+        std::fstream s(testFile, std::ios_base::out);
+    remoteFetchPathShared = true;
+    ms->sync();
+    if (ms->isSlave())
+    {
+        auto shared = fs::exists(testFile);
+        ms->sendMaster(&shared, sizeof(bool));
+    }
+    else if(ms->getNumSlaves() > 0)
+    {
+        coVRMSController::SlaveData sd(sizeof(bool));
+        ms->readSlaves(&sd);
+        bool allSame = true;
+        for (size_t i = 1; i < sd.data.size(); i++)
+        {
+            if(*(bool*)sd.data[i-1] != *(bool*)sd.data[i])
+            {
+                allSame = false;
+                break;
+            }
+        }
+        if(!allSame)
+        {
+            remoteFetchEnabled = false;
+            std::cerr << "remote fetch dir " << remoteFetchPath << " is shared with some slaves but not all." << std::endl <<
+            "This is not supported and remote fetch is turned off " << std::endl;
+        }else
+        {
+            remoteFetchPathShared = *(bool *)sd.data[0];
+        }
+    }
+    remoteFetchEnabled = ms->syncBool(remoteFetchEnabled);
+    remoteFetchPathShared = ms->syncBool(remoteFetchPathShared);
+}
+
 bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string& basePath)
 {
 	convertBackslash(fileName);

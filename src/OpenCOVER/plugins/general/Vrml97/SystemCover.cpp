@@ -1004,7 +1004,7 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
 				optimzer.optimize(osgNode);
 			}
             std::string n(name);
-            if (coVRMSController::instance()->isMaster() || coVRFileManager::instance()->isInTmpDir(n))
+            if (coVRMSController::instance()->isMaster() || !coVRFileManager::instance()->isInSharedDir(n))
                 osgDB::writeNodeFile(*osgNode, n.c_str());
         }
     }
