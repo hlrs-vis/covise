@@ -179,7 +179,6 @@ protected:
     float *positions;
     float *orientations;
     bool record;
-    bool doRemoteFetch;
     int viewPointCount = 0;
     CacheMode cacheMode = CACHE_CREATE;
 

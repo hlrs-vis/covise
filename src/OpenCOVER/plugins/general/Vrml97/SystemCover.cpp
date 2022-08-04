@@ -132,7 +132,6 @@ SystemCover::SystemCover()
     maxEntryNumber = 0;
     record = false;
     fileNumber = 0;
-    doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
 	m_optimize = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoOptimize", true);
 	cerr << "vrml optimizer  = " << m_optimize << endl;
     if (coVRMSController::instance()->isMaster())
