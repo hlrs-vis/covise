@@ -76,7 +76,7 @@ public:
     double time() override;
 
     std::string remoteFetch(const std::string &filename) override;
-    int getFileId(const char* url) override;
+    int getFileId(const std::string &url) override;
     bool loadUrl(const char *url, int np, char **parameters) override;
 
 #if 0

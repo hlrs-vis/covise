@@ -286,7 +286,7 @@ bool Audio::tryURLs(int nUrls, const char *const *urls, Doc *relative)
 ========================================================================*/
 const char *Audio::url() const
 {
-    return (_doc ? _doc->url() : 0);
+    return (_doc ? _doc->url().c_str() : 0);
 }
 
 #ifndef BYTESWAP

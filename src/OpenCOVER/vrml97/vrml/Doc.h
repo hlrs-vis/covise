@@ -22,7 +22,7 @@
 #endif
 
 #include <iostream>
-
+#include <memory>
 #include <stdio.h>
 
 namespace vrml
@@ -32,21 +32,21 @@ class VRMLEXPORT Doc
 {
 
 public:
-    Doc(const char *url = 0, const Doc *relative = 0);
+    Doc(const std::string &url = "", const Doc *relative = 0);
     Doc(Doc *);
     ~Doc();
 
-    void seturl(const char *url, const Doc *relative = 0);
+    void seturl(const std::string &url, const Doc *relative = 0);
 
-    const char *url() const; // "http://www.foo.com/dir/file.xyz#Viewpoint"
-    const char *urlBase() const; // "file" or ""
-    const char *urlExt() const; // "xyz" or ""
-    const char *urlPath() const; // "http://www.foo.com/dir/" or ""
-    const char *urlProtocol() const; // "http"
-    const char *urlModifier() const; // "#Viewpoint" or ""
+    const std::string &url() const; // "http://www.foo.com/dir/file.xyz#Viewpoint"
+    std::string urlBase() const; // "file" or ""
+    std::string urlExt() const; // "xyz#Viewpoint" or ""
+    std::string urlPath() const; // "http://www.foo.com/dir/" or ""
+    std::string urlProtocol() const; // "http"
+    std::string urlModifier() const; // "#Viewpoint" or ""
 
-    const char *localName(); // "/tmp/file.xyz" or NULL
-    const char *localPath(); // "/tmp/" or NULL
+    std::string localName(); // "/tmp/file.xyz" or NULL
+    std::string localPath(); // "/tmp/" or NULL
 
     FILE *fopen(const char *mode);
     void fclose();
@@ -59,18 +59,18 @@ public:
 
     std::ostream &outputStream();
 
-protected:
-    static const char *stripProtocol(const char *url);
-    static bool isAbsolute(const char *url);
-    bool filename(char *fn, int nfn);
+private:
+    const std::string &initFilePath();
+    static std::string stripProtocol(const std::string &url);
+    static bool isAbsolute(const std::string &url);
 
-    char *d_url = nullptr;
-    std::ostream *d_ostream = nullptr;
-    FILE *d_fp = nullptr;
+    std::string d_url;
+    std::unique_ptr<std::ostream> d_ostream;
+    FILE *d_fp;
 #if HAVE_LIBPNG || HAVE_ZLIB
     gzFile d_gz = nullptr;
 #endif
-    char *d_tmpfile = nullptr; // Local copy of http: files
+    std::string d_tmpfile; // Local copy of http: files
 	bool d_isTmp = false; //is local copy a temp file
 };
 }

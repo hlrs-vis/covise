@@ -518,7 +518,7 @@ std::string SystemCover::remoteFetch(const std::string& filename)
 	return coVRFileManager::instance()->findOrGetFile(filename);
 }
 
-int SystemCover::getFileId(const char* url)
+int SystemCover::getFileId(const std::string &url)
 {
 	return coVRFileManager::instance()->getFileId(url);
 }
@@ -1014,9 +1014,8 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
 Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::ref_ptr<osg::Group> g = new osg::Group;
-    std::string n(name);
 
-    coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
+    coVRFileManager::instance()->loadFile(name, NULL, g);
 
     if (g->getNumChildren() > 0)
     {

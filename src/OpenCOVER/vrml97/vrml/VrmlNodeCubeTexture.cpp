@@ -120,6 +120,15 @@ std::ostream &VrmlNodeCubeTexture::printFields(std::ostream &os, int indent)
     return os;
 }
 
+void VrmlNodeCubeTexture::readCubeTexture(VrmlMFString& texture, const std::string &textureName)
+{
+    auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
+    Doc relDoc(relUrl);
+    d_imageXP = new Image;
+    if (!d_imageXP->tryURLs(texture.size(), texture.get(), &relDoc))
+        cerr << "Error: couldn't read CubeTexture from " << textureName << " " << texture << endl;
+}
+
 void VrmlNodeCubeTexture::render(Viewer *viewer)
 {
     if (isModified())
@@ -167,51 +176,27 @@ void VrmlNodeCubeTexture::render(Viewer *viewer)
     // them...
     if (!d_imageXP && d_urlXP.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageXP = new Image;
-        if (!d_imageXP->tryURLs(d_urlXP.size(), d_urlXP.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLXP " << d_urlXP << endl;
+        readCubeTexture(d_urlXP, "URLXP");
     }
     if (!d_imageXN && d_urlXN.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageXN = new Image;
-        if (!d_imageXN->tryURLs(d_urlXN.size(), d_urlXN.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLXN " << d_urlXN << endl;
+       readCubeTexture(d_urlXN, "d_urlXN");
     }
     if (!d_imageYP && d_urlYP.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageYP = new Image;
-        if (!d_imageYP->tryURLs(d_urlYP.size(), d_urlYP.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLYP " << d_urlYP << endl;
+       readCubeTexture(d_urlYP, "d_urlYP");
     }
     if (!d_imageYN && d_urlYN.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageYN = new Image;
-        if (!d_imageYN->tryURLs(d_urlYN.size(), d_urlYN.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLYN " << d_urlYN << endl;
+       readCubeTexture(d_urlYN, "d_urlYN");
     }
     if (!d_imageZP && d_urlZP.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageZP = new Image;
-        if (!d_imageZP->tryURLs(d_urlZP.size(), d_urlZP.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLZP " << d_urlZP << endl;
+       readCubeTexture(d_urlZP, "d_urlZP");
     }
     if (!d_imageZN && d_urlZN.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        Doc relDoc(relUrl);
-        d_imageZN = new Image;
-        if (!d_imageZN->tryURLs(d_urlZN.size(), d_urlZN.get(), &relDoc))
-            cerr << "Error: couldn't read CubeTexture from URLZN " << d_urlZN << endl;
+       readCubeTexture(d_urlZN, "d_urlZN");
     }
 
     // Check texture cache

@@ -137,7 +137,7 @@ void VrmlNodeImageTexture::render(Viewer *viewer)
     // them...
     if (!d_image && d_url.size() > 0)
     {
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
+        auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
         Doc relDoc(relUrl);
         d_image = new Image;
         if (!d_image->tryURLs(d_url.size(), d_url.get(), &relDoc))

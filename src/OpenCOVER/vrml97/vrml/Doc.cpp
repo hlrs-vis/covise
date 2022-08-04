@@ -22,23 +22,24 @@
 
 #include <iostream>
 #include <fstream>
-using std::ostream;
-using std::ofstream;
-using std::ios;
 using std::cerr;
 using std::endl;
+using std::ios;
+using std::ofstream;
+using std::ostream;
 
 #include <sys/stat.h>
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
 
+#include <boost/filesystem/path.hpp>
+
 using namespace vrml;
 
-Doc::Doc(const char *url, const Doc *relative)
+Doc::Doc(const std::string &url, const Doc *relative)
 {
-    if (url)
-        seturl(url, relative);
+    seturl(url, relative);
 }
 
 Doc::Doc(Doc *doc)
@@ -49,198 +50,80 @@ Doc::Doc(Doc *doc)
 
 Doc::~Doc()
 {
-    delete[] d_url;
-    delete d_ostream;
-    if (d_tmpfile)
-    {
-		if (d_isTmp)
-		{
-			System::the->removeFile(d_tmpfile);
-		}
-        delete[] d_tmpfile;
-        d_tmpfile = 0;
-    }
+    if (!d_tmpfile.empty() && d_isTmp)
+        System::the->removeFile(d_tmpfile.c_str());
 }
 
-void Doc::seturl(const char *url, const Doc *relative)
+void Doc::seturl(const std::string &url, const Doc *relative)
 {
-    delete[] d_url;
-    d_url = 0;
-
-    if (url)
-    {
-        const char *path = "";
-
-        if (relative && !isAbsolute(url))
-            path = relative->urlPath();
-
-        d_url = new char[strlen(path) + strlen(url) + 1];
-        strcpy(d_url, path);
-        strcat(d_url, url);
-    }
+    d_url = "";
+    if (relative && !isAbsolute(url))
+        d_url = relative->urlPath();
+    d_url += url;
 }
 
-const char *Doc::url() const { return d_url; }
+const std::string &Doc::url() const { return d_url; }
 
-const char *Doc::urlBase() const
+std::string Doc::urlBase() const
 {
-    if (!d_url)
-        return "";
-
-    static char path[1024];
-    char *p, *s = path;
-    strncpy(path, d_url, sizeof(path) - 1);
-    path[sizeof(path) - 1] = '\0';
-    char *slash = s + strlen(s);
-    while (slash > s)
-    {
-        if (*slash == '\\')
-        {
-            s = slash + 1;
-            break;
-        }
-        if (*slash == '/')
-        {
-            s = slash + 1;
-            break;
-        }
-        if (*slash == ':')
-        {
-            s = slash + 1;
-            break;
-        }
-        slash--;
-    }
-    if ((p = strrchr(s, '.')) != 0)
-        *p = '\0';
-
-    return s;
+    return boost::filesystem::path(d_url).stem().string();
 }
 
-const char *Doc::urlExt() const
+std::string Doc::urlExt() const
 {
-    if (!d_url)
-        return "";
-
-    static char ext[20];
-    char *p;
-
-    if ((p = strrchr(d_url, '.')) != 0)
-    {
-        strncpy(ext, p + 1, sizeof(ext) - 1);
-        ext[sizeof(ext) - 1] = '\0';
-    }
-    else
-        ext[0] = '\0';
-
-    return &ext[0];
+    return boost::filesystem::path(d_url).extension().string();
 }
 
-const char *Doc::urlPath() const
+std::string Doc::urlPath() const
 {
-    if (!d_url)
-        return "";
-
-    static char path[1024];
-
-    strcpy(path, d_url);
-    char *quest = strchr(path, '?');
-    if (quest)
-        *quest = '\0';
-    char *slash = path + strlen(path);
-    while (slash > path)
-    {
-        if (*slash == '\\')
-        {
-            *(slash + 1) = '\0';
-            break;
-        }
-        if (*slash == '/')
-        {
-            *(slash + 1) = '\0';
-            break;
-        }
-        slash--;
-    }
-    if (slash == path)
-        path[0] = '\0';
-    return &path[0];
+    return boost::filesystem::path(d_url).parent_path().string() + "/";
 }
 
-const char *Doc::urlProtocol() const
+std::string Doc::urlProtocol() const
 {
-    if (d_url)
-    {
-        static char protocol[12];
-        const char *s = d_url;
+
+    std::string protocol;
+    const char *s = d_url.c_str();
 
 #ifdef _WIN32
-        if (strncmp(s + 1, ":\\", 2) == 0 || strncmp(s + 1, ":/", 2) == 0)
-            return "file";
+    if (strncmp(s + 1, ":\\", 2) == 0 || strncmp(s + 1, ":/", 2) == 0)
+        return "file";
 #endif
 
-        for (unsigned int i = 0; i < sizeof(protocol); ++i, ++s)
+    for (unsigned int i = 0; i < d_url.size(); ++i, ++s)
+    {
+        if (*s == 0 || !isalpha(*s))
         {
-            if (*s == 0 || !isalpha(*s))
-            {
-                protocol[i] = '\0';
-                break;
-            }
-            protocol[i] = tolower(*s);
+            break;
         }
-        protocol[sizeof(protocol) - 1] = '\0';
-        if (*s == ':')
-            return protocol;
+        protocol += tolower(*s);
     }
+    if (*s == ':')
+        return protocol;
 
     return "file";
 }
 
-const char *Doc::urlModifier() const
+std::string Doc::urlModifier() const
 {
-    char *mod = d_url ? strrchr(d_url, '#') : 0;
-    return mod ? mod : "";
+  auto p = d_url.find_last_of('#');
+  return p == std::string::npos ? "" : d_url.substr(p);
 }
 
-const char *Doc::localName()
+std::string Doc::localName()
 {
-    static char buf[1024];
-    if (filename(buf, sizeof(buf)))
-        return &buf[0];
-    return 0;
+    return initFilePath();
 }
 
-const char *Doc::localPath()
+std::string Doc::localPath()
 {
-    static char buf[1024];
-    if (filename(buf, sizeof(buf)))
-    {
-
-        char *slash = buf + strlen(buf);
-        while (slash > buf)
-        {
-            if (*slash == '\\')
-            {
-                *(slash + 1) = '\0';
-                break;
-            }
-            if (*slash == '/')
-            {
-                *(slash + 1) = '\0';
-                break;
-            }
-            slash--;
-        }
-        if (slash == buf)
-            buf[0] = '\0';
-        return &buf[0];
-    }
-    return 0;
+    initFilePath();
+    return boost::filesystem::path(d_tmpfile).parent_path().string();
 }
 
-const char *Doc::stripProtocol(const char *url)
+std::string Doc::stripProtocol(const std::string &url)
 {
-    const char *s = url;
+    const char *s = url.c_str();
 
 #ifdef _WIN32
     if (strncmp(s + 1, ":\\", 2) == 0 || strncmp(s + 1, ":/", 2) == 0 || strncmp(s + 1, "://", 3) == 0)
@@ -257,160 +140,42 @@ const char *Doc::stripProtocol(const char *url)
     return url;
 }
 
-// Converts a url into a local filename
-
-bool Doc::filename(char *fn, int nfn)
+const std::string &Doc::initFilePath()
 {
-    fn[0] = '\0';
-
-    char *e = 0, *s = (char *)stripProtocol(d_url);
-	std::string path;
-    char *endString = NULL;
-    int endLength = 0;
-    if ((e = strrchr(s, '#')) != 0)
-    {
-        endLength = (int)strlen(e);
-        endString = new char[endLength + 1];
-        strcpy(endString, e);
-        *e = '\0';
-    }
-
-    const char *protocol = urlProtocol();
-
-    // Get a local copy of http files
-    if (strcmp(protocol, "http") == 0 || strcmp(protocol, "https") == 0)
-    {
-        if (d_tmpfile) // Already fetched it
-            s = d_tmpfile;
-        else if ((s = (char *)System::the->httpFetch(d_url)))
-        {
-            d_tmpfile = new char[strlen(s) + 1 + endLength];
-            strcpy(d_tmpfile, s);
-            free(s); // assumes tempnam or equiv...
-            s = d_tmpfile;
-        }
-
-        if (s)
-        {
-            strncpy(fn, s, nfn - 1);
-            fn[nfn - 1] = '\0';
-        }
-    }
-
-    // Unrecognized protocol (need ftp here...)
-
-    else if (strcmp(protocol, "file") != 0)
-    {
-        // we have a local file now but does this exist?
-        // if not, the try to fetch it from a remote site if possible
-        cerr << "file " << s << " not local, try to get it from remote " << endl;
-
-		path = System::the->remoteFetch(d_url);
-		if (path != "")
-        {
-            d_tmpfile = new char[path.length() + 1 + endLength];
-            strcpy(d_tmpfile, path.c_str());
-            //delete [] s; This causes a memory leak
-            s = NULL;
-            // XXX: there is a problem here: freeing sth not malloced...
-            //free(const_cast<char *>(s));        // assumes tempnam or equiv...
-            s = d_tmpfile;
-        }
-
-        if (s)
-        {
-            strncpy(fn, s, nfn - 1);
-            fn[nfn - 1] = '\0';
-        }
-    }
-    else if (s)
-    {
-        // we have a local file now but does this exist?
-        // if not, the try to fetch it from a remote site if possible
-		bool statbool;
-#ifdef WIN32
-        struct _stat64 sbuf;
-		statbool = _stat64(s, &sbuf);
-#else
-		struct stat sbuf;
-		statbool = stat(s, &sbuf);
-#endif
-        if (statbool)
-        {
-            cerr << "file " << s << " not local, try to get it from remote " << endl;
-
-            if (d_tmpfile) // Already fetched it
-            {
-                s = d_tmpfile;
-            }
-            else if ((path = System::the->remoteFetch(s)) != "")
-            {
-                d_tmpfile = new char[path.length() + 1 + endLength];
-                strcpy(d_tmpfile, path.c_str());
-                // XXX: there is a problem here: freeing sth not malloced...
-                //free(const_cast<char *>(s));        // assumes tempnam or equiv...
-                s = d_tmpfile;
-            }
-        }
-
-        if (s)
-        {
-            strncpy(fn, s, nfn - 1);
-            fn[nfn - 1] = '\0';
-        }
-    }
-
-    if (s && e)
-    {
-        strcat(s, endString);
-        delete[] endString;
-    }
-
-    return s && *s;
+    if(d_tmpfile.empty())
+        d_tmpfile = System::the->remoteFetch(d_url);
+    return d_tmpfile;
 }
-
 // Having both fopen and outputStream is dumb...
 
 FILE *Doc::fopen(const char *mode)
 {
     if (d_fp)
     {
-        System::the->error("Doc::fopen: %s is already open.\n", d_url ? d_url : "");
+        System::the->error("Doc::fopen: %s is already open.\n", d_url.c_str());
     }
-    char fn[256];
-    if (filename(fn, sizeof(fn)))
-    {
-        if (strcmp(fn, "-") == 0)
-        {
+    if(d_url == "-"){
             if (*mode == 'r')
                 d_fp = stdin;
             else if (*mode == 'w')
                 d_fp = stdout;
-        }
-        else
-        {
-            d_fp = ::fopen(fn, mode);
-        }
     }
+    else{
+        auto fn = initFilePath();
+        d_fp = ::fopen(fn.c_str(), mode);
 
+    }
     return d_fp;
 }
 
+
 void Doc::fclose()
 {
-    if (d_fp && (strcmp(d_url, "-") != 0) && (strncmp(d_url, "-#", 2) != 0))
+    if (d_fp && d_url !=  "-"  && (strncmp(d_url.c_str(), "-#", 2) != 0))
         ::fclose(d_fp);
 
-    d_fp = 0;
-    if (d_tmpfile)
-    {
-		if (d_isTmp)
-		{
-			System::the->removeFile(d_tmpfile);
-		}
-        delete[] d_tmpfile;
-        d_tmpfile = 0;
-    }
+    d_fp = nullptr;
+    d_tmpfile = "";
 }
 
 #if HAVE_LIBPNG || HAVE_ZLIB
@@ -420,31 +185,28 @@ void Doc::fclose()
 gzFile Doc::gzopen(const char *mode)
 {
     if (d_fp || d_gz)
-        System::the->error("Doc::gzopen: %s is already open.\n", d_url ? d_url : "");
+        System::the->error("Doc::gzopen: %s is already open.\n", d_url.c_str());
 
-    char fn[1024];
-    if (filename(fn, sizeof(fn)))
+    auto fn = initFilePath();
+    struct stat statbuf;
+    if (stat(fn.c_str(), &statbuf) == -1)
     {
-        struct stat statbuf;
-        if (stat(fn, &statbuf) == -1)
-        {
-            cerr << "Doc::gzopen(): failed to stat " << fn << ": " << strerror(errno) << endl;
+        cerr << "Doc::gzopen(): failed to stat " << fn << ": " << strerror(errno) << endl;
 
 #ifdef _WIN32
-        }
-        else if (_S_IFDIR & statbuf.st_mode)
-        {
+    }
+    else if (_S_IFDIR & statbuf.st_mode)
+    {
 #else
-        }
-        else if (S_ISDIR(statbuf.st_mode))
-        {
+    }
+    else if (S_ISDIR(statbuf.st_mode))
+    {
 #endif
-            cerr << "Doc::gzopen(): " << fn << " is a directory" << endl;
-        }
-        else
-        {
-            d_gz = ::gzopen(fn, mode);
-        }
+        cerr << "Doc::gzopen(): " << fn << " is a directory" << endl;
+    }
+    else
+    {
+        d_gz = ::gzopen(fn.c_str(), mode);
     }
 
     return d_gz;
@@ -455,27 +217,18 @@ void Doc::gzclose()
     if (d_gz)
         ::gzclose(d_gz);
 
-    d_gz = 0;
-    if (d_tmpfile)
-    {
-		if (d_isTmp)
-		{
-			System::the->removeFile(d_tmpfile);
-		}
-        delete[] d_tmpfile;
-        d_tmpfile = 0;
-    }
+    d_gz = nullptr;
+    d_tmpfile = "";
 }
 #endif
 
 ostream &Doc::outputStream()
 {
-    d_ostream = new ofstream(stripProtocol(d_url), ios::out);
+    d_ostream.reset(new ofstream(stripProtocol(d_url), ios::out));
     return *d_ostream;
 }
 
-bool Doc::isAbsolute(const char *url)
+bool Doc::isAbsolute(const std::string &url)
 {
-    const char *s = stripProtocol(url);
-    return (*s == '/' || *s == '\\' || *(s + 1) == ':');
+    return boost::filesystem::path(url).is_absolute();
 }

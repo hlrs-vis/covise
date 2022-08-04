@@ -4150,12 +4150,7 @@ static JSBool getWorldURL(JSContext *cx, JSObject *b,
     if (!s || !s->browser())
         return JS_FALSE;
 
-    const char *url = 0;
-    if (s->browser()->urlDoc())
-        url = s->browser()->urlDoc()->url();
-    if (!url)
-        url = "";
-    *rval = STRING_TO_JSVAL(JS_InternString(cx, url));
+    *rval = STRING_TO_JSVAL(JS_InternString(cx, s->browser()->urlDoc() ? s->browser()->urlDoc()->url().c_str() : ""));
     return JS_TRUE;
 }
 

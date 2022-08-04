@@ -115,7 +115,7 @@ bool Image::setURL(const char *url, Doc *relative)
         return true;
 
     d_url = new Doc(url, relative);
-    const char *fileName = d_url->localName();
+    auto fileName = d_url->localName();
     //  System::the->debug("Image: trying to create Doc(%s, %s)\n",
     //		   url, relative ? relative->url() : "");
 
@@ -134,8 +134,8 @@ bool Image::setURL(const char *url, Doc *relative)
             // change here to use new movie code
             if (newMovies)
             {
-                d_pixels = (unsigned char *)malloc(strlen(fileName) + 1);
-                strcpy((char *)d_pixels, fileName);
+                d_pixels = (unsigned char *)malloc(fileName.length() + 1);
+                strcpy((char *)d_pixels, fileName.c_str());
                 d_w = d_h = 0;
                 d_nc = -1;
                 d_nFrames = 0;
@@ -194,8 +194,8 @@ bool Image::setURL(const char *url, Doc *relative)
             }
         }
 #else
-            d_pixels = (unsigned char *)malloc(strlen(fileName) + 1);
-            strcpy((char *)d_pixels, fileName);
+            d_pixels = (unsigned char *)malloc(fileName.length() + 1);
+            strcpy((char *)d_pixels, fileName.c_str());
             d_w = d_h = d_nc = 0;
 //fprintf(stderr,"Error: could not open (%s).\n", url);
 #endif
@@ -220,7 +220,7 @@ bool Image::tryURLs(int nUrls, char **urls, Doc *relative)
     return i < nUrls;
 }
 
-const char *Image::url() { return d_url ? d_url->url() : 0; }
+const char *Image::url() { return d_url ? d_url->url().c_str() : 0; }
 
 // Could peek at file header...
 

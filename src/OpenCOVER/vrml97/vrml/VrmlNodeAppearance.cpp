@@ -451,8 +451,8 @@ void VrmlNodeAppearance::render(Viewer *viewer)
         //if (nTexComponents >= 3)
         //	diffuse[0] = diffuse[1] = diffuse[2] = 1.0;
 
-        const char *relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        viewer->setNameModes(m->name(), relUrl);
+        auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
+        viewer->setNameModes(m->name(), relUrl.c_str());
         viewer->setMaterial(m->ambientIntensity(),
                             diffuse,
                             m->emissiveColor(),

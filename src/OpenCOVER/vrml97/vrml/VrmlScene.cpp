@@ -292,7 +292,7 @@ void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
     d_nodes.flushRemoveList();
 
     // Do this to set the relative URL
-    d_nodes.addToScene((VrmlScene *)this, urlDoc()->url());
+    d_nodes.addToScene((VrmlScene *)this, urlDoc()->url().c_str());
 
     // Add the nodes to a Group and put the group in the scene.
     // This will load EXTERNPROTOs and Inlines.
@@ -334,7 +334,7 @@ void VrmlScene::addWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
     d_urlLocal = urlLocal;
 
     // Do this to set the relative URL
-    d_nodes.addToScene((VrmlScene *)this, urlDoc()->url());
+    d_nodes.addToScene((VrmlScene *)this, urlDoc()->url().c_str());
 
     // Add the nodes to a Group and put the group in the scene.
     // This will load EXTERNPROTOs and Inlines.
@@ -439,9 +439,10 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         delete newNodes;
 
         // Look for '#Viewpoint' syntax
-        if (sourceUrl->urlModifier() && *sourceUrl->urlModifier())
+        auto sourceUrlMod = sourceUrl->urlModifier();
+        if (!sourceUrlMod.empty())
         {
-            VrmlNode *vp = d_namespace->findNode(sourceUrl->urlModifier() + 1);
+            VrmlNode *vp = d_namespace->findNode(sourceUrlMod.c_str() + 1);
             double timeNow = System::the->time();
             if (vp)
                 vp->eventIn(timeNow, "set_bind", &flag);
@@ -827,15 +828,15 @@ VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative, int parent
             delete kids;
 
         // Grab the specified PROTO, or the first one.
-        const char *whichProto = urlDoc.urlModifier();
-        if (*whichProto)
-            def = (VrmlNodeType *)protos->findType(whichProto + 1);
+        auto whichProto = urlDoc.urlModifier();
+        if (!whichProto.empty())
+            def = (VrmlNodeType *)protos->findType(whichProto.c_str() + 1);
         else
             def = (VrmlNodeType *)protos->firstType();
 
         if (def)
         {
-            def->setActualUrl(urlDoc.url());
+            def->setActualUrl(urlDoc.url().c_str());
             break;
         }
         else if (i < n - 1 && strncmp(urls->get(i), "urn:", 4))
@@ -1128,7 +1129,7 @@ bool VrmlScene::update(double timeStamp)
         {
             System::the->debug("VrmlScene::update: %s::%s is not in the scene graph yet.\n",
                                n->nodeType()->getName(), n->name());
-            n->addToScene((VrmlScene *)this, urlDoc()->url());
+            n->addToScene((VrmlScene *)this, urlDoc()->url().c_str());
         }
         n->eventIn(e->timeStamp, e->toEventIn, e->value);
         //fprintf(stderr, "VrmlScene::eventIn: %s::%s\n", n->nodeType()->getName(), n->name());

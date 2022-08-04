@@ -161,14 +161,14 @@ void VrmlNodeInline::render(Viewer *viewer)
             {
                 d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
                 Doc url;
-                const char *pathname = NULL;
+                std::string pathname;
                 if (d_relative.get())
                 {
                     Doc relDoc(d_relative.get());
                     url.seturl(d_url.get(0), &relDoc);
                     pathname = url.localName();
                 }
-                d_scene->storeCachedInline(d_url.get(0), pathname, d_viewerObject);
+                d_scene->storeCachedInline(d_url.get(0), pathname.c_str(), d_viewerObject);
             }
         }
     }
@@ -210,7 +210,7 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
         {
             if (isOnlyGeometry())
             {
-                sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+                sgObject = d_scene->getCachedInline(d_url.get(0), url.localName().c_str()); // relative files in cache
                 if (sgObject)
                 {
                     setModified();
@@ -218,7 +218,7 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
             }
             if ((sgObject == 0L) && !VrmlScene::isWrl(url.url()))
             {
-                sgObject = System::the->getInline(url.url());
+                sgObject = System::the->getInline(url.url().c_str());
                 setModified();
             }
         }
@@ -248,7 +248,7 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
             {
                 delete d_namespace;
                 d_namespace = ns;
-                d_relative.set(url.url()); // children will be relative to this url
+                d_relative.set(url.url().c_str()); // children will be relative to this url
 
                 removeChildren();
                 addChildren(*kids); // check for nested Inlines

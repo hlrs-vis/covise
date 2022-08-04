@@ -144,9 +144,9 @@ static Image *getTexture(VrmlMFString &urls,
         for (int index = thisIndex - 1; index >= 0; --index)
         {
             const char *currentTex = tex[index].url();
-            const char *relPath = relative ? relative->urlPath() : 0;
+            auto relPath = relative ? relative->urlPath() : "";
             int currentLen = (int)(currentTex ? strlen(currentTex) : 0);
-            int relPathLen = (int)(relPath ? strlen(relPath) : 0);
+            int relPathLen = relPath.length();
             if (relPathLen >= currentLen)
                 relPathLen = 0;
 

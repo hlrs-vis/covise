@@ -211,7 +211,7 @@ public:
     void fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner);
 
     ///compares the url with m_sharedFiles. If found returns its position in, else -1;
-	int getFileId(const char* url);
+	int getFileId(const std::string &url);
 
 	///get the filename + extension from a path: path/fileName -> fileName
 	std::string getFileName(const std::string& filePath);

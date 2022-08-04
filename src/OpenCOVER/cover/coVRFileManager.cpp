@@ -2037,13 +2037,9 @@ std::string coVRFileManager::httpFetch(const std::string &url)
     return "";
 }
 
-int coVRFileManager::getFileId(const char* url)
+int coVRFileManager::getFileId(const std::string &url)
 {
-	if (!url)
-	{
-		return -1;
-	}
-	std::string p(url);
+	std::string p = url;
 	makeRelativeToSharedDataLink(p);
 	for (size_t i = 0; i < m_sharedFiles.value().size(); i++)
 	{
