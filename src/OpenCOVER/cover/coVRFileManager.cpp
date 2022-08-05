@@ -845,19 +845,24 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	std::string xt = url.extension();
 	
 	std::vector<std::string> vrmlExtentions{ "x3dv", "wrl", "wrz" };
+    const char *ive = ".ive";
 	std::string lowXt(xt);
 	std::transform(xt.begin(), xt.end(), lowXt.begin(), ::tolower);
+    auto urlStr = url.str();
+	std::transform(urlStr.begin(), urlStr.end(), urlStr.begin(), ::tolower);
+
 	bool isVRML = false;
 	for (auto ext : vrmlExtentions)
 	{
-		if (("." + ext) == lowXt)
+		if (("." + ext) == lowXt || urlStr.substr(urlStr.size() - (ext.size() + strlen(ive))) == ext + ive)
 		{
 			isVRML = true;
 			break;
 		}
-	}
-	if (!isVRML)
-	{
+    }
+    
+    if (!isVRML)
+    {
         std::string filename = findOrGetFile(adjustedFileName);
 		if (filename.length() == 0)
 		{
