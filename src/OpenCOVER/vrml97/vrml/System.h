@@ -76,7 +76,6 @@ public:
     virtual int connectSocket(const char *host, int port);
 
     virtual const char *httpHost(const char *url, int *port);
-    virtual const char *httpFetch(const char *url);
     virtual std::string remoteFetch(const std::string &filename) = 0;
 	virtual int getFileId(const std::string &url) = 0;
     virtual void removeFile(const char *fn);
