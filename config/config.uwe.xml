@@ -268,6 +268,13 @@
 
 
     </Vrml97>
+	<Volume value="on" >
+                    <Renderer value="rayrendcuda" />
+                    <!--Renderer value="texrend" /-->
+                    <Lighting value="on" />
+                    <PreIntegration value="off" />
+                    <ShowTFE value="on" />
+                </Volume>
             </Plugin>
 			
    <WindowConfig>
