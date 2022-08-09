@@ -2171,7 +2171,7 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
     {
         if(!fs::exists(p))
             fs::create_directories(p);
-        p += "/" + path.filename().string();
+        p += path.filename().string();
 
         if ((size > 0) && !fileExist(p))
         {
