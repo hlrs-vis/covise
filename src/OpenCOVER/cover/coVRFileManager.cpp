@@ -1487,9 +1487,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
             break;
         }
     }
-    bool fileFound = filePlace != MISS;
-    ms->syncBool(fileFound);
-    assert(fileFound == (filePlace != MISS) && "findOrGetFileSyncError");
+    assert(ms->syncBool(filePlace != MISS) == (filePlace != MISS) && "findOrGetFileSyncError");
 
     if (filePlace == MISS)
     {
@@ -1498,61 +1496,14 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
             path = httpFetch(filePath);
             filePlace = FETCHED;
         }
-        else if (remoteFetchEnabled && cover->isVRBconnected()) //check if all have found the file locally
+        else if (remoteFetchEnabled && cover->isVRBconnected())  
         {
-            bool sync = true;
-            bool found = filePlace != MISS;
-            bool foundAll = ms->allReduceAnd(found);
-            ms->syncBool(found);
-            if (ms->isMaster())
+            int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
+            path = remoteFetch(filePath, fileOwner);
+            if (fileExist(path))
             {
-                if(found && !foundAll)
-                {
-                    covise::TokenBuffer tb;
-                    if (!serializeFile(path, tb))
-                    {
-                        cerr << "coVRFileManager::findOrGetFile error 1: file was there and is now gone" << endl;
-                        exit(1);
-                    }
-                    covise::Message msg(tb);
-                    ms->sendSlaves(&msg);
-                }
-            }
-            else //is slave
-            {
-                if (found && !foundAll)
-                {
-                    covise::Message msg;
-                    ms->readMaster(&msg);
-                    int numBytes = 0;
-                    covise::TokenBuffer tb(&msg);
-                    tb >> numBytes;
-                    if (numBytes <= 0)
-                    {
-                        std::cerr << "remote fetch may be out of sync" << std::endl;
-                        path = "";
-                    }
-                    else
-                    {
-                        const char* buf = tb.getBinary(numBytes);
-                        path = writeRemoteFetchedFile(getFileName(std::string(filePath)), buf, numBytes);
-                    }
-                    filePlace = FETCHED;
-                }
-            }
-            if (filePlace == MISS)
-            {
-                path = "";
-                //fetch the file
-                int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
-                path = remoteFetch(filePath, fileOwner);
-                if (fileExist(path))
-                {
-                    //isTmp = true; //dont ever delete tmp files
-                    fetchObjMaterials(path, filePath, fileOwner);
-
-                    filePlace = REMOTE;
-                }
+                fetchObjMaterials(path, filePath, fileOwner);
+                filePlace = REMOTE;
             }
         }
     }
