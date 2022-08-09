@@ -1420,9 +1420,7 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 
 void coVRFileManager::fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner)
 {
-    std::cerr << "fetching obj materials for " << remotePath << " from  " << fileOwner << std::endl;
-    std::string ending = ".obj";
-    if (localPath.substr(localPath.size() - ending.size(), ending.size()) == ending)
+    if (fs::path(localPath).extension().string() == ".obj" )
     {
         auto f = fstream(localPath);
         if(!f.is_open())
