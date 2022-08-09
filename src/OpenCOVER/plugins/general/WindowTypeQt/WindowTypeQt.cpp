@@ -244,22 +244,25 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     window->addContextAction(win.toggleMenu);
 
     win.menubar = nullptr;
+    win.nativeMenubar = nullptr;
 #ifdef __APPLE__
-    win.nativeMenuBar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", win.nativeMenuBar);
-    if (win.nativeMenuBar)
+    win.nativeMenubar = new QMenuBar(nullptr);
+    win.nativeMenubar->setNativeMenuBar(true);
+    win.nativeMenubar->show();
+    bool nativeMenubar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", true);
+    if (nativeMenubar)
     {
-        win.menubar = new QMenuBar(nullptr);
-        win.menubar->setNativeMenuBar(true);
     }
     else
     {
         win.menubar = win.window->menuBar();
         win.menubar->setNativeMenuBar(false);
     }
+#else
+    win.menubar = win.window->menuBar();
 #endif
-    if (!win.menubar)
-        win.menubar = win.window->menuBar();
-    win.menubar->show();
+    if (win.menubar)
+        win.menubar->show();
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
     if (useToolbar)
@@ -279,8 +282,19 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         }
     }
     win.toolbar = toolbar;
-    win.view.emplace_back(new ui::QtView(win.menubar, toolbar));
-    cover->ui->addView(win.view.back());
+    if (win.menubar)
+    {
+        win.view.emplace_back(new ui::QtView(win.menubar, toolbar));
+        cover->ui->addView(win.view.back());
+    }
+    if (win.nativeMenubar)
+    {
+        if (win.menubar)
+            win.view.emplace_back(new ui::QtView(win.nativeMenubar));
+        else
+            win.view.emplace_back(new ui::QtView(win.nativeMenubar, toolbar));
+        cover->ui->addView(win.view.back());
+    }
 #if 0
     win.view.emplace_back(new ui::QtView(toolbar));
     cover->ui->addView(win.view.back());
@@ -291,38 +305,46 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         VRWindow::instance()->makeFullScreen(state);
     });
 
-    QMenu *helpMenu = new QMenu(win.menubar);
-    helpMenu->setTearOffEnabled(true);
-    helpMenu->setTitle("Help");
-    win.menubar->addMenu(helpMenu);
-    win.view.back()->setInsertPosition(helpMenu->menuAction());
-
-    QAction *keyboardHelp = new QAction(helpMenu);
-    helpMenu->addAction(keyboardHelp);
+    QAction *keyboardHelp = new QAction(window);
     keyboardHelp->setText("Keyboard commands...");
-    window->connect(keyboardHelp, &QAction::triggered, [this](bool){
-        if (!m_keyboardHelp)
-        {
-            m_keyboardHelp = new KeyboardHelp(cover->ui);
-        }
-        m_keyboardHelp->show();
-    });
+    window->connect(keyboardHelp, &QAction::triggered,
+                    [this](bool)
+                    {
+                        if (!m_keyboardHelp)
+                        {
+                            m_keyboardHelp = new KeyboardHelp(cover->ui);
+                        }
+                        m_keyboardHelp->show();
+                    });
 
-    helpMenu->addSeparator();
-
-    QAction *aboutQt = new QAction(helpMenu);
-    helpMenu->addAction(aboutQt);
+    QAction *aboutQt = new QAction(window);
     aboutQt->setText("About Qt...");
-    window->connect(aboutQt, &QAction::triggered, [this](bool){
-        QMessageBox::aboutQt(new QDialog, "Qt");
-    });
+    window->connect(aboutQt, &QAction::triggered, [this](bool) { QMessageBox::aboutQt(new QDialog, "Qt"); });
 
-    QAction *about = new QAction(helpMenu);
-    helpMenu->addAction(about);
+    QAction *about = new QAction(window);
     about->setText("About COVER...");
-    window->connect(about, &QAction::triggered, [this](bool){
-        aboutCover();
-    });
+    window->connect(about, &QAction::triggered, [this](bool) { aboutCover(); });
+
+    unsigned idx = 0;
+    for (auto *menubar: {win.menubar, win.nativeMenubar})
+    {
+        if (!menubar)
+            continue;
+
+        QMenu *helpMenu = new QMenu(menubar);
+        helpMenu->setTearOffEnabled(true);
+        helpMenu->setTitle("Help");
+        menubar->addMenu(helpMenu);
+
+        helpMenu->addAction(keyboardHelp);
+        helpMenu->addSeparator();
+        helpMenu->addAction(aboutQt);
+        helpMenu->addAction(about);
+
+        auto *view = win.view[idx];
+        view->setInsertPosition(helpMenu->menuAction());
+        ++idx;
+    }
 
     QSurfaceFormat format;
     format.setVersion(2, 1);
@@ -506,31 +528,30 @@ void WindowTypeQtPlugin::windowFullScreen(int num, bool state)
 #endif
         if (win.toolbar) {
             win.toolbarVisible = win.toolbar->isVisible();
+            win.toolbar->hide();
         }
 
-#ifdef __APPLE__
-        win.menubar->setNativeMenuBar(true);
-#else
-        win.menubar->hide();
-#endif
-        if (win.toolbar) {
-            win.toolbar->hide();
+        if (win.menubar)
+        {
+            win.menubar->hide();
         }
         //win.window->setWindowFlag(Qt::FramelessWindowHint, true);
         win.window->showFullScreen();
         if (!(win.state & Qt::WindowFullScreen))
             win.window->setWindowState(win.state | Qt::WindowFullScreen);
     } else {
+        if (win.menubar)
+        {
+            win.menubar->setNativeMenuBar(false);
+            win.menubar->show();
+        }
 #ifdef __APPLE__
-        win.menubar->setNativeMenuBar(win.nativeMenuBar);
-#else
-        win.menubar->show();
-#endif
         win.window->setWindowFlags(win.flags);
         win.window->setWindowState(win.state);
 #if 0
         win.window->move(win.x, win.y);
         win.window->resize(win.w, win.h);
+#endif
 #endif
         if (win.toolbar && win.toolbarVisible)
             win.toolbar->show();

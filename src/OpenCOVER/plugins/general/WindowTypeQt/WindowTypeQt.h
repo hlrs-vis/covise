@@ -54,6 +54,7 @@ private:
         QAction *toggleFullScreen = nullptr;
         QAction *toggleMenu = nullptr;
         QMenuBar *menubar = nullptr;
+        QMenuBar *nativeMenubar = nullptr;
         QToolBar *toolbar = nullptr;
         std::vector<opencover::ui::QtView *> view;
 
@@ -63,7 +64,6 @@ private:
         int w=0, h=0;
         bool toolbarVisible = true;
         bool fullscreen = false;
-        bool nativeMenuBar = false;
     };
     std::map<int, WindowData> m_windows;
     bool m_update = true;

@@ -62,9 +62,7 @@ QString sliderWidthText(const Slider *slider)
 }
 
 QtView::QtView(QMenuBar *menubar, QToolBar *toolbar)
-: View("Qt")
-, m_menubar(menubar)
-, m_toolbar(toolbar)
+: View((menubar && menubar->isNativeMenuBar()) ? "QtNativeMenu" : "Qt"), m_menubar(menubar), m_toolbar(toolbar)
 {
 }
 
