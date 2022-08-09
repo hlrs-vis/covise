@@ -97,6 +97,7 @@ bool PartnerAvatar::init(const std::string &hostAdress)
         feetTransform = new osg::MatrixTransform;
         if(!VRAvatar::init("Avatar " + hostAdress))
             return false;
+        initialized = true;
 
         hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
         if (!hostIconNode)
@@ -118,7 +119,6 @@ bool PartnerAvatar::init(const std::string &hostAdress)
         {
             cover->getObjectsRoot()->addChild(avatarNodes.get());
         }
-        initialized = true;
 
         return true;
     }
