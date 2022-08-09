@@ -1539,18 +1539,7 @@ bool coVRPluginSupport::isHighQuality() const
 
 bool coVRPluginSupport::isVRBconnected()
 {
-    if(coVRMSController::instance()->isMaster())
-    {
-        auto b = OpenCOVER::instance()->isVRBconnected();
-        coVRMSController::instance()->sendSlaves((void *)&b, sizeof(bool));
-        return b;
-    }
-    else
-    {
-        bool b;
-        coVRMSController::instance()->readMaster((void*)&b, sizeof(bool));
-        return b;
-    }
+    return coVRMSController::instance()->syncBool(OpenCOVER::instance()->isVRBconnected());
 }
 
 void coVRPluginSupport::protectScenegraph()
