@@ -1537,7 +1537,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
                     else
                     {
                         const char* buf = tb.getBinary(numBytes);
-                        path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
+                        path = writeRemoteFetchedFile(getFileName(std::string(filePath)), buf, numBytes);
                     }
                     filePlace = FETCHED;
                 }
@@ -1999,15 +1999,9 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
     {
         std::unique_ptr<Message> msg(new Message);
         if (coVRMSController::instance()->isMaster())
-        {
             OpenCOVER::instance()->vrbc()->wait(msg.get());
-            coVRMSController::instance()->sendSlaves(msg.get());
-        }
-        else
-        {
-            // wait for message from master instead
-            coVRMSController::instance()->readMaster(msg.get());
-        }
+
+        coVRMSController::instance()->syncMessage(msg.get());
         //cache all send file messages
         if (msg->type == COVISE_MESSAGE_VRB_SEND_FILE)
         {
@@ -2058,8 +2052,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
         return "";
     }
     buf = tb.getBinary(numBytes);
-    std::string pathToTmpFile = writeFile(filePath, buf, numBytes);
-    return pathToTmpFile;
+    return writeRemoteFetchedFile(filePath, buf, numBytes);
 
 }
 
@@ -2086,7 +2079,7 @@ std::string coVRFileManager::httpFetch(const std::string &url)
     res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
 
-    return writeFile(url, readBuffer.data(), readBuffer.size());
+    return writeRemoteFetchedFile(url, readBuffer.data(), readBuffer.size());
   }
 #endif
     return "";
@@ -2170,39 +2163,45 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
     return red;
 }
 
-std::string coVRFileManager::writeFile(const std::string& filePath, const char* content, int size)
+std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath, const char* content, int size)
 {
     fs::path path{filePath};
     auto fileName = path.filename().string();
     std::string p = remoteFetchPath + "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
-    if(!fs::exists(p))
-        fs::create_directories(p);
-    p += "/" + path.filename().string();
+    auto sharedFS = isInSharedDir(p);
+    if (coVRMSController::instance()->isMaster() || !sharedFS)
+    {
+        if(!fs::exists(p))
+            fs::create_directories(p);
+        p += "/" + path.filename().string();
 
-    if ((size > 0) && !fileExist(p))
-	{
-#ifndef _WIN32
-		int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
-#else
-		int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
-#endif
-		if (fd != -1)
-		{
-			if (int wroteBytes = write(fd, content, size) != size)
-			{
-				//warn("remoteFetch: temp file write error\n");
-				cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;
-				return "";
-			}
-			close(fd);
-		}
-		else
-		{
-			cerr << "opening file " << p << " failed";
-			return "";
-		}
-	}
-	return p;
+        if ((size > 0) && !fileExist(p))
+        {
+    #ifndef _WIN32
+            int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
+    #else
+            int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+    #endif
+            if (fd != -1)
+            {
+                if (int wroteBytes = write(fd, content, size) != size)
+                {
+                    //warn("remoteFetch: temp file write error\n");
+                    cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;
+                    p = "";
+                }
+                close(fd);
+            }
+            else
+            {
+                cerr << "opening file " << p << " failed";
+                p = "";
+            }
+        }
+    }
+    if(sharedFS)
+        p = coVRMSController::instance()->syncString(p); //wait until master has written the file and make sure write errors are broadcasted to slaves
+    return p;
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
 {
