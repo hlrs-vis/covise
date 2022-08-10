@@ -8,10 +8,13 @@
 #include "coVRFileManager.h"
 #include <config/CoviseConfig.h>
 #include "coHud.h"
+
 #include <cassert>
-#include <cstring>
 #include <cctype>
+#include <chrono>
+#include <cstring>
 #include <stdlib.h>
+#include <thread>
 
 #include "OpenCOVER.h"
 #include "VRRegisterSceneGraph.h"
@@ -2133,7 +2136,17 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
         }
     }
     if(sharedFS)
+    {
         p = coVRMSController::instance()->syncString(p); //wait until master has written the file and make sure write errors are broadcasted to slaves
+        if(coVRMSController::instance()->isSlave() && !p.empty())
+        {
+            while(!fs::exists(p))
+            {
+                std::cerr << "waiting until " << p << " is available" << std::endl;
+                std::this_thread::sleep_for(std::chrono::microseconds(10));
+            }
+        }
+    }
     return p;
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
