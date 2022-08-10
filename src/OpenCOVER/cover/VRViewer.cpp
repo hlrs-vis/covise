@@ -1907,7 +1907,16 @@ void VRViewer::frame(double simulationTime)
     }
     else
     {
-        coVRPluginList::instance()->clusterSyncDraw();
+        if (OpenCOVER::instance()->initDone())
+            coVRPluginList::instance()->clusterSyncDraw();
+        if (VRViewer::unsyncedFrames <= 0)
+        {
+            coVRMSController::instance()->syncDraw();
+        }
+        else
+        {
+            VRViewer::unsyncedFrames--;
+        }
     }
     if (getViewerStats()->collectStats("frame"))
     {
