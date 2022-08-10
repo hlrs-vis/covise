@@ -1393,29 +1393,13 @@ void coVRFileManager::checkRemoteFetchDirShared()
 
 bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string& basePath)
 {
-	convertBackslash(fileName);
-	std::string bp(basePath);
-	convertBackslash(bp);
-	if (bp.length() >= fileName.length())
-	{
-		return false;
-	}
-	if (int pos = fileName.find(bp) != std::string::npos)
-	{
-		fileName.erase(0, pos + basePath.length() - 1);
-		return true;
-	}
-	std::string abs = fs::canonical(bp).string();
-	convertBackslash(abs);
-	for (size_t i = 0; i < abs.length(); i++)
-	{
-		if (std::tolower(abs[i]) != std::tolower(fileName[i]))
-		{
-			return false;
-		}
-	}
-	fileName.erase(0, abs.length());
-	return true;
+  if(basePath.empty())
+      return true;
+  auto fn = fs::relative(fs::path(fileName), fs::path(basePath)).string();
+  if(fn.size() > 3 || (fn[0] == '.' && fn[1] == '.'))
+    return false;
+  fileName = fn;
+  return true;
 }
 
 void coVRFileManager::fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner)
