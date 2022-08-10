@@ -459,9 +459,11 @@ void ARUCOPlugin::opencvLoop()
 
                 for(unsigned int i = 0; i < ids[captureIdx].size(); ++i)
                 {
+#if CV_VERSION_MAJOR < 4
                     cv::aruco::drawAxis(image[captureIdx], matCameraMatrix, matDistCoefs,
                                         rvecs[captureIdx][i], tvecs[captureIdx][i],
                                         0.1); //markerLength * 0.5f);
+#endif
                 }
             }
 
