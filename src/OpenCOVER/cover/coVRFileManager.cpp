@@ -1459,11 +1459,12 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 	};
 	FilePlace filePlace = MISS;
 	std::string path;
-    const std::array<std::pair<fs::path, FilePlace>, 5> searchLocations = {
+    const std::array<std::pair<fs::path, FilePlace>, 6> searchLocations = {
         std::pair<fs::path, FilePlace>(fs::path{filePath}, LOCAL),
         std::pair<fs::path, FilePlace>(fs::current_path() / filePath, WORK),
         std::pair<fs::path, FilePlace>(fs::path{m_sharedDataLink} / filePath, LINK),
         std::pair<fs::path, FilePlace>(fs::path{remoteFetchPath} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
+        std::pair<fs::path, FilePlace>(fs::temp_directory_path() / "remoteFetch" /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
     };
     for(const auto &p : searchLocations)
     {
@@ -2103,48 +2104,36 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
 {
     fs::path path{filePath};
     auto fileName = path.filename().string();
-    std::string p = remoteFetchPath + "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
-    auto sharedFS = isInSharedDir(p);
-    if (coVRMSController::instance()->isMaster() || !sharedFS)
-    {
-        if(!fs::exists(p))
-            fs::create_directories(p);
-        p += path.filename().string();
+    auto ms = coVRMSController::instance();
+    std::string p = remoteFetchPath;
+    if (remoteFetchPathShared && ms->isSlave()) //if shared, write a shared file on master and tmp files on slaves to counter slowly updating network filesystems
+        p = (fs::temp_directory_path() / "remoteFetch").string();
+    p += "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
+    if(!fs::exists(p))
+        fs::create_directories(p);
+    p += path.filename().string();
 
-        if ((size > 0) && !fileExist(p))
+    if ((size > 0) && !fileExist(p))
+    {
+#ifndef _WIN32
+        int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
+#else
+        int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+#endif
+        if (fd != -1)
         {
-    #ifndef _WIN32
-            int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
-    #else
-            int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
-    #endif
-            if (fd != -1)
+            if (int wroteBytes = write(fd, content, size) != size)
             {
-                if (int wroteBytes = write(fd, content, size) != size)
-                {
-                    //warn("remoteFetch: temp file write error\n");
-                    cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;
-                    p = "";
-                }
-                close(fd);
-            }
-            else
-            {
-                cerr << "opening file " << p << " failed";
+                //warn("remoteFetch: temp file write error\n");
+                cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;
                 p = "";
             }
+            close(fd);
         }
-    }
-    if(sharedFS)
-    {
-        p = coVRMSController::instance()->syncString(p); //wait until master has written the file and make sure write errors are broadcasted to slaves
-        if(coVRMSController::instance()->isSlave() && !p.empty())
+        else
         {
-            while(!fs::exists(p))
-            {
-                std::cerr << "waiting until " << p << " is available" << std::endl;
-                std::this_thread::sleep_for(std::chrono::microseconds(10));
-            }
+            cerr << "opening file " << p << " failed";
+            p = "";
         }
     }
     return p;
