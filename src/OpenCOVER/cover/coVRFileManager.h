@@ -305,6 +305,20 @@ private:
     ///return the substring of s until the delimiter(delimiter is cut off)
     static std::string cutStringAt(const std::string &s, char delimiter);
     osg::ref_ptr<osgDB::ReaderWriter::Options> options;
+
+    class FileToDelete{
+    public:
+        FileToDelete(const std::string& fileName);
+        ~FileToDelete();
+        FileToDelete(const FileToDelete &) = delete;
+        FileToDelete(FileToDelete &&) = default;
+        FileToDelete &operator=(const FileToDelete &) = delete;
+        FileToDelete &operator=(FileToDelete &&) = default;
+
+    private:
+            std::string m_fileName;
+    };
+    std::vector<FileToDelete> m_filesToDelete;
 };
 }
 #endif

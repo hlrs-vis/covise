@@ -2144,6 +2144,8 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
             p = "";
         }
     }
+    if(remoteFetchPathShared && ms->isSlave())
+        m_filesToDelete.emplace_back(p); //delete tmp files, next time they will be found in shared dir
     return p;
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
@@ -2264,6 +2266,23 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 	}
 	stringWithoutEnvs.append(lastIt, s.end());
 	return stringWithoutEnvs;
+}
+
+coVRFileManager::FileToDelete::FileToDelete(const std::string& fileName):m_fileName(fileName){}
+coVRFileManager::FileToDelete::~FileToDelete()
+{
+    if(!m_fileName.empty())
+    {
+        if(fs::exists(m_fileName))
+        {
+            fs::remove(m_fileName);
+            auto p = fs::path(m_fileName).parent_path();
+            if(!p.empty() && fs::is_empty(p))
+            {
+                fs::remove(p);
+            }
+        }
+    }
 }
 
 }
