@@ -230,6 +230,7 @@ private:
     bool remoteFetchHashPrefix = true;
     // set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to.
     std::string remoteFetchPath;
+    bool remoteFetchDirExists = false;
     bool remoteFetchPathShared = false;
     std::string viewPointFile;
     int m_loadCount = 0;
@@ -295,8 +296,9 @@ private:
 	int guessFileOwner(const std::string& filePath);
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
 	std::vector<std::unique_ptr<covise::Message>> m_sendFileMessages;
+    void createRemoteFetchDir();
 
-	//utility
+    //utility
     
     ///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
     static std::string resolveEnvs(const std::string& s);
