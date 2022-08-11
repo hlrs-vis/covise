@@ -259,7 +259,7 @@ void VrmlScene::destroyWorld()
 void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
                              Doc *url, Doc *urlLocal)
 {
-    System::the->debug("replaceWorld( url %s )\n", url->url());
+    System::the->debug("replaceWorld( url %s )\n", url->url().c_str());
 
     delete d_namespace;
     delete d_url;
@@ -324,7 +324,7 @@ void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
 void VrmlScene::addWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
                          Doc *url, Doc *urlLocal)
 {
-    System::the->debug("addWorld( url %s )\n", url->url());
+    System::the->debug("addWorld( url %s )\n", url->url().c_str());
 
     delete d_url;
     delete d_urlLocal;
@@ -611,7 +611,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
         *encrypted = false;
     }
 
-    System::the->debug("readWRL %s\n", tryUrl->url());
+    System::the->debug("readWRL %s\n", tryUrl->url().c_str());
 
 // Should verify MIME type...
 #if HAVE_LIBPNG
