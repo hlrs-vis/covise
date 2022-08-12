@@ -48,16 +48,6 @@ using std::endl;
 #include "System.h"
 #include "Byteswap.h"
 
-#ifdef HAVE_LIBWWW
-#include <WWWLib.h>
-#include <WWWInit.h>
-#endif
-
-#ifdef HAVE_LIBCURL
-#include <curl/curl.h>
-#include <curl/easy.h>
-#endif
-
 using namespace vrml;
 
 System *System::the = NULL;
