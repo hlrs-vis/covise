@@ -127,6 +127,7 @@ int RhinoPlugin::loadFile(const std::string&fileName, osg::Group *loadParent)
 	RhinoSwitch->setName(fileName);
 	switches.push_back(RhinoSwitch);
     Read3DM(fileName);
+    RhinoSwitch->addChild(mRhinoNode);
     return 0;
 }
 
@@ -149,7 +150,7 @@ RhinoPlugin::RhinoPlugin()
 
 bool RhinoPlugin::init()
 {
-    for(int i=0;i<3;i++)
+    for(int i=0;i<2;i++)
     coVRFileManager::instance()->registerFileHandler(&handlers[i]);
     return true;
 }
@@ -223,8 +224,8 @@ osg::Node* RhinoPlugin::BuildBrep(const ON_Brep* theBrep)
     {
         ON_BrepFace* aFace = theBrep->Face(i);
 
-        aGroup->addChild(BuildWireFrameFace(aFace));
-        //aGroup->addChild(BuildShadedFace(aFace));
+        //aGroup->addChild(BuildWireFrameFace(aFace));
+        aGroup->addChild(BuildShadedFace(aFace));
     }
 
     //theBrep->Dump(ON_TextLog());
