@@ -53,6 +53,7 @@ private:
     coOutputPort* poParticleResidenceTime;
     coOutputPort* poVelocity;
     coOutputPort* poParticleFlowRate;
+    coOutputPort* poParticleDiameter;
     
 
     // Parameter & IO:
@@ -62,6 +63,7 @@ private:
     vector<coDoFloat*> dosParticleResidenceTime;
     vector<coDoVec3*> dosVelocity;
     vector<coDoFloat*> dosParticleFlowRate;
+    vector<coDoFloat*> dosParticleDiameter;
     vector<coDoLines*> dosLines;
 
     bool readChunk();

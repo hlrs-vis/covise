@@ -44,6 +44,7 @@ ReadTRK::ReadTRK(int argc, char *argv[])
     poParticleResidenceTime = addOutputPort("ParticleResidenceTime", "Float", "poParticleResidenceTime");
     poVelocity = addOutputPort("Velocity", "Vec3", "Velocity");
     poParticleFlowRate = addOutputPort("ParticleFlowRate", "Float", "ParticleFlowRate");
+    poParticleDiameter = addOutputPort("ParticleDiameter", "Float", "ParticleDiameter");
 
 
     //PARAMETERS:
@@ -62,11 +63,13 @@ ReadTRK::~ReadTRK()
 //COMPUTE-ROUTINE
 int ReadTRK::compute(const char *)
 {
+    numChunks = 0;
     fp = fopen(trkFilePath->getValue(), "rb");
 
     dosParticleResidenceTime.clear();
     dosVelocity.clear();
     dosParticleFlowRate.clear();
+    dosParticleDiameter.clear();
     dosLines.clear();
 
     while (!feof(fp))
@@ -76,6 +79,7 @@ int ReadTRK::compute(const char *)
     }
     coDistributedObject** dos = new coDistributedObject*[dosParticleResidenceTime.size()+1];
     int i = 0;
+    dos[0] = nullptr;
     for (const auto& d : dosParticleResidenceTime)
     {
         dos[i] = d;
@@ -87,6 +91,7 @@ int ReadTRK::compute(const char *)
 
     dos = new coDistributedObject * [dosVelocity.size()+1];
     i = 0;
+    dos[0] = nullptr;
     for (const auto& d : dosVelocity)
     {
         dos[i] = d;
@@ -98,6 +103,7 @@ int ReadTRK::compute(const char *)
 
     dos = new coDistributedObject * [dosParticleFlowRate.size()+1];
     i = 0;
+    dos[0] = nullptr;
     for (const auto& d : dosParticleFlowRate)
     {
         dos[i] = d;
@@ -107,8 +113,21 @@ int ReadTRK::compute(const char *)
     dataObject = new coDoSet(poParticleFlowRate->getObjName(), dos);
     delete[] dos;
 
+    dos = new coDistributedObject * [dosParticleDiameter.size() + 1];
+    i = 0;
+    dos[0] = nullptr;
+    for (const auto& d : dosParticleDiameter)
+    {
+        dos[i] = d;
+        dos[i + 1] = nullptr;
+        i++;
+    }
+    dataObject = new coDoSet(poParticleDiameter->getObjName(), dos);
+    delete[] dos;
+
     dos = new coDistributedObject * [dosLines.size()+1];
     i = 0;
+    dos[0] = nullptr;
     for (const auto& d : dosLines)
     {
         dos[i] = d;
@@ -132,7 +151,12 @@ bool ReadTRK::readChunk()
 {
 
     char buf[10000];
-    fgets(buf, sizeof(buf), fp);
+    buf[0] = '\0';
+    char *res = fgets(buf, sizeof(buf), fp);
+    if (res ==nullptr || feof(fp) || buf[0]=='\0')
+    {
+        return false;
+    }
     size_t bufferSize = strlen(buf);
     std::string header = buf;
     int numPoints = 0;
@@ -274,6 +298,19 @@ bool ReadTRK::readChunk()
                 fp[i] = (float)data[i];
             delete[] data;
         }
+        if (d.name == "Particle Diameter")
+        {
+            char* b = new char[numPoints * d.size];
+            double* data = (double*)b;
+            fread(b, numPoints, d.size, fp);
+            coDoFloat* dataObject = new coDoFloat(genName(poParticleDiameter->getObjName()), numPoints);
+            dosParticleDiameter.push_back(dataObject);
+            poParticleDiameter->setCurrentObject(dataObject);
+            float* fp = dataObject->getAddress();
+            for (int i = 0; i < numPoints; i++)
+                fp[i] = (float)data[i];
+            delete[] data;
+        }
     }
 
     std::vector<int> lineIndex(maxIndex, 0);
@@ -298,7 +335,7 @@ bool ReadTRK::readChunk()
         for (int i = 0; i < numPoints; i++)
         {
             uint32_t line = lineIndex[index[i]];
-            if (lastIndex[line] > 0 && (lastIndex[line] < residenceTime[i] - 0.1 || lastIndex[line]> residenceTime[i]))
+            if (lastIndex[line] > 0 && ( lastIndex[line] < residenceTime[i] - 0.01 || lastIndex[line] > residenceTime[i]))
             {
                 // splitLine
                 uint32_t lastID = index[i];

@@ -4,6 +4,8 @@
   <GLOBAL>
     <COVER>
       <FileManager>
+        <FileType name="3dm" plugin="3dm" />
+        <FileType name="rhino" plugin="3dm" />
         <FileType name="bcrtf" plugin="Trajectories" />
         <FileType name="crtf" plugin="Trajectories" />
         <FileType name="bcsv" plugin="Bore" />
