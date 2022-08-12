@@ -37,7 +37,6 @@ struct FluxData
     float speed;
     unsigned int button;
 };
-#pragma pack(pop)
 
 #pragma pack(push, 1)
 struct FluxCtrlData
