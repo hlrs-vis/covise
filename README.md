@@ -228,6 +228,7 @@ dnf install gcc-gfortran
 dnf --enablerepo=PowerTools install libstdc++-static
 dnf --enablerepo=PowerTools install boost-static
 dnf install python3-pyqt5-sip
+dnf install fuse-devel
 
 
 Tracking Dependencies
