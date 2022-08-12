@@ -7,8 +7,8 @@
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
-   <StartCommand value="nvidia-smi -ac 4513,1657" />
-   <ExitCommand value="nvidia-smi -rac" />
+   <StartCommand value="sudo nvidia-smi -ac 4513,1657" />
+   <ExitCommand value="sudo nvidia-smi -rac" />
   </COVER>
  </GLOBAL>
 
@@ -32,7 +32,7 @@
               <Orientation h="0" p="0" r="0" />
            </DTrackCaveOutside>
 
-           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.245">
+           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.237">
               <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
