@@ -113,37 +113,10 @@ System::System()
     , correctSpatializedAudio(true)
     , frameCounter(0)
 {
-#ifdef HAVE_LIBWWW
-    try
-    {
-        HTProfile_newPreemptiveClient("COVISE VRML Library", "6.1");
-    }
-    catch (...)
-    {
-        fprintf(stderr, "VRML97 HTProfile_newPreemptiveClient failed\n");
-    }
-#endif
-
-#ifdef HAVE_LIBCURL
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-#endif
 }
 
 System::~System()
 {
-#ifdef HAVE_LIBWWW
-    try
-    {
-        HTProfile_delete();
-    }
-    catch (...)
-    {
-    }
-#endif
-
-#ifdef HAVE_LIBCURL
-    curl_global_cleanup();
-#endif
 }
 
 // Should make these iostream objects...
@@ -305,26 +278,6 @@ const char *System::httpHost(const char *url, int *port)
     *p = '\0';
     return hostname;
 }
-
-#ifdef HAVE_LIBCURL
-struct CurlData
-{
-    FILE *fp;
-    char *filename;
-};
-
-static ssize_t curl_fwrite(void *buffer, size_t size, size_t nmemb, void *stream)
-{
-    CurlData *curlData = static_cast<CurlData *>(stream);
-    if (!curlData->fp)
-    {
-        curlData->fp = fopen(curlData->filename, "wb");
-        if (!curlData->fp)
-            return -1;
-    }
-    return fwrite(buffer, size, nmemb, curlData->fp);
-}
-#endif
 
 void System::removeFile(const char *fn)
 {
