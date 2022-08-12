@@ -943,10 +943,10 @@ void OpenCOVER::loop()
     }
 
     m_visPlugin = NULL; // prevent any new messages from being sent
+    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
     coVRFileManager::instance()->unloadFile();
     frame();
     coVRPluginList::instance()->unloadAllPlugins();
-    coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Vis);
     frame();
 }
 
