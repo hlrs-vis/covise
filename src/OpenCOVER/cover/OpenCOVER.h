@@ -100,10 +100,6 @@ public:
     bool frame();
     void doneRendering();
     void setExitFlag(bool flag);
-    int getExitFlag()
-    {
-        return exitFlag;
-    }
     static OpenCOVER *instance();
     void handleEvents(int type, int state, int code);
     coHud *hud;
