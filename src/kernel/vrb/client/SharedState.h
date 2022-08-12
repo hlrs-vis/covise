@@ -97,7 +97,6 @@ public:
     SharedState<T>(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
         : SharedStateBase(name, mode)
         , m_value(value) {
-        assert(m_registry);
         covise::TokenBuffer tb;
         serializeWithType(tb, m_value);
         subscribe(tb.getData());

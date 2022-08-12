@@ -11,11 +11,12 @@
 using namespace vehicleUtil;
 
 
-XenomaiTask::XenomaiTask(const std::string &name, int stacksize, int prio, int mode)
+XenomaiTask::XenomaiTask(const std::string& name, int stacksize, int prio, int mode)
 {
+    taskName =name;
     mlockall(MCL_CURRENT | MCL_FUTURE);
 
-    int ret_create = rt_task_create(&rt_task_desc, name.c_str(), stacksize, prio, mode);
+    int ret_create = rt_task_create(&rt_task_desc, taskName.c_str(), stacksize, prio, mode);
     if (ret_create)
     {
         std::cerr << "XenomaiTask::XenomaiTask(): rt_task_create: " << strerror(-ret_create) << std::endl;

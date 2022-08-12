@@ -63,6 +63,14 @@ FWDState::FWDState()
 	genericOut6 = 0;
 	genericOut7 = 0;
 	genericOut8 = 0;
+	genericOut9 = 0;
+	genericOut10 = 0;
+	genericOut11 = 0;
+	genericOut12 = 0;
+	genericOut13 = 0;
+	genericOut14 = 0;
+	genericOut15 = 0;
+	genericOut16 = 0;
 }
 
 void FWDState::limitSpeeds()

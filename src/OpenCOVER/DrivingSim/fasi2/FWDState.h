@@ -226,7 +226,7 @@ public:
 		resultState.genericOut16 = genericOut16 * scalar;
 		return resultState;
 	};
-	FWDState operator=(const FWDState &other)
+	FWDState & operator=(const FWDState &other)
 	{
 		
 		vX = other.vX;
@@ -298,6 +298,7 @@ public:
 		genericOut14 = other.genericOut14;
 		genericOut15 = other.genericOut15;
 		genericOut16 = other.genericOut16;
+        return *this;
 	};
 };
 #endif

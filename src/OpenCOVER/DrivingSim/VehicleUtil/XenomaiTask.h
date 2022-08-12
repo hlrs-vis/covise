@@ -19,7 +19,7 @@ namespace vehicleUtil
 class VEHICLEUTILEXPORT XenomaiTask
 {
 public:
-    XenomaiTask(const std::string & = "noname", int = 0, int = 99, int = 0);
+    XenomaiTask(const std::string &name, int = 0, int = 99, int = 0);
     virtual ~XenomaiTask();
 
     void start();
@@ -38,6 +38,7 @@ protected:
     virtual void run() = 0;
 
     RT_TASK rt_task_desc;
+    std::string taskName;
 };
 }
 #endif
