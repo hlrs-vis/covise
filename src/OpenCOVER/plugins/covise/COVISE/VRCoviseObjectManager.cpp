@@ -1797,7 +1797,6 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             // check for additional Model to load
             if (modelName)
             {
-                const char *modelPath = geometry->getAttribute("MODEL_PATH");
 
                 // SceneGraphItems startID
                 const char *startIndex = geometry->getAttribute("SCENEGRAPHITEMS_STARTINDEX");
@@ -1807,15 +1806,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 }
                 osg::Node *modelNode = NULL;
 
+                const char *modelPath = geometry->getAttribute("MODEL_PATH");
                 if (modelPath)
                 {
-                    char *tmpName = new char[strlen(modelPath) + strlen(modelName) + 2];
-                    strcpy(tmpName, modelPath);
-                    strcat(tmpName, "/");
-                    strcat(tmpName, modelName);
-                    modelNode = coVRFileManager::instance()->loadFile(tmpName, NULL, NULL, geometry->getName());
-                    coviseSG->attachNode(object, modelNode, tmpName);
-                    delete[] tmpName;
+                    std::string tmpName = std::string(modelPath) + "/" + modelName;
+                    modelNode = coVRFileManager::instance()->loadFile(tmpName.c_str(), NULL, NULL, geometry->getName());
+                    coviseSG->attachNode(object, modelNode, tmpName.c_str());
                 }
                 else
                 {
