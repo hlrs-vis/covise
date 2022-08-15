@@ -6,7 +6,6 @@
  * License: LGPL 2+ */
 
 #include "coVRFileManager.h"
-#include <config/CoviseConfig.h>
 #include "coHud.h"
 
 #include <cassert>
@@ -35,18 +34,20 @@
 #include "ui/Group.h"
 #include "ui/Menu.h"
 #include "ui/Owner.h"
-#include <osg/Texture2D>
-#include <osgText/Font>
+#include <config/CoviseConfig.h>
+#include <net/covise_host.h>
+#include <net/message.h>
 #include <util/coFileUtil.h>
 #include <util/coHashIter.h>
 #include <util/string_util.h>
 #include <util/unixcompat.h>
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <net/message.h>
 #include <vrb/client/VRBClient.h>
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <fcntl.h>
+#include <osg/Texture2D>
+#include <osgText/Font>
 
 #ifdef HAVE_LIBCURL
 #include <curl/curl.h>
@@ -1130,6 +1131,7 @@ coVRFileManager *coVRFileManager::instance()
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
     , m_sharedFiles("coVRFileManager_filePaths", fileOwnerList(), vrb::ALWAYS_SHARE)
+    , remoteFetchPathTmp((fs::temp_directory_path() / ("remoteFetch_" + covise::Host::getUsername())).string())
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -1195,18 +1197,15 @@ coVRFileManager::coVRFileManager()
     path = resolveEnvs(path);
     fs::path p{path};
     if (path.empty())
-    {
-        p = fs::temp_directory_path();
-        auto user = getenv("USER");
-        if(user)
-            p = p / user;
-        p = p / "cover";
-    }
+        p = fs::temp_directory_path() / covise::Host::getUsername() / "cover";
 
     remoteFetchPath = p.string();
     std::cerr << "remotefech path = " << remoteFetchPath << std::endl;
     if(remoteFetchEnabled)
         checkRemoteFetchDirShared();
+    //clear tmp dir to ensure same state on all slaves
+    if(fs::exists(remoteFetchPathTmp)) 
+        fs::remove_all(remoteFetchPathTmp);
 }
 
 void coVRFileManager::createRemoteFetchDir()
@@ -1471,7 +1470,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
         std::pair<fs::path, FilePlace>(fs::current_path() / filePath, WORK),
         std::pair<fs::path, FilePlace>(fs::path{m_sharedDataLink} / filePath, LINK),
         std::pair<fs::path, FilePlace>(fs::path{remoteFetchPath} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
-        std::pair<fs::path, FilePlace>(fs::temp_directory_path() / "remoteFetch" /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
+        std::pair<fs::path, FilePlace>(fs::path{remoteFetchPathTmp} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
     };
     for(const auto &p : searchLocations)
     {
@@ -2115,7 +2114,7 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
     auto ms = coVRMSController::instance();
     std::string p = remoteFetchPath;
     if (remoteFetchPathShared && ms->isSlave()) //if shared, write a shared file on master and tmp files on slaves to counter slowly updating network filesystems
-        p = (fs::temp_directory_path() / "remoteFetch").string();
+        p = remoteFetchPathTmp ;
     p += "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
     if(!fs::exists(p))
         fs::create_directories(p);
@@ -2144,8 +2143,6 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
             p = "";
         }
     }
-    if(remoteFetchPathShared && ms->isSlave())
-        m_filesToDelete.emplace_back(p); //delete tmp files, next time they will be found in shared dir
     return p;
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
@@ -2266,23 +2263,6 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 	}
 	stringWithoutEnvs.append(lastIt, s.end());
 	return stringWithoutEnvs;
-}
-
-coVRFileManager::FileToDelete::FileToDelete(const std::string& fileName):m_fileName(fileName){}
-coVRFileManager::FileToDelete::~FileToDelete()
-{
-    if(!m_fileName.empty())
-    {
-        if(fs::exists(m_fileName))
-        {
-            fs::remove(m_fileName);
-            auto p = fs::path(m_fileName).parent_path();
-            if(!p.empty() && fs::is_empty(p))
-            {
-                fs::remove(p);
-            }
-        }
-    }
 }
 
 }
