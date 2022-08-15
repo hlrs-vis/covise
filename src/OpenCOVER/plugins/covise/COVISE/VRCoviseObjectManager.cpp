@@ -1798,31 +1798,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             if (modelName)
             {
                 const char *modelPath = geometry->getAttribute("MODEL_PATH");
-                if (modelPath)
-                {
-                    //pfFilePath(modelPath);
-                    const char *osgFilePath = getenv("OSG_FILE_PATH");
-                    string tmpPath = modelPath;
-                    if (osgFilePath)
-                    {
-#ifdef _WIN32
-                        tmpPath += ";";
-#else
-                        tmpPath += ":";
-#endif
-                        tmpPath += osgFilePath;
-                    }
-                }
-                /* XXX: currently not supported by osg Inventor loader
-               pfdConverterMode("iv",PFIV_CONVERT_TWOSIDE,1);
-               if( (attr=geometry->getAttribute("BACKFACE"))!=NULL )
-               {
-               if(strcasecmp(attr,"OFF")==0)
-               {
-               pfdConverterMode("iv",PFIV_CONVERT_TWOSIDE,0);
-               }
-               }
-               */
+
                 // SceneGraphItems startID
                 const char *startIndex = geometry->getAttribute("SCENEGRAPHITEMS_STARTINDEX");
                 if (startIndex)
