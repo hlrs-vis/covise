@@ -136,8 +136,11 @@ public:
 
     //changes fileName to be relative to basePath
 	bool makeRelativePath(std::string& fileName, const std::string& basePath);
+    
+    std::string findFile(const std::string &fileName);
     //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found.
     //"where" can be set to the partner id that should provide the file 
+    
     std::string findOrGetFile(const std::string &fileName, int where = 0);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");

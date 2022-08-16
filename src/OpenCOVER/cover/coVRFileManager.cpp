@@ -1451,62 +1451,51 @@ std::string getRemoteFetchHashPrefix(const std::string& filePath, bool doSth)
     return doSth ? std::to_string(std::hash<std::string>{}(fs::path{filePath}.parent_path().string())) + "/" : "";
 }
 
-std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
+std::string coVRFileManager::findFile(const std::string &fileName)
 {
-    coVRMSController *ms = coVRMSController::instance();
-    enum FilePlace
-	{
-		MISS = 0,	//file not found
-		LOCAL,		//local file
-		WORK,		//in current working directory
-		LINK,		//under shared data link
-		FETCHED,	//already in remote fetch directory
-		REMOTE,		//fetch from remote in remoteFetchPath 
-	};
-	FilePlace filePlace = MISS;
-	std::string path;
-    const std::array<std::pair<fs::path, FilePlace>, 6> searchLocations = {
-        std::pair<fs::path, FilePlace>(fs::path{filePath}, LOCAL),
-        std::pair<fs::path, FilePlace>(fs::current_path() / filePath, WORK),
-        std::pair<fs::path, FilePlace>(fs::path{m_sharedDataLink} / filePath, LINK),
-        std::pair<fs::path, FilePlace>(fs::path{remoteFetchPath} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
-        std::pair<fs::path, FilePlace>(fs::path{remoteFetchPathTmp} /  getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix) / getFileName(filePath), FETCHED),
+    const std::array<fs::path, 6> searchLocations = {
+        fs::path(fs::path{fileName}),
+        fs::path(fs::current_path() / fileName),
+        fs::path(fs::path{m_sharedDataLink} / fileName),
+        fs::path(fs::path{remoteFetchPath} /  getRemoteFetchHashPrefix(fileName, remoteFetchHashPrefix) / getFileName(fileName)),
+        fs::path(fs::path{remoteFetchPathTmp} /  getRemoteFetchHashPrefix(fileName, remoteFetchHashPrefix) / getFileName(fileName)),
     };
     for(const auto &p : searchLocations)
     {
-        if(fs::exists(p.first))
+        if(fs::exists(p))
         {
-            path = p.first.string();
-            filePlace = p.second;
-            break;
+            return p.string();
         }
     }
-    assert(ms->syncBool(filePlace != MISS) == (filePlace != MISS) && "findOrGetFileSyncError");
+    return "";
+};
 
-    if (filePlace == MISS)
+std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int where)
+{
+
+    auto localPath = findFile(filePath);
+    coVRMSController *ms = coVRMSController::instance();
+
+    assert(ms->syncBool(localPath.empty()) == (localPath.empty()) && "findOrGetFileSyncError");
+
+    if (localPath.empty())
     {
         if(filePath.rfind("http", 0) != std::string::npos|| filePath.rfind("https", 0)!= std::string::npos)
         {
-            path = httpFetch(filePath);
-            filePlace = FETCHED;
+            return httpFetch(filePath);
         }
         else if (remoteFetchEnabled && cover->isVRBconnected())  
         {
             int fileOwner = where == 0 ? guessFileOwner(filePath) : where;
-            path = remoteFetch(filePath, fileOwner);
+            auto path = remoteFetch(filePath, fileOwner);
             if (fileExist(path))
             {
                 fetchObjMaterials(path, filePath, fileOwner);
-                filePlace = REMOTE;
             }
+            return path;
         }
     }
-	if (filePlace == MISS)
-	{
-		path = "";
-	}
-
-	return path;
+	return localPath;
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
