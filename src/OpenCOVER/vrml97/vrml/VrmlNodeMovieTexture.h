@@ -34,37 +34,38 @@ class VRMLEXPORT VrmlNodeMovieTexture : public VrmlNodeTexture
 public:
     // Define the fields of MovieTexture nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    virtual VrmlNodeType *nodeType() const override;
 
     VrmlNodeMovieTexture(VrmlScene *);
     virtual ~VrmlNodeMovieTexture();
 
-    virtual VrmlNode *cloneMe() const;
+    virtual VrmlNode *cloneMe() const override;
 
-    virtual VrmlNodeMovieTexture *toMovieTexture() const;
+    virtual VrmlNodeMovieTexture *toMovieTexture() const override;
 
-    virtual void addToScene(VrmlScene *s, const char *relUrl);
+    virtual void addToScene(VrmlScene *s, const char *relUrl) override;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
     void update(VrmlSFTime &now);
 
-    virtual void render(Viewer *);
+    virtual void render(Viewer *) override;
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
-                         const VrmlField *fieldValue);
+                         const VrmlField *fieldValue) override;
 
-    virtual const VrmlField *getField(const char *fieldName) const;
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
+    virtual const VrmlField *getField(const char *fieldName) const override;
+    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
 
-    virtual int nComponents();
-    virtual int width();
-    virtual int height();
-    virtual int nFrames();
+    virtual int nComponents() override;
+    virtual int width() override;
+    virtual int height() override;
+    virtual int nFrames() override;
     virtual void stopped();
-    virtual unsigned char *pixels();
+    virtual unsigned char *pixels() override;
 
+    bool isOnlyGeometry() const override;
 private:
     VrmlSFBool d_loop;
     VrmlSFFloat d_speed;

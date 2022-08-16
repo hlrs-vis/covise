@@ -740,3 +740,52 @@ const VrmlField *VrmlNodeAppearance::getField(const char *fieldName) const
 
     return VrmlNodeChild::getField(fieldName);
 }
+
+bool VrmlNodeAppearance::isOnlyGeometry() const
+{
+    if (!VrmlNodeChild::isOnlyGeometry())
+        return false;
+
+    if (d_texture.get() && !d_texture.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture2.get() && !d_texture2.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture3.get() && !d_texture3.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture4.get() && !d_texture4.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture5.get() && !d_texture5.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture6.get() && !d_texture6.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture7.get() && !d_texture7.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture8.get() && !d_texture8.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture9.get() && !d_texture9.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+    if (d_texture10.get() && !d_texture10.get()->isOnlyGeometry())
+    {
+        return false;
+    }
+
+    return true;
+}

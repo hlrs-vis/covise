@@ -145,6 +145,8 @@ public:
         return (VrmlNode *)d_textureTransform10.get();
     }
 
+    bool isOnlyGeometry() const override;
+
 protected:
     VrmlSFNode d_material;
     VrmlSFNode d_texture;

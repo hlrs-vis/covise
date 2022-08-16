@@ -479,3 +479,13 @@ void VrmlNodeMovieTexture::setField(const char *fieldName,
     else
         VrmlNode::setField(fieldName, fieldValue);
 }
+
+bool VrmlNodeMovieTexture::isOnlyGeometry() const
+{
+    if (!VrmlNodeTexture::isOnlyGeometry())
+    {
+        return false;
+    }
+
+    return false;
+}
