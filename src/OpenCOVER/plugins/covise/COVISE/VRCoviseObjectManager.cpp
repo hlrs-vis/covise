@@ -1810,10 +1810,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 if (modelPath)
                 {
                     std::string tmpName = std::string(modelPath) + "/" + modelName;
-                    modelNode = coVRFileManager::instance()->loadFile(tmpName.c_str(), NULL, NULL, geometry->getName());
-                    coviseSG->attachNode(object, modelNode, tmpName.c_str());
+                    if(!coVRFileManager::instance()->findFile(tmpName).empty())
+                    {
+                        modelNode = coVRFileManager::instance()->loadFile(tmpName.c_str(), NULL, NULL, geometry->getName());
+                        coviseSG->attachNode(object, modelNode, tmpName.c_str());
+                    }
                 }
-                else
+                else if(!coVRFileManager::instance()->findFile(modelName).empty())
                 {
                     modelNode = coVRFileManager::instance()->loadFile(modelName, NULL, NULL, geometry->getName());
                     coviseSG->attachNode(object, modelNode, modelName);
