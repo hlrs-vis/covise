@@ -24,78 +24,80 @@ if(COVISE_USE_CUDA)
 endif()
 
 SET(PLUGINUTIL_HEADERS
-  coColorBar.h
-  ColorBar.h
-  FeedbackManager.h
-  ModuleFeedbackManager.h
-  ModuleFeedbackPlugin.h
   BoxSelection.h
   BoxSelectionInteractor.h
-  PluginMessageTypes.h
-  coArrow.h
-  coPlane.h
-  coLine.h
-  coVR1DTransInteractor.h
-  coVR2DTransInteractor.h
-  coVR3DRotInteractor.h
-  coVR3DTransInteractor.h
-  coVR3DTransRotInteractor.h
-  coVR3DRotCenterInteractor.h
-  coVR3DTransGizmo.h
-  coVR3DRotGizmo.h
-  coVR3DScaleGizmo.h
-  coVR3DGizmoType.h
-  coVR3DGizmo.h
-  FileReference.h
-  SimReference.h
-  coInstanceRenderer.h
-  coSphere.h
-  ProgramCache.h
-  coLOD.h
-  coSensor.h
-  GenericGuiObject.h
-  MultiChannelDrawer.h
-  StaticSequence.h
+  ColorBar.h
   CudaGraphicsResource.h
   CudaTextureRectangle.h
+  FeedbackManager.h
+  FileReference.h
+  GenericGuiObject.h
+  ModuleFeedbackManager.h
+  ModuleFeedbackPlugin.h
+  MultiChannelDrawer.h
+  PluginMessageTypes.h
+  ProgramCache.h
+  SimReference.h
+  StaticSequence.h
   Tipsify.h
+  coArrow.h
+  coColorBar.h
+  coColorMap.h
+  coInstanceRenderer.h
+  coLOD.h
+  coLine.h
+  coPlane.h
+  coSensor.h
+  coSphere.h
+  coVR1DTransInteractor.h
+  coVR2DTransInteractor.h
+  coVR3DGizmo.h
+  coVR3DGizmoType.h
+  coVR3DRotCenterInteractor.h
+  coVR3DRotGizmo.h
+  coVR3DRotInteractor.h
+  coVR3DScaleGizmo.h
+  coVR3DTransGizmo.h
+  coVR3DTransInteractor.h
+  coVR3DTransRotInteractor.h
 )
 
 SET(SOURCES
-  coColorBar.cpp
-  ColorBar.cpp
-  FeedbackManager.cpp
-  ModuleFeedbackManager.cpp
-  ModuleInteraction.cpp
-  ModuleFeedbackPlugin.cpp
   BoxSelection.cpp
   BoxSelectionInteractor.cpp
-  coArrow.cpp
-  coPlane.cpp
-  coLine.cpp
-  coVR1DTransInteractor.cpp
-  coVR2DTransInteractor.cpp
-  coVR3DRotInteractor.cpp
-  coVR3DTransInteractor.cpp
-  coVR3DTransRotInteractor.cpp
-  coVR3DRotCenterInteractor.cpp
-  coVR3DTransGizmo.cpp
-  coVR3DRotGizmo.cpp
-  coVR3DScaleGizmo.cpp
-  coVR3DGizmoType.cpp
-  coVR3DGizmo.cpp
-  FileReference.cpp
-  SimReference.cpp
-  coInstanceRenderer.cpp
-  coSphere.cpp
-  ProgramCache.cpp
-  coLOD.cpp
-  coSensor.cpp
-  GenericGuiObject.cpp
-  MultiChannelDrawer.cpp
-  StaticSequence.cpp
+  ColorBar.cpp
   CudaGraphicsResource.cpp
   CudaTextureRectangle.cpp
+  FeedbackManager.cpp
+  FileReference.cpp
+  GenericGuiObject.cpp
+  ModuleFeedbackManager.cpp
+  ModuleFeedbackPlugin.cpp
+  ModuleInteraction.cpp
+  MultiChannelDrawer.cpp
+  ProgramCache.cpp
+  SimReference.cpp
+  StaticSequence.cpp
+  coArrow.cpp
+  coColorBar.cpp
+  coColorMap.cpp
+  coInstanceRenderer.cpp
+  coLOD.cpp
+  coLine.cpp
+  coPlane.cpp
+  coSensor.cpp
+  coSphere.cpp
+  coVR1DTransInteractor.cpp
+  coVR2DTransInteractor.cpp
+  coVR3DGizmo.cpp
+  coVR3DGizmoType.cpp
+  coVR3DRotCenterInteractor.cpp
+  coVR3DRotGizmo.cpp
+  coVR3DRotInteractor.cpp
+  coVR3DScaleGizmo.cpp
+  coVR3DTransGizmo.cpp
+  coVR3DTransInteractor.cpp
+  coVR3DTransRotInteractor.cpp
 )
 
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )
