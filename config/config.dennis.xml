@@ -151,6 +151,22 @@
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
    <Measure menu="true" />
+   <!-- <Oct menu="true" shared="true">
+    <x value="CurrPosX_PCS / 10" />
+    <y value="CurrPosY_PCS / 10" />
+    <z value="CurrPosZ_PCS / 10 + octsignal" />
+    <color value="Error" />
+    <timeScaleIndicator value="Name" />
+    <delimiter value=";" />
+   </Oct> -->
+  <Oct menu="true" shared="true">
+    <x value="CurrPosX_PCS" />
+    <y value="CurrPosY_PCS" />
+    <z value="CurrPosZ_PCS" />
+    <color value="Leistung" />
+    <timeScaleIndicator value="Name" />
+    <delimiter value="," />
+   </Oct>
    <PointCloud shared="true">
    <PointSize value="4" />
    </PointCloud>

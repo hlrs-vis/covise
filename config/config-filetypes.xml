@@ -16,6 +16,7 @@
         <FileType name="ifc" plugin="IFC" />
         <FileType name="stp" plugin="IFC" />
         <FileType name="step" plugin="IFC" />
+        <FileType name="oct" plugin="Oct" />
         
         <FileType name="bpadxf" plugin="BPA" />
         <FileType name="nfi" plugin="BPA" />
