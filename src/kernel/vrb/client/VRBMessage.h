@@ -27,10 +27,7 @@ enum vrbMessageType
     LOCK = 0,
     UNLOCK,
     AVATAR,
-    TIMESTEP,
-    TIMESTEP_ANIMATE,
-    TIMESTEP_SYNCRONIZE,
-    SYNC_MODE,
+    SYNC_MODE = AVATAR + 4,
     MASTER,
     SLAVE,
     MOVE_HAND,
@@ -39,8 +36,6 @@ enum vrbMessageType
     SYNC_KEYBOARD,
     ADD_SELECTION,
     CLEAR_SELECTION
-
-
 
 
 };

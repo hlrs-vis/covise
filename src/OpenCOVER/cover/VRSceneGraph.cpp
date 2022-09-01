@@ -35,7 +35,6 @@
 
 #include "OpenCOVER.h"
 #include "coVRFileManager.h"
-#include "coVRAnimationManager.h"
 #include "coVRNavigationManager.h"
 #include "coVRCollaboration.h"
 #include "coVRLighting.h"

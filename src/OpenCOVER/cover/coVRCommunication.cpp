@@ -34,7 +34,6 @@
 #include "VRViewer.h"
 #include "coHud.h"
 #include "coTUIFileBrowser/VRBData.h"
-#include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"
 #include "coVRCommunication.h"
 #include "coVRConfig.h"
@@ -313,28 +312,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     {
         coVRPartnerList::instance()->receiveAvatarMessage(tb);
     }
-        break;
-    case vrb::TIMESTEP:
-    {
-        int ts;
-        tb >> ts;
-        coVRAnimationManager::instance()->setRemoteAnimationFrame(ts);
-    }
-        break;
-    case vrb::TIMESTEP_ANIMATE:
-    {
-        bool anumRunning;
-        tb >> anumRunning;
-        coVRAnimationManager::instance()->setRemoteAnimate(anumRunning);
-    }
-        break;
-    case vrb::TIMESTEP_SYNCRONIZE:
-    {
-        int ts;
-        tb >> ts;
-        coVRAnimationManager::instance()->setRemoteSynchronize(ts == 1);
-    }
-        break;
+    break;
     case vrb::SYNC_MODE:
     {
         bool showAvatar;
