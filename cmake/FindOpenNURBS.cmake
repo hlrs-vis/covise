@@ -1,7 +1,7 @@
-find_path(OpenNURBS_INCLUDE_DIR opennurbs.h)
+find_path(OpenNURBS_INCLUDE_DIR opennurbs.h PATHS $ENV{EXTERNLIBS}/OpenNURBS PATH_SUFFIXES include)
 
-find_library(OpenNURBS_LIBRARY NAMES opennurbs_public.lib) 
-find_library(OpenNURBS_LIBRARY_DEBUG NAMES opennurbs_publicd.lib) 
+find_library(OpenNURBS_LIBRARY NAMES opennurbs_public.lib opennurbs_public PATHS $ENV{EXTERNLIBS}/OpenNURBS  PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64) 
+find_library(OpenNURBS_LIBRARY_DEBUG NAMES opennurbs_publicd.lib opennurbs_public) 
 
 if(MSVC)
     # VisualStudio needs a debug version

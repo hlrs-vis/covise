@@ -1,5 +1,5 @@
 MACRO(USE_OPENNURBS)
-  covise_find_package(OPENNURBS)
+  covise_find_package(OpenNURBS)
   IF ((NOT OPENNURBS_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing openNURBS")
     RETURN()
