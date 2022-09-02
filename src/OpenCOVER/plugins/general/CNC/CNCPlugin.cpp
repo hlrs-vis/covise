@@ -23,10 +23,10 @@
 #include "CNCPlugin.h"
 #define USE_MATH_DEFINES
 #include <math.h>
-#include <config/coConfig.h>
 #include <config/CoviseConfig.h>
-#include <cover/coVRPluginSupport.h>
+#include <config/coConfig.h>
 #include <cover/RenderObject.h>
+#include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRFileManager.h>
 #include <osg/Geode>
@@ -645,11 +645,7 @@ int CNCPlugin::unloadGCode(const char *filename, const char *)
 
 void CNCPlugin::deleteColorMap(const std::string &name)
 {
-    auto it = mapValues.find(name);
-    if (it != mapValues.end())
-        delete[] it->second;
-    mapSize.erase(name);
-    mapValues.erase(name);
+    colorMaps.erase(name);
 }
 
 bool CNCPlugin::init()
@@ -666,77 +662,8 @@ bool CNCPlugin::init()
 
     coConfig *config = coConfig::getInstance();
 
-    // read the name of all colormaps in file
-    covise::coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries("Colormaps");
-#ifdef NO_COLORMAP_PARAM
-    mapNames.push_back("COVISE");
-#else
-    mapNames.push_back("Editable");
-#endif
-    for (const auto &key: keys)
-        mapNames.push_back(key.first);
-
     // read the values for each colormap
-    for (int k = 1; k < mapNames.size(); k++)
-    {
-        // get all definition points for the colormap
-        string name = "Colormaps." + mapNames[k];
-        coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries(name);
-
-        int no = keys.size();
-        mapSize.emplace(mapNames[k], no);
-        float *cval = new float[no * 5];
-        mapValues.emplace(mapNames[k], cval);
-
-        // read all sampling points
-        float diff = 1.0f / (no - 1);
-        float pos = 0.0f;
-        float *cur = cval;
-        for (int j = 0; j < no; j++)
-        {
-            ostringstream out;
-            out << j;
-            string tmp = name + ".Point:" + out.str();
-
-            bool rgb = false;
-            string rgba = coCoviseConfig::getEntry("rgba", tmp);
-            if (rgba.empty())
-            {
-                rgb = true;
-                rgba = coCoviseConfig::getEntry("rgb", tmp);
-            }
-            if (!rgba.empty())
-            {
-                float a = 1.;
-                uint32_t c = strtol(rgba.c_str(), NULL, 16);
-                if (!rgb)
-                {
-                    a = (c & 0xff) / 255.0f;
-                    c >>= 8;
-                }
-                float b = (c & 0xff) / 255.0f;
-                c >>= 8;
-                float g = (c & 0xff) / 255.0f;
-                c >>= 8;
-                float r = (c & 0xff) / 255.0f;
-                float x = coCoviseConfig::getFloat("x", tmp, pos);
-                *cur++ = r;
-                *cur++ = g;
-                *cur++ = b;
-                *cur++ = a;
-                *cur++ = x;
-            }
-            else
-            {
-                *cur++ = 1.;
-                *cur++ = 1.;
-                *cur++ = 1.;
-                *cur++ = 1.;
-                *cur++ = pos;
-            }
-            pos = pos + diff;
-        }
-    }
+    colorMaps = readColorMaps();
 
     PathTab = new coTUITab("CNC", coVRTui::instance()->mainFolder->getID());
     record = new coTUIToggleButton("Record", PathTab->getID());
@@ -747,9 +674,9 @@ bool CNCPlugin::init()
 
     mapChoice = new coTUIComboBox("mapChoice", PathTab->getID());
     mapChoice->setEventListener(this);
-    for (auto &n: mapNames)
+    for (auto &n: colorMaps)
     {
-        mapChoice->addEntry(n);
+        mapChoice->addEntry(n.first);
     }
     mapChoice->setSelectedEntry(currentMap);
     mapChoice->setPos(6, 0);
@@ -1016,31 +943,12 @@ void CNCPlugin::tabletReleaseEvent(coTUIElement *tUIItem)
 osg::Vec4 CNCPlugin::getColor(float pos)
 {
 
-    osg::Vec4 actCol;
-    int idx = 0;
-    //cerr << "name: " << (const char *)mapNames[currentMap].toAscii() << endl;
-    float *map = mapValues[mapNames[currentMap]];
-    int mapS = mapSize[mapNames[currentMap]];
-    if (map == NULL)
-    {
-        return actCol;
-    }
-    while (map[(idx + 1) * 5] <= pos)
-    {
-        idx++;
-        if (idx > mapS - 2)
-        {
-            idx = mapS - 2;
-            break;
-        }
-    }
-    double d = (pos - map[idx * 5]) / (map[(idx + 1) * 5] - map[idx * 5]);
-    actCol[0] = (float)((1 - d) * map[idx * 5 + 1] + d * map[(idx + 1) * 5 + 1]);
-    actCol[1] = (float)((1 - d) * map[idx * 5 + 2] + d * map[(idx + 1) * 5 + 2]);
-    actCol[2] = (float)((1 - d) * map[idx * 5 + 3] + d * map[(idx + 1) * 5 + 3]);
-    actCol[3] = (float)((1 - d) * map[idx * 5 + 4] + d * map[(idx + 1) * 5 + 4]);
-
-    return actCol;
+#ifdef NO_COLORMAP_PARAM
+    const auto& colorMap = colorMaps["COVISE"];
+#else
+    const auto& colorMap = colorMaps["Editable"];
+#endif
+    return covise::getColor(pos, colorMap);
 }
 
 COVERPLUGIN(CNCPlugin)

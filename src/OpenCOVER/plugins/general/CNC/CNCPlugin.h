@@ -24,6 +24,8 @@
 #include <cover/coVRFileManager.h>
 
 #include <cover/coTabletUI.h>
+#include <PluginUtil/coColorMap.h>
+
 #include <osg/Geode>
 #include <osg/ref_ptr>
 #include <osg/Geometry>
@@ -72,9 +74,7 @@ public:
     coTUIFileBrowserButton *fileNameBrowser;
     coTUIComboBox *renderMethod;
     coTUIComboBox *mapChoice;
-    std::vector<std::string> mapNames;
-    std::map<std::string, int> mapSize;
-    std::map<std::string, float *> mapValues;
+    ColorMaps colorMaps;
 
     int currentMap;
     osg::ref_ptr<osg::StateSet> geoState;
