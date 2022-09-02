@@ -225,7 +225,11 @@ osg::Node* RhinoPlugin::BuildBrep(const ON_Brep* theBrep)
         ON_BrepFace* aFace = theBrep->Face(i);
 
         //aGroup->addChild(BuildWireFrameFace(aFace));
-        aGroup->addChild(BuildShadedFace(aFace));
+        osg::Node* n = BuildShadedFace(aFace);
+        if (n != nullptr)
+        {
+            aGroup->addChild(n);
+        }
     }
 
     //theBrep->Dump(ON_TextLog());
@@ -378,7 +382,10 @@ osg::Node* RhinoPlugin::BuildShadedFace(const ON_BrepFace* theFace)
             }
         }
     }
-
+    if (aUVPoints->getNumElements() < 3)
+    {
+        return nullptr; // not enough points to create a triangle
+    }
     dc->setVertexArray(aBounds);
     dc->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINE_LOOP, 0, aBounds->size()));
 
