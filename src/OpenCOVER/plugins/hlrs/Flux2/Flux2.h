@@ -60,21 +60,18 @@ public:
     bool doStop;
 
 private:
-    int counter;  // counter for complete stop
-    const int COUNTER_THRESHOLD = 15; // Threshold for counter till complete stop
-    const int BRAKE_THRESHOLD = 500; // Threshold for braking completely
-    const int BRAKE_SCALE_FACTOR = 300;
     float stepSizeUp;
     float stepSizeDown;
+    const float BrakeThreshold = 1.0;
+    bool braking = true;
     bool init();
-    float resistance;
     float getYAcceleration();
+    float resistance;
     osg::Matrix getMatrix();
     osg::Matrix TransformMat;
     osg::Matrix Flux2Pos;
     float speed = 0.0;
-    float prevSpeed;
-    Flux2* flux2 = nullptr;
+    float lastSpeed = 0.0;
     virtual void setEnabled(bool);
     void updateThread();
     UDPComm* udp;
@@ -84,8 +81,7 @@ private:
     OpenThreads::Mutex mutex;
     float wheelBase = 0.97;
     void Initialize();
-    void updateResistance();
+    void setResistance(float f);
     void sendResistance();
-    float getSlope();
 };
 #endif /* Flux2Plugin_H */

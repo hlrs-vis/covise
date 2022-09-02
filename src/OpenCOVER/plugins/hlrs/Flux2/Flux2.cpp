@@ -38,14 +38,11 @@ Flux2::Flux2()
 	stepSizeUp = 2000;
 	stepSizeDown = 2000;
 	speed = 0.0;
-	prevSpeed = 9999.0;
-	counter = 0;
 	coVRNavigationManager::instance()->registerNavigationProvider(this);
 }
 
 Flux2::~Flux2()
 {
-	delete flux2;
 	coVRNavigationManager::instance()->unregisterNavigationProvider(this);
 	running = false;
 
@@ -54,7 +51,6 @@ Flux2::~Flux2()
 
 bool Flux2::init()
 {
-	delete flux2;
 	float floorHeight = VRSceneGraph::instance()->floorHeight();
 
 	float x = covise::coCoviseConfig::getFloat("x", "COVER.Plugin.Flux2.Position", 0);
@@ -66,11 +62,6 @@ bool Flux2::init()
 
 	MAKE_EULER_MAT(Flux2Pos, h, p, r);
 	Flux2Pos.postMultTranslate(osg::Vec3(x, y, z));
-	flux2 = nullptr;
-	if (coVRMSController::instance()->isMaster())
-	{
-		flux2 = new Flux2();
-	}
 	const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.Flux2.serverHost", "192.168.178.36");
 	unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.Flux2.serverPort", 31319);
 	unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Flux2.localPort", 31322);
@@ -86,6 +77,7 @@ bool Flux2::init()
 			if (i->pluginName == "Flux2")
 			{
 				host = i->address;
+				std::cerr << "Flux2 config: UDP: fluxHost: " << host << std::endl;
 				udp = new UDPComm(host.c_str(), serverPort, localPort);
 				if (!udp->isBad())
 				{
@@ -116,72 +108,93 @@ bool Flux2::update()
 	{
 		if (coVRMSController::instance()->isMaster())
 		{
-			if (flux2 != nullptr)
-			{
-				flux2->updateThread();
-				double dT = cover->frameDuration();
 
-				TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
+            if (getSpeed() <= speed)
+            {
+                speed = getSpeed();
+                braking = false;
+            }
+            else
+            {
+                // flux speed is faster than our own calculated speed
+                if (getSpeed() > lastSpeed) // we are accellerating, thus stop braking
+                {
+                    braking = false;
+                    speed = getSpeed();
+                }
+                else if (!braking)
+                    speed = getSpeed();
+            }
 
-				float a = getYAcceleration();
-				if (a > 0)
-				{
-					a = 0;
-				}
-				// need to write setForce()
-				//flux2->setForce(-a / 2.0);
-				//fprintf(stderr, "force: %f\n", -a / 2.0);
-				speed = getSpeed() - getBrakeForce()/BRAKE_SCALE_FACTOR;
-				if (speed < 0)
-				{
-					speed = 0;
-				}
+            double dT = cover->frameDuration();
 
-				if (getBrakeForce() > BRAKE_THRESHOLD)
-				{
-					counter++;
-					prevSpeed = getSpeed();
-					fprintf(stderr, "Counter: %d\n", counter);
-				}
-				if (counter > COUNTER_THRESHOLD && (prevSpeed > getSpeed())) // hold brake for long enough that it should stop even if brake is released
-				{
-					speed = 0;
-					fprintf(stderr, "Hold brake\n");
-				}
-				else if (prevSpeed < getSpeed()) // speeding up
-				{
-					counter = 0;
-					prevSpeed = 9999.0;
-					speed = getSpeed() - getBrakeForce() / BRAKE_SCALE_FACTOR; // reach actual speed
-					fprintf(stderr, "Speeding up!\n");
-				}
-				float s = speed * dT;
-				//fprintf(stderr, "Displacement: %lf   Speed: %lf    dt: %lf Y-acceleration: %lf\n", s, speed, dT, a);
+            TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
 
-				osg::Vec3 V(0, s, 0);
-				float rotAngle = 0.0;
-				if ((s < 0.0001 && s > -0.0001)) // straight
-				{
-					//fprintf(stderr,"bikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
-					//fprintf(stderr,"V: %f %f %f\n",V[0], V[1], V[2] );
-				}
-				float wheelAngle = getAngle();
-				float r = tan(M_PI_2 - wheelAngle * 0.2 / (((fabs(speed) * 0.2) + 1))) * wheelBase;
-				float u = 2.0 * r * M_PI;
-				rotAngle = (s / u) * 2.0 * M_PI;
-				V[1] = r * sin(rotAngle);
-				V[0] = (r - r * cos(rotAngle));
+            float a = getYAcceleration();
+            if (a > 0)
+            {
+                a = 0;
+            }
+
+            if (speed > 0)
+            {
+                a += -getBrakeForce();
+                if (a < 0)
+                {
+                    braking = true;
+                }
+            }
+            else
+            {
+                a += getBrakeForce();
+                if (a > 0)
+                {
+                    braking = true;
+                }
+            }
+
+            speed = speed + a * dT;
+
+            setResistance(fabs(a) / 2.0);
+            fprintf(stderr, "resistance: %f\n", -a / 2.0);
+
+            lastSpeed = getSpeed();
+
+            if (fabs(speed) < 0.01)
+            {
+                speed = 0;
+            }
+
+            float s = speed * dT;
+            //fprintf(stderr, "Displacement: %lf   Speed: %lf    dt: %lf Y-acceleration: %lf\n", s, speed, dT, a);
+
+            osg::Vec3 V(0, s, 0);
+            float rotAngle = 0.0;
+            float wheelAngle = getAngle();
+
+            if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001)
+            {
+                rotAngle = 0;
+            }
+            else
+            {
+                float r = tan(M_PI_2 - wheelAngle * 0.2 / (((fabs(speed) * 0.2) + 1))) * wheelBase;
+                float u = 2.0 * r * M_PI;
+                rotAngle = (s / u) * 2.0 * M_PI;
+                V[1] = r * sin(rotAngle);
+                V[0] = (r - r * cos(rotAngle));
+            }
 
 
-				osg::Matrix relTrans;
-				osg::Matrix relRot;
-				relRot.makeRotate(-rotAngle, 0, 0, 1);
-				relTrans.makeTranslate(V * -1000); // m to mm (move world in the opposite direction
+            osg::Matrix relTrans;
+            osg::Matrix relRot;
+            relRot.makeRotate(-rotAngle, 0, 0, 1);
+            relTrans.makeTranslate(V * -1000); // m to mm (move world in the opposite direction
 
-				auto mat = getMatrix();
+            auto mat = getMatrix();
 
-				TransformMat = mat * relTrans * relRot;
-			}
+            TransformMat = mat * relTrans * relRot;
+
 
 			coVRMSController::instance()->sendSlaves((char*)TransformMat.ptr(), sizeof(TransformMat));
 		}
@@ -237,7 +250,6 @@ void Flux2::run()
 	{
 		while (running && !doStop)
 		{
-			usleep(5000);
 			this->updateThread();
 		}
 	}
@@ -247,32 +259,41 @@ void Flux2::updateThread()
 {
 	if (udp)
 	{
-		char tmpBuf[10000];
-		int status = udp->receive(&tmpBuf, 10000);
+        char tmpBuf[10000];
+        int status;
+        status = udp->receive(&tmpBuf, 10000);
 
-		if (status > 0 && status >= sizeof(FluxData))
-		{
-			OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-			memcpy(&fluxData, tmpBuf, sizeof(FluxData));
-			fprintf(stderr, "Brake: %lf Steering Angle: %lf Speed: %lf\n", fluxData.brake, fluxData.steeringAngle, fluxData.speed);
-			updateResistance();
-			sendResistance();
-		}
-		else if (status == -1)
-		{
-			if (isEnabled()) // otherwise we are not supposed to receive anything
+        if (status == -1)
+        {
+            if (isEnabled()) // otherwise we are not supposed to receive anything
+            {
+                std::cerr << "Flux2::update: error while reading data" << std::endl;
+                if (udp) // try to wake up the flux (if the first start UDP message was lost)
+                    udp->send("start");
+            }
+            return;
+        }
+        else if (status >= sizeof(FluxData))
+        {
+			if(!isEnabled())
 			{
-				std::cerr << "Flux2::update: error while reading data" << std::endl;
-				if (udp) // try to wake up the flux (if the first start UDP message was lost)
-					udp->send("start");
+				if (udp) // still receiving data, send stop 
+					udp->send("stop");
 			}
-			return;
-		}
-		else
-		{
-			std::cerr << "Flux2::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
-			return;
-		}
+            OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+            memcpy(&fluxData, tmpBuf, sizeof(FluxData));
+            //fprintf(stderr,	"Brake: %lf Steering Angle: %lf Speed: %lf\n", fluxData.brake, fluxData.steeringAngle, fluxData.speed);
+            sendResistance();
+        }
+        else
+        {
+            std::cerr << "Flux2::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+            return;
+        }
+    }
+	else
+	{
+		usleep(5000);
 	}
 }
 
@@ -305,9 +326,9 @@ float Flux2::getBrakeForce()
 	return fluxData.brake;
 }
 
-void Flux2::updateResistance()
+void Flux2::setResistance(float f)
 {
-	resistance = getBrakeForce();
+	resistance = f;
 }
 
 void Flux2::sendResistance()
