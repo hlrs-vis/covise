@@ -225,7 +225,7 @@ ColorBar::~ColorBar()
 
 bool ColorBar::hudVisible() const
 {
-    return hudbar_->isVisible();
+    return hudbar_ && hudbar_->isVisible();
 }
 
 void ColorBar::setHudPosition(osg::Vec3 pos, osg::Vec3 hpr, float size)
