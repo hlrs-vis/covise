@@ -1,7 +1,7 @@
 #ifndef COVISE_OCT_DATA_TABLE_H
 #define COVISE_OCT_DATA_TABLE_H
 
-#include <exprtk.hpp>
+#include "exprtk.hpp"
 #include <map>
 #include <string>
 #include <vector>

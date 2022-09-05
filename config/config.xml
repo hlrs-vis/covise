@@ -256,6 +256,14 @@
     <StereoVideoPlayer>
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
+  <Oct menu="false" shared="true">
+    <x value="CurrPosX_PCS" />
+    <y value="CurrPosY_PCS" />
+    <z value="CurrPosZ_PCS" />
+    <color value="Leistung" />
+    <timeScaleIndicator value="Name" />
+    <delimiter value="," />
+   </Oct>
 
    <!--Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" /-->
 

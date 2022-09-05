@@ -30,9 +30,9 @@
 #include <osg/PointSprite>
 #include <osg/TemplatePrimitiveFunctor>
 #include <osg/TemplatePrimitiveIndexFunctor>
+#include <osg/io_utils>
 #include <osg/TexEnv>
 #include <osg/TexGen>
-#include <osg/io_utils>
 
 using namespace osg;
 using namespace covise;
@@ -154,7 +154,7 @@ int OctPlugin::unload(const char *filename, const char *covise_key)
 
 void setStateSet(osg::Geometry *geo, float pointSize)
 {
-    auto stateset = new osg::StateSet();
+  /*  auto stateset = new osg::StateSet();
     stateset->setMode(GL_LIGHTING, StateAttribute::OFF);
     stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
     stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
@@ -166,6 +166,26 @@ void setStateSet(osg::Geometry *geo, float pointSize)
     pointstate->setSize(pointSize);
     stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
     osg::PointSprite *sprite = new osg::PointSprite();
+    stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
+    geo->setStateSet(stateset);
+    */
+
+
+    // after test move stateset higher up in the tree
+    auto* stateset = new StateSet();
+    //stateset->setMode(GL_PROGRAM_POINT_SIZE_EXT, StateAttribute::ON);
+    stateset->setMode(GL_LIGHTING, StateAttribute::OFF);
+    stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
+    stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
+    stateset->setMode(GL_BLEND, StateAttribute::OFF);
+    AlphaFunc* alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
+    stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
+
+    osg::Point* pointstate = new osg::Point();
+    pointstate->setSize(pointSize);
+    stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
+
+    osg::PointSprite* sprite = new osg::PointSprite();
     stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
 
     const char* mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
@@ -187,7 +207,6 @@ void setStateSet(osg::Geometry *geo, float pointSize)
         stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
 
     }
-
     geo->setStateSet(stateset);
 }
 
@@ -211,27 +230,9 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
     geo->setUseDisplayList(false);
     geo->setSupportsDisplayList(false);
     geo->setUseVertexBufferObjects(true);
-
     auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-
     auto colors = new Vec4Array();
     auto points = new Vec3Array();
-
-    vertexBufferArray->setArray(0, points);
-    vertexBufferArray->setArray(1, colors);
-
-    points->setBinding(osg::Array::BIND_PER_VERTEX);
-    colors->setBinding(osg::Array::BIND_PER_VERTEX);
-
-    geo->setVertexArray(points);
-    geo->setColorArray(colors);
-
-    osg::Vec3Array* normals = new osg::Vec3Array;
-    normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
-    geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
-    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,symbols.size()));
-
-    setStateSet(geo, pointSize());
 
 
     //calculate coords and color
@@ -268,10 +269,27 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
         bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
         offset = osg::Vec3(s0.vsize/2.5, 0 , 0) * mat * hudScale;
     }
+    m_colorBar.setName("Power");
     m_colorBar.show(true);
     m_colorBar.update(m_colorTerm.value(), minScalar, maxScalar, colorMap.a.size(), colorMap.r.data(), colorMap.g.data(), colorMap.b.data(), colorMap.a.data());
     m_colorBar.setHudPosition(bottomLeft, hpr, offset[0]/480);
     m_colorBar.show(true);
+
+
+    vertexBufferArray->setArray(0, points);
+    vertexBufferArray->setArray(1, colors);
+    points->setBinding(osg::Array::BIND_PER_VERTEX);
+    colors->setBinding(osg::Array::BIND_PER_VERTEX);
+    // bind color per vertex
+    geo->setVertexArray(points);
+    geo->setColorArray(colors);
+    osg::Vec3Array* normals = new osg::Vec3Array;
+    normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
+    geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
+    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, symbols.size()));
+
+    setStateSet(geo, pointSize());
+
     return geo;
 }
 
