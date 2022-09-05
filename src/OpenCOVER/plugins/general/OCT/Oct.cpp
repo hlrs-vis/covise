@@ -30,6 +30,8 @@
 #include <osg/PointSprite>
 #include <osg/TemplatePrimitiveFunctor>
 #include <osg/TemplatePrimitiveIndexFunctor>
+#include <osg/TexEnv>
+#include <osg/TexGen>
 #include <osg/io_utils>
 
 using namespace osg;
@@ -165,6 +167,27 @@ void setStateSet(osg::Geometry *geo, float pointSize)
     stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
     osg::PointSprite *sprite = new osg::PointSprite();
     stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
+
+    const char* mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
+    if (mapName != NULL)
+    {
+        osg::Image* image = osgDB::readImageFile(mapName);
+        osg::Texture2D* tex = new osg::Texture2D(image);
+
+        tex->setTextureSize(image->s(), image->t());
+        tex->setInternalFormat(GL_RGBA);
+        tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+        tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+        stateset->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
+        osg::TexEnv* texEnv = new osg::TexEnv;
+        texEnv->setMode(osg::TexEnv::MODULATE);
+        stateset->setTextureAttributeAndModes(0, texEnv, osg::StateAttribute::ON);
+
+        osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
+        stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+
+    }
+
     geo->setStateSet(stateset);
 }
 
@@ -188,16 +211,21 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
     geo->setUseDisplayList(false);
     geo->setSupportsDisplayList(false);
     geo->setUseVertexBufferObjects(true);
+
     auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+
     auto colors = new Vec4Array();
     auto points = new Vec3Array();
+
     vertexBufferArray->setArray(0, points);
     vertexBufferArray->setArray(1, colors);
+
     points->setBinding(osg::Array::BIND_PER_VERTEX);
     colors->setBinding(osg::Array::BIND_PER_VERTEX);
-    // bind color per vertex
+
     geo->setVertexArray(points);
     geo->setColorArray(colors);
+
     osg::Vec3Array* normals = new osg::Vec3Array;
     normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
     geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
