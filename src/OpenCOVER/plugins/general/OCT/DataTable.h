@@ -10,7 +10,7 @@ class DataTable
 {
 public:
     typedef exprtk::symbol_table<float> symbol_table_t;
-    DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter);
+    DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
     size_t size() const;
     void advance();
     void reset();
@@ -64,7 +64,7 @@ private:
     //read csv style file filename
     //timeScaleIndicator indicates the timestep in which the following data fields are recorded, overwritetn with the next occurence of such an indicator
     // Vector contains a data field and its iterator is made so that it uses the previous entry if this data field ha a wider timescale
-    std::map<std::string, Vector> readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter);
+    std::map<std::string, Vector> readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
 };
 
 #endif

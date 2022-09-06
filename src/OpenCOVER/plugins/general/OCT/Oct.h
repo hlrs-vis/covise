@@ -47,13 +47,19 @@ public:
 private:
   typedef exprtk::expression<float> expression_t;
   typedef exprtk::parser<float> parser_t;
+  struct Expression
+  {
+    expression_t &operator()() { return expression; }
+    expression_t expression;
+    parser_t parser;
+  };
 
   static OctPlugin *m_plugin;
   osg::Geometry *m_pointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
   ui::Menu m_octMenu, m_colorMenu;
   std::array<ui::EditField, 3> m_coordTerms;
-  ui::EditField m_colorTerm, m_timeScaleIndicator, m_delimiter;
+  ui::EditField m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset;
   ui::SelectionList m_colorMapSelector;
   ui::Slider m_pointSizeSlider;
   ui::Slider m_animationSpeedMulti;
@@ -64,6 +70,7 @@ private:
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols);
   int unloadFile();
+  bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
 };
 
 #endif // COVER_PLUGIN_OCT_H

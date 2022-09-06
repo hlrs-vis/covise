@@ -3,10 +3,9 @@
 #include <cassert>
 size_t sizeTmp = 0;
 
-std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter)
+std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset)
 {
     sizeTmp = 0;
-    constexpr size_t headerOffset = 6;
     std::map<std::string, Vector> points;
     std::fstream f(filename);
     std::string stringValue;
@@ -87,8 +86,8 @@ std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &
     return points;
 }
 
-DataTable::DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter)
-: m_data(readFile(filename, timeScaleIndicator, delimiter))
+DataTable::DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset)
+: m_data(readFile(filename, timeScaleIndicator, delimiter, headerOffset))
 , m_size(sizeTmp)
 , m_currentPos(m_data.size())
 , m_currentValues(m_data.size())

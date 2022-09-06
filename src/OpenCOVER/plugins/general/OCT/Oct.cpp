@@ -6,14 +6,6 @@
  * License: LGPL 2+ */
 
 // **************************************************************************
-//
-// Description: Rendering binary point data
-//
-// Author: Philip Weber
-//
-// Creation Date: 2007-03-07
-//
-// **************************************************************************
 
 #include "Oct.h"
 #include <config/CoviseConfig.h>
@@ -40,7 +32,7 @@ using namespace opencover;
 
 constexpr int MAX_POINTS = 30000000;
 
-static FileHandler handler = {nullptr, OctPlugin::load, OctPlugin::unload, "oct"};
+static FileHandler handler = {nullptr, OctPlugin::load, OctPlugin::unload, "csv"};
 OctPlugin *OctPlugin::m_plugin = nullptr;
 
 COVERPLUGIN(OctPlugin)
@@ -49,25 +41,26 @@ COVERPLUGIN(OctPlugin)
 OctPlugin::OctPlugin()
     : ui::Owner("OCT", cover->ui)
     , m_octMenu("Oct", this)
-    , m_colorMenu(&m_octMenu, "colors2")
-    , m_coordTerms{{{&m_octMenu, "x"}, {&m_octMenu, "y"}, {&m_octMenu, "z"}}}
-    , m_colorTerm(&m_octMenu, "color")
-    , m_animationSpeedMulti(&m_octMenu, "animation speed multiplier")
-    , m_pointSizeSlider(&m_octMenu, "point size")
-    , m_colorMapSelector(&m_octMenu, "color map")
-    , m_reloadBtn(&m_octMenu, "reload")
-    , m_timeScaleIndicator(&m_octMenu, "time scale indicator")
-    , m_delimiter(&m_octMenu, "delimiter in the oct file")
-    , m_colorsGroup(&m_octMenu, "colors")
+    , m_colorMenu(&m_octMenu, "ColorMenu")
+    , m_coordTerms{{{&m_octMenu, "X"}, {&m_octMenu, "Y"}, {&m_octMenu, "Z"}}}
+    , m_colorTerm(&m_octMenu, "Color")
+    , m_animationSpeedMulti(&m_octMenu, "AnimationSpeedMultiplier")
+    , m_pointSizeSlider(&m_octMenu, "PointSize")
+    , m_colorMapSelector(&m_octMenu, "ColorMap")
+    , m_reloadBtn(&m_octMenu, "Reload")
+    , m_timeScaleIndicator(&m_octMenu, "TimeScaleIndicator")
+    , m_delimiter(&m_octMenu, "Delimiter")
+    , m_offset(&m_octMenu, "CeaderOffset")
+    , m_colorsGroup(&m_octMenu, "Colors")
     , m_colorBar(&m_colorMenu)
 {
-
-    m_coordTerms[0].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.x"));
-    m_coordTerms[1].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.y"));
-    m_coordTerms[2].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.z"));
-    m_colorTerm.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.color"));
-    m_timeScaleIndicator.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.timeScaleIndicator"));
-    m_delimiter.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.delimiter"));
+    m_coordTerms[0].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.X"));
+    m_coordTerms[1].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Y"));
+    m_coordTerms[2].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Z"));
+    m_colorTerm.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Color"));
+    m_timeScaleIndicator.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.TimeScaleIndicator"));
+    m_delimiter.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Delimiter"));
+    m_offset.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.HeaderOffset"));
     if(m_delimiter.value().empty())
         m_delimiter.setValue(";");
     m_animationSpeedMulti.setShared(true);
@@ -76,7 +69,7 @@ OctPlugin::OctPlugin()
     m_animationSpeedMulti.setCallback([this](ui::Slider::ValueType value, bool released) {
         if(released && m_pointCloud)
         {
-            coVRAnimationManager::instance()->setNumTimesteps(m_pointCloud->getOrCreateVertexBufferObject()->getArray(0)->getNumElements() / value + 1, this);
+            coVRAnimationManager::instance()->setNumTimesteps(m_pointCloud->getOrCreateVertexBufferObject()->getArray(0)->getNumElements() / value, this);
         }
     });
 
@@ -120,11 +113,6 @@ bool OctPlugin::init()
     m_pointSizeSlider.setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
 
     coVRFileManager::instance()->registerFileHandler(&handler);
-
-    float scale = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.Scale", 1);
-    float x = coCoviseConfig::getFloat("x", "COVER.Plugin.PointCloud.Translation", 0);
-    float y = coCoviseConfig::getFloat("y", "COVER.Plugin.PointCloud.Translation", 0);
-    float z = coCoviseConfig::getFloat("z", "COVER.Plugin.PointCloud.Translation", 0);
     return true;
 }
 
@@ -210,21 +198,27 @@ void setStateSet(osg::Geometry *geo, float pointSize)
     geo->setStateSet(stateset);
 }
 
+bool OctPlugin::compileSymbol(DataTable &symbols, const std::string& symbol, Expression &expr)
+{
+    expr().register_symbol_table(symbols.symbols());
+    if(!expr.parser.compile(symbol, expr()))
+    {
+        std::cerr << "failed to parse symbol " << symbol << std::endl;
+        return false;
+    }
+    return true;
+}
+
 osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
 {
     // compile parser
-    std::array<expression_t, 4> stringExpressions;
-    std::array<parser_t, 4> parser;
+    std::array<Expression, 4> stringExpressions;
 
     for (size_t i = 0; i < stringExpressions.size(); i++)
     {
-        stringExpressions[i].register_symbol_table(symbols.symbols());
-        if(i < 3)
-            parser[i].compile(m_coordTerms[i].value(), stringExpressions[i]);
-        else
-            parser[i].compile(m_colorTerm.value(), stringExpressions[i]);
+        if(!compileSymbol(symbols, i < 3 ? m_coordTerms[i].value() : m_colorTerm.value(), stringExpressions[i]))
+            return nullptr;
     }
-
     //create geometry
     auto geo = new osg::Geometry();
     geo->setUseDisplayList(false);
@@ -243,10 +237,10 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
         osg::Vec3 coords;
         for (size_t j = 0; j < 3; j++)
         {
-            coords[j] = stringExpressions[j].value();
+            coords[j] = stringExpressions[j]().value();
         }
         points->push_back(coords);
-        scalarData[i] = stringExpressions[3].value();
+        scalarData[i] = stringExpressions[3]().value();
         minScalar = std::min(minScalar, scalarData[i]);
         maxScalar = std::max(maxScalar, scalarData[i]);
         symbols.advance();
@@ -296,16 +290,29 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
 void OctPlugin::createGeodes(Group *parent, const std::string &filename)
 {
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
-    DataTable dataTable(filename, m_timeScaleIndicator.value(), m_delimiter.value()[0]);
+    int offset = 0;
+    try
+    {
+        offset = std::stoi(m_offset.value());
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "header offset must be an integer" << std::endl;
+        return;
+    }
+
+    DataTable dataTable(filename, m_timeScaleIndicator.value(), m_delimiter.value()[0], offset);
     m_pointCloud = createOsgPoints(dataTable);
     m_currentGeode = new osg::Geode();
-    m_currentGeode->addDrawable(m_pointCloud);
     m_currentGeode->setName(filename);
+    parent->addChild(m_currentGeode);
+    if(!m_pointCloud)
+        return;
+    m_currentGeode->addDrawable(m_pointCloud);
     if (pointShader != nullptr)
     {
         pointShader->apply(m_currentGeode, m_pointCloud);
     }
-    parent->addChild(m_currentGeode);
     coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
 }
 
@@ -313,7 +320,8 @@ void OctPlugin::setTimestep(int t)
 {
     if(m_pointCloud)
     {
-        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, t * m_animationSpeedMulti.value()));
+        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti.value()));
+        std::cerr << "setPrimitiveSet : " << (t + 1) * m_animationSpeedMulti.value() << std::endl;
     }
 }
 
