@@ -152,21 +152,22 @@
    <ViewPoint value="true" />
    <Measure menu="true" />
    <!-- <Oct menu="true" shared="true">
-    <x value="CurrPosX_PCS / 10" />
-    <y value="CurrPosY_PCS / 10" />
-    <z value="CurrPosZ_PCS / 10 + octsignal" />
-    <color value="Error" />
-    <timeScaleIndicator value="Name" />
-    <delimiter value=";" />
+    <X value="CurrPosX_PCS / 10" />
+    <Y value="CurrPosY_PCS / 10" />
+    <Z value="CurrPosZ_PCS / 10 + octsignal" />
+    <Color value="Error" />
+    <TimeScaleIndicator value="Name" />
+    <Delimiter value=";" />
    </Oct> -->
-  <Oct menu="true" shared="true">
-    <x value="CurrPosX_PCS" />
-    <y value="CurrPosY_PCS" />
-    <z value="CurrPosZ_PCS" />
-    <color value="Leistung" />
-    <timeScaleIndicator value="Name" />
-    <delimiter value="," />
-   </Oct>
+  <CsvPointCloud menu="true" shared="true">
+    <X value="CurrPosX_PCS + cos(Winkel *  0.0174533)" />
+    <Y value="CurrPosY_PCS + sin(Winkel *  0.0174533)" />
+    <Z value="0" />
+    <Color value="Leistung" />
+    <HeaderOffset value="0" />
+    <TimeScaleIndicator value="Name" />
+    <Delimiter value="," />
+   </CsvPointCloud>
    <PointCloud shared="true">
    <PointSize value="4" />
    </PointCloud>

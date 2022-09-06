@@ -7,7 +7,7 @@
 
 // **************************************************************************
 
-#include "Oct.h"
+#include "CsvPointCloud.h"
 #include <config/CoviseConfig.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRFileManager.h>
@@ -32,35 +32,35 @@ using namespace opencover;
 
 constexpr int MAX_POINTS = 30000000;
 
-static FileHandler handler = {nullptr, OctPlugin::load, OctPlugin::unload, "csv"};
-OctPlugin *OctPlugin::m_plugin = nullptr;
+static FileHandler handler = {nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "csv"};
+CsvPointCloudPlugin *CsvPointCloudPlugin::m_plugin = nullptr;
 
-COVERPLUGIN(OctPlugin)
+COVERPLUGIN(CsvPointCloudPlugin)
 
 // Constructor
-OctPlugin::OctPlugin()
-    : ui::Owner("OCT", cover->ui)
-    , m_octMenu("Oct", this)
-    , m_colorMenu(&m_octMenu, "ColorMenu")
-    , m_coordTerms{{{&m_octMenu, "X"}, {&m_octMenu, "Y"}, {&m_octMenu, "Z"}}}
-    , m_colorTerm(&m_octMenu, "Color")
-    , m_animationSpeedMulti(&m_octMenu, "AnimationSpeedMultiplier")
-    , m_pointSizeSlider(&m_octMenu, "PointSize")
-    , m_colorMapSelector(&m_octMenu, "ColorMap")
-    , m_reloadBtn(&m_octMenu, "Reload")
-    , m_timeScaleIndicator(&m_octMenu, "TimeScaleIndicator")
-    , m_delimiter(&m_octMenu, "Delimiter")
-    , m_offset(&m_octMenu, "CeaderOffset")
-    , m_colorsGroup(&m_octMenu, "Colors")
+CsvPointCloudPlugin::CsvPointCloudPlugin()
+    : ui::Owner("CsvPointCloud", cover->ui)
+    , m_CsvPointCloudMenu("CsvPointCloud", this)
+    , m_colorMenu(&m_CsvPointCloudMenu, "ColorMenu")
+    , m_coordTerms{{{&m_CsvPointCloudMenu, "X"}, {&m_CsvPointCloudMenu, "Y"}, {&m_CsvPointCloudMenu, "Z"}}}
+    , m_colorTerm(&m_CsvPointCloudMenu, "Color")
+    , m_animationSpeedMulti(&m_CsvPointCloudMenu, "AnimationSpeedMultiplier")
+    , m_pointSizeSlider(&m_CsvPointCloudMenu, "PointSize")
+    , m_colorMapSelector(&m_CsvPointCloudMenu, "ColorMap")
+    , m_reloadBtn(&m_CsvPointCloudMenu, "Reload")
+    , m_timeScaleIndicator(&m_CsvPointCloudMenu, "TimeScaleIndicator")
+    , m_delimiter(&m_CsvPointCloudMenu, "Delimiter")
+    , m_offset(&m_CsvPointCloudMenu, "CeaderOffset")
+    , m_colorsGroup(&m_CsvPointCloudMenu, "Colors")
     , m_colorBar(&m_colorMenu)
 {
-    m_coordTerms[0].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.X"));
-    m_coordTerms[1].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Y"));
-    m_coordTerms[2].setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Z"));
-    m_colorTerm.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Color"));
-    m_timeScaleIndicator.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.TimeScaleIndicator"));
-    m_delimiter.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.Delimiter"));
-    m_offset.setValue(coCoviseConfig::getEntry("COVER.Plugin.Oct.HeaderOffset"));
+    m_coordTerms[0].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.X"));
+    m_coordTerms[1].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Y"));
+    m_coordTerms[2].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Z"));
+    m_colorTerm.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Color"));
+    m_timeScaleIndicator.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.TimeScaleIndicator"));
+    m_delimiter.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Delimiter"));
+    m_offset.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.HeaderOffset"));
     if(m_delimiter.value().empty())
         m_delimiter.setValue(";");
     m_animationSpeedMulti.setShared(true);
@@ -100,12 +100,12 @@ OctPlugin::OctPlugin()
                             });
 }
 
-const OctPlugin *OctPlugin::instance() const
+const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
 {
     return m_plugin;
 }
 
-bool OctPlugin::init()
+bool CsvPointCloudPlugin::init()
 {
     if (m_plugin)
         return false;
@@ -116,13 +116,13 @@ bool OctPlugin::init()
     return true;
 }
 
-OctPlugin::~OctPlugin()
+CsvPointCloudPlugin::~CsvPointCloudPlugin()
 {
 
     coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
-int OctPlugin::load(const char *filename, osg::Group *loadParent, const char *covise_key)
+int CsvPointCloudPlugin::load(const char *filename, osg::Group *loadParent, const char *covise_key)
 {
     osg::Group *g = new osg::Group;
     loadParent->addChild(g);
@@ -135,7 +135,7 @@ int OctPlugin::load(const char *filename, osg::Group *loadParent, const char *co
     return 1;
 }
 
-int OctPlugin::unload(const char *filename, const char *covise_key)
+int CsvPointCloudPlugin::unload(const char *filename, const char *covise_key)
 {
     return m_plugin->unloadFile();
 }
@@ -198,7 +198,7 @@ void setStateSet(osg::Geometry *geo, float pointSize)
     geo->setStateSet(stateset);
 }
 
-bool OctPlugin::compileSymbol(DataTable &symbols, const std::string& symbol, Expression &expr)
+bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string& symbol, Expression &expr)
 {
     expr().register_symbol_table(symbols.symbols());
     if(!expr.parser.compile(symbol, expr()))
@@ -209,7 +209,7 @@ bool OctPlugin::compileSymbol(DataTable &symbols, const std::string& symbol, Exp
     return true;
 }
 
-osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
+osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
 {
     // compile parser
     std::array<Expression, 4> stringExpressions;
@@ -287,7 +287,7 @@ osg::Geometry *OctPlugin::createOsgPoints(DataTable &symbols)
     return geo;
 }
 
-void OctPlugin::createGeodes(Group *parent, const std::string &filename)
+void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
     int offset = 0;
@@ -316,21 +316,20 @@ void OctPlugin::createGeodes(Group *parent, const std::string &filename)
     coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
 }
 
-void OctPlugin::setTimestep(int t) 
+void CsvPointCloudPlugin::setTimestep(int t) 
 {
     if(m_pointCloud)
     {
         m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti.value()));
-        std::cerr << "setPrimitiveSet : " << (t + 1) * m_animationSpeedMulti.value() << std::endl;
     }
 }
 
-float OctPlugin::pointSize() const
+float CsvPointCloudPlugin::pointSize() const
 {
     return m_pointSizeSlider.value();
 }
 
-int OctPlugin::unloadFile()
+int CsvPointCloudPlugin::unloadFile()
 {
     if(m_currentGeode && m_currentGeode->getNumParents() > 0)
     {

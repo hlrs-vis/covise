@@ -32,12 +32,12 @@ namespace osg
 
 using namespace opencover;
 
-class OctPlugin : public coVRPlugin, public ui::Owner
+class CsvPointCloudPlugin : public coVRPlugin, public ui::Owner
 {
 public:
-  OctPlugin();
-  ~OctPlugin();
-  const OctPlugin *instance() const;
+  CsvPointCloudPlugin();
+  ~CsvPointCloudPlugin();
+  const CsvPointCloudPlugin *instance() const;
   bool init();
   static int load(const char *filename, osg::Group *loadParent, const char *covise_key);
   static int unload(const char *filename, const char *covise_key);
@@ -54,10 +54,10 @@ private:
     parser_t parser;
   };
 
-  static OctPlugin *m_plugin;
+  static CsvPointCloudPlugin *m_plugin;
   osg::Geometry *m_pointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
-  ui::Menu m_octMenu, m_colorMenu;
+  ui::Menu m_CsvPointCloudMenu, m_colorMenu;
   std::array<ui::EditField, 3> m_coordTerms;
   ui::EditField m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset;
   ui::SelectionList m_colorMapSelector;
