@@ -25,6 +25,11 @@
 
 ApplicationWindow *mw;
 
+void printPort(unsigned short port)
+{
+    std::cout << port << std::endl << std::endl << std::flush;
+}
+
 int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
@@ -104,6 +109,10 @@ int main(int argc, char **argv)
         mw->setPort("Tcp", server.getPort());
         mw->setPort("Udp", server.getUdpPort());
         auto remover = placeSharedProcessInfo(server.getPort());
+        if (printport)
+        {
+            printPort(server.getPort());
+        }
         int exitcode = a.exec();
 
         server.closeServer();
@@ -121,6 +130,10 @@ int main(int argc, char **argv)
             cerr << "failed to open udp socket" << endl;
         }
         auto remover = placeSharedProcessInfo(server.getPort());
+        if (printport)
+        {
+            printPort(server.getPort());
+        }
         if (!gui)
         {
             server.loop();

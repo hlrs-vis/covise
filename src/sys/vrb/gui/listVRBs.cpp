@@ -114,24 +114,31 @@ shm_remove &shm_remove::operator=(shm_remove &&other)
 
 shm_remove placeSharedProcessInfo(int tcpPort)
 {
-    const size_t size = 10000;
-    boost::interprocess::permissions  unrestricted_permissions;
-    unrestricted_permissions.set_unrestricted();
-    managed_shared_memory shm(open_or_create, shmSegName, size, 0, unrestricted_permissions);
     shm_remove remover(tcpPort);
-    // Create allocators
-    CharAllocator charallocator(shm.get_segment_manager());
-    StringAllocator stringallocator(shm.get_segment_manager());
+    try
+    {
+        const size_t size = 10000;
+        boost::interprocess::permissions unrestricted_permissions;
+        unrestricted_permissions.set_unrestricted();
+        managed_shared_memory shm(open_or_create, shmSegName, size, 0, unrestricted_permissions);
+        // Create allocators
+        CharAllocator charallocator(shm.get_segment_manager());
+        StringAllocator stringallocator(shm.get_segment_manager());
 
 
-    // shared memory
-    MyShmString mystring(charallocator);
-    std::string s = std::to_string(tcpPort) + " " + std::to_string( boost::interprocess::ipcdetail::get_current_process_id()) + " " + getUserName();
-    mystring = s.c_str();
+        // shared memory
+        MyShmString mystring(charallocator);
+        std::string s = std::to_string(tcpPort) + " " +
+                        std::to_string(boost::interprocess::ipcdetail::get_current_process_id()) + " " + getUserName();
+        mystring = s.c_str();
 
-    MyShmStringVector *myshmvector =
-        shm.find_or_construct<MyShmStringVector>(shmVecName)(stringallocator);
-    myshmvector->push_back(mystring);
+        MyShmStringVector *myshmvector = shm.find_or_construct<MyShmStringVector>(shmVecName)(stringallocator);
+        myshmvector->push_back(mystring);
+    }
+    catch (boost::interprocess::interprocess_exception &e)
+    {
+        std::cerr << "could not register VRB in SHM: " << e.what() << std::endl;
+    }
     return std::move(remover);
 }
 

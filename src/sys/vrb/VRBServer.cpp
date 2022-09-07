@@ -152,7 +152,6 @@ int VRBServer::openServer(bool printport)
             sConn = connections.tryAddNewListeningConn<ServerConnection>(port, 0, 0);
             if (sConn) {
                 m_tcpPort = port;
-                std::cout << port << std::endl << std::endl << std::flush;
                 break;
             }
         }
