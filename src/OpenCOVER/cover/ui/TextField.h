@@ -8,7 +8,7 @@
 namespace opencover {
 namespace ui {
 
-//! an Element allowing for text input
+//! base class for an Element allowing for text input
 
 class COVER_UI_EXPORT TextField: public Element {
 
