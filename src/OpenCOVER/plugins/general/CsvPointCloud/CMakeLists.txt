@@ -10,7 +10,7 @@ SET(SOURCES
   CsvPointCloud.cpp
 )
 
-cover_add_plugin(Oct)
+cover_add_plugin(CsvPointCloud)
 if(MSVC)
   target_compile_options(CsvPointCloud PRIVATE /bigobj)
 endif()
