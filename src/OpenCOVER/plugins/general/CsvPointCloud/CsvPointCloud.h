@@ -38,7 +38,7 @@ public:
   CsvPointCloudPlugin();
   ~CsvPointCloudPlugin();
   const CsvPointCloudPlugin *instance() const;
-  bool init();
+  bool init() override;
   static int load(const char *filename, osg::Group *loadParent, const char *covise_key);
   static int unload(const char *filename, const char *covise_key);
   float pointSize() const;
