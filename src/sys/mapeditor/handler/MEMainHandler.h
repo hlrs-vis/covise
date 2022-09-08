@@ -57,6 +57,8 @@ class MEMainHandler : public QObject
     friend class MEMessageHandler;
 
     Q_OBJECT
+protected:
+    covise::coConfigGroup* mapConfig;
 
 public:
     MEMainHandler(int, char *[], std::function<void(void)> quitFunc);
@@ -314,7 +316,6 @@ private slots:
     void onlineCB(const QString &html);
     void getHostCB(QListWidgetItem *);
 
-protected:
-    covise::coConfigGroup *mapConfig;
+
 };
 #endif

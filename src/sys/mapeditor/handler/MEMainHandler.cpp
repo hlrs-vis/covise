@@ -129,13 +129,58 @@ MEMainHandler *MEMainHandler::singleton = NULL;
 MEUserInterface *MEMainHandler::mapEditor = NULL;
 MEMessageHandler *MEMainHandler::messageHandler = NULL;
 
+covise::coConfigGroup* initMapEditorConfig()
+{
+    // automatic storage of config values
+    auto mapConfig = new covise::coConfigGroup("MapEditor");
+    mapConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "mapeditor.xml", "local", true);
+    covise::coConfig::getInstance()->addConfig(mapConfig);
+    return mapConfig;
+}
+
+
 /*!
     \class MEMainHandler
     \brief Handler for MEUserInterface, distribute message received by MEMessageHandler
 */
 
 MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> quitFunc)
-    : QObject(), cfg_storeWindowConfig("System.MapEditor.General.StoreLayout"), cfg_ErrorHandling("System.MapEditor.General.ErrorOutput"), cfg_DeveloperMode("System.MapEditor.General.DeveloperMode"), cfg_HideUnusedModules("System.MapEditor.General.HideUnusedModules"), cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts"), cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser"), cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser"), cfg_TabletUITabs("System.MapEditor.General.TabletUITabs"), cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave"), cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength"), cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor"), m_cfg_HostColors("System.MapEditor.VisualProgramming.HostColors"), m_cfg_QtStyle("System.UserInterface.QtStyle"), m_cfg_HighColor("System.MapEditor.VisualProgramming.HighlightColor"), cfg_NetworkHistoryLength(10), m_deleteAutosaved_a(NULL), m_copyMode(NORMAL), m_masterUI(true), force(false), m_loadedMapWasModified(false), m_autoSave(false), m_waitForClose(false), m_executeOnChange(false), m_inMapLoading(false), m_mirrorMode(false), m_connectedPartner(0), m_portSize(14), m_autoSaveTimer(NULL), m_currentNode(NULL), m_newNode(NULL), m_settings(NULL), m_deleteHostBox(NULL), m_mirrorBox(NULL), m_requestingMaster(false), m_quitFunc(quitFunc)
+    : QObject(), mapConfig(initMapEditorConfig())
+    , cfg_storeWindowConfig("System.MapEditor.General.StoreLayout")
+    , cfg_ErrorHandling("System.MapEditor.General.ErrorOutput")
+    , cfg_DeveloperMode("System.MapEditor.General.DeveloperMode")
+    , cfg_HideUnusedModules("System.MapEditor.General.HideUnusedModules")
+    , cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts")
+    , cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser")
+    , cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser")
+    , cfg_TabletUITabs("System.MapEditor.General.TabletUITabs")
+    , cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave")
+    , cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength")
+    , cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor")
+    , m_cfg_HostColors("System.MapEditor.VisualProgramming.HostColors")
+    , m_cfg_QtStyle("System.UserInterface.QtStyle")
+    , m_cfg_HighColor("System.MapEditor.VisualProgramming.HighlightColor")
+    , cfg_NetworkHistoryLength(10)
+    , m_deleteAutosaved_a(NULL)
+    , m_copyMode(NORMAL)
+    , m_masterUI(true)
+    , force(false)
+    , m_loadedMapWasModified(false)
+    , m_autoSave(false)
+    , m_waitForClose(false)
+    , m_executeOnChange(false)
+    , m_inMapLoading(false)
+    , m_mirrorMode(false)
+    , m_connectedPartner(0)
+    , m_portSize(14)
+    , m_autoSaveTimer(NULL)
+    , m_currentNode(NULL)
+    , m_newNode(NULL)
+    , m_settings(NULL)
+    , m_deleteHostBox(NULL)
+    , m_mirrorBox(NULL)
+    , m_requestingMaster(false)
+    , m_quitFunc(quitFunc)
 {
     // init some variables
     singleton = this;
@@ -186,11 +231,6 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     s_reqDataColor.setNamedColor("#4169E1"); // RoyalBlue
     s_dataColor.setNamedColor("#32CD32"); // LimeGreen
     s_chanColor.setNamedColor("#F5DEB3"); // Wheat
-
-    // automatic storage of config values
-    mapConfig = new covise::coConfigGroup("MapEditor");
-    mapConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "mapeditor.xml", "local", true);
-    covise::coConfig::getInstance()->addConfig(mapConfig);
 
     cfg_storeWindowConfig.setAutoUpdate(true);
     cfg_ErrorHandling.setAutoUpdate(true);
