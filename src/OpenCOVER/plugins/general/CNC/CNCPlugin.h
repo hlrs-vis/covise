@@ -32,14 +32,28 @@
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <PluginUtil/coSphere.h>
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
+
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Owner.h>
+#include <cover/ui/SelectionList.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/FileBrowser.h>
+
+constexpr size_t MAXSAMPLES = 1200;
 
 using namespace covise;
 using namespace opencover;
 
-class CNCPlugin : public coVRPlugin, public coTUIListener
+class CNCPlugin : public coVRPlugin, public ui::Owner
 {
 public:
     CNCPlugin();
@@ -47,61 +61,39 @@ public:
     static CNCPlugin *instance();
     bool init();
 
+
     int loadGCode(const char *filename, osg::Group *loadParent);
     static int sloadGCode(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadGCode(const char *filename, const char *covise_key);
 
     void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate);
+private:
 
     // this will be called in PreFrame
     void preFrame();
-    coTUITab *PathTab;
-    coTUIToggleButton *record;
-    coTUIButton *stop;
-    coTUIButton *play;
-    coTUIButton *reset;
-    coTUIButton *saveButton;
-    coTUIToggleButton *viewPath;
-    coTUIToggleButton *viewlookAt;
-    coTUIToggleButton *viewDirections;
-    coTUILabel *numSamples;
-    coTUILabel *recordRateLabel;
-    coTUIEditIntField *recordRateTUI;
-    coTUILabel *lengthLabel;
-    coTUIEditFloatField *lengthEdit;
-    coTUILabel *radiusLabel;
-    coTUIEditFloatField *radiusEdit;
-    coTUIFileBrowserButton *fileNameBrowser;
-    coTUIComboBox *renderMethod;
-    coTUIComboBox *mapChoice;
-    ColorMaps colorMaps;
+    ui::Menu *PathTab = nullptr;
+    ui::Button*record = nullptr, *playPause = nullptr;
+    ui::Action *reset = nullptr, *saveButton = nullptr;
+    ui::Button *viewPath = nullptr, *viewlookAt = nullptr, *viewDirections = nullptr;
+    ui::Label *numSamples = nullptr;
+    ui::EditField *recordRateTUI = nullptr;
+    ui::EditField *lengthEdit = nullptr;
+    ui::EditField*radiusEdit = nullptr;
+    ui::FileBrowser *fileNameBrowser = nullptr;
+    ui::SelectionList *renderMethod = nullptr;
+    covise::ColorMapSelector colorMap;
 
-    int currentMap;
     osg::ref_ptr<osg::StateSet> geoState;
     osg::ref_ptr<osg::Material> linemtl;
     osg::ref_ptr<osg::LineWidth> lineWidth;
-    void setTimestep(int t);
+    void setTimestep(int t) override;
 
     osg::Vec4 getColor(float pos);
-    void deleteColorMap(const std::string &name);
-
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    virtual void tabletEvent(coTUIElement *tUIItem);
-
-private:
-    bool playing;
-    int frameNumber;
-    double recordRate;
-    //float *positions;
-    float *lookat[3];
-    float length;
-    const char **objectName;
-    char *filename;
-    osg::Group *parentNode;
-    osg::Vec3Array *vert;
-    osg::Vec4Array *color;
-    osg::DrawArrayLengths *primitives;
+    int frameNumber = 0;
+    osg::Group *parentNode = nullptr;
+    osg::Vec3Array *vert = nullptr;
+    osg::Vec4Array *color = nullptr;
+    osg::DrawArrayLengths *primitives = nullptr;
 
     static CNCPlugin *thePlugin;
 

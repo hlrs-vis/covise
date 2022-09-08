@@ -40,7 +40,6 @@
 #include <osg/Matrix>
 #include <osg/Vec3>
 #include <cover/coVRAnimationManager.h>
-#define MAXSAMPLES 1200
 using namespace osg;
 using namespace osgUtil;
 /************************************************************************
@@ -519,8 +518,23 @@ CNCPlugin *CNCPlugin::instance()
 }
 
 CNCPlugin::CNCPlugin()
+: ui::Owner("CNCPlugin", cover->ui)
+, PathTab(new ui::Menu("CNC", this))
+, record(new ui::Button(PathTab, "Record"))
+, playPause(new ui::Button(PathTab, "Play"))
+, reset(new ui::Action(PathTab, "Reset"))
+, saveButton(new ui::Action(PathTab, "Save"))
+, colorMap(*PathTab)
+, viewDirections(new ui::Button(PathTab, "ViewingDirections"))
+, viewlookAt(new ui::Button(PathTab, "ViewTarget"))
+, lengthEdit(new ui::EditField(PathTab, "Length"))
+, radiusEdit(new ui::EditField(PathTab, "Radius"))
+, renderMethod(new ui::SelectionList(PathTab, "RenderMethod"))
+, recordRateTUI(new ui::EditField(PathTab, "Fps"))
+, numSamples(new ui::Label(PathTab, "numSamples"))
+, fileNameBrowser(new ui::FileBrowser(PathTab, "File", true))
+, viewPath(new ui::Button(PathTab, "ViewPath"))
 {
-    //positions=NULL;
     thePlugin = this;
 }
 
@@ -643,109 +657,61 @@ int CNCPlugin::unloadGCode(const char *filename, const char *)
     return 0;
 }
 
-void CNCPlugin::deleteColorMap(const std::string &name)
-{
-    colorMaps.erase(name);
-}
-
 bool CNCPlugin::init()
 {
     fprintf(stderr, "CNCPlugin::CNCPlugin\n");
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 
-    length = 1;
-    recordRate = 1;
-    filename = NULL;
-    primitives = NULL;
-    currentMap = 0;
-
     coConfig *config = coConfig::getInstance();
 
     // read the values for each colormap
-    colorMaps = readColorMaps();
+    numSamples->setText("SampleNum: 0");
+    playPause->setText("Play");
+    playPause->setCallback([this](bool state) {
+        playPause->setText(state ? "Pause" : "Play");
+        });
+    saveButton->setCallback([this]() {save(); });
 
-    PathTab = new coTUITab("CNC", coVRTui::instance()->mainFolder->getID());
-    record = new coTUIToggleButton("Record", PathTab->getID());
-    stop = new coTUIButton("Stop", PathTab->getID());
-    play = new coTUIButton("Play", PathTab->getID());
-    reset = new coTUIButton("Reset", PathTab->getID());
-    saveButton = new coTUIButton("Save", PathTab->getID());
+    viewPath->setCallback([this](bool state) {
+        numSamples->setText("numSamples: " + std::to_string(frameNumber));
+        if (state)
+        {
+            if (!parentNode)
+                parentNode = cover->getObjectsRoot();
+            parentNode->addChild(geode.get());
+        }
+        else
+        {
+            parentNode = geode->getParent(0);
+            parentNode->removeChild(geode.get());
+        }
+        });
 
-    mapChoice = new coTUIComboBox("mapChoice", PathTab->getID());
-    mapChoice->setEventListener(this);
-    for (auto &n: colorMaps)
-    {
-        mapChoice->addEntry(n.first);
-    }
-    mapChoice->setSelectedEntry(currentMap);
-    mapChoice->setPos(6, 0);
-
-    viewPath = new coTUIToggleButton("View Path", PathTab->getID());
-    viewDirections = new coTUIToggleButton("Viewing Directions", PathTab->getID());
-    viewlookAt = new coTUIToggleButton("View Target", PathTab->getID());
-
-    lengthLabel = new coTUILabel("Length", PathTab->getID());
-    lengthLabel->setPos(0, 4);
-    lengthEdit = new coTUIEditFloatField("length", PathTab->getID());
     lengthEdit->setValue(1);
-    lengthEdit->setPos(1, 4);
 
-    radiusLabel = new coTUILabel("Radius", PathTab->getID());
-    radiusLabel->setPos(2, 4);
-    radiusEdit = new coTUIEditFloatField("radius", PathTab->getID());
     radiusEdit->setValue(1);
-    radiusEdit->setEventListener(this);
-    radiusEdit->setPos(3, 4);
-    renderMethod = new coTUIComboBox("renderMethod", PathTab->getID());
-    renderMethod->addEntry("renderMethod CPU Billboard");
-    renderMethod->addEntry("renderMethod Cg Shader");
-    renderMethod->addEntry("renderMethod Point Sprite");
-    renderMethod->setSelectedEntry(0);
-    renderMethod->setEventListener(this);
-    renderMethod->setPos(0, 5);
 
-    recordRateLabel = new coTUILabel("recordRate", PathTab->getID());
-    recordRateLabel->setPos(0, 3);
-    recordRateTUI = new coTUIEditIntField("Fps", PathTab->getID());
-    recordRateTUI->setEventListener(this);
+
+    renderMethod->append("renderMethod CPU Billboard");
+    renderMethod->append("renderMethod Cg Shader");
+    renderMethod->append("renderMethod Point Sprite");
+    renderMethod->select(0);
+
     recordRateTUI->setValue(1);
-    //recordRateTUI->setText("Fps:");
-    recordRateTUI->setPos(1, 3);
 
-    fileNameBrowser = new coTUIFileBrowserButton("File", PathTab->getID());
-    fileNameBrowser->setMode(coTUIFileBrowserButton::SAVE);
-    fileNameBrowser->setFilterList("*.txt");
-    fileNameBrowser->setPos(0, 7);
-    fileNameBrowser->setEventListener(this);
+    fileNameBrowser->setFilter("*.txt");
 
-    numSamples = new coTUILabel("SampleNum: 0", PathTab->getID());
-    numSamples->setPos(0, 6);
-    PathTab->setPos(0, 0);
-    record->setPos(0, 0);
-    record->setEventListener(this);
-    stop->setPos(1, 0);
-    stop->setEventListener(this);
-    play->setPos(2, 0);
-    play->setEventListener(this);
-    reset->setPos(3, 0);
-    reset->setEventListener(this);
-    saveButton->setPos(4, 0);
-    saveButton->setEventListener(this);
+
     //positions = new float [3*MAXSAMPLES+3];
-    lookat[0] = new float[MAXSAMPLES + 1];
-    lookat[1] = new float[MAXSAMPLES + 1];
-    lookat[2] = new float[MAXSAMPLES + 1];
-    objectName = new const char *[MAXSAMPLES + 3];
-    viewPath->setPos(0, 2);
-    viewPath->setEventListener(this);
-    viewlookAt->setPos(1, 2);
-    viewlookAt->setEventListener(this);
-    viewDirections->setPos(2, 2);
-    viewDirections->setEventListener(this);
+
     frameNumber = 0;
     record->setState(false);
-    playing = false;
+
+    reset->setCallback([this]() {
+        frameNumber = 0;
+        record->setState(false);
+        });
 
     geoState = new osg::StateSet();
     linemtl = new osg::Material;
@@ -772,31 +738,6 @@ CNCPlugin::~CNCPlugin()
     fprintf(stderr, "CNCPlugin::~CNCPlugin\n");
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
-
-    delete record;
-    delete stop;
-    delete play;
-    delete reset;
-    delete saveButton;
-    delete viewPath;
-    delete viewDirections;
-    delete viewlookAt;
-    delete lengthLabel;
-    delete lengthEdit;
-    delete radiusLabel;
-    delete radiusEdit;
-    delete renderMethod;
-    delete recordRateLabel;
-    delete recordRateTUI;
-    delete numSamples;
-    delete PathTab;
-    delete[] filename;
-
-    //delete[] positions;
-    delete[] lookat[0];
-    delete[] lookat[1];
-    delete[] lookat[2];
-    delete[] objectName;
     if (geode && geode->getNumParents() > 0)
     {
         parentNode = geode->getParent(0);
@@ -808,39 +749,12 @@ CNCPlugin::~CNCPlugin()
 void
 CNCPlugin::preFrame()
 {
-    if (record->getState())
+    if (record->state())
     {
     }
 }
 
-void CNCPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == lengthEdit)
-    {
-        length = lengthEdit->getValue();
-    }
-    else if (tUIItem == recordRateTUI)
-    {
-        recordRate = 1.0 / recordRateTUI->getValue();
-    }
-    else if (tUIItem == fileNameBrowser)
-    {
-        std::string fn = fileNameBrowser->getSelectedPath();
-        delete filename;
-        filename = new char[fn.length()];
-        strcpy(filename, fn.c_str());
 
-        if (filename[0] != '\0')
-        {
-            char *pchar;
-            if ((pchar = strstr(filename, "://")) != NULL)
-            {
-                pchar += 3;
-                strcpy(filename, pchar);
-            }
-        }
-    }
-}
 void CNCPlugin::save()
 {
     /*FILE * fp = fopen(filename,"w");
@@ -860,57 +774,6 @@ void CNCPlugin::save()
    }*/
 }
 
-void CNCPlugin::tabletPressEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == play)
-    {
-        playing = true;
-    }
-
-    if (tUIItem == saveButton)
-    {
-        save();
-    }
-
-    else if (tUIItem == record)
-    {
-        playing = false;
-    }
-    else if (tUIItem == stop)
-    {
-        record->setState(false);
-        playing = false;
-    }
-    else if (tUIItem == reset)
-    {
-        frameNumber = 0;
-        record->setState(false);
-        playing = false;
-    }
-    else if (tUIItem == lengthEdit)
-    {
-        length = lengthEdit->getValue();
-    }
-    else if (tUIItem == viewPath)
-    {
-        char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
-        numSamples->setLabel(label);
-        if (viewPath->getState())
-        {
-
-            if (parentNode == NULL)
-                parentNode = cover->getObjectsRoot();
-            parentNode->addChild(geode.get());
-            ;
-        }
-        else
-        {
-            parentNode = geode->getParent(0);
-            parentNode->removeChild(geode.get());
-        }
-    }
-}
 
 void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate)
 {
@@ -930,21 +793,13 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     if (time - oldUpdateTime > 1.0)
     {
         oldUpdateTime = time;
-        char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
-        numSamples->setLabel(label);
+        numSamples->setText("numSamples: " + std::to_string(frameNumber));
     }
-}
-void CNCPlugin::tabletReleaseEvent(coTUIElement *tUIItem)
-{
-    (void)tUIItem;
 }
 
 osg::Vec4 CNCPlugin::getColor(float pos)
 {
-
-    const auto& colorMap = colorMaps["ANSYS"];
-    return covise::getColor(pos, colorMap);
+    return colorMap.getColor(pos);
 }
 
 COVERPLUGIN(CNCPlugin)
