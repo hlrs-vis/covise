@@ -42,7 +42,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     : ui::Owner("CsvPointCloud", cover->ui)
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
     , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
-    , m_coordTerms{{{new ui::EditField(m_CsvPointCloudMenu, "X")}, {new ui::EditField(m_CsvPointCloudMenu, "Y")}, {new ui::EditField(m_CsvPointCloudMenu, "Z")}}}
+    , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}
     , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
     , m_animationSpeedMulti(new ui::Slider(m_CsvPointCloudMenu, "AnimationSpeedMultiplier"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
