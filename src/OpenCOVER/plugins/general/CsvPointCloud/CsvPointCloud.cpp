@@ -40,47 +40,42 @@ COVERPLUGIN(CsvPointCloudPlugin)
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
     : ui::Owner("CsvPointCloud", cover->ui)
-    , m_CsvPointCloudMenu("CsvPointCloud", this)
-    , m_colorMenu(&m_CsvPointCloudMenu, "ColorMenu")
-    , m_coordTerms{{{&m_CsvPointCloudMenu, "X"}, {&m_CsvPointCloudMenu, "Y"}, {&m_CsvPointCloudMenu, "Z"}}}
-    , m_colorTerm(&m_CsvPointCloudMenu, "Color")
-    , m_animationSpeedMulti(&m_CsvPointCloudMenu, "AnimationSpeedMultiplier")
-    , m_pointSizeSlider(&m_CsvPointCloudMenu, "PointSize")
-    , m_colorMapSelector(&m_CsvPointCloudMenu, "ColorMap")
-    , m_reloadBtn(&m_CsvPointCloudMenu, "Reload")
-    , m_timeScaleIndicator(&m_CsvPointCloudMenu, "TimeScaleIndicator")
-    , m_delimiter(&m_CsvPointCloudMenu, "Delimiter")
-    , m_offset(&m_CsvPointCloudMenu, "CeaderOffset")
-    , m_colorsGroup(&m_CsvPointCloudMenu, "Colors")
-    , m_colorBar(&m_colorMenu)
+    , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
+    , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
+    , m_coordTerms{{{new ui::EditField(m_CsvPointCloudMenu, "X")}, {new ui::EditField(m_CsvPointCloudMenu, "Y")}, {new ui::EditField(m_CsvPointCloudMenu, "Z")}}}
+    , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
+    , m_animationSpeedMulti(new ui::Slider(m_CsvPointCloudMenu, "AnimationSpeedMultiplier"))
+    , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
+    , m_colorMapSelector(*m_CsvPointCloudMenu)
+    , m_reloadBtn(new ui::Action(m_CsvPointCloudMenu, "Reload"))
+    , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
+    , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
+    , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
+    , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
+    , m_colorBar(new opencover::ColorBar(m_colorMenu))
 {
-    m_coordTerms[0].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.X"));
-    m_coordTerms[1].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Y"));
-    m_coordTerms[2].setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Z"));
-    m_colorTerm.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Color"));
-    m_timeScaleIndicator.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.TimeScaleIndicator"));
-    m_delimiter.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Delimiter"));
-    m_offset.setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.HeaderOffset"));
-    if(m_delimiter.value().empty())
-        m_delimiter.setValue(";");
-    m_animationSpeedMulti.setShared(true);
-    m_animationSpeedMulti.setBounds(0, 1000);
-    m_animationSpeedMulti.setValue(1);
-    m_animationSpeedMulti.setCallback([this](ui::Slider::ValueType value, bool released) {
+    m_coordTerms[0]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.X"));
+    m_coordTerms[1]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Y"));
+    m_coordTerms[2]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Z"));
+    m_colorTerm->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Color"));
+    m_timeScaleIndicator->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.TimeScaleIndicator"));
+    m_delimiter->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Delimiter"));
+    m_offset->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.HeaderOffset"));
+    if(m_delimiter->value().empty())
+        m_delimiter->setValue(";");
+    m_animationSpeedMulti->setShared(true);
+    m_animationSpeedMulti->setBounds(0, 1000);
+    m_animationSpeedMulti->setValue(1);
+    m_animationSpeedMulti->setCallback([this](ui::Slider::ValueType value, bool released) {
         if(released && m_pointCloud)
         {
             coVRAnimationManager::instance()->setNumTimesteps(m_pointCloud->getOrCreateVertexBufferObject()->getArray(0)->getNumElements() / value, this);
         }
     });
 
-    m_colorMaps = readColorMaps();
-    for(const auto&map : m_colorMaps)
-        m_colorMapSelector.append(map.first);
-    m_colorMapSelector.select(0);
-
-    m_pointSizeSlider.setBounds(0, 20);
-    m_pointSizeSlider.setValue(4);
-    m_pointSizeSlider.setCallback([this](ui::Slider::ValueType val, bool release)
+    m_pointSizeSlider->setBounds(0, 20);
+    m_pointSizeSlider->setValue(4);
+    m_pointSizeSlider->setCallback([this](ui::Slider::ValueType val, bool release)
                                   {
                                       if (m_pointCloud)
                                       {
@@ -88,7 +83,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                       }
                                   });
 
-    m_reloadBtn.setCallback([this](bool b)
+    m_reloadBtn->setCallback([this]()
                             {
                                 if(m_currentGeode)
                                 {
@@ -110,7 +105,7 @@ bool CsvPointCloudPlugin::init()
     if (m_plugin)
         return false;
     m_plugin = this;
-    m_pointSizeSlider.setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
+    m_pointSizeSlider->setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
 
     coVRFileManager::instance()->registerFileHandler(&handler);
     return true;
@@ -142,23 +137,6 @@ int CsvPointCloudPlugin::unload(const char *filename, const char *covise_key)
 
 void setStateSet(osg::Geometry *geo, float pointSize)
 {
-  /*  auto stateset = new osg::StateSet();
-    stateset->setMode(GL_LIGHTING, StateAttribute::OFF);
-    stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
-    stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
-    stateset->setMode(GL_BLEND, StateAttribute::OFF);
-    osg::AlphaFunc *alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
-    stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
-
-    auto pointstate = new osg::Point();
-    pointstate->setSize(pointSize);
-    stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
-    osg::PointSprite *sprite = new osg::PointSprite();
-    stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
-    geo->setStateSet(stateset);
-    */
-
-
     // after test move stateset higher up in the tree
     auto* stateset = new StateSet();
     //stateset->setMode(GL_PROGRAM_POINT_SIZE_EXT, StateAttribute::ON);
@@ -216,7 +194,7 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
 
     for (size_t i = 0; i < stringExpressions.size(); i++)
     {
-        if(!compileSymbol(symbols, i < 3 ? m_coordTerms[i].value() : m_colorTerm.value(), stringExpressions[i]))
+        if(!compileSymbol(symbols, i < 3 ? m_coordTerms[i]->value() : m_colorTerm->value(), stringExpressions[i]))
             return nullptr;
     }
     //create geometry
@@ -245,10 +223,9 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
         maxScalar = std::max(maxScalar, scalarData[i]);
         symbols.advance();
     }
-    const auto &colorMap = m_colorMaps[m_colorMapSelector.selectedItem()];
 
     for (size_t i = 0; i < symbols.size(); i++)
-        colors->push_back(covise::getColor(scalarData[i], colorMap, minScalar, maxScalar));
+        colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
 
     osg::Vec3 bottomLeft, hpr, offset;
     if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
@@ -263,11 +240,11 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
         bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
         offset = osg::Vec3(s0.vsize/2.5, 0 , 0) * mat * hudScale;
     }
-    m_colorBar.setName("Power");
-    m_colorBar.show(true);
-    m_colorBar.update(m_colorTerm.value(), minScalar, maxScalar, colorMap.a.size(), colorMap.r.data(), colorMap.g.data(), colorMap.b.data(), colorMap.a.data());
-    m_colorBar.setHudPosition(bottomLeft, hpr, offset[0]/480);
-    m_colorBar.show(true);
+    m_colorBar->setName("Power");
+    m_colorBar->show(true);
+    m_colorBar->update(m_colorTerm->value(), minScalar, maxScalar, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
+    m_colorBar->setHudPosition(bottomLeft, hpr, offset[0]/480);
+    m_colorBar->show(true);
 
 
     vertexBufferArray->setArray(0, points);
@@ -293,7 +270,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     int offset = 0;
     try
     {
-        offset = std::stoi(m_offset.value());
+        offset = std::stoi(m_offset->value());
     }
     catch(const std::exception& e)
     {
@@ -301,7 +278,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         return;
     }
 
-    DataTable dataTable(filename, m_timeScaleIndicator.value(), m_delimiter.value()[0], offset);
+    DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
     m_pointCloud = createOsgPoints(dataTable);
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
@@ -320,13 +297,13 @@ void CsvPointCloudPlugin::setTimestep(int t)
 {
     if(m_pointCloud)
     {
-        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti.value()));
+        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti->value()));
     }
 }
 
 float CsvPointCloudPlugin::pointSize() const
 {
-    return m_pointSizeSlider.value();
+    return m_pointSizeSlider->value();
 }
 
 int CsvPointCloudPlugin::unloadFile()

@@ -12,6 +12,7 @@
 #include <PluginUtil/coColorMap.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Menu.h>
@@ -57,16 +58,15 @@ private:
   static CsvPointCloudPlugin *m_plugin;
   osg::Geometry *m_pointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
-  ui::Menu m_CsvPointCloudMenu, m_colorMenu;
-  std::array<ui::EditField, 3> m_coordTerms;
-  ui::EditField m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset;
-  ui::SelectionList m_colorMapSelector;
-  ui::Slider m_pointSizeSlider;
-  ui::Slider m_animationSpeedMulti;
-  ui::Button m_reloadBtn;
-  ui::Group m_colorsGroup;
-  covise::ColorMaps m_colorMaps;
-  opencover::ColorBar m_colorBar;
+  ui::Menu *m_CsvPointCloudMenu, *m_colorMenu;
+  std::array<ui::EditField*, 3> m_coordTerms;
+  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset;
+  covise::ColorMapSelector m_colorMapSelector;
+  ui::Slider *m_pointSizeSlider;
+  ui::Slider *m_animationSpeedMulti;
+  ui::Action *m_reloadBtn;
+  ui::Group *m_colorsGroup;
+  opencover::ColorBar *m_colorBar;
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols);
   int unloadFile();
