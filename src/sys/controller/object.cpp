@@ -1009,11 +1009,12 @@ string object::get_simple_connection(int *i)
             {
                 (*i)++;
                 retval += from.get_mod()->createBasicModuleDescription() + from.get_intf() + "\n";
-                retval += conn.get_mod()->createBasicModuleDescription() + conn.get_mod_intf();
+                retval += conn.get_mod()->createBasicModuleDescription() + conn.get_mod_intf() + "\n";
             }
         }
         return retval;
     }
+    *i = 0;
     return std::string{};
 }
 

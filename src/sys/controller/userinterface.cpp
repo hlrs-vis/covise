@@ -111,7 +111,7 @@ void Userinterface::sendCurrentNetToUI(const std::string &filename) const
     {
         int i = 0;
         string buffer = tmp_obj->get_simple_connection(&i);
-        if (!buffer.empty() || i != 0)
+        if (!buffer.empty() && i != 0)
         {
             ostringstream mybuf2;
             mybuf2 << "OBJCONN2\n"
