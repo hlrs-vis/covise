@@ -138,24 +138,32 @@ bool Flux2::update()
 
             if (speed > 0)
             {
-                a += -getBrakeForce();
+                a += -getBrakeForce()*0.01;
                 if (a < 0)
                 {
                     braking = true;
                 }
+		if((a*dT)< -speed)
+		{
+		 a = -(speed/dT);
+		}
             }
             else
             {
-                a += getBrakeForce();
+                a += getBrakeForce()*0.01;
                 if (a > 0)
                 {
                     braking = true;
                 }
+		if((a*dT)> -speed)
+		{
+		 a = (speed/dT);
+		}
             }
 
             speed = speed + a * dT;
 
-            setResistance(fabs(a) / 2.0);
+            setResistance(100 * fabs(a) / 2.0);
             fprintf(stderr, "resistance: %f\n", -a / 2.0);
 
             lastSpeed = getSpeed();
