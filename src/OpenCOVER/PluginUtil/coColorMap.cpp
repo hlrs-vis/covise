@@ -14,7 +14,7 @@ covise::ColorMaps covise::readColorMaps()
 #ifdef NO_COLORMAP_PARAM
     colorMapEntries["COVISE"];
 #else
-    colorMapEntries["Editable"];
+    //colorMapEntries["Editable"];
 #endif
 
     for (const auto &map : colorMapEntries)

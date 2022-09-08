@@ -943,11 +943,7 @@ void CNCPlugin::tabletReleaseEvent(coTUIElement *tUIItem)
 osg::Vec4 CNCPlugin::getColor(float pos)
 {
 
-#ifdef NO_COLORMAP_PARAM
-    const auto& colorMap = colorMaps["COVISE"];
-#else
-    const auto& colorMap = colorMaps["Editable"];
-#endif
+    const auto& colorMap = colorMaps["ANSYS"];
     return covise::getColor(pos, colorMap);
 }
 
