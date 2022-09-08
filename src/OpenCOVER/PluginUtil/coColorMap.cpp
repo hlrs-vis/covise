@@ -61,15 +61,15 @@ osg::Vec4 covise::getColor(float val, const covise::ColorMap& colorMap, float mi
 }
 
 covise::ColorMapSelector::ColorMapSelector(opencover::ui::Menu& menu)
-: m_selector(&menu, "mapChoice")
+    : m_selector(new opencover::ui::SelectionList{ &menu, "mapChoice" })
 , m_colors(readColorMaps())
 {
     for (auto &n: m_colors)
-        m_selector.append(n.first);
-    m_selector.select(0);
+        m_selector->append(n.first);
+    m_selector->select(0);
     m_selectedMap = m_colors.begin();
 
-    m_selector.setCallback([this](int index) {
+    m_selector->setCallback([this](int index) {
         updateSelectedMap();
         });
 }
@@ -80,7 +80,7 @@ bool covise::ColorMapSelector::setValue(const std::string& colorMapName)
     if (it == m_colors.end())
         return false;
 
-    m_selector.select(std::distance(m_colors.begin(), it));
+    m_selector->select(std::distance(m_colors.begin(), it));
     updateSelectedMap();
     return true;
 }
@@ -98,6 +98,6 @@ const covise::ColorMap& covise::ColorMapSelector::selectedMap() const
 void covise::ColorMapSelector::updateSelectedMap()
 {
     m_selectedMap = m_colors.begin();
-    std::advance(m_selectedMap, m_selector.selectedIndex());
+    std::advance(m_selectedMap, m_selector->selectedIndex());
     assert(m_selectedMap != m_colors.end());
 }
