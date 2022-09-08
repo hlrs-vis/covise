@@ -17,7 +17,7 @@ coConfigBool::coConfigBool(const std::string &configGroupName, const std::string
 {
 
     update();
-    //cerr << "coConfigBool::<init> info: 0: " << this->variable << " " << this->section << " " << this->value << endl;
+    //std::cerr << "coConfigBool::<init> info: 0: " << this->variable << " " << this->section << " " << this->value << std::endl;
 }
 
 coConfigBool::coConfigBool(const std::string &variable, const std::string &section)
@@ -25,7 +25,7 @@ coConfigBool::coConfigBool(const std::string &variable, const std::string &secti
 {
 
     update();
-    //cerr << "coConfigBool::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << endl;
+    //std::cerr << "coConfigBool::<init> info: 1: " << this->variable << " " << this->section << " " << this->value << std::endl;
 }
 
 coConfigBool::coConfigBool(const std::string &simpleVariable)
@@ -33,7 +33,7 @@ coConfigBool::coConfigBool(const std::string &simpleVariable)
 {
 
     update();
-    //cerr << "coConfigBool::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << endl;
+    //std::cerr << "coConfigBool::<init> info: 2: " << this->variable << " " << this->section << " " << this->value << std::endl;
 }
 
 coConfigBool::coConfigBool(coConfigGroup *group, const std::string &variable, const std::string &section)
@@ -41,7 +41,7 @@ coConfigBool::coConfigBool(coConfigGroup *group, const std::string &variable, co
 {
 
     update();
-    //cerr << "coConfigBool::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << endl;
+    //std::cerr << "coConfigBool::<init> info: 3: " << this->variable << " " << this->section << " " << this->value << std::endl;
 }
 
 coConfigBool::coConfigBool(coConfigGroup *group, const std::string &simpleVariable)
@@ -49,7 +49,7 @@ coConfigBool::coConfigBool(coConfigGroup *group, const std::string &simpleVariab
 {
 
     update();
-    //cerr << "coConfigBool::<init> info: 4: " << this->variable << " " << this->section << " " << this->value << endl;
+    //std::cerr << "coConfigBool::<init> info: 4: " << this->variable << " " << this->section << " " << this->value << std::endl;
 }
 
 coConfigBool::coConfigBool(const coConfigBool &value)
@@ -73,7 +73,7 @@ std::string coConfigBool::toString(const bool &value) const
 
 coConfigBool &coConfigBool::operator=(bool value)
 {
-    //cerr << "coConfigBool::operator= info: setting to " << value << endl;
+    //std::cerr << "coConfigBool::operator= info: setting to " << value << std::endl;
     coConfigValue<bool>::operator=(value);
     return *this;
 }
