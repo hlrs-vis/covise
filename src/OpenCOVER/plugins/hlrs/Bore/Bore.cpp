@@ -798,8 +798,10 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 	fclose(fp);
 	if (type == BoreHole::enbw)
 	{
-		fp = fopen((fileName.substr(0, fileName.length() - 5) + ".csv").c_str(), "r");
-		if (fp != NULL)
+		std::string basename = fileName.substr(0, fileName.length() - 5);
+        auto csvFile = coVRFileManager::instance()->findOrGetFile(basename + ".csv");
+		fp = fopen(csvFile.c_str(), "r");
+		if (fp)
 		{
 			char buf[1000];
 			fgets(buf, 1000, fp);
@@ -813,12 +815,11 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 				}
 			}
 
+		    fclose(fp);
 		}
-
-		fclose(fp);
-		std::string basename = fileName.substr(0, fileName.length() - 5);
-		fp = fopen((basename + "Kluefte.csv").c_str(), "r");
-		if (fp != NULL)
+        auto KluefteFile = coVRFileManager::instance()->findOrGetFile(basename + "Kluefte.csv");
+		fp = fopen(KluefteFile.c_str(), "r");
+		if (fp)
 		{
 			char buf[1000];
 			fgets(buf, 1000, fp);
@@ -831,7 +832,7 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 					b->second->clefts.push_back(c);
 				}
 			}
-
+            fclose(fp);
 		}
 	}
 	for (auto& b : Bore_map) {
