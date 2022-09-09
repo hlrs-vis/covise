@@ -54,16 +54,14 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
 {
-    m_coordTerms[0]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.X"));
-    m_coordTerms[1]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Y"));
-    m_coordTerms[2]->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Z"));
-    m_colorTerm->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Color"));
-    m_timeScaleIndicator->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.TimeScaleIndicator"));
-    m_delimiter->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.Delimiter"));
-    m_offset->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud.HeaderOffset"));
+    const std::array<ui::EditField*, 7> editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset };
+    for (auto ef : editFields)
+    {
+        ef->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud." + ef->name()));
+        ef->setShared(true);
+    }
     if(m_delimiter->value().empty())
         m_delimiter->setValue(";");
-    m_animationSpeedMulti->setShared(true);
     m_animationSpeedMulti->setBounds(0, 1000);
     m_animationSpeedMulti->setValue(1);
     m_animationSpeedMulti->setCallback([this](ui::Slider::ValueType value, bool released) {
@@ -72,6 +70,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
             coVRAnimationManager::instance()->setNumTimesteps(m_pointCloud->getOrCreateVertexBufferObject()->getArray(0)->getNumElements() / value, this);
         }
     });
+    m_animationSpeedMulti->setShared(true);
 
     m_pointSizeSlider->setBounds(0, 20);
     m_pointSizeSlider->setValue(4);
@@ -82,7 +81,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                           dynamic_cast<osg::Point *>(m_pointCloud->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(val);
                                       }
                                   });
-
+    m_pointSizeSlider->setShared(true);
     m_reloadBtn->setCallback([this]()
                             {
                                 if(m_currentGeode)
@@ -93,6 +92,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                     load(filename.c_str(), parent, nullptr);
                                 }
                             });
+    m_reloadBtn->setShared(true);
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
