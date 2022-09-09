@@ -64,7 +64,7 @@ private:
   covise::ColorMapSelector m_colorMapSelector;
   ui::Slider *m_pointSizeSlider;
   ui::Slider *m_animationSpeedMulti;
-  ui::Action *m_reloadBtn;
+  ui::Button *m_reloadBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
   void createGeodes(osg::Group *, const std::string &);

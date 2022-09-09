@@ -47,7 +47,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_animationSpeedMulti(new ui::Slider(m_CsvPointCloudMenu, "AnimationSpeedMultiplier"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
-    , m_reloadBtn(new ui::Action(m_CsvPointCloudMenu, "Reload"))
+    , m_reloadBtn(new ui::Button(m_CsvPointCloudMenu, "Reload"))
     , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
     , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
@@ -82,9 +82,10 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                       }
                                   });
     m_pointSizeSlider->setShared(true);
-    m_reloadBtn->setCallback([this]()
+    m_reloadBtn->setCallback([this](bool state)
                             {
-                                if(m_currentGeode)
+            (void)state;
+            if(m_currentGeode)
                                 {
                                     auto parent = m_currentGeode->getParent(0);
                                     auto filename = m_currentGeode->getName();
