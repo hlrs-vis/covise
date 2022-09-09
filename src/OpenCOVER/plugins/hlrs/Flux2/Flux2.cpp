@@ -108,6 +108,8 @@ bool Flux2::update()
 	{
 		if (coVRMSController::instance()->isMaster())
 		{
+		
+                fprintf(stderr, "speed: %f getSpeed: %f\n", speed,getSpeed());
 
             if (getSpeed() <= speed)
             {
@@ -131,44 +133,52 @@ bool Flux2::update()
             TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
 
             float a = getYAcceleration();
-            if (a > 0)
-            {
-                a = 0;
-            }
-
+            
             if (speed > 0)
             {
-                a += -getBrakeForce()*0.01;
+                a += -getAccelleration();
                 if (a < 0)
                 {
                     braking = true;
                 }
-		if((a*dT)< -speed)
+		if((getAccelleration()*dT)< -speed)
 		{
 		 a = -(speed/dT);
 		}
             }
             else
             {
-                a += getBrakeForce()*0.01;
+                a += getAccelleration();
                 if (a > 0)
                 {
                     braking = true;
                 }
-		if((a*dT)> -speed)
+		if((getAccelleration()*dT)> -speed)
 		{
 		 a = (speed/dT);
 		}
             }
+            fprintf(stderr, "a2: %f\n", a);
 
             speed = speed + a * dT;
 
-            setResistance(100 * fabs(a) / 2.0);
-            fprintf(stderr, "resistance: %f\n", -a / 2.0);
+            if(a<0)
+	    {
+	    
+                setResistance(1000 * -a );
+                fprintf(stderr, "resistance: %f\n", 1000 * -a );
+	    }
+	    else
+	    {
+	    
+                setResistance(0 );
+                fprintf(stderr, "resistance: %f\n", 0);
+	    }
+	    
 
             lastSpeed = getSpeed();
 
-            if (fabs(speed) < 0.01)
+            if (fabs(speed) < 0.00001)
             {
                 speed = 0;
             }
@@ -229,6 +239,7 @@ float Flux2::getYAcceleration()
 		cangle *= -1;
 	//fprintf(stderr,"z_yz %f x0 %f sprod: %f\n",z_yz[1],x[0],cangle);
 	float a = cangle * 9.81;
+	fprintf(stderr,"a:%f\n",a);
 	return a;
 }
 
@@ -332,6 +343,16 @@ float Flux2::getBrakeForce()
 		return 0;
 	}
 	return fluxData.brake;
+}
+
+
+float Flux2::getAccelleration()
+{
+	// prevents brake force to be negative
+	if (fluxData.brake < 0) {
+		return 0;
+	}
+	return fluxData.brake*0.01;
 }
 
 void Flux2::setResistance(float f)

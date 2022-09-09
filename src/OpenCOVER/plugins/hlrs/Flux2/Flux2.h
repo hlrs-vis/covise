@@ -54,6 +54,7 @@ public:
     bool update();
     float getAngle();
     float getBrakeForce();
+    float getAccelleration();
     float getSpeed();
     volatile bool running;
     virtual void run();
