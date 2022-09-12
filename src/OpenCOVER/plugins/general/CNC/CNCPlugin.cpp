@@ -746,14 +746,6 @@ CNCPlugin::~CNCPlugin()
     }
 }
 
-void
-CNCPlugin::preFrame()
-{
-    if (record->state())
-    {
-    }
-}
-
 
 void CNCPlugin::save()
 {

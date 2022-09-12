@@ -59,8 +59,7 @@ public:
     CNCPlugin();
     virtual ~CNCPlugin();
     static CNCPlugin *instance();
-    bool init();
-
+    bool init() override;
 
     int loadGCode(const char *filename, osg::Group *loadParent);
     static int sloadGCode(const char *filename, osg::Group *loadParent, const char *covise_key);
@@ -70,7 +69,6 @@ public:
 private:
 
     // this will be called in PreFrame
-    void preFrame();
     ui::Menu *PathTab = nullptr;
     ui::Button*record = nullptr, *playPause = nullptr;
     ui::Action *reset = nullptr, *saveButton = nullptr;
