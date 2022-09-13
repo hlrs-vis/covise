@@ -67,10 +67,12 @@ private:
   ui::Button *m_reloadBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
+  const std::array<ui::EditField*, 7> m_editFields;
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols);
   int unloadFile();
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
+  void readSettings(const std::string& filename, const std::array<ui::EditField*, 7> &settings);
 };
 
 #endif // COVER_PLUGIN_OCT_H

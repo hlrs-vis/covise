@@ -53,13 +53,12 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
     , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
+    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset }
 {
-    const std::array<ui::EditField*, 7> editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset };
-    for (auto ef : editFields)
-    {
-        ef->setValue(coCoviseConfig::getEntry("COVER.Plugin.CsvPointCloud." + ef->name()));
+
+    for (auto ef : m_editFields)
         ef->setShared(true);
-    }
+
     if(m_delimiter->value().empty())
         m_delimiter->setValue(";");
     m_animationSpeedMulti->setBounds(0, 1000);
@@ -188,6 +187,24 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string& s
     return true;
 }
 
+void CsvPointCloudPlugin::readSettings(const std::string& filename, const std::array<ui::EditField*, 7>& settings)
+{
+    auto fn = coVRFileManager::instance()->findOrGetFile(filename);
+    std::fstream f(fn);
+    std::string line;
+
+
+    while (std::getline(f, line))
+    {
+        std::string name = line.substr(0, line.find_first_of(" "));
+        std::string value = line.substr(line.find_first_of('"') + 1, line.find_last_of('"') - line.find_first_of('"') - 1);
+        auto setting = std::find_if(settings.begin(), settings.end(), [name](ui::EditField* ef) {return ef->name() == name; });
+        if (setting != settings.end())
+            (*setting)->setValue(value);
+    }
+    
+}
+
 osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
 {
     // compile parser
@@ -267,6 +284,8 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
 
 void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
+    readSettings(filename.substr(0, filename.find_last_of('.')) + ".txt", m_editFields);
+
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
     int offset = 0;
     try

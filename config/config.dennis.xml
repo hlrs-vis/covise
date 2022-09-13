@@ -52,7 +52,7 @@
 	
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31253" udpPort="49999" />
-	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
+	  <RemoteFetch value="on" path="C:/src/RemoteFetch" hash="on"/>
     <CheckConnectionTimeout value ="5"/>
    </VRB>
 
@@ -69,8 +69,10 @@
     <Collaborative>
       <UserName value="Dennis"/>
       <Email value="grieger@hlrs.de"/>
-      <Icon value="/home/dennis/data/logos3D/KoLabBW.obj"/>
+      <Icon value="C:/src/data/AvatarIcons/visper2.obj"/>
     </Collaborative>
+
+
       <UI>
           <VRUI toolbar="false" />
           <NavigationManager>
@@ -151,23 +153,6 @@
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
    <Measure menu="true" />
-   <!-- <Oct menu="true" shared="true">
-    <X value="CurrPosX_PCS / 10" />
-    <Y value="CurrPosY_PCS / 10" />
-    <Z value="CurrPosZ_PCS / 10 + octsignal" />
-    <Color value="Error" />
-    <TimeScaleIndicator value="Name" />
-    <Delimiter value=";" />
-   </Oct> -->
-  <CsvPointCloud menu="true" shared="true">
-    <X value="CurrPosX_PCS + cos(Winkel *  0.0174533)" />
-    <Y value="CurrPosY_PCS + sin(Winkel *  0.0174533)" />
-    <Z value="0" />
-    <Color value="Leistung" />
-    <HeaderOffset value="0" />
-    <TimeScaleIndicator value="Name" />
-    <Delimiter value="," />
-   </CsvPointCloud>
    <PointCloud shared="true">
    <PointSize value="4" />
    </PointCloud>
