@@ -197,6 +197,9 @@
     <Server port="31809" />
    </covRemote>
 
+   <VRB>
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
+   </VRB>
   </System>
 
 
