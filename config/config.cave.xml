@@ -510,6 +510,7 @@
 
    <Collaborative>
     <Sync mode="LOOSE_COUPLING" />
+    <Icon value="/mnt/raid/home/hpcwoess/covise/share/covise/icons/KoLabBW.obj"/>
    </Collaborative>
 
    <Spotlight value="OFF" />
