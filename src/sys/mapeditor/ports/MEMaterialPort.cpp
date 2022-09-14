@@ -333,6 +333,7 @@ void MEMaterialPort::changeFolderPixmap()
             folderAction[MODULE]->setIcon(MEMainHandler::instance()->pm_folderclosed);
         if (folderAction[CONTROL])
             folderAction[CONTROL]->setIcon(MEMainHandler::instance()->pm_folderclosed);
+        if(m_dialog)
         m_dialog->hide();
     }
 
@@ -342,6 +343,7 @@ void MEMaterialPort::changeFolderPixmap()
             folderAction[MODULE]->setIcon(MEMainHandler::instance()->pm_folderopen);
         if (folderAction[CONTROL])
             folderAction[CONTROL]->setIcon(MEMainHandler::instance()->pm_folderopen);
+        if(m_dialog)
         m_dialog->show();
     }
 }

@@ -238,7 +238,7 @@
 
      <Lights value="ON" />
      <Audio value="AServer" >
-      <Host value="141.58.8.223" />
+      <!--Host value="141.58.8.223" /-->
      </Audio>
 
 

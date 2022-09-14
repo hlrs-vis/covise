@@ -263,6 +263,7 @@
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
     <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
    </VRB>
    
    <RemoteDaemon>

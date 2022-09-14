@@ -328,12 +328,12 @@ void Flux2::Initialize()
 
 float Flux2::getSpeed()
 {
-	return fluxData.speed/545.0; // speed in m/s
+	return fluxData.speed/345.0; // speed in m/s
 }
 
 float Flux2::getAngle()
 {
-	return fluxData.steeringAngle; 
+	return fluxData.steeringAngle*2.0; 
 }
 
 float Flux2::getBrakeForce()
@@ -342,7 +342,7 @@ float Flux2::getBrakeForce()
 	if (fluxData.brake < 0) {
 		return 0;
 	}
-	return fluxData.brake;
+	return fluxData.brake/4.0;
 }
 
 
@@ -352,12 +352,12 @@ float Flux2::getAccelleration()
 	if (fluxData.brake < 0) {
 		return 0;
 	}
-	return fluxData.brake*0.01;
+	return (fluxData.brake/4.0)*0.01;
 }
 
 void Flux2::setResistance(float f)
 {
-	resistance = f;
+	resistance = f*10.0;
 }
 
 void Flux2::sendResistance()
