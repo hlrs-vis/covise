@@ -198,6 +198,7 @@ void coVRAnimationManager::initAnimMenu()
 
 	animSyncItem = new ui::Button(animRowMenu, "Synchronize");
     animSyncItem->setState(true);
+    animSyncItem->setShared(true);
 	animSyncItem->setCallback([this](bool state)
 		{
 			animFrameItem->setShared(state);
