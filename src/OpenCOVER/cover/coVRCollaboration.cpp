@@ -268,11 +268,12 @@ bool coVRCollaboration::update()
         coVRPartnerList::instance()->sendAvatarMessage();
         lastAvatarUpdateTime = thisTime;
     }
-	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()) //i am navigating
+	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()|| syncXform) //i am navigating
 	{
 		//store my viewpoint in shared state to be able to reload it
         avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
         scaleFactor = VRSceneGraph::instance()->scaleFactor();
+	syncXform = false;
 	}
     return changed;
 }

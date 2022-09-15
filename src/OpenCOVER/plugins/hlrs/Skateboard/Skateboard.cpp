@@ -12,6 +12,7 @@
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRCollaboration.h>
 #include <cover/VRSceneGraph.h>
 #include <osg/LineSegment>
 #include <osgUtil/IntersectionVisitor>
@@ -218,6 +219,7 @@ bool Skateboard::update()
             coVRMSController::instance()->readMaster((char *)TransformMat.ptr(), sizeof(TransformMat));
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
+                coVRCollaboration::instance()->SyncXform();
        
     }
     return false;
