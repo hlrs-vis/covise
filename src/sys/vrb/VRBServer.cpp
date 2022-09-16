@@ -5,10 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-
-
-
 #define IOMANIPH
 // don't include iomanip.h becaus it interferes with qt
 
@@ -164,48 +160,13 @@ void VRBServer::processMessages(float waitTime)
 {
 	while (const Connection *conn = connections.check_for_input(waitTime))
     {
-#ifdef MB_DEBUG
-        std::cerr << "VRB: have input" << std::endl;
-#endif
         if (conn == udpConn) // udp connection
         {
 			processUdpMessages();
-			return;
 		}
         else if (conn == sConn) //tcp connection to server port
         {
-#ifdef MB_DEBUG
-            std::cerr << "accepting new client connection" << std::endl;
-#endif
-            std::unique_ptr<Connection> clientConn;
-            clientConn = sConn->spawn_connection();
-#ifdef MB_DEBUG
-            std::cerr << "spawned new client connection" << std::endl;
-#endif
-
-            struct linger linger;
-            linger.l_onoff = 0;
-            linger.l_linger = 0;
-            setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-            vrb::ConnectionDetails::ptr cd;
-            if (m_gui)
-            {
-                QSocketNotifier *sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
-                QObject::connect(sn, SIGNAL(activated(int)),
-                    this, SLOT(processMessages()));
-
-                auto uicd = UiConnectionDetails::ptr{new UiConnectionDetails{}};
-                uicd->notifier.reset(sn);
-                cd = std::move(uicd);
-            }
-			else
-			{
-                cd.reset(new vrb::ConnectionDetails{});
-			}
-            cd->tcpConn = connections.add(std::move(clientConn));
-            cd->udpConn = udpConn;
-            handler->addClient(std::move(cd));
-            std::cerr << "VRB new client request" << std::endl;
+            addClient();
         }
         else
         {
@@ -219,6 +180,34 @@ void VRBServer::processMessages(float waitTime)
                 static_cast<VrbUiMessageHandler*>(handler.get())->setClientNotifier(conn, true);
         }
     }
+}
+
+void VRBServer::addClient()
+{
+    auto clientConn = sConn->spawn_connection();
+    struct linger linger;
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
+    vrb::ConnectionDetails::ptr cd;
+    if (m_gui)
+    {
+        QSocketNotifier* sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
+        QObject::connect(sn, SIGNAL(activated(int)),
+            this, SLOT(processMessages()));
+
+        auto uicd = UiConnectionDetails::ptr{ new UiConnectionDetails{} };
+        uicd->notifier.reset(sn);
+        cd = std::move(uicd);
+    }
+    else
+    {
+        cd.reset(new vrb::ConnectionDetails{});
+    }
+    cd->tcpConn = connections.add(std::move(clientConn));
+    cd->udpConn = udpConn;
+    handler->addClient(std::move(cd));
+    std::cerr << "VRB new client request" << std::endl;
 }
 void VRBServer::processUdpMessages()
 {

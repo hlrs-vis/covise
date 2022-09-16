@@ -67,5 +67,8 @@ private:
 	covise::UdpMessage udpMsg;
     bool requestToQuit = false;
 
+    void VRBServer::addClient();
+
+
 };
 #endif
