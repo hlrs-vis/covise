@@ -12,13 +12,24 @@
 
 using namespace std;
 
+#define INTERACTOR_DEBUG false
+
+#define DEBUG_OUTPUT(text) \
+    do {\
+        if (INTERACTOR_DEBUG) \
+        {\
+            fprintf(stderr, text); \
+            fprintf(stderr, "/n"); \
+        }\
+    } while (false)
+
 namespace vrui
 {
 
 coInteraction::coInteraction(InteractionType type, const string &name, InteractionPriority priority)
     : notifyOnly(false)
 {
-    //fprintf(stderr,"coInteraction::coInteraction \n");
+    DEBUG_OUTPUT("coInteraction::coInteraction");
 
     this->type = type;
     state = Idle;
@@ -32,7 +43,7 @@ coInteraction::coInteraction(InteractionType type, const string &name, Interacti
 
 coInteraction::~coInteraction()
 {
-    //fprintf(stderr,"coInteraction::~coInteraction \n");
+    DEBUG_OUTPUT("coInteraction::~coInteraction");
     if (state == Active || state == Paused || state == ActiveNotify)
         cancelInteraction();
     state = Idle;
@@ -47,14 +58,14 @@ void coInteraction::setGroup(coInteraction::InteractionGroup group)
 
 void coInteraction::pause()
 {
-    //fprintf(stderr,"coInteraction::paus \n");
+    DEBUG_OUTPUT("coInteraction::pause");
     state = Paused;
 	coInteractionManager::the()->doRemoteUnLock(group);
 }
 
 void coInteraction::requestActivation()
 {
-    //fprintf(stderr,"coInteraction::requestActivation \n");
+    DEBUG_OUTPUT("coInteraction::requestActivation");
     if (state == Idle) // if we are already active or the remote i active, we don't try to become active
     {
         state = PendingActive;
@@ -70,7 +81,7 @@ void coInteraction::resetState()
 
 void coInteraction::cancelInteraction()
 {
-    //fprintf(stderr,"coInteraction::cancelInteraction \n");
+    DEBUG_OUTPUT("coInteraction::cancelInteraction");
     if (state == Active || state == Paused || state == ActiveNotify)
     {
         state = Idle;
@@ -80,15 +91,15 @@ void coInteraction::cancelInteraction()
 
 bool coInteraction::activate()
 {
-    //fprintf(stderr,"coInteraction::activate \n");
+    DEBUG_OUTPUT("coInteraction::activate");
     if (state == Active || state == Paused || state == ActiveNotify)
     {
-        //fprintf(stderr,"coInteraction::activate (state == Active || state == Paused || state == ActiveNotify)\n");
+        DEBUG_OUTPUT("coInteraction::activate (state == Active || state == Paused || state == ActiveNotify)\n");
         return false;
     }
     else if (state == Idle)
     {
-        //fprintf(stderr,"coInteraction::activate (state == Idle)\n");
+        DEBUG_OUTPUT("coInteraction::activate (state == Idle)\n");
 
         if (coInteractionManager::the()->isOneActive(type))
         {
@@ -116,19 +127,19 @@ bool coInteraction::activate()
 
 void coInteraction::cancelPendingActivation()
 {
-    //fprintf(stderr,"coInteraction::cancelPendingActivatio \n");
+    DEBUG_OUTPUT("coInteraction::cancelPendingActivatio");
     state = Idle;
 }
 
 void coInteraction::doActivation()
 {
-    //fprintf(stderr,"coInteraction::doActivation \n");
+    DEBUG_OUTPUT("coInteraction::doActivation");
     state = notifyOnly ? ActiveNotify : Active;
 }
 
 void coInteraction::removeIcon() // remove the indicator for this interaction
 {
-    //fprintf(stderr,"coInteraction::removeIcon \n");
+    DEBUG_OUTPUT("coInteraction::removeIcon");
     hasPriorityFlag = false;
     if (type == ButtonA || type == AllButtons)
     {
@@ -138,7 +149,7 @@ void coInteraction::removeIcon() // remove the indicator for this interaction
 
 void coInteraction::addIcon() // add    the indicator for this interaction
 {
-    //fprintf(stderr,"coInteraction::addIcon \n");
+    DEBUG_OUTPUT("coInteraction::addIcon");
     hasPriorityFlag = true;
 
     if (type == ButtonA || type == AllButtons)
@@ -149,13 +160,13 @@ void coInteraction::addIcon() // add    the indicator for this interaction
 
 bool coInteraction::hasPriority()
 {
-    //fprintf(stderr,"coInteraction::hasPriority \n");
+    DEBUG_OUTPUT("coInteraction::hasPriority");
     return hasPriorityFlag;
 }
 
 void coInteraction::setName(const string &name)
 {
-    //fprintf(stderr,"coInteraction::setName \n");
+    DEBUG_OUTPUT("coInteraction::setName");
     bool haveToAddIcon = false;
     if (hasPriority())
     {
@@ -173,7 +184,7 @@ void coInteraction::setName(const string &name)
 
 void coInteraction::setNotifyOnly(bool flag)
 {
-    //fprintf(stderr,"coInteraction::setNotifyOnly \n");
+    DEBUG_OUTPUT("coInteraction::setNotifyOnly");
     notifyOnly = flag;
 }
 
