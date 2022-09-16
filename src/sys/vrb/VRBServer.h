@@ -8,15 +8,19 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
-#include <string>
+
 #include <QObject>
-#include <QString>
+#include <qsocketnotifier.h>
+
+#include <string>
 #include <map>
 #include <set>
 #include <memory>
+
 #include <vrb/SessionID.h>
 #include <vrb/server/VrbMessageHandler.h>
 #include <net/covise_connect.h>
+#include <net/udpMessage.h>
 
 
 class QTreeWidgetItem;
@@ -40,11 +44,10 @@ private slots:
 	void processUdpMessages();
 public:
     VRBServer(bool gui);
-    ~VRBServer();
     void loop();
 
 	bool startUdpServer();
-    int openServer(bool printport);
+    bool openServer(bool printport);
     void closeServer();
     void removeConnection(const covise::Connection *conn) override;
     int getPort();
@@ -52,20 +55,16 @@ public:
 
 private:
     bool m_gui;
-    QPixmap *pix_master = NULL;
-    QPixmap *pix_slave = NULL;
     const covise::ServerConnection *sConn = nullptr;
 	const covise::UDPConnection* udpConn = nullptr;
-    QSocketNotifier *serverSN = nullptr;
-
-    vrb::VrbMessageHandler *handler;
+    std::unique_ptr<QSocketNotifier> serverSN;
 
     covise::ConnectionList connections;
+    std::unique_ptr<vrb::VrbMessageHandler> handler;
     int m_tcpPort, m_udpPort; // port Number (default: 31800) covise.config: VRB.TCPPort
   
-    covise::Message *msg = nullptr;
-	covise::UdpMessage* udpMsg = nullptr;
-	char* ip = new char[16];
+    covise::Message msg;
+	covise::UdpMessage udpMsg;
     bool requestToQuit = false;
 
 };

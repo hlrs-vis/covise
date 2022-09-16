@@ -9,7 +9,6 @@
 
 
 
-#include <qsocketnotifier.h>
 #define IOMANIPH
 // don't include iomanip.h becaus it interferes with qt
 
@@ -51,7 +50,6 @@ extern ApplicationWindow *mw;
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
 #include <net/message_types.h>
-#include <net/udpMessage.h>
 #include <util/unixcompat.h>
 
 #include <qtutil/NetHelp.h>
@@ -89,41 +87,16 @@ VRBServer::VRBServer(bool gui)
     if (gui)
     {
         vrbClients = &uiClients;
-        handler = new VrbUiMessageHandler(this);
+        handler.reset(new VrbUiMessageHandler(this));
     }
     else
     {
         vrbClients = &clients;
-        handler = new VrbMessageHandler(this);
+        handler.reset(new VrbMessageHandler(this));
     }
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
-}
-
-VRBServer::~VRBServer()
-{
-	delete[] ip;
-    delete handler;
-    //cerr << "closed Server connection" << endl;
-}
-
-void VRBServer::closeServer()
-{
-    if (m_gui)
-    {
-    delete serverSN;
-    serverSN = nullptr;
-    }
-
-
-    connections.remove(sConn);
-    sConn = nullptr;
-    // tut sonst nicht (close_socket kommt nicht an)delete sConn;
-    //sConn = NULL;
-
-    requestToQuit = true;
-    handler->closeConnection();
 }
 
 void VRBServer::removeConnection(const covise::Connection * conn)
@@ -145,7 +118,7 @@ int VRBServer::getUdpPort()
     return m_udpPort;
 }
 
-int VRBServer::openServer(bool printport)
+bool VRBServer::openServer(bool printport)
 {
     if (printport) {
         for (int port = 1024; port <= 0xffff; ++port) {
@@ -158,7 +131,7 @@ int VRBServer::openServer(bool printport)
 
         if (!sConn) {
             fprintf(stderr, "Could not open server on any port\n");
-            return (-1);
+            return false;
         }
     }
     else
@@ -167,25 +140,21 @@ int VRBServer::openServer(bool printport)
                                                                      0, 0);
         if (!sConn) {
             fprintf(stderr, "Could not open server port %d\n", m_tcpPort);
-            return (-1);
+            return false;
         }
     }
-    if (!msg)
-        msg = new Message;
-    if(!udpMsg)
-	    udpMsg = new UdpMessage;
     if (m_gui)
     {
-        QSocketNotifier *serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
-        QObject::connect(serverSN, SIGNAL(activated(int)),
+        serverSN.reset(new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read));
+        QObject::connect(&*serverSN, SIGNAL(activated(int)),
             this, SLOT(processMessages()));
     }
-    return 0;
+    return true;
 }
 
 void VRBServer::loop()
 {
-    while (1)
+    while (true)
     {
 		processMessages(10.f);
     }
@@ -240,48 +209,22 @@ void VRBServer::processMessages(float waitTime)
         }
         else
         {
-#ifdef MB_DEBUG
-            std::cerr << "Receive Message!" << std::endl;
-#endif
             if (m_gui)
-            {
-                static_cast<VrbUiMessageHandler*>(handler)->setClientNotifier(conn, false);
-            }
+                static_cast<VrbUiMessageHandler*>(handler.get())->setClientNotifier(conn, false);
 
-            if (conn->recv_msg(msg))
-            {
-#ifdef MB_DEBUG
-                std::cerr << "Message found!" << std::endl;
-#endif
-                if (msg)
-                {
-                    handler->handleMessage(msg);
-#ifdef MB_DEBUG
-                    std::cerr << "Left handleClient!" << std::endl;
-#endif
-                }
-                else
-                {
-#ifdef MB_DEBUG
-                    std::cerr << "Message is NULL!" << std::endl;
-#endif
-                }
-            }
+            if (conn->recv_msg(&msg))
+                handler->handleMessage(&msg);
 
             if (m_gui)
-            {
-                static_cast<VrbUiMessageHandler*>(handler)->setClientNotifier(conn, true);
-            }
-
-
+                static_cast<VrbUiMessageHandler*>(handler.get())->setClientNotifier(conn, true);
         }
     }
 }
 void VRBServer::processUdpMessages()
 {
-	while (udpConn->recv_udp_msg(udpMsg))
+	while (udpConn->recv_udp_msg(&udpMsg))
 	{
-		handler->handleUdpMessage(udpMsg);
+		handler->handleUdpMessage(&udpMsg);
 	}
 }
 bool VRBServer::startUdpServer() 

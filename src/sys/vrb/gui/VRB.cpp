@@ -115,7 +115,6 @@ int main(int argc, char **argv)
         }
         int exitcode = a.exec();
 
-        server.closeServer();
         return exitcode;
     }
     else
@@ -140,7 +139,6 @@ int main(int argc, char **argv)
         }
         int exitcode = 0;
 
-        server.closeServer();
         return exitcode;
     }
 }
