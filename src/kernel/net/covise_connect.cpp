@@ -677,9 +677,7 @@ int ServerConnection::acceptOne(float wait)
 
 ServerConnection *Socket::copy_and_accept()
 {
-    ServerConnection *tmp_conn;
-    Socket *tmp_sock;
-    tmp_sock = new Socket(*this);
+    auto tmp_sock = new Socket(*this);
 
     socklen_t length = sizeof(s_addr_in);
 
@@ -689,8 +687,7 @@ ServerConnection *Socket::copy_and_accept()
         coPerror("ServerConnection: accept failed in copy_and_accept");
         return NULL;
     }
-    tmp_conn = new ServerConnection(tmp_sock);
-    return tmp_conn;
+    return new ServerConnection(tmp_sock);
 }
 
 SimpleServerConnection *Socket::copySimpleAndAccept()
