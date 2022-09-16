@@ -41,6 +41,7 @@ Q_OBJECT
 private slots:
 
     void processMessages(float waitTime = 0.0001f);
+
 	void processUdpMessages();
 public:
     VRBServer(bool gui);
@@ -67,7 +68,7 @@ private:
 	covise::UdpMessage udpMsg;
     bool requestToQuit = false;
 
-    void VRBServer::addClient();
+    void addClient();
 
 
 };
