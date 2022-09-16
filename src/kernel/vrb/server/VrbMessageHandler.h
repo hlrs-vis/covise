@@ -75,7 +75,6 @@ public:
 	void handleUdpMessage(covise::UdpMessage* msg);
 	int numberOfClients();
 	void addClient(ConnectionDetails::ptr&& clientCon);
-	void closeConnection();
 	void remove(const covise::Connection* c);
 protected:
 	///update the vrb userinterface

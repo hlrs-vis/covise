@@ -551,7 +551,6 @@ void coVRCommunication::handleVRB(const Message &msg)
     }
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
-    case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         toggleClientState(false);
     }

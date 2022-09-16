@@ -384,11 +384,6 @@ namespace vrb
 		}
 	}
 
-	void VrbMessageHandler::closeConnection()
-	{
-		TokenBuffer tb;
-		clients.sendMessageToAll(tb, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
-	}
 	//protected->implementation in derived classes
 	void VrbMessageHandler::updateApplicationWindow(const std::string &cl, int sender, const std::string &var, const covise::DataHandle &value)
 	{

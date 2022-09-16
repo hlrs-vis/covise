@@ -615,7 +615,6 @@ bool HostManager::handleVrbMessage()
     }
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
-    case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         if (m_hosts.empty()) //we are shutting down
             return false;

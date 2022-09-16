@@ -168,7 +168,7 @@ enum covise_msg_type
     COVISE_MESSAGE_VRB_QUIT,                          // 101
     COVISE_MESSAGE_VRB_SET_MASTER,                    // 102
     COVISE_MESSAGE_VRB_GUI,                           // 103
-    COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION,          // 104
+    COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION,          // 104 unsued and kept for compatibility
     COVISE_MESSAGE_VRB_REQUEST_FILE,                  // 105
     COVISE_MESSAGE_VRB_SEND_FILE,                     // 106
     COVISE_MESSAGE_CRB_QUIT,                          // 107

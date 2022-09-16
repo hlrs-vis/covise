@@ -298,7 +298,6 @@ bool CoviseDaemon::handleVRB(const covise::Message &msg)
     break;
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
-    case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         emit disconnectedSignal();
         return false;
