@@ -288,6 +288,16 @@ demo 122 "Receiver: Volume Down" sasu kenwoodVolDown
 demo 123 "Receiver: Input: Video 1" sasu kenwoodVideo
 demo 124 "Receiver: Input: Au" sasu kenwoodAux
 
+# Mobilitaetswoche
+category="MOBILITAETSWOCHE"
+run_marienplatz_mobilitaetswoche() {
+#    bash /data/CapeReviso/SumoMarienplatz/250x250m2/startSumo.sh &
+    mobWeekSumo & # /home/covise/bin
+    SUMO=$!
+    opencover /data/CapeReviso/Marienplatz/praesentation2.wrl opencover://plugin/SumoTraCI
+    kill $SUMO
+}
+demo 140 "Zweite mobilitaetswoche" run_marienplatz_mobilitaetswoche 
 
 # Vistle
 category="Vistle"
