@@ -75,7 +75,8 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
 	int lockID = remoteLocks[group]->value();
 	if (vruiRendererInterface::the()->isRemoteBlockNececcary() && lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
 	{
-		return true;
+        cerr << "interaction " << " of group " << group << " is remotely blocked" << std::endl;
+        return true;
 	}
 	for (int type = coInteraction::ButtonA; type < coInteraction::NumInteractorTypes; ++type)
     {
@@ -88,6 +89,7 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
         {
             if ((*it)->getState() == coInteraction::Active && (*it)->getGroup() == group)
             {
+                cerr << "interaction " << " of group " << group << " is locally blocked" << std::endl;
                 return true;
             }
         }
