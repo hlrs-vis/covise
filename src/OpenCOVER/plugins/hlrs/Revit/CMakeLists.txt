@@ -1,9 +1,11 @@
 USING(Eigen)
+using(VRML)
 
 ADD_SUBDIRECTORY(RevitPlugin)
 SET(HEADERS
   RevitPlugin.h
   GenNormals.h
+  VrmlNodePhases.h
 IK/CJacobianTranspose.h
 IK/CJacobian.h
 IK/CJoint.h
@@ -24,6 +26,7 @@ IK/sigslot.h
 SET(SOURCES
   RevitPlugin.cpp
   GenNormals.cpp
+  VrmlNodePhases.cpp
 IK/CMatrixFactory.cpp
 IK/CAlgoFactory.cpp
 IK/CLink.cpp

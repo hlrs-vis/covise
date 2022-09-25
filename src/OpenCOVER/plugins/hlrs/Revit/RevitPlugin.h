@@ -51,6 +51,9 @@
 #include "IK/CAlgoFactory.h"
 
 
+
+
+
 #define REVIT_FEET_TO_M 0.304799999536704
 #define REVIT_M_TO_FEET 3.2808399
 
@@ -541,6 +544,7 @@ public:
     std::list<RevitDesignOptionSet*> designOptionSets;
     std::list<PhaseInfo*> phaseInfos;
     void setPhase(std::string phaseName);
+    void setPhase(int phase);
     int currentPhase=0;
     double TrueNorthAngle = 0.0;
     osg::Matrix NorthRotMat;
@@ -598,4 +602,7 @@ protected:
     Message *msg = nullptr;
 
 };
+
+
+
 #endif

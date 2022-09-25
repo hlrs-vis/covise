@@ -45,6 +45,8 @@
 
 #include <PluginUtil/PluginMessageTypes.h>
 
+#include <vrml97/vrml/VrmlNamespace.h>
+
 
 #include <osg/Geode>
 #include <osg/Switch>
@@ -62,6 +64,8 @@
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
+
+#include "VrmlNodePhases.h"
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
@@ -1264,6 +1268,7 @@ bool RevitPlugin::init()
 	currentGroup.push(revitGroup.get());
 	cover->getObjectsRoot()->addChild(revitGroup.get());
 	createMenu();
+	VrmlNamespace::addBuiltIn(VrmlNodePhases::defineType());
 
 
 	return true;
@@ -2026,8 +2031,12 @@ RevitPlugin::handleMessage(Message *m)
 			phaseMenu->add(pi->button);
 			phaseInfos.push_back(pi);
 		}
+
+		VrmlNodePhases::instance()->setNumPhases(phaseInfos.size());
 		if (currentPhase > numPhases - 1)
-			currentPhase = 0;
+		{
+			setPhase(0);
+		}
 	}
 	break;
 	case MSG_IKInfo:
@@ -2972,17 +2981,34 @@ void RevitPlugin::setPhase(std::string phaseName)
 	{
 		if (pi->PhaseName == phaseName)
 		{
-			currentPhase = pi->ID;
+			setPhase(pi->ID);
+			break;
 		}
 	}
 
-	for (auto& iter : ElementIDMap)
+}
+void RevitPlugin::setPhase(int phase)
+{
+	if (phase == currentPhase)
+		return;
+	for (const auto& pi : phaseInfos)
 	{
-		for (std::map<int, ElementInfo*>::iterator it = iter.begin(); it != iter.end(); it++)
+		if (pi->ID == phase)
 		{
-			setPhaseVisible(it->second);
+			currentPhase = pi->ID;
+			for (auto& iter : ElementIDMap)
+			{
+				for (std::map<int, ElementInfo*>::iterator it = iter.begin(); it != iter.end(); it++)
+				{
+					setPhaseVisible(it->second);
+				}
+			}
+			VrmlNodePhases::instance()->setPhase(currentPhase);
+			VrmlNodePhases::instance()->setPhase(pi->PhaseName);
+			return;
 		}
 	}
+
 }
 
 osg::Image *RevitPlugin::readImage(std::string fileName)
