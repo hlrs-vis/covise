@@ -2029,7 +2029,19 @@ RevitPlugin::handleMessage(Message *m)
 			pi->button->setText(pi->PhaseName);
 			pi->button->setCallback([this,pi](bool state) {if (state) RevitPlugin::instance()->setPhase(pi->PhaseName); });
 			phaseMenu->add(pi->button);
-			phaseInfos.push_back(pi);
+
+			for (const auto& pi1 : phaseInfos)
+			{
+				if (pi1->PhaseName == pi->PhaseName)
+				{
+					// we already got this phase, probably from an inline, ignore the new definition
+					delete pi;
+					pi = nullptr;
+					break;
+				}
+			}
+			if(pi)
+			    phaseInfos.push_back(pi);
 		}
 
 		VrmlNodePhases::instance()->setNumPhases(phaseInfos.size());
