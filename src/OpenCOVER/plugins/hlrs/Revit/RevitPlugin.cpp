@@ -2044,7 +2044,10 @@ RevitPlugin::handleMessage(Message *m)
 			    phaseInfos.push_back(pi);
 		}
 
-		VrmlNodePhases::instance()->setNumPhases(phaseInfos.size());
+		if (VrmlNodePhases::instance())
+		{
+			VrmlNodePhases::instance()->setNumPhases(phaseInfos.size());
+		}
 		if (currentPhase > numPhases - 1)
 		{
 			setPhase(0);
@@ -3014,9 +3017,11 @@ void RevitPlugin::setPhase(int phase)
 				{
 					setPhaseVisible(it->second);
 				}
+			}if (VrmlNodePhases::instance())
+			{
+				VrmlNodePhases::instance()->setPhase(currentPhase);
+				VrmlNodePhases::instance()->setPhase(pi->PhaseName);
 			}
-			VrmlNodePhases::instance()->setPhase(currentPhase);
-			VrmlNodePhases::instance()->setPhase(pi->PhaseName);
 			return;
 		}
 	}
