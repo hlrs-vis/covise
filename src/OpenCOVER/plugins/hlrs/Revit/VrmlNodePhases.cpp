@@ -133,7 +133,7 @@ void VrmlNodePhases::render(Viewer *viewer)
     (void)viewer;
     double timeNow = System::the->time();
 
-    if (d_Phase.get() >0)
+    /*if (d_Phase.get() >= 0)
     {
         eventOut(timeNow, "phase", d_Phase);
         eventOut(timeNow, "phaseName", d_PhaseName);
@@ -141,7 +141,7 @@ void VrmlNodePhases::render(Viewer *viewer)
     if (d_numPhases.get() >0)
     {
         eventOut(timeNow, "numPhases", d_numPhases);
-    }
+    }*/
 }
 
 ostream &VrmlNodePhases::printFields(ostream &os, int indent)
