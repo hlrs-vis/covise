@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         mw->show();
         a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
         VRBServer server(gui);
-        if (server.openServer(printport) < 0)
+        if (!server.openServer(printport))
         {
             return -1;
         }
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     else
     {
         VRBServer server(gui);
-        if (server.openServer(printport) < 0)
+        if (!server.openServer(printport))
         {
             return -1;
         }
