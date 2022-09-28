@@ -124,6 +124,7 @@ public:
 
     void requestQuit();
     coVRPlugin *visPlugin() const;
+    bool useVistle() const;
 
     size_t numTuis() const;
     coTabletUI *tui(size_t idx) const;

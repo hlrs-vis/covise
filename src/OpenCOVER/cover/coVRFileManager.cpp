@@ -1192,7 +1192,14 @@ coVRFileManager::coVRFileManager()
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
     osgDB::Registry::instance()->setOptions(options);
     remoteFetchHashPrefix = coCoviseConfig::isOn("hash", "System.VRB.RemoteFetch", true, nullptr);
+    if (OpenCOVER::instance()->useVistle())
+    {
+	remoteFetchEnabled = false;
+    }
+    else
+    {
 	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
+    }
     std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
     path = resolveEnvs(path);
     fs::path p{path};
