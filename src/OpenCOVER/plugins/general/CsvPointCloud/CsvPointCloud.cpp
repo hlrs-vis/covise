@@ -118,7 +118,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_coordTerms{ {new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")} }
     , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up"), new ui::EditField(m_CsvPointCloudMenu, "Right")}}
     , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
-    , m_animationSpeedMulti(new ui::Slider(m_CsvPointCloudMenu, "AnimationSpeedMultiplier"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
     , m_reloadBtn(new ui::Button(m_CsvPointCloudMenu, "Reload"))
@@ -135,15 +134,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
 
     if(m_delimiter->value().empty())
         m_delimiter->setValue(";");
-    m_animationSpeedMulti->setBounds(0, 1000);
-    m_animationSpeedMulti->setValue(1);
-    m_animationSpeedMulti->setCallback([this](ui::Slider::ValueType value, bool released) {
-        if(released && m_pointCloud)
-        {
-            coVRAnimationManager::instance()->setNumTimesteps(m_pointCloud->getOrCreateVertexBufferObject()->getArray(0)->getNumElements() / value, this);
-        }
-    });
-    m_animationSpeedMulti->setShared(true);
 
     m_pointSizeSlider->setBounds(0, 20);
     m_pointSizeSlider->setValue(4);
@@ -427,6 +417,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         pointShader->apply(m_currentGeode, m_pointCloud);
     }
     coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
+    coVRAnimationManager::instance()->setAnimationSkipMax(2000);
 }
 
 void CsvPointCloudPlugin::setTimestep(int t) 
@@ -434,7 +425,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
     //show points until t
     if(m_pointCloud)
     {
-        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti->value()));
+        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, t + 1));
     }
     //move machine axis
     if (m_machinePositions.size() > t)
