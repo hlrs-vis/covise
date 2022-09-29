@@ -26,9 +26,15 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 
+#include <vrml97/vrml/VrmlNode.h>
+#include <vrml97/vrml/VrmlNodeTransform.h>
+#include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/VrmlNamespace.h>
+
 using namespace osg;
 using namespace covise;
 using namespace opencover;
+using namespace vrml;
 
 constexpr int MAX_POINTS = 30000000;
 
@@ -37,12 +43,80 @@ CsvPointCloudPlugin *CsvPointCloudPlugin::m_plugin = nullptr;
 
 COVERPLUGIN(CsvPointCloudPlugin)
 
+
+class MachineNode;
+std::vector<MachineNode*> machineNodes;
+
+static VrmlNode* creator(VrmlScene* scene);
+
+class PLUGINEXPORT MachineNode : public vrml::VrmlNodeChild
+{
+public:
+    static VrmlNode* creator(VrmlScene* scene)
+    {
+        return new MachineNode(scene);
+    }
+    MachineNode(VrmlScene* scene):VrmlNodeChild(scene), m_index(machineNodes.size()) {
+        
+        std::cerr << "vrml Machine node created" << std::endl;
+        machineNodes.push_back(this);
+    }
+    ~MachineNode()
+    {
+        machineNodes.erase(machineNodes.begin() + m_index);
+    }
+    // Define the fields of XCar nodes
+    static VrmlNodeType* defineType(VrmlNodeType* t = 0)
+    {
+        static VrmlNodeType* st = 0;
+
+        if (!t)
+        {
+            if (st)
+                return st; // Only define the type once.
+            t = st = new VrmlNodeType("Machine", creator);
+        }
+
+        VrmlNodeChild::defineType(t); // Parent class
+
+
+        t->addEventOut("x", VrmlField::SFVEC3F);
+        t->addEventOut("y", VrmlField::SFVEC3F);
+        t->addEventOut("z", VrmlField::SFVEC3F);
+
+
+        return t;
+    }
+    virtual VrmlNodeType* nodeType() const { return defineType(); };
+    VrmlNode* MachineNode::cloneMe() const
+    {
+        return new MachineNode(*this);
+    }
+    void move(VrmlSFVec3f &position)
+    {
+        auto t = System::the->time();
+        constexpr float scale = 1;
+        eventOut(t, "y", VrmlSFVec3f{ position.x() * scale, 0, 0 });
+        eventOut(t, "x", VrmlSFVec3f{ 0, position.y() * scale, 0 });
+        eventOut(t, "z", VrmlSFVec3f{ 0, 0 ,position.z() * scale });
+    }
+
+private:
+    size_t m_index = 0;
+};
+
+VrmlNode* creator(VrmlScene* scene)
+{
+    return new MachineNode(scene);
+}
+
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
     : ui::Owner("CsvPointCloud", cover->ui)
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
     , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
-    , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}
+    , m_coordTerms{ {new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")} }
+    , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up"), new ui::EditField(m_CsvPointCloudMenu, "Right")}}
     , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
     , m_animationSpeedMulti(new ui::Slider(m_CsvPointCloudMenu, "AnimationSpeedMultiplier"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
@@ -53,9 +127,9 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
     , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
-    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset }
+    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset }
 {
-
+    
     for (auto ef : m_editFields)
         ef->setShared(true);
 
@@ -93,6 +167,23 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 }
                             });
     m_reloadBtn->setShared(true);
+
+    m_sliders = { new ui::Slider(m_CsvPointCloudMenu, "Xx"), new ui::Slider(m_CsvPointCloudMenu, "Yy"), new ui::Slider(m_CsvPointCloudMenu, "Zz") };
+    for (auto slider : m_sliders)
+    {
+        slider->setBounds(-500, 500);
+        slider->setCallback([this](double val, bool b) {
+            osg::Vec3 v;
+            for (size_t i = 0; i < 3; i++)
+            {
+                v[i] = m_sliders[i]->value();
+            }
+            osg::Matrix m;
+            m.makeTranslate(v);
+            //m(0, 3) = m_machinePositions[t].x();
+            m_transform->setMatrix(m);
+            });
+    }
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -108,6 +199,7 @@ bool CsvPointCloudPlugin::init()
     m_pointSizeSlider->setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
 
     coVRFileManager::instance()->registerFileHandler(&handler);
+    VrmlNamespace::addBuiltIn(MachineNode::defineType());
     return true;
 }
 
@@ -119,13 +211,16 @@ CsvPointCloudPlugin::~CsvPointCloudPlugin()
 
 int CsvPointCloudPlugin::load(const char *filename, osg::Group *loadParent, const char *covise_key)
 {
+    osg::MatrixTransform* t = new osg::MatrixTransform;
     osg::Group *g = new osg::Group;
-    loadParent->addChild(g);
-    if (filename != NULL)
+    loadParent->addChild(t);
+    t->addChild(g);
+    if (filename)
     {
         g->setName(filename);
     }
     assert(m_plugin);
+    m_plugin->m_transform = t;
     m_plugin->createGeodes(g, filename);
     return 1;
 }
@@ -187,7 +282,7 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string& s
     return true;
 }
 
-void CsvPointCloudPlugin::readSettings(const std::string& filename, const std::array<ui::EditField*, 7>& settings)
+void CsvPointCloudPlugin::readSettings(const std::string& filename)
 {
     auto fn = coVRFileManager::instance()->findOrGetFile(filename);
     std::fstream f(fn);
@@ -198,8 +293,8 @@ void CsvPointCloudPlugin::readSettings(const std::string& filename, const std::a
     {
         std::string name = line.substr(0, line.find_first_of(" "));
         std::string value = line.substr(line.find_first_of('"') + 1, line.find_last_of('"') - line.find_first_of('"') - 1);
-        auto setting = std::find_if(settings.begin(), settings.end(), [name](ui::EditField* ef) {return ef->name() == name; });
-        if (setting != settings.end())
+        auto setting = std::find_if(m_editFields.begin(), m_editFields.end(), [name](ui::EditField* ef) {return ef->name() == name; });
+        if (setting != m_editFields.end())
             (*setting)->setValue(value);
     }
     
@@ -282,9 +377,29 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
     return geo;
 }
 
+std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& symbols) {
+    
+    symbols.reset();
+    std::vector<VrmlSFVec3f> retval;
+    // compile parser
+    std::array<Expression, 3> stringExpressions;
+
+    for (size_t i = 0; i < stringExpressions.size(); i++)
+    {
+        if (!compileSymbol(symbols,m_machinePositionsTerms[i]->value(), stringExpressions[i]))
+            return retval;
+    }
+    for (size_t i = 0; i < symbols.size(); i++)
+    {
+        retval.emplace_back( -1 * stringExpressions[0]().value(), stringExpressions[1]().value(), stringExpressions[2]().value());
+        symbols.advance();
+    }
+    return retval;
+}
+
 void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
-    readSettings(filename.substr(0, filename.find_last_of('.')) + ".txt", m_editFields);
+    readSettings(filename.substr(0, filename.find_last_of('.')) + ".txt");
 
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
     int offset = 0;
@@ -300,6 +415,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 
     DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
     m_pointCloud = createOsgPoints(dataTable);
+    m_machinePositions = readMachinePositions(dataTable);
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
@@ -315,9 +431,24 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 
 void CsvPointCloudPlugin::setTimestep(int t) 
 {
+    //show points until t
     if(m_pointCloud)
     {
         m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (t + 1) * m_animationSpeedMulti->value()));
+    }
+    //move machine axis
+    if (m_machinePositions.size() > t)
+    {
+        for (auto machineNode : machineNodes)
+        {
+            machineNode->move(m_machinePositions[t]);
+        }
+        //move the workpiece with the machine table
+        osg::Vec3 v{ m_machinePositions[t].x(), 0, 0 }; 
+        osg::Matrix m;
+        m.makeTranslate(v);
+        if(m_transform)
+            m_transform->setMatrix(m);
     }
 }
 

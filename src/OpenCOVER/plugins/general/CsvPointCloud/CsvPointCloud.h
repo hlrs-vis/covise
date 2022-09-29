@@ -19,9 +19,9 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
+#include <vrml97/vrml/VrmlSFVec3f.h>
 #include <exprtk.hpp>
 #include <array>
-
 // This plugin was developed to visualize laser cladding measured by an oct scanner as an animated point cloud.
 // Therefore it reads an ".oct" file (a renamed csv file with semicolon delimiter and an 6 line ignored header).
 // x,y,z and the point color can be configured in the ui via mathematical expressions that use the variables listed in the ".oct" file
@@ -58,21 +58,26 @@ private:
   static CsvPointCloudPlugin *m_plugin;
   osg::Geometry *m_pointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
+  osg::MatrixTransform* m_transform = nullptr;
   ui::Menu *m_CsvPointCloudMenu, *m_colorMenu;
   std::array<ui::EditField*, 3> m_coordTerms;
   ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset;
+  std::array<ui::EditField*, 3> m_machinePositionsTerms;
   covise::ColorMapSelector m_colorMapSelector;
   ui::Slider *m_pointSizeSlider;
   ui::Slider *m_animationSpeedMulti;
   ui::Button *m_reloadBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
-  const std::array<ui::EditField*, 7> m_editFields;
+  const std::array<ui::EditField*, 10> m_editFields;
+  std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols);
+  std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
+  std::array<ui::Slider*, 3> m_sliders;
   int unloadFile();
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
-  void readSettings(const std::string& filename, const std::array<ui::EditField*, 7> &settings);
+  void readSettings(const std::string& filename);
 };
 
 #endif // COVER_PLUGIN_OCT_H
