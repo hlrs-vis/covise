@@ -436,6 +436,11 @@ coVRAnimationManager::setAnimationSpeed(float speed)
     animSpeedItem->setValue(speed);
 }
 
+void opencover::coVRAnimationManager::setAnimationSpeedMax(float maxSpeed)
+{
+    animSpeedItem->setBounds(animSpeedItem->min(), maxSpeed);
+}
+
 void coVRAnimationManager::setAnimationSkip(int frames)
 {
     if (frames < animSkipItem->min())
@@ -445,6 +450,11 @@ void coVRAnimationManager::setAnimationSkip(int frames)
 
     animSkipItem->setValue(frames);
     aniSkip = frames;
+}
+
+void opencover::coVRAnimationManager::setAnimationSkipMax(int maxFrames)
+{
+    animSkipItem->setBounds(0, maxFrames);
 }
 
 bool
