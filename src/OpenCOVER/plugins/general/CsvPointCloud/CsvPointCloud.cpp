@@ -88,7 +88,7 @@ public:
         return t;
     }
     virtual VrmlNodeType* nodeType() const { return defineType(); };
-    VrmlNode* MachineNode::cloneMe() const
+    VrmlNode* cloneMe() const
     {
         return new MachineNode(*this);
     }
