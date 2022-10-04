@@ -31,6 +31,8 @@
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/VrmlNamespace.h>
 
+#include <boost/filesystem.hpp>
+
 using namespace osg;
 using namespace covise;
 using namespace opencover;
@@ -74,7 +76,7 @@ public:
         {
             if (st)
                 return st; // Only define the type once.
-            t = st = new VrmlNodeType("Machine", creator);
+            t = st = new VrmlNodeType("CsvPointCloud", creator);
         }
 
         VrmlNodeChild::defineType(t); // Parent class
@@ -109,6 +111,8 @@ VrmlNode* creator(VrmlScene* scene)
 {
     return new MachineNode(scene);
 }
+
+namespace fs = boost::filesystem;
 
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
@@ -290,7 +294,21 @@ void CsvPointCloudPlugin::readSettings(const std::string& filename)
     
 }
 
-osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
+template<typename T>
+T read(std::ifstream& f)
+{
+    T t;
+    f.read((char*)&t, sizeof(T));
+    return t;
+}
+
+template<typename T>
+void write(std::ofstream& f, const T& t)
+{
+    f.write((const char*)&t, sizeof(T));
+}
+
+osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream& f)
 {
     // compile parser
     std::array<Expression, 4> stringExpressions;
@@ -300,12 +318,7 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
         if(!compileSymbol(symbols, i < 3 ? m_coordTerms[i]->value() : m_colorTerm->value(), stringExpressions[i]))
             return nullptr;
     }
-    //create geometry
-    auto geo = new osg::Geometry();
-    geo->setUseDisplayList(false);
-    geo->setSupportsDisplayList(false);
-    geo->setUseVertexBufferObjects(true);
-    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+
     auto colors = new Vec4Array();
     auto points = new Vec3Array();
 
@@ -326,14 +339,32 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
         maxScalar = std::max(maxScalar, scalarData[i]);
         symbols.advance();
     }
-
     for (size_t i = 0; i < symbols.size(); i++)
         colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
+    
+    //write cache file
+    write(f, symbols.size());
+    write(f, minScalar);
+    write(f, maxScalar);
+    f.write((const char*)&(*points)[0], symbols.size() * sizeof(osg::Vec3));
+    f.write((const char*) &(*colors)[0], symbols.size() * sizeof(osg::Vec4));
 
+    return createOsgPoints(points, colors, minScalar, maxScalar);
+}
+
+osg::Geometry* CsvPointCloudPlugin::createOsgPoints(Vec3Array* points, Vec4Array* colors, float minColor, float maxColor)
+{
+    //create geometry
+    auto geo = new osg::Geometry();
+    geo->setUseDisplayList(false);
+    geo->setSupportsDisplayList(false);
+    geo->setUseVertexBufferObjects(true);
+    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+    
     osg::Vec3 bottomLeft, hpr, offset;
     if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
         auto hudScale = covise::coCoviseConfig::getFloat("COVER.Plugin.ColorBar.HudScale", 0.5); // half screen height
-        const auto &s0 = coVRConfig::instance()->screens[0];
+        const auto& s0 = coVRConfig::instance()->screens[0];
         hpr = s0.hpr;
         auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
         osg::Matrix mat;
@@ -341,12 +372,12 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
         bottomLeft = s0.xyz - sz * mat * 0.5;
         auto minsize = std::min(s0.hsize, s0.vsize);
         bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
-        offset = osg::Vec3(s0.vsize/2.5, 0 , 0) * mat * hudScale;
+        offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
     }
     m_colorBar->setName("Power");
     m_colorBar->show(true);
-    m_colorBar->update(m_colorTerm->value(), minScalar, maxScalar, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
-    m_colorBar->setHudPosition(bottomLeft, hpr, offset[0]/480);
+    m_colorBar->update(m_colorTerm->value(), minColor, maxColor, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
+    m_colorBar->setHudPosition(bottomLeft, hpr, offset[0] / 480);
     m_colorBar->show(true);
 
 
@@ -360,12 +391,14 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols)
     osg::Vec3Array* normals = new osg::Vec3Array;
     normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
     geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
-    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, symbols.size()));
+    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, points->size()));
 
     setStateSet(geo, pointSize());
 
     return geo;
 }
+
+
 
 std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& symbols) {
     
@@ -389,7 +422,8 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& sy
 
 void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
-    readSettings(filename.substr(0, filename.find_last_of('.')) + ".txt");
+    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+    readSettings(settingsFileName);
 
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
     int offset = 0;
@@ -402,10 +436,33 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         std::cerr << "header offset must be an integer" << std::endl;
         return;
     }
+    size_t size = 0;
+    if (auto cache = cacheFileUpToData(filename))
+    {
+        std::cerr << "using cache" << std::endl;
+        size= read<size_t>(*cache);
+        auto min = read<float>(*cache);
+        auto max = read<float>(*cache);
+        auto points = new Vec3Array(size);
+        auto colors = new Vec4Array(size);
+        cache->read((char*)&(*points)[0], size * sizeof(osg::Vec3));
+        cache->read((char*)&(*colors)[0], size * sizeof(osg::Vec4));
+        m_pointCloud = createOsgPoints(points, colors, min, max);
+        m_machinePositions.resize(size);
+        cache->read((char*)m_machinePositions.data(), size * sizeof(vrml::VrmlSFVec3f));
 
-    DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
-    m_pointCloud = createOsgPoints(dataTable);
-    m_machinePositions = readMachinePositions(dataTable);
+    }
+    else {
+        auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
+
+        std::ofstream f(cacheFileName, std::ios::binary);
+        writeCacheFileHeader(f);
+        DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
+        size = dataTable.size();
+        m_pointCloud = createOsgPoints(dataTable, f);
+        m_machinePositions = readMachinePositions(dataTable);
+        f.write((const char*)m_machinePositions.data(), m_machinePositions.size() * sizeof(vrml::VrmlSFVec3f));
+    }
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
@@ -416,7 +473,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     {
         pointShader->apply(m_currentGeode, m_pointCloud);
     }
-    coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
+    coVRAnimationManager::instance()->setNumTimesteps(size, this);
     coVRAnimationManager::instance()->setAnimationSkipMax(2000);
 }
 
@@ -460,3 +517,51 @@ int CsvPointCloudPlugin::unloadFile()
     return -1;
 }
 
+std::string readString(std::ifstream& f)
+{
+    std::string str;
+    size_t size;
+    f.read((char*)&size, sizeof(size));
+    str.resize(size);
+    f.read(&str[0], size);
+    return str;
+}
+
+void writeString(std::ofstream& f, const std::string& s)
+{
+    size_t size = s.size();
+    f.write((const char*)&size, sizeof(size));
+    f.write(&s[0], size);
+}
+
+std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToData(const std::string& filename)
+{
+    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+    auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
+    if (fs::exists(cacheFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(settingsFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(filename))
+    {
+        std::unique_ptr<std::ifstream> f{ new std::ifstream{ cacheFileName, std::ios::binary } };
+        auto date = readString(*f);
+        auto time = readString(*f);
+        if (date != __DATE__ || time != __TIME__)
+            return false;
+        for (const auto editField : m_editFields)
+        {
+            auto s = readString(*f);
+            if (s != editField->value())
+                return nullptr;
+        }
+        return f;
+    }
+    return nullptr;
+}
+
+void CsvPointCloudPlugin::writeCacheFileHeader(std::ofstream& f)
+{
+    writeString(f, __DATE__);
+    writeString(f, __TIME__);
+    for (const auto editField : m_editFields)
+    {
+        writeString(f, editField->value());
+    }
+}

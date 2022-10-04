@@ -71,12 +71,18 @@ private:
   const std::array<ui::EditField*, 10> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   void createGeodes(osg::Group *, const std::string &);
-  osg::Geometry *createOsgPoints(DataTable &symbols);
+  osg::Geometry *createOsgPoints(DataTable &symbols, std::ofstream& f);
+  osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
+
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
   std::array<ui::Slider*, 3> m_sliders;
   int unloadFile();
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
   void readSettings(const std::string& filename);
+  std::unique_ptr<std::ifstream> cacheFileUpToData(const std::string& filename);
+  void writeCacheFileHeader(std::ofstream& f);
+
+
 };
 
 #endif // COVER_PLUGIN_OCT_H

@@ -1,4 +1,6 @@
 using(VRML)
+using(boost)
+
 SET(HEADERS
   DataTable.h  
   exprtk.hpp
