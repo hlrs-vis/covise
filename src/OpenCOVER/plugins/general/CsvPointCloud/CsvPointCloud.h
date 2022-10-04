@@ -63,18 +63,23 @@ private:
   std::array<ui::EditField*, 3> m_coordTerms;
   ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset;
   std::array<ui::EditField*, 3> m_machinePositionsTerms;
+  ui::EditField* m_pointReductionCriteria;
   covise::ColorMapSelector m_colorMapSelector;
-  ui::Slider *m_pointSizeSlider;
+  ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
   ui::Button *m_reloadBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
-  const std::array<ui::EditField*, 10> m_editFields;
+  const std::array<ui::EditField*, 11> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
+  std::vector<unsigned int> m_pointsToNotReduce;
+
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
+  std::vector<unsigned int> readReducedPoints(DataTable& symbols);
+
   std::array<ui::Slider*, 3> m_sliders;
   int unloadFile();
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);

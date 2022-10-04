@@ -123,14 +123,16 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up"), new ui::EditField(m_CsvPointCloudMenu, "Right")}}
     , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
+    , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
     , m_reloadBtn(new ui::Button(m_CsvPointCloudMenu, "Reload"))
     , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
+    , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria"))
     , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
     , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
-    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset }
+    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset, m_pointReductionCriteria }
 {
     
     for (auto ef : m_editFields)
@@ -149,6 +151,10 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                       }
                                   });
     m_pointSizeSlider->setShared(true);
+    
+    m_numPointsSlider->setShared(true);
+
+
     m_reloadBtn->setCallback([this](bool state)
                             {
             (void)state;
@@ -392,6 +398,7 @@ osg::Geometry* CsvPointCloudPlugin::createOsgPoints(Vec3Array* points, Vec4Array
     normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
     geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
     geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, points->size()));
+    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 0));
 
     setStateSet(geo, pointSize());
 
@@ -415,6 +422,25 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& sy
     for (size_t i = 0; i < symbols.size(); i++)
     {
         retval.emplace_back( -1 * stringExpressions[0]().value(), stringExpressions[1]().value(), stringExpressions[2]().value());
+        symbols.advance();
+    }
+    return retval;
+}
+
+std::vector<unsigned int> CsvPointCloudPlugin::readReducedPoints(DataTable& symbols) {
+
+    symbols.reset();
+    std::vector<unsigned int> retval;
+    // compile parser
+    Expression stringExpression;
+
+    if (!compileSymbol(symbols, m_pointReductionCriteria->value(), stringExpression))
+        return retval;
+
+    for (size_t i = 0; i < symbols.size(); i++)
+    {
+        if (stringExpression().value())
+            retval.push_back(i);
         symbols.advance();
     }
     return retval;
@@ -461,8 +487,12 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         size = dataTable.size();
         m_pointCloud = createOsgPoints(dataTable, f);
         m_machinePositions = readMachinePositions(dataTable);
+        m_pointsToNotReduce = readReducedPoints(dataTable);
         f.write((const char*)m_machinePositions.data(), m_machinePositions.size() * sizeof(vrml::VrmlSFVec3f));
     }
+    m_numPointsSlider->setBounds(0, size);
+    m_numPointsSlider->setValue(size);
+
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
@@ -482,7 +512,17 @@ void CsvPointCloudPlugin::setTimestep(int t)
     //show points until t
     if(m_pointCloud)
     {
-        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, t + 1));
+        size_t start = std::max(ui::Slider::ValueType{ 0 }, t - m_numPointsSlider->value());
+        size_t i = 0;
+        for(; i < m_pointsToNotReduce.size(); i++)
+        {
+            if (m_pointsToNotReduce[i] >= start)
+                break;
+
+        }
+
+        m_pointCloud->setPrimitiveSet(1, new osg::DrawElementsUInt(osg::PrimitiveSet::POINTS, i, m_pointsToNotReduce.data()));
+        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, start, t + 1 - start));
     }
     //move machine axis
     if (m_machinePositions.size() > t)
@@ -512,6 +552,7 @@ int CsvPointCloudPlugin::unloadFile()
         m_currentGeode->getParent(0)->removeChild(m_currentGeode);
         m_pointCloud = nullptr;
         m_currentGeode = nullptr;
+        m_transform = nullptr;
         return 0;
     }
     return -1;
