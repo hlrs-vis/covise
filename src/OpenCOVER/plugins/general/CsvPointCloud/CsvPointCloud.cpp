@@ -162,7 +162,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 {
                                     auto parent = m_currentGeode->getParent(0);
                                     auto filename = m_currentGeode->getName();
-                                    unloadFile();
+                                    unloadFile(filename);
                                     load(filename.c_str(), parent, nullptr);
                                 }
                             });
@@ -227,7 +227,7 @@ int CsvPointCloudPlugin::load(const char *filename, osg::Group *loadParent, cons
 
 int CsvPointCloudPlugin::unload(const char *filename, const char *covise_key)
 {
-    return m_plugin->unloadFile();
+    return m_plugin->unloadFile(filename);
 }
 
 void setStateSet(osg::Geometry *geo, float pointSize)
@@ -284,7 +284,9 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string& s
 
 void CsvPointCloudPlugin::readSettings(const std::string& filename)
 {
-    auto fn = coVRFileManager::instance()->findOrGetFile(filename);
+    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+
+    auto fn = coVRFileManager::instance()->findOrGetFile(settingsFileName);
     std::fstream f(fn);
     std::string line;
 
@@ -298,6 +300,19 @@ void CsvPointCloudPlugin::readSettings(const std::string& filename)
             (*setting)->setValue(value);
     }
     
+}
+
+void CsvPointCloudPlugin::writeSettings(const std::string& filename)
+{
+    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+
+    auto fn = coVRFileManager::instance()->findOrGetFile(settingsFileName);
+    std::ofstream f(fn);
+
+    for (const auto ef : m_editFields)
+    {
+        f << ef->name() << " \"" << ef->value() << "\"\n";
+    }
 }
 
 template<typename T>
@@ -448,8 +463,7 @@ std::vector<unsigned int> CsvPointCloudPlugin::readReducedPoints(DataTable& symb
 
 void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
-    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
-    readSettings(settingsFileName);
+    readSettings(filename);
 
     auto pointShader = opencover::coVRShaderList::instance()->get("Points");
     int offset = 0;
@@ -476,6 +490,9 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         m_pointCloud = createOsgPoints(points, colors, min, max);
         m_machinePositions.resize(size);
         cache->read((char*)m_machinePositions.data(), size * sizeof(vrml::VrmlSFVec3f));
+        auto numNonReducedPoints = read<size_t>(*cache);
+        m_pointsToNotReduce.resize(numNonReducedPoints);
+        cache->read((char*)m_pointsToNotReduce.data(), numNonReducedPoints * sizeof(unsigned int));
 
     }
     else {
@@ -489,6 +506,9 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         m_machinePositions = readMachinePositions(dataTable);
         m_pointsToNotReduce = readReducedPoints(dataTable);
         f.write((const char*)m_machinePositions.data(), m_machinePositions.size() * sizeof(vrml::VrmlSFVec3f));
+        write(f, m_pointsToNotReduce.size());
+        f.write((const char*)m_pointsToNotReduce.data(), m_pointsToNotReduce.size() * sizeof(unsigned int));
+
     }
     m_numPointsSlider->setBounds(0, size);
     m_numPointsSlider->setValue(size);
@@ -545,10 +565,11 @@ float CsvPointCloudPlugin::pointSize() const
     return m_pointSizeSlider->value();
 }
 
-int CsvPointCloudPlugin::unloadFile()
+int CsvPointCloudPlugin::unloadFile(const std::string& filename)
 {
     if(m_currentGeode && m_currentGeode->getNumParents() > 0)
     {
+        writeSettings(filename);
         m_currentGeode->getParent(0)->removeChild(m_currentGeode);
         m_pointCloud = nullptr;
         m_currentGeode = nullptr;
