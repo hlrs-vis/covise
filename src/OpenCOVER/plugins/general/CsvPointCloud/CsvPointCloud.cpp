@@ -585,7 +585,7 @@ std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToData(const std:
         auto date = readString(*f);
         auto time = readString(*f);
         if (date != __DATE__ || time != __TIME__)
-            return false;
+            return nullptr;
         for (const auto editField : m_editFields)
         {
             auto s = readString(*f);
