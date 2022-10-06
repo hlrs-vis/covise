@@ -46,7 +46,8 @@ class COVER_UI_EXPORT ShortcutListener
    struct Shortcut
    {
        std::string text;
-       int modifiers=ModNone;
+       std::string key;
+       int modifiers = ModNone;
        int symbol=0;
        int button=0;
    };
