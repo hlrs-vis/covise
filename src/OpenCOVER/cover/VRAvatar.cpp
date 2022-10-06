@@ -99,16 +99,18 @@ bool PartnerAvatar::init(const std::string &hostAdress)
             return false;
         initialized = true;
 
-        hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
-        if (!hostIconNode)
+        if (!m_partner->userInfo().icon.empty())
         {
-            auto iconFile = coVRFileManager::instance()->findOrGetFile(m_partner->userInfo().icon, m_partner->ID());
-            hostIconNode = coVRFileManager::instance()->loadIcon(iconFile.c_str());
-            if(!hostIconNode)
-                cerr << "Hosticon not found " << iconFile << endl;
-
+            hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
+            if (!hostIconNode)
+            {
+                auto iconFile = coVRFileManager::instance()->findOrGetFile(m_partner->userInfo().icon, m_partner->ID());
+                hostIconNode = coVRFileManager::instance()->loadIcon(iconFile.c_str());
+                if (!hostIconNode)
+                    cerr << "host icon not found " << iconFile << endl;
+            }
         }
-      
+
         coBillboard *bb = new coBillboard;
         feetTransform->addChild(bb);
         if (hostIconNode)
