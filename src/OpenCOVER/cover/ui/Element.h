@@ -129,6 +129,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     //! item this Element is a child of
     Group *parent() const;
+    //! item this Element was a child of previously
+    Group *oldParent() const;
 
     std::set<Container *> containers();
     //! request that graphical representation in all views is updated
@@ -160,6 +162,9 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     virtual void load(covise::TokenBuffer &buf);
     //! reimplement in derived class for updating value of m_sharedState
     virtual void updateSharedState();
+    //! set or unset parent
+    void setParent(Group *parent);
+
     Group *m_parent = nullptr;
     std::set<Container *> m_containers;
     std::string m_label;
@@ -171,7 +176,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     std::unique_ptr<vrb::SharedStateBase> m_sharedState;
 
  private:
-    mutable int m_id = -1, m_order = -1; // initialized by Manager
+     mutable Group *m_oldParent = nullptr;
+     mutable int m_id = -1, m_order = -1; // initialized by Manager
 };
 
 }

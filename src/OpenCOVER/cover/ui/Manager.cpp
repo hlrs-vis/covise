@@ -301,6 +301,7 @@ void Manager::updateParent(const Element *elem) const
     {
         v.second->updateParent(elem);
     }
+    elem->m_oldParent = nullptr;
 }
 
 void Manager::updateChildren(const SelectionList *sl) const

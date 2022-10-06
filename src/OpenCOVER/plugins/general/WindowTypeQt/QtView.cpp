@@ -424,15 +424,20 @@ void QtView::updateContainer(const Element *elem)
 {
     if (!elem)
         return;
-    auto parent = elem->parent();
-    if (!parent)
-        return;
-    if (auto menu = dynamic_cast<Menu *>(parent))
+
+    for (auto *p: {elem->oldParent(), elem->parent()})
     {
-        updateMenu(menu, menu);
+        if (!p)
+            continue;
+        if (auto menu = dynamic_cast<Menu *>(p))
+        {
+            updateMenu(menu, menu);
+        }
+        else
+        {
+            updateContainer(p);
+        }
     }
-    else
-        updateContainer(parent);
 }
 
 void QtView::updateMenu(const Menu *menu, const Group *subGroup)

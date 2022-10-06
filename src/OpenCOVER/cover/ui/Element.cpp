@@ -81,6 +81,17 @@ Group *Element::parent() const
     return m_parent;
 }
 
+Group *Element::oldParent() const
+{
+    return m_oldParent;
+}
+
+void Element::setParent(Group *parent)
+{
+    m_oldParent = m_parent;
+    m_parent = parent;
+}
+
 void Element::update(UpdateMaskType mask) const
 {
     if (mask & UpdateText)
