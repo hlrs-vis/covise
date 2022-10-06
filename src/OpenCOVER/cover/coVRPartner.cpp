@@ -124,18 +124,25 @@ void coVRPartner::updateUi()
 
     if (!m_ui)
     {
-        m_ui = new ui::CollaborativePartner("VRPartner"+std::to_string(m_id), this, coVRPartnerList::instance()->group());
-        if (coVRCollaboration::instance()->partnerGroup() && m_userInfo.userType == covise::Program::opencover)
-        {
-            coVRCollaboration::instance()->partnerGroup()->add(m_ui);
-        }
-        m_ui->setCallback([this](bool state){
-            // change it back
-            m_ui->setState(!state, false);
-        });
+        m_ui = new ui::CollaborativePartner("VRPartner" + std::to_string(m_id), this);
+        m_ui->setCallback(
+            [this](bool state)
+            {
+                // change it back
+                m_ui->setState(!state, false);
+            });
     }
     m_ui->setText(menuText);
     m_ui->setState(isMaster());
+    if (coVRCollaboration::instance()->partnerGroup() && m_userInfo.userType == covise::Program::opencover &&
+        sessionID() == coVRPartnerList::instance()->me()->sessionID())
+    {
+        coVRCollaboration::instance()->partnerGroup()->add(m_ui);
+    }
+    else
+    {
+        coVRCollaboration::instance()->partnerGroup()->remove(m_ui);
+    }
 }
 
 PartnerAvatar * opencover::coVRPartner::getAvatar()
@@ -172,11 +179,13 @@ void opencover::coVRPartnerList::addPartner(vrb::RemoteClient &&p)
     {
         coVRCollaboration::instance()->showCollaborative(true);
     }
+    updateUi();
 }
 
 void opencover::coVRPartnerList::removePartner(int id)
 {
     partners.erase(find(id));
+    updateUi();
 }
 
 void opencover::coVRPartnerList::removeOthers()
@@ -194,6 +203,7 @@ void opencover::coVRPartnerList::removeOthers()
         }
     }
     coVRCollaboration::instance()->showCollaborative(false);
+    updateUi();
 }
 
 int opencover::coVRPartnerList::numberOfPartners() const
@@ -262,7 +272,6 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
     }
     else //other client changed session
     {
-
         if (oldSession == mySession && !mySession.isPrivate()) //client left my session
         {
             bool lastInSession = true;
@@ -284,8 +293,17 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
             coVRCollaboration::instance()->showCollaborative(true);
         }
     }
-
+    updateUi();
 }
+
+void opencover::coVRPartnerList::updateUi()
+{
+    for (auto &p: partners)
+    {
+        p->updateUi();
+    }
+}
+
 void opencover::coVRPartnerList::sendAvatarMessage()
 {
     // all data is in object Coordinates

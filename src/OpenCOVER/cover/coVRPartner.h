@@ -79,6 +79,7 @@ public:
     void hideAvatars();
     bool avatarsVisible();
     void print();
+    void updateUi();
     ui::ButtonGroup *group();
     static coVRPartnerList *instance();
     ValueType::const_iterator begin() const;
