@@ -2635,8 +2635,6 @@ virvo::VolumeDrawable *VolumePlugin::getCurrentDrawable()
         return NULL;
 }
 
-COVERPLUGIN(VolumePlugin)
-
 covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id)
 {
 	std::vector<char> buf;
@@ -2663,15 +2661,9 @@ covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
 {
 	int size;
 	tb >> size;
-	std::vector<char> buf;
-	buf.reserve(size);
-	for (int i = 0; i < size; i++)
-	{
-		char c;
-		tb >> c;
-		buf.push_back(c);
-	}
-	typedef boost::iostreams::basic_array_source<char> source_type;
+    const auto *begin = tb.getBinary(size);
+    std::vector<char> buf(begin, begin + size);
+    typedef boost::iostreams::basic_array_source<char> source_type;
 	typedef boost::iostreams::stream<source_type> stream_type;
 
 	source_type source(&buf[0], buf.size());
@@ -2684,3 +2676,5 @@ covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
 	archive >> id;
 	return tb;
 }
+
+COVERPLUGIN(VolumePlugin)
