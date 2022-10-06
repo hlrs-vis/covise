@@ -29,8 +29,8 @@ public:
     //virtual ~coInteractionManager();
 
     bool update();
-	//initialize the sheredState for remote locking this group if neccecary
-	void registerGroup(int group);
+    //initialize the shared state for remote locking this group if neccecary
+    void registerGroup(int group);
     void registerInteraction(coInteraction *);
     void unregisterInteraction(coInteraction *);
     bool isOneActive(coInteraction::InteractionType type);
