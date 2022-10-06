@@ -98,9 +98,9 @@ public:
     {
         auto t = System::the->time();
         constexpr float scale = 1;
-        eventOut(t, "y", VrmlSFVec3f{ position.x() * scale, 0, 0 });
-        eventOut(t, "x", VrmlSFVec3f{ 0, position.y() * scale, 0 });
-        eventOut(t, "z", VrmlSFVec3f{ 0, 0 ,position.z() * scale });
+        eventOut(t, "x", VrmlSFVec3f{ 0, 0, position.x() * scale});
+        eventOut(t, "y", VrmlSFVec3f{ position.y() * scale, 0, 0});
+        eventOut(t, "z", VrmlSFVec3f{ 0, position.z() * scale, 0 });
     }
 
 private:
@@ -118,9 +118,10 @@ namespace fs = boost::filesystem;
 CsvPointCloudPlugin::CsvPointCloudPlugin()
     : ui::Owner("CsvPointCloud", cover->ui)
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
+    , m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale"))
     , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
     , m_coordTerms{ {new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")} }
-    , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up"), new ui::EditField(m_CsvPointCloudMenu, "Right")}}
+    , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}
     , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
     , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
@@ -132,9 +133,10 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
     , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
-    , m_editFields{ m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset, m_pointReductionCriteria }
+    , m_editFields{ m_dataScale,  m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset, m_pointReductionCriteria }
 {
     
+    m_dataScale->setValue("1");
     for (auto ef : m_editFields)
         ef->setShared(true);
 
@@ -329,6 +331,28 @@ void write(std::ofstream& f, const T& t)
     f.write((const char*)&t, sizeof(T));
 }
 
+float parseScale(const std::string& scale)
+{
+    exprtk::symbol_table<float> symbol_table;
+    typedef exprtk::expression<float>   expression_t;
+    typedef exprtk::parser<float>       parser_t;
+
+    std::string expression_string = "z := x - (3 * y)";
+
+
+    expression_t expression;
+    expression.register_symbol_table(symbol_table);
+
+    parser_t parser;
+
+    if (!parser.compile(scale, expression))
+    {
+        std::cerr << "parseScale failed" << std::endl;
+        return 1;
+    }
+    return expression.value();
+}
+
 osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream& f)
 {
     // compile parser
@@ -347,12 +371,13 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofs
     //calculate coords and color
     std::vector<float> scalarData(symbols.size());
     float minScalar = 0, maxScalar = 0;
+    auto scale = parseScale(m_dataScale->value());
     for (size_t i = 0; i < symbols.size(); i++)
     {
         osg::Vec3 coords;
         for (size_t j = 0; j < 3; j++)
         {
-            coords[j] = stringExpressions[j]().value();
+            coords[j] = stringExpressions[j]().value() * scale;
         }
         points->push_back(coords);
         scalarData[i] = stringExpressions[3]().value();
@@ -428,6 +453,7 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& sy
     std::vector<VrmlSFVec3f> retval;
     // compile parser
     std::array<Expression, 3> stringExpressions;
+    auto scale = parseScale(m_dataScale->value());
 
     for (size_t i = 0; i < stringExpressions.size(); i++)
     {
@@ -436,7 +462,7 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& sy
     }
     for (size_t i = 0; i < symbols.size(); i++)
     {
-        retval.emplace_back( -1 * stringExpressions[0]().value(), stringExpressions[1]().value(), stringExpressions[2]().value());
+        retval.emplace_back( -1 * stringExpressions[0]().value() * scale, stringExpressions[1]().value() * scale, stringExpressions[2]().value() * scale);
         symbols.advance();
     }
     return retval;
@@ -524,7 +550,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         pointShader->apply(m_currentGeode, m_pointCloud);
     }
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
-    coVRAnimationManager::instance()->setAnimationSkipMax(2000);
+    coVRAnimationManager::instance()->setAnimationSkipMax(5000);
 }
 
 void CsvPointCloudPlugin::setTimestep(int t) 
@@ -552,7 +578,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
             machineNode->move(m_machinePositions[t]);
         }
         //move the workpiece with the machine table
-        osg::Vec3 v{ m_machinePositions[t].x(), 0, 0 }; 
+        osg::Vec3 v{ 0, -1 * m_machinePositions[t].y(), 0 };
         osg::Matrix m;
         m.makeTranslate(v);
         if(m_transform)

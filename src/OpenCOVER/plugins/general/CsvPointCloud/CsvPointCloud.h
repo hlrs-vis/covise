@@ -60,6 +60,7 @@ private:
   osg::Geode *m_currentGeode = nullptr;
   osg::MatrixTransform* m_transform = nullptr;
   ui::Menu *m_CsvPointCloudMenu, *m_colorMenu;
+  ui::EditField* m_dataScale;
   std::array<ui::EditField*, 3> m_coordTerms;
   ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset;
   std::array<ui::EditField*, 3> m_machinePositionsTerms;
@@ -69,7 +70,7 @@ private:
   ui::Button *m_reloadBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
-  const std::array<ui::EditField*, 11> m_editFields;
+  const std::array<ui::EditField*, 12> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   std::vector<unsigned int> m_pointsToNotReduce;
 
