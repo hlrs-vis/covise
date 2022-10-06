@@ -150,10 +150,6 @@ const std::string &Doc::initFilePath()
 
 FILE *Doc::fopen(const char *mode)
 {
-    if (d_fp)
-    {
-        System::the->error("Doc::fopen: %s is already open.\n", d_url.c_str());
-    }
     if(d_url == "-"){
             if (*mode == 'r')
                 d_fp = stdin;
@@ -184,9 +180,6 @@ void Doc::fclose()
 
 gzFile Doc::gzopen(const char *mode)
 {
-    if (d_fp || d_gz)
-        System::the->error("Doc::gzopen: %s is already open.\n", d_url.c_str());
-
     auto fn = initFilePath();
     struct stat statbuf;
     if (stat(fn.c_str(), &statbuf) == -1)
