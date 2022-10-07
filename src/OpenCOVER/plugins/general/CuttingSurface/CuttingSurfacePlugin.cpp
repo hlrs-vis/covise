@@ -192,16 +192,14 @@ CuttingSurfacePlugin::updateInteractorVisibility(const char *objectName)
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlugin::updateInteractorVisibility(%s)\n", objectName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            ((CuttingSurfaceInteraction *)myInteractions_.current())->updatePickInteractorVisibility();
-            //((CuttingSurfaceInteraction*)myInteractions_.current())->updateDirectInteractorVisibility();
+            ((CuttingSurfaceInteraction *)i)->updatePickInteractorVisibility();
+            //((CuttingSurfaceInteraction*)i)->updateDirectInteractorVisibility();
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -219,15 +217,13 @@ CuttingSurfacePlugin::handleInteractorVisibleMsg(const char *objectName, bool sh
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlugin::showInteractor(%s, %d)\n", objectName, show);
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            ((CuttingSurfaceInteraction *)myInteractions_.current())->setShowInteractorFromGui(show);
+            ((CuttingSurfaceInteraction *)i)->setShowInteractorFromGui(show);
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -237,15 +233,12 @@ CuttingSurfacePlugin::handleInteractorSetCaseMsg(const char *objectName, const c
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlugin::handleInteractorSetCaseMsg(%s, %s)\n", objectName, caseName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-
-            ((CuttingSurfaceInteraction *)myInteractions_.current())->interactorSetCaseFromGui(caseName);
+            ((CuttingSurfaceInteraction *)i)->interactorSetCaseFromGui(caseName);
         }
-        myInteractions_.next();
     }
 }
 
@@ -257,27 +250,24 @@ CuttingSurfacePlugin::handleMoveInteractorMsg(const char *objectName, const char
 
     //fprintf(stderr,"\tsearching the appropriate module feedback manager in list...\n");
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
             //fprintf(stderr,"found... now searching the right interactor for %s\n", interactorName);
             if (strcmp(interactorName, "point") == 0)
             {
                 //fprintf(stderr,"interactorName=point\n");
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setInteractorPointFromGui(x, y, z);
+                static_cast<CuttingSurfaceInteraction *>(i)->setInteractorPointFromGui(x, y, z);
                 break;
             }
             else if (strcmp(interactorName, "normal") == 0)
             {
                 //fprintf(stderr,"interactorName=normal\n");
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setInteractorNormalFromGui(x, y, z);
+                static_cast<CuttingSurfaceInteraction *>(i)->setInteractorNormalFromGui(x, y, z);
                 break;
             }
         }
-        myInteractions_.next();
     }
 }
 
@@ -287,50 +277,44 @@ CuttingSurfacePlugin::handleRestrictAxisMsg(const char *objectName, const char *
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfacePlugin::handleRestrictAxisMsg(objectName=%s axisName=%s)\n", objectName, axisName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
             //fprintf(stderr,"found... now searching the right interactor for %s\n", interactorName);
             if (strcmp(axisName, "xAxis") == 0)
             {
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setRestrictXFromGui();
+                static_cast<CuttingSurfaceInteraction *>(i)->setRestrictXFromGui();
                 break;
             }
             else if (strcmp(axisName, "yAxis") == 0)
             {
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setRestrictYFromGui();
+                static_cast<CuttingSurfaceInteraction *>(i)->setRestrictYFromGui();
                 break;
             }
             else if (strcmp(axisName, "zAxis") == 0)
             {
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setRestrictZFromGui();
+                static_cast<CuttingSurfaceInteraction *>(i)->setRestrictZFromGui();
                 break;
             }
             else if (strcmp(axisName, "freeAxis") == 0)
             {
-                static_cast<CuttingSurfaceInteraction *>(myInteractions_.current())->setRestrictNoneFromGui();
+                static_cast<CuttingSurfaceInteraction *>(i)->setRestrictNoneFromGui();
                 break;
             }
         }
-        myInteractions_.next();
     }
 }
 
 void
 CuttingSurfacePlugin::handleAttachedClipPlaneMsg(const char *objectName, int clipPlaneIndex, float offset, bool flip)
 {
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-
-            ((CuttingSurfaceInteraction *)myInteractions_.current())->setClipPlaneFromGui(clipPlaneIndex, offset, flip);
+            ((CuttingSurfaceInteraction *)i)->setClipPlaneFromGui(clipPlaneIndex, offset, flip);
         }
-        myInteractions_.next();
     }
 }
 

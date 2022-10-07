@@ -51,13 +51,13 @@ public:
     // returns true if inter comes from the same module: used in
     // ModuleFeedbackPlugin::add for adding or updating an entry in
     // ModuleFeedbackPlugin::_ComplexModuleList
-    bool compare(coInteractor *inter);
+    bool compare(coInteractor *inter) const;
     // returns true if name is an object name from the same module:
     // used in ModuleFeedbackPlugin::remove for deleting an entry
     // in ModuleFeedbackPlugin::_ComplexModuleList
-    bool compare(const char *name);
+    bool compare(const char *name) const;
     // returns true if this moduelFeedbackManager is for the same plugin
-    bool comparePlugin(const char *pluginName);
+    bool comparePlugin(const char *pluginName) const;
 
     // called for menu update when a new object is received
     virtual void update(const RenderObject *container, coInteractor *);

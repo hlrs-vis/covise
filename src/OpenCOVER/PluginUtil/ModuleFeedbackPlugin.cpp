@@ -11,11 +11,11 @@
 #include <cover/RenderObject.h>
 #include <cover/coInteractor.h>
 #include <list>
+#include <algorithm>
 
-using namespace covise;
 using namespace opencover;
 
-DLinkList<ModuleFeedbackManager *> ModuleFeedbackPlugin::_ComplexModuleList;
+std::list<ModuleFeedbackManager *> ModuleFeedbackPlugin::_ComplexModuleList;
 
 // ----------------------------------------------------------------
 // construction / destruction
@@ -23,28 +23,17 @@ DLinkList<ModuleFeedbackManager *> ModuleFeedbackPlugin::_ComplexModuleList;
 ModuleFeedbackPlugin::ModuleFeedbackPlugin(const char *pluginName)
 : coVRPlugin(pluginName)
 {
-    _ComplexModuleList.noDelete = 1;
-    myInteractions_.noDelete = 1;
 }
 
 ModuleFeedbackPlugin::~ModuleFeedbackPlugin()
 {
-
-    myInteractions_.reset();
-    while (myInteractions_.current())
-    {
-        myInteractions_.remove();
-        myInteractions_.next();
-    }
-
-    _ComplexModuleList.reset();
-    while (_ComplexModuleList.current())
+    myInteractions_.clear();
+    for (auto &m: _ComplexModuleList)
     {
         // delete the tracerInteraction
-        delete _ComplexModuleList.current();
-        _ComplexModuleList.remove();
-        _ComplexModuleList.next();
+        delete m;
     }
+    _ComplexModuleList.clear();
 }
 
 void ModuleFeedbackPlugin::newInteractor(const RenderObject *container, coInteractor *i)
@@ -61,15 +50,13 @@ void ModuleFeedbackPlugin::newInteractor(const RenderObject *container, coIntera
     std::string objname(container->getName());
 
     ModuleFeedbackManager *mgr = NULL;
-    _ComplexModuleList.reset();
-    while (_ComplexModuleList.current())
+    for (auto &m: _ComplexModuleList)
     {
-        if (_ComplexModuleList.current()->compare(objname.c_str()))
+        if (m->compare(objname.c_str()))
         {
-            mgr = _ComplexModuleList.current();
+            mgr = m;
             break;
         }
-        _ComplexModuleList.next();
     }
 
     if (mgr)
@@ -91,17 +78,15 @@ ModuleFeedbackPlugin::add(const RenderObject *container, coInteractor *inter)
     //fprintf(stderr,"ModuleFeedbackPlugin::add\n");
     // do we have this object in our list
     bool found = false;
-    _ComplexModuleList.reset();
-    while (_ComplexModuleList.current())
+    for (auto *m: _ComplexModuleList)
     {
-        if (_ComplexModuleList.current()->compare(inter))
+        if (m->compare(inter))
         {
             // we already have this object, we replace the object name
-            _ComplexModuleList.current()->update(container, inter);
+            m->update(container, inter);
             found = true;
             break;
         }
-        _ComplexModuleList.next();
     }
     if (!found)
     {
@@ -113,9 +98,9 @@ ModuleFeedbackPlugin::add(const RenderObject *container, coInteractor *inter)
         if (newManager)
         {
             // fprintf(stderr,"newManager\n");
-            _ComplexModuleList.append(newManager);
+            _ComplexModuleList.push_back(newManager);
             newManager->update(container, inter);
-            myInteractions_.append(newManager);
+            myInteractions_.push_back(newManager);
         }
     }
 }
@@ -127,42 +112,33 @@ ModuleFeedbackPlugin::add(const RenderObject *container, const RenderObject *geo
         return;
 
     // do we have this object in our list
-    bool found = false;
-    const char *name;
+    const char *name = container ? container->getName() : geomobj->getName();
 
     // go through all interactions and check if it is already there
-    _ComplexModuleList.reset();
-    while (_ComplexModuleList.current())
+    bool found = false;
+    for (auto *m: _ComplexModuleList)
     {
-        if (container)
-            name = container->getName();
-        else
-            name = geomobj->getName();
-
-        if (_ComplexModuleList.current()->compare(name))
+        if (m->compare(name))
         {
             // we already have this object, but does it really belong to me?
-            myInteractions_.reset();
-            while (myInteractions_.current())
+            for (auto *i: myInteractions_)
             {
-                if (myInteractions_.current()->compare(name))
+                if (i->compare(name))
                 {
-                    myInteractions_.current()->update(container, geomobj);
+                    i->update(container, geomobj);
                 }
-                myInteractions_.next();
             }
             found = true;
             break;
         }
-        _ComplexModuleList.next();
     }
     if (!found)
     {
         // we don't have this object, append it to list and add to submenu
         ModuleFeedbackManager *newManager = NewModuleFeedbackManager(container, NULL, geomobj, getName());
-        _ComplexModuleList.append(newManager);
+        _ComplexModuleList.push_back(newManager);
         newManager->update(container, geomobj);
-        myInteractions_.append(newManager);
+        myInteractions_.push_back(newManager);
     }
 }
 
@@ -173,31 +149,22 @@ ModuleFeedbackPlugin::remove(const char *objName)
         return;
 
     bool found = false;
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    auto it = std::find_if(myInteractions_.begin(), myInteractions_.end(),
+                           [objName](const ModuleFeedbackManager *i) { return i->compare(objName); });
+    if (it != myInteractions_.end())
     {
-        if (myInteractions_.current()->compare(objName))
-        {
-            myInteractions_.remove();
-            found = true;
-            break;
-        }
-
-        myInteractions_.next();
+        myInteractions_.erase(it);
+        found = true;
     }
 
     if (found)
     {
-        _ComplexModuleList.reset();
-        while (_ComplexModuleList.current())
+        auto it = std::find_if(_ComplexModuleList.begin(), _ComplexModuleList.end(),
+                               [objName](const ModuleFeedbackManager *m) { return m->compare(objName); });
+        if (it != _ComplexModuleList.end())
         {
-            if (_ComplexModuleList.current()->compare(objName))
-            {
-                delete _ComplexModuleList.current();
-                _ComplexModuleList.remove();
-                break;
-            }
-            _ComplexModuleList.next();
+            delete *it;
+            _ComplexModuleList.erase(it);
         }
     }
 }
@@ -208,13 +175,10 @@ ModuleFeedbackPlugin::preFrame()
     // for each plugin preFrame is called
     // a plugin handles objects with feedback from several modules, therefore we
     // have to call preFrame for every ModuleFeedbackManager which belongs to this plugin
-    _ComplexModuleList.reset();
-    while (_ComplexModuleList.current())
+    for (auto *m: _ComplexModuleList)
     {
-        if (_ComplexModuleList.current()->comparePlugin(getName()))
-            _ComplexModuleList.current()->preFrame();
-
-        _ComplexModuleList.next();
+        if (m->comparePlugin(getName()))
+            m->preFrame();
     }
 }
 
@@ -223,15 +187,13 @@ ModuleFeedbackPlugin::handleSetCaseMsg(const char *objectName, const char *caseN
 {
     //fprintf(stderr,"ModuleFeedbackPlugin::handleSetCaseMsg(%s, %s)\n", objectName, caseName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
             //fprintf(stderr,"\tfound object %s and set case %s\n", objectName, caseName);
-            myInteractions_.current()->setCaseFromGui(caseName);
+            i->setCaseFromGui(caseName);
         }
-        myInteractions_.next();
     }
 }
 
@@ -240,15 +202,13 @@ ModuleFeedbackPlugin::handleSetNameMsg(const char *coviseObjectName, const char 
 {
     //fprintf(stderr,"ModuleFeedbackPlugin::handleSetNameMsg(%s, %s)\n", coviseObjectName, newName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(coviseObjectName))
+        if (i->compare(coviseObjectName))
         {
             //fprintf(stderr,"\tfound object %s and set case %s\n", objectName, caseName);
-            myInteractions_.current()->setNameFromGui(newName);
+            i->setNameFromGui(newName);
         }
-        myInteractions_.next();
     }
 }
 
@@ -257,31 +217,27 @@ ModuleFeedbackPlugin::handleGeoVisibleMsg(const char *objectName, bool visibilit
 {
     //fprintf(stderr,"\nModuleFeedbackPlugin::handleGeoVisibleMsg(%s, %d)\n", objectName, visibility);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
             //fprintf(stderr,"\tfound object %s and set visibility\n", objectName);
-            myInteractions_.current()->setHideFromGui(!visibility);
+            i->setHideFromGui(!visibility);
             break;
         }
-        myInteractions_.next();
     }
 }
 
 void
 ModuleFeedbackPlugin::setMatrix(const char *objectName, float *row0, float *row1, float *row2, float *row3)
 {
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            myInteractions_.current()->setMatrix(row0, row1, row2, row3);
+            i->setMatrix(row0, row1, row2, row3);
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -290,15 +246,13 @@ ModuleFeedbackPlugin::addNodeToCase(const char *objectName, osg::Node *node)
 {
     //fprintf(stderr,"\nModuleFeedbackPlugin::addNodeToCase(%s)\n", objectName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            myInteractions_.current()->addNodeToCase(node);
+            i->addNodeToCase(node);
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -306,7 +260,6 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
 // the following methods will set parameters on all those intersctors
 {
     interactors.clear();
-    myInteractions_.reset();
     const char *syncGroup = NULL;
     int nu = inter_->getNumUser();
     if (nu > 0)
@@ -322,11 +275,11 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
     }
     if (syncGroup != NULL)
     {
-        while (myInteractions_.current())
+        for (auto *i: myInteractions_)
         {
-            if (myInteractions_.current()->getInteractor() == inter_)
+            if (i->getInteractor() == inter_)
             {
-                if (myInteractions_.current()->getSyncState() == false) // don't sync
+                if (i->getSyncState() == false) // don't sync
                 {
                     interactors.clear();
                     interactors.push_back(inter_);
@@ -334,12 +287,12 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
                 }
             }
             const char *syncGroup_ = NULL;
-            int nu = myInteractions_.current()->getInteractor()->getNumUser();
+            int nu = i->getInteractor()->getNumUser();
             if ( nu > 0)
             {
-                for (int i = 0; i < nu; i++)
+                for (int k = 0; k < nu; k++)
                 {
-                    const char *ud = myInteractions_.current()->getInteractor()->getString(i);
+                    const char *ud = i->getInteractor()->getString(k);
                     if (strncmp(ud, "SYNCGROUP=", 10) == 0)
                     {
                         syncGroup_ = ud + 10;
@@ -348,9 +301,8 @@ void ModuleFeedbackPlugin::getSyncInteractors(coInteractor *inter_) // collect a
             }
             if (syncGroup_ != NULL && strcmp(syncGroup_, syncGroup) == 0)
             {
-                interactors.push_back(myInteractions_.current()->getInteractor());
+                interactors.push_back(i->getInteractor());
             }
-            myInteractions_.next();
         }
     }
     else

@@ -303,8 +303,7 @@ void ModuleFeedbackManager::registerObjAtUi(string name)
 // compare functions
 // -----------------------------------------------------------------
 // returns true if inter comes from the same module
-bool
-ModuleFeedbackManager::compare(coInteractor *inter)
+bool ModuleFeedbackManager::compare(coInteractor *inter) const
 {
     if (inter_)
         return inter_->isSameModule(inter);
@@ -314,8 +313,7 @@ ModuleFeedbackManager::compare(coInteractor *inter)
 
 // returns true if inter comes from the same module
 // name is an object name...
-bool
-ModuleFeedbackManager::compare(const char *objectName)
+bool ModuleFeedbackManager::compare(const char *objectName) const
 {
     //    fprintf(stderr,"ModuleFeedbackManager::compare objectName=%s\n", objectName);
     //    if (containerObjectName_ != "")
@@ -340,8 +338,7 @@ ModuleFeedbackManager::compare(const char *objectName)
         return false;
 }
 
-bool
-ModuleFeedbackManager::comparePlugin(const char *name)
+bool ModuleFeedbackManager::comparePlugin(const char *name) const
 {
     return (strcmp(pName_.c_str(), name) == 0);
 }

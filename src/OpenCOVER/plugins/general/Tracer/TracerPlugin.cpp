@@ -259,16 +259,13 @@ TracerPlugin::addSmoke(const char *containerName, const RenderObject *grid, cons
         fprintf(stderr, "\nTracerPlugin::addSmoke %s\n", containerName);
 
     // find the TracerInteraction (ModuleFeedbackManager), where this object belongs to
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(containerName))
+        if (i->compare(containerName))
         {
-            ((TracerInteraction *)myInteractions_.current())->addSmoke(grid, velo);
+            ((TracerInteraction *)i)->addSmoke(grid, velo);
             break;
         }
-
-        myInteractions_.next();
     }
 }
 
@@ -279,16 +276,13 @@ TracerPlugin::removeSmoke(const char *objName)
         fprintf(stderr, "\nTracerPlugin::removeSmoke %s\n", objName);
 
     // find the TracerInteraction (ModuleFeedbackManager), where this object belongs to
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objName))
+        if (i->compare(objName))
         {
-            ((TracerInteraction *)myInteractions_.current())->addSmoke(NULL, NULL);
+            ((TracerInteraction *)i)->addSmoke(NULL, NULL);
             break;
         }
-
-        myInteractions_.next();
     }
 }
 
@@ -298,16 +292,14 @@ TracerPlugin::updateInteractorVisibility(const char *objectName)
     if (cover->debugLevel(3))
         fprintf(stderr, "TracerPlugin::updateInteractorVisibility(%s)\n", objectName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            ((TracerInteraction *)myInteractions_.current())->updatePickInteractorVisibility();
-            //((TracerInteraction*)myInteractions_.current())->updateDirectInteractorVisibility();
+            ((TracerInteraction *)i)->updatePickInteractorVisibility();
+            //((TracerInteraction*)i)->updateDirectInteractorVisibility();
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -316,15 +308,13 @@ TracerPlugin::handleInteractorVisibleMsg(const char *objectName, bool show)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "TracerPlugin::handleInteractorVisibleMsg(%s, %d)\n", objectName, show);
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            ((TracerInteraction *)myInteractions_.current())->setShowInteractorFromGui(show);
+            ((TracerInteraction *)i)->setShowInteractorFromGui(show);
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -332,15 +322,13 @@ void
 TracerPlugin::handleSmokeVisibleMsg(const char *objectName, bool show)
 {
     //fprintf(stderr,"TracerPlugin::showSmoke(%s, %d)\n", objectName, show);
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-            ((TracerInteraction *)myInteractions_.current())->setShowSmokeFromGui(show);
+            ((TracerInteraction *)i)->setShowSmokeFromGui(show);
             break;
         }
-        myInteractions_.next();
     }
 }
 
@@ -352,35 +340,32 @@ TracerPlugin::handleMoveInteractorMsg(const char *objectName, const char *intera
 
     //fprintf(stderr,"\tsearching the appropriate module feedback manager in list...\n");
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
             //fprintf(stderr,"found... now searching the right interactor for %s\n", interactorName);
             if (strcmp(interactorName, "s1") == 0)
             {
                 //fprintf(stderr,"interactorName=s1\n");
-                static_cast<TracerInteraction *>(myInteractions_.current())->setStartpoint1FromGui(x, y, z);
+                static_cast<TracerInteraction *>(i)->setStartpoint1FromGui(x, y, z);
                 break;
             }
             else if (strcmp(interactorName, "s2") == 0)
             {
                 //fprintf(stderr,"interactorName=s2\n");
-                static_cast<TracerInteraction *>(myInteractions_.current())->setStartpoint2FromGui(x, y, z);
+                static_cast<TracerInteraction *>(i)->setStartpoint2FromGui(x, y, z);
                 break;
             }
             else if (strcmp(interactorName, "direction") == 0)
             {
                 //fprintf(stderr,"interactorName=direction\n");
-                static_cast<TracerInteraction *>(myInteractions_.current())->setDirectionFromGui(x, y, z);
+                static_cast<TracerInteraction *>(i)->setDirectionFromGui(x, y, z);
                 break;
             }
             //else
             //   fprintf(stderr,"interactorName [%s] is unknown\n");
         }
-        myInteractions_.next();
     }
 }
 
@@ -388,15 +373,13 @@ void
 TracerPlugin::handleUseInteractorMsg(const char * /*objectName*/, bool /*use*/)
 {
     //fprintf(stderr,"TracerPlugin::useInteractor(%s, %d)\n", objectName, use);
-    //myInteractions_.reset();
-    //while (myInteractions_.current())
+    //for (auto *i: myInteractions_)
     //{
-    //   if (myInteractions_.current()->compare(objectName))
+    //   if (i->compare(objectName))
     //   {
-    //      ((TracerInteraction*)myInteractions_.current())->setUseInteractorFromGui(use);
+    //      ((TracerInteraction*)i)->setUseInteractorFromGui(use);
     //      break;
     //   }
-    //   myInteractions_.next();
     //}
 }
 
@@ -408,15 +391,12 @@ TracerPlugin::handleInteractorSetCaseMsg(const char *objectName, const char *cas
 
     //fprintf(stderr,"TracerPlugin::handleInteractorSetCaseMsg(%s, %s)\n", objectName, caseName);
 
-    myInteractions_.reset();
-    while (myInteractions_.current())
+    for (auto *i: myInteractions_)
     {
-        if (myInteractions_.current()->compare(objectName))
+        if (i->compare(objectName))
         {
-
-            ((TracerInteraction *)myInteractions_.current())->interactorSetCaseFromGui(caseName);
+            ((TracerInteraction *)i)->interactorSetCaseFromGui(caseName);
         }
-        myInteractions_.next();
     }
 }
 

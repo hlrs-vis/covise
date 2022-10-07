@@ -8,7 +8,6 @@
 #ifndef MODULE_FEEDBACK_PLUGIN_H_
 #define MODULE_FEEDBACK_PLUGIN_H_
 
-#include <util/DLinkList.h>
 #include <util/coTypes.h>
 #include <cover/coVRPlugin.h>
 
@@ -71,10 +70,10 @@ protected:
     virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const opencover::RenderObject *, const char *) = 0;
 
     // unique global list of all interactions
-    static covise::DLinkList<opencover::ModuleFeedbackManager *> _ComplexModuleList;
+    static std::list<opencover::ModuleFeedbackManager *> _ComplexModuleList;
 
     // list of all interaction of the derived class plugin
-    covise::DLinkList<opencover::ModuleFeedbackManager *> myInteractions_;
+    std::list<opencover::ModuleFeedbackManager *> myInteractions_;
 
 public:
     virtual void getSyncInteractors(coInteractor *inter_); // collect all interactors from other modules which should be syncronized with this one
