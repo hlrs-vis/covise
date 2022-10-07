@@ -269,10 +269,14 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string& s
 
 void CsvPointCloudPlugin::readSettings(const std::string& filename)
 {
-    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+    auto fn = filename.substr(0, filename.find_last_of('.')) + ".txt";
 
-    auto fn = coVRFileManager::instance()->findOrGetFile(settingsFileName);
     std::fstream f(fn);
+    if (!f.is_open())
+    {
+        std::cerr << "csvPointCloud: could not read settings file " << fn << std::endl;
+        return;
+    }
     std::string line;
 
 
@@ -302,9 +306,8 @@ void CsvPointCloudPlugin::readSettings(const std::string& filename)
 
 void CsvPointCloudPlugin::writeSettings(const std::string& filename)
 {
-    auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
+    auto fn = filename.substr(0, filename.find_last_of('.')) + ".txt";
 
-    auto fn = coVRFileManager::instance()->findOrGetFile(settingsFileName);
     std::ofstream f(fn);
 
     for (const auto ef : m_editFields)
@@ -392,11 +395,14 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofs
         colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
     
     //write cache file
-    write(f, symbols.size());
-    write(f, minScalar);
-    write(f, maxScalar);
-    f.write((const char*)&(*points)[0], symbols.size() * sizeof(osg::Vec3));
-    f.write((const char*) &(*colors)[0], symbols.size() * sizeof(osg::Vec4));
+    if (coVRMSController::instance()->isMaster())
+    {
+        write(f, symbols.size());
+        write(f, minScalar);
+        write(f, maxScalar);
+        f.write((const char*)&(*points)[0], symbols.size() * sizeof(osg::Vec3));
+        f.write((const char*) &(*colors)[0], symbols.size() * sizeof(osg::Vec4));
+    }
 
     return createOsgPoints(points, colors, minScalar, maxScalar);
 }
@@ -506,7 +512,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         return;
     }
     size_t size = 0;
-    if (auto cache = cacheFileUpToData(filename))
+    if (auto cache = cacheFileUpToDate(filename))
     {
         std::cerr << "using cache" << std::endl;
         size= read<size_t>(*cache);
@@ -626,8 +632,9 @@ void writeString(std::ofstream& f, const std::string& s)
     f.write(&s[0], size);
 }
 
-std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToData(const std::string& filename)
+std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToDate(const std::string& filename)
 {
+    
     auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
     auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
     if (fs::exists(cacheFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(filename))

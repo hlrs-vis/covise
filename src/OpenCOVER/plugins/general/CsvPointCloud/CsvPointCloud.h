@@ -87,7 +87,7 @@ private:
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
   void readSettings(const std::string& filename);
   void writeSettings(const std::string& filename);
-  std::unique_ptr<std::ifstream> cacheFileUpToData(const std::string& filename);
+  std::unique_ptr<std::ifstream> cacheFileUpToDate(const std::string& filename);
   void writeCacheFileHeader(std::ofstream& f);
 
 
