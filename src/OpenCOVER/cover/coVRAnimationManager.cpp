@@ -454,7 +454,7 @@ void coVRAnimationManager::setAnimationSkip(int frames)
 
 void opencover::coVRAnimationManager::setAnimationSkipMax(int maxFrames)
 {
-    animSkipItem->setBounds(0, maxFrames);
+    animSkipItem->setBounds(1, maxFrames);
 }
 
 bool
