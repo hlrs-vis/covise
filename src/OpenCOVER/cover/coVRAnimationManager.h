@@ -85,6 +85,7 @@ public:
     bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
     float getAnimationSpeed();
+    size_t getAnimationSkip();
     void setAnimationSpeed(float speed);
     void setAnimationSpeedMax(float maxSpeed);
     void setAnimationSkip(int frames);

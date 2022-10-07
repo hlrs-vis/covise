@@ -419,6 +419,12 @@ coVRAnimationManager::getAnimationSpeed()
     return animSpeedItem->value();
 }
 
+size_t coVRAnimationManager::getAnimationSkip()
+{
+    return (size_t)animSkipItem->value();
+
+}
+
 float
 coVRAnimationManager::getCurrentSpeed() const {
 
