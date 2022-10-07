@@ -48,8 +48,6 @@ public:
     //! if you don't need the interactor any more use ...
     void decRefCount();
 
-    virtual void removedObject() = 0;
-
     /// returns true, if Interactor comes from same Module as intteractor i;
     virtual bool isSameModule(coInteractor *i) const = 0;
 
