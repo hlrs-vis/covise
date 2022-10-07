@@ -19,6 +19,7 @@
 #include "ui/Menu.h"
 #include "ui/SelectionList.h"
 #include "ui/Slider.h"
+#include "ui/View.h"
 
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
@@ -62,9 +63,11 @@ void VrbMenu::initFileMenu()
                                     { requestNewSession(""); });
 
     m_newSessionEf = new ui::EditField(m_sessionGroup, "newSessionEf");
-    m_newSessionEf->setText("enter session name");
+    m_newSessionEf->setText("Set session name");
     m_newSessionEf->setCallback([this](std::string name)
                                 { requestNewSession(name); });
+    m_newSessionEf->setVisible(false);
+    m_newSessionEf->setVisible(true, ui::View::Tablet);
 
     m_sessionsSl = new ui::SelectionList(m_sessionGroup, "CurrentSessionSl");
     m_sessionsSl->setText("Current session");
@@ -85,6 +88,7 @@ void VrbMenu::initFileMenu()
                                         }
                                         else
                                             lauchRemotePartner(getRemoteLauncherClientID(index)); });
+    m_remoteLauncher->setVisible(!OpenCOVER::instance()->useVistle());
 
     // save and load sessions
     m_ioGroup = new ui::Group("IoGroup", this);

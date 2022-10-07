@@ -317,20 +317,14 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     {
         bool showAvatar;
         tb >> showAvatar;
-        if (showAvatar)
-        {
-            coVRPartnerList::instance()->showAvatars();
-        }
-        else
-        {
-            coVRPartnerList::instance()->hideAvatars();
-        }
+        coVRCollaboration::instance()->showAvatars(showAvatar);
     }
         break;
     case vrb::MASTER:
     {
         coVRPartnerList::instance()->setMaster(me()->ID());
         coVRCollaboration::instance()->updateSharedStates();
+        coVRCollaboration::instance()->updateUi();
     }
         break;
     case vrb::SLAVE:
@@ -339,6 +333,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
         tb >> id;
         coVRPartnerList::instance()->setMaster(id); //nobody is master here?
         coVRCollaboration::instance()->updateSharedStates();
+        coVRCollaboration::instance()->updateUi();
     }
         break;
     case vrb::MOVE_HAND:
@@ -416,6 +411,7 @@ void coVRCommunication::becomeMaster()
     coVRPluginList::instance()->becomeCollaborativeMaster();
     coVRPartnerList::instance()->setMaster(me()->ID());
     me()->becomeMaster();
+    coVRCollaboration::instance()->updateUi();
 }
 
 void coVRCommunication::handleVRB(const Message &msg)
@@ -461,6 +457,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         }
         coVRPartnerList::instance()->print();
         coVRCollaboration::instance()->updateSharedStates();
+        coVRCollaboration::instance()->updateUi();
     }
     break;
     case COVISE_MESSAGE_VRB_QUIT:
@@ -668,6 +665,7 @@ void coVRCommunication::handleVRB(const Message &msg)
             coVRPartnerList::instance()->print();
         }
         coVRCollaboration::instance()->updateSharedStates();
+        coVRCollaboration::instance()->updateUi();
     }
     break;
     case COVISE_MESSAGE_VRBC_CHANGE_SESSION:
@@ -699,6 +697,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         tb >> sessionID;
         coVRCollaboration::instance()->sessionChanged(sessionID.isPrivate());
         setSessionID(sessionID);
+        coVRCollaboration::instance()->updateUi();
     }
     break;
     case COVISE_MESSAGE_VRB_SAVE_SESSION:
@@ -712,6 +711,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         tb >> sessionID;
         registry->resubscribe(sessionID);
         coVRCollaboration::instance()->updateSharedStates(true);
+        coVRCollaboration::instance()->updateUi();
     }
     break;
     case COVISE_MESSAGE_VRB_MESSAGE:

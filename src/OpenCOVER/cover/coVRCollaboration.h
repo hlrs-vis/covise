@@ -61,6 +61,8 @@ public:
         TightCoupling
     };
 
+    void updateUi();
+
 private:
     int readConfigFile();
     void initCollMenu();
@@ -77,6 +79,7 @@ public:
     virtual ~coVRCollaboration();
     void config();
     void showCollaborative(bool visible);
+    void showAvatars(bool visible);
     static coVRCollaboration *instance();
     bool showAvatar;
     vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
