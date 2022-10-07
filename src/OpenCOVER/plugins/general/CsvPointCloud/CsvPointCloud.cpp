@@ -97,10 +97,9 @@ public:
     void move(VrmlSFVec3f &position)
     {
         auto t = System::the->time();
-        constexpr float scale = 1;
-        eventOut(t, "x", VrmlSFVec3f{ 0, 0, position.x() * scale});
-        eventOut(t, "y", VrmlSFVec3f{ position.y() * scale, 0, 0});
-        eventOut(t, "z", VrmlSFVec3f{ 0, position.z() * scale, 0 });
+        eventOut(t, "x", VrmlSFVec3f{ -position.x(), 0, 0 });
+        eventOut(t, "y", VrmlSFVec3f{ 0, 0, -position.y() });
+        eventOut(t, "z", VrmlSFVec3f{ 0, position.z(), 0});
     }
 
 private:
@@ -462,7 +461,7 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable& sy
     }
     for (size_t i = 0; i < symbols.size(); i++)
     {
-        retval.emplace_back( -1 * stringExpressions[0]().value() * scale, stringExpressions[1]().value() * scale, stringExpressions[2]().value() * scale);
+        retval.emplace_back( stringExpressions[0]().value() * scale, stringExpressions[1]().value() * scale, stringExpressions[2]().value() * scale);
         symbols.advance();
     }
     return retval;
@@ -578,7 +577,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
             machineNode->move(m_machinePositions[t]);
         }
         //move the workpiece with the machine table
-        osg::Vec3 v{ 0, -1 * m_machinePositions[t].y(), 0 };
+        osg::Vec3 v{ -m_machinePositions[t].x(), 0, 0 };
         osg::Matrix m;
         m.makeTranslate(v);
         if(m_transform)
