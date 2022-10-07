@@ -203,6 +203,7 @@ void coVRAnimationManager::initAnimMenu()
 		{
 			animFrameItem->setShared(state);
 			animSpeedItem->setShared(state);
+            animSkipItem->setShared(state);
 			animToggleItem->setShared(state);
 			
 		});
