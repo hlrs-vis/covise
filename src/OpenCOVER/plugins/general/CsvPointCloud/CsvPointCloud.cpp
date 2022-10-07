@@ -134,7 +134,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_colorBar(new opencover::ColorBar(m_colorMenu))
     , m_editFields{ m_dataScale,  m_coordTerms[0] ,  m_coordTerms[1],  m_coordTerms[2], m_machinePositionsTerms[0] ,  m_machinePositionsTerms[1],  m_machinePositionsTerms[2], m_colorTerm ,m_timeScaleIndicator ,m_delimiter, m_offset, m_pointReductionCriteria }
 {
-    
+    coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
     for (auto ef : m_editFields)
         ef->setShared(true);
@@ -154,7 +154,8 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_pointSizeSlider->setShared(true);
     
     m_numPointsSlider->setShared(true);
-
+    m_numPointsSlider->setBounds(0, 1);
+    m_numPointsSlider->setValue(1);
 
     m_reloadBtn->setCallback([this](bool state)
                             {
@@ -168,23 +169,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 }
                             });
     m_reloadBtn->setShared(true);
-
-    m_sliders = { new ui::Slider(m_CsvPointCloudMenu, "Xx"), new ui::Slider(m_CsvPointCloudMenu, "Yy"), new ui::Slider(m_CsvPointCloudMenu, "Zz") };
-    for (auto slider : m_sliders)
-    {
-        slider->setBounds(-500, 500);
-        slider->setCallback([this](double val, bool b) {
-            osg::Vec3 v;
-            for (size_t i = 0; i < 3; i++)
-            {
-                v[i] = m_sliders[i]->value();
-            }
-            osg::Matrix m;
-            m.makeTranslate(v);
-            //m(0, 3) = m_machinePositions[t].x();
-            m_transform->setMatrix(m);
-            });
-    }
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -299,8 +283,21 @@ void CsvPointCloudPlugin::readSettings(const std::string& filename)
         auto setting = std::find_if(m_editFields.begin(), m_editFields.end(), [name](ui::EditField* ef) {return ef->name() == name; });
         if (setting != m_editFields.end())
             (*setting)->setValue(value);
+        else if (name == m_pointSizeSlider->name())
+            m_pointSizeSlider->setValue(std::stof(value));
+        else if (name == m_numPointsSlider->name())
+            m_numPointsSlider->setValue(std::stoi(value));
+        else if (name == "AnimationSpeed")
+        {
+            coVRAnimationManager::instance()->setAnimationSpeed(std::stof(value));
+            m_animSpeedSet = true;
+        }
+        else if (name == "AnimationSkip")
+        {
+            coVRAnimationManager::instance()->setAnimationSkip(std::stoi(value));
+            m_animSkipSet = true;
+        }
     }
-    
 }
 
 void CsvPointCloudPlugin::writeSettings(const std::string& filename)
@@ -314,6 +311,13 @@ void CsvPointCloudPlugin::writeSettings(const std::string& filename)
     {
         f << ef->name() << " \"" << ef->value() << "\"\n";
     }
+    f << m_pointSizeSlider->name() << " \"" << m_pointSizeSlider->value() << "\"\n";
+    f << m_numPointsSlider->name() << " \"" << m_numPointsSlider->value() << "\"\n";
+    if(m_animSpeedSet)
+        f << "AnimationSpeed" << " \"" << coVRAnimationManager::instance()->getAnimationSpeed() << "\"\n";
+    if (m_animSkipSet)
+        f << "AnimationSkip" << " \"" << coVRAnimationManager::instance()->getAnimationSkip() << "\"\n";
+
 }
 
 template<typename T>
@@ -536,7 +540,9 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 
     }
     m_numPointsSlider->setBounds(0, size);
-    m_numPointsSlider->setValue(size);
+    if(m_numPointsSlider->value() == 1)
+        m_numPointsSlider->setValue(size);
+    m_numPointsSlider->setIntegral(true);
 
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
@@ -549,7 +555,6 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         pointShader->apply(m_currentGeode, m_pointCloud);
     }
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
-    coVRAnimationManager::instance()->setAnimationSkipMax(5000);
 }
 
 void CsvPointCloudPlugin::setTimestep(int t) 
@@ -625,7 +630,7 @@ std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToData(const std:
 {
     auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
     auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
-    if (fs::exists(cacheFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(settingsFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(filename))
+    if (fs::exists(cacheFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(filename))
     {
         std::unique_ptr<std::ifstream> f{ new std::ifstream{ cacheFileName, std::ios::binary } };
         auto date = readString(*f);

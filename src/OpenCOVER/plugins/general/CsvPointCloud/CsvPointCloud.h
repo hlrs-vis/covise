@@ -73,6 +73,8 @@ private:
   const std::array<ui::EditField*, 12> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   std::vector<unsigned int> m_pointsToNotReduce;
+  bool m_animSpeedSet = false, m_animSkipSet = false;
+
 
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols, std::ofstream& f);
@@ -81,7 +83,6 @@ private:
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
   std::vector<unsigned int> readReducedPoints(DataTable& symbols);
 
-  std::array<ui::Slider*, 3> m_sliders;
   int unloadFile(const std::string &filename);
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
   void readSettings(const std::string& filename);
