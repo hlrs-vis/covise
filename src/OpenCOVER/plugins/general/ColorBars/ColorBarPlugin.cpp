@@ -136,7 +136,6 @@ ColorBarPlugin::removeInteractor(const std::string &container)
     if (it != interactorMap.end())
     {
         coInteractor *inter = it->second;
-        interactorMap.erase(it);
 
         for (ColorsModuleMap::iterator it2 = colorsModuleMap.begin();
              it2 != colorsModuleMap.end();
@@ -148,9 +147,25 @@ ColorBarPlugin::removeInteractor(const std::string &container)
                 --mod.useCount;
                 if (mod.useCount == 0)
                 {
-                    it2->first->decRefCount();
+                    if (mod.hudVisible())
+                    {
+                        for (auto vit = visibleHuds.begin(); vit != visibleHuds.end(); ++vit)
+                        {
+                            if (*vit == &mod)
+                            {
+                                visibleHuds.erase(vit);
+                                break;
+                            }
+                        }
+                    }
                     colorsModuleMap.erase(it2);
+                    interactorMap.erase(it);
                     break;
+                }
+                else
+                {
+                    it->second = it2->first;
+                    it->second->incRefCount();
                 }
             }
         }
@@ -178,17 +193,19 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
     if (strcmp(inter->getPluginName(), "ColorBars") != 0)
         return;
 
+    inter->incRefCount();
     const char *containerName = container->getName();
-    coInteractor *oldInter = nullptr;
     auto iit = interactorMap.find(containerName);
     if (iit != interactorMap.end())
     {
-        oldInter = iit->second;
-    }
-    interactorMap[containerName] = inter;
-    inter->incRefCount();
-    if (oldInter)
+        auto oldInter = iit->second;
         oldInter->decRefCount();
+        iit->second = inter;
+    }
+    else
+    {
+        interactorMap[containerName] = inter;
+    }
 
     const char *colormapString = inter->getString(0); // Colormap string
     if (!colormapString)

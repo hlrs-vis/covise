@@ -452,13 +452,13 @@ ColorBar::getName()
 void
 ColorBar::addInter(coInteractor *inter)
 {
+    inter->incRefCount();
     if (inter_)
     {
         inter_->decRefCount();
         inter_ = NULL;
     }
     inter_ = inter;
-    inter_->incRefCount();
 
     updateInteractor();
 }
