@@ -1548,6 +1548,7 @@ std::string coVRFileManager::getFilterList()
         extensions += (*it)->extension;
         extensions += ";";
     }
+    extensions += "*.wrl;";
     extensions += "*.osg *.ive;";
     extensions += "*.osgb *.osgt *.osgx;";
     extensions += "*.obj;";
