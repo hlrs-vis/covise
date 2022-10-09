@@ -1,10 +1,14 @@
 #include "DataTable.h"
 #include <iostream>
 #include <cassert>
+#include <boost/timer/timer.hpp>
+using namespace boost::timer;
 size_t sizeTmp = 0;
 
 std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset)
 {
+    cpu_timer timer;
+
     sizeTmp = 0;
     std::map<std::string, Vector> points;
     std::fstream f(filename);
@@ -83,6 +87,8 @@ std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &
     for(auto &p :points)
         p.second.data.push_back(p.second.data[p.second.data.size() - 1]); //add last element twice for interpolation
     sizeTmp = numLines;
+    std::cout << "reading file took: " << timer.format() << '\n';
+
     return points;
 }
 

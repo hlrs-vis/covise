@@ -75,7 +75,6 @@ private:
   std::vector<unsigned int> m_pointsToNotReduce;
   bool m_animSpeedSet = false, m_animSkipSet = false;
 
-
   void createGeodes(osg::Group *, const std::string &);
   osg::Geometry *createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
