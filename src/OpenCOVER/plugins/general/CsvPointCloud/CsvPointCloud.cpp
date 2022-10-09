@@ -565,20 +565,27 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 
 void CsvPointCloudPlugin::setTimestep(int t) 
 {
-    //show points until t
-    if(m_pointCloud)
+    static int lastTimestep = 0;
+    static size_t lastReducePos = 0;
+    // static osg::DrawElementsUInt *pointsToNotReduce;
+    static osg::DrawArrays *allPoints;
+    if (!allPoints)
+        allPoints = new osg::DrawArrays(osg::PrimitiveSet::POINTS);
+    if (lastTimestep > t)
+        lastReducePos = 0;
+    // show points until t
+    if (m_pointCloud)
     {
-        size_t start = std::max(ui::Slider::ValueType{ 0 }, t - m_numPointsSlider->value());
-        size_t i = 0;
-        for(; i < m_pointsToNotReduce.size(); i++)
+        size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
+        for (lastReducePos; lastReducePos < m_pointsToNotReduce.size(); lastReducePos++)
         {
-            if (m_pointsToNotReduce[i] >= start)
+            if (m_pointsToNotReduce[lastReducePos] >= start)
                 break;
-
         }
-
-        m_pointCloud->setPrimitiveSet(1, new osg::DrawElementsUInt(osg::PrimitiveSet::POINTS, i, m_pointsToNotReduce.data()));
-        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, start, t + 1 - start));
+        allPoints->setFirst(start);
+        allPoints->setCount(t + 1 - start);
+        m_pointCloud->setPrimitiveSet(1, new osg::DrawElementsUInt(osg::PrimitiveSet::POINTS, lastReducePos, m_pointsToNotReduce.data()));
+        m_pointCloud->setPrimitiveSet(0, allPoints);
     }
     //move machine axis
     if (m_machinePositions.size() > t)
