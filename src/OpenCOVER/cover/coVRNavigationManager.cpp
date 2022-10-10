@@ -415,7 +415,8 @@ void coVRNavigationManager::initMenu()
 
 
     centerViewButton = new ui::Action(navMenu_, "centerView");
-    centerViewButton->setText("Center view");
+    centerViewButton->setText("Straighten view");
+    centerViewButton->setShortcut("r");
     centerViewButton->setCallback([this, protectNav]() {
         protectNav([this]() {
             centerView();
@@ -524,6 +525,7 @@ void coVRNavigationManager::initMenu()
     collisionButton_->setCallback([this](bool state) { collision = state; });
 
     snapButton_ = new ui::Button(navMenu_, "Snap");
+    snapButton_->setShortcut("n");
     snapButton_->setState(snapping);
     snapButton_->setCallback([this](bool state) { snapping = state; });
 
@@ -620,24 +622,24 @@ void coVRNavigationManager::centerView(){
             up[maxAngleIndex - 3] = -1;
         }
 
-        center.set( up [0] ? eye.x() : center.x(),
-                    up [1] ? eye.y() : center.y(),
-                    up [2] ? eye.z() : center.z()); //removes inclination
-
-        
         float minDif = -1;
         size_t minDifIndex = 0, staySameIndex = 0;
         for (size_t i = 0; i < 3; i++)
         {
             if (up[i])
             {
+                //remove inclination
                 center[i] = eye[i];
             }
             else if(std::abs(center[i] - eye[i]) < minDif || minDif == -1)
             {
                 minDif = std::abs(center[i] - eye[i]);
                 minDifIndex = i;
-            }else
+            }
+        }
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (i != minDifIndex && up[i] == 0)
             {
                 staySameIndex = i;
             }
