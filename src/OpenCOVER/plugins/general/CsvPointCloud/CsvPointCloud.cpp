@@ -411,12 +411,17 @@ void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
         write(f, reducedScalarData.size());
         write(f, minScalar);
         write(f, maxScalar);
-        f.write((const char *)&(*points)[0], scalarData.size() * sizeof(osg::Vec3));
-        f.write((const char *)&(*colors)[0], scalarData.size() * sizeof(osg::Vec4));
-        f.write((const char*)&(*reducedPoints)[0], reducedScalarData.size() * sizeof(osg::Vec3));
-        f.write((const char*)&(*reducedColors)[0], reducedScalarData.size() * sizeof(osg::Vec4));
-        f.write((const char*)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
-
+        if (scalarData.size())
+        {
+            f.write((const char *)&(*points)[0], scalarData.size() * sizeof(osg::Vec3));
+            f.write((const char *)&(*colors)[0], scalarData.size() * sizeof(osg::Vec4));
+        }
+        if (reducedScalarData.size())
+        {
+            f.write((const char*)&(*reducedPoints)[0], reducedScalarData.size() * sizeof(osg::Vec3));
+            f.write((const char*)&(*reducedColors)[0], reducedScalarData.size() * sizeof(osg::Vec4));
+            f.write((const char*)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
+        }
     }
     m_pointCloud = createOsgPoints(points, colors, minScalar, maxScalar);
     m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, minScalar, maxScalar);
@@ -535,18 +540,25 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         size = unreducedSize + reducedSize;
         auto min = read<float>(*cache);
         auto max = read<float>(*cache);
-        auto points = new Vec3Array(unreducedSize);
-        auto colors = new Vec4Array(unreducedSize);
-        auto reducedPoints = new Vec3Array(reducedSize);
-        auto reducedColors = new Vec4Array(reducedSize);
-        cache->read((char *)&(*points)[0], unreducedSize * sizeof(osg::Vec3));
-        cache->read((char *)&(*colors)[0], unreducedSize * sizeof(osg::Vec4));
-        cache->read((char*)&(*reducedPoints)[0], reducedSize * sizeof(osg::Vec3));
-        cache->read((char*)&(*reducedColors)[0], reducedSize * sizeof(osg::Vec4));
-        m_pointCloud = createOsgPoints(points, colors, min, max);
-        m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, min, max);
-        m_reducedIndices.resize(reducedSize);
-        cache->read((char*)m_reducedIndices.data(), reducedSize * sizeof(size_t));
+        if (unreducedSize)
+        {
+            auto points = new Vec3Array(unreducedSize);
+            auto colors = new Vec4Array(unreducedSize);
+            cache->read((char *)&(*points)[0], unreducedSize * sizeof(osg::Vec3));
+            cache->read((char *)&(*colors)[0], unreducedSize * sizeof(osg::Vec4));
+            m_pointCloud = createOsgPoints(points, colors, min, max);
+
+        }
+        if (reducedSize)
+        {
+            auto reducedPoints = new Vec3Array(reducedSize);
+            auto reducedColors = new Vec4Array(reducedSize);
+            cache->read((char*)&(*reducedPoints)[0], reducedSize * sizeof(osg::Vec3));
+            cache->read((char*)&(*reducedColors)[0], reducedSize * sizeof(osg::Vec4));
+            m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, min, max);
+            m_reducedIndices.resize(reducedSize);
+            cache->read((char*)m_reducedIndices.data(), reducedSize * sizeof(size_t));
+        }
         m_machinePositions.resize(size);
         cache->read((char *)m_machinePositions.data(), size * sizeof(vrml::VrmlSFVec3f));
     }
@@ -562,8 +574,10 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         m_machinePositions = readMachinePositions(dataTable);
         f.write((const char *)m_machinePositions.data(), m_machinePositions.size() * sizeof(vrml::VrmlSFVec3f));
     }
-    m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS));
-    m_reducedPointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 0));
+    if(m_pointCloud)
+        m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS));
+    if(m_reducedPointCloud)
+        m_reducedPointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 0));
 
 
     m_numPointsSlider->setBounds(0, size);
@@ -574,14 +588,19 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
-    if (!m_pointCloud ||!m_reducedPointCloud)
+    if (!m_pointCloud  && !m_reducedPointCloud)
         return;
-    m_currentGeode->addDrawable(m_pointCloud);
-    m_currentGeode->addDrawable(m_reducedPointCloud);
+    if (m_pointCloud)
+        m_currentGeode->addDrawable(m_pointCloud);
+    if (m_reducedPointCloud)
+        m_currentGeode->addDrawable(m_reducedPointCloud);
     if (pointShader != nullptr)
     {
-        pointShader->apply(m_currentGeode, m_pointCloud);
-        pointShader->apply(m_currentGeode, m_reducedPointCloud);
+        if (m_pointCloud)
+            pointShader->apply(m_currentGeode, m_pointCloud);
+
+        if (m_reducedPointCloud)
+            pointShader->apply(m_currentGeode, m_reducedPointCloud);
     }
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
 }
@@ -593,35 +612,37 @@ void CsvPointCloudPlugin::setTimestep(int t)
     static size_t reducedPointsBetween  = 0;
     static size_t lastNumFullDrawnPoints = 0;
     // show points until t
+    
+    if (lastTimestep > t)
+    {
+        reducedPointsUntilTimestep = 0;
+        reducedPointsBetween = 0;
+    }
+    if(lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
+        reducedPointsBetween = 0;
+
+    for (; ; ++reducedPointsUntilTimestep)
+    {
+        if (reducedPointsUntilTimestep >= m_reducedIndices.size() || m_reducedIndices[reducedPointsUntilTimestep] > t)
+            break;
+    }
+    size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
+    for (; ; ++reducedPointsBetween)
+    {
+        if (reducedPointsBetween >= m_reducedIndices.size() || m_reducedIndices[reducedPointsBetween] > start)
+            break;
+    }
+    auto normalPointsUntilTimestep = t - reducedPointsUntilTimestep + 1;
+    auto normalPointsUntilStart = start < reducedPointsBetween ? 0:  start - reducedPointsBetween;
+    auto nomalPointsToDraw = normalPointsUntilTimestep - normalPointsUntilStart;
     if (m_pointCloud)
     {
-        if (lastTimestep > t)
-        {
-            reducedPointsUntilTimestep = 0;
-            reducedPointsBetween = 0;
-        }
-        if(lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
-            reducedPointsBetween = 0;
-
-        for (; ; ++reducedPointsUntilTimestep)
-        {
-            if (m_reducedIndices[reducedPointsUntilTimestep] > t)
-                break;
-        }
-        size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
-        for (; ; ++reducedPointsBetween)
-        {
-            if (m_reducedIndices[reducedPointsBetween] > start)
-                break;
-        }
-        auto normalPointsUntilTimestep = t - reducedPointsUntilTimestep;
-        auto normalPointsUntilStart = start - reducedPointsBetween;
-        auto nomalPointsToDraw = normalPointsUntilTimestep - normalPointsUntilStart;
         static_cast<osg::DrawArrays*>(m_pointCloud->getPrimitiveSet(0))->setFirst(normalPointsUntilStart);
         static_cast<osg::DrawArrays*>(m_pointCloud->getPrimitiveSet(0))->setCount(nomalPointsToDraw);
-
-        static_cast<osg::DrawArrays*>(m_reducedPointCloud->getPrimitiveSet(0))->setCount(reducedPointsUntilTimestep + 1);
     }
+    if(m_reducedPointCloud)
+        static_cast<osg::DrawArrays*>(m_reducedPointCloud->getPrimitiveSet(0))->setCount(reducedPointsUntilTimestep);
+    
 
     // move machine axis
     if (m_machinePositions.size() > t)
@@ -653,6 +674,7 @@ int CsvPointCloudPlugin::unloadFile(const std::string &filename)
         writeSettings(filename);
         m_currentGeode->getParent(0)->removeChild(m_currentGeode);
         m_pointCloud = nullptr;
+        m_reducedPointCloud = nullptr;
         m_currentGeode = nullptr;
         m_transform = nullptr;
         return 0;
