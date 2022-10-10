@@ -89,13 +89,13 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
         High,
     };
     typedef uint32_t UpdateMaskType;
-    enum UpdateMask: UpdateMaskType
+    enum UpdateMask : UpdateMaskType
     {
         UpdateNothing = 0,
         UpdateVisible = 1,
         UpdateEnabled = 2,
         UpdateText = 4,
-        UpdateParent = 8,
+        UpdateChildren = 8,
         UpdateAll = ~UpdateMaskType(0)
     };
     //! construct as top-level item, life time managed by owner
@@ -129,8 +129,6 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
 
     //! item this Element is a child of
     Group *parent() const;
-    //! item this Element was a child of previously
-    Group *oldParent() const;
 
     std::set<Container *> containers();
     //! request that graphical representation in all views is updated
@@ -175,9 +173,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     int m_viewBits = ~0;
     std::unique_ptr<vrb::SharedStateBase> m_sharedState;
 
- private:
-     mutable Group *m_oldParent = nullptr;
-     mutable int m_id = -1, m_order = -1; // initialized by Manager
+private:
+    mutable int m_id = -1, m_order = -1; // initialized by Manager
 };
 
 }

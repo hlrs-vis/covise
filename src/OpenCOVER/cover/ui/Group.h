@@ -18,6 +18,9 @@ class COVER_UI_EXPORT Group: public Element, public Container {
     bool add(Element *elem, int where=Append) override;
     //! remove an Element from this Group
     bool remove(Element *elem) override;
+
+    //! request that graphical representation in all views is updated
+    void update(UpdateMaskType updateMask = UpdateAll) const override;
 };
 
 }

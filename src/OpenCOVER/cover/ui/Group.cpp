@@ -25,6 +25,13 @@ Group::~Group()
     clearChildren();
 }
 
+void Group::update(UpdateMaskType mask) const
+{
+    Element::update(mask);
+    if (mask & UpdateChildren)
+        manager()->updateChildren(this);
+}
+
 bool Group::add(Element *elem, int where)
 {
     if (Container::add(elem, where))
@@ -36,7 +43,7 @@ bool Group::add(Element *elem, int where)
             assert(!elem->m_parent);
         }
         elem->setParent(this);
-        manager()->queueUpdate(elem, UpdateParent);
+        manager()->queueUpdate(this, UpdateChildren);
         return true;
     }
     return false;
@@ -47,7 +54,7 @@ bool Group::remove(Element *elem)
     if (Container::remove(elem))
     {
         elem->setParent(nullptr);
-        manager()->queueUpdate(elem, UpdateParent);
+        manager()->queueUpdate(this, UpdateChildren);
         return true;
     }
     return false;
@@ -55,4 +62,3 @@ bool Group::remove(Element *elem)
 
 }
 }
-

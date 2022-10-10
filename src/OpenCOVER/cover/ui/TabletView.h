@@ -52,8 +52,8 @@ class COVER_UI_EXPORT TabletView: public View
    void updateEnabled(const Element *elem) override;
    void updateVisible(const Element *elem) override;
    void updateText(const Element *elem) override;
-   void updateParent(const Element *elem) override;
    void updateState(const Button *) override;
+   void updateChildren(const Group *elem) override;
    void updateChildren(const SelectionList *sl) override;
    void updateIntegral(const Slider *slider) override;
    void updateScale(const Slider *slider) override;

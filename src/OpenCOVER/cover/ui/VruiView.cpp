@@ -293,6 +293,7 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
     if (ve->m_menuItem)
     {
         ve->m_menuItem->setMenuListener(ve);
+        addToParent(ve, elem);
     }
 
     if (ve->m_toolboxItem)
@@ -314,7 +315,7 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
         }
     }
 
-    updateParent(elem);
+    updateChildren(elem->parent());
 }
 
 void VruiView::updateEnabled(const Element *elem)
@@ -400,41 +401,58 @@ void VruiView::updateState(const Button *button)
     }
 }
 
-void VruiView::updateParent(const Element *elem)
+void VruiView::addToParent(VruiViewElement *ve, const Element *elem)
 {
-    auto ve = vruiElement(elem);
-    if (!ve)
-        return;
-    if (ve->m_menuItem)
+    bool inMenu = elem->priority() >= ui::Element::Default;
+    if (inMenu)
     {
-        auto oldMenu = ve->m_menuItem->getParentMenu();
-        if (oldMenu)
-            oldMenu->remove(ve->m_menuItem);
-
-        bool inMenu = elem->priority() >= ui::Element::Default;
-        if (inMenu)
+        auto parent = vruiContainer(elem);
+        if (parent && parent->m_menu)
         {
-            auto parent = vruiContainer(elem);
-            if (parent && parent->m_menu)
+            auto idx = elem->parent()->index(elem);
+            parent->m_menu->add(ve->m_menuItem);
+        }
+        else
+        {
+            if (parent)
             {
-                auto idx =  elem->parent()->index(elem);
-                if (idx < 0 || isReparented(elem))
-                    parent->m_menu->add(ve->m_menuItem);
-                else
-                    parent->m_menu->insert(ve->m_menuItem, idx);
+                std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path()
+                          << " is not a menu" << std::endl;
             }
-            else
-            {
-                if (parent)
-                {
-                    std::cerr << "ui::Vrui: parent " << parent->element->path() << " for " << elem->path() << " is not a menu" << std::endl;
-                }
-                if (m_rootMenu && ve->m_menu)
-                    m_rootMenu->add(ve->m_menuItem);
-            }
+            if (m_rootMenu && ve->m_menu)
+                m_rootMenu->add(ve->m_menuItem);
         }
     }
-    updateVisible(elem);
+}
+
+void VruiView::updateChildren(const Group *group)
+{
+    if (!group)
+        return;
+
+    for (size_t i = 0; i < group->numChildren(); ++i)
+    {
+        auto *elem = group->child(i);
+        auto *ve = vruiElement(elem);
+        if (!ve)
+        {
+            if (group->parent())
+                updateChildren(group->parent());
+        }
+        else if (ve->m_menuItem)
+        {
+            auto oldMenu = ve->m_menuItem->getParentMenu();
+            if (oldMenu)
+                oldMenu->remove(ve->m_menuItem);
+
+            addToParent(ve, elem);
+        }
+        else if (group->parent())
+        {
+            updateChildren(group->parent());
+        }
+        updateVisible(elem);
+    }
 }
 
 void VruiView::updateChildren(const SelectionList *sl)
@@ -607,7 +625,7 @@ VruiViewElement *VruiView::elementFactoryImplementation(Group *group)
     //ve->m_menuItem = new coCheckboxMenuItem(rg->text(), rg->state());
     //add(ve, rg);
 #if 0
-    auto parent = vruiParent(rg);
+    auto parent = vruiParent(group);
     if (parent)
     {
         ve->m_menu = parent->m_menu;

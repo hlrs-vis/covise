@@ -81,15 +81,13 @@ Group *Element::parent() const
     return m_parent;
 }
 
-Group *Element::oldParent() const
-{
-    return m_oldParent;
-}
-
 void Element::setParent(Group *parent)
 {
-    m_oldParent = m_parent;
+    if (m_parent)
+        manager()->queueUpdate(m_parent, UpdateChildren);
     m_parent = parent;
+    if (m_parent)
+        manager()->queueUpdate(m_parent, UpdateChildren);
 }
 
 void Element::update(UpdateMaskType mask) const
@@ -100,8 +98,6 @@ void Element::update(UpdateMaskType mask) const
         manager()->updateVisible(this);
     if (mask & UpdateEnabled)
         manager()->updateEnabled(this);
-    if (mask & UpdateParent)
-        manager()->updateParent(this);
 }
 
 std::set<Container *> Element::containers()

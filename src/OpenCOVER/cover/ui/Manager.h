@@ -53,6 +53,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! update pressed/released state of button on all views
    void updateState(const Button *button) const;
    //! update list of child elements on all views
+   void updateChildren(const Group *group) const;
+   //! update list of child elements on all views
    void updateChildren(const SelectionList *sl) const;
    //! update whether slider is logarithmic on all views
    void updateScale(const Slider *slider) const;

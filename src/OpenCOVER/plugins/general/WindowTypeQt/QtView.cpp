@@ -424,20 +424,10 @@ void QtView::updateContainer(const Element *elem)
 {
     if (!elem)
         return;
+    if (!elem->parent())
+        return;
 
-    for (auto *p: {elem->oldParent(), elem->parent()})
-    {
-        if (!p)
-            continue;
-        if (auto menu = dynamic_cast<Menu *>(p))
-        {
-            updateMenu(menu, menu);
-        }
-        else
-        {
-            updateContainer(p);
-        }
-    }
+    updateChildren(elem->parent());
 }
 
 void QtView::updateMenu(const Menu *menu, const Group *subGroup)
@@ -564,9 +554,16 @@ void QtView::updateState(const Button *button)
         a->setChecked(button->state());
 }
 
-void QtView::updateParent(const Element *elem)
+void QtView::updateChildren(const Group *group)
 {
-    updateContainer(elem);
+    if (auto menu = dynamic_cast<const Menu *>(group))
+    {
+        updateMenu(menu, menu);
+    }
+    else
+    {
+        updateContainer(group);
+    }
 }
 
 void QtView::updateChildren(const SelectionList *sl)
