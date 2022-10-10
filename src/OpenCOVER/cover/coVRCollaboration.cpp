@@ -236,7 +236,8 @@ bool coVRCollaboration::updateCollaborativeMenu()
         m_showAvatar->setState(coVRPartnerList::instance()->avatarsVisible());
     }
 
-    updateUi();
+    if (changed)
+        updateUi();
 
     return changed;
 }
