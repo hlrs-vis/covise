@@ -56,7 +56,8 @@ private:
   };
 
   static CsvPointCloudPlugin *m_plugin;
-  osg::Geometry *m_pointCloud = nullptr;
+  osg::Geometry* m_pointCloud = nullptr;
+  osg::Geometry *m_reducedPointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
   osg::MatrixTransform* m_transform = nullptr;
   ui::Menu *m_CsvPointCloudMenu, *m_colorMenu;
@@ -72,11 +73,11 @@ private:
   opencover::ColorBar *m_colorBar;
   const std::array<ui::EditField*, 12> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
-  std::vector<unsigned int> m_pointsToNotReduce;
   bool m_animSpeedSet = false, m_animSkipSet = false;
+  std::vector<size_t> m_reducedIndices;
 
   void createGeodes(osg::Group *, const std::string &);
-  osg::Geometry *createOsgPoints(DataTable &symbols, std::ofstream& f);
+  void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);

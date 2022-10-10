@@ -115,7 +115,7 @@ namespace fs = boost::filesystem;
 
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
-    : ui::Owner("CsvPointCloud", cover->ui), m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this)), m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale")), m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu")), m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color")), m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize")), m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints")), m_colorMapSelector(*m_CsvPointCloudMenu), m_reloadBtn(new ui::Button(m_CsvPointCloudMenu, "Reload")), m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator")), m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria")), m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter")), m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset")), m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors")), m_colorBar(new opencover::ColorBar(m_colorMenu)), m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
+    : ui::Owner("CsvPointCloud", cover->ui), m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this)), m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale")), m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu")), m_coordTerms{ {new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")} }, m_machinePositionsTerms{ {new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")} }, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color")), m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize")), m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints")), m_colorMapSelector(*m_CsvPointCloudMenu), m_reloadBtn(new ui::Button(m_CsvPointCloudMenu, "Reload")), m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator")), m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria")), m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter")), m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset")), m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors")), m_colorBar(new opencover::ColorBar(m_colorMenu)), m_editFields{ m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria }
 {
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
@@ -130,9 +130,10 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_pointSizeSlider->setCallback([this](ui::Slider::ValueType val, bool release)
                                    {
                                       if (m_pointCloud)
-                                      {
                                           dynamic_cast<osg::Point *>(m_pointCloud->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(val);
-                                      } });
+                                      if (m_reducedPointCloud)
+                                          dynamic_cast<osg::Point*>(m_reducedPointCloud->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(val);
+                                    });
     m_pointSizeSlider->setShared(true);
 
     m_numPointsSlider->setShared(true);
@@ -150,6 +151,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                     load(filename.c_str(), parent, nullptr);
                                 } });
     m_reloadBtn->setShared(true);
+
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -269,8 +271,10 @@ void CsvPointCloudPlugin::readSettings(const std::string &filename)
             (*setting)->setValue(value);
         else if (name == m_pointSizeSlider->name())
             m_pointSizeSlider->setValue(std::stof(value));
-        else if (name == m_numPointsSlider->name())
+        else if (name == m_numPointsSlider->name()) {
+            m_numPointsSlider->setBounds(0, std::stoi(value));
             m_numPointsSlider->setValue(std::stoi(value));
+        }
         else if (name == "AnimationSpeed")
         {
             coVRAnimationManager::instance()->setAnimationSpeed(std::stof(value));
@@ -339,55 +343,83 @@ float parseScale(const std::string &scale)
     return expression.value();
 }
 
-osg::Geometry *CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
+void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
 {
     // compile parser
     cpu_timer timer;
 
-    std::array<Expression, 4> stringExpressions;
+    std::array<Expression, 3> coordExpressions;
+    Expression colorExporession, reduceExpression;
 
-    for (size_t i = 0; i < stringExpressions.size(); i++)
+    for (size_t i = 0; i < coordExpressions.size(); i++)
     {
-        if (!compileSymbol(symbols, i < 3 ? m_coordTerms[i]->value() : m_colorTerm->value(), stringExpressions[i]))
-            return nullptr;
+        if (!compileSymbol(symbols, m_coordTerms[i]->value(), coordExpressions[i]))
+            return;
     }
+    if (!compileSymbol(symbols, m_colorTerm->value(), colorExporession))
+        return;
+    if (!compileSymbol(symbols, m_pointReductionCriteria->value(), reduceExpression))
+        return;
     std::cout << "compiling parser took: " << timer.format() << '\n';
 
     auto colors = new Vec4Array();
     auto points = new Vec3Array();
 
+    auto reducedColors = new Vec4Array();
+    auto reducedPoints = new Vec3Array();
+
     // calculate coords and color
-    std::vector<float> scalarData(symbols.size());
+    std::vector<float> scalarData, reducedScalarData;
     float minScalar = 0, maxScalar = 0;
     auto scale = parseScale(m_dataScale->value());
+    m_reducedIndices = std::vector<size_t>();
     for (size_t i = 0; i < symbols.size(); i++)
     {
         osg::Vec3 coords;
         for (size_t j = 0; j < 3; j++)
         {
-            coords[j] = stringExpressions[j]().value() * scale;
+            coords[j] = coordExpressions[j]().value() * scale;
         }
-        points->push_back(coords);
-        scalarData[i] = stringExpressions[3]().value();
-        minScalar = std::min(minScalar, scalarData[i]);
-        maxScalar = std::max(maxScalar, scalarData[i]);
+        auto scalar = colorExporession().value();
+        if (reduceExpression().value())
+        {
+            reducedPoints->push_back(coords);
+            m_reducedIndices.push_back(i);
+            reducedScalarData.push_back(scalar);
+        }
+        else
+        {
+            points->push_back(coords);
+            scalarData.push_back(scalar);
+
+        }
+        minScalar = std::min(minScalar, scalar);
+        maxScalar = std::max(maxScalar, scalar);
         symbols.advance();
     }
-    for (size_t i = 0; i < symbols.size(); i++)
+    for (size_t i = 0; i < scalarData.size(); i++)
         colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
+
+    for (size_t i = 0; i < reducedScalarData.size(); i++)
+        reducedColors->push_back(m_colorMapSelector.getColor(reducedScalarData[i], minScalar, maxScalar));
     std::cout << "parsing data table took: " << timer.format() << '\n';
 
     // write cache file
     if (coVRMSController::instance()->isMaster())
     {
-        write(f, symbols.size());
+        write(f, scalarData.size());
+        write(f, reducedScalarData.size());
         write(f, minScalar);
         write(f, maxScalar);
-        f.write((const char *)&(*points)[0], symbols.size() * sizeof(osg::Vec3));
-        f.write((const char *)&(*colors)[0], symbols.size() * sizeof(osg::Vec4));
-    }
+        f.write((const char *)&(*points)[0], scalarData.size() * sizeof(osg::Vec3));
+        f.write((const char *)&(*colors)[0], scalarData.size() * sizeof(osg::Vec4));
+        f.write((const char*)&(*reducedPoints)[0], reducedScalarData.size() * sizeof(osg::Vec3));
+        f.write((const char*)&(*reducedColors)[0], reducedScalarData.size() * sizeof(osg::Vec4));
+        f.write((const char*)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
 
-    return createOsgPoints(points, colors, minScalar, maxScalar);
+    }
+    m_pointCloud = createOsgPoints(points, colors, minScalar, maxScalar);
+    m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, minScalar, maxScalar);
 }
 
 osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, Vec4Array *colors, float minColor, float maxColor)
@@ -497,20 +529,26 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     size_t size = 0;
     if (auto cache = cacheFileUpToDate(filename))
     {
-        std::cerr << "using cache" << std::endl;
-        size = read<size_t>(*cache);
+        std::cerr << "CsvPointCloud: using cache" << std::endl;
+        auto unreducedSize = read<size_t>(*cache);
+        auto reducedSize = read<size_t>(*cache);
+        size = unreducedSize + reducedSize;
         auto min = read<float>(*cache);
         auto max = read<float>(*cache);
-        auto points = new Vec3Array(size);
-        auto colors = new Vec4Array(size);
-        cache->read((char *)&(*points)[0], size * sizeof(osg::Vec3));
-        cache->read((char *)&(*colors)[0], size * sizeof(osg::Vec4));
+        auto points = new Vec3Array(unreducedSize);
+        auto colors = new Vec4Array(unreducedSize);
+        auto reducedPoints = new Vec3Array(reducedSize);
+        auto reducedColors = new Vec4Array(reducedSize);
+        cache->read((char *)&(*points)[0], unreducedSize * sizeof(osg::Vec3));
+        cache->read((char *)&(*colors)[0], unreducedSize * sizeof(osg::Vec4));
+        cache->read((char*)&(*reducedPoints)[0], reducedSize * sizeof(osg::Vec3));
+        cache->read((char*)&(*reducedColors)[0], reducedSize * sizeof(osg::Vec4));
         m_pointCloud = createOsgPoints(points, colors, min, max);
+        m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, min, max);
+        m_reducedIndices.resize(reducedSize);
+        cache->read((char*)m_reducedIndices.data(), reducedSize * sizeof(size_t));
         m_machinePositions.resize(size);
         cache->read((char *)m_machinePositions.data(), size * sizeof(vrml::VrmlSFVec3f));
-        auto numNonReducedPoints = read<size_t>(*cache);
-        m_pointsToNotReduce.resize(numNonReducedPoints);
-        cache->read((char *)m_pointsToNotReduce.data(), numNonReducedPoints * sizeof(unsigned int));
     }
     else
     {
@@ -520,13 +558,14 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         writeCacheFileHeader(f);
         DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
         size = dataTable.size();
-        m_pointCloud = createOsgPoints(dataTable, f);
+        createOsgPoints(dataTable, f);
         m_machinePositions = readMachinePositions(dataTable);
-        m_pointsToNotReduce = readReducedPoints(dataTable);
         f.write((const char *)m_machinePositions.data(), m_machinePositions.size() * sizeof(vrml::VrmlSFVec3f));
-        write(f, m_pointsToNotReduce.size());
-        f.write((const char *)m_pointsToNotReduce.data(), m_pointsToNotReduce.size() * sizeof(unsigned int));
     }
+    m_pointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS));
+    m_reducedPointCloud->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 0));
+
+
     m_numPointsSlider->setBounds(0, size);
     if (m_numPointsSlider->value() == 1)
         m_numPointsSlider->setValue(size);
@@ -535,12 +574,14 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     m_currentGeode = new osg::Geode();
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
-    if (!m_pointCloud)
+    if (!m_pointCloud ||!m_reducedPointCloud)
         return;
     m_currentGeode->addDrawable(m_pointCloud);
+    m_currentGeode->addDrawable(m_reducedPointCloud);
     if (pointShader != nullptr)
     {
         pointShader->apply(m_currentGeode, m_pointCloud);
+        pointShader->apply(m_currentGeode, m_reducedPointCloud);
     }
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
 }
@@ -548,30 +589,39 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 void CsvPointCloudPlugin::setTimestep(int t)
 {
     static int lastTimestep = 0;
-    static size_t lastReducePos = 0;
-    // static osg::DrawElementsUInt *pointsToNotReduce;
-    static osg::DrawArrays *allPoints;
-    if (!allPoints)
-        allPoints = new osg::DrawArrays(osg::PrimitiveSet::POINTS);
-    if (lastTimestep > t)
-        lastReducePos = 0;
+    static size_t reducedPointsUntilTimestep = 0;
+    static size_t reducedPointsBetween  = 0;
+    static size_t lastNumFullDrawnPoints = 0;
     // show points until t
-    cpu_timer timer;
-    
     if (m_pointCloud)
     {
-        size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
-        for (;lastReducePos < m_pointsToNotReduce.size(); ++lastReducePos)
+        if (lastTimestep > t)
         {
-            if (m_pointsToNotReduce[lastReducePos] >= start)
+            reducedPointsUntilTimestep = 0;
+            reducedPointsBetween = 0;
+        }
+        if(lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
+            reducedPointsBetween = 0;
+
+        for (; ; ++reducedPointsUntilTimestep)
+        {
+            if (m_reducedIndices[reducedPointsUntilTimestep] > t)
                 break;
         }
-        allPoints->setFirst(start);
-        allPoints->setCount(t + 1 - start);
-        m_pointCloud->setPrimitiveSet(1, new osg::DrawElementsUInt(osg::PrimitiveSet::POINTS, lastReducePos, m_pointsToNotReduce.data()));
-        m_pointCloud->setPrimitiveSet(0, allPoints);
+        size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
+        for (; ; ++reducedPointsBetween)
+        {
+            if (m_reducedIndices[reducedPointsBetween] > start)
+                break;
+        }
+        auto normalPointsUntilTimestep = t - reducedPointsUntilTimestep;
+        auto normalPointsUntilStart = start - reducedPointsBetween;
+        auto nomalPointsToDraw = normalPointsUntilTimestep - normalPointsUntilStart;
+        static_cast<osg::DrawArrays*>(m_pointCloud->getPrimitiveSet(0))->setFirst(normalPointsUntilStart);
+        static_cast<osg::DrawArrays*>(m_pointCloud->getPrimitiveSet(0))->setCount(nomalPointsToDraw);
+
+        static_cast<osg::DrawArrays*>(m_reducedPointCloud->getPrimitiveSet(0))->setCount(reducedPointsUntilTimestep + 1);
     }
-    std::cout << "setting primitive sets took: " << timer.format() << '\n';
 
     // move machine axis
     if (m_machinePositions.size() > t)
@@ -587,9 +637,8 @@ void CsvPointCloudPlugin::setTimestep(int t)
         if (m_transform)
             m_transform->setMatrix(m);
     }
-    std::cout << "moving machine took: " << timer.format() << '\n';
-
     lastTimestep = t;
+    lastNumFullDrawnPoints = m_numPointsSlider->value();
 }
 
 float CsvPointCloudPlugin::pointSize() const
@@ -638,8 +687,8 @@ std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToDate(const std:
         std::unique_ptr<std::ifstream> f{new std::ifstream{cacheFileName, std::ios::binary}};
         auto date = readString(*f);
         auto time = readString(*f);
-        if (date != __DATE__ || time != __TIME__)
-            return nullptr;
+        //if (date != __DATE__ || time != __TIME__)
+        //    return nullptr;
         for (const auto editField : m_editFields)
         {
             auto s = readString(*f);
