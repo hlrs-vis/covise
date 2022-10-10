@@ -113,6 +113,9 @@ ELSE(MSVC)
   )
 
   SET(OPENCV_LIBRARIES ${OPENCV_LIBRARIES} ${OPENCV_${_uppercomponent}_LIBRARY})
+  if (APPLE AND ${_uppercomponent} STREQUAL "ARUCO")
+      SET(OPENCV_LIBRARIES ${OPENCV_LIBRARIES} -L/opt/homebrew/opt/gcc/lib/gcc/current -lquadmath)
+  endif()
 
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(OPENCV_${_uppercomponent} REQUIRED_VARS OPENCV_${_uppercomponent}_LIBRARY OPENCV_INCLUDE_DIR NAME_MISMATCHED)
   
