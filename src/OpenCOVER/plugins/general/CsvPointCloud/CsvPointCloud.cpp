@@ -561,7 +561,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
     if (m_pointCloud)
     {
         size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
-        for (lastReducePos; lastReducePos < m_pointsToNotReduce.size(); lastReducePos++)
+        for (;lastReducePos < m_pointsToNotReduce.size(); ++lastReducePos)
         {
             if (m_pointsToNotReduce[lastReducePos] >= start)
                 break;
