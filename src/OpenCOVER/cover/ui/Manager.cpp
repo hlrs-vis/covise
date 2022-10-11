@@ -662,7 +662,8 @@ void Manager::processUpdates(covise::TokenBuffer &updates, int numUpdates, bool 
         auto elem = getById(id);
         if (!elem)
         {
-            std::cerr << "ui::Manager::processUpdates NOT FOUND: id=" << id << ", trigger=" << trigger << std::endl;
+            if (cover->debugLevel(2))
+                std::cerr << "ui::Manager::processUpdates NOT FOUND: id=" << id << ", trigger=" << trigger << std::endl;
             continue;
         }
         if (cover->debugLevel(5))
