@@ -68,6 +68,9 @@ void Manager::remove(Owner *owner)
 
 void Manager::remove(Element *elem)
 {
+    if (elem->m_removed)
+        return;
+
     auto nit = std::find(m_newElements.begin(), m_newElements.end(), elem);
     if (nit != m_newElements.end())
     {
@@ -103,6 +106,8 @@ void Manager::remove(Element *elem)
             m_elementsById.erase(it);
         }
     }
+
+    elem->m_removed = true;
 }
 
 Element *Manager::getById(int id) const

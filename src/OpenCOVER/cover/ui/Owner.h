@@ -39,8 +39,8 @@ class COVER_UI_EXPORT Owner {
    bool removeItem(Owner *item);
 
    const std::string m_name;
-   Owner *m_owner;
-   Manager *m_manager;
+   Owner *m_owner = nullptr;
+   Manager *m_manager = nullptr;
    std::map<std::string, Owner *> m_items;
 };
 

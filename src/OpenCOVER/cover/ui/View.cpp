@@ -129,13 +129,31 @@ void View::updateViewpoint(const CollaborativePartner *cp)
 
 bool View::removeElement(Element *elem)
 {
-    for (auto item: elem->m_items)
+#if 0
+    std::string type = "UNKNOWN";
+    switch (typeBit())
     {
-        if (auto e = dynamic_cast<Element *>(item.second))
-            removeElement(e);
+    case Tablet:
+        type = "Tablet";
+        break;
+    case VR:
+        type = "VR";
+        break;
+    case WindowMenu:
+        type = "Qt";
+        break;
+    case Other:
+        type = "Other";
+        break;
+    case Phone:
+        type = "Phone";
+        break;
     }
 
-    //std::cerr << "REMOVE: " << elem->path() << std::endl;
+    std::cerr << "REMOVE: " << type << " " << elem->elementId() << " -- " << elem->path()
+              << (m_viewElements.find(elem) == m_viewElements.end() ? " -- NOT FOUND!!!" : "") << std::endl;
+#endif
+
     auto it = m_viewElements.find(elem);
     if (it == m_viewElements.end())
         return false;
