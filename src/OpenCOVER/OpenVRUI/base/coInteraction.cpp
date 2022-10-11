@@ -15,12 +15,12 @@ using namespace std;
 #define INTERACTOR_DEBUG false
 
 #define DEBUG_OUTPUT(text) \
-    do {\
+    do \
+    { \
         if (INTERACTOR_DEBUG) \
-        {\
-            fprintf(stderr, text); \
-            fprintf(stderr, "/n"); \
-        }\
+        { \
+            fprintf(stderr, "%s\n", text); \
+        } \
     } while (false)
 
 namespace vrui
