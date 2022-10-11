@@ -295,8 +295,8 @@
                     </Marker>
 		    <!--  DraegerAachenModell -->
 		    <Marker name="ObjectMarker0" >
-                        <Pattern value="26" />
-                        <Size value="30" />
+                        <Pattern value="21" />
+                        <Size value="2" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
@@ -391,18 +391,6 @@
                         <Pattern value="14" />
                         <Size value="1800" />
                         <Offset x="-1545.24" y="-1347.12" z="2852" h="180" p="180" r="180" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker15" >
-                        <Pattern value="21" />
-                        <Size value="20000" />
-                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker16" >
-                        <Pattern value="45" />
-                        <Size value="20000" />
-                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 					<!-- porsche
@@ -633,7 +621,7 @@
                 <ALVAR value="ON">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
