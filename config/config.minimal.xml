@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1">
+  <INCLUDE global="1" configname="general">config.xml</INCLUDE>
+  <GLOBAL>
+    <COVER>
+      <Plugin>
+        <Vrml97 value="on" />
+      </Plugin>
+    </COVER>
+  </GLOBAL>
+</COCONFIG>
