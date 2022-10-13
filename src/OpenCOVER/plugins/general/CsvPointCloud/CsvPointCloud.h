@@ -80,7 +80,7 @@ private:
   std::array<std::pair<std::string, float>, 3> m_machineSpeed{std::make_pair("dx", 0), std::make_pair("dy", 0), std::make_pair("dz", 0)};
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
-  osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
+  osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
 
@@ -91,7 +91,22 @@ private:
   std::unique_ptr<std::ifstream> cacheFileUpToDate(const std::string& filename);
   void writeCacheFileHeader(std::ofstream& f);
   void addMachineSpeedSymbols();
+  void resetMachineSpeed();
+
   void advanceMachineSpeed(size_t i);
+  void updateColorMap(float min, float max);
+
+  struct Colors
+  {
+    osg::Vec4Array *reduced = nullptr, *other = nullptr;
+    float min = 0, max = 0;
+  };
+  struct Coords
+  {
+    osg::Vec3Array* reduced = nullptr, *other = nullptr;
+  };
+  Colors getColors(DataTable &symbols, Expression &reductionCriterium);
+  Coords getCoords(DataTable &symbols, Expression &reductionCriterium);
 };
 
 #endif // COVER_PLUGIN_OCT_H

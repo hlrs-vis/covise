@@ -149,6 +149,28 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                     load(filename.c_str(), parent, nullptr);
                                 } });
     m_applyBtn->setShared(true);
+
+    m_colorTerm->setCallback([this](const std::string &text) {
+        if (m_dataTable)
+        {
+            Expression reduceExpression;
+
+            if (!compileSymbol(*m_dataTable, m_pointReductionCriteria->value(), reduceExpression))
+                return;
+            auto colors = getColors(*m_dataTable, reduceExpression);
+            if(m_pointCloud)
+            {
+                //auto vbo = m_pointCloud->getOrCreateVertexBufferObject();
+                //vbo->setArray(1, colors.other);
+                m_pointCloud->setColorArray(colors.other);
+            }
+            if (m_reducedPointCloud)
+            {
+                //m_reducedPointCloud->getOrCreateVertexBufferObject()->setArray(1, colors.other);
+                m_reducedPointCloud->setColorArray(colors.reduced);
+            }
+        }
+    });
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -333,100 +355,8 @@ float parseScale(const std::string &scale)
     return expression.value();
 }
 
-void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
+void CsvPointCloudPlugin::updateColorMap(float min, float max)
 {
-    // compile parser
-    cpu_timer timer;
-
-    std::array<Expression, 3> coordExpressions;
-    Expression colorExporession, reduceExpression;
-
-    for (size_t i = 0; i < coordExpressions.size(); i++)
-    {
-        if (!compileSymbol(symbols, m_coordTerms[i]->value(), coordExpressions[i]))
-            return;
-    }
-    if (!compileSymbol(symbols, m_colorTerm->value(), colorExporession))
-        return;
-    if (!compileSymbol(symbols, m_pointReductionCriteria->value(), reduceExpression))
-        return;
-    std::cout << "compiling parser took: " << timer.format() << '\n';
-
-    auto colors = new Vec4Array();
-    auto points = new Vec3Array();
-
-    auto reducedColors = new Vec4Array();
-    auto reducedPoints = new Vec3Array();
-
-    // calculate coords and color
-    std::vector<float> scalarData, reducedScalarData;
-    float minScalar = 0, maxScalar = 0;
-    auto scale = parseScale(m_dataScale->value());
-    m_reducedIndices = std::vector<size_t>();
-    symbols.reset();
-    for (size_t i = 0; i < symbols.size(); i++)
-    {
-        osg::Vec3 coords;
-        for (size_t j = 0; j < 3; j++)
-        {
-            coords[j] = coordExpressions[j]().value() * scale;
-        }
-        auto scalar = colorExporession().value();
-        if (reduceExpression().value())
-        {
-            reducedPoints->push_back(coords);
-            m_reducedIndices.push_back(i);
-            reducedScalarData.push_back(scalar);
-        }
-        else
-        {
-            points->push_back(coords);
-            scalarData.push_back(scalar);
-        }
-        minScalar = std::min(minScalar, scalar);
-        maxScalar = std::max(maxScalar, scalar);
-        advanceMachineSpeed(i);
-        symbols.advance();
-    }
-    for (size_t i = 0; i < scalarData.size(); i++)
-        colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
-
-    for (size_t i = 0; i < reducedScalarData.size(); i++)
-        reducedColors->push_back(m_colorMapSelector.getColor(reducedScalarData[i], minScalar, maxScalar));
-    std::cout << "parsing data table took: " << timer.format() << '\n';
-
-    // write cache file
-    if (coVRMSController::instance()->isMaster())
-    {
-        write(f, scalarData.size());
-        write(f, reducedScalarData.size());
-        write(f, minScalar);
-        write(f, maxScalar);
-        if (scalarData.size())
-        {
-            f.write((const char *)&(*points)[0], scalarData.size() * sizeof(osg::Vec3));
-            f.write((const char *)&(*colors)[0], scalarData.size() * sizeof(osg::Vec4));
-        }
-        if (reducedScalarData.size())
-        {
-            f.write((const char *)&(*reducedPoints)[0], reducedScalarData.size() * sizeof(osg::Vec3));
-            f.write((const char *)&(*reducedColors)[0], reducedScalarData.size() * sizeof(osg::Vec4));
-            f.write((const char *)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
-        }
-    }
-    m_pointCloud = createOsgPoints(points, colors, minScalar, maxScalar);
-    m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, minScalar, maxScalar);
-}
-
-osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, Vec4Array *colors, float minColor, float maxColor)
-{
-    // create geometry
-    auto geo = new osg::Geometry();
-    geo->setUseDisplayList(false);
-    geo->setSupportsDisplayList(false);
-    geo->setUseVertexBufferObjects(true);
-    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-
     osg::Vec3 bottomLeft, hpr, offset;
     if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0)
     {
@@ -441,16 +371,137 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, Vec4Array
         bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
         offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
     }
-    m_colorBar->setName("Power");
+    
+    m_colorBar->setName(m_colorTerm->value().c_str());
     m_colorBar->show(true);
-    m_colorBar->update(m_colorTerm->value(), minColor, maxColor, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
+    m_colorBar->update(m_colorTerm->value(), min, max, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
     m_colorBar->setHudPosition(bottomLeft, hpr, offset[0] / 480);
     m_colorBar->show(true);
+}
+
+CsvPointCloudPlugin::Colors CsvPointCloudPlugin::getColors(DataTable &symbols, Expression &reductionCriterium)
+{
+    Colors colors;
+    Expression colorExporession;
+    if (!compileSymbol(symbols, m_colorTerm->value(), colorExporession))
+        return colors;
+
+
+    colors.other = new Vec4Array();
+    colors.reduced = new Vec4Array();
+    std::vector<float> scalarData, reducedScalarData;
+    auto scale = parseScale(m_dataScale->value());
+    resetMachineSpeed();
+    symbols.reset();
+    for (size_t i = 0; i < symbols.size(); i++)
+    {
+        auto scalar = colorExporession().value();
+        reductionCriterium().value() ? reducedScalarData.push_back(scalar) : scalarData.push_back(scalar);
+        colors.min = std::min(colors.min, scalar);
+        colors.max = std::max(colors.max, scalar);
+        advanceMachineSpeed(i);
+        symbols.advance();
+    }
+    for (size_t i = 0; i < scalarData.size(); i++)
+        colors.other->push_back(m_colorMapSelector.getColor(scalarData[i], colors.min, colors.max));
+
+    for (size_t i = 0; i < reducedScalarData.size(); i++)
+        colors.reduced->push_back(m_colorMapSelector.getColor(reducedScalarData[i], colors.min, colors.max));
+    updateColorMap(colors.min, colors.max);
+    colors.other->setBinding(osg::Array::BIND_PER_VERTEX);
+    colors.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+    return colors;
+}
+
+CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols, Expression &reductionCriterium)
+{
+    Coords coords;
+    std::array<Expression, 3> coordExpressions;
+
+    for (size_t i = 0; i < coordExpressions.size(); i++)
+    {
+        if (!compileSymbol(symbols, m_coordTerms[i]->value(), coordExpressions[i]))
+            return coords;
+    }
+    auto scale = parseScale(m_dataScale->value());
+
+    coords.other = new Vec3Array();
+    coords.reduced = new Vec3Array();
+    m_reducedIndices = std::vector<size_t>();
+    symbols.reset();
+    resetMachineSpeed();
+    for (size_t i = 0; i < symbols.size(); i++)
+    {
+        osg::Vec3 coord;
+        for (size_t j = 0; j < 3; j++)
+        {
+            coord[j] = coordExpressions[j]().value() * scale;
+        }
+        if (reductionCriterium().value())
+        {
+            coords.reduced->push_back(coord);
+            m_reducedIndices.push_back(i);
+        }
+        else
+        {
+            coords.other->push_back(coord);
+        }
+        advanceMachineSpeed(i);
+        symbols.advance();
+    }
+    coords.other->setBinding(osg::Array::BIND_PER_VERTEX);
+    coords.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+    return coords;
+}
+
+void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
+{
+    // compile parser
+    cpu_timer timer;
+
+    Expression reduceExpression;
+
+    if (!compileSymbol(symbols, m_pointReductionCriteria->value(), reduceExpression))
+        return;
+
+    auto coords = getCoords(symbols, reduceExpression);
+    auto colors = getColors(symbols, reduceExpression);
+    if (!colors.other || !colors.reduced || !coords.other || !coords.reduced)
+        return;
+    // write cache file
+    if (coVRMSController::instance()->isMaster())
+    {
+        write(f, coords.other->size());
+        write(f, coords.reduced->size());
+        write(f, colors.min);
+        write(f, colors.max);
+        if (coords.other->size())
+        {
+            f.write((const char *)&(*coords.other)[0], coords.other->size() * sizeof(osg::Vec3));
+            f.write((const char *)&(*colors.other)[0], colors.other->size() * sizeof(osg::Vec4));
+        }
+        if (coords.reduced->size())
+        {
+            f.write((const char *)&(*coords.reduced)[0], coords.reduced->size() * sizeof(osg::Vec3));
+            f.write((const char *)&(*colors.reduced)[0], colors.reduced->size() * sizeof(osg::Vec4));
+            f.write((const char *)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
+        }
+    }
+    m_pointCloud = createOsgPoints(coords.other, colors.other);
+    m_reducedPointCloud = createOsgPoints(coords.reduced, colors.reduced);
+}
+
+osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, Vec4Array *colors)
+{
+    // create geometry
+    auto geo = new osg::Geometry();
+    geo->setUseDisplayList(false);
+    geo->setSupportsDisplayList(false);
+    geo->setUseVertexBufferObjects(true);
+    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
 
     vertexBufferArray->setArray(0, points);
     vertexBufferArray->setArray(1, colors);
-    points->setBinding(osg::Array::BIND_PER_VERTEX);
-    colors->setBinding(osg::Array::BIND_PER_VERTEX);
     // bind color per vertex
     geo->setVertexArray(points);
     geo->setColorArray(colors);
@@ -517,7 +568,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
             auto colors = new Vec4Array(unreducedSize);
             cache->read((char *)&(*points)[0], unreducedSize * sizeof(osg::Vec3));
             cache->read((char *)&(*colors)[0], unreducedSize * sizeof(osg::Vec4));
-            m_pointCloud = createOsgPoints(points, colors, min, max);
+            m_pointCloud = createOsgPoints(points, colors);
         }
         if (reducedSize)
         {
@@ -525,7 +576,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
             auto reducedColors = new Vec4Array(reducedSize);
             cache->read((char *)&(*reducedPoints)[0], reducedSize * sizeof(osg::Vec3));
             cache->read((char *)&(*reducedColors)[0], reducedSize * sizeof(osg::Vec4));
-            m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors, min, max);
+            m_reducedPointCloud = createOsgPoints(reducedPoints, reducedColors);
             m_reducedIndices.resize(reducedSize);
             cache->read((char *)m_reducedIndices.data(), reducedSize * sizeof(size_t));
         }
@@ -701,6 +752,14 @@ void CsvPointCloudPlugin::writeCacheFileHeader(std::ofstream &f)
     for (const auto editField : m_editFields)
     {
         writeString(f, editField->value());
+    }
+}
+
+void CsvPointCloudPlugin::resetMachineSpeed()
+{
+    for (size_t i = 0; i < 3; i++)
+    {
+        m_machineSpeed[i].second = 0;
     }
 }
 
