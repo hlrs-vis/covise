@@ -2,7 +2,7 @@
 
 <COCONFIG version="1" >
 
- <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ <INCLUDE global="1" configname="general" >config-spacenav.xml</INCLUDE>
  <INCLUDE global="1" configname="fasi" >config-drivingsim.xml</INCLUDE>
  <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
 
