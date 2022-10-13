@@ -68,20 +68,21 @@ private:
   ui::EditField* m_pointReductionCriteria;
   covise::ColorMapSelector m_colorMapSelector;
   ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
-  ui::Button *m_reloadBtn; //button only to allow sharing
+  ui::Button *m_applyBtn; //button only to allow sharing
   ui::Group *m_colorsGroup;
   opencover::ColorBar *m_colorBar;
   const std::array<ui::EditField*, 12> m_editFields;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   bool m_animSpeedSet = false, m_animSkipSet = false;
   std::vector<size_t> m_reducedIndices;
-
+  std::unique_ptr<DataTable> m_dataTable;
+  time_t m_readSettingsTime;
+  std::array<std::pair<std::string, float>, 3> m_machineSpeed{std::make_pair("dx", 0), std::make_pair("dy", 0), std::make_pair("dz", 0)};
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors, float minColor, float maxColor);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
-  std::vector<unsigned int> readReducedPoints(DataTable& symbols);
 
   int unloadFile(const std::string &filename);
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
@@ -89,8 +90,8 @@ private:
   void writeSettings(const std::string& filename);
   std::unique_ptr<std::ifstream> cacheFileUpToDate(const std::string& filename);
   void writeCacheFileHeader(std::ofstream& f);
-
-
+  void addMachineSpeedSymbols();
+  void advanceMachineSpeed(size_t i);
 };
 
 #endif // COVER_PLUGIN_OCT_H

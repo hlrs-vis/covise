@@ -17,6 +17,7 @@
         <FileType name="stp" plugin="IFC" />
         <FileType name="step" plugin="IFC" />
         <FileType name="csv" plugin="CsvPointCloud" />
+        <FileType name="oct" plugin="CsvPointCloud" />
         
         <FileType name="bpadxf" plugin="BPA" />
         <FileType name="nfi" plugin="BPA" />

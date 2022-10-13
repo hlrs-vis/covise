@@ -5,16 +5,39 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
+
+template <typename T>
+T read(std::ifstream &f)
+{
+    T t;
+    f.read((char *)&t, sizeof(T));
+    return t;
+}
+
+template <typename T>
+void write(std::ofstream &f, const T &t)
+{
+    f.write((const char *)&t, sizeof(T));
+}
+
+std::string readString(std::ifstream &f);
+
+void writeString(std::ofstream &f, const std::string &s);
+
 
 class DataTable
 {
 public:
     typedef exprtk::symbol_table<float> symbol_table_t;
     DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
+    DataTable(const std::string &binaryFile);
     size_t size() const;
     void advance();
     void reset();
     symbol_table_t &symbols();
+    void writeToFile(const std::string &filename) const;
+
 private:
     struct Vector
     {
@@ -60,11 +83,13 @@ private:
     std::vector<float> m_currentValues;
     symbol_table_t m_symbols;
 
+    DataTable(const std::map<std::string, Vector> data);
 
     //read csv style file filename
     //timeScaleIndicator indicates the timestep in which the following data fields are recorded, overwritetn with the next occurence of such an indicator
-    // Vector contains a data field and its iterator is made so that it uses the previous entry if this data field ha a wider timescale
+    // Vector contains a data field and its iterator is made so that it uses the previous entry if this data field has a wider timescale
     std::map<std::string, Vector> readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
+    std::map<std::string, Vector> readBinaryFile(const std::string &filename);
 };
 
 #endif
