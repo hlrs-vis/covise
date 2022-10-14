@@ -114,7 +114,7 @@ namespace fs = boost::filesystem;
 
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
-    : ui::Owner("CsvPointCloud", cover->ui), m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this)), m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale")), m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu")), m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color")), m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize")), m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints")), m_colorMapSelector(*m_CsvPointCloudMenu), m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply")), m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator")), m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria")), m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter")), m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset")), m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors")), m_colorBar(new opencover::ColorBar(m_colorMenu)), m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
+    : m_numThreads(std::thread::hardware_concurrency()), ui::Owner("CsvPointCloud", cover->ui), m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this)), m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale")), m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu")), m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color")), m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize")), m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints")), m_colorMapSelector(*m_CsvPointCloudMenu), m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply")), m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator")), m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria")), m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter")), m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset")), m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors")), m_colorBar(new opencover::ColorBar(m_colorMenu)), m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
 {
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
@@ -150,27 +150,24 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 } });
     m_applyBtn->setShared(true);
 
-    m_colorTerm->setCallback([this](const std::string &text) {
+    m_colorTerm->setCallback([this](const std::string &text)
+                             {
         if (m_dataTable)
         {
-            Expression reduceExpression;
-
-            if (!compileSymbol(*m_dataTable, m_pointReductionCriteria->value(), reduceExpression))
-                return;
-            auto colors = getColors(*m_dataTable, reduceExpression);
+            auto colors = getColors(*m_dataTable);
             if(m_pointCloud)
             {
                 //auto vbo = m_pointCloud->getOrCreateVertexBufferObject();
                 //vbo->setArray(1, colors.other);
                 m_pointCloud->setColorArray(colors.other);
+                //m_pointCloud->setVertexAttribArray(0, colors.other);
             }
             if (m_reducedPointCloud)
             {
                 //m_reducedPointCloud->getOrCreateVertexBufferObject()->setArray(1, colors.other);
                 m_reducedPointCloud->setColorArray(colors.reduced);
             }
-        }
-    });
+        } });
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -371,7 +368,7 @@ void CsvPointCloudPlugin::updateColorMap(float min, float max)
         bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
         offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
     }
-    
+
     m_colorBar->setName(m_colorTerm->value().c_str());
     m_colorBar->show(true);
     m_colorBar->update(m_colorTerm->value(), min, max, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
@@ -379,78 +376,136 @@ void CsvPointCloudPlugin::updateColorMap(float min, float max)
     m_colorBar->show(true);
 }
 
-CsvPointCloudPlugin::Colors CsvPointCloudPlugin::getColors(DataTable &symbols, Expression &reductionCriterium)
+CsvPointCloudPlugin::Colors CsvPointCloudPlugin::getColors(DataTable &symbols)
 {
+
+    cpu_timer timer;
+    size_t numColorsPerThread = symbols.size() / m_numThreads;
+    std::vector<std::future<Colors>> futures;
+    for (size_t i = 0; i < m_numThreads; i++)
+    {
+        auto begin = i * numColorsPerThread;
+        auto end = i == m_numThreads - 1 ? symbols.size() : (i + 1) * numColorsPerThread;
+        futures.push_back(std::async(std::launch::async, [this, symbols, begin, end]()
+                                     {
+                                        Colors colors;
+                                        colors.other = new Vec4Array();
+                                        colors.reduced = new Vec4Array();
+                                        colors.other->setBinding(osg::Array::BIND_PER_VERTEX);
+                                        colors.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+                                        std::vector<float> scalarData, reducedScalarData;
+                                        std::array<float, 3> currentMachineSpeed;
+                                        resetMachineSpeed(currentMachineSpeed);
+                                        auto symbolsFragment = symbols;
+                                        addMachineSpeedSymbols(symbolsFragment, currentMachineSpeed);
+                                        Expression colorExporession, reductionCriterium;
+
+                                        if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->value(), reductionCriterium))
+                                            return colors;
+                                        if (!compileSymbol(symbolsFragment, m_colorTerm->value(), colorExporession))
+                                            return colors;
+                                        for (size_t i = begin; i < end; i++)
+                                        {
+                                            auto scalar = colorExporession().value();
+                                            reductionCriterium().value() ? reducedScalarData.push_back(scalar) : scalarData.push_back(scalar);
+                                            colors.min = std::min(colors.min, scalar);
+                                            colors.max = std::max(colors.max, scalar);
+                                            advanceMachineSpeed(currentMachineSpeed, i);
+                                            symbolsFragment.setCurrentValues(i);
+                                        } 
+                                        
+                                        for (size_t i = 0; i < scalarData.size(); i++)
+                                            colors.other->push_back(m_colorMapSelector.getColor(scalarData[i], colors.min, colors.max));
+
+                                        for (size_t i = 0; i < reducedScalarData.size(); i++)
+                                            colors.reduced->push_back(m_colorMapSelector.getColor(reducedScalarData[i], colors.min, colors.max)); 
+                                        return colors; }));
+    }
+    std::cerr << "reading colors took " << timer.format() << std::endl;
     Colors colors;
-    Expression colorExporession;
-    if (!compileSymbol(symbols, m_colorTerm->value(), colorExporession))
-        return colors;
-
-
     colors.other = new Vec4Array();
     colors.reduced = new Vec4Array();
-    std::vector<float> scalarData, reducedScalarData;
-    auto scale = parseScale(m_dataScale->value());
-    resetMachineSpeed();
-    symbols.reset();
-    for (size_t i = 0; i < symbols.size(); i++)
-    {
-        auto scalar = colorExporession().value();
-        reductionCriterium().value() ? reducedScalarData.push_back(scalar) : scalarData.push_back(scalar);
-        colors.min = std::min(colors.min, scalar);
-        colors.max = std::max(colors.max, scalar);
-        advanceMachineSpeed(i);
-        symbols.advance();
-    }
-    for (size_t i = 0; i < scalarData.size(); i++)
-        colors.other->push_back(m_colorMapSelector.getColor(scalarData[i], colors.min, colors.max));
-
-    for (size_t i = 0; i < reducedScalarData.size(); i++)
-        colors.reduced->push_back(m_colorMapSelector.getColor(reducedScalarData[i], colors.min, colors.max));
-    updateColorMap(colors.min, colors.max);
     colors.other->setBinding(osg::Array::BIND_PER_VERTEX);
     colors.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+    for (size_t i = 0; i < m_numThreads; i++)
+    {
+        auto colorsFragment = futures[i].get();
+        colors.other->insert(colors.other->end(), colorsFragment.other->begin(), colorsFragment.other->end());
+        colors.reduced->insert(colors.reduced->end(), colorsFragment.reduced->begin(), colorsFragment.reduced->end());
+        i == 0 ? colors.min = colorsFragment.min : colors.min = std::min(colors.min, colorsFragment.min);
+        i == 0 ? colors.max = colorsFragment.max : colors.max = std::max(colors.max, colorsFragment.max);
+    }
+    std::cerr << "assembling colors took " << timer.format() << std::endl;
+
+    updateColorMap(colors.min, colors.max);
+    std::cerr << "updateColorMap took " << timer.format() << std::endl;
+
     return colors;
 }
 
-CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols, Expression &reductionCriterium)
+CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols)
 {
-    Coords coords;
-    std::array<Expression, 3> coordExpressions;
-
-    for (size_t i = 0; i < coordExpressions.size(); i++)
-    {
-        if (!compileSymbol(symbols, m_coordTerms[i]->value(), coordExpressions[i]))
-            return coords;
-    }
     auto scale = parseScale(m_dataScale->value());
+    size_t numColorsPerThread = symbols.size() / m_numThreads;
+    std::vector<std::future<std::pair<Coords, std::vector<size_t>>>> futures;
+    for (size_t i = 0; i < m_numThreads; i++)
+    {
+        auto begin = i * numColorsPerThread;
+        auto end = i == m_numThreads - 1 ? symbols.size() : (i + 1) * numColorsPerThread;
+        futures.push_back(std::async(std::launch::async, [this, symbols, scale, begin, end]()
+                                     {
+            auto pair = std::make_pair<Coords, std::vector<size_t>>(Coords{}, std::vector<size_t>{});
+            auto &reducedIndices = pair.second;
+            auto &coords = pair.first;
+            coords.other = new Vec3Array();
+            coords.reduced = new Vec3Array();
+            coords.other->setBinding(osg::Array::BIND_PER_VERTEX);
+            coords.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+            std::array<float, 3> currentMachineSpeed;
+            resetMachineSpeed(currentMachineSpeed);
+            auto symbolsFragment = symbols;
+            addMachineSpeedSymbols(symbolsFragment, currentMachineSpeed);
+            Expression colorExporession, reductionCriterium;
 
+            if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->value(), reductionCriterium))
+                return pair;
+            std::array<Expression, 3> coordExpressions;
+
+            for (size_t i = 0; i < coordExpressions.size(); i++)
+            {
+                if (!compileSymbol(symbolsFragment, m_coordTerms[i]->value(), coordExpressions[i]))
+                    return pair;
+            }
+            for (size_t i = begin; i < end; i++)
+            {
+                osg::Vec3 coord;
+                for (size_t j = 0; j < 3; j++)
+                    coord[j] = coordExpressions[j]().value() * scale;
+                
+                if(reductionCriterium().value())
+                {
+                    coords.reduced->push_back(coord);
+                    reducedIndices.push_back(i);
+                } else
+                    coords.other->push_back(coord);
+                advanceMachineSpeed(currentMachineSpeed, i);
+                symbolsFragment.setCurrentValues(i);
+            }
+            return pair; }));
+    }
+    Coords coords;
     coords.other = new Vec3Array();
     coords.reduced = new Vec3Array();
-    m_reducedIndices = std::vector<size_t>();
-    symbols.reset();
-    resetMachineSpeed();
-    for (size_t i = 0; i < symbols.size(); i++)
-    {
-        osg::Vec3 coord;
-        for (size_t j = 0; j < 3; j++)
-        {
-            coord[j] = coordExpressions[j]().value() * scale;
-        }
-        if (reductionCriterium().value())
-        {
-            coords.reduced->push_back(coord);
-            m_reducedIndices.push_back(i);
-        }
-        else
-        {
-            coords.other->push_back(coord);
-        }
-        advanceMachineSpeed(i);
-        symbols.advance();
-    }
     coords.other->setBinding(osg::Array::BIND_PER_VERTEX);
     coords.reduced->setBinding(osg::Array::BIND_PER_VERTEX);
+    m_reducedIndices.clear();
+    for (size_t i = 0; i < m_numThreads; i++)
+    {
+        auto coordsFragment = futures[i].get();
+        coords.other->insert(coords.other->end(), coordsFragment.first.other->begin(), coordsFragment.first.other->end());
+        coords.reduced->insert(coords.reduced->end(), coordsFragment.first.reduced->begin(), coordsFragment.first.reduced->end());
+        m_reducedIndices.insert(m_reducedIndices.end(), coordsFragment.second.begin(), coordsFragment.second.end());
+    }
     return coords;
 }
 
@@ -459,13 +514,12 @@ void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
     // compile parser
     cpu_timer timer;
 
-    Expression reduceExpression;
+    auto coords = getCoords(symbols);
+    std::cout << "creating coords took: " << timer.format() << '\n';
+    timer.start();
+    auto colors = getColors(symbols);
+    std::cout << "creating colors took: " << timer.format() << '\n';
 
-    if (!compileSymbol(symbols, m_pointReductionCriteria->value(), reduceExpression))
-        return;
-
-    auto coords = getCoords(symbols, reduceExpression);
-    auto colors = getColors(symbols, reduceExpression);
     if (!colors.other || !colors.reduced || !coords.other || !coords.reduced)
         return;
     // write cache file
@@ -484,8 +538,8 @@ void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
         {
             f.write((const char *)&(*coords.reduced)[0], coords.reduced->size() * sizeof(osg::Vec3));
             f.write((const char *)&(*colors.reduced)[0], colors.reduced->size() * sizeof(osg::Vec4));
-            f.write((const char *)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
         }
+        f.write((const char *)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
     }
     m_pointCloud = createOsgPoints(coords.other, colors.other);
     m_reducedPointCloud = createOsgPoints(coords.reduced, colors.reduced);
@@ -518,23 +572,37 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, Vec4Array
 
 std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &symbols)
 {
-
-    symbols.reset();
-    std::vector<VrmlSFVec3f> retval;
-    // compile parser
-    std::array<Expression, 3> stringExpressions;
+    cpu_timer timer;
+    size_t numColorsPerThread = symbols.size() / m_numThreads;
+    std::vector<std::future<bool>> futures;
     auto scale = parseScale(m_dataScale->value());
+    std::vector<VrmlSFVec3f> retval(symbols.size());
+    for (size_t i = 0; i < m_numThreads; i++)
+    {
+        auto begin = i * numColorsPerThread;
+        auto end = i == m_numThreads - 1 ? symbols.size() : (i + 1) * numColorsPerThread;
+        futures.push_back(std::async(std::launch::async, [this, &retval, symbols, scale, begin, end]()
+                                     {
+            std::array<Expression, 3> stringExpressions;
+                                        auto symbolsFragment = symbols;
 
-    for (size_t i = 0; i < stringExpressions.size(); i++)
-    {
-        if (!compileSymbol(symbols, m_machinePositionsTerms[i]->value(), stringExpressions[i]))
-            return retval;
+            for (size_t i = 0; i < stringExpressions.size(); i++)
+            {
+                if (!compileSymbol(symbolsFragment, m_machinePositionsTerms[i]->value(), stringExpressions[i]))
+                    return false;
+            }
+            for (size_t i = begin; i < end; i++)
+            {
+                retval[i] = VrmlSFVec3f(stringExpressions[0]().value() * scale, stringExpressions[1]().value() * scale, stringExpressions[2]().value() * scale);
+                symbolsFragment.setCurrentValues(i);
+            }
+            return true;
+        }));
     }
-    for (size_t i = 0; i < symbols.size(); i++)
-    {
-        retval.emplace_back(stringExpressions[0]().value() * scale, stringExpressions[1]().value() * scale, stringExpressions[2]().value() * scale);
-        symbols.advance();
-    }
+
+    std::cerr << "readMachinePositions took " << timer.format() << std::endl;
+
+    // compile parser
     return retval;
 }
 
@@ -586,7 +654,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     else
     {
         auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
-        opencover::coVRMSController::instance()->sync(); //don't write cache before all slaves have also checked that it did not exist
+        opencover::coVRMSController::instance()->sync(); // don't write cache before all slaves have also checked that it did not exist
         std::ofstream f(cacheFileName, std::ios::binary);
         writeCacheFileHeader(f);
         if (!m_dataTable)
@@ -599,7 +667,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
                 m_dataTable.reset(new DataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset));
                 m_dataTable->writeToFile(binaryFile);
             }
-            addMachineSpeedSymbols();
+            addMachineSpeedSymbols(*m_dataTable, m_currentMachineSpeeds);
         }
         m_machinePositions = readMachinePositions(*m_dataTable);
         size = m_dataTable->size();
@@ -636,12 +704,10 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
 }
 
-void CsvPointCloudPlugin::addMachineSpeedSymbols()
+void CsvPointCloudPlugin::addMachineSpeedSymbols(DataTable &symbols, std::array<float, 3> &currentMachineSpeed)
 {
-    for (size_t i = 0; i < m_machineSpeed.size(); i++)
-    {
-        m_dataTable->symbols().add_variable(m_machineSpeed[i].first, m_machineSpeed[i].second);
-    }
+    for (size_t i = 0; i < currentMachineSpeed.size(); i++)
+        symbols.symbols().add_variable(m_machineSpeedNames[i], currentMachineSpeed[i]);
 }
 
 void CsvPointCloudPlugin::setTimestep(int t)
@@ -715,8 +781,6 @@ int CsvPointCloudPlugin::unloadFile(const std::string &filename)
         m_reducedPointCloud = nullptr;
         m_currentGeode = nullptr;
         m_transform = nullptr;
-        for (size_t i = 0; i < m_machineSpeed.size(); i++)
-            m_machineSpeed[i].second = 0;
 
         return 0;
     }
@@ -725,6 +789,7 @@ int CsvPointCloudPlugin::unloadFile(const std::string &filename)
 
 std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToDate(const std::string &filename)
 {
+    return nullptr;
     auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
     auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
     coVRMSController::instance()->sync();
@@ -756,22 +821,19 @@ void CsvPointCloudPlugin::writeCacheFileHeader(std::ofstream &f)
     }
 }
 
-void CsvPointCloudPlugin::resetMachineSpeed()
+void CsvPointCloudPlugin::resetMachineSpeed(std::array<float, 3> &machineSpeed)
 {
-    for (size_t i = 0; i < 3; i++)
-    {
-        m_machineSpeed[i].second = 0;
-    }
+    std::fill(machineSpeed.begin(), machineSpeed.end(), 0);
 }
 
-void CsvPointCloudPlugin::advanceMachineSpeed(size_t i)
+void CsvPointCloudPlugin::advanceMachineSpeed(std::array<float, 3> &machineSpeed, size_t i)
 {
     if (i > 0)
     {
         auto speed = m_machinePositions[i];
         speed.subtract(&m_machinePositions[i - 1]);
-        m_machineSpeed[0].second = speed.x();
-        m_machineSpeed[1].second = speed.y();
-        m_machineSpeed[2].second = speed.z();
+        machineSpeed[0] = speed.x();
+        machineSpeed[1] = speed.y();
+        machineSpeed[2] = speed.z();
     }
 }

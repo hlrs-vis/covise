@@ -3,6 +3,7 @@
 #include <cassert>
 #include <boost/timer/timer.hpp>
 #include <cover/coVRMSController.h>
+#include <util/string_util.h>
 
 using namespace boost::timer;
 size_t sizeTmp = 0; //set by file readers and used to initialize const m_size
@@ -34,14 +35,19 @@ DataTable::DataTable(const std::string &binaryFile)
 {
 }
 
-DataTable::DataTable(const std::map<std::string, Vector> data)
-    : m_data(data), m_size(sizeTmp), m_currentPos(m_data.size()), m_currentValues(m_data.size())
+DataTable::DataTable(const DataTable& other)
+    :DataTable(other.m_data)
+{
+
+}
+
+DataTable::DataTable(const  std::shared_ptr<const std::map<std::string, Vector>> &data)
+    : m_data(data), m_size(sizeTmp), m_currentValues(m_data->size())
 {
     size_t i = 0;
-    for (auto &val : m_data)
+    for (auto &val : *m_data)
     {
-        m_currentPos[i] = val.second.begin();
-        m_currentValues[i] = *val.second.data.data();
+        m_currentValues[i] = val.second.data[0];
         m_symbols.add_variable(val.first, m_currentValues[i]);
         ++i;
     }
@@ -52,23 +58,16 @@ size_t DataTable::size() const
     return m_size;
 }
 
-void DataTable::advance()
+void DataTable::setCurrentValues(size_t index)
 {
-    for (size_t i = 0; i < m_currentPos.size(); i++)
-        m_currentValues[i] = *(++m_currentPos[i]);
-}
-
-void DataTable::reset()
-{
-    m_currentPos.clear();
-    m_currentValues.clear();
     size_t i = 0;
-    for (const auto &field : m_data)
+    for (auto& val : *m_data)
     {
-        m_currentPos.push_back(field.second.begin());
-        m_currentValues.push_back(field.second.data[0]);
+        m_currentValues[i] = val.second[index];
+        ++i;
     }
 }
+
 
 DataTable::symbol_table_t &DataTable::symbols()
 {
@@ -84,6 +83,17 @@ DataTable::Vector::Iterator DataTable::Vector::end() const
 {
     return Iterator{data.data() + data.size(), stride};
 }
+
+float DataTable::Vector::operator[](size_t index) const
+{
+    size_t pos = std::floor(index / stride);
+    auto diff = index % stride;
+    auto retval = data[pos];
+    if(diff)
+        retval +=(data[pos + 1] - data[pos]) * diff / stride;
+    return retval;
+}
+
 
 DataTable::Vector::Iterator::Iterator(DataTable::Vector::Iterator::pointer ptr, size_t stride)
     : m_ptr(ptr), m_stride(std::max(size_t(1), stride))
@@ -116,12 +126,12 @@ DataTable::Vector::Iterator DataTable::Vector::Iterator::operator++(int)
     return tmp;
 }
 
-std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &filename, const std::string &timeScaleIndicator, char delimiter, int headerOffset)
+std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readFile(const std::string &filename, const std::string &timeScaleIndicator, char delimiter, int headerOffset)
 {
     cpu_timer timer;
 
     sizeTmp = 0;
-    std::map<std::string, Vector> points;
+    auto points = std::make_shared<std::map<std::string, Vector>>();
     std::fstream f(filename);
     std::string stringValue;
     for (size_t i = 0; i < headerOffset; i++) // skip header
@@ -135,11 +145,16 @@ std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &
     std::stringstream headline(stringValue);
     if (stringValue.find(delimiter) == std::string::npos)
     {
-        std::cerr << "CsvPointcloud plugin failed to parse file, delimiter " << delimiter << " not found in file" << std::endl;
+        std::cerr << "CsvPointcloud plugin failed to parse file: delimiter " << delimiter << " not found in file" << std::endl;
         return points;
     }
     while (std::getline(headline, stringValue, delimiter)) // read headline
     {
+        if(stringValue != timeScaleIndicator && std::find(headlines.begin(), headlines.end(), stringValue) != headlines.end())
+        {
+            std::cerr << "CsvPointcloud plugin failed to parse file: some columns have the same headline " << stringValue << std::endl;
+            return points;
+        }
         headlines.push_back(stringValue);
     }
 
@@ -150,17 +165,19 @@ std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &
 
         std::stringstream dataLine(stringValue);
         size_t column = 0;
+        size_t numFullColumns = 0;
         bool empty = true;
         while (std::getline(dataLine, stringValue, delimiter)) // read columns
         {
             if (!(stringValue.empty() || std::isspace(stringValue[0])))
             {
+                ++numFullColumns;
                 empty = false;
                 if (headlines[column] != timeScaleIndicator)
                 {
                     auto value = std::stof(stringValue);
                     assert(value == value); // check for NaN
-                    points[headlines[column]].data.push_back(value);
+                    (*points)[headlines[column]].data.push_back(value);
                 }
                 else if (numLines == 0)
                 {
@@ -182,40 +199,42 @@ std::map<std::string, DataTable::Vector> DataTable::readFile(const std::string &
                         --lastTsIt;
                         for (size_t headlineColumn = lastTsIt->first + 1; headlineColumn < tsIt->first; headlineColumn++)
                         {
-                            points[headlines[headlineColumn]].stride = lastTsIt->second / min;
+                            (*points)[headlines[headlineColumn]].stride = lastTsIt->second / min;
                         }
                     }
                     for (size_t headlineColumn = timescales.rbegin()->first + 1; headlineColumn < headlines.size(); headlineColumn++) // add the stride for the rest
                     {
-                        points[headlines[headlineColumn]].stride = timescales.rbegin()->second / min;
+                        (*points)[headlines[headlineColumn]].stride = timescales.rbegin()->second / min;
                     }
                 }
             }
             ++column;
         }
-
         if (!empty)
             ++numLines;
     }
-    for (auto &p : points)
-        p.second.data.push_back(p.second.data[p.second.data.size() - 1]); // add last element twice for interpolation
     sizeTmp = numLines;
+    for (auto &p : *points)
+        sizeTmp = std::min(sizeTmp, p.second.data.size() * p.second.stride);
+
+    for (auto &p : *points)
+        p.second.data.push_back(p.second.data[p.second.data.size() - 1]); // add last element twice for interpolation
     std::cout << "reading file took: " << timer.format() << '\n';
 
     return points;
 }
 
-std::map<std::string, DataTable::Vector> DataTable::readBinaryFile(const std::string &filename)
+std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readBinaryFile(const std::string &filename)
 {
     cpu_timer timer;
     
     std::ifstream f(filename, std::ios::binary);
-    std::map<std::string, DataTable::Vector> data;
+    auto data = std::make_shared<std::map<std::string, Vector>>();
     sizeTmp = read<size_t>(f);
     auto size = read<size_t>(f);
     for (size_t i = 0; i < size; i++)
     {
-        auto &column = data[readString(f)];
+        auto &column = (*data)[readString(f)];
         column.stride = read<size_t>(f);
         auto size = read<size_t>(f);
         column.data.resize(size);
@@ -233,8 +252,8 @@ void DataTable::writeToFile(const std::string &filename) const
     
         std::ofstream f(filename, std::ios::binary);
         write(f, m_size);
-        write(f, m_data.size());
-        for (const auto &column : m_data)
+        write(f, m_data->size());
+        for (const auto &column : *m_data)
         {
             writeString(f, column.first);
             write(f, column.second.stride);

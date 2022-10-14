@@ -2,10 +2,11 @@
 #define COVISE_OCT_DATA_TABLE_H
 
 #include "exprtk.hpp"
+#include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <iostream>
 
 template <typename T>
 T read(std::ifstream &f)
@@ -31,10 +32,10 @@ class DataTable
 public:
     typedef exprtk::symbol_table<float> symbol_table_t;
     DataTable(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
-    DataTable(const std::string &binaryFile);
+    DataTable(const std::string& binaryFile);
+    DataTable(const DataTable &other);
     size_t size() const;
-    void advance();
-    void reset();
+    void setCurrentValues(size_t index);
     symbol_table_t &symbols();
     void writeToFile(const std::string &filename) const;
 
@@ -72,24 +73,24 @@ private:
 
         Iterator begin() const;
         Iterator end() const;
+        float operator[](size_t index) const;
 
         std::vector<float> data;
         size_t stride = 1;
     };
 
-    const std::map<std::string, Vector> m_data;//keep at top
+    std::shared_ptr<const std::map<std::string, Vector>> m_data; //keep top
     const size_t m_size; 
-    std::vector<Vector::Iterator> m_currentPos;
     std::vector<float> m_currentValues;
     symbol_table_t m_symbols;
 
-    DataTable(const std::map<std::string, Vector> data);
+    DataTable(const  std::shared_ptr<const std::map<std::string, Vector>> &data);
 
     //read csv style file filename
     //timeScaleIndicator indicates the timestep in which the following data fields are recorded, overwritetn with the next occurence of such an indicator
     // Vector contains a data field and its iterator is made so that it uses the previous entry if this data field has a wider timescale
-    std::map<std::string, Vector> readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
-    std::map<std::string, Vector> readBinaryFile(const std::string &filename);
+    std::shared_ptr<const std::map<std::string, Vector>> readFile(const std::string &filename, const std::string& timeScaleIndicator, char delimiter, int headerOffset);
+    std::shared_ptr<const std::map<std::string, Vector>> readBinaryFile(const std::string &filename);
 };
 
 #endif

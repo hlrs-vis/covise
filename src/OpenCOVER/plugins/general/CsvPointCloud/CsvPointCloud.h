@@ -22,6 +22,8 @@
 #include <vrml97/vrml/VrmlSFVec3f.h>
 #include <exprtk.hpp>
 #include <array>
+#include <thread>
+
 // This plugin was developed to visualize laser cladding measured by an oct scanner as an animated point cloud.
 // Therefore it reads an ".oct" file (a renamed csv file with semicolon delimiter and an 6 line ignored header).
 // x,y,z and the point color can be configured in the ui via mathematical expressions that use the variables listed in the ".oct" file
@@ -76,8 +78,11 @@ private:
   bool m_animSpeedSet = false, m_animSkipSet = false;
   std::vector<size_t> m_reducedIndices;
   std::unique_ptr<DataTable> m_dataTable;
-  time_t m_readSettingsTime;
-  std::array<std::pair<std::string, float>, 3> m_machineSpeed{std::make_pair("dx", 0), std::make_pair("dy", 0), std::make_pair("dz", 0)};
+  time_t m_readSettingsTime = 0;
+  std::array<std::string, 3> m_machineSpeedNames{"dx", "dy", "dz"};
+  std::array<float, 3> m_currentMachineSpeeds{0, 0, 0};
+  std::vector<std::unique_ptr<std::thread>> m_threads;
+  const int m_numThreads;
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors);
@@ -90,10 +95,10 @@ private:
   void writeSettings(const std::string& filename);
   std::unique_ptr<std::ifstream> cacheFileUpToDate(const std::string& filename);
   void writeCacheFileHeader(std::ofstream& f);
-  void addMachineSpeedSymbols();
-  void resetMachineSpeed();
+  void addMachineSpeedSymbols(DataTable &symbols, std::array<float, 3> &currentMachineSpeed);
+  void resetMachineSpeed(std::array<float, 3> &machineSpeed);
 
-  void advanceMachineSpeed(size_t i);
+  void advanceMachineSpeed(std::array<float, 3> &machineSpeed, size_t i);
   void updateColorMap(float min, float max);
 
   struct Colors
@@ -105,8 +110,8 @@ private:
   {
     osg::Vec3Array* reduced = nullptr, *other = nullptr;
   };
-  Colors getColors(DataTable &symbols, Expression &reductionCriterium);
-  Coords getCoords(DataTable &symbols, Expression &reductionCriterium);
+  Colors getColors(DataTable &symbols);
+  Coords getCoords(DataTable &symbols);
 };
 
 #endif // COVER_PLUGIN_OCT_H
