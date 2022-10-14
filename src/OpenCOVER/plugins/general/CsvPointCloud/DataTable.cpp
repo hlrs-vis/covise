@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cassert>
 #include <boost/timer/timer.hpp>
+#include <cover/coVRMSController.h>
+
 using namespace boost::timer;
 size_t sizeTmp = 0; //set by file readers and used to initialize const m_size
 
@@ -225,17 +227,20 @@ std::map<std::string, DataTable::Vector> DataTable::readBinaryFile(const std::st
 
 void DataTable::writeToFile(const std::string &filename) const
 {
-    cpu_timer timer;
-    
-    std::ofstream f(filename, std::ios::binary);
-    write(f, m_size);
-    write(f, m_data.size());
-    for (const auto &column : m_data)
+    if (opencover::coVRMSController::instance()->isMaster())
     {
-        writeString(f, column.first);
-        write(f, column.second.stride);
-        write(f, column.second.data.size());
-        f.write((const char *)&column.second.data[0], column.second.data.size() * sizeof(float));
+        cpu_timer timer;
+    
+        std::ofstream f(filename, std::ios::binary);
+        write(f, m_size);
+        write(f, m_data.size());
+        for (const auto &column : m_data)
+        {
+            writeString(f, column.first);
+            write(f, column.second.stride);
+            write(f, column.second.data.size());
+            f.write((const char *)&column.second.data[0], column.second.data.size() * sizeof(float));
+        }
+        std::cout << "writing binary file took: " << timer.format() << '\n';
     }
-    std::cout << "writing binary file took: " << timer.format() << '\n';
 }
