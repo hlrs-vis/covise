@@ -586,7 +586,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     else
     {
         auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
-
+        opencover::coVRMSController::instance()->sync(); //don't write cache before all slaves have also checked that it did not exist
         std::ofstream f(cacheFileName, std::ios::binary);
         writeCacheFileHeader(f);
         if (!m_dataTable)
