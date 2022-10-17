@@ -727,6 +727,7 @@ std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToDate(const std:
 {
     auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
     auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
+    coVRMSController::instance()->sync();
     if (fs::exists(cacheFileName) && fs::last_write_time(cacheFileName) > fs::last_write_time(filename))
     {
         std::unique_ptr<std::ifstream> f{new std::ifstream{cacheFileName, std::ios::binary}};
