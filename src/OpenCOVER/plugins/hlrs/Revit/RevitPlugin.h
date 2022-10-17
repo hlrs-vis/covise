@@ -398,8 +398,32 @@ public:
 private:
 };
 
+class FamilyType
+{
+public:
+    FamilyType(TokenBuffer& tb);
+    ~FamilyType();
+    std::string Name;
+    int ID;
+    std::string FamilyName;
+    ui::Action* selectType = nullptr;
+    
+};
 
+class ObjectInfo
+{
+public:
+    ObjectInfo(TokenBuffer& tb);
+    ~ObjectInfo();
+    std::string TypeName;
+    int TypeID;
+    std::string CategoryName;
+    int flipInfo;
+    std::list<FamilyType *> types;
 
+    ui::Action* flipLR = nullptr;
+    ui::Action* flipIO = nullptr;
+};
 
 
 class RevitPlugin : public coVRPlugin, public opencover::ui::Owner
@@ -470,7 +494,10 @@ public:
         MSG_IKInfo = 534,
         MSG_Phases = 535,
         MSG_ViewPhase = 536,
-        MSG_AddRoomInfo = 537
+        MSG_AddRoomInfo = 537,
+        MSG_ObjectInfo = 538,
+        MSG_Flip = 539,
+        MSG_SelectType = 540
     };
     enum ObjectTypes
     {
@@ -511,13 +538,20 @@ public:
     ui::Menu* viewpointMenu = nullptr;
     ui::Menu* parameterMenu = nullptr;
     ui::Menu* phaseMenu = nullptr;
-    ui::EditField* xPos;
+    ui::Menu* objectInfoMenu = nullptr;
+    ui::ButtonGroup* PhaseGroup = nullptr;
+    ui::ButtonGroup* objectInfoGroup = nullptr;
+    ui::Action* selectObject = nullptr;
+    ui::Menu* typesMenu = nullptr;
+    ui::ButtonGroup* TypesGroup=nullptr;
+
+    vrui::coCombinedButtonInteraction *selectObjectInteraction = nullptr;
+    /*ui::EditField* xPos;
     ui::EditField* yPos;
     ui::EditField* zPos;
     ui::EditField* xOri;
     ui::EditField* yOri;
-    ui::EditField* zOri;
-    ui::ButtonGroup* PhaseGroup;
+    ui::EditField* zOri;*/
 
 
     IKInfo *currentIKI=nullptr;
@@ -552,6 +586,10 @@ public:
     osg::Matrix RevitGeoRefference;
     osg::Group* getCurrentGroup() { return currentGroup.top(); };
     ui::Button* toggleRoomLabels = nullptr;
+    int currentObjectID=-1;
+    int currentDocumentID=-1;
+    ObjectInfo* currentObjectInfo=nullptr;
+    void flip(int dir);
 protected:
     static RevitPlugin *plugin;
     ui::Label *label1 = nullptr;

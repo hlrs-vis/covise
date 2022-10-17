@@ -539,11 +539,11 @@ void RevitPlugin::updateIK()
 	for (auto& iki : ikInfos)
 	{
 
-		osg::Vec3 targetPos(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
-		osg::Vec3 targetDir(RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number());
+		//osg::Vec3 targetPos(RevitPlugin::instance()->xPos->number(), RevitPlugin::instance()->yPos->number(), RevitPlugin::instance()->zPos->number());
+		//osg::Vec3 targetDir(RevitPlugin::instance()->xOri->number(), RevitPlugin::instance()->yOri->number(), RevitPlugin::instance()->zOri->number());
 
 
-		iki->updateIK(targetPos, targetDir);
+		//iki->updateIK(targetPos, targetDir);
 	}
 }
 
@@ -983,6 +983,89 @@ void RevitViewpointEntry::activate()
 	cover->setXformMat(ivMat);
 }
 
+FamilyType::FamilyType(TokenBuffer& tb)
+{
+	tb >> Name;
+	tb >> ID;
+	tb >> FamilyName;
+	selectType = new ui::Action(RevitPlugin::instance()->typesMenu, Name+FamilyName);
+	selectType->setText(Name+FamilyName);
+	selectType->setCallback([this]() {
+		TokenBuffer stb;
+		stb << RevitPlugin::instance()->currentObjectID;
+		stb << RevitPlugin::instance()->currentDocumentID;
+		stb << Name;
+		stb << ID;
+
+		Message message(stb);
+		message.type = (int)RevitPlugin::MSG_SelectType;
+		RevitPlugin::instance()->sendMessage(message);
+		});
+	
+}
+
+FamilyType::~FamilyType()
+{
+	delete selectType;
+}
+ObjectInfo::ObjectInfo(TokenBuffer& tb)
+{
+	int numTypes = 0;
+	int objID = 0;
+	int docID = 0;
+	tb >> objID;
+	tb >> docID;
+	tb >> TypeName;
+	tb >> TypeID;
+	tb >> CategoryName;
+	tb >> flipInfo;
+	tb >> numTypes;
+	for (int i = 0; i < numTypes; i++)
+	{
+		types.push_back(new FamilyType(tb));
+	}
+	if (flipInfo & 1)
+	{
+		flipLR = new ui::Action(RevitPlugin::instance()->objectInfoMenu, "flipLR");
+		flipLR->setText("flip hand");
+		flipLR->setCallback([this]() {
+			RevitPlugin::instance()->flip(0);
+			});
+	}
+	if (flipInfo & 2)
+	{
+		flipIO = new ui::Action(RevitPlugin::instance()->objectInfoMenu, "flipIO");
+		flipIO->setText("flip facing");
+		flipIO->setCallback([this]() {
+			RevitPlugin::instance()->flip(1);
+			});
+	}
+}
+void RevitPlugin::flip(int dir)
+{
+
+	TokenBuffer stb;
+	stb << currentObjectID;
+	stb << currentDocumentID;
+	stb << dir;
+
+	Message message(stb);
+	message.type = (int)RevitPlugin::MSG_Flip;
+	RevitPlugin::instance()->sendMessage(message);
+}
+
+ObjectInfo::~ObjectInfo()
+{
+	for (const auto& oi : types)
+	{
+		delete oi;
+	}
+	delete flipIO;
+	delete flipLR;
+	flipIO = nullptr;
+	flipLR = nullptr;
+}
+
 void RevitViewpointEntry::updateCamera()
 {
 	osg::Matrix m;
@@ -1076,7 +1159,7 @@ void RevitPlugin::createMenu()
 
 	revitMenu = new ui::Menu("Revit", this);
 	revitMenu->setText("Revit");
-	xPos = new ui::EditField(revitMenu, "X");
+	/*xPos = new ui::EditField(revitMenu, "X");
 	yPos = new ui::EditField(revitMenu, "Y");
 	zPos = new ui::EditField(revitMenu, "Z");
 	xPos->setCallback([this](const std::string &) {
@@ -1099,7 +1182,7 @@ void RevitPlugin::createMenu()
 		});
 	zOri->setCallback([this](const std::string&) {
 		updateIK();
-		});
+		});*/
 	viewpointMenu = new ui::Menu(revitMenu, "RevitViewpoints");
 	viewpointMenu->setText("Viewpoints");
 	parameterMenu = new ui::Menu(revitMenu, "RevitParameters");
@@ -1108,6 +1191,24 @@ void RevitPlugin::createMenu()
 	phaseMenu->setText("Phases");
 
 	PhaseGroup = new ui::ButtonGroup(phaseMenu, "RevitPhasesGroup");
+
+	objectInfoMenu = new ui::Menu(revitMenu, "ObjectInfo");
+	objectInfoMenu->setText("ObjectInfo");
+
+	objectInfoGroup = new ui::ButtonGroup(objectInfoMenu, "ObjectInfoGroup");
+
+
+	typesMenu = new ui::Menu(objectInfoMenu, "Types");
+	typesMenu->setText("Types");
+
+	TypesGroup = new ui::ButtonGroup(typesMenu, "TypesGroup");
+
+	selectObjectInteraction = new vrui::coCombinedButtonInteraction(vrui::coInteraction::ButtonAction, "selectObject", vrui::coInteraction::High);
+	selectObject = new ui::Action(objectInfoMenu, "selectObject");
+	selectObject->setText("select");
+	selectObject->setCallback([this]() {
+		coInteractionManager::the()->registerInteraction(selectObjectInteraction);
+		});
 
 	roomInfoMenu = new ui::Menu(revitMenu,"RoomInfo");
 	roomInfoMenu->setText("Room Info");
@@ -1295,6 +1396,9 @@ RevitPlugin::~RevitPlugin()
         cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
 	delete msg;
 	toRevit = NULL;
+	if(selectObjectInteraction->isRegistered())
+	    coInteractionManager::the()->unregisterInteraction(selectObjectInteraction);
+	delete selectObjectInteraction;
 }
 
 
@@ -1615,6 +1719,13 @@ RevitPlugin::handleMessage(Message *m)
 		sprintf(info, "Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s", roomNumber, roomName, area / 10.0, levelName);
 		label1->setText(info);
 		//fprintf(stderr,"Room %s %s Area: %lf Level: %s\n", roomNumber,roomName,area,levelName);
+	}
+	break;
+	case MSG_ObjectInfo:
+	{
+		TokenBuffer tb(m);
+		delete currentObjectInfo;
+		currentObjectInfo = new ObjectInfo(tb);
 	}
 	break;
 	case MSG_NewParameter:
@@ -2103,7 +2214,7 @@ RevitPlugin::handleMessage(Message *m)
 		{
 			m =iki->axis[i].mat*m;
 		}
-		if (iki->type == IKInfo::IKType::Rot)
+		/*if (iki->type == IKInfo::IKType::Rot)
 		{
 			xPos->setValue(iki->axis[4].origin.x());
 			yPos->setValue(iki->axis[4].origin.y());
@@ -2122,7 +2233,7 @@ RevitPlugin::handleMessage(Message *m)
 			zPos->setValue(iki->axis[3].origin.z());
 		}
 
-		yOri->setValue(1.0);
+		yOri->setValue(1.0);*/
 	}
 	break;
 	case MSG_NewAnnotation:
@@ -3130,6 +3241,37 @@ RevitPlugin::checkDoors()
 bool
 RevitPlugin::update()
 {
+	if (selectObjectInteraction->isRegistered())
+	{
+		if (selectObjectInteraction->wasStarted())
+		{
+			coInteractionManager::the()->unregisterInteraction(selectObjectInteraction);
+
+			const osg::NodePath& intersectedNodePath = cover->getIntersectedNodePath();
+			bool isSceneNode = false;
+			for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin();
+				iter != intersectedNodePath.end();
+				++iter)
+			{
+				auto currentNode = (*iter);
+				info = dynamic_cast<RevitInfo*>(OSGVruiUserDataCollection::getUserData(currentNode, "RevitInfo"));
+				if (info)
+				{
+
+					TokenBuffer stb;
+					currentObjectID = info->ObjectID;
+					currentDocumentID = info->DocumentID;
+					stb << currentObjectID;
+					stb << currentDocumentID;
+
+					Message message(stb);
+					message.type = (int)RevitPlugin::MSG_ObjectInfo;
+					RevitPlugin::instance()->sendMessage(message);
+				}
+			}
+
+		}
+	}
 	for (auto & iki : ikInfos)
 	{
 		iki->update();

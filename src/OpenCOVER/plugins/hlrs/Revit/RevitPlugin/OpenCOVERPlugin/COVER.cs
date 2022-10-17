@@ -92,7 +92,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo, ObjectInfo, Flip, SelectType };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -2993,6 +2993,75 @@ namespace OpenCOVERPlugin
                         Autodesk.Revit.DB.LocationPoint ElementPosPoint = elem.Location as Autodesk.Revit.DB.LocationPoint;
                         if (ElementPosPoint != null)
                             ElementPosPoint.Move(translationVec);
+                    }
+                    break;
+                case MessageTypes.ObjectInfo:
+                    {
+                        int elemID = buf.readInt();
+                        int docID = buf.readInt();
+
+                        Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                        Document selectedDoc = documentList[docID];
+                        Autodesk.Revit.DB.Element elem = selectedDoc.GetElement(id);
+                        Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+                        List<Autodesk.Revit.DB.ElementId> elements=new List<Autodesk.Revit.DB.ElementId>();
+                        elements.Add(id);
+                        uidoc.Selection.SetElementIds(elements);
+
+                        MessageBuffer mb = new MessageBuffer();
+                        mb.add(elemID);
+                        mb.add(docID);
+                        mb.add(elem.GetType().Name);
+                        mb.add(elem.GetTypeId().IntegerValue);
+                        mb.add(elem.Category.Name);
+                        int flip = 0;
+                        if(fi.CanFlipFacing)
+                            flip = 1;
+                        if(fi.CanFlipHand)
+                            flip += 2;
+                        mb.add(flip);
+                        mb.add(elem.GetValidTypes().Count);
+                        foreach (ElementId elemTypeID in elem.GetValidTypes())
+                        {
+                            Autodesk.Revit.DB.Element elemType = selectedDoc.GetElement(elemTypeID);
+                            Autodesk.Revit.DB.FamilySymbol fs = elemType as Autodesk.Revit.DB.FamilySymbol;
+                            mb.add(fs.Name);
+                            mb.add(elemTypeID.IntegerValue);
+                            mb.add(fs.Family.Name);
+                        }
+                        sendMessage(mb.buf, MessageTypes.ObjectInfo);
+                    }
+                    break;
+                case MessageTypes.Flip:
+                    {
+                        int elemID = buf.readInt();
+                        int docID = buf.readInt();
+                        int orientation = buf.readInt();
+
+                        Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                        Document selectedDoc = documentList[docID];
+                        Autodesk.Revit.DB.Element elem = selectedDoc.GetElement(id);
+                        Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+                        if(orientation == 0)
+                            fi.flipHand();
+                        else
+                            fi.flipFacing();
+                    }
+                    break;
+                case MessageTypes.SelectType:
+                    {
+                        int elemID = buf.readInt();
+                        int docID = buf.readInt();
+                        string typeName = buf.readString();
+                        int typeID = buf.readInt();
+
+
+                        Autodesk.Revit.DB.ElementId id = new Autodesk.Revit.DB.ElementId(elemID);
+                        Document selectedDoc = documentList[docID];
+                        Autodesk.Revit.DB.Element elem = selectedDoc.GetElement(id);
+                        Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+                        Autodesk.Revit.DB.ElementId tid = new Autodesk.Revit.DB.ElementId(typeID);
+                        elem.ChangeTypeId(tid);
                     }
                     break;
                 case MessageTypes.UpdateView:
