@@ -194,7 +194,7 @@ bool ParticleViewer::init()
     {
         mapChoice->addEntry(mapNames[i].toStdString());
     }
-    currentMap = 0;
+    currentMap = 1;
     mapChoice->setSelectedEntry(currentMap);
     mapChoice->setPos(1, 6);
 
@@ -235,7 +235,7 @@ bool ParticleViewer::init()
     {
         aMapChoice->addEntry(mapNames[i].toStdString());
     }
-    aCurrentMap = 0;
+    aCurrentMap = 1;
     aMapChoice->setSelectedEntry(aCurrentMap);
     aMapChoice->setPos(1, 6);
 
