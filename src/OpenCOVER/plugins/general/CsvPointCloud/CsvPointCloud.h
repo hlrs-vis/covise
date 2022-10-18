@@ -83,9 +83,11 @@ private:
   std::array<float, 3> m_currentMachineSpeeds{0, 0, 0};
   std::vector<std::unique_ptr<std::thread>> m_threads;
   const int m_numThreads;
+  float m_minColor = 0, m_maxColor = 0;
+
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
-  osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::Vec4Array* colors);
+  osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::FloatArray* colors);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
 
@@ -101,16 +103,16 @@ private:
   void advanceMachineSpeed(std::array<float, 3> &machineSpeed, size_t i);
   void updateColorMap(float min, float max);
 
-  struct Colors
+  struct ScalarData
   {
-    osg::Vec4Array *reduced = nullptr, *other = nullptr;
+    osg::FloatArray *reduced = nullptr, *other = nullptr;
     float min = 0, max = 0;
   };
   struct Coords
   {
     osg::Vec3Array* reduced = nullptr, *other = nullptr;
   };
-  Colors getColors(DataTable &symbols);
+  ScalarData getScalarData(DataTable &symbols);
   Coords getCoords(DataTable &symbols);
 };
 

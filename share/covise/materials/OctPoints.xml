@@ -1,0 +1,47 @@
+<Points>
+<uniform max="64" min="1" name="Size" type="float" value="20"/>
+<uniform max="10.0" min="0.0001" name="Scale" type="float" value="1"/>
+<attribute name="dataAttrib" type="float" value="10"/>
+
+<uniform name="rangeMin" type="float" value="0."/>
+<uniform name="rangeMax" type="float" value="1."/>
+<uniform name="texUnit1" type="sampler1D" value="1"/>
+<vertexProgram>
+
+    varying float data;
+
+    uniform float Scale;
+    uniform float Size;
+
+    attribute float dataAttrib;
+     
+    void main( void )
+    {
+      data = dataAttrib;
+      vec4 transformedVertex = gl_ModelViewMatrix*gl_Vertex;
+      gl_ClipVertex = transformedVertex;
+            gl_Position = ftransform();
+      float dist = length(transformedVertex);
+      float s = (dist)*-0.001*Scale+Size;
+      if(s &gt; Size)
+      s = Size;
+      if(s &lt; 2.0)
+      s = 2.0 ;
+      gl_PointSize = s ;
+    }
+  </vertexProgram>
+  <fragmentProgram>
+   
+    uniform float rangeMin, rangeMax;
+    uniform sampler1D texUnit1;
+
+    varying float data;
+
+    void main( void )
+    {
+        float t = (data - rangeMin) / (rangeMax - rangeMin);
+        vec4 color = texture1D(texUnit1, t);
+        gl_FragColor = color;
+
+    }
+    </fragmentProgram></Points>
