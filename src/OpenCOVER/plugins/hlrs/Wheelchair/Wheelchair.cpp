@@ -165,7 +165,7 @@ bool Wheelchair::update()
         oldCountRight = wcData.countRight;
 	
         double dT = cover->frameDuration();
-        floatwheelBase = 0.595;;
+        float wheelBase = 0.595;;
         float v = 0;
         float x = 0;
         /*if (dev && dev->number_axes[joystickNumber] >= 10)
