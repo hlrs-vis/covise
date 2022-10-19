@@ -3,6 +3,7 @@
 
 #include "View.h"
 #include "Menu.h"
+#include "Manager.h"
 
 #include <cover/coTabletUI.h>
 
@@ -60,7 +61,8 @@ class COVER_UI_EXPORT TabletView: public View
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
    void updateValue(const TextField *input) override;
-   void updateFilter(const FileBrowser *fb) override;
+   void updateFilter(const FileBrowser* fb) override;
+   void updateRelayout(const Group* co) override;
 
    TabletViewElement *elementFactoryImplementation(Menu *menu) override;
    TabletViewElement *elementFactoryImplementation(Group *group) override;

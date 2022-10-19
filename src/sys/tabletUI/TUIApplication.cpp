@@ -260,7 +260,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     setMaximumWidth(480);
     setMaximumHeight(480);
 #else
-    resize(800, 600);
+    resize(1066, 600);
 #endif
 }
 #endif

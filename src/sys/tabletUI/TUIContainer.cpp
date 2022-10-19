@@ -12,7 +12,7 @@
 
 #include "TUIContainer.h"
 #include <iostream>
-
+#include <net/tokenbuffer.h>
 /// Constructor
 TUIContainer::TUIContainer(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
@@ -42,7 +42,7 @@ void TUIContainer::removeAllChildren()
 void TUIContainer::addElementToLayout(TUIElement *el)
 {
     inLayout.insert(el);
-    if (numberOfColumns > 0)
+    if (numberOfColumns > 0 && allowRelayout)
     {
         relayout();
         return;
@@ -103,7 +103,7 @@ void TUIContainer::showElement(TUIElement *)
 void TUIContainer::removeElement(TUIElement *el)
 {
     inLayout.erase(el);
-    if (numberOfColumns > 0)
+    if (numberOfColumns > 0 && allowRelayout)
         relayout();
 
     ElementList::iterator it = std::find(elements.begin(), elements.end(), el);
@@ -149,12 +149,30 @@ QGridLayout *TUIContainer::gridLayout() const
 void TUIContainer::setNumberOfColumns(int columns)
 {
     numberOfColumns = columns;
-    relayout();
+    if(allowRelayout)
+        relayout();
 }
 
 int TUIContainer::maximumNumberOfColumns() const
 {
     return numberOfColumns;
+}
+
+void TUIContainer::setValue(TabletValue type, covise::TokenBuffer& tb)
+{
+    //cerr << "setValue" << type << endl;
+    if (type == TABLET_RELAYOUT)
+    {
+        tb >> allowRelayout;
+        if (allowRelayout)
+        {
+            relayout();
+        }
+    }
+    else
+    {
+        TUIElement::setValue(type, tb);
+    }
 }
 
 void TUIContainer::relayout()
@@ -196,7 +214,7 @@ void TUIContainer::relayout()
     }
 
     int numColumns = maxWidth;
-    if (numberOfColumns > 0)
+    if (numberOfColumns > 0 && allowRelayout)
         numColumns = std::max(minWidth, numberOfColumns);
     numColumns = std::max(numColumns, 1);
     std::vector<int> row;

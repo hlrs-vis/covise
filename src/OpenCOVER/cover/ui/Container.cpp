@@ -1,5 +1,7 @@
 #include "Container.h"
 #include "Element.h"
+#include "Manager.h"
+#include "Owner.h"
 
 #include <algorithm>
 #include <iostream>
@@ -86,6 +88,7 @@ void Container::clearChildren()
         remove(m_children.back().elem);
     }
 }
+
 
 }
 }

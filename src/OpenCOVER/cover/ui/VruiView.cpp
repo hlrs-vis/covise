@@ -590,6 +590,10 @@ void VruiView::updateFilter(const FileBrowser *fb)
 {
 }
 
+void VruiView::updateRelayout(const Group* co)
+{
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Label *label)
 {
     auto ve = new VruiViewElement(label);

@@ -655,7 +655,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     {
         offset = std::stoi(m_offset->value());
     }
-    catch (const std::exception &e)
+    catch (const std::exception &)
     {
         std::cerr << "header offset must be an integer" << std::endl;
         return;

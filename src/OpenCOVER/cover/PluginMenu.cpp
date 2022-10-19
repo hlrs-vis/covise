@@ -70,6 +70,7 @@ void PluginMenu::init()
 {
     menu = new ui::Menu("Plugins", this);
     menu->setText("Plug-Ins");
+    menu->allowRelayout(true);
 
     scanPlugins();
 

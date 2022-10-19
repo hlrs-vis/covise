@@ -30,6 +30,8 @@ void Group::update(UpdateMaskType mask) const
     Element::update(mask);
     if (mask & UpdateChildren)
         manager()->updateChildren(this);
+    if (mask & UpdateRelayout)
+        manager()->updateRelayout(this);
 }
 
 bool Group::add(Element *elem, int where)
@@ -58,6 +60,25 @@ bool Group::remove(Element *elem)
         return true;
     }
     return false;
+}
+
+void Group::allowRelayout(bool rl)
+{
+    m_allowRelayout = rl;
+    manager()->queueUpdate(this, UpdateRelayout);
+}
+
+
+void Group::save(covise::TokenBuffer& buf) const
+{
+    Element::save(buf);
+    buf << m_allowRelayout;
+}
+
+void Group::load(covise::TokenBuffer& buf)
+{
+    Element::load(buf);
+    buf >> m_allowRelayout;
 }
 
 }

@@ -1434,6 +1434,33 @@ coTUITab::~coTUITab()
 {
 }
 
+void coTUITab::allowRelayout(bool rl)
+{
+    m_allowRelayout = rl;
+    if (!tui()->isConnected())
+        return;
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_RELAYOUT;
+    tb << ID;
+    tb << m_allowRelayout;
+
+    tui()->send(tb);
+}
+
+void coTUITab::resend(bool create)
+{
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_RELAYOUT;
+    tb << ID;
+    tb << m_allowRelayout;
+
+    tui()->send(tb);
+    coTUIElement::resend(create);
+}
+
 void coTUITab::parseMessage(TokenBuffer &tb)
 {
     int i;

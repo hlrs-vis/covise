@@ -17,6 +17,7 @@ class Group;
 class Button;
 class Action;
 class Slider;
+class Container;
 class SelectionList;
 class TextField;
 class EditField;
@@ -92,6 +93,8 @@ class COVER_UI_EXPORT View {
     virtual void updateFilter(const FileBrowser *fb) = 0;
     //! reflect change of viewpoint in graphical representation
     virtual void updateViewpoint(const CollaborativePartner *cp);
+
+    virtual void updateRelayout(const Group* gr) = 0;
 
     //! remove elem from View and delete associated data
     bool removeElement(Element *elem);

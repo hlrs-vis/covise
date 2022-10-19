@@ -5,6 +5,7 @@
 
 #include "Element.h"
 #include "Menu.h"
+#include "Group.h"
 #include "ButtonGroup.h"
 #include "Label.h"
 #include "Action.h"
@@ -406,6 +407,17 @@ void TabletView::updateFilter(const FileBrowser *fb)
     if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
     {
         te->setFilterList(fb->filter());
+    }
+}
+
+void TabletView::updateRelayout(const Group* gr)
+{
+    auto ve = tuiElement(gr);
+    if (!ve)
+        return;
+    if (auto te = dynamic_cast<coTUITab*>(ve->m_elem))
+    {
+        te->allowRelayout(gr->allowRelayout());
     }
 }
 

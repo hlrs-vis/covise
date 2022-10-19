@@ -32,6 +32,7 @@ public:
     virtual void addElement(TUIElement *el);
     virtual void removeElement(TUIElement *el);
     virtual void showElement(TUIElement *el);
+    virtual void setValue(TabletValue type, covise::TokenBuffer&);
     void removeAllChildren();
 
     /// get the Element's classname
@@ -52,6 +53,7 @@ protected:
     ElementList elements;
 
     int numberOfColumns = -1;
+    bool allowRelayout= false;
     std::set<TUIElement *> inLayout;
 };
 #endif

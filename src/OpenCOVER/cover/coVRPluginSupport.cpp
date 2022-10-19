@@ -114,6 +114,7 @@ void coVRPluginSupport::initUI()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
+    viewOptionsMenu->allowRelayout(true);
 
     auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
     interactorScaleSlider->setText("Interactor scale");

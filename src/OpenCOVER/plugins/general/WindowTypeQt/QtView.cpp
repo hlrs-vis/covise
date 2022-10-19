@@ -699,6 +699,10 @@ void QtView::updateFilter(const FileBrowser *fb)
 
 }
 
+void QtView::updateRelayout(const Group* co)
+{
+}
+
 QtViewElement::QtViewElement(Element *elem, QObject *obj)
 : View::ViewElement (elem)
 , object(obj)

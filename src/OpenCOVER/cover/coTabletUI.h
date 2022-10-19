@@ -680,6 +680,8 @@ public:
     coTUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUITab();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
+    void allowRelayout(bool rl);
+    void resend(bool create);
 
 signals:
     void tabletEvent();
@@ -687,6 +689,7 @@ signals:
     void tabletReleaseEvent();
 
 protected:
+    bool m_allowRelayout = false;
 };
 
 /**

@@ -372,6 +372,14 @@ void Manager::updateViewpoint(const CollaborativePartner *cp) const
     }
 }
 
+void Manager::updateRelayout(const Group* gr) const
+{
+    for (auto v : m_views)
+    {
+        v.second->updateRelayout(gr);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;
