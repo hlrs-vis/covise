@@ -95,6 +95,14 @@ const covise::ColorMap& covise::ColorMapSelector::selectedMap() const
     return m_selectedMap->second;
 }
 
+void covise::ColorMapSelector::setCallback(const std::function<void(const ColorMap &)> &f)
+{
+    m_selector->setCallback([this, f](int index)
+                                              {
+        updateSelectedMap();
+        f(selectedMap()); });
+}
+
 void covise::ColorMapSelector::updateSelectedMap()
 {
     m_selectedMap = m_colors.begin();

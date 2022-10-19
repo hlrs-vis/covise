@@ -31,6 +31,8 @@ public:
     bool setValue(const std::string &colorMapName);
     osg::Vec4 getColor(float val, float min = 0, float max = 1);
     const ColorMap& selectedMap() const;
+    void setCallback(const std::function<void(const ColorMap &)> &f);
+
 private:
     opencover::ui::SelectionList *m_selector;
     const ColorMaps m_colors;
