@@ -207,8 +207,8 @@ bool Wheelchair::update()
         TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
         TransformMat = TransformMat * relRot * relTrans;
 
-        MoveToFloor();
-
+        MoveToFloor();  
+        //wcDataOut.downhillForce = 100.0;
 
         if (coVRMSController::instance()->isMaster())
         {
@@ -409,6 +409,10 @@ void Wheelchair::MoveToFloor()
         wcDataOut.direction[0] = WheelchairPos(0, 1);
         wcDataOut.direction[1] = WheelchairPos(1, 1);
         wcDataOut.direction[2] = WheelchairPos(2, 1);
+        wcDataOut.downhillForce = 100.0;
+        //wcDataOut.downhillForce = calculateDownhillForce(wcNormal);
+        //fprintf(stderr, "test1");
+        fprintf(stderr, "normal\nx: %ld y: %ld\n z:%ld\n direction\nx: %ld y: %ld\n z:%ld\ndownhillForce: %f\n", wcNormal[0], wcNormal[1], wcNormal[2], wcDataOut.direction[0], wcDataOut.direction[1], wcDataOut.direction[2], wcDataOut.downhillForce);
     }
 
 	fprintf(stderr,"dist %f \n",dist);
@@ -506,6 +510,22 @@ void Wheelchair::Initialize()
         if (coVRMSController::instance()->isMaster())
         {
         }
+}
+
+float Wheelchair::calculateDownhillForce(osg::Vec3 n)
+{
+    float angleGradient;
+
+    osg::Vec3 n_flat(0.0, 0.0, 1.0);
+    n.normalize();
+    angleGradient = acos(n_flat*n);
+    // Kreuzprodukt aus n und (0, 0, -1) bilden --> ergibt Vektor, der senkrecht zur größten Steigung verläuft 
+    // Kreuzprodukt aus diesem Vektor und Normalenvektor ergibt Vektor, der in Richtung der größten negativen Steigung zeigt 
+    // acos des Punktprodukt aus diesem Vektor (evtl. umgekehrt) und dem Richtungsvektor ergibt beta
+    // angle = acos
+    float downhillForce = 80 * 9.81 * sin(angleGradient); // * cos(beta)
+
+    return downhillForce;
 }
 
 unsigned char Wheelchair::getButton()

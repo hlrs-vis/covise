@@ -43,6 +43,7 @@ struct WCDataOut
 {
     float normal[3];
     float direction[3];
+    float downhillForce;
     uint32_t state;
 };
 #pragma pack(pop)
@@ -62,6 +63,7 @@ public:
     unsigned char getButton();
     void syncData();
     bool doStop;
+    float calculateDownhillForce(osg::Vec3);
 private:
     float stepSizeUp;
     float stepSizeDown;
