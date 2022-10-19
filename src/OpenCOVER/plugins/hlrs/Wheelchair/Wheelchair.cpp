@@ -36,9 +36,9 @@ Wheelchair::Wheelchair()
     wcData.countLeft = 0;
     wcData.countRight = 0;
     wcData.state = 0;
-    float u = M_PI * 0.6;
-    // 30000 counts /revolution 72/24 = 3 gear ratio
-    mPerCount = u / ((-30000)*3);
+    float u = M_PI * 0.1; // 100mm Durchmesser
+    // 30000 counts /revolution ;10000 counts on motor ;72/24 = 3 gear ratio
+    mPerCount = u / ((-10000)*3);
 
 
         stepSizeUp=200;
@@ -152,13 +152,20 @@ bool Wheelchair::update()
 {
     if (isEnabled())
     {
-        //fprintf(stderr, "wc %ld %ld\n", wcData.countLeft, wcData.countRight);
+        fprintf(stderr, "wc %ld %ld\n", wcData.countLeft, wcData.countRight);
+	if(oldCountLeft == 0)
+	{
+           oldCountLeft = wcData.countLeft;
+           oldCountRight = wcData.countRight;
+	}
 
         float ml = (wcData.countLeft - oldCountLeft)* mPerCount;
         float mr = (wcData.countRight - oldCountRight)*mPerCount;
+        oldCountLeft = wcData.countLeft;
         oldCountRight = wcData.countRight;
+	
         double dT = cover->frameDuration();
-        float wheelBase = 0.98;
+        floatwheelBase = 0.595;;
         float v = 0;
         float x = 0;
         /*if (dev && dev->number_axes[joystickNumber] >= 10)
@@ -184,18 +191,10 @@ bool Wheelchair::update()
             s = 0;
         }
         osg::Vec3 V(0, -s, 0);
-        wheelBase = 0.5;
-        float rotAngle = sin((mr-ml)/0.3);
+        float rotAngle = tan((mr-ml)/wheelBase);
         //fprintf(stderr, "v: %f \n", v);
         if ((s < 0.0001 && s > -0.0001)) // straight
         {
-        }
-        else
-        {
-            if (v > 0)
-            {
-                rotAngle = x * xScale;
-            }
         }
         fprintf(stderr, "s %f r %f\n", s, rotAngle);
 
@@ -221,8 +220,6 @@ bool Wheelchair::update()
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
         coVRCollaboration::instance()->SyncXform();
-        oldCountLeft = wcData.countLeft;
-        oldCountRight = wcData.countRight;
     }
        
     return false;

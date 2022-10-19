@@ -90,8 +90,8 @@ private:
     int64_t oldCountLeft=0;
     int64_t oldCountRight=0;
     osg::Matrix WheelchairPos;
-    float wheelBase = 500;
-    float wheelWidth = 500;
+    float wheelBase = 450;
+    float wheelWidth = 595;
     osg::Vec3 wcNormal;
 };
 
