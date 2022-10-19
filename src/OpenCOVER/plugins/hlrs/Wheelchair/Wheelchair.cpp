@@ -235,10 +235,13 @@ void Wheelchair::MoveToFloor()
     //osg::Vec3 pos = WheelchairPos.getTrans();
     osg::Vec3 pos(-wheelWidth/2.0, 0, 0);
     pos = pos * WheelchairPos;
+    pos[2]-=floorHeight;
     osg::Vec3 pos2(-wheelWidth / 2.0, wheelBase, 0);
     pos2 = pos2 * WheelchairPos;
+    pos2[2]-=floorHeight;
     osg::Vec3 pos3(wheelWidth / 2.0, wheelBase, 0);
     pos3 = pos3 * WheelchairPos;
+    pos2[2]-=floorHeight;
 
     // down segment
     osg::Vec3 p0, q0;
@@ -296,6 +299,10 @@ void Wheelchair::MoveToFloor()
         dist = isect.getWorldIntersectPoint()[2] - floorHeight;
         floorNode = isect.nodePath.back();
     }
+    if(!haveIsect[0]&&!haveIsect[1])
+    {
+        dist = 0;
+    }
 
     //  get xform matrix
     //TransformMat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -345,10 +352,12 @@ void Wheelchair::MoveToFloor()
             sf = 1.0 / sf;
             iS.makeScale(sf, sf, sf);
             imT.invert_4x4(modelTransform);
-            TransformMat = iS *imT*oldFloorMatrix * S * TransformMat;
+	    
+	fprintf(stderr,"oops %f \n",dist);
+           // TransformMat = iS *imT*oldFloorMatrix * S * TransformMat;
             oldFloorMatrix = modelTransform;
             // set new xform matrix
-            VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
+            //VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
             // now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
             //
             VRSceneGraph::instance()->getTransform()->accept(visitor);
@@ -373,6 +382,10 @@ void Wheelchair::MoveToFloor()
                 dist = isect.getWorldIntersectPoint()[2] - floorHeight;
                 floorNode = isect.nodePath.back();
             }
+    if(!haveIsect[0]&&!haveIsect[1])
+    {
+        dist = 0;
+    }
         }
     }
 
@@ -385,10 +398,10 @@ void Wheelchair::MoveToFloor()
         isect = intersectors[2]->getFirstIntersection();
         osg::Vec3 p2 = isect.getWorldIntersectPoint();
         osg::Vec3 v1 = p1 - p0;
-        osg::Vec3 v2 = p2 - p0;
+        osg::Vec3 v2 = p2 - p1;
         v1.normalize();
         v2.normalize();
-        wcNormal = v1 ^ v2;
+        wcNormal = v2 ^ v1;
         wcNormal.normalize();
         wcDataOut.normal[0] = wcNormal[0];
         wcDataOut.normal[1] = wcNormal[1];
@@ -398,6 +411,7 @@ void Wheelchair::MoveToFloor()
         wcDataOut.direction[2] = WheelchairPos(2, 1);
     }
 
+	fprintf(stderr,"dist %f \n",dist);
 
     //  apply translation , so that isectPt is at floorLevel
     osg::Matrix tmp;
