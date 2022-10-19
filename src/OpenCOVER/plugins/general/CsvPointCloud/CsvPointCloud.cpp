@@ -7,8 +7,9 @@
 
 // **************************************************************************
 
-#include "CsvPointCloud.h"
 #include "ColorMapShader.h"
+#include "CsvPointCloud.h"
+#include "RenderObject.h"
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <config/CoviseConfig.h>
@@ -115,10 +116,32 @@ VrmlNode *creator(VrmlScene *scene)
 
 namespace fs = boost::filesystem;
 
+CsvRenderObject renderObject;
+
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
-    : m_numThreads(std::thread::hardware_concurrency()), ui::Owner("CsvPointCloud", cover->ui), m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this)), m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale")), m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu")), m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color")), m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize")), m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints")), m_colorMapSelector(*m_CsvPointCloudMenu), m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply")), m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator")), m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria")), m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter")), m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset")), m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors")), m_colorBar(new opencover::ColorBar(m_colorMenu)), m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
+    : m_numThreads(std::thread::hardware_concurrency())
+    , ui::Owner("CsvPointCloud", cover->ui)
+    , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
+    , m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale"))
+    , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
+    , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right")
+    , new ui::EditField(m_CsvPointCloudMenu, "Forward")
+    , new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
+    , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
+    , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
+    , m_colorMapSelector(*m_CsvPointCloudMenu)
+    , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
+    , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
+    , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria"))
+    , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
+    , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
+    , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
+    // , m_colorBar(new opencover::ColorBar(m_colorMenu))
+    , m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
+    , m_colorInteractor(new CsvInteractor())
 {
+    m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
     for (auto ef : m_editFields)
@@ -157,46 +180,30 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                              {
         if (m_dataTable)
         {
+            m_colorInteractor->setName(text);
             auto colors = getScalarData(*m_dataTable);
+
             if(m_pointCloud)
-            {
                 m_pointCloud->setVertexAttribArray(DataAttrib, colors.other);
-                applyShader(m_currentGeode, m_pointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
-            }
             if (m_reducedPointCloud)
-            {
                 m_reducedPointCloud->setVertexAttribArray(DataAttrib, colors.reduced);
-                applyShader(m_currentGeode, m_reducedPointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
-            }
-            updateColorMap(m_minColor, m_maxColor);
+
+            updateColorMap();
 
         } });
+
     m_colorMapSelector.setCallback([this](const ColorMap &map)
                                    {
-            if(m_pointCloud)
-            {
-                applyShader(m_currentGeode, m_pointCloud, map, m_minColor, m_maxColor);
-            }
-            if (m_reducedPointCloud)
-            {
-                applyShader(m_currentGeode, m_reducedPointCloud, map, m_minColor, m_maxColor);
-            } 
-            updateColorMap(m_minColor, m_maxColor);
+            m_colorInteractor->setColorMap(map);
+            updateColorMap();
         });
-    m_colorBar->setCallback([this](bool released, float min, float max, float center, float rangeCompression, size_t steps, float insetCenter, float insetWidth, float opacityFactor){
-            if(released)
-            {
-                if(m_pointCloud)
-                {
-                    applyShader(m_currentGeode, m_pointCloud, m_colorMapSelector.selectedMap(), min, max);
-                }
-                if (m_reducedPointCloud)
-                {
-                    applyShader(m_currentGeode, m_reducedPointCloud, m_colorMapSelector.selectedMap(), min, max);
-                }
-                updateColorMap(min, max);
-            }
-    });
+    m_colorInteractor->setColorMap(m_colorMapSelector.selectedMap());
+
+    if(!cover->visMenu)
+    {
+        cover->visMenu = new ui::Menu("Oct", this);
+    }
+    cover->addPlugin("ColorBars");
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -222,6 +229,8 @@ CsvPointCloudPlugin::~CsvPointCloudPlugin()
 
     coVRFileManager::instance()->unregisterFileHandler(&handler[0]);
     coVRFileManager::instance()->unregisterFileHandler(&handler[1]);
+    opencover::coVRPluginList::instance()->removeObject(renderObject.getName(), false);
+
 }
 
 int CsvPointCloudPlugin::load(const char *filename, osg::Group *loadParent, const char *covise_key)
@@ -381,34 +390,41 @@ float parseScale(const std::string &scale)
     return expression.value();
 }
 
-void CsvPointCloudPlugin::updateColorMap(float min, float max)
+void CsvPointCloudPlugin::updateColorMap()
 {
-    osg::Vec3 bottomLeft, hpr, offset;
-    if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0)
-    {
-        auto hudScale = covise::coCoviseConfig::getFloat("COVER.Plugin.ColorBar.HudScale", 0.5); // half screen height
-        const auto &s0 = coVRConfig::instance()->screens[0];
-        hpr = s0.hpr;
-        auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
-        osg::Matrix mat;
-        MAKE_EULER_MAT_VEC(mat, hpr);
-        bottomLeft = s0.xyz - sz * mat * 0.5;
-        auto minsize = std::min(s0.hsize, s0.vsize);
-        bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
-        offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
-    }
+    if (m_pointCloud)
+        applyShader(m_currentGeode, m_pointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
+    if (m_reducedPointCloud)
+        applyShader(m_currentGeode, m_reducedPointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
 
-    m_colorBar->setName(m_colorTerm->value().c_str());
-    m_colorBar->show(true);
-    m_colorBar->update(m_colorTerm->value(), min, max, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
-    m_colorBar->setHudPosition(bottomLeft, hpr, offset[0] / 480);
-    m_colorBar->show(true);
+    opencover::coVRPluginList::instance()->removeObject("CsvPointCloud4", false);
+    opencover::coVRPluginList::instance()->newInteractor(&renderObject, m_colorInteractor);
+
+    // osg::Vec3 bottomLeft, hpr, offset;
+    // if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0)
+    // {
+    //     auto hudScale = covise::coCoviseConfig::getFloat("COVER.Plugin.ColorBar.HudScale", 0.5); // half screen height
+    //     const auto &s0 = coVRConfig::instance()->screens[0];
+    //     hpr = s0.hpr;
+    //     auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
+    //     osg::Matrix mat;
+    //     MAKE_EULER_MAT_VEC(mat, hpr);
+    //     bottomLeft = s0.xyz - sz * mat * 0.5;
+    //     auto minsize = std::min(s0.hsize, s0.vsize);
+    //     bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
+    //     offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
+    // }
+
+    // m_colorBar->setName(m_colorTerm->value().c_str());
+    // m_colorBar->show(true);
+    // m_colorBar->update(m_colorTerm->value(), min, max, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
+    // m_colorBar->setHudPosition(bottomLeft, hpr, offset[0] / 480);
+    // m_colorBar->show(true);
 }
 
 CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &symbols)
 {
-
-    cpu_timer timer;
+    renderObject.setObjName(m_colorTerm->value());
     size_t numColorsPerThread = symbols.size() / m_numThreads;
     std::vector<std::future<ScalarData>> futures;
     for (size_t i = 0; i < m_numThreads; i++)
@@ -444,7 +460,6 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
                                         return data; 
                                     }));
     }
-    std::cerr << "reading colors took " << timer.format() << std::endl;
     ScalarData data;
     data.other = new FloatArray();
     data.reduced = new FloatArray();
@@ -458,12 +473,10 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
         i == 0 ? data.min = dataFragment.min : data.min = std::min(data.min, dataFragment.min);
         i == 0 ? data.max = dataFragment.max : data.max = std::max(data.max, dataFragment.max);
     }
-    std::cerr << "assembling colors took " << timer.format() << std::endl;
 
-    updateColorMap(data.min, data.max);
+    m_colorInteractor->setMinMax(data.min, data.max);
     m_minColor = data.min;
     m_maxColor = data.max;
-    std::cerr << "updateColorMap took " << timer.format() << std::endl;
 
     return data;
 }
@@ -717,14 +730,12 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     if (m_pointCloud)
     {
         m_currentGeode->addDrawable(m_pointCloud);
-        applyShader(m_currentGeode, m_pointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
     }
     if (m_reducedPointCloud)
     {
         m_currentGeode->addDrawable(m_reducedPointCloud);
-        applyShader(m_currentGeode, m_reducedPointCloud, m_colorMapSelector.selectedMap(), m_minColor, m_maxColor);
     }
-
+    updateColorMap();
 
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
 }
@@ -861,4 +872,18 @@ void CsvPointCloudPlugin::advanceMachineSpeed(std::array<float, 3> &machineSpeed
         machineSpeed[1] = speed.y();
         machineSpeed[2] = speed.z();
     }
+}
+
+bool CsvPointCloudPlugin::update()
+{
+    float min, max;
+    m_colorInteractor->getFloatScalarParam("min", min);
+    m_colorInteractor->getFloatScalarParam("max", max);
+    if (min != m_minColor || max != m_maxColor)
+    {
+        m_minColor = min;
+        m_maxColor = max;
+        updateColorMap();
+    }
+    return true;
 }

@@ -8,6 +8,8 @@
 #ifndef COVER_PLUGIN_OCT_H
 #define COVER_PLUGIN_OCT_H
 #include "DataTable.h"
+#include "Interactor.h"
+
 #include <PluginUtil/ColorBar.h>
 #include <PluginUtil/coColorMap.h>
 #include <cover/coTabletUI.h>
@@ -47,6 +49,9 @@ public:
   float pointSize() const;
   void setTimestep(int t) override;
 
+protected:
+  bool update() override;
+
 private:
   typedef exprtk::expression<float> expression_t;
   typedef exprtk::parser<float> parser_t;
@@ -84,7 +89,8 @@ private:
   std::vector<std::unique_ptr<std::thread>> m_threads;
   const int m_numThreads;
   float m_minColor = 0, m_maxColor = 0;
-
+  bool m_updateColor = false;
+  CsvInteractor *m_colorInteractor;
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::FloatArray* colors);
@@ -101,7 +107,7 @@ private:
   void resetMachineSpeed(std::array<float, 3> &machineSpeed);
 
   void advanceMachineSpeed(std::array<float, 3> &machineSpeed, size_t i);
-  void updateColorMap(float min, float max);
+  void updateColorMap();
 
   struct ScalarData
   {

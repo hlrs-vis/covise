@@ -6,14 +6,17 @@ SET(HEADERS
   ColorMapShader.h
   CsvPointCloud.h
   DataTable.h  
+  Interactor.h
+  RenderObject.h
   exprtk.hpp
-  CsvPointCloud.h
 )
 
 SET(SOURCES
   ColorMapShader.cpp
   CsvPointCloud.cpp
   DataTable.cpp
+  Interactor.cpp
+  RenderObject.cpp  
 )
 
 cover_add_plugin(CsvPointCloud)
