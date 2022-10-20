@@ -639,6 +639,8 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &sy
             return true;
         }));
     }
+    for (const auto& f : futures)
+        f.wait();
 
     std::cerr << "readMachinePositions took " << timer.format() << std::endl;
 
@@ -708,6 +710,8 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
             }
             addMachineSpeedSymbols(*m_dataTable, m_currentMachineSpeeds);
         }
+        if (m_dataTable->size() == 0)
+            return;
         m_machinePositions = readMachinePositions(*m_dataTable);
         size = m_dataTable->size();
         createOsgPoints(*m_dataTable, f);
