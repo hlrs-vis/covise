@@ -241,7 +241,7 @@ void Wheelchair::MoveToFloor()
     pos2[2]-=floorHeight;
     osg::Vec3 pos3(wheelWidth / 2.0, wheelBase, 0);
     pos3 = pos3 * WheelchairPos;
-    pos2[2]-=floorHeight;
+    pos3[2]-=floorHeight;
 
     // down segment
     osg::Vec3 p0, q0;
@@ -275,7 +275,10 @@ void Wheelchair::MoveToFloor()
 
     bool haveIsect[3];
     for (int i=0; i<3; ++i)
+    {
         haveIsect[i] = intersectors[i]->containsIntersections();
+       fprintf(stderr,"haveIsect %d %d\n",i,haveIsect[i]);
+    }
     if (!haveIsect[0] && !haveIsect[1])
     {
         oldFloorNode = NULL;
@@ -409,8 +412,8 @@ void Wheelchair::MoveToFloor()
         wcDataOut.direction[0] = WheelchairPos(0, 1);
         wcDataOut.direction[1] = WheelchairPos(1, 1);
         wcDataOut.direction[2] = WheelchairPos(2, 1);
-        wcDataOut.downhillForce = 100.0;
-        //wcDataOut.downhillForce = calculateDownhillForce(wcNormal);
+        //wcDataOut.downhillForce = 100.0;
+        wcDataOut.downhillForce = calculateDownhillForce(wcNormal);
         //fprintf(stderr, "test1");
         fprintf(stderr, "normal\nx: %f y: %f\n z:%f\n direction\nx: %f y: %f\n z:%f\ndownhillForce: %f\n",
                 wcNormal[0], wcNormal[1], wcNormal[2], wcDataOut.direction[0], wcDataOut.direction[1],
