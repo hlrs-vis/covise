@@ -7,37 +7,37 @@
 class CsvRenderObject : public opencover::RenderObject
 {
 public:
-    const char *getName() const { return "CsvPointCloud"; }
+    const char *getName() const override { return "CsvPointCloud"; }
     void setObjName(const std::string &name);
-    bool isGeometry() const { return false; }
-    RenderObject *getGeometry() const{ return nullptr; }
-    RenderObject *getNormals() const{ return nullptr; }
-    RenderObject *getColors() const{ return nullptr; }
-    RenderObject *getTexture() const{ return nullptr; }
-    RenderObject *getVertexAttribute() const{ return nullptr; }
-    RenderObject *getColorMap(int idx) const{ return nullptr; }
+    bool isGeometry() const override { return false; }
+    RenderObject *getGeometry() const override { return nullptr; }
+    RenderObject *getNormals() const override { return nullptr; }
+    RenderObject *getColors() const override { return nullptr; }
+    RenderObject *getTexture() const override { return nullptr; }
+    RenderObject *getVertexAttribute() const override { return nullptr; }
+    RenderObject *getColorMap(int idx) const override { return nullptr; }
 
     const char *getAttribute(const char *) const override;
 
     //XXX: hacks for Volume plugin and Tracer
-    bool isSet() const{ return false; }
-    size_t getNumElements() const{ return 0; }
-    RenderObject *getElement(size_t idx) const{ return nullptr; }
+    bool isSet() const override { return false; }
+    size_t getNumElements() const override { return 0; }
+    RenderObject *getElement(size_t idx) const override { return nullptr; }
 
-    bool isUniformGrid() const{ return false; }
-    void getSize(int &nx, int &ny, int &nz) const{}
-    float getMin(int channel) const{ return 0; }
-    float getMax(int channel) const{ return 0; }
+    bool isUniformGrid() const override { return false; }
+    void getSize(int &nx, int &ny, int &nz) const override { nx = 0; ny = 0; nz = 0; }
+    float getMin(int channel) const override { return 0; }
+    float getMax(int channel) const override { return 0; }
     void getMinMax(float &xmin, float &xmax,
                            float &ymin, float &ymax,
-                           float &zmin, float &zmax) const{ }
+                           float &zmin, float &zmax) const override { }
 
-    bool isVectors() const{ return false; }
-    const unsigned char *getByte(opencover::Field::Id idx) const{ return nullptr; }
-    const int *getInt(opencover::Field::Id idx) const{ return nullptr; }
-    const float *getFloat(opencover::Field::Id idx) const{ return nullptr; }
+    bool isVectors() const override { return false; }
+    const unsigned char *getByte(opencover::Field::Id idx) const override { return nullptr; }
+    const int *getInt(opencover::Field::Id idx) const override { return nullptr; }
+    const float *getFloat(opencover::Field::Id idx) const override { return nullptr; }
 
-    bool isUnstructuredGrid() const{ return false; }
+    bool isUnstructuredGrid() const override { return false; }
 private:
     std::string m_objName;
 };

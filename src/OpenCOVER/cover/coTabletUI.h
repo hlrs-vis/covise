@@ -681,7 +681,7 @@ public:
     virtual ~coTUITab();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     void allowRelayout(bool rl);
-    void resend(bool create);
+    void resend(bool create) override;
 
 signals:
     void tabletEvent();

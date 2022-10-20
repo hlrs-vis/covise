@@ -32,7 +32,7 @@ public:
     virtual void addElement(TUIElement *el);
     virtual void removeElement(TUIElement *el);
     virtual void showElement(TUIElement *el);
-    virtual void setValue(TabletValue type, covise::TokenBuffer&);
+    virtual void setValue(TabletValue type, covise::TokenBuffer&) override;
     void removeAllChildren();
 
     /// get the Element's classname

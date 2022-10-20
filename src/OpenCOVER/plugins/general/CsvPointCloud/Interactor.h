@@ -19,22 +19,22 @@ public:
     virtual ~CsvInteractor() = default;
 
     /// returns true, if Interactor comes from same Module as intteractor i;
-    bool isSameModule(coInteractor *i) const { return dynamic_cast<CsvInteractor *>(i) != nullptr; }
+    bool isSameModule(coInteractor *i) const override { return dynamic_cast<CsvInteractor *>(i) != nullptr; }
 
     /// returns true, if Interactor is exactly the same as interactor i;
-    bool isSame(coInteractor *i) const { return i == this; }
+    bool isSame(coInteractor *i) const override { return i == this; }
 
     /// execute the Module
-    void executeModule(){}
+    void executeModule() override {}
 
     /// copy the Module to same host
-    void copyModule(){};
+    void copyModule() override {}
 
     /// copy the Module to same host and execute the copied one
-    void copyModuleExec(){};
+    void copyModuleExec() override {}
 
     /// delete the Module
-    void deleteModule(){};
+    void deleteModule() override {}
 
     // --- all getParameter Functions
     //       - return -1 on fail (illegal type requested), 0 if ok
@@ -55,65 +55,66 @@ public:
     // --- set-Functions:
 
     /// set Boolean Parameter
-    void setBooleanParam(const char *name, int val){}
+    void setBooleanParam(const char *name, int val) override {}
 
     /// set float scalar parameter
-    void setScalarParam(const char *name, float val){}
+    void setScalarParam(const char *name, float val) override {}
 
     /// set int scalar parameter
-    void setScalarParam(const char *name, int val){}
+    void setScalarParam(const char *name, int val) override {}
 
     /// set float slider parameter
-    void setSliderParam(const char *name, float min, float max, float value){}
+    void setSliderParam(const char *name, float min, float max, float value) override {}
 
     /// set int slider parameter
-    void setSliderParam(const char *name, int min, int max, int value){}
+    void setSliderParam(const char *name, int min, int max, int value) override {}
 
     /// set float Vector Param
-    void setVectorParam(const char *name, int numElem, float *field);
-    void setVectorParam(const char *name, float u, float v, float w) {}
+    void setVectorParam(const char *name, int numElem, float *field) override;
+    void setVectorParam(const char *name, float u, float v, float w) override {}
 
     /// set int vector parameter
-    void setVectorParam(const char *name, int numElem, int *field){}
-    void setVectorParam(const char *name, int u, int v, int w){}
+    void setVectorParam(const char *name, int numElem, int *field) override {}
+    void setVectorParam(const char *name, int u, int v, int w) override {}
 
     /// set string parameter
-    void setStringParam(const char *name, const char *val){}
+    void setStringParam(const char *name, const char *val) override {}
 
     /// set choice parameter, pos starts with 0
-    void setChoiceParam(const char *name, int pos){}
-    void setChoiceParam(const char *name, int num, const char *const *list, int pos){}
+    void setChoiceParam(const char *name, int pos) override {}
+    void setChoiceParam(const char *name, int num, const char *const *list, int pos) override {}
 
     /// set browser parameter
-    void setFileBrowserParam(const char *name, const char *val){}
+    void setFileBrowserParam(const char *name, const char *val) override {}
 
     // name of the covise data object which has feedback attributes
-    const char *getObjName() { return "CsvPointCloud"; }
+    const char *getObjName() override { return "CsvPointCloud"; }
 
     // the covise data object which has feedback attributes
-    opencover::RenderObject *getObject() { return nullptr; }
+    opencover::RenderObject *getObject() override { return nullptr; }
 
     // Fake that this adresses the ColorBars plugin
-    const char *getPluginName() { return "ColorBars"; };
+    const char *getPluginName() override { return "ColorBars"; };
 
     // just a a random name
-    const char *getModuleName() { return ""; }
+    const char *getModuleName() override { return ""; }
 
     // get the instance number of the module which created the data object
-    int getModuleInstance() { return 0; }
+    int getModuleInstance() override { return 0; }
 
     // get the hostname of the module which created the data object
-    const char *getModuleHost() { return "localhost"; }
+    const char *getModuleHost() override { return "localhost"; }
 
     // -- The following functions only works for coFeedback attributes
     /// Get the number of Parameters
-    int getNumParam() const { return 0; }
+    int getNumParam() const override { return 0; }
 
     /// Get the number of User Strings
-    int getNumUser() const { return 0; };
+    int getNumUser() const override { return 0; };
 
     // get a User-supplied string
-    const char *getString(unsigned int i) const;
+    const char *getString(unsigned int i) const override;
+
 private:
     std::string m_name;
     covise::ColorMap m_colorMap;
