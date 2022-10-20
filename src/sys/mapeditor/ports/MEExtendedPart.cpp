@@ -101,4 +101,5 @@ void MEExtendedPart::removeColorMap()
 MEExtendedPart::~MEExtendedPart()
 //------------------------------------------------------------------------
 {
+    removeBrowser();
 }
