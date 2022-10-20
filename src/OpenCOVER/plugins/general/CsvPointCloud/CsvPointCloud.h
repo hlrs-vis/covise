@@ -63,22 +63,28 @@ private:
   };
 
   static CsvPointCloudPlugin *m_plugin;
+
   osg::Geometry* m_pointCloud = nullptr;
   osg::Geometry *m_reducedPointCloud = nullptr;
   osg::Geode *m_currentGeode = nullptr;
   osg::MatrixTransform* m_transform = nullptr;
-  ui::Menu *m_CsvPointCloudMenu, *m_colorMenu;
+
+  //simple options
+  ui::Menu *m_CsvPointCloudMenu;
+  ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
+  covise::ColorMapSelector m_colorMapSelector;
+  ui::SelectionList* m_dataSelector;
+  ui::Button* m_advancedBtn;
+
+  //advanced options 
   ui::EditField* m_dataScale;
   std::array<ui::EditField*, 3> m_coordTerms;
-  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset;
   std::array<ui::EditField*, 3> m_machinePositionsTerms;
-  ui::EditField* m_pointReductionCriteria;
-  covise::ColorMapSelector m_colorMapSelector;
-  ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
-  ui::Button *m_applyBtn; //button only to allow sharing
-  ui::Group *m_colorsGroup;
-  opencover::ColorBar *m_colorBar;
+  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset, * m_pointReductionCriteria;
+  ui::Button *m_applyBtn;
   const std::array<ui::EditField*, 12> m_editFields;
+
+  opencover::ColorBar *m_colorBar;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   bool m_animSpeedSet = false, m_animSkipSet = false;
   std::vector<size_t> m_reducedIndices;
@@ -90,7 +96,7 @@ private:
   const int m_numThreads;
   float m_minColor = 0, m_maxColor = 0;
   bool m_updateColor = false;
-  CsvInteractor *m_colorInteractor;
+  CsvInteractor *m_colorInteractor = nullptr;
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::FloatArray* colors);
@@ -118,8 +124,12 @@ private:
   {
     osg::Vec3Array* reduced = nullptr, *other = nullptr;
   };
-  ScalarData getScalarData(DataTable &symbols);
+  ScalarData getScalarData(DataTable &symbols, const std::string &term);
   Coords getCoords(DataTable &symbols);
+  std::string updateDataSelector(const std::string& term);
+  void loadData(const std::string& term);
+
+
 };
 
 #endif // COVER_PLUGIN_OCT_H

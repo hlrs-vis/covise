@@ -13,6 +13,8 @@
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <config/CoviseConfig.h>
+#include <util/string_util.h>
+
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRFileManager.h>
@@ -121,22 +123,21 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     : m_numThreads(std::thread::hardware_concurrency())
     , ui::Owner("CsvPointCloud", cover->ui)
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud", this))
+    , m_dataSelector(new ui::SelectionList(m_CsvPointCloudMenu, "ScalarData"))
+    , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
+    , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
+    , m_advancedBtn(new ui::Button(m_CsvPointCloudMenu, "Advanced"))
     , m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale"))
-    , m_colorMenu(new ui::Menu(m_CsvPointCloudMenu, "ColorMenu"))
     , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}, m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right")
     , new ui::EditField(m_CsvPointCloudMenu, "Forward")
     , new ui::EditField(m_CsvPointCloudMenu, "Up")}}, m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
-    , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
-    , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
-    , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
     , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
-    , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriteria"))
+    , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriterium"))
     , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
-    , m_colorsGroup(new ui::Group(m_CsvPointCloudMenu, "Colors"))
-    // , m_colorBar(new opencover::ColorBar(m_colorMenu))
     , m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria}
+    , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
     m_colorInteractor->incRefCount();
@@ -176,19 +177,9 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
 
     m_colorTerm->setCallback([this](const std::string &text)
                              {
-        if (m_dataTable)
-        {
-            m_colorInteractor->setName(text);
-            auto colors = getScalarData(*m_dataTable);
-
-            if(m_pointCloud)
-                m_pointCloud->setVertexAttribArray(DataAttrib, colors.other);
-            if (m_reducedPointCloud)
-                m_reducedPointCloud->setVertexAttribArray(DataAttrib, colors.reduced);
-
-            updateColorMap();
-
-        } });
+        auto term = updateDataSelector(text);
+        loadData(term);
+ });
 
     m_colorMapSelector.setCallback([this](const ColorMap &map)
                                    {
@@ -202,6 +193,60 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
         cover->visMenu = new ui::Menu("Oct", this);
     }
     cover->addPlugin("ColorBars");
+    m_advancedBtn->setCallback([this](bool b)
+        {
+            for (auto ef : m_editFields)
+                ef->setVisible(b);
+            m_applyBtn->setVisible(b);
+        });
+    for (auto ef : m_editFields)
+        ef->setVisible(false);
+    m_applyBtn->setVisible(false);
+}
+
+std::string CsvPointCloudPlugin::updateDataSelector(const std::string& term)
+{
+    auto scalars = split(term, ';');
+
+    if (scalars.size() % 2 != 0)
+    {
+        std::cerr << "color term must be a ';' separeted list of Names and math terms" << std::endl;
+        return "";
+    }
+    std::vector<std::string> names;
+    std::vector<std::string> terms;
+    for (size_t i = 0; i < scalars.size();)
+    {
+        names.push_back(scalars[i++]);
+        terms.push_back(scalars[i++]);
+    }
+    m_dataSelector->setList(names);
+    m_dataSelector->setCallback([this, terms](int index) {
+        loadData(terms[index]);
+        });
+    size_t index = m_dataSelector->selectedIndex();
+    if (index >= names.size())
+    {
+        index = 0;
+        m_dataSelector->select(0);
+    }
+    return terms[index];
+}
+
+void CsvPointCloudPlugin::loadData(const std::string& term)
+{
+    if (m_dataTable)
+    {
+        m_colorInteractor->setName(term);
+        auto colors = getScalarData(*m_dataTable, term);
+
+        if (m_pointCloud)
+            m_pointCloud->setVertexAttribArray(DataAttrib, colors.other);
+        if (m_reducedPointCloud)
+            m_reducedPointCloud->setVertexAttribArray(DataAttrib, colors.reduced);
+
+        updateColorMap();
+    }
 }
 
 const CsvPointCloudPlugin *CsvPointCloudPlugin::instance() const
@@ -228,6 +273,9 @@ CsvPointCloudPlugin::~CsvPointCloudPlugin()
     coVRFileManager::instance()->unregisterFileHandler(&handler[0]);
     coVRFileManager::instance()->unregisterFileHandler(&handler[1]);
     opencover::coVRPluginList::instance()->removeObject(renderObject.getName(), false);
+    for (auto ef : m_editFields)
+        ef->setVisible(true);
+    m_applyBtn->setVisible(true);
 
 }
 
@@ -420,16 +468,18 @@ void CsvPointCloudPlugin::updateColorMap()
     // m_colorBar->show(true);
 }
 
-CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &symbols)
+CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &symbols, const std::string& term)
 {
-    renderObject.setObjName(m_colorTerm->value());
+    if (term.empty())
+        return ScalarData{};
+    renderObject.setObjName(term);
     size_t numColorsPerThread = symbols.size() / m_numThreads;
     std::vector<std::future<ScalarData>> futures;
     for (size_t i = 0; i < m_numThreads; i++)
     {
         auto begin = i * numColorsPerThread;
         auto end = i == m_numThreads - 1 ? symbols.size() : (i + 1) * numColorsPerThread;
-        futures.push_back(std::async(std::launch::async, [this, symbols, begin, end]()
+        futures.push_back(std::async(std::launch::async, [this, symbols, &term,  begin, end]()
                                      {
                                         ScalarData data;
                                         data.other = new osg::FloatArray();
@@ -444,7 +494,7 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
 
                                         if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->value(), reductionCriterium))
                                             return data;
-                                        if (!compileSymbol(symbolsFragment, m_colorTerm->value(), colorExporession))
+                                        if (!compileSymbol(symbolsFragment, term, colorExporession))
                                             return data;
                                         for (size_t i = begin; i < end; i++)
                                         {
@@ -548,7 +598,8 @@ CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols)
 void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
 {
     auto coords = getCoords(symbols);
-    auto colors = getScalarData(symbols);
+    auto term = updateDataSelector(m_colorTerm->value());
+    auto colors = getScalarData(symbols, term);
 
     if (!colors.other || !colors.reduced || !coords.other || !coords.reduced)
         return;
