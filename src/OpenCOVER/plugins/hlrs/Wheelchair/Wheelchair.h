@@ -63,7 +63,7 @@ public:
     unsigned char getButton();
     void syncData();
     bool doStop;
-    float calculateDownhillForce(osg::Vec3);
+    float calculateDownhillForce(const osg::Vec3 &, const osg::Vec3 &);
 private:
     float stepSizeUp;
     float stepSizeDown;
