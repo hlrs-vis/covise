@@ -36,9 +36,7 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/timer/timer.hpp>
 
-using namespace boost::timer;
 using namespace osg;
 using namespace covise;
 using namespace opencover;
@@ -549,18 +547,12 @@ CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols)
 
 void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
 {
-    // compile parser
-    cpu_timer timer;
-
     auto coords = getCoords(symbols);
-    std::cout << "creating coords took: " << timer.format() << '\n';
-    timer.start();
     auto colors = getScalarData(symbols);
-
-    std::cout << "creating colors took: " << timer.format() << '\n';
 
     if (!colors.other || !colors.reduced || !coords.other || !coords.reduced)
         return;
+#if 0        
     // write cache file
     if (coVRMSController::instance()->isMaster())
     {
@@ -580,6 +572,7 @@ void CsvPointCloudPlugin::createOsgPoints(DataTable &symbols, std::ofstream &f)
         }
         f.write((const char *)&m_reducedIndices[0], m_reducedIndices.size() * sizeof(size_t));
     }
+#endif
     m_pointCloud = createOsgPoints(coords.other, colors.other);
     m_reducedPointCloud = createOsgPoints(coords.reduced, colors.reduced);
 }
@@ -612,7 +605,6 @@ osg::Geometry *CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, osg::Floa
 
 std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &symbols)
 {
-    cpu_timer timer;
     size_t numColorsPerThread = symbols.size() / m_numThreads;
     std::vector<std::future<bool>> futures;
     auto scale = parseScale(m_dataScale->value());
@@ -642,9 +634,6 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &sy
     for (const auto& f : futures)
         f.wait();
 
-    std::cerr << "readMachinePositions took " << timer.format() << std::endl;
-
-    // compile parser
     return retval;
 }
 
@@ -663,6 +652,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         return;
     }
     size_t size = 0;
+#if 0
     if (auto cache = cacheFileUpToDate(filename))
     {
         std::cerr << "CsvPointCloud: using cache" << std::endl;
@@ -693,6 +683,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         cache->read((char *)m_machinePositions.data(), size * sizeof(vrml::VrmlSFVec3f));
     }
     else
+#endif
     {
         auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
         opencover::coVRMSController::instance()->sync(); // don't write cache before all slaves have also checked that it did not exist
@@ -829,7 +820,6 @@ int CsvPointCloudPlugin::unloadFile(const std::string &filename)
 
 std::unique_ptr<std::ifstream> CsvPointCloudPlugin::cacheFileUpToDate(const std::string &filename)
 {
-    return nullptr;
     auto settingsFileName = filename.substr(0, filename.find_last_of('.')) + ".txt";
     auto cacheFileName = filename.substr(0, filename.find_last_of('.')) + ".cache";
     coVRMSController::instance()->sync();

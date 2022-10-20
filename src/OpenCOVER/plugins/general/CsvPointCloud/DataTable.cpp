@@ -1,11 +1,9 @@
 #include "DataTable.h"
 #include <iostream>
 #include <cassert>
-#include <boost/timer/timer.hpp>
 #include <cover/coVRMSController.h>
 #include <util/string_util.h>
 
-using namespace boost::timer;
 size_t sizeTmp = 0; //set by file readers and used to initialize const m_size
 
 std::string readString(std::ifstream &f)
@@ -128,8 +126,6 @@ DataTable::Vector::Iterator DataTable::Vector::Iterator::operator++(int)
 
 std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readFile(const std::string &filename, const std::string &timeScaleIndicator, char delimiter, int headerOffset)
 {
-    cpu_timer timer;
-
     sizeTmp = 0;
     auto points = std::make_shared<std::map<std::string, Vector>>();
     std::fstream f(filename);
@@ -219,15 +215,12 @@ std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readF
 
     for (auto &p : *points)
         p.second.data.push_back(p.second.data[p.second.data.size() - 1]); // add last element twice for interpolation
-    std::cout << "reading file took: " << timer.format() << '\n';
 
     return points;
 }
 
 std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readBinaryFile(const std::string &filename)
 {
-    cpu_timer timer;
-    
     std::ifstream f(filename, std::ios::binary);
     auto data = std::make_shared<std::map<std::string, Vector>>();
     sizeTmp = read<size_t>(f);
@@ -240,7 +233,6 @@ std::shared_ptr<const std::map<std::string, DataTable::Vector>> DataTable::readB
         column.data.resize(size);
         f.read((char *)&column.data[0], size * sizeof(float));
     }
-    std::cout << "reading binary file took: " << timer.format() << '\n';
     return data;
 }
 
@@ -248,7 +240,6 @@ void DataTable::writeToFile(const std::string &filename) const
 {
     if (opencover::coVRMSController::instance()->isMaster())
     {
-        cpu_timer timer;
     
         std::ofstream f(filename, std::ios::binary);
         write(f, m_size);
@@ -260,6 +251,5 @@ void DataTable::writeToFile(const std::string &filename) const
             write(f, column.second.data.size());
             f.write((const char *)&column.second.data[0], column.second.data.size() * sizeof(float));
         }
-        std::cout << "writing binary file took: " << timer.format() << '\n';
     }
 }
