@@ -152,11 +152,11 @@ bool Wheelchair::update()
 {
     if (isEnabled())
     {
-        fprintf(stderr, "wc %ld %ld\n", wcData.countLeft, wcData.countRight);
-	if(oldCountLeft == 0)
-	{
-           oldCountLeft = wcData.countLeft;
-           oldCountRight = wcData.countRight;
+        fprintf(stderr, "wc %ld %ld\n", (long)wcData.countLeft, (long)wcData.countRight);
+        if (oldCountLeft == 0)
+        {
+            oldCountLeft = wcData.countLeft;
+            oldCountRight = wcData.countRight;
 	}
 
         float ml = (wcData.countLeft - oldCountLeft)* mPerCount;
@@ -412,7 +412,9 @@ void Wheelchair::MoveToFloor()
         wcDataOut.downhillForce = 100.0;
         //wcDataOut.downhillForce = calculateDownhillForce(wcNormal);
         //fprintf(stderr, "test1");
-        fprintf(stderr, "normal\nx: %ld y: %ld\n z:%ld\n direction\nx: %ld y: %ld\n z:%ld\ndownhillForce: %f\n", wcNormal[0], wcNormal[1], wcNormal[2], wcDataOut.direction[0], wcDataOut.direction[1], wcDataOut.direction[2], wcDataOut.downhillForce);
+        fprintf(stderr, "normal\nx: %f y: %f\n z:%f\n direction\nx: %f y: %f\n z:%f\ndownhillForce: %f\n",
+                wcNormal[0], wcNormal[1], wcNormal[2], wcDataOut.direction[0], wcDataOut.direction[1],
+                wcDataOut.direction[2], wcDataOut.downhillForce);
     }
 
 	fprintf(stderr,"dist %f \n",dist);
@@ -533,4 +535,3 @@ unsigned char Wheelchair::getButton()
 	return wcData.state;
 }
 COVERPLUGIN(Wheelchair)
-
