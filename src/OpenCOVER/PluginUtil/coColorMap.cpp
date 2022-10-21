@@ -5,6 +5,7 @@
 #include <iostream>
 
 using namespace std;
+
 covise::ColorMaps covise::readColorMaps()
 {
     // read the name of all colormaps in file
@@ -39,6 +40,7 @@ covise::ColorMaps covise::readColorMaps()
         }
     }
     return colorMaps;
+    
 }
 
 osg::Vec4 covise::getColor(float val, const covise::ColorMap& colorMap, float min, float max)
@@ -58,6 +60,50 @@ osg::Vec4 covise::getColor(float val, const covise::ColorMap& colorMap, float mi
     color[3] = ((1 - d) * colorMap.a[idx] + d * colorMap.a[idx + 1]);
 
     return color;
+}
+
+covise::ColorMap covise::interpolateColorMap(const covise::ColorMap &cm, int numSteps)
+{
+    covise::ColorMap interpolatedMap;
+    interpolatedMap.r.resize(numSteps);
+    interpolatedMap.g.resize(numSteps);
+    interpolatedMap.b.resize(numSteps);
+    interpolatedMap.a.resize(numSteps);
+    interpolatedMap.samplingPoints.resize(numSteps);
+    auto numColors = cm.samplingPoints.size();
+    double delta = 1.0 / (numSteps - 1) * (numColors - 1);
+    double x;
+    int i;
+
+    delta = 1.0 / (numSteps - 1);
+    int idx = 0;
+    for (i = 0; i < numSteps - 1; i++)
+    {
+        x = i * delta;
+        while (cm.samplingPoints[(idx + 1)] <= x)
+        {
+            idx++;
+            if (idx > numColors - 2)
+            {
+                idx = numColors - 2;
+                break;
+            }
+        }
+
+        double d = (x - cm.samplingPoints[idx]) / (cm.samplingPoints[idx + 1] - cm.samplingPoints[idx]);
+        interpolatedMap.r[i] = (float)((1 - d) * cm.r[idx] + d * cm.r[idx + 1]);
+        interpolatedMap.g[i] = (float)((1 - d) * cm.g[idx] + d * cm.g[idx + 1]);
+        interpolatedMap.b[i] = (float)((1 - d) * cm.b[idx] + d * cm.b[idx + 1]);
+        interpolatedMap.a[i] = (float)((1 - d) * cm.a[idx] + d * cm.a[idx + 1]);
+        interpolatedMap.samplingPoints[i] = (float)i / (numSteps - 1);
+    }
+    interpolatedMap.r[numSteps - 1] = cm.r[(numColors - 1)];
+    interpolatedMap.g[numSteps - 1] = cm.g[(numColors - 1)];
+    interpolatedMap.b[numSteps - 1] = cm.b[(numColors - 1)];
+    interpolatedMap.a[numSteps - 1] = cm.a[(numColors - 1)];
+    interpolatedMap.samplingPoints[numSteps - 1] = 1;
+
+    return interpolatedMap;
 }
 
 covise::ColorMapSelector::ColorMapSelector(opencover::ui::Menu& menu)
