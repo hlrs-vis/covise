@@ -14,7 +14,8 @@ class CsvInteractor : public opencover::coInteractor
 public:
     CsvInteractor() = default;
     void setColorMap(const covise::ColorMap &cm);
-    void setName(const std::string& name);
+    covise::ColorMap getColorMap() const;
+    void setName(const std::string &name);
     void setMinMax(float min, float max);
     virtual ~CsvInteractor() = default;
 
@@ -42,9 +43,9 @@ public:
     //       - do not change the value fields if type incorrect
 
     int getBooleanParam(const std::string &paraName, int &value) const override {return 0;}
-    int getIntScalarParam(const std::string &paraName, int &value) const override {return 0;}
+    int getIntScalarParam(const std::string &paraName, int &value) const override;
     int getFloatScalarParam(const std::string &paraName, float &value) const override;
-    int getIntSliderParam(const std::string &paraName, int &min, int &max, int &val) const override{ return 0; }
+    int getIntSliderParam(const std::string &paraName, int &min, int &max, int &val) const override;
     int getFloatSliderParam(const std::string &paraName, float &min, float &max, float &val) const override;
     int getIntVectorParam(const std::string &paraName, int &numElem, int *&val) const override{ return 0; }
     int getFloatVectorParam(const std::string &paraName, int &numElem, float *&val) const override {return 0;}
@@ -61,7 +62,7 @@ public:
     void setScalarParam(const char *name, float val) override {}
 
     /// set int scalar parameter
-    void setScalarParam(const char *name, int val) override {}
+    void setScalarParam(const char *name, int val) override;
 
     /// set float slider parameter
     void setSliderParam(const char *name, float min, float max, float value) override {}
@@ -120,6 +121,7 @@ private:
     covise::ColorMap m_colorMap;
     float m_minSlider = 0, m_maxSlider = 0;
     float m_min = 0, m_max = 0;
+    int m_numColorSteps = 0;
 };
 
 #endif // COVISE_CSV_POINT_CLOUD_INTERACTOR_H

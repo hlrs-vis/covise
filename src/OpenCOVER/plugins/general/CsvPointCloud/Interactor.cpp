@@ -30,6 +30,12 @@ void CsvInteractor::setVectorParam(const char *name, int numElem, float *field)
 void CsvInteractor::setColorMap(const covise::ColorMap &cm)
 {
     m_colorMap = cm;
+    m_numColorSteps = cm.samplingPoints.size();
+}
+
+covise::ColorMap CsvInteractor::getColorMap() const
+{
+    return covise::interpolateColorMap(m_colorMap, m_numColorSteps);
 }
 
 void CsvInteractor::setName(const std::string& name)
@@ -45,11 +51,29 @@ void CsvInteractor::setMinMax(float min, float max)
     m_maxSlider = max;
 }
 
+void CsvInteractor::setScalarParam(const char *name, int val)
+{
+    if(std::string(name) == "steps")
+    {
+        m_numColorSteps = val;
+    }
+}
+
 const char *CsvInteractor::getString(unsigned int i) const
 {
     static std::string s;
-    s = createColorMapString(m_name, m_colorMap, m_minSlider, m_maxSlider);
+    s = createColorMapString(m_name, covise::interpolateColorMap(m_colorMap, m_numColorSteps), m_minSlider, m_maxSlider);
     return s.c_str();
+}
+
+int CsvInteractor::getIntScalarParam(const std::string &paraName, int &value) const 
+{
+    if(paraName == "steps")
+    {
+        value = m_numColorSteps;
+        return -1;
+    }
+    return 0;
 }
 
 int CsvInteractor::getFloatScalarParam(const std::string &paraName, float &value) const
@@ -63,6 +87,17 @@ int CsvInteractor::getFloatScalarParam(const std::string &paraName, float &value
     {
         value = m_maxSlider;
         return -1;
+    }
+    return 0;
+}
+
+int CsvInteractor::getIntSliderParam(const std::string &paraName, int &min, int &max, int &val) const
+{
+    if(paraName == "steps")
+    {
+        min = 2;
+        max = 256;
+        val = m_numColorSteps;
     }
     return 0;
 }

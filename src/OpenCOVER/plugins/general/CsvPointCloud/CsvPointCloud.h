@@ -80,7 +80,7 @@ private:
   ui::EditField* m_dataScale;
   std::array<ui::EditField*, 3> m_coordTerms;
   std::array<ui::EditField*, 3> m_machinePositionsTerms;
-  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset, * m_pointReductionCriteria;
+  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset, *m_pointReductionCriteria;
   ui::Button *m_applyBtn;
   const std::array<ui::EditField*, 12> m_editFields;
 
@@ -97,6 +97,7 @@ private:
   float m_minColor = 0, m_maxColor = 0;
   bool m_updateColor = false;
   CsvInteractor *m_colorInteractor = nullptr;
+
   void createGeodes(osg::Group *, const std::string &);
   void createOsgPoints(DataTable &symbols, std::ofstream& f);
   osg::Geometry* createOsgPoints(osg::Vec3Array* points, osg::FloatArray* colors);
