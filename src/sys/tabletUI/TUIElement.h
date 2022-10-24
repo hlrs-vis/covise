@@ -20,6 +20,7 @@ class TUIContainer;
 class QWidget;
 class QLayout;
 class TUITab;
+class QGridLayout;
 namespace covise
 {
 class TokenBuffer;
@@ -43,7 +44,7 @@ public:
     virtual ~TUIElement();
     virtual void setParent(TUIContainer *);
     virtual TUIContainer *getParent();
-    virtual QLayout *getLayout();
+    virtual QGridLayout *getLayout();
     virtual QWidget *getWidget();
     virtual void setWidget(QWidget *);
 
@@ -100,12 +101,16 @@ protected:
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;
-    QLayout *layout = nullptr;
     QWidget *widget = nullptr;
     std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
     bool hidden; ///< true if UI element is to be hidden at any time
     QString name;
+    QGridLayout *createLayout(QWidget *parent);
+
+private:
+    QGridLayout *layout = nullptr;
+    bool layoutHasParent = true;
 };
 #endif

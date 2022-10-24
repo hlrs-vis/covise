@@ -105,8 +105,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     frame = new QFrame(w);
     frame->setFrameStyle(QFrame::NoFrame);
 
-    auto grid = new QGridLayout(frame);
-    layout = grid;
+    auto grid = createLayout(frame);
     widget = frame;
 
     Treelayout = new QHBoxLayout();

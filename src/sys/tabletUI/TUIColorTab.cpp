@@ -36,8 +36,7 @@ TUIColorTab::TUIColorTab(int id, int type, QWidget *w, int parent, QString name)
     alpha = 255;
     rGBtoHSV();
 
-    auto grid = new QGridLayout(frame);
-    layout = grid;
+    auto grid = createLayout(frame);
     colorTriangle = new QtColorTriangle(frame);
     grid->addWidget(colorTriangle, 0, 0, 1, 2, Qt::AlignCenter);
 

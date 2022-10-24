@@ -33,7 +33,7 @@ TUIScrollArea::TUIScrollArea(int id, int type, QWidget *w, int parent, QString n
     frame->setContentsMargins(5, 5, 5, 5);
 #endif
 
-    layout = new QGridLayout(frame);
+    createLayout(frame);
     widget = frame;
 }
 
@@ -41,7 +41,6 @@ TUIScrollArea::TUIScrollArea(int id, int type, QWidget *w, int parent, QString n
 TUIScrollArea::~TUIScrollArea()
 {
     removeAllChildren();
-    delete layout;
     delete widget;
 }
 

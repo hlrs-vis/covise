@@ -47,7 +47,7 @@ TUIFunctionEditorTab::TUIFunctionEditorTab(int id, int type, QWidget *w, int par
     QFrame *frame = new QFrame(w);
     frame->setFrameStyle(QFrame::NoFrame);
     widget = frame;
-    layout = new QGridLayout(frame);
+    createLayout(frame);
 
     udc.append("User Defined");
     icm.append("Initial ColorMap");

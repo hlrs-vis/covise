@@ -36,7 +36,6 @@ TUISplitter::TUISplitter(int id, int type, QWidget *w, int parent, QString name)
 TUISplitter::~TUISplitter()
 {
     removeAllChildren();
-    delete layout;
     delete widget;
 }
 

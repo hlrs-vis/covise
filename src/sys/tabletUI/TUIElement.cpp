@@ -15,6 +15,7 @@
 #include "TUIElement.h"
 #include "TUIContainer.h"
 #include "TUIApplication.h"
+#include <QGridLayout>
 
 /// Constructor.
 TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QString name)
@@ -45,6 +46,8 @@ TUIElement::~TUIElement()
         parentContainer->removeElement(this);
     }
     TUIMainWindow::getInstance()->removeElement(this);
+    if(!layoutHasParent)
+        delete layout;
 }
 
 void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
@@ -179,7 +182,7 @@ TUIContainer *TUIElement::getParent()
     return parentContainer;
 }
 
-QLayout *TUIElement::getLayout()
+QGridLayout *TUIElement::getLayout()
 {
     return layout;
 }
@@ -296,4 +299,12 @@ bool TUIElement::isOfClassName(const char *classname) const
 
     // nobody is NULL
     return false;
+}
+
+QGridLayout * TUIElement::createLayout(QWidget *parent)
+{
+    if(!parent)
+        layoutHasParent = false;
+    layout = new QGridLayout(parent);
+    return layout;
 }

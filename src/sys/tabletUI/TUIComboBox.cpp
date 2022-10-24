@@ -28,17 +28,15 @@ TUIComboBox::TUIComboBox(int id, int type, QWidget *w, int parent, QString name)
     combo = new QComboBox(widget);
     combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(combo, SIGNAL(activated(int)), this, SLOT(valueChanged(int)));
-    auto grid = new QGridLayout(frame);
+    auto grid = createLayout(frame);
     frame->setLayout(grid);
-    layout = grid;
-    layout->setContentsMargins(0, 0, 0, 0);
+    grid->setContentsMargins(0, 0, 0, 0);
     grid->addWidget(combo, 1, 0);
 }
 
 /// Destructor
 TUIComboBox::~TUIComboBox()
 {
-    delete layout;
     delete combo;
     delete label;
 }
@@ -117,8 +115,7 @@ void TUIComboBox::setLabel(QString textl)
     else if (!label)
     {
         label = new QLabel(widget);
-        auto grid = static_cast<QGridLayout *>(layout);
-        grid->addWidget(label, 0, 0);
+        getLayout()->addWidget(label, 0, 0);
     }
     if (label)
         label->setText(textl);

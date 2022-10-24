@@ -23,8 +23,7 @@ TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
     editField = new TUILineCheck(w);
     connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChanged()));
 
-    auto gl = new QGridLayout;
-    layout = gl;
+    auto gl = createLayout(nullptr);
     gl->addWidget(editField, 1, 0, 1, width-1);
     gl->addWidget(editField, 1, width-1);
     for (int i=0; i<width-1; ++i)
@@ -72,7 +71,7 @@ void TUILineEdit::setLabel(QString textl)
         label = new QLabel(editField->parentWidget());
         widgets.insert(label);
         label->setBuddy(editField);
-        static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
+        static_cast<QGridLayout *>(getLayout())->addWidget(label, 0, 0);
     }
     if (label)
         label->setText(textl);

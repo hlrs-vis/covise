@@ -34,7 +34,7 @@ TUIGroupBox::TUIGroupBox(int id, int type, QWidget *w, int parent, QString name)
 #endif
     gb->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-    layout = new QGridLayout(gb);
+    createLayout(gb);
     widget = gb;
 }
 
@@ -42,7 +42,6 @@ TUIGroupBox::TUIGroupBox(int id, int type, QWidget *w, int parent, QString name)
 TUIGroupBox::~TUIGroupBox()
 {
     removeAllChildren();
-    delete layout;
     delete widget;
 }
 

@@ -47,8 +47,7 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
     connect(slider, SIGNAL(sliderPressed()), this, SLOT(pressed()));
     connect(slider, SIGNAL(sliderReleased()), this, SLOT(released()));
 
-    auto gl = new QGridLayout;
-    layout = gl;
+    auto gl = createLayout(nullptr);
     gl->addWidget(slider, 1, 0, 1, width-1);
     gl->addWidget(string, 1, width-1);
     for (int i=0; i<width-1; ++i)
@@ -62,7 +61,6 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
 /// Destructor
 TUIFloatSlider::~TUIFloatSlider()
 {
-    delete layout;
     delete string;
     delete slider;
     delete label;
@@ -261,7 +259,7 @@ void TUIFloatSlider::setLabel(QString textl)
         label = new QLabel(slider->parentWidget());
         widgets.insert(label);
         label->setBuddy(string);
-        static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
+        getLayout()->addWidget(label, 0, 0);
     }
     if (label)
         label->setText(textl);

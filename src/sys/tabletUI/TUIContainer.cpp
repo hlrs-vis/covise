@@ -141,9 +141,9 @@ const char *TUIContainer::getClassName() const
     return "TUIContainer";
 }
 
-QGridLayout *TUIContainer::gridLayout() const
+QGridLayout *TUIContainer::gridLayout()
 {
-    return dynamic_cast<QGridLayout *>(layout);
+    return dynamic_cast<QGridLayout *>(getLayout());
 }
 
 void TUIContainer::setNumberOfColumns(int columns)
@@ -182,7 +182,7 @@ void TUIContainer::relayout()
         return;
 
     // remove everything from layout
-    while (layout->takeAt(0))
+    while (getLayout()->takeAt(0))
         ;
 
     int minWidth = 0, maxWidth = 0;

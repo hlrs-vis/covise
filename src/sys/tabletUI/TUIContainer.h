@@ -38,7 +38,7 @@ public:
     /// get the Element's classname
     virtual const char *getClassName() const override;
 
-    QGridLayout *gridLayout() const;
+    QGridLayout *gridLayout();
 
     /// set number of columns after which lines should be wrapped (-1: no wrapping)
     void setNumberOfColumns(int columns);

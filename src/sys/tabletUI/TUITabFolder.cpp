@@ -52,8 +52,7 @@ TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString nam
 
         connect(switchWidget, SIGNAL(activated(int)), this, SLOT(setCurrentIndex(int)));
 
-        auto grid = new QGridLayout(frame);
-        layout = grid;
+        auto grid = createLayout(frame);
         grid->addWidget(switchWidget, 0, 0);
         grid->addWidget(stackWidget, 1, 0);
 

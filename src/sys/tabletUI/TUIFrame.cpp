@@ -53,7 +53,7 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
 #endif
     frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-    layout = new QGridLayout(frame);
+    createLayout(frame);
     widget = frame;
 }
 
@@ -61,7 +61,6 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
 TUIFrame::~TUIFrame()
 {
     removeAllChildren();
-    delete layout;
     delete widget;
 }
 

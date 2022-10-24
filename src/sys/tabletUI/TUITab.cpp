@@ -45,8 +45,8 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
     frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     frame->setContentsMargins(0, 0, 0, 0);
     widget = frame;
-    layout = new QGridLayout(frame);
-    frame->setLayout(layout);
+    createLayout(frame);
+    frame->setLayout(getLayout());
     if (scroll)
     {
         scroll->setWidget(frame);
@@ -61,8 +61,6 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
 TUITab::~TUITab()
 {
     removeAllChildren();
-    delete layout;
-    layout = nullptr;
     delete widget;
     widget = nullptr;
 }
