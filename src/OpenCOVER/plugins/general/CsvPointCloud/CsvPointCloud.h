@@ -74,7 +74,8 @@ private:
   ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
   covise::ColorMapSelector m_colorMapSelector;
   ui::SelectionList* m_dataSelector;
-  ui::Button* m_advancedBtn;
+  ui::Button *m_moveMachineBtn;
+  ui::Button *m_advancedBtn;
 
   //advanced options 
   ui::EditField* m_dataScale;

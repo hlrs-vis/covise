@@ -126,6 +126,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_dataSelector(new ui::SelectionList(m_CsvPointCloudMenu, "ScalarData"))
     , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
     , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
+    , m_moveMachineBtn(new ui::Button(m_CsvPointCloudMenu, "MoveMachine"))
     , m_advancedBtn(new ui::Button(m_CsvPointCloudMenu, "Advanced"))
     , m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale"))
     , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}
@@ -140,6 +141,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
+    m_moveMachineBtn->setState(true);
     m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
@@ -811,7 +813,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
         static_cast<osg::DrawArrays *>(m_reducedPointCloud->getPrimitiveSet(0))->setCount(reducedPointsUntilTimestep);
 
     // move machine axis
-    if (m_machinePositions.size() > t)
+    if (m_moveMachineBtn->state() && m_machinePositions.size() > t)
     {
         for (auto machineNode : machineNodes)
         {
