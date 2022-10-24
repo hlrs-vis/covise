@@ -79,6 +79,7 @@ VrmlNodeType *VrmlNodeTimesteps::defineType(VrmlNodeType *t)
     t->addExposedField("loop", VrmlField::SFBOOL);
     t->addExposedField("maxFrameRate", VrmlField::SFINT32);
     t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
+    t->addEventOut("timestep_changed", VrmlField::SFINT32);
     t->addEventIn("timestep", VrmlField::SFINT32);
 
     return t;
@@ -168,6 +169,11 @@ void VrmlNodeTimesteps::render(Viewer *viewer)
     {
         d_numTimesteps.set(coVRAnimationManager::instance()->getNumTimesteps());
         eventOut(timeNow, "numTimesteps", d_numTimesteps);
+    }
+    if(d_currentTimestep.get() != coVRAnimationManager::instance()->getAnimationFrame())
+    {
+        d_currentTimestep.set(coVRAnimationManager::instance()->getAnimationFrame());
+        eventOut(timeNow, "timestep_changed", d_currentTimestep);
     }
     setModified();
 }

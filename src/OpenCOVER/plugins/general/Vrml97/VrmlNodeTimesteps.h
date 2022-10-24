@@ -68,6 +68,8 @@ private:
     // Fields
     VrmlSFInt d_numTimesteps;
     VrmlSFInt d_maxFrameRate;
+    VrmlSFInt d_currentTimestep = 0;
+
     VrmlSFFloat d_fraction_changed;
 
     VrmlSFBool d_enabled;
