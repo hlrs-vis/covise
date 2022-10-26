@@ -5,6 +5,7 @@
     
 constexpr int TfTexUnit = 1;
 constexpr int DataAttrib = 10;
-opencover::coVRShader *applyShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max);
+opencover::coVRShader *applyPointShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max);
+opencover::coVRShader *applySurfaceShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max);
 
 #endif // COVISE_COLOR_MAP_SHADER_H

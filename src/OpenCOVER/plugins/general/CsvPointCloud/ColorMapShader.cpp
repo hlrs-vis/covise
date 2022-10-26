@@ -1,13 +1,14 @@
 #include "ColorMapShader.h"
 #include <osg/Texture1D>
 
-opencover::coVRShader *applyShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+
+opencover::coVRShader *applyShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max, const std::string& shaderFile)
 {
     std::map<std::string, std::string> parammap;
     parammap["dataAttrib"] = std::to_string(DataAttrib);
     parammap["texUnit1"] = std::to_string(TfTexUnit);
 
-    auto shader = opencover::coVRShaderList::instance()->getUnique("OctPoints", &parammap);
+    auto shader = opencover::coVRShaderList::instance()->getUnique(shaderFile, &parammap);
     
 
     osg::ref_ptr<osg::Texture1D> texture = new osg::Texture1D{};
@@ -40,4 +41,14 @@ opencover::coVRShader *applyShader(osg::Geode *geode, osg::Drawable *drawable, c
     shader->setFloatUniform("rangeMax", max);
     shader->apply(geode, drawable);
     return shader;
+}
+
+opencover::coVRShader *applyPointShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+{
+    return applyShader(geode, drawable, colorMap, min, max, "OctPoints");
+
+}
+opencover::coVRShader *applySurfaceShader(osg::Geode *geode, osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+{
+    return applyShader(geode, drawable, colorMap, min, max, "MapColorsAttrib");
 }
