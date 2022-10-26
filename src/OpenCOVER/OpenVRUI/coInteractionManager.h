@@ -38,18 +38,18 @@ public:
 
     static coInteractionManager *the();
 	void resetLocks(int id);
-	void doRemoteLock(int groupId);
-	void doRemoteUnLock(int groupId);
+	void doRemoteLock();
+	void doRemoteUnLock();
 	bool isNaviagationBlockedByme();
 private:
     // list of registered interactions
     std::list<coInteraction *> interactionStack[coInteraction::NumInteractorTypes];
     // list of active but unregistered interactions
     std::list<coInteraction *> activeUnregisteredInteractions[coInteraction::NumInteractorTypes];
-	//store the client id that locked a interaction group. -1 if not locked
-	std::map<int, std::unique_ptr<vrb::SharedState<int>>> remoteLocks;
-	//setup SharedState for this group
-	void initializeRemoteLock(int group);
+	//store the client id that locked a interaction. -1 if not locked
+	vrb::SharedState<int> interactionLock;
+	//setup SharedState lock for interactors
+	void initializeRemoteLock();
 	
 protected:
     static coInteractionManager *im;

@@ -60,7 +60,8 @@ void coInteraction::pause()
 {
     DEBUG_OUTPUT("coInteraction::pause");
     state = Paused;
-	coInteractionManager::the()->doRemoteUnLock(group);
+    if(group == GroupNavigation)
+	    coInteractionManager::the()->doRemoteUnLock();
 }
 
 void coInteraction::requestActivation()
@@ -85,7 +86,8 @@ void coInteraction::cancelInteraction()
     if (state == Active || state == Paused || state == ActiveNotify)
     {
         state = Idle;
-		coInteractionManager::the()->doRemoteUnLock(group);
+        if(group == GroupNavigation)
+		    coInteractionManager::the()->doRemoteUnLock();
     }
 }
 
@@ -105,20 +107,19 @@ bool coInteraction::activate()
         {
 			return false;
         }
-        else if (group != GroupNonexclusive && coInteractionManager::the()->isOneActive(group))
+        else if (group == GroupNavigation)
         {
-			cerr << "interaction " << name << " of group " << group << " is remote blocked" << std::endl;
-			return false;
+			if(coInteractionManager::the()->isOneActive(group))
+			    return false;
+            else{
+                state = Active;
+                coInteractionManager::the()->doRemoteLock();
+                return true;
+            }
         }
 		else if (isNotifyOnly())
 		{
 			state = ActiveNotify;
-			return true;
-		}
-		else
-		{
-			state = Active;
-			coInteractionManager::the()->doRemoteLock(group);
 			return true;
 		}
     }
@@ -195,14 +196,13 @@ coInteraction::InteractionState coInteraction::getState()
 
 void coInteraction::setState(InteractionState s)
 {
-	if (state == InteractionState::Idle && s != InteractionState::Idle)
-	{
-		coInteractionManager::the()->doRemoteLock(group);
-	}
-	else
-	{
-		coInteractionManager::the()->doRemoteUnLock(group);
-	}
+	if(group == InteractionGroup::GroupNavigation)
+    {
+        if (state == InteractionState::Idle && s != InteractionState::Idle)
+            coInteractionManager::the()->doRemoteLock();
+        else
+            coInteractionManager::the()->doRemoteUnLock();
+    }
 	state = s;
 }
 }

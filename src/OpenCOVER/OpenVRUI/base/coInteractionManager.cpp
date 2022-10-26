@@ -20,7 +20,9 @@ namespace vrui
 coInteractionManager *coInteractionManager::im = 0;
 
 coInteractionManager::coInteractionManager()
+:interactionLock("coInteractionManager_remoteLock", -1, vrb::USE_COUPLING_MODE)
 {
+    initializeRemoteLock();
     assert(!im);
     im = this;
 }
@@ -41,15 +43,8 @@ coInteractionManager *coInteractionManager::the()
 
 void coInteractionManager::resetLocks(int id)
 {
-	auto it = remoteLocks.begin();
-	while (it != remoteLocks.end())
-	{
-		if (it->first == id)
-		{
-			*(it->second) = -1;
-		}
-		++it;
-	}
+    if(interactionLock.value() == id)
+        interactionLock = -1;
 }
 
 bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
@@ -72,12 +67,16 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
 
 bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
 {
-	int lockID = remoteLocks[group]->value();
-	if (vruiRendererInterface::the()->isRemoteBlockNececcary() && lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
-	{
-        cerr << "interaction " << " of group " << group << " is remotely blocked" << std::endl;
-        return true;
-	}
+	if(group == coInteraction::InteractionGroup::GroupNavigation)
+    {
+
+        int lockID = interactionLock.value();
+        if (vruiRendererInterface::the()->isRemoteBlockNececcary() && lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
+        {
+            cerr << "interaction is remotely blocked by " << lockID << std::endl;
+            return true;
+        }
+    }
 	for (int type = coInteraction::ButtonA; type < coInteraction::NumInteractorTypes; ++type)
     {
         // the high priority elements are at the end of the list
@@ -177,11 +176,6 @@ bool coInteractionManager::update()
     return change;
 }
 
-void coInteractionManager::registerGroup(int group)
-{
-	initializeRemoteLock(group);
-}
-
 void coInteractionManager::registerInteraction(coInteraction *interaction)
 {
 
@@ -189,8 +183,6 @@ void coInteractionManager::registerInteraction(coInteraction *interaction)
 
     if (interaction->registered)
         return; // this interaction is already registered
-
-	initializeRemoteLock(interaction->getGroup());
 
     coInteraction::InteractionType type = interaction->getType();
 
@@ -316,51 +308,45 @@ void coInteractionManager::unregisterInteraction(coInteraction *interaction)
     }
 }
 
-void coInteractionManager::doRemoteLock(int groupId)
+void coInteractionManager::doRemoteLock()
 {
-	auto it = remoteLocks.find(groupId);
-	if ((*it->second).value() < 0)
-		*(it->second) = vruiRendererInterface::the()->getClientId();
+	if(interactionLock.value() < 0)
+        interactionLock =  vruiRendererInterface::the()->getClientId();
 }
 
-void coInteractionManager::doRemoteUnLock(int groupId)
+void coInteractionManager::doRemoteUnLock()
 {
-	auto it = remoteLocks.find(groupId);
-	if ((*it->second).value() == vruiRendererInterface::the()->getClientId())
-		*(it->second) = -1;
+	if(interactionLock.value() < vruiRendererInterface::the()->getClientId())
+        interactionLock =  -1;
 }
 bool coInteractionManager::isNaviagationBlockedByme()
 {
-	return remoteLocks[1]->value() == vruiRendererInterface::the()->getClientId();
+	return interactionLock.value() == vruiRendererInterface::the()->getClientId();
 }
-void coInteractionManager::initializeRemoteLock(int group)
+void coInteractionManager::initializeRemoteLock()
 {
-	auto it = remoteLocks.find(group);
-	if (it == remoteLocks.end())
-	{
-		it = remoteLocks.emplace(group, std::unique_ptr<vrb::SharedState<int>>(new vrb::SharedState<int>(("coInteractionManager_remoteLock_" + std::to_string(group)), -1, vrb::USE_COUPLING_MODE))).first;
-	}
-	it->second->setUpdateFunction([this, group]() {
+
+	interactionLock.setUpdateFunction([this]() {
 		for (int i = 0; i < coInteraction::NumInteractorTypes; ++i)
 		{
 			for (list<coInteraction*>::reverse_iterator interaction = interactionStack[i].rbegin();
 				interaction != interactionStack[i].rend();
 				++interaction)
 			{
-				if (vruiRendererInterface::the()->isRemoteBlockNececcary() &&(*interaction)->getGroup() == group)
+				if (vruiRendererInterface::the()->isRemoteBlockNececcary())
 				{
 					(*interaction)->cancelInteraction();
 					(*interaction)->pause();
 				}
 			}
 		}
-		if (remoteLocks[group]->value() > 0)
+		if (interactionLock.value() > 0 && interactionLock.value() != vruiRendererInterface::the()->getClientId())
 		{
-			std::cerr << "Lock " << group << " locked by client " << remoteLocks[group]->value() << std::endl;
+			std::cerr << "Interaction locked by client " << interactionLock.value() << std::endl;
 		}
 		else
 		{
-			std::cerr << "Lock " << group << " unlocked" << std::endl;
+			std::cerr << "Interaction unlocked" << std::endl;
 		}
 		});
 }
