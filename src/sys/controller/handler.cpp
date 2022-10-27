@@ -115,7 +115,7 @@ void preventBrokenPipe()
 
 #else
 
-    coSignalHandler emptyHandler;
+    static coSignalHandler emptyHandler;
     coSignal::addSignal(SIGPIPE, emptyHandler);
 
 #endif
@@ -158,7 +158,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     initDummyMessage();
 
     // signal(SIGTERM, sigHandlerQuit );
-    sigQuitHandler quitHandler(m_hostManager);
+    static sigQuitHandler quitHandler(m_hostManager);
     coSignal::addSignal(SIGTERM, quitHandler);
 
     parseCommandLine(argc, argv);
@@ -180,6 +180,11 @@ CTRLHandler *CTRLHandler::instance()
 {
     assert(singleton);
     return singleton;
+}
+
+CTRLHandler::~CTRLHandler()
+{
+    coSignal::blockAllSignals();
 }
 
 NumRunning &CTRLHandler::numRunning()

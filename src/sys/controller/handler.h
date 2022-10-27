@@ -47,6 +47,7 @@ public:
     };
 
     CTRLHandler(int argc, char **argv);
+    ~CTRLHandler();
     static CTRLHandler *instance();
 
     NumRunning &numRunning();
