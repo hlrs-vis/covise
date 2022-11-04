@@ -131,6 +131,9 @@ julidochromis   OpenSUSE 13.2 on x86_64
 cyprichromis    OpenSUSE Leap 42.2 on x86_64
 tangachromis    openSUSE Leap 15.1
 altolamprologus openSUSE Leap 15.2
+leap153         openSUSE Leap 15.3
+leap154         openSUSE Leap 15.4
+chalinochromis  openSUSE Tumbleweed
 
 sarge           Debian Linux 3.1 (Sarge) with updates on ia32
 etch32          Debian Linux 4.0 (Etch) with updates on ia32
