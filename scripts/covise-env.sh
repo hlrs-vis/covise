@@ -88,7 +88,7 @@ if [ -z "$COENVERROR" ]; then
    primlibdir=lib
    scndlibdir=lib64
    case "${ARCHSUFFIX%opt}" in
-      linux64|amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba|cyprichromis|tangachromis|altolamprologus)
+      linux64|amd64|x64|bishorn|fujisan|monshuygens|lycaeus|maunaloa|gorely|leonidas|constantine|goddard|laughlin|lovelock|verne|rhel3|rhel4|rhel5|rhel51|rhel52|rhel53|rhel6|rhel7|leguan|waran|basilisk|iguana|tuatara|mabuya|drusenkopf|lipinia|slowworm|neolamprologus|saara|julidochromis|indicus|mamba|cyprichromis|tangachromis|altolamprologus|leap153|leap154|chalinochromis)
          primlibdir=lib64
          scndlibdir=lib
          ;;

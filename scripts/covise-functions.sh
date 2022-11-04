@@ -199,6 +199,10 @@ guess_archsuffix() {
                    export ARCHSUFFIX=tangachromis
                elif grep -i -q -s 'suse.*15.2' /etc/os-release; then
                    export ARCHSUFFIX=altolamprologus
+               elif grep -i -q -s 'suse.*15.4' /etc/os-release; then
+                   export ARCHSUFFIX=leap154
+               elif grep -i -q -s 'suse.*15.3' /etc/os-release; then
+                   export ARCHSUFFIX=leap153
                elif grep -i -q -s 'suse.*13.2' /etc/issue; then
                    export ARCHSUFFIX=julidochromis
                elif grep -i -q -s 'suse.*10.3' /etc/issue; then
@@ -213,6 +217,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=waran
                elif grep -i -q -s 'suse.*9.3' /etc/issue; then
                    export ARCHSUFFIX=leguan
+               elif grep -i -q -s 'suse.*tumbleweed' /etc/os-release; then
+                   export ARCHSUFFIX=chalinochromis
                elif grep -i -q -s 'ubuntu.*10\.04' /etc/issue; then
                    export ARCHSUFFIX=lynx
                elif grep -i -q -s 'ubuntu.*10\.10' /etc/issue; then
