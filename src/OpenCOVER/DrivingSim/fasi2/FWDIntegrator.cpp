@@ -1181,7 +1181,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	outputAccelerationState.engineRPM = omegaEngineDot;
 	
 	//steering column torque 
-	outputAccelerationState.TcolumnCombined = -TsFL - TsFR + TBDFL1 + TBDFL2 + TBDFL3 + TBDFL1 + TBDFR2 + TBDFL3;
+	outputAccelerationState.TcolumnCombined = -TsFL - TsFR + TBDFL1 + TBDFL2 + TBDFL3 + TBDFR1 + TBDFR2 + TBDFR3;
+        std::cerr << "TsFL " << TsFL << " TsFR " << TsFR << " TBDFL1 " << TBDFL1 << " TBDFL2 " << TBDFL2 << " TBDFL3 " << TBDFL3 << " TBDFR1 " <<  TBDFR1 << " TBDFR2 " << TBDFR2 << " TBDFR3 " << TBDFR3 << std::endl;
 	
 	//clutch torques
 	outputAccelerationState.Tclutch = Tclutch;
