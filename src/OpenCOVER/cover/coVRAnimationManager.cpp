@@ -146,7 +146,7 @@ void coVRAnimationManager::initAnimMenu()
     animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
-        requestAnimationFrame(getAnimationFrame() + 1);
+        requestAnimationFrame(getAnimationFrame() + 1 * aniSkip);
     });
     animForwardItem->setPriority(ui::Element::Toolbar);
     animForwardItem->setIcon("media-seek-forward");
