@@ -390,7 +390,8 @@ osg::Matrix Flux2::getMatrix() {
     osg::Vec3d newY =
         front.getWorldIntersectPoint() - back.getWorldIntersectPoint();
     newY.normalize();
-    osg::Vec3d newX = newY ^ frontNormal;
+    //osg::Vec3d newX = newY ^ frontNormal;
+    osg::Vec3d newX = newY ^ osg::Vec3(0,0,1);
     newX.normalize();
     osg::Vec3d newZ = newX ^ newY;
 
