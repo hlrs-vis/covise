@@ -836,6 +836,7 @@ void FourWheelDynamicsRealtime2::run()
 			carState.wheelAngleZFR = carState.posWheelRightNeutral + carState.toeFR;
 			carState.posWheelCombined = (carState.posWheelLeftNeutral + carState.posWheelRightNeutral) / 2;
 			carState.deltaWheel = carState.posWheelLeftNeutral - carState.posWheelRightNeutral;
+                        std::cerr << "carState.posWheelLeftNeutral:" << carState.posWheelLeftNeutral << " carState.posWheelRightNeutral" << carState.posWheelRightNeutral << " carState.deltaWheel: " << carState.deltaWheel << std::endl;
 			
 			speedState.OmegaZFL = carState.vSteeringWheel * carState.steeringRatio;
 			speedState.OmegaZFR = carState.vSteeringWheel * carState.steeringRatio;
@@ -1059,6 +1060,7 @@ void FourWheelDynamicsRealtime2::run()
 			initialPos.phiDotRL3 = carState.phiRL3;
 			
 			//first integration
+			std::cerr << "1st" << std::endl;
 			FWDState K1Acc = integrator.integrate(initialSpeeds, initialPos, carState, h);
 			
 			FWDState K1Pos = initialSpeeds * (h / 2.0);
@@ -1100,6 +1102,7 @@ void FourWheelDynamicsRealtime2::run()
 			K1Speed.phiDotRL3 = K1Acc.phiDotRL3;
 			
 			//second integration
+			std::cerr << "2nd" << std::endl;
 			FWDState K2Acc = integrator.integrate(K1Speed, K1Pos, carState, h);
 			
 			FWDState K2Pos = initialPos + K1Speed * (h / 2.0);
@@ -1140,6 +1143,7 @@ void FourWheelDynamicsRealtime2::run()
 			K2Speed.phiDotRL2 = K2Acc.phiDotRL2;
 			K2Speed.phiDotRL3 = K2Acc.phiDotRL3;
 			
+			std::cerr << "3rd" << std::endl;
 			//third integration
 			FWDState K3Acc = integrator.integrate(K2Speed, K2Pos, carState, h);
 			
@@ -1182,6 +1186,7 @@ void FourWheelDynamicsRealtime2::run()
 			K3Speed.phiDotRL3 = K3Acc.phiDotRL3;
 			
 			//fourth integration
+			std::cerr << "4th" << std::endl;
 			FWDState K4Acc = integrator.integrate(K3Speed, K3Pos, carState, h);
 			
 			//currentTicks = (double) rt_timer_read();
@@ -1191,6 +1196,7 @@ void FourWheelDynamicsRealtime2::run()
 			double angle = (K1Acc.vYaw + K2Acc.vYaw * 2.0 + K3Acc.vYaw * 2.0 + K4Acc.vYaw) * (h / 6.0);
 			
 			speedState.TcolumnCombined = (K1Acc.TcolumnCombined + 2.0 * K2Acc.TcolumnCombined + 2.0 * K3Acc.TcolumnCombined + K4Acc.TcolumnCombined) / 6.0;
+                        std::cerr << "K1Acc.TcolumnCombine: " << K1Acc.TcolumnCombined << " K2Acc.TcolumnCombined" << K2Acc.TcolumnCombined << "K3Acc.TcolumnCombined " << K3Acc.TcolumnCombined << "K4Acc.TcolumnCombined" << K4Acc.TcolumnCombined << std::endl;
 			speedState.slipFL = (K1Acc.slipFL + 2.0 * K2Acc.slipFL + 2.0 * K3Acc.slipFL + K4Acc.slipFL) / 6.0;
 			speedState.slipFR = (K1Acc.slipFR + 2.0 * K2Acc.slipFR + 2.0 * K3Acc.slipFR + K4Acc.slipFR) / 6.0;
 			speedState.slipRR = (K1Acc.slipRR + 2.0 * K2Acc.slipRR + 2.0 * K3Acc.slipRR + K4Acc.slipRR) / 6.0;
