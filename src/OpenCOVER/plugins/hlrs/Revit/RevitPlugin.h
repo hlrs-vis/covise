@@ -334,7 +334,8 @@ class PhaseInfo
 public:
     std::string PhaseName;
     int ID=0;
-    ui::Button* button;
+    ui::Button* button=nullptr;
+    ~PhaseInfo();
 };
 
 class DoorInfo

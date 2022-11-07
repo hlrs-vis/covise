@@ -27,6 +27,7 @@
   </System>
   <COVER>
   
+    <Font value="Almarai-Regular.ttf" />
     <EnvMapMode value="NONE" />
     <UseDisplayLists value="false" />
     <UseVertexBufferObjects value="false" />

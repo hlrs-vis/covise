@@ -2094,7 +2094,7 @@ RevitPlugin::handleMessage(Message *m)
 		activeDoors.clear();
 		for (const auto& pi: phaseInfos)
 		{
-			delete pi->button;
+			delete pi;
 		}
 		phaseInfos.clear();
 		for (const auto &set: designOptionSets)
@@ -2152,7 +2152,9 @@ RevitPlugin::handleMessage(Message *m)
 				}
 			}
 			if(pi)
+			{
 			    phaseInfos.push_back(pi);
+			}
 		}
 
 		if (VrmlNodePhases::instance())
@@ -2557,6 +2559,8 @@ RevitPlugin::handleMessage(Message *m)
 
 		bool isHandle = false;
 		bool doWalk;
+		if (m->data.getLength() == 0)
+			return;
 		tb >> ID;
 		tb >> docID;
 		if (docID >= ElementIDMap.size())
@@ -3099,6 +3103,10 @@ RevitPlugin::handleMessage(Message *m)
 			break;
 		}
 	}
+}
+PhaseInfo::~PhaseInfo()
+{
+	delete button;
 }
 
 void RevitPlugin::setPhase(std::string phaseName)

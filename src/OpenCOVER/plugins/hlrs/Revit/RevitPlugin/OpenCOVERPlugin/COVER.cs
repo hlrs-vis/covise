@@ -3015,19 +3015,47 @@ namespace OpenCOVERPlugin
                         mb.add(elem.GetTypeId().IntegerValue);
                         mb.add(elem.Category.Name);
                         int flip = 0;
-                        if(fi.CanFlipFacing)
-                            flip = 1;
-                        if(fi.CanFlipHand)
-                            flip += 2;
+                        if(fi!=null)
+                        {
+                            if (fi.CanFlipFacing)
+                                flip = 1;
+                            if (fi.CanFlipHand)
+                                flip += 2;
+                        }
                         mb.add(flip);
                         mb.add(elem.GetValidTypes().Count);
                         foreach (ElementId elemTypeID in elem.GetValidTypes())
                         {
                             Autodesk.Revit.DB.Element elemType = selectedDoc.GetElement(elemTypeID);
                             Autodesk.Revit.DB.FamilySymbol fs = elemType as Autodesk.Revit.DB.FamilySymbol;
-                            mb.add(fs.Name);
+                            Autodesk.Revit.DB.WallType wt = elemType as Autodesk.Revit.DB.WallType;
+                            Autodesk.Revit.DB.FloorType ft = elemType as Autodesk.Revit.DB.FloorType;
+                            Autodesk.Revit.DB.CeilingType ct = elemType as Autodesk.Revit.DB.CeilingType;
+                            string typeName = "unknownType";
+                            string FamilyName = "unknownFamilyType";
+                            if (fs != null)
+                            {
+                                typeName = fs.Name;
+                                FamilyName = fs.FamilyName;
+                            }
+                            else if (wt != null)
+                            {
+                                typeName = wt.Name;
+                                FamilyName = wt.FamilyName;
+                            }
+                            else if (ct != null)
+                            {
+                                typeName = ct.Name;
+                                FamilyName = ct.FamilyName;
+                            }
+                            else if (ft != null)
+                            {
+                                typeName=ft.Name;
+                                FamilyName=ft.FamilyName;
+                            }
+                            mb.add(typeName);
                             mb.add(elemTypeID.IntegerValue);
-                            mb.add(fs.Family.Name);
+                            mb.add(FamilyName);
                         }
                         sendMessage(mb.buf, MessageTypes.ObjectInfo);
                     }
