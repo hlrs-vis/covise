@@ -238,7 +238,7 @@
 
      <Lights value="ON" />
      <Audio value="AServer" >
-      <!--Host value="141.58.8.223" /-->
+      <Host value="141.58.8.223" />
      </Audio>
 
 
@@ -585,7 +585,8 @@
    <PorscheHupe value="/dev/input/porschehupe" />
    <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />
    <CAN value="OFF" port="1" speed="1000" nodeID="1" origin="0.0" />
-   <CarSound host="192.168.0.88" port="31804"/>
+   <CarSound host="192.168.0.233" port="31804"/>
+   <!--CarSound host="192.168.0.88" port="31804"/-->
    <!--CarSound host="141.58.8.110" port="31804"/-->
    <!--CarSound host="141.58.8.32" port="31804"/-->
    <!--InputDevice value="PORSCHE_SIM"/-->
