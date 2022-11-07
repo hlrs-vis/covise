@@ -23,7 +23,7 @@ namespace OpenCOVERPlugin
         public byte[] buf;
         int currentPos;
         bool typeInfo = true;
-        System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+        System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
         public MessageBuffer()
         {
             currentPos = 1;

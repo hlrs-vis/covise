@@ -1514,7 +1514,7 @@ std::string coVRFileManager::getFontFile(const char *fontname)
     }
     else
     {
-        fontFile += coCoviseConfig::getEntry("value", "COVER.Font", "DroidSansFallbackFull.ttf");
+        fontFile += coCoviseConfig::getEntry("value", "COVER.Font", "Mostra-Nuova-AltD-W00-Regular.ttf");
     }
     fontFile = getName(fontFile.c_str());
     return fontFile;
