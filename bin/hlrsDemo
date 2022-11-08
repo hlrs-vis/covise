@@ -67,7 +67,7 @@ demo 4 "SWA Augsburg (Variante)" run_swa_var
 category="CFD"
 demo 11 "Audi" covise /data/covise_net/2009/Audi_Bilder.net
 demo 12 "Forbach" covise /data/enbw/2015/out/LaermFinal.net
-demo 13 "Kiebingen" covise /data/covise_net/2006/kiebingen_viscluster_fischeNeu.net
+demo 13 "Forbach-Dammbruch" covise /data/enbw/2015/out/LaermFinalDambreak.net
 demo 14 "Axialzyklon" covise /data/IET/AXIALZYKLON/130424_ML_Axialcyclone_Steady.net
 run_archflow() {
     cd /home/covise/covise/net
@@ -247,6 +247,7 @@ fasi_nuerburg() {
 }
 demo 90 "start FaSi: Nuerburgring" fasi_nuerburg
 demo 91 "start COVER: Nuerburgring" cover /data/porsche/nr/nr11.xodr 
+demo 92 "Kiebingen" covise /data/covise_net/2006/kiebingen_viscluster_fischeNeu.net
 
 run_glider() {
     echo -e "Starting Paraglider Flightsim Ctrl-P Ctrl-U in flightgear Ctrl-r in Opencover"
