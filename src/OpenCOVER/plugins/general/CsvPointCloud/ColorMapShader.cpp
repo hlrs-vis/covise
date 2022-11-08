@@ -39,7 +39,8 @@ opencover::coVRShader *applyShader(osg::Geode *geode, osg::Drawable *drawable, c
     state->setTextureAttribute(TfTexUnit, texture, osg::StateAttribute::ON);
     shader->setFloatUniform("rangeMin", min);
     shader->setFloatUniform("rangeMax", max);
-    shader->apply(geode, drawable);
+    shader->apply(state);
+    drawable->setStateSet(state);
     return shader;
 }
 

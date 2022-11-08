@@ -10,20 +10,22 @@
 #include "ColorMapShader.h"
 #include "CsvPointCloud.h"
 #include "RenderObject.h"
+#include "SurfacePrimitiveSet.h"
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <config/CoviseConfig.h>
 #include <util/string_util.h>
 
+#include <cover/VRSceneGraph.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRConfig.h>
-#include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRShader.h>
 #include <cover/coVRTui.h>
 #include <osg/AlphaFunc>
+#include <osg/Material>
 #include <osg/Point>
 #include <osg/PointSprite>
 #include <osg/TemplatePrimitiveFunctor>
@@ -31,7 +33,6 @@
 #include <osg/TexEnv>
 #include <osg/TexGen>
 #include <osg/io_utils>
-#include <osg/Material>
 
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeTransform.h>
@@ -45,9 +46,8 @@ using namespace covise;
 using namespace opencover;
 using namespace vrml;
 
-static FileHandler handler[] = {{nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "csv"}, {nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "oct"}};
 
-size_t numPointsPerCycle = 200;
+
 
 CsvPointCloudPlugin *CsvPointCloudPlugin::m_plugin = nullptr;
 
@@ -139,13 +139,14 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_colorMapSelector(*m_CsvPointCloudMenu)
     , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
     , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriterium"))
-    , m_numPontesPerCycle(new ui::EditField(m_CsvPointCloudMenu, "NumPointsInCycle"))
+    , m_numPontesPerCycle(new ui::EditField(m_CsvPointCloudMenu, "NumPointsPerCycle"))
     , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
     , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
     , m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria, m_numPontesPerCycle}
     , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
+
     m_showSurfaceBtn->setState(false);
     m_showSurfaceBtn->setCallback([this](bool state)
                                   { setTimestep(m_lastTimestep); });
@@ -163,10 +164,9 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_pointSizeSlider->setValue(4);
     m_pointSizeSlider->setCallback([this](ui::Slider::ValueType val, bool release)
                                    {
-                                      if (m_pointCloud)
-                                          dynamic_cast<Point *>(m_pointCloud->getStateSet()->getAttribute(StateAttribute::Type::POINT))->setSize(val);
-                                      if (m_reducedPointCloud)
-                                          dynamic_cast<Point*>(m_reducedPointCloud->getStateSet()->getAttribute(StateAttribute::Type::POINT))->setSize(val); });
+                                      if (m_points)
+                                          static_cast<Point *>(m_points->getStateSet()->getAttribute(StateAttribute::Type::POINT))->setSize(val);
+                                    });
     m_pointSizeSlider->setShared(true);
 
     m_numPointsSlider->setShared(true);
@@ -212,6 +212,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     for (auto ef : m_editFields)
         ef->setVisible(false);
     m_applyBtn->setVisible(false);
+    m_advancedBtn->setState(false);
 }
 
 std::string CsvPointCloudPlugin::updateDataSelector(const std::string& term)
@@ -250,12 +251,10 @@ void CsvPointCloudPlugin::loadData(const std::string& term)
         m_colorInteractor->setName(term);
         auto colors = getScalarData(*m_dataTable, term);
 
-        if (m_pointCloud)
-            m_pointCloud->setVertexAttribArray(DataAttrib, colors.other);
-        if (m_reducedPointCloud)
-            m_reducedPointCloud->setVertexAttribArray(DataAttrib, colors.reduced);
-        if(m_surface)
-            m_surface->setVertexAttribArray(DataAttrib, colors.all);
+        if (m_points)
+            m_points->setVertexAttribArray(DataAttrib, colors.data);
+        if (m_surface)
+            m_surface->setVertexAttribArray(DataAttrib, colors.data);
 
         updateColorMap();
     }
@@ -273,8 +272,11 @@ bool CsvPointCloudPlugin::init()
     m_plugin = this;
     m_pointSizeSlider->setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
 
-    coVRFileManager::instance()->registerFileHandler(&handler[0]);
-    coVRFileManager::instance()->registerFileHandler(&handler[1]);
+    m_handler[0] = FileHandler{nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "csv"};
+    m_handler[1] = FileHandler{ nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "oct"};
+
+    coVRFileManager::instance()->registerFileHandler(&m_handler[0]);
+    coVRFileManager::instance()->registerFileHandler(&m_handler[1]);
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
     return true;
 }
@@ -282,8 +284,8 @@ bool CsvPointCloudPlugin::init()
 CsvPointCloudPlugin::~CsvPointCloudPlugin()
 {
 
-    coVRFileManager::instance()->unregisterFileHandler(&handler[0]);
-    coVRFileManager::instance()->unregisterFileHandler(&handler[1]);
+    coVRFileManager::instance()->unregisterFileHandler(&m_handler[0]);
+    coVRFileManager::instance()->unregisterFileHandler(&m_handler[1]);
     opencover::coVRPluginList::instance()->removeObject(renderObject.getName(), false);
     for (auto ef : m_editFields)
         ef->setVisible(true);
@@ -295,6 +297,7 @@ int CsvPointCloudPlugin::load(const char *filename, Group *loadParent, const cha
 {
     MatrixTransform *t = new MatrixTransform;
     Group *g = new Group;
+    g->setNodeMask(g->getNodeMask() & ~Isect::Intersection & ~Isect::Pick);
     loadParent->addChild(t);
     t->addChild(g);
     if (filename)
@@ -312,15 +315,26 @@ int CsvPointCloudPlugin::unload(const char *filename, const char *covise_key)
     return m_plugin->unloadFile(filename);
 }
 
-void setStateSet(Geometry *geo, float pointSize)
+void setDefaultMaterial(StateSet *geoState)
 {
-    // after test move stateset higher up in the tree
-    auto *stateset = new StateSet();
-    // stateset->setMode(GL_PROGRAM_POINT_SIZE_EXT, StateAttribute::ON);
-    stateset->setMode(GL_LIGHTING, StateAttribute::OFF);
-    stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
-    stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
-    stateset->setMode(GL_BLEND, StateAttribute::OFF);
+
+    geoState->setNestRenderBins(false);
+
+    ref_ptr<Material> globalmtl = new Material;
+    globalmtl->setColorMode(Material::AMBIENT_AND_DIFFUSE);
+    globalmtl->setAmbient(Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    globalmtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(0.8f, 0.8f, 0.8f, 1.0));
+    globalmtl->setSpecular(Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    globalmtl->setEmission(Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    globalmtl->setShininess(Material::FRONT_AND_BACK, 5.0f);
+
+    geoState->setAttributeAndModes(globalmtl.get(), StateAttribute::ON);
+
+}
+
+void applyPointState(StateSet *stateset, int pointSize)
+{
+
     AlphaFunc *alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
     stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
 
@@ -330,7 +344,7 @@ void setStateSet(Geometry *geo, float pointSize)
 
     PointSprite *sprite = new PointSprite();
     stateset->setTextureAttributeAndModes(0, sprite, StateAttribute::ON);
-
+    stateset->setMode(GL_POINT_SMOOTH, osg::StateAttribute::ON);
     const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
     if (mapName != NULL)
     {
@@ -348,8 +362,8 @@ void setStateSet(Geometry *geo, float pointSize)
 
         ref_ptr<TexGen> texGen = new TexGen();
         stateset->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::OFF);
+        std::cerr << "read image file " << mapName << std::endl;
     }
-    geo->setStateSet(stateset);
 }
 
 bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr)
@@ -451,12 +465,11 @@ float parseScale(const std::string &scale)
 void CsvPointCloudPlugin::updateColorMap()
 {
     auto cm = m_colorInteractor->getColorMap();
-    if (m_pointCloud)
-        applyPointShader(m_currentGeode, m_pointCloud, cm, m_minColor, m_maxColor);
-    if (m_reducedPointCloud)
-        applyPointShader(m_currentGeode, m_reducedPointCloud, cm, m_minColor, m_maxColor);
-    if(m_surface)
+    if (m_points)
+        applyPointShader(m_currentGeode, m_points, cm, m_minColor, m_maxColor);
+    if (m_surface)
         applySurfaceShader(m_currentGeode, m_surface, cm, m_minColor, m_maxColor);
+
     opencover::coVRPluginList::instance()->removeObject("CsvPointCloud4", false);
     opencover::coVRPluginList::instance()->newInteractor(&renderObject, m_colorInteractor);
 }
@@ -475,12 +488,8 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
         futures.push_back(std::async(std::launch::async, [this, symbols, &term,  begin, end]()
                                      {
                                         ScalarData data;
-                                        data.other = new FloatArray();
-                                        data.reduced = new FloatArray();
-                                        data.all = new FloatArray();
-                                        data.other->setBinding(Array::BIND_PER_VERTEX);
-                                        data.reduced->setBinding(Array::BIND_PER_VERTEX);
-                                        data.all->setBinding(Array::BIND_PER_VERTEX);
+                                        data.data = new FloatArray();
+                                        data.data->setBinding(Array::BIND_PER_VERTEX);
                                         std::array<float, 3> currentMachineSpeed;
                                         resetMachineSpeed(currentMachineSpeed);
                                         auto symbolsFragment = symbols;
@@ -494,8 +503,7 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
                                         for (size_t i = begin; i < end; i++)
                                         {
                                             auto scalar = colorExporession().value();
-                                            reductionCriterium().value() ? data.reduced->push_back(scalar) : data.other->push_back(scalar);
-                                            data.all->push_back(scalar);
+                                            data.data->push_back(scalar);
                                             data.min = std::min(data.min, scalar);
                                             data.max = std::max(data.max, scalar);
                                             advanceMachineSpeed(currentMachineSpeed, i);
@@ -505,18 +513,12 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
                                     }));
     }
     ScalarData data;
-    data.other = new FloatArray();
-    data.reduced = new FloatArray();
-    data.all = new FloatArray();
-    data.other->setBinding(Array::BIND_PER_VERTEX);
-    data.reduced->setBinding(Array::BIND_PER_VERTEX);
-    data.all->setBinding(Array::BIND_PER_VERTEX);
+    data.data = new FloatArray();
+    data.data->setBinding(Array::BIND_PER_VERTEX);
     for (size_t i = 0; i < m_numThreads; i++)
     {
         auto dataFragment = futures[i].get();
-        data.other->insert(data.other->end(), dataFragment.other->begin(), dataFragment.other->end());
-        data.reduced->insert(data.reduced->end(), dataFragment.reduced->begin(), dataFragment.reduced->end());
-        data.all->insert(data.all->end(), dataFragment.all->begin(), dataFragment.all->end());
+        data.data->insert(data.data->end(), dataFragment.data->begin(), dataFragment.data->end());
         i == 0 ? data.min = dataFragment.min : data.min = std::min(data.min, dataFragment.min);
         i == 0 ? data.max = dataFragment.max : data.max = std::max(data.max, dataFragment.max);
     }
@@ -528,26 +530,21 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
     return data;
 }
 
-CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols)
+ref_ptr<Vec3Array> CsvPointCloudPlugin::getCoords(DataTable &symbols)
 {
     auto scale = parseScale(m_dataScale->value());
     size_t numColorsPerThread = symbols.size() / m_numThreads;
-    std::vector<std::future<std::pair<Coords, std::vector<size_t>>>> futures;
+    std::vector<std::future<std::pair<ref_ptr<Vec3Array>, std::vector<size_t>>>> futures;
     for (size_t i = 0; i < m_numThreads; i++)
     {
         auto begin = i * numColorsPerThread;
         auto end = i == m_numThreads - 1 ? symbols.size() : (i + 1) * numColorsPerThread;
         futures.push_back(std::async(std::launch::async, [this, symbols, scale, begin, end]()
                                      {
-            auto pair = std::make_pair<Coords, std::vector<size_t>>(Coords{}, std::vector<size_t>{});
+            auto pair = std::make_pair<ref_ptr<Vec3Array>, std::vector<size_t>>(new Vec3Array, std::vector<size_t>{});
             auto &reducedIndices = pair.second;
             auto &coords = pair.first;
-            coords.other = new Vec3Array();
-            coords.reduced = new Vec3Array();
-            coords.all = new Vec3Array();
-            coords.other->setBinding(Array::BIND_PER_VERTEX);
-            coords.reduced->setBinding(Array::BIND_PER_VERTEX);
-            coords.all->setBinding(Array::BIND_PER_VERTEX);
+            coords->setBinding(Array::BIND_PER_VERTEX);
             std::array<float, 3> currentMachineSpeed;
             resetMachineSpeed(currentMachineSpeed);
             auto symbolsFragment = symbols;
@@ -569,172 +566,116 @@ CsvPointCloudPlugin::Coords CsvPointCloudPlugin::getCoords(DataTable &symbols)
                 for (size_t j = 0; j < 3; j++)
                     coord[j] = coordExpressions[j]().value() * scale;
                 
-                if(reductionCriterium().value())
+                if (reductionCriterium().value())
                 {
-                    coords.reduced->push_back(coord);
                     reducedIndices.push_back(i);
-                } else
-                    coords.other->push_back(coord);
-                coords.all->push_back(coord);
+                } 
+                coords->push_back(coord);
                 advanceMachineSpeed(currentMachineSpeed, i);
                 symbolsFragment.setCurrentValues(i);
             }
             return pair; }));
     }
-    Coords coords;
-    coords.other = new Vec3Array();
-    coords.reduced = new Vec3Array();
-    coords.all = new Vec3Array();
-    coords.other->setBinding(Array::BIND_PER_VERTEX);
-    coords.reduced->setBinding(Array::BIND_PER_VERTEX);
-    coords.all->setBinding(Array::BIND_PER_VERTEX);
+    ref_ptr<Vec3Array> coords = new Vec3Array();
+    coords->setBinding(Array::BIND_PER_VERTEX);
     m_reducedIndices.clear();
     for (size_t i = 0; i < m_numThreads; i++)
     {
         auto coordsFragment = futures[i].get();
-        coords.other->insert(coords.other->end(), coordsFragment.first.other->begin(), coordsFragment.first.other->end());
-        coords.reduced->insert(coords.reduced->end(), coordsFragment.first.reduced->begin(), coordsFragment.first.reduced->end());
-        coords.all->insert(coords.all->end(), coordsFragment.first.all->begin(), coordsFragment.first.all->end());
+        coords->insert(coords->end(), coordsFragment.first->begin(), coordsFragment.first->end());
         m_reducedIndices.insert(m_reducedIndices.end(), coordsFragment.second.begin(), coordsFragment.second.end());
     }
     return coords;
 }
 
+constexpr unsigned int allPointsPrimitiveIndex = 0;
+constexpr unsigned int reducedPointsPrimitiveIndex = 1;
+
+Vec3 getNormal(const Vec3Array& vertices, size_t vertexIndex, size_t numPointsPerCycle)
+{
+    std::array<Vec3, 4> neigbors = {vertexIndex >= 1 ? vertices[vertexIndex - 1] : vertices[vertexIndex],
+                                    vertexIndex  + 1 < vertices.size() ? vertices[vertexIndex + 1] : vertices[vertexIndex],
+                                    vertexIndex + numPointsPerCycle < vertices.size() ? vertices[vertexIndex + numPointsPerCycle] : vertices[vertexIndex],
+                                    vertexIndex >= numPointsPerCycle ? vertices[vertexIndex - numPointsPerCycle] : vertices[vertexIndex]};
+    Vec3 normal;
+
+    for (size_t i = 0; i < neigbors.size(); i++)
+    {
+        auto last = i == 0 ? 3 : i - 1;
+        auto x = vertices[vertexIndex] - neigbors[i] ^ vertices[vertexIndex] - neigbors[last];
+        x.normalize();
+        normal += x;
+    }
+
+    return normal;
+}
+
+ref_ptr<Vec3Array> calculateNormals(ref_ptr<Vec3Array> &vertices, size_t numPointsPerCycle)
+{
+    ref_ptr<Vec3Array> normals = new Vec3Array;
+    
+    for (size_t i = 0; i < vertices->size() - numPointsPerCycle - 1; i++)
+        normals->push_back(getNormal(*vertices, i, numPointsPerCycle));
+    return normals;
+}
+
 void CsvPointCloudPlugin::createGeometries(DataTable &symbols)
 {
+    try
+    {
+        m_numPointsPerCycle = std::stoi(m_numPontesPerCycle->value());
+    }
+    catch(const std::exception& ){}
+    
     auto coords = getCoords(symbols);
     auto term = updateDataSelector(m_colorTerm->value());
     auto colors = getScalarData(symbols, term);
 
-    if (!colors.other || !colors.reduced || !coords.other || !coords.reduced)
+    if (!colors.data || !coords)
         return;
 
-    m_pointCloud = createOsgPoints(coords.other, colors.other);
-    m_reducedPointCloud = createOsgPoints(coords.reduced, colors.reduced);
-    m_surface = createOsgSurface(coords.all, colors.all);
+    auto normals = calculateNormals(coords, m_numPointsPerCycle);
+    ref_ptr<StateSet> stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
+    ref_ptr<StateSet> stateSet2 = VRSceneGraph::instance()->loadDefaultGeostate();
+
+    
+
+    applyPointState(stateSet, pointSize());
+    m_points = createOsgGeometry(coords, colors.data, normals, stateSet);
+
+    m_surface = createOsgGeometry(coords, colors.data, normals, stateSet2);
+
+    m_points->insertPrimitiveSet(allPointsPrimitiveIndex, new DrawArrays(PrimitiveSet::POINTS, 0, coords->size()));
+    ref_ptr<SurfacePrimitiveSet> primitives = new SurfacePrimitiveSet(osg::PrimitiveSet::POINTS);
+    primitives->insert(primitives->begin(), m_reducedIndices.begin(), m_reducedIndices.end());
+    m_points->insertPrimitiveSet(reducedPointsPrimitiveIndex, primitives);
+
+    primitives = new SurfacePrimitiveSet(osg::PrimitiveSet::QUADS);
+    
+    for (size_t i = 0; i < coords->size() - m_numPointsPerCycle - 1; i++)
+    {
+        primitives->push_back(i);
+        primitives->push_back(i + m_numPointsPerCycle);
+        primitives->push_back(i + m_numPointsPerCycle + 1);
+        primitives->push_back(i + 1);
+    }
+    primitives->setRange(0, primitives->getNumPrimitives());
+    m_surface->addPrimitiveSet(primitives);
 }
 
-osg::ref_ptr<osg::Geometry> CsvPointCloudPlugin::createOsgPoints(Vec3Array *points, FloatArray* colors)
+ref_ptr<Geometry> CsvPointCloudPlugin::createOsgGeometry(ref_ptr<Vec3Array> &vertices, ref_ptr<FloatArray> &colors, ref_ptr<Vec3Array>& normals, ref_ptr<StateSet> &state)
 {
-    // create geometry
-    osg::ref_ptr<osg::Geometry>  geo = new Geometry();
+   
+    osg::ref_ptr<osg::Geometry> geo = new Geometry();
+
+    geo->setVertexArray(vertices);
+    geo->setVertexAttribArray(DataAttrib, colors);
+    geo->setNormalArray(normals.get(), Array::BIND_PER_VERTEX);
     geo->setUseDisplayList(false);
     geo->setSupportsDisplayList(false);
     geo->setUseVertexBufferObjects(true);
-    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-
-    vertexBufferArray->setArray(0, points);
-    //vertexBufferArray->setArray(1, colors);
-    // bind color per vertex
-    geo->setVertexArray(points);
-    //geo->setColorArray(colors);
-    geo->setVertexAttribArray(DataAttrib, colors);
-    Vec3Array *normals = new Vec3Array;
-    normals->push_back(Vec3(0.0f, -1.0f, 0.0f));
-    geo->setNormalArray(normals, Array::BIND_OVERALL);
-    geo->addPrimitiveSet(new DrawArrays(PrimitiveSet::POINTS, 0, points->size()));
-
-    setStateSet(geo, pointSize());
-    geo->setPrimitiveSet(0, new DrawArrays(PrimitiveSet::POINTS));
+    geo->setStateSet(state);
     return geo;
-}
-
-void setDefaultMaterial(StateSet *geoState)
-{
-
-    geoState->setNestRenderBins(false);
-    if (cover->debugLevel(5))
-        cerr << "ViewerOsg::setDefaultMaterial\n";
-        ref_ptr<Material> globalmtl = new Material;
-        globalmtl->setColorMode(Material::AMBIENT_AND_DIFFUSE);
-        globalmtl->setAmbient(Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
-        globalmtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
-        globalmtl->setSpecular(Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
-        globalmtl->setEmission(Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
-        globalmtl->setShininess(Material::FRONT_AND_BACK, 16.0f);
-
-    geoState->setAttributeAndModes(globalmtl.get(), StateAttribute::ON);
-
-    if (cover->debugLevel(5))
-        cerr << "END ViewerOsg::setDefaultMaterial\n";
-}
-
-std::array<size_t, 4> getQuadVertexIndices(size_t quadIndex)
-{
-    constexpr size_t offset = 0;
-    return {quadIndex, quadIndex + numPointsPerCycle - offset, quadIndex + numPointsPerCycle + 1 - offset, quadIndex + 1};
-}
-
-Vec3 getNormal(const Vec3Array& vertices, size_t quadIndex)
-{
-    auto indices = getQuadVertexIndices(quadIndex);
-    Vec3 v1 = vertices[indices[0]] - vertices[indices[1]];
-    Vec3 v2 = vertices[indices[2]] - vertices[indices[3]];
-    return v1 ^ v2;  // cross product
-}
-
-osg::ref_ptr<osg::Geometry> CsvPointCloudPlugin::createOsgSurface(osg::Vec3Array* vertices, osg::FloatArray* colors)
-{
-
-    numPointsPerCycle = std::stoi(m_numPontesPerCycle->value());
-    osg::ref_ptr<osg::Geometry> quad = new Geometry();
-
-    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-    
-    for (size_t i = 0; i < vertices->size() - numPointsPerCycle - 1; i++)
-    {
-        auto currentNormal = getNormal(*vertices, i);
-
-        auto left = i < numPointsPerCycle ? currentNormal : getNormal(*vertices, i - numPointsPerCycle); 
-        auto right = getNormal(*vertices, i + numPointsPerCycle);
-        auto bottom = getNormal(*vertices, i + 1);
-        auto top =  i < 1  ? currentNormal : getNormal(*vertices, i - 1);
-        
-        normals->push_back((left + currentNormal) / 2); 
-        normals->push_back((right + currentNormal) / 2); 
-        normals->push_back((bottom + currentNormal) / 2); 
-        normals->push_back((top + currentNormal) / 2);
-
-    }
-    vertices->push_back((*vertices)[vertices->size() - 1]); //to be save at the end
-    quad->setVertexArray(vertices);
-
-    quad->setVertexAttribArray(DataAttrib, colors);
-    quad->setNormalArray(normals.get(), Array::BIND_PER_VERTEX);
-
-
-    // constexpr size_t numSections = 100;
-    // auto numVertsPerSection = std::floor(vertices->size() / numSections);
-    // for (size_t section = 0; section < numSections; section++)
-    // {
-    //     bool last = section == numSections - 1;
-    //     auto primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS);
-    //     for (size_t i = section * numVertsPerSection; i < (last ? vertices->size() - numPointsInCycle - 1 : (section + 1) * numVertsPerSection); i++)
-    //     {
-    //         auto currIndices = getQuadVertexIndices(i);
-    //         primitives->push_back(currIndices[0]);
-    //         primitives->push_back(currIndices[1]);
-    //         primitives->push_back(currIndices[2]);
-    //         primitives->push_back(currIndices[3]);
-    //     }
-    //     quad->addPrimitiveSet(primitives);
-    // }
-
-    quad->setUseDisplayList(false);
-    quad->setSupportsDisplayList(false);
-    quad->setUseVertexBufferObjects(true);
-    quad->addPrimitiveSet(new DrawElementsUInt(osg::PrimitiveSet::QUADS));
-
-    auto *stateset = new StateSet();
-    stateset->setMode(GL_LIGHTING, StateAttribute::ON);
-    stateset->setMode(GL_DEPTH_TEST, StateAttribute::ON);
-    stateset->setMode(GL_ALPHA_TEST, StateAttribute::ON);
-    stateset->setMode(GL_BLEND, StateAttribute::OFF);
-    stateset->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    setDefaultMaterial(stateset);
-
-    quad->setStateSet(stateset);
-    return quad;
 }
 
 std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &symbols)
@@ -816,11 +757,9 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
     m_currentGeode->setName(filename);
     parent->addChild(m_currentGeode);
 
-    if (m_pointCloud)
-        m_currentGeode->addDrawable(m_pointCloud.get());
-    if (m_reducedPointCloud)
-        m_currentGeode->addDrawable(m_reducedPointCloud.get());
-    if(m_surface)
+    if (m_points)
+        m_currentGeode->addDrawable(m_points.get());
+    if (m_surface)
         m_currentGeode->addDrawable(m_surface.get());
     updateColorMap();
 
@@ -835,57 +774,37 @@ void CsvPointCloudPlugin::addMachineSpeedSymbols(DataTable &symbols, std::array<
 
 void CsvPointCloudPlugin::setTimestep(int t)
 {
-    static size_t reducedPointsUntilTimestep = 0;
-    static size_t reducedPointsBetween = 0;
-    static size_t lastNumFullDrawnPoints = 0;
-    // show points until t
-
+    
     if (m_lastTimestep > t)
-    {
-        reducedPointsUntilTimestep = 0;
-        reducedPointsBetween = 0;
-    }
-    if (lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
-        reducedPointsBetween = 0;
+        m_reducedPointsBetween = 0;
 
-    for (;; ++reducedPointsUntilTimestep)
-    {
-        if (reducedPointsUntilTimestep >= m_reducedIndices.size() || m_reducedIndices[reducedPointsUntilTimestep] > t)
-            break;
-    }
+    if (m_lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
+        m_reducedPointsBetween = 0;
+
+
     size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
-    for (;; ++reducedPointsBetween)
+    for (;; ++m_reducedPointsBetween)
     {
-        if (reducedPointsBetween >= m_reducedIndices.size() || m_reducedIndices[reducedPointsBetween] > start)
+        if (m_reducedPointsBetween >= m_reducedIndices.size() || m_reducedIndices[m_reducedPointsBetween] > start)
             break;
     }
-    auto normalPointsUntilTimestep = t - reducedPointsUntilTimestep + 1;
-    auto normalPointsUntilStart = start < reducedPointsBetween ? 0 : start - reducedPointsBetween;
-    auto nomalPointsToDraw = normalPointsUntilTimestep - normalPointsUntilStart;
-    if (m_pointCloud)
+
+    size_t count = std::min(t, (int)m_numPointsSlider->value());
+    if (m_points)
     {
-        static_cast<DrawArrays *>(m_pointCloud->getPrimitiveSet(0))->setFirst(normalPointsUntilStart);
-        static_cast<DrawArrays *>(m_pointCloud->getPrimitiveSet(0))->setCount(nomalPointsToDraw);
+        static_cast<DrawArrays *>(m_points->getPrimitiveSet(allPointsPrimitiveIndex))->setFirst(start);
+        static_cast<DrawArrays *>(m_points->getPrimitiveSet(allPointsPrimitiveIndex))->setCount(count);
+
+        auto reducedPontsPrimitives = static_cast<SurfacePrimitiveSet*>(m_points->getPrimitiveSet(reducedPointsPrimitiveIndex));
+        reducedPontsPrimitives->setRange(0, m_reducedPointsBetween);
     }
-    if (m_reducedPointCloud)
-        static_cast<DrawArrays *>(m_reducedPointCloud->getPrimitiveSet(0))->setCount(reducedPointsUntilTimestep);
-
-
-    if(m_surface && t > numPointsPerCycle + 1)
+    if(m_surface)
     {
-        auto primitives = static_cast<DrawElementsUInt *>(m_surface->getPrimitiveSet(0));
-        primitives->clear();
-        if(m_showSurfaceBtn->state())
-        {
-            for (size_t i = start ; i < t - numPointsPerCycle; i++)
-            {
-                auto currIndices = getQuadVertexIndices(i);
-                for (size_t j = 0; j < 4; j++)
-                    primitives->push_back(currIndices[j]);
-
-            }
-            primitives->dirty();
-        }
+        auto surfacePrimitives = static_cast<SurfacePrimitiveSet*>(m_surface->getPrimitiveSet(0));
+        if(m_showSurfaceBtn->state() && start + m_numPointsSlider->value() < surfacePrimitives->getNumPrimitives())
+            surfacePrimitives->setRange(start, count);
+        else
+            surfacePrimitives->setRange(0, 0);
     }
 
     // move machine axis
@@ -903,7 +822,7 @@ void CsvPointCloudPlugin::setTimestep(int t)
             m_transform->setMatrix(m);
     }
     m_lastTimestep = t;
-    lastNumFullDrawnPoints = m_numPointsSlider->value();
+    m_lastNumFullDrawnPoints = m_numPointsSlider->value();
 }
 
 float CsvPointCloudPlugin::pointSize() const
@@ -917,8 +836,7 @@ int CsvPointCloudPlugin::unloadFile(const std::string &filename)
     {
         writeSettings(filename);
         m_currentGeode->getParent(0)->removeChild(m_currentGeode);
-        m_pointCloud = nullptr;
-        m_reducedPointCloud = nullptr;
+        m_points = nullptr;
         m_currentGeode = nullptr;
         m_transform = nullptr;
 
@@ -947,17 +865,17 @@ void CsvPointCloudPlugin::advanceMachineSpeed(std::array<float, 3> &machineSpeed
 bool CsvPointCloudPlugin::update()
 {
     float min, max;
-    static int OldSteps = m_colorMapSelector.selectedMap().samplingPoints.size();
     int steps;
     m_colorInteractor->getFloatScalarParam("min", min);
     m_colorInteractor->getFloatScalarParam("max", max);
     m_colorInteractor->getIntScalarParam("steps", steps);
-    if (min != m_minColor || max != m_maxColor || steps != OldSteps)
+    if (min != m_minColor || max != m_maxColor || steps != m_numColorSteps)
     {
         m_minColor = min;
         m_maxColor = max;
-        OldSteps = steps;
+        m_numColorSteps = steps;
         updateColorMap();
+        return true;
     }
-    return true;
+    return false;
 }

@@ -13,6 +13,7 @@
 #include <PluginUtil/ColorBar.h>
 #include <PluginUtil/coColorMap.h>
 #include <cover/coTabletUI.h>
+#include <cover/coVRFileManager.h>
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
@@ -21,6 +22,7 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
+
 #include <vrml97/vrml/VrmlSFVec3f.h>
 #include <exprtk.hpp>
 #include <array>
@@ -36,6 +38,8 @@ namespace osg
 }
 
 using namespace opencover;
+
+
 
 class CsvPointCloudPlugin : public coVRPlugin, public ui::Owner
 {
@@ -64,14 +68,15 @@ private:
 
   static CsvPointCloudPlugin *m_plugin;
 
-  osg::ref_ptr<osg::Geometry> m_pointCloud, m_reducedPointCloud, m_surface;
+  opencover::FileHandler m_handler[2];
+  osg::ref_ptr<osg::Geometry> m_points, m_surface;
 
   osg::Geode *m_currentGeode = nullptr;
   osg::MatrixTransform* m_transform = nullptr;
 
   //simple options
   ui::Menu *m_CsvPointCloudMenu;
-  ui::Slider *m_pointSizeSlider, *m_numPointsSlider;
+  ui::Slider *m_pointSizeSlider, *m_numPointsSlider, *m_numPrimitivesSlider;
   covise::ColorMapSelector m_colorMapSelector;
   ui::SelectionList* m_dataSelector;
   ui::Button *m_moveMachineBtn;
@@ -89,7 +94,7 @@ private:
   opencover::ColorBar *m_colorBar;
   std::vector<vrml::VrmlSFVec3f> m_machinePositions;
   bool m_animSpeedSet = false, m_animSkipSet = false;
-  std::vector<size_t> m_reducedIndices;
+  std::vector<unsigned int> m_reducedIndices;
   std::unique_ptr<DataTable> m_dataTable;
   time_t m_readSettingsTime = 0;
   std::array<std::string, 3> m_machineSpeedNames{"dx", "dy", "dz"};
@@ -97,13 +102,18 @@ private:
   std::vector<std::unique_ptr<std::thread>> m_threads;
   const int m_numThreads;
   float m_minColor = 0, m_maxColor = 0;
+  size_t m_numPointsPerCycle = 200;
   bool m_updateColor = false;
+
+  size_t m_reducedPointsBetween = 0;
+  size_t m_lastNumFullDrawnPoints = 0;
+  int m_numColorSteps = 0;
+
   CsvInteractor *m_colorInteractor = nullptr;
   int m_lastTimestep = 0;
   void createGeodes(osg::Group *, const std::string &);
   void createGeometries(DataTable &symbols);
-  osg::ref_ptr<osg::Geometry> createOsgPoints(osg::Vec3Array* points, osg::FloatArray* colors);
-  osg::ref_ptr<osg::Geometry> createOsgSurface(osg::Vec3Array* points, osg::FloatArray* colors);
+  osg::ref_ptr<osg::Geometry> createOsgGeometry(osg::ref_ptr<osg::Vec3Array> &vertices, osg::ref_ptr<osg::FloatArray> &colors, osg::ref_ptr<osg::Vec3Array>& normals, osg::ref_ptr<osg::StateSet> &state);
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
 
@@ -119,15 +129,12 @@ private:
 
   struct ScalarData
   {
-    osg::FloatArray *reduced = nullptr, *other = nullptr, *all = nullptr;
+    osg::ref_ptr<osg::FloatArray> data;
     float min = 0, max = 0;
   };
-  struct Coords
-  {
-    osg::Vec3Array* reduced = nullptr, *other = nullptr, *all = nullptr;
-  };
+
   ScalarData getScalarData(DataTable &symbols, const std::string &term);
-  Coords getCoords(DataTable &symbols);
+  osg::ref_ptr<osg::Vec3Array> getCoords(DataTable &symbols);
   std::string updateDataSelector(const std::string& term);
   void loadData(const std::string& term);
 

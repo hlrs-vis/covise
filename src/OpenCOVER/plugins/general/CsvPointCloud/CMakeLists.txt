@@ -8,6 +8,7 @@ SET(HEADERS
   DataTable.h  
   Interactor.h
   RenderObject.h
+  SurfacePrimitiveSet.h
   exprtk.hpp
 )
 
