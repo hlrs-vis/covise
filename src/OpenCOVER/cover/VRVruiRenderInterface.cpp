@@ -416,6 +416,13 @@ string VRVruiRenderInterface::getName(const string &name) const
         return "";
 }
 
+string VRVruiRenderInterface::getFont(const string &name) const
+{
+    if (name.empty())
+        return coVRFileManager::instance()->getFontFile(nullptr);
+    return coVRFileManager::instance()->getFontFile(name.c_str());
+}
+
 vruiTexture *VRVruiRenderInterface::createTexture(const string &name)
 {
     return new OSGVruiTexture(coVRFileManager::instance()->loadTexture(name.c_str()));

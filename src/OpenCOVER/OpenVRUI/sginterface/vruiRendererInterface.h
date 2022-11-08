@@ -96,6 +96,7 @@ public:
     //inline void setFrameTime(double t) { currentFrameTime = t; } // set frame start time by Renderer
 
     virtual std::string getName(const std::string &name) const = 0;
+    virtual std::string getFont(const std::string &name=std::string()) const = 0;
 
     virtual coUpdateManager *getUpdateManager() = 0;
 

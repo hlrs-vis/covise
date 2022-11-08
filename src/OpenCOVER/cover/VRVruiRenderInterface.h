@@ -59,6 +59,7 @@ public:
     virtual void deleteMatrix(vrui::vruiMatrix *matrix) override;
 
     virtual std::string getName(const std::string &name) const override;
+    virtual std::string getFont(const std::string &name) const override;
 
     virtual vrui::vruiTexture *createTexture(const std::string &textureName) override;
 

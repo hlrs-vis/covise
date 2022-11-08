@@ -115,8 +115,8 @@ OSGVruiPresets::OSGVruiPresets()
         stateSets.push_back(stateSet);
         stateSetsCulled.push_back(stateSetCulled);
 
-        fontFile = "share/covise/fonts/" + coCoviseConfig::getEntry("value", "COVER.VRUI.Font", coCoviseConfig::getEntry("value", "COVER.Font", "DroidSansFallbackFull.ttf"));
-        fontFile = vruiRendererInterface::the()->getName(fontFile);
+        auto fontName = coCoviseConfig::getEntry("value", "COVER.VRUI.Font", "");
+        fontFile = vruiRendererInterface::the()->getFont(fontName);
     }
 }
 
