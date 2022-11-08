@@ -308,6 +308,8 @@ private:
     ///return the substring of s until the delimiter(delimiter is cut off)
     static std::string cutStringAt(const std::string &s, char delimiter);
     osg::ref_ptr<osgDB::ReaderWriter::Options> options;
+
+    std::string m_defaultFontFile;
 };
 }
 #endif

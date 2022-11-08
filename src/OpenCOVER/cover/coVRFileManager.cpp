@@ -1507,17 +1507,29 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 
 std::string coVRFileManager::getFontFile(const char *fontname)
 {
-    std::string fontFile = "share/covise/fonts/";
+    const std::string fallback("Mostra-Nuova-AltD-W00-Regular.ttf");
+    const std::string fontpath("share/covise/fonts/");
+
     if (fontname)
     {
-        fontFile += fontname;
+        const char *name = getName(fontname);
+        if (name)
+            return name;
+        name = getName((fontpath + fontname).c_str());
+        if (name)
+            return name;
     }
-    else
-    {
-        fontFile += coCoviseConfig::getEntry("value", "COVER.Font", "Mostra-Nuova-AltD-W00-Regular.ttf");
+
+    if (m_defaultFontFile.empty()) {
+        std::string fontFile = coCoviseConfig::getEntry("value", "COVER.Font", fontpath + fallback);
+        if (const char *name = getName(fontFile.c_str())) {
+            m_defaultFontFile = name;
+        } else if (const char *name = getName((fontpath + fallback).c_str())) {
+            m_defaultFontFile = name;
+        }
     }
-    fontFile = getName(fontFile.c_str());
-    return fontFile;
+
+    return m_defaultFontFile;
 }
 
 osg::ref_ptr<osgText::Font> coVRFileManager::loadFont(const char *fontname)
