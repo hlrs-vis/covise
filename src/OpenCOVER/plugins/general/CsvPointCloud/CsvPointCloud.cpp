@@ -146,11 +146,13 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
-
+    m_dataSelector->setShared(true);
     m_showSurfaceBtn->setState(false);
+    m_showSurfaceBtn->setShared(true);
     m_showSurfaceBtn->setCallback([this](bool state)
                                   { setTimestep(m_lastTimestep); });
     m_moveMachineBtn->setState(true);
+    m_moveMachineBtn->setShared(true);
     m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
