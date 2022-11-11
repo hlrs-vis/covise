@@ -1507,7 +1507,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath,  int whe
 
 std::string coVRFileManager::getFontFile(const char *fontname)
 {
-    const std::string fallback("Mostra-Nuova-AltD-W00-Regular.ttf");
+    const std::string fallback("NotoSans-Regular.ttf");
     const std::string fontpath("share/covise/fonts/");
 
     if (fontname)
