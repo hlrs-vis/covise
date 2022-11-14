@@ -11,6 +11,9 @@
   <uniform name="rangeMin" type="float" value="0."/>
   <uniform name="texUnit1" type="sampler1D" value="1"/>
 
+  <preamble>
+    #define POINTS
+  </preamble>
   <vertexProgram>
 
       varying float data;
@@ -44,34 +47,7 @@
       }
   </vertexProgram>
 
-  
-
-
-  <fragmentProgram>
    
-    uniform bool Light0Enabled, Light1Enabled;
-    uniform float rangeMin, rangeMax;
-    uniform sampler1D texUnit1;
-    uniform sampler2D diffuseMap;
-
-    varying float data;
-    varying vec3 V;
-    varying vec3 N;
-
-    vec4 Ambient;
-    vec4 Diffuse;
-    vec4 Specular;
-
-
-#include "IlluminationFunctions.src"
-
-    void main( void )
-    {
-        float t = (data - rangeMin) / (rangeMax - rangeMin);
-        vec4 color = texture1D(texUnit1, t);
-        gl_FragColor = flight(normalize(N), color);
-        gl_FragColor.a = color.a;
-        gl_FragColor = gl_FragColor * texture2D(diffuseMap , gl_TexCoord[0].xy);
-    }
-    </fragmentProgram>
+  <fragmentProgram value="MapColorsFragment.glsl">
+</fragmentProgram>
 </OctPoints>

@@ -3,7 +3,9 @@ uniform float rangeMin, rangeMax;
 uniform bool blendWithMaterial;
 uniform bool Light0Enabled, Light1Enabled;
 uniform bool dataValid;
-
+#ifdef POINTS
+uniform sampler2D diffuseMap;
+#endif
 varying float data;
 varying vec3 V;
 varying vec3 N;
@@ -129,4 +131,7 @@ void main (void)
     {
         gl_FragColor = flightm(normalize(N));
     }
+#ifdef POINTS
+        gl_FragColor = gl_FragColor * texture2D(diffuseMap , gl_TexCoord[0].xy);
+#endif
 }
