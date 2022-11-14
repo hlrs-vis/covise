@@ -563,6 +563,7 @@ void coVRShader::loadMaterial()
             cullFace = 0;
 
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
+        std::string preamble;
         for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
@@ -571,7 +572,11 @@ void coVRShader::loadMaterial()
             char *tagName = xercesc::XMLString::transcode(node->getTagName());
             if (tagName)
             {
-                if (strcmp(tagName, "attribute") == 0)
+                if (strcmp(tagName, "preamble") == 0)
+                {
+                    preamble = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                }
+                else if (strcmp(tagName, "attribute") == 0)
                 {
                     XmlAttribute type("type", node);
                     XmlAttribute value("value", node);
@@ -617,7 +622,7 @@ void coVRShader::loadMaterial()
                 }
                 else if (strcmp(tagName, "fragmentProgram") == 0)
                 {
-                    std::string code = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
                     if (!code.empty())
                     {
                         fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
@@ -655,7 +660,7 @@ void coVRShader::loadMaterial()
                     else
                         geomParams[2] = GL_TRIANGLE_STRIP;
 
-                    std::string code = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
                     if (!code.empty())
                     {
                         geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
@@ -664,7 +669,7 @@ void coVRShader::loadMaterial()
                 }
                 else if (strcmp(tagName, "vertexProgram") == 0)
                 {
-                    std::string code = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
                     if (!code.empty())
                     {
                         vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
