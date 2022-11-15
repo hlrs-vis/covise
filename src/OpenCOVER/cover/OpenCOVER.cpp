@@ -572,8 +572,9 @@ bool OpenCOVER::init()
     m_loadVistlePlugin = coVRMSController::instance()->syncBool(loadVistlePlugin);
 
 	coVRCommunication::instance();
-	cover = new coVRPluginSupport();
-	coVRCommunication::instance()->init();
+    interactionManager.initializeRemoteLock();
+    cover = new coVRPluginSupport();
+    coVRCommunication::instance()->init();
     cover->initUI();
     if (cover->debugLevel(2))
     {

@@ -20,9 +20,7 @@ namespace vrui
 coInteractionManager *coInteractionManager::im = 0;
 
 coInteractionManager::coInteractionManager()
-:interactionLock("coInteractionManager_remoteLock", -1, vrb::USE_COUPLING_MODE)
 {
-    initializeRemoteLock();
     assert(!im);
     im = this;
 }
@@ -43,8 +41,8 @@ coInteractionManager *coInteractionManager::the()
 
 void coInteractionManager::resetLock(int id)
 {
-    if(interactionLock.value() == id)
-        interactionLock = -1;
+    if(interactionLock->value() == id)
+        *interactionLock = -1;
 }
 
 bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
@@ -70,7 +68,7 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
 	if(group == coInteraction::InteractionGroup::GroupNavigation)
     {
 
-        int lockID = interactionLock.value();
+        int lockID = interactionLock->value();
         if (vruiRendererInterface::the()->isRemoteBlockNececcary() && lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
         {
             cerr << "interaction is remotely blocked by " << lockID << std::endl;
@@ -310,8 +308,8 @@ void coInteractionManager::unregisterInteraction(coInteraction *interaction)
 
 void coInteractionManager::doRemoteLock()
 {
-	if(interactionLock.value() < 0)
-        interactionLock =  vruiRendererInterface::the()->getClientId();
+	if(interactionLock->value() < 0)
+        *interactionLock =  vruiRendererInterface::the()->getClientId();
 }
 
 void coInteractionManager::doRemoteUnLock()
@@ -320,12 +318,14 @@ void coInteractionManager::doRemoteUnLock()
 }
 bool coInteractionManager::isNaviagationBlockedByme()
 {
-	return interactionLock.value() == vruiRendererInterface::the()->getClientId();
+	return interactionLock->value() == vruiRendererInterface::the()->getClientId();
 }
 void coInteractionManager::initializeRemoteLock()
 {
 
-	interactionLock.setUpdateFunction([this]() {
+    interactionLock.reset(new vrb::SharedState<int>("coInteractionManager_remoteLock", -1, vrb::USE_COUPLING_MODE));
+    interactionLock->setUpdateFunction([this]()
+                                       {
 		for (int i = 0; i < coInteraction::NumInteractorTypes; ++i)
 		{
 			for (list<coInteraction*>::reverse_iterator interaction = interactionStack[i].rbegin();
@@ -339,14 +339,13 @@ void coInteractionManager::initializeRemoteLock()
 				}
 			}
 		}
-		if (interactionLock.value() > 0 && interactionLock.value() != vruiRendererInterface::the()->getClientId())
+		if (interactionLock->value() > 0 && interactionLock->value() != vruiRendererInterface::the()->getClientId())
 		{
-			std::cerr << "Interaction locked by client " << interactionLock.value() << std::endl;
+			std::cerr << "Interaction locked by client " << interactionLock->value() << std::endl;
 		}
 		else
 		{
 			std::cerr << "Interaction unlocked" << std::endl;
-		}
-		});
+		} });
 }
 }
