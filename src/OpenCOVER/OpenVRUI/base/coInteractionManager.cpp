@@ -41,7 +41,7 @@ coInteractionManager *coInteractionManager::the()
     return im;
 }
 
-void coInteractionManager::resetLocks(int id)
+void coInteractionManager::resetLock(int id)
 {
     if(interactionLock.value() == id)
         interactionLock = -1;
@@ -316,8 +316,7 @@ void coInteractionManager::doRemoteLock()
 
 void coInteractionManager::doRemoteUnLock()
 {
-	if(isNaviagationBlockedByme())
-        interactionLock =  -1;
+    resetLock(vruiRendererInterface::the()->getClientId());
 }
 bool coInteractionManager::isNaviagationBlockedByme()
 {

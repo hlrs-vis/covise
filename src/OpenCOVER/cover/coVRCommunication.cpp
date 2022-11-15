@@ -467,7 +467,7 @@ void coVRCommunication::handleVRB(const Message &msg)
         if (id != me()->ID())
         {
              coVRPartnerList::instance()->removePartner(id);
-			 vrui::coInteractionManager::the()->resetLocks(id);
+			 vrui::coInteractionManager::the()->resetLock(id);
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);

@@ -37,7 +37,7 @@ public:
     bool isOneActive(coInteraction::InteractionGroup group);
 
     static coInteractionManager *the();
-	void resetLocks(int id);
+	void resetLock(int id);
 	void doRemoteLock();
 	void doRemoteUnLock();
 	bool isNaviagationBlockedByme();
