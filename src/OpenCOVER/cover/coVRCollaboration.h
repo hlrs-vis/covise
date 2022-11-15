@@ -74,6 +74,8 @@ private:
     bool oldMasterStatus = true;
     float oldSyncInterval = -1;
     bool oldAvatarVisibility = true;
+    vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
+    vrb::SharedState<osg::Matrix> avatarPosition;
 
 public:
     virtual ~coVRCollaboration();
@@ -82,8 +84,6 @@ public:
     void showAvatars(bool visible);
     static coVRCollaboration *instance();
     bool showAvatar;
-    vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
-    vrb::SharedState<osg::Matrix> avatarPosition;
     vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
     // returns collaboration mode
