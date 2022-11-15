@@ -185,7 +185,7 @@ public:
 
     template<typename T>
     PlaceHolder<T> addPlaceHolder(const T& t = T()) {
-        static_assert(std::is_pod<T>::value, "TokenBuffer::addPlaceHolder only works for playi old data types");
+        static_assert(std::is_standard_layout<T>::value && std::is_trivial<T>::value, "TokenBuffer::addPlaceHolder only works for plain old data types");
         if (!data.data())
         {
             incbuf();
