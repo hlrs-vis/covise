@@ -33,6 +33,8 @@ SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, c
         sessionID = news.first;
         muted = news.second;
     }
+    else
+        std::cerr << "Warning: creation of shared state " << name << " before shared state manager has been initialized, this shared state is ignored" << std::endl;
 }
 
 SharedStateBase::~SharedStateBase()
