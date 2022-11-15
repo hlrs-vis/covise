@@ -107,21 +107,20 @@ bool coInteraction::activate()
         {
 			return false;
         }
-        else if (group == GroupNavigation)
+        else if (group == GroupNavigation && coInteractionManager::the()->isOneActive(group))
         {
-			if(coInteractionManager::the()->isOneActive(group))
-			    return false;
-            else{
-                state = Active;
-                coInteractionManager::the()->doRemoteLock();
-                return true;
-            }
+            return false;
         }
-		else if (isNotifyOnly())
+        else if (isNotifyOnly())
 		{
 			state = ActiveNotify;
 			return true;
 		}
+        else{
+            state = Active;
+            coInteractionManager::the()->doRemoteLock();
+            return true;
+        }
     }
     return false;
 }
