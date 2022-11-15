@@ -81,24 +81,19 @@ PartnerAvatar::PartnerAvatar(coVRPartner *partner)
     :VRAvatar(0)
     ,m_partner(partner)
 {
-   handTransform = nullptr; 
-   headTransform = nullptr;
-   feetTransform = nullptr;
-   avatarNodes = nullptr;
-   
+    handTransform = new osg::MatrixTransform;
+    headTransform = new osg::MatrixTransform;
+    feetTransform = new osg::MatrixTransform;
+    avatarNodes = nullptr;
 }
 
 bool PartnerAvatar::init(const std::string &hostAdress)
 {
     if (!initialized)
     {
-        handTransform = new osg::MatrixTransform;
-        headTransform = new osg::MatrixTransform;
-        feetTransform = new osg::MatrixTransform;
         if(!VRAvatar::init("Avatar " + hostAdress))
             return false;
         initialized = true;
-
         if (!m_partner->userInfo().icon.empty())
         {
             hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
