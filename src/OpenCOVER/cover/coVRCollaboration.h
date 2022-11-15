@@ -76,6 +76,8 @@ private:
     bool oldAvatarVisibility = true;
     vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
     vrb::SharedState<osg::Matrix> avatarPosition;
+    double couplingModeChangedTime = 0;
+    bool updated = false;
 
 public:
     virtual ~coVRCollaboration();

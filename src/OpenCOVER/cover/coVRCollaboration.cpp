@@ -88,14 +88,23 @@ void coVRCollaboration::init()
         fprintf(stderr, "\nnew coVRCollaboration\n");
     coVRPartnerList::instance()->hideAvatars();
     syncMode.setUpdateFunction([this]()
-    {
+                               {
         assert(syncMode < 3);
         if (m_collaborationMode)
             m_collaborationMode->select(syncMode);
         syncModeChanged(syncMode);
+        updated = true;
     });
     avatarPosition.setUpdateFunction([this]()
     {
+        //overwrite other's viewpoints after initiating tight coupling
+        constexpr double overwriteTime = 1; //sec
+        if (syncMode == SyncMode::TightCoupling && cover->frameTime() - couplingModeChangedTime < overwriteTime)
+        {
+            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+            return;
+        }
+        updated = true;
         osg::Matrix m = avatarPosition;
         remoteTransform(m);
     });
@@ -149,6 +158,8 @@ void coVRCollaboration::initCollMenu()
         {
             syncMode = mode;
             syncModeChanged(syncMode);
+            couplingModeChangedTime = cover->frameTime();
+            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
         });
     m_collaborationMode->select(syncMode);
 
@@ -250,8 +261,12 @@ bool coVRCollaboration::update()
     bool changed = false;
     if (updateCollaborativeMenu())
         changed = true;
-	//
-	double thisTime = cover->frameTime();
+	if(updated)
+    {
+        changed = true;
+        updated = false;
+    }
+    double thisTime = cover->frameTime();
 
     //sync avatar position 
 	static double lastAvatarUpdateTime = 0.0;
@@ -265,9 +280,12 @@ bool coVRCollaboration::update()
 	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()|| syncXform) //i am navigating
 	{
 		//store my viewpoint in shared state to be able to reload it
-        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-        scaleFactor = VRSceneGraph::instance()->scaleFactor();
-	syncXform = false;
+        auto &currentPos = VRSceneGraph::instance()->getTransform()->getMatrix();
+        if(currentPos != avatarPosition)
+            avatarPosition = currentPos;
+        if(scaleFactor != VRSceneGraph::instance()->scaleFactor())
+            scaleFactor = VRSceneGraph::instance()->scaleFactor();
+        syncXform = false;
 	}
     return changed;
 }
@@ -411,7 +429,6 @@ void coVRCollaboration::syncModeChanged(int mode)
     case MasterSlaveCoupling:
     case TightCoupling:
         coVRPartnerList::instance()->hideAvatars();
-        SyncXform();
         break;
     }
     updateSharedStates();
