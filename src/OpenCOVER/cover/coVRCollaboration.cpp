@@ -409,9 +409,6 @@ void coVRCollaboration::syncModeChanged(int mode)
             coVRPartnerList::instance()->showAvatars();
         break;
     case MasterSlaveCoupling:
-        coVRPartnerList::instance()->hideAvatars();
-        SyncXform();
-        break;
     case TightCoupling:
         coVRPartnerList::instance()->hideAvatars();
         SyncXform();
