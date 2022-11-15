@@ -332,6 +332,7 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
     auto av = p->getAvatar();
     if (av->init(adress))
     {
+        av->loadPartnerIcon();
         if (m_avatarsVisible && p->ID() != coVRCommunication::instance()->getID() && p->sessionID() == coVRCommunication::instance()->getSessionID())
         {
             av->show();

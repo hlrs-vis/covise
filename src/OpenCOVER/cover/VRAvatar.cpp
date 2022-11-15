@@ -94,24 +94,7 @@ bool PartnerAvatar::init(const std::string &hostAdress)
         if(!VRAvatar::init("Avatar " + hostAdress))
             return false;
         initialized = true;
-        if (!m_partner->userInfo().icon.empty())
-        {
-            hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
-            if (!hostIconNode)
-            {
-                auto iconFile = coVRFileManager::instance()->findOrGetFile(m_partner->userInfo().icon, m_partner->ID());
-                hostIconNode = coVRFileManager::instance()->loadIcon(iconFile.c_str());
-                if (!hostIconNode)
-                    cerr << "host icon not found " << iconFile << endl;
-            }
-        }
 
-        coBillboard *bb = new coBillboard;
-        feetTransform->addChild(bb);
-        if (hostIconNode)
-        {
-            bb->addChild(hostIconNode);
-        }
         if (coVRCollaboration::instance()->showAvatar)
         {
             cover->getObjectsRoot()->addChild(avatarNodes.get());
@@ -142,6 +125,28 @@ void VRAvatar::hide()
         cover->getObjectsRoot()->removeChild(avatarNodes.get());
     }
 }
+
+void PartnerAvatar::loadPartnerIcon()
+{
+    if (!m_partner->userInfo().icon.empty())
+    {
+        hostIconNode = coVRFileManager::instance()->loadIcon(m_partner->userInfo().icon.c_str());
+        if (!hostIconNode)
+        {
+            auto iconFile = coVRFileManager::instance()->findOrGetFile(m_partner->userInfo().icon, m_partner->ID());
+            hostIconNode = coVRFileManager::instance()->loadIcon(iconFile.c_str());
+            if (!hostIconNode)
+                cerr << "host icon not found " << iconFile << endl;
+        }
+    }
+    coBillboard *bb = new coBillboard;
+    feetTransform->addChild(bb);
+    if (hostIconNode)
+    {
+        bb->addChild(hostIconNode);
+    }
+}
+
 
 RecordedAvatar::RecordedAvatar() : m_icon(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Icon", "$COVISE_PATH/share/covise/icons/hosts/localhost.obj"))
 {

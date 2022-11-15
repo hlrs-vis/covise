@@ -54,13 +54,14 @@ public:
     ///Used to collect the data to send it to the partners
     VRAvatar();
 
-    /// initalize avatar if not initialized. Return true if sth. is done
     virtual ~VRAvatar();
     void show();
     void hide();
+
 protected:
     //to skip initialization
     VRAvatar(int dummy){};
+    /// initalize avatar if not initialized. Return true if sth. is done
     bool init(const std::string &nodeName);
 };
 
@@ -70,6 +71,8 @@ class COVEREXPORT PartnerAvatar : public VRAvatar
 public:
     PartnerAvatar(coVRPartner *partner);
     bool init(const std::string &hostAdress);
+    void loadPartnerIcon();
+
 private:
     coVRPartner *m_partner;
 };
