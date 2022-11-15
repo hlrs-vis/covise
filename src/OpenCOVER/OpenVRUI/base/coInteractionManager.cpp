@@ -316,7 +316,7 @@ void coInteractionManager::doRemoteLock()
 
 void coInteractionManager::doRemoteUnLock()
 {
-	if(interactionLock.value() < vruiRendererInterface::the()->getClientId())
+	if(isNaviagationBlockedByme())
         interactionLock =  -1;
 }
 bool coInteractionManager::isNaviagationBlockedByme()
