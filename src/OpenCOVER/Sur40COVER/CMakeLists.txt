@@ -1,4 +1,8 @@
 USING(Surface)
+if(${CMAKE_GENERATOR} STREQUAL "Ninja")
+    message("not building sur40COVER with Ninja")
+    RETURN()
+endif()
 PROJECT(Sur40COVER CSharp)
 include(CSharpUtilities)
 

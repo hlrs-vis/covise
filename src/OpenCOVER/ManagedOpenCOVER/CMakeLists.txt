@@ -5,6 +5,10 @@
 # @author Blasius Czink
 
 USING(Surface)
+if(${CMAKE_GENERATOR} STREQUAL "Ninja")
+    message("not building ManagedOpenCOVER with Ninja")
+    RETURN()
+endif()
 IF(NOT WIN32)
   RETURN()
 ENDIF(NOT WIN32)
@@ -35,7 +39,7 @@ ADD_COVISE_LIBRARY(ManagedOpenCOVER SHARED ${EXTRASOURCES} ${SOURCES} ${HEADERS}
 set(EXTRA_LIBS ${EXTRA_LIBS} ws2_32.lib)
 
 #set_target_properties(ManagedOpenCOVER PROPERTIES VS_DOTNET_REFERENCES "${CMAKE_CURRENT_SOURCE_DIR}/../OrionMaster/3rdParty/GMap.NET.Core.dll;System;System.Core;System.Data;System.Drawing;System.Xml;WindowsBase")
-#set_target_properties(ManagedOpenCOVER PROPERTIES COMPILE_FLAGS "/clr /EHa")
+set_target_properties(ManagedOpenCOVER PROPERTIES COMPILE_FLAGS "/clr /EHa")
 #set_target_properties(ManagedOpenCOVER PROPERTIES DEBUG_POSTFIX "d")
 
 if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/RTC1")
