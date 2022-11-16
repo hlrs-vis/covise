@@ -435,19 +435,23 @@ public:
         m_value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode(attribute.c_str())));
         xercesc::XMLString::release(&t1);
     }
-    bool  operator==(const std::string& other) const
+    ~XmlAttribute()
     {
-        return m_value ? m_value == other : false;
+        xercesc::XMLString::release(&m_value);
+    }
+    bool operator==(const std::string& other) const
+    {
+        return m_value ? m_value == other : other.empty();
     }
     operator bool() const
     {
         return m_value != nullptr && m_value[0] != '\0';
     }
-    ~XmlAttribute()
+    operator std::string() const
     {
-        xercesc::XMLString::release(&m_value);
+        return m_value ? m_value : "";
     }
-    const char *operator*() const
+    const char *c_str() const
     {
         return m_value ? m_value : "";
     }
@@ -462,7 +466,7 @@ std::string parseProgram(xercesc::DOMElement *node, const std::function<std::str
     XmlAttribute value("value", node);
     if (value)
     {
-        std::string filename = findAsset(*value);
+        std::string filename = findAsset(value);
         if (!filename.empty())
         {
             std::ifstream t(filename.c_str());
@@ -551,7 +555,7 @@ void coVRShader::loadMaterial()
         opaque = op == "true";
         XmlAttribute cullString("cullFace", rootElement);
 
-        if (cullString == "true")
+        if (cullString == "true" || cullString == "on")
             cullFace = osg::CullFace::BACK;
         else if (cullString == "back")
             cullFace = osg::CullFace::BACK;
@@ -559,8 +563,10 @@ void coVRShader::loadMaterial()
             cullFace = osg::CullFace::FRONT;
         else if (cullString == "front_and_back")
             cullFace = osg::CullFace::FRONT_AND_BACK;
-        else if (cullString == "none" || cullString ==  "off")
+        else if (cullString == "none" || cullString == "off" || cullString == "false")
             cullFace = 0;
+        else
+            cerr << "invalid cullFace value \"" << cullString << "\"" << std::endl;
 
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
         std::string preamble;
@@ -581,8 +587,8 @@ void coVRShader::loadMaterial()
                     XmlAttribute type("type", node);
                     XmlAttribute value("value", node);
                     XmlAttribute attributeName("name", node);
-                    if (type  && value && attributeName)
-                        attributes.push_back(new coVRAttribute(*attributeName, *type, *value));
+                    if (type && value && attributeName)
+                        attributes.push_back(new coVRAttribute(attributeName.c_str(), type.c_str(), value.c_str()));
                 }
                 else if (strcmp(tagName, "uniform") == 0)
                 {
@@ -598,16 +604,16 @@ void coVRShader::loadMaterial()
                     XmlAttribute wm("wrapMode", node);
                     if (type && value && uniformName)
                     {
-                        coVRUniform *u = new coVRUniform(this, *uniformName, *type, *value);
+                        coVRUniform *u = new coVRUniform(this, uniformName.c_str(), type.c_str(), value.c_str());
                         uniforms.push_back(u);
-                        u->setMin(*minValue);
-                        u->setMax(*maxValue);
+                        u->setMin(minValue);
+                        u->setMax(maxValue);
                         u->setOverwrite(overwrite == "true");
                         u->setUnique(unique =="true");
                         if (wm)
-                            u->setWrapMode(*wm);
+                            u->setWrapMode(wm);
                         if (textureName)
-                            u->setTexture(*textureName);
+                            u->setTexture(textureName.c_str());
                         if (texture1Name)
                         {
                             for (int i = 0; i < 6; i++)
@@ -615,7 +621,7 @@ void coVRShader::loadMaterial()
                                 char attrName[100];
                                 sprintf(attrName, "texture%d", i + 1);
                                 XmlAttribute textureName(attrName, node);
-                                u->setTexture(*textureName, i);
+                                u->setTexture(textureName.c_str(), i);
                             }
                         }
                     }
@@ -632,7 +638,7 @@ void coVRShader::loadMaterial()
                 else if (strcmp(tagName, "geometryProgram") == 0)
                 {
                     XmlAttribute numVertices("numVertices", node);
-                    geomParams[0] = atoi(*numVertices);
+                    geomParams[0] = atoi(numVertices.c_str());
                     //FIXME glGetIntegerv requires a valid OpenGL context, otherwise: crash
                     //if (geomParams[0] != 0) glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT,&geomParams[0]);
                     if (geomParams[0] == 0)
