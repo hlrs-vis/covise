@@ -559,7 +559,7 @@ void coVRShader::loadMaterial()
             cullFace = osg::CullFace::FRONT;
         else if (cullString == "front_and_back")
             cullFace = osg::CullFace::FRONT_AND_BACK;
-        else if (cullString == "none" || *cullString ==  "off")
+        else if (cullString == "none" || cullString ==  "off")
             cullFace = 0;
 
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
