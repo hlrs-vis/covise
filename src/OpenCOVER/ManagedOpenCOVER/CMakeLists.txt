@@ -5,13 +5,13 @@
 # @author Blasius Czink
 
 USING(Surface)
+IF(NOT WIN32)
+  RETURN()
+ENDIF(NOT WIN32)
 if(${CMAKE_GENERATOR} STREQUAL "Ninja")
     message("not building ManagedOpenCOVER with Ninja")
     RETURN()
 endif()
-IF(NOT WIN32)
-  RETURN()
-ENDIF(NOT WIN32)
 
 
   INCLUDE_DIRECTORIES(SYSTEM
