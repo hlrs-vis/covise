@@ -1,6 +1,6 @@
 #OpenCOVER plugins general Browser based on Chromium Embedded Framework
 if(NOT WIN32 AND NOT APPLE)
-  if(${EXTERNLIBS})
+  if($ENV{EXTERNLIBS})
     set(CEF_VERSION CACHE STRING "if set, build cef and install it in extern_libs")
     if(NOT ${CEF_VERSION} STREQUAL "")
       #set to newer version if required
