@@ -460,6 +460,12 @@ private:
     char *m_value = nullptr;
 };
 
+std::ostream &operator<<(std::ostream &os, const XmlAttribute &attr)
+{
+    os << attr.c_str();
+    return os;
+}
+
 std::string parseProgram(xercesc::DOMElement *node, const std::function<std::string(const std::string&)> &findAsset)
 {
     std::string code = "";
@@ -565,7 +571,7 @@ void coVRShader::loadMaterial()
             cullFace = osg::CullFace::FRONT_AND_BACK;
         else if (cullString == "none" || cullString == "off" || cullString == "false")
             cullFace = 0;
-        else
+        else if (cullString)
             cerr << "invalid cullFace value \"" << cullString << "\"" << std::endl;
 
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
