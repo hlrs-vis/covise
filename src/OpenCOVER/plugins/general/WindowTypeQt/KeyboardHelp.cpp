@@ -1,6 +1,7 @@
 #include "KeyboardHelp.h"
 #include "ui_KeyboardHelp.h"
 #include <cover/ui/Manager.h>
+#include <cover/ui/Group.h>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
@@ -15,6 +16,8 @@ KeyboardHelp::KeyboardHelp(opencover::ui::Manager *mgr, QWidget *parent)
     auto elems = mgr->getAllElements();
     for (auto e: elems)
     {
+        if (dynamic_cast<const opencover::ui::Group *>(e))
+            continue;
         QStringList columns;
         columns.append(QString::fromStdString(e->text()));
         columns.append(QString::fromStdString(e->path()));
