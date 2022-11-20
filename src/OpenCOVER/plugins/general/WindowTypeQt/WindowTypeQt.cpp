@@ -31,6 +31,7 @@
 #include <cover/OpenCOVER.h>
 #include <cover/VRWindow.h>
 #include <cover/ui/Manager.h>
+#include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 
@@ -123,6 +124,15 @@ bool WindowTypeQtPlugin::init()
         cover->viewOptionsMenu->add(m_toggleToolbar);
     }
 
+    auto sh = new ui::Action("ShowKeyboardHelp", this);
+    sh->setText("Show keyboard help");
+    sh->setVisible(false);
+    sh->setCallback([this](){
+            showKeyboardCommands();
+    });
+    sh->addShortcut("h");
+    sh->addShortcut("F1");
+
     return true;
 }
 
@@ -133,6 +143,15 @@ bool WindowTypeQtPlugin::destroy()
         windowDestroy(m_windows.begin()->second.index);
     }
     return true;
+}
+
+void WindowTypeQtPlugin::showKeyboardCommands()
+{
+    if (!m_keyboardHelp)
+    {
+        m_keyboardHelp = new KeyboardHelp(cover->ui);
+    }
+    m_keyboardHelp->show();
 }
 
 #ifdef USE_X11_ICE
@@ -310,11 +329,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     window->connect(keyboardHelp, &QAction::triggered,
                     [this](bool)
                     {
-                        if (!m_keyboardHelp)
-                        {
-                            m_keyboardHelp = new KeyboardHelp(cover->ui);
-                        }
-                        m_keyboardHelp->show();
+                        showKeyboardCommands();
                     });
 
     QAction *aboutQt = new QAction(window);

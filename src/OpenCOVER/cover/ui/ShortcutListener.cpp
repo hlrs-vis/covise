@@ -93,6 +93,13 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         {
             key = text;
         }
+        else if ((item.length() == 2 || item.length() == 3) && item[0] == 'f')
+        {
+            int fnum = atoi(item.substr(1).c_str());
+            if (fnum >= 1 && fnum <= 20)
+                sh.symbol = osgGA::GUIEventAdapter::KEY_F1 + fnum-1;
+            key = "F" + std::to_string(fnum);
+        }
         else
         {
             key = text;
