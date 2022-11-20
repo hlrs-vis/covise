@@ -348,6 +348,7 @@ private:
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
+    ui::Button *m_showMenuButton=nullptr;
 };
 }
 #endif

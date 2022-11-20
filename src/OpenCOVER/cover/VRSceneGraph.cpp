@@ -251,6 +251,45 @@ void VRSceneGraph::init()
             m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
         }
     });
+
+
+    auto tm = new ui::Button("ShowMenu", this);
+    cover->viewOptionsMenu->add(tm);
+    tm->setText("Show VR menu");
+    tm->setState(m_showMenu);
+    tm->addShortcut("m");
+    tm->setCallback([this](bool state){
+            setMenu(state);
+            });
+    tm->setVisible(false);
+    m_showMenuButton = tm;
+
+    auto fc = new ui::Action("ForceCompile", this);
+    fc->setText("Force display list compilation");
+    fc->setVisible(false);
+    fc->addShortcut("Alt+Shift+C");
+    fc->setCallback([this](){
+            VRViewer::instance()->forceCompile();
+    });
+
+    auto fs = new ui::Action("FlipStereo", this);
+    fs->setText("Flip stereo 3D eyes");
+    fs->setVisible(false);
+    fs->addShortcut("Alt+e");
+    fs->setCallback([this](){
+            VRViewer::instance()->flipStereo();
+    });
+
+    auto cw = new ui::Action("ClearWindow", this);
+    cw->setText("Clear window");
+    cw->setVisible(false);
+    cw->addShortcut("Alt+c");
+    cw->setCallback([this](){
+            windowStruct *ws = &(coVRConfig::instance()->windows[0]);
+            ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
+            ws->window->setWindowDecoration(false);
+            VRViewer::instance()->clearWindow = true;
+    });
 }
 
 VRSceneGraph::~VRSceneGraph()
@@ -543,21 +582,8 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 saveScenegraph(true);
                 handled = true;
             }
-            else if (keySym == 'c' || keySym == 231) //c
-            {
-                windowStruct *ws = &(coVRConfig::instance()->windows[0]);
-                ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
-                ws->window->setWindowDecoration(false);
-                VRViewer::instance()->clearWindow = true;
-                handled = true;
-            }
             else if (keySym == 'm' || keySym == 181) //m
             {
-            }
-            else if (keySym == 'e' || keySym == 101) //e
-            {
-                VRViewer::instance()->flipStereo();
-                handled = true;
             }
 #ifdef _OPENMP
             else if (keySym >= '0' && keySym <= '9')
@@ -571,22 +597,7 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 handled = true;
             }
 #endif
-            if (keySym == 'C')
-            {
-                 VRViewer::instance()->forceCompile();
-            }
         } // unmodified keys
-        else if (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT)
-        {
-        }
-        else
-        {
-            if (keySym == 'm')
-            {
-                toggleMenu();
-                handled = true;
-            }
-        }
     }
     return handled;
 }
@@ -617,6 +628,7 @@ void
 VRSceneGraph::setMenu(bool state)
 {
     m_showMenu = state;
+    m_showMenuButton->setState(state);
 
     if (m_showMenu)
     {
