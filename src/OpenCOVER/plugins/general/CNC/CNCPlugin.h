@@ -99,5 +99,27 @@ private:
 
     osg::ref_ptr<osg::Geometry> geom;
     osg::ref_ptr<osg::Geode> geode;
+    
+    // Volume Sticks
+    osg::ref_ptr<osg::Geometry> stickGeom;
+    osg::ref_ptr<osg::Geode> stickGeode;
+
+    osg::Group *stickParentNode = nullptr;
+    osg::Vec3Array *stickVert = nullptr;
+    osg::Vec4Array *stickColor = nullptr;
+    osg::DrawArrayLengths *stickPrimitives = nullptr;
+
+    // Triangles
+    osg::ref_ptr<osg::Geometry> triGeomTop;
+    osg::ref_ptr<osg::Geometry> triGeomBot;
+    osg::ref_ptr<osg::Geode> triGeode;
+
+    osg::Group *triParentNode = nullptr;
+    osg::Vec3Array *triVertTop = nullptr;
+    osg::Vec3Array *triVertBot = nullptr;
+    osg::Vec4Array *triColor = nullptr;
+    osg::DrawArrayLengths *triPrimitivesTop = nullptr;
+    osg::DrawElementsUInt *triPrimitivesBot = nullptr;
+
 };
 #endif

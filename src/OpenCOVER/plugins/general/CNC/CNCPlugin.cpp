@@ -40,6 +40,7 @@
 #include <osg/Matrix>
 #include <osg/Vec3>
 #include <cover/coVRAnimationManager.h>
+#include <osgUtil/SmoothingVisitor>
 using namespace osg;
 using namespace osgUtil;
 /************************************************************************
@@ -572,6 +573,106 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     vert = new osg::Vec3Array;
     color = new osg::Vec4Array;
 
+    // Volume Sticks
+    stickGeode = new Geode();
+    stickGeom = new Geometry();
+    //stickGeode->setStateSet(geoState.get());
+
+    stickGeom->setColorBinding(Geometry::BIND_OFF);
+
+    stickGeode->addDrawable(stickGeom.get());
+    stickGeode->setName("Viewer Positions 2");
+    //geode->addDrawable(stickGeom.get());
+
+    stickVert = new osg::Vec3Array;
+    stickColor = new osg::Vec4Array;
+    stickColor->push_back(Vec4(1, 1, 1, 1)); //white ?!
+
+    for (int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {        
+            
+            stickVert->push_back(Vec3(2*i / 1000.0, 2*j / 1000.0, 0 / 1000.0));
+            stickVert->push_back(Vec3(2*i / 1000.0, 2*j / 1000.0, 100 / 1000.0));
+        }
+    }
+
+    stickGeom->setVertexArray(stickVert);
+    //stickGeom->setColorArray(color);
+    //stickGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    stickGeom->setColorBinding(Geometry::BIND_OVERALL);
+    stickGeom->setColorArray(stickColor);
+    stickPrimitives = new DrawArrayLengths(PrimitiveSet::LINES); //PrimitiveSet::LINE_LOOP //PrimitiveSet::LINE_STRIP
+    stickPrimitives->push_back(stickVert->size());
+    stickGeom->addPrimitiveSet(stickPrimitives);
+    stickGeom->dirtyDisplayList();
+    stickGeom->setUseDisplayList(false);
+
+
+
+    // Triangles
+    float xMax = 0.4;
+    float xMin = 0.2;
+    float yMax = 0.2;
+    float yMin = 0;
+    float zMax = 0.1;
+    float zMin = 0;
+    
+
+    triGeode = new Geode();
+    triGeomTop = new Geometry();
+    triGeomBot = new Geometry();
+    //triGeode->setStateSet(geoState.get());
+
+    //stickGeom->setColorBinding(Geometry::BIND_OFF);
+
+    triGeode->addDrawable(triGeomBot.get());
+    triGeode->addDrawable(triGeomTop.get());
+    triGeode->setName("Viewer Positions 3");
+
+    triColor = new osg::Vec4Array;
+    triColor->push_back(Vec4(0, 1, 1, 1)); // ?!
+
+    triVertBot = new osg::Vec3Array;
+    triVertBot->push_back(Vec3(xMin, yMin, zMin));
+    triVertBot->push_back(Vec3(xMax, yMin, zMin));
+    triVertBot->push_back(Vec3(xMin, yMax, zMin));
+    triVertBot->push_back(Vec3(xMax, yMax, zMin));
+    triVertBot->push_back(Vec3(xMin, yMin, zMax));
+    triVertBot->push_back(Vec3(xMax, yMin, zMax));
+    triVertBot->push_back(Vec3(xMin, yMax, zMax));
+    triVertBot->push_back(Vec3(xMax, yMax, zMax));
+
+
+    triVertTop = new osg::Vec3Array;
+    for (int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            stickVert->push_back(Vec3(2 * i / 1000.0, 2 * j / 1000.0, 0 / 1000.0));
+            stickVert->push_back(Vec3(2 * i / 1000.0, 2 * j / 1000.0, 100 / 1000.0));
+        }
+    }
+
+    triGeomBot->setVertexArray(triVertBot);
+    triGeomBot->setColorBinding(Geometry::BIND_OVERALL);
+    triGeomBot->setColorArray(triColor);
+    triPrimitivesBot = new DrawElementsUInt(PrimitiveSet::TRIANGLES, 30);
+    (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 2; (*triPrimitivesBot)[5] = 3;
+    (*triPrimitivesBot)[6] = 0; (*triPrimitivesBot)[7] = 1; (*triPrimitivesBot)[8] = 4; (*triPrimitivesBot)[9] = 1; (*triPrimitivesBot)[10] = 4; (*triPrimitivesBot)[11] = 5;
+    (*triPrimitivesBot)[12] = 2; (*triPrimitivesBot)[13] = 3; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 3; (*triPrimitivesBot)[16] = 6; (*triPrimitivesBot)[17] = 7;
+    (*triPrimitivesBot)[18] = 0; (*triPrimitivesBot)[19] = 2; (*triPrimitivesBot)[20] = 4; (*triPrimitivesBot)[21] = 2; (*triPrimitivesBot)[22] = 4; (*triPrimitivesBot)[23] = 6;
+    (*triPrimitivesBot)[24] = 1; (*triPrimitivesBot)[25] = 3; (*triPrimitivesBot)[26] = 5; (*triPrimitivesBot)[27] = 3; (*triPrimitivesBot)[28] = 5; (*triPrimitivesBot)[29] = 7;
+    // TRIANGLES: {0, 1, 2, 1, 2, 3, 0, 1, 4, 1, 4, 5, 2, 3, 6, 3, 6, 7, 0, 2, 4, 2, 4, 6, 1, 3, 5, 3, 5, 7};
+    //triPrimitivesBot->push_back(triVertBot->size());
+    triGeomBot->addPrimitiveSet(triPrimitivesBot);
+    osgUtil::SmoothingVisitor::smooth(*triGeomBot); // funktioniert das?
+    triGeomBot->dirtyDisplayList();
+    triGeomBot->setUseDisplayList(false);
+
+
+
     int status;
     int do_next; /* 0=continue, 1=mdi, 2=stop */
     int block_delete;
@@ -639,6 +740,8 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     if (parentNode == NULL)
         parentNode = cover->getObjectsRoot();
     parentNode->addChild(geode.get());
+    parentNode->addChild(stickGeode.get());
+    parentNode->addChild(triGeode.get());
     ;
     return 0;
 }
@@ -648,6 +751,26 @@ void CNCPlugin::setTimestep(int t)
 {
     if (primitives)
         primitives->at(0) = t;
+    if (triPrimitivesBot)
+    {
+        if (t % 10 == 0)
+        {
+            (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 2; (*triPrimitivesBot)[5] = 3;
+            (*triPrimitivesBot)[6] = 4; (*triPrimitivesBot)[7] = 5; (*triPrimitivesBot)[8] = 6; (*triPrimitivesBot)[9] = 5; (*triPrimitivesBot)[10] = 6; (*triPrimitivesBot)[11] = 7;
+            (*triPrimitivesBot)[12] = 4; (*triPrimitivesBot)[13] = 5; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 5; (*triPrimitivesBot)[16] = 6; (*triPrimitivesBot)[17] = 7;
+            (*triPrimitivesBot)[18] = 4; (*triPrimitivesBot)[19] = 5; (*triPrimitivesBot)[20] = 6; (*triPrimitivesBot)[21] = 5; (*triPrimitivesBot)[22] = 6; (*triPrimitivesBot)[23] = 7;
+            (*triPrimitivesBot)[24] = 4; (*triPrimitivesBot)[25] = 5; (*triPrimitivesBot)[26] = 6; (*triPrimitivesBot)[27] = 5; (*triPrimitivesBot)[28] = 6; (*triPrimitivesBot)[29] = 7;
+        }
+
+        if (t % 20 == 0)
+        {
+            (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 3; (*triPrimitivesBot)[5] = 2;
+            (*triPrimitivesBot)[6] = 0; (*triPrimitivesBot)[7] = 1; (*triPrimitivesBot)[8] = 4; (*triPrimitivesBot)[9] = 1; (*triPrimitivesBot)[10] = 5; (*triPrimitivesBot)[11] = 4;
+            (*triPrimitivesBot)[12] = 2; (*triPrimitivesBot)[13] = 3; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 3; (*triPrimitivesBot)[16] = 7; (*triPrimitivesBot)[17] = 6;
+            (*triPrimitivesBot)[18] = 0; (*triPrimitivesBot)[19] = 2; (*triPrimitivesBot)[20] = 4; (*triPrimitivesBot)[21] = 2; (*triPrimitivesBot)[22] = 6; (*triPrimitivesBot)[23] = 4;
+            (*triPrimitivesBot)[24] = 1; (*triPrimitivesBot)[25] = 3; (*triPrimitivesBot)[26] = 5; (*triPrimitivesBot)[27] = 3; (*triPrimitivesBot)[28] = 7; (*triPrimitivesBot)[29] = 5;
+        }
+    }
 }
 
 int CNCPlugin::unloadGCode(const char *filename, const char *)

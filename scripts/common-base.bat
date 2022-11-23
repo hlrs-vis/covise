@@ -64,33 +64,33 @@ if "%ARCHSUFFIX:~0,5%" EQU "win32" (
     call "%VS80COMNTOOLS%"\..\..\Vc\bin\vcvars32.bat"
 ) else if "%ARCHSUFFIX:~0,6%" EQU "zackel" (
     cd /d "%VS90COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x86
+	call vcvarsall6.bat x86
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,5%" EQU "yoroo" (
     cd /d "%VS100COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x86
+	call vcvarsal5l.bat x86
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,7%" EQU "tamarau" (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
+	call vcvarsall4.bat x64
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,4%" EQU "zebu" (
-
+if exist "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" call "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
     if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
 	if defined VS150COMNTOOLS% (
     
-	)else (
+	)else(
     cd /d "%VS140COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
+	call vcvarsall3.bat x64
     cd /d "%COVISEDIR%"\
 	)
 ) else if "%ARCHSUFFIX:~0,8%" EQU "berrenda" (
 if defined VS110COMNTOOLS  (
     cd /d "%VS110COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
+	call vcvarsal2l.bat x64
 ) else (
     cd /d "%VS100COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
+	call vcvarsall1.bat x64
 	)
     cd /d "%COVISEDIR%"\
 ) else if "%ARCHSUFFIX:~0,5%" EQU "angus" (
