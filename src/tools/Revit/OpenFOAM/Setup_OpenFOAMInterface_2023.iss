@@ -1,9 +1,10 @@
 #define COVISEDIR GetEnv("COVISEDIR")
+#define REVIT_VERSION "2023"
 
 [Files]
 Source: "{#COVISEDIR}\zebuopt\lib\OpenFOAMInterface.dll"; DestDir: "{app}"; Flags: replacesameversion
 Source: "{#COVISEDIR}\src\tools\Revit\OpenFOAM\Families\*"; DestDir: "{app}\Families"; Flags: replacesameversion recursesubdirs
-Source: "{#COVISEDIR}\src\tools\Revit\OpenFOAM\BIM\Resources\OpenFOAMInterface.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\2023"; Flags: replacesameversion
+Source: "{#COVISEDIR}\src\tools\Revit\OpenFOAM\BIM\Resources\OpenFOAMInterface.addin"; DestDir: "{userappdata}\Autodesk\Revit\Addins\{#REVIT_VERSION}"; Flags: replacesameversion
 
 [code]
 { HANDLE INSTALL PROCESS STEPS }
@@ -19,7 +20,7 @@ begin
   if CurStep = ssPostInstall then
   begin
 
-  AddinFilePath := ExpandConstant('{userappdata}\Autodesk\Revit\Addins\2023\OpenFOAMInterface.addin');
+  AddinFilePath := ExpandConstant('{userappdata}\Autodesk\Revit\Addins\{#REVIT_VERSION}\OpenFOAMInterface.addin');
   LoadedFile := TStringList.Create;
   SearchString := 'Assembly>OpenFOAMInterface.dll<';
   ReplaceString := 'Assembly>' + ExpandConstant('{app}') + '\OpenFOAMInterface.dll<';
@@ -42,16 +43,16 @@ begin
 end;
 
 [Setup]
-AppName=OpenFOAMInterface for Autodesk Revit 2023
-AppVerName=OpenFOAMInterface for Autodesk Revit 2023
+AppName=OpenFOAMInterface for Autodesk Revit {#REVIT_VERSION}
+AppVerName=OpenFOAMInterface for Autodesk Revit {#REVIT_VERSION}
 RestartIfNeededByRun=false
-DefaultDirName={commonpf32}\OpenFOAMInterface\2023
-OutputBaseFilename=Setup_OpenFOAMInterface_2023
+DefaultDirName={commonpf32}\OpenFOAMInterface\{#REVIT_VERSION}
+OutputBaseFilename=Setup_OpenFOAMInterface_{#REVIT_VERSION}
 ShowLanguageDialog=auto
 FlatComponentsList=false
 UninstallFilesDir={app}\Uninstall
-UninstallDisplayName=OpenFOAMInterface for Autodesk Revit 2023
-AppVersion=2023.0
-VersionInfoVersion=2023.0
-VersionInfoDescription=OpenFOAMInterface for Autodesk Revit 2023
-VersionInfoTextVersion=OpenFOAMInterface for Autodesk Revit 2023
+UninstallDisplayName=OpenFOAMInterface for Autodesk Revit {#REVIT_VERSION}
+AppVersion={#REVIT_VERSION}.0
+VersionInfoVersion={#REVIT_VERSION}.0
+VersionInfoDescription=OpenFOAMInterface for Autodesk Revit {#REVIT_VERSION}
+VersionInfoTextVersion=OpenFOAMInterface for Autodesk Revit {#REVIT_VERSION}
