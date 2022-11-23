@@ -404,11 +404,32 @@ class FamilyType
 public:
     FamilyType(TokenBuffer& tb);
     ~FamilyType();
+    void createMenuEntry();
+    void createFamilyLabel();
     std::string Name;
     int ID;
     std::string FamilyName;
     ui::Action* selectType = nullptr;
+    ui::Label* FamilyLabel = nullptr;
     
+};
+class ObjectParamater
+{
+public:
+    ObjectParamater(TokenBuffer& tb,int i);
+    ~ObjectParamater();
+    void createMenu();
+    std::string Name;
+    std::string Value;
+    ui::Label* Label = nullptr;
+    int num;
+    int StorageType;
+
+    double d;
+    int ElementReferenceID;
+    int i;
+
+    std::string ParameterType;
 };
 
 class ObjectInfo
@@ -420,10 +441,12 @@ public:
     int TypeID;
     std::string CategoryName;
     int flipInfo;
-    std::list<FamilyType *> types;
+    std::vector<FamilyType*> types;
+    std::vector<ObjectParamater*> parameters;
 
     ui::Action* flipLR = nullptr;
     ui::Action* flipIO = nullptr;
+    ui::Label* TypeNameLabel = nullptr;
 };
 
 
@@ -545,6 +568,8 @@ public:
     ui::Action* selectObject = nullptr;
     ui::Menu* typesMenu = nullptr;
     ui::ButtonGroup* TypesGroup=nullptr;
+    ui::Menu* parametersMenu = nullptr;
+    ui::ButtonGroup* ParametersGroup = nullptr;
 
     vrui::coCombinedButtonInteraction *selectObjectInteraction = nullptr;
     /*ui::EditField* xPos;

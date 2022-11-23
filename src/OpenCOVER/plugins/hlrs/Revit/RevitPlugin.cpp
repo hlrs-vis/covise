@@ -20,6 +20,8 @@
  \****************************************************************************/
 #define QT_NO_EMIT
 
+#include <algorithm>
+
 #include "RevitPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
@@ -983,13 +985,90 @@ void RevitViewpointEntry::activate()
 	cover->setXformMat(ivMat);
 }
 
+
+
+ObjectParamater::ObjectParamater(TokenBuffer& tb,int i)
+{
+	num = i;
+	int pID;
+	tb >> pID;
+	tb >> Name;
+	tb >> StorageType;
+	tb >> ParameterType;
+	switch (StorageType)
+	{
+	case RevitPlugin::Double:
+		tb >> d;
+		break;
+	case RevitPlugin::ElementId:
+		tb >> ElementReferenceID;
+		tb >> Value;
+		break;
+	case RevitPlugin::Integer:
+		tb >> i;
+		break;
+	case RevitPlugin::String:
+		tb >> Value;
+		break;
+	default:
+		tb >> Value;
+		break;
+	}
+}
+
+ObjectParamater::~ObjectParamater()
+{
+	delete Label;
+}
+
+void ObjectParamater::createMenu()
+{
+	Label = new ui::Label(RevitPlugin::instance()->parametersMenu, std::to_string(num) + "_ValLabel");
+
+	switch (StorageType)
+	{
+	case RevitPlugin::Double:
+		Label->setText(Name +  " = " + std::to_string(d));
+		break;
+	case RevitPlugin::ElementId:
+		Label->setText(Name +  " = " + Value);
+		break;
+	case RevitPlugin::Integer:
+    {
+        size_t pos = ParameterType.find("bool");
+        if (pos != std::string::npos)
+        {
+            if (i > 0)
+                Label->setText(Name + " = true");
+            else
+                Label->setText(Name + " = false");
+        }
+        else
+        {
+            Label->setText(Name + " = " + std::to_string(i));
+        }
+    }
+		break;
+	case RevitPlugin::String:
+		Label->setText(Name +  " = " + Value);
+		break;
+	default:
+		Label->setText(Name + " = " + Value);
+		break;
+	}
+}
+
 FamilyType::FamilyType(TokenBuffer& tb)
 {
 	tb >> Name;
 	tb >> ID;
 	tb >> FamilyName;
-	selectType = new ui::Action(RevitPlugin::instance()->typesMenu, Name+FamilyName);
-	selectType->setText(Name+FamilyName);
+}
+void FamilyType::createMenuEntry()
+{
+
+	selectType = new ui::Action(RevitPlugin::instance()->typesMenu, Name + FamilyName);
+	selectType->setText(Name);
 	selectType->setCallback([this]() {
 		TokenBuffer stb;
 		stb << RevitPlugin::instance()->currentObjectID;
@@ -1001,16 +1080,22 @@ FamilyType::FamilyType(TokenBuffer& tb)
 		message.type = (int)RevitPlugin::MSG_SelectType;
 		RevitPlugin::instance()->sendMessage(message);
 		});
-	
+}
+void FamilyType::createFamilyLabel()
+{
+	FamilyLabel = new ui::Label(RevitPlugin::instance()->typesMenu, FamilyName + "_Label");
+	FamilyLabel->setText(FamilyName);
 }
 
 FamilyType::~FamilyType()
 {
 	delete selectType;
+	delete FamilyLabel;
 }
 ObjectInfo::ObjectInfo(TokenBuffer& tb)
 {
 	int numTypes = 0;
+	int numParams = 0;
 	int objID = 0;
 	int docID = 0;
 	tb >> objID;
@@ -1020,10 +1105,39 @@ ObjectInfo::ObjectInfo(TokenBuffer& tb)
 	tb >> CategoryName;
 	tb >> flipInfo;
 	tb >> numTypes;
+
+	TypeNameLabel = new ui::Label(RevitPlugin::instance()->objectInfoMenu, TypeName + "_TNLabel");
+	TypeNameLabel->setText(CategoryName);
 	for (int i = 0; i < numTypes; i++)
 	{
 		types.push_back(new FamilyType(tb));
 	}
+	tb >> numParams;
+	for (int i = 0; i < numParams; i++)
+	{
+		parameters.push_back(new ObjectParamater(tb,i));
+	}
+	std::sort(types.begin(), types.end(),
+		[](const FamilyType* LHS, const FamilyType* RHS)
+		{ if (LHS->FamilyName == RHS->FamilyName) return (LHS->Name < RHS->Name); return (LHS->FamilyName < RHS->FamilyName); });
+	std::string lastFamilyName;
+	for (FamilyType*& ft : types)
+	{
+		if (lastFamilyName != ft->FamilyName)
+		{
+			lastFamilyName = ft->FamilyName;
+			ft->createFamilyLabel();
+		}
+		ft->createMenuEntry();
+	}
+	std::sort(parameters.begin(), parameters.end(),
+		[](const ObjectParamater* LHS, const ObjectParamater* RHS)
+		{ return (LHS->Name < RHS->Name); });
+	for (ObjectParamater*& pt : parameters)
+	{
+		pt->createMenu();
+	}
+
 	if (flipInfo & 1)
 	{
 		flipLR = new ui::Action(RevitPlugin::instance()->objectInfoMenu, "flipLR");
@@ -1060,10 +1174,13 @@ ObjectInfo::~ObjectInfo()
 	{
 		delete oi;
 	}
+	for (const auto& op : parameters)
+	{
+		delete op;
+	}
 	delete flipIO;
 	delete flipLR;
-	flipIO = nullptr;
-	flipLR = nullptr;
+	delete TypeNameLabel;
 }
 
 void RevitViewpointEntry::updateCamera()
@@ -1202,6 +1319,11 @@ void RevitPlugin::createMenu()
 	typesMenu->setText("Types");
 
 	TypesGroup = new ui::ButtonGroup(typesMenu, "TypesGroup");
+
+	parametersMenu = new ui::Menu(objectInfoMenu, "Parameters");
+	parametersMenu->setText("Parameters");
+
+	ParametersGroup = new ui::ButtonGroup(typesMenu, "ParametersGroup");
 
 	selectObjectInteraction = new vrui::coCombinedButtonInteraction(vrui::coInteraction::ButtonAction, "selectObject", vrui::coInteraction::High);
 	selectObject = new ui::Action(objectInfoMenu, "selectObject");
