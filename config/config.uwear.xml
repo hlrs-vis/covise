@@ -300,11 +300,12 @@
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <!--  Thyssen Turm klein -->
+		    <!--  cyclone -->
                     <Marker name="ObjectMarker1" >
-                        <Pattern value="7" />
+                        <Pattern value="16" />
                         <Size value="40" />
-                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+                        <!--Offset x="100" y="-812" z="10" h="180" p="0" r="90" /-->
+                        <Offset x="120" y="6" z="800" h="0" p="90" r="-90" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Thyssen Turm gross -->
