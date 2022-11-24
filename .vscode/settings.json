@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "primitiveset": "cpp"
+    },
+    "terminal.integrated.profiles.windows": {
+        "cmder": {
+            "path": [
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": ["-cmd",  "/k", "${workspaceFolder}/../coviseenv.bat",  "zebu"],
+            "icon": "terminal-cmd"
+        },
+    },
+    "terminal.integrated.defaultProfile.windows": "cmder",
+    "cmake.cmakePath": "${workspaceFolder}/.vscode/CMakeWrapper.bat",
+    "cmake.generator": "Ninja"
+}

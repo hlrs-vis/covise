@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "processId":"${command:pickProcess}",
+            "name": "(Windows) Anfügen",
+            "type": "cppvsdbg",
+            "request": "attach",
+        },
+        {
+            "name": "launch COVISE",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/zebu/bin/covise",
+            "args": [],
+            "envFile": "${workspaceFolder}/.vscode/covise.env",
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "launch OpenCOVER",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/zebu/bin/renderer/opencover",
+            "args": [],
+            "envFile": "${workspaceFolder}/.vscode/covise.env",
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+    ]
+}

@@ -11,7 +11,6 @@
 /.project
 /.settings
 /.vs
-/.vscode
 /*/bin
 /*/build.cover
 /*/build.covise
@@ -284,3 +283,8 @@
 /leopardopt
 /lion
 /lionopt
+.vscode/*     
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vsCode/CMakeWrapper.bat
