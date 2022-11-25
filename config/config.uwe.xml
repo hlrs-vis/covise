@@ -39,6 +39,7 @@
 	</Device>
         <Valuator>
            <CaveJoyX device="joystick" valuatorIndex="0" />
+           <CaveJoyY device="joystick" valuatorIndex="1" />
         </Valuator>
 
         <Persons>

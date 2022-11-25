@@ -83,7 +83,8 @@ public:
     int fd[MAX_NUMBER_JOYSTICKS];
 #endif
 
-	int numLocalJoysticks;
+	size_t numLocalJoysticks=0;
+	size_t joystickNumber=0;
 	unsigned char number_buttons[MAX_NUMBER_JOYSTICKS];
 	int *buttons[MAX_NUMBER_JOYSTICKS];
 	unsigned char number_axes[MAX_NUMBER_JOYSTICKS];

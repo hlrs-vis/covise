@@ -54,6 +54,8 @@ Joystick::Joystick(const std::string &config)
 		axes[i] = NULL;
 		POVs[i] = NULL;
 	}
+
+	joystickNumber = covise::coCoviseConfig::getInt("joystickNumber", configPath(), 0);
 #ifdef WIN32
 	g_pDI = NULL;
 	HRESULT hr;
@@ -138,6 +140,23 @@ Joystick::Joystick(const std::string &config)
         }
      }
 #endif
+	if(numLocalJoysticks > joystickNumber)
+	{
+		m_valuatorRanges.resize(number_axes[joystickNumber]);
+		m_valuatorValues.resize(number_axes[joystickNumber]);
+		for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+		{
+			m_valuatorValues[i] = axes[joystickNumber][i];
+			m_valuatorRanges[i].first = -1.0;
+			m_valuatorRanges[i].second = 1.0;
+		}
+
+		m_buttonStates.resize(number_buttons[joystickNumber]);
+		for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+		{
+			m_buttonStates[i] = buttons[joystickNumber][i];
+		}
+	}
     JoystickMutex.unlock();
 }
 
@@ -200,6 +219,7 @@ BOOL Joystick::EnumJoysticks(const DIDEVICEINSTANCE *pdidInstance)
 		return DIENUM_CONTINUE;
 	if ((number_axes[numLocalJoysticks] > 0) || (number_buttons[numLocalJoysticks] > 0))
 	{
+		fprintf(stderr, "Joystick %d %s:%s\n", numLocalJoysticks, pdidInstance->tszProductName, pdidInstance->tszInstanceName);
 		numLocalJoysticks++;
 	}
 	return DIENUM_CONTINUE;
@@ -427,6 +447,15 @@ bool Joystick::poll()
         }
     }
     #endif
+	for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+	{
+		m_valuatorValues[i] = axes[joystickNumber][i];
+	}
+
+	for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+	{
+		m_buttonStates[i] = buttons[joystickNumber][i];
+	}
     return true;
 }
 
