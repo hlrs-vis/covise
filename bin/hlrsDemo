@@ -335,6 +335,17 @@ demo 28 "LEGO Porsche vs. Bugatti (Remote)" run_lego
 #ChEESE
 demo 29 "Tsunami (Cádiz)" vistle /data/ChEESE/tsunami/cadiz/vistle_files/cadiz_tsunami_video.vsl
 
+maxcol=3
+col="0"
+printentry() {
+    printf "${MENU}${OPT}%3s) ${MENU}%-45s" "$1" "$2"
+}
+newline() {
+    if [ "$col" != "0" ]; then
+        col="0"
+        echo
+    fi
+}
 printmenu() {
     cat=""
     for key in "${keys[@]}"; do
@@ -343,14 +354,25 @@ printmenu() {
             cat="$ncat"
             #echo -e "                                                      "
             if [ -n "$cat" ]; then
-                echo -e "${MENU}-----${TYP} ${cat} ${MENU}---------------------------------"
+                if [ "$col" != "0" ]; then
+                    echo
+                fi
+                echo -e "${MENU}-----${TYP} ${cat} ${MENU}-----"
+                col="0"
             fi
         fi
-        echo -e "${MENU} ${OPT}  ${keys[$key]})  ${MENU} ${titles[$key]}"
+        #printf "${MENU}${OPT}%3s) ${MENU}%-45s" "$key" "${titles[$key]}"
+        printentry "$key" "${titles[$key]}"
+        col=$((${col}+1))
+        if [ "$col" -ge "$maxcol" ]; then
+            newline
+        fi
     done
 
+    newline
     echo -e "                                                      "
-    echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
+    printentry "q" "exit this menu"
+    echo
     echo -e "${MENU}---------------------------------------------"
     echo -e "${ENTER}   Enter choice ([Enter] reprints menu) ${NORMAL}"
 }
