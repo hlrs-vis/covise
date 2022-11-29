@@ -1,622 +1,380 @@
 <?xml version="1.0"?>
 
-<COCONFIG version="1" >
+<COCONFIG version="1">
 
- <GLOBAL>
-  <Module>
-   <IHS>
-    <DataPath value="/data/IHS/" />
-    <GateBladeMin value="-20" />
-    <GateBladeMax value="8" />
-   </IHS>
+    <GLOBAL>
+        <Module>
+            <IHS>
+                <DataPath value="/data/IHS/" />
+                <GateBladeMin value="-20" />
+                <GateBladeMax value="8" />
+            </IHS>
 
-   <Fenfloss>
-    <Verbose value="1" />
-    <Timeout value="300" />
-    <Startup value="gate %0 %1 %e" name="v3" />
-    <Startup value="tube %0 %1 %e" name="v4" />
-    <Startup value="axial %0 %1 %e" name="v5" />
-    <Startup value="radial %0 %1 %e" name="v6" />
-    <Startup value="sc2004booth %0 %1 %e" name="v7" />
-    <Startup value="archflow %0 %1 %e" name="v8" />
-    <Startup value="other %0 %1 %e" name="v9" />
-    <Startup value="dgrid /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'" name="v10" />
-    <Application value="p_covise_fen6.3.0.0" name="v1"/>
-    <Application value="p_fen6.3.0.0" name="v2"/>
-    <Application value="p_fen7.0" name="v3"/>
-   </Fenfloss>
+            <Fenfloss>
+                <Verbose value="1" />
+                <Timeout value="300" />
+                <Startup value="gate %0 %1 %e" name="v3" />
+                <Startup value="tube %0 %1 %e" name="v4" />
+                <Startup value="axial %0 %1 %e" name="v5" />
+                <Startup value="radial %0 %1 %e" name="v6" />
+                <Startup value="sc2004booth %0 %1 %e" name="v7" />
+                <Startup value="archflow %0 %1 %e" name="v8" />
+                <Startup value="other %0 %1 %e" name="v9" />
+                <Startup value="dgrid /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'" name="v10" />
+                <Application value="p_covise_fen6.3.0.0" name="v1"/>
+                <Application value="p_fen6.3.0.0" name="v2"/>
+                <Application value="p_fen7.0" name="v3"/>
+            </Fenfloss>
 
-   <StarCD>
-    <Verbose value="1" />
-    <Timeout value="300" />
-    <Server value="m" />
-    <Startup value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
-    <Startup value="dummy d" name="v2" />
-    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
-    </StarCD>
+            <StarCD>
+                <Verbose value="1" />
+                <Timeout value="300" />
+                <Server value="m" />
+                <Startup value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+                <Startup value="dummy d" name="v2" />
+                <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+            </StarCD>
 
-   <Material>
-    <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
-   </Material>
+            <Material>
+                <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263" emissive="0 0 0" shininess="0.0363636" transparency="0" />
+            </Material>
 
-   <TetraTrace>
-    <BoxIncreaseFactor value="2" />
-   </TetraTrace>
-  </Module>
+            <TetraTrace>
+                <BoxIncreaseFactor value="2" />
+            </TetraTrace>
+        </Module>
 
-  <System>
-  
-   <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
-    <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
-   </VRB>
-<!--   <ShmSize value="2097152"/> -->
-   <!--<ShmSize value="33554432"/>-->
-    <!--ShmKind value="sysv" /-->
-    <WSInterface value="false" />
-   <CRB>
-    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
-    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
-    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
-    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
-    <ModuleAlias value="IO/ReadCGNS-spbgpu" name="IO/ReadCGNS" />
-   </CRB>
-  </System>
+        <System>
 
-  <COVER>
-      <!--GLVersion value="3.0" /-->
-      <!--GLDebug value="true" /-->
-      <Snap value="ON" />
-      <DebugTUI value="OFF" />
-	  
-                    <Stereo value="OFF" />
-    <!--LODScale value="0.000000000001" /-->
-    <DepthPeeling value="false" />
-    <LODScale value="1" />
+            <VRB>
+                <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
+                <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
+            </VRB>
+            <!--   <ShmSize value="2097152"/> -->
+            <!--<ShmSize value="33554432"/>-->
+            <!--ShmKind value="sysv" /-->
+            <WSInterface value="false" />
+            <CRB>
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
+                <ModuleAlias value="IO/ReadCGNS-spbgpu" name="IO/ReadCGNS" />
+            </CRB>
+        </System>
 
-    <SyncToVBlank value="OFF" device="DFP-0" />
-
-    <CudaNumThreads value="128" />        
-     <TabletPC>
-         <Server value="127.0.0.1"/>
-       </TabletPC>
-   <CheckForOpenGLErrors value="true" />
-   <UseVertexBufferObjects value="false" />
-   <UseDisplayLists value="true" />
-   <NavigationMode value="XForm" />
-   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
-   <MultiThreaded value="off" />
-   <StencilBits value="8" />
-   <Stencil value="true" />
-
-   <VRUI>
-     <VNC>
-       <Menu>
-         <Orientation h="-90" p="0" r="0" />
-         <Position x="1400" y="-500" z="500" />
-       </Menu>
-     </VNC>
-   </VRUI>
-
-   <Input>
-    <MouseNav value="ON" />
-    <TrackingSystem value="MOUSE" />
-    <!--Keyboard terminal="on" evdev="/dev/input/coverkeys" /-->
-   </Input>
-
-	<!--Console value="on" file="/tmp/coverlog"/-->
-   <Plugin>
-   <CompositorIceT menu="true" />
-   <Measure menu="true" />
-   <PointCloud>
-   <PointSize value="4" />
-   </PointCloud>
-    <Bullet value="off" />
-    <Earth value="off" />
-    <COVERScript value="off" />
-    <cuCuttingSurface value="off" />
-    <cuIsoSurface value="off" />
-    <SGBrowser value="on" />
-    <Volume value="off" />
-    <TouchTable value="off" />
-     <CaveCAD>
-       <DataDir value="/data/calit2/CaveCAD" />
-     </CaveCAD>
-     <Maze>
-       <DataDir value="/data/calit2/maze" />
-     </Maze>
-
-
-     <Vrml97 value="on" >    
-      <!--SmallTextures value="true" /-->
-      <!--MaxTextureSize value="1024" /-->
-	  <ViewpointType value = "standardNoFov"/>
-     <Audio value="OpenAL" />
-     <ViewpointType value = "standardNoFov"/>
-    </Vrml97>
-
-    <DistortViewer value="off" />
-    <Move value="off" menu="true" />
-    <ClipPlane value="on" />
-    <PLMXML value="off">
-	 <LoadSTL value="false" />
-	 <LoadVRML value="true" />
-	 <UndoVRMLRotate value="false" />
-	</PLMXML>
-	
-
-    <PDB value="off" menu="true" >
-     <PDBPluginPymolDir value="/var/tmp/pymol/" />
-     <PDBPluginTempDir value="/var/tmp/pdb/" />
-     <PDBUrl value="www.pdb.org/pdb/files/" />
-     <AnimationURL value="www.molmovdb.org/uploads/" />
-     <PDBAnimationUrl value="www.molmovdb.org/uploads" />
-
-     <Scale value="1" />
-     <ViewerDistance value="70" />
-     <FadeDistance value="40" />
-
-     <Structures>
-          <Gleevec value="1XBB" />
-          <Luciferin value="2D1S" />
-          <Hemoglobin value="4HHB" />
-          <HIV_Protease value="1HVR" />
-          <Smad4 value="1YGS" />
-          <Photosystem_I value="1JBO" />
-          <Cytochrome_c_Oxidase value="1OCO" />
-          <MHC_Class_II value="1DLH" />
-          <Potassium_Channel_A value="1BL8" />
-          <Potassium_Channel_B value="1FQY" />
-          <SARS value="2D2D" />
-          <Acetylcholine_Receptor value="2BG9" />
-          <Acetylcholine_Cobratoxin value="1YI5" />
-          <Thermus_Thermophilus value="1J5E" />
-          <Polyketide_Synthase value="1U0M" />
-          <Calcium_Pump value="1SU4" />
-          <Antibody_bound_Influenza value="1KEN" />
-          <Thermatoga value="2F8J" />
-     </Structures>
-
-     <Animations>
-          <Serotonin_N_Acetyltransferase value="22943-38" />
-          <Calcium_Pump value="396506-12995" />
-          <FecA_transporter value="829808-15750" />
-          <Actin value="763408-1487" />
-          <Calmodulin value="17833-29779" />
-     </Animations>
-    </PDB>
-
-    <AKToolbar value="false" menu="true">
-     <Attachment value="TOP" />
-     <Scale value=".8" />
-     <MinClickTime value="0.2" />
-     <Position x="-980" y="0" z="630" />
-     <ShortCut value="viewall" name="viewall" />
-     <ShortCut value="scale" name="scale" />
-     <ShortCut value="xform" name="xform" />
-     <ShortCut value="walk" name="walk" />
-     <ShortCut value="drive" name="drive" />
-     <ShortCut value="fly" name="fly" />
-    </AKToolbar>
-
-    <Amber value="off"/>  
-	<StereoVideoPlayer>
-	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
-	<AudioOffset value="0.0"/>
-  </StereoVideoPlayer>
-
-    <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
-	<AudioOffset value="0.0" />
-    </StereoVideoPlayer>
-
-   <Revit value="true" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
-
-   </Plugin>
-
-   <Menu>
-    <Position x="800" y="0" z="500" />
-   </Menu>
-   <ViewerPosition x="0" y="-1500" z="0" />
-   <SceneSize value="1000" />
-   <DebugLevel value="1" />
-   <FPS value="true" />
-   
-
-   <PipeConfig>
-       <!--Pipe name="0" useDISPLAY="true" /-->
-	   <Pipe display="Sony" server="0" screen="0" name="0" useDisplay="true"/>
-   </PipeConfig>
-
-   <WindowConfig>
-    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
-    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-    <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
-    <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
-	<!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
-   </WindowConfig>
-
-   <ScreenConfig>
-   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-   <Screen width="3840" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2160" p="0.0" r="0.0" name="0" screen="0" />
-   </ScreenConfig>
-
-
-   <ViewportConfig>
-      <!-- each channel needs at least one Viewport -->
-    <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
-   </ViewportConfig>
-   <!--Background r="1.0" g="1.0" b="1.0"/-->
-   
-                <Freeze value="on" />
+        <COVER>
+            <Snap value="ON" />
+            <DebugTUI value="OFF" />
+            <Stereo value="OFF" />
+            <DepthPeeling value="false" />
+            <LODScale value="1" />
+            <SyncToVBlank value="ON" device="DFP-0" />
+            <CudaNumThreads value="128" />
+            <TabletPC>
+                <Server value="127.0.0.1"/>
+            </TabletPC>
+            <CheckForOpenGLErrors value="true" />
+            <UseVertexBufferObjects value="false" />
+            <UseDisplayLists value="true" />
+            <NavigationMode value="XForm" />
+            <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+            <MultiThreaded value="off" />
+            <StencilBits value="8" />
+            <Stencil value="true" />
+            <VRUI>
+                <VNC>
+                    <Menu>
+                        <Orientation h="-90" p="0" r="0" />
+                        <Position x="1400" y="-500" z="500" />
+                    </Menu>
+                </VNC>
+            </VRUI>
+            <Input>
+                <MouseNav value="ON" />
+                <TrackingSystem value="MOUSE" />
+            </Input>
             <Plugin>
-                <ARTrace value="off" />
-                <ARToolKit value="off" >
+                <CompositorIceT menu="true" />
+                <Measure menu="true" />
+                <PointCloud>
+                    <PointSize value="4" />
+                </PointCloud>
+                <Bullet value="off" />
+                <Earth value="off" />
+                <COVERScript value="off" />
+                <cuCuttingSurface value="off" />
+                <cuIsoSurface value="off" />
+                <SGBrowser value="on" />
+                <Volume value="off" />
+                <TouchTable value="off" />
+                <CaveCAD>
+                    <DataDir value="/data/calit2/CaveCAD" />
+                </CaveCAD>
+                <Maze>
+                    <DataDir value="/data/calit2/maze" />
+                </Maze>
+                <Vrml97 value="on">
+                    <!--SmallTextures value="true" /-->
+                    <!--MaxTextureSize value="1024" /-->
+                    <ViewpointType value = "standardNoFov"/>
+                    <Audio value="OpenAL" />
+                    <ViewpointType value = "standardNoFov"/>
+                </Vrml97>
+                <DistortViewer value="off" />
+                <Move value="off" menu="true" />
+                <ClipPlane value="on" />
+                <PLMXML value="on">
+                    <LoadSTL value="false" />
+                    <LoadVRML value="true" />
+                    <UndoVRMLRotate value="false" />
+                </PLMXML>
+                <PDB value="off" menu="true">
+                    <PDBPluginPymolDir value="/var/tmp/pymol/" />
+                    <PDBPluginTempDir value="/var/tmp/pdb/" />
+                    <PDBUrl value="www.pdb.org/pdb/files/" />
+                    <AnimationURL value="www.molmovdb.org/uploads/" />
+                    <PDBAnimationUrl value="www.molmovdb.org/uploads" />
+                    <Scale value="1" />
+                    <ViewerDistance value="70" />
+                    <FadeDistance value="40" />
+                    <Structures>
+                        <Gleevec value="1XBB" />
+                        <Luciferin value="2D1S" />
+                        <Hemoglobin value="4HHB" />
+                        <HIV_Protease value="1HVR" />
+                        <Smad4 value="1YGS" />
+                        <Photosystem_I value="1JBO" />
+                        <Cytochrome_c_Oxidase value="1OCO" />
+                        <MHC_Class_II value="1DLH" />
+                        <Potassium_Channel_A value="1BL8" />
+                        <Potassium_Channel_B value="1FQY" />
+                        <SARS value="2D2D" />
+                        <Acetylcholine_Receptor value="2BG9" />
+                        <Acetylcholine_Cobratoxin value="1YI5" />
+                        <Thermus_Thermophilus value="1J5E" />
+                        <Polyketide_Synthase value="1U0M" />
+                        <Calcium_Pump value="1SU4" />
+                        <Antibody_bound_Influenza value="1KEN" />
+                        <Thermatoga value="2F8J" />
+                    </Structures>
+                    <Animations>
+                        <Serotonin_N_Acetyltransferase value="22943-38" />
+                        <Calcium_Pump value="396506-12995" />
+                        <FecA_transporter value="829808-15750" />
+                        <Actin value="763408-1487" />
+                        <Calmodulin value="17833-29779" />
+                    </Animations>
+                </PDB>
+                <AKToolbar value="false" menu="true">
+                    <Attachment value="TOP" />
+                    <Scale value=".8" />
+                    <MinClickTime value="0.2" />
+                    <Position x="-980" y="0" z="630" />
+                    <ShortCut value="viewall" name="viewall" />
+                    <ShortCut value="scale" name="scale" />
+                    <ShortCut value="xform" name="xform" />
+                    <ShortCut value="walk" name="walk" />
+                    <ShortCut value="drive" name="drive" />
+                    <ShortCut value="fly" name="fly" />
+                </AKToolbar>
+                <Amber value="off"/>
+                <StereoVideoPlayer>
+                    <MoviePlayer value="ffmpeg"/>
+                    <UseTextureRectangle value="true"/>
+                    <AudioOffset value="0.0"/>
+                </StereoVideoPlayer>
+                <StereoVideoPlayer>
+                    <UseTextureRectangle value="on" />
+                    <AudioOffset value="0.0" />
+                </StereoVideoPlayer>
+                <Revit value="true" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
+            </Plugin>
+            <Menu>
+                <Position x="800" y="0" z="500" />
+            </Menu>
+            <ViewerPosition x="0" y="-1500" z="0" />
+            <SceneSize value="1000" />
+            <DebugLevel value="1" />
+            <FPS value="true" />
+            <PipeConfig>
+                <!--Pipe name="0" useDISPLAY="true" /-->
+                <Pipe display="Sony" server="0" screen="0" name="0" useDisplay="true"/>
+            </PipeConfig>
+
+            <WindowConfig>
+                <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+                <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+                <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
+                <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
+                <!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
+            </WindowConfig>
+
+            <ScreenConfig>
+                <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+                <Screen width="3840" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2160" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+            <ViewportConfig>
+                <!-- each channel needs at least one Viewport -->
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0" />
+            </ViewportConfig>
+            <!--Background r="1.0" g="1.0" b="1.0"/-->
+            <Freeze value="on" />
+            <Plugin>
+                <!-- <ARTrace value="off" /> -->
+                <ARToolKit value="off">
                     <Capture value="ON" />
                     <Stereo value="OFF" />
                     <TrackViewpoint value="OFF" />
                     <TrackObjects value="ON" />
-		    <Marker name="Revit_43" >
+                    <Marker name="Revit_43">
                         <Pattern value="43" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <Marker name="Revit_44" >
+                    <Marker name="Revit_44">
                         <Pattern value="44" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <Marker name="Revit_52" >
+                    <Marker name="Revit_52">
                         <Pattern value="52" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <Marker name="Revit_72" >
+                    <Marker name="Revit_72">
                         <Pattern value="72" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <Marker name="Revit_66" >
+                    <Marker name="Revit_66">
                         <Pattern value="66" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <Marker name="Revit7" >
+                    <Marker name="Revit7">
                         <Pattern value="7" />
                         <Size value="327" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <!--  DraegerAachenModell -->
-		    <Marker name="ObjectMarker0" >
+                    <!--  DraegerAachenModell -->
+                    <Marker name="ObjectMarker0">
                         <Pattern value="26" />
                         <Size value="30" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-		    <!--  Thyssen Turm klein -->
-                    <Marker name="ObjectMarker1" >
-                        <Pattern value="2" />
-                        <Size value="70" />
-                        <Offset x="70" y="0" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-		    <!--  Thyssen Turm gross -->
-		    <Marker name="ObjectMarker2" >
-                        <Pattern value="117" />
-                        <Size value="62" />
-                        <Offset x="-10" y="-80" z="0" h="0" p="0" r="0" />
-                        <!--Offset x="73" y="0" z="0" h="-90" p="0" r="0" /-->
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-		    <!--  Science Pub Bierglas kleiner Marker -->
-		    <Marker name="ObjectMarker3" >
-                        <Pattern value="5" />
-                        <Size value="70" />
-                        <Offset x="0" y="100" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-		    <!--  Science Pub Bierglas gross neu Marker -->
-		    <Marker name="ObjectMarker4" >
-                        <Pattern value="40" />
-                        <Size value="200" />
-                        <Offset x="0" y="160" z="5" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-					
-		    <!--  DraegerOP -->
-		    <Marker name="ObjectMarker5" >
+                    <!--  DraegerOP -->
+                    <Marker name="ObjectMarker5">
                         <Pattern value="76" />
                         <Size value="300" />
                         <Offset x="200" y="100" z="610" h="90" p="-90" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-					
-		    <Marker name="ObjectMarker6" >
+                    <Marker name="ObjectMarker6">
                         <Pattern value="74" />
                         <Size value="200" />
                         <Offset x="-450" y="-130" z="855" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
-                    </Marker>	
-		    <Marker name="ObjectMarker7" >
+                    </Marker>
+                    <Marker name="ObjectMarker7">
                         <Pattern value="73" />
                         <Size value="300" />
                         <Offset x="1040" y="890" z="200" h="180" p="-2" r="-0.4" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker8" >
+                    <Marker name="ObjectMarker8">
                         <Pattern value="36" />
                         <Size value="200" />
                         <Offset x="0" y="990" z="1542" h="90" p="0" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker9" >
+                    <Marker name="ObjectMarker9">
                         <Pattern value="33" />
                         <Size value="200" />
                         <Offset x="0" y="1650" z="1480" h="90" p="0" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-					<!--Pelton -->
-                    <Marker name="ObjectMarker10" >
+                    <!--Pelton -->
+                    <Marker name="ObjectMarker10">
                         <Pattern value="31" />
                         <Size value="500" />
                         <Offset x="800" y="-991" z="-420" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker11" >
+                    <Marker name="ObjectMarker11">
                         <Pattern value="32" />
                         <Size value="500" />
                         <Offset x="800" y="-991" z="490" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker12" >
+                    <Marker name="ObjectMarker12">
                         <Pattern value="78" />
                         <Size value="200" />
                         <Offset x="276.566" y="-993.929" z="768.392" h="43" p="-90" r="43" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker13" >
+                    <Marker name="ObjectMarker13">
                         <Pattern value="76" />
                         <Size value="200" />
                         <Offset x="-500" y="-140" z="850" h="180" p="-90" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-                    <Marker name="ObjectMarker14" >
+                    <Marker name="ObjectMarker14">
                         <Pattern value="14" />
                         <Size value="1800" />
                         <Offset x="-1545.24" y="-1347.12" z="2852" h="180" p="180" r="180" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
-					<!-- porsche
-                    <Marker name="ObjectMarker12" >
-                        <Pattern value="77" />
-                        <Size value="760" />
-                        <Offset x="3340" y="-80" z="1000" h="-90" p="-104" r="180" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>-->
-			
-<!--  Lino-Line 
-		    <Marker name="ObjectMarker5" >
-                        <Pattern value="35" />
-                        <Size value="300" />
-                        <Offset x="1782" y="737" z="595" h="180" p="-90" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-					
-		    <Marker name="ObjectMarker6" >
-                        <Pattern value="40" />
-                        <Size value="200" />
-                        <Offset x="1390" y="490" z="700" h="-90" p="0" r="-90" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>	
-		    <Marker name="ObjectMarker7" >
-                        <Pattern value="78" />
-                        <Size value="300" />
-                        <Offset x="1040" y="890" z="200" h="180" p="-2" r="-0.4" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-		    <Marker name="ObjectMarker8" >
-                        <Pattern value="72" />
-                        <Size value="300" />
-                        <Offset x="-155" y="0" z="-130" h="-90" p="-90" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-		    <Marker name="ObjectMarker9" >
-                        <Pattern value="36" />
-                        <Size value="300" />
-                        <Offset x="1040" y="-1120" z="-130" h="0" p="-90" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-		    <Marker name="ObjectMarker10" >
-                        <Pattern value="74" />
-                        <Size value="200" />
-                        <Offset x="4110" y="0" z="830" h="90" p="-74" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-				-->		
-		    <!--  Beetle Motorhaube >
-                    <Marker name="ObjectMarker11" >
-                        <Pattern value="84" />
-                        <Size value="700" />
-                        <Offset x="-1500" y="0" z="900" h="270" p="10" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>	
-		    <  Beetle Unterboden -->
-			<!--
-		    <Marker name="ObjectMarker12" >
-                        <Pattern value="9" />
-                        <Size value="1030" />
-                        <Offset x="-50" y="0" z="90" h="0" p="0" r="180" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-		    <Beetle Dach Offen>
-		    <Marker name="ObjectMarker13" >
-                        <Pattern value="57" />
-                        <Size value="288" />
-                        <Offset x="1561" y="110" z="792" h="-1.7" p="-79.5" r="-4.1" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-		    <  Beetle Dach Geschlossen>
-		    <Marker name="ObjectMarker14" >
-                        <Pattern value="100" />
-                        <Size value="700" />
-                        <Offset x="376" y="67" z="1436" h="246.5" p="-89.7" r="69" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-		    <  Marker10>
-		    <Marker name="ObjectMarker15" >
-                        <Pattern value="10" />
-                        <Size value="40" />
-                        <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-<
-                    <Marker name="ObjectMarker0" >
-                        <Pattern value="10" />
-                        <Size value="40" />
-                        <Offset x="30" y="40" z="6" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker1" >
-                        <Pattern value="1" />
-                        <Size value="50" />
-                        <Offset x="1487" y="218" z="815" h="0" p="0" r="88" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker2" >
-                        <Pattern value="38" />
-                        <Size value="295" />
-                        <Offset x="1010" y="-935" z="210" h="0" p="0" r="-2" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker3" >
-                        <Pattern value="39" />
-                        <Size value="295" />
-                        <Offset x="-60" y="935" z="0" h="180" p="0" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker4" >
-                        <Pattern value="40" />
-                        <Size value="295" />
-                        <Offset x="-60" y="-935" z="0" h="0" p="0" r="-0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker5" >
-                        <Pattern value="37" />
-                        <Size value="295" />
-                        <Offset x="-80" y="0" z="620" h="90" p="-96" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker6" >
-                        <Pattern value="17" />
-                        <Size value="90" />
-                        <Offset x="-1040" y="20" z="50" h="-90" p="-5" r="1" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker7" >
-                        <Pattern value="9" />
-                        <Size value="40" />
-                        <Offset x="1487" y="268" z="733" h="-90" p="90" r="180" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker8" >
-                        <Pattern value="35" />
-                        <Size value="151" />
-                        <Offset x="-833" y="0" z="1600" h="0" p="0" r="0" />
-                        <VrmlToPf value="FALSE" />
-                    </Marker>
-                    <Marker name="ObjectMarker11" >
-                        <Pattern value="2" />
-                        <Size value="70" />
-                        <Offset x="70" y="0" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
--->
-                    <Marker name="Tracer1" >
+                    <Marker name="Tracer1">
                         <Pattern value="72" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-                    <Marker name="Tracer2" >
+                    <Marker name="Tracer2">
                         <Pattern value="72" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-                    <Marker name="Tracer3" >
+                    <Marker name="Tracer3">
                         <Pattern value="72" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-
-                    <!--
-                    <Marker name="ObjectMarker1" >
-                        <Pattern value="1" />
-                        <Size value="40" />
-                        <Offset x="-100" y="0" z="60" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker2" >
-                        <Pattern value="2" />
-                        <Size value="40" />
-                        <Offset x="100" y="0" z="60" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker3" >
-                        <Pattern value="3" />
-                        <Size value="40" />
-                        <Offset x="-100" y="0" z="-60" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    <Marker name="ObjectMarker4" >
-                        <Pattern value="4" />
-                        <Size value="40" />
-                        <Offset x="100" y="0" z="-60" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker>
-                    -->
-                    <!--Marker name="ObjectMarker11" >
-                        <Pattern value="29" />
-                        <Size value="250" />
-                        <Offset x="-400" y="-1087" z="0" h="0" p="0" r="0" />
-                        <VrmlToPf value="TRUE" />
-                    </Marker-->
-					
-					<Marker name="Tracer12" >
+                    <Marker name="Tracer12">
                         <Pattern value="720" />
                         <Size value="350" />
                         <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-					<Marker name="Tracer13" >
+                    <Marker name="Tracer13">
                         <Pattern value="600" />
                         <Size value="350" />
                         <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-					<Marker name="45" >
+                    <Marker name="45">
                         <Pattern value="45" />
                         <Size value="10000" />
                         <Offset x="0" y="0" z="0" h="180" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-					<Marker name="54" >
+                    <Marker name="54">
                         <Pattern value="54" />
                         <Size value="10000" />
                         <Offset x="0" y="0" z="0" h="180" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-
                 </ARToolKit>
-
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="ON">
                     <Capture value="on" />
@@ -625,12 +383,11 @@
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
-                    
                     <!--VideoDevice value="1" width="640" height="480" /-->
                     <CameraCalibrationFile value="C:\Users\hpcmdjur\4KCalib.xml" />
-					<!--CameraCalibrationFile value="C:\Users\hpcmdjur\defaultCalib.xml" /-->
+                    <!--CameraCalibrationFile value="C:\Users\hpcmdjur\defaultCalib.xml" /-->
                 </ALVAR>
-				<ARUCO value="OFF">
+                <ARUCO value="OFF">
                     <Capture value="on" />
                     <VideoDevice value="1" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
@@ -641,23 +398,8 @@
                 </ARUCO>
 
             </Plugin>
-  </COVER>
-
-
-  <!-- position of transfer editor menu>
-
-      <TFE>
-         <MenuPosition value="-200 0 80" >
-         <MenuSize value="0.15" >
-      </TFE--><!--position of error message window (PDBplugin)>
-
-      <Messages>
-         <MenuPosition value="100 0 120" />
-         <MenuSize value="0.15" />
-      </Messages--> </GLOBAL>
-
- <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
- <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
- <!-- this config is required by the ViNCE Renderer-->
- <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
+        </COVER>
+    </GLOBAL>
+    <INCLUDE global="1" configname="colormap">config-colormaps.xml </INCLUDE>
+    <INCLUDE global="1" configname="filetypes">config-filetypes.xml </INCLUDE>
 </COCONFIG>
