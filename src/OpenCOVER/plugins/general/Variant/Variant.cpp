@@ -32,10 +32,7 @@ Variant::Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList pa
     VarNode = new osg::MatrixTransform;
     VarNode->setName("Variant:"+var_Name);
 
-    if (node)
-    {
-        attachNode(node);
-    }
+    attachNode(node);
 
     origin_matrix = VarNode->getMatrix();
     createVRLabel();
