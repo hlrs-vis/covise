@@ -65,68 +65,67 @@ VariantPlugin::VariantPlugin()
 bool VariantPlugin::init()
 {
     cover->addPlugin("SGBrowser"); // required for hiding/showing nodes
+    //variant_menu = new ui::Menu(this, "Variants");
 
-        //variant_menu = new ui::Menu(this, "Variants");
+    variant_menu = new ui::Menu("Variants", this);
 
-        variant_menu = new ui::Menu("Variants", this);
+    options_menu = new ui::Menu(variant_menu, "Options");
+    showHideLabels = new ui::Button(options_menu, "ShowLabels");
+    showHideLabels->setText("Show labels");
+    showHideLabels->setState(false);
+    showHideLabels->setCallback([this](bool state){
+        if (state)
+        {
+            showAllLabel();
+        }
+        else
+        {
+            hideAllLabel();
+        }
+        setQDomElemLabels(state);
+        tui_showLabel->setState(state);
+    });
 
-        options_menu = new ui::Menu(variant_menu, "Options");
-        showHideLabels = new ui::Button(options_menu, "ShowLabels");
-        showHideLabels->setText("Show labels");
-        showHideLabels->setState(false);
-        showHideLabels->setCallback([this](bool state){
-            if (state)
-            {
-                showAllLabel();
-            }
-            else
-            {
-                hideAllLabel();
-            }
-            setQDomElemLabels(state);
-            tui_showLabel->setState(state);
-        });
+    roi_menu = new ui::Menu(variant_menu, "RegionOfInterest");
+    roi_menu->setText("Region of interest");
+    define_roi = new ui::Button(roi_menu, "Define");
+    define_roi->setState(false);
+    define_roi->setCallback([this](bool state){
+        if (state && firsttime)
+        {
+            float initSize = getTypicalSice() * 0.01;
+            boi->setMatrix(boi->getMat() * boi->getMat().scale(initSize, initSize, initSize));
+            boi->setStartMatrix();
+            printMatrix(boi->getMat());
+            boi->updateClippingPlanes();
+            firsttime = false;
+        }
+        boi->showHide(state);
+    });
 
-        roi_menu = new ui::Menu(variant_menu, "RegionOfInterest");
-        roi_menu->setText("Region of interest");
-        define_roi = new ui::Button(roi_menu, "Define");
-        define_roi->setState(false);
-        define_roi->setCallback([this](bool state){
-            if (state && firsttime)
+    active_roi = new ui::Button(roi_menu, "Active");
+    active_roi->setState(false);
+    active_roi->setCallback([this](bool state){
+        // float initSize = cover->getBBox(cover->getObjectsRoot()).radius() * 0.1;
+        std::list<Variant *>::iterator it;
+        if (state)
+        {
+            for (it = varlist.begin(); it != varlist.end(); it++)
             {
-                float initSize = getTypicalSice() * 0.01;
-                boi->setMatrix(boi->getMat() * boi->getMat().scale(initSize, initSize, initSize));
-                boi->setStartMatrix();
-                printMatrix(boi->getMat());
-                boi->updateClippingPlanes();
-                firsttime = false;
+                //boi->attachClippingPlanes((*it)->getNode());
+                (*it)->attachClippingPlane();
             }
-            boi->showHide(state);
-        });
-
-        active_roi = new ui::Button(roi_menu, "Active");
-        active_roi->setState(false);
-        active_roi->setCallback([this](bool state){
-            // float initSize = cover->getBBox(cover->getObjectsRoot()).radius() * 0.1;
-            std::list<Variant *>::iterator it;
-            if (state)
+        }
+        else
+        {
+            for (it = varlist.begin(); it != varlist.end(); it++)
             {
-                for (it = varlist.begin(); it != varlist.end(); it++)
-                {
-                    //boi->attachClippingPlanes((*it)->getNode());
-                    (*it)->attachClippingPlane();
-                }
+                //boi->releaseClippingPlanes((*it)->getNode());
+                (*it)->releaseClippingPlane();
             }
-            else
-            {
-                for (it = varlist.begin(); it != varlist.end(); it++)
-                {
-                    //boi->releaseClippingPlanes((*it)->getNode());
-                    (*it)->releaseClippingPlane();
-                }
-            }
-            //boi->setMatrix(osg::Vec3(10,10,10),osg::Vec3(1,1,1));
-        });
+        }
+        //boi->setMatrix(osg::Vec3(10,10,10),osg::Vec3(1,1,1));
+    });
 
     coVRSelectionManager::instance()->addListener(this);
     //tuTab
@@ -435,9 +434,7 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                     if (node)
                         parents = node->getParents();
                     var = new Variant(var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
-
                     varlist.push_back(var);
-
                     var->AddToScenegraph();
                     var->hideVRLabel();
                     if(set_default && default_state==false)
@@ -465,6 +462,7 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
         }
     }
 }
+
 //------------------------------------------------------------------------------------------------------------------------------
 
 void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*realNode*/)
@@ -477,7 +475,7 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
         if (var->numNodes() == 1)
         {
             //TODO remote TUI and add TUI if a variant comes back
-          /*  var->removeFromScenegraph(node);
+            /* var->removeFromScenegraph(node);
             varlist.remove(var);
             delete var;
             std::list<Variant *>::iterator varlIter;
@@ -492,7 +490,6 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
         {
             var->releaseNode(node);
         }
-
         varmap.erase(node);
     }
 }
