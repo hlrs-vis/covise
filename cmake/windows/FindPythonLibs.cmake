@@ -31,7 +31,7 @@ CMAKE_FIND_FRAMEWORKS(Python)
 # the user supplied additional versions to the front.
 set(_Python_VERSIONS
   ${Python_ADDITIONAL_VERSIONS}
-  3.10 3.3 2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
+  3.12 3.11 3.10 3.3 2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
 
 FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
   STRING(REPLACE "." "" _CURRENT_VERSION_NO_DOTS ${_CURRENT_VERSION})
