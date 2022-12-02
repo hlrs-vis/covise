@@ -76,10 +76,19 @@ void Variant::removeFromScenegraph(osg::Node *node)
 {
     for (osg::Node::ParentList::iterator parent = parents.begin(); parent != parents.end(); ++parent)
     {
+        auto p = *parent;
         cout << "NodeName " << node->getName() << endl;
-        (*parent)->addChild(node);
-        (*parent)->removeChild(VarNode);
-        cout << "ParentName: " << (*parent)->getName() << endl;
+        while (node->getNumParents() > 0) {
+            node->getParent(0)->removeChild(node);
+        }
+        // TODO: at the moment scenegraph update cycle does not allow to attach node properly because 
+        // after removing the Variant node the previous node representation (e.g. Collect, Variantmarker)
+        // will be recreated with a new ID. This leads to empty nodes in scenegraph. Needs adjustsments in bigger context to work.
+        // The workaround solution here is to remove the Variant node without reattaching to previous parent.
+        VarNode->removeChild(node);
+        p->removeChild(VarNode);
+        p->removeChild(cn);
+        cout << "ParentName: " << p->getName() << endl;
     }
 }
 //------------------------------------------------------------------------------

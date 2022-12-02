@@ -472,8 +472,8 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
     {
         cout << "Varname " << var->getVarname().c_str() << endl;
         cout << "Number of Parents " << var->numParents() << endl;
-        if (var->numNodes() == 1)
-        {
+        // if (var->numNodes() == 1)
+        // {
             //TODO remote TUI and add TUI if a variant comes back
             /* var->removeFromScenegraph(node);
             varlist.remove(var);
@@ -485,13 +485,17 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
                 (*varlIter)->ui->setPosTUIItems(count);
                 count++;
             }*/
-        }
-        else
-        {
-            var->releaseNode(node);
-        }
+        // }
+        // else
+        // {
+        //     var->releaseNode(node);
+        // }
+        var->removeFromScenegraph(node);
+        var->releaseNode(node);
+        varlist.remove(var);
         varmap.erase(node);
     }
+    delete var;
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
