@@ -1,0 +1,78 @@
+{
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "terminal.integrated.automationProfile.windows": {
+        "args": [
+            "/c",
+            "${workspaceFolder}/winenv.bat",
+            "${config:covise.archsuffix}",
+            ">nul 2>&1",
+            "&&",
+            "cmd"
+        ],
+        "env": {
+            "COVISEDIR": "${workspaceFolder}",
+            "EXTERNLIBS": "${config:covise.dependencyPath}"
+        },
+        "path": "${env:windir}\\System32\\cmd.exe"
+    },
+    "terminal.integrated.defaultProfile.windows": "cmder",
+    "terminal.integrated.profiles.windows": {
+        "cmder": {
+            "args": [
+                "/k",
+                "${workspaceFolder}/winenv.bat",
+                "${config:covise.archsuffix}"
+            ],
+            "env": {
+                "COVISEDIR": "${workspaceFolder}",
+                "EXTERNLIBS": "${config:covise.dependencyPath}"
+            },
+            "path": "${env:windir}\\System32\\cmd.exe"
+        }
+    },
+    "terminal.integrated.profiles.linux":{
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "env": {
+                "PATH" : "${env:PATH}:${workspaceFolder}/bin",
+                "LD_LIBRARY_PATH" : "${env:LD_LIBRARY_PATH}:${config:covise.dependencyPath}/ALL:${config:covise.dependencyPath}/all",
+                "ARCHSUFFIX" : "${config:covise.archsuffix}"
+            }
+        },
+        "zsh": {
+            "path": "zsh",
+            "env": {
+                "PATH" : "${env:PATH}:${workspaceFolder}/bin",
+                "LD_LIBRARY_PATH" : "${env:LD_LIBRARY_PATH}:${config:covise.dependencyPath}/ALL:${config:covise.dependencyPath}/all",
+                "ARCHSUFFIX" : "${config:covise.archsuffix}"
+            }
+        },
+        "fish": {
+            "path": "fish",
+            "env": {
+                "PATH" : "${env:PATH}:${workspaceFolder}/bin",
+                "LD_LIBRARY_PATH" : "${env:LD_LIBRARY_PATH}:${config:covise.dependencyPath}/ALL:${config:covise.dependencyPath}/all",
+                "ARCHSUFFIX" : "${config:covise.archsuffix}"
+            }
+        },
+        "tmux": {
+            "path": "tmux",
+            "icon": "terminal-tmux",
+            "env": {
+                "PATH" : "${env:PATH}:${workspaceFolder}/bin",
+                "LD_LIBRARY_PATH" : "${env:LD_LIBRARY_PATH}:${config:covise.dependencyPath}/ALL:${config:covise.dependencyPath}/all",
+                "ARCHSUFFIX" : "${config:covise.archsuffix}"
+            }
+        },
+        "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell",
+            "env": {
+                "PATH" : "${env:PATH}:${workspaceFolder}/bin",
+                "LD_LIBRARY_PATH" : "${env:LD_LIBRARY_PATH}:${config:covise.dependencyPath}/ALL:${config:covise.dependencyPath}/all",
+                "ARCHSUFFIX" : "${config:covise.archsuffix}"
+            }
+        }
+    }
+}

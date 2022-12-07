@@ -284,7 +284,6 @@
 /lion
 /lionopt
 .vscode/*     
-!.vscode/settings.json
+!.vscode/configureCovise
 !.vscode/tasks.json
-!.vscode/launch.json
-!.vsCode/CMakeWrapper.bat
+compile_commands.json

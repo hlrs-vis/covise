@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "args": [],
+            "console": "externalTerminal",
+            "cwd": "${fileDirname}",
+            "envFile": "${workspaceFolder}/.vscode/configureCovise/covise.env",
+            "environment": [],
+            "name": "launch COVISE",
+            "program": "${workspaceFolder}/zebu/bin/covise",
+            "request": "launch",
+            "stopAtEntry": false,
+            "type": "cppvsdbg"
+        },
+        {
+            "args": [],
+            "console": "externalTerminal",
+            "cwd": "${fileDirname}",
+            "envFile": "${workspaceFolder}/.vscode/configureCovise/covise.env",
+            "environment": [],
+            "name": "launch OpenCOVER",
+            "program": "${workspaceFolder}/zebu/bin/renderer/opencover",
+            "request": "launch",
+            "stopAtEntry": false,
+            "type": "cppvsdbg"
+        },
+        {
+            "name": "(Windows) Anfügen",
+            "processId": "${command:pickProcess}",
+            "request": "attach",
+            "type": "cppvsdbg"
+        }
+    ]
+}

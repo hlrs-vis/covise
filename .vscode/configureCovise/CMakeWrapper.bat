@@ -12,13 +12,13 @@ for %%x in (%*) do (
    )
    IF !last! == 1 (
       if "%%x" EQU "Debug" (
-        set ARCHSUFFIX="zebu"
+        set ARCHSUFFIX=zebu
       ) else if "%%x" EQU "Release" (
-        set ARCHSUFFIX="zebuopt"
+        set ARCHSUFFIX=zebuopt
       ) else if "%%x" EQU "RelWithDebInfo" (
-        set ARCHSUFFIX="zebuopt"
+        set ARCHSUFFIX=zebuopt
       ) else if "%%x" EQU "MinSizeRel" (
-        set ARCHSUFFIX="zebuopt"
+        set ARCHSUFFIX=zebuopt
       )
    )
 )

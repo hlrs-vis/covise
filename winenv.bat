@@ -380,10 +380,4 @@ if "%ARCHSUFFIX%" EQU "mingw"  set COVISE_DEVELOPMENT=YES
 set COMMON_ACTIVE=1
 :END
 
-Rem write down covise environment to reuse in vs code debugger settings and CMake wrapper
-if not exist %COVISEDIR%/.vscode/covise.env (
-    echo creating  %COVISEDIR%/.vscode/covise.env
-    set >>  %COVISEDIR%/.vscode/covise.env
-) 
-
 cd /d %COVISEDIR%

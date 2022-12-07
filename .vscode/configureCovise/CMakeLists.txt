@@ -1,0 +1,5 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+project(configureVsCodeSettings)
+find_package(nlohmann_json REQUIRED)
+add_executable(configureVsCodeSettings configureVsCodeSettings.cpp)
+target_link_libraries(configureVsCodeSettings PRIVATE nlohmann_json)
