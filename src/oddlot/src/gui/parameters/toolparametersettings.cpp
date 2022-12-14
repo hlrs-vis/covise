@@ -730,7 +730,7 @@ ToolParameterSettings::onButtonPressed(int paramId)
         {
             QString name = button->objectName();
 
-            ParameterToolAction *action = new ParameterToolAction(editorID_, p->getToolId(), p->getParamToolId(), paramId, false);
+            ParameterToolAction* action = new ParameterToolAction(editorID_, p->getToolId(), p->getParamToolId(), paramId, false);
             emit toolAction(action);
             delete action;
 
@@ -811,6 +811,14 @@ ToolParameterSettings::setObjectSelected(int id, const QString &objectName, cons
         qDebug("uncheck button");
         buttonGroup_->checkedButton()->setChecked(false);
     } */
+}
+
+void
+ToolParameterSettings::uncheckButton()
+{
+    buttonGroup_->setExclusive(false);
+    buttonGroup_->checkedButton()->toggle();
+    buttonGroup_->setExclusive(true);
 }
 
 void

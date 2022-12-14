@@ -392,6 +392,14 @@ TrackElementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             getProjectGraph()->executeCommand(command);
             return;
         }
+        else if (tool == ODD::TTE_PROTO_FETCH)
+        {
+            ODD::ToolId paramToolId = getTrackEditor()->getCurrentParameterTool();
+
+            RSystemElementRoad* road = trackElement_->getParentRoad();
+            trackEditor_->fetchRoadPrototypes(road);
+            return;
+        }
         //  else if(tool == ODD::TTE_MOVE)
         //  {
         //   return; // does nothing

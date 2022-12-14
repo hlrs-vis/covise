@@ -2905,6 +2905,9 @@ RotateRoadAroundPointCommand::RotateRoadAroundPointCommand(RSystemElementRoad *r
         return;
     }
 
+    roadSystem_ = road->getRoadSystem();
+    projectData_ = roadSystem_->getProjectData();
+
     roads_.append(road);
 
     // Done //

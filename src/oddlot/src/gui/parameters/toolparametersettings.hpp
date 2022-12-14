@@ -77,6 +77,7 @@ public:
 
     void setLabels(int id, const QString &objectName, const QString &buttonText);
     void setObjectSelected(int id, const QString &objectName, const QString &buttonText);
+    void uncheckButton();
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;

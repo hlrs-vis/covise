@@ -161,6 +161,7 @@ public:
         TTE_PROTO_CROSSFALL,
         TTE_PROTO_ROADSHAPE,
         TTE_PROTO_ROADSYSTEM,
+        TTE_PROTO_FETCH,
 
 
         // Elevation Editor

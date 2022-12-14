@@ -149,6 +149,10 @@ public:
     bool deregisterRoad(QGraphicsItem *trackItem, RSystemElementRoad *road);
 
 
+    // Fetch Road Prototypes //
+    //
+    void fetchRoadPrototypes(RSystemElementRoad *road);
+
 
 #if 0
     // RotateHandles //
