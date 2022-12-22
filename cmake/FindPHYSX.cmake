@@ -52,9 +52,7 @@ message(${CMAKE_PREFIX_PATH})
 message(${CMAKE_SYSTEM_PREFIX_PATH})
 message($ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release)
 
-FIND_LIBRARY(PHYSX_LIBRARY  NAMES ${PHYSX_NAMES}
-  PATHS
-  $ENV{EXTERNLIBS}/PhysX
+set(PHYSX_SEARCH_PATH  $ENV{EXTERNLIBS}/PhysX
   $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
   $ENV{PHYSX_HOME}
   $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
@@ -66,181 +64,54 @@ FIND_LIBRARY(PHYSX_LIBRARY  NAMES ${PHYSX_NAMES}
   /opt/local
   /opt/csw
   /opt
-  PATH_SUFFIXES lib lib64
+  PATH_SUFFIXES lib lib64)
+
+FIND_LIBRARY(PHYSX_LIBRARY  NAMES ${PHYSX_NAMES}
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX - Library"
 )
 message(PHYSX_LIBRARY)
 message(${PHYSX_LIBRARY})
 
 FIND_LIBRARY(PHYSX_LL_LIBRARY NAMES ${PHYSX_LL_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_LL - Library"
 )
 FIND_LIBRARY(PHYSX_COMMON_LIBRARY NAMES ${PHYSX_COMMON_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_COMMON - Library"
 )
 FIND_LIBRARY(PHYSX_EXTENSIONS_LIBRARY NAMES ${PHYSX_EXTENSIONS_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_EXTENSIONS - Library"
 )
 FIND_LIBRARY(PHYSX_VD_LIBRARY NAMES ${PHYSX_VD_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_VD - Library"
 )
 FIND_LIBRARY(PHYSX_COOKING_LIBRARY NAMES ${PHYSX_COOKING_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_COOKING - Library"
 )
 
 FIND_LIBRARY(PHYSX_VEHICLE_LIBRARY NAMES ${PHYSX_VEHICLE_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_VEHICLE - Library"
 )
 FIND_LIBRARY(PHYSX_TASK_LIBRARY NAMES ${PHYSX_TASK_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_TASK - Library"
 )
 FIND_LIBRARY(PHYSX_PVDSDK_LIBRARY NAMES ${PHYSX_PVDSDK_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_PVDSDK - Library"
 )
 FIND_LIBRARY(PHYSX_CHARACTER_LIBRARY NAMES ${PHYSX_CHARACTER_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_CHARACTER - Library"
 )
 FIND_LIBRARY(PHYSX_FOUNDATION_LIBRARY NAMES ${PHYSX_FOUNDATION_NAMES}
-  PATHS
-  $ENV{PHYSX_HOME}
-  $ENV{EXTERNLIBS}/PhysX/Lib/vc11win64
-  $ENV{EXTERNLIBS}/PhysX/lib/
-  $ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
-  PATH_SUFFIXES lib lib64
+  PATHS ${PHYSX_SEARCH_PATH}
   DOC "PHYSX_FOUNDATION - Library"
 )
 
