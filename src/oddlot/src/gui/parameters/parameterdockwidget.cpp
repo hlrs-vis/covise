@@ -112,9 +112,12 @@ ParameterDockWidget::eventFilter(QObject *object, QEvent *event)
     // pass the event on to the parent class
     return QDockWidget::eventFilter(object, event);
 }
-
 void
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 ParameterDockWidget::enterEvent(QEvent *event)
+#else
+ParameterDockWidget::enterEvent(QEnterEvent *event)
+#endif
 {
     if (widget()->isVisible())
     {
