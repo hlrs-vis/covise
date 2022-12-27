@@ -87,7 +87,7 @@ void LamureDrawable::drawImplementation(osg::RenderInfo &renderInfo) const
 {
     if (management_ == nullptr)
     {
-        char *argv[] = { "opencover" };
+        char *argv[] = { (char*)"opencover" };
         scm::shared_ptr<scm::core> scm_core(new scm::core(1, argv));
 
         int max_upload_budget = 64;
