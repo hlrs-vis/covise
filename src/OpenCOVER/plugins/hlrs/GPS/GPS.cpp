@@ -89,22 +89,12 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
 
     //mapping of coordinates
-#ifdef WIN32
-    const char *pValue;
-    size_t len;
-    errno_t err = _dupenv_s(&((char *)pValue), &len, "ODDLOTDIR");
-    if (err || pValue == NULL || strlen(pValue) == 0)
-        err = _dupenv_s(&((char *)pValue), &len, "COVISEDIR");
-    if (err)
-        pValue = "";
-#else
+    std::string covisedir;
     const char *pValue = getenv("ODDLOTDIR");
     if (!pValue || pValue[0] == '\0')
         pValue = getenv("COVISEDIR");
-    if (!pValue)
-        pValue = "";
-#endif
-    std::string covisedir = pValue;
+    if (pValue)
+        covisedir = pValue;
     dir = covisedir + "/share/covise/";
 
     std::string proj_from = "+proj=latlong +datum=WGS84";

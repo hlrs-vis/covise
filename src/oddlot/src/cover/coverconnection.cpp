@@ -46,20 +46,10 @@ COVERConnection::COVERConnection()
     inst = this;
     ui->setupUi(this);
     //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
-#ifdef WIN32
-    char *pValue;
-    size_t len;
-    errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
-    if (err || pValue == NULL || strlen(pValue) == 0)
-        err = _dupenv_s(&pValue, &len, "COVISEDIR");
-    if (err)
-        pValue="";
-    QString covisedir = pValue;
-#else
+
     QString covisedir = getenv("ODDLOTDIR");
     if (covisedir == "")
         covisedir = getenv("COVISEDIR");
-#endif
     QString dir = covisedir + "/share/covise/icons/";
     coverConnected = new QIcon(dir + "cover_connected.png");
     coverDisconnected = new QIcon(dir + "cover_disconnected.png");
