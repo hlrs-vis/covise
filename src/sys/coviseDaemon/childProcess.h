@@ -44,8 +44,7 @@ private:
 
 
 };
-#endif
-
+#else 
 class SigChildHandler : public QObject, public covise::coSignalHandler
 {
     Q_OBJECT
@@ -58,6 +57,9 @@ private:
 
     virtual const char *sigHandlerName();
 };
+
+#endif
+
 
 struct ChildProcess : QObject
 {
