@@ -39,33 +39,9 @@
 #include <cover/OpenCOVER.h>
 #include <util/environment.h>
 
+#include <boost/algorithm/string.hpp>
 #ifdef HAS_MPI
 #include <mpi.h>
-#endif
-
-#ifdef WIN32
-static char *strcasestr(char *source, char *target)
-{
-    size_t i = 0, len = 0;
-    unsigned char after_space = 1;
-
-    len = strlen(target);
-    for (; source[i] != '\0'; i++)
-    {
-
-        if (!after_space && source[i] != ' ')
-            continue;
-        if (source[i] == ' ')
-        {
-            after_space = 1;
-            continue;
-        }
-        after_space = 0;
-        if (!strncasecmp((source + i), target, len))
-            return (source + i);
-    }
-    return NULL;
-}
 #endif
 
 int main(int argc, char *argv[])
@@ -101,8 +77,7 @@ int main(int argc, char *argv[])
             mastername = opencover::coCommandLine::argv(5);
         }
     }
-
-    if (strcasestr(argv[0], ".mpi") != 0)
+    if (boost::iequals(argv[0], ".mpi"))
     {
 #ifdef MPI_COVER
         MPI_Initialized(&mpiinit);
