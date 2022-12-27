@@ -6,15 +6,16 @@
  * License: LGPL 2+ */
 
 
-#include <QMenu>
-#include <QMimeData>
+#include <QApplication>
 #include <QContextMenuEvent>
 #include <QDebug>
+#include <QFile>
+#include <QMenu>
+#include <QMimeData>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QSslSocket>
-#include <QApplication>
 #include <QTime>
 
 #include <covise/covise_msg.h>
