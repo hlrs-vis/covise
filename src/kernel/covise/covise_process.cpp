@@ -13,7 +13,6 @@
 
 #include "covise.h"
 #include <iostream>
-using namespace std;
 #include <iomanip>
 #include <windows.h>
 #include <WTypes.h>
@@ -246,8 +245,8 @@ int execProcessWMI(const char *commandLine, const char *wd, const char *inhost, 
 
     if (hr != S_OK)
     {
-        cerr << "execProcessWMI: err: Could not connect to server (errno "
-             << hex << hr << ")" << endl;
+        std::cerr << "execProcessWMI: err: Could not connect to server (errno "
+             << std::hex << hr << ")" << std::endl;
         delete[] host;
         delete[] user;
         return -1;
