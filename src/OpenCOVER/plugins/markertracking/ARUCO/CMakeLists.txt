@@ -1,8 +1,7 @@
 
-if(NOT COVISE_USE_OPENCV3)
+if(NOT COVISE_USE_OPENCV4)
     return()
 endif()
-
 USING(OpenCV)
 USING(ARUCO)
 

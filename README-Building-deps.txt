@@ -315,6 +315,10 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 set contrib/modules directory in cmake-gui
 disable performance tests and normal tests, build (be very patient) and install
 
+#OpenCV4
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV4  -DCMAKE_DEBUG_POSTFIX=d -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules
+disable performance tests and normal tests, build (be very patient) and install
+
 #vtk
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VTK  -DCMAKE_DEBUG_POSTFIX=d
 
@@ -718,3 +722,7 @@ copy Release/libcef.ddl or Deubu/libcef.dll and contets of Resources to externli
 vrmlexp
 edit covise/src/cmake/Find3DSMAX.cmake add 20xx version
 cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Cal3d;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/xerces
+
+#####
+u3d https://github.com/ningfei/u3d
+cmake .. -G "Visual Studio 17 2022" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/u3d -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/png;c:/src/externlibs/zebu/jpeg

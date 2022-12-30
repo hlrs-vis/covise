@@ -20,7 +20,12 @@
 #include <cover/coVRPlugin.h>
 
 #include <opencv2/videoio/videoio.hpp>
+#if( CV_VERSION_MAJOR == 4)
+#include <opencv2/objdetect/aruco_detector.hpp>
 #include <opencv2/aruco.hpp>
+#else
+#include <opencv2/aruco.hpp>
+#endif
 
 #include <OpenVRUI/coMenu.h>
 
@@ -59,7 +64,8 @@ protected:
     std::vector<cv::Vec3d> rvecs[3];
     std::vector<cv::Vec3d> tvecs[3];
     
-    cv::Ptr<cv::aruco::Dictionary> dictionary;
+    cv::Ptr <cv::aruco::Dictionary> dictionary;
+    cv::Ptr<cv::aruco::ArucoDetector> detector;
     cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
 
 private:

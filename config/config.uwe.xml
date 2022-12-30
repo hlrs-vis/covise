@@ -44,6 +44,7 @@
 
         <Persons>
            <Person name="Dummy"  valuator0="CaveJoyX" />
+           <Person name="Dummy"  valuator0="CaveJoyY" />
         </Persons>
 
    </Input>

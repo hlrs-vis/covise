@@ -17,7 +17,6 @@
 #define POINTER_64
 #endif
 #endif
-
 #include "ARUCOTrackerPlugin.h"
 
 #include <cover/coVRPluginSupport.h>
@@ -196,11 +195,14 @@ bool ARUCOPlugin::init()
         xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", 640);
         ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", 480);
 
-        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7);
+        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7); // 16 = ARUCO_DEFAULT
 
         thresh = coCoviseConfig::getInt("COVER.Plugin.ARUCO.Threshold", 100);
-        
+#if( CV_VERSION_MAJOR < 4)
         detectorParams = aruco::DetectorParameters::create();
+#else
+        detectorParams = new aruco::DetectorParameters();
+#endif
         
 #if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
         detectorParams->doCornerRefinement = true; // do corner refinement in markers
@@ -210,8 +212,16 @@ bool ARUCOPlugin::init()
         
         markerSize = 150; // set default marker size
         updateMarkerParams(); // update marker sizes from config
-        
-        dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
+
+#if( CV_VERSION_MAJOR < 4)
+        dictionary = aruco::getPredefinedDictionary(dictionaryId);
+#else
+        dictionary = &aruco::getPredefinedDictionary(dictionaryId);
+#endif
+
+#if( CV_VERSION_MAJOR >= 4)
+        detector = new cv::aruco::ArucoDetector(*dictionary,*detectorParams);
+#endif
         msgQueue = -1;
        
         int selectedDevice = atoi(VideoDevice.c_str());
@@ -426,8 +436,13 @@ void ARUCOPlugin::opencvLoop()
             tvecs[captureIdx].clear();
 
             // detect markers and estimate pose
-            
+
+
+#if( CV_VERSION_MAJOR >= 4)
+            detector->detectMarkers(image[captureIdx], corners, ids[captureIdx],  rejected);
+#else
             cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
+#endif
 
             if(ids[captureIdx].size() > 0)
             {

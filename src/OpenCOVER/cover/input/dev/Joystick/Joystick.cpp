@@ -152,7 +152,7 @@ Joystick::Joystick(const std::string &config)
 		}
 
 		m_buttonStates.resize(number_buttons[joystickNumber]);
-		for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+		for (size_t i = 0; i < number_buttons[joystickNumber]; i++)
 		{
 			m_buttonStates[i] = buttons[joystickNumber][i];
 		}
@@ -452,7 +452,7 @@ bool Joystick::poll()
 		m_valuatorValues[i] = axes[joystickNumber][i];
 	}
 
-	for (size_t i = 0; i < number_axes[joystickNumber]; i++)
+	for (size_t i = 0; i < number_buttons[joystickNumber]; i++)
 	{
 		m_buttonStates[i] = buttons[joystickNumber][i];
 	}
