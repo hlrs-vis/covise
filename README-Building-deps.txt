@@ -131,16 +131,30 @@ PATH=D:\src\gitbase\Python-3.5.2\externals\nasm-2.11.06;%PATH%
 perl Configure VC-WIN64A
 ms\do_win64a
 
-perl util\mk1mf.pl debug dll VC-WIN64A >ms\ntdebugdll.mak
-edit ntdebugdll.mak and add D to dll names 
-nmake -f ms\ntdll.mak
+#OpenSSL 1.1.1
+Download from https://www.openssl.org/source/
+install strawberry perl and NASM via installer and make shure they are in PATH
+From admin vs development prompt 
+perl Configure VC-WIN64A --prefix=c:/src/externlibs/zebu/OpenSSL --openssldir=c:/src/externlibs/zebu/OpenSSL
+nmake
+nmake test
+nmake install
 
-#qt
+#qt5
 set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
 set PYTHONHOME=c:\src\externlibs\zebu\..\shared\Python2;c:\src\externlibs\zebu\Python2
 configure -prefix c:/src/externlibs/zebu/qt5 -opensource -debug-and-release -nomake tests -make libs -make tools -nomake examples -nomake tests -confirm-license -openssl -I c:/src/externlibs/zebu/OpenSSL/include  -icu -I c:/src/externlibs/zebu/icu/include -L c:/src/externlibs/zebu/icu/lib -openssl-linked  -L C:/src/externlibs/zebu/OpenSSL/lib -openssl -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32" OPENSSL_LIBS_DEBUG="-lssleay32D -llibeay32D" OPENSSL_LIBS_RELEASE="-lssleay32 -llibeay32" -platform win32-msvc2015 -mp -opengl dynamic -angle
 nmake
 nmake install
+
+#qt6 following https://wiki.qt.io/Building_Qt_6_from_Git
+use admin developer cmd
+cd build
+set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
+..\configure.bat -prefix c:\src\externlibs\zebu\qt6 -skip qtspeech -debug-and-release -qt-zlib -openssl-linked -- -D OPENSSL_ROOT_DIR=C:/src/externlibs/zebu/OpenSSL
+ninja qtdeclarative
+ninja
+ninja install
 
 #SoQT
 get old soqt Version 1.4.1
