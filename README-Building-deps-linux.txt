@@ -197,3 +197,8 @@ turbovncserver
 
 #proj
 cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/proj
+
+
+#OpenCV4
+cmake ..   -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/OpenCV4 -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules
+disable performance tests and normal tests, build (be very patient) and install

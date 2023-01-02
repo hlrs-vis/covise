@@ -131,6 +131,18 @@ cover_add_plugin(ARUCO ${HEADERS} ${SOURCES})
 ENDIF(ARUCO_USE_CUDA)
 
 
+SET(HEADERS
+)
+SET(SOURCES
+  create_marker.cpp
+)
+
+ADD_COVISE_EXECUTABLE(createMarker)
+COVISE_WNOERROR(createMarker)
+
+TARGET_LINK_LIBRARIES(createMarker ${EXTRA_LIBS} )
+
+
 #IF(MSVC AND NOT MSVC10)
 #  ADD_COVISE_COMPILE_FLAGS(ARUCO "/Zc:wchar_t-")
 #ENDIF()
