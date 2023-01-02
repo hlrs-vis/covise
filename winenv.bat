@@ -213,12 +213,16 @@ if defined CUDA_PATH_V10_0 (
 if defined CUDA_PATH_V10_1 (
     set CUDA_PATH=%CUDA_PATH_V10_1%
 )
-
 if not defined QT_HOME ( 
    REM QT_HOME is not set... check QTDIR
    IF not defined QTDIR (
      REM QTDIR is not set ! Try in EXTERNLIBS
-     set "QTDIR=%EXTERNLIBS%\qt5"
+     IF "%2"=="qt6" (
+        set "QTDIR=%EXTERNLIBS%\qt6"
+        set "COVISE_CMAKE_OPTIONS=%COVISE_CMAKE_OPTIONS% -DCOVISE_USE_QT5=OFF"
+     ) ELSE (
+        set "QTDIR=%EXTERNLIBS%\qt5"
+     )
    ) ELSE (
      REM QTDIR is set so try to use it !
      REM Do a simple sanity-check...
@@ -340,8 +344,8 @@ if not defined ALL_EXTLIBS (
 if not defined HDF5_ROOT  (
    set "HDF5_ROOT=%EXTERNLIBS%\hdf5"
 )
-if not defined Qt5WebEngineWidgets_DIR  (
-   set "Qt5WebEngineWidgets_DIR=%EXTERNLIBS%\qt5"
+if not "%COVISE_USE_QT5%" == "OFF" if not defined Qt5WebEngineWidgets_DIR  (
+   set "Qt5WebEngineWidgets_DIR=%QTDIR%"
 )
 
 set PATH=%PATH%;%EXTERNLIBS%\bison\bin

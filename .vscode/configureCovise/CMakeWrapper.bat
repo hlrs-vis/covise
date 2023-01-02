@@ -4,26 +4,36 @@ for /f "tokens=*" %%a in (%0\..\covise.env) do (
 )
 echo %*
 @echo off
-set last=0
 setlocal ENABLEDELAYEDEXPANSION
+@REM set last=0
+@REM for %%x in (%*) do (
+@REM    if "%%x" EQU "-DCMAKE_BUILD_TYPE:STRING" (
+@REM     set last=1
+@REM    )
+@REM    IF !last! == 1 (
+@REM       if "%%x" EQU "Debug" (
+@REM         set ARCHSUFFIX=zebu
+@REM       ) else if "%%x" EQU "Release" (
+@REM         set ARCHSUFFIX=zebuopt
+@REM       ) else if "%%x" EQU "RelWithDebInfo" (
+@REM         set ARCHSUFFIX=zebuopt
+@REM       ) else if "%%x" EQU "MinSizeRel" (
+@REM         set ARCHSUFFIX=zebuopt
+@REM       )
+@REM    )
+@REM )
+
+set BUILD=0
 for %%x in (%*) do (
-   if "%%x" EQU "-DCMAKE_BUILD_TYPE:STRING" (
-    set last=1
-   )
-   IF !last! == 1 (
-      if "%%x" EQU "Debug" (
-        set ARCHSUFFIX=zebu
-      ) else if "%%x" EQU "Release" (
-        set ARCHSUFFIX=zebuopt
-      ) else if "%%x" EQU "RelWithDebInfo" (
-        set ARCHSUFFIX=zebuopt
-      ) else if "%%x" EQU "MinSizeRel" (
-        set ARCHSUFFIX=zebuopt
-      )
-   )
+   if "%%x" EQU "--build" set BUILD=1
 )
 
-cmake %*
+if !BUILD!==1 (
+  cmake %* 
+
+) else cmake %* %COVISE_CMAKE_OPTIONS%
+
+
 
 
  
