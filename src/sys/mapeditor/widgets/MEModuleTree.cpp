@@ -906,7 +906,12 @@ bool MEModuleTree::getHostUserCategoryName(const QTreeWidgetItem *item,
 //!
 //! Create the mime data for dragging
 //!
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QMimeData *MEModuleTree::mimeData(const QList<QTreeWidgetItem *> &dragList) const
+#else
 QMimeData *MEModuleTree::mimeData(const QList<QTreeWidgetItem *> dragList) const
+#endif
 {
 
     QByteArray encodedData;
