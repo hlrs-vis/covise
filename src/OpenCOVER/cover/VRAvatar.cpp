@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-#include <util/byteswap.h>
 #include "VRAvatar.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
