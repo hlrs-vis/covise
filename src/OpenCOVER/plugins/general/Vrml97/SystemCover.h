@@ -140,6 +140,7 @@ public:
     CacheMode getCacheMode() const override;
     std::string getCacheName(const char *url, const char *pathname) const override;
     void storeInline(const char *name, const Viewer::Object d_viewerObject) override;
+    int isUTF8(const char* data, size_t size);
     Viewer::Object getInline(const char *name) override;
     void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject) override;
 

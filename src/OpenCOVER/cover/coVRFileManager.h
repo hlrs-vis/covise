@@ -300,7 +300,6 @@ private:
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
 	std::vector<std::unique_ptr<covise::Message>> m_sendFileMessages;
     void createRemoteFetchDir();
-    int isUTF8(const char* data, size_t size);
 
     //utility
     
