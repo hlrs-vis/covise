@@ -20,6 +20,8 @@ if not x%GENERATOR:Visual Studio=%==x%GENERATOR% (
     %GENERATOR%
 ) 
 
+
 configureVsCodeSettings.exe %*
 
+if exist %EXTERNLIBS%\stow.bat if NOT exist %EXTERNLIBS%\all call %EXTERNLIBS%\stow.bat
 
