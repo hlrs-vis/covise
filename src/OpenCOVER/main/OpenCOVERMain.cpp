@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
             mastername = opencover::coCommandLine::argv(5);
         }
     }
-    if (boost::iequals(argv[0], ".mpi"))
+    if (boost::icontains(argv[0], ".mpi"))
     {
 #ifdef MPI_COVER
         MPI_Initialized(&mpiinit);
