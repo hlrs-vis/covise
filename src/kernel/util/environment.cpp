@@ -347,6 +347,8 @@ bool setupEnvironment(int argc, char *argv[])
     prependpath("PATH", covisedir + "\\" + ARCHSUFFIX + "\\bin");
 #endif
 
+    setvar("LC_NUMERIC", "C"); // force . as mantissa separator
+
     return true;
 }
 }
