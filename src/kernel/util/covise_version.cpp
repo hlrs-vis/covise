@@ -19,17 +19,16 @@ static char longVersionString[1024];
 // MUST start with Major.Minor, otherwise no FLEXLM licenses
 const char *CoviseVersion::shortVersion()
 {
-    sprintf(versionString, "%d.%d-%s",
-            COVISE_VERSION_YEAR, COVISE_VERSION_MONTH, COVISE_VERSION_HASH);
+    snprintf(versionString, sizeof(versionString), "%d.%d-%s", COVISE_VERSION_YEAR, COVISE_VERSION_MONTH,
+             COVISE_VERSION_HASH);
     return versionString;
 }
 
 // get the long version string, e.g. "VirCinity Development - July 2001"
 const char *CoviseVersion::longVersion()
 {
-    sprintf(longVersionString, "%d.%d-%s (from %s on %s)",
-            COVISE_VERSION_YEAR, COVISE_VERSION_MONTH, COVISE_VERSION_HASH,
-            COVISE_VERSION_DATE, COVISE_VERSION_ARCH);
+    snprintf(longVersionString, sizeof(longVersionString), "%d.%d-%s (from %s on %s)", COVISE_VERSION_YEAR,
+             COVISE_VERSION_MONTH, COVISE_VERSION_HASH, COVISE_VERSION_DATE, COVISE_VERSION_ARCH);
     return longVersionString;
 }
 

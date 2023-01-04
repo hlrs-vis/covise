@@ -118,7 +118,7 @@ void UDP_Sender::setup(const char *hostname, int port,
     d_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if (d_socket < 0)
     {
-        sprintf(d_error, "Error opening UDP port: %s", strerror(errno));
+        snprintf(d_error, sizeof(d_error), "Error opening UDP port: %s", strerror(errno));
         return;
     }
 
@@ -140,7 +140,7 @@ void UDP_Sender::setup(const char *hostname, int port,
         if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)))
 #endif
         {
-            sprintf(d_error, "Error setting multicast TTL: %s", strerror(errno));
+            snprintf(d_error, sizeof(d_error), "Error setting multicast TTL: %s", strerror(errno));
             return;
         }
     }
@@ -152,8 +152,8 @@ void UDP_Sender::setup(const char *hostname, int port,
 
         if (v4.s_addr == INADDR_NONE)
         {
-            sprintf(d_error, "Error converting multicast interface address %s: %s",
-                    mcastif, strerror(errno));
+            snprintf(d_error, sizeof(d_error), "Error converting multicast interface address %s: %s", mcastif,
+                     strerror(errno));
             return;
         }
         
@@ -163,8 +163,7 @@ void UDP_Sender::setup(const char *hostname, int port,
         if (-1 == setsockopt(d_socket, IPPROTO_IP, IP_MULTICAST_IF, &v4, sizeof(v4)))
 #endif
         {
-            sprintf(d_error, "Error setting multicast interface %s: %s",
-                    mcastif, strerror(errno));
+            snprintf(d_error, sizeof(d_error), "Error setting multicast interface %s: %s", mcastif, strerror(errno));
             return;
         }
     }
@@ -206,7 +205,7 @@ int UDP_Sender::send(const void *buffer, int numBytes)
                     (struct sockaddr *)(void *)&d_address, toLen);
     if (nbytes < 0)
     {
-        sprintf(d_error, "Error sending UDP package: %s", strerror(errno));
+        snprintf(d_error, sizeof(d_error), "Error sending UDP package: %s", strerror(errno));
     }
     return nbytes;
 }

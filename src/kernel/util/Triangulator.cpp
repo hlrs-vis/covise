@@ -188,9 +188,7 @@ int Triangulator::newtrap()
     }
     else
     {
-        char buf[400];
-        sprintf(buf, "newtrap: Trapezoid-table overflow: %d", tr_idx);
-        //      Covise::sendError(buf);
+        //Covise::sendError("newtrap: Trapezoid-table overflow: %d", tr_idx);
         return -1;
     }
 }

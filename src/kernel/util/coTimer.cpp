@@ -29,6 +29,7 @@ char coTimer::s_buffer[MAX_LEN];
 coTimer::coTimer(const char *filename, int length, bool handleSignals)
 {
     descField = new char[length * MAX_LEN];
+    int_mark_alloc = length * MAX_LEN;
     timeField = actTval = new TimeType[length];
     maxElem = length - 1; // sure to have one more for flush() times
     actElem = -1;
@@ -49,7 +50,7 @@ coTimer::coTimer(const char *filename, int length, bool handleSignals)
 #ifdef WIN32
     sprintf(descField, "%s.%d.tim", filename, _getpid());
 #else
-    sprintf(descField, "%s.%d.tim", filename, getpid());
+    snprintf(descField, sizeof(descField), "%s.%d.tim", filename, getpid());
 #endif
     stream = new std::ofstream(descField);
     *descField = '\0';
@@ -80,7 +81,7 @@ coTimer::coTimer(const char *filename, int length, bool handleSignals)
 
 void coTimer::sigHandler(int sigNo)
 {
-    sprintf(int_mark(), "coTimer::sigHandler for signal %d", sigNo);
+    snprintf(int_mark(), int_mark_remain(), "coTimer::sigHandler for signal %d", sigNo);
     flush();
     stream->flush();
 }

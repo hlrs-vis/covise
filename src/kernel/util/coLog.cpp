@@ -25,7 +25,7 @@ static const char *COVISE_debug_filename = "covise.log";
 void print_comment(int line, const char *filename, const char *fmt, ...)
 {
     char header[1000];
-    sprintf(header, "%s:%d: ", filename, line);
+    snprintf(header, sizeof(header), "%s:%d: ", filename, line);
     const size_t len = strlen(fmt) + strlen(filename) + 1000;
     char *text = new char[len + strlen(header)];
     strcpy(text, header);
@@ -132,7 +132,7 @@ void print_exit(int line, const char *filename, const char *why, int how)
 void print_error(int line, const char *filename, const char *fmt, ...)
 {
     char header[1000];
-    sprintf(header, "%s:%d - error: ", filename, line);
+    snprintf(header, sizeof(header), "%s:%d - error: ", filename, line);
     const size_t len = strlen(fmt) + strlen(filename) + 1000;
     char *text = new char[len + strlen(header)];
     strcpy(text, header);

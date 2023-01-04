@@ -131,6 +131,7 @@ private:
         MAX_LEN = 128
     };
 
+    size_t int_mark_alloc = 0;
     int maxElem, actElem;
     char *descField;
     TimeType *timeField, *actTval, startTime;
@@ -148,6 +149,13 @@ private:
 protected:
     coTimer(const char *fileNameBase, int length, bool handleSignals);
 
+    size_t int_mark_remain()
+    {
+        if (int_mark_alloc > MAX_LEN * actElem)
+            return int_mark_alloc - MAX_LEN * actElem;
+        return 0;
+    }
+
     char *int_mark()
     {
 #ifndef NOTIMER
@@ -158,7 +166,8 @@ protected:
         TIME_CALL(actTval);
         return descField + MAX_LEN * actElem;
 #else
-        static char dummy[MAX_LEN] return dummy;
+        static char dummy[MAX_LEN];
+        return dummy;
 #endif
     }
 
