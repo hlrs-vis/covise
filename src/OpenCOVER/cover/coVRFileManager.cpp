@@ -822,6 +822,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
 #ifdef WIN32
     std::string utf8_filename = boost::locale::conv::to_utf<char>(validFileName, "ISO-8859-1");
+#else
+    std::string utf8_filename = validFileName;
 #endif
     OpenCOVER::instance()->hud->setText3(utf8_filename);
     OpenCOVER::instance()->hud->redraw();
