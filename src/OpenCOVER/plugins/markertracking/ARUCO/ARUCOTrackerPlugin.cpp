@@ -217,6 +217,7 @@ bool ARUCOPlugin::init()
 #else
         detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
         detectorParams->useAruco3Detection = true;
+        detectorParams->markerBorderBits = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.markerBorderBits", 1);
 #endif
         
         markerSize = 150; // set default marker size
@@ -282,10 +283,9 @@ bool ARUCOPlugin::init()
 
                 if ((xsize != width) || (ysize != height))
                 {
+                    xsize = width;
+                    ysize = height;
                     std::cout << "WARNING: could not set capture frame size" << std::endl;
-                }
-                else
-                {
                     std::cout << "   new size  = " << width << "x" << height << std::endl;
                 }
             }
@@ -313,7 +313,6 @@ bool ARUCOPlugin::init()
 
             std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
 
-            adjustScreen();
 
             // load calib data from file
 
@@ -363,6 +362,7 @@ bool ARUCOPlugin::init()
             std::cout << "capture device: failed to open " << selectedDevice << std::endl;
             return false;
         }
+        adjustScreen();
         /* 
         how to generate callibration patterns:
          cd src/opencv_contrib/modules/aruco/misc/pattern_generator/
@@ -509,7 +509,7 @@ void ARUCOPlugin::opencvLoop()
                 try
                 {
                     // todo: uses default marker size only
-                    //cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
+                    //cv::aruco::estimatePoseSingleMarkers(corners, 49, matCameraMatrix,
                     //                                     matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
                      estimatePoseSingleMarker(corners,  matCameraMatrix,
                                               matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
@@ -794,9 +794,9 @@ osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
             markerTransformMat.at<double>(2, 2) = markerRotMat.at<double>(2, 2);
 
             // copy trans vector to transform matrix
-            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0] * 1000;
-            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1] * 1000;
-            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2] * 1000;
+            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0];
+            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1];
+            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2];
 
             // cout << "---------------------------------------" << endl;
             // cout << markerTransformMat << endl;
@@ -847,7 +847,7 @@ void ARUCOPlugin::adjustScreen()
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))
     {
-/*
+
         osg::Vec3 viewPos;
 
         float sxsize = xsize;
@@ -855,20 +855,20 @@ void ARUCOPlugin::adjustScreen()
 
         float d;
 
-        d = cam.calib_K_data[0][0];
-        sysize = ((double)ysize / cam.calib_K_data[1][1]) * d;
+        d = matCameraMatrix.at<double>(0, 0);
+        sysize = ((double)ysize / matCameraMatrix.at<double>(1, 1)) * d;
 
         coVRConfig::instance()->screens[0].hsize = sxsize;
         coVRConfig::instance()->screens[0].vsize = sysize;
 
-        viewPos.set(cam.calib_K_data[0][2] - ((double)xsize / 2.0), -d, ((double)ysize / 2.0) - cam.calib_K_data[1][2]);
+        viewPos.set(matCameraMatrix.at<double>(0, 2) - ((double)xsize / 2.0), -d, ((double)ysize / 2.0) - matCameraMatrix.at<double>(1, 2));
 
         VRViewer::instance()->setInitialViewerPos(viewPos);
         osg::Matrix viewMat;
         viewMat.makeIdentity();
         viewMat.setTrans(viewPos);
         VRViewer::instance()->setViewerMat(viewMat);
-*/
+
     }
 }
 
@@ -1026,6 +1026,21 @@ void ARUCOPlugin::estimatePoseSingleMarker(InputArrayOfArrays _corners,
 }
 
 
+int ARUCOPlugin::loadPattern(const char* p)
+{
+    int pattID = atoi(p);
+    if (pattID <= 0)
+    {
+        fprintf(stderr, "pattern load error !!\n");
+        pattID = 0;
+    }
+    if (pattID > 1000)
+    {
+        fprintf(stderr, "Pattern ID out of range !!\n");
+        pattID = 0;
+    }
+    return pattID;
+}
     
 // ----------------------------------------------------------------------------
 COVERPLUGIN(ARUCOPlugin)

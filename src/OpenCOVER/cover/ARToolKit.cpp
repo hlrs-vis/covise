@@ -1012,7 +1012,7 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
     char *entry = new char[strlen(name) + 200];
     std::string arToolKitVariant = ARToolKit::instance()->m_artoolkitVariant;
     sprintf(entry, "COVER.Plugin.%s.Marker:%s.Pattern", arToolKitVariant.c_str(), name);
-    string pattern = coCoviseConfig::getEntry("value", entry, "/mnt/cod/ARToolKit/patt.hiro");
+    string pattern = coCoviseConfig::getEntry("value", entry, name);
     sprintf(entry, "COVER.Plugin.%s.Marker:%s.Size", arToolKitVariant.c_str(), name);
     pattSize = coCoviseConfig::getFloat(entry, 80.0f);
 

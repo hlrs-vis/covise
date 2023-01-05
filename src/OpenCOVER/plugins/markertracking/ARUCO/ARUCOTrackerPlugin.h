@@ -51,6 +51,7 @@ public:
     virtual void preFrame();
     virtual bool update();
     virtual bool destroy();
+    int loadPattern(const char* p);
     
 protected:
     cv::VideoCapture inputVideo;
