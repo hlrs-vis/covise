@@ -205,7 +205,6 @@ bool ARUCOPlugin::init()
 
         int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7); // 16 = ARUCO_DEFAULT
 
-        thresh = coCoviseConfig::getInt("COVER.Plugin.ARUCO.Threshold", 100);
 #if( CV_VERSION_MAJOR < 4)
         detectorParams = aruco::DetectorParameters::create();
 #else
@@ -217,6 +216,7 @@ bool ARUCOPlugin::init()
 #else
         detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
         detectorParams->useAruco3Detection = true;
+        detectorParams->minSideLengthCanonicalImg = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.minSideLengthCanonicalImg", 50);
         detectorParams->markerBorderBits = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.markerBorderBits", 1);
 #endif
         

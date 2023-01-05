@@ -93,7 +93,6 @@ private:
     int msgQueue;
     unsigned char *dataPtr;
     int xsize, ysize;
-    int thresh;
     int marker_num;
     bool flipBufferH;
     bool flipBufferV;
