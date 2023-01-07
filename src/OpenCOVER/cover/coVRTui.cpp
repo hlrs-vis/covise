@@ -64,7 +64,7 @@ coVRTui::coVRTui()
     tui = this;
     lastUpdateTime = 0;
     binList = new BinList;
-    mainFolder = new coTUITabFolder("testfolder");
+    mainFolder = new coTUITabFolder("COVERMainFolder");
     coverTab = new coTUITab("COVER", mainFolder->getID());
 #ifdef PRESENTATION
     presentationTab = new coTUITab("Presentation", mainFolder->getID());

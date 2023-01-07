@@ -483,11 +483,19 @@ void TUIMainWindow::removeElement(TUIElement *e)
         firstTabFolderID = -1;
 #endif
     tabs.erase(static_cast<TUITab *>(e));
-    auto iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement *el, int id){ return el->getID()<id;});
+    /*auto iter = std::lower_bound(elements.begin(), elements.end(), e->getID(), [](const TUIElement* el, int id) { return el->getID()<id; });
     if (iter == elements.end())
         return;
     if (*iter != e)
+        return;*/
+
+    auto iter = std::find(elements.begin(), elements.end(), e);
+    if (iter == elements.end())
+    {
+        std::cerr << "element not found in removeElement" << e->getName().toLatin1().toStdString() << std::endl;
         return;
+
+    }
     elements.erase(iter);
 }
 
@@ -704,6 +712,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         case TABLET_CREATE:
         {
             tb >> ID;
+            //if (ID > 304)
+            //    return true;
             int elementTypeInt, parent;
             const char *name;
             tb >> elementTypeInt;
