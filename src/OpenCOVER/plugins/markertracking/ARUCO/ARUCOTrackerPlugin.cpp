@@ -29,6 +29,7 @@
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <cover/coVRFileManager.h>
 
@@ -321,8 +322,13 @@ bool ARUCOPlugin::init()
             std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
 
             cv::FileStorage fs;
-
-            fs.open(calibrationFilename, cv::FileStorage::READ);
+            try
+            {
+                fs.open(calibrationFilename, cv::FileStorage::READ);
+            }
+            catch (cv::Exception e)
+            {
+            }
             if (fs.isOpened())
             {
                 fs["camera_matrix"] >> matCameraMatrix;
@@ -369,8 +375,8 @@ bool ARUCOPlugin::init()
           python MarkerPrinter.py --charuco --file "./charuco.pdf" --dictionary DICT_5X5_1000 --size_x 16 --size_y 9 --square_length 0.09 --marker_length 0.07 --border_b
 its 1
         */
-        int squaresX = coCoviseConfig::getInt("xSize", "COVER.Plugin.ARUCO.Callibration", 8);
-        int squaresY = coCoviseConfig::getInt("ysize", "COVER.Plugin.ARUCO.Callibration", 5);
+        int squaresX = coCoviseConfig::getInt("xSize", "COVER.Plugin.ARUCO.Callibration", 16);
+        int squaresY = coCoviseConfig::getInt("ysize", "COVER.Plugin.ARUCO.Callibration", 9);
         float squareLength = coCoviseConfig::getInt("squareSize", "COVER.Plugin.ARUCO.Callibration", 18);
         float markerLength = coCoviseConfig::getInt("markerSize", "COVER.Plugin.ARUCO.Callibration", 14);
         charucoboard = new aruco::CharucoBoard(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
@@ -522,9 +528,14 @@ void ARUCOPlugin::opencvLoop()
             }
             if (doCalibrate)
             {
-                if (ids[captureIdx].size() > 25)
-                {
+                //cv::initFont(cv::FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0.0, 1, 8);
 
+                std::string text = "Valid Frames: " + std::to_string(allIds.size());
+                cv::putText(image[captureIdx], text, cv::Point(20, 20), cv::FONT_HERSHEY_SIMPLEX,1.0, cv::Scalar(255, 255, 255));
+
+                if (ids[captureIdx].size() > 25 && (cover->frameTime() - lastCalibCapture)>1.0)
+                {
+                    lastCalibCapture = cover->frameTime();
                     Mat currentCharucoCorners, currentCharucoIds;
                     charucoDetector->detectBoard(image[captureIdx], currentCharucoCorners, currentCharucoIds, corners, ids[captureIdx]);
 
@@ -536,7 +547,7 @@ void ARUCOPlugin::opencvLoop()
                     allImgs.push_back(image[captureIdx]);
                     imgSize = image[captureIdx].size();
                 }
-                if (allIds.size() > 20)
+                if (allIds.size() > 15)
                 {
                     cv::aruco::CharucoParameters cp;
                     cv::aruco::RefineParameters rp;

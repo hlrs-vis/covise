@@ -144,6 +144,7 @@ private:
     bool doCalibrate;
     bool calibrated;
     int calibCount;
+    double lastCalibCapture=0.0;
     void startCallibration();
 };
 #endif
