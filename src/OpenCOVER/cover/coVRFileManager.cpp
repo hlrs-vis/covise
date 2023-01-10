@@ -2109,15 +2109,8 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
 }
 std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 {
-
     std::string red;
-    for (auto c : str)
-    {
-        if (c < 128 && c > 0 && isalnum(c) && c != '_' && c != '-')
-        {
-			red.push_back(c);
-        }
-    }
+    for (auto c : str) if ( std::isalnum(static_cast<unsigned char>(c), std::locale("C"))) red.push_back(c);
     return red;
 }
 
