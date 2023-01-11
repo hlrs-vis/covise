@@ -9,10 +9,10 @@
 #include "coHud.h"
 
 #include <cassert>
-#include <cctype>
 #include <chrono>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
+#include <locale>
 #include <thread>
 
 #include "OpenCOVER.h"
@@ -88,9 +88,10 @@ Url::Url(const std::string &url)
     if (!isalpha(*it))
         return;
 
+    std::locale C("C");
     for ( ; it != url.end(); ++it)
     {
-        if (std::isalnum(*it))
+        if (std::isalnum(*it, C))
             continue;
         if (*it == '+')
             continue;
@@ -2109,8 +2110,13 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
 }
 std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 {
+    std::locale C("C");
     std::string red;
-    for (auto c : str) if ( std::isalnum(static_cast<unsigned char>(c), std::locale("C"))) red.push_back(c);
+    for (auto c: str)
+    {
+        if (std::isalnum(c, C))
+            red.push_back(c);
+    }
     return red;
 }
 
