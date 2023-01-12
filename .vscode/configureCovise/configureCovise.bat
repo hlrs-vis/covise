@@ -3,7 +3,7 @@ set EXTERNLIBS=%3
 set VCPKG_ROOT=%3
 
 set COVISEDIR=%1
-call %1/winenv.bat zebu %4
+call %1/winenv.bat %2 %4
 Rem write down covise environment to reuse in vs code debugger settings and CMake wrapper
 set > %1/.vscode/configureCovise/covise.env
 cd %1/.vscode/configureCovise
