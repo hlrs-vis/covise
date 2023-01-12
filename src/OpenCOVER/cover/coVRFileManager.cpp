@@ -2161,7 +2161,8 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
     std::string red;
     for (auto c: str)
     {
-        if (std::isalnum(c, C))
+        // reduce to ASCII before feeding to isalnum in order to cope with invalid streams
+        if (!(c & 0x80) && std::isalnum(c, C))
             red.push_back(c);
     }
     return red;
