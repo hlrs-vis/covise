@@ -1894,12 +1894,10 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
                 cur = volumes.begin();
             makeVolumeCurrent(cur);
         }
-        volumes[name].removeFromScene();
-        volumes.erase(name);
+        volume->second.removeFromScene();
         if (volume == currentVolume)
-        {
             currentVolume = volumes.end();
-        }
+        volumes.erase(volume);
         return true;
     }
 
