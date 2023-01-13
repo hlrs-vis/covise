@@ -2127,6 +2127,10 @@ namespace OpenCOVERPlugin
                 {
                     sliding = 1;
                 }
+                else if (oper != null && (oper.Length > 7 && oper.Substring(oper.Length - 7) == "SLIDING"))
+                    {
+                    sliding = 1;
+                }
                 else
                 {
                     IList<Parameter> ps = family.GetParameters("isSliding");
