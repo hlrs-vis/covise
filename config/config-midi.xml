@@ -4,22 +4,29 @@
  <GLOBAL>
   <COVER>
             <Plugin>
-                <Midi value="Off" InPort="0" OutPort="2">
+                <Midi value="Off" OutPort="2"/>
 						   <Theremin object="/data/Jeremy/NOTES/Theremin.wrl"   minX="1" maxX="2" minY="1" maxY="2" posX="0.0" posY="200.0" posZ="0.0" />
 				       <Store posX="0" posY="0" posZ="0"   />
 					   <Controller name="0" controllerID="2"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
 					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   
+					   <Stream name="0" InPort="0" />
+					   <Stream name="1" InPort="1"/>
+					   <Stream name="2" InPort="2" />
+					   <Stream name="3" InPort="3" />
+					   <Stream name="4" InPort="4" />
+					   <Stream name="5" InPort="5" />
+					   <Stream name="6" InPort="6" />
+					   <Stream name="7" InPort="7" />
 					   
-					   
-					   <Instrument name="5" channel="11" type="Drumkit">
+					   <Instrument name="5" channel="11" type="Drumkit"/>
 					       <Key name="49"   r="148"   g="0" b="211"/>
 					       <Key name="50"   r="75"  g="0" b="130"/>
 					       <Key name="51"   r="0"  g="0"  b="255"/>
 					       <Key name="52"   r="80"  g="0"  b="255"/>
                                            </Instrument>
-					   <Instrument name="0" channel="8" type="Drumkit">
+					   <Instrument name="0" channel="8" type="Drumkit"/>
 					       <Key name="1"   r="148"   g="0" b="211"/>
 					       <Key name="2"   r="75"  g="0" b="130"/>
 					       <Key name="3"   r="0"  g="0"  b="255"/>

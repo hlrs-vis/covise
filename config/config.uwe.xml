@@ -96,6 +96,11 @@
 					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   
+					   <Stream name="0" InPort="0" />
+					   <Stream name="1" InPort="1"/>
+					   <Stream name="2" InPort="2"/>
+					   <Stream name="3" InPort="3"/>
+					   <Stream name="4" InPort="4"/>
 					   
 				       <Instrument name="0" type="Drumkit">
 					       <Key name="4"   r="1"   g="0"   b="0"  />

@@ -24,6 +24,7 @@
 #include <osg/ShadeModel>
 #include <vrml97/vrml/Player.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Label.h>
@@ -317,6 +318,131 @@ private:
 	osg::Vec3 rotationSpeed;
 };
 
+class TriplePlay
+{
+private:
+
+	//Control Change b7 1f Variable
+	//Control Change b7 3f Value
+
+	//Control Change b7 1f SelectSplit
+	//Control CHange b7 3f SplitNumber min=1
+	enum ftpVariable
+	{
+		SelectSplit = 0x52,
+		DefineHSplit = 0x4a, // min = 0x40 max 0y5f
+		DefineVSplit = 0x49, // min = 0x20 max
+		// split
+		Pitchbend = 0x2b,
+		Transpose = 0x2c, // min 0 =-24 24 = 0 48 = 24 default = 36
+		DynamicsSensitivity = 0x2f, // min 0x0a max 0x14
+		DynamicsOffset = 0x30, // min 0x00 max 0x14
+
+		//non split
+		ThreadSensitivity = 0x3c, // e 00-0f b 10-1f g 20-2f d 30-3f a 40-4f e 50-5f 
+		MIDIMode = 0x3f,
+		SustainPedal = 0x46,
+		Sensitivity = 0x4f,
+		PitchBendRenge = 0x70,
+	};
+	enum ftpValue
+	{
+		Mono = 0x0,
+		Poly = 0x1,
+		Pick = 0x4,
+		Finger = 0x6,
+		MinPitchBend = 0,
+		MaxPitchBend = 24,
+		BlockNewMidiNotes = 0,
+		DontBlockNewMidiNotes = 1,
+		MinDynamicsSensitivity = 0x0a,
+		MaxDynamicsSensitivity = 0x14,
+		MinDynamicsOffset = 0x00,
+		MaxDynamicsOffset = 0x14,
+		PitchbendAuto = 0x00,
+		PitchbendSmnooth = 0x01,
+		PitchbendStepped = 0x02,
+		PitchbendTrigger = 0x03,
+
+	};
+	/*
+	coordinates of split
+1/2
+
+48 40
+48 5f
+48 20
+48 3f
+48 00
+48 1f
+47 60
+47 7f
+47 40
+47 5f
+47 20
+47 3f
+
+
+3/4
+49 20
+49 3f
+
+4a 40
+4a 5f
+4A 20
+4a 3f
+4a 00
+4a 1f
+49 60
+49 7f
+49 40
+49 5f
+49 20
+49 3f
+*/
+
+public:
+
+
+	// constructor
+	TriplePlay();
+
+	// destructor
+	virtual ~TriplePlay();
+
+#ifdef WIN32
+	HMIDIOUT hMidiDeviceOut = nullptr;
+	HMIDIIN hMidiDeviceIn = nullptr;
+#else
+#endif
+	int midiInfd;
+	int midiOutfd;
+
+	bool openMidiIn(int device);
+	bool openMidiOut(int device);
+
+	bool update();
+
+	void MIDItab_create();
+	void MIDItab_delete();
+
+	void sendSysexMessage(unsigned char* buf, size_t size);
+
+	void addEvent(MidiEvent &me);
+
+	ui::Group* FTPGroup = nullptr;
+	ui::Action* MonoButton = nullptr;
+	ui::Action* PolyButton = nullptr;
+	ui::Slider* sensitivitySlider = nullptr;
+
+private:
+
+	void sendMidiMessage(unsigned char P0, unsigned char P1, unsigned char P2);
+	void setParam(unsigned char Var, unsigned char Value);
+
+
+};
+
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
@@ -325,6 +451,7 @@ private:
 	int gRecordingDeviceCount;
 	std::list<AudioInStream *>audioStreams;
 	std::list<WaveSurface *>waveSurfaces;
+
 
 public:
 
@@ -419,7 +546,8 @@ public:
     ui::Menu *MIDITab = nullptr;
 	ui::Button* reset = nullptr;
 	ui::Button* clearStoreButton = nullptr;
-	
+	ui::Button* debugButton = nullptr;
+
     ui::Slider *radius1Slider = nullptr;
     ui::Slider *radius2Slider = nullptr;
     ui::Slider *yStepSlider = nullptr;
@@ -433,7 +561,7 @@ public:
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
-    ui::Label *infoLabel = nullptr;
+	ui::Label* infoLabel = nullptr;
     float acceleration=-300;
     float rAcceleration=0.2;
     float spiralSpeed=0.1;
@@ -446,11 +574,16 @@ public:
     UA_Server* server = nullptr;
     UA_ServerConfig* config = nullptr;
 #endif
+	TriplePlay* triplePlay = nullptr;
 private:
 	int initOPCUA();
 
     static MidiPlugin *plugin;
+	OpenThreads::Mutex eventQueueMutex;
+
 
 
 };
+
+
 #endif
