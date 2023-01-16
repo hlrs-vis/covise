@@ -47,7 +47,7 @@ public:
     // Handles //
     //
     void rebuildMoveRotateHandles();
-    void rebuildAddHandles();
+    void rebuildAddHandles(bool perLane);
     void rebuildRoadMoveRotateHandles();
     void deleteHandles();
 

@@ -31,7 +31,7 @@ class TrackAddHandle : public LinkHandle
     //################//
 
 public:
-    explicit TrackAddHandle(TrackEditor *trackEditor, QGraphicsItem *parentItem, RSystemElementRoad *road, bool isStart);
+    explicit TrackAddHandle(TrackEditor *trackEditor, QGraphicsItem *parentItem, RSystemElementRoad *road, int laneId, double s, double t);
     virtual ~TrackAddHandle();
 
     void updateTransformation();
@@ -41,10 +41,23 @@ public:
     {
         return road_;
     }
+
+    int getLaneId() const
+    {
+        return laneId_;
+    }
+
     bool isStart() const
     {
-        return isStart_;
+        if (fabs(s_) < NUMERICAL_ZERO8)
+        {
+            return true;
+        }
+
+        return false;
     }
+   
+    QPointF getPos();
 
     // Observer Pattern //
     //
@@ -74,7 +87,8 @@ private:
     TrackEditor *trackEditor_;
 
     RSystemElementRoad *road_;
-    bool isStart_;
+    int laneId_;
+    double s_, t_;
 
     TrackComponent *track_;
 };

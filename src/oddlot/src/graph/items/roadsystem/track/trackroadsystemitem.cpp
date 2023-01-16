@@ -106,11 +106,11 @@ TrackRoadSystemItem::rebuildMoveRotateHandles()
 *
 */
 void
-TrackRoadSystemItem::rebuildAddHandles()
+TrackRoadSystemItem::rebuildAddHandles(bool perLane)
 {
     foreach(TrackRoadItem * trackRoadItem, trackRoadItems_)
     {
-        trackRoadItem->rebuildAddHandles(true);
+        trackRoadItem->rebuildAddHandles(true, perLane);
     }
 }
 

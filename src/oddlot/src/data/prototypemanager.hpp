@@ -155,6 +155,8 @@ public:
     bool loadPrototypes(const QString &fileName);
 
     void addRoadPrototype(const QString &name, const QIcon &icon, RSystemElementRoad *road, PrototypeManager::PrototypeType type, QString &system, QString &typeName, QString &lanes);
+    void removeRoadPrototype(PrototypeContainer<RSystemElementRoad*>* prototype);
+
     QList<PrototypeContainer<RSystemElementRoad *> *> getRoadPrototypes(PrototypeManager::PrototypeType type) const
     {
         return roadPrototypes_.values(type);

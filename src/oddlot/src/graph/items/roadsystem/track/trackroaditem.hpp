@@ -42,7 +42,7 @@ public:
     // Handles //
     //
     void rebuildMoveRotateHandles(bool delHandles);
-    void rebuildAddHandles(bool delHandles);
+    void rebuildAddHandles(bool delHandles, bool perLane);
     void rebuildRoadMoveRotateHandles(bool delHandles);
     void deleteHandles();
 
@@ -89,7 +89,6 @@ private:
     // Handles //
     //
     QGraphicsPathItem *handlesItem_;
-    QGraphicsPathItem *handlesAddItem_;
 
     // TrackComponentItems //
     //

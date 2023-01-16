@@ -71,6 +71,7 @@ private:
     {
         STE_NONE,
         STE_NEW_PRESSED,
+        STE_HANDLE_PRESSED,
         STE_ROADSYSTEM_ADD
     };
 
@@ -213,6 +214,7 @@ private:
     //
     QPointF pressPoint_;
     QPointF firstPressPoint_;
+    QVector2D tangent_;
 
     // New Road Tool //
     //

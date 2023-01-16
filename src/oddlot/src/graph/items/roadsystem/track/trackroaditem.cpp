@@ -24,6 +24,8 @@
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 
+#include "src/data/roadsystem/sections/lanesection.hpp"
+
 // GUI //
 //
 #include "src/gui/projectwidget.hpp"
@@ -64,7 +66,6 @@ TrackRoadItem::TrackRoadItem(TrackRoadSystemItem *parentTrackRoadSystemItem, RSy
     , trackEditor_(trackEditor)
     , parentTrackRoadSystemItem_(parentTrackRoadSystemItem)
     , handlesItem_(NULL)
-    , handlesAddItem_(NULL)
 {
     init();
 }
@@ -154,7 +155,14 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
         {
             if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
             {
-                rebuildAddHandles(false);
+                rebuildAddHandles(false, false);
+            }
+        }
+        else if (trackEditor_->isCurrentTool(ODD::TTE_ROAD_NEW))
+        {
+            if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
+            {
+                rebuildAddHandles(false, true);
             }
         }
         else if (trackEditor_->isCurrentTool(ODD::TTE_MOVE_ROTATE))
@@ -233,7 +241,7 @@ TrackRoadItem::rebuildMoveRotateHandles(bool delHandles)
 *
 */
 void
-TrackRoadItem::rebuildAddHandles(bool delHandles)
+TrackRoadItem::rebuildAddHandles(bool delHandles, bool perLane)
 {
     if (delHandles)
     {
@@ -242,8 +250,28 @@ TrackRoadItem::rebuildAddHandles(bool delHandles)
     handlesItem_ = new QGraphicsPathItem(this);
     handlesItem_->setZValue(1.0); // Stack handles before items
 
-    new TrackAddHandle(trackEditor_, handlesItem_, getRoad(), true);
-    new TrackAddHandle(trackEditor_, handlesItem_, getRoad(), false);
+    
+    if (perLane)
+    {
+        RSystemElementRoad* road = getRoad();
+        LaneSection* laneSection = road->getLaneSection(0.0);
+        foreach(Lane * lane, laneSection->getLanes())
+        {
+            new TrackAddHandle(trackEditor_, handlesItem_, road, lane->getId(), 0.0, laneSection->getTValue(lane, 0.0, 2 * lane->getWidth(0.0)));
+        }
+        
+        double length = road->getLength();
+        laneSection = road->getLaneSection(length);
+        foreach(Lane * lane, laneSection->getLanes())
+        {
+            new TrackAddHandle(trackEditor_, handlesItem_, road, lane->getId(), length, laneSection->getTValue(lane, length, 2 * lane->getWidth(length)));
+        }
+    }
+    else
+    {
+        new TrackAddHandle(trackEditor_, handlesItem_, getRoad(), 0, 0.0, 0.0);
+        new TrackAddHandle(trackEditor_, handlesItem_, getRoad(), 0, getRoad()->getLength(), 0.0);
+    }
 }
 
 /*! \brief .
@@ -308,6 +336,7 @@ TrackRoadItem::updateObserver()
 
     if (changes & RSystemElementRoad::CRD_TrackSectionChange)
     {
+
         // A section has been added.
         rebuildSections(false); // no full rebuild, only update
         return;

@@ -473,6 +473,21 @@ TrackElementItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     TrackComponentItem::hoverLeaveEvent(event); // pass to baseclass
 }
 
+void 
+TrackElementItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
+{
+    ODD::ToolId tool = getTrackEditor()->getCurrentTool();
+    if ((tool == ODD::TTE_ADD) || (tool == ODD::TTE_ROAD_NEW) || (tool == ODD::TTE_ADD_PROTO))
+    {
+        event->ignore();
+        return;
+    }
+
+    // Parent //
+    //
+    TrackComponentItem::contextMenuEvent(event);
+}
+
 //*************//
 // Delete Item
 //*************//

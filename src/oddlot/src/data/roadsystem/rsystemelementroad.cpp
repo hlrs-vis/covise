@@ -4174,6 +4174,10 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(TypeSection * section, prototypeRoad->typeSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
             addTypeSection(section->getClone());
         }
     }
@@ -4182,6 +4186,10 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(ElevationSection * section, prototypeRoad->elevationSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
             addElevationSection(section->getClone());
         }
     }
@@ -4190,6 +4198,10 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(SuperelevationSection * section, prototypeRoad->superelevationSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
             addSuperelevationSection(section->getClone());
         }
     }
@@ -4198,6 +4210,10 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(CrossfallSection * section, prototypeRoad->crossfallSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
             addCrossfallSection(section->getClone());
         }
     }
@@ -4206,6 +4222,10 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(LaneSection * section, prototypeRoad->laneSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
             addLaneSection(section->getClone());
         }
     }
@@ -4214,6 +4234,11 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
     {
         foreach(ShapeSection * section, prototypeRoad->shapeSections_)
         {
+            if (section->getSStart() > cachedLength_)
+            {
+                break;
+            }
+
             ShapeSection *clone = section->getClone();
             addShapeSection(clone);
 

@@ -62,6 +62,12 @@ PrototypeManager::addRoadPrototype(const QString &name, const QIcon &icon, RSyst
 }
 
 void
+PrototypeManager::removeRoadPrototype(PrototypeContainer<RSystemElementRoad*>* prototype)
+{
+    roadPrototypes_.remove(roadPrototypes_.key(prototype), prototype);
+}
+
+void
 PrototypeManager::addRoadSystemPrototype(const QString &name, const QIcon &icon, RoadSystem *roadSystem)
 {
     roadSystemPrototypes_.append(new PrototypeContainer<RoadSystem *>(name, icon, roadSystem));

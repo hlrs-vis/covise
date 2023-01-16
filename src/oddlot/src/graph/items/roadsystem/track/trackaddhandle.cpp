@@ -41,11 +41,13 @@
 // CONSTRUCTOR    //
 //################//
 
-TrackAddHandle::TrackAddHandle(TrackEditor *trackEditor, QGraphicsItem *parentItem, RSystemElementRoad *road, bool isStart)
+TrackAddHandle::TrackAddHandle(TrackEditor *trackEditor, QGraphicsItem *parentItem, RSystemElementRoad *road, int laneId, double s, double t)
     : LinkHandle(parentItem)
     , trackEditor_(trackEditor)
     , road_(road)
-    , isStart_(isStart)
+    , laneId_(laneId)
+    , s_(s)
+    , t_(t)
 {
     // Flags //
     //
@@ -57,14 +59,8 @@ TrackAddHandle::TrackAddHandle(TrackEditor *trackEditor, QGraphicsItem *parentIt
     //
     road_->attachObserver(this);
 
-    if (isStart_)
-    {
-        track_ = road_->getTrackComponent(0.0);
-    }
-    else
-    {
-        track_ = road->getTrackComponent(road->getLength());
-    }
+    track_ = road_->getTrackComponent(s_);
+
     if (track_)
         track_->attachObserver(this);
 
@@ -96,16 +92,15 @@ TrackAddHandle::updateTransformation()
 {
     setHandleType(LinkHandle::DHLT_START);
 
-    if (isStart_)
-    {
-        setPos(road_->getGlobalPoint(0.0));
-        setRotation(road_->getGlobalHeading(0.0));
-    }
-    else
-    {
-        setPos(road_->getGlobalPoint(road_->getLength()));
-        setRotation(road_->getGlobalHeading(road_->getLength()));
-    }
+
+    setPos(road_->getGlobalPoint(s_,t_));
+    setRotation(road_->getGlobalHeading(s_));
+}
+
+QPointF 
+TrackAddHandle::getPos()
+{
+    return road_->getGlobalPoint(s_, t_);
 }
 
 void
@@ -125,6 +120,17 @@ TrackAddHandle::updateColor()
 void
 TrackAddHandle::updateObserver()
 {
+    int dataElementChanges = road_->getDataElementChanges();
+
+    // Deletion //
+    //
+    if ((dataElementChanges & DataElement::CDE_DataElementDeleted)
+        || (dataElementChanges & DataElement::CDE_DataElementRemoved))
+    {
+        trackEditor_->getProjectGraph()->addToGarbage(this);
+        return;
+    }
+
     // Get change flags //
     //
     int changes = road_->getRoadChanges();
@@ -135,7 +141,8 @@ TrackAddHandle::updateObserver()
     {
         // Check if track is still the first/last one //
         //
-        if (isStart_)
+
+        if (s_ < NUMERICAL_ZERO8)
         {
             if (track_ != road_->getTrackComponent(0.0))
             {
@@ -144,14 +151,12 @@ TrackAddHandle::updateObserver()
                 track_->attachObserver(this);
             }
         }
-        else
+        else if (track_ != road_->getTrackComponent(road_->getLength()))
         {
-            if (track_ != road_->getTrackComponent(road_->getLength()))
-            {
-                track_->detachObserver(this);
-                track_ = road_->getTrackComponent(road_->getLength());
-                track_->attachObserver(this);
-            }
+            track_->detachObserver(this);
+            s_ = road_->getLength();
+            track_ = road_->getTrackComponent(s_);
+            track_->attachObserver(this);
         }
 
         // Update Transformation //
