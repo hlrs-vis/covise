@@ -85,12 +85,12 @@ void TUISplitter::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> orientation;
         if ((orientation == Qt::Vertical) && !vBoxLayout)
         {
-            delete hBoxLayout;
+            //delete hBoxLayout;
             vBoxLayout = new QVBoxLayout(widget);
         }
         else if ((orientation == Qt::Horizontal) && !hBoxLayout)
         {
-            delete vBoxLayout;
+            //delete vBoxLayout;
             hBoxLayout = new QHBoxLayout(widget);
         }
 

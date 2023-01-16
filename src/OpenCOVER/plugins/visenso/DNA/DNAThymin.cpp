@@ -30,7 +30,6 @@ DNAThymin::DNAThymin(osg::Matrix m, int num)
     this->setConnection("thymin2", "cytosin2", false, false, NULL);
     this->setConnection("thymin3", "guanin2", false, false, NULL);
     enabledCP.clear();
-    enabledCP.empty();
 }
 
 DNAThymin::~DNAThymin()
@@ -116,7 +115,6 @@ void DNAThymin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
     if (connected)
     {
         enabledCP.clear();
-        enabledCP.empty();
         // disable all other connections
         if (a1->getMyBaseUnitName().compare(mycp->getMyBaseUnitName()) == 0)
         {
@@ -169,6 +167,5 @@ void DNAThymin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
         for (std::list<DNABaseUnitConnectionPoint *>::iterator it = enabledCP.begin(); it != enabledCP.end(); it++)
             (*it)->setEnabled(true);
         enabledCP.clear();
-        enabledCP.empty();
     }
 }

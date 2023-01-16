@@ -40,8 +40,8 @@ protected:
 
 };
 
-VRBCLIENTEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const RemoteClient &rc);
-VRBCLIENTEXPORT bool operator<(const RemoteClient &r1, const RemoteClient &r2);
+VRBEXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const RemoteClient &rc);
+VRBEXPORT bool operator<(const RemoteClient &r1, const RemoteClient &r2);
 
 } // namespace vrb
 

@@ -213,18 +213,16 @@ if defined CUDA_PATH_V10_0 (
 if defined CUDA_PATH_V10_1 (
     set CUDA_PATH=%CUDA_PATH_V10_1%
 )
-
 if not defined QT_HOME ( 
    REM QT_HOME is not set... check QTDIR
    IF not defined QTDIR (
      REM QTDIR is not set ! Try in EXTERNLIBS
-     set "QT_HOME=%EXTERNLIBS%\qt5"
-     set "QT_SHAREDHOME=%EXTERNLIBS%\qt5"
-     set "QTDIR=%EXTERNLIBS%\qt5"
-     set "QT_INCPATH=%EXTERNLIBS%\qt5\include"
-     set "QT_LIBPATH=%EXTERNLIBS%\qt5\lib"
-	 set "PATH=%EXTERNLIBS%\qt5\bin;%EXTERNLIBS%\qt5\lib;%PATH%"
-	 set "QT_QPA_PLATFORM_PLUGIN_PATH=%EXTERNLIBS%\qt5\plugins\platforms"   rem tested for qt5 on win7, visual studio 2010
+     IF "%2"=="qt6" (
+        set "QTDIR=%EXTERNLIBS%\qt6"
+        set "COVISE_CMAKE_OPTIONS=%COVISE_CMAKE_OPTIONS% -DCOVISE_USE_QT5=OFF"
+     ) ELSE (
+        set "QTDIR=%EXTERNLIBS%\qt5"
+     )
    ) ELSE (
      REM QTDIR is set so try to use it !
      REM Do a simple sanity-check...
@@ -234,14 +232,14 @@ if not defined QT_HOME (
        pause
      )
      REM Set QT_HOME according to QTDIR. If User ignores any warnings before he will find himself in a world of pain! 
-     set "QT_HOME=%QTDIR%"
-     set "QT_SHAREDHOME=%QTDIR%"
-     set "QT_INCPATH=%QTDIR%\include"
-     set "QT_LIBPATH=%QTDIR%\lib"
-	 set "PATH=%QTDIR%\bin;%QTDIR%\lib;%PATH%"
-	 set "QT_QPA_PLATFORM_PLUGIN_PATH=%QTDIR%\plugins\platforms"  
    )
 )
+set "QT_HOME=%QTDIR%"
+set "QT_SHAREDHOME=%QT_HOME%"
+set "QT_INCPATH=%QT_HOME%\include"
+set "QT_LIBPATH=%QT_HOME%\lib"
+set "PATH=%QT_HOME%\bin;%QT_HOME%\lib;%PATH%"
+set "QT_QPA_PLATFORM_PLUGIN_PATH=%QT_HOME%\plugins\platforms"  
 
 if not defined  OPENSCENEGRAPH_HOME (
    if exist %EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe (
@@ -346,8 +344,8 @@ if not defined ALL_EXTLIBS (
 if not defined HDF5_ROOT  (
    set "HDF5_ROOT=%EXTERNLIBS%\hdf5"
 )
-if not defined Qt5WebEngineWidgets_DIR  (
-   set "Qt5WebEngineWidgets_DIR=%EXTERNLIBS%\qt5"
+if not "%COVISE_USE_QT5%" == "OFF" if not defined Qt5WebEngineWidgets_DIR  (
+   set "Qt5WebEngineWidgets_DIR=%QTDIR%"
 )
 
 set PATH=%PATH%;%EXTERNLIBS%\bison\bin

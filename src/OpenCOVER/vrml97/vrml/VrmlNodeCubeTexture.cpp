@@ -120,12 +120,12 @@ std::ostream &VrmlNodeCubeTexture::printFields(std::ostream &os, int indent)
     return os;
 }
 
-void VrmlNodeCubeTexture::readCubeTexture(VrmlMFString& texture, const std::string &textureName)
+void VrmlNodeCubeTexture::readCubeTexture(Image* &image,VrmlMFString& texture, const std::string &textureName)
 {
     auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
     Doc relDoc(relUrl);
-    d_imageXP = new Image;
-    if (!d_imageXP->tryURLs(texture.size(), texture.get(), &relDoc))
+    image = new Image;
+    if (!image->tryURLs(texture.size(), texture.get(), &relDoc))
         cerr << "Error: couldn't read CubeTexture from " << textureName << " " << texture << endl;
 }
 
@@ -176,27 +176,27 @@ void VrmlNodeCubeTexture::render(Viewer *viewer)
     // them...
     if (!d_imageXP && d_urlXP.size() > 0)
     {
-        readCubeTexture(d_urlXP, "URLXP");
+        readCubeTexture(d_imageXP,d_urlXP, "urlXP");
     }
     if (!d_imageXN && d_urlXN.size() > 0)
     {
-       readCubeTexture(d_urlXN, "d_urlXN");
+       readCubeTexture(d_imageXN,d_urlXN, "urlXN");
     }
     if (!d_imageYP && d_urlYP.size() > 0)
     {
-       readCubeTexture(d_urlYP, "d_urlYP");
+       readCubeTexture(d_imageYP,d_urlYP, "urlYP");
     }
     if (!d_imageYN && d_urlYN.size() > 0)
     {
-       readCubeTexture(d_urlYN, "d_urlYN");
+       readCubeTexture(d_imageYN,d_urlYN, "urlYN");
     }
     if (!d_imageZP && d_urlZP.size() > 0)
     {
-       readCubeTexture(d_urlZP, "d_urlZP");
+       readCubeTexture(d_imageZP,d_urlZP, "urlZP");
     }
     if (!d_imageZN && d_urlZN.size() > 0)
     {
-       readCubeTexture(d_urlZN, "d_urlZN");
+       readCubeTexture(d_imageZN,d_urlZN, "urlZN");
     }
 
     // Check texture cache

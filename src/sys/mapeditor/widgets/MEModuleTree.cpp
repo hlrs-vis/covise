@@ -6,15 +6,16 @@
  * License: LGPL 2+ */
 
 
-#include <QMenu>
-#include <QMimeData>
+#include <QApplication>
 #include <QContextMenuEvent>
 #include <QDebug>
+#include <QFile>
+#include <QMenu>
+#include <QMimeData>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QSslSocket>
-#include <QApplication>
 #include <QTime>
 
 #include <covise/covise_msg.h>
@@ -905,7 +906,12 @@ bool MEModuleTree::getHostUserCategoryName(const QTreeWidgetItem *item,
 //!
 //! Create the mime data for dragging
 //!
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QMimeData *MEModuleTree::mimeData(const QList<QTreeWidgetItem *> &dragList) const
+#else
 QMimeData *MEModuleTree::mimeData(const QList<QTreeWidgetItem *> dragList) const
+#endif
 {
 
     QByteArray encodedData;

@@ -9,10 +9,10 @@
 #include "coHud.h"
 
 #include <cassert>
-#include <cctype>
 #include <chrono>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
+#include <locale>
 #include <thread>
 
 #include "OpenCOVER.h"
@@ -45,6 +45,7 @@
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/locale.hpp>
 #include <fcntl.h>
 #include <osg/Texture2D>
 #include <osgText/Font>
@@ -87,9 +88,10 @@ Url::Url(const std::string &url)
     if (!isalpha(*it))
         return;
 
+    std::locale C("C");
     for ( ; it != url.end(); ++it)
     {
-        if (std::isalnum(*it))
+        if (std::isalnum(*it, C))
             continue;
         if (*it == '+')
             continue;
@@ -727,11 +729,10 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         return nullptr;
     }
-
+    std::string validFileName(fileName);
     if (!parent)
         parent = cover->getObjectsRoot();
 
-	std::string validFileName(fileName);
 	convertBackslash(validFileName);
 
     auto duplicate = m_files.find(validFileName);
@@ -819,7 +820,13 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->filebrowser = fb;
 
     OpenCOVER::instance()->hud->setText2("loading");
-    OpenCOVER::instance()->hud->setText3(validFileName);
+
+#ifdef WIN32
+    std::string utf8_filename = boost::locale::conv::to_utf<char>(validFileName, "ISO-8859-1");
+#else
+    std::string utf8_filename = validFileName;
+#endif
+    OpenCOVER::instance()->hud->setText3(utf8_filename);
     OpenCOVER::instance()->hud->redraw();
 
     if (isRoot)
@@ -2103,14 +2110,12 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
 }
 std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 {
-
+    std::locale C("C");
     std::string red;
-    for (auto c : str)
+    for (auto c: str)
     {
-        if (isalnum(c) && c != '_' && c != '-')
-        {
-			red.push_back(c);
-        }
+        if (std::isalnum(c, C))
+            red.push_back(c);
     }
     return red;
 }

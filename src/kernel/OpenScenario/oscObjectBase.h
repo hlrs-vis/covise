@@ -13,6 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #include <string>
 #include <vector>
+#include <list>
 #if __cplusplus >= 201103L || defined WIN32
 #include <unordered_map>
 using std::unordered_map;

@@ -55,7 +55,7 @@ WINCOMPATINLINE char *basename(char *pathptr)
     static char dummystr[] = ".";
     char *filebn = 0;
     char *retval = dummystr;
-    if (GetFullPathName(pathptr, MAX_PATH, fullPath, &filebn) != 0)
+    if (GetFullPathNameA(pathptr, MAX_PATH, fullPath, &filebn) != 0)
     {
         if (*filebn != 0)
             retval = filebn;

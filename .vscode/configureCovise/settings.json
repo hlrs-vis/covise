@@ -5,6 +5,7 @@
             "/c",
             "${workspaceFolder}/winenv.bat",
             "${config:covise.archsuffix}",
+            "${config:covise.qtVersion}",
             ">nul 2>&1",
             "&&",
             "cmd"
@@ -21,7 +22,8 @@
             "args": [
                 "/k",
                 "${workspaceFolder}/winenv.bat",
-                "${config:covise.archsuffix}"
+                "${config:covise.archsuffix}",
+                "${config:covise.qtVersion}"
             ],
             "env": {
                 "COVISEDIR": "${workspaceFolder}",

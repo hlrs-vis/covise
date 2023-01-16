@@ -17,7 +17,6 @@
 #define POINTER_64
 #endif
 #endif
-
 #include "ARUCOTrackerPlugin.h"
 
 #include <cover/coVRPluginSupport.h>
@@ -30,6 +29,7 @@
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <cover/coVRFileManager.h>
 
@@ -169,6 +169,14 @@ bool ARUCOPlugin::init()
         bDrawRejMarker = state;
     });
 
+    uiBtnCalib = new ui::Action(uiMenu, "calibrate");
+    uiBtnCalib->setText("calibrate");
+    uiBtnCalib->setEnabled(true);
+    uiBtnCalib->setCallback([this]()
+        {
+            startCallibration();
+        });
+
     // AR init
     
     ARToolKit::instance()->arInterface = this;
@@ -196,22 +204,35 @@ bool ARUCOPlugin::init()
         xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", 640);
         ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", 480);
 
-        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7);
+        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7); // 16 = ARUCO_DEFAULT
 
-        thresh = coCoviseConfig::getInt("COVER.Plugin.ARUCO.Threshold", 100);
-        
+#if( CV_VERSION_MAJOR < 4)
         detectorParams = aruco::DetectorParameters::create();
+#else
+        detectorParams = new aruco::DetectorParameters();
+#endif
         
 #if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
         detectorParams->doCornerRefinement = true; // do corner refinement in markers
 #else
         detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
+        detectorParams->useAruco3Detection = true;
+        detectorParams->minSideLengthCanonicalImg = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.minSideLengthCanonicalImg", 50);
+        detectorParams->markerBorderBits = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.markerBorderBits", 1);
 #endif
         
         markerSize = 150; // set default marker size
         updateMarkerParams(); // update marker sizes from config
-        
-        dictionary = aruco::getPredefinedDictionary(aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
+
+#if( CV_VERSION_MAJOR < 4)
+        dictionary = aruco::getPredefinedDictionary(dictionaryId);
+#else
+        dictionary = aruco::getPredefinedDictionary(dictionaryId);
+#endif
+
+#if( CV_VERSION_MAJOR >= 4)
+        detector = new cv::aruco::ArucoDetector(dictionary,*detectorParams);
+#endif
         msgQueue = -1;
        
         int selectedDevice = atoi(VideoDevice.c_str());
@@ -263,10 +284,9 @@ bool ARUCOPlugin::init()
 
                 if ((xsize != width) || (ysize != height))
                 {
+                    xsize = width;
+                    ysize = height;
                     std::cout << "WARNING: could not set capture frame size" << std::endl;
-                }
-                else
-                {
                     std::cout << "   new size  = " << width << "x" << height << std::endl;
                 }
             }
@@ -294,7 +314,6 @@ bool ARUCOPlugin::init()
 
             std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
 
-            adjustScreen();
 
             // load calib data from file
 
@@ -303,8 +322,13 @@ bool ARUCOPlugin::init()
             std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
 
             cv::FileStorage fs;
-
-            fs.open(calibrationFilename, cv::FileStorage::READ);
+            try
+            {
+                fs.open(calibrationFilename, cv::FileStorage::READ);
+            }
+            catch (cv::Exception e)
+            {
+            }
             if (fs.isOpened())
             {
                 fs["camera_matrix"] >> matCameraMatrix;
@@ -313,7 +337,7 @@ bool ARUCOPlugin::init()
                 std::cout << "camera matrix: " << std::endl;
                 std::cout << matCameraMatrix << std::endl;
                 std::cout << "dist coefs: " << std::endl;
-                std::cout << matDistCoefs << std::endl;
+                std::cout << matCameraMatrix << std::endl;
             }
             else
             {
@@ -344,6 +368,23 @@ bool ARUCOPlugin::init()
             std::cout << "capture device: failed to open " << selectedDevice << std::endl;
             return false;
         }
+        adjustScreen();
+        /* 
+        how to generate callibration patterns:
+         cd src/opencv_contrib/modules/aruco/misc/pattern_generator/
+          python MarkerPrinter.py --charuco --file "./charuco.pdf" --dictionary DICT_5X5_1000 --size_x 16 --size_y 9 --square_length 0.09 --marker_length 0.07 --border_b
+its 1
+        */
+        int squaresX = coCoviseConfig::getInt("xSize", "COVER.Plugin.ARUCO.Callibration", 16);
+        int squaresY = coCoviseConfig::getInt("ysize", "COVER.Plugin.ARUCO.Callibration", 9);
+        float squareLength = coCoviseConfig::getInt("squareSize", "COVER.Plugin.ARUCO.Callibration", 18);
+        float markerLength = coCoviseConfig::getInt("markerSize", "COVER.Plugin.ARUCO.Callibration", 14);
+        charucoboard = new aruco::CharucoBoard(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+        cv::aruco::CharucoParameters cp;
+        cv::aruco::RefineParameters rp;
+        
+        charucoDetector = new cv::aruco::CharucoDetector(*charucoboard, cp, *detectorParams,rp);
+        //board = charucoboard.staticCast<cv::aruco::Board>();
     }
     ARToolKit::instance()->remoteAR = new RemoteAR();
 
@@ -370,6 +411,7 @@ bool ARUCOPlugin::destroy()
         opencvThread.join();
 
     delete uiMenu;
+    ARToolKit::instance()->videoData = nullptr;
     return true;
 }
 
@@ -397,6 +439,37 @@ void ARUCOPlugin::preFrame()
     }
 }
 
+inline static bool saveCameraParams(const std::string& filename, cv::Size imageSize, float aspectRatio, int flags,
+    const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs, double totalAvgErr) {
+    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+    if (!fs.isOpened())
+        return false;
+
+    time_t tt;
+    time(&tt);
+    struct tm* t2 = localtime(&tt);
+    char buf[1024];
+    strftime(buf, sizeof(buf) - 1, "%c", t2);
+
+    fs << "calibration_time" << buf;
+    fs << "image_width" << imageSize.width;
+    fs << "image_height" << imageSize.height;
+
+    if (flags & cv::CALIB_FIX_ASPECT_RATIO) fs << "aspectRatio" << aspectRatio;
+
+    if (flags != 0) {
+        sprintf(buf, "flags: %s%s%s%s",
+            flags & cv::CALIB_USE_INTRINSIC_GUESS ? "+use_intrinsic_guess" : "",
+            flags & cv::CALIB_FIX_ASPECT_RATIO ? "+fix_aspectRatio" : "",
+            flags & cv::CALIB_FIX_PRINCIPAL_POINT ? "+fix_principal_point" : "",
+            flags & cv::CALIB_ZERO_TANGENT_DIST ? "+zero_tangent_dist" : "");
+    }
+    fs << "flags" << flags;
+    fs << "camera_matrix" << cameraMatrix;
+    fs << "distortion_coefficients" << distCoeffs;
+    fs << "avg_reprojection_error" << totalAvgErr;
+    return true;
+}
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 void ARUCOPlugin::opencvLoop()
@@ -426,8 +499,13 @@ void ARUCOPlugin::opencvLoop()
             tvecs[captureIdx].clear();
 
             // detect markers and estimate pose
-            
+
+
+#if( CV_VERSION_MAJOR >= 4)
+            detector->detectMarkers(image[captureIdx], corners, ids[captureIdx],  rejected);
+#else
             cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
+#endif
 
             if(ids[captureIdx].size() > 0)
             {
@@ -437,18 +515,129 @@ void ARUCOPlugin::opencvLoop()
                 try
                 {
                     // todo: uses default marker size only
-                    cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
-                                                         matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
-                    // estimatePoseSingleMarker(corners, markerSize / 1000.0, matCameraMatrix,
-                    //                          matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                    //cv::aruco::estimatePoseSingleMarkers(corners, 49, matCameraMatrix,
+                    //                                     matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                     estimatePoseSingleMarker(corners,  matCameraMatrix,
+                                              matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
                 }
                 catch (cv::Exception &ex)
                 {
                     std::cerr << "OpenCV exception: " << ex.what() << std::endl;
-                    ids[captureIdx].clear();
-                    rvecs[captureIdx].clear();
-                    tvecs[captureIdx].clear();
+                    std::cerr << "Camera might need callibration: "  << std::endl;
                 }
+            }
+            if (doCalibrate)
+            {
+                //cv::initFont(cv::FONT_HERSHEY_SIMPLEX, 1.0, 1.0, 0.0, 1, 8);
+
+                std::string text = "Valid Frames: " + std::to_string(allIds.size());
+                cv::putText(image[captureIdx], text, cv::Point(20, 20), cv::FONT_HERSHEY_SIMPLEX,1.0, cv::Scalar(255, 255, 255));
+
+                if (ids[captureIdx].size() > 25 && (cover->frameTime() - lastCalibCapture)>1.0)
+                {
+                    lastCalibCapture = cover->frameTime();
+                    Mat currentCharucoCorners, currentCharucoIds;
+                    charucoDetector->detectBoard(image[captureIdx], currentCharucoCorners, currentCharucoIds, corners, ids[captureIdx]);
+
+                    if (currentCharucoCorners.total() > 0)
+                        aruco::drawDetectedCornersCharuco(image[captureIdx], currentCharucoCorners, currentCharucoIds);
+
+                    allCorners.push_back(corners);
+                    allIds.push_back(ids[captureIdx]);
+                    allImgs.push_back(image[captureIdx]);
+                    imgSize = image[captureIdx].size();
+                }
+                if (allIds.size() > 15)
+                {
+                    cv::aruco::CharucoParameters cp;
+                    cv::aruco::RefineParameters rp;
+                    Mat cameraMatrix, distCoeffs;
+                    vector< Mat > rvecs, tvecs;
+                    double repError;
+
+                    /*if (calibrationFlags & CALIB_FIX_ASPECT_RATIO) {
+                        cameraMatrix = Mat::eye(3, 3, CV_64F);
+                        cameraMatrix.at< double >(0, 0) = aspectRatio;
+                    }*/
+
+                    // prepare data for calibration
+                    vector< vector< Point2f > > allCornersConcatenated;
+                    vector< int > allIdsConcatenated;
+                    vector< int > markerCounterPerFrame;
+                    markerCounterPerFrame.reserve(allCorners.size());
+                    for (unsigned int i = 0; i < allCorners.size(); i++) {
+                        markerCounterPerFrame.push_back((int)allCorners[i].size());
+                        for (unsigned int j = 0; j < allCorners[i].size(); j++) {
+                            allCornersConcatenated.push_back(allCorners[i][j]);
+                            allIdsConcatenated.push_back(allIds[i][j]);
+                        }
+                    }
+                    int calibrationFlags = 0;
+                    float aspectRatio = 1;
+                   // if (parser.has("a")) {
+                   //     calibrationFlags |= CALIB_FIX_ASPECT_RATIO;
+                   //     aspectRatio = parser.get<float>("a");
+                   // }
+                   // if (parser.get<bool>("zt")) calibrationFlags |= CALIB_ZERO_TANGENT_DIST;
+                   // if (parser.get<bool>("pc")) calibrationFlags |= CALIB_FIX_PRINCIPAL_POINT;
+
+                    // calibrate camera using aruco markers
+                    double arucoRepErr;
+                    arucoRepErr = aruco::calibrateCameraAruco(allCornersConcatenated, allIdsConcatenated,
+                        markerCounterPerFrame, charucoboard, imgSize, cameraMatrix,
+                        distCoeffs, noArray(), noArray(), calibrationFlags);
+
+                    // prepare data for charuco calibration
+                    int nFrames = (int)allCorners.size();
+                    vector< Mat > allCharucoCorners;
+                    vector< Mat > allCharucoIds;
+                    vector< Mat > filteredImages;
+                    allCharucoCorners.reserve(nFrames);
+                    allCharucoIds.reserve(nFrames);
+
+                    for (int i = 0; i < nFrames; i++) {
+                        // interpolate using camera parameters
+                        Mat currentCharucoCorners, currentCharucoIds;
+                        cp.cameraMatrix = cameraMatrix;
+                        cp.distCoeffs = distCoeffs;
+                        charucoDetector->detectBoard(allImgs[i], currentCharucoCorners, currentCharucoIds, allCorners[i], allIds[i]);
+
+                        allCharucoCorners.push_back(currentCharucoCorners);
+                        allCharucoIds.push_back(currentCharucoIds);
+                        filteredImages.push_back(allImgs[i]);
+                    }
+
+                    if (allCharucoCorners.size() < 4) {
+                        cerr << "Not enough corners for calibration" << endl;
+                    }
+                    else
+                    {
+
+                        // calibrate camera using charuco
+                        repError =
+                            aruco::calibrateCameraCharuco(allCharucoCorners, allCharucoIds, charucoboard, imgSize,
+                                cameraMatrix, distCoeffs, rvecs, tvecs, calibrationFlags);
+
+                        bool saveOk = saveCameraParams(calibrationFilename, imgSize, aspectRatio, calibrationFlags,
+                            cameraMatrix, distCoeffs, repError);
+                        if (!saveOk) {
+                            cerr << "Cannot save output file" << endl;
+                        }
+                        else
+                        {
+
+                            cout << "Rep Error: " << repError << endl;
+                            cout << "Rep Error Aruco: " << arucoRepErr << endl;
+                            cout << "Calibration saved to " << calibrationFilename << endl;
+                        }
+                    }
+
+                    doCalibrate = false;
+                    allImgs.clear();
+                    allIds.clear();
+                    allCorners.clear();
+                }
+
             }
 
             // draw results
@@ -471,7 +660,65 @@ void ARUCOPlugin::opencvLoop()
             {
                 aruco::drawDetectedMarkers(image[captureIdx], rejected, noArray(), Scalar(100, 0, 255));
             }
+        /*    if (doCalibrate)
+            {
 
+                const int calibCountMax = 50;
+                const int calibRows = 6;
+                const int calibColumns = 9;
+                if (!calibrated)
+                {
+                    // If we have already collected enough data to make the calibration
+                    // - We are ready to end the capture loop
+                    // - Calibrate
+                    // - Save the calibration file
+                    if (calibCount >= calibCountMax)
+                    {
+                        std::cout << "Calibrating..." << endl;
+                        calibCount = 0;
+                        cam.Calibrate(projPoints);
+                        projPoints.Reset();
+                        cam.SaveCalib(calibrationFilename.c_str());
+                        std::cout << "Saving calibration: " << calibrationFilename << endl;
+                        adjustScreen();
+                        calibrated = true;
+                    }
+                    // If we are still collecting calibration data
+                    // - For every 1.5s add calibration data from detected 7*9 chessboard (and visualize it if true)
+                    else
+                    {
+                        static double lastTime = 0;
+                        double currentTime = cover->frameTime();
+                        if (currentTime > (lastTime + 0.5))
+                        {
+                            if (projPoints.AddPointsUsingChessboard(frame, 2.42, calibRows, calibColumns, true))
+                            {
+                                lastTime = currentTime;
+                                calibCount++;
+                                //cout<<calibCount<<"/"<<calibCountMax<<endl;
+                                char tmpText[100];
+                                sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
+                                calibrateLabel->setLabel(tmpText);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (projPoints.AddPointsUsingChessboard(frame, 2.5, calibRows, calibColumns, true))
+                    {
+                        alvar::Pose pose;
+                        cam.CalcExteriorOrientation(projPoints.object_points, projPoints.image_points, &pose);
+                        cam.ProjectPoints(projPoints.object_points, &pose, projPoints.image_points);
+                        for (size_t i = 0; i < projPoints.image_points.size(); i++)
+                        {
+                            cvCircle(frame, cvPoint((int)projPoints.image_points[i].x, (int)projPoints.image_points[i].y), 6, CV_RGB(0, 0, 255));
+                        }
+                        projPoints.Reset();
+                    }
+                }
+            }
+            */
             guard.lock();
             readyIdx = captureIdx;
             guard.unlock();
@@ -484,6 +731,14 @@ void ARUCOPlugin::opencvLoop()
 
         usleep(5000);
     }
+}
+
+void ARUCOPlugin::startCallibration()
+{
+    allCorners.clear();
+    allIds.clear();
+    allImgs.clear();
+    doCalibrate = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -550,9 +805,9 @@ osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
             markerTransformMat.at<double>(2, 2) = markerRotMat.at<double>(2, 2);
 
             // copy trans vector to transform matrix
-            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0] * 1000;
-            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1] * 1000;
-            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2] * 1000;
+            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0];
+            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1];
+            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2];
 
             // cout << "---------------------------------------" << endl;
             // cout << markerTransformMat << endl;
@@ -603,7 +858,7 @@ void ARUCOPlugin::adjustScreen()
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))
     {
-/*
+
         osg::Vec3 viewPos;
 
         float sxsize = xsize;
@@ -611,20 +866,20 @@ void ARUCOPlugin::adjustScreen()
 
         float d;
 
-        d = cam.calib_K_data[0][0];
-        sysize = ((double)ysize / cam.calib_K_data[1][1]) * d;
+        d = matCameraMatrix.at<double>(0, 0);
+        sysize = ((double)ysize / matCameraMatrix.at<double>(1, 1)) * d;
 
         coVRConfig::instance()->screens[0].hsize = sxsize;
         coVRConfig::instance()->screens[0].vsize = sysize;
 
-        viewPos.set(cam.calib_K_data[0][2] - ((double)xsize / 2.0), -d, ((double)ysize / 2.0) - cam.calib_K_data[1][2]);
+        viewPos.set(matCameraMatrix.at<double>(0, 2) - ((double)xsize / 2.0), -d, ((double)ysize / 2.0) - matCameraMatrix.at<double>(1, 2));
 
         VRViewer::instance()->setInitialViewerPos(viewPos);
         osg::Matrix viewMat;
         viewMat.makeIdentity();
         viewMat.setTrans(viewPos);
         VRViewer::instance()->setViewerMat(viewMat);
-*/
+
     }
 }
 
@@ -696,6 +951,7 @@ static void _getSingleMarkerObjectPoints(float markerLength, OutputArray _objPoi
     objPoints.ptr< Vec3f >(0)[3] = Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
 }
 
+OpenThreads::Mutex mutex;
 // ----------------------------------------------------------------------------
 //! ParallelLoopBody class for the parallelization of the single markers pose estimation
 //! Called from function estimatePoseSingleMarkers()
@@ -728,6 +984,7 @@ public:
                 }
                 if(size < 0) // marker not configured
                 {
+                    OpenThreads::ScopedLock<OpenThreads::Mutex> sl(mutex);
                     char sizeName[100];
                     sprintf(sizeName,"%d",IDs[i]);
                     ARToolKitMarker *objMarker = new ARToolKitMarker(sizeName);
@@ -751,6 +1008,7 @@ private:
     InputArray cameraMatrix, distCoeffs;
     std::vector<int> &IDs;
     Mat& rvecs, tvecs;
+
 };
 
 
@@ -766,7 +1024,6 @@ void ARUCOPlugin::estimatePoseSingleMarker(InputArrayOfArrays _corners,
     std::cout << "ARUCOPlugin::estimatePoseSingleMarker()" << std::endl;
 #endif
 
-    CV_Assert(markerLength > 0);
     
     int nMarkers = (int)_corners.total();
     _rvecs.create(nMarkers, 1, CV_64FC3);
@@ -780,6 +1037,21 @@ void ARUCOPlugin::estimatePoseSingleMarker(InputArrayOfArrays _corners,
 }
 
 
+int ARUCOPlugin::loadPattern(const char* p)
+{
+    int pattID = atoi(p);
+    if (pattID <= 0)
+    {
+        fprintf(stderr, "pattern load error !!\n");
+        pattID = 0;
+    }
+    if (pattID > 1000)
+    {
+        fprintf(stderr, "Pattern ID out of range !!\n");
+        pattID = 0;
+    }
+    return pattID;
+}
     
 // ----------------------------------------------------------------------------
 COVERPLUGIN(ARUCOPlugin)

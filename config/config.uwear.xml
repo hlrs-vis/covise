@@ -303,9 +303,9 @@
 		    <!--  cyclone -->
                     <Marker name="ObjectMarker1" >
                         <Pattern value="16" />
-                        <Size value="40" />
+                        <Size value="38" />
                         <!--Offset x="100" y="-812" z="10" h="180" p="0" r="90" /-->
-                        <Offset x="120" y="6" z="800" h="0" p="90" r="-90" />
+                        <Offset x="124" y="8" z="803" h="0" p="90" r="-90" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Thyssen Turm gross -->

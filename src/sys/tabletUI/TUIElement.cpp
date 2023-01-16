@@ -46,8 +46,8 @@ TUIElement::~TUIElement()
         parentContainer->removeElement(this);
     }
     TUIMainWindow::getInstance()->removeElement(this);
-    if(!layoutHasParent)
-        delete layout;
+    //if(!layoutHasParent)
+        //delete layout;
 }
 
 void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)

@@ -78,14 +78,18 @@ private slots:
     void execMemcheckCB();
 
 protected:
-    void startDrag(Qt::DropActions supportedActions);
-    void contextMenuEvent(QContextMenuEvent *e);
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dragMoveEvent(QDragMoveEvent *e);
-    void dragLeaveEvent(QDragLeaveEvent *e);
+    void startDrag(Qt::DropActions supportedActions) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    void dragEnterEvent(QDragEnterEvent *e) override;
+    void dragMoveEvent(QDragMoveEvent *e) override;
+    void dragLeaveEvent(QDragLeaveEvent *e) override;
 
-    bool dropMimeData(QTreeWidgetItem *parent, int index, const QMimeData *data, Qt::DropAction action);
-    QMimeData *mimeData(const QList<QTreeWidgetItem *>) const;
+    bool dropMimeData(QTreeWidgetItem *parent, int index, const QMimeData *data, Qt::DropAction action) override;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QMimeData *mimeData(const QList<QTreeWidgetItem *>&) const override;
+#else
+    QMimeData *mimeData(const QList<QTreeWidgetItem *>) const override;
+#endif
 };
 
 class OperationWaiter : public QObject

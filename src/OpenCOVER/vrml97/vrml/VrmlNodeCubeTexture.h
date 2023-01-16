@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    void readCubeTexture(VrmlMFString& texture, const std::string &textureName);
+    void readCubeTexture(Image*& image, VrmlMFString& texture, const std::string &textureName);
 
     VrmlMFString d_urlXP;
     VrmlMFString d_urlXN;

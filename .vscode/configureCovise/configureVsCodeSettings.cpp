@@ -16,8 +16,9 @@ int main(int argc, char**argv)
     std::string covisedir = argv[1];
     std::string archsuffix = argv[2];
     std::string externlibs = argv[3];
-    std::string generator = argv[4];
-    bool overwrite = argv[5] == std::string("overwrite");
+    std::string qtVersion = argv[4];
+    std::string generator = argv[5];
+    bool overwrite = argv[6] == std::string("overwrite");
 
     //for some option the ${config:...} evaluation fails so that they have to be set here 
     json coviseEnv = {{"COVISEDIR", "${workspaceFolder}"},
@@ -29,6 +30,7 @@ int main(int argc, char**argv)
 
     json dynamicCoviseSettings = {
         {"covise.dependencyPath", externlibs},
+        {"covise.qtVersion", qtVersion},
         {"cmake.generator", generator},
         {"covise.archsuffix", archsuffix},
 #ifdef _WIN32

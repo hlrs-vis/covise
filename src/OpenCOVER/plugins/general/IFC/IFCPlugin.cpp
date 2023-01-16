@@ -100,6 +100,7 @@
 #include <sys/types.h>
 #include <string.h>
 
+#include <boost/locale.hpp>
 
 
 IFCPlugin *IFCPlugin::plugin = NULL;
@@ -123,7 +124,12 @@ static FileHandler handlers[] = {
 
 int IFCPlugin::loadIFC(const char* filename, osg::Group* loadParent, const char*)
 {
-	return plugin->loadFile(filename, loadParent);
+#ifdef WIN32
+	std::string utf8_filename = boost::locale::conv::to_utf<char>(filename, "ISO-8859-1"); // we hope  the system locale is Latin1
+#else
+	std::string utf8_filename(filename); // we hope it is utf8 already
+#endif
+	return plugin->loadFile(utf8_filename, loadParent);
 }
 
 int IFCPlugin::unloadFile(const std::string& fileName)

@@ -43,10 +43,10 @@ void bcHelperDebug(const char *msg, ...)
     //QFileInfo fi(__MY_FILE__);
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
     //qDebug("%s:%i - %s", (fi.fileName()).latin1(), __MY_LINE__, buf);
-    sprintf(final, "%s:%i # %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
+    snprintf(final, sizeof(final), "%s:%i # %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
     OutputDebugString(final);
 #else
@@ -131,7 +131,7 @@ bool coErr::init(void)
                     DBGOUT("coErr::init() - Path /tmp/yaclogs exists!");
                 }
             }
-            sprintf(tmpbuf, "/tmp/yaclogs/yac.pid=%d", getpid());
+            snprintf(tmpbuf, sizeof(tmpbuf), "/tmp/yaclogs/yac.pid=%d", getpid());
             strcat(log_fname, tmpbuf);
 #endif
             // open the logfile
@@ -178,7 +178,7 @@ void coErr::error(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -190,7 +190,7 @@ void coErr::error(const char *msg, ...)
     if (m_console_lev > 0)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "Error: %s\n", buf);
+        snprintf(tmpstr, sizeof(tmpstr), "Error: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else
@@ -204,7 +204,7 @@ void coErr::warning(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -216,7 +216,7 @@ void coErr::warning(const char *msg, ...)
     if (m_console_lev > 1)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "Warning: %s\n", buf);
+        snprintf(tmpstr, sizeof(tmpstr), "Warning: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else
@@ -230,7 +230,7 @@ void coErr::info(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -242,7 +242,7 @@ void coErr::info(const char *msg, ...)
     if (m_console_lev > 2)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "Info: %s\n", buf);
+        snprintf(tmpstr, sizeof(tmpstr), "Info: %s\n", buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else
@@ -256,7 +256,7 @@ void coErr::fl_error(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -268,7 +268,7 @@ void coErr::fl_error(const char *msg, ...)
     if (m_console_lev > 0)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "%s:%i # Error: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
+        snprintf(tmpstr, sizeof(tmpstr), "%s:%i # Error: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else
@@ -282,7 +282,7 @@ void coErr::fl_warning(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -294,7 +294,7 @@ void coErr::fl_warning(const char *msg, ...)
     if (m_console_lev > 1)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "%s:%i # Warning: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
+        snprintf(tmpstr, sizeof(tmpstr), "%s:%i # Warning: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else
@@ -308,7 +308,7 @@ void coErr::fl_info(const char *msg, ...)
     char buf[1024];
     va_list ap;
     va_start(ap, msg);
-    vsprintf(buf, msg, ap);
+    vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
     init();
@@ -320,7 +320,7 @@ void coErr::fl_info(const char *msg, ...)
     if (m_console_lev > 2)
     {
         char tmpstr[1024+16];
-        sprintf(tmpstr, "%s:%i # Info: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
+        snprintf(tmpstr, sizeof(tmpstr), "%s:%i # Info: %s\n", __MY_FILE__.c_str(), __MY_LINE__, buf);
 #ifdef WIN32
         OutputDebugString(tmpstr);
 #else

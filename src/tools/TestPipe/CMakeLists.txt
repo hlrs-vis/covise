@@ -1,8 +1,5 @@
 #project (TestPipe)
 
-using(qt)
-
-
 QT_WRAP_CPP(TESTPIPE_MOC_SRCS mainwindow.h)
 QT_WRAP_UI(TESTPIPE_UI_HEADERS mainwindow.ui)
 

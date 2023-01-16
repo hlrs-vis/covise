@@ -828,9 +828,8 @@ bool coConfig::save(const std::string &filename) const
  */
 void coConfig::setAdminMode(bool mode)
 {
-    boost::filesystem::perms prms;
-    boost::filesystem::permissions(coConfigDefaultPaths::getDefaultGlobalConfigFileName(), prms);
-    if ((prms & boost::filesystem::perms::group_write) != boost::filesystem::perms::no_perms)
+    boost::filesystem::file_status s = boost::filesystem::status(coConfigDefaultPaths::getDefaultGlobalConfigFileName());
+    if (s.permissions() & boost::filesystem::perms::group_write)
     {
         adminMode = mode;
         if (adminMode)

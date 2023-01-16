@@ -175,7 +175,7 @@ void VRSceneGraph::init()
         toggleHeadTracking(state);
     });
 
-    m_allowHighQuality= new ui::Button("AllowHighQuality", this);
+    m_allowHighQuality= new ui::Button(cover->viewOptionsMenu, "AllowHighQuality");
     cover->viewOptionsMenu->add(m_allowHighQuality);
     m_allowHighQuality->setState(m_enableHighQualityOption);
     m_allowHighQuality->setText("Allow high quality");
@@ -183,7 +183,7 @@ void VRSceneGraph::init()
         toggleHighQuality(state);
     });
 
-    auto switchToHighQuality = new ui::Action("SwitchToHighQuality", this);
+    auto switchToHighQuality = new ui::Action(cover->viewOptionsMenu, "SwitchToHighQuality");
     switchToHighQuality->setVisible(false);
     cover->viewOptionsMenu->add(switchToHighQuality);
     switchToHighQuality->setText("Enable high quality rendering");
@@ -193,7 +193,7 @@ void VRSceneGraph::init()
             m_switchToHighQuality = true;
     });
 
-    m_drawStyle = new ui::SelectionList("DrawStyle", this);
+    m_drawStyle = new ui::SelectionList(cover->viewOptionsMenu, "DrawStyle");
     m_drawStyle->setText("Draw style");
     m_drawStyle->append("As is");
     m_drawStyle->append("Wireframe");
@@ -207,7 +207,7 @@ void VRSceneGraph::init()
     });
     m_drawStyle->select(0);
 
-    m_showAxis = new ui::Button("ShowAxis", this);
+    m_showAxis = new ui::Button(cover->viewOptionsMenu, "ShowAxis");
     cover->viewOptionsMenu->add(m_showAxis);
     m_showAxis->setState(m_coordAxis);
     m_showAxis->setText("Show axis");
@@ -216,7 +216,7 @@ void VRSceneGraph::init()
         toggleAxis(state);
     });
 
-    m_useTextures = new ui::Button("Texturing", this);
+    m_useTextures = new ui::Button(cover->viewOptionsMenu, "Texturing");
     m_useTextures->setVisible(false, ui::View::VR);
     m_useTextures->setShortcut("Shift+T");
     m_useTextures->setState(m_textured);
@@ -233,7 +233,7 @@ void VRSceneGraph::init()
         }
     });
 
-    m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders = new ui::Button(cover->viewOptionsMenu, "UseShaders");
     m_useShaders->setText("Use shaders");
     m_useShaders->setVisible(false, ui::View::VR);
     m_useShaders->setShortcut("Alt+s");
@@ -253,7 +253,7 @@ void VRSceneGraph::init()
     });
 
 
-    auto tm = new ui::Button("ShowMenu", this);
+    auto tm = new ui::Button(cover->viewOptionsMenu, "ShowMenu");
     cover->viewOptionsMenu->add(tm);
     tm->setText("Show VR menu");
     tm->setState(m_showMenu);
@@ -264,7 +264,7 @@ void VRSceneGraph::init()
     tm->setVisible(false);
     m_showMenuButton = tm;
 
-    auto fc = new ui::Action("ForceCompile", this);
+    auto fc = new ui::Action(cover->viewOptionsMenu, "ForceCompile");
     fc->setText("Force display list compilation");
     fc->setVisible(false);
     fc->addShortcut("Alt+Shift+C");
@@ -272,7 +272,7 @@ void VRSceneGraph::init()
             VRViewer::instance()->forceCompile();
     });
 
-    auto fs = new ui::Action("FlipStereo", this);
+    auto fs = new ui::Action(cover->viewOptionsMenu, "FlipStereo");
     fs->setText("Flip stereo 3D eyes");
     fs->setVisible(false);
     fs->addShortcut("Alt+e");
@@ -280,7 +280,7 @@ void VRSceneGraph::init()
             VRViewer::instance()->flipStereo();
     });
 
-    auto cw = new ui::Action("ClearWindow", this);
+    auto cw = new ui::Action(cover->viewOptionsMenu, "ClearWindow");
     cw->setText("Clear window");
     cw->setVisible(false);
     cw->addShortcut("Alt+c");

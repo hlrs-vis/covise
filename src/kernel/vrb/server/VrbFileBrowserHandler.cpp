@@ -207,7 +207,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		QString locClientName;
 
 		//Determine client list connected to VRB
-		for (int i = clients.numberOfClients(); i > 0;)
+		for (auto i = clients.numberOfClients(); i > 0;)
 		{
 			VRBSClient* locConn = clients.getNthClient(--i);
 			locClientName = QString::fromStdString(locConn->userInfo().userName);
@@ -381,7 +381,7 @@ void vrb::handleFileBrouwserRequest(covise::Message* msg)
 		m2.type = COVISE_MESSAGE_VRB_FB_SET;
 
 		//Send message
-		for (int i = clients.numberOfClients(); i > 0;)
+		for (auto i = clients.numberOfClients(); i > 0;)
 		{
 			VRBSClient* locConn = clients.getNthClient(--i);
 			if (locConn->conn != msg->conn)

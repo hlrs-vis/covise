@@ -11,21 +11,23 @@
             "${workspaceFolder}",
             "${input:archsuffix win}",
             "${input:dependency path win}",
+            "${input:qt version}",
             "${input:CMake generator win}",
             "${input:overwrite}"
-          ],
+          ]
         },
         "args": [
           "${workspaceFolder}",
           "${input:archsuffix}",
           "${input:dependency path}",
+          "${input:qt version}",
           "${input:CMake generator}",
           "${input:overwrite}"
         ],
         "options": {
           "cwd": "${workspaceFolder}/.vscode"
         },
-        "problemMatcher": [],
+        "problemMatcher": []
       }
     ],
     "inputs": [
@@ -42,7 +44,7 @@
         "options": [
           "Ninja",
           "Unix Makefiles"
-        ],
+        ]
       },
       {
         "id": "dependency path",
@@ -74,13 +76,22 @@
           "Ninja",
           "Visual Studio 17 2022",
           "Visual Studio 16 2019"
-        ],
+        ]
       },
       {
         "id": "dependency path win",
         "type": "promptString",
         "description": "path to dependencies (vcpkg or externlibs)",
         "default": "${workspaceFolder}/../externlibs/zebu"
+      },
+      {
+        "id": "qt version",
+        "type": "pickString",
+        "description": "the Qt libraries to use",
+        "options": [
+          "qt5",
+          "qt6"
+        ]
       }
     ],
   }

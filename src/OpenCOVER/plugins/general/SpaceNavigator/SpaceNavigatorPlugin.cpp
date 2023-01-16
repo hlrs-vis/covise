@@ -443,8 +443,8 @@ void SpaceNavigator::pollDevice()
         try
         {
 
-            CComPtr<IAngleAxis> pRotation = g3DSensor->Rotation;
-            CComPtr<IVector3D> pTranslation = g3DSensor->Translation;
+            auto pRotation = g3DSensor->Rotation;
+            auto pTranslation = g3DSensor->Translation;
 
             // Check if the cap is still displaced
             if (pRotation->Angle > 0. || pTranslation->Length > 0.)

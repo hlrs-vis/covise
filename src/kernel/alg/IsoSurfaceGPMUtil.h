@@ -8,7 +8,7 @@
 #ifndef _ISOSURFACEGPMUTIL_H_
 #define _ISOSURFACEGPMUTIL_H_
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -122,25 +122,25 @@ ISOSURFACE_EDGE_INTERSECTION VertexInterpolate(float x1, float y1, float z1, flo
         edge.data_vertex2 = data2;
         edge.intersection_at_vertex1 = true;
         edge.intersection_at_vertex2 = false;
-
+        
         if (x1 < x2)
-            edge.intersection.x = x1 + 0.01f * fabs(x2 - x1);
+            edge.intersection.x = x1 + 0.01f * std::abs(x2 - x1);
         else if (x1 > x2)
-            edge.intersection.x = x1 - 0.01f * fabs(-x2 + x1);
+            edge.intersection.x = x1 - 0.01f * std::abs(-x2 + x1);
         else if (x1 == x2)
             edge.intersection.x = x1;
 
         if (y1 < y2)
-            edge.intersection.y = y1 + 0.01f * fabs(y2 - y1);
+            edge.intersection.y = y1 + 0.01f * std::abs(y2 - y1);
         else if (y1 > y2)
-            edge.intersection.y = y1 - 0.01f * fabs(-y2 + y1);
+            edge.intersection.y = y1 - 0.01f * std::abs(-y2 + y1);
         else if (y1 == y2)
             edge.intersection.y = y1;
 
         if (z1 < z2)
-            edge.intersection.z = z1 + 0.01f * fabs(z2 - z1);
+            edge.intersection.z = z1 + 0.01f * std::abs(z2 - z1);
         else if (z1 > z2)
-            edge.intersection.z = z1 - 0.01f * fabs(-z2 + z1);
+            edge.intersection.z = z1 - 0.01f * std::abs(-z2 + z1);
         else if (z1 == z2)
             edge.intersection.z = z1;
 
@@ -162,23 +162,23 @@ ISOSURFACE_EDGE_INTERSECTION VertexInterpolate(float x1, float y1, float z1, flo
         edge.intersection_at_vertex2 = true;
 
         if (x1 < x2)
-            edge.intersection.x = x2 - 0.01f * fabs(x2 - x1);
+            edge.intersection.x = x2 - 0.01f * std::abs(x2 - x1);
         else if (x1 > x2)
-            edge.intersection.x = x2 + 0.01f * fabs(-x2 + x1);
+            edge.intersection.x = x2 + 0.01f * std::abs(-x2 + x1);
         else if (x1 == x2)
             edge.intersection.x = x2;
 
         if (y1 < y2)
-            edge.intersection.y = y2 - 0.01f * fabs(y2 - y1);
+            edge.intersection.y = y2 - 0.01f * std::abs(y2 - y1);
         else if (y1 > y2)
-            edge.intersection.y = y2 + 0.01f * fabs(-y2 + y1);
+            edge.intersection.y = y2 + 0.01f * std::abs(-y2 + y1);
         else if (y1 == y2)
             edge.intersection.y = y2;
 
         if (z1 < z2)
-            edge.intersection.z = z2 - 0.01f * fabs(z2 - z1);
+            edge.intersection.z = z2 - 0.01f * std::abs(z2 - z1);
         else if (z1 > z2)
-            edge.intersection.z = z2 + 0.01f * fabs(-z2 + z1);
+            edge.intersection.z = z2 + 0.01f * std::abs(-z2 + z1);
         else if (z1 == z2)
             edge.intersection.z = z2;
 
@@ -289,7 +289,7 @@ bool test_intersection(ISOSURFACE_EDGE_INTERSECTION_VECTOR &intsec_vector, ISOSU
                 /* circumstances a "proper" cell could be treated as "improper".                                                                */
                 /******************************************************************************************************/
 
-                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                 {
                     improper_topology = true;
                     return true;
@@ -319,7 +319,7 @@ float map_to_isosurface(float coord_x1, float coord_x2, float coord_y1, float co
 
     else
     {
-        dist_x1x2 = sqrt(pow(coord_x1 - coord_x2, 2.0f) + pow(coord_y1 - coord_y2, 2.0f) + pow(coord_z1 - coord_z2, 2.0f));
+        dist_x1x2 = std::sqrt(std::pow(coord_x1 - coord_x2, 2.0f) + std::pow(coord_y1 - coord_y2, 2.0f) + std::pow(coord_z1 - coord_z2, 2.0f));
 
         // Avoid division by zero
         if (dist_x1x2 == 0)
@@ -329,7 +329,7 @@ float map_to_isosurface(float coord_x1, float coord_x2, float coord_y1, float co
 
         else
         {
-            dist_x1xiso = sqrt(pow(coord_x1 - coord_isox, 2.0f) + pow(coord_y1 - coord_isoy, 2.0f) + pow(coord_z1 - coord_isoz, 2.0f));
+            dist_x1xiso = std::sqrt(std::pow(coord_x1 - coord_isox, 2.0f) + std::pow(coord_y1 - coord_isoy, 2.0f) + std::pow(coord_z1 - coord_isoz, 2.0f));
             mapped_value = data_1 + ((data_2 - data_1) / dist_x1x2) * dist_x1xiso;
         }
     }
@@ -623,7 +623,7 @@ bool find_intersection(ISOSURFACE_EDGE_INTERSECTION_VECTOR intsec_vector, int &e
 
                     // Cell is topologically "improper"
                     // Two edges have the same direction (and share a common vertex)
-                    if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                    if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                     {
                         if (edge_vertex1 == intsec_vector[i].vertex1)
                             edge_vertex2 = intsec_vector[i].vertex2;
@@ -865,7 +865,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -879,7 +879,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -945,7 +945,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -959,7 +959,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1063,7 +1063,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1077,7 +1077,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1143,7 +1143,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1157,7 +1157,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1510,7 +1510,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1524,7 +1524,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1590,7 +1590,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1604,7 +1604,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1705,7 +1705,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1719,7 +1719,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -1785,7 +1785,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -1799,7 +1799,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -2132,7 +2132,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -2146,7 +2146,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -2212,7 +2212,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -2226,7 +2226,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -2324,7 +2324,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -2338,7 +2338,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;
@@ -2404,7 +2404,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = previous_vertex;
@@ -2418,7 +2418,7 @@ void find_current_face(CONTOUR &contour, ISOSURFACE_EDGE_INTERSECTION_VECTOR int
 
                                                 // Cell is topologically "improper"
                                                 // Two edges have the same direction (and share a common vertex)
-                                                if (fabs(cosangle - 1.0) < 0.00001 && cosangle > 0)
+                                                if (std::abs(cosangle - 1.0) < 0.00001 && cosangle > 0)
                                                 {
                                                     T_vertices = true;
                                                     new_edge_vertex = next_vertex;

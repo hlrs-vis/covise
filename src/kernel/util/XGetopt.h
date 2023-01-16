@@ -30,6 +30,6 @@ namespace covise
 extern UTILEXPORT int optind, opterr;
 extern UTILEXPORT TCHAR *optarg;
 
-int UTILEXPORT getopt(int argc, TCHAR *argv[], TCHAR *optstring);
+int UTILEXPORT getopt(int argc, TCHAR *argv[], const TCHAR *optstring);
 }
 #endif //XGETOPT_H

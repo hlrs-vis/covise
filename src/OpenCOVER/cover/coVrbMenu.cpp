@@ -53,9 +53,8 @@ VrbMenu::VrbMenu() : ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSend
 void VrbMenu::initFileMenu()
 {
     // session management
-    m_sessionGroup = new ui::Group("VrbGroup", this);
+    m_sessionGroup = new ui::Group(cover->fileMenu,"VrbGroup");
     m_sessionGroup->setText("VRB");
-    cover->fileMenu->add(m_sessionGroup);
 
     m_newSessionBtn = new ui::Action(m_sessionGroup, "newSession");
     m_newSessionBtn->setText("New session");

@@ -163,7 +163,7 @@ namespace covise
 TCHAR *optarg; // global argument pointer
 int optind = 0; // global argv index
 
-int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
+int getopt(int argc, TCHAR *argv[], const TCHAR *optstring)
 {
     static TCHAR *next = NULL;
     if (optind == 0)
@@ -199,7 +199,7 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
     }
 
     TCHAR c = *next++;
-    TCHAR *cp = _tcschr(optstring, c);
+    TCHAR *cp = _tcschr((TCHAR*)optstring, c);
 
     if (cp == NULL || c == _T(':'))
         return _T('?');

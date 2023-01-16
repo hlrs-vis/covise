@@ -58,14 +58,14 @@ public:
     static void comment(int line, const char *fname, const char *comment, int i)
     {
         char buf[1024];
-        sprintf(buf, comment, i);
+        snprintf(buf, sizeof(buf), comment, i);
         coErr::comment(line, fname, buf);
     }
     // print message with 1 string parameter
     static void comment(int line, const char *fname, const char *comment, const char *st)
     {
         char buf[1024];
-        sprintf(buf, comment, st);
+        snprintf(buf, sizeof(buf), comment, st);
         coErr::comment(line, fname, st);
     }
 
