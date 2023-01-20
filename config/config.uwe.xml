@@ -101,6 +101,7 @@
 					   <Stream name="2" InPort="2"/>
 					   <Stream name="3" InPort="3"/>
 					   <Stream name="4" InPort="4"/>
+					   <TriplePlay DeviceIn="5" DeviceOut="6"/>
 					   
 				       <Instrument name="0" type="Drumkit">
 					       <Key name="4"   r="1"   g="0"   b="0"  />
