@@ -20,6 +20,9 @@
 #include <cover/coVRPluginSupport.h>
 #include <vrb/client/SharedState.h>
 
+#include <array>
+#include <memory>
+
 namespace vrui
 {
 class coTrackerButtonInteraction;
@@ -34,16 +37,20 @@ class Group;
 }
 }
 
+#include <OpenConfig/value.h>
+
 using namespace opencover;
 
 
 class ClipPlanePlugin : public coVRPlugin, public ui::Owner
 {
 private:
-    class Plane
+    struct Plane
     {
-    public:
-        bool enabled=false;
+        int num = -1;
+        std::unique_ptr<ConfigBool> enabled;
+        std::unique_ptr<ConfigFloatArray> equation;
+        bool inLocalUpdate = false; // inhibit updating interactor from equation
         bool valid=false; // valid is false before first use
         osg::ref_ptr<osg::ClipPlane> clip;
         ui::Group *UiGroup = nullptr;
@@ -56,9 +63,10 @@ private:
         bool showPickInteractor_=false, showDirectInteractor_=false;
         Plane();
         ~Plane();
+        void set(const osg::Vec4d &eq);
     };
-    Plane plane[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
-    std::unique_ptr < vrb::SharedState<std::vector<double>>> sharedPlanes[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
+    std::array<Plane, coVRPluginSupport::MAX_NUM_CLIP_PLANES> plane;
+    std::unique_ptr<vrb::SharedState<std::vector<double>>> sharedPlanes[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
     //vrb::SharedState<std::vector<double>> sharedPlane_1, sharedPlane_2, sharedPlane_3;
 
     ui::Menu *clipMenu = nullptr;
@@ -74,6 +82,7 @@ private:
     osg::Vec4d matrixToEquation(const osg::Matrix &mat);
 
     void setInitialEquation(int);
+    osg::Matrix equationToMatrix(int);
     bool m_directInteractorShow = false, m_directInteractorEnable = false;
 
 public:
