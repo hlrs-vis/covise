@@ -16,6 +16,7 @@
 #include "coVRPlugin.h"
 #include "coVRMSController.h"
 
+#include <OpenConfig/file.h>
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
 #include <OpenVRUI/coToolboxMenu.h>
@@ -851,10 +852,7 @@ void coVRPluginSupport::preparePluginUnload()
 }
 
 coVRPluginSupport::coVRPluginSupport()
-    : scaleFactor(0.0)
-    , viewerDist(0.0)
-    , updateManager(0)
-    , activeClippingPlane(0)
+: scaleFactor(0.0), viewerDist(0.0), updateManager(0), activeClippingPlane(0), m_config()
 {
     assert(!cover);
     cover = this;
@@ -1585,6 +1583,16 @@ void coVRPluginSupport::watchFileDescriptor(int fd)
 void coVRPluginSupport::unwatchFileDescriptor(int fd)
 {
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
+}
+
+const config::Access &coVRPluginSupport::config() const
+{
+    return m_config;
+}
+
+std::unique_ptr<config::File> coVRPluginSupport::configFile(const std::string &path)
+{
+    return config().file(path);
 }
 
 } // namespace opencover

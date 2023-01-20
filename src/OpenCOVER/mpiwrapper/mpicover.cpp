@@ -31,6 +31,7 @@
 #include <covise/coTimer.h>
 #endif
 
+#include <OpenConfig/access.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
 #include <cover/coCommandLine.h>
@@ -84,6 +85,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
 
     covise::coConfigConstants::setRank(myID, shmGroupRoot);
     covise::coConfigConstants::setMaster(mastername);
+    opencover::config::Access config(my_hostname, mastername, myID);
 
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',

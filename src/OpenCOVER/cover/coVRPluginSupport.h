@@ -54,6 +54,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coVRPlugin.h"
+#include <OpenConfig/access.h>
 
 #include <net/message_types.h>
 
@@ -196,6 +197,7 @@ class COVEREXPORT coVRPluginSupport
     friend class mopla;
     friend class coVRMSController;
     friend class coIntersection;
+    friend class coVRFileManager;
 
 public:
     //! returns true if level <= debugLevel
@@ -528,6 +530,10 @@ public:
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic = false);
     bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
+
+    const config::Access &config() const;
+    std::unique_ptr<config::File> configFile(const std::string &path);
+
 private:
     void setFrameRealTime(double ft);
 
@@ -579,6 +585,7 @@ private:
 
     std::vector<std::ostream *> m_notifyStream;
     std::vector<NotifyBuf *> m_notifyBuf;
+    opencover::config::Access m_config;
 };
 
 COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix);

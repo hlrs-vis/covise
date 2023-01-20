@@ -26,6 +26,11 @@
 #include <osg/Drawable>
 #include <cover/coVRDynLib.h>
 #include <cstdlib>
+#include <OpenConfig/array.h>
+#include <OpenConfig/value.h>
+#include <OpenConfig/file.h>
+
+#include <memory>
 
 namespace grmsg
 {
@@ -118,6 +123,40 @@ public:
 
     //! set the plugin's name
     void setName(const char *sn);
+
+    std::shared_ptr<config::File> config();
+
+    template<class V>
+    std::unique_ptr<config::Value<V>> config(const std::string &section, const std::string &name, const V &defVal,
+                                             config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Value<bool>> configBool(const std::string &section, const std::string &name,
+                                                    const bool &defVal, config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Value<int64_t>> configInt(const std::string &section, const std::string &name,
+                                                      const int64_t &defVal,
+                                                      config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Value<double>> configFloat(const std::string &section, const std::string &name,
+                                                       const double &defVal,
+                                                       config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Value<std::string>> configString(const std::string &section, const std::string &name,
+                                                             const std::string &defVal,
+                                                             config::Flag flags = config::Flag::Default);
+
+    template<class V>
+    std::unique_ptr<config::Array<V>> configArray(const std::string &section, const std::string &name,
+                                                  const std::vector<V> &defVal,
+                                                  config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Array<bool>> configBoolArray(const std::string &section, const std::string &name,
+                                                         const std::vector<bool> &defVal,
+                                                         config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Array<int64_t>> configIntArray(const std::string &section, const std::string &name,
+                                                           const std::vector<int64_t> &defVal,
+                                                           config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Array<double>> configFloatArray(const std::string &section, const std::string &name,
+                                                            const std::vector<double> &defVal,
+                                                            config::Flag flags = config::Flag::Default);
+    std::unique_ptr<config::Array<std::string>> configStringArray(const std::string &section, const std::string &name,
+                                                                  const std::vector<std::string> &devVal,
+                                                                  config::Flag flags = config::Flag::Default);
 
     //! this function is called when COVER wants to display a message to the user
     virtual void notify(NotificationLevel level, const char *text)
@@ -385,6 +424,7 @@ private:
     std::string m_name;
     CO_SHLIB_HANDLE handle;
     int m_outstandingTimestep;
+    std::shared_ptr<config::File> m_configFile;
 };
 }
 #endif
