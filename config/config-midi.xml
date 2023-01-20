@@ -4,21 +4,22 @@
  <GLOBAL>
   <COVER>
             <Plugin>
-                <Midi value="Off" OutPort="2">
+                <Midi value="Off" OutPort="0">
+					   <Stream name="0" InPort="0" DeviceName="DJ Control Air DJ Control Air" />
+					   <Stream name="1" InPort="1" DeviceName="CH345 MIDI 1"/>
+					   <Stream name="2" InPort="2" DeviceName="TriplePlay Connect TP Guitar"/>
+					   <Stream name="3" InPort="3" />
+					   <Stream name="4" InPort="4" />
+					   <Stream name="5" InPort="5" />
+					   <Stream name="6" InPort="6" />
+					   <Stream name="7" InPort="7" />
 						   <Theremin object="/data/Jeremy/NOTES/Theremin.wrl"   minX="1" maxX="2" minY="1" maxY="2" posX="0.0" posY="200.0" posZ="0.0" />
 				       <Store posX="0" posY="0" posZ="0"   />
 					   <Controller name="0" controllerID="2"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
 					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   
-					   <Stream name="0" InPort="0" />
-					   <Stream name="1" InPort="1"/>
-					   <Stream name="2" InPort="2" />
-					   <Stream name="3" InPort="3" />
-					   <Stream name="4" InPort="4" />
-					   <Stream name="5" InPort="5" />
-					   <Stream name="6" InPort="6" />
-					   <Stream name="7" InPort="7" />
+					   <TriplePlay DeviceName="TriplePlay Connect TP Control" DeviceIn="5" DeviceOut="6"/>
 					   
 					   <Instrument name="5" channel="11" type="Drumkit">
 					       <Key name="49"   r="148"   g="0" b="211"/>
