@@ -4,6 +4,21 @@
 #
 # @author Blasius Czink
 
+using(Boost)
+
+set(CONFIGNEW_SOURCES config.cpp)
+set(CONFIGNEW_HEADERS array.h access.h file.h value.h config.h)
+
+set(PREFIX covconfig/)
+include(${PREFIX}covconfig.cmake)
+
+add_covise_library(coConfigNew ${CONFIGNEW_SOURCES} ${CONFIGNEW_HEADERS} ${COVCONFIG_SOURCES} ${COVCONFIG_HEADERS})
+target_compile_definitions(coConfigNew PRIVATE CONFIG_NAMESPACE=covise COVCONFIG_COVISE)
+target_include_directories(coConfigNew PRIVATE ${COVCONFIG_PRIVATE_INCLUDES})
+covise_install_target(coConfigNew)
+covise_install_headers(config ${COVCONFIG_HEADERS} ${CONFIGNEW_HEADERS})
+
+
 ADD_SUBDIRECTORY(kernel)
 IF(COVISE_BUILD)
    ADD_SUBDIRECTORY(coEditor)

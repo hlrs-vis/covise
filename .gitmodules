@@ -16,6 +16,9 @@
 [submodule "src/kernel/file"]
 	path = src/kernel/file
 	url = https://github.com/hlrs-vis/covise-file.git
+[submodule "src/3rdparty/covconfig"]
+	path = src/kernel/config/covconfig
+	url = https://github.com/vistle/covconfig.git
 [submodule "src/OpenCOVER/OpenCovConfig"]
 	path = src/OpenCOVER/OpenConfig/covconfig
 	url = https://github.com/vistle/covconfig.git
