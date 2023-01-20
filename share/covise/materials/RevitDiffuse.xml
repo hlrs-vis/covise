@@ -37,6 +37,7 @@ void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
        gl_LightSource[i].linearAttenuation * d +
        gl_LightSource[i].quadraticAttenuation * d * d);
 
+
    halfVector = normalize(VP + eye);
 
    nDotVP = max(0.0, dot(normal, VP));
@@ -49,6 +50,7 @@ void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
    else
    {
        pf = pow(nDotHV, gl_FrontMaterial.shininess);
+
    }
    Ambient  += gl_LightSource[i].ambient * attenuation;
    Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
@@ -111,7 +113,7 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
     normal   = gl_NormalMatrix * gl_Normal;
 
     gl_FrontColor.a *= alphaFade;
-Color = Diffuse;// + Specular:
+Color = (Diffuse+ Specular)/2.0; // two lights, otherwise it is too bright
     Color.a *= alphaFade;
 }
 
@@ -135,6 +137,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
     // Do fixed functionality vertex transform
     gl_Position = ftransform();
     transformedNormal = fnormal();
+    normalize(transformedNormal);
     flight(transformedNormal, ecPosition, alphaFade);
 #ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
@@ -153,8 +156,15 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
     void main( void )
     {
       vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
-      DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5f) * Contrast) + 0.5f;
-      DiffuseColor.rgb += vec3(Brightness,Brightness,Brightness);
+      //DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5f) * Contrast) + 0.5f;
+      //DiffuseColor.rgb += DiffuseColor.rgb*vec3(Brightness,Brightness,Brightness);
       
-      gl_FragColor = DiffuseColor * Color ;	
+      gl_FragColor = DiffuseColor * Color ;
+/*if(Color.r &gt; 1)
+   Color.r=1;
+if(Color.g &gt; 1)
+   Color.g=1;
+if(Color.b &gt; 1)
+   Color.b=1;*/
+      gl_FragColor =  DiffuseColor *Color;
     }</fragmentProgram></_RevitDiffuse>

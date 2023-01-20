@@ -84,7 +84,7 @@
   
     <AnimationSpeed max="60" />
             <Plugin>
-                <Revit value="on" ignoreDepthOnly="false" >
+                <Revit value="on" ignoreDepthOnly="false"  textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
                 <Midi value="Off" InPort="0" OutPort="2">
 					       <Store posX="0" posY="0" posZ="0"   />
