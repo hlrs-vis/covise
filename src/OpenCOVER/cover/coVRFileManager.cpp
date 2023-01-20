@@ -28,6 +28,7 @@
 #include "coVRPluginList.h"
 #include "coVRPluginSupport.h"
 #include "coVRRenderer.h"
+#include "SidecarConfigBridge.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/FileBrowser.h"
@@ -818,6 +819,12 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     if (covise_key)
         fe->key = covise_key;
     fe->filebrowser = fb;
+    if (!OpenCOVER::instance()->visPlugin() && !m_settings && fe->url.valid() && fe->url.isLocal())
+    {
+        std::cerr << "Sidecar file for " << fe->url.str() << std::endl;
+        m_settings = std::make_unique<SidecarConfigBridge>(fe->url.str(), coVRMSController::instance()->isMaster());
+        cover->m_config.setWorkspaceBridge(m_settings.get());
+    }
 
     OpenCOVER::instance()->hud->setText2("loading");
 
@@ -1125,6 +1132,15 @@ void coVRFileManager::unloadFile(const char *file)
             delete fe.second;
         }
         m_files.clear();
+    }
+
+    if (m_files.empty())
+    {
+        if (m_settings)
+        {
+            cover->m_config.removeWorkspaceBridge(m_settings.get());
+            m_settings.reset();
+        }
     }
 }
 

@@ -33,6 +33,8 @@
 #include <vrb/client/SharedState.h>
 #include <OpenVRUI/coUpdateManager.h>
 
+class SidecarConfigBridge;
+
 namespace osg
 {
 class Node;
@@ -310,6 +312,8 @@ private:
     osg::ref_ptr<osgDB::ReaderWriter::Options> options;
 
     std::string m_defaultFontFile;
+
+    std::unique_ptr<SidecarConfigBridge> m_settings;
 };
 }
 #endif

@@ -76,6 +76,7 @@ SET(COVER_HEADERS
   coVRConfig.h
   coVRDynLib.h
   coVRFileManager.h
+  SidecarConfigBridge.h
   coVRIOBase.h
   coVRIOReader.h
   coVRIntersectionInteractor.h
@@ -148,6 +149,7 @@ SET(COVER_SOURCES
   coVRConfig.cpp
   coVRDynLib.cpp
   coVRFileManager.cpp
+  SidecarConfigBridge.cpp
   coVRIOBase.cpp
   coVRIOReader.cpp
   coVRIntersectionInteractor.cpp
