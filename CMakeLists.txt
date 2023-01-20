@@ -324,16 +324,16 @@ if (NOT COVISE_BUILD_ONLY_FILE)
         COVISE_FIND_PACKAGE(Steereo)
         covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer osgParticle osgText osgSim osgGA osgFX osgTerrain)
         covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
+        covise_find_package(HDF5 COMPONENTS C HL CXX)
 
         covise_find_cuda()
 
         COVISE_FIND_PACKAGE(Cg)
 
         COVISE_FIND_PACKAGE(PythonLibs)
+        covise_find_package(OpenCV)
     endif(NOT COVISE_BUILD_ONLY_ODDLOT)
-    covise_find_package(HDF5 COMPONENTS C HL CXX)
     covise_find_package(OPENCRG)
-    covise_find_package(OpenCV)
 endif()
 
 if (APPLE)
