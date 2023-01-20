@@ -41,6 +41,11 @@
 #include <stdlib.h>
 #include "pubFunctions.h"
 #include "server.h"
+#ifdef WIN32
+#else
+
+#include <alsa/asoundlib.h>
+#endif
 
 #define BINSIZE 1024
 const int numChannels = 16;
@@ -413,7 +418,11 @@ public:
 #ifdef WIN32
 	HMIDIOUT hMidiDeviceOut = nullptr;
 	HMIDIIN hMidiDeviceIn = nullptr;
-#else
+#endif
+#ifdef HAVE_ALSA
+ snd_rawmidi_t *hMidiDeviceOut= nullptr;
+ snd_rawmidi_t *hMidiDeviceIn= nullptr;
+
 #endif
 	int midiInfd;
 	int midiOutfd;
@@ -518,7 +527,17 @@ public:
 #ifdef WIN32
     HMIDIOUT hMidiDeviceOut = NULL;
     HMIDIIN hMidiDevice[NUMMidiStreams];
-#else
+#endif
+#ifdef HAVE_ALSA
+ snd_rawmidi_t *hMidiDeviceOut[NUMMidiStreams];
+ snd_rawmidi_t *hMidiDevice[NUMMidiStreams];
+void OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&inputp,snd_rawmidi_t *&outputp);
+void list_device(snd_ctl_t *ctl, int card, int device);
+void list_card_devices(int card);
+void device_list(void);
+
+void error(const char *format, ...);
+
 #endif
     int midifd[NUMMidiStreams];
     int midiOutfd;

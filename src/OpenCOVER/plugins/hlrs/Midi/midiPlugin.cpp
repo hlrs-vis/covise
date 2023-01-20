@@ -805,6 +805,14 @@ MidiDevice::~MidiDevice()
 bool MidiPlugin::init()
 {
 	currentTrack = 0;
+	
+#ifdef HAVE_ALSA
+
+			if (coVRMSController::instance()->isMaster())
+			{
+device_list();
+}
+#endif
 	triplePlay = new TriplePlay();
 
 	for (int i = 0; i < NUMMidiStreams; i++)
@@ -812,7 +820,11 @@ bool MidiPlugin::init()
 #ifdef WIN32
 		hMidiDevice[i] = NULL;
 #else
+#ifdef HAVE_ALSA
+		hMidiDevice[i] = NULL;
 #endif
+#endif
+		hMidiDevice[i] = NULL;
 		midifd[i] = -1;
 		inputDevice[i] = NULL;
 
@@ -930,18 +942,35 @@ bool MidiPlugin::init()
 		for (const auto& stream : StreamEntries)
 		{
 			std::string configEntry = "COVER.Plugin.Midi." + stream.first;
-			    int midiPort = coCoviseConfig::getInt("InPort", configEntry, -1);
+			    std::string DeviceName = coCoviseConfig::getEntry("DeviceName", configEntry);
+			    if(DeviceName.length()>0)
+			    {
+			    #ifdef HAVE_ALSA
+			    OpenMidiDevice(DeviceName,hMidiDevice[streamNum],hMidiDeviceOut[streamNum]);
+			    
+		            //snd_rawmidi_read(hMidiDevice[streamNum], NULL, 0); /* trigger reading */
+			    
+			    #endif
+			    }
+			    else
+			    {
+			        int midiPort = coCoviseConfig::getInt("InPort", configEntry, -1);
 				if (midiPort >= 0)
 				{
 					if(openMidiIn(streamNum, midiPort) == false)
 					{
 						fprintf(stderr, "OpenMidiIn stream %d port %d failed\n", streamNum, midiPort );
 					}
-					fprintf(stderr, "OpenMidiIn Stream %d device %d succeeded\n", streamNum, midiPort);
+					else
+					{
+					    fprintf(stderr, "OpenMidiIn Stream %d device %d succeeded\n", streamNum, midiPort);
+					}
 				}
+			     }
 				streamNum++;
 				if (streamNum >= NUMMidiStreams)
 					break;
+					
 		}
 		int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
 		fprintf(stderr, "OpenMidiOut %d\n", midiPortOut);
@@ -987,7 +1016,7 @@ ControllerInfo::~ControllerInfo()
 bool MidiPlugin::openMidiIn(int streamNum, int device)
 {
 #ifndef WIN32
-	char devName[100];
+	/*char devName[100];
 	if (device == 0)
 		sprintf(devName, "/dev/midi");
 	else
@@ -1000,7 +1029,7 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 	}
 	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
 	if (midifd[streamNum] <= 0)
-		return false;
+		return false;*/
 #else
 	UINT nMidiDeviceNum;
 	nMidiDeviceNum = midiInGetNumDevs();
@@ -1033,12 +1062,12 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 bool MidiPlugin::openMidiOut(int device)
 {
 #ifndef WIN32
-	char devName[100];
+	/*char devName[100];
 	sprintf(devName, "-/dev/midi%d", device + 1);
 	midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
 	fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
 	if (midiOutfd <= 0)
-		return false;
+		return false;*/
 #else
 	UINT nMidiDeviceNum;
 	nMidiDeviceNum = midiInGetNumDevs();
@@ -1906,6 +1935,30 @@ void Track::addNote(Note *n)
 	n->spin = rotationSpeed;
 	if (n->track->instrument->type == "keyboard")
 	{
+	// check if there is already a note on, then turn it off
+	
+	// find key press for this release
+	for (auto it = notes.end(); it != notes.begin(); )
+	{
+	Note *note = NULL;
+		it--;
+		if ((*it)->event.getKeyNumber() == n->event.getKeyNumber())
+		{
+			note = *it;
+			//printf("foundNoteOn: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+			if (note->track->instrument->type == "keyboard")
+			{
+				Note* lastNode = *it;
+				if (it != notes.begin())
+					it--;
+				note = *it;
+				n->event.setVelocity(note->event.getVelocity());
+				lastNode->setInactive(false);
+			}
+			break;
+		}
+	}
+	
 		notes.push_back(n);
 		n->setInactive(false);
 		n->vertNum = lineVert->size();
@@ -1968,6 +2021,7 @@ void Track::endNote(MidiEvent& me)
 	fprintf(stderr,"end: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 
 	// find key press for this release
+	bool found = false;
 	for (auto it = notes.end(); it != notes.begin(); )
 	{
 		it--;
@@ -1983,10 +2037,16 @@ void Track::endNote(MidiEvent& me)
 				note = *it;
 				me.setVelocity(note->event.getVelocity());
 				lastNode->setInactive(false);
+				found = true;
 			}
 			break;
 		}
 	}
+	if(!found && instrument->type == "keyboard")
+	{
+	  // this is an end Note without a note On, treat it as noteOn if this is a keyboard or guitar
+	  addNote(new Note(me, this));
+	} 
 	if (note != NULL)
 	{
 
@@ -2096,6 +2156,7 @@ void Track::update()
 	double speed = MidiPlugin::instance()->midifile.getTicksPerQuarterNote();
 	double time = cover->frameTime() - MidiPlugin::instance()->startTime;
 	MidiEvent me;
+
 	if (life)
 	{
 		char buf[1000];
@@ -2108,6 +2169,57 @@ void Track::update()
 			me.setP2(0);
 			if (coVRMSController::instance()->isMaster())
 			{
+			
+			    #ifdef HAVE_ALSA
+				unsigned char buf[256];
+				int i, length;
+				unsigned short revents;
+				int err;
+				if(MidiPlugin::instance()->hMidiDevice[trackNumber]>0)
+				{
+
+				     numRead=1;
+					err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf, sizeof(buf));
+				     //fprintf(stderr,"handle %d %d %ld, %d\n",err,trackNumber,MidiPlugin::instance()->hMidiDevice[trackNumber],(int)sizeof(buf));
+					if (err <= 0)
+						numRead=0;
+					else
+					{
+
+					       length = 0;
+					       for (i = 0; i < err; ++i)
+						       if ( buf[i] != 0xfe)
+							       buf[length++] = buf[i];
+					       if (length >=3)
+					       {
+						   me.setP0(buf[0]);
+						   me.setP1(buf[1]);
+						   me.setP2(buf[2]);
+						   TokenBuffer tb;
+						   tb << me.getChannel();
+						   tb << me.getP0();
+						   tb << me.getP1();
+						   tb << me.getP2();
+						   tb << me.getP3();
+						   UdpMessage um(tb, covise::MIDI_STREAM);
+						   cover->sendVrbMessage(&um);
+						   //cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+						   //fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
+                        		       }
+					       else
+					       {
+						   numRead=0;
+					       }
+					   }
+				}
+				else
+				{
+					numRead=0;
+				}
+				buf[3]=numRead;
+		        	coVRMSController::instance()->sendSlaves((char*)buf, 4); // nothing read
+
+			    #else
 				if (MidiPlugin::instance()->midifd[streamNum] > 0)
 				{
 					numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
@@ -2142,8 +2254,8 @@ void Track::update()
 					tb << me.getP3();
 					UdpMessage um(tb, covise::MIDI_STREAM);
 					cover->sendVrbMessage(&um);
-					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
-					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
+					//cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+					//fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
 
 
 					}
@@ -2167,7 +2279,8 @@ void Track::update()
 				buf[2] = me.getP2();
 				buf[3] = numRead;
 				coVRMSController::instance()->sendSlaves((char*)buf, 4);
-
+//fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
+			
 
 				if (numRead > 0)
 				{
@@ -2182,6 +2295,7 @@ void Track::update()
 					cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
 					fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
 				}
+			    #endif
 			}
 			else
 			{
@@ -2193,6 +2307,7 @@ void Track::update()
 				numRead = buf[3];
 	//fprintf(stderr,"received: %01d %02d velo %03d chan %d numRead %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
 			}
+			
 			if(numRead > 0 &&  me.getP0()!=0)
 			{
 
@@ -2774,9 +2889,13 @@ TriplePlay::TriplePlay()
 
 	int InDev = coCoviseConfig::getInt("DeviceIn", "COVER.Plugin.Midi.TriplePlay",1);
 	int OutDev = coCoviseConfig::getInt("DeviceOut", "COVER.Plugin.Midi.TriplePlay",2);
-
+	std::string DeviceName = coCoviseConfig::getEntry("DeviceName", "COVER.Plugin.Midi.TriplePlay","TriplePlay Connect TP Control");
+#ifdef HAVE_ALSA
+	MidiPlugin::instance()->OpenMidiDevice(DeviceName,hMidiDeviceIn,hMidiDeviceOut);
+#else
 	openMidiIn(InDev);
 	openMidiOut(OutDev);
+#endif
 
     unsigned char InitMSG[] = { 0xf0, 0x7e, 0x00, 0x06, 0x01, 0xf7 };
     unsigned char InitMSG2[] = { 0xf0, 0x7e, 0x10, 0x06, 0x01, 0xf7 };
@@ -2866,6 +2985,19 @@ void TriplePlay::setParam(unsigned char Var, unsigned char Value)
 }
 void TriplePlay::sendMidiMessage(unsigned char P0, unsigned char P1, unsigned char P2)
 {
+#ifdef HAVE_ALSA
+if(hMidiDeviceOut!=nullptr)
+{
+int err;
+unsigned char buf[3];
+buf[0]=P0;
+buf[1]=P1;
+buf[2]=P2;
+		if ((err = snd_rawmidi_write(hMidiDeviceOut, buf, 3)) < 0) {
+			MidiPlugin::instance()->error("cannot send data: %s", snd_strerror(err));
+		}
+		}
+#endif
 #ifdef WIN32
 	DWORD dwParam1 = (DWORD)P0 | ((DWORD)P1 << 8) | ((DWORD)P2 << 16);
 
@@ -2884,6 +3016,16 @@ void TriplePlay::sendMidiMessage(unsigned char P0, unsigned char P1, unsigned ch
 
 void TriplePlay::sendSysexMessage(unsigned char* buf, size_t size)
 {
+#ifdef HAVE_ALSA
+if(hMidiDeviceOut!=nullptr)
+{
+int err;
+		if ((err = snd_rawmidi_write(hMidiDeviceOut, buf, size)) < 0) {
+			MidiPlugin::instance()->error("cannot send data: %s", snd_strerror(err));
+		}
+}
+#endif
+    #ifdef WIN32
 	MIDIHDR     midiHdr;
 	UINT        err;
 
@@ -2916,6 +3058,7 @@ void TriplePlay::sendSysexMessage(unsigned char* buf, size_t size)
             /* Should put a delay in here rather than a busy-wait */
         }
     }
+    #endif
 
 }
 
@@ -2923,20 +3066,20 @@ void TriplePlay::sendSysexMessage(unsigned char* buf, size_t size)
 bool TriplePlay::openMidiIn(int device)
 {
 #ifndef WIN32
-	char devName[100];
+	/*char devName[100];
 	if (device == 0)
 		sprintf(devName, "/dev/midi");
 	else
 		sprintf(devName, "/dev/midi%d", device);
-	midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
-	if (midifd[streamNum] <= 0)
+	midiInfd= open(devName, O_RDONLY | O_NONBLOCK);
+	if (midiInfd<= 0)
 	{
 		sprintf(devName, "/dev/midi%d", device);
-		midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
+		midiInfd= open(devName, O_RDONLY | O_NONBLOCK);
 	}
-	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
-	if (midifd[streamNum] <= 0)
-		return false;
+	fprintf(stderr, "open %s\n", devName );
+	if (midiInfd<= 0)
+		return false;*/
 #else
 	UINT nMidiDeviceNum;
 	nMidiDeviceNum = midiInGetNumDevs();
@@ -2973,12 +3116,12 @@ void TriplePlay::addEvent(MidiEvent& me)
 bool TriplePlay::openMidiOut(int device)
 {
 #ifndef WIN32
-	char devName[100];
+/*	char devName[100];
 	sprintf(devName, "-/dev/midi%d", device + 1);
 	midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
 	fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
 	if (midiOutfd <= 0)
-		return false;
+		return false;*/
 #else
 	UINT nMidiDeviceNum;
 	nMidiDeviceNum = midiInGetNumDevs();
@@ -3003,3 +3146,238 @@ bool TriplePlay::openMidiOut(int device)
 #endif
 	return true;
 }
+#ifdef HAVE_ALSA
+void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&inputp,snd_rawmidi_t *&outputp)
+{
+       int card, err;
+
+	card = -1;
+	if ((err = snd_card_next(&card)) < 0) {
+		error("cannot determine card number: %s", snd_strerror(err));
+		return;
+	}
+	if (card < 0) {
+		error("no sound card found");
+		return;
+	}
+	do {
+	
+	snd_ctl_t *ctl;
+	char devName[128];
+	int device;
+
+	sprintf(devName, "hw:%d", card);
+	if ((err = snd_ctl_open(&ctl, devName, 0)) < 0) {
+		error("cannot open control for card %d: %s", card, snd_strerror(err));
+		return;
+	}
+	device = -1;
+	for (;;) {
+		if ((err = snd_ctl_rawmidi_next_device(ctl, &device)) < 0) {
+			error("cannot determine device number: %s", snd_strerror(err));
+			break;
+		}
+		if (device < 0)
+			break;snd_rawmidi_info_t *info;
+	const char *name;
+	const char *sub_name;
+	int subs, subs_in, subs_out;
+	int sub;
+	int err;
+
+	snd_rawmidi_info_alloca(&info);
+	snd_rawmidi_info_set_device(info, device);
+
+	snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_INPUT);
+	err = snd_ctl_rawmidi_info(ctl, info);
+	if (err >= 0)
+		subs_in = snd_rawmidi_info_get_subdevices_count(info);
+	else
+		subs_in = 0;
+
+	snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_OUTPUT);
+	err = snd_ctl_rawmidi_info(ctl, info);
+	if (err >= 0)
+		subs_out = snd_rawmidi_info_get_subdevices_count(info);
+	else
+		subs_out = 0;
+
+	subs = subs_in > subs_out ? subs_in : subs_out;
+	if (!subs)
+		return;
+
+	for (sub = 0; sub < subs; ++sub) {
+		snd_rawmidi_info_set_stream(info, sub < subs_in ?
+					    SND_RAWMIDI_STREAM_INPUT :
+					    SND_RAWMIDI_STREAM_OUTPUT);
+		snd_rawmidi_info_set_subdevice(info, sub);
+		err = snd_ctl_rawmidi_info(ctl, info);
+		if (err < 0) {
+			error("cannot get rawmidi information %d:%d:%d: %s\n",
+			      card, device, sub, snd_strerror(err));
+			return;
+		}
+		name = snd_rawmidi_info_get_name(info);
+		sub_name = snd_rawmidi_info_get_subdevice_name(info);
+		if(DeviceName == name)
+		{
+		
+			sprintf(devName, "hw:%d,%d", card, device);
+			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
+				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
+			}
+			if ((err = snd_rawmidi_nonblock(inputp, 1)) < 0) {
+				error("cannot set nonblocking mode: %s", snd_strerror(err));
+			}
+			else
+			{
+			    fprintf(stderr,"opened %s non blocking\n",devName);
+			}
+		}
+		if(DeviceName == sub_name)
+		{
+		        inputp = outputp = nullptr;
+			sprintf(devName, "hw:%d,%d,%d", card, device, sub);
+			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
+				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
+				
+			}
+			if ((err = snd_rawmidi_nonblock(inputp, 1)) < 0) {
+				error("cannot set nonblocking mode: %s", snd_strerror(err));
+			}
+			else
+			{
+			    fprintf(stderr,"opened %s non blocking\n",devName);
+			}
+		}
+	}
+	}
+	snd_ctl_close(ctl);
+	
+		if ((err = snd_card_next(&card)) < 0) {
+			error("cannot determine card number: %s", snd_strerror(err));
+			break;
+		}
+	} while (card >= 0);
+}
+
+void MidiPlugin::list_device(snd_ctl_t *ctl, int card, int device)
+{
+	snd_rawmidi_info_t *info;
+	const char *name;
+	const char *sub_name;
+	int subs, subs_in, subs_out;
+	int sub;
+	int err;
+
+	snd_rawmidi_info_alloca(&info);
+	snd_rawmidi_info_set_device(info, device);
+
+	snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_INPUT);
+	err = snd_ctl_rawmidi_info(ctl, info);
+	if (err >= 0)
+		subs_in = snd_rawmidi_info_get_subdevices_count(info);
+	else
+		subs_in = 0;
+
+	snd_rawmidi_info_set_stream(info, SND_RAWMIDI_STREAM_OUTPUT);
+	err = snd_ctl_rawmidi_info(ctl, info);
+	if (err >= 0)
+		subs_out = snd_rawmidi_info_get_subdevices_count(info);
+	else
+		subs_out = 0;
+
+	subs = subs_in > subs_out ? subs_in : subs_out;
+	if (!subs)
+		return;
+
+	for (sub = 0; sub < subs; ++sub) {
+		snd_rawmidi_info_set_stream(info, sub < subs_in ?
+					    SND_RAWMIDI_STREAM_INPUT :
+					    SND_RAWMIDI_STREAM_OUTPUT);
+		snd_rawmidi_info_set_subdevice(info, sub);
+		err = snd_ctl_rawmidi_info(ctl, info);
+		if (err < 0) {
+			error("cannot get rawmidi information %d:%d:%d: %s\n",
+			      card, device, sub, snd_strerror(err));
+			return;
+		}
+		name = snd_rawmidi_info_get_name(info);
+		sub_name = snd_rawmidi_info_get_subdevice_name(info);
+		if (sub == 0 && sub_name[0] == '\0') {
+			printf("%c%c  hw:%d,%d    %s",
+			       sub < subs_in ? 'I' : ' ',
+			       sub < subs_out ? 'O' : ' ',
+			       card, device, name);
+			if (subs > 1)
+				printf(" (%d subdevices)", subs);
+			putchar('\n');
+			break;
+		} else {
+			printf("%c%c  hw:%d,%d,%d  %s\n",
+			       sub < subs_in ? 'I' : ' ',
+			       sub < subs_out ? 'O' : ' ',
+			       card, device, sub, sub_name);
+		}
+	}
+}
+
+void MidiPlugin::list_card_devices(int card)
+{
+	snd_ctl_t *ctl;
+	char name[32];
+	int device;
+	int err;
+
+	sprintf(name, "hw:%d", card);
+	if ((err = snd_ctl_open(&ctl, name, 0)) < 0) {
+		error("cannot open control for card %d: %s", card, snd_strerror(err));
+		return;
+	}
+	device = -1;
+	for (;;) {
+		if ((err = snd_ctl_rawmidi_next_device(ctl, &device)) < 0) {
+			error("cannot determine device number: %s", snd_strerror(err));
+			break;
+		}
+		if (device < 0)
+			break;
+		list_device(ctl, card, device);
+	}
+	snd_ctl_close(ctl);
+}
+
+void MidiPlugin::device_list(void)
+{
+	int card, err;
+
+	card = -1;
+	if ((err = snd_card_next(&card)) < 0) {
+		error("cannot determine card number: %s", snd_strerror(err));
+		return;
+	}
+	if (card < 0) {
+		error("no sound card found");
+		return;
+	}
+	puts("Dir Device    Name");
+	do {
+		list_card_devices(card);
+		if ((err = snd_card_next(&card)) < 0) {
+			error("cannot determine card number: %s", snd_strerror(err));
+			break;
+		}
+	} while (card >= 0);
+}
+void MidiPlugin::error(const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	vfprintf(stderr, format, ap);
+	va_end(ap);
+	putc('\n', stderr);
+}
+
+
+#endif
