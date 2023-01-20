@@ -71,7 +71,7 @@ TMaterial::TMaterial(const TMaterial &src)
 
 void TMaterial::Reset()
 {
-    ProfileName.empty();
+    ProfileName.clear();
     bChanged = false;
     RoomTemp = 300;
     MeltTemp = 1000;
@@ -79,17 +79,17 @@ void TMaterial::Reset()
     CriticalTemp = 8500;
     SpecGasConst = 308.3;
     RefDensity = 2385;
-    DensityName.empty();
+    DensityName.clear();
     ndDensity.Delete();
     RefConductivity = 94;
-    ConductName.empty();
+    ConductName.clear();
     ndConductivity.Delete();
     RefSpecHeat = 1080;
-    SpecHeatName.empty();
+    SpecHeatName.clear();
     ndSpecHeat.Delete();
     LatentMelt = 3.9e5;
     LatentVapor = 1.08e7;
-    IndexName.empty();
+    IndexName.clear();
     ndIndex.Delete();
     RefIndex = cmplx(1.35, 9.58);
     AbsCoeff = 0.9;

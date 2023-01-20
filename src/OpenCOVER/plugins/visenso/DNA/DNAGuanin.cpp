@@ -32,7 +32,6 @@ DNAGuanin::DNAGuanin(osg::Matrix m, int num)
     this->setConnection("guanin3", "adenin3", false, false, NULL);
     this->setConnection("guanin2", "thymin3", false, false, NULL);
     enabledCP.clear();
-    enabledCP.empty();
 }
 
 DNAGuanin::~DNAGuanin()
@@ -117,7 +116,6 @@ void DNAGuanin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
     if (connected)
     {
         enabledCP.clear();
-        enabledCP.empty();
         // disable all other connections
         if (mycp->getMyBaseUnitName().compare("guanin3") == 0)
         {
@@ -170,6 +168,5 @@ void DNAGuanin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
         for (std::list<DNABaseUnitConnectionPoint *>::iterator it = enabledCP.begin(); it != enabledCP.end(); it++)
             (*it)->setEnabled(true);
         enabledCP.clear();
-        enabledCP.empty();
     }
 }

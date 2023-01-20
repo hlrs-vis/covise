@@ -31,7 +31,6 @@ DNACytosin::DNACytosin(osg::Matrix m, int num)
     this->setConnection("cytosin3", "adenin2", false, false, NULL);
     this->setConnection("cytosin2", "thymin2", false, false, NULL);
     enabledCP.clear();
-    enabledCP.empty();
 }
 
 DNACytosin::~DNACytosin()
@@ -116,7 +115,6 @@ void DNACytosin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABase
     if (connected)
     {
         enabledCP.clear();
-        enabledCP.empty();
         // disable all other connections
         if (a1->getMyBaseUnitName().compare(mycp->getMyBaseUnitName()) == 0)
         {
@@ -169,6 +167,5 @@ void DNACytosin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABase
         for (std::list<DNABaseUnitConnectionPoint *>::iterator it = enabledCP.begin(); it != enabledCP.end(); it++)
             (*it)->setEnabled(true);
         enabledCP.clear();
-        enabledCP.empty();
     }
 }

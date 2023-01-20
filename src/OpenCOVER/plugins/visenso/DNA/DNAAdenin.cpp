@@ -30,7 +30,6 @@ DNAAdenin::DNAAdenin(osg::Matrix m, int num)
     this->setConnection("adenin2", "cytosin3", false, false, NULL);
     this->setConnection("adenin3", "guanin3", false, false, NULL);
     enabledCP.clear();
-    enabledCP.empty();
 }
 
 DNAAdenin::~DNAAdenin()
@@ -116,7 +115,6 @@ void DNAAdenin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
     if (connected)
     {
         enabledCP.clear();
-        enabledCP.empty();
         if (cover->debugLevel(3))
             fprintf(stderr, "    connect %s\n", mycp->getMyBaseUnitName().c_str());
         // disable all other connections
@@ -173,6 +171,5 @@ void DNAAdenin::enableOtherConnPoints(DNABaseUnitConnectionPoint *mycp, DNABaseU
         for (std::list<DNABaseUnitConnectionPoint *>::iterator it = enabledCP.begin(); it != enabledCP.end(); it++)
             (*it)->setEnabled(true);
         enabledCP.clear();
-        enabledCP.empty();
     }
 }

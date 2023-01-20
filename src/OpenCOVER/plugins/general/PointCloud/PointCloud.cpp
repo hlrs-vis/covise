@@ -1496,7 +1496,6 @@ void PointCloudPlugin::saveMoves()
  				for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
 				{
 					eReader.ReadData3D(scanIndex, scanHeader);
-					scanHeader.originalGuids.empty();
 					osg::Matrix cloudMat;
 					osg::Matrix cloudTra;
 					cloudTra.makeTranslate(scanHeader.pose.translation.x, scanHeader.pose.translation.y, scanHeader.pose.translation.z);

@@ -105,20 +105,20 @@ TLaser::TLaser(const TLaser &src)
 
 void TLaser::Reset()
 {
-    ProfileName.empty();
+    ProfileName.clear();
     bChanged = false;
     RefIntensity = 1e9;
     Radius = 4e-5;
     Divergence = 0.05;
     ndWavelength = 1064e-9 / Radius;
-    ShapeName.empty();
+    ShapeName.clear();
     Mode = TEM00;
     ndHeight = 1;
-    PulseName.empty();
+    PulseName.clear();
     iPulseForm = rectangular;
     Pulselength = 1e-3;
     DutyCycle = 1e-4;
-    MoveName.empty();
+    MoveName.clear();
     bMoveLaser = false;
     ndInitialPos = TPoint3D(1.5, 1.5, 0);
     EField = TCPoint3D(cmplx(1, 0), cmplx(0, 1), cmplx(0, 0));
