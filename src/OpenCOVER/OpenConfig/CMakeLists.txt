@@ -1,0 +1,11 @@
+set(CONFIG_SOURCES config.cpp)
+set(CONFIG_HEADERS array.h access.h file.h value.h config.h)
+
+add_covise_library(coOpenConfig ${CONFIG_SOURCES} ${CONFIG_HEADERS})
+target_link_libraries(coOpenConfig coOpenCovConfig)
+target_include_directories(coOpenConfig SYSTEM PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+#if(INSTALL_3RDPARTY)
+#    target_include_directories(vistle_config SYSTEM PUBLIC $<INSTALL_INTERFACE:include/vistle/3rdparty>)
+#endif()
+covise_install_target(coOpenConfig)
+covise_install_headers(config ${CONFIG_HEADERS})

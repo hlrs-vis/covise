@@ -168,6 +168,9 @@ else()
     add_definitions(-DUSE_COVISE)
 endif()
 
+ADD_SUBDIRECTORY(OpenCovConfig)
+ADD_SUBDIRECTORY(OpenConfig)
+
 ADD_SUBDIRECTORY(cover/input/dev)
 ADD_SUBDIRECTORY(DrivingSim)
 
