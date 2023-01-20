@@ -12,7 +12,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1...3.10)
 if(APPLE)
   set (CMAKE_CXX_STANDARD 17) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
 else()
-  set (CMAKE_CXX_STANDARD 11) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
+  set (CMAKE_CXX_STANDARD 17) # I would like to use cpp 17 but OpenCV2 does not support it. so back to 11
 endif()
 set (CXX_STANDARD_REQUIRED ON) 
 set(CMAKE_CXX_EXTENSIONS OFF)

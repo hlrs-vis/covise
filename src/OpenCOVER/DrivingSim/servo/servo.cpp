@@ -10,6 +10,7 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <xenomai/init.h>
+#undef debug
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <vrb/client/SharedStateManager.h>

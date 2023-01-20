@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "Seat.h"
+#undef debug
 #include <cover/coVRPluginSupport.h>
 
 using namespace vehicleUtil;

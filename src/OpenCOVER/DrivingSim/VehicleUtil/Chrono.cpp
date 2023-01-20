@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "Chrono.h"
+#undef debug
 #include <cover/coVRPluginSupport.h>
 
 using namespace vehicleUtil;
