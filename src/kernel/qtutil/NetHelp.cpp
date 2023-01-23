@@ -26,8 +26,10 @@ QString NetHelp::GetIpAddress(const char *hostname)
 {
     QHostInfo host = QHostInfo::fromName(QString(hostname));
     QList<QHostAddress> list = host.addresses();
-    QHostAddress address = list.at(0);
-    return address.toString();
+    if(!list.isEmpty())
+        return list.at(0).toString();
+    std::cerr << "failed to get ip address for host " << hostname << std::endl;
+    return QString();
 }
 
 QString NetHelp::GetNamefromAddr(QString *address)
