@@ -201,7 +201,7 @@ if "%VCPKG_ROOT%" NEQ "" (
           set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\debug\tools\osg\osgPlugins-%VCPKG_OSGVER%"
     )
 )
-
+set "CMAKE_CONFIGURATION_TYPES=Debug;Release"
 
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     goto FINALIZE

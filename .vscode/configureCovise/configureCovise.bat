@@ -11,17 +11,15 @@ rmdir /s /q build
 mkdir build
 cd build
 set GENERATOR=%5
+
 cmake -DCMAKE_PREFIX_PATH=%EXTERNLIBS% -G %GENERATOR% ..
-if not x%GENERATOR:Visual Studio=%==x%GENERATOR% (
-    echo It contains Visual Studio
-    msbuild configureVsCodeSettings.sln
-) else (
-    echo generator %GENERATOR%
-    %GENERATOR%
-) 
+cmake --build .
 
-
-configureVsCodeSettings.exe %*
+if exist configureVsCodeSettings.exe (
+    configureVsCodeSettings.exe %*
+) else if exist Debug\ (
+    Debug\configureVsCodeSettings.exe %*
+)
 
 if exist %EXTERNLIBS%\stow.bat if NOT exist %EXTERNLIBS%\all call %EXTERNLIBS%\stow.bat
 

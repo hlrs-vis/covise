@@ -1,3 +1,6 @@
+if(NOT COVISE_USE_CSHARP)
+    RETURN()
+endif()
 USING(Revit)
 cmake_minimum_required(VERSION 3.12)
 PROJECT(RevitPlugin CSharp)

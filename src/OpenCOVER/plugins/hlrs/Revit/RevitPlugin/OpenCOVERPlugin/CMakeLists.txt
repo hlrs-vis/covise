@@ -1,3 +1,6 @@
+if(NOT COVISE_USE_CSHARP)
+    RETURN()
+endif()
 USING(Revit)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)

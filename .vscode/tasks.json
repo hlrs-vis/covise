@@ -74,6 +74,7 @@
         "description": "the generator to use for CMake",
         "options": [
           "Ninja",
+          "Ninja Multi-Config",
           "Visual Studio 17 2022",
           "Visual Studio 16 2019"
         ]
