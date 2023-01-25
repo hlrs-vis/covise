@@ -18,9 +18,6 @@ OVERRIDE = False
 ADD = False
 
 
-def _get_key(config_dict, key): return config_dict.get(key)
-
-
 def _get_tml_repr(string: str):
     """Helperfunction to check if given string is an integer, decimal or bool and return corresponding python object.
 
@@ -199,9 +196,9 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         plugin_rootpath = opencover_path + "/plugins"
 
         # plugins
-        cover_dict = _get_key(root_global, "COVER")
+        cover_dict = root_global.get("COVER")
         if cover_dict:
-            plugins_dict = _get_key(cover_dict, "Plugin")
+            plugins_dict = cover_dict.get("Plugin")
             cover_dict.pop("Plugin")
             create_toml(cover_dict, opencover_path + "/cover.toml")
 
@@ -214,7 +211,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
             create_toplevel_toml(plugin_config_path, plugin_root_entries)
 
         # modules
-        modules_dict = _get_key(root_global, "Module")
+        modules_dict = root_global.get("Module")
         if modules_dict:
             if not os.path.exists(module_rootpath):
                 os.makedirs(module_rootpath)
@@ -226,7 +223,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
                                  "load": module_root_entries})
 
         # system
-        system_dict = _get_key(root_global, "System")
+        system_dict = root_global.get("System")
         if system_dict:
             if not os.path.exists(system_rootpath):
                 os.makedirs(system_rootpath)
