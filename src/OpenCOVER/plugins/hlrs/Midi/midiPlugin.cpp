@@ -824,7 +824,6 @@ device_list();
 		hMidiDevice[i] = NULL;
 #endif
 #endif
-		hMidiDevice[i] = NULL;
 		midifd[i] = -1;
 		inputDevice[i] = NULL;
 
