@@ -126,7 +126,7 @@ def create_toplevel_toml(toplevel_config_path: str, values: dict) -> None:
     else:
         with open(toplevel_config_path, mode="wb+") as tml:
             enabled = tomllib.load(tml)
-            new_tml = value | enabled if ADD else enabled | values  # union of dicts
+            new_tml = values | enabled if ADD else enabled | values  # union of dicts
             tomli_w.dump(new_tml, tml)
 
 
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     parser.add_argument("output", help="Output directory path", default=".")
     parser.add_argument("--override", help="Override plugins.toml without merging. (Good if you disabled plugins)",
                         default=False, action="store_true")
-    parser.add_argument("--add", help="Merge only additions to existing plugins.toml. (Good if you disabled plugins)",
+    parser.add_argument("--add", help="Merge only additions to existing plugins.toml.",
                         default=False, action="store_true")
     args = parser.parse_args()
 
