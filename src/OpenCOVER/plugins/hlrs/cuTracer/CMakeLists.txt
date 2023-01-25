@@ -1,8 +1,8 @@
 FIND_PACKAGE(CUDPP)
 
 USING(CUDPP GLEW)
-IF(NOT CUDA_FOUND)
-  MESSAGE("Skipping OpenCOVER - cuCuttingSurface plugin since CUDA was not found")
+IF(COVISE_BUILD_ONLY_COVER OR NOT CUDA_FOUND OR NOT COVISE_USE_CUDA)
+  MESSAGE("Skipping OpenCOVER - cuTracer plugin since CUDA was not found")
   RETURN()
 ENDIF()
 
