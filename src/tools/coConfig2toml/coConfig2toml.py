@@ -202,6 +202,9 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         cover_dict = _get_key(root_global, "COVER")
         if cover_dict:
             plugins_dict = _get_key(cover_dict, "Plugin")
+            cover_dict.pop("Plugin")
+            create_toml(cover_dict, opencover_path + "/cover.toml")
+
             if not os.path.exists(plugin_rootpath):
                 os.makedirs(plugin_rootpath)
 
