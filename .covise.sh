@@ -103,6 +103,8 @@ if [ -z "${PYTHON_HOME}" ]; then
    fi
 fi
 
+export COVISE_CMAKE=cmake
+
 if [ -r "${HOME}"/.covise.local.sh ]; then 
    . "${HOME}"/.covise.local.sh
 fi
