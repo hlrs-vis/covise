@@ -37,7 +37,7 @@ def _get_tml_repr(string: str):
 
 
 def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> dict:
-    """Create TOML file as string representation.
+    """Create TOML file as dict.
 
     Args:
         coconfig_dict (dict): dictionary which contains coconfig entries.
@@ -68,7 +68,8 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
 
             for entry in value:
                 if isinstance(entry, dict):
-                    # HACK: for now workaround for modules but needs more generic approach to work with complex configs like config-midi.xml
+                    # HACK: for now workaround for modules but needs more generic 
+                    # approach to work with complex configs like config-midi.xml
                     if all((key in entry.keys() for key in "@name @value".split())):
                         list_repr[entry["@name"]] = entry["@value"]
 
