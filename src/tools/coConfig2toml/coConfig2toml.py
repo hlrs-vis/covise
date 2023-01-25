@@ -195,20 +195,22 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         module_rootpath = covise_path + "/modules"
         plugin_rootpath = opencover_path + "/plugins"
 
-        # plugins
+        # cover
         cover_dict = root_global.get("COVER")
         if cover_dict:
-            plugins_dict = cover_dict.get("Plugin")
-            cover_dict.pop("Plugin")
+            # plugins
+            plugins_dict = cover_dict.pop("Plugin", None)
+            if plugins_dict != None:
+                if not os.path.exists(plugin_rootpath):
+                    os.makedirs(plugin_rootpath)
+
+                plugin_root_entries = iterate_plugins(
+                    plugins_dict, plugin_rootpath)
+                plugin_config_path = opencover_path + "/plugins.toml"
+                create_toplevel_toml(plugin_config_path, plugin_root_entries)
+
+            #general
             create_toml(cover_dict, opencover_path + "/cover.toml")
-
-            if not os.path.exists(plugin_rootpath):
-                os.makedirs(plugin_rootpath)
-
-            plugin_root_entries = iterate_plugins(
-                plugins_dict, plugin_rootpath)
-            plugin_config_path = opencover_path + "/plugins.toml"
-            create_toplevel_toml(plugin_config_path, plugin_root_entries)
 
         # modules
         modules_dict = root_global.get("Module")
