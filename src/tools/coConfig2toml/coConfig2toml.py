@@ -109,7 +109,7 @@ def create_module_toml(coconfig_dict: dict, mod_path: str) -> None:
 
 
 def create_toplevel_toml(toplevel_config_path: str, values: dict) -> None:
-    """Create toplevel TOML in plugin dir if not already existing.
+    """Create toplevel TOML in given dir if not already existing.
 
     Args:
         toplevel_config_path (str): Path to config.
