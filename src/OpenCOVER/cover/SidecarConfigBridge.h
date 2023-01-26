@@ -2,7 +2,7 @@
 #include <string>
 #include <set>
 
-#include <OpenCovConfig/detail/toml/toml.hpp> // in order to avoid another copy of toml.hpp
+#include <OpenConfig/covconfig/detail/toml/toml.hpp> // in order to avoid another copy of toml.hpp
 
 class SidecarConfigBridge: public opencover::config::Bridge
 {

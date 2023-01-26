@@ -2,7 +2,7 @@
 #define COVER_CONFIG_VALUE_H
 #define CONFIG_NAMESPACE opencover
 
-#include <OpenCovConfig/value.h>
+#include "covconfig/value.h"
 
 #undef CONFIG_NAMESPACE
 #endif
