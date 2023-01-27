@@ -433,7 +433,8 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                     osg::Node::ParentList parents;
                     if (node)
                         parents = node->getParents();
-                    var = new Variant(var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1, xmlfile, &qDE_Variant, boi, set_default?default_state:true);
+                    var = new Variant(this, var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1,
+                                      xmlfile, &qDE_Variant, boi, set_default ? default_state : true);
                     varlist.push_back(var);
                     var->AddToScenegraph();
                     var->hideVRLabel();

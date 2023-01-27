@@ -30,13 +30,16 @@ namespace ui {
 class Menu;
 }
 }
+class VariantPlugin;
 
-class Variant : public coVRPlugin, public coTUIListener
+class Variant: public coTUIListener
 {
 public:
     static Variant *variantClass;
 
-    Variant(std::string var_Name, osg::Node *node, osg::Node::ParentList parents, ui::Menu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V, coVRBoxOfInterest *boi, bool default_state);
+    Variant(VariantPlugin *plugin, std::string var_Name, osg::Node *node, osg::Node::ParentList parents,
+            ui::Menu *Variant_menu, coTUITab *VariantPluginTab, int numVar, QDomDocument *xmlfile, QDomElement *qDE_V,
+            coVRBoxOfInterest *boi, bool default_state);
     ~Variant();
     //adding the Group-Node to the Scenegraph:
     void AddToScenegraph();
@@ -84,6 +87,7 @@ private:
 
     coVRBoxOfInterest *myboi;
     osg::ClipNode *cn;
+    VariantPlugin *plugin = nullptr;
 };
 
 #endif /* _Variant_H */
