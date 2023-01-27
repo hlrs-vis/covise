@@ -88,14 +88,29 @@ SidecarConfigBridge::SidecarConfigBridge(const std::string &file, bool saveOnDes
 
 SidecarConfigBridge::~SidecarConfigBridge()
 {
-    if (!m_save)
+    if (!m_save || m_toml.size()==0)
         return;
-
+    bool found = false;
+    for (const auto& i : m_toml)
+    {
+        toml::v3::table *t = i.second.as_table();
+        if (t)
+        {
+            if (t->size() > 0)
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+    if (!found) // nothing found
+        return;
     std::string temp = m_file + ".new";
     try
     {
         std::ofstream f(temp);
         f << m_toml;
+        f.close();
         if (std::rename(temp.c_str(), m_file.c_str()) != 0)
         {
             std::cerr << "failed to move updated config to " << m_file << std::endl;
