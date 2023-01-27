@@ -872,7 +872,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	bool isVRML = false;
 	for (auto ext : vrmlExtentions)
 	{
-		if (("." + ext) == lowXt || urlStr.substr(urlStr.size() - (ext.size() + strlen(ive))) == ext + ive)
+        size_t extlen = ext.size() + strlen(ive);
+		if (("." + ext) == lowXt ||(urlStr.size()> extlen) && (urlStr.substr(urlStr.size() - extlen) == ext + ive))
 		{
 			isVRML = true;
 			break;
