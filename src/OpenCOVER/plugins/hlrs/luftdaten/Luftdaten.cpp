@@ -194,7 +194,7 @@ int LuftdatenPlugin::mergeTimesteps()
                 count[3][t]++;
             }
         }
-        std:string ID_ = vec.first;
+        std::string ID_ = vec.first;
         float lat_ = vec.second.front()->devInfo->lat;
         float lon_ = vec.second.front()->devInfo->lon;
         float height_ = vec.second.front()->devInfo->height;
@@ -208,7 +208,7 @@ int LuftdatenPlugin::mergeTimesteps()
                 std::string groupName = "timestep"+std::to_string(t);
                 bool foundGroup = false;
                 osg::Group * timestepGroup = new osg::Group() ;
-                for (int i = 0; i < sequenceList->getNumChildren(); ++i)
+                for (unsigned int i = 0; i < sequenceList->getNumChildren(); ++i)
                 {
                    if (strcmp(sequenceList->getChild(i)->getName().c_str(),groupName.c_str()) == 0)
                    {
@@ -461,7 +461,7 @@ bool LuftdatenPlugin::loadFile(std::string fileName)
             timestep++;
             groupName = "timestep"+std::to_string(timestep);
             bool foundGroup = false;
-            for (int i = 0; i < sequenceList->getNumChildren(); ++i)
+            for (unsigned int i = 0; i < sequenceList->getNumChildren(); ++i)
             {
                 if (strcmp(sequenceList->getChild(i)->getName().c_str(),groupName.c_str()) == 0)
                 {

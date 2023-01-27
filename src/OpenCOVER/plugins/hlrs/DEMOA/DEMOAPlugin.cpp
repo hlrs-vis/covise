@@ -880,7 +880,6 @@ bool DEMOAPlugin::init()
 
     mapChoice = new coTUIComboBox("mapChoice", PathTab->getID());
     mapChoice->setEventListener(this);
-    int i;
     for (const auto &map : mapNames)
     {
         mapChoice->addEntry(map);

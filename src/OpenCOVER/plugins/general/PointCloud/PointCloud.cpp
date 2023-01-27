@@ -1651,7 +1651,7 @@ void PointCloudPlugin::saveMoves()
 					uint16_t *redData2 = new uint16_t[nSize];
 					uint16_t *greenData2 = new uint16_t[nSize];
 					uint16_t *blueData2 = new uint16_t[nSize];
-					for (size_t i = 0; i < nGroupsSize; i++)
+					for (int64_t i = 0; i < nGroupsSize; i++)
 					{
 						if (startPointIndex[i] >= nPointsSize)
 						{

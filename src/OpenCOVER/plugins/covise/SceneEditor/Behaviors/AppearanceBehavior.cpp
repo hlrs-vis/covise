@@ -136,7 +136,7 @@ void AppearanceBehavior::setAppearance(QRegExp regexp, osg::Node *node, Appearan
         osg::Group *g = node->asGroup();
         if (g != NULL)
         {
-            for (int i = 0; i < g->getNumChildren(); i++)
+            for (unsigned int i = 0; i < g->getNumChildren(); i++)
             {
                 setAppearance(regexp, g->getChild(i), appearance, remove);
             }

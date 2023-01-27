@@ -1143,7 +1143,6 @@ int Particles::readIMWFFile(char *fn, int timestep)
         timesteps[timestep]->geode = geode;
 
         int n = 0;
-        struct particleData oneParticle;
 
         //float radius = plugin->getRadius();
         if (version == 0)
@@ -1831,9 +1830,9 @@ bool Particles::dump(std::string filename, int timestep, const float *xc, const 
     writeArr(yc, numParticles, fp);
     writeArr(zc, numParticles, fp);
 
-    for (int i=0; i<numFloats; ++i)
+    for (unsigned int i=0; i<numFloats; ++i)
         writeArr(td->values[i], numParticles, fp);
-    for (int i=0; i<numInts; ++i)
+    for (unsigned int i=0; i<numInts; ++i)
         writeArr(td->Ivalues[i], numParticles, fp);
 
     fclose(fp);
@@ -1890,9 +1889,9 @@ bool Particles::restore(std::string filename, int timestep)
     delete[] yc;
     delete[] zc;
 
-    for (int i=0; i<numFloats; ++i)
+    for (unsigned int i=0; i<numFloats; ++i)
         readArr(td->values[i], numParticles, fp);
-    for (int i=0; i<numInts; ++i)
+    for (unsigned int i=0; i<numInts; ++i)
         readArr(td->Ivalues[i], numParticles, fp);
 
     //fprintf(stderr, "restored %d particles from %s\n", numParticles, filename.c_str());

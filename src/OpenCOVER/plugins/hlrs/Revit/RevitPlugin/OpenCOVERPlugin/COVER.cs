@@ -1873,7 +1873,7 @@ namespace OpenCOVERPlugin
                         Autodesk.Revit.DB.Solid solid = geomObject as Autodesk.Revit.DB.Solid;
                         if (solid != null)
                         {
-                            if (graphicsStyle.Name == "Panel")
+                            if (graphicsStyle.Name == "Panel"|| graphicsStyle.Name == "Element")
                             {
                                 extendBB(bb, solid.GetBoundingBox());
                             }

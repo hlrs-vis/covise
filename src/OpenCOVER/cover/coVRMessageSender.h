@@ -5,7 +5,7 @@
 namespace opencover
 {
 
-    class coVRMessageSender : public covise::MessageSenderInterface
+    class COVEREXPORT coVRMessageSender : public covise::MessageSenderInterface
     {
 
     private:

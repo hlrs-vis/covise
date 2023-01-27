@@ -85,7 +85,8 @@ void OSGPSOParticle::init(double (*setresponse)(double *), double *setlowerbound
 
     par.clear();
 
-	osg::Drawable *sphereDrawable, *coneDrawable;
+	osg::Drawable  *coneDrawable;
+    //osg::Drawable  *sphereDrawable;
     //ParticleGeode->addDrawable(sphereDrawable = new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0,0,0), 10)));
     ParticleGeode->addDrawable(coneDrawable = new osg::ShapeDrawable(new osg::Cone(osg::Vec3(0, 0, 0), 10*0.01f, 10*0.05f)));
 	ParticleGeode->setName("pCone");
