@@ -573,7 +573,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     vert = new osg::Vec3Array;
     color = new osg::Vec4Array;
 
-    // Volume Sticks
+/*    // Volume Sticks
     stickGeode = new Geode();
     stickGeom = new Geometry();
     //stickGeode->setStateSet(geoState.get());
@@ -608,9 +608,9 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     stickGeom->addPrimitiveSet(stickPrimitives);
     stickGeom->dirtyDisplayList();
     stickGeom->setUseDisplayList(false);
+*/
 
-
-
+/*
     // Triangles
     float xMax = 0.4;
     float xMin = 0.2;
@@ -670,7 +670,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     osgUtil::SmoothingVisitor::smooth(*triGeomBot); // funktioniert das?
     triGeomBot->dirtyDisplayList();
     triGeomBot->setUseDisplayList(false);
-
+*/
 
 
     int status;
@@ -740,9 +740,21 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     if (parentNode == NULL)
         parentNode = cover->getObjectsRoot();
     parentNode->addChild(geode.get());
-    parentNode->addChild(stickGeode.get());
+ /*   parentNode->addChild(stickGeode.get());
     parentNode->addChild(triGeode.get());
     ;
+*/    
+
+
+    assert(thePlugin);
+    wpGroup = new osg::Group;
+    loadParent->addChild(wpGroup);
+    if (filename != NULL)
+    {   wpGroup->setName(filename);
+    }
+    thePlugin->createWpGeodes(wpGroup);
+
+    
     return 0;
 }
 
@@ -751,7 +763,13 @@ void CNCPlugin::setTimestep(int t)
 {
     if (primitives)
         primitives->at(0) = t;
-    if (triPrimitivesBot)
+
+    if (wpTopGeom && t>0)
+    {
+        //wpMillCut(wpTopGeom, t);
+    }
+
+/*    if (triPrimitivesBot)
     {
         if (t % 10 == 0)
         {
@@ -771,6 +789,7 @@ void CNCPlugin::setTimestep(int t)
             (*triPrimitivesBot)[24] = 1; (*triPrimitivesBot)[25] = 3; (*triPrimitivesBot)[26] = 5; (*triPrimitivesBot)[27] = 3; (*triPrimitivesBot)[28] = 7; (*triPrimitivesBot)[29] = 5;
         }
     }
+*/
 }
 
 int CNCPlugin::unloadGCode(const char *filename, const char *)
@@ -891,7 +910,12 @@ void CNCPlugin::save()
 
 
 void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate)
-{
+{   
+    pathX.push_back(x / 1000.0);
+    pathY.push_back(y / 1000.0);
+    pathZ.push_back(z / 1000.0);
+
+
     /* positions[frameNumber*3  ] = x;
          positions[frameNumber*3+1] = y;
          positions[frameNumber*3+2] = z;*/
@@ -918,3 +942,220 @@ osg::Vec4 CNCPlugin::getColor(float pos)
 }
 
 COVERPLUGIN(CNCPlugin)
+
+
+/* createWpGeodes
+
+   Returned Value: void
+
+   Side Effects:
+   Creates the workpiece and adds it to the wpGroup.
+   Calls createWpTop.
+
+   Called By:
+   CNCPlugin::loadGCode
+*/
+void CNCPlugin::createWpGeodes(Group *parent)
+{
+ /*   auto pointShader = opencover::coVRShaderList::instance()->get("Points");
+    int offset = 0;
+    try
+    {
+        offset = std::stoi(m_offset->value());
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "header offset must be an integer" << std::endl;
+        return;
+    }
+*/
+
+    //DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
+//    wpTopGeom = createWpSurface(&Vec3(0 / 1000.0, 0 / 1000.0, 0 / 1000.0), &Vec3(10 / 1000.0, 10 / 1000.0, 10 / 1000.0), double (10/1000.0));
+    
+    xMin = *std::min_element(pathX.begin(), pathX.end()) - wpAllowance;
+    xMax = *std::max_element(pathX.begin(), pathX.end()) + wpAllowance;
+    yMin = *std::min_element(pathY.begin(), pathY.end()) - wpAllowance;
+    yMax = *std::max_element(pathY.begin(), pathY.end()) + wpAllowance;
+    zMin = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
+    zMax = 0;
+    
+//    std::array<double, 5> minMaxCoords = {xMin, xMax, yMin, yMax, zMax};
+    std::array<double, 5> minMaxCoords = {0 / 1000.0, 10 / 1000.0, 0 / 1000.0, 10 / 1000.0, 10 / 1000.0};
+    wpTopGeom = createWpTop(&minMaxCoords, double(10 / 1000.0));
+    wpTopGeode = new osg::Geode();
+    wpTopGeode->setName("wpTopGeode");
+    parent->addChild(wpTopGeode);
+    wpTopGeode->addDrawable(wpTopGeom);
+ /*   if (pointShader != nullptr)
+    {
+        pointShader->apply(m_currentGeode, m_pointCloud);
+    }
+    coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
+*/
+}
+
+/* createWpTop
+
+   Returned Value: topsurface Geometry
+
+   Side Effects:
+   Creates a Geometry: rectangular shape with multiple squares of the passed length.
+
+   Called By:
+   CNCPlugin::createWpGeodes
+*/
+osg::Geometry *CNCPlugin::createWpTop(std::array<double, 5> *minMaxCoords, double length_a)
+{
+/*    // compile parser
+    std::array<Expression, 4> stringExpressions;
+
+    for (size_t i = 0; i < stringExpressions.size(); i++)
+    {
+        if (!compileSymbol(symbols, i < 3 ? m_coordTerms[i]->value() : m_colorTerm->value(), stringExpressions[i]))
+            return nullptr;
+    }
+*/
+    //create geometry
+    auto geo = new osg::Geometry();
+ //   geo->setUseDisplayList(false);
+ //   geo->setSupportsDisplayList(false);
+    geo->setUseVertexBufferObjects(true);
+    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+    auto colors = new Vec4Array();
+    auto points = new Vec3Array();
+   
+ //  double bx = (&minMaxCoords[3] - &minMaxCoords[0]) / length_a;
+    ix_total = ::round((minMaxCoords->at(1) - minMaxCoords->at(0)) / length_a);  //std::max<double>(1, bx);
+//    double by = (&minMaxCoords[4] - &minMaxCoords[1]) / length_a;
+    auto iy_total = (minMaxCoords->at(3) - minMaxCoords->at(2)) / length_a; //std::max<double>(1, by);
+//    double bz = (&minMaxCoords[5] - &minMaxCoords[2]) / length_a;
+//    auto iz_total = std::max<double>(1, bz);
+
+
+
+    for (size_t iy = 0; iy < iy_total; iy++)
+    {
+        for (size_t ix = 0; ix < ix_total; ix++)
+        {   
+            test1 = ix;
+            test2 = iy;
+            points->push_back(Vec3(minMaxCoords->at(0) + ix * length_a, minMaxCoords->at(2) + iy * length_a, minMaxCoords->at(4)));
+            points->push_back(Vec3(minMaxCoords->at(0) + (ix + 1) * length_a, minMaxCoords->at(2) + iy * length_a, minMaxCoords->at(4)));
+            points->push_back(Vec3(minMaxCoords->at(0) + (ix + 1) * length_a, minMaxCoords->at(2) + (iy + 1) * length_a, minMaxCoords->at(4)));
+            points->push_back(Vec3(minMaxCoords->at(0) + ix * length_a, minMaxCoords->at(2) + (iy + 1) * length_a, minMaxCoords->at(4)));
+ //           for (int j = 0; j<4; j++)
+ //               colors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+        }
+    }
+    colors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+/*
+    //calculate coords and color
+    std::vector<float> scalarData(symbols.size());
+    float minScalar = 0, maxScalar = 0;
+    for (size_t i = 0; i < symbols.size(); i++)
+    {
+        osg::Vec3 coords;
+        for (size_t j = 0; j < 3; j++)
+        {
+            coords[j] = stringExpressions[j]().value();
+        }
+        points->push_back(coords);
+        scalarData[i] = stringExpressions[3]().value();
+        minScalar = std::min(minScalar, scalarData[i]);
+        maxScalar = std::max(maxScalar, scalarData[i]);
+        symbols.advance();
+    }
+
+    for (size_t i = 0; i < symbols.size(); i++)
+        colors->push_back(m_colorMapSelector.getColor(scalarData[i], minScalar, maxScalar));
+
+    osg::Vec3 bottomLeft, hpr, offset;
+    if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
+        auto hudScale = covise::coCoviseConfig::getFloat("COVER.Plugin.ColorBar.HudScale", 0.5); // half screen height
+        const auto& s0 = coVRConfig::instance()->screens[0];
+        hpr = s0.hpr;
+        auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
+        osg::Matrix mat;
+        MAKE_EULER_MAT_VEC(mat, hpr);
+        bottomLeft = s0.xyz - sz * mat * 0.5;
+        auto minsize = std::min(s0.hsize, s0.vsize);
+        bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
+        offset = osg::Vec3(s0.vsize / 2.5, 0, 0) * mat * hudScale;
+    }
+    m_colorBar->setName("Power");
+    m_colorBar->show(true);
+    m_colorBar->update(m_colorTerm->value(), minScalar, maxScalar, m_colorMapSelector.selectedMap().a.size(), m_colorMapSelector.selectedMap().r.data(), m_colorMapSelector.selectedMap().g.data(), m_colorMapSelector.selectedMap().b.data(), m_colorMapSelector.selectedMap().a.data());
+    m_colorBar->setHudPosition(bottomLeft, hpr, offset[0] / 480);
+    m_colorBar->show(true);
+*/
+
+    vertexBufferArray->setArray(0, points);
+    vertexBufferArray->setArray(1, colors);
+    points->setBinding(osg::Array::BIND_PER_VERTEX);
+    //colors->setBinding(osg::Array::BIND_PER_VERTEX);
+    // bind color per vertex
+    geo->setVertexArray(points);
+    geo->setColorArray(colors);
+    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+    osg::Vec3Array* normals = new osg::Vec3Array;
+    normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
+    geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
+
+    test1 = points->getNumElements();
+    test2 = points->size();
+    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, points->size()-1));
+
+    //setStateSet(geo, pointSize());
+
+    return geo;
+}
+
+/* wpMillCut
+
+   Side Effects:
+   changes the Geometry and sets new zCoords for timeStep t.
+
+   Called By:
+   CNCPlugin::setTimestep
+*/
+void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
+{   
+    //bounding Box
+    double xMinBox = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
+    double xMaxBox = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
+    double yMinBox = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
+    double yMaxBox = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
+
+    int ixMin = (xMinBox - xMin) / wpResolution;
+    int ixMax = (xMaxBox - xMin) / wpResolution;
+    int iyMin = (yMinBox - yMin) / wpResolution;
+    int iyMax = (yMaxBox - yMin) / wpResolution;
+
+    for (int iy = iyMin; iy <= iyMax; iy++)
+    {   
+        for (int ix = ixMin; ix <= ixMax; ix++)
+        {   
+            int iPoint = ix * 4 + iy * ix_total * 4;
+            double dist = distancePointLine(piece->at(iPoint)[0] + wpResolution/2, piece->at(iPoint)[1] + wpResolution / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+            if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
+            {
+                piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                piece->at(iPoint+1)[2] = pathZ[t];
+                piece->at(iPoint+2)[2] = pathZ[t];
+                piece->at(iPoint+3)[2] = pathZ[t];
+            }
+        }
+    }
+}
+
+/* Return minimum distance between point p and line vw
+*/
+double CNCPlugin::distancePointLine(double px, double py, double x1, double y1, double x2, double y2)
+{
+    double a = y1 - y2;
+    double b = x2 - x1;
+    double c = x1 * y2 - x2 * y1;
+
+    return (abs(a * px + b * py + c) / sqrt(a * a + b * b));
+}

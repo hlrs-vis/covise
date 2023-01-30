@@ -86,20 +86,39 @@ private:
     osg::ref_ptr<osg::LineWidth> lineWidth;
     void setTimestep(int t) override;
 
+    static CNCPlugin* thePlugin;
+
     osg::Vec4 getColor(float pos);
     int frameNumber = 0;
     osg::Group *parentNode = nullptr;
     osg::Vec3Array *vert = nullptr;
     osg::Vec4Array *color = nullptr;
     osg::DrawArrayLengths *primitives = nullptr;
-
-    static CNCPlugin *thePlugin;
+    osg::ref_ptr<osg::Geometry> geom;
+    osg::ref_ptr<osg::Geode> geode;
 
     void save();
 
-    osg::ref_ptr<osg::Geometry> geom;
-    osg::ref_ptr<osg::Geode> geode;
-    
+    //workpiece wp
+    osg::Group *wpGroup = nullptr;
+    osg::Geode *wpTopGeode = nullptr;
+    osg::Geometry *wpTopGeom = nullptr;
+    void createWpGeodes(osg::Group *);
+    //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
+    osg::Geometry *createWpTop(std::array<double, 5> *minMaxCoords, double length_a);
+    void wpMillCut(osg::Vec3Array *piece, int t);
+    double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
+
+    std::vector<double> pathX, pathY, pathZ;
+    double xMin, xMax, yMin, yMax, zMin, zMax;
+    int ix_total;
+    double wpAllowance = 5 / 1000;
+    double wpResolution = 0.1 / 1000;
+    double cuttingRad = 0.5 / 1000;
+
+    int test1, test2;
+
+    /*
     // Volume Sticks
     osg::ref_ptr<osg::Geometry> stickGeom;
     osg::ref_ptr<osg::Geode> stickGeode;
@@ -120,6 +139,6 @@ private:
     osg::Vec4Array *triColor = nullptr;
     osg::DrawArrayLengths *triPrimitivesTop = nullptr;
     osg::DrawElementsUInt *triPrimitivesBot = nullptr;
-
+    */
 };
 #endif
