@@ -459,9 +459,11 @@ namespace OpenCOVERPlugin
 
             ProjectPosition projectPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
             double ProjectNorthAngle = projectPos.Angle;
+            double ProjectHeight = projectPos.Elevation;
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             mbdocinfo.add(ProjectNorthAngle);
+            mbdocinfo.add(ProjectHeight);
 
             mbdocinfo.add(projectPos.EastWest);
             mbdocinfo.add(projectPos.NorthSouth);
@@ -1838,14 +1840,12 @@ namespace OpenCOVERPlugin
                 else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
                 {
                     Autodesk.Revit.DB.GeometryObject geomObject = elementGeom.ElementAt(0);
-                    Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
-                    if (graphicsStyle != null)
-                        hasStyle = true;
+                    
                 }
             }
 
 
-            if (hasStyle && (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+            if ( (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
             {
                 bool hasLeft = false;
                 bool hasRight = false;
@@ -1886,6 +1886,10 @@ namespace OpenCOVERPlugin
                                 extendBB(bbR, solid.GetBoundingBox());
                             }
                         }
+                    }
+                    else // no style --> will be treated as moving parts
+                    {
+                        //sendGeomElement(elem, num, geomObject, false, false);
                     }
                     num++;
                 }
@@ -2105,6 +2109,7 @@ namespace OpenCOVERPlugin
         private void SendDoorPart(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem, FamilyInstance fi, BoundingBoxXYZ bb, String name, XYZ Center)
         {
             int num = 0;
+            double travel = 0.0;
             MessageBuffer mb = new MessageBuffer();
             mb.add(elem.Id.IntegerValue);
             mb.add(DocumentID);
@@ -2140,6 +2145,11 @@ namespace OpenCOVERPlugin
                     }
                 }
                 mb.add(sliding);
+                IList<Parameter> pt = family.GetParameters("travel");
+                if ((pt.Count > 0) && (pt[0] != null))
+                {
+                    travel = pt[0].AsDouble();
+                }
             }
             else
             {
@@ -2147,6 +2157,7 @@ namespace OpenCOVERPlugin
             }
             mb.add(bb.Min);
             mb.add(bb.Max);
+            mb.add(travel);
             sendMessage(mb.buf, MessageTypes.NewDoorGroup);
             int namelen = name.Length;
 

@@ -2402,6 +2402,7 @@ RevitPlugin::handleMessage(Message *m)
         const char *fileName;
         tb >> fileName;
 		tb >> TrueNorthAngle;
+		tb >> ProjectHeight;
 		double eastWest;
 		double northSouth;
 		double xo=0.0, yo = 0.0, zo = 0.0;
@@ -4003,10 +4004,12 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	osg::Vec3 BBMax;
 	tb >> BBMin;
 	tb >> BBMax;
+	tb >> maxDistance;
 	boundingBox.set(BBMin, BBMax);
 	if (isSliding != SlidingDirection::dirNone)
 	{
-		maxDistance = boundingBox.xMax() - boundingBox.xMin();
+		if(maxDistance == 0)
+		    maxDistance = boundingBox.xMax() - boundingBox.xMin();
 		if (maxDistance == 0)
 			maxDistance = 1;
 		HandOrientation.normalize(); // HandOrientation is in Revit World coordinates so either transform this back to local coordinates orjust use X for now.

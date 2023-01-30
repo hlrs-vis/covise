@@ -607,6 +607,7 @@ public:
     void setPhase(int phase);
     int currentPhase=0;
     double TrueNorthAngle = 0.0;
+    double ProjectHeight = 0.0;
     osg::Matrix NorthRotMat;
     osg::Matrix RevitScale;
     osg::Matrix RevitGeoRefference;
