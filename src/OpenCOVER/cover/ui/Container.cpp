@@ -78,7 +78,7 @@ int Container::index(const Element *elem) const
     if (it == m_children.end())
         return -1;
 
-    return it - m_children.begin();
+    return (int)(it - m_children.begin());
 }
 
 void Container::clearChildren()

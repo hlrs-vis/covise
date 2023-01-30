@@ -201,10 +201,10 @@ void OpenFoam::sendMesh()
     const coDistributedObject *mesh = gridPort->getCurrentObject();
 
     const coDoUnstructuredGrid *grid;
-    const coDoPolygons *faces;
+    //const coDoPolygons *faces;
 
     float *x, *y, *z;
-    int *el, *conn, *tl, *fl;
+    int* el, * conn, * tl;
 
     if (!mesh)
     {

@@ -123,7 +123,7 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
             p_variables[i]->enable();
 
         // Create "Variable" menu entries for all 2D and 3D variables
-        NcVar *var;
+        //NcVar *var;
         int num2d3dVars = 0;
         std::multimap<std::string, NcVar> allVars = ncDataFile->getVars();
         for (const auto& var : allVars)
@@ -212,7 +212,7 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
 
 float ReadECMWF::pressureAltitude(float p)
 {
-    return (44.30769396 * (1.0 - std::pow(p/1013.25, 0.190284)));
+    return (float)((44.30769396 * (1.0 - std::pow(p/1013.25, 0.190284))));
 }
 
 // -----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ int ReadECMWF::compute(const char *)
 
         sendInfo("Found %ld time steps\n", dims[0].getSize());
 
-        int nx = dims[numdims - 2].getSize(), ny = dims[numdims - 1].getSize(), nz = 1, nTime = dims[0].getSize();
+        size_t nx = dims[numdims - 2].getSize(), ny = dims[numdims - 1].getSize(), nz = 1, nTime = dims[0].getSize();
         if (has_timesteps > 0)
         {
             if (numdims > 3)
@@ -313,7 +313,7 @@ int ReadECMWF::compute(const char *)
             for (int t = 0; t < nTime; ++t)
             {
                 sprintf(buf, "%s_%d", p_grid_out->getObjName(), t);
-                coDoStructuredGrid *outGrid = new coDoStructuredGrid(buf, nz, nx, ny);
+                coDoStructuredGrid *outGrid = new coDoStructuredGrid(buf, (int)nz, (int)nx, (int)ny);
                 outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
                 time_grid[t] = outGrid;
 
@@ -334,9 +334,9 @@ int ReadECMWF::compute(const char *)
                             for (int j = 0; j < ny; j++, n++)
                              {
 
-                                         x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
-                                         y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
-                                         z_coord[n] = A*sin(xVals[i]*PI/180);
+                                         x_coord[n] = (float)(A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180));
+                                         y_coord[n] = (float)(A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180));
+                                         z_coord[n] = (float)(A*sin(xVals[i]*PI/180));
                               }
                          }
                     }
@@ -351,9 +351,9 @@ int ReadECMWF::compute(const char *)
                             for (int j = 0; j < ny; j++, n++)
                              {
 
-                                         x_coord[n] = A*cos(xVals[i*ny+j]*PI/180)*cos(yVals[i*ny+j]*PI/180);
-                                         y_coord[n] = A*cos(xVals[i*ny+j]*PI/180)*sin(yVals[i*ny+j]*PI/180);
-                                         z_coord[n] = A*sin(xVals[i*ny+j]*PI/180);
+                                         x_coord[n] = (float)(A*cos(xVals[i*ny+j]*PI/180)*cos(yVals[i*ny+j]*PI/180));
+                                         y_coord[n] = (float)(A*cos(xVals[i*ny+j]*PI/180)*sin(yVals[i*ny+j]*PI/180));
+                                         z_coord[n] = (float)(A*sin(xVals[i*ny+j]*PI/180));
                               }
                          }
                     }
@@ -364,7 +364,7 @@ int ReadECMWF::compute(const char *)
             }
 
             coDoSet *time_outGrid = new coDoSet(p_grid_out->getObjName(), time_grid);
-            sprintf(buf, "1 %d", nTime);
+            sprintf(buf, "1 %zd", nTime);
             time_outGrid->addAttribute("TIMESTEP", buf);
             p_grid_out->setCurrentObject(time_outGrid);
 
@@ -375,7 +375,7 @@ int ReadECMWF::compute(const char *)
 
         }else {
 
-            coDoStructuredGrid *outGrid = new coDoStructuredGrid(p_grid_out->getObjName(), nz, nx, ny);
+            coDoStructuredGrid *outGrid = new coDoStructuredGrid(p_grid_out->getObjName(), (int)nz, (int)nx, (int)ny);
 
             // Get the addresses of the 3 coord arrays (each nz*ny*nx long)
             outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
@@ -406,9 +406,9 @@ int ReadECMWF::compute(const char *)
                     for (int j = 0; j < ny; j++, n++)
                      {
 
-                                 x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
-                                 y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
-                                 z_coord[n] = A*sin(xVals[i]*PI/180);
+                                 x_coord[n] = (float)(A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180));
+                                 y_coord[n] = (float)(A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180));
+                                 z_coord[n] = (float)(A*sin(xVals[i]*PI/180));
                       }
                  }
             }
@@ -434,7 +434,7 @@ int ReadECMWF::compute(const char *)
             for (int t = 0; t < nTime; ++t)
             {
                 sprintf(buf, "%s_%d", p_unigrid_out->getObjName(), t);
-                coDoStructuredGrid *outUniGrid = new coDoStructuredGrid(buf, nz, nx, ny);
+                coDoStructuredGrid *outUniGrid = new coDoStructuredGrid(buf, (int)nz, (int)nx, (int)ny);
                 time_unigrid[t] = outUniGrid;
                 outUniGrid->getAddresses(&z_unicoord, &x_unicoord, &y_unicoord);
 
@@ -446,9 +446,9 @@ int ReadECMWF::compute(const char *)
                         for (int j = 0; j < ny; j++, n++)
                          {
 
-                                     x_unicoord[n] = i;
-                                     y_unicoord[n] = j;
-                                     z_unicoord[n] = k;
+                                     x_unicoord[n] = float(i);
+                                     y_unicoord[n] = float(j);
+                                     z_unicoord[n] = float(k);
                           }
                      }
                 }
@@ -456,7 +456,7 @@ int ReadECMWF::compute(const char *)
 
             }
             coDoSet *time_outUniGrid = new coDoSet(p_unigrid_out->getObjName(), time_unigrid);
-            sprintf(buf, "1 %d", nTime);
+            sprintf(buf, "1 %zd", nTime);
             time_outUniGrid->addAttribute("TIMESTEP", buf);
 
             delete [] time_unigrid;
@@ -464,7 +464,7 @@ int ReadECMWF::compute(const char *)
         }else
         {
             coDoStructuredGrid *outUniGrid = new coDoStructuredGrid(
-                p_unigrid_out->getObjName(), nx, ny, nz);
+                p_unigrid_out->getObjName(), (int)nx, (int)ny, (int)nz);
 
             outUniGrid->getAddresses(&x_unicoord, &y_unicoord, &z_unicoord);
 
@@ -476,9 +476,9 @@ int ReadECMWF::compute(const char *)
                 for (int j = 0; j < ny; j++)
                     for (int k = 0; k < nz; k++, m++, n++)
                     {
-                        x_unicoord[n] = i;
-                        y_unicoord[n] = j;
-                        z_unicoord[n] = k;
+                        x_unicoord[n] = float(i);
+                        y_unicoord[n] = float(j);
+                        z_unicoord[n] = float(k);
                     }
             }
         }
@@ -507,20 +507,20 @@ int ReadECMWF::compute(const char *)
                 for (int d = 0; d < var.getDimCount(); ++d)
                 {
                     NcDim dim = var.getDim(d);
-                    size[d] = dim.getSize();
+                    size[d] = (int)dim.getSize();
                     start[d] = 0;
                     if(dim.getName()=="time"|| dim.getName() == "time_counter")
                     {
                         time_dependent = true;
-                        if (nTime > dim.getSize())
+                        if (nTime > (int)dim.getSize())
                          {
 
-                            nTime = dim.getSize();
+                            nTime = (int)dim.getSize();
                             sendInfo("Max. available time steps is %d", nTime);
                         }
 
                     }else {
-                         num_vals = num_vals * dim.getSize();
+                         num_vals = (int)(num_vals * dim.getSize());
                     }
                 }
 
@@ -540,7 +540,7 @@ int ReadECMWF::compute(const char *)
                     }
 
                     coDoSet *time_outData = new coDoSet(p_data_outs[i]->getObjName(), time_data);
-                    sprintf(buf, "1 %d", nTime);
+                    sprintf(buf, "1 %zd", nTime);
                     time_outData->addAttribute("TIMESTEP", buf);
 
                 }else
@@ -566,7 +566,7 @@ int ReadECMWF::compute(const char *)
             for (int i = 0; i < numParams; i++)
             {
                 var = ncDataFile->getVar(varNames[p_variables[i]->getValue()]);
-                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), nx*ny*nz);
+                dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), int(nx*ny*nz));
                 dataOut[i]->getAddress(&floatData);
                 var.getVar(floatData);
             }

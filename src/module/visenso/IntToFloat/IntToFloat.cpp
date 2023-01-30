@@ -55,7 +55,7 @@ int IntToFloat::compute(const char *)
    	bytearr->getAddress(&inPtr);
     	for (int i = 0; i < numPoints; ++i)
     	{
-        	outPtr[i] = (float)inPtr[i]/255.0;
+        	outPtr[i] = (float)(inPtr[i]/255.0);
     	}
     }
 

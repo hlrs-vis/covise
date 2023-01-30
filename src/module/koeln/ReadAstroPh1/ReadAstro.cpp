@@ -510,17 +510,17 @@ int ReadAstro::compute(const char *)
     close();
 
     // Create set objects:
-    coDoSet *setPoints = new coDoSet(m_outPoint->getObjName(), points.size(), (coDistributedObject **)&points[0]);
-    coDoSet *setTypes = new coDoSet(m_outType->getObjName(), types.size(), (coDistributedObject **)&types[0]);
-    coDoSet *setMasses = new coDoSet(m_outMass->getObjName(), masses.size(), (coDistributedObject **)&masses[0]);
-    coDoSet *setLogMasses = new coDoSet(m_outLogMass->getObjName(), logmasses.size(), (coDistributedObject **)&logmasses[0]);
-    coDoSet *setVelocities = new coDoSet(m_outVelocity->getObjName(), velocities.size(), (coDistributedObject **)&velocities[0]);
-    coDoSet *setForces = new coDoSet(m_outForce->getObjName(), forces.size(), (coDistributedObject **)&forces[0]);
-    coDoSet *setForceDots = new coDoSet(m_outForceDot->getObjName(), forcedots.size(), (coDistributedObject **)&forcedots[0]);
-    coDoSet *setDiskMasses = new coDoSet(m_outDiskMass->getObjName(), diskmasses.size(), (coDistributedObject **)&diskmasses[0]);
-    coDoSet *setDiskMomentums = new coDoSet(m_outDiskMomentum->getObjName(), diskmomentums.size(), (coDistributedObject **)&diskmomentums[0]);
-    coDoSet *setNames = new coDoSet(m_outNames->getObjName(), simNames.size(), (coDistributedObject **)&simNames[0]);
-    coDoSet *setDummies = new coDoSet(m_outDummies->getObjName(), dummies.size(), (coDistributedObject **)&dummies[0]);
+    coDoSet *setPoints = new coDoSet(m_outPoint->getObjName(), (int)points.size(), (coDistributedObject **)&points[0]);
+    coDoSet *setTypes = new coDoSet(m_outType->getObjName(), (int)types.size(), (coDistributedObject **)&types[0]);
+    coDoSet *setMasses = new coDoSet(m_outMass->getObjName(), (int)masses.size(), (coDistributedObject **)&masses[0]);
+    coDoSet *setLogMasses = new coDoSet(m_outLogMass->getObjName(), (int)logmasses.size(), (coDistributedObject **)&logmasses[0]);
+    coDoSet *setVelocities = new coDoSet(m_outVelocity->getObjName(), (int)velocities.size(), (coDistributedObject **)&velocities[0]);
+    coDoSet *setForces = new coDoSet(m_outForce->getObjName(), (int)forces.size(), (coDistributedObject **)&forces[0]);
+    coDoSet *setForceDots = new coDoSet(m_outForceDot->getObjName(), (int)forcedots.size(), (coDistributedObject **)&forcedots[0]);
+    coDoSet *setDiskMasses = new coDoSet(m_outDiskMass->getObjName(), (int)diskmasses.size(), (coDistributedObject **)&diskmasses[0]);
+    coDoSet *setDiskMomentums = new coDoSet(m_outDiskMomentum->getObjName(), (int)diskmomentums.size(), (coDistributedObject **)&diskmomentums[0]);
+    coDoSet *setNames = new coDoSet(m_outNames->getObjName(), (int)simNames.size(), (coDistributedObject **)&simNames[0]);
+    coDoSet *setDummies = new coDoSet(m_outDummies->getObjName(), (int)dummies.size(), (coDistributedObject **)&dummies[0]);
     // Now the arrays can be cleared:
     points.clear();
     masses.clear();

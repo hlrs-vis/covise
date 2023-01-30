@@ -1115,7 +1115,6 @@ string PLMXMLRechenraum::addPower(string str)
     string tempstr2 = tempstring.substr(5);
 
     char *tempchar = new char[tempstring.length() + 1];
-std:
     strcpy(tempchar, tempstr2.c_str());
     int resint = sscanf(tempchar, "%i", &tempint);
     if (sscanf(tempchar, "%i", &tempint) == 1)

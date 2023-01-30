@@ -120,7 +120,7 @@ int zone::read()
 
     //is solution is  vertex based, load from rmin to rmax (=zonesize[3])
 
-    int solmin = 0, solmax = 0;
+    size_t solmin = 0, solmax = 0;
 
     switch (solloc)
     {
@@ -260,7 +260,7 @@ int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
 
     cgsize_t rmin = 1; //minimal CGNS index of coord array
     //int rmax=zonesize[0]; //maximal CGNS index of coord array
-    cgsize_t rmax = fx.size(); // vector size MUST be = zonesize(0)
+    cgsize_t rmax = (cgsize_t)fx.size(); // vector size MUST be = zonesize(0)
 
     //Datatypes must be the same now for every coord array; function reads 3 first arrays as X,Y,Z
 
@@ -349,21 +349,21 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
 
         tl.insert(tl.end(), end - start + 1, TYPE_HEXAEDER); //all elements are hexaeders
         for (int i = 0; i < end - start + 1; i++)
-            elem.push_back(connfirst + 8 * i); //all elements (hexaeders) are of size 8
+            elem.push_back((int)(connfirst + 8 * i)); //all elements (hexaeders) are of size 8
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
         cout << "zone::read_one_section(): Section " << isection << " has CG_HEXA_8 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
         break;
     case CGNS_ENUMV(TETRA_4): //=10
         tl.insert(tl.end(), end - start + 1, TYPE_TETRAHEDER);
         for (int i = 0; i < end - start + 1; ++i)
-            elem.push_back(connfirst + 4 * i); // indices begin from connfirst
+            elem.push_back((int)(connfirst + 4 * i)); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
         cout << "zone::read_one_section(): Section " << isection << " has CG_TETRA_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
         break;
     case CGNS_ENUMV(QUAD_4):
         tl.insert(tl.end(), end - start + 1, TYPE_QUAD);
         for (int i = 0; i < end - start + 1; ++i)
-            elem.push_back(connfirst + 4 * i); // indices begin from connfirst
+            elem.push_back((int)(connfirst + 4 * i)); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
         cout << "zone::read_one_section(): Section " << isection << " has CG_QUAD_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
         break;
@@ -388,28 +388,28 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
                 tl.push_back(TYPE_HEXAEDER); //pushing one more element_type into type list
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 8);
-                elem.push_back(connfirst + i + 1 - erases); //pushing 1st element member (cleaned conn) index into element list
+                elem.push_back((int)(connfirst + i + 1 - erases)); //pushing 1st element member (cleaned conn) index into element list
                 i += 9; // 8+1					// goto next element_type connectivity element
                 break;
             case CGNS_ENUMV(TETRA_4): //CG_TETRA_4 = 10
                 tl.push_back(TYPE_TETRAHEDER);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 4);
-                elem.push_back(connfirst + i + 1 - erases);
+                elem.push_back((int)(connfirst + i + 1 - erases));
                 i += 5; //4+1
                 break;
             case CGNS_ENUMV(PYRA_5): //CG_PYRA_5 = 12
                 tl.push_back(TYPE_PYRAMID);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 5);
-                elem.push_back(connfirst + i + 1 - erases);
+                elem.push_back((int)(connfirst + i + 1 - erases));
                 i += 6;
                 break;
             case CGNS_ENUMV(PENTA_6): //CG_PENTA_6=14
                 tl.push_back(TYPE_PRISM);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 6);
-                elem.push_back(connfirst + i + 1 - erases);
+                elem.push_back((int)(connfirst + i + 1 - erases));
                 i += 7;
                 break;
             //	2D primitives
@@ -417,14 +417,14 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
                 tl.push_back(TYPE_TRIANGLE);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 3);
-                elem.push_back(connfirst + i + 1 - erases);
+                elem.push_back((int)(connfirst + i + 1 - erases));
                 i += 4;
                 break;
             case CGNS_ENUMV(QUAD_4): //=7
                 tl.push_back(TYPE_QUAD);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 4);
-                elem.push_back(connfirst + i + 1 - erases);
+                elem.push_back((int)(connfirst + i + 1 - erases));
                 i += 5;
                 break;
 
@@ -794,7 +794,7 @@ coDoVec3 *zone::create_do_vec(const char *velobjname)
         return NULL;
     }
     coDoVec3 *velobj;
-    velobj = new coDoVec3(velobjname, fvx.size(), &fvx[0], &fvy[0], &fvz[0]);
+    velobj = new coDoVec3(velobjname, (int)fvx.size(), &fvx[0], &fvy[0], &fvz[0]);
     return velobj;
 }
 /*---------------------------------------------------------
@@ -808,7 +808,7 @@ coDoFloat *zone::create_do_scalar(const char *floatobjname, int n)
 {
     if ((n < 0) || (n > 3))
     {
-        cout << "\e[31;4m zone::create_do_scalar(): ERROR! scalar index is out of range! \e[0m" << endl;
+        cout << "zone::create_do_scalar(): ERROR! scalar index is out of range!" << endl;
         return NULL;
     }
     if (scalar[n].size() == 0)
@@ -819,7 +819,7 @@ coDoFloat *zone::create_do_scalar(const char *floatobjname, int n)
         return NULL;
     }
     coDoFloat *floatobj = NULL;
-    floatobj = new coDoFloat(floatobjname, scalar[n].size(), &scalar[n][0]);
+    floatobj = new coDoFloat(floatobjname, (int)scalar[n].size(), &scalar[n][0]);
 
     //cout<<"zone::create_do_scalar(): zone="<<izone<<" no="<<n+1<<"; size="<<scalar[n].size()<<"; floatobj="<<floatobj<<endl;
     return floatobj;

@@ -18,12 +18,12 @@
 #define COMMON_H_
 
 //"\e[31;4m"
-const char cout_red[] = "\e[31m"; // errors and important warnings
-const char cout_green[] = "\e[32m";
-const char cout_magenta[] = "\e[35m"; // warnings
-const char cout_cyan[] = "\e[36m";
-const char cout_underln[] = "\e[4m";
-const char cout_norm[] = "\e[0m";
+const char cout_red[] = "\x1b[31m"; // errors and important warnings
+const char cout_green[] = "\x1b[32m";
+const char cout_magenta[] = "\x1b[35m"; // warnings
+const char cout_cyan[] = "\x1b[36m";
+const char cout_underln[] = "\x1b[4m";
+const char cout_norm[] = "\x1b[0m";
 
 enum
 {

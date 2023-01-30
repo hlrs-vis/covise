@@ -493,7 +493,7 @@ struct rechgrid *CreateRechGrid(struct rech_model *model)
     k = 0;
 
     float l = 1.; // characteristic length
-    float vin_abs = sqrt(pow(model->bcin_velo[0], 2) + pow(model->bcin_velo[1], 2) + pow(model->bcin_velo[2], 2));
+    double vin_abs = sqrt(pow(model->bcin_velo[0], 2) + pow(model->bcin_velo[1], 2) + pow(model->bcin_velo[2], 2));
     float _k = 3.75f * 0.001f * float(pow(vin_abs, 2));
     float _eps = 9.40f * 0.0001f * float(pow(fabs(vin_abs / l), 3));
 

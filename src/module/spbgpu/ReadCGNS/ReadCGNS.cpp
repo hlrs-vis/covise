@@ -195,15 +195,15 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
         parm = param_vx->getValue();
         if (parm == -1)
             parm = 0;
-        param_vx->setValue(stparams.size(), stparams, parm);
+        param_vx->setValue((int)stparams.size(), stparams, parm);
         parm = param_vy->getValue();
         if (parm == -1)
             parm = 0;
-        param_vy->setValue(stparams.size(), stparams, parm);
+        param_vy->setValue((int)stparams.size(), stparams, parm);
         parm = param_vz->getValue();
         if (parm == -1)
             parm = 0;
-        param_vz->setValue(stparams.size(), stparams, parm);
+        param_vz->setValue((int)stparams.size(), stparams, parm);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -211,7 +211,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
 
             if (parm == -1)
                 parm = 0;
-            param_f[i]->setValue(stparams.size(), stparams, parm);
+            param_f[i]->setValue((int)stparams.size(), stparams, parm);
 
             //TODO: Not important. change port description when variable changes.
             //Maybe this has to be done at initialisation, it doesn't work here

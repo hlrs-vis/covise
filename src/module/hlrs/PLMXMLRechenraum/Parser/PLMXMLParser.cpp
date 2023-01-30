@@ -150,7 +150,7 @@ PLMXMLParser::parse(const char *fileName, osg::Group *group)
                                         char *name = NULL;
                                         char *id = NULL;
 
-                                        double matrix[4][4];
+                                        //double matrix[4][4];
 
                                         if (inst->hasAttribute(TAG_name))
                                             name = XMLString::transcode(

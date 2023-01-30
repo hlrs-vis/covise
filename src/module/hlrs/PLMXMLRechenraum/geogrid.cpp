@@ -2029,7 +2029,7 @@ int DefineBCs(struct rechgrid *grid, struct rech_model *model, int number)
 int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
 {
     // read BC file
-#ifdef NONCOMPLIENTPARSING
+#if NONCOMPLIENTPARSING
     FILE* stream;
     char buf[2000];
     double b[6];
@@ -2846,14 +2846,15 @@ int GenerateCeilingBCs(struct rechgrid *grid, struct rech_model *model)
     // here we want to generate the ceiling outlet BCs
     fprintf(stderr, "GenerateCeilingBCs!\n");
 
-    char *token;
     float x, y;
 #if NONCOMPLIENTPARSING
+    char* token;
     int kx, jy;
 #endif
+    int  jhi;
     int i, j, k;
 
-    int jlo, jhi; // y-position in structured grid
+    int jlo; // y-position in structured grid
     int klo, khi; // x-position
 
     vector<float> dx;

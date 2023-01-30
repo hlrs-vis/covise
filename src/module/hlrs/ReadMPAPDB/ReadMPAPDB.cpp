@@ -102,7 +102,6 @@ ReadMPAPDB::ReadMPAPDB(int argc, char *argv[])
 
             //fprintf(stderr, "%d: name=%s (%s)\n", iNrCurrent+1, cAtomName, ac.type);
             if (iNrCurrent + 1 != std::stoi(entry.first))
-                ;
             {
                 std::cout << "Your atommapping.xml is garbled" << std::endl;
             }

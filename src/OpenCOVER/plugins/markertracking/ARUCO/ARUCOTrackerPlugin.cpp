@@ -38,6 +38,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
 #include <util/unixcompat.h>
+#include <util/environment.h>
 
 #include <vector>
 #include <string>
@@ -237,6 +238,12 @@ bool ARUCOPlugin::init()
        
         int selectedDevice = atoi(VideoDevice.c_str());
 
+        bool exists = false;
+        if (coCoviseConfig::isOn("hw_transforms", "COVER.Plugin.ARUCO.VideoDevice", false, &exists))
+            putenv("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=1");
+        else
+            putenv("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=0"); // this disables slow camera initialization, only enable if necessary
+
 #if CV_VERSION_MAJOR > 3 || (CV_VERSION_MAJOR==3 && CV_VERSION_MINOR>1)
         for (int cap: {CAP_V4L2, CAP_ANY})
         {
@@ -251,7 +258,6 @@ bool ARUCOPlugin::init()
         {
             cout << "capture device: device " << selectedDevice << " is open" << endl;
 
-            bool exists = false;
             std::string fourcc = coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
             if (fourcc.length() == 4)
             {
@@ -259,7 +265,6 @@ bool ARUCOPlugin::init()
                 inputVideo.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3]));
                 std::cerr << "FOURCC: " << inputVideo.get(cv::CAP_PROP_FOURCC) << std::endl;
             }
-
             float fps = coCoviseConfig::getFloat("fps", "COVER.Plugin.ARUCO.VideoDevice", 0.f, &exists);
             if (fps > 0.f)
             {

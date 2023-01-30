@@ -207,12 +207,12 @@ void Colors::readMaps()
         coCoviseConfig::ScopeEntries keys = coCoviseConfig::getScopeEntries(name);
 
         // read names
-        int no = keys.size();
+        size_t no = keys.size();
 
         // read all sampling points
         float diff = 1.0f / (no - 1);
         float pos = 0.0f;
-        for (int j = 0; j < no; j++)
+        for (size_t j = 0; j < no; j++)
         {
             ostringstream out;
             out << j;

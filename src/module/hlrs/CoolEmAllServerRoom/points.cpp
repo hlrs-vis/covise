@@ -80,16 +80,16 @@ int AddPoint(struct Point *p, float x, float y, float z)
 void NormPointStruct(struct Point *p)
 {
     int i;
-    float mag;
+    double mag;
 
     for (i = 0; i < p->nump; i++)
     {
         mag = sqrt(pow(p->x[i], 2) + pow(p->y[i], 2) + pow(p->z[i], 2));
         if (mag > 0.0)
         {
-            p->x[i] /= mag;
-            p->y[i] /= mag;
-            p->z[i] /= mag;
+            p->x[i] /= (float)mag;
+            p->y[i] /= (float)mag;
+            p->z[i] /= (float)mag;
         }
     }
 }

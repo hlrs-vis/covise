@@ -335,9 +335,9 @@ void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float
                 	z = getAlt(x, y);
         	}
 
-		xOut[i] = x + Offset[0];
-		yOut[i] = y + Offset[1];
-		zOut[i] = z + Offset[2];
+		xOut[i] = (float)x + Offset[0];
+		yOut[i] = (float)y + Offset[1];
+		zOut[i] = (float)z + Offset[2];
 	}
 }
 
@@ -429,7 +429,7 @@ float MapDrape::getAlt(double x, double y)
 
     delete[] pafScanline;
 	pafScanline = new float[nXSize];
-	auto err = heightBand->RasterIO(GF_Read, x, y, 1, 1,
+	auto err = heightBand->RasterIO(GF_Read, (int)x, (int)y, 1, 1,
 		pafScanline, nXSize, 1, GDT_Float32,
 		0, 0);
 	float height = pafScanline[0];

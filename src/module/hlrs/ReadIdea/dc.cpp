@@ -340,9 +340,9 @@ bool checkAndRemove(point *origin, edge *e1, edge *e2, float min_angle)
     Vector(v, w, b[0], b[1]);
     Vector(w, u, c[0], c[1]);
 
-    float a_ = 1. / sqrt((sqr(a[0]) + sqr(a[1])));
-    float b_ = 1. / sqrt((sqr(b[0]) + sqr(b[1])));
-    float c_ = 1. / sqrt((sqr(c[0]) + sqr(c[1])));
+    float a_ = (float)(1. / sqrt((sqr(a[0]) + sqr(a[1]))));
+    float b_ = (float)(1. / sqrt((sqr(b[0]) + sqr(b[1]))));
+    float c_ = (float)(1. / sqrt((sqr(c[0]) + sqr(c[1]))));
 
     // a²=b²+c² - 2 bc cos alpha
     // b²=c²+a² - 2 ac cos beta

@@ -421,17 +421,18 @@ void updateState(State *state, int *typeList, int *elemList, int *connList,
                  float *x, float *y, float *z, int numElem, int numConn,
                  int numCoord, float *data)
 {
+    float* gdata;
+   gdata = state->data->getData();
+
+   /*
    int *tl, *el, *cl;
-   float *gv, *gdata;
+   float* gv;
    
    tl = state->usg->getTypeList();
    el = state->usg->getElemList();
    cl = state->usg->getConnList();
    
    gv = state->usg->getVertices();
-   gdata = state->data->getData();
-
-   /*
    CUDA_SAFE_CALL(cudaMemcpy(tl, typeList, numElem * sizeof(int),
                              cudaMemcpyHostToDevice));
 

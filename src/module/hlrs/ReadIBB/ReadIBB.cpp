@@ -310,7 +310,7 @@ int ReadIBB::compute(const char *)
                                 sprintf(buf, "%s_%d", Displacement, step + 1);
                             else
                                 sprintf(buf, "%s_%d", Velocity, step + 1);
-                            reso = new coDoVec3(buf, result.size());
+                            reso = new coDoVec3(buf, (int)result.size());
                             if (!reso->objectOk())
                             {
                                 Covise::sendError("ERROR: creation of data object 'velocity' failed");
@@ -370,7 +370,7 @@ int ReadIBB::compute(const char *)
                         if (strncmp(buf, "END VALUES", 10) == 0)
                         {
                             sprintf(buf, "%s_%d", Pressure, step + 1);
-                            press = new coDoFloat(buf, pressResult.size());
+                            press = new coDoFloat(buf, (int)pressResult.size());
                             if (!press->objectOk())
                             {
                                 Covise::sendError("ERROR: creation of data object 'velocity' failed");
@@ -404,9 +404,9 @@ int ReadIBB::compute(const char *)
         fclose(dataFP);
 
     coDoUnstructuredGrid *unsGrd = new coDoUnstructuredGrid(port_grid->getObjName(),
-                                                            elements.size() - minElem + 1, // number of elements
+                                                            (int)(elements.size() - minElem + 1), // number of elements
                                                             numConn, // number of connectivities
-                                                            coords.size() - minCoord + 1, // number of coordinates
+                                                            (int)(coords.size() - minCoord + 1), // number of coordinates
                                                             1); // does type list exist?
 
     int *elem, *conn, *type;

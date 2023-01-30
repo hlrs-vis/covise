@@ -187,7 +187,7 @@ int ReadIdea::compute(const char *)
             getline(mainfile, t, '\n'); // Spec-Line
 
             int count = 0;
-            int pos = 0;
+            size_t pos = 0;
             while (pos != string::npos)
             {
                 pos = t.find(".dat", pos);
@@ -273,7 +273,7 @@ int ReadIdea::compute(const char *)
     }
     else
     {
-        zmax = 0.5 * ((ymax - ymin) + (xmax - xmin));
+        zmax = float(0.5 * ((ymax - ymin) + (xmax - xmin)));
     }
 
     // get number of frequency-values in spec-File
@@ -381,7 +381,7 @@ int ReadIdea::compute(const char *)
 
     for (int i = 0; i < nCoord2D; i++)
     {
-        factor = 1. / nMeasurements[i];
+        factor = float(1. / nMeasurements[i]);
 
         for (int j = 0; j < nMeasurements[i]; j++)
         {
@@ -423,7 +423,7 @@ int ReadIdea::compute(const char *)
     {
         for (int i = 0; i < nCoord2D; i++)
         {
-            factor = 1. / maxval[i];
+            factor = float(1. / maxval[i]);
             // in the same step just take frequencies from kstart to kend
             for (int j = kstart; j < kend; j++)
             {
@@ -464,7 +464,7 @@ for (int i=0;i<nCoord2D*nFreqs;i++)
 
         for (int i = 0; i < nFreqs + 1; i++)
         {
-            zlevel[i] = 1. / (f0 + (i + 1) * freqstep) * zmax * (f0 + freqstep) * p_zScale->getValue();
+            zlevel[i] = (float)(1. / (f0 + (i + 1) * freqstep) * zmax * (f0 + freqstep) * p_zScale->getValue());
         }
         for (int i = 0; i < nFreqs + 1; i++)
         {
@@ -613,9 +613,9 @@ int *ReadIdea::get_triangles(int n, int *n_tria)
                             *n_tria = n_triangles;
                             return triangles;
                         }
-                        triangles[3 * n_triangles + 0] = u - p_array;
-                        triangles[3 * n_triangles + 1] = v - p_array;
-                        triangles[3 * n_triangles + 2] = w - p_array;
+                        triangles[3 * n_triangles + 0] = int(u - p_array);
+                        triangles[3 * n_triangles + 1] = int(v - p_array);
+                        triangles[3 * n_triangles + 2] = int(w - p_array);
                         //cerr << "triangle " << n_triangles << ": " << u - p_array << ", " << v - p_array << ", " << w - p_array << endl;
                         n_triangles++;
                     }
@@ -636,7 +636,7 @@ void ReadIdea::removeOuterEdges(int n)
     edge *e_start, *e, *e2;
     point *u, *v, *w;
     int i;
-    float min_angle = cos(p_minAngle->getValue() / 180.0 * M_PI);
+    float min_angle = (float)(cos(p_minAngle->getValue() / 180.0 * M_PI));
     bool removed;
     do
     {

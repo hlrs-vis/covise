@@ -66,7 +66,7 @@ bool SetObject::process(const int &fd)
     const char *varName = set->getAttribute("SPECIES");
     if (varName)
     {
-        COVISE_write(fd, varName, (strlen(varName) + 1) * sizeof(char));
+        COVISE_write(fd, varName, ((int)strlen(varName) + 1) * sizeof(char));
     }
 
     // add part name if some exist
@@ -76,7 +76,7 @@ bool SetObject::process(const int &fd)
         partName = setList[i]->getAttribute("PART");
         if (partName)
         {
-            COVISE_write(fd, partName, (strlen(partName) + 1) * sizeof(char));
+            COVISE_write(fd, partName, ((int)strlen(partName) + 1) * sizeof(char));
         }
     }
 

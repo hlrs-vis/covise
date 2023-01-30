@@ -13,7 +13,7 @@
 static ssize_t COVISE_write(int fd, const void *buf, size_t count)
 {
 #if defined(WIN32) || defined(WIN64)
-    ssize_t ret = _write(fd, buf, count);
+    ssize_t ret = _write(fd, buf, (unsigned int)count);
 #else //WIN32 || WIN64
     ssize_t ret = write(fd, buf, count);
 #endif //WIN32 || WIN64

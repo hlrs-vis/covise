@@ -120,7 +120,7 @@ bool VNCWindowBuffer::synchronize()
 
 bool VNCWindowBuffer::sendUpdateRectangles()
 {
-    int count = updateQueue.size();
+    int count = (int)updateQueue.size();
     bool tmp = count > 0;
 
     coVRMSController::instance()->sendSlaves((char *)&count, sizeof(count));

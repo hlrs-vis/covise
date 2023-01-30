@@ -757,7 +757,7 @@ fprintf(stderr,"min = %8.4lf, max = %8.4lf\n", min, max);
     int *mapLocalToGlobal = new int[nNodes_total[0]];
     int mergedNodes = 0;
     mergeNodes(xCoords, yCoords, zCoords,
-               nNodes_total[0], 0.01 * smallestEdge,
+               nNodes_total[0], (float)(0.01 * smallestEdge),
                mapLocalToGlobal, mergedNodes);
     fprintf(stderr, "\nmerged %d nodes at block margins.\n", mergedNodes);
 

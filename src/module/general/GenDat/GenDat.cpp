@@ -476,9 +476,9 @@ int GenDat::compute(const char *)
                     for (int y = 0; y < ySize; y++)
                         for (int z = 0; z < zSize; z++)
                         {
-                            Koordx[x * ySize * zSize + y * zSize + z] = pow((float)x, 2);
-                            Koordy[x * ySize * zSize + y * zSize + z] = pow((float)y, 2);
-                            Koordz[x * ySize * zSize + y * zSize + z] = pow((float)z, 2);
+                            Koordx[x * ySize * zSize + y * zSize + z] = (float)pow((float)x, 2);
+                            Koordy[x * ySize * zSize + y * zSize + z] = (float)pow((float)y, 2);
+                            Koordz[x * ySize * zSize + y * zSize + z] = (float)pow((float)z, 2);
                         }
             }
         }

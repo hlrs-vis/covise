@@ -645,14 +645,14 @@ bool ReadNek::ReadMesh(int timestep, int block, float* x, float* y, float* z) {
             if (bSwapEndian)
                 ByteSwapArray(tmppts, iTotalBlockSize * iDim);
             for (size_t i = 0; i < iTotalBlockSize; i++) {
-                x[i] = static_cast<int>(tmppts[i]);
+                x[i] = static_cast<float>(tmppts[i]);
             }
             for (size_t i = 0; i < iTotalBlockSize; i++) {
-                y[i] = static_cast<int>(tmppts[i + iTotalBlockSize]);
+                y[i] = static_cast<float>(tmppts[i + iTotalBlockSize]);
             }
             if (iDim == 3) {
                 for (size_t i = 0; i < iTotalBlockSize; i++) {
-                    z[i] = static_cast<int>(tmppts[i + 2 * iTotalBlockSize]);
+                    z[i] = static_cast<float>(tmppts[i + 2 * iTotalBlockSize]);
                 }
             }
             delete[] tmppts;
@@ -759,10 +759,10 @@ bool ReadNek::ReadVelocity(int timestep, int block, float * x, float* y, float* 
                 ByteSwapArray(tmppts, iTotalBlockSize * iDim);
 
             for (ii = 0; ii < iTotalBlockSize; ii++) {
-                x[ii] = (double)tmppts[ii];
-                y[ii] = (double)tmppts[ii + iTotalBlockSize];
+                x[ii] = (float)tmppts[ii];
+                y[ii] = (float)tmppts[ii + iTotalBlockSize];
                 if (iDim == 3) {
-                    z[ii] = (double)tmppts[ii + iTotalBlockSize + iTotalBlockSize];
+                    z[ii] = (float)tmppts[ii + iTotalBlockSize + iTotalBlockSize];
                 } else {
                     z[ii] = 0.0;
                 }
@@ -1088,7 +1088,7 @@ std::string ReadNek::GetFileName(int rawTimestep, int pardir) {
     } else if (bParFormat && (nPrintfTokens < 2 || nPrintfTokens > 3)) {
         sendError("Nek: The filetemplate tag must receive either 2 or 3 printf tokens for parallel Nek files.");
     }
-    int bufSize = fileTemplate.size();
+    size_t bufSize = fileTemplate.size();
     int len;
     char* outFileName = nullptr;
     do

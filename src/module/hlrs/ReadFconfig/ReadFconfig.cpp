@@ -91,16 +91,14 @@ void ReadFconfig::createMesh()
     yDim = dimY->getValue();
     zDim = dimZ->getValue();
 
-    coDoUniformGrid *grid = new coDoUniformGrid(mesh->getObjName(), xDim, yDim, zDim, 0, xDim - 1, 0, yDim - 1, 0, zDim - 1);
+    coDoUniformGrid *grid = new coDoUniformGrid(mesh->getObjName(), xDim, yDim, zDim, 0, xDim - 1, 0, (float)(yDim - 1), 0, (float)(zDim - 1));
 
     mesh->setCurrentObject(grid);
 }
 
 void ReadFconfig::param(const char *paramname, bool inMapLoading)
 {
-    int connMeth;
     (void)inMapLoading;
-
 }
 
 MODULE_MAIN(IO, ReadFconfig)

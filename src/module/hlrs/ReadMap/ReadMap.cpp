@@ -118,7 +118,7 @@ int ReadMap::compute(const char *)
         int dummy, dummy2;
         fread(&dummy, 4, 1, fp);
 
-        int ret = fread(zCoord, sizeof(int), nc, fp);
+        size_t ret = fread(zCoord, sizeof(int), nc, fp);
         if (ret != nc)
             fprintf(stderr, "ReadMap: fread1 failed\n");
         if (dummy != nc * 4)
@@ -137,7 +137,7 @@ int ReadMap::compute(const char *)
         int dummy, dummy2;
         fread(&dummy, 4, 1, fp);
 
-        int ret = fread(velos, sizeof(int), nc, fp);
+        size_t ret = fread(velos, sizeof(int), nc, fp);
         if (ret != nc)
             fprintf(stderr, "ReadMap: fread2 failed\n");
         if (dummy != nc * 4)
@@ -152,7 +152,7 @@ int ReadMap::compute(const char *)
         int dummy, dummy2;
         fread(&dummy, 4, 1, fp);
 
-        int ret = fread(dirs, sizeof(int), nc, fp);
+        size_t ret = fread(dirs, sizeof(int), nc, fp);
         if (ret != nc)
             fprintf(stderr, "ReadMap: fread3 failed\n");
         if (dummy != nc * 4)

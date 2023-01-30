@@ -390,7 +390,7 @@ int ComputeTrace::compute(const char *)
 float
 ComputeTrace::fade(float /*dummy*/, int exp)
 {
-    return pow(0.98f, exp);
+    return (float)pow(0.98f, exp);
 }
 
 float

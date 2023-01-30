@@ -72,7 +72,7 @@ void Application::compute(void *)
 
     // read input parameters and data object name
     FILE *fp, *data_fp = NULL;
-    int i;
+    size_t i;
     char buf[600];
     int dummy1, dummy2, t, currt, endt;
     long numt;
