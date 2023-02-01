@@ -130,7 +130,7 @@ private:
     float AnimSliderMin, AnimSliderMax;
     float timeState;
 
-    int aniDirection; // added for ping pong mode
+    mutable int m_aniDirection = 1; // added for ping pong mode
     int aniSkip = 1; // step width for automatic animation
 
     int numFrames;
@@ -167,6 +167,7 @@ private:
     double timestepScale, timestepBase;
     std::string timestepUnit;
     bool m_animationPaused = false;
+
 };
 }
 #endif

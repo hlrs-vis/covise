@@ -40,7 +40,6 @@ coVRAnimationManager::coVRAnimationManager()
     , AnimSliderMin(-25.)
     , AnimSliderMax(25.)
     , timeState(AnimSliderMax) // slider value of animation slider
-    , aniDirection(1)
     , numFrames(0)
     , startFrame(0)
     , stopFrame(0)
@@ -348,27 +347,24 @@ int coVRAnimationManager::getNextFrame(int current) const
     if (!animRunning)
         return current;
 
-    int aniDirection = 0;
-    if (!animPingPongItem->state()) // normal loop mode
-    {
-        aniDirection = 1;
-    }
-    else // oscillate mode
+    if (animPingPongItem->state()) // normal loop mode
     {
         if (current >= stopFrame) // check for end of sequence
-            aniDirection = -1;
+            m_aniDirection = -1;
         if (current <= startFrame) // check for start of sequence
-            aniDirection = 1;
+            m_aniDirection = 1;
     }
+    else
+        m_aniDirection = 1;
 
     int next = current;
     if (animSpeedItem->value() > 0.0)
     {
-        next = current + aniDirection * aniSkip;
+        next = current + m_aniDirection * aniSkip;
     }
     else if (animSpeedItem->value() < 0.0)
     {
-        next = current - aniDirection * aniSkip;
+        next = current - m_aniDirection * aniSkip;
     }
 
     if (numFrames == 0)
@@ -429,7 +425,7 @@ size_t coVRAnimationManager::getAnimationSkip()
 float
 coVRAnimationManager::getCurrentSpeed() const {
 
-    return animSpeedItem->value() * aniDirection;
+    return animSpeedItem->value() * m_aniDirection;
 }
 
 void
