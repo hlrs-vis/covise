@@ -28,6 +28,34 @@
           "cwd": "${workspaceFolder}/.vscode"
         },
         "problemMatcher": []
+      },
+      {
+        "label": "change archsuffix",
+        "type": "process",
+        "command": "${workspaceFolder}/.vscode/configureCovise/configureCovise.sh",
+        "windows": {
+          "command": "${workspaceFolder}/.vscode/configureCovise/configureCovise.bat",
+          "args": [
+            "${workspaceFolder}",
+            "${input:archsuffix win}",
+            "${config:covise.dependencyPath}",
+            "${config:covise.qtVersion}",
+            "${config:cmake.generator}",
+            "overwrite"
+          ]
+        },
+        "args": [
+          "${workspaceFolder}",
+          "${input:archsuffix}",
+          "${input:dependency path}",
+          "${input:qt version}",
+          "${input:CMake generator}",
+          "${input:overwrite}"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}/.vscode"
+        },
+        "problemMatcher": []
       }
     ],
     "inputs": [

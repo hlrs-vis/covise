@@ -7,7 +7,7 @@
             "envFile": "${workspaceFolder}/.vscode/configureCovise/covise.env",
             "environment": [],
             "name": "launch COVISE",
-            "program": "${workspaceFolder}/zebuopt/bin/covise",
+            "program": "${workspaceFolder}/${config:covise.archsuffix}/bin/covise",
             "request": "launch",
             "stopAtEntry": false,
             "type": "cppvsdbg"
@@ -19,7 +19,7 @@
             "envFile": "${workspaceFolder}/.vscode/configureCovise/covise.env",
             "environment": [],
             "name": "launch OpenCOVER",
-            "program": "${workspaceFolder}/zebuopt/bin/renderer/opencover",
+            "program": "${workspaceFolder}/${config:covise.archsuffix}/bin/renderer/opencover",
             "request": "launch",
             "stopAtEntry": false,
             "type": "cppvsdbg"

@@ -33,6 +33,7 @@ int main(int argc, char**argv)
         {"covise.qtVersion", qtVersion},
         {"cmake.generator", generator},
         {"covise.archsuffix", archsuffix},
+        {"cmake.buildDirectory", "${workspaceFolder}/build/" + archsuffix},
 #ifdef _WIN32
         {"cmake.cmakePath", "${workspaceFolder}/.vscode/configureCovise/CMakeWrapper.bat"},
 #else
