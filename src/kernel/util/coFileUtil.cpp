@@ -232,8 +232,9 @@ char *coDirectory::full_name(int i)
     if (i < 0 || i >= d.count_)
         return NULL; // raise exception -- out of range
 
-    char *tmp = new char[strlen(d.name_) + strlen(d.entries_[i].name_) + 2];
-    sprintf(tmp, "%s%s", d.name_, d.entries_[i].name_);
+    size_t buflen = strlen(d.name_) + strlen(d.entries_[i].name_) + 2;
+    char *tmp = new char[buflen];
+    snprintf(tmp, buflen, "%s%s", d.name_, d.entries_[i].name_);
     return (tmp);
 }
 
@@ -312,8 +313,9 @@ time_t coDirectory::getDate(int i) const
     coDirectoryEntry &e = d.entries_[i];
     if (e.info_ == NULL)
     {
-        char *tmp = new char[strlen(d.name_) + strlen(e.name_) + 2];
-        sprintf(tmp, "%s/%s", d.name_, e.name_);
+        size_t buflen = strlen(d.name_) + strlen(e.name_) + 2;
+        char *tmp = new char[buflen];
+        snprintf(tmp, buflen, "%s/%s", d.name_, e.name_);
 #ifdef _WIN32
         e.info_ = new (struct _stat);
         int ret = _stat(tmp, e.info_);
@@ -352,8 +354,9 @@ int coDirectory::getSize(int i) const
     coDirectoryEntry &e = d.entries_[i];
     if (e.info_ == NULL)
     {
-        char *tmp = new char[strlen(d.name_) + strlen(e.name_) + 2];
-        sprintf(tmp, "%s/%s", d.name_, e.name_);
+        size_t buflen = strlen(d.name_) + strlen(e.name_) + 2;
+        char *tmp = new char[buflen];
+        snprintf(tmp, buflen, "%s/%s", d.name_, e.name_);
 #ifdef _WIN32
         e.info_ = new (struct _stat);
         int ret = _stat(tmp, e.info_);
@@ -385,8 +388,9 @@ int coDirectory::is_directory(int i) const
     coDirectoryEntry &e = d.entries_[i];
     if (!e.info_)
     {
-        char *tmp = new char[strlen(d.name_) + strlen(e.name_) + 2];
-        sprintf(tmp, "%s/%s", d.name_, e.name_);
+        size_t buflen = strlen(d.name_) + strlen(e.name_) + 2;
+        char *tmp = new char[buflen];
+        snprintf(tmp, buflen, "%s/%s", d.name_, e.name_);
 #ifdef _WIN32
         int ret = 0;
         DWORD attr = GetFileAttributes(tmp);
@@ -504,7 +508,7 @@ const char *coDirectoryImpl::check_path(const char *pathname, const char *path)
         }
 #endif
 
-        sprintf(newpath, "%s/%s", dirname, pathname);
+        snprintf(newpath, sizeof(newpath), "%s/%s", dirname, pathname);
 #ifdef _WIN32
         struct _stat statbuf;
         if (!_stat(newpath, &statbuf))

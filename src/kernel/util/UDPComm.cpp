@@ -319,7 +319,7 @@ int UDPComm::send(const void *buffer, int numBytes)
                     (struct sockaddr *)(void *)&d_address, toLen);
     if (nbytes < 0)
     {
-        sprintf(d_error, "Error sending UDP package: %s", strerror(errno));
+        snprintf(d_error, sizeof(d_error), "Error sending UDP package: %s", strerror(errno));
     }
     return nbytes;
 }

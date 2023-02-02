@@ -10,6 +10,7 @@
 #include "coFileUtil.h"
 #include "unixcompat.h"
 #include <stdio.h>
+#include <sstream>
 
 #ifdef _WIN32
 #include <process.h>
@@ -213,9 +214,11 @@ void coMaterialList::add(const char *dirname)
             if (!(mdir->is_directory(n)))
             {
                 char *tmp2 = mdir->full_name(n);
-                char buf[300];
-                sprintf(buf, "%s %s", dirname, mdir->name(n));
-                push_back(new coMaterial(buf, tmp2));
+                size_t buflen = strlen(dirname) + strlen(mdir->name(n)) + 10;
+                std::stringstream str;
+                str << dirname << " " << mdir->name(n);
+                std::string buf = str.str();
+                push_back(new coMaterial(buf.c_str(), tmp2));
                 delete[] tmp2;
             }
         }
