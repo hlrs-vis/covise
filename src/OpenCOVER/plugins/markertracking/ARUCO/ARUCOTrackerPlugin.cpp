@@ -239,10 +239,11 @@ bool ARUCOPlugin::init()
         int selectedDevice = atoi(VideoDevice.c_str());
 
         bool exists = false;
+        // FIXME: this leaks memory if plugin is reloaded
         if (coCoviseConfig::isOn("hw_transforms", "COVER.Plugin.ARUCO.VideoDevice", false, &exists))
-            putenv("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=1");
+            putenv(strdup("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=1"));
         else
-            putenv("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=0"); // this disables slow camera initialization, only enable if necessary
+            putenv(strdup("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=0")); // this disables slow camera initialization, only enable if necessary
 
 #if CV_VERSION_MAJOR > 3 || (CV_VERSION_MAJOR==3 && CV_VERSION_MINOR>1)
         for (int cap: {CAP_V4L2, CAP_ANY})
