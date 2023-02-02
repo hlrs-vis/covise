@@ -77,7 +77,7 @@ public:
 
     int getAnimationFrame() const
     {
-        return currentAnimationFrame;
+        return m_currentAnimationFrame;
     }
 
     int getNextFrame(int current = -1) const;
@@ -126,17 +126,17 @@ private:
     void setAnimationFrame(int currentFrame);
 
     void updateSequence(Sequence &seq, int currentFrame);
-    std::vector<Sequence> listOfSeq;
-    float AnimSliderMin, AnimSliderMax;
-    float timeState;
+    std::vector<Sequence> m_listOfSeq;
+    float m_animSliderMin, m_animSliderMax;
+    float m_timeState;
 
     mutable int m_aniDirection = 1; // added for ping pong mode
-    int aniSkip = 1; // step width for automatic animation
+    int m_aniSkip = 1; // step width for automatic animation
 
-    int numFrames;
-    int startFrame, stopFrame;
-    float frameAngle;
-    int oldFrame;
+    int m_numFrames;
+    int m_startFrame, m_stopFrame;
+    float m_frameAngle;
+    int m_oldFrame;
 
     void initAnimMenu();
 
@@ -156,16 +156,16 @@ private:
     ui::Menu *animRowMenu;
     ui::Slider *animSkipItem = nullptr;
 
-    bool animRunning;
-    double lastAnimationUpdate;
-    int currentAnimationFrame, requestedAnimationFrame;
+    bool m_animRunning;
+    double m_lastAnimationUpdate;
+    int m_currentAnimationFrame, m_requestedAnimationFrame;
     bool updateAnimationFrame();
 
     typedef std::map<const void *, int> TimestepMap;
-    TimestepMap timestepMap;
+    TimestepMap m_timestepMap;
 
-    double timestepScale, timestepBase;
-    std::string timestepUnit;
+    double m_timestepScale, m_timestepBase;
+    std::string m_timestepUnit;
     bool m_animationPaused = false;
 
 };
