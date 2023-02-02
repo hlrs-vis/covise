@@ -80,7 +80,7 @@ public:
         return m_currentAnimationFrame;
     }
 
-    int getNextFrame(int current = -1) const;
+    int getNextFrame(int current = -1);
 
     bool requestAnimationFrame(int currentFrame);
     void requestAnimationTime(double t);
@@ -130,7 +130,7 @@ private:
     float m_animSliderMin, m_animSliderMax;
     float m_timeState;
 
-    mutable int m_aniDirection = 1; // added for ping pong mode
+    int m_aniDirection = 1; // added for ping pong mode
     int m_aniSkip = 1; // step width for automatic animation
 
     int m_numFrames;

@@ -339,7 +339,7 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
     }
 }
 
-int coVRAnimationManager::getNextFrame(int current) const
+int coVRAnimationManager::getNextFrame(int current)
 {
     if (current == -1)
         current = m_currentAnimationFrame;
