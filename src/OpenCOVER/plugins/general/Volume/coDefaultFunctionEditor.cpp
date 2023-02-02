@@ -555,7 +555,7 @@ void coDefaultFunctionEditor::buttonEvent(coButton *button)
     {
         vvFileIO *fio = new vvFileIO();
         vvVolDesc *vd = new vvVolDesc();
-        if (fio->importTF(vd, _transfuncFilenames.front()) == vvFileIO::OK)
+        if (!_transfuncFilenames.empty() && fio->importTF(vd, _transfuncFilenames.front()) == vvFileIO::OK)
         {
             cerr << "Loaded transfer-function file: " << _transfuncFilenames.front() << endl;
             putUndoBuffer();
