@@ -23,6 +23,7 @@
 
 #include <util/coExport.h>
 #include <cstdlib>
+#include <osg/Matrix>
 
 namespace opencover
 {
@@ -180,6 +181,8 @@ public:
     virtual const float *getFloat(Field::Id idx) const = 0;
 
     virtual bool isUnstructuredGrid() const = 0;
+
+    osg::Matrix transform;
 };
 }
 #endif

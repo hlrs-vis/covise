@@ -1437,6 +1437,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
 
     float minX, maxX, minY, maxY, minZ, maxZ;
     geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
+    osg::Matrix tfMat = geometry->transform;
 
     bool showEditor = showTFE;
     if (colorObj)
@@ -1687,10 +1688,14 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
         
         if (container->getName()){
             updateVolume(container->getName(), volDesc, true, "", container, group);
+            updateTransform(container->getName(), tfMat);
         }else if (geometry && geometry->getName()) {
             updateVolume(geometry->getName(), volDesc, true, "", container, group);
+            updateTransform(geometry->getName(), tfMat);
         }else {
-            updateVolume("Anonymous COVISE object", volDesc, true, "", container, group);
+            const char *name = "Anonymous COVISE object";
+            updateVolume(name, volDesc, true, "", container, group);
+            updateTransform(name, tfMat);
         }
 
         if (shader >= 0 && currentVolume != volumes.end())
@@ -1875,7 +1880,22 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container, osg::Group *group)
+bool VolumePlugin::updateTransform(const std::string &name, const osg::Matrix &tfMat)
+{
+    VolumeMap::iterator volume = volumes.find(name);
+    if (volume == volumes.end())
+        return false;
+
+    auto mirror = osg::Matrix::identity();
+    mirror(0, 0) = -1;
+    auto &t = volume->second.transform;
+    t->setMatrix(osg::Matrix::rotate(M_PI * 0.5, osg::Vec3(0, 1, 0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1, 0, 0)) *
+                 mirror * tfMat);
+    return true;
+}
+
+bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename,
+                                const RenderObject *container, osg::Group *group)
 {
     if (!vd)
     {

@@ -132,6 +132,7 @@ public:
     void postFrame() override;
     void setTimestep(int) override;
     bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr, osg::Group *group=nullptr);
+    bool updateTransform(const std::string &name, const osg::Matrix &tfMat);
     void saveVolume();
     void cropVolume();
 	void syncTransferFunction();
