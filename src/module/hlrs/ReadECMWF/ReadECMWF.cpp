@@ -516,7 +516,7 @@ int ReadECMWF::compute(const char *)
                          {
 
                             nTime = (int)dim.getSize();
-                            sendInfo("Max. available time steps is %d", nTime);
+                            sendInfo("Max. available time steps is %zu", nTime);
                         }
 
                     }else {
