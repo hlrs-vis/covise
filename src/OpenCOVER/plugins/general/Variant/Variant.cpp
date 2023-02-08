@@ -84,6 +84,8 @@ void Variant::removeFromScenegraph(osg::Node *node)
         (*parent)->removeChild(VarNode);
         cout << "ParentName: " << (*parent)->getName() << endl;
     }
+    if (cn)
+        cn->getParent(0)->removeChild(cn);
 }
 //------------------------------------------------------------------------------
 

@@ -482,6 +482,7 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
             {
                 varlist.erase(it);
             }
+            var->removeFromScenegraph(node);
             delete var;
         }
     }
