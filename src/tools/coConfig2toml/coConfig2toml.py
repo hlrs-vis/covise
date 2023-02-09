@@ -42,7 +42,7 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
     Args:
         coconfig_dict (dict): dictionary which contains coconfig entries.
         parent (str, optional): Current parent dictionary of given coconfig_dict (for nested dictionaries). Defaults to "".
-        skip (list, optional): Skips entries given in this list.
+        skip (list, optional): Skips entries given in this list. Defaults to [].
 
     Returns:
         dict: TOML file as dict.
@@ -55,8 +55,14 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
             att_name = key.split("@")[1] if parent == "" else parent
             tml_dict[att_name] = _get_tml_repr(value)
         elif isinstance(value, dict):
-            if len(value) <= 1:
-                tml_dict.update(create_toml_dict(value, key))
+            num_elem = len(value)
+            if num_elem == 0:
+                continue
+            elif num_elem == 1:
+                if all("@" in k for k, _ in value.items()):
+                    tml_dict.update(create_toml_dict(value, key))
+                else:
+                    tml_dict[key] = create_toml_dict(value, key)
             else:
                 tml_dict[key] = create_toml_dict(value)
         elif isinstance(value, list):
@@ -68,7 +74,7 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
 
             for entry in value:
                 if isinstance(entry, dict):
-                    # HACK: for now workaround for modules but needs more generic 
+                    # HACK: for now workaround for modules but needs more generic
                     # approach to work with complex configs like config-midi.xml
                     if all((key in entry.keys() for key in "@name @value".split())):
                         list_repr[entry["@name"]] = entry["@value"]
@@ -85,8 +91,9 @@ def create_toml(coconfig_dict: dict, tml_path: str, skip: list = []) -> None:
         skip (list): skipping given entries in this list.
     """
     with open(tml_path, "wb") as tml:
-        tomli_w.dump(create_toml_dict(
-            coconfig_dict, skip=skip), tml)
+        dump_dict = create_toml_dict(
+            coconfig_dict, skip=skip)
+        tomli_w.dump(dump_dict, tml)
 
 
 def create_plugin_toml(coconfig_dict: dict, plug_path: str) -> None:
@@ -157,20 +164,24 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
     # dicitionary holding entries for root plugin.toml
     plugin_root_entries = dict(
         zip("value menu shared".split(), [load, menu, shared]))
-    for plugin_name, plugin_dict in plugins_dict.items():
-        if plugin_name in DEPRECATED_PLUGINS:
-            continue
-        if isinstance(plugin_dict, list):
-            # TODO: add list handling => for now ignore
-            continue
-        for att_name, att_val in plugin_dict.items():
-            for name, li in plugin_root_entries.items():
-                at_key = "@" + name
-                if at_key in att_name and _get_tml_repr(att_val):
-                    li.append(plugin_name)
-                elif isinstance(att_val, dict):
-                    create_plugin_toml(
-                        plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
+    if isinstance(plugins_dict, list):
+        for entry in plugins_dict:
+            plugin_root_entries.update(iterate_plugins(entry, plugin_rootpath))
+    else:
+        for plugin_name, plugin_dict in plugins_dict.items():
+            if plugin_name in DEPRECATED_PLUGINS:
+                continue
+            if isinstance(plugin_dict, list):
+                # TODO: add list handling => for now ignore
+                continue
+            for att_name, att_val in plugin_dict.items():
+                for name, li in plugin_root_entries.items():
+                    at_key = "@" + name
+                    if at_key in att_name and _get_tml_repr(att_val):
+                        li.append(plugin_name)
+                    elif isinstance(att_val, dict):
+                        create_plugin_toml(
+                                plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
 
     # toplevel value is now load in new config structure
     plugin_root_entries["load"] = plugin_root_entries.pop("value")
@@ -208,7 +219,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
                 plugin_config_path = opencover_path + "/plugins.toml"
                 create_toplevel_toml(plugin_config_path, plugin_root_entries)
 
-            #general
+            # general
             create_toml(cover_dict, opencover_path + "/cover.toml")
 
         # modules
@@ -239,7 +250,6 @@ def parse_coconfig_to_toml(path: str, output_path: str) -> None:
         output_path (str): Output directory.
     """
     rel_output_path = os.path.realpath(output_dir)
-    keypath_start = "COCONFIG"
     with open(path, "rb") as f:
         xml_dict = xd.parse(f)
 
