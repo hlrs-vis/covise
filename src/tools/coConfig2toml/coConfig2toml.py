@@ -17,7 +17,6 @@ DEPRECATED_PLUGINS = "AKToolbar".split()
 OVERRIDE = False
 ADD = False
 
-
 def _get_tml_repr(string: str):
     """Helperfunction to check if given string is an integer, decimal or bool and return corresponding python object.
 
@@ -27,10 +26,12 @@ def _get_tml_repr(string: str):
     Returns:
         _type_: Python object as correct type.
     """
-    if string.isdigit():
-        return int(string)
-    elif string.isdecimal():
+    if string.replace(".", "", 1).isdigit():
         return float(string)
+    elif string.isdigit():
+        return int(string)
+    # elif string.isdecimal():
+    #     return float(string)
     elif string.lower() in "true false on off".split():
         return any(string.lower() == valid for valid in "true on".split())
     return string
