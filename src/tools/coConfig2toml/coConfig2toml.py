@@ -28,10 +28,8 @@ def _get_tml_repr(string: str):
     """
     if string.replace(".", "", 1).isdigit():
         return float(string)
-    elif string.isdigit():
+    elif string.isdigit() or string.lstrip("-").isdigit():
         return int(string)
-    # elif string.isdecimal():
-    #     return float(string)
     elif string.lower() in "true false on off".split():
         return any(string.lower() == valid for valid in "true on".split())
     return string
