@@ -17,6 +17,7 @@ DEPRECATED_PLUGINS = "AKToolbar".split()
 OVERRIDE = False
 ADD = False
 
+
 def _get_tml_repr(string: str):
     """Helperfunction to check if given string is an integer, decimal or bool and return corresponding python object.
 
@@ -70,7 +71,6 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
             else:
                 tml_dict[parent] = {}
                 list_repr = tml_dict[parent][key] = {}
-
             for entry in value:
                 if isinstance(entry, dict):
                     # HACK: for now workaround for modules but needs more generic
@@ -180,10 +180,12 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
                         li.append(plugin_name)
                     elif isinstance(att_val, dict):
                         create_plugin_toml(
-                                plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
+                            plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
 
     # toplevel value is now load in new config structure
-    plugin_root_entries["load"] = plugin_root_entries.pop("value")
+    new_load = plugin_root_entries.pop("value")
+    plugin_root_entries["load"] = new_load if not "load" in plugin_root_entries.keys(
+    ) else list(set(new_load) | set(plugin_root_entries["load"]))
     return plugin_root_entries
 
 
