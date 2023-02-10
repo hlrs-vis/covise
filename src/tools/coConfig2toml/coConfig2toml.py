@@ -171,16 +171,17 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             if plugin_name in DEPRECATED_PLUGINS:
                 continue
             if isinstance(plugin_dict, list):
-                # TODO: add list handling => for now ignore
-                continue
-            for att_name, att_val in plugin_dict.items():
-                for name, li in plugin_root_entries.items():
-                    at_key = "@" + name
-                    if at_key in att_name and _get_tml_repr(att_val):
-                        li.append(plugin_name)
-                    elif isinstance(att_val, dict):
-                        create_plugin_toml(
-                            plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
+                plugin_root_entries.update(
+                    iterate_plugins(plugin_dict, plugin_rootpath))
+            else:
+                for att_name, att_val in plugin_dict.items():
+                    for name, li in plugin_root_entries.items():
+                        at_key = "@" + name
+                        if at_key in att_name and _get_tml_repr(att_val):
+                            li.append(plugin_name)
+                        elif isinstance(att_val, dict):
+                            create_plugin_toml(
+                                plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
 
     # toplevel value is now load in new config structure
     new_load = plugin_root_entries.pop("value")
