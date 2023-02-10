@@ -1,7 +1,7 @@
 # CoConfig2toml
 
-This simple python tool converts coConfig files to the new TOML-Sturcture.
-At the moment complex hierachies in coConfig's (like config-midi.xml) cannot be handled.
+This simple python tool converts coConfig files to the new TOML-Structure.
+At the moment complex hierachies in coConfig's (like in config-midi.xml) cannot be handled.
 
 ## Requirements
 
