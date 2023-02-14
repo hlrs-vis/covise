@@ -69,6 +69,31 @@ def parse_coconfig_list(cc_list: list, parent: str, name: str) -> dict:
     return tml_dict
 
 
+def parse_coconfig_dict(cc_dict: dict, name: str) -> dict:
+    """Convert given coconfig dictionary (xml) to correct toml structure.
+
+    Args:
+        cc_dict (list): coConfig-XML-Dictionary
+        name (str): current key for the dict
+
+    Returns:
+        dict: toml conform dictionary representation.
+    """
+    num_elem = len(cc_dict)
+    tml_dict = {}
+    if num_elem == 0:
+        return tml_dict
+    elif num_elem == 1:
+        if all("@" in k for k, _ in cc_dict.items()):
+            tml_dict.update(create_toml_dict(cc_dict, name))
+        else:
+            tml_dict[name] = create_toml_dict(cc_dict, name)
+    else:
+        tml_dict[name] = create_toml_dict(cc_dict)
+
+    return tml_dict
+
+
 def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> dict:
     """Create TOML file as dict.
 
@@ -88,16 +113,7 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
             att_name = key.split("@")[1] if parent == "" else parent
             tml_dict[att_name] = _get_tml_repr(value)
         elif isinstance(value, dict):
-            num_elem = len(value)
-            if num_elem == 0:
-                continue
-            elif num_elem == 1:
-                if all("@" in k for k, _ in value.items()):
-                    tml_dict.update(create_toml_dict(value, key))
-                else:
-                    tml_dict[key] = create_toml_dict(value, key)
-            else:
-                tml_dict[key] = create_toml_dict(value)
+            tml_dict.update(parse_coconfig_dict(value, key))
         elif isinstance(value, list):
             tml_dict.update(parse_coconfig_list(value, parent, key))
 
