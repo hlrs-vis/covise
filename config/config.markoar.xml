@@ -117,7 +117,6 @@
                 <Vrml97 value="on">
                     <!--SmallTextures value="true" /-->
                     <!--MaxTextureSize value="1024" /-->
-                    <ViewpointType value = "standardNoFov"/>
                     <Audio value="OpenAL" />
                     <ViewpointType value = "standardNoFov"/>
                 </Vrml97>
@@ -184,44 +183,7 @@
                     <UseTextureRectangle value="true"/>
                     <AudioOffset value="0.0"/>
                 </StereoVideoPlayer>
-                <StereoVideoPlayer>
-                    <UseTextureRectangle value="on" />
-                    <AudioOffset value="0.0" />
-                </StereoVideoPlayer>
                 <Revit value="true" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
-            </Plugin>
-            <Menu>
-                <Position x="800" y="0" z="500" />
-            </Menu>
-            <ViewerPosition x="0" y="-1500" z="0" />
-            <SceneSize value="1000" />
-            <DebugLevel value="1" />
-            <FPS value="true" />
-            <PipeConfig>
-                <!--Pipe name="0" useDISPLAY="true" /-->
-                <Pipe display="Sony" server="0" screen="0" name="0" useDisplay="true"/>
-            </PipeConfig>
-
-            <WindowConfig>
-                <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
-                <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-                <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
-                <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
-                <!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
-            </WindowConfig>
-
-            <ScreenConfig>
-                <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-                <Screen width="3840" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2160" p="0.0" r="0.0" name="0" screen="0" />
-            </ScreenConfig>
-            <ViewportConfig>
-                <!-- each channel needs at least one Viewport -->
-                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0" />
-            </ViewportConfig>
-            <!--Background r="1.0" g="1.0" b="1.0"/-->
-            <Freeze value="on" />
-            <Plugin>
-                <!-- <ARTrace value="off" /> -->
                 <ARToolKit value="off">
                     <Capture value="ON" />
                     <Stereo value="OFF" />
@@ -396,8 +358,37 @@
                     <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
                     -->
                 </ARUCO>
-
             </Plugin>
+            <Menu>
+                <Position x="800" y="0" z="500" />
+            </Menu>
+            <ViewerPosition x="0" y="-1500" z="0" />
+            <SceneSize value="1000" />
+            <DebugLevel value="1" />
+            <FPS value="true" />
+            <PipeConfig>
+                <!--Pipe name="0" useDISPLAY="true" /-->
+                <Pipe display="Sony" server="0" screen="0" name="0" useDisplay="true"/>
+            </PipeConfig>
+
+            <WindowConfig>
+                <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+                <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+                <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
+                <Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="true" />
+                <!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
+            </WindowConfig>
+
+            <ScreenConfig>
+                <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+                <Screen width="3840" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2160" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+            <ViewportConfig>
+                <!-- each channel needs at least one Viewport -->
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0" />
+            </ViewportConfig>
+            <!--Background r="1.0" g="1.0" b="1.0"/-->
+            <Freeze value="on" />
         </COVER>
     </GLOBAL>
     <INCLUDE global="1" configname="colormap">config-colormaps.xml </INCLUDE>
