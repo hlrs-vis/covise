@@ -16,6 +16,7 @@ import xmltodict as xd
 DEPRECATED_PLUGINS = "AKToolbar".split()
 OVERRIDE = False
 ADD = False
+ADD_DISABLED = False
 
 
 def _get_tml_repr(string: str):
@@ -194,14 +195,14 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
                 plugin_root_entries.update(
                     iterate_plugins(plugin_dict, plugin_rootpath))
             elif isinstance(plugin_dict, dict):
-                create_plugin_toml(
-                    plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
-            else:
                 for att_name, att_val in plugin_dict.items():
                     for name, li in plugin_root_entries.items():
                         at_key = "@" + name
                         if at_key in att_name and _get_tml_repr(att_val):
                             li.append(plugin_name)
+                if ADD_DISABLED or plugin_name in plugin_root_entries["value"]:
+                    create_plugin_toml(
+                        plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
 
     # toplevel value is now load in new config structure
     new_load = plugin_root_entries.pop("value")
@@ -295,10 +296,13 @@ if __name__ == "__main__":
                         default=False, action="store_true")
     parser.add_argument("--add", help="Merge only additions to existing plugins.toml.",
                         default=False, action="store_true")
+    parser.add_argument("--add_disabled", help="Create TOML files for each COVER plugin mentioned even if they are disabled.",
+                        default=False, action="store_true")
     args = parser.parse_args()
 
     filepath = args.filepath
     output_dir = args.output
     OVERRIDE = args.override
     ADD = args.add
+    ADD_DISABLED = args.add_disabled
     parse_coconfig_to_toml(filepath, output_dir)
