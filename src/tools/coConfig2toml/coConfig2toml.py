@@ -32,8 +32,10 @@ def _get_tml_repr(string: str):
         return float(string)
     elif string.isdigit() or string.lstrip("-").isdigit():
         return int(string)
-    elif string.lower() in "true false on off".split():
-        return any(string.lower() == valid for valid in "true on".split())
+    # elif string.lower() in "true false on off".split():
+        # return any(string.lower() == valid for valid in "true on".split())
+    elif string.lower() in "true false".split():
+        return string.lower() == "true"
     return string
 
 
@@ -198,7 +200,7 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
                 for att_name, att_val in plugin_dict.items():
                     for name, li in plugin_root_entries.items():
                         at_key = "@" + name
-                        if at_key in att_name and _get_tml_repr(att_val):
+                        if at_key in att_name and att_val.lower() == "on":
                             li.append(plugin_name)
                 if ADD_DISABLED or plugin_name in plugin_root_entries["value"]:
                     create_plugin_toml(
