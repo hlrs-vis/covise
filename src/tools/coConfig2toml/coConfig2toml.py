@@ -36,6 +36,36 @@ def _get_tml_repr(string: str):
     return string
 
 
+def parse_coconfig_list(cc_list: list, parent: str, name: str) -> dict:
+    """Convert given coconfig list (xml) to correct toml structure.
+
+    Args:
+        cc_list (list): coConfig-XML-List
+        parent (str): current parent of the list
+        name (str): current key for the list
+
+    Returns:
+        dict: toml conform dictionary representation.
+    """
+    tml_dict = {}
+    if parent == "":
+        tml_dict[name] = list_repr = {}
+    else:
+        tml_dict[parent] = {}
+        tml_dict[parent][name] = list_repr = {}
+    for entry in cc_list:
+        if isinstance(entry, dict):
+            if all((key in entry.keys() for key in "@name @value".split())):
+                list_repr[entry["@name"]] = entry["@value"]
+            elif "@name" in entry.keys():
+                list_key = entry.pop("@name")
+                list_repr[list_key] = create_toml_dict(entry)
+            else:
+                print("Cannot convert " + name +
+                      " in " + parent + " properly.")
+    return tml_dict
+
+
 def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> dict:
     """Create TOML file as dict.
 
@@ -66,17 +96,7 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
             else:
                 tml_dict[key] = create_toml_dict(value)
         elif isinstance(value, list):
-            if parent == "":
-                list_repr = tml_dict[key] = {}
-            else:
-                tml_dict[parent] = {}
-                list_repr = tml_dict[parent][key] = {}
-            for entry in value:
-                if isinstance(entry, dict):
-                    # HACK: for now workaround for modules but needs more generic
-                    # approach to work with complex configs like config-midi.xml
-                    if all((key in entry.keys() for key in "@name @value".split())):
-                        list_repr[entry["@name"]] = entry["@value"]
+            tml_dict.update(parse_coconfig_list(value, parent, key))
 
     return tml_dict
 
@@ -173,15 +193,15 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             if isinstance(plugin_dict, list):
                 plugin_root_entries.update(
                     iterate_plugins(plugin_dict, plugin_rootpath))
+            elif isinstance(plugin_dict, dict):
+                create_plugin_toml(
+                    plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
             else:
                 for att_name, att_val in plugin_dict.items():
                     for name, li in plugin_root_entries.items():
                         at_key = "@" + name
                         if at_key in att_name and _get_tml_repr(att_val):
                             li.append(plugin_name)
-                        elif isinstance(att_val, dict):
-                            create_plugin_toml(
-                                plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
 
     # toplevel value is now load in new config structure
     new_load = plugin_root_entries.pop("value")
