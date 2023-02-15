@@ -20,7 +20,9 @@ Table of Contents
    * [Directory for Third Party Dependencies](#directory-for-third-party-dependencies)
    * [Building on UNIX](#building-on-unix)
       * [Building only OpenCOVER](#building-only-opencover)
+      * [Building only Oddlot](#building-only-oddlot)
    * [Building on Windows](#building-on-windows)
+      * [Building with VS Code](#building-with-code)
    * [Changing CMake Settings](#changing-cmake-settings)
 * [Building Documentation](#building-documentation)
 * [Invoking COVISE](#invoking-covise)
@@ -291,6 +293,21 @@ Also on Windows, you should work from a command prompt:
        devenv
 
 To create a permanent link to a covise command prompt edit and execute Scripts/installCoviseCommandPrompt.bat 
+
+#### Building with VS Code
+
+This is an experimental alternative to Visual Studio. You need VS Code with the C/C++ Extension Pack and the CMake Tools expansions installed. You also need the MSVC compiler and one of the supported generators (Ninja, Visual Studio). An additional dependency is https://github.com/nlohmann/json which should be installed like COVISE's other dependencies in the EXTERNLIBS directory.
+To configure and build COVISE:
+
+    open the COVISE directory with VS Code
+    use the command palette (ctrl + shift + p) -> Tasks: Run Task -> Configure COVISE
+    fill in requested information
+    select a compiler via the CMake extension (button in the bottom bar or via the command pallete -> CMake: Select a Kit)
+    run CMake with a build configuration (button in the bottom bar or via the command pallete -> CMake: Configure)
+    build (button in the bottom bar or via the command pallete -> CMake: Build)
+
+After this setup VS Code's default integrated terminal is configured to load the environment required to work with COVISE.  
+Additionally debug configurations to launch COVISE and OpenCOVIER or to attach to a process are provided under VS Code's debug section. InteliSense should be enabled if you are using a generator that can export compile commands (Ninja).
 
 Changing CMake Settings
 -----------------------
