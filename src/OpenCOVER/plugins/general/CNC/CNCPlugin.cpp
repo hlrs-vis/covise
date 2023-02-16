@@ -573,105 +573,6 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     vert = new osg::Vec3Array;
     color = new osg::Vec4Array;
 
-/*    // Volume Sticks
-    stickGeode = new Geode();
-    stickGeom = new Geometry();
-    //stickGeode->setStateSet(geoState.get());
-
-    stickGeom->setColorBinding(Geometry::BIND_OFF);
-
-    stickGeode->addDrawable(stickGeom.get());
-    stickGeode->setName("Viewer Positions 2");
-    //geode->addDrawable(stickGeom.get());
-
-    stickVert = new osg::Vec3Array;
-    stickColor = new osg::Vec4Array;
-    stickColor->push_back(Vec4(1, 1, 1, 1)); //white ?!
-
-    for (int i = 0; i < 100; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {        
-            
-            stickVert->push_back(Vec3(2*i / 1000.0, 2*j / 1000.0, 0 / 1000.0));
-            stickVert->push_back(Vec3(2*i / 1000.0, 2*j / 1000.0, 100 / 1000.0));
-        }
-    }
-
-    stickGeom->setVertexArray(stickVert);
-    //stickGeom->setColorArray(color);
-    //stickGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    stickGeom->setColorBinding(Geometry::BIND_OVERALL);
-    stickGeom->setColorArray(stickColor);
-    stickPrimitives = new DrawArrayLengths(PrimitiveSet::LINES); //PrimitiveSet::LINE_LOOP //PrimitiveSet::LINE_STRIP
-    stickPrimitives->push_back(stickVert->size());
-    stickGeom->addPrimitiveSet(stickPrimitives);
-    stickGeom->dirtyDisplayList();
-    stickGeom->setUseDisplayList(false);
-*/
-
-/*
-    // Triangles
-    float xMax = 0.4;
-    float xMin = 0.2;
-    float yMax = 0.2;
-    float yMin = 0;
-    float zMax = 0.1;
-    float zMin = 0;
-    
-
-    triGeode = new Geode();
-    triGeomTop = new Geometry();
-    triGeomBot = new Geometry();
-    //triGeode->setStateSet(geoState.get());
-
-    //stickGeom->setColorBinding(Geometry::BIND_OFF);
-
-    triGeode->addDrawable(triGeomBot.get());
-    triGeode->addDrawable(triGeomTop.get());
-    triGeode->setName("Viewer Positions 3");
-
-    triColor = new osg::Vec4Array;
-    triColor->push_back(Vec4(0, 1, 1, 1)); // ?!
-
-    triVertBot = new osg::Vec3Array;
-    triVertBot->push_back(Vec3(xMin, yMin, zMin));
-    triVertBot->push_back(Vec3(xMax, yMin, zMin));
-    triVertBot->push_back(Vec3(xMin, yMax, zMin));
-    triVertBot->push_back(Vec3(xMax, yMax, zMin));
-    triVertBot->push_back(Vec3(xMin, yMin, zMax));
-    triVertBot->push_back(Vec3(xMax, yMin, zMax));
-    triVertBot->push_back(Vec3(xMin, yMax, zMax));
-    triVertBot->push_back(Vec3(xMax, yMax, zMax));
-
-
-    triVertTop = new osg::Vec3Array;
-    for (int i = 0; i < 100; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            stickVert->push_back(Vec3(2 * i / 1000.0, 2 * j / 1000.0, 0 / 1000.0));
-            stickVert->push_back(Vec3(2 * i / 1000.0, 2 * j / 1000.0, 100 / 1000.0));
-        }
-    }
-
-    triGeomBot->setVertexArray(triVertBot);
-    triGeomBot->setColorBinding(Geometry::BIND_OVERALL);
-    triGeomBot->setColorArray(triColor);
-    triPrimitivesBot = new DrawElementsUInt(PrimitiveSet::TRIANGLES, 30);
-    (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 2; (*triPrimitivesBot)[5] = 3;
-    (*triPrimitivesBot)[6] = 0; (*triPrimitivesBot)[7] = 1; (*triPrimitivesBot)[8] = 4; (*triPrimitivesBot)[9] = 1; (*triPrimitivesBot)[10] = 4; (*triPrimitivesBot)[11] = 5;
-    (*triPrimitivesBot)[12] = 2; (*triPrimitivesBot)[13] = 3; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 3; (*triPrimitivesBot)[16] = 6; (*triPrimitivesBot)[17] = 7;
-    (*triPrimitivesBot)[18] = 0; (*triPrimitivesBot)[19] = 2; (*triPrimitivesBot)[20] = 4; (*triPrimitivesBot)[21] = 2; (*triPrimitivesBot)[22] = 4; (*triPrimitivesBot)[23] = 6;
-    (*triPrimitivesBot)[24] = 1; (*triPrimitivesBot)[25] = 3; (*triPrimitivesBot)[26] = 5; (*triPrimitivesBot)[27] = 3; (*triPrimitivesBot)[28] = 5; (*triPrimitivesBot)[29] = 7;
-    // TRIANGLES: {0, 1, 2, 1, 2, 3, 0, 1, 4, 1, 4, 5, 2, 3, 6, 3, 6, 7, 0, 2, 4, 2, 4, 6, 1, 3, 5, 3, 5, 7};
-    //triPrimitivesBot->push_back(triVertBot->size());
-    triGeomBot->addPrimitiveSet(triPrimitivesBot);
-    osgUtil::SmoothingVisitor::smooth(*triGeomBot); // funktioniert das?
-    triGeomBot->dirtyDisplayList();
-    triGeomBot->setUseDisplayList(false);
-*/
-
 
     int status;
     int do_next; /* 0=continue, 1=mdi, 2=stop */
@@ -724,6 +625,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     rs274ngc_active_m_codes(ems); /* called to exercise the function */
     rs274ngc_active_settings(sets); /* called to exercise the function */
     rs274ngc_exit(); /* saves parameters */
+
     primitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
     primitives->push_back(vert->size());
 
@@ -740,10 +642,6 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     if (parentNode == NULL)
         parentNode = cover->getObjectsRoot();
     parentNode->addChild(geode.get());
- /*   parentNode->addChild(stickGeode.get());
-    parentNode->addChild(triGeode.get());
-    ;
-*/    
 
 
     assert(thePlugin);
@@ -973,20 +871,18 @@ void CNCPlugin::createWpGeodes(Group *parent)
     //DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
 //    wpTopGeom = createWpSurface(&Vec3(0 / 1000.0, 0 / 1000.0, 0 / 1000.0), &Vec3(10 / 1000.0, 10 / 1000.0, 10 / 1000.0), double (10/1000.0));
     
-    xMin = *std::min_element(pathX.begin(), pathX.end()) - wpAllowance;
-    xMax = *std::max_element(pathX.begin(), pathX.end()) + wpAllowance;
-    yMin = *std::min_element(pathY.begin(), pathY.end()) - wpAllowance;
-    yMax = *std::max_element(pathY.begin(), pathY.end()) + wpAllowance;
-    zMin = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
-    zMax = 0;
+    setWpSize();
+    setWpResolution();
     
-//    std::array<double, 5> minMaxCoords = {xMin, xMax, yMin, yMax, zMax};
-    std::array<double, 5> minMaxCoords = {0 / 1000.0, 10 / 1000.0, 0 / 1000.0, 10 / 1000.0, 10 / 1000.0};
-    wpTopGeom = createWpTop(&minMaxCoords, double(10 / 1000.0));
+//    std::array<double, 5> minMaxCoords = {wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ};
+//    std::array<double, 5> minMaxCoords = {0 / 1000.0, 10 / 1000.0, 0 / 1000.0, 10 / 1000.0, 10 / 1000.0};
+//    wpTopGeom = createWpTop(&minMaxCoords, double(10 / 1000.0));
+    wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
     wpTopGeode = new osg::Geode();
     wpTopGeode->setName("wpTopGeode");
     parent->addChild(wpTopGeode);
     wpTopGeode->addDrawable(wpTopGeom);
+    osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
  /*   if (pointShader != nullptr)
     {
         pointShader->apply(m_currentGeode, m_pointCloud);
@@ -1000,12 +896,12 @@ void CNCPlugin::createWpGeodes(Group *parent)
    Returned Value: topsurface Geometry
 
    Side Effects:
-   Creates a Geometry: rectangular shape with multiple squares of the passed length.
+   Creates a Geometry: rectangular shape with multiple squares and uses wpResX, wpResY for length.
 
    Called By:
    CNCPlugin::createWpGeodes
 */
-osg::Geometry *CNCPlugin::createWpTop(std::array<double, 5> *minMaxCoords, double length_a)
+osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, double maxY, double z)
 {
 /*    // compile parser
     std::array<Expression, 4> stringExpressions;
@@ -1018,13 +914,15 @@ osg::Geometry *CNCPlugin::createWpTop(std::array<double, 5> *minMaxCoords, doubl
 */
     //create geometry
     auto geo = new osg::Geometry();
+    geo->setColorBinding(Geometry::BIND_OFF);
  //   geo->setUseDisplayList(false);
  //   geo->setSupportsDisplayList(false);
-    geo->setUseVertexBufferObjects(true);
-    auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-    auto colors = new Vec4Array();
+ //   geo->setUseVertexBufferObjects(true);
+ //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+    wpColors = new Vec4Array();
     auto points = new Vec3Array();
-   
+    //wpPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpPrimitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
  //  double bx = (&minMaxCoords[3] - &minMaxCoords[0]) / length_a;
     ix_total = ::round((minMaxCoords->at(1) - minMaxCoords->at(0)) / length_a);  //std::max<double>(1, bx);
 //    double by = (&minMaxCoords[4] - &minMaxCoords[1]) / length_a;
@@ -1046,9 +944,23 @@ osg::Geometry *CNCPlugin::createWpTop(std::array<double, 5> *minMaxCoords, doubl
             points->push_back(Vec3(minMaxCoords->at(0) + ix * length_a, minMaxCoords->at(2) + (iy + 1) * length_a, minMaxCoords->at(4)));
  //           for (int j = 0; j<4; j++)
  //               colors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+      /*      wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 0);
+            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 1);
+            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 2);
+            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 3);
+        */      
+            wpPrimitives->push_back(4);
         }
     }
-    colors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+    float wpCol = 0.5;
+    wpColors->push_back(getColor(wpCol));
+    wpColors->push_back(getColor(wpCol));
+    wpColors->push_back(getColor(wpCol));
+    wpColors->push_back(getColor(wpCol));
+    /*wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));     */
 /*
     //calculate coords and color
     std::vector<float> scalarData(symbols.size());
@@ -1090,26 +1002,50 @@ osg::Geometry *CNCPlugin::createWpTop(std::array<double, 5> *minMaxCoords, doubl
     m_colorBar->show(true);
 */
 
-    vertexBufferArray->setArray(0, points);
-    vertexBufferArray->setArray(1, colors);
-    points->setBinding(osg::Array::BIND_PER_VERTEX);
-    //colors->setBinding(osg::Array::BIND_PER_VERTEX);
+    //vertexBufferArray->setArray(0, points);
+    //vertexBufferArray->setArray(1, colors);
+    //points->setBinding(osg::Array::BIND_PER_VERTEX);
+    //wpColors->setBinding(osg::Array::BIND_PER_VERTEX);
     // bind color per vertex
     geo->setVertexArray(points);
-    geo->setColorArray(colors);
-    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
-    osg::Vec3Array* normals = new osg::Vec3Array;
-    normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
-    geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
+    geo->setColorArray(wpColors);
+    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    osg::Vec3Array *normals = new osg::Vec3Array;
+    //normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    //geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
 
     test1 = points->getNumElements();
     test2 = points->size();
-    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, points->size()-1));
-
+    //geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS));//, 0, points->size()-1));
+    geo->addPrimitiveSet(wpPrimitives);
+    geo->dirtyDisplayList();
     //setStateSet(geo, pointSize());
 
     return geo;
 }
+
+void CNCPlugin::setWpSize()
+{
+    wpMinX = *std::min_element(pathX.begin(), pathX.end()) - wpAllowance;
+    wpMaxX = *std::max_element(pathX.begin(), pathX.end()) + wpAllowance;
+    wpMinY = *std::min_element(pathY.begin(), pathY.end()) - wpAllowance;
+    wpMaxY = *std::max_element(pathY.begin(), pathY.end()) + wpAllowance;
+    wpMinZ = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
+    wpMaxZ = 0;
+    wpLengthX = wpMaxX - wpMinX;
+    wpLengthY = wpMaxY - wpMinY;
+    wpLengthZ = wpMaxZ - wpMinZ;
+}
+
+void CNCPlugin::setWpResolution()
+{
+    wpTotalQuadsX = ::round(wpLengthX / wpResolution);
+    wpResX = wpLengthX / wpTotalQuadsX;
+
+    wpTotalQuadsY = ::round(wpLengthY / wpResolution);
+    wpResY = wpLengthY / wpTotalQuadsY;
+}
+
 
 /* wpMillCut
 
@@ -1127,10 +1063,10 @@ void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
     double yMinBox = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
     double yMaxBox = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
 
-    int ixMin = (xMinBox - xMin) / wpResolution;
-    int ixMax = (xMaxBox - xMin) / wpResolution;
-    int iyMin = (yMinBox - yMin) / wpResolution;
-    int iyMax = (yMaxBox - yMin) / wpResolution;
+    int ixMin = (xMinBox - wpMinX) / wpResolution;
+    int ixMax = (xMaxBox - wpMinX) / wpResolution;
+    int iyMin = (yMinBox - wpMinY) / wpResolution;
+    int iyMax = (yMaxBox - wpMinY) / wpResolution;
 
     for (int iy = iyMin; iy <= iyMax; iy++)
     {   

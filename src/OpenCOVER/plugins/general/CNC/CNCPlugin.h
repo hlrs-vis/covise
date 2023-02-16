@@ -102,18 +102,27 @@ private:
     //workpiece wp
     osg::Group *wpGroup = nullptr;
     osg::Geode *wpTopGeode = nullptr;
-    osg::Geometry *wpTopGeom = nullptr;
+    osg::ref_ptr<osg::Geometry> wpTopGeom;
+    osg::Vec4Array *wpColors = nullptr;
+    //osg::DrawElementsUInt *wpPrimitives = nullptr;
+    osg::DrawArrayLengths *wpPrimitives = nullptr;
     void createWpGeodes(osg::Group *);
+    void setWpSize();
+    void setWpResolution();
     //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
-    osg::Geometry *createWpTop(std::array<double, 5> *minMaxCoords, double length_a);
+    //osg::Geometry *createWpTop(std::array<double, 5> *minMaxCoords, double length_a);
+    osg::Geometry *createWpTop(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Vec3Array *piece, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
 
     std::vector<double> pathX, pathY, pathZ;
-    double xMin, xMax, yMin, yMax, zMin, zMax;
-    int ix_total;
-    double wpAllowance = 5 / 1000;
-    double wpResolution = 0.1 / 1000;
+    double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
+    double wpLengthX, wpLengthY, wpLengthZ;
+    double wpAllowance = 5 / 1000;      //größenzugabe
+    double wpResolution = 0.1 / 1000;   //aimed
+    double wpResX, wpResY;              //is
+    int wpTotalQuadsX, wpTotalQuadsX;
+    int ix_total;           //deprecated?
     double cuttingRad = 0.5 / 1000;
 
     int test1, test2;
