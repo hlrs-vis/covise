@@ -896,7 +896,8 @@ void CNCPlugin::createWpGeodes(Group *parent)
    Returned Value: topsurface Geometry
 
    Side Effects:
-   Creates a Geometry: rectangular shape with multiple squares and uses wpResX, wpResY for length.
+   Creates a Geometry: rectangular shape with multiple squares 
+   and uses wpResX, wpResY for length and wpTotalQuadsX, Y.
 
    Called By:
    CNCPlugin::createWpGeodes
@@ -923,40 +924,39 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     auto points = new Vec3Array();
     //wpPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
     wpPrimitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
- //  double bx = (&minMaxCoords[3] - &minMaxCoords[0]) / length_a;
-    ix_total = ::round((minMaxCoords->at(1) - minMaxCoords->at(0)) / length_a);  //std::max<double>(1, bx);
-//    double by = (&minMaxCoords[4] - &minMaxCoords[1]) / length_a;
-    auto iy_total = (minMaxCoords->at(3) - minMaxCoords->at(2)) / length_a; //std::max<double>(1, by);
-//    double bz = (&minMaxCoords[5] - &minMaxCoords[2]) / length_a;
-//    auto iz_total = std::max<double>(1, bz);
 
 
-
-    for (size_t iy = 0; iy < iy_total; iy++)
+    for (int iy = 0; iy < wpTotalQuadsY; iy++)
     {
-        for (size_t ix = 0; ix < ix_total; ix++)
+        for (int ix = 0; ix < wpTotalQuadsX; ix++)
         {   
             test1 = ix;
             test2 = iy;
-            points->push_back(Vec3(minMaxCoords->at(0) + ix * length_a, minMaxCoords->at(2) + iy * length_a, minMaxCoords->at(4)));
-            points->push_back(Vec3(minMaxCoords->at(0) + (ix + 1) * length_a, minMaxCoords->at(2) + iy * length_a, minMaxCoords->at(4)));
-            points->push_back(Vec3(minMaxCoords->at(0) + (ix + 1) * length_a, minMaxCoords->at(2) + (iy + 1) * length_a, minMaxCoords->at(4)));
-            points->push_back(Vec3(minMaxCoords->at(0) + ix * length_a, minMaxCoords->at(2) + (iy + 1) * length_a, minMaxCoords->at(4)));
- //           for (int j = 0; j<4; j++)
- //               colors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
-      /*      wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 0);
-            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 1);
-            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 2);
-            wpPrimitives->push_back(ix * 4 + iy * ix_total * 4 + 3);
-        */      
-            wpPrimitives->push_back(4);
+            points->push_back(Vec3(minX + ix * wpResX, minY + iy * wpResY, z));
+            points->push_back(Vec3(minX + (ix + 1) * wpResX, minY + iy * wpResY, z));
+            points->push_back(Vec3(minX + (ix + 1) * wpResX, minY + (iy + 1) * wpResY, z));
+            points->push_back(Vec3(minX + ix * wpResX, minY + (iy + 1) * wpResY, z));
+            //for (int j = 0; j<4; j++)
+            //    wpColors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+            wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            wpColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+            wpColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 0.50f));
+            wpColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
+ /*           wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 0);
+            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 1);
+            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 2);
+            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 3);
+  */            
         }
     }
-    float wpCol = 0.5;
+    wpPrimitives->push_back(points->size());
+
+/*    float wpCol = 0.5;
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
+    */
     /*wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
     wpColors->push_back(osg::Vec4(1.0f, 0.0f, 1.0f, 1.0f));
     wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -1020,16 +1020,17 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     geo->addPrimitiveSet(wpPrimitives);
     geo->dirtyDisplayList();
     //setStateSet(geo, pointSize());
+    geo->setStateSet(geoState.get());
 
     return geo;
 }
 
 void CNCPlugin::setWpSize()
 {
-    wpMinX = *std::min_element(pathX.begin(), pathX.end()) - wpAllowance;
-    wpMaxX = *std::max_element(pathX.begin(), pathX.end()) + wpAllowance;
-    wpMinY = *std::min_element(pathY.begin(), pathY.end()) - wpAllowance;
-    wpMaxY = *std::max_element(pathY.begin(), pathY.end()) + wpAllowance;
+    wpMinX = *std::min_element(pathX.begin(), pathX.end()-1) - wpAllowance;
+    wpMaxX = *std::max_element(pathX.begin(), pathX.end()-1) + wpAllowance;
+    wpMinY = *std::min_element(pathY.begin(), pathY.end()-1) - wpAllowance;
+    wpMaxY = *std::max_element(pathY.begin(), pathY.end()-1) + wpAllowance;
     wpMinZ = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
     wpMaxZ = 0;
     wpLengthX = wpMaxX - wpMinX;

@@ -118,12 +118,12 @@ private:
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
-    double wpAllowance = 5 / 1000;      //größenzugabe
-    double wpResolution = 0.1 / 1000;   //aimed
+    double wpAllowance = 0.005;  // 5 / 1000;    //größenzugabe
+    double wpResolution = 0.004; //0.1 / 1000;   //aimed
     double wpResX, wpResY;              //is
-    int wpTotalQuadsX, wpTotalQuadsX;
+    int wpTotalQuadsX, wpTotalQuadsY;
     int ix_total;           //deprecated?
-    double cuttingRad = 0.5 / 1000;
+    double cuttingRad = 0.0005; // 0.5 / 1000;
 
     int test1, test2;
 
