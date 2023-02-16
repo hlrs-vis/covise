@@ -63,6 +63,9 @@ def parse_coconfig_list(cc_list: list, parent: str, name: str) -> dict:
             elif "@name" in entry.keys():
                 list_key = entry.pop("@name")
                 list_repr[list_key] = create_toml_dict(entry)
+            elif "@index" in entry.keys():
+                list_key = entry.pop("@index")
+                list_repr[list_key] = create_toml_dict(entry)
             else:
                 print("Cannot convert " + name +
                       " in " + parent + " properly.")
@@ -128,10 +131,16 @@ def create_toml(coconfig_dict: dict, tml_path: str, skip: list = []) -> None:
         plug_path (str): Plugin path.
         skip (list): skipping given entries in this list.
     """
-    with open(tml_path, "wb") as tml:
-        dump_dict = create_toml_dict(
-            coconfig_dict, skip=skip)
-        tomli_w.dump(dump_dict, tml)
+    dump_dict = create_toml_dict(
+        coconfig_dict, skip=skip)
+    if not os.path.exists(tml_path) or OVERRIDE:
+        with open(tml_path, "wb") as tml:
+            tomli_w.dump(dump_dict, tml)
+    else:
+        with open(tml_path, mode="rb+") as tml:
+            enabled = tomllib.load(tml)
+            new_tml = dump_dict | enabled if ADD else enabled | dump_dict  # union of dicts
+            tomli_w.dump(new_tml, tml)
 
 
 def create_plugin_toml(coconfig_dict: dict, plug_path: str) -> None:
@@ -242,6 +251,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         root_global = coconfig[global_key]
         opencover_path = rel_output_path + "/opencover"
         covise_path = rel_output_path + "/covise"
+        colormap_path = rel_output_path + "/colormaps"
         system_rootpath = rel_output_path + "/system"
         module_rootpath = covise_path + "/modules"
         plugin_rootpath = opencover_path + "/plugins"
@@ -259,6 +269,12 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
                     plugins_dict, plugin_rootpath)
                 plugin_config_path = opencover_path + "/plugins.toml"
                 create_toplevel_toml(plugin_config_path, plugin_root_entries)
+            
+            # Filemanager
+            filemanager_dict = cover_dict.pop("FileManager", None)
+            if filemanager_dict != None:
+                filemanager_config_path = opencover_path + "/filemanager.toml"
+                create_toml(filemanager_dict, filemanager_config_path)
 
             # general
             create_toml(cover_dict, opencover_path + "/cover.toml")
@@ -274,6 +290,16 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
             covise_config_path = covise_path + "/modules.toml"
             create_toplevel_toml(covise_config_path, {
                                  "load": module_root_entries})
+        
+        # colormap
+        colormap_dict = root_global.get("Colormaps")
+        if colormap_dict:
+            if not os.path.exists(colormap_path):
+                os.makedirs(colormap_path)
+            
+            for name, colordict in colormap_dict.items():
+                color_config_path = colormap_path + "/" + name + ".toml"
+                create_toml(colordict, color_config_path)
 
         # system
         system_dict = root_global.get("System")
@@ -302,7 +328,9 @@ def parse_coconfig_to_toml(path: str, output_path: str) -> None:
         root_include = coconfig[include_key]
         includes = (val.split(".")[0] for include in root_include for key,
                     val in include.items() if "#" in key)
-        # TODO: handle includes
+        for include in includes:
+            path_to_include = path.rsplit("/", 1)[0] + "/" + include + ".xml"
+            parse_coconfig_to_toml(path_to_include, output_path)
 
 
 if __name__ == "__main__":
