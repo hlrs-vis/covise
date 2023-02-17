@@ -114,12 +114,13 @@ private:
     osg::Geometry *createWpTop(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Vec3Array *piece, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
+    void wpResetCuts(osg::Vec3Array* piece, int t);
 
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.005;  // 5 / 1000;    //größenzugabe
-    double wpResolution = 0.004; //0.1 / 1000;   //aimed
+    double wpResolution = 0.0004; //0.1 / 1000;   //aimed
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
     int ix_total;           //deprecated?

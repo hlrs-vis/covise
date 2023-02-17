@@ -660,11 +660,26 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
 void CNCPlugin::setTimestep(int t)
 {
     if (primitives)
+    {
         primitives->at(0) = t;
+        geom->dirtyDisplayList();
+    }
+
+    if (wpTopGeom && t == 0)
+    {
+        wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+        //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
+        wpTopGeom->dirtyDisplayList();
+    }
 
     if (wpTopGeom && t>0)
-    {
-        //wpMillCut(wpTopGeom, t);
+    {   
+        if (t % 1 == 0)
+        {
+            wpMillCut(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+            //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
+            wpTopGeom->dirtyDisplayList();
+        }
     }
 
 /*    if (triPrimitivesBot)
@@ -882,7 +897,9 @@ void CNCPlugin::createWpGeodes(Group *parent)
     wpTopGeode->setName("wpTopGeode");
     parent->addChild(wpTopGeode);
     wpTopGeode->addDrawable(wpTopGeom);
-    osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
+    auto testVec = wpTopGeom->getVertexArray();
+    auto testArray = dynamic_cast<osg::Vec3Array*>(testVec);
+    //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
  /*   if (pointShader != nullptr)
     {
         pointShader->apply(m_currentGeode, m_pointCloud);
@@ -1018,9 +1035,10 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     test2 = points->size();
     //geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS));//, 0, points->size()-1));
     geo->addPrimitiveSet(wpPrimitives);
-    geo->dirtyDisplayList();
     //setStateSet(geo, pointSize());
     geo->setStateSet(geoState.get());
+    geo->dirtyDisplayList();
+    //geo->setUseDisplayList(false);
 
     return geo;
 }
@@ -1059,22 +1077,22 @@ void CNCPlugin::setWpResolution()
 void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
 {   
     //bounding Box
-    double xMinBox = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
-    double xMaxBox = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
-    double yMinBox = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
-    double yMaxBox = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
+    double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
+    double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
+    double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
+    double boxMaxY = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
 
-    int ixMin = (xMinBox - wpMinX) / wpResolution;
-    int ixMax = (xMaxBox - wpMinX) / wpResolution;
-    int iyMin = (yMinBox - wpMinY) / wpResolution;
-    int iyMax = (yMaxBox - wpMinY) / wpResolution;
+    int ixMin = (boxMinX - wpMinX) / wpResX;
+    int ixMax = (boxMaxX - wpMinX) / wpResX;
+    int iyMin = (boxMinY - wpMinY) / wpResY;
+    int iyMax = (boxMaxY - wpMinY) / wpResY;
 
     for (int iy = iyMin; iy <= iyMax; iy++)
     {   
         for (int ix = ixMin; ix <= ixMax; ix++)
         {   
-            int iPoint = ix * 4 + iy * ix_total * 4;
-            double dist = distancePointLine(piece->at(iPoint)[0] + wpResolution/2, piece->at(iPoint)[1] + wpResolution / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+            int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+            double dist = distancePointLine(piece->at(iPoint)[0] + wpResX/2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
             if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
             {
                 piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
@@ -1095,4 +1113,12 @@ double CNCPlugin::distancePointLine(double px, double py, double x1, double y1, 
     double c = x1 * y2 - x2 * y1;
 
     return (abs(a * px + b * py + c) / sqrt(a * a + b * b));
+}
+
+void CNCPlugin::wpResetCuts(osg::Vec3Array *piece, int t)
+{
+    for (int i = 0; i < piece->getNumElements(); i++)
+    {
+        piece->at(i)[2] = wpMaxZ;
+    }
 }
