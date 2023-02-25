@@ -31,6 +31,7 @@
 #include <osg/Geometry>
 #include <osg/Material>
 #include <osg/LineWidth>
+#include <osg/PolygonMode>
 #include <PluginUtil/coSphere.h>
 #include <array>
 #include <map>
@@ -104,17 +105,22 @@ private:
     osg::Geode *wpTopGeode = nullptr;
     osg::ref_ptr<osg::Geometry> wpTopGeom;
     osg::Vec4Array *wpColors = nullptr;
-    //osg::DrawElementsUInt *wpPrimitives = nullptr;
-    osg::DrawArrayLengths *wpPrimitives = nullptr;
+    osg::DrawArrayLengths *wpTopPrimitives = nullptr;
+    osg::DrawElementsUInt *wpVerticalPrimitives = nullptr;
+    osg::ref_ptr<osg::StateSet> wpStateSet;
+    osg::ref_ptr<osg::Material> wpMaterial;
+    osg::ref_ptr<osg::LineWidth> wpLineWidth;
     void createWpGeodes(osg::Group *);
     void setWpSize();
     void setWpResolution();
+    void setWpMaterial();
     //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
     //osg::Geometry *createWpTop(std::array<double, 5> *minMaxCoords, double length_a);
     osg::Geometry *createWpTop(double minX, double maxX, double minY, double maxY, double z);
-    void wpMillCut(osg::Vec3Array *piece, int t);
+    void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
-    void wpResetCuts(osg::Vec3Array* piece, int t);
+    void wpResetCuts(osg::Vec3Array *piece, int t);
+    void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
 
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
@@ -123,8 +129,11 @@ private:
     double wpResolution = 0.0004; //0.1 / 1000;   //aimed
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
-    int ix_total;           //deprecated?
+    //int ix_total;           //deprecated?
     double cuttingRad = 0.0005; // 0.5 / 1000;
+
+    std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
+    std::vector<int> cuttedFaces;
 
     int test1, test2;
 

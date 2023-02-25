@@ -35,6 +35,7 @@
 #include <osg/Material>
 #include <osg/PrimitiveSet>
 #include <osg/LineWidth>
+#include <osg/PolygonMode>
 
 #include <osg/LineSegment>
 #include <osg/Matrix>
@@ -645,6 +646,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
 
 
     assert(thePlugin);
+
     wpGroup = new osg::Group;
     loadParent->addChild(wpGroup);
     if (filename != NULL)
@@ -668,7 +670,6 @@ void CNCPlugin::setTimestep(int t)
     if (wpTopGeom && t == 0)
     {
         wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-        //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
         wpTopGeom->dirtyDisplayList();
     }
 
@@ -676,8 +677,7 @@ void CNCPlugin::setTimestep(int t)
     {   
         if (t % 1 == 0)
         {
-            wpMillCut(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-            //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
+            wpMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
             wpTopGeom->dirtyDisplayList();
         }
     }
@@ -888,6 +888,7 @@ void CNCPlugin::createWpGeodes(Group *parent)
     
     setWpSize();
     setWpResolution();
+    setWpMaterial();
     
 //    std::array<double, 5> minMaxCoords = {wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ};
 //    std::array<double, 5> minMaxCoords = {0 / 1000.0, 10 / 1000.0, 0 / 1000.0, 10 / 1000.0, 10 / 1000.0};
@@ -939,8 +940,8 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
  //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
     wpColors = new Vec4Array();
     auto points = new Vec3Array();
-    //wpPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
-    wpPrimitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
+    //wpTopPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
 
     for (int iy = 0; iy < wpTotalQuadsY; iy++)
@@ -953,21 +954,23 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
             points->push_back(Vec3(minX + (ix + 1) * wpResX, minY + iy * wpResY, z));
             points->push_back(Vec3(minX + (ix + 1) * wpResX, minY + (iy + 1) * wpResY, z));
             points->push_back(Vec3(minX + ix * wpResX, minY + (iy + 1) * wpResY, z));
+            cuttedFaces.push_back(-1);
             //for (int j = 0; j<4; j++)
             //    wpColors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
-            wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+      /*      wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
             wpColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
             wpColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 0.50f));
             wpColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
- /*           wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 0);
-            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 1);
-            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 2);
-            wpPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 3);
+            */
+ /*           wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 0);
+            wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 1);
+            wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 2);
+            wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 3);
   */            
         }
     }
-    wpPrimitives->push_back(points->size());
-
+    wpTopPrimitives->push_back(points->size());
+    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
 /*    float wpCol = 0.5;
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
@@ -1027,16 +1030,32 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     geo->setVertexArray(points);
     geo->setColorArray(wpColors);
     geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
     osg::Vec3Array *normals = new osg::Vec3Array;
-    //normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-    //geo->setNormalArray(normals, osg::Array::BIND_OVERALL);
+    normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    normals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+   // geo->setNormalArray(normals);// , osg::Array::BIND_OVERALL);
+    
+
 
     test1 = points->getNumElements();
     test2 = points->size();
-    //geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS));//, 0, points->size()-1));
-    geo->addPrimitiveSet(wpPrimitives);
+    wpTopPrimitives->setName("wpTopPrimitives");
+    geo->addPrimitiveSet(wpTopPrimitives);
+
+    wpVerticalPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
+    //3904, 3907, 3901, 3902
+    wpVerticalPrimitives->push_back(0);
+    wpVerticalPrimitives->push_back(1);
+    wpVerticalPrimitives->push_back(2);
+    wpVerticalPrimitives->push_back(3);
+
+    wpVerticalPrimitives->setName("wpVerticalPrimitives");
+    geo->addPrimitiveSet(wpVerticalPrimitives);
     //setStateSet(geo, pointSize());
-    geo->setStateSet(geoState.get());
+    geo->setStateSet(wpStateSet.get());
     geo->dirtyDisplayList();
     //geo->setUseDisplayList(false);
 
@@ -1065,6 +1084,30 @@ void CNCPlugin::setWpResolution()
     wpResY = wpLengthY / wpTotalQuadsY;
 }
 
+void CNCPlugin::setWpMaterial()
+{
+    wpStateSet = new osg::StateSet();
+    wpMaterial = new osg::Material;
+    wpLineWidth = new osg::LineWidth(2.0);
+    wpMaterial.get()->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+ /*   wpMaterial.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    wpMaterial.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(1.0f, 0.0f, 0.0f, 1.0));
+    wpMaterial.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    wpMaterial.get()->setEmission(osg::Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    wpMaterial.get()->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    */
+    wpStateSet->setAttributeAndModes(wpMaterial.get(), StateAttribute::ON);
+
+    //wpStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+    wpStateSet->setAttributeAndModes(wpLineWidth.get(), StateAttribute::ON); //nur fur Linien. Ueberflussig?
+
+    osg::ref_ptr<osg::PolygonMode> polyMode(new osg::PolygonMode());
+    polyMode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL); //LINE);
+    wpStateSet->setAttribute(polyMode.get());
+}
+
+
 
 /* wpMillCut
 
@@ -1074,7 +1117,7 @@ void CNCPlugin::setWpResolution()
    Called By:
    CNCPlugin::setTimestep
 */
-void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
+void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
 {   
     //bounding Box
     double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
@@ -1094,7 +1137,9 @@ void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
             int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
             double dist = distancePointLine(piece->at(iPoint)[0] + wpResX/2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
             if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
-            {
+            {   
+                cuttedQuadsIX.push_back(ix);
+                cuttedQuadsIY.push_back(iy);
                 piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
                 piece->at(iPoint+1)[2] = pathZ[t];
                 piece->at(iPoint+2)[2] = pathZ[t];
@@ -1102,6 +1147,7 @@ void CNCPlugin::wpMillCut(osg::Vec3Array *piece, int t)
             }
         }
     }
+    wpCutFaces(geo, piece);
 }
 
 /* Return minimum distance between point p and line vw
@@ -1120,5 +1166,151 @@ void CNCPlugin::wpResetCuts(osg::Vec3Array *piece, int t)
     for (int i = 0; i < piece->getNumElements(); i++)
     {
         piece->at(i)[2] = wpMaxZ;
+    }
+}
+
+void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
+{
+    while (!cuttedQuadsIX.empty())
+    {
+        int ix = cuttedQuadsIX.back();
+        int iy = cuttedQuadsIY.back();
+        int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+        double zPoint = piece->at(iPoint)[2];
+
+        //Neighbor 1, left/west
+        int nb = (ix - 1) * 4 + iy * wpTotalQuadsX * 4;
+        double zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[iPoint/4] == 1 || cuttedFaces[iPoint/4] == 5)
+            { 
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitives->push_back(iPoint + 3);
+                wpVerticalPrimitives->push_back(iPoint);
+                wpVerticalPrimitives->push_back(nb + 1);
+                wpVerticalPrimitives->push_back(nb + 2);
+                if (cuttedFaces[iPoint / 4] == 2)
+                    cuttedFaces[iPoint / 4] = 5;
+                else
+                    cuttedFaces[iPoint / 4] = 1;
+            }
+
+        }
+
+        //Neighbor 2, down/south
+        nb = ix * 4 + (iy - 1) * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[iPoint / 4] == 2 || cuttedFaces[iPoint / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitives->push_back(iPoint);
+                wpVerticalPrimitives->push_back(iPoint + 1);
+                wpVerticalPrimitives->push_back(nb + 2);
+                wpVerticalPrimitives->push_back(nb + 3);
+                if (cuttedFaces[iPoint / 4] == 1)
+                    cuttedFaces[iPoint / 4] = 5;
+                else
+                    cuttedFaces[iPoint / 4] = 2;
+            }
+
+        }
+
+        //Neighbor 3, right/east
+        nb = (ix + 1) * 4 + iy * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[nb / 4] == 1 || cuttedFaces[nb / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitives->push_back(iPoint + 1);
+                wpVerticalPrimitives->push_back(iPoint + 2);
+                wpVerticalPrimitives->push_back(nb + 3);
+                wpVerticalPrimitives->push_back(nb);
+                if (cuttedFaces[nb / 4] == 2)
+                    cuttedFaces[nb / 4] = 5;
+                else
+                    cuttedFaces[nb / 4] = 1;
+            }
+
+        }
+
+        //Neighbor 4, up/nord
+        nb = ix * 4 + (iy + 1) * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[nb / 4] == 2 || cuttedFaces[nb / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitives->push_back(iPoint + 2);
+                wpVerticalPrimitives->push_back(iPoint + 3);
+                wpVerticalPrimitives->push_back(nb);
+                wpVerticalPrimitives->push_back(nb + 1);
+                if (cuttedFaces[nb / 4] == 1)
+                    cuttedFaces[nb / 4] = 5;
+                else
+                    cuttedFaces[nb / 4] = 2;
+            }
+
+        }
+
+        /*
+        for (int i = 1; i < 5; i++)
+        {
+            //get NeighborQuads, can not be a edge quad
+            if (i==1)
+                int nb = (ix - 1) * 4 + iy * wpTotalQuadsX * 4;
+            else if (i==2)
+                int nb = ix * 4 + (iy - 1) * wpTotalQuadsX * 4;
+            else if (i==3)
+                int nb = (ix + 1) * 4 + iy * wpTotalQuadsX * 4;
+            else if (i==4)
+                int nb = ix * 4 + (iy + 1) * wpTotalQuadsX * 4;
+
+            //get zHeight 
+            double zNb = piece->at(nb)[2];
+
+            //check for height difference
+            if (zPoint < zNb)
+            {
+                //check if vertical Quad exists
+
+                //add Vertical Quads
+                wpVerticalPrimitives->push_back(iPoint);
+                wpVerticalPrimitives->push_back(iPoint + 3);
+                wpVerticalPrimitives->push_back(nb + 2);
+                wpVerticalPrimitives->push_back(nb + 1);
+                cuttedFaces[iPoint / 4] = 1;
+
+            }
+        }
+        */
+
+
+        //remove vertical Quads?
+
+
+        cuttedQuadsIX.pop_back();
+        cuttedQuadsIY.pop_back();
     }
 }
