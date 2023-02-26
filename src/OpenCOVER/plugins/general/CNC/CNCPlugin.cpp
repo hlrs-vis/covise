@@ -682,27 +682,8 @@ void CNCPlugin::setTimestep(int t)
         }
     }
 
-/*    if (triPrimitivesBot)
-    {
-        if (t % 10 == 0)
-        {
-            (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 2; (*triPrimitivesBot)[5] = 3;
-            (*triPrimitivesBot)[6] = 4; (*triPrimitivesBot)[7] = 5; (*triPrimitivesBot)[8] = 6; (*triPrimitivesBot)[9] = 5; (*triPrimitivesBot)[10] = 6; (*triPrimitivesBot)[11] = 7;
-            (*triPrimitivesBot)[12] = 4; (*triPrimitivesBot)[13] = 5; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 5; (*triPrimitivesBot)[16] = 6; (*triPrimitivesBot)[17] = 7;
-            (*triPrimitivesBot)[18] = 4; (*triPrimitivesBot)[19] = 5; (*triPrimitivesBot)[20] = 6; (*triPrimitivesBot)[21] = 5; (*triPrimitivesBot)[22] = 6; (*triPrimitivesBot)[23] = 7;
-            (*triPrimitivesBot)[24] = 4; (*triPrimitivesBot)[25] = 5; (*triPrimitivesBot)[26] = 6; (*triPrimitivesBot)[27] = 5; (*triPrimitivesBot)[28] = 6; (*triPrimitivesBot)[29] = 7;
-        }
-
-        if (t % 20 == 0)
-        {
-            (*triPrimitivesBot)[0] = 0; (*triPrimitivesBot)[1] = 1; (*triPrimitivesBot)[2] = 2; (*triPrimitivesBot)[3] = 1; (*triPrimitivesBot)[4] = 3; (*triPrimitivesBot)[5] = 2;
-            (*triPrimitivesBot)[6] = 0; (*triPrimitivesBot)[7] = 1; (*triPrimitivesBot)[8] = 4; (*triPrimitivesBot)[9] = 1; (*triPrimitivesBot)[10] = 5; (*triPrimitivesBot)[11] = 4;
-            (*triPrimitivesBot)[12] = 2; (*triPrimitivesBot)[13] = 3; (*triPrimitivesBot)[14] = 6; (*triPrimitivesBot)[15] = 3; (*triPrimitivesBot)[16] = 7; (*triPrimitivesBot)[17] = 6;
-            (*triPrimitivesBot)[18] = 0; (*triPrimitivesBot)[19] = 2; (*triPrimitivesBot)[20] = 4; (*triPrimitivesBot)[21] = 2; (*triPrimitivesBot)[22] = 6; (*triPrimitivesBot)[23] = 4;
-            (*triPrimitivesBot)[24] = 1; (*triPrimitivesBot)[25] = 3; (*triPrimitivesBot)[26] = 5; (*triPrimitivesBot)[27] = 3; (*triPrimitivesBot)[28] = 7; (*triPrimitivesBot)[29] = 5;
-        }
-    }
-*/
+TODO:
+    //if t < t_previous
 }
 
 int CNCPlugin::unloadGCode(const char *filename, const char *)
@@ -890,9 +871,6 @@ void CNCPlugin::createWpGeodes(Group *parent)
     setWpResolution();
     setWpMaterial();
     
-//    std::array<double, 5> minMaxCoords = {wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ};
-//    std::array<double, 5> minMaxCoords = {0 / 1000.0, 10 / 1000.0, 0 / 1000.0, 10 / 1000.0, 10 / 1000.0};
-//    wpTopGeom = createWpTop(&minMaxCoords, double(10 / 1000.0));
     wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
     wpTopGeode = new osg::Geode();
     wpTopGeode->setName("wpTopGeode");
@@ -922,25 +900,15 @@ void CNCPlugin::createWpGeodes(Group *parent)
 */
 osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, double maxY, double z)
 {
-/*    // compile parser
-    std::array<Expression, 4> stringExpressions;
-
-    for (size_t i = 0; i < stringExpressions.size(); i++)
-    {
-        if (!compileSymbol(symbols, i < 3 ? m_coordTerms[i]->value() : m_colorTerm->value(), stringExpressions[i]))
-            return nullptr;
-    }
-*/
     //create geometry
     auto geo = new osg::Geometry();
-    geo->setColorBinding(Geometry::BIND_OFF);
+    //geo->setColorBinding(Geometry::BIND_OFF);
  //   geo->setUseDisplayList(false);
  //   geo->setSupportsDisplayList(false);
  //   geo->setUseVertexBufferObjects(true);
  //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
     wpColors = new Vec4Array();
     auto points = new Vec3Array();
-    //wpTopPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
     wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
 
@@ -970,17 +938,16 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
         }
     }
     wpTopPrimitives->push_back(points->size());
-    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    wpColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    wpColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
 /*    float wpCol = 0.5;
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
     wpColors->push_back(getColor(wpCol));
     */
-    /*wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 1.0f, 1.0f));
-    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));     */
+
 /*
     //calculate coords and color
     std::vector<float> scalarData(symbols.size());
@@ -1029,14 +996,15 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     // bind color per vertex
     geo->setVertexArray(points);
     geo->setColorArray(wpColors);
-    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+    geo->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
 
     geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
-    osg::Vec3Array *normals = new osg::Vec3Array;
-    normals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-    normals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
-   // geo->setNormalArray(normals);// , osg::Array::BIND_OVERALL);
+    wpNormals = new osg::Vec3Array;
+    wpNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    wpNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    wpNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    geo->setNormalArray(wpNormals);// , osg::Array::BIND_OVERALL);
     
 
 
@@ -1045,15 +1013,21 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     wpTopPrimitives->setName("wpTopPrimitives");
     geo->addPrimitiveSet(wpTopPrimitives);
 
-    wpVerticalPrimitives = new DrawElementsUInt(PrimitiveSet::QUADS);
-    //3904, 3907, 3901, 3902
-    wpVerticalPrimitives->push_back(0);
-    wpVerticalPrimitives->push_back(1);
-    wpVerticalPrimitives->push_back(2);
-    wpVerticalPrimitives->push_back(3);
+    wpVerticalPrimitivesX = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpVerticalPrimitivesX->push_back(0);
+    wpVerticalPrimitivesX->push_back(1);
+    wpVerticalPrimitivesX->push_back(2);
+    wpVerticalPrimitivesX->push_back(3);
+    wpVerticalPrimitivesY = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpVerticalPrimitivesY->push_back(0);
+    wpVerticalPrimitivesY->push_back(1);
+    wpVerticalPrimitivesY->push_back(2);
+    wpVerticalPrimitivesY->push_back(3);
 
-    wpVerticalPrimitives->setName("wpVerticalPrimitives");
-    geo->addPrimitiveSet(wpVerticalPrimitives);
+    wpVerticalPrimitivesX->setName("wpVerticalPrimitivesX");
+    wpVerticalPrimitivesY->setName("wpVerticalPrimitivesY");
+    geo->addPrimitiveSet(wpVerticalPrimitivesX);
+    geo->addPrimitiveSet(wpVerticalPrimitivesY);
     //setStateSet(geo, pointSize());
     geo->setStateSet(wpStateSet.get());
     geo->dirtyDisplayList();
@@ -1090,12 +1064,12 @@ void CNCPlugin::setWpMaterial()
     wpMaterial = new osg::Material;
     wpLineWidth = new osg::LineWidth(2.0);
     wpMaterial.get()->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
- /*   wpMaterial.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
+    wpMaterial.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
     wpMaterial.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(1.0f, 0.0f, 0.0f, 1.0));
     wpMaterial.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
     wpMaterial.get()->setEmission(osg::Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
     wpMaterial.get()->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-    */
+    
     wpStateSet->setAttributeAndModes(wpMaterial.get(), StateAttribute::ON);
 
     //wpStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
@@ -1135,7 +1109,7 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
         for (int ix = ixMin; ix <= ixMax; ix++)
         {   
             int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
-            double dist = distancePointLine(piece->at(iPoint)[0] + wpResX/2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+            double dist = distancePointLineSegment(piece->at(iPoint)[0] + wpResX/2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
             if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
             {   
                 cuttedQuadsIX.push_back(ix);
@@ -1160,6 +1134,41 @@ double CNCPlugin::distancePointLine(double px, double py, double x1, double y1, 
 
     return (abs(a * px + b * py + c) / sqrt(a * a + b * b));
 }
+
+/* Return minimum distance between point p and linesegment vw
+*/
+double CNCPlugin::distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2)
+{
+    double a = px - x1;
+    double b = py - y1;
+    double c = x2 - x1;
+    double d = y2 - y1;
+    double dot = a * c + b * d;
+    double len_sq = c * c + d * d;
+    double param = -1;
+    if (len_sq != 0)        //in case of 0 length line
+        param = dot / len_sq;
+
+    double xx, yy;
+
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    }
+    else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    }
+    else {
+        xx = x1 + param * c;
+        yy = y1 + param * d;
+    }
+
+    double dx = px - xx;
+    double dy = py - yy;
+    return sqrt(dx * dx + dy * dy);
+}
+
 
 void CNCPlugin::wpResetCuts(osg::Vec3Array *piece, int t)
 {
@@ -1190,10 +1199,10 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
             else
             {
                 //add Vertical Quad
-                wpVerticalPrimitives->push_back(iPoint + 3);
-                wpVerticalPrimitives->push_back(iPoint);
-                wpVerticalPrimitives->push_back(nb + 1);
-                wpVerticalPrimitives->push_back(nb + 2);
+                wpVerticalPrimitivesX->push_back(iPoint + 3);
+                wpVerticalPrimitivesX->push_back(iPoint);
+                wpVerticalPrimitivesX->push_back(nb + 1);
+                wpVerticalPrimitivesX->push_back(nb + 2);
                 if (cuttedFaces[iPoint / 4] == 2)
                     cuttedFaces[iPoint / 4] = 5;
                 else
@@ -1214,10 +1223,10 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
             else
             {
                 //add Vertical Quad
-                wpVerticalPrimitives->push_back(iPoint);
-                wpVerticalPrimitives->push_back(iPoint + 1);
-                wpVerticalPrimitives->push_back(nb + 2);
-                wpVerticalPrimitives->push_back(nb + 3);
+                wpVerticalPrimitivesY->push_back(iPoint);
+                wpVerticalPrimitivesY->push_back(iPoint + 1);
+                wpVerticalPrimitivesY->push_back(nb + 2);
+                wpVerticalPrimitivesY->push_back(nb + 3);
                 if (cuttedFaces[iPoint / 4] == 1)
                     cuttedFaces[iPoint / 4] = 5;
                 else
@@ -1238,10 +1247,10 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
             else
             {
                 //add Vertical Quad
-                wpVerticalPrimitives->push_back(iPoint + 1);
-                wpVerticalPrimitives->push_back(iPoint + 2);
-                wpVerticalPrimitives->push_back(nb + 3);
-                wpVerticalPrimitives->push_back(nb);
+                wpVerticalPrimitivesX->push_back(iPoint + 1);
+                wpVerticalPrimitivesX->push_back(iPoint + 2);
+                wpVerticalPrimitivesX->push_back(nb + 3);
+                wpVerticalPrimitivesX->push_back(nb);
                 if (cuttedFaces[nb / 4] == 2)
                     cuttedFaces[nb / 4] = 5;
                 else
@@ -1262,10 +1271,10 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
             else
             {
                 //add Vertical Quad
-                wpVerticalPrimitives->push_back(iPoint + 2);
-                wpVerticalPrimitives->push_back(iPoint + 3);
-                wpVerticalPrimitives->push_back(nb);
-                wpVerticalPrimitives->push_back(nb + 1);
+                wpVerticalPrimitivesY->push_back(iPoint + 2);
+                wpVerticalPrimitivesY->push_back(iPoint + 3);
+                wpVerticalPrimitivesY->push_back(nb);
+                wpVerticalPrimitivesY->push_back(nb + 1);
                 if (cuttedFaces[nb / 4] == 1)
                     cuttedFaces[nb / 4] = 5;
                 else

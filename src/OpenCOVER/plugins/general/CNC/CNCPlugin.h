@@ -105,8 +105,10 @@ private:
     osg::Geode *wpTopGeode = nullptr;
     osg::ref_ptr<osg::Geometry> wpTopGeom;
     osg::Vec4Array *wpColors = nullptr;
+    osg::Vec3Array *wpNormals = nullptr;
     osg::DrawArrayLengths *wpTopPrimitives = nullptr;
-    osg::DrawElementsUInt *wpVerticalPrimitives = nullptr;
+    osg::DrawElementsUInt *wpVerticalPrimitivesX = nullptr; //parallel X
+    osg::DrawElementsUInt *wpVerticalPrimitivesY = nullptr; //parallel Y
     osg::ref_ptr<osg::StateSet> wpStateSet;
     osg::ref_ptr<osg::Material> wpMaterial;
     osg::ref_ptr<osg::LineWidth> wpLineWidth;
@@ -115,10 +117,10 @@ private:
     void setWpResolution();
     void setWpMaterial();
     //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
-    //osg::Geometry *createWpTop(std::array<double, 5> *minMaxCoords, double length_a);
     osg::Geometry *createWpTop(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
+    double distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2);
     void wpResetCuts(osg::Vec3Array *piece, int t);
     void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
 
@@ -126,7 +128,8 @@ private:
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.005;  // 5 / 1000;    //größenzugabe
-    double wpResolution = 0.0004; //0.1 / 1000;   //aimed
+    //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
+    double wpResolution = 0.00010;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
     //int ix_total;           //deprecated?
