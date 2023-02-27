@@ -101,14 +101,19 @@ private:
     void save();
 
     //workpiece wp
-    osg::Group *wpGroup = nullptr;
-    osg::Geode *wpTopGeode = nullptr;
+    osg::ref_ptr<osg::Group> wpGroup; //osg::Group *wpGroup = nullptr;
+    osg::ref_ptr<osg::Geode> wpTopGeode; //osg::Geode *wpTopGeode = nullptr;
     osg::ref_ptr<osg::Geometry> wpTopGeom;
-    osg::Vec4Array *wpColors = nullptr;
-    osg::Vec3Array *wpNormals = nullptr;
+    osg::ref_ptr<osg::Vec4Array> wpTopColors; //osg::Vec4Array *wpColors = nullptr;
+    osg::ref_ptr<osg::Vec3Array> wpTopNormals; //osg::Vec3Array *wpNormals = nullptr;
     osg::DrawArrayLengths *wpTopPrimitives = nullptr;
     osg::DrawElementsUInt *wpVerticalPrimitivesX = nullptr; //parallel X
     osg::DrawElementsUInt *wpVerticalPrimitivesY = nullptr; //parallel Y
+    osg::ref_ptr<osg::Geode> wpBotGeode;
+    osg::ref_ptr<osg::Geometry> wpBotGeom;
+    osg::ref_ptr<osg::Vec4Array> wpBotColors;
+    osg::ref_ptr<osg::Vec3Array> wpBotNormals;
+    osg::DrawArrayLengths *wpBotPrimitives = nullptr;
     osg::ref_ptr<osg::StateSet> wpStateSet;
     osg::ref_ptr<osg::Material> wpMaterial;
     osg::ref_ptr<osg::LineWidth> wpLineWidth;
@@ -117,8 +122,10 @@ private:
     void setWpResolution();
     void setWpMaterial();
     //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
-    osg::Geometry *createWpTop(double minX, double maxX, double minY, double maxY, double z);
+    osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
+    osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
+    void wpPrepareMillCut(osg::Geometry* geo, osg::Vec3Array* piece, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2);
     void wpResetCuts(osg::Vec3Array *piece, int t);
@@ -127,7 +134,7 @@ private:
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
-    double wpAllowance = 0.005;  // 5 / 1000;    //größenzugabe
+    double wpAllowance = 0.001;  // 5 / 1000;    //größenzugabe
     //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
     double wpResolution = 0.00010;
     double wpResX, wpResY;              //is

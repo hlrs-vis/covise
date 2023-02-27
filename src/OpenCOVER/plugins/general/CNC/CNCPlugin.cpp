@@ -663,7 +663,7 @@ void CNCPlugin::setTimestep(int t)
 {
     if (primitives)
     {
-        primitives->at(0) = t;
+        primitives->at(0) = t+1;
         geom->dirtyDisplayList();
     }
 
@@ -682,7 +682,7 @@ void CNCPlugin::setTimestep(int t)
         }
     }
 
-TODO:
+//TODO:
     //if t < t_previous
 }
 
@@ -871,11 +871,26 @@ void CNCPlugin::createWpGeodes(Group *parent)
     setWpResolution();
     setWpMaterial();
     
+    wpBotGeom = createWpBottom(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ);
+    wpBotGeode = new osg::Geode();
+    wpBotGeode->setName("wpBotGeode");
+    parent->addChild(wpBotGeode);
+    wpBotGeode->addDrawable(wpBotGeom);
+    wpBotGeom->dirtyDisplayList();
+
+
     wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
     wpTopGeode = new osg::Geode();
     wpTopGeode->setName("wpTopGeode");
     parent->addChild(wpTopGeode);
     wpTopGeode->addDrawable(wpTopGeom);
+
+    auto asd = coVRAnimationManager::instance()->getNumTimesteps();
+    for (int i = 1; i < coVRAnimationManager::instance()->getNumTimesteps(); i++)
+    {
+        wpPrepareMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), i);
+    }
+
     auto testVec = wpTopGeom->getVertexArray();
     auto testArray = dynamic_cast<osg::Vec3Array*>(testVec);
     //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
@@ -886,6 +901,82 @@ void CNCPlugin::createWpGeodes(Group *parent)
     coVRAnimationManager::instance()->setNumTimesteps(dataTable.size(), this);
 */
 }
+
+/* createWpBottom
+
+   Returned Value: bottom Geometry
+
+   Side Effects:
+   Creates a Geometry: rectangular shape as big as the given coords.
+
+   Called By:
+   CNCPlugin::createWpGeodes
+*/
+osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
+{
+    //create geometry
+    auto geo = new osg::Geometry();
+    //geo->setColorBinding(Geometry::BIND_OFF);
+ //   geo->setUseDisplayList(false);
+ //   geo->setSupportsDisplayList(false);
+ //   geo->setUseVertexBufferObjects(true);
+ //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
+    wpBotColors = new Vec4Array();
+    wpBotNormals = new osg::Vec3Array;
+    auto points = new Vec3Array();
+    wpBotPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+
+    points->push_back(Vec3(maxX, minY, minZ));
+    points->push_back(Vec3(minX, minY, minZ));
+    points->push_back(Vec3(minX, minY, maxZ));
+    points->push_back(Vec3(maxX, minY, maxZ));
+    for (int i = 0; i<4; i++)
+        wpBotNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    points->push_back(Vec3(minX, maxY, minZ));
+    points->push_back(Vec3(maxX, maxY, minZ));
+    points->push_back(Vec3(maxX, maxY, maxZ));
+    points->push_back(Vec3(minX, maxY, maxZ));
+    for (int i = 0; i < 4; i++)
+        wpBotNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+
+    points->push_back(Vec3(minX, minY, minZ));
+    points->push_back(Vec3(minX, maxY, minZ));
+    points->push_back(Vec3(minX, maxY, maxZ));
+    points->push_back(Vec3(minX, minY, maxZ));
+    for (int i = 0; i < 4; i++)
+        wpBotNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    points->push_back(Vec3(maxX, maxY, minZ));
+    points->push_back(Vec3(maxX, minY, minZ));
+    points->push_back(Vec3(maxX, minY, maxZ));
+    points->push_back(Vec3(maxX, maxY, maxZ));
+    for (int i = 0; i < 4; i++)
+        wpBotNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+
+    points->push_back(Vec3(minX, minY, minZ));
+    points->push_back(Vec3(maxX, minY, minZ));
+    points->push_back(Vec3(maxX, maxY, minZ));
+    points->push_back(Vec3(minX, maxY, minZ));
+    for (int i = 0; i < 4; i++)
+        wpBotNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+
+    wpBotPrimitives->push_back(points->size());
+    wpBotColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    geo->setVertexArray(points);
+    geo->setColorArray(wpBotColors);
+    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+    geo->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+    geo->setNormalArray(wpBotNormals);
+    wpBotPrimitives->setName("wpBotPrimitives");
+    geo->addPrimitiveSet(wpBotPrimitives);
+
+    geo->setStateSet(wpStateSet.get());
+    geo->dirtyDisplayList();
+    //geo->setUseDisplayList(false);
+
+    return geo;
+}
+
 
 /* createWpTop
 
@@ -898,7 +989,7 @@ void CNCPlugin::createWpGeodes(Group *parent)
    Called By:
    CNCPlugin::createWpGeodes
 */
-osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, double maxY, double z)
+osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTop(double minX, double maxX, double minY, double maxY, double z)
 {
     //create geometry
     auto geo = new osg::Geometry();
@@ -907,7 +998,7 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
  //   geo->setSupportsDisplayList(false);
  //   geo->setUseVertexBufferObjects(true);
  //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-    wpColors = new Vec4Array();
+    wpTopColors = new Vec4Array();
     auto points = new Vec3Array();
     wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
@@ -924,11 +1015,11 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
             points->push_back(Vec3(minX + ix * wpResX, minY + (iy + 1) * wpResY, z));
             cuttedFaces.push_back(-1);
             //for (int j = 0; j<4; j++)
-            //    wpColors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
-      /*      wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
-            wpColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
-            wpColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 0.50f));
-            wpColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
+            //    wpTopColors->push_back(osg::Vec4(0.10f, 0.50f, 0.50f, 0.50f));
+      /*      wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+            wpTopColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 0.50f));
+            wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
             */
  /*           wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 0);
             wpTopPrimitives->push_back(ix * 4 + iy * wpTotalQuadsX * 4 + 1);
@@ -938,14 +1029,14 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
         }
     }
     wpTopPrimitives->push_back(points->size());
-    wpColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    wpColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    wpColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 /*    float wpCol = 0.5;
-    wpColors->push_back(getColor(wpCol));
-    wpColors->push_back(getColor(wpCol));
-    wpColors->push_back(getColor(wpCol));
-    wpColors->push_back(getColor(wpCol));
+    wpTopColors->push_back(getColor(wpCol));
+    wpTopColors->push_back(getColor(wpCol));
+    wpTopColors->push_back(getColor(wpCol));
+    wpTopColors->push_back(getColor(wpCol));
     */
 
 /*
@@ -992,19 +1083,19 @@ osg::Geometry *CNCPlugin::createWpTop(double minX, double maxX, double minY, dou
     //vertexBufferArray->setArray(0, points);
     //vertexBufferArray->setArray(1, colors);
     //points->setBinding(osg::Array::BIND_PER_VERTEX);
-    //wpColors->setBinding(osg::Array::BIND_PER_VERTEX);
+    //wpTopColors->setBinding(osg::Array::BIND_PER_VERTEX);
     // bind color per vertex
     geo->setVertexArray(points);
-    geo->setColorArray(wpColors);
+    geo->setColorArray(wpTopColors);
     geo->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
     //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
 
     geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
-    wpNormals = new osg::Vec3Array;
-    wpNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-    wpNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
-    wpNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
-    geo->setNormalArray(wpNormals);// , osg::Array::BIND_OVERALL);
+    wpTopNormals = new osg::Vec3Array;
+    wpTopNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    wpTopNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    geo->setNormalArray(wpTopNormals);// , osg::Array::BIND_OVERALL);
     
 
 
@@ -1065,10 +1156,10 @@ void CNCPlugin::setWpMaterial()
     wpLineWidth = new osg::LineWidth(2.0);
     wpMaterial.get()->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     wpMaterial.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
-    wpMaterial.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(1.0f, 0.0f, 0.0f, 1.0));
-    wpMaterial.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    wpMaterial.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(0.80f, 0.80f, 0.80f, 1.0));
+    wpMaterial.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.5f, 0.5f, 0.5f, 1.0));
     wpMaterial.get()->setEmission(osg::Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
-    wpMaterial.get()->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    wpMaterial.get()->setShininess(osg::Material::FRONT_AND_BACK, 8.0f);
     
     wpStateSet->setAttributeAndModes(wpMaterial.get(), StateAttribute::ON);
 
@@ -1103,6 +1194,11 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
     int ixMax = (boxMaxX - wpMinX) / wpResX;
     int iyMin = (boxMinY - wpMinY) / wpResY;
     int iyMax = (boxMaxY - wpMinY) / wpResY;
+    if (ixMin < 0)              //for last move, usually to (0,0,0)
+        ixMin = 0;
+    if (iyMin < 0)
+        iyMin = 0;
+
 
     for (int iy = iyMin; iy <= iyMax; iy++)
     {   
@@ -1112,12 +1208,49 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
             double dist = distancePointLineSegment(piece->at(iPoint)[0] + wpResX/2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
             if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
             {   
-                cuttedQuadsIX.push_back(ix);
-                cuttedQuadsIY.push_back(iy);
+                //cuttedQuadsIX.push_back(ix);
+                //cuttedQuadsIY.push_back(iy);
                 piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
                 piece->at(iPoint+1)[2] = pathZ[t];
                 piece->at(iPoint+2)[2] = pathZ[t];
                 piece->at(iPoint+3)[2] = pathZ[t];
+            }
+        }
+    }
+    //wpCutFaces(geo, piece);
+}
+
+void CNCPlugin::wpPrepareMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
+{
+    //bounding Box
+    double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
+    double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
+    double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
+    double boxMaxY = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
+
+    int ixMin = (boxMinX - wpMinX) / wpResX;
+    int ixMax = (boxMaxX - wpMinX) / wpResX;
+    int iyMin = (boxMinY - wpMinY) / wpResY;
+    int iyMax = (boxMaxY - wpMinY) / wpResY;
+    if (ixMin < 0)
+        ixMin = 0;
+    if (iyMin < 0)
+        iyMin = 0;
+
+    for (int iy = iyMin; iy <= iyMax; iy++)
+    {
+        for (int ix = ixMin; ix <= ixMax; ix++)
+        {
+            int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+            double dist = distancePointLineSegment(piece->at(iPoint)[0] + wpResX / 2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+            if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
+            {
+                cuttedQuadsIX.push_back(ix);
+                cuttedQuadsIY.push_back(iy);
+                piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                piece->at(iPoint + 1)[2] = pathZ[t];
+                piece->at(iPoint + 2)[2] = pathZ[t];
+                piece->at(iPoint + 3)[2] = pathZ[t];
             }
         }
     }
