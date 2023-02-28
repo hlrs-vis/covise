@@ -2403,6 +2403,7 @@ RevitPlugin::handleMessage(Message *m)
         tb >> fileName;
 		tb >> TrueNorthAngle;
 		tb >> ProjectHeight;
+		ProjectHeight *= REVIT_FEET_TO_M;
 		double eastWest;
 		double northSouth;
 		double xo=0.0, yo = 0.0, zo = 0.0;
@@ -3488,8 +3489,9 @@ RevitPlugin::preFrame()
 			{
 				TokenBuffer stb;
 				
-
-				osg::Matrix mat = RevitScale * NorthRotMat * RevitGeoRefference * cover->getBaseMat();
+				osg::Matrix projectHeightMatrix;
+				projectHeightMatrix.makeTranslate(osg::Vec3(0,0,ProjectHeight));
+				osg::Matrix mat = RevitScale * NorthRotMat * projectHeightMatrix * RevitGeoRefference * cover->getBaseMat();
 				osg::Matrix invMat;
 				invMat.invert(mat);
 				osg::Matrix viewerTrans = cover->getViewerMat() * invMat;

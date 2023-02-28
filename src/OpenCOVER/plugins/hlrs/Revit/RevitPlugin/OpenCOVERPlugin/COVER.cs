@@ -316,10 +316,10 @@ namespace OpenCOVERPlugin
             Level lastLevel = null;
             FilteredElementCollector collector = new FilteredElementCollector(document);
             ICollection<Element> collection = collector.OfClass(typeof(Level)).ToElements();
-            foreach (Element e in collection)
+            List<Level> levels = collection.Cast<Level>().ToList();
+            levels.Sort((left, right) => left.Elevation.CompareTo(right.Elevation));
+            foreach (Level level in levels)
             {
-                Level level = e as Level;
-
                 if (null != level)
                 {
                     // keep track of number of levels
@@ -329,6 +329,10 @@ namespace OpenCOVERPlugin
                         if (height < level.Elevation && height > lastLevel.Elevation)
                         {
                             return lastLevel;
+                        }
+                        else if(levelNumber == levels.Count() && height > level.Elevation)
+                        {
+                            return level;
                         }
                     }
                     lastLevel = level;
@@ -457,9 +461,35 @@ namespace OpenCOVERPlugin
             }
             sendMessage(mb.buf, MessageTypes.DesignOptionSets);
 
+            
+
             ProjectPosition projectPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
             double ProjectNorthAngle = projectPos.Angle;
             double ProjectHeight = projectPos.Elevation;
+
+            FilteredElementCollector locations = new FilteredElementCollector(doc).OfClass(typeof(BasePoint));
+            foreach (var locationPoint in locations)
+            {
+                BasePoint basePoint = locationPoint as BasePoint;
+                Location svLoc = basePoint.Location;
+                if (basePoint.IsShared == true)
+                {
+                    //this is the survey point
+
+                    /*Location svLoc = basePoint.Location;
+                    projectSurvpntX = basePoint.get_Parameter(BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble();
+                    projectSurvpntY = basePoint.get_Parameter(BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble();
+                    projectSurvpntZ = basePoint.get_Parameter(BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble();*/
+                }
+                else // this is one of the project base points, we just hope that they all share the same height...
+                {
+                    if(basePoint.get_Parameter(BuiltInParameter.BASEPOINT_ELEVATION_PARAM) != null)
+                    ProjectHeight = basePoint.get_Parameter(BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble(); 
+                    else
+                        ProjectHeight = basePoint.Position.Z;
+                }
+            }
+
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             mbdocinfo.add(ProjectNorthAngle);
