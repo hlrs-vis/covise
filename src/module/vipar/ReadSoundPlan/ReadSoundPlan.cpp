@@ -96,17 +96,33 @@ int ReadSoundPlan::compute(const char * /*port*/)
     meshName = meshOutPort->getObjName();
     daySoundName = daySoundOutPort->getObjName();
     nightSoundName = nightSoundOutPort->getObjName();
+    bool haveW=false;
+    bool haveHeader = false;
 
     //check for number of objects
     while (fgets(tmp, sizeof(tmp), fp) != NULL)
     {
         if (num_elem == 0)
         {
-            pch = strtok(tmp, ";");
+            pch = strtok(tmp, "\t;");
             while (pch != NULL)
             {
                 printf("%s\n", pch);
-                pch = strtok(NULL, " ;");
+                pch = strtok(NULL, " \t;");
+                if (num_field == 0)
+                {
+                    if (pch[0] == 'Y')
+                    {
+                        haveHeader = true;
+                    }
+                }
+                if (num_field == 2)
+                {
+                    if (pch[0] == 'W')
+                    {
+                        haveW = true;
+                    }
+                }
                 num_field++;
             }
         }
@@ -114,7 +130,11 @@ int ReadSoundPlan::compute(const char * /*port*/)
     }
     rewind(fp);
     printf("%i\n", num_field);
-
+    if (haveHeader)
+    {
+        fgets(tmp, sizeof(tmp), fp);// read header line
+        num_elem--;
+    }
     // create the unstructured grid object for the mesh
     if (meshName != NULL)
     {
@@ -178,7 +198,18 @@ int ReadSoundPlan::compute(const char * /*port*/)
                 if (fgets(buf, 300, fp) != NULL)
                 {
                     //sscanf(buf,"%s%f%f%f%f%f\n",tmp, x_coord, y_coord, z_coord,dBDay, dBNight);
-                    sscanf(buf, "%f%f%f%f%f\n", x_coord, y_coord, z_coord, dBDay, dBNight);
+                    char* c = buf;
+                    while (*c != '\0')
+                    {
+                        if (*c == ',')
+                            *c = '.';
+                        c++;
+                    }
+                    float W;
+                    if(haveW)
+                        sscanf(buf, "%f%f%f%f%f%f", x_coord, y_coord, z_coord, &W, dBDay, dBNight);
+                    else
+                        sscanf(buf, "%f%f%f%f%f", x_coord, y_coord, z_coord, dBDay, dBNight);
                     x_coord++;
                     y_coord++;
                     z_coord++;

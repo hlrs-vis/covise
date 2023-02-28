@@ -740,3 +740,8 @@ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs
 #####
 u3d https://github.com/ningfei/u3d
 cmake .. -G "Visual Studio 17 2022" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/u3d -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/png;c:/src/externlibs/zebu/jpeg
+
+
+###
+vistle
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan/debug;c:/src/externlibs/zebu/botan/release;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
