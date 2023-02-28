@@ -388,7 +388,9 @@ Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugin
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
-Source: {#EXTERNLIBS}\opencv4\x64\vc17\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\opencv4\x64\vc17\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
+Source: {#EXTERNLIBS}\ifcpp\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover 
+Source: {#EXTERNLIBS}\u3d\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
@@ -593,7 +595,7 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; D
 ; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
           
 [UninstallDelete]   
-Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2022\FoamInterface.addin"
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2022\OpenFOAMInterface.addin"
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2022\OpenCOVER.addin"
 
 [Code]
@@ -876,15 +878,15 @@ if CurStep = ssPostInstall then begin
   filecontent :=  '<?xml version="1.0" encoding="utf-8"?>'+ #13#10 +
 '<RevitAddIns>'+ #13#10 +
 '  <AddIn Type="Application">'+ #13#10 +
-'    <Name>OpenFOAMExporterUI</Name>'+ #13#10 +
+'    <Name>OpenFOAMInterface</Name>'+ #13#10 +
 '    <Assembly>'+ExpandConstant('{#DLIB}')+'\OpenFOAMInterface.dll</Assembly>'+ #13#10 +
-'    <AddInId>10a97048-ef29-446a-a2ef-ad092b7cd2af</AddInId>'+ #13#10 +
-'    <FullClassName>BIM.OpenFOAMExport.OpenFOAMExporterUI</FullClassName>'+ #13#10 +
+'    <ClientId>dacafd6c-f520-4bfa-838d-12d44b65d355</ClientId>'+ #13#10 +
+'    <FullClassName>OpenFOAMInterface.BIM.OpenFOAMInterfaceApp</FullClassName>'+ #13#10 +
 '    <VendorId>HLRS</VendorId>'+ #13#10 +
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2022\FoamInterface.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2022\OpenFOAMInterface.addin');
   SaveStringToFile(filename, filecontent, False);
   end;
 end;
