@@ -994,7 +994,7 @@ public:
                     char sizeName[100];
                     sprintf(sizeName,"%d",IDs[i]);
                     ARToolKitMarker *objMarker = new ARToolKitMarker(sizeName);
-                    objMarker->setObjectMarker(true);
+                    objMarker->setObjectMarker(false);
                     ARToolKit::instance()->addMarker(objMarker);
                     size = objMarker->getSize();
                 }
