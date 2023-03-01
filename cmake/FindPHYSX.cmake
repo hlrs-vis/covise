@@ -48,7 +48,7 @@ SET(PHYSX_FOUNDATION_NAMES PhysXFoundation_64)
 SET(PHYSX_FOUNDATION_DBG_NAMES PhysXFoundation_64)
 
 
-message(${CMAKE_PREFIX_PATH})
+message("${CMAKE_PREFIX_PATH}")
 message(${CMAKE_SYSTEM_PREFIX_PATH})
 message($ENV{EXTERNLIBS}/PhysX/bin/win.x86_64.vc142.md/release)
 
