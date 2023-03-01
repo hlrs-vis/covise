@@ -1,4 +1,4 @@
-find_package(ANARI)
+find_package(anari)
 using(Assimp)
 
 if(NOT ANARI_FOUND)
