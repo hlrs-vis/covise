@@ -149,12 +149,12 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     float bounds[6];
 
     if (anari.volume) { // asgComputeBounds doesn't work for volumes yet...
-        bounds[0] = -volumeData.sizeX*.5f;
-        bounds[1] = -volumeData.sizeY*.5f;
-        bounds[2] = -volumeData.sizeZ*.5f;
-        bounds[3] =  volumeData.sizeX*.5f;
-        bounds[4] =  volumeData.sizeY*.5f;
-        bounds[5] =  volumeData.sizeZ*.5f;
+        bounds[0] = 0.f;
+        bounds[1] = 0.f;
+        bounds[2] = 0.f;
+        bounds[3] = volumeData.sizeX;
+        bounds[4] = volumeData.sizeY;
+        bounds[5] = volumeData.sizeZ;
     } else {
         asgComputeBounds(anari.root,
                          &bounds[0],&bounds[1],&bounds[2],
@@ -165,7 +165,7 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     osg::Vec3f minCorner(bounds[0],bounds[1],bounds[2]);
     osg::Vec3f maxCorner(bounds[3],bounds[4],bounds[5]);
 
-    osg::Vec3f center = (maxCorner-minCorner)*.5f;
+    osg::Vec3f center = (minCorner+maxCorner)*.5f;
     float radius = (center-minCorner).length();
     bs.set(center, radius);
 }
