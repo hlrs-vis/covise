@@ -23,6 +23,9 @@ public:
     static int loadScene(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadScene(const char *fileName, const char *);
 
+    static int loadVolumeRAW(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadVolumeRAW(const char *fileName, const char *);
+
     ANARIPlugin();
    ~ANARIPlugin();
 
@@ -31,6 +34,12 @@ public:
     void preDraw(osg::RenderInfo &info);
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
+
+    void addObject(const RenderObject *container, osg::Group *parent,
+                   const RenderObject *geometry, const RenderObject *normals,
+                   const RenderObject *colors, const RenderObject *texture);
+
+    void removeObject(const char *objName, bool replaceFlag);
 
 private:
     Renderer::SP renderer = nullptr;

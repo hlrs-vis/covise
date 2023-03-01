@@ -5,7 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include <cstdio>
 #include <iostream>
+#include <sstream>
 #include <anari/type_utility.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
@@ -37,6 +39,28 @@ void statusFunc(const void *userData,
         fprintf(stderr, "[INFO] %s\n", message);
 }
 
+static std::string getExt(const std::string &fileName)
+{
+    int pos = fileName.rfind('.');
+    if (pos == fileName.npos)
+        return "";
+    return fileName.substr(pos);
+}
+
+static std::vector<std::string> string_split(std::string s, char delim)
+{
+    std::vector<std::string> result;
+
+    std::istringstream stream(s);
+
+    for (std::string token; std::getline(stream, token, delim); )
+    {
+        result.push_back(token);
+    }
+
+    return result;
+}
+
 
 
 Renderer::Renderer()
@@ -60,15 +84,83 @@ void Renderer::unloadScene(std::string fn)
     // NO!
 }
 
+void Renderer::loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int bpc,
+                          float minValue, float maxValue)
+{
+    // deferred!
+    volumeData.data = data;
+    volumeData.sizeX = sizeX;
+    volumeData.sizeY = sizeY;
+    volumeData.sizeZ = sizeZ;
+    volumeData.bpc = bpc;
+    volumeData.minValue = minValue;
+    volumeData.maxValue = maxValue;
+    volumeData.changed = true;
+}
+
+void Renderer::unloadVolume()
+{
+    // NO!
+}
+
+void Renderer::loadVolumeRAW(std::string fn)
+{
+    // deferred!
+
+    // parse dimensions
+    std::vector<std::string> strings = string_split(fn, '_');
+
+    int sizeX=0, sizeY=0, sizeZ=0;
+    for (auto str : strings) {
+        int res = sscanf(str.c_str(), "%dx%dx%dx", &sizeX, &sizeY, &sizeZ);
+        if (res == 3)
+            break;
+    }
+
+    size_t numVoxels = sizeX*size_t(sizeY)*sizeZ;
+    if (numVoxels == 0)
+        return;
+
+    volumeData.data = new uint8_t[numVoxels];
+    volumeData.sizeX = sizeX;
+    volumeData.sizeY = sizeY;
+    volumeData.sizeZ = sizeZ;
+    volumeData.bpc = 1;// !
+    volumeData.minValue = 0.f;
+    volumeData.maxValue = 1.f;
+    volumeData.changed = true;
+    volumeData.deleteData = true;
+
+    FILE *file = fopen(fn.c_str(), "rb");
+    fread((void *)volumeData.data, numVoxels, 1, file);
+    fclose(file);
+}
+
+void Renderer::unloadVolumeRAW(std::string fn)
+{
+    // NO!
+}
+
 void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 {
     if (!anari.world)
         return;
 
     float bounds[6];
-    asgComputeBounds(anari.root,
-                     &bounds[0],&bounds[1],&bounds[2],
-                     &bounds[3],&bounds[4],&bounds[5]);
+
+    if (anari.volume) { // asgComputeBounds doesn't work for volumes yet...
+        bounds[0] = -volumeData.sizeX*.5f;
+        bounds[1] = -volumeData.sizeY*.5f;
+        bounds[2] = -volumeData.sizeZ*.5f;
+        bounds[3] =  volumeData.sizeX*.5f;
+        bounds[4] =  volumeData.sizeY*.5f;
+        bounds[5] =  volumeData.sizeZ*.5f;
+    } else {
+        asgComputeBounds(anari.root,
+                         &bounds[0],&bounds[1],&bounds[2],
+                         &bounds[3],&bounds[4],&bounds[5]);
+
+    }
 
     osg::Vec3f minCorner(bounds[0],bounds[1],bounds[2]);
     osg::Vec3f maxCorner(bounds[3],bounds[4],bounds[5]);
@@ -94,8 +186,13 @@ void Renderer::renderFrame(osg::RenderInfo &info)
         return;
 
     if (fileName.changed) {
-        initScene(fileName.value.c_str());
+        initScene();
         fileName.changed = false;
+    }
+
+    if (volumeData.changed) {
+        initVolume();
+        volumeData.changed = false;
     }
 
     for (unsigned chan=0; chan<multiChannelDrawer->numViews(); ++chan) {
@@ -223,16 +320,10 @@ void Renderer::initANARI()
 
 #define ASG_SAFE_CALL(X) X // TODO!
 
-static std::string getExt(const std::string &fileName)
+void Renderer::initScene()
 {
-    int pos = fileName.rfind('.');
-    if (pos == fileName.npos)
-        return "";
-    return fileName.substr(pos);
-}
+    const char *fileName = this->fileName.value.c_str();
 
-void Renderer::initScene(const char *fileName)
-{
     anari.root = asgNewObject();
 
     // Load from file
@@ -247,6 +338,60 @@ void Renderer::initScene(const char *fileName)
                                      ASG_BUILD_WORLD_FLAG_FULL_REBUILD, 0));
 
     anariCommitParameters(anari.device, anari.world);
+}
+
+void Renderer::initVolume()
+{
+    if (volumeData.bpc == 1) {
+        // Convert to float..
+        volumeData.voxels.resize(volumeData.sizeX*size_t(volumeData.sizeY)*volumeData.sizeZ);
+
+        for (size_t i=0; i<volumeData.voxels.size(); ++i) {
+            volumeData.voxels[i] = ((const uint8_t *)volumeData.data)[i]/255.999f;
+        }
+
+        anari.root = asgNewObject();
+
+        anari.volume = asgNewStructuredVolume(volumeData.voxels.data(),
+                                              volumeData.sizeX, volumeData.sizeY, volumeData.sizeZ,
+                                              ASG_DATA_TYPE_FLOAT32, nullptr);
+        ASG_SAFE_CALL(asgStructuredVolumeSetRange(anari.volume,
+                                                  volumeData.minValue, volumeData.maxValue));
+
+        volumeData.rgbLUT.resize(15);
+        volumeData.alphaLUT.resize(5);
+
+        anari.lut = asgNewLookupTable1D(volumeData.rgbLUT.data(),
+                                        volumeData.alphaLUT.data(),
+                                        volumeData.alphaLUT.size(),
+                                        nullptr);
+        ASG_SAFE_CALL(asgMakeDefaultLUT1D(anari.lut, ASG_LUT_ID_DEFAULT_LUT));
+        ASG_SAFE_CALL(asgStructuredVolumeSetLookupTable1D(anari.volume, anari.lut));
+
+        ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.volume));
+
+        ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world,
+                                         ASG_BUILD_WORLD_FLAG_FULL_REBUILD, 0));
+
+        anariCommitParameters(anari.device, anari.world);
+    }
+
+    if (volumeData.deleteData) {
+        switch (volumeData.bpc) {
+            case 1:
+                delete[] (uint8_t *)volumeData.data;
+                break;
+
+            case 2:
+                delete[] (uint16_t *)volumeData.data;
+                break;
+
+            case 4:
+                delete[] (float *)volumeData.data;
+                break;
+        }
+        volumeData.deleteData = false;
+    }
 }
 
 

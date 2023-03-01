@@ -26,6 +26,13 @@ public:
     void loadScene(std::string fileName);
     void unloadScene(std::string fileName);
 
+    void loadVolumeRAW(std::string fileName);
+    void unloadVolumeRAW(std::string fileName);
+
+    void loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int bpc,
+                    float minValue = 0.f, float maxValue = 1.f);
+    void unloadVolume();
+
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
     void renderFrame(osg::RenderInfo &info);
@@ -50,17 +57,34 @@ private:
         ANARIWorld world{nullptr};
         ANARILight headLight{nullptr};
         ASGObject root{nullptr};
+        ASGStructuredVolume volume{nullptr};
+        ASGLookupTable1D lut{nullptr};
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
     } anari;
 
     void initANARI();
-    void initScene(const char *fileName);
+    void initScene();
+    void initVolume();
 
     struct {
         std::string value;
         bool changed = false;
     } fileName;
+
+    struct {
+        const void *data;
+        int sizeX, sizeY, sizeZ;
+        int bpc;
+        float minValue, maxValue;
+
+        std::vector<float> voxels;
+        std::vector<float> rgbLUT;
+        std::vector<float> alphaLUT;
+
+        bool changed = false;
+        bool deleteData = false;
+    } volumeData;
 };
 
 
