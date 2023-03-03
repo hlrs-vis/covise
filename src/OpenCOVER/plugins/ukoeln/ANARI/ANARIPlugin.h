@@ -7,13 +7,24 @@
 
 #pragma once
 
+#include <cover/ui/Owner.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRFileManager.h>
 #include "Renderer.h"
 
+namespace opencover {
+namespace ui {
+class Element;
+class Group;
+class Menu;
+class Button;
+class ButtonGroup;
+}
+}
+
 using namespace opencover;
 
-class ANARIPlugin : public coVRPlugin
+class ANARIPlugin : public coVRPlugin, public ui::Owner
 {
 
 public:
@@ -40,6 +51,13 @@ public:
                    const RenderObject *colors, const RenderObject *texture);
 
     void removeObject(const char *objName, bool replaceFlag);
+
+protected:
+    ui::Menu *anariMenu = nullptr;
+    ui::Menu *rendererMenu = nullptr;
+    ui::Group *rendererGroup = nullptr;
+    ui::ButtonGroup *rendererButtonGroup = nullptr;
+    std::vector<ui::Button *> rendererButtons;
 
 private:
     Renderer::SP renderer = nullptr;

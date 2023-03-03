@@ -6,6 +6,9 @@
  * License: LGPL 2+ */
 #include "ANARIPlugin.h"
 
+#include <cover/ui/Button.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Menu.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
@@ -73,6 +76,7 @@ int ANARIPlugin::unloadVolumeRAW(const char *fileName, const char *)
 }
 
 ANARIPlugin::ANARIPlugin()
+: ui::Owner("ANARI",cover->ui)
 {
 }
 
@@ -94,10 +98,31 @@ bool ANARIPlugin::init()
 
     renderer = std::make_shared<Renderer>();
 
-    //register file handler
+    // register file handlers
     int numHandlers = sizeof(handlers) / sizeof(handlers[0]);
     for (int i=0; i<numHandlers; ++i) {
         coVRFileManager::instance()->registerFileHandler(&handlers[i]);
+    }
+
+    // init menu
+    anariMenu = new ui::Menu("ANARI", this);
+    rendererMenu = new ui::Menu(anariMenu, "Renderer");
+    rendererGroup = new ui::Group(rendererMenu, "Renderer");
+    rendererButtonGroup = new ui::ButtonGroup(rendererGroup, "RendererGroup");
+
+    std::vector<std::string> rendererTypes = renderer->getRendererTypes();
+    rendererButtons.resize(rendererTypes.size());
+
+    for (size_t i=0; i<rendererTypes.size(); ++i) {
+        rendererButtons[i] = new ui::Button(rendererGroup,
+                                            rendererTypes[i],
+                                            rendererButtonGroup);
+        rendererButtons[i]->setText(rendererTypes[i]);
+        rendererButtons[i]->setCallback([=](bool state) {
+            if (state) {
+                renderer->setRendererType(rendererTypes[i]);
+            }
+        });
     }
 
     return true;

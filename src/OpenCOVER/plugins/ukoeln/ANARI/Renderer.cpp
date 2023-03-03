@@ -65,6 +65,10 @@ static std::vector<std::string> string_split(std::string s, char delim)
 
 Renderer::Renderer()
 {
+    initDevice();
+
+    if (!anari.device)
+        throw std::runtime_error("Could not init ANARI device");
 }
 
 Renderer::~Renderer()
@@ -101,6 +105,29 @@ void Renderer::loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int
 void Renderer::unloadVolume()
 {
     // NO!
+}
+
+void Renderer::setRendererType(std::string type)
+{
+    anari.renderertype = type;
+    initRenderer();
+}
+
+std::vector<std::string> Renderer::getRendererTypes()
+{
+    std::vector<std::string> result;
+    const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
+    if (deviceSubtypes != nullptr) {
+
+        while (const char* dstype = *deviceSubtypes++) {
+            const char** rendererTypes = anariGetObjectSubtypes(anari.library, dstype, ANARI_RENDERER);
+            while (rendererTypes && *rendererTypes) {
+                const char* rendererType = *rendererTypes++;
+                result.push_back(rendererType);
+            }
+        }
+    }
+    return result;
 }
 
 void Renderer::loadVolumeRAW(std::string fn)
@@ -179,10 +206,10 @@ void Renderer::renderFrame(osg::RenderInfo &info)
         channelInfos.resize(multiChannelDrawer->numViews());
     }
 
-    if (!anari.library)
-        initANARI();
+    if (anari.frames.empty())
+        initFrames();
 
-    if (!anari.library) // init failed!
+    if (anari.frames.empty()) // init failed!
         return;
 
     if (fileName.changed) {
@@ -215,14 +242,6 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
                                        channelInfos[chan].depthFormat);
         multiChannelDrawer->clearColor(chan);
         multiChannelDrawer->clearDepth(chan);
-
-        float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
-        float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
-        float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
-        float bgcolor[] = {r,g,b,1.f};
-        anariSetParameter(anari.device, anari.renderer, "backgroundColor", ANARI_FLOAT32_VEC4,
-                          bgcolor);
-        anariCommitParameters(anari.device, anari.renderer);
 
         unsigned imgSize[] = {(unsigned)width,(unsigned)height};
         anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
@@ -277,20 +296,25 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
     multiChannelDrawer->swapFrame();
 }
 
-void Renderer::initANARI()
+void Renderer::initDevice()
 {
     anari.library = anariLoadLibrary(anari.libtype.c_str(), statusFunc);
     if (!anari.library) return;
     anari.device = anariNewDevice(anari.library, anari.devtype.c_str());
     if (!anari.device) return;
     anariCommitParameters(anari.device, anari.device);
+}
+
+void Renderer::initFrames()
+{
     anari.world = anariNewWorld(anari.device);
     anari.headLight = anariNewLight(anari.device,"directional");
     ANARIArray1D lights = anariNewArray1D(anari.device, &anari.headLight, 0, 0,
                                           ANARI_LIGHT, 1, 0);
     anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &lights);
     anariCommitParameters(anari.device, anari.world);
-    anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
+
+    initRenderer();
 
     anari.frames.resize(multiChannelDrawer->numViews());
     anari.cameras.resize(multiChannelDrawer->numViews());
@@ -315,6 +339,18 @@ void Renderer::initANARI()
     anariRelease(anari.device, lights);
 }
 
+void Renderer::initRenderer()
+{
+    anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
+
+    float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
+    float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
+    float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
+    float bgcolor[] = {r,g,b,1.f};
+    anariSetParameter(anari.device, anari.renderer, "backgroundColor", ANARI_FLOAT32_VEC4,
+                      bgcolor);
+    anariCommitParameters(anari.device, anari.renderer);
+}
 
 // Scene loading
 

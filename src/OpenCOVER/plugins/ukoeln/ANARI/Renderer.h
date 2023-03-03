@@ -33,6 +33,10 @@ public:
                     float minValue = 0.f, float maxValue = 1.f);
     void unloadVolume();
 
+    void setRendererType(std::string type);
+
+    std::vector<std::string> getRendererTypes();
+
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
     void renderFrame(osg::RenderInfo &info);
@@ -63,7 +67,9 @@ private:
         std::vector<ANARIFrame> frames;
     } anari;
 
-    void initANARI();
+    void initDevice();
+    void initFrames();
+    void initRenderer();
     void initScene();
     void initVolume();
 
