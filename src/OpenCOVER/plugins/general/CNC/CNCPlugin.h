@@ -49,6 +49,8 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/FileBrowser.h>
 
+#include "CNCTree.h"
+
 constexpr size_t MAXSAMPLES = 1200;
 
 using namespace covise;
@@ -124,12 +126,16 @@ private:
     //osg::Geometry *createWpSurface(osg::Vec3 *, osg::Vec3 *, double length_a);
     osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
     osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
+    osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
     void wpPrepareMillCut(osg::Geometry* geo, osg::Vec3Array* piece, int t);
+    void wpPrepareMillCutTree(double minX, double maxX, double minY, double maxY, double z, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2);
     void wpResetCuts(osg::Vec3Array *piece, int t);
     void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
+    void wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z);
+    void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z);
 
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
@@ -145,29 +151,13 @@ private:
     std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
     std::vector<int> cuttedFaces;
 
+    //TreeNode::TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
+    TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
+    TreeNode* treeRoot;
+
+
     int test1, test2;
 
-    /*
-    // Volume Sticks
-    osg::ref_ptr<osg::Geometry> stickGeom;
-    osg::ref_ptr<osg::Geode> stickGeode;
-
-    osg::Group *stickParentNode = nullptr;
-    osg::Vec3Array *stickVert = nullptr;
-    osg::Vec4Array *stickColor = nullptr;
-    osg::DrawArrayLengths *stickPrimitives = nullptr;
-
-    // Triangles
-    osg::ref_ptr<osg::Geometry> triGeomTop;
-    osg::ref_ptr<osg::Geometry> triGeomBot;
-    osg::ref_ptr<osg::Geode> triGeode;
-
-    osg::Group *triParentNode = nullptr;
-    osg::Vec3Array *triVertTop = nullptr;
-    osg::Vec3Array *triVertBot = nullptr;
-    osg::Vec4Array *triColor = nullptr;
-    osg::DrawArrayLengths *triPrimitivesTop = nullptr;
-    osg::DrawElementsUInt *triPrimitivesBot = nullptr;
-    */
 };
+
 #endif
