@@ -109,8 +109,19 @@ void Renderer::unloadVolume()
 
 void Renderer::setRendererType(std::string type)
 {
+    if (anari.frames.empty())
+        return;
+
     anari.renderertype = type;
-    initRenderer();
+    for (size_t i=0; i<channelInfos.size(); ++i) {
+        // Causes frame re-initialization
+        channelInfos[i].width = 1;
+        channelInfos[i].height = 1;
+    }
+    initFrames();
+    //anariRelease(anari.device, anari.renderer);
+    //anari.renderer = nullptr;
+    //anari.frames.clear();
 }
 
 std::vector<std::string> Renderer::getRendererTypes()
@@ -303,18 +314,27 @@ void Renderer::initDevice()
     anari.device = anariNewDevice(anari.library, anari.devtype.c_str());
     if (!anari.device) return;
     anariCommitParameters(anari.device, anari.device);
+    anari.world = anariNewWorld(anari.device);
 }
 
 void Renderer::initFrames()
 {
-    anari.world = anariNewWorld(anari.device);
     anari.headLight = anariNewLight(anari.device,"directional");
     ANARIArray1D lights = anariNewArray1D(anari.device, &anari.headLight, 0, 0,
                                           ANARI_LIGHT, 1, 0);
     anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &lights);
     anariCommitParameters(anari.device, anari.world);
 
-    initRenderer();
+    anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
+
+    float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
+    float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
+    float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
+    float bgcolor[] = {r,g,b,1.f};
+
+    anariSetParameter(anari.device, anari.renderer, "backgroundColor", ANARI_FLOAT32_VEC4,
+                      bgcolor);
+    anariCommitParameters(anari.device, anari.renderer);
 
     anari.frames.resize(multiChannelDrawer->numViews());
     anari.cameras.resize(multiChannelDrawer->numViews());
@@ -337,19 +357,6 @@ void Renderer::initFrames()
     }
 
     anariRelease(anari.device, lights);
-}
-
-void Renderer::initRenderer()
-{
-    anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
-
-    float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
-    float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
-    float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
-    float bgcolor[] = {r,g,b,1.f};
-    anariSetParameter(anari.device, anari.renderer, "backgroundColor", ANARI_FLOAT32_VEC4,
-                      bgcolor);
-    anariCommitParameters(anari.device, anari.renderer);
 }
 
 // Scene loading

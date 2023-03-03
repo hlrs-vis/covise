@@ -69,7 +69,6 @@ private:
 
     void initDevice();
     void initFrames();
-    void initRenderer();
     void initScene();
     void initVolume();
 
