@@ -25,11 +25,13 @@ struct MillCoords {
     Point pos;
     int cuttedFaces;
     double z;
+    int primitivePos;
     MillCoords(Point _pos, double _z)
     {
         pos = _pos;
         cuttedFaces = -1;
         z = _z;
+        primitivePos = -1;
     }
     //MillCoords() { data = 0; }
 };
@@ -87,6 +89,10 @@ public:
     TreeNode* getTopRightTree();
     TreeNode* getBotLeftTree();
     TreeNode* getBotRightTree();
+    void setZ(double _z);
+    double getZ();
+    void setPrimitivePos(int _primitivePos);
+    int getPrimitivePos();
     void insert(int _ix, int _iy, double _z);
     void insert(MillCoords*);
     MillCoords* search(Point);
@@ -99,7 +105,6 @@ inline Point TreeNode::getTopLeft()
 {
     return topLeft;
 }
-
 inline Point TreeNode::getBotRight()
 {
     return botRight;
@@ -114,22 +119,38 @@ inline TreeNode* TreeNode::getTopLeftTree()
 {
     return topLeftTree;
 }
-
 inline TreeNode* TreeNode::getTopRightTree()
 {
     return topRightTree;
 }
-
 inline TreeNode* TreeNode::getBotLeftTree()
 {
     return botLeftTree;
 }
-
 inline TreeNode* TreeNode::getBotRightTree()
 {
     return botRightTree;
 }
 
+inline void TreeNode::setZ(double _z)
+{   
+    n->z = _z;
+    return;
+}
+inline double TreeNode::getZ()
+{
+    return n->z;
+}
+
+inline void TreeNode::setPrimitivePos(int _primitivePos)
+{
+    n->primitivePos = _primitivePos;
+    return;
+}
+inline int TreeNode::getPrimitivePos()
+{
+    return n->primitivePos;
+}
 
 inline void TreeNode::insert(int _ix, int _iy, double _z)
 {

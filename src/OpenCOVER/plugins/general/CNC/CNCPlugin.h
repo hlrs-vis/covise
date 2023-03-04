@@ -128,6 +128,7 @@ private:
     osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
     void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
+    void wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t);
     void wpPrepareMillCut(osg::Geometry* geo, osg::Vec3Array* piece, int t);
     void wpPrepareMillCutTree(double minX, double maxX, double minY, double maxY, double z, int t);
     double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
@@ -136,17 +137,19 @@ private:
     void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
     void wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z);
     void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z);
+    void wpAddFacesTree();
 
     std::vector<double> pathX, pathY, pathZ;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.001;  // 5 / 1000;    //größenzugabe
-    //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
-    double wpResolution = 0.00010;
+    double wpResolution = 0.00002; //0.1 / 1000;   //aimed
+    //double wpResolution = 0.00010;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
     //int ix_total;           //deprecated?
     double cuttingRad = 0.0005; // 0.5 / 1000;
+    int primitivePosCounter = 0;
 
     std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
     std::vector<int> cuttedFaces;

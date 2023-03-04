@@ -670,7 +670,7 @@ void CNCPlugin::setTimestep(int t)
 
     if (wpTopGeom && t == 0)
     {
-        //wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+        wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
         wpTopGeom->dirtyDisplayList();
     }
 
@@ -679,6 +679,7 @@ void CNCPlugin::setTimestep(int t)
         if (t % 1 == 0)
         {
             //wpMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+            wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
             wpTopGeom->dirtyDisplayList();
         }
     }
@@ -1203,14 +1204,13 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             nodeStack.push(child2);
             nodeStack.push(child1);
         }
-        
+        auto tl = node->getTopLeft();
+        auto br = node->getBotRight();
         // 3 Children: 3 in Queue adden, 4. als Quad setzen
         if (node->getNumChildren() == 3)
         {   
             if (child1 == nullptr)
             {   
-                auto tl = node->getTopLeft();
-                auto br = node->getBotRight();
                 wpAddVertexsForGeo(points, tl.x +1, (tl.x+br.x)/2 +1, tl.y +1, (tl.y+br.y)/2 +1, z);
                 nodeStack.push(child4);
                 nodeStack.push(child3);
@@ -1218,8 +1218,6 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             }
             else if (child2 == nullptr)
             {
-                auto tl = node->getTopLeft();
-                auto br = node->getBotRight();
                 wpAddVertexsForGeo(points, (tl.x+br.x)/2 +1, br.x +1, tl.y +1, (tl.y+br.y)/2 +1, z);
                 nodeStack.push(child4);
                 nodeStack.push(child3);
@@ -1227,8 +1225,6 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             }
             else if (child3 == nullptr)
             {
-                auto tl = node->getTopLeft();
-                auto br = node->getBotRight();
                 wpAddVertexsForGeo(points, tl.x +1, (tl.x+br.x)/2 +1, (tl.y+br.y)/2 +1, br.y +1, z);
                 nodeStack.push(child4);
                 nodeStack.push(child2);
@@ -1236,47 +1232,206 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             }
             else //child4 == NULL
             {
-                auto tl = node->getTopLeft();
-                auto br = node->getBotRight();
                 wpAddVertexsForGeo(points, (tl.x+br.x)/2 +1, br.x +1, (tl.y+br.y)/2 +1, br.y +1, z);
                 nodeStack.push(child3);
                 nodeStack.push(child2);
                 nodeStack.push(child1);
             }
+            for (int j = 0; j < 4; j++)
+                wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
 
         }
         // 2 Children: 2 in Queue adden, checken ob boundary parent == boundary child1+child2, falls nicht 3.+4. als Quad setzen 
         else if (node->getNumChildren() == 2)
         {
-            if (child4 != nullptr)
+            if (child1 != nullptr && child4 != nullptr)     //diagonal
+            {
                 nodeStack.push(child4);
-            if (child3 != nullptr)
-                nodeStack.push(child3);
-            if (child2 != nullptr)
-                nodeStack.push(child2);
-            if (child1 != nullptr)
+                wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
                 nodeStack.push(child1);
+                for (int j = 0; j < 8; j++)
+                    wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+            }
+            else if (child2 != nullptr && child3 != nullptr)     //diagonal
+            {
+                wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                nodeStack.push(child3);
+                nodeStack.push(child2);
+                wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                for (int j = 0; j < 8; j++)
+                    wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+            }
+            else if (child1 != nullptr && child2 != nullptr)     //top
+            {   
+                nodeStack.push(child2);
+                nodeStack.push(child1);
+                if (br.y != child2->getBotRight().y)
+                {
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                    for (int j = 0; j < 8; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child1 != nullptr && child3 != nullptr)     //left
+            {
+                nodeStack.push(child3);
+                nodeStack.push(child1);
+                if (br.x != child3->getBotRight().x)
+                {
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                    for (int j = 0; j < 8; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child3 != nullptr && child4 != nullptr)     //bot
+            {
+                nodeStack.push(child4);
+                nodeStack.push(child3);
+                if (tl.y != child3->getTopLeft().y)
+                {
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                    for (int j = 0; j < 8; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child2 != nullptr && child4 != nullptr)     //right
+            {
+                nodeStack.push(child4);
+                nodeStack.push(child2);
+                if (tl.x != child2->getTopLeft().x)
+                {
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                    for (int j = 0; j < 8; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
         }
         // 1 Child: 1 in Queue adden, boundary checken, 1bis3 Quads setzen
         else if (node->getNumChildren() == 1)
         {
             if (child4 != nullptr)
+            {
                 nodeStack.push(child4);
-            if (child3 != nullptr)
+                if (tl.x != child4->getTopLeft().x)
+                {
+                    if (tl.y != child4->getTopLeft().y)
+                    {
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                        for (int j = 0; j < 12; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                    else
+                    {
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                        for (int j = 0; j < 4; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                }
+                else
+                {
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                    for (int j = 0; j < 4; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child3 != nullptr)
+            {
                 nodeStack.push(child3);
-            if (child2 != nullptr)
+                if (br.x != child3->getBotRight().x)
+                {
+                    if (tl.y != child3->getTopLeft().y)
+                    {
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                        for (int j = 0; j < 12; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                    else
+                    {
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                        for (int j = 0; j < 4; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                }
+                else
+                {
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                    for (int j = 0; j < 4; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child2 != nullptr)
+            {
                 nodeStack.push(child2);
-            if (child1 != nullptr)
+                if (tl.x != child2->getTopLeft().x)
+                {
+                    if (br.y != child2->getBotRight().y)
+                    {
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                        for (int j = 0; j < 12; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                    else
+                    {
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child1
+                        for (int j = 0; j < 4; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                }
+                else
+                {
+                    wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                    for (int j = 0; j < 4; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
+            else if (child1 != nullptr)
+            {
                 nodeStack.push(child1);
+                if (br.x != child1->getBotRight().x)
+                {
+                    if (br.y != child1->getBotRight().y)
+                    {
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child4
+                        wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                        for (int j = 0; j < 12; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                    else
+                    {
+                        wpAddVertexsForGeo(points, (tl.x + br.x) / 2 + 1, br.x + 1, tl.y + 1, (tl.y + br.y) / 2 + 1, z);    //child2
+                        for (int j = 0; j < 4; j++)
+                            wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    }
+                }
+                else
+                {
+                    wpAddVertexsForGeo(points, tl.x + 1, (tl.x + br.x) / 2 + 1, (tl.y + br.y) / 2 + 1, br.y + 1, z);    //child3
+                    for (int j = 0; j < 4; j++)
+                        wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                }
+            }
         }
   
         // 0 Child: error?
         // -1Child: Blattknoten, in Queue adden
         else if (node->getNumChildren() == -1)
-        {
-            auto tl = node->getTopLeft();
-            auto br = node->getBotRight();
+        {   
+            node->setPrimitivePos(primitivePosCounter);
             wpAddVertexsForGeo(points, tl.x +1, br.x +1, tl.y +1, br.y +1, z);
+            for (int j = 0; j < 4; j++)
+                wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
         }
     }
     // VerticalPrimitives setzen
@@ -1296,7 +1451,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
     }
 */
     wpTopPrimitives->push_back(points->size());
-    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -1348,14 +1503,14 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
         // bind color per vertex
     geo->setVertexArray(points);
     geo->setColorArray(wpTopColors);
-    geo->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
     //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
 
     geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
     wpTopNormals = new osg::Vec3Array;
     wpTopNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-    //wpTopNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
-    //wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    wpTopNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
     geo->setNormalArray(wpTopNormals);// , osg::Array::BIND_OVERALL);
 
 
@@ -1365,7 +1520,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
     wpTopPrimitives->setName("wpTopPrimitives");
     geo->addPrimitiveSet(wpTopPrimitives);
 
-/*    wpVerticalPrimitivesX = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpVerticalPrimitivesX = new DrawElementsUInt(PrimitiveSet::QUADS);
     wpVerticalPrimitivesX->push_back(0);
     wpVerticalPrimitivesX->push_back(1);
     wpVerticalPrimitivesX->push_back(2);
@@ -1376,11 +1531,13 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
     wpVerticalPrimitivesY->push_back(2);
     wpVerticalPrimitivesY->push_back(3);
 
+    wpAddFacesTree();
+   
     wpVerticalPrimitivesX->setName("wpVerticalPrimitivesX");
     wpVerticalPrimitivesY->setName("wpVerticalPrimitivesY");
     geo->addPrimitiveSet(wpVerticalPrimitivesX);
     geo->addPrimitiveSet(wpVerticalPrimitivesY);
-*/
+
     //setStateSet(geo, pointSize());
     geo->setStateSet(wpStateSet.get());
     geo->dirtyDisplayList();
@@ -1476,6 +1633,57 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
                 piece->at(iPoint+1)[2] = pathZ[t];
                 piece->at(iPoint+2)[2] = pathZ[t];
                 piece->at(iPoint+3)[2] = pathZ[t];
+            }
+        }
+    }
+    wpCutFaces(geo, piece);
+}
+
+/* wpMillCutTree
+
+   Side Effects:
+   changes the Geometry and sets new zCoords for timeStep t.
+
+   Called By:
+   CNCPlugin::setTimestep
+*/
+void CNCPlugin::wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t)
+{
+    //bounding Box
+    double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
+    double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
+    double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
+    double boxMaxY = std::max(pathY[t - 1], pathY[t]) + cuttingRad;
+
+    int ixMin = (boxMinX - wpMinX) / wpResX;
+    int ixMax = (boxMaxX - wpMinX) / wpResX;
+    int iyMin = (boxMinY - wpMinY) / wpResY;
+    int iyMax = (boxMaxY - wpMinY) / wpResY;
+    if (ixMin < 0)              //for last move, usually to (0,0,0)
+        ixMin = 0;
+    if (iyMin < 0)
+        iyMin = 0;
+
+
+    for (int iy = iyMin; iy <= iyMax; iy++)
+    {
+        for (int ix = ixMin; ix <= ixMax; ix++)
+        {
+            //int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+            auto coords = treeRoot->search(Point(ix, iy));
+            if (coords != nullptr)
+            {
+                int iPoint = coords->primitivePos;
+                double dist = distancePointLineSegment(piece->at(iPoint)[0] + wpResX / 2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+                if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
+                {
+                    //cuttedQuadsIX.push_back(ix);
+                    //cuttedQuadsIY.push_back(iy);
+                    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                    piece->at(iPoint + 1)[2] = pathZ[t];
+                    piece->at(iPoint + 2)[2] = pathZ[t];
+                    piece->at(iPoint + 3)[2] = pathZ[t];
+                }
             }
         }
     }
@@ -1827,7 +2035,7 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
 
         //Neighbor 3, right/east
         nb = (ix + 1) * 4 + iy * wpTotalQuadsX * 4;
-        zNb = treeRoot->search(Point(ix - 1, iy))->z;
+        zNb = treeRoot->search(Point(ix + 1, iy))->z;
         if (zPoint < zNb)
         {
             //check if vertical Quad exists
@@ -1889,7 +2097,163 @@ void CNCPlugin::wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX,
     points->push_back(Vec3(wpMinX + maxIX * wpResX, wpMinY + minIY * wpResY, z));
     points->push_back(Vec3(wpMinX + maxIX * wpResX, wpMinY + maxIY * wpResY, z));
     points->push_back(Vec3(wpMinX + minIX * wpResX, wpMinY + maxIY * wpResY, z));
+    primitivePosCounter += 4;
     return;
+}
+
+
+void CNCPlugin::wpAddFacesTree()
+{   
+    for (int iy = 0; iy < wpTotalQuadsY; iy++)
+    {
+        for (int ix = 0; ix < wpTotalQuadsX; ix++)
+        {   
+            int i = ix + iy * wpTotalQuadsX;
+            if (cuttedFaces[i] == -1)
+            {
+            }
+            else if (cuttedFaces[i] == 1)
+            {
+                int primPosI = treeRoot->search(Point(ix, iy))->primitivePos;
+                int primPosNb = treeRoot->search(Point(ix - 1, iy))->primitivePos;
+                wpVerticalPrimitivesX->push_back(primPosI + 3);
+                wpVerticalPrimitivesX->push_back(primPosI);
+                wpVerticalPrimitivesX->push_back(primPosNb + 1);
+                wpVerticalPrimitivesX->push_back(primPosNb + 2);
+            }
+            else if (cuttedFaces[i] == 2)
+            {
+                int primPosI = treeRoot->search(Point(ix, iy))->primitivePos;
+                int primPosNb = treeRoot->search(Point(ix, iy - 1))->primitivePos;
+                wpVerticalPrimitivesY->push_back(primPosI);
+                wpVerticalPrimitivesY->push_back(primPosI + 1);
+                wpVerticalPrimitivesY->push_back(primPosNb + 2);
+                wpVerticalPrimitivesY->push_back(primPosNb + 3);
+            }
+            else if (cuttedFaces[i] == 5)
+            {   
+                int primPosI = treeRoot->search(Point(ix, iy))->primitivePos;
+                int primPosNb = treeRoot->search(Point(ix - 1, iy))->primitivePos;
+                wpVerticalPrimitivesX->push_back(primPosI + 3);
+                wpVerticalPrimitivesX->push_back(primPosI);
+                wpVerticalPrimitivesX->push_back(primPosNb + 1);
+                wpVerticalPrimitivesX->push_back(primPosNb + 2);
+                primPosI = treeRoot->search(Point(ix, iy))->primitivePos;
+                primPosNb = treeRoot->search(Point(ix, iy - 1))->primitivePos;
+                wpVerticalPrimitivesY->push_back(primPosI);
+                wpVerticalPrimitivesY->push_back(primPosI + 1);
+                wpVerticalPrimitivesY->push_back(primPosNb + 2);
+                wpVerticalPrimitivesY->push_back(primPosNb + 3);
+            }
+        }
+    }
+         
+  /*
+    while (!cuttedQuadsIX.empty())
+    {
+        int ix = cuttedQuadsIX.back();
+        int iy = cuttedQuadsIY.back();
+        int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+        double zPoint = piece->at(iPoint)[2];
+
+        //Neighbor 1, left/west
+        int nb = (ix - 1) * 4 + iy * wpTotalQuadsX * 4;
+        double zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[iPoint / 4] == 1 || cuttedFaces[iPoint / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitivesX->push_back(iPoint + 3);
+                wpVerticalPrimitivesX->push_back(iPoint);
+                wpVerticalPrimitivesX->push_back(nb + 1);
+                wpVerticalPrimitivesX->push_back(nb + 2);
+                if (cuttedFaces[iPoint / 4] == 2)
+                    cuttedFaces[iPoint / 4] = 5;
+                else
+                    cuttedFaces[iPoint / 4] = 1;
+            }
+
+        }
+
+        //Neighbor 2, down/south
+        nb = ix * 4 + (iy - 1) * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[iPoint / 4] == 2 || cuttedFaces[iPoint / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitivesY->push_back(iPoint);
+                wpVerticalPrimitivesY->push_back(iPoint + 1);
+                wpVerticalPrimitivesY->push_back(nb + 2);
+                wpVerticalPrimitivesY->push_back(nb + 3);
+                if (cuttedFaces[iPoint / 4] == 1)
+                    cuttedFaces[iPoint / 4] = 5;
+                else
+                    cuttedFaces[iPoint / 4] = 2;
+            }
+
+        }
+
+        //Neighbor 3, right/east
+        nb = (ix + 1) * 4 + iy * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[nb / 4] == 1 || cuttedFaces[nb / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitivesX->push_back(iPoint + 1);
+                wpVerticalPrimitivesX->push_back(iPoint + 2);
+                wpVerticalPrimitivesX->push_back(nb + 3);
+                wpVerticalPrimitivesX->push_back(nb);
+                if (cuttedFaces[nb / 4] == 2)
+                    cuttedFaces[nb / 4] = 5;
+                else
+                    cuttedFaces[nb / 4] = 1;
+            }
+
+        }
+
+        //Neighbor 4, up/nord
+        nb = ix * 4 + (iy + 1) * wpTotalQuadsX * 4;
+        zNb = piece->at(nb)[2];
+        if (zPoint < zNb)
+        {
+            //check if vertical Quad exists
+            if (cuttedFaces[nb / 4] == 2 || cuttedFaces[nb / 4] == 5)
+            {
+            }
+            else
+            {
+                //add Vertical Quad
+                wpVerticalPrimitivesY->push_back(iPoint + 2);
+                wpVerticalPrimitivesY->push_back(iPoint + 3);
+                wpVerticalPrimitivesY->push_back(nb);
+                wpVerticalPrimitivesY->push_back(nb + 1);
+                if (cuttedFaces[nb / 4] == 1)
+                    cuttedFaces[nb / 4] = 5;
+                else
+                    cuttedFaces[nb / 4] = 2;
+            }
+
+        }
+
+    }
+  */
 }
 
 
