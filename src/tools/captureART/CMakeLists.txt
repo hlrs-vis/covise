@@ -13,12 +13,12 @@ ADD_COVISE_EXECUTABLE(captureART captureART.cpp captureART.h
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackSDK.cpp 
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackSDK.hpp
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackNet.cpp 
-../../OpenCOVER/cover/input/dev/dtrack/DTrackNet.h
+../../OpenCOVER/cover/input/dev/dtrack/DTrackNet.hpp
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackParse.cpp
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackParse.hpp
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackParser.cpp
 ../../OpenCOVER/cover/input/dev/dtrack/DTrackParser.hpp
-../../OpenCOVER/cover/input/dev/dtrack/DTrackDataTypes.h
+../../OpenCOVER/cover/input/dev/dtrack/DTrackDataTypes.hpp
 )
 
 if (WIN32)

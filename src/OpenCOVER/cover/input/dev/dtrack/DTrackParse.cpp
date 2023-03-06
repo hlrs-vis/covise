@@ -1,8 +1,8 @@
-/* DTrackParse: C++ source file, A.R.T. GmbH
+/* DTrackParse: C++ source file
  *
- * Functions for processing data
+ * DTrackSDK: Functions for parsing ASCII data.
  *
- * Copyright (c) 2007-2017, Advanced Realtime Tracking GmbH
+ * Copyright 2007-2021, Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,8 +27,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * Version v2.5.0
- *
+ * Version v2.7.0
+ * 
  */
 
 #include "DTrackParse.hpp"
@@ -142,11 +142,14 @@ char* string_get_block(char* str, const char* fmt, int* idat, float* fdat, doubl
 {
 	char* strend;
 	int index_i, index_f;
-	if ((str = strchr(str, '[')) == NULL)
+
+	str = strchr( str, '[' );
+	if ( str == NULL)
 	{       // search begin of block
 		return NULL;
 	}
-	if ((strend = strchr(str, ']')) == NULL)
+	strend = strchr( str, ']' );
+	if ( strend == NULL )
 	{    // search end of block
 		return NULL;
 	}
@@ -158,21 +161,24 @@ char* string_get_block(char* str, const char* fmt, int* idat, float* fdat, doubl
 		switch(*fmt++)
 		{
 			case 'i':
-				if((str = string_get_i(str, &idat[index_i++])) == NULL)
+				str = string_get_i( str, &idat[ index_i++ ] );
+				if ( str == NULL )
 				{
 					*strend = ']';
 					return NULL;
 				}
 				break;
 			case 'f':
-				if((str = string_get_f(str, &fdat[index_f++])) == NULL)
+				str = string_get_f( str, &fdat[ index_f++ ] );
+				if ( str == NULL )
 				{
 					*strend = ']';
 					return NULL;
 				}
 				break;
 			case 'd':
-				if((str = string_get_d(str, &ddat[index_f++])) == NULL)
+				str = string_get_d( str, &ddat[ index_f++ ] );
+				if ( str == NULL )
 				{
 					*strend = ']';
 					return NULL;
@@ -203,8 +209,10 @@ char* string_get_word(char* str, std::string& w)
 	{	// search begin of 'word'
 		str++;
 	}
-	if (!(strend = strchr(str, ' ')))
-	{	// search end of 'word'
+
+	strend = strchr( str, ' ' );	// search end of 'word'
+	if ( strend == NULL )
+	{
 		w.assign(str);
 		strend = str;
 		while (*strend != '\0')
@@ -228,13 +236,17 @@ char* string_get_word(char* str, std::string& w)
 char* string_get_quoted_text(char* str, std::string& qt)
 {
 	char* strend;
-	if (!(str = strchr(str, '\"')))
-	{	// search begin of 'quoted text'
+
+	str = strchr( str, '\"' );	// search begin of 'quoted text'
+	if ( str == NULL )
+	{
 		return NULL;
 	}
 	str++;
-	if (!(strend = strchr(str, '\"')))
-	{	// search end of 'quoted text'
+
+	strend = strchr( str, '\"' );	// search end of 'quoted text'
+	if ( strend == NULL )
+	{
 		return NULL;
 	}
 	qt.assign(str, (int )(strend - str));
@@ -300,3 +312,4 @@ char* string_cmp_parameter(char* str, const char* p)
 }
 
 } // end namespace
+

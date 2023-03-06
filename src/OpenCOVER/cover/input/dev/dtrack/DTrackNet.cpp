@@ -1,8 +1,8 @@
-/* DTrackNet: C/C++ source file, A.R.T. GmbH
+/* DTrackNet: C++ source file
  *
- * Functions for receiving and sending UDP/TCP packets
+ * DTrackSDK: functions for receiving and sending UDP/TCP packets.
  *
- * Copyright (c) 2007-2017, Advanced Realtime Tracking GmbH
+ * Copyright 2007-2021, Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,11 +27,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * Version v2.5.0
- *
+ * Version v2.7.0
+ * 
  */
 
-#include "DTrackNet.h"
+#include "DTrackNet.hpp"
 
 #include <cstdlib>
 #include <cstdio>
@@ -39,7 +39,7 @@
 
 // usually the following should work; otherwise define OS_* manually:
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64)
-	#define OS_WIN   // for MS Windows (2000, XP, Vista, 7, 8)
+	#define OS_WIN   // for MS Windows (2000, XP, Vista, 7, 8, 10)
 #else
 	#define OS_UNIX  // for Unix (Linux, Irix)
 #endif
@@ -58,20 +58,23 @@
 	#include <windows.h>
 #endif
 
-// internal socket type
+namespace DTrackNet {
+
+/**
+ * \brief Internal socket type.
+ */
 struct _ip_socket_struct {
 #ifdef OS_UNIX
-	int ossock;		// Unix socket
+	int ossock;  // Unix socket
 #endif
 #ifdef OS_WIN
-	SOCKET ossock;	// Windows Socket
+	SOCKET ossock;  // Windows socket
 #endif
 };
 
-namespace DTrackSDK_Net {
 
-/**
- * 	\brief	Initialize network ressources
+/*
+ * Initialize network ressources.
  */
 void net_init(void)
 {
@@ -88,8 +91,8 @@ void net_init(void)
 }
 
 
-/**
- * 	\brief	Free network ressources
+/*
+ * Free network ressources.
  */
 void net_exit(void)
 {
@@ -99,33 +102,30 @@ void net_exit(void)
 }
 
 
-/**
- * 	\brief	Convert string to IP address.
- *
- *	@param[in]	name	IPv4 dotted decimal address or hostname
- *	@return 	IP address, 0 if error occured
+/*
+ * Convert string to IP address (IPv4 only).
  */
-unsigned int ip_name2ip(const char* name)
+unsigned int ip_name2ip( const char* name )
 {
-	unsigned int ip;
-	struct addrinfo hints, *servinfo;
-	struct sockaddr_in *resulting_ipaddr;
-	// try if string contains IP address:
-	if (inet_pton(AF_UNSPEC, name, &ip) == 1)
-	{
-		return ntohl(ip);
-	}
-	// try if string contains hostname:
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_flags = AI_CANONNAME;
-	hints.ai_family = AF_UNSPEC;
+	int err;
+	struct addrinfo hints, *res;
+
+	memset( &hints, 0, sizeof( hints ) );
+	hints.ai_family = AF_INET;  // only IPv4 supported
 	hints.ai_socktype = SOCK_STREAM;
-	if (getaddrinfo(name, NULL, &hints, &servinfo) != 0)
-	{
+
+	res = NULL;
+	err = getaddrinfo( name, NULL, &hints, &res );
+	if ( err != 0 || res == NULL )
 		return 0;
-	}
-	resulting_ipaddr = (struct sockaddr_in*)servinfo->ai_addr;
-	return ntohl(((struct in_addr)(resulting_ipaddr->sin_addr)).s_addr);
+
+	unsigned int ip;
+	struct sockaddr_in sin;
+	memcpy( &sin, res->ai_addr, sizeof( sin ) );  // casting is causing warnings (-Wcast-align) by some compilers
+	ip = ntohl( ( (struct in_addr )( sin.sin_addr ) ).s_addr );
+
+	freeaddrinfo( res );
+	return ip;
 }
 
 
@@ -133,15 +133,11 @@ unsigned int ip_name2ip(const char* name)
 // Handling UDP data:
 // ---------------------------------------------------------------------------------------------------
 
-/**
- * 	\brief	Initialize UDP socket.
- *
- *	@param[out]		sock	socket number
- *	@param[in,out]	port	port number, 0 if to be chosen by the OS
- *	@param[in]		ip		multicast ip to listen
- *	@return 0 if ok, < 0 if error occured
+/*
+ * Initialize UDP socket.
  */
-int udp_init(void** sock, unsigned short* port, unsigned int ip)
+UDP::UDP( unsigned short port, unsigned int multicastIp )
+	: m_isValid( false ), m_socket( NULL ), m_port( port ), m_multicastIp( 0 ), m_remoteIp( 0 )
 {
 	struct _ip_socket_struct* s;
 	struct sockaddr_in addr;
@@ -151,143 +147,148 @@ int udp_init(void** sock, unsigned short* port, unsigned int ip)
 #ifdef OS_WIN
 	int addrlen;
 #endif
-	s = (struct _ip_socket_struct *)malloc(sizeof(struct _ip_socket_struct));
-	if (s == NULL)
-	{
-		return -11;
-	}
+
+	s = new struct _ip_socket_struct();
+
 	// create socket:
 #ifdef OS_UNIX
 	s->ossock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (s->ossock < 0)
 	{
-		free(s);
-		return -2;
+		delete s;
+		return;
 	}
 #endif
 #ifdef OS_WIN
 	s->ossock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (s->ossock == INVALID_SOCKET)
 	{
-		free(s);
-		return -2;
+		delete s;
+		return;
 	}
 #endif
-	if (ip != 0) {
+	m_socket = s;
+
+	if ( multicastIp != 0 )
+	{
 		// set reuse port to on to allow multiple binds per host
 		int flag_on = 1;
-		if ((setsockopt(s->ossock, SOL_SOCKET, SO_REUSEADDR, (char*)&flag_on, sizeof(flag_on))) < 0)
+		if ( setsockopt( m_socket->ossock, SOL_SOCKET, SO_REUSEADDR, (char* )&flag_on, sizeof( flag_on ) ) < 0 )
 		{
 			perror("setsockopt() failed1");
-			udp_exit(s);
-			return -4;
+			return;
 		}
 	}
 	
 	// name socket:
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(*port);
+	addr.sin_port = htons( m_port );
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addrlen = sizeof(addr);
-	if (bind(s->ossock, (struct sockaddr *)&addr, addrlen) < 0)
-	{
-		udp_exit(s);
-		return -3;
-	}
-	if (*port == 0)
+	if ( bind( m_socket->ossock, (struct sockaddr *)&addr, addrlen ) < 0 )
+		return;
+
+	if ( m_port == 0 )
 	{
 		// port number was chosen by the OS
-		if (getsockname(s->ossock, (struct sockaddr *)&addr, &addrlen))
-		{
-			udp_exit(s);
-			return -3;
-		}
-		*port = ntohs(addr.sin_port);
+		if ( getsockname( m_socket->ossock, (struct sockaddr *)&addr, &addrlen ) )
+			return;
+
+		m_port = ntohs( addr.sin_port );
 	}
 	
-	if (ip != 0) {
+	if ( multicastIp != 0 )
+	{
 		// construct an IGMP join request structure
 		struct ip_mreq ipmreq;
-		ipmreq.imr_multiaddr.s_addr = htonl(ip);
+		ipmreq.imr_multiaddr.s_addr = htonl( multicastIp );
 		ipmreq.imr_interface.s_addr = htonl(INADDR_ANY);
 		// send an ADD MEMBERSHIP message via setsockopt
-		if ((setsockopt(s->ossock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&ipmreq, sizeof(ipmreq))) < 0)
+		if ( setsockopt( m_socket->ossock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char* )&ipmreq, sizeof( ipmreq ) ) < 0 )
 		{
 			perror("setsockopt() failed2");
-			udp_exit(s);
-			return -5;
+			return;
 		}
+		m_multicastIp = multicastIp;
 	}
 	
-	*sock = s;
-	return 0;	
+	m_isValid = true;	
 }
 
 
-/**
- * 	\brief	Deinitialize UDP socket.
- *
- *	@param[in]	sock	socket number
- *	@param[in]	ip		multicast ip to drop
- *	@return	0 ok, -1 error
+/*
+ * Deinitialize UDP socket.
  */
-int udp_exit(void* sock, unsigned int ip)
+UDP::~UDP()
 {
-	int err;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
-	if (sock == NULL)
+	if ( m_socket == NULL )  return;
+
+	if ( m_multicastIp != 0 )
 	{
-		return 0;
-	}
-	
-	if (ip != 0) {
 		struct ip_mreq ipmreq;
-		ipmreq.imr_multiaddr.s_addr = htonl(ip);
+		ipmreq.imr_multiaddr.s_addr = htonl( m_multicastIp );
 		ipmreq.imr_interface.s_addr = htonl(INADDR_ANY);
 		// send a DROP MEMBERSHIP message via setsockopt
-		if ((setsockopt(s->ossock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char*)&ipmreq, sizeof(ipmreq))) < 0)
+		if ( setsockopt( m_socket->ossock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char* )&ipmreq, sizeof( ipmreq ) ) < 0 )
 		{
 			perror("setsockopt() failed3");
 		}
 	}
+
 #ifdef OS_UNIX
-	err = close(s->ossock);
+	close( m_socket->ossock );
 #endif
 #ifdef OS_WIN
-	err = closesocket(s->ossock);
-	WSACleanup();
+	closesocket( m_socket->ossock );
 #endif
-	free(sock);
-	if(err < 0)
-	{
-		return -1;
-	}
-	return 0;
+	delete m_socket;
 }
 
 
-/**
- *	\brief	Receive UDP data.
- *
- *	Tries to receive one packet, as long as data is available.
- *	@param[in]	sock	socket number
- *	@param[out] buffer 	buffer for UDP data
- *	@param[in] 	maxlen	length of buffer
- *	@param[in]  tout_us timeout in us (micro sec)
- *	@return	number of received bytes, <0 if error/timeout occured
+/*
+ * Returns if UDP socket is open to receive data.
  */
-int udp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
+bool UDP::isValid()
 {
-	int nbytes, err;
+	return m_isValid;
+}
+
+
+/*
+ * Get UDP data port where data is received.
+ */
+unsigned short UDP::getPort()
+{
+	return m_port;
+}
+
+
+/*
+ * Get IP address of the sender of the latest received data.
+ */
+unsigned int UDP::getRemoteIp()
+{
+	return m_remoteIp;
+}
+
+
+/*
+ * Receive UDP data.
+ */
+int UDP::receive( void *buffer, int maxLen, int toutUs )
+{
+	int err;
 	fd_set set;
 	struct timeval tout;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
+
 	// waiting for data:
 	FD_ZERO(&set);
-	FD_SET(s->ossock, &set);
-	tout.tv_sec = tout_us / 1000000;
-	tout.tv_usec = tout_us % 1000000;
-	switch ((err = select(FD_SETSIZE, &set, NULL, NULL, &tout)))
+	FD_SET( m_socket->ossock, &set );
+	tout.tv_sec = toutUs / 1000000;
+	tout.tv_usec = toutUs % 1000000;
+
+	err = select( FD_SETSIZE, &set, NULL, NULL, &tout );
+	switch ( err )
 	{
 		case 1:
 			break;        // data available
@@ -296,24 +297,41 @@ int udp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
 		default:
 			return -2;    // error
 	}
+
 	// receiving packet:
-	while (1)
-	{	// receive one packet:
-		nbytes = recv(s->ossock, (char *)buffer, maxlen, 0);
+	while ( true )
+	{
+		struct sockaddr_in addr;
+#ifdef OS_UNIX
+		socklen_t addrlen;
+#endif
+#ifdef OS_WIN
+		int addrlen;
+#endif
+		addrlen = sizeof( struct sockaddr_in );
+
+		int nbytes = static_cast< int >( recvfrom( m_socket->ossock, ( char* )buffer, maxLen, 0,
+		                                           ( struct sockaddr* )&addr, &addrlen ) );  // receive one packet
 		if (nbytes < 0)
 		{	// receive error
 			return -3;
 		}
+
+		if ( addr.sin_family == AF_INET )  // only IPv4 supported
+		{
+			m_remoteIp = ntohl( addr.sin_addr.s_addr );
+		}
+
 		// check, if more data available: if so, receive another packet
 		FD_ZERO(&set);
-		FD_SET(s->ossock, &set);
-		
+		FD_SET( m_socket->ossock, &set );
+
 		tout.tv_sec = 0;   // no timeout
 		tout.tv_usec = 0;
 		if (select(FD_SETSIZE, &set, NULL, NULL, &tout) != 1)
 		{
 			// no more data available: check length of received packet and return
-			if (nbytes >= maxlen)
+			if ( nbytes >= maxLen )
 			{   // buffer overflow
 				return -4;
 			}
@@ -323,34 +341,29 @@ int udp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
 }
 
 
-/**
- *	\brief	Send UDP data.
- *
- *	@param[in] 	sock	socket number
- *	@param[in] 	buffer	buffer for UDP data
- *	@param[in] 	len		length of buffer
- *	@param[in] 	ipaddr	IPv4 address to send data to
- *	@param[in] 	port	port number to send data to
- *	@param[in] 	tout_us	timeout in us (micro sec)
- *	@return	0 if ok, <0 if error/timeout occured
+/*
+ * Send UDP data.
  */
-int udp_send(const void* sock, void* buffer, int len, unsigned int ipaddr, unsigned short port, int tout_us)
+int UDP::send( const void* buffer, int len, unsigned int ip, unsigned short port, int toutUs )
 {
 	fd_set set;
 	struct timeval tout;
-	int nbytes, err;
+	int err;
 	struct sockaddr_in addr;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
+
 	// building address:
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(ipaddr);
+	addr.sin_addr.s_addr = htonl( ip );
 	addr.sin_port = htons(port);
+
 	// waiting to send data:
 	FD_ZERO(&set);
-	FD_SET(s->ossock, &set);
-	tout.tv_sec = tout_us / 1000000;
-	tout.tv_usec = tout_us % 1000000;
-	switch ((err = select(FD_SETSIZE, NULL, &set, NULL, &tout)))
+	FD_SET( m_socket->ossock, &set );
+	tout.tv_sec = toutUs / 1000000;
+	tout.tv_usec = toutUs % 1000000;
+
+	err = select( FD_SETSIZE, NULL, &set, NULL, &tout );
+	switch ( err )
 	{
 		case 1:
 			break;
@@ -359,9 +372,10 @@ int udp_send(const void* sock, void* buffer, int len, unsigned int ipaddr, unsig
 		default:
 			return -2;    // error
 	}
+
 	// sending data:
-	nbytes = sendto(s->ossock, (const char* )buffer, len, 0, (struct sockaddr* )&addr,
-	                (size_t )sizeof(struct sockaddr_in));
+	int nbytes = static_cast< int >( sendto( m_socket->ossock, (const char* )buffer, len, 0, (struct sockaddr* )&addr,
+	                                         (size_t )sizeof( struct sockaddr_in ) ) );
 	if(nbytes < len)
 	{	// send error
 		return -3;
@@ -369,123 +383,95 @@ int udp_send(const void* sock, void* buffer, int len, unsigned int ipaddr, unsig
 	return 0;
 }
 
+
 // ---------------------------------------------------------------------------------------------------
 // Handling TCP data:
 // ---------------------------------------------------------------------------------------------------
 
-/**
- *	\brief	Initialize client TCP socket.
- *
- *	@param[out] sock	socket number
- *	@param[in] 	ip		ip address of TCP server
- *	@param[in] 	port	port number of TCP server
- *	@return		0 if ok, <0 if error occured
+/*
+ * Initialize client TCP socket.
  */
-int tcp_client_init(void** sock, unsigned int ip, unsigned short port)
+TCP::TCP( unsigned int ip, unsigned short port )
+	: m_isValid( false ), m_socket( NULL )
 {
 	struct _ip_socket_struct* s;
 	struct sockaddr_in addr;
-	s = (struct _ip_socket_struct *)malloc(sizeof(struct _ip_socket_struct));
-	if(s == NULL)
-	{
-		return -11;
-	}
-	// initialize socket dll (only Windows):
-#ifdef OS_WIN
-	{
-		WORD vreq;
-		WSADATA wsa;
-		vreq = MAKEWORD(2, 0);
-		if (WSAStartup(vreq, &wsa) != 0)
-		{
-			free(s);
-			return -1;
-		}
-	}
-#endif
+
+	s = new struct _ip_socket_struct();
+
 	// create socket:
 #ifdef OS_UNIX
 	s->ossock = socket(PF_INET, SOCK_STREAM, 0);
 	if (s->ossock < 0)
 	{
-		free(s);
-		return -2;
+		delete s;
+		return;
 	}
 #endif
 #ifdef OS_WIN
 	s->ossock = socket(PF_INET, SOCK_STREAM, 0);
 	if (s->ossock == INVALID_SOCKET)
 	{
-		WSACleanup();
-		free(s);
-		return -2;
+		delete s;
+		return;
 	}
 #endif
+	m_socket = s;
+
 	// connect with server:
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(ip);
 	addr.sin_port = htons(port);
-	if ((connect(s->ossock, (struct sockaddr *)&addr, (size_t )sizeof(addr))))
-	{
-		tcp_exit(s);
-		return -3;
-	}
-	*sock = s;
-	return 0;
+	if ( connect( m_socket->ossock, (struct sockaddr *)&addr, (size_t )sizeof( addr ) ) != 0 )
+		return;
+
+	m_isValid = true;
 }
 
 
-/**
- * 	\brief	Deinitialize TCP socket
- *
- *	@param[in]	sock	socket number
- *	@return		0 ok, -1 error
+/*
+ * Deinitialize TCP socket.
  */
-int tcp_exit(void* sock)
+TCP::~TCP()
 {
-	int err;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
-	if (sock == NULL)
-	{
-		return 0;
-	}
+	if ( m_socket == NULL )  return;
+
 #ifdef OS_UNIX
-	err = close(s->ossock);
+	close( m_socket->ossock );
 #endif
 #ifdef OS_WIN
-	err = closesocket(s->ossock);
-	WSACleanup();
+	closesocket( m_socket->ossock );
 #endif
-	free(sock);
-	if (err < 0)
-	{
-		return -1;
-	}
-	return 0;
+	delete m_socket;
 }
 
 
-/**
- * 	\brief	Receive TCP data.
- *
- *	@param[in] 	sock	socket number
- *	@param[out] buffer	buffer for TCP data
- *	@param[in]	maxlen	length of buffer
- *	@param[in]	tout_us	timeout in us (micro sec)
- *	@return		number of received bytes, <0 if error/timeout occured, -9 broken connection
+/*
+ * Returns if TCP connection is active.
  */
-int tcp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
+bool TCP::isValid()
 {
-	int nbytes, err;
+	return m_isValid;
+}
+
+
+/*
+ * Receive TCP data.
+ */
+int TCP::receive( void *buffer, int maxLen, int toutUs )
+{
+	int err;
 	fd_set set;
 	struct timeval tout;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
+
 	// waiting for data:
 	FD_ZERO(&set);
-	FD_SET(s->ossock, &set);
-	tout.tv_sec = tout_us / 1000000;
-	tout.tv_usec = tout_us % 1000000;
-	switch ((err = select(FD_SETSIZE, &set, NULL, NULL, &tout)))
+	FD_SET( m_socket->ossock, &set );
+	tout.tv_sec = toutUs / 1000000;
+	tout.tv_usec = toutUs % 1000000;
+
+	err = select( FD_SETSIZE, &set, NULL, NULL, &tout );
+	switch ( err )
 	{
 		case 1:
 			break;        // data available
@@ -494,8 +480,9 @@ int tcp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
 		default:
 			return -2;    // error
 	}
+
 	// receiving packet:
-	nbytes = recv(s->ossock, (char *)buffer, maxlen, 0);
+	int nbytes = static_cast< int >( recv( m_socket->ossock, (char *)buffer, maxLen, 0 ) );
 	if (nbytes == 0)
 	{	// broken connection
 		return -9;
@@ -504,7 +491,7 @@ int tcp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
 	{	// receive error
 		return -3;
 	}
-	if (nbytes >= maxlen)
+	if (nbytes >= maxLen)
 	{	// buffer overflow
 		return -4;
 	}
@@ -512,27 +499,23 @@ int tcp_receive(const void* sock, void *buffer, int maxlen, int tout_us)
 }
 
 
-/**
- * 	\brief	Send TCP data.
- *
- *	@param[in] 	sock	socket number
- *	@param[in] 	buffer	buffer for TCP data
- *	@param[in] 	len		length of buffer
- *	@param[in] 	tout_us	timeout in us (micro sec)
- *	@return	0 if ok, <0 if error/timeout occured
+/*
+ * Send TCP data.
  */
-int tcp_send(const void* sock, const void* buffer, int len, int tout_us)
+int TCP::send( const void* buffer, int len, int toutUs )
 {
 	fd_set set;
 	struct timeval tout;
-	int nbytes, err;
-	struct _ip_socket_struct* s = (struct _ip_socket_struct *)sock;
+	int err;
+
 	// waiting to send data:
 	FD_ZERO(&set);
-	FD_SET(s->ossock, &set);
-	tout.tv_sec = tout_us / 1000000;
-	tout.tv_usec = tout_us % 1000000;
-	switch ((err = select(FD_SETSIZE, NULL, &set, NULL, &tout)))
+	FD_SET( m_socket->ossock, &set );
+	tout.tv_sec = toutUs / 1000000;
+	tout.tv_usec = toutUs % 1000000;
+
+	err = select( FD_SETSIZE, NULL, &set, NULL, &tout );
+	switch ( err )
 	{
 		case 1:
 			break;
@@ -541,8 +524,9 @@ int tcp_send(const void* sock, const void* buffer, int len, int tout_us)
 		default:
 			return -2;    // error
 	}
+
 	// sending data:
-	nbytes = send(s->ossock, (const char* )buffer, len, 0);
+	int nbytes = static_cast< int >( sendto( m_socket->ossock, (const char* )buffer, len, 0, NULL, 0 ) );
 	if (nbytes < len)
 	{	// send error
 		return -3;
@@ -550,4 +534,6 @@ int tcp_send(const void* sock, const void* buffer, int len, int tout_us)
 	return 0;
 }
 
-} // end namespace
+
+}  // namespace DTrackNet
+

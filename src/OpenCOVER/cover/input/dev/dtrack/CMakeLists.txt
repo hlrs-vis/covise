@@ -1,7 +1,9 @@
 SET(HEADERS
-   DTrackDataTypes.h
-   DTrackNet.h
+   DTrackDataTypes.hpp
+   DTrackNet.hpp
    DTrackSDK.hpp
+   DTrackParse.hpp
+   DTrackParser.hpp
    DTrackDriver.h
 )
 

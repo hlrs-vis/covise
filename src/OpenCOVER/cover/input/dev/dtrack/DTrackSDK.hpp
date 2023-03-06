@@ -1,9 +1,9 @@
-/* DTrackSDK: C++ header file, A.R.T. GmbH
+/* DTrackSDK in C++: DTrackSDK.hpp
  *
- * DTrackSDK: functions to receive and process DTrack UDP packets (ASCII protocol), as
- * well as to exchange DTrack2 TCP command strings.
+ * Functions to receive and process DTrack UDP packets (ASCII protocol), as
+ * well as to exchange DTrack2/DTRACK3 TCP command strings.
  *
- * Copyright (c) 2007-2017, Advanced Realtime Tracking GmbH
+ * Copyright (c) 2007-2022 Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,22 +27,21 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * Version v2.5.0
+ *
+ * Version v2.8.0
  *
  * Purpose:
  *  - receives DTrack UDP packets (ASCII protocol) and converts them into easier to handle data
- *  - sends and receives DTrack2 commands (TCP)
- *  - DTrack2 network protocol due to: 'Technical Appendix DTrack v2.0'
- *  - for ARTtrack Controller versions v0.2 (and compatible versions)
- *
+ *  - sends and receives DTrack2/DTRACK3 commands (TCP)
+ *  - DTrack network protocol according to:
+ *    'DTrack2 User Manual, Technical Appendix' or 'DTRACK3 Programmer's Guide'
  */
 
 /*! \mainpage DTrackSDK Overview
  *
  * \section intro_sec Introduction
  *
- * The DTrackSDK provides an interface to control a DTrack/DTrack2 server and to receive tracking data.
+ * The DTrackSDK provides an interface to control a DTrack1/DTrack2/DTRACK3 server and to receive tracking data.
  * Command and data exchange is done through an ASCII protocol.
  *
  * \section content_sec Contents
@@ -52,358 +51,542 @@
  *
  * Classes in folder 'Compatibility' provide legacy support for older SDK versions (DTracklib, DTrack, DTrack2).
  *
- * DTrackDataTypes class provides type definitions
- * DTrackNet class provides basic UDP/TCP functionality
- * DTrackParser class provides string parsing
+ * - DTrackDataTypes class provides type definitions
+ * - DTrackNet class provides basic UDP/TCP functionality
+ * - DTrackParser class provides string parsing
  */
 
 #ifndef _ART_DTRACKSDK_HPP_
 #define _ART_DTRACKSDK_HPP_
 
-#include "DTrackDataTypes.h"
-#include "DTrackNet.h"
+#include "DTrackDataTypes.hpp"
+#include "DTrackNet.hpp"
 #include "DTrackParser.hpp"
 
 #include <string>
+#include <vector>
 
-//! Max message size
-#define DTRACK_PROT_MAXLEN 200
+//! Max message size; DEPRECATED
+#define DTRACK_PROT_MAXLEN  DTrackSDK::DTRACK2_PROT_MAXLEN
 
 /**
- * 	\brief DTrack SDK main class derived from DTrackParser.
+ * \brief DTrack SDK main class derived from DTrackParser.
  *
- * 	All methods to access tracking data are located in DTrackParser.
+ * All methods to access tracking data are located in DTrackParser.
  */
 class DTrackSDK : public DTrackParser
 {
 public:
-	
-	//! Compatibility modes for older SDKs
+
+	static const int DTRACK2_PROT_MAXLEN = 200;  //!< max. length of 'dtrack2' command
+
+	//! Compatibility modes for older DTrack systems
 	typedef enum {
-		SYS_DTRACK_UNKNOWN = 0,	//!< unknown system
-		SYS_DTRACK,				//!< DTrack system
-		SYS_DTRACK_2			//!< DTrack2 system
+		SYS_DTRACK_UNKNOWN = 0,  //!< Unknown system
+		SYS_DTRACK,              //!< DTrack1 system
+		SYS_DTRACK_2             //!< DTrack2/DTRACK3 system
 	} RemoteSystemType;
-	
+
 	//! Error codes
 	typedef enum {
-		ERR_NONE = 0,	//!< no error
-		ERR_TIMEOUT,	//!< timeout occured
-		ERR_NET,		//!< network error
-		ERR_PARSE		//!< error while parsing command
+		ERR_NONE = 0,  //!< No error
+		ERR_TIMEOUT,   //!< Timeout occured
+		ERR_NET,       //!< Network error
+		ERR_PARSE      //!< Error while parsing command
 	} Errors;
-	
+
 	/**
-	 * 	\brief	Constructor. Use for listening mode.
+	 * \brief Universal constructor. Can be used for any mode. Recommended for new applications.
 	 *
-	 *	@param[in]	data_port		port number to receive tracking data from DTrack
+	 * Refer to other constructors for details. Communicating mode just for DTrack2/DTRACK3.
+	 *
+	 * Examples for connection string:
+	 * - "5000" : Port number (UDP), use for pure listening mode.
+	 * - "224.0.1.0:5000" : Multicast IP and port number (UDP), use for multicast listening mode.
+	 * - "atc-301422002:5000" : Hostname of Controller and port number (UDP), use for communicating mode.
+	 * - "192.168.0.1:5000" : IP address of Controller and port number (UDP), use for communicating mode.
+	 *
+	 * @param[in] connection Connection string ("<data port>" or "<ip/host>:<data port>")
+	 */
+	DTrackSDK( const std::string& connection );
+
+	/**
+	 * \brief Constructor. Use for pure listening mode.
+	 *
+	 * Using this constructor, only a UDP receiver to get tracking data from
+	 * the Controller will be established. Please start measurement manually.
+	 *
+	 * @param[in] data_port Port number (UDP) to receive tracking data from DTrack (0 if to be chosen by SDK)
 	 */
 	DTrackSDK(unsigned short data_port);
-	
+
 	/**
-	 * 	\brief	Constructor. Use for DTrack2.
+	 * \brief Constructor. Use for communicating mode with DTrack2/DTRACK3.
 	 *
-	 *	@param[in]	server_host		hostname or IP address of ARTtrack Controller (empty string if not used)
-	 *	@param[in]	data_port		port number to receive tracking data from DTrack
+	 * Using this constructor, a UDP receiver to get tracking data from the
+	 * Controller as well as a TCP connection with the Controller will be
+	 * established. Automatically starts and stops measurement.
+	 *
+	 * Can also be used for multicast listening mode. In this case only a
+	 * UDP receiver to get tracking data from the Controller will be
+	 * established. Please start measurement manually.
+	 *
+	 * @param[in] server_host Hostname or IP address of Controller, or multicast IP address
+	 * @param[in] data_port   Port number (UDP) to receive tracking data from DTrack (0 if to be chosen by SDK)
 	 */
 	DTrackSDK(const std::string& server_host, unsigned short data_port);
-	
+
 	/**
-	 * 	\brief	Constructor. Use for DTrack.
+	 * \brief Constructor. Use for communicating mode with DTrack1.
 	 *
-	 * 	This constructor can also be used for DTrack2. In this case server_port must be 50105.
-	 *
-	 *	@param[in]	server_host		hostname or IP address of ARTtrack Controller (empty string if not used)
-	 *	@param[in]	server_port		port number of DTrack
-	 *	@param[in]	data_port		port number to receive tracking data from DTrack
+	 * @param[in] server_host Hostname or IP address of DTrack1 PC
+	 * @param[in] server_port Port number (UDP) of DTrack1 PC to send commands to
+	 * @param[in] data_port   Port number (UDP) to receive tracking data from DTrack1 (0 if to be chosen by SDK)
 	 */
 	DTrackSDK(const std::string& server_host, unsigned short server_port, unsigned short data_port);
-	
+
 	/**
-	 * 	\brief	General constructor.
+	 * \brief General constructor. DEPRECATED.
 	 *
-	 *	@param[in]	server_host		hostname or IP address of ARTtrack Controller (empty string if not used)
-	 *	@param[in]	server_port		port number of ARTtrack Controller
-	 *	@param[in]	data_port		port number to receive tracking data from ARTtrack Controller (0 if to be chosen)
-	 *	@param[in]	remote_type		type of system to connect to
-	 *	@param[in]	data_bufsize	size of buffer for UDP packets in bytes; default is 32kb (32768 bytes)
-	 *	@param[in]	data_timeout_us	timeout for receiving tracking data in us; default is 1s (1,000,000 us)
-	 *	@param[in]	srv_timeout_us	timeout for reply of ARTtrack Controller in us; default is 10s (10,000,000 us)
+	 * @param[in] server_host     Hostname/IP of Controller/DTrack1 PC, or multicast IP (empty string if not used)
+	 * @param[in] server_port     Port number (UDP) of DTrack1 PC to send commands to (0 if not used)
+	 * @param[in] data_port       Port number (UDP) to receive tracking data from DTrack (0 if to be chosen)
+	 * @param[in] remote_type     Type of system to connect to
+	 * @param[in] data_bufsize    Buffer size for receiving tracking data in bytes; 0 to set default (32768) 
+	 * @param[in] data_timeout_us Timeout for receiving tracking data in us; 0 to set default (1.0 s)
+	 * @param[in] srv_timeout_us  Timeout for reply of Controller in us; 0 to set default (10.0 s)
 	 */
 	DTrackSDK(const std::string& server_host,
 	          unsigned short server_port,
 	          unsigned short data_port,
 	          RemoteSystemType remote_type,
-	          int data_bufsize = 32768,
-	          int data_timeout_us = 1000000,
-	          int srv_timeout_us = 10000000
+	          int data_bufsize = 0,
+	          int data_timeout_us = 0,
+	          int srv_timeout_us = 0
 	);
-	
+
 	/**
-	 * 	\brief Destructor.
+	 * \brief Destructor.
 	 */
 	~DTrackSDK();
-	
+
+
 	/**
-	 *	\brief	Receive and process one tracking data packet.
+	 * \brief Returns if UDP socket is open to receive tracking data on local machine.
 	 *
-	 *	Updates internal data structures.
-	 *	@return	receive succeeded?
+	 * Needed to receive DTrack UDP data, but does not guarantee this.
+	 * Especially in case no data is sent to this port.
+	 *
+	 * @return Socket is open?
 	 */
-	bool receive();
-	
+	bool isDataInterfaceValid() const;
+
 	/**
-	 * 	\brief Start measurement.
+	 * \brief Alias for isDataInterfaceValid(). DEPRECATED.
 	 *
-	 *	Ensure via DTrack frontend that data is sent to the local data port.
-	 *	@return 	Is command successful? If measurement is already running the return value is false.
+	 * Due to compatibility to DTrackSDK v2.0.0.
+	 *
+	 * @return Socket is open?
 	 */
-	bool startMeasurement();
-	
+	bool isUDPValid() const  { return isDataInterfaceValid(); }
+
 	/**
-	 * 	\brief Stop measurement.
+	 * \brief Alias for isDataInterfaceValid(). DEPRECATED.
 	 *
-	 * 	@return 	Is command successful? If measurement is not running return value is true.
+	 * Due to compatibility to DTrackSDK v2.0.0 - v2.5.0.
+	 *
+	 * @return Socket is open?
 	 */
-	bool stopMeasurement();
-	
+	bool isLocalDataPortValid() const  { return isDataInterfaceValid(); }
+
 	/**
-	 * 	\brief Get data port where tracking data is received.
+	 * \brief Get UDP data port where tracking data is received.
 	 *
-	 *	@return Data port.
+	 * @return Data port.
 	 */
 	unsigned short getDataPort() const;
-	
+
 	/**
-	 *	\brief Is UDP socket open to receive tracking data on local machine?
-	 *	An open socket is needed to receive data, but does not guarantee this.
-	 *	Especially in case no data is sent to this port.
+	 * \brief Returns if TCP connection for DTrack2/DTRACK3 commands is active.
 	 *
-	 *	Replaces valid() in older SDKs.
-	 *	@return	socket open?
-	 */
-	bool isLocalDataPortValid() const;
-	
-	/**
-	 * 	\brief Alias for isLocalDataPortValid().
-	 * 	Due to compatibility to DTrackSDK v2.0.0.
-	 */
-	bool isUDPValid() const  { return isLocalDataPortValid(); }
-	
-	/**
-	 * 	\brief Is TCP connection for DTrack2 commands active?
-	 *
-	 *	On DTrack systems this function returns always false.
-	 *	@return	command interface active?
+	 * @return Command interface is active?
 	 */
 	bool isCommandInterfaceValid() const;
-	
+
 	/**
-	 * 	\brief Alias for isCommandInterfaceValid().
-	 * 	Due to compatibility to DTrackSDK v2.0.0.
+	 * \brief Alias for isCommandInterfaceValid(). DEPRECATED.
+	 *
+	 * Due to compatibility to DTrackSDK v2.0.0.
+	 *
+	 * @return Command interface is active?
 	 */
 	bool isTCPValid() const  { return isCommandInterfaceValid(); }
-	
+
 	/**
-	 * 	\brief	Get current remote system type (e.g. DTrack, DTrack2).
+	 * \brief Returns if TCP connection has full access for DTrack2/DTRACK3 commands.
 	 *
-	 * 	@return	type of remote system
+	 * @return Got full access to command interface?
+	 */
+	bool isCommandInterfaceFullAccess();
+
+	/**
+	 * \brief Get current remote system type (e.g. DTrack1, DTrack2/DTRACK3).
+	 *
+	 * @return Type of remote system
 	 */
 	RemoteSystemType getRemoteSystemType() const;
-	
+
 	/**
-	 * 	\brief	Set timeout for receiving tracking data.
+	 * \brief Set UDP timeout for receiving tracking data.
 	 *
-	 * 	@param[in]	timeout		timeout for receiving tracking data in us; default is 1s (1,000,000 us)
-	 * 	@return		Success? (i.e. valid timeout)
+	 * @param[in] timeout Timeout for receiving tracking data in us; 0 to set default (1.0 s)
+	 * @return            Success? (i.e. valid timeout)
 	 */
-	bool setDataTimeoutUS(int timeout);
-	
+	bool setDataTimeoutUS( int timeout );
+
 	/**
-	 * 	\brief	Set timeout for reply of ARTtrack Controller.
+	 * \brief Set TCP timeout for exchanging commands with Controller.
 	 *
-	 * 	@param[in]	timeout		timeout for reply of ARTtrack Controller in us; default is 1s (1,000,000 us)
-	 * 	@return		Success? (i.e. valid timeout)
+	 * @param[in] timeout Timeout for reply of Controller in us; 0 to set default (10.0 s)
+	 * @return            Success? (i.e. valid timeout)
 	 */
-	bool setControllerTimeoutUS(int timeout);
-	
+	bool setCommandTimeoutUS( int timeout );
+
 	/**
-	 * 	\brief	Get last error as error code (data transmission).
+	 * \brief Alias for setCommandTimeoutUS(). DEPRECATED.
 	 *
-	 * 	@return error code (success = 0)
+	 * Due to compatibility to DTrackSDK v2.0.0 - v2.5.0.
+	 *
+	 * @param[in] timeout Timeout for reply of Controller in us; 0 to set default (10.0 s)
+	 * @return            Success? (i.e. valid timeout)
+	 */
+	bool setControllerTimeoutUS( int timeout )  { return setCommandTimeoutUS( timeout ); };
+
+	/**
+	 * \brief Set UDP buffer size for receiving tracking data.
+	 *
+	 * @param[in] bufSize Buffer size for receiving tracking data in bytes; 0 to set default (32768)
+	 * @return            Success? (i.e. valid size)
+	 */
+	bool setDataBufferSize( int bufSize );
+
+
+	/**
+	 * \brief Receive and process one tracking data packet.
+	 *
+	 * This method waits until a data packet becomes available, but no longer
+	 * than the timeout. Updates internal data structures.
+	 *
+	 * @return Receive succeeded?
+	 */
+	bool receive();
+
+	/**
+	 * \brief Process one tracking packet manually.
+	 *
+	 * This requires no connection to a Controller. Updates internal data structures.
+	 *
+	 * @param[in] data Data packet to be processed
+	 * @return         Processing succeeded?
+	 */
+	bool processPacket( const std::string& data );
+
+	/**
+	 * \brief Get content of the UDP buffer.
+	 * 
+	 * @return Content of buffer as string
+	 */
+	std::string getBuf() const;
+
+
+	/**
+	 * \brief Get last error at receiving tracking data (data transmission).
+	 *
+	 * @return Error code (success = 0)
 	 */
 	Errors getLastDataError() const;
-	
+
 	/**
-	 * 	\brief	Get last error as error code (command transmission).
+	 * \brief Get last error at exchanging commands with Controller (command transmission).
 	 *
-	 * 	@return error code (success = 0)
+	 * @return Error code (success = 0)
 	 */
 	Errors getLastServerError() const;
-	
+
 	/**
-	 * 	\brief	Get last DTrack error code.
+	 * \brief Get last DTrack2/DTRACK3 command error code.
 	 *
-	 * 	@return Error code.
+	 * @return Error code
 	 */
 	int getLastDTrackError() const;
-	
+
 	/**
-	 * 	\brief	Get last DTrack error description.
+	 * \brief Get last DTrack2/DTRACK3 command error description.
 	 *
-	 * 	@return Error description.
+	 * @return Error description
 	 */
 	std::string getLastDTrackErrorDescription() const;
-	
+
+
 	/**
-	 *	\brief	Send DTrack command via UDP.
+	 * \brief Start measurement.
 	 *
-	 *	Answer is not received and therefore not processed.
-	 *	@param[in]	command		command string
-	 *	@return		sending command succeeded? if not, a DTrack error is available
+	 * Ensure via DTrack frontend that tracking data is sent to correct UDP data port.
+	 *
+	 * @return Is command successful? If measurement is already running the return value is false.
 	 */
-	bool sendCommand(const std::string& command);
-	
+	bool startMeasurement();
+
 	/**
-	 * 	\brief Send DTrack2 command to DTrack and receive answer (TCP command interface).
+	 * \brief Stop measurement.
 	 *
-	 *	Answers like "dtrack2 ok" and "dtrack2 err .." are processed. Both cases are reflected in
-	 *	the return value. getLastDTrackError() and getLastDTrackErrorDescription() will return more information.
+	 * @return Is command successful? If measurement is not running return value is true.
+	 */
+	bool stopMeasurement();
+
+
+	/**
+	 * \brief Send DTrack1 command via UDP.
 	 *
-	 * 	@param[in]	command	DTrack2 command string
-	 * 	@param[out]	answer	buffer for answer; NULL if specific answer is not needed
-	 * 	@return	0	specific answer, needs to be parsed
-	 *  @return 1   answer is "dtrack2 ok"
-	 *  @return 2   answer is "dtrack2 err ..". Refer to getLastDTrackError() and getLastDTrackErrorDescription().
-	 * 	@return <0 if error occured (-1 receive timeout, -2 wrong system type, -3 command too long,
-	 *  -9 broken tcp connection, -10 tcp connection invalid, -11 send command failed)
+	 * Answer is not received and therefore not processed.
+	 *
+	 * @param[in] command Command string
+	 * @return            Sending command succeeded? If not, a DTrack error is available
+	 */
+	bool sendDTrack1Command( const std::string& command );
+
+	/**
+	 * \brief Alias for sendDTrack1Command(). DEPRECATED.
+	 *
+	 * Due to compatibility to DTrackSDK v2.0.0 - v2.6.0.
+	 *
+	 * @param[in] command Command string
+	 * @return            Sending command succeeded? If not, a DTrack error is available
+	 */
+	bool sendCommand( const std::string& command )  { return sendDTrack1Command( command ); }
+
+	/**
+	 * \brief Send DTrack2/DTRACK3 command to DTrack and receive answer (TCP command interface).
+	 *
+	 * Answers like "dtrack2 ok" and "dtrack2 err .." are processed. Both cases are reflected in
+	 * the return value. getLastDTrackError() and getLastDTrackErrorDescription() will return more information.
+	 *
+	 * @param[in]  command DTrack2 command string
+	 * @param[out] answer  Buffer for answer; NULL if specific answer is not needed
+	 * @return 0   Specific answer, needs to be parsed
+	 * @return 1   Answer is "dtrack2 ok"
+	 * @return 2   Answer is "dtrack2 err ..". Refer to getLastDTrackError() and getLastDTrackErrorDescription().
+	 * @return <0  if error occured (-1 receive timeout, -2 wrong system type, -3 command too long,
+	 *                               -9 broken tcp connection, -10 tcp connection invalid, -11 send command failed)
 	 */
 	int sendDTrack2Command(const std::string& command, std::string* answer = NULL);
-	
+
 	/**
-	 * 	\brief	Set DTrack2 parameter.
+	 * \brief Set DTrack2/DTRACK3 parameter.
 	 *
-	 *	@param[in] 	category	parameter category
-	 *	@param[in] 	name		parameter name
-	 *	@param[in] 	value		parameter value
-	 *	@return		success? (if not, a DTrack error message is available)
+	 * @param[in] category Parameter category
+	 * @param[in] name     Parameter name
+	 * @param[in] value    Parameter value
+	 * @return             Success? (if not, a DTrack error message is available)
 	 */
 	bool setParam(const std::string& category, const std::string& name, const std::string& value);
-	
+
 	/**
-	 * 	\brief	Set DTrack2 parameter.
+	 * \brief Set DTrack2/DTRACK3 parameter using a string containing parameter category, name and new value.
 	 *
-	 * 	@param[in]	parameter	 complete parameter string without starting "dtrack set "
-	 *	@return		success? (if not, a DTrack error message is available)
+	 * @param[in] parameter Complete parameter string without starting "dtrack set "
+	 * @return              Success? (if not, a DTrack error message is available)
 	 */
 	bool setParam(const std::string& parameter);
-	
+
 	/**
-	 * 	\brief	Get DTrack2 parameter.
+	 * \brief Get DTrack2/DTRACK3 parameter.
 	 *
-	 *	@param[in] 	category	parameter category
-	 *	@param[in] 	name		parameter name
-	 *	@param[out]	value		parameter value
-	 *	@return		success? (if not, a DTrack error message is available)
+	 * @param[in]  category Parameter category
+	 * @param[in]  name     Parameter name
+	 * @param[out] value    Parameter value
+	 * @return              Success? (if not, a DTrack error message is available)
 	 */
 	bool getParam(const std::string& category, const std::string& name, std::string& value);
-	
+
 	/**
-	 * 	\brief	Get DTrack2 parameter.
+	 * \brief Get DTrack2/DTRACK3 parameter using a string containing parameter category and name.
 	 *
-	 *	@param[in] 	parameter	complete parameter string without starting "dtrack get "
-	 *	@param[out]	value		parameter value
-	 *	@return		success? (if not, a DTrack error message is available)
+	 * @param[in]  parameter Complete parameter string without starting "dtrack get "
+	 * @param[out] value     Parameter value
+	 * @return               Success? (if not, a DTrack error message is available)
 	 */
 	bool getParam(const std::string& parameter, std::string& value);
-	
+
+
 	/**
-	 *	\brief	Get DTrack2 message.
+	 * \brief Get DTrack2/DTRACK3 event message from the Controller.
 	 *
-	 *	Updates internal message structures
-	 *	@return message available?
+	 * Updates internal message structures. Use the appropriate methods to get the contents of the
+	 * message.
+	 *
+	 * @return Message available?
 	 */
 	bool getMessage();
-	
+
 	/**
-	 * 	\brief Get origin of last DTrack2 message.
+	 * \brief Get frame counter of last DTrack2/DTRACK3 event message.
 	 *
-	 *	@return origin
-	 */
-	std::string getMessageOrigin() const;
-	
-	/**
-	 * 	\brief Get status of last DTrack2 message.
-	 *
-	 *	@return status
-	 */
-	std::string getMessageStatus() const;
-	
-	/**
-	 * 	\brief Get frame counter of last DTrack2 message.
-	 *
-	 *	@return frame counter
+	 * @return Frame counter
 	 */
 	unsigned int getMessageFrameNr() const;
-	
+
 	/**
-	 * 	\brief Get error id of last DTrack2 message.
+	 * \brief Get error id of last DTrack2/DTRACK3 event message.
 	 *
-	 *	@return error id
+	 * @return Error id
 	 */
 	unsigned int getMessageErrorId() const;
-	
+
 	/**
-	 * 	\brief Get message string of last DTrack2 message.
+	 * \brief Get origin of last DTrack2/DTRACK3 event message.
 	 *
-	 *	@return mesage string
+	 * @return Origin
+	 */
+	std::string getMessageOrigin() const;
+
+	/**
+	 * \brief Get status of last DTrack2/DTRACK3 event message.
+	 *
+	 * @return Status
+	 */
+	std::string getMessageStatus() const;
+
+	/**
+	 * \brief Get message text of last DTrack2/DTRACK3 event message.
+	 *
+	 * @return Message text
 	 */
 	std::string getMessageMsg() const;
-	
-protected:
+
+
 	/**
-	 * 	\brief Set last dtrack error.
+	 * \brief Send tactile FINGERTRACKING command to set feedback on a specific finger of a specific hand.
 	 *
-	 * 	@param[in]  newError        new error code for last operation; default is 0 (success)
-	 * 	@param[in]  newErrorString  corresponding error string if exists (optional)
+	 * Has to be repeated at least every second; otherwise a timeout mechanism will turn off any feedback.
+	 *
+	 * Sends command to the sender IP address of the latest received UDP data, if no hostname or IP address
+	 * of a Controller is defined.
+	 *
+	 * @param[in] handId   Hand id, range 0 ..
+	 * @param[in] fingerId Finger id, range 0 ..
+	 * @param[in] strength Strength of feedback, between 0.0 and 1.0
+	 * @return             Success? (if not, a DTrack error message is available)
+	 */
+	bool tactileFinger( int handId, int fingerId, double strength );
+
+	/**
+	 * \brief Send tactile FINGERTRACKING command to set tactile feedback on all fingers of a specific hand.
+	 *
+	 * Has to be repeated at least every second; otherwise a timeout mechanism will turn off any feedback.
+	 *
+	 * Sends command to the sender IP address of the latest received UDP data, if no hostname or IP address
+	 * of a Controller is defined.
+	 *
+	 * @param[in] handId   Hand id, range 0 ..
+	 * @param[in] strength Strength of feedback on all fingers, between 0.0 and 1.0
+	 * @return             Success? (if not, a DTrack error message is available)
+	 */
+	bool tactileHand( int handId, const std::vector< double >& strength );
+
+	/**
+	 * \brief Send tactile FINGERTRACKING command to turn off tactile feedback on all fingers of a specific hand.
+	 *
+	 * Sends command to the sender IP address of the latest received UDP data, if no hostname or IP address
+	 * of a Controller is defined.
+	 *
+	 * @param[in] handId    Hand id, range 0 ..
+	 * @param[in] numFinger Number of fingers
+	 * @return              Success? (if not, a DTrack error message is available)
+	 */
+	bool tactileHandOff( int handId, int numFinger );
+
+
+	/**
+	 * \brief Send Flystick feedback command to start a beep on a specific Flystick.
+	 *
+	 * Sends command to the sender IP address of the latest received UDP data, if no hostname or IP address
+	 * of a Controller is defined.
+	 *
+	 * @param[in] flystickId  Flystick id, range 0 ..
+	 * @param[in] durationMs  Time duration of the beep (in milliseconds)
+	 * @param[in] frequencyHz Frequency of the beep (in Hertz)
+	 * @return                Success? (if not, a DTrack error message is available)
+	 */
+	bool flystickBeep( int flystickId, double durationMs, double frequencyHz );
+
+	/**
+	 * \brief Send Flystick feedback command to start a vibration pattern on a specific Flystick.
+	 *
+	 * Sends command to the sender IP address of the latest received UDP data, if no hostname or IP address
+	 * of a Controller is defined.
+	 *
+	 * @param[in] flystickId       Flystick id, range 0 ..
+	 * @param[in] vibrationPattern Vibration pattern id, range 1 ..
+	 * @return                     Success? (if not, a DTrack error message is available)
+	 */
+	bool flystickVibration( int flystickId, int vibrationPattern );
+
+
+private:
+
+	static const unsigned short DTRACK2_PORT_COMMAND = 50105;  //!< Controller port number (TCP) for 'dtrack2' commands
+	static const unsigned short DTRACK2_PORT_FEEDBACK = 50110;  //!< Controller port number (UDP) for feedback commands
+
+	static const int DEFAULT_TCP_TIMEOUT = 10000000;  //!< default TCP timeout (in us)
+	static const int DEFAULT_UDP_TIMEOUT = 1000000;   //!< default UDP timeout (in us)
+	static const int DEFAULT_UDP_BUFSIZE = 32768;     //!< default UDP buffer size (in bytes)
+
+	/**
+	 * \brief Set last DTrack2/DTRACK3 command error.
+	 *
+	 * @param[in] newError       New error code for last operation; default is 0 (success)
+	 * @param[in] newErrorString Corresponding error string if exists (optional)
 	 */
 	void setLastDTrackError(int newError = 0, const std::string& newErrorString = "");
-	
+
 	/**
-	 * 	\brief	Private init called by constructor.
+	 * \brief Private init called by constructor.
 	 *
-	 *	@param[in]  server_host     hostname or IP address of ARTtrack Controller (empty string if not used)
-	 *	@param[in]  server_port     port number of ARTtrack Controller
-	 *	@param[in]  data_port       port number to receive tracking data from ARTtrack Controller (0 if to be chosen)
-	 *	@param[in]  remote_type     type of system to connect to
-	 *	@param[in]  data_bufsize    size of buffer for UDP packets in bytes; default is 32kb (32768 bytes)
-	 *	@param[in]  data_timeout_us timeout for receiving tracking data in us; default is 1s (1,000,000 us)
-	 *	@param[in]  srv_timeout_us  timeout for reply of ARTtrack Controller in us; default is 10s (10,000,000 us)
+	 * @param[in] server_host Hostname/IP of Controller/DTrack1 PC, or multicast IP (empty string if not used)
+	 * @param[in] server_port Port number (UDP) of DTrack1 PC to send commands to (0 if not used)
+	 * @param[in] data_port   Port number (UDP) to receive tracking data from DTrack (0 if to be chosen)
+	 * @param[in] remote_type Type of system to connect to
 	 */
-	void init(const std::string& server_host, unsigned short server_port, unsigned short data_port,
-	          RemoteSystemType remote_type, int data_bufsize = 32768, int data_timeout_us = 1000000,
-	          int srv_timeout_us = 10000000
-	);
-	
+	void init( const std::string& server_host, unsigned short server_port, unsigned short data_port,
+	           RemoteSystemType remote_type );
+
+	/**
+	 * \brief Send feedback command via UDP.
+	 *
+	 * @param[in] command Command string
+	 * @return            Sending command succeeded? If not, a DTrack error is available
+	 */
+	bool sendFeedbackCommand( const std::string& command );
+
 	RemoteSystemType rsType;            //!< Remote system type
 	Errors lastDataError;               //!< last transmission error (tracking data)
 	Errors lastServerError;             //!< last transmission error (commands)
-	
+
 	int lastDTrackError;                //!< last DTrack error: as code
 	std::string lastDTrackErrorString;  //!< last DTrack error: as string
-	
-	void* d_tcpsock;                    //!< socket number for TCP
+
+	DTrackNet::TCP* d_tcp;              //!< socket for TCP
 	int d_tcptimeout_us;                //!< timeout for receiving and sending TCP data
-	
-	void* d_udpsock;                    //!< socket number for UDP
-	unsigned int d_remote_ip;          //!< IP address for remote access
-	unsigned short d_udpport;          //!< port number for UDP
-	unsigned short d_remoteport;       //!< port number for UDP (remote) / TCP
+
+	DTrackNet::UDP* d_udp;              //!< socket for UDP
+	unsigned int d_remoteIp;            //!< IP address of Controller/DTrack1 PC (0 if unknown)
+	unsigned short d_remoteDT1Port;     //!< Port number (UDP) of DTrack1 PC to send commands to (0 if unknown)
 	int d_udptimeout_us;                //!< timeout for receiving UDP data
-	
+
 	int d_udpbufsize;                   //!< size of UDP buffer
 	char* d_udpbuf;                     //!< UDP buffer
-	
+
 	std::string d_message_origin;       //!< last DTrack2 message: origin of message
 	std::string d_message_status;       //!< last DTrack2 message: status of message
 	unsigned int d_message_framenr;     //!< last DTrack2 message: frame counter
@@ -412,4 +595,5 @@ protected:
 };
 
 
-#endif /* _ART_DTRACKSDK_HPP_ */
+#endif  // _ART_DTRACKSDK_HPP_
+

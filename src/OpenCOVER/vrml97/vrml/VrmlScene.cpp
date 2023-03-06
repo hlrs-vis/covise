@@ -925,7 +925,7 @@ void VrmlScene::queueEvent(double timeStamp,
         cerr << "UUps, Event queue is full!!!!" << endl;
         e = &d_eventMem[d_lastEvent];
         delete e->value;
-        e->value = (VrmlField *)0xdeadbeef;
+        e->value = (VrmlField *)0xdeadbeefdeadbeef;
         d_firstEvent = (d_firstEvent + 1) % MAXEVENTS;
     }
 }

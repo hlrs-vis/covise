@@ -15,14 +15,14 @@ cmake -G "Visual Studio 17 2022" -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/nloh
 
 
 #Botan
-create C:\src\externlibs\zebu\botan\debug and C:\src\externlibs\zebu\botan\release
+create C:\src\externlibs\zebu\botan
 git clone https://github.com/randombit/botan
 cd botan 
-python configure.py --cc=msvc --os=windows --debug-mode --msvc-runtime=MDd --library-suffix=d --prefix=C:\src\externlibs\zebu\botan\debug
+python configure.py --cc=msvc --os=windows --debug-mode --msvc-runtime=MDd --library-suffix=d --prefix=C:\src\externlibs\zebu\botan
 nmake
 nmake check
 nmake install
-python configure.py --cc=msvc --os=windows --msvc-runtime=MD --prefix=C:\src\externlibs\zebu\botan\release
+python configure.py --cc=msvc --os=windows --msvc-runtime=MD --prefix=C:\src\externlibs\zebu\botan
 nmake
 nmake check
 nmake install
@@ -282,9 +282,9 @@ C:\src\externlibs\zebu\nvtt\lib\static\bc6hd.lib
 
 #boost
 bootstrap.bat
-set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
-b2 install address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-python --without-mpi -j8  --debug-configuration -d+2
-
+//set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
+//b2 install address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-python --without-mpi -j8  --debug-configuration -d+2
+b2 install address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --with-zlib --without-python --without-mpi -j8  --debug-configuration -d+2 -sZLIB_LIBRARY="c:\src\externlibs\zebu\zlib\lib" -sZLIB_INCLUDE="c:\src\externlibs\zebu\zlib\include"
 
 ## boost.Python and Boost.mpi not needed anymore, thus don't do this:
 
@@ -744,4 +744,4 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL
 
 ###
 vistle
-cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan/debug;c:/src/externlibs/zebu/botan/release;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
