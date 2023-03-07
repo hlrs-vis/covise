@@ -3216,9 +3216,14 @@ RevitPlugin::handleMessage(Message *m)
 		{
 		case Message::SOCKET_CLOSED:
 		case Message::CLOSE_SOCKET:
-
+	        if (coVRMSController::instance()->isMaster())
+            {
+            if(toRevit!=nullptr && toRevit->getSocket() !=nullptr)
+            {
             cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
 			toRevit.reset(nullptr);
+            }
+            }
 
 			cerr << "connection to Revit closed" << endl;
 			break;
