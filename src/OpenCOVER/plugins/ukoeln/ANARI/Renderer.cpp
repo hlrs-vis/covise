@@ -127,17 +127,19 @@ void Renderer::setRendererType(std::string type)
 std::vector<std::string> Renderer::getRendererTypes()
 {
     std::vector<std::string> result;
-    const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
-    if (deviceSubtypes != nullptr) {
+    const char * const *rendererSubtypes = nullptr;
+    anariGetProperty(anari.device, anari.device, "subtypes.renderer", ANARI_STRING_LIST,
+                     &rendererSubtypes, sizeof(rendererSubtypes), ANARI_WAIT);
+    if (rendererSubtypes != nullptr) {
 
-        while (const char* dstype = *deviceSubtypes++) {
-            const char** rendererTypes = anariGetObjectSubtypes(anari.library, dstype, ANARI_RENDERER);
-            while (rendererTypes && *rendererTypes) {
-                const char* rendererType = *rendererTypes++;
-                result.push_back(rendererType);
-            }
+        while (const char* rendererType = *rendererSubtypes++) {
+            result.push_back(rendererType);
         }
     }
+
+    if (result.empty())
+        result.push_back("default");
+
     return result;
 }
 
