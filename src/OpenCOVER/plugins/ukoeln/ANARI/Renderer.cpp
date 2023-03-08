@@ -192,20 +192,23 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     if (!anari.world)
         return;
 
-    float bounds[6];
+    float bounds[6] = { 1e30f, 1e30f, 1e30f,
+                       -1e30f,-1e30f,-1e30f };
 
-    if (anari.volume) { // asgComputeBounds doesn't work for volumes yet...
-        bounds[0] = 0.f;
-        bounds[1] = 0.f;
-        bounds[2] = 0.f;
-        bounds[3] = volumeData.sizeX;
-        bounds[4] = volumeData.sizeY;
-        bounds[5] = volumeData.sizeZ;
-    } else {
-        asgComputeBounds(anari.root,
+    if (anari.meshes) {
+        asgComputeBounds(anari.meshes,
                          &bounds[0],&bounds[1],&bounds[2],
                          &bounds[3],&bounds[4],&bounds[5]);
+    }
 
+    if (anari.volume) {
+        // asgComputeBounds doesn't work for volumes yet...
+        bounds[0] = fminf(bounds[0], 0.f);
+        bounds[1] = fminf(bounds[1], 0.f);
+        bounds[2] = fminf(bounds[2], 0.f);
+        bounds[3] = fmaxf(bounds[3], volumeData.sizeX);
+        bounds[4] = fmaxf(bounds[4], volumeData.sizeY);
+        bounds[5] = fmaxf(bounds[5], volumeData.sizeZ);
     }
 
     osg::Vec3f minCorner(bounds[0],bounds[1],bounds[2]);
@@ -380,18 +383,25 @@ void Renderer::initScene()
 {
     const char *fileName = this->fileName.value.c_str();
 
-    anari.root = asgNewObject();
+    if (!anari.root)
+        anari.root = asgNewObject();
+
+    anari.meshes = asgNewObject();
 
     // Load from file
     std::string ext = getExt(fileName);
     if (ext==".pbf" || ext==".pbrt")
-        ASG_SAFE_CALL(asgLoadPBRT(anari.root, fileName, 0));
+        ASG_SAFE_CALL(asgLoadPBRT(anari.meshes, fileName, 0));
     else
-        ASG_SAFE_CALL(asgLoadASSIMP(anari.root, fileName, 0));
+        ASG_SAFE_CALL(asgLoadASSIMP(anari.meshes, fileName, 0));
+
+    ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.meshes));
 
     // Build up ANARI world
-    ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world,
-                                     ASG_BUILD_WORLD_FLAG_FULL_REBUILD, 0));
+    ASGBuildWorldFlags_t flags = ASG_BUILD_WORLD_FLAG_GEOMETRIES |
+                                 ASG_BUILD_WORLD_FLAG_MATERIALS  |
+                                 ASG_BUILD_WORLD_FLAG_TRANSFORMS;
+    ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
     anariCommitParameters(anari.device, anari.world);
 }
@@ -406,7 +416,8 @@ void Renderer::initVolume()
             volumeData.voxels[i] = ((const uint8_t *)volumeData.data)[i]/255.999f;
         }
 
-        anari.root = asgNewObject();
+        if (!anari.root)
+            anari.root = asgNewObject();
 
         anari.volume = asgNewStructuredVolume(volumeData.voxels.data(),
                                               volumeData.sizeX, volumeData.sizeY, volumeData.sizeZ,
@@ -426,8 +437,9 @@ void Renderer::initVolume()
 
         ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.volume));
 
-        ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world,
-                                         ASG_BUILD_WORLD_FLAG_FULL_REBUILD, 0));
+        ASGBuildWorldFlags_t flags = ASG_BUILD_WORLD_FLAG_VOLUMES |
+                                     ASG_BUILD_WORLD_FLAG_LUTS;
+        ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
         anariCommitParameters(anari.device, anari.world);
     }

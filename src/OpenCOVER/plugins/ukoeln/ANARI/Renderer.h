@@ -62,6 +62,7 @@ private:
         ANARIWorld world{nullptr};
         ANARILight headLight{nullptr};
         ASGObject root{nullptr};
+        ASGObject meshes{nullptr};
         ASGStructuredVolume volume{nullptr};
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARICamera> cameras;
