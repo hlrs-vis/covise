@@ -48,6 +48,7 @@ private:
         int width=1, height=1;
         GLenum colorFormat=GL_FLOAT;
         GLenum depthFormat=GL_UNSIGNED_BYTE;
+        osg::Matrix mv, pr;
     };
     std::vector<ChannelInfo> channelInfos;
 

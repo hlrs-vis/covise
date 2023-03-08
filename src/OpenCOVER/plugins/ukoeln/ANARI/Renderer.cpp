@@ -117,6 +117,8 @@ void Renderer::setRendererType(std::string type)
         // Causes frame re-initialization
         channelInfos[i].width = 1;
         channelInfos[i].height = 1;
+        channelInfos[i].mv = osg::Matrix::identity();
+        channelInfos[i].pr = osg::Matrix::identity();
     }
     initFrames();
     //anariRelease(anari.device, anari.renderer);
@@ -264,21 +266,26 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
     osg::Matrix mv = multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan);
     osg::Matrix pr = multiChannelDrawer->projectionMatrix(chan);
 
-    osg::Vec3f eye, center, up;
-    mv.getLookAt(eye, center, up);
-    osg::Vec3f dir = center-eye;
+    if (channelInfos[chan].mv != mv || channelInfos[chan].pr != pr) {
+        channelInfos[chan].mv = mv;
+        channelInfos[chan].pr = pr;
 
-    float fovy, aspect, znear, zfar;
-    pr.getPerspective(fovy, aspect, znear, zfar);
+        osg::Vec3f eye, center, up;
+        mv.getLookAt(eye, center, up);
+        osg::Vec3f dir = center-eye;
 
-    float imgRegion[] = {0.f,0.f,1.f,1.f};
+        float fovy, aspect, znear, zfar;
+        pr.getPerspective(fovy, aspect, znear, zfar);
 
-    anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
-    anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, eye.ptr());
-    anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, dir.ptr());
-    anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, up.ptr());
-    anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, imgRegion);
-    anariCommitParameters(anari.device, anari.cameras[chan]);
+        float imgRegion[] = {0.f,0.f,1.f,1.f};
+
+        anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
+        anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, eye.ptr());
+        anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, dir.ptr());
+        anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, up.ptr());
+        anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, imgRegion);
+        anariCommitParameters(anari.device, anari.cameras[chan]);
+    }
 
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
