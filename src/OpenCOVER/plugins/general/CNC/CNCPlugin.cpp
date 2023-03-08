@@ -679,7 +679,11 @@ void CNCPlugin::setTimestep(int t)
         if (t % 1 == 0)
         {
             //wpMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-            wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+            if (pathG[t] == 2 || pathG[t] == 3)
+                wpMillCutTreeCircle(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+            else
+                wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+
             wpTopGeom->dirtyDisplayList();
         }
     }
@@ -819,8 +823,47 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     pathX.push_back(x / 1000.0);
     pathY.push_back(y / 1000.0);
     pathZ.push_back(z / 1000.0);
+    pathG.push_back(1);
+    pathCenterX.push_back(0);
+    pathCenterY.push_back(0);
 
 
+    /* positions[frameNumber*3  ] = x;
+         positions[frameNumber*3+1] = y;
+         positions[frameNumber*3+2] = z;*/
+
+    vert->push_back(Vec3(x / 1000.0, y / 1000.0, z / 1000.0));
+    float col = feedRate / 6000.0;
+    if (col > 1)
+        col = 1;
+    color->push_back(getColor(col));
+    frameNumber++;
+    static double oldTime = 0;
+    static double oldUpdateTime = 0;
+    double time = cover->frameTime();
+    if (time - oldUpdateTime > 1.0)
+    {
+        oldUpdateTime = time;
+        numSamples->setText("numSamples: " + std::to_string(frameNumber));
+    }
+}
+
+void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate)
+{
+    pathX.push_back(x / 1000.0);
+    pathY.push_back(y / 1000.0);
+    pathZ.push_back(z / 1000.0);
+    pathCenterX.push_back(centerX / 1000.0);
+    pathCenterY.push_back(centerY / 1000.0);
+    //rotation gives the direction and the amount of 360° circles (offset by 1)
+    if (rotation < 0)
+        pathG.push_back(2); //clockwise
+    else if (rotation > 0)
+        pathG.push_back(3); //counter_clockwise
+    else
+        pathG.push_back(1); //no arc, straight z movement
+
+    
     /* positions[frameNumber*3  ] = x;
          positions[frameNumber*3+1] = y;
          positions[frameNumber*3+2] = z;*/
@@ -899,19 +942,22 @@ void CNCPlugin::createWpGeodes(Group *parent)
     }
     treeRoot = new TreeNode(Point(-1, -1), Point(wpTotalQuadsX, wpTotalQuadsY), 0);
     for (int t = 1; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
-    {
-        wpPrepareMillCutTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ, t);
+    {   
+        if (pathG[t] == 2 || pathG[t] == 3)
+            wpPrepareMillCutTreeCircle(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ, t);
+        else
+            wpPrepareMillCutTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ, t);
     }
     wpTopGeom = createWpTopTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
 
-/*
+
     wpBotGeom = createWpBottom(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ);
     wpBotGeode = new osg::Geode();
     wpBotGeode->setName("wpBotGeode");
     parent->addChild(wpBotGeode);
     wpBotGeode->addDrawable(wpBotGeom);
     wpBotGeom->dirtyDisplayList();
- */   
+   
 
  //   wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
     wpTopGeode = new osg::Geode();
@@ -1675,14 +1721,18 @@ void CNCPlugin::wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t)
             {
                 int iPoint = coords->primitivePos;
                 double dist = distancePointLineSegment(piece->at(iPoint)[0] + wpResX / 2, piece->at(iPoint)[1] + wpResY / 2, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
-                if (dist < cuttingRad && pathZ[t] < piece->at(iPoint)[2])
-                {
-                    //cuttedQuadsIX.push_back(ix);
-                    //cuttedQuadsIY.push_back(iy);
-                    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
-                    piece->at(iPoint + 1)[2] = pathZ[t];
-                    piece->at(iPoint + 2)[2] = pathZ[t];
-                    piece->at(iPoint + 3)[2] = pathZ[t];
+                if (dist < cuttingRad)// && pathZ[t] < piece->at(iPoint)[2])
+                {   
+                    double zCut = pathZ[t] - tan(pointAngle / 2) * dist;
+                    if (pathZ[t] < piece->at(iPoint)[2]) //if (zCut < piece->at(iPoint)[2])
+                    {
+                        //cuttedQuadsIX.push_back(ix);
+                        //cuttedQuadsIY.push_back(iy);
+                        piece->at(iPoint)[2] = pathZ[t]; // zCut;//   // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                        piece->at(iPoint + 1)[2] = pathZ[t]; // zCut;
+                        piece->at(iPoint + 2)[2] = pathZ[t]; // zCut;
+                        piece->at(iPoint + 3)[2] = pathZ[t]; // zCut;
+                    }
                 }
             }
         }
@@ -1743,37 +1793,39 @@ void CNCPlugin::wpPrepareMillCutTree(double minX, double maxX, double minY, doub
         ixMin = 0;
     if (iyMin < 0)
         iyMin = 0;
-
-    for (int iy = iyMin; iy <= iyMax; iy++)
+    if (pathZ[t] < z)
     {
-        for (int ix = ixMin; ix <= ixMax; ix++)
+        for (int iy = iyMin; iy <= iyMax; iy++)
         {
-            int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
-            double wpQuadIXCenter = minX + ix * wpResX + wpResX/2;
-            double wpQuadIYCenter = minY + iy * wpResY + wpResY/2;
-            double dist = distancePointLineSegment(wpQuadIXCenter, wpQuadIYCenter, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
-            if (dist < cuttingRad) // && pathZ[t] < z)
+            for (int ix = ixMin; ix <= ixMax; ix++)
             {
-                cuttedQuadsIX.push_back(ix);
-                cuttedQuadsIY.push_back(iy);
+                int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+                double wpQuadIXCenter = minX + ix * wpResX + wpResX / 2;
+                double wpQuadIYCenter = minY + iy * wpResY + wpResY / 2;
+                double dist = distancePointLineSegment(wpQuadIXCenter, wpQuadIYCenter, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
+                if (dist < cuttingRad) // && pathZ[t] < z)
+                {
+                    cuttedQuadsIX.push_back(ix);
+                    cuttedQuadsIY.push_back(iy);
 
-                treeRoot->insert(ix, iy, z);
-                treeRoot->insert(ix-1, iy, z);
-                treeRoot->insert(ix, iy-1, z);
-                treeRoot->insert(ix+1, iy, z);
-                treeRoot->insert(ix, iy+1, z);
+                    treeRoot->insert(ix, iy, z);
+                    treeRoot->insert(ix - 1, iy, z);
+                    treeRoot->insert(ix, iy - 1, z);
+                    treeRoot->insert(ix + 1, iy, z);
+                    treeRoot->insert(ix, iy + 1, z);
 
-                treeRoot->updateZ(ix, iy, pathZ[t]);
+                    treeRoot->updateZ(ix, iy, pathZ[t]);
 
-            /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
-                piece->at(iPoint + 1)[2] = pathZ[t];
-                piece->at(iPoint + 2)[2] = pathZ[t];
-                piece->at(iPoint + 3)[2] = pathZ[t];
-            */
+                    /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                        piece->at(iPoint + 1)[2] = pathZ[t];
+                        piece->at(iPoint + 2)[2] = pathZ[t];
+                        piece->at(iPoint + 3)[2] = pathZ[t];
+                    */
+                }
             }
         }
+        wpCutFacesTree(minX, maxX, minY, maxY, z);
     }
-    wpCutFacesTree(minX, maxX, minY, maxY, z);
 }
 
 /* Return minimum distance between point p and line vw */
@@ -1819,6 +1871,39 @@ double CNCPlugin::distancePointLineSegment(double px, double py, double x1, doub
     return sqrt(dx * dx + dy * dy);
 }
 
+/* Return distance between point p and point 1 */
+double CNCPlugin::distancePointPoint(double px, double py, double x1, double y1)
+{
+    return sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
+}
+
+/* Return angle between centerpoint p - point 1 and x axis */
+double CNCPlugin::anglePointPoint(double px, double py, double x1, double y1)
+{   
+    return atan2(y1 - py, x1 - px);
+}
+
+/* Checks if pAngle is between 1 and 2, depending on gCode (G2/G3)*/
+bool CNCPlugin::checkInsideArcG2(double pAngle, double angle1, double angle2)
+{
+    double delta1 = pAngle - angle1;
+    double delta2 = pAngle - angle2;
+    
+    if (angle1 < angle2)
+    {
+        if (delta1 * delta2 > 0)
+            return true;
+        else
+            return false;
+    }
+    else
+    {
+        if (delta1 * delta2 < 0)
+            return true;
+        else
+            return false;
+    }
+}
 
 void CNCPlugin::wpResetCuts(osg::Vec3Array *piece, int t)
 {
@@ -2280,4 +2365,144 @@ TreeNode* CNCPlugin::createTree(int minIX, int maxIX, int minIY, int maxIY, doub
         treeRoot->insert(i + 10, i + 10, i * i);
     }
     return treeRoot;
+}
+
+
+void CNCPlugin::wpPrepareMillCutTreeCircle(double minX, double maxX, double minY, double maxY, double z, int t)
+{   
+    if (pathZ[t] < z)
+    {
+        double arcRadius = distancePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);// Abstand center zu t;
+        //bounding Box
+        double boxMinX = pathCenterX[t] - arcRadius - cuttingRad;
+        double boxMaxX = pathCenterX[t] + arcRadius + cuttingRad;
+        double boxMinY = pathCenterY[t] - arcRadius - cuttingRad;
+        double boxMaxY = pathCenterY[t] + arcRadius + cuttingRad;
+
+        int ixMin = (boxMinX - wpMinX) / wpResX;
+        int ixMax = (boxMaxX - wpMinX) / wpResX;
+        int iyMin = (boxMinY - wpMinY) / wpResY;
+        int iyMax = (boxMaxY - wpMinY) / wpResY;
+        if (ixMin < 0)
+            ixMin = 0;
+        if (iyMin < 0)
+            iyMin = 0;
+
+        double angleT1 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+        double angleT2 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t-1], pathY[t-1]);
+
+        for (int iy = iyMin; iy <= iyMax; iy++)
+        {
+            for (int ix = ixMin; ix <= ixMax; ix++)
+            {
+                int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+                double wpQuadIXCenter = minX + ix * wpResX + wpResX / 2;
+                double wpQuadIYCenter = minY + iy * wpResY + wpResY / 2;
+                double distPointCircle = abs(distancePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter) - arcRadius);
+                if (distPointCircle < cuttingRad)
+                {   
+                    double angleI = anglePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter);
+                    bool inside = checkInsideArcG2(angleI, angleT1, angleT2);
+                    if (pathG[t] == 3)
+                        inside == !inside;
+                    bool insert = inside;
+                    if (!inside)
+                    {
+                        double dist = std::min(distancePointPoint(pathX[t], pathY[t], wpQuadIXCenter, wpQuadIYCenter),
+                            distancePointPoint(pathX[t - 1], pathY[t - 1], wpQuadIXCenter, wpQuadIYCenter));
+                        if (dist < cuttingRad)
+                            insert = true;
+                    }
+        
+                    if (insert)
+                    {
+                        cuttedQuadsIX.push_back(ix);
+                        cuttedQuadsIY.push_back(iy);
+
+                        treeRoot->insert(ix, iy, z);
+                        treeRoot->insert(ix - 1, iy, z);
+                        treeRoot->insert(ix, iy - 1, z);
+                        treeRoot->insert(ix + 1, iy, z);
+                        treeRoot->insert(ix, iy + 1, z);
+
+                        treeRoot->updateZ(ix, iy, pathZ[t]);
+
+                        /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                            piece->at(iPoint + 1)[2] = pathZ[t];
+                            piece->at(iPoint + 2)[2] = pathZ[t];
+                            piece->at(iPoint + 3)[2] = pathZ[t];
+                        */
+                    }
+                }
+            }
+        }
+        wpCutFacesTree(minX, maxX, minY, maxY, z);
+    }
+}
+
+void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, int t)
+{
+    double arcRadius = distancePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);// Abstand center zu t;
+    //bounding Box
+    double boxMinX = pathCenterX[t] - arcRadius - cuttingRad;
+    double boxMaxX = pathCenterX[t] + arcRadius + cuttingRad;
+    double boxMinY = pathCenterY[t] - arcRadius - cuttingRad;
+    double boxMaxY = pathCenterY[t] + arcRadius + cuttingRad;
+
+    int ixMin = (boxMinX - wpMinX) / wpResX;
+    int ixMax = (boxMaxX - wpMinX) / wpResX;
+    int iyMin = (boxMinY - wpMinY) / wpResY;
+    int iyMax = (boxMaxY - wpMinY) / wpResY;
+    if (ixMin < 0)              //for last move, usually to (0,0,0)
+        ixMin = 0;
+    if (iyMin < 0)
+        iyMin = 0;
+
+    double angleT1 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+    double angleT2 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t - 1], pathY[t - 1]);
+
+    for (int iy = iyMin; iy <= iyMax; iy++)
+    {
+        for (int ix = ixMin; ix <= ixMax; ix++)
+        {
+            //int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
+            auto coords = treeRoot->search(Point(ix, iy));
+            if (coords != nullptr)
+            {
+                int iPoint = coords->primitivePos;
+
+                double wpQuadIXCenter = piece->at(iPoint)[0] + wpResX / 2;
+                double wpQuadIYCenter = piece->at(iPoint)[1] + wpResX / 2;
+
+                double distPointCircle = abs(distancePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter) - arcRadius);
+                if (distPointCircle < cuttingRad)
+                {
+                    double angleI = anglePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter);
+                    bool inside = checkInsideArcG2(angleI, angleT1, angleT2);
+                    if (pathG[t] == 3)
+                        inside == !inside;
+                    bool insert = inside;
+                    if (!inside)
+                    {
+                        double dist = std::min(distancePointPoint(pathX[t], pathY[t], wpQuadIXCenter, wpQuadIYCenter),
+                            distancePointPoint(pathX[t - 1], pathY[t - 1], wpQuadIXCenter, wpQuadIYCenter));
+                        if (dist < cuttingRad)
+                            insert = true;
+                    }
+
+                    // double zCut = pathZ[t] - tan(pointAngle / 2) * dist;
+                    if (insert && pathZ[t] < piece->at(iPoint)[2]) //if (zCut < piece->at(iPoint)[2])
+                    {
+                        //cuttedQuadsIX.push_back(ix);
+                        //cuttedQuadsIY.push_back(iy);
+                        piece->at(iPoint)[2] = pathZ[t]; // zCut;//   // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+                        piece->at(iPoint + 1)[2] = pathZ[t]; // zCut;
+                        piece->at(iPoint + 2)[2] = pathZ[t]; // zCut;
+                        piece->at(iPoint + 3)[2] = pathZ[t]; // zCut;
+                    }
+                }
+            }
+        }
+    }
+    //wpCutFaces(geo, piece);
 }

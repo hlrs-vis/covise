@@ -467,7 +467,8 @@ void ARC_FEED(
     double c /*CC*/
 #endif
     )
-{
+{   
+    CNCPlugin::instance()->arcFeed(first_end, second_end, axis_end_point, first_axis, second_axis, rotation, _traverse_rate);
     fprintf(_outfile, "%5d ", _line_number++);
     print_nc_line_number();
     fprintf(_outfile, "ARC_FEED(%.4f, %.4f, %.4f, %.4f, %d, %.4f"
