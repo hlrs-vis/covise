@@ -174,7 +174,11 @@ void Renderer::loadVolumeRAW(std::string fn)
     volumeData.deleteData = true;
 
     FILE *file = fopen(fn.c_str(), "rb");
-    fread((void *)volumeData.data, numVoxels, 1, file);
+    size_t itemsRead = fread((void *)volumeData.data, numVoxels, 1, file);
+    if (itemsRead != numVoxels) {
+        printf("Error, expected %" PRIu64 " voxels, but fread() returned %" PRIu64 "\n",
+               (uint64_t)numVoxels, (uint64_t)itemsRead);
+    }
     fclose(file);
 }
 
