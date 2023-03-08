@@ -349,7 +349,8 @@ bool JSBSimPlugin::init()
 #ifdef WIN32
     const char* pValue;
     size_t len;
-    errno_t err = _dupenv_s(&((char*)pValue), &len, "COVISEDIR");
+    char* ncpValue = (char*)pValue;
+    errno_t err = _dupenv_s(&ncpValue, &len, "COVISEDIR");
     if (err)
         pValue = "";
 #else
