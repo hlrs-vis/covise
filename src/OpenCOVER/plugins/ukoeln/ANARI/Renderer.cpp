@@ -160,6 +160,17 @@ std::vector<std::string> Renderer::getRendererTypes()
     return result;
 }
 
+void Renderer::setPixelSamples(int spp)
+{
+    this->spp = spp;
+
+    if (!anari.renderer)
+        return;
+
+    anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &spp);
+    anariCommitParameters(anari.device, anari.renderer);
+}
+
 void Renderer::loadVolumeRAW(std::string fn)
 {
     // deferred!
@@ -357,6 +368,8 @@ void Renderer::initFrames()
     anariCommitParameters(anari.device, anari.world);
 
     anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
+
+    anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &spp);
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);

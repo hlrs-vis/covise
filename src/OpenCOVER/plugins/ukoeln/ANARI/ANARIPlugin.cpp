@@ -9,6 +9,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
@@ -124,6 +125,14 @@ bool ANARIPlugin::init()
             }
         });
     }
+
+    sppSlider = new ui::Slider(anariMenu, "SPP");
+    sppSlider->setIntegral(true);
+    sppSlider->setBounds(1, 16);
+    sppSlider->setValue(1);
+    sppSlider->setCallback([=](double value, bool /*released*/) {
+        renderer->setPixelSamples((int)value);
+    });
 
     return true;
 }

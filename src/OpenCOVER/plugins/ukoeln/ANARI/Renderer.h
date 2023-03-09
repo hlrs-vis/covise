@@ -37,6 +37,8 @@ public:
 
     std::vector<std::string> getRendererTypes();
 
+    void setPixelSamples(int spp);
+
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
     void renderFrame(osg::RenderInfo &info);
@@ -92,6 +94,8 @@ private:
         bool changed = false;
         bool deleteData = false;
     } volumeData;
+
+    int spp{1};
 };
 
 

@@ -19,6 +19,7 @@ class Group;
 class Menu;
 class Button;
 class ButtonGroup;
+class Slider;
 }
 }
 
@@ -54,6 +55,7 @@ public:
 
 protected:
     ui::Menu *anariMenu = nullptr;
+    ui::Slider *sppSlider = nullptr;
     ui::Menu *rendererMenu = nullptr;
     ui::Group *rendererGroup = nullptr;
     ui::ButtonGroup *rendererButtonGroup = nullptr;
