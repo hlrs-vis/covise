@@ -174,6 +174,7 @@ werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
 xerus           Ubuntu 16.04 Xenial Xerus on x86_64 (64 bit mode)
 bionic          Ubuntu 18.04 Bionic Beaver on x86_64 (64 bit mode)
 focal           Ubuntu 20.04 Focal Fossa on x86_64 (64 bit mode)
+jammy           Ubuntu 22.04 Jammy Jellyfish on x86_64 (64 bit mode)
 
 sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1

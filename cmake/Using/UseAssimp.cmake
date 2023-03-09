@@ -1,5 +1,5 @@
 MACRO(USE_ASSIMP)
-  covise_find_package(ASSIMP)
+  covise_find_package(assimp)
   IF ((NOT ASSIMP_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing ASSIMP")
     RETURN()

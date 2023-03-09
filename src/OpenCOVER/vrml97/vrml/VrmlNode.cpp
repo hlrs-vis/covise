@@ -746,7 +746,6 @@ void VrmlNode::eventIn(double timeStamp,
          << endl;
 #endif
 
-    VrmlNodeScript *scriptNode;
     // Strip set_ prefix
     const char *origEventName = eventName;
     if (strncmp(eventName, "set_", 4) == 0)
@@ -763,12 +762,12 @@ void VrmlNode::eventIn(double timeStamp,
     }
 
     // Handle set_field eventIn/field
-    else if (nodeType()->hasEventIn(origEventName) && nodeType()->hasField(eventName))
+    else if (nodeType()->hasEventIn(eventName) || (nodeType()->hasEventIn(origEventName) && nodeType()->hasField(eventName)))
     {
         setField(eventName, *fieldValue);
         setModified();
     }
-    else if ((scriptNode = toScript()))
+    else if (auto scriptNode = toScript())
     {
         if (scriptNode->hasExposedField(eventName))
         {

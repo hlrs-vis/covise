@@ -74,8 +74,15 @@ int coVRSlave::sendMessage(const Message *msg)
     int *write_buf_int;
     int headerSize = 4 * sizeof(int);
     int len = msg->data.length() + headerSize;
+    int dataLen = msg->data.length();
     int toWrite;
     int written = 0;
+    if(msg->data.data()==nullptr && len != headerSize)
+    {
+        fprintf(stderr,"invalid message Length = %d Type =%d\n",len,msg->type);
+        len=headerSize;
+        dataLen = 0;
+    }
     toWrite = len;
     if (toWrite > WRITE_BUFFER_SIZE)
         toWrite = WRITE_BUFFER_SIZE;
@@ -83,7 +90,7 @@ int coVRSlave::sendMessage(const Message *msg)
     write_buf_int[0] = msg->sender;
     write_buf_int[1] = msg->send_type;
     write_buf_int[2] = msg->type;
-    write_buf_int[3] = msg->data.length();
+    write_buf_int[3] = dataLen;
     if (toWrite > WRITE_BUFFER_SIZE)
         toWrite = WRITE_BUFFER_SIZE;
     memcpy(write_buf + headerSize, msg->data.data(), toWrite - headerSize);

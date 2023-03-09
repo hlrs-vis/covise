@@ -49,7 +49,7 @@
            </ConstHead>
 
            <CaveHead device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="1">
-              <Offset x="-105" y="-40" z="-50" />
+              <Offset x="105" y="-50" z="-60" />
               <Orientation h="0" p="0" r="0" />
            </CaveHead>
 

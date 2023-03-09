@@ -794,6 +794,12 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             fi.pointSet = pointSet;
             for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
             {
+                scanHeader.colorLimits.colorRedMaximum = 1;
+                scanHeader.colorLimits.colorRedMinimum = 0;
+                scanHeader.colorLimits.colorGreenMaximum = 1;
+                scanHeader.colorLimits.colorGreenMinimum = 0;
+                scanHeader.colorLimits.colorBlueMaximum = 1;
+                scanHeader.colorLimits.colorBlueMinimum = 0;
                 eReader.ReadData3D(scanIndex, scanHeader);
                 fprintf(stderr, "reading Name: %s\n", scanHeader.name.c_str());
                 osg::Matrix trans;
@@ -875,7 +881,10 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 int32_t		colorGreenOffset = 0;
                 int32_t		colorBlueRange = 1;
                 int32_t		colorBlueOffset = 0;
-                
+
+                fprintf(stderr, "Red %f %f\n", scanHeader.colorLimits.colorRedMinimum, scanHeader.colorLimits.colorRedMaximum);
+                fprintf(stderr, "Green %f %f\n", scanHeader.colorLimits.colorGreenMinimum, scanHeader.colorLimits.colorGreenMaximum);
+                fprintf(stderr, "Blue %f %f\n", scanHeader.colorLimits.colorBlueMinimum, scanHeader.colorLimits.colorBlueMaximum);
                 
                 if (scanHeader.pointFields.colorRedField)
                 {
@@ -976,7 +985,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                             
                             if (bColor) {			//Normalize color to 0 - 1
                                 color.r = (redData[i] - colorRedOffset) / (float)colorRedRange;
-                                color.g = (greenData[i] - colorGreenOffset) / (float)colorBlueRange;
+                                color.g = (greenData[i] - colorGreenOffset) / (float)colorGreenRange;
                                 color.b = (blueData[i] - colorBlueOffset) / (float)colorBlueRange;
                                 
                             }
@@ -1495,6 +1504,12 @@ void PointCloudPlugin::saveMoves()
 				data3DCount = eReader.GetData3DCount();
  				for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
 				{
+                    scanHeader.colorLimits.colorRedMaximum = 1;
+                    scanHeader.colorLimits.colorRedMinimum = 0;
+                    scanHeader.colorLimits.colorGreenMaximum = 1;
+                    scanHeader.colorLimits.colorGreenMinimum = 0;
+                    scanHeader.colorLimits.colorBlueMaximum = 1;
+                    scanHeader.colorLimits.colorBlueMinimum = 0;
 					eReader.ReadData3D(scanIndex, scanHeader);
 					osg::Matrix cloudMat;
 					osg::Matrix cloudTra;
@@ -1568,12 +1583,13 @@ void PointCloudPlugin::saveMoves()
 					int32_t		colorGreenOffset = 0;
 					int32_t		colorBlueRange = 1;
 					int32_t		colorBlueOffset = 0;
-					if (scanHeader.pointFields.colorRedField)
+                   if (scanHeader.pointFields.colorRedField)
 					{
 						bColor = true;
 						redData = new uint16_t[nSize];
 						greenData = new uint16_t[nSize];
 						blueData = new uint16_t[nSize];
+
 						colorRedRange = scanHeader.colorLimits.colorRedMaximum - scanHeader.colorLimits.colorRedMinimum;
 						colorRedOffset = scanHeader.colorLimits.colorRedMinimum;
 						colorGreenRange = scanHeader.colorLimits.colorGreenMaximum - scanHeader.colorLimits.colorGreenMinimum;
