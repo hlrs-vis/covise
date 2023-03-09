@@ -139,6 +139,21 @@ std::vector<std::string> Renderer::getRendererTypes()
         }
     }
 
+    if (result.empty()) {
+        // If the device does not support the "subtypes.renderer" property,
+        // try to obtain the renderer types from the library directly
+        const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
+        if (deviceSubtypes != nullptr) {
+            while (const char* dstype = *deviceSubtypes++) {
+                const char** rendererTypes = anariGetObjectSubtypes(anari.library, dstype, ANARI_RENDERER);
+                while (rendererTypes && *rendererTypes) {
+                    const char* rendererType = *rendererTypes++;
+                    result.push_back(rendererType);
+                }
+            }
+        }
+    }
+
     if (result.empty())
         result.push_back("default");
 
