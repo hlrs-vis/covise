@@ -247,11 +247,12 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 
 void Renderer::renderFrame(osg::RenderInfo &info)
 {
+    int numChannels = coVRConfig::instance()->numChannels();
     if (!multiChannelDrawer) {
         multiChannelDrawer = new MultiChannelDrawer(false, false);
         multiChannelDrawer->setMode(MultiChannelDrawer::AsIs);
         cover->getScene()->addChild(multiChannelDrawer);
-        channelInfos.resize(multiChannelDrawer->numViews());
+        channelInfos.resize(numChannels);
     }
 
     if (anari.frames.empty())
@@ -270,7 +271,7 @@ void Renderer::renderFrame(osg::RenderInfo &info)
         volumeData.changed = false;
     }
 
-    for (unsigned chan=0; chan<multiChannelDrawer->numViews(); ++chan) {
+    for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(info, chan);
     }
 }
@@ -380,9 +381,10 @@ void Renderer::initFrames()
                       bgcolor);
     anariCommitParameters(anari.device, anari.renderer);
 
-    anari.frames.resize(multiChannelDrawer->numViews());
-    anari.cameras.resize(multiChannelDrawer->numViews());
-    for (unsigned chan=0; chan<multiChannelDrawer->numViews(); ++chan) {
+    int numChannels = coVRConfig::instance()->numChannels();
+    anari.frames.resize(numChannels);
+    anari.cameras.resize(numChannels);
+    for (unsigned chan=0; chan<numChannels; ++chan) {
         ANARIFrame &frame = anari.frames[chan];
         ANARICamera &camera = anari.cameras[chan];
 
