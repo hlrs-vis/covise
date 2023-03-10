@@ -27,8 +27,6 @@ SET(SOURCES
   ${cudaLight_CUDA_SOURCES}
 )
 
-CUDA_COMPILE(cudaLight_CUDA_OBJ ${cudaLight_CUDA_SOURCES} SHARED OPTIONS "-D__builtin_stdarg_start=__builtin_va_start")
-  
 #message("cudaLight_CUDA_OBJ")
 #message(${cudaLight_CUDA_OBJ})
-cover_add_plugin(cudaLight ${cudaLight_CUDA_OBJ})
+cover_add_plugin(cudaLight ${SOURCES})

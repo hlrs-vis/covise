@@ -33,7 +33,5 @@ ADD_DEFINITIONS(-DRENDER_STATE)
 #   SET(COVISE_COMPILE_FLAGS "${COVISE_COMPILE_FLAGS} -fvisibility=hidden")
 #ENDIF()
 
-CUDA_COMPILE(cuIsoSurface_CUDA_OBJ ${cuIsoSurface_CUDA_SOURCES} SHARED OPTIONS "-D__builtin_stdarg_start=__builtin_va_start")
-  
 
-cover_add_plugin(cuIsoSurface ${cuIsoSurface_CUDA_OBJ} ${COVISE_DO_LIBRARY} ${COVISE_CORE_LIBRARY} ${COVISE_SHM_LIBRARY} ${COVISE_GPU_LIBRARIES})
+cover_add_plugin(cuIsoSurface ${SOURCES} ${COVISE_DO_LIBRARY} ${COVISE_CORE_LIBRARY} ${COVISE_SHM_LIBRARY} ${COVISE_GPU_LIBRARIES})

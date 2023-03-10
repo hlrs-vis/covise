@@ -72,12 +72,14 @@ __constant__ int2 hexaEdgeToVerts[12] = {
 // Textures containing look-up tables
 ////////////////////////////////////////////////////////////////
 
+#if 0
 texture<uint, 1, cudaReadModeElementType> hexaTriTex;
 texture<uint, 1, cudaReadModeElementType> hexaNumVertsTex;
 texture<uint, 1, cudaReadModeElementType> tetraTriTex;
 texture<uint, 1, cudaReadModeElementType> tetraNumVertsTex;
 texture<uint, 1, cudaReadModeElementType> pyrTriTex;
 texture<uint, 1, cudaReadModeElementType> pyrNumVertsTex;
+#endif
 
 ////////////////////////////////////////////////////////////////
 //

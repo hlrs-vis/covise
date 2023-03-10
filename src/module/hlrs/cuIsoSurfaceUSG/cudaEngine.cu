@@ -75,7 +75,7 @@ void getMinMax(const float *data, int numElem, float *min,
 
    for (i = 0; i < numElem; i++)
    {
-      register float actVal = data[i];
+      float actVal = data[i];
       if (actVal >= minV && actVal < *min)
          *min = actVal;
       if (actVal <= maxV && actVal > *max)
@@ -92,7 +92,7 @@ void countBins(const float *data, int numElem, float min,
    
    for (i = 0; i< numElem; i++)
    {
-      register float actData = data[i];
+      float actData = data[i];
       
       // do not care about FLT_MAX elements in min/max calc.
       if (actData < FLT_MAX)
@@ -277,7 +277,6 @@ void InitCUDA(CUDAState* state, int device)
       return;
    }
    cudaSetDevice(device);
-   cudaGLSetGLDevice(device);
    struct cudaDeviceProp cudaDevicesProperty;
    cudaGetDeviceProperties(&cudaDevicesProperty, device);
    fprintf(stderr," maxNumThreads %d\n",cudaDevicesProperty.maxThreadsPerBlock);
@@ -289,44 +288,43 @@ void InitCUDA(CUDAState* state, int device)
    fprintf(stderr," maxGridSize[2] %d\n", cudaDevicesProperty.maxGridSize[2]);
    cudaError_t err = cudaGetLastError(); // ignore cudaErrorSetOnActiveProcess
    
-#ifdef __APPLE__
-   // don't use coCoviseConfig::getFloat as it depends on std::string
-   // - won't link when .cu is compiled with GCC and .cpp with Clang
-   state->THREAD_N = 192;
-   state->THREAD_N_FAT = 32;
-#else
    state->THREAD_N = covise::coCoviseConfig::getInt("COVER.CudaNumThreads", 192);
    state->THREAD_N_FAT = covise::coCoviseConfig::getInt("COVER.CudaNumThreadsFat", 32);
-#endif
    fprintf(stderr,"numThreads: %d\n",state->THREAD_N);
    
    // allocate textures for Marching Cubes tables
    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindUnsigned);
 
-   CUDA_SAFE_CALL(cudaMalloc((void **) &(state->d_hexaTriTable), 256*16*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy( state->d_hexaTriTable, (void *)hexaTriTable, 256*16*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, hexaTriTex, state->d_hexaTriTable, channelDesc) );
+  cudaResourceDesc resDesc;
+  cudaTextureDesc texDesc;
+  CUDA_SAFE_CALL(cudaMalloc(&state->d, sizeof(CUDATables)));
 
-   CUDA_SAFE_CALL(cudaMalloc((void **) &state->d_hexaNumVertsTable, 256*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy(state->d_hexaNumVertsTable, hexaNumVertsTable, 256*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, hexaNumVertsTex, state->d_hexaNumVertsTable, channelDesc) );
+#define SET_UP_TEXTURE(name, size) \
+  memset(&resDesc, 0, sizeof(resDesc)); \
+  resDesc.resType = cudaResourceTypeLinear; \
+  resDesc.res.linear.devPtr = state->d_ ## name ## Table; \
+  resDesc.res.linear.desc.f = cudaChannelFormatKindUnsigned; \
+  resDesc.res.linear.desc.x = 32; \
+  resDesc.res.linear.sizeInBytes = size*sizeof(uint); \
+  \
+  memset(&texDesc, 0, sizeof(texDesc)); \
+  texDesc.readMode = cudaReadModeElementType; \
+  \
+  CUDA_SAFE_CALL(cudaMalloc((void **) &(state->d_ ## name ## Table), size*sizeof(uint))); \
+  CUDA_SAFE_CALL(cudaMemcpy( state->d_ ## name ## Table, (void *) name ## Table, size*sizeof(uint), cudaMemcpyHostToDevice) ); \
+  state->d_ ## name ## TexObj = 0; \
+  CUDA_SAFE_CALL(cudaCreateTextureObject(&state->d_ ## name ## TexObj, &resDesc, &texDesc, nullptr)); \
+  CUDA_SAFE_CALL(cudaMemcpy( &state->d->name ## Tex, &state->d_ ## name ## TexObj, sizeof(state->d->name ## Tex), cudaMemcpyHostToDevice) );
 
-   CUDA_SAFE_CALL(cudaMalloc((void **) &state->d_tetraTriTable, 16*6*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy(state->d_tetraTriTable, tetraTriTable, 16*6*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, tetraTriTex, state->d_tetraTriTable, channelDesc) );
+  SET_UP_TEXTURE(hexaTri, 256*16)
+  SET_UP_TEXTURE(hexaNumVerts, 256)
+  SET_UP_TEXTURE(tetraTri, 16*6)
+  SET_UP_TEXTURE(tetraNumVerts, 16)
+  SET_UP_TEXTURE(pyrTri, 32*12)
+  SET_UP_TEXTURE(pyrNumVerts, 32)
 
-   CUDA_SAFE_CALL(cudaMalloc((void **) &state->d_tetraNumVertsTable, 16*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy(state->d_tetraNumVertsTable, tetraNumVertsTable, 16*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, tetraNumVertsTex, state->d_tetraNumVertsTable, channelDesc) );
-
-   CUDA_SAFE_CALL(cudaMalloc((void **) &state->d_pyrTriTable, 32*12*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy(state->d_pyrTriTable, pyrTriTable, 32*12*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, pyrTriTex, state->d_pyrTriTable, channelDesc) );
-
-   CUDA_SAFE_CALL(cudaMalloc((void **) &state->d_pyrNumVertsTable, 32*sizeof(uint)));
-   CUDA_SAFE_CALL(cudaMemcpy(state->d_pyrNumVertsTable, pyrNumVertsTable, 32*sizeof(uint), cudaMemcpyHostToDevice) );
-   CUDA_SAFE_CALL(cudaBindTexture(0, pyrNumVertsTex, state->d_pyrNumVertsTable, channelDesc) );
    CheckErr("allocate");
+
 
    //cudaPrintfInit();
 
@@ -338,6 +336,19 @@ void InitCUDA(CUDAState* state, int device)
 
 void CleanupCUDA(CUDAState* state)
 {
+#define CLEAN_UP_TEXTURE(name) \
+    cudaDestroyTextureObject(state->d_ ## name ## TexObj); \
+    cudaFree(state->d_ ## name ## Table);
+
+  CLEAN_UP_TEXTURE(hexaTri)
+  CLEAN_UP_TEXTURE(hexaNumVerts)
+  CLEAN_UP_TEXTURE(tetraTri)
+  CLEAN_UP_TEXTURE(tetraNumVerts)
+  CLEAN_UP_TEXTURE(pyrTri)
+  CLEAN_UP_TEXTURE(pyrNumVerts)
+
+  cudaFree(state->d);
+
    // TODO
   // cudppDestroy(cudpp);
 }
@@ -633,13 +644,13 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
 #ifdef CUDA_ISO
       printf("classifyIsoElements block (%d), grid (%d, %d)\n", block.x,
              grid.x, grid.y);
-      classifyIsoElements<<<grid, block, 0, iso->stream>>>(
+      classifyIsoElements<<<grid, block, 0, iso->stream>>>(state->d,
          iso->d_elemVerts, iso->d_elemClassification,
          iso->usg->getTypeList(), iso->usg->getElemList(),
          iso->usg->getConnList(), numElem,
          iso->data->getData(), isoValue);
 #else
-      classifyCuttingElements<<<grid, block, 0, iso->stream>>>(
+      classifyCuttingElements<<<grid, block, 0, iso->stream>>>(state->d,
          iso->d_elemVerts, iso->d_elemClassification,
          iso->usg->getTypeList(), iso->usg->getElemList(),
          iso->usg->getConnList(), numElem,
@@ -649,7 +660,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
       CheckErr("cudaEngine classify");
    }
 
-   CUDA_SAFE_CALL(cudaThreadSynchronize());
+   CUDA_SAFE_CALL(cudaDeviceSynchronize());
    
    //CUDPP
    //cudppMultiScan(iso->scanplan, (void*) iso->d_scan, (void*) iso->d_elemClassification, iso->numElem, 2);
@@ -779,7 +790,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
       */
       compactVoxels<<<grid, block, 0, iso->stream>>>(iso->d_compactedArray, iso->d_elemClassification, iso->d_scan, numElem);
 
-      CUDA_SAFE_CALL(cudaThreadSynchronize());
+      CUDA_SAFE_CALL(cudaDeviceSynchronize());
       CheckErr("cudaEngine compactVoxels");
 
 #ifdef USE_VBO
@@ -826,7 +837,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
          mapping = iso->mapping->getData();
       printf("activeVerts %d, activeElements %d\n", iso->activeVerts, iso->activeElements);
       printf("generateIsoTriangles(%d, %d)\n", blockN, state->THREAD_N_FAT);
-      generateIsoTriangles<<<blockN, state->THREAD_N_FAT, 0, iso->stream>>>(
+      generateIsoTriangles<<<blockN, state->THREAD_N_FAT, 0, iso->stream>>>(state->d,
          d_vertexBuffer, d_normalBuffer, d_texcoordBuffer,
          iso->usg->getVertices(), iso->usg->getNumCoord(),
          iso->d_compactedArray, iso->d_vertsScan, iso->activeVerts,
@@ -845,7 +856,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
       CUDA_SAFE_CALL(cudaMemset((void*) d_vertexBuffer, 0, iso->activeVerts * 4 * sizeof(float)));
 
 #ifdef LIC
-      generateCuttingTriangles<<<blockN, state->THREAD_N, 0, iso->stream>>>(
+      generateCuttingTriangles<<<blockN, state->THREAD_N, 0, iso->stream>>>(state->d,
          d_vertexBuffer, d_normalBuffer, d_texcoordBuffer, d_licTexcoordBuffer,
          iso->usg->getVertices(), iso->usg->getNumCoord(),
          iso->d_compactedArray, iso->d_vertsScan, iso->activeVerts,
@@ -853,7 +864,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
          iso->usg->getConnList(), iso->activeElements, iso->data->getData(),
          mapping, licMapping, d_licResultBuffer, iso->texMin, iso->texMax, nx, ny, nz, dist);
 #else
-      generateCuttingTriangles<<<blockN, state->THREAD_N, 0, iso->stream>>>(
+      generateCuttingTriangles<<<blockN, state->THREAD_N, 0, iso->stream>>>(state->d,
          d_vertexBuffer, d_normalBuffer, d_texcoordBuffer, 0,
          iso->usg->getVertices(), iso->usg->getNumCoord(),
          iso->d_compactedArray, iso->d_vertsScan, iso->activeVerts,
@@ -876,14 +887,14 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
       block = dim3(128);
       grid = dim3((iso->activeVerts + block.x - 1) / block.x, 1);
 #ifdef CUDA_ISO
-      generateIsoTrianglesC<<<grid, block, 0, iso->stream>>>(
+      generateIsoTrianglesC<<<grid, block, 0, iso->stream>>>(state->d,
          iso->activeVerts, iso->d_vertexBuffer,
          iso->d_normalBuffer, iso->d_vertices, iso->numCoord,
          iso->d_compactedArray, iso->d_vertsScan, iso->activeVerts,
          iso->d_typeList, iso->d_elemList, iso->d_connList, iso->activeElements,
          iso->d_values, isoValue);
 #else
-      generateCuttingTrianglesC<<<grid, block, 0, iso->stream>>>(
+      generateCuttingTrianglesC<<<grid, block, 0, iso->stream>>>(state->d,
          iso->activeVerts, iso->d_vertexBuffer,
          iso->d_normalBuffer, iso->d_vertices, iso->numCoord,
          iso->d_compactedArray, iso->d_vertsScan, iso->activeVerts,
@@ -917,7 +928,7 @@ void computeIsoMeshCUDA(CUDAState* state, State *iso, float isoValue,
 
    //cudaPrintfDisplay(stdout, true);
    
-   CUDA_SAFE_CALL(cudaThreadSynchronize());
+   CUDA_SAFE_CALL(cudaDeviceSynchronize());
 
 #ifdef STREAMS
    //printf("%d (success: %d)\n", cudaStreamQuery(iso->cstream), cudaSuccess);

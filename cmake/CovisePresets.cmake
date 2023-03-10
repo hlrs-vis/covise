@@ -216,8 +216,9 @@ ENDIF()
 
 # treat warnings as errors?
 IF(COVISE_WARNING_IS_ERROR)
-   SET(COVISE_COMPILE_FLAGS "${COVISE_COMPILE_FLAGS} ${COVISE_WERROR_FLAG}")
+    set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
 ELSE()
+    set(CMAKE_COMPILE_WARNING_AS_ERROR FALSE)
   # we are assuming that most compilers do not treat warnings as errors if no special flag is set
   # if we are wrong place check and flag setting here
 ENDIF()

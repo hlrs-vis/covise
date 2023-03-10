@@ -331,9 +331,9 @@ if (NOT COVISE_BUILD_ONLY_FILE)
         covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
         covise_find_package(HDF5 COMPONENTS C HL CXX)
 
-        covise_find_cuda()
-
         COVISE_FIND_PACKAGE(Cg)
+
+        covise_find_cuda()
 
         COVISE_FIND_PACKAGE(PythonLibs)
         covise_find_package(OpenCV)
@@ -346,9 +346,6 @@ if (APPLE)
 endif()
 if(MSVC)
     add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
-endif()
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_definitions(-Werror=return-type)
 endif()
 # descend to sources
 ADD_SUBDIRECTORY(src)
