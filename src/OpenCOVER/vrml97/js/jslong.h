@@ -349,7 +349,7 @@ extern JS_PUBLIC_API(void) jsll_udivmod(JSUint64 *qp, JSUint64 *rp, JSUint64 a, 
             if ((b) < 32)                                             \
             {                                                         \
                 (r).lo = _a.lo << ((b)&31);                           \
-                (r).hi = (_a.hi << ((b)&31)) | (_a.lo >> (32 - (b))); \
+                (r).hi = (_a.hi << ((b)&31)) | (_a.lo >> (32 - ((b)&31))); \
             }                                                         \
             else                                                      \
             {                                                         \

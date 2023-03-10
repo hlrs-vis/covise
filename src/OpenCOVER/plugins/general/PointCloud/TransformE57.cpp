@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 			for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
 			{
 				eReader.ReadData3D(scanIndex, scanHeader);
-				scanHeader.originalGuids.empty();
+				scanHeader.originalGuids.clear();
 				osg::Matrix cloudMat;
 				osg::Matrix trans;
 				trans.makeTranslate(scanHeader.pose.translation.x, scanHeader.pose.translation.y, scanHeader.pose.translation.z);
