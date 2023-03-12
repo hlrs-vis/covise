@@ -275,7 +275,7 @@ bool VRBClientBase::connectToServer(std::string sessionName)
                 {
                     if (firstVrbConnection)
                     {
-                        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_credentials.tcpPort());
+                        fprintf(stderr, "* Could not connect to VRB on %s; port %d                         *\n", serverHost->getAddress(), m_credentials.tcpPort());
                         firstVrbConnection = false;
                     }
                     sleep(1);

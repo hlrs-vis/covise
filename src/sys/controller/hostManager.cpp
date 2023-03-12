@@ -27,7 +27,7 @@ HostManager::HostManager()
 {
     m_vrb->connectToServer();
     auto userInfos = getConfiguredHosts();
-    std::cerr << userInfos.size() << " hosts are preconfigured" << std::endl;
+    //std::cerr << userInfos.size() << " hosts are preconfigured" << std::endl;
     int i = clientIdForPreconfigured;
     for (auto &userInfo : userInfos)
     {

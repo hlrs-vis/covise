@@ -135,7 +135,7 @@ void debugMsgHandler(QtMsgType type, const char *message)
 int main(int argc, char **argv)
 {
     QT_REQUIRE_VERSION_PATCHED(argc, argv, "4.3.0")
-        std::cerr << "starting mapeditor" << std::endl;
+     //   std::cerr << "starting mapeditor" << std::endl;
     covise::Socket::initialize();
     QLoggingCategory *web_engine_context_log = new QLoggingCategory("qt.webenginecontext");
     web_engine_context_log->setFilterRules("*.info=false");

@@ -751,7 +751,9 @@ int Socket::write(const void *buf, unsigned nbyte)
         sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
 //print_error(__LINE__, __FILE__, tmp_str);
 #endif
+#ifdef _DEBUG
         fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->get_name(), port, strerror(errno));
+#endif
         //print_error(__LINE__, __FILE__, "write returns <= 0: close socket.");
         //	print_exit(__LINE__, __FILE__, 1);
         return COVISE_SOCKET_INVALID;
