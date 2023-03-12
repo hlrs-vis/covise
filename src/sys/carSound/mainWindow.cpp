@@ -138,7 +138,11 @@ void mainWindow::slipChanged(int val)
 	updateValues();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 void mainWindow::dataReceived(int socket)
+#else
+void mainWindow::dataReceived(QSocketDescriptor socket, QSocketNotifier::Type)
+#endif
 {
     messageReceived = true;
     int msgSize = udpclient->readMessage();

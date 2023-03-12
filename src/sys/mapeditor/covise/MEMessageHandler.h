@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QSocketNotifier>
 #include <net/message_sender_interface.h>
 class QTimer;
 
@@ -48,7 +49,11 @@ public:
 
 public slots:
 
-    void dataReceived(int);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    virtual void dataReceived(int);
+#else
+    virtual void dataReceived(QSocketDescriptor, QSocketNotifier::Type);
+#endif
     void handleWork();
 protected:
     virtual bool sendMessage(const covise::Message *msg) const override;

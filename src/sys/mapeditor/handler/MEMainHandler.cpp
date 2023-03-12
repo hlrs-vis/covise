@@ -399,7 +399,11 @@ void MEMainHandler::init()
         localIP = QString::fromStdString(covise::Host::lookupIpAddress(messageHandler->getUIF()->get_hostname()));
 
         // send dummy message to tell the controller that it is safe now to send messages
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
         messageHandler->dataReceived(1);
+#else
+        messageHandler->dataReceived(QSocketDescriptor(1), QSocketNotifier::Type::Read);
+#endif
 
         // tell crb if we are ready for an embedded ViNCE renderer
         if (cfg_ImbeddedRenderer)

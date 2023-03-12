@@ -74,8 +74,11 @@ MEMessageHandler::MEMessageHandler(int argc, char **argv)
     QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(handleWork()));
     m_periodictimer->start(1000);
 #endif
-
-    QObject::connect(sn, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+        QObject::connect(sn, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
+#else
+    QObject::connect(sn, SIGNAL(activated(QSocketDescriptor, QSocketNotifier::Type)), this, SLOT(dataReceived(QSocketDescriptor, QSocketNotifier::Type)));
+#endif
 }
 
 MEMessageHandler *MEMessageHandler::instance()
@@ -94,7 +97,11 @@ MEMessageHandler::~MEMessageHandler()
 
 void MEMessageHandler::handleWork()
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     dataReceived(1);
+#else
+    dataReceived(QSocketDescriptor(1), QSocketNotifier::Type::Read);
+#endif
 }
 bool MEMessageHandler::sendMessage(const covise::Message *msg)const{
     if (m_userInterface)
@@ -130,7 +137,11 @@ void MEMessageHandler::sendMessage(int type, const QString &text)
 //!
 //! receive data on TCP/IP socket
 //!
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
 void MEMessageHandler::dataReceived(int)
+#else
+void MEMessageHandler::dataReceived(QSocketDescriptor, QSocketNotifier::Type)
+#endif
 {
     MENode *node;
     MEParameterPort *pport;

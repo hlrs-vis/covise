@@ -1720,7 +1720,7 @@ namespace OpenCOVERPlugin
             BoundingBoxXYZ bbR = new BoundingBoxXYZ();
             bbR.Min = new XYZ(100000, 100000, 100000);
             bbR.Max = new XYZ(-100000, -100000, -100000);
-            bool hasStyle = false;
+            //bool hasStyle = false;
             bool hasIK = false;
             bool doWalk = false;
             if (fi != null)
@@ -1840,7 +1840,7 @@ namespace OpenCOVERPlugin
                     return;
                 if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
                 {
-                    hasStyle = false;
+                    //hasStyle = false;
                     doWalk = true;
                 }
                 else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Topography)
