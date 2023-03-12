@@ -30,7 +30,7 @@
 #define OSG_OT_SO_NUM GetEnv("OSG_OT_SO_NUM")
 
 #define CG GetEnv("EXTERNLIBS")+"\cg"
-#define QT GetEnv("EXTERNLIBS")+"\qt5"
+#define QT GetEnv("EXTERNLIBS")+"\qt6"
 ;#define CUDA GetEnv("CUDA_HOME")
 #define CUDAPATH GetEnv("CUDA_PATH")
 #define FFMPEG GetEnv("EXTERNLIBS")+"\ffmpeg"
