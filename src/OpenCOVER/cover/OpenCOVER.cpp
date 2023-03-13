@@ -1481,6 +1481,7 @@ OpenCOVER::requestQuit()
     {
         terminateOnCoverQuit = true;
     }
+    terminateOnCoverQuit = coVRMSController::instance()->syncBool(terminateOnCoverQuit);
     if (terminateOnCoverQuit)
         coVRPluginList::instance()->requestQuit(true);
     m_vrbc.reset(nullptr);
