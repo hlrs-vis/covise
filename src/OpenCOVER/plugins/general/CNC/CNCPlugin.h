@@ -149,7 +149,7 @@ private:
     std::vector<int> pathG;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
-    double wpAllowance = 0.001;  // 5 / 1000;    //größenzugabe
+    double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
     //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
     //double wpResolution = 0.00010;
     double wpResolution = 0.00002;
@@ -157,6 +157,7 @@ private:
     int wpTotalQuadsX, wpTotalQuadsY;
     //int ix_total;           //deprecated?
     double cuttingRad = 0.0005; // 0.5 / 1000;
+    //double cuttingRad = 0.00075;
     double pointAngle = 180;
     int primitivePosCounter = 0;
 

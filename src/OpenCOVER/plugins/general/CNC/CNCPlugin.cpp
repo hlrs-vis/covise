@@ -1600,6 +1600,17 @@ void CNCPlugin::setWpSize()
     wpMaxY = *std::max_element(pathY.begin(), pathY.end()-1) + wpAllowance;
     wpMinZ = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
     wpMaxZ = 0;
+    for (int i = 0; i < pathG.size(); i++)
+    {
+        if (pathG[i] == 2 || pathG[i] == 3)
+        {
+            double rad = distancePointPoint(pathCenterX[i], pathCenterY[i], pathX[i], pathY[i]);
+            wpMinX = std::min(wpMinX, pathCenterX[i] - rad - wpAllowance / 2);
+            wpMaxX = std::max(wpMaxX, pathCenterX[i] + rad + wpAllowance / 2);
+            wpMinY = std::min(wpMinY, pathCenterY[i] - rad - wpAllowance / 2);
+            wpMaxY = std::max(wpMaxY, pathCenterY[i] + rad + wpAllowance / 2);
+        }
+    }
     wpLengthX = wpMaxX - wpMinX;
     wpLengthY = wpMaxY - wpMinY;
     wpLengthZ = wpMaxZ - wpMinZ;
@@ -2383,13 +2394,18 @@ void CNCPlugin::wpPrepareMillCutTreeCircle(double minX, double maxX, double minY
         int ixMax = (boxMaxX - wpMinX) / wpResX;
         int iyMin = (boxMinY - wpMinY) / wpResY;
         int iyMax = (boxMaxY - wpMinY) / wpResY;
-        if (ixMin < 0)
-            ixMin = 0;
-        if (iyMin < 0)
-            iyMin = 0;
+        if (ixMin <= 1)
+            ixMin = 2;
+        if (iyMin <= 1)
+            iyMin = 2;
 
-        double angleT1 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
-        double angleT2 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t-1], pathY[t-1]);
+        if (ixMax >= wpTotalQuadsX)
+            ixMax = wpTotalQuadsX-1;
+        if (iyMax >= wpTotalQuadsY)
+            iyMax = wpTotalQuadsY-1;
+
+        double angleEnd = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+        double angleStart = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t-1], pathY[t-1]);
 
         for (int iy = iyMin; iy <= iyMax; iy++)
         {
@@ -2402,9 +2418,9 @@ void CNCPlugin::wpPrepareMillCutTreeCircle(double minX, double maxX, double minY
                 if (distPointCircle < cuttingRad)
                 {   
                     double angleI = anglePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter);
-                    bool inside = checkInsideArcG2(angleI, angleT1, angleT2);
+                    bool inside = checkInsideArcG2(angleI, angleStart, angleEnd);
                     if (pathG[t] == 3)
-                        inside == !inside;
+                        inside = !inside;
                     bool insert = inside;
                     if (!inside)
                     {
@@ -2458,8 +2474,13 @@ void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, i
     if (iyMin < 0)
         iyMin = 0;
 
-    double angleT1 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
-    double angleT2 = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t - 1], pathY[t - 1]);
+    if (ixMax >= wpTotalQuadsX)
+        ixMax = wpTotalQuadsX-1;
+    if (iyMax >= wpTotalQuadsY)
+        iyMax = wpTotalQuadsY-1;
+
+    double angleEnd = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+    double angleStart = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t - 1], pathY[t - 1]);
 
     for (int iy = iyMin; iy <= iyMax; iy++)
     {
@@ -2478,9 +2499,9 @@ void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, i
                 if (distPointCircle < cuttingRad)
                 {
                     double angleI = anglePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter);
-                    bool inside = checkInsideArcG2(angleI, angleT1, angleT2);
+                    bool inside = checkInsideArcG2(angleI, angleStart, angleEnd);
                     if (pathG[t] == 3)
-                        inside == !inside;
+                        inside = !inside;
                     bool insert = inside;
                     if (!inside)
                     {
