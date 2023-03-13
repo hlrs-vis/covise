@@ -32,6 +32,7 @@ class Drehgeber : public coVRPlugin, public ui::Owner,  public OpenThreads::Thre
 {
 public:
     Drehgeber();
+    ~Drehgeber();
 
     bool init();
     void run();
