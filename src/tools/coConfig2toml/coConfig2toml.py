@@ -6,11 +6,7 @@ __author__ = "Marko Djuric"
 
 import os
 import argparse
-import tomli_w
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
+import tomlkit
 import xmltodict as xd
 
 DEPRECATED_PLUGINS = "AKToolbar".split()
@@ -123,7 +119,7 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
     return tml_dict
 
 
-def create_toml(coconfig_dict: dict, tml_path: str, skip: list = []) -> None:
+def create_toml(coconfig_dict: dict, tml_path: str, manual_adjustment: bool = True, skip: list = []) -> None:
     """Create new TOML config.
 
     Args:
@@ -131,16 +127,25 @@ def create_toml(coconfig_dict: dict, tml_path: str, skip: list = []) -> None:
         plug_path (str): Plugin path.
         skip (list): skipping given entries in this list.
     """
-    dump_dict = create_toml_dict(
-        coconfig_dict, skip=skip)
+    if len(coconfig_dict) == 0:
+        return
+
+    dump_dict = coconfig_dict
+    if manual_adjustment: 
+        dump_dict = create_toml_dict(
+            coconfig_dict, skip=skip)
     if not os.path.exists(tml_path) or OVERRIDE:
-        with open(tml_path, "wb") as tml:
-            tomli_w.dump(dump_dict, tml)
+        with open(tml_path, "wt") as tml:
+            tomlkit.dump(dump_dict, tml)
     else:
-        with open(tml_path, mode="rb+") as tml:
-            enabled = tomllib.load(tml)
+        with open(tml_path, mode="rt+", encoding="utf-8") as tml:
+            enabled = tomlkit.load(tml)
             new_tml = dump_dict | enabled if ADD else enabled | dump_dict  # union of dicts
-            tomli_w.dump(new_tml, tml)
+            if len(new_tml) == 0:
+                return
+            tml.seek(0)
+            tml.truncate(0)
+            tomlkit.dump(new_tml, tml)
 
 
 def create_plugin_toml(coconfig_dict: dict, plug_path: str) -> None:
@@ -170,14 +175,7 @@ def create_toplevel_toml(toplevel_config_path: str, values: dict) -> None:
         toplevel_config_path (str): Path to config.
         values (dict): dict holding values for toplevel toml.
     """
-    if not os.path.exists(toplevel_config_path) or OVERRIDE:
-        with open(toplevel_config_path, mode="wb") as tml:
-            tomli_w.dump(values, tml)
-    else:
-        with open(toplevel_config_path, mode="wb+") as tml:
-            enabled = tomllib.load(tml)
-            new_tml = values | enabled if ADD else enabled | values  # union of dicts
-            tomli_w.dump(new_tml, tml)
+    create_toml(values, toplevel_config_path, manual_adjustment=False)
 
 
 def iterate_modules(modules_dict: dict, module_rootpath: str) -> list:
@@ -216,7 +214,7 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             plugin_root_entries.update(iterate_plugins(entry, plugin_rootpath))
     else:
         for plugin_name, plugin_dict in plugins_dict.items():
-            if plugin_name in DEPRECATED_PLUGINS:
+            if plugin_name in DEPRECATED_PLUGINS or len(plugin_dict) == 0:
                 continue
             if isinstance(plugin_dict, list):
                 plugin_root_entries.update(
@@ -224,9 +222,12 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             elif isinstance(plugin_dict, dict):
                 for att_name, att_val in plugin_dict.items():
                     for name, li in plugin_root_entries.items():
+                        if plugin_name in li: #HACK: won't delete plugins in plugin.toml for now
+                            continue
                         at_key = "@" + name
-                        if at_key in att_name and att_val.lower() == "on":
+                        if (at_key in att_name and att_val.lower() == "on") or isinstance(att_val, dict):
                             li.append(plugin_name)
+                        
                 if ADD_DISABLED or plugin_name in plugin_root_entries["value"]:
                     create_plugin_toml(
                         plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
