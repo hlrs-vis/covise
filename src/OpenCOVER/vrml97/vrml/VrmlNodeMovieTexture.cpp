@@ -344,8 +344,8 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
     else
     {
         // Ensure image dimensions are powers of 2 (move to VrmlNodeTexture...)
-        int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
-        int nSizes = sizeof(sizes) / sizeof(int);
+        static const int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
+        static const int nSizes = sizeof(sizes) / sizeof(int);
         int w = d_image->w();
         int h = d_image->h();
         int i, j;

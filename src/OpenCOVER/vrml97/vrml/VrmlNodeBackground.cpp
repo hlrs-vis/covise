@@ -165,8 +165,8 @@ static Image *getTexture(VrmlMFString &urls,
         else if (tex[thisIndex].pixels() && tex[thisIndex].nc())
         {
             // Ensure the image dimensions are powers of two
-            int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
-            int nSizes = sizeof(sizes) / sizeof(int);
+            static const int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
+            static const int nSizes = sizeof(sizes) / sizeof(int);
             int w = tex[thisIndex].w();
             int h = tex[thisIndex].h();
             int i, j;
@@ -183,7 +183,7 @@ static Image *getTexture(VrmlMFString &urls,
                 // memory. This can cause some ugliness...
                 if (w != sizes[i - 1] || h != sizes[j - 1])
                 {
-                    cerr << endl << "Scaling texture " << tex[thisIndex].url() << endl;
+                    //cerr << endl << "Scaling texture " << tex[thisIndex].url() << endl;
                     viewer->scaleTexture(w, h, sizes[i - 1], sizes[j - 1],
                                          tex[thisIndex].nc(),
                                          tex[thisIndex].pixels());
