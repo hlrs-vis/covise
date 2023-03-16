@@ -131,16 +131,18 @@ def create_toml(coconfig_dict: dict, tml_path: str, manual_adjustment: bool = Tr
         return
 
     dump_dict = coconfig_dict
-    if manual_adjustment: 
+    if not os.path.exists(tml_path) or OVERRIDE or manual_adjustment:
         dump_dict = create_toml_dict(
             coconfig_dict, skip=skip)
-    if not os.path.exists(tml_path) or OVERRIDE:
         with open(tml_path, "wt") as tml:
             tomlkit.dump(dump_dict, tml)
     else:
         with open(tml_path, mode="rt+", encoding="utf-8") as tml:
-            enabled = tomlkit.load(tml)
-            new_tml = dump_dict | enabled if ADD else enabled | dump_dict  # union of dicts
+            enabled = tomlkit.load(tml).unwrap()
+            new_tml = dump_dict
+            if ADD:
+                new_tml = {key: list(set(enabled[key] + dump_dict[key])) for key in set(enabled) & set(dump_dict)}
+
             if len(new_tml) == 0:
                 return
             tml.seek(0)
