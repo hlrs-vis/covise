@@ -25,6 +25,8 @@
 #include <cover/coVRFileManager.h>
 #include <curl/curl.h>
 #include <rapidjson/document.h>
+#include <osg/Node>
+#include <osg/ref_ptr>
 
 
 class Trees : public opencover::coVRPlugin
@@ -38,12 +40,19 @@ public:
     void setTrees();
     std::string documentToString(const rapidjson::Document&);
     void addSeason(std::string&);
+    void printResponseToConfig();
+    void setupPluginNode();
 
 private:
     std::string url;
     std::string path;
     std::string response;
     std::string simpleResponse;
+    osg::ref_ptr<osg::Group> pluginNode;
+
+    // osg::ref_ptr<osg::Node> defaultTreeModel;
+    // std::vector<osg::Node*> treemodels;
+    // std::vector<std::string> speciesNames;
 };
 #endif
 

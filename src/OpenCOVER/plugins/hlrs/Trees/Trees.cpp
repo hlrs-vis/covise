@@ -34,21 +34,42 @@
 #include <osg/Referenced>
 #include <fstream>
 #include <sstream>
-
+#include <osg/ComputeBoundsVisitor>
 
 using namespace opencover;
 
 bool Trees::init()
 {
-    url = "https://services3.arcgis.com/FwX2qF9JecNSRnwr/ArcGIS/rest/services/IndividualPlants_GT_Tallinn/FeatureServer/1/query?where=1%3D1&outFields=*&f=pjson";
+    auto url_ptr = configString("general", "url_api", "default");
+    url = *url_ptr;
+    
+    // url = "https://services3.arcgis.com/FwX2qF9JecNSRnwr/ArcGIS/rest/services/IndividualPlants_GT_Tallinn/FeatureServer/1/query?where=1%3D1&outFields=*&f=pjson";
+
+    // auto testString = configString("testSection", "testName", "testValue", config::Flag::Default); // erstellt nur die section, sonst nichts
+    // *testString = "testValueSetGEÄNDERT"; //falls kein eintrag vorhanden -> erstellt neuen eintrag; wenn eintrag vorhanden -> ändert den eintrag
+    // auto seasonEntry = configString("general", "season", "testSeason", config::Flag::PerModel); // ändert nichts an der config + fehlermeldung
+    // *seasonEntry = "testSeasonSet"; // ändert nichts an der config  + fehlermeldung
+    // auto testInt = configInt("testSection2", "testName2", 5, config::Flag::PerModel);
+    // *testInt = 99;
+    // config()->save();/cover
+
+    setupPluginNode();
     request();
     simplifyResponse();
-    std::string season = "winter";
-    addSeason(season);
+    // std::string season = "winter";
+    // addSeason(season);
     saveStringToFile(simpleResponse);
+    printResponseToConfig();
     setTrees();
 
     return true;
+}
+
+void Trees::setupPluginNode()
+{
+    pluginNode = new osg::Group;
+    cover->getObjectsRoot()->addChild(pluginNode);
+    pluginNode->setName(getName());
 }
 
 static size_t writeCallback(char* ptr, size_t size, size_t nmemb, void* userdata) {
@@ -88,20 +109,6 @@ void Trees::simplifyResponse()
 
     for (rapidjson::Value::ValueIterator itr = document["features"].Begin(); itr != document["features"].End(); ++itr)
     {
-        const std::string section = "section";
-        const std::string name = "name";
-        const int number = 6;
-
-        // configInt(section, name, 5);
-        auto intConfig = configInt("section", "number", 2, config::Flag::PerModel);
-        // auto intConfig = configInt("section", "number", 2);
-        int intConfigValue = *intConfig;
-        std::cout << intConfigValue << std::endl;
-        // coVRPlugin::configInt(section, name, 5);
-
-        // std::unique_ptr<config::Value<int>> test = config.value<int>(path, section, name, number);
-        // auto test = config.value<int>(path, section, name, number);
-
         if((*itr)["attributes"]["species_name"].IsString()
             && (*itr)["geometry"]["x"].IsDouble()
             && (*itr)["geometry"]["y"].IsDouble()) 
@@ -155,84 +162,137 @@ std::string Trees::readJSONFromFile(const std::string& path)
 
 void Trees::setTrees()
 {
-    // parse json with information about trees
-    rapidjson::Document document;
-    document.Parse(simpleResponse.c_str());
+    // read in default tree model
+    osg::ref_ptr<osg::Node> model;
+    auto defaultTreeModelPtr = configString("treeModelDefault", "model_path", "default");
+    osg::ref_ptr<osg::Node> defaultTreeModel = osgDB::readNodeFile(*defaultTreeModelPtr);
 
-    // get list with all species_name entries
+    // get list with all species_name entries in treemodels and load all models
     std::vector<std::string> speciesNames;
-    for (rapidjson::Value::ValueIterator itr = document.Begin(); itr != document.End(); ++itr)
+    std::vector<osg::ref_ptr<osg::Node>> treeModels;
+    int i = 1;
+    while (true)
     {
-        if((*itr)["species_name"].IsString()
-            && (*itr)["x"].IsDouble()
-            && (*itr)["y"].IsDouble()) 
+        auto value = configString("treeModel" + std::to_string(i), "species_name", "default");
+        auto treeModelPtr = configString("treeModel" + std::to_string(i), "model_path", "default");
+        std::string speciesName = *value;
+        int condition = speciesName.compare("default");
+        if(!condition) 
         {
-            std::string species_name = (*itr)["species_name"].GetString();
-            speciesNames.push_back(species_name);
+            break;
         }
+        speciesNames.push_back(speciesName);
+        osg::ref_ptr<osg::Node> treeModel = osgDB::readNodeFile(*treeModelPtr);
+        treeModels.push_back(treeModel);
+        i++;
     }
+
+    // TEST >>>>>
+
+    // osg::ref_ptr<osg::Node> node = treeModels[1];
+    // osg::ref_ptr<osg::Geode> geode;
+    // osg::ref_ptr<osg::Drawable> drawable;
+    // osg::ref_ptr<osg::Geometry> geometry;
+    // // osg::ref_ptr<osg::Geode> castGeode = dynamic_cast<osg::Geode *>(node);
+    // // geometry = node->asGeometry();
+    // // geode->addDrawable(geometry);
+    // geode = node->asGeode();
+    // cover->getObjectsRoot()->addChild(geode);
+
     
-    // remove duplicates
-    std::sort(speciesNames.begin(), speciesNames.end());
-    auto end = std::unique(speciesNames.begin(), speciesNames.end());
-    speciesNames.erase(end, speciesNames.end());
-
-    // std::vector<osg::Node> treeModels;
-    // for(auto itr = speciesNames.begin(); itr != speciesNames.end(); ++itr)
+    // osg::ref_ptr<osg::Drawable> drawable;
+    // osg::ref_ptr<osg::Geode> geode;
+    // for (int ind = 0; ind < treeModels.size(); ind++)
     // {
-    //     // über species names iterieren und modelle laden
-    //     // osg::ref_ptr<osg::Node> treeModel;
-    //     // treeModels.push_back(*treeModel);
+    //     // osg::BoundingBoxd
+    //     // drawable = treeModels[ind]->asDrawable();
+    //     // osg::ref_ptr<osg::Geode> geode;
+    //     // geode->addDrawable(drawable);
+    //     cover->getObjectsRoot()->addChild(geodes[ind]);
+    //     // covdder->getObjectsRoot()->addChild(treeModels[ind]->asGeode());
     // }
+    // <<<<< TEST  
 
-    // create transform node to translate placed trees
+    // create transform node to translate all placed trees
     osg::ref_ptr<osg::MatrixTransform> transform(new osg::MatrixTransform);
-    cover->getObjectsRoot()->addChild(transform);
+    transform->setName("rootTransform");
+    pluginNode->addChild(transform);
     osg::Matrix rootMatrix;
-    auto configX = configFloat("offset", "x", 0.0);
-    auto configY = configFloat("offset", "y", 0.0);
-    rootMatrix.makeTranslate(osg::Vec3d(0.0, 0.0, 0.0));
+    auto configOffsetX = configFloat("offset", "x", 0.0);
+    auto configOffsetY = configFloat("offset", "y", 0.0);
+    rootMatrix.makeTranslate(osg::Vec3d(*configOffsetX, *configOffsetY, 0.0));
     transform->setMatrix(rootMatrix);
 
-    // add trees one after another with information from the json file
-    for (rapidjson::Value::ValueIterator itr = document.Begin(); itr != document.End(); ++itr)
+    auto value = configFloat("general", "default_height", 10);
+    double defaultHeight = *value;
+
+    // add trees one after another with information from config file
+    i = 1;
+    while (true)
     {
-        if((*itr)["species_name"].IsString()
-            && (*itr)["x"].IsDouble()
-            && (*itr)["y"].IsDouble()) 
+        auto value = configString("tree" + std::to_string(i), "species_name", "default");
+        std::string speciesName = *value;
+        int condition = speciesName.compare("default");
+        if(!condition) 
         {
-            osg::ref_ptr<osg::MatrixTransform> treeTransform(new osg::MatrixTransform);
-            transform->addChild(treeTransform);
-
-            std::string species_name = (*itr)["species_name"].GetString();
-            std::cout << species_name << std::endl;
-            const std::string path = "/home/kilian/Downloads/plants/uploads_files_1872992_plants.3ds";
-            osg::ref_ptr<osg::Node> object = osgDB::readNodeFile(path);
-            osg::ref_ptr<osg::Geode> geode = object->asGeode();
-            treeTransform->addChild(object);
-
-            // if((*itr)["height"].IsInt())
-            // {
-            //     // std::cout << (*itr)["attributes"]["height"].GetInt() << std::endl;
-            //     value = (*itr)["attributes"]["height"].GetInt(); 
-            //     entry.AddMember("height", value, allocator);
-            // }
-            // else
-            // {
-            //     // std::cout << "NULL" << std::endl;
-            //     entry.AddMember("height", rapidjson::Value(rapidjson::kNullType), allocator);
-            // }
-
-            double x = (*itr)["x"].GetDouble();
-            std::cout << x << std::endl;
-
-            double y = (*itr)["y"].GetDouble();
-            std::cout << y << std::endl;
-
-            osg::Matrix matrix;
-            matrix.makeTranslate(osg::Vec3d(x, y, 0.0));
-            treeTransform->setMatrix(matrix);
+            break;
         }
+        osg::ref_ptr<osg::MatrixTransform> treeTransform(new osg::MatrixTransform);
+        treeTransform->setName("treeTransform");
+        osg::ref_ptr<osg::MatrixTransform> scaleTransform(new osg::MatrixTransform);
+        scaleTransform->setName("scaleTransform");
+        transform->addChild(scaleTransform);
+        scaleTransform->addChild(treeTransform);
+        // transform->addChild(treeTransform);
+
+        // choose correct tree model
+        auto it = std::find(speciesNames.begin(), speciesNames.end(), speciesName);
+        if (it == speciesNames.end())
+        {
+            model = defaultTreeModel;
+            std::cout << "default tree model" << std::endl;
+        } else
+        {
+            auto index = std::distance(speciesNames.begin(), it);
+            model = treeModels[index];
+            std::cout << "index: " << index << "; Model: " << speciesNames[index] << std::endl;
+        }
+        treeTransform->addChild(model);
+        auto x = configFloat("tree" + std::to_string(i), "x", 0);
+        auto y = configFloat("tree" + std::to_string(i), "y", 0);
+        osg::Matrix matrix;
+        matrix.makeTranslate(osg::Vec3d(*x, *y, 0.0));
+        treeTransform->setMatrix(matrix);
+        std::cout << "added " << speciesName << " at position " << *x << ", " << *y << std::endl;
+
+        osg::ComputeBoundsVisitor cbv;
+        model->accept(cbv);
+        osg::BoundingBox bb = cbv.getBoundingBox();
+
+        osg::Vec3 size(bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin());
+        osg::Vec3 center(bb.xMin() + size.x()/2.0f, bb.yMin() + size.y()/2.0f, bb.zMin() + size.z()/2.0f);
+
+
+        std::cout << "bounding box: " << size[0] << ", " << size[1] << ", " << size[2] << std::endl;
+
+        // set height for specific trees or get default height, if no height is specified and scale models to height
+        double height;
+        auto configHeight = configFloat("tree" + std::to_string(i), "height", 0);
+        if (*configHeight == 0)
+        {
+            height = defaultHeight;
+        } else
+        {
+            height = *configHeight;
+        }
+
+        double scaleFactor = height / size[2];
+        std::cout << "scaled size: " << scaleFactor * size[0] << ", " << scaleFactor * size[1] << ", " << scaleFactor * size[2] << std::endl;
+        
+        scaleTransform->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+        
+        // std::cout << "used Model: " << speciesNames[i] << std::endl;
+        i++;
     }
 }
 
@@ -258,6 +318,49 @@ void Trees::addSeason(std::string& season)
     }
 
     simpleResponse = documentToString(document);
+}
+
+void Trees::printResponseToConfig()
+{
+    rapidjson::Document document;
+    document.Parse(simpleResponse.c_str());
+
+    int idx = 1;
+    for (rapidjson::Value::ValueIterator itr = document.Begin(); itr != document.End(); ++itr)
+    {
+        if((*itr)["species_name"].IsString()
+            && (*itr)["x"].IsDouble()
+            && (*itr)["y"].IsDouble()) 
+        {
+
+            // if((*itr)["height"].IsInt())
+            // {
+            //     // std::cout << (*itr)["attributes"]["height"].GetInt() << std::endl;
+            //     value = (*itr)["attributes"]["height"].GetInt(); 
+            //     entry.AddMember("height", value, allocator);
+            // }
+            // else
+            // {
+            //     // std::cout << "NULL" << std::endl;
+            //     entry.AddMember("height", rapidjson::Value(rapidjson::kNullType), allocator);
+            // }
+
+            std::string speciesNameResponse = (*itr)["species_name"].GetString();
+            auto speciesNameConfig = configString("tree" + std::to_string(idx), "species_name", "default");
+            *speciesNameConfig = speciesNameResponse;
+
+            double xResponse = (*itr)["x"].GetDouble();
+            auto xConfig = configFloat("tree" + std::to_string(idx), "x", 0);
+            *xConfig = xResponse;
+            
+            double yResponse = (*itr)["y"].GetDouble();
+            auto yConfig = configFloat("tree" + std::to_string(idx), "y", 0);
+            *yConfig = yResponse;
+
+            idx++;
+            config()->save();
+        }
+    }
 }
 
 COVERPLUGIN(Trees)
