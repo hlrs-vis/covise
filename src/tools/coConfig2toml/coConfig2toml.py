@@ -131,9 +131,11 @@ def create_toml(coconfig_dict: dict, tml_path: str, manual_adjustment: bool = Tr
         return
 
     dump_dict = coconfig_dict
-    if not os.path.exists(tml_path) or OVERRIDE or manual_adjustment:
+    if manual_adjustment:
         dump_dict = create_toml_dict(
             coconfig_dict, skip=skip)
+        
+    if not os.path.exists(tml_path) or OVERRIDE:
         with open(tml_path, "wt") as tml:
             tomlkit.dump(dump_dict, tml)
     else:
@@ -241,6 +243,20 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
     return plugin_root_entries
 
 
+def get_dict(iterable_dict, key: str) -> dict:
+    root_global = {}
+    if isinstance(iterable_dict, dict):
+        root_global = iterable_dict.get(key)
+    elif isinstance(iterable_dict, list):
+        for d in iterable_dict:
+            for k, v in d.items():
+                if k in root_global.keys():
+                    root_global[k] |= v
+                else:
+                    root_global[k] = v
+    return root_global
+
+
 def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
     """Convert global section in coconfig to new toml structure.
 
@@ -259,8 +275,12 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         module_rootpath = covise_path + "/modules"
         plugin_rootpath = opencover_path + "/plugins"
 
+        # handle multiple globals
+        # root_global = get_dict(coconfig, global_key)
+
         # cover
         cover_dict = root_global.get("COVER")
+        # cover_dict = get_dict(root_global, "COVER")
         if cover_dict:
             # plugins
             plugins_dict = cover_dict.pop("Plugin", None)
@@ -284,6 +304,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
 
         # modules
         modules_dict = root_global.get("Module")
+        # modules_dict = get_dict(root_global, "Module")
         if modules_dict:
             if not os.path.exists(module_rootpath):
                 os.makedirs(module_rootpath)
@@ -296,6 +317,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         
         # colormap
         colormap_dict = root_global.get("Colormaps")
+        # colormap_dict = get_dict(root_global, "Colormaps")
         if colormap_dict:
             if not os.path.exists(colormap_path):
                 os.makedirs(colormap_path)
@@ -306,6 +328,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
 
         # system
         system_dict = root_global.get("System")
+        # system_dict = get_dict(root_global,"System")
         if system_dict:
             if not os.path.exists(system_rootpath):
                 os.makedirs(system_rootpath)
