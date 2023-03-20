@@ -19,7 +19,7 @@ struct Point {
     }
 };
 
-
+/*
 // The objects that we want stored in the quadtree
 struct MillCoords {
     Point pos;
@@ -34,7 +34,7 @@ struct MillCoords {
         primitivePos = -1;
     }
     //MillCoords() { data = 0; }
-};
+};*/
 
 // The main quadtree class
 class TreeNode {
@@ -43,64 +43,55 @@ class TreeNode {
     Point botRight;
 
     // Contains details of node
-    MillCoords* n;
+    double z;
+    int primitivePos;
+    //vector<MillCoords*> nodeCoords;
 
     // Children of this tree
     int level;
     int numChildren;            //0,1,2,3,4; -1 -> leafNode
-    int numDescendants;         //incorrect if insertion fails
-    TreeNode* topLeftTree;
-    TreeNode* topRightTree;
-    TreeNode* botLeftTree;
-    TreeNode* botRightTree;
+    //int numDescendants;         //incorrect if insertion fails
+    vector<TreeNode*> childTrees;
+    vector<int> millTimesteps;  //the timesteps where this Node is milled
     
 public:
-    /*TreeNode()
-    {
-        topLeft = Point(0, 0);
-        botRight = Point(0, 0);
-        n = NULL;
-        level = 0;
-        numChildren = 0;
-        numDescendants = 0;
-        topLeftTree = NULL;
-        topRightTree = NULL;
-        botLeftTree = NULL;
-        botRightTree = NULL;
-    }
-    */
     TreeNode(Point _topL, Point _botR, int _level)
     {
-        n = NULL;
         level = _level;
         numChildren = 0;
-        numDescendants = 0;
-        topLeftTree = NULL;
-        topRightTree = NULL;
-        botLeftTree = NULL;
-        botRightTree = NULL;
+        //numDescendants = 0;
         topLeft = _topL;
         botRight = _botR;
     }
+    TreeNode(Point _topL, Point _botR, int _level, double _z, int _numChildren)
+    {
+        //nodeCoords.push_back(_coords);
+        z = _z;
+        level = _level;
+        numChildren = _numChildren;
+        //numDescendants = 0;
+        topLeft = _topL;
+        botRight = _botR;
+    }
+    /*
     Point getTopLeft();
     Point getBotRight();
     double getNumChildren();
-    TreeNode* getTopLeftTree();
-    TreeNode* getTopRightTree();
-    TreeNode* getBotLeftTree();
-    TreeNode* getBotRightTree();
     void setZ(double _z);
     double getZ();
     void setPrimitivePos(int _primitivePos);
     int getPrimitivePos();
+    */
     void insert(int _ix, int _iy, double _z);
-    void insert(MillCoords*);
-    MillCoords* search(Point);
+    void insert(int _ix, int _iy);
+    TreeNode* search(Point);
     bool inBoundary(Point);
+    /*
     bool topLeftBoundary(Point);
     bool updateZ(int _ix, int _iy, double _z);
+    */
 };
-
+/*
 inline Point TreeNode::getTopLeft()
 {
     return topLeft;
@@ -151,42 +142,36 @@ inline int TreeNode::getPrimitivePos()
 {
     return n->primitivePos;
 }
-
+*/
 inline void TreeNode::insert(int _ix, int _iy, double _z)
 {
-    this->insert(new MillCoords(Point(_ix, _iy), _z));
+  //  this->insert(new MillCoords(Point(_ix, _iy), _z));
+    return;
 }
 
 // Insert a node into the quadtree
 // if node already exist: no insertion performed
-// treeRoot->insert(new MillCoords(Point(i, i), i*i));
-inline void TreeNode::insert(MillCoords* _millCoords)
+inline void TreeNode::insert(int _ix, int _iy)
 {
-    if (_millCoords == NULL)
-    {
-        throw std::invalid_argument("TreeNode::insert, millCoords == NULL");
-        return;
-    }
-
     // Current quad cannot contain it
-    if (!inBoundary(_millCoords->pos))
+    if (!inBoundary(Point(_ix, _iy))
     {
         throw std::invalid_argument("TreeNode::insert, out of Boundary");
         return;
     }
 
+    TreeNode* tree = search(Point(_ix, _iy));
+/*
     // Actual insertion
     // We are at a quad of unit area
     // We cannot subdivide this quad further
-    if (abs(topLeft.x - botRight.x) <= 1
-        && abs(topLeft.y - botRight.y) <= 1) {
-        if (n == NULL)
+    if (numChildren == 0)
+    {
+        for (MillCoords* coords : nodeCoords)
         {
-            n = _millCoords;
-            numChildren = -1;
-            numDescendants = -1;
+            if (coords->pos.x == _millCoords->pos.x && coords->pos.y == _millCoords->pos.y)
+                return coords;
         }
-        return;
     }
 
     if ((topLeft.x + botRight.x) / 2 >= _millCoords->pos.x) {
@@ -241,60 +226,36 @@ inline void TreeNode::insert(MillCoords* _millCoords)
     }
     return;
 }
+*/
 
 // Find a node in a quadtree
-inline MillCoords* TreeNode::search(Point p)
+inline TreeNode* TreeNode::search(Point p)
 {
     // Current quad cannot contain it
     if (!inBoundary(p))
         return NULL;
 
-    // We are at a quad of unit length
-    // We cannot subdivide this quad further
-    if (n != NULL)
-        return n;
-
-    if ((topLeft.x + botRight.x) / 2 >= p.x) {
-        // Indicates topLeftTree
-        if ((topLeft.y + botRight.y) / 2 >= p.y) {
-            if (topLeftTree == NULL)
-                return NULL;
-            return topLeftTree->search(p);
-        }
-
-        // Indicates botLeftTree
-        else {
-            if (botLeftTree == NULL)
-                return NULL;
-            return botLeftTree->search(p);
-        }
+    // check if no children
+    if (numChildren == 0)
+    {
+        return this;
     }
-    else {
-        // Indicates topRightTree
-        if ((topLeft.y + botRight.y) / 2 >= p.y) {
-            if (topRightTree == NULL)
-                return NULL;
-            return topRightTree->search(p);
-        }
 
-        // Indicates botRightTree
-        else {
-            if (botRightTree == NULL)
-                return NULL;
-            return botRightTree->search(p);
-        }
+    for (TreeNode* childTree : childTrees)
+    {
+        if (childTree->inBoundary(p))
+            childTree->search(p);
     }
+
 };
 
 // Check if current quadtree contains the point
 inline bool TreeNode::inBoundary(Point p)
 {
-    //return (p.x >= topLeft.x && p.x <= botRight.x
-    //    && p.y >= topLeft.y && p.y <= botRight.y);
     return (p.x > topLeft.x && p.x <= botRight.x
         && p.y > topLeft.y && p.y <= botRight.y);
 }
-
+/*
 // Check if point is topLeft corner of current quadtree
 inline bool TreeNode::topLeftBoundary(Point p)
 {
@@ -315,7 +276,7 @@ inline bool TreeNode::updateZ(int _ix, int _iy, double _z)
         return false;
 }
 
-
+*/
 
 //getter und setter hinzufügen!
 

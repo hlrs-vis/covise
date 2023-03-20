@@ -653,7 +653,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     if (filename != NULL)
     {   wpGroup->setName(filename);
     }
-    thePlugin->createWpGeodes(wpGroup);
+    //thePlugin->createWpGeodes(wpGroup);
 
     
     return 0;
@@ -670,8 +670,8 @@ void CNCPlugin::setTimestep(int t)
 
     if (wpTopGeom && t == 0)
     {
-        wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-        wpTopGeom->dirtyDisplayList();
+    //    wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+    //    wpTopGeom->dirtyDisplayList();
     }
 
     if (wpTopGeom && t>0)
@@ -679,22 +679,23 @@ void CNCPlugin::setTimestep(int t)
         if (t % 1 == 0)
         {
             //wpMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-            if (pathG[t] == 2 || pathG[t] == 3)
-                wpMillCutTreeCircle(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-            else
-                wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+            if (pathG[t] == 2 || pathG[t] == 3) {}
+  //              wpMillCutTreeCircle(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
+  //          else
+  //              wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
 
-            wpTopGeom->dirtyDisplayList();
+  //          wpTopGeom->dirtyDisplayList();
         }
     }
 
     if (t == 10)
     {
-        auto asde = wpGroup->getChild(0);
+  /*      auto asde = wpGroup->getChild(0);
         int asdf = wpGroup->getNumChildren();
    //     auto asdg = wpBotGeode->getBoundingBox();
         auto asdh = wpTopGeode->getNumChildren();
         int i = 0;
+    */
     }
 
 //TODO:
@@ -921,7 +922,7 @@ void CNCPlugin::createWpGeodes(Group *parent)
     //DataTable dataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset);
 //    wpTopGeom = createWpSurface(&Vec3(0 / 1000.0, 0 / 1000.0, 0 / 1000.0), &Vec3(10 / 1000.0, 10 / 1000.0, 10 / 1000.0), double (10/1000.0));
     
-    setWpSize();
+/*    setWpSize();
     setWpResolution();
     setWpMaterial();
     //createTree(0, wpTotalQuadsX-1, 0, wpTotalQuadsY-1, wpMaxZ);
@@ -964,14 +965,14 @@ void CNCPlugin::createWpGeodes(Group *parent)
     wpTopGeode->setName("wpTopGeode");
     parent->addChild(wpTopGeode);
     wpTopGeode->addDrawable(wpTopGeom);
-
+*/
  /*   for (int i = 1; i < coVRAnimationManager::instance()->getNumTimesteps(); i++)
     {
         wpPrepareMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), i);
     }
 */
-    auto testVec = wpTopGeom->getVertexArray();
-    auto testArray = dynamic_cast<osg::Vec3Array*>(testVec);
+//    auto testVec = wpTopGeom->getVertexArray();
+//    auto testArray = dynamic_cast<osg::Vec3Array*>(testVec);
     //osgUtil::SmoothingVisitor::smooth(*wpTopGeom);
  /*   if (pointShader != nullptr)
     {
@@ -993,6 +994,7 @@ void CNCPlugin::createWpGeodes(Group *parent)
 */
 osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
 {
+/*
     //create geometry
     auto geo = new osg::Geometry();
     //geo->setColorBinding(Geometry::BIND_OFF);
@@ -1054,6 +1056,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, 
     //geo->setUseDisplayList(false);
 
     return geo;
+*/
 }
 
 
@@ -1219,7 +1222,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTop(double minX, double maxX, dou
 */
 osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX, double minY, double maxY, double z)
 {
-    //create geometry
+/*    //create geometry
     auto geo = new osg::Geometry();
     //geo->setColorBinding(Geometry::BIND_OFF);
  //   geo->setUseDisplayList(false);
@@ -1481,7 +1484,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
         }
     }
     // VerticalPrimitives setzen
-
+*/
   /*  for (int iy = 0; iy < wpTotalQuadsY; iy++)
     {
         for (int ix = 0; ix < wpTotalQuadsX; ix++)
@@ -1495,8 +1498,9 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             cuttedFaces.push_back(-1);
         }
     }
-*/
+*//*
     wpTopPrimitives->push_back(points->size());
+*/
     //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     //wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -1542,7 +1546,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
             m_colorBar->show(true);
         */
 
-        //vertexBufferArray->setArray(0, points);
+ /*       //vertexBufferArray->setArray(0, points);
         //vertexBufferArray->setArray(1, colors);
         //points->setBinding(osg::Array::BIND_PER_VERTEX);
         //wpTopColors->setBinding(osg::Array::BIND_PER_VERTEX);
@@ -1590,6 +1594,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
     //geo->setUseDisplayList(false);
 
     return geo;
+*/
 }
 
 void CNCPlugin::setWpSize()
@@ -1660,7 +1665,7 @@ void CNCPlugin::setWpMaterial()
 */
 void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
 {   
-    //bounding Box
+ /*   //bounding Box
     double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
     double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
     double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
@@ -1694,6 +1699,7 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
         }
     }
     wpCutFaces(geo, piece);
+*/
 }
 
 /* wpMillCutTree
@@ -1706,7 +1712,7 @@ void CNCPlugin::wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
 */
 void CNCPlugin::wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t)
 {
-    //bounding Box
+/*    //bounding Box
     double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
     double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
     double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
@@ -1749,11 +1755,12 @@ void CNCPlugin::wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t)
         }
     }
     //wpCutFaces(geo, piece);
+*/
 }
 
 void CNCPlugin::wpPrepareMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t)
 {
-    //bounding Box
+/*    //bounding Box
     double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
     double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
     double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
@@ -1786,11 +1793,12 @@ void CNCPlugin::wpPrepareMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int 
         }
     }
     wpCutFaces(geo, piece);
+*/
 }
 
 void CNCPlugin::wpPrepareMillCutTree(double minX, double maxX, double minY, double maxY, double z, int t)
 {
-    //bounding Box
+/*    //bounding Box
     double boxMinX = std::min(pathX[t - 1], pathX[t]) - cuttingRad;
     double boxMaxX = std::max(pathX[t - 1], pathX[t]) + cuttingRad;
     double boxMinY = std::min(pathY[t - 1], pathY[t]) - cuttingRad;
@@ -1826,17 +1834,18 @@ void CNCPlugin::wpPrepareMillCutTree(double minX, double maxX, double minY, doub
                     treeRoot->insert(ix, iy + 1, z);
 
                     treeRoot->updateZ(ix, iy, pathZ[t]);
-
+*/
                     /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
                         piece->at(iPoint + 1)[2] = pathZ[t];
                         piece->at(iPoint + 2)[2] = pathZ[t];
                         piece->at(iPoint + 3)[2] = pathZ[t];
                     */
-                }
+ /*               }
             }
         }
         wpCutFacesTree(minX, maxX, minY, maxY, z);
     }
+    */
 }
 
 /* Return minimum distance between point p and line vw */
@@ -1915,15 +1924,15 @@ bool CNCPlugin::checkInsideArcG2(double pAngle, double angle1, double angle2)
             return false;
     }
 }
-
+/*
 void CNCPlugin::wpResetCuts(osg::Vec3Array *piece, int t)
 {
     for (int i = 0; i < piece->getNumElements(); i++)
     {
         piece->at(i)[2] = wpMaxZ;
     }
-}
-
+}*/
+/*
 void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
 {
     while (!cuttedQuadsIX.empty())
@@ -2028,7 +2037,7 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
             }
 
         }
-
+*/
         /*
         for (int i = 1; i < 5; i++)
         {
@@ -2061,7 +2070,7 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
         }
         */
 
-
+/*
         //remove vertical Quads?
 
 
@@ -2069,7 +2078,8 @@ void CNCPlugin::wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece)
         cuttedQuadsIY.pop_back();
     }
 }
-
+*/
+/*
 void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z)
 {
     while (!cuttedQuadsIX.empty())
@@ -2090,13 +2100,13 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
             }
             else
             {
-            /*    //add Vertical Quad
+*/            /*    //add Vertical Quad
                 wpVerticalPrimitivesX->push_back(iPoint + 3);
                 wpVerticalPrimitivesX->push_back(iPoint);
                 wpVerticalPrimitivesX->push_back(nb + 1);
                 wpVerticalPrimitivesX->push_back(nb + 2);
             */
-                if (cuttedFaces[iPoint / 4] == 2)
+/*                if (cuttedFaces[iPoint / 4] == 2)
                     cuttedFaces[iPoint / 4] = 5;
                 else
                     cuttedFaces[iPoint / 4] = 1;
@@ -2115,13 +2125,13 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
             }
             else
             {
-            /*    //add Vertical Quad
+*/            /*    //add Vertical Quad
                 wpVerticalPrimitivesY->push_back(iPoint);
                 wpVerticalPrimitivesY->push_back(iPoint + 1);
                 wpVerticalPrimitivesY->push_back(nb + 2);
                 wpVerticalPrimitivesY->push_back(nb + 3);
             */
-                if (cuttedFaces[iPoint / 4] == 1)
+/*                if (cuttedFaces[iPoint / 4] == 1)
                     cuttedFaces[iPoint / 4] = 5;
                 else
                     cuttedFaces[iPoint / 4] = 2;
@@ -2140,13 +2150,13 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
             }
             else
             {
-            /*    //add Vertical Quad
+ */           /*    //add Vertical Quad
                 wpVerticalPrimitivesX->push_back(iPoint + 1);
                 wpVerticalPrimitivesX->push_back(iPoint + 2);
                 wpVerticalPrimitivesX->push_back(nb + 3);
                 wpVerticalPrimitivesX->push_back(nb);
             */
-                if (cuttedFaces[nb / 4] == 2)
+ /*               if (cuttedFaces[nb / 4] == 2)
                     cuttedFaces[nb / 4] = 5;
                 else
                     cuttedFaces[nb / 4] = 1;
@@ -2165,13 +2175,13 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
             }
             else
             {
-            /*    //add Vertical Quad
+  */          /*    //add Vertical Quad
                 wpVerticalPrimitivesY->push_back(iPoint + 2);
                 wpVerticalPrimitivesY->push_back(iPoint + 3);
                 wpVerticalPrimitivesY->push_back(nb);
                 wpVerticalPrimitivesY->push_back(nb + 1);
             */
-                if (cuttedFaces[nb / 4] == 1)
+  /*              if (cuttedFaces[nb / 4] == 1)
                     cuttedFaces[nb / 4] = 5;
                 else
                     cuttedFaces[nb / 4] = 2;
@@ -2185,8 +2195,8 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
         cuttedQuadsIY.pop_back();
     }
 }
-
-
+*/
+/*
 void CNCPlugin::wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z)
 {
     points->push_back(Vec3(wpMinX + minIX * wpResX, wpMinY + minIY * wpResY, z));
@@ -2196,8 +2206,8 @@ void CNCPlugin::wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX,
     primitivePosCounter += 4;
     return;
 }
-
-
+*/
+/*
 void CNCPlugin::wpAddFacesTree()
 {   
     for (int iy = 0; iy < wpTotalQuadsY; iy++)
@@ -2243,7 +2253,7 @@ void CNCPlugin::wpAddFacesTree()
             }
         }
     }
-         
+  */       
   /*
     while (!cuttedQuadsIX.empty())
     {
@@ -2350,13 +2360,13 @@ void CNCPlugin::wpAddFacesTree()
 
     }
   */
-}
+//}
 
 
 // Quad Tree
 
 
-
+/*
 
 TreeNode* CNCPlugin::createTree(int minIX, int maxIX, int minIY, int maxIY, double z)
 {
@@ -2443,19 +2453,20 @@ void CNCPlugin::wpPrepareMillCutTreeCircle(double minX, double maxX, double minY
 
                         treeRoot->updateZ(ix, iy, pathZ[t]);
 
-                        /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+ */                       /*    piece->at(iPoint)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
                             piece->at(iPoint + 1)[2] = pathZ[t];
                             piece->at(iPoint + 2)[2] = pathZ[t];
                             piece->at(iPoint + 3)[2] = pathZ[t];
                         */
-                    }
+ /*                   }
                 }
             }
         }
         wpCutFacesTree(minX, maxX, minY, maxY, z);
     }
 }
-
+*/
+/*
 void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, int t)
 {
     double arcRadius = distancePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);// Abstand center zu t;
@@ -2527,3 +2538,4 @@ void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, i
     }
     //wpCutFaces(geo, piece);
 }
+*/
