@@ -234,12 +234,6 @@ if not defined QT_HOME (
      REM Set QT_HOME according to QTDIR. If User ignores any warnings before he will find himself in a world of pain! 
    )
 )
-set "QT_HOME=%QTDIR%"
-set "QT_SHAREDHOME=%QT_HOME%"
-set "QT_INCPATH=%QT_HOME%\include"
-set "QT_LIBPATH=%QT_HOME%\lib"
-set "PATH=%QT_HOME%\bin;%QT_HOME%\lib;%PATH%"
-set "QT_QPA_PLATFORM_PLUGIN_PATH=%QT_HOME%\plugins\platforms"  
 
 if not defined  OPENSCENEGRAPH_HOME (
    if exist %EXTERNLIBS%\OpenSceneGraph\bin\osgversion.exe (
@@ -349,6 +343,19 @@ if not "%COVISE_USE_QT5%" == "OFF" if not defined Qt5WebEngineWidgets_DIR  (
 )
 
 set PATH=%PATH%;%EXTERNLIBS%\bison\bin
+
+set "QT_HOME=%QTDIR%"
+set "QT_SHAREDHOME=%QT_HOME%"
+set "QT_INCPATH=%QT_HOME%\include"
+set "QT_LIBPATH=%QT_HOME%\lib"
+set "QT_PLUGIN_PATH=%QT_HOME%\plugins"
+set "QT_RESOURCES_PATH=%QT_HOME%\resources"
+set "QTDIR=%QT_HOME%"
+set "PATH=%QT_HOME%\bin;%QT_HOME%\lib;%PATH%"
+set "QT_QPA_PLATFORM_PLUGIN_PATH=%QT_HOME%\plugins\platforms"  
+set "QTWEBENGINE_RESOURCES_PATH=%QT_HOME%\resources"
+rem set "QTWEBENGINEPROCESS_PATH=%QT_HOME%\bin\QtWebEngineProcess.exe"
+set QTWEBENGINE_DISABLE_SANDBOX=1
 
 :FINALIZE
 set LOGNAME=covise

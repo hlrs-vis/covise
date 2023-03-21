@@ -9,6 +9,11 @@ ENDIF()
 
 FIND_PACKAGE(3DSMAX)
 
+IF(NOT 3DSMAX_FOUND)
+    MESSAGE("Skipping because of missing 3DSMAX and/or 3DSMAX_SDK")
+    RETURN()
+ENDIF()
+
 INCLUDE_DIRECTORIES(${3DSMAX_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES($ENV{DXSDK_DIR}/include)
 
@@ -169,14 +174,14 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library (Vrmlexp SHARED ${VRMLEXP_SOURCES} ${VRMLEXP_HEADERS} ${VRMLEXP_RESOURCES})
 target_link_libraries (Vrmlexp ${EXTRA_LIBS} ) 
-add_custom_command(TARGET Vrmlexp POST_BUILD 
-  COMMAND "${CMAKE_COMMAND}" -E copy 
-     "$<TARGET_FILE:Vrmlexp>"
-     ${3DSMAX_STDPLUGS_DIR} 
-  COMMENT "Copying lib to output directory")
-add_custom_command(TARGET Vrmlexp POST_BUILD debug
-  COMMAND "${CMAKE_COMMAND}" -E copy 
-     "$<TARGET_FILE_DIR:Vrmlexp>/vrmlexp.pdb"
-     ${3DSMAX_STDPLUGS_DIR} 
-  COMMENT "Copying pdb to output directory")
+# add_custom_command(TARGET Vrmlexp POST_BUILD 
+#   COMMAND "${CMAKE_COMMAND}" -E copy 
+#      "$<TARGET_FILE:Vrmlexp>"
+#      ${3DSMAX_STDPLUGS_DIR} 
+#   COMMENT "Copying lib to output directory")
+# add_custom_command(TARGET Vrmlexp POST_BUILD debug
+#   COMMAND "${CMAKE_COMMAND}" -E copy 
+#      "$<TARGET_FILE_DIR:Vrmlexp>\\vrmlexp.pdb"
+#      ${3DSMAX_STDPLUGS_DIR} 
+#   COMMENT "Copying pdb to output directory")
 

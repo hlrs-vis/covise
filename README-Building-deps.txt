@@ -143,18 +143,34 @@ nmake install
 #qt5
 set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
 set PYTHONHOME=c:\src\externlibs\zebu\..\shared\Python2;c:\src\externlibs\zebu\Python2
-configure -prefix c:/src/externlibs/zebu/qt5 -opensource -debug-and-release -nomake tests -make libs -make tools -nomake examples -nomake tests -confirm-license -openssl -I c:/src/externlibs/zebu/OpenSSL/include  -icu -I c:/src/externlibs/zebu/icu/include -L c:/src/externlibs/zebu/icu/lib -openssl-linked  -L C:/src/externlibs/zebu/OpenSSL/lib -openssl -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32" OPENSSL_LIBS_DEBUG="-lssleay32D -llibeay32D" OPENSSL_LIBS_RELEASE="-lssleay32 -llibeay32" -platform win32-msvc2015 -mp -opengl dynamic -angle
+configure -prefix c:/src/externlibs/zebu/qt5 -opensource -debug-and-release -make libs -make tools -nomake examples -nomake tests -confirm-license -openssl -I c:/src/externlibs/zebu/OpenSSL/include  -icu -I c:/src/externlibs/zebu/icu/include -L c:/src/externlibs/zebu/icu/lib -openssl-linked  -L C:/src/externlibs/zebu/OpenSSL/lib -openssl -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32" OPENSSL_LIBS_DEBUG="-lssleay32D -llibeay32D" OPENSSL_LIBS_RELEASE="-lssleay32 -llibeay32" -platform win32-msvc2015 -mp -opengl dynamic -angle
 nmake
 nmake install
 
 #qt6 following https://wiki.qt.io/Building_Qt_6_from_Git
+fix compress_files.js C:\src\gitbase\qt6\qtwebengine\src\3rdparty\chromium\third_party\devtools-frontend\src\scripts\build\compress_files.js
+serialize file processing to fix compression
+  for(i=0;i<files.length;i++)
+  {
+	  await compressFile(files[i]);
+  }
+  
 use admin developer cmd
 cd build
 set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
-..\configure.bat -prefix c:\src\externlibs\zebu\qt6 -skip qtspeech -debug-and-release -qt-zlib -openssl-linked -- -D OPENSSL_ROOT_DIR=C:/src/externlibs/zebu/OpenSSL
+##..\configure.bat -prefix c:\src\externlibs\zebu\qt6 -skip qtspeech -debug-and-release -qt-zlib -openssl-linked -- -D OPENSSL_ROOT_DIR=C:/src/externlibs/zebu/OpenSSL
+..\configure -prefix c:/src/externlibs/zebu/qt6 -opensource -debug-and-release -make tools -nomake examples -nomake tests -confirm-license -openssl  -icu -openssl-linked -opengl dynamic -- -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/md4c;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/flex;c:/src/externlibs/zebu/bison;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+cmake --build . --parallel
 ninja qtdeclarative
 ninja
 ninja install
+
+#md4c
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/md4c -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/simage;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+
+#3mx
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/3mx -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/simage;c:/src/externlibs/zebu/OpenSceneGraph;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+
 
 #SoQT
 get old soqt Version 1.4.1

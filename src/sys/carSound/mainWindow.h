@@ -87,7 +87,11 @@ private slots:
     virtual void speedChanged(int val);
 	virtual void velocityChanged(int val);
 	virtual void slipChanged(int val);
-    virtual void dataReceived(int socket);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    virtual void dataReceived(int);
+#else
+    virtual void dataReceived(QSocketDescriptor, QSocketNotifier::Type);
+#endif
     virtual void startAnlasser();
     virtual void watchdog();
     virtual void startHupe();

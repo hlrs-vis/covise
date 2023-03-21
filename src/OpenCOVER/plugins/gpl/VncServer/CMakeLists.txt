@@ -21,7 +21,6 @@ IF(CUDA_FOUND AND COVISE_USE_CUDA)
   add_definitions(-DHAVE_CUDA)
   include_directories(${CUDA_INCLUDE_DIRS})
   set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
-  cuda_compile(CUDA_OBJ ${CUDA_SOURCES} SHARED OPTIONS "-D__builtin_stdarg_start=__builtin_va_start")
 endif()
   
 set(SOURCES
@@ -29,7 +28,7 @@ set(SOURCES
   VncServer.cpp
 )
 
-cover_add_plugin(VncServer ${CUDA_OBJ})
+cover_add_plugin(VncServer ${SOURCES})
 covise_wnoerror(VncServer)
 
 target_link_libraries(VncServer ${EXTRA_LIBS} ${LIBVNCSERVER_SERVER_LIBRARY})

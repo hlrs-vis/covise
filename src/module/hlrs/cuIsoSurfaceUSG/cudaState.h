@@ -18,6 +18,16 @@ typedef unsigned int GLuint;
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
+struct CUDATables
+{
+    cudaTextureObject_t hexaNumVertsTex;
+    cudaTextureObject_t hexaTriTex;
+    cudaTextureObject_t tetraNumVertsTex;
+    cudaTextureObject_t tetraTriTex;
+    cudaTextureObject_t pyrNumVertsTex;
+    cudaTextureObject_t pyrTriTex;
+};
+
 struct CUDAState
 {
     // tables (
@@ -27,6 +37,15 @@ struct CUDAState
     uint *d_tetraTriTable;
     uint *d_pyrNumVertsTable;
     uint *d_pyrTriTable;
+    // corresponding texture objects
+    cudaTextureObject_t d_hexaNumVertsTexObj;
+    cudaTextureObject_t d_hexaTriTexObj;
+    cudaTextureObject_t d_tetraNumVertsTexObj;
+    cudaTextureObject_t d_tetraTriTexObj;
+    cudaTextureObject_t d_pyrNumVertsTexObj;
+    cudaTextureObject_t d_pyrTriTexObj;
+    CUDATables *d; // on device
+
     CUDPPHandle *cudpp;
 
     //Threads block size for the simple kernels

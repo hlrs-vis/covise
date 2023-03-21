@@ -6,11 +6,7 @@ __author__ = "Marko Djuric"
 
 import os
 import argparse
-import tomli_w
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
+import tomlkit
 import xmltodict as xd
 
 DEPRECATED_PLUGINS = "AKToolbar".split()
@@ -19,7 +15,22 @@ ADD = False
 ADD_DISABLED = False
 
 
-def _get_tml_repr(string: str):
+def _safe_open(path: str, mode: str, encoding: str="utf-8"):
+    """Create dirs before opening file.
+
+    Args:
+        path (str): filepath
+        mode (str): opening mode
+        encoding (str): file encoding
+
+    Returns:
+        _type_: return of open
+    """
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return open(file=path, mode=mode, encoding=encoding)
+
+
+def _get_tml_repr(string: str) -> float | int | str:
     """Helperfunction to check if given string is an integer, decimal or bool and return corresponding python object.
 
     Args:
@@ -67,8 +78,11 @@ def parse_coconfig_list(cc_list: list, parent: str, name: str) -> dict:
                 list_key = entry.pop("@index")
                 list_repr[list_key] = create_toml_dict(entry)
             else:
-                print("Cannot convert " + name +
-                      " in " + parent + " properly.")
+                std_str = "Cannot convert " + name
+                if parent == "":
+                    print(std_str)
+                else:
+                    print(std_str +" in " + parent + " properly.")
     return tml_dict
 
 
@@ -123,24 +137,49 @@ def create_toml_dict(coconfig_dict: dict, parent: str = "", skip: list = []) -> 
     return tml_dict
 
 
-def create_toml(coconfig_dict: dict, tml_path: str, skip: list = []) -> None:
+def create_toml(coconfig_dict: dict, tml_path: str, manual_adjustment: bool = True, ovrrd: bool = OVERRIDE, add: bool = ADD, skip: list = []) -> None:
     """Create new TOML config.
 
     Args:
         coconfig_dict (dict): Dictionary which contains coconfig files.
         plug_path (str): Plugin path.
+        manual_adjustment (bool): Adjust dictionary according toml structure convention.
+        ovrrd (bool): override file
         skip (list): skipping given entries in this list.
     """
-    dump_dict = create_toml_dict(
-        coconfig_dict, skip=skip)
-    if not os.path.exists(tml_path) or OVERRIDE:
-        with open(tml_path, "wb") as tml:
-            tomli_w.dump(dump_dict, tml)
+    if len(coconfig_dict) == 0:
+        return
+
+    dump_dict = coconfig_dict
+    if manual_adjustment:
+        dump_dict = create_toml_dict(
+            coconfig_dict, skip=skip)
+        
+    if not os.path.exists(tml_path) or ovrrd:
+        with _safe_open(tml_path, "wt") as tml:
+            tomlkit.dump(dump_dict, tml)
     else:
-        with open(tml_path, mode="rb+") as tml:
-            enabled = tomllib.load(tml)
-            new_tml = dump_dict | enabled if ADD else enabled | dump_dict  # union of dicts
-            tomli_w.dump(new_tml, tml)
+        with _safe_open(tml_path, mode="rt+", encoding="utf-8") as tml:
+            enabled = tomlkit.load(tml).unwrap()
+            if enabled == dump_dict:
+                return
+
+            new_tml = dump_dict
+            if ADD:
+                new_tml = dump_dict | enabled
+                union_keys = set(enabled) & set(dump_dict)
+                for key in union_keys:
+                    val = dump_dict[key]
+                    if isinstance(val, list):
+                        new_tml[key] = list(set(enabled[key] + dump_dict[key]))
+                        continue
+                    new_tml[key] = val # override always with new value
+
+            if len(new_tml) == 0:
+                return
+            tml.seek(0)
+            tml.truncate(0)
+            tomlkit.dump(new_tml, tml)
 
 
 def create_plugin_toml(coconfig_dict: dict, plug_path: str) -> None:
@@ -150,7 +189,7 @@ def create_plugin_toml(coconfig_dict: dict, plug_path: str) -> None:
         coconfig_dict (dict): Dictionary which contains coconfig files.
         plug_path (str): Plugin path.
     """
-    create_toml(coconfig_dict, plug_path, skip="@menu @value @shared".split())
+    create_toml(coconfig_dict, plug_path, ovrrd=False, skip="@menu @value @shared".split())
 
 
 def create_module_toml(coconfig_dict: dict, mod_path: str) -> None:
@@ -170,14 +209,7 @@ def create_toplevel_toml(toplevel_config_path: str, values: dict) -> None:
         toplevel_config_path (str): Path to config.
         values (dict): dict holding values for toplevel toml.
     """
-    if not os.path.exists(toplevel_config_path) or OVERRIDE:
-        with open(toplevel_config_path, mode="wb") as tml:
-            tomli_w.dump(values, tml)
-    else:
-        with open(toplevel_config_path, mode="wb+") as tml:
-            enabled = tomllib.load(tml)
-            new_tml = values | enabled if ADD else enabled | values  # union of dicts
-            tomli_w.dump(new_tml, tml)
+    create_toml(values, toplevel_config_path, manual_adjustment=False)
 
 
 def iterate_modules(modules_dict: dict, module_rootpath: str) -> list:
@@ -216,7 +248,7 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             plugin_root_entries.update(iterate_plugins(entry, plugin_rootpath))
     else:
         for plugin_name, plugin_dict in plugins_dict.items():
-            if plugin_name in DEPRECATED_PLUGINS:
+            if plugin_name in DEPRECATED_PLUGINS or len(plugin_dict) == 0:
                 continue
             if isinstance(plugin_dict, list):
                 plugin_root_entries.update(
@@ -224,9 +256,12 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
             elif isinstance(plugin_dict, dict):
                 for att_name, att_val in plugin_dict.items():
                     for name, li in plugin_root_entries.items():
+                        if plugin_name in li: #HACK: won't delete plugins in plugin.toml for now
+                            continue
                         at_key = "@" + name
-                        if at_key in att_name and att_val.lower() == "on":
+                        if (at_key in att_name and att_val.lower() == "on") or isinstance(att_val, dict):
                             li.append(plugin_name)
+                        
                 if ADD_DISABLED or plugin_name in plugin_root_entries["value"]:
                     create_plugin_toml(
                         plugin_dict, plugin_rootpath + "/" + plugin_name + ".toml")
@@ -236,6 +271,20 @@ def iterate_plugins(plugins_dict: dict, plugin_rootpath: str) -> dict:
     plugin_root_entries["load"] = new_load if not "load" in plugin_root_entries.keys(
     ) else list(set(new_load) | set(plugin_root_entries["load"]))
     return plugin_root_entries
+
+
+def get_dict(iterable_dict, key: str) -> dict:
+    root_global = {}
+    if isinstance(iterable_dict, dict):
+        root_global = iterable_dict.get(key)
+    elif isinstance(iterable_dict, list):
+        for d in iterable_dict:
+            for k, v in d.items():
+                if k in root_global.keys():
+                    root_global[k] |= v
+                else:
+                    root_global[k] = v
+    return root_global
 
 
 def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
@@ -248,7 +297,6 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
 
     global_key = "GLOBAL"
     if global_key in coconfig.keys():
-        root_global = coconfig[global_key]
         opencover_path = rel_output_path + "/opencover"
         covise_path = rel_output_path + "/covise"
         colormap_path = rel_output_path + "/colormaps"
@@ -256,8 +304,11 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
         module_rootpath = covise_path + "/modules"
         plugin_rootpath = opencover_path + "/plugins"
 
+        # handle multiple globals
+        root_global = get_dict(coconfig, global_key)
+
         # cover
-        cover_dict = root_global.get("COVER")
+        cover_dict = get_dict(root_global, "COVER")
         if cover_dict:
             # plugins
             plugins_dict = cover_dict.pop("Plugin", None)
@@ -280,7 +331,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
             create_toml(cover_dict, opencover_path + "/cover.toml")
 
         # modules
-        modules_dict = root_global.get("Module")
+        modules_dict = get_dict(root_global, "Module")
         if modules_dict:
             if not os.path.exists(module_rootpath):
                 os.makedirs(module_rootpath)
@@ -292,7 +343,7 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
                                  "load": module_root_entries})
         
         # colormap
-        colormap_dict = root_global.get("Colormaps")
+        colormap_dict = get_dict(root_global, "Colormaps")
         if colormap_dict:
             if not os.path.exists(colormap_path):
                 os.makedirs(colormap_path)
@@ -302,25 +353,41 @@ def parse_global_section(coconfig: dict, rel_output_path: str) -> None:
                 create_toml(colordict, color_config_path)
 
         # system
-        system_dict = root_global.get("System")
+        system_dict = get_dict(root_global,"System")
         if system_dict:
             if not os.path.exists(system_rootpath):
                 os.makedirs(system_rootpath)
             create_toml(system_dict, system_rootpath + "/system.toml")
 
 
-def parse_coconfig_to_toml(path: str, output_path: str) -> None:
+def parse_coconfig_to_toml(path: str, output_path: str, include: bool = False) -> None:
     """Convert coconfing under path to new TOML structure.
 
     Args:
         path (str): Path to coconfig xml.
         output_path (str): Output directory.
     """
+    tmp_ADD = ADD
+    def enable_ADD():
+        global ADD
+        ADD = True
+
+    def restore_ADD():
+        global ADD
+        ADD = tmp_ADD
+
+    if include:
+        enable_ADD()
+
     rel_output_path = os.path.realpath(output_dir)
     with open(path, "rb") as f:
         xml_dict = xd.parse(f)
 
-    coconfig = xml_dict["COCONFIG"]
+    coconfig = get_dict(xml_dict,"COCONFIG")
+    if not len(coconfig):
+        print("Please use a config with toplevel domain COCONFIG as tag")
+        return
+
     parse_global_section(coconfig, rel_output_path)
 
     include_key = "INCLUDE"
@@ -330,7 +397,9 @@ def parse_coconfig_to_toml(path: str, output_path: str) -> None:
                     val in include.items() if "#" in key)
         for include in includes:
             path_to_include = path.rsplit("/", 1)[0] + "/" + include + ".xml"
-            parse_coconfig_to_toml(path_to_include, output_path)
+            parse_coconfig_to_toml(path_to_include, output_path, include=True)
+
+    restore_ADD()
 
 
 if __name__ == "__main__":

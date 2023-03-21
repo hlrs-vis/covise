@@ -21,7 +21,7 @@ __device__ float3 calcNormal(float3 *v0, float3 *v1, float3 *v2)
 //          -  elemVerts: array containing the number of vertexes required at that element / voxel.
 //
 // one thread per element
-__global__ void classifyIsoElements(uint* elemVerts, uint* elemClassification, //OUT
+__global__ void classifyIsoElements(CUDATables *tbl, uint* elemVerts, uint* elemClassification, //OUT
                                  int* typeList, int* elemList, int* connList, uint numElems, //geometry IN
                                  float* values, float isoValue) //scalar field IN
 {
@@ -75,7 +75,7 @@ __global__ void classifyIsoElements(uint* elemVerts, uint* elemClassification, /
          //tableIndex += cubesOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(hexaNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->hexaNumVertsTex, tableIndex);
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -99,7 +99,7 @@ __global__ void classifyIsoElements(uint* elemVerts, uint* elemClassification, /
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(tetraNumVertsTex, tableIndex);         
+         uint numVerts = tex1Dfetch<uint>(tbl->tetraNumVertsTex, tableIndex);         
          elemVerts[elemIdx] = numVerts;      
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -125,7 +125,7 @@ __global__ void classifyIsoElements(uint* elemVerts, uint* elemClassification, /
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(pyrNumVertsTex, tableIndex);         
+         uint numVerts = tex1Dfetch<uint>(tbl->pyrNumVertsTex, tableIndex);         
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -146,7 +146,7 @@ __global__ void classifyIsoElements(uint* elemVerts, uint* elemClassification, /
 //          -  elemVerts: array containing the number of vertexes required at that element / voxel.
 //
 // one thread per element
-__global__ void classifyCuttingElements(uint* elemVerts, uint* elemClassification, //OUT
+__global__ void classifyCuttingElements(CUDATables *tbl, uint* elemVerts, uint* elemClassification, //OUT
         int* typeList, int* elemList, int* connList, uint numElems,
         float *vertices, uint numCoords, //geometry IN
         float* values, float nx, float ny, float nz, float dist) //scalar IN
@@ -196,7 +196,7 @@ __global__ void classifyCuttingElements(uint* elemVerts, uint* elemClassificatio
          tableIndex += uint(field[7] < 0.0)*128;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(hexaNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->hexaNumVertsTex, tableIndex);
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -228,7 +228,7 @@ __global__ void classifyCuttingElements(uint* elemVerts, uint* elemClassificatio
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(tetraNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->tetraNumVertsTex, tableIndex);
 
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
@@ -263,7 +263,7 @@ __global__ void classifyCuttingElements(uint* elemVerts, uint* elemClassificatio
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(pyrNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->pyrNumVertsTex, tableIndex);
 
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
@@ -280,7 +280,7 @@ __global__ void classifyCuttingElements(uint* elemVerts, uint* elemClassificatio
 //          -  elemVerts: array containing the number of vertexes required at that element / voxel.
 //
 // one thread per element
-__global__ void classifyCuttingElementsSphere(uint* elemVerts, uint* elemClassification, //OUT
+__global__ void classifyCuttingElementsSphere(CUDATables *tbl, uint* elemVerts, uint* elemClassification, //OUT
                                               int* typeList, int* elemList, int* connList, uint numElems,
                                               float *vertices, uint numCoords, //geometry IN
                                               float* values, float nx, float ny, float nz, float radius) //scalar field IN
@@ -331,7 +331,7 @@ __global__ void classifyCuttingElementsSphere(uint* elemVerts, uint* elemClassif
          tableIndex += uint(field[7] < 0.0)*128;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(hexaNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->hexaNumVertsTex, tableIndex);
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -364,7 +364,7 @@ __global__ void classifyCuttingElementsSphere(uint* elemVerts, uint* elemClassif
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(tetraNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->tetraNumVertsTex, tableIndex);
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
       }
@@ -399,7 +399,7 @@ __global__ void classifyCuttingElementsSphere(uint* elemVerts, uint* elemClassif
          //tableIndex += tetraOffset;
 
          // read number of vertices from texture
-         uint numVerts = tex1Dfetch(pyrNumVertsTex, tableIndex);
+         uint numVerts = tex1Dfetch<uint>(tbl->pyrNumVertsTex, tableIndex);
          
          elemVerts[elemIdx] = numVerts;
          elemClassification[elemIdx] = (numVerts > 0);
@@ -409,7 +409,7 @@ __global__ void classifyCuttingElementsSphere(uint* elemVerts, uint* elemClassif
 }
 
 #ifndef COVISE
-__device__ void generateIsoTrianglesPyr(float4 *pos, float4 *norm, float *tex,
+__device__ void generateIsoTrianglesPyr(CUDATables *tbl, float4 *pos, float4 *norm, float *tex,
                                      float* vertexArrayIn, int numCoords,
                                      uint* compactedArray,
                                      uint* vertsScan, uint maxVerts,
@@ -418,7 +418,7 @@ __device__ void generateIsoTrianglesPyr(float4 *pos, float4 *norm, float *tex,
                                      float* values, float *map, float texMin,
                                      float texMax, float isoValue)
 #else
-__device__ void generateIsoTrianglesPyrC(int totalVertices, float *vertices,
+__device__ void generateIsoTrianglesPyrC(CUDATables *tbl, int totalVertices, float *vertices,
 				      float *normals, float* vertexArrayIn,
 				      int numCoords, uint* compactedArray,
 				      uint* vertsScan, uint maxVerts,
@@ -532,7 +532,7 @@ __device__ void generateIsoTrianglesPyrC(int totalVertices, float *vertices,
 #endif
     
    // output triangle vertices
-   uint numVerts = tex1Dfetch(pyrNumVertsTex, tableIndex);
+   uint numVerts = tex1Dfetch<uint>(tbl->pyrNumVertsTex, tableIndex);
    for(int i=0; i<numVerts; i+=3) 
    {
       uint index = vertsScan[idx] + i;
@@ -540,13 +540,13 @@ __device__ void generateIsoTrianglesPyrC(int totalVertices, float *vertices,
       float3* v[3];
       uint edge[3];
 
-      edge[0] = tex1Dfetch(pyrTriTex, (tableIndex*12) + i);
+      edge[0] = tex1Dfetch<uint>(tbl->pyrTriTex, (tableIndex*12) + i);
       v[0] = &vertlist[edge[0]];
 
-      edge[1] = tex1Dfetch(pyrTriTex, (tableIndex*12) + i + 1);
+      edge[1] = tex1Dfetch<uint>(tbl->pyrTriTex, (tableIndex*12) + i + 1);
       v[1] = &vertlist[edge[1]];
 
-      edge[2] = tex1Dfetch(pyrTriTex, (tableIndex*12) + i + 2);
+      edge[2] = tex1Dfetch<uint>(tbl->pyrTriTex, (tableIndex*12) + i + 2);
       v[2] = &vertlist[edge[2]];
 
       // calculate triangle surface normal
@@ -595,7 +595,7 @@ __device__ void generateIsoTrianglesPyrC(int totalVertices, float *vertices,
 }
 
 #ifndef COVISE
-__device__ void generateIsoTrianglesTetra(float4 *pos, float4 *norm, float *tex,
+__device__ void generateIsoTrianglesTetra(CUDATables *tbl, float4 *pos, float4 *norm, float *tex,
                                        float* vertexArrayIn, int numCoords, 
                                        uint* compactedThetraArray,
 				       uint* vertsScan, uint maxVerts,
@@ -604,7 +604,7 @@ __device__ void generateIsoTrianglesTetra(float4 *pos, float4 *norm, float *tex,
 				       float* values, float *map, float texMin,
                                        float texMax, float isoValue)
 #else
-__device__ void generateIsoTrianglesTetraC(int totalVertices, float *vertices,
+__device__ void generateIsoTrianglesTetraC(CUDATables *tbl, int totalVertices, float *vertices,
 					float *normals, float* vertexArrayIn,
 					int numCoords,
 					uint* compactedThetraArray,
@@ -698,20 +698,20 @@ __device__ void generateIsoTrianglesTetraC(int totalVertices, float *vertices,
     vertlist[5] = interp(isoValue, v[2], v[3], field[2], field[3], mapping[2], mapping[3], &maplist[5]);
 
     // output triangle vertices
-    uint numVerts = tex1Dfetch(tetraNumVertsTex, tableIndex);
+    uint numVerts = tex1Dfetch<uint>(tbl->tetraNumVertsTex, tableIndex);
     for(int i=0; i<numVerts; i+=3) 
     {
         uint index = vertsScan[idx] + i;
 
         float3 *v[3];
         uint edge[3];
-        edge[0] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i);
+        edge[0] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i);
         v[0] = &vertlist[edge[0]];
 
-        edge[1] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i + 1);
+        edge[1] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i + 1);
         v[1] = &vertlist[edge[1]];
 
-        edge[2] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i + 2);
+        edge[2] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i + 2);
         v[2] = &vertlist[edge[2]];
 
         // calculate triangle surface normal
@@ -760,7 +760,7 @@ __device__ void generateIsoTrianglesTetraC(int totalVertices, float *vertices,
 
 
 #ifndef COVISE
-__device__ void generateIsoTrianglesHexa(float4 *pos, float4 *norm, float *tex,
+__device__ void generateIsoTrianglesHexa(CUDATables *tbl, float4 *pos, float4 *norm, float *tex,
                                       float* vertexArrayIn, int numCoords,
                                       uint* compactedHexaArray, 
                                       uint* vertsScan, uint maxVerts,
@@ -769,7 +769,7 @@ __device__ void generateIsoTrianglesHexa(float4 *pos, float4 *norm, float *tex,
 				      float* values, float *map, float texMin,
                                       float texMax, float isoValue)
 #else
-__device__ void generateIsoTrianglesHexaC(int totalVertices, float *vertices,
+__device__ void generateIsoTrianglesHexaC(CUDATables *tbl, int totalVertices, float *vertices,
 				       float *normals, float* vertexArrayIn,
 				       int numCoords, uint* compactedHexaArray,
 				       uint* vertsScan, uint maxVerts,
@@ -932,20 +932,20 @@ __device__ void generateIsoTrianglesHexaC(int totalVertices, float *vertices,
 #endif
     // output triangle vertices
 
-    uint numVerts = tex1Dfetch(hexaNumVertsTex, tableIndex);
+    uint numVerts = tex1Dfetch<uint>(tbl->hexaNumVertsTex, tableIndex);
 
     for(int i=0; i<numVerts; i+=3) 
     {
        uint index = vertsScan[idx] + i;
        float3 *v[3];
        uint edge[3];
-       edge[0] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i);
+       edge[0] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i);
        v[0] = &vertlist[edge[0]];
        
-       edge[1] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i + 1);
+       edge[1] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i + 1);
        v[1] = &vertlist[edge[1]];
        
-       edge[2] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i + 2);
+       edge[2] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i + 2);
        v[2] = &vertlist[edge[2]];
        
        // calculate triangle surface normal
@@ -991,7 +991,7 @@ __device__ void generateIsoTrianglesHexaC(int totalVertices, float *vertices,
 }
 
 #ifndef COVISE
-__device__ void generateCuttingTrianglesHexa(float4 *pos, float4 *norm,
+__device__ void generateCuttingTrianglesHexa(CUDATables *tbl, float4 *pos, float4 *norm,
                                              float *tex, float2 *licTex,
                                      float* vertexArrayIn, int numCoords,
                                      uint* compactedHexaArray,
@@ -1003,7 +1003,7 @@ __device__ void generateCuttingTrianglesHexa(float4 *pos, float4 *norm,
                                      float texMin, float texMax, float nx,
                                      float ny, float nz, float dist)
 #else
-__device__ void generateCuttingTrianglesHexaC(int totalVertices, float *vertices,
+__device__ void generateCuttingTrianglesHexaC(CUDATables *tbl, int totalVertices, float *vertices,
 				       float *normals, float* vertexArrayIn,
 				       int numCoords, uint* compactedHexaArray,
 				       uint* vertsScan, uint maxVerts,
@@ -1205,7 +1205,7 @@ __device__ void generateCuttingTrianglesHexaC(int totalVertices, float *vertices
 #endif
 
     // output triangle vertices
-    numVerts = tex1Dfetch(hexaNumVertsTex, tableIndex);
+    numVerts = tex1Dfetch<uint>(tbl->hexaNumVertsTex, tableIndex);
 #ifdef DEBUG
     printf("%d numVerts: %d\n", elemIdx, numVerts);
 #endif
@@ -1215,13 +1215,13 @@ __device__ void generateCuttingTrianglesHexaC(int totalVertices, float *vertices
 
         float3 *v[3];
         uint edge[3];
-        edge[0] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i);
+        edge[0] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i);
         v[0] = &vertlist[edge[0]];
 
-        edge[1] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i + 1);
+        edge[1] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i + 1);
         v[1] = &vertlist[edge[1]];
 
-        edge[2] = tex1Dfetch(hexaTriTex, (tableIndex*16) + i + 2);
+        edge[2] = tex1Dfetch<uint>(tbl->hexaTriTex, (tableIndex*16) + i + 2);
         v[2] = &vertlist[edge[2]];
 
         // calculate triangle surface normal
@@ -1290,7 +1290,7 @@ __device__ void generateCuttingTrianglesHexaC(int totalVertices, float *vertices
     }
 }
 
-__device__ void generateCuttingTrianglesTetra(float4 *pos, float4 *norm,
+__device__ void generateCuttingTrianglesTetra(CUDATables *tbl, float4 *pos, float4 *norm,
                                               float *tex, float2 *licTex,
                                        float* vertexArrayIn, int numCoords, 
                                        uint* compactedThetraArray,
@@ -1388,7 +1388,7 @@ __device__ void generateCuttingTrianglesTetra(float4 *pos, float4 *norm,
     vertlist[5] = interp(0.0, v[2], v[3], field[2], field[3], mapping[2], mapping[3], &maplist[5]);
 
     // output triangle vertices
-    uint numVerts = tex1Dfetch(tetraNumVertsTex, tableIndex);
+    uint numVerts = tex1Dfetch<uint>(tbl->tetraNumVertsTex, tableIndex);
 
     for(int i=0; i<numVerts; i+=3) 
     {
@@ -1396,13 +1396,13 @@ __device__ void generateCuttingTrianglesTetra(float4 *pos, float4 *norm,
 
         float3 *v[3];
         uint edge[3];
-        edge[0] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i);
+        edge[0] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i);
         v[0] = &vertlist[edge[0]];
 
-        edge[1] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i + 1);
+        edge[1] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i + 1);
         v[1] = &vertlist[edge[1]];
 
-        edge[2] = tex1Dfetch(tetraTriTex, (tableIndex*6) + i + 2);
+        edge[2] = tex1Dfetch<uint>(tbl->tetraTriTex, (tableIndex*6) + i + 2);
         v[2] = &vertlist[edge[2]];
 
         // calculate triangle surface normal
@@ -1432,7 +1432,7 @@ __device__ void generateCuttingTrianglesTetra(float4 *pos, float4 *norm,
 
 
 #ifndef COVISE
-__global__ void generateIsoTriangles(float4 *pos, float4 *norm, float *tex,
+__global__ void generateIsoTriangles(CUDATables *tbl, float4 *pos, float4 *norm, float *tex,
                                      float* vertexArrayIn, int numCoords,
                                      uint* compactedArray,
                                      uint* vertsScan, uint maxVerts,
@@ -1451,19 +1451,19 @@ __global__ void generateIsoTriangles(float4 *pos, float4 *norm, float *tex,
       switch (elemType) {
 
           case TYPE_HEXAEDER:
-             generateIsoTrianglesHexa(pos, norm, tex, vertexArrayIn, numCoords,
+             generateIsoTrianglesHexa(tbl, pos, norm, tex, vertexArrayIn, numCoords,
                                       compactedArray, vertsScan, maxVerts, typeList,
                                       elemList, connList, activeElems,
                                       values, map, texMin, texMax, isoValue);
              break;
           case TYPE_PYRAMID:
-             generateIsoTrianglesPyr(pos, norm, tex, vertexArrayIn, numCoords,
+             generateIsoTrianglesPyr(tbl, pos, norm, tex, vertexArrayIn, numCoords,
                                       compactedArray, vertsScan, maxVerts, typeList,
                                       elemList, connList, activeElems,
                                       values, map, texMin, texMax, isoValue);
              break;
           case TYPE_TETRAHEDER:
-             generateIsoTrianglesTetra(pos, norm, tex, vertexArrayIn, numCoords,
+             generateIsoTrianglesTetra(tbl, pos, norm, tex, vertexArrayIn, numCoords,
                                        compactedArray, vertsScan, maxVerts, typeList,
                                        elemList, connList, activeElems,
                                        values, map, texMin, texMax, isoValue);
@@ -1472,7 +1472,7 @@ __global__ void generateIsoTriangles(float4 *pos, float4 *norm, float *tex,
    }
 }
 #else
-__global__ void generateIsoTrianglesC(int totalVertices, float *vertices,
+__global__ void generateIsoTrianglesC(CUDATables *tbl, int totalVertices, float *vertices,
                                       float *normals, float* vertexArrayIn,
                                       int numCoords, uint* compactedArray,
                                       uint* vertsScan, uint maxVerts,
@@ -1490,17 +1490,17 @@ __global__ void generateIsoTrianglesC(int totalVertices, float *vertices,
       switch (elemType) {
 
           case TYPE_HEXAEDER:
-             generateIsoTrianglesHexaC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateIsoTrianglesHexaC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                        compactedArray, vertsScan, maxVerts, typeList, elemList,
                                        connList, activeElems, values, isoValue);
              break;
           case TYPE_PYRAMID:
-             generateIsoTrianglesPyrC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateIsoTrianglesPyrC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                       compactedArray, vertsScan, maxVerts, typeList, elemList,
                                       connList, activeElems, values, isoValue);
              break;
           case TYPE_TETRAHEDER:
-             generateIsoTrianglesTetraC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateIsoTrianglesTetraC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                         compactedArray, vertsScan, maxVerts, typeList, elemList,
                                         connList, activeElems, values, isoValue);
              break;
@@ -1510,7 +1510,7 @@ __global__ void generateIsoTrianglesC(int totalVertices, float *vertices,
 #endif
 
 #ifndef COVISE
-__global__ void generateCuttingTriangles(float4 *pos, float4 *norm, float *tex,
+__global__ void generateCuttingTriangles(CUDATables *tbl, float4 *pos, float4 *norm, float *tex,
                                          float2 *licTex,
                                          float* vertexArrayIn, int numCoords,
                                          uint* compactedArray,
@@ -1531,7 +1531,7 @@ __global__ void generateCuttingTriangles(float4 *pos, float4 *norm, float *tex,
       switch (elemType) {
 
           case TYPE_HEXAEDER:
-             generateCuttingTrianglesHexa(pos, norm, tex, licTex,
+             generateCuttingTrianglesHexa(tbl, pos, norm, tex, licTex,
                                           vertexArrayIn, numCoords,
                                           compactedArray, vertsScan, maxVerts,
                                           typeList, elemList, connList,
@@ -1541,14 +1541,14 @@ __global__ void generateCuttingTriangles(float4 *pos, float4 *norm, float *tex,
              break;
 /*
           case TYPE_PYRAMID:
-             generateCuttingTrianglesPyr(pos, norm, tex, vertexArrayIn, numCoords,
+             generateCuttingTrianglesPyr(tbl, pos, norm, tex, vertexArrayIn, numCoords,
                                       compactedArray, vertsScan, maxVerts, typeList,
                                       elemList, connList, activeElems,
                                       values, map, texMin, texMax, nx, ny, nz, dist);
              break;
 */
           case TYPE_TETRAHEDER:
-             generateCuttingTrianglesTetra(pos, norm, tex, licTex,
+             generateCuttingTrianglesTetra(tbl, pos, norm, tex, licTex,
                                            vertexArrayIn, numCoords,
                                            compactedArray, vertsScan, maxVerts,
                                            typeList, elemList, connList,
@@ -1560,7 +1560,7 @@ __global__ void generateCuttingTriangles(float4 *pos, float4 *norm, float *tex,
    }
 }
 #else
-__global__ void generateCuttingTrianglesC(int totalVertices, float *vertices,
+__global__ void generateCuttingTrianglesC(CUDATables *tbl, int totalVertices, float *vertices,
                                       float *normals, float* vertexArrayIn,
                                       int numCoords, uint* compactedArray,
                                       uint* vertsScan, uint maxVerts,
@@ -1578,18 +1578,18 @@ __global__ void generateCuttingTrianglesC(int totalVertices, float *vertices,
       switch (elemType) {
 
           case TYPE_HEXAEDER:
-             generateCuttingTrianglesHexaC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateCuttingTrianglesHexaC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                        compactedArray, vertsScan, maxVerts, typeList, elemList,
                                        connList, activeElems, values, nx, ny, nz, dist);
              break;
 /*
           case TYPE_PYRAMID:
-             generateCuttingTrianglesPyrC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateCuttingTrianglesPyrC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                       compactedArray, vertsScan, maxVerts, typeList, elemList,
                                       connList, activeElems, values, nx, ny, nz, dist);
              break;
           case TYPE_TETRAHEDER:
-             generateCuttingTrianglesTetraC(totalVertices, vertices, normals, vertexArrayIn, numCoords,
+             generateCuttingTrianglesTetraC(tbl, totalVertices, vertices, normals, vertexArrayIn, numCoords,
                                         compactedArray, vertsScan, maxVerts, typeList, elemList,
                                         connList, activeElems, values, nx, ny, nz, dist);
              break;

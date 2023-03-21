@@ -880,7 +880,9 @@ int Socket::write(const void *buf, unsigned nbyte)
         sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
+#ifdef _DEBUG
         fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+#endif
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;
     }
@@ -1051,10 +1053,7 @@ int Socket::setNonBlocking(bool on)
 
 Host *Socket::get_ip_alias(const Host *test_host)
 {
-    int i, j, count;
-    const char **alias_list;
     std::string hostname, aliasname;
-    const char *th_address;
 
     std::unique_lock<std::mutex> guard(mutex);
     if (ip_alias_list.empty())
@@ -1532,7 +1531,9 @@ int SSLSocket::write(const void *buf, unsigned int nbyte)
         sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
+#ifdef _DEBUG
         fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, strerror(errno));
+#endif
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;
     }

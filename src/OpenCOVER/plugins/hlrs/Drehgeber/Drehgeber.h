@@ -21,18 +21,32 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
 
+#include "../Bicycle/AVRserialcom.h"
+
 using namespace opencover;
 
 
 
 
-class TestTfm : public coVRPlugin, public ui::Owner
+class Drehgeber : public coVRPlugin, public ui::Owner,  public OpenThreads::Thread
 {
 public:
-    TestTfm();
+    Drehgeber();
+    ~Drehgeber();
+
+    bool init();
+    void run();
+    bool update();
 private:
     ui::Menu * m_menu;
     ui::Slider *m_rotator;
+    bool running = true;
+    int counter;
+    float angle;
+    std::string SerialDev;
+
+    std::unique_ptr<ConfigString> SerialDevice;
+    std::unique_ptr<ConfigInt> baudrate;
 };
 
 

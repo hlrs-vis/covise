@@ -10,13 +10,12 @@ string(REPLACE "\\" "/" tmpPATH "${tmpPATH}")
 
 FIND_PATH(REVIT_DIRECTORY NAMES AdWindows.dll RevitAPI.dll
   PATHS
-  ${tmpPATH}/Autodesk/"Revit 2024"
-  ${tmpPATH}/Autodesk/"Revit 2023"
-  ${tmpPATH}/Autodesk/"Revit 2022"
-  ${tmpPATH}/Autodesk/"Revit 2021"
-  ${tmpPATH}/Autodesk/"Revit 2020"
-  ${tmpPATH}/Autodesk/"Revit 2019"
-  "c:/Program Files/Autodesk/Revit 2022"
+  "${tmpPATH}/Autodesk/Revit 2024"
+  "${tmpPATH}/Autodesk/Revit 2023"
+  "${tmpPATH}/Autodesk/Revit 2022"
+  "${tmpPATH}/Autodesk/Revit 2021"
+  "${tmpPATH}/Autodesk/Revit 2020"
+  "${tmpPATH}/Autodesk/Revit 2019"
   NO_DEFAULT_PATH
 )
 IF (REVIT_DIRECTORY)

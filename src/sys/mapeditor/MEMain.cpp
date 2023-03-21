@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QSslConfiguration>
+#include <QLoggingCategory>
 
 #include <config/CoviseConfig.h>
 #ifndef YAC
@@ -134,7 +135,17 @@ void debugMsgHandler(QtMsgType type, const char *message)
 int main(int argc, char **argv)
 {
     QT_REQUIRE_VERSION_PATCHED(argc, argv, "4.3.0")
-    std::cerr << "starting mapeditor" << std::endl;
+     //   std::cerr << "starting mapeditor" << std::endl;
+    covise::Socket::initialize();
+    QLoggingCategory *web_engine_context_log = new QLoggingCategory("qt.webenginecontext");
+    web_engine_context_log->setFilterRules("*.info=false");
+
+    // start user interface process
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    MEApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+#endif
+    MEApplication a(argc, argv);
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     auto sslconf = QSslConfiguration::defaultConfiguration();
     sslconf.addCaCertificates(QSslCertificate::fromPath(":/certs/telekom.pem"));
@@ -146,14 +157,6 @@ int main(int argc, char **argv)
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/dfn.pem"));
     QSslSocket::addDefaultCaCertificates(QSslCertificate::fromPath(":/certs/uni-stuttgart.pem"));
 #endif 
-
-    covise::Socket::initialize();
-
-    // start user interface process
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    MEApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-#endif
-    MEApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/covise.png"));
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     // this works around problems with messed layouts after settings fonts with qtconfig

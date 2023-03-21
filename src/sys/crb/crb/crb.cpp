@@ -184,7 +184,6 @@ int main(int argc, char* argv[])
                 else
                     rendererIsPossible = false;
             }
-
             else if (strcmp(msg_key, "FILE_SEARCH") == 0)
             {
                 int i, num;

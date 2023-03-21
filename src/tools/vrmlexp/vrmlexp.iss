@@ -6,6 +6,8 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define COMMONDIR GetEnv("COVISEDIR") +"\..\common"
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
+#define BUILDDIR "build"
+#define BUILDTYPE "Debug"
 #define MAXVERSION "2023"
 ; change Max Version in registry section from 25 to next
 #define MAXDIR "c:/Program Files/Autodesk/3ds Max 2023"
@@ -63,7 +65,7 @@ ShowLanguageDialog=yes
 [Files]
 
 Source: {#COVISEDIR}\src\tools\vrmlexp\README.txt; DestDir: {app}; DestName: README.txt
-Source: {#MAXDIR}\stdplugs\vrmlexp.dle; DestDir: {app}
+Source: {#COVISEDIR}\{#BUILDDIR}\{#ARCHSUFFIX}\src\tools\vrmlexp\{#BUILDTYPE}\vrmlexp.dle; DestDir: {app}
 Source: {#EXTERNLIBS}\cal3d\bin\cal3d.dll; DestDir: {app}; Flags: recursesubdirs
 Source: {#EXTERNLIBS}\OpenSceneGraph\bin\ot21-OpenThreads.dll; DestDir: {app}; Flags: recursesubdirs
 #if ARCHSUFFIX == "vista"

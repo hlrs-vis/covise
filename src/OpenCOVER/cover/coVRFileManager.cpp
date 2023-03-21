@@ -1211,6 +1211,7 @@ coVRFileManager::coVRFileManager()
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
+    osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");
 
     options = new osgDB::ReaderWriter::Options;
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));

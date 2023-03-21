@@ -104,7 +104,10 @@ bool AVRInit(const char *device, int baud_rate)
     case 57600:
         dcb.BaudRate = CBR_57600;
         break;
-
+    case 115200:
+        dcb.BaudRate = CBR_115200;
+        break;
+        
     default:
         dcb.BaudRate = CBR_19200;
         break;
@@ -238,6 +241,10 @@ bool AVRInit(const char *device, int baud_rate)
     case 38400:
         SerialSpeed |= B38400;
         break;
+    case 115200:
+        SerialSpeed |= B115200;
+        break;
+        
 
     default:
         break;

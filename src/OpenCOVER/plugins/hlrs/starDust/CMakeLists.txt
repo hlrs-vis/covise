@@ -30,8 +30,6 @@ SET(SOURCES
   ${starDust_CUDA_SOURCES}
 )
 
-CUDA_COMPILE(starDust_CUDA_OBJ ${starDust_CUDA_SOURCES} SHARED OPTIONS "-D__builtin_stdarg_start=__builtin_va_start")
-  
 #message("starDust_CUDA_OBJ")
 #message(${starDust_CUDA_OBJ})
-cover_add_plugin(starDust ${starDust_CUDA_OBJ})
+cover_add_plugin(starDust ${SOURCES})

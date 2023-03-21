@@ -192,10 +192,7 @@ public:
     {
         return usedHeight;
     };
-    AVCodecContext *getCodecContext()
-    {
-        return codecCtx;
-    };
+    AVCodecContext *getCodecContext() { return codecCtx; };
     AVFormatContext *getFormatContext()
     {
         return oc;
@@ -262,7 +259,7 @@ private:
 
     AVFormatContext *oc;
     AVCodecContext *codecCtx;
-    AVCodec *codec;
+    const AVCodec *codec;
     SwsContext *swsConvertCtx;
     AVFrame *pFrame;
     AVFrame *dispFrameRGB;

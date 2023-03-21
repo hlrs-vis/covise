@@ -21,6 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/GUIActionAdapter>
 
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
+#include <unistd.h>
+#endif
+
 #include <ifcpp/model/BuildingModel.h>
 #include <ifcpp/model/BuildingException.h>
 #include <ifcpp/model/BuildingGuid.h>
