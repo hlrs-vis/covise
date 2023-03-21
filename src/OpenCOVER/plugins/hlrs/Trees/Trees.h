@@ -42,6 +42,7 @@ public:
     void addSeason(std::string&);
     void printResponseToConfig();
     void setupPluginNode();
+    void testFunc();
 
 private:
     std::string url;
@@ -49,10 +50,6 @@ private:
     std::string response;
     std::string simpleResponse;
     osg::ref_ptr<osg::Group> pluginNode;
-
-    // osg::ref_ptr<osg::Node> defaultTreeModel;
-    // std::vector<osg::Node*> treemodels;
-    // std::vector<std::string> speciesNames;
 };
 #endif
 

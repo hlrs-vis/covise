@@ -43,23 +43,16 @@ bool Trees::init()
     auto url_ptr = configString("general", "url_api", "default");
     url = *url_ptr;
     
-    // url = "https://services3.arcgis.com/FwX2qF9JecNSRnwr/ArcGIS/rest/services/IndividualPlants_GT_Tallinn/FeatureServer/1/query?where=1%3D1&outFields=*&f=pjson";
-
-    // auto testString = configString("testSection", "testName", "testValue", config::Flag::Default); // erstellt nur die section, sonst nichts
-    // *testString = "testValueSetGEÄNDERT"; //falls kein eintrag vorhanden -> erstellt neuen eintrag; wenn eintrag vorhanden -> ändert den eintrag
-    // auto seasonEntry = configString("general", "season", "testSeason", config::Flag::PerModel); // ändert nichts an der config + fehlermeldung
-    // *seasonEntry = "testSeasonSet"; // ändert nichts an der config  + fehlermeldung
-    // auto testInt = configInt("testSection2", "testName2", 5, config::Flag::PerModel);
-    // *testInt = 99;
-    // config()->save();/cover
-
+    auto api = configBool("general", "use_api", false);
+    if(*api)
+    {
+        request();
+        simplifyResponse();
+        saveStringToFile(simpleResponse);
+        printResponseToConfig();
+    }
+    // testFunc();
     setupPluginNode();
-    request();
-    simplifyResponse();
-    // std::string season = "winter";
-    // addSeason(season);
-    saveStringToFile(simpleResponse);
-    printResponseToConfig();
     setTrees();
 
     return true;
@@ -159,7 +152,6 @@ std::string Trees::readJSONFromFile(const std::string& path)
     return filecontent.str();
 }
 
-
 void Trees::setTrees()
 {
     // read in default tree model
@@ -187,32 +179,6 @@ void Trees::setTrees()
         i++;
     }
 
-    // TEST >>>>>
-
-    // osg::ref_ptr<osg::Node> node = treeModels[1];
-    // osg::ref_ptr<osg::Geode> geode;
-    // osg::ref_ptr<osg::Drawable> drawable;
-    // osg::ref_ptr<osg::Geometry> geometry;
-    // // osg::ref_ptr<osg::Geode> castGeode = dynamic_cast<osg::Geode *>(node);
-    // // geometry = node->asGeometry();
-    // // geode->addDrawable(geometry);
-    // geode = node->asGeode();
-    // cover->getObjectsRoot()->addChild(geode);
-
-    
-    // osg::ref_ptr<osg::Drawable> drawable;
-    // osg::ref_ptr<osg::Geode> geode;
-    // for (int ind = 0; ind < treeModels.size(); ind++)
-    // {
-    //     // osg::BoundingBoxd
-    //     // drawable = treeModels[ind]->asDrawable();
-    //     // osg::ref_ptr<osg::Geode> geode;
-    //     // geode->addDrawable(drawable);
-    //     cover->getObjectsRoot()->addChild(geodes[ind]);
-    //     // covdder->getObjectsRoot()->addChild(treeModels[ind]->asGeode());
-    // }
-    // <<<<< TEST  
-
     // create transform node to translate all placed trees
     osg::ref_ptr<osg::MatrixTransform> transform(new osg::MatrixTransform);
     transform->setName("rootTransform");
@@ -223,15 +189,15 @@ void Trees::setTrees()
     rootMatrix.makeTranslate(osg::Vec3d(*configOffsetX, *configOffsetY, 0.0));
     transform->setMatrix(rootMatrix);
 
-    auto value = configFloat("general", "default_height", 10);
-    double defaultHeight = *value;
+    auto configDefaultHeight = configFloat("general", "default_height", 10);
+    double defaultHeight = *configDefaultHeight;
 
     // add trees one after another with information from config file
     i = 1;
     while (true)
     {
-        auto value = configString("tree" + std::to_string(i), "species_name", "default");
-        std::string speciesName = *value;
+        auto configSpeciesName = configString("tree" + std::to_string(i), "species_name", "default");
+        std::string speciesName = *configSpeciesName;
         int condition = speciesName.compare("default");
         if(!condition) 
         {
@@ -265,6 +231,7 @@ void Trees::setTrees()
         treeTransform->setMatrix(matrix);
         std::cout << "added " << speciesName << " at position " << *x << ", " << *y << std::endl;
 
+        // scale tree model to height specifies in config 
         osg::ComputeBoundsVisitor cbv;
         model->accept(cbv);
         osg::BoundingBox bb = cbv.getBoundingBox();
@@ -272,13 +239,12 @@ void Trees::setTrees()
         osg::Vec3 size(bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin());
         osg::Vec3 center(bb.xMin() + size.x()/2.0f, bb.yMin() + size.y()/2.0f, bb.zMin() + size.z()/2.0f);
 
-
         std::cout << "bounding box: " << size[0] << ", " << size[1] << ", " << size[2] << std::endl;
 
         // set height for specific trees or get default height, if no height is specified and scale models to height
         double height;
-        auto configHeight = configFloat("tree" + std::to_string(i), "height", 0);
-        if (*configHeight == 0)
+        auto configHeight = configFloat("tree" + std::to_string(i), "height", 0.0); //todo: set better default value
+        if (*configHeight == 0.0)
         {
             height = defaultHeight;
         } else
@@ -333,17 +299,16 @@ void Trees::printResponseToConfig()
             && (*itr)["y"].IsDouble()) 
         {
 
-            // if((*itr)["height"].IsInt())
-            // {
-            //     // std::cout << (*itr)["attributes"]["height"].GetInt() << std::endl;
-            //     value = (*itr)["attributes"]["height"].GetInt(); 
-            //     entry.AddMember("height", value, allocator);
-            // }
-            // else
-            // {
-            //     // std::cout << "NULL" << std::endl;
-            //     entry.AddMember("height", rapidjson::Value(rapidjson::kNullType), allocator);
-            // }
+            if((*itr)["height"].IsInt())
+            {
+                int heightResponse = (*itr)["height"].GetInt();
+                auto heightConfig = configFloat("tree" + std::to_string(idx), "height", 0.0); // todo: set better default value 
+                *heightConfig = heightResponse;
+            }
+            else
+            {
+                // entweder hier default reinschreiben oder aktuelles verhalten mit defaulheight in general benutzen
+            }
 
             std::string speciesNameResponse = (*itr)["species_name"].GetString();
             auto speciesNameConfig = configString("tree" + std::to_string(idx), "species_name", "default");
@@ -357,10 +322,32 @@ void Trees::printResponseToConfig()
             auto yConfig = configFloat("tree" + std::to_string(idx), "y", 0);
             *yConfig = yResponse;
 
-            idx++;
             config()->save();
+            idx++;
         }
     }
+}
+
+void Trees::testFunc()
+{
+    osg::ref_ptr<osg::MatrixTransform> transform(new osg::MatrixTransform);
+    transform->setName("rootTransform");
+    pluginNode->addChild(transform);
+    osg::Matrix rootMatrix;
+    auto configOffsetX = configFloat("offset", "x", 0.0);
+    auto configOffsetY = configFloat("offset", "y", 0.0);
+    rootMatrix.makeTranslate(osg::Vec3d(*configOffsetX, *configOffsetY, 0.0));
+    transform->setMatrix(rootMatrix);
+
+    auto defaultTreeModelPtr = configString("treeModelDefault", "model_path", "default");
+    osg::ref_ptr<osg::Node> defaultTreeModel = osgDB::readNodeFile(*defaultTreeModelPtr);
+    osg::ref_ptr<osg::MatrixTransform> scaleTransform(new osg::MatrixTransform);
+    scaleTransform->setName("scaleTransform");
+    transform->addChild(defaultTreeModel);
+    transform->addChild(scaleTransform);
+    scaleTransform->addChild(defaultTreeModel);
+    double scaleFactor = 0.5;
+    scaleTransform->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
 }
 
 COVERPLUGIN(Trees)
