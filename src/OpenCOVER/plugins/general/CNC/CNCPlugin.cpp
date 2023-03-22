@@ -919,7 +919,7 @@ void CNCPlugin::createWorkpiece(Group *parent)
 //        }
 //    }
 
-    treeRoot = new TreeNode(Point(-1, -1), Point(wpTotalQuadsX, wpTotalQuadsY), 0, wpMaxZ);
+    treeRoot = new TreeNode(Point(-1, -1), Point(wpTotalQuadsX, wpTotalQuadsY), 0, wpMaxZ, nullptr);
     wpAddQuadsToTree(treeRoot);
 
     wpTopGeom = wpTreeToGeometry();
@@ -927,20 +927,21 @@ void CNCPlugin::createWorkpiece(Group *parent)
 
  //   wpTopGeom = createWpTopTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
 
-
- //   wpBotGeom = createWpBottom(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ);
- //   wpBotGeode = new osg::Geode();
- //   wpBotGeode->setName("wpBotGeode");
- //   parent->addChild(wpBotGeode);
- //   wpBotGeode->addDrawable(wpBotGeom);
- //   wpBotGeom->dirtyDisplayList();
- //  
+//
+    wpBotGeom = createWpBottom(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ);
+    wpBotGeode = new osg::Geode();
+    wpBotGeode->setName("wpBotGeode");
+    parent->addChild(wpBotGeode);
+    wpBotGeode->addDrawable(wpBotGeom);
+    wpBotGeom->dirtyDisplayList();
+   
 
  ////   wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
- //   wpTopGeode = new osg::Geode();
- //   wpTopGeode->setName("wpTopGeode");
- //   parent->addChild(wpTopGeode);
- //   wpTopGeode->addDrawable(wpTopGeom);
+    wpTopGeode = new osg::Geode();
+    wpTopGeode->setName("wpTopGeode");
+    parent->addChild(wpTopGeode);
+    wpTopGeode->addDrawable(wpTopGeom);
+    wpTopGeom->dirtyDisplayList();
 
  /*   for (int i = 1; i < coVRAnimationManager::instance()->getNumTimesteps(); i++)
     {
@@ -977,6 +978,7 @@ void CNCPlugin::wpAddQuadsToTree(TreeNode* treeRoot)
         else
             wpAddQuadsG0G1(wpMaxZ, t, treeRoot);
     }
+    //treeRoot->traverseAndCombineQuads();
 }
 
 
@@ -1107,16 +1109,25 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
         {
             nodeStack.push(childTree);
         }
-        auto tl = node->getTopLeft();
-        auto br = node->getBotRight();
-        wpAddVertexsForGeo(points, tl.x + 1, br.x, tl.y + 1, br.y, wpMaxZ);
+        if (node->getChildTrees().size() == 0)
+        {   
+            if (node->getMillTimesteps().size() == 0)
+                for (int i = 0; i < 4; i++)
+                    wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+            else
+                for (int i = 0; i < 4; i++)
+                    wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            auto tl = node->getTopLeft();
+            auto br = node->getBotRight();
+            wpAddVertexsForGeo(points, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ);
+        }
     }
 
-    wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    //wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
     geo->setVertexArray(points);
     geo->setColorArray(wpTopColors);
-    //geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
 
     geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
     wpTopNormals = new osg::Vec3Array;
@@ -1125,7 +1136,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
     //wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
     geo->setNormalArray(wpTopNormals);// , osg::Array::BIND_OVERALL);
 
-
+    wpTopPrimitives->push_back(points->size());
     wpTopPrimitives->setName("wpTopPrimitives");
     geo->addPrimitiveSet(wpTopPrimitives);
 
@@ -1148,9 +1159,9 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
    Called By:
    CNCPlugin::createWpGeodes
 */
-//osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
-//{
-/*
+osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ)
+{
+
     //create geometry
     auto geo = new osg::Geometry();
     //geo->setColorBinding(Geometry::BIND_OFF);
@@ -1197,7 +1208,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
         wpBotNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
 
     wpBotPrimitives->push_back(points->size());
-    wpBotColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    wpBotColors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
     
     geo->setVertexArray(points);
     geo->setColorArray(wpBotColors);
@@ -1214,7 +1225,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
     return geo;
 
 }
-*/
+
 
 
 

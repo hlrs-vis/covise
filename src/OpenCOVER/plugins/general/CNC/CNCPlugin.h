@@ -155,7 +155,7 @@ private:
     double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
     //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
     //double wpResolution = 0.00010;
-    double wpResolution = 0.00002;
+    double wpResolution = 0.00005;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
     //int ix_total;           //deprecated?
