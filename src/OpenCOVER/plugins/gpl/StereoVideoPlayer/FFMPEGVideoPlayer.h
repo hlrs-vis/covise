@@ -28,25 +28,17 @@ extern "C" {
 #endif
 
 extern "C" {
-#ifdef HAVE_FFMPEG_SEPARATE_INCLUDES
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libswscale/swscale.h>
 #define HAVE_SWSCALE_H
-#else
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/avutil.h>
-#define AV_VERSION_INT(a, b, c) (a << 16 | b << 8 | c)
-#ifdef LIBAVCODEC_VERSION_INT
-#if (LIBAVCODEC_VERSION_INT > AV_VERSION_INT(51, 9, 0))
-#include <ffmpeg/swscale.h>
-#define HAVE_SWSCALE_H
-#endif
-#endif
-#endif
 };
+
+#ifndef LIBAVCODEC_VERSION_INT
+#error "No LIBAVCODEC_VERSION_INT defined"
+#endif
+
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 34, 1)
 typedef PixelFormat AVPixelFormat;
@@ -72,8 +64,10 @@ typedef PixelFormat AVPixelFormat;
 #endif
 
 #ifndef AV_CODEC_CAP_TRUNCATED
+#ifdef CODEC_CAP_TRUNCATED
 #define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
 #define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
+#endif
 #endif
 
 class StereoVideoPlayerPlugin;
@@ -273,7 +267,7 @@ private:
 
 #ifdef HAVE_SDL
     AVCodecContext *audioCodecCtx;
-    AVCodec *audioCodec;
+    const AVCodec *audioCodec;
     int audioStreamID;
     double audioClock;
     double audioOffset;

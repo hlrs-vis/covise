@@ -131,7 +131,6 @@ if not defined FFMPEG_HOME (
      set "PATHADD=%PATHADD%;%EXTERNLIBS%/ffmpeg/bin"
      set "FFMPEG_INCPATH=%EXTERNLIBS%/ffmpeg/include"
      set "FFMPEG_LIBS=-L%EXTERNLIBS%/ffmpeg/lib -lavformat -lavcodec -lswscale -lavutil"
-     set FFMPEG_DEFINES=HAVE_FFMPEG_SEPARATE_INCLUDES
    )
 )
 

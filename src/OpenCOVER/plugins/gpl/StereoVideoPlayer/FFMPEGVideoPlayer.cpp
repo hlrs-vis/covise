@@ -251,9 +251,22 @@ int VideoStream::audioDecodeFrame(VideoStream *vStream, uint8_t *buffer, int siz
                 audioPkt.size = 0;
                 break;
             }
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 0, 0)
             int got_output = 0;
             int ret = avcodec_decode_audio4(vStream->audioCodecCtx, frame, &got_output, &audioPkt);
             len1 = got_output? frame->nb_samples * vStream->audioCodecCtx->channels * bps : 0;
+#else
+            int ret = avcodec_receive_frame(vStream->audioCodecCtx, frame);
+            bool got_output = false;
+            if (ret == 0)
+                got_output = true;
+            if (ret == AVERROR(EAGAIN))
+                ret = 0;
+            len1 = 0;
+            if (ret == 0) {
+                len1 = avcodec_send_packet(vStream->audioCodecCtx, &audioPkt);
+            }
+#endif
 #endif
             if (len1 < 0) /* Error, skip frame */
             {
@@ -487,10 +500,12 @@ bool VideoStream::openMovieCodec(const std::string filename, AVPixelFormat *pixF
 
     //codecCtx = oc->streams[videoStreamID]->codecctx;
 
+#ifdef AV_CODEC_CAP_TRUNCATED
     // Inform the codec that we can handle truncated bitstreams -- i.e.,
     // bitstreams where frame boundaries can fall in the middle of packets
     if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
         codecCtx->flags |= AV_CODEC_FLAG_TRUNCATED;
+#endif
 
     if (avcodec_open2(codecCtx, codec, NULL) < 0)
     {
@@ -508,13 +523,27 @@ bool VideoStream::openMovieCodec(const std::string filename, AVPixelFormat *pixF
 
     else if (playAudio)
     {
-        audioCodecCtx = oc->streams[audioStreamID]->codec;
-
-        audioCodec = avcodec_find_decoder(audioCodecCtx->codec_id);
-        if (audioCodec == NULL)
+        audioCodec = avcodec_find_decoder(oc->streams[audioStreamID]->codecpar->codec_id);
+        if (!audioCodec)
         {
-            fprintf(stderr, "Unsupported audio codec\n");
+            av_log(NULL, AV_LOG_ERROR, "Failed to find audio decoder for stream #%u\n", audioStreamID);
             playAudio = false;
+        }
+    }
+    if (playAudio)
+    {
+        audioCodecCtx = avcodec_alloc_context3(audioCodec);
+        if (!audioCodecCtx)
+        {
+            av_log(NULL, AV_LOG_ERROR, "Failed to allocate the decoder context for stream #%u\n", audioStreamID);
+            return false;
+        }
+        if (avcodec_parameters_to_context(codecCtx, oc->streams[audioStreamID]->codecpar) < 0)
+        {
+            av_log(NULL, AV_LOG_ERROR,
+                    "Failed to copy decoder parameters to input decoder context "
+                    "for stream #%u\n",
+                    audioStreamID);
             return false;
         }
 
@@ -761,14 +790,13 @@ void PacketQueue::clearPktList()
 
 bool VideoStream::putAudio(AVPacket *pkt)
 {
-    AVPacket newpkt;
-
     if (!pkt->data || (pkt->size <= 0))
     {
         fprintf(stderr, "Invalid packet data\n");
         return false;
     }
 
+#if 0
     if (av_dup_packet(pkt) < 0)
     {
         fprintf(stderr, "Packet not allocated\n");
@@ -777,14 +805,23 @@ bool VideoStream::putAudio(AVPacket *pkt)
 
     uint8_t *buffer = new uint8_t[pkt->size];
     memcpy(buffer, pkt->data, pkt->size);
-    newpkt = *pkt;
+    auto newpkt = av_packet_alloc();
+    *newpkt = *pkt;
     newpkt.data = buffer;
+#else
+    auto newpkt = av_packet_clone(pkt);
+    if (!newpkt)
+    {
+        fprintf(stderr, "Packet copy failed\n");
+        return false;
+    }
+#endif
     av_packet_unref(pkt);
     SDL_LockMutex(pq->getMutex());
 
     std::list<AVPacket> *pList = pq->getPktList();
 
-    pList->push_back(newpkt);
+    pList->push_back(*newpkt);
 
     pq->setSize(pq->getSize() + pkt->size);
 
