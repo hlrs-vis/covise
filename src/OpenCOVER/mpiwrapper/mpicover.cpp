@@ -86,6 +86,10 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
     covise::coConfigConstants::setRank(myID, shmGroupRoot);
     covise::coConfigConstants::setMaster(mastername);
     opencover::config::Access config(my_hostname, mastername, myID);
+    if (auto covisedir = getenv("COVISEDIR"))
+    {
+        config.setPrefix(covisedir);
+    }
 
 #ifdef _WIN32
     // note: console has to be allocated after possible handling of argument '-d',
