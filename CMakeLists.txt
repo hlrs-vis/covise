@@ -202,6 +202,9 @@ else()
 endif()
 
 set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+  set(CMAKE_CUDA_ARCHITECTURES 60) # be compatible with P6000/GP100
+endif()
 
 option(COVISE_SANITIZE_UNDEFINED "Build with -fsanitize=undefined" OFF)
 option(COVISE_SANITIZE_ADDRESS "Build with -fsanitize=address" OFF)
