@@ -979,6 +979,7 @@ void CNCPlugin::wpAddQuadsToTree(TreeNode* treeRoot)
             wpAddQuadsG0G1(wpMaxZ, t, treeRoot);
     }
     treeRoot->traverseAndCallCC2Siblings();
+    treeRoot->traverseAndCallCCNeighbor();
 }
 
 

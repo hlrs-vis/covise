@@ -93,14 +93,17 @@ public:
     TreeNode* insert(int _ix, int _iy);
     void addChildren();
     TreeNode* search(Point);
+    TreeNode* searchCommonParent(TreeNode*, TreeNode*);
 //    TreeNode* searchParent(Point);
     bool inBoundary(Point);
     bool unitArea();
-    void traverseAndCombineQuads();
+//    void traverseAndCombineQuads();
     bool compareForAllCombine();
     void combineAllSiblings();
     bool compareCombine2Siblings(vector<TreeNode*>);
     void traverseAndCallCC2Siblings();
+    bool compareCombineNeighbors(TreeNode*, vector<TreeNode*>);
+    void traverseAndCallCCNeighbor();
     //bool combineOneSibling();
     bool areVectorsEqual(std::vector<int> vec1, std::vector<int> vec2);
     /*
@@ -256,6 +259,17 @@ inline TreeNode* TreeNode::search(Point p)
     }
 
 };
+// Find the first anchestor of two nodes in the quadtree
+inline TreeNode* TreeNode::searchCommonParent(TreeNode* tree1, TreeNode* tree2)
+{   
+    TreeNode* anchestor = tree1->parentTree;
+    while(true)
+    {
+        if (anchestor->inBoundary(tree2->botRight))
+            return anchestor;
+        anchestor = anchestor->parentTree;
+    }
+};
 /*
 // Find the parent of a node in a quadtree
 inline TreeNode* TreeNode::searchParent(Point p)
@@ -300,7 +314,7 @@ inline bool TreeNode::unitArea()
 }
 
 // Combines multiple Quads into 1 new Quad.
-inline void TreeNode::traverseAndCombineQuads()
+/*inline void TreeNode::traverseAndCombineQuads()
 {   
     std::stack<TreeNode*> nodeStack;
     nodeStack.push(this);
@@ -327,19 +341,9 @@ inline void TreeNode::traverseAndCombineQuads()
                 //    nodeStack.push(node);
             }
         }
-     /*   if (node->getChildTrees().size() == 0 && node->millTimesteps.size() == 0)
-        {   
-            if (node->combineOneSibling())//;
-            {
-                this->traverseAndCombineQuads();
-                return;
-            }
-            auto tl = node->getTopLeft();
-            auto br = node->getBotRight();
-           // wpAddVertexsForGeo(points, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ);
-        }*/
     }
 }
+*/
 
 // Compares all children if they are leaves and have identical millTimesteps.
 inline bool TreeNode::compareForAllCombine()
@@ -411,7 +415,7 @@ inline bool TreeNode::compareCombine2Siblings(vector<TreeNode*> leafSiblings)
     }
     return false;
 }
-// Combines multiple Quads into 1 new Quad.
+// Traverses the whole tree and combines two direct Siblings into one Quad if possible.
 inline void TreeNode::traverseAndCallCC2Siblings()
 {
     std::stack<TreeNode*> nodeStack;
@@ -450,50 +454,121 @@ inline void TreeNode::traverseAndCallCC2Siblings()
     }
 }
 
-// Combines 2 Siblings (Children from same parent) into 1 new Quad.
-/*inline bool TreeNode::combineOneSibling()
-{   
-    bool combined = false;
-    for (TreeNode* sibling : this->getSiblingLeafs())
-    {
-        if (areVectorsEqual(this->millTimesteps, sibling->millTimesteps))
+
+// Compares all children if they are leaves and have identical millTimesteps.
+inline bool TreeNode::compareCombineNeighbors(TreeNode* leaf, vector<TreeNode*> leafNeighbors)
+{
+    
+    for (TreeNode* neighbor : leafNeighbors)
+    {   
+        if (neighbor != nullptr && neighbor->level > 0 && neighbor->level < 20 && neighbor->topLeft.x > -2 && neighbor->topLeft.x < 4000)// && neighbor->getMillTimesteps() != nullptr)
         {
-            //check border
-            if (this->topLeft.x == sibling->topLeft.x && this->botRight.x == sibling->botRight.x)
+            if (areVectorsEqual(leaf->millTimesteps, neighbor->millTimesteps))
             {
-                if (this->botRight.y == sibling->topLeft.y)
+                //check border
+                if (leaf->topLeft.x == neighbor->topLeft.x && leaf->botRight.x == neighbor->botRight.x)
                 {
-                    this->botRight.y = sibling->botRight.y;      // this change y
-                    parentTree->childTrees.erase(std::remove(parentTree->childTrees.begin(), parentTree->childTrees.end(), sibling), parentTree->childTrees.end());    // parent remove sibling
-                    combined = true;
+                    if (leaf->botRight.y == neighbor->topLeft.y)
+                    {
+                        leaf->botRight.y = neighbor->botRight.y;      // leaf change y
+                        TreeNode* anchestor = searchCommonParent(leaf, neighbor);
+                        anchestor->childTrees.push_back(leaf);
+                        leaf->parentTree->childTrees.erase(std::remove(leaf->parentTree->childTrees.begin(), leaf->parentTree->childTrees.end(), leaf), leaf->parentTree->childTrees.end());    // parent remove leaf
+                        neighbor->parentTree->childTrees.erase(std::remove(neighbor->parentTree->childTrees.begin(), neighbor->parentTree->childTrees.end(), neighbor), neighbor->parentTree->childTrees.end());    // parent remove neighbor
+                        return true;
+                    }
+                    else if (leaf->topLeft.y == neighbor->botRight.y)
+                    {
+                        leaf->topLeft.y = neighbor->topLeft.y;      // leaf change y
+                        TreeNode* anchestor = searchCommonParent(leaf, neighbor);
+                        anchestor->childTrees.push_back(leaf);
+                        leaf->parentTree->childTrees.erase(std::remove(leaf->parentTree->childTrees.begin(), leaf->parentTree->childTrees.end(), leaf), leaf->parentTree->childTrees.end());    // parent remove leaf
+                        neighbor->parentTree->childTrees.erase(std::remove(neighbor->parentTree->childTrees.begin(), neighbor->parentTree->childTrees.end(), neighbor), neighbor->parentTree->childTrees.end());    // parent remove neighbor
+                        return true;
+                    }
                 }
-                else if (this->topLeft.y == sibling->botRight.y)
+                else if (leaf->topLeft.y == neighbor->topLeft.y && leaf->botRight.y == neighbor->botRight.y)
                 {
-                    this->topLeft.y = sibling->topLeft.y;      // this change y
-                    parentTree->childTrees.erase(std::remove(parentTree->childTrees.begin(), parentTree->childTrees.end(), sibling), parentTree->childTrees.end());    // parent remove sibling
-                    combined = true;
+                    if (leaf->botRight.x == neighbor->topLeft.x)
+                    {
+                        leaf->botRight.x = neighbor->botRight.x;      // leaf change x
+                        TreeNode* anchestor = searchCommonParent(leaf, neighbor);
+                        anchestor->childTrees.push_back(leaf);
+                        leaf->parentTree->childTrees.erase(std::remove(leaf->parentTree->childTrees.begin(), leaf->parentTree->childTrees.end(), leaf), leaf->parentTree->childTrees.end());    // parent remove leaf
+                        neighbor->parentTree->childTrees.erase(std::remove(neighbor->parentTree->childTrees.begin(), neighbor->parentTree->childTrees.end(), neighbor), neighbor->parentTree->childTrees.end());    // parent remove neighbor
+                        return true;
+                    }
+                    else if (leaf->topLeft.x == neighbor->botRight.x)
+                    {
+                        leaf->topLeft.x = neighbor->topLeft.x;      // leaf change x
+                        TreeNode* anchestor = searchCommonParent(leaf, neighbor);
+                        anchestor->childTrees.push_back(leaf);
+                        leaf->parentTree->childTrees.erase(std::remove(leaf->parentTree->childTrees.begin(), leaf->parentTree->childTrees.end(), leaf), leaf->parentTree->childTrees.end());    // parent remove leaf
+                        neighbor->parentTree->childTrees.erase(std::remove(neighbor->parentTree->childTrees.begin(), neighbor->parentTree->childTrees.end(), neighbor), neighbor->parentTree->childTrees.end());    // parent remove neighbor
+                        return true;
+                    }
                 }
             }
-            else if (this->topLeft.y == sibling->topLeft.y && this->botRight.y == sibling->botRight.y)
-            {
-                if (this->botRight.x == sibling->topLeft.x)
-                {
-                    this->botRight.x = sibling->botRight.x;      // this change x
-                    parentTree->childTrees.erase(std::remove(parentTree->childTrees.begin(), parentTree->childTrees.end(), sibling), parentTree->childTrees.end());    // parent remove sibling
-                    combined = true;
-                }
-                else if (this->topLeft.x == sibling->botRight.x)
-                {
-                    this->topLeft.x = sibling->topLeft.x;      // this change x
-                    parentTree->childTrees.erase(std::remove(parentTree->childTrees.begin(), parentTree->childTrees.end(), sibling), parentTree->childTrees.end());    // parent remove sibling
-                    combined = true;
-                }
-            }
-        }        
+        }
     }
-    return combined;
+    
+    return false;
 }
-*/
+
+// Traverses the whole Tree and combines two neighbor quads (from different parents) if possible.
+inline void TreeNode::traverseAndCallCCNeighbor()
+{
+    std::stack<TreeNode*> nodeStack;
+    nodeStack.push(this);
+    while (!nodeStack.empty())
+    {
+        // traversiere Baum
+        TreeNode* node = nodeStack.top();
+        nodeStack.pop();
+        std::stack<TreeNode*> leafChildrenStack;
+        for (TreeNode* childTree : node->getChildTrees())
+        {
+            if (childTree->getChildTrees().size() != 0)
+            {
+                nodeStack.push(childTree);
+            }
+            else
+            {
+                leafChildrenStack.push(childTree);
+            }
+        }
+
+        while (!leafChildrenStack.empty())
+        {
+            TreeNode* leaf = leafChildrenStack.top();
+            leafChildrenStack.pop();
+            vector<TreeNode*> leafNeighbors;    // could be nullptr !!
+            leafNeighbors.push_back(search(Point(leaf->topLeft.x - 1, leaf->topLeft.y)));
+            leafNeighbors.push_back(search(Point(leaf->topLeft.x, leaf->topLeft.y - 1)));
+            leafNeighbors.push_back(search(Point(leaf->botRight.x + 1, leaf->botRight.y)));
+            leafNeighbors.push_back(search(Point(leaf->botRight.x, leaf->botRight.y + 1)));
+
+            compareCombineNeighbors(leaf, leafNeighbors);
+        }
+
+    /*    bool comb = compareCombine2Siblings(leafChildren);
+
+        while (comb)
+        {
+            vector<TreeNode*> leafChildren;
+            for (TreeNode* childTree : node->getChildTrees())
+            {
+                if (childTree->getChildTrees().size() == 0)
+                {
+                    leafChildren.push_back(childTree);
+                }
+            }
+            comb = compareCombine2Siblings(leafChildren);
+        }
+    */
+    }
+}
+
 
 inline bool TreeNode::areVectorsEqual(std::vector<int> vec1, std::vector<int> vec2) {
 
