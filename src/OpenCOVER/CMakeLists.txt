@@ -176,8 +176,6 @@ ADD_SUBDIRECTORY(DrivingSim)
 USING(MPI optional)
 USING(Pthreads optional)
 using(Boost)
-#add_subdirectory(libvtrans)
-#include_directories(libvtrans)
 
 if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(osgcaveui)
