@@ -30,3 +30,6 @@ SET(SOURCES
 #message("cudaLight_CUDA_OBJ")
 #message(${cudaLight_CUDA_OBJ})
 cover_add_plugin(cudaLight ${SOURCES})
+
+REMOVE_COVISE_COMPILE_FLAGS(cudaLight "-wd4251")
+REMOVE_COVISE_COMPILE_FLAGS(cudaLight "-wd4335")
