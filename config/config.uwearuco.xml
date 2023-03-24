@@ -278,6 +278,12 @@
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
+					<Marker name="ObjectMarker2" >
+                        <Pattern value="19" />
+                        <Size value="100" />
+                        <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
 					<Marker name="Tracer12" >
                         <Pattern value="720" />
                         <Size value="350" />

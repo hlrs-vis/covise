@@ -40,6 +40,7 @@ public:
 private:
     ui::Menu * m_menu;
     ui::Slider *m_rotator;
+    ui::TextField* serialDeviceUI;
     bool running = true;
     int counter;
     float angle;
