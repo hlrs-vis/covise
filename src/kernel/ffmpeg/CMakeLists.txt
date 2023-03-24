@@ -1,5 +1,4 @@
 using(FFMPEG)
-message("building coFFmpegEncoder")
 SET(HEADERS ffmpegEncoder.h ffmpegUtil.h)
 SET(SOURCES ffmpegEncoder.cpp ffmpegUtil.cpp)
 covise_add_library(coFFmpegEncoder ${HEADERS} ${SOURCES})
