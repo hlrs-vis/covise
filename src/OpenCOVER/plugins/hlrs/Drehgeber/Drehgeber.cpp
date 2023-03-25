@@ -74,11 +74,12 @@ private:
 COVERPLUGIN(Drehgeber)
 
 Drehgeber::Drehgeber()
-    : ui::Owner("TestTfm_owner", cover->ui)
+    : ui::Owner("Drehgeber_owner", cover->ui)
     , m_menu(new ui::Menu("Drehgeber", this))
     , m_rotator(new ui::Slider(m_menu, "rotation_angle_in_degree")) {
     m_rotator->setBounds(0, 360);
     serialDeviceUI = new ui::TextField(m_menu, "serialDevice");
+    baudrateUI = new ui::EditField(m_menu, "baudrate");
 
     VrmlNamespace::addBuiltIn(VrmlNodeDrehgeber::defineType());
 
@@ -111,7 +112,14 @@ bool Drehgeber::init()
             config()->save();
         }
         });
-
+    baudrateUI->setValue(br);
+    baudrateUI->setCallback([this](const std::string& b) {
+        if (baudrate->value() != (int64_t)baudrateUI->number())
+        {
+            *baudrate = (int64_t)baudrateUI->number();
+            config()->save();
+        }
+        });
     // already initialized above twice std::string name = *SerialDevice;
     //AVRInit(name.c_str(), (int)*baudrate);
 

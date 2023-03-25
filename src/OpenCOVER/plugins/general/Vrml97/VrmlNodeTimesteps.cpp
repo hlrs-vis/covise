@@ -216,14 +216,18 @@ void VrmlNodeTimesteps::setField(const char *fieldName,
     {
         coVRAnimationManager::instance()->setNumTimesteps(d_numTimesteps.get(), this);
     }
-    if (strcmp(fieldName, "maxFrameRate") == 0)
+    else if (strcmp(fieldName, "maxFrameRate") == 0)
     {
         coVRAnimationManager::instance()->setMaxFrameRate(d_maxFrameRate.get());
     }
-    if (strcmp(fieldName, "timestep") == 0)
+    else if (strcmp(fieldName, "timestep") == 0)
     {
         VrmlSFInt frame = (VrmlSFInt &)fieldValue;
         coVRAnimationManager::instance()->requestAnimationFrame(frame.get());
+    }
+    else if (strcmp(fieldName, "enabled") == 0)
+    {
+        coVRAnimationManager::instance()->enableAnimation(d_enabled.get());
     }
 }
 

@@ -41,6 +41,7 @@ private:
     ui::Menu * m_menu;
     ui::Slider *m_rotator;
     ui::TextField* serialDeviceUI;
+    ui::EditField* baudrateUI;
     bool running = true;
     int counter;
     float angle;
