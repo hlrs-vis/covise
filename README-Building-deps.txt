@@ -613,7 +613,9 @@ manually copy to lib and include
 
 #xdmf
 git clone https://gitlab.kitware.com/xdmf/xdmf.git
-#copy libxml2static.lib to libxml2.lib so that the standard find finds the lib (should be already done in the latest externlibs
+#don't: copy libxml2static.lib to libxml2.lib so that the standard find finds the lib (should be already done in the latest externlibs
+#add  LIBXML_STATIC=TRUE to DEFINES for all projects
+#add C:\src\externlibs\zebu\libxml2\lib\libxml2staticD.lib to additionalLibraries
 cmake .. -G "Visual Studio 17 2022" -A x64 -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/xdmf -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/libxml2;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/iconv
 
 
