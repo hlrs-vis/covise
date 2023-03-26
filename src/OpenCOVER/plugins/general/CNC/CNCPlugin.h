@@ -128,6 +128,7 @@ private:
     void setWpResolution();
     void setWpMaterial();
     osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
+    osg::ref_ptr<osg::Geometry> wpTreeLevelToGeometry(int);
     osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
     //osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);

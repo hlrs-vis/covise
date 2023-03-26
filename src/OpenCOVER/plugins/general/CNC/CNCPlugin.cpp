@@ -923,6 +923,7 @@ void CNCPlugin::createWorkpiece(Group *parent)
     wpAddQuadsToTree(treeRoot);
 
     wpTopGeom = wpTreeToGeometry();
+   // wpTopGeom = wpTreeLevelToGeometry(1);
 
 
  //   wpTopGeom = createWpTopTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
@@ -980,6 +981,13 @@ void CNCPlugin::wpAddQuadsToTree(TreeNode* treeRoot)
     }
     treeRoot->traverseAndCallCC2Siblings();
     treeRoot->traverseAndCallCCNeighbor();
+    treeRoot->eliminateSingularTrees();
+    treeRoot->traverseAndCallCC2Siblings();
+    treeRoot->traverseAndCallCCNeighbor();
+    treeRoot->traverseAndCallCC2Siblings();
+    treeRoot->traverseAndCallCCNeighbor();
+    treeRoot->setLevels();
+    treeRoot->setDescendants();
 }
 
 
@@ -1084,8 +1092,7 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
    Returned Value: topsurface Geometry
 
    Side Effects:
-   Creates a Geometry: rectangular shape with multiple squares
-   and uses wpResX, wpResY for length and wpTotalQuadsX, Y.
+   Creates a Geometry, using the Quads from the CNCTree treeRoot.
 
    Called By:
    CNCPlugin::createWorkpiece
@@ -1110,11 +1117,18 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
         {
             nodeStack.push(childTree);
         }
+        if (!node->isValid())
+        {
+            auto a = false;     // branch should never be reached.
+        }
         if (node->getChildTrees().size() == 0)
         {   
-            if (node->getMillTimesteps().size() == 0)
+            if (!node->isValid())
                 for (int i = 0; i < 4; i++)
-                    wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 0.50f));
+                    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
+            else if (node->getMillTimesteps().size() == 0)
+                for (int i = 0; i < 4; i++)
+                    wpTopColors->push_back(osg::Vec4(0.0f, node->getLevel() * 0.1f, 0.0f, 0.50f));
             else
                 for (int i = 0; i < 4; i++)
                     wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
@@ -1147,7 +1161,72 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
     return geo;
 }
 
+/* wpTreeLevelToGeometry
 
+   Returned Value: topsurface Geometry
+
+   Side Effects:
+   Creates a Geometry, using the Quads at the #level of the treeRoot.
+
+   Called By:
+   Experimental.
+*/
+osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeLevelToGeometry(int level)
+{
+    //create geometry
+    auto geo = new osg::Geometry();
+
+    wpTopColors = new Vec4Array();
+    auto points = new Vec3Array();
+    wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+
+    std::stack<TreeNode*> nodeStack;
+    nodeStack.push(treeRoot);
+    while (!nodeStack.empty())
+    {
+        // traversiere Baum
+        TreeNode* node = nodeStack.top();
+        nodeStack.pop();
+        for (TreeNode* childTree : node->getChildTrees())
+        {
+            nodeStack.push(childTree);
+        }
+        if (node->getLevel() == level)
+        {
+            if (node->getChildTrees().size() == 0)
+                for (int i = 0; i < 4; i++)
+                    wpTopColors->push_back(osg::Vec4(0.0f, 1.0f, 1.0f, 0.50f));
+            else
+                for (int i = 0; i < 4; i++)
+                    wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            auto tl = node->getTopLeft();
+            auto br = node->getBotRight();
+            wpAddVertexsForGeo(points, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ);
+        }
+    }
+
+    //wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    geo->setVertexArray(points);
+    geo->setColorArray(wpTopColors);
+    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    wpTopNormals = new osg::Vec3Array;
+    wpTopNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    //wpTopNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    //wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    geo->setNormalArray(wpTopNormals);// , osg::Array::BIND_OVERALL);
+
+    wpTopPrimitives->push_back(points->size());
+    wpTopPrimitives->setName("wpTopPrimitives");
+    geo->addPrimitiveSet(wpTopPrimitives);
+
+    geo->setStateSet(wpStateSet.get());
+    geo->dirtyDisplayList();
+
+    return geo;
+}
 
 
 /* createWpBottom
