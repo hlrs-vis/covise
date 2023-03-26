@@ -35,6 +35,7 @@
 #include <fstream>
 #include <sstream>
 #include <osg/ComputeBoundsVisitor>
+#include <osg/PositionAttitudeTransform>
 
 using namespace opencover;
 
@@ -203,13 +204,9 @@ void Trees::setTrees()
         {
             break;
         }
-        osg::ref_ptr<osg::MatrixTransform> treeTransform(new osg::MatrixTransform);
+        osg::ref_ptr<osg::PositionAttitudeTransform> treeTransform(new osg::PositionAttitudeTransform);
         treeTransform->setName("treeTransform");
-        osg::ref_ptr<osg::MatrixTransform> scaleTransform(new osg::MatrixTransform);
-        scaleTransform->setName("scaleTransform");
-        transform->addChild(scaleTransform);
-        scaleTransform->addChild(treeTransform);
-        // transform->addChild(treeTransform);
+        transform->addChild(treeTransform);
 
         // choose correct tree model
         auto it = std::find(speciesNames.begin(), speciesNames.end(), speciesName);
@@ -226,9 +223,7 @@ void Trees::setTrees()
         treeTransform->addChild(model);
         auto x = configFloat("tree" + std::to_string(i), "x", 0);
         auto y = configFloat("tree" + std::to_string(i), "y", 0);
-        osg::Matrix matrix;
-        matrix.makeTranslate(osg::Vec3d(*x, *y, 0.0));
-        treeTransform->setMatrix(matrix);
+        treeTransform->setPosition(osg::Vec3d(*x, *y, 0.0));
         std::cout << "added " << speciesName << " at position " << *x << ", " << *y << std::endl;
 
         // scale tree model to height specifies in config 
@@ -255,8 +250,8 @@ void Trees::setTrees()
         double scaleFactor = height / size[2];
         std::cout << "scaled size: " << scaleFactor * size[0] << ", " << scaleFactor * size[1] << ", " << scaleFactor * size[2] << std::endl;
         
-        scaleTransform->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
-        
+        treeTransform->setScale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor));
+
         // std::cout << "used Model: " << speciesNames[i] << std::endl;
         i++;
     }
