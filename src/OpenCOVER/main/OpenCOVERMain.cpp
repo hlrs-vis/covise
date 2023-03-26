@@ -97,6 +97,10 @@ int main(int argc, char *argv[])
 #endif
     }
     opencover::config::Access config(my_hostname, mastername, myID);
+    if (auto covisedir = getenv("COVISEDIR"))
+    {
+        config.setPrefix(covisedir);
+    }
     covise::coConfigConstants::setRank(myID);
     covise::coConfigConstants::setMaster(mastername);
 

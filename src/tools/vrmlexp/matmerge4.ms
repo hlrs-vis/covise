@@ -91,6 +91,10 @@ fn compareMaps map1 map2 =
 --
 fn compareMaterials mat1 mat2 =
 (
+	if mat1.base_color == mat2.base_color then ( 
+		format "same %\n" mat2.name
+		return 1
+	)
 --	format "--compMat % %\n" mat1.name mat2.name
 	-- both materials are std materials
 	if compareArrays mat1.classID #(2,0) == 0 then return 0

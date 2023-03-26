@@ -57,7 +57,6 @@
 #define ZLIB  GetEnv("EXTERNLIBS")+"\zlib"
 #define BOOST  GetEnv("EXTERNLIBS")+"\boost"
 #define XERCES  GetEnv("EXTERNLIBS")+"\xerces"
-#define OPENSSL GetEnv("EXTERNLIBS")+"\openssl"
 #if (ARCHSUFFIX == "vista") || (ARCHSUFFIX == "vistaopt")  || (ARCHSUFFIX == "zackelopt") || (ARCHSUFFIX == "zackel")
   #define INTEL GetEnv("F77_HOME")+"\ia32\"
 #else
@@ -358,7 +357,6 @@ Source: {#SYS}; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
 ;Source: {#XERCES}\bin\*.exe; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#XERCES}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#XERCES}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#OPENSSL}\bin\*.dll; DestDir: {#DLIB}; Components: core
 
 Source: {#COVISEDOCU}\doc\html\*; DestDir: {app}\doc\html; Excludes: .svn\*,*.tex,*.aux,*.log,*.pl,WARNINGS; Flags: recursesubdirs; Components: help
 Source: {#COVISEDOCU}\doc\pdf\*; DestDir: {app}\doc\pdf; Excludes: .svn\*; Flags: skipifsourcedoesntexist; Components: help
