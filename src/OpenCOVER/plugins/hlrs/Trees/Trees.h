@@ -34,6 +34,7 @@ class Trees : public opencover::coVRPlugin
 {
 public:
     bool init() override;
+    bool destroy() override;
     void request();
     void simplifyResponse();
     void saveStringToFile(const std::string&);

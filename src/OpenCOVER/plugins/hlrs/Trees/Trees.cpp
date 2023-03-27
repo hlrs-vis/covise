@@ -59,6 +59,12 @@ bool Trees::init()
     return true;
 }
 
+bool Trees::destroy()
+{
+    cover->getObjectsRoot()->removeChild(pluginNode);
+    return true;
+}
+
 void Trees::setupPluginNode()
 {
     pluginNode = new osg::Group;
