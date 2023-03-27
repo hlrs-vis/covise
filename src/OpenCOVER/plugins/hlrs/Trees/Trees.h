@@ -40,7 +40,6 @@ public:
     std::string readJSONFromFile(const std::string&);
     void setTrees();
     std::string documentToString(const rapidjson::Document&);
-    void addSeason(std::string&);
     void printResponseToConfig();
     void setupPluginNode();
 

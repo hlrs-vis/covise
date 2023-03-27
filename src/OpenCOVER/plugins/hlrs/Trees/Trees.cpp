@@ -272,22 +272,6 @@ std::string Trees::documentToString(const rapidjson::Document& document)
     return stringbuffer.GetString();
 }
 
-void Trees::addSeason(std::string& season)
-{
-    rapidjson::Document document;
-    document.Parse(simpleResponse.c_str());
-    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-
-    for (rapidjson::Value::ValueIterator itr = document.Begin(); itr != document.End(); ++itr)
-    {
-        rapidjson::Value value(rapidjson::kStringType);
-        value.SetString(season.c_str(), allocator);
-        (*itr).AddMember("season_style", value, allocator);
-    }
-
-    simpleResponse = documentToString(document);
-}
-
 void Trees::printResponseToConfig()
 {
     rapidjson::Document document;
