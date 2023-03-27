@@ -197,7 +197,6 @@ void Trees::setTrees()
     GDALAllRegister();
     auto configGeotiffpath = configString("general", "geotiff_path", "");
     std::string geotiffpath = *configGeotiffpath;
-    // std::string geotiffpath = "/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif";
     openImage(geotiffpath);
 
     i = 1;
@@ -329,16 +328,6 @@ void Trees::printResponseToConfig()
             idx++;
         }
     }
-}
-
-void Trees::testFunc()
-{
-    GDALAllRegister();
-    std::string path = "/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif";
-
-    openImage(path);
-    float test = getAlt(541909.68919999897, 6589321.5891000004);
-    closeImage(); 
 }
 
 float Trees::getAlt(double x, double y)

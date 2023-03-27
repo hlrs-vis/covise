@@ -43,7 +43,6 @@ public:
     void addSeason(std::string&);
     void printResponseToConfig();
     void setupPluginNode();
-    void testFunc();
 
     float getAlt(double x, double y);
     void openImage(std::string &name);
