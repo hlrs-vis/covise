@@ -194,6 +194,12 @@ void Trees::setTrees()
     double defaultHeight = *configDefaultHeight;
 
     // add trees one after another with information from config file
+    GDALAllRegister();
+    auto configGeotiffpath = configString("general", "geotiff_path", "");
+    std::string geotiffpath = *configGeotiffpath;
+    // std::string geotiffpath = "/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif";
+    openImage(geotiffpath);
+
     i = 1;
     while (true)
     {
@@ -223,7 +229,8 @@ void Trees::setTrees()
         treeTransform->addChild(model);
         auto x = configFloat("tree" + std::to_string(i), "x", 0);
         auto y = configFloat("tree" + std::to_string(i), "y", 0);
-        treeTransform->setPosition(osg::Vec3d(*x, *y, 0.0));
+        float altitude = getAlt(*x, *y);
+        treeTransform->setPosition(osg::Vec3d(*x, *y, altitude));
         std::cout << "added " << speciesName << " at position " << *x << ", " << *y << std::endl;
 
         // scale tree model to height specifies in config 
@@ -255,6 +262,7 @@ void Trees::setTrees()
         // std::cout << "used Model: " << speciesNames[i] << std::endl;
         i++;
     }
+    closeImage();
 }
 
 std::string Trees::documentToString(const rapidjson::Document& document)
@@ -325,24 +333,115 @@ void Trees::printResponseToConfig()
 
 void Trees::testFunc()
 {
-    osg::ref_ptr<osg::MatrixTransform> transform(new osg::MatrixTransform);
-    transform->setName("rootTransform");
-    pluginNode->addChild(transform);
-    osg::Matrix rootMatrix;
-    auto configOffsetX = configFloat("offset", "x", 0.0);
-    auto configOffsetY = configFloat("offset", "y", 0.0);
-    rootMatrix.makeTranslate(osg::Vec3d(*configOffsetX, *configOffsetY, 0.0));
-    transform->setMatrix(rootMatrix);
+    GDALAllRegister();
+    std::string path = "/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif";
 
-    auto defaultTreeModelPtr = configString("treeModelDefault", "model_path", "default");
-    osg::ref_ptr<osg::Node> defaultTreeModel = osgDB::readNodeFile(*defaultTreeModelPtr);
-    osg::ref_ptr<osg::MatrixTransform> scaleTransform(new osg::MatrixTransform);
-    scaleTransform->setName("scaleTransform");
-    transform->addChild(defaultTreeModel);
-    transform->addChild(scaleTransform);
-    scaleTransform->addChild(defaultTreeModel);
-    double scaleFactor = 0.5;
-    scaleTransform->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+    openImage(path);
+    float test = getAlt(541909.68919999897, 6589321.5891000004);
+    closeImage(); 
+}
+
+float Trees::getAlt(double x, double y)
+{
+    int col = int((x - xOrigin) / pixelWidth);
+    int row = int((yOrigin - y) / pixelHeight);
+    if (col < 0)
+        col = 0;
+    if (col >= cols)
+        col = cols-1;
+    if (row < 0)
+        row = 0;
+    if (row >= rows)
+        row = rows - 1;
+    return rasterData[col + (row*cols)];
+	float *pafScanline;
+	int   nXSize = heightBand->GetXSize();
+
+    delete[] pafScanline;
+	pafScanline = new float[nXSize];
+	auto err = heightBand->RasterIO(GF_Read, (int)x, (int)y, 1, 1,
+		pafScanline, nXSize, 1, GDT_Float32,
+		0, 0);
+	float height = pafScanline[0];
+	delete[] pafScanline;
+
+    if (err != CE_None)
+    {
+        std::cerr << "MapDrape::getAlt: error" << std::endl;
+        return 0.f;
+    }
+
+	return height;
+}
+
+void Trees::openImage(std::string &name)
+{
+    heightDataset = (GDALDataset *)GDALOpen(name.c_str(), GA_ReadOnly);
+    if (heightDataset != NULL)
+    {
+        int             nBlockXSize, nBlockYSize;
+        int             bGotMin, bGotMax;
+        double          adfMinMax[2];
+        double        adfGeoTransform[6];
+
+        printf("Size is %dx%dx%d\n", heightDataset->GetRasterXSize(), heightDataset->GetRasterYSize(), heightDataset->GetRasterCount());
+        if (heightDataset->GetGeoTransform(adfGeoTransform) == CE_None)
+        {
+            printf("Origin = (%.6f,%.6f)\n",
+                adfGeoTransform[0], adfGeoTransform[3]);
+            printf("Pixel Size = (%.6f,%.6f)\n",
+                adfGeoTransform[1], adfGeoTransform[5]);
+        }
+        int numRasterBands = heightDataset->GetRasterCount();
+
+        heightBand = heightDataset->GetRasterBand(1);
+        heightBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
+        cols = heightDataset->GetRasterXSize();
+        rows = heightDataset->GetRasterYSize();
+        double transform[100];
+        heightDataset->GetGeoTransform(transform);
+
+        xOrigin = transform[0];
+        yOrigin = transform[3];
+        pixelWidth = transform[1];
+        pixelHeight = -transform[5];
+        delete[] rasterData;
+        rasterData = new float[cols*rows];
+        float *pafScanline;
+        int   nXSize = heightBand->GetXSize();
+        pafScanline = (float *)CPLMalloc(sizeof(float)*nXSize);
+        for (int i = 0; i < rows; i++)
+        {
+            if (heightBand->RasterIO(GF_Read, 0, i, nXSize, 1,
+                pafScanline, nXSize, 1, GDT_Float32,
+                0, 0) == CE_Failure)
+            {
+                std::cerr << "MapDrape::openImage: GDALRasterBand::RasterIO failed" << std::endl;
+                break;
+            }
+            memcpy(&(rasterData[(i*cols)]), pafScanline, nXSize * sizeof(float));
+        }
+
+        if (heightBand->ReadBlock(0, 0, rasterData) == CE_Failure)
+        {
+            std::cerr << "MapDrape::openImage: GDALRasterBand::ReadBlock failed" << std::endl;
+            return;
+        }
+
+        adfMinMax[0] = heightBand->GetMinimum(&bGotMin);
+        adfMinMax[1] = heightBand->GetMaximum(&bGotMax);
+        if (!(bGotMin && bGotMax))
+            GDALComputeRasterMinMax((GDALRasterBandH)heightBand, TRUE, adfMinMax);
+
+        printf("Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1]);
+
+    }
+}
+
+void Trees::closeImage()
+{
+    if (heightDataset)
+        GDALClose(heightDataset);
 }
 
 COVERPLUGIN(Trees)

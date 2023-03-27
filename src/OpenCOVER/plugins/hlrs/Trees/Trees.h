@@ -27,6 +27,7 @@
 #include <rapidjson/document.h>
 #include <osg/Node>
 #include <osg/ref_ptr>
+#include <gdal_priv.h>
 
 
 class Trees : public opencover::coVRPlugin
@@ -44,12 +45,26 @@ public:
     void setupPluginNode();
     void testFunc();
 
+    float getAlt(double x, double y);
+    void openImage(std::string &name);
+    void closeImage();
+
 private:
     std::string url;
     std::string path;
     std::string response;
     std::string simpleResponse;
     osg::ref_ptr<osg::Group> pluginNode;
+
+    float *rasterData=NULL;
+    double xOrigin;
+    double yOrigin;
+    double pixelWidth;
+    double pixelHeight;
+    int cols;
+    int rows;
+    GDALDataset  *heightDataset;
+    GDALRasterBand  *heightBand;
 };
 #endif
 

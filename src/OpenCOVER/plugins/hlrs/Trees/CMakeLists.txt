@@ -1,3 +1,5 @@
+USING(GDAL)
+
 SET(HEADERS
   Trees.h
 )
