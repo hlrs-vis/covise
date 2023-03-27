@@ -52,6 +52,7 @@ bool Trees::init()
         // saveStringToFile(simpleResponse);
         printResponseToConfig();
     }
+    // printInformation();
     setupPluginNode();
     setTrees();
 
@@ -407,6 +408,41 @@ void Trees::closeImage()
 {
     if (heightDataset)
         GDALClose(heightDataset);
+}
+
+void Trees::printInformation()
+{
+    std::vector<std::string> speciesNames;
+
+    int i = 1;
+    while (true)
+    {
+        auto configSpeciesName = configString("tree" + std::to_string(i), "species_name", "default");
+        std::string speciesName = *configSpeciesName;
+        int condition = speciesName.compare("default");
+        if (!condition)
+            break;
+        speciesNames.push_back(speciesName);
+        i++;
+    }
+
+    std::unordered_map<std::string, int> stringCounts;
+
+    for (const auto& str : speciesNames) {
+        stringCounts[str]++;
+    }
+
+    std::vector<std::pair<std::string, int>> sortedResults(stringCounts.begin(), stringCounts.end());
+    std::sort(sortedResults.begin(), sortedResults.end(),
+              [](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+                  return a.second > b.second;
+              });
+
+    // print the sorted results
+    for (const auto& pair : sortedResults) {
+        std::cout << "String: " << pair.first << ", Count: " << pair.second << std::endl;
+    }
+
 }
 
 COVERPLUGIN(Trees)

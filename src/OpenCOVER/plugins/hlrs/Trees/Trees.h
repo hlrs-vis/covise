@@ -43,6 +43,7 @@ public:
     std::string documentToString(const rapidjson::Document&);
     void printResponseToConfig();
     void setupPluginNode();
+    void printInformation();
 
     float getAlt(double x, double y);
     void openImage(std::string &name);
