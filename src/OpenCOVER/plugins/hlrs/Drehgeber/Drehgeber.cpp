@@ -120,7 +120,7 @@ bool Drehgeber::init()
 }
 Drehgeber::~Drehgeber()
 {
-    running = false();
+    running = false;
     AVRClose();
 }
 bool Drehgeber::update()
