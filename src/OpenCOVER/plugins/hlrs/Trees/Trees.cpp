@@ -49,10 +49,9 @@ bool Trees::init()
     {
         request();
         simplifyResponse();
-        saveStringToFile(simpleResponse);
+        // saveStringToFile(simpleResponse);
         printResponseToConfig();
     }
-    // testFunc();
     setupPluginNode();
     setTrees();
 
