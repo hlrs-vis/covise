@@ -10,7 +10,7 @@
 
 #include "Behavior.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <osg/Node>
 
@@ -22,7 +22,7 @@ struct VariantNode
 
 struct Variant
 {
-    QRegExp regexp;
+    QRegularExpression regexp;
     std::string geoNameSpace;
     std::vector<VariantNode> nodeList; // stores the nodes on attach (valid as long as the Behavior is attached, empty otherwise)
 };

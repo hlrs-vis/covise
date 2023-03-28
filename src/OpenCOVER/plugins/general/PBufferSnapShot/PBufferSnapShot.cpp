@@ -27,7 +27,7 @@
 #define QT_CLEAN_NAMESPACE
 #include <QString>
 #include <QDebug>
-#include "qregexp.h"
+#include <QRegularExpression>
 #include "qdir.h"
 
 #include <cover/coVRPluginSupport.h>
@@ -738,9 +738,10 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
 
     while (it != entries.end())
     {
-        QRegExp regexp(reg_exp);
+        QRegularExpression regexp(reg_exp);
+        auto regexpMatch = regexp.match(*it);
 
-        if (regexp.indexIn(*it) != 0)
+        if (regexpMatch.capturedStart() != 0)
         {
             ++it;
             continue;
@@ -748,12 +749,11 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
         // get the 2nd number and calculate its value
         // get also the number of digits
         int pos = 0;
-        QRegExp number("\\d+");
-        pos = number.indexIn(*it, pos);
-        pos += number.matchedLength();
-        pos = number.indexIn(*it, pos);
+        QRegularExpression number("\\d+");
+        auto numberMatch = number.match(*it);
+        pos = numberMatch.capturedStart(1);
 
-        int thisLength = number.matchedLength();
+        int thisLength = numberMatch.capturedLength(1);
         if (thisLength != numOfDigits)
         {
             ++it;
@@ -761,8 +761,9 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
         }
         // pos is the position of the 2nd number
         // now look for the 1st non-zoro digit
-        QRegExp nonzeronumber("[1-9]");
-        int posNonZero = nonzeronumber.indexIn(*it, pos);
+        QRegularExpression nonzeronumber("[1-9]");
+        auto nonzeronumberMatch = nonzeronumber.match(*it, pos);
+        int posNonZero = nonzeronumberMatch.capturedStart();
         if (posNonZero >= 0)
         {
             thisLength -= posNonZero - pos;

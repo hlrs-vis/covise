@@ -46,8 +46,7 @@ int AppearanceBehavior::attach(SceneObject *so)
         }
         else
         {
-            QRegExp regexp(it->regexp);
-            setAppearance(regexp, so->getGeometryNode(it->geoNameSpace), it->appearance, false);
+            setAppearance(QRegularExpression(it->regexp), so->getGeometryNode(it->geoNameSpace), it->appearance, false);
         }
     }
 
@@ -66,8 +65,7 @@ int AppearanceBehavior::detach()
         }
         else
         {
-            QRegExp regexp(it->regexp);
-            setAppearance(regexp, _sceneObject->getGeometryNode(it->geoNameSpace), it->appearance, true);
+            setAppearance(QRegularExpression(it->regexp), _sceneObject->getGeometryNode(it->geoNameSpace), it->appearance, true);
         }
     }
 
@@ -110,8 +108,7 @@ EventErrors::Type AppearanceBehavior::receiveEvent(Event *e)
             {
                 if (it->name == scopeName)
                 {
-                    QRegExp regexp(it->regexp);
-                    setAppearance(regexp, _sceneObject->getGeometryNode(), appearance, false);
+                    setAppearance(QRegularExpression(it->regexp), _sceneObject->getGeometryNode(), appearance, false);
                 }
             }
         }
@@ -121,13 +118,15 @@ EventErrors::Type AppearanceBehavior::receiveEvent(Event *e)
     return EventErrors::UNHANDLED;
 }
 
-void AppearanceBehavior::setAppearance(QRegExp regexp, osg::Node *node, Appearance appearance, bool remove)
+void AppearanceBehavior::setAppearance(const QRegularExpression &regexp, osg::Node *node, Appearance appearance, bool remove)
 {
     if (!node)
     {
         return;
     }
-    if (regexp.exactMatch(QString(node->getName().c_str())))
+    QString nodeName = QString::fromStdString(node->getName());
+    auto match = regexp.match(nodeName);
+    if (match.hasMatch() && match.capturedLength() == nodeName.length())
     {
         setAppearance(node, appearance, remove);
     }

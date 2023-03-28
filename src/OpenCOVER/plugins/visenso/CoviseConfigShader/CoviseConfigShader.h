@@ -19,13 +19,13 @@
 
 #include <cover/coVRPlugin.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace opencover;
 
 struct Definition
 {
-    QRegExp regexp;
+    QRegularExpression regexp;
     std::string shader;
     bool smooth;
     float transparency;

@@ -14,7 +14,7 @@
 
 #include <osg/Material>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 struct Appearance
 {
@@ -45,7 +45,7 @@ public:
     virtual bool buildFromXML(QDomElement *behaviorElement);
 
 private:
-    void setAppearance(QRegExp regexp, osg::Node *node, Appearance appearance, bool remove);
+    void setAppearance(const QRegularExpression &regexp, osg::Node *node, Appearance appearance, bool remove);
     void setAppearance(osg::Node *, Appearance appearance, bool remove);
 
     osg::ref_ptr<osg::Material> createMaterial(osg::Vec4 color);

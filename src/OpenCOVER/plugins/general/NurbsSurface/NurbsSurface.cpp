@@ -37,11 +37,6 @@
 #include <osgDB/WriteFile>
 
 #include <config/CoviseConfig.h>
-#define QT_CLEAN_NAMESPACE
-#include <QString>
-#include <QDebug>
-#include "qregexp.h"
-#include "qdir.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
