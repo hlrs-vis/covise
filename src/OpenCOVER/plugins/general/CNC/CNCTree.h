@@ -115,7 +115,9 @@ public:
     bool compareCombine2Siblings(vector<TreeNode*>);
     bool traverseAndCallCC2Siblings();
     bool compareCombineNeighbors(TreeNode*, vector<TreeNode*>);
+    bool compareCombineAllNeighbors(TreeNode*, vector<TreeNode*>);
     void traverseAndCallCCNeighbor();
+    void traverseAndCallCCAllNeighbor();
     bool reorganise3generations(TreeNode*, TreeNode*, TreeNode*, TreeNode*, TreeNode*);
     void rebaseChildrenToParent();
     void rebaseChildrenToParent(TreeNode*);
@@ -513,7 +515,7 @@ inline bool TreeNode::traverseAndCallCC2Siblings()
 // Compares all children if they are leaves and have identical millTimesteps.
 inline bool TreeNode::compareCombineNeighbors(TreeNode* leaf, vector<TreeNode*> leafNeighbors)
 {
-    
+    bool combinedAny = false;
     for (TreeNode* neighbor : leafNeighbors)
     {   
         if (neighbor != nullptr && neighbor->valid && leaf->valid)// && neighbor->level > 0 && neighbor->level < 20 && neighbor->topLeft.x > -2 && neighbor->topLeft.x < 4000)// && neighbor->getMillTimesteps() != nullptr)
@@ -587,6 +589,55 @@ inline bool TreeNode::compareCombineNeighbors(TreeNode* leaf, vector<TreeNode*> 
     return false;
 }
 
+// Compares all children if they are leaves and have identical millTimesteps.
+inline bool TreeNode::compareCombineAllNeighbors(TreeNode* leaf, vector<TreeNode*> leafNeighbors)
+{
+    bool combinedAny = false;
+    for (TreeNode* neighbor : leafNeighbors)
+    {
+        if (neighbor != nullptr && neighbor->valid && leaf->valid)// && neighbor->level > 0 && neighbor->level < 20 && neighbor->topLeft.x > -2 && neighbor->topLeft.x < 4000)// && neighbor->getMillTimesteps() != nullptr)
+        {
+            if (areVectorsEqual(leaf->millTimesteps, neighbor->millTimesteps))
+            {
+                //check border
+                bool combineNb = borderCheck(leaf, neighbor);
+                combinedAny = (combinedAny || combineNb);
+                if (combineNb)
+                {
+                    TreeNode* ancestor = searchCommonParent(leaf, neighbor);
+                    vector<TreeNode*> leafParents = searchAncestry(ancestor, leaf);
+                    vector<TreeNode*> neighborParents = searchAncestry(ancestor, neighbor);
+
+                    bool reorgaed = true;
+                    while (leafParents.size() >= 3 && neighborParents.size() >= 3 && reorgaed)
+                    {
+                        int sizeL = leafParents.size();
+                        int sizeN = neighborParents.size();
+                        reorgaed = reorganise3generations(leafParents.back(), leafParents[sizeL - 2], neighborParents[sizeN - 2], leafParents[sizeL - 3], neighborParents[sizeN - 3]);
+                        ancestor->eliminateSingularTrees();
+                        ancestor = searchCommonParent(leaf, neighbor);
+                        leafParents = searchAncestry(ancestor, leaf);
+                        neighborParents = searchAncestry(ancestor, neighbor);
+                    }
+                    while (leafParents.size() >= 3)
+                    {
+                        leafParents[1]->rebaseChildrenToParent(leafParents[0]);
+                        leafParents = searchAncestry(ancestor, leaf);
+                    }
+                    while (neighborParents.size() >= 3)
+                    {
+                        neighborParents[1]->rebaseChildrenToParent(neighborParents[0]);
+                        neighborParents = searchAncestry(ancestor, neighbor);
+                    }
+                    ancestor->traverseAndCallCC2Siblings();
+                    ancestor->eliminateSingularTrees();
+                }
+            }
+        }
+    }
+    return combinedAny;
+}
+
 // Traverses the whole Tree and combines two neighbor quads (from different parents) if possible.
 inline void TreeNode::traverseAndCallCCNeighbor()
 {
@@ -635,7 +686,59 @@ inline void TreeNode::traverseAndCallCCNeighbor()
     }
     if (nbCombined)
         this->traverseAndCallCCNeighbor();
+    else
+        this->traverseAndCallCCAllNeighbor();
 }
+// Traverses the whole Tree and combines two neighbor quads (from different parents) if possible.
+inline void TreeNode::traverseAndCallCCAllNeighbor()
+{
+    std::stack<TreeNode*> nodeStack;
+    nodeStack.push(this);
+    bool nbCombined = false;
+    while (!nodeStack.empty())
+    {
+        // traversiere Baum
+        TreeNode* node = nodeStack.top();
+        nodeStack.pop();
+        std::stack<TreeNode*> leafChildrenStack;
+        if (node->valid)
+        {
+            for (TreeNode* childTree : node->getChildTrees())
+            {
+                if (childTree->getChildTrees().size() != 0)
+                {
+                    nodeStack.push(childTree);
+                }
+                else
+                {
+                    leafChildrenStack.push(childTree);
+                }
+            }
+
+            while (!leafChildrenStack.empty())
+            {
+                TreeNode* leaf = leafChildrenStack.top();
+                leafChildrenStack.pop();
+                if (leaf->valid)
+                {
+                    vector<TreeNode*> leafNeighbors;    // could be nullptr !!
+                    leafNeighbors.push_back(search(Point(leaf->topLeft.x - 1, leaf->topLeft.y)));
+                    leafNeighbors.push_back(search(Point(leaf->topLeft.x, leaf->topLeft.y - 1)));
+                    leafNeighbors.push_back(search(Point(leaf->botRight.x + 1, leaf->botRight.y)));
+                    leafNeighbors.push_back(search(Point(leaf->botRight.x, leaf->botRight.y + 1)));
+
+                    bool leafComb = compareCombineAllNeighbors(leaf, leafNeighbors);
+                    if (leafComb)
+                        leafChildrenStack.push(leaf);
+                    nbCombined = (leafComb || nbCombined);
+                }
+            }
+        }
+    }
+    if (nbCombined)
+        this->traverseAndCallCCNeighbor();
+}
+
 // Reorganises the tree: Quads child1+2 share a grandparent, but have different parents. After reorga they have the same parent.
 // Siblings from child1+2 change parents.
 // Checks if parent1+2 borders match.
