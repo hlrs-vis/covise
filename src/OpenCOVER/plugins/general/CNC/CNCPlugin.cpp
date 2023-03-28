@@ -671,15 +671,17 @@ void CNCPlugin::setTimestep(int t)
     if (wpTopGeom && t == 0)
     {
     //    wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-    //    wpTopGeom->dirtyDisplayList();
+        wpResetCutsVec();
+        wpTopGeom->dirtyDisplayList();
     }
 
     if (wpTopGeom && t>0)
     {   
         if (t % 1 == 0)
         {
+            wpMillCutVec(t);
             //wpMillCut(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
-            if (pathG[t] == 2 || pathG[t] == 3) {}
+  //          if (pathG[t] == 2 || pathG[t] == 3) {}
   //              wpMillCutTreeCircle(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
   //          else
   //              wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
@@ -921,6 +923,7 @@ void CNCPlugin::createWorkpiece(Group *parent)
 
     treeRoot = new TreeNode(Point(-1, -1), Point(wpTotalQuadsX, wpTotalQuadsY), 0, wpMaxZ, nullptr);
     wpAddQuadsToTree(treeRoot);
+    wpCreateTimestepVector(treeRoot);
 
     wpTopGeom = wpTreeToGeometry();
    // wpTopGeom = wpTreeLevelToGeometry(1);
@@ -1087,6 +1090,55 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
     }
 }
 
+/* wpCreateTimestepVector
+
+   Returned Value: void
+
+   Side Effects:
+   Adds all TreeNodes that will be cutted in time step t to timestepVec[t].
+
+   Called By:
+   CNCPlugin::createWorkpiece
+*/
+void CNCPlugin::wpCreateTimestepVector(TreeNode* treeRoot)
+{   
+    std::vector<TreeNode*> tempVec;
+    for (int t = 0; t < pathZ.size(); t++)
+        timestepVec.push_back(tempVec);
+    timestepVec = treeRoot->writeTimestepVector(timestepVec);
+}
+
+/* wpMillCut
+
+   Side Effects:
+   changes the Geometry and sets new zCoords for timeStep t.
+
+   Called By:
+   CNCPlugin::setTimestep
+*/
+void CNCPlugin::wpMillCutVec(int t)
+{   
+    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray());
+    for (TreeNode* tree : timestepVec[t])
+    {
+        int primPos = tree->getPrimitivePos();
+
+        piece->at(primPos)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+        piece->at(primPos + 1)[2] = pathZ[t];
+        piece->at(primPos + 2)[2] = pathZ[t];
+        piece->at(primPos + 3)[2] = pathZ[t];
+    }
+}
+
+void CNCPlugin::wpResetCutsVec()
+{   
+    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray());
+    for (int i = 0; i < piece->getNumElements(); i++)
+    {
+        piece->at(i)[2] = wpMaxZ;
+    }
+}
+
 /* wpTreeToGeometry
 
    Returned Value: topsurface Geometry
@@ -1132,6 +1184,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
             else
                 for (int i = 0; i < 4; i++)
                     wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            node->setPrimitivePos(primitivePosCounter);
             auto tl = node->getTopLeft();
             auto br = node->getBotRight();
             wpAddVertexsForGeo(points, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ);

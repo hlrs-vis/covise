@@ -124,6 +124,7 @@ private:
     void wpAddQuadsToTree(TreeNode*);
     void wpAddQuadsG0G1(double z, int t, TreeNode*);
     void wpAddQuadsG2G3(double z, int t, TreeNode*);
+    void wpCreateTimestepVector(TreeNode*);
     void setWpSize();
     void setWpResolution();
     void setWpMaterial();
@@ -132,6 +133,8 @@ private:
     osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
     //osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
+    void wpMillCutVec(int t);
+    void wpResetCutsVec();
     void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
     void wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t);
     void wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, int t);
@@ -171,6 +174,7 @@ private:
     //TreeNode::TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
     TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
     TreeNode* treeRoot;
+    std::vector<std::vector<TreeNode*>> timestepVec;
 
 
     int test1, test2;

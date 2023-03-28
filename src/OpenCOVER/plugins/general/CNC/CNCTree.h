@@ -91,15 +91,16 @@ public:
     Point getBotRight();
     int getLevel();
     bool isValid();
+    int getPrimitivePos();
+    void setPrimitivePos(int _primitivePos);
     bool inBoundary(Point);
     bool unitArea();
     bool areVectorsEqual(std::vector<int> vec1, std::vector<int> vec2);
     /*
     void setZ(double _z);
     double getZ();
-    void setPrimitivePos(int _primitivePos);
-    int getPrimitivePos();
-    */
+        */
+
     void millQuad(int _ix, int _iy, double _z, int t);
     TreeNode* insert(int _ix, int _iy);
     void addChildren();
@@ -138,6 +139,8 @@ public:
     bool topLeftBoundary(Point);
     bool updateZ(int _ix, int _iy, double _z);
     */
+
+    vector<vector<TreeNode*>> writeTimestepVector(vector<vector<TreeNode*>>);
 };
 
 inline vector<TreeNode*> TreeNode::getChildTrees()
@@ -164,6 +167,15 @@ inline int TreeNode::getLevel()
 inline bool TreeNode::isValid()
 {
     return valid;
+}
+inline int TreeNode::getPrimitivePos()
+{
+    return primitivePos;
+}
+inline void TreeNode::setPrimitivePos(int _primitivePos)
+{
+    primitivePos = _primitivePos;
+    return;
 }
 
 // Check if current quadtree contains the point
@@ -207,16 +219,6 @@ inline void TreeNode::setZ(double _z)
 inline double TreeNode::getZ()
 {
     return n->z;
-}
-
-inline void TreeNode::setPrimitivePos(int _primitivePos)
-{
-    n->primitivePos = _primitivePos;
-    return;
-}
-inline int TreeNode::getPrimitivePos()
-{
-    return n->primitivePos;
 }
 */
 
@@ -1349,6 +1351,34 @@ inline bool TreeNode::updateZ(int _ix, int _iy, double _z)
 }
 
 */
+
+// Check if current quadtree contains the point
+inline vector<vector<TreeNode*>> TreeNode::writeTimestepVector(vector<vector<TreeNode*>> timestepVec)
+{
+    std::stack<TreeNode*> nodeStack;
+    nodeStack.push(this);
+    while (!nodeStack.empty())
+    {
+        // traversiere Baum
+        TreeNode* node = nodeStack.top();
+        nodeStack.pop();
+        if (node->valid)
+        {
+            for (TreeNode* childTree : node->getChildTrees())
+            {
+                nodeStack.push(childTree);
+            }
+            if (node->getChildTrees().size() == 0)
+            {
+                for (int time : node->millTimesteps)
+                {
+                    timestepVec[time].push_back(node);
+                }
+            }
+        }
+    }
+    return timestepVec;
+}
 
 //getter und setter hinzufügen!
 
