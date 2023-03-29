@@ -130,6 +130,8 @@ private:
     void setWpMaterial();
     osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
     osg::ref_ptr<osg::Geometry> wpTreeLevelToGeometry(int);
+    void wpTreeToGeoTop(osg::Vec3Array &points, osg::Vec4Array &colors);
+    void wpTreeToGeoSideWalls(osg::Vec3Array& points, osg::Vec4Array& colors, osg::DrawElementsUInt& wpVerticalPrimitivesX, osg::DrawElementsUInt& wpVerticalPrimitivesY);
     osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
     //osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
@@ -150,6 +152,7 @@ private:
     void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
     void wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z);
     void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z);
+    void wpAddSideForGeo(osg::DrawElementsUInt* wpVerticalPrimitivesX, osg::DrawElementsUInt* wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
     void wpAddFacesTree();
 
     std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY;
@@ -167,6 +170,7 @@ private:
     //double cuttingRad = 0.00075;
     double pointAngle = 180;
     int primitivePosCounter = 0;
+    int primitiveResetCounter = 0;
 
     std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
     std::vector<int> cuttedFaces;

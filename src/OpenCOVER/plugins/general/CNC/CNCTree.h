@@ -45,6 +45,7 @@ class TreeNode {
     // Contains details of node
     double z;
     int primitivePos;
+    vector<bool> sideWalls;
     bool valid;         //if node is still valid
     //vector<MillCoords*> nodeCoords;
 
@@ -91,6 +92,7 @@ public:
     Point getBotRight();
     int getLevel();
     bool isValid();
+    vector<bool> getSideWalls();
     int getPrimitivePos();
     void setPrimitivePos(int _primitivePos);
     bool inBoundary(Point);
@@ -107,6 +109,8 @@ public:
     TreeNode* search(Point);
     TreeNode* searchCommonParent(TreeNode*, TreeNode*);
     vector<TreeNode*> searchAncestry(TreeNode*, TreeNode*);
+    vector<TreeNode*> searchAllNeighbors(TreeNode*, int);
+    vector<TreeNode*> searchAllNeighborsXMin(TreeNode*);
 
 
     bool compareForAllCombine();
@@ -139,7 +143,7 @@ public:
     bool topLeftBoundary(Point);
     bool updateZ(int _ix, int _iy, double _z);
     */
-
+    void setSideWalls();
     vector<vector<TreeNode*>> writeTimestepVector(vector<vector<TreeNode*>>);
 };
 
@@ -167,6 +171,10 @@ inline int TreeNode::getLevel()
 inline bool TreeNode::isValid()
 {
     return valid;
+}
+inline vector<bool> TreeNode::getSideWalls()
+{
+    return sideWalls;
 }
 inline int TreeNode::getPrimitivePos()
 {
@@ -309,7 +317,7 @@ inline TreeNode* TreeNode::search(Point p)
 {
     // Current quad cannot contain it
     if (!inBoundary(p))
-        return NULL;
+        return nullptr;
 
     // check if no children
     if (childTrees.size() == 0)     //(numChildren == 0)
@@ -349,9 +357,77 @@ inline vector<TreeNode*> TreeNode::searchAncestry(TreeNode* ancestor, TreeNode* 
     parentLine.push_back(ancestor);
     return parentLine;
 };
-
-
-
+// Returns a vector with all neighbors at the "side" border.
+// side: 0 = xMin, 1 = yMin, 2 = xMax, 3 = yMax
+inline vector<TreeNode*> TreeNode::searchAllNeighbors(TreeNode* treeRoot, int side)
+{
+    vector<TreeNode*> nbs = {};
+    int xSearch;
+    int ySearch;
+    if (side == 0)
+    {
+        xSearch = this->topLeft.x;
+        ySearch = this->topLeft.y + 1;
+    }
+    else if (side == 1)
+    {
+        xSearch = this->topLeft.x + 1;
+        ySearch = this->topLeft.y;
+    }
+    else if (side == 2)
+    {
+        xSearch = this->botRight.x + 1;
+        ySearch = this->topLeft.y + 1;
+    }
+    else if (side == 3)
+    {
+        xSearch = this->topLeft.x + 1;
+        ySearch = this->botRight.y + 1;
+    }
+    TreeNode* nb1 = treeRoot->search(Point(xSearch, ySearch));
+    if (nb1 == nullptr)
+    {
+        return nbs;
+    }
+    else
+    {
+        nbs.push_back(nb1);
+        if (side == 0 || side == 2)
+        {
+            while (nbs.back()->botRight.y < this->botRight.y)
+            {
+                nbs.push_back(treeRoot->search(Point(xSearch, nbs.back()->botRight.y + 1)));
+            }
+        }
+        else if (side == 1 || side == 3)
+        {
+            while (nbs.back()->botRight.x < this->botRight.x)
+            {
+                nbs.push_back(treeRoot->search(Point(nbs.back()->botRight.x + 1, ySearch)));
+            }
+        }
+        return nbs;
+    }
+}
+// Returns a vector with all neighbors at the xMin border.
+inline vector<TreeNode*> TreeNode::searchAllNeighborsXMin(TreeNode* treeRoot)
+{
+    vector<TreeNode*> nbs = {};
+    TreeNode* nb1 = treeRoot->search(Point(this->topLeft.x - 1, this->topLeft.y));
+    if (nb1 == nullptr)
+    {
+        return nbs;
+    }
+    else
+    {
+        nbs.push_back(nb1);
+        while (nbs.back()->botRight.y < this->botRight.y)
+        {
+            nbs.push_back(treeRoot->search(Point(this->topLeft.x - 1, nbs.back()->botRight.y + 1)));
+        }
+        return nbs;
+    }
+}
 
 // Compares all children if they are leaves and have identical millTimesteps.
 inline bool TreeNode::compareForAllCombine()
@@ -1352,6 +1428,43 @@ inline bool TreeNode::updateZ(int _ix, int _iy, double _z)
 
 */
 
+// Traverses the whole tree and sorts children without millTimesteps to the end of childTrees.
+inline void TreeNode::setSideWalls()
+{
+    std::stack<TreeNode*> nodeStack;
+    nodeStack.push(this);
+    while (!nodeStack.empty())
+    {
+        // traversiere Baum
+        TreeNode* node = nodeStack.top();
+        nodeStack.pop();
+        if (node->valid)
+        {
+            for (TreeNode* childTree : node->getChildTrees())
+            {
+                nodeStack.push(childTree);
+            }
+            if (node->getChildTrees().size() == 0)
+            {
+                node->sideWalls = { false, false, false, false };
+                for (int side = 0; side < 4; side++)
+                {
+                    vector<TreeNode*> nbs = node->searchAllNeighbors(this, side);
+                    if (nbs.size() == 0)
+                        node->sideWalls[side] = true;
+                    for (TreeNode* nb : nbs)
+                    {
+                        if (!areVectorsEqual(node->millTimesteps, nb->millTimesteps))
+                        {
+                            if (nb->millTimesteps.size() != 0)
+                                node->sideWalls[side] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 // Check if current quadtree contains the point
 inline vector<vector<TreeNode*>> TreeNode::writeTimestepVector(vector<vector<TreeNode*>> timestepVec)
 {
@@ -1379,6 +1492,7 @@ inline vector<vector<TreeNode*>> TreeNode::writeTimestepVector(vector<vector<Tre
     }
     return timestepVec;
 }
+
 
 //getter und setter hinzufügen!
 
