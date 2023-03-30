@@ -18,6 +18,7 @@
 #include <cover/coVRDynLib.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
+#include <cover/coVRConfig.h>
 #include <net/tokenbuffer.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
@@ -469,6 +470,8 @@ InputDevice *Input::getDevice(const std::string &name)
 bool Input::initPersons()
 {
     std::vector<std::string> names = coCoviseConfig::getScopeNames(configPath("Persons"), "Person");
+    if (coVRConfig::instance()->useVirtualGL())
+        names.clear();
 
     if (names.empty())
     {
