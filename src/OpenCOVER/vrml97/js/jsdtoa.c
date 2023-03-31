@@ -623,7 +623,7 @@ static int32 lo0bits(ULong *y)
     {
         k++;
         x >>= 1;
-        if (!x & 1)
+        if ((!x) & 1)
             return 32;
     }
     *y = x;
