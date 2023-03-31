@@ -1109,7 +1109,7 @@ array_sort(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
      * Check that its size does not overflow size_t, which would allow for
      * indexing beyond the end of the malloc'd vector.
      */
-    if (len > ((size_t)-1) / sizeof(jsval))
+    if ((size_t)len > ((size_t)-1) / sizeof(jsval))
     {
         JS_ReportOutOfMemory(cx);
         return JS_FALSE;
