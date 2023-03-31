@@ -81,7 +81,7 @@ ReadPress::ReadPress(int argc, char *argv[])
     int iNrCurrent = 0;
     float radius;
     char cAtomName[256];
-    char cAtomType[TYPELENGTH];
+    char cAtomType[TYPELENGTH + 1];
 
     for (const auto &entry : mappingEntries)
     {
