@@ -1020,7 +1020,7 @@ Decompile(SprintStack *ss, jsbytecode *pc, intN nb)
         op = saveop = (JSOp)*pc;
         if (op >= JSOP_LIMIT)
         {
-            switch (op)
+            switch ((int)op)
             {
             case JSOP_GETPROP2:
                 saveop = JSOP_GETPROP;
@@ -1077,7 +1077,7 @@ Decompile(SprintStack *ss, jsbytecode *pc, intN nb)
         }
         else
         {
-            switch (op)
+            switch ((int)op)
             {
 #define BEGIN_LITOPX_CASE(OP)           \
     case OP:                            \
