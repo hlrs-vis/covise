@@ -77,6 +77,8 @@ EnFile::createGeometryFile(ReadEnsight *mod, const CaseFile &c, const string &fi
                 delete enf;
                 return NULL;
                 break;
+            default:
+                break;
             }
         }
     }
