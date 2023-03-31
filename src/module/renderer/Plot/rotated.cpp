@@ -82,7 +82,7 @@ static int debug = 0;
     printf(a, b, c, d, e)
 
 /* ---------------------------------------------------------------------- */
-
+#define M_PIF 3.141592653589793238462643383279502884e+00F
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -379,7 +379,7 @@ static int XRotPaintAlignedString(Display *dpy, XFontStruct *font, float angle, 
     while (angle >= 360)
         angle -= 360;
 
-    angle *= M_PI / 180;
+    angle *= M_PIF / 180;
 
     /* horizontal text made easy */
     if (angle == 0. && style.magnify == 1.)
@@ -1021,15 +1021,14 @@ static RotatedTextItem *XRotCreateTextItem(Display *dpy, XFontStruct *font, floa
 
     /* vertical distance from centre */
     dj = 0.5 - (float)item->rows_out / 2;
-
     /* where abouts does text actually lie in rotated image? */
-    if (angle == 0 || angle == M_PI / 2 || angle == M_PI || angle == 3 * M_PI / 2)
+    if (angle == 0 || angle == M_PIF / 2 || angle == M_PIF || angle == 3 * M_PIF / 2)
     {
         xl = 0;
         xr = (float)item->cols_out;
         xinc = 0;
     }
-    else if (angle < M_PI)
+    else if (angle < M_PIF)
     {
         xl = (float)item->cols_out / 2 + (dj - (float)item->rows_in / (2 * cos_angle)) / tan(angle) - 2;
         xr = (float)item->cols_out / 2 + (dj + (float)item->rows_in / (2 * cos_angle)) / tan(angle) + 2;
@@ -1372,7 +1371,7 @@ XPoint *XRotTextExtents(Display *, XFontStruct *font, float angle, int x, int y,
     while (angle > 360)
         angle -= 360;
 
-    angle *= M_PI / 180;
+    angle *= M_PIF / 180;
 
     /* count number of sections in string */
     nl = 1;
