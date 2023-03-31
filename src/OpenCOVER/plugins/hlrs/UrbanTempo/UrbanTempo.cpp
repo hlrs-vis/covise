@@ -8,7 +8,7 @@
 /****************************************************************************\
  **                                                            (C)2023 HLRS  **
  **                                                                          **
- ** Description: Trees OpenCOVER Plugin                                      **
+ ** Description: Urban Tempo OpenCOVER Plugin                                **
  **                                                                          **
  **                                                                          **
  ** Author: Kilian Türk                                                      **
@@ -19,13 +19,13 @@
  **                                                                          **
 \****************************************************************************/
 
-#include "Trees.h"
+#include "UrbanTempo.h"
 #include <cover/coVRPluginSupport.h>
 #include <curl/curl.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h> //can remove one writer later probably
+#include <rapidjson/prettywriter.h> 
 #include <rapidjson/rapidjson.h>
 #include <iostream>
 #include <osgDB/ReadFile>
@@ -36,10 +36,23 @@
 #include <sstream>
 #include <osg/ComputeBoundsVisitor>
 #include <osg/PositionAttitudeTransform>
+#include <osg/Vec3d>
 
 using namespace opencover;
 
-bool Trees::init()
+
+
+struct TreeModel
+{
+    std::string speciesName;
+    std::string modelPath;
+    Season season;
+    osg::ref_ptr<osg::Node> model;
+    osg::Vec3d rotation;
+    osg::Vec3d translation;
+};
+
+bool UrbanTempo::init()
 {
     auto url_ptr = configString("general", "url_api", "default");
     url = *url_ptr;
@@ -59,13 +72,13 @@ bool Trees::init()
     return true;
 }
 
-bool Trees::destroy()
+bool UrbanTempo::destroy()
 {
     cover->getObjectsRoot()->removeChild(pluginNode);
     return true;
 }
 
-void Trees::setupPluginNode()
+void UrbanTempo::setupPluginNode()
 {
     pluginNode = new osg::Group;
     cover->getObjectsRoot()->addChild(pluginNode);
@@ -79,7 +92,7 @@ static size_t writeCallback(char *ptr, size_t size, size_t nmemb, void *userdata
     return size * nmemb;
 }
 
-void Trees::request()
+void UrbanTempo::request()
 {
     CURL *curl = curl_easy_init();
     if (!curl)
@@ -100,7 +113,7 @@ void Trees::request()
     curl_easy_cleanup(curl);
 }
 
-void Trees::simplifyResponse()
+void UrbanTempo::simplifyResponse()
 {
     rapidjson::Document document;
     document.Parse(response.c_str());
@@ -137,7 +150,7 @@ void Trees::simplifyResponse()
     simpleResponse = documentToString(simpleDocument);
 }
 
-void Trees::saveStringToFile(const std::string &string)
+void UrbanTempo::saveStringToFile(const std::string &string)
 {
     std::ofstream file("trees.json");
     if (file.is_open())
@@ -147,7 +160,7 @@ void Trees::saveStringToFile(const std::string &string)
     }
 }
 
-std::string Trees::readJSONFromFile(const std::string &path)
+std::string UrbanTempo::readJSONFromFile(const std::string &path)
 {
     std::ifstream file(path);
     std::stringstream filecontent;
@@ -158,28 +171,40 @@ std::string Trees::readJSONFromFile(const std::string &path)
     return filecontent.str();
 }
 
-void Trees::setTrees()
+void UrbanTempo::setTrees()
 {
     // read in default tree model
     osg::ref_ptr<osg::Node> model;
+    osg::Vec3d rotation;
+    osg::Vec3d translate;
     auto configDefaultTreeModel = configString("treeModelDefault", "model_path", "default");
+    auto configSeason = configString("general", "season", "default");
     osg::ref_ptr<osg::Node> defaultTreeModel = osgDB::readNodeFile(*configDefaultTreeModel);
+    std::vector<double> defaultVec{0.0, 0.0, 0.0};
+    auto configDefaultRotation = configFloatArray("treeModelDefault", "rotation", defaultVec);
+    auto configDefaultTranslation = configFloatArray("treeModelDefault", "translation", defaultVec);
 
-    // get list with all species_name entries in treemodels and load all models
-    std::vector<std::string> speciesNames;
-    std::vector<osg::ref_ptr<osg::Node>> treeModels;
+    std::vector<TreeModel> treeModels;
 
     int i = 1;
     while (true)
     {
         auto configSpeciesName = configString("treeModel" + std::to_string(i), "species_name", "default");
         auto configTreeModel = configString("treeModel" + std::to_string(i), "model_path", "default");
+        auto configSeason = configString("treeModel" + std::to_string(i), "season", "default");
+        auto configRotation = configFloatArray("treeModel" + std::to_string(i), "rotation", defaultVec);
+        auto configTranslation = configFloatArray("treeModel" + std::to_string(i), "translation", defaultVec);
         std::string speciesName = *configSpeciesName;
         int condition = speciesName.compare("default");
         if (!condition)
             break;
-        speciesNames.push_back(speciesName);
-        osg::ref_ptr<osg::Node> treeModel = osgDB::readNodeFile(*configTreeModel);
+        TreeModel treeModel;
+        treeModel.speciesName = configSpeciesName->value();
+        treeModel.modelPath = configTreeModel->value();
+        treeModel.model = osgDB::readNodeFile(configTreeModel->value());
+        treeModel.season = stringToSeason(configSeason->value());
+        treeModel.rotation = osg::Vec3d(configRotation->value()[0], configRotation->value()[1], configRotation->value()[2]);
+        treeModel.translation = osg::Vec3d(configTranslation->value()[0], configTranslation->value()[1], configTranslation->value()[2]);
         treeModels.push_back(treeModel);
         i++;
     }
@@ -216,17 +241,33 @@ void Trees::setTrees()
         rootTransform->addChild(treeTransform);
 
         // choose correct tree model and add it to the scenegraph
-        auto itr = std::find(speciesNames.begin(), speciesNames.end(), speciesName);
-        if (itr == speciesNames.end())
+        auto itr = std::find_if(treeModels.begin(), treeModels.end(), [&](const TreeModel& treeModel){
+            return treeModel.speciesName == speciesName;
+        });
+        if (itr == treeModels.end())
         {
             model = defaultTreeModel;
-            std::cout << "default tree model" << std::endl;
+            rotation = osg::Vec3d(configDefaultRotation->value()[0], configDefaultRotation->value()[1], configDefaultRotation->value()[2]);
+            translate = osg::Vec3d(configDefaultTranslation->value()[0], configDefaultTranslation->value()[1], configDefaultTranslation->value()[2]);
+            // std::cout << "default tree model" << std::endl;
         }
         else
         {
-            auto index = std::distance(speciesNames.begin(), itr);
-            model = treeModels[index];
-            std::cout << "index: " << index << "; Model: " << speciesNames[index] << std::endl;
+            auto index = std::distance(treeModels.begin(), itr);
+            if (treeModels[index].season != stringToSeason(configSeason->value()))
+            {
+                model = defaultTreeModel;
+                rotation = osg::Vec3d(configDefaultRotation->value()[0], configDefaultRotation->value()[1], configDefaultRotation->value()[2]);
+                translate = osg::Vec3d(configDefaultTranslation->value()[0], configDefaultTranslation->value()[1], configDefaultTranslation->value()[2]);
+                // std::cout << "default tree model" << std::endl;
+            }
+            else
+            {
+                model = treeModels[index].model;
+                rotation = treeModels[index].rotation;
+                translate = treeModels[index].translation;
+                // std::cout << "index: " << index << "; Model: " << treeModels[index].speciesName << std::endl;
+            }
         }
         treeTransform->addChild(model);
 
@@ -234,8 +275,16 @@ void Trees::setTrees()
         auto configTreeX = configFloat("tree" + std::to_string(i), "x", 0);
         auto configTreeY = configFloat("tree" + std::to_string(i), "y", 0);
         float treeAltitude = getAlt(*configTreeX, *configTreeY);
-        treeTransform->setPosition(osg::Vec3d(*configTreeX, *configTreeY, treeAltitude));
-        std::cout << "added " << speciesName << " at position " << *configTreeX << ", " << *configTreeY << ", " << treeAltitude << std::endl;
+        treeTransform->setPosition(osg::Vec3d(*configTreeX, *configTreeY, treeAltitude) + translate);
+        // std::cout << "added " << speciesName << " at position " << *configTreeX << ", " << *configTreeY << ", " << treeAltitude << std::endl;
+        // std::cout << "with translation: " << translate[0] << ", " << translate[1] << ", " << translate[2] << std::endl;
+
+        osg::Matrixd rotationMatrix = osg::Matrixd::rotate(osg::DegreesToRadians(rotation.x()), osg::Vec3(1.0f, 0.0f, 0.0f),
+                                                            osg::DegreesToRadians(rotation.y()), osg::Vec3(0.0f, 1.0f, 0.0f),
+                                                            osg::DegreesToRadians(rotation.z()), osg::Vec3(0.0f, 0.0f, 1.0f));
+
+        treeTransform->setAttitude(rotationMatrix.getRotate());
+        // std::cout << " at position " << *configTreeX << ", " << *configTreeY << ", " << treeAltitude << std::endl;
 
         // set height for specific trees or get default height, if no height is specified and scale models to height
         double height;
@@ -256,15 +305,15 @@ void Trees::setTrees()
         double scaleFactor = height / size[2];
         treeTransform->setScale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor));
 
-        std::cout << "bounding box: " << size[0] << ", " << size[1] << ", " << size[2] << std::endl;
-        std::cout << "scaled size: " << scaleFactor * size[0] << ", " << scaleFactor * size[1] << ", " << scaleFactor * size[2] << std::endl;
+        // std::cout << "bounding box: " << size[0] << ", " << size[1] << ", " << size[2] << std::endl;
+        // std::cout << "scaled size: " << scaleFactor * size[0] << ", " << scaleFactor * size[1] << ", " << scaleFactor * size[2] << std::endl;
 
         i++;
     }
     closeImage();
 }
 
-std::string Trees::documentToString(const rapidjson::Document &document)
+std::string UrbanTempo::documentToString(const rapidjson::Document &document)
 {
     rapidjson::StringBuffer stringbuffer;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringbuffer);
@@ -272,7 +321,7 @@ std::string Trees::documentToString(const rapidjson::Document &document)
     return stringbuffer.GetString();
 }
 
-void Trees::printResponseToConfig()
+void UrbanTempo::printResponseToConfig()
 {
     rapidjson::Document document;
     document.Parse(simpleResponse.c_str());
@@ -308,7 +357,7 @@ void Trees::printResponseToConfig()
     }
 }
 
-float Trees::getAlt(double x, double y)
+float UrbanTempo::getAlt(double x, double y)
 {
     int col = int((x - xOrigin) / pixelWidth);
     int row = int((yOrigin - y) / pixelHeight);
@@ -341,7 +390,7 @@ float Trees::getAlt(double x, double y)
     return height;
 }
 
-void Trees::openImage(std::string &name)
+void UrbanTempo::openImage(std::string &name)
 {
     heightDataset = (GDALDataset *)GDALOpen(name.c_str(), GA_ReadOnly);
     if (heightDataset != NULL)
@@ -404,13 +453,13 @@ void Trees::openImage(std::string &name)
     }
 }
 
-void Trees::closeImage()
+void UrbanTempo::closeImage()
 {
     if (heightDataset)
         GDALClose(heightDataset);
 }
 
-void Trees::printInformation()
+void UrbanTempo::printInformation()
 {
     std::vector<std::string> speciesNames;
 
@@ -445,4 +494,16 @@ void Trees::printInformation()
 
 }
 
-COVERPLUGIN(Trees)
+Season UrbanTempo::stringToSeason(const std::string& string)
+{
+    if (string == "winter")
+        return Season::Winter;
+    else if (string == "spring")
+        return Season::Spring;
+    else if (string == "summer")
+        return Season::Summer;
+    else if (string == "fall")
+        return Season::Fall;
+}
+
+COVERPLUGIN(UrbanTempo)

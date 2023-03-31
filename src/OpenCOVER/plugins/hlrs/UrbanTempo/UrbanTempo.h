@@ -5,12 +5,12 @@
 
  * License: LGPL 2+ */
 
-#ifndef _TREES_PLUGIN_H
-#define _TREES_PLUGIN_H
+#ifndef _URBANTEMPO_PLUGIN_H
+#define _URBANTEMPO_PLUGIN_H
 /****************************************************************************\ 
  **                                                            (C)2023 HLRS  **
  **                                                                          **
-** Description: Trees OpenCOVER Plugin                                       **
+ ** Description: Urban Tempo OpenCOVER Plugin                                **
  **                                                                          **
  **                                                                          **
  ** Author: Kilian Türk		                                                 **
@@ -29,8 +29,14 @@
 #include <osg/ref_ptr>
 #include <gdal_priv.h>
 
+enum Season { 
+    Winter, 
+    Spring, 
+    Summer, 
+    Fall 
+};
 
-class Trees : public opencover::coVRPlugin
+class UrbanTempo : public opencover::coVRPlugin
 {
 public:
     bool init() override;
@@ -55,6 +61,7 @@ private:
     std::string response;
     std::string simpleResponse;
     osg::ref_ptr<osg::Group> pluginNode;
+    Season stringToSeason(const std::string&);
 
     float *rasterData=NULL;
     double xOrigin;
