@@ -68,8 +68,8 @@ public:
     static int sloadGCode(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadGCode(const char *filename, const char *covise_key);
 
-    void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate);
-    void arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate); //rotation positive: counterclockwise
+    void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool);
+    void arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool); //rotation positive: counterclockwise
 private:
 
     // this will be called in PreFrame
@@ -105,18 +105,21 @@ private:
 
     //workpiece wp
     osg::ref_ptr<osg::Group> wpGroup; //osg::Group *wpGroup = nullptr;
-    osg::ref_ptr<osg::Geode> wpTopGeode; //osg::Geode *wpTopGeode = nullptr;
-    osg::ref_ptr<osg::Geometry> wpTopGeom;
-    osg::ref_ptr<osg::Vec4Array> wpTopColors; //osg::Vec4Array *wpColors = nullptr;
-    osg::ref_ptr<osg::Vec3Array> wpTopNormals; //osg::Vec3Array *wpNormals = nullptr;
-    osg::DrawArrayLengths *wpTopPrimitives = nullptr;
-    osg::DrawElementsUInt *wpVerticalPrimitivesX = nullptr; //parallel X
-    osg::DrawElementsUInt *wpVerticalPrimitivesY = nullptr; //parallel Y
-    osg::ref_ptr<osg::Geode> wpBotGeode;
-    osg::ref_ptr<osg::Geometry> wpBotGeom;
-    osg::ref_ptr<osg::Vec4Array> wpBotColors;
-    osg::ref_ptr<osg::Vec3Array> wpBotNormals;
-    osg::DrawArrayLengths *wpBotPrimitives = nullptr;
+    osg::ref_ptr<osg::Geode> wpDynamicGeode; //osg::Geode *wpTopGeode = nullptr;
+    osg::ref_ptr<osg::Geode> wpStaticGeode;
+    osg::ref_ptr<osg::Geometry> wpDynamicGeom;
+    osg::ref_ptr<osg::Geometry> wpStaticGeom;
+    osg::ref_ptr<osg::Vec4Array> wpDynamicColors; //osg::Vec4Array *wpColors = nullptr;
+    osg::ref_ptr<osg::Vec4Array> wpStaticColors;
+    osg::ref_ptr<osg::Vec3Array> wpDynamicNormals; //osg::Vec3Array *wpNormals = nullptr;
+    osg::ref_ptr<osg::Vec3Array> wpStaticNormals;
+    osg::DrawArrayLengths *wpDynamicPrimitives = nullptr;
+    osg::DrawArrayLengths *wpStaticPrimitives = nullptr;
+    osg::DrawElementsUInt *wpDynamicVerticalPrimX = nullptr; //parallel X
+    osg::DrawElementsUInt *wpDynamicVerticalPrimY = nullptr; //parallel Y
+    osg::DrawElementsUInt *wpStaticVerticalPrimX = nullptr; //parallel X
+    osg::DrawElementsUInt *wpStaticVerticalPrimY = nullptr; //parallel Y
+    
     osg::ref_ptr<osg::StateSet> wpStateSet;
     osg::ref_ptr<osg::Material> wpMaterial;
     osg::ref_ptr<osg::LineWidth> wpLineWidth;
@@ -128,10 +131,13 @@ private:
     void setWpSize();
     void setWpResolution();
     void setWpMaterial();
-    osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
+    void readToolTable();
+    void setActiveTool(int slot);
+    //osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
+    void wpTreeToGeometry(osg::Geometry &dynamicGeo, osg::Geometry &staticGeo);
     osg::ref_ptr<osg::Geometry> wpTreeLevelToGeometry(int);
-    void wpTreeToGeoTop(osg::Vec3Array &points, osg::Vec4Array &colors);
-    void wpTreeToGeoSideWalls(osg::Vec3Array& points, osg::Vec4Array& colors, osg::DrawElementsUInt& wpVerticalPrimitivesX, osg::DrawElementsUInt& wpVerticalPrimitivesY);
+    void wpTreeToGeoTop(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic); // osg::Vec4Array& colors);
+    void wpTreeToGeoSideWalls(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic, osg::DrawElementsUInt& wpDynamicVerticalPrimX, osg::DrawElementsUInt& wpDynamicVerticalPrimY, osg::DrawElementsUInt& wpStaticVerticalPrimX, osg::DrawElementsUInt& wpStaticVerticalPrimY);
     osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
     //osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
     osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
@@ -151,12 +157,12 @@ private:
     void wpResetCuts(osg::Vec3Array *piece, int t);
     void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
     void wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z);
-    void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z);
+    void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter);
     void wpAddSideForGeo(osg::DrawElementsUInt* wpVerticalPrimitivesX, osg::DrawElementsUInt* wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
     void wpAddFacesTree();
 
     std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY;
-    std::vector<int> pathG;
+    std::vector<int> pathG, pathTool;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
@@ -167,10 +173,12 @@ private:
     int wpTotalQuadsX, wpTotalQuadsY;
     //int ix_total;           //deprecated?
     double cuttingRad = 0.0005; // 0.5 / 1000;
+    int activeTool;
     //double cuttingRad = 0.00075;
     double pointAngle = 180;
-    int primitivePosCounter = 0;
-    int primitiveResetCounter = 0;
+    int primitivePosCounterDynamic = 0;
+    int primitivePosCounterStatic = 0;
+    int primitiveResetCounterDynamic = 0;
 
     std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
     std::vector<int> cuttedFaces;

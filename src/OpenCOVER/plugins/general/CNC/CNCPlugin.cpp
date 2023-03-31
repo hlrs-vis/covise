@@ -668,14 +668,14 @@ void CNCPlugin::setTimestep(int t)
         geom->dirtyDisplayList();
     }
 
-    if (wpTopGeom && t == 0)
+    if (wpDynamicGeom && t == 0)
     {
     //    wpResetCuts(static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
         wpResetCutsVec();
-        wpTopGeom->dirtyDisplayList();
+        wpDynamicGeom->dirtyDisplayList();
     }
 
-    if (wpTopGeom && t>0)
+    if (wpDynamicGeom && t>0)
     {   
           if (t % 1 == 0)
         {
@@ -686,7 +686,7 @@ void CNCPlugin::setTimestep(int t)
   //          else
   //              wpMillCutTree(wpTopGeom, static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray()), t);
 
-            wpTopGeom->dirtyDisplayList();
+            wpDynamicGeom->dirtyDisplayList();
         }
     }
 
@@ -821,11 +821,12 @@ void CNCPlugin::save()
 }
 
 
-void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate)
+void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool)
 {   
     pathX.push_back(x / 1000.0);
     pathY.push_back(y / 1000.0);
     pathZ.push_back(z / 1000.0);
+    pathTool.push_back(tool);
     pathG.push_back(1);
     pathCenterX.push_back(0);
     pathCenterY.push_back(0);
@@ -851,11 +852,12 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     }
 }
 
-void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate)
+void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool)
 {
     pathX.push_back(x / 1000.0);
     pathY.push_back(y / 1000.0);
     pathZ.push_back(z / 1000.0);
+    pathTool.push_back(tool);
     pathCenterX.push_back(centerX / 1000.0);
     pathCenterY.push_back(centerY / 1000.0);
     //rotation gives the direction and the amount of 360° circles (offset by 1)
@@ -925,28 +927,36 @@ void CNCPlugin::createWorkpiece(Group *parent)
     wpAddQuadsToTree(treeRoot);
     wpCreateTimestepVector(treeRoot);
 
-    wpTopGeom = wpTreeToGeometry();
+    wpDynamicGeom = new osg::Geometry();
+    wpStaticGeom = new osg::Geometry();
+    //wpDynamicGeom = wpTreeToGeometry();
+    wpTreeToGeometry(*wpDynamicGeom, *wpStaticGeom);
    // wpTopGeom = wpTreeLevelToGeometry(1);
 
 
  //   wpTopGeom = createWpTopTree(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
 
-
+/*
     wpBotGeom = createWpBottom(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ);
     wpBotGeode = new osg::Geode();
     wpBotGeode->setName("wpBotGeode");
     parent->addChild(wpBotGeode);
     wpBotGeode->addDrawable(wpBotGeom);
     wpBotGeom->dirtyDisplayList();
-
+*/
    
 
  ////   wpTopGeom = createWpTop(wpMinX, wpMaxX, wpMinY, wpMaxY, wpMaxZ);
-    wpTopGeode = new osg::Geode();
-    wpTopGeode->setName("wpTopGeode");
-    parent->addChild(wpTopGeode);
-    wpTopGeode->addDrawable(wpTopGeom);
-    wpTopGeom->dirtyDisplayList();
+    wpDynamicGeode = new osg::Geode();
+    wpDynamicGeode->setName("wpDynamicGeode");
+    parent->addChild(wpDynamicGeode);
+    wpDynamicGeode->addDrawable(wpDynamicGeom);
+    wpDynamicGeom->dirtyDisplayList();
+    wpStaticGeode = new osg::Geode();
+    wpStaticGeode->setName("wpStaticGeode");
+    parent->addChild(wpStaticGeode);
+    wpStaticGeode->addDrawable(wpStaticGeom);
+    wpStaticGeom->dirtyDisplayList();
 
  /*   for (int i = 1; i < coVRAnimationManager::instance()->getNumTimesteps(); i++)
     {
@@ -978,6 +988,10 @@ void CNCPlugin::wpAddQuadsToTree(TreeNode* treeRoot)
 {
     for (int t = 1; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
     {
+        if (activeTool != pathTool[t])
+        {
+            setActiveTool(pathTool[t]);
+        }
         if (pathG[t] == 2 || pathG[t] == 3)
             wpAddQuadsG2G3(wpMaxZ, t, treeRoot);
         else
@@ -1120,7 +1134,7 @@ void CNCPlugin::wpCreateTimestepVector(TreeNode* treeRoot)
 */
 void CNCPlugin::wpMillCutVec(int t)
 {   
-    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray());
+    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpDynamicGeom->getVertexArray());
     for (TreeNode* tree : timestepVec[t])
     {
         int primPos = tree->getPrimitivePos();
@@ -1134,9 +1148,9 @@ void CNCPlugin::wpMillCutVec(int t)
 
 void CNCPlugin::wpResetCutsVec()
 {   
-    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpTopGeom->getVertexArray());
+    osg::Vec3Array* piece = static_cast<osg::Vec3Array*>(wpDynamicGeom->getVertexArray());
     //for (int i = 0; i < piece->getNumElements(); i++)
-    for (int i = 0; i < primitiveResetCounter; i++)
+    for (int i = 0; i < primitiveResetCounterDynamic; i++)
     {
         piece->at(i)[2] = wpMaxZ;
     }
@@ -1152,49 +1166,74 @@ void CNCPlugin::wpResetCutsVec()
    Called By:
    CNCPlugin::createWorkpiece
 */
-osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
+//osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeToGeometry()
+void CNCPlugin::wpTreeToGeometry(osg::Geometry &dynamicGeo, osg::Geometry &staticGeo)
 {
     //create geometry
-    auto geo = new osg::Geometry();
+ //   dynamicGeo = new osg::Geometry();
 
-    wpTopColors = new Vec4Array();
-    auto points = new Vec3Array();
-    wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+    wpDynamicColors = new Vec4Array();
+    wpStaticColors = new Vec4Array();
+    auto pointsDynamic = new Vec3Array();
+    auto pointsStatic = new Vec3Array();
+    wpDynamicPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+    wpStaticPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
-    wpTreeToGeoTop(*points, *wpTopColors);
+    wpTreeToGeoTop(*pointsDynamic, *pointsStatic);
     
-    primitiveResetCounter = points->size();
+    primitiveResetCounterDynamic = pointsDynamic->size();
 
-    wpTopPrimitives->push_back(points->size());
-    wpTopPrimitives->setName("wpTopPrimitives");
-    geo->addPrimitiveSet(wpTopPrimitives);
+    wpDynamicPrimitives->push_back(pointsDynamic->size());
+    wpDynamicPrimitives->setName("wpDynamicPrimitives");
+    dynamicGeo.addPrimitiveSet(wpDynamicPrimitives);
+    wpStaticPrimitives->push_back(pointsStatic->size());
+    wpStaticPrimitives->setName("wpStaticPrimitives");
+    staticGeo.addPrimitiveSet(wpStaticPrimitives);
 
-    wpVerticalPrimitivesX = new DrawElementsUInt(PrimitiveSet::QUADS);
-    wpVerticalPrimitivesY = new DrawElementsUInt(PrimitiveSet::QUADS);
-    wpTreeToGeoSideWalls(*points, *wpTopColors, *wpVerticalPrimitivesX, *wpVerticalPrimitivesY);
+    wpDynamicVerticalPrimX = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpDynamicVerticalPrimY = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpStaticVerticalPrimX = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpStaticVerticalPrimY = new DrawElementsUInt(PrimitiveSet::QUADS);
+    wpTreeToGeoSideWalls(*pointsDynamic, *pointsStatic, *wpDynamicVerticalPrimX, *wpDynamicVerticalPrimY, *wpStaticVerticalPrimX, *wpStaticVerticalPrimY);
 
-    wpVerticalPrimitivesX->setName("wpVerticalPrimitivesX");
-    wpVerticalPrimitivesY->setName("wpVerticalPrimitivesY");
-    geo->addPrimitiveSet(wpVerticalPrimitivesX);
-    geo->addPrimitiveSet(wpVerticalPrimitivesY);
+    wpDynamicVerticalPrimX->setName("wpDynamicVerticalPrimX");
+    wpDynamicVerticalPrimY->setName("wpDynamicVerticalPrimY");
+    dynamicGeo.addPrimitiveSet(wpDynamicVerticalPrimX);
+    dynamicGeo.addPrimitiveSet(wpDynamicVerticalPrimY);
+    wpStaticVerticalPrimX->setName("wpStaticVerticalPrimX");
+    wpStaticVerticalPrimY->setName("wpStaticVerticalPrimY");
+    staticGeo.addPrimitiveSet(wpStaticVerticalPrimX);
+    staticGeo.addPrimitiveSet(wpStaticVerticalPrimY);
 
-    //wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
-    geo->setVertexArray(points);
-    geo->setColorArray(wpTopColors);
-    geo->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    //geo->setColorBinding(osg::Geometry::BIND_OVERALL);
+    wpDynamicColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    wpDynamicColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    wpDynamicColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+    dynamicGeo.setVertexArray(pointsDynamic);
+    dynamicGeo.setColorArray(wpDynamicColors);
+    dynamicGeo.setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
+    wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
+    wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
+    staticGeo.setVertexArray(pointsStatic);
+    staticGeo.setColorArray(wpStaticColors);
+    staticGeo.setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
 
-    geo->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
-    wpTopNormals = new osg::Vec3Array;
-    wpTopNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
-    wpTopNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
-    wpTopNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
-    geo->setNormalArray(wpTopNormals);// , osg::Array::BIND_OVERALL);
 
-    geo->setStateSet(wpStateSet.get());
-    geo->dirtyDisplayList();
+    dynamicGeo.setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    wpDynamicNormals = new osg::Vec3Array;
+    wpDynamicNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
+    wpDynamicNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
+    wpDynamicNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
+    dynamicGeo.setNormalArray(wpDynamicNormals);// , osg::Array::BIND_OVERALL);
+    staticGeo.setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    staticGeo.setNormalArray(wpDynamicNormals);
 
-    return geo;
+    dynamicGeo.setStateSet(wpStateSet.get());
+    dynamicGeo.dirtyDisplayList();
+    staticGeo.setStateSet(wpStateSet.get());
+  //  staticGeo.dirtyDisplayList();
+
+    //return geo;
 }
 
 /* wpTreeLevelToGeometry
@@ -1212,7 +1251,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeLevelToGeometry(int level)
     //create geometry
     auto geo = new osg::Geometry();
 
-    wpTopColors = new Vec4Array();
+/*    wpTopColors = new Vec4Array();
     auto points = new Vec3Array();
     wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
@@ -1260,7 +1299,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeLevelToGeometry(int level)
 
     geo->setStateSet(wpStateSet.get());
     geo->dirtyDisplayList();
-
+*/
     return geo;
 }
 
@@ -1274,8 +1313,10 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::wpTreeLevelToGeometry(int level)
    Called By:
    wpTreeToGeometry
 */
-void CNCPlugin::wpTreeToGeoTop(osg::Vec3Array &points, osg::Vec4Array &colors)
+void CNCPlugin::wpTreeToGeoTop(osg::Vec3Array &pointsDynamic, osg::Vec3Array &pointsStatic)
 {
+    wpAddVertexsForGeo(&pointsStatic, 0, wpTotalQuadsX, 0, wpTotalQuadsY, wpMinZ, primitivePosCounterStatic);   // bottom
+
     std::stack<TreeNode*> nodeStack;
     nodeStack.push(treeRoot);
     while (!nodeStack.empty())
@@ -1293,19 +1334,28 @@ void CNCPlugin::wpTreeToGeoTop(osg::Vec3Array &points, osg::Vec4Array &colors)
         }
         if (node->getChildTrees().size() == 0)
         {
-            if (!node->isValid())
+           /* if (!node->isValid())
                 for (int i = 0; i < 4; i++)
-                    wpTopColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
+                    colors.push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 0.50f));
             else if (node->getMillTimesteps().size() == 0)
                 for (int i = 0; i < 4; i++)
-                    wpTopColors->push_back(osg::Vec4(0.0f, node->getLevel() * 0.1f, 0.0f, 0.50f));
+                    colors.push_back(osg::Vec4(0.0f, node->getLevel() * 0.1f, 0.0f, 0.50f));
             else
                 for (int i = 0; i < 4; i++)
-                    wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
-            node->setPrimitivePos(primitivePosCounter);
+                    colors.push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
+            */
             auto tl = node->getTopLeft();
             auto br = node->getBotRight();
-            wpAddVertexsForGeo(&points, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ);
+            if (node->getMillTimesteps().size() == 0)
+            {
+                node->setPrimitivePos(primitivePosCounterStatic);
+                wpAddVertexsForGeo(&pointsStatic, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ, primitivePosCounterStatic);
+            }
+            else
+            {
+                node->setPrimitivePos(primitivePosCounterDynamic);
+                wpAddVertexsForGeo(&pointsDynamic, tl.x + 0, br.x, tl.y + 0, br.y, wpMaxZ, primitivePosCounterDynamic);
+            }
         }
     }
 }
@@ -1319,7 +1369,7 @@ void CNCPlugin::wpTreeToGeoTop(osg::Vec3Array &points, osg::Vec4Array &colors)
    Called By:
    wpTreeToGeometry
 */
-void CNCPlugin::wpTreeToGeoSideWalls(osg::Vec3Array &points, osg::Vec4Array &colors, osg::DrawElementsUInt &wpVerticalPrimitivesX, osg::DrawElementsUInt &wpVerticalPrimitivesY)
+void CNCPlugin::wpTreeToGeoSideWalls(osg::Vec3Array &pointsDynamic, osg::Vec3Array &pointsStatic, osg::DrawElementsUInt &wpDynamicVerticalPrimX, osg::DrawElementsUInt &wpDynamicVerticalPrimY, osg::DrawElementsUInt &wpStaticVerticalPrimX, osg::DrawElementsUInt &wpStaticVerticalPrimY)
 {
     std::stack<TreeNode*> nodeStack;
     nodeStack.push(treeRoot);
@@ -1340,17 +1390,32 @@ void CNCPlugin::wpTreeToGeoSideWalls(osg::Vec3Array &points, osg::Vec4Array &col
             {   
                 auto tl = node->getTopLeft();
                 auto br = node->getBotRight();
-                wpAddVertexsForGeo(&points, tl.x + 0, br.x, tl.y + 0, br.y, wpMinZ);
-                for (int i = 0; i < 4; i++)
-                    wpTopColors->push_back(osg::Vec4(1.0f, 0.0f, 1.0f, 0.50f));
-            }
-            for (int side = 0; side < 4; side++)
-            {
-                if (sideWalls[side])
+                if (node->getMillTimesteps().size() == 0)
                 {
-                    wpAddSideForGeo(&wpVerticalPrimitivesX, &wpVerticalPrimitivesY, primPos, primitivePosCounter - 4, side);
+                    wpAddVertexsForGeo(&pointsStatic, tl.x + 0, br.x, tl.y + 0, br.y, wpMinZ, primitivePosCounterStatic);
+                    for (int side = 0; side < 4; side++)
+                    {
+                        if (sideWalls[side])
+                        {
+                            wpAddSideForGeo(&wpStaticVerticalPrimX, &wpStaticVerticalPrimY, primPos, primitivePosCounterStatic - 4, side);
+                        }
+                    }
                 }
+                else
+                {
+                    wpAddVertexsForGeo(&pointsDynamic, tl.x + 0, br.x, tl.y + 0, br.y, wpMinZ, primitivePosCounterDynamic);
+                    for (int side = 0; side < 4; side++)
+                    {
+                        if (sideWalls[side])
+                        {
+                            wpAddSideForGeo(&wpDynamicVerticalPrimX, &wpDynamicVerticalPrimY, primPos, primitivePosCounterDynamic - 4, side);
+                        }
+                    }
+                }
+                //for (int i = 0; i < 4; i++)
+                //    wpDynamicColors->push_back(osg::Vec4(1.0f, 0.0f, 1.0f, 0.50f));
             }
+
         }
     }
 }
@@ -1374,10 +1439,11 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, 
  //   geo->setSupportsDisplayList(false);
  //   geo->setUseVertexBufferObjects(true);
  //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-    wpBotColors = new Vec4Array();
+/*    wpBotColors = new Vec4Array();
     wpBotNormals = new osg::Vec3Array;
     auto points = new Vec3Array();
     wpBotPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+    */
 
 /*    points->push_back(Vec3(maxX, minY, minZ));
     points->push_back(Vec3(minX, minY, minZ));
@@ -1405,7 +1471,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, 
     for (int i = 0; i < 4; i++)
         wpBotNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
 */
-    points->push_back(Vec3(minX, minY, minZ));
+/*    points->push_back(Vec3(minX, minY, minZ));
     points->push_back(Vec3(maxX, minY, minZ));
     points->push_back(Vec3(maxX, maxY, minZ));
     points->push_back(Vec3(minX, maxY, minZ));
@@ -1426,7 +1492,7 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpBottom(double minX, double maxX, 
     geo->setStateSet(wpStateSet.get());
     geo->dirtyDisplayList();
     //geo->setUseDisplayList(false);
-
+*/
     return geo;
 
 }
@@ -1454,9 +1520,9 @@ osg::ref_ptr<osg::Geometry> CNCPlugin::createWpTopTree(double minX, double maxX,
  //   geo->setSupportsDisplayList(false);
  //   geo->setUseVertexBufferObjects(true);
  //   auto vertexBufferArray = geo->getOrCreateVertexBufferObject();
-    wpTopColors = new Vec4Array();
+    wpDynamicColors = new Vec4Array();
     auto points = new Vec3Array();
-    wpTopPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
+    wpDynamicPrimitives = new DrawArrayLengths(PrimitiveSet::QUADS);
 
 /*    std::stack<TreeNode*> nodeStack;
     nodeStack.push(treeRoot);
@@ -1877,8 +1943,21 @@ void CNCPlugin::setWpMaterial()
     polyMode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL); //LINE);
     wpStateSet->setAttribute(polyMode.get());
 }
+void CNCPlugin::readToolTable()
+{
+    // ein default tool speicher, falls keine tools definiert / eingelesen wurden
 
+    // jedes tool das benutzt wird versuchen speichern
+    for (int slot : pathTool)
+    {
 
+    }
+}
+void CNCPlugin::setActiveTool(int slot)
+{
+    activeTool = slot;
+    cuttingRad = 0.0005;
+}
 
 /* wpMillCut
 
@@ -2422,13 +2501,17 @@ void CNCPlugin::wpCutFacesTree(double minX, double maxX, double minY, double max
 }
 */
 
-void CNCPlugin::wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z)
+void CNCPlugin::wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter)
 {
+    if (minIX < 0)          // needed for border - 1 
+        minIX = 0;
+    if (minIY < 0)
+        minIY = 0;
     points->push_back(Vec3(wpMinX + minIX * wpResX, wpMinY + minIY * wpResY, z));
     points->push_back(Vec3(wpMinX + maxIX * wpResX, wpMinY + minIY * wpResY, z));
     points->push_back(Vec3(wpMinX + maxIX * wpResX, wpMinY + maxIY * wpResY, z));
     points->push_back(Vec3(wpMinX + minIX * wpResX, wpMinY + maxIY * wpResY, z));
-    primitivePosCounter += 4;
+    primPosCounter += 4;
     return;
 }
 
