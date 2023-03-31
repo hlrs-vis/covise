@@ -1,0 +1,3542 @@
+[general]
+geotiff_path = '/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif'
+season = 'summer'
+url_api = 'https://services3.arcgis.com/FwX2qF9JecNSRnwr/ArcGIS/rest/services/IndividualPlants_GT_Tallinn/FeatureServer/1/query?where=1%3D1&outFields=*&f=pjson'
+use_api = false
+
+[offset]
+x = -542284.85999999999
+y = -6589069.9500000002
+
+[tree1]
+height = 17.0
+species_name = 'h pärn'
+x = 541909.68919999897
+y = 6589321.5891000004
+
+[tree10]
+height = 15.0
+species_name = 'läänepärn'
+x = 541967.43869999796
+y = 6589316.9049000004
+
+[tree100]
+height = 16.0
+species_name = 'h vaher'
+x = 541807.95090000331
+y = 6589218.0284000002
+
+[tree101]
+species_name = 'h kirsipuu'
+x = 541788.36270000041
+y = 6589238.879999999
+
+[tree102]
+height = 18.0
+species_name = 'h vaher'
+x = 541784.93370000273
+y = 6589251.3101999983
+
+[tree103]
+height = 14.0
+species_name = 'läänepärn'
+x = 541782.27409999818
+y = 6589255.3803999983
+
+[tree104]
+height = 17.0
+species_name = 'h vaher'
+x = 541772.19340000302
+y = 6589246.9512999989
+
+[tree105]
+height = 21.0
+species_name = 'läänepärn'
+x = 541775.34269999713
+y = 6589239.1209999993
+
+[tree106]
+height = 20.0
+species_name = 'läänepärn'
+x = 541779.37250000238
+y = 6589237.0606999993
+
+[tree107]
+height = 18.0
+species_name = 'läänepärn'
+x = 541767.68299999833
+y = 6589242.3916999996
+
+[tree108]
+height = 17.0
+species_name = 'läänepärn '
+x = 541763.45269999653
+y = 6589238.0920000002
+
+[tree109]
+height = 18.0
+species_name = 'läänepärn'
+x = 541758.97230000049
+y = 6589233.3724000007
+
+[tree11]
+height = 15.0
+species_name = 'läänepärn'
+x = 541971.79829999804
+y = 6589311.8546000011
+
+[tree110]
+height = 17.0
+species_name = 'läänepärn'
+x = 541754.08190000057
+y = 6589228.7428000011
+
+[tree111]
+height = 16.0
+species_name = 'läänepärn'
+x = 541749.75150000304
+y = 6589223.8431999981
+
+[tree112]
+height = 16.0
+species_name = 'läänepärn'
+x = 541745.07119999826
+y = 6589219.1435999982
+
+[tree113]
+height = 16.0
+species_name = 'h pärn'
+x = 541740.51079999655
+y = 6589214.6440000013
+
+[tree114]
+height = 9.0
+species_name = 'h pärn'
+x = 541736.0604000017
+y = 6589210.2542999983
+
+[tree115]
+height = 5.0
+species_name = 'õunapuu                       "Golden Hornet"'
+x = 541762.21190000325
+y = 6589218.4015000015
+
+[tree116]
+species_name = 'õunapuu                       "Red Sentinel"'
+x = 541762.99589999765
+y = 6589207.1587999985
+
+[tree117]
+height = 4.0
+species_name = 'õunapuu                        "Red Sentinel"'
+x = 541751.79779999703
+y = 6589207.8596000001
+
+[tree118]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541738.1596999988
+y = 6589201.3542000018
+
+[tree119]
+height = 18.0
+species_name = 'torkav kuusk'
+x = 541761.95859999955
+y = 6589188.2023000009
+
+[tree12]
+height = 15.0
+species_name = 'läänepärn'
+x = 541976.067900002
+y = 6589307.4541999996
+
+[tree120]
+height = 15.0
+species_name = 'torkav kuusk'
+x = 541769.60859999806
+y = 6589189.4516000003
+
+[tree121]
+height = 17.0
+species_name = 'torkav kuusk'
+x = 541775.38859999925
+y = 6589189.0912000015
+
+[tree122]
+height = 15.0
+species_name = 'torkav kuusk'
+x = 541771.24840000272
+y = 6589187.0914999992
+
+[tree123]
+height = 17.0
+species_name = 'torkav kuusk'
+x = 541770.00819999725
+y = 6589183.7815999994
+
+[tree124]
+height = 17.0
+species_name = 'torkav kuusk'
+x = 541774.38830000162
+y = 6589185.2613000013
+
+[tree125]
+height = 17.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541790.50530000031
+y = 6589149.7800000012
+
+[tree126]
+height = 12.0
+species_name = 'h tamm'
+x = 541787.45570000261
+y = 6589154.1402999982
+
+[tree127]
+height = 15.0
+species_name = 'vene lehis'
+x = 541765.0278000012
+y = 6589179.0819999985
+
+[tree128]
+height = 17.0
+species_name = 'h tamm'
+x = 541742.53760000318
+y = 6589176.0538999997
+
+[tree129]
+height = 17.0
+species_name = 'h tamm'
+x = 541740.47770000249
+y = 6589176.8841000013
+
+[tree13]
+height = 15.0
+species_name = 'läänepärn'
+x = 541980.80409999937
+y = 6589302.2884000018
+
+[tree130]
+height = 17.0
+species_name = 'h tamm'
+x = 541741.87780000269
+y = 6589177.8740000017
+
+[tree131]
+height = 19.0
+species_name = 'torkav kuusk'
+x = 541740.68879999965
+y = 6589190.9539999999
+
+[tree132]
+height = 19.0
+species_name = 'torkav kuusk'
+x = 541736.75879999995
+y = 6589190.9142999984
+
+[tree133]
+height = 18.0
+species_name = 'suurelehine pärn'
+x = 541727.29850000143
+y = 6589186.4851000011
+
+[tree134]
+height = 9.0
+species_name = 'hall nulg'
+x = 541719.59960000217
+y = 6589173.7016000003
+
+[tree135]
+height = 13.0
+species_name = 'läänepärn'
+x = 541722.42130000144
+y = 6589196.2355000004
+
+[tree136]
+height = 14.0
+species_name = 'läänepärn'
+x = 541718.52099999785
+y = 6589192.0498000011
+
+[tree137]
+height = 17.0
+species_name = 'läänepärn'
+x = 541714.17469999939
+y = 6589188.1292000003
+
+[tree138]
+height = 16.0
+species_name = 'läänepärn'
+x = 541710.36140000075
+y = 6589184.136500001
+
+[tree139]
+height = 11.0
+species_name = 'läänepärn'
+x = 541706.21800000221
+y = 6589179.8768999986
+
+[tree14]
+height = 12.0
+species_name = 'läänepärn'
+x = 541976.00710000098
+y = 6589298.4943000004
+
+[tree140]
+height = 16.0
+species_name = 'h pärn'
+x = 541702.3396999985
+y = 6589175.5861999989
+
+[tree141]
+height = 18.0
+species_name = 'h pärn'
+x = 541694.1969999969
+y = 6589166.6079000011
+
+[tree142]
+height = 20.0
+species_name = 'läänepärn'
+x = 541713.67509999871
+y = 6589144.2263999991
+
+[tree143]
+height = 6.0
+species_name = 'suurelehine pärn'
+x = 541744.39379999787
+y = 6589134.0976000018
+
+[tree144]
+height = 18.0
+species_name = 'vene lehis'
+x = 541767.69430000335
+y = 6589136.3218999989
+
+[tree145]
+height = 9.0
+species_name = 'torkav kuusk'
+x = 541718.15649999678
+y = 6589128.249499999
+
+[tree146]
+height = 10.0
+species_name = 'torkav kuusk'
+x = 541715.71630000323
+y = 6589131.7490999997
+
+[tree147]
+height = 14.0
+species_name = 'kanada kuusk'
+x = 541711.0978000015
+y = 6589130.9792999998
+
+[tree148]
+height = 16.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541709.41340000182
+y = 6589126.3542999998
+
+[tree149]
+height = 18.0
+species_name = 'h pärn'
+x = 541695.46419999748
+y = 6589136.5485000014
+
+[tree15]
+height = 15.0
+species_name = 'läänepärn'
+x = 541984.90709999949
+y = 6589297.8134999983
+
+[tree150]
+height = 17.0
+species_name = 'läänepärn '
+x = 541683.10549999774
+y = 6589148.2758999988
+
+[tree151]
+height = 12.0
+species_name = 'ploomilehine õunapuu (var rinckii)'
+x = 541685.00580000132
+y = 6589127.3468000004
+
+[tree152]
+height = 4.0
+species_name = 'aed-õunapuu'
+x = 541679.13000000268
+y = 6589125.5441000015
+
+[tree153]
+height = 5.0
+species_name = 'aedõunapuu'
+x = 541679.51470000297
+y = 6589121.053199999
+
+[tree154]
+height = 15.0
+species_name = 'h tamm "Fastigiata"'
+x = 541685.19280000031
+y = 6589118.3541000001
+
+[tree155]
+height = 17.0
+species_name = 'torkav kuusk'
+x = 541693.22410000116
+y = 6589123.9158999994
+
+[tree156]
+height = 9.0
+species_name = "torkav kuusk 'Glauca'"
+x = 541701.88880000263
+y = 6589125.6803000011
+
+[tree157]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541701.12740000337
+y = 6589113.5355000012
+
+[tree158]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541701.55789999664
+y = 6589110.3533000015
+
+[tree159]
+height = 14.0
+species_name = 'h hobukastan'
+x = 541700.20589999855
+y = 6589107.6585000008
+
+[tree16]
+height = 15.0
+species_name = 'läänepärn'
+x = 541980.66669999808
+y = 6589293.5738999993
+
+[tree160]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541697.88759999722
+y = 6589105.675999999
+
+[tree161]
+height = 6.0
+species_name = 'h toomingas'
+x = 541702.21069999784
+y = 6589098.1009999998
+
+[tree162]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541694.83039999753
+y = 6589103.9904000014
+
+[tree163]
+species_name = 'h ploomipuu'
+x = 541693.4619999975
+y = 6589098.4908999987
+
+[tree164]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541691.8906000033
+y = 6589103.1805999987
+
+[tree165]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541686.97190000117
+y = 6589104.0012999997
+
+[tree166]
+height = 18.0
+species_name = 'h hobukastan'
+x = 541685.41770000011
+y = 6589106.8823999986
+
+[tree167]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541683.8022999987
+y = 6589109.6622000001
+
+[tree168]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541682.86760000139
+y = 6589112.2342000008
+
+[tree169]
+height = 12.0
+species_name = 'h jalakas'
+x = 541672.37560000271
+y = 6589107.0703999996
+
+[tree17]
+height = 15.0
+species_name = 'läänepärn'
+x = 541985.00630000234
+y = 6589288.8234999999
+
+[tree170]
+height = 13.0
+species_name = 'h jalakas'
+x = 541668.40060000122
+y = 6589106.4292000011
+
+[tree171]
+species_name = 'toringo õunapuu'
+x = 541671.32490000129
+y = 6589094.1843000017
+
+[tree172]
+height = 18.0
+species_name = 'h saar'
+x = 541690.83340000361
+y = 6589078.9666999988
+
+[tree173]
+species_name = 'h jalakas'
+x = 541706.11890000105
+y = 6589073.7547000013
+
+[tree174]
+height = 4.0
+species_name = 'aed-õunapuu'
+x = 541704.71660000086
+y = 6589052.7864000015
+
+[tree175]
+height = 13.0
+species_name = 'h vaher'
+x = 541697.85059999675
+y = 6589052.7738999994
+
+[tree176]
+height = 9.0
+species_name = 'raagremmelgas'
+x = 541693.95350000262
+y = 6589052.0172000006
+
+[tree177]
+height = 13.0
+species_name = 'raagremmelgas'
+x = 541693.15460000187
+y = 6589052.6693000011
+
+[tree178]
+height = 15.0
+species_name = 'h jalakas'
+x = 541687.80150000006
+y = 6589052.0368000008
+
+[tree179]
+height = 17.0
+species_name = 'h saar'
+x = 541685.11559999734
+y = 6589052.9919999987
+
+[tree18]
+height = 15.0
+species_name = 'läänepärn'
+x = 541989.07660000026
+y = 6589292.9431999996
+
+[tree180]
+species_name = 'h vaher'
+x = 541686.77279999852
+y = 6589043.4288999997
+
+[tree181]
+height = 16.0
+species_name = 'h vaher'
+x = 541684.44590000063
+y = 6589043.9290000014
+
+[tree182]
+height = 16.0
+species_name = 'h vaher'
+x = 541682.4979000017
+y = 6589044.3251999989
+
+[tree183]
+height = 19.0
+species_name = 'h vaher'
+x = 541672.90910000354
+y = 6589057.7219999991
+
+[tree184]
+height = 19.0
+species_name = 'h saar'
+x = 541675.95620000362
+y = 6589074.0445000008
+
+[tree185]
+height = 19.0
+species_name = 'h saar'
+x = 541663.94520000368
+y = 6589059.4417000003
+
+[tree186]
+height = 19.0
+species_name = 'kuldkask'
+x = 541663.09669999778
+y = 6589068.2190000005
+
+[tree187]
+height = 18.0
+species_name = 'kuldkask'
+x = 541659.05839999765
+y = 6589071.1052000001
+
+[tree188]
+height = 22.0
+species_name = 'h jalakas'
+x = 541651.25829999894
+y = 6589072.2186999992
+
+[tree189]
+height = 6.0
+species_name = 'suurelehine pärn'
+x = 541656.2744999975
+y = 6589084.4615999982
+
+[tree19]
+height = 15.0
+species_name = 'läänepärn'
+x = 541989.42589999735
+y = 6589283.803199999
+
+[tree190]
+height = 18.0
+species_name = 'h saar'
+x = 541645.5680000037
+y = 6589068.6171999983
+
+[tree191]
+height = 17.0
+species_name = 'h saar'
+x = 541644.94099999964
+y = 6589067.8121999986
+
+[tree192]
+height = 19.0
+species_name = 'h jalakas'
+x = 541648.66089999676
+y = 6589065.4125000015
+
+[tree193]
+height = 12.0
+species_name = 'h saar'
+x = 541652.30650000274
+y = 6589063.5773000009
+
+[tree194]
+height = 4.0
+species_name = 'aed-õunapuu'
+x = 541656.77350000292
+y = 6589062.6332999989
+
+[tree195]
+species_name = 'h jalakas'
+x = 541641.49009999633
+y = 6589057.6865000017
+
+[tree196]
+height = 20.0
+species_name = 'h jalakas'
+x = 541638.00159999728
+y = 6589050.9897999987
+
+[tree197]
+species_name = 'torkav kuusk'
+x = 541653.24560000002
+y = 6589039.2406000011
+
+[tree198]
+height = 17.0
+species_name = 'h jalakas'
+x = 541661.71909999847
+y = 6589033.1229000017
+
+[tree199]
+height = 21.0
+species_name = 'h saar'
+x = 541658.58590000123
+y = 6589030.6031999998
+
+[tree2]
+height = 17.0
+species_name = 'arukask'
+x = 541904.52839999646
+y = 6589311.5995000005
+
+[tree20]
+height = 15.0
+species_name = 'läänepärn'
+x = 541993.39549999684
+y = 6589278.8429000005
+
+[tree200]
+height = 7.0
+species_name = 'h pihlakas'
+x = 541650.97789999843
+y = 6589030.4873000011
+
+[tree201]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541653.37619999796
+y = 6589025.1796000004
+
+[tree202]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541651.3900000006
+y = 6589020.0007999986
+
+[tree203]
+height = 15.0
+species_name = 'h saar'
+x = 541658.33889999986
+y = 6589019.1363000013
+
+[tree204]
+height = 17.0
+species_name = 'h vaher'
+x = 541651.43230000138
+y = 6588998.9748999998
+
+[tree205]
+height = 18.0
+species_name = 'h vaher'
+x = 541661.27600000054
+y = 6588995.9301000014
+
+[tree206]
+species_name = 'palsaminulg'
+x = 541680.99589999765
+y = 6589019.0144000016
+
+[tree207]
+height = 8.0
+species_name = 'palsaminulg'
+x = 541679.10610000044
+y = 6589021.3905999996
+
+[tree208]
+height = 5.0
+species_name = 'aed-õunapuu'
+x = 541672.79969999939
+y = 6589017.0700999983
+
+[tree209]
+height = 5.0
+species_name = 'aed-õunapuu'
+x = 541666.18999999762
+y = 6589020.1096000001
+
+[tree21]
+height = 12.0
+species_name = 'läänepärn'
+x = 542002.4654000029
+y = 6589278.5221000016
+
+[tree210]
+height = 15.0
+species_name = 'h jalakas'
+x = 541668.18649999797
+y = 6589026.4354000017
+
+[tree211]
+height = 7.0
+species_name = 'h jalakas'
+x = 541705.27979999781
+y = 6589031.8674000017
+
+[tree212]
+height = 7.0
+species_name = 'h jalakas'
+x = 541701.76510000229
+y = 6589022.4277000017
+
+[tree213]
+height = 7.0
+species_name = 'h jalakas'
+x = 541701.24099999666
+y = 6589021.6286999993
+
+[tree214]
+species_name = 'h vaher'
+x = 541673.31949999928
+y = 6588990.6790999994
+
+[tree215]
+height = 6.0
+species_name = 'aed-õunapuu'
+x = 541658.69590000063
+y = 6588986.2712000012
+
+[tree216]
+height = 8.0
+species_name = 'aed-õunapuu'
+x = 541648.45080000162
+y = 6588980.9831999987
+
+[tree217]
+height = 6.0
+species_name = 'aed-õunapuu'
+x = 541663.62009999901
+y = 6588973.0720000006
+
+[tree218]
+height = 6.0
+species_name = 'h sirel'
+x = 541663.31750000268
+y = 6588965.6209999993
+
+[tree219]
+height = 12.0
+species_name = 'saarvaher'
+x = 541671.26210000366
+y = 6588960.8203999996
+
+[tree22]
+height = 15.0
+species_name = 'läänepärn'
+x = 541997.99499999732
+y = 6589274.1125000007
+
+[tree220]
+height = 6.0
+species_name = 'aedõunapuu'
+x = 541655.19979999959
+y = 6588956.5067000017
+
+[tree221]
+height = 15.0
+species_name = 'sookask'
+x = 541646.81409999728
+y = 6588972.1433000006
+
+[tree222]
+height = 17.0
+species_name = 'arukask'
+x = 541642.47420000285
+y = 6588973.3396999994
+
+[tree223]
+height = 15.0
+species_name = 'h saar'
+x = 541640.52700000256
+y = 6588971.2358999997
+
+[tree224]
+species_name = 'aedõunapuu'
+x = 541636.71040000021
+y = 6588963.7832000004
+
+[tree225]
+height = 7.0
+species_name = 'suurelehine pärn'
+x = 541617.75429999828
+y = 6588995.696800001
+
+[tree226]
+height = 7.0
+species_name = 'suurelehine pärn'
+x = 541616.23719999939
+y = 6588992.9571000002
+
+[tree227]
+species_name = 'saarvaher'
+x = 541617.24270000309
+y = 6588965.9490999989
+
+[tree228]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541651.66189999878
+y = 6588945.1680000015
+
+[tree229]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541645.02090000361
+y = 6588944.7826000005
+
+[tree23]
+height = 15.0
+species_name = 'läänepärn'
+x = 542002.18469999731
+y = 6589269.5522000007
+
+[tree230]
+species_name = 'h hobukastan'
+x = 541642.36850000173
+y = 6588939.8427999988
+
+[tree231]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541638.51479999721
+y = 6588944.1521000005
+
+[tree232]
+height = 19.0
+species_name = 'h hobukastan'
+x = 541635.90919999778
+y = 6588939.1163000017
+
+[tree233]
+height = 18.0
+species_name = 'h hobukastan'
+x = 541632.40380000323
+y = 6588943.8535999991
+
+[tree234]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541626.41269999743
+y = 6588943.0122000016
+
+[tree235]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541630.17930000275
+y = 6588939.0872000009
+
+[tree236]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541656.23460000008
+y = 6588929.4287
+
+[tree237]
+height = 18.0
+species_name = 'suurelehine pärn'
+x = 541649.9450000003
+y = 6588919.2457000017
+
+[tree238]
+height = 19.0
+species_name = 'suurelehine pärn'
+x = 541649.91200000048
+y = 6588912.5388999991
+
+[tree239]
+height = 20.0
+species_name = 'suurelehine pärn'
+x = 541649.53559999913
+y = 6588915.7014999986
+
+[tree24]
+height = 15.0
+species_name = 'läänepärn'
+x = 542006.9849999994
+y = 6589273.6816999987
+
+[tree240]
+height = 20.0
+species_name = 'h vaher'
+x = 541645.50439999998
+y = 6588902.3636999987
+
+[tree241]
+height = 20.0
+species_name = 'h vaher'
+x = 541634.62470000237
+y = 6588917.8084999993
+
+[tree242]
+height = 16.0
+species_name = 'h vaher'
+x = 541629.02030000091
+y = 6588910.3403999992
+
+[tree243]
+height = 18.0
+species_name = 'h vaher'
+x = 541629.54360000044
+y = 6588907.5965999998
+
+[tree244]
+height = 22.0
+species_name = 'h pärn'
+x = 541621.45700000226
+y = 6588901.3280000016
+
+[tree245]
+height = 6.0
+species_name = 'punane tamm'
+x = 541608.15169999748
+y = 6588888.4565999992
+
+[tree246]
+species_name = 'h hobukastan'
+x = 541590.89190000296
+y = 6588894.7815000005
+
+[tree247]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541591.929399997
+y = 6588888.5733999982
+
+[tree248]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541592.72990000248
+y = 6588881.9494000003
+
+[tree249]
+species_name = 'h hobukastan'
+x = 541593.92130000144
+y = 6588875.3302999996
+
+[tree25]
+height = 15.0
+species_name = 'läänepärn'
+x = 542010.98449999839
+y = 6589268.4913999997
+
+[tree250]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541594.86670000106
+y = 6588868.122200001
+
+[tree251]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541595.37529999763
+y = 6588863.383200001
+
+[tree252]
+height = 19.0
+species_name = 'läänepärn'
+x = 541599.35890000314
+y = 6588853.8625000007
+
+[tree253]
+height = 19.0
+species_name = 'h pärn'
+x = 541600.24700000137
+y = 6588848.5359999985
+
+[tree254]
+species_name = 'läänepärn'
+x = 541609.55039999634
+y = 6588839.4012000002
+
+[tree255]
+species_name = 'h hobukastan'
+x = 541598.36850000173
+y = 6588840.8720000014
+
+[tree256]
+height = 16.0
+species_name = 'h pärn '
+x = 541600.34920000285
+y = 6588843.7533
+
+[tree257]
+height = 4.0
+species_name = 'toringo õunapuu'
+x = 541621.83089999855
+y = 6588855.2212000005
+
+[tree258]
+species_name = 'h pärn'
+x = 541637.01789999753
+y = 6588867.2270000018
+
+[tree259]
+height = 18.0
+species_name = 'h tamm'
+x = 541645.09960000217
+y = 6588892.2857000008
+
+[tree26]
+height = 15.0
+species_name = 'läänepärn'
+x = 542006.50419999659
+y = 6589264.5817999989
+
+[tree260]
+height = 21.0
+species_name = 'h jalakas'
+x = 541675.95400000364
+y = 6588910.7320999987
+
+[tree261]
+height = 19.0
+species_name = 'h vaher'
+x = 541683.67499999702
+y = 6588899.6284999996
+
+[tree262]
+height = 20.0
+species_name = 'h jalakas'
+x = 541681.07559999824
+y = 6588898.131000001
+
+[tree263]
+height = 16.0
+species_name = 'h vaher'
+x = 541673.53040000051
+y = 6588891.442400001
+
+[tree264]
+height = 16.0
+species_name = 'h vaher'
+x = 541672.92300000042
+y = 6588886.7934999987
+
+[tree265]
+height = 21.0
+species_name = 'h jalakas'
+x = 541663.89339999855
+y = 6588882.4114999995
+
+[tree266]
+height = 21.0
+species_name = 'h saar'
+x = 541657.17660000175
+y = 6588881.6407999992
+
+[tree267]
+species_name = 'h vaher'
+x = 541691.26550000161
+y = 6588881.1009999998
+
+[tree268]
+height = 8.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541708.43079999834
+y = 6588873.1215999983
+
+[tree269]
+height = 6.0
+species_name = 'h pihlakas'
+x = 541728.67210000008
+y = 6588865.8000000007
+
+[tree27]
+height = 15.0
+species_name = 'läänepärn'
+x = 542011.11379999667
+y = 6589259.9114000015
+
+[tree270]
+height = 15.0
+species_name = 'h jalakas'
+x = 541725.5671999976
+y = 6588866.9732000008
+
+[tree271]
+height = 16.0
+species_name = 'h saar'
+x = 541717.28019999713
+y = 6588864.1140000001
+
+[tree272]
+height = 15.0
+species_name = 'h saar'
+x = 541700.16340000182
+y = 6588857.2032999992
+
+[tree273]
+height = 16.0
+species_name = 'h vaher'
+x = 541689.59640000015
+y = 6588854.9082000004
+
+[tree274]
+height = 21.0
+species_name = 'h jalakas'
+x = 541684.47020000219
+y = 6588864.9996000007
+
+[tree275]
+height = 18.0
+species_name = 'h pärn'
+x = 541681.43320000172
+y = 6588864.7148000002
+
+[tree276]
+species_name = 'aedõunapuu'
+x = 541671.47649999708
+y = 6588867.2622000016
+
+[tree277]
+height = 18.0
+species_name = 'h saar'
+x = 541678.55590000004
+y = 6588852.7340000011
+
+[tree278]
+height = 18.0
+species_name = 'kuldkask'
+x = 541675.88949999958
+y = 6588855.9663000004
+
+[tree279]
+height = 17.0
+species_name = 'kuldkask'
+x = 541670.19619999826
+y = 6588852.2705000006
+
+[tree28]
+height = 15.0
+species_name = 'läänepärn'
+x = 542015.93410000205
+y = 6589263.6609999985
+
+[tree280]
+height = 20.0
+species_name = 'h pärn'
+x = 541653.33690000325
+y = 6588860.6462000012
+
+[tree281]
+height = 21.0
+species_name = 'h pärn'
+x = 541647.77920000255
+y = 6588863.1695999987
+
+[tree282]
+height = 20.0
+species_name = 'h vaher'
+x = 541643.72100000083
+y = 6588861.0329000019
+
+[tree283]
+species_name = 'h kuusk'
+x = 541641.45530000329
+y = 6588860.1528999992
+
+[tree284]
+species_name = 'h saar "Pendula"'
+x = 541653.45740000159
+y = 6588853.9492000006
+
+[tree285]
+species_name = 'h vaher'
+x = 541645.755400002
+y = 6588847.8632999994
+
+[tree286]
+height = 17.0
+species_name = 'h vaher'
+x = 541638.01539999992
+y = 6588840.6495000012
+
+[tree287]
+height = 13.0
+species_name = 'h hobukastan'
+x = 541633.49140000343
+y = 6588854.1816999987
+
+[tree288]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541632.09650000185
+y = 6588850.5811999999
+
+[tree289]
+species_name = 'h pihlakas'
+x = 541629.30430000275
+y = 6588839.4012000002
+
+[tree29]
+height = 15.0
+species_name = 'läänepärn'
+x = 542020.90370000154
+y = 6589258.5606000014
+
+[tree290]
+height = 18.0
+species_name = 'h vaher'
+x = 541623.95120000094
+y = 6588837.7456
+
+[tree291]
+height = 18.0
+species_name = 'h saar'
+x = 541619.75890000165
+y = 6588833.9849999994
+
+[tree292]
+height = 20.0
+species_name = 'h jalakas'
+x = 541612.7907000035
+y = 6588831.6072000004
+
+[tree293]
+height = 12.0
+species_name = 'h saar'
+x = 541601.64069999754
+y = 6588831.7058000006
+
+[tree294]
+species_name = 'h hobukastan'
+x = 541600.48040000349
+y = 6588827.0949000008
+
+[tree295]
+species_name = 'h hobukastan'
+x = 541601.95440000296
+y = 6588814.9978
+
+[tree296]
+species_name = 'h vaher'
+x = 541622.81769999862
+y = 6588812.3159000017
+
+[tree297]
+species_name = 'h hobukastan'
+x = 541633.65810000151
+y = 6588825.5509000011
+
+[tree298]
+species_name = 'h vaher'
+x = 541639.67499999702
+y = 6588826.8277999982
+
+[tree299]
+species_name = 'äädikapuu'
+x = 541652.0549999997
+y = 6588836.3479000004
+
+[tree3]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541884.99840000272
+y = 6589310.9312000014
+
+[tree30]
+height = 15.0
+species_name = 'läänepärn'
+x = 542031.50800000131
+y = 6589250.9237999991
+
+[tree300]
+species_name = 'h hobukastan'
+x = 541636.29649999738
+y = 6588813.1019000001
+
+[tree301]
+species_name = 'h hobukastan'
+x = 541637.18810000271
+y = 6588810.0806999989
+
+[tree302]
+height = 2.0
+species_name = 'h tamm'
+x = 541639.07999999821
+y = 6588794.9954000004
+
+[tree303]
+species_name = 'h vaher'
+x = 541643.86110000312
+y = 6588800.8751000017
+
+[tree304]
+species_name = 'h vaher'
+x = 541642.4048999995
+y = 6588810.9855999984
+
+[tree305]
+species_name = 'h hobukastan'
+x = 541643.06660000235
+y = 6588811.8830000013
+
+[tree306]
+species_name = 'h vaher'
+x = 541658.42300000042
+y = 6588796.9772999994
+
+[tree307]
+species_name = 'torkav kuusk "Glauca"'
+x = 541659.81239999831
+y = 6588807.3365000002
+
+[tree308]
+species_name = ''
+x = 541665.1726000011
+y = 6588790.3500999995
+
+[tree309]
+height = 3.0
+species_name = 'mägimänd'
+x = 541666.57180000097
+y = 6588793.1427000016
+
+[tree31]
+height = 15.0
+species_name = 'h pärn'
+x = 542049.2282000035
+y = 6589240.4378000014
+
+[tree310]
+height = 17.0
+species_name = 'h jalakas'
+x = 541675.05510000139
+y = 6588789.4589000009
+
+[tree311]
+species_name = 'h jalakas'
+x = 541672.92660000175
+y = 6588795.7727999995
+
+[tree312]
+species_name = 'h ploomipuu'
+x = 541672.45329999924
+y = 6588811.7443000004
+
+[tree313]
+species_name = 'h pirnipuu'
+x = 541678.13419999927
+y = 6588818.3570000008
+
+[tree314]
+species_name = 'pooppuu'
+x = 541684.30420000106
+y = 6588813.6242999993
+
+[tree315]
+species_name = 'h vaher'
+x = 541680.95780000091
+y = 6588799.5500999987
+
+[tree316]
+species_name = 'h jalakas'
+x = 541683.40709999949
+y = 6588791.0139000006
+
+[tree317]
+height = 10.0
+species_name = 'pooppuu'
+x = 541686.19810000062
+y = 6588803.0957000004
+
+[tree318]
+height = 16.0
+species_name = 'h vaher'
+x = 541690.65720000118
+y = 6588805.0681000017
+
+[tree319]
+species_name = 'h hobukastan'
+x = 541690.59579999745
+y = 6588816.0152999982
+
+[tree32]
+height = 15.0
+species_name = 'h saar'
+x = 542012.86249999702
+y = 6589243.6013000011
+
+[tree320]
+species_name = 'h hobukastan'
+x = 541690.12120000273
+y = 6588821.6125999987
+
+[tree321]
+species_name = 'h vaher'
+x = 541700.11169999838
+y = 6588834.9114000015
+
+[tree322]
+species_name = 'h vaher'
+x = 541702.86670000106
+y = 6588835.4871999994
+
+[tree323]
+height = 17.0
+species_name = 'h vaher,  h saar'
+x = 541700.31329999864
+y = 6588805.943500001
+
+[tree324]
+height = 21.0
+species_name = 'arukask'
+x = 541698.43360000104
+y = 6588797.4836999997
+
+[tree325]
+height = 23.0
+species_name = 'arukask'
+x = 541701.2126000002
+y = 6588797.3663999997
+
+[tree326]
+height = 23.0
+species_name = 'arukask'
+x = 541712.66449999809
+y = 6588796.8495000005
+
+[tree327]
+height = 14.0
+species_name = 'h vaher'
+x = 541704.70229999721
+y = 6588806.4541000016
+
+[tree328]
+height = 16.0
+species_name = 'h vaher'
+x = 541709.24930000305
+y = 6588806.6198000014
+
+[tree329]
+height = 17.0
+species_name = 'h vaher'
+x = 541709.94430000335
+y = 6588806.9116999991
+
+[tree33]
+species_name = 'h vaher'
+x = 542013.69280000031
+y = 6589247.4712999985
+
+[tree330]
+species_name = 'h vaher'
+x = 541712.38530000299
+y = 6588806.8724999987
+
+[tree331]
+height = 16.0
+species_name = 'h vaher'
+x = 541729.01539999992
+y = 6588808.1550999992
+
+[tree332]
+height = 9.0
+species_name = 'arukask '
+x = 541719.4394999966
+y = 6588796.7369000018
+
+[tree333]
+height = 15.0
+species_name = 'h vaher'
+x = 541729.14280000329
+y = 6588801.6391000003
+
+[tree334]
+height = 15.0
+species_name = 'h vaher'
+x = 541732.43779999763
+y = 6588801.6458999999
+
+[tree335]
+height = 20.0
+species_name = 'arukask'
+x = 541739.89039999992
+y = 6588796.3112999983
+
+[tree336]
+height = 15.0
+species_name = 'h vaher'
+x = 541742.68299999833
+y = 6588803.682
+
+[tree337]
+height = 5.0
+species_name = 'kuldkask '
+x = 541743.46130000055
+y = 6588796.0190000013
+
+[tree338]
+species_name = 'h vaher'
+x = 541752.23539999872
+y = 6588797.6853
+
+[tree339]
+species_name = 'h vaher'
+x = 541752.87759999931
+y = 6588799.1451999992
+
+[tree34]
+species_name = 'h saar'
+x = 542010.02539999783
+y = 6589250.7347999997
+
+[tree340]
+species_name = 'h vaher'
+x = 541753.99889999628
+y = 6588803.4360999987
+
+[tree341]
+species_name = 'h vaher'
+x = 541755.59520000219
+y = 6588806.8929000013
+
+[tree342]
+species_name = 'h jalakas'
+x = 541759.78000000119
+y = 6588817.2215999998
+
+[tree343]
+height = 14.0
+species_name = 'h vaher'
+x = 541747.75010000169
+y = 6588818.1565999994
+
+[tree344]
+height = 16.0
+species_name = 'h saar'
+x = 541748.91449999809
+y = 6588822.4974000007
+
+[tree345]
+species_name = 'h vaher'
+x = 541747.38650000095
+y = 6588822.4996000007
+
+[tree346]
+species_name = 'h jalakas'
+x = 541747.26539999992
+y = 6588833.261500001
+
+[tree347]
+species_name = 'arukask'
+x = 541725.125
+y = 6588838.6292999983
+
+[tree348]
+species_name = 'h jalakas'
+x = 541716.98830000311
+y = 6588840.9191999994
+
+[tree349]
+species_name = 'h vaher'
+x = 541726.51430000365
+y = 6588843.1722000018
+
+[tree35]
+species_name = 'h saar'
+x = 542004.42289999872
+y = 6589248.6220000014
+
+[tree350]
+species_name = 'arukask'
+x = 541729.34920000285
+y = 6588842.8489999995
+
+[tree351]
+species_name = 'h vaher'
+x = 541743.18649999797
+y = 6588858.9028000012
+
+[tree352]
+height = 18.0
+species_name = 'h vaher'
+x = 541749.87359999865
+y = 6588860.3731999993
+
+[tree353]
+species_name = 'h jalakas'
+x = 541756.32169999927
+y = 6588861.7846999988
+
+[tree354]
+height = 21.0
+species_name = 'läänepärn '
+x = 541762.96909999847
+y = 6588854.7421999983
+
+[tree355]
+height = 21.0
+species_name = 'h pärn'
+x = 541748.13319999725
+y = 6588854.9754000008
+
+[tree356]
+species_name = 'h vaher'
+x = 541746.52669999748
+y = 6588849.624499999
+
+[tree357]
+species_name = 'h vaher'
+x = 541748.54649999738
+y = 6588847.2083999999
+
+[tree358]
+height = 23.0
+species_name = 'läänepärn'
+x = 541758.65320000052
+y = 6588844.2245999984
+
+[tree359]
+height = 23.0
+species_name = 'h pärn'
+x = 541764.45069999993
+y = 6588838.2591000013
+
+[tree36]
+species_name = 'h saar'
+x = 541987.04270000011
+y = 6589245.2534999996
+
+[tree360]
+species_name = 'h vaher'
+x = 541758.61339999735
+y = 6588834.3955999995
+
+[tree361]
+height = 20.0
+species_name = 'h vaher'
+x = 541762.31099999696
+y = 6588829.2272999994
+
+[tree362]
+species_name = 'h vaher'
+x = 541764.85779999942
+y = 6588826.7551000006
+
+[tree363]
+height = 19.0
+species_name = 'h saar'
+x = 541757.96029999852
+y = 6588807.8337999992
+
+[tree364]
+height = 20.0
+species_name = 'h pärn'
+x = 541755.22079999745
+y = 6588802.5480000004
+
+[tree365]
+species_name = 'h saar'
+x = 541753.78360000253
+y = 6588799.0881000012
+
+[tree366]
+height = 5.0
+species_name = 'ida-mariõunapuu'
+x = 541767.19979999959
+y = 6588802.063000001
+
+[tree367]
+species_name = 'ida-mariõunapuu'
+x = 541771.88769999892
+y = 6588802.0425999984
+
+[tree368]
+height = 3.0
+species_name = 'h jalakas "Camperdownii"'
+x = 541808.50599999726
+y = 6588794.8335999995
+
+[tree369]
+height = 17.0
+species_name = 'läänepärn'
+x = 541787.27589999884
+y = 6588816.4243000001
+
+[tree37]
+species_name = 'h saar'
+x = 541995.30309999734
+y = 6589250.6328000017
+
+[tree370]
+species_name = 'läänepärn'
+x = 541787.59910000116
+y = 6588819.7822999991
+
+[tree371]
+height = 19.0
+species_name = 'läänepärn'
+x = 541787.59179999679
+y = 6588827.2171999998
+
+[tree372]
+species_name = 'h hobukastan'
+x = 541784.03639999777
+y = 6588822.9706000015
+
+[tree373]
+species_name = 'h hobukastan'
+x = 541779.74840000272
+y = 6588822.1598999985
+
+[tree374]
+height = 19.0
+species_name = 'h vaher'
+x = 541773.37669999897
+y = 6588825.6224000007
+
+[tree375]
+height = 18.0
+species_name = 'h vaher'
+x = 541774.56589999795
+y = 6588828.4182999991
+
+[tree376]
+species_name = 'läänepärn'
+x = 541787.77910000086
+y = 6588830.9591999995
+
+[tree377]
+height = 17.0
+species_name = 'läänepärn'
+x = 541788.32379999757
+y = 6588835.1928999983
+
+[tree378]
+height = 17.0
+species_name = 'läänepärn'
+x = 541787.03959999979
+y = 6588838.0502999984
+
+[tree379]
+height = 19.0
+species_name = 'läänepärn'
+x = 541786.55290000141
+y = 6588841.6323000006
+
+[tree38]
+height = 15.0
+species_name = 'h saar'
+x = 542002.58380000293
+y = 6589259.5022
+
+[tree380]
+species_name = 'h sirel, h lumimari,         h ebajasmiin'
+x = 541701.07850000262
+y = 6588902.1959999986
+
+[tree381]
+height = 16.0
+species_name = 'h vaher'
+x = 541789.88440000266
+y = 6588883.4059000015
+
+[tree382]
+height = 17.0
+species_name = 'h vaher'
+x = 541776.01129999757
+y = 6588893.8819999993
+
+[tree383]
+height = 6.0
+species_name = 'h. vaher '
+x = 541776.44049999863
+y = 6588882.9257000014
+
+[tree384]
+height = 4.0
+species_name = 'h. sirel '
+x = 541780.80390000343
+y = 6588903.0406000018
+
+[tree385]
+height = 16.0
+species_name = 'h vaher'
+x = 541792.27409999818
+y = 6588904.9426000006
+
+[tree386]
+height = 5.0
+species_name = 'h sirel'
+x = 541776.54169999808
+y = 6588923.7258000001
+
+[tree387]
+species_name = 'h hobukastan'
+x = 541716.63639999926
+y = 6588929.1906999983
+
+[tree388]
+species_name = 'h saar'
+x = 541722.2370999977
+y = 6588937.8462999985
+
+[tree389]
+species_name = 'h hobukastan'
+x = 541711.37939999998
+y = 6588929.4301999994
+
+[tree39]
+height = 12.0
+species_name = 'h saar'
+x = 541992.9646999985
+y = 6589269.2729000002
+
+[tree390]
+species_name = 'h vaher'
+x = 541704.53310000151
+y = 6588913.4897999987
+
+[tree391]
+species_name = 'h hobukastan'
+x = 541707.85639999807
+y = 6588906.3907000013
+
+[tree392]
+species_name = 'h vaher'
+x = 541695.20549999923
+y = 6588917.4945
+
+[tree393]
+height = 14.0
+species_name = 'h tamm'
+x = 541697.96809999645
+y = 6588925.6312999986
+
+[tree394]
+height = 19.0
+species_name = 'h tamm'
+x = 541699.90540000051
+y = 6588928.4891000018
+
+[tree395]
+height = 18.0
+species_name = 'h tamm'
+x = 541694.38729999959
+y = 6588928.1075999998
+
+[tree396]
+height = 21.0
+species_name = 'läänepärn'
+x = 541694.80610000342
+y = 6588936.9145000018
+
+[tree397]
+height = 20.0
+species_name = 'läänepärn'
+x = 541691.16600000113
+y = 6588935.6587999985
+
+[tree398]
+species_name = 'h jalakas'
+x = 541680.7752000019
+y = 6588913.6979999989
+
+[tree399]
+species_name = 'ungari sirel'
+x = 541675.59409999847
+y = 6588924.2421000004
+
+[tree4]
+height = 3.0
+species_name = 'h pihlakas'
+x = 541878.50819999725
+y = 6589308.7917000018
+
+[tree40]
+species_name = 'tatari vaher'
+x = 541985.90359999985
+y = 6589256.1834999993
+
+[tree400]
+species_name = 'saarvaher'
+x = 541672.19169999659
+y = 6588918.8894000016
+
+[tree401]
+height = 16.0
+species_name = 'mägivaher'
+x = 541673.01959999651
+y = 6588929.9173000008
+
+[tree402]
+height = 13.0
+species_name = 'h hobukastan'
+x = 541681.67790000141
+y = 6588946.2806000002
+
+[tree403]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541687.87089999765
+y = 6588946.4761000015
+
+[tree404]
+height = 14.0
+species_name = 'h hobukastan'
+x = 541700.77600000054
+y = 6588948.8000000007
+
+[tree405]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541706.8852000013
+y = 6588950.6264999993
+
+[tree406]
+height = 15.0
+species_name = 'h. hobukastan '
+x = 541712.00370000303
+y = 6588962.1438999996
+
+[tree407]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541723.57069999725
+y = 6588945.9840999991
+
+[tree408]
+species_name = 'h saar'
+x = 541728.24109999835
+y = 6588950.7357000001
+
+[tree409]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541724.13149999827
+y = 6588955.4180000015
+
+[tree41]
+height = 7.0
+species_name = 'h saar "Pendula"'
+x = 541982.48449999839
+y = 6589267.1138000004
+
+[tree410]
+species_name = 'h hobukastan'
+x = 541728.60670000315
+y = 6588958.4206999987
+
+[tree411]
+species_name = 'h vaher'
+x = 541732.55629999936
+y = 6588965.8643000014
+
+[tree412]
+height = 8.0
+species_name = 'hõberemmelgas'
+x = 541728.30650000274
+y = 6588968.2226999998
+
+[tree413]
+height = 13.0
+species_name = 'h hobukastan'
+x = 541717.37389999628
+y = 6588976.1560000004
+
+[tree414]
+species_name = 'h vaher'
+x = 541732.71689999849
+y = 6588972.941300001
+
+[tree415]
+height = 9.0
+species_name = 'h hobukastan'
+x = 541731.01430000365
+y = 6588977.6693999991
+
+[tree416]
+species_name = 'h hobukastan'
+x = 541736.15950000286
+y = 6588980.5500000007
+
+[tree417]
+height = 14.0
+species_name = 'h vaher'
+x = 541732.44960000366
+y = 6588981.1103000008
+
+[tree418]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541724.82249999791
+y = 6588979.4299000017
+
+[tree419]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541721.47290000319
+y = 6588984.0962000005
+
+[tree42]
+height = 5.0
+species_name = 'h saar "Pendula"'
+x = 541983.30510000139
+y = 6589274.3236999996
+
+[tree420]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541726.96899999678
+y = 6588986.1187000014
+
+[tree421]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541723.44539999962
+y = 6588990.4829999991
+
+[tree422]
+height = 13.0
+species_name = 'h hobukastan'
+x = 541725.51089999825
+y = 6588996.752799999
+
+[tree423]
+height = 7.0
+species_name = 'hõberemmelgas'
+x = 541738.95539999753
+y = 6588991.308699999
+
+[tree424]
+species_name = 'h vaher'
+x = 541741.25779999793
+y = 6588996.1264999993
+
+[tree425]
+species_name = 'hõberemmelgas'
+x = 541737.79720000178
+y = 6589000.5727999993
+
+[tree426]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541727.33439999819
+y = 6589002.9545999989
+
+[tree427]
+species_name = 'h hobukastan'
+x = 541732.91049999744
+y = 6589005.0421999991
+
+[tree428]
+species_name = 'hõberemmelgas'
+x = 541741.83640000224
+y = 6589003.6264000013
+
+[tree429]
+species_name = 'läänepärn'
+x = 541742.51179999858
+y = 6589008.4864000008
+
+[tree43]
+height = 18.0
+species_name = 'läänepärn'
+x = 541957.13809999824
+y = 6589297.6798
+
+[tree430]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541734.94200000167
+y = 6589011.1970000006
+
+[tree431]
+height = 14.0
+species_name = 'h hobukastan'
+x = 541729.38289999962
+y = 6589009.6915000007
+
+[tree432]
+height = 15.0
+species_name = 'h hobukastan'
+x = 541731.21940000355
+y = 6589015.634300001
+
+[tree433]
+height = 17.0
+species_name = 'h hobukastan'
+x = 541733.31490000337
+y = 6589021.6171000004
+
+[tree434]
+species_name = 'h jalakas'
+x = 541731.07119999826
+y = 6589024.6455999995
+
+[tree435]
+species_name = 'h saar'
+x = 541746.58529999852
+y = 6589014.9129999988
+
+[tree436]
+height = 11.0
+species_name = 'h hobukastan'
+x = 541745.38660000265
+y = 6589018.1530999988
+
+[tree437]
+species_name = 'h saar'
+x = 541748.08799999952
+y = 6589023.7668999992
+
+[tree438]
+species_name = 'h hobukastan'
+x = 541734.82039999962
+y = 6589027.879999999
+
+[tree439]
+species_name = 'h hobukastan'
+x = 541739.13660000265
+y = 6589030.1675999984
+
+[tree44]
+height = 20.0
+species_name = 'h pärn'
+x = 541957.00760000199
+y = 6589279.742899999
+
+[tree440]
+species_name = 'h hobukastan'
+x = 541734.66499999911
+y = 6589034.3198999986
+
+[tree441]
+species_name = 'hõberemmelgas'
+x = 541745.38400000334
+y = 6589035.7100999989
+
+[tree442]
+height = 12.0
+species_name = 'h hobukastan'
+x = 541747.72869999707
+y = 6589043.5348000005
+
+[tree443]
+species_name = 'h saar'
+x = 541750.90670000017
+y = 6589044.4125999995
+
+[tree444]
+height = 16.0
+species_name = 'h vaher'
+x = 541749.66420000046
+y = 6589050.1546999998
+
+[tree445]
+species_name = 'h saar'
+x = 541752.11069999635
+y = 6589055.6303999983
+
+[tree446]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541735.0345999971
+y = 6589053.8059
+
+[tree447]
+height = 14.0
+species_name = 'pooppuu'
+x = 541750.14239999652
+y = 6589064.5066
+
+[tree448]
+species_name = 'h hobukastan'
+x = 541735.09860000014
+y = 6589067.0498000011
+
+[tree449]
+species_name = ''
+x = 541735.39169999957
+y = 6589073.5483000018
+
+[tree45]
+height = 20.0
+species_name = 'h pärn'
+x = 541950.45669999719
+y = 6589268.1394999996
+
+[tree450]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541735.45470000058
+y = 6589079.9917000011
+
+[tree451]
+height = 12.0
+species_name = 'h saar'
+x = 541748.28809999675
+y = 6589101.4809999987
+
+[tree452]
+height = 16.0
+species_name = 'h vaher'
+x = 541758.46970000118
+y = 6589100.8559999987
+
+[tree453]
+height = 14.0
+species_name = 'h saar'
+x = 541779.60559999943
+y = 6589104.6950000003
+
+[tree454]
+height = 7.0
+species_name = 'hõberemmelgas'
+x = 541765.34440000355
+y = 6589089.6983000003
+
+[tree455]
+height = 6.0
+species_name = 'hõberemmelgas'
+x = 541770.03480000049
+y = 6589082.6158999987
+
+[tree456]
+species_name = 'hõberemmelgas'
+x = 541777.30759999901
+y = 6589080.7082999982
+
+[tree457]
+species_name = 'hõberemmelgas'
+x = 541782.44370000064
+y = 6589080.9039000012
+
+[tree458]
+height = 18.0
+species_name = 'h pärn'
+x = 541797.53719999641
+y = 6589093.6424000002
+
+[tree459]
+species_name = 'hõberemmelgas'
+x = 541799.38419999927
+y = 6589088.3134999983
+
+[tree46]
+height = 22.0
+species_name = 'h pärn'
+x = 541945.33780000359
+y = 6589270.0148999989
+
+[tree460]
+species_name = 'hõberemmelgas'
+x = 541798.13369999826
+y = 6589082.4576000012
+
+[tree461]
+species_name = 'hõberemmelgas'
+x = 541805.82069999725
+y = 6589082.4288999997
+
+[tree462]
+height = 18.0
+species_name = 'läänepärn'
+x = 541812.69110000134
+y = 6589087.7214000002
+
+[tree463]
+species_name = 'hõberemmelgas'
+x = 541819.60840000212
+y = 6589091.127799999
+
+[tree464]
+height = 7.0
+species_name = 'hõberemmelgas'
+x = 541810.71369999647
+y = 6589094.249499999
+
+[tree465]
+height = 9.0
+species_name = 'h toomingas'
+x = 541814.60580000281
+y = 6589096.0441999994
+
+[tree466]
+height = 16.0
+species_name = 'h pärn'
+x = 541819.49930000305
+y = 6589102.5758000016
+
+[tree467]
+height = 15.0
+species_name = 'h saar'
+x = 541785.3702000007
+y = 6588928.4213999994
+
+[tree468]
+height = 16.0
+species_name = 'mägivaher'
+x = 541802.08720000088
+y = 6588930.2256999984
+
+[tree469]
+height = 16.0
+species_name = 'h jalakas'
+x = 541795.05590000004
+y = 6588939.0703000017
+
+[tree47]
+height = 21.0
+species_name = 'h pärn'
+x = 541943.65540000051
+y = 6589276.3770000003
+
+[tree470]
+height = 15.0
+species_name = 'h saar'
+x = 541821.63440000266
+y = 6588994.3348999992
+
+[tree471]
+height = 17.0
+species_name = 'h saar'
+x = 541823.15179999918
+y = 6588999.4978
+
+[tree472]
+height = 16.0
+species_name = 'h vaher'
+x = 541829.38629999757
+y = 6589008.9593999982
+
+[tree473]
+height = 14.0
+species_name = 'h saar'
+x = 541837.32029999793
+y = 6589029.8125
+
+[tree474]
+height = 19.0
+species_name = 'h saar'
+x = 541829.62849999964
+y = 6589034.4591000006
+
+[tree475]
+height = 20.0
+species_name = 'h saar'
+x = 541829.0754000023
+y = 6589037.9197999984
+
+[tree476]
+height = 15.0
+species_name = 'h vaher'
+x = 541831.38470000029
+y = 6589041.6783000007
+
+[tree477]
+height = 14.0
+species_name = 'h saar'
+x = 541845.69709999859
+y = 6589051.7996999994
+
+[tree478]
+species_name = 'saarvaher'
+x = 541825.89360000193
+y = 6589066.8480000012
+
+[tree479]
+height = 17.0
+species_name = 'h saar'
+x = 541847.65929999948
+y = 6589066.4864999987
+
+[tree48]
+height = 20.0
+species_name = 'läänepärn'
+x = 541946.79659999907
+y = 6589291.1766999997
+
+[tree480]
+height = 18.0
+species_name = 'h saar'
+x = 541858.16529999673
+y = 6589091.9486000016
+
+[tree481]
+height = 18.0
+species_name = 'läänepärn'
+x = 541835.28050000221
+y = 6589116.7763999999
+
+[tree482]
+height = 16.0
+species_name = 'hõberemmelgas'
+x = 541822.78140000254
+y = 6589127.2463999987
+
+[tree483]
+height = 15.0
+species_name = 'mägivaher'
+x = 541836.45090000331
+y = 6589122.3372999988
+
+[tree484]
+height = 13.0
+species_name = 'mägivaher'
+x = 541840.192900002
+y = 6589122.4160000011
+
+[tree485]
+height = 7.0
+species_name = 'hõberemmelgas'
+x = 541841.88660000265
+y = 6589130.2338000014
+
+[tree486]
+height = 14.0
+species_name = 'mägivaher'
+x = 541846.17099999636
+y = 6589133.3381999992
+
+[tree487]
+height = 6.0
+species_name = 'hõberemmelgas'
+x = 541845.89819999784
+y = 6589137.9094999991
+
+[tree488]
+height = 13.0
+species_name = 'h vaher'
+x = 541851.16489999741
+y = 6589147.2749999994
+
+[tree489]
+height = 15.0
+species_name = 'h saar'
+x = 541876.66130000353
+y = 6589110.9323000014
+
+[tree49]
+height = 8.0
+species_name = 'tömbilehine viirpuu'
+x = 541934.26420000196
+y = 6589261.627799999
+
+[tree490]
+height = 14.0
+species_name = 'h tamm'
+x = 541873.46440000087
+y = 6589117.7012999989
+
+[tree491]
+height = 17.0
+species_name = 'h saar'
+x = 541883.76269999892
+y = 6589122.8988999994
+
+[tree492]
+height = 13.0
+species_name = 'h tamm'
+x = 541883.79330000281
+y = 6589128.5623999983
+
+[tree493]
+height = 5.0
+species_name = 'h vaher'
+x = 541856.46890000254
+y = 6589171.1645000018
+
+[tree494]
+height = 15.0
+species_name = 'h saar'
+x = 541866.36710000038
+y = 6589170.4514999986
+
+[tree495]
+height = 15.0
+species_name = 'h vaher'
+x = 541868.48070000112
+y = 6589172.9673000015
+
+[tree496]
+height = 9.0
+species_name = 'hõberemmelgas'
+x = 541876.58240000159
+y = 6589165.3792000003
+
+[tree497]
+height = 11.0
+species_name = 'mägivaher'
+x = 541893.0401000008
+y = 6589178.4569999985
+
+[tree498]
+height = 18.0
+species_name = 'läänepärn'
+x = 541862.32180000097
+y = 6589180.3852000013
+
+[tree499]
+height = 17.0
+species_name = 'h vaher'
+x = 541865.55690000206
+y = 6589181.0557999983
+
+[tree5]
+height = 17.0
+species_name = 'läänepärn'
+x = 541946.32299999893
+y = 6589331.7126000002
+
+[tree50]
+height = 8.0
+species_name = 'tömbilehine viirpuu'
+x = 541932.13409999758
+y = 6589261.1180000007
+
+[tree500]
+height = 18.0
+species_name = 'h pärn'
+x = 541866.19250000268
+y = 6589184.8337999992
+
+[tree501]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541854.06669999659
+y = 6589202.1479000002
+
+[tree502]
+height = 17.0
+species_name = 'künnapuu'
+x = 541871.8674999997
+y = 6589190.0857000016
+
+[tree503]
+height = 18.0
+species_name = 'läänepärn'
+x = 541878.50879999995
+y = 6589196.2311000004
+
+[tree504]
+height = 18.0
+species_name = 'läänepärn'
+x = 541882.65169999748
+y = 6589200.4541999996
+
+[tree505]
+height = 13.0
+species_name = 'saarvaher'
+x = 541860.85830000043
+y = 6589212.4598999992
+
+[tree506]
+height = 12.0
+species_name = 'h vaher'
+x = 541843.16659999639
+y = 6589227.2045000009
+
+[tree507]
+height = 12.0
+species_name = 'h saar'
+x = 541856.63199999928
+y = 6589226.5163999982
+
+[tree508]
+species_name = 'hõberemmelgas'
+x = 541872.71100000292
+y = 6589228.2895000018
+
+[tree509]
+height = 11.0
+species_name = 'h vaher'
+x = 541893.7955000028
+y = 6589197.2256999984
+
+[tree51]
+height = 18.0
+species_name = 'h vaher'
+x = 541910.55849999934
+y = 6589276.7366999984
+
+[tree510]
+height = 16.0
+species_name = 'h tamm'
+x = 541898.38130000234
+y = 6589182.181499999
+
+[tree511]
+height = 16.0
+species_name = 'h vaher'
+x = 541898.65439999849
+y = 6589173.7071000002
+
+[tree512]
+height = 16.0
+species_name = 'h vaher'
+x = 541909.20549999923
+y = 6589181.5949000008
+
+[tree513]
+height = 15.0
+species_name = 'künnapuu'
+x = 541934.13679999858
+y = 6589172.0381000005
+
+[tree514]
+height = 16.0
+species_name = 'mägivaher'
+x = 541916.12309999764
+y = 6589186.4244000018
+
+[tree515]
+height = 16.0
+species_name = 'mägivaher'
+x = 541921.64100000262
+y = 6589189.5375000015
+
+[tree516]
+height = 11.0
+species_name = 'h pirnipuu'
+x = 541913.57660000026
+y = 6589200.3874000013
+
+[tree517]
+height = 6.0
+species_name = 'hõberemmelgas'
+x = 541903.47020000219
+y = 6589215.6055000015
+
+[tree518]
+height = 4.0
+species_name = 'aedõunapuu'
+x = 541923.38289999962
+y = 6589208.2148999982
+
+[tree519]
+height = 13.0
+species_name = 'h pirnipuu'
+x = 541926.89919999987
+y = 6589206.0614
+
+[tree52]
+height = 19.0
+species_name = 'h pärn'
+x = 541914.05619999766
+y = 6589285.0694000013
+
+[tree520]
+height = 17.0
+species_name = 'künnapuu'
+x = 541925.32109999657
+y = 6589200.6623999998
+
+[tree521]
+height = 16.0
+species_name = 'h vaher'
+x = 541927.12759999931
+y = 6589192.9112000018
+
+[tree522]
+height = 12.0
+species_name = 'mägivaher'
+x = 541932.60220000148
+y = 6589196.5927000009
+
+[tree523]
+height = 14.0
+species_name = 'h vaher'
+x = 541937.95899999887
+y = 6589200.2969999984
+
+[tree524]
+species_name = 'h pirnipuu'
+x = 541934.83579999954
+y = 6589208.7626000009
+
+[tree525]
+height = 6.0
+species_name = 'aedõunapuu'
+x = 541939.79940000176
+y = 6589213.0331000015
+
+[tree526]
+height = 14.0
+species_name = 'hõberemmelgas'
+x = 541936.28790000081
+y = 6589224.7932999991
+
+[tree527]
+height = 13.0
+species_name = 'hõberemmelgas'
+x = 541948.48139999807
+y = 6589231.0756999999
+
+[tree528]
+height = 15.0
+species_name = 'h vaher'
+x = 541949.05070000142
+y = 6589206.6549000004
+
+[tree529]
+height = 15.0
+species_name = 'mägivaher'
+x = 541960.61649999768
+y = 6589213.2129000016
+
+[tree53]
+height = 15.0
+species_name = 'h pärn'
+x = 541915.00630000234
+y = 6589286.8794
+
+[tree530]
+height = 15.0
+species_name = 'mägivaher'
+x = 541965.83950000256
+y = 6589216.4255999997
+
+[tree531]
+height = 16.0
+species_name = 'h hobukastan'
+x = 541989.05569999665
+y = 6589229.3198999986
+
+[tree532]
+species_name = 'läänepärn'
+x = 541989.07660000026
+y = 6589292.9431999996
+
+[tree533]
+height = 15.0
+species_name = 'läänepärn'
+x = 541998.12579999864
+y = 6589283.6524999999
+
+[tree534]
+height = 22.0
+species_name = 'arukask '
+x = 541719.49849999696
+y = 6588797.3258999996
+
+[tree535]
+height = 22.0
+species_name = 'kuldkask '
+x = 541718.44950000197
+y = 6588797.4739999995
+
+[tree536]
+height = 20.0
+species_name = 'kuldkask '
+x = 541719.18069999665
+y = 6588799.1359999999
+
+[tree537]
+height = 23.0
+species_name = 'arukask'
+x = 541720.85069999844
+y = 6588799.3348000012
+
+[tree538]
+height = 17.0
+species_name = 'arukask '
+x = 541721.17270000279
+y = 6588798.8797999993
+
+[tree539]
+height = 16.0
+species_name = 'h vaher '
+x = 541730.22940000147
+y = 6588808.4140000008
+
+[tree54]
+height = 17.0
+species_name = 'suurelehine pärn'
+x = 541916.01640000194
+y = 6589288.0593000017
+
+[tree540]
+height = 15.0
+species_name = 'h vaher'
+x = 541732.43639999628
+y = 6588808.5507999994
+
+[tree541]
+height = 16.0
+species_name = 'h vaher '
+x = 541733.46840000153
+y = 6588808.2868000008
+
+[tree542]
+height = 15.0
+species_name = 'h vaher '
+x = 541734.84939999878
+y = 6588808.5185999982
+
+[tree543]
+height = 17.0
+species_name = 'h vaher '
+x = 541735.71440000087
+y = 6588808.6425999999
+
+[tree544]
+height = 16.0
+species_name = 'h vaher '
+x = 541737.39140000194
+y = 6588808.6704000011
+
+[tree545]
+height = 17.0
+species_name = 'h vaher '
+x = 541740.09440000355
+y = 6588808.7391999997
+
+[tree546]
+height = 14.0
+species_name = 'h vaher '
+x = 541743.22039999813
+y = 6588809.3269999996
+
+[tree547]
+height = 14.0
+species_name = 'h vaher '
+x = 541743.78840000182
+y = 6588809.3929000013
+
+[tree548]
+height = 15.0
+species_name = 'h vaher'
+x = 541746.18140000105
+y = 6588809.4816999994
+
+[tree549]
+height = 16.0
+species_name = 'h saar'
+x = 541749.85000000149
+y = 6589101.2833999991
+
+[tree55]
+height = 20.0
+species_name = 'läänepärn'
+x = 541916.38650000095
+y = 6589289.2492000014
+
+[tree550]
+height = 17.0
+species_name = 'h vaher'
+x = 541750.43760000169
+y = 6589101.1473999992
+
+[tree551]
+height = 16.0
+species_name = 'h saar'
+x = 541757.57429999858
+y = 6589101.3424000004
+
+[tree552]
+height = 16.0
+species_name = 'h saar'
+x = 541756.65370000154
+y = 6589101.3478000015
+
+[tree553]
+height = 15.0
+species_name = 'h vaher'
+x = 541856.10499999672
+y = 6589172.6875
+
+[tree554]
+height = 4.0
+species_name = 'sahhalini kirsipuu'
+x = 541869.31360000372
+y = 6589290.9354000017
+
+[tree555]
+height = 5.0
+species_name = 'harilik hobukastan'
+x = 541696.36739999801
+y = 6589154.9976000004
+
+[tree556]
+height = 6.0
+species_name = "torkav kuusk 'Glauca'"
+x = 541716.20350000262
+y = 6589125.0199000016
+
+[tree557]
+height = 5.0
+species_name = 'harilik hobukastan'
+x = 541661.01609999686
+y = 6589094.5639000013
+
+[tree558]
+height = 6.0
+species_name = 'saarvaher'
+x = 541707.58410000056
+y = 6589044.9582000002
+
+[tree559]
+height = 14.0
+species_name = 'h jalakas '
+x = 541674.17289999872
+y = 6589049.4754000008
+
+[tree56]
+height = 20.0
+species_name = 'läänepärn'
+x = 541916.41659999639
+y = 6589290.2492000014
+
+[tree560]
+height = 7.0
+species_name = 'h hobukastan '
+x = 541645.97070000321
+y = 6589041.7083999999
+
+[tree561]
+height = 9.0
+species_name = 'h hobukastan '
+x = 541687.08529999852
+y = 6589023.6097000018
+
+[tree562]
+height = 2.0
+species_name = 'aed-õunapuu'
+x = 541632.0923999995
+y = 6588983.3222999983
+
+[tree563]
+height = 2.0
+species_name = 'aed-õunapuu '
+x = 541645.43999999762
+y = 6588992.9541000016
+
+[tree564]
+height = 7.0
+species_name = 'h hobukastan '
+x = 541627.04389999807
+y = 6589000.0214999989
+
+[tree565]
+species_name = 'amuuri toomingas '
+x = 541624.22160000354
+y = 6588991.9052999988
+
+[tree566]
+height = 6.0
+species_name = 'h toomingas'
+x = 541692.86779999733
+y = 6589012.5782999992
+
+[tree567]
+height = 7.0
+species_name = 'saarvaher'
+x = 541691.15519999713
+y = 6589008.1125000007
+
+[tree568]
+height = 6.0
+species_name = 'h saar'
+x = 541684.58850000054
+y = 6588998.0472999997
+
+[tree569]
+height = 6.0
+species_name = 'lehis'
+x = 541613.43609999865
+y = 6588971.7404999994
+
+[tree57]
+height = 12.0
+species_name = 'Läänepärn'
+x = 541916.56669999659
+y = 6589291.5892000012
+
+[tree570]
+height = 6.0
+species_name = 'suurelehine pärn '
+x = 541618.15550000221
+y = 6588962.4323000014
+
+[tree571]
+height = 6.0
+species_name = 'Korea seedermänd'
+x = 541641.32989999652
+y = 6588956.7895000018
+
+[tree572]
+height = 8.0
+species_name = 'h jalakas'
+x = 541701.74629999697
+y = 6588875.5879000016
+
+[tree573]
+height = 6.0
+species_name = 'h jalakas'
+x = 541701.79420000315
+y = 6588875.7003000006
+
+[tree574]
+height = 11.0
+species_name = 'h saar'
+x = 541693.29710000008
+y = 6588876.9893999994
+
+[tree575]
+height = 8.0
+species_name = 'saarvaher '
+x = 541616.31469999999
+y = 6588851.5003000014
+
+[tree576]
+height = 15.0
+species_name = 'h.hobukastan'
+x = 541738.87129999697
+y = 6589023.7320999987
+
+[tree577]
+height = 16.0
+species_name = 'h. hobukastan '
+x = 541739.93729999661
+y = 6589032.1429000013
+
+[tree578]
+height = 15.0
+species_name = 'h. hobukastan '
+x = 541735.36400000006
+y = 6589029.6193000004
+
+[tree579]
+height = 17.0
+species_name = 'h. hobukastan '
+x = 541735.6745999977
+y = 6589036.2972999997
+
+[tree58]
+height = 18.0
+species_name = 'h vaher'
+x = 541916.78719999641
+y = 6589297.689199999
+
+[tree580]
+height = 6.0
+species_name = 'h vaher'
+x = 541750.16870000213
+y = 6589053.8354999982
+
+[tree581]
+height = 10.0
+species_name = 'h saar'
+x = 541872.84809999913
+y = 6589227.4409999996
+
+[tree582]
+height = 7.0
+species_name = 'h saar '
+x = 541950.25150000304
+y = 6589231.7199000008
+
+[tree583]
+height = 11.0
+species_name = 'mägivaher '
+x = 541944.87730000168
+y = 6589204.3223999999
+
+[tree584]
+species_name = 'h. viirpuu '
+x = 541950.80170000345
+y = 6589176.9578999989
+
+[tree585]
+height = 4.0
+species_name = 'h. viirpuu '
+x = 541931.32760000229
+y = 6589165.7747000009
+
+[tree586]
+height = 3.0
+species_name = 'h. viirpuu'
+x = 541909.17769999802
+y = 6589141.5865999982
+
+[tree587]
+height = 4.0
+species_name = 'h. viirpuu '
+x = 541908.7220999971
+y = 6589141.1290999986
+
+[tree588]
+height = 9.0
+species_name = 'h. viirpuu '
+x = 541874.76259999722
+y = 6589099.9222999997
+
+[tree589]
+height = 5.0
+species_name = 'h. viirpuu '
+x = 541856.57349999994
+y = 6589071.0361000001
+
+[tree59]
+height = 7.0
+species_name = 'h hobukastan'
+x = 541935.09220000356
+y = 6589310.7358000018
+
+[tree590]
+height = 4.0
+species_name = 'h. viirpuu '
+x = 541806.73799999803
+y = 6588959.2025000006
+
+[tree591]
+species_name = 'h. viirpuu '
+x = 541812.1855000034
+y = 6588954.5353000015
+
+[tree592]
+species_name = 'aed-õunapuu '
+x = 541810.35920000076
+y = 6588947.3424000004
+
+[tree593]
+height = 14.0
+species_name = 'h. vaher'
+x = 541776.51669999957
+y = 6588895.1196000017
+
+[tree594]
+height = 5.0
+species_name = 'Iluõunapuu '
+x = 541929.86810000241
+y = 6589270.5262000002
+
+[tree595]
+species_name = 'h jalakas '
+x = 541659.18599999696
+y = 6588847.2912999988
+
+[tree596]
+species_name = 'saarvaher '
+x = 541632.125
+y = 6589004.3848999999
+
+[tree597]
+
+[tree6]
+height = 15.0
+species_name = 'läänepärn'
+x = 541950.82429999858
+y = 6589335.3423000015
+
+[tree60]
+height = 18.0
+species_name = 'h pärn'
+x = 541926.71829999983
+y = 6589327.6024000011
+
+[tree61]
+height = 12.0
+species_name = 'läänepärn'
+x = 541926.90609999746
+y = 6589334.6601999998
+
+[tree62]
+height = 13.0
+species_name = 'läänepärn'
+x = 541921.60010000318
+y = 6589332.1686999984
+
+[tree63]
+height = 18.0
+species_name = 'h vaher'
+x = 541920.69950000197
+y = 6589325.7767999992
+
+[tree64]
+height = 10.0
+species_name = 'läänepärn'
+x = 541915.28989999741
+y = 6589329.5392000005
+
+[tree65]
+height = 18.0
+species_name = 'h pärn'
+x = 541915.16740000248
+y = 6589323.633200001
+
+[tree66]
+height = 17.0
+species_name = 'h jalakas'
+x = 541885.5278000012
+y = 6589303.9318000004
+
+[tree67]
+species_name = 'h pärn'
+x = 541899.88930000365
+y = 6589288.5282999994
+
+[tree68]
+height = 20.0
+species_name = 'h pärn'
+x = 541900.70639999956
+y = 6589287.6004999988
+
+[tree69]
+species_name = 'h pärn'
+x = 541902.27629999816
+y = 6589285.5903999992
+
+[tree7]
+height = 15.0
+species_name = 'läänepärn'
+x = 541954.71989999712
+y = 6589331.1358999982
+
+[tree70]
+height = 18.0
+species_name = 'läänepärn'
+x = 541884.54399999976
+y = 6589282.0009000003
+
+[tree71]
+height = 20.0
+species_name = 'läänepärn'
+x = 541887.88589999825
+y = 6589268.7936000004
+
+[tree72]
+height = 20.0
+species_name = 'h pärn'
+x = 541877.93400000036
+y = 6589269.068
+
+[tree73]
+height = 19.0
+species_name = 'h pärn'
+x = 541883.04200000316
+y = 6589259.3317000009
+
+[tree74]
+height = 20.0
+species_name = 'läänepärn'
+x = 541877.65410000086
+y = 6589255.6132000014
+
+[tree75]
+height = 22.0
+species_name = 'h saar'
+x = 541875.20889999717
+y = 6589256.1028999984
+
+[tree76]
+height = 11.0
+species_name = 'h hobukastan'
+x = 541873.1921999976
+y = 6589257.2686999999
+
+[tree77]
+height = 21.0
+species_name = 'läänepärn'
+x = 541871.45870000124
+y = 6589258.7835999988
+
+[tree78]
+height = 21.0
+species_name = 'läänepärn '
+x = 541860.87460000068
+y = 6589268.3680000007
+
+[tree79]
+species_name = 'h pärn'
+x = 541842.71840000153
+y = 6589292.310899999
+
+[tree8]
+height = 15.0
+species_name = 'läänepärn'
+x = 541958.80950000137
+y = 6589326.5555999987
+
+[tree80]
+height = 16.0
+species_name = 'h pärn'
+x = 541837.33340000361
+y = 6589289.3973999992
+
+[tree81]
+species_name = 'torkav kuusk "Glauca"'
+x = 541836.22900000215
+y = 6589282.6887999997
+
+[tree82]
+height = 18.0
+species_name = 'h vaher'
+x = 541846.44510000199
+y = 6589281.8145000003
+
+[tree83]
+height = 18.0
+species_name = 'läänepärn'
+x = 541847.25020000339
+y = 6589274.0051999986
+
+[tree84]
+height = 20.0
+species_name = 'h pärn'
+x = 541843.8219999969
+y = 6589273.5782999992
+
+[tree85]
+height = 19.0
+species_name = 'läänepärn '
+x = 541845.77149999887
+y = 6589271.0326999994
+
+[tree86]
+height = 19.0
+species_name = 'h vaher'
+x = 541837.38660000265
+y = 6589266.8539999984
+
+[tree87]
+height = 10.0
+species_name = 'läänepärn'
+x = 541812.57559999824
+y = 6589275.0379000008
+
+[tree88]
+height = 14.0
+species_name = 'läänepärn'
+x = 541806.3954000026
+y = 6589272.0084000006
+
+[tree89]
+height = 14.0
+species_name = 'läänepärn'
+x = 541801.02709999681
+y = 6589268.1538000004
+
+[tree9]
+height = 15.0
+species_name = 'läänepärn'
+x = 541963.11909999698
+y = 6589321.8453000002
+
+[tree90]
+height = 15.0
+species_name = 'läänepärn'
+x = 541795.74480000138
+y = 6589265.0293000005
+
+[tree91]
+height = 16.0
+species_name = 'h pärn'
+x = 541791.47460000217
+y = 6589261.7496000007
+
+[tree92]
+species_name = 'h pihlakas'
+x = 541810.38620000333
+y = 6589256.0496999994
+
+[tree93]
+height = 19.0
+species_name = 'h vaher'
+x = 541803.05039999634
+y = 6589260.7787000015
+
+[tree94]
+height = 15.0
+species_name = 'h pihlakas'
+x = 541804.33420000225
+y = 6589257.3486000001
+
+[tree95]
+species_name = 'aed-õunapuu'
+x = 541801.08690000325
+y = 6589254.8189999983
+
+[tree96]
+height = 3.0
+species_name = 'h jugapuu "Dovastoniana"'
+x = 541811.02319999784
+y = 6589246.2281000018
+
+[tree97]
+height = 3.0
+species_name = 'arukask "Youngii"'
+x = 541807.98290000111
+y = 6589242.3783
+
+[tree98]
+height = 16.0
+species_name = 'h tamm'
+x = 541808.97160000354
+y = 6589226.2582999989
+
+[tree99]
+height = 19.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541796.67740000039
+y = 6589228.633200001
+
+[treeModel1]
+model_path = '/mnt/raid/data/Tallinn/GreenTwins_for_UrbanTempo/Puukoodi/3D_object_files/Juglans_spp/Juglans_spp_mature_01_leaves.obj'
+season = 'summer'
+species_name = 'arukask'
+rotation = [90.0, 0.0, 0.0]
+translation_ = [0.0, 0.0, 0.0]
+
+[treeModel2]
+model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
+season = 'summer'
+species_name = 'h hobukastan'
+
+[treeModel3]
+model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
+season = 'summer'
+species_name = 'h hobukastan '
+
+[treeModel4]
+model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
+season = 'summer'
+species_name = 'h. hobukastan'
+
+[treeModel5]
+model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_15y_02.obj'
+season = 'summer'
+species_name = 'h pärn'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel6]
+model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_mature_01_leaves.obj'
+season = 'summer'
+species_name = 'läänepärn'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel7]
+model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_15y_02.obj'
+season = 'summer'
+species_name = 'suurelehine pärn'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel8]
+model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_15y_01_leaves.obj'
+season = 'summer'
+species_name = 'h vaher'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel9]
+model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_mature_03_leaves.obj'
+season = 'summer'
+species_name = 'h vaher '
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel10]
+model_path = '/mnt/raid/data/Tallinn/tree_models/Maple-Platanoides-Think/Platanoides Think N160219.obj'
+season = 'summer'
+species_name = 'mägivaher'
+
+[treeModel11]
+model_pathqwe = '/mnt/raid/data/Tallinn/Salix_alba/Salix_alba_Sibirica_mature_02_leaves.obj'
+model_path = '/mnt/raid/data/Tallinn/Salix_alba/Salix_alba_Sibirica_15y_01_leaves.obj'
+season = 'summer'
+species_name = 'hõberemmelgas'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel12]
+model_path = '/mnt/raid/data/Tallinn/Larix/Larix_sibirica_15y_leaves.obj'
+season = 'summer'
+species_name = 'h tamm'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModel13]
+model_path = '/mnt/raid/data/Tallinn/tree_models/elm/American Elm tree.obj'
+season = 'summer'
+species_name = 'h jalakas'
+
+[treeModel14]
+model_path = '/mnt/raid/data/Tallinn/Sembra/Pinus_cembra_mature_01.obj'
+season = 'summer'
+species_name = 'torkav kuusk'
+rotation = [90.0, 0.0, 0.0]
+
+[treeModelDefault]
+model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_15y_01_leaves.obj'
+rotation = [90.0, 0.0, 0.0]
+translation_ = [0.0, 0.0, 0.0]
