@@ -23,7 +23,6 @@
 #include <string>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRFileManager.h>
-#include <curl/curl.h>
 #include <rapidjson/document.h>
 #include <osg/Node>
 #include <osg/ref_ptr>
