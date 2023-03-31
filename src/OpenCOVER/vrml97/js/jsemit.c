@@ -45,6 +45,7 @@
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
+#include <stdint.h>
 #include <string.h>
 #include "jstypes.h"
 #include "jsarena.h" /* Added by JSIFY */
@@ -1850,7 +1851,7 @@ EmitAtomIndexOp(JSContext *cx, JSOp op, jsatomid atomIndex, JSCodeGenerator *cg)
  * XXXbe hey, who checks for fun->nvars and fun->nargs overflow?!
  */
 #define EMIT_ATOM_INDEX_OP(op, atomIndex)                                            \
-    JS_BEGIN_MACRO if (!EmitAtomIndexOp(cx, op, atomIndex, cg) < 0) return JS_FALSE; \
+    JS_BEGIN_MACRO if ((!EmitAtomIndexOp(cx, op, atomIndex, cg)) < 0) return JS_FALSE; \
     JS_END_MACRO
 
 static JSBool
