@@ -77,6 +77,10 @@ EnFile::createGeometryFile(ReadEnsight *mod, const CaseFile &c, const string &fi
                 delete enf;
                 return NULL;
                 break;
+            default:
+                std::cerr << "ERROR: EnFile bintype not implemented." ;
+                return NULL;
+                break;
             }
         }
     }
