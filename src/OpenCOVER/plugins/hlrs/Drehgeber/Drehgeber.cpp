@@ -142,7 +142,7 @@ bool Drehgeber::update()
     if (na != angle)
     {
         fprintf(stderr, "Angle %f\n",na); 
-        m_rotator->setValue((na/M_PI*360.0));
+        m_rotator->setValue((na/M_PI*360.0/2));
         angle = na;
 
         for (auto drehgeber : drehgebers)
