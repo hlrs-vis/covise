@@ -43,6 +43,7 @@
  * JS atom table.
  */
 #include <stddef.h>
+#include <stdint.h>
 #include "jstypes.h"
 #include "jshash.h" /* Added by JSIFY */
 #include "jsapi.h"
@@ -100,7 +101,7 @@ struct JSAtomListElement
 
 #define ALE_ATOM(ale) ((JSAtom *)(ale)->entry.key)
 #define ALE_INDEX(ale) ((jsatomid)JS_PTR_TO_UINT32((ale)->entry.value))
-#define ALE_JSOP(ale) ((JSOp)(ale)->entry.value)
+#define ALE_JSOP(ale) ((JSOp)(uintptr_t)(ale)->entry.value) // fix for newer clang compiler: avoid void* to smaller int type (aka enum)
 #define ALE_VALUE(ale) ((jsval)(ale)->entry.value)
 #define ALE_NEXT(ale) ((JSAtomListElement *)(ale)->entry.next)
 
