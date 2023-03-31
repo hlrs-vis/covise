@@ -3162,7 +3162,7 @@ JS_Enumerate(JSContext *cx, JSObject *obj)
     jsval iter_state, num_properties;
     jsid id;
     JSIdArray *ida;
-    jsval *vector;
+    jsid *vector;
 
     CHECK_REQUEST(cx);
 
@@ -3170,8 +3170,10 @@ JS_Enumerate(JSContext *cx, JSObject *obj)
     iter_state = JSVAL_NULL;
 
     /* Get the number of properties to enumerate. */
-    if (!OBJ_ENUMERATE(cx, obj, JSENUMERATE_INIT, &iter_state, &num_properties))
+    jsid num_prop;
+    if (!OBJ_ENUMERATE(cx, obj, JSENUMERATE_INIT, &iter_state, &num_prop))
         goto error;
+    num_properties = (jsval)num_prop;
     if (!JSVAL_IS_INT(num_properties))
     {
         JS_ASSERT(0);
