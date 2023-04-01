@@ -103,6 +103,14 @@ private:
 
     void save();
 
+    // path new
+    osg::Vec3Array *pathVert = nullptr;
+    osg::Vec4Array *pathColor = nullptr;
+    osg::DrawArrayLengths *pathPrimitives = nullptr;
+    osg::ref_ptr<osg::Geometry> pathGeom;
+    osg::ref_ptr<osg::Geode> pathGeode;
+    void createPath(osg::Group* loadParent);
+
     //workpiece wp
     osg::ref_ptr<osg::Group> wpGroup; //osg::Group *wpGroup = nullptr;
     osg::ref_ptr<osg::Geode> wpDynamicGeode; //osg::Geode *wpTopGeode = nullptr;
@@ -131,7 +139,7 @@ private:
     void setWpSize();
     void setWpResolution();
     void setWpMaterial();
-    void readToolTable();
+    void extractToolInfos(const std::string &filename);
     void setActiveTool(int slot);
     //osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
     void wpTreeToGeometry(osg::Geometry &dynamicGeo, osg::Geometry &staticGeo);
@@ -161,7 +169,7 @@ private:
     void wpAddSideForGeo(osg::DrawElementsUInt* wpVerticalPrimitivesX, osg::DrawElementsUInt* wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
     void wpAddFacesTree();
 
-    std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY;
+    std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY, pathFeedRate;
     std::vector<int> pathG, pathTool;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
@@ -188,6 +196,19 @@ private:
     TreeNode* treeRoot;
     std::vector<std::vector<TreeNode*>> timestepVec;
 
+    struct ToolInfo {
+        int toolNumber;
+        double diameter;
+        double cornerRadius;
+        double coneAngle;
+        double zMin;
+        std::string toolType;
+        bool operator == (const int t) const
+        {
+            return toolNumber == t;
+        }
+    };
+    std::vector<ToolInfo> toolInfoList;
 
     int test1, test2;
 

@@ -648,11 +648,13 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
 
     assert(thePlugin);
 
+    extractToolInfos(filename);
     wpGroup = new osg::Group;
     loadParent->addChild(wpGroup);
     if (filename != NULL)
     {   wpGroup->setName(filename);
     }
+    thePlugin->createPath(loadParent);
     thePlugin->createWorkpiece(wpGroup);
 
     
@@ -666,6 +668,11 @@ void CNCPlugin::setTimestep(int t)
     {
         primitives->at(0) = t+1;
         geom->dirtyDisplayList();
+    }
+    if (pathPrimitives)
+    {
+        pathPrimitives->at(0) = t + 2;
+        pathGeom->dirtyDisplayList();
     }
 
     if (wpDynamicGeom && t == 0)
@@ -830,7 +837,7 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     pathG.push_back(1);
     pathCenterX.push_back(0);
     pathCenterY.push_back(0);
-
+    pathFeedRate.push_back(feedRate / 1000.0);
 
     /* positions[frameNumber*3  ] = x;
          positions[frameNumber*3+1] = y;
@@ -860,6 +867,7 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
     pathTool.push_back(tool);
     pathCenterX.push_back(centerX / 1000.0);
     pathCenterY.push_back(centerY / 1000.0);
+    pathFeedRate.push_back(feedRate / 1000.0);
     //rotation gives the direction and the amount of 360° circles (offset by 1)
     if (rotation < 0)
         pathG.push_back(2); //clockwise
@@ -896,6 +904,57 @@ osg::Vec4 CNCPlugin::getColor(float pos)
 
 COVERPLUGIN(CNCPlugin)
 
+/* createPath
+
+   Returned Value: void
+
+   Side Effects:
+   Creates the path followed by th cutter.
+
+   Called By:
+   CNCPlugin::loadGCode
+*/
+void CNCPlugin::createPath(osg::Group* parent)
+{
+    pathGeode = new Geode();
+    pathGeom = new Geometry();
+    pathGeode->setStateSet(geoState.get());
+
+    pathGeom->setColorBinding(Geometry::BIND_OFF);
+
+    pathGeode->addDrawable(pathGeom.get());
+    pathGeode->setName("Cutting Path");
+
+    // set up geometry
+    pathVert = new osg::Vec3Array;
+    pathColor = new osg::Vec4Array;
+    
+    pathVert->push_back(Vec3(pathX[0] / 1000.0, pathY[0] / 1000.0, pathZ[0] / 1000.0));
+    float col = pathFeedRate[0] / 6000.0;
+    if (col > 1)
+        col = 1;
+    pathColor->push_back(getColor(col));
+
+    for (int t = 0; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
+    {
+        pathVert->push_back(Vec3(pathX[t] / 1000.0, pathY[t] / 1000.0, pathZ[t] / 1000.0));
+        float col = pathFeedRate[t] / 6000.0;
+        if (col > 1)
+            col = 1;
+        pathColor->push_back(getColor(col));
+    }
+    pathPrimitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
+    pathPrimitives->push_back(pathVert->size());
+    pathGeom->setVertexArray(pathVert);
+    pathGeom->setColorArray(pathColor);
+    pathGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    pathGeom->addPrimitiveSet(pathPrimitives);
+    pathGeom->dirtyDisplayList();
+    pathGeom->setUseDisplayList(false);
+    if (parent == NULL)
+        parent = cover->getObjectsRoot();
+    parent->addChild(pathGeode.get());
+}
 
 /* createWorkpiece
 
@@ -1943,20 +2002,59 @@ void CNCPlugin::setWpMaterial()
     polyMode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL); //LINE);
     wpStateSet->setAttribute(polyMode.get());
 }
-void CNCPlugin::readToolTable()
+void CNCPlugin::extractToolInfos(const std::string &filename)
 {
     // ein default tool speicher, falls keine tools definiert / eingelesen wurden
+    ToolInfo tool_default;
+    tool_default.toolNumber = -1;
+    tool_default.diameter = 1 / 1000;
+    tool_default.cornerRadius = 0;
+    tool_default.coneAngle = 180;
+    tool_default.zMin = 0;
+    tool_default.toolType = "Default Tool, r=0.5mm";
+    toolInfoList.push_back(tool_default);
 
     // jedes tool das benutzt wird versuchen speichern
-    for (int slot : pathTool)
-    {
+    //for (int slot : pathTool)
+    //{
 
+    //}
+
+   // std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d+\\.?\\d*)\\s+CR=(\\d+\\.?\\d*)\\s+KONIK=(\\d+\\.?\\d*)\\s+-\\s+ZMIN=(-?\\d+\\.?\\d*)\\s+-\\s+(\\S+)\\)");
+   // std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d+\\.?\\d*)\\s+CR=(\\d+\\.?\\d*)\\s+(KONIK=(\\d+\\.?\\d*)\\s+)?-\\s+ZMIN=(-?\\d+\\.?\\d*)\\s+-\\s+(\\S+)\\)");
+   // std::regex pattern(R"((T\d+)\s+D=(\d+\.\d+)\s+CR=(\d+\.\d+)\s+(?:KONIK=(\d+GRAD)\s+)?- ZMIN=(-?\d+\.\d+)\s+-\s+(.*))");
+    std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d*\\.?\\d*)\\s*CR=(\\d*\\.?\\d*)\\s*(?:KONIK=(\\d+\\.?\\d*)\\w*\\s*)?-\\s+ZMIN=(-?\\d*\\.?\\d*)\\s*-\\s*(\\S*)\\)");
+    std::ifstream infile(filename);
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        std::smatch match;
+        if (std::regex_search(line, match, toolRegex)) {
+            ToolInfo tool_info;
+            tool_info.toolNumber = std::stoi(match[1]);
+            tool_info.diameter = std::stod(match[2]) / 1000;
+            tool_info.cornerRadius = std::stod(match[3]) / 1000;
+            if (match[4].matched)
+                tool_info.coneAngle = std::stod(match[4]);
+            tool_info.zMin = std::stod(match[5]) / 1000;
+            tool_info.toolType = match[6];
+            toolInfoList.push_back(tool_info);
+        }
     }
 }
 void CNCPlugin::setActiveTool(int slot)
 {
-    activeTool = slot;
-    cuttingRad = 0.0005;
+    activeTool = -1;
+    ToolInfo tool = toolInfoList[0];
+    for (const auto& t : toolInfoList)
+    {
+        if (t.toolNumber == slot) 
+        {
+            tool = t;
+            activeTool = slot;
+        }
+    }
+    cuttingRad = tool.diameter / 2;
 }
 
 /* wpMillCut
