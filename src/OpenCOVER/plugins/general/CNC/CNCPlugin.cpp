@@ -643,7 +643,7 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     parentNode = loadParent;
     if (parentNode == NULL)
         parentNode = cover->getObjectsRoot();
-    parentNode->addChild(geode.get());
+    //parentNode->addChild(geode.get());
 
 
     assert(thePlugin);
@@ -664,14 +664,14 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
 //--------------------------------------------------------------------
 void CNCPlugin::setTimestep(int t)
 {
-    if (primitives)
-    {
-        primitives->at(0) = t+1;
-        geom->dirtyDisplayList();
-    }
+    //if (primitives)
+    //{
+    //    primitives->at(0) = t+1;
+    //    geom->dirtyDisplayList();
+    //}
     if (pathPrimitives)
     {
-        pathPrimitives->at(0) = t + 2;
+        pathPrimitives->at(0) = pathLineStrip[t];
         pathGeom->dirtyDisplayList();
     }
 
@@ -838,6 +838,7 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     pathCenterX.push_back(0);
     pathCenterY.push_back(0);
     pathFeedRate.push_back(feedRate / 1000.0);
+    pathLineStrip.push_back(2);
 
     /* positions[frameNumber*3  ] = x;
          positions[frameNumber*3+1] = y;
@@ -868,6 +869,7 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
     pathCenterX.push_back(centerX / 1000.0);
     pathCenterY.push_back(centerY / 1000.0);
     pathFeedRate.push_back(feedRate / 1000.0);
+    pathLineStrip.push_back(2);
     //rotation gives the direction and the amount of 360° circles (offset by 1)
     if (rotation < 0)
         pathG.push_back(2); //clockwise
@@ -929,19 +931,40 @@ void CNCPlugin::createPath(osg::Group* parent)
     pathVert = new osg::Vec3Array;
     pathColor = new osg::Vec4Array;
     
-    pathVert->push_back(Vec3(pathX[0] / 1000.0, pathY[0] / 1000.0, pathZ[0] / 1000.0));
+    // t = 0
+    //pathVert->push_back(Vec3(pathX[0] / 1000.0, pathY[0] / 1000.0, pathZ[0] / 1000.0));
+    //pathVert->push_back(Vec3(pathX[0] / 1000.0, pathY[0] / 1000.0, pathZ[0] / 1000.0));
+    pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
+    pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
     float col = pathFeedRate[0] / 6000.0;
     if (col > 1)
         col = 1;
     pathColor->push_back(getColor(col));
+    pathColor->push_back(getColor(col));
+    pathLineStrip[0] = 2;
 
-    for (int t = 0; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
+    for (int t = 1; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
     {
-        pathVert->push_back(Vec3(pathX[t] / 1000.0, pathY[t] / 1000.0, pathZ[t] / 1000.0));
         float col = pathFeedRate[t] / 6000.0;
         if (col > 1)
             col = 1;
-        pathColor->push_back(getColor(col));
+        pathLineStrip[t] = pathLineStrip[t - 1];
+        if (pathG[t] == 1)
+        {
+            pathVert->push_back(Vec3(pathX[t], pathY[t], pathZ[t]));
+            pathColor->push_back(getColor(col));
+            pathLineStrip[t]++;
+        }
+        else
+        {
+            vector<double> arcVec = arcApproximation(t);
+            for (int i = 0; i < arcVec.size(); i = i+3)
+            {
+                pathVert->push_back(Vec3(arcVec[i], arcVec[i + 1], pathZ[t]));
+                pathColor->push_back(getColor(col));
+                pathLineStrip[t]++;
+            }
+        }
     }
     pathPrimitives = new DrawArrayLengths(PrimitiveSet::LINE_STRIP);
     pathPrimitives->push_back(pathVert->size());
@@ -2007,7 +2030,7 @@ void CNCPlugin::extractToolInfos(const std::string &filename)
     // ein default tool speicher, falls keine tools definiert / eingelesen wurden
     ToolInfo tool_default;
     tool_default.toolNumber = -1;
-    tool_default.diameter = 1 / 1000;
+    tool_default.diameter = 1.0 / 1000;
     tool_default.cornerRadius = 0;
     tool_default.coneAngle = 180;
     tool_default.zMin = 0;
@@ -2024,6 +2047,7 @@ void CNCPlugin::extractToolInfos(const std::string &filename)
    // std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d+\\.?\\d*)\\s+CR=(\\d+\\.?\\d*)\\s+(KONIK=(\\d+\\.?\\d*)\\s+)?-\\s+ZMIN=(-?\\d+\\.?\\d*)\\s+-\\s+(\\S+)\\)");
    // std::regex pattern(R"((T\d+)\s+D=(\d+\.\d+)\s+CR=(\d+\.\d+)\s+(?:KONIK=(\d+GRAD)\s+)?- ZMIN=(-?\d+\.\d+)\s+-\s+(.*))");
     std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d*\\.?\\d*)\\s*CR=(\\d*\\.?\\d*)\\s*(?:KONIK=(\\d+\\.?\\d*)\\w*\\s*)?-\\s+ZMIN=(-?\\d*\\.?\\d*)\\s*-\\s*(\\S*)\\)");
+    std::regex wpDimensionRegex("\\(\\s*[xX][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[xX][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\)");
     std::ifstream infile(filename);
     std::string line;
     while (std::getline(infile, line))
@@ -2039,6 +2063,15 @@ void CNCPlugin::extractToolInfos(const std::string &filename)
             tool_info.zMin = std::stod(match[5]) / 1000;
             tool_info.toolType = match[6];
             toolInfoList.push_back(tool_info);
+        }
+        std::smatch wpMatch;
+        if (std::regex_search(line, wpMatch, wpDimensionRegex)) {
+            wpMinX = std::stod(wpMatch[1]);
+            wpMaxX = std::stod(wpMatch[2]);
+            wpMinY = std::stod(wpMatch[3]);
+            wpMaxY = std::stod(wpMatch[4]);
+            wpMinZ = std::stod(wpMatch[5]);
+            wpMaxZ = std::stod(wpMatch[6]);
         }
     }
 }
@@ -2994,3 +3027,42 @@ void CNCPlugin::wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, i
     //wpCutFaces(geo, piece);
 }
 */
+
+
+vector<double> CNCPlugin::arcApproximation(int t)
+{
+    vector<double> xyzCoords;
+    double r = distancePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+    double thetaStart = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t - 1], pathY[t - 1]);
+    double thetaEnd = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
+
+    double dtheta = thetaEnd - thetaStart;
+    if (pathG[t] == 2)
+    {
+        if (dtheta > 0)
+            dtheta = dtheta - (2 * PI);
+    }
+    else 
+    {
+        if (dtheta < 0)
+            dtheta = dtheta + (2 * PI);
+    }
+
+    int numSegments = ceil(abs(dtheta) * approxLength);
+    numSegments = std::max(2, numSegments);
+    double segmentTheta = dtheta / numSegments;
+
+    double currentTheta = thetaStart;
+    for (int i = 1; i <= numSegments; i++) {
+        double nextTheta = currentTheta + segmentTheta;
+        double x = pathCenterX[t] + r * cos(nextTheta);
+        double y = pathCenterY[t] + r * sin(nextTheta);
+        double z = pathZ[t - 1] + (pathZ[t] - pathZ[t - 1]) * i / numSegments;
+        currentTheta = nextTheta;
+        xyzCoords.push_back(x);
+        xyzCoords.push_back(y);
+        xyzCoords.push_back(z);
+    }
+
+    return xyzCoords;
+}

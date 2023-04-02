@@ -110,6 +110,8 @@ private:
     osg::ref_ptr<osg::Geometry> pathGeom;
     osg::ref_ptr<osg::Geode> pathGeode;
     void createPath(osg::Group* loadParent);
+    vector<double> arcApproximation(int t);
+    double approxLength = 0.5;
 
     //workpiece wp
     osg::ref_ptr<osg::Group> wpGroup; //osg::Group *wpGroup = nullptr;
@@ -170,7 +172,7 @@ private:
     void wpAddFacesTree();
 
     std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY, pathFeedRate;
-    std::vector<int> pathG, pathTool;
+    std::vector<int> pathG, pathTool, pathLineStrip;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
