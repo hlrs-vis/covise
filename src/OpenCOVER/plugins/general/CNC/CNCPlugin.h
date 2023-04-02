@@ -114,14 +114,14 @@ private:
     double approxLength = 0.5;
 
     //workpiece wp
-    osg::ref_ptr<osg::Group> wpGroup; //osg::Group *wpGroup = nullptr;
-    osg::ref_ptr<osg::Geode> wpDynamicGeode; //osg::Geode *wpTopGeode = nullptr;
+    osg::ref_ptr<osg::Group> wpGroup;
+    osg::ref_ptr<osg::Geode> wpDynamicGeode;
     osg::ref_ptr<osg::Geode> wpStaticGeode;
     osg::ref_ptr<osg::Geometry> wpDynamicGeom;
     osg::ref_ptr<osg::Geometry> wpStaticGeom;
-    osg::ref_ptr<osg::Vec4Array> wpDynamicColors; //osg::Vec4Array *wpColors = nullptr;
+    osg::ref_ptr<osg::Vec4Array> wpDynamicColors;
     osg::ref_ptr<osg::Vec4Array> wpStaticColors;
-    osg::ref_ptr<osg::Vec3Array> wpDynamicNormals; //osg::Vec3Array *wpNormals = nullptr;
+    osg::ref_ptr<osg::Vec3Array> wpDynamicNormals;
     osg::ref_ptr<osg::Vec3Array> wpStaticNormals;
     osg::DrawArrayLengths *wpDynamicPrimitives = nullptr;
     osg::DrawArrayLengths *wpStaticPrimitives = nullptr;
@@ -133,43 +133,39 @@ private:
     osg::ref_ptr<osg::StateSet> wpStateSet;
     osg::ref_ptr<osg::Material> wpMaterial;
     osg::ref_ptr<osg::LineWidth> wpLineWidth;
+
     void createWorkpiece(osg::Group*);
     void wpAddQuadsToTree(TreeNode*);
     void wpAddQuadsG0G1(double z, int t, TreeNode*);
     void wpAddQuadsG2G3(double z, int t, TreeNode*);
-    void wpCreateTimestepVector(TreeNode*);
-    void setWpSize();
-    void setWpResolution();
-    void setWpMaterial();
-    void extractToolInfos(const std::string &filename);
-    void setActiveTool(int slot);
-    //osg::ref_ptr<osg::Geometry> wpTreeToGeometry();
-    void wpTreeToGeometry(osg::Geometry &dynamicGeo, osg::Geometry &staticGeo);
-    osg::ref_ptr<osg::Geometry> wpTreeLevelToGeometry(int);
-    void wpTreeToGeoTop(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic); // osg::Vec4Array& colors);
-    void wpTreeToGeoSideWalls(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic, osg::DrawElementsUInt& wpDynamicVerticalPrimX, osg::DrawElementsUInt& wpDynamicVerticalPrimY, osg::DrawElementsUInt& wpStaticVerticalPrimX, osg::DrawElementsUInt& wpStaticVerticalPrimY);
-    osg::ref_ptr<osg::Geometry> createWpBottom(double minX, double maxX, double minY, double maxY, double minZ, double maxZ);
-    //osg::ref_ptr<osg::Geometry> createWpTop(double minX, double maxX, double minY, double maxY, double z);
-    osg::ref_ptr<osg::Geometry> createWpTopTree(double minX, double maxX, double minY, double maxY, double z);
-    void wpMillCutVec(int t);
-    void wpResetCutsVec();
-    void wpMillCut(osg::Geometry *geo, osg::Vec3Array *piece, int t);
-    void wpMillCutTree(osg::Geometry* geo, osg::Vec3Array* piece, int t);
-    void wpMillCutTreeCircle(osg::Geometry* geo, osg::Vec3Array* piece, int t);
-    void wpPrepareMillCut(osg::Geometry* geo, osg::Vec3Array* piece, int t);
-    void wpPrepareMillCutTree(double minX, double maxX, double minY, double maxY, double z, int t);
-    void wpPrepareMillCutTreeCircle(double minX, double maxX, double minY, double maxY, double z, int t);
-    double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
+    
+    //double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointPoint(double px, double py, double x1, double y1);
     double anglePointPoint(double px, double py, double x1, double y1);
     bool checkInsideArcG2(double pAngle, double angle1, double angle2);
-    void wpResetCuts(osg::Vec3Array *piece, int t);
-    void wpCutFaces(osg::Geometry *geo, osg::Vec3Array *piece);
-    void wpCutFacesTree(double minX, double maxX, double minY, double maxY, double z);
+
+    void wpTreeToGeometry(osg::Geometry& dynamicGeo, osg::Geometry& staticGeo);
+    void wpTreeToGeoTop(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic);
+    void wpTreeToGeoSideWalls(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic, osg::DrawElementsUInt& wpDynamicVerticalPrimX, osg::DrawElementsUInt& wpDynamicVerticalPrimY, osg::DrawElementsUInt& wpStaticVerticalPrimX, osg::DrawElementsUInt& wpStaticVerticalPrimY);
     void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter);
     void wpAddSideForGeo(osg::DrawElementsUInt* wpVerticalPrimitivesX, osg::DrawElementsUInt* wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
-    void wpAddFacesTree();
+
+    void wpCreateTimestepVector(TreeNode*);
+    void setWpSize();
+    void setWpResolution();
+    void setWpMaterial();
+    void extractToolInfos(const std::string& filename);
+    void setActiveTool(int slot);
+
+    void wpMillCutVec(int t);
+    void wpResetCutsVec();
+
+    TreeNode* treeRoot;
+    std::vector<std::vector<TreeNode*>> timestepVec;
+    int primitivePosCounterDynamic = 0;
+    int primitivePosCounterStatic = 0;
+    int primitiveResetCounterDynamic = 0;
 
     std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY, pathFeedRate;
     std::vector<int> pathG, pathTool, pathLineStrip;
@@ -181,22 +177,6 @@ private:
     double wpResolution = 0.00005;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
-    //int ix_total;           //deprecated?
-    double cuttingRad = 0.0005; // 0.5 / 1000;
-    int activeTool;
-    //double cuttingRad = 0.00075;
-    double pointAngle = 180;
-    int primitivePosCounterDynamic = 0;
-    int primitivePosCounterStatic = 0;
-    int primitiveResetCounterDynamic = 0;
-
-    std::vector<int> cuttedQuadsIX, cuttedQuadsIY;
-    std::vector<int> cuttedFaces;
-
-    //TreeNode::TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
-    TreeNode* createTree(int minIX, int maxIX, int minIY, int maxIY, double z);
-    TreeNode* treeRoot;
-    std::vector<std::vector<TreeNode*>> timestepVec;
 
     struct ToolInfo {
         int toolNumber;
@@ -205,15 +185,11 @@ private:
         double coneAngle;
         double zMin;
         std::string toolType;
-        bool operator == (const int t) const
-        {
-            return toolNumber == t;
-        }
     };
     std::vector<ToolInfo> toolInfoList;
-
-    int test1, test2;
-
+    double cuttingRad = 0.0005; // 0.5 / 1000;
+    int activeTool;
+    double pointAngle = 180;
 };
 
 #endif
