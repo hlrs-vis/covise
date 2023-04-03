@@ -504,6 +504,8 @@ Season UrbanTempo::stringToSeason(const std::string& string)
         return Season::Summer;
     else if (string == "fall")
         return Season::Fall;
+    else
+        return Season::Summer;
 }
 
 COVERPLUGIN(UrbanTempo)

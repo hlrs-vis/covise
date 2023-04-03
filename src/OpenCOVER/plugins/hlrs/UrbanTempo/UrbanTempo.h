@@ -29,10 +29,10 @@
 #include <gdal_priv.h>
 
 enum Season { 
-    Winter, 
-    Spring, 
-    Summer, 
-    Fall 
+    Winter,
+    Spring,
+    Summer,
+    Fall
 };
 
 class UrbanTempo : public opencover::coVRPlugin
