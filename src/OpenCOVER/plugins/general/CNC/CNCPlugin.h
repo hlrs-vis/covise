@@ -7,19 +7,19 @@
 
 #ifndef _RecordPath_PLUGIN_H
 #define _RecordPath_PLUGIN_H
-/****************************************************************************\
-**                                                            (C)2005 HLRS  **
-**                                                                          **
-** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** April-05  v1	    				       		                         **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+ /****************************************************************************\
+ **                                                            (C)2023 HLRS  **
+ **                                                                          **
+ ** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+ **    Visualises path and workpiece of CNC machining                        **
+ **                                                                          **
+ ** Author: U.Woessner, A.Kaiser		                                     **
+ **                                                                          **
+ ** History:  								                                 **
+ ** April-05  v1	    				       		                         **
+ ** April-23  v2                                                             **
+ **                                                                          **
+ \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 
@@ -111,7 +111,7 @@ private:
     osg::ref_ptr<osg::Geode> pathGeode;
     void createPath(osg::Group* loadParent);
     vector<double> arcApproximation(int t);
-    double approxLength = 0.5;
+    double approxLength = 0.4;
 
     //workpiece wp
     osg::ref_ptr<osg::Group> wpGroup;
@@ -169,6 +169,7 @@ private:
 
     std::vector<double> pathX, pathY, pathZ, pathCenterX, pathCenterY, pathFeedRate;
     std::vector<int> pathG, pathTool, pathLineStrip;
+    bool wpSizeExtracted = false;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
     double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe

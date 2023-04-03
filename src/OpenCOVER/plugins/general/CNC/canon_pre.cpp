@@ -61,7 +61,6 @@
 extern FILE *_outfile;
 
 /* Dummy world model */
-
 static CANON_PLANE _active_plane = CANON_PLANE_XY;
 static int _active_slot = 1;
 static double _feed_rate = 0.0;

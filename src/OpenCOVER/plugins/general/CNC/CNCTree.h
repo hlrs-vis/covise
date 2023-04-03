@@ -1,5 +1,25 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef CNCTREE_H
 #define CNCTREE_H
+ /****************************************************************************\
+ **                                                            (C)2023 HLRS  **
+ **                                                                          **
+ ** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+ **    Visualises path and workpiece of CNC machining                        **
+ **                                                                          **
+ ** Author: A.Kaiser		                                                 **
+ **                                                                          **
+ ** History:  								                                 **
+ ** April-23  v2	    				       		                         **
+ **                                                                          **
+ **                                                                          **
+ \****************************************************************************/
 
 #include <stdexcept>
 
@@ -230,27 +250,27 @@ inline void TreeNode::addChildren()
     if (!unitAreaX && !unitAreaY)
     {   //topLeftTree 
         TreeNode* child = new TreeNode(Point(topLeft.x, topLeft.y),
-            Point((topLeft.x + botRight.x) / 2, (topLeft.y + botRight.y) / 2), level + 1, z, this);
+            Point(floor((topLeft.x + botRight.x) / 2.0), floor((topLeft.y + botRight.y) / 2.0)), level + 1, z, this);   // floor needed for topLeft = -1, botRight = 0
         child->millTimesteps = this->getMillTimesteps();
         this->childTrees.push_back(child);
     }
     if (!unitAreaX)
     {   //botLeftTree
-        TreeNode* child = new TreeNode(Point(topLeft.x, (topLeft.y + botRight.y) / 2),
-            Point((topLeft.x + botRight.x) / 2, botRight.y), level + 1, z, this);
+        TreeNode* child = new TreeNode(Point(topLeft.x, floor((topLeft.y + botRight.y) / 2.0)),
+            Point(floor((topLeft.x + botRight.x) / 2.0), botRight.y), level + 1, z, this);
         child->millTimesteps = this->getMillTimesteps();
         this->childTrees.push_back(child);
     }
     if (!unitAreaY)
     {   //topRightTree
-        TreeNode* child = new TreeNode(Point((topLeft.x + botRight.x) / 2, topLeft.y),
-            Point(botRight.x, (topLeft.y + botRight.y) / 2), level + 1, z, this);
+        TreeNode* child = new TreeNode(Point(floor((topLeft.x + botRight.x) / 2.0), topLeft.y),
+            Point(botRight.x, floor((topLeft.y + botRight.y) / 2.0)), level + 1, z, this);
         child->millTimesteps = this->getMillTimesteps();
         this->childTrees.push_back(child);
     }
     
     //botRightTree
-    TreeNode* child = new TreeNode(Point((topLeft.x + botRight.x) / 2, (topLeft.y + botRight.y) / 2),
+    TreeNode* child = new TreeNode(Point(floor((topLeft.x + botRight.x) / 2.0), floor((topLeft.y + botRight.y) / 2.0)),
         Point(botRight.x, botRight.y), level + 1, z, this);
     child->millTimesteps = this->getMillTimesteps();
     this->childTrees.push_back(child);

@@ -7,16 +7,16 @@
 
 
 /****************************************************************************\
-**                                                            (C)2005 HLRS  **
+**                                                            (C)2023 HLRS  **
 **                                                                          **
 ** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+**    Visualises path and workpiece of CNC machining                        **
 **                                                                          **
+** Author: U.Woessner, A.Kaiser		                                        **
 **                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** April-05  v1	    				       		                         **
-**                                                                          **
+** History:  								                                **
+** April-05  v1	    				       		                            **
+** April-23  v2                                                             **
 **                                                                          **
 \****************************************************************************/
 
@@ -1046,10 +1046,14 @@ void CNCPlugin::wpAddQuadsG0G1(double z, int t, TreeNode* treeRoot)
             ixMin = 0;
         if (iyMin < 0)
             iyMin = 0;
+        if (ixMax > wpTotalQuadsX)
+            ixMax = wpTotalQuadsX;
+        if (iyMax > wpTotalQuadsY)
+            iyMax = wpTotalQuadsY;
 
-        for (int iy = iyMin; iy < iyMax; iy++)
+        for (int iy = iyMin; iy <= iyMax; iy++)
         {
-            for (int ix = ixMin; ix < ixMax; ix++)
+            for (int ix = ixMin; ix <= ixMax; ix++)
             {
                 int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
                 double wpQuadIXCenter = wpMinX + ix * wpResX + wpResX / 2;
@@ -1082,7 +1086,6 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
             ixMin = 0;
         if (iyMin <= 0)
             iyMin = 0;
-
         if (ixMax > wpTotalQuadsX)
             ixMax = wpTotalQuadsX;
         if (iyMax > wpTotalQuadsY)
@@ -1091,9 +1094,9 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
         double angleEnd = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t], pathY[t]);
         double angleStart = anglePointPoint(pathCenterX[t], pathCenterY[t], pathX[t - 1], pathY[t - 1]);
 
-        for (int iy = iyMin; iy < iyMax; iy++)
+        for (int iy = iyMin; iy <= iyMax; iy++)
         {
-            for (int ix = ixMin; ix < ixMax; ix++)
+            for (int ix = ixMin; ix <= ixMax; ix++)
             {
                 int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
                 double wpQuadIXCenter = wpMinX + ix * wpResX + wpResX / 2;
@@ -1476,21 +1479,24 @@ void CNCPlugin::wpCreateTimestepVector(TreeNode* treeRoot)
 */
 void CNCPlugin::setWpSize()
 {
-    wpMinX = *std::min_element(pathX.begin(), pathX.end() - 1) - wpAllowance;
-    wpMaxX = *std::max_element(pathX.begin(), pathX.end() - 1) + wpAllowance;
-    wpMinY = *std::min_element(pathY.begin(), pathY.end() - 1) - wpAllowance;
-    wpMaxY = *std::max_element(pathY.begin(), pathY.end() - 1) + wpAllowance;
-    wpMinZ = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
-    wpMaxZ = 0;
-    for (int i = 0; i < pathG.size(); i++)
+    if(!wpSizeExtracted)
     {
-        if (pathG[i] == 2 || pathG[i] == 3)
+        wpMinX = *std::min_element(pathX.begin(), pathX.end() - 1) - wpAllowance;
+        wpMaxX = *std::max_element(pathX.begin(), pathX.end() - 1) + wpAllowance;
+        wpMinY = *std::min_element(pathY.begin(), pathY.end() - 1) - wpAllowance;
+        wpMaxY = *std::max_element(pathY.begin(), pathY.end() - 1) + wpAllowance;
+        wpMinZ = *std::min_element(pathZ.begin(), pathZ.end()) - wpAllowance;
+        wpMaxZ = 0;
+        for (int i = 0; i < pathG.size(); i++)
         {
-            double rad = distancePointPoint(pathCenterX[i], pathCenterY[i], pathX[i], pathY[i]);
-            wpMinX = std::min(wpMinX, pathCenterX[i] - rad - wpAllowance / 2);
-            wpMaxX = std::max(wpMaxX, pathCenterX[i] + rad + wpAllowance / 2);
-            wpMinY = std::min(wpMinY, pathCenterY[i] - rad - wpAllowance / 2);
-            wpMaxY = std::max(wpMaxY, pathCenterY[i] + rad + wpAllowance / 2);
+            if (pathG[i] == 2 || pathG[i] == 3)
+            {
+                double rad = distancePointPoint(pathCenterX[i], pathCenterY[i], pathX[i], pathY[i]);
+                wpMinX = std::min(wpMinX, pathCenterX[i] - rad - wpAllowance / 2);
+                wpMaxX = std::max(wpMaxX, pathCenterX[i] + rad + wpAllowance / 2);
+                wpMinY = std::min(wpMinY, pathCenterY[i] - rad - wpAllowance / 2);
+                wpMaxY = std::max(wpMaxY, pathCenterY[i] + rad + wpAllowance / 2);
+            }
         }
     }
     wpLengthX = wpMaxX - wpMinX;
@@ -1564,8 +1570,8 @@ void CNCPlugin::extractToolInfos(const std::string& filename)
     tool_default.toolType = "Default Tool, r=0.5mm";
     toolInfoList.push_back(tool_default);
 
-    std::regex toolRegex("\\(T(\\d+)\\s+D=(\\d*\\.?\\d*)\\s*CR=(\\d*\\.?\\d*)\\s*(?:KONIK=(\\d+\\.?\\d*)\\w*\\s*)?-\\s+ZMIN=(-?\\d*\\.?\\d*)\\s*-\\s*(\\S*)\\)");
-    std::regex wpDimensionRegex("\\(\\s*[xX][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[xX][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][iI][nN]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][aA][xX]\\s*=\\s*(\\d*\\.?\\d*)\\s*\\)");
+    std::regex toolRegex("\\(T(\\d+)\\s*D=(\\d*\\.?\\d*)\\s*CR=(\\d*\\.?\\d*)\\s*(?:KONIK=(\\d+\\.?\\d*)\\w*\\s*)?-\\s+ZMIN=(-?\\d*\\.?\\d*)\\s*-\\s*(\\S*)\\)");
+    std::regex wpDimensionRegex("\\(\\s*[xX][mM][iI][nN]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\,?\\s*[xX][mM][aA][xX]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][iI][nN]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\,?\\s*[yY][mM][aA][xX]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][iI][nN]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\,?\\s*[zZ][mM][aA][xX]\\s*=\\s*(-?\\d*\\.?\\d*)\\s*\\)");
     std::ifstream infile(filename);
     std::string line;
     while (std::getline(infile, line))
@@ -1584,12 +1590,13 @@ void CNCPlugin::extractToolInfos(const std::string& filename)
         }
         std::smatch wpMatch;
         if (std::regex_search(line, wpMatch, wpDimensionRegex)) {
-            wpMinX = std::stod(wpMatch[1]);
-            wpMaxX = std::stod(wpMatch[2]);
-            wpMinY = std::stod(wpMatch[3]);
-            wpMaxY = std::stod(wpMatch[4]);
-            wpMinZ = std::stod(wpMatch[5]);
-            wpMaxZ = std::stod(wpMatch[6]);
+            wpSizeExtracted = true;
+            wpMinX = std::stod(wpMatch[1]) / 1000.0;
+            wpMaxX = std::stod(wpMatch[2]) / 1000.0;
+            wpMinY = std::stod(wpMatch[3]) / 1000.0;
+            wpMaxY = std::stod(wpMatch[4]) / 1000.0;
+            wpMinZ = std::stod(wpMatch[5]) / 1000.0;
+            wpMaxZ = std::stod(wpMatch[6]) / 1000.0;
         }
     }
 }
