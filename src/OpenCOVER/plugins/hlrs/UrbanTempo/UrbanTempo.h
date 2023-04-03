@@ -32,7 +32,8 @@ enum Season {
     Winter, 
     Spring, 
     Summer, 
-    Fall 
+    Fall,
+    None
 };
 
 class UrbanTempo : public opencover::coVRPlugin
