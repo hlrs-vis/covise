@@ -1,8 +1,8 @@
 MACRO(USE_LAMURE)
 
     FIND_PACKAGE(LAMURE)
-    FIND_PACKAGE(Schism)
-    FIND_PACKAGE(Freeimage)
+    FIND_PACKAGE(SCHISM)
+    FIND_PACKAGE(FREEIMAGE)
     IF ((NOT LAMURE_FOUND)  AND (${ARGC} LESS 1))
         USING_MESSAGE("Skipping because of missing Lamure")
         RETURN()

@@ -12,7 +12,7 @@ if (LibArchive_FOUND)
    add_definitions(-DHAVE_LIBARCHIVE)
 endif()
 
-covise_find_package(LibZip)
+covise_find_package(LIBZIP)
 if (LIBZIP_FOUND)
     add_definitions(-DHAVE_LIBZIP)
     include_directories(SYSTEM ${LIBZIP_INCLUDE_DIRS})

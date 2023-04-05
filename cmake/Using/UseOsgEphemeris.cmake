@@ -1,5 +1,5 @@
 MACRO(USE_OSGEPHEMERIS)
-  covise_find_package(OsgEphemeris)
+  covise_find_package(OSGEPHEMERIS)
   IF ((NOT OSGEPHEMERIS_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing OSGEPHEMERIS")
     RETURN()

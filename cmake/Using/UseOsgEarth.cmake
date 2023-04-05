@@ -1,5 +1,5 @@
 MACRO(USE_OSGEARTH)
-  covise_find_package(OsgEarth)
+  covise_find_package(OSGEARTH)
   IF ((NOT OSGEARTH_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing OSGEARTH")
     RETURN()

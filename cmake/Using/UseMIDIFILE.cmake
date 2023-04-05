@@ -1,8 +1,8 @@
 
 MACRO(USE_MIDIFILE)
-  FIND_PACKAGE(MidiFile)
+  FIND_PACKAGE(MIDIFILE)
   IF ((NOT MIDIFILE_FOUND)  AND (${ARGC} LESS 1))
-    USING_MESSAGE("Skipping because of missing MidiFile")
+    USING_MESSAGE("Skipping because of missing MIDIFILE")
     RETURN()
   ENDIF((NOT MIDIFILE_FOUND) AND (${ARGC} LESS 1))
     MESSAGE(MIDIFILE_USED)

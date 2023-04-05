@@ -1,6 +1,6 @@
 MACRO(USE_OSGBULLET)
   covise_find_package(OsgBullet COMPONENTS osgbCollision osgbDynamics osgbInteraction)
-  covise_find_package( osgWorks 2.0.0)
+  covise_find_package(osgWorks 2.0.0)
   IF(osgWorks_FOUND AND OSGBULLET_INCLUDE_DIRS)
      SET(OSGBULLET_FOUND TRUE)
   ENDIF()
