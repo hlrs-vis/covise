@@ -150,6 +150,7 @@ void WindowTypeQtPlugin::showKeyboardCommands()
     if (!m_keyboardHelp)
     {
         m_keyboardHelp = new KeyboardHelp(cover->ui);
+        QObject::connect(m_keyboardHelp, &QDialog::finished, [this](int result){delete m_keyboardHelp; m_keyboardHelp = nullptr;});
     }
     m_keyboardHelp->show();
 }
