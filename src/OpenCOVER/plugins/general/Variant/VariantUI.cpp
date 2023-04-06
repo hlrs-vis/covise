@@ -18,7 +18,7 @@ VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *Vari
     //new ui::Menu *variantMenu
 
     //Creating the Checkbox for show/hide the variant in the Cover VR-menue
-    Cb_item = new ui::Button(Variant_menu, varName);
+    Cb_item = new ui::Button(Variant_menu, ui::Owner::makeName(varName));
     Cb_item->setState(true);
     Cb_item->setCallback([this, varName](bool state){
         TokenBuffer tb;

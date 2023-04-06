@@ -9,11 +9,21 @@ namespace ui {
 
 namespace {
 
-bool checkName(const std::string &name)
+template<typename Char>
+bool isValidChar(Char c)
+{
+    if (isalnum(c))
+        return true;
+    return c == '_' || c == '-';
+}
+
+}
+
+bool Owner::checkName(const std::string &name)
 {
     for (auto c: name)
     {
-        if (!isalnum(c) && c != '_' && c != '-')
+        if (!isValidChar(c))
         {
             std::cerr << "ui::Owner: invalid name " << name << std::endl;
             //assert("Invalid owner name" == 0);
@@ -23,6 +33,18 @@ bool checkName(const std::string &name)
     return true;
 }
 
+std::string Owner::makeName(const std::string &name)
+{
+    std::string s;
+    for (auto c: name)
+    {
+        if (isValidChar(c))
+        {
+            s.push_back(c);
+        }
+    }
+    std::cerr << "ui::Owner: invalid name " << name << " transformed to \"" << s << "\"" << std::endl;
+    return s;
 }
 
 Owner::Owner(const std::string &name, Owner *owner)

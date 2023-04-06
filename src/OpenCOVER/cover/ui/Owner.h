@@ -31,6 +31,9 @@ class COVER_UI_EXPORT Owner {
    //! return manager responsible for this item
    Manager *manager() const;
 
+   static bool checkName(const std::string &name);
+   static std::string makeName(const std::string &name);
+
  protected:
    void clearItems();
 
