@@ -10,10 +10,10 @@ ip="$(/sbin/ifconfig \
 
 echo $ip
 
-if [ -f $COVISEDIR/share/covise/web/noVNC/utils/launch.sh ]; then
+if [ -f $COVISEDIR/share/covise/web/noVNC/utils/novnc_proxy ]; then
     if  ps -e | grep [O]penCOVER>/dev/null ; then
 	echo "cover is running, starting JS-vnc client" $ip
-	($COVISEDIR/share/covise/web/noVNC/utils/launch.sh --vnc $ip:$port > /dev/null )&
+	($COVISEDIR/share/covise/web/noVNC/utils/novnc_proxy --vnc $ip:$port > /dev/null )&
     else
 	echo OpenCOVER not running
     fi
