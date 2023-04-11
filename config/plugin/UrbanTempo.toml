@@ -3460,22 +3460,25 @@ model_path = '/mnt/raid/data/Tallinn/GreenTwins_for_UrbanTempo/Puukoodi/3D_objec
 season = 'summer'
 species_name = 'arukask'
 rotation = [90.0, 0.0, 0.0]
-translation_ = [0.0, 0.0, 0.0]
+translation = [0.0, 0.0, 0.0]
 
 [treeModel2]
 model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
 season = 'summer'
 species_name = 'h hobukastan'
+rotation = [90.0, 0.0, 0.0]
 
 [treeModel3]
 model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
 season = 'summer'
 species_name = 'h hobukastan '
+rotation = [90.0, 0.0, 0.0]
 
 [treeModel4]
 model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
 season = 'summer'
 species_name = 'h. hobukastan'
+rotation = [90.0, 0.0, 0.0]
 
 [treeModel5]
 model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_15y_02.obj'
@@ -3511,9 +3514,9 @@ rotation = [90.0, 0.0, 0.0]
 model_path = '/mnt/raid/data/Tallinn/tree_models/Maple-Platanoides-Think/Platanoides Think N160219.obj'
 season = 'summer'
 species_name = 'mägivaher'
+rotation = [90.0, 0.0, 0.0]
 
 [treeModel11]
-model_pathqwe = '/mnt/raid/data/Tallinn/Salix_alba/Salix_alba_Sibirica_mature_02_leaves.obj'
 model_path = '/mnt/raid/data/Tallinn/Salix_alba/Salix_alba_Sibirica_15y_01_leaves.obj'
 season = 'summer'
 species_name = 'hõberemmelgas'
@@ -3529,6 +3532,7 @@ rotation = [90.0, 0.0, 0.0]
 model_path = '/mnt/raid/data/Tallinn/tree_models/elm/American Elm tree.obj'
 season = 'summer'
 species_name = 'h jalakas'
+rotation = [90.0, 0.0, 0.0]
 
 [treeModel14]
 model_path = '/mnt/raid/data/Tallinn/Sembra/Pinus_cembra_mature_01.obj'
@@ -3539,4 +3543,4 @@ rotation = [90.0, 0.0, 0.0]
 [treeModelDefault]
 model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_15y_01_leaves.obj'
 rotation = [90.0, 0.0, 0.0]
-translation_ = [0.0, 0.0, 0.0]
+translation = [0.0, 0.0, 0.0]
