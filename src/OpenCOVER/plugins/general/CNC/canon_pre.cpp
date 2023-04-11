@@ -61,7 +61,6 @@
 extern FILE *_outfile;
 
 /* Dummy world model */
-
 static CANON_PLANE _active_plane = CANON_PLANE_XY;
 static int _active_slot = 1;
 static double _feed_rate = 0.0;
@@ -367,7 +366,7 @@ void STRAIGHT_TRAVERSE(
     )
 {
 
-    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _traverse_rate);
+    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _traverse_rate, _active_slot);
     _program_position_x SET_TO x;
     _program_position_y SET_TO y;
     _program_position_z SET_TO z;
@@ -467,7 +466,8 @@ void ARC_FEED(
     double c /*CC*/
 #endif
     )
-{
+{   
+    CNCPlugin::instance()->arcFeed(first_end, second_end, axis_end_point, first_axis, second_axis, rotation, _traverse_rate, _active_slot);
     fprintf(_outfile, "%5d ", _line_number++);
     print_nc_line_number();
     fprintf(_outfile, "ARC_FEED(%.4f, %.4f, %.4f, %.4f, %d, %.4f"
@@ -541,7 +541,7 @@ void STRAIGHT_FEED(
 #endif
     )
 {
-    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _feed_rate);
+    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _feed_rate, _active_slot);
     /* fprintf(_outfile, "%5d ", _line_number++);
     print_nc_line_number();
     fprintf(_outfile, "STRAIGHT_FEED(%.4f, %.4f, %.4f"
