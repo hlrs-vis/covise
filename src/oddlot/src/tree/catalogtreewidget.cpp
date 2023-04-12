@@ -296,7 +296,7 @@ CatalogTreeWidget::onItemClicked(QTreeWidgetItem *item, int column)
                     oscElement_->attachObserver(this);
 
 
-                    // refid vergeben, prüfen ob Datei schon vorhanden, path von vehicleCatalog?, neue Basis für catalog?
+                    // refid vergeben, pruefen ob Datei schon vorhanden, path von vehicleCatalog?, neue Basis fuer catalog?
                     // Element anlegen
                     QString filePath;
                     std::string refId = catalog_->generateRefId();

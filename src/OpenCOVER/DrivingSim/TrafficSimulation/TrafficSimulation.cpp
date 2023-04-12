@@ -697,7 +697,7 @@ bool TrafficSimulation::TrafficSimulation::init()
     maxVel_Slider->setMax(300);
     maxVel_Slider->setValue(maxVel_);
 
-    //Timer für die FFZ-Erstellung
+    //Timer fuer die FFZ-Erstellung
     createFreqLabel = new coTUILabel("Create Vehicles every x Frames:", createFrame->getID());
     createFreqLabel->setPos(0, pos);
 
@@ -732,7 +732,7 @@ bool TrafficSimulation::TrafficSimulation::init()
     removeLabel = new coTUILabel("Remove Vehicles\n", removeFrame->getID());
     removeLabel->setPos(0, pos++);
 
-    //Fahrzeuge löschen
+    //Fahrzeuge loeschen
     removeVehiclesAtLabel = new coTUILabel("Remove Vehicles at creation distance + x:", removeFrame->getID());
     removeVehiclesAtLabel->setPos(0, pos);
 
@@ -756,7 +756,7 @@ bool TrafficSimulation::TrafficSimulation::init()
     tdLabel = new coTUILabel("Traffic Density\n", tdFrame->getID());
     tdLabel->setPos(0, pos++);
 
-    //Faktor für die Verkehrsdichte
+    //Faktor fuer die Verkehrsdichte
     td_multLabel = new coTUILabel("Set traffic density multiplier:", tdFrame->getID());
     td_multLabel->setPos(0, pos);
 
@@ -975,7 +975,7 @@ TrafficSimulation::TrafficSimulation::preFrame()
     VehicleList vehOverallList = VehicleManager::Instance()->getVehicleOverallList();
     osg::Vec2d incoming_pos = HumanVehicle::human_pos; // Robert
     double v = (double)RoadSystem::dSpace_v;
-    //Löschdistanz ermitteln
+    //Loeschdistanz ermitteln
     if (v <= minVel)
         min_distance = min_distance_tui;
     else if (v >= maxVel)
@@ -984,9 +984,9 @@ TrafficSimulation::TrafficSimulation::preFrame()
         min_distance = (min_distance_tui + ((max_distance_tui - min_distance_tui) / (maxVel - minVel)) * (v - minVel));
     delete_at = min_distance + delete_delta;
 
-    // Ermitteln in welcher Kachel sich das Eigenfahrzeug befinden würde
+    // Ermitteln in welcher Kachel sich das Eigenfahrzeug befinden wuerde
     if ((Carpool::Instance()->getPoolVector()).size() > 0 && useCarpool == 1)
-    { //Ausführung nur falls mindestens ein pool definiert wurde
+    { //Ausfuehrung nur falls mindestens ein pool definiert wurde
         osg::Vec2d current_tile_y = system->get_tile(incoming_pos[0], incoming_pos[1]);
         std::list<Vehicle *>::iterator it;
         for (it = vehOverallList.begin(); it != vehOverallList.end(); ++it)

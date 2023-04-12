@@ -675,7 +675,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
     cout << "writing point cloud data to " << filename << endl;
 
     ofstream file(filename, ios::out | ios::binary | ios::ate);
-    int numPointsToWrite;
+    uint32_t numPointsToWrite;
 
     if (file.is_open())
     {
