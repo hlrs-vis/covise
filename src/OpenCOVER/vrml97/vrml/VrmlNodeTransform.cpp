@@ -138,23 +138,28 @@ void VrmlNodeTransform::render(Viewer *viewer)
     else if (d_children.size() > 0)
     {
         d_xformObject = viewer->beginObject(name(), 0, this);
-
-        // Apply transforms
-        viewer->setTransform(d_center.get(),
-                             d_rotation.get(),
-                             d_scale.get(),
-                             d_scaleOrientation.get(),
-                             d_translation.get(), d_modified);
+        if (d_modified)
+        {
+            // Apply transforms
+            viewer->setTransform(d_center.get(),
+                d_rotation.get(),
+                d_scale.get(),
+                d_scaleOrientation.get(),
+                d_translation.get(), d_modified);
+        }
 
         // Render children
         VrmlNodeGroup::render(viewer);
 
-        // Reverse transforms (for immediate mode/no matrix stack renderer)
-        viewer->unsetTransform(d_center.get(),
-                               d_rotation.get(),
-                               d_scale.get(),
-                               d_scaleOrientation.get(),
-                               d_translation.get());
+        if (d_modified)
+        {
+            // Reverse transforms (for immediate mode/no matrix stack renderer)
+            viewer->unsetTransform(d_center.get(),
+                d_rotation.get(),
+                d_scale.get(),
+                d_scaleOrientation.get(),
+                d_translation.get());
+        }
         viewer->endObject();
     }
 
