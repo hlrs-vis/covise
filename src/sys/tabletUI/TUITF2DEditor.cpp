@@ -12,6 +12,13 @@
 
 #include <qmessagebox.h>
 #include <math.h>
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+#define POSITIONX position().x()
+#define POSITIONY position().y()
+#else
+#define POSITIONX x()
+#define POSITIONY y()
+#endif
 
 using std::list;
 
@@ -792,9 +799,9 @@ void TUITF2DEditor::mousePressEvent(QMouseEvent *e)
 
     case WidgetFixed: //default:
     {
-        float posx = (float)e->position().x() / panelSize;
+        float posx = (float)e->POSITIONX / panelSize;
         //openGL y coordinates are flipped
-        float posy = 1.0f - ((float)e->position().y() / panelSize);
+        float posy = 1.0f - ((float)e->POSITIONY / panelSize);
 
         if (posx >= 0.0f && posx <= 1.0f && posy >= 0.0f && posx <= 1.0f)
         {
@@ -804,7 +811,7 @@ void TUITF2DEditor::mousePressEvent(QMouseEvent *e)
                 std::list<TUIVirvoWidget *>::iterator it;
                 for (it = widgets.begin(); it != widgets.end(); ++it)
                 {
-                    TUITFEWidget::HandleType ht = (**it).testHit(e->position().x(), panelSize - e->position().y());
+                    TUITFEWidget::HandleType ht = (**it).testHit(e->POSITIONX, panelSize - e->POSITIONY);
                     if (ht != TUITFEWidget::HT_NONE)
                     {
                         selectedPoint = *it;
@@ -864,7 +871,7 @@ void TUITF2DEditor::mousePressEvent(QMouseEvent *e)
                     std::list<TUIVirvoWidget *>::iterator it;
                     for (it = widgets.begin(); it != widgets.end(); ++it)
                     {
-                        TUITFEWidget::HandleType ht = (**it).testHit(e->position().x(), panelSize - e->position().y());
+                        TUITFEWidget::HandleType ht = (**it).testHit(e->POSITIONX, panelSize - e->POSITIONY);
                         if (ht != TUITFEWidget::HT_NONE)
                         {
                             pointSelected = true;
@@ -898,7 +905,7 @@ void TUITF2DEditor::mouseMoveEvent(QMouseEvent *e)
     case WidgetDrawPoints:
         if (leftButtonDown)
         {
-            addFreePoint(e->position().x(), panelSize - e->position().y(), currentAlpha);
+            addFreePoint(e->POSITIONX, panelSize - e->POSITIONY, currentAlpha);
             this->repaint();
         }
         break;
@@ -932,9 +939,9 @@ void TUITF2DEditor::mouseMoveEvent(QMouseEvent *e)
 
         case TUITFEWidget::HT_MIDDLE:
         {
-            float xPos = (float)e->position().x() / panelSize;
+            float xPos = (float)e->POSITIONX / panelSize;
             //openGL y coordinates are flipped
-            float yPos = 1.0f - ((float)e->position().y() / panelSize);
+            float yPos = 1.0f - ((float)e->POSITIONY / panelSize);
             if (yPos > 1.0f)
                 yPos = 1.0f;
             if (yPos < 0.0f)
@@ -951,9 +958,9 @@ void TUITF2DEditor::mouseMoveEvent(QMouseEvent *e)
         case TUITFEWidget::HT_BOTTOM:
         {
             //change widget dimension
-            float xPos = (float)e->position().x() / panelSize;
+            float xPos = (float)e->POSITIONX / panelSize;
             //openGL y coordinates are flipped
-            float yPos = 1.0f - ((float)e->position().y() / panelSize);
+            float yPos = 1.0f - ((float)e->POSITIONY / panelSize);
             if (yPos > 1.0f)
                 yPos = 1.0f;
             if (yPos < 0.0f)
@@ -974,9 +981,9 @@ void TUITF2DEditor::mouseMoveEvent(QMouseEvent *e)
             //only pyramid has top too
 
             //change widget dimension
-            float xPos = (float)e->position().x() / panelSize;
+            float xPos = (float)e->POSITIONX / panelSize;
             //openGL y coordinates are flipped
-            float yPos = 1.0f - ((float)e->position().y() / panelSize);
+            float yPos = 1.0f - ((float)e->POSITIONY / panelSize);
             if (yPos > 1.0f)
                 yPos = 1.0f;
             if (yPos < 0.0f)
@@ -1073,9 +1080,9 @@ void TUITF2DEditor::mouseReleaseEvent(QMouseEvent *e)
     // when a extrusion or tent is created
     if (e->button() == Qt::LeftButton)
     {
-        float posx = (float)e->position().x() / panelSize;
+        float posx = (float)e->POSITIONX / panelSize;
         //openGL y coordinates are flipped
-        float posy = 1.0f - ((float)e->position().y() / panelSize);
+        float posy = 1.0f - ((float)e->POSITIONY / panelSize);
 
         handleMapRelease(posx, posy);
         leftButtonDown = false;
@@ -1138,9 +1145,9 @@ void TUITF2DEditor::tabletEvent(QTabletEvent *e)
             if (deviceDown)
             {
                 deviceDown = false;
-                float posx = (float)e->position().x() / panelSize;
+                float posx = (float)e->POSITIONX / panelSize;
                 //openGL y coordinates are flipped
-                float posy = 1.0f - ((float)e->position().y() / panelSize);
+                float posy = 1.0f - ((float)e->POSITIONY / panelSize);
                 handleMapRelease(posx, posy);
 
                 emit functionChanged();

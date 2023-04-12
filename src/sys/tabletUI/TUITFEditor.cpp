@@ -13,6 +13,13 @@
 #include "TUIApplication.h"
 #include "TUIFunctionEditorTab.h"
 #include <net/tokenbuffer.h>
+#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+#define POSITIONX position().x()
+#define POSITIONY position().y()
+#else
+#define POSITIONX x()
+#define POSITIONY y()
+#endif
 
 static float s_stdColorMap[] = {
     0.0, 0.000000, 0.000000, 1.000000,
@@ -498,17 +505,17 @@ void TUITF1DEditor::mousePressEvent(QMouseEvent *e)
         bool colorRegion = false;
 
         QVector<TUITFEWidget *> list;
-        float xpos = (float)(e->position().x()) / (float)width();
+        float xpos = (float)(e->POSITIONX) / (float)width();
 
         // alpha point?
-        int testPoint = ::abs(e->position().y() - alphaWidgetPos - halfMarkerSize);
+        int testPoint = ::abs(e->POSITIONY - alphaWidgetPos - halfMarkerSize);
         if (testPoint < clickThreshold)
         {
             // look if a alpha marker was pressed
             for (int i = 0; i < alphaPoints.size(); i++)
             {
                 TUITFEWidget *wp = alphaPoints.at(i);
-                if (wp->contains(e->position().x(), e->position().y(), width()))
+                if (wp->contains(e->POSITIONX, e->POSITIONY, width()))
                     list.append(wp);
             }
             alphaRegion = true;
@@ -516,7 +523,7 @@ void TUITF1DEditor::mousePressEvent(QMouseEvent *e)
         // color point?
         else
         {
-            testPoint = ::abs(e->position().y() - colorWidgetPos - halfMarkerSize);
+            testPoint = ::abs(e->POSITIONY - colorWidgetPos - halfMarkerSize);
             if (testPoint < clickThreshold)
             {
 
@@ -524,7 +531,7 @@ void TUITF1DEditor::mousePressEvent(QMouseEvent *e)
                 for (int i = 0; i < colorPoints.size(); i++)
                 {
                     TUITFEWidget *wp = colorPoints.at(i);
-                    if (wp->contains(e->position().x(), e->position().y(), width()))
+                    if (wp->contains(e->POSITIONX, e->POSITIONY, width()))
                         list.append(wp);
                 }
                 colorRegion = true;
@@ -569,7 +576,7 @@ void TUITF1DEditor::mousePressEvent(QMouseEvent *e)
             {
                 if (selectedPoint != NULL)
                 {
-                    TUITFEWidget::HandleType ht = selectedPoint->testHit(e->position().x(), e->position().y());
+                    TUITFEWidget::HandleType ht = selectedPoint->testHit(e->POSITIONX, e->POSITIONY);
                     if (ht == TUITFEWidget::HT_NONE)
                     {
                         // no widget, unselect
@@ -620,8 +627,8 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
 {
     if (drawFree)
     {
-        float xPos = (float)e->position().x() / width();
-        float yPos = ((e->position().y() - TUITF1DEditor::panelPos)) / (float)TUITF1DEditor::panelSize;
+        float xPos = (float)e->POSITIONX / width();
+        float yPos = ((e->POSITIONY - TUITF1DEditor::panelPos)) / (float)TUITF1DEditor::panelSize;
         if (yPos > 1.0f)
             yPos = 1.0f;
         if (yPos < 0.0f)
@@ -654,7 +661,7 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
                 return;
 
             // get neighbours
-            float xx = float(e->position().x()) / float(width());
+            float xx = float(e->POSITIONX) / float(width());
             float xmin = (colorPoints.at(index - 1))->getX();
             float xmax = (colorPoints.at(index + 1))->getX();
 
@@ -678,7 +685,7 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
             case TUITFEWidget::HT_NONE:
             {
                 // get neighbours
-                float xx = float(e->position().x()) / float(width());
+                float xx = float(e->POSITIONX) / float(width());
                 float xmin = 0.0f;
                 float xmax = 1.0f;
 
@@ -696,7 +703,7 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
             case TUITFEWidget::HT_BOTTOM:
             {
                 TUIAlphaTriangle *ap = static_cast<TUIAlphaTriangle *>(selectedPoint);
-                float xb = (ap->getX() - float(e->position().x()) / float(width())) * 2.0f;
+                float xb = (ap->getX() - float(e->POSITIONX) / float(width())) * 2.0f;
                 ap->setXb(xb);
                 this->repaint();
             }
@@ -705,7 +712,7 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
             case TUITFEWidget::HT_TOP:
             {
                 TUIAlphaTriangle *ap = static_cast<TUIAlphaTriangle *>(selectedPoint);
-                float xt = ((float(e->position().x()) / float(width())) - ap->getX()) * 2.0f;
+                float xt = ((float(e->POSITIONX) / float(width())) - ap->getX()) * 2.0f;
                 ap->setXt(xt);
                 this->repaint();
             }
@@ -714,7 +721,7 @@ void TUITF1DEditor::mouseMoveEvent(QMouseEvent *e)
             case TUITFEWidget::HT_MIDDLE:
             {
                 TUIAlphaTriangle *ap = static_cast<TUIAlphaTriangle *>(selectedPoint);
-                int alpha = 255 - (((e->position().y() - TUITF1DEditor::panelPos) * 255) / TUITF1DEditor::panelSize);
+                int alpha = 255 - (((e->POSITIONY - TUITF1DEditor::panelPos) * 255) / TUITF1DEditor::panelSize);
                 ap->setAlpha(alpha);
                 this->repaint();
             }
