@@ -453,7 +453,8 @@ void osgViewerObject::updateBin()
                         //geoset->setDrawBin(DEPTH_BIN);
                         // XXX: DEPTH -> TRANSP ?
                         //stateset->setRenderingHint(StateSet::TRANSPARENT_BIN);
-                        stateset->setRenderingHint(StateSet::OPAQUE_BIN);
+                        stateset->setRenderBinDetails(-1, "RenderBin");
+                        stateset->setNestRenderBins(false);
                     }
                     else if (transparent)
                     {

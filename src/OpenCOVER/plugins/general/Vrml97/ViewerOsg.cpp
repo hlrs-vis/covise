@@ -3597,7 +3597,8 @@ void ViewerOsg::setModesByName(const char *objectName)
                     {
                         // after Video but before all normal geometry
 
-                        stateset->setRenderingHint(StateSet::TRANSPARENT_BIN);
+                        //stateset->setRenderingHint(StateSet::TRANSPARENT_BIN);
+                        stateset->setNestRenderBins(false);
                         stateset->setRenderBinDetails(-1, "RenderBin");
                         stateset->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
                     }

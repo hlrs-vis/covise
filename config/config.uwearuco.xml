@@ -284,8 +284,38 @@
                         <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
+					<Marker name="ObjectMarker3" >
+                        <Pattern value="0" />
+                        <Size value="30" />
+                        <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+					<Marker name="ObjectMarker4" >
+                        <Pattern value="1" />
+                        <Size value="30" />
+                        <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+					<Marker name="ObjectMarker5" >
+                        <Pattern value="2" />
+                        <Size value="30" />
+                        <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+					<Marker name="ObjectMarker6" >
+                        <Pattern value="3" />
+                        <Size value="30" />
+                        <Offset x="137" y="-83" z="25" h="180" p="0" r="-90" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
 					<Marker name="Tracer12" >
                         <Pattern value="720" />
+                        <Size value="350" />
+                        <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
+                        <VrmlToPf value="FALSE"/>
+                    </Marker>
+					<Marker name="TimestepMarker" >
+                        <Pattern value="5" />
                         <Size value="350" />
                         <Offset x="0" y="0" z="400" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
@@ -311,7 +341,7 @@
 					<markerBorderBits value="1" />
 					<minSideLengthCanonicalImg value="20" />
 					
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/ARToolKit/default.yaml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />
