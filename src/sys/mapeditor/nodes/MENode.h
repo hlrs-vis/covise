@@ -8,6 +8,7 @@
 #ifndef ME_NODE_H
 #define ME_NODE_H
 
+#include <QtGlobal>
 #include <QGraphicsItem>
 #include <QGraphicsSvgItem>
 #include <QObject>
