@@ -19,8 +19,6 @@ std::array<cv::Vec3d, 4> getMarkerCorners(opencover::MarkerTrackingMarker *arToo
     return corners;
 }
 
-
-
 ArucoMarker::ArucoMarker(opencover::MarkerTrackingMarker *arToolKitMarker)
 : arToolKitMarker(arToolKitMarker)
 , corners(getMarkerCorners(arToolKitMarker))
