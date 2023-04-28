@@ -694,7 +694,7 @@ void ARMarkerInfo::setValues(int id, int docID, int mid, std::string& n, double 
 	
 	if (marker == nullptr)
 	{
-		marker = new ARToolKitMarker((markerType+std::to_string(MarkerID)),MarkerID,size, offsetMat,hostMat,true);
+		marker = new ARToolKitMarker((markerType+std::to_string(MarkerID)),MarkerID,size, offsetMat,true);
         if (markerType == "ObjectMarker")
         {
             marker->setObjectMarker(true);

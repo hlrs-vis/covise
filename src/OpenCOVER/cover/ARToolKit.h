@@ -22,6 +22,9 @@ Germany
 #define ARTOOLKIT_H
 
 #include <list>
+#include <string>
+#include <array>
+
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Drawable>
@@ -38,6 +41,7 @@ class coTUIEditFloatField;
 class coTUIEditFloatField;
 class coTUITab;
 class coTUIElement;
+class coTUIGroupBox;
 }
 
 #include <net/covise_connect.h>
@@ -131,79 +135,85 @@ private:
     std::string m_configPath;
     covise::Message msg;
 
-    bool objTracking;
+    bool objTracking = false;
     int numObjectMarkers;
     std::list<ARToolKitMarker *> objectMarkers;
 
 public:
-    bool running;
+    bool running = false;
     virtual ~ARToolKit();
     static ARToolKit *instance();
     coTUITab *artTab;
     bool flipH;
-    ARToolKitInterface *arInterface;
-    RemoteARInterface *remoteAR;
+    ARToolKitInterface *arInterface = nullptr;
+    RemoteARInterface *remoteAR = nullptr;
 
     void update();
     void config();
     bool isRunning();
 
-    unsigned char *videoData;
-    unsigned char *videoDataRight;
-    int videoWidth;
-    int videoHeight;
-    int videoMode;
+    unsigned char *videoData = nullptr;
+    unsigned char *videoDataRight = nullptr;
+    int videoWidth = 0;
+    int videoHeight = 0;
+    int videoMode = GL_RGB;
     int videoDepth;
-    bool stereoVideo;
-    bool videoMirrorLeft;
-    bool videoMirrorRight;
-    std::string m_artoolkitVariant;
+    bool stereoVideo = false;
+    bool videoMirrorLeft = false;
+    bool videoMirrorRight = false;
+    std::string m_artoolkitVariant = "ARToolKit";
     std::list<ARToolKitMarker *> markers;
     void addMarker(ARToolKitMarker *);
     bool doMerge;
-    bool testImage;
+    bool testImage = false;
 };
 
 class COVEREXPORT ARToolKitMarker : public coTUIListener
 {
 private:
-    int pattID;
-    double pattSize;
-    double pattCenter[2];
+struct Coord{
+    Coord() = default;
+    Coord(const std::string &name, coTUIGroupBox* group);
+    Coord &operator=(const Coord&);
+    std::string name;
+    float value() const;
+    coTUIEditFloatField * edit = nullptr;
+};
+    int pattGroup = -1;
+    float oldpattGroup = -1;
+    double pattCenter[2] = {0.0, 0.0};
     double pattTrans[3][4];
-    bool VrmlToPf;
-    bool objectMarker;
-    float x, y, z, h, p, r;
-    bool visible;
+    bool objectMarker = false;
     osg::Matrix offset;
     osg::Matrix Ctrans;
     osg::Matrix Mtrans;
     coTUILabel *markerLabel = nullptr;
-    coTUIToggleButton *vrmlToPfFlag = nullptr;
-    coTUIEditFloatField *size = nullptr;
-    coTUIEditFloatField *posX = nullptr;
-    coTUIEditFloatField *posY = nullptr;
-    coTUIEditFloatField *posZ = nullptr;
-    coTUIEditFloatField *rotH = nullptr;
-    coTUIEditFloatField *rotP = nullptr;
-    coTUIEditFloatField *rotR = nullptr;
+    coTUIToggleButton *vrmlToPf = nullptr;
+    coTUIEditFloatField * pattID = nullptr;
+    coTUIEditFloatField *size;
+    std::array<Coord, 6> m_transform; 
+    void createUi(const std::string &configName);
+    void matToEuler(const osg::Matrix &mat);
+    osg::Matrix eulerToMat() const;
+
 
 public:
-	ARToolKitMarker(const std::string &configName,int MarkerID,double size,osg::Matrix&mat, osg::Matrix& hostMat,bool VrmlToOSG);
-	ARToolKitMarker(const char* Name);
+	ARToolKitMarker(const std::string &configName,int MarkerID,double size, const osg::Matrix &mat,bool VrmlToOSG);
+	ARToolKitMarker(const std::string &Name);
 	void updateData(double markerSize, osg::Matrix& mat, osg::Matrix& hostMat, bool vrmlToOsg);
     virtual ~ARToolKitMarker();
     osg::Matrix &getCameraTrans();
     osg::Matrix &getMarkerTrans();
-    osg::Matrix &getOffset()
+    const osg::Matrix &getOffset() const
     {
         return offset;
     };
+    int getMarkerGroup() const;
     virtual void tabletEvent(coTUIElement *tUIItem);
-    double getSize();
-    int getPattern();
-    bool isVisible();
-    bool isObjectMarker()
+    double getSize() const;
+    int getPattern() const;
+    bool isVisible() const;
+    bool isObjectMarker() const
     {
         return objectMarker;
     };
@@ -219,10 +229,12 @@ public:
     osg::Geometry *geom = nullptr;
     coTUIToggleButton *displayQuad = nullptr;
     coTUIToggleButton *calibrate = nullptr;
-    int numCalibSamples;
+    int numCalibSamples = 0;
     osg::Matrix matrixSumm;
-    bool lastVisible;
+    bool lastVisible = false;
     void setOffset(osg::Matrix &mat);
+    void stopCalibration();
+
 	osg::Matrix OpenGLToOSGMatrix;
 	osg::Matrix PfToOpenGLMatrix;
 };
