@@ -8,6 +8,7 @@
 #ifndef _ARUCO_PLUGIN_H
 #define _ARUCO_PLUGIN_H
 
+#include "Marker.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRCollaboration.h>
@@ -64,8 +65,6 @@ protected:
     std::vector<int> ids[3];
     std::vector<std::vector<cv::Point2f>> corners;
     std::vector<std::vector<cv::Point2f>> rejected;
-    std::vector<cv::Vec3d> rvecs[3];
-    std::vector<cv::Vec3d> tvecs[3];
     
     cv::aruco::Dictionary dictionary;
     cv::Ptr<cv::aruco::ArucoDetector> detector;
@@ -83,44 +82,34 @@ private:
     
     int markerSize; // default marker size
 
-
-
-    
-
     coTUISlider *bitrateSlider;
 
     //void captureRightVideo();
     int msgQueue;
-    unsigned char *dataPtr;
+    unsigned char *dataPtr = nullptr;
     int xsize, ysize;
-    int marker_num;
+    int marker_num = 0;
     bool flipBufferH;
     bool flipBufferV;
-    //ARMarkerInfo    *markerInfo;
-    osg::Matrix OpenGLToOSGMatrix;
-    osg::Matrix OSGToOpenGLMatrix;
-    
 
     void adjustScreen();
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
 
-    virtual osg::Matrix getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4]);
-    virtual bool isVisible(int);
-    virtual void updateMarkerParams();
+    virtual osg::Matrix getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4]) override;
+    virtual bool isVisible(int) override;
+    virtual void updateMarkerParams() override;
     std::string calibrationFilename;
 
 
     cv::Mat imageCopy;
     float markerLength;
 
-
 private:
     coVRCollaboration::SyncMode syncmode;
-    
-    void estimatePoseSingleMarker(cv::InputArrayOfArrays _corners,
-                                  cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs,
-                                  cv::OutputArrayOfArrays _rvecs, cv::OutputArrayOfArrays _tvecs);
+    std::vector<MultiMarker> m_markers;
+    std::mutex markerMutex;
+
+    void estimatePoseMarker(const std::vector<std::vector<cv::Point2f>> &corners, const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs);
+
     void initUI();
     void initCamera(int selectedDevice, bool &exists);
     bool initAR();

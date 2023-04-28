@@ -96,12 +96,16 @@ ENDIF(ARUCO_USE_CUDA)
 
 SET(HEADERS
   ARUCOTrackerPlugin.h
+  Marker.h
+  MatrixUtil.h
 #  CvCapture.h
   ../common/RemoteAR.h
 )
 
 SET(SOURCES
   ARUCOTrackerPlugin.cpp
+  Marker.cpp
+  MatrixUtil.cpp
 #  CvCapture.cpp
   ../common/RemoteAR.cpp
 )

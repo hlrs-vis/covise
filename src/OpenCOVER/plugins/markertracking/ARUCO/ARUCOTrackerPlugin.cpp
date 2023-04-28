@@ -18,6 +18,7 @@
 #endif
 #endif
 #include "ARUCOTrackerPlugin.h"
+#include "MatrixUtil.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
@@ -85,29 +86,15 @@ struct myMsgbuf
 ARUCOPlugin::ARUCOPlugin()
     : ui::Owner("ARUCO", cover->ui)
 {
-    //std::cerr << "ARUCOPlugin::ARUCOPlugin()" << std::endl;
-    
-    marker_num = 0;
-
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
     OSGToOpenGLMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
-    //marker_info = NULL;
-
-    dataPtr = NULL;
 }
 
-// ----------------------------------------------------------------------------
-//! this is called if the plugin is removed at runtime or destroyed
-// ----------------------------------------------------------------------------
 ARUCOPlugin::~ARUCOPlugin()
 {
-#ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::~ARUCOPlugin()" << std::endl;
-#endif
-
     delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = 0;
-    ARToolKit::instance()->arInterface = NULL;
+    ARToolKit::instance()->remoteAR = nullptr;
+    ARToolKit::instance()->arInterface = nullptr;
     ARToolKit::instance()->running = false;
    
     if(inputVideo.isOpened())
@@ -421,8 +408,21 @@ bool ARUCOPlugin::destroy()
     return true;
 }
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+void addMissingMarkers(const std::vector<int> & ids)
+{
+    for(auto id : ids )
+    {
+        if(std::find_if(ARToolKit::instance()->markers.begin(), ARToolKit::instance()->markers.end(), [id](const ARToolKitMarker* marker){
+            return marker->getPattern() == id;
+        }) == ARToolKit::instance()->markers.end()) //marker is missing
+        {
+            ARToolKitMarker *objMarker = new ARToolKitMarker(std::to_string(id));
+            objMarker->setObjectMarker(false);
+            ARToolKit::instance()->addMarker(objMarker);
+        }
+    }
+}
+
 void ARUCOPlugin::preFrame()
 {
     if (ARToolKit::instance()->running)
@@ -602,8 +602,6 @@ void ARUCOPlugin::opencvLoop()
             ids[captureIdx].clear();
             corners.clear();
             rejected.clear();
-            rvecs[captureIdx].clear();
-            tvecs[captureIdx].clear();
 
             // detect markers and estimate pose
 #if( CV_VERSION_MAJOR >= 4)
@@ -611,16 +609,14 @@ void ARUCOPlugin::opencvLoop()
 #else
             cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
 #endif
-
+            addMissingMarkers(ids[captureIdx]);
             if(ids[captureIdx].size() > 0)
             {
-                //cout << "#marker detected " << ids[captureIdx].size() << endl;
-                //cout << "#marker rejected " << rejected.size() << endl;
                 try
                 {
-                    // todo: uses default marker size only
-                     estimatePoseSingleMarker(corners,  matCameraMatrix,
-                                              matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                    std::lock_guard<std::mutex> g(markerMutex);
+                    estimatePoseMarker(corners, matCameraMatrix,
+                                            matDistCoefs);
                 }
                 catch (cv::Exception &ex)
                 {
@@ -680,10 +676,6 @@ bool ARUCOPlugin::update()
 // ----------------------------------------------------------------------------
 bool ARUCOPlugin::isVisible(int pattID)
 {
-// #ifdef ARUCO_DEBUG
-//     std::cout << "ARUCOPlugin::isVisible(" << pattID << ")" << std::endl;
-// #endif
-
     for (size_t i = 0; i < ids[displayIdx].size(); i++)
     {
         if (ids[displayIdx][i] == pattID)
@@ -694,63 +686,27 @@ bool ARUCOPlugin::isVisible(int pattID)
     return false;
 }
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
 osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4])
 {
-// #ifdef ARUCO_DEBUG
-//     std::cout << "ARUCOPlugin::getMat()" << std::endl;
-// #endif
-
-    osg::Matrix markerTrans;
-    markerTrans.makeIdentity();
-
-    for (size_t i = 0; i < ids[displayIdx].size(); i++)
+    for (auto index : ids[displayIdx])
     {
-        if (ids[displayIdx][i] == pattID)
+        if (index == pattID)
         {
-            // get rotation matrix
-            cv::Mat markerRotMat(3, 3, CV_64F);
-            cv::setIdentity(markerRotMat);
-            cv::Rodrigues(rvecs[displayIdx][i], markerRotMat);
-            
-            // transform matrix
-            double markerTransformData[16];
-            cv::Mat markerTransformMat(4, 4, CV_64F, markerTransformData);
-            cv::setIdentity(markerTransformMat);
-                     
-            // copy rot matrix to transform matrix
-            markerTransformMat.at<double>(0, 0) = markerRotMat.at<double>(0, 0);
-            markerTransformMat.at<double>(1, 0) = markerRotMat.at<double>(1, 0);
-            markerTransformMat.at<double>(2, 0) = markerRotMat.at<double>(2, 0);
-
-            markerTransformMat.at<double>(0, 1) = markerRotMat.at<double>(0, 1);
-            markerTransformMat.at<double>(1, 1) = markerRotMat.at<double>(1, 1);
-            markerTransformMat.at<double>(2, 1) = markerRotMat.at<double>(2, 1);
-
-            markerTransformMat.at<double>(0, 2) = markerRotMat.at<double>(0, 2);
-            markerTransformMat.at<double>(1, 2) = markerRotMat.at<double>(1, 2);
-            markerTransformMat.at<double>(2, 2) = markerRotMat.at<double>(2, 2);
-
-            // copy trans vector to transform matrix
-            markerTransformMat.at<double>(0, 3) = tvecs[displayIdx][i][0];
-            markerTransformMat.at<double>(1, 3) = tvecs[displayIdx][i][1];
-            markerTransformMat.at<double>(2, 3) = tvecs[displayIdx][i][2];
-
-            // cout << "---------------------------------------" << endl;
-            // cout << markerTransformMat << endl;
-            // cout << "---------------------------------------" << endl;
-            
-            int u, v;
-            for (u = 0; u < 4; u++)
-                for (v = 0; v < 4; v++)
-                    markerTrans(v, u) = markerTransformData[(u * 4) + v];
-
-            return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
+            for(auto &multiMarker : m_markers)
+            {
+                for(auto &marker : multiMarker)
+                {
+                    if(marker.arToolKitMarker->getPattern() == pattID)
+                    {
+                        auto m = cvToOsgMat(marker.cameraRot(displayIdx), marker.cameraTrans(displayIdx));
+                        m = marker.arToolKitMarker->getOffset() * m;
+                        return m;
+                    }
+                }
+            }
         }
     }
-
-    return OpenGLToOSGMatrix * markerTrans * OpenGLToOSGMatrix;
+    return osg::Matrix::identity();
 }
 
 // ----------------------------------------------------------------------------
@@ -758,26 +714,19 @@ osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
 // ----------------------------------------------------------------------------
 void ARUCOPlugin::updateMarkerParams()
 {
-#ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::updateMarkerParams()" << std::endl;
-#endif
-    
-    std::list<ARToolKitMarker *>::iterator it;
-    for (it = ARToolKit::instance()->markers.begin();
-         it != ARToolKit::instance()->markers.end();
-         it++)
+    std::map<int, std::vector<ArucoMarker>> markerSets;
+    for(const auto marker : ARToolKit::instance()->markers)
     {
-        // cout << "--------------------- getsize: " << (*it)->getSize() << endl;
-        // cout << "--------------------- getsize: " << (*it)->getPattern() << endl;
-
-        // todo: set individual markers sizes
-
-        // ALVAR: marker_detector.SetMarkerSizeForId((*it)->getPattern(), (*it)->getSize());
+        markerSets[marker->getMarkerGroup()].emplace_back(std::move(ArucoMarker{marker}));
+    }
+    std::lock_guard<std::mutex> g(markerMutex);
+    m_markers.clear();
+    for(auto &set : markerSets)
+    {
+        m_markers.emplace_back(std::move(set.second));
     }
 }
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
 void ARUCOPlugin::adjustScreen()
 {
 #ifdef ARUCO_DEBUG
@@ -811,130 +760,77 @@ void ARUCOPlugin::adjustScreen()
     }
 }
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-void ARUCOPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-#ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::tabletEvent()" << std::endl;
-#endif
-}
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-void ARUCOPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
-{
-#ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::tabletPressEvent()" << std::endl;
-#endif
-}
-
-// ----------------------------------------------------------------------------
-//! return object points for the system centered in a single marker, 
-//! given the marker length
-// ----------------------------------------------------------------------------
-static void _getSingleMarkerObjectPoints(float markerLength, OutputArray _objPoints)
-{
-#ifdef ARUCO_DEBUG
-    std::cout << "static _getSingleMarkerObjectPoints" << std::endl;
-#endif
-
-    CV_Assert(markerLength > 0);
-
-    _objPoints.create(4, 1, CV_32FC3);
-    Mat objPoints = _objPoints.getMat();
-    // set coordinate system in the middle of the marker, with Z pointing out
-    objPoints.ptr< Vec3f >(0)[0] = Vec3f(-markerLength / 2.f, markerLength / 2.f, 0);
-    objPoints.ptr< Vec3f >(0)[1] = Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
-    objPoints.ptr< Vec3f >(0)[2] = Vec3f(markerLength / 2.f, -markerLength / 2.f, 0);
-    objPoints.ptr< Vec3f >(0)[3] = Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
-}
-
 OpenThreads::Mutex mutex;
 // ----------------------------------------------------------------------------
-//! ParallelLoopBody class for the parallelization of the single markers pose estimation
-//! Called from function estimatePoseSingleMarkers()
+//! ParallelLoopBody class for the parallelization of the markers pose estimation
 // ----------------------------------------------------------------------------
-class SinglePoseEstimationParallel : public ParallelLoopBody
+class PoseEstimationParallel : public ParallelLoopBody
 {
 public:
-    SinglePoseEstimationParallel(std::vector<int> &_IDs, InputArrayOfArrays _corners,
-                                 InputArray _cameraMatrix, InputArray _distCoeffs,
-                                 Mat& _rvecs, Mat& _tvecs)
-        : IDs(_IDs), corners(_corners), cameraMatrix(_cameraMatrix),
-          distCoeffs(_distCoeffs), rvecs(_rvecs), tvecs(_tvecs) {}
-    
+    PoseEstimationParallel(std::vector<MultiMarkerPtr> &&markers, const std::vector<std::vector<Point2f>> &corners,
+                                 const Mat &cameraMatrix, const Mat &distCoeffs, int captureIdx)
+        : captureIdx(captureIdx)
+        , markers(markers)
+        , corners(corners)
+        , cameraMatrix(cameraMatrix)
+        , distCoeffs(distCoeffs)
+        {}
+
     void operator()(const Range &range) const
+    {
+        for(int i = range.start; i < range.end; i++)
         {
-            const int begin = range.start;
-            const int end = range.end;
-            
-            for(int i = begin; i < end; i++) {
-                
-                Mat markerObjPoints;
-                float size=-1;
-                std::list<ARToolKitMarker *>::iterator it;
-                for (it = ARToolKit::instance()->markers.begin(); it != ARToolKit::instance()->markers.end(); it++)
-                {
-                    if((*it)->getPattern() == IDs[i])
-                    {
-                        size = (*it)->getSize();
-                    }
-                }
-                if(size < 0) // marker not configured
-                {
-                    OpenThreads::ScopedLock<OpenThreads::Mutex> sl(mutex);
-                    char sizeName[100];
-                    sprintf(sizeName,"%d",IDs[i]);
-                    ARToolKitMarker *objMarker = new ARToolKitMarker(sizeName);
-                    objMarker->setObjectMarker(false);
-                    ARToolKit::instance()->addMarker(objMarker);
-                    size = objMarker->getSize();
-                }
-                if(size > 0) //only if Marker is configured
-                {
-                    _getSingleMarkerObjectPoints(size, markerObjPoints);
-                    cv::solvePnP(markerObjPoints, corners.getMat(i), cameraMatrix, distCoeffs,
-                                 rvecs.at<Vec3d>(0, i), tvecs.at<Vec3d>(0, i));
-                }
+            std::vector<Point2f> imageCorners;
+            std::vector<cv::Vec3d> worldCorners; //4 corners per marker
+            for(const auto marker : markers[i])
+            {
+                imageCorners.insert(imageCorners.end(), corners[marker->capturedAt].begin(), corners[marker->capturedAt].end());
+                worldCorners.insert(worldCorners.end(), marker->corners.begin(), marker->corners.end());
+            }
+            cv::Vec3d rot, trans;
+            rot = markers[i][0]->cameraRot(markers[i][0]->lastCaptureIndex);
+            trans = markers[i][0]->cameraTrans(markers[i][0]->lastCaptureIndex);
+            solvePnP(worldCorners, imageCorners, cameraMatrix, distCoeffs,  rot, trans, false, SOLVEPNP_ITERATIVE);
+
+            for (auto marker : markers[i])
+            {
+                marker->setCamera(rot, trans, captureIdx);
+                marker->lastCaptureIndex = captureIdx;
             }
         }
+    }
 
 private:
-    SinglePoseEstimationParallel &operator=(const SinglePoseEstimationParallel &); // to quiet MSVC
-    
-    InputArrayOfArrays corners;
-    InputArray cameraMatrix, distCoeffs;
-    std::vector<int> &IDs;
-    Mat& rvecs, tvecs;
-
+    PoseEstimationParallel &operator=(const PoseEstimationParallel &); // to quiet MSVC
+    int captureIdx;
+    const std::vector<std::vector<Point2f>> &corners;
+    const Mat &cameraMatrix, &distCoeffs;
+    std::vector<MultiMarkerPtr> markers; //as long as every instance only writes at its MultiMarker mutable should work
 };
 
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-void ARUCOPlugin::estimatePoseSingleMarker(InputArrayOfArrays _corners,
-                                           InputArray _cameraMatrix,
-                                           InputArray _distCoeffs,
-                                           OutputArrayOfArrays _rvecs,
-                                           OutputArrayOfArrays _tvecs)
+std::vector<MultiMarkerPtr> getTrackedMarkers(std::vector<MultiMarker> &markers, const std::vector<int> &trackedIds)
 {
-#ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::estimatePoseSingleMarker()" << std::endl;
-#endif
-
-    
-    int nMarkers = (int)_corners.total();
-    _rvecs.create(nMarkers, 1, CV_64FC3);
-    _tvecs.create(nMarkers, 1, CV_64FC3);
-    
-    Mat rvecs = _rvecs.getMat(), tvecs = _tvecs.getMat();
-    
-    parallel_for_(Range(0, nMarkers),
-                  SinglePoseEstimationParallel(ids[captureIdx], _corners, _cameraMatrix,
-                                               _distCoeffs, rvecs, tvecs));
+    std::vector<MultiMarkerPtr> trackedMarkers;
+    for(auto &multiMarker : markers)
+    {
+        MultiMarkerPtr trackedMarker;
+        for(auto &marker : multiMarker)
+        {
+            if(marker.getCapturedAt(trackedIds) >= 0)
+                trackedMarker.push_back(&marker);
+        }
+        if(!trackedMarker.empty())
+            trackedMarkers.push_back(trackedMarker);
+    }
+    return trackedMarkers;
 }
 
+void ARUCOPlugin::estimatePoseMarker(const std::vector<std::vector<Point2f>> &corners, const Mat &cameraMatrix, const Mat &distCoeffs)
+{
+    auto trackedMarkers = getTrackedMarkers(m_markers, ids[captureIdx]);
+    parallel_for_(Range(0, trackedMarkers.size()),
+                  PoseEstimationParallel(std::move(trackedMarkers), corners, cameraMatrix, distCoeffs, captureIdx));
+}
 
 int ARUCOPlugin::loadPattern(const char* p)
 {
