@@ -121,6 +121,10 @@ private:
     void estimatePoseSingleMarker(cv::InputArrayOfArrays _corners,
                                   cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs,
                                   cv::OutputArrayOfArrays _rvecs, cv::OutputArrayOfArrays _tvecs);
+    void initUI();
+    void initCamera(int selectedDevice, bool &exists);
+    bool initAR();
+    void calibrate();
 
     std::mutex opencvMutex;
     std::thread opencvThread;
