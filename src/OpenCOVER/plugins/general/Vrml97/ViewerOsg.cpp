@@ -5110,7 +5110,7 @@ void ViewerOsg::setTransform(float *center,
                              float *rotation,
                              float *scale,
                              float *scaleOrientation,
-                             float *translation, bool /*changed*/)
+                             float *translation, bool changed)
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::setTransform" << endl;
@@ -5186,7 +5186,10 @@ void ViewerOsg::setTransform(float *center,
     if (info == NULL)
     {
         // leave alone moved nodes
-        ((MatrixTransform *)d_currentObject->pNode.get())->setMatrix(mat);
+        if (changed) // only move objects if the matrix actually changed, otherwise modifications in the tabletUI are reverted immediately
+        {
+            ((MatrixTransform*)d_currentObject->pNode.get())->setMatrix(mat);
+        }
     }
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::setTransform" << endl;
