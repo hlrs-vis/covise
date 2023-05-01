@@ -275,7 +275,7 @@ osg::Matrix ARCaptureThread::calculateMatrix(int index)
    cerr << "ARToolKitPlusPlugin::getMat(): MarkerInfo! ";
    cerr << "ID = " << m_marker_info[index].id << endl;
 #endif
-    //int detectedPattern = m_tracker->calc(ARToolKit::instance()->videoData, pattID,true,&loc_markerInfo);
+    //int detectedPattern = m_tracker->calc(MarkerTracking::instance()->videoData, pattID,true,&loc_markerInfo);
     //float confidenceValue = m_tracker->getConfidence();
 
     //const ARFloat* oglMatrix = m_tracker->getModelViewMatrix();

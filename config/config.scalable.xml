@@ -184,7 +184,7 @@
     </AKToolbar>
 	
 	<ARTrace value="off" />
-	<ARToolKit value="off" >
+	<MarkerTracking value="off" >
      <Capture value="ON" />
      <Stereo value="OFF" />
      <TrackViewpoint value="OFF" />
@@ -311,14 +311,14 @@
       <VrmlToPf value="TRUE" />
      </Marker-->
 
-    </ARToolKit>
+    </MarkerTracking>
 	
     <ALVAR value="OFF">
      <Capture value="on" />
      <VideoDevice value="0" width="1920" height="1080" />
-     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+     <CameraCalibrationFile value="/data/MarkerTracking/FullHDCalib.xml" />
      <!--VideoDevice value="0" width="640" height="480" />
-     <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" /-->
+     <CameraCalibrationFile value="/data/MarkerTracking/defaultCalib.xml" /-->
     </ALVAR>
 
     <BPA value="off"/>  

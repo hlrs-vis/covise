@@ -28,7 +28,6 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
-#include <cover/ARToolKit.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include "../common/RemoteAR.h"
@@ -160,20 +159,20 @@ ARToolKitPlugin::ARToolKitPlugin()
 bool ARToolKitPlugin::init()
 {
     //sleep(6);
-    ARToolKit::instance()->arInterface = this;
-    ARToolKit::instance()->remoteAR = NULL;
+    MarkerTracking::instance()->arInterface = this;
+    MarkerTracking::instance()->remoteAR = NULL;
 
     fprintf(stderr, "ARToolKitPlugin::ARToolKitPlugin\n");
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.Capture", false))
     {
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.MirrorRight", false))
-            ARToolKit::instance()->videoMirrorRight = true;
+            MarkerTracking::instance()->videoMirrorRight = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.MirrorLeft", false))
-            ARToolKit::instance()->videoMirrorLeft = true;
+            MarkerTracking::instance()->videoMirrorLeft = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.Transmit", true))
         {
-            bitrateSlider = new coTUISlider("Bitrate", ARToolKit::instance()->artTab->getID());
+            bitrateSlider = new coTUISlider("Bitrate", MarkerTracking::instance()->artTab->getID());
             bitrateSlider->setValue(300);
             bitrateSlider->setTicks(4950);
             bitrateSlider->setMin(50);
@@ -181,7 +180,7 @@ bool ARToolKitPlugin::init()
             bitrateSlider->setPos(3, 0);
             bitrateSlider->setEventListener(this);
         }
-        ARToolKit::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.FlipHorizontal", false);
+        MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.FlipBufferV", true);
         std::string vconfs = coCoviseConfig::getEntry("value", "COVER.Plugin.ARToolKit.VideoConfig", "-mode=PAL");
@@ -192,14 +191,14 @@ bool ARToolKitPlugin::init()
         thresh = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.Threshold", 100);
         msgQueue = -1;
 
-        arDebugButton = new coTUIToggleButton("Debug", ARToolKit::instance()->artTab->getID());
+        arDebugButton = new coTUIToggleButton("Debug", MarkerTracking::instance()->artTab->getID());
         arDebugButton->setPos(0, 0);
         arDebugButton->setEventListener(this);
-        arSettingsButton = new coTUIButton("Settings", ARToolKit::instance()->artTab->getID());
+        arSettingsButton = new coTUIButton("Settings", MarkerTracking::instance()->artTab->getID());
         arSettingsButton->setPos(1, 1);
         arSettingsButton->setEventListener(this);
 
-        thresholdEdit = new coTUISlider("Threshold", ARToolKit::instance()->artTab->getID());
+        thresholdEdit = new coTUISlider("Threshold", MarkerTracking::instance()->artTab->getID());
         thresholdEdit->setValue(thresh);
         thresholdEdit->setTicks(256);
         thresholdEdit->setMin(0);
@@ -227,13 +226,13 @@ bool ARToolKitPlugin::init()
 
         if (arVideoOpen(vconf) < 0)
         {
-            ARToolKit::instance()->running = false;
+            MarkerTracking::instance()->running = false;
             fprintf(stderr, "test2\n");
         }
         else
         {
 
-            ARToolKit::instance()->running = true;
+            MarkerTracking::instance()->running = true;
 /* find the size of the window */
 #ifdef WIN32
             arVideoSetFlip(flipBufferH, flipBufferV);
@@ -242,29 +241,29 @@ bool ARToolKitPlugin::init()
                 exit(0);
             printf("ARToolKitImage size (x,y) = (%d,%d)\n", xsize, ysize);
 #ifdef __APPLE__
-            ARToolKit::instance()->videoMode = GL_RGB;
-            ARToolKit::instance()->videoDepth = 3;
-            ARToolKit::instance()->videoData = new unsigned char[xsize * ysize * 3];
+            MarkerTracking::instance()->videoMode = GL_RGB;
+            MarkerTracking::instance()->videoDepth = 3;
+            MarkerTracking::instance()->videoData = new unsigned char[xsize * ysize * 3];
 #else
             int mode;
             arVideoInqMode(&mode);
             int driver = arVideoInqDriver();
-            ARToolKit::instance()->videoDepth = 3;
+            MarkerTracking::instance()->videoDepth = 3;
             printf("ARToolKitImage node driver = (%d,%d)\n", mode, driver);
             if (driver == VIDEO_LINUX_DV)
             {
                 fprintf(stderr, "\n\n\ncolorRGB MODE\n");
-                ARToolKit::instance()->videoMode = GL_RGB;
-                ARToolKit::instance()->videoDepth = 3;
-                ARToolKit::instance()->videoData = new unsigned char[xsize * ysize * 3];
+                MarkerTracking::instance()->videoMode = GL_RGB;
+                MarkerTracking::instance()->videoDepth = 3;
+                MarkerTracking::instance()->videoData = new unsigned char[xsize * ysize * 3];
             }
 #if !defined(_WIN32)
             else if (driver == VIDEO_LINUX_V4L)
             {
                 fprintf(stderr, "\n\n\ncolorBGR MODE\n");
-                ARToolKit::instance()->videoMode = GL_BGR;
-                ARToolKit::instance()->videoDepth = 3;
-                //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize*3];
+                MarkerTracking::instance()->videoMode = GL_BGR;
+                MarkerTracking::instance()->videoDepth = 3;
+                //MarkerTracking::instance()->videoData=new unsigned char[xsize*ysize*3];
             }
 #else
 
@@ -274,70 +273,70 @@ bool ARToolKitPlugin::init()
                 fprintf(stderr, "\n\n\ncolorBGRA MODE\n");
                 if (mode == AR_FORMAT_GRAY)
                 {
-                    ARToolKit::instance()->videoMode = GL_LUMINANCE;
-                    ARToolKit::instance()->videoDepth = 1;
+                    MarkerTracking::instance()->videoMode = GL_LUMINANCE;
+                    MarkerTracking::instance()->videoDepth = 1;
                 }
                 else if (mode == AR_FORMAT_BGR)
                 {
-                    ARToolKit::instance()->videoMode = GL_BGR_EXT;
-                    ARToolKit::instance()->videoDepth = 3;
+                    MarkerTracking::instance()->videoMode = GL_BGR_EXT;
+                    MarkerTracking::instance()->videoDepth = 3;
                 }
                 else
                 {
-                    ARToolKit::instance()->videoMode = GL_RGB;
-                    ARToolKit::instance()->videoDepth = 3;
+                    MarkerTracking::instance()->videoMode = GL_RGB;
+                    MarkerTracking::instance()->videoDepth = 3;
                 }
             }
             else if (driver == VIDEO_LINUX_V4L)
             {
                 fprintf(stderr, "\n\n\ncolorBGRA MODE\n");
-                ARToolKit::instance()->videoMode = GL_BGRA_EXT;
-                ARToolKit::instance()->videoDepth = 4;
+                MarkerTracking::instance()->videoMode = GL_BGRA_EXT;
+                MarkerTracking::instance()->videoDepth = 4;
             }
             // doesnot exist in win32 it does wird benoetigt!! Uwe Bitte aktuelles ARToolkit besorgen falls noetig.
 
             else if (driver == VIDEO_LINUX_DS)
             {
                 fprintf(stderr, "\n\n\nDSVideoLib MODE\n");
-                ARToolKit::instance()->videoMode = GL_BGR_EXT;
-                ARToolKit::instance()->videoDepth = 3;
+                MarkerTracking::instance()->videoMode = GL_BGR_EXT;
+                MarkerTracking::instance()->videoDepth = 3;
             }
             else if (driver == VIDEO_LINUX_VI)
             {
                 fprintf(stderr, "\n\n\nVideoInput MODE\n");
-                ARToolKit::instance()->videoMode = GL_BGR_EXT;
-                ARToolKit::instance()->videoDepth = 3;
+                MarkerTracking::instance()->videoMode = GL_BGR_EXT;
+                MarkerTracking::instance()->videoDepth = 3;
             }
 /*    else if(driver==VIDEO_LINUX_V4W)
          {
          fprintf(stderr,"\n\n\ncolorBGR MODE\n");
-         ARToolKit::instance()->videoMode = GL_BGR_EXT;
-         ARToolKit::instance()->videoDepth = 3;
+         MarkerTracking::instance()->videoMode = GL_BGR_EXT;
+         MarkerTracking::instance()->videoDepth = 3;
          }*/
 #endif
             else if (driver == VIDEO_LINUX_1394CAM && mode == MODE_1280x960_MONO)
             {
                 fprintf(stderr, "\n\n\ngrayscale MODE\n");
-                ARToolKit::instance()->videoMode = GL_LUMINANCE;
-                //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize];
-                ARToolKit::instance()->videoDepth = 1;
+                MarkerTracking::instance()->videoMode = GL_LUMINANCE;
+                //MarkerTracking::instance()->videoData=new unsigned char[xsize*ysize];
+                MarkerTracking::instance()->videoDepth = 1;
             }
             else
             {
                 fprintf(stderr, "\n\n\ncolor MODE\n");
-                ARToolKit::instance()->videoMode = GL_RGB;
-                //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize*3];
-                ARToolKit::instance()->videoDepth = 3;
+                MarkerTracking::instance()->videoMode = GL_RGB;
+                //MarkerTracking::instance()->videoData=new unsigned char[xsize*ysize*3];
+                MarkerTracking::instance()->videoDepth = 3;
             }
 #endif
-            ARToolKit::instance()->videoWidth = xsize;
-            ARToolKit::instance()->videoHeight = ysize;
+            MarkerTracking::instance()->videoWidth = xsize;
+            MarkerTracking::instance()->videoHeight = ysize;
 
             /* set the initial camera parameters */
             if (arParamLoad(cconf, 1, &wparam) < 0)
             {
                 printf("Camera parameter load error !!\n");
-                ARToolKit::instance()->running = false;
+                MarkerTracking::instance()->running = false;
             }
             arParamChangeSize(&wparam, xsize, ysize, &cparam);
             printf("*** 1 Camera Parameter ***\n");
@@ -411,14 +410,14 @@ bool ARToolKitPlugin::init()
     }
     else
     {
-        bool isDesktopMode = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.DesktopMode", false);
-        arDesktopMode = new coTUIToggleButton("DesktopMode", ARToolKit::instance()->artTab->getID());
+        bool isDesktopMode = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.DesktopMode", false);
+        arDesktopMode = new coTUIToggleButton("DesktopMode", MarkerTracking::instance()->artTab->getID());
         arDesktopMode->setPos(1, 0);
         arDesktopMode->setEventListener(this);
         arDesktopMode->setState(isDesktopMode);
     }
 
-    ARToolKit::instance()->remoteAR = new RemoteAR();
+    MarkerTracking::instance()->remoteAR = new RemoteAR();
     return true;
 }
 
@@ -426,11 +425,11 @@ bool ARToolKitPlugin::init()
 // which currently never happens
 ARToolKitPlugin::~ARToolKitPlugin()
 {
-    delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = 0;
-    ARToolKit::instance()->arInterface = NULL;
+    delete MarkerTracking::instance()->remoteAR;
+    MarkerTracking::instance()->remoteAR = 0;
+    MarkerTracking::instance()->arInterface = NULL;
 
-    ARToolKit::instance()->running = false;
+    MarkerTracking::instance()->running = false;
     fprintf(stderr, "ARToolKitPlugin::~ARToolKitPlugin\n");
     arVideoCapStop();
     arVideoClose();
@@ -520,11 +519,11 @@ void ARToolKitPlugin::tabletEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == bitrateSlider)
     {
-        ARToolKit::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
+        MarkerTracking::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
     }
     else if (tUIItem == arDesktopMode)
     {
-        RemoteAR *remARInstance = dynamic_cast<RemoteAR *>(ARToolKit::instance()->remoteAR);
+        RemoteAR *remARInstance = dynamic_cast<RemoteAR *>(MarkerTracking::instance()->remoteAR);
         covise::DLinkList<RemoteVideo *> *list = remARInstance->getRemoteVideoList();
 
         RemoteVideo *remvid = NULL;
@@ -574,7 +573,7 @@ void ARToolKitPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 
 void ARToolKitPlugin::captureRightVideo()
 {
-    ARToolKit::instance()->stereoVideo = true;
+    MarkerTracking::instance()->stereoVideo = true;
 
 #if !defined(_WIN32) && !defined(__APPLE__)
     msgQueue = msgget(IPC_PRIVATE, 0666);
@@ -598,19 +597,19 @@ void ARToolKitPlugin::captureRightVideo()
         /* open the video path */
         if (arVideoOpen(vconf2) < 0)
         {
-            ARToolKit::instance()->running = false;
+            MarkerTracking::instance()->running = false;
             fprintf(stderr, "Video Right init failed\n");
         }
         else
         {
 
-            ARToolKit::instance()->running = true;
+            MarkerTracking::instance()->running = true;
             /* find the size of the window */
             if (arVideoInqSize(&xsize, &ysize) < 0)
                 exit(0);
             printf("Right ARToolKitImage size (x,y) = (%d,%d)\n", xsize, ysize);
-            ARToolKit::instance()->videoWidth = xsize;
-            ARToolKit::instance()->videoHeight = ysize;
+            MarkerTracking::instance()->videoWidth = xsize;
+            MarkerTracking::instance()->videoHeight = ysize;
             int mode;
             arVideoInqMode(&mode);
             int driver = arVideoInqDriver();
@@ -627,7 +626,7 @@ void ARToolKitPlugin::captureRightVideo()
             if (arParamLoad(cconf, 1, &wparam) < 0)
             {
                 printf("Right Camera parameter load error !!\n");
-                ARToolKit::instance()->running = false;
+                MarkerTracking::instance()->running = false;
             }
             arParamChangeSize(&wparam, xsize, ysize, &cparam);
 
@@ -687,7 +686,7 @@ void ARToolKitPlugin::captureRightVideo()
 #endif
         sigset(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
         struct myMsgbuf message;
-        while (ARToolKit::instance()->running)
+        while (MarkerTracking::instance()->running)
         {
 
             if (msgQueue > 0)
@@ -698,11 +697,11 @@ void ARToolKitPlugin::captureRightVideo()
             /* grab a vide frame */
             if ((dataPtr = (ARUint8 *)arVideoGetImage()) == NULL)
             {
-                ARToolKit::instance()->running = false;
+                MarkerTracking::instance()->running = false;
                 break;
             }
-            //memcpy(cover->videoDataRight,dataPtr,ARToolKit::instance()->videoWidth*ARToolKit::instance()->videoHeight*ARToolKit::instance()->videoDepth);
-            ARToolKit::instance()->videoDataRight = dataPtr;
+            //memcpy(cover->videoDataRight,dataPtr,MarkerTracking::instance()->videoWidth*MarkerTracking::instance()->videoHeight*MarkerTracking::instance()->videoDepth);
+            MarkerTracking::instance()->videoDataRight = dataPtr;
             //cerr << "right" << endl;
             ///* detect the markers in the video frame */
             //if( arDetectMarker(dataPtr, thresh, &marker_info, &marker_num) < 0 )
@@ -730,7 +729,7 @@ ARToolKitPlugin::preFrame()
 #ifndef _WIN32
     struct myMsgbuf message;
 #endif
-    if (ARToolKit::instance()->running)
+    if (MarkerTracking::instance()->running)
     {
 #ifndef _WIN32
         if (msgQueue > 0)
@@ -760,12 +759,12 @@ ARToolKitPlugin::preFrame()
         //if(dataPtr)
         //cerr << "3 " << (long long)dataPtr << " content: " << (int)dataPtr[100] << endl;
         // memcpy(cover->videoData,dataPtr,cover->videoWidth*cover->videoHeight*cover->videoDepth);
-        ARToolKit::instance()->videoData = dataPtr;
+        MarkerTracking::instance()->videoData = dataPtr;
         //cerr << "left" << endl;
         /* detect the markers in the video frame */
         if (arDetectMarker(dataPtr, thresh, &marker_info, &marker_num) < 0)
         {
-            ARToolKit::instance()->running = false;
+            MarkerTracking::instance()->running = false;
         }
         //if(dataPtr)
         //cerr << "4 " << (long long)dataPtr << " content: " << (int)dataPtr[100] << endl;

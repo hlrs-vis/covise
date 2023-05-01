@@ -251,7 +251,7 @@
                 <Freeze value="on" />
             <Plugin>
                 <ARTrace value="off" />
-                <ARToolKit value="off" >
+                <MarkerTracking value="off" >
                     <Capture value="ON" />
                     <Stereo value="OFF" />
                     <TrackViewpoint value="OFF" />
@@ -327,7 +327,7 @@
                     </Marker>
 
 
-                </ARToolKit>
+                </MarkerTracking>
 
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="ON">
@@ -336,18 +336,18 @@
                     <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
-                    <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
+                    <!--CameraCalibrationFile value="/data/MarkerTracking/ptgrey.xml" /-->
                     
                     <!--VideoDevice value="1" width="640" height="480" /-->
-                    <CameraCalibrationFile value="/data/ARToolKit/4KCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/4KCalib.xml" />
                 </ALVAR>
 				<ARUCO value="OFF">
                     <Capture value="on" />
                     <VideoDevice value="1" width="1920" height="1080" />
-                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/FullHDCalib.xml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />
-                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/defaultCalib.xml" />
                     -->
                 </ARUCO>
 

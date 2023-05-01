@@ -215,7 +215,7 @@
                 <!--ALVAR value="ON">
                     <Capture value="on" />
                     <VideoDevice value="1" width="1920" height="1080" />
-                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/FullHDCalib.xml" />
                 </ALVAR-->
 				
     <Vrml97 value="on">

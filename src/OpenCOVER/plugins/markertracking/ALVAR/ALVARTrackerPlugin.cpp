@@ -36,7 +36,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
@@ -92,13 +92,13 @@ int ALVARPlugin::loadPattern(const char *p)
 bool ALVARPlugin::isVisible(int pattID)
 {
 
-    //if(pattID==(*ARToolKit::instance()->markers.begin())->getPattern())
+    //if(pattID==(*MarkerTracking::instance()->markers.begin())->getPattern())
     //return true;
     /* check for marker visibility */
     for (size_t i = 0; i < marker_detector.markers->size(); i++)
     {
-        std::list<ARToolKitMarker *>::iterator it;
-        /*	for(it=ARToolKit::instance()->markers.begin();it!=ARToolKit::instance()->markers.end();it++)
+        std::list<MarkerTrackingMarker *>::iterator it;
+        /*	for(it=MarkerTracking::instance()->markers.begin();it!=MarkerTracking::instance()->markers.end();it++)
 		{
 			if((*it)->getPattern()==pattID)
 			{
@@ -125,7 +125,7 @@ osg::Matrix ALVARPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
     markerTrans.makeIdentity();
     for (size_t i = 0; i < marker_detector.markers->size(); i++)
     {
-        /*if(pattID==(*ARToolKit::instance()->markers.begin())->getPattern())
+        /*if(pattID==(*MarkerTracking::instance()->markers.begin())->getPattern())
 		{	
 			double markerPosed[16];
 			CvMat markerPoseMat = cvMat(4, 4, CV_64F, markerPosed);
@@ -141,7 +141,7 @@ osg::Matrix ALVARPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
             if ((*(marker_detector.markers))[i].data.id == pattID)
             {
                 alvar::Pose p = (*(marker_detector.markers))[i].pose; /* get the transformation between the marker and the real camera */
-                /*if(pattID==(*ARToolKit::instance()->markers.begin())->getPattern())
+                /*if(pattID==(*MarkerTracking::instance()->markers.begin())->getPattern())
 					p = bundlePose;*/
 
                 double markerPosed[16];
@@ -153,9 +153,9 @@ osg::Matrix ALVARPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
                     for (v = 0; v < 4; v++)
                         markerTrans(v, u) = markerPosed[(u * 4) + v];
 
-                /*	if(pattID==(*ARToolKit::instance()->markers.begin())->getPattern())
+                /*	if(pattID==(*MarkerTracking::instance()->markers.begin())->getPattern())
 				{
-					return OpenGLToOSGMatrix*markerTrans*OpenGLToOSGMatrix*(*ARToolKit::instance()->markers.begin())->getOffset();
+					return OpenGLToOSGMatrix*markerTrans*OpenGLToOSGMatrix*(*MarkerTracking::instance()->markers.begin())->getOffset();
 				}
 				else*/
                 {
@@ -184,9 +184,9 @@ bool ALVARPlugin::init()
 {
     //sleep(6);
 
-    ARToolKit::instance()->arInterface = this;
-    ARToolKit::instance()->remoteAR = NULL;
-	ARToolKit::instance()->videoData = NULL;
+    MarkerTracking::instance()->arInterface = this;
+    MarkerTracking::instance()->remoteAR = NULL;
+	MarkerTracking::instance()->videoData = NULL;
 
     multiMarkerInitializer = NULL;
     multiMarkerBundle = NULL;
@@ -201,12 +201,12 @@ bool ALVARPlugin::init()
     {
 
         if (coCoviseConfig::isOn("COVER.Plugin.ALVAR.MirrorRight", false))
-            ARToolKit::instance()->videoMirrorRight = true;
+            MarkerTracking::instance()->videoMirrorRight = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ALVAR.MirrorLeft", false))
-            ARToolKit::instance()->videoMirrorLeft = true;
+            MarkerTracking::instance()->videoMirrorLeft = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ALVAR.RemoteAR.Transmit", true))
         {
-            bitrateSlider = new coTUISlider("Bitrate", ARToolKit::instance()->artTab->getID());
+            bitrateSlider = new coTUISlider("Bitrate", MarkerTracking::instance()->artTab->getID());
             bitrateSlider->setValue(300);
             bitrateSlider->setTicks(4950);
             bitrateSlider->setMin(50);
@@ -214,39 +214,39 @@ bool ALVARPlugin::init()
             bitrateSlider->setPos(3, 0);
             bitrateSlider->setEventListener(this);
         }
-        ARToolKit::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ALVAR.FlipHorizontal", false);
+        MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ALVAR.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ALVAR.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ALVAR.FlipBufferV", true);
         std::string VideoDevice = coCoviseConfig::getEntry("value", "COVER.Plugin.ALVAR.VideoDevice", "0");
-        calibrationFilename = coCoviseConfig::getEntry("value", "COVER.Plugin.ALVAR.CameraCalibrationFile", "/data/ARToolKit/defaultCalib.xml");
+        calibrationFilename = coCoviseConfig::getEntry("value", "COVER.Plugin.ALVAR.CameraCalibrationFile", "/data/MarkerTracking/defaultCalib.xml");
         xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ALVAR.VideoDevice", 640);
         ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ALVAR.VideoDevice", 480);
         thresh = coCoviseConfig::getInt("COVER.Plugin.ALVAR.Threshold", 100);
         msgQueue = -1;
 
-        arDebugButton = new coTUIToggleButton("Debug", ARToolKit::instance()->artTab->getID());
+        arDebugButton = new coTUIToggleButton("Debug", MarkerTracking::instance()->artTab->getID());
         arDebugButton->setPos(0, 0);
         arDebugButton->setEventListener(this);
-        arSettingsButton = new coTUIButton("Settings", ARToolKit::instance()->artTab->getID());
+        arSettingsButton = new coTUIButton("Settings", MarkerTracking::instance()->artTab->getID());
         arSettingsButton->setPos(1, 1);
         arSettingsButton->setEventListener(this);
 
-        calibrateButton = new coTUIToggleButton("CalibrateCamera", ARToolKit::instance()->artTab->getID());
+        calibrateButton = new coTUIToggleButton("CalibrateCamera", MarkerTracking::instance()->artTab->getID());
         calibrateButton->setPos(2, 1);
         calibrateButton->setEventListener(this);
-        calibrateLabel = new coTUILabel("notCalibrated", ARToolKit::instance()->artTab->getID());
+        calibrateLabel = new coTUILabel("notCalibrated", MarkerTracking::instance()->artTab->getID());
         calibrateLabel->setPos(3, 1);
 
-        visualizeButton = new coTUIToggleButton("VisualizeMarkers", ARToolKit::instance()->artTab->getID());
+        visualizeButton = new coTUIToggleButton("VisualizeMarkers", MarkerTracking::instance()->artTab->getID());
         visualizeButton->setPos(4, 1);
         visualizeButton->setEventListener(this);
 
-        detectAdditional = new coTUIToggleButton("DetectAdditional", ARToolKit::instance()->artTab->getID());
+        detectAdditional = new coTUIToggleButton("DetectAdditional", MarkerTracking::instance()->artTab->getID());
         detectAdditional->setPos(5, 1);
         detectAdditional->setEventListener(this);
         detectAdditional->setState(false);
 
-        useSFM = new coTUIToggleButton("useSFM", ARToolKit::instance()->artTab->getID());
+        useSFM = new coTUIToggleButton("useSFM", MarkerTracking::instance()->artTab->getID());
         useSFM->setPos(6, 1);
         useSFM->setEventListener(this);
         useSFM->setState(false);
@@ -354,13 +354,13 @@ bool ALVARPlugin::init()
                     cam.SetRes(xsize, ysize);
                     std::cout << " [Fail]" << endl;
                 }
-                ARToolKit::instance()->running = true;
+                MarkerTracking::instance()->running = true;
 
-                ARToolKit::instance()->videoMode = GL_BGR;
-                //ARToolKit::instance()->videoData=new unsigned char[xsize*ysize*3];
-                ARToolKit::instance()->videoDepth = 3;
-                ARToolKit::instance()->videoWidth = xsize;
-                ARToolKit::instance()->videoHeight = ysize;
+                MarkerTracking::instance()->videoMode = GL_BGR;
+                //MarkerTracking::instance()->videoData=new unsigned char[xsize*ysize*3];
+                MarkerTracking::instance()->videoDepth = 3;
+                MarkerTracking::instance()->videoWidth = xsize;
+                MarkerTracking::instance()->videoHeight = ysize;
 
                 adjustScreen();
             }
@@ -379,7 +379,7 @@ bool ALVARPlugin::init()
         }
     }
 
-    ARToolKit::instance()->remoteAR = new RemoteAR();
+    MarkerTracking::instance()->remoteAR = new RemoteAR();
     return true;
 }
 
@@ -387,11 +387,11 @@ bool ALVARPlugin::init()
 // which currently never happens
 ALVARPlugin::~ALVARPlugin()
 {
-    delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = 0;
-    ARToolKit::instance()->arInterface = NULL;
+    delete MarkerTracking::instance()->remoteAR;
+    MarkerTracking::instance()->remoteAR = 0;
+    MarkerTracking::instance()->arInterface = NULL;
 
-    ARToolKit::instance()->running = false;
+    MarkerTracking::instance()->running = false;
     fprintf(stderr, "ALVARPlugin::~ALVARPlugin\n");
     if(cap)
     {
@@ -410,8 +410,8 @@ void ALVARPlugin::updateMarkerParams()
     //delete multiMarkerInitializer;
     delete multiMarkerBundle;
     vector<int> ids;
-    std::list<ARToolKitMarker *>::iterator it;
-    for (it = ARToolKit::instance()->markers.begin(); it != ARToolKit::instance()->markers.end(); it++)
+    std::list<MarkerTrackingMarker *>::iterator it;
+    for (it = MarkerTracking::instance()->markers.begin(); it != MarkerTracking::instance()->markers.end(); it++)
     {
         marker_detector.SetMarkerSizeForId((*it)->getPattern(), (*it)->getSize());
         ids.push_back((*it)->getPattern());
@@ -419,7 +419,7 @@ void ALVARPlugin::updateMarkerParams()
 
     multiMarkerInitializer = new alvar::MultiMarkerInitializer(ids);
     multiMarkerBundle = new alvar::MultiMarkerBundle(ids);
-    /*	for(it=ARToolKit::instance()->markers.begin();it!=ARToolKit::instance()->markers.end();it++)
+    /*	for(it=MarkerTracking::instance()->markers.begin();it!=MarkerTracking::instance()->markers.end();it++)
 	{
         alvar::Pose pose;
 		pose.Reset();
@@ -515,7 +515,7 @@ void ALVARPlugin::tabletEvent(coTUIElement *tUIItem)
     }
     if (tUIItem == bitrateSlider)
     {
-        ARToolKit::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
+        MarkerTracking::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
     }
     else if (tUIItem == calibrateButton)
     {
@@ -530,7 +530,7 @@ void ALVARPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 bool
 ALVARPlugin::update()
 {
-    return ARToolKit::instance()->running;
+    return MarkerTracking::instance()->running;
 }
 
 void
@@ -539,7 +539,7 @@ ALVARPlugin::preFrame()
 #ifndef _WIN32
     struct myMsgbuf message;
 #endif
-    if (ARToolKit::instance()->running)
+    if (MarkerTracking::instance()->running)
     {
 #ifndef _WIN32
         if (msgQueue > 0)
@@ -555,7 +555,7 @@ ALVARPlugin::preFrame()
             if (frame)
             {
                 
-                ARToolKit::instance()->videoData = (unsigned char *)frame->imageData;
+                MarkerTracking::instance()->videoData = (unsigned char *)frame->imageData;
                 if (frame->imageData == NULL)
                 {
                     fprintf(stderr, "Video input dropped frame\n");

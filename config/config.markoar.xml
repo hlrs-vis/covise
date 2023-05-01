@@ -184,7 +184,7 @@
                     <AudioOffset value="0.0"/>
                 </StereoVideoPlayer>
                 <Revit value="true" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" />
-                <ARToolKit value="off">
+                <MarkerTracking value="off">
                     <Capture value="ON" />
                     <Stereo value="OFF" />
                     <TrackViewpoint value="OFF" />
@@ -336,7 +336,7 @@
                         <Offset x="0" y="0" z="0" h="180" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
-                </ARToolKit>
+                </MarkerTracking>
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="ON">
                     <Capture value="on" />
@@ -344,7 +344,7 @@
                     <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
-                    <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
+                    <!--CameraCalibrationFile value="/data/MarkerTracking/ptgrey.xml" /-->
                     <!--VideoDevice value="1" width="640" height="480" /-->
                     <CameraCalibrationFile value="C:\Users\hpcmdjur\4KCalib.xml" />
                     <!--CameraCalibrationFile value="C:\Users\hpcmdjur\defaultCalib.xml" /-->
@@ -352,10 +352,10 @@
                 <ARUCO value="OFF">
                     <Capture value="on" />
                     <VideoDevice value="1" width="1920" height="1080" />
-                    <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/FullHDCalib.xml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />
-                    <CameraCalibrationFile value="/data/ARToolKit/defaultCalib.xml" />
+                    <CameraCalibrationFile value="/data/MarkerTracking/defaultCalib.xml" />
                     -->
                 </ARUCO>
             </Plugin>

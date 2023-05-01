@@ -24,7 +24,6 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRCollaboration.h>
 #include <cover/RenderObject.h>
-#include <cover/ARToolKit.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include "RemoteARP.h"
@@ -137,14 +136,14 @@ bool ARToolKitPlusPlugin::init()
 {
     // Initialise values of the ARToolKit Interface providing
     // the bridging to OpenCOVER
-    ARToolKit::instance()->arInterface = this;
-    ARToolKit::instance()->remoteAR = NULL;
+    MarkerTracking::instance()->arInterface = this;
+    MarkerTracking::instance()->remoteAR = NULL;
 
-    ARToolKit::instance()->artTab->setLabel("ARToolKitPlus");
+    MarkerTracking::instance()->artTab->setLabel("ARToolKitPlus");
 
     fprintf(stderr, "ARToolKitPlusPlugin::ARToolKitPlusPlugin\n");
 
-    ARToolKit::instance()->m_artoolkitVariant = "ARToolKitPlus";
+    MarkerTracking::instance()->m_artoolkitVariant = "ARToolKitPlus";
 
     //Loading all configuration settings from config file
     if (coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.Capture", false))
@@ -152,27 +151,27 @@ bool ARToolKitPlusPlugin::init()
         m_arData.setARCaptureEnabled(true);
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.MirrorRight", false))
         {
-            ARToolKit::instance()->videoMirrorRight = true;
+            MarkerTracking::instance()->videoMirrorRight = true;
         }
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.MirrorLeft", false))
         {
-            ARToolKit::instance()->videoMirrorLeft = true;
+            MarkerTracking::instance()->videoMirrorLeft = true;
         }
         bool useBCH = coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.BCHMarkers", true);
         m_arData.setBCHEnabled(useBCH);
         if (coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.RemoteAR.Transmit", true))
         {
-            bitrateSlider = new coTUISlider("Bitrate", ARToolKit::instance()->artTab->getID());
+            bitrateSlider = new coTUISlider("Bitrate", MarkerTracking::instance()->artTab->getID());
             bitrateSlider->setValue(300);
             bitrateSlider->setTicks(4950);
             bitrateSlider->setMin(50);
             bitrateSlider->setMax(5000);
             bitrateSlider->setPos(4, 0);
             bitrateSlider->setEventListener(this);
-            coTUILabel *arBitrateLabel = new coTUILabel("RemoteAR Bitrate", ARToolKit::instance()->artTab->getID());
+            coTUILabel *arBitrateLabel = new coTUILabel("RemoteAR Bitrate", MarkerTracking::instance()->artTab->getID());
             arBitrateLabel->setPos(3, 0);
         }
-        ARToolKit::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.FlipHorizontal", false);
+        MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARToolKitPlus.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARTooARToolKitPlus.FlipBufferV", true);
         std::string vconfs = coCoviseConfig::getEntry("value", "COVER.Plugin.ARToolKitPlus.VideoConfig", "-mode=PAL");
@@ -188,14 +187,14 @@ bool ARToolKitPlusPlugin::init()
         msgQueue = -1;
 
         //Create TabletUI GUI elements
-        arDebugButton = new coTUIToggleButton("Debug", ARToolKit::instance()->artTab->getID());
+        arDebugButton = new coTUIToggleButton("Debug", MarkerTracking::instance()->artTab->getID());
         arDebugButton->setPos(0, 1);
         arDebugButton->setEventListener(this);
-        arSettingsButton = new coTUIButton("Settings", ARToolKit::instance()->artTab->getID());
+        arSettingsButton = new coTUIButton("Settings", MarkerTracking::instance()->artTab->getID());
         arSettingsButton->setPos(3, 1);
         arSettingsButton->setEventListener(this);
 
-        thresholdEdit = new coTUISlider("Threshold", ARToolKit::instance()->artTab->getID());
+        thresholdEdit = new coTUISlider("Threshold", MarkerTracking::instance()->artTab->getID());
         thresholdEdit->setValue(thresh);
         thresholdEdit->setTicks(256);
         thresholdEdit->setMin(0);
@@ -203,21 +202,21 @@ bool ARToolKitPlusPlugin::init()
         thresholdEdit->setPos(1, 0);
         thresholdEdit->setEventListener(this);
 
-        coTUILabel *arThresLabel = new coTUILabel("Image Threshold", ARToolKit::instance()->artTab->getID());
+        coTUILabel *arThresLabel = new coTUILabel("Image Threshold", MarkerTracking::instance()->artTab->getID());
         arThresLabel->setPos(0, 0);
 
-        arUseBCHButton = new coTUIToggleButton("Use BCH Markers", ARToolKit::instance()->artTab->getID(), useBCH);
+        arUseBCHButton = new coTUIToggleButton("Use BCH Markers", MarkerTracking::instance()->artTab->getID(), useBCH);
         arUseBCHButton->setPos(1, 1);
         arUseBCHButton->setEventListener(this);
 
-        arDumpImage = new coTUIButton("Dump Camera Image", ARToolKit::instance()->artTab->getID());
+        arDumpImage = new coTUIButton("Dump Camera Image", MarkerTracking::instance()->artTab->getID());
         arDumpImage->setPos(4, 1);
         arDumpImage->setEventListener(this);
 
-        coTUILabel *lblBorderSelect = new coTUILabel("Marker border", ARToolKit::instance()->artTab->getID());
+        coTUILabel *lblBorderSelect = new coTUILabel("Marker border", MarkerTracking::instance()->artTab->getID());
         lblBorderSelect->setPos(0, 2);
 
-        arBorderSelectBox = new coTUIComboBox("Marker Border", ARToolKit::instance()->artTab->getID());
+        arBorderSelectBox = new coTUIComboBox("Marker Border", MarkerTracking::instance()->artTab->getID());
         arBorderSelectBox->setPos(1, 2);
         arBorderSelectBox->setEventListener(this);
         arBorderSelectBox->addEntry("Thin");
@@ -226,14 +225,14 @@ bool ARToolKitPlusPlugin::init()
         arBorderSelectBox->setSelectedText("Thin");
         this->m_arData.setMarkerBorderWidth(0.125f);
 
-        coTUILabel *lblAutoThreshold = new coTUILabel("AutoThreshold Settings", ARToolKit::instance()->artTab->getID());
+        coTUILabel *lblAutoThreshold = new coTUILabel("AutoThreshold Settings", MarkerTracking::instance()->artTab->getID());
         lblAutoThreshold->setPos(0, 3);
 
-        arAutoThresholdButton = new coTUIToggleButton("Use AutoThresholding", ARToolKit::instance()->artTab->getID());
+        arAutoThresholdButton = new coTUIToggleButton("Use AutoThresholding", MarkerTracking::instance()->artTab->getID());
         arAutoThresholdButton->setPos(2, 1);
         arAutoThresholdButton->setEventListener(this);
 
-        arAutoThresholdValue = new coTUISlider("Auto-Threshold Retries", ARToolKit::instance()->artTab->getID());
+        arAutoThresholdValue = new coTUISlider("Auto-Threshold Retries", MarkerTracking::instance()->artTab->getID());
         arAutoThresholdValue->setValue(thresh);
         arAutoThresholdValue->setTicks(100);
         arAutoThresholdValue->setMin(0);
@@ -261,17 +260,17 @@ bool ARToolKitPlusPlugin::init()
 
         Size vidSize = m_arData.getImageSize();
 
-        ARToolKit::instance()->videoMode = GL_BGR;
-        ARToolKit::instance()->videoDepth = 3;
-        ARToolKit::instance()->videoWidth = vidSize.x;
-        ARToolKit::instance()->videoHeight = vidSize.y;
-        ARToolKit::instance()->flipH = flipBufferH;
-        ARToolKit::instance()->running = true;
+        MarkerTracking::instance()->videoMode = GL_BGR;
+        MarkerTracking::instance()->videoDepth = 3;
+        MarkerTracking::instance()->videoWidth = vidSize.x;
+        MarkerTracking::instance()->videoHeight = vidSize.y;
+        MarkerTracking::instance()->flipH = flipBufferH;
+        MarkerTracking::instance()->running = true;
     }
-    m_arCapture->setARInstance(ARToolKit::instance());
+    m_arCapture->setARInstance(MarkerTracking::instance());
     DataBuffer::getInstance()->addListener(this);
     m_arCapture->start();
-    ARToolKit::instance()->remoteAR = new RemoteAR();
+    MarkerTracking::instance()->remoteAR = new RemoteAR();
     return true;
 }
 
@@ -289,11 +288,11 @@ ARToolKitPlusPlugin::~ARToolKitPlusPlugin()
     /*DataBuffer* db = DataBufffer::getInstance();
    delete db;*/
 
-    delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = 0;
-    ARToolKit::instance()->arInterface = NULL;
+    delete MarkerTracking::instance()->remoteAR;
+    MarkerTracking::instance()->remoteAR = 0;
+    MarkerTracking::instance()->arInterface = NULL;
 
-    ARToolKit::instance()->running = false;
+    MarkerTracking::instance()->running = false;
     cerr << "ARToolKitPlugin::~ARToolKitPlugin" << endl;
 
     //delete[] vconf2;
@@ -304,7 +303,7 @@ ARToolKitPlusPlugin::~ARToolKitPlusPlugin()
 
 void ARToolKitPlusPlugin::update()
 {
-    ARToolKit::instance()->videoData = (unsigned char *)DataBuffer::getInstance()->getImagePointer();
+    MarkerTracking::instance()->videoData = (unsigned char *)DataBuffer::getInstance()->getImagePointer();
 }
 
 void ARToolKitPlusPlugin::tabletEvent(coTUIElement *tUIItem)
@@ -326,7 +325,7 @@ void ARToolKitPlusPlugin::tabletEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == bitrateSlider)
     {
-        ARToolKit::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
+        MarkerTracking::instance()->remoteAR->updateBitrate(bitrateSlider->getValue());
     }
     else if (tUIItem == arAutoThresholdButton)
     {
@@ -369,16 +368,16 @@ void ARToolKitPlusPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
 void
 ARToolKitPlusPlugin::preFrame()
 {
-    if (ARToolKit::instance()->running)
+    if (MarkerTracking::instance()->running)
     {
 
-        //ARToolKit::instance()->videoData=(unsigned char*)DataBuffer::getInstance()->getImagePointer();
+        //MarkerTracking::instance()->videoData=(unsigned char*)DataBuffer::getInstance()->getImagePointer();
     }
 }
 
 void ARToolKitPlusPlugin::captureRightVideo()
 {
-    ARToolKit::instance()->stereoVideo = true;
+    MarkerTracking::instance()->stereoVideo = true;
 
 #if !defined(_WIN32) && !defined(__APPLE__)
     msgQueue = msgget(IPC_PRIVATE, 0666);
@@ -402,19 +401,19 @@ void ARToolKitPlusPlugin::captureRightVideo()
         /* open the video path */
         if (arVideoOpen(vconf2) < 0)
         {
-            ARToolKit::instance()->running = false;
+            MarkerTracking::instance()->running = false;
             fprintf(stderr, "Video Right init failed\n");
         }
         else
         {
 
-            ARToolKit::instance()->running = true;
+            MarkerTracking::instance()->running = true;
             /* find the size of the window */
             if (arVideoInqSize(&xsize, &ysize) < 0)
                 exit(0);
             printf("Right ARToolKitImage size (x,y) = (%d,%d)\n", xsize, ysize);
-            ARToolKit::instance()->videoWidth = xsize;
-            ARToolKit::instance()->videoHeight = ysize;
+            MarkerTracking::instance()->videoWidth = xsize;
+            MarkerTracking::instance()->videoHeight = ysize;
             int mode;
             arVideoInqMode(&mode);
             int driver = arVideoInqDriver();
@@ -431,11 +430,11 @@ void ARToolKitPlusPlugin::captureRightVideo()
             if (arParamLoad(cconf, 1, &wparam) < 0)
             {
                 printf("Right Camera parameter load error !!\n");
-                ARToolKit::instance()->running = false;
+                MarkerTracking::instance()->running = false;
             }
             arParamChangeSize(&wparam, xsize, ysize, &cparam);
 
-            if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.AdjustCameraParameter", false))
+            if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.AdjustCameraParameter", false))
             {
                 osg::Vec3 viewPos;
 
@@ -491,7 +490,7 @@ void ARToolKitPlusPlugin::captureRightVideo()
 #endif
         sigset(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
         struct myMsgbuf message;
-        while (ARToolKit::instance()->running)
+        while (MarkerTracking::instance()->running)
         {
 
             if (msgQueue > 0)
@@ -502,11 +501,11 @@ void ARToolKitPlusPlugin::captureRightVideo()
             /* grab a vide frame */
             if ((dataPtr = (ARUint8 *)arVideoGetImage()) == NULL)
             {
-                ARToolKit::instance()->running = false;
+                MarkerTracking::instance()->running = false;
                 break;
             }
-            //memcpy(cover->videoDataRight,dataPtr,ARToolKit::instance()->videoWidth*ARToolKit::instance()->videoHeight*ARToolKit::instance()->videoDepth);
-            ARToolKit::instance()->videoDataRight = dataPtr;
+            //memcpy(cover->videoDataRight,dataPtr,MarkerTracking::instance()->videoWidth*MarkerTracking::instance()->videoHeight*MarkerTracking::instance()->videoDepth);
+            MarkerTracking::instance()->videoDataRight = dataPtr;
             //cerr << "right" << endl;
             ///* detect the markers in the video frame */
             //if( arDetectMarker(dataPtr, thresh, &marker_info, &marker_num) < 0 )

@@ -18,7 +18,7 @@
       
       <Plugin>
 
-	<ARToolKit value="off" >
+	<MarkerTracking value="off" >
           <Capture value="ON" />
           <Stereo value="OFF" />
           <TrackViewpoint value="OFF" />
@@ -31,7 +31,7 @@
             <VrmlToPf value="TRUE" />
           </Marker>
 	  
-	</ARToolKit>
+	</MarkerTracking>
 
         <ARUCO value="ON">
           <Capture value="on" />

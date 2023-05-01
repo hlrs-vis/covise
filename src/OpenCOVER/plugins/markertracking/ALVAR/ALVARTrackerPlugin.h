@@ -35,7 +35,7 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRCollaboration.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
 #include <opencv/cv.h>
@@ -51,7 +51,7 @@
 using namespace covise;
 using namespace opencover;
 
-class ALVARPlugin : public coVRPlugin, public ARToolKitInterface, public coTUIListener
+class ALVARPlugin : public coVRPlugin, public MarkerTrackingInterface, public coTUIListener
 {
 public:
     ALVARPlugin();

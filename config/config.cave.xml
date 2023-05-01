@@ -545,7 +545,7 @@
    <!--Model aircraft="lcaro" enginesDir="engine" systemsDir="aircraft/lcaro/Systems" resetFile="reset00.xml">
    </Model-->
    </JSBSim>
-        <ARToolKit value="Off">
+        <MarkerTracking value="Off">
 		   <Capture value="Off" />
 		   <Stereo value="OFF" />
 		   <AdjustCameraParameter value="ON" />
@@ -568,7 +568,7 @@
 			   <irmosReceiverPort value="31666" />
 			   <irmosReceiverServer value="192.108.38.44" />
 		   </RemoteAR>
-        </ARToolKit>	   
+        </MarkerTracking>	   
 	   
    <Bicycle>
    <LenkMaus value="/dev/input/mouse3"/>

@@ -68,7 +68,7 @@
 
    <Plugin>
    
-   <ARToolKit value="on" >
+   <MarkerTracking value="on" >
      <Capture value="ON" />
      <Stereo value="OFF" />
      <RenderTextures value="OFF" />
@@ -84,10 +84,10 @@
      <VideoConfig ARCH="windows" value="-width=1280 -height=720" />
      <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
      <Threshold value="150" />
-     <Camera value="c:\data\ARToolKit\camera_para.dat" />
+     <Camera value="c:\data\MarkerTracking\camera_para.dat" />
 
      <Marker name="ObjectMarker0" >
-      <Pattern value="c:\data\ARToolKit\4x4_95.patt" />
+      <Pattern value="c:\data\MarkerTracking\4x4_95.patt" />
       <Size value="910" />
       <Offset x="-1650" y="0" z="-300" h="0" p="0" r="0" />  
       <!-- original Werkzeug Offset x="00" y="0" z="200" h="0" p="0" r="0" /-->  
@@ -96,7 +96,7 @@
      </Marker>
      
      <Marker name="ObjectMarker1" >
-      <Pattern value="c:\data\ARToolKit\4x4_23.patt" />
+      <Pattern value="c:\data\MarkerTracking\4x4_23.patt" />
       <Size value="200" />
       <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
       <VrmlToPf value="FALSE"/>
@@ -105,7 +105,7 @@
          
     
      
-    </ARToolKit>
+    </MarkerTracking>
     <SGBrowser value="on" />
     <Volume value="on" />
     <TouchTable value="off" />

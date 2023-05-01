@@ -28,14 +28,14 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRCollaboration.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <cover/coVRPlugin.h>
 #include "ARCaptureThread.h"
 
 using namespace covise;
 using namespace opencover;
 
-class ARToolKitPlusPlugin : public coVRPlugin, public ARToolKitInterface, public coTUIListener, public DataBufferListener
+class ARToolKitPlusPlugin : public coVRPlugin, public MarkerTrackingInterface, public coTUIListener, public DataBufferListener
 {
 public:
     ARToolKitPlusPlugin();

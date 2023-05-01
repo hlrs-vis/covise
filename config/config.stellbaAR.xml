@@ -72,7 +72,7 @@
 
    <Plugin>
    
-   <ARToolKit value="on" >  
+   <MarkerTracking value="on" >  
      <RemoteAR>           
        <Transmit value="OFF" />
      </RemoteAR>      
@@ -91,45 +91,45 @@
      <VideoConfig ARCH="windows" value="-width=1920 -height=1080" />
      <!--VideoConfig value="c:\data\slk\WDM_camera_DV.xml" /-->
      <Threshold value="140" />
-     <Camera value="c:\data\ARToolKit\camera_para.dat" />
+     <Camera value="c:\data\MarkerTracking\camera_para.dat" />
 
      <!--Marker name="ObjectMarker0" >
-      <Pattern value="/data/ARToolKit/4x4_5.patt" />
+      <Pattern value="/data/MarkerTracking/4x4_5.patt" />
       <Size value="200" />
       <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
       <VrmlToPf value="FALSE"/>
      </Marker-->
      
      <Marker name="ObjectMarker0" >
-      <Pattern value="/data/ARToolKit/4x4_19.patt" />
+      <Pattern value="/data/MarkerTracking/4x4_19.patt" />
       <Size value="300" />
       <Offset x="40" y="-60" z="355" h="44" p="0" r="-1" />  
       <VrmlToPf value="FALSE"/>
      </Marker>
      
      <!--Marker name="ObjectMarker2" >
-      <Pattern value="/data/ARToolKit/4x4_19.patt" />
+      <Pattern value="/data/MarkerTracking/4x4_19.patt" />
       <Size value="300" />
       <Offset x="700" y="0" z="720" h="90" p="-16" r="0" />  
       <VrmlToPf value="TRUE"/>
      </Marker-->
 	 
      <!--Marker name="ObjectMarker0" >
-      <Pattern value="c:\data\ARToolKit\4x4_30.patt" />
+      <Pattern value="c:\data\MarkerTracking\4x4_30.patt" />
       <Size value="100" />
       <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
       <VrmlToPf value="FALSE"/>
      </Marker>
      
      <Marker name="ObjectMarker1" >
-      <Pattern value="c:\data\ARToolKit\4x4_2.patt" />
+      <Pattern value="c:\data\MarkerTracking\4x4_2.patt" />
       <Size value="30" />
       <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
       <VrmlToPf value="FALSE"/>
      </Marker>
 	 
      <Marker name="ObjectMarker2" >
-      <Pattern value="c:\data\ARToolKit\4x4_9.patt" />
+      <Pattern value="c:\data\MarkerTracking\4x4_9.patt" />
       <Size value="30" />
       <Offset x="0" y="0" z="0" h="0" p="0" r="0" />  
       <VrmlToPf value="FALSE"/>
@@ -138,7 +138,7 @@
          
     
      
-    </ARToolKit>   
+    </MarkerTracking>   
     <SGBrowser value="on" />
     <Volume value="on" />
     <TouchTable value="off" />

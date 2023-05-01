@@ -28,7 +28,7 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRCollaboration.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <cover/coVRPlugin.h>
 
 using namespace covise;
@@ -38,7 +38,7 @@ using namespace opencover;
 #include <AR/param.h>
 #include <AR/ar.h>
 
-class ARToolKitPlugin : public coVRPlugin, public ARToolKitInterface, public coTUIListener
+class ARToolKitPlugin : public coVRPlugin, public MarkerTrackingInterface, public coTUIListener
 {
 public:
     ARToolKitPlugin();

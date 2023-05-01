@@ -482,7 +482,7 @@
    <!--Module value="vranim" name="vranim" /-->
    <!--Module value="SteeringWheel" name="SteeringWheel" /-->
    <Plugin>
-        <ARToolKit value="Off">
+        <MarkerTracking value="Off">
 		   <Capture value="Off" />
 		   <Stereo value="OFF" />
 		   <AdjustCameraParameter value="ON" />
@@ -505,7 +505,7 @@
 			   <irmosReceiverPort value="31666" />
 			   <irmosReceiverServer value="192.108.38.44" />
 		   </RemoteAR>
-        </ARToolKit>	   
+        </MarkerTracking>	   
 	   
    <Bicycle>
    <LenkMaus value="/dev/input/mouse3"/>
