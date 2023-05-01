@@ -984,7 +984,7 @@ void MarkerTrackingMarker::setColor(float r, float g, float b)
     geom->dirtyDisplayList();
 }
 
-double MarkerTrackingMarker::getSize() CONST
+double MarkerTrackingMarker::getSize() const
 {
     return size->getValue();
 }
