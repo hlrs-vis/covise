@@ -250,13 +250,8 @@
    <!--Background r="1.0" g="1.0" b="1.0"/-->
    
                 <Freeze value="on" />
-            <Plugin>
-                <ARTrace value="off" />
-                <MarkerTracking value="off" >
-                    <Capture value="ON" />
-                    <Stereo value="OFF" />
-                    <TrackViewpoint value="OFF" />
-                    <TrackObjects value="ON" />
+				
+                <MarkerTracking >
 		    <Marker name="Revit_43" >
                         <Pattern value="43" />
                         <Size value="327" />
@@ -322,6 +317,14 @@
                     </Marker>
 
                 </MarkerTracking>
+            <Plugin>
+                <ARTrace value="off" />
+				<ARToolKit value="off" >
+                    <Capture value="ON" />
+                    <Stereo value="OFF" />
+                    <TrackViewpoint value="OFF" />
+                    <TrackObjects value="ON" />
+				</ARToolKit>
 
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">

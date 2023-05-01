@@ -6,13 +6,8 @@
     <GLOBAL>
         <COVER>
                 <Freeze value="on" />
-            <Plugin>
-                <ARTrace value="off" />
-                <MarkerTracking value="off" >
-                    <Capture value="ON" />
-                    <Stereo value="OFF" />
-                    <TrackViewpoint value="OFF" />
-                    <TrackObjects value="ON" />
+				
+                <MarkerTracking>
 		    <!--  Science Pub Bierglas -->
 		    <Marker name="ObjectMarker0" >
                         <Pattern value="63" />
@@ -318,6 +313,15 @@
                     </Marker>
 
                 </MarkerTracking>
+            <Plugin>
+                <ARTrace value="off" />
+                <ARToolKit value="off" >
+                    <Capture value="ON" />
+                    <Stereo value="OFF" />
+                    <TrackViewpoint value="OFF" />
+                    <TrackObjects value="ON" />
+		    
+                </ARToolKit>
 
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="OFF">

@@ -393,7 +393,7 @@ VRViewer::VRViewer()
 
     separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
     arTracking = false;
-    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.TrackViewpoint", false))
+    if (coCoviseConfig::isOn("COVER.MarkerTracking.TrackViewpoint", false))
     {
         arTracking = true;
         vpMarker = new MarkerTrackingMarker("ViewpointMarker");

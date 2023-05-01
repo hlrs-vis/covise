@@ -250,8 +250,7 @@
    <!--Background r="1.0" g="1.0" b="1.0"/-->
    
                 <Freeze value="on" />
-            <Plugin>
-                <ARTrace value="off" />
+				
                 <MarkerTracking value="off" >
                     <Capture value="ON" />
                     <Stereo value="OFF" />
@@ -624,6 +623,15 @@
                     </Marker>
 
                 </MarkerTracking>
+            <Plugin>
+                <ARTrace value="off" />
+				
+                <ARToolKit value="off" >
+                    <Capture value="ON" />
+                    <Stereo value="OFF" />
+                    <TrackViewpoint value="OFF" />
+                    <TrackObjects value="ON" />
+                </ARToolKit>
 
                 <ARInteractors value="ON" menu="ON"/>
                 <ALVAR value="ON">

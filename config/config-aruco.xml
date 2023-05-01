@@ -16,22 +16,19 @@
       </Menu>
       <ViewerPosition x="0" y="-1500" z="0" />
       
-      <Plugin>
 
-	<MarkerTracking value="off" >
-          <Capture value="ON" />
-          <Stereo value="OFF" />
-          <TrackViewpoint value="OFF" />
-          <TrackObjects value="ON" />
+	  <MarkerTracking>
 	  
-	  <Marker name="TestMarker42" >
+	      <Marker name="TestMarker42" >
             <Pattern value="42" />
             <Size value="150" />
             <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
             <VrmlToPf value="TRUE" />
           </Marker>
 	  
-	</MarkerTracking>
+	  </MarkerTracking>
+      <Plugin>
+	  
 
         <ARUCO value="ON">
           <Capture value="on" />

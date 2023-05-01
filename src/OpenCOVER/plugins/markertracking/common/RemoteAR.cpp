@@ -142,14 +142,14 @@ RemoteAR::RemoteAR()
 
 //! CUDA COMPRESSION //
 #if defined(HAVE_CUDA)
-    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
+    if (coCoviseConfig::isOn("COVER.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
     {
 
         cout << "Init CUDA!" << endl;
         init_cuda();
 
-        style = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingStyle", 0);
-        quant = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingQuant", 1);
+        style = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.EncodingStyle", 0);
+        quant = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.EncodingQuant", 1);
 
         sendVideo = true;
         sendBuffer = new unsigned char[MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight * 3 + sizeof(VideoParameters)];
@@ -186,17 +186,17 @@ RemoteAR::RemoteAR()
     ffmpeg_startup = true;
 
     fprintf(stderr, "isRunning %d width %d height %d\n", MarkerTracking::instance()->isRunning(), MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight);
-    sendVideo = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false);
-    irmosReceiver = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiver", false);
-    useIRMOS = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.UseIRMOS", false);
+    sendVideo = coCoviseConfig::isOn("COVER.MarkerTracking.RemoteAR.Transmit", false);
+    irmosReceiver = coCoviseConfig::isOn("COVER.MarkerTracking.RemoteAR.irmosReceiver", false);
+    useIRMOS = coCoviseConfig::isOn("COVER.MarkerTracking.RemoteAR.UseIRMOS", false);
     std::cerr << "SendVideo: " << sendVideo << " UseIRMOS. " << useIRMOS << " IrmosReceiver: " << irmosReceiver << std::endl;
     bool instRuns = (MarkerTracking::instance()->isRunning());
     if ((sendVideo || (useIRMOS && irmosReceiver)) && instRuns)
     {
         //Configure RemoteAR sending client
 
-        style = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingStyle", 0);
-        quant = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingQuant", 1);
+        style = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.EncodingStyle", 0);
+        quant = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.EncodingQuant", 1);
         std::cerr << "RemoteAR::RemoteAR(): Sending RemoteAR triggered!" << std::endl;
         sendVideo = true;
         sendBuffer = new unsigned char[MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight * 3 + sizeof(VideoParameters)];
@@ -213,16 +213,16 @@ RemoteAR::RemoteAR()
         int recPort = 0;
         std::string recServer = "";
 
-        recPort = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.irmosServerPort", 31332);
-        recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.MarkerTracking.RemoteAR.irmosServer", "127.0.0.1");
+        recPort = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.irmosServerPort", 31332);
+        recServer = coCoviseConfig::getEntry("value", "COVER.MarkerTracking.RemoteAR.irmosServer", "127.0.0.1");
 
         if (irmosReceiver)
         {
             std::cerr << "RemoteAR::RemoteAR(): Configuring receiver!" << std::endl;
             sendVideo = false;
             sendVideo = false;
-            recPort = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiverPort", 31666);
-            recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiverServer", "141.58.8.10");
+            recPort = coCoviseConfig::getInt("COVER.MarkerTracking.RemoteAR.irmosReceiverPort", 31666);
+            recServer = coCoviseConfig::getEntry("value", "COVER.MarkerTracking.RemoteAR.irmosReceiverServer", "141.58.8.10");
         }
         irmos_host = new Host(recServer.c_str(), true);
         irmos_client = new ClientConnection(irmos_host, recPort, 10, covise::UNDEFINED);
@@ -249,7 +249,7 @@ RemoteAR::~RemoteAR()
 
 //! CUDA COMPRESSION //
 #if defined(HAVE_CUDA)
-    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
+    if (coCoviseConfig::isOn("COVER.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
     {
         close_cuda();
     }

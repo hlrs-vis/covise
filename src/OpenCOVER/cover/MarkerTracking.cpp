@@ -401,8 +401,8 @@ void MarkerTracking::config()
     artnode->setStateSet(statesetBackgroundBin);
     geodevideo->addDrawable(artnode);
     cover->getScene()->addChild(geodevideo);
-    doMerge = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.MergeMarkers", false);
-    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.TrackObjects", false))
+    doMerge = coCoviseConfig::isOn("COVER.MarkerTracking.MergeMarkers", false);
+    if (coCoviseConfig::isOn("COVER.MarkerTracking.TrackObjects", false))
     {
         objTracking = true;
         char configName[100];
@@ -413,7 +413,7 @@ void MarkerTracking::config()
 
             sprintf(configName, "ObjectMarker%d", (int)objectMarkers.size());
 
-            std::string entry = std::string("COVER.Plugin.MarkerTracking.Marker:") + configName + std::string(".Pattern");
+            std::string entry = std::string("COVER.MarkerTracking.Marker:") + configName + std::string(".Pattern");
             pattern = coCoviseConfig::getEntry(entry);
             if (!pattern.empty())
             {
@@ -425,7 +425,7 @@ void MarkerTracking::config()
 
         if (objectMarkers.size() == 0)
         {
-            pattern = coCoviseConfig::getEntry("COVER.Plugin.MarkerTracking.Marker:ObjectMarker.Pattern");
+            pattern = coCoviseConfig::getEntry("COVER.MarkerTracking.Marker:ObjectMarker.Pattern");
             if (!pattern.empty())
             {
                 objMarker = new MarkerTrackingMarker("ObjectMarker");
