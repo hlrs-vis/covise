@@ -33,10 +33,10 @@ class UDPComm;
 #pragma pack(push, 1)
 struct SBData 
 {
-    float fl;
-    float fr;
-    float rl;
     float rr;
+    float rl;
+    float fr;
+    float fl;
     unsigned int button;
 };
 #pragma pack(pop)
