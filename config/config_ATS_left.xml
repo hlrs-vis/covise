@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+
+ <GLOBAL>
+  <COVER>
+   <WindowConfig>
+    <Window width="2716" comment="FRONT" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" embedded="false" decoration="false" />
+   </WindowConfig>
+
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" screenIndex="0"  viewportIndex="0" name="0"/>
+   </ChannelConfig>
+   
+  </COVER>
+ </GLOBAL>
+ <INCLUDE global="1" configname="common" >config_ATS_common.xml </INCLUDE>
+
+</COCONFIG>
