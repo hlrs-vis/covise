@@ -32,7 +32,7 @@
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
 
@@ -242,10 +242,10 @@ void VrmlNodeARSensor::render(Viewer *viewer)
     {
         if (d_markerName.get())
         {
-            marker = new ARToolKitMarker(d_markerName.get());
+            marker = new MarkerTrackingMarker(d_markerName.get());
         }
     }
-    if ((marker) && (ARToolKit::instance()->isRunning()))
+    if ((marker) && (MarkerTracking::instance()->isRunning()))
     {
         bool wasVisible = d_visible.get();
         if (marker->isVisible())

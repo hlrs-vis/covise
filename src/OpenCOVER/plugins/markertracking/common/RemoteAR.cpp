@@ -142,17 +142,17 @@ RemoteAR::RemoteAR()
 
 //! CUDA COMPRESSION //
 #if defined(HAVE_CUDA)
-    if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.Transmit", false) && (ARToolKit::instance()->isRunning()))
+    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
     {
 
         cout << "Init CUDA!" << endl;
         init_cuda();
 
-        style = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.EncodingStyle", 0);
-        quant = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.EncodingQuant", 1);
+        style = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingStyle", 0);
+        quant = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingQuant", 1);
 
         sendVideo = true;
-        sendBuffer = new unsigned char[ARToolKit::instance()->videoWidth * ARToolKit::instance()->videoHeight * 3 + sizeof(VideoParameters)];
+        sendBuffer = new unsigned char[MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight * 3 + sizeof(VideoParameters)];
         sendVideoBuffer = sendBuffer + sizeof(VideoParameters);
         sendVP = (VideoParameters *)sendBuffer;
     }
@@ -185,21 +185,21 @@ RemoteAR::RemoteAR()
     max_b_frames = 1;
     ffmpeg_startup = true;
 
-    fprintf(stderr, "isRunning %d width %d height %d\n", ARToolKit::instance()->isRunning(), ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight);
-    sendVideo = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.Transmit", false);
-    irmosReceiver = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.irmosReceiver", false);
-    useIRMOS = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.UseIRMOS", false);
+    fprintf(stderr, "isRunning %d width %d height %d\n", MarkerTracking::instance()->isRunning(), MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight);
+    sendVideo = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false);
+    irmosReceiver = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiver", false);
+    useIRMOS = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.UseIRMOS", false);
     std::cerr << "SendVideo: " << sendVideo << " UseIRMOS. " << useIRMOS << " IrmosReceiver: " << irmosReceiver << std::endl;
-    bool instRuns = (ARToolKit::instance()->isRunning());
+    bool instRuns = (MarkerTracking::instance()->isRunning());
     if ((sendVideo || (useIRMOS && irmosReceiver)) && instRuns)
     {
         //Configure RemoteAR sending client
 
-        style = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.EncodingStyle", 0);
-        quant = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.EncodingQuant", 1);
+        style = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingStyle", 0);
+        quant = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.EncodingQuant", 1);
         std::cerr << "RemoteAR::RemoteAR(): Sending RemoteAR triggered!" << std::endl;
         sendVideo = true;
-        sendBuffer = new unsigned char[ARToolKit::instance()->videoWidth * ARToolKit::instance()->videoHeight * 3 + sizeof(VideoParameters)];
+        sendBuffer = new unsigned char[MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight * 3 + sizeof(VideoParameters)];
         sendVideoBuffer = sendBuffer + sizeof(VideoParameters);
         sendVP = (VideoParameters *)sendBuffer;
     }
@@ -213,16 +213,16 @@ RemoteAR::RemoteAR()
         int recPort = 0;
         std::string recServer = "";
 
-        recPort = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.irmosServerPort", 31332);
-        recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.ARToolKit.RemoteAR.irmosServer", "127.0.0.1");
+        recPort = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.irmosServerPort", 31332);
+        recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.MarkerTracking.RemoteAR.irmosServer", "127.0.0.1");
 
         if (irmosReceiver)
         {
             std::cerr << "RemoteAR::RemoteAR(): Configuring receiver!" << std::endl;
             sendVideo = false;
             sendVideo = false;
-            recPort = coCoviseConfig::getInt("COVER.Plugin.ARToolKit.RemoteAR.irmosReceiverPort", 31666);
-            recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.ARToolKit.RemoteAR.irmosReceiverServer", "141.58.8.10");
+            recPort = coCoviseConfig::getInt("COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiverPort", 31666);
+            recServer = coCoviseConfig::getEntry("value", "COVER.Plugin.MarkerTracking.RemoteAR.irmosReceiverServer", "141.58.8.10");
         }
         irmos_host = new Host(recServer.c_str(), true);
         irmos_client = new ClientConnection(irmos_host, recPort, 10, covise::UNDEFINED);
@@ -249,7 +249,7 @@ RemoteAR::~RemoteAR()
 
 //! CUDA COMPRESSION //
 #if defined(HAVE_CUDA)
-    if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.RemoteAR.Transmit", false) && (ARToolKit::instance()->isRunning()))
+    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.RemoteAR.Transmit", false) && (MarkerTracking::instance()->isRunning()))
     {
         close_cuda();
     }
@@ -341,7 +341,7 @@ void RemoteAR::receiveImage(const char *data)
 
 #if defined(HAVE_CUDA)
     //! CUDA DECOMPRESSION //
-    cudaDecompression(vp.xsize, vp.ysize, compressedVideoData, imageBuffer, ARToolKit::instance()->videoMode);
+    cudaDecompression(vp.xsize, vp.ysize, compressedVideoData, imageBuffer, MarkerTracking::instance()->videoMode);
 //!##################//
 
 #else
@@ -526,21 +526,21 @@ void RemoteAR::update()
 {
 #if defined(VV_FFMPEG) || defined(VV_XVID) || defined(HAVE_CUDA)
 
-    if (ARToolKit::instance()->isRunning() && sendVideo)
+    if (MarkerTracking::instance()->isRunning() && sendVideo)
     {
 
-        sendVP->format = ARToolKit::instance()->videoMode;
+        sendVP->format = MarkerTracking::instance()->videoMode;
 
-        if (ARToolKit::instance()->videoData == 0)
+        if (MarkerTracking::instance()->videoData == 0)
         {
-            cerr << "RemoteAR:update -- no videoData from ARToolKit::instance()" << endl;
+            cerr << "RemoteAR:update -- no videoData from MarkerTracking::instance()" << endl;
             return;
         }
 
 #if defined(HAVE_CUDA)
         //! CUDA COMPRESSION //
-        encSize = ARToolKit::instance()->videoWidth * ARToolKit::instance()->videoHeight / 2;
-        cudaCompression(ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight, ARToolKit::instance()->videoData, sendVideoBuffer, ARToolKit::instance()->videoMode);
+        encSize = MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight / 2;
+        cudaCompression(MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight, MarkerTracking::instance()->videoData, sendVideoBuffer, MarkerTracking::instance()->videoMode);
 //!##################//
 #else
         // init encoder on startup
@@ -550,7 +550,7 @@ void RemoteAR::update()
         }
 
         encPicture->linesize[0] = encContext->width * 3;
-        encPicture->data[0] = (uint8_t *)ARToolKit::instance()->videoData;
+        encPicture->data[0] = (uint8_t *)MarkerTracking::instance()->videoData;
 
         // convert the image from RGB24 to global pixel format
         //img_convert ((AVPicture *)yuvPicture, pix_fmt, (AVPicture *) encPicture, PIX_FMT_RGB24, encContext->width, encContext->height);
@@ -563,8 +563,8 @@ void RemoteAR::update()
 
 #endif
 
-        sendVP->xsize = ARToolKit::instance()->videoWidth;
-        sendVP->ysize = ARToolKit::instance()->videoHeight;
+        sendVP->xsize = MarkerTracking::instance()->videoWidth;
+        sendVP->ysize = MarkerTracking::instance()->videoHeight;
         osg::Matrix worldPlane; // the initial video plane has y normal and size 1x1 and is in the origin
         osg::Matrix objectPlane; // the same but now in object coords
         int i, j;
@@ -605,7 +605,7 @@ void RemoteAR::update()
 bool RemoteAR::initEncoder()
 {
 #if defined(VV_FFMPEG) || defined(VV_XVID)
-    outbuf_size = ARToolKit::instance()->videoWidth * ARToolKit::instance()->videoHeight * 3;
+    outbuf_size = MarkerTracking::instance()->videoWidth * MarkerTracking::instance()->videoHeight * 3;
     outbuf = new uint8_t[outbuf_size];
     encoder = avcodec_find_encoder(codecID);
     if (!encoder)
@@ -619,8 +619,8 @@ bool RemoteAR::initEncoder()
         cerr << "RemoteAR::init_encoder -> could not allocate encContext" << endl;
         return false;
     }
-    encContext->width = ARToolKit::instance()->videoWidth;
-    encContext->height = ARToolKit::instance()->videoHeight;
+    encContext->width = MarkerTracking::instance()->videoWidth;
+    encContext->height = MarkerTracking::instance()->videoHeight;
     encContext->time_base.num = 1;
     encContext->time_base.den = 25;
     encContext->gop_size = gop_size;

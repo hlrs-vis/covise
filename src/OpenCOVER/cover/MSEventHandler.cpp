@@ -14,7 +14,6 @@
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"
 #include "coCullVisitor.h"
-#include "ARToolKit.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>

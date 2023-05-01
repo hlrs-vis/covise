@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 /*! \file
-\brief ARToolKit optical tracking system interface classes
+\brief MarkerTracking optical tracking system interface classes
 
 \author Uwe Woessner <woessner@hlrs.de>
 \author (C) 2002
@@ -18,8 +18,8 @@ Germany
 \date    July 2002
 */
 
-#ifndef ARTOOLKIT_H
-#define ARTOOLKIT_H
+#ifndef MarkerTracking_H
+#define MarkerTracking_H
 
 #include <list>
 #include <string>
@@ -34,7 +34,7 @@ Germany
 
 namespace opencover
 {
-class ARToolKitMarker;
+class MarkerTrackingMarker;
 class coTUILabel;
 class coTUIToggleButton;
 class coTUIEditFloatField;
@@ -51,17 +51,17 @@ class coTUIGroupBox;
 
 namespace opencover
 {
-class COVEREXPORT ARToolKitNode : public osg::Drawable
+class COVEREXPORT MarkerTrackingNode : public osg::Drawable
 {
 private:
     bool displayVideo; // true if CoviseConfig.displayVideo is set
     bool renderTextures;
-    std::string m_artoolkitVariant;
+    std::string m_MarkerTrackingVariant;
 
 public:
-    ARToolKitNode(std::string artoolkitVariant);
-    virtual ~ARToolKitNode();
-    static ARToolKitNode *theNode;
+    MarkerTrackingNode(std::string MarkerTrackingVariant);
+    virtual ~MarkerTrackingNode();
+    static MarkerTrackingNode *theNode;
     virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
     /** Clone the type of an object, with Object* return type.
 		Must be defined by derived classes.*/
@@ -72,11 +72,11 @@ public:
     virtual osg::Object *clone(const osg::CopyOp &) const;
 };
 
-class COVEREXPORT ARToolKitInterface
+class COVEREXPORT MarkerTrackingInterface
 {
 public:
-    ARToolKitInterface(){};
-    virtual ~ARToolKitInterface(){};
+    MarkerTrackingInterface(){};
+    virtual ~MarkerTrackingInterface(){};
     virtual int loadPattern(const char *)
     {
         return -1;
@@ -95,7 +95,7 @@ public:
         (void)vp;
     }
     virtual void updateMarkerParams(){};
-    virtual bool isARToolKit()
+    virtual bool isMarkerTracking()
     {
         return false;
     };
@@ -127,25 +127,25 @@ public:
     }
 };
 
-class COVEREXPORT ARToolKit
+class COVEREXPORT MarkerTracking
 {
 private:
-    static ARToolKit *art;
-    ARToolKit();
+    static MarkerTracking *art;
+    MarkerTracking();
     std::string m_configPath;
     covise::Message msg;
 
     bool objTracking = false;
     int numObjectMarkers;
-    std::list<ARToolKitMarker *> objectMarkers;
+    std::list<MarkerTrackingMarker *> objectMarkers;
 
 public:
     bool running = false;
-    virtual ~ARToolKit();
-    static ARToolKit *instance();
+    virtual ~MarkerTracking();
+    static MarkerTracking *instance();
     coTUITab *artTab;
     bool flipH;
-    ARToolKitInterface *arInterface = nullptr;
+    MarkerTrackingInterface *arInterface = nullptr;
     RemoteARInterface *remoteAR = nullptr;
 
     void update();
@@ -161,14 +161,14 @@ public:
     bool stereoVideo = false;
     bool videoMirrorLeft = false;
     bool videoMirrorRight = false;
-    std::string m_artoolkitVariant = "ARToolKit";
-    std::list<ARToolKitMarker *> markers;
-    void addMarker(ARToolKitMarker *);
+    std::string m_MarkerTrackingVariant = "MarkerTracking";
+    std::list<MarkerTrackingMarker *> markers;
+    void addMarker(MarkerTrackingMarker *);
     bool doMerge;
     bool testImage = false;
 };
 
-class COVEREXPORT ARToolKitMarker : public coTUIListener
+class COVEREXPORT MarkerTrackingMarker : public coTUIListener
 {
 private:
 struct Coord{
@@ -198,10 +198,10 @@ struct Coord{
 
 
 public:
-	ARToolKitMarker(const std::string &configName,int MarkerID,double size, const osg::Matrix &mat,bool VrmlToOSG);
-	ARToolKitMarker(const std::string &Name);
+	MarkerTrackingMarker(const std::string &configName,int MarkerID,double size, const osg::Matrix &mat,bool VrmlToOSG);
+	MarkerTrackingMarker(const std::string &Name);
 	void updateData(double markerSize, osg::Matrix& mat, osg::Matrix& hostMat, bool vrmlToOsg);
-    virtual ~ARToolKitMarker();
+    virtual ~MarkerTrackingMarker();
     osg::Matrix &getCameraTrans();
     osg::Matrix &getMarkerTrans();
     const osg::Matrix &getOffset() const

@@ -75,7 +75,7 @@
 #include "VRViewer.h"
 #include "VRSceneGraph.h"
 #include "coVRLighting.h"
-#include "ARToolKit.h"
+#include "MarkerTracking.h"
 #include "coHud.h"
 #include "coVRShader.h"
 #include "coOnscreenDebug.h"
@@ -610,7 +610,7 @@ bool OpenCOVER::init()
 
     coVRTui::instance();
 
-    ARToolKit::instance();
+    MarkerTracking::instance();
 
     if (cover->debugLevel(4))
         fprintf(stderr, "Calling pfConfig\n");
@@ -711,7 +711,7 @@ bool OpenCOVER::init()
 
     coVRLighting::instance()->initMenu();
 
-    ARToolKit::instance()->config(); // setup Rendering Node
+    MarkerTracking::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
     coVRTui::instance()->config();
@@ -1190,8 +1190,8 @@ bool OpenCOVER::frame()
     }
 
     //Remote AR update (send picture if required)
-    if (ARToolKit::instance()->remoteAR)
-        ARToolKit::instance()->remoteAR->update();
+    if (MarkerTracking::instance()->remoteAR)
+        MarkerTracking::instance()->remoteAR->update();
 
     if (interactionManager.update())
     {
@@ -1303,7 +1303,7 @@ bool OpenCOVER::frame()
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
-    ARToolKit::instance()->update();
+    MarkerTracking::instance()->update();
 
     // print frame rate
     fl_time = cover->frameRealTime();
@@ -1407,7 +1407,7 @@ OpenCOVER::~OpenCOVER()
     delete coVRNavigationManager::instance();
     delete coVRCommunication::instance();
     delete coVRPartnerList::instance();
-    delete ARToolKit::instance();
+    delete MarkerTracking::instance();
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;

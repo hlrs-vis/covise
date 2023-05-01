@@ -23,7 +23,7 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <cover/coTabletUI.h>
 #include <cover/coInteractor.h>
 #include <util/DLinkList.h>
@@ -84,7 +84,7 @@ public:
     void update();
     TraceModule(int ID, const char *n, int mInst, const char *fi, ARTracePlugin *p, coInteractor *inter);
     virtual ~TraceModule();
-    ARToolKitMarker *marker;
+    MarkerTrackingMarker *marker;
     char *feedbackInfo;
     bool positionChanged;
     bool oldVisibility;
@@ -129,6 +129,6 @@ public:
 private:
     covise::DLinkList<TraceModule *> modules;
     int ID;
-    ARToolKitMarker *timestepMarker;
+    MarkerTrackingMarker *timestepMarker;
 };
 #endif

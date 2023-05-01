@@ -13,7 +13,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/coVRCollaboration.h>
 
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 
 #include <cover/coTabletUI.h>
 #include <util/coTabletUIMessages.h>
@@ -41,7 +41,7 @@ using namespace covise;
 using namespace opencover;
 
 class ARUCOPlugin : public opencover::coVRPlugin,
-                    public opencover::ARToolKitInterface,
+                    public opencover::MarkerTrackingInterface,
                     public ui::Owner
 {
 public:

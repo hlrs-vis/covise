@@ -23,7 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include "../common/RemoteAR.h"
@@ -92,10 +92,10 @@ ARUCOPlugin::ARUCOPlugin()
 
 ARUCOPlugin::~ARUCOPlugin()
 {
-    delete ARToolKit::instance()->remoteAR;
-    ARToolKit::instance()->remoteAR = nullptr;
-    ARToolKit::instance()->arInterface = nullptr;
-    ARToolKit::instance()->running = false;
+    delete MarkerTracking::instance()->remoteAR;
+    MarkerTracking::instance()->remoteAR = nullptr;
+    MarkerTracking::instance()->arInterface = nullptr;
+    MarkerTracking::instance()->running = false;
    
     if(inputVideo.isOpened())
     {
@@ -163,11 +163,11 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
         std::cerr << "OpenCV exception: " << ex.what() << std::endl;
     }
     
-    ARToolKit::instance()->running = true;
-    ARToolKit::instance()->videoMode = GL_BGR;
-    ARToolKit::instance()->videoDepth = 3;
-    ARToolKit::instance()->videoWidth = image.cols;
-    ARToolKit::instance()->videoHeight = image.rows;
+    MarkerTracking::instance()->running = true;
+    MarkerTracking::instance()->videoMode = GL_BGR;
+    MarkerTracking::instance()->videoDepth = 3;
+    MarkerTracking::instance()->videoWidth = image.cols;
+    MarkerTracking::instance()->videoHeight = image.rows;
     
     std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
     
@@ -219,8 +219,8 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
 
 bool ARUCOPlugin::initAR()
 {
-    ARToolKit::instance()->arInterface = this;
-    ARToolKit::instance()->remoteAR = NULL;
+    MarkerTracking::instance()->arInterface = this;
+    MarkerTracking::instance()->remoteAR = NULL;
 
     doCalibrate = false;
     calibrated = false;
@@ -230,11 +230,11 @@ bool ARUCOPlugin::initAR()
     {
 
         if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.MirrorRight", false))
-            ARToolKit::instance()->videoMirrorRight = true;
+            MarkerTracking::instance()->videoMirrorRight = true;
         if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.MirrorLeft", false))
-            ARToolKit::instance()->videoMirrorLeft = true;
+            MarkerTracking::instance()->videoMirrorLeft = true;
 
-        ARToolKit::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipHorizontal", false);
+        MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferV", true);
         std::string VideoDevice = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.VideoDevice", "0");
@@ -317,7 +317,7 @@ its 1
         
         charucoDetector = new cv::aruco::CharucoDetector(*charucoboard, cp, *detectorParams,rp);
     }
-    ARToolKit::instance()->remoteAR = new RemoteAR();
+    MarkerTracking::instance()->remoteAR = new RemoteAR();
     return true;
 }
 
@@ -404,7 +404,7 @@ bool ARUCOPlugin::destroy()
         opencvThread.join();
 
     delete uiMenu;
-    ARToolKit::instance()->videoData = nullptr;
+    MarkerTracking::instance()->videoData = nullptr;
     return true;
 }
 
@@ -412,20 +412,20 @@ void addMissingMarkers(const std::vector<int> & ids)
 {
     for(auto id : ids )
     {
-        if(std::find_if(ARToolKit::instance()->markers.begin(), ARToolKit::instance()->markers.end(), [id](const ARToolKitMarker* marker){
+        if(std::find_if(MarkerTracking::instance()->markers.begin(), MarkerTracking::instance()->markers.end(), [id](const MarkerTrackingMarker* marker){
             return marker->getPattern() == id;
-        }) == ARToolKit::instance()->markers.end()) //marker is missing
+        }) == MarkerTracking::instance()->markers.end()) //marker is missing
         {
-            ARToolKitMarker *objMarker = new ARToolKitMarker(std::to_string(id));
+            MarkerTrackingMarker *objMarker = new MarkerTrackingMarker(std::to_string(id));
             objMarker->setObjectMarker(false);
-            ARToolKit::instance()->addMarker(objMarker);
+            MarkerTracking::instance()->addMarker(objMarker);
         }
     }
 }
 
 void ARUCOPlugin::preFrame()
 {
-    if (ARToolKit::instance()->running)
+    if (MarkerTracking::instance()->running)
     {
 
 #ifndef _WIN32
@@ -441,7 +441,7 @@ void ARUCOPlugin::preFrame()
         std::lock_guard<std::mutex> guard(opencvMutex);
         displayIdx = readyIdx;
 
-        ARToolKit::instance()->videoData = (unsigned char *)image[displayIdx].ptr();
+        MarkerTracking::instance()->videoData = (unsigned char *)image[displayIdx].ptr();
     }
 }
 
@@ -669,7 +669,7 @@ void ARUCOPlugin::startCallibration()
 // ----------------------------------------------------------------------------
 bool ARUCOPlugin::update()
 {
-    return ARToolKit::instance()->running;
+    return MarkerTracking::instance()->running;
 }
 
 // ----------------------------------------------------------------------------
@@ -715,7 +715,7 @@ osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
 void ARUCOPlugin::updateMarkerParams()
 {
     std::map<int, std::vector<ArucoMarker>> markerSets;
-    for(const auto marker : ARToolKit::instance()->markers)
+    for(const auto marker : MarkerTracking::instance()->markers)
     {
         markerSets[marker->getMarkerGroup()].emplace_back(std::move(ArucoMarker{marker}));
     }

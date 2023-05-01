@@ -27,10 +27,6 @@
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 
-namespace opencover
-{
-class ARToolKitMarker;
-}
 using namespace opencover;
 using namespace vrml;
 

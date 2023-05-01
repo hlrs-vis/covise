@@ -23,7 +23,6 @@
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
-#include <cover/ARToolKit.h>
 
 class Highscore;
 

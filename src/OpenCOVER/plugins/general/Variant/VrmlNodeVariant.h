@@ -31,7 +31,7 @@ class VariantConnection;
 
 namespace opencover
 {
-class ARToolKitMarker;
+class ARMarker;
 }
 using namespace opencover;
 using namespace vrml;

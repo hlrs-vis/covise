@@ -48,7 +48,6 @@ public:
     PxRevoluteJoint* revoluteJoint;
 };
 
-class ARToolKitMarker;
 }
 
 class VrmlNodeCrawler : public VrmlNodeChild

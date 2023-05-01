@@ -42,7 +42,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  ************************************************************************/
 
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 
 #include <osg/Matrix>
 #include <osg/Vec3>
@@ -91,7 +91,7 @@ struct VideoParameters
 class RemoteVideo
 {
 public:
-    RemoteVideo(int id, std::string arvariant = "ARToolKit");
+    RemoteVideo(int id, std::string arvariant = "MarkerTracking");
     ~RemoteVideo();
 
     void update(const char *image, osg::Matrix &mat);

@@ -28,7 +28,7 @@
 
 namespace opencover
 {
-class ARToolKitMarker;
+class MarkerTrackingMarker;
 }
 using namespace vrml;
 using namespace opencover;
@@ -93,7 +93,7 @@ private:
     VrmlSFVec3f d_translation;
     VrmlSFRotation d_rotation;
     VrmlSFVec3f d_scale;
-    ARToolKitMarker *marker;
+    MarkerTrackingMarker *marker;
     float oldPos[3];
     float oldAngles[3];
     double oldTime;

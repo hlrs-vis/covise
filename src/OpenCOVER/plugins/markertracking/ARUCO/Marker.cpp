@@ -1,8 +1,8 @@
 #include "Marker.h"
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <opencv2/calib3d/calib3d.hpp>
 #include "MatrixUtil.h"
-std::array<cv::Vec3d, 4> getMarkerCorners(opencover::ARToolKitMarker *arToolKitMarker)
+std::array<cv::Vec3d, 4> getMarkerCorners(opencover::MarkerTrackingMarker *arToolKitMarker)
 {
     std::array<cv::Vec3d, 4> corners;
     auto size = arToolKitMarker->getSize();
@@ -21,7 +21,7 @@ std::array<cv::Vec3d, 4> getMarkerCorners(opencover::ARToolKitMarker *arToolKitM
 
 
 
-ArucoMarker::ArucoMarker(opencover::ARToolKitMarker *arToolKitMarker)
+ArucoMarker::ArucoMarker(opencover::MarkerTrackingMarker *arToolKitMarker)
 : arToolKitMarker(arToolKitMarker)
 , corners(getMarkerCorners(arToolKitMarker))
 , m_mutex(new std::mutex)

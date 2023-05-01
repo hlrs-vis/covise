@@ -17,7 +17,7 @@
 
 #include <sysdep/opengl.h>
 #include <config/CoviseConfig.h>
-#include "ARToolKit.h"
+#include "MarkerTracking.h"
 #include "VRViewer.h"
 #include "coVRConfig.h"
 #include "coVRPluginSupport.h"
@@ -40,51 +40,51 @@
 using namespace covise;
 using namespace opencover;
 
-ARToolKit *ARToolKit::art = NULL;
-ARToolKit::ARToolKit()
+MarkerTracking *MarkerTracking::art = NULL;
+MarkerTracking::MarkerTracking()
 {
     assert(!art);
     art = this;
-    artTab = new coTUITab("ARToolKit", coVRTui::instance()->mainFolder->getID());
+    artTab = new coTUITab("MarkerTracking", coVRTui::instance()->mainFolder->getID());
     artTab->setHidden(true); // hide until a marker is added
 
 }
 
-ARToolKitNode::ARToolKitNode(std::string artoolkitVariant)
+MarkerTrackingNode::MarkerTrackingNode(std::string MarkerTrackingVariant)
 {
     theNode = this;
     setSupportsDisplayList(false);
     std::string configPath = "COVER.Plugin.";
-    configPath += artoolkitVariant;
+    configPath += MarkerTrackingVariant;
     std::string entry = configPath + "DisplayVideo";
     displayVideo = coCoviseConfig::isOn(entry, true);
     entry = configPath + "RenderTextures";
     renderTextures = coCoviseConfig::isOn(entry, true);
-    m_artoolkitVariant = artoolkitVariant;
+    m_MarkerTrackingVariant = MarkerTrackingVariant;
 }
 
-ARToolKitNode::~ARToolKitNode()
+MarkerTrackingNode::~MarkerTrackingNode()
 {
     theNode = NULL;
 }
 
-ARToolKitNode *ARToolKitNode::theNode = NULL;
+MarkerTrackingNode *MarkerTrackingNode::theNode = NULL;
 
 /** Clone the type of an object, with Object* return type.
 Must be defined by derived classes.*/
-osg::Object *ARToolKitNode::cloneType() const
+osg::Object *MarkerTrackingNode::cloneType() const
 {
-    return new ARToolKitNode(m_artoolkitVariant);
+    return new MarkerTrackingNode(m_MarkerTrackingVariant);
 }
 
 /** Clone the an object, with Object* return type.
 Must be defined by derived classes.*/
-osg::Object *ARToolKitNode::clone(const osg::CopyOp &) const
+osg::Object *MarkerTrackingNode::clone(const osg::CopyOp &) const
 {
-    return new ARToolKitNode(m_artoolkitVariant);
+    return new MarkerTrackingNode(m_MarkerTrackingVariant);
 }
 
-void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
+void MarkerTrackingNode::drawImplementation(osg::RenderInfo &renderInfo) const
 {
     static bool firstTime = true;
     static GLuint texHandle = 0;
@@ -138,7 +138,7 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                         rightVideo = (cam->getDrawBuffer() == GL_BACK_RIGHT || cam->getDrawBuffer() == GL_FRONT_RIGHT);
                     break;
                 default:
-                    cerr << "ARToolKitNode::drawImplementation: unknown stereo mode" << endl;
+                    cerr << "MarkerTrackingNode::drawImplementation: unknown stereo mode" << endl;
                     break;
                 }
             }
@@ -146,7 +146,7 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
     }
 
     GLint viewport[4]; // OpenGL viewport information (position and size)
-    if (ARToolKit::instance()->testImage)
+    if (MarkerTracking::instance()->testImage)
     {
 
         if (osg::View *view = renderInfo.getView())
@@ -228,7 +228,7 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
     }
     if (displayVideo)
     {
-        if (ARToolKit::instance()->videoWidth > 0)
+        if (MarkerTracking::instance()->videoWidth > 0)
         {
             // Save OpenGL state:
             glMatrixMode(GL_MODELVIEW);
@@ -270,17 +270,17 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                 float xPos = 1.0;
                 float yPos = 1.0;
 
-                if (ARToolKit::instance()->flipH)
+                if (MarkerTracking::instance()->flipH)
                 {
                     xPos *= -1;
                 }
 
-                if ((ARToolKit::instance()->stereoVideo) && (rightVideo))
+                if ((MarkerTracking::instance()->stereoVideo) && (rightVideo))
                 {
-                    if (ARToolKit::instance()->videoDataRight)
+                    if (MarkerTracking::instance()->videoDataRight)
                     {
-                        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight, 0, ARToolKit::instance()->videoMode, GL_UNSIGNED_BYTE, ARToolKit::instance()->videoDataRight);
-                        if (ARToolKit::instance()->videoMirrorRight)
+                        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight, 0, MarkerTracking::instance()->videoMode, GL_UNSIGNED_BYTE, MarkerTracking::instance()->videoDataRight);
+                        if (MarkerTracking::instance()->videoMirrorRight)
                         {
                             xPos *= -1;
                             yPos *= -1;
@@ -289,10 +289,10 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                 }
                 else
                 {
-                    if (ARToolKit::instance()->videoData)
+                    if (MarkerTracking::instance()->videoData)
                     {
-                        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight, 0, ARToolKit::instance()->videoMode, GL_UNSIGNED_BYTE, ARToolKit::instance()->videoData);
-                        if (ARToolKit::instance()->videoMirrorLeft)
+                        glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight, 0, MarkerTracking::instance()->videoMode, GL_UNSIGNED_BYTE, MarkerTracking::instance()->videoData);
+                        if (MarkerTracking::instance()->videoMirrorLeft)
                         {
                             xPos *= -1;
                             yPos *= -1;
@@ -302,11 +302,11 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
 
                 glBegin(GL_QUADS);
                 {
-                    glTexCoord2f(0, ARToolKit::instance()->videoHeight);
+                    glTexCoord2f(0, MarkerTracking::instance()->videoHeight);
                     glVertex2f(-xPos, -yPos);
-                    glTexCoord2f(ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight);
+                    glTexCoord2f(MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight);
                     glVertex2f(xPos, -yPos);
-                    glTexCoord2f(ARToolKit::instance()->videoWidth, 0);
+                    glTexCoord2f(MarkerTracking::instance()->videoWidth, 0);
                     glVertex2f(xPos, yPos);
                     glTexCoord2f(0, 0);
                     glVertex2f(-xPos, yPos);
@@ -328,44 +328,44 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
                 //        glViewport(0, 0, 1, 1);
                 float yPos = 1.0;
                 float xPos = -1.0;
-                if (ARToolKit::instance()->flipH)
+                if (MarkerTracking::instance()->flipH)
                 {
                     ysize *= -1;
                     yPos *= -1;
                 }
-                glPixelZoom(xsize / ARToolKit::instance()->videoWidth, -ysize / ARToolKit::instance()->videoHeight);
-                if ((ARToolKit::instance()->stereoVideo) && (rightVideo))
+                glPixelZoom(xsize / MarkerTracking::instance()->videoWidth, -ysize / MarkerTracking::instance()->videoHeight);
+                if ((MarkerTracking::instance()->stereoVideo) && (rightVideo))
                 {
-                    if (ARToolKit::instance()->videoDataRight)
+                    if (MarkerTracking::instance()->videoDataRight)
                     {
-                        if (ARToolKit::instance()->videoMirrorRight)
+                        if (MarkerTracking::instance()->videoMirrorRight)
                         {
-                            glPixelZoom(-xsize / ARToolKit::instance()->videoWidth, ysize / ARToolKit::instance()->videoHeight);
+                            glPixelZoom(-xsize / MarkerTracking::instance()->videoWidth, ysize / MarkerTracking::instance()->videoHeight);
                             yPos *= -1;
                             xPos *= -1;
                         }
                         glRasterPos2f(xPos, yPos);
-                        glDrawPixels(ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight, ARToolKit::instance()->videoMode, GL_UNSIGNED_BYTE, ARToolKit::instance()->videoDataRight);
-                        if (ARToolKit::instance()->videoMirrorRight)
+                        glDrawPixels(MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight, MarkerTracking::instance()->videoMode, GL_UNSIGNED_BYTE, MarkerTracking::instance()->videoDataRight);
+                        if (MarkerTracking::instance()->videoMirrorRight)
                         {
-                            glPixelZoom(xsize / ARToolKit::instance()->videoWidth, -ysize / ARToolKit::instance()->videoHeight);
+                            glPixelZoom(xsize / MarkerTracking::instance()->videoWidth, -ysize / MarkerTracking::instance()->videoHeight);
                         }
                     }
                 }
                 else
                 {
-                    if (ARToolKit::instance()->videoData)
+                    if (MarkerTracking::instance()->videoData)
                     {
-                        if (ARToolKit::instance()->videoMirrorLeft)
+                        if (MarkerTracking::instance()->videoMirrorLeft)
                         {
-                            glPixelZoom(-xsize / ARToolKit::instance()->videoWidth, ysize / ARToolKit::instance()->videoHeight);
+                            glPixelZoom(-xsize / MarkerTracking::instance()->videoWidth, ysize / MarkerTracking::instance()->videoHeight);
                             yPos *= -1;
                             xPos *= -1;
                         }
                         glRasterPos2f(xPos, yPos);
-                        //if(ARToolKit::instance()->videoData)
-                        //cerr << "x " << (long long)ARToolKit::instance()->videoData << " content: " << (int)ARToolKit::instance()->videoData[100] << endl;
-                        glDrawPixels(ARToolKit::instance()->videoWidth, ARToolKit::instance()->videoHeight, ARToolKit::instance()->videoMode, GL_UNSIGNED_BYTE, ARToolKit::instance()->videoData);
+                        //if(MarkerTracking::instance()->videoData)
+                        //cerr << "x " << (long long)MarkerTracking::instance()->videoData << " content: " << (int)MarkerTracking::instance()->videoData[100] << endl;
+                        glDrawPixels(MarkerTracking::instance()->videoWidth, MarkerTracking::instance()->videoHeight, MarkerTracking::instance()->videoMode, GL_UNSIGNED_BYTE, MarkerTracking::instance()->videoData);
                     }
                 }
             }
@@ -382,42 +382,42 @@ void ARToolKitNode::drawImplementation(osg::RenderInfo &renderInfo) const
     coVRPluginList::instance()->preDraw(renderInfo);
 }
 
-ARToolKit *ARToolKit::instance()
+MarkerTracking *MarkerTracking::instance()
 {
     if (art == NULL)
-        art = new ARToolKit();
+        art = new MarkerTracking();
     return art;
 }
 
-void ARToolKit::config()
+void MarkerTracking::config()
 {
 
     osg::Geode *geodevideo = new osg::Geode;
-    ARToolKitNode *artnode;
-    artnode = new ARToolKitNode(m_artoolkitVariant);
+    MarkerTrackingNode *artnode;
+    artnode = new MarkerTrackingNode(m_MarkerTrackingVariant);
     osg::StateSet *statesetBackgroundBin = new osg::StateSet();
     statesetBackgroundBin->setRenderBinDetails(-2, "RenderBin");
     statesetBackgroundBin->setNestRenderBins(false);
     artnode->setStateSet(statesetBackgroundBin);
     geodevideo->addDrawable(artnode);
     cover->getScene()->addChild(geodevideo);
-    doMerge = coCoviseConfig::isOn("COVER.Plugin.ARToolKit.MergeMarkers", false);
-    if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.TrackObjects", false))
+    doMerge = coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.MergeMarkers", false);
+    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.TrackObjects", false))
     {
         objTracking = true;
         char configName[100];
         std::string pattern;
-        ARToolKitMarker *objMarker = NULL;
+        MarkerTrackingMarker *objMarker = NULL;
         do
         {
 
             sprintf(configName, "ObjectMarker%d", (int)objectMarkers.size());
 
-            std::string entry = std::string("COVER.Plugin.ARToolKit.Marker:") + configName + std::string(".Pattern");
+            std::string entry = std::string("COVER.Plugin.MarkerTracking.Marker:") + configName + std::string(".Pattern");
             pattern = coCoviseConfig::getEntry(entry);
             if (!pattern.empty())
             {
-                objMarker = new ARToolKitMarker(configName);
+                objMarker = new MarkerTrackingMarker(configName);
                 objMarker->setObjectMarker(true);
                 objectMarkers.push_back(objMarker);
             }
@@ -425,10 +425,10 @@ void ARToolKit::config()
 
         if (objectMarkers.size() == 0)
         {
-            pattern = coCoviseConfig::getEntry("COVER.Plugin.ARToolKit.Marker:ObjectMarker.Pattern");
+            pattern = coCoviseConfig::getEntry("COVER.Plugin.MarkerTracking.Marker:ObjectMarker.Pattern");
             if (!pattern.empty())
             {
-                objMarker = new ARToolKitMarker("ObjectMarker");
+                objMarker = new MarkerTrackingMarker("ObjectMarker");
                 objMarker->setObjectMarker(true);
                 if (objMarker)
                 {
@@ -439,23 +439,23 @@ void ARToolKit::config()
     }
 }
 
-ARToolKit::~ARToolKit()
+MarkerTracking::~MarkerTracking()
 {
     delete artTab;
     art = NULL;
 }
 
-void ARToolKit::update()
+void MarkerTracking::update()
 {
     artTab->setHidden(markers.empty());
 
     if (isRunning())
     {
-        std::list<ARToolKitMarker *>::iterator it;
+        std::list<MarkerTrackingMarker *>::iterator it;
         for (it = markers.begin(); it != markers.end(); it++)
         {
             float s = 1.0 / cover->getScale();
-            ARToolKitMarker *marker = (*it);
+            MarkerTrackingMarker *marker = (*it);
             if (marker->displayQuad && marker->displayQuad->getState())
             {
                 marker->markerQuad->setMatrix(osg::Matrix::scale(s, s, s));
@@ -481,11 +481,11 @@ void ARToolKit::update()
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 4; j++)
                     tmpMat(i, j) = 0;
-            for (list<ARToolKitMarker *>::const_iterator it = objectMarkers.begin();
+            for (list<MarkerTrackingMarker *>::const_iterator it = objectMarkers.begin();
                  it != objectMarkers.end();
                  it++)
             {
-                ARToolKitMarker *currentMarker = *it;
+                MarkerTrackingMarker *currentMarker = *it;
                 if (currentMarker)
                 {
                     if (currentMarker->isVisible())
@@ -540,11 +540,11 @@ void ARToolKit::update()
                 }
                 if (doCallibration)
                 {
-                    for (list<ARToolKitMarker *>::const_iterator it = objectMarkers.begin();
+                    for (list<MarkerTrackingMarker *>::const_iterator it = objectMarkers.begin();
                          it != objectMarkers.end();
                          it++)
                     {
-                        ARToolKitMarker *currentMarker = *it;
+                        MarkerTrackingMarker *currentMarker = *it;
                         if (currentMarker && currentMarker->isVisible() && currentMarker->calibrate->getState())
                         {
                             if (currentMarker->numCalibSamples < 100)
@@ -587,9 +587,9 @@ void ARToolKit::update()
                                 currentMarker->stopCalibration();
                                 currentMarker->numCalibSamples = 0;
                                 currentMarker->setOffset(currentMarker->matrixSumm);
-                                if (ARToolKit::instance()->arInterface)
+                                if (MarkerTracking::instance()->arInterface)
                                 {
-                                    ARToolKit::instance()->arInterface->updateMarkerParams();
+                                    MarkerTracking::instance()->arInterface->updateMarkerParams();
                                 }
                             }
                         }
@@ -627,11 +627,11 @@ void ARToolKit::update()
             {
                 //We have a frame message
                 //Read it and send frame data to RemoteAR portion of
-                //ARToolkit plugin
+                //MarkerTracking plugin
 
                 //client->recv_msg_fast(&msg);
                 client->recv_msg(&msg);
-                //std::cerr << "ARToolKit::update(): Size of received message: " << msg.length << std::endl;
+                //std::cerr << "MarkerTracking::update(): Size of received message: " << msg.length << std::endl;
 
                 //Message received we need to distribute it to the slaves
                 coVRMSController::instance()->sendSlaves(&msg);
@@ -656,17 +656,17 @@ void ARToolKit::update()
     }
 }
 
-void ARToolKit::addMarker(ARToolKitMarker *m)
+void MarkerTracking::addMarker(MarkerTrackingMarker *m)
 {
     if(m->isObjectMarker())
         objectMarkers.push_back(m);
 }
-bool ARToolKit::isRunning()
+bool MarkerTracking::isRunning()
 {
     return running;
 }
 
-void ARToolKitMarker::matToEuler(const osg::Matrix &mat)
+void MarkerTrackingMarker::matToEuler(const osg::Matrix &mat)
 {
     offset = mat;
     coCoord offsetCoord(offset);
@@ -679,7 +679,7 @@ void ARToolKitMarker::matToEuler(const osg::Matrix &mat)
     }
 }
 
-osg::Matrix ARToolKitMarker::eulerToMat() const
+osg::Matrix MarkerTrackingMarker::eulerToMat() const
 {
     osg::Matrix offMat;
     coCoord offsetCoord;
@@ -691,7 +691,7 @@ osg::Matrix ARToolKitMarker::eulerToMat() const
     return offMat;
 }
 
-void ARToolKitMarker::setOffset(osg::Matrix &mat)
+void MarkerTrackingMarker::setOffset(osg::Matrix &mat)
 {
     matToEuler(mat);
     vrmlToPf->setState(false);
@@ -701,16 +701,16 @@ void ARToolKitMarker::setOffset(osg::Matrix &mat)
     posSize->setMatrix(tmpMat * offset);
 }
 
-void ARToolKitMarker::stopCalibration()
+void MarkerTrackingMarker::stopCalibration()
 {
     calibrate->setState(false);
     tabletEvent(calibrate);
 }
 
-void ARToolKitMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
+void MarkerTrackingMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
 {
-	ARToolKitMarker* existingMarker = nullptr;
-	for (const auto& i : ARToolKit::instance()->markers)
+	MarkerTrackingMarker* existingMarker = nullptr;
+	for (const auto& i : MarkerTracking::instance()->markers)
 	{
 		if (i!=this && i->getPattern() == getPattern())
 		{
@@ -741,9 +741,9 @@ void ARToolKitMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix&
 		existingMarker->posSize->setMatrix(mat);
 	}
 
-	if (ARToolKit::instance()->arInterface)
+	if (MarkerTracking::instance()->arInterface)
 	{
-		ARToolKit::instance()->arInterface->updateMarkerParams();
+		MarkerTracking::instance()->arInterface->updateMarkerParams();
 	}
 }
 
@@ -758,17 +758,17 @@ int generateMarkerGroupFromName(const std::string& name)
     return std::distance(groups.begin(), result.first);
 }
 
-ARToolKitMarker::Coord::Coord(const std::string &name,  coTUIGroupBox* group)
+MarkerTrackingMarker::Coord::Coord(const std::string &name,  coTUIGroupBox* group)
 :name(name)
 , edit(new coTUIEditFloatField(name, group->getID()))
 {}
 
-float ARToolKitMarker::Coord::value() const
+float MarkerTrackingMarker::Coord::value() const
 {
     return edit->getValue();
 }
 
-ARToolKitMarker::Coord &ARToolKitMarker::Coord::operator=(const ARToolKitMarker::Coord &other)
+MarkerTrackingMarker::Coord &MarkerTrackingMarker::Coord::operator=(const MarkerTrackingMarker::Coord &other)
 {
     if(!name.empty())
     {
@@ -786,8 +786,8 @@ ARToolKitMarker::Coord &ARToolKitMarker::Coord::operator=(const ARToolKitMarker:
 std::string getConfigEntryName(const std::string &name, const std::string &val)
 {
     std::stringstream entry;
-    std::string arToolKitVariant = ARToolKit::instance()->m_artoolkitVariant;
-    entry << "COVER.Plugin." << arToolKitVariant << ".Marker:" << name << "." << val;
+    std::string MarkerTrackingVariant = MarkerTracking::instance()->m_MarkerTrackingVariant;
+    entry << "COVER.Plugin." << MarkerTrackingVariant << ".Marker:" << name << "." << val;
     return entry.str();
 }
 
@@ -832,11 +832,11 @@ float getVrmlToOsgFlagFromConfig(const std::string &name)
     return coCoviseConfig::isOn(getConfigEntryName(name, "VrmlToPf"), false);
 }
 
-ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, double markerSize, const osg::Matrix& m, bool vrmlToOsg)
+MarkerTrackingMarker::MarkerTrackingMarker(const std::string &configName,int MarkerID, double markerSize, const osg::Matrix& m, bool vrmlToOsg)
 {
 	pattGroup = generateMarkerGroupFromName(configName);
-    ARToolKitMarker* existingMarker = nullptr;
-	for (const auto &i : ARToolKit::instance()->markers)
+    MarkerTrackingMarker* existingMarker = nullptr;
+	for (const auto &i : MarkerTracking::instance()->markers)
 	{
 		if (i->getPattern() == MarkerID)
 		{
@@ -846,7 +846,7 @@ ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, dou
 	}
     createUi(configName);
     size->setValue(markerSize);
-    ARToolKit::instance()->markers.push_back(this);
+    MarkerTracking::instance()->markers.push_back(this);
     matToEuler(m);
 
 	Ctrans.makeIdentity();
@@ -864,10 +864,10 @@ ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, dou
 	mat = mat * offset;
 
 	if (cover->debugLevel(3))
-		cerr << "ARToolKitMarker::ARToolKitMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
-	if (ARToolKit::instance()->arInterface)
+		cerr << "MarkerTrackingMarker::MarkerTrackingMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
+	if (MarkerTracking::instance()->arInterface)
 	{
-		pattID->setValue(ARToolKit::instance()->arInterface->loadPattern(pattern.c_str()));
+		pattID->setValue(MarkerTracking::instance()->arInterface->loadPattern(pattern.c_str()));
 	}
 	if (getPattern() < 0)
 	{
@@ -929,14 +929,14 @@ ARToolKitMarker::ARToolKitMarker(const std::string &configName,int MarkerID, dou
         existingMarker->posSize->setMatrix(mat);
 	}
 
-	if (ARToolKit::instance()->arInterface)
+	if (MarkerTracking::instance()->arInterface)
 	{
-		cerr << "ARToolKitMarker::ARToolKitMarker(): init size pattern with ID = " << pattern.c_str() << endl;
-		ARToolKit::instance()->arInterface->updateMarkerParams();
+		cerr << "MarkerTrackingMarker::MarkerTrackingMarker(): init size pattern with ID = " << pattern.c_str() << endl;
+		MarkerTracking::instance()->arInterface->updateMarkerParams();
 	}
 }
-ARToolKitMarker::ARToolKitMarker(const std::string &name)
-:ARToolKitMarker(
+MarkerTrackingMarker::MarkerTrackingMarker(const std::string &name)
+:MarkerTrackingMarker(
     name,
     getPatternIdFromConfig(name), 
     getMarkerSizeFromConfig(name), 
@@ -945,10 +945,10 @@ ARToolKitMarker::ARToolKitMarker(const std::string &name)
 {
 }
 
-void ARToolKitMarker::createUi(const std::string &configName)
+void MarkerTrackingMarker::createUi(const std::string &configName)
 {
-    int pos = ARToolKit::instance()->markers.size();
-    coTUIGroupBox *box = new coTUIGroupBox(configName,  ARToolKit::instance()->artTab->getID());
+    int pos = MarkerTracking::instance()->markers.size();
+    coTUIGroupBox *box = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
     box->setPos(0, pos);
     pattID = new coTUIEditFloatField(configName + "_pattern", box->getID(), -1);
     std::array<std::string, 6> coords = { "posX" , "posY", "posZ", "rotH", "rotP", "rotR"};
@@ -977,24 +977,24 @@ void ARToolKitMarker::createUi(const std::string &configName)
 }
 
 
-void ARToolKitMarker::setColor(float r, float g, float b)
+void MarkerTrackingMarker::setColor(float r, float g, float b)
 {
     (*colors)[0].set(r, g, b, 1.0);
 	colors->dirty();
     geom->dirtyDisplayList();
 }
 
-double ARToolKitMarker::getSize() CONST
+double MarkerTrackingMarker::getSize() CONST
 {
     return size->getValue();
 }
 
-int ARToolKitMarker::getPattern() const
+int MarkerTrackingMarker::getPattern() const
 {
     return pattID->getValue();
 }
 
-void ARToolKitMarker::tabletEvent(coTUIElement *tUIItem)
+void MarkerTrackingMarker::tabletEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == displayQuad)
     {
@@ -1025,25 +1025,25 @@ void ARToolKitMarker::tabletEvent(coTUIElement *tUIItem)
     mat.makeScale(getSize(), getSize(), getSize());
     mat = mat * offset;
     posSize->setMatrix(mat);
-    if (ARToolKit::instance()->arInterface)
+    if (MarkerTracking::instance()->arInterface)
     {
-        ARToolKit::instance()->arInterface->updateMarkerParams();
+        MarkerTracking::instance()->arInterface->updateMarkerParams();
     }
 }
 
-ARToolKitMarker::~ARToolKitMarker()
+MarkerTrackingMarker::~MarkerTrackingMarker()
 {
 }
 
-osg::Matrix &ARToolKitMarker::getCameraTrans()
+osg::Matrix &MarkerTrackingMarker::getCameraTrans()
 {
-    if (ARToolKit::instance()->isRunning())
+    if (MarkerTracking::instance()->isRunning())
     {
 
-        if ((ARToolKit::instance()->arInterface) && (getPattern() >= 0) && ARToolKit::instance()->arInterface->isVisible(getPattern()))
+        if ((MarkerTracking::instance()->arInterface) && (getPattern() >= 0) && MarkerTracking::instance()->arInterface->isVisible(getPattern()))
         {
-            Ctrans = ARToolKit::instance()->arInterface->getMat(getPattern(), pattCenter, getSize(), pattTrans);
-            if (ARToolKit::instance()->arInterface->isARToolKit())
+            Ctrans = MarkerTracking::instance()->arInterface->getMat(getPattern(), pattCenter, getSize(), pattTrans);
+            if (MarkerTracking::instance()->arInterface->isMarkerTracking())
             {
                 osg::Vec3 trans;
                 trans = Ctrans.getTrans();
@@ -1082,7 +1082,7 @@ osg::Matrix &ARToolKitMarker::getCameraTrans()
     return Ctrans;
 }
 
-osg::Matrix &ARToolKitMarker::getMarkerTrans()
+osg::Matrix &MarkerTrackingMarker::getMarkerTrans()
 {
     Mtrans.invert(getCameraTrans());
 
@@ -1091,20 +1091,20 @@ osg::Matrix &ARToolKitMarker::getMarkerTrans()
     return Mtrans;
 }
 
-int ARToolKitMarker::getMarkerGroup() const
+int MarkerTrackingMarker::getMarkerGroup() const
 {
     return pattGroup;
 }
 
-bool ARToolKitMarker::isVisible() const
+bool MarkerTrackingMarker::isVisible() const
 {
-    if (ARToolKit::instance()->isRunning())
+    if (MarkerTracking::instance()->isRunning())
     {
 
-        if (ARToolKit::instance()->arInterface)
+        if (MarkerTracking::instance()->arInterface)
         {
             if (getPattern() >= 0)
-                return ARToolKit::instance()->arInterface->isVisible(getPattern());
+                return MarkerTracking::instance()->arInterface->isVisible(getPattern());
             else
                 return false;
         }

@@ -8,13 +8,13 @@
 #include <osg/Matrix>
 #include <mutex>
 namespace opencover{
-class ARToolKitMarker;
+class MarkerTrackingMarker;
 }
 
 class ArucoMarker
 {
 public:
-    ArucoMarker(opencover::ARToolKitMarker *arToolKitMarker);
+    ArucoMarker(opencover::MarkerTrackingMarker *arToolKitMarker);
     ArucoMarker(const ArucoMarker&) = delete;
     ArucoMarker(ArucoMarker&&) = default;
     ArucoMarker &operator=(const ArucoMarker&) = delete;
@@ -24,7 +24,7 @@ public:
     cv::Vec3d &cameraRot(int captureIdx);
     cv::Vec3d &cameraTrans(int captureIdx);
     void setCamera(const cv::Vec3d &cameraRot, const cv::Vec3d &cameraTrans, int captureIdx);
-    const opencover::ARToolKitMarker *arToolKitMarker;
+    const opencover::MarkerTrackingMarker *arToolKitMarker;
     const std::array<cv::Vec3d, 4> corners;
     int capturedAt = -1;
     int lastCaptureIndex = 0;

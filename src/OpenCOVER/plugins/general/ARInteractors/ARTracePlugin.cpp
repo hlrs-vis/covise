@@ -37,7 +37,7 @@
 #include <cover/coInteractor.h>
 #include <cover/VRViewer.h>
 #include <OpenVRUI/osg/mathUtils.h>
-#include <cover/ARToolKit.h>
+#include <cover/MarkerTracking.h>
 #include <cover/coVRTui.h>
 
 #ifdef USE_COVISE
@@ -81,7 +81,7 @@ TraceModule::TraceModule(int ID, const char *n, int mInst, const char *fi, ARTra
     oldVisibility = true;
     char markerName[100];
     sprintf(markerName, "%s%d", n, mInst);
-    marker = new ARToolKitMarker(markerName);
+    marker = new MarkerTrackingMarker(markerName);
     arMenuEntry = new coSubMenuItem(markerName);
     plugin->arMenu->add(arMenuEntry);
     moduleMenu = new coRowMenu(markerName);
@@ -443,7 +443,7 @@ bool ARTracePlugin::init()
     TracerModulesLabel = new coTUILabel("TracerModules", arTraceTab->getID());
     TracerModulesLabel->setPos(0, 0);
 
-    timestepMarker = new ARToolKitMarker("TimestepMarker");
+    timestepMarker = new MarkerTrackingMarker("TimestepMarker");
     ID = 0;
     pinboardEntry = new coSubMenuItem("AR Interactors");
     cover->getMenu()->add(pinboardEntry);

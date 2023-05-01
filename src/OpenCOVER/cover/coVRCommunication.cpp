@@ -28,7 +28,7 @@
  ************************************************************************/
 
 
-#include "ARToolKit.h"
+#include "MarkerTracking.h"
 #include "OpenCOVER.h"
 #include "VRAvatar.h"
 #include "VRViewer.h"
@@ -290,9 +290,9 @@ bool coVRCommunication::isMaster() // returns true, if we are master
 
 void coVRCommunication::processARVideoFrame(const char *key, const char *tmp)
 {
-    if (!(strcmp(key, "AR_VIDEO_FRAME")) && ARToolKit::instance()->remoteAR)
+    if (!(strcmp(key, "AR_VIDEO_FRAME")) && MarkerTracking::instance()->remoteAR)
     {
-        ARToolKit::instance()->remoteAR->receiveImage(tmp);
+        MarkerTracking::instance()->remoteAR->receiveImage(tmp);
     }
 }
 
@@ -366,7 +366,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     {
         const char * tmp;
         tb >> tmp;
-        ARToolKit::instance()->remoteAR->receiveImage(tmp);
+        MarkerTracking::instance()->remoteAR->receiveImage(tmp);
     }
         break;
     case vrb::SYNC_KEYBOARD:

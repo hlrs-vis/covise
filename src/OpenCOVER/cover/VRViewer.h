@@ -44,7 +44,7 @@ class DisplaySettings;
 namespace opencover
 {
 class MSEventHandler;
-class ARToolKitMarker;
+class MarkerTrackingMarker;
 class angleStruct;
 class coVRStatsDisplay;
 class InitGLOperation;
@@ -113,7 +113,7 @@ private:
     osg::Vec4 backgroundColor;
 
     bool arTracking;
-    ARToolKitMarker *vpMarker;
+    MarkerTrackingMarker *vpMarker;
     bool overwritePAndV;
     bool reEnableCulling;
     

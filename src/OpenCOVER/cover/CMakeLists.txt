@@ -23,7 +23,7 @@ SET(COVER_HEADERS
   # tui file browser headers
   #coVRDePee.h
   #coVRDePeePass.h
-  ARToolKit.h
+  MarkerTracking.h
   Deletable.h
   EventReceiver.h
   InitGLOperation.h
@@ -94,7 +94,7 @@ SET(COVER_HEADERS
 )
 
 SET(COVER_SOURCES
-  ARToolKit.cpp
+  MarkerTracking.cpp
   Deletable.cpp
   EventReceiver.cpp
   InitGLOperation.cpp

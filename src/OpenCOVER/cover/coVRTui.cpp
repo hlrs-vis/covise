@@ -23,7 +23,7 @@
 #include "coVRCommunication.h"
 #include "coVRMSController.h"
 #include "coIntersection.h"
-#include "ARToolKit.h"
+#include "MarkerTracking.h"
 #include "OpenCOVER.h"
 #include <config/CoviseConfig.h>
 #include <util/coFileUtil.h>
@@ -810,9 +810,9 @@ void coVRTui::update()
     {
         DisableIntersection->setState(coIntersection::instance()->numIsectAllNodes == 0);
     }
-    if (testImage->getState() != ARToolKit::instance()->testImage)
+    if (testImage->getState() != MarkerTracking::instance()->testImage)
     {
-        testImage->setState(ARToolKit::instance()->testImage);
+        testImage->setState(MarkerTracking::instance()->testImage);
     }
     if (Freeze->getState() != coVRConfig::instance()->frozen())
     {
@@ -877,7 +877,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == testImage)
     {
-        ARToolKit::instance()->testImage = testImage->getState();
+        MarkerTracking::instance()->testImage = testImage->getState();
     }
     else if (tUIItem == DebugBins)
     {

@@ -46,7 +46,7 @@
 #include "coVRPluginSupport.h"
 #include "coVRConfig.h"
 #include "coCullVisitor.h"
-#include "ARToolKit.h"
+#include "MarkerTracking.h"
 #include "InitGLOperation.h"
 #include "input/input.h"
 #include "tridelity.h"
@@ -393,10 +393,10 @@ VRViewer::VRViewer()
 
     separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
     arTracking = false;
-    if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.TrackViewpoint", false))
+    if (coCoviseConfig::isOn("COVER.Plugin.MarkerTracking.TrackViewpoint", false))
     {
         arTracking = true;
-        vpMarker = new ARToolKitMarker("ViewpointMarker");
+        vpMarker = new MarkerTrackingMarker("ViewpointMarker");
     }
     overwritePAndV = false;
 
