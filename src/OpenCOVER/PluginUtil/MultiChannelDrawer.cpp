@@ -816,7 +816,6 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
     if (colorFormat && (vd.width[writeTex] != w || vd.height[writeTex] != h || vd.colorFormat[writeTex] != colorFormat))
     {
-        auto cimg = vd.colorImg[writeTex];
         GLenum colorInternalFormat = 0;
         int colorTypeSize = 0;
         switch (colorFormat)
@@ -833,9 +832,6 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             throw std::runtime_error("Color pixel type not supported!");
         }
 
-        cimg->setInternalTextureFormat(colorFormat);
-        cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
-
 #ifdef HAVE_CUDA
         if (m_useCuda && cd)
         {
@@ -851,6 +847,9 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
+            auto cimg = vd.colorImg[writeTex];
+            cimg->setInternalTextureFormat(colorFormat);
+            cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
         }
 
         vd.width[writeTex] = w;
@@ -860,7 +859,6 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
     if (depthFormat != 0 && (vd.depthWidth[writeTex] != w || vd.depthHeight[writeTex] != h || vd.depthFormat[writeTex] != depthFormat))
     {
-        auto dimg = vd.depthImg[writeTex];
         //std::cerr << "MultiChannelDrawer: need to update geo, format=" << depthFormat << ", w=" << w << ", h=" << h << std::endl;
         GLenum depthInternalFormat = 0;
         int depthTypeSize = 0;
@@ -878,9 +876,6 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             throw std::runtime_error("Depth pixel type not supported!");
         }
 
-        dimg->setInternalTextureFormat(depthInternalFormat);
-        dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
-
 #ifdef HAVE_CUDA
         if (m_useCuda && cd)
         {
@@ -896,6 +891,9 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
+            auto dimg = vd.depthImg[writeTex];
+            dimg->setInternalTextureFormat(depthInternalFormat);
+            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
 
         vd.depthWidth[writeTex] = w;
