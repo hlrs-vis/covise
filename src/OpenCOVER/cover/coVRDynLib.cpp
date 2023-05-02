@@ -110,7 +110,6 @@ const char *coVRDynLib::dlerror(void)
 
 CO_SHLIB_HANDLE coVRDynLib::dlopen(const std::string &filename, bool showErrors)
 {
-    std::cerr << "dll path = " << getenv("PATH") << std::endl;
     return dlopen(filename.c_str(), showErrors);
 }
 
