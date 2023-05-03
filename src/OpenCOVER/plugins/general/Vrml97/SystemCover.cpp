@@ -962,9 +962,18 @@ std::string SystemCover::getCacheName(const char *url, const char *pathname) con
 
     if (!pathname)
         return std::string();
+    if (!strcmp(pathname, ""))
+        return std::string();
 
     fs::path p(pathname);
     fs::path name = p.filename();
+    if (name.empty())
+        return std::string();
+
+    auto pathstat = status(p);
+    if (!fs::exists(pathstat))
+        return std::string();
+
     fs::path dir = p.remove_filename();
 
     fs::path cache = dir;
