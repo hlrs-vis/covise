@@ -23,24 +23,6 @@ SET(COVER_HEADERS
   # tui file browser headers
   #coVRDePee.h
   #coVRDePeePass.h
-  MarkerTracking.h
-  Deletable.h
-  EventReceiver.h
-  InitGLOperation.h
-  MSEventHandler.h
-  MatrixSerializer.h
-  OpenCOVER.h
-  PluginMenu.h
-  QuitDialog.h
-  RenderObject.h
-  VRAvatar.h
-  VRRegisterSceneGraph.h
-  VRSceneGraph.h
-  VRViewer.h
-  VRVruiButtons.h
-  VRVruiRenderInterface.h
-  VRWindow.h
-  VruiPartnerMenuItem.h
   coActionUserData.h
   coBillboard.h
   coClusterStat.h
@@ -54,27 +36,28 @@ SET(COVER_HEADERS
   coMeasurement.h
   coOnscreenDebug.h
   coShutDownHandler.h
+  coTabletCovConfig.h
+  coTranslator.h
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/IData.h
   coTUIFileBrowser/IRemoteData.h
   coTUIFileBrowser/LocalData.h
   coTUIFileBrowser/VRBData.h
-  coTranslator.h
   coVRAnimationManager.h
+  coVrbMenu.h
   coVRCollaboration.h
   coVRCommunication.h
   coVRConfig.h
   coVRDynLib.h
   coVRFileManager.h
-  SidecarConfigBridge.h
-  coVRIOBase.h
-  coVRIOReader.h
   coVRIntersectionInteractor.h
   coVRIntersectionInteractorManager.h
+  coVRIOBase.h
+  coVRIOReader.h
   coVRLabel.h
   coVRLighting.h
-  coVRMSController.h
   coVRMessageSender.h
+  coVRMSController.h
   coVRNavigationManager.h
   coVRPartner.h
   coVRPlugin.h
@@ -89,29 +72,29 @@ SET(COVER_HEADERS
   coVRStatsDisplay.h
   coVRTouchTable.h
   coVRTui.h
-  coVrbMenu.h
+  Deletable.h
+  EventReceiver.h
+  InitGLOperation.h
+  MarkerTracking.h
+  MatrixSerializer.h
+  MSEventHandler.h
+  OpenCOVER.h
+  PluginMenu.h
+  QuitDialog.h
+  RenderObject.h
+  SidecarConfigBridge.h
   tridelity.h
+  VRAvatar.h
+  VRRegisterSceneGraph.h
+  VRSceneGraph.h
+  VruiPartnerMenuItem.h
+  VRViewer.h
+  VRVruiButtons.h
+  VRVruiRenderInterface.h
+  VRWindow.h
 )
 
 SET(COVER_SOURCES
-  MarkerTracking.cpp
-  Deletable.cpp
-  EventReceiver.cpp
-  InitGLOperation.cpp
-  MSEventHandler.cpp
-  MatrixSerializer.cpp
-  OpenCOVER.cpp
-  PluginMenu.cpp
-  QuitDialog.cpp
-  RenderObject.cpp
-  VRAvatar.cpp
-  VRRegisterSceneGraph.cpp
-  VRSceneGraph.cpp
-  VRViewer.cpp
-  VRVruiButtons.cpp
-  VRVruiRenderInterface.cpp
-  VRWindow.cpp
-  VruiPartnerMenuItem.cpp
   coActionUserData.cpp
   coBillboard.cpp
   coClusterStat.cpp
@@ -125,29 +108,30 @@ SET(COVER_SOURCES
   coMeasurement.cpp
   coOnscreenDebug.cpp
   coShutDownHandler.cpp
+  coTabletCovConfig.cpp
+  coTabletUI.cpp
+  coTranslator.cpp
   coTUIFileBrowser/AGData.cpp
   coTUIFileBrowser/IData.cpp
   coTUIFileBrowser/LocalData.cpp
   coTUIFileBrowser/VRBData.cpp
   coTUIListener.cpp
   coTUISGBrowserTab.cpp
-  coTabletUI.cpp
-  coTranslator.cpp
   coVRAnimationManager.cpp
+  coVrbMenu.cpp
   coVRCollaboration.cpp
   coVRCommunication.cpp
   coVRConfig.cpp
   coVRDynLib.cpp
   coVRFileManager.cpp
-  SidecarConfigBridge.cpp
-  coVRIOBase.cpp
-  coVRIOReader.cpp
   coVRIntersectionInteractor.cpp
   coVRIntersectionInteractorManager.cpp
+  coVRIOBase.cpp
+  coVRIOReader.cpp
   coVRLabel.cpp
   coVRLighting.cpp
-  coVRMSController.cpp
   coVRMessageSender.cpp
+  coVRMSController.cpp
   coVRNavigationManager.cpp
   coVRPartner.cpp
   coVRPlugin.cpp
@@ -162,8 +146,26 @@ SET(COVER_SOURCES
   coVRStatsDisplay.cpp
   coVRTouchTable.cpp
   coVRTui.cpp
-  coVrbMenu.cpp
+  Deletable.cpp
+  EventReceiver.cpp
+  InitGLOperation.cpp
+  MarkerTracking.cpp
+  MatrixSerializer.cpp
+  MSEventHandler.cpp
+  OpenCOVER.cpp
+  PluginMenu.cpp
+  QuitDialog.cpp
+  RenderObject.cpp
+  SidecarConfigBridge.cpp
   tridelity.cpp
+  VRAvatar.cpp
+  VRRegisterSceneGraph.cpp
+  VRSceneGraph.cpp
+  VruiPartnerMenuItem.cpp
+  VRViewer.cpp
+  VRVruiButtons.cpp
+  VRVruiRenderInterface.cpp
+  VRWindow.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )
