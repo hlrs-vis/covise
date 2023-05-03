@@ -32,6 +32,11 @@ Germany
 #include <osg/Geometry>
 #include <osg/Vec3>
 
+#include <OpenConfig/array.h>
+#include <OpenConfig/value.h>
+#include <OpenConfig/file.h>
+
+#include <cover/coTabletUI.h>
 namespace opencover
 {
 class MarkerTrackingMarker;
@@ -48,6 +53,7 @@ class coTUIGroupBox;
 #include <net/message.h>
 
 #include "coTUIListener.h"
+#include "coTabletCovConfig.h"
 
 namespace opencover
 {
@@ -77,19 +83,14 @@ class COVEREXPORT MarkerTrackingInterface
 public:
     MarkerTrackingInterface(){};
     virtual ~MarkerTrackingInterface(){};
-    virtual int loadPattern(const char *)
+    virtual std::string loadPattern(const std::string& /*patternId*/)
     {
-        return -1;
+        return "";
     };
-    virtual bool isVisible(int)
-    {
-        return false;
-    };
-    virtual osg::Matrix getMat(int /* pattID */, double /*pattCenter*/[2], double /*pattSize*/, double /* pattTrans */[3][4])
-    {
-        osg::Matrix m;
-        return m;
-    };
+    virtual bool isVisible(const MarkerTrackingMarker *marker) = 0;
+
+    virtual osg::Matrix getMat(const MarkerTrackingMarker *marker) = 0;
+
     virtual void updateViewerPos(const osg::Vec3f &vp)
     {
         (void)vp;
@@ -129,29 +130,21 @@ public:
 
 class COVEREXPORT MarkerTracking
 {
-private:
-    static MarkerTracking *art;
-    MarkerTracking();
-    std::string m_configPath;
-    covise::Message msg;
-
-    bool objTracking = false;
-    int numObjectMarkers;
-    std::list<MarkerTrackingMarker *> objectMarkers;
-
 public:
     bool running = false;
-    virtual ~MarkerTracking();
+    ~MarkerTracking();
     static MarkerTracking *instance();
+    MarkerTrackingMarker *getMarker(const std::string &name);
+    MarkerTrackingMarker *getOrCreateMarker(const std::string &name, const std::string &pattern, double size, const osg::Matrix &offset, bool vrml, bool isObjectMarker = false);
+    
     coTUITab *artTab;
     bool flipH;
     MarkerTrackingInterface *arInterface = nullptr;
     RemoteARInterface *remoteAR = nullptr;
-
-    void update();
     void config();
+    void update();
     bool isRunning();
-
+    opencover::config::File &markerDatabase();
     unsigned char *videoData = nullptr;
     unsigned char *videoDataRight = nullptr;
     int videoWidth = 0;
@@ -162,48 +155,61 @@ public:
     bool videoMirrorLeft = false;
     bool videoMirrorRight = false;
     std::string m_MarkerTrackingVariant = "MarkerTracking";
-    std::list<MarkerTrackingMarker *> markers;
-    void addMarker(MarkerTrackingMarker *);
+    std::map<std::string, std::unique_ptr<MarkerTrackingMarker>> markers;
     bool doMerge;
     bool testImage = false;
+private:
+    static MarkerTracking *art;
+    MarkerTracking();
+    void changeObjectMarker(MarkerTrackingMarker *m, bool state);
+    std::string m_configPath;
+    covise::Message msg;
+
+    bool objTracking = false;
+    int numObjectMarkers;
+    std::list<MarkerTrackingMarker *> objectMarkers;
+    std::unique_ptr<opencover::config::File> m_markerDatabase;
+    std::unique_ptr<opencover::config::File> m_trackingConfig;
 };
 
 class COVEREXPORT MarkerTrackingMarker : public coTUIListener
 {
+friend class MarkerTracking;
+
 private:
-struct Coord{
-    Coord() = default;
-    Coord(const std::string &name, coTUIGroupBox* group);
-    Coord &operator=(const Coord&);
-    std::string name;
-    float value() const;
-    coTUIEditFloatField * edit = nullptr;
-};
+
     int pattGroup = -1;
     float oldpattGroup = -1;
     double pattCenter[2] = {0.0, 0.0};
     double pattTrans[3][4];
     bool objectMarker = false;
     osg::Matrix offset;
-    osg::Matrix Ctrans;
-    osg::Matrix Mtrans;
-    coTUILabel *markerLabel = nullptr;
-    coTUIToggleButton *vrmlToPf = nullptr;
-    coTUIEditFloatField * pattID = nullptr;
-    coTUIEditFloatField *size;
-    std::array<Coord, 6> m_transform; 
-    void createUi(const std::string &configName);
+    osg::Matrix cameraTransform;
+    std::unique_ptr<covTUIToggleButton> vrmlToPf;
+    std::unique_ptr<covTUIEditField> pattID;
+    std::unique_ptr<covTUIEditFloatField> size;
+    // std::array<std::shared_ptr<Coord>, 6> m_transform;
+    std::unique_ptr<covTUIEditFloatFieldVec3> m_xyz; 
+    std::unique_ptr<covTUIEditFloatFieldVec3> m_hpr; 
+    void createUiandConfigValues(const std::string &configName);
     void matToEuler(const osg::Matrix &mat);
     osg::Matrix eulerToMat() const;
+    void updateMatrices();
+    void init();
+	void updateData(double markerSize, const osg::Matrix& mat, bool vrmlToOsg);
 
 
-public:
-	MarkerTrackingMarker(const std::string &configName,int MarkerID,double size, const osg::Matrix &mat,bool VrmlToOSG);
+	MarkerTrackingMarker(const std::string &configName, const std::string &pattern, double size, const osg::Matrix &mat, bool vrml);
 	MarkerTrackingMarker(const std::string &Name);
-	void updateData(double markerSize, osg::Matrix& mat, osg::Matrix& hostMat, bool vrmlToOsg);
+public:
     virtual ~MarkerTrackingMarker();
-    osg::Matrix &getCameraTrans();
-    osg::Matrix &getMarkerTrans();
+    MarkerTrackingMarker(const MarkerTrackingMarker&) = delete;
+    MarkerTrackingMarker& operator=(const MarkerTrackingMarker&) = delete;
+    MarkerTrackingMarker(MarkerTrackingMarker&&) = default;
+    MarkerTrackingMarker& operator=(MarkerTrackingMarker&&) = default;
+
+    const osg::Matrix &getCameraTrans();
+    osg::Matrix getMarkerTrans();
     const osg::Matrix &getOffset() const
     {
         return offset;
@@ -211,7 +217,7 @@ public:
     int getMarkerGroup() const;
     virtual void tabletEvent(coTUIElement *tUIItem);
     double getSize() const;
-    int getPattern() const;
+    std::string getPattern() const;
     bool isVisible() const;
     bool isObjectMarker() const
     {
@@ -232,11 +238,8 @@ public:
     int numCalibSamples = 0;
     osg::Matrix matrixSumm;
     bool lastVisible = false;
-    void setOffset(osg::Matrix &mat);
+    void setOffset(const osg::Matrix &mat);
     void stopCalibration();
-
-	osg::Matrix OpenGLToOSGMatrix;
-	osg::Matrix PfToOpenGLMatrix;
 };
 }
 #endif

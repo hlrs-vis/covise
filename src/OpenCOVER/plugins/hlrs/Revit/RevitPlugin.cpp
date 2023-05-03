@@ -692,19 +692,7 @@ void ARMarkerInfo::setValues(int id, int docID, int mid, std::string& n, double 
 		offsetMat *= invMarker;
 	}
 	
-	if (marker == nullptr)
-	{
-		marker = new MarkerTrackingMarker((markerType+std::to_string(MarkerID)),MarkerID,size, offsetMat,true);
-        if (markerType == "ObjectMarker")
-        {
-            marker->setObjectMarker(true);
-            MarkerTracking::instance()->addMarker(marker);
-        }
-	}
-	else
-	{
-		marker->updateData(size, offsetMat, hostMat,true);
-	}
+	marker = MarkerTracking::instance()->getOrCreateMarker((markerType+std::to_string(MarkerID)), std::to_string(MarkerID), size, offsetMat, true, markerType == "ObjectMarker");
 
 	fprintf(stderr, "ObjectMarkerPos in feet: %d %d   %f %f %f\n", this->MarkerID, ID, mat.getTrans().x() / (1000 * REVIT_FEET_TO_M), mat.getTrans().y() / (1000 * REVIT_FEET_TO_M), mat.getTrans().z() / (1000 * REVIT_FEET_TO_M));
 }

@@ -14,7 +14,7 @@ class MarkerTrackingMarker;
 class ArucoMarker
 {
 public:
-    ArucoMarker(opencover::MarkerTrackingMarker *arToolKitMarker);
+    ArucoMarker(const opencover::MarkerTrackingMarker *arToolKitMarker);
     ArucoMarker(const ArucoMarker&) = delete;
     ArucoMarker(ArucoMarker&&) = default;
     ArucoMarker &operator=(const ArucoMarker&) = delete;
@@ -24,17 +24,20 @@ public:
     cv::Vec3d &cameraRot(int captureIdx);
     cv::Vec3d &cameraTrans(int captureIdx);
     void setCamera(const cv::Vec3d &cameraRot, const cv::Vec3d &cameraTrans, int captureIdx);
-    const opencover::MarkerTrackingMarker *arToolKitMarker;
+    const opencover::MarkerTrackingMarker *markerTrackingMarker;
     const std::array<cv::Vec3d, 4> corners;
     int capturedAt = -1;
     int lastCaptureIndex = 0;
+    const int markerId = -1; //patternId converted to int
 private:
     std::array<cv::Vec3d, 3> m_cameraRot, m_cameraTrans; //per capture index
     std::unique_ptr<std::mutex> m_mutex;
 };
 
+
 typedef std::vector<ArucoMarker> MultiMarker;
 typedef std::vector<ArucoMarker*> MultiMarkerPtr;
 
+const ArucoMarker &findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker);
 
 #endif //COVISE_ARUCO_MARKER_H

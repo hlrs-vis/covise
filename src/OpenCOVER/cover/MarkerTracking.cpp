@@ -40,6 +40,10 @@
 using namespace covise;
 using namespace opencover;
 
+osg::Matrix OpenGLToOSGMatrix;
+osg::Matrix PfToOpenGLMatrix;
+
+
 MarkerTracking *MarkerTracking::art = NULL;
 MarkerTracking::MarkerTracking()
 {
@@ -47,6 +51,11 @@ MarkerTracking::MarkerTracking()
     art = this;
     artTab = new coTUITab("MarkerTracking", coVRTui::instance()->mainFolder->getID());
     artTab->setHidden(true); // hide until a marker is added
+    m_markerDatabase = cover->configFile("markerdatabase"); 
+    m_markerDatabase->setSaveOnExit(true);
+    m_trackingConfig = cover->configFile("cover");
+    OpenGLToOSGMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
+    PfToOpenGLMatrix.makeRotate(-M_PI / 2.0, 1, 0, 0);
 
 }
 
@@ -389,6 +398,35 @@ MarkerTracking *MarkerTracking::instance()
     return art;
 }
 
+MarkerTrackingMarker *MarkerTracking::getMarker(const std::string &name)
+{
+    auto m = markers.find(name);
+    if(m == markers.end())
+        return nullptr;
+    return m->second.get();
+}
+
+MarkerTrackingMarker *MarkerTracking::getOrCreateMarker(const std::string &name, const std::string &pattern, double size, const osg::Matrix &offset, bool vrml, bool isObjectMarker)
+{
+    auto m = getMarker(name);
+    if(m) //update existing marker
+    {
+        if(m->getPattern() != pattern)
+        {
+            std::cerr << "Changing pattern of existing marker " << name << " from " << m->getPattern() << " to " << pattern << " is not supported" << std::endl;
+        } else {
+            m->updateData(size, offset, vrml);
+            changeObjectMarker(m, isObjectMarker);
+        }
+        return m;
+    } else { //create a new marker
+        auto mtm = std::unique_ptr<MarkerTrackingMarker>(new MarkerTrackingMarker(name, pattern, size, offset, vrml));
+        m = markers.emplace(std::make_pair(name, std::move(mtm))).first->second.get();
+        changeObjectMarker(m, isObjectMarker);
+        return m;
+    }
+}
+
 void MarkerTracking::config()
 {
 
@@ -402,38 +440,18 @@ void MarkerTracking::config()
     geodevideo->addDrawable(artnode);
     cover->getScene()->addChild(geodevideo);
     doMerge = coCoviseConfig::isOn("COVER.MarkerTracking.MergeMarkers", false);
-    if (coCoviseConfig::isOn("COVER.MarkerTracking.TrackObjects", false))
+    if(m_trackingConfig->value<bool>("markertracking", "TrackObjects", false))
     {
         objTracking = true;
-        char configName[100];
-        std::string pattern;
-        MarkerTrackingMarker *objMarker = NULL;
-        do
+        for(const auto &section : m_markerDatabase->sections())
         {
-
-            sprintf(configName, "ObjectMarker%d", (int)objectMarkers.size());
-
-            std::string entry = std::string("COVER.MarkerTracking.Marker:") + configName + std::string(".Pattern");
-            pattern = coCoviseConfig::getEntry(entry);
-            if (!pattern.empty())
+            auto pattId = m_markerDatabase->value<std::string>(section, "pattern"); 
+            std::string objectMarkerTag = "ObjectMarker";
+            if(pattId && section.substr(0, objectMarkerTag.size()) == objectMarkerTag)
             {
-                objMarker = new MarkerTrackingMarker(configName);
-                objMarker->setObjectMarker(true);
-                objectMarkers.push_back(objMarker);
-            }
-        } while (!pattern.empty());
-
-        if (objectMarkers.size() == 0)
-        {
-            pattern = coCoviseConfig::getEntry("COVER.MarkerTracking.Marker:ObjectMarker.Pattern");
-            if (!pattern.empty())
-            {
-                objMarker = new MarkerTrackingMarker("ObjectMarker");
-                objMarker->setObjectMarker(true);
-                if (objMarker)
-                {
-                    objectMarkers.push_back(objMarker);
-                }
+                auto mtm = std::unique_ptr<MarkerTrackingMarker>(new MarkerTrackingMarker(section));
+                auto m = markers.emplace(std::make_pair(section, std::move(mtm))).first->second.get();
+                changeObjectMarker(m, true);
             }
         }
     }
@@ -445,17 +463,21 @@ MarkerTracking::~MarkerTracking()
     art = NULL;
 }
 
+MarkerTrackingMarker::~MarkerTrackingMarker()
+{
+    std::cerr << "destoying marker" << std::endl;
+}
+
 void MarkerTracking::update()
 {
     artTab->setHidden(markers.empty());
 
     if (isRunning())
     {
-        std::list<MarkerTrackingMarker *>::iterator it;
-        for (it = markers.begin(); it != markers.end(); it++)
+        for(auto &m : markers)
         {
             float s = 1.0 / cover->getScale();
-            MarkerTrackingMarker *marker = (*it);
+            MarkerTrackingMarker *marker = m.second.get();
             if (marker->displayQuad && marker->displayQuad->getState())
             {
                 marker->markerQuad->setMatrix(osg::Matrix::scale(s, s, s));
@@ -481,52 +503,47 @@ void MarkerTracking::update()
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 4; j++)
                     tmpMat(i, j) = 0;
-            for (list<MarkerTrackingMarker *>::const_iterator it = objectMarkers.begin();
-                 it != objectMarkers.end();
-                 it++)
+            for(auto currentMarker : objectMarkers)
             {
-                MarkerTrackingMarker *currentMarker = *it;
-                if (currentMarker)
+                assert(currentMarker);
+                if (currentMarker->isVisible())
                 {
-                    if (currentMarker->isVisible())
+                    if (currentMarker->calibrate && currentMarker->calibrate->getState())
                     {
-                        if (currentMarker->calibrate && currentMarker->calibrate->getState())
+                        doCallibration = true;
+                    }
+                    else
+                    {
+                        numVisible++;
+                        osg::Matrix MarkerPos; // marker position in camera coordinate system
+                        MarkerPos = currentMarker->getMarkerTrans();
+                        osg::Matrix tmpMat2, leftCameraTrans;
+                        leftCameraTrans = VRViewer::instance()->getViewerMat();
+                        if (coVRConfig::instance()->stereoState())
                         {
-                            doCallibration = true;
+                            leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                        }
+                        else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
+                        {
+                            leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                        }
+                        else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
+                        {
+                            leftCameraTrans.preMult(osg::Matrix::translate((VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                        }
+                        if (doMerge)
+                        {
+                            tmpMat2 = MarkerPos * leftCameraTrans;
+                            for (int i = 0; i < 4; i++)
+                                for (int j = 0; j < 4; j++)
+                                    tmpMat(i, j) += tmpMat2(i, j);
                         }
                         else
                         {
-                            numVisible++;
-                            osg::Matrix MarkerPos; // marker position in camera coordinate system
-                            MarkerPos = currentMarker->getMarkerTrans();
-                            osg::Matrix tmpMat2, leftCameraTrans;
-                            leftCameraTrans = VRViewer::instance()->getViewerMat();
-                            if (coVRConfig::instance()->stereoState())
-                            {
-                                leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                            }
-                            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-                            {
-                                leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                            }
-                            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-                            {
-                                leftCameraTrans.preMult(osg::Matrix::translate((VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                            }
-                            if (doMerge)
-                            {
-                                tmpMat2 = MarkerPos * leftCameraTrans;
-                                for (int i = 0; i < 4; i++)
-                                    for (int j = 0; j < 4; j++)
-                                        tmpMat(i, j) += tmpMat2(i, j);
-                            }
-                            else
-                            {
-                                tmpMat = MarkerPos * leftCameraTrans;
-                            }
+                            tmpMat = MarkerPos * leftCameraTrans;
                         }
-                        //break;
                     }
+                    //break;
                 }
             }
             if (numVisible)
@@ -656,45 +673,65 @@ void MarkerTracking::update()
     }
 }
 
-void MarkerTracking::addMarker(MarkerTrackingMarker *m)
+void MarkerTracking::changeObjectMarker(MarkerTrackingMarker *m, bool state)
 {
-    if(m->isObjectMarker())
+    if(state && !m->isObjectMarker())
+    {
+        m->setObjectMarker(true);
         objectMarkers.push_back(m);
+    }
+    if(!state && m->isObjectMarker())
+    {
+        m->setObjectMarker(false);
+        auto om = std::find_if(objectMarkers.begin(), objectMarkers.end(), [m](MarkerTrackingMarker *otherM){
+            return m == otherM;
+        });
+        objectMarkers.erase(om);
+    }
 }
 bool MarkerTracking::isRunning()
 {
     return running;
 }
 
+opencover::config::File &MarkerTracking::markerDatabase()
+{
+    return *m_markerDatabase;
+}
+
 void MarkerTrackingMarker::matToEuler(const osg::Matrix &mat)
 {
     offset = mat;
     coCoord offsetCoord(offset);
-    for (size_t i = 0; i < m_transform.size(); i++)
+    std::array<double, 3> xyz, hpr;
+    for (size_t i = 0; i < 3; i++)
     {
-        if(i < 3)
-            m_transform[i].edit->setValue(offsetCoord.xyz[i]);
-        else
-            m_transform[i].edit->setValue(offsetCoord.hpr[i - 3]);
+            xyz[i] = offsetCoord.xyz[i];
+            hpr[i] = offsetCoord.hpr[i];
     }
+    m_xyz->setValue(xyz);
+    m_hpr->setValue(hpr);
 }
 
 osg::Matrix MarkerTrackingMarker::eulerToMat() const
 {
     osg::Matrix offMat;
     coCoord offsetCoord;
-    for (size_t i = 0; i < m_transform.size(); i++)
+    auto xyz = m_xyz->getValue();
+    auto hpr = m_hpr->getValue();
+    for (size_t i = 0; i < 3; i++)
     {
-        i < 3 ? offsetCoord.xyz[i] = m_transform[i].edit->getValue() : offsetCoord.hpr[i-3] = m_transform[i].edit->getValue();
+        offsetCoord.xyz[i] = xyz[i];
+        offsetCoord.hpr[i] = hpr[i];
     }
     offsetCoord.makeMat(offMat);
     return offMat;
 }
 
-void MarkerTrackingMarker::setOffset(osg::Matrix &mat)
+void MarkerTrackingMarker::setOffset(const osg::Matrix &mat)
 {
     matToEuler(mat);
-    vrmlToPf->setState(false);
+    vrmlToPf->setValue(false);
 
     osg::Matrix tmpMat;
     tmpMat.makeScale(getSize(), getSize(), getSize());
@@ -707,39 +744,19 @@ void MarkerTrackingMarker::stopCalibration()
     tabletEvent(calibrate);
 }
 
-void MarkerTrackingMarker::updateData(double markerSize, osg::Matrix& m, osg::Matrix& hostMat, bool vrmlToOsg)
+void MarkerTrackingMarker::updateData(double markerSize, const osg::Matrix& m, bool vrmlToOsg)
 {
-	MarkerTrackingMarker* existingMarker = nullptr;
-	for (const auto& i : MarkerTracking::instance()->markers)
-	{
-		if (i!=this && i->getPattern() == getPattern())
-		{
-			existingMarker = i;
-			break;
-		}
-	}
     matToEuler(m);
 	size->setValue(markerSize);
 
-	if (vrmlToPf->getState())
+	if (vrmlToPf->getValue())
 		offset.preMult(PfToOpenGLMatrix);
 	osg::Matrix mat;
 	mat.makeScale(getSize(), getSize(), getSize());
 	mat = mat * offset;
 
-	if (!existingMarker)
-	{
-		vrmlToPf->setState(false);
-	}
-	else
-	{
-		existingMarker->m_transform = m_transform;
-		existingMarker->vrmlToPf->setState(vrmlToPf->getState());
-		existingMarker->size->setValue(getSize());
-		existingMarker->offset = offset;
-
-		existingMarker->posSize->setMatrix(mat);
-	}
+    vrmlToPf->setValue(false);
+    posSize->setMatrix(mat);
 
 	if (MarkerTracking::instance()->arInterface)
 	{
@@ -758,222 +775,135 @@ int generateMarkerGroupFromName(const std::string& name)
     return std::distance(groups.begin(), result.first);
 }
 
-MarkerTrackingMarker::Coord::Coord(const std::string &name,  coTUIGroupBox* group)
-:name(name)
-, edit(new coTUIEditFloatField(name, group->getID()))
-{}
-
-float MarkerTrackingMarker::Coord::value() const
-{
-    return edit->getValue();
-}
-
-MarkerTrackingMarker::Coord &MarkerTrackingMarker::Coord::operator=(const MarkerTrackingMarker::Coord &other)
-{
-    if(!name.empty())
-    {
-        assert(other.name == name);
-        edit->setValue(other.edit->getValue());
-
-    } else  
-    {
-        edit = other.edit;
-        name = other.name;
-    }
-    return *this;
-}
-
-std::string getConfigEntryName(const std::string &name, const std::string &val)
-{
-    std::stringstream entry;
-    std::string MarkerTrackingVariant = MarkerTracking::instance()->m_MarkerTrackingVariant;
-    entry << "COVER.Plugin." << MarkerTrackingVariant << ".Marker:" << name << "." << val;
-    return entry.str();
-}
-
-int getPatternIdFromConfig(const std::string &name)
-{
-    auto pattern = coCoviseConfig::getEntry("value", getConfigEntryName(name, "Pattern"), name);
-    return std::stoi(pattern);
-}
-
-double getMarkerSizeFromConfig(const std::string &name)
-{
-    return coCoviseConfig::getFloat(getConfigEntryName(name, "Size"), 80.0);
-}
-
-osg::Matrix getMarkerOffsetFromConfig(const std::string &name)
-{
-    auto e = getConfigEntryName(name, "Offset");
-    std::string line = coCoviseConfig::getEntry("x", e);
-    osg::Matrix offset;
-    if (line.empty())
-    {
-        std::cerr << e << " configuration missing" << std::endl;
-        offset.makeIdentity();
-    }
-    else
-    {
-        coCoord offsetCoord;
-        const std::array<const char*, 6> coordNames = {"x","y", "z","h", "p","r"};
-        for (size_t i = 0; i < coordNames.size(); i++)
-        {
-            auto val = coCoviseConfig::getFloat(coordNames[i], e, 0.0f);
-            i < 3 ? offsetCoord.xyz[i] = val : offsetCoord.hpr[i-3] = val;
-        }
-        //offset.makeCoord(&offsetCoord);
-        offsetCoord.makeMat(offset);
-    }
-    return offset;
-}
-
-float getVrmlToOsgFlagFromConfig(const std::string &name)
-{
-    return coCoviseConfig::isOn(getConfigEntryName(name, "VrmlToPf"), false);
-}
-
-MarkerTrackingMarker::MarkerTrackingMarker(const std::string &configName,int MarkerID, double markerSize, const osg::Matrix& m, bool vrmlToOsg)
+MarkerTrackingMarker::MarkerTrackingMarker(const std::string &configName, const std::string &pattern, double markerSize, const osg::Matrix& m, bool vrmlToOsg)
 {
 	pattGroup = generateMarkerGroupFromName(configName);
-    MarkerTrackingMarker* existingMarker = nullptr;
-	for (const auto &i : MarkerTracking::instance()->markers)
-	{
-		if (i->getPattern() == MarkerID)
-		{
-			existingMarker = i;
-			break;
-		}
-	}
-    createUi(configName);
+    createUiandConfigValues(configName);
+    pattID->setValue(pattern);
     size->setValue(markerSize);
-    MarkerTracking::instance()->markers.push_back(this);
+    vrmlToPf->setValue(vrmlToOsg);
     matToEuler(m);
+    init();
+}
 
-	Ctrans.makeIdentity();
-	string pattern = std::to_string(MarkerID);
+MarkerTrackingMarker::MarkerTrackingMarker(const std::string &name)
+{
+    pattGroup = generateMarkerGroupFromName(name);
+    createUiandConfigValues(name);
+    offset = eulerToMat();
+    init();
+}
 
-
-	OpenGLToOSGMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
-	PfToOpenGLMatrix.makeRotate(-M_PI / 2.0, 1, 0, 0);
-
-	vrmlToPf->setState(vrmlToOsg);
-	if (vrmlToPf->getState())
+void MarkerTrackingMarker::init()
+{
+    cameraTransform.makeIdentity();
+	if (vrmlToPf->getValue())
 		offset.preMult(PfToOpenGLMatrix);
 	osg::Matrix mat;
 	mat.makeScale(getSize(), getSize(), getSize());
 	mat = mat * offset;
 
+	string pattern = getPattern();
 	if (cover->debugLevel(3))
 		cerr << "MarkerTrackingMarker::MarkerTrackingMarker(): Loading pattern with ID = " << pattern.c_str() << endl;
 	if (MarkerTracking::instance()->arInterface)
 	{
-		pattID->setValue(MarkerTracking::instance()->arInterface->loadPattern(pattern.c_str()));
+        pattern = MarkerTracking::instance()->arInterface->loadPattern(pattern);
+        if (!pattern.empty())
+        {
+            pattID->setValue(pattern);
+        }
 	}
-	if (getPattern() < 0)
-	{
-		pattID->setValue(atoi(pattern.c_str()));
-		if (getPattern() < 0)
-		{
-            std::cerr << "pattern load error for "  << pattern << "!!" << std::endl;
-            pattID->setValue(-1);
 
-		}
-	}
-	if (!existingMarker)
-	{
-		float ZPOS = 0.0f;
-		float WIDTH = 1.0f;
-		float HEIGHT = 1.0f;
+	
+    float ZPOS = 0.0f;
+    float WIDTH = 1.0f;
+    float HEIGHT = 1.0f;
 
-		geom = new osg::Geometry();
+    geom = new osg::Geometry();
 
-		osg::Vec3Array* vertices = new osg::Vec3Array(4);
-		// bottom left
-		(*vertices)[0].set(-WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
-		// bottom right
-		(*vertices)[1].set(WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
-		// top right
-		(*vertices)[2].set(WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
-		// top left
-		(*vertices)[3].set(-WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
-		geom->setVertexArray(vertices);
+    osg::Vec3Array* vertices = new osg::Vec3Array(4);
+    // bottom left
+    (*vertices)[0].set(-WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
+    // bottom right
+    (*vertices)[1].set(WIDTH / 2.0, ZPOS, -HEIGHT / 2.0);
+    // top right
+    (*vertices)[2].set(WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
+    // top left
+    (*vertices)[3].set(-WIDTH / 2.0, ZPOS, HEIGHT / 2.0);
+    geom->setVertexArray(vertices);
 
-		osg::Vec3Array* normals = new osg::Vec3Array(1);
-		(*normals)[0].set(0.0f, 0.0f, 1.0f);
-		geom->setNormalArray(normals);
-		geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+    osg::Vec3Array* normals = new osg::Vec3Array(1);
+    (*normals)[0].set(0.0f, 0.0f, 1.0f);
+    geom->setNormalArray(normals);
+    geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
-		colors = new osg::Vec4Array(1);
-		(*colors)[0].set(1.0, 0.0, 0.0, 1.0);
-		geom->setColorArray(colors);
-		geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-		geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, 4));
+    colors = new osg::Vec4Array(1);
+    (*colors)[0].set(1.0, 0.0, 0.0, 1.0);
+    geom->setColorArray(colors);
+    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, 4));
 
-		osg::StateSet* stateset = geom->getOrCreateStateSet();
-		stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-		quadGeode = new osg::Geode();
-		quadGeode->addDrawable(geom);
-		posSize = new osg::MatrixTransform();
-		posSize->addChild(quadGeode);
-		posSize->setMatrix(mat);
-		markerQuad = new osg::MatrixTransform();
-		markerQuad->addChild(posSize);
-		numCalibSamples = 0;
-	}
-	else
-	{
-        setObjectMarker(existingMarker->isObjectMarker());
-        existingMarker->m_transform = m_transform;
-        existingMarker->vrmlToPf->setState(vrmlToPf->getState());
-        existingMarker->size->setValue(getSize());
-        existingMarker->posSize->setMatrix(mat);
-	}
+    osg::StateSet* stateset = geom->getOrCreateStateSet();
+    stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    quadGeode = new osg::Geode();
+    quadGeode->addDrawable(geom);
+    posSize = new osg::MatrixTransform();
+    posSize->addChild(quadGeode);
+    posSize->setMatrix(mat);
+    markerQuad = new osg::MatrixTransform();
+    markerQuad->addChild(posSize);
+    numCalibSamples = 0;
 
 	if (MarkerTracking::instance()->arInterface)
 	{
-		cerr << "MarkerTrackingMarker::MarkerTrackingMarker(): init size pattern with ID = " << pattern.c_str() << endl;
+		cerr << "MarkerTrackingMarker::MarkerTrackingMarker(): init size pattern with ID = " << getPattern() << endl;
 		MarkerTracking::instance()->arInterface->updateMarkerParams();
 	}
 }
-MarkerTrackingMarker::MarkerTrackingMarker(const std::string &name)
-:MarkerTrackingMarker(
-    name,
-    getPatternIdFromConfig(name), 
-    getMarkerSizeFromConfig(name), 
-    getMarkerOffsetFromConfig(name), 
-    getVrmlToOsgFlagFromConfig(name))
-{
-}
 
-void MarkerTrackingMarker::createUi(const std::string &configName)
+void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName)
 {
     int pos = MarkerTracking::instance()->markers.size();
-    coTUIGroupBox *box = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
-    box->setPos(0, pos);
-    pattID = new coTUIEditFloatField(configName + "_pattern", box->getID(), -1);
-    std::array<std::string, 6> coords = { "posX" , "posY", "posZ", "rotH", "rotP", "rotR"};
-    for (size_t i = 0; i < m_transform.size(); i++)
-    {
-        m_transform[i] = Coord(coords[i], box);
-        m_transform[i].edit->setEventListener(this);
-        i < 3 ? m_transform[i].edit->setPos(i, 1) : m_transform[i].edit->setPos(i - 3, 2);
-    }
-    
-    vrmlToPf = new coTUIToggleButton("VRML", box->getID());
-    size = new coTUIEditFloatField("size", box->getID());
-    displayQuad = new coTUIToggleButton("displayQuad", box->getID());
-    calibrate = new coTUIToggleButton("calibrate", box->getID());
-    size->setEventListener(this);
-    vrmlToPf->setEventListener(this);
-    displayQuad->setEventListener(this);
-    calibrate->setEventListener(this);
+    coTUIGroupBox *markerBox = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
+    markerBox->setPos(0, pos);
+    coTUIGroupBox *descriptionBox = new coTUIGroupBox("",  markerBox->getID());
+    descriptionBox->setPos(0, 0);
 
-    pattID->setPos(0, 0);
-    size->setPos(1, 0);
-    vrmlToPf->setPos(2, 0);
+    pattID = std::make_unique<covTUIEditField>(MarkerTracking::instance()->markerDatabase(), configName, "pattern", descriptionBox, configName);
+    pattID->ui()->setPos(0, 0);
+    pattID->ui()->setEnabled(false);
+
+    size = std::make_unique<covTUIEditFloatField>(MarkerTracking::instance()->markerDatabase(), configName, "size", descriptionBox, 80);
+    size->ui()->setPos(1, 0);
+    size->setUpdater([this](){updateMatrices();});
+
+
+    vrmlToPf = std::make_unique<covTUIToggleButton>(MarkerTracking::instance()->markerDatabase(), configName, "VRML", descriptionBox, false);
+    vrmlToPf->ui()->setPos(2, 0);
+    vrmlToPf->setUpdater([this](){updateMatrices();});
+
+    displayQuad = new coTUIToggleButton("displayQuad", descriptionBox->getID());
     displayQuad->setPos(3, 0);
+    displayQuad->setEventListener(this);
+
+    calibrate = new coTUIToggleButton("calibrate", descriptionBox->getID());
     calibrate->setPos(4, 0);
+    calibrate->setEventListener(this);
     calibrate->setState(false);
+
+    m_xyz = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "xyz", markerBox, std::array<double, 3>{0.0, 0.0, 0.0});
+    m_xyz->box()->setPos(0, 1);
+    m_xyz->setUpdater([this](){
+            updateMatrices();
+        });
+
+    m_hpr = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "hpr", markerBox, std::array<double, 3>{0.0, 0.0, 0.0});
+    m_hpr->box()->setPos(0, 2);
+    m_hpr->setUpdater([this](){
+            updateMatrices();
+        });
+
 }
 
 
@@ -989,9 +919,26 @@ double MarkerTrackingMarker::getSize() const
     return size->getValue();
 }
 
-int MarkerTrackingMarker::getPattern() const
+std::string MarkerTrackingMarker::getPattern() const
 {
     return pattID->getValue();
+}
+
+void MarkerTrackingMarker::updateMatrices()
+{
+    offset = eulerToMat();
+    if (vrmlToPf->getValue()) 
+        offset.preMult(PfToOpenGLMatrix);
+
+    osg::Matrix mat;
+    mat.makeScale(getSize(), getSize(), getSize());
+    mat = mat * offset;
+    if(posSize)
+        posSize->setMatrix(mat);
+    if (MarkerTracking::instance()->arInterface)
+    {
+        MarkerTracking::instance()->arInterface->updateMarkerParams();
+    }
 }
 
 void MarkerTrackingMarker::tabletEvent(coTUIElement *tUIItem)
@@ -1017,37 +964,22 @@ void MarkerTrackingMarker::tabletEvent(coTUIElement *tUIItem)
            pattGroup = oldpattGroup;
         }
     }
-    offset = eulerToMat();
-    if (vrmlToPf->getState()) 
-        offset.preMult(PfToOpenGLMatrix);
-
-    osg::Matrix mat;
-    mat.makeScale(getSize(), getSize(), getSize());
-    mat = mat * offset;
-    posSize->setMatrix(mat);
-    if (MarkerTracking::instance()->arInterface)
-    {
-        MarkerTracking::instance()->arInterface->updateMarkerParams();
-    }
+    updateMatrices();
 }
 
-MarkerTrackingMarker::~MarkerTrackingMarker()
-{
-}
-
-osg::Matrix &MarkerTrackingMarker::getCameraTrans()
+const osg::Matrix &MarkerTrackingMarker::getCameraTrans()
 {
     if (MarkerTracking::instance()->isRunning())
     {
 
-        if ((MarkerTracking::instance()->arInterface) && (getPattern() >= 0) && MarkerTracking::instance()->arInterface->isVisible(getPattern()))
+        if ((MarkerTracking::instance()->arInterface) && !getPattern().empty() && MarkerTracking::instance()->arInterface->isVisible(this))
         {
-            Ctrans = MarkerTracking::instance()->arInterface->getMat(getPattern(), pattCenter, getSize(), pattTrans);
+            cameraTransform = MarkerTracking::instance()->arInterface->getMat(this);
             if (MarkerTracking::instance()->arInterface->isMarkerTracking())
             {
                 osg::Vec3 trans;
-                trans = Ctrans.getTrans();
-                Ctrans.setTrans(0, 0, 0);
+                trans = cameraTransform.getTrans();
+                cameraTransform.setTrans(0, 0, 0);
 
                 osg::Matrix rotMat;
                 rotMat.makeIdentity();
@@ -1057,38 +989,34 @@ osg::Matrix &MarkerTrackingMarker::getCameraTrans()
                 rotMat(1, 2) = 1;
                 rotMat(2, 1) = -1;
 
-                Ctrans = rotMat * Ctrans;
+                cameraTransform = rotMat * cameraTransform;
 
                 osg::Matrix tmp;
-                tmp = Ctrans;
-                Ctrans.invert(tmp);
+                tmp = cameraTransform;
+                cameraTransform.invert(tmp);
 
-                tmp = Ctrans;
-                Ctrans.preMult(osg::Matrix::translate(trans[0], trans[1], trans[2]));
-                Ctrans = Ctrans * offset;
+                tmp = cameraTransform;
+                cameraTransform.preMult(osg::Matrix::translate(trans[0], trans[1], trans[2]));
+                cameraTransform = cameraTransform * offset;
             }
             else
             {
                 osg::Matrix CameraToOrigin;
                 CameraToOrigin.makeTranslate(VRViewer::instance()->getViewerPos());
-                Ctrans.invert(Ctrans); //*CameraToOrigin
+                cameraTransform.invert(cameraTransform); //*CameraToOrigin
                 // offset is handeled by MultiMarker class this might have to be removed if multimarker class is used again
-                Ctrans = Ctrans * offset;
+                cameraTransform = cameraTransform * offset;
             }
 
             //Ctrans.print(1,1,"Ctrans: ",stderr);
         }
     }
-    return Ctrans;
+    return cameraTransform;
 }
 
-osg::Matrix &MarkerTrackingMarker::getMarkerTrans()
+osg::Matrix MarkerTrackingMarker::getMarkerTrans()
 {
-    Mtrans.invert(getCameraTrans());
-
-    //Mtrans.print(1,1,"Mtrans: ",stderr);
-
-    return Mtrans;
+    return osg::Matrix::inverse(getCameraTrans());
 }
 
 int MarkerTrackingMarker::getMarkerGroup() const
@@ -1098,16 +1026,7 @@ int MarkerTrackingMarker::getMarkerGroup() const
 
 bool MarkerTrackingMarker::isVisible() const
 {
-    if (MarkerTracking::instance()->isRunning())
-    {
-
-        if (MarkerTracking::instance()->arInterface)
-        {
-            if (getPattern() >= 0)
-                return MarkerTracking::instance()->arInterface->isVisible(getPattern());
-            else
-                return false;
-        }
-    }
+    if (MarkerTracking::instance()->isRunning() && MarkerTracking::instance()->arInterface)
+        return MarkerTracking::instance()->arInterface->isVisible(this);
     return false;
 }

@@ -94,9 +94,9 @@ private:
 
     void adjustScreen();
 
-    virtual osg::Matrix getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4]) override;
-    virtual bool isVisible(int) override;
-    virtual void updateMarkerParams() override;
+    osg::Matrix getMat(const MarkerTrackingMarker *marker) override;
+    bool isVisible(const MarkerTrackingMarker *marker) override;
+    void updateMarkerParams() override;
     std::string calibrationFilename;
 
 

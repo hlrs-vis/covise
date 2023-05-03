@@ -299,7 +299,7 @@ bool VRViewer::update()
     }
     if (arTracking)
     {
-        if (vpMarker->isVisible())
+        if (vpMarker && vpMarker->isVisible())
         {
             //osg::Matrix vm = vpMarker->getCameraTrans();
             //osg::Vec3 vp;
@@ -396,7 +396,7 @@ VRViewer::VRViewer()
     if (coCoviseConfig::isOn("COVER.MarkerTracking.TrackViewpoint", false))
     {
         arTracking = true;
-        vpMarker = new MarkerTrackingMarker("ViewpointMarker");
+        vpMarker = MarkerTracking::instance()->getMarker("ViewpointMarker");
     }
     overwritePAndV = false;
 

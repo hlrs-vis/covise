@@ -2,7 +2,7 @@
 #include <cover/MarkerTracking.h>
 #include <opencv2/calib3d/calib3d.hpp>
 #include "MatrixUtil.h"
-std::array<cv::Vec3d, 4> getMarkerCorners(opencover::MarkerTrackingMarker *arToolKitMarker)
+std::array<cv::Vec3d, 4> getMarkerCorners(const opencover::MarkerTrackingMarker *arToolKitMarker)
 {
     std::array<cv::Vec3d, 4> corners;
     auto size = arToolKitMarker->getSize();
@@ -19,15 +19,27 @@ std::array<cv::Vec3d, 4> getMarkerCorners(opencover::MarkerTrackingMarker *arToo
     return corners;
 }
 
-ArucoMarker::ArucoMarker(opencover::MarkerTrackingMarker *arToolKitMarker)
-: arToolKitMarker(arToolKitMarker)
-, corners(getMarkerCorners(arToolKitMarker))
+int convertPatternId(const std::string &id)
+{
+    try {
+        return std::stoi(id);
+    }
+    catch(const std::exception&) {
+        return -1;
+    }
+}
+
+ArucoMarker::ArucoMarker(const opencover::MarkerTrackingMarker *marker)
+: markerTrackingMarker(marker)
+, corners(getMarkerCorners(marker))
 , m_mutex(new std::mutex)
+, markerId(convertPatternId(marker->getPattern()))
 {}
 
 int ArucoMarker::getCapturedAt(const std::vector<int> captureIDs)
 {
-    auto it = std::find(captureIDs.begin(), captureIDs.end(), arToolKitMarker->getPattern());
+    
+    auto it = std::find(captureIDs.begin(), captureIDs.end(), markerId);
     capturedAt = it == captureIDs.end() ? -1 : std::distance(captureIDs.begin(), it);
     return capturedAt;
 }
@@ -37,11 +49,13 @@ cv::Vec3d &ArucoMarker::cameraRot(int captureIdx)
     std::lock_guard<std::mutex> g(*m_mutex);
     return m_cameraRot[captureIdx];
 }
+
 cv::Vec3d &ArucoMarker::cameraTrans(int captureIdx)
 {
     std::lock_guard<std::mutex> g(*m_mutex);
     return m_cameraTrans[captureIdx];
 }
+
 void ArucoMarker::setCamera(const cv::Vec3d &cameraRot, const cv::Vec3d &cameraTrans, int captureIdx)
 {
     std::lock_guard<std::mutex> g(*m_mutex);
@@ -50,3 +64,14 @@ void ArucoMarker::setCamera(const cv::Vec3d &cameraRot, const cv::Vec3d &cameraT
 
 }
 
+const ArucoMarker &findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker)
+{
+    for(const auto &multiMarker : multiMarkers)
+    {
+        for(const auto &arucoMarker : multiMarker)
+        {
+            if(arucoMarker.markerTrackingMarker == marker)
+                return arucoMarker;
+        }
+    }
+}

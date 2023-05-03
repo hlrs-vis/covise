@@ -410,17 +410,17 @@ bool ARUCOPlugin::destroy()
 
 void addMissingMarkers(const std::vector<int> & ids)
 {
-    for(auto id : ids )
-    {
-        if(std::find_if(MarkerTracking::instance()->markers.begin(), MarkerTracking::instance()->markers.end(), [id](const MarkerTrackingMarker* marker){
-            return marker->getPattern() == id;
-        }) == MarkerTracking::instance()->markers.end()) //marker is missing
-        {
-            MarkerTrackingMarker *objMarker = new MarkerTrackingMarker(std::to_string(id));
-            objMarker->setObjectMarker(false);
-            MarkerTracking::instance()->addMarker(objMarker);
-        }
-    }
+    // for(auto id : ids )
+    // {
+    //     if(std::find_if(MarkerTracking::instance()->markers.begin(), MarkerTracking::instance()->markers.end(), [id](const MarkerTrackingMarker* marker){
+    //         return marker->getPattern() == std::to_string(id);
+    //     }) == MarkerTracking::instance()->markers.end()) //marker is missing
+    //     {
+    //         MarkerTrackingMarker *objMarker = new MarkerTrackingMarker(std::to_string(id));
+    //         objMarker->setObjectMarker(false);
+    //         MarkerTracking::instance()->addMarker(objMarker);
+    //     }
+    // }
 }
 
 void ARUCOPlugin::preFrame()
@@ -606,6 +606,7 @@ void ARUCOPlugin::opencvLoop()
             // detect markers and estimate pose
 #if( CV_VERSION_MAJOR >= 4)
             detector->detectMarkers(image[captureIdx], corners, ids[captureIdx],  rejected);
+            assert(corners.size() == ids[captureIdx].size());
 #else
             cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
 #endif
@@ -674,35 +675,23 @@ bool ARUCOPlugin::update()
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
-bool ARUCOPlugin::isVisible(int pattID)
+bool ARUCOPlugin::isVisible(const MarkerTrackingMarker *marker)
 {
-    for (size_t i = 0; i < ids[displayIdx].size(); i++)
-    {
-        if (ids[displayIdx][i] == pattID)
-        {
-            return true;
-        }
-    }
-    return false;
+    auto &m = findMarker(m_markers, marker);
+    return std::find(ids[displayIdx].begin(), ids[displayIdx].end(), m.markerId) !=  ids[displayIdx].end();
 }
 
-osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4])
+osg::Matrix ARUCOPlugin::getMat(const MarkerTrackingMarker *marker)
 {
-    for (auto index : ids[displayIdx])
+    for(auto &multiMarker : m_markers)
     {
-        if (index == pattID)
+        for(auto &m : multiMarker)
         {
-            for(auto &multiMarker : m_markers)
+            if(m.markerTrackingMarker == marker && m.getCapturedAt(ids[displayIdx]) != -1)
             {
-                for(auto &marker : multiMarker)
-                {
-                    if(marker.arToolKitMarker->getPattern() == pattID)
-                    {
-                        auto m = cvToOsgMat(marker.cameraRot(displayIdx), marker.cameraTrans(displayIdx));
-                        m = marker.arToolKitMarker->getOffset() * m;
-                        return m;
-                    }
-                }
+                auto mat = cvToOsgMat(m.cameraRot(displayIdx), m.cameraTrans(displayIdx));
+                mat = marker->getOffset() * mat;
+                return mat;
             }
         }
     }
@@ -715,9 +704,10 @@ osg::Matrix ARUCOPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
 void ARUCOPlugin::updateMarkerParams()
 {
     std::map<int, std::vector<ArucoMarker>> markerSets;
-    for(const auto marker : MarkerTracking::instance()->markers)
+    for(const auto &m : MarkerTracking::instance()->markers)
     {
-        markerSets[marker->getMarkerGroup()].emplace_back(std::move(ArucoMarker{marker}));
+        const auto marker = m.second.get();
+        markerSets[marker->getMarkerGroup()].emplace_back(ArucoMarker{marker});
     }
     std::lock_guard<std::mutex> g(markerMutex);
     m_markers.clear();

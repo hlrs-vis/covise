@@ -238,11 +238,11 @@ void VrmlNodeARSensor::render(Viewer *viewer)
 {
     (void)viewer;
     double timeNow = System::the->time();
-    if (marker == NULL)
+    if (!marker)
     {
         if (d_markerName.get())
         {
-            marker = new MarkerTrackingMarker(d_markerName.get());
+            marker = MarkerTracking::instance()->getMarker(d_markerName.get());
         }
     }
     if ((marker) && (MarkerTracking::instance()->isRunning()))
