@@ -587,5 +587,8 @@ void VrmlNodeCOVER::keyEvent(enum VrmlNodeCOVER::KeyEventType type, const char *
         eventOut(timeStamp, "localKeyReleased", d_keyReleased);
     }
     //fprintf(stderr, "theCOVER: key type=%d, string=%s\n", type, keystringMod);
-    scene()->getSensorEventQueue()->sendKeyEvent(type, keyString);
+    if (scene())
+    {
+        scene()->getSensorEventQueue()->sendKeyEvent(type, keyString);
+    }
 }
