@@ -1526,7 +1526,7 @@ class COVEREXPORT coTUIEditField : public coTUIElement
 
 private:
 public:
-    coTUIEditField(const std::string &, int pID = 1);
+    coTUIEditField(const std::string &, int pID = 1, const std::string &def = "");
     coTUIEditField(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIEditField(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIEditField();
@@ -1564,7 +1564,7 @@ class COVEREXPORT coTUIEditTextField : public coTUIElement
 
 private:
 public:
-    coTUIEditTextField(const std::string &, int pID = 1);
+    coTUIEditTextField(const std::string &, int pID = 1, const std::string &def = "");
     coTUIEditTextField(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIEditTextField(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIEditTextField();

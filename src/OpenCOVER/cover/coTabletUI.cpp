@@ -2433,11 +2433,12 @@ coTUIMessageBox::~coTUIMessageBox()
 //----------------------------------------------------------
 //----------------------------------------------------------
 
-coTUIEditField::coTUIEditField(const std::string &n, int pID)
+coTUIEditField::coTUIEditField(const std::string &n, int pID, const std::string &def)
     : coTUIElement(n, pID, TABLET_EDIT_FIELD)
 {
     this->text = name;
     immediate = false;
+    setText(def);
 }
 
 coTUIEditField::coTUIEditField(coTabletUI *tui, const std::string &n, int pID)
@@ -2506,11 +2507,12 @@ void coTUIEditField::resend(bool create)
 //----------------------------------------------------------
 //##########################################################
 
-coTUIEditTextField::coTUIEditTextField(const std::string &n, int pID)
+coTUIEditTextField::coTUIEditTextField(const std::string &n, int pID, const std::string &def)
     : coTUIElement(n, pID, TABLET_TEXT_EDIT_FIELD)
 {
     text = name;
     immediate = false;
+    setText(def);
 }
 
 coTUIEditTextField::coTUIEditTextField(coTabletUI *tui, const std::string &n, int pID)
