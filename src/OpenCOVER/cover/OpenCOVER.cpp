@@ -92,6 +92,7 @@
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/Manager.h"
+#include <OpenConfig/access.h>
 
 
 #ifdef _OPENMP
@@ -873,6 +874,13 @@ bool OpenCOVER::init()
     double frameEnd = cover->currentTime();
     hud->hideLater();
 
+    Input::instance()->discovery()->init();
+
+    config::Access config;
+    config.setErrorHandler(); // make parse errors in configuration files non-fatal
+
+    m_initialized = true;
+
     if (cover->debugLevel(1))
     {
         std::cerr << std::endl << "INIT TIMES:"
@@ -881,9 +889,6 @@ bool OpenCOVER::init()
                   << ", 1st frame " << frameEnd-init2End << "s"
                   << std::endl;
     }
-
-    Input::instance()->discovery()->init();
-    m_initialized = true;
 
     return true;
 }
