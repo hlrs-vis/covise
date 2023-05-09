@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QStyle>
 #include <QApplication>
+#include <QtGlobal>
 
 #include <cassert>
 #include <iostream>

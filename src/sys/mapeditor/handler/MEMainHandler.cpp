@@ -28,6 +28,7 @@
 #include <QStyleFactory>
 #include <QTimer>
 #include <QUrl>
+#include <QtGlobal>
 
 #include <config/CoviseConfig.h>
 #include <covise/covise_appproc.h>

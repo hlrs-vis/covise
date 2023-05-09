@@ -78,9 +78,7 @@ private:
 
     ScriptTabletUI *tui;
     ScriptWsCovise *covise_;
-#if QT_VERSION >= 0x040500
     ScriptDebugger *debugger;
-#endif
 
     DynamicUI *dynamicUI;
 

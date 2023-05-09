@@ -11,6 +11,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QApplication>
+#include <QtGlobal>
 
 #include <cover/VRViewer.h>
 

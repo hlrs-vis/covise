@@ -8,6 +8,7 @@
 #ifndef ME_MESSAGEHANDLER_H
 #define ME_MESSAGEHANDLER_H
 
+#include <QtGlobal>
 #include <QObject>
 #include <QStringList>
 #include <QSocketNotifier>

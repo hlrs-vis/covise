@@ -47,7 +47,8 @@
 #include <QToolButton>
 #include <QToolTip>
 #include <QWidget>
-
+#include <QFont>
+#include <QtGlobal>
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>

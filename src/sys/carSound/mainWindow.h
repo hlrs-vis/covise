@@ -9,6 +9,7 @@
 #include "EventSoundSample.h"
 #include <util/UDPComm.h>
 #include <QSocketNotifier>
+#include <QtGlobal>
 #include <fmod_studio.hpp>
 #include <net/covise_connect.h>
 #include <config/coConfig.h>

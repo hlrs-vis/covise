@@ -17,6 +17,7 @@
 #include <QNetworkRequest>
 #include <QSslSocket>
 #include <QTime>
+#include <QtGlobal>
 
 #include <covise/covise_msg.h>
 #include <util/covise_version.h>

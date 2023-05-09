@@ -19,6 +19,7 @@
 #include "toolwidget.hpp"
 
 #include "ui_TrackRibbon.h"
+#include <QtGlobal>
 
 
  //################//

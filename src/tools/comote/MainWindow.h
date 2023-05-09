@@ -11,6 +11,7 @@
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
+#include <QtGlobal>
 #include <qtutil/Qt5_15_deprecated.h>
 
 #include "ui_MainWindow.h"

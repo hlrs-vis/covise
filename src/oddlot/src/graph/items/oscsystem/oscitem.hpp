@@ -16,6 +16,7 @@
 #ifndef OSCITEM_HPP
 #define OSCITEM_HPP
 
+#include <QtGlobal>
 #include "osctextitem.hpp"
 #include "src/graph/items/svgelement.hpp"
 

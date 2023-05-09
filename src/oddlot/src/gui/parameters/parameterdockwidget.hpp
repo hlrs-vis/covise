@@ -18,6 +18,7 @@
 
 #include <QDockWidget>
 #include <QFrame>
+#include <QtGlobal>
 
 class MainWindow;
 class ProjectEditor;

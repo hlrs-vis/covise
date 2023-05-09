@@ -14,10 +14,6 @@ class QComboBox;
 class QUrl;
 class QAction;
 
-#ifndef QT_VERSION
-#error "QT_VERSION not defined"
-#endif
-
 #if defined(USE_WEBENGINE)
 class QWebEngineView;
 class QWebEnginePage;

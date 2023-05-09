@@ -3,6 +3,7 @@
 
 #include <QOpenGLWidget>
 #include <QInputEvent>
+#include <QtGlobal>
 
 #include <osg/ref_ptr>
 #include <osgViewer/GraphicsWindow>

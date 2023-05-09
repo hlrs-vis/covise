@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QtDebug>
+#include <QtGlobal>
 #include <qtutil/Qt5_15_deprecated.h>
 
 #include "MEColorPort.h"

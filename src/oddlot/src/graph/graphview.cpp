@@ -23,6 +23,7 @@
 #include <QtWidgets>
 #include <QtNetwork>
 #include <QUrl>
+#include <QtGlobal>
 
  //MainWindow //
  //
