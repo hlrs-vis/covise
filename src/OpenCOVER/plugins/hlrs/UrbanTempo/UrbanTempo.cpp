@@ -37,6 +37,7 @@
 #include <osg/ComputeBoundsVisitor>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Vec3d>
+#include <unordered_map>
 
 using namespace opencover;
 
