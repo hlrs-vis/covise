@@ -6,13 +6,13 @@
         <COVER>
             <ScreenConfig>
                 <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-                <Screen width="960" comment="FRONT-LEFT" h="0.0" originX="-480" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="1" screen="1" />
-                <Screen width="960" comment="FRONT-RIGHT" h="0.0" originX="480" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+                <Screen width="1920" comment="FRONT-LEFT" h="0.0" originX="0" originY="0" originZ="0" height="1200" p="0.0" r="0.0" name="1" screen="1" />
+                <Screen width="1920" comment="FRONT-RIGHT" h="0.0" originX="0" originY="0" originZ="0" height="1200" p="0.0" r="0.0" name="0" screen="0" />
             </ScreenConfig>
 
             <WindowConfig>
-                <Window type="Qt" width="600" comment="FRONT" window="0" pipeIndex="0" height="672" left="50" top="100" name="1" embedded="false" decoration="true" />
-                <Window type="Qtx" width="600" comment="FRONT" window="1" pipeIndex="0" height="672" left="700" top="100" name="0" embedded="false" decoration="true" />
+                <Window type="Qtx" width="960" comment="FRONT" window="0" pipeIndex="0" height="1080" left="50" top="100" name="1" embedded="false" decoration="true" />
+                <Window type="Qtx" width="960" comment="FRONT" window="1" pipeIndex="0" height="1080" left="1000" top="100" name="0" embedded="false" decoration="true" />
             </WindowConfig>
 
             <ViewportConfig>
@@ -23,6 +23,9 @@
 
             <NumWindows value="2"/>
             <NumScreens value="2"/>
+            <GLVersion value="1.5"/>
+			<GLProfileMast value="0"/>
+			
         </COVER>
     </GLOBAL>
 

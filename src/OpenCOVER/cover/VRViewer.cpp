@@ -1376,6 +1376,10 @@ VRViewer::createChannels(int i)
     }
     if (!coVRConfig::instance()->glVersion.empty())
         ds->setGLContextVersion(coVRConfig::instance()->glVersion);
+    if (!coVRConfig::instance()->glProfileMask.empty())
+        ds->setGLContextProfileMask(std::stoi(coVRConfig::instance()->glProfileMask));
+    if (!coVRConfig::instance()->glContextFlags.empty())
+        ds->setGLContextFlags(std::stoi(coVRConfig::instance()->glContextFlags));
 
     // set up the use of stereo by default.
     ds->setStereo(conf.channels[i].stereo);

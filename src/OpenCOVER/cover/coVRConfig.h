@@ -454,6 +454,8 @@ public:
     };
     float HMDViewingAngle;
     std::string glVersion;
+    std::string glProfileMask;
+    std::string glContextFlags;
 	bool OpenVR_HMD;
 
 private:

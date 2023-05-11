@@ -178,6 +178,11 @@ void OSGVruiLabel::makeText()
     labelText->setLayout(direction);
     labelText->setAxisAlignment(Text::XY_PLANE);
 
+    labelText->setSupportsDisplayList(false);
+    labelText->setUseVertexBufferObjects(true);
+    //labelText->setUseVertexArrayObject(true);
+    
+
     labelText->dirtyDisplayList();
 }
 

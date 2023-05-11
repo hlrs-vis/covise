@@ -430,6 +430,14 @@ VRWindow::createWin(int i)
         {
             traits->glContextVersion = coVRConfig::instance()->glVersion;
         }
+        if (!coVRConfig::instance()->glProfileMask.empty())
+        {
+            traits->glContextProfileMask = std::stoi(coVRConfig::instance()->glProfileMask);
+        }
+        if (!coVRConfig::instance()->glContextFlags.empty())
+        {
+            traits->glContextFlags = std::stoi(coVRConfig::instance()->glContextFlags);
+        }
         traits->windowName = "OpenCOVER";
 
         if ((OpenCOVER::instance()->parentWindow) && (coVRConfig::instance()->windows[i].embedded))

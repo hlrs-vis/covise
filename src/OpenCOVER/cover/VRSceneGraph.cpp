@@ -1796,6 +1796,13 @@ VRSceneGraph::loadGlobalGeostate()
 	osg::PointSprite *sprite = new osg::PointSprite();
 	stateSet->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::OFF);
 
+    osg::TexEnv* texEnv = new osg::TexEnv;
+    texEnv->setMode(osg::TexEnv::MODULATE);
+    stateSet->setTextureAttributeAndModes(0, texEnv, osg::StateAttribute::ON);
+
+    osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
+    stateSet->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+
     stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
