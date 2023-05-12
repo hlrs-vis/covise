@@ -554,7 +554,7 @@
 		   <Threshold value="143" />
 		   <!-- SLK -->
 		   <Marker name="ObjectMarker" >
-			   <Pattern value="/mnt/raid/share/hpcbrait/AR/camera/4x4_56.patt" />
+			   <Pattern value="56" />
 			   <Size value="50" />
 			   <Offset x="0" y="0" h="0" z="38" p="0" r="-6" />
 			   <VrmlToPf value="TRUE" />
