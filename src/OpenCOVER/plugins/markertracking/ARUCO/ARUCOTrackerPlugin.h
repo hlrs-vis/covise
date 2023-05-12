@@ -97,6 +97,7 @@ private:
     osg::Matrix getMat(const MarkerTrackingMarker *marker) override;
     bool isVisible(const MarkerTrackingMarker *marker) override;
     void updateMarkerParams() override;
+    void createUnconfiguredTrackedMarkers() override;
     std::string calibrationFilename;
 
 

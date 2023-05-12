@@ -64,14 +64,28 @@ void ArucoMarker::setCamera(const cv::Vec3d &cameraRot, const cv::Vec3d &cameraT
 
 }
 
-const ArucoMarker &findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker)
+const ArucoMarker *findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker)
 {
     for(const auto &multiMarker : multiMarkers)
     {
         for(const auto &arucoMarker : multiMarker)
         {
             if(arucoMarker.markerTrackingMarker == marker)
-                return arucoMarker;
+                return &arucoMarker;
         }
     }
+    return nullptr;
+}
+
+const ArucoMarker *findMarker(const std::vector<MultiMarker> &multiMarkers, int id)
+{
+    for(const auto &multiMarker : multiMarkers)
+    {
+        for(const auto &arucoMarker : multiMarker)
+        {
+            if(arucoMarker.markerId == id)
+                return &arucoMarker;
+        }
+    }
+    return nullptr;
 }

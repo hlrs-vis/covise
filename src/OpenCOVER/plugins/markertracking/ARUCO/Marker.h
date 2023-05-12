@@ -38,6 +38,7 @@ private:
 typedef std::vector<ArucoMarker> MultiMarker;
 typedef std::vector<ArucoMarker*> MultiMarkerPtr;
 
-const ArucoMarker &findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker);
+const ArucoMarker *findMarker(const std::vector<MultiMarker> &multiMarkers, const opencover::MarkerTrackingMarker *marker);
+const ArucoMarker *findMarker(const std::vector<MultiMarker> &multiMarkers, int id);
 
 #endif //COVISE_ARUCO_MARKER_H

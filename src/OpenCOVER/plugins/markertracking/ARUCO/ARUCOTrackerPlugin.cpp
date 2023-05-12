@@ -408,19 +408,17 @@ bool ARUCOPlugin::destroy()
     return true;
 }
 
-void addMissingMarkers(const std::vector<int> & ids)
+void ARUCOPlugin::createUnconfiguredTrackedMarkers()
 {
-    // for(auto id : ids )
-    // {
-    //     if(std::find_if(MarkerTracking::instance()->markers.begin(), MarkerTracking::instance()->markers.end(), [id](const MarkerTrackingMarker* marker){
-    //         return marker->getPattern() == std::to_string(id);
-    //     }) == MarkerTracking::instance()->markers.end()) //marker is missing
-    //     {
-    //         MarkerTrackingMarker *objMarker = new MarkerTrackingMarker(std::to_string(id));
-    //         objMarker->setObjectMarker(false);
-    //         MarkerTracking::instance()->addMarker(objMarker);
-    //     }
-    // }
+    for(auto id : ids[captureIdx] )
+    {
+        auto m = findMarker(m_markers, id);
+        if(!m)
+        {
+            auto idString =  std::to_string(id);
+            MarkerTracking::instance()->getOrCreateMarker(idString, idString, (double)50.0, osg::Matrix::identity(), false);
+        }
+    }
 }
 
 void ARUCOPlugin::preFrame()
@@ -610,7 +608,6 @@ void ARUCOPlugin::opencvLoop()
 #else
             cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
 #endif
-            addMissingMarkers(ids[captureIdx]);
             if(ids[captureIdx].size() > 0)
             {
                 try
@@ -677,8 +674,10 @@ bool ARUCOPlugin::update()
 // ----------------------------------------------------------------------------
 bool ARUCOPlugin::isVisible(const MarkerTrackingMarker *marker)
 {
-    auto &m = findMarker(m_markers, marker);
-    return std::find(ids[displayIdx].begin(), ids[displayIdx].end(), m.markerId) !=  ids[displayIdx].end();
+    auto m = findMarker(m_markers, marker);
+    if(m)
+        return std::find(ids[displayIdx].begin(), ids[displayIdx].end(), m->markerId) !=  ids[displayIdx].end();
+    return false;
 }
 
 osg::Matrix ARUCOPlugin::getMat(const MarkerTrackingMarker *marker)
@@ -713,7 +712,17 @@ void ARUCOPlugin::updateMarkerParams()
     m_markers.clear();
     for(auto &set : markerSets)
     {
-        m_markers.emplace_back(std::move(set.second));
+        if(set.first == noMarkerGroup) //treat these markers separetely
+        {
+            for(auto &marker : set.second)
+            {
+                MultiMarker mm;
+                mm.emplace_back(std::move(marker));
+                m_markers.emplace_back(std::move(mm));
+            }
+        }
+        else
+            m_markers.emplace_back(std::move(set.second));
     }
 }
 
