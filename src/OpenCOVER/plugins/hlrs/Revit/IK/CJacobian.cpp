@@ -67,7 +67,7 @@ bool mypseudoInverse(const _Matrix_Type_& a, _Matrix_Type_& result, double
         return false;
     Eigen::JacobiSVD< _Matrix_Type_ > svd = a.jacobiSvd(ComputeThinU | ComputeThinV);
 
-    typename _Matrix_Type_::Scalar tolerance = (_Matrix_Type_::Scalar)(epsilon * std::max(a.cols(),
+    typename _Matrix_Type_::Scalar tolerance = (typename _Matrix_Type_::Scalar)(epsilon * std::max(a.cols(),
         a.rows()) * svd.singularValues().array().abs().maxCoeff());
 
     result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() >
