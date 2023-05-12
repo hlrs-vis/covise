@@ -21,42 +21,14 @@
 
 /// Constructor
 TUIIntEdit::TUIIntEdit(int id, int type, QWidget *w, int parent, QString name)
-    : TUIElement(id, type, w, parent, name)
+    : TUILineEdit(id, type, w, parent, name)
 {
-
-    intEdit = new TUILineCheck(w);
-    validator = new QIntValidator(intEdit);
-    //intEdit->setValidator(validator);
-
-    connect(intEdit, SIGNAL(contentChanged()), this, SLOT(valueChanged()));
-}
-
-/// Destructor
-TUIIntEdit::~TUIIntEdit()
-{
-    delete widget;
-}
-
-void TUIIntEdit::setPos(int x, int y)
-{
-    xPos = x;
-    yPos = y;
-    TUIContainer *parent;
-    widget = intEdit;
-    if ((parent = getParent()))
-    {
-        parent->addElementToLayout(this);
-    }
-    else
-    {
-        TUIMainWindow::getInstance()->addElementToLayout(this);
-    }
-    intEdit->setVisible(!hidden);
+    validator = new QIntValidator(editField);
 }
 
 void TUIIntEdit::valueChanged()
 {
-    value = intEdit->text().toInt();
+    value = editField->text().toInt();
     covise::TokenBuffer tb;
     tb << ID;
     tb << value;
@@ -87,7 +59,7 @@ void TUIIntEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
     {
         tb >> value;
         //cerr << "TUIIntEdit::setValue " << value << endl;
-        intEdit->setText(QString::number(value));
+        editField->setText(QString::number(value));
     }
     TUIElement::setValue(type, tb);
 }

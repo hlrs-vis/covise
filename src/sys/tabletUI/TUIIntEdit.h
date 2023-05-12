@@ -8,39 +8,23 @@
 #ifndef CO_TUI_INT_EDIT_H
 #define CO_TUI_INT_EDIT_H
 
-#include <QObject>
-
-#include "TUIElement.h"
-
+#include "TUILineEdit.h"
 class QWidget;
 class QLineEdit;
 class QIntValidator;
 
-class TUIIntEdit : public QObject, public TUIElement
+class TUIIntEdit : public TUILineEdit
 {
-    Q_OBJECT
-
 public:
     TUIIntEdit(int id, int type, QWidget *w, int parent, QString name);
-    ~TUIIntEdit();
-    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
+    void setValue(TabletValue type, covise::TokenBuffer &) override;
+    const char *getClassName() const override;
+    void valueChanged();
 
-    /// get the Element's classname
-    virtual const char *getClassName() const override;
-
-    void setPos(int x, int y) override;
-
-    QLineEdit *intEdit;
     QIntValidator *validator;
-
     int min;
     int max;
     int value;
 
-public slots:
-
-    void valueChanged();
-
-protected:
 };
 #endif

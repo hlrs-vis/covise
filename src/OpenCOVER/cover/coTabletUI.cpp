@@ -2577,6 +2577,7 @@ coTUIEditIntField::coTUIEditIntField(const std::string &n, int pID, int def)
     value = def;
     immediate = 0;
     setVal(value);
+    setLabel("");
 }
 
 coTUIEditIntField::coTUIEditIntField(coTabletUI *tui, const std::string &n, int pID, int def)
@@ -2585,6 +2586,7 @@ coTUIEditIntField::coTUIEditIntField(coTabletUI *tui, const std::string &n, int 
     value = def;
     immediate = 0;
     setVal(value);
+    setLabel("");
 }
 
 coTUIEditIntField::coTUIEditIntField(QObject *parent, const std::string &n, int pID, int def)
@@ -2593,6 +2595,7 @@ coTUIEditIntField::coTUIEditIntField(QObject *parent, const std::string &n, int 
     value = def;
     immediate = 0;
     setVal(value);
+    setLabel("");
 }
 
 coTUIEditIntField::~coTUIEditIntField()
@@ -2659,6 +2662,7 @@ coTUIEditFloatField::coTUIEditFloatField(const std::string &n, int pID, float de
     value = def;
     setVal(value);
     immediate = 0;
+    setLabel("");
 }
 
 coTUIEditFloatField::coTUIEditFloatField(coTabletUI *tui, const std::string &n, int pID, float def)
@@ -2667,6 +2671,7 @@ coTUIEditFloatField::coTUIEditFloatField(coTabletUI *tui, const std::string &n, 
     value = def;
     setVal(value);
     immediate = 0;
+    setLabel("");
 }
 
 coTUIEditFloatField::coTUIEditFloatField(QObject *parent, const std::string &n, int pID, float def)
@@ -2675,6 +2680,7 @@ coTUIEditFloatField::coTUIEditFloatField(QObject *parent, const std::string &n, 
     value = def;
     setVal(value);
     immediate = 0;
+    setLabel("");
 }
 
 coTUIEditFloatField::~coTUIEditFloatField()

@@ -21,8 +21,7 @@ TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
     editField = new TUILineCheck(w);
-    connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChanged()));
-
+    connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChangedSlot()));
     auto gl = createLayout(nullptr);
     gl->addWidget(editField, 1, 0, 1, width-1);
     gl->addWidget(editField, 1, width-1);
@@ -75,6 +74,12 @@ void TUILineEdit::setLabel(QString textl)
     }
     if (label)
         label->setText(textl);
+}
+
+
+void TUILineEdit::valueChangedSlot()
+{
+    valueChanged();
 }
 
 void TUILineEdit::valueChanged()

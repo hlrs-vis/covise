@@ -32,9 +32,10 @@ public:
     void setLabel(QString textl) override;
 
 public slots:
-    void valueChanged();
+    void valueChangedSlot();
 
 protected:
+    virtual void valueChanged();
     QLineEdit *editField = nullptr;
     QString value;
     QLabel *label = nullptr;

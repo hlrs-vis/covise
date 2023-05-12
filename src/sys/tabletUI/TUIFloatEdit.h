@@ -8,39 +8,19 @@
 #ifndef CO_TUI_FLOAT_EDIT_H
 #define CO_TUI_FLOAT_EDIT_H
 
-#include <QObject>
-
-#include "TUIElement.h"
+#include "TUILineEdit.h"
 
 class QLineEdit;
 
-/** Basic Container
- * This class provides basic functionality and a
- * common interface to all Container elements.<BR>
- * The functionality implemented in this class represents a container
- * which arranges its children on top of each other.
- */
-class TUIFloatEdit : public QObject, public TUIElement
+class TUIFloatEdit : public TUILineEdit
 {
-    Q_OBJECT
-
 public:
     TUIFloatEdit(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIFloatEdit();
-    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
+    void setValue(TabletValue type, covise::TokenBuffer &) override;
+    const char *getClassName() const override;
+    void valueChanged() override;
 
-    /// get the Element's classname
-    virtual const char *getClassName() const override;
-    void setPos(int x, int y) override;
-    QLineEdit *string;
-    float min;
-    float max;
     float value;
 
-public slots:
-
-    void valueChanged();
-
-protected:
 };
 #endif
