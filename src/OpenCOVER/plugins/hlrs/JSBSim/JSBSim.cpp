@@ -347,7 +347,7 @@ bool JSBSimPlugin::init()
 
     //mapping of coordinates
 #ifdef WIN32
-    const char* pValue;
+    const char* pValue="";
     size_t len;
     char* ncpValue = (char*)pValue;
     errno_t err = _dupenv_s(&ncpValue, &len, "COVISEDIR");

@@ -139,7 +139,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     BMFShape->setRestOffset(0.0);
     PxRigidDynamic* BMFActor = CrawlerPlugin::plugin->gPhysics->createRigidDynamic(PxTransform(PxVec3(0,0,0)));
 
-    BMFActor->setGlobalPose(PxTransform(PxVec3(0.13616,0.009,0.078612), PxQuat(physx::PxMat33(PxVec3(-0.5,0,0.86603), PxVec3(0,1,0), PxVec3(-0.86603,0,-0.5)))));	//-120° Y
+    BMFActor->setGlobalPose(PxTransform(PxVec3(0.13616,0.009,0.078612), PxQuat(physx::PxMat33(PxVec3(-0.5,0,0.86603), PxVec3(0,1,0), PxVec3(-0.86603,0,-0.5)))));	//-120 deg Y
 
     BMFActor->attachShape(*BMFShape);
     BMFActor->setMass(0.059);
@@ -154,7 +154,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     revoluteJointBMF->setProjectionLinearTolerance(0.1f);
     revoluteJointBMF->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
-    PxJointAngularLimitPair BotMainFlapLimitPair(-PxPi*PxReal(0.002466513), PxPi*PxReal(0.611111), 0.1f);		//0,611111 Pi = 110°
+    PxJointAngularLimitPair BotMainFlapLimitPair(-PxPi*PxReal(0.002466513), PxPi*PxReal(0.611111), 0.1f);		//0,611111 Pi = 110 deg
     revoluteJointBMF->setLimit(BotMainFlapLimitPair);
     revoluteJointBMF->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 
@@ -171,7 +171,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     BSFShape->setRestOffset(0.0);
     PxRigidDynamic* BSFActor = CrawlerPlugin::plugin->gPhysics->createRigidDynamic(PxTransform(PxVec3(0,0,0)));
 
-    BSFActor->setGlobalPose(PxTransform(PxVec3(-0.13616, 0.005, 0.078612), PxQuat(physx::PxMat33(PxVec3(-0.5,0,-0.86603),PxVec3(0,1,0),PxVec3(0.86603,0,-0.5)))));		//120° Y-Achse 
+    BSFActor->setGlobalPose(PxTransform(PxVec3(-0.13616, 0.005, 0.078612), PxQuat(physx::PxMat33(PxVec3(-0.5,0,-0.86603),PxVec3(0,1,0),PxVec3(0.86603,0,-0.5)))));		//120 deg Y-Achse 
 
     BSFActor->attachShape(*BSFShape);
     BSFActor->setMass(0.049);
@@ -187,7 +187,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
     revoluteJointBSF->setProjectionLinearTolerance(0.1f);
     revoluteJointBSF->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
-    PxJointAngularLimitPair BotSecFlapLimitPair(-PxPi*PxReal(0.000894126), PxPi*PxReal(0.611111), 0.1f);		//0,611111 Pi = 110°
+    PxJointAngularLimitPair BotSecFlapLimitPair(-PxPi*PxReal(0.000894126), PxPi*PxReal(0.611111), 0.1f);		//0,611111 Pi = 110deg
     revoluteJointBSF->setLimit(BotSecFlapLimitPair);
     revoluteJointBSF->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 
@@ -217,8 +217,8 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
         switch (i)
         {
         case 0:	MainFlap[0].Actor->setGlobalPose(PxTransform(PxVec3(0,0.016734,-0.172592))); break;	//SideMainFlap1 position
-        case 1: MainFlap[1].Actor->setGlobalPose(PxTransform(PxVec3(0.149469,0.016734,0.086296), PxQuat(physx::PxMat33(PxVec3(-0.5,0,0.86603), PxVec3(0,1,0), PxVec3(-0.86603,0,-0.5))))); break;  //-120° Y-Achse
-        case 2: MainFlap[2].Actor->setGlobalPose(PxTransform(PxVec3(-0.149469,0.016734,0.086296), PxQuat(physx::PxMat33(PxVec3(-0.5,0,-0.86603), PxVec3(0,1,0), PxVec3(0.86603,0,-0.5))))); break; //+120° Y-Achse
+        case 1: MainFlap[1].Actor->setGlobalPose(PxTransform(PxVec3(0.149469,0.016734,0.086296), PxQuat(physx::PxMat33(PxVec3(-0.5,0,0.86603), PxVec3(0,1,0), PxVec3(-0.86603,0,-0.5))))); break;  //-120deg Y-Achse
+        case 2: MainFlap[2].Actor->setGlobalPose(PxTransform(PxVec3(-0.149469,0.016734,0.086296), PxQuat(physx::PxMat33(PxVec3(-0.5,0,-0.86603), PxVec3(0,1,0), PxVec3(0.86603,0,-0.5))))); break; //+120deg Y-Achse
         default: break;
         }
 
@@ -227,7 +227,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
         MainFlap[i].Actor->setCMassLocalPose(PxTransform(PxVec3(0, 0.157, 0)));
         MainFlap[i].Actor->setActorFlag(PxActorFlag::eVISUALIZATION, false);			//Koordinatensystem an/aus
 
-        CrawlerPlugin::plugin->gScene->addActor(*MainFlap[i].Actor);		//Add MainFlap[i].Actor´s to Scene
+        CrawlerPlugin::plugin->gScene->addActor(*MainFlap[i].Actor);		//Add MainFlap[i].Actor's to Scene
 
         MainFlap[i].revoluteJoint = PxRevoluteJointCreate(*CrawlerPlugin::plugin->gPhysics, tetraederActor, MainFlap[i].Actor->getGlobalPose(), MainFlap[i].Actor, PxTransform(PxVec3(0,0,0)));
         MainFlap[i].revoluteJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, true);
@@ -235,7 +235,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
         MainFlap[i].revoluteJoint->setProjectionLinearTolerance(0.1f);
         MainFlap[i].revoluteJoint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
-        PxJointAngularLimitPair MainFlapLimitPair(-PxPi*PxReal(0.5), PxPi*PxReal(0.11111), 0.1f);			//0,5 Pi = 90°  //0,11111 Pi = 20°
+        PxJointAngularLimitPair MainFlapLimitPair(-PxPi*PxReal(0.5), PxPi*PxReal(0.11111), 0.1f);			//0,5 Pi = 90deg  //0,11111 Pi = 20deg
         MainFlap[i].revoluteJoint->setLimit(MainFlapLimitPair);
         MainFlap[i].revoluteJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 
@@ -260,9 +260,9 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
 
         switch (i)
         {
-        case 0:	SecFlap[0].Actor->setGlobalPose(PxTransform(PxVec3(-0.13616,0.26657,-0.176592), PxQuat(physx::PxMat33(PxVec3(-0.5,-0.86603,0), PxVec3(0.86603,-0.5,0), PxVec3(0,0,1))))); break;	//-120° Z-Achse
-        case 1: SecFlap[1].Actor->setGlobalPose(PxTransform(PxVec3(0.221013,0.26657,-0.029622), PxQuat(physx::PxMat33(PxVec3(0.25,-0.86603,-0.43301), PxVec3(-0.43301,-0.5,0.75), PxVec3(-0.86603,0,-0.5))))); break;	//-120° Y * -120° Z
-        case 2: SecFlap[2].Actor->setGlobalPose(PxTransform(PxVec3(-0.084853,0.26657,0.206214), PxQuat(physx::PxMat33(PxVec3(0.25,-0.86603,0.43301), PxVec3(-0.43301,-0.5,-0.75), PxVec3(0.86603,0,-0.5))))); break;	//120° Y * -120° Z
+        case 0:	SecFlap[0].Actor->setGlobalPose(PxTransform(PxVec3(-0.13616,0.26657,-0.176592), PxQuat(physx::PxMat33(PxVec3(-0.5,-0.86603,0), PxVec3(0.86603,-0.5,0), PxVec3(0,0,1))))); break;	//-120deg Z-Achse
+        case 1: SecFlap[1].Actor->setGlobalPose(PxTransform(PxVec3(0.221013,0.26657,-0.029622), PxQuat(physx::PxMat33(PxVec3(0.25,-0.86603,-0.43301), PxVec3(-0.43301,-0.5,0.75), PxVec3(-0.86603,0,-0.5))))); break;	//-120deg Y * -120deg Z
+        case 2: SecFlap[2].Actor->setGlobalPose(PxTransform(PxVec3(-0.084853,0.26657,0.206214), PxQuat(physx::PxMat33(PxVec3(0.25,-0.86603,0.43301), PxVec3(-0.43301,-0.5,-0.75), PxVec3(0.86603,0,-0.5))))); break;	//120deg Y * -120deg Z
         default: break;
         }
 
@@ -271,7 +271,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
         SecFlap[i].Actor->setCMassLocalPose(PxTransform(PxVec3(0, 0.097, 0)));
         SecFlap[i].Actor->setActorFlag(PxActorFlag::eVISUALIZATION, false);				//Koordinatensystem an/aus
 
-        CrawlerPlugin::plugin->gScene->addActor(*SecFlap[i].Actor);		//Add SecFlap[i].Actor´s to Scene
+        CrawlerPlugin::plugin->gScene->addActor(*SecFlap[i].Actor);		//Add SecFlap[i].Actor's to Scene
 
         SecFlap[i].revoluteJoint = PxRevoluteJointCreate(*CrawlerPlugin::plugin->gPhysics, MainFlap[i].Actor, PxTransform(PxVec3(-0.13616,0.235836,-0.004), PxQuat(physx::PxMat33(PxVec3(-0.5,-0.86603,0), PxVec3(0.86603,-0.5,0), PxVec3(0,0,1)))), SecFlap[i].Actor, PxTransform(PxVec3(0,0,0)));
         SecFlap[i].revoluteJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, true);
@@ -279,7 +279,7 @@ VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
         SecFlap[i].revoluteJoint->setProjectionLinearTolerance(0.1f);
         SecFlap[i].revoluteJoint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
-        PxJointAngularLimitPair SecFlapLimitPair(-PxPi*PxReal(0.611111), PxPi*PxReal(0.001179759), 0.1f);		//0,611111 Pi = 110°
+        PxJointAngularLimitPair SecFlapLimitPair(-PxPi*PxReal(0.611111), PxPi*PxReal(0.001179759), 0.1f);		//0,611111 Pi = 110deg
         SecFlap[i].revoluteJoint->setLimit(SecFlapLimitPair);
         SecFlap[i].revoluteJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 

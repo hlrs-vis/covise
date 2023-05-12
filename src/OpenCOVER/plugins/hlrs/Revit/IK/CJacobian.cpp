@@ -30,7 +30,7 @@ MatrixXf & CJacobian::GetJacobian()
 /************************************************************************/
 void CJacobian::CalculateJacobian( HomMatrixHolder & hom_matrix_handler , JointHandler & jhandler , IN Matrix4f & full)
 {
-    unsigned int col_num = jhandler.size();
+    unsigned int col_num = (unsigned int)jhandler.size();
 
     if (!col_num)
     {
@@ -67,8 +67,8 @@ bool mypseudoInverse(const _Matrix_Type_& a, _Matrix_Type_& result, double
         return false;
     Eigen::JacobiSVD< _Matrix_Type_ > svd = a.jacobiSvd(ComputeThinU | ComputeThinV);
 
-    typename _Matrix_Type_::Scalar tolerance = epsilon * std::max(a.cols(),
-        a.rows()) * svd.singularValues().array().abs().maxCoeff();
+    typename _Matrix_Type_::Scalar tolerance = (_Matrix_Type_::Scalar)(epsilon * std::max(a.cols(),
+        a.rows()) * svd.singularValues().array().abs().maxCoeff());
 
     result = svd.matrixV() * _Matrix_Type_((svd.singularValues().array().abs() >
         tolerance).select(svd.singularValues().

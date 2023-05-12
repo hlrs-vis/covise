@@ -58,14 +58,14 @@ OUT VectorXf CDumpedLeastSquares::CalculateData()
             }
             else
             {
-                thetaY = M_PI / 2;
+                thetaY = (float)(M_PI / 2.0);
                 thetaX = -atan2(-_robot.GiveMeFullHM()(1, 2), _robot.GiveMeFullHM()(1, 1));
                 thetaZ = 0;
             }
         }
         else//r02=+1
         {
-            thetaY = -M_PI / 2;
+            thetaY = (float)( -M_PI / 2);
             thetaX = atan2(-_robot.GiveMeFullHM()(1, 2), _robot.GiveMeFullHM()(1, 1));
             thetaZ = 0;
         }
