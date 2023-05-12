@@ -187,6 +187,10 @@ private:
     double m_pattTrans[3][4];
     osg::Matrix m_offset;
     osg::Matrix m_cameraTransform;
+
+    coTUIButton *m_toggleConfigOff = nullptr;
+    coTUIButton *m_toggleConfigOn = nullptr;
+    coTUIGroupBox *m_layoutGroup = nullptr;
     std::unique_ptr<covTUIToggleButton> m_vrmlToPf;
     std::unique_ptr<covTUIToggleButton> m_objectMarker;
     std::unique_ptr<covTUIEditField> m_pattID;

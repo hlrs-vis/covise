@@ -834,11 +834,22 @@ void MarkerTrackingMarker::init()
 void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName)
 {
     int pos = MarkerTracking::instance()->markers.size() + 1;
-    coTUIGroupBox *markerBox = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
-    markerBox->setPos(0, pos);
-    coTUIGroupBox *line1 = new coTUIGroupBox("",  markerBox->getID());
-    coTUIGroupBox *line2 = new coTUIGroupBox("",  markerBox->getID());
-    line2->setPos(0, 1);
+    
+    m_toggleConfigOff = new coTUIButton(configName,  MarkerTracking::instance()->artTab->getID());
+    m_toggleConfigOff->setPos(0, pos);
+    m_toggleConfigOff->setEventListener(this);
+
+    m_layoutGroup = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
+    m_layoutGroup->setHidden(true);
+    m_layoutGroup->setPos(0, pos);
+
+    m_toggleConfigOn = new coTUIButton("hide",  m_layoutGroup->getID());
+    m_toggleConfigOn->setEventListener(this);
+
+    coTUIGroupBox *line1 = new coTUIGroupBox("",  m_layoutGroup->getID());
+    line1->setPos(0, 1);
+    coTUIGroupBox *line2 = new coTUIGroupBox("",  m_layoutGroup->getID());
+    line2->setPos(0, 2);
 
     m_pattID = std::make_unique<covTUIEditField>(MarkerTracking::instance()->markerDatabase(), configName, "pattern", line1, configName);
     m_pattID->ui()->setPos(0, 0);
@@ -846,10 +857,12 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
 
     m_size = std::make_unique<covTUIEditFloatField>(MarkerTracking::instance()->markerDatabase(), configName, "size", line1, 80);
     m_size->ui()->setPos(1, 0);
+    m_size->ui()->setLabel("size");
     m_size->setUpdater([this](){updateMatrices();});
 
     m_pattGroup = std::make_unique<covTUIEditIntField>(MarkerTracking::instance()->markerDatabase(), configName, "group", line1, noMarkerGroup);
     m_pattGroup->ui()->setPos(2,0);
+    m_pattGroup->ui()->setLabel("group");
     m_pattGroup->setUpdater([this](){updateMatrices();});
 
     m_objectMarker = std::make_unique<covTUIToggleButton>(MarkerTracking::instance()->markerDatabase(), configName, "objectMarker", line2, false);
@@ -871,18 +884,18 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     calibrate->setEventListener(this);
     calibrate->setState(false);
 
-    m_xyz = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "xyz", markerBox, std::array<double, 3>{0.0, 0.0, 0.0});
-    m_xyz->box()->setPos(0, 2);
+    m_xyz = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "xyz", m_layoutGroup, std::array<double, 3>{0.0, 0.0, 0.0});
+    m_xyz->box()->setPos(0, 3);
     m_xyz->setUpdater([this](){
             updateMatrices();
         });
 
-    m_hpr = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "hpr", markerBox, std::array<double, 3>{0.0, 0.0, 0.0});
-    m_hpr->box()->setPos(0, 3);
+    m_hpr = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "hpr", m_layoutGroup, std::array<double, 3>{0.0, 0.0, 0.0});
+    m_hpr->box()->setPos(0, 4);
     m_hpr->setUpdater([this](){
             updateMatrices();
         });
-
+    
 }
 
 
@@ -922,14 +935,20 @@ void MarkerTrackingMarker::updateMatrices()
 
 void MarkerTrackingMarker::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == displayQuad)
+    if(tUIItem == m_toggleConfigOff || tUIItem == m_toggleConfigOn)
+    {
+        m_toggleConfigOff->setHidden(tUIItem == m_toggleConfigOff);
+        m_layoutGroup->setHidden(tUIItem == m_toggleConfigOn);
+        return;
+    }
+    else if (tUIItem == displayQuad)
     {
         if (displayQuad->getState())
             cover->getObjectsRoot()->addChild(markerQuad.get());
         else
             cover->getObjectsRoot()->removeChild(markerQuad.get());
     }
-    if (tUIItem == calibrate)
+    else if (tUIItem == calibrate)
     {
         if(calibrate->getState())
         {
