@@ -31,6 +31,7 @@
 
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/SelectionList.h>
 
 using namespace osg;
 using covise::coCoviseConfig;
@@ -72,7 +73,8 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
         if (planeNumber >= numClip)
             return;
         *plane[planeNumber].enabled = true;
-        cover->getObjectsRoot()->addClipPlane(plane[planeNumber].clip.get());
+        if (auto *cn = plane[planeNumber].getClipNode())
+            cn->addClipPlane(plane[planeNumber].clip.get());
         plane[planeNumber].PickInteractorButton->setState(true);
         plane[planeNumber].EnableButton->setState(true);
     }
@@ -82,7 +84,8 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
         if (planeNumber >= numClip)
             return;
         *plane[planeNumber].enabled = false;
-        cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
+        if (auto *cn = plane[planeNumber].getClipNode())
+            cn->removeClipPlane(plane[planeNumber].clip.get());
         plane[planeNumber].EnableButton->setState(true);
         plane[planeNumber].PickInteractorButton->setState(false);
         plane[planeNumber].PickInteractorButton->trigger();
@@ -95,7 +98,8 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
         if (!*plane[planeNumber].enabled)
         {
             *plane[planeNumber].enabled = true;
-            cover->getObjectsRoot()->addClipPlane(plane[planeNumber].clip.get());
+            if (auto *cn = plane[planeNumber].getClipNode())
+                cn->addClipPlane(plane[planeNumber].clip.get());
             plane[planeNumber].EnableButton->setState(true);
         }
     }
@@ -107,7 +111,8 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
         if (*plane[planeNumber].enabled)
         {
             *plane[planeNumber].enabled = false;
-            cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
+            if (auto *cn = plane[planeNumber].getClipNode())
+                cn->removeClipPlane(plane[planeNumber].clip.get());
             plane[planeNumber].EnableButton->setState(false);
         }
     }
@@ -158,11 +163,13 @@ bool ClipPlanePlugin::init()
             std::cerr << "ClipPlane: updating enabled for " << i << " from config" << std::endl;
             if (plane[i].EnableButton)
                 plane[i].EnableButton->setState(val);
-            ClipNode *clipNode = cover->getObjectsRoot();
-            if (val)
-                clipNode->addClipPlane(plane[i].clip.get());
-            else
-                clipNode->removeClipPlane(plane[i].clip.get());
+            if (auto *cn = plane[i].getClipNode())
+            {
+                if (val)
+                    cn->addClipPlane(plane[i].clip.get());
+                else
+                    cn->removeClipPlane(plane[i].clip.get());
+            }
         });
 
         std::vector<double> veq(4);
@@ -213,11 +220,13 @@ bool ClipPlanePlugin::init()
         //plane[i].EnableButton->setPos(0, i);
         plane[i].EnableButton->setCallback([this, i](bool state) {
             *plane[i].enabled = state;
-            ClipNode *clipNode = cover->getObjectsRoot();
-            if (state)
-                clipNode->addClipPlane(plane[i].clip.get());
-            else
-                clipNode->removeClipPlane(plane[i].clip.get());
+            if (auto *cn = plane[i].getClipNode())
+            {
+                if (state)
+                    cn->addClipPlane(plane[i].clip.get());
+                else
+                    cn->removeClipPlane(plane[i].clip.get());
+            }
         });
         plane[i].EnableButton->setState(*plane[i].enabled);
 
@@ -226,64 +235,68 @@ bool ClipPlanePlugin::init()
         plane[i].PickInteractorButton->setText(name);
         plane[i].PickInteractorButton->setShared(true);
         //plane[i].PickInteractorButton->setPos(1, i);
-        plane[i].PickInteractorButton->setCallback([this, i](bool state){
-            ClipNode *clipNode = cover->getObjectsRoot();
-            if (state)
+        plane[i].PickInteractorButton->setCallback(
+            [this, i](bool state)
             {
-                plane[i].showPickInteractor_ = true;
-                plane[i].pickInteractor->show();
-                plane[i].pickInteractor->enableIntersection();
-
-                *plane[i].enabled = true;
-                plane[i].EnableButton->setState(true);
-                clipNode->addClipPlane(plane[i].clip.get());
-
-                if (!plane[i].valid && !plane[i].pickInteractor->isInitializedThroughSharedState())
+                auto *clipNode = plane[i].getClipNode();
+                if (state)
                 {
-                    setInitialEquation(i);
+                    plane[i].showPickInteractor_ = true;
+                    plane[i].pickInteractor->show();
+                    plane[i].pickInteractor->enableIntersection();
+
+                    *plane[i].enabled = true;
+                    plane[i].EnableButton->setState(true);
+                    clipNode->addClipPlane(plane[i].clip.get());
+
+                    if (!plane[i].valid && !plane[i].pickInteractor->isInitializedThroughSharedState())
+                    {
+                        setInitialEquation(i);
+                    }
                 }
-            }
-            else
-            {
-                plane[i].showPickInteractor_ = false;
-                plane[i].pickInteractor->hide();
-            }
-        });
+                else
+                {
+                    plane[i].showPickInteractor_ = false;
+                    plane[i].pickInteractor->hide();
+                }
+            });
 
         sprintf(name, "Direct interactor for plane %d", i);
         plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
         plane[i].DirectInteractorButton->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
         plane[i].DirectInteractorButton->setText(name);
-        plane[i].DirectInteractorButton->setCallback([this, i](bool state){
-            ClipNode *clipNode = cover->getObjectsRoot();
-            if (state)
+        plane[i].DirectInteractorButton->setCallback(
+            [this, i](bool state)
             {
-                plane[i].showDirectInteractor_ = true;
-                if (!plane[i].directInteractor->isRegistered())
+                auto *clipNode = plane[i].getClipNode();
+                if (state)
                 {
-                    vrui::coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
-                    *plane[i].enabled = true;
-                    clipNode->addClipPlane(plane[i].clip.get());
-                    plane[i].EnableButton->setState(true);
+                    plane[i].showDirectInteractor_ = true;
+                    if (!plane[i].directInteractor->isRegistered())
+                    {
+                        vrui::coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
+                        *plane[i].enabled = true;
+                        clipNode->addClipPlane(plane[i].clip.get());
+                        plane[i].EnableButton->setState(true);
+                    }
+                    if (!plane[i].relativeInteractor->isRegistered())
+                    {
+                        vrui::coInteractionManager::the()->registerInteraction(plane[i].relativeInteractor);
+                    }
                 }
-                if (!plane[i].relativeInteractor->isRegistered())
+                else
                 {
-                    vrui::coInteractionManager::the()->registerInteraction(plane[i].relativeInteractor);
+                    plane[i].showDirectInteractor_ = false;
+                    if (plane[i].directInteractor->isRegistered())
+                    {
+                        vrui::coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
+                    }
+                    if (plane[i].relativeInteractor->isRegistered())
+                    {
+                        vrui::coInteractionManager::the()->unregisterInteraction(plane[i].relativeInteractor);
+                    }
                 }
-            }
-            else
-            {
-                plane[i].showDirectInteractor_ = false;
-                if (plane[i].directInteractor->isRegistered())
-                {
-                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
-                }
-                if (plane[i].relativeInteractor->isRegistered())
-                {
-                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].relativeInteractor);
-                }
-            }
-        });
+            });
         plane[i].DirectInteractorButton->setVisible(coVRConfig::instance()->has6DoFInput());
 
         plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
@@ -301,7 +314,31 @@ bool ClipPlanePlugin::init()
         plane[i].pickInteractor->setShared(true);
 
         plane[i].clip = cover->getClipPlane(i);
+
+        plane[i].RootChoice = new ui::SelectionList(group, "Root" + std::to_string(i));
+        plane[i].RootChoice->setText("Attach to");
+        plane[i].RootChoice->setCallback(
+            [this, i](int idx)
+            {
+                for (auto it = clipNodes.begin(); it != clipNodes.end(); ++it)
+                {
+                    it->node->removeClipPlane(plane[i].clip);
+                }
+
+                auto it = clipNodes.begin();
+                for (int i = 0; i < idx; ++i)
+                {
+                    if (it == clipNodes.end())
+                        break;
+                    ++it;
+                }
+                auto *node = it == clipNodes.end() ? cover->getObjectsRoot() : it->node.get();
+                plane[i].setClipNode(node);
+                node->addClipPlane(plane[i].clip);
+            });
     }
+    clipNodes.push_back({"", "Scene", cover->getObjectsRoot()});
+    updateRootChoices();
 
     active = false;
     cover->setActiveClippingPlane(0);
@@ -321,12 +358,14 @@ ClipPlanePlugin::~ClipPlanePlugin()
 {
     cover->getScene()->removeChild(interactorTransform.get());
 
-    ClipNode *clipNode = cover->getObjectsRoot();
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
-        if (plane[i].clip.get())
+        if (auto *cn = plane[i].getClipNode())
         {
-            clipNode->removeClipPlane(plane[i].clip.get());
+            if (plane[i].clip.get())
+            {
+                cn->removeClipPlane(plane[i].clip.get());
+            }
         }
     }
 }
@@ -675,6 +714,70 @@ void ClipPlanePlugin::Plane::set(const osg::Vec4d &eq)
     {
         clip->setClipPlane(eq);
         valid = true;
+    }
+}
+
+osg::ClipNode *ClipPlanePlugin::Plane::getClipNode() const
+{
+    if (clipNode)
+        return clipNode;
+
+    return cover->getObjectsRoot();
+}
+
+void ClipPlanePlugin::Plane::setClipNode(osg::ClipNode *cn)
+{
+    clipNode = cn;
+}
+
+void ClipPlanePlugin::addNodeFromPlugin(osg::Node *node, const RenderObject *, coVRPlugin *addingPlugin)
+{
+    if (auto *cn = dynamic_cast<osg::ClipNode *>(node))
+    {
+        clipNodes.push_back({addingPlugin ? addingPlugin->getName() : "", cn->getName(), cn});
+    }
+    updateRootChoices();
+}
+
+void ClipPlanePlugin::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
+{
+    auto *cn = dynamic_cast<osg::ClipNode *>(node);
+    if (!cn)
+        cn = dynamic_cast<osg::ClipNode *>(realNode);
+    if (!cn)
+        return;
+    for (auto it = clipNodes.begin(); it != clipNodes.end(); ++it)
+    {
+        if (it->node.get() == cn)
+        {
+            clipNodes.erase(it);
+            break;
+        }
+    }
+    updateRootChoices();
+}
+
+void ClipPlanePlugin::updateRootChoices()
+{
+    std::map<std::string, std::list<std::string>> lists;
+    for (auto &cn: clipNodes)
+    {
+        std::string name = cn.plugin;
+        if (!name.empty())
+            name += ": ";
+        name += cn.name;
+        lists[cn.plugin].push_back(name);
+    }
+
+    std::vector<std::string> list;
+    for (auto &l: lists)
+    {
+        std::copy(l.second.begin(), l.second.end(), std::back_inserter(list));
+    }
+
+    for (int i = 0; i < cover->getNumClipPlanes(); i++)
+    {
+        plane[i].RootChoice->setList(list);
     }
 }
 

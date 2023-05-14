@@ -34,6 +34,7 @@ namespace ui {
 class Button;
 class Menu;
 class Group;
+class SelectionList;
 }
 }
 
@@ -57,6 +58,7 @@ private:
         ui::Button *EnableButton = nullptr;
         ui::Button *DirectInteractorButton = nullptr;
         ui::Button *PickInteractorButton = nullptr;
+        ui::SelectionList *RootChoice = nullptr;
         vrui::coTrackerButtonInteraction *directInteractor = nullptr;
         vrui::coRelativeInputInteraction *relativeInteractor = nullptr;
         coVR3DTransRotInteractor *pickInteractor = nullptr;
@@ -64,10 +66,20 @@ private:
         Plane();
         ~Plane();
         void set(const osg::Vec4d &eq);
+        osg::ref_ptr<osg::ClipNode> clipNode;
+        osg::ClipNode *getClipNode() const;
+        void setClipNode(osg::ClipNode *cn);
+    };
+    struct ClipNodeData
+    {
+        std::string plugin;
+        std::string name;
+        osg::ref_ptr<osg::ClipNode> node;
     };
     std::array<Plane, coVRPluginSupport::MAX_NUM_CLIP_PLANES> plane;
     std::unique_ptr<vrb::SharedState<std::vector<double>>> sharedPlanes[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
     //vrb::SharedState<std::vector<double>> sharedPlane_1, sharedPlane_2, sharedPlane_3;
+    void updateRootChoices();
 
     ui::Menu *clipMenu = nullptr;
 
@@ -84,6 +96,7 @@ private:
     void setInitialEquation(int);
     osg::Matrix equationToMatrix(int);
     bool m_directInteractorShow = false, m_directInteractorEnable = false;
+    std::list<ClipNodeData> clipNodes;
 
 public:
     ClipPlanePlugin();
@@ -91,4 +104,6 @@ public:
     bool init() override;
     void message(int toWhom, int type, int len, const void *buf) override;
     void preFrame() override;
+    void addNodeFromPlugin(osg::Node *node, const RenderObject *, coVRPlugin *addingPlugin) override;
+    void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode) override;
 };
