@@ -17,7 +17,7 @@ using namespace opencover;
 using osg::Vec3;
 using osg::Vec4;
 
-CoviseSG::CoviseSG()
+CoviseSG::CoviseSG(coVRPlugin *plugin): m_plugin(plugin)
 {
     sgDebug_ = getenv("COVISE_SG_DEBUG") != NULL;
     hostName_ = getenv("HOST");
@@ -197,7 +197,7 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
         if (sgDebug_)
             fprintf(stderr, "CoviseSG(%s)::addNode2 adding node to objectsRoot\n", hostName_);
 
-        coVRPluginList::instance()->addNode(dcs, ro);
+        coVRPluginList::instance()->addNode(dcs, ro, m_plugin);
     }
     else
     {

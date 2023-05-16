@@ -47,6 +47,7 @@ CovisePlugin::CovisePlugin()
 {
     setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
+    new ObjectManager(this);
     new VRCoviseConnection();
     CoviseRender::set_custom_callback([this](const covise::Message &msg)
                                       { handleVrbMessage(msg); });

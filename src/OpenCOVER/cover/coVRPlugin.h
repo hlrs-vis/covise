@@ -173,6 +173,11 @@ public:
     {
     }
 
+    virtual void addNodeFromPlugin(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin)
+    {
+        return addNode(node, ro);
+    }
+
     //! this function is called if a node in the scene graph is removed
     virtual void removeNode(osg::Node *, bool isGroup, osg::Node *realNode)
     {

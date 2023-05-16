@@ -54,6 +54,7 @@ class RenderObject;
 class coTUIUITab;
 class coVRShader;
 class coInteractor;
+class coVRPlugin;
 
 struct ColorMap
 {
@@ -122,12 +123,13 @@ private:
 
     typedef std::map<std::string, CoviseRenderObject *> RenderObjectMap;
     RenderObjectMap m_roMap;
+    coVRPlugin *m_plugin = nullptr;
 
 public:
     static ObjectManager *instance();
 
     ~ObjectManager();
-    ObjectManager();
+    ObjectManager(coVRPlugin *plugin);
     void deleteObject(const char *name, bool groupobj = true);
     void addObject(const char *name, const covise::coDistributedObject *obj = NULL);
     void coviseError(const char *error);

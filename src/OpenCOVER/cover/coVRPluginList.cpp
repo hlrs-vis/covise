@@ -392,8 +392,7 @@ void coVRPluginList::notify(int level, const char *text) const
 
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
 {
-    DOALL(if (plugin != addingPlugin)
-              plugin->addNode(node, const_cast<RenderObject *>(ro)));
+    DOALL(if (plugin != addingPlugin) plugin->addNodeFromPlugin(node, const_cast<RenderObject *>(ro), addingPlugin));
 }
 
 void coVRPluginList::addObject(const RenderObject *container, osg::Group *parent,

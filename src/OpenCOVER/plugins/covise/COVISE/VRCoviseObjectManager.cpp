@@ -48,7 +48,6 @@
 #include <PluginUtil/coSphere.h>
 #include <cover/coVRPluginSupport.h>
 #include "coCoviseInteractor.h"
-#include "CoviseSG.h"
 #include <cover/coVRAnimationManager.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
@@ -127,23 +126,21 @@ void ColorMap::setMinMax(float min, float max)
 }
 
 
+static ObjectManager *singleton = NULL;
+
 //================================================================
 // ObjectManager methods
 //================================================================
 ObjectManager *ObjectManager::instance()
 {
-    static ObjectManager *singleton = NULL;
-    if (!singleton)
-    {
-        singleton = new ObjectManager;
-    }
+    assert(singleton);
     return singleton;
 }
 
-ObjectManager::ObjectManager()
-    : materialList(NULL)
-    , coviseSG(new CoviseSG)
+ObjectManager::ObjectManager(coVRPlugin *plugin): materialList(NULL), coviseSG(new CoviseSG(plugin))
 {
+    assert(!singleton);
+    singleton = this;
     if (cover->debugLevel(2))
         fprintf(stderr, "new ObjectManager\n");
 
@@ -167,6 +164,7 @@ ObjectManager::~ObjectManager()
     delete interactionA;
     delete materialList;
     delete GeometryManager::instance();
+    singleton = nullptr;
 }
 
 /*______________________________________________________________________*/
