@@ -94,6 +94,8 @@ void CoviseSG::deleteNode(const char *nodeName, bool isGroup)
             }
             dcs = dcs->getNumParents() > 0 ? dcs->getParent(0) : NULL;
         }
+        if (dcs->getNumParents() > 0 && dcs->getParent(0)->getName() == nodeName)
+            dcs = dcs->getParent(0);
         coVRPluginList::instance()->removeNode(dcs, isGroup, node);
 
         if (osg::Sequence *seq = dynamic_cast<osg::Sequence *>(node))
@@ -174,12 +176,25 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
     if (sgDebug_)
         fprintf(stderr, "CoviseSG(%s)::addNode2 node=%p, parentNode=%p objectName= %s\n", hostName_, node, parent, ro->getName());
 
+
     //put a dcs above a geode - this is used by VRRotator
     osg::MatrixTransform *dcs = new osg::MatrixTransform();
     dcs->addChild(node);
     std::string name = node->getName();
     node->setName(name + "_Geom");
-    dcs->setName(name);
+    osg::Group *root = dcs;
+    if (parent)
+    {
+        dcs->setName(name);
+    }
+    else
+    {
+        root = new osg::ClipNode;
+        root->setName(name);
+        dcs->setName(name + "_Mat");
+        root->addChild(dcs);
+    }
+
     // disable intersection with ray
     if (const char *isect = ro->getAttribute("DO_ISECT"))
     {
@@ -189,19 +204,19 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
         node->setNodeMask(node->getNodeMask() & (~Isect::Intersection) & (~Isect::Update));
     }
 
-    m_addedNodeList[dcs->getName()] = node;
+    m_addedNodeList[root->getName()] = node;
 
     if (parent == NULL)
     {
-        VRSceneGraph::instance()->objectsRoot()->addChild(dcs);
+        VRSceneGraph::instance()->objectsRoot()->addChild(root);
         if (sgDebug_)
             fprintf(stderr, "CoviseSG(%s)::addNode2 adding node to objectsRoot\n", hostName_);
 
-        coVRPluginList::instance()->addNode(dcs, ro, m_plugin);
+        coVRPluginList::instance()->addNode(root, ro, m_plugin);
     }
     else
     {
-        parent->addChild(dcs);
+        parent->addChild(root);
         if (sgDebug_)
             fprintf(stderr, "CoviseSG(%s)::addNode2 adding node to parent\n", hostName_);
 
