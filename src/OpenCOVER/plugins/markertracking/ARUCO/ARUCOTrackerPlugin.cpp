@@ -383,7 +383,18 @@ bool ARUCOPlugin::init()
 
     opencvRunning = true;
     opencvThread = std::thread([this](){
-        opencvLoop();
+        try
+        {
+            opencvLoop();
+        }
+        catch (const cv::Exception &ex)
+        {
+            std::unique_lock<std::mutex> guard(opencvMutex);
+            opencvRunning = false;
+            MarkerTracking::instance()->running = false;
+            guard.unlock();
+            std::cerr << "error: unhandled OpenCV exception " << ex.what() << ", suspending ARUCO plugin" << std::endl;
+        }
     });
 
     return true;
