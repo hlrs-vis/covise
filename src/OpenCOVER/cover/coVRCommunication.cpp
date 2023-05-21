@@ -122,6 +122,24 @@ coVRCommunication::coVRCommunication()
 	sharedStateManager.reset(new SharedStateManager(registry.get()));
 }
 
+coVRCommunication::~coVRCommunication()
+{
+    onConnectCallbacks.clear();
+    onDisconnectCallbacks.clear();
+    onSessionChangedCallbacks.clear();
+
+    waitMessagesCallback = nullptr;
+    handleMessageCallback = nullptr;
+
+    sharedStateManager.reset();
+    registry.reset();
+
+    assert(s_instance);
+    coVRPartnerList::instance()->removePartner(me()->ID());
+    delete remoteNavInteraction;
+    s_instance = NULL;
+}
+
 void coVRCommunication::init()
 {
 	m_vrbMenu.reset(new VrbMenu());
@@ -175,15 +193,6 @@ const coVRPartner *coVRCommunication::me() const{
     return coVRPartnerList::instance()->me();
 }
 
-
-
-coVRCommunication::~coVRCommunication()
-{
-    assert(s_instance);
-    coVRPartnerList::instance()->removePartner(me()->ID());
-    delete remoteNavInteraction;
-    s_instance = NULL;
-}
 
 void coVRCommunication::update(clientRegClass *theChangedClass)
 {
@@ -889,5 +898,3 @@ void coVRCommunication::setFBData(IData *data)
         this->mfbData[locData->getId()] = locData;
     }
 }
-
-

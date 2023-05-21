@@ -286,6 +286,8 @@ VRCoviseConnection::~VRCoviseConnection()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "delete VRCoviseConnection\n");
+    coVRCommunication::instance()->setWaitMessagesCallback(nullptr);
+    coVRCommunication::instance()->setHandleMessageCallback(nullptr);
 }
 
 void VRCoviseConnection::sendQuit()
