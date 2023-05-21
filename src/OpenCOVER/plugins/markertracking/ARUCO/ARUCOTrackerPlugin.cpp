@@ -246,12 +246,15 @@ bool ARUCOPlugin::initAR()
 
         int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7); // 16 = ARUCO_DEFAULT
 
-#if( CV_VERSION_MAJOR < 4)
-        detectorParams = aruco::DetectorParameters::create();
+        if (!detectorParams)
+        {
+#if (CV_VERSION_MAJOR < 4)
+            detectorParams = aruco::DetectorParameters::create();
 #else
-        detectorParams = new aruco::DetectorParameters();
+            detectorParams = new aruco::DetectorParameters();
 #endif
-        
+        }
+
 #if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
         detectorParams->doCornerRefinement = true; // do corner refinement in markers
 #else
@@ -271,6 +274,10 @@ bool ARUCOPlugin::initAR()
 #endif
 
 #if( CV_VERSION_MAJOR >= 4)
+        if (detector)
+        {
+            detector.reset();
+        }
         detector = new cv::aruco::ArucoDetector(dictionary,*detectorParams);
 #endif
         msgQueue = -1;
@@ -382,20 +389,35 @@ bool ARUCOPlugin::init()
         return false;
 
     opencvRunning = true;
-    opencvThread = std::thread([this](){
-        try
+    opencvThread = std::thread(
+        [this]()
         {
-            opencvLoop();
-        }
-        catch (const cv::Exception &ex)
-        {
-            std::unique_lock<std::mutex> guard(opencvMutex);
-            opencvRunning = false;
-            MarkerTracking::instance()->running = false;
-            guard.unlock();
-            std::cerr << "error: unhandled OpenCV exception " << ex.what() << ", suspending ARUCO plugin" << std::endl;
-        }
-    });
+            for (;;)
+            {
+                try
+                {
+                    if (opencvRunning)
+                    {
+                        opencvLoop();
+                        if (!opencvRunning)
+                            return;
+                    }
+                    else
+                    {
+                        usleep(10000);
+                    }
+                }
+                catch (const cv::Exception &ex)
+                {
+                    std::unique_lock<std::mutex> guard(opencvMutex);
+                    opencvRunning = false;
+                    //MarkerTracking::instance()->running = false;
+                    guard.unlock();
+                    std::cerr << "error: unhandled OpenCV exception " << ex.what()
+                              << ", trying to reinitialize ARUCO plugin" << std::endl;
+                }
+            }
+        });
 
     return true;
 }
@@ -436,6 +458,16 @@ void ARUCOPlugin::preFrame()
 {
     if (MarkerTracking::instance()->running)
     {
+        std::unique_lock<std::mutex> guard(opencvMutex);
+        if (!opencvRunning)
+        {
+            if (initAR())
+            {
+                opencvRunning = true;
+            }
+            return;
+        }
+        guard.unlock();
 
 #ifndef _WIN32
         if (msgQueue > 0)
@@ -447,7 +479,7 @@ void ARUCOPlugin::preFrame()
         }
 #endif
 
-        std::lock_guard<std::mutex> guard(opencvMutex);
+        guard.lock();
         displayIdx = readyIdx;
 
         MarkerTracking::instance()->videoData = (unsigned char *)image[displayIdx].ptr();
