@@ -106,6 +106,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
         fprintf(stderr, "OpenCOVER: Starting up\n\n");
     opencover::OpenCOVER *Renderer = new opencover::OpenCOVER(&comm, shmBarrier);
     Renderer->run();
+    config.save();
     delete Renderer;
 
     return 0;

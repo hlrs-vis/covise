@@ -306,6 +306,7 @@ int main(int argc, char *argv[])
         Renderer = new opencover::OpenCOVER();
     }
     Renderer->run();
+    config.save();
     delete Renderer;
 
 
