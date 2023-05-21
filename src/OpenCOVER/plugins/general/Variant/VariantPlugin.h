@@ -62,10 +62,11 @@ class VariantMarker
 {
 public:
     VariantMarker(std::string entryName);
-    ~VariantMarker() {};
-    MarkerTrackingMarker* marker;
+    ~VariantMarker();
+    std::set<MarkerTrackingMarker *> markerSet;
     std::string markerName;
     std::string variants;
+    std::set<std::string> variantSet;
     float scale = -1.0;
 };
 
@@ -152,7 +153,8 @@ private:
     std::map<std::string, coTUIToggleButton *> tui_header_trans;
 
     std::list<Variant *> varlist;
-    std::list<VariantMarker *> variantMarkers;
+    std::list<VariantMarker> variantMarkers;
+    const VariantMarker *activatedMarker = nullptr;
 
     std::map<osg::Node *, Variant *> varmap;
 

@@ -37,6 +37,7 @@
 #include <numeric>
 #include "VrmlNodeVariant.h"
 #include <vrml97/vrml/VrmlNamespace.h>
+#include <util/string_util.h>
 
 using namespace covise;
 using namespace opencover;
@@ -45,14 +46,22 @@ VariantPlugin *VariantPlugin::plugin = NULL;
 
 VariantMarker::VariantMarker(std::string EntryName)
 {
-
-    std::string markerName = coCoviseConfig::getEntry("markerName", EntryName);
+    std::string markerNames = coCoviseConfig::getEntry("markerNames", EntryName);
     std::string variants = coCoviseConfig::getEntry("variants", EntryName);
     float scale = coCoviseConfig::getFloat("scale", EntryName, -1.0);
 
-    marker = MarkerTracking::instance()->getMarker(markerName);
+    auto markerVec = split(markerNames, ';', true);
+    for (const auto &m: markerVec)
+    {
+        markerSet.insert(MarkerTracking::instance()->getMarker(m));
+    }
 
+    auto varVec = split(variants, ';', true);
+    for (const auto &v: varVec)
+        variantSet.insert(v);
 }
+
+VariantMarker::~VariantMarker() = default;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
@@ -74,7 +83,7 @@ VariantPlugin::VariantPlugin()
     for (const auto& varMarkerName : variantEntries)
     {
         std::string EntryName = std::string("COVER.Plugin.Variant.Marker") + varMarkerName.first;
-        variantMarkers.push_back(new VariantMarker(EntryName));
+        variantMarkers.emplace_back(EntryName);
     }
 
     
@@ -230,14 +239,24 @@ VariantPlugin::~VariantPlugin()
 void
 VariantPlugin::preFrame()
 {
-
-
+    const VariantMarker *toActivate = nullptr;
     for (const auto& variantMarker : variantMarkers)
     {
-        if (variantMarker->marker->isVisible())
+        for (const auto &m: variantMarker.markerSet)
         {
-            setVariant(variantMarker->variants);
+            if (m->isVisible())
+            {
+                if (!toActivate)
+                    toActivate = &variantMarker;
+                if (activatedMarker == &variantMarker)
+                    toActivate = nullptr;
+            }
         }
+    }
+    if (toActivate)
+    {
+        setVariant(toActivate->variants);
+        activatedMarker = toActivate;
     }
 
     sensorList.update();
