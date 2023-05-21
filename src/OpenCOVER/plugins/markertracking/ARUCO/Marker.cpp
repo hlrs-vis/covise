@@ -6,10 +6,10 @@ std::array<cv::Vec3d, 4> getMarkerCorners(const opencover::MarkerTrackingMarker 
 {
     std::array<cv::Vec3d, 4> corners;
     auto size = arToolKitMarker->getSize();
-    corners[0] = (cv::Vec3d(-size / 2.f, size / 2.f, 0));
-    corners[1] = (cv::Vec3d(size / 2.f, size / 2.f, 0));
-    corners[2] = (cv::Vec3d(size / 2.f, -size / 2.f, 0));
-    corners[3] = (cv::Vec3d(-size / 2.f, -size / 2.f, 0));
+    corners[3] = (cv::Vec3d(-size / 2.f, size / 2.f, 0));
+    corners[2] = (cv::Vec3d(size / 2.f, size / 2.f, 0));
+    corners[1] = (cv::Vec3d(size / 2.f, -size / 2.f, 0));
+    corners[0] = (cv::Vec3d(-size / 2.f, -size / 2.f, 0));
     for (size_t i = 0; i < 4; i++)
     {
         auto c = toOsg(corners[i]);
