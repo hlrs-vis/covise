@@ -338,6 +338,10 @@
                     <!--VideoDevice value="1" width="640" height="480" /-->
                     <CameraCalibrationFile value="/data/MarkerTracking/4KCalib.xml" />
                 </ALVAR>
+				<Variant>
+				 <Marker name="0" markerName="22" variants="v1" />
+				 <Marker name="2" markerName="44" variants="v2" />
+				</Variant>
 				<ARUCO value="ON">
                     <Capture value="on" />
 					<DictionaryID value="7" />

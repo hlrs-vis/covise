@@ -259,6 +259,8 @@ VariantPlugin::preFrame()
     {
         std::cerr << "Variant: Activating new variants via Marker: " << toActivate->variants << std::endl;
         setVariant(toActivate->variants);
+        if(toActivate->scale!=-1)
+            cover->setScale(toActivate->scale);
         activatedMarker = toActivate;
     }
 
