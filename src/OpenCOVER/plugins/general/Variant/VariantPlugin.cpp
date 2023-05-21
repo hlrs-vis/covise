@@ -43,6 +43,17 @@ using namespace opencover;
 
 VariantPlugin *VariantPlugin::plugin = NULL;
 
+VariantMarker::VariantMarker(std::string EntryName)
+{
+
+    std::string markerName = coCoviseConfig::getEntry("markerName", EntryName);
+    std::string variants = coCoviseConfig::getEntry("variants", EntryName);
+    float scale = coCoviseConfig::getFloat("scale", EntryName, -1.0);
+
+    marker = MarkerTracking::instance()->getMarker(markerName);
+
+}
+
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
@@ -57,6 +68,15 @@ VariantPlugin::VariantPlugin()
     _interactionA = new vrui::coTrackerButtonInteraction(vrui::coInteraction::ButtonA, "MoveMode", vrui::coInteraction::Medium);
     tmpVec.set(1, 1, 1);
     boi = NULL;
+
+
+    coCoviseConfig::ScopeEntries variantEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Variant.Marker");
+    for (const auto& varMarkerName : variantEntries)
+    {
+        std::string EntryName = std::string("COVER.Plugin.Variant.Marker") + varMarkerName.first;
+        variantMarkers.push_back(new VariantMarker(EntryName));
+    }
+
     
     VrmlNamespace::addBuiltIn(VrmlNodeVariant::defineType());
 }
@@ -210,6 +230,16 @@ VariantPlugin::~VariantPlugin()
 void
 VariantPlugin::preFrame()
 {
+
+
+    for (const auto& variantMarker : variantMarkers)
+    {
+        if (variantMarker->marker->isVisible())
+        {
+            setVariant(variantMarker->variants);
+        }
+    }
+
     sensorList.update();
 
     static osg::Matrix invStartHand;
