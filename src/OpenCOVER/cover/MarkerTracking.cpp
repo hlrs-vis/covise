@@ -863,7 +863,8 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     coTUIGroupBox *line2 = new coTUIGroupBox("",  m_layoutGroup->getID());
     line2->setPos(0, 2);
 
-    m_pattID = std::make_unique<covTUIEditField>(MarkerTracking::instance()->markerDatabase(), configName, "pattern", line1, configName);
+    m_pattID = std::make_unique<covTUIEditField>(MarkerTracking::instance()->markerDatabase(), configName, "pattern",
+                                                 line1, "");
     m_pattID->ui()->setPos(0, 0);
     m_pattID->ui()->setEnabled(false);
 
