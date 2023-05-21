@@ -766,3 +766,20 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL
 ###
 vistle
 cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
+
+
+
+###
+fltk
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/fltk -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
+
+###
+freealut
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/alut -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;"c:/Progra~2/OpenAL 1.1 SDK"
+
+
+
+###
+Open Audio Server
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenAS -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/fltk;c:/src/externlibs/zebu/mxml;"c:/Progra~2/OpenAL 1.1 SDK";c:/src/externlibs/zebu/alut
+

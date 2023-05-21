@@ -156,7 +156,7 @@ void CrawlerPlugin::tabletEvent(coTUIElement *elem)
 
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------*/
-//-----WRL Importer für Elevation-Gird-----
+//-----WRL Importer fuer Elevation-Gird-----
 
 
 bool CrawlerPlugin::loadWRL(const char *path, PxU32 &xDimension, PxU32 &zDimension, PxU32 &xSpacing, PxU32 &zSpacing, PxReal &heightscale, std::vector<vector<PxReal>> &HeightMatrix)				
@@ -205,7 +205,7 @@ bool CrawlerPlugin::loadWRL(const char *path, PxU32 &xDimension, PxU32 &zDimensi
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------*/
-//OBJ-Importer für Kometenoberfläche von Chury
+//OBJ-Importer fuer Kometenoberflaeche von Chury
 
 
 
@@ -373,7 +373,7 @@ void CrawlerPlugin::initPhysics()
     gScene->addActor(*aHeightFieldActor);		//Add Heightfield to Scene
 
     /*-----------------------------------------------------------------------------------------------------------------------------------------*/
-    // Erstellen des Triangle-meshes für Kometenoberfläche von Chury
+    // Erstellen des Triangle-meshes fuer Kometenoberflaeche von Chury
 
 
 

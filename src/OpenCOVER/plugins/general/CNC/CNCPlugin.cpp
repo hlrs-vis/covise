@@ -1686,7 +1686,7 @@ void CNCPlugin::wpMillCutVec(int t)
     {
         int primPos = tree->getPrimitivePos();
 
-        piece->at(primPos)[2] = pathZ[t];  // unpräzise bezüglich Höhe Z. tatsächliche Fräserhöhe an Stelle piece-at(i) eventuell abweichend!
+        piece->at(primPos)[2] = pathZ[t];  // unpraezise bezueglich Hoehe Z. tatsaechliche Fraeserhoehe an Stelle piece-at(i) eventuell abweichend!
         piece->at(primPos + 1)[2] = pathZ[t];
         piece->at(primPos + 2)[2] = pathZ[t];
         piece->at(primPos + 3)[2] = pathZ[t];

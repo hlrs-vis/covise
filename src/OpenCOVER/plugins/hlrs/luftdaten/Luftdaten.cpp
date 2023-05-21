@@ -135,7 +135,7 @@ bool LuftdatenPlugin::init()
     
     mergeTimesteps();
     
-    if (sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps())
+    if ((int)sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps())
     {
         coVRAnimationManager::instance()->setNumTimesteps(sequenceList->getNumChildren(),sequenceList);
     }
