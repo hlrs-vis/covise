@@ -50,7 +50,7 @@ MarkerTracking::MarkerTracking()
     assert(!art);
     art = this;
     artTab = new coTUITab("MarkerTracking", coVRTui::instance()->mainFolder->getID());
-    artTab->setHidden(true); // hide until a marker is added
+    artTab->setHidden(true); // hide until a marker tracking plugin is loaded
     m_markerDatabase = cover->configFile("markerdatabase"); 
     m_markerDatabase->setSaveOnExit(true);
     OpenGLToOSGMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
@@ -477,7 +477,7 @@ MarkerTrackingMarker::~MarkerTrackingMarker()
 
 void MarkerTracking::update()
 {
-    artTab->setHidden(markers.empty());
+    artTab->setHidden(!isRunning());
 
     if (isRunning())
     {
