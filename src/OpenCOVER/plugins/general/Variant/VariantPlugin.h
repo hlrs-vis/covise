@@ -79,7 +79,6 @@ public:
     VariantPlugin();
     ~VariantPlugin() override;
 
-    // this will be called in PreFrame
     void preFrame() override;
     //this will be called by changing the selected object
     virtual bool selectionChanged() override;

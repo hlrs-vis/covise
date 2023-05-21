@@ -46,19 +46,21 @@ VariantPlugin *VariantPlugin::plugin = NULL;
 
 VariantMarker::VariantMarker(std::string EntryName)
 {
-    std::string markerNames = coCoviseConfig::getEntry("markerNames", EntryName);
-    std::string variants = coCoviseConfig::getEntry("variants", EntryName);
     float scale = coCoviseConfig::getFloat("scale", EntryName, -1.0);
 
+    std::string markerNames = coCoviseConfig::getEntry("markerNames", EntryName);
     auto markerVec = split(markerNames, ';', true);
     for (const auto &m: markerVec)
     {
         markerSet.insert(MarkerTracking::instance()->getMarker(m));
     }
 
+    std::string variants = coCoviseConfig::getEntry("variants", EntryName);
     auto varVec = split(variants, ';', true);
     for (const auto &v: varVec)
+    {
         variantSet.insert(v);
+    }
 }
 
 VariantMarker::~VariantMarker() = default;
@@ -82,7 +84,7 @@ VariantPlugin::VariantPlugin()
     coCoviseConfig::ScopeEntries variantEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Variant.Marker");
     for (const auto& varMarkerName : variantEntries)
     {
-        std::string EntryName = std::string("COVER.Plugin.Variant.Marker") + varMarkerName.first;
+        std::string EntryName = std::string("COVER.Plugin.Variant.Marker.") + varMarkerName.first;
         variantMarkers.emplace_back(EntryName);
     }
 
@@ -255,6 +257,7 @@ VariantPlugin::preFrame()
     }
     if (toActivate)
     {
+        std::cerr << "Variant: Activating new variants via Marker: " << toActivate->variants << std::endl;
         setVariant(toActivate->variants);
         activatedMarker = toActivate;
     }
