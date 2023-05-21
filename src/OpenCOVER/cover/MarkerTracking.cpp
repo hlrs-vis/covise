@@ -854,14 +854,18 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     m_layoutGroup = new coTUIFrame(configName,  MarkerTracking::instance()->artTab->getID());
     m_layoutGroup->setPos(1, pos+1);
     m_layoutGroup->setHidden(true);
+    m_configLabel = std::make_unique<coTUILabel>(configName,m_layoutGroup->getID());
+    m_configLabel->setLabel(configName);
+    m_configLabel->setPos(0,0);
 
     m_toggleConfigOn = new coTUIButton("hide",  m_layoutGroup->getID());
     m_toggleConfigOn->setEventListener(this);
+    m_toggleConfigOn->setPos(0, 1);
 
     coTUIGroupBox *line1 = new coTUIGroupBox("",  m_layoutGroup->getID());
-    line1->setPos(0, 1);
+    line1->setPos(0, 2);
     coTUIGroupBox *line2 = new coTUIGroupBox("",  m_layoutGroup->getID());
-    line2->setPos(0, 2);
+    line2->setPos(0, 3);
 
     m_pattID = std::make_unique<covTUIEditField>(MarkerTracking::instance()->markerDatabase(), configName, "pattern",
                                                  line1, "");
@@ -882,6 +886,7 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     m_objectMarker->setUpdater([this](){
         MarkerTracking::instance()->changeObjectMarker(this);
         updateMatrices();});
+    m_objectMarker->ui()->setPos(0, 0);
 
 
     m_vrmlToPf = std::make_unique<covTUIToggleButton>(MarkerTracking::instance()->markerDatabase(), configName, "vrml", line2, false);
@@ -898,13 +903,13 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     calibrate->setState(false);
 
     m_xyz = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "xyz", m_layoutGroup, std::array<double, 3>{0.0, 0.0, 0.0});
-    m_xyz->box()->setPos(0, 3);
+    m_xyz->box()->setPos(0, 4);
     m_xyz->setUpdater([this](){
             updateMatrices();
         });
 
     m_hpr = std::make_unique<covTUIEditFloatFieldVec3>(MarkerTracking::instance()->markerDatabase(), configName, "hpr", m_layoutGroup, std::array<double, 3>{0.0, 0.0, 0.0});
-    m_hpr->box()->setPos(0, 4);
+    m_hpr->box()->setPos(0, 5);
     m_hpr->setUpdater([this](){
             updateMatrices();
         });

@@ -194,6 +194,7 @@ private:
     coTUIButton *m_toggleConfigOff = nullptr;
     coTUIButton *m_toggleConfigOn = nullptr;
     coTUIFrame *m_layoutGroup = nullptr;
+    std::unique_ptr<coTUILabel> m_configLabel;
     std::unique_ptr<covTUIToggleButton> m_vrmlToPf;
     std::unique_ptr<covTUIToggleButton> m_objectMarker;
     std::unique_ptr<covTUIEditField> m_pattID;
