@@ -56,17 +56,29 @@ MarkerTracking::MarkerTracking()
     OpenGLToOSGMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
     PfToOpenGLMatrix.makeRotate(-M_PI / 2.0, 1, 0, 0);
     // auto g = new coTUIGroupBox("configure new marker", artTab->getID());
+    m_buttonsFrame = new coTUIFrame("config", artTab->getID());
+    m_buttonsFrame->setPos(0, 0);
+    m_trackingFrame = new coTUIFrame("tracking", artTab->getID());
+    m_trackingFrame->setPos(1, 0);
     
-    m_configureMarkerBtn = new coTUIButton("scan tracked markers", artTab->getID());
+    m_configureMarkerBtn = new coTUIButton("add new markers", m_buttonsFrame->getID());
     m_configureMarkerBtn->setEventListener(this);
+    m_configureMarkerBtn->setPos(0, 0);
+    m_saveBtn = new coTUIButton("save", m_buttonsFrame->getID());
+    m_saveBtn->setEventListener(this);
+    m_saveBtn->setPos(1, 0);
 
 }
 
-void MarkerTracking::tabletEvent(coTUIElement *tUIItem)
+void MarkerTracking::tabletPressEvent(coTUIElement *tUIItem)
 {
-    if(tUIItem == m_configureMarkerBtn && arInterface)
+    if (tUIItem == m_configureMarkerBtn && arInterface)
     {
         arInterface->createUnconfiguredTrackedMarkers();
+    }
+    if (tUIItem == m_saveBtn)
+    {
+        m_markerDatabase->save();
     }
 }
 
@@ -839,9 +851,9 @@ void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName
     m_toggleConfigOff->setPos(0, pos);
     m_toggleConfigOff->setEventListener(this);
 
-    m_layoutGroup = new coTUIGroupBox(configName,  MarkerTracking::instance()->artTab->getID());
+    m_layoutGroup = new coTUIFrame(configName,  MarkerTracking::instance()->artTab->getID());
+    m_layoutGroup->setPos(1, pos+1);
     m_layoutGroup->setHidden(true);
-    m_layoutGroup->setPos(0, pos);
 
     m_toggleConfigOn = new coTUIButton("hide",  m_layoutGroup->getID());
     m_toggleConfigOn->setEventListener(this);

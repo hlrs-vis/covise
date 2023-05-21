@@ -159,10 +159,11 @@ public:
     std::string m_MarkerTrackingVariant = "MarkerTracking";
     std::map<std::string, std::unique_ptr<MarkerTrackingMarker>> markers;
     bool testImage = false;
+    coTUIFrame* m_trackingFrame = nullptr;
 private:
     static MarkerTracking *art;
     MarkerTracking();
-    void tabletEvent(coTUIElement *tUIItem) override;
+    void tabletPressEvent(coTUIElement* tUIItem) override;
 
     std::string m_configPath;
     covise::Message msg;
@@ -171,7 +172,9 @@ private:
     int numObjectMarkers;
     std::vector<MarkerTrackingMarker *> objectMarkers;
     std::unique_ptr<opencover::config::File> m_markerDatabase;
-    coTUIButton *m_configureMarkerBtn = nullptr;
+    coTUIButton* m_configureMarkerBtn = nullptr;
+    coTUIButton* m_saveBtn = nullptr;
+    coTUIFrame* m_buttonsFrame = nullptr;
 };
 
 constexpr int noMarkerGroup = -1;
@@ -190,7 +193,7 @@ private:
 
     coTUIButton *m_toggleConfigOff = nullptr;
     coTUIButton *m_toggleConfigOn = nullptr;
-    coTUIGroupBox *m_layoutGroup = nullptr;
+    coTUIFrame *m_layoutGroup = nullptr;
     std::unique_ptr<covTUIToggleButton> m_vrmlToPf;
     std::unique_ptr<covTUIToggleButton> m_objectMarker;
     std::unique_ptr<covTUIEditField> m_pattID;

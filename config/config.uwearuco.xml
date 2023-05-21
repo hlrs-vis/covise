@@ -344,7 +344,7 @@
 					<markerBorderBits value="1" />
 					<minSideLengthCanonicalImg value="20" />
 					
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/MarkerTracking/default.yaml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />
