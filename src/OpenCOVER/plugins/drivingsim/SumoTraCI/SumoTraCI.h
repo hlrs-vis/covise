@@ -28,6 +28,8 @@
 #include <random>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <TrafficSimulation/PedestrianFactory.h>
+#include <TrafficSimulation/ImageDescription.h>
+
 
 namespace opencover
 {
@@ -36,6 +38,7 @@ class Slider;
 class Label;
 class Action;
 class Button;
+class FileBrowser;
 }
 }
 
@@ -109,6 +112,8 @@ private:
 
     bool initUI();
     bool compareTAZending(std::string& TAZ, std::string ending);
+    void preSwapBuffers(int windowNumber)  override;
+    void message(int toWhom, int type, int len, const void *buf) override;
     ui::Menu* traciMenu;
     ui::Menu* configEntriesMenu;
     
@@ -122,6 +127,8 @@ private:
     ui::Button *addTrafficUI;
     ui::Slider *trafficRateUI;
 
+    ui::FileBrowser *imageDescriptionFileUI;
+    ui::Button *recordImageDescriptionsUI; 
     //Modal split
     ui::Slider *modalSplitPassengerUI;
     ui::Button *fixModalSplitPassengerUI;
@@ -153,8 +160,8 @@ private:
     libsumo::SubscriptionResults pedestrianSimResults;
     std::vector<simData> currentResults;
     std::vector<simData> previousResults;
-        std::map<std::string, TrafficSimulation::AgentVehicle *> vehicleMap;
-        TrafficSimulation::AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
+    std::map<std::string, TrafficSimulation::AgentVehicle *> vehicleMap;
+    TrafficSimulation::AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
 
     osg::Group *vehicleGroup;
     std::string vehicleDirectory;
@@ -169,6 +176,9 @@ private:
     typedef std::map<std::string, TrafficSimulation::coEntity *> EntityMap;
 	EntityMap loadedEntities;
     
+    ImageDescriptor imageDescriptor;
+
+
     TrafficSimulation::PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     TrafficSimulation::PedestrianGeometry* createBicycle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);

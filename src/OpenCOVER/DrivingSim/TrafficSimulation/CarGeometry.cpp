@@ -481,6 +481,11 @@ void CarGeometry::setTransform(osg::Matrix m)
 	carTransform->setMatrix(m);
 }
 
+osg::MatrixTransform *CarGeometry::getTransform()
+{
+	return carTransform;
+}
+
 double CarGeometry::getBoundingCircleRadius()
 {
     return boundingCircleRadius;
