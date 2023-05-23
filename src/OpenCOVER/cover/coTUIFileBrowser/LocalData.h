@@ -57,7 +57,7 @@ public:
     void setSelectedPath(std::string path) override;
     std::string getSelectedPath() override;
 
-    std::string resolveToAbsolute(std::string dir);
+    std::string resolveToAbsolute(const std::string &dir);
 
 private:
     coTUIElement *mTUIElement;
