@@ -8,6 +8,7 @@ add_covise_library(coOpenConfig ${CONFIG_SOURCES} ${CONFIG_HEADERS} ${COVCONFIG_
 target_include_directories(coOpenConfig SYSTEM PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 target_compile_definitions(coOpenConfig PRIVATE CONFIG_NAMESPACE=opencover COVCONFIG_OPENCOVER)
 target_include_directories(coOpenConfig PRIVATE ${COVCONFIG_PRIVATE_INCLUDES})
+target_link_libraries(coOpenConfig PRIVATE ${COVCONFIG_PRIVATE_LIBRARIES})
 covise_install_target(coOpenConfig)
 covise_install_headers(OpenConfig ${CONFIG_HEADERS})
 covise_install_headers(OpenConfig/covconfig ${COVCONFIG_HEADERS})
