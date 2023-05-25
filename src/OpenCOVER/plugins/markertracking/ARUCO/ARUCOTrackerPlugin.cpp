@@ -67,6 +67,10 @@ using std::endl;
 #include <sys/msg.h>
 #endif
 
+#if (CV_MAJOR_VERSION < 3 || (CV_MAJOR_VERSION == 3 && CV_MINOR_VERSION < 1))
+#error "At least OpenCV version 3.1 is required"
+#endif
+
 //#define ARUCO_DEBUG
 
 // ----------------------------------------------------------------------------
@@ -367,15 +371,6 @@ bool ARUCOPlugin::init()
 #ifdef ARUCO_DEBUG
     std::cout << "ARUCOPlugin::init()" << std::endl;
 #endif
-    
-    // check for opencv version
-    std::cerr << "using opencv version " << CV_VERSION << std::endl;
-
-    if (CV_MAJOR_VERSION < 3 || (CV_MAJOR_VERSION == 3 && CV_MINOR_VERSION < 1))
-    {
-        std::cerr << "error: ARUCOPlugin requires opencv version >= 3.1" << std::endl;
-        return false;
-    }
 
     // class init
     bDrawDetMarker = true;
