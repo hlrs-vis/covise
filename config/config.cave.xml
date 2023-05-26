@@ -7,8 +7,8 @@
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
-   <StartCommand value="sudo nvidia-smi -ac 4513,1657" />
-   <ExitCommand value="sudo nvidia-smi -rac" />
+   <StartCommand value="PATH=/usr/bin LD_LIBRARY_PATH= sudo nvidia-smi -ac 4513,1657" />
+   <ExitCommand value="PATH=/usr/bin LD_LIBRARY_PATH= sudo nvidia-smi -rac" />
   </COVER>
  </GLOBAL>
 
