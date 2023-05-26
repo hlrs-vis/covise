@@ -973,7 +973,7 @@ void CNCPlugin::createWorkpiece(Group *parent)
     setWpResolution();
     setWpMaterial();
 
-    treeRoot = new TreeNode(Point(-1, -1), Point(wpTotalQuadsX, wpTotalQuadsY), 0, wpMaxZ, nullptr);
+    treeRoot = new TreeNode(Point(0, 0), Point(wpTotalQuadsX, wpTotalQuadsY), 0, wpMaxZ, nullptr);    //hier
     wpAddQuadsToTree(treeRoot);
     wpCreateTimestepVector(treeRoot);
 
@@ -1042,10 +1042,10 @@ void CNCPlugin::wpAddQuadsG0G1(double z, int t, TreeNode* treeRoot)
         int ixMax = (boxMaxX - wpMinX) / wpResX;
         int iyMin = (boxMinY - wpMinY) / wpResY;
         int iyMax = (boxMaxY - wpMinY) / wpResY;
-        if (ixMin < 0)
-            ixMin = 0;
-        if (iyMin < 0)
-            iyMin = 0;
+        if (ixMin < 1)          //hier
+            ixMin = 1;
+        if (iyMin < 1)
+            iyMin = 1;
         if (ixMax > wpTotalQuadsX)
             ixMax = wpTotalQuadsX;
         if (iyMax > wpTotalQuadsY)
@@ -1056,8 +1056,8 @@ void CNCPlugin::wpAddQuadsG0G1(double z, int t, TreeNode* treeRoot)
             for (int ix = ixMin; ix <= ixMax; ix++)
             {
                 int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
-                double wpQuadIXCenter = wpMinX + ix * wpResX + wpResX / 2;
-                double wpQuadIYCenter = wpMinY + iy * wpResY + wpResY / 2;
+                double wpQuadIXCenter = wpMinX + ix * wpResX - wpResX / 2;      //hier
+                double wpQuadIYCenter = wpMinY + iy * wpResY - wpResY / 2;
                 double dist = distancePointLineSegment(wpQuadIXCenter, wpQuadIYCenter, pathX[t - 1], pathY[t - 1], pathX[t], pathY[t]);
                 if (dist < cuttingRad)
                 {   
@@ -1082,10 +1082,10 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
         int ixMax = (boxMaxX - wpMinX) / wpResX;
         int iyMin = (boxMinY - wpMinY) / wpResY;
         int iyMax = (boxMaxY - wpMinY) / wpResY;
-        if (ixMin < 0)
-            ixMin = 0;
-        if (iyMin <= 0)
-            iyMin = 0;
+        if (ixMin < 1)      //hier
+            ixMin = 1;
+        if (iyMin <= 1)
+            iyMin = 1;
         if (ixMax > wpTotalQuadsX)
             ixMax = wpTotalQuadsX;
         if (iyMax > wpTotalQuadsY)
@@ -1099,8 +1099,8 @@ void CNCPlugin::wpAddQuadsG2G3(double z, int t, TreeNode* treeRoot)
             for (int ix = ixMin; ix <= ixMax; ix++)
             {
                 int iPoint = ix * 4 + iy * wpTotalQuadsX * 4;
-                double wpQuadIXCenter = wpMinX + ix * wpResX + wpResX / 2;
-                double wpQuadIYCenter = wpMinY + iy * wpResY + wpResY / 2;
+                double wpQuadIXCenter = wpMinX + ix * wpResX - wpResX / 2;      //hier
+                double wpQuadIYCenter = wpMinY + iy * wpResY - wpResY / 2;
                 double distPointCircle = abs(distancePointPoint(pathCenterX[t], pathCenterY[t], wpQuadIXCenter, wpQuadIYCenter) - arcRadius);
                 if (distPointCircle < cuttingRad)
                 {
