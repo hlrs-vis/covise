@@ -338,7 +338,7 @@ void ARUCOPlugin::initUI()
     uiMenu->setText("ARUCO");
 
     uiBtnDrawDetMarker = new ui::Button(uiMenu, "uiBtnDrawDetMarker");
-    uiBtnDrawDetMarker->setText("draw detected markers");
+    uiBtnDrawDetMarker->setText("Draw detected markers");
     uiBtnDrawDetMarker->setEnabled(true);
     uiBtnDrawDetMarker->setState(bDrawDetMarker);
     uiBtnDrawDetMarker->setCallback([this](bool state)
@@ -347,7 +347,7 @@ void ARUCOPlugin::initUI()
     });
     
     uiBtnDrawRejMarker = new ui::Button(uiMenu, "uiBtnDrawRejMarker");
-    uiBtnDrawRejMarker->setText("draw rejected markers");
+    uiBtnDrawRejMarker->setText("Draw rejected markers");
     uiBtnDrawRejMarker->setEnabled(true);
     uiBtnDrawRejMarker->setState(bDrawRejMarker);
     uiBtnDrawRejMarker->setCallback([this](bool state)
@@ -356,7 +356,7 @@ void ARUCOPlugin::initUI()
     });
 
     uiBtnCalib = new ui::Action(uiMenu, "calibrate");
-    uiBtnCalib->setText("calibrate");
+    uiBtnCalib->setText("Calibrate camera");
     uiBtnCalib->setEnabled(true);
     uiBtnCalib->setCallback([this]()
     {
