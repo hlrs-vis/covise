@@ -111,6 +111,10 @@ SidecarConfigBridge::~SidecarConfigBridge()
         std::ofstream f(temp);
         f << m_toml;
         f.close();
+        std::string backup = m_file + ".backup";
+        std::remove(backup.c_str());
+        std::rename(m_file.c_str(), backup.c_str());
+        std::remove(m_file.c_str());
         if (std::rename(temp.c_str(), m_file.c_str()) != 0)
         {
             std::cerr << "failed to move updated config to " << m_file << std::endl;
