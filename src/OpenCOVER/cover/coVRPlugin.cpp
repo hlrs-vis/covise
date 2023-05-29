@@ -11,25 +11,18 @@
 #include <iostream>
 #include <OpenConfig/access.h>
 
+// #ifndef COVER_PLUGIN_NAME
+// #define COVER_PLUGIN_NAME ""
+// #endif
+
 using namespace opencover;
 
+std::string coVRPlugin::coverPluginName = "";
+
 coVRPlugin::coVRPlugin()
-    : m_initDone(false)
-    , handle(NULL)
-    , m_outstandingTimestep(-1)
+:m_name(coverPluginName)
 {
-}
-
-coVRPlugin::~coVRPlugin()
-{
-}
-
-void coVRPlugin::setName(const char *name)
-{
-    if (name)
-        m_name = name;
-    else
-        m_name = "";
+    assert(!m_name.empty());
 }
 
 void coVRPlugin::commitTimestep(int t)

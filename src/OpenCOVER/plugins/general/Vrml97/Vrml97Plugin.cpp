@@ -329,8 +329,6 @@ Vrml97Plugin::Vrml97Plugin()
     }
 
     plugin = this;
-
-    plugin->setName("Vrml97");
 }
 
 bool Vrml97Plugin::init()

@@ -45,7 +45,6 @@ using vrui::vruiButtons;
 CovisePlugin::CovisePlugin()
 : ui::Owner("CovisePlugin", cover->ui)
 {
-    setName("COVISE");
     std::cerr << "Starting COVISE connection..." << std::endl;
     new ObjectManager(this);
     new VRCoviseConnection();
