@@ -68,7 +68,7 @@ public:
     static int sloadGCode(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadGCode(const char *filename, const char *covise_key);
 
-    void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool);
+    void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool, int gmode);
     void arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool); //rotation positive: counterclockwise
 private:
 
@@ -103,6 +103,9 @@ private:
 
     void save();
 
+    // scaling factor for inputfile (overall)
+    double scaleFactor = 1.0;
+
     // path new
     osg::Vec3Array *pathVert = nullptr;
     osg::Vec4Array *pathColor = nullptr;
@@ -111,7 +114,9 @@ private:
     osg::ref_ptr<osg::Geode> pathGeode;
     void createPath(osg::Group* loadParent);
     vector<double> arcApproximation(int t);
-    double approxLength = 0.4;
+    double approxLength = 3.2;      //approxLength *2PI = #CornersInPolygon
+    osg::Vec4 colorG0, colorG1, colorG2, colorG3;
+    bool colorModeGCode = true;
 
     //workpiece wp
     osg::ref_ptr<osg::Group> wpGroup;
@@ -172,10 +177,11 @@ private:
     bool wpSizeExtracted = false;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
-    double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
+    //double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
+    double wpAllowance = 10.0;
     //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
     //double wpResolution = 0.00010;
-    double wpResolution = 0.00005;
+    double wpResolution = 0.05;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;
 
@@ -188,7 +194,7 @@ private:
         std::string toolType;
     };
     std::vector<ToolInfo> toolInfoList;
-    double cuttingRad = 0.0005; // 0.5 / 1000;
+    double cuttingRad = 0.5; // 0.5 / 1000;
     int activeTool;
     double pointAngle = 180;
 };

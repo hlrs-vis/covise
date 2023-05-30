@@ -755,10 +755,10 @@ bool CNCPlugin::init()
 
     geoState = new osg::StateSet();
     linemtl = new osg::Material;
-    lineWidth = new osg::LineWidth(2.0);
+    lineWidth = new osg::LineWidth(4.0);
     linemtl.get()->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     linemtl.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
-    linemtl.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(1.0f, 0.0f, 0.0f, 1.0));
+    linemtl.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(1.0f, 1.0f, 1.0f, 1.0));
     linemtl.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.9f, 0.9f, 0.9f, 1.0));
     linemtl.get()->setEmission(osg::Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
     linemtl.get()->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
@@ -807,23 +807,23 @@ void CNCPlugin::save()
 }
 
 
-void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool)
+void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool, int gmode)
 {   
-    pathX.push_back(x / 1000.0);
-    pathY.push_back(y / 1000.0);
-    pathZ.push_back(z / 1000.0);
+    pathX.push_back(x * scaleFactor);
+    pathY.push_back(y * scaleFactor);
+    pathZ.push_back(z * scaleFactor);
     pathTool.push_back(tool);
-    pathG.push_back(1);
+    pathG.push_back(gmode);
     pathCenterX.push_back(0);
     pathCenterY.push_back(0);
-    pathFeedRate.push_back(feedRate / 1000.0);
+    pathFeedRate.push_back(feedRate * scaleFactor);
     pathLineStrip.push_back(2);
 
     /* positions[frameNumber*3  ] = x;
          positions[frameNumber*3+1] = y;
          positions[frameNumber*3+2] = z;*/
 
-    vert->push_back(Vec3(x / 1000.0, y / 1000.0, z / 1000.0));
+    vert->push_back(Vec3(x * scaleFactor, y * scaleFactor, z * scaleFactor));
     float col = feedRate / 6000.0;
     if (col > 1)
         col = 1;
@@ -841,13 +841,13 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
 
 void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool)
 {
-    pathX.push_back(x / 1000.0);
-    pathY.push_back(y / 1000.0);
-    pathZ.push_back(z / 1000.0);
+    pathX.push_back(x * scaleFactor);
+    pathY.push_back(y * scaleFactor);
+    pathZ.push_back(z * scaleFactor);
     pathTool.push_back(tool);
-    pathCenterX.push_back(centerX / 1000.0);
-    pathCenterY.push_back(centerY / 1000.0);
-    pathFeedRate.push_back(feedRate / 1000.0);
+    pathCenterX.push_back(centerX * scaleFactor);
+    pathCenterY.push_back(centerY * scaleFactor);
+    pathFeedRate.push_back(feedRate * scaleFactor);
     pathLineStrip.push_back(2);
     //rotation gives the direction and the amount of 360° circles (offset by 1)
     if (rotation < 0)
@@ -862,7 +862,7 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
          positions[frameNumber*3+1] = y;
          positions[frameNumber*3+2] = z;*/
 
-    vert->push_back(Vec3(x / 1000.0, y / 1000.0, z / 1000.0));
+    vert->push_back(Vec3(x * scaleFactor, y * scaleFactor, z * scaleFactor));
     float col = feedRate / 6000.0;
     if (col > 1)
         col = 1;
@@ -897,6 +897,12 @@ COVERPLUGIN(CNCPlugin)
 */
 void CNCPlugin::createPath(osg::Group* parent)
 {
+    colorG0 = Vec4(0.8f, 0.8f, 0.8f, 1.0);
+    colorG1 = Vec4(1.0f, 0.90f, 0.0f, 0.90);
+    colorG2 = Vec4(0.0f, 0.9f, 0.2f, 0.90);
+    colorG3 = Vec4(0.0f, 0.9f, 0.9f, 0.90);
+    Vec4 pushColor = colorG1;
+
     pathGeode = new Geode();
     pathGeom = new Geometry();
     pathGeode->setStateSet(geoState.get());
@@ -913,23 +919,59 @@ void CNCPlugin::createPath(osg::Group* parent)
     // t = 0
     pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
     pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
-    float col = pathFeedRate[0] / 6000.0;
-    if (col > 1)
-        col = 1;
-    pathColor->push_back(getColor(col));
-    pathColor->push_back(getColor(col));
+    if (!colorModeGCode)
+    {
+        float col = pathFeedRate[0] / 6000.0;
+        if (col > 1)
+            col = 1;
+        pushColor = getColor(col);
+    }
+    else if (pathG[0] == 0)
+    {
+        pushColor = colorG0;
+    }
+    else if (pathG[0] == 1)
+    {
+        pushColor = colorG1;
+    }
+    else if (pathG[0] == 2)
+    {
+        pushColor = colorG2;
+    }
+    else if (pathG[0] == 3)
+    {
+        pushColor = colorG3;
+    }
+    pathColor->push_back(pushColor);
+    pathColor->push_back(pushColor);
     pathLineStrip[0] = 2;
 
     for (int t = 1; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
     {
-        float col = pathFeedRate[t] / 6000.0;
-        if (col > 1)
-            col = 1;
+        if (!colorModeGCode)
+        {
+            float col = pathFeedRate[0] / 6000.0;
+            if (col > 1)
+                col = 1;
+            pushColor = getColor(col);
+        }
+        else if (pathG[t] == 0)
+            pushColor = colorG0;
+        else if (pathG[t] == 1)
+            pushColor = colorG1;
+        else if (pathG[t] == 2)
+            pushColor = colorG2;
+        else if (pathG[t] == 3)
+            pushColor = colorG3;
+
         pathLineStrip[t] = pathLineStrip[t - 1];
-        if (pathG[t] == 1)
+        pathVert->push_back(Vec3(pathX[t-1], pathY[t-1], pathZ[t-1]));
+        pathColor->push_back(pushColor);
+        pathLineStrip[t]++;
+        if (pathG[t] == 1 || pathG[t] == 0)
         {
             pathVert->push_back(Vec3(pathX[t], pathY[t], pathZ[t]));
-            pathColor->push_back(getColor(col));
+            pathColor->push_back(pushColor);
             pathLineStrip[t]++;
         }
         else
@@ -938,7 +980,7 @@ void CNCPlugin::createPath(osg::Group* parent)
             for (int i = 0; i < arcVec.size(); i = i+3)
             {
                 pathVert->push_back(Vec3(arcVec[i], arcVec[i + 1], pathZ[t]));
-                pathColor->push_back(getColor(col));
+                pathColor->push_back(pushColor);
                 pathLineStrip[t]++;
             }
         }
@@ -1563,7 +1605,7 @@ void CNCPlugin::extractToolInfos(const std::string& filename)
     // ein default tool speicher, falls keine tools definiert / eingelesen wurden
     ToolInfo tool_default;
     tool_default.toolNumber = -1;
-    tool_default.diameter = 1.0 / 1000;
+    tool_default.diameter = 1.0 * scaleFactor;
     tool_default.cornerRadius = 0;
     tool_default.coneAngle = 180;
     tool_default.zMin = 0;
@@ -1580,23 +1622,23 @@ void CNCPlugin::extractToolInfos(const std::string& filename)
         if (std::regex_search(line, match, toolRegex)) {
             ToolInfo tool_info;
             tool_info.toolNumber = std::stoi(match[1]);
-            tool_info.diameter = std::stod(match[2]) / 1000;
-            tool_info.cornerRadius = std::stod(match[3]) / 1000;
+            tool_info.diameter = std::stod(match[2]) * scaleFactor;
+            tool_info.cornerRadius = std::stod(match[3]) * scaleFactor;
             if (match[4].matched)
                 tool_info.coneAngle = std::stod(match[4]);
-            tool_info.zMin = std::stod(match[5]) / 1000;
+            tool_info.zMin = std::stod(match[5]) * scaleFactor;
             tool_info.toolType = match[6];
             toolInfoList.push_back(tool_info);
         }
         std::smatch wpMatch;
         if (std::regex_search(line, wpMatch, wpDimensionRegex)) {
             wpSizeExtracted = true;
-            wpMinX = std::stod(wpMatch[1]) / 1000.0;
-            wpMaxX = std::stod(wpMatch[2]) / 1000.0;
-            wpMinY = std::stod(wpMatch[3]) / 1000.0;
-            wpMaxY = std::stod(wpMatch[4]) / 1000.0;
-            wpMinZ = std::stod(wpMatch[5]) / 1000.0;
-            wpMaxZ = std::stod(wpMatch[6]) / 1000.0;
+            wpMinX = std::stod(wpMatch[1]) * scaleFactor;
+            wpMaxX = std::stod(wpMatch[2]) * scaleFactor;
+            wpMinY = std::stod(wpMatch[3]) * scaleFactor;
+            wpMaxY = std::stod(wpMatch[4]) * scaleFactor;
+            wpMinZ = std::stod(wpMatch[5]) * scaleFactor;
+            wpMaxZ = std::stod(wpMatch[6]) * scaleFactor;
         }
     }
 }
