@@ -739,9 +739,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             {
                 if (parentElem)
                     parentElem->addElement(newElement);
-                QString parentName;
-                if (parentElem)
-                    parentName = parentElem->getName();
             }
 
 #ifdef TABLET_PLUGIN
