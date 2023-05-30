@@ -1462,8 +1462,8 @@ void coTUITab::resend(bool create)
     tb << ID;
     tb << m_allowRelayout;
 
-    tui()->send(tb);
     coTUIElement::resend(create);
+    tui()->send(tb);
 }
 
 void coTUITab::parseMessage(TokenBuffer &tb)
