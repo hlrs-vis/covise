@@ -166,7 +166,6 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Group *m_parent = nullptr;
     std::set<Container *> m_containers;
     std::string m_label;
-    bool m_visible = true;
     bool m_enabled = true;
     Priority m_priority = Default;
     std::string m_iconName;

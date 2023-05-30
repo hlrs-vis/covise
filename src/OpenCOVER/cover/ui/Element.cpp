@@ -161,7 +161,7 @@ void Element::triggerImplementation() const
 void Element::save(covise::TokenBuffer &buf) const
 {
     buf << elementId();
-    buf << m_visible;
+    buf << m_viewBits;
     buf << m_enabled;
     buf << m_label;
 
@@ -172,7 +172,7 @@ void Element::load(covise::TokenBuffer &buf)
     int id;
     buf >> id;
     assert(m_id == id);
-    buf >> m_visible;
+    buf >> m_viewBits;
     buf >> m_enabled;
     buf >> m_label;
 }
