@@ -65,6 +65,7 @@ PCLPlugin *PCLPlugin::instance()
 }
 
 PCLPlugin::PCLPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //positions=NULL;
     thePlugin = this;

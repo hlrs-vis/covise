@@ -53,6 +53,7 @@ static const string FILES("COVER.Plugin.VideoLOD.Files");
 
 /// Constructor
 VideoLODPlugin::VideoLODPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

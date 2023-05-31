@@ -79,6 +79,7 @@ void RemoteDT::key(int type, int keysym, int mod)
 //   this needs to be changed, so we can connect to arbitrary servers!
 //
 RemoteDT::RemoteDT()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 

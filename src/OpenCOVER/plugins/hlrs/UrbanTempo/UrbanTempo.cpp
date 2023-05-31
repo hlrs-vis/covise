@@ -53,6 +53,10 @@ struct TreeModel
     osg::Vec3d translation;
 };
 
+UrbanTempo::UrbanTempo()
+: coVRPlugin(COVER_PLUGIN_NAME)
+{}
+
 bool UrbanTempo::init()
 {
     auto url_ptr = configString("general", "url_api", "default");

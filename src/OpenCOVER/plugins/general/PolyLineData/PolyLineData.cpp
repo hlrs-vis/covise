@@ -36,6 +36,7 @@
 PolyLineDataPlugin *PolyLineDataPlugin::plugin = 0;
 
 PolyLineDataPlugin::PolyLineDataPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

@@ -7,7 +7,8 @@
 
 #include "coVRParallelRenderPlugin.h"
 
-opencover::coVRParallelRenderPlugin::coVRParallelRenderPlugin()
+opencover::coVRParallelRenderPlugin::coVRParallelRenderPlugin(const std::string &name)
+: coVRPlugin(name)
 {
 }
 

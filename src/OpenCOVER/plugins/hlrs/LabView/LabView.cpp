@@ -149,6 +149,7 @@ void VrmlNodeLabView::render(Viewer *)
 }
 
 LabViewPlugin::LabViewPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "LabViewPlugin::LabViewPlugin\n");
 

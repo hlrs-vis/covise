@@ -63,6 +63,7 @@ using namespace grmsg;
 RuledSurfaces *RuledSurfaces::plugin = NULL;
 //
 RuledSurfaces::RuledSurfaces()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     root = new osg::Group();
     m_presentationStepCounter = 0; //current

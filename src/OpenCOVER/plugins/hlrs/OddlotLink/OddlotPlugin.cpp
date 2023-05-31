@@ -145,6 +145,7 @@ osg::Matrixd OddlotPlugin::computeRightEyeView(const osg::Matrixd &view) const
 }
 
 OddlotPlugin::OddlotPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "OddlotPlugin::OddlotPlugin\n");
     plugin = this;

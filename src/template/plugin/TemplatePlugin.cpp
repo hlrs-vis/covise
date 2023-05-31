@@ -26,6 +26,7 @@
 using namespace opencover;
 
 TemplatePlugin::TemplatePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "TemplatePlugin::TemplatePlugin\n");
 }

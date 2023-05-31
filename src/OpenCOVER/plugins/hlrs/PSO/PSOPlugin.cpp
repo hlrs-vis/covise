@@ -38,6 +38,7 @@ double PSOPlugin::noisy(double *x)
 }
 
 PSOPlugin::PSOPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "PSOPlugin::PSOPlugin\n");
     oldTime = 0.0;

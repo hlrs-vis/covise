@@ -480,8 +480,7 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   
   UNSET(SOURCES)
   UNSET(HEADERS)
-  target_compile_definitions(${targetname} PUBLIC COVER_PLUGIN_NAME="${targetname}")
-  message(COVER_PLUGIN_NAME = ${targetname})
+  target_compile_definitions(${targetname} PRIVATE COVER_PLUGIN_NAME="${targetname}")
   qt_use_modules(${targetname} Core)
 ENDMACRO(COVER_ADD_PLUGIN_TARGET)
 

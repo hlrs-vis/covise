@@ -77,6 +77,7 @@ void CubePlugin::removeObject(const char *contName, bool r)
 //-----------------------------------------------------------------------------
 
 CubePlugin::CubePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     // get the parameter names (this is hardcoded)
     plugin = this;

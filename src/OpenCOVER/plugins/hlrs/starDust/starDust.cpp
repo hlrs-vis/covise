@@ -124,8 +124,9 @@ void starDust::unloadData(std::string particlepath)
 }
 
 starDust::starDust()
-    : initDone(false)
-    , menu(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, initDone(false)
+, menu(NULL)
 {
     plugin = this;
     fprintf(stderr, "starDust::starDust()\n");

@@ -521,7 +521,8 @@ CNCPlugin *CNCPlugin::instance()
 }
 
 CNCPlugin::CNCPlugin()
-: ui::Owner("CNCPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("CNCPlugin", cover->ui)
 , PathTab(new ui::Menu("CNC", this))
 , record(new ui::Button(PathTab, "Record"))
 , playPause(new ui::Button(PathTab, "Play"))
@@ -849,7 +850,7 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
     pathCenterY.push_back(centerY / 1000.0);
     pathFeedRate.push_back(feedRate / 1000.0);
     pathLineStrip.push_back(2);
-    //rotation gives the direction and the amount of 360° circles (offset by 1)
+    //rotation gives the direction and the amount of 360ï¿½ circles (offset by 1)
     if (rotation < 0)
         pathG.push_back(2); //clockwise
     else if (rotation > 0)

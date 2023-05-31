@@ -34,7 +34,8 @@
 using namespace opencover;
 
 ColorBarPlugin::ColorBarPlugin()
-: ui::Owner("ColorBarPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ColorBarPlugin", cover->ui)
 {
 }
 

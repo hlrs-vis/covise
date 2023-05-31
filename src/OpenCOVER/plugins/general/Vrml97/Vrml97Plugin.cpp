@@ -313,12 +313,13 @@ void Vrml97Plugin::worldChangedCB(int reason)
 }
 
 Vrml97Plugin::Vrml97Plugin()
-    : ui::Owner("Vrml97Plugin", cover->ui)
-    , listener(NULL)
-    , viewer(NULL)
-    , vrmlScene(NULL)
-    , player(NULL)
-    , sensorList(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("Vrml97Plugin", cover->ui)
+, listener(NULL)
+, viewer(NULL)
+, vrmlScene(NULL)
+, player(NULL)
+, sensorList(NULL)
 {
     //fprintf(stderr,"Vrml97Plugin::Vrml97Plugin\n");
     if (plugin)

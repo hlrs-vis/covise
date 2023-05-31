@@ -96,7 +96,8 @@ void coTrafficSimulation::freeInstance()
 }
 
 coTrafficSimulation::coTrafficSimulation()
-	: system(NULL)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+	, system(NULL)
 	, factory(NULL)
 	, roadGroup(NULL)
 	, rootElement(NULL)

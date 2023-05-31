@@ -60,7 +60,6 @@ class DataHandle;
 #define COVERPLUGIN(Plugin)                                         \
     extern "C" PLUGINEXPORT opencover::coVRPlugin *coVRPluginInit() \
     {                                                               \
-        opencover::coVRPlugin::coverPluginName = COVER_PLUGIN_NAME; \
         return new Plugin();                                        \
     }
 
@@ -93,7 +92,7 @@ public:
     };
 
     //! called early, if loaded from config, before COVER is fully initialized
-    coVRPlugin();
+    coVRPlugin(const std::string &name);
 
     //! called before plugin is unloaded
     virtual ~coVRPlugin() = default;

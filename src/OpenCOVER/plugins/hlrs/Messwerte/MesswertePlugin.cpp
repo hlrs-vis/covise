@@ -36,6 +36,7 @@
 using namespace osg;
 
 MesswertePlugin::MesswertePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

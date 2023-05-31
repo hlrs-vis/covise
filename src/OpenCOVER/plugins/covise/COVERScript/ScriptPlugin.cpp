@@ -63,6 +63,7 @@ static int argc = 0;
 static char *argv[1] = { 0 };
 
 ScriptPlugin::ScriptPlugin()
+    : coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "\nScriptPlugin::ScriptPlugin (with %s QApplication instance)\n",
             (qApp == 0 ? "new" : "old"));

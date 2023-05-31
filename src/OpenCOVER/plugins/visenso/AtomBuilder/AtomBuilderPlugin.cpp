@@ -30,7 +30,8 @@ using namespace grmsg;
 AtomBuilderPlugin *AtomBuilderPlugin::plugin = NULL;
 
 AtomBuilderPlugin::AtomBuilderPlugin()
-    : GenericGuiObject("AtomBuilder")
+: coVRPlugin(COVER_PLUGIN_NAME)
+, GenericGuiObject("AtomBuilder")
 {
     if (cover->debugLevel(0))
         fprintf(stderr, "\nAtomBuilderPlugin::AtomBuilderPlugin\n");

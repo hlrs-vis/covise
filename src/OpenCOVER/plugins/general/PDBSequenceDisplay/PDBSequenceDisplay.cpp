@@ -55,6 +55,7 @@ static const int NUM_BUTTONS = 8;
 
 /// Constructor
 PDBSequenceDisplay::PDBSequenceDisplay()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

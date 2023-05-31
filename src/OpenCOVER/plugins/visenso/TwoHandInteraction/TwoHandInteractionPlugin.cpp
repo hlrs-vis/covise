@@ -45,8 +45,9 @@ namespace TwoHandInteraction
 {
 
 TwoHandInteractionPlugin::TwoHandInteractionPlugin()
-    : m_HasIndicators(false)
-    , m_InteractionHandler(new TestRotateInteractionHandler)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, m_HasIndicators(false)
+, m_InteractionHandler(new TestRotateInteractionHandler)
 {
 }
 

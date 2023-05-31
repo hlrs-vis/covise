@@ -27,16 +27,17 @@
 #include <iostream>
 
 VCCollaborationPlugin::VCCollaborationPlugin()
-    : connected(false)
-    , currentDataId(0)
-    , currentFile(0)
-    , currentFileSize(0)
-    , port("port", "COVER.Plugin.ViNCECollaboration.Broker")
-    , server("server", "COVER.Plugin.ViNCECollaboration.Broker")
-    , app(0)
-    , vccMenu(0)
-    , vccMenuEntry(0)
-    , dataCheckboxGroup(0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, connected(false)
+, currentDataId(0)
+, currentFile(0)
+, currentFileSize(0)
+, port("port", "COVER.Plugin.ViNCECollaboration.Broker")
+, server("server", "COVER.Plugin.ViNCECollaboration.Broker")
+, app(0)
+, vccMenu(0)
+, vccMenuEntry(0)
+, dataCheckboxGroup(0)
 {
 
     if (!port.hasValidValue())

@@ -33,6 +33,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace opencover;
 
 StreetView::StreetView()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 
@@ -53,7 +54,7 @@ bool StreetView::init()
 	indexParser->parseIndex("\\\\VISFS1/raid/share/projects/reallabor/Herrenberg/Daten/vonHerrenberg/Panorama/P09299_Herrenberg/EBF");
 	indexParser->removeDuplicateEntries(); // one index per directory
 
-	indexParser->parsePicturesPerStreet("Äckerlenweg"); // later: get street name from openDRIVE
+	indexParser->parsePicturesPerStreet("ï¿½ckerlenweg"); // later: get street name from openDRIVE
 	indexParser->sortStreetPicturesPerStation();
 	//stationNode = indexParser->getNearestStationNode(3493912.860, 5382153.880, 425.0);
 	//stationNode = indexParser->getNearestStationNode(3494030.840, 5382145.078, 433.0); //13

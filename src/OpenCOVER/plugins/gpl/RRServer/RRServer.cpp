@@ -57,6 +57,7 @@ private:
 };
 
 RRPlugin::RRPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //fprintf(stderr, "new RRServer plugin\n");
 }

@@ -259,6 +259,7 @@ void FieldOfViewNode::setField(const char *fieldName,
 }
 
 FieldOfView::FieldOfView()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "FieldOfView::FieldOfView\n");
     plugin = this;

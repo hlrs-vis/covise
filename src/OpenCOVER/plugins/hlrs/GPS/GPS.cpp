@@ -75,7 +75,9 @@ void playerUnavailableCB()
     GPSPlugin::player = NULL;
 };
 
-GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
+GPSPlugin::GPSPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("GPSPlugin", cover->ui)
 {
     fprintf(stderr, "------------------\n GPSPlugin started\n------------------\n");
     plugin = this;

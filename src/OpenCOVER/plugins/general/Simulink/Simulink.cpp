@@ -171,6 +171,7 @@ void SimulinkPlugin::sendData(int numFloats, float* floats, int numInts, int* in
 }
 
 SimulinkPlugin::SimulinkPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "SimulinkPlugin::SimulinkPlugin\n");
 

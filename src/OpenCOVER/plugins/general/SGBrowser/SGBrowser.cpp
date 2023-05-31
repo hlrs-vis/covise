@@ -235,13 +235,14 @@ bool SGBrowser::selectionChanged()
 }
 
 SGBrowser::SGBrowser()
-    : idata(NULL)
-    , myMes(false)
-    , reconnect(false)
-    , selectionManager(NULL)
-    , restraint(NULL)
-    , shaderList(NULL)
-    , linked(false)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, idata(NULL)
+, myMes(false)
+, reconnect(false)
+, selectionManager(NULL)
+, restraint(NULL)
+, shaderList(NULL)
+, linked(false)
 {
     assert(plugin == NULL);
     plugin = this;

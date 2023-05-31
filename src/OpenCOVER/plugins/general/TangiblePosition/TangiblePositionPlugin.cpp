@@ -34,6 +34,7 @@ using vrml::VrmlNodeCOVER;
 using vrml::theCOVER;
 
 TangiblePositionPlugin::TangiblePositionPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

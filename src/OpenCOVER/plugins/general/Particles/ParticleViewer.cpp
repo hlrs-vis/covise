@@ -162,6 +162,7 @@ void ParticleViewer::unloadData(std::string particlepath)
 //=======================================================================
 
 ParticleViewer::ParticleViewer()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

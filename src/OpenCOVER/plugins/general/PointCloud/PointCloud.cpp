@@ -64,7 +64,8 @@ COVERPLUGIN(PointCloudPlugin)
 
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
-: ui::Owner("PointCloud",cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("PointCloud",cover->ui)
 {
 }
 

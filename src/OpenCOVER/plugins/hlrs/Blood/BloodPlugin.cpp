@@ -52,7 +52,9 @@ double t[] = {1.,0.,0.,0., //x scaling
               0.,0.,1.,0., //z scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
-BloodPlugin::BloodPlugin() : ui::Owner("Blood", cover->ui)
+BloodPlugin::BloodPlugin() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("Blood", cover->ui)
 {
     fprintf(stderr, "BloodPlugin\n");
 }

@@ -31,7 +31,8 @@
 #include <cover/coVRPluginSupport.h>
 
 ReadCommandPlugin::ReadCommandPlugin()
-    : keepRunning(true)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, keepRunning(true)
 {
     start();
 }

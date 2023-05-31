@@ -222,6 +222,7 @@ void simOpenPASS::run()
     openPass->endBarrier.block(2);
 }
 OpenPASS::OpenPASS() : ui::Owner("OpenPASS", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "OpenPASS::OpenPASS\n");
     plugin = this;

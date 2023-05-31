@@ -333,6 +333,7 @@ osg::Group *createCharacterInstance(osg::Group *character, bool hardware)
 }
 
 osgAnimationPlugin::osgAnimationPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "osgAnimationPlugin::osgAnimationPlugin\n");
 

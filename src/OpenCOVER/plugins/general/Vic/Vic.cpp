@@ -197,6 +197,7 @@ u_char *VideoWindow::sharedMemoryAttach(int portNumber)
 }
 
 Vic::Vic()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

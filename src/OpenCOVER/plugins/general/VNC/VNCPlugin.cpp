@@ -77,6 +77,7 @@ void VNCPlugin::key(int type, int keysym, int mod)
 //   this needs to be changed, so we can connect to arbitrary servers!
 //
 VNCPlugin::VNCPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 

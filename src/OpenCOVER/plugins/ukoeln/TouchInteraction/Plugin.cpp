@@ -116,8 +116,8 @@ inline bool addHandler(int numTouches, std::string const &name, bool force = fal
 //
 //--------------------------------------------------------------------------------------------------
 Plugin::Plugin()
-    : opencover::coVRPlugin()
-    , TouchInteraction()
+: opencover::coVRPlugin(COVER_PLUGIN_NAME)
+, TouchInteraction()
 {
 }
 

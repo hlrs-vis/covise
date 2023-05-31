@@ -46,7 +46,7 @@ struct FluxCtrlData
 };
 #pragma pack(pop)
 
-class PLUGINEXPORT Flux2 :  public opencover::coVRPlugin, public opencover::coVRNavigationProvider, public OpenThreads::Thread
+class PLUGINEXPORT Flux2 : public opencover::coVRPlugin, public opencover::coVRNavigationProvider, public OpenThreads::Thread
 {
 public:
     Flux2();

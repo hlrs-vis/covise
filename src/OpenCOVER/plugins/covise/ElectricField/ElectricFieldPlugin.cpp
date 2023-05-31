@@ -38,7 +38,8 @@ ElectricFieldPlugin *ElectricFieldPlugin::plugin = NULL;
 // Constructor
 //
 ElectricFieldPlugin::ElectricFieldPlugin()
-    : GenericGuiObject("ElectricFieldPlugin")
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , GenericGuiObject("ElectricFieldPlugin")
     , probe(NULL)
     , tracer(NULL)
 {

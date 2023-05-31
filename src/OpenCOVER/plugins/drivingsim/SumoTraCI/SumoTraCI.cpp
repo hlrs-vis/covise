@@ -64,7 +64,9 @@ void simulationConfig::add(ui::Menu* menu)
 
 SumoTraCI* SumoTraCI:: thisPlugin=nullptr;
 
-SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
+SumoTraCI::SumoTraCI() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("SumoTraCI", cover->ui)
 {
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
     thisPlugin = this;

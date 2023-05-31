@@ -73,7 +73,8 @@ int TrafficSimulation::TrafficSimulation::max_distance_tui = 800;
 int TrafficSimulation::TrafficSimulation::maxVehicles = 0;
 
 TrafficSimulation::TrafficSimulation::TrafficSimulation()
-    : system(NULL)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , system(NULL)
     , manager(NULL)
     , pedestrianManager(NULL)
     , factory(NULL)

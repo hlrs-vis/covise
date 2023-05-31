@@ -28,7 +28,8 @@
 AlkaneBuilderPlugin *AlkaneBuilderPlugin::plugin = NULL;
 
 AlkaneBuilderPlugin::AlkaneBuilderPlugin()
-    : GenericGuiObject("AlkaneBuilderPlugin")
+: coVRPlugin(COVER_PLUGIN_NAME)
+, GenericGuiObject("AlkaneBuilderPlugin")
 {
     if (opencover::cover->debugLevel(0))
         fprintf(stderr, "\nAlkaneBuilderPlugin::AlkaneBuilderPlugin\n");

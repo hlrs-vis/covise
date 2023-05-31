@@ -40,6 +40,7 @@ using namespace grmsg;
 using namespace covise;
 
 CfdGuiPlugin::CfdGuiPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

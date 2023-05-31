@@ -47,6 +47,7 @@ private:
 };
 
 MaterialPlugin::MaterialPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

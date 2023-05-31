@@ -42,6 +42,7 @@ void operator>>(const std::string &s, T &converted)
 BillardPlugin *BillardPlugin::plugin = NULL;
 
 BillardPlugin::BillardPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(0))
         fprintf(stderr, "\nBillardPlugin::BillardPlugin\n");

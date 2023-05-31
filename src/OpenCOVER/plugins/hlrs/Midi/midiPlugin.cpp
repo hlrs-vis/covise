@@ -538,7 +538,8 @@ void MidiPlugin::key(int type, int keySym, int mod)
 
 //-----------------------------------------------------------------------------
 MidiPlugin::MidiPlugin()
-	: ui::Owner("MidiPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("MidiPlugin", cover->ui)
 {
 	plugin = this;
 	player = NULL;

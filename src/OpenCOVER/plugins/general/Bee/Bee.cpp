@@ -49,6 +49,7 @@ using namespace osg;
 Bee *Bee::plugin = NULL;
 
 Bee::Bee()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 
     float layerOffset = 20;

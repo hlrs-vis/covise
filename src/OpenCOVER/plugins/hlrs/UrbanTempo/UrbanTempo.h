@@ -38,6 +38,7 @@ enum Season {
 class UrbanTempo : public opencover::coVRPlugin
 {
 public:
+    UrbanTempo();
     bool init() override;
     bool destroy() override;
     void request();

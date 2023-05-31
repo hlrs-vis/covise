@@ -54,7 +54,8 @@ void removeSpikesAdaptive(const float *data, int numElem,
                           float *min, float *max);
 
 cuCuttingSurface::cuCuttingSurface()
-: ui::Owner("cuCuttingSurface", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("cuCuttingSurface", cover->ui)
 , initDone(false)
 , menu(NULL)
 {

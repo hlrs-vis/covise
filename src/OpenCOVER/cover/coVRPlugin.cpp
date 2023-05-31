@@ -17,10 +17,8 @@
 
 using namespace opencover;
 
-std::string coVRPlugin::coverPluginName = "";
-
-coVRPlugin::coVRPlugin()
-:m_name(coverPluginName)
+coVRPlugin::coVRPlugin(const std::string &name)
+:m_name(name)
 {
     assert(!m_name.empty());
 }

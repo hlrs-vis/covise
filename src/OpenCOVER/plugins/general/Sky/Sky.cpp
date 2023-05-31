@@ -334,6 +334,7 @@ public:
 };
 
 SkyPlugin::SkyPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "SkyPlugin::SkyPlugin\n");
     plugin = this;

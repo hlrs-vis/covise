@@ -33,6 +33,7 @@
 using namespace covise;
 
 BulletPlugin::BulletPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "BulletPlugin::BulletPlugin\n");
     bulletWorld = initPhysics();

@@ -107,6 +107,7 @@ using namespace osg;
 OpenCVTracker *OpenCVTracker::plugin = NULL;
 
 OpenCVTracker::OpenCVTracker()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

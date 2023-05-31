@@ -27,7 +27,9 @@ static float zeroAngle = 1152.;
 
 
 Skateboard::Skateboard()
-	: udp(NULL), coVRNavigationProvider("Skateboard",this)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, udp(NULL)
+, coVRNavigationProvider("Skateboard",this)
 {
 	sbData.fl = 0;
 	sbData.fr = 0;

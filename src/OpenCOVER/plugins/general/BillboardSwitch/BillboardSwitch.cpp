@@ -307,6 +307,7 @@ void VrmlNodeBillboardSwitch::addToScene(VrmlScene *s, const char *rel)
 }
 
 BillboardSwitchPlugin::BillboardSwitchPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "BillboardSwitchPlugin::BillboardSwitchPlugin\n");
     //plugin=this;

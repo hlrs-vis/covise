@@ -37,6 +37,7 @@ ConicSectionPlugin *ConicSectionPlugin::plugin = NULL;
 // Constructor
 //
 ConicSectionPlugin::ConicSectionPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nConicSectionPlugin::ConicSectionPlugin\n");

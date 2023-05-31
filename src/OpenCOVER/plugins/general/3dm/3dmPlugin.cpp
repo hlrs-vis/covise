@@ -138,6 +138,7 @@ int RhinoPlugin::unloadRhino(const char *filename, const char *)
 
 
 RhinoPlugin::RhinoPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
    
     //scaleGeometry = coCoviseConfig::isOn("COVER.Plugin.Rhino.ScaleGeometry", true);

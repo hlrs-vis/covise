@@ -22,7 +22,8 @@ static float zeroAngle = 1152.;
 
 
 TacxPlugin::TacxPlugin()
-	:coVRNavigationProvider("Tacx",this)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, coVRNavigationProvider("Tacx",this)
 {
         stepSizeUp=2000;
         stepSizeDown=2000;

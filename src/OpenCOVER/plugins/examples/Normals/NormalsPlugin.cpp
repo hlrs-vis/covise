@@ -21,6 +21,7 @@
 #include <osgGA/GUIEventAdapter>
 
 NormalsPlugin::NormalsPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //fprintf(stderr,"NormalsPlugin::NormalsPlugin\n");
     normalsState = NORM_NONE;

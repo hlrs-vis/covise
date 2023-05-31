@@ -39,6 +39,7 @@
 using namespace touchlib;
 
 TouchTablePlugin::TouchTablePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "TouchTablePlugin::TouchTablePlugin\n");
     screen = TouchScreenDevice::getTouchScreen();

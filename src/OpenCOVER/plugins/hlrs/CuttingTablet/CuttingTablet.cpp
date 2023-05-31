@@ -40,13 +40,14 @@
 #include "CuttingTablet.h"
 
 CuttingTablet::CuttingTablet()
-    : server(NULL)
-    , slicer(NULL)
-    , geode(NULL)
-    , root(NULL)
-    , count(0)
-    , t0(NULL)
-    , renderState(false)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, server(NULL)
+, slicer(NULL)
+, geode(NULL)
+, root(NULL)
+, count(0)
+, t0(NULL)
+, renderState(false)
 {
 
     printf("::CuttingTablet\n");

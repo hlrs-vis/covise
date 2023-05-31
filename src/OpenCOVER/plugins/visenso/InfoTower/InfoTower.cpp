@@ -28,6 +28,7 @@
 #endif
 
 InfoTowerPlugin::InfoTowerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     GL_fmt = GL_BGR_EXT;
     oldWidth = 0;

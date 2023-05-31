@@ -10,8 +10,9 @@
 #include <PluginUtil/PluginMessageTypes.h>
 
 TuioClientPlugin::TuioClientPlugin()
-    : opencover::coVRPlugin()
-    , tuioClient(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, opencover::coVRPlugin()
+, tuioClient(NULL)
 {
 }
 

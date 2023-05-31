@@ -27,7 +27,8 @@
 #include <sstream>
 
 XenomaiPlugin::XenomaiPlugin()
-    : //con0("rtcan0"),
+: coVRPlugin(COVER_PLUGIN_NAME)
+    , //con0("rtcan0"),
     //can1("rtcan1"),
     //linMot(con0),
     motPlat(ValidateMotionPlatform::instance())

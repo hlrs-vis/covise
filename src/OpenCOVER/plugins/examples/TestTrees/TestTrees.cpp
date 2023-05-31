@@ -26,6 +26,7 @@
 #include <PluginUtil/coInstanceRenderer.h>
 
 TestTrees::TestTrees()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "TestTrees::TestTrees\n");
 }

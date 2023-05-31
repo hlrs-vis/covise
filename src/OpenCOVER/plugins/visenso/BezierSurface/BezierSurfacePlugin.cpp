@@ -46,9 +46,10 @@ const int MAX_POINTS = 16;
 // Constructor
 //
 BezierSurfacePlugin::BezierSurfacePlugin()
-    : node_(NULL)
-    , plane_(NULL)
-    , planeGeode_(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, node_(NULL)
+, plane_(NULL)
+, planeGeode_(NULL)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nBezierSurfacePlugin::BezierSurfacePlugin\n");

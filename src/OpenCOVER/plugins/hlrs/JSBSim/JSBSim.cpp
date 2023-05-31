@@ -40,7 +40,10 @@
 
 JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 
-JSBSimPlugin::JSBSimPlugin() : ui::Owner("JSBSimPlugin", cover->ui), coVRNavigationProvider("Paraglider", this)
+JSBSimPlugin::JSBSimPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("JSBSimPlugin", cover->ui)
+, coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
     

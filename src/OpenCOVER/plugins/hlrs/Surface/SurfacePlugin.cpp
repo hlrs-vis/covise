@@ -29,6 +29,7 @@
 #include <osg/io_utils>
 
 SurfacePlugin::SurfacePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "SurfacePlugin::SurfacePlugin\n");
     coVRTouchTable::instance()->ttInterface = this;

@@ -35,7 +35,9 @@ std::string proj_to ="+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 std::string proj_from = "+proj=latlong";
 float offset [] = {-507048.f,-5398554.9,-450};
 
-LuftdatenPlugin::LuftdatenPlugin(): ui::Owner("LuftdatenPlugin", cover->ui)
+LuftdatenPlugin::LuftdatenPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("LuftdatenPlugin", cover->ui)
 {
     fprintf(stderr, "Starting Luftdaten Plugin\n");
     plugin = this;

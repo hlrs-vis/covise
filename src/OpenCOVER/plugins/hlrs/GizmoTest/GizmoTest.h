@@ -30,7 +30,7 @@
 
 
 
-class GizmoTest :public opencover::coVRPlugin 
+class GizmoTest : public opencover::coVRPlugin 
 {
 public:
   GizmoTest();

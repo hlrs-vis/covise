@@ -43,7 +43,10 @@ void EKU::preFrame()
 }
 
 
-EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
+EKU::EKU()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("EKUPlugin", cover->ui)
+
 {
 
     plugin = this;

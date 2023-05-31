@@ -44,7 +44,9 @@
 using namespace osg;
 using namespace osgUtil;
 
-RecordPathPlugin::RecordPathPlugin() : ui::Owner("RecordPathPlugin", cover->ui)
+RecordPathPlugin::RecordPathPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("RecordPathPlugin", cover->ui)
 {
     std::string proj_from = coCoviseConfig::getEntry("from", "COVER.Plugin.RecordPath.Projection", "+proj=latlong +datum=WGS84");
     if (!(pj_from = pj_init_plus(proj_from.c_str())))

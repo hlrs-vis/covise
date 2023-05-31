@@ -49,6 +49,7 @@ using covise::coCoviseConfig;
 
 /// Constructor
 ModelViewer::ModelViewer()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

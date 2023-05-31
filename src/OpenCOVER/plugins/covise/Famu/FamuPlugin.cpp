@@ -85,6 +85,7 @@ void coVRRemoveObject(const char *contName, int r)
 //-----------------------------------------------------------------------------
 
 FamuPlugin::FamuPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(1))
         fprintf(stderr, "\n    new FamuPlugin\n");

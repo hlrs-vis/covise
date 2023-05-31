@@ -41,7 +41,7 @@ void calcVisibility();
 void optimize(FitnessFunctionType);
 
 class UI;
-class SensorPlacementPlugin :public opencover::coVRPlugin 
+class SensorPlacementPlugin : public opencover::coVRPlugin 
 {
 public:
   SensorPlacementPlugin();

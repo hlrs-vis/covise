@@ -184,6 +184,7 @@ int StereoVideoPlayerPlugin::unloadMovie(const char *filename, const char *)
 }
 
 StereoVideoPlayerPlugin::StereoVideoPlayerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     coVRConfig::instance()->windows[0].window->getWindowRectangle(xpos, ypos, screenWidth, screenHeight);
 

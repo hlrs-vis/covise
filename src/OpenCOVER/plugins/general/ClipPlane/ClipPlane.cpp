@@ -135,7 +135,8 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
-    : ui::Owner("ClipPlane", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ClipPlane", cover->ui)
 {
 }
 

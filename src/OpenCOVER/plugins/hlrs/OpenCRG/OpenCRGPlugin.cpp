@@ -38,8 +38,9 @@
 #include <osgDB/WriteFile>
 
 OpenCRGPlugin::OpenCRGPlugin()
-    : surface(NULL)
-    , surfaceGeode(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, surface(NULL)
+, surfaceGeode(NULL)
 {
     fprintf(stderr, "OpenCRGPlugin::OpenCRGPlugin\n");
 }

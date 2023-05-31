@@ -20,7 +20,8 @@
 FileBrowser *FileBrowser::s_instance = NULL;
 
 FileBrowser::FileBrowser()
-: ui::Owner("FileBrowser", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("FileBrowser", cover->ui)
 , m_interactor(NULL)
 {
     if (s_instance)

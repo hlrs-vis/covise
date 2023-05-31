@@ -299,6 +299,7 @@ void SensorPlugin::tabletEvent(coTUIElement * /*tUIItem*/)
 }
 
 SensorPlugin::SensorPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     startThread();
     running = true;

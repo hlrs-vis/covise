@@ -9,6 +9,7 @@
 
 // constructor, destructor, instance ---------------------------------
 HMIDevicesPlugin::HMIDevicesPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     p_ki = KI::instance();
     p_klsm = KLSM::instance();

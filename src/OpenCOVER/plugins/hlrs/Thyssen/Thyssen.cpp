@@ -201,6 +201,7 @@ void VrmlNodeThyssen::render(Viewer *)
 }
 
 ThyssenPlugin::ThyssenPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "ThyssenPlugin::ThyssenPlugin\n");
 

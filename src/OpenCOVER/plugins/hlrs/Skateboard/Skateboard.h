@@ -53,7 +53,7 @@ struct SBCtrlData
 
 
 
-class PLUGINEXPORT Skateboard :  public opencover::coVRPlugin, public OpenThreads::Thread, public opencover::coVRNavigationProvider
+class PLUGINEXPORT Skateboard : public opencover::coVRPlugin, public OpenThreads::Thread, public opencover::coVRNavigationProvider
 {
 public:
     Skateboard();

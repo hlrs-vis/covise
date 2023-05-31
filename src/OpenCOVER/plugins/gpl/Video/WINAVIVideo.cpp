@@ -21,6 +21,7 @@ using namespace covise;
 #endif
 
 WINAVIPlugin::WINAVIPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     HRESULT hr = S_OK;
     aviFile = NULL;

@@ -424,6 +424,7 @@ bool ARTracePlugin::idExists(int ID)
 }
 
 ARTracePlugin::ARTracePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "ARTracePlugin::ARTracePlugin\n");
     plugin = this;

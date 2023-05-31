@@ -27,6 +27,7 @@
 #include <util/unixcompat.h>
 
 MultitouchPlugin::MultitouchPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "MultitouchPlugin::MultitouchPlugin\n");
     _navMode = 1;

@@ -77,6 +77,7 @@ void MarkerSensor::disactivate()
 }
 
 Marker::Marker()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

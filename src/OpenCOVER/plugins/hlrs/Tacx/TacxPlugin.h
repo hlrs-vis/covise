@@ -31,7 +31,7 @@
 
 
 
-class PLUGINEXPORT TacxPlugin :  public opencover::coVRPlugin, public opencover::coVRNavigationProvider
+class PLUGINEXPORT TacxPlugin : public opencover::coVRPlugin, public opencover::coVRNavigationProvider
 {
 public:
     TacxPlugin();

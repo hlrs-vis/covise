@@ -255,6 +255,7 @@ XElevatorPlugin* XElevatorPlugin::plugin = nullptr;
 
 
 XElevatorPlugin::XElevatorPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "ElevatorPlugin::ElevatorPlugin\n");
 

@@ -88,7 +88,8 @@ struct myMsgbuf
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 ARUCOPlugin::ARUCOPlugin()
-    : ui::Owner("ARUCO", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ARUCO", cover->ui)
 {
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
     OSGToOpenGLMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);

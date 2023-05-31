@@ -76,6 +76,7 @@ INCLUDE_DIRECTORIES(
 
 
 ADD_COVISE_LIBRARY(coTrafficSimulation SHARED ${SOURCES} ${HEADERS})
+target_compile_definitions(coTrafficSimulation PRIVATE COVER_PLUGIN_NAME="coTrafficSimulation")
 qt_use_modules(coTrafficSimulation Script ScriptTools)
 
 COVISE_WNOERROR(coTrafficSimulation)

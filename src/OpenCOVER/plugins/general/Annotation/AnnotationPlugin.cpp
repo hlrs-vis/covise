@@ -74,7 +74,8 @@ static void array2matrix(osg::Matrix &m, const osg::Matrix::value_type *a)
  *
  */
 AnnotationPlugin::AnnotationPlugin()
-    : currentAnnotation(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, currentAnnotation(NULL)
 {
 }
 

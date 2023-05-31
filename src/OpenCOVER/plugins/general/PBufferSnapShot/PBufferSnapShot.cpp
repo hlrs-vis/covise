@@ -147,7 +147,8 @@ void DrawCallback::operator()(const osg::Camera &cam) const
 }
 
 PBufferSnapShot::PBufferSnapShot()
-    : NumResolutions(sizeof(PBufferSnapShot::resolutions) / sizeof(PBufferSnapShot::resolutions[0]))
+: coVRPlugin(COVER_PLUGIN_NAME)
+, NumResolutions(sizeof(PBufferSnapShot::resolutions) / sizeof(PBufferSnapShot::resolutions[0]))
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n--- PBufferSnapShot::PBufferSnapShot\n");

@@ -42,6 +42,7 @@ WSInterfacePlugin *WSInterfacePlugin::instance()
 }
 
 WSInterfacePlugin::WSInterfacePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     WSInterfacePlugin::singleton = this;
     new WSServer();

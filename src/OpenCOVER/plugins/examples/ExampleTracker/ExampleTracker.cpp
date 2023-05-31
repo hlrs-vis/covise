@@ -23,6 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
 ExampleTracker::ExampleTracker()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Starting ExampleTracker\n");
 }

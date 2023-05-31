@@ -29,6 +29,7 @@
 #endif
 
 AxialARPlugin::AxialARPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "AxialARPlugin::AxialARPlugin\n");
     pinboardEntry = new coSubMenuItem("AxialRunner");

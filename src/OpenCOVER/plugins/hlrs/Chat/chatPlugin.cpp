@@ -67,7 +67,8 @@ void ChatPlugin::key(int type, int keySym, int mod)
 
 //-----------------------------------------------------------------------------
 ChatPlugin::ChatPlugin()
-	: ui::Owner("ChatPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ChatPlugin", cover->ui)
 {
 	CHATTab = NULL;
 

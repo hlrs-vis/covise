@@ -71,7 +71,8 @@ Interpolator::RotationMode ViewPoints::curr_rotationMode = Interpolator::QUATERN
 SharedActiveVPData *ViewPoints::actSharedVPData = 0;
 
 ViewPoints::ViewPoints()
-: ui::Owner("ViewPoints", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ViewPoints", cover->ui)
 {
 }
 

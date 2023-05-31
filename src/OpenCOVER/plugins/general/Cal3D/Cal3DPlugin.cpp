@@ -409,6 +409,7 @@ void Cal3dNode::setField(const char *fieldName,
 }
 
 Cal3DPlugin::Cal3DPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Cal3DPlugin::Cal3DPlugin\n");
     plugin = this;

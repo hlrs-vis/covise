@@ -123,7 +123,8 @@ CsvRenderObject renderObject;
 
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
-    : m_numThreads(std::thread::hardware_concurrency())
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , m_numThreads(std::thread::hardware_concurrency())
     , ui::Owner("CsvPointCloud10", cover->ui)
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud11", this))
     , m_dataSelector(new ui::SelectionList(m_CsvPointCloudMenu, "ScalarData"))

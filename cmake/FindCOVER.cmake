@@ -122,7 +122,7 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
    endif()
   
   set_target_properties(${targetname} PROPERTIES FOLDER "OpenCOVER_Plugins")
-  
+  target_compile_definitions(${targetname} PRIVATE COVER_PLUGIN_NAME="${targetname}")
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
 

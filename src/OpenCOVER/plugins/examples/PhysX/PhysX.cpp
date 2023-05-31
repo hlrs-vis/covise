@@ -28,6 +28,7 @@
 #include <physics/Callbacks.h>
 using namespace opencover;
 PhysX::PhysX()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "PhysX World\n");
 

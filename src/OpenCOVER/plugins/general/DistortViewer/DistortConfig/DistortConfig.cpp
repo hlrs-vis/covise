@@ -29,6 +29,7 @@
 // Konstruktor
 // wird aufgerufen wenn das Plugin gestartet wird
 DistortConfig::DistortConfig()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     std::cerr << "DistortConfig::DistortConfig\n" << std::endl;
 }

@@ -33,7 +33,8 @@
 using namespace covise;
 
 LogoPlugin::LogoPlugin()
-    : camera(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, camera(NULL)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nLogoPlugin::LogoPlugin\n");

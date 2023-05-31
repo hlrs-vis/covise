@@ -16,6 +16,7 @@ using namespace opencover;
 
 
 NvTop::NvTop()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

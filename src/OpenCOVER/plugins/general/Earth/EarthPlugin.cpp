@@ -173,6 +173,7 @@ struct KMLUIBuilder : public osg::NodeVisitor
 };*/
 
 EarthPlugin::EarthPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     int _maxLights = Registry::instance()->getCapabilities().getMaxLights();
     plugin = this;

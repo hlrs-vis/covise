@@ -35,6 +35,7 @@ SysPlugin::~SysPlugin()
 }
 
 VideoPlugin::VideoPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     frameCount = 0;
     captureActive = 0;

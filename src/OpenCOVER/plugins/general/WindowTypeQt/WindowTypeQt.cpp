@@ -101,7 +101,8 @@ bool enableCompositing(QWidget *window, bool state)
 }
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
-: ui::Owner("QtWindow", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("QtWindow", cover->ui)
 {
     //fprintf(stderr, "WindowTypeQtPlugin::WindowTypeQtPlugin\n");
 }

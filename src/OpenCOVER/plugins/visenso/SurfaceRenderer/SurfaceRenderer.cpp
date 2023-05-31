@@ -43,31 +43,32 @@ SurfaceRenderer *SurfaceRenderer::plugin = NULL;
 //Implements SurfaceRenderer::SurfaceRenderer()
 //---------------------------------------------------
 SurfaceRenderer::SurfaceRenderer()
-    : GenericGuiObject("SurfaceRenderer")
-    , m_rpRootSwitchNode(NULL)
-    , m_rpTransMatrixNode(NULL)
-    ,
-    //m_pPlaneSurface(NULL),
-    //m_Plane(NULL),
-    //m_Surface(NULL),
-    m_Sphere(NULL)
-    ,
-    // SphereSurface not available m_pSphereSurface(NULL),
-    m_Strip(NULL)
-    , m_pMobiusStrip(NULL)
-    ,
-    //m_Wendel(NULL),
-    //m_pWendelSurface(NULL),
-    //m_Zylinder(NULL),
-    //m_pZylinderSurface(NULL),
-    //m_Kegel(NULL),
-    //m_pKegelSurface(NULL),
-    //m_Dini(NULL),
-    //m_Torus(NULL),
-    //m_Sattel(NULL),
-    //m_Boloid(NULL),
-    //m_Flasche(NULL),
-    m_CreatedCurve(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, GenericGuiObject("SurfaceRenderer")
+, m_rpRootSwitchNode(NULL)
+, m_rpTransMatrixNode(NULL)
+,
+//m_pPlaneSurface(NULL),
+//m_Plane(NULL),
+//m_Surface(NULL),
+m_Sphere(NULL)
+,
+// SphereSurface not available m_pSphereSurface(NULL),
+m_Strip(NULL)
+, m_pMobiusStrip(NULL)
+,
+//m_Wendel(NULL),
+//m_pWendelSurface(NULL),
+//m_Zylinder(NULL),
+//m_pZylinderSurface(NULL),
+//m_Kegel(NULL),
+//m_pKegelSurface(NULL),
+//m_Dini(NULL),
+//m_Torus(NULL),
+//m_Sattel(NULL),
+//m_Boloid(NULL),
+//m_Flasche(NULL),
+m_CreatedCurve(NULL)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n SurfaceRenderer::SurfaceRenderer \n");

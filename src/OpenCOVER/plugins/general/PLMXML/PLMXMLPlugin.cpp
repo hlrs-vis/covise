@@ -107,6 +107,7 @@ int PLMXMLPlugin::unloadPLMXML(const char *filename, const char *)
 }
 
 PLMXMLPlugin::PLMXMLPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

@@ -42,6 +42,7 @@
 using namespace opencover;
 
 Background::Background()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "\nBackground Plugin\n");
 

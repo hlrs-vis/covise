@@ -23,6 +23,7 @@
 #include <osg/MatrixTransform>
 
 ShowTrackerObjectsPlugin::ShowTrackerObjectsPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 
