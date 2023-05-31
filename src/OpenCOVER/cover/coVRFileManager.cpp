@@ -595,16 +595,24 @@ osg::Node *LoadedFile::load()
 
 osg::Node *getNodeIfExists(const std::string &name, const std::string &path)
 {
-    if (fs::exists(path))
+    try
     {
-        auto node = osgDB::readNodeFile(path);
-        if (node)
-            node->setName(name);
-        else
+        if (fs::exists(path))
         {
-            std::cerr << "Error loading icon " << name << std::endl;
+            auto node = osgDB::readNodeFile(path);
+            if (node)
+                node->setName(name);
+            else
+            {
+                std::cerr << "Error loading icon " << name << std::endl;
+            }
+            return node;
         }
-        return node;
+
+    }
+    catch (const std::exception&)
+    {
+        return nullptr;
     }
     return nullptr;
 }
@@ -1369,10 +1377,17 @@ const char *coVRFileManager::getName(const char *file)
 
 bool coVRFileManager::makeRelativeToSharedDataLink(std::string & fileName)
 {
-	if (fs::exists(fileName))
-	{
-		return makeRelativePath(fileName, m_sharedDataLink);
-	}
+    try
+    {
+        if (fs::exists(fileName))
+        {
+            return makeRelativePath(fileName, m_sharedDataLink);
+        }
+    }
+    catch(fs::filesystem_error)
+    {
+        return false;
+    }
 	return false;
 	
 }
@@ -1400,7 +1415,15 @@ void coVRFileManager::checkRemoteFetchDirShared()
     ms->sync();
     if (ms->isSlave())
     {
-        auto shared = fs::exists(testFile);
+        bool shared;
+        try
+        {
+            shared = fs::exists(testFile);
+        }
+        catch (fs::filesystem_error)
+        {
+            shared = false;
+        }
         ms->sendMaster(&shared, sizeof(bool));
     }
     else if(ms->getNumSlaves() > 0)
@@ -1494,9 +1517,16 @@ std::string coVRFileManager::findFile(const std::string &fileName)
     };
     for(const auto &p : searchLocations)
     {
-        if(fs::exists(p))
+        try
         {
-            return p.string();
+            if (fs::exists(p))
+            {
+                return p.string();
+            }
+        }
+        catch (fs::filesystem_error)
+        {
+            return "";
         }
     }
     return "";
@@ -2148,8 +2178,15 @@ std::string coVRFileManager::writeRemoteFetchedFile(const std::string& filePath,
     if (remoteFetchPathShared && ms->isSlave()) //if shared, write a shared file on master and tmp files on slaves to counter slowly updating network filesystems
         p = remoteFetchPathTmp ;
     p += "/" + getRemoteFetchHashPrefix(filePath, remoteFetchHashPrefix);
-    if(!fs::exists(p))
+    try
+    {
+        if (!fs::exists(p))
+            fs::create_directories(p);
+    }
+    catch (fs::filesystem_error)
+    {
         fs::create_directories(p);
+    }
     p += path.filename().string();
 
     if ((size > 0) && !fileExist(p))
