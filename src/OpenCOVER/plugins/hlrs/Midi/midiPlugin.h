@@ -195,6 +195,8 @@ public:
 	enum surfaceType {SurfacePlane,SurfaceCylinder,SurfaceSphere};
 
 	virtual bool update();
+	virtual void show();
+	virtual void hide();
 	void setType(surfaceType st);
 	float radius1;
 	float radius2;
@@ -213,6 +215,7 @@ protected:
 	osg::Vec2Array *texCoord;
 	AudioInStream* stream;
 	static osg::ref_ptr <osg::Material>globalDefaultMaterial;
+	osg::Group* parent;
 };
 
 
@@ -464,6 +467,7 @@ private:
 
 public:
 
+	ui::Button* TubeButton = nullptr;
     UDPComm *udp= nullptr;
     static const size_t NUMMidiStreams = 16;
     double  tempo;

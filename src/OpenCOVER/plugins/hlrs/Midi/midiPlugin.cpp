@@ -1675,6 +1675,23 @@ void MidiPlugin::MIDItab_create(void)
 		}
 	});
 
+	TubeButton = new ui::Button(MIDITab, "Tube");
+	TubeButton->setState(true);
+	TubeButton->setText("Tube");
+	TubeButton->setCallback([this](bool state) {
+		for (const auto &surface : waveSurfaces)
+		{
+			if (state)
+			{
+				surface->show();
+			}
+			else
+			{
+				surface->hide();
+			}
+		}
+		});
+
 	clearStoreButton = new ui::Button(MIDITab, "ClearStore");
 	clearStoreButton->setText("Clear Store");
 	clearStoreButton->setCallback([this](bool) {
@@ -2569,12 +2586,13 @@ bool AmplitudeSurface::update()
 	normals->dirty();
 	return true;
 }
-WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
+WaveSurface::WaveSurface(osg::Group * p, AudioInStream *s, int w)
 {
 	stream = s;
 	width = w;
 	radius1 = 40.0;
 	radius2 = 20.0;
+	parent = p;
 
 	yStep = 0.6;
 	geode = new osg::Geode();
@@ -2723,6 +2741,16 @@ void WaveSurface::createNormals()
 		(*normals)[n].normalize();
 	}
 
+}
+void WaveSurface::show()
+{
+    if (geode->getNumParents() == 0 )
+        parent->addChild(geode.get());
+}
+void WaveSurface::hide()
+{
+	if (geode->getNumParents() > 0 &&  geode->getParent(0) == parent)
+		parent->removeChild(geode.get());
 }
 bool WaveSurface::update()
 {
