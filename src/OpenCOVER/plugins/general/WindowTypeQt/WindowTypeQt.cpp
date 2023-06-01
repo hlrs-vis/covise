@@ -133,6 +133,7 @@ bool WindowTypeQtPlugin::init()
     });
     sh->addShortcut("h");
     sh->addShortcut("F1");
+    cover->viewOptionsMenu->add(sh);
 
     return true;
 }
