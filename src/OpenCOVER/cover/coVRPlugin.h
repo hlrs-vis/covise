@@ -83,7 +83,6 @@ class COVEREXPORT coVRPlugin
     friend class coVRPluginList;
 
 public:
-    static std::string coverPluginName;
     enum NotificationLevel {
         Info,
         Warning,
