@@ -86,36 +86,52 @@ SidecarConfigBridge::SidecarConfigBridge(const std::string &file, bool saveOnDes
     }
 }
 
-SidecarConfigBridge::~SidecarConfigBridge()
+static void pruneEmptySections(toml::v3::table *tbl)
 {
-    if (!m_save || m_toml.size()==0)
+    if (!tbl)
         return;
-    bool found = false;
-    for (const auto& i : m_toml)
+    auto it = tbl->begin();
+    while (it != tbl->end())
     {
-        toml::v3::table *t = i.second.as_table();
+        toml::v3::table *t = it->second.as_table();
         if (t)
         {
-            if (t->size() > 0)
+            pruneEmptySections(t);
+            if (t->empty())
             {
-                found = true;
-                break;
+                it = t->erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
+        else
+        {
+            ++it;
+        }
     }
-    if (!found) // nothing found
+}
+
+SidecarConfigBridge::~SidecarConfigBridge()
+{
+    if (!m_save)
         return;
+    pruneEmptySections(&m_toml);
     std::string temp = m_file + ".new";
     try
     {
-        std::ofstream f(temp);
-        f << m_toml;
-        f.close();
+        if (!m_toml.empty())
+        {
+            std::ofstream f(temp);
+            f << m_toml;
+            f.close();
+        }
         std::string backup = m_file + ".backup";
         std::remove(backup.c_str());
         std::rename(m_file.c_str(), backup.c_str());
         std::remove(m_file.c_str());
-        if (std::rename(temp.c_str(), m_file.c_str()) != 0)
+        if (!m_toml.empty() && std::rename(temp.c_str(), m_file.c_str()) != 0)
         {
             std::cerr << "failed to move updated config to " << m_file << std::endl;
         }
