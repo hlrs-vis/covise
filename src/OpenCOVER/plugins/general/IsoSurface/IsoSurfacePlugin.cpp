@@ -21,7 +21,7 @@ using namespace grmsg;
 using namespace opencover;
 
 IsoSurfacePlugin::IsoSurfacePlugin()
-    : ModuleFeedbackPlugin()
+    : ModuleFeedbackPlugin("IsoSurface")
 {
 }
 

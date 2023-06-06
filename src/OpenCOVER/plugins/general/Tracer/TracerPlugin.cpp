@@ -226,7 +226,7 @@ TracerPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
 //-----------------------------------------------------------------------------
 
 TracerPlugin::TracerPlugin()
-    : ModuleFeedbackPlugin()
+    : ModuleFeedbackPlugin("Tracer")
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nTracerPlugin::TracerPlugin\n");

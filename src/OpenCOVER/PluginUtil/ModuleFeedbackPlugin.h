@@ -29,7 +29,7 @@ namespace opencover
 class PLUGIN_UTILEXPORT ModuleFeedbackPlugin : public opencover::coVRPlugin
 {
 public:
-    ModuleFeedbackPlugin();
+    ModuleFeedbackPlugin(const char *pluginName);
     virtual ~ModuleFeedbackPlugin();
 
     // if a ModuleFeedbackManager object is already present in

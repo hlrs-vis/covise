@@ -20,8 +20,8 @@ DLinkList<ModuleFeedbackManager *> ModuleFeedbackPlugin::_ComplexModuleList;
 // ----------------------------------------------------------------
 // construction / destruction
 // ----------------------------------------------------------------
-ModuleFeedbackPlugin::ModuleFeedbackPlugin()
-: coVRPlugin("ModuleFeedback")
+ModuleFeedbackPlugin::ModuleFeedbackPlugin(const char *pluginName)
+: coVRPlugin(pluginName)
 {
     _ComplexModuleList.noDelete = 1;
     myInteractions_.noDelete = 1;

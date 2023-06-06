@@ -174,7 +174,7 @@ void CuttingSurfacePlugin::preFrame()
 }
 
 CuttingSurfacePlugin::CuttingSurfacePlugin()
-    : ModuleFeedbackPlugin()
+    : ModuleFeedbackPlugin("CuttingSurface")
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nCuttingSurfacePlugin::CuttingSurfacePlugin\n");
