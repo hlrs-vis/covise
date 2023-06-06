@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <iostream>
 #include <sstream>
-#include <anari/type_utility.h>
+#include <anari/anari_cpp.hpp>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
