@@ -99,7 +99,7 @@ static void pruneEmptySections(toml::v3::table *tbl)
             pruneEmptySections(t);
             if (t->empty())
             {
-                it = t->erase(it);
+                it = tbl->erase(it);
             }
             else
             {
