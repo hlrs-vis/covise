@@ -79,13 +79,14 @@ void SwitchDataPlugin::removeObject(const char *contName, bool r)
 //-----------------------------------------------------------------------------
 
 SwitchDataPlugin::SwitchDataPlugin()
-    : firsttime(true)
-    , inter(NULL)
-    , checkboxgroup(NULL)
-    , numChoices(0)
-    , choices(NULL)
-    , tuiTab(NULL)
-    , currentObjectName(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, firsttime(true)
+, inter(NULL)
+, checkboxgroup(NULL)
+, numChoices(0)
+, choices(NULL)
+, tuiTab(NULL)
+, currentObjectName(NULL)
 {
     // get the parameter names (this is hardcoded)
     choiceParamName = "switch";

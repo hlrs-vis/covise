@@ -31,6 +31,7 @@ static FileHandler TextHandler = {
 };
 
 FileLoaderPlugin::FileLoaderPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "FileLoaderPlugin::FileLoaderPlugin\n");
 

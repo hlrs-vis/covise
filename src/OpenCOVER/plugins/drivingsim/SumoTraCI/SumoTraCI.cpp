@@ -28,17 +28,20 @@
 #include <cmath>
 #include <random>
 
-#include <cover/coVRPluginSupport.h>
-#include <cover/coVRMSController.h>
 #include <config/CoviseConfig.h>
-#include <TrafficSimulation/Vehicle.h>
-#include <TrafficSimulation/CarGeometry.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
+#include <PluginUtil/PluginMessageTypes.h>
+#include <TrafficSimulation/CarGeometry.h>
+#include <TrafficSimulation/Vehicle.h>
 #include <util/unixcompat.h>
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
+#include <cover/ui/FileBrowser.h>
 #include <osg/Switch>
 
 
@@ -61,7 +64,9 @@ void simulationConfig::add(ui::Menu* menu)
 
 SumoTraCI* SumoTraCI:: thisPlugin=nullptr;
 
-SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
+SumoTraCI::SumoTraCI() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("SumoTraCI", cover->ui)
 {
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
     thisPlugin = this;
@@ -150,6 +155,7 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
             parent = escooterGroup;
 			
         av = new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
+        imageDescriptor.registerRoadUser(vehicleIndex, vehicleID, av->getCarGeometry()->getTransform());
         vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicles->at(vehicleIndex).vehicleName,av));
     }
     return av;
@@ -328,6 +334,24 @@ bool SumoTraCI::initUI()
     trafficRateUI->setPresentation(ui::Slider::AsDial);
     trafficRateUI->setValue(1.0);
 
+    imageDescriptionFileUI = new ui::FileBrowser(traciMenu, "imageDescriptionFile");
+    imageDescriptionFileUI->setText("image description file");
+    imageDescriptionFileUI->setFilter("*.json");
+    imageDescriptionFileUI->setCallback([this](const std::string &filename)
+    {
+        Url url = Url::fromFileOrUrl(filename);
+        if (!url.valid() || url.scheme() != "file")
+        {
+            std::cerr << "failed to parse URL " << filename << std::endl;
+            return;
+        }
+        imageDescriptor.open(url.authority() + url.path());
+    });
+
+    recordImageDescriptionsUI = new ui::Button(traciMenu, "recordImageDescriptions");
+    recordImageDescriptionsUI->setState(false);
+    recordImageDescriptionsUI->setText("record image description");
+
     //Modal Split
     modalSplit bus;
     bus.modalSplitButton = new ui::Button(traciMenu, "fixModalSplitBus");
@@ -385,6 +409,36 @@ bool SumoTraCI::compareTAZending(std::string& TAZ, std::string ending)
         return false;
     }
 }
+
+void SumoTraCI::preSwapBuffers(int windowNumber)
+{
+    if(windowNumber == 0 && recordImageDescriptionsUI->state())
+        imageDescriptor.update();
+}
+
+void SumoTraCI::message(int toWhom, int type, int len, const void *buf)
+{
+switch (type)
+{
+case PluginMessageTypes::VideoStartCapture:
+{
+    if (recordImageDescriptionsUI->state())
+    {
+        std::string filename = (const char*)buf;
+        filename = filename.substr(0, filename.find_last_of('.')) + ".json";
+        imageDescriptor.open(filename);
+    }
+}
+break;
+case PluginMessageTypes::VideoEndCapture:
+    imageDescriptor.open("");
+    break;
+
+default:
+    break;
+}
+}
+
 
 void SumoTraCI::preFrame()
 {
@@ -898,7 +952,9 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
     {
         vp.rangeLOD = 1600;
     }
-    return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
+    auto vehicle = new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
+    imageDescriptor.registerRoadUser(0, vehicleID, av->getCarGeometry()->getTransform());
+    return vehicle;
 }
 
 PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
@@ -913,7 +969,9 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
 
     pedestrianModel p = pedestrianModels[pedestrianIndex];
     const float pedestrianLODDistance = 40.0; //1600 
-    return new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, pedestrianGroup);
+    auto pedGeo = new PedestrianGeometry(ID, p.fileName,p.scale, pedestrianLODDistance, a, pedestrianGroup);
+    imageDescriptor.registerRoadUser(pedestrianIndex, ID, pedGeo->getTransform());
+    return pedGeo;
 }
 
 void SumoTraCI::getPedestriansFromConfig()
@@ -956,6 +1014,7 @@ void SumoTraCI::loadAllVehicles()
 			if (vehicleClass == "bicycle")
 				parent = escooterGroup;
             AgentVehicle * av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
+            imageDescriptor.registerRoadUser(std::distance(vehicles->begin(), itr2), "test3", av->getCarGeometry()->getTransform());
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
         }
     }

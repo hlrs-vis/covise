@@ -28,10 +28,11 @@ IndoorNavigation *IndoorNavigation::plugin = NULL;
 // Constructor
 //
 IndoorNavigation::IndoorNavigation()
-    : path(NULL)
-    , avatar(NULL)
-    , pluginBaseNode(NULL)
-    , animationSeconds(0.0f)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, path(NULL)
+, avatar(NULL)
+, pluginBaseNode(NULL)
+, animationSeconds(0.0f)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nIndoorNavigation::IndoorNavigation\n");

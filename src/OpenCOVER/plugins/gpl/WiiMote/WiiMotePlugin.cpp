@@ -17,6 +17,7 @@
 #include <cover/RenderObject.h>
 
 WiiMote::WiiMote()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "WiiMote::WiiMote\n");
     wii = new Wiimote();

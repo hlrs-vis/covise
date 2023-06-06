@@ -42,9 +42,10 @@ using namespace std;
 //!##########################//
 
 VOIPer::VOIPer()
-    : hOPAL_(NULL)
-    , currentCallToken_(NULL)
-    , currentIncomingCallToken_(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, hOPAL_(NULL)
+, currentCallToken_(NULL)
+, currentIncomingCallToken_(NULL)
 {
 }
 

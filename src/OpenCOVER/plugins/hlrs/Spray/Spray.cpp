@@ -28,7 +28,9 @@ class nozzleManager* nM = nozzleManager::instance();
 
 parser* parser::_instance = 0;
 
-SprayPlugin::SprayPlugin(): ui::Owner("Spray", cover->ui)
+SprayPlugin::SprayPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("Spray", cover->ui)
 {
     cerr << "Let it spray" << endl;
 }

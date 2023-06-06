@@ -26,6 +26,7 @@
 #include <osg/Vec4>
 using namespace opencover;
 Wuerfel::Wuerfel()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Wuerfel World\n");
 

@@ -8,7 +8,15 @@ constexpr auto colorFormat = GL_RGBA;
 constexpr auto NumbersPerPixel = 4;
 
 Stream::Stream()
-    : m_tab("Stream", coVRTui::instance()->mainFolder->getID()), m_streamButton("stream", m_tab.getID(), false), m_streamNumberLabel("video device number", m_tab.getID()), m_streamNumber("device number", m_tab.getID()), m_outputResolutionLabel("Virtual webcam resolution", m_tab.getID()), m_outputResolutionWidth("width", m_tab.getID()), m_outputResolutionHeight("height", m_tab.getID()), m_mirrorButton("mirror image", m_tab.getID())
+: coVRPlugin(COVER_PLUGIN_NAME)
+, m_tab("Stream", coVRTui::instance()->mainFolder->getID())
+, m_streamButton("stream", m_tab.getID(), false)
+, m_streamNumberLabel("video device number", m_tab.getID())
+, m_streamNumber("device number", m_tab.getID())
+, m_outputResolutionLabel("Virtual webcam resolution", m_tab.getID())
+, m_outputResolutionWidth("width", m_tab.getID())
+, m_outputResolutionHeight("height", m_tab.getID())
+, m_mirrorButton("mirror image", m_tab.getID())
 {
 
     m_streamNumberLabel.setColor(Qt::black);

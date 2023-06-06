@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "LocalData.h"
+#include "coVRFileManager.h"
 #include <util/coTabletUIMessages.h>
 #include <net/tokenbuffer.h>
 #include <tui/coAbstractTabletUI.h>
@@ -352,8 +353,7 @@ void LocalData::setFile(std::string file)
 
 void LocalData::setSelectedPath(std::string path)
 {
-    this->mFileLocation = "file://";
-    this->mFileLocation += path;
+    this->mFileLocation = "file://" + path;
 }
 
 std::string LocalData::getSelectedPath()
@@ -361,10 +361,14 @@ std::string LocalData::getSelectedPath()
     return this->mFileLocation;
 }
 
-std::string LocalData::resolveToAbsolute(std::string dir)
+std::string LocalData::resolveToAbsolute(const std::string &dir)
 {
-    QDir tempDir(QString(dir.c_str()));
-    QString ap = tempDir.absolutePath();
-
-    return ap.toStdString();
+    auto d = dir;
+    Url url = Url::fromFileOrUrl(dir);
+    if (url.valid() && url.scheme() == "file")
+    {
+        d = url.authority() + url.path();
+    }
+    QDir tempDir(QString(d.c_str()));
+    return tempDir.absolutePath().toStdString();
 }

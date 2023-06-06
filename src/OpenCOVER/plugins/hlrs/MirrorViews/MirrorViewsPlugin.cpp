@@ -34,6 +34,7 @@
 #include "ip/IpEndpointName.h"
 
 MirrorViewsPlugin::MirrorViewsPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "MirrorViewsPlugin::MirrorViewsPlugin\n");
 

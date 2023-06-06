@@ -259,6 +259,7 @@ void Highscore::tabletEvent(coTUIElement *tUIItem)
 }
 
 Highscore::Highscore()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     myInstance = this;
 }

@@ -30,6 +30,7 @@
 #include "TrackerMarker.h"
 
 TrackerMarkerPlugin::TrackerMarkerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

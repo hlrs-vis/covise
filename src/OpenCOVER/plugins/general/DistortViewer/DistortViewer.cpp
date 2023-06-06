@@ -41,6 +41,7 @@
 // Konstruktor
 // wird aufgerufen wenn das Plugin gestartet wird
 DistortViewer::DistortViewer()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "DistortViewer::DistortViewer\n");
 

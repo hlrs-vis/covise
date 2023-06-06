@@ -60,6 +60,8 @@ public:
         PointCloudSelectionIsBoundaryMsg = 262,
         PointCloudSelectionSetMsg = 263,
         Browser = 264,
+        VideoStartCapture = 265,
+        VideoEndCapture = 266,
 
         // COVERScript
         COVERScriptEvaluate = 300,

@@ -62,6 +62,7 @@ namespace TrafficSimulation
         }
 
         void setTransform(vehicleUtil::Transform&, double);
+        osg::MatrixTransform *getTransform() {return pedTransform;}
 
         bool isGeometryWithinLOD();
         bool isGeometryWithinRange(const double r) const;

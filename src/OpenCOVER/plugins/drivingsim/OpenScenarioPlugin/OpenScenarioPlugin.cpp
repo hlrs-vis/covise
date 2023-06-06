@@ -77,6 +77,7 @@ static FileHandler handlers[] = {
 };
 
 OpenScenarioPlugin::OpenScenarioPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 	plugin = this;
 

@@ -371,8 +371,9 @@ FileHandler fileHandler[] = {
 
 /// Constructor
 VolumePlugin::VolumePlugin()
-    : ui::Owner("VolumePlugin", cover->ui)
-    , editor(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("VolumePlugin", cover->ui)
+, editor(NULL)
 {
 }
 

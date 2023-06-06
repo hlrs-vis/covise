@@ -18,6 +18,7 @@
 HMDCalibration *plugin = NULL;
 
 HMDCalibration::HMDCalibration()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "HMDCalibration::HMDCalibration\n");
 

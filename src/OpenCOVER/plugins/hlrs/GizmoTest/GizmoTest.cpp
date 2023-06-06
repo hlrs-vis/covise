@@ -23,6 +23,7 @@ void GizmoTest::preFrame()
 }
 
 GizmoTest::GizmoTest()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
    
     osg::Box *unitCube1 = new osg::Box(osg::Vec3(0, 0, 0), 10.0f);

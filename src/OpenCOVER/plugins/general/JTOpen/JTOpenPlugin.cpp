@@ -1003,6 +1003,7 @@ int JTOpenPlugin::unloadJT(const char *filename, const char *)
 }
 
 JTOpenPlugin::JTOpenPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     // Initialize JtTk
     JtkEntityFactory::init();

@@ -44,6 +44,7 @@ static std::vector<std::string> ParamVars;
 // constructor
 // -----------------------------------------------------------------------------
 CDFPlugin::CDFPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     cbxGridOutX = NULL;
     cbxGridOutY = NULL;

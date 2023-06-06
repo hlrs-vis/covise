@@ -26,15 +26,16 @@ inline double drand48(void)
 SnowPlugin *SnowPlugin::plugin = NULL;
 
 SnowPlugin::SnowPlugin()
-    : snow(NULL)
-    , x(NULL)
-    , y(NULL)
-    , z(NULL)
-    , r(NULL)
-    , nx(NULL)
-    , ny(NULL)
-    , nz(NULL)
-    , FloorHeight(-10.)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, snow(NULL)
+, x(NULL)
+, y(NULL)
+, z(NULL)
+, r(NULL)
+, nx(NULL)
+, ny(NULL)
+, nz(NULL)
+, FloorHeight(-10.)
 {
     cerr << "Let it snow" << endl;
     plugin = this;

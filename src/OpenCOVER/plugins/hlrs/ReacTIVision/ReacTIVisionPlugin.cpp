@@ -36,6 +36,7 @@
 #include "BBM_Event.h"
 
 ReacTIVisionPlugin::ReacTIVisionPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "ReacTIVisionPlugin::ReacTIVisionPlugin\n");
     int port = 3333;

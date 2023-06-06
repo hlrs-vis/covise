@@ -26,6 +26,7 @@
 #define MyNAN 10000000.0
 
 Calibrate::Calibrate()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     position = NULL;
     orientation = NULL;

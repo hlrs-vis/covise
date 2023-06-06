@@ -857,6 +857,7 @@ void SteeringWheelPlugin::tabletEvent(coTUIElement *tUIItem)
 }
 
 SteeringWheelPlugin::SteeringWheelPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

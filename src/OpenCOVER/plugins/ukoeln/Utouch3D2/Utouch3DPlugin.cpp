@@ -28,14 +28,15 @@ using namespace opencover;
 OpenThreads::Mutex Utouch3DPlugin::mutex;
 
 Utouch3DPlugin::Utouch3DPlugin()
-    : covise::coInteraction(covise::coInteraction::ButtonA, "Utouch3D", covise::coInteraction::NavigationHigh)
-    , touchPointsVisible(0)
-    , needsActivation(false)
-    , needsDeactivation(false)
-    , isActivating(false)
-    , actingAsMouse(false)
-    , mouseID(-1)
-    , checkForMenuEventsHandled(0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, covise::coInteraction(covise::coInteraction::ButtonA, "Utouch3D", covise::coInteraction::NavigationHigh)
+, touchPointsVisible(0)
+, needsActivation(false)
+, needsDeactivation(false)
+, isActivating(false)
+, actingAsMouse(false)
+, mouseID(-1)
+, checkForMenuEventsHandled(0)
 {
 }
 

@@ -44,7 +44,8 @@ void removeSpikesAdaptive(const float *data, int numElem,
                           float *min, float *max);
 
 cuIsoSurface::cuIsoSurface()
-: ui::Owner("cuIsoSurface", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("cuIsoSurface", cover->ui)
 , initDone(false)
 , menu(NULL)
 {

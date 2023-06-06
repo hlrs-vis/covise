@@ -54,6 +54,7 @@ PointRayTracerPlugin *PointRayTracerPlugin::instance()
 
 
 PointRayTracerPlugin::PointRayTracerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //register file handler
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);

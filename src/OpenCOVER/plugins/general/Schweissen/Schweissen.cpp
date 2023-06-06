@@ -80,6 +80,7 @@ void SchweissbrennerSensor::disactivate()
 }
 
 Schweissen::Schweissen()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

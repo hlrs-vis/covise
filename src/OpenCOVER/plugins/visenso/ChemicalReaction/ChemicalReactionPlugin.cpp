@@ -30,7 +30,8 @@ using namespace grmsg;
 ChemicalReactionPlugin *ChemicalReactionPlugin::plugin = NULL;
 
 ChemicalReactionPlugin::ChemicalReactionPlugin()
-    : GenericGuiObject("ChemicalReaction")
+: coVRPlugin(COVER_PLUGIN_NAME)
+, GenericGuiObject("ChemicalReaction")
 {
     if (cover->debugLevel(0))
         fprintf(stderr, "\nChemicalReactionPlugin::ChemicalReactionPlugin\n");

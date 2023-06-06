@@ -747,6 +747,7 @@ void Trajectory::recalc()
 }
 
 BPAPlugin::BPAPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "BPAPlugin::BPAPlugin\n");
 

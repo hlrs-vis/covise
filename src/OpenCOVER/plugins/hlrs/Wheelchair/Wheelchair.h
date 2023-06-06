@@ -50,7 +50,7 @@ struct WCDataOut
 
 
 
-class PLUGINEXPORT Wheelchair :  public opencover::coVRPlugin, public OpenThreads::Thread, public opencover::coVRNavigationProvider
+class PLUGINEXPORT Wheelchair : public opencover::coVRPlugin, public OpenThreads::Thread, public opencover::coVRNavigationProvider
 {
 public:
     Wheelchair();

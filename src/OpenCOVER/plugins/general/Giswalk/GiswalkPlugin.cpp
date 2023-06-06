@@ -81,6 +81,7 @@ GiswalkPlugin *GiswalkPlugin::instance()
 }
 
 GiswalkPlugin::GiswalkPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //positions=NULL;
     thePlugin = this;

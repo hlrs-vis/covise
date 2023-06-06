@@ -416,6 +416,7 @@ void MultiBodyPlugin::key(int type, int keySym, int mod)
 
 //-----------------------------------------------------------------------------
 MultiBodyPlugin::MultiBodyPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin_ = this;
     vranimTab = NULL;

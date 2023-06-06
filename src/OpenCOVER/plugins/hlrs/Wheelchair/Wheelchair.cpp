@@ -31,7 +31,8 @@ static float zeroAngle = 1152.;
 
 
 Wheelchair::Wheelchair()
-	: coVRNavigationProvider("Wheelchair",this)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, coVRNavigationProvider("Wheelchair",this)
 {
     wcData.countLeft = 0;
     wcData.countRight = 0;

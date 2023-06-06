@@ -101,7 +101,8 @@ bool enableCompositing(QWidget *window, bool state)
 }
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
-: ui::Owner("QtWindow", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("QtWindow", cover->ui)
 {
     //fprintf(stderr, "WindowTypeQtPlugin::WindowTypeQtPlugin\n");
 }
@@ -132,6 +133,7 @@ bool WindowTypeQtPlugin::init()
     });
     sh->addShortcut("h");
     sh->addShortcut("F1");
+    cover->viewOptionsMenu->add(sh);
 
     return true;
 }

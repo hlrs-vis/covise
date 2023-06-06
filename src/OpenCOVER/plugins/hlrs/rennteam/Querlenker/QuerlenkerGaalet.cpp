@@ -9,17 +9,18 @@
 #include <cover/coVRPluginSupport.h>
 
 Querlenker::Querlenker()
-    : ep({ 1.0 })
-    , em({ 1.0 })
-    , en((em - ep) * 0.5)
-    , ei(em + ep)
-    , E(ei ^ en)
-    , e1({ 1.0 })
-    , e2({ 1.0 })
-    , e3({ 1.0 })
-    , I(e1 * e2 * e3 * ep * em)
-    , i(e1 * e2 * e3)
-    , one({ 1.0 })
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ep({ 1.0 })
+, em({ 1.0 })
+, en((em - ep) * 0.5)
+, ei(em + ep)
+, E(ei ^ en)
+, e1({ 1.0 })
+, e2({ 1.0 })
+, e3({ 1.0 })
+, I(e1 * e2 * e3 * ep * em)
+, i(e1 * e2 * e3)
+, one({ 1.0 })
 {
     alpha = 0.0;
     beta = 0.0;

@@ -24,18 +24,19 @@
 #include <cover/RenderObject.h>
 
 MassPointDynamicsPlugin::MassPointDynamicsPlugin()
-    : system()
-    , massPointVector(system.getMassPointVector())
-    , jointVector(system.getJointVector())
-    , integrator(massPointVector, jointVector)
-    , time(0.0)
-    , sphere(NULL)
-    , sphereDrawable(NULL)
-    , massPointGeode(NULL)
-    , planeVertices(NULL)
-    , planeBase(NULL)
-    , planeGeometry(NULL)
-    , planeGeode(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, system()
+, massPointVector(system.getMassPointVector())
+, jointVector(system.getJointVector())
+, integrator(massPointVector, jointVector)
+, time(0.0)
+, sphere(NULL)
+, sphereDrawable(NULL)
+, massPointGeode(NULL)
+, planeVertices(NULL)
+, planeBase(NULL)
+, planeGeometry(NULL)
+, planeGeode(NULL)
 
 {
     fprintf(stderr, "MassPointDynamicsPlugin::MassPointDynamicsPlugin\n");

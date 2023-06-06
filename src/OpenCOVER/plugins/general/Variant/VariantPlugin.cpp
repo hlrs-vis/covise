@@ -70,7 +70,8 @@ VariantMarker::~VariantMarker() = default;
 //------------------------------------------------------------------------------------------------------------------------------
 
 VariantPlugin::VariantPlugin()
-: ui::Owner("VariantPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("VariantPlugin", cover->ui)
 {
     assert(plugin == NULL);
     plugin = this;

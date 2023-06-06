@@ -69,6 +69,7 @@ using namespace grmsg;
 ParametricSurfaces *ParametricSurfaces::plugin = NULL;
 //
 ParametricSurfaces::ParametricSurfaces()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //Wurzelknoten von allen
     root = new osg::Group();

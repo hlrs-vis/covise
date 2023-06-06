@@ -111,8 +111,6 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
     }
 
     plugin->handle = handle;
-    plugin->setName(name);
-
     return plugin;
 }
 

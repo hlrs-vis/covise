@@ -77,7 +77,8 @@ int ANARIPlugin::unloadVolumeRAW(const char *fileName, const char *)
 }
 
 ANARIPlugin::ANARIPlugin()
-: ui::Owner("ANARI",cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ANARI",cover->ui)
 {
 }
 

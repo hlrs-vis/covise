@@ -44,9 +44,10 @@ BezierCurvePlugin *BezierCurvePlugin::plugin = NULL;
 // Constructor
 //
 BezierCurvePlugin::BezierCurvePlugin()
-    : node_(NULL)
-    , plane_(NULL)
-    , planeGeode_(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, node_(NULL)
+, plane_(NULL)
+, planeGeode_(NULL)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nBezierCurvePlugin::BezierCurvePlugin\n");

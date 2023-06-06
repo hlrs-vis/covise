@@ -64,7 +64,8 @@ COVERPLUGIN(PointCloudPlugin)
 
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
-: ui::Owner("PointCloud",cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("PointCloud",cover->ui)
 {
 }
 
@@ -103,6 +104,7 @@ bool PointCloudPlugin::init()
     }
     plugin = this;
     pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSizeValue);
+    m_usePoitSprites = coCoviseConfig::isOn("pointSprites","COVER.Plugin.PointCloud", true);
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);

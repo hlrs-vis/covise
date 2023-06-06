@@ -20,25 +20,24 @@
 
 #include <iostream>
 
-/// Constructor
-TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
-    : TUIContainer(id, type, w, parent, name)
+QScrollArea *makeScrollable(QWidget *parent, QFrame *frame)
 {
-    label = name;
-    QScrollArea *scroll = nullptr;
-
-    bool inMainFolder = parent==3;
-    auto parentWidget = w;
-    if (inMainFolder)
-    {
-        scroll = new QScrollArea(w);
+        auto scroll = new QScrollArea(parent);
         scroll->setMinimumWidth(300);
         scroll->setMinimumHeight(300);
         scroll->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
         scroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
         scroll->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
-        parentWidget = scroll;
-    }
+        scroll->setWidget(frame);
+        scroll->setWidgetResizable(true);
+        return scroll;
+}
+
+/// Constructor
+TUITab::TUITab(int id, int type, QWidget *parentWidget, int parent, QString name)
+    : TUIContainer(id, type, parentWidget, parent, name)
+{
+    label = name;
 
     QFrame *frame = new QFrame(parentWidget);
     frame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
@@ -47,14 +46,12 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
     widget = frame;
     createLayout(frame);
     frame->setLayout(getLayout());
-    if (scroll)
+    
+    bool inMainFolder = parent==3;
+    if (inMainFolder)
     {
-        scroll->setWidget(frame);
-        scroll->setWidgetResizable(true);
-        widget = scroll;
+         widget = makeScrollable(parentWidget, frame);
     }
-
-    firstTime = true;
 }
 
 /// Destructor

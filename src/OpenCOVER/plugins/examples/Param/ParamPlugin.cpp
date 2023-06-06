@@ -36,6 +36,7 @@
 using namespace osg;
 
 ParamPlugin::ParamPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

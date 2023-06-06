@@ -67,6 +67,7 @@ using namespace osg;
 
 /// Constructor
 OssimPlanet::OssimPlanet()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

@@ -78,6 +78,7 @@ private:
     bool polar;
     
     float pointSizeValue = 4;
+    bool m_usePoitSprites=true;
     
     bool adaptLOD = true; // LOD enable/disable
     bool updateLOD = false; // update LOD state in next preFrame()
@@ -145,6 +146,10 @@ public:
 	{
 		return pointSizeValue;
 	}
+    inline bool usePointSprites()
+    {
+        return m_usePoitSprites;
+    }
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
     int unloadFile(const std::string &filename);

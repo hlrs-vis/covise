@@ -77,26 +77,33 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
     stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
 
     osg::PointSprite *sprite = new osg::PointSprite();
-    stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
-
-    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
-    if (mapName != NULL)
+    if (PointCloudPlugin::plugin->usePointSprites())
     {
-        osg::Image *image = osgDB::readImageFile(mapName);
-        osg::Texture2D *tex = new osg::Texture2D(image);
+        stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
 
-        tex->setTextureSize(image->s(), image->t());
-        tex->setInternalFormat(GL_RGBA);
-        tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
-        tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-        stateset->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
-        osg::TexEnv *texEnv = new osg::TexEnv;
-        texEnv->setMode(osg::TexEnv::MODULATE);
-        stateset->setTextureAttributeAndModes(0, texEnv, osg::StateAttribute::ON);
+        const char* mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
+        if (mapName != NULL)
+        {
+            osg::Image* image = osgDB::readImageFile(mapName);
+            osg::Texture2D* tex = new osg::Texture2D(image);
 
-		osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
-		stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+            tex->setTextureSize(image->s(), image->t());
+            tex->setInternalFormat(GL_RGBA);
+            tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+            tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+            stateset->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
+            osg::TexEnv* texEnv = new osg::TexEnv;
+            texEnv->setMode(osg::TexEnv::MODULATE);
+            stateset->setTextureAttributeAndModes(0, texEnv, osg::StateAttribute::ON);
 
+            osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
+            stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+
+        }
+    }
+    else
+    {
+        stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::OFF);
     }
 
     /*osg::Program* program = new osg::Program;

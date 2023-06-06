@@ -632,7 +632,9 @@ osg::Geode *BoreHole::createCleftGeometry(float cleftRadius)
 	return geode;
 }
 
-BorePlugin::BorePlugin() : ui::Owner("BorePlugin", cover->ui)
+BorePlugin::BorePlugin() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("BorePlugin", cover->ui)
 {
 	plugin = this;
     fprintf(stderr, "BorePlugin::BorePlugin\n");

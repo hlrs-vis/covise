@@ -78,6 +78,7 @@
 				  <MarienplatzNoPed value="osm.noPed.sumocfg"/>
                 </Configs>
                 </SumoTraCI>
+    <PointCloud pointSprites="off"/>
    
   </Plugin>
   

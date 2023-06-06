@@ -28,7 +28,11 @@ using namespace opencover;
 // To be added
 // static float zeroAngle = _;
 
-Flux2::Flux2() : udp(NULL), coVRNavigationProvider("Flux2", this) {
+Flux2::Flux2()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, udp(NULL)
+, coVRNavigationProvider("Flux2", this)
+{
     fluxData.brake = 0.0;
     fluxData.steeringAngle = 0.0;
     fluxData.speed = 0.0;

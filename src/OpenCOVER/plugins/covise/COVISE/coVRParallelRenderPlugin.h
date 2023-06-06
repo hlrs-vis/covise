@@ -18,7 +18,7 @@ namespace opencover
 class coVRParallelRenderPlugin : public coVRPlugin
 {
 public:
-    coVRParallelRenderPlugin();
+    coVRParallelRenderPlugin(const std::string &name);
     virtual ~coVRParallelRenderPlugin();
 
     /**

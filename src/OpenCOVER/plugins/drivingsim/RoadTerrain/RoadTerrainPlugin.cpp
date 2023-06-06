@@ -182,6 +182,7 @@ void VrmlNodeRoadTerrain::render(Viewer *)
 }
 
 RoadTerrainPlugin::RoadTerrainPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 

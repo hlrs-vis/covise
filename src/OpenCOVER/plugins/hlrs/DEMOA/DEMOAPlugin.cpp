@@ -64,6 +64,7 @@ DEMOAPlugin *DEMOAPlugin::instance()
 }
 
 DEMOAPlugin::DEMOAPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //positions=NULL;
     thePlugin = this;

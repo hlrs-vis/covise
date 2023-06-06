@@ -141,6 +141,7 @@ void VrmlNodeDLab::render(Viewer *)
 }
 
 DLabPlugin::DLabPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "DLabPlugin::DLabPlugin\n");
 

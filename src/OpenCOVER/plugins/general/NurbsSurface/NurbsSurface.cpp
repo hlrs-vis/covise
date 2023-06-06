@@ -310,7 +310,10 @@ osg::ref_ptr<osg::Geode> NurbsSurface::surfaceInfo::computeSurface(double* point
     return geode.get();
 }
 
-NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
+NurbsSurface::NurbsSurface()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("NurbsSurface", cover->ui)
+
 {
     //updateSurface();
 

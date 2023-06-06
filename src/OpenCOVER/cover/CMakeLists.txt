@@ -171,52 +171,54 @@ SET(COVER_SOURCES
 )
 
 SET(UI_HEADERS
-    ui/Export.h
     ui/Action.h
     ui/Button.h
+    ui/ButtonGroup.h
     ui/CollaborativePartner.h
     ui/Container.h
+    ui/CovconfigLink.h
+    ui/EditField.h
     ui/Element.h
+    ui/Export.h
+    ui/FileBrowser.h
     ui/Group.h
     ui/Label.h
     ui/Manager.h
     ui/Menu.h
     ui/Owner.h
-    ui/ButtonGroup.h
     ui/SelectionList.h
     ui/ShortcutListener.h
     ui/Slider.h
-    ui/TextField.h
-    ui/EditField.h
-    ui/FileBrowser.h
     ui/SpecialElement.h
+    ui/TabletView.h
+    ui/TextField.h
     ui/View.h
     ui/VruiView.h
-    ui/TabletView.h
 )
 
 SET(UI_SOURCES
     ui/Action.cpp
     ui/Button.cpp
+    ui/ButtonGroup.cpp
     ui/CollaborativePartner.cpp
     ui/Container.cpp
+    ui/CovconfigLink.cpp
+    ui/EditField.cpp
     ui/Element.cpp
+    ui/FileBrowser.cpp
     ui/Group.cpp
     ui/Label.cpp
     ui/Manager.cpp
     ui/Menu.cpp
     ui/Owner.cpp
-    ui/ButtonGroup.cpp
     ui/SelectionList.cpp
     ui/ShortcutListener.cpp
     ui/Slider.cpp
-    ui/TextField.cpp
-    ui/EditField.cpp
-    ui/FileBrowser.cpp
     ui/SpecialElement.cpp
+    ui/TabletView.cpp
+    ui/TextField.cpp
     ui/View.cpp
     ui/VruiView.cpp
-    ui/TabletView.cpp
 )
 
 SET(DEVICE_SOURCES

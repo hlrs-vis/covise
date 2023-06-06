@@ -30,19 +30,20 @@
 #include <osg/Texture2D>
 
 RennteamPlugin::RennteamPlugin()
-    : dy(cardyn::getExpressionVector())
-    , integrator(dy, y)
-    , ep(1.0)
-    , em(1.0)
-    , en((em - ep) * 0.5)
-    , ei(em + ep)
-    , E(ei ^ en)
-    , e1(1.0)
-    , e2(1.0)
-    , e3(1.0)
-    , I(e1 * e2 * e3 * ep * em)
-    , i(e1 * e2 * e3)
-    , one(1.0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, dy(cardyn::getExpressionVector())
+, integrator(dy, y)
+, ep(1.0)
+, em(1.0)
+, en((em - ep) * 0.5)
+, ei(em + ep)
+, E(ei ^ en)
+, e1(1.0)
+, e2(1.0)
+, e3(1.0)
+, I(e1 * e2 * e3 * ep * em)
+, i(e1 * e2 * e3)
+, one(1.0)
 {
     fprintf(stderr, "RennteamPlugin::RennteamPlugin\n");
 

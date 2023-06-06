@@ -88,7 +88,8 @@ struct myMsgbuf
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 ARUCOPlugin::ARUCOPlugin()
-    : ui::Owner("ARUCO", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("ARUCO", cover->ui)
 {
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
     OSGToOpenGLMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
@@ -116,8 +117,6 @@ ARUCOPlugin::~ARUCOPlugin()
 
 void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
 {
-    cout << "capture device: device " << selectedDevice << " is open" << endl;
-    
     std::string fourcc = coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
     if (fourcc.length() == 4)
     {
@@ -135,7 +134,7 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
     
     int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
     int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
-    std::cout << "   current size  = " << width << "x" << height << std::endl;
+    std::cerr << "   current size  = " << width << "x" << height << std::endl;
     xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
     ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
     
@@ -151,13 +150,13 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
         {
             xsize = width;
             ysize = height;
-            std::cout << "WARNING: could not set capture frame size" << std::endl;
-            std::cout << "   new size  = " << width << "x" << height << std::endl;
+            std::cerr << "WARNING: could not set capture frame size" << std::endl;
+            std::cerr << "   new size  = " << width << "x" << height << std::endl;
         }
     }
     
     cv::Mat image;
-    std::cout << "capture first frame after resetting camera" << std::endl;
+    std::cerr << "capture first frame after resetting camera" << std::endl;
     try
     {
         inputVideo >> image;
@@ -172,12 +171,12 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
     MarkerTracking::instance()->videoDepth = 3;
     MarkerTracking::instance()->videoWidth = image.cols;
     MarkerTracking::instance()->videoHeight = image.rows;
-    
-    std::cout << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
-    
+
+    std::cerr << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
+
     // load calib data from file
-    std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
-    
+    std::cerr << "loading calibration data from file " << calibrationFilename << std::endl;
+
     cv::FileStorage fs;
     try
     {
@@ -190,17 +189,17 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
     {
         fs["camera_matrix"] >> matCameraMatrix;
         fs["dist_coefs"] >> matDistCoefs;
-    
-        std::cout << "camera matrix: " << std::endl;
-        std::cout << matCameraMatrix << std::endl;
-        std::cout << "dist coefs: " << std::endl;
-        std::cout << matCameraMatrix << std::endl;
+
+        std::cerr << "camera matrix: " << std::endl;
+        std::cerr << matCameraMatrix << std::endl;
+        std::cerr << "dist coefs: " << std::endl;
+        std::cerr << matCameraMatrix << std::endl;
     }
     else
     {
-        std::cout << "failed to open camera calibration file " << calibrationFilename << std::endl;
-        std::cout << "trying to guess a calibration ... " << std::endl;
-    
+        std::cerr << "failed to open camera calibration file " << calibrationFilename << std::endl;
+        std::cerr << "trying to guess a calibration ... " << std::endl;
+
         double matCameraData[9] = {0, 0, 0, 0, 0, 0, 0, 0, 1};
         // approximately normal focal length
         matCameraData[0] = 2 * width / 3;
@@ -213,11 +212,11 @@ void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
         double matDistData[5] = {0, 0, 0, 0, 0};
         cv::Mat matD = cv::Mat(1, 5, CV_64F, matDistData);
         matDistCoefs = matD.clone();
-    
-        std::cout << "camera matrix: " << std::endl;
-        std::cout << matCameraMatrix << std::endl;
-        std::cout << "dist coefs: " << std::endl;
-        std::cout << matDistCoefs << std::endl;
+
+        std::cerr << "camera matrix: " << std::endl;
+        std::cerr << matCameraMatrix << std::endl;
+        std::cerr << "dist coefs: " << std::endl;
+        std::cerr << matDistCoefs << std::endl;
     }
 }
 
@@ -304,11 +303,12 @@ bool ARUCOPlugin::initAR()
         
         if (inputVideo.isOpened())
         {
+            std::cerr << "capture device: device " << selectedDevice << " is open" << endl;
             initCamera(selectedDevice, exists);
         }
         else
         {
-            std::cout << "capture device: failed to open " << selectedDevice << std::endl;
+            std::cerr << "capture device: failed to open " << selectedDevice << std::endl;
             return false;
         }
         adjustScreen();
@@ -338,7 +338,7 @@ void ARUCOPlugin::initUI()
     uiMenu->setText("ARUCO");
 
     uiBtnDrawDetMarker = new ui::Button(uiMenu, "uiBtnDrawDetMarker");
-    uiBtnDrawDetMarker->setText("draw detected markers");
+    uiBtnDrawDetMarker->setText("Draw detected markers");
     uiBtnDrawDetMarker->setEnabled(true);
     uiBtnDrawDetMarker->setState(bDrawDetMarker);
     uiBtnDrawDetMarker->setCallback([this](bool state)
@@ -347,7 +347,7 @@ void ARUCOPlugin::initUI()
     });
     
     uiBtnDrawRejMarker = new ui::Button(uiMenu, "uiBtnDrawRejMarker");
-    uiBtnDrawRejMarker->setText("draw rejected markers");
+    uiBtnDrawRejMarker->setText("Draw rejected markers");
     uiBtnDrawRejMarker->setEnabled(true);
     uiBtnDrawRejMarker->setState(bDrawRejMarker);
     uiBtnDrawRejMarker->setCallback([this](bool state)
@@ -356,7 +356,7 @@ void ARUCOPlugin::initUI()
     });
 
     uiBtnCalib = new ui::Action(uiMenu, "calibrate");
-    uiBtnCalib->setText("calibrate");
+    uiBtnCalib->setText("Calibrate camera");
     uiBtnCalib->setEnabled(true);
     uiBtnCalib->setCallback([this]()
     {
@@ -369,7 +369,7 @@ void ARUCOPlugin::initUI()
 bool ARUCOPlugin::init()
 {
 #ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::init()" << std::endl;
+    std::cerr << "ARUCOPlugin::init()" << std::endl;
 #endif
 
     // class init
@@ -422,7 +422,7 @@ bool ARUCOPlugin::init()
 bool ARUCOPlugin::destroy()
 {
 #ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::destroy()" << std::endl;
+    std::cerr << "ARUCOPlugin::destroy()" << std::endl;
 #endif
 
     std::unique_lock<std::mutex> guard(opencvMutex);
@@ -599,10 +599,9 @@ void ARUCOPlugin::calibrate()
             }
             else
             {
-
-                cout << "Rep Error: " << repError << endl;
-                cout << "Rep Error Aruco: " << arucoRepErr << endl;
-                cout << "Calibration saved to " << calibrationFilename << endl;
+                cerr << "Rep Error: " << repError << endl;
+                cerr << "Rep Error Aruco: " << arucoRepErr << endl;
+                cerr << "Calibration saved to " << calibrationFilename << endl;
             }
         }
 
@@ -767,7 +766,7 @@ void ARUCOPlugin::updateMarkerParams()
 void ARUCOPlugin::adjustScreen()
 {
 #ifdef ARUCO_DEBUG
-    std::cout << "ARUCOPlugin::adjustScreen()" << std::endl;
+    std::cerr << "ARUCOPlugin::adjustScreen()" << std::endl;
 #endif
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))

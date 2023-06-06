@@ -60,7 +60,8 @@ TrajectoriesPlugin* TrajectoriesPlugin::instance()
 }
 
 TrajectoriesPlugin::TrajectoriesPlugin()
-    : ui::Owner("TrajectoriesPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("TrajectoriesPlugin", cover->ui)
 {
     thePlugin = this;
 }

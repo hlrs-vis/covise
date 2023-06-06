@@ -7,6 +7,7 @@
 #include <cover/coVRTui.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRAnimationManager.h>
+#include <PluginUtil/PluginMessageTypes.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRSnapshotMsg.h>
 #ifdef _MSC_VER
@@ -34,6 +35,7 @@ SysPlugin::~SysPlugin()
 }
 
 VideoPlugin::VideoPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     frameCount = 0;
     captureActive = 0;
@@ -622,7 +624,7 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
     // first window and only
     // on the master
     {
-
+        cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VideoStartCapture, fileNameField->getText().size() + 1, fileNameField->getText().c_str());
         if (captureHostButton[hostIndex]->getState())
         {
             frameCount = 0;
@@ -692,7 +694,6 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                     starttime = cover->frameTime();
                     recordingTime = 0.0;
                     recordingFrames = 0;
-                    cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
                 }
                 else
                     fprintf(stderr, "videoCaptureInit failed\n");
@@ -734,7 +735,7 @@ void VideoPlugin::stopCapturing()
     captureAnimButton->setState(false);
     frameCount = 0;
     recordFromGui_ = false;
-    cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "stoppingCapture");
+    cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VideoEndCapture, fileNameField->getText().size() + 1, fileNameField->getText().c_str());
 }
 
 // this is called if the plugin is removed at runtime

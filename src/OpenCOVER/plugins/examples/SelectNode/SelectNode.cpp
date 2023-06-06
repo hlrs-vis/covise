@@ -27,6 +27,7 @@
 #include <osg/Material>
 
 SelectNode::SelectNode()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

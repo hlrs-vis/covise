@@ -147,9 +147,10 @@ COVERPLUGIN(PDBPlugin)
 
 /// Constructor
 PDBPlugin::PDBPlugin()
-    : viewer(NULL)
-    , vrmlScene(NULL)
-    , player(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, viewer(NULL)
+, vrmlScene(NULL)
+, player(NULL)
 {
     uidcounter = 0;
 }

@@ -58,11 +58,12 @@ static const FileHandler handlers[] = {
 };
 
 AmberPlugin::AmberPlugin()
-    : tab(NULL)
-    , res(NULL)
-    , residue(NULL)
-    , showSticks(NULL)
-    , hideSticks(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, tab(NULL)
+, res(NULL)
+, residue(NULL)
+, showSticks(NULL)
+, hideSticks(NULL)
 {
     time_step = 0;
 }

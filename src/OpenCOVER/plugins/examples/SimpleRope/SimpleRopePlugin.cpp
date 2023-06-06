@@ -419,6 +419,7 @@ void Strand::rotate(float startAngle, float lengthOfTwist, float radius)
 }
 
 SimpleRopePlugin::SimpleRopePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

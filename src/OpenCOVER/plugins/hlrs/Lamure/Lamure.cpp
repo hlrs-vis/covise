@@ -40,6 +40,7 @@ static const FileHandler handlers[] = {
 
 
 LamurePlugin::LamurePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "LamurePlugin::LamurePlugin\n");
 

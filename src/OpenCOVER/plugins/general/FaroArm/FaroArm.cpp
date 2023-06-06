@@ -16,6 +16,7 @@
 FaroArm *plugin = NULL;
 
 FaroArm::FaroArm()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "FaroArm::FaroArm\n");
 

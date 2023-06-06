@@ -315,6 +315,7 @@ void Dimension::update()
 }
 
 Measure::Measure()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 }

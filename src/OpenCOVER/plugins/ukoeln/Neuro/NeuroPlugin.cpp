@@ -119,13 +119,14 @@ private:
 };
 
 NeuroPlugin::NeuroPlugin()
-    : volDesc_(nullptr)
-    , repaintSlices_(true)
-    , slicePosX_(-1)
-    , slicePosY_(-1)
-    , slicePosZ_(-1)
-    , minSliceIntensity_(.2f)
-    , maxSliceIntensity_(1.f)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, volDesc_(nullptr)
+, repaintSlices_(true)
+, slicePosX_(-1)
+, slicePosY_(-1)
+, slicePosZ_(-1)
+, minSliceIntensity_(.2f)
+, maxSliceIntensity_(1.f)
 {
     vrui.mainMenuEntry.reset(new coSubMenuItem("Neuro..."));
     opencover::cover->getMenu()->add(vrui.mainMenuEntry.get());

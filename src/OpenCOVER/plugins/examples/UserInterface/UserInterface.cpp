@@ -13,7 +13,8 @@
 using namespace opencover;
 
 UserInterface::UserInterface()
-: ui::Owner("UserInterfacePlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("UserInterfacePlugin", cover->ui)
 {
 }
 

@@ -50,6 +50,7 @@ using namespace vrui;
 using namespace opencover;
 
 DNAPlugin::DNAPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(2))
     {

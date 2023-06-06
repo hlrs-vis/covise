@@ -102,6 +102,7 @@ void BulletSensor::disactivate()
 }
 
 Bullet::Bullet()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fileName = "test.bullet";
 

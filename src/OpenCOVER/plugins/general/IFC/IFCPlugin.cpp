@@ -245,6 +245,7 @@ int IFCPlugin::unloadIFC(const char *filename, const char *)
 
 
 IFCPlugin::IFCPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
    
     //scaleGeometry = coCoviseConfig::isOn("COVER.Plugin.IFC.ScaleGeometry", true);

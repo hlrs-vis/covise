@@ -57,13 +57,14 @@ struct rrxevent
 #endif
 
 Utouch3DPlugin::Utouch3DPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 #ifndef USE_TUIOCLIENT
-    : coInteraction(coInteraction::ButtonA, "Utouch3D", coInteraction::NavigationHigh)
-    , needsActivation(false)
-    , needsDeactivation(false)
-    , actingAsMouse(false)
-    , mouseID(-1)
-    , checkForMenuEventsHandled(0)
+, coInteraction(coInteraction::ButtonA, "Utouch3D", coInteraction::NavigationHigh)
+, needsActivation(false)
+, needsDeactivation(false)
+, actingAsMouse(false)
+, mouseID(-1)
+, checkForMenuEventsHandled(0)
 #endif
 {
     //fprintf(stderr,"Utouch3DPlugin::Utouch3DPlugin\n");;

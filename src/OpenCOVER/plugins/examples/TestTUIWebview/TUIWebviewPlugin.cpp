@@ -27,6 +27,7 @@
 using namespace opencover;
 
 WebviewPlugin::WebviewPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

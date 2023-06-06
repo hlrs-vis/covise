@@ -56,6 +56,7 @@ CrawlerPlugin *CrawlerPlugin::plugin = NULL;
 //------------------------------------------------------------------------------------------------------------------------------
 
 CrawlerPlugin::CrawlerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 
@@ -311,8 +312,8 @@ void CrawlerPlugin::initPhysics()
     //gScene->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES,		1.0f);	//Enable visualization of actor's axis
 
     //-----Creating PhysX material (staticFriction, dynamicFriction, restitution)-----
-    gMaterial = gPhysics->createMaterial(0.45f, 0.2f, 0.1f);		//restitution = 0 (vollkommen plastischer Stoß)		
-    //restitution = 1 (vollkommen elastischer Stoß)
+    gMaterial = gPhysics->createMaterial(0.45f, 0.2f, 0.1f);		//restitution = 0 (vollkommen plastischer Stoï¿½)		
+    //restitution = 1 (vollkommen elastischer Stoï¿½)
     //-----Create Cooking-----
     gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(MyTolerancesScale));
 

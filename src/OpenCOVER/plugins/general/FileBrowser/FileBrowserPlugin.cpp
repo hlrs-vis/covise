@@ -13,6 +13,7 @@ using namespace osg;
 COVERPLUGIN(FileBrowserPlugin)
 
 FileBrowserPlugin::FileBrowserPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     _isInit = false;
 }

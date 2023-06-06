@@ -123,56 +123,59 @@ CsvRenderObject renderObject;
 
 // Constructor
 CsvPointCloudPlugin::CsvPointCloudPlugin()
-    : m_numThreads(std::thread::hardware_concurrency())
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , m_numThreads(std::thread::hardware_concurrency())
     , ui::Owner("CsvPointCloud10", cover->ui)
+    , m_config(config())
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud11", this))
-    , m_dataSelector(new ui::SelectionList(m_CsvPointCloudMenu, "ScalarData"))
-    , m_pointSizeSlider(new ui::Slider(m_CsvPointCloudMenu, "PointSize"))
-    , m_numPointsSlider(new ui::Slider(m_CsvPointCloudMenu, "NumPoints"))
-    , m_moveMachineBtn(new ui::Button(m_CsvPointCloudMenu, "MoveMachine"))
-    , m_showSurfaceBtn(new ui::Button(m_CsvPointCloudMenu, "ShowSurface"))
-    , m_advancedBtn(new ui::Button(m_CsvPointCloudMenu, "Advanced"))
-    , m_dataScale(new ui::EditField(m_CsvPointCloudMenu, "Scale"))
-    , m_coordTerms{{new ui::EditField(m_CsvPointCloudMenu, "X"), new ui::EditField(m_CsvPointCloudMenu, "Y"), new ui::EditField(m_CsvPointCloudMenu, "Z")}}
-    , m_machinePositionsTerms{{new ui::EditField(m_CsvPointCloudMenu, "Right"), new ui::EditField(m_CsvPointCloudMenu, "Forward"), new ui::EditField(m_CsvPointCloudMenu, "Up")}}
-    , m_colorTerm(new ui::EditField(m_CsvPointCloudMenu, "Color"))
+    , m_pointSizeSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "PointSize", 2, *m_config, "section", config::Flag::PerModel))
+    , m_numPointsSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "NumPoints", 1000, *m_config, "section", config::Flag::PerModel))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
-    , m_timeScaleIndicator(new ui::EditField(m_CsvPointCloudMenu, "TimeScaleIndicator"))
-    , m_pointReductionCriteria(new ui::EditField(m_CsvPointCloudMenu, "PointReductionCriterium"))
-    , m_numPontesPerCycle(new ui::EditField(m_CsvPointCloudMenu, "NumPointsPerCycle"))
-    , m_delimiter(new ui::EditField(m_CsvPointCloudMenu, "Delimiter"))
-    , m_offset(new ui::EditField(m_CsvPointCloudMenu, "HeaderOffset"))
-    , m_editFields{m_dataScale, m_coordTerms[0], m_coordTerms[1], m_coordTerms[2], m_machinePositionsTerms[0], m_machinePositionsTerms[1], m_machinePositionsTerms[2], m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria, m_numPontesPerCycle}
-    , m_applyBtn(new ui::Button(m_CsvPointCloudMenu, "Apply"))
+    , m_dataSelector(std::make_unique<ui::SelectionListConfigValue>(m_CsvPointCloudMenu, "ScalarData", 0, *m_config, "section", config::Flag::PerModel))
+    , m_moveMachineBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "MoveMachine", true, *m_config, "section", config::Flag::PerModel))
+    , m_showSurfaceBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "ShowSurface", false, *m_config, "section", config::Flag::PerModel))
+    , m_advancedBtn(new ui::Button(m_CsvPointCloudMenu, "Advanced"))
+    , m_advancedGroup(new ui::Group(m_CsvPointCloudMenu, "advanced"))
+    , m_dataScale(new ui::EditField(m_advancedGroup, "Scale"))
+    , m_coordTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "X", "", *m_config, "section", config::Flag::PerModel), 
+                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Y", "", *m_config, "section", config::Flag::PerModel),
+                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Z", "", *m_config, "section", config::Flag::PerModel)}}
+    , m_machinePositionsTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Right", "", *m_config, "section", config::Flag::PerModel),
+                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Forward", "", *m_config, "section", config::Flag::PerModel),
+                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Up", "", *m_config, "section", config::Flag::PerModel)}}
+    , m_colorTerm(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Color", "", *m_config, "section", config::Flag::PerModel))
+    , m_timeScaleIndicator(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "TimeScaleIndicator", "", *m_config, "section", config::Flag::PerModel))
+    , m_pointReductionCriteria(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "PointReductionCriterium", "", *m_config, "section", config::Flag::PerModel))
+    , m_numPontesPerCycle(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "NumPointsPerCycle", "", *m_config, "section", config::Flag::PerModel))
+    , m_delimiter(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Delimiter", ";", *m_config, "section", config::Flag::PerModel))
+    , m_offset(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "HeaderOffset", "", *m_config, "section", config::Flag::PerModel))
+    , m_editFields{m_dataScale, m_coordTerms[0]->ui(), m_coordTerms[1]->ui(), m_coordTerms[2]->ui(), m_machinePositionsTerms[0]->ui(), m_machinePositionsTerms[1]->ui(), m_machinePositionsTerms[2]->ui(), m_colorTerm->ui(), m_timeScaleIndicator->ui(), m_delimiter->ui(), m_offset->ui(), m_pointReductionCriteria->ui(), m_numPontesPerCycle->ui()}
+    , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
-    m_dataSelector->setShared(true);
-    m_showSurfaceBtn->setState(false);
-    m_showSurfaceBtn->setShared(true);
-    m_showSurfaceBtn->setCallback([this](bool state)
+    std::cerr << "getName: " << getName() << std::endl;
+    m_config->setSaveOnExit(true);
+    m_dataSelector->ui()->setShared(true);
+    m_showSurfaceBtn->ui()->setShared(true);
+    m_showSurfaceBtn->setUpdater([this]()
                                   { setTimestep(m_lastTimestep); });
-    m_moveMachineBtn->setState(true);
-    m_moveMachineBtn->setShared(true);
+    m_moveMachineBtn->ui()->setShared(true);
     m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     m_dataScale->setValue("1");
     for (auto ef : m_editFields)
         ef->setShared(true);
 
-    if (m_delimiter->value().empty())
-        m_delimiter->setValue(";");
-
-    m_pointSizeSlider->setBounds(0, 20);
-    m_pointSizeSlider->setValue(4);
-    m_pointSizeSlider->setCallback([this](ui::Slider::ValueType val, bool release)
+    m_pointSizeSlider->ui()->setBounds(0, 20);
+    m_pointSizeSlider->setUpdater([this]()
                                    {
                                       if (m_points)
-                                          static_cast<Point *>(m_points->getStateSet()->getAttribute(StateAttribute::Type::POINT))->setSize(val);
+                                          static_cast<Point *>(m_points->getStateSet()->getAttribute(StateAttribute::Type::POINT))->setSize(m_pointSizeSlider->getValue());
                                     });
-    m_pointSizeSlider->setShared(true);
+    m_pointSizeSlider->ui()->setShared(true);
 
-    m_numPointsSlider->setShared(true);
-    m_numPointsSlider->setBounds(0, 1);
+    m_numPointsSlider->ui()->setShared(true);
+    m_numPointsSlider->ui()->setBounds(0, 1);
     m_numPointsSlider->setValue(1);
 
     m_applyBtn->setCallback([this](bool state)
@@ -187,9 +190,9 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 } });
     m_applyBtn->setShared(true);
 
-    m_colorTerm->setCallback([this](const std::string &text)
+    m_colorTerm->setUpdater([this]()
                              {
-        auto term = updateDataSelector(text);
+        auto term = updateDataSelector(m_colorTerm->getValue());
         loadData(term);
  });
 
@@ -198,6 +201,8 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
             m_colorInteractor->setColorMap(map);
             updateColorMap();
         });
+    m_colorMapSelector.setValue("OCT-6000W");
+
     m_colorInteractor->setColorMap(m_colorMapSelector.selectedMap());
 
     if(!cover->visMenu)
@@ -207,14 +212,12 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     cover->addPlugin("ColorBars");
     m_advancedBtn->setCallback([this](bool b)
         {
-            for (auto ef : m_editFields)
-                ef->setVisible(b);
-            m_applyBtn->setVisible(b);
+            m_advancedGroup->setVisible(b);
         });
-    for (auto ef : m_editFields)
-        ef->setVisible(false);
-    m_applyBtn->setVisible(false);
     m_advancedBtn->setState(false);
+    m_advancedGroup->allowRelayout(true);
+    m_advancedGroup->setVisible(false);
+    m_advancedGroup->update();
 }
 
 std::string CsvPointCloudPlugin::updateDataSelector(const std::string& term)
@@ -233,15 +236,15 @@ std::string CsvPointCloudPlugin::updateDataSelector(const std::string& term)
         names.push_back(scalars[i++]);
         terms.push_back(scalars[i++]);
     }
-    m_dataSelector->setList(names);
-    m_dataSelector->setCallback([this, terms](int index) {
-        loadData(terms[index]);
+    m_dataSelector->ui()->setList(names);
+    m_dataSelector->setUpdater([this, terms]() {
+        loadData(terms[m_dataSelector->getValue()]);
         });
-    size_t index = m_dataSelector->selectedIndex();
+    size_t index = m_dataSelector->getValue();
     if (index >= names.size())
     {
         index = 0;
-        m_dataSelector->select(0);
+        m_dataSelector->setValue(0);
     }
     return terms[index];
 }
@@ -379,70 +382,6 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string &s
     return true;
 }
 
-void CsvPointCloudPlugin::readSettings(const std::string &filename)
-{
-    auto fn = filename.substr(0, filename.find_last_of('.')) + ".txt";
-    m_readSettingsTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::fstream f(fn);
-    if (!f.is_open())
-    {
-        std::cerr << "csvPointCloud: could not read settings file " << fn << std::endl;
-        return;
-    }
-    std::string line;
-
-    while (std::getline(f, line))
-    {
-        std::string name = line.substr(0, line.find_first_of(" "));
-        std::string value = line.substr(line.find_first_of('"') + 1, line.find_last_of('"') - line.find_first_of('"') - 1);
-        auto setting = std::find_if(m_editFields.begin(), m_editFields.end(), [name](ui::EditField *ef)
-                                    { return ef->name() == name; });
-        if (setting != m_editFields.end())
-            (*setting)->setValue(value);
-        else if (name == m_pointSizeSlider->name())
-            m_pointSizeSlider->setValue(std::stof(value));
-        else if (name == m_numPointsSlider->name())
-        {
-            m_numPointsSlider->setBounds(0, std::stoi(value));
-            m_numPointsSlider->setValue(std::stoi(value));
-        }
-        else if (name == "AnimationSpeed")
-        {
-            coVRAnimationManager::instance()->setAnimationSpeed(std::stof(value));
-            m_animSpeedSet = true;
-        }
-        else if (name == "AnimationSkip")
-        {
-            coVRAnimationManager::instance()->setAnimationSkip(std::stoi(value));
-            m_animSkipSet = true;
-        }
-    }
-}
-
-void CsvPointCloudPlugin::writeSettings(const std::string &filename)
-{
-
-    auto fn = filename.substr(0, filename.find_last_of('.')) + ".txt";
-    // Settings file has changed since last read, don't override
-    if (fs::last_write_time(fn) > m_readSettingsTime)
-        return;
-
-    std::ofstream f(fn);
-
-    for (const auto ef : m_editFields)
-    {
-        f << ef->name() << " \"" << ef->value() << "\"\n";
-    }
-    f << m_pointSizeSlider->name() << " \"" << m_pointSizeSlider->value() << "\"\n";
-    f << m_numPointsSlider->name() << " \"" << m_numPointsSlider->value() << "\"\n";
-    if (m_animSpeedSet)
-        f << "AnimationSpeed"
-          << " \"" << coVRAnimationManager::instance()->getAnimationSpeed() << "\"\n";
-    if (m_animSkipSet)
-        f << "AnimationSkip"
-          << " \"" << coVRAnimationManager::instance()->getAnimationSkip() << "\"\n";
-}
-
 float parseScale(const std::string &scale)
 {
     exprtk::symbol_table<float> symbol_table;
@@ -498,7 +437,7 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
                                         addMachineSpeedSymbols(symbolsFragment, currentMachineSpeed);
                                         Expression colorExporession, reductionCriterium;
 
-                                        if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->value(), reductionCriterium))
+                                        if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->getValue(), reductionCriterium))
                                             return data;
                                         if (!compileSymbol(symbolsFragment, term, colorExporession))
                                             return data;
@@ -553,13 +492,13 @@ ref_ptr<Vec3Array> CsvPointCloudPlugin::getCoords(DataTable &symbols)
             addMachineSpeedSymbols(symbolsFragment, currentMachineSpeed);
             Expression colorExporession, reductionCriterium;
 
-            if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->value(), reductionCriterium))
+            if (!compileSymbol(symbolsFragment, m_pointReductionCriteria->getValue(), reductionCriterium))
                 return pair;
             std::array<Expression, 3> coordExpressions;
 
             for (size_t i = 0; i < coordExpressions.size(); i++)
             {
-                if (!compileSymbol(symbolsFragment, m_coordTerms[i]->value(), coordExpressions[i]))
+                if (!compileSymbol(symbolsFragment, m_coordTerms[i]->getValue(), coordExpressions[i]))
                     return pair;
             }
             for (size_t i = begin; i < end; i++)
@@ -625,12 +564,12 @@ void CsvPointCloudPlugin::createGeometries(DataTable &symbols)
 {
     try
     {
-        m_numPointsPerCycle = std::stoi(m_numPontesPerCycle->value());
+        m_numPointsPerCycle = std::stoi(m_numPontesPerCycle->getValue());
     }
     catch(const std::exception& ){}
     
     auto coords = getCoords(symbols);
-    auto term = updateDataSelector(m_colorTerm->value());
+    auto term = updateDataSelector(m_colorTerm->getValue());
     auto colors = getScalarData(symbols, term);
 
     if (!colors.data || !coords)
@@ -697,7 +636,7 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &sy
 
             for (size_t i = 0; i < stringExpressions.size(); i++)
             {
-                if (!compileSymbol(symbolsFragment, m_machinePositionsTerms[i]->value(), stringExpressions[i]))
+                if (!compileSymbol(symbolsFragment, m_machinePositionsTerms[i]->getValue(), stringExpressions[i]))
                     return false;
             }
             for (size_t i = begin; i < end; i++)
@@ -716,12 +655,10 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &sy
 
 void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filename)
 {
-    readSettings(filename);
-
     int offset = 0;
     try
     {
-        offset = std::stoi(m_offset->value());
+        offset = std::stoi(m_offset->getValue());
     }
     catch (const std::exception &)
     {
@@ -737,7 +674,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
             m_dataTable.reset(new DataTable(binaryFile));
         else
         {
-            m_dataTable.reset(new DataTable(filename, m_timeScaleIndicator->value(), m_delimiter->value()[0], offset));
+            m_dataTable.reset(new DataTable(filename, m_timeScaleIndicator->getValue(), m_delimiter->getValue()[0], offset));
             m_dataTable->writeToFile(binaryFile);
         }
         addMachineSpeedSymbols(*m_dataTable, m_currentMachineSpeeds);
@@ -750,10 +687,10 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
 
 
 
-    m_numPointsSlider->setBounds(0, size);
-    if (m_numPointsSlider->value() == 1)
+    m_numPointsSlider->ui()->setBounds(0, size);
+    if (m_numPointsSlider->getValue() == 1)
         m_numPointsSlider->setValue(size);
-    m_numPointsSlider->setIntegral(true);
+    m_numPointsSlider->ui()->setIntegral(true);
 
     m_currentGeode = new Geode();
     m_currentGeode->setName(filename);
@@ -780,18 +717,18 @@ void CsvPointCloudPlugin::setTimestep(int t)
     if (m_lastTimestep > t)
         m_reducedPointsBetween = 0;
 
-    if (m_lastNumFullDrawnPoints != (size_t)m_numPointsSlider->value())
+    if (m_lastNumFullDrawnPoints != (size_t)m_numPointsSlider->getValue())
         m_reducedPointsBetween = 0;
 
 
-    size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->value());
+    size_t start = std::max(ui::Slider::ValueType{0}, t - m_numPointsSlider->getValue());
     for (;; ++m_reducedPointsBetween)
     {
         if (m_reducedPointsBetween >= m_reducedIndices.size() || m_reducedIndices[m_reducedPointsBetween] > start)
             break;
     }
 
-    size_t count = std::min(t, (int)m_numPointsSlider->value());
+    size_t count = std::min(t, (int)m_numPointsSlider->getValue());
     if (m_points)
     {
         static_cast<DrawArrays *>(m_points->getPrimitiveSet(allPointsPrimitiveIndex))->setFirst(start);
@@ -803,14 +740,14 @@ void CsvPointCloudPlugin::setTimestep(int t)
     if(m_surface)
     {
         auto surfacePrimitives = static_cast<SurfacePrimitiveSet*>(m_surface->getPrimitiveSet(0));
-        if(m_showSurfaceBtn->state() && start + m_numPointsSlider->value() < surfacePrimitives->getNumPrimitives())
+        if(m_showSurfaceBtn->getValue() && start + m_numPointsSlider->getValue() < surfacePrimitives->getNumPrimitives())
             surfacePrimitives->setRange(start, count);
         else
             surfacePrimitives->setRange(0, 0);
     }
 
     // move machine axis
-    if (m_moveMachineBtn->state() && m_machinePositions.size() > t)
+    if (m_moveMachineBtn->getValue() && m_machinePositions.size() > t)
     {
         for (auto machineNode : machineNodes)
         {
@@ -824,19 +761,19 @@ void CsvPointCloudPlugin::setTimestep(int t)
             m_transform->setMatrix(m);
     }
     m_lastTimestep = t;
-    m_lastNumFullDrawnPoints = m_numPointsSlider->value();
+    m_lastNumFullDrawnPoints = m_numPointsSlider->getValue();
 }
 
 float CsvPointCloudPlugin::pointSize() const
 {
-    return m_pointSizeSlider->value();
+    return m_pointSizeSlider->getValue();
 }
 
 int CsvPointCloudPlugin::unloadFile(const std::string &filename)
 {
+    m_config->save();
     if (m_currentGeode && m_currentGeode->getNumParents() > 0)
     {
-        writeSettings(filename);
         m_currentGeode->getParent(0)->removeChild(m_currentGeode);
         m_points = nullptr;
         m_currentGeode = nullptr;

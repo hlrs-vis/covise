@@ -108,23 +108,24 @@ void
 //!##########################//
 
 OrthographicSnapShot::OrthographicSnapShot()
-    : removeCamera_(false)
-    , doSnap_(false)
-    , hijackCam_(false)
-    , createScreenshot_(true)
-    , createHeightmap_(false)
-    , filename_("")
-    , heightFilename_("")
-    , xPos_(0.0)
-    , yPos_(0.0)
-    , width_(2000.0)
-    , height_(2000.0)
-    , scale_(1000.0)
-    ,
-    //       scale_(1.0),
-    image_(new osg::Image())
-    , drawCallback_(new DrawCallback(this))
-    , pBufferCamera_(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, removeCamera_(false)
+, doSnap_(false)
+, hijackCam_(false)
+, createScreenshot_(true)
+, createHeightmap_(false)
+, filename_("")
+, heightFilename_("")
+, xPos_(0.0)
+, yPos_(0.0)
+, width_(2000.0)
+, height_(2000.0)
+, scale_(1000.0)
+,
+//       scale_(1.0),
+image_(new osg::Image())
+, drawCallback_(new DrawCallback(this))
+, pBufferCamera_(NULL)
 {
 }
 

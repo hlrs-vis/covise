@@ -39,6 +39,7 @@ const double FORWARD_YAW_RATIO = 2.6;
 Treadmill *Treadmill::plugin = NULL;
 
 Treadmill::Treadmill()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 #ifdef _WIN32
     _dirSeparator = "\\";

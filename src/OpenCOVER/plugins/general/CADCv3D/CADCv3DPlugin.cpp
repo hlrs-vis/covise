@@ -50,6 +50,7 @@ static FileHandler handler =
 CADCv3DPlugin *CADCv3DPlugin::plugin = 0;
 
 CADCv3DPlugin::CADCv3DPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //std::cerr.clear();
     //std::cerr << "CADCv3DPlugin::<init>" << std::endl;

@@ -30,6 +30,7 @@
 using namespace opencover;
 
 TesselationTestPlugin::TesselationTestPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "TesselationTestPlugin::TesselationTestPlugin\n");
 }

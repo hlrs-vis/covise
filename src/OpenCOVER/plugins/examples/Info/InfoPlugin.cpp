@@ -17,8 +17,9 @@ using namespace opencover;
 using namespace vrui;
 
 InfoPlugin::InfoPlugin()
-    : m_menuItem(NULL)
-    , m_menu(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, m_menuItem(NULL)
+, m_menu(NULL)
 {
     fprintf(stderr, "InfoPlugin::InfoPlugin\n");
 }

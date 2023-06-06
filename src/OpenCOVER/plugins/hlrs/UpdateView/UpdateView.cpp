@@ -30,6 +30,7 @@
 #include "coVRMSController.h"
 
 UpdateView::UpdateView()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "UpdateView::UpdateView\n");
     std::string hostname = covise::coCoviseConfig::getEntry("host", "COVER.Plugin.UpdateView.Server", "localhost");

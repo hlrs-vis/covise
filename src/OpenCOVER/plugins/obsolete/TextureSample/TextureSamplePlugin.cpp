@@ -153,6 +153,7 @@ void TextureSamplePlugin::tabletEvent(coTUIElement *tUIItem)
 }
 
 TextureSamplePlugin::TextureSamplePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

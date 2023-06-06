@@ -162,7 +162,8 @@ void removeSpikesAdaptive(const float *data, int numElem,
                           float *min, float *max);
 
 cuTracer::cuTracer()
-    : menu(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, menu(NULL)
 {
 }
 

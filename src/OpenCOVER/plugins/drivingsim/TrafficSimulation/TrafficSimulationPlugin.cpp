@@ -56,6 +56,7 @@ using namespace vehicleUtil;
 using namespace TrafficSimulation;
 
 TrafficSimulationPlugin::TrafficSimulationPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 

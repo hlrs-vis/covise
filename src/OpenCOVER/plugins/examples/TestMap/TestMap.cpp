@@ -10,6 +10,7 @@
 using namespace osg;
 
 TestMap::TestMap()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

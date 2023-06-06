@@ -77,6 +77,7 @@ static opencover::FileHandler coxmlFileHandlers[] = {
 };
 
 SceneEditor::SceneEditor()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     _sceneObjectManager = SceneObjectManager::instance();
     bool exists;

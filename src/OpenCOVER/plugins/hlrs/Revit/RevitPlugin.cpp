@@ -1362,7 +1362,9 @@ void RevitPlugin::destroyMenu()
 	delete revitMenu;
 }
 
-RevitPlugin::RevitPlugin() : ui::Owner("RevitPlugin", cover->ui)
+RevitPlugin::RevitPlugin() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("RevitPlugin", cover->ui)
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 

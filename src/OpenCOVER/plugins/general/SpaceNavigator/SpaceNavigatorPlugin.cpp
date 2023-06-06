@@ -183,6 +183,7 @@ void DeviceThread::run()
 }
 
 SpaceNavigator::SpaceNavigator()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "SpaceNavigator::SpaceNavigator\n");

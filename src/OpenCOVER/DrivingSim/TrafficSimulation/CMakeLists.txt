@@ -21,47 +21,49 @@ if(NOT GDAL_FOUND)
 endif()
 
 SET(HEADERS
+  AgentVehicle.h
+  CarGeometry.h
   coEntity.h
   coTrafficSimulation.h
-  TrafficSimulation.h
-  Vehicle.h
   DonkeyCar.h
-  VehicleGeometry.h
-  CarGeometry.h
-  VehicleManager.h
-  VehicleFactory.h
   HumanVehicle.h
   HumanVehicleGeometry.h
-  AgentVehicle.h
-  VehicleUtils.h
-  PedestrianManager.h
+  ImageDescription.h
   Pedestrian.h
-  PedestrianGeometry.h
   PedestrianFactory.h
+  PedestrianGeometry.h
+  PedestrianManager.h
   PorscheFFZ.h
-  UDPBroadcast.h
   projects/radarcones.hpp
+  TrafficSimulation.h
+  UDPBroadcast.h
+  Vehicle.h
+  VehicleFactory.h
+  VehicleGeometry.h
+  VehicleManager.h
+  VehicleUtils.h
 )
 SET(SOURCES
+  AgentVehicle.cpp
+  CarGeometry.cpp
   coEntity.cpp
   coTrafficSimulation.cpp
-  TrafficSimulation.cpp
-  Vehicle.cpp
   DonkeyCar.cpp
-  CarGeometry.cpp
-  VehicleManager.cpp
-  VehicleFactory.cpp
   HumanVehicle.cpp
   HumanVehicleGeometry.cpp
-  AgentVehicle.cpp
-  VehicleUtils.cpp
-  PedestrianManager.cpp
+  ImageDescription.cpp
   Pedestrian.cpp
-  PedestrianGeometry.cpp
   PedestrianFactory.cpp
+  PedestrianGeometry.cpp
+  PedestrianManager.cpp
   PorscheFFZ.cpp
-  UDPBroadcast.cpp
   projects/radarcones.cpp
+  TrafficSimulation.cpp
+  UDPBroadcast.cpp
+  Vehicle.cpp
+  VehicleFactory.cpp
+  VehicleManager.cpp
+  VehicleUtils.cpp
 )
 
 
@@ -74,6 +76,7 @@ INCLUDE_DIRECTORIES(
 
 
 ADD_COVISE_LIBRARY(coTrafficSimulation SHARED ${SOURCES} ${HEADERS})
+target_compile_definitions(coTrafficSimulation PRIVATE COVER_PLUGIN_NAME="coTrafficSimulation")
 qt_use_modules(coTrafficSimulation Script ScriptTools)
 
 COVISE_WNOERROR(coTrafficSimulation)

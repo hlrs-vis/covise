@@ -143,6 +143,7 @@ osg::Matrix ARToolKitPlugin::getMat(int pattID, double pattCenter[2], double pat
 }
 
 ARToolKitPlugin::ARToolKitPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     marker_num = 0;
     marker_info = NULL;

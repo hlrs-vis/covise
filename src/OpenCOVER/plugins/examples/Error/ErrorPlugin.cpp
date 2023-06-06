@@ -21,6 +21,7 @@
 #include <util/unixcompat.h>
 
 ErrorPlugin::ErrorPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

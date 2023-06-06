@@ -27,6 +27,7 @@
 
 using namespace opencover;
 Encoder::Encoder()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Encoder World\n");
 #ifdef WIN32

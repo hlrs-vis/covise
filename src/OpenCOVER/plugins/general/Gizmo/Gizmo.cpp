@@ -128,7 +128,9 @@ MoveInfo::~MoveInfo()
 {
 }
 
-Move::Move() : ui::Owner("Gizmo_UI", cover->ui)
+Move::Move() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("Gizmo_UI", cover->ui)
 {
 }
 

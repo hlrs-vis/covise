@@ -21,6 +21,7 @@ DLinkList<ModuleFeedbackManager *> ModuleFeedbackPlugin::_ComplexModuleList;
 // construction / destruction
 // ----------------------------------------------------------------
 ModuleFeedbackPlugin::ModuleFeedbackPlugin()
+: coVRPlugin("ModuleFeedback")
 {
     _ComplexModuleList.noDelete = 1;
     myInteractions_.noDelete = 1;

@@ -36,8 +36,9 @@
 
 SPH *SPH::plugin = NULL;
 SPH::SPH()
-    : initDone(false)
-    , menu(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+: initDone(false)
+, menu(NULL)
 {
     plugin = this;
     fprintf(stderr, "SPH::SPH()\n");

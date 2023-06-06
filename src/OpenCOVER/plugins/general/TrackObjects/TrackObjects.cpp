@@ -58,6 +58,7 @@ void TObject::setOffset(float x, float y, float z, float h, float p, float r)
     offsetCoord.makeMat(offset);
 }
 TrackObjects::TrackObjects()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

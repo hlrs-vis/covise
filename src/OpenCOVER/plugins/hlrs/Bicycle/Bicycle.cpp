@@ -721,6 +721,7 @@ void BicyclePlugin::tabletEvent(coTUIElement * /*tUIItem*/)
 }
 
 BicyclePlugin::BicyclePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     //startThread();
     running = true;

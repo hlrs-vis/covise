@@ -32,8 +32,10 @@
 #include "coTUIFileBrowser/AGData.h"
 #endif
 
-#include <QTextStream>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
 #include <iostream>
 
 using namespace covise;
@@ -791,6 +793,9 @@ void coTUIFileBrowserButton::setCurDir(const char *dir)
     if ((sdir.compare("") || sdir.compare(".")) && (this->mLocation == this->mLocalIP))
     {
         sdir = this->mLocalData->resolveToAbsolute(std::string(dir));
+        QFileInfo fi(sdir.c_str());
+        if(fi.isFile())
+            sdir = fi.absoluteDir().absolutePath().toStdString();
 #ifdef FILEBROWSER_DEBUG
         std::cerr << "Adjusted current directory!" << std::endl;
 #endif
@@ -1457,8 +1462,8 @@ void coTUITab::resend(bool create)
     tb << ID;
     tb << m_allowRelayout;
 
-    tui()->send(tb);
     coTUIElement::resend(create);
+    tui()->send(tb);
 }
 
 void coTUITab::parseMessage(TokenBuffer &tb)

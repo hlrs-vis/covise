@@ -22,6 +22,7 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 VoIPPlugin::VoIPPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 #ifdef VOIP_DEBUG
     cout << "VoIPPlugin::VoIPPlugin()" << endl;

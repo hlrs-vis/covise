@@ -169,6 +169,7 @@ osg::Matrix ALVARPlugin::getMat(int pattID, double pattCenter[2], double pattSiz
 }
 
 ALVARPlugin::ALVARPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     marker_num = 0;
 

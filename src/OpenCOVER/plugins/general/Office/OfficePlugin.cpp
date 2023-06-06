@@ -185,7 +185,8 @@ void OfficePlugin::destroyMenu()
 }
 
 OfficePlugin::OfficePlugin()
-: ui::Owner("OfficePlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("OfficePlugin", cover->ui)
 {
     assert(!plugin);
     fprintf(stderr, "OfficePlugin::OfficePlugin\n");

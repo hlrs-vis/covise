@@ -32,6 +32,7 @@ namespace TrafficSimulation
 
         void setTransformByCoordinates(osg::Vec3& pos, osg::Vec3& xVec);
         void setTransform(osg::Matrix m);
+        osg::MatrixTransform *getTransform();
 
         double getBoundingCircleRadius();
         osg::BoundingBox& getBoundingBox()

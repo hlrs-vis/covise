@@ -84,6 +84,7 @@ int ThreeDTK::unloadFile(const char *fn)
 }
 
 ThreeDTK::ThreeDTK()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "ThreeDTK::ThreeDTK\n");
 

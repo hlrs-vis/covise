@@ -102,11 +102,12 @@ VRMoleculeViewer::unloadFile(const char *, const char *)
 //=======================================================================
 
 VRMoleculeViewer::VRMoleculeViewer()
-    : ui::Owner("MoleculePlugin", cover->ui)
-    , DCSList(NULL)
-    , radius(NULL)
-    , maxNumberOfMolecules(0)
-    , numberOfTimesteps(0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("MoleculePlugin", cover->ui)
+, DCSList(NULL)
+, radius(NULL)
+, maxNumberOfMolecules(0)
+, numberOfTimesteps(0)
 {
 }
 

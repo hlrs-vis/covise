@@ -59,8 +59,9 @@ bool ACInterfacePlugin::selectionChanged()
 }
 
 ACInterfacePlugin::ACInterfacePlugin()
-    : selectionManager(0)
-    , service(0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, selectionManager(0)
+, service(0)
 {
 }
 

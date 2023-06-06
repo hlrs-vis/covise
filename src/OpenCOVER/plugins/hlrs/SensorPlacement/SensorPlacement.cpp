@@ -119,6 +119,7 @@ std::vector<int> calcRequiredSensorsPerPoint()
 }
 
 SensorPlacementPlugin::SensorPlacementPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
   DataManager::GetInstance(); //Create Instance of Singleton
   //m_UI = myHelpers::make_unique<UI>();

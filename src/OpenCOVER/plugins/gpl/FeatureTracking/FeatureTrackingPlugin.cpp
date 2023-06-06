@@ -48,6 +48,7 @@ FeatureTrackingPlugin *FeatureTrackingPlugin::plugin = NULL;
 extern int arDebug;
 
 FeatureTrackingPlugin::FeatureTrackingPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "-----\nFeatureTrackingPlugin::FeatureTrackingPlugin\n");
 

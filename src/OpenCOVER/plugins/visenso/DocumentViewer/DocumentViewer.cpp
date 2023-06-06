@@ -43,6 +43,7 @@ using namespace covise;
 
 /// konstruktor
 DocumentViewerPlugin::DocumentViewerPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

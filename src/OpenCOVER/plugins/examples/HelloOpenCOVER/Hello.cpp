@@ -23,6 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
 Hello::Hello()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Hello World\n");
 }

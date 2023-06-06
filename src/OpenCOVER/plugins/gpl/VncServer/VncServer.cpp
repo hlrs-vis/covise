@@ -42,6 +42,7 @@ class SendThread : public OpenThreads::Thread
 };
 
 VncPlugin::VncPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
    //fprintf(stderr, "new VncServer plugin\n");
 }

@@ -415,7 +415,8 @@ void CSVPlugin::updateLabel(int64_t ts)
 }
 
 CSVPlugin::CSVPlugin()
-    : ui::Owner("CSVPlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("CSVPlugin", cover->ui)
 {
     fprintf(stderr, "CSVPlugin::CSVPlugin\n");
     plugin = this;

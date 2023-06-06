@@ -69,6 +69,7 @@ void LS1Plugin::removeObject(const char *contName, bool r)
 }
 
 LS1Plugin::LS1Plugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     TempParamName = "Temp";
 

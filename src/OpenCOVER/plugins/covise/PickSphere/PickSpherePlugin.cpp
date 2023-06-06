@@ -94,7 +94,8 @@ PickSpherePlugin::getSphereData(const coDoSpheres *spheresObj)
 //-----------------------------------------------------------------------------
 
 PickSpherePlugin::PickSpherePlugin()
-: ui::Owner("PickSpherePlugin", cover->ui)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("PickSpherePlugin", cover->ui)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\n    new PickSpherePlugin\n");

@@ -46,6 +46,7 @@ using covise::coConfig;
 #define TILED_DISPLAY_TEX_SIZE 1024
 
 TiledDisplay::TiledDisplay()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 
     initPending = true;

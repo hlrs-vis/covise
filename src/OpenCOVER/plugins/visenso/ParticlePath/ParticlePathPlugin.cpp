@@ -38,14 +38,15 @@ ParticlePathPlugin *ParticlePathPlugin::plugin = NULL;
 // Constructor
 //
 ParticlePathPlugin::ParticlePathPlugin()
-    : GenericGuiObject("ParticlePath")
-    , boundingBox(NULL)
-    , electricFieldArrow(NULL)
-    , magneticFieldArrow(NULL)
-    , path(NULL)
-    , previousPath(NULL)
-    , target(NULL)
-    , sliderMoving(0)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, GenericGuiObject("ParticlePath")
+, boundingBox(NULL)
+, electricFieldArrow(NULL)
+, magneticFieldArrow(NULL)
+, path(NULL)
+, previousPath(NULL)
+, target(NULL)
+, sliderMoving(0)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nParticlePathPlugin::ParticlePathPlugin\n");

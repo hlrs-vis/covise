@@ -681,6 +681,7 @@ void Mark::setVisible(bool visibleOnOff)
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 BulletProbe::BulletProbe()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     plugin = this;
 }

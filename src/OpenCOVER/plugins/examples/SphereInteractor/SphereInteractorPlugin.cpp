@@ -23,6 +23,7 @@
 #include <cover/RenderObject.h>
 
 SphereInteractorPlugin::SphereInteractorPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "SphereInteractorPlugin::SphereInteractorPlugin\n");
     //Create new coTrackerButtonInteraction Object

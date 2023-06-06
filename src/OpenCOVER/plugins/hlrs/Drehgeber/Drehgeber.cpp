@@ -74,9 +74,11 @@ private:
 COVERPLUGIN(Drehgeber)
 
 Drehgeber::Drehgeber()
-    : ui::Owner("Drehgeber_owner", cover->ui)
-    , m_menu(new ui::Menu("Drehgeber", this))
-    , m_rotator(new ui::Slider(m_menu, "rotation_angle_in_degree")) {
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("Drehgeber_owner", cover->ui)
+, m_menu(new ui::Menu("Drehgeber", this))
+, m_rotator(new ui::Slider(m_menu, "rotation_angle_in_degree")) 
+{
     m_rotator->setBounds(0, 360);
     serialDeviceUI = new ui::TextField(m_menu, "serialDevice");
     baudrateUI = new ui::EditField(m_menu, "baudrate");

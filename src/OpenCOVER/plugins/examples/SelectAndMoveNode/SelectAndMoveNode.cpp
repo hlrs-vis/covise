@@ -27,6 +27,7 @@
 #include <osg/Material>
 
 SelectAndMoveNode::SelectAndMoveNode()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

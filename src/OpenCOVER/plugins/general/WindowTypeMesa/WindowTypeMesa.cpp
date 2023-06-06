@@ -34,12 +34,13 @@ using covise::coCoviseConfig;
 
 
 WindowTypeMesaPlugin::WindowTypeMesaPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "WindowTypeMesaPlugin::WindowTypeMesaPlugin\n");
     frameCounter=0;
-frameRate = coCoviseConfig::getInt("COVER.Mesa.FrameRate",1);
-writeRate = coCoviseConfig::getInt("COVER.Mesa.WriteRate",1);
-coVRConfig::instance()->setFrameRate(frameRate);
+	frameRate = coCoviseConfig::getInt("COVER.Mesa.FrameRate",1);
+	writeRate = coCoviseConfig::getInt("COVER.Mesa.WriteRate",1);
+	coVRConfig::instance()->setFrameRate(frameRate);
 }
 
 // this is called if the plugin is removed at runtime

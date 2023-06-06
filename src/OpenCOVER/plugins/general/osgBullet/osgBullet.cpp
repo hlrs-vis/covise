@@ -23,6 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
 osgBulletPlugin::osgBulletPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "osgBulletPlugin World\n");
 }

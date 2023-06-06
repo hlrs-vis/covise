@@ -34,6 +34,7 @@ CoviseConfigShader *CoviseConfigShader::plugin = NULL;
 // Constructor
 //
 CoviseConfigShader::CoviseConfigShader()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nCoviseConfigShader::CoviseConfigShader\n");

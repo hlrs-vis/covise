@@ -59,7 +59,8 @@ static osg::Matrix convertMatrix44(const vr::HmdMatrix44_t &mat44)
 }
 
 Vive::Vive()
-	: InputDevice("COVER.Input.Device.Vive")
+: coVRPlugin(COVER_PLUGIN_NAME)
+, InputDevice("COVER.Input.Device.Vive")
 {
 	Input::instance()->addDevice("Vive", this);
 	haveTrackerOrigin = false;

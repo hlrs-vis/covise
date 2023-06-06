@@ -24,15 +24,16 @@
 using namespace osg;
 
 SurfacePlugin::SurfacePlugin(const char *iconname, string pluginName)
-    : ModuleFeedbackPlugin()
-    , _show(false)
-    , _scale(NULL)
-    , _fixed_scale(NULL)
-    , _fixed_matrix(NULL)
-    , _matrix(NULL)
-    , _pointer(NULL)
-    , _inFocus(false)
-    , _iconName(iconname)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ModuleFeedbackPlugin()
+, _show(false)
+, _scale(NULL)
+, _fixed_scale(NULL)
+, _fixed_matrix(NULL)
+, _matrix(NULL)
+, _pointer(NULL)
+, _inFocus(false)
+, _iconName(iconname)
 {
     string sectionName("COVER.Plugin.");
     sectionName += pluginName;

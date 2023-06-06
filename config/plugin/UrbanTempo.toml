@@ -1,5 +1,5 @@
 [general]
-geotiff_path = '/mnt/raid/data/Tallinn/dgmtiff2/63843_dem_1m.tif'
+geotiff_path = '/data/Tallinn/dgmtiff2/63843_dem_1m.tif'
 season = 'summer'
 url_api = 'https://services3.arcgis.com/FwX2qF9JecNSRnwr/ArcGIS/rest/services/IndividualPlants_GT_Tallinn/FeatureServer/1/query?where=1%3D1&outFields=*&f=pjson'
 use_api = false
@@ -3195,7 +3195,6 @@ species_name = 'saarvaher '
 x = 541632.125
 y = 6589004.3848999999
 
-[tree597]
 
 [tree6]
 height = 15.0
@@ -3452,95 +3451,34 @@ y = 6589226.2582999989
 [tree99]
 height = 19.0
 species_name = 'torkav kuusk "Glauca"'
-x = 541796.67740000039
+x = 541796.6774000003
 y = 6589228.633200001
 
+[tree597]
+height = 19.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541965.3460535705
+y = 6589813.628468788
+
+[tree598]
+height = 19.0
+species_name = 'torkav kuusk "Glauca"'
+x = 541979.9727401356
+y = 6589809.556130841
+
+
 [treeModel1]
-model_path = '/mnt/raid/data/Tallinn/GreenTwins_for_UrbanTempo/Puukoodi/3D_object_files/Juglans_spp/Juglans_spp_mature_01_leaves.obj'
+model_path = '/data/Tallinn/GreenTwins_for_UrbanTempo/Puukoodi/3D_object_files/Juglans_spp/Juglans_spp_mature_01_leaves.ive'
 season = 'summer'
 species_name = 'arukask'
 rotation = [90.0, 0.0, 0.0]
 translation = [0.0, 0.0, 0.0]
 
-[treeModel2]
-model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
-season = 'summer'
-species_name = 'h hobukastan'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel3]
-model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
-season = 'summer'
-species_name = 'h hobukastan '
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel4]
-model_path = '/mnt/raid/data/Tallinn/tree_models/Horse-chestnut/Horse-chestnut N051218.obj'
-season = 'summer'
-species_name = 'h. hobukastan'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel5]
-model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_15y_02.obj'
-season = 'summer'
-species_name = 'h pärn'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel6]
-model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_mature_01_leaves.obj'
-season = 'summer'
-species_name = 'läänepärn'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel7]
-model_path = '/mnt/raid/data/Tallinn/Tilia_x_europaea/Tilia_europaea_15y_02.obj'
-season = 'summer'
-species_name = 'suurelehine pärn'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel8]
-model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_15y_01_leaves.obj'
-season = 'summer'
-species_name = 'h vaher'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel9]
-model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_mature_03_leaves.obj'
-season = 'summer'
-species_name = 'h vaher '
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel10]
-model_path = '/mnt/raid/data/Tallinn/tree_models/Maple-Platanoides-Think/Platanoides Think N160219.obj'
-season = 'summer'
-species_name = 'mägivaher'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel11]
-model_path = '/mnt/raid/data/Tallinn/Salix_alba/Salix_alba_Sibirica_15y_01_leaves.obj'
-season = 'summer'
-species_name = 'hõberemmelgas'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel12]
-model_path = '/mnt/raid/data/Tallinn/Larix/Larix_sibirica_15y_leaves.obj'
-season = 'summer'
-species_name = 'h tamm'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel13]
-model_path = '/mnt/raid/data/Tallinn/tree_models/elm/American Elm tree.obj'
-season = 'summer'
-species_name = 'h jalakas'
-rotation = [90.0, 0.0, 0.0]
-
-[treeModel14]
-model_path = '/mnt/raid/data/Tallinn/Sembra/Pinus_cembra_mature_01.obj'
-season = 'summer'
-species_name = 'torkav kuusk'
-rotation = [90.0, 0.0, 0.0]
-
 [treeModelDefault]
-model_path = '/mnt/raid/data/Tallinn/Columnar_maple/Acer_platanoides_fastigiata_15y_01_leaves.obj'
+model_path = '/data/Tallinn/Columnar_maple/Maple5mLow.ive'
 rotation = [90.0, 0.0, 0.0]
-translation = [0.0, 0.0, 0.0]
+translation = [0.0, 0.0, -0.4]
+
+# coordinate system:
+# EPSG:3301 Estonian Coordinate System of 1997
+# https://epsg.io/transform#s_srs=4326&t_srs=3301&x=24.7396890&y=59.4440570

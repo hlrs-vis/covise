@@ -27,6 +27,7 @@
 #endif
 
 MotionPlatformPlugin::MotionPlatformPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "MotionPlatformPlugin::MotionPlatformPlugin\n");
 

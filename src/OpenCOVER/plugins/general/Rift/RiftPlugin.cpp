@@ -25,11 +25,12 @@
 RiftPlugin *RiftPlugin::plugin = NULL;
 
 RiftPlugin::RiftPlugin()
-    : tab(NULL)
-    , res(NULL)
-    , residue(NULL)
-    , showSticks(NULL)
-    , hideSticks(NULL)
+: coVRPlugin(COVER_PLUGIN_NAME)
+, tab(NULL)
+, res(NULL)
+, residue(NULL)
+, showSticks(NULL)
+, hideSticks(NULL)
 {
     VRViewer::instance()->setRenderToTexture(true);
 

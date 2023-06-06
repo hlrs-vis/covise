@@ -124,6 +124,7 @@ MoveInfo::~MoveInfo()
 }
 
 Move::Move()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

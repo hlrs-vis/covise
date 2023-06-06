@@ -35,9 +35,24 @@ enum Season {
     Fall
 };
 
+
+class  TreeModel
+{
+public:
+    TreeModel(std::string configName);
+    ~TreeModel();
+    std::string speciesName;
+    std::string modelPath;
+    Season season;
+    osg::ref_ptr<osg::Node> model;
+    osg::Matrix transform;
+    float height;
+};
+
 class UrbanTempo : public opencover::coVRPlugin
 {
 public:
+    UrbanTempo();
     bool init() override;
     bool destroy() override;
     void request();
@@ -51,8 +66,11 @@ public:
     void printInformation();
 
     float getAlt(double x, double y);
-    void openImage(std::string &name);
-    void closeImage();
+    static Season stringToSeason(const std::string&);
+
+    std::vector<std::unique_ptr<TreeModel>> treeModels;
+    std::vector<std::unique_ptr<TreeModel>>::iterator defaultTreeIterator;
+    static UrbanTempo* instance() { return plugin; };
 
 private:
     std::string url;
@@ -60,7 +78,6 @@ private:
     std::string response;
     std::string simpleResponse;
     osg::ref_ptr<osg::Group> pluginNode;
-    Season stringToSeason(const std::string&);
 
     float *rasterData=NULL;
     double xOrigin;
@@ -71,6 +88,9 @@ private:
     int rows;
     GDALDataset  *heightDataset;
     GDALRasterBand  *heightBand;
+    void openImage(std::string& name);
+    void closeImage();
+    static UrbanTempo* plugin;
 };
 #endif
 

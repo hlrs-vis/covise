@@ -24,7 +24,9 @@
 #include <cover/coVRFileManager.h>
 #include "cover/input/input.h"
 using namespace opencover;
-TestTracker::TestTracker() : ui::Owner("TestTracker", cover->ui)
+TestTracker::TestTracker() 
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("TestTracker", cover->ui)
 {
     fprintf(stderr, "TestTracker\n");
 }

@@ -276,7 +276,9 @@ CefRefPtr<CefContextMenuHandler> CEF_client::GetContextMenuHandler()
     return this;
 }
 
-CEF::CEF(): ui::Owner("BrowserPlugin", cover->ui)
+CEF::CEF()
+: coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("BrowserPlugin", cover->ui)
 {
     
 }

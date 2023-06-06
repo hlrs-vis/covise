@@ -185,6 +185,7 @@ void VrmlNodeJoystick::render(Viewer*)
 JoystickPlugin* JoystickPlugin::plugin=nullptr;
 
 JoystickPlugin::JoystickPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

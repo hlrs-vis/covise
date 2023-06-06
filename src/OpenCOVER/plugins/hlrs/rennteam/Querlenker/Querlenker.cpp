@@ -9,6 +9,7 @@
 #include <cover/coVRPluginSupport.h>
 
 Querlenker::Querlenker()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     alpha = 0.0;
     gamma = 0.0;

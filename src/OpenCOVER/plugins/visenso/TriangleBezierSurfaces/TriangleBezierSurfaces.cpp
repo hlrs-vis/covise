@@ -61,6 +61,7 @@ using namespace grmsg;
 TriangleBezierSurfaces *TriangleBezierSurfaces::plugin = NULL;
 
 TriangleBezierSurfaces::TriangleBezierSurfaces()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     root = new osg::Group();
     m_presentationStepCounter = 0; //current

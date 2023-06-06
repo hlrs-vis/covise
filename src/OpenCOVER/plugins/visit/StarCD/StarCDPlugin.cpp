@@ -143,6 +143,7 @@ void StarCDPlugin::removeNode(osg::Node * node, bool /*isGroup*/, osg::Node * /*
 //----------------------------------------------------------------------------//
 
 StarCDPlugin::StarCDPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
 }
 

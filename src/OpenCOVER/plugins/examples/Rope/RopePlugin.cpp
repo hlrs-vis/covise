@@ -23,6 +23,7 @@
 using namespace osg;
 
 RopePlugin::RopePlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     this->numRopes = 0;
 }

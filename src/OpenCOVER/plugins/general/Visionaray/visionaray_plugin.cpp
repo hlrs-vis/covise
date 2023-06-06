@@ -649,7 +649,8 @@ namespace visionaray
     //
 
     Visionaray::Visionaray()
-        : impl_(new impl)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , impl_(new impl)
     {
     }
 

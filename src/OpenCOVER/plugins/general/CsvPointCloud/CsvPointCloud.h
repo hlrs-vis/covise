@@ -23,6 +23,8 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
 
+#include <cover/ui/CovconfigLink.h>
+
 #include <vrml97/vrml/VrmlSFVec3f.h>
 #include <exprtk.hpp>
 #include <array>
@@ -74,20 +76,23 @@ private:
   osg::Geode *m_currentGeode = nullptr;
   osg::MatrixTransform* m_transform = nullptr;
 
+  std::shared_ptr<config::File>m_config;
+
   //simple options
   ui::Menu *m_CsvPointCloudMenu;
-  ui::Slider *m_pointSizeSlider, *m_numPointsSlider, *m_numPrimitivesSlider;
+  std::unique_ptr<ui::SliderConfigValue> m_pointSizeSlider, m_numPointsSlider;
   covise::ColorMapSelector m_colorMapSelector;
-  ui::SelectionList* m_dataSelector;
-  ui::Button *m_moveMachineBtn;
-  ui::Button *m_showSurfaceBtn;
+  std::unique_ptr<ui::SelectionListConfigValue> m_dataSelector;
+  std::unique_ptr<ui::ButtonConfigValue> m_moveMachineBtn;
+  std::unique_ptr<ui::ButtonConfigValue> m_showSurfaceBtn;
   ui::Button *m_advancedBtn;
 
   //advanced options 
+  ui::Group *m_advancedGroup;
   ui::EditField* m_dataScale;
-  std::array<ui::EditField*, 3> m_coordTerms;
-  std::array<ui::EditField*, 3> m_machinePositionsTerms;
-  ui::EditField *m_colorTerm, *m_timeScaleIndicator, *m_delimiter, *m_offset, *m_pointReductionCriteria, *m_numPontesPerCycle;
+  std::array<std::unique_ptr<ui::EditFieldConfigValue>, 3> m_coordTerms;
+  std::array<std::unique_ptr<ui::EditFieldConfigValue>, 3> m_machinePositionsTerms;
+  std::unique_ptr<ui::EditFieldConfigValue> m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria, m_numPontesPerCycle;
   ui::Button *m_applyBtn;
   const std::array<ui::EditField*, 13> m_editFields;
 
@@ -96,7 +101,6 @@ private:
   bool m_animSpeedSet = false, m_animSkipSet = false;
   std::vector<unsigned int> m_reducedIndices;
   std::unique_ptr<DataTable> m_dataTable;
-  time_t m_readSettingsTime = 0;
   std::array<std::string, 3> m_machineSpeedNames{"dx", "dy", "dz"};
   std::array<float, 3> m_currentMachineSpeeds{0, 0, 0};
   std::vector<std::unique_ptr<std::thread>> m_threads;
@@ -119,8 +123,6 @@ private:
 
   int unloadFile(const std::string &filename);
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
-  void readSettings(const std::string& filename);
-  void writeSettings(const std::string& filename);
   void addMachineSpeedSymbols(DataTable &symbols, std::array<float, 3> &currentMachineSpeed);
   void resetMachineSpeed(std::array<float, 3> &machineSpeed);
 

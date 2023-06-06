@@ -21,6 +21,7 @@ const double TORAD = (M_PI / 180.0);
 /// <summary>   Default constructor. Initialize some variables </summary>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 TrackIRPlugin::TrackIRPlugin()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "TrackIRPlugin started\n");
     m_x = 0.0, m_y = 0.0, m_z = 0.0;

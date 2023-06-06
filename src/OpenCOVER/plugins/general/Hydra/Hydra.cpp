@@ -46,6 +46,7 @@ __declspec(dllexport) void _Xout_of_range(char const *){};
 }
 
 Hydra::Hydra()
+: coVRPlugin(COVER_PLUGIN_NAME)
 {
     fprintf(stderr, "Hydra::Hydra\n");
 
