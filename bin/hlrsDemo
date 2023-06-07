@@ -171,6 +171,7 @@ demo 52 "IMWF: Aluminum with Berkovich Indenter" cover /data/imwf/indenter/inden
 
 # Pointclouds
 category="Punktwolken"
+demo 54 "Laserauftragsschweißen" /data/KoLabBW/IFSW/Laserauftragsschweissen/hlrsDemoScript.sh
 demo 55 "Wasserflugzeug"
 demo 56 "Venice" cover /data/pointclouds/riegl/RIEGL_MLS_VMX-450_VeniceSorted.ptsb
 demo 57 "City (passing through)" cover /data/pointclouds/riegl/RIEGL_MLS_VMX-450_CitySorted.ptsb
