@@ -89,7 +89,7 @@ private:
 
   //advanced options 
   ui::Group *m_advancedGroup;
-  ui::EditField* m_dataScale;
+  std::unique_ptr<ui::EditFieldConfigValue> m_dataScale;
   std::array<std::unique_ptr<ui::EditFieldConfigValue>, 3> m_coordTerms;
   std::array<std::unique_ptr<ui::EditFieldConfigValue>, 3> m_machinePositionsTerms;
   std::unique_ptr<ui::EditFieldConfigValue> m_colorTerm, m_timeScaleIndicator, m_delimiter, m_offset, m_pointReductionCriteria, m_numPontesPerCycle;

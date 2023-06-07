@@ -128,28 +128,28 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , ui::Owner("CsvPointCloud10", cover->ui)
     , m_config(config())
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud11", this))
-    , m_pointSizeSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "PointSize", 2, *m_config, "section", config::Flag::PerModel))
-    , m_numPointsSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "NumPoints", 1000, *m_config, "section", config::Flag::PerModel))
+    , m_pointSizeSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "PointSize", 2, *m_config, "main", config::Flag::PerModel))
+    , m_numPointsSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "NumPoints", 1000, *m_config, "main", config::Flag::PerModel))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
-    , m_dataSelector(std::make_unique<ui::SelectionListConfigValue>(m_CsvPointCloudMenu, "ScalarData", 0, *m_config, "section", config::Flag::PerModel))
-    , m_moveMachineBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "MoveMachine", true, *m_config, "section", config::Flag::PerModel))
-    , m_showSurfaceBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "ShowSurface", false, *m_config, "section", config::Flag::PerModel))
+    , m_dataSelector(std::make_unique<ui::SelectionListConfigValue>(m_CsvPointCloudMenu, "ScalarData", 0, *m_config, "main", config::Flag::PerModel))
+    , m_moveMachineBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "MoveMachine", true, *m_config, "main", config::Flag::PerModel))
+    , m_showSurfaceBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "ShowSurface", false, *m_config, "main", config::Flag::PerModel))
     , m_advancedBtn(new ui::Button(m_CsvPointCloudMenu, "Advanced"))
     , m_advancedGroup(new ui::Group(m_CsvPointCloudMenu, "advanced"))
-    , m_dataScale(new ui::EditField(m_advancedGroup, "Scale"))
-    , m_coordTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "X", "", *m_config, "section", config::Flag::PerModel), 
-                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Y", "", *m_config, "section", config::Flag::PerModel),
-                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Z", "", *m_config, "section", config::Flag::PerModel)}}
-    , m_machinePositionsTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Right", "", *m_config, "section", config::Flag::PerModel),
-                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Forward", "", *m_config, "section", config::Flag::PerModel),
-                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Up", "", *m_config, "section", config::Flag::PerModel)}}
-    , m_colorTerm(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Color", "", *m_config, "section", config::Flag::PerModel))
-    , m_timeScaleIndicator(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "TimeScaleIndicator", "", *m_config, "section", config::Flag::PerModel))
-    , m_pointReductionCriteria(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "PointReductionCriterium", "", *m_config, "section", config::Flag::PerModel))
-    , m_numPontesPerCycle(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "NumPointsPerCycle", "", *m_config, "section", config::Flag::PerModel))
-    , m_delimiter(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Delimiter", ";", *m_config, "section", config::Flag::PerModel))
-    , m_offset(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "HeaderOffset", "", *m_config, "section", config::Flag::PerModel))
-    , m_editFields{m_dataScale, m_coordTerms[0]->ui(), m_coordTerms[1]->ui(), m_coordTerms[2]->ui(), m_machinePositionsTerms[0]->ui(), m_machinePositionsTerms[1]->ui(), m_machinePositionsTerms[2]->ui(), m_colorTerm->ui(), m_timeScaleIndicator->ui(), m_delimiter->ui(), m_offset->ui(), m_pointReductionCriteria->ui(), m_numPontesPerCycle->ui()}
+    , m_dataScale(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Scale", "1", *m_config, "advanced", config::Flag::PerModel))
+    , m_coordTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "X", "", *m_config, "advanced", config::Flag::PerModel), 
+                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Y", "", *m_config, "advanced", config::Flag::PerModel),
+                    std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Z", "", *m_config, "advanced", config::Flag::PerModel)}}
+    , m_machinePositionsTerms{{std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Right", "", *m_config, "advanced", config::Flag::PerModel),
+                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Forward", "", *m_config, "advanced", config::Flag::PerModel),
+                               std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Up", "", *m_config, "advanced", config::Flag::PerModel)}}
+    , m_colorTerm(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Color", "", *m_config, "advanced", config::Flag::PerModel))
+    , m_timeScaleIndicator(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "TimeScaleIndicator", "", *m_config, "advanced", config::Flag::PerModel))
+    , m_pointReductionCriteria(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "PointReductionCriterium", "", *m_config, "advanced", config::Flag::PerModel))
+    , m_numPontesPerCycle(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "NumPointsPerCycle", "", *m_config, "advanced", config::Flag::PerModel))
+    , m_delimiter(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "Delimiter", ";", *m_config, "advanced", config::Flag::PerModel))
+    , m_offset(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "HeaderOffset", "", *m_config, "advanced", config::Flag::PerModel))
+    , m_editFields{m_dataScale->ui(), m_coordTerms[0]->ui(), m_coordTerms[1]->ui(), m_coordTerms[2]->ui(), m_machinePositionsTerms[0]->ui(), m_machinePositionsTerms[1]->ui(), m_machinePositionsTerms[2]->ui(), m_colorTerm->ui(), m_timeScaleIndicator->ui(), m_delimiter->ui(), m_offset->ui(), m_pointReductionCriteria->ui(), m_numPontesPerCycle->ui()}
     , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
@@ -162,7 +162,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_moveMachineBtn->ui()->setShared(true);
     m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
-    m_dataScale->setValue("1");
     for (auto ef : m_editFields)
         ef->setShared(true);
 
@@ -175,8 +174,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_pointSizeSlider->ui()->setShared(true);
 
     m_numPointsSlider->ui()->setShared(true);
-    m_numPointsSlider->ui()->setBounds(0, 1);
-    m_numPointsSlider->setValue(1);
+    m_numPointsSlider->ui()->setBounds(0, m_numPointsSlider->getValue());
 
     m_applyBtn->setCallback([this](bool state)
                             {
@@ -275,7 +273,6 @@ bool CsvPointCloudPlugin::init()
     if (m_plugin)
         return false;
     m_plugin = this;
-    m_pointSizeSlider->setValue(coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSize()));
 
     m_handler[0] = FileHandler{nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "csv"};
     m_handler[1] = FileHandler{ nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "oct"};
@@ -473,7 +470,7 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
 
 ref_ptr<Vec3Array> CsvPointCloudPlugin::getCoords(DataTable &symbols)
 {
-    auto scale = parseScale(m_dataScale->value());
+    auto scale = parseScale(m_dataScale->getValue());
     size_t numColorsPerThread = symbols.size() / m_numThreads;
     std::vector<std::future<std::pair<ref_ptr<Vec3Array>, std::vector<size_t>>>> futures;
     for (size_t i = 0; i < m_numThreads; i++)
@@ -623,7 +620,7 @@ std::vector<VrmlSFVec3f> CsvPointCloudPlugin::readMachinePositions(DataTable &sy
 {
     size_t numColorsPerThread = symbols.size() / m_numThreads;
     std::vector<std::future<bool>> futures;
-    auto scale = parseScale(m_dataScale->value());
+    auto scale = parseScale(m_dataScale->getValue());
     std::vector<VrmlSFVec3f> retval(symbols.size());
     for (size_t i = 0; i < m_numThreads; i++)
     {
