@@ -32,12 +32,14 @@ class Slider;
 }
 }
 #include "ui/Owner.h"
+#include "ui/CovconfigLink.h"
 
 #include <util/coExport.h>
 #include <map>
 #include <vector>
 #include <osg/Sequence>
 
+#include <OpenConfig/file.h>
 namespace opencover
 {
 class COVEREXPORT coVRAnimationManager
@@ -88,7 +90,7 @@ public:
     size_t getAnimationSkip();
     void setAnimationSpeed(float speed);
     void setAnimationSpeedMax(float maxSpeed);
-    void setAnimationSkip(int frames);
+    void setAnimationSkip(int frames, bool ignoreMax = false);
     void setAnimationSkipMax(int maxFrames);
     bool animationRunning();
     void enableAnimation(bool state);
@@ -139,23 +141,25 @@ private:
     int m_oldFrame;
 
     void initAnimMenu();
-
+    std::unique_ptr<opencover::config::File> m_configFile;
     // Animation menu:
-    ui::Button *animToggleItem;
-    ui::Slider *animSpeedItem;
     ui::Action *animForwardItem;
     ui::Action *animBackItem;
     ui::Group *animStepGroup;
-    ui::Slider *animFrameItem;
-    ui::Button *rotateObjectsToggleItem;
-    ui::Button *animPingPongItem;
-    ui::Button *animSyncItem;
     ui::Group *animLimitGroup;
-    ui::Slider *animStartItem, *animStopItem;
-    ui::Slider *presentationStep;
     ui::Menu *animRowMenu;
-    ui::Slider *animSkipItem = nullptr;
 
+    std::unique_ptr<ui::ButtonConfigValue> animToggleItem;
+    std::unique_ptr<ui::SliderConfigValue> animSpeedItem;
+    std::unique_ptr<ui::SliderConfigValue> animFrameItem;
+    std::unique_ptr<ui::ButtonConfigValue> rotateObjectsToggleItem;
+    std::unique_ptr<ui::ButtonConfigValue> animPingPongItem;
+    std::unique_ptr<ui::ButtonConfigValue> animSyncItem;
+    std::unique_ptr<ui::SliderConfigValue> animStartItem, animStopItem;
+    std::unique_ptr<ui::SliderConfigValue> presentationStep;
+    std::unique_ptr<ui::SliderConfigValue> animSkipItem;
+
+    
     bool m_animRunning;
     double m_lastAnimationUpdate;
     int m_currentAnimationFrame, m_requestedAnimationFrame;
