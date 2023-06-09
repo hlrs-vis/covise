@@ -162,9 +162,10 @@ elif [ "$basename" = "_env_for_covise" ]; then
        eval echo \$\{$1\}
     else
         envvars="COVISEDIR ARCHSUFFIX COVISE_PATH COCONFIG OIV_PSFONT_PATH VV_SHADER_PATH"
+        envvars="$envvars COVCONFIG COVCONFIG_HOST COVCONFIG_CLUSTER COVCONFIG_IGNORE_ERRORS COVCONFIG_DEBUG"
         case "$ARCHSUFFIX" in
             macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt|macos|macosopt)
-                envvars="$envvars DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH"
+                envvars="$envvars DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH"
                 ;;
             *)
                 envvars="$envvars LD_LIBRARY_PATH"
@@ -200,6 +201,8 @@ elif [ "$basename" = "_debug_for_covise" ]; then
            TMPFILE=$(mktemp /tmp/covise.XXXXXX) || exit 1
            echo "env DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}" >> "$TMPFILE"
            echo "env DYLD_FRAMEWORK_PATH=${DYLD_FRAMEWORK_PATH}" >> "$TMPFILE"
+           echo "env DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH}" >> "$TMPFILE"
+           echo "env DYLD_FALLBACK_FRAMEWORK_PATH=${DYLD_FALLBACK_FRAMEWORK_PATH}" >> "$TMPFILE"
            "$DEBUGGER" -s "$TMPFILE" "$runcmd" -- "$@"
            exec rm -f "$TMPFILE"
            ;;

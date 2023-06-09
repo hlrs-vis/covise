@@ -85,6 +85,8 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
             showenv("VISTLE_DYLD_LIBRARY_PATH");
             showenv("DYLD_LIBRARY_PATH");
             showenv("DYLD_FRAMEWORK_PATH");
+            showenv("DYLD_FALLBACK_LIBRARY_PATH");
+            showenv("DYLD_FALLBACK_FRAMEWORK_PATH");
 #elif defined(__linux)
             showenv("LD_LIBRARY_PATH");
 #else
