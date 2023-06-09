@@ -130,6 +130,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_CsvPointCloudMenu(new ui::Menu("CsvPointCloud11", this))
     , m_pointSizeSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "PointSize", 2, *m_config, "main", config::Flag::PerModel))
     , m_numPointsSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "NumPoints", 1000, *m_config, "main", config::Flag::PerModel))
+    , m_speedSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "AnimationSpeed", 1, *m_config, "main", config::Flag::PerModel))
     , m_colorMapSelector(*m_CsvPointCloudMenu)
     , m_dataSelector(std::make_unique<ui::SelectionListConfigValue>(m_CsvPointCloudMenu, "ScalarData", 0, *m_config, "main", config::Flag::PerModel))
     , m_moveMachineBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "MoveMachine", true, *m_config, "main", config::Flag::PerModel))
@@ -176,6 +177,12 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_numPointsSlider->ui()->setShared(true);
     m_numPointsSlider->ui()->setBounds(0, m_numPointsSlider->getValue());
 
+    m_speedSlider->setUpdater([this](){
+        coVRAnimationManager::instance()->setAnimationSpeed(24);
+        coVRAnimationManager::instance()->setAnimationSkip(20000 / 24 * m_speedSlider->getValue());
+    });
+    m_speedSlider->ui()->setBounds(0,1);
+    m_speedSlider->ui()->setText("Animation speed in %");
     m_applyBtn->setCallback([this](bool state)
                             {
                                 (void)state;

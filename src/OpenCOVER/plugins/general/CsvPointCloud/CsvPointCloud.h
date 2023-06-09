@@ -80,7 +80,7 @@ private:
 
   //simple options
   ui::Menu *m_CsvPointCloudMenu;
-  std::unique_ptr<ui::SliderConfigValue> m_pointSizeSlider, m_numPointsSlider;
+  std::unique_ptr<ui::SliderConfigValue> m_pointSizeSlider, m_numPointsSlider, m_speedSlider;
   covise::ColorMapSelector m_colorMapSelector;
   std::unique_ptr<ui::SelectionListConfigValue> m_dataSelector;
   std::unique_ptr<ui::ButtonConfigValue> m_moveMachineBtn;
