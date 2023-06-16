@@ -15,6 +15,8 @@
 #include <cover/coVRPluginSupport.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include "VariantPlugin.h"
+#include "VrmlNodeVariant.h"
+
 using namespace covise;
 using namespace opencover;
 
@@ -84,7 +86,7 @@ void Variant::removeFromScenegraph(osg::Node *node)
         (*parent)->removeChild(VarNode);
         cout << "ParentName: " << (*parent)->getName() << endl;
     }
-    if (cn)
+    if (cn && cn->getNumParents() > 0)
         cn->getParent(0)->removeChild(cn);
 }
 //------------------------------------------------------------------------------
@@ -249,4 +251,47 @@ void Variant::setQDomElemTRANS(osg::Vec3d vec)
 int Variant::numParents()
 {
     return parents.size();
+}
+
+void Variant::setParents(osg::Node::ParentList pa)
+{
+    parents = pa;
+}
+
+void Variant::setVisible(bool state)
+{
+    visible = state;
+    osg::Node *n = getNode();
+    if (n)
+    {
+        std::string path = coVRSelectionManager::generatePath(n);
+        std::string pPath = path.substr(0, path.find_last_of(";"));
+        TokenBuffer tb2;
+        tb2 << path;
+        tb2 << pPath;
+        std::cerr << "Variant::setVisible " << path << " " << pPath << " visible " << visible << std::endl;
+        if (visible)
+        {
+            if (VrmlNodeVariant::instance())
+                VrmlNodeVariant::instance()->setVariant(varName);
+            cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.getData().length(),
+                               tb2.getData().data());
+        }
+        else
+        {
+            cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(),
+                               tb2.getData().data());
+        }
+        plugin->setMenuItem(this, visible);
+        plugin->setQDomElemState(this, visible);
+    }
+    else
+    {
+        cerr << "Node of Variant " << varName << " not found" << endl;
+    }
+}
+
+bool Variant::isVisible() const
+{
+    return visible;
 }

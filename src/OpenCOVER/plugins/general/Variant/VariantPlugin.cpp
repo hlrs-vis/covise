@@ -218,7 +218,6 @@ bool VariantPlugin::init()
 VariantPlugin::~VariantPlugin()
 {
     //fprintf ( stderr,"VariantPlugin::~VariantPlugin\n" );
-
     delete VariantPluginTab;
     delete boi;
     plugin = nullptr;
@@ -474,34 +473,32 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                     osg::Node::ParentList parents;
                     if (node)
                         parents = node->getParents();
+
                     var = new Variant(this, var_att, node, parents, variant_menu, VariantPluginTab, varlist.size() + 1,
                                       xmlfile, &qDE_Variant, boi, set_default ? default_state : true);
-                    varlist.push_back(var);
                     var->AddToScenegraph();
+                    varlist.push_back(var);
                     var->hideVRLabel();
+
+                    auto it = deletedVisibility.find(var_att);
+                    if (it != deletedVisibility.end())
+                    {
+                        set_default = true;
+                        default_state = it->second;
+                        deletedVisibility.erase(it);
+                    }
                 }
                 else
                 {
                     var->attachNode(node);
                 }
                 varmap[node] = var;
-                if(set_default && !var->defaultVisibilitySet)
+                if (set_default && !var->defaultVisibilitySet)
                 {
                     var->defaultVisibilitySet = true;
                     if (default_state == false)
                     {
-                   osg::Node *n = var->getNode();
-                   if (n)
-                   {
-                       std::string path = coVRSelectionManager::generatePath(n);
-                       std::string pPath = path.substr(0, path.find_last_of(";"));
-                       TokenBuffer tb2;
-                       tb2 << path;
-                       tb2 << pPath;
-                       cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
-                       setMenuItem(var, (false));
-                       setQDomElemState(var, false);
-                   }
+                        var->setVisible(false);
                     }
                 }
             }
@@ -528,6 +525,7 @@ void VariantPlugin::removeNode(osg::Node *node, bool /*isGroup*/, osg::Node * /*
                 varlist.erase(it);
             }
             var->removeFromScenegraph(node);
+            deletedVisibility[var->getVarname()] = var->isVisible();
             delete var;
         }
     }
@@ -655,33 +653,7 @@ void VariantPlugin::message(int toWhom, int type, int len, const void *buf)
     Variant *var = getVariant(VariantName);
     if (var)
     {
-        osg::Node *n = var->getNode();
-        if (n)
-        {
-            std::string path = coVRSelectionManager::generatePath(n);
-            std::string pPath = path.substr(0, path.find_last_of(";"));
-            TokenBuffer tb2;
-            tb2 << path;
-            tb2 << pPath;
-            if (type == PluginMessageTypes::VariantHide)
-            {
-                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb2.getData().length(), tb2.getData().data());
-                setMenuItem(var, (false));
-                setQDomElemState(var, false);
-            }
-            else
-            {
-                if (VrmlNodeVariant::instance())
-                    VrmlNodeVariant::instance()->setVariant(VariantName);
-                cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb2.getData().length(), tb2.getData().data());
-                setMenuItem(var, (true));
-                setQDomElemState(var, true);
-            }
-        }
-        else
-        {
-            cerr << "Node of Variant " << VariantName << " not found" << endl;
-        }
+        var->setVisible(type == PluginMessageTypes::VariantShow);
     }
     else
     {

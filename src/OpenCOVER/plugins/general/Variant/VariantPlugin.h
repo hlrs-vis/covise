@@ -138,6 +138,7 @@ private:
     std::map<std::string, coTUIToggleButton *> tui_header_trans;
 
     std::list<Variant *> varlist;
+    std::map<std::string, bool> deletedVisibility;
     std::list<VariantMarker> variantMarkers;
     const VariantMarker *activatedMarker = nullptr;
 

@@ -57,6 +57,7 @@ public:
     };
     int numNodes();
     int numParents();
+    void setParents(osg::Node::ParentList pa);
     osg::Matrix getOriginMatrix();
     void createVRLabel();
     void showVRLabel();
@@ -70,9 +71,11 @@ public:
 
     VariantUI *ui;
     bool defaultVisibilitySet = false;
+    void setVisible(bool state);
+    bool isVisible() const;
 
 private:
-    osg::MatrixTransform *VarNode;
+    osg::ref_ptr<osg::MatrixTransform> VarNode;
     std::string varName;
     osg::Node::ParentList parents;
     osg::Matrix origin_matrix;
@@ -84,8 +87,9 @@ private:
     std::set<osg::Node *> attachedNodesList;
 
     coVRBoxOfInterest *myboi;
-    osg::ClipNode *cn;
+    osg::ref_ptr<osg::ClipNode> cn;
     VariantPlugin *plugin = nullptr;
+    bool visible = true;
 };
 
 #endif /* _Variant_H */
