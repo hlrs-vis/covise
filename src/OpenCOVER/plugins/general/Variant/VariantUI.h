@@ -15,23 +15,12 @@
 #ifndef _VARIANTUI_H
 #define _VARIANTUI_H
 
-#ifdef VRUI
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coLabelMenuItem.h>
-#else
 #include <cover/ui/Button.h>
 namespace opencover {
 namespace ui {
 class Menu;
 }
-}
-#endif
+} // namespace opencover
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>

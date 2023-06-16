@@ -166,26 +166,6 @@ void Variant::printMatrix(osg::MatrixTransform *mt)
     cout << "/-----------------------  " << endl;
 }
 
-#ifdef VRUI
-void Variant::menuEvent(coMenuItem *item)
-{
-    coCheckboxMenuItem *m = dynamic_cast<coCheckboxMenuItem *>(item);
-    if (m)
-    {
-        bool selected = m->getState();
-        std::string vName = this->getVarname();
-        TokenBuffer tb;
-        tb << vName;
-        if (selected)
-            cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(),
-                               tb.get_data());
-        else
-            cover->sendMessage(plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(),
-                               tb.get_data());
-    }
-}
-#endif
-
 void Variant::tabletEvent(coTUIElement *item)
 {
     if (item == ui->getTUI_Item())

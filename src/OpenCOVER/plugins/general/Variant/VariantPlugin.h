@@ -121,26 +121,12 @@ public:
 
 private:
     coSensorList sensorList;
-#ifdef VRUI
-    coMenu *cover_menu;
-    coSubMenuItem *button;
-    coRowMenu *variant_menu;
-    coSubMenuItem *variants;
-    coSubMenuItem *options;
-    coRowMenu *options_menu;
-    coCheckboxMenuItem *showHideLabels;
-    coSubMenuItem *roi; //Region of Interest
-    coRowMenu *roi_menu;
-    coCheckboxMenuItem *define_roi;
-    coCheckboxMenuItem *active_roi;
-#else
     ui::Menu *variant_menu=nullptr;
     ui::Menu *options_menu=nullptr;
     ui::Button *showHideLabels=nullptr;
     ui::Menu *roi_menu=nullptr;
     ui::Button *define_roi=nullptr;
-    ui::Button *active_roi=nullptr;
-#endif
+    ui::Button *active_roi = nullptr;
 
     coTUITab *VariantPluginTab;
     coTUIToggleButton *VariantPluginTUIItem;

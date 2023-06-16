@@ -62,9 +62,6 @@ public:
     void showVRLabel();
     void hideVRLabel();
     //Events
-#ifdef VRUI
-    void menuEvent(coMenuItem *item);
-#endif
     void tabletEvent(coTUIElement *item);
     void setOriginTransMatrix();
     void setOriginTransMatrix(osg::Vec3d vec);

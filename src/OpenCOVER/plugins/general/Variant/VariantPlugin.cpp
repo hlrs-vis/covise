@@ -219,20 +219,6 @@ VariantPlugin::~VariantPlugin()
 {
     //fprintf ( stderr,"VariantPlugin::~VariantPlugin\n" );
 
-#ifdef VRUI
-    delete showHideLabels;
-    delete options_menu;
-    delete define_roi;
-    delete roi_menue;
-    delete roi;
-    delete variant_menu;
-    delete button;
-    delete variants;
-    delete variants_menu;
-    //
-    delete options;
-#endif
-
     delete VariantPluginTab;
     delete boi;
     plugin = nullptr;
@@ -599,76 +585,6 @@ Variant *VariantPlugin::getVariantbyAttachedNode(osg::Node *node)
     return it->second;
 }
 
-//------------------------------------------------------------------------------------------------------------------------------
-
-#ifdef VRUI
-void VariantPlugin::menuEvent(coMenuItem *item)
-{
-
-    coCheckboxMenuItem *m = dynamic_cast<coCheckboxMenuItem *>(item);
-    if (m)
-    {
-
-        if (m == showHideLabels)
-        {
-            if (m->getState())
-            {
-                showAllLabel();
-            }
-            else
-            {
-                hideAllLabel();
-            }
-            setQDomElemLabels(m->getState());
-            tui_showLabel->setState(m->getState());
-        }
-        if (m == define_roi)
-        {
-            if (m->getState())
-            {
-                if (firsttime)
-                {
-                    float initSize = getTypicalSice() * 0.01;
-                    boi->setMatrix(boi->getMat() * boi->getMat().scale(initSize, initSize, initSize));
-                    boi->setStartMatrix();
-                    printMatrix(boi->getMat());
-                    boi->updateClippingPlanes();
-                    firsttime = false;
-                }
-                boi->showHide(true);
-            }
-            else
-            {
-                boi->showHide(false);
-            }
-        }
-        if (m == active_roi)
-        {
-            // float initSize = cover->getBBox(cover->getObjectsRoot()).radius() * 0.1;
-
-            std::list<Variant *>::iterator it;
-
-            if (m->getState())
-            {
-                for (it = varlist.begin(); it != varlist.end(); it++)
-                {
-                    //boi->attachClippingPlanes((*it)->getNode());
-                    (*it)->attachClippingPlane();
-                }
-            }
-            else
-            {
-                for (it = varlist.begin(); it != varlist.end(); it++)
-                {
-                    //boi->releaseClippingPlanes((*it)->getNode());
-                    (*it)->releaseClippingPlane();
-                }
-            }
-            //boi->setMatrix(osg::Vec3(10,10,10),osg::Vec3(1,1,1));
-        }
-    }
-}
-#endif
 //------------------------------------------------------------------------------------------------------------------------------
 
 void VariantPlugin::tabletEvent(coTUIElement *elem)
