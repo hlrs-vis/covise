@@ -108,19 +108,16 @@ void coVRAnimationManager::initAnimMenu()
     animStepGroup = new ui::Group(animRowMenu, "TimestepGroup");
     animStepGroup->setText("");
 
-    animFrameItem = std::make_unique<ui::SliderConfigValue>(animStepGroup, "Timestep", m_timestepBase, *m_configFile, "", config::Flag::PerModel);
-    animFrameItem->ui()->setText(m_timestepUnit);
-    animFrameItem->ui()->setIntegral(true);
-    animFrameItem->ui()->setBounds(m_timestepBase, std::max(m_timestepBase, animFrameItem->getValue()));
-    animFrameItem->setUpdater([this](){
-        requestAnimationTime(animFrameItem->getValue());
-        if (animFrameItem->ui()->isMoving()) {
-            m_animationPaused = true;
-        } else {
-            m_animationPaused = false;
-        }
+    animFrameItem = new ui::Slider(animStepGroup, "Timestep");
+    animFrameItem->setValue(m_timestepBase);
+    animFrameItem->setText(m_timestepUnit);
+    animFrameItem->setIntegral(true);
+    animFrameItem->setBounds(m_timestepBase, std::max(m_timestepBase, animFrameItem->value()));
+    animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        requestAnimationTime(val);
+        m_animationPaused = !released;
     });
-    animFrameItem->ui()->setPriority(ui::Element::Toolbar);
+    animFrameItem->setPriority(ui::Element::Toolbar);
 
     animBackItem = new ui::Action(animStepGroup, "StepBackward");
     animBackItem->setText("Step backward");
@@ -193,7 +190,7 @@ void coVRAnimationManager::initAnimMenu()
 	animSyncItem->setUpdater([this]()
 		{
 			auto state = animSyncItem->getValue();
-            animFrameItem->ui()->setShared(state);
+            animFrameItem->setShared(state);
 			animSpeedItem->ui()->setShared(state);
             animSkipItem->ui()->setShared(state);
 			animToggleItem->ui()->setShared(state);
@@ -510,7 +507,7 @@ void coVRAnimationManager::setNumTimesteps(int t)
         m_numFrames = 1;
     if (animFrameItem)
     {
-        animFrameItem->ui()->setBounds(m_timestepBase, m_timestepBase + (m_numFrames - 1) * m_timestepScale);
+        animFrameItem->setBounds(m_timestepBase, m_timestepBase + (m_numFrames - 1) * m_timestepScale);
         //animFrameItem->setNumTicks(numFrames - 1);
         animStartItem->ui()->setBounds(m_timestepBase, m_timestepBase + (m_numFrames - 1) * m_timestepScale);
         animStopItem->ui()->setBounds(m_timestepBase, m_timestepBase + (m_numFrames - 1) * m_timestepScale);
@@ -535,7 +532,7 @@ void coVRAnimationManager::showAnimMenu(bool visible)
     animToggleItem->ui()->setEnabled(visible);
     animForwardItem->setEnabled(visible);
     animBackItem->setEnabled(visible);
-    animFrameItem->ui()->setEnabled(visible);
+    animFrameItem->setEnabled(visible);
     animStartItem->ui()->setEnabled(visible);
     animStopItem->ui()->setEnabled(visible);
 }
@@ -669,7 +666,7 @@ void coVRAnimationManager::removeTimestepProvider(const void *who)
 void coVRAnimationManager::setTimestepUnit(const char *unit)
 {
     m_timestepUnit = unit;
-    animFrameItem->ui()->setText(unit);
+    animFrameItem->setText(unit);
 }
 
 void coVRAnimationManager::setTimestepBase(double base)
@@ -677,10 +674,10 @@ void coVRAnimationManager::setTimestepBase(double base)
     m_timestepBase = base;
     bool integer = (m_timestepBase == static_cast<int>(m_timestepBase))
                    && (m_timestepScale == static_cast<int>(m_timestepScale));
-    animFrameItem->ui()->setIntegral(integer);
+    animFrameItem->setIntegral(integer);
     animStartItem->ui()->setIntegral(integer);
     animStopItem->ui()->setIntegral(integer);
-    animFrameItem->ui()->setBounds(m_timestepBase, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
+    animFrameItem->setBounds(m_timestepBase, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
     animStartItem->ui()->setBounds(m_timestepBase, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
     animStopItem->ui()->setBounds(m_timestepBase, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
 }
@@ -690,10 +687,10 @@ void coVRAnimationManager::setTimestepScale(double scale)
     m_timestepScale = scale;
     bool integer = (m_timestepBase == static_cast<int>(m_timestepBase))
                    && (m_timestepScale == static_cast<int>(m_timestepScale));
-    animFrameItem->ui()->setIntegral(integer);
+    animFrameItem->setIntegral(integer);
     animStartItem->ui()->setIntegral(integer);
     animStopItem->ui()->setIntegral(integer);
-    animFrameItem->ui()->setBounds(1, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
+    animFrameItem->setBounds(1, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
     animStartItem->ui()->setBounds(1, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
     animStopItem->ui()->setBounds(1, m_timestepBase + (getNumTimesteps() - 1) * m_timestepScale);
 }

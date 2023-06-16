@@ -150,8 +150,8 @@ private:
     ui::Menu *animRowMenu;
 
     std::unique_ptr<ui::ButtonConfigValue> animToggleItem;
+    ui::Slider *animFrameItem;
     std::unique_ptr<ui::SliderConfigValue> animSpeedItem;
-    std::unique_ptr<ui::SliderConfigValue> animFrameItem;
     std::unique_ptr<ui::ButtonConfigValue> rotateObjectsToggleItem;
     std::unique_ptr<ui::ButtonConfigValue> animPingPongItem;
     std::unique_ptr<ui::ButtonConfigValue> animSyncItem;
