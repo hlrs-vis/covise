@@ -296,6 +296,7 @@ inline TreeNode* TreeNode::search(Point p)
         if (childTree->inBoundary(p))
             return childTree->search(p);
     }
+    return nullptr;
 
 };
 // Find the first ancestor of two nodes in the quadtree

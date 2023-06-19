@@ -1298,21 +1298,21 @@ void CNCPlugin::wpTreeToGeometry(osg::Geometry& dynamicGeo, osg::Geometry& stati
     wpDynamicColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 0.50f));
     dynamicGeo.setVertexArray(pointsDynamic);
     dynamicGeo.setColorArray(wpDynamicColors);
-    dynamicGeo.setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    dynamicGeo.setColorBinding(osg::Geometry::BIND_OVERALL);
     wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
     wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
     wpStaticColors->push_back(osg::Vec4(0.5f, 0.0f, 0.0f, 0.50f));
     staticGeo.setVertexArray(pointsStatic);
     staticGeo.setColorArray(wpStaticColors);
-    staticGeo.setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    staticGeo.setColorBinding(osg::Geometry::BIND_OVERALL);
 
-    dynamicGeo.setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    dynamicGeo.setNormalBinding(osg::Geometry::BIND_OVERALL);
     wpDynamicNormals = new osg::Vec3Array;
     wpDynamicNormals->push_back(osg::Vec3(0.0f, 0.0f, 1.0f));
     wpDynamicNormals->push_back(osg::Vec3(0.0f, 1.0f, 0.0f));
     wpDynamicNormals->push_back(osg::Vec3(1.0f, 0.0f, 0.0f));
     dynamicGeo.setNormalArray(wpDynamicNormals);// , osg::Array::BIND_OVERALL);
-    staticGeo.setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+    staticGeo.setNormalBinding(osg::Geometry::BIND_OVERALL);
     staticGeo.setNormalArray(wpDynamicNormals);
 
     dynamicGeo.setStateSet(wpStateSet.get());
@@ -1572,25 +1572,28 @@ void CNCPlugin::setWpResolution()
 */
 void CNCPlugin::setWpMaterial()
 {
-    wpStateSet = new osg::StateSet();
+    //wpStateSet = new osg::StateSet();
+    wpStateSet = new osg::StateSet;
     wpMaterial = new osg::Material;
-    wpLineWidth = new osg::LineWidth(2.0);
     wpMaterial.get()->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     wpMaterial.get()->setAmbient(osg::Material::FRONT_AND_BACK, Vec4(0.2f, 0.2f, 0.2f, 1.0));
     wpMaterial.get()->setDiffuse(osg::Material::FRONT_AND_BACK, Vec4(0.80f, 0.80f, 0.80f, 1.0));
     wpMaterial.get()->setSpecular(osg::Material::FRONT_AND_BACK, Vec4(0.5f, 0.5f, 0.5f, 1.0));
     wpMaterial.get()->setEmission(osg::Material::FRONT_AND_BACK, Vec4(0.0f, 0.0f, 0.0f, 1.0));
     wpMaterial.get()->setShininess(osg::Material::FRONT_AND_BACK, 8.0f);
+    
 
+            wpStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+            wpStateSet->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+            wpStateSet->setMode(GL_BLEND, osg::StateAttribute::OFF);
+            wpStateSet->setMode(osg::StateAttribute::PROGRAM, osg::StateAttribute::OFF);
+            wpStateSet->setMode(osg::StateAttribute::VERTEXPROGRAM, osg::StateAttribute::OFF);
+            wpStateSet->setMode(osg::StateAttribute::FRAGMENTPROGRAM, osg::StateAttribute::OFF);
+            wpStateSet->setMode(osg::StateAttribute::TEXTURE, osg::StateAttribute::OFF);
+    
     wpStateSet->setAttributeAndModes(wpMaterial.get(), StateAttribute::ON);
 
-    //wpStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-    wpStateSet->setAttributeAndModes(wpLineWidth.get(), StateAttribute::ON); //nur fur Linien. Ueberflussig?
-
-    osg::ref_ptr<osg::PolygonMode> polyMode(new osg::PolygonMode());
-    polyMode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL); //LINE);
-    wpStateSet->setAttribute(polyMode.get());
 }
 /* extractToolInfos
 
