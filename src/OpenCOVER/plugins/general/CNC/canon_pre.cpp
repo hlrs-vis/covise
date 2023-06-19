@@ -366,7 +366,7 @@ void STRAIGHT_TRAVERSE(
     )
 {
 
-    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _traverse_rate, _active_slot);
+    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _traverse_rate, _active_slot, 0);
     _program_position_x SET_TO x;
     _program_position_y SET_TO y;
     _program_position_z SET_TO z;
@@ -541,7 +541,7 @@ void STRAIGHT_FEED(
 #endif
     )
 {
-    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _feed_rate, _active_slot);
+    CNCPlugin::instance()->straightFeed(x, y, z, a, b, c, _feed_rate, _active_slot, 1);
     /* fprintf(_outfile, "%5d ", _line_number++);
     print_nc_line_number();
     fprintf(_outfile, "STRAIGHT_FEED(%.4f, %.4f, %.4f"
