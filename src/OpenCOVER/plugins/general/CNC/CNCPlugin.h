@@ -85,6 +85,9 @@ private:
     ui::SelectionList *renderMethod = nullptr;
     covise::ColorMapSelector colorMap;
 
+    ui::Button *EnableWpButton = nullptr;
+    std::unique_ptr<ConfigBool> enableWp;
+
     osg::ref_ptr<osg::StateSet> geoState;
     osg::ref_ptr<osg::Material> linemtl;
     osg::ref_ptr<osg::LineWidth> lineWidth;
@@ -122,12 +125,24 @@ private:
     osg::ref_ptr<osg::Group> wpGroup;
     osg::ref_ptr<osg::Geode> wpDynamicGeode;
     osg::ref_ptr<osg::Geode> wpStaticGeode;
+    osg::ref_ptr<osg::Geode> wpDynamicGeodeX;
+    osg::ref_ptr<osg::Geode> wpStaticGeodeX;
+    osg::ref_ptr<osg::Geode> wpDynamicGeodeY;
+    osg::ref_ptr<osg::Geode> wpStaticGeodeY;
     osg::ref_ptr<osg::Geometry> wpDynamicGeom;
     osg::ref_ptr<osg::Geometry> wpStaticGeom;
+    osg::ref_ptr<osg::Geometry> wpDynamicGeomX;
+    osg::ref_ptr<osg::Geometry> wpStaticGeomX;
+    osg::ref_ptr<osg::Geometry> wpDynamicGeomY;
+    osg::ref_ptr<osg::Geometry> wpStaticGeomY;
     osg::ref_ptr<osg::Vec4Array> wpDynamicColors;
     osg::ref_ptr<osg::Vec4Array> wpStaticColors;
     osg::ref_ptr<osg::Vec3Array> wpDynamicNormals;
     osg::ref_ptr<osg::Vec3Array> wpStaticNormals;
+    osg::ref_ptr<osg::Vec3Array> wpDynamicNormalsX;
+    osg::ref_ptr<osg::Vec3Array> wpStaticNormalsX;
+    osg::ref_ptr<osg::Vec3Array> wpDynamicNormalsY;
+    osg::ref_ptr<osg::Vec3Array> wpStaticNormalsY;
     osg::DrawArrayLengths *wpDynamicPrimitives = nullptr;
     osg::DrawArrayLengths *wpStaticPrimitives = nullptr;
     osg::DrawElementsUInt *wpDynamicVerticalPrimX = nullptr; //parallel X
@@ -150,7 +165,7 @@ private:
     double anglePointPoint(double px, double py, double x1, double y1);
     bool checkInsideArcG2(double pAngle, double angle1, double angle2);
 
-    void wpTreeToGeometry(osg::Geometry& dynamicGeo, osg::Geometry& staticGeo);
+    void wpTreeToGeometry(osg::Geometry& dynamicGeo, osg::Geometry& staticGeo, osg::Geometry& dynamicGeoX, osg::Geometry& staticGeoX, osg::Geometry& dynamicGeoY, osg::Geometry& staticGeoY);
     void wpTreeToGeoTop(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic);
     void wpTreeToGeoSideWalls(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic, osg::DrawElementsUInt& wpDynamicVerticalPrimX, osg::DrawElementsUInt& wpDynamicVerticalPrimY, osg::DrawElementsUInt& wpStaticVerticalPrimX, osg::DrawElementsUInt& wpStaticVerticalPrimY);
     void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter);
