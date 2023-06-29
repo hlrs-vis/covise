@@ -54,6 +54,7 @@ public:
   static int unload(const char *filename, const char *covise_key);
   float pointSize() const;
   void setTimestep(int t) override;
+  void test();
 
 protected:
   bool update() override;
@@ -121,14 +122,14 @@ private:
 
   std::vector<vrml::VrmlSFVec3f> readMachinePositions(DataTable& symbols);
 
-  int unloadFile(const std::string &filename);
+  int unloadFile();
   bool compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr);
   void addMachineSpeedSymbols(DataTable &symbols, std::array<float, 3> &currentMachineSpeed);
   void resetMachineSpeed(std::array<float, 3> &machineSpeed);
 
   void advanceMachineSpeed(std::array<float, 3> &machineSpeed, size_t i);
   void updateColorMap();
-
+  bool destroy() override;
   struct ScalarData
   {
     osg::ref_ptr<osg::FloatArray> data;

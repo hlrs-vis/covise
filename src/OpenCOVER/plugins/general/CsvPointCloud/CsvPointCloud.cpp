@@ -190,7 +190,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
                                 {
                                     auto parent = m_currentGeode->getParent(0);
                                     auto filename = m_currentGeode->getName();
-                                    unloadFile(filename);
+                                    unloadFile();
                                     load(filename.c_str(), parent, nullptr);
                                 } });
     m_applyBtn->setShared(true);
@@ -290,16 +290,21 @@ bool CsvPointCloudPlugin::init()
     return true;
 }
 
-CsvPointCloudPlugin::~CsvPointCloudPlugin()
+bool CsvPointCloudPlugin::destroy()
 {
+    unloadFile();
 
-    coVRFileManager::instance()->unregisterFileHandler(&m_handler[0]);
-    coVRFileManager::instance()->unregisterFileHandler(&m_handler[1]);
     opencover::coVRPluginList::instance()->removeObject(renderObject.getName(), false);
     for (auto ef : m_editFields)
         ef->setVisible(true);
     m_applyBtn->setVisible(true);
+    return true;
+}
 
+CsvPointCloudPlugin::~CsvPointCloudPlugin()
+{
+    coVRFileManager::instance()->unregisterFileHandler(&m_handler[0]);
+    coVRFileManager::instance()->unregisterFileHandler(&m_handler[1]);
 }
 
 int CsvPointCloudPlugin::load(const char *filename, Group *loadParent, const char *covise_key)
@@ -319,9 +324,9 @@ int CsvPointCloudPlugin::load(const char *filename, Group *loadParent, const cha
     return 1;
 }
 
-int CsvPointCloudPlugin::unload(const char *filename, const char *covise_key)
+int CsvPointCloudPlugin::unload(const char *, const char *)
 {
-    return m_plugin->unloadFile(filename);
+    return m_plugin->unloadFile();
 }
 
 void setDefaultMaterial(StateSet *geoState)
@@ -736,7 +741,7 @@ float CsvPointCloudPlugin::pointSize() const
     return m_pointSizeSlider->getValue();
 }
 
-int CsvPointCloudPlugin::unloadFile(const std::string &filename)
+int CsvPointCloudPlugin::unloadFile()
 {
     m_config->save();
     if (m_currentGeode && m_currentGeode->getNumParents() > 0)
