@@ -210,6 +210,7 @@ private:
     coTUIEditFloatField *CFPS;
     coTUIFloatSlider *NavSpeed;
     coTUIFloatSlider *ScaleSlider;
+    coTUIComboBox *SceneUnit;
     coTUIColorButton *backgroundColor;
     coTUILabel *backgroundLabel;
     coTUILabel *LODScaleLabel;

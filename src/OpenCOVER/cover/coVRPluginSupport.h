@@ -54,11 +54,13 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coVRPlugin.h"
+#include "units.h"
 #include <OpenConfig/access.h>
 
 #include <net/message_types.h>
-
+#include <array>
 namespace opencover {
+
 namespace ui {
 class ButtonGroup;
 class Menu;
@@ -287,6 +289,9 @@ public:
     //! get the scale factor of the scale node
     float getScale() const;
 
+    LengthUnit getSceneUnit() const;
+    void setSceneUnit(LengthUnit unit);
+    void setSceneUnit(const std::string& unitName);
     //! transformation matrix from object coordinates to world coordinates
     /*! multiplied matrices from scene node to objects root node */
     const osg::Matrix &getBaseMat() const
@@ -539,6 +544,7 @@ private:
 
     float scaleFactor; ///< scale depending on viewer-screen FOV
     float viewerDist; ///< distance of viewer from screen
+    LengthUnit m_sceneUnit = LengthUnit::Meter; ///< unit in which the scene is specified
     osg::Vec3 eyeToScreen; ///< eye to screen center vector
 
     osg::ref_ptr<osg::ColorMask> NoFrameBuffer;

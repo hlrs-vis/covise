@@ -738,6 +738,26 @@ float coVRPluginSupport::getScale() const
     return VRSceneGraph::instance()->scaleFactor();
 }
 
+LengthUnit coVRPluginSupport::getSceneUnit() const
+{
+    return m_sceneUnit;
+}
+
+void coVRPluginSupport::setSceneUnit(LengthUnit unit)
+{
+    m_sceneUnit = unit;
+}
+
+void coVRPluginSupport::setSceneUnit(const std::string& unitName)
+{
+    auto u = getUnitFromName(unitName);
+    if(isValid(u))
+        m_sceneUnit = u;
+    else
+        std::cerr << "warning: " << unitName << " is not a valid length unit" << std::endl;
+
+}
+
 float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coordinates
 {
     const osg::Vec3 eyePos = cover->getViewerMat().getTrans();

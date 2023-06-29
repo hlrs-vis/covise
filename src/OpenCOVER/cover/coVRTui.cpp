@@ -96,6 +96,7 @@ coVRTui::coVRTui()
     Menu = new coTUIToggleButton("Hide menu", topContainer->getID());
     scaleLabel = new coTUILabel("Scale factor", topContainer->getID());
     ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
+    SceneUnit = new coTUIComboBox("SceneUni", topContainer->getID());
     Menu->setState(false);
     debugLabel = new coTUILabel("Debug level", topContainer->getID());
     debugLevel = new coTUIEditIntField("DebugLevel", topContainer->getID());
@@ -147,6 +148,7 @@ coVRTui::coVRTui()
     DisableIntersection->setEventListener(this);
     testImage->setEventListener(this);
     ScaleSlider->setEventListener(this);
+    SceneUnit->setEventListener(this);
     Quit->setEventListener(this);
     Freeze->setEventListener(this);
     Wireframe->setEventListener(this);
@@ -179,6 +181,10 @@ coVRTui::coVRTui()
     ScaleSlider->setValue(1.);
     ScaleSlider->setLogarithmic(true);
 
+    for(auto unit : LengthUnitNames)
+        SceneUnit->addEntry(unit);
+    SceneUnit->setSelectedEntry((int)cover->getSceneUnit());
+
     NavSpeed->setMin(0.03);
     NavSpeed->setMax(30);
     NavSpeed->setValue(1);
@@ -194,12 +200,12 @@ coVRTui::coVRTui()
     Scale->setPos(0, 4);
     Collision->setPos(0, 5);
     DebugBins->setPos(3, 0);
-    FlipStereo->setPos(3,2);
+    FlipStereo->setPos(3,1);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
 
-    debugLabel->setPos(3,4);
-    debugLevel->setPos(3,5);
+    debugLabel->setPos(3,2);
+    debugLevel->setPos(3,3);
 
     speedLabel->setPos(0, 10);
     NavSpeed->setPos(1, 10);
@@ -215,6 +221,7 @@ coVRTui::coVRTui()
 
     scaleLabel->setPos(1, 3);
     ScaleSlider->setPos(1, 4);
+    SceneUnit->setPos(3, 4);
 
     FPSLabel->setPos(0, 11);
     CFPSLabel->setPos(1, 11);
@@ -986,6 +993,10 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     {
         ScaleValue = ScaleSlider->getValue();
         cover->setScale(ScaleValue);
+    }
+    else if(tUIItem == SceneUnit)
+    {
+        cover->setSceneUnit((LengthUnit)SceneUnit->getSelectedEntry());
     }
     else if (tUIItem == driveNav)
     {

@@ -84,6 +84,7 @@ SET(COVER_HEADERS
   RenderObject.h
   SidecarConfigBridge.h
   tridelity.h
+  units.h
   VRAvatar.h
   VRRegisterSceneGraph.h
   VRSceneGraph.h
@@ -158,6 +159,7 @@ SET(COVER_SOURCES
   RenderObject.cpp
   SidecarConfigBridge.cpp
   tridelity.cpp
+  units.cpp
   VRAvatar.cpp
   VRRegisterSceneGraph.cpp
   VRSceneGraph.cpp
