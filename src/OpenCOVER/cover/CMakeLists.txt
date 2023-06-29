@@ -194,6 +194,7 @@ SET(UI_HEADERS
     ui/SpecialElement.h
     ui/TabletView.h
     ui/TextField.h
+    ui/VectorEditField.h
     ui/View.h
     ui/VruiView.h
 )
@@ -219,6 +220,7 @@ SET(UI_SOURCES
     ui/SpecialElement.cpp
     ui/TabletView.cpp
     ui/TextField.cpp
+    ui/VectorEditField.cpp    
     ui/View.cpp
     ui/VruiView.cpp
 )
