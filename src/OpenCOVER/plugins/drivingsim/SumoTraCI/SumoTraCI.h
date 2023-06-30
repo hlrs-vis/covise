@@ -103,7 +103,7 @@ public:
     ~SumoTraCI();
     static SumoTraCI *instance() { return thisPlugin; };
 
-    void preFrame();
+    void preFrame() override;
     bool initConnection();
     void loadConfig(const std::string&);
 
