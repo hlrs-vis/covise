@@ -16,9 +16,8 @@
 TUIAnnotationTab::TUIAnnotationTab(int id, int type, QWidget *w, int parent, QString name)
     : TUITab(id, type, w, parent, name)
 {
-    frame = new QFrame(w);
+    frame = createWidget<QFrame>(w);
     frame->setFrameStyle(QFrame::NoFrame);
-    widget = frame;
 
     gridLayout = new QGridLayout(frame);
     gridLayout->setSpacing(6);

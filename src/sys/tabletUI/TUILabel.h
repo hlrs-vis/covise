@@ -24,7 +24,6 @@ class TUILabel : public TUIElement
 private:
 public:
     TUILabel(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUILabel();
 
     /// get the Element's classname
     virtual const char *getClassName() const override;

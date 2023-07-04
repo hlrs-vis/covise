@@ -102,11 +102,10 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
         path->mkdir(textureDir);
     delete path;
 
-    frame = new QFrame(w);
+    frame = createWidget<QFrame>(w);
     frame->setFrameStyle(QFrame::NoFrame);
 
     auto grid = createLayout(frame);
-    widget = frame;
 
     Treelayout = new QHBoxLayout();
     grid->addLayout(Treelayout, 0, 0, Qt::AlignLeft);

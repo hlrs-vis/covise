@@ -19,7 +19,7 @@
 TUIPopUp::TUIPopUp(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    popupButton = new QPushButton(w);
+    popupButton = createWidget<QPushButton>(w);
     if (name.contains("."))
     {
         QPixmap pm(name);
@@ -60,15 +60,8 @@ TUIPopUp::TUIPopUp(int id, int type, QWidget *w, int parent, QString name)
     closeButton->setMaximumSize(closeButton->sizeHint());
     layout->addWidget(textEdit);
     layout->addWidget(closeButton);
-
-    widget = popupButton;
 }
 
-/// Destructor
-TUIPopUp::~TUIPopUp()
-{
-    delete widget;
-}
 
 void TUIPopUp::popupButtonClicked()
 {

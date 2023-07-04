@@ -43,7 +43,6 @@ public slots:
     void setCurrentIndex(int);
 
 protected:
-    bool deleteTabWidget = true;
     QTabWidget *tabWidget = nullptr;
     QComboBox *switchWidget = nullptr;
     QStackedWidget *stackWidget = nullptr;

@@ -101,16 +101,38 @@ protected:
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;
-    QWidget *widget = nullptr;
     std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
     bool hidden; ///< true if UI element is to be hidden at any time
     QString name;
+    
+    QWidget *widget();
     QGridLayout *createLayout(QWidget *parent);
+
+    template<typename T>
+    T *createWidget(QWidget *parent)
+    {
+        deleteWidget();
+
+        widgetHasParent = parent;
+        auto t = new T(parent);
+        m_widget = t;
+        return t;
+    }
+
+    void setWidget(QWidget *widget, bool hasParent);
+
+
 
 private:
     QGridLayout *layout = nullptr;
     bool layoutHasParent = true;
+    QWidget *m_widget = nullptr;
+    bool widgetHasParent = true;
+    void deleteWidget();
+    
+
 };
 #endif
+

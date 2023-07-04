@@ -25,18 +25,17 @@ TUISplitter::TUISplitter(int id, int type, QWidget *w, int parent, QString name)
     label = name;
 
     QSplitter *split = new QSplitter(Qt::Horizontal, w);
+    setWidget(split, w);
     split->setFrameStyle(QFrame::NoFrame);
     //   split->setContentsMargins(5,5,5,5);
     hBoxLayout = new QHBoxLayout(split);
     vBoxLayout = NULL;
-    widget = split;
 }
 
 /// Destructor
 TUISplitter::~TUISplitter()
 {
     removeAllChildren();
-    delete widget;
 }
 
 void TUISplitter::setPos(int x, int y)
@@ -48,7 +47,7 @@ void TUISplitter::setPos(int x, int y)
     {
         parent->addElementToLayout(this);
         if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
-            tw->setCurrentIndex(tw->indexOf(widget));
+            tw->setCurrentIndex(tw->indexOf(widget()));
         else
             std::cerr << "error: parent is not a QTabWidget" << std::endl;
     }
@@ -56,7 +55,7 @@ void TUISplitter::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    widget()->setVisible(!hidden);
 }
 
 const char *TUISplitter::getClassName() const
@@ -66,7 +65,7 @@ const char *TUISplitter::getClassName() const
 
 void TUISplitter::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
-    QSplitter *split = (QSplitter *)widget;
+    QSplitter *split = (QSplitter *)widget();
     if (type == TABLET_SHAPE)
     {
         int shape;
@@ -86,12 +85,12 @@ void TUISplitter::setValue(TabletValue type, covise::TokenBuffer &tb)
         if ((orientation == Qt::Vertical) && !vBoxLayout)
         {
             //delete hBoxLayout;
-            vBoxLayout = new QVBoxLayout(widget);
+            vBoxLayout = new QVBoxLayout(widget());
         }
         else if ((orientation == Qt::Horizontal) && !hBoxLayout)
         {
             //delete vBoxLayout;
-            hBoxLayout = new QHBoxLayout(widget);
+            hBoxLayout = new QHBoxLayout(widget());
         }
 
         split->setOrientation((Qt::Orientation)orientation);

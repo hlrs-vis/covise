@@ -22,7 +22,7 @@ TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
 {
     editField = new TUILineCheck(w);
     connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChangedSlot()));
-    auto gl = createLayout(nullptr);
+    auto gl = createLayout(w);
     gl->addWidget(editField, 1, 0, 1, width-1);
     gl->addWidget(editField, 1, width-1);
     for (int i=0; i<width-1; ++i)
@@ -30,12 +30,6 @@ TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
     gl->setContentsMargins(0, 0, 0, 0);
 
     widgets.insert(editField);
-}
-
-/// Destructor
-TUILineEdit::~TUILineEdit()
-{
-    delete editField;
 }
 
 void TUILineEdit::setPos(int x, int y)

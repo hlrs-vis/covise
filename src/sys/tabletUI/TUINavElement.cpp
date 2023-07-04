@@ -17,8 +17,8 @@ class InputFrame : public QFrame
 {
 public:
     InputFrame(int id, QWidget *parent = 0);
-    virtual ~InputFrame();
-
+    InputFrame(QWidget *parent = 0);
+    void setId(int id);
 protected:
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseReleaseEvent(QMouseEvent *);
@@ -37,9 +37,13 @@ InputFrame::InputFrame(int id, QWidget *parent)
     down = false;
     ID = id;
 }
-
-InputFrame::~InputFrame()
+InputFrame::InputFrame(QWidget *parent)
+: InputFrame(0, parent)
 {
+}
+void InputFrame::setId(int id)
+{
+    ID = id;
 }
 
 //
@@ -91,7 +95,8 @@ TUINavElement::TUINavElement(int id, int type, QWidget *w, int parent, QString n
 {
     label = name;
 
-    InputFrame *frame = new InputFrame(id, w);
+    InputFrame *frame = createWidget<InputFrame>(w);
+    frame->setId(id);
     frame->setFrameStyle(QFrame::NoFrame);
     frame->setContentsMargins(5, 5, 5, 5);
 #ifdef TABLET_PLUGIN
@@ -104,21 +109,13 @@ TUINavElement::TUINavElement(int id, int type, QWidget *w, int parent, QString n
     frame->setMinimumWidth(200);
     frame->setMaximumWidth(200);
     frame->setMouseTracking(true);
-    widget = frame;
-}
-
-/// Destructor
-TUINavElement::~TUINavElement()
-{
-    delete widget;
 }
 
 /** Set activation state of this container and all its children.
   @param en true = elements enabled
 */
-void TUINavElement::setEnabled(bool en)
+void TUINavElement::setEnabled(bool)
 {
-    (void)en;
 }
 
 /** Set highlight state of this container and all its children.

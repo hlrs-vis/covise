@@ -25,10 +25,8 @@ TUIColorTab::TUIColorTab(int id, int type, QWidget *w, int parent, QString name)
 
     label = name;
 
-    frame = new QFrame(w);
+    frame = createWidget<QFrame>(w);
     frame->setFrameStyle(QFrame::NoFrame);
-
-    widget = frame;
 
     red = 255;
     green = 255;

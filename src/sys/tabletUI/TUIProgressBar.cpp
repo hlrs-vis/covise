@@ -22,16 +22,9 @@ TUIProgressBar::TUIProgressBar(int id, int type, QWidget *w, int parent, QString
 {
     //int row  = 0;
 
-    pb = new QProgressBar(w);
+    pb = createWidget<QProgressBar>(w);
     pb->setRange(0, 100);
     pb->setValue(0);
-    widget = pb;
-}
-
-/// Destructor
-TUIProgressBar::~TUIProgressBar()
-{
-    delete widget;
 }
 
 void TUIProgressBar::setPos(int x, int y)

@@ -19,20 +19,12 @@
 TUIColorButton::TUIColorButton(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    colorButton = new QPushButton(w);
-
-    widget = colorButton;
+    colorButton = createWidget<QPushButton>(w);
 
     connect(colorButton, SIGNAL(pressed()), this, SLOT(onColorButtonPressed()));
 
     //connect(widget, SIGNAL(colorChanged(const QColor &)), this, SLOT(changeColor(const QColor &)));
     //connect(widget, SIGNAL(released(const QColor &)), this, SLOT(releaseColor(const QColor &)));
-}
-
-/// Destructor
-TUIColorButton::~TUIColorButton()
-{
-    delete widget;
 }
 
 void TUIColorButton::onColorButtonPressed()

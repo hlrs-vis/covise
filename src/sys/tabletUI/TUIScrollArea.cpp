@@ -25,7 +25,7 @@ TUIScrollArea::TUIScrollArea(int id, int type, QWidget *w, int parent, QString n
 {
     label = name;
 
-    QAbstractScrollArea *frame = new QAbstractScrollArea(w);
+    QAbstractScrollArea *frame = createWidget<QAbstractScrollArea>(w);
     frame->setFrameStyle(QFrame::NoFrame);
 #ifdef _WIN32_WCE
     frame->setContentsMargins(1, 1, 1, 1);
@@ -34,14 +34,12 @@ TUIScrollArea::TUIScrollArea(int id, int type, QWidget *w, int parent, QString n
 #endif
 
     createLayout(frame);
-    widget = frame;
 }
 
 /// Destructor
 TUIScrollArea::~TUIScrollArea()
 {
     removeAllChildren();
-    delete widget;
 }
 
 void TUIScrollArea::setPos(int x, int y)
@@ -54,7 +52,7 @@ void TUIScrollArea::setPos(int x, int y)
         parent->addElementToLayout(this);
         if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
         {
-            tw->setCurrentIndex(tw->indexOf(widget));
+            tw->setCurrentIndex(tw->indexOf(widget()));
         }
         else
             std::cerr << "error: parent is not a QTabWidget" << std::endl;
@@ -63,7 +61,7 @@ void TUIScrollArea::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    widget()->setVisible(!hidden);
 }
 
 const char *TUIScrollArea::getClassName() const
@@ -73,7 +71,7 @@ const char *TUIScrollArea::getClassName() const
 
 void TUIScrollArea::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
-    QFrame *frame = (QFrame *)widget;
+    QFrame *frame = (QFrame *)widget();
     if (type == TABLET_TYPE)
     {
         int type;

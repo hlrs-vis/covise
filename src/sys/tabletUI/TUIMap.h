@@ -73,7 +73,6 @@ class TUIMap : public QObject, public TUIElement
 
 public:
     TUIMap(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIMap();
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
 

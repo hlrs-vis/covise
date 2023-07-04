@@ -38,11 +38,11 @@ void TUIUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> size;
         data = (ushort *)tb.getBinary(size);
 
-        this->uiDescription = QString::fromUtf16(data);
+        uiDescription = QString::fromUtf16(data);
 
-        delete this->uiWidget;
-        this->uiWidget = new TUIUIWidget(this->uiDescription, this);
-        this->widget->layout()->addWidget(this->uiWidget);
+        delete uiWidget;
+        uiWidget = new TUIUIWidget(uiDescription, this);
+        widget()->layout()->addWidget(uiWidget);
 
         connect(this->uiWidget, SIGNAL(command(QString, QString)), this, SLOT(sendCommand(QString, QString)));
 

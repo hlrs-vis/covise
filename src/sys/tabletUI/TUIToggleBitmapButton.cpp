@@ -19,7 +19,7 @@
 TUIToggleBitmapButton::TUIToggleBitmapButton(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    QPushButton *b = new QPushButton(w);
+    QPushButton *b = createWidget<QPushButton>(w);
     b->setCheckable(true);
     if (name.contains("."))
     {
@@ -58,20 +58,13 @@ TUIToggleBitmapButton::TUIToggleBitmapButton(int id, int type, QWidget *w, int p
     }
 
     //b->setFixedSize(b->sizeHint());
-    widget = b;
     // dont use toggle, clicked only sends event when the user actually clicked the button and not when the state has been changed by the application
     connect(b, SIGNAL(clicked(bool)), this, SLOT(valueChanged(bool)));
 }
 
-/// Destructor
-TUIToggleBitmapButton::~TUIToggleBitmapButton()
-{
-    delete widget;
-}
-
 void TUIToggleBitmapButton::valueChanged(bool)
 {
-    QCheckBox *b = (QCheckBox *)widget;
+    QCheckBox *b = (QCheckBox *)widget();
 
     covise::TokenBuffer tb;
     tb << ID;
@@ -99,7 +92,7 @@ void TUIToggleBitmapButton::valueChanged(bool)
 
 void TUIToggleBitmapButton::setSize(int w, int h)
 {
-    QPushButton *b = (QPushButton *)widget;
+    QPushButton *b = (QPushButton *)widget();
     b->setIconSize(QSize(w, h)); /* Max size of icons, smaller icons will not be scaled up */
     b->setFixedSize(b->sizeHint());
 }
@@ -116,7 +109,7 @@ void TUIToggleBitmapButton::setValue(TabletValue type, covise::TokenBuffer &tb)
         char state;
         tb >> state;
         bool bState = (bool)state;
-        QCheckBox *b = (QCheckBox *)widget;
+        QCheckBox *b = (QCheckBox *)widget();
         b->setChecked(bState);
         if (b->isChecked())
         {

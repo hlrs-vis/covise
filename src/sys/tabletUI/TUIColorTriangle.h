@@ -27,7 +27,6 @@ class TUIColorTriangle : public QObject, public TUIElement
 
 public:
     TUIColorTriangle(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIColorTriangle();
 
     virtual void setValue(TabletValue type, covise::TokenBuffer &);
 

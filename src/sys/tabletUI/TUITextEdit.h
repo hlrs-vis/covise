@@ -21,7 +21,6 @@ class TUITextEdit : public QObject, public TUIElement
 
 public:
     TUITextEdit(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUITextEdit();
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname

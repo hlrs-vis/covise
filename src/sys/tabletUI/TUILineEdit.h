@@ -22,7 +22,6 @@ class TUILineEdit : public QObject, public TUIElement
 
 public:
     TUILineEdit(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUILineEdit();
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname

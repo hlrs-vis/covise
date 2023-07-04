@@ -23,7 +23,6 @@ class TUIPopUp : public QObject, public TUIElement
 
 public:
     TUIPopUp(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIPopUp();
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname

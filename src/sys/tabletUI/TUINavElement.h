@@ -25,7 +25,6 @@ class TUINavElement : public TUIElement
 private:
 public:
     TUINavElement(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUINavElement();
     virtual void setEnabled(bool en) override;
     virtual void setHighlighted(bool hl) override;
 

@@ -20,21 +20,14 @@
 TUIListBox::TUIListBox(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    QListWidget *b = new QListWidget(w);
+    QListWidget *b = createWidget<QListWidget>(w);
     b->setFixedSize(b->sizeHint());
-    widget = b;
     connect(b, SIGNAL(selected(int)), this, SLOT(valueChanged(int)));
-}
-
-/// Destructor
-TUIListBox::~TUIListBox()
-{
-    delete widget;
 }
 
 void TUIListBox::valueChanged(int)
 {
-    QListWidget *cb = static_cast<QListWidget *>(widget);
+    QListWidget *cb = static_cast<QListWidget *>(widget());
 
     covise::TokenBuffer tb;
     tb << ID;
@@ -56,11 +49,11 @@ void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
         const char *en;
         tb >> en;
         QString entry(en);
-        static_cast<QListWidget *>(widget)->addItem(entry);
+        static_cast<QListWidget *>(widget())->addItem(entry);
     }
     else if (type == TABLET_REMOVE_ENTRY)
     {
-        QListWidget *cb = static_cast<QListWidget *>(widget);
+        QListWidget *cb = static_cast<QListWidget *>(widget());
         int num = cb->count();
         int i;
         const char *en;
@@ -78,7 +71,7 @@ void TUIListBox::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_SELECT_ENTRY)
     {
-        QListWidget *cb = static_cast<QListWidget *>(widget);
+        QListWidget *cb = static_cast<QListWidget *>(widget());
         int num = cb->count();
         int i;
         const char *en;

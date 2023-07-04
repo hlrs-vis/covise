@@ -21,7 +21,7 @@
 TUIFileBrowserButton::TUIFileBrowserButton(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    QPushButton *b = new QPushButton(w);
+    QPushButton *b = createWidget<QPushButton>(w);
     if (name.contains("."))
     {
         QPixmap pm(name);
@@ -63,8 +63,6 @@ TUIFileBrowserButton::TUIFileBrowserButton(int id, int type, QWidget *w, int par
 
     mFileBrowser->setWindowTitle("TabletUI VRML - Remote File Browser");
 
-    widget = b;
-
     connect(b, SIGNAL(pressed()), this, SLOT(onPressed()));
 }
 
@@ -73,7 +71,6 @@ TUIFileBrowserButton::~TUIFileBrowserButton()
 {
     this->mFileBrowser->hide();
     delete mFileBrowser;
-    delete widget;
 }
 
 void TUIFileBrowserButton::handleClientRequest()
@@ -127,7 +124,7 @@ const char *TUIFileBrowserButton::getClassName() const
 
 void TUIFileBrowserButton::setLabel(QString textl)
 {
-    if (auto b = qobject_cast<QPushButton *>(widget))
+    if (auto b = qobject_cast<QPushButton *>(widget()))
         b->setText(textl);
 }
 

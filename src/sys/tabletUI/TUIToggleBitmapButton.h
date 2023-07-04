@@ -24,7 +24,6 @@ class TUIToggleBitmapButton : public QObject, public TUIElement
 
 public:
     TUIToggleBitmapButton(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIToggleBitmapButton();
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
     virtual void setSize(int w, int h) override;
 

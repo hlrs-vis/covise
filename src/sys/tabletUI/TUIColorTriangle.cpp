@@ -17,18 +17,10 @@
 TUIColorTriangle::TUIColorTriangle(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    colorTriangle = new QtColorTriangle(w);
+    colorTriangle = createWidget<QtColorTriangle>(w);
 
-    widget = colorTriangle;
-
-    connect(widget, SIGNAL(colorChanged(const QColor &)), this, SLOT(changeColor(const QColor &)));
-    connect(widget, SIGNAL(released(const QColor &)), this, SLOT(releaseColor(const QColor &)));
-}
-
-/// Destructor
-TUIColorTriangle::~TUIColorTriangle()
-{
-    delete widget;
+    connect(colorTriangle, SIGNAL(colorChanged(const QColor &)), this, SLOT(changeColor(const QColor &)));
+    connect(colorTriangle, SIGNAL(released(const QColor &)), this, SLOT(releaseColor(const QColor &)));
 }
 
 void TUIColorTriangle::changeColor(const QColor &col)

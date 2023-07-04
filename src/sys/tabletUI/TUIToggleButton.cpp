@@ -22,21 +22,19 @@ TUIToggleButton::TUIToggleButton(int id, int type, QWidget *w, int parent, QStri
 {
     if (name == "RadioButton")
     {
-        QRadioButton *b = new QRadioButton(w);
-        widget = b;
+        QRadioButton *b = createWidget<QRadioButton>(w);
         //b->setFixedSize(b->sizeHint());
         connect(b, SIGNAL(clicked(bool)), this, SLOT(valueChanged(bool)));
     }
     else if (name == "CheckBox")
     {
-        QCheckBox *b = new QCheckBox(w);
-        widget = b;
+        QCheckBox *b = createWidget<QCheckBox>(w);
         //b->setFixedSize(b->sizeHint());
         connect(b, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
     }
     else
     {
-        QPushButton *b = new QPushButton(w);
+        QPushButton *b = createWidget<QPushButton>(w);
         b->setAttribute(Qt::WA_AcceptTouchEvents, true);
         b->setCheckable(true);
         if (name.contains("."))
@@ -62,23 +60,16 @@ TUIToggleButton::TUIToggleButton(int id, int type, QWidget *w, int parent, QStri
         }
         else
             b->setText(name);
-        widget = b;
         //b->setFixedSize(b->sizeHint());
         connect(b, SIGNAL(clicked(bool)), this, SLOT(valueChanged(bool)));
     }
     // dont use toggle, clicked only sends event when the user actually clicked the button and not when the state has been changed by the application
 }
 
-/// Destructor
-TUIToggleButton::~TUIToggleButton()
-{
-    delete widget;
-}
-
 void TUIToggleButton::valueChanged(bool)
 {
-    //QPushButton * b = (QPushButton *)widget;
-    QAbstractButton *b = (QAbstractButton *)widget;
+    //QPushButton * b = (QPushButton *)widget();
+    QAbstractButton *b = (QAbstractButton *)widget();
 
     covise::TokenBuffer tb;
     tb << ID;
@@ -95,7 +86,7 @@ void TUIToggleButton::valueChanged(bool)
 
 void TUIToggleButton::stateChanged(int)
 {
-    QAbstractButton *b = (QAbstractButton *)widget;
+    QAbstractButton *b = (QAbstractButton *)widget();
 
     covise::TokenBuffer tb;
     tb << ID;
@@ -122,7 +113,7 @@ void TUIToggleButton::setValue(TabletValue type, covise::TokenBuffer &tb)
         char state;
         tb >> state;
         bool bState = (bool)state;
-        QAbstractButton *b = (QAbstractButton *)widget;
+        QAbstractButton *b = (QAbstractButton *)widget();
         b->setChecked(bState);
     }
     TUIElement::setValue(type, tb);
@@ -131,7 +122,7 @@ void TUIToggleButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 void TUIToggleButton::setLabel(QString textl)
 {
     TUIElement::setLabel(textl);
-    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget))
+    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget()))
     {
         b->setText(textl);
     }

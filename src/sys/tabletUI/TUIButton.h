@@ -24,7 +24,6 @@ class TUIButton : public QObject, public TUIElement
 
 public:
     TUIButton(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIButton();
     virtual void setSize(int w, int h) override;
     virtual void setLabel(QString textl) override;
 

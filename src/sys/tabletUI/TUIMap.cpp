@@ -113,7 +113,7 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
    // TODO porting to QT4
    canvas->setCacheMode(QGraphicsView::CacheBackground);
 #endif
-    QFrame *frame1 = new QFrame(w);
+    QFrame *frame1 = createWidget<QFrame>(w);
     frame1->setFrameStyle(QFrame::NoFrame);
 
     tabWidget = new QTabWidget(frame1);
@@ -123,7 +123,6 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
     frame->setFrameStyle(QFrame::StyledPanel);
 
     layout = new QGridLayout(frame1);
-    widget = frame1;
     layout->addWidget(tabWidget, 0, 0);
     layout->addWidget(frame, 0, 1);
 
@@ -234,12 +233,6 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
     //canvas->setFixedSize(canvas->sizeHint());
     //connect(b, SIGNAL(pressed()), this, SLOT(pressed())) ;
     //connect(b, SIGNAL(released()), this, SLOT(released())) ;
-}
-
-/// Destructor
-TUIMap::~TUIMap()
-{
-    delete widget;
 }
 
 void TUIMap::zoomIn()

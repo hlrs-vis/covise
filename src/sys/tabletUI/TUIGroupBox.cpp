@@ -25,7 +25,7 @@ TUIGroupBox::TUIGroupBox(int id, int type, QWidget *w, int parent, QString name)
     : TUIContainer(id, type, w, parent, name)
 {
     label = name;
-    auto gb = new QGroupBox(w);
+    auto gb = createWidget<QGroupBox>(w);
 
 #ifdef _WIN32_WCE
     gb->setContentsMargins(1, 1, 1, 1);
@@ -35,14 +35,12 @@ TUIGroupBox::TUIGroupBox(int id, int type, QWidget *w, int parent, QString name)
     gb->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
     createLayout(gb);
-    widget = gb;
 }
 
 /// Destructor
 TUIGroupBox::~TUIGroupBox()
 {
     removeAllChildren();
-    delete widget;
 }
 
 void TUIGroupBox::setPos(int x, int y)
@@ -55,7 +53,7 @@ void TUIGroupBox::setPos(int x, int y)
         parent->addElementToLayout(this);
         if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
         {
-            tw->setCurrentIndex(tw->indexOf(widget));
+            tw->setCurrentIndex(tw->indexOf(widget()));
         }
         //else
         //std::cerr << "error: parent is not a QTabWidget" << std::endl;
@@ -64,7 +62,7 @@ void TUIGroupBox::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    widget()->setVisible(!hidden);
 }
 
 const char *TUIGroupBox::getClassName() const
@@ -75,7 +73,7 @@ const char *TUIGroupBox::getClassName() const
 void TUIGroupBox::setLabel(QString textl)
 {
     TUIContainer::setLabel(textl);
-    auto gb = static_cast<QGroupBox *>(widget);
+    auto gb = static_cast<QGroupBox *>(widget());
     gb->setTitle(textl);
 }
 

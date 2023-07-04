@@ -164,8 +164,8 @@ private: // data structures
 public:
     void setFocus()
     {
-        if (widget != NULL)
-            widget->setFocus();
+        if (widget())
+            widget()->setFocus();
     }
 
     // TUI message parsers

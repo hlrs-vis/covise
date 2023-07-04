@@ -44,9 +44,8 @@ TUIFunctionEditorTab::TUIFunctionEditorTab(int id, int type, QWidget *w, int par
 {
     label = name;
 
-    QFrame *frame = new QFrame(w);
+    QFrame *frame = createWidget<QFrame>(w);
     frame->setFrameStyle(QFrame::NoFrame);
-    widget = frame;
     createLayout(frame);
 
     udc.append("User Defined");
@@ -62,8 +61,8 @@ TUIFunctionEditorTab::TUIFunctionEditorTab(int id, int type, QWidget *w, int par
 
     // set default tables
     initFlag = true;
-    widget->setFocusPolicy(Qt::StrongFocus);
-    widget->setVisible(!hidden);
+    widget()->setFocusPolicy(Qt::StrongFocus);
+    widget()->setVisible(!hidden);
 }
 
 TUIFunctionEditorTab::~TUIFunctionEditorTab()
@@ -164,20 +163,20 @@ void TUIFunctionEditorTab::make1DEditor()
     if (gb != NULL)
         delete gb;
 
-    gb = new QGroupBox("RGB-Alpha Table", widget);
+    gb = new QGroupBox("RGB-Alpha Table", widget());
     QGridLayout *grid = new QGridLayout();
     grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // Set up our command bar
-    drawAlphaFree = new QPushButton(widget);
+    drawAlphaFree = new QPushButton(widget());
     drawAlphaFree->setText("Draw Alpha Function");
     drawAlphaFree->setCheckable(true);
-    eraseAlphaFree = new QPushButton(widget);
+    eraseAlphaFree = new QPushButton(widget());
     eraseAlphaFree->setText("Erase Alpha Function");
-    deleteMarker = new QPushButton(widget);
+    deleteMarker = new QPushButton(widget());
     deleteMarker->setText("Delete Current Marker");
-    applyFunction = new QPushButton(widget);
+    applyFunction = new QPushButton(widget());
     applyFunction->setText("Apply settings");
 
     //not used in our case
@@ -225,28 +224,28 @@ void TUIFunctionEditorTab::make2DEditor()
 
     histo->hide();
 
-    gb = new QGroupBox("RGB-Alpha Table", widget);
+    gb = new QGroupBox("RGB-Alpha Table", widget());
     QGridLayout *grid = new QGridLayout();
     grid->setContentsMargins(2, 2, 2, 2);
     grid->setSpacing(0);
 
     // Set up our command bar
-    deleteMarker = new QPushButton(widget);
+    deleteMarker = new QPushButton(widget());
     deleteMarker->setText("Delete Current Marker");
-    applyFunction = new QPushButton(widget);
+    applyFunction = new QPushButton(widget());
     applyFunction->setText("Apply settings");
 
-    editAlpha = new QLineEdit(widget);
-    editAlpha->setValidator(new QIntValidator(1, 255, widget));
+    editAlpha = new QLineEdit(widget());
+    editAlpha->setValidator(new QIntValidator(1, 255, widget()));
     editAlpha->setText("128");
-    chkOwnColor = new QCheckBox(widget);
+    chkOwnColor = new QCheckBox(widget());
 
-    QSpinBox *editWidth = new QSpinBox(widget);
+    QSpinBox *editWidth = new QSpinBox(widget());
     editWidth->setRange(1, 20);
     editWidth->setSingleStep(1);
     editWidth->setValue(4);
 
-    QButtonGroup *backGroup = new QButtonGroup(widget);
+    QButtonGroup *backGroup = new QButtonGroup(widget());
     QHBoxLayout *backCmdLayout = new QHBoxLayout();
 
     QPushButton *btnBlack = new QPushButton("Black BG");
@@ -268,7 +267,7 @@ void TUIFunctionEditorTab::make2DEditor()
     btnBlack->setChecked(true);
 
     // A group of buttons is more handy that a drop-down menu on a tablet
-    QButtonGroup *groupBox = new QButtonGroup(widget);
+    QButtonGroup *groupBox = new QButtonGroup(widget());
 
     QPushButton *btnDrawFree = new QPushButton("Paint Alpha");
     //btnDrawFree->setAutoExclusive(true);
@@ -306,11 +305,11 @@ void TUIFunctionEditorTab::make2DEditor()
     btnAddColor->setChecked(true);
 
     QHBoxLayout *paintCmdLayout = new QHBoxLayout();
-    paintCmdLayout->addWidget(new QLabel("Opacity: ", widget));
+    paintCmdLayout->addWidget(new QLabel("Opacity: ", widget()));
     paintCmdLayout->addWidget(editAlpha);
-    paintCmdLayout->addWidget(new QLabel("Brush: ", widget));
+    paintCmdLayout->addWidget(new QLabel("Brush: ", widget()));
     paintCmdLayout->addWidget(editWidth);
-    paintCmdLayout->addWidget(new QLabel("Own color: ", widget));
+    paintCmdLayout->addWidget(new QLabel("Own color: ", widget()));
     paintCmdLayout->addWidget(chkOwnColor);
 
     QVBoxLayout *editorCmdLayout = new QVBoxLayout();
@@ -393,7 +392,7 @@ void TUIFunctionEditorTab::makeEditor()
     mainLayout->setSpacing(2);
 
     // add the color chooser
-    chooser = new TUIColorWidget(widget);
+    chooser = new TUIColorWidget(widget());
     connect(chooser, SIGNAL(changedColor(QColor)), this, SLOT(showNewColor(QColor)));
     mainLayout->addWidget(chooser, 0);
 
@@ -403,7 +402,7 @@ void TUIFunctionEditorTab::makeEditor()
     functionEditor = NULL;
     chkOwnColor = NULL;
 
-    QGroupBox *groupBox = new QGroupBox("Transfer Function type", widget);
+    QGroupBox *groupBox = new QGroupBox("Transfer Function type", widget());
 
     btn1D = new QPushButton("1D Function Editor");
     btn1D->setCheckable(true);
@@ -429,8 +428,8 @@ void TUIFunctionEditorTab::makeEditor()
     //connect(functionEditor, SIGNAL (deletePoint(TUITFEWidget*)),  this, SLOT (pointRemoved(TUITFEWidget*)));
     //connect(functionEditor, SIGNAL (movePoint(TUITFEWidget*)),    this, SLOT (valuesChanged(TUITFEWidget*)));
 
-    histo = new QGroupBox("Histogram", widget);
-    // create a widget containing a data histogramm
+    histo = new QGroupBox("Histogram", widget());
+    // create a widget() containing a data histogramm
     histogram = new TUIHistogram(this, histo);
     histogram->setMinimumHeight(96);
     histo->setLayout(new QVBoxLayout);
@@ -441,13 +440,13 @@ void TUIFunctionEditorTab::makeEditor()
     QHBoxLayout *hb = new QHBoxLayout();
 
     // minimum
-    minval = new QLabel(QString("Min: %1 ").arg(fmin, 0, 'f', 3), widget);
+    minval = new QLabel(QString("Min: %1 ").arg(fmin, 0, 'f', 3), widget());
     hb->addWidget(minval);
     hb->addStretch(5);
 
     // current value
-    hb->addWidget(new QLabel("Current:", widget));
-    tfval = new QLineEdit(widget);
+    hb->addWidget(new QLabel("Current:", widget()));
+    tfval = new QLineEdit(widget());
     tfval->setText("NONE");
     tfval->setToolTip("Current value");
     connect(tfval, SIGNAL(editingFinished()), this, SLOT(newWidgetValue()));
@@ -455,7 +454,7 @@ void TUIFunctionEditorTab::makeEditor()
     hb->addStretch(5);
 
     // maximum
-    maxval = new QLabel(QString("Max: %1 ").arg(fmax, 0, 'f', 3), widget);
+    maxval = new QLabel(QString("Max: %1 ").arg(fmax, 0, 'f', 3), widget());
     hb->addWidget(maxval);
     mainLayout->addLayout(hb);
 
@@ -492,11 +491,11 @@ void TUIFunctionEditorTab::changeTFEDimension(int newEditorType)
     }
 }
 
-/*#define addPushButton(widget, text, tooltip, callback)
-//QPushButton *widget = new QPushButton(text, this);
-//connect(widget, SIGNAL (clicked()), this, SLOT (callback()));
-//widget->setToolTip(tooltip);
-//hb->addWidget(widget, 1); */
+/*#define addPushButton(widget(), text, tooltip, callback)
+//QPushButton *widget() = new QPushButton(text, this);
+//connect(widget(), SIGNAL (clicked()), this, SLOT (callback()));
+//widget()->setToolTip(tooltip);
+//hb->addWidget(widget(), 1); */
 
 /*
 //! make the lowest button box
@@ -513,9 +512,9 @@ void TUIFunctionEditorTab::makeButtonPanel()
     // generate a combo box with names of found colormaps
     //if(!port)
     //{
-    QLabel *l = new QLabel("Predefined ColorMaps:", widget);
+    QLabel *l = new QLabel("Predefined ColorMaps:", widget());
     hb->addWidget(l);
-    namebox = new QComboBox(widget);
+    namebox = new QComboBox(widget());
     hb->addWidget(namebox, 1);
     namebox->setToolTip("Currently available predefined colormaps");
     /*}
@@ -560,7 +559,7 @@ void TUIFunctionEditorTab::makeButtonPanel()
 //!
 void TUIFunctionEditorTab::makeToolbar()
 {
-    QWidget *w = new QWidget(widget);
+    QWidget *w = new QWidget(widget());
 
     QHBoxLayout *box = new QHBoxLayout(w);
     box->setContentsMargins(1, 1, 1, 1);

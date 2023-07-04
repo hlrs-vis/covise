@@ -17,16 +17,9 @@
 TUITextEdit::TUITextEdit(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    editField = new TUITextCheck(w);
+    editField = createWidget<TUITextCheck>(w);
     editField->setMinimumHeight(200);
-    widget = editField;
     connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChanged()));
-}
-
-/// Destructor
-TUITextEdit::~TUITextEdit()
-{
-    delete widget;
 }
 
 void TUITextEdit::setPos(int x, int y)
@@ -34,7 +27,6 @@ void TUITextEdit::setPos(int x, int y)
     xPos = x;
     yPos = y;
     TUIContainer *parent;
-    widget = editField;
     if ((parent = getParent()))
     {
         parent->addElementToLayout(this);

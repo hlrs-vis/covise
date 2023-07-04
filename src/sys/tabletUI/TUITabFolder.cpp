@@ -28,22 +28,19 @@ TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString nam
     bool toplevel = parent == 1;
     if (reuseTabWidget)
     {
-        deleteTabWidget = false;
         tabWidget = reuseTabWidget;
         connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(valueChanged(int)));
     }
     else if (!StackTabs && !(toplevel && StackToplevelTabs))
     {
-        tabWidget = new QTabWidget(w);
+        tabWidget = createWidget<QTabWidget>(w);
         tabWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
         tabWidget->setMovable(true);
-        widget = tabWidget;
         connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(valueChanged(int)));
     }
     else
     {
-        auto frame = new QFrame(w);
-        widget = frame;
+        auto frame = createWidget<QFrame>(w);
         switchWidget = new QComboBox(frame);
         switchWidget->setMaxVisibleItems(20);
 
@@ -66,10 +63,6 @@ TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString nam
 TUITabFolder::~TUITabFolder()
 {
     removeAllChildren();
-    if (deleteTabWidget)
-        delete tabWidget;
-    delete switchWidget;
-    delete stackWidget;
 }
 
 void TUITabFolder::valueChanged(int index)

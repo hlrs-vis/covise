@@ -20,9 +20,8 @@
 
 #include <iostream>
 
-QScrollArea *makeScrollable(QWidget *parent, QFrame *frame)
+void initScrollable(QScrollArea *scroll, QFrame *frame)
 {
-        auto scroll = new QScrollArea(parent);
         scroll->setMinimumWidth(300);
         scroll->setMinimumHeight(300);
         scroll->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
@@ -30,7 +29,6 @@ QScrollArea *makeScrollable(QWidget *parent, QFrame *frame)
         scroll->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
         scroll->setWidget(frame);
         scroll->setWidgetResizable(true);
-        return scroll;
 }
 
 /// Constructor
@@ -39,18 +37,18 @@ TUITab::TUITab(int id, int type, QWidget *parentWidget, int parent, QString name
 {
     label = name;
 
-    QFrame *frame = new QFrame(parentWidget);
+    QFrame *frame = createWidget<QFrame>(parentWidget);
     frame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
     frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     frame->setContentsMargins(0, 0, 0, 0);
-    widget = frame;
     createLayout(frame);
     frame->setLayout(getLayout());
     
     bool inMainFolder = parent==3;
     if (inMainFolder)
     {
-         widget = makeScrollable(parentWidget, frame);
+        auto scroll = createWidget<QScrollArea>(parentWidget);
+        initScrollable(scroll, frame);
     }
 }
 
@@ -58,8 +56,6 @@ TUITab::TUITab(int id, int type, QWidget *parentWidget, int parent, QString name
 TUITab::~TUITab()
 {
     removeAllChildren();
-    delete widget;
-    widget = nullptr;
 }
 
 void TUITab::activated()
@@ -106,14 +102,14 @@ void TUITab::setPos(int x, int y)
         parent->addElementToLayout(this);
         if (auto folder = dynamic_cast<TUITabFolder *>(parent))
         {
-            int index = folder->indexOf(widget);
+            int index = folder->indexOf(widget());
             if (index < 0)
             {
-                widget->show();
-                folder->addTab(widget, label);
-                index = folder->indexOf(widget);
+                widget()->show();
+                folder->addTab(widget(), label);
+                index = folder->indexOf(widget());
             }
-            folder->setCurrentIndex(folder->indexOf(widget));
+            folder->setCurrentIndex(folder->indexOf(widget()));
         }
     }
     else
@@ -130,7 +126,7 @@ void TUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
         if (auto parent = getParent())
         {
             if (auto folder = dynamic_cast<TUITabFolder *>(parent))
-                folder->setCurrentIndex(folder->indexOf(widget));
+                folder->setCurrentIndex(folder->indexOf(widget()));
             else
                 std::cerr << "error: parent is not a TUITabFolder" << std::endl;
         }
@@ -146,7 +142,7 @@ void TUITab::setHidden(bool hide)
     {
         if (auto folder = dynamic_cast<TUITabFolder *>(parent))
         {
-            int index = folder->indexOf(widget);
+            int index = folder->indexOf(widget());
             if (hidden)
             {
                 if (index >= 0)
@@ -156,8 +152,8 @@ void TUITab::setHidden(bool hide)
             {
                 if (index < 0)
                 {
-                    widget->show();
-                    folder->addTab(widget, label);
+                    widget()->show();
+                    folder->addTab(widget(), label);
                 }
             }
         }

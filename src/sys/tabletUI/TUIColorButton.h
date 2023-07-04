@@ -28,7 +28,6 @@ class TUIColorButton : public QObject, public TUIElement
 
 public:
     TUIColorButton(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIColorButton();
 
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 

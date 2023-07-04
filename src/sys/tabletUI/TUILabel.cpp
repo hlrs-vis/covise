@@ -20,7 +20,7 @@ TUILabel::TUILabel(int id, int type, QWidget *w, int parent, QString name)
 {
     label = name;
 
-    l = new QLabel(w);
+    l = createWidget<QLabel>(w);
     if (name.contains("."))
     {
         QPixmap pm(name);
@@ -46,7 +46,6 @@ TUILabel::TUILabel(int id, int type, QWidget *w, int parent, QString name)
         l->setText(label);
 
     l->setMinimumSize(l->sizeHint());
-    widget = l;
     setColor(Qt::black);
 }
 
@@ -54,13 +53,6 @@ void TUILabel::setPixmap(const QPixmap &pm)
 {
     l->resize(pm.size());
     l->setPixmap(pm);
-}
-
-/// Destructor
-TUILabel::~TUILabel()
-{
-    delete widget;
-    widget = NULL;
 }
 
 const char *TUILabel::getClassName() const

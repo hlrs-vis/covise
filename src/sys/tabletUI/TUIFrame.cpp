@@ -24,7 +24,7 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
     : TUIContainer(id, type, w, parent, name)
 {
     label = name;
-    QFrame *frame = new QFrame(w);
+    QFrame *frame = createWidget<QFrame>(w);
     if (name.contains("."))
     {
         QPixmap pm(name);
@@ -54,14 +54,12 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
     frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
     createLayout(frame);
-    widget = frame;
 }
 
 /// Destructor
 TUIFrame::~TUIFrame()
 {
     removeAllChildren();
-    delete widget;
 }
 
 void TUIFrame::setPos(int x, int y)
@@ -74,7 +72,7 @@ void TUIFrame::setPos(int x, int y)
         parent->addElementToLayout(this);
         if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
         {
-            tw->setCurrentIndex(tw->indexOf(widget));
+            tw->setCurrentIndex(tw->indexOf(widget()));
         }
         //else
         //std::cerr << "error: parent is not a QTabWidget" << std::endl;
@@ -83,7 +81,7 @@ void TUIFrame::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    widget()->setVisible(!hidden);
 }
 
 const char *TUIFrame::getClassName() const
@@ -93,7 +91,7 @@ const char *TUIFrame::getClassName() const
 
 void TUIFrame::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
-    QFrame *frame = (QFrame *)widget;
+    QFrame *frame = (QFrame *)widget();
     if (type == TABLET_SHAPE)
     {
         int shape;

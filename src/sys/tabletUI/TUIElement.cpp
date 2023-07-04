@@ -20,7 +20,7 @@
 /// Constructor.
 TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QString name)
 {
-    widget = NULL;
+    m_widget = NULL;
     parentContainer = NULL;
     enabled = true;
     hidden = false;
@@ -35,19 +35,33 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     TUIMainWindow::getInstance()->addElement(this);
 }
 
-/// Destructor
+void TUIElement::setWidget(QWidget *widget, bool hasParent)
+{
+    deleteWidget();
+    widgetHasParent = hasParent;
+    m_widget = widget;
+}
+
+void TUIElement::deleteWidget()
+{
+    if(!widgetHasParent)
+    {
+        assert(m_widget->parent());
+        delete m_widget;
+    }
+}
+
 TUIElement::~TUIElement()
 {
-    widget = nullptr;
+    deleteWidget();
     widgets.clear();
 
     if (parentContainer)
-    {
         parentContainer->removeElement(this);
-    }
+
     TUIMainWindow::getInstance()->removeElement(this);
-    //if(!layoutHasParent)
-        //delete layout;
+    if(!layoutHasParent)
+        delete layout;
 }
 
 void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
@@ -119,13 +133,13 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
 }
 
-/** Set my widget.
+/** Set my m_widget.
   @param w QT Widget
 */
 void TUIElement::setWidget(QWidget *w)
 {
-    widgets.erase(widget);
-    widget = w;
+    widgets.erase(m_widget);
+    m_widget = w;
     widgets.insert(w);
 }
 
@@ -135,11 +149,11 @@ void TUIElement::setWidget(QWidget *w)
 void TUIElement::setParent(TUIContainer *c)
 {
     parentContainer = c;
-    if (c && c->widget) {
-        if (widget)
-            widget->setParent(c->widget);
+    if (c && c->m_widget) {
+        if (m_widget)
+            m_widget->setParent(c->m_widget);
         for (auto w: widgets)
-            w->setParent(c->widget);
+            w->setParent(c->m_widget);
     }
 }
 
@@ -207,12 +221,12 @@ void TUIElement::setHighlighted(bool hl)
 
 void TUIElement::setColor(Qt::GlobalColor color)
 {
-    if (widget)
+    if (m_widget)
     {
-        QPalette palette = widget->palette();
-        palette.setColor(widget->backgroundRole(), color);
-        palette.setColor(widget->foregroundRole(), color);
-        widget->setPalette(palette);
+        QPalette palette = m_widget->palette();
+        palette.setColor(m_widget->backgroundRole(), color);
+        palette.setColor(m_widget->foregroundRole(), color);
+        m_widget->setPalette(palette);
     }
 
     for (auto &w: widgets)
@@ -276,7 +290,7 @@ const char *TUIElement::getClassName() const
 
 QWidget *TUIElement::getWidget()
 {
-    return widget;
+    return m_widget;
 }
 
 bool TUIElement::isOfClassName(const char *classname) const
@@ -299,6 +313,11 @@ bool TUIElement::isOfClassName(const char *classname) const
 
     // nobody is NULL
     return false;
+}
+
+QWidget *TUIElement::widget()
+{
+    return m_widget;
 }
 
 QGridLayout * TUIElement::createLayout(QWidget *parent)

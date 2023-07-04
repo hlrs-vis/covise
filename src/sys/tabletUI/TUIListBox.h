@@ -26,7 +26,6 @@ class TUIListBox : public QObject, public TUIElement
 
 public:
     TUIListBox(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIListBox();
     virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname

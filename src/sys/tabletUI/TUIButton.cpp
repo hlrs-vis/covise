@@ -20,7 +20,7 @@
 TUIButton::TUIButton(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    QPushButton *b = new QPushButton(w);
+    QPushButton *b = createWidget<QPushButton>(w);
     if (name.contains("."))
     {
         QPixmap pm(name);
@@ -51,15 +51,8 @@ TUIButton::TUIButton(int id, int type, QWidget *w, int parent, QString name)
         b->setText(name);
 
     //b->setFixedSize(b->sizeHint());
-    widget = b;
     connect(b, SIGNAL(pressed()), this, SLOT(pressed()));
     connect(b, SIGNAL(released()), this, SLOT(released()));
-}
-
-/// Destructor
-TUIButton::~TUIButton()
-{
-    delete widget;
 }
 
 void TUIButton::pressed()
@@ -80,7 +73,7 @@ void TUIButton::released()
 
 void TUIButton::setSize(int w, int h)
 {
-    QPushButton *b = (QPushButton *)widget;
+    QPushButton *b = (QPushButton *)widget();
     b->setIconSize(QSize(w, h)); /* Max size of icons, smaller icons will not be scaled up */
     b->setFixedSize(b->sizeHint());
 }
@@ -93,7 +86,7 @@ const char *TUIButton::getClassName() const
 void TUIButton::setLabel(QString textl)
 {
     TUIElement::setLabel(textl);
-    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget))
+    if (QAbstractButton* b = qobject_cast<QAbstractButton*>(widget()))
     {
         b->setText(textl);
     }
