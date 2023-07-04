@@ -56,8 +56,7 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     container->setMinimumSize(500, 700);
     container->setMaximumSize(500, 700);
     container->setFocusPolicy(Qt::TabFocus);
-    widget = container;
-    
+    setWidget(container, w);
     quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
     quickView->engine()->rootContext()->setContextProperty("size", geopath.path().size());
 
@@ -73,14 +72,6 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
 
    // QMetaObject::invokeMethod(item, "initializeProviders",
     //    Q_ARG(QVariant, QVariant::fromValue(parameters)));
-#endif
-}
-
-/// Destructor
-TUIEarthMap::~TUIEarthMap()
-{
-#ifdef HAVE_TUIEARTHMAP
-    delete widget;
 #endif
 }
 

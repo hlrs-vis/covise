@@ -62,7 +62,6 @@ class TUIEarthMap : public QObject, public TUIElement
 
 public:
     TUIEarthMap(int id, int type, QWidget *w, int parent, QString name);
-    virtual ~TUIEarthMap();
 #ifdef HAVE_TUIEARTHMAP
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
