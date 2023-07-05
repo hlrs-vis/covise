@@ -63,6 +63,7 @@ public:
     bool recreate(const string &content, readMode mode);
     const std::string &globalFile() const;
     void finishExecuteIfLastRunning(const NetModule &app);
+    void sendCollaborativeState();
 
 private:
     bool m_exit = false; //flag to exit main loop and terminate the controller
@@ -116,7 +117,6 @@ std::string createApplicationsAndConnectionsData();
 void resetLists(); //delete all application modules
 string writeClipboard(const string &keyword, const vector<NetModule *> &liste, bool all = false);
 void addBuffer(const QString &text);
-void sendCollaborativeState();
 void addHost(const vrb::RemoteClient &rc);
 void addPartner(const vrb::RemoteClient &rc);
 void removeClient(const vrb::RemoteClient &rc);

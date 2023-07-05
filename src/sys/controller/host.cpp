@@ -376,6 +376,7 @@ bool RemoteHost::handlePartnerAction(covise::LaunchStyle action)
     if (retval)
     {
         m_state = action;
+        CTRLHandler::instance()->sendCollaborativeState();
     }
     return retval;
 }
