@@ -737,6 +737,12 @@ void SumoTraCI::processNewResults()
     {
         if (!currentEntity->second->isActive())
         {
+            if(auto av = dynamic_cast<AgentVehicle*>(currentEntity->second))
+                imageDescriptor.unregisterRoadUser(av->getCarGeometry()->getTransform());
+            else if(auto av = dynamic_cast<PedestrianGeometry*>(currentEntity->second))
+                imageDescriptor.unregisterRoadUser(av->getTransform());
+            else
+                std::cerr << "can not unregisterRoadUser: coEntity derived type unknown" << std::endl;     
             delete currentEntity->second;
 			currentEntity = loadedEntities.erase(currentEntity);
         }

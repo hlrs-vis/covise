@@ -29,24 +29,22 @@ osg::Matrix objToScreen()
     auto &conf = *opencover::coVRConfig::instance();
 
     osg::Matrix headMat = opencover::cover->getViewerMat();
-    int channel = 0;
     osg::Matrix view, proj;
-    if (channel >= 0) {
-        opencover::VRViewer::Eye eye = opencover::VRViewer::EyeMiddle;
-        int ch = channel >= 0 ? channel : 0;
-        const opencover::channelStruct &chan = conf.channels[ch];
-        osg::Vec3 off = opencover::VRViewer::instance()->eyeOffset(eye);
-        auto &xyz = conf.screens[channel].xyz;
-        auto &hpr = conf.screens[channel].hpr;
-        float dx = conf.screens[channel].hsize;
-        float dz = conf.screens[channel].vsize;
-        auto viewProj = opencover::computeViewProjFixedScreen(headMat, off, xyz, hpr, osg::Vec2(dx, dz),
-                                                                conf.nearClip(), conf.farClip(), conf.orthographic());
-        view = viewProj.first;
-        proj = viewProj.second;
-    }
+
+    opencover::VRViewer::Eye eye = opencover::VRViewer::EyeMiddle;
+    osg::Vec3 off = opencover::VRViewer::instance()->eyeOffset(eye);
+    constexpr int channel = 0;
+    const opencover::channelStruct &chan = conf.channels[channel];
+    auto &xyz = conf.screens[channel].xyz;
+    auto &hpr = conf.screens[channel].hpr;
+    float dx = conf.screens[channel].hsize;
+    float dz = conf.screens[channel].vsize;
+    auto viewProj = opencover::computeViewProjFixedScreen(headMat, off, xyz, hpr, osg::Vec2(dx, dz),
+                                                            conf.nearClip(), conf.farClip(), conf.orthographic());
+    view = viewProj.first;
+    proj = viewProj.second;
+
     auto cam = conf.channels[0].camera;
-    osg::Matrix windowMatrix = cam->getViewport()->computeWindowMatrix();
     const osg::Matrix &transform = opencover::cover->getXformMat();
     const osg::Matrix &scale =  opencover::cover->getObjectsScale()->getMatrix();
     const osg::Matrix model = scale * transform;
@@ -89,16 +87,16 @@ bool ImageDescriptor::writeObject(const RoadUser &roadUser, const osg::Matrix& o
     osg::ComputeBoundsVisitor cbv;
     roadUser.transform->accept(cbv);
     osg::BoundingBox bb = cbv.getBoundingBox(); // in local coords.
-    auto c = bb.center() * objToScreen;
-    osg::Vec3f center;
+    auto centerMinusOneToOne = bb.center() * objToScreen;
+    osg::Vec3f centerZeroToOne;
     for (size_t i = 0; i < 3; i++)
     {
-        center[i] = (c[i] + 1) / 2;
+        centerZeroToOne[i] = (centerMinusOneToOne[i] + 1) / 2;
     }
     osg::Vec3f min, max;
     for (size_t i = 0; i < 3; i++)
     {
-        min[i] = max[i] = center[i] ;
+        min[i] = max[i] = centerZeroToOne[i] ;
     }
 
     for (size_t i = 0; i < 8; i++)
@@ -126,11 +124,11 @@ bool ImageDescriptor::writeObject(const RoadUser &roadUser, const osg::Matrix& o
         {
             min[i] = std::max(0.0f, min[0]);
             max[i] = std::min(1.0f, max[0]);
-            center[i] = min[i] + (max[i] - min[i])/2;
+            centerZeroToOne[i] = min[i] + (max[i] - min[i])/2;
         }
         
         m_file << "{\"class_id\":" << roadUser.id << ", \"name\":" << "\"" <<  roadUser.name << "\"" <<
-        ", \"relative_coordinates\":{\"center_x\": " << center.x() << ", \"center_y\":" << center.y() << ", \"width\":" << sizes[0] << ", \"height\":" << sizes[1] << "}, \"confidence\":1}";
+        ", \"relative_coordinates\":{\"center_x\": " << centerZeroToOne.x() << ", \"center_y\":" << centerZeroToOne.y() << ", \"width\":" << sizes[0] << ", \"height\":" << sizes[1] << "}, \"confidence\":1}";
         return true;
     }
     return false;
