@@ -4,5 +4,5 @@
 
 #include "covconfig/file.h"
 
-#undef config_namespace
+#undef CONFIG_NAMESPACE
 #endif
