@@ -4,8 +4,8 @@
 #include <sstream>
 using namespace opencover;
 
-constexpr std::array<double, (int)LengthUnit::LAST> LengthUnitConversionInKm{1, 1000, 100000, 1000000, 1000000000, 1093.61, 3280.84, 39370.1};
-constexpr std::array<bool, (int)LengthUnit::LAST> LengthUnitIsImerial{0,0,0,0,0,1,1,1};
+constexpr std::array<double, (int)LengthUnit::LAST> LengthUnitConversionInKm{1, 1000, 100000, 1000000, 1000000000, 0.621371, 1093.61, 3280.84, 39370.1};
+constexpr std::array<bool, (int)LengthUnit::LAST> LengthUnitIsImperial{0,0,0,0,0,1,1,1, 1};
 
 bool opencover::isValid(LengthUnit unit)
 {
@@ -42,7 +42,7 @@ bool opencover::isMetric(LengthUnit unit)
 
 bool opencover::isImperial(LengthUnit unit)
 {
-    return LengthUnitIsImerial[(int)unit];
+    return LengthUnitIsImperial[(int)unit];
 }
 
 std::string opencover::displayValueWithUnit(double value, LengthUnit unit)

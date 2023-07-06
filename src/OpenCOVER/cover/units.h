@@ -8,10 +8,10 @@
 namespace opencover
 {
 enum class LengthUnit{
-    Kilometer, Meter, CentiMeter, Millimeter, Mikrometer, Yard, Foot, Inch, LAST
+    Kilometer, Meter, Centimeter, Millimeter, Micrometer, Mile, Yard, Foot, Inch, LAST
 };
-constexpr std::array<const char*, (int)LengthUnit::LAST> LengthUnitNames{"Kilometer", "Meter", "CentiMeter", "Millimeter", "Mikrometer", "Yard", "Foot", "Inch"};
-constexpr std::array<const char*, (int)LengthUnit::LAST> LengthUnitAbbreviation{"km", "m", "cm", "mm", "\xC2\xB5m", "yd", "ft", "\""};
+constexpr std::array<const char*, (int)LengthUnit::LAST> LengthUnitNames{"Kilometer", "Meter", "Centimeter", "Millimeter", "Micrometer", "Mile", "Yard", "Foot", "Inch"};
+constexpr std::array<const char*, (int)LengthUnit::LAST> LengthUnitAbbreviation{"km", "m", "cm", "mm", "\xC2\xB5m", "mi", "yd", "ft", "in"};
 
 bool COVEREXPORT isValid(LengthUnit unit);
 COVEREXPORT const char*  getName(LengthUnit unit); 
