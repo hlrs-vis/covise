@@ -407,7 +407,7 @@ inline void TreeNode::combineAllSiblings()
 // Compares and if possible combines the passed TreeNodes (if siblings and identical millTimesteps).
 inline bool TreeNode::combine2Siblings(TreeNode* tree, TreeNode* sibling)
 {
-    if (tree != sibling && tree->parentTree == tree->parentTree && tree->valid && sibling->valid)
+    if (tree != sibling && tree->parentTree == sibling->parentTree && tree->valid && sibling->valid)
     {
         if (areVectorsEqual(tree->millTimesteps, sibling->millTimesteps))
         {
