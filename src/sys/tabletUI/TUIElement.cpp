@@ -148,13 +148,16 @@ void TUIElement::setWidget(QWidget *w)
 */
 void TUIElement::setParent(TUIContainer *c)
 {
+    if(parentContainer == c)
+        return;
     parentContainer = c;
-    if (c && c->m_widget) {
-        if (m_widget)
-            m_widget->setParent(c->m_widget);
-        for (auto w: widgets)
-            w->setParent(c->m_widget);
-    }
+    QWidget* parentWidget = nullptr;
+    if(c)
+    parentWidget = c->m_widget;
+    if (m_widget)
+        m_widget->setParent(parentWidget);
+    for (auto w: widgets)
+        w->setParent(parentWidget);
 }
 
 /** Set UI element size. Use different values for all dimensions.
