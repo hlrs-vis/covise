@@ -140,7 +140,8 @@ void TUIElement::setWidget(QWidget *w)
 {
     widgets.erase(m_widget);
     m_widget = w;
-    widgets.insert(w);
+    if (w)
+        widgets.insert(w);
 }
 
 /** Set parent container.
@@ -149,11 +150,15 @@ void TUIElement::setWidget(QWidget *w)
 void TUIElement::setParent(TUIContainer *c)
 {
     parentContainer = c;
-    if (c && c->m_widget) {
-        if (m_widget)
-            m_widget->setParent(c->m_widget);
-        for (auto w: widgets)
-            w->setParent(c->m_widget);
+    QWidget* parentWidget = nullptr;
+    if(c)
+    parentWidget = c->m_widget;
+    if (m_widget)
+        m_widget->setParent(parentWidget);
+    for (auto w: widgets)
+    {
+        if (w)
+            w->setParent(parentWidget);
     }
 }
 
@@ -231,6 +236,8 @@ void TUIElement::setColor(Qt::GlobalColor color)
 
     for (auto &w: widgets)
     {
+        if (!w)
+            continue;
         QPalette palette = w->palette();
         palette.setColor(w->backgroundRole(), color);
         palette.setColor(w->foregroundRole(), color);
@@ -253,6 +260,8 @@ void TUIElement::setHidden(bool hide)
     }
     for (auto &w: widgets)
     {
+        if (!w)
+            continue;
         w->setVisible(!hidden);
         if (!hidden)
             w->show();
