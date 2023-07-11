@@ -37,7 +37,7 @@ TUITab::TUITab(int id, int type, QWidget *parentWidget, int parent, QString name
 {
     label = name;
 
-    QFrame *frame = createWidget<QFrame>(parentWidget);
+    QFrame *frame = new QFrame(parentWidget);
     frame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
     frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
     frame->setContentsMargins(0, 0, 0, 0);
@@ -49,6 +49,9 @@ TUITab::TUITab(int id, int type, QWidget *parentWidget, int parent, QString name
     {
         auto scroll = createWidget<QScrollArea>(parentWidget);
         initScrollable(scroll, frame);
+    }
+    else{
+        setWidget(frame, parentWidget);
     }
 }
 

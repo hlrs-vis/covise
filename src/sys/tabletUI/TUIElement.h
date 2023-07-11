@@ -13,6 +13,7 @@
 #define TABLET_UI_ELEMENT_H
 
 #include <QString>
+#include <QObject>
 #include <net/covise_connect.h>
 #include <util/coTabletUIMessages.h>
 #include <set>
@@ -118,6 +119,9 @@ protected:
         widgetHasParent = parent;
         auto t = new T(parent);
         m_widget = t;
+        QObject::connect(m_widget, &QObject::destroyed, [this](QObject*){
+            m_widget = nullptr;
+        });
         return t;
     }
 

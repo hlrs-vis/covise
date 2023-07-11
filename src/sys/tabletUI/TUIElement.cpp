@@ -40,15 +40,15 @@ void TUIElement::setWidget(QWidget *widget, bool hasParent)
     deleteWidget();
     widgetHasParent = hasParent;
     m_widget = widget;
+    QObject::connect(m_widget, &QObject::destroyed, [this](QObject*){
+        m_widget = nullptr;
+    });
 }
 
 void TUIElement::deleteWidget()
 {
-    if(!widgetHasParent)
-    {
-        assert(m_widget->parent());
-        delete m_widget;
-    }
+    delete m_widget;
+    m_widget = nullptr;
 }
 
 TUIElement::~TUIElement()
@@ -148,16 +148,13 @@ void TUIElement::setWidget(QWidget *w)
 */
 void TUIElement::setParent(TUIContainer *c)
 {
-    if(parentContainer == c)
-        return;
     parentContainer = c;
-    QWidget* parentWidget = nullptr;
-    if(c)
-    parentWidget = c->m_widget;
-    if (m_widget)
-        m_widget->setParent(parentWidget);
-    for (auto w: widgets)
-        w->setParent(parentWidget);
+    if (c && c->m_widget) {
+        if (m_widget)
+            m_widget->setParent(c->m_widget);
+        for (auto w: widgets)
+            w->setParent(c->m_widget);
+    }
 }
 
 /** Set UI element size. Use different values for all dimensions.
