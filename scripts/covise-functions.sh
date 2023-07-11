@@ -272,6 +272,9 @@ guess_archsuffix() {
                fi
                ;;
             
+            aarch64)
+               export ARCHSUFFIX=linuxarm
+               ;;
             *)
                export ARCHSUFFIX=linux32
                if [ -f /lib/libgcc_s.so.1 ]; then
