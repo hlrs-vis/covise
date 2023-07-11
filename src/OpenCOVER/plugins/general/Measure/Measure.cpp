@@ -47,7 +47,8 @@ Measure::Measure()
         }
     });
     m_removeCurrentDimension->setCallback([this](){
-        m_dimensions.erase(m_currentDimension->getID());
+        if(m_currentDimension)
+            m_dimensions.erase(m_currentDimension->getID());
     });
     m_clearDimensions->setCallback([this](){
         m_dimensions.clear();
