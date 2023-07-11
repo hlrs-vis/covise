@@ -28,8 +28,6 @@ find_path(JPEGTURBO_PREFIX "include/turbojpeg.h"
   $ENV{EXTERNLIBS}/libjpeg-turbo
   ~/Library/Frameworks
   /Library/Frameworks
-  /opt/homebrew/opt/jpeg-turbo # Homebrew on arm64
-  /usr/local/opt/jpeg-turbo # Homebrew
   /usr/local
   /usr
   /sw # Fink
@@ -48,8 +46,6 @@ FIND_PATH(JPEGTURBO_INCLUDE_DIR "turbojpeg.h"
   $ENV{EXTERNLIBS}/libjpeg-turbo/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include
-  /opt/homebrew/opt/jpeg-turbo/include
-  /usr/local/opt/jpeg-turbo/include
   /usr/local/include
   /usr/include
   /sw/include # Fink
@@ -76,8 +72,6 @@ FIND_LIBRARY(JPEGTURBO_LIBRARY NAMES jpeg
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
-  /opt/homebrew/opt/jpeg-turbo
-  /usr/local/opt/jpeg-turbo
   /usr
   /sw
   /opt/local
@@ -97,8 +91,6 @@ if (MSVC)
         ~/Library/Frameworks
         /Library/Frameworks
         /usr/local
-        /opt/homebrew/opt/jpeg-turbo
-        /usr/local/opt/jpeg-turbo
         /usr
         /sw
         /opt/local
@@ -118,8 +110,6 @@ FIND_LIBRARY(TURBOJPEG_LIBRARY turbojpeg
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
-  /opt/homebrew/opt/jpeg-turbo
-  /usr/local/opt/jpeg-turbo
   /usr
   /sw
   /opt/local
@@ -138,8 +128,6 @@ FIND_LIBRARY(TURBOJPEG_LIBRARY_STATIC NAMES libturbojpeg.a
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local
-  /opt/homebrew/opt/jpeg-turbo
-  /usr/local/opt/jpeg-turbo
   /usr
   /sw
   /opt/local
@@ -159,8 +147,6 @@ if (MSVC)
         ~/Library/Frameworks
         /Library/Frameworks
         /usr/local
-        /opt/homebrew/opt/jpeg-turbo
-        /usr/local/opt/jpeg-turbo
         /usr
         /sw
         /opt/local

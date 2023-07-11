@@ -20,8 +20,6 @@ find_path(
     PATHS ${PROJECT_SOURCE_DIR}/tbb
           "C:/Program Files (x86)/Intel/Composer XE/tbb"
           /opt/intel/composerxe/tbb
-          /opt/homebrew/opt/tbb
-          /usr/local/opt/tbb
           $ENV{EXTERNLIBS}/tbb
           /usr)
 #UNSET(TBB_INCLUDE_DIR CACHE)

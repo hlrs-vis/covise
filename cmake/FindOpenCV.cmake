@@ -35,10 +35,6 @@ FIND_PATH(OPENCV_INCLUDE_DIR "opencv2/core/core.hpp"
   /opt/local/include # DarwinPorts
   /opt/csw/include # Blastwave
   /opt/include
-  /opt/homebrew/opt/opencv/include
-  /opt/homebrew/opt/opencv@${MAJOR}/include
-  /usr/local/opt/opencv/include
-  /usr/local/opt/opencv@${MAJOR}/include
   DOC "OpenCV - Headers"
   PATH_SUFFIXES ${SUFFIXES}
 )
@@ -69,10 +65,6 @@ FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   /opt/local
   /opt/csw
   /opt
-  /opt/homebrew/opt/opencv
-  /opt/homebrew/opt/opencv@${MAJOR}
-  /usr/local/opt/opencv
-  /usr/local/opt/opencv@${MAJOR}
   PATH_SUFFIXES lib lib64
   DOC "OPENCV - Library"
 )
