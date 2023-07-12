@@ -36,7 +36,7 @@ namespace covise
 {
 class coConfigGroup;
 class coSendBuffer;
-class CRB_EXEC;
+struct CRB_EXEC;
 } // namespace covise
 
 class MEUserInterface;
