@@ -232,7 +232,7 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
 
 #ifndef YAC
 
-    if (MEMainHandler::instance()->cfg_DeveloperMode)
+    if (MEMainHandler::instance()->isDeveloperMode())
     {
         m_portPopup->addSeparator();
         if (portType == MEPort::DIN)

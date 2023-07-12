@@ -74,32 +74,90 @@ MESessionSettings::MESessionSettings(QWidget *parent, Qt::WindowFlags f)
     else
         qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle()));
 
-    initState();
+    initState(bb);
 }
 
 MESessionSettings::~MESessionSettings()
 {
 }
 
+void syncBools(QDialogButtonBox *dialog, covise::ConfigBool &config, QCheckBox *checkBox)
+{
+    checkBox->setChecked(config.value());
+    if(!dialog)
+        return;
+    QObject::connect(dialog, &QDialogButtonBox::accepted, [&config, checkBox](){
+        config = checkBox->isChecked();
+    });
+    config.setUpdater([checkBox](bool state)
+    {
+        checkBox->setChecked(state);
+    });
+}
+
+void syncText(QDialogButtonBox *dialog, covise::ConfigString &config, QLineEdit *lineEdit)
+{
+    lineEdit->setText(config.value().c_str());
+    if(!dialog)
+        return;
+    QObject::connect(dialog, &QDialogButtonBox::accepted, [&config, lineEdit](){
+        config = lineEdit->text().toStdString();
+    });
+    config.setUpdater([lineEdit](const std::string &val)
+    {
+        lineEdit->setText(val.c_str());
+    });
+}
+
+void syncInt(QDialogButtonBox *dialog, covise::ConfigInt &config, QLineEdit *lineEdit)
+{
+    lineEdit->setText(QString::number(config.value()));
+    if(!dialog)
+        return;
+    QObject::connect(dialog, &QDialogButtonBox::accepted, [&config, lineEdit](){
+        config = lineEdit->text().toInt();
+    });
+    config.setUpdater([lineEdit](const int64_t &val)
+    {
+        lineEdit->setText(QString::number(val));
+    });
+}
 //!
 //! init widgets with current values
 //!
-void MESessionSettings::initState()
+void MESessionSettings::initState(QDialogButtonBox *dialog)
 {
-    errorHandlingCheckBox->setChecked(MEMainHandler::instance()->cfg_ErrorHandling);
-    storeWindowConfigBox->setChecked(MEMainHandler::instance()->cfg_storeWindowConfig);
-    hideUnusedModulesBox->setChecked(MEMainHandler::instance()->cfg_HideUnusedModules);
-    autoConnectBox->setChecked(MEMainHandler::instance()->cfg_AutoConnect);
-    browserBox->setChecked(!MEMainHandler::instance()->cfg_TopLevelBrowser);
-    tabletUITabsBox->setChecked(MEMainHandler::instance()->cfg_TabletUITabs);
-    developerModeCheckBox->setChecked(MEMainHandler::instance()->cfg_DeveloperMode);
-    //imbeddedRenderBox->setChecked(MEMainHandler::instance()->cfg_ImbeddedRenderer);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_ErrorHandling, errorHandlingCheckBox);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_HideUnusedModules, hideUnusedModulesBox);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_storeWindowConfig, storeWindowConfigBox);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_AutoConnect, autoConnectBox);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_TopLevelBrowser, browserBox);
+    syncBools(dialog, *MEMainHandler::instance()->cfg_TabletUITabs, tabletUITabsBox);
 
     qtStyleComboBox->setCurrentIndex(qtStyleComboBox->findText(MEMainHandler::instance()->cfg_QtStyle()));
+    syncText(dialog, *MEMainHandler::instance()->cfg_HighColor, highlightColorEdit);
+    syncInt(dialog, *MEMainHandler::instance()->cfg_AutoSaveTime, autoSaveTimeEdit);
+    
+    if(!dialog)
+        return;
+    developerModeCheckBox->setChecked(MEMainHandler::instance()->cfg_DeveloperMode->value());
 
-    highlightColorEdit->setText(MEMainHandler::instance()->cfg_HighColor());
-    autoSaveTimeEdit->setText(QString::number(MEMainHandler::instance()->cfg_AutoSaveTime));
+    QObject::connect(dialog, &QDialogButtonBox::accepted, [this](){
+        if(MEMainHandler::instance()->cfg_DeveloperMode->value() != developerModeCheckBox->isChecked())
+        {
+            (*MEMainHandler::instance()->cfg_DeveloperMode) = developerModeCheckBox->isChecked();
+            MEMainHandler::instance()->developerModeHasChanged();
+
+        }
+
+    });
+    MEMainHandler::instance()->cfg_DeveloperMode->setUpdater([this](bool state)
+    {
+        developerModeCheckBox->setChecked(state);
+    });
+
 }
+
 
 template<typename T>
 T* addSetting(const QString &labeltext, const QString &tooltip, QFormLayout* grid)
@@ -173,33 +231,6 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
 void MESessionSettings::save()
 {
 
-    if (MEMainHandler::instance()->cfg_ErrorHandling != errorHandlingCheckBox->isChecked())
-        MEMainHandler::instance()->cfg_ErrorHandling = errorHandlingCheckBox->isChecked();
-    if (MEMainHandler::instance()->cfg_storeWindowConfig != storeWindowConfigBox->isChecked())
-        MEMainHandler::instance()->cfg_storeWindowConfig = storeWindowConfigBox->isChecked();
-    if (MEMainHandler::instance()->cfg_DeveloperMode != developerModeCheckBox->isChecked())
-    {
-        MEMainHandler::instance()->cfg_DeveloperMode = developerModeCheckBox->isChecked();
-        MEMainHandler::instance()->developerModeHasChanged();
-    }
-    if (MEMainHandler::instance()->cfg_AutoConnect != autoConnectBox->isChecked())
-        MEMainHandler::instance()->cfg_AutoConnect = autoConnectBox->isChecked();
-    if (MEMainHandler::instance()->cfg_TopLevelBrowser == browserBox->isChecked())
-        MEMainHandler::instance()->cfg_TopLevelBrowser = !browserBox->isChecked();
-    if (MEMainHandler::instance()->cfg_TabletUITabs != tabletUITabsBox->isChecked())
-        MEMainHandler::instance()->cfg_TabletUITabs = tabletUITabsBox->isChecked();
-
-    if (MEMainHandler::instance()->cfg_HideUnusedModules != hideUnusedModulesBox->isChecked())
-    {
-        MEMainHandler::instance()->cfg_HideUnusedModules = hideUnusedModulesBox->isChecked();
-        MEUserInterface::instance()->hideUnusedModulesHasChanged();
-    }
-    /*if (MEMainHandler::instance()->cfg_ImbeddedRenderer     != imbeddedRenderBox->isChecked())
-   {
-      MEMainHandler::instance()->cfg_ImbeddedRenderer      = imbeddedRenderBox->isChecked();
-      MEMainHandler::instance()->rendererModeHasChanged();
-   }*/
-
     if (QString(MEMainHandler::instance()->cfg_QtStyle()) != qtStyleComboBox->currentText())
     {
         if (qtStyleComboBox->currentText() == "Default")
@@ -207,12 +238,6 @@ void MESessionSettings::save()
         else
             MEMainHandler::instance()->cfg_QtStyle(qtStyleComboBox->currentText());
     }
-
-    if (QString::number(MEMainHandler::instance()->cfg_AutoSaveTime) != autoSaveTimeEdit->text())
-        MEMainHandler::instance()->cfg_AutoSaveTime = autoSaveTimeEdit->text().toInt();
-
-    if (QString(MEMainHandler::instance()->cfg_HighColor()) != highlightColorEdit->text())
-        MEMainHandler::instance()->cfg_HighColor(highlightColorEdit->text());
 
     accept();
 }
@@ -222,7 +247,7 @@ void MESessionSettings::save()
 //!
 void MESessionSettings::cancel()
 {
-    initState();
+    initState(nullptr);
     reject();
 }
 

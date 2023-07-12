@@ -146,25 +146,12 @@ covise::coConfigGroup* initMapEditorConfig()
 
 MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> quitFunc)
     : QObject(), mapConfig(initMapEditorConfig())
-    , cfg_storeWindowConfig("System.MapEditor.General.StoreLayout")
-    , cfg_ErrorHandling("System.MapEditor.General.ErrorOutput")
-    , cfg_DeveloperMode("System.MapEditor.General.DeveloperMode")
-    , cfg_HideUnusedModules("System.MapEditor.General.HideUnusedModules")
-    , cfg_AutoConnect("System.MapEditor.General.AutoConnectHosts")
-    , cfg_TopLevelBrowser("System.MapEditor.General.TopLevelBrowser")
-    , cfg_ImbeddedRenderer("System.MapEditor.General.TopLevelBrowser")
-    , cfg_TabletUITabs("System.MapEditor.General.TabletUITabs")
-    , cfg_AutoSaveTime("time", "System.MapEditor.Saving.AutoSave")
-    , cfg_ModuleHistoryLength("System.MapEditor.Saving.ModuleHistoryLength")
-    , cfg_GridSize("System.MapEditor.VisualProgramming.SnapFactor")
-    , m_cfg_HostColors("System.MapEditor.VisualProgramming.HostColors")
-    , m_cfg_QtStyle("System.UserInterface.QtStyle")
-    , m_cfg_HighColor("System.MapEditor.VisualProgramming.HighlightColor")
     , cfg_NetworkHistoryLength(10)
     , m_deleteAutosaved_a(NULL)
     , m_copyMode(NORMAL)
     , m_masterUI(true)
     , force(false)
+    , m_cfg_QtStyle("System.UserInterface.QtStyle")
     , m_loadedMapWasModified(false)
     , m_autoSave(false)
     , m_waitForClose(false)
@@ -182,6 +169,22 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     , m_requestingMaster(false)
     , m_quitFunc(quitFunc)
 {
+    m_mapEditorConfig = std::make_unique<covise::config::File>("mapeditor");
+    m_mapEditorConfig->setSaveOnExit(true);
+    cfg_DeveloperMode = m_mapEditorConfig->value("General", "DeveloperMode", false);
+
+    cfg_storeWindowConfig = m_mapEditorConfig->value("General", "StoreLayout", false);
+    cfg_ErrorHandling = m_mapEditorConfig->value("General", "ErrorOutput", false);
+    cfg_HideUnusedModules = m_mapEditorConfig->value("General", "HideUnusedModules", true);
+    cfg_AutoConnect = m_mapEditorConfig->value("General", "AutoConnectHosts", true);
+    cfg_TopLevelBrowser = m_mapEditorConfig->value("General", "TopLevelBrowser", true);
+    cfg_TabletUITabs = m_mapEditorConfig->value("General", "TabletUITabs", true);
+    cfg_AutoSaveTime = m_mapEditorConfig->value("Saving", "AutoSave", int64_t(120));
+    cfg_ModuleHistoryLength = m_mapEditorConfig->value("Saving", "ModuleHistoryLength", int64_t(50));
+    cfg_GridSize = m_mapEditorConfig->value("VisualProgramming", "SnapFactor", int64_t(1));
+    cfg_HostColors = m_mapEditorConfig->value("VisualProgramming", "HostColors", std::string("green"));
+    cfg_HighColor = m_mapEditorConfig->value("VisualProgramming", "HighlightColor", std::string("red"));
+    
     // init some variables
     singleton = this;
     localHost = "";
@@ -231,36 +234,6 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     s_reqDataColor.setNamedColor("#4169E1"); // RoyalBlue
     s_dataColor.setNamedColor("#32CD32"); // LimeGreen
     s_chanColor.setNamedColor("#F5DEB3"); // Wheat
-
-    cfg_storeWindowConfig.setAutoUpdate(true);
-    cfg_ErrorHandling.setAutoUpdate(true);
-    cfg_DeveloperMode.setAutoUpdate(true);
-    cfg_HideUnusedModules.setAutoUpdate(true);
-    cfg_AutoConnect.setAutoUpdate(true);
-    cfg_TopLevelBrowser.setAutoUpdate(true);
-    cfg_ImbeddedRenderer.setAutoUpdate(true);
-    cfg_TabletUITabs.setAutoUpdate(true);
-    cfg_AutoSaveTime.setAutoUpdate(true);
-    cfg_ModuleHistoryLength.setAutoUpdate(true);
-    cfg_GridSize.setAutoUpdate(true);
-    m_cfg_HostColors.setAutoUpdate(true);
-    m_cfg_QtStyle.setAutoUpdate(true);
-    m_cfg_HighColor.setAutoUpdate(true);
-
-    cfg_HideUnusedModules.setSaveToGroup(mapConfig);
-    cfg_AutoConnect.setSaveToGroup(mapConfig);
-    cfg_TopLevelBrowser.setSaveToGroup(mapConfig);
-    cfg_TabletUITabs.setSaveToGroup(mapConfig);
-    cfg_ErrorHandling.setSaveToGroup(mapConfig);
-    cfg_DeveloperMode.setSaveToGroup(mapConfig);
-    cfg_AutoSaveTime.setSaveToGroup(mapConfig);
-    m_cfg_QtStyle.setSaveToGroup(mapConfig);
-    m_cfg_HighColor.setSaveToGroup(mapConfig);
-    m_cfg_HostColors.setSaveToGroup(mapConfig);
-    cfg_GridSize.setSaveToGroup(mapConfig);
-    cfg_storeWindowConfig.setSaveToGroup(mapConfig);
-    cfg_ModuleHistoryLength.setSaveToGroup(mapConfig);
-    cfg_ImbeddedRenderer.setSaveToGroup(mapConfig);
 
     // set proper fonts
     s_normalFont.setWeight(QFont::Normal);
@@ -356,7 +329,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     // start the timer for saving  the map after a given time
     m_autoSaveTimer = new QTimer(this);
     connect(m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSaveNet()));
-    m_autoSaveTimer->start(cfg_AutoSaveTime * 1000);
+    m_autoSaveTimer->start(cfg_AutoSaveTime->value() * 1000);
 
     // get screen size and default palette
     defaultPalette = QApplication::palette();
@@ -406,7 +379,7 @@ void MEMainHandler::init()
 #endif
 
         // tell crb if we are ready for an embedded ViNCE renderer
-        if (cfg_ImbeddedRenderer)
+        if (cfg_ImbeddedRenderer && cfg_ImbeddedRenderer->value())
         {
             embeddedRenderer();
         }
@@ -491,32 +464,9 @@ void MEMainHandler::readConfigFile()
         m_cfg_QtStyle = "";
 #endif
 
-    if (!cfg_AutoSaveTime.hasValidValue())
-        cfg_AutoSaveTime = 120;
-    if (!cfg_GridSize.hasValidValue())
-        cfg_GridSize = 1;
-    if (!cfg_ModuleHistoryLength.hasValidValue())
-        cfg_ModuleHistoryLength = 50;
-    if (!cfg_ErrorHandling.hasValidValue())
-        cfg_ErrorHandling = false;
-    if (!cfg_DeveloperMode.hasValidValue())
-        cfg_DeveloperMode = false;
-    if (!cfg_HideUnusedModules.hasValidValue())
-        cfg_HideUnusedModules = true;
-    if (!cfg_AutoConnect.hasValidValue())
-        cfg_AutoConnect = true;
-    if (!cfg_TopLevelBrowser.hasValidValue())
-        cfg_TopLevelBrowser = true;
-    if (!cfg_TabletUITabs.hasValidValue())
-        cfg_TabletUITabs = true;
-    if (!cfg_storeWindowConfig.hasValidValue())
-        cfg_storeWindowConfig = false;
-    if (!cfg_ImbeddedRenderer.hasValidValue())
-        cfg_ImbeddedRenderer = false;
-    if (!m_cfg_HighColor.hasValidValue())
-        m_cfg_HighColor = "red";
 
-    s_highlightColor.setNamedColor(cfg_HighColor());
+
+    s_highlightColor.setNamedColor(cfg_HighColor->value().c_str());
 
     // set layout style
     if (m_cfg_QtStyle.hasValidValue() && !std::string(m_cfg_QtStyle).empty())
@@ -632,7 +582,7 @@ void MEMainHandler::insertModuleInHistory(const QString &insertText)
     moduleHistory.prepend(insertText);
 
     // remove last item when reaching list maximum set by user
-    if (moduleHistory.count() == cfg_ModuleHistoryLength)
+    if (moduleHistory.count() == cfg_ModuleHistoryLength->value())
         moduleHistory.takeLast();
 
     // update list in mapeditor.xml
@@ -686,7 +636,7 @@ void MEMainHandler::storeSessionParam()
     }
 
     // store window configuration
-    mapEditor->storeSessionParam(cfg_storeWindowConfig);
+    mapEditor->storeSessionParam(cfg_storeWindowConfig->value());
 
     // store config parameter
     mapConfig->save();
@@ -1303,7 +1253,7 @@ void MEMainHandler::updateRemotePartners(const covise::ClientList &partners){
 int MEMainHandler::getGridSize()
 {
     int dx = (int)MENode::getDistance();
-    int gridsize = cfg_GridSize * (m_portSize);
+    int gridsize = cfg_GridSize->value() * (m_portSize);
     int xstart = gridsize + dx;
 
     return xstart;
@@ -1360,12 +1310,12 @@ void MEMainHandler::settingXML()
     if (m_settings->exec() == QDialog::Accepted)
     {
         mapConfig->save();
-        s_highlightColor.setNamedColor(cfg_HighColor());
+        s_highlightColor.setNamedColor(cfg_HighColor->value().c_str());
 
         if (m_autoSaveTimer)
         {
             m_autoSaveTimer->stop();
-            m_autoSaveTimer->start(cfg_AutoSaveTime * 1000);
+            m_autoSaveTimer->start(cfg_AutoSaveTime->value() * 1000);
         }
 
         // set layout style
@@ -1867,7 +1817,7 @@ void MEMainHandler::setLocalHost(int id, const QString &name, const QString &use
 
 void MEMainHandler::developerModeHasChanged()
 {
-    emit developerMode(cfg_DeveloperMode);
+    emit developerMode(cfg_DeveloperMode->value());
 }
 
 void MEMainHandler::setMapModified(bool modified)
@@ -1879,4 +1829,14 @@ void MEMainHandler::setMapModified(bool modified)
 void MEMainHandler::execTriggered()
 {
     MEUserInterface::instance()->m_errorNumber = 0;
+}
+
+bool MEMainHandler::isDeveloperMode() const
+{
+    return cfg_DeveloperMode->value();
+}
+
+void MEMainHandler::setDeveloperMode(bool devMode)
+{
+    (*cfg_DeveloperMode) = devMode;
 }

@@ -149,7 +149,7 @@ MEModuleTree::MEModuleTree(QWidget *parent)
     m_separator_a = m_moduleMenu->addSeparator();
     m_exec_debug_a = m_moduleMenu->addAction("Start in Debugger");
     m_exec_memcheck_a = m_moduleMenu->addAction("Check for Memory Errors");
-    developerMode(m_mainHandler->cfg_DeveloperMode);
+    developerMode(m_mainHandler->isDeveloperMode());
     connect(MEMainHandler::instance(), SIGNAL(developerMode(bool)), this, SLOT(developerMode(bool)));
     connect(m_help_a, SIGNAL(triggered()), this, SLOT(infoCB()));
     connect(m_exec_debug_a, SIGNAL(triggered()), this, SLOT(execDebugCB()));
@@ -238,7 +238,7 @@ void MEModuleTree::hideUnusedItems(QTreeWidgetItem *category)
     if (getDepth(category) != 1)
         return; // not a category
 
-    bool hide = m_mainHandler->cfg_HideUnusedModules;
+    bool hide = m_mainHandler->cfg_HideUnusedModules->value();
 
     int numVisible = 0;
     QString cname = category->data(0, Qt::DisplayRole).toString();
@@ -606,7 +606,7 @@ int MEModuleTree::getDepth(const QTreeWidgetItem *item) const
 void MEModuleTree::moduleUseNotification(const QString &modname)
 {
     const QString all = "All";
-    bool hide = m_mainHandler->cfg_HideUnusedModules;
+    bool hide = m_mainHandler->cfg_HideUnusedModules->value();
     QString categoryName = modname.section(":", 0, 0);
     QString moduleName = modname.section(":", 1, 1);
     m_usedModules += QString("%1 (%2)").arg(moduleName, categoryName);

@@ -614,7 +614,7 @@ void MEUserInterface::createActions()
     if (m_tabWidgets)
         m_tabWidgets->setCurrentWidget(m_mainArea);
 
-    developerMode(MEMainHandler::instance()->cfg_DeveloperMode);
+    developerMode(MEMainHandler::instance()->isDeveloperMode());
 }
 
 //!
@@ -1210,7 +1210,7 @@ void MEUserInterface::showTabletUI(bool state)
     {
         if (state)
         {
-            if (!MEMainHandler::instance()->cfg_TabletUITabs)
+            if (!MEMainHandler::instance()->cfg_TabletUITabs->value())
             {
                 if (m_tabWidgets->indexOf(m_tablet) == -1)
                 {
@@ -1556,7 +1556,7 @@ void MEUserInterface::activateTabletUI()
         // create tablet widget if no exists
         if (!m_tablet)
         {
-            if (MEMainHandler::instance()->cfg_TabletUITabs)
+            if (MEMainHandler::instance()->cfg_TabletUITabs->value())
                 m_tablet = new TUIMainWindow(m_tabWidgets, m_tabWidgets);
             else
                 m_tablet = new TUIMainWindow(m_tabWidgets);
@@ -1581,7 +1581,7 @@ void MEUserInterface::activateTabletUI()
             {
                 m_showTabletUI_a->setEnabled(true);
                 printMessage("Opening socket connection for TabletUI");
-                if (!MEMainHandler::instance()->cfg_TabletUITabs)
+                if (!MEMainHandler::instance()->cfg_TabletUITabs->value())
                 {
                     if (m_showTabletUI_a->isChecked())
                     {

@@ -51,7 +51,7 @@ class NonBlockingDialogue;
 } // namespace covise
 
 #include <config/coConfig.h>
-
+#include <config/config.h>
 class MEMainHandler : public QObject
 {
     friend class MEMessageHandler;
@@ -91,41 +91,35 @@ public:
     QPixmap pm_collapse, pm_expand, pm_lighton, pm_lightoff;
     QStringList moduleHistory, networkHistory;
 
-    covise::coConfigBool cfg_storeWindowConfig, cfg_ErrorHandling, cfg_DeveloperMode;
-    covise::coConfigBool cfg_HideUnusedModules, cfg_AutoConnect, cfg_TopLevelBrowser, cfg_ImbeddedRenderer;
-    covise::coConfigBool cfg_TabletUITabs;
-    covise::coConfigInt cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_GridSize;
+    std::unique_ptr<covise::ConfigBool> cfg_DeveloperMode,
+                                        cfg_storeWindowConfig,
+                                        cfg_ErrorHandling,
+                                        cfg_HideUnusedModules,
+                                        cfg_AutoConnect,
+                                        cfg_TopLevelBrowser,
+                                        cfg_ImbeddedRenderer,
+                                        cfg_TabletUITabs;
 
-    QString cfg_HostColors()
-    {
-        return QString(std::string(m_cfg_HostColors).c_str());
-    }
+    std::unique_ptr<covise::ConfigInt> cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_GridSize;
+    std::unique_ptr<covise::ConfigString> cfg_HostColors, cfg_HighColor;
+
+
     QString cfg_QtStyle()
     {
         return QString(std::string(m_cfg_QtStyle).c_str());
     }
-    QString cfg_HighColor()
-    {
-        return QString(std::string(m_cfg_HighColor).c_str());
-    }
 
-    void cfg_HostColors(const QString &s)
-    {
-        m_cfg_HostColors = s.toStdString();
-    }
     void cfg_QtStyle(const QString &s)
     {
         m_cfg_QtStyle = s.toStdString();
     }
-    void cfg_HighColor(const QString &s)
-    {
-        m_cfg_HighColor = s.toStdString();
-    }
 
 private:
-    covise::coConfigString m_cfg_HostColors, m_cfg_QtStyle, m_cfg_HighColor;
-
+    covise::coConfigString m_cfg_QtStyle; //this ist not updated yet because the value is not mapeditor only
+    std::unique_ptr<covise::config::File> m_mapEditorConfig;
 public:
+    bool isDeveloperMode() const;
+    void setDeveloperMode(bool devMode);
     QString cfg_SavePath;
     int cfg_NetworkHistoryLength;
 
@@ -319,3 +313,5 @@ private slots:
 
 };
 #endif
+
+

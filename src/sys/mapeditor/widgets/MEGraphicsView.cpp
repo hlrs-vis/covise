@@ -221,7 +221,7 @@ void MEGraphicsView::initPopupStuff()
     m_nodePopup->addSeparator();
     m_helpAction = m_nodePopup->addAction("Help", this, SLOT(helpCB()));
 
-    developerMode(MEMainHandler::instance()->cfg_DeveloperMode);
+    developerMode(MEMainHandler::instance()->isDeveloperMode());
     connect(MEMainHandler::instance(), SIGNAL(developerMode(bool)), this, SLOT(developerMode(bool)));
 
     // associate submenus

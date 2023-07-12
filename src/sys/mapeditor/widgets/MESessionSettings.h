@@ -10,13 +10,14 @@
 
 #include <QDialog>
 
+
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QPushButton;
 class QWidget;
 class QVBoxLayout;
-
+class QDialogButtonBox;
 //================================================
 class MESessionSettings : public QDialog
 //================================================
@@ -48,7 +49,7 @@ private:
     QPushButton *resetButton;
 
     void createFormLayout(QVBoxLayout *fbox);
-    void initState();
+    void initState(QDialogButtonBox *dialog);
 
 private slots:
 

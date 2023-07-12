@@ -223,7 +223,7 @@ void MEMessageHandler::dataReceived(QSocketDescriptor, QSocketNotifier::Type)
                 //
                 case covise::COVISE_MESSAGE_COVISE_ERROR:
 
-                    if (MEMainHandler::instance()->cfg_ErrorHandling)
+                    if (MEMainHandler::instance()->cfg_ErrorHandling->value())
                     {
                         // from module
                         if (nitem > 1)

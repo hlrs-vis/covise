@@ -382,7 +382,7 @@ void MEColorMapPort::makeLayout(layoutType type, QWidget *container)
     m_preview[type]->show();
     controlBox->addWidget(m_preview[type], 1);
 
-    if (MEMainHandler::instance()->cfg_TopLevelBrowser)
+    if (MEMainHandler::instance()->cfg_TopLevelBrowser->value())
         manageDialog();
 
     else

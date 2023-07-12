@@ -351,7 +351,7 @@ void MEFileBrowserPort::makeLayout(layoutType type, QWidget *container)
 
     controlBox->addWidget(editLine[type], stretch);
 
-    if (MEMainHandler::instance()->cfg_TopLevelBrowser)
+    if (MEMainHandler::instance()->cfg_TopLevelBrowser->value())
         extendedPart[type] = NULL;
 
     else
@@ -405,7 +405,7 @@ void MEFileBrowserPort::showPath(const QString &text)
 void MEFileBrowserPort::changeFolderPixmap()
 {
     // disable pixmap when mapped && embedded window exist
-    if (mapped && !MEMainHandler::instance()->cfg_TopLevelBrowser)
+    if (mapped && !MEMainHandler::instance()->cfg_TopLevelBrowser->value())
     {
         if (folderAction[MODULE])
             folderAction[MODULE]->setEnabled(false);
