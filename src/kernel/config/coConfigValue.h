@@ -63,8 +63,7 @@ protected:
     bool autoUpdate;
     bool modified;
 
-    coConfigGroup *group;
-    coConfigGroup *saveToGroup;
+    coConfigGroup *group = nullptr;
 
 #ifdef COCONFIGVALUE_USE_CACHE
     T cache;

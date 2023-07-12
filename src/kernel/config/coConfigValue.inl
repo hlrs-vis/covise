@@ -7,7 +7,7 @@
 
 #include "coConfigGroup.h"
 #include "coConfigLog.h"
-
+#include <iostream>
 namespace covise
 {
 class coConfig;
@@ -21,7 +21,7 @@ coConfigValue<T>::coConfigValue(const std::string &configGroupName, const std::s
 
 template <class T>
 coConfigValue<T>::coConfigValue(const std::string &variable, const std::string &section)
-    : variable(variable), section(section), autoUpdate(false), modified(false), saveToGroup(0), group(0)
+    : variable(variable), section(section), autoUpdate(false), modified(false)
 {
 }
 
@@ -42,13 +42,12 @@ coConfigValue<T>::coConfigValue(coConfigGroup *group,
                                 const std::string &variable, const std::string &section)
     : coConfigValue(variable, section)
 {
-   this->saveToGroup = group;
    this->group = group;
 }
 
 template <class T>
 coConfigValue<T>::coConfigValue(const coConfigValue<T> &value)
-    : value(value.value), variable(value.variable), section(value.section), configGroupName(value.configGroupName), autoUpdate(value.autoUpdate), modified(value.modified), unmodifiedValue(value.unmodifiedValue), saveToGroup(value.saveToGroup), group(value.group)
+    : value(value.value), variable(value.variable), section(value.section), configGroupName(value.configGroupName), autoUpdate(value.autoUpdate), modified(value.modified), unmodifiedValue(value.unmodifiedValue), group(value.group)
 #ifdef COCONFIGVALUE_USE_CACHE
       ,
       cache(value.cache)
@@ -73,8 +72,8 @@ coConfigValue<T> & coConfigValue<T>::operator=(const T & rhs)
    value = toString(rhs);
 
    //std::cerr << "coConfigValue<T>::operator=T info: " << variable << " in " << section << " = " << value << std::endl;
-   if (saveToGroup)
-      saveToGroup->setValue(variable, value, section);
+   if (group)
+      group->setValue(variable, value, section);
    else if (!configGroupName.empty())
    {
       //std::cerr << "coConfigValue<T>::operator=T info: setting in group " << configGroupName << std::endl;
@@ -166,14 +165,15 @@ bool coConfigValue<T>::hasValidValue() const
 template <class T>
 void coConfigValue<T>::setSaveToGroup(coConfigGroup * group)
 {
-   saveToGroup = group;
+   this->group = group;
+
 }
 
 
 template <class T>
 coConfigGroup * coConfigValue<T>::getSaveToGroup() const
 {
-   return saveToGroup;
+   return group;
 }
 
 
