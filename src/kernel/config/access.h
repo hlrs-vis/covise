@@ -4,7 +4,7 @@
 #ifndef COVCONFIG_COVISE
 #define COVCONFIG_COVISE
 #endif
-#include <covconfig/access.h>
+#include "covconfig/access.h"
 
 #undef COVCONFIG_COVISE
 #undef CONFIG_NAMESPACE

@@ -3,7 +3,7 @@
 #define CONFIG_NAMESPACE covise
 #define COVCONFIG_COVISE
 
-#include <covconfig/value.h>
+#include "covconfig/value.h"
 
 #undef COVCONFIG_COVISE
 #undef CONFIG_NAMESPACE
