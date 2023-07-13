@@ -484,7 +484,7 @@ MarkerTracking::~MarkerTracking()
 
 MarkerTrackingMarker::~MarkerTrackingMarker()
 {
-    std::cerr << "destoying marker" << std::endl;
+    //std::cerr << "destroying marker with ID " << getPattern() << std::endl;
 }
 
 void MarkerTracking::update()
