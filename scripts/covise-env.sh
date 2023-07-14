@@ -116,10 +116,18 @@ if [ -z "$COENVERROR" ]; then
       export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}/ALL"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/ALL/lib/osgPlugins:$DYLD_LIBRARY_PATH"
       ;;
+      spack|spackopt)
+      if [ "$(uname)" = "Darwin" ]; then
+          export DYLD_FALLBACK_FRAMEWORK_PATH="${SPACK_DYLD_FALLBACK_FRAMEWORK_PATH}"
+          export DYLD_FALLBACK_LIBRARY_PATH="${SPACK_DYLD_FALLBACK_LIBRARY_PATH}"
+      fi
+      ;;
    esac
    if [ "$(uname)" = "Darwin" ]; then
       export COVISE_DYLD_FRAMEWORK_PATH="${DYLD_FRAMEWORK_PATH}"
       export COVISE_DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}"
+      export COVISE_DYLD_FALLBACK_FRAMEWORK_PATH="${DYLD_FALLBACK_FRAMEWORK_PATH}"
+      export COVISE_DYLD_FALLBACK_LIBRARY_PATH="${DYLD_FALLBACK_LIBRARY_PATH}"
    fi
 
    #version 14 no CFX5_UNITS_DIR will be set
