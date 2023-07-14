@@ -112,64 +112,14 @@ if [ -z "$COENVERROR" ]; then
    unset libvar
 
    case "${ARCHSUFFIX}" in
-      gcc3|gcc3opt|gcc4|gcc4opt|teck|teckopt|icc|iccopt|insure-gcc3)
-      if grep -i -v -q 'redhat\|fedora' /etc/issue; then
-         if [ -n "$LD_LIBRARY_PATH" ]; then
-            export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${EXTERNLIBS}/rh8-compat/lib"
-         else
-            export LD_LIBRARY_PATH="${EXTERNLIBS}/rh8-compat/lib"
-         fi
-      fi
-      ;;
-      chuckwalla)
-      if [ -n "$LD_LIBRARY_PATH" ]; then
-         export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${EXTERNLIBS}/ABAQUS/6.5-4/cae/exec/lbr:${EXTERNLIBS}/ABAQUS/6.5-4/cae/External"
-      else
-         export LD_LIBRARY_PATH="${EXTERNLIBS}/ABAQUS/6.5-4/cae/exec/lbr:${EXTERNLIBS}/ABAQUS/6.5-4/cae/External"
-      fi
-      ;;
-      macx|macxopt|tiger|tigeropt|osx11|osx11opt)
-      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/OpenSceneGraph:${EXTERNLIBS}/qt/lib"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/Xerces.framework/Versions/Current:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/OpenSceneGraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
-      ;;
-      leopard|leopardopt)
-      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/OpenSceneGraph:${EXTERNLIBS}/qt/lib"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/xercesc/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/OpenSceneGraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
-      ;;
-      lion|lionopt)
-      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/openscenegraph:${EXTERNLIBS}/qt4/lib"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/xercesc/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/inventor/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
-      ;;
-      libc++|libc++opt)
-      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}:${EXTERNLIBS}/openscenegraph:${EXTERNLIBS}/qt5/lib"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/xercesc/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/inventor/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/openscenegraph/lib/osgPlugins:$DYLD_LIBRARY_PATH"
-      export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
-      ;;
       macos|macosopt)
-      export DYLD_FRAMEWORK_PATH="${COVISE_DYLD_FRAMEWORK_PATH}:${DYLD_FRAMEWORK_PATH}"
-      export DYLD_LIBRARY_PATH="${COVISE_DYLD_LIBRARY_PATH}:${DYLD_LIBRARY_PATH}"
       export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}/ALL"
       export DYLD_LIBRARY_PATH="${EXTERNLIBS}/ALL/lib/osgPlugins:$DYLD_LIBRARY_PATH"
-      #export DYLD_LIBRARY_PATH="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ImageIO.framework/Versions/A/Resources:$DYLD_LIBRARY_PATH"
-      export COVISE_DYLD_FRAMEWORK_PATH="${DYLD_FRAMEWORK_PATH}"
-      export COVISE_DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}"
       ;;
    esac
-
-   # font path for OpenInventor (Type1 and TrueType)
-   if [ -z "$OIV_HOME" ]; then
-      export OIV_PSFONT_PATH="${OIV_HOME}/data/fonts"
+   if [ "$(uname)" = "Darwin" ]; then
+      export COVISE_DYLD_FRAMEWORK_PATH="${DYLD_FRAMEWORK_PATH}"
+      export COVISE_DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}"
    fi
 
    #version 14 no CFX5_UNITS_DIR will be set

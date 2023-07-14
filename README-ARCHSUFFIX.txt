@@ -37,11 +37,10 @@ linux32         Generic x86 Linux
 linux64         Generic x86_64 Linux
 linuxarm        Generic aarch64 Linux
 cray64          Cray x86_64 Linux software rendering
-rhel7           Red Hat Enterprise Linux/CentOS 7 with updates on x86_64 (64 bit mode)
 rhel8           Red Hat Enterprise Linux/CentOS 8 with updates on x86_64 (64 bit mode)
+jammy           Ubuntu 22.04 Jammy Jellyfish on x86_64 (64 bit mode)
 
 darwin          Generic macOS
-libc++          Mac OS X 10.9-10.12, x86_64 with libc++
 macos           macOS, x86_64 or arm64 with libc++
 
 freebsd         Generic FreeBSD
@@ -77,6 +76,7 @@ rhel51          Red Hat Enterprise Linux 5.1 with updates on x86_64 (64 bit mode
 rhel52          Red Hat Enterprise Linux 5.2 with updates on x86_64 (64 bit mode)
 rhel53          Red Hat Enterprise Linux 5.3 with updates on x86_64 (64 bit mode)
 rhel6           Red Hat Enterprise Linux 6 with updates on x86_64 (64 bit mode)
+rhel7           Red Hat Enterprise Linux/CentOS 7 with updates on x86_64 (64 bit mode)
 ia64            Red Hat Enterprise Linux 3 on ia64 (e.g. SGI Prism)
 ia64icc         Red Hat Enterprise Linux 3 on ia64 with Intel Compiler
 ia64_glibc23    SGI ProPack 3SP5 for Linux, ia64, glibc-2.3.2-95.30sgi305r1, libgcc-3.2.3-47
@@ -175,7 +175,6 @@ werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
 xerus           Ubuntu 16.04 Xenial Xerus on x86_64 (64 bit mode)
 bionic          Ubuntu 18.04 Bionic Beaver on x86_64 (64 bit mode)
 focal           Ubuntu 20.04 Focal Fossa on x86_64 (64 bit mode)
-jammy           Ubuntu 22.04 Jammy Jellyfish on x86_64 (64 bit mode)
 
 sgin32          IRIX 6.5, N32, Performer 2.5.2
 sgin32p31       IRIX 6.5, N32, Performer 3.1
@@ -186,3 +185,4 @@ tiger           Mac OS X 10.4
 osx11           Mac OS X 10.4 on ia32 with X11 and fink
 leopard         Mac OS X 10.5 or 10.6, Universal
 lion            Mac OS X 10.7-10.9, x86_64 with libstdc++
+libc++          Mac OS X 10.9-10.12, x86_64 with libc++
