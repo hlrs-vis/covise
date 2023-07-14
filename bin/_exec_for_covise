@@ -30,6 +30,7 @@ if [ -z "$ARCHSUFFIX" ]; then
     exit 1
 fi
 
+OS="$(uname)"
 
 for value in $COVISEDIR/$ARCHSUFFIX/bin/\
        $COVISEDIR/$ARCHSUFFIX/lib \
@@ -149,8 +150,8 @@ elif [ "$basename" = "_strace_for_covise" ]; then
 elif [ "$basename" = "_ltrace_for_covise" ]; then
     exec ltrace `which $runcmd` "$@"
 elif [ "$basename" = "_ldd_for_covise" ]; then
-    case "$ARCHSUFFIX" in
-        macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt|macos|macosopt)
+    case "$OS" in
+        Darwin)
             exec otool -L `which $runcmd` "$@"
             ;;
         *)
@@ -163,8 +164,8 @@ elif [ "$basename" = "_env_for_covise" ]; then
     else
         envvars="COVISEDIR ARCHSUFFIX COVISE_PATH COCONFIG OIV_PSFONT_PATH VV_SHADER_PATH"
         envvars="$envvars COVCONFIG COVCONFIG_HOST COVCONFIG_CLUSTER COVCONFIG_IGNORE_ERRORS COVCONFIG_DEBUG"
-        case "$ARCHSUFFIX" in
-            macx|macxopt|tiger|tigeropt|leopard|leopardopt|osx11|osx11opt|lion|lionopt|libc++|libc++opt|macos|macosopt)
+        case "$OS" in
+            Darwin)
                 envvars="$envvars DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH"
                 ;;
             *)
