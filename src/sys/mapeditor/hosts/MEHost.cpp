@@ -188,7 +188,6 @@ MECategory *MEHost::getCategory(const QString &category)
         if (cptr->getName() == category)
             return cptr;
     }
-
     MECategory *tmp_ptr = new MECategory(category);
     catList << tmp_ptr;
     m_categoryMenu->addAction(tmp_ptr->getAction());

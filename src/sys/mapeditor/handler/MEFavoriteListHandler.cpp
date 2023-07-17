@@ -19,6 +19,7 @@ MEFavoriteListHandler::MEFavoriteListHandler()
     : QObject()
 
 {
+    favorites = MEMainHandler::instance()->getConfig().array<std::string>("General", "FavoritesList", std::vector<std::string>{"RWCovise:IO", "Colors:Mapper", "IsoSurface:Mapper", "CuttingSurface:Filter", "Collect:Tools", "Renderer:Renderer"});
 }
 
 MEFavoriteListHandler *MEFavoriteListHandler::instance()
@@ -43,7 +44,13 @@ MEFavoriteListHandler::~MEFavoriteListHandler()
 //======================================================================
 void MEFavoriteListHandler::storeFavoriteList(const QStringList &list)
 {
-    favorites = list;
+    std::vector<std::string> f;
+    for (const auto &s : list)
+    {
+        std::cerr << "storeFavoriteList " << s.toStdString() << std::endl;
+        f.push_back(s.toStdString());
+    }
+    *favorites = f;
 }
 
 //======================================================================
@@ -71,31 +78,21 @@ void MEFavoriteListHandler::createFavorites()
 
     QToolBar *tb = MEUserInterface::instance()->getToolBar();
 
-    for ( int k = 0; k < favorites.count(); k++)
-        favoriteList.append(new MEFavorites(tb, favorites[k]));
-    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
+    for ( int k = 0; k < favorites->size(); k++)
+    {
+        std::string favorite = (*favorites)[k];
+        favoriteList.append(new MEFavorites(tb, favorite.c_str()));
+    }
     if (!favoriteList.isEmpty())
         MEUserInterface::instance()->hideFavoriteLabel();
 }
 
 //======================================================================
-// insert a new favorite name
+// insert a new favorite name after the insertname
 //======================================================================
 void MEFavoriteListHandler::insertFavorite(const QString &newname, const QString &insertname)
 {
-
-    // insert new name to list
-    // create a new toolbutton
-    if (!favorites.contains(newname))
-    {
-        favorites.insert(favorites.indexOf(insertname), newname);
-
-        QToolBar *tb = MEUserInterface::instance()->getToolBar();
-        favoriteList.append(new MEFavorites(tb, newname));
-        updateFavorites();
-        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
-        MEUserInterface::instance()->hideFavoriteLabel();
-    }
+    addOrInsertFavorite(newname, insertname);
 }
 
 //======================================================================
@@ -103,17 +100,29 @@ void MEFavoriteListHandler::insertFavorite(const QString &newname, const QString
 //======================================================================
 void MEFavoriteListHandler::addFavorite(const QString &newname)
 {
-    if (!favorites.contains(newname))
+    addOrInsertFavorite(newname);
+}
+
+void MEFavoriteListHandler::addOrInsertFavorite(const QString &newname, const QString &insertname)
+{
+    // insert new name to list
+    // create a new toolbutton
+    auto f = favorites->value();
+    auto it = std::find(f.begin(), f.end(), newname.toStdString());
+    if (auto it = std::find(f.begin(), f.end(), newname.toStdString()) == f.end())
     {
-        favorites.append(newname);
+        auto pos = insertname.isNull() ? std::find(f.begin(), f.end(), insertname.toStdString()) : f.end();
+        
+        f.insert(pos, newname.toStdString());
 
         QToolBar *tb = MEUserInterface::instance()->getToolBar();
         favoriteList.append(new MEFavorites(tb, newname));
+        *favorites = f;
         updateFavorites();
-        MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
         MEUserInterface::instance()->hideFavoriteLabel();
     }
 }
+
 
 //======================================================================
 // remove a favorite object from list
@@ -129,9 +138,10 @@ void MEFavoriteListHandler::removeFavorite(const QString &name)
             tb->removeAction(fav->getAction());
         }
     }
-    favorites.removeAt(favorites.indexOf(name));
+    auto f = favorites->value();
+    f.erase(std::remove(f.begin(), f.end(), name.toStdString()));
+    *favorites = f;
 
-    MEMainHandler::instance()->getConfig()->setValue("System.MapEditor.General.FavoritesList", favorites.join(" ").toStdString());
     if (favoriteList.isEmpty())
         MEUserInterface::instance()->showFavoriteLabel();
 }
@@ -141,7 +151,9 @@ void MEFavoriteListHandler::removeFavorite(const QString &name)
 //======================================================================
 void MEFavoriteListHandler::sortFavorites()
 {
-    favorites.sort();
+    auto f = favorites->value();
+    std::sort(f.begin(), f.end());
+    *favorites = f;
     updateFavorites();
 }
 
@@ -150,7 +162,6 @@ void MEFavoriteListHandler::sortFavorites()
 //======================================================================
 void MEFavoriteListHandler::setEnabled(bool state)
 {
-
     foreach (MEFavorites *fav, favoriteList)
         fav->setEnabled(state);
 }
@@ -163,6 +174,7 @@ void MEFavoriteListHandler::updateFavorites()
     for (int i = 0; i < favoriteList.count(); i++)
     {
         MEFavorites *fav = favoriteList[i];
-        fav->setModuleName(favorites[i]);
+        std::string f = (*favorites)[i];
+        fav->setModuleName(f.c_str());
     }
 }

@@ -57,12 +57,13 @@
 #include "widgets/MEDialogTools.h"
 #include "widgets/MEFavorites.h"
 #include "widgets/MEGraphicsView.h"
-#include "widgets/MEHelpViewer.h"
+
 #include "widgets/MESessionSettings.h"
 #include "widgets/MEUserInterface.h"
 
 #include <chrono>
 #include <thread>
+#include <cassert>
 
 QColor MEMainHandler::s_highlightColor;
 QColor MEMainHandler::s_paramColor, MEMainHandler::s_reqMultiColor, MEMainHandler::s_reqDataColor;
@@ -125,19 +126,9 @@ static QString expandTilde(QString path)
     return home + path.mid(1);
 }
 
-MEMainHandler *MEMainHandler::singleton = NULL;
-MEUserInterface *MEMainHandler::mapEditor = NULL;
-MEMessageHandler *MEMainHandler::messageHandler = NULL;
 
-covise::coConfigGroup* initMapEditorConfig()
-{
-    // automatic storage of config values
-    auto mapConfig = new covise::coConfigGroup("MapEditor");
-    mapConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "mapeditor.xml", "local", true);
-    covise::coConfig::getInstance()->addConfig(mapConfig);
-    return mapConfig;
-}
 
+MEMainHandler *MEMainHandler::singleton = nullptr;
 
 /*!
     \class MEMainHandler
@@ -145,50 +136,32 @@ covise::coConfigGroup* initMapEditorConfig()
 */
 
 MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> quitFunc)
-    : QObject(), mapConfig(initMapEditorConfig())
-    , cfg_NetworkHistoryLength(10)
-    , m_deleteAutosaved_a(NULL)
-    , m_copyMode(NORMAL)
-    , m_masterUI(true)
-    , force(false)
+    : QObject()
     , m_cfg_QtStyle("System.UserInterface.QtStyle")
-    , m_loadedMapWasModified(false)
-    , m_autoSave(false)
-    , m_waitForClose(false)
-    , m_executeOnChange(false)
-    , m_inMapLoading(false)
-    , m_mirrorMode(false)
-    , m_connectedPartner(0)
-    , m_portSize(14)
-    , m_autoSaveTimer(NULL)
-    , m_currentNode(NULL)
-    , m_newNode(NULL)
-    , m_settings(NULL)
-    , m_deleteHostBox(NULL)
-    , m_mirrorBox(NULL)
-    , m_requestingMaster(false)
     , m_quitFunc(quitFunc)
+    , m_mapEditorConfig("mapeditor")
+    , m_guiSettings("HLRS", "MapEditor")
+    , cfg_DeveloperMode(m_mapEditorConfig.value("General", "DeveloperMode", false))
+    , cfg_storeWindowConfig(m_mapEditorConfig.value("General", "StoreLayout", false))
+    , cfg_ErrorHandling(m_mapEditorConfig.value("General", "ErrorOutput", false))
+    , cfg_HideUnusedModules(m_mapEditorConfig.value("General", "HideUnusedModules", true))
+    , cfg_AutoConnect(m_mapEditorConfig.value("General", "AutoConnectHosts", true))
+    , cfg_TopLevelBrowser(m_mapEditorConfig.value("General", "TopLevelBrowser", true))
+    , cfg_TabletUITabs(m_mapEditorConfig.value("General", "TabletUITabs", true))
+    , cfg_AutoSaveTime(m_mapEditorConfig.value("Saving", "AutoSave", int64_t(120)))
+    , cfg_ModuleHistoryLength(m_mapEditorConfig.value("Saving", "ModuleHistoryLength", int64_t(50)))
+    , cfg_NetworkHistoryLength(m_mapEditorConfig.value("Saving", "NetworkHistoryLength", int64_t(10)))
+    , cfg_GridSize(m_mapEditorConfig.value("VisualProgramming", "SnapFactor", int64_t(1)))
+    , cfg_HighColor(m_mapEditorConfig.value("VisualProgramming", "HighlightColor", std::string("red")))
+    , cfg_HostColors(m_mapEditorConfig.array("VisualProgramming", "HostColors", std::vector<std::string>{"LightBlue", "PaleGreen", "khaki", "LightSalmon", "LightYellow", "LightPink"}))
+    , m_messageHandler(argc, argv)
+    , m_mapEditor(this)
 {
-    m_mapEditorConfig = std::make_unique<covise::config::File>("mapeditor");
-    m_mapEditorConfig->setSaveOnExit(true);
-    cfg_DeveloperMode = m_mapEditorConfig->value("General", "DeveloperMode", false);
 
-    cfg_storeWindowConfig = m_mapEditorConfig->value("General", "StoreLayout", false);
-    cfg_ErrorHandling = m_mapEditorConfig->value("General", "ErrorOutput", false);
-    cfg_HideUnusedModules = m_mapEditorConfig->value("General", "HideUnusedModules", true);
-    cfg_AutoConnect = m_mapEditorConfig->value("General", "AutoConnectHosts", true);
-    cfg_TopLevelBrowser = m_mapEditorConfig->value("General", "TopLevelBrowser", true);
-    cfg_TabletUITabs = m_mapEditorConfig->value("General", "TabletUITabs", true);
-    cfg_AutoSaveTime = m_mapEditorConfig->value("Saving", "AutoSave", int64_t(120));
-    cfg_ModuleHistoryLength = m_mapEditorConfig->value("Saving", "ModuleHistoryLength", int64_t(50));
-    cfg_GridSize = m_mapEditorConfig->value("VisualProgramming", "SnapFactor", int64_t(1));
-    cfg_HostColors = m_mapEditorConfig->value("VisualProgramming", "HostColors", std::string("green"));
-    cfg_HighColor = m_mapEditorConfig->value("VisualProgramming", "HighlightColor", std::string("red"));
-    
+    m_mapEditorConfig.setSaveOnExit(true);
     // init some variables
     singleton = this;
     localHost = "";
-    m_localHostID = -1;
     m_mapName = "";
 
     screenSize = qApp->primaryScreen()->availableSize();
@@ -258,7 +231,6 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
 
     // connect to controller
     // or start in m_standalone mode
-    messageHandler = new MEMessageHandler(argc, argv);
 
     // get some infos out of the config file
     readConfigFile();
@@ -271,6 +243,7 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     dotdirpath += "/." + framework.toLower();
 #endif
     QDir dotdir(dotdirpath);
+    std::cerr << "autosave path " << dotdirpath.toStdString() << std::endl;
     QStringList namefilter;
     namefilter << "autosave*.net";
     dotdir.setNameFilters(namefilter);
@@ -305,18 +278,17 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     connect(m_deleteAutosaved_a, SIGNAL(triggered(bool)), this, SLOT(deleteAutosaved(bool)));
 
     // create the user interface
-    mapEditor = MEUserInterface::instance();
-    mapEditor->init();
+    m_mapEditor.init();
 
     if (!autosaveMapList.empty())
     {
         if (autosaveMapList.count() == 1)
         {
-            mapEditor->printMessage("There is one autosaved network map available from the File->Open Autosaved menu");
+            m_mapEditor.printMessage("There is one autosaved network map available from the File->Open Autosaved menu");
         }
         else
         {
-            mapEditor->printMessage(QString("There are %1 autosaved network maps available from the File->Open Autosaved menu").arg(autosaveMapList.count()));
+            m_mapEditor.printMessage(QString("There are %1 autosaved network maps available from the File->Open Autosaved menu").arg(autosaveMapList.count()));
         }
     }
 
@@ -335,8 +307,8 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
     defaultPalette = QApplication::palette();
 
     // set a proper window title
-    mapEditor->setWindowTitle(generateTitle(""));
-    mapEditor->setWindowFilePath("");
+    m_mapEditor.setWindowTitle(generateTitle(""));
+    m_mapEditor.setWindowFilePath("");
     MEModulePanel::instance()->setWindowTitle(generateTitle("Module Parameters"));
     if (m_helpViewer)
         m_helpViewer->setWindowTitle(generateTitle("Help Viewer"));
@@ -345,16 +317,10 @@ MEMainHandler::MEMainHandler(int argc, char *argv[], std::function<void(void)> q
 
 MEMainHandler *MEMainHandler::instance()
 {
+    assert(singleton);
     return singleton;
 }
 
-//!
-MEMainHandler::~MEMainHandler()
-//!
-{
-    delete messageHandler;
-    delete m_helpViewer;
-}
 
 //!
 //! set the local user and host, contact controller
@@ -365,17 +331,17 @@ void MEMainHandler::init()
 // get local user name
     localUser = covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", covise::Host::getUsername()).c_str();
 
-    if (!messageHandler->isStandalone())
+    if (!m_messageHandler.isStandalone())
     {
-        localHost = QString::fromStdString(covise::Host::lookupHostname(messageHandler->getUIF()->get_hostname()));
+        localHost = QString::fromStdString(covise::Host::lookupHostname(m_messageHandler.getUIF()->get_hostname()));
         localHost = localHost.section('.', 0, 0);
-        localIP = QString::fromStdString(covise::Host::lookupIpAddress(messageHandler->getUIF()->get_hostname()));
+        localIP = QString::fromStdString(covise::Host::lookupIpAddress(m_messageHandler.getUIF()->get_hostname()));
 
         // send dummy message to tell the controller that it is safe now to send messages
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-        messageHandler->dataReceived(1);
+        m_messageHandler.dataReceived(1);
 #else
-        messageHandler->dataReceived(QSocketDescriptor(1), QSocketNotifier::Type::Read);
+        m_messageHandler.dataReceived(QSocketDescriptor(1), QSocketNotifier::Type::Read);
 #endif
 
         // tell crb if we are ready for an embedded ViNCE renderer
@@ -386,7 +352,7 @@ void MEMainHandler::init()
         else
         {
             QString tmp = "RENDERER_IMBEDDED_POSSIBLE\n" + localIP + "\n" + localUser + "\nFALSE";
-            messageHandler->sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
+            m_messageHandler.sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
         }
     }
 }
@@ -411,13 +377,13 @@ void MEMainHandler::embeddedRenderer()
     if (!lib->isLoaded())
     {
         QString tmp = "RENDERER_IMBEDDED_POSSIBLE\n" + localIP + "\n" + localUser + "\nTRUE";
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
+        m_messageHandler.sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
     }
     else
     {
         QString tmp = "RENDERER_IMBEDDED_POSSIBLE\n" + localIP + "\n" + localUser + "\nFALSE";
         qWarning() << "MEMainHandler::startRenderer err: lib not found";
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
+        m_messageHandler.sendMessage(covise::COVISE_MESSAGE_MSG_OK, tmp);
     }
 }
 
@@ -453,7 +419,6 @@ void MEMainHandler::initModule()
 //!
 void MEMainHandler::readConfigFile()
 {
-    QString tmp;
 
 // default values
 
@@ -493,55 +458,14 @@ void MEMainHandler::readConfigFile()
         std::cout << "MapEditor config-path: " << expandTilde(cfg_SavePath).toStdString().c_str() << " does not exist --> created !!" << std::endl;
     }
 
-    // get host colors
-    QString serv = mapConfig->getValue("System.MapEditor.General.HostColors").entry.c_str();
-
-    if (serv.isEmpty())
-        m_hostColor << "LightBlue"
-                    << "PaleGreen"
-                    << "khaki"
-                    << "LightSalmon"
-                    << "LightYellow"
-                    << "LightPink";
-
-    else
-        m_hostColor = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
-
-    // get favorite list
-    serv = mapConfig->getValue("System.MapEditor.General.FavoritesList").entry.c_str();
-    QStringList flist;
-    if (serv.isNull())
+    auto networkHistoryV = getUserBehaviour().value("NetworkHistory");
+    if(!networkHistoryV.isValid())
+        return;
+    for (const auto &filename : networkHistoryV.toStringList())
     {
-
-        flist << "RWCovise:IO"
-              << "Colors:Mapper"
-              << "IsoSurface:Mapper"
-              << "CuttingSurface:Filter"
-              << "Collect:Tools"
-              << "Renderer:Renderer";
-    }
-
-    else
-        flist = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
-
-    MEFavoriteListHandler::instance()->storeFavoriteList(flist);
-
-    // read module history
-    serv = mapConfig->getValue("System.MapEditor.General.ModuleHistory").entry.c_str();
-    if (!serv.isNull())
-        moduleHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
-
-    // read network history
-    serv = mapConfig->getValue("System.MapEditor.General.NetworkHistory").entry.c_str();
-    if (!serv.isNull())
-    {
-        networkHistory = serv.split(' ', SplitBehaviorFlags::SkipEmptyParts);
-        foreach (QString tmp, networkHistory)
-        {
-            QAction *ac = new QAction(tmp, 0);
-            connect(ac, SIGNAL(triggered(bool)), this, SLOT(openNetworkFile(bool)));
-            recentMapList.append(ac);
-        }
+        QAction *ac = new QAction(filename, 0);
+        connect(ac, SIGNAL(triggered(bool)), this, SLOT(openNetworkFile(bool)));
+        recentMapList.append(ac);
     }
 }
 
@@ -561,85 +485,49 @@ QString MEMainHandler::generateTitle(const QString &text)
 //!
 //! insert a new module in the history list
 //!-
-void MEMainHandler::insertModuleInHistory(const QString &insertText)
-{
-
-    QString mod = insertText.section(":", 1, 1).section("(", 0, 0);
-    QString cat = insertText.section("(", 1, 1);
-
-    // remove same entry with other time in history
-    for (QStringList::Iterator it = moduleHistory.begin(); it != moduleHistory.end(); ++it)
-    {
-        QString tmp = *it;
-        if (tmp.section(":", 1, 1).section("(", 0, 0) == mod && tmp.section("(", 1, 1) == cat)
-        {
-            moduleHistory.erase(it);
-            break;
-        }
-    }
-
-    // insert current item
-    moduleHistory.prepend(insertText);
-
-    // remove last item when reaching list maximum set by user
-    if (moduleHistory.count() == cfg_ModuleHistoryLength->value())
-        moduleHistory.takeLast();
-
-    // update list in mapeditor.xml
-    mapConfig->setValue("System.MapEditor.General.ModuleHistory", moduleHistory.join(" ").toStdString());
-}
-
-//!
-//! insert a new module in the history list
-//!-
 void MEMainHandler::insertNetworkInHistory(const QString &insertText)
 {
 
+    QStringList networkHistory;
+    auto networkHistoryV = getUserBehaviour().value("NetworkHistory");
+    if(networkHistoryV.isValid())
+        networkHistory = networkHistoryV.toStringList();
     // insert text
-    if (networkHistory.contains(insertText))
+
+    if(networkHistory.contains(insertText))
         return;
 
     // insert current item
-    networkHistory.prepend(insertText);
+    networkHistory.push_front(insertText);
 
     // remove last item when reaching list maximum
-    if (networkHistory.count() > cfg_NetworkHistoryLength)
-        networkHistory.takeLast();
+    if (networkHistory.size() > cfg_NetworkHistoryLength->value())
+        networkHistory.pop_back();
 
     // update list in mapeditor.xml
-    mapConfig->setValue("System.MapEditor.General.NetworkHistory", networkHistory.join(" ").toStdString());
+    getUserBehaviour().setValue("NetworkHistory", networkHistory);
 
     QAction *ac = new QAction(insertText, 0);
     connect(ac, SIGNAL(triggered(bool)), this, SLOT(openNetworkFile(bool)));
     recentMapList.prepend(ac);
-    MEUserInterface::instance()->insertIntoOpenRecentMenu(ac);
+    m_mapEditor.insertIntoOpenRecentMenu(ac);
 }
 
-//!
-//! store the session parameter (window positions, size ...)
-//!-
-void MEMainHandler::storeSessionParam()
+void MEMainHandler::storeCategoryExpandedState()
 {
-    // store host colors
-    QString tmp = m_hostColor.join(" ");
-    mapConfig->setValue("System.MapEditor.General.HostColors", tmp.toStdString());
-
-    // store category name and open/close state
     MEHost *nptr = MEHostListHandler::instance()->getFirstHost();
+    QStringList expandedCategories;
     foreach (MECategory *cptr, nptr->catList)
     {
         QTreeWidgetItem *category = cptr->getCategoryItem();
         if (category->isExpanded())
-            mapConfig->setValue(cptr->getName().toStdString(), "true", "System.MapEditor.General.Category");
-        else
-            mapConfig->setValue(cptr->getName().toStdString(), "false", "System.MapEditor.General.Category");
+            expandedCategories.push_back(cptr->getName());
     }
-
+    getUserBehaviour().setValue("ExpandedCategories", expandedCategories);
     // store window configuration
-    mapEditor->storeSessionParam(cfg_storeWindowConfig->value());
+    m_mapEditor.storeSessionParam(cfg_storeWindowConfig->value());
+    m_mapEditorConfig.save();
 
-    // store config parameter
-    mapConfig->save();
 }
 
 //!
@@ -655,7 +543,7 @@ void MEMainHandler::checkHelp()
     QString helpdir = getenv(name.toLatin1().data());
     if (helpdir.isEmpty())
     {
-        mapEditor->printMessage("Environmental variable " + name + " not set\n");
+        m_mapEditor.printMessage("Environmental variable " + name + " not set\n");
         return;
     }
 
@@ -679,7 +567,7 @@ void MEMainHandler::checkHelp()
         if (file.exists())
         {
             m_helpFromWeb = false;
-            m_helpViewer = new MEHelpViewer;
+            m_helpViewer = std::make_unique<MEHelpViewer>();
             m_helpViewer->init();
             return;
         }
@@ -687,22 +575,22 @@ void MEMainHandler::checkHelp()
 
     // get help from webserver
     onlineDir = "https://fs.hlrs.de/projects/covise/doc/html";
-    mapEditor->printMessage("Online help not found in local document search path \"" + helpdir + "\", falling back to \"" + onlineDir + "\"");
+    m_mapEditor.printMessage("Online help not found in local document search path \"" + helpdir + "\", falling back to \"" + onlineDir + "\"");
     if (QUrl(onlineDir).isValid())
     {
         m_helpFromWeb = true;
-        m_helpViewer = new MEHelpViewer;
+        m_helpViewer = std::make_unique<MEHelpViewer>();
         m_helpViewer->init();
     }
     else
-        mapEditor->printMessage("Online help also not found on webserver");
+        m_mapEditor.printMessage("Online help also not found on webserver");
 }
 
 void MEMainHandler::reportbug()
 {
     if (!QDesktopServices::openUrl(QUrl("https://github.com/hlrs-vis/covise/issues/new")))
     {
-        mapEditor->printMessage("Failed to open web page \"https://github.com/hlrs-vis/covise/issues/new\"");
+        m_mapEditor.printMessage("Failed to open web page \"https://github.com/hlrs-vis/covise/issues/new\"");
     }
 }
 
@@ -759,15 +647,15 @@ QString MEMainHandler::getMapPath()
 void MEMainHandler::storeMapName(const QString &name)
 {
     m_mapName = name;
-    mapEditor->setWindowFilePath(name);
-    if (mapEditor->hasMiniGUI())
+    m_mapEditor.setWindowFilePath(name);
+    if (m_mapEditor.hasMiniGUI())
     {
         QString tmp = "Current file: " + name;
-        mapEditor->showMapName(tmp);
+        m_mapEditor.showMapName(tmp);
     }
     else
     {
-        mapEditor->setWindowTitle(generateTitle(name));
+        m_mapEditor.setWindowTitle(generateTitle(name));
     }
 }
 
@@ -785,7 +673,7 @@ void MEMainHandler::openDroppedMap(const QString &text)
 //!
 void MEMainHandler::chatCB()
 {
-    QString text = mapEditor->getChatLine()->text();
+    QString text = m_mapEditor.getChatLine()->text();
     if (text.isEmpty())
         return;
 
@@ -793,9 +681,9 @@ void MEMainHandler::chatCB()
     QString data;
     buffer << "CHAT" << localHost << text;
     data = buffer.join("\n");
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_INFO, data);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_INFO, data);
     buffer.clear();
-    mapEditor->getChatLine()->clear();
+    m_mapEditor.getChatLine()->clear();
 }
 
 //!
@@ -803,14 +691,14 @@ void MEMainHandler::chatCB()
 //!
 void MEMainHandler::deleteAutosaved(bool)
 {
-    mapEditor->clearOpenAutosaveMenu();
+    m_mapEditor.clearOpenAutosaveMenu();
     QList<QString> files = autosaveNameMap.values();
     for (int i = 0; i < files.count(); ++i)
     {
         QFile file(files[i]);
         if (file.exists() && !file.remove())
         {
-            mapEditor->printMessage("Deleting " + files[i] + " failed");
+            m_mapEditor.printMessage("Deleting " + files[i] + " failed");
         }
     }
 }
@@ -844,11 +732,11 @@ void MEMainHandler::openNetworkFile(QString filename)
 // open file
     QString tmp;
     tmp = "UPDATE_LOADED_MAPNAME\n" + filename;
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     tmp = "NEW\n";
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     tmp = "OPEN\n" + filename;
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, tmp);
 
     setMapModified(false);
 }
@@ -858,7 +746,7 @@ void MEMainHandler::openNetworkFile(QString filename)
 //!
 void MEMainHandler::undoAction()
 {
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "UNDO");
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, "UNDO");
 }
 
 //!
@@ -909,7 +797,7 @@ void MEMainHandler::saveAsNet()
 //!
 void MEMainHandler::openBrowser(const QString &title, int mode)
 {
-    mapEditor->openBrowser(title, m_mapName, mode);
+    m_mapEditor.openBrowser(title, m_mapName, mode);
 }
 
 //!
@@ -919,7 +807,7 @@ void MEMainHandler::autoSaveNet()
 {
     if (!m_inMapLoading && m_autoSave)
     {
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "AUTOSAVE");
+        m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, "AUTOSAVE");
         m_autoSave = false;
     }
 }
@@ -932,7 +820,7 @@ void MEMainHandler::saveNetwork(const QString &filename)
     QStringList buffer;
     buffer << "SAVE" << filename;
     QString tmp = buffer.join("\n");
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, tmp);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, tmp);
     buffer.clear();
 }
 
@@ -951,7 +839,7 @@ void MEMainHandler::mapWasChanged(const QString &text)
 //!
 void MEMainHandler::execNet()
 {
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "EXEC\n");
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, "EXEC\n");
     MEMainHandler::instance()->execTriggered();
 }
 
@@ -962,7 +850,7 @@ void MEMainHandler::addPartner()
 {
     if (!m_addPartnerDialog)
     {
-        m_addPartnerDialog = new MERemotePartner{mapEditor};
+        m_addPartnerDialog = new MERemotePartner{&m_mapEditor};
         connect(m_addPartnerDialog, &MERemotePartner::clientAction, this, [this](const covise::ClientInfo &client)
                 {
                     requestPartnerAction(client.style, std::vector<int>{client.id});
@@ -984,7 +872,7 @@ void MEMainHandler::requestPartnerAction(covise::LaunchStyle launchStyle, const 
 
 void MEMainHandler::deleteSelectedNodes()
 {
-    mapEditor->deleteSelectedNodes();
+    m_mapEditor.deleteSelectedNodes();
 
     // look if all nodes are gone
     // reset mapEditor
@@ -1008,7 +896,7 @@ void MEMainHandler::changeCB(bool state)
 void MEMainHandler::changeExecButton(bool state)
 {
     m_executeOnChange = state;
-    mapEditor->changeExecButton(state);
+    m_mapEditor.changeExecButton(state);
 }
 
 
@@ -1026,7 +914,7 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
             if (host)
             {
                 covise::NEW_UI_HandlePartners pMsg{covise::LaunchStyle::Disconnect, 0, std::vector<int>{host->clientId()}};
-                covise::sendCoviseMessage(pMsg, *messageHandler);
+                covise::sendCoviseMessage(pMsg, m_messageHandler);
             }
         }
 
@@ -1050,13 +938,13 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
         } else if (msgBox.clickedButton() == saveAndQuit)
         {
 
-            storeSessionParam();
+            storeCategoryExpandedState();
 
             // overwrite existing network
             if (!m_mapName.isEmpty())
             {
                 saveNetwork(m_mapName);
-                messageHandler->sendMessage(covise::COVISE_MESSAGE_QUIT, "");
+                m_messageHandler.sendMessage(covise::COVISE_MESSAGE_QUIT, "");
                 //cerr << "Map Editor ____ Close connection\n" << endl;
                 ce->accept();
             }
@@ -1069,22 +957,22 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
             }
         }else if(msgBox.clickedButton() == quit)
         {
-            storeSessionParam();
+            storeCategoryExpandedState();
             //cerr << "Map Editor ____ Close connection\n" << endl;
             ce->accept();
-            messageHandler->sendMessage(covise::COVISE_MESSAGE_QUIT, "");
+            m_messageHandler.sendMessage(covise::COVISE_MESSAGE_QUIT, "");
         }
     }
 
     else
     {
-        if (!mapEditor->hasMiniGUI())
+        if (!m_mapEditor.hasMiniGUI())
         {
-            storeSessionParam();
+            storeCategoryExpandedState();
         }
         //cerr << "Map Editor ____ Close connection\n" << endl;
         ce->accept();
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_QUIT, "");
+        m_messageHandler.sendMessage(covise::COVISE_MESSAGE_QUIT, "");
     }
 }
 
@@ -1093,7 +981,9 @@ void MEMainHandler::closeApplication(QCloseEvent *ce)
 //!
 void MEMainHandler::quit()
 {
+    m_mapEditor.quit();
     m_quitFunc();
+    
 }
 
 //!
@@ -1119,14 +1009,14 @@ void MEMainHandler::printCB()
    QPixmap p = MEGraphicsView::instance()->viewport()->grab();
    if (p.isNull() || p.width()==0 || p.height()==0)
    {
-      mapEditor->printMessage("Failed to grab picture");
+      m_mapEditor.printMessage("Failed to grab picture");
       return;
    }
 
    if(p.save(name, "PNG" ))
-      mapEditor->printMessage(QString("Picture was stored as %1 (%2x%3 pixels)").arg(name, QString::number(p.width()), QString::number(p.height())));
+      m_mapEditor.printMessage(QString("Picture was stored as %1 (%2x%3 pixels)").arg(name, QString::number(p.width()), QString::number(p.height())));
    else
-      mapEditor->printMessage("Failed to store picture as " + name);
+      m_mapEditor.printMessage("Failed to store picture as " + name);
 #else
     QGraphicsScene *scene = MEGraphicsView::instance()->scene();
     scene->setSceneRect(scene->itemsBoundingRect()); // Re-shrink the scene to it's bounding contents
@@ -1136,9 +1026,9 @@ void MEMainHandler::printCB()
     QPainter painter(&image);
     scene->render(&painter);
     if (image.save(name))
-        mapEditor->printMessage(QString("Picture was stored as %1 (%2x%3 pixels)").arg(name, QString::number(image.width()), QString::number(image.height())));
+        m_mapEditor.printMessage(QString("Picture was stored as %1 (%2x%3 pixels)").arg(name, QString::number(image.width()), QString::number(image.height())));
     else
-        mapEditor->printMessage("Failed to store picture as " + name);
+        m_mapEditor.printMessage("Failed to store picture as " + name);
 #endif
 }
 
@@ -1180,7 +1070,7 @@ void MEMainHandler::aboutQt()
 void MEMainHandler::enableExecution(bool state)
 {
     if (m_masterUI)
-        mapEditor->enableExecution(state);
+        m_mapEditor.enableExecution(state);
 }
 
 //!
@@ -1196,12 +1086,12 @@ void MEMainHandler::clearNet()
         auto cancel = deleteMsgBox.addButton(QMessageBox::Cancel);
         deleteMsgBox.exec();
         if(deleteMsgBox.clickedButton() == deleteBtn)
-            messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
+            m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
     }
     // reset handler & userinterface
     else
     {
-        messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
+        m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, "NEW_ALL\n");
     }
 }
 
@@ -1215,7 +1105,7 @@ void MEMainHandler::reset()
     m_autoSave = false;
     updateLoadedMapname("");
 
-    mapEditor->reset();
+    m_mapEditor.reset();
     MELinkListHandler::instance()->clearList();
     MENodeListHandler::instance()->clearList();
     enableExecution(false);
@@ -1231,8 +1121,11 @@ QColor MEMainHandler::getHostColor(int entry)
     QColor color;
 
     color.setNamedColor("ivory");
-    if ((unsigned)entry < (unsigned int)m_hostColor.count())
-        color.setNamedColor(m_hostColor[entry]);
+    if ((unsigned)entry < (unsigned int)cfg_HostColors->size())
+    {
+        std::string colorName = (*cfg_HostColors)[entry];
+        color.setNamedColor(colorName.c_str());
+    }
 
     return color;
 }
@@ -1264,8 +1157,8 @@ int MEMainHandler::getGridSize()
 //!
 void MEMainHandler::updateLoadedMapname(const QString &name)
 {
-    mapEditor->setWindowFilePath(name);
-    mapEditor->setWindowTitle(generateTitle(name));
+    m_mapEditor.setWindowFilePath(name);
+    m_mapEditor.setWindowTitle(generateTitle(name));
     storeMapName(name);
 }
 
@@ -1294,9 +1187,14 @@ void MEMainHandler::updateTimer()
 //!
 //! return the current config
 //!
-covise::coConfigGroup *MEMainHandler::getConfig() const
+covise::config::File &MEMainHandler::getConfig()
 {
-    return mapConfig;
+    return m_mapEditorConfig;
+}
+
+QSettings &MEMainHandler::getUserBehaviour() //registry entry that stores usage parameteters and is not meant to be modified manually
+{
+    return m_guiSettings;
 }
 
 //!
@@ -1309,7 +1207,7 @@ void MEMainHandler::settingXML()
 
     if (m_settings->exec() == QDialog::Accepted)
     {
-        mapConfig->save();
+        m_mapEditorConfig.save();
         s_highlightColor.setNamedColor(cfg_HighColor->value().c_str());
 
         if (m_autoSaveTimer)
@@ -1352,7 +1250,7 @@ void MEMainHandler::addNewHost(MEHost *host)
 
     // fill the module tree
     // take information from host, category & module
-    mapEditor->addHostToModuleTree(host);
+    m_mapEditor.addHostToModuleTree(host);
 
     if (m_mirrorBox)
     {
@@ -1371,7 +1269,7 @@ void MEMainHandler::addNewHost(MEHost *host)
         MEGraphicsView::instance()->setMultiHostNodePopup();
 
     // enable delete host item in menu bar and master request in toolbar
-    mapEditor->setCollabItems(activeHosts, m_masterUI);
+    m_mapEditor.setCollabItems(activeHosts, m_masterUI);
 }
 
 //!
@@ -1458,7 +1356,7 @@ void MEMainHandler::initNode(const QStringList &list)
 
     // no "exec on change" during initialisation
     int save_exec = m_executeOnChange;
-    mapEditor->changeExecButton(false);
+    m_mapEditor.changeExecButton(false);
 
     // create a new node
     m_newNode = MENodeListHandler::instance()->addNode(MEGraphicsView::instance());
@@ -1488,7 +1386,7 @@ void MEMainHandler::initNode(const QStringList &list)
    }*/
 
     // reset mode
-    mapEditor->changeExecButton(save_exec);
+    m_mapEditor.changeExecButton(save_exec);
 
     mapWasChanged("UI_INIT");
 }
@@ -1580,7 +1478,7 @@ void MEMainHandler::removeHost(MEHost *host)
 
 
     // reset menu and tool bar
-    mapEditor->setCollabItems(activeHosts, m_masterUI);
+    m_mapEditor.setCollabItems(activeHosts, m_masterUI);
 
     // reset node popup action
     if (activeHosts == 1)
@@ -1619,7 +1517,7 @@ void MEMainHandler::masterCB()
 
     list << "MASTERREQ" << localIP << localUser;
     data = list.join("\n");
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, data);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, data);
     list.clear();
 }
 
@@ -1685,7 +1583,7 @@ void MEMainHandler::showHostState(const QStringList &list)
         }
     }
     if (m_connectedPartner > 1)
-        mapEditor->openChatWindow();
+        m_mapEditor.openChatWindow();
 }
 
 //!
@@ -1706,7 +1604,7 @@ void MEMainHandler::setMaster(bool state)
     m_masterUI = state;
 
     // change action state if more than one host is available
-    mapEditor->switchMasterState(state);
+    m_mapEditor.switchMasterState(state);
 }
 
 //!
@@ -1800,7 +1698,7 @@ void MEMainHandler::requestNode(const QString &modulename, const QString &HostIP
     }
 
     QString data = buffer.join("\n");
-    messageHandler->sendMessage(covise::COVISE_MESSAGE_UI, data);
+    m_messageHandler.sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
     mapWasChanged("INIT/SYNC");
 }
@@ -1823,12 +1721,12 @@ void MEMainHandler::developerModeHasChanged()
 void MEMainHandler::setMapModified(bool modified)
 {
     m_loadedMapWasModified = modified;
-    MEUserInterface::instance()->setWindowModified(m_loadedMapWasModified);
+     m_mapEditor.setWindowModified(m_loadedMapWasModified);
 }
 
 void MEMainHandler::execTriggered()
 {
-    MEUserInterface::instance()->m_errorNumber = 0;
+     m_mapEditor.m_errorNumber = 0;
 }
 
 bool MEMainHandler::isDeveloperMode() const

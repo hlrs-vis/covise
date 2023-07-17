@@ -11,6 +11,8 @@
 #include <QLineEdit>
 #include <QMap>
 #include <QSslError>
+#include <QSettings>
+
 #include <vector>
 #include <string>
 #include <utility>
@@ -18,29 +20,21 @@
 #include <atomic>
 #include <messages/NEW_UI.h>
 
-
+#include "MEMessageHandler.h"
+#include "widgets/MEUserInterface.h"
+#include "widgets/MEHelpViewer.h"
 class QListWidget;
 class QListWidgetItem;
 class QMessageBox;
 class QNetworkReply;
 
-class MECSCW;
-class MECSCWParam;
-class MEDeleteHostDialog;
-class MEHelpViewer;
-class MEHost;
-class MELinkListHandler;
-class MEMainHandler;
-class MEMessageHandler;
-class MEMessageHandler;
-class MEMirrorHostDialog;
-class MEModuleTree;
 class MENode;
 class MEPort;
-class MERemotePartner;
 class MESessionSettings;
-class METimer;
-class MEUserInterface;
+class MERemotePartner;
+class MECSCWParam;
+class MEDeleteHostDialog;
+class MEMirrorHostDialog;
 namespace covise
 {
 enum class LaunchStyle : int;
@@ -57,12 +51,12 @@ class MEMainHandler : public QObject
     friend class MEMessageHandler;
 
     Q_OBJECT
-protected:
-    covise::coConfigGroup* mapConfig;
+private:
+    covise::config::File m_mapEditorConfig;
+    QSettings m_guiSettings;
 
 public:
     MEMainHandler(int, char *[], std::function<void(void)> quitFunc);
-    ~MEMainHandler();
 
     static MEMainHandler *instance();
 
@@ -89,7 +83,6 @@ public:
     QPixmap pm_pinup, pm_pindown, pm_host, pm_file, pm_copy, pm_help, pm_logo;
     QPixmap pm_stop, pm_exec, pm_exec2, pm_colorpicker, pm_addhost;
     QPixmap pm_collapse, pm_expand, pm_lighton, pm_lightoff;
-    QStringList moduleHistory, networkHistory;
 
     std::unique_ptr<covise::ConfigBool> cfg_DeveloperMode,
                                         cfg_storeWindowConfig,
@@ -100,9 +93,9 @@ public:
                                         cfg_ImbeddedRenderer,
                                         cfg_TabletUITabs;
 
-    std::unique_ptr<covise::ConfigInt> cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_GridSize;
-    std::unique_ptr<covise::ConfigString> cfg_HostColors, cfg_HighColor;
-
+    std::unique_ptr<covise::ConfigInt> cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_NetworkHistoryLength, cfg_GridSize;
+    std::unique_ptr<covise::ConfigString> cfg_HighColor;
+    std::unique_ptr<covise::ConfigArray<std::string>> cfg_HostColors;
 
     QString cfg_QtStyle()
     {
@@ -116,12 +109,11 @@ public:
 
 private:
     covise::coConfigString m_cfg_QtStyle; //this ist not updated yet because the value is not mapeditor only
-    std::unique_ptr<covise::config::File> m_mapEditorConfig;
+
 public:
     bool isDeveloperMode() const;
     void setDeveloperMode(bool devMode);
     QString cfg_SavePath;
-    int cfg_NetworkHistoryLength;
 
     static QColor s_paramColor, s_reqMultiColor, s_reqDataColor, s_multiColor, s_dataColor, s_chanColor;
     static QColor s_highlightColor, s_requestedColor, s_defColor, s_dependentColor, s_optionalColor;
@@ -174,7 +166,6 @@ public:
 
     void reset();
     void init();
-    void quit();
     void checkHelp();
     void updateTimer();
     void setMaster(bool);
@@ -184,7 +175,6 @@ public:
     void removeNodesOfHost(MEHost *);
     void addNewHost(MEHost *);
     void closeApplication(QCloseEvent *);
-    void insertModuleInHistory(const QString &module);
     void insertNetworkInHistory(const QString &module);
     void saveNetwork(const QString &mapname);
     void openDroppedMap(const QString &mapname);
@@ -201,7 +191,7 @@ public:
     void removeHost(MEHost *host);
     void setCloseImm()
     {
-        force = true;
+        m_force = true;
     };
     void updateHistoryFiles(const QString &);
     void storeMapName(const QString &mapname);
@@ -211,7 +201,8 @@ public:
     void showClipboardNodes(const QStringList &);
     void startNode(const QString &module, const QString &instance, const QString &host);
 
-    covise::coConfigGroup *getConfig() const;
+    covise::config::File &getConfig(); // config file that migt be edited  
+    QSettings &getUserBehaviour(); //registry entry that stores usage parameteters and is not meant to be modified manually
     QString getMapPath();
     QString getMapName();
     QString getLibraryName()
@@ -259,44 +250,44 @@ public slots:
     void developerModeHasChanged();
     void setMapModified(bool);
     void execTriggered();
+    void quit();
 
 private:
-    MEHelpViewer *m_helpViewer = nullptr;
     static MEMainHandler *singleton;
-    static MEUserInterface *mapEditor;
-    static MEMessageHandler *messageHandler;
+    std::unique_ptr<MEHelpViewer> m_helpViewer;
+    MEUserInterface m_mapEditor;
+    MEMessageHandler m_messageHandler;
 
 
 
-    copyModes m_copyMode;
+    copyModes m_copyMode = NORMAL;
     std::function<void(void)> m_quitFunc;
-    bool m_helpFromWeb;
-    bool m_masterUI, force, m_loadedMapWasModified, m_autoSave;
-    bool m_waitForClose;
-    bool m_executeOnChange, m_inMapLoading;
-    int m_mirrorMode, m_localHostID, m_connectedPartner;
-    int m_portSize, m_sliderWidth;
+    bool m_helpFromWeb = false;
+    bool m_masterUI = false, m_force = false, m_loadedMapWasModified = false, m_autoSave = false;
+    bool m_waitForClose = false;
+    bool m_executeOnChange = false, m_inMapLoading = false;
+    int m_mirrorMode, m_localHostID = -1, m_connectedPartner = 0;
+    int m_portSize = 14, m_sliderWidth;
     std::mutex m_remotePartnerMutex;
     covise::ClientList m_remotePartners;
 
     QString m_mapName, m_libFileName;
-    QStringList m_hostColor;
-    QLineEdit *m_selectHostLine;
-    QTimer *m_autoSaveTimer;
+    QLineEdit *m_selectHostLine = nullptr;
+    QTimer *m_autoSaveTimer = nullptr;
 
     QVector<MEHost *> m_syncList;
 
-    MENode *m_currentNode, *m_newNode;
-    MESessionSettings *m_settings;
+    MENode *m_currentNode = nullptr, *m_newNode = nullptr;
+    MESessionSettings *m_settings = nullptr;
     MERemotePartner *m_addPartnerDialog = nullptr;
-    MECSCWParam *m_CSCWParam;
-    MEDeleteHostDialog *m_deleteHostBox;
-    MEMirrorHostDialog *m_mirrorBox;
+    MECSCWParam *m_CSCWParam = nullptr;
+    MEDeleteHostDialog *m_deleteHostBox = nullptr;
+    MEMirrorHostDialog *m_mirrorBox = nullptr;
 
-    bool m_requestingMaster;
+    bool m_requestingMaster = false;
 
     void switchModuleTree(MEModuleTree *);
-    void storeSessionParam();
+    void storeCategoryExpandedState();
     void readConfigFile();
     void openBrowser(const QString &title, int openmode);
     void makeDeleteHostBox();

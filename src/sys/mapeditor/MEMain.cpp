@@ -171,8 +171,6 @@ int main(int argc, char **argv)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
-
-    //DebugBreak();
     MEMainHandler handler(argc, argv, [&a]() {
         a.quit();
     });
@@ -184,6 +182,7 @@ int main(int argc, char **argv)
     qInstallMsgHandler(debugMsgHandler);
 #endif
 
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+    a.connect(&a, &QApplication::lastWindowClosed, &handler, &MEMainHandler::quit);
+    a.connect(&a, &QApplication::lastWindowClosed, &a, &QApplication::quit);
     return a.exec();
 }

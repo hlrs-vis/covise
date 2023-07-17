@@ -60,8 +60,7 @@
 const int colorNo = 4;
 static QColor msgColor[colorNo] = { Qt::black, Qt::darkGreen, Qt::blue, Qt::red };
 
-MEMainHandler *MEUserInterface::m_mainHandler = NULL;
-MEGraphicsView *MEUserInterface::m_graphicsView = NULL;
+MEUserInterface *MEUserInterface::m_singleton = nullptr;
 
 /*!
     \class MEUserInterface
@@ -70,108 +69,38 @@ MEGraphicsView *MEUserInterface::m_graphicsView = NULL;
 
 */
 
-MEUserInterface::MEUserInterface()
+MEUserInterface::MEUserInterface(MEMainHandler *handler)
     : QMainWindow()
-    , m_errorNumber(0)
-    , m_errorLevel(0)
-    , m_foregroundCount(0)
-    , m_tabletUIisDead(false)
-    , m_willStartRenderer(false)
-    , m_miniGUI(false)
-    , m_renderer(0)
-    , m_messageWindowPB(NULL)
-    , m_restoreListPB(NULL)
-    , m_infoWindow(NULL)
-    , m_openRecentMenu(NULL)
-    , m_openAutosaveMenu(NULL)
-    , m_filenew_a(NULL)
-    , m_fileopen_a(NULL)
-    , m_filesave_a(NULL)
-    , m_filesaveas(NULL)
-    , m_settings_a(NULL)
-    , m_colormap_a(NULL)
-    , m_snapshot_a(NULL)
-    , m_exit_a(NULL)
-    , m_exec_a(NULL)
-    , m_master_a(NULL)
-    , m_addpartner_a(NULL)
-    , m_setmirror_a(NULL)
-    , m_startmirror_a(NULL)
-    , m_about_a(NULL)
-    , m_about_qt_a(NULL)
-    , m_tutorial_a(NULL)
-    , m_usersguide_a(NULL)
-    , m_moduleguide_a(NULL)
-    , m_progguide_a(NULL)
-    , m_reportbug_a(NULL)
-    , m_gridproxy_a(NULL)
-    , m_whatsthis_a(NULL)
-    , m_undo_a(NULL)
-    , m_selectAll_a(NULL)
-    , m_deleteAll_a(NULL)
-    , m_keyDelete_a(NULL)
-    , m_showDataViewer_a(NULL)
-    , m_showTabletUI_a(NULL)
-    , m_showToolbar_a(NULL)
-    , m_showMessageArea_a(NULL)
-    , m_showControlPanel_a(NULL)
-    , m_execOnChange_a(NULL)
-    , m_help_a(NULL)
-    , m_showCME_a(NULL)
-    , m_showReg_a(NULL)
-    , m_viewAll_a(NULL)
-    , m_view100_a(NULL)
-    , m_view50_a(NULL)
-    , m_actionCopy(NULL)
-    , m_actionCut(NULL)
-    , m_actionPaste(NULL)
-    , m_layoutMap_a(NULL)
-    , m_favoriteLabel_a(NULL)
-    , m_comboLabel_a(NULL)
-    , m_comboSeparator(NULL)
-    , m_favSeparator(NULL)
-    , m_miniToolbar(NULL)
-    , m_toolBar(NULL)
-    , m_miniUserInterface(NULL)
-    , m_chatLine(NULL)
-    , m_scaleViewBox(NULL)
-    , m_visibleArray(NULL)
-    , m_filterLine(NULL)
-    , m_dataPanel(NULL)
-    , m_gridProxyBox(NULL)
-    , m_colorMap(NULL)
-    , m_mainBrowser(NULL)
-    , m_tabWidgets(NULL)
-    , m_tablet(NULL)
+    , m_graphicsView(MEGraphicsView::instance())
+    , m_showDataViewerCfg(m_mapConfig.value("Session", "showDataViewer", false))
+    , m_showTabletUICfg(m_mapConfig.value("Session", "showTabletUI", false))
+    , m_showToolbarCfg(m_mapConfig.value("Session", "showToolbar", false))
+    , m_showMessageAreaCfg(m_mapConfig.value("Session", "showMessageAre", false))
+    , m_showControlPanelCfg(m_mapConfig.value("Session", "showControlPanel", false))
+    , m_renderName("")
+    , m_mainHandler(handler)
+    , m_mapConfig(m_mainHandler->getConfig())
 {
-
-    // get current configuration
-    m_mainHandler = MEMainHandler::instance();
-    m_graphicsView = MEGraphicsView::instance();
-    mapConfig = m_mainHandler->getConfig();
-    m_renderName = "";
+    assert(!m_singleton);
+    m_singleton = this;
 }
 
 //!
 MEUserInterface *MEUserInterface::instance()
 //!
 {
-    static MEUserInterface *singleton = 0;
-    if (singleton == 0)
-        singleton = new MEUserInterface();
-
-    return singleton;
+    assert(m_singleton);
+    return m_singleton;
 }
 
-//!
-MEUserInterface::~MEUserInterface()
-//!
+bool restoreSettings(QSettings &settings, QWidget* widget, const std::string &name)
 {
+    auto moduleParameter = settings.value(name.c_str());
+    if(!moduleParameter.isValid())
+        return false;
+    widget->restoreGeometry(moduleParameter.toByteArray());
+    return true;
 }
-
-//!
-//! creates all necessary widgets, the menubar and the toolbar
-//!
 
 void MEUserInterface::init()
 {
@@ -180,44 +109,25 @@ void MEUserInterface::init()
     m_graphicsView->init();
     createToolbar();
     createMenubar();
-
+    saveGeometry();
     // set the logo
     setWindowIcon(m_mainHandler->pm_logo);
-
     // try to figure out a reasonable window position and size
-    QScreen *screen = QApplication::primaryScreen();
-    QRect maxScreen = screen->geometry();
-    QPoint topLeft = maxScreen.topLeft();
 
-    // rerarrange windows if entries in the XML file exist
-    const auto xx = mapConfig->getValue("xa", "System.MapEditor.Windows.MainWindow").entry;
-    const auto yy = mapConfig->getValue("ya", "System.MapEditor.Windows.MainWindow").entry;
-    if (!xx.empty() && !yy.empty())
+    if(!restoreSettings(MEMainHandler::instance()->getUserBehaviour(), this, "mainwindowGeo"))
     {
-        int x = atoi(xx.c_str());
-        int y = atoi(yy.c_str());
-
-        if (maxScreen.contains(QPoint(x, y)))
-            move(x, y);
-        else
-            move(topLeft);
-    }
-    else
-        move(topLeft);
-
-    const auto dx = mapConfig->getValue("width", "System.MapEditor.Windows.MainWindow").entry;
-    const auto dy = mapConfig->getValue("height", "System.MapEditor.Windows.MainWindow").entry;
-    if (!dx.empty() && !dy.empty())
-        resize(atoi(dx.c_str()), atoi(dy.c_str()));
-    else
+        move(QApplication::primaryScreen()->geometry().topLeft());
         resize(800, 550);
+    }
 
-    // set the keyboard focus to the module tree filter
-    m_filterLine->setFocus();
-    m_graphicsView->setFocusProxy(m_filterLine);
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), MEModulePanel::instance(), "moduleParameter");
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), m_bottomDockWindow, "messageArea");
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), m_mainRight, "controlPanel");
 
+    m_testScreenOffset = true; 
+    
     // react on a selected developer mode inside the settings
-    connect(MEMainHandler::instance(), SIGNAL(developerMode(bool)), this, SLOT(developerMode(bool)));
+    connect(m_mainHandler, SIGNAL(developerMode(bool)), this, SLOT(developerMode(bool)));
 
     m_foregroundCount = 0;
     bringApplicationToForeground();
@@ -278,15 +188,15 @@ void MEUserInterface::makeMainWidgets()
 
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
 
-    connect(m_graphicsView, SIGNAL(usingNode(const QString &)), m_moduleTree, SLOT(moduleUseNotification(const QString &)));
-    connect(m_mainHandler, SIGNAL(usingNode(const QString &)), m_moduleTree, SLOT(moduleUseNotification(const QString &)));
+    connect(m_graphicsView, SIGNAL(usingNode(const QString &)), m_moduleTree.get(), SLOT(moduleUseNotification(const QString &)));
+    connect(m_mainHandler, SIGNAL(usingNode(const QString &)), m_moduleTree.get(), SLOT(moduleUseNotification(const QString &)));
 
-    connect(m_moduleTree, SIGNAL(showUsedNodes(const QString &, const QString &)),
+    connect(m_moduleTree.get(), SIGNAL(showUsedNodes(const QString &, const QString &)),
             MENodeListHandler::instance(), SLOT(findUsedNodes2(const QString &, const QString &)));
-    connect(m_moduleTree, SIGNAL(showUsedCategory(const QString &)),
+    connect(m_moduleTree.get(), SIGNAL(showUsedCategory(const QString &)),
             MENodeListHandler::instance(), SLOT(findUsedNodes(const QString &)));
 
-    connect(m_restoreListPB, SIGNAL(clicked()), m_moduleTree, SLOT(restoreList()));
+    connect(m_restoreListPB, SIGNAL(clicked()), m_moduleTree.get(), SLOT(restoreList()));
 }
 
 //!
@@ -417,16 +327,16 @@ void MEUserInterface::makeLeftContent(QWidget *w)
     // 2. the filtered module tree list
     m_widgetStack = new QStackedWidget(w);
 
-    m_moduleTree = new MEModuleTree();
+    m_moduleTree = std::make_unique<MEModuleTree>(MEMainHandler::instance()->getUserBehaviour());
     m_moduleTree->setFocusPolicy(Qt::NoFocus);
-    m_widgetStack->addWidget(m_moduleTree);
+    m_widgetStack->addWidget(m_moduleTree.get());
 
-    m_filterTree = new MEModuleTree();
+    m_filterTree = std::make_unique<MEModuleTree>(MEMainHandler::instance()->getUserBehaviour());
     m_filterTree->setFocusPolicy(Qt::NoFocus);
-    m_widgetStack->addWidget(m_filterTree);
+    m_widgetStack->addWidget(m_filterTree.get());
 
-    m_widgetStack->setCurrentWidget(m_moduleTree);
-    connect(m_filterLine, SIGNAL(returnPressed()), m_filterTree, SLOT(executeVisibleModule()));
+    m_widgetStack->setCurrentWidget(m_moduleTree.get());
+    connect(m_filterLine, SIGNAL(returnPressed()), m_filterTree.get(), SLOT(executeVisibleModule()));
 
     vb->addWidget(m_widgetStack);
 }
@@ -456,9 +366,7 @@ void MEUserInterface::makeRightContent(QWidget *w)
     vb->addWidget(area);
 
     // set window size
-    int dx = atoi(mapConfig->getValue("width", "System.MapEditor.Windows.ControlPanel").entry.c_str());
-    int dy = atoi(mapConfig->getValue("height", "System.MapEditor.Windows.ControlPanel").entry.c_str());
-    w->resize(dx, dy);
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), w, "controlPanel");
 }
 
 //!
@@ -482,18 +390,11 @@ void MEUserInterface::makeMessageArea()
     m_bottomDockWindow->addAction(closeAction);
 
     // set window position & size
-    int dx = atoi(mapConfig->getValue("width", "System.MapEditor.Windows.MessageArea").entry.c_str());
-    int dy = atoi(mapConfig->getValue("height", "System.MapEditor.Windows.MessageArea").entry.c_str());
-    int xx = atoi(mapConfig->getValue("xa", "System.MapEditor.Windows.MessageArea").entry.c_str());
-    int yy = atoi(mapConfig->getValue("ya", "System.MapEditor.Windows.MessageArea").entry.c_str());
-    m_bottomDockWindow->move(xx, yy);
-    m_bottomDockWindow->resize(dx, dy);
-
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), m_bottomDockWindow, "messageArea");
     addDockWidget(Qt::BottomDockWidgetArea, m_bottomDockWindow, Qt::Horizontal);
 
-    bool ocstate = mapConfig->isOn("MessageArea", "System.MapEditor.Session", false);
     m_showMessageArea_a = m_bottomDockWindow->toggleViewAction();
-    m_showMessageArea_a->setChecked(ocstate);
+    m_showMessageArea_a->setChecked(m_showMessageAreaCfg->value());
     if (m_showMessageArea_a->isChecked())
         m_bottomDockWindow->show();
 }
@@ -503,11 +404,8 @@ void MEUserInterface::makeMessageArea()
 //!
 void MEUserInterface::makeParameterWindow()
 {
-    // set position
-    int xx = atoi(mapConfig->getValue("xa", "UIConfig.Windows.ModuleParameter").entry.c_str());
-    int yy = atoi(mapConfig->getValue("ya", "UIConfig.Windows.ModuleParameter").entry.c_str());
     MEModulePanel::instance()->init();
-    MEModulePanel::instance()->move(xx, yy);
+    restoreSettings(MEMainHandler::instance()->getUserBehaviour(), MEModulePanel::instance(), "moduleParameter");
 }
 
 #define addMyAction(handler, action, text, callback, pixmap, shortcut, tip) \
@@ -597,15 +495,15 @@ void MEUserInterface::createActions()
     connect(m_execOnChange_a, SIGNAL(toggled(bool)), MEModulePanel::instance(), SLOT(enableExecCB(bool)));
     connect(m_execOnChange_a, SIGNAL(toggled(bool)), m_mainHandler, SLOT(changeCB(bool)));
 
-    bool ocstate = mapConfig->isOn("ControlPanel", "System.MapEditor.Session", false);
+    bool ocstate = m_showControlPanelCfg->value();
     addShowAction(m_showControlPanel_a, "Control Panel", ocstate, showControlPanel);
     showControlPanel(ocstate);
 
-    ocstate = mapConfig->isOn("DataViewer", "System.MapEditor.Session", false);
+    ocstate = m_showDataViewerCfg->value();
     addShowAction(m_showDataViewer_a, "Data Viewer", ocstate, showDataViewer);
     showDataViewer(ocstate);
 
-    ocstate = mapConfig->isOn("TabletUI", "System.MapEditor.Session", false);
+    ocstate = m_showTabletUICfg->value();
     addShowAction(m_showTabletUI_a, "Tablet UI", ocstate, showTabletUI);
     showTabletUI(ocstate);
 
@@ -614,7 +512,7 @@ void MEUserInterface::createActions()
     if (m_tabWidgets)
         m_tabWidgets->setCurrentWidget(m_mainArea);
 
-    developerMode(MEMainHandler::instance()->isDeveloperMode());
+    developerMode(m_mainHandler->isDeveloperMode());
 }
 
 //!
@@ -740,7 +638,7 @@ void MEUserInterface::createToolbar()
     m_toolBar->setAcceptDrops(true);
     addToolBar(m_toolBar);
 
-    bool ocstate = mapConfig->isOn("ToolBar", "System.MapEditor.Session", true);
+    bool ocstate = m_showToolbarCfg->value();
     m_showToolbar_a = m_toolBar->toggleViewAction();
     m_showToolbar_a->setChecked(ocstate);
 
@@ -830,58 +728,25 @@ void MEUserInterface::createToolbar()
 void MEUserInterface::storeSessionParam(bool store)
 {
 
+
     // store values for data viewer, colormap, control panel & registry
-    if (m_showDataViewer_a->isChecked())
-        mapConfig->setValue("DataViewer", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("DataViewer", "false", "System.MapEditor.Session");
-
-    if (m_showControlPanel_a->isChecked())
-        mapConfig->setValue("ControlPanel", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("ControlPanel", "false", "System.MapEditor.Session");
-
-    if (m_showTabletUI_a->isChecked())
-        mapConfig->setValue("TabletUI", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("TabletUI", "false", "System.MapEditor.Session");
-
-    if (m_showToolbar_a->isChecked())
-        mapConfig->setValue("ToolBar", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("ToolBar", "false", "System.MapEditor.Session");
-
-    if (m_showMessageArea_a->isChecked())
-        mapConfig->setValue("MessageArea", "true", "System.MapEditor.Session");
-    else
-        mapConfig->setValue("MessageArea", "false", "System.MapEditor.Session");
-
+    *m_showDataViewerCfg = m_showDataViewer_a->isChecked();
+    *m_showControlPanelCfg = m_showControlPanel_a->isChecked();
+    *m_showTabletUICfg = m_showTabletUI_a->isChecked();
+    *m_showToolbarCfg = m_showTabletUI_a->isChecked();
+    *m_showMessageAreaCfg = m_showMessageArea_a->isChecked();
     if (store)
     {
-
-        // main window
-        QPoint global = mapToGlobal(QPoint(0, 0));
-        mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("width", std::to_string(this->width()), "System.MapEditor.Windows.MainWindow");
-        mapConfig->setValue("height", std::to_string(this->height()), "System.MapEditor.Windows.MainWindow");
-
+        MEMainHandler::instance()->getUserBehaviour().setValue("mainwindowGeo", saveGeometry());
         // module parameter window
         if (MEModulePanel::instance())
         {
-            global = MEModulePanel::instance()->mapToGlobal(QPoint(0, 0));
-            mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.ModuleParameter");
-            mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.ModuleParameter");
+            MEMainHandler::instance()->getUserBehaviour().setValue("moduleParameter", MEModulePanel::instance()->saveGeometry());
+
         }
 
-        // message area
-        global = m_bottomDockWindow->mapToGlobal(QPoint(0, 0));
-        mapConfig->setValue("xa", std::to_string(global.x()), "System.MapEditor.Windows.MessageArea");
-        mapConfig->setValue("ya", std::to_string(global.y()), "System.MapEditor.Windows.MessageArea");
-
-        // control pannel
-        mapConfig->setValue("width", std::to_string(m_mainRight->width()), "System.MapEditor.Windows.ControlPanel");
-        mapConfig->setValue("height", std::to_string(m_mainRight->height()), "System.MapEditor.Windows.ControlPanel");
+        MEMainHandler::instance()->getUserBehaviour().setValue("messageArea", m_bottomDockWindow->saveGeometry());
+        MEMainHandler::instance()->getUserBehaviour().setValue("controlPanel", m_mainRight->saveGeometry());
     }
 }
 
@@ -910,7 +775,7 @@ void MEUserInterface::filterCB()
     }
     else
     {
-        switchModuleTree(m_moduleTree, false);
+        switchModuleTree(m_moduleTree.get(), false);
     }
 }
 
@@ -992,6 +857,12 @@ void MEUserInterface::reset()
     if (MEDataViewer::instance())
         MEDataViewer::instance()->reset();
 }
+
+void MEUserInterface::quit()
+{
+    m_moduleTree->storeModuleHistory();
+}
+
 
 //!
 //! show current map name
@@ -1210,7 +1081,7 @@ void MEUserInterface::showTabletUI(bool state)
     {
         if (state)
         {
-            if (!MEMainHandler::instance()->cfg_TabletUITabs->value())
+            if (!m_mainHandler->cfg_TabletUITabs->value())
             {
                 if (m_tabWidgets->indexOf(m_tablet) == -1)
                 {
@@ -1274,7 +1145,7 @@ void MEUserInterface::resetModuleFilter()
 {
     m_filterLine->setText("");
     m_moduleTree->restoreList();
-    switchModuleTree(m_moduleTree, false);
+    switchModuleTree(m_moduleTree.get(), false);
 }
 
 //!
@@ -1556,7 +1427,7 @@ void MEUserInterface::activateTabletUI()
         // create tablet widget if no exists
         if (!m_tablet)
         {
-            if (MEMainHandler::instance()->cfg_TabletUITabs->value())
+            if (m_mainHandler->cfg_TabletUITabs->value())
                 m_tablet = new TUIMainWindow(m_tabWidgets, m_tabWidgets);
             else
                 m_tablet = new TUIMainWindow(m_tabWidgets);
@@ -1581,7 +1452,7 @@ void MEUserInterface::activateTabletUI()
             {
                 m_showTabletUI_a->setEnabled(true);
                 printMessage("Opening socket connection for TabletUI");
-                if (!MEMainHandler::instance()->cfg_TabletUITabs->value())
+                if (!m_mainHandler->cfg_TabletUITabs->value())
                 {
                     if (m_showTabletUI_a->isChecked())
                     {

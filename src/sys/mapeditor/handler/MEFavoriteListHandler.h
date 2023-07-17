@@ -11,6 +11,7 @@
 #include <QObject>
 
 #include "widgets/MEFavorites.h"
+#include <config/array.h>
 
 class QString;
 class QColor;
@@ -39,6 +40,8 @@ public:
 
 private:
     QVector<MEFavorites *> favoriteList;
-    QStringList favorites;
+    std::unique_ptr<covise::config::Array<std::string>> favorites;
+
+    void addOrInsertFavorite(const QString &newname, const QString &insertname = QString());
 };
 #endif

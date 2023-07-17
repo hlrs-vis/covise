@@ -10,6 +10,7 @@
 
 #include <QTreeWidget>
 #include <QMap>
+#include <QSettings>
 
 class QMenu;
 class QAction;
@@ -26,8 +27,7 @@ class MEModuleTree : public QTreeWidget
     Q_OBJECT
 
 public:
-    MEModuleTree(QWidget *parent = 0);
-    ~MEModuleTree();
+    MEModuleTree(QSettings& settings, QWidget *parent = 0);
 
     void addHostList(MEHost *host);
     void changeBrowserItems();
@@ -36,6 +36,7 @@ public:
     QTreeWidgetItem *findCategory(QTreeWidgetItem *host, const QString &name);
     QTreeWidgetItem *findModule(QTreeWidgetItem *category, const QString &name);
 
+    void storeModuleHistory();
 signals:
 
     void showUsedNodes(const QString &category, const QString &modulename);
@@ -43,7 +44,7 @@ signals:
 
 private:
     static MEMainHandler *m_mainHandler;
-
+    QSettings &m_guiSettings;
     QMenu *m_hostMenu, *m_categoryMenu, *m_moduleMenu;
     QAction *m_delhost_a, *m_addUI_a, *m_deleteUI_a, *m_help_a, *m_separator_a, *m_exec_debug_a, *m_exec_memcheck_a;
     QTreeWidgetItem *m_clickedItem, *m_clickedCategory;
@@ -52,7 +53,7 @@ private:
     static QMap<QString, QString> s_moduleHelp;
 
     int getDepth(const QTreeWidgetItem *item) const;
-    void highlightHistoryModules();
+    void restoreHistoryModules();
     bool getHostUserCategoryName(const QTreeWidgetItem *item,
                                  QString *host, QString *user, QString *category, QString *name) const;
     void hideUnusedItems(QTreeWidgetItem *category);

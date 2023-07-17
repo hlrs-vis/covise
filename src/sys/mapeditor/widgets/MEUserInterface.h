@@ -8,12 +8,16 @@
 #ifndef ME_USERINTERFACE_H
 #define ME_USERINTERFACE_H
 
+#include "MEModuleTree.h"
+
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QLineEdit>
 #include <QToolBar>
 #include <QTabBar>
 #include <QAction>
+
+#include <config/config.h>
 
 class QPalette;
 class QLabel;
@@ -44,7 +48,6 @@ class MEMainHandler;
 class MEModulePanel;
 class MEDataTree;
 class MEModuleParameter;
-class MEModuleTree;
 class MEGraphicsView;
 class MEGridProxy;
 class MEColorMap;
@@ -73,8 +76,7 @@ class MEUserInterface : public QMainWindow
     Q_OBJECT
 
 public:
-    MEUserInterface();
-    ~MEUserInterface();
+    MEUserInterface(MEMainHandler *handler);
 
     static MEUserInterface *instance();
 
@@ -114,6 +116,7 @@ public:
     void setMiniGUI(bool);
     void activateTabletUI();
     void reset();
+    void quit();
     void showFavoriteLabel()
     {
         m_favoriteLabel_a->setVisible(true);
@@ -126,11 +129,11 @@ public:
 
     MEModuleTree *getModuleTree()
     {
-        return m_moduleTree;
+        return m_moduleTree.get();
     };
     MEModuleTree *getFilterTree()
     {
-        return m_filterTree;
+        return m_filterTree.get();
     };
     MEColorMap *getColorMap()
     {
@@ -155,59 +158,67 @@ public slots:
     void developerMode(bool);
 
 private:
-    static MEMainHandler *m_mainHandler;
-    static MEGraphicsView *m_graphicsView;
+    static MEUserInterface *m_singleton;
+    MEMainHandler *m_mainHandler = nullptr;
+    MEGraphicsView *m_graphicsView = nullptr;
 
-    int m_progress, m_errorNumber, m_errorLevel;
-    int m_foregroundCount;
-    bool m_tabletUIisDead, m_willStartRenderer, m_miniGUI;
+    int m_errorNumber = 0, m_errorLevel = 0;
+    int m_foregroundCount = 0;
+    bool m_tabletUIisDead = false, m_willStartRenderer = false, m_miniGUI = false;
 
     QString m_renderName, m_renderInstance, m_renderHost;
-    QWidget *m_renderer;
-    QProgressBar *m_progressBar;
-    QPushButton *m_messageWindowPB, *m_restoreListPB;
-    QLabel *m_messageWindowText, *m_miniMapLabel;
-    QTextEdit *m_infoWindow;
-    QMenu *m_openRecentMenu, *m_openAutosaveMenu;
+    QWidget *m_renderer = nullptr;
+    QProgressBar *m_progressBar = nullptr;
+    QPushButton *m_messageWindowPB = nullptr, *m_restoreListPB = nullptr;
+    QLabel *m_messageWindowText = nullptr, *m_miniMapLabel = nullptr;
+    QTextEdit *m_infoWindow = nullptr;
+    QMenu *m_openRecentMenu = nullptr, *m_openAutosaveMenu = nullptr;
 
-    QAction *m_filenew_a, *m_fileopen_a, *m_filesave_a, *m_filesaveas, *m_settings_a;
-    QAction *m_colormap_a, *m_snapshot_a, *m_exit_a, *m_exec_a, *m_master_a;
-    QAction *m_addpartner_a;
-    QAction *m_setmirror_a, *m_startmirror_a, *_delmirror;
-    QAction *m_about_a, *m_about_qt_a, *m_tutorial_a, *m_usersguide_a, *m_moduleguide_a, *m_progguide_a, *m_reportbug_a;
-    QAction *m_gridproxy_a, *m_whatsthis_a, *m_undo_a;
-    QAction *m_selectAll_a, *m_deleteAll_a, *m_keyDelete_a;
-    QAction *m_showDataViewer_a;
-    QAction *m_showTabletUI_a, *m_showToolbar_a, *m_showMessageArea_a, *m_showControlPanel_a;
-    QAction *m_execOnChange_a, *m_help_a;
-    QAction *m_showCME_a, *m_showReg_a, *m_viewAll_a, *m_view100_a, *m_view50_a;
-    QAction *m_actionCopy, *m_actionCut, *m_actionPaste;
-    QAction *m_layoutMap_a, *m_favoriteLabel_a, *m_comboLabel_a;
-    QAction *m_comboSeparator, *m_favSeparator;
+    QAction *m_filenew_a = nullptr, *m_fileopen_a = nullptr, *m_filesave_a = nullptr, *m_filesaveas = nullptr, *m_settings_a = nullptr;
+    QAction *m_colormap_a = nullptr, *m_snapshot_a = nullptr, *m_exit_a = nullptr, *m_exec_a = nullptr, *m_master_a = nullptr;
+    QAction *m_addpartner_a = nullptr;
+    QAction *m_setmirror_a = nullptr, *m_startmirror_a = nullptr, *_delmirror = nullptr;
+    QAction *m_about_a = nullptr, *m_about_qt_a = nullptr, *m_tutorial_a = nullptr, *m_usersguide_a = nullptr, *m_moduleguide_a = nullptr, *m_progguide_a = nullptr, *m_reportbug_a = nullptr;
+    QAction *m_gridproxy_a = nullptr, *m_whatsthis_a = nullptr, *m_undo_a = nullptr;
+    QAction *m_selectAll_a = nullptr, *m_deleteAll_a = nullptr, *m_keyDelete_a = nullptr;
+    QAction *m_showDataViewer_a = nullptr;
+    QAction *m_showTabletUI_a = nullptr, *m_showToolbar_a = nullptr, *m_showMessageArea_a = nullptr, *m_showControlPanel_a = nullptr;
+    QAction *m_execOnChange_a = nullptr, *m_help_a = nullptr;
+    QAction *m_showCME_a = nullptr, *m_showReg_a = nullptr, *m_viewAll_a = nullptr, *m_view100_a = nullptr, *m_view50_a = nullptr;
+    QAction *m_actionCopy = nullptr, *m_actionCut = nullptr, *m_actionPaste = nullptr;
+    QAction *m_layoutMap_a = nullptr, *m_favoriteLabel_a = nullptr, *m_comboLabel_a = nullptr;
+    QAction *m_comboSeparator = nullptr, *m_favSeparator = nullptr;
 
-    METoolBar *m_miniToolbar, *m_toolBar;
-    QWidget *m_main, *m_mainRight, *m_favorite, *m_chat, *m_info;
-    QStackedWidget *m_widgetStack;
-    QSplitter *m_mainArea;
-    QMainWindow *m_miniUserInterface;
-    QLineEdit *m_chatLine;
-    QComboBox *m_scaleViewBox;
-    QSpinBox *m_visibleArray;
-    QLabel *m_chatLineLabel;
-    QLineEdit *m_filterLine;
-    QDockWidget *m_bottomDockWindow, *m_bottomChatWindow;
+    METoolBar *m_miniToolbar = nullptr, *m_toolBar = nullptr;
+    QWidget *m_main = nullptr, *m_mainRight = nullptr, *m_favorite = nullptr, *m_chat = nullptr, *m_info = nullptr;
+    QStackedWidget *m_widgetStack = nullptr;
+    QSplitter *m_mainArea = nullptr;
+    QMainWindow *m_miniUserInterface = nullptr;
+    QLineEdit *m_chatLine = nullptr;
+    QComboBox *m_scaleViewBox = nullptr;
+    QSpinBox *m_visibleArray = nullptr;
+    QLabel *m_chatLineLabel = nullptr;
+    QLineEdit *m_filterLine = nullptr;
+    QDockWidget *m_bottomDockWindow = nullptr, *m_bottomChatWindow = nullptr;
     QList<QAction *> m_toolBarActionList, m_pipeActionList, m_fileActionList, m_sessionActionList, m_editActionList;
 
-    MEModuleTree *m_moduleTree, *m_filterTree;
-    MEDataViewer *m_dataPanel;
-    MEGridProxy *m_gridProxyBox;
-    MEColorMap *m_colorMap;
-    MEFileBrowser *m_mainBrowser;
-    METabBar *m_tabBar;
-    METabWidget *m_tabWidgets;
+    std::unique_ptr<MEModuleTree> m_moduleTree, m_filterTree;
+    MEDataViewer *m_dataPanel = nullptr;
+    MEGridProxy *m_gridProxyBox = nullptr;
+    MEColorMap *m_colorMap = nullptr;
+    MEFileBrowser *m_mainBrowser = nullptr;
+    METabBar *m_tabBar = nullptr;
+    METabWidget *m_tabWidgets = nullptr;
 
-    TUIMainWindow *m_tablet;
+    TUIMainWindow *m_tablet = nullptr;
     covise::coConfigGroup *getConfig() const;
+    
+    covise::config::File &m_mapConfig;
+    std::unique_ptr<covise::ConfigBool> m_showDataViewerCfg, m_showTabletUICfg, m_showToolbarCfg, m_showMessageAreaCfg, m_showControlPanelCfg;
+    
+
+    std::atomic_bool m_testScreenOffset{false};
+    QPoint m_screenOffset;
 
     void createActions();
     void createMenubar();
@@ -219,15 +230,6 @@ private:
     void makeRightContent(QWidget *);
     void makeParameterWindow();
     void makeMessageArea();
-
-    int getProgress()
-    {
-        return m_progress;
-    };
-    void setProgress(int value)
-    {
-        m_progress = value;
-    };
 
 public slots:
 
@@ -251,7 +253,6 @@ private slots:
 protected:
     void closeEvent(QCloseEvent *);
     QMenu *createPopupMenu();
-    covise::coConfigGroup *mapConfig;
     VinceRendererWidgetCreate getRendererFunction;
 };
 

@@ -74,8 +74,9 @@ public:
     This widget is part of the MEUserInterface.
 */
 
-MEModuleTree::MEModuleTree(QWidget *parent)
+MEModuleTree::MEModuleTree(QSettings &settings, QWidget *parent)
     : QTreeWidget(parent)
+    , m_guiSettings(settings)
 {
     const char *text4 = "<h4>Module Browser</h4><h4>Overview</h4>"
                         "<p>This area contains a hierarchy (tree) displaying the hostnames, category names and module names.</p>"
@@ -156,8 +157,9 @@ MEModuleTree::MEModuleTree(QWidget *parent)
     connect(m_exec_memcheck_a, SIGNAL(triggered()), this, SLOT(execMemcheckCB()));
 }
 
-MEModuleTree::~MEModuleTree()
+void MEModuleTree::storeModuleHistory()
 {
+    m_guiSettings.setValue("ModuleHistory", m_usedModules);
 }
 
 void MEModuleTree::readModuleTooltips()
@@ -304,7 +306,7 @@ void MEModuleTree::addHostList(MEHost *currentHost)
     // get module history from mapeditor.xml
     // do this only for beginner mode
     if (m_mainHandler->cfg_HideUnusedModules)
-        highlightHistoryModules();
+        restoreHistoryModules();
 
     // get root item of module browser (normally the hostname)
     QTreeWidgetItem *rootItem = currentHost->getModuleRoot();
@@ -380,37 +382,35 @@ void MEModuleTree::addHostList(MEHost *currentHost)
     // it will be sorted if all items have the same hidden state
     allItem->sortChildren(0, Qt::AscendingOrder);
     allItem->insertChild(0, allMoreItem);
+    allItem->setExpanded(false);
+    allItem->setIcon(0, m_mainHandler->pm_folderclosed);
 
     // look in mapeditor.xml for already opened category folder
     // this must be the last step otherwise the hidden items were not shown correctly
+    
+    auto expandedCategoriesV = m_guiSettings.value("ExpandedCategories");
+    if(!expandedCategoriesV.isValid())
+        return;
+    auto expandedCategories = expandedCategoriesV.toStringList();
     foreach (MECategory *category, currentHost->catList)
     {
-        bool ocstate = m_mainHandler->getConfig()->isOn(category->getName().toStdString(), "System.MapEditor.General.Category", false);
-        if (ocstate)
+        if(expandedCategories.contains(category->getName()))
         {
-            QTreeWidgetItem *item = category->getCategoryItem();
-            item->setExpanded(true);
-            item->setIcon(0, m_mainHandler->pm_folderopen);
+            category->getCategoryItem()->setExpanded(true);
+            category->getCategoryItem()->setIcon(0, m_mainHandler->pm_folderopen);
         }
     }
-    allItem->setExpanded(false);
-    allItem->setIcon(0, m_mainHandler->pm_folderclosed);
 }
 
 //!
-//! Get modules from module history (mapeditor.xml) when beginner mode is set (default)
+//! Get modules from module history (QSettings) when beginner mode is set (default)
 //!
-void MEModuleTree::highlightHistoryModules()
+void MEModuleTree::restoreHistoryModules()
 {
-
-    // read infos from mapeditor.xml file and store it in a map
-    for (int k = 0; k < m_mainHandler->moduleHistory.count(); k++)
-    {
-        QString modulename = m_mainHandler->moduleHistory[k].section(":", 1, 1).section("(", 0, 0);
-        QString categoryname = m_mainHandler->moduleHistory[k].section("(", 1, 1).section(")", 0, 0);
-
-        m_usedModules << modulename + " (" + categoryname + ")";
-    }
+    auto moduleHistoryV = m_guiSettings.value("ModuleHistory");
+    if(!moduleHistoryV.isValid())
+        return;
+    m_usedModules = moduleHistoryV.toStringList();
 }
 
 //!
@@ -609,7 +609,13 @@ void MEModuleTree::moduleUseNotification(const QString &modname)
     bool hide = m_mainHandler->cfg_HideUnusedModules->value();
     QString categoryName = modname.section(":", 0, 0);
     QString moduleName = modname.section(":", 1, 1);
-    m_usedModules += QString("%1 (%2)").arg(moduleName, categoryName);
+    auto fullname = QString("%1 (%2)").arg(moduleName, categoryName);
+    if(!m_usedModules.contains(fullname))
+    {
+        m_usedModules += fullname;
+        while(m_usedModules.size() > MEMainHandler::instance()->cfg_ModuleHistoryLength->value())
+            m_usedModules.pop_front();
+    }
 
     // get info
     for (int i = 0; i < topLevelItemCount(); i++)

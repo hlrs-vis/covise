@@ -971,10 +971,6 @@ void MENode::createPorts(QStringList token)
     // create the widget for the current module node
     layoutItem();
 
-    // write node to mapeditor.xml
-    // -> value
-    QString tmp = QString("%1:%2(%3)").arg(QDateTime::currentDateTime().toString(Qt::ISODate)).arg(moduleName).arg(category);
-    MEMainHandler::instance()->insertModuleInHistory(tmp);
 
     // insert node in data tree
     // do this only if output ports are available

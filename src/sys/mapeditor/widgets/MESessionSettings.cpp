@@ -183,23 +183,15 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
 
     QFormLayout *grid = new QFormLayout();
 
-    int i = 0;
     qtStyleComboBox = addSetting<QComboBox>("Qt style", "Qt widget style for the map editor", grid);
-    i++;
     storeWindowConfigBox = addSetting<QCheckBox>("Restore window layout", "Enabled: restore size, position and docking state of all windows\nDisabled: do not restore window layout", grid);
-    i++;
     developerModeCheckBox = addSetting<QCheckBox>("Developer features", "Enable features that are useful only to developers", grid);
-    i++;
     errorHandlingCheckBox = addSetting<QCheckBox>("Error message dialogs", "Enabled: pop up a dialog box for each error message\nDisabled: show error messages in message window", grid);
-    i++;
     browserBox = addSetting<QCheckBox>("Embedded browsers", "Enabled: Filebrowsers and color maps are embedded into Module Parameter windows and Control Panel \nDisabled: Filebrowsers and color maps appear as toplevel window", grid);
-    i++;
     tabletUITabsBox = addSetting<QCheckBox>("Tablet UI as tabs", "Enabled: show tabs from tablet UI as siblings of map editor tabs\nDisabled: show tabs from tablet UI in their own sub-tab", grid);
-    i++;
     //addSetting(QCheckBox, imbeddedRenderBox, "Embedded ViNCE Renderer",
     //  "Enabled: ViNCE renderer is embedded into the MEMainHandler::instance()\nDisabled: ViNCE renderer appears as a toplevel window");i++;
     autoConnectBox = addSetting<QCheckBox>("Auto connect hosts", "Enabled: automatically connect to host or partner if connection mode is ssh or RemoteDaemon \nDisabled: always prompt the user", grid);
-    i++;
     container->setLayout(grid);
 
     container = new QGroupBox("Saving", this);
@@ -207,9 +199,14 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     mainLayout->addWidget(container);
     grid = new QFormLayout();
 
-    i = 0;
     autoSaveTimeEdit = addSetting<QLineEdit>("Autosave interval", "Time interval for automatic saving (seconds)", grid);
-    i++;
+    auto  configFile = new QLabel(("config file: " + MEMainHandler::instance()->getConfig().pathname()).c_str());
+    configFile->setToolTip("the file where these settings are stored");
+    grid->addRow(configFile); 
+
+    auto  qsettings = new QLabel("usage setings: " + MEMainHandler::instance()->getUserBehaviour().fileName());
+    qsettings->setToolTip("the registry where user behaviour is stored");
+    grid->addRow(qsettings); 
     container->setLayout(grid);
 
     container = new QGroupBox("Visual Programming", this);
@@ -217,11 +214,8 @@ void MESessionSettings::createFormLayout(QVBoxLayout *mainLayout)
     mainLayout->addWidget(container);
     grid = new QFormLayout();
 
-    i = 0;
     hideUnusedModulesBox = addSetting<QCheckBox>("Hide unused modules", "Enabled: module browser only shows recently used modules of each category\nDisabled: module browser shows all modules of a category", grid);
-    i++;
     highlightColorEdit = addSetting<QLineEdit>("Highlight color","Color name for highlighting module ports and connections", grid);
-    i++;
     container->setLayout(grid);
 }
 
