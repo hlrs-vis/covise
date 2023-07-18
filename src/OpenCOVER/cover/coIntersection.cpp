@@ -365,9 +365,11 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
                     cover->intersectedNodePath = isect.nodePath;
                     // walk up to the root and call all coActions
                     OSGVruiHit hit(isect, mouseHit);
-                    OSGVruiNode node(cover->intersectedNode.get());
-                    callActions(&node, &hit);
-
+                    if (cover->intersectedNode.get())
+                    {
+                        OSGVruiNode node(cover->intersectedNode.get());
+                        callActions(&node, &hit);
+                    }
                     break; // stop this for loop for going through other hits farer away from nearest
                 }
             }
