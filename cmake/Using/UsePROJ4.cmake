@@ -1,5 +1,4 @@
 MACRO(USE_PROJ4)
-  COVISE_FIND_PACKAGE(PROJ4)
   IF ((NOT PROJ4_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing PROJ4")
     RETURN()

@@ -341,6 +341,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
         covise_find_package(OpenCV)
     endif(NOT COVISE_BUILD_ONLY_ODDLOT)
     covise_find_package(OPENCRG)
+    covise_find_package(PROJ4)
 endif()
 
 if (APPLE)
