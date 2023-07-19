@@ -181,7 +181,7 @@ void coVRAnimationManager::initAnimMenu()
     animStopItem->ui()->setBounds(m_timestepBase, m_timestepBase);
     animStopItem->setUpdater([this](){
         if (!animStopItem->ui()->isMoving())
-            setStartFrame(animStopItem->getValue());
+            setStopFrame(animStopItem->getValue());
     });
     animStopItem->ui()->setPriority(ui::Element::Low);
 
