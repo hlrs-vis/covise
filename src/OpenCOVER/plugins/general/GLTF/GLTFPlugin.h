@@ -24,10 +24,6 @@
 using namespace covise;
 using namespace opencover;
 
-class PLUGINEXPORT ListenerCover;
-class PLUGINEXPORT ViewerOsg;
-class VrmlScene;
-class PLUGINEXPORT SystemCover;
 #include <osg/Group>
 #include <osg/Matrix>
 #include <osg/Material>
@@ -41,10 +37,6 @@ class PLUGINEXPORT SystemCover;
 
 class PLUGINEXPORT GLTFPlugin : public coVRPlugin
 {
-    friend class ListenerCover;
-    friend class SystemCover;
-    friend class ViewerOsg;
-
 public:
     static GLTFPlugin *plugin;
     mutable GLTFReader::TextureCache _cache;
@@ -61,9 +53,8 @@ public:
     osgDB::ReaderWriter::ReadResult readNode(const std::string& location, const osgDB::Options* options);
     osgDB::ReaderWriter::ReadResult readNode(std::istream& inputStream, const osgDB::Options* options);
 
-    // this will be called in PreFrame
-    virtual void preFrame();
-    virtual bool init();
+    void preFrame() override;
+    bool init() override;
 
     osg::ref_ptr<osg::MatrixTransform> GLTFRoot;
 
