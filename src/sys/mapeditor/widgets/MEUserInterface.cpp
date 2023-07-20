@@ -109,7 +109,6 @@ void MEUserInterface::init()
     m_graphicsView->init();
     createToolbar();
     createMenubar();
-    saveGeometry();
     // set the logo
     setWindowIcon(m_mainHandler->pm_logo);
     // try to figure out a reasonable window position and size
