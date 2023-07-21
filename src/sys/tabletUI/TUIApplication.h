@@ -82,6 +82,8 @@ public:
     QWidget *getWidget(int ID);
 
     covise::Connection *toCOVERSG = nullptr;
+public slots:
+    void storeGeometry();
 
 protected:
     void closeEvent(QCloseEvent *);

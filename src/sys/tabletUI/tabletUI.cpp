@@ -99,6 +99,7 @@ int main(int argc, char **argv)
     {
         return -1;
     }
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+    a.connect(&a, &QApplication::lastWindowClosed, qaw, &TUIMainWindow::storeGeometry);
+    a.connect(&a, &QApplication::lastWindowClosed, &a, &QApplication::quit);
     return a.exec();
 }

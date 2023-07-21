@@ -27,25 +27,27 @@
 #include "TUIElement.h"
 #define IOMANIPH
 
+#include <QAction>
+#include <QComboBox>
+#include <QFont>
 #include <QImage>
+#include <QLabel>
+#include <QLayout>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QPixmap>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QSplitter>
+#include <QString>
+#include <QStyleFactory>
+#include <QTabWidget>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
-#include <QMenuBar>
-#include <QWidget>
-#include <QLabel>
-#include <QComboBox>
-#include <QMessageBox>
-#include <QString>
-#include <QSplitter>
-#include <QTimer>
-#include <QLayout>
-#include <QStyleFactory>
-#include <QAction>
-#include <QSignalMapper>
-#include <QTabWidget>
 #include <QToolTip>
-#include <QFont>
+#include <QWidget>
+
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>
@@ -260,7 +262,15 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     setMaximumWidth(480);
     setMaximumHeight(480);
 #else
-    resize(1066, 600);
+    QSettings s("HLRS", "tabletUI");
+    auto geo = s.value("geometry");
+    auto state = s.value("state");
+    if(geo.isValid() && state.isValid())
+    {
+        restoreGeometry(geo.toByteArray());
+        restoreState(state.toByteArray());
+    } else
+        resize(1066, 600);
 #endif
 }
 #endif
@@ -813,6 +823,16 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
     break;
     }
     return false;
+}
+
+void TUIMainWindow::storeGeometry()
+{
+#ifndef TABLET_PLUGIN
+    QSettings s("HLRS", "tabletUI");
+    s.setValue("geometry", saveGeometry());
+    s.setValue("state", saveState());
+    std::cerr << "storeGeometry()" << std::endl;
+#endif // 
 }
 
 //------------------------------------------------------------------------
