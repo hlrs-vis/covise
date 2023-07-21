@@ -35,28 +35,7 @@ ADD_COVISE_EXECUTABLE(PointSort)
 COVISE_WNOERROR(PointSort)
 
 TARGET_LINK_LIBRARIES(PointSort ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES} )
-
-IF(UNIX OR MINGW)
-      SET(WITH_OPENMP "TRUE")
-      IF(MINGW)
-         SET(WITH_OPENMP "FALSE")
-      ENDIF()
-      IF(APPLE)
-          IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-            SET(WITH_OPENMP "FALSE")
-         ENDIF()
-      ENDIF(APPLE)
-
-      IF(WITH_OPENMP)
-         ADD_COVISE_COMPILE_FLAGS(PointSort "-fopenmp")
-         ADD_COVISE_LINK_FLAGS(PointSort "-fopenmp")
-      ENDIF()
-ENDIF(UNIX OR MINGW)
-
-IF(MSVC)
-      ADD_COVISE_COMPILE_FLAGS(PointSort "/openmp")
-ENDIF(MSVC)
-
+COVISE_USE_OPENMP(PointSort)
 
 if (NOT E57_FOUND)
     return()
