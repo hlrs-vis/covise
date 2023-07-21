@@ -19,7 +19,7 @@ public:
     TUIIntEdit(int id, int type, QWidget *w, int parent, QString name);
     void setValue(TabletValue type, covise::TokenBuffer &) override;
     const char *getClassName() const override;
-    void valueChanged();
+    void valueChanged() override;
 
     QIntValidator *validator;
     int min;
