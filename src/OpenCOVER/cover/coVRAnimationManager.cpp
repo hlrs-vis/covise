@@ -437,12 +437,16 @@ void opencover::coVRAnimationManager::setAnimationSpeedMax(float maxSpeed)
 void coVRAnimationManager::setAnimationSkip(int frames, bool ignoreMax)
 {
     if (frames < animSkipItem->ui()->min())
+    {
         frames = animSkipItem->ui()->min();
+    }
     if (frames > animSkipItem->ui()->max())
-    if(ignoreMax)
-        setAnimationSkipMax(frames);
-    else
-        frames = animSkipItem->ui()->max();
+    {
+        if(ignoreMax)
+            setAnimationSkipMax(frames);
+        else
+            frames = animSkipItem->ui()->max();
+    }
 
     animSkipItem->setValue(frames);
     m_aniSkip = frames;
