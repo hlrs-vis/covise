@@ -224,8 +224,6 @@ void FFMPEGPlugin::ListFormatsAndCodecs(const string &filename)
 
 void FFMPEGPlugin::FillComboBoxSetExtension(int selection, int row)
 {
-    int count;
-
     selectCodec = new coTUIComboBox("Codec:", myPlugin->VideoTab->getID());
     selectCodec->setPos(0, row);
     selectCodec->setEventListener(this);
@@ -244,20 +242,21 @@ void FFMPEGPlugin::FillComboBoxSetExtension(int selection, int row)
                     filterList += "; ";
                 filterList += "*." + ext;
             }
-            myPlugin->fileNameBrowser->setFilterList(filterList);
         }
-        count = it->second.size();
         for (const auto &c : it->second)
             codecNames.push_back(c.codec->long_name);
     }
     coVRMSController::instance()->syncString(filterList);
-    coVRMSController::instance()->syncInt(count);
+    myPlugin->fileNameBrowser->setFilterList(filterList);
+    int count = codecNames.size();
+    coVRMSController::instance()->syncData(&count, sizeof(count));
     if (coVRMSController::instance()->isSlave())
         codecNames.resize(count);
 
     for (auto &codecName : codecNames)
     {
-        selectCodec->addEntry(coVRMSController::instance()->syncString(codecName));
+        codecName = coVRMSController::instance()->syncString(codecName);
+        selectCodec->addEntry(codecName);
     }
 }
 
@@ -326,24 +325,20 @@ void FFMPEGPlugin::fillParamComboBox(int row)
 
 void FFMPEGPlugin::Menu(int row)
 {
-    coVRMSController::instance()->syncInt(formatList.size());
+    int count = formatList.size();
+    coVRMSController::instance()->syncData(&count, sizeof(count));
 
     ParamMenu(row + 2);
     ListFormatsAndCodecs(myPlugin->fileNameField->getText());
-    int count = formatList.size();
 
-    if (coVRMSController::instance()->isMaster())
+    auto it = formatList.begin();
+    for (int i = 0; i < count; i++)
     {
-        for (const auto &format : formatList)
-        {
-            coVRMSController::instance()->syncString(format.first->long_name);
-            myPlugin->selectFormat->addEntry(format.first->long_name);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < count; i++)
-            myPlugin->selectFormat->addEntry(coVRMSController::instance()->syncString(""));
+        std::string format;
+        if (coVRMSController::instance()->isMaster())
+            format = it->first->long_name;
+        myPlugin->selectFormat->addEntry(coVRMSController::instance()->syncString(format));
+        ++it;
     }
 
     if (count != 0)
