@@ -32,6 +32,7 @@
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <osg/PolygonMode>
+#include <osg/Switch>
 #include <PluginUtil/coSphere.h>
 #include <array>
 #include <map>
@@ -48,6 +49,8 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/FileBrowser.h>
+
+#include <cover/ui/CovconfigLink.h>
 
 #include "CNCTree.h"
 
@@ -73,8 +76,8 @@ public:
 private:
 
     // this will be called in PreFrame
-    ui::Menu *PathTab = nullptr;
-    ui::Button*record = nullptr, *playPause = nullptr;
+//    ui::Menu *PathTab = nullptr;
+/*    ui::Button*record = nullptr, *playPause = nullptr;
     ui::Action *reset = nullptr, *saveButton = nullptr;
     ui::Button *viewPath = nullptr, *viewlookAt = nullptr, *viewDirections = nullptr;
     ui::Label *numSamples = nullptr;
@@ -87,6 +90,12 @@ private:
 
     ui::Button *EnableWpButton = nullptr;
     std::unique_ptr<ConfigBool> enableWp;
+*/
+
+    std::shared_ptr<config::File>cnc_config;
+    ui::Menu *CNCPluginMenu;
+    std::unique_ptr<ui::ButtonConfigValue> showPathBtn;
+    std::unique_ptr<ui::ButtonConfigValue> showWorkpieceBtn;
 
     osg::ref_ptr<osg::StateSet> geoState;
     osg::ref_ptr<osg::Material> linemtl;
@@ -95,7 +104,7 @@ private:
 
     static CNCPlugin* thePlugin;
 
-    osg::Vec4 getColor(float pos);
+//    osg::Vec4 getColor(float pos);
     int frameNumber = 0;
     osg::Group *parentNode = nullptr;
     osg::Vec3Array *vert = nullptr;
@@ -108,6 +117,8 @@ private:
 
     // scaling factor for inputfile (overall)
     double scaleFactor = 1.0;
+
+    int lastTimestep = 0;
 
     // path new
     osg::Vec3Array *pathVert = nullptr;
@@ -122,6 +133,7 @@ private:
     bool colorModeGCode = true;
 
     //workpiece wp
+    osg::ref_ptr<osg::Switch> wpSwitch;
     osg::ref_ptr<osg::Group> wpGroup;
     osg::ref_ptr<osg::Geode> wpDynamicGeode;
     osg::ref_ptr<osg::Geode> wpStaticGeode;
@@ -192,10 +204,8 @@ private:
     bool wpSizeExtracted = false;
     double wpMinX, wpMaxX, wpMinY, wpMaxY, wpMinZ, wpMaxZ;
     double wpLengthX, wpLengthY, wpLengthZ;
-    //double wpAllowance = 0.01;  // 5 / 1000;    //größenzugabe
+
     double wpAllowance = 10.0;
-    //double wpResolution = 0.00002; //0.1 / 1000;   //aimed
-    //double wpResolution = 0.00010;
     double wpResolution = 0.05;
     double wpResX, wpResY;              //is
     int wpTotalQuadsX, wpTotalQuadsY;

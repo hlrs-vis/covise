@@ -523,7 +523,7 @@ CNCPlugin *CNCPlugin::instance()
 CNCPlugin::CNCPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("CNCPlugin", cover->ui)
-, PathTab(new ui::Menu("CNC", this))
+/*, PathTab(new ui::Menu("CNC", this))
 , record(new ui::Button(PathTab, "Record"))
 , playPause(new ui::Button(PathTab, "Play"))
 , reset(new ui::Action(PathTab, "Reset"))
@@ -538,8 +538,15 @@ CNCPlugin::CNCPlugin()
 , numSamples(new ui::Label(PathTab, "numSamples"))
 , fileNameBrowser(new ui::FileBrowser(PathTab, "File", true))
 , viewPath(new ui::Button(PathTab, "ViewPath"))
+*/
+, cnc_config(config())
+, CNCPluginMenu(new ui::Menu("CNC", this))
+, showPathBtn(std::make_unique<ui::ButtonConfigValue>(CNCPluginMenu, "ShowPath", true, *cnc_config, "main", config::Flag::PerModel))
+, showWorkpieceBtn(std::make_unique<ui::ButtonConfigValue>(CNCPluginMenu, "ShowWorkpiece", true, *cnc_config, "main", config::Flag::PerModel))
 {
     thePlugin = this;
+    showPathBtn->setUpdater([this]() {setTimestep(lastTimestep); });
+    showWorkpieceBtn->setUpdater([this]() {setTimestep(lastTimestep); });
 }
 
 static FileHandler handlers[] = {
@@ -649,14 +656,15 @@ int CNCPlugin::loadGCode(const char *filename, osg::Group *loadParent)
     assert(thePlugin);
 
     extractToolInfos(filename);
+    wpSwitch = new Switch();
     wpGroup = new osg::Group;
-    loadParent->addChild(wpGroup);
+    loadParent->addChild(wpSwitch);
+    wpSwitch->addChild(wpGroup);
     if (filename != NULL)
     {   wpGroup->setName(filename);
     }
     thePlugin->createPath(loadParent);
-    if(enableWp)
-        thePlugin->createWorkpiece(wpGroup);
+    thePlugin->createWorkpiece(wpGroup);
 
     return 0;
 }
@@ -671,29 +679,43 @@ void CNCPlugin::setTimestep(int t)
     //}
     if (pathPrimitives)
     {
-        pathPrimitives->at(0) = pathLineStrip[t];
+        if (showPathBtn->getValue())
+            pathPrimitives->at(0) = pathLineStrip[t];
+        else
+            pathPrimitives->at(0) = pathLineStrip[0];
         pathGeom->dirtyDisplayList();
     }
 
-    if (wpDynamicGeom && t == 0)
+    if (wpDynamicGeom)
     {
-        wpResetCutsVec();
-        wpDynamicGeom->dirtyDisplayList();
-        wpDynamicGeomX->dirtyDisplayList();
-        wpDynamicGeomY->dirtyDisplayList();
+        if (t<lastTimestep)
+        {
+            wpResetCutsVec();
+            for(int i = 1; i<=t; i++)
+            {
+                wpMillCutVec(i);
+            }
+        }
+            else
+            {
+                for(int i = lastTimestep; i<=t; i++)
+                {
+                    wpMillCutVec(i);
+                }
+            }
+        
+        if (showWorkpieceBtn->getValue())
+        {
+            wpSwitch->setAllChildrenOn();
+            wpDynamicGeom->dirtyDisplayList();
+            wpDynamicGeomX->dirtyDisplayList();
+            wpDynamicGeomY->dirtyDisplayList();
+        }
+        else
+            wpSwitch->setAllChildrenOff();
+
     }
-
-    if (wpDynamicGeom && t>0)
-    {   
-        wpMillCutVec(t);
-        wpDynamicGeom->dirtyDisplayList();
-        wpDynamicGeomX->dirtyDisplayList();
-        wpDynamicGeomY->dirtyDisplayList();
-    }
-
-
-//TODO:
-    //if t < t_previous
+    lastTimestep=t;
 }
 
 int CNCPlugin::unloadGCode(const char *filename, const char *)
@@ -711,7 +733,7 @@ bool CNCPlugin::init()
 
     coConfig *config = coConfig::getInstance();
 
-    enableWp = configBool("workpiece", "enabled", false, config::Flag::PerModel);
+/*    enableWp = configBool("workpiece", "enabled", false, config::Flag::PerModel);
     enableWp->setUpdater([this](bool val) {
         std::cerr << "Workpiece: updating enabled from config" << std::endl;
         if (EnableWpButton)
@@ -734,7 +756,7 @@ bool CNCPlugin::init()
             clipNode->addClipPlane(plane[i].clip.get());
         else
             clipNode->removeClipPlane(plane[i].clip.get());  */
-        });
+/*        });
         EnableWpButton->setState(*enableWp); 
 
 
@@ -785,7 +807,7 @@ bool CNCPlugin::init()
         frameNumber = 0;
         record->setState(false);
         });
-
+*/
     geoState = new osg::StateSet();
     linemtl = new osg::Material;
     lineWidth = new osg::LineWidth(4.0);
@@ -857,10 +879,11 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
          positions[frameNumber*3+2] = z;*/
 
     vert->push_back(Vec3(x * scaleFactor, y * scaleFactor, z * scaleFactor));
-    float col = feedRate / 6000.0;
+/*    float col = feedRate / 6000.0;
     if (col > 1)
         col = 1;
     color->push_back(getColor(col));
+*/
     frameNumber++;
     static double oldTime = 0;
     static double oldUpdateTime = 0;
@@ -868,7 +891,7 @@ void CNCPlugin::straightFeed(double x, double y, double z, double a, double b, d
     if (time - oldUpdateTime > 1.0)
     {
         oldUpdateTime = time;
-        numSamples->setText("numSamples: " + std::to_string(frameNumber));
+//        numSamples->setText("numSamples: " + std::to_string(frameNumber));
     }
 }
 
@@ -896,10 +919,11 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
          positions[frameNumber*3+2] = z;*/
 
     vert->push_back(Vec3(x * scaleFactor, y * scaleFactor, z * scaleFactor));
-    float col = feedRate / 6000.0;
+/*    float col = feedRate / 6000.0;
     if (col > 1)
         col = 1;
     color->push_back(getColor(col));
+*/
     frameNumber++;
     static double oldTime = 0;
     static double oldUpdateTime = 0;
@@ -907,14 +931,15 @@ void CNCPlugin::arcFeed(double x, double y, double z, double centerX, double cen
     if (time - oldUpdateTime > 1.0)
     {
         oldUpdateTime = time;
-        numSamples->setText("numSamples: " + std::to_string(frameNumber));
+//        numSamples->setText("numSamples: " + std::to_string(frameNumber));
     }
 }
 
-osg::Vec4 CNCPlugin::getColor(float pos)
+/*osg::Vec4 CNCPlugin::getColor(float pos)
 {
     return colorMap.getColor(pos);
 }
+*/
 
 COVERPLUGIN(CNCPlugin)
 
@@ -952,14 +977,16 @@ void CNCPlugin::createPath(osg::Group* parent)
     // t = 0
     pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
     pathVert->push_back(Vec3(pathX[0], pathY[0], pathZ[0]));
-    if (!colorModeGCode)
+ /*   if (!colorModeGCode)
     {
         float col = pathFeedRate[0] / 6000.0;
         if (col > 1)
             col = 1;
         pushColor = getColor(col);
     }
-    else if (pathG[0] == 0)
+    else 
+    */
+    if (pathG[0] == 0)
     {
         pushColor = colorG0;
     }
@@ -981,14 +1008,15 @@ void CNCPlugin::createPath(osg::Group* parent)
 
     for (int t = 1; t < coVRAnimationManager::instance()->getNumTimesteps(); t++)
     {
-        if (!colorModeGCode)
+    /*    if (!colorModeGCode)
         {
             float col = pathFeedRate[0] / 6000.0;
             if (col > 1)
                 col = 1;
             pushColor = getColor(col);
         }
-        else if (pathG[t] == 0)
+        else */
+        if (pathG[t] == 0)
             pushColor = colorG0;
         else if (pathG[t] == 1)
             pushColor = colorG1;
