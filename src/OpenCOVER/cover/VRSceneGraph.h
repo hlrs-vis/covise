@@ -344,7 +344,8 @@ private:
 
     ui::Menu *m_miscMenu=nullptr;
     ui::SelectionList *m_drawStyle=nullptr;
-    ui::Button *m_trackHead=nullptr;
+    ui::Button *m_trackHead=nullptr;;
+    ui::Button *m_hidePointer=nullptr;
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;

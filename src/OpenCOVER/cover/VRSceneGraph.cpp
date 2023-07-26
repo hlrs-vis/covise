@@ -174,6 +174,29 @@ void VRSceneGraph::init()
     m_trackHead->setCallback([this](bool state){
         toggleHeadTracking(state);
     });
+    m_hidePointer = new ui::Button(cover->viewOptionsMenu, "HidePointer");
+    m_hidePointer->setText("Hide pointer");
+    m_hidePointer->setShortcut("Shift+P");
+    m_hidePointer->setState(false);
+    m_hidePointer->setCallback([this](bool state){
+    if (!state)
+    {
+        if (!m_pointerVisible)
+        {
+            m_scene->addChild(m_handTransform.get());
+            m_pointerVisible = true;
+        }
+    }
+    else
+    {
+        if (m_pointerVisible)
+        {
+            m_scene->removeChild(m_handTransform.get());
+            m_pointerVisible = false;
+        }
+    }
+
+    });
 
     m_allowHighQuality= new ui::Button(cover->viewOptionsMenu, "AllowHighQuality");
     cover->viewOptionsMenu->add(m_allowHighQuality);
@@ -808,7 +831,9 @@ VRSceneGraph::update()
         }
         m_firstTime = false;
     }
-
+    
+    if(!m_hidePointer->state())
+    {
     if (Input::instance()->hasHand() && Input::instance()->isTrackingOn())
     {
         if (!m_pointerVisible)
@@ -824,6 +849,7 @@ VRSceneGraph::update()
             m_scene->removeChild(m_handTransform.get());
             m_pointerVisible = false;
         }
+    }
     }
 
     coPointerButton *button = cover->getPointerButton();
