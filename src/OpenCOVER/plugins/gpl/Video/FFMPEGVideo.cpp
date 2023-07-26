@@ -325,11 +325,12 @@ void FFMPEGPlugin::fillParamComboBox(int row)
 
 void FFMPEGPlugin::Menu(int row)
 {
-    int count = formatList.size();
-    coVRMSController::instance()->syncData(&count, sizeof(count));
 
     ParamMenu(row + 2);
     ListFormatsAndCodecs(myPlugin->fileNameField->getText());
+    
+    int count = formatList.size();
+    coVRMSController::instance()->syncData(&count, sizeof(count));
 
     auto it = formatList.begin();
     for (int i = 0; i < count; i++)
