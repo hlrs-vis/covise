@@ -319,7 +319,7 @@ void Move::message(int toWhom, int type, int len, const void *buf)
 bool Move::selectionChanged()
 {
     std::cout <<"selection changed"<<std::endl;
-    //coVRMSController::instance()->syncInt(3000);
+    //coVRMSController::instance()->agreeInt(3000);
     std::list<osg::ref_ptr<osg::Node> > selectedNodeList = coVRSelectionManager::instance()->getSelectionList();
     std::list<osg::ref_ptr<osg::Group> > selectedParentList = coVRSelectionManager::instance()->getSelectedParentList();
 
@@ -329,11 +329,11 @@ bool Move::selectionChanged()
     {
         moveDCS = NULL;
         //moveObjectLabel->setLabel("None");
-    //coVRMSController::instance()->syncInt(3001);
+    //coVRMSController::instance()->agreeInt(3001);
     }
     else
     {
-    //coVRMSController::instance()->syncInt(3002);
+    //coVRMSController::instance()->agreeInt(3002);
         nodeIter--;
         parentIter--;
         const char *name = (*nodeIter)->getName().c_str();

@@ -184,11 +184,11 @@ void coIntersection::intersect()
     cover->intersectedNode = 0;
 
     // for debug only
-    //coVRMSController::instance()->syncInt(2000);
+    //coVRMSController::instance()->agreeInt(2000);
     if (Input::instance()->isTrackingOn())
     {
     // for debug only
-    //coVRMSController::instance()->syncInt(2001);
+    //coVRMSController::instance()->agreeInt(2001);
         if (true /*&& !coVRConfig::instance()->useWiiMote() */)
         {
             //fprintf(stderr, "coIntersection::intersect() NOT wiiMode\n");
@@ -225,7 +225,7 @@ void coIntersection::intersect()
         intersect(cover->getMouseMat(), true);
 	
     // for debug only
-    //coVRMSController::instance()->syncInt(2002);
+    //coVRMSController::instance()->agreeInt(2002);
     }
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("isect"))
@@ -384,10 +384,10 @@ void coIntersection::intersect(const osg::Matrix &handMat, bool mouseHit)
         }
     }
    /* // for debug only
-    coVRMSController::instance()->syncInt((int)(cover->intersectedNode!=NULL));
+    coVRMSController::instance()->agreeInt((int)(cover->intersectedNode!=NULL));
     if(cover->intersectedNode!=NULL)
     {
-    coVRMSController::instance()->syncStringStop(cover->intersectedNode.get()->getName());
+    coVRMSController::instance()->agreeString(cover->intersectedNode.get()->getName());
     }*/
     
 }

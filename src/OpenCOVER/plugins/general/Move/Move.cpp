@@ -406,7 +406,7 @@ void Move::selectLevel()
 bool Move::selectionChanged()
 {
 
-    //coVRMSController::instance()->syncInt(3000);
+    //coVRMSController::instance()->agreeInt(3000);
     std::list<osg::ref_ptr<osg::Node> > selectedNodeList = coVRSelectionManager::instance()->getSelectionList();
     std::list<osg::ref_ptr<osg::Group> > selectedParentList = coVRSelectionManager::instance()->getSelectedParentList();
 
@@ -416,11 +416,11 @@ bool Move::selectionChanged()
     {
         moveDCS = NULL;
         moveObjectLabel->setLabel("None");
-    //coVRMSController::instance()->syncInt(3001);
+    //coVRMSController::instance()->agreeInt(3001);
     }
     else
     {
-    //coVRMSController::instance()->syncInt(3002);
+    //coVRMSController::instance()->agreeInt(3002);
         nodeIter--;
         parentIter--;
         const char *name = (*nodeIter)->getName().c_str();
@@ -458,7 +458,7 @@ void Move::preFrame()
     const osg::NodePath &intersectedNodePath = cover->getIntersectedNodePath();
     
     // for debug only
-    //coVRMSController::instance()->syncInt((int)(node!=NULL));
+    //coVRMSController::instance()->agreeInt((int)(node!=NULL));
 
 
 
@@ -468,7 +468,7 @@ void Move::preFrame()
         if (node)
         {
             //fprintf(stderr,"%s\n",node->getName().c_str());
-            //coVRMSController::instance()->syncInt(1001);
+            //coVRMSController::instance()->agreeInt(1001);
             for (std::vector<osg::Node*>::const_iterator iter = intersectedNodePath.begin();
                 iter != intersectedNodePath.end(); ++iter)
             {
@@ -496,13 +496,13 @@ void Move::preFrame()
             else
                 label->hide();
 
-            //coVRMSController::instance()->syncInt(1002);
+            //coVRMSController::instance()->agreeInt(1002);
             bool isObject = false;
             //bool isNewObject=false;
             //select a node
             if (node && moveToggle->getState() && (node != oldNode) && (node != selectedNode))
             {
-                //coVRMSController::instance()->syncInt(1022);
+                //coVRMSController::instance()->agreeInt(1022);
                         // this might be a new candidate for a movable node
 
                 osg::Matrix mat; //,dcsMat;
@@ -590,7 +590,7 @@ void Move::preFrame()
                 {
                     candidateNode = NULL;
                 }
-                //coVRMSController::instance()->syncInt(1003);
+                //coVRMSController::instance()->agreeInt(1003);
             }
             if (node == NULL)
             {
@@ -612,25 +612,25 @@ void Move::preFrame()
                     moveSelection = false;
                 }
             }
-            //coVRMSController::instance()->syncInt(1004);
+            //coVRMSController::instance()->agreeInt(1004);
         }
-		//coVRMSController::instance()->syncInt(1024);
+		//coVRMSController::instance()->agreeInt(1024);
 		// for debug only
-		//coVRMSController::instance()->syncInt(interactionA->getState());
+		//coVRMSController::instance()->agreeInt(interactionA->getState());
 		// if we point towards a selected or candidate Node
 		if (node && moveToggle->getState() && ((node == candidateNode) || (node == selectedNode)))
 		{ // register the interactions
 			if (!interactionA->isRegistered())
 			{
 				coInteractionManager::the()->registerInteraction(interactionA);
-				//coVRMSController::instance()->syncInt(1005);
+				//coVRMSController::instance()->agreeInt(1005);
 			}
 		}
     }
 
     if (interactionA->wasStarted())
     {
-    //coVRMSController::instance()->syncInt(1007);
+    //coVRMSController::instance()->agreeInt(1007);
         // select this node
         if (node)
         {
@@ -773,7 +773,7 @@ void Move::preFrame()
                         selectedNode = nodes[level];
                         if (parent)
                         {
-    //coVRMSController::instance()->syncInt(1040);
+    //coVRMSController::instance()->agreeInt(1040);
                             coVRSelectionManager::instance()->addSelection(parent, selectedNode);
                             coVRSelectionManager::instance()->pickedObjChanged();
                             moveSelection = true;
@@ -803,7 +803,7 @@ void Move::preFrame()
         }
     }
 
-    //coVRMSController::instance()->syncInt(1027);
+    //coVRMSController::instance()->agreeInt(1027);
     if ((selectedNode) && (!(interactionA->isRegistered() || interactionB->isRegistered())) && (interactionA->wasStarted() || interactionB->wasStarted()))
     {
         if (moveSelection)
@@ -811,7 +811,7 @@ void Move::preFrame()
             coVRSelectionManager::instance()->clearSelection();
             moveSelection = false;
         }
-    //coVRMSController::instance()->syncInt(1007);
+    //coVRMSController::instance()->agreeInt(1007);
         selectedNode = NULL;
         numLevels = 0;
         allowMove = false;
@@ -826,7 +826,7 @@ void Move::preFrame()
     {
         if (interactionA->wasStarted() || interactionB->wasStarted())
         {
-            //coVRMSController::instance()->syncInt(1008);
+            //coVRMSController::instance()->agreeInt(1008);
             getMoveDCS();
             // start of interaction (button press)
             osg::Node *currentNode = NULL;
@@ -867,13 +867,13 @@ void Move::preFrame()
                 fprintf(stderr, "Move::inv getPointerMat is singular\n");
 
             startTime = cover->frameTime();
-            //coVRMSController::instance()->syncFloat(startTime);
+            //coVRMSController::instance()->agreeFloat(startTime);
         }
         if (interactionA->isRunning() && (moveDCS != NULL))
         { // ongoing interaction (left mousebutton)
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
 
-    //coVRMSController::instance()->syncInt(1009);
+    //coVRMSController::instance()->agreeInt(1009);
 
             osg::Node *currentNode = NULL;
             if (moveDCS->getNumParents() > 0)
@@ -956,7 +956,7 @@ void Move::preFrame()
                     for (int j = 0; j < 4; j++)
                         tb << newDCSMat(i, j);
 			
-    //coVRMSController::instance()->syncFloat(newDCSMat(0,0));
+    //coVRMSController::instance()->agreeFloat(newDCSMat(0,0));
 
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
                                    PluginMessageTypes::MoveMoveNode, tb.getData().length(), tb.getData().data());
@@ -979,7 +979,7 @@ void Move::preFrame()
             osg::Matrix moveMat, currentBaseMat, currentNewMat, newDCSMat, invcurrentBaseMat, localRot, tmpMat, tmp2Mat;
             moveMat.mult(invStartHandMat, cover->getPointerMat());
 
-            //coVRMSController::instance()->syncInt(1010);
+            //coVRMSController::instance()->agreeInt(1010);
             osg::Node *currentNode = moveDCS->getParent(0);
             currentBaseMat.makeIdentity();
             while (currentNode != NULL)
@@ -1042,7 +1042,7 @@ void Move::preFrame()
         }
         if ((interactionA->wasStopped() || interactionB->wasStopped()) && (moveDCS != NULL))
         {
-    //coVRMSController::instance()->syncInt(1011);
+    //coVRMSController::instance()->agreeInt(1011);
             if (allowMove)
             {
                 osg::Matrix mat;
@@ -1134,7 +1134,7 @@ void Move::preFrame()
             allowMove = true;
         }
     }
-    //coVRMSController::instance()->syncInt(1012);
+    //coVRMSController::instance()->agreeInt(1012);
     // if we don't point to a node or point to a non candidate Node
     if (!node || (((node != candidateNode) && (node != selectedNode)) && ((interactionB->isRegistered()) || (interactionA->isRegistered()))))
     { //unregister if possible;
@@ -1146,7 +1146,7 @@ void Move::preFrame()
         {
             coInteractionManager::the()->unregisterInteraction(interactionB);
         }
-        //coVRMSController::instance()->syncInt(1006);
+        //coVRMSController::instance()->agreeInt(1006);
     }
 }
 

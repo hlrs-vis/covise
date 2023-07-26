@@ -156,7 +156,7 @@ struct RemoteSyncOp : public osg::Operation
         // sync multipc instances
         if (VRViewer::unsyncedFrames <= 0)
         {
-            coVRMSController::instance()->syncDraw();
+            coVRMSController::instance()->barrierDraw();
         }
         else
             VRViewer::unsyncedFrames--;
@@ -1915,7 +1915,7 @@ void VRViewer::frame(double simulationTime)
             coVRPluginList::instance()->clusterSyncDraw();
         if (VRViewer::unsyncedFrames <= 0)
         {
-            coVRMSController::instance()->syncDraw();
+            coVRMSController::instance()->barrierDraw();
         }
         else
         {
@@ -2624,7 +2624,7 @@ void VRViewer::renderingTraversals()
         if (VRViewer::unsyncedFrames <= 0)
         {
             double beginSync = elapsedTime();
-            coVRMSController::instance()->syncDraw();
+            coVRMSController::instance()->barrierDraw();
             if (getViewerStats()->collectStats("sync"))
             {
                 double endSync = elapsedTime();

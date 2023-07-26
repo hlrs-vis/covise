@@ -444,7 +444,7 @@ bool OpenCOVER::init()
         new coVRMSController(myID, addr, port);
     }
     coVRMSController::instance()->startSlaves();
-    coVRMSController::instance()->startupSync();
+    coVRMSController::instance()->startupBarrier();
 
     collaborativeOptionsFile = coVRMSController::instance()->syncString(collaborativeOptionsFile);
     viewpointsFile = coVRMSController::instance()->syncString(viewpointsFile);
@@ -1337,7 +1337,7 @@ bool OpenCOVER::frame()
     }
     old_fl_time = fl_time;
 
-    coVRMSController::instance()->syncApp(frameNum++);
+    coVRMSController::instance()->barrierApp(frameNum++);
 
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
 

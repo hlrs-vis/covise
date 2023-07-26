@@ -1412,7 +1412,6 @@ void coVRFileManager::checkRemoteFetchDirShared()
     if (ms->isMaster())
         std::fstream s(testFile, std::ios_base::out);
     remoteFetchPathShared = true;
-    ms->sync();
     if (ms->isSlave())
     {
         bool shared;

@@ -267,13 +267,13 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
         MARK0("\tsyncMode TCP");
     }
 
-    syncProcess = SYNC_DRAW;
+    barrierProcess = SYNC_DRAW;
     sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncProcess");
     if (strcasecmp(sm.c_str(), "APP") == 0)
     {
         if (debugLevel(3))
-            fprintf(stderr, "syncProcess: APP\n");
-        syncProcess = SYNC_APP;
+            fprintf(stderr, "barrierProcess: APP\n");
+        barrierProcess = SYNC_APP;
 
         MARK0("\tsyncProcess: APP");
     }
@@ -281,7 +281,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     {
         MARK0("\tsyncProcess: DRAW");
         if (debugLevel(3))
-            fprintf(stderr, "syncProcess: DRAW\n");
+            fprintf(stderr, "barrierProcess: DRAW\n");
     }
 
     if ((syncMode == SYNC_SERIAL) || (syncMode == SYNC_TCP_SERIAL))
@@ -528,13 +528,13 @@ coVRMSController::coVRMSController(const MPI_Comm *comm, pthread_barrier_t *shmB
     multicastRetryTimeout = coCoviseConfig::getInt("COVER.MultiPC.Multicast.retryTimeout", 100);
     multicastMaxLength = coCoviseConfig::getInt("COVER.MultiPC.Multicast.maxLength", 1000000);
 
-    syncProcess = SYNC_DRAW;
+    barrierProcess = SYNC_DRAW;
     string sm = coCoviseConfig::getEntry("COVER.MultiPC.SyncProcess");
     if (strcasecmp(sm.c_str(), "APP") == 0)
     {
         if (debugLevel(3))
-            fprintf(stderr, "syncProcess: APP\n");
-        syncProcess = SYNC_APP;
+            fprintf(stderr, "barrierProcess: APP\n");
+        barrierProcess = SYNC_APP;
 
         MARK0("\tsyncProcess: APP");
     }
@@ -542,7 +542,7 @@ coVRMSController::coVRMSController(const MPI_Comm *comm, pthread_barrier_t *shmB
     {
         MARK0("\tsyncProcess: DRAW");
         if (debugLevel(3))
-            fprintf(stderr, "syncProcess: DRAW\n");
+            fprintf(stderr, "barrierProcess: DRAW\n");
     }
 
     syncMode = SYNC_MPI;
@@ -1347,13 +1347,13 @@ void coVRMSController::sendGoDraw()
     }
 }
 
-void coVRMSController::syncDraw()
+void coVRMSController::barrierDraw()
 {
     if (numSlaves == 0)
         return;
-    MARK0("coVRMSController::syncDraw");
+    MARK0("coVRMSController::barrierDraw");
     if (cover->debugLevel(5))
-        fprintf(stderr, "\ncoVRMSController::syncDraw\n");
+        fprintf(stderr, "\ncoVRMSController::barrierDraw\n");
 
     if (syncMode == SYNC_TCP)
     {
@@ -1397,7 +1397,7 @@ void coVRMSController::syncDraw()
         wrbytes = write(magicFd, &magicBuf, 1);
         if (wrbytes != 1)
         {
-            cerr << "coVRMSController::sync: short write" << endl;
+            cerr << "coVRMSController::barrier: short write" << endl;
         }
         MARK0("\tMAGIC: send READY go WAITING");
 
@@ -1406,7 +1406,7 @@ void coVRMSController::syncDraw()
         wrbytes = read(magicFd, &magicBuf, 1);
         if (wrbytes != 1)
         {
-            cerr << "coVRMSController::sync: short read" << endl;
+            cerr << "coVRMSController::barrier: short read" << endl;
         }
         status = magicBuf & 0x20;
 
@@ -1414,7 +1414,7 @@ void coVRMSController::syncDraw()
         {
             if (read(magicFd, &magicBuf, 1) != 1)
             {
-                cerr << "coVRMSController::sync: short read2" << endl;
+                cerr << "coVRMSController::barrier: short read2" << endl;
             }
             status = magicBuf & 0x20;
         }
@@ -1672,10 +1672,10 @@ void coVRMSController::sendGo()
     }
 }
 
-void coVRMSController::startupSync()
+void coVRMSController::startupBarrier()
 {
     if (debugLevel(3))
-        fprintf(stderr, "\ncoVRMSController::startupSync: numSlaves=%d\n", numSlaves);
+        fprintf(stderr, "\ncoVRMSController::startupBarrier: numSlaves=%d\n", numSlaves);
 
     std::string masterName;
     if (isMaster())
@@ -1696,7 +1696,7 @@ void coVRMSController::startupSync()
     }
     else
     {
-        sync();
+        barrier();
     }
 }
 
@@ -1710,13 +1710,13 @@ void coVRMSController::shmBarrier()
 #endif
 }
 
-void coVRMSController::sync()
+void coVRMSController::barrier()
 {
     if (numSlaves == 0)
         return;
-    MARK0("coVRMSController::sync");
+    MARK0("coVRMSController::barrier");
     if (cover->debugLevel(5))
-        fprintf(stderr, "\ncoVRMSController::sync\n");
+        fprintf(stderr, "\ncoVRMSController::barrier\n");
 
     if (syncMode == SYNC_TCP)
     {
@@ -1760,7 +1760,7 @@ void coVRMSController::sync()
         wrbytes = write(magicFd, &magicBuf, 1);
         if (wrbytes != 1)
         {
-            cerr << "coVRMSController::sync: short write" << endl;
+            cerr << "coVRMSController::barrier: short write" << endl;
         }
         MARK0("\tMAGIC: send READY go WAITING");
 
@@ -1769,7 +1769,7 @@ void coVRMSController::sync()
         wrbytes = read(magicFd, &magicBuf, 1);
         if (wrbytes != 1)
         {
-            cerr << "coVRMSController::sync: short read" << endl;
+            cerr << "coVRMSController::barrier: short read" << endl;
         }
         status = magicBuf & 0x20;
 
@@ -1777,7 +1777,7 @@ void coVRMSController::sync()
         {
             if (read(magicFd, &magicBuf, 1) != 1)
             {
-                cerr << "coVRMSController::sync: short read2" << endl;
+                cerr << "coVRMSController::barrier: short read2" << endl;
             }
             status = magicBuf & 0x20;
         }
@@ -2046,7 +2046,7 @@ void coVRMSController::waitForParallelJoin()
 #endif
 }
 
-void coVRMSController::syncApp(int frameNum)
+void coVRMSController::barrierApp(int frameNum)
 {
     if (numSlaves == 0)
         return;
@@ -2069,22 +2069,22 @@ void coVRMSController::syncApp(int frameNum)
             exit(0);
         }
     }
-    if (syncProcess != SYNC_APP)
+    if (barrierProcess != SYNC_APP)
         return;
 
     //double sTime=0.0;
     //sTime = cover->currentTime();
     //cerr << "id: " << myID << " time: " << cover->currentTime()-sTime << endl;
 
-    MARK0("COVER syncApp");
+    MARK0("COVER barrierApp");
     if (cover->debugLevel(5))
-        fprintf(stderr, "\ncoVRMSController::syncApp\n");
+        fprintf(stderr, "\ncoVRMSController::barrierApp\n");
 
-    sync();
-    MARK0("COVER syncApp done");
+    barrier();
+    MARK0("COVER barrierApp done");
 }
 
-void coVRMSController::syncInt(int value)
+void coVRMSController::agreeInt(int value)
 {
     if (numSlaves == 0)
         return;
@@ -2098,7 +2098,7 @@ void coVRMSController::syncInt(int value)
         if (readMaster(&masterValue, sizeof(masterValue)) < 0)
         {
             cerr << "bcould not read message from Master" << endl;
-            cerr << "syncInt_exit15a myID=" << myID << endl;
+            cerr << "agreeInt_exit15a myID=" << myID << endl;
             exit(0);
         }
         if (masterValue != value)
@@ -2111,10 +2111,10 @@ void coVRMSController::syncInt(int value)
 }
         }
     }
-    sync();
+    barrier();
 }
 
-void coVRMSController::syncFloat(float value)
+void coVRMSController::agreeFloat(float value)
 {
     if (numSlaves == 0)
         return;
@@ -2128,7 +2128,7 @@ void coVRMSController::syncFloat(float value)
         if (readMaster(&masterValue, sizeof(masterValue)) < 0)
         {
             cerr << "bcould not read message from Master" << endl;
-            cerr << "syncInt_exit15a myID=" << myID << endl;
+            cerr << "agreeInt_exit15a myID=" << myID << endl;
             exit(0);
         }
         if (masterValue != value)
@@ -2141,9 +2141,9 @@ void coVRMSController::syncFloat(float value)
 }
         }
     }
-    sync();
+    barrier();
 }
-void coVRMSController::syncStringStop(std::string s)
+void coVRMSController::agreeString(std::string s)
 {
     if (numSlaves == 0)
         return;
@@ -2163,7 +2163,7 @@ void coVRMSController::syncStringStop(std::string s)
         if (readMaster(&masterValue, sizeof(masterValue)) < 0)
         {
             cerr << "bcould not read message from Master" << endl;
-            cerr << "syncInt_exit15a myID=" << myID << endl;
+            cerr << "agreeInt_exit15a myID=" << myID << endl;
             exit(0);
         }
         if (masterValue != s.length())
@@ -2179,7 +2179,7 @@ char *buf = new char[masterValue+1];
         if (readMaster(buf, masterValue+1) < 0)
         {
             cerr << "bcould not read message from Master" << endl;
-            cerr << "syncInt_exit15a myID=" << myID << endl;
+            cerr << "agreeInt_exit15a myID=" << myID << endl;
             exit(0);
         }
 	str = std::string(buf);
@@ -2194,7 +2194,7 @@ char *buf = new char[masterValue+1];
 	    }
 	 }
     }
-    sync();
+    barrier();
 }
 //sync Time and handle Cluster statistics
 

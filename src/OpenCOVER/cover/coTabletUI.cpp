@@ -3778,8 +3778,8 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     createSimple(type);
     if(tui()->debugTUI())
     {
-        coVRMSController::instance()->syncStringStop(name);
-        coVRMSController::instance()->syncInt(ID);
+        coVRMSController::instance()->agreeString(name);
+        coVRMSController::instance()->agreeInt(ID);
     }
 }
 
@@ -3801,8 +3801,8 @@ coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, 
     createSimple(type);
     if(tui()->debugTUI())
     {
-        coVRMSController::instance()->syncStringStop(name);
-        coVRMSController::instance()->syncInt(ID);
+        coVRMSController::instance()->agreeString(name);
+        coVRMSController::instance()->agreeInt(ID);
     }
 }
 
@@ -3822,8 +3822,8 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     listener = NULL;
     if(tui()->debugTUI())
     {
-        coVRMSController::instance()->syncStringStop(name);
-        coVRMSController::instance()->syncInt(ID);
+        coVRMSController::instance()->agreeString(name);
+        coVRMSController::instance()->agreeInt(ID);
     }
 }
 #endif
@@ -3845,8 +3845,8 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     tui()->addElement(this);
     if(tui()->debugTUI())
     {
-        coVRMSController::instance()->syncStringStop(name);
-        coVRMSController::instance()->syncInt(ID);
+        coVRMSController::instance()->agreeString(name);
+        coVRMSController::instance()->agreeInt(ID);
     }
 }
 

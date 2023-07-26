@@ -155,22 +155,22 @@ public:
         return myID;
     };
     void shmBarrier(); // barrier among all ranks on a node accessing the same shmem segment
-    void sync();
-    void startupSync();
-    void syncApp(int frameNum);
-    void syncInt(int value);
-    void syncFloat(float value);
-    void syncStringStop(std::string name);
-    void syncDraw();
+    void barrier();
+    void startupBarrier(); // initial barrier
+    void barrierApp(int frameNum);
+    void barrierDraw();
+    void agreeInt(int value); // ensure that master and slaves use the same value
+    void agreeFloat(float value); // ensure that master and slaves use the same value
+    void agreeString(std::string name); // ensure that master and slaves use the same name
     void syncTime();
-    int syncData(void *data, int size);
-    int syncMessage(covise::Message *msg);
-    bool syncBool(bool);
+    int syncData(void *data, int size); // broadcast in place from master to slaves
+    int syncMessage(covise::Message *msg); // broadcast in place from master to slaves
+    [[nodiscard]] bool syncBool(bool); // broadcast as return value
+    [[nodiscard]] std::string syncString(const std::string &s); // broadcast as return value
     bool reduceOr(bool); // master will receive logical or of all inputs
     bool reduceAnd(bool);
     bool allReduceOr(bool); // master and slaves will receive logical or of all inputs
     bool allReduceAnd(bool);
-    std::string syncString(const std::string &s);
     bool syncVRBMessages();
     void waitForSlaves();
     void waitForSlavesDraw();
@@ -216,7 +216,7 @@ private:
     int myID;
     int numSlaves;
     int syncMode;
-    int syncProcess;
+    int barrierProcess;
     bool m_drawStatistics;
     Rel_Mcast *multicast;
     int multicastDebugLevel;
