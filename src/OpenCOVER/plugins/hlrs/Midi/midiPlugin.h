@@ -36,11 +36,10 @@
 #include <SDL.h>
 #include <fftw3.h>
 
-#include "open62541.h"
+#include "open62541/client.h"
+#include "open62541/server.h"
 #include <signal.h>
 #include <stdlib.h>
-#include "pubFunctions.h"
-#include "server.h"
 #ifdef WIN32
 #else
 

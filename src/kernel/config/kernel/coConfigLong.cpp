@@ -67,17 +67,21 @@ long coConfigLong::fromString(const std::string &value) const
 
     std::string v = toLower(value);
     int mult = 1;
-    char end = v[v.size() - 1];
-    if (end == 'k')
-        mult = 1024;
-    else if (end == 'm')
-        mult = 1024 * 1024;
-    else if (end == 'g')
-        mult = 1024 * 1024 * 1024;
-    if (mult > 1)
-        v.pop_back();
+    if(v.size()>0)
+    {
+        char end = v[v.size() - 1];
+        if (end == 'k')
+            mult = 1024;
+        else if (end == 'm')
+            mult = 1024 * 1024;
+        else if (end == 'g')
+            mult = 1024 * 1024 * 1024;
+        if (mult > 1)
+            v.pop_back();
 
-    return std::stol(v) * mult;
+        return std::stol(v) * mult;
+    }
+    return 0;
 }
 
 std::string coConfigLong::toString(const long &value) const
