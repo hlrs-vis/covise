@@ -247,7 +247,7 @@ bool Google3DTilesPlugin::parseChildren(const rapidjson::Value& children)
         }
         if (child.HasMember("children") && child["children"].IsArray())
         {
-            return parseChildren(child["children"]);
+            bool ret = parseChildren(child["children"]);
         }
     }
     return true;
