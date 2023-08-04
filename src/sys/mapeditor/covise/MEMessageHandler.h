@@ -49,7 +49,7 @@ public:
 
 public slots:
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+#if QT_VERSION < 0x50f00
     virtual void dataReceived(int);
 #else
     virtual void dataReceived(QSocketDescriptor, QSocketNotifier::Type);
