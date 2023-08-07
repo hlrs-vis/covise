@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <net/covise_connect.h>
 #include <xenomai/init.h>
 
 #include <cover/coVRPluginSupport.h>
@@ -308,7 +309,8 @@ bool fasi::readClientVal(void *buf, unsigned int numBytes)
         if (readBytes < 0)
         {
             std::cout << "error reading data from socket" << std::endl;
-            delete toClientConn;
+            //delete toClientConn;
+            toClientConn.reset();
             toClientConn = NULL;
             return false;
         }
@@ -379,7 +381,8 @@ void fasi::run()
                 int written = toClientConn->getSocket()->write(&remoteData, sizeof(remoteData));
                 if (written < 0)
                 {
-                    delete toClientConn;
+                    //delete toClientConn;
+                    toClientConn.reset();
                     toClientConn = NULL;
                     std::cout << "Cresetw " << sharedState.frameTime << std::endl;
                 }

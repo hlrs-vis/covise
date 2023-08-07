@@ -88,7 +88,7 @@ public:
     void parseOpenDrive(xercesc::DOMElement *rootElement);
     xercesc::DOMElement *getOpenDriveRootElement(std::string filename);
     covise::ServerConnection *serverConn;
-    covise::SimpleServerConnection *toClientConn;
+    std::unique_ptr<covise::SimpleServerConnection> toClientConn;
     bool readClientVal(void *buf, unsigned int numBytes);
 };
 }
