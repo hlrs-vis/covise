@@ -107,7 +107,10 @@ macro(qt_add_resources)
 endmacro(qt_add_resources)
 
 macro(qt_use_modules target)
-    if(NOT COVISE_USE_QT5)
+      if(NOT COVISE_USE_QT5)
+        if (NOT Qt6Core_FOUND)
+          covise_find_package(Qt6 COMPONENTS Core REQUIRED)
+      endif()
       qt6_disable_unicode_defines(${target})
 
       #target_include_directories(${target} SYSTEM ${Qt6${mod}_INCLUDE_DIRS})
