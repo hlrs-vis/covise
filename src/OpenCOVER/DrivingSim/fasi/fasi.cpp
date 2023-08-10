@@ -12,6 +12,10 @@
 #include <net/covise_connect.h>
 #include <xenomai/init.h>
 
+#ifdef debug
+#undef debug
+#endif
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <vrb/client/SharedStateManager.h>
