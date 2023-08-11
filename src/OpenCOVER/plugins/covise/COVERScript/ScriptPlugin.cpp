@@ -24,9 +24,7 @@
 #include "ScriptWsCovise.h"
 #include "ScriptVrmlNode.h"
 
-#if QT_VERSION >= 0x040500
 #include "ScriptDebugger.h"
-#endif
 
 #include <net/tokenbuffer.h>
 #include <cover/coVRPluginSupport.h>
@@ -99,9 +97,7 @@ ScriptPlugin::~ScriptPlugin()
     delete this->tui;
     delete this->dynamicUI;
     delete this->covise_;
-#if QT_VERSION >= 0x040500
     delete this->debugger;
-#endif
 }
 
 int ScriptPlugin::unloadQS(const char *filename, const char * /*covise_key*/)
@@ -180,12 +176,10 @@ bool ScriptPlugin::init()
     this->covise_ = new ScriptWsCovise(this);
     this->dynamicUI = new DynamicUI(this, this->covise_);
 
-#if QT_VERSION >= 0x040500
     this->debugger = new ScriptDebugger(this);
 
     if (coCoviseConfig::isOn("COVER.Plugin.COVERScript.ShowDebugger", false))
         this->debugger->show();
-#endif
     ScriptVrmlNode::init(this);
     return true;
 }

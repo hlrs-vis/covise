@@ -14,6 +14,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include <QSocketNotifier>
+#include <QtGlobal>
 
 #include <util/coLog.h>
 #include <covise/covise_msg.h>

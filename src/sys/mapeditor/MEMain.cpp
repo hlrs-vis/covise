@@ -29,10 +29,6 @@
 #define MEApplication QApplication
 #endif
 
-#if QT_VERSION < 0x040300
-#error "Qt version 4.3.0 or higher is required"
-#endif
-
 #include <QMessageBox>
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
@@ -61,17 +57,9 @@
 //========================================================
 // implement our own message handler
 //========================================================
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void debugMsgHandler(QtMsgType type, const QMessageLogContext &, const QString &message)
-#else
-void debugMsgHandler(QtMsgType type, const char *message)
-#endif
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     const QString &msg = message;
-#else
-    const QString msg(message);
-#endif
 #ifdef NDEBUG
     static bool useDebugWindow = covise::coCoviseConfig::isOn("System.MapEditor.DebugWindow", false);
 #else
@@ -109,11 +97,9 @@ void debugMsgHandler(QtMsgType type, const char *message)
         std::cerr << "Fatal: " << msg.toStdString() << std::endl;
         QMessageBox::critical(0, "Debug - Fatal", msg);
         break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     case QtInfoMsg:
         std::cerr << "Info: " << msg.toStdString() << std::endl;
         break;
-#endif
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
@@ -141,9 +127,7 @@ int main(int argc, char **argv)
     web_engine_context_log->setFilterRules("*.info=false");
 
     // start user interface process
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     MEApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-#endif
     MEApplication a(argc, argv);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
@@ -168,19 +152,14 @@ int main(int argc, char **argv)
 #ifdef Q_OS_MAC
     a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     a.setAttribute(Qt::AA_UseHighDpiPixmaps, true);
-#endif
+
     MEMainHandler handler(argc, argv, [&a]() {
         a.quit();
     });
 
 // this has to be done after creating MEMainHandler - generateTitle depends on it
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     qInstallMessageHandler(debugMsgHandler);
-#else
-    qInstallMsgHandler(debugMsgHandler);
-#endif
 
     a.connect(&a, &QApplication::lastWindowClosed, &handler, &MEMainHandler::quit);
     a.connect(&a, &QApplication::lastWindowClosed, &a, &QApplication::quit);

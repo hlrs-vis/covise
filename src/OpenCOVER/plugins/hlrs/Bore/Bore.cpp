@@ -354,8 +354,8 @@ void BoreHole::regenerate()
 		}
 		geodeVergrusung = createGeometry();
 		boreHoleTrans->addChild(geodeVergrusung);
-		cleftGeode = createCleftGeometry(1.5);
-		boreHoleTrans->addChild(cleftGeode);
+		//cleftGeode = createCleftGeometry(1.5);
+		//boreHoleTrans->addChild(cleftGeode);
 	}
 	else
 	{

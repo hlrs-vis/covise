@@ -12,6 +12,7 @@
 
 #include "widgets/MEFavorites.h"
 #include <config/array.h>
+#include <memory>
 
 class QString;
 class QColor;

@@ -9,11 +9,12 @@
 #include "TUITFEditor.h"
 #include <QPainter>
 #include <QFrame>
+#include <QtGlobal>
 
 #include "TUIApplication.h"
 #include "TUIFunctionEditorTab.h"
 #include <net/tokenbuffer.h>
-#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #define POSITIONX position().x()
 #define POSITIONY position().y()
 #else

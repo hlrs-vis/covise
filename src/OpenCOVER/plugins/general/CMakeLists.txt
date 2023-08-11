@@ -3,8 +3,10 @@
 # CMakeLists.txt for OpenCOVER plugins general
 #
 # @author Blasius Czink
+
 set(PLUGIN_CATEGORY "General")
 ADD_SUBDIRECTORY(3dm)
+ADD_SUBDIRECTORY(3DTiles)
 ADD_SUBDIRECTORY(Amber)
 ADD_SUBDIRECTORY(ARInteractors)
 ADD_SUBDIRECTORY(Bee)

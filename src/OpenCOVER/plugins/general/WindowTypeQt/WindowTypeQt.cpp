@@ -205,9 +205,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
         //qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
-#endif
 #ifdef __APPLE__
         qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
@@ -383,7 +381,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     bool found = false;
     bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
     if (!found)
@@ -393,10 +390,8 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
         format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
     }
-#endif
     QSurfaceFormat::setDefaultFormat(format);
     win.widget = new QtOsgWidget(win.window);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     if (sRGB)
     {
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
@@ -413,7 +408,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     {
         win.widget->setTextureFormat(GL_RGB10_A2);
     }
-#endif
     win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();

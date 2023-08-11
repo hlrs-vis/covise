@@ -11,6 +11,7 @@
 #include <QTreeWidget>
 #include <QMap>
 #include <QSettings>
+#include <QtGlobal>
 
 class QMenu;
 class QAction;

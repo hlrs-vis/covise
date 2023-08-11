@@ -20,6 +20,7 @@
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <qfiledialog.h>
+#include <QtGlobal>
 
 // internal prototypes (required for the Metrowerks CodeWarrior compiler)
 int main(int argc, char *argv[]);

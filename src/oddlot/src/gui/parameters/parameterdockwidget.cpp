@@ -33,6 +33,7 @@
 #include <QLabel>
 #include <QSizePolicy>
 #include <QToolTip>
+#include <QtGlobal>
 
 //######################//
 // ParameterDockWidget  //

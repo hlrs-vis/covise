@@ -26,6 +26,7 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QGroupBox>
+#include <QtGlobal>
 
 // Utils //
 //

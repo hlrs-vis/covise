@@ -22,6 +22,7 @@
 #include <QKeyEvent>
 #include <QResizeEvent>
 #include <QString>
+#include <QtGlobal>
 
 #ifndef GL_RGBA8
 #define GL_RGBA8 0x8058

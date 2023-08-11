@@ -36,6 +36,7 @@
 #include <QDebug>
 #include <QGraphicsRectItem>
 #include <QApplication>
+#include <QtGlobal>
 
 ProfileGraphView::ProfileGraphView(ProfileGraphScene *scene, QWidget *parent)
     : QGraphicsView(scene, parent)

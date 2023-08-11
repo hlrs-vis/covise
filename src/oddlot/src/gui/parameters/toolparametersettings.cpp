@@ -47,6 +47,7 @@
 #include <QPushButton>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QtGlobal>
 
 
 //#######################//

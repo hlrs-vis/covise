@@ -21,6 +21,7 @@
  // Qt //
  //
 #include <QButtonGroup>
+#include <QtGlobal>
 
 //################//
 //                //

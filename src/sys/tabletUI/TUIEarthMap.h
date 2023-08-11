@@ -10,9 +10,7 @@
 
 #include <QtGlobal>
 #ifdef HAVE_QT_LOCATION
-#if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
 #define HAVE_TUIEARTHMAP
-#endif
 #endif
 
 #include <QObject>
