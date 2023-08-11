@@ -11,6 +11,8 @@
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
 #include <xenomai/init.h>
+#include <OpenConfig/access.h>
+
 
 #ifdef debug
 #undef debug
@@ -26,6 +28,7 @@ using namespace vehicleUtil;
 
 int main(int argc, char* const* argv)
 {
+    config::Access acc("localhost","test", 0);
     if (argc < 2)
     {
         fprintf(stderr, "usage: fasi file.xodr\n");

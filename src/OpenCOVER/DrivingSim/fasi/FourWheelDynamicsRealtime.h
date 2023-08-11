@@ -10,6 +10,9 @@
 
 #include "../VehicleUtil/gealg/CarDynamics.h"
 #include "XenomaiTask.h"
+#ifdef debug
+#undef debug
+#endif
 #include "ValidateMotionPlatform.h"
 #include "CanOpenController.h"
 #include "XenomaiSteeringWheel.h"

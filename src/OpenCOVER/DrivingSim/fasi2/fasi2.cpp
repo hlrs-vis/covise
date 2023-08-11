@@ -10,7 +10,9 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <xenomai/init.h>
+
 #undef debug
+#include <OpenConfig/access.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <vrb/client/SharedStateManager.h>
@@ -21,6 +23,7 @@ using namespace vehicleUtil;
 
 int main(int argc, char* const* argv)
 {
+    config::Access acc("localhost","test",0);
     if (argc < 2)
     {
         fprintf(stderr, "usage: fasi2 file.xodr\n");
