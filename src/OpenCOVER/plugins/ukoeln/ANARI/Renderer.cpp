@@ -145,7 +145,7 @@ std::vector<std::string> Renderer::getRendererTypes()
         const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
         if (deviceSubtypes != nullptr) {
             while (const char* dstype = *deviceSubtypes++) {
-                const char** rendererTypes = anariGetObjectSubtypes(anari.library, dstype, ANARI_RENDERER);
+                const char** rendererTypes = anariGetObjectSubtypes(anari.device, ANARI_RENDERER);
                 while (rendererTypes && *rendererTypes) {
                     const char* rendererType = *rendererTypes++;
                     result.push_back(rendererType);
@@ -364,7 +364,7 @@ void Renderer::initFrames()
 {
     anari.headLight = anariNewLight(anari.device,"directional");
     ANARIArray1D lights = anariNewArray1D(anari.device, &anari.headLight, 0, 0,
-                                          ANARI_LIGHT, 1, 0);
+                                          ANARI_LIGHT, 1);
     anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &lights);
     anariCommitParameters(anari.device, anari.world);
 

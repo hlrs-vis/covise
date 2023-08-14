@@ -2728,21 +2728,21 @@ void setANARIEntities(GroupNode groupNode, ANARI& anari)
 
     if (anari.surfaces.size() > 0) {
         ANARIArray1D surfaces = anariNewArray1D(anari.device,anari.surfaces.data(),0,0,
-                                                ANARI_SURFACE,anari.surfaces.size(),0);
+                                                ANARI_SURFACE,anari.surfaces.size());
         anariSetParameter(anari.device,groupNode,"surface",ANARI_ARRAY1D,&surfaces);
         anariRelease(anari.device,surfaces);
     }
 
     if (anari.volumes.size() > 0) {
         ANARIArray1D volumes = anariNewArray1D(anari.device,anari.volumes.data(),0,0,
-                                               ANARI_VOLUME,anari.volumes.size(),0);
+                                               ANARI_VOLUME,anari.volumes.size());
         anariSetParameter(anari.device,groupNode,"volume",ANARI_ARRAY1D,&volumes);
         anariRelease(anari.device,volumes);
     }
 
     if ((anari.flags & ASG_BUILD_WORLD_FLAG_LIGHTS) && anari.lights.size() > 0) {
         ANARIArray1D lights = anariNewArray1D(anari.device,anari.lights.data(),0,0,
-                                              ANARI_LIGHT,anari.lights.size(),0);
+                                              ANARI_LIGHT,anari.lights.size());
         anariSetParameter(anari.device,groupNode,"light",ANARI_ARRAY1D,&lights);
         anariRelease(anari.device,lights);
     }
@@ -2753,7 +2753,7 @@ void setANARIEntities(GroupNode groupNode, ANARI& anari)
         if (anari.instances.size() > 0) {
             ANARIArray1D instances = anariNewArray1D(anari.device,anari.instances.data(),
                                                      0,0,ANARI_INSTANCE,
-                                                     anari.instances.size(),0);
+                                                     anari.instances.size());
             anariSetParameter(anari.device,groupNode,"instance",ANARI_ARRAY1D,&instances);
             anariRelease(anari.device,instances);
         }
@@ -2892,7 +2892,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                 ANARIArray1D vertexPosition = anariNewArray1D(anari->device,
                                                               geom->vertices,
                                                               0,0,ANARI_FLOAT32_VEC3,
-                                                              geom->numVertices,0);
+                                                              geom->numVertices);
 
                 anariSetParameter(anari->device,geom->anariGeometry,"vertex.position",
                                   ANARI_ARRAY1D,&vertexPosition);
@@ -2904,8 +2904,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                                                                   geom->indices,
                                                                   0,0,
                                                                   ANARI_UINT32_VEC3,
-                                                                  geom->numIndices,
-                                                                  0);
+                                                                  geom->numIndices);
                     anariSetParameter(anari->device,geom->anariGeometry,
                                       "primitive.index",
                                       ANARI_ARRAY1D,&primitiveIndex);
@@ -2928,12 +2927,12 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                 ANARIArray1D vertexPosition = anariNewArray1D(anari->device,
                                                               geom->vertices,
                                                               0,0,ANARI_FLOAT32_VEC3,
-                                                              geom->numVertices,0);
+                                                              geom->numVertices);
 
                 ANARIArray1D vertexRadius = anariNewArray1D(anari->device,
                                                             geom->radii,
                                                             0,0,ANARI_FLOAT32,
-                                                            geom->numVertices,0);
+                                                            geom->numVertices);
 
                 anariSetParameter(anari->device,geom->anariGeometry,"vertex.position",
                                   ANARI_ARRAY1D,&vertexPosition);
@@ -2949,7 +2948,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                     ANARIArray1D vertexColor = anariNewArray1D(anari->device,
                                                                geom->vertexColors,
                                                                0,0,ANARI_FLOAT32_VEC4,
-                                                               geom->numVertices,0);
+                                                               geom->numVertices);
 
                     anariSetParameter(anari->device,geom->anariGeometry,"vertex.color",
                                       ANARI_ARRAY1D,&vertexColor);
@@ -2962,8 +2961,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                                                                   geom->indices,
                                                                   0,0,
                                                                   ANARI_UINT32_VEC3,
-                                                                  geom->numIndices,
-                                                                  0);
+                                                                  geom->numIndices);
                     anariSetParameter(anari->device,geom->anariGeometry,
                                       "primitive.index",
                                       ANARI_ARRAY1D,&primitiveIndex);
@@ -2986,12 +2984,12 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                 ANARIArray1D vertexPosition = anariNewArray1D(anari->device,
                                                               geom->vertices,
                                                               0,0,ANARI_FLOAT32_VEC3,
-                                                              geom->numVertices,0);
+                                                              geom->numVertices);
 
                 ANARIArray1D primitiveRadius = anariNewArray1D(anari->device,
                                                                geom->radii,
                                                                0,0,ANARI_FLOAT32,
-                                                               geom->numVertices,0);
+                                                               geom->numVertices);
 
                 anariSetParameter(anari->device,geom->anariGeometry,"vertex.position",
                                   ANARI_ARRAY1D,&vertexPosition);
@@ -3007,7 +3005,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                     ANARIArray1D vertexColor = anariNewArray1D(anari->device,
                                                                geom->vertexColors,
                                                                0,0,ANARI_FLOAT32_VEC4,
-                                                               geom->numVertices,0);
+                                                               geom->numVertices);
 
                     anariSetParameter(anari->device,geom->anariGeometry,"vertex.color",
                                       ANARI_ARRAY1D,&vertexColor);
@@ -3020,8 +3018,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                                                                   geom->indices,
                                                                   0,0,
                                                                   ANARI_UINT32_VEC3,
-                                                                  geom->numIndices,
-                                                                  0);
+                                                                  geom->numIndices);
                     anariSetParameter(anari->device,geom->anariGeometry,
                                       "primitive.index",
                                       ANARI_ARRAY1D,&primitiveIndex);
@@ -3103,7 +3100,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
             StructuredVolume* vol = (StructuredVolume*)obj->impl;
 
             if (vol->anariVolume == nullptr)
-                vol->anariVolume = anariNewVolume(anari->device,"scivis");
+                vol->anariVolume = anariNewVolume(anari->device,"transferFunction1D");
 
             if (anari->flags & ASG_BUILD_WORLD_FLAG_VOLUMES) {
 
@@ -3119,8 +3116,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
 
                 ANARIArray3D scalar = anariNewArray3D(anari->device,vol->data,
                                                       0,0,ANARI_FLOAT32,
-                                                      volDims[0],volDims[1],volDims[2],
-                                                      0,0,0);
+                                                      volDims[0],volDims[1],volDims[2]);
 
                 vol->anariSpatialField = anariNewSpatialField(anari->device,
                                                               "structuredRegular");
@@ -3159,8 +3155,8 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                     asgLookupTable1DGetNumEntries(vol->lut1D, &numEntries);
                 }
 
-                ANARIArray1D anariColor = anariNewArray1D(anari->device, rgb, 0, 0, ANARI_FLOAT32_VEC3, numEntries, 0);
-                ANARIArray1D anariOpacity = anariNewArray1D(anari->device, alpha, 0, 0, ANARI_FLOAT32, numEntries, 0);
+                ANARIArray1D anariColor = anariNewArray1D(anari->device, rgb, 0, 0, ANARI_FLOAT32_VEC3, numEntries);
+                ANARIArray1D anariOpacity = anariNewArray1D(anari->device, alpha, 0, 0, ANARI_FLOAT32, numEntries);
 
                 anariSetParameter(anari->device, vol->anariVolume, "color", ANARI_ARRAY1D, &anariColor);
                 anariSetParameter(anari->device, vol->anariVolume, "opacity", ANARI_ARRAY1D, &anariOpacity);
