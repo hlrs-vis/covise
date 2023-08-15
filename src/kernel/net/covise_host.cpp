@@ -76,7 +76,7 @@ std::string Host::lookupHostname(const char *numericIP)
         int err = inet_pton(AF_INET, numericIP, &sa.sin_addr);
         if (err == 1)
         {
-
+            //std::cerr << "Host::lookupHostname: for " << numericIP << std::endl;
             int res = getnameinfo((struct sockaddr *)&sa, sizeof(sa),
                                   hostname, sizeof(hostname),
                                   NULL, 0, NI_NAMEREQD);
@@ -508,6 +508,15 @@ static bool isMulticastAddress(const unsigned char address[4])
     return false;
 }
 
+static bool isBenchmarkAddress(const unsigned char address[4])
+{
+    // RFC 2544
+    if ((address[0]) == 198 && (address[1] & 0xfe) == 18)
+        return true;
+
+    return false;
+}
+
 static bool isRoutableAddress(const unsigned char address[4])
 {
     if (address[0] == 0 && address[1] == 1 && address[2] == 0 && address[3] == 0)
@@ -526,6 +535,9 @@ static bool isRoutableAddress(const unsigned char address[4])
         return false;
 
     if (isLoopbackAddress(address))
+        return false;
+
+    if (isBenchmarkAddress(address))
         return false;
 
     return true;
