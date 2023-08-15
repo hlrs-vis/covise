@@ -395,7 +395,7 @@ void CFX::param(const char *paramName, bool in_map_loading)
             strcpy(resultName, resultfileName);
         }
     }
-    else if (strcmp(p_zone->getName(), paramName) == 0 && !in_map_loading)
+    else if (strcmp(p_zone->getName(), paramName) == 0)
     {
         if (nzones > 0)
         {
