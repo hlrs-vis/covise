@@ -306,15 +306,16 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
         channelInfos[chan].pr = pr;
 
         glm::mat4 glmv, glpr;
-        glmv[0] = glm::vec4(mv(0,0), mv(1,0), mv(2,0), mv(3,0));
-        glmv[1] = glm::vec4(mv(0,1), mv(1,1), mv(2,1), mv(3,1));
-        glmv[2] = glm::vec4(mv(0,2), mv(1,2), mv(2,2), mv(3,2));
-        glmv[3] = glm::vec4(mv(0,3), mv(1,3), mv(2,3), mv(3,3));
+        // glm matrices are column-major, osg matrices are row-major!
+        glmv[0] = glm::vec4(mv(0,0), mv(0,1), mv(0,2), mv(0,3));
+        glmv[1] = glm::vec4(mv(1,0), mv(1,1), mv(1,2), mv(1,3));
+        glmv[2] = glm::vec4(mv(2,0), mv(2,1), mv(2,2), mv(2,3));
+        glmv[3] = glm::vec4(mv(3,0), mv(3,1), mv(3,2), mv(3,3));
 
-        glpr[0] = glm::vec4(pr(0,0), pr(1,0), pr(2,0), pr(3,0));
-        glpr[1] = glm::vec4(pr(0,1), pr(1,1), pr(2,1), pr(3,1));
-        glpr[2] = glm::vec4(pr(0,2), pr(1,2), pr(2,2), pr(3,2));
-        glpr[3] = glm::vec4(pr(0,3), pr(1,3), pr(2,3), pr(3,3));
+        glpr[0] = glm::vec4(pr(0,0), pr(0,1), pr(0,2), pr(0,3));
+        glpr[1] = glm::vec4(pr(1,0), pr(1,1), pr(1,2), pr(1,3));
+        glpr[2] = glm::vec4(pr(2,0), pr(2,1), pr(2,2), pr(2,3));
+        glpr[3] = glm::vec4(pr(3,0), pr(3,1), pr(3,2), pr(3,3));
 
         glm::vec3 eye, dir, up;
         float fovy, aspect;
