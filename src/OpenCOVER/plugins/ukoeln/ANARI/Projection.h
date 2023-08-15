@@ -39,22 +39,10 @@ void offaxisStereoCamera(vec3 LL, vec3 LR, vec3 UR, vec3 eye,
   float bottom = dot(eyeP,Y);
   float top    = length(UR-LR)-bottom;
 
-  float width  = left+right;
-  float height = bottom+top;
-
-  // new height in world space
-  float newHeightWorld = bottom<top ? 2*top : 2*bottom;
-
-  fovyOUT = 2*atan(newHeightWorld/(2*dist));
-
-  // from now on use normalized values
-  left   /= width;
-  right  /= width;
-  top    /= height;
-  bottom /= height;
-
   float newWidth = left<right ? 2*right : 2*left;
   float newHeight = bottom<top ? 2*top : 2*bottom;
+
+  fovyOUT = 2*atan(newHeight/(2*dist));
 
   aspectOUT = newWidth/newHeight;
 
