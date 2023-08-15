@@ -1,4 +1,5 @@
 find_package(anari)
+find_package(glm)
 using(Assimp)
 
 if(NOT ANARI_FOUND)
@@ -20,7 +21,7 @@ SET(SOURCES
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
 target_compile_definitions(ANARIPlugin PUBLIC -DASG_USE_VISIONARAY_FOR_PICKING=0)
-target_link_libraries(ANARIPlugin anari::anari)
+target_link_libraries(ANARIPlugin anari::anari glm::glm)
 if (ASSIMP_FOUND)
   target_compile_definitions(ANARIPlugin PUBLIC ASG_HAVE_ASSIMP=1)
 endif()

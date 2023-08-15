@@ -12,6 +12,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
+#include "Projection.h"
 #include "Renderer.h"
 
 using namespace covise;
@@ -304,20 +305,28 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
         channelInfos[chan].mv = mv;
         channelInfos[chan].pr = pr;
 
-        osg::Vec3f eye, center, up;
-        mv.getLookAt(eye, center, up);
-        osg::Vec3f dir = center-eye;
+        glm::mat4 glmv, glpr;
+        glmv[0] = glm::vec4(mv(0,0), mv(1,0), mv(2,0), mv(3,0));
+        glmv[1] = glm::vec4(mv(0,1), mv(1,1), mv(2,1), mv(3,1));
+        glmv[2] = glm::vec4(mv(0,2), mv(1,2), mv(2,2), mv(3,2));
+        glmv[3] = glm::vec4(mv(0,3), mv(1,3), mv(2,3), mv(3,3));
 
-        float fovy, aspect, znear, zfar;
-        pr.getPerspective(fovy, aspect, znear, zfar);
+        glpr[0] = glm::vec4(pr(0,0), pr(1,0), pr(2,0), pr(3,0));
+        glpr[1] = glm::vec4(pr(0,1), pr(1,1), pr(2,1), pr(3,1));
+        glpr[2] = glm::vec4(pr(0,2), pr(1,2), pr(2,2), pr(3,2));
+        glpr[3] = glm::vec4(pr(0,3), pr(1,3), pr(2,3), pr(3,3));
 
-        float imgRegion[] = {0.f,0.f,1.f,1.f};
+        glm::vec3 eye, dir, up;
+        float fovy, aspect;
+        glm::box2 imgRegion;
+        offaxisStereoCameraFromTransform(
+            inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
 
         anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
-        anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, eye.ptr());
-        anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, dir.ptr());
-        anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, up.ptr());
-        anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, imgRegion);
+        anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &eye.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &dir.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &up.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &imgRegion.min);
         anariCommitParameters(anari.device, anari.cameras[chan]);
     }
 
