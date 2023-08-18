@@ -1,5 +1,5 @@
 #include "ToolMachine.h"
-
+#include "opcua.h"
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeTransform.h>
 #include <vrml97/vrml/VrmlNodeType.h>
@@ -10,11 +10,9 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
-#include <open62541/client_config_default.h>
-#include <open62541/client_highlevel.h>
-#include <open62541/plugin/log_stdout.h>
-#include <stdlib.h>
 
+#include <stdlib.h>
+#include <cover/ui/VectorEditField.h>
 
 using namespace covise;
 using namespace opencover;
@@ -103,22 +101,15 @@ public:
         if(axis >= 2)
         {
             osg::Vec3f v;
-            v[axis -2] = value;
+            v[axis -2] = value /1000;
             eventOut(t, axisNames[axis], VrmlSFVec3f{v.x(), v.z(), v.y()});
         }
         else{
             osg::Vec3f v;
             v[axis] = 1;
-            eventOut(t, axisNames[axis], VrmlSFRotation{v.x(), v.z(), v.y(), value});
+            eventOut(t, axisNames[axis], VrmlSFRotation{v.x(), v.z(), v.y(), value / 180 *(float)osg::PI});
         }
     }
-    void aAxisYOffset(float val)
-    {
-        auto t = System::the->time();
-        eventOut(t, "aAxisYOffsetPos",VrmlSFVec3f(0, val, 0));
-        eventOut(t, "aAxisYOffsetNeg",VrmlSFVec3f(0, -1 *val, 0));
-    }
-
 private:
     size_t m_index = 0;
 };
@@ -128,74 +119,47 @@ VrmlNode *creator(VrmlScene *scene)
     return new MachineNode(scene);
 }
 
+
+
 COVERPLUGIN(ToolMaschinePlugin)
 
 ToolMaschinePlugin::ToolMaschinePlugin()
 :coVRPlugin(COVER_PLUGIN_NAME)
-, ui::Owner("ToolMaschinePlugin", cover->ui)
+, ui::Owner("ToolMachinePlugin", cover->ui)
 {
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
-    auto menu = new ui::Menu("ToolMaschine", this);
-    auto aAxisYOffset = new ui::Slider(menu, "aAxisYOffset");
-    aAxisYOffset->setBounds(-2, 2);
-    aAxisYOffset->setCallback([](double val, bool rel){
-        for(auto &m : machineNodes)
+    auto menu = new ui::Menu("ToolMachine", this);
+    m_client.reset(new OpcUaClient("Test", menu, *config()));
+    auto g = new opencover::ui::Group(menu, "offsets");
+    m_offsets = new opencover::ui::VectorEditField(g, "offset in mm");
+    m_client->onConnect([this](){
+        
+        m_client->registerDouble("ENC2_POS|X", [this](double val)
         {
-            m->aAxisYOffset(val);
-        }
+            for(const auto &m : machineNodes)
+                m->move2(2, val + m_offsets->value().x());
+        });
+        m_client->registerDouble("ENC2_POS|Y", [this](double val)
+        {
+            for(const auto &m : machineNodes)
+                m->move2(3, val + m_offsets->value().y());
+        });
+        m_client->registerDouble("ENC2_POS|Z", [this](double val)
+        {
+            for(const auto &m : machineNodes)
+                m->move2(4, val + m_offsets->value().z());
+        });
+        m_client->registerDouble("ENC2_POS|A", [](double val)
+        {
+            for(const auto &m : machineNodes)
+                m->move2(0, val);
+        });
+        m_client->registerDouble("ENC2_POS|C", [](double val)
+        {
+            for(const auto &m : machineNodes)
+                m->move2(1, val);
+        });
     });
-
-
-
-/* Create the server and set its config */
-    UA_Client *client = UA_Client_new();
-    UA_ClientConfig *cc = UA_Client_getConfig(client);
-
-    UA_ClientConfig_setDefault(cc);
-    cc->securityMode = UA_MESSAGESECURITYMODE_NONE;
-    UA_ByteString_clear(&cc->securityPolicyUri);
-    cc->securityPolicyUri = UA_STRING_NULL;
-
-
-    /* The application URI must be the same as the one in the certificate.
-     * The script for creating a self-created certificate generates a certificate
-     * with the Uri specified below.*/
-    UA_ApplicationDescription_clear(&cc->clientDescription);
-    cc->clientDescription.applicationUri = UA_STRING_ALLOC("urn:open62541.server.application");
-    cc->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
-
-    /* Connect to the server */
-    UA_StatusCode retval = UA_STATUSCODE_GOOD;
-    UA_ClientConfig_setAuthenticationUsername(cc, "Woessner_hlrs", "34$Wa99#*");
-    retval = UA_Client_connect(client, "opc.tcp://141.58.132.65:48010");
-    /* Alternative */
-    //retval = UA_Client_connectUsername(client, serverurl, username, password);
-
-    if(retval != UA_STATUSCODE_GOOD) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Could not connect");
-        UA_Client_delete(client);
-        return;
-    }
-
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Connected!");
-
-    /* Read the server-time */
-    UA_Variant value;
-    UA_Variant_init(&value);
-    UA_Client_readValueAttribute(client,
-              UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME),
-              &value);
-    if(UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_DATETIME])) {
-        UA_DateTimeStruct dts = UA_DateTime_toStruct(*(UA_DateTime *)value.data);
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
-                    "The server date is: %02u-%02u-%04u %02u:%02u:%02u.%03u",
-                    dts.day, dts.month, dts.year, dts.hour, dts.min, dts.sec, dts.milliSec);
-    }
-    UA_Variant_clear(&value);
-
-    /* Clean up */
-    UA_Client_disconnect(client);
-    UA_Client_delete(client);
 
 
 }
@@ -208,7 +172,7 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
     std::string key = "unknown";
     if (!(keySym & 0xff00))
     {
-        char buf[2] = { static_cast<char>(keySym), '\0' };
+        char buf[2] = { static_cast<char>(keySym), '/0' };
         key = buf;
     }
     float speed = 0.5;
@@ -234,5 +198,11 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
             }
         }
     }
+}
+
+bool ToolMaschinePlugin::update()
+{
+    m_client->update();
+    return true;
 }
 

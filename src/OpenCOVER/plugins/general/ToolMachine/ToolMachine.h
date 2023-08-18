@@ -10,19 +10,25 @@
 
 
 
-#include <cover/coVRPluginSupport.h>
-#include <osg/Vec3>
-#include <cover/ui/Owner.h>
-#include <open62541/client.h>
+#include "opcua.h"
 
+#include <cover/coVRPluginSupport.h>
+#include <cover/ui/Owner.h>
+#include <cover/ui/VectorEditField.h>
+#include <memory>
+#include <open62541/client.h>
+#include <osg/Vec3>
 class ToolMaschinePlugin : public opencover::coVRPlugin, opencover::ui::Owner
 {
 public:
     ToolMaschinePlugin();
 private:
     void key(int type, int keySym, int mod) override;
-    
+    bool update() override;
+    std::unique_ptr<OpcUaClient> m_client;
     std::array<float, 5> m_axisPositions{0,0,0,0,0}; //A, C, X, Y, Z
+    opencover::ui::VectorEditField *m_offsets;
+
 };
 
 

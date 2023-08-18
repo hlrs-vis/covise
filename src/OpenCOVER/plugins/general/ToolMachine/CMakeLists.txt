@@ -6,10 +6,12 @@ if(NOT open62541_FOUND)
 endif()
 SET(HEADERS
 ToolMachine.h
+opcua.h
 )
 
 SET(SOURCES
 ToolMachine.cpp
+opcua.cpp
 )
 
 cover_add_plugin(ToolMachine)
