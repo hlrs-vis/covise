@@ -156,7 +156,7 @@ void OpcUaClient::listVariables(UA_Client* client)
         }
         UA_BrowseRequest_clear(&bReq);
         UA_BrowseResponse_clear(&bResp);
-        auto size = m_numericalNodes.size();
+        size_t size = m_numericalNodes.size();
         msController->syncData(&size, sizeof(size_t));
         for(auto &node : m_numericalNodes)
         {
@@ -165,8 +165,8 @@ void OpcUaClient::listVariables(UA_Client* client)
             msController->syncData(&node.second.nodeId, sizeof(UA_UInt32));
         }
     } else{
-        auto size = m_numericalNodes.size();
-        size = msController->syncData(&size, sizeof(size_t));
+        size_t size;
+        msController->syncData(&size, sizeof(size_t));
         for (size_t i = 0; i < size; i++)
         {
             OpcUaField f;

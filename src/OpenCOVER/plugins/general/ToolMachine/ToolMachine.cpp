@@ -102,12 +102,12 @@ public:
         {
             osg::Vec3f v;
             v[axis -2] = value /1000;
-            eventOut(t, axisNames[axis], VrmlSFVec3f{v.x(), v.z(), v.y()});
+            eventOut(t, axisNames[axis], VrmlSFVec3f{v.x(), v.z(), -v.y()});
         }
         else{
             osg::Vec3f v;
             v[axis] = 1;
-            eventOut(t, axisNames[axis], VrmlSFRotation{v.x(), v.z(), v.y(), value / 180 *(float)osg::PI});
+            eventOut(t, axisNames[axis], VrmlSFRotation{v.x(), v.z(), v.y(), -value / 180 *(float)osg::PI});
         }
     }
 private:
@@ -173,7 +173,7 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
     std::string key = "unknown";
     if (!(keySym & 0xff00))
     {
-        char buf[2] = { (char)(keySym), '/0' };
+        char buf[2] = { static_cast<char>(keySym), '\0' };
         key = buf;
     }
     float speed = 0.5;
