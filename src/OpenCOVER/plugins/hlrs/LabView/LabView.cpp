@@ -288,7 +288,7 @@ LabViewPlugin::update()
     else if ((coVRMSController::instance()->isMaster()) && (serverHost != NULL))
     {
         // try to connect to server every 2 secnods
-        if ((cover->frameTime() - oldTime) > 2)
+        if (abs(cover->frameTime() - oldTime) > 2)
         {
             conn = new SimpleClientConnection(serverHost, port, 0);
 

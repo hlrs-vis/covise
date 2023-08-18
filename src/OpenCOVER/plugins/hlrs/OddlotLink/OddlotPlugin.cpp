@@ -479,7 +479,7 @@ bool OddlotPlugin::update()
         if(toOddlot)
         {
             static double lastTime = 0;
-            if(cover->frameTime() > lastTime+4)
+            if(abs(cover->frameTime() - lastTime )> +4)
             {
                 lastTime = cover->frameTime();
                 

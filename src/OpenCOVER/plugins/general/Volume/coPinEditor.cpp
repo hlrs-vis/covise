@@ -572,7 +572,7 @@ int coPinEditor::hit(vruiHit *hit)
 
     if (!mixChannelsActive && interactionA->isRunning() && (!doMove))
     {
-        if ((pickTime > 0) && ((cover->frameTime() - pickTime) > pickThreshold))
+        if ((pickTime > 0) && (abs(cover->frameTime() - pickTime) > pickThreshold))
         {
             doMove = true;
             pickTime = -1;

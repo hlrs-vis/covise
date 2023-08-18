@@ -518,7 +518,7 @@ void ARUCOPlugin::calibrate()
     std::string text = "Valid Frames: " + std::to_string(allIds.size());
     cv::putText(image[captureIdx], text, cv::Point(20, 20), cv::FONT_HERSHEY_SIMPLEX,1.0, cv::Scalar(255, 255, 255));
 
-    if (ids[captureIdx].size() > 25 && (cover->frameTime() - lastCalibCapture)>1.0)
+    if (ids[captureIdx].size() > 25 && abs(cover->frameTime() - lastCalibCapture)>1.0)
     {
         lastCalibCapture = cover->frameTime();
         Mat currentCharucoCorners, currentCharucoIds;

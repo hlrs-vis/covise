@@ -1051,7 +1051,7 @@ void InputDeviceMotionPlatform::updateInputState()
         if (automatic)
         {
             static double oldShiftTime = 0;
-            if (cover->frameTime() - oldShiftTime > 0.2)
+            if (abs(cover->frameTime() - oldShiftTime) > 0.2)
             {
                 int gearDiff;
                 if (sharedState.SportMode)

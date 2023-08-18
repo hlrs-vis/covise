@@ -118,7 +118,7 @@ LogoPlugin::preFrame()
 
     if (doHide)
     {
-        if (cover->frameTime() - hudTime >= logoTime)
+        if (abs(cover->frameTime() - hudTime) >= logoTime)
         {
             defaultLogo->hide();
             doHide = false;

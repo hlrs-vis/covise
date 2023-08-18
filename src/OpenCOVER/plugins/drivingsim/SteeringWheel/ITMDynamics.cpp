@@ -121,7 +121,7 @@ void ITMDynamics::update()
     if (conn == NULL && (coVRMSController::instance()->isMaster()) && (serverHost != NULL))
     {
         // try to connect to server every 2 secnods
-        if ((cover->frameTime() - oldTime) > 2)
+        if (abs(cover->frameTime() - oldTime) > 2)
         {
             cerr << "trying to connect to Matlab" << endl;
             conn = new SimpleClientConnection(serverHost, serverPort, 0);

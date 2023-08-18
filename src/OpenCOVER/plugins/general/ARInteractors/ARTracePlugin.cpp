@@ -268,7 +268,7 @@ void TraceModule::update()
     }
     else
     {
-        if (((updateOnVisibilityChange->getState() && visibilityChanged) || doUpdate || ((!updateOnVisibilityChange->getState()) && (updateInterval->getValue() > 0) && ((cover->frameTime() - oldTime) > updateInterval->getValue()))) && marker->isVisible())
+        if (((updateOnVisibilityChange->getState() && visibilityChanged) || doUpdate || ((!updateOnVisibilityChange->getState()) && (updateInterval->getValue() > 0) && (abs(cover->frameTime() - oldTime) > updateInterval->getValue()))) && marker->isVisible())
         {
             // send
 

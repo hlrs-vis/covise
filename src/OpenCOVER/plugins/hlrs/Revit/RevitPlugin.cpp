@@ -727,7 +727,7 @@ void ARMarkerInfo::update()
 
 				trans = MarkerInLocalCoords.getTrans() - hostMat.getTrans();
 				trans[2] = 0;
-				if((cover->frameTime() - lastUpdate) > 1.0 && trans.length() > 0.2)
+				if(abs(cover->frameTime() - lastUpdate) > 1.0 && trans.length() > 0.2)
 				{
 					hostMat.setTrans(hostMat.getTrans() + trans);
 					lastUpdate = cover->frameTime();
@@ -3480,7 +3480,7 @@ RevitPlugin::preFrame()
 		if (toRevit)
 		{
 			static double lastTime = 0;
-			if (cover->frameTime() > lastTime + 4)
+			if (abs(cover->frameTime()- lastTime) >   4)
 			{
 				TokenBuffer stb;
 				
@@ -4116,7 +4116,7 @@ bool DoorInfo::update(osg::Vec3 &viewerPosition)
 	}
 	if (left)
 	{
-		if (cover->frameTime() < startTime + animationTime)
+		if (cover->frameTime()- startTime <  animationTime)
 		{
 			float fraction = 1.0 - ((cover->frameTime() - startTime) / animationTime);
 			translateDoor(fraction);
@@ -4131,7 +4131,7 @@ bool DoorInfo::update(osg::Vec3 &viewerPosition)
 	}
 	if (entered)
 	{
-		if (cover->frameTime() < startTime + animationTime)
+		if (cover->frameTime()- startTime <  animationTime)
 		{
 			float fraction = (cover->frameTime() - startTime) / animationTime;
 			translateDoor(fraction);

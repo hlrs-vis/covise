@@ -337,7 +337,7 @@ void PorscheController::run()
         }
         else if ((coVRMSController::instance()->isMaster()) && (serverHost != NULL))
         {
-            if ((cover->frameTime() - oldTime) > 2)
+            if (abs(cover->frameTime() - oldTime) > 2)
             {
                 connect();
                 oldTime = cover->frameTime();

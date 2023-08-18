@@ -62,7 +62,7 @@ HLRSRealtimeDynamics::update()
     {
 
         // try to connect to server every 2 secnods
-        if (conn == NULL && (cover->frameTime() - oldTime) > 2)
+        if (conn == NULL && abs(cover->frameTime() - oldTime) > 2)
         {
             conn = new SimpleClientConnection(serverHost, serverPort, 0);
 

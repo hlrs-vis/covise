@@ -970,7 +970,7 @@ void Move::preFrame()
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 0.3)
+                if (abs(cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }
@@ -1036,7 +1036,7 @@ void Move::preFrame()
             }
             else
             {
-                if ((cover->frameTime() - startTime) > 0.3)
+                if (abs(cover->frameTime() - startTime) > 0.3)
                     allowMove = true;
             }
         }

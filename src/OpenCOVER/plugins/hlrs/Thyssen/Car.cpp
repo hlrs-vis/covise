@@ -519,7 +519,7 @@ void VrmlNodeCar::update()
     {
         
         nextPositionIsEmpty();
-        if((cover->frameTime() - timeoutStart) > 1 )
+        if(abs(cover->frameTime() - timeoutStart) > 1 )
         {
             timeoutStart = cover->frameTime();
             state = DoorOpen;
@@ -533,7 +533,7 @@ void VrmlNodeCar::update()
         {
             doorOpenTime = d_stationOpenTime[d_currentStationIndex.get()];
         }
-        if(((cover->frameTime() - timeoutStart) > doorOpenTime ) && openButton->getState()==false)
+        if((abs(cover->frameTime() - timeoutStart) > doorOpenTime ) && openButton->getState()==false)
         {
             timeoutStart = cover->frameTime();
             d_carDoorClose = System::the->time();
@@ -548,7 +548,7 @@ void VrmlNodeCar::update()
     else if(state == DoorClosing)
     {
         nextPositionIsEmpty();
-        if((cover->frameTime() - timeoutStart) > 1 )
+        if(abs(cover->frameTime() - timeoutStart) > 1 )
         {
             timeoutStart = cover->frameTime();
             state = Idle;

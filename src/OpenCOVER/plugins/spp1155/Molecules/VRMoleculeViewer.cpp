@@ -885,7 +885,7 @@ void VRMoleculeViewer::stepping()
 {
 #if 0
 
-   if( (cover->frameTime()-time) < timeBetweenFrames )
+   if( abs(cover->frameTime()-time) < timeBetweenFrames )
    return;
 
    time = cover->frameTime();

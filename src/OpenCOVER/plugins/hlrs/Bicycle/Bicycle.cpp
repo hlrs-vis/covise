@@ -653,7 +653,7 @@ counters[1]=0;
    if(oldTime==0.0)
        oldTime = cover->frameTime();
        
-   if(cover->frameTime() > oldTime+1.0)
+   if(abs(cover->frameTime()-oldTime) > 1.0)
    {
        speed = rpiSpeed; //speedCounter;///(cover->frameTime() - oldTime);
        oldTime = cover->frameTime();

@@ -237,7 +237,7 @@ PSOPlugin::preFrame()
 	applyODS = odsFunctionToggleButton->getState();
     if (isSetup && isRunning)
     {
-        if ((cover->frameTime() > oldTime + 1.0))
+        if (abs(cover->frameTime()- oldTime) >  1.0)
         {
             if (nvar == 2)
             {

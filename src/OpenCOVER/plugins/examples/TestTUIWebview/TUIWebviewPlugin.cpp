@@ -87,7 +87,7 @@ bool WebviewPlugin::init()
 
 bool WebviewPlugin::update() ///trigger new rendering of the window
 {
-    if(cover->frameTime()-lastChangeTime>=7) ///frameTime returns number of seconds
+    if(abs(cover->frameTime()-lastChangeTime)>=7) ///frameTime returns number of seconds
     {
         lastChangeTime = cover->frameTime(); ///time for url chancing is set to current time
         std::string url1 = ("http://www.9gag.com");

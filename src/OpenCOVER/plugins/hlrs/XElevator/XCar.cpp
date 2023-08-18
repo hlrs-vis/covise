@@ -339,7 +339,7 @@ void VrmlNodeXCar::update()
     else if(state == DoorOpening)
     {
         
-        if((cover->frameTime() - timeoutStart) > 3 )
+        if(abs(cover->frameTime() - timeoutStart) > 3 )
         {
             timeoutStart = cover->frameTime();
             state = DoorOpen;
@@ -352,7 +352,7 @@ void VrmlNodeXCar::update()
         {
             doorOpenTime = d_stationOpenTime[d_currentLanding.get()];
         }
-        if(((cover->frameTime() - timeoutStart) > doorOpenTime ) && openButton->getState()==false)
+        if((abs(cover->frameTime() - timeoutStart) > doorOpenTime ) && openButton->getState()==false)
         {
             timeoutStart = cover->frameTime();
             d_carDoorClose = System::the->time();
@@ -366,7 +366,7 @@ void VrmlNodeXCar::update()
     }
     else if(state == DoorClosing)
     {
-        if((cover->frameTime() - timeoutStart) > 3 )
+        if(abs(cover->frameTime() - timeoutStart) > 3 )
         {
             timeoutStart = cover->frameTime();
             state = Idle;

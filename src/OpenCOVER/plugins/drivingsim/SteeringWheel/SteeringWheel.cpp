@@ -1748,7 +1748,7 @@ SteeringWheelPlugin::preFrame()
         {
             if (coVRMSController::instance()->isMaster())
             {
-                if ((cover->frameTime() - oldTime) > updateRate)
+                if (abs(cover->frameTime() - oldTime) > updateRate)
                 {
                     //sendValuesToClient();
                     oldTime = cover->frameTime();
@@ -1850,7 +1850,7 @@ SteeringWheelPlugin::preFrame()
    {
       if(coVRMSController::instance()->isMaster())
       {
-         if((cover->frameTime() - oldTime)>updateRate)
+         if(abs(cover->frameTime() - oldTime)>updateRate)
          {
             sendValues();
             oldTime = cover->frameTime();
@@ -1952,7 +1952,7 @@ SteeringWheelPlugin::preFrame()
    else if((coVRMSController::instance()->isMaster()) && (serverHost!=NULL))
    {
       // try to connect to server every 2 secnods
-      if((cover->frameTime() - oldTime)>2)
+      if(abs(cover->frameTime() - oldTime)>2)
       {
          conn = new SimpleClientConnection(serverHost,port,0);
 
