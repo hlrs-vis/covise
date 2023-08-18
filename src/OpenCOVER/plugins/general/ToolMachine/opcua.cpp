@@ -118,43 +118,64 @@ OpcUaClient::~OpcUaClient()
 
 void OpcUaClient::listVariables(UA_Client* client)
 {
-    /* Browse some objects */
-    printf("Browsing nodes in objects folder:\n");
-    UA_BrowseRequest bReq;
-    UA_BrowseRequest_init(&bReq);
-    bReq.requestedMaxReferencesPerNode = 0;
-    bReq.nodesToBrowse = UA_BrowseDescription_new();
-    bReq.nodesToBrowseSize = 1;
-    bReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER); /* browse objects folder */
-    bReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; /* return everything */
-    UA_BrowseResponse bResp = UA_Client_Service_browse(client, bReq);
-    printf("%-9s %-16s %-16s %-16s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME");
-    
-    
-    for(size_t i = 0; i < bResp.resultsSize; ++i) {
-        for(size_t j = 0; j < bResp.results[i].referencesSize; ++j) {
-            UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-            if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC) {
-                printf("%-9u %-16u %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
-                       ref->nodeId.nodeId.identifier.numeric, (int)ref->browseName.name.length,
-                       ref->browseName.name.data, (int)ref->displayName.text.length,
-                       ref->displayName.text.data);
-                std::vector<char> v(ref->browseName.name.length + 1);
-                std::copy(ref->browseName.name.data, ref->browseName.name.data + ref->browseName.name.length, v.begin());
-                v[ref->browseName.name.length] = '\0';
-                m_numericalNodes[v.data()] = OpcUaField{v.data(), ref->nodeId.nodeId.namespaceIndex, ref->nodeId.nodeId.identifier.numeric};
-            } else if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING) {
-                printf("%-9u %-16.*s %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
-                       (int)ref->nodeId.nodeId.identifier.string.length,
-                       ref->nodeId.nodeId.identifier.string.data,
-                       (int)ref->browseName.name.length, ref->browseName.name.data,
-                       (int)ref->displayName.text.length, ref->displayName.text.data);
+    if(msController->isMaster())
+    {
+        printf("Browsing nodes in objects folder:\n");
+        UA_BrowseRequest bReq;
+        UA_BrowseRequest_init(&bReq);
+        bReq.requestedMaxReferencesPerNode = 0;
+        bReq.nodesToBrowse = UA_BrowseDescription_new();
+        bReq.nodesToBrowseSize = 1;
+        bReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER); /* browse objects folder */
+        bReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; /* return everything */
+        UA_BrowseResponse bResp = UA_Client_Service_browse(client, bReq);
+        printf("%-9s %-16s %-16s %-16s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME");
+        
+        
+        for(size_t i = 0; i < bResp.resultsSize; ++i) {
+            for(size_t j = 0; j < bResp.results[i].referencesSize; ++j) {
+                UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+                if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC) {
+                    printf("%-9u %-16u %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
+                        ref->nodeId.nodeId.identifier.numeric, (int)ref->browseName.name.length,
+                        ref->browseName.name.data, (int)ref->displayName.text.length,
+                        ref->displayName.text.data);
+                    std::vector<char> v(ref->browseName.name.length + 1);
+                    std::copy(ref->browseName.name.data, ref->browseName.name.data + ref->browseName.name.length, v.begin());
+                    v[ref->browseName.name.length] = '\0';
+                    m_numericalNodes[v.data()] = OpcUaField{v.data(), ref->nodeId.nodeId.namespaceIndex, ref->nodeId.nodeId.identifier.numeric};
+                } else if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING) {
+                    printf("%-9u %-16.*s %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
+                        (int)ref->nodeId.nodeId.identifier.string.length,
+                        ref->nodeId.nodeId.identifier.string.data,
+                        (int)ref->browseName.name.length, ref->browseName.name.data,
+                        (int)ref->displayName.text.length, ref->displayName.text.data);
+                }
+                /* TODO: distinguish further types */
             }
-            /* TODO: distinguish further types */
+        }
+        UA_BrowseRequest_clear(&bReq);
+        UA_BrowseResponse_clear(&bResp);
+        auto size = m_numericalNodes.size();
+        msController->syncData(&size, sizeof(size_t));
+        for(auto &node : m_numericalNodes)
+        {
+            msController->syncString(node.second.name);
+            msController->syncData(&node.second.nameSpace, sizeof(UA_UInt16));
+            msController->syncData(&node.second.nodeId, sizeof(UA_UInt32));
+        }
+    } else{
+        auto size = m_numericalNodes.size();
+        size = msController->syncData(&size, sizeof(size_t));
+        for (size_t i = 0; i < size; i++)
+        {
+            OpcUaField f;
+            f.name = msController->syncString(f.name);
+            f.nameSpace = msController->syncData(&f.nameSpace, sizeof(UA_UInt16));
+            f.nodeId = msController->syncData(&f.nodeId, sizeof(UA_UInt32));
+            m_numericalNodes[f.name] = f;
         }
     }
-    UA_BrowseRequest_clear(&bReq);
-    UA_BrowseResponse_clear(&bResp);
 }
 
 bool OpcUaClient::connect()
@@ -221,23 +242,17 @@ bool OpcUaClient::connect()
             }
             UA_Variant_clear(&value);
         }
-        listVariables(client);
-        if(m_onConnect)
-            m_onConnect();
         auto b = msController->syncBool(true);
-        return true;
     } else{
         bool state = msController->syncBool(false);
-	if(state)
-	{
-        listVariables(client);
-        if(m_onConnect)
-            m_onConnect();
-	}
-        return state;
+        if(!state)
+            return false;
     }
   
-
+    listVariables(client);
+    if(m_onConnect)
+        m_onConnect();
+    return true;
 }
 
 bool OpcUaClient::disconnect()

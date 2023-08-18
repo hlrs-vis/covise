@@ -130,7 +130,7 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
     auto menu = new ui::Menu("ToolMachine", this);
     m_client.reset(new OpcUaClient("Test", menu, *config()));
-    auto g = new opencover::ui::Group(menu, "offsets");
+    auto g = new opencover::ui::Menu(menu, "offsets");
     m_offsets = new opencover::ui::VectorEditField(g, "offset in mm");
     m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
     m_client->onConnect([this](){
