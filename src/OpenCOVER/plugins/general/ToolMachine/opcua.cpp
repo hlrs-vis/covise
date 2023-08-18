@@ -227,7 +227,14 @@ bool OpcUaClient::connect()
         auto b = msController->syncBool(true);
         return true;
     } else{
-        return msController->syncBool(false);
+        bool state = msController->syncBool(false);
+	if(state)
+	{
+        listVariables(client);
+        if(m_onConnect)
+            m_onConnect();
+	}
+        return state;
     }
   
 
