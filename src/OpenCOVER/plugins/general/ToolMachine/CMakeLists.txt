@@ -16,3 +16,7 @@ opcua.cpp
 
 cover_add_plugin(ToolMachine)
 target_link_libraries(ToolMachine open62541::open62541)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_covise_compile_flags(ToolMachine "-Wno-narrowing")
+endif()

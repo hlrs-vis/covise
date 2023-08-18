@@ -132,6 +132,7 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     m_client.reset(new OpcUaClient("Test", menu, *config()));
     auto g = new opencover::ui::Group(menu, "offsets");
     m_offsets = new opencover::ui::VectorEditField(g, "offset in mm");
+    m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
     m_client->onConnect([this](){
         
         m_client->registerDouble("ENC2_POS|X", [this](double val)
@@ -172,7 +173,7 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
     std::string key = "unknown";
     if (!(keySym & 0xff00))
     {
-        char buf[2] = { static_cast<char>(keySym), '/0' };
+        char buf[2] = { (char)(keySym), '/0' };
         key = buf;
     }
     float speed = 0.5;
