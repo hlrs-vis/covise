@@ -7932,7 +7932,12 @@ VRML2Export::WriteAllControllerData(INode *node, int flags, int level,
 	if (mTformSample)
 		sampleRate = GetTicksPerFrame();
 	else
-		sampleRate = TIME_TICKSPERSEC / mTformSampleRate;
+	{
+		if (mTformSampleRate != 0)
+			sampleRate = TIME_TICKSPERSEC / mTformSampleRate;
+		else
+			sampleRate = TIME_TICKSPERSEC / 30;
+	}
 	frames = (end - mStart) / sampleRate + 1;
 
 	int realEnd = end;
