@@ -127,7 +127,7 @@ void offaxisStereoCameraFromTransform(mat4 projInv, mat4 viewInv,
   vec3 v010 = unprojectNDC(projInv, viewInv, vec3(-1, 1,-1));
   vec3 v011 = unprojectNDC(projInv, viewInv, vec3(-1, 1, 1));
 
-  // edges from +z to -z
+  // edges from -z to +z
   vec3 ez00 = normalize(v001-v000);
   vec3 ez10 = normalize(v101-v100);
   vec3 ez11 = normalize(v111-v110);
@@ -139,7 +139,7 @@ void offaxisStereoCameraFromTransform(mat4 projInv, mat4 viewInv,
   vec3 ey11 = normalize(v111-v101);
   vec3 ey01 = normalize(v011-v001);
 
-  // edges from -y to +y
+  // edges from -x to +x
   vec3 ex00 = normalize(v100-v000);
   vec3 ex10 = normalize(v110-v010);
   vec3 ex11 = normalize(v111-v011);
