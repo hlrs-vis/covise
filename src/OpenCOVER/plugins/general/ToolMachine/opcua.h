@@ -27,6 +27,8 @@ public:
     bool disconnect();
     bool registerDouble(const std::string &name, const std::function<void(double)> &cb);
     void update();
+    double readValue(const std::string &name);
+    bool isConnected() const;
 private:
     void listVariables(UA_Client* client);
 

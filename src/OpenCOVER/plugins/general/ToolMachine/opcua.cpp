@@ -330,5 +330,35 @@ void OpcUaClient::update()
     }
 }
 
+double OpcUaClient::readValue(const std::string &name)
+{
+    
+    auto node = m_numericalNodes.find(name);
+    if(node == m_numericalNodes.end())
+    {
+        std::cerr << "Node " << name << " not found returning 0" << std::endl;
+        return 0;
+    }
+    UA_Double value = 0;
+    if(msController->isMaster())
+    {
+        UA_Variant *val = UA_Variant_new();
+        auto retval = UA_Client_readValueAttribute(client, UA_NODEID_NUMERIC(node->second.nameSpace, node->second.nodeId), val);
+        if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(val) &&
+        val->type == &UA_TYPES[UA_TYPES_DOUBLE]) {
+                value = *(UA_Double*)val->data;
+        }
+        UA_Variant_delete(val);
+
+    }
+    msController->syncData(&value, sizeof(UA_Double));
+    return value;
+}
+
+bool OpcUaClient::isConnected() const
+{
+    return client != nullptr;
+}
+
 
 

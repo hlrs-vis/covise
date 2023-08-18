@@ -133,36 +133,6 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     auto g = new opencover::ui::Menu(menu, "offsets");
     m_offsets = new opencover::ui::VectorEditField(g, "offset in mm");
     m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
-    m_client->onConnect([this](){
-        
-        m_client->registerDouble("ENC2_POS|X", [this](double val)
-        {
-            for(const auto &m : machineNodes)
-                m->move2(2, val + m_offsets->value().x());
-        });
-        m_client->registerDouble("ENC2_POS|Y", [this](double val)
-        {
-            for(const auto &m : machineNodes)
-                m->move2(3, val + m_offsets->value().y());
-        });
-        m_client->registerDouble("ENC2_POS|Z", [this](double val)
-        {
-            for(const auto &m : machineNodes)
-                m->move2(4, val + m_offsets->value().z());
-        });
-        m_client->registerDouble("ENC2_POS|A", [](double val)
-        {
-            for(const auto &m : machineNodes)
-                m->move2(0, val);
-        });
-        m_client->registerDouble("ENC2_POS|C", [](double val)
-        {
-            for(const auto &m : machineNodes)
-                m->move2(1, val);
-        });
-    });
-
-
 }
 
 
@@ -203,7 +173,23 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
 
 bool ToolMaschinePlugin::update()
 {
-    m_client->update();
+    if(!m_client->isConnected())
+        return true;
+    std::array<double, 5> axisValues;
+    for (size_t i = 0; i < 5; i++)
+    {
+        axisValues[i] = m_client->readValue("ENC2_POS|" + std::string(axisNames[i]));
+    }
+    
+    for(const auto &m : machineNodes)
+    {
+        m->move2(0, axisValues[0]);
+        m->move2(1, axisValues[1]);
+        m->move2(2, axisValues[2] + m_offsets->value().x());
+        m->move2(3, axisValues[3] + m_offsets->value().y());
+        m->move2(4, axisValues[4] + m_offsets->value().z());
+    }
+
     return true;
 }
 
