@@ -4324,7 +4324,7 @@ bool coTabletUI::update()
     }
     else if ((coVRMSController::instance()->isMaster()) && (serverHost != NULL || localHost != NULL))
     {
-        if (cover->frameRealTime() - oldTime > 2.)
+        if (abs(cover->frameRealTime() - oldTime) > 2.)
         {
             oldTime = cover->frameRealTime();
 
