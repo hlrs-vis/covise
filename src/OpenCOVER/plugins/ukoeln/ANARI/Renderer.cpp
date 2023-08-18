@@ -323,6 +323,7 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
         offaxisStereoCameraFromTransform(
             inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
 
+        anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &fovy);
         anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
         anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &eye.x);
         anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &dir.x);
