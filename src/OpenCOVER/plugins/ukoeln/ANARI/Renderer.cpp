@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <anari/anari_cpp.hpp>
+#include <anari/anari_cpp/ext/glm.h>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
@@ -104,6 +105,24 @@ void Renderer::loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int
 }
 
 void Renderer::unloadVolume()
+{
+    // NO!
+}
+
+void Renderer::loadFLASH(std::string fn)
+{
+#ifdef HAVE_HDF5
+    // deferred!
+    amrVolumeData.fileName = fn;
+    amrVolumeData.changed = true;
+
+    if (amrVolumeData.flashReader.open(fn.c_str())) {
+        amrVolumeData.data = amrVolumeData.flashReader.getField(0);
+    }
+#endif
+}
+
+void Renderer::unloadFLASH(std::string fn)
 {
     // NO!
 }
@@ -223,6 +242,9 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     float bounds[6] = { 1e30f, 1e30f, 1e30f,
                        -1e30f,-1e30f,-1e30f };
 
+    // e.g., set when AMR data was loaded!
+    anariGetProperty(anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds, sizeof(bounds), ANARI_WAIT);
+
     if (anari.meshes) {
         asgComputeBounds(anari.meshes,
                          &bounds[0],&bounds[1],&bounds[2],
@@ -272,6 +294,13 @@ void Renderer::renderFrame(osg::RenderInfo &info)
         initStructuredVolume();
         structuredVolumeData.changed = false;
     }
+
+#ifdef HAVE_HDF5
+    if (amrVolumeData.changed) {
+        initAMRVolume();
+        amrVolumeData.changed = false;
+    }
+#endif
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(info, chan);
@@ -538,6 +567,76 @@ void Renderer::initStructuredVolume()
         }
         structuredVolumeData.deleteData = false;
     }
+}
+
+void Renderer::initAMRVolume()
+{
+#ifdef HAVE_HDF5
+    anari.amrVolume.field = anariNewSpatialField(anari.device, "amr");
+    // TODO: "amr" field is an extension - check if it is supported!
+    auto &data = amrVolumeData.data;
+    std::vector<anari::Array3D> blockDataV(data.blockData.size());
+    for (size_t i = 0; i < data.blockData.size(); ++i) {
+        blockDataV[i] = anari::newArray3D(anari.device, data.blockData[i].values.data(),
+                                          data.blockData[i].dims[0],
+                                          data.blockData[i].dims[1],
+                                          data.blockData[i].dims[2]);
+    }
+    printf("Array sizes:\n");
+    printf("    'cellWidth'  : %zu\n", data.cellWidth.size());
+    printf("    'blockBounds': %zu\n", data.blockBounds.size());
+    printf("    'blockLevel' : %zu\n", data.blockLevel.size());
+    printf("    'blockData'  : %zu\n", blockDataV.size());
+
+    anari::setParameterArray1D(anari.device, anari.amrVolume.field, "cellWidth", ANARI_FLOAT32,
+                               data.cellWidth.data(), data.cellWidth.size());
+    anari::setParameterArray1D(anari.device, anari.amrVolume.field, "block.bounds", ANARI_INT32_BOX3,
+                               data.blockBounds.data(),
+                               data.blockBounds.size());
+    anari::setParameterArray1D(anari.device, anari.amrVolume.field, "block.level", ANARI_INT32,
+                               data.blockLevel.data(), data.blockLevel.size());
+    anari::setParameterArray1D(anari.device, anari.amrVolume.field, "block.data", ANARI_ARRAY1D,
+                               blockDataV.data(), blockDataV.size());
+
+    for (auto a : blockDataV)
+        anari::release(anari.device, a);
+
+    anariCommitParameters(anari.device, anari.amrVolume.field);
+
+    amrVolumeData.minValue = data.voxelRange.x;
+    amrVolumeData.maxValue = data.voxelRange.y;
+
+    anari.amrVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
+    anari::setParameter(anari.device, anari.amrVolume.volume, "field", anari.amrVolume.field);
+
+    {
+        std::vector<glm::vec3> colors;
+        std::vector<float> opacities;
+
+        colors.emplace_back(0.f, 0.f, 1.f);
+        colors.emplace_back(0.f, 1.f, 0.f);
+        colors.emplace_back(1.f, 0.f, 0.f);
+
+        opacities.emplace_back(0.f);
+        opacities.emplace_back(1.f);
+
+        anari::setAndReleaseParameter(
+            anari.device, anari.amrVolume.volume, "color",
+            anari::newArray1D(anari.device, colors.data(), colors.size()));
+        anari::setAndReleaseParameter(
+            anari.device, anari.amrVolume.volume, "opacity",
+            anari::newArray1D(anari.device, opacities.data(), opacities.size()));
+        anariSetParameter(anari.device, anari.amrVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                          &data.voxelRange);
+    }
+
+    anari::commitParameters(anari.device, anari.amrVolume.volume);
+
+    anari::setAndReleaseParameter(anari.device, anari.world, "volume",
+                                  anari::newArray1D(anari.device, &anari.amrVolume.volume));
+    anariRelease(anari.device, anari.amrVolume.volume);
+    anariCommitParameters(anari.device, anari.world);
+#endif
 }
 
 

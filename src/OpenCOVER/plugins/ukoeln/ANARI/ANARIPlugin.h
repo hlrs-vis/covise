@@ -38,6 +38,9 @@ public:
     static int loadVolumeRAW(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadVolumeRAW(const char *fileName, const char *);
 
+    static int loadFLASH(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadFLASH(const char *fileName, const char *);
+
     ANARIPlugin();
    ~ANARIPlugin();
 

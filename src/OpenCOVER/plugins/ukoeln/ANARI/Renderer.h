@@ -36,6 +36,9 @@ public:
                     float minValue = 0.f, float maxValue = 1.f);
     void unloadVolume();
 
+    void loadFLASH(std::string fileName);
+    void unloadFLASH(std::string fileName);
+
     void setRendererType(std::string type);
 
     std::vector<std::string> getRendererTypes();
@@ -69,6 +72,10 @@ private:
         ASGObject root{nullptr};
         ASGObject meshes{nullptr};
         ASGStructuredVolume structuredVolume{nullptr};
+        struct {
+            ANARIVolume volume{nullptr};
+            ANARISpatialField field{nullptr};
+        } amrVolume;
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
@@ -78,6 +85,7 @@ private:
     void initFrames();
     void initMesh();
     void initStructuredVolume();
+    void initAMRVolume();
 
     struct {
         std::string fileName;
@@ -100,6 +108,20 @@ private:
         bool deleteData = false;
     } structuredVolumeData;
 
+#ifdef HAVE_HDF5
+    struct {
+        std::string fileName;
+        FlashReader flashReader;
+
+        AMRField data;
+        float minValue, maxValue;
+        std::vector<float> rgbLUT;
+        std::vector<float> alphaLUT;
+
+        bool changed = false;
+    } amrVolumeData;
+#endif
+    
     int spp{1};
 };
 

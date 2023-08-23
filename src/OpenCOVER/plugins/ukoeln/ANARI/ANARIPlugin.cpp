@@ -36,7 +36,11 @@ static FileHandler handlers[] = {
     { NULL,
       ANARIPlugin::loadVolumeRAW,
       ANARIPlugin::unloadVolumeRAW,
-      "raw" }
+      "raw" },
+    { NULL,
+      ANARIPlugin::loadFLASH,
+      ANARIPlugin::unloadFLASH,
+      "hdf5" }
 };
 
 ANARIPlugin *ANARIPlugin::instance()
@@ -72,6 +76,22 @@ int ANARIPlugin::unloadVolumeRAW(const char *fileName, const char *)
 {
     if (plugin->renderer)
         plugin->renderer->unloadVolumeRAW(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::loadFLASH(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->loadFLASH(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::unloadFLASH(const char *fileName, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->unloadFLASH(fileName);
 
     return 1;
 }
