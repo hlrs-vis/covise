@@ -77,14 +77,14 @@ Renderer::~Renderer()
     cover->getScene()->removeChild(multiChannelDrawer);
 }
 
-void Renderer::loadScene(std::string fn)
+void Renderer::loadMesh(std::string fn)
 {
     // deferred!
-    fileName.value = fn;
-    fileName.changed = true;
+    meshData.fileName = fn;
+    meshData.changed = true;
 }
 
-void Renderer::unloadScene(std::string fn)
+void Renderer::unloadMesh(std::string fn)
 {
     // NO!
 }
@@ -93,14 +93,14 @@ void Renderer::loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int
                           float minValue, float maxValue)
 {
     // deferred!
-    volumeData.data = data;
-    volumeData.sizeX = sizeX;
-    volumeData.sizeY = sizeY;
-    volumeData.sizeZ = sizeZ;
-    volumeData.bpc = bpc;
-    volumeData.minValue = minValue;
-    volumeData.maxValue = maxValue;
-    volumeData.changed = true;
+    structuredVolumeData.data = data;
+    structuredVolumeData.sizeX = sizeX;
+    structuredVolumeData.sizeY = sizeY;
+    structuredVolumeData.sizeZ = sizeZ;
+    structuredVolumeData.bpc = bpc;
+    structuredVolumeData.minValue = minValue;
+    structuredVolumeData.maxValue = maxValue;
+    structuredVolumeData.changed = true;
 }
 
 void Renderer::unloadVolume()
@@ -190,18 +190,19 @@ void Renderer::loadVolumeRAW(std::string fn)
     if (numVoxels == 0)
         return;
 
-    volumeData.data = new uint8_t[numVoxels];
-    volumeData.sizeX = sizeX;
-    volumeData.sizeY = sizeY;
-    volumeData.sizeZ = sizeZ;
-    volumeData.bpc = 1;// !
-    volumeData.minValue = 0.f;
-    volumeData.maxValue = 1.f;
-    volumeData.changed = true;
-    volumeData.deleteData = true;
+    structuredVolumeData.fileName = fn;
+    structuredVolumeData.data = new uint8_t[numVoxels];
+    structuredVolumeData.sizeX = sizeX;
+    structuredVolumeData.sizeY = sizeY;
+    structuredVolumeData.sizeZ = sizeZ;
+    structuredVolumeData.bpc = 1;// !
+    structuredVolumeData.minValue = 0.f;
+    structuredVolumeData.maxValue = 1.f;
+    structuredVolumeData.changed = true;
+    structuredVolumeData.deleteData = true;
 
     FILE *file = fopen(fn.c_str(), "rb");
-    size_t res = fread((void *)volumeData.data, numVoxels, 1, file);
+    size_t res = fread((void *)structuredVolumeData.data, numVoxels, 1, file);
     if (res != 1) {
         printf("Error reading %" PRIu64 " voxels with fread(). Result was %" PRIu64 "\n",
                (uint64_t)numVoxels, (uint64_t)res);
@@ -228,14 +229,14 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
                          &bounds[3],&bounds[4],&bounds[5]);
     }
 
-    if (anari.volume) {
+    if (anari.structuredVolume) {
         // asgComputeBounds doesn't work for volumes yet...
         bounds[0] = fminf(bounds[0], 0.f);
         bounds[1] = fminf(bounds[1], 0.f);
         bounds[2] = fminf(bounds[2], 0.f);
-        bounds[3] = fmaxf(bounds[3], volumeData.sizeX);
-        bounds[4] = fmaxf(bounds[4], volumeData.sizeY);
-        bounds[5] = fmaxf(bounds[5], volumeData.sizeZ);
+        bounds[3] = fmaxf(bounds[3], structuredVolumeData.sizeX);
+        bounds[4] = fmaxf(bounds[4], structuredVolumeData.sizeY);
+        bounds[5] = fmaxf(bounds[5], structuredVolumeData.sizeZ);
     }
 
     osg::Vec3f minCorner(bounds[0],bounds[1],bounds[2]);
@@ -262,14 +263,14 @@ void Renderer::renderFrame(osg::RenderInfo &info)
     if (anari.frames.empty()) // init failed!
         return;
 
-    if (fileName.changed) {
-        initScene();
-        fileName.changed = false;
+    if (meshData.changed) {
+        initMesh();
+        meshData.changed = false;
     }
 
-    if (volumeData.changed) {
-        initVolume();
-        volumeData.changed = false;
+    if (structuredVolumeData.changed) {
+        initStructuredVolume();
+        structuredVolumeData.changed = false;
     }
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
@@ -452,9 +453,9 @@ void Renderer::initFrames()
 
 #define ASG_SAFE_CALL(X) X // TODO!
 
-void Renderer::initScene()
+void Renderer::initMesh()
 {
-    const char *fileName = this->fileName.value.c_str();
+    const char *fileName = meshData.fileName.c_str();
 
     if (!anari.root)
         anari.root = asgNewObject();
@@ -479,36 +480,40 @@ void Renderer::initScene()
     anariCommitParameters(anari.device, anari.world);
 }
 
-void Renderer::initVolume()
+void Renderer::initStructuredVolume()
 {
-    if (volumeData.bpc == 1) {
+    if (structuredVolumeData.bpc == 1) {
         // Convert to float..
-        volumeData.voxels.resize(volumeData.sizeX*size_t(volumeData.sizeY)*volumeData.sizeZ);
+        structuredVolumeData.voxels.resize(
+            structuredVolumeData.sizeX*size_t(structuredVolumeData.sizeY)*structuredVolumeData.sizeZ);
 
-        for (size_t i=0; i<volumeData.voxels.size(); ++i) {
-            volumeData.voxels[i] = ((const uint8_t *)volumeData.data)[i]/255.999f;
+        for (size_t i=0; i<structuredVolumeData.voxels.size(); ++i) {
+            structuredVolumeData.voxels[i] = ((const uint8_t *)structuredVolumeData.data)[i]/255.999f;
         }
 
         if (!anari.root)
             anari.root = asgNewObject();
 
-        anari.volume = asgNewStructuredVolume(volumeData.voxels.data(),
-                                              volumeData.sizeX, volumeData.sizeY, volumeData.sizeZ,
-                                              ASG_DATA_TYPE_FLOAT32, nullptr);
-        ASG_SAFE_CALL(asgStructuredVolumeSetRange(anari.volume,
-                                                  volumeData.minValue, volumeData.maxValue));
+        anari.structuredVolume = asgNewStructuredVolume(structuredVolumeData.voxels.data(),
+                                                        structuredVolumeData.sizeX,
+                                                        structuredVolumeData.sizeY,
+                                                        structuredVolumeData.sizeZ,
+                                                        ASG_DATA_TYPE_FLOAT32, nullptr);
+        ASG_SAFE_CALL(asgStructuredVolumeSetRange(anari.structuredVolume,
+                                                  structuredVolumeData.minValue,
+                                                  structuredVolumeData.maxValue));
 
-        volumeData.rgbLUT.resize(15);
-        volumeData.alphaLUT.resize(5);
+        structuredVolumeData.rgbLUT.resize(15);
+        structuredVolumeData.alphaLUT.resize(5);
 
-        anari.lut = asgNewLookupTable1D(volumeData.rgbLUT.data(),
-                                        volumeData.alphaLUT.data(),
-                                        volumeData.alphaLUT.size(),
+        anari.lut = asgNewLookupTable1D(structuredVolumeData.rgbLUT.data(),
+                                        structuredVolumeData.alphaLUT.data(),
+                                        structuredVolumeData.alphaLUT.size(),
                                         nullptr);
         ASG_SAFE_CALL(asgMakeDefaultLUT1D(anari.lut, ASG_LUT_ID_DEFAULT_LUT));
-        ASG_SAFE_CALL(asgStructuredVolumeSetLookupTable1D(anari.volume, anari.lut));
+        ASG_SAFE_CALL(asgStructuredVolumeSetLookupTable1D(anari.structuredVolume, anari.lut));
 
-        ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.volume));
+        ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.structuredVolume));
 
         ASGBuildWorldFlags_t flags = ASG_BUILD_WORLD_FLAG_VOLUMES |
                                      ASG_BUILD_WORLD_FLAG_LUTS;
@@ -517,21 +522,21 @@ void Renderer::initVolume()
         anariCommitParameters(anari.device, anari.world);
     }
 
-    if (volumeData.deleteData) {
-        switch (volumeData.bpc) {
+    if (structuredVolumeData.deleteData) {
+        switch (structuredVolumeData.bpc) {
             case 1:
-                delete[] (uint8_t *)volumeData.data;
+                delete[] (uint8_t *)structuredVolumeData.data;
                 break;
 
             case 2:
-                delete[] (uint16_t *)volumeData.data;
+                delete[] (uint16_t *)structuredVolumeData.data;
                 break;
 
             case 4:
-                delete[] (float *)volumeData.data;
+                delete[] (float *)structuredVolumeData.data;
                 break;
         }
-        volumeData.deleteData = false;
+        structuredVolumeData.deleteData = false;
     }
 }
 

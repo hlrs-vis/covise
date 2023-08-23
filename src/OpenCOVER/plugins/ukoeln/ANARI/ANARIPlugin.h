@@ -32,8 +32,8 @@ public:
     static ANARIPlugin *plugin;
     static ANARIPlugin *instance();
 
-    static int loadScene(const char *fileName, osg::Group *loadParent, const char *);
-    static int unloadScene(const char *fileName, const char *);
+    static int loadMesh(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadMesh(const char *fileName, const char *);
 
     static int loadVolumeRAW(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadVolumeRAW(const char *fileName, const char *);

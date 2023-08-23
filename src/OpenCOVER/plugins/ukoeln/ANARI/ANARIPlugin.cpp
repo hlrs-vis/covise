@@ -18,20 +18,20 @@ ANARIPlugin *ANARIPlugin::plugin = nullptr;
 
 static FileHandler handlers[] = {
     { NULL,
-      ANARIPlugin::loadScene,
-      ANARIPlugin::unloadScene,
+      ANARIPlugin::loadMesh,
+      ANARIPlugin::unloadMesh,
       "obj" },
     { NULL,
-      ANARIPlugin::loadScene,
-      ANARIPlugin::unloadScene,
+      ANARIPlugin::loadMesh,
+      ANARIPlugin::unloadMesh,
       "gltf" },
     { NULL,
-      ANARIPlugin::loadScene,
-      ANARIPlugin::unloadScene,
+      ANARIPlugin::loadMesh,
+      ANARIPlugin::unloadMesh,
       "glb" },
     { NULL,
-      ANARIPlugin::loadScene,
-      ANARIPlugin::unloadScene,
+      ANARIPlugin::loadMesh,
+      ANARIPlugin::unloadMesh,
       "ply" },
     { NULL,
       ANARIPlugin::loadVolumeRAW,
@@ -44,18 +44,18 @@ ANARIPlugin *ANARIPlugin::instance()
     return plugin;
 }
 
-int ANARIPlugin::loadScene(const char *fileName, osg::Group *loadParent, const char *)
+int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const char *)
 {
     if (plugin->renderer)
-        plugin->renderer->loadScene(fileName);
+        plugin->renderer->loadMesh(fileName);
 
     return 1;
 }
 
-int ANARIPlugin::unloadScene(const char *fileName, const char *)
+int ANARIPlugin::unloadMesh(const char *fileName, const char *)
 {
     if (plugin->renderer)
-        plugin->renderer->unloadScene(fileName);
+        plugin->renderer->unloadMesh(fileName);
 
     return 1;
 }

@@ -14,6 +14,9 @@
 #include <PluginUtil/MultiChannelDrawer.h>
 #include <anari/anari.h>
 #include "asg.h"
+#ifdef HAVE_HDF5
+#include "readFlash.h"
+#endif
 
 class Renderer
 {
@@ -23,8 +26,8 @@ public:
     Renderer();
    ~Renderer();
 
-    void loadScene(std::string fileName);
-    void unloadScene(std::string fileName);
+    void loadMesh(std::string fileName);
+    void unloadMesh(std::string fileName);
 
     void loadVolumeRAW(std::string fileName);
     void unloadVolumeRAW(std::string fileName);
@@ -65,7 +68,7 @@ private:
         ANARILight headLight{nullptr};
         ASGObject root{nullptr};
         ASGObject meshes{nullptr};
-        ASGStructuredVolume volume{nullptr};
+        ASGStructuredVolume structuredVolume{nullptr};
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
@@ -73,15 +76,17 @@ private:
 
     void initDevice();
     void initFrames();
-    void initScene();
-    void initVolume();
+    void initMesh();
+    void initStructuredVolume();
 
     struct {
-        std::string value;
+        std::string fileName;
         bool changed = false;
-    } fileName;
+    } meshData;
 
     struct {
+        std::string fileName;
+
         const void *data;
         int sizeX, sizeY, sizeZ;
         int bpc;
@@ -93,7 +98,7 @@ private:
 
         bool changed = false;
         bool deleteData = false;
-    } volumeData;
+    } structuredVolumeData;
 
     int spp{1};
 };
