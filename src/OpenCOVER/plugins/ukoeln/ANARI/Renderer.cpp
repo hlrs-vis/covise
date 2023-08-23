@@ -363,10 +363,42 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
 
 void Renderer::initDevice()
 {
+    bool libraryEntryExists = false;
+    anari.libtype = covise::coCoviseConfig::getEntry(
+        "value",
+        "COVER.Plugin.ANARI.Library",
+        "environment",
+        &libraryEntryExists
+    );
+
+    bool hostnameEntryExists = false;
+    std::string hostname = covise::coCoviseConfig::getEntry(
+        "hostname",
+        "COVER.Plugin.ANARI.RemoteServer",
+        "localhost",
+        &hostnameEntryExists
+    );
+
+    bool portEntryExists = false;
+    unsigned short port = covise::coCoviseConfig::getInt(
+        "port",
+        "COVER.Plugin.ANARI.RemoteServer",
+        31050,
+        &portEntryExists
+    );
+
     anari.library = anariLoadLibrary(anari.libtype.c_str(), statusFunc);
     if (!anari.library) return;
     anari.device = anariNewDevice(anari.library, anari.devtype.c_str());
     if (!anari.device) return;
+    if (anari.libtype == "remote") {
+        if (hostnameEntryExists)
+            anariSetParameter(anari.device, anari.device, "server.hostname", ANARI_STRING,
+                              hostname.c_str());
+
+        if (portEntryExists)
+            anariSetParameter(anari.device, anari.device, "server.port", ANARI_UINT16, &port);
+    }
     anariCommitParameters(anari.device, anari.device);
     anari.world = anariNewWorld(anari.device);
 }
