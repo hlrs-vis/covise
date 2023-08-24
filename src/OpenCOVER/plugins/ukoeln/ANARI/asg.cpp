@@ -2819,7 +2819,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                                         instances.end());
 
                 if (trans->anariInstance == nullptr)
-                    trans->anariInstance = anariNewInstance(anari->device);
+                    trans->anariInstance = anariNewInstance(anari->device, "transform");
 
                 anariSetParameter(anari->device,trans->anariInstance,"group",
                                   ANARI_GROUP,&anariGroup);
