@@ -360,6 +360,9 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
         anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &up.x);
         anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &imgRegion.min);
         anariCommitParameters(anari.device, anari.cameras[chan]);
+
+        anariSetParameter(anari.device, anari.headLight, "direction", ANARI_FLOAT32_VEC3, &dir.x);
+        anariCommitParameters(anari.device, anari.headLight);
     }
 
     anariRenderFrame(anari.device, anari.frames[chan]);
