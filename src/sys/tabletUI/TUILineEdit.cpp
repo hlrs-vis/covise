@@ -20,16 +20,16 @@
 TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    editField = new TUILineCheck(w);
-    connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChangedSlot()));
-    auto gl = createLayout(w);
-    gl->addWidget(editField, 1, 0, 1, width-1);
-    gl->addWidget(editField, 1, width-1);
-    for (int i=0; i<width-1; ++i)
-        gl->setColumnStretch(i, 100);
-    gl->setContentsMargins(0, 0, 0, 0);
+    auto frame = createWidget<QFrame>(w);
+    frame->setFrameStyle(QFrame::Plain | QFrame::NoFrame);
+    frame->setContentsMargins(0, 0, 0, 0);
 
-    widgets.insert(editField);
+    editField = new TUILineCheck(frame);
+    connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChangedSlot()));
+    auto grid = createLayout(frame);
+    frame->setLayout(grid);
+    grid->setContentsMargins(0, 0, 0, 0);
+    grid->addWidget(editField, 1, 0);
 }
 
 void TUILineEdit::setPos(int x, int y)
@@ -61,10 +61,11 @@ void TUILineEdit::setLabel(QString textl)
     }
     else if (!label)
     {
-        label = new QLabel(editField->parentWidget());
-        widgets.insert(label);
-        label->setBuddy(editField);
-        static_cast<QGridLayout *>(getLayout())->addWidget(label, 0, 0);
+        label = new QLabel(widget());
+        getLayout()->addWidget(label, 0, 0);
+        QObject::connect(label, &QObject::destroyed, [this](QObject*){
+            label = nullptr;
+        });
     }
     if (label)
         label->setText(textl);
