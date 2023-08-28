@@ -1,5 +1,5 @@
 #include "ToolMachine.h"
-#include "opcua.h"
+
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeTransform.h>
 #include <vrml97/vrml/VrmlNodeType.h>
@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <cover/ui/VectorEditField.h>
 
+#include <PluginUtil/OpcUaClient/opcua.h>
+
 using namespace covise;
 using namespace opencover;
 using namespace vrml;
@@ -24,17 +26,6 @@ const std::array<const char*, 5> axisNames{"A", "C", "X", "Y", "Z"};
 const std::array<const char*, 5> axisNamesLower{"a", "c", "x", "y", "z"};
 
 static VrmlNode *creator(VrmlScene *scene);
-
-// class PLUGINEXPORT TestYZ : public vrml::VrmlNodeChild
-// {
-// public:
-//     TestYZ(VrmlScene* scene):VrmlNodeChild(scene){}
-//     ~TestYZ() = default;
-//     VrmlNode *cloneMe() const override
-//     {
-//         return new TestYZ(*this);
-//     }
-// };
 
 class MachineNode : public vrml::VrmlNodeChild
 {
@@ -126,13 +117,53 @@ COVERPLUGIN(ToolMaschinePlugin)
 ToolMaschinePlugin::ToolMaschinePlugin()
 :coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ToolMachinePlugin", cover->ui)
+, m_menu(new ui::Menu("ToolMachine", this))
+, m_server(std::make_unique<ui::EditFieldConfigValue>(m_menu, "server", "", *config(), "", config::Flag::PerModel))
 {
+    
+    m_menu->allowRelayout(true);
+
+    for (size_t i = 0; i < 5; i++)
+        m_axisNames[i] = std::make_unique<ui::SelectionListConfigValue>(m_menu, axisNames[i] + std::string("_axis"), 0, *config(), "axles", config::Flag::PerModel);
+    for (size_t i = 0; i < 5; i++)
+        m_offsets[i] = std::make_unique<ui::EditFieldConfigValue>(m_menu, axisNames[i] + std::string("_offset"), "", *config(), "offsets", config::Flag::PerModel);
+
+    opcua::addOnClientConnectedCallback([this]()
+    {
+        auto availableFields = opcua::getClient()->availableFields();
+        for (size_t i = 0; i < 5; i++)
+        {
+            m_axisNames[i]->ui()->setList(availableFields);
+            m_axisNames[i]->ui()->select(m_axisNames[i]->getValue());
+        }
+
+    });
+
+
+    m_server->setUpdater([this]()
+    {
+        opcua::connect(m_server->getValue());
+    });
+
+    opcua::addOnClientDisconnectedCallback([this]()
+    {
+        for (size_t i = 0; i < 5; i++)
+        {
+            m_axisNames[i]->ui()->setList(std::vector<std::string>());
+        }
+    });
+    
+    
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
-    auto menu = new ui::Menu("ToolMachine", this);
-    m_client.reset(new OpcUaClient("Test", menu, *config()));
-    auto g = new opencover::ui::Menu(menu, "offsets");
-    m_offsets = new opencover::ui::VectorEditField(g, "offset in mm");
-    m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
+
+    config()->setSaveOnExit(true);
+
+
+
+    // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
+    // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
+
+    
 }
 
 
@@ -173,21 +204,30 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
 
 bool ToolMaschinePlugin::update()
 {
-    if(!m_client->isConnected())
+    auto client = opcua::getClient();
+    if(!client || !client->isConnected())
         return true;
     std::array<double, 5> axisValues;
-    for (size_t i = 0; i < 5; i++)
-    {
-        axisValues[i] = m_client->readValue("ENC2_POS|" + std::string(axisNames[i]));
-    }
+    // for (size_t i = 0; i < 5; i++)
+    // {
+    //     axisValues[i] = client->readValue("ENC2_POS|" + std::string(axisNames[i]));
+    // }
     
+    // for(const auto &m : machineNodes)
+    // {
+    //     m->move2(0, axisValues[0]);
+    //     m->move2(1, axisValues[1]);
+    //     m->move2(2, axisValues[2] + m_offsets->value().x());
+    //     m->move2(3, axisValues[3] + m_offsets->value().y());
+    //     m->move2(4, axisValues[4] + m_offsets->value().z());
+    // }
+    for (size_t i = 0; i < 5; i++)
+        axisValues[i] = client->readValue(m_axisNames[i]->ui()->selectedItem()) + m_offsets[i]->ui()->number();
     for(const auto &m : machineNodes)
     {
-        m->move2(0, axisValues[0]);
-        m->move2(1, axisValues[1]);
-        m->move2(2, axisValues[2] + m_offsets->value().x());
-        m->move2(3, axisValues[3] + m_offsets->value().y());
-        m->move2(4, axisValues[4] + m_offsets->value().z());
+        for (size_t i = 0; i < 5; i++)
+            m->move2(i, axisValues[i]);
+        
     }
 
     return true;

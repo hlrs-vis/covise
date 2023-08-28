@@ -8,13 +8,11 @@
 #ifndef COVER_PLUGIN_TOOL_MASCHIE_H
 #define COVER_PLUGIN_TOOL_MASCHIE_H
 
-
-
-#include "opcua.h"
-
 #include <cover/coVRPluginSupport.h>
+#include <cover/ui/Action.h>
 #include <cover/ui/Owner.h>
-#include <cover/ui/VectorEditField.h>
+#include <cover/ui/SelectionList.h>
+#include <cover/ui/CovconfigLink.h>
 #include <memory>
 #include <open62541/client.h>
 #include <osg/Vec3>
@@ -25,9 +23,11 @@ public:
 private:
     void key(int type, int keySym, int mod) override;
     bool update() override;
-    std::unique_ptr<OpcUaClient> m_client;
     std::array<float, 5> m_axisPositions{0,0,0,0,0}; //A, C, X, Y, Z
-    opencover::ui::VectorEditField *m_offsets;
+    opencover::ui::Menu *m_menu;
+    std::unique_ptr<opencover::ui::EditFieldConfigValue> m_server;
+    std::array<std::unique_ptr<opencover::ui::SelectionListConfigValue> , 5> m_axisNames;
+    std::array<std::unique_ptr<opencover::ui::EditFieldConfigValue>, 5> m_offsets;
 
 };
 
