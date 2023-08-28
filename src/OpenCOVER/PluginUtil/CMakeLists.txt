@@ -100,13 +100,32 @@ SET(SOURCES
   coVR3DTransRotInteractor.cpp
 )
 
+if(open62541_FOUND)
+  SET(HEADERS
+      ${HEADERS}
+      OpcUaClient/opcua.h
+      OpcUaClient/opcuaClient.h
+  )
+
+  SET(SOURCES
+    ${SOURCES}    
+      OpcUaClient/opcua.cpp
+      OpcUaClient/opcuaClient.cpp
+  )
+endif()
+
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )
 TARGET_LINK_LIBRARIES(coOpenPluginUtil coOpenCOVER coOpenVRUI coOSGVRUI
    ${COVISE_GRMSG_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
 
 COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)
+if(open62541_FOUND)
+  TARGET_LINK_LIBRARIES(coOpenPluginUtil open62541::open62541)
+endif()
+
 
 TARGET_LINK_LIBRARIES(coOpenPluginUtil ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(coOpenPluginUtil)
 COVISE_INSTALL_HEADERS(PluginUtil ${PLUGINUTIL_HEADERS})
 qt_use_modules(coOpenPluginUtil Core)
+
