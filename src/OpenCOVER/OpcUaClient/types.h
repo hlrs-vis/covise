@@ -1,6 +1,7 @@
 #ifndef COVER_OPCUA_TYPES_H
 #define COVER_OPCUA_TYPES_H
 #include <open62541/types.h>
+#include <open62541/types_generated.h>
 #include <algorithm>
 namespace opencover{namespace opcua{namespace detail{
 

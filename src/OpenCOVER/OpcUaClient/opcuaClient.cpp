@@ -297,13 +297,12 @@ bool Client::connectMaster()
             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Could not connect");
             UA_Client_delete(client);
             client = nullptr;
-            auto b = msController->syncBool(false);
             return false;
         }
 
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Connected!");
 
-        auto b = msController->syncBool(true);
+        return false;
 }
 
 
@@ -458,7 +457,7 @@ double Client::readNumericValue(const std::string &name)
     double retval = 0;
     bool found = false;
     for_<8>([&] (auto i) {      
-        typedef detail::Type<numericalTypes[i.value]>::type T;
+        typedef typename detail::Type<numericalTypes[i.value]>::type T;
         auto node = findNode(name, numericalTypes[i.value], true);
         if(node)
         {
@@ -494,7 +493,7 @@ std::vector<std::string> Client::availableNumericalNodes(const NodeMap &map) con
     v.push_back(NoNodeName);
 
     for_<8>([&] (auto i) {      
-        typedef detail::Type<numericalTypes[i.value]>::type T;
+        typedef typename detail::Type<numericalTypes[i.value]>::type T;
         auto val = availableNodes<T>(map);
         v.insert(v.end(), val.begin() + 1, val.end());
     });
