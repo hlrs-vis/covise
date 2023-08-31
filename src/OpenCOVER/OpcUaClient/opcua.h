@@ -44,10 +44,10 @@ private:
 
 }
 
-PLUGIN_UTILEXPORT Client * getClient();
-PLUGIN_UTILEXPORT void addOnClientConnectedCallback(const std::function<void(void)> &cb);
-PLUGIN_UTILEXPORT void addOnClientDisconnectedCallback(const std::function<void(void)> &cb);
-PLUGIN_UTILEXPORT void connect(const std::string &name);
+OPCUACLIENTEXPORT Client * getClient();
+OPCUACLIENTEXPORT void addOnClientConnectedCallback(const std::function<void(void)> &cb);
+OPCUACLIENTEXPORT void addOnClientDisconnectedCallback(const std::function<void(void)> &cb);
+OPCUACLIENTEXPORT void connect(const std::string &name);
 
 }
 }

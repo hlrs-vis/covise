@@ -1,0 +1,27 @@
+if(NOT open62541_FOUND)
+    return()
+endif()
+
+SET(HEADERS
+    ${HEADERS}
+    export.h
+    opcua.h
+    opcuaClient.h
+    types.h
+)
+
+SET(SOURCES
+${SOURCES}    
+    opcua.cpp
+    opcuaClient.cpp
+)
+
+ADD_COVISE_LIBRARY(coOpenOpcUaClient)
+
+TARGET_LINK_LIBRARIES(coOpenOpcUaClient coOpenCOVER ${OPENSCENEGRAPH_LIBRARIES} open62541::open62541)
+COVISE_INSTALL_TARGET(coOpenOpcUaClient)
+COVISE_INSTALL_HEADERS(coOpenOpcUaClient ${HEADERS})
+
+TARGET_INCLUDE_DIRECTORIES(coOpenOpcUaClient PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS})
+
+COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)

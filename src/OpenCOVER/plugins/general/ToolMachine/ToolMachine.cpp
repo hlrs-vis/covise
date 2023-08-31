@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <cover/ui/VectorEditField.h>
 
-#include <PluginUtil/OpcUaClient/opcua.h>
+#include <OpcUaClient/opcua.h>
 
 using namespace covise;
 using namespace opencover;
@@ -77,16 +77,7 @@ public:
         return new MachineNode(*this);
     }
 
-    void move(const osg::Vec3f &position)
-    {
-        std::cerr << "moving machine" << std::endl;
-        auto t = System::the->time();
-        eventOut(t, "X", VrmlSFVec3f{-position.x(), 0, 0});
-        eventOut(t, "Y", VrmlSFVec3f{0, 0, -position.y()});
-        eventOut(t, "Z", VrmlSFVec3f{0, position.z(), 0});
-    }
-
-    void move2(int axis, float value)
+    void move(int axis, float value)
     {
         auto t = System::the->time();
         if(axis >= 2)
@@ -130,13 +121,12 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 
     opcua::addOnClientConnectedCallback([this]()
     {
-        auto availableFields = opcua::getClient()->availableFields();
+        auto availableFields = opcua::getClient()->availableNumericalScalars();
         for (size_t i = 0; i < 5; i++)
         {
             m_axisNames[i]->ui()->setList(availableFields);
             m_axisNames[i]->ui()->select(m_axisNames[i]->getValue());
         }
-
     });
 
 
@@ -196,7 +186,7 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
             for(auto &m : machineNodes)
             {
                 // m->move(v);
-                m->move2(i, axis);
+                m->move(i, axis);
             }
         }
     }
@@ -208,25 +198,13 @@ bool ToolMaschinePlugin::update()
     if(!client || !client->isConnected())
         return true;
     std::array<double, 5> axisValues;
-    // for (size_t i = 0; i < 5; i++)
-    // {
-    //     axisValues[i] = client->readValue("ENC2_POS|" + std::string(axisNames[i]));
-    // }
-    
-    // for(const auto &m : machineNodes)
-    // {
-    //     m->move2(0, axisValues[0]);
-    //     m->move2(1, axisValues[1]);
-    //     m->move2(2, axisValues[2] + m_offsets->value().x());
-    //     m->move2(3, axisValues[3] + m_offsets->value().y());
-    //     m->move2(4, axisValues[4] + m_offsets->value().z());
-    // }
+
     for (size_t i = 0; i < 5; i++)
-        axisValues[i] = client->readValue(m_axisNames[i]->ui()->selectedItem()) + m_offsets[i]->ui()->number();
+        axisValues[i] = client->readNumericValue(m_axisNames[i]->ui()->selectedItem()) + m_offsets[i]->ui()->number();
     for(const auto &m : machineNodes)
     {
         for (size_t i = 0; i < 5; i++)
-            m->move2(i, axisValues[i]);
+            m->move(i, axisValues[i]);
         
     }
 

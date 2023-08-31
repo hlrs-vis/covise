@@ -16,5 +16,5 @@ ToolMachine.cpp
 )
 
 cover_add_plugin(ToolMachine)
-target_link_libraries(ToolMachine)
+target_link_libraries(ToolMachine coOpenOpcUaClient)
 

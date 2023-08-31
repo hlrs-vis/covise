@@ -19,6 +19,8 @@
 using namespace opencover::opcua;
 using namespace opencover::opcua::detail;
 
+const char *opencover::opcua::NoNodeName = "None";
+
 struct DoubleCallback
 {
  std::function<void(double)> cb;
@@ -36,7 +38,7 @@ static void handler_TheAnswerChanged(UA_Client *client, UA_UInt32 subId, void *s
         doubleCallbacks[*(UA_UInt32 *)monContext].val = *(UA_Double*)value->value.data;
     }
     else{
-        std::cerr << "wrong type " << value->value.type->typeKind << std::endl;
+        std::cerr << "opcua wrong type " << value->value.type->typeKind << std::endl;
     }
 }
 
@@ -78,7 +80,7 @@ Client::Client(const std::string &name)
 , m_authentificationMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "authentification", 0, *detail::Manager::instance()->m_config, name))
 , m_name(name)
 {
-    const std::vector<std::string> authentificationModes{"username/password", "anonymous", "key"};
+    const std::vector<std::string> authentificationModes{"anonymous", "username/password"};
     m_authentificationMode->ui()->setList(authentificationModes);
     m_authentificationMode->ui()->select(m_authentificationMode->getValue());
     m_connect->setCallback([this](bool state){
@@ -113,77 +115,155 @@ Client::~Client()
     delete m_menu;
 }
 
+class  Browser
+{
+public:
+    
+Browser(UA_Client* client, UA_NodeId id){
+    UA_BrowseRequest_init(&m_request);
+    m_request.requestedMaxReferencesPerNode = 0;
+    m_request.nodesToBrowse = UA_BrowseDescription_new();
+    m_request.nodesToBrowseSize = 1;
+    m_request.nodesToBrowse->browseDirection = UA_BROWSEDIRECTION_FORWARD;
+    m_request.nodesToBrowse->includeSubtypes = UA_TRUE;
+    
+    m_request.nodesToBrowse[0].nodeId = id; /* browse objects folder */
+    m_request.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; /* return everything */
+    m_response = UA_Client_Service_browse(client, m_request);
+}
+
+~Browser(){
+    // UA_BrowseResponse_clear(&m_response);
+    // UA_BrowseRequest_clear(&m_request);
+
+}
+
+UA_BrowseRequest &request(){
+    return m_request;
+}
+
+UA_BrowseResponse &response(){
+    return m_response;
+}
+
+private:
+    UA_BrowseRequest m_request;
+    UA_BrowseResponse m_response;
+};
+
+std::string toString(const UA_String &s)
+{
+    std::vector<char> v(s.length + 1);
+    std::copy(s.data, s.data + s.length, v.begin());
+    v[s.length] = '\0';
+    return std::string(v.data());
+}
+
+int toTypeId(const UA_DataType *type)
+{
+    auto begin = UA_TYPES;
+    auto end = begin + UA_TYPES_COUNT;
+    auto it = std::find_if(begin, end, [type](const UA_DataType &t)
+    {
+        return&t == type;
+    });
+    return it - UA_TYPES;
+}
+
+void Client::listVariablesInResponse(UA_Client* client, UA_BrowseResponse &bResp)
+{
+    for(size_t i = 0; i < bResp.resultsSize; ++i) {
+        for(size_t j = 0; j < bResp.results[i].referencesSize; ++j) {
+            UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+            printf("%-9u %-25.*s %-25.*s %-25.*s %-9u\n", ref->nodeId.nodeId.namespaceIndex,
+                (int)ref->nodeId.nodeId.identifier.string.length, ref->nodeId.nodeId.identifier.string.data,
+                (int)ref->browseName.name.length, ref->browseName.name.data,
+                (int)ref->displayName.text.length, ref->displayName.text.data,
+                (int)ref->nodeId.nodeId.identifierType);
+            UA_Variant *val = UA_Variant_new();
+            auto retval = UA_Client_readValueAttribute(client, ref->nodeId.nodeId, val);
+            if(retval == UA_STATUSCODE_GOOD)
+            {
+                auto node = &m_scalarNodes;
+                if(UA_Variant_hasArrayType(val, val->type))
+                    node = &m_arrayNodes;
+                (*node)[toTypeId(val->type)][toString(ref->browseName.name)] = ref->nodeId.nodeId;
+            }
+
+            if(ref->nodeId.nodeId.identifier.string.data)
+            {
+                auto s = toString(ref->nodeId.nodeId.identifier.string);
+                // Browser b(client, UA_NODEID_STRING(1, (char*)"PLC1"));
+                // Browser b(client, UA_NODEID_STRING(ref->nodeId.nodeId.namespaceIndex, (char*)s.c_str()));
+                Browser b(client, ref->nodeId.nodeId);
+                listVariablesInResponse(client, b.response());
+
+            }
+        }
+    }
+}
+
+void syncNodeMap(Client::NodeMap &map)
+{
+    if(msController->isMaster())
+    {
+        size_t numTypes = map.size();
+        msController->syncData(&numTypes, sizeof(size_t));
+        for(const auto &type : map)
+        {
+            int t = type.first;
+            msController->syncData(&t, sizeof(int));
+            size_t numNodes = type.second.size();
+            msController->syncData(&numNodes, sizeof(size_t));
+            for(const auto &node : type.second)
+            {
+                (void)msController->syncString(node.first);
+            }
+        }
+    } else{
+        size_t numTypes;
+        msController->syncData(&numTypes, sizeof(size_t));
+        std::string name;
+        int type;
+        size_t numNodes;
+        for (size_t i = 0; i < numTypes; i++)
+        {
+            msController->syncData(&type, sizeof(size_t));
+            msController->syncData(&numNodes, sizeof(size_t));
+            for (size_t j = 0; j < numNodes; j++)
+            {
+                name = msController->syncString(name);
+                map[type][name] = UA_NodeId();
+            }
+        }
+    }
+}
+
 void Client::listVariables(UA_Client* client)
 {
     if(msController->isMaster())
     {
         printf("Browsing nodes in objects folder:\n");
-        UA_BrowseRequest bReq;
-        UA_BrowseRequest_init(&bReq);
-        bReq.requestedMaxReferencesPerNode = 0;
-        bReq.nodesToBrowse = UA_BrowseDescription_new();
-        bReq.nodesToBrowseSize = 1;
-        bReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER); /* browse objects folder */
-        bReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; /* return everything */
-        UA_BrowseResponse bResp = UA_Client_Service_browse(client, bReq);
-        // printf("%-9s %-16s %-16s %-16s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME");
+        Browser browser(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER));
         
+        printf("%-9s %-25s %-25s %-25s %-9s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME", "TYPE");
         
-        for(size_t i = 0; i < bResp.resultsSize; ++i) {
-            for(size_t j = 0; j < bResp.results[i].referencesSize; ++j) {
-                UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-                if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC) {
-                    // printf("%-9u %-16u %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
-                    //     ref->nodeId.nodeId.identifier.numeric, (int)ref->browseName.name.length,
-                    //     ref->browseName.name.data, (int)ref->displayName.text.length,
-                    //     ref->displayName.text.data);
-                    std::vector<char> v(ref->browseName.name.length + 1);
-                    std::copy(ref->browseName.name.data, ref->browseName.name.data + ref->browseName.name.length, v.begin());
-                    v[ref->browseName.name.length] = '\0';
-                    m_numericalNodes[v.data()] = Field{v.data(), ref->nodeId.nodeId.namespaceIndex, ref->nodeId.nodeId.identifier.numeric};
-                } else if(ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING) {
-                    // printf("%-9u %-16.*s %-16.*s %-16.*s\n", ref->nodeId.nodeId.namespaceIndex,
-                    //     (int)ref->nodeId.nodeId.identifier.string.length,
-                    //     ref->nodeId.nodeId.identifier.string.data,
-                    //     (int)ref->browseName.name.length, ref->browseName.name.data,
-                    //     (int)ref->displayName.text.length, ref->displayName.text.data);
-                }
-                /* TODO: distinguish further types */
-            }
-        }
-        UA_BrowseRequest_clear(&bReq);
-        UA_BrowseResponse_clear(&bResp);
-        size_t size = m_numericalNodes.size();
-        msController->syncData(&size, sizeof(size_t));
-        for(auto &node : m_numericalNodes)
-        {
-            msController->syncString(node.second.name);
-            msController->syncData(&node.second.nameSpace, sizeof(UA_UInt16));
-            msController->syncData(&node.second.nodeId, sizeof(UA_UInt32));
-        }
-    } else{
-        size_t size;
-        msController->syncData(&size, sizeof(size_t));
-        for (size_t i = 0; i < size; i++)
-        {
-            Field f;
-            f.name = msController->syncString(f.name);
-            f.nameSpace = msController->syncData(&f.nameSpace, sizeof(UA_UInt16));
-            f.nodeId = msController->syncData(&f.nodeId, sizeof(UA_UInt32));
-            m_numericalNodes[f.name] = f;
-        }
+        listVariablesInResponse(client, browser.response());
     }
+    syncNodeMap(m_scalarNodes);
+    syncNodeMap(m_arrayNodes);
 }
 
 bool Client::connectMaster()
 {
-/* Create the server and set its config */
+        /* Create the server and set its config */
         client = UA_Client_new();
         UA_ClientConfig *cc = UA_Client_getConfig(client);
         /* Set securityMode and securityPolicyUri */
         UA_StatusCode retval = UA_STATUSCODE_GOOD;
-        if(m_authentificationMode->getValue() == 0)
+        if(m_authentificationMode->getValue() == 1)
         {
+#ifdef UA_ENABLE_ENCRYPTION
             cc->securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
             cc->securityPolicyUri = UA_STRING_NULL;
             UA_ByteString certificate = loadFile(m_certificate->getValue().c_str());
@@ -203,10 +283,11 @@ bool Client::connectMaster()
             cc->clientDescription.applicationUri = UA_STRING_ALLOC("urn:open62541.server.application");
             cc->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
 
-            
-            /* Connect to the server */
             UA_ClientConfig_setAuthenticationUsername(cc, m_username->getValue().c_str(), m_password->getValue().c_str());
-        } else if(m_authentificationMode->getValue() == 1)
+#else
+            std::cerr << "authentification with username/password requires open62541 to be uild with encryption support" << std::endl;
+#endif
+        } else if(m_authentificationMode->getValue() == 0)
         {
             cc->securityMode = UA_MESSAGESECURITYMODE_NONE;
         }
@@ -215,6 +296,7 @@ bool Client::connectMaster()
         if(retval != UA_STATUSCODE_GOOD) {
             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Could not connect");
             UA_Client_delete(client);
+            client = nullptr;
             auto b = msController->syncBool(false);
             return false;
         }
@@ -223,6 +305,8 @@ bool Client::connectMaster()
 
         auto b = msController->syncBool(true);
 }
+
+
 
 bool Client::connect()
 {
@@ -264,11 +348,9 @@ bool Client::disconnect()
 
 bool Client::registerDouble(const std::string &name, const std::function<void(double)> &cb)
 {
-    auto fieldIt = m_numericalNodes.find(name);
-    if(fieldIt == m_numericalNodes.end())
-        return false;
+    auto node = findNode(name, 0); //this function needs the type
     bool retval = false;
-    if(msController->isMaster())
+    if(node && msController->isMaster())
     {
         /* Create a subscription */
         UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
@@ -284,7 +366,7 @@ bool Client::registerDouble(const std::string &name, const std::function<void(do
             return false;
         }
         UA_MonitoredItemCreateRequest monRequest =
-            UA_MonitoredItemCreateRequest_default(UA_NODEID_NUMERIC(fieldIt->second.nameSpace, fieldIt->second.nodeId));
+            UA_MonitoredItemCreateRequest_default(*node);
 
         UA_MonitoredItemCreateResult monResponse =
         UA_Client_MonitoredItems_createDataChange(client, response.subscriptionId,
@@ -323,30 +405,71 @@ void Client::update()
     }
 }
 
-double Client::readValue(const std::string &name)
+const UA_NodeId * Client::findNode(const std::string &name, int type, bool silent) const
 {
-    if(!m_connect->state())
-        return 0;
-    auto node = m_numericalNodes.find(name);
-    if(node == m_numericalNodes.end())
+    if(!m_connect->state() || name == NoNodeName || type < 0)
+        return nullptr;
+
+    auto typeIt = m_scalarNodes.find(type);
+    if(typeIt == m_scalarNodes.end())
     {
-        std::cerr << "Node " << name << " not found returning 0" << std::endl;
-        return 0;
+        if(!silent)
+            std::cerr << "opcua can noty find node " << name << " of type " << type << std::endl;
+        return nullptr;
     }
-    UA_Double value = 0;
+    
+    auto node = typeIt->second.find(name);
+    if(node == typeIt->second.end())
+    {
+        if(!silent)
+            std::cerr << "opcua node " << name << " not found" << std::endl;
+        return nullptr;
+    }
+    return &node->second;
+}
+
+std::vector<char> Client::readData(const UA_NodeId &id, size_t size)
+{
+    std::vector<char> data;
     if(msController->isMaster())
     {
         UA_Variant *val = UA_Variant_new();
-        auto retval = UA_Client_readValueAttribute(client, UA_NODEID_NUMERIC(node->second.nameSpace, node->second.nodeId), val);
-        if(retval == UA_STATUSCODE_GOOD && UA_Variant_isScalar(val) &&
-        val->type == &UA_TYPES[UA_TYPES_DOUBLE]) {
-                value = *(UA_Double*)val->data;
+        auto retval = UA_Client_readValueAttribute(client, id, val);
+        if(retval == UA_STATUSCODE_GOOD)
+        {
+            data.resize(size);
+            const char* begin = (char*)val->data;
+            const char* end = begin + size;
+            std::copy(begin, end, data.begin());
         }
-        UA_Variant_delete(val);
-
     }
-    msController->syncData(&value, sizeof(UA_Double));
-    return value;
+    size = data.size();
+    msController->syncData(&size, sizeof(size_t));
+    msController->syncData(data.data(), size);
+    return data;
+}
+
+constexpr std::array<int, 8> numericalTypes{UA_TYPES_INT16, UA_TYPES_UINT16, UA_TYPES_INT32, UA_TYPES_UINT32, UA_TYPES_INT64, UA_TYPES_UINT64, UA_TYPES_FLOAT, UA_TYPES_DOUBLE};
+
+double Client::readNumericValue(const std::string &name)
+{
+    if(name == NoNodeName)
+        return  0;
+    double retval = 0;
+    bool found = false;
+    for_<8>([&] (auto i) {      
+        typedef detail::Type<numericalTypes[i.value]>::type T;
+        auto node = findNode(name, numericalTypes[i.value], true);
+        if(node)
+        {
+            auto data = readData(*node, sizeof(T));
+            retval = *(T*)data.data();
+            found = true;
+        }
+    });
+    if(!found)
+        std::cerr << "opcua node " << name << " is not a numeric node" << std::endl; 
+    return retval;
 }
 
 bool Client::isConnected() const
@@ -354,15 +477,54 @@ bool Client::isConnected() const
     return client != nullptr;
 }
 
-std::vector<std::string> Client::availableFields() const
+std::vector<std::string> Client::allAvailableNodes(const NodeMap &map) const
 {
     std::vector<std::string> fields;
-    fields.reserve(m_numericalNodes.size());
-    for(const auto &field : m_numericalNodes)
-        fields.push_back(field.first);
+    fields.reserve(map.size() + 1);
+    fields.push_back(NoNodeName);
+    for(const auto &type :map)
+        for(const auto &field : type.second)
+            fields.push_back(field.first);
     return fields;
+}
+
+std::vector<std::string> Client::availableNumericalNodes(const NodeMap &map) const
+{
+    std::vector<std::string> v;
+    v.push_back(NoNodeName);
+
+    for_<8>([&] (auto i) {      
+        typedef detail::Type<numericalTypes[i.value]>::type T;
+        auto val = availableNodes<T>(map);
+        v.insert(v.end(), val.begin() + 1, val.end());
+    });
+    
+    return v;
+}
+
+std::vector<std::string> Client::allAvailableScalars() const
+{
+    return allAvailableNodes(m_scalarNodes);
+}
+
+
+std::vector<std::string> Client::availableNumericalScalars() const
+{
+    return availableNumericalNodes(m_scalarNodes);
+}
+
+std::vector<std::string> Client::allAvailableArrays() const
+{
+    return allAvailableNodes(m_arrayNodes);
 
 }
+std::vector<std::string> Client::availableNumericalArrays() const
+{
+    return availableNumericalNodes(m_arrayNodes);
+}
+
+
+
 
 
 
