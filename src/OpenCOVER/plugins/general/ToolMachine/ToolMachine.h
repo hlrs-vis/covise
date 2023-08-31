@@ -16,6 +16,7 @@
 #include <memory>
 #include <open62541/client.h>
 #include <osg/Vec3>
+#include "Currents.h"
 class ToolMaschinePlugin : public opencover::coVRPlugin, opencover::ui::Owner
 {
 public:
@@ -23,12 +24,12 @@ public:
 private:
     void key(int type, int keySym, int mod) override;
     bool update() override;
-    std::array<float, 5> m_axisPositions{0,0,0,0,0}; //A, C, X, Y, Z
+    std::array<double, 5> m_axisPositions{0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_server;
     std::array<std::unique_ptr<opencover::ui::SelectionListConfigValue> , 5> m_axisNames;
     std::array<std::unique_ptr<opencover::ui::EditFieldConfigValue>, 5> m_offsets;
-
+    Currents m_currents;
 };
 
 

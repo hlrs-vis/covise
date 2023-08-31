@@ -148,7 +148,23 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 
     config()->setSaveOnExit(true);
 
-
+    std::array<ui::Slider *, 5> sliders;
+    for (size_t i = 0; i < 5; i++)
+    {
+        sliders[i] = new ui::Slider(m_menu, axisNames[i] + std::string("slider"));
+    }
+    for (size_t i = 0; i < 5; i++)
+    {
+        sliders[i]->setBounds(-1, 1);
+        sliders[i]->setCallback([this, sliders](ui::Slider::ValueType val, bool rel){
+            std::array<double, 5> sliderVals;
+            for (size_t i = 0; i < 5; i++)
+            {
+                sliderVals[i] = sliders[i]->value();
+            }
+            m_currents.setOffset(sliderVals);
+        });
+    }
 
     // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
     // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
@@ -188,6 +204,8 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
                 // m->move(v);
                 m->move(i, axis);
             }
+            m_currents.update(m_axisPositions, m_axisPositions);
+
         }
     }
 }
@@ -207,7 +225,7 @@ bool ToolMaschinePlugin::update()
             m->move(i, axisValues[i]);
         
     }
-
+    m_currents.update(axisValues, axisValues);
     return true;
 }
 

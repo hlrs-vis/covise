@@ -8,10 +8,12 @@ endif()
 
 
 SET(HEADERS
+Currents.h
 ToolMachine.h
 )
 
 SET(SOURCES
+Currents.cpp
 ToolMachine.cpp
 )
 
