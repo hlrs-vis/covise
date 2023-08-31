@@ -285,7 +285,7 @@ bool Client::connectMaster()
 
             UA_ClientConfig_setAuthenticationUsername(cc, m_username->getValue().c_str(), m_password->getValue().c_str());
 #else
-            std::cerr << "authentification with username/password requires open62541 to be uild with encryption support" << std::endl;
+            std::cerr << "authentification with username/password requires open62541 to be built with encryption support" << std::endl;
 #endif
         } else if(m_authentificationMode->getValue() == 0)
         {
@@ -302,7 +302,7 @@ bool Client::connectMaster()
 
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Connected!");
 
-        return false;
+        return true;
 }
 
 
