@@ -2,6 +2,10 @@
 #define MEASURE_MATERIALS_H
 
 #include <osg/Material>
+#include <util/coExport.h>
+
+namespace opencover{
+
 namespace material{
 
 enum Color
@@ -9,8 +13,9 @@ enum Color
     White, Red, Green, Blue, LAST
 };
 
-osg::Material *get(Color c);
+PLUGIN_UTILEXPORT osg::Material *get(Color c);
 
+}
 }
 
 #endif // MEASURE_MATERIALS_H

@@ -1,7 +1,7 @@
-#include "Materials.h"
+#include "ColorMaterials.h"
 #include <array>
-
-using namespace material;
+using namespace opencover;
+using namespace opencover::material;
 std::array<osg::ref_ptr<osg::Material>, (int)material::LAST> materials; 
 std::array<osg::Vec4, (int)material::LAST> materialsAmbient{osg::Vec4(0.2, 0.2, 0.2, 1.0),
                                                             osg::Vec4(0.2, 0, 0, 1.0),

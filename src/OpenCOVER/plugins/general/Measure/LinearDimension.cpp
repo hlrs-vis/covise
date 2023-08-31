@@ -1,5 +1,5 @@
 #include "LinearDimension.h"
-#include "Materials.h"
+#include <PluginUtil/ColorMaterials.h>
 #include "Measure.h"
 
 #include <cover/coVRPluginSupport.h>

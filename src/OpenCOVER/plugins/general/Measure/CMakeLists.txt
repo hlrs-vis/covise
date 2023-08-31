@@ -3,7 +3,6 @@
 SET(HEADERS
   Dimension.h
   LinearDimension.h
-  Materials.h
   Measure.h
   Pin.h
 
@@ -12,7 +11,6 @@ SET(HEADERS
 SET(SOURCES
   Dimension.cpp
   LinearDimension.cpp
-  Materials.cpp
   Measure.cpp
   Pin.cpp
 )

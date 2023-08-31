@@ -26,26 +26,14 @@ endif()
 SET(PLUGINUTIL_HEADERS
   BoxSelection.h
   BoxSelectionInteractor.h
-  ColorBar.h
-  CudaGraphicsResource.h
-  CudaTextureRectangle.h
-  FeedbackManager.h
-  FileReference.h
-  GenericGuiObject.h
-  ModuleFeedbackManager.h
-  ModuleFeedbackPlugin.h
-  MultiChannelDrawer.h
-  PluginMessageTypes.h
-  ProgramCache.h
-  SimReference.h
-  StaticSequence.h
-  Tipsify.h
   coArrow.h
   coColorBar.h
   coColorMap.h
   coInstanceRenderer.h
-  coLOD.h
   coLine.h
+  coLOD.h
+  ColorBar.h
+  ColorMaterials.h
   coPlane.h
   coSensor.h
   coSphere.h
@@ -60,30 +48,32 @@ SET(PLUGINUTIL_HEADERS
   coVR3DTransGizmo.h
   coVR3DTransInteractor.h
   coVR3DTransRotInteractor.h
+  CudaGraphicsResource.h
+  CudaTextureRectangle.h
+  FeedbackManager.h
+  FileReference.h
+  GenericGuiObject.h
+  ModuleFeedbackManager.h
+  ModuleFeedbackPlugin.h
+  MultiChannelDrawer.h
+  PluginMessageTypes.h
+  ProgramCache.h
+  SimReference.h
+  StaticSequence.h
+  Tipsify.h
 )
 
 SET(SOURCES
   BoxSelection.cpp
   BoxSelectionInteractor.cpp
-  ColorBar.cpp
-  CudaGraphicsResource.cpp
-  CudaTextureRectangle.cpp
-  FeedbackManager.cpp
-  FileReference.cpp
-  GenericGuiObject.cpp
-  ModuleFeedbackManager.cpp
-  ModuleFeedbackPlugin.cpp
-  ModuleInteraction.cpp
-  MultiChannelDrawer.cpp
-  ProgramCache.cpp
-  SimReference.cpp
-  StaticSequence.cpp
   coArrow.cpp
   coColorBar.cpp
   coColorMap.cpp
   coInstanceRenderer.cpp
-  coLOD.cpp
   coLine.cpp
+  coLOD.cpp
+  ColorBar.cpp
+  ColorMaterials.cpp
   coPlane.cpp
   coSensor.cpp
   coSphere.cpp
@@ -98,6 +88,18 @@ SET(SOURCES
   coVR3DTransGizmo.cpp
   coVR3DTransInteractor.cpp
   coVR3DTransRotInteractor.cpp
+  CudaGraphicsResource.cpp
+  CudaTextureRectangle.cpp
+  FeedbackManager.cpp
+  FileReference.cpp
+  GenericGuiObject.cpp
+  ModuleFeedbackManager.cpp
+  ModuleFeedbackPlugin.cpp
+  ModuleInteraction.cpp
+  MultiChannelDrawer.cpp
+  ProgramCache.cpp
+  SimReference.cpp
+  StaticSequence.cpp
 )
 
 if(open62541_FOUND)
