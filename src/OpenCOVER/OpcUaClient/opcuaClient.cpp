@@ -260,7 +260,8 @@ bool Client::connectMaster()
         client = UA_Client_new();
         UA_ClientConfig *cc = UA_Client_getConfig(client);
         /* Set securityMode and securityPolicyUri */
-        UA_StatusCode retval = UA_STATUSCODE_GOOD;
+        UA_StatusCode retval = UA_STATUSCODE_BAD;
+        cc->timeout = 10000;
         if(m_authentificationMode->getValue() == 1)
         {
 #ifdef UA_ENABLE_ENCRYPTION
@@ -272,10 +273,12 @@ bool Client::connectMaster()
             /* If no trust list is passed, all certificates are accepted. */
             UA_ClientConfig_setDefaultEncryption(cc, certificate, privateKey,
                                                     NULL, 0, NULL, 0);
-            cc->timeout = 10000;
             UA_CertificateVerification_AcceptAll(&cc->certificateVerification);
             UA_ByteString_clear(&certificate);
             UA_ByteString_clear(&privateKey);
+#else
+            std::cerr << "authentification with username/password might require certificates and therefore open62541 must be uild with encryption support" << std::endl;
+#endif
             /* The application URI must be the same as the one in the certificate.
             * The script for creating a self-created certificate generates a certificate
             * with the Uri specified below.*/
@@ -283,15 +286,12 @@ bool Client::connectMaster()
             cc->clientDescription.applicationUri = UA_STRING_ALLOC("urn:open62541.server.application");
             cc->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
 
-            UA_ClientConfig_setAuthenticationUsername(cc, m_username->getValue().c_str(), m_password->getValue().c_str());
-#else
-            std::cerr << "authentification with username/password requires open62541 to be built with encryption support" << std::endl;
-#endif
+            retval = UA_Client_connectUsername(client, m_serverIp->getValue().c_str(), m_username->getValue().c_str(), m_password->getValue().c_str()); 
         } else if(m_authentificationMode->getValue() == 0)
         {
             cc->securityMode = UA_MESSAGESECURITYMODE_NONE;
+            retval = UA_Client_connect(client, m_serverIp->getValue().c_str());
         }
-        retval = UA_Client_connect(client, m_serverIp->getValue().c_str());
 
         if(retval != UA_STATUSCODE_GOOD) {
             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Could not connect");
@@ -304,8 +304,6 @@ bool Client::connectMaster()
 
         return true;
 }
-
-
 
 bool Client::connect()
 {
