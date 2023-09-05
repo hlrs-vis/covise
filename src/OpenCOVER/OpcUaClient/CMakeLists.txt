@@ -1,4 +1,5 @@
 if(NOT open62541_FOUND)
+     MESSAGE("open62541 not found, not building OpenOpcUaClient library")
     return()
 endif()
 
@@ -24,4 +25,4 @@ COVISE_INSTALL_HEADERS(coOpenOpcUaClient ${HEADERS})
 
 TARGET_INCLUDE_DIRECTORIES(coOpenOpcUaClient PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
-COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)
+COVISE_WNOERROR(coOpenOpcUaClient BASEARCH zebu)
