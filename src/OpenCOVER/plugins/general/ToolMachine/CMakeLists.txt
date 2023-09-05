@@ -3,6 +3,7 @@
 using(VRML)
 
 if(NOT open62541_FOUND)
+     MESSAGE("open62541 not found, not building ToolMachine")
     return()
 endif()
 
