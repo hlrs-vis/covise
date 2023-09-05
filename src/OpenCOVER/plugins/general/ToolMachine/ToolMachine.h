@@ -24,11 +24,8 @@ public:
 private:
     void key(int type, int keySym, int mod) override;
     bool update() override;
-    std::array<double, 5> m_axisPositions{0,0,0,0,0}; //A, C, X, Y, Z
+    std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;
-    std::unique_ptr<opencover::ui::EditFieldConfigValue> m_server;
-    std::array<std::unique_ptr<opencover::ui::SelectionListConfigValue> , 5> m_axisNames;
-    std::array<std::unique_ptr<opencover::ui::EditFieldConfigValue>, 5> m_offsets;
     Currents m_currents;
 };
 

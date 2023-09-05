@@ -8,7 +8,7 @@ class Currents
 {
 public:
     Currents();
-    void update(const std::array<double, 5> &position, const std::array<double, 5> &currents);
+    void update(const std::array<double, 10> &position, const std::array<double, 10> &currents);
     void setOffset(const std::array<double, 5> &offsets);
 private:
 osg::ref_ptr<osg::MatrixTransform> m_generalOffset, m_aAxis, m_cAxis;

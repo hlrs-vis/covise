@@ -5,7 +5,9 @@
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlMFString.h>
+#include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <util/coExport.h>
 #include <vrml97/vrml/VrmlScene.h>
@@ -23,8 +25,6 @@ using namespace vrml;
 
 class MachineNode;
 std::vector<MachineNode *> machineNodes;
-const std::array<const char*, 5> axisNames{"A", "C", "X", "Y", "Z"};
-const std::array<const char*, 5> axisNamesLower{"a", "c", "x", "y", "z"};
 
 static VrmlNode *creator(VrmlScene *scene);
 
@@ -58,24 +58,24 @@ public:
         }
 
         VrmlNodeChild::defineType(t); // Parent class
-        for (size_t i = 0; i < 2; i++)
-        {
-            t->addEventOut(axisNames[i], VrmlField::SFROTATION);
-        }
-        for (size_t i = 2; i < axisNames.size(); i++)
-        {
-            t->addEventOut(axisNames[i], VrmlField::SFVEC3F);
-        }
-         t->addEventOut("aAxisYOffsetPos", VrmlField::SFVEC3F);
-         t->addEventOut("aAxisYOffsetNeg", VrmlField::SFVEC3F);
-         t->addExposedField("MachineName", VrmlField::SFSTRING);
-         t->addExposedField("XAxis", VrmlField::SFVEC3F);
-         t->addExposedField("YAxis", VrmlField::SFVEC3F);
-         t->addExposedField("ZAxis", VrmlField::SFVEC3F);
-         t->addExposedField("AAxis", VrmlField::SFVEC3F);
-         t->addExposedField("BAxis", VrmlField::SFVEC3F);
-         t->addExposedField("CAxis", VrmlField::SFVEC3F);
-         t->addExposedField("AxisNames", VrmlField::MFSTRING);
+        t->addEventOut("A", VrmlField::SFROTATION);
+        t->addEventOut("B", VrmlField::SFROTATION);
+        t->addEventOut("C", VrmlField::SFROTATION);
+        t->addEventOut("X", VrmlField::SFVEC3F);
+        t->addEventOut("Y", VrmlField::SFVEC3F);
+        t->addEventOut("Z", VrmlField::SFVEC3F);
+        t->addEventOut("aAxisYOffsetPos", VrmlField::SFVEC3F);
+        t->addEventOut("aAxisYOffsetNeg", VrmlField::SFVEC3F);
+        t->addExposedField("MachineName", VrmlField::SFSTRING);
+        t->addExposedField("XAxis", VrmlField::SFVEC3F);
+        t->addExposedField("YAxis", VrmlField::SFVEC3F);
+        t->addExposedField("ZAxis", VrmlField::SFVEC3F);
+        t->addExposedField("AAxis", VrmlField::SFVEC3F);
+        t->addExposedField("BAxis", VrmlField::SFVEC3F);
+        t->addExposedField("CAxis", VrmlField::SFVEC3F);
+        t->addExposedField("Offsets", VrmlField::MFFLOAT);
+        t->addExposedField("AxisNames", VrmlField::MFSTRING);
+        t->addExposedField("OPCUANames", VrmlField::MFSTRING);
         return t;
     }
 
@@ -99,12 +99,17 @@ public:
         else if
             TRY_FIELD(CAxis, SFVec3f)
         else if
+            TRY_FIELD(Offsets, MFFloat)
+        else if
             TRY_FIELD(AxisNames, MFString)
+        else if
+            TRY_FIELD(OPCUANames, MFString)
         else
             VrmlNodeChild::setField(fieldName, fieldValue);
         if (strcmp(fieldName, "MachineName") == 0)
         {
             //connect to the specified machine through OPC-UA
+            opcua::connect(d_MachineName.get());
         }
         else
         {
@@ -163,7 +168,9 @@ public:
     VrmlSFVec3f d_AAxis;
     VrmlSFVec3f d_BAxis;
     VrmlSFVec3f d_CAxis;
+    VrmlMFFloat d_Offsets;
     VrmlMFString d_AxisNames;
+    VrmlMFString d_OPCUANames;
 private:
     size_t m_index = 0;
 };
@@ -181,45 +188,25 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 :coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
-, m_server(std::make_unique<ui::EditFieldConfigValue>(m_menu, "server", "", *config(), "", config::Flag::PerModel))
 {
     
     m_menu->allowRelayout(true);
 
-    for (size_t i = 0; i < 5; i++)
-        m_axisNames[i] = std::make_unique<ui::SelectionListConfigValue>(m_menu, axisNames[i] + std::string("_axis"), 0, *config(), "axles", config::Flag::PerModel);
-    for (size_t i = 0; i < 5; i++)
-        m_offsets[i] = std::make_unique<ui::EditFieldConfigValue>(m_menu, axisNames[i] + std::string("_offset"), "", *config(), "offsets", config::Flag::PerModel);
-
     opcua::addOnClientConnectedCallback([this]()
     {
-        auto availableFields = opcua::getClient()->availableNumericalScalars();
-        for (size_t i = 0; i < 5; i++)
-        {
-            m_axisNames[i]->ui()->setList(availableFields);
-            m_axisNames[i]->ui()->select(m_axisNames[i]->getValue());
-        }
+        //auto availableFields = opcua::getClient()->availableNumericalScalars();
     });
 
-
-    m_server->setUpdater([this]()
-    {
-        opcua::connect(m_server->getValue());
-    });
 
     opcua::addOnClientDisconnectedCallback([this]()
     {
-        for (size_t i = 0; i < 5; i++)
-        {
-            m_axisNames[i]->ui()->setList(std::vector<std::string>());
-        }
     });
     
     
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
 
     config()->setSaveOnExit(true);
-
+    /*
     std::array<ui::Slider *, 5> sliders;
     for (size_t i = 0; i < 5; i++)
     {
@@ -236,7 +223,7 @@ ToolMaschinePlugin::ToolMaschinePlugin()
             }
             m_currents.setOffset(sliderVals);
         });
-    }
+    }*/
 
     // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
     // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
@@ -247,7 +234,7 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 
 void ToolMaschinePlugin::key(int type, int keySym, int mod)
 {
-    if(!type == osgGA::GUIEventAdapter::KEY_Down)
+    if(type != osgGA::GUIEventAdapter::KEY_Down)
         return;
     std::string key = "unknown";
     if (!(keySym & 0xff00))
@@ -257,27 +244,28 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
     }
     float speed = 0.5;
     std::cerr << "Key input  " << key << std::endl;
-    
-    for (size_t i = 0; i < axisNames.size(); i++)
+
+    for (auto& m : machineNodes)
     {
-        auto &axis = m_axisPositions[i];
-        if(key == axisNamesLower[i])
+        for (size_t i = 0; i < m->d_AxisNames.size(); i++)
         {
-            if(mod == 3)
+            auto& axis = m_axisPositions[i];
+            if (key[0] == std::tolower(m->d_AxisNames[i][0]))
             {
-                std::cerr << "decreasing " << axisNames[i] << std::endl;
-                speed *= -1;
-            } else{
-                std::cerr << "increasing " << axisNames[i] << std::endl;
-            }
-            axis += speed;
-            for(auto &m : machineNodes)
-            {
+                if (mod == 3)
+                {
+                    std::cerr << "decreasing " << m->d_AxisNames[i] << std::endl;
+                    speed *= -1;
+                }
+                else {
+                    std::cerr << "increasing " << m->d_AxisNames[i] << std::endl;
+                }
+                axis += speed;
                 // m->move(v);
                 m->move(i, axis);
-            }
-            m_currents.update(m_axisPositions, m_axisPositions);
+                m_currents.update(m_axisPositions, m_axisPositions);
 
+            }
         }
     }
 }
@@ -287,13 +275,13 @@ bool ToolMaschinePlugin::update()
     for (const auto& m : machineNodes)
     {
         
-        auto client = opcua::getClient(/*m->d_MachineName.get()*/); // get the client with this name
+        auto client = opcua::getClient(m->d_MachineName.get()); // get the client with this name
         if (!client || !client->isConnected())
             return true;
-        std::array<double, 5> axisValues;
+        std::array<double, 10> axisValues;
 
         for (size_t i = 0; i < 5; i++)
-            axisValues[i] = client->readNumericValue(m_axisNames[i]->ui()->selectedItem()) + m_offsets[i]->ui()->number();
+            axisValues[i] = client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i];
         for (size_t i = 0; i < 5; i++)
             m->move(i, axisValues[i]);
 

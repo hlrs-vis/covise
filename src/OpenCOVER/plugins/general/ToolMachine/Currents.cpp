@@ -42,7 +42,7 @@ Currents::Currents()
     // m_drawArrays->setCount(m_points->size());
 }
 
-void Currents::update(const std::array<double, 5> &position, const std::array<double, 5> &currents)
+void Currents::update(const std::array<double, 10> &position, const std::array<double, 10> &currents)
 {
     osg::Vec3 point{(float)position[2]/1000, (float)position[3]/1000, (float)position[4]/1000};
     osg::Matrix a = osg::Matrix::rotate(-position[0] / 180 * (float)osg::PI, osg::X_AXIS);

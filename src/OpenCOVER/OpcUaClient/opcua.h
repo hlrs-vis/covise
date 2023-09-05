@@ -25,15 +25,15 @@ class Manager : public ui::Owner
 
 public:
     static Manager *instance();
-    opencover::opcua::Client *getClient();
+    opencover::opcua::Client *getClient(const std::string& name);
     void addOnClientConnectedCallback(const std::function<void(void)> &cb);
     void addOnClientDisconnectedCallback(const std::function<void(void)> &cb);
-    void connect(const std::string &name);
+    Client *connect(const std::string &name);
 private:
     Manager();
     void createClient(const std::string &name);
     static Manager* m_instance;
-    std::unique_ptr<opencover::opcua::Client> m_client;
+    std::map<std::string,std::unique_ptr<opencover::opcua::Client>> m_clients;
     std::unique_ptr<config::File> m_config;
     ui::Menu *m_menu;
     ui::SelectionList *m_configuredServersList;
@@ -44,10 +44,10 @@ private:
 
 }
 
-OPCUACLIENTEXPORT Client * getClient();
+OPCUACLIENTEXPORT Client *getClient(const std::string &name);
 OPCUACLIENTEXPORT void addOnClientConnectedCallback(const std::function<void(void)> &cb);
 OPCUACLIENTEXPORT void addOnClientDisconnectedCallback(const std::function<void(void)> &cb);
-OPCUACLIENTEXPORT void connect(const std::string &name);
+OPCUACLIENTEXPORT Client *connect(const std::string &name);
 
 }
 }
