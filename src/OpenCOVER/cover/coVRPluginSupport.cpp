@@ -872,7 +872,6 @@ void coVRPluginSupport::preparePluginUnload()
 }
 
 coVRPluginSupport::coVRPluginSupport()
-: scaleFactor(0.0), viewerDist(0.0), updateManager(0), activeClippingPlane(0), m_config()
 {
     assert(!cover);
     cover = this;
@@ -1438,7 +1437,7 @@ int coVRPluginSupport::unusePlayer(void (*playerUnavailableCB)())
 
 coUpdateManager *coVRPluginSupport::getUpdateManager() const
 {
-    if (updateManager == 0)
+    if (!updateManager)
         updateManager = new coUpdateManager();
     return updateManager;
 }

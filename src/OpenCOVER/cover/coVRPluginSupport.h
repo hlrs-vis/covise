@@ -542,8 +542,8 @@ public:
 private:
     void setFrameRealTime(double ft);
 
-    float scaleFactor; ///< scale depending on viewer-screen FOV
-    float viewerDist; ///< distance of viewer from screen
+    float scaleFactor = 0; ///< scale depending on viewer-screen FOV
+    float viewerDist = 0; ///< distance of viewer from screen
     LengthUnit m_sceneUnit = LengthUnit::Meter; ///< unit in which the scene is specified
     osg::Vec3 eyeToScreen; ///< eye to screen center vector
 
@@ -551,7 +551,7 @@ private:
 
     osg::ref_ptr<osg::ClipPlane> clipPlanes[MAX_NUM_CLIP_PLANES];
 
-    mutable vrui::coUpdateManager *updateManager;
+    mutable vrui::coUpdateManager *updateManager = nullptr;
 
     mutable int invCalculated;
     osg::Matrix handMat;
@@ -565,7 +565,7 @@ private:
     vrml::Player *player = nullptr;
     std::set<void (*)()> playerUseList;
 
-    int activeClippingPlane;
+    int activeClippingPlane = 0;
 
     osg::ref_ptr<osg::Geode> intersectedNode;
     osg::ref_ptr<osg::Drawable> intersectedDrawable;
