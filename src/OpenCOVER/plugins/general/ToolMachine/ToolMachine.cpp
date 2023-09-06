@@ -278,14 +278,12 @@ bool ToolMaschinePlugin::update()
         auto client = opcua::getClient(m->d_MachineName.get()); // get the client with this name
         if (!client || !client->isConnected())
             return true;
-        std::array<double, 10> axisValues;
 
-        for (size_t i = 0; i < 5; i++)
-            axisValues[i] = client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i];
-        for (size_t i = 0; i < 5; i++)
-            m->move(i, axisValues[i]);
-
-        m_currents.update(axisValues, axisValues);
+        for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+        {
+            m->move(i, client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i]);
+        }
+        // m_currents.update(axisValues, axisValues);
     }
     return true;
 }
