@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    char *d_s;
+    char *d_s = nullptr;
 };
 }
 #endif // _VRMLSFSTRING_
