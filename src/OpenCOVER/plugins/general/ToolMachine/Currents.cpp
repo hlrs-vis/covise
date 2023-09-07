@@ -2,25 +2,40 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
+#include <cover/ui/Action.h>
 #include <osg/StateSet>
 #include <osgDB/StreamOperator>
 #include <PluginUtil/ColorMaterials.h>
-
+#include <iostream>
 using namespace opencover;
 
-Currents::Currents()
+
+
+
+Currents::Currents(ui::Group *group, const osg::Node *toolHeadNode, const osg::Node *tableNode)
 : m_generalOffset(new osg::MatrixTransform)
-, m_aAxis(new osg::MatrixTransform)
+, m_tableProxy(new osg::MatrixTransform)
 , m_cAxis(new osg::MatrixTransform)
 , m_traceLine(new osg::Geometry)
 , m_points(new osg::Vec3Array)
 , m_drawArrays(new osg::DrawArrays(osg::PrimitiveSet::LINE_STRIP, 0, 0, 1))
+, m_toolHeadNode(toolHeadNode)
+, m_tableNode(tableNode)
+, m_group(group)
 {
-    
-    cover->getObjectsRoot()->addChild(m_generalOffset);
-    m_generalOffset->addChild(m_aAxis);
-    m_aAxis->addChild(m_cAxis);
+    auto clearBtn = new ui::Action(group, "clear");
+    clearBtn->setCallback([this](){
+        m_points->clear();
+    });
+    m_numPointsSlider = new ui::Slider(group, "numPoints");
+    m_numPointsSlider->setBounds(-1, 1000);
+    init();
+}
 
+bool Currents::init()
+{
+    if(!m_tableNode || !m_toolHeadNode) //need observer to get notified when vrml nodes are deleted
+        return false;
     osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
     m_traceLine->setVertexArray(m_points);
 
@@ -32,35 +47,44 @@ Currents::Currents()
     m_drawArrays->setDataVariance(osg::Object::DYNAMIC);
     m_traceLine->addPrimitiveSet(m_drawArrays);
     osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth(2.0f);
+    linewidth->setWidth(20.0f);
     stateSet->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
-    m_cAxis->addChild(m_traceLine);
+    cover->getObjectsRoot()->addChild(m_generalOffset);
+    m_generalOffset->addChild(m_tableProxy);
+    m_tableProxy->addChild(m_traceLine);
+    // m_tableNode->asTransform()->addChild(m_traceLine);
+
     // for (size_t i = 0; i < 20; i++)
     // {
     //     m_points->push_back(osg::Vec3{(float) i, 0, 0});
     // }
     // m_drawArrays->setCount(m_points->size());
+    return true;
 }
 
-void Currents::update(const std::array<double, 10> &position, const std::array<double, 10> &currents)
-{
-    osg::Vec3 point{(float)position[2]/1000, (float)position[3]/1000, (float)position[4]/1000};
-    osg::Matrix a = osg::Matrix::rotate(-position[0] / 180 * (float)osg::PI, osg::X_AXIS);
-    osg::Matrix b = osg::Matrix::rotate(-position[1] / 180 * (float)osg::PI, osg::Z_AXIS);
-    
-    m_aAxis->setMatrix(a);
-    m_cAxis->setMatrix(b);
 
-    auto worldToC = m_cAxis->getWorldMatrices(m_generalOffset)[0];
-    auto pointInC = point * worldToC;
-    m_points->push_back(pointInC);
-    int numElements = (int)m_points->size();
+
+void Currents::update()
+{
+    if(!m_tableNode || !m_toolHeadNode)
+        return;
+    osg::Matrix toolHeadTrans = m_toolHeadNode->getWorldMatrices(cover->getObjectsRoot())[0];
+    osg::Matrix tableTrans = m_tableNode->getWorldMatrices(cover->getObjectsRoot())[0];
+
+    auto pointWorld = toolHeadTrans.getTrans();
+    auto pointTable = pointWorld * tableTrans;
+
+    m_points->push_back(pointTable);
+    int numElements = m_numPointsSlider->value() < 0? (int)m_points->size() : m_numPointsSlider->value();
     m_drawArrays->setFirst(std::max(0, (int)m_points->size() - numElements));
     m_drawArrays->setCount(std::min(numElements, (int)m_points->size()));
     m_traceLine->setVertexArray(m_points);
+    m_tableProxy->setMatrix(tableTrans);
 }
+
+
 
 void Currents::setOffset(const std::array<double, 5> &offsets)
 {
-    m_generalOffset->setMatrix(osg::Matrix::translate(osg::Vec3d{offsets[2], offsets[3], offsets[4]}));
+    m_generalOffset->setMatrix(osg::Matrix::translate(osg::Vec3d{offsets[0], offsets[1], offsets[2]}));
 }

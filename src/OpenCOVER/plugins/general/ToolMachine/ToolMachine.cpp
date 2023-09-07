@@ -8,11 +8,15 @@
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlMFString.h>
 #include <vrml97/vrml/VrmlMFFloat.h>
+#include <vrml97/vrml/VrmlMFVec3f.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
+#include <plugins/general/Vrml97/ViewerObject.h>
+
 #include <util/coExport.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
+#include <cover/VRViewer.h>
 
 #include <stdlib.h>
 #include <cover/ui/VectorEditField.h>
@@ -27,6 +31,23 @@ class MachineNode;
 std::vector<MachineNode *> machineNodes;
 
 static VrmlNode *creator(VrmlScene *scene);
+
+osg::MatrixTransform *toOsg(VrmlNode *node)
+{
+    auto g = node->toGroup();
+    if(!g)
+        return nullptr;
+    auto vo = g->getViewerObject();
+    if(!vo)
+        return nullptr;
+    auto pNode = ((osgViewerObject *)vo)->pNode;
+    if(!pNode)
+        return nullptr;
+    auto trans = pNode->asTransform();
+    if(!trans)
+        return nullptr;
+    return trans->asMatrixTransform();
+}
 
 class MachineNode : public vrml::VrmlNodeChild
 {
@@ -58,24 +79,16 @@ public:
         }
 
         VrmlNodeChild::defineType(t); // Parent class
-        t->addEventOut("A", VrmlField::SFROTATION);
-        t->addEventOut("B", VrmlField::SFROTATION);
-        t->addEventOut("C", VrmlField::SFROTATION);
-        t->addEventOut("X", VrmlField::SFVEC3F);
-        t->addEventOut("Y", VrmlField::SFVEC3F);
-        t->addEventOut("Z", VrmlField::SFVEC3F);
-        t->addEventOut("aAxisYOffsetPos", VrmlField::SFVEC3F);
-        t->addEventOut("aAxisYOffsetNeg", VrmlField::SFVEC3F);
+
         t->addExposedField("MachineName", VrmlField::SFSTRING);
-        t->addExposedField("XAxis", VrmlField::SFVEC3F);
-        t->addExposedField("YAxis", VrmlField::SFVEC3F);
-        t->addExposedField("ZAxis", VrmlField::SFVEC3F);
-        t->addExposedField("AAxis", VrmlField::SFVEC3F);
-        t->addExposedField("BAxis", VrmlField::SFVEC3F);
-        t->addExposedField("CAxis", VrmlField::SFVEC3F);
+        t->addExposedField("ToolHeadNode", VrmlField::SFNODE);
+        t->addExposedField("TableNode", VrmlField::SFNODE);
         t->addExposedField("Offsets", VrmlField::MFFLOAT);
         t->addExposedField("AxisNames", VrmlField::MFSTRING);
         t->addExposedField("OPCUANames", VrmlField::MFSTRING);
+        t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
+        t->addExposedField("AxisNodes", VrmlField::MFNODE);
+
         return t;
     }
 
@@ -87,34 +100,29 @@ public:
         if
             TRY_FIELD(MachineName, SFString)
         else if
-            TRY_FIELD(XAxis, SFVec3f)
+            TRY_FIELD(ToolHeadNode, SFNode)
         else if
-            TRY_FIELD(YAxis, SFVec3f)
+            TRY_FIELD(TableNode, SFNode)
         else if
-            TRY_FIELD(ZAxis, SFVec3f)
-        else if
-            TRY_FIELD(AAxis, SFVec3f)
-        else if
-            TRY_FIELD(BAxis, SFVec3f)
-        else if
-            TRY_FIELD(CAxis, SFVec3f)
+            TRY_FIELD(AxisOrientations, MFVec3f)
         else if
             TRY_FIELD(Offsets, MFFloat)
         else if
             TRY_FIELD(AxisNames, MFString)
         else if
             TRY_FIELD(OPCUANames, MFString)
+        else if
+            TRY_FIELD(AxisNodes, MFNode)
         else
             VrmlNodeChild::setField(fieldName, fieldValue);
         if (strcmp(fieldName, "MachineName") == 0)
         {
             //connect to the specified machine through OPC-UA
             opcua::connect(d_MachineName.get());
-        }
-        else
-        {
 
         }
+        if(d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
+            d_rdy = true;
     }
 
     virtual VrmlNodeType *nodeType() const { return defineType(); };
@@ -126,51 +134,28 @@ public:
 
     void move(int axis, float value)
     {
-        auto t = System::the->time();
-        VrmlSFVec3f v;
-        if (strcmp(d_AxisNames[axis], "X") == 0)
+        auto v = osg::Vec3{*d_AxisOrientations[axis], *(d_AxisOrientations[axis] + 1), *(d_AxisOrientations[axis] +2) };
+        auto osgNode = toOsg(d_AxisNodes[axis]);
+        if(axis <= 2) // ugly hack to find out if an axis is translational
         {
-            v = d_XAxis;
-        }
-        else if (strcmp(d_AxisNames[axis], "Y") == 0)
-        {
-            v = d_YAxis;
-        }
-        else if (strcmp(d_AxisNames[axis], "Z") == 0)
-        {
-            v = d_ZAxis;
-        }
-        else if (strcmp(d_AxisNames[axis], "A") == 0)
-        {
-            v = d_AAxis;
-        }
-        else if (strcmp(d_AxisNames[axis], "B") == 0)
-        {
-            v = d_BAxis;
-        }
-        else if (strcmp(d_AxisNames[axis], "C") == 0)
-        {
-            v = d_CAxis;
-        }
-        if(axis >= 2) // ugly hack to find out if an axis is translational
-        {
-            v.multiply(value /1000.0);
-            eventOut(t, d_AxisNames[axis], v);
+            v *= (value /1000.0);
+            osgNode->setMatrix(osg::Matrix::translate(v));
         }
         else{
-            eventOut(t, d_AxisNames[axis], VrmlSFRotation{v.x(), v.y(), v.z(), value / 180 *(float)osg::PI});
+            osgNode->setMatrix(osg::Matrix::rotate(value / 180 *(float)osg::PI, v));
         }
     }
+
     VrmlSFString d_MachineName;
-    VrmlSFVec3f d_XAxis;
-    VrmlSFVec3f d_YAxis;
-    VrmlSFVec3f d_ZAxis;
-    VrmlSFVec3f d_AAxis;
-    VrmlSFVec3f d_BAxis;
-    VrmlSFVec3f d_CAxis;
+    VrmlSFNode d_ToolHeadNode;
+    VrmlSFNode d_TableNode;
+    VrmlMFVec3f d_AxisOrientations;
     VrmlMFFloat d_Offsets;
     VrmlMFString d_AxisNames;
     VrmlMFString d_OPCUANames;
+    VrmlMFNode d_AxisNodes;
+    bool d_rdy = false;
+
 private:
     size_t m_index = 0;
 };
@@ -189,14 +174,13 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
 {
-    
     m_menu->allowRelayout(true);
 
     opcua::addOnClientConnectedCallback([this]()
     {
         //auto availableFields = opcua::getClient()->availableNumericalScalars();
     });
-
+    
 
     opcua::addOnClientDisconnectedCallback([this]()
     {
@@ -206,46 +190,53 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
 
     config()->setSaveOnExit(true);
-    /*
-    std::array<ui::Slider *, 5> sliders;
-    for (size_t i = 0; i < 5; i++)
-    {
-        sliders[i] = new ui::Slider(m_menu, axisNames[i] + std::string("slider"));
-    }
-    for (size_t i = 0; i < 5; i++)
-    {
-        sliders[i]->setBounds(-1, 1);
-        sliders[i]->setCallback([this, sliders](ui::Slider::ValueType val, bool rel){
-            std::array<double, 5> sliderVals;
-            for (size_t i = 0; i < 5; i++)
-            {
-                sliderVals[i] = sliders[i]->value();
-            }
-            m_currents.setOffset(sliderVals);
-        });
-    }*/
+    
 
     // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
     // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
 
-    
 }
 
+void ToolMaschinePlugin::addCurrent(MachineNode *m)
+{
+    auto toolHead = toOsg(m->d_ToolHeadNode.get());
+    auto table = toOsg(m->d_TableNode.get());
+    if(!toolHead || !table)
+        return;
+    ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
+    auto &currents = m_currents.insert(std::make_pair(m->d_MachineName.get(), Currents(machineGroup, toolHead, table))).first->second;
+    // std::array<ui::Slider *, 5> sliders;
+    // for (size_t i = 0; i < 5; i++)
+    // {
+    //     sliders[i] = new ui::Slider(machineGroup, *m->d_AxisNames[i] + std::string("slider"));
+    // }
+
+    // for (size_t i = 0; i < 5; i++)
+    // {
+    //     sliders[i]->setBounds(-1, 1);
+    //     sliders[i]->setCallback([this, &currents, sliders](ui::Slider::ValueType val, bool rel){
+    //         std::array<double, 5> sliderVals;
+    //         for (size_t i = 0; i < 5; i++)
+    //         {
+    //             sliderVals[i] = sliders[i]->value();
+    //         }
+    //         currents.setOffset(sliderVals);
+    //     });
+    // }
+}
 
 void ToolMaschinePlugin::key(int type, int keySym, int mod)
 {
-    if(type != osgGA::GUIEventAdapter::KEY_Down)
-        return;
     std::string key = "unknown";
     if (!(keySym & 0xff00))
     {
         char buf[2] = { static_cast<char>(keySym), '\0' };
         key = buf;
     }
-    float speed = 0.5;
+    float speed = 3;
     std::cerr << "Key input  " << key << std::endl;
 
-    for (auto& m : machineNodes)
+    for (auto m : machineNodes)
     {
         for (size_t i = 0; i < m->d_AxisNames.size(); i++)
         {
@@ -263,28 +254,40 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
                 axis += speed;
                 // m->move(v);
                 m->move(i, axis);
-                m_currents.update(m_axisPositions, m_axisPositions);
-
             }
         }
     }
+}
+
+osg::Vec3 toOsg(VrmlSFVec3f &v)
+{
+    return osg::Vec3(v.x(), v.y(), v.z());
+}
+
+osg::Quat toOsg(VrmlSFRotation &r)
+{
+    return osg::Quat(r.r(), osg::Vec3{r.x(), r.y(), r.z()});
 }
 
 bool ToolMaschinePlugin::update()
 {
     for (const auto& m : machineNodes)
     {
-        
-        auto client = opcua::getClient(m->d_MachineName.get()); // get the client with this name
-        if (!client || !client->isConnected())
+        if(!m->d_rdy)
             return true;
-
-        for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+        if(m_currents.find(m->d_MachineName.get()) == m_currents.end())
+            addCurrent(m);
+        auto client = opcua::getClient(m->d_MachineName.get()); // get the client with this name
+        if (client && client->isConnected())
         {
-            m->move(i, client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i]);
+            for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+            {
+                m->move(i, client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i]);
+            }
         }
-        // m_currents.update(axisValues, axisValues);
     }
+    for(auto & c : m_currents)
+        c.second.update();
     return true;
 }
 
