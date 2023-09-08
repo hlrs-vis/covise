@@ -25,10 +25,11 @@ Currents::Currents(ui::Group *group, const osg::Node *toolHeadNode, const osg::N
 {
     auto clearBtn = new ui::Action(group, "clear");
     clearBtn->setCallback([this](){
-        m_points->clear();
+        m_clear = true;
     });
     m_numPointsSlider = new ui::Slider(group, "numPoints");
     m_numPointsSlider->setBounds(-1, 1000);
+    m_numPointsSlider->setValue(-1);
     init();
 }
 
@@ -36,7 +37,7 @@ bool Currents::init()
 {
     if(!m_tableNode || !m_toolHeadNode) //need observer to get notified when vrml nodes are deleted
         return false;
-    osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
+    osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadUnlightedGeostate();
     m_traceLine->setVertexArray(m_points);
 
     m_traceLine->setUseDisplayList(false);
@@ -66,6 +67,11 @@ bool Currents::init()
 
 void Currents::update()
 {
+    if(m_clear)
+    {
+        m_clear = false;
+        m_points->clear();
+    }
     if(!m_tableNode || !m_toolHeadNode)
         return;
     osg::Matrix toolHeadTrans = m_toolHeadNode->getWorldMatrices(cover->getObjectsRoot())[0];
@@ -82,9 +88,21 @@ void Currents::update()
     m_tableProxy->setMatrix(tableTrans);
 }
 
-
-
 void Currents::setOffset(const std::array<double, 5> &offsets)
 {
     m_generalOffset->setMatrix(osg::Matrix::translate(osg::Vec3d{offsets[0], offsets[1], offsets[2]}));
+}
+
+SelfDeletingCurrents::SelfDeletingCurrents(Map &currentsMap, const std::string &name, std::unique_ptr<Currents> &&currents)
+: m_currents(currentsMap)
+, value(std::move(currents))
+{
+    m_iter = m_currents.insert(std::make_pair(name, this)).first;
+    value->m_toolHeadNode->addObserver(this);
+    value->m_tableNode->addObserver(this);
+}
+void SelfDeletingCurrents::objectDeleted(void* v){
+    
+    v == value->m_toolHeadNode ? value->m_tableNode->removeObserver(this) : value->m_toolHeadNode->removeObserver(this);
+    m_currents.erase(m_iter);
 }

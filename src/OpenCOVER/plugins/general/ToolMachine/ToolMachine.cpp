@@ -118,7 +118,7 @@ public:
         if (strcmp(fieldName, "MachineName") == 0)
         {
             //connect to the specified machine through OPC-UA
-            opcua::connect(d_MachineName.get());
+            // opcua::connect(d_MachineName.get());
 
         }
         if(d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
@@ -204,7 +204,7 @@ void ToolMaschinePlugin::addCurrent(MachineNode *m)
     if(!toolHead || !table)
         return;
     ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
-    auto &currents = m_currents.insert(std::make_pair(m->d_MachineName.get(), Currents(machineGroup, toolHead, table))).first->second;
+    new SelfDeletingCurrents(m_currents, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
     // std::array<ui::Slider *, 5> sliders;
     // for (size_t i = 0; i < 5; i++)
     // {
@@ -287,7 +287,7 @@ bool ToolMaschinePlugin::update()
         }
     }
     for(auto & c : m_currents)
-        c.second.update();
+        c.second->value->update();
     return true;
 }
 

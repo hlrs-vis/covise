@@ -18,7 +18,10 @@
 #include <osg/Vec3>
 #include "Currents.h"
 
+
+
 class MachineNode;
+
 
 class ToolMaschinePlugin : public opencover::coVRPlugin, opencover::ui::Owner
 {
@@ -31,7 +34,10 @@ private:
 
     std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;
-    std::map<std::string, Currents> m_currents;
+
+
+    SelfDeletingCurrents::Map m_currents;
+
 };
 
 
