@@ -411,9 +411,9 @@ void CsvPointCloudPlugin::updateColorMap()
 {
     auto cm = m_colorInteractor->getColorMap();
     if (m_points)
-        applyPointShader(m_currentGeode, m_points, cm, m_minColor, m_maxColor);
+        applyPointShader(m_points, cm, m_minColor, m_maxColor);
     if (m_surface)
-        applySurfaceShader(m_currentGeode, m_surface, cm, m_minColor, m_maxColor);
+        applySurfaceShader(m_surface, cm, m_minColor, m_maxColor);
 
     opencover::coVRPluginList::instance()->removeObject("CsvPointCloud4", false);
     opencover::coVRPluginList::instance()->newInteractor(&renderObject, m_colorInteractor);

@@ -34,6 +34,7 @@ SET(PLUGINUTIL_HEADERS
   ColorMaterials.h
   coPlane.h
   coSensor.h
+  coShaderUtil.h
   coSphere.h
   coVR1DTransInteractor.h
   coVR2DTransInteractor.h
@@ -74,6 +75,7 @@ SET(SOURCES
   ColorMaterials.cpp
   coPlane.cpp
   coSensor.cpp
+  coShaderUtil.cpp
   coSphere.cpp
   coVR1DTransInteractor.cpp
   coVR2DTransInteractor.cpp
