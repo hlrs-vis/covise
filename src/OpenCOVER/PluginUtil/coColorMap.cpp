@@ -106,18 +106,18 @@ covise::ColorMap covise::interpolateColorMap(const covise::ColorMap &cm, int num
     return interpolatedMap;
 }
 
+covise::ColorMapSelector::ColorMapSelector(opencover::ui::Group &group)
+: m_selector(new opencover::ui::SelectionList(&group, "mapChoice"))
+, m_colors(readColorMaps())
+{
+    init();
+}
+
 covise::ColorMapSelector::ColorMapSelector(opencover::ui::Menu& menu)
     : m_selector(new opencover::ui::SelectionList{ &menu, "mapChoice" })
 , m_colors(readColorMaps())
 {
-    for (auto &n: m_colors)
-        m_selector->append(n.first);
-    m_selector->select(0);
-    m_selectedMap = m_colors.begin();
-
-    m_selector->setCallback([this](int index) {
-        updateSelectedMap();
-        });
+    init();
 }
 
 bool covise::ColorMapSelector::setValue(const std::string& colorMapName)
@@ -154,4 +154,16 @@ void covise::ColorMapSelector::updateSelectedMap()
     m_selectedMap = m_colors.begin();
     std::advance(m_selectedMap, m_selector->selectedIndex());
     assert(m_selectedMap != m_colors.end());
+}
+
+void covise::ColorMapSelector::init()
+{
+    for (auto &n: m_colors)
+        m_selector->append(n.first);
+    m_selector->select(0);
+    m_selectedMap = m_colors.begin();
+
+    m_selector->setCallback([this](int index) {
+        updateSelectedMap();
+        });
 }

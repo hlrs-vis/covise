@@ -30,6 +30,7 @@ namespace covise{
     {
     public:
         ColorMapSelector(opencover::ui::Menu &menu);
+        ColorMapSelector(opencover::ui::Group &menu);
 
         bool setValue(const std::string &colorMapName);
         osg::Vec4 getColor(float val, float min = 0, float max = 1);
@@ -41,6 +42,7 @@ namespace covise{
         const ColorMaps m_colors;
         ColorMaps::const_iterator m_selectedMap;
         void updateSelectedMap();
+        void init();
 };
 }
 
