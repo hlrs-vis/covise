@@ -17,6 +17,7 @@
 #ifdef HAVE_HDF5
 #include "readFlash.h"
 #endif
+#include "readVTK.h"
 
 class Renderer
 {
@@ -43,6 +44,9 @@ public:
                    const float *vertexData, size_t numCells, size_t numIndices, size_t numVerts,
                    float minValue = 0.f, float maxValue = 1.f);
     void unloadUMesh();
+
+    void loadUMeshVTK(std::string fileName);
+    void unloadUMeshVTK(std::string fileName);
 
     void setRendererType(std::string type);
 
@@ -134,11 +138,11 @@ private:
 
     struct {
         std::string fileName;
+#ifdef HAVE_VTK
+        VTKReader vtkReader;
+#endif
 
-        std::vector<float> vertexPosition;
-        std::vector<uint64_t> cellIndex;
-        std::vector<uint64_t> index;
-        std::vector<float> vertexData; // so far only support per-vertex data!
+        UnstructuredField data;
         float minValue, maxValue;
         std::vector<float> rgbLUT;
         std::vector<float> alphaLUT;

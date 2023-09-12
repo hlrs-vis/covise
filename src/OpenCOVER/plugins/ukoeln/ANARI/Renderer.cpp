@@ -132,24 +132,42 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
                          float minValue, float maxValue)
 {
     // deferred!
-    unstructuredVolumeData.vertexPosition.resize(numVerts*3);
-    memcpy(unstructuredVolumeData.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
+    unstructuredVolumeData.data.vertexPosition.resize(numVerts*3);
+    memcpy(unstructuredVolumeData.data.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
 
-    unstructuredVolumeData.cellIndex.resize(numCells);
-    memcpy(unstructuredVolumeData.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
+    unstructuredVolumeData.data.cellIndex.resize(numCells);
+    memcpy(unstructuredVolumeData.data.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.index.resize(numIndices);
-    memcpy(unstructuredVolumeData.index.data(),index,numIndices*sizeof(uint64_t));
+    unstructuredVolumeData.data.index.resize(numIndices);
+    memcpy(unstructuredVolumeData.data.index.data(),index,numIndices*sizeof(uint64_t));
 
-    unstructuredVolumeData.vertexData.resize(numVerts);
-    memcpy(unstructuredVolumeData.vertexData.data(),vertexData,numVerts*sizeof(float));
+    unstructuredVolumeData.data.vertexData.resize(numVerts);
+    memcpy(unstructuredVolumeData.data.vertexData.data(),vertexData,numVerts*sizeof(float));
 
-    unstructuredVolumeData.minValue = minValue;
-    unstructuredVolumeData.maxValue = maxValue;
+    unstructuredVolumeData.data.dataRange.x = unstructuredVolumeData.minValue = minValue;
+    unstructuredVolumeData.data.dataRange.y = unstructuredVolumeData.maxValue = maxValue;
     unstructuredVolumeData.changed = true;
 }
 
 void Renderer::unloadUMesh()
+{
+    // NO!
+}
+
+void Renderer::loadUMeshVTK(std::string fn)
+{
+#ifdef HAVE_VTK
+    // deferred!
+    unstructuredVolumeData.fileName = fn;
+    unstructuredVolumeData.changed = true;
+
+    if (unstructuredVolumeData.vtkReader.open(fn.c_str())) {
+        unstructuredVolumeData.data = unstructuredVolumeData.vtkReader.getField(0);
+    }
+#endif
+}
+
+void Renderer::unloadUMeshVTK(std::string fn)
 {
     // NO!
 }
@@ -679,7 +697,7 @@ void Renderer::initUnstructuredVolume()
 {
     anari.unstructuredVolume.field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
     // TODO: "unstructured" field is an extension - check if it is supported!
-    auto &data = unstructuredVolumeData;
+    auto &data = unstructuredVolumeData.data;
     printf("Array sizes:\n");
     printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
     printf("    'vertexData'    : %zu\n", data.vertexData.size());
@@ -717,9 +735,8 @@ void Renderer::initUnstructuredVolume()
         anari::setAndReleaseParameter(
             anari.device, anari.unstructuredVolume.volume, "opacity",
             anari::newArray1D(anari.device, opacities.data(), opacities.size()));
-        float voxelRange[2] = {data.minValue, data.maxValue};
         anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
-                          voxelRange);
+                          &data.dataRange);
     }
 
     anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
