@@ -6,15 +6,21 @@ endif()
 SET(HEADERS
     ${HEADERS}
     export.h
+    observerHandle.h
     opcua.h
     opcuaClient.h
     types.h
+    uaVariantPtr.h
+    variantAccess.h
 )
 
 SET(SOURCES
 ${SOURCES}    
+    observerHandle.cpp
     opcua.cpp
     opcuaClient.cpp
+    uaVariantPtr.cpp
+    variantAccess.cpp
 )
 
 ADD_COVISE_LIBRARY(coOpenOpcUaClient)

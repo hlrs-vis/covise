@@ -18,16 +18,6 @@ Client *Manager::getClient(const std::string &name)
     return m_clients[name].get();
 }
 
-void Manager::addOnClientConnectedCallback(const std::function<void(void)> &cb)
-{
-    m_onConnectCbs.push_back(cb);
-}
-
-void Manager::addOnClientDisconnectedCallback(const std::function<void(void)> &cb)
-{
-    m_onDisconnectCbs.push_back(cb);
-}
-
 Client *Manager::connect(const std::string &name)
 {
     if(name.empty())
@@ -49,14 +39,9 @@ Client *Manager::connect(const std::string &name)
             m_configuredServersList->select(i);
         }
     }
-    if (m_client->isConnected())
-    {
-        return m_client.get();
-    }
-    else
-    {
-        return nullptr;
-    }
+
+    return m_client.get();
+
 }
 
 Manager *Manager::instance()
@@ -90,36 +75,11 @@ Manager::Manager()
 void Manager::createClient(const std::string &name)
 {
     m_clients[name] = std::make_unique<Client>(name);
-    m_clients[name]->onConnect([this](){
-        for(const auto &cb : m_onConnectCbs)
-        {
-            if(cb)
-                cb();
-        }
-    });
-    m_clients[name]->onDisconnect([this](){
-        for(const auto &cb : m_onDisconnectCbs)
-        {
-            if(cb)
-                cb();
-        }
-    });
-    
 }
 
 Client *opencover::opcua::getClient(const std::string &name)
 {
     return detail::Manager::instance()->getClient(name);
-}
-
-void opencover::opcua::addOnClientConnectedCallback(const std::function<void(void)> &cb)
-{
-    detail::Manager::instance()->addOnClientConnectedCallback(cb);
-}
-
-void opencover::opcua::addOnClientDisconnectedCallback(const std::function<void(void)> &cb)
-{
-    detail::Manager::instance()->addOnClientDisconnectedCallback(cb);
 }
 
 Client* opencover::opcua::connect(const std::string &name)

@@ -9,6 +9,7 @@
 #include <vrml97/vrml/VrmlMFString.h>
 #include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlMFVec3f.h>
+#include <vrml97/vrml/VrmlSFInt.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <plugins/general/Vrml97/ViewerObject.h>
 
@@ -88,6 +89,7 @@ public:
         t->addExposedField("OPCUANames", VrmlField::MFSTRING);
         t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
         t->addExposedField("AxisNodes", VrmlField::MFNODE);
+        t->addExposedField("OpcUaToVrml", VrmlField::SFFLOAT); //
 
         return t;
     }
@@ -113,12 +115,14 @@ public:
             TRY_FIELD(OPCUANames, MFString)
         else if
             TRY_FIELD(AxisNodes, MFNode)
+        else if
+            TRY_FIELD(OpcUaToVrml, SFFloat)
         else
             VrmlNodeChild::setField(fieldName, fieldValue);
         if (strcmp(fieldName, "MachineName") == 0)
         {
             //connect to the specified machine through OPC-UA
-            // opcua::connect(d_MachineName.get());
+            opcua::connect(d_MachineName.get());
 
         }
         if(d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
@@ -138,7 +142,7 @@ public:
         auto osgNode = toOsg(d_AxisNodes[axis]);
         if(axis <= 2) // ugly hack to find out if an axis is translational
         {
-            v *= (value /1000.0);
+            v *= (value * d_OpcUaToVrml.get());
             osgNode->setMatrix(osg::Matrix::translate(v));
         }
         else{
@@ -154,6 +158,7 @@ public:
     VrmlMFString d_AxisNames;
     VrmlMFString d_OPCUANames;
     VrmlMFNode d_AxisNodes;
+    VrmlSFFloat d_OpcUaToVrml = 1;
     bool d_rdy = false;
 
 private:
@@ -173,9 +178,26 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 :coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
+, m_speed(new ui::Slider(m_menu, "speed"))
+, m_reset(new ui::Action(m_menu, "reset"))
 {
     m_menu->allowRelayout(true);
+    m_speed->setBounds(0, 1000);
+    m_speed->setValue(10);
 
+    m_reset->setCallback([this]()
+    {
+        for(auto &p : m_axisPositions)
+            p = 0;
+        
+        for (auto m : machineNodes)
+        {
+            for (size_t i = 0; i < m->d_AxisNames.size(); i++)
+            {
+                m->move(i, m_axisPositions[i]);
+            }
+        }
+    });
     opcua::addOnClientConnectedCallback([this]()
     {
         //auto availableFields = opcua::getClient()->availableNumericalScalars();
@@ -205,24 +227,7 @@ void ToolMaschinePlugin::addCurrent(MachineNode *m)
         return;
     ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
     new SelfDeletingCurrents(m_currents, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
-    // std::array<ui::Slider *, 5> sliders;
-    // for (size_t i = 0; i < 5; i++)
-    // {
-    //     sliders[i] = new ui::Slider(machineGroup, *m->d_AxisNames[i] + std::string("slider"));
-    // }
 
-    // for (size_t i = 0; i < 5; i++)
-    // {
-    //     sliders[i]->setBounds(-1, 1);
-    //     sliders[i]->setCallback([this, &currents, sliders](ui::Slider::ValueType val, bool rel){
-    //         std::array<double, 5> sliderVals;
-    //         for (size_t i = 0; i < 5; i++)
-    //         {
-    //             sliderVals[i] = sliders[i]->value();
-    //         }
-    //         currents.setOffset(sliderVals);
-    //     });
-    // }
 }
 
 void ToolMaschinePlugin::key(int type, int keySym, int mod)
@@ -233,11 +238,11 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
         char buf[2] = { static_cast<char>(keySym), '\0' };
         key = buf;
     }
-    float speed = 3;
     std::cerr << "Key input  " << key << std::endl;
 
     for (auto m : machineNodes)
     {
+        float speed = m_speed->value();
         for (size_t i = 0; i < m->d_AxisNames.size(); i++)
         {
             auto& axis = m_axisPositions[i];
@@ -254,6 +259,7 @@ void ToolMaschinePlugin::key(int type, int keySym, int mod)
                 axis += speed;
                 // m->move(v);
                 m->move(i, axis);
+                m_currents[m->d_MachineName.get()]->value->update();
             }
         }
     }
@@ -284,10 +290,10 @@ bool ToolMaschinePlugin::update()
             {
                 m->move(i, client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i]);
             }
+            m_currents[m->d_MachineName.get()]->value->update();
         }
     }
-    for(auto & c : m_currents)
-        c.second->value->update();
+
     return true;
 }
 

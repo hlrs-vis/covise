@@ -2,15 +2,29 @@
 #define OPENCOVER_OPCUA_CLIENT_H
 
 #include "types.h"
+#include "export.h"
+#include "variantAccess.h"
+#include "observerHandle.h"
+#include "uaVariantPtr.h"
 
+#include <atomic>
+#include <chrono>
+#include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/ui/Button.h>
 #include <cover/ui/CovconfigLink.h>
 #include <cover/ui/Menu.h>
-#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cstring>
+#include <deque>
+#include <iostream>
+#include <map>
+#include <mutex>
+#include <numeric>
 #include <open62541/types.h>
 #include <string>
-#include <map>
-#include "export.h"
+#include <thread>
+
 class UA_Client;
 
 namespace opencover{
@@ -18,77 +32,133 @@ namespace opcua
 {
 extern const char *NoNodeName;
 
+
+
 class OPCUACLIENTEXPORT Client
 {
+private:
+    struct Node{
+        std::string name;
+        UA_NodeId id;
+        int type;
+        std::vector<size_t> dimensions = std::vector<size_t>{1};
+        std::map<size_t, Client**> subscribers;
+        UA_Variant_ptr value;
+        bool operator==(const Node &other) const{return other.name == name;}
+        bool operator==(const std::string &name) const{return name == this->name;}
+        bool isScalar() const{return (dimensions.size() == 1 && dimensions[0] == 1);}
+        size_t numEntries(){return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<size_t>());}
+    };
+    typedef  std::vector<Node> Nodes;
+
 public:
     Client(const std::string &name);
     ~Client();
-    void onConnect(const std::function<void(void)> &cb);
-    void onDisconnect(const std::function<void(void)> &cb);
-    bool connect();
-    bool disconnect();
-    bool registerDouble(const std::string &name, const std::function<void(double)> &cb);
-    void update();
-    double readNumericValue(const std::string &name);
 
-    template<typename T>
-    T readValue(const std::string &name) //no typechecking after findNode
-    {
-        auto node = findNode(name, detail::getTypeId<T>());
-        if(!node)
-            return T();
-        auto data = readData(*node, sizeof(T));
-        return *(T*)data.data();
-    }
-
+    void connect();
+    void disconnect();
     bool isConnected() const;
+
+    enum StatusChange{ Unchanged, Connected, Disconnected};
+    StatusChange statusChanged(void* caller);
+    //get the available data nodes from the server
     std::vector<std::string> allAvailableScalars() const;
     std::vector<std::string> availableNumericalScalars() const;
     template<typename T>
     std::vector<std::string> availableScalars() const
     {
-        return availableNodes<T>(m_scalarNodes);
+        return getNodesWith([](const Node& n){return n.type == detail::getTypeId<T>() && n.isScalar();});
     }
     std::vector<std::string> allAvailableArrays() const;
     std::vector<std::string> availableNumericalArrays() const;
     template<typename T>
     std::vector<std::string> availableArrays() const
     {
-        return availableNodes<T>(m_arrayNodes);
+        return getNodesWith([](const Node& n){return n.type == detail::getTypeId<T>() && !n.isScalar();});
     }
-    typedef  std::map<int, std::map<std::string, UA_NodeId>> NodeMap;
+
+
+    
+    //register nodes to get updates pushed by the server
+    //keep the ObserverHandle as long as you want to observe
+    [[nodiscard]] ObserverHandle observeNode(const std::string &name);
+    //get a list of values that the server sent since the last get
+    
+    double getNumericScalar(const std::string &nodeName);
+
+
+    template<typename T>
+    MultiDimensionalArray<T> getArray(const std::string &nodeName)
+    {
+        std::lock_guard<std::mutex> g(m_mutex);
+        auto variant = getValue(nodeName);
+            
+        MultiDimensionalArray<T> array(variant.get());
+
+        array.data = coVRMSController::instance()->syncVector(array.data);
+        array.dimensions = coVRMSController::instance()->syncVector(array.dimensions);
+        
+        return array;
+    }
+
+    template<typename T>
+    T getScalar(const std::string &nodeName)
+    {
+        auto array = getArray<T>(nodeName);
+        if(array.isScalar())
+            return array.data[0];
+        return T();
+    }
+
+    //called by the server callback
+    void updateNode(const std::string& nodeName, UA_DataValue *value);
+    
+    //calles by ObserverHandle
+    void queueUnregisterNode(size_t id);
+
 private:
     
-    void listVariables(UA_Client* client);
-    void listVariablesInResponse(UA_Client* client, UA_BrowseResponse &bResp);
-    bool connectMaster();
-    const UA_NodeId *findNode(const std::string &name, int type, bool silent = false) const;
-    std::vector<char> readData(const UA_NodeId &id, size_t size);
-
-    std::vector<std::string> allAvailableNodes(const NodeMap &map) const;
-    std::vector<std::string> availableNumericalNodes(const NodeMap &map) const;
-    template<typename T>
-    std::vector<std::string> availableNodes(const NodeMap &map) const
+    struct NodeRequest
     {
-        std::vector<std::string> v;
-        v.push_back(NoNodeName);
-        auto typeIt = map.find(detail::getTypeId<T>());
-        if(typeIt == map.end())
-            return v;
-        for(const auto &node : typeIt->second)
-            v.push_back(node.first);
-        return v;
-    }
+        std::string nodeName;
+        size_t requestId = 0;
+        Client **clientReference= nullptr;
+    };
+
+
+    std::vector<std::string> findAvailableNodesWith(const std::function<bool(const Client::Node &)> &compare) const;
+    //methods that are run in the communication thread on the master
+    void runClient();
+    void fetchAvailableNodes(UA_Client* client, UA_BrowseResponse &bResp);
+    void registerNode(const NodeRequest &request);
+    bool connectCommunication();
+    std::vector<std::string> getNodesWith(int type, bool isScalar) const;
+    //called by RegisterId
+    void unregisterNode(size_t id);
+
+    void statusChanged();
+    Node* findNode(const std::string &name);
+    UA_Variant_ptr getValue(const std::string &name);
 
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_connect;
+    opencover::ui::Slider *m_frequency;
     std::unique_ptr<opencover::ui::FileBrowserConfigValue> m_certificate, m_key;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_password, m_username, m_serverIp;
     std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode;
     const std::string m_name;
     UA_Client *client = nullptr;
-    NodeMap m_scalarNodes, m_arrayNodes;
-    std::function<void(void)> m_onConnect, m_onDisconnect;
+
+    std::unique_ptr<std::thread> m_communicationThread;
+    mutable std::mutex m_mutex;
+    Nodes m_availableNodes;
+    UA_CreateSubscriptionResponse m_subscription;
+    std::atomic_bool m_shutdown{false};
+    std::deque<NodeRequest> m_nodesToObserve;
+    std::vector<size_t> m_nodesToUnregister;
+    size_t m_requestId = 0;
+    std::map<void*, bool> m_statusObservers; //stores which objects received a changed status
+
 };
 
 }

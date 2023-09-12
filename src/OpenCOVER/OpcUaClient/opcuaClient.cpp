@@ -1,5 +1,6 @@
 #include "opcuaClient.h"
 #include "opcua.h"
+#include "variantAccess.h"
 
 #include <open62541/client_config_default.h>
 #include <open62541/client_highlevel.h>
@@ -20,26 +21,30 @@ using namespace opencover::opcua;
 using namespace opencover::opcua::detail;
 
 const char *opencover::opcua::NoNodeName = "None";
-
-struct DoubleCallback
+typedef std::lock_guard<std::mutex> Guard;
+struct ClientSubscription
 {
- std::function<void(double)> cb;
- double val = 0;
+    Client* client;
+    std::string nodeName;
+    int typeId;
+    UA_UInt32 monitoredItemId;
 };
 
-std::map<UA_UInt32, DoubleCallback> doubleCallbacks;
+std::map<std::string, ClientSubscription> clientSubscriptions;
 auto msController = opencover::coVRMSController::instance();
 
-static void handler_TheAnswerChanged(UA_Client *client, UA_UInt32 subId, void *subContext,
+static void handleNodeUpdate(UA_Client *client, UA_UInt32 subId, void *subContext,
                          UA_UInt32 monId, void *monContext, UA_DataValue *value) {
     
-
-    if(UA_Variant_hasScalarType(&value->value, &UA_TYPES[UA_TYPES_DOUBLE])) {
-        doubleCallbacks[*(UA_UInt32 *)monContext].val = *(UA_Double*)value->value.data;
-    }
-    else{
-        std::cerr << "opcua wrong type " << value->value.type->typeKind << std::endl;
-    }
+                           
+    auto &clientSubscition = clientSubscriptions[(const char *)monContext];
+    clientSubscition.client->updateNode(clientSubscition.nodeName, value);
+    // if(UA_Variant_hasScalarType(&value->value, &UA_TYPES[UA_TYPES_DOUBLE])) {
+    //     clientSubscriptions[*(UA_UInt32 *)monContext].val = *(UA_Double*)value->value.data;
+    // }
+    // else{
+    //     std::cerr << "opcua wrong type " << value->value.type->typeKind << std::endl;
+    // }
 }
 
 static UA_INLINE UA_ByteString loadFile(const char *const path) {
@@ -72,6 +77,7 @@ static UA_INLINE UA_ByteString loadFile(const char *const path) {
 Client::Client(const std::string &name)
 : m_menu(new opencover::ui::Menu(detail::Manager::instance()->m_menu, name))
 , m_connect(new opencover::ui::Button(m_menu, "connect"))
+, m_frequency(new opencover::ui::Slider(m_menu, "frequency"))
 , m_username(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "username", "", *detail::Manager::instance()->m_config, name))
 , m_password(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "password", "", *detail::Manager::instance()->m_config, name))
 , m_serverIp(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "serverIp", "", *detail::Manager::instance()->m_config, name))
@@ -86,32 +92,13 @@ Client::Client(const std::string &name)
     m_connect->setCallback([this](bool state){
         state ? connect() : disconnect();
     });
-
-
-}
-
-void Client::onConnect(const std::function<void(void)> &cb)
-{
-    m_onConnect = cb;
-}
-
-void Client::onDisconnect(const std::function<void(void)> &cb)
-{
-    m_onDisconnect = cb;
+    m_frequency->setBounds(1, 100);
+    m_frequency->setValue(10);
 }
 
 Client::~Client()
 {
-    if(m_connect->state())
-    {
-        for(auto cb : doubleCallbacks)
-        {
-            /* Delete the subscription */
-            if(UA_Client_Subscriptions_deleteSingle(client, cb.first) == UA_STATUSCODE_GOOD)
-                printf("Subscription removed\n");
-        }
-        disconnect();
-    }
+    disconnect();
     delete m_menu;
 }
 
@@ -159,18 +146,58 @@ std::string toString(const UA_String &s)
     return std::string(v.data());
 }
 
-int toTypeId(const UA_DataType *type)
+void Client::runClient()
 {
-    auto begin = UA_TYPES;
-    auto end = begin + UA_TYPES_COUNT;
-    auto it = std::find_if(begin, end, [type](const UA_DataType &t)
+    while(!connectCommunication())
     {
-        return&t == type;
-    });
-    return it - UA_TYPES;
+        if(m_shutdown)
+            return;
+    }
+    printf("Browsing nodes in objects folder:\n");
+    Browser browser(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER));
+    printf("%-9s %-25s %-25s %-25s %-9s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME", "TYPE");
+    fetchAvailableNodes(client, browser.response());
+    /* Create a subscription */
+    UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
+    request.requestedPublishingInterval = 10;
+    m_subscription = UA_Client_Subscriptions_create(client, request, NULL, NULL, NULL);
+                       
+    statusChanged();
+    while (!m_shutdown)
+    {
+        {
+            std::unique_lock g(m_mutex);
+            while (!m_nodesToObserve.empty())
+            {
+                auto registration = m_nodesToObserve.back();
+                g.unlock();
+                registerNode(registration);
+                g.lock();
+                m_nodesToObserve.pop_back();
+            }
+            while (!m_nodesToUnregister.empty())
+            {
+                unregisterNode(m_nodesToUnregister.back());
+                m_nodesToUnregister.pop_back();
+            }
+        }
+        UA_Client_run_iterate(client, 1000);
+
+    }
+    if(UA_Client_Subscriptions_deleteSingle(client, m_subscription.subscriptionId) == UA_STATUSCODE_GOOD)
+    printf("Subscription removed\n");
+    //invalidate the SubscripteionIds
+    Guard g(m_mutex);
+    for(auto &node : m_availableNodes)
+        for(auto sub : node.subscribers)
+            *sub.second = nullptr;
+    UA_Client_disconnect(client);
+    UA_Client_delete(client);
+    client = nullptr;
+
 }
 
-void Client::listVariablesInResponse(UA_Client* client, UA_BrowseResponse &bResp)
+void Client::fetchAvailableNodes(UA_Client* client, UA_BrowseResponse &bResp)
 {
     for(size_t i = 0; i < bResp.resultsSize; ++i) {
         for(size_t j = 0; j < bResp.results[i].referencesSize; ++j) {
@@ -184,11 +211,22 @@ void Client::listVariablesInResponse(UA_Client* client, UA_BrowseResponse &bResp
             auto retval = UA_Client_readValueAttribute(client, ref->nodeId.nodeId, val);
             if(retval == UA_STATUSCODE_GOOD)
             {
-                auto node = &m_scalarNodes;
+                Node node{toString(ref->browseName.name) , ref->nodeId.nodeId, toTypeId(val->type)};
                 if(UA_Variant_hasArrayType(val, val->type))
-                    node = &m_arrayNodes;
-                (*node)[toTypeId(val->type)][toString(ref->browseName.name)] = ref->nodeId.nodeId;
+                {
+                    size_t outArrayDimensionsSize;
+                    UA_UInt32 *outArrayDimensions;
+                    if(UA_Client_readArrayDimensionsAttribute(client, node.id, &outArrayDimensionsSize, &outArrayDimensions) == UA_STATUSCODE_GOOD)
+                    {
+                        node.dimensions.resize(outArrayDimensionsSize);
+                        std::copy(outArrayDimensions, outArrayDimensions + outArrayDimensionsSize, node.dimensions.begin());
+                    }
+                }
+                Guard g(m_mutex);
+                m_availableNodes.push_back(node);
+                
             }
+            UA_Variant_delete(val);
 
             if(ref->nodeId.nodeId.identifier.string.data)
             {
@@ -196,69 +234,119 @@ void Client::listVariablesInResponse(UA_Client* client, UA_BrowseResponse &bResp
                 // Browser b(client, UA_NODEID_STRING(1, (char*)"PLC1"));
                 // Browser b(client, UA_NODEID_STRING(ref->nodeId.nodeId.namespaceIndex, (char*)s.c_str()));
                 Browser b(client, ref->nodeId.nodeId);
-                listVariablesInResponse(client, b.response());
+                fetchAvailableNodes(client, b.response());
 
             }
         }
     }
 }
 
-void syncNodeMap(Client::NodeMap &map)
+void Client::registerNode(const NodeRequest &nodeRequest)
 {
-    if(msController->isMaster())
-    {
-        size_t numTypes = map.size();
-        msController->syncData(&numTypes, sizeof(size_t));
-        for(const auto &type : map)
-        {
-            int t = type.first;
-            msController->syncData(&t, sizeof(int));
-            size_t numNodes = type.second.size();
-            msController->syncData(&numNodes, sizeof(size_t));
-            for(const auto &node : type.second)
-            {
-                (void)msController->syncString(node.first);
-            }
-        }
-    } else{
-        size_t numTypes;
-        msController->syncData(&numTypes, sizeof(size_t));
-        std::string name;
-        int type;
-        size_t numNodes;
-        for (size_t i = 0; i < numTypes; i++)
-        {
-            msController->syncData(&type, sizeof(size_t));
-            msController->syncData(&numNodes, sizeof(size_t));
-            for (size_t j = 0; j < numNodes; j++)
-            {
-                name = msController->syncString(name);
-                map[type][name] = UA_NodeId();
-            }
-        }
-    }
+    std::unique_lock<std::mutex> g(m_mutex);
+    auto node = findNode(nodeRequest.nodeName);
+    if(!node)
+        return;
+    
+    node->subscribers[nodeRequest.requestId] = nodeRequest.clientReference;
+    //note that we requested this scalar for the specific user
+    if(node->subscribers.size() > 1)
+        return;
+
+    UA_MonitoredItemCreateRequest monRequest =
+        UA_MonitoredItemCreateRequest_default(node->id);
+    monRequest.requestedParameters.samplingInterval = 1000 / 60;
+    // monRequest.requestedParameters.queueSize = 10;
+    // monRequest.requestedParameters.discardOldest = false;
+
+    auto it = clientSubscriptions.insert(std::make_pair(nodeRequest.nodeName, ClientSubscription{this, nodeRequest.nodeName})).first;
+    auto subId = m_subscription.subscriptionId;
+    g.unlock();
+    //this can directly call handleNodeUpdate and therefore must not be locked
+    auto result = UA_Client_MonitoredItems_createDataChange(client, subId,
+                                            UA_TIMESTAMPSTORETURN_BOTH,
+                                            monRequest, const_cast<char*>(it->first.c_str()), handleNodeUpdate, NULL);
+    
+    it->second.monitoredItemId = result.monitoredItemId;
+
 }
 
-void Client::listVariables(UA_Client* client)
+void Client::queueUnregisterNode(size_t id)
 {
-    if(msController->isMaster())
-    {
-        printf("Browsing nodes in objects folder:\n");
-        Browser browser(client, UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER));
-        
-        printf("%-9s %-25s %-25s %-25s %-9s\n", "NAMESPACE", "NODEID", "BROWSE NAME", "DISPLAY NAME", "TYPE");
-        
-        listVariablesInResponse(client, browser.response());
-    }
-    syncNodeMap(m_scalarNodes);
-    syncNodeMap(m_arrayNodes);
+    Guard g(m_mutex);
+    m_nodesToUnregister.push_back(id);
 }
 
-bool Client::connectMaster()
+void Client::unregisterNode(size_t id)
+{
+    for(auto &node : m_availableNodes)
+    {
+        auto &subscribers = node.subscribers;
+        subscribers.erase(id);
+       
+        if(subscribers.empty())
+        {
+            
+            auto subsription = std::find_if(clientSubscriptions.begin(), clientSubscriptions.end(), [this, &node](const std::pair<std::string, ClientSubscription> &sub){
+                return sub.second.client == this && sub.second.nodeName == node.name;
+            });
+            if(subsription != clientSubscriptions.end())
+            {
+                // delete the monitoredItem
+                UA_DeleteMonitoredItemsRequest deleteRequest;
+                UA_DeleteMonitoredItemsRequest_init(&deleteRequest);
+                deleteRequest.subscriptionId = m_subscription.subscriptionId;
+                deleteRequest.monitoredItemIds = &subsription->second.monitoredItemId;
+                deleteRequest.monitoredItemIdsSize = 1;
+                UA_Client_MonitoredItems_delete(client, deleteRequest);
+            }
+        } 
+    }
+}
+
+
+void Client::statusChanged()
+{
+    Guard g(m_mutex);
+    for(auto &obs : m_statusObservers)
+        obs.second = false;
+}
+
+Client::Node* Client::findNode(const std::string &name)
+{
+    auto node = std::find_if(m_availableNodes.begin(), m_availableNodes.end(), [&name](const Node &n){return n.name == name;});
+    if(node == m_availableNodes.end())
+        return nullptr;
+    return &*node;
+}
+
+UA_Variant_ptr Client::getValue(const std::string &name)
+{
+    auto node = findNode(name);
+    if(node)
+        return node->value;
+    return UA_Variant_ptr();
+}
+
+double Client::getNumericScalar(const std::string &nodeName)
+{
+    double retval = 0;
+    //not very efficient
+    for_<8>([this, &nodeName, &retval] (auto i) {      
+        typedef typename detail::Type<numericalTypes[i.value]>::type T;
+        auto v = getArray<T>(nodeName);
+        if(v.isScalar())
+            retval = (double)v.data[0];
+    });
+    return retval;
+}
+
+
+bool Client::connectCommunication()
 {
         /* Create the server and set its config */
-        client = UA_Client_new();
-        UA_ClientConfig *cc = UA_Client_getConfig(client);
+        auto tmpClient = UA_Client_new(); 
+        UA_ClientConfig *cc = UA_Client_getConfig(tmpClient);
         /* Set securityMode and securityPolicyUri */
         UA_StatusCode retval = UA_STATUSCODE_BAD;
         cc->timeout = 10000;
@@ -286,241 +374,141 @@ bool Client::connectMaster()
             cc->clientDescription.applicationUri = UA_STRING_ALLOC("urn:open62541.server.application");
             cc->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
 
-            retval = UA_Client_connectUsername(client, m_serverIp->getValue().c_str(), m_username->getValue().c_str(), m_password->getValue().c_str()); 
+            retval = UA_Client_connectUsername(tmpClient, m_serverIp->getValue().c_str(), m_username->getValue().c_str(), m_password->getValue().c_str()); 
         } else if(m_authentificationMode->getValue() == 0)
         {
             cc->securityMode = UA_MESSAGESECURITYMODE_NONE;
-            retval = UA_Client_connect(client, m_serverIp->getValue().c_str());
+            retval = UA_Client_connect(tmpClient, m_serverIp->getValue().c_str());
         }
 
         if(retval != UA_STATUSCODE_GOOD) {
             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Could not connect");
-            UA_Client_delete(client);
-            client = nullptr;
+            UA_Client_delete(tmpClient);
             return false;
         }
 
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "Connected!");
-
+        Guard g(m_mutex);
+        client = tmpClient;
         return true;
 }
 
-bool Client::connect()
+ObserverHandle Client::observeNode(const std::string &name)
 {
-    bool retval = false;
+    Guard g(m_mutex);
+    ObserverHandle id(m_requestId, this);
+    m_nodesToObserve.push_back(NodeRequest{name, m_requestId, &id.m_deleter->m_client});
+    ++m_requestId;
+    return id;
+}
+
+
+
+void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
+{
+    Guard g(m_mutex);
+    auto node = findNode(nodeName);
+    if(!node ||node->type != toTypeId(value->value.type))
+        return;
+    node->value = UA_Variant_ptr(&value->value);
+}
+
+void Client::connect()
+{
     if(msController->isMaster())
     {
-        retval = connectMaster();
-    }
-    retval = msController->syncBool(retval);
-    if(!retval)
-    {
-        m_connect->setText("connect");
-        m_connect->setState(false);
-        return false;    
+        if(m_communicationThread && m_communicationThread->joinable())
+            return;
+        m_communicationThread.reset(new std::thread([this](){
+            runClient();
+        }));
     }
     m_connect->setText("disconnect");
     m_connect->setState(true);
-    listVariables(client);
-    if(m_onConnect)
-        m_onConnect();
-    return true;
 }
 
-bool Client::disconnect()
+void Client::disconnect()
 {
     if(opencover::coVRMSController::instance()->isMaster())
     {
         /* Clean up */
-        if(m_onDisconnect)
-            m_onDisconnect();
-        UA_Client_disconnect(client);
-        UA_Client_delete(client);
-        client = nullptr;
+        if(!m_communicationThread || !m_communicationThread->joinable())
+            return;
+        statusChanged();
+        m_shutdown = true;
+        m_communicationThread->join();
+        for(auto &node : m_availableNodes)
+        {
+            for(auto sub : node.subscribers)
+                m_nodesToObserve.push_back(NodeRequest{node.name, sub.first, sub.second});
+            node.subscribers.clear();
+        }
     }
     m_connect->setText("connect");
     m_connect->setState(false);
-    return true;
 }
 
-bool Client::registerDouble(const std::string &name, const std::function<void(double)> &cb)
-{
-    auto node = findNode(name, 0); //this function needs the type
-    bool retval = false;
-    if(node && msController->isMaster())
-    {
-        /* Create a subscription */
-        UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
-        UA_CreateSubscriptionResponse response = UA_Client_Subscriptions_create(client, request,
-                                                                                NULL, NULL, NULL);
-
-        msController->syncData(&response.subscriptionId, sizeof(UA_UInt32));
-        UA_UInt32 subId = response.subscriptionId;
-        auto cbIt = doubleCallbacks.emplace(std::make_pair(subId, DoubleCallback{cb})).first;                        
-        if(response.responseHeader.serviceResult != UA_STATUSCODE_GOOD)
-        {
-            auto b = msController->syncBool(false);
-            return false;
-        }
-        UA_MonitoredItemCreateRequest monRequest =
-            UA_MonitoredItemCreateRequest_default(*node);
-
-        UA_MonitoredItemCreateResult monResponse =
-        UA_Client_MonitoredItems_createDataChange(client, response.subscriptionId,
-                                                UA_TIMESTAMPSTORETURN_BOTH,
-                                                monRequest, const_cast<UA_UInt32*>(&cbIt->first), handler_TheAnswerChanged, NULL);
-        if(monResponse.statusCode != UA_STATUSCODE_GOOD)
-        {   
-            auto b = msController->syncBool(false);
-            return false;
-        }
-        auto b = msController->syncBool(true);
-        return true;
-    } else {
-        UA_UInt32 subId;
-        msController->syncData(&subId, sizeof(UA_UInt32));
-        
-        doubleCallbacks.emplace(std::make_pair(subId, DoubleCallback{cb}));
-        bool retval = msController->syncBool(false);
-        return retval;
-    }
-}
-
-void Client::update()
-{
-    if(msController->isMaster())
-    {
-        if(client)
-        {
-            UA_Client_run_iterate(client, 0);
-        }
-    } 
-    for(auto &val : doubleCallbacks)
-    {
-        msController->syncData(&val.second.val, sizeof(double));
-        val.second.cb(val.second.val);
-    }
-}
-
-const UA_NodeId * Client::findNode(const std::string &name, int type, bool silent) const
-{
-    if(!m_connect->state() || name == NoNodeName || type < 0)
-        return nullptr;
-
-    auto typeIt = m_scalarNodes.find(type);
-    if(typeIt == m_scalarNodes.end())
-    {
-        if(!silent)
-            std::cerr << "opcua can noty find node " << name << " of type " << type << std::endl;
-        return nullptr;
-    }
-    
-    auto node = typeIt->second.find(name);
-    if(node == typeIt->second.end())
-    {
-        if(!silent)
-            std::cerr << "opcua node " << name << " not found" << std::endl;
-        return nullptr;
-    }
-    return &node->second;
-}
-
-std::vector<char> Client::readData(const UA_NodeId &id, size_t size)
-{
-    std::vector<char> data;
-    if(msController->isMaster())
-    {
-        UA_Variant *val = UA_Variant_new();
-        auto retval = UA_Client_readValueAttribute(client, id, val);
-        if(retval == UA_STATUSCODE_GOOD)
-        {
-            data.resize(size);
-            const char* begin = (char*)val->data;
-            const char* end = begin + size;
-            std::copy(begin, end, data.begin());
-        }
-    }
-    size = data.size();
-    msController->syncData(&size, sizeof(size_t));
-    msController->syncData(data.data(), size);
-    return data;
-}
-
-constexpr std::array<int, 8> numericalTypes{UA_TYPES_INT16, UA_TYPES_UINT16, UA_TYPES_INT32, UA_TYPES_UINT32, UA_TYPES_INT64, UA_TYPES_UINT64, UA_TYPES_FLOAT, UA_TYPES_DOUBLE};
-
-double Client::readNumericValue(const std::string &name)
-{
-    if(name == NoNodeName)
-        return  0;
-    double retval = 0;
-    bool found = false;
-    for_<8>([&] (auto i) {      
-        typedef typename detail::Type<numericalTypes[i.value]>::type T;
-        auto node = findNode(name, numericalTypes[i.value], true);
-        if(node)
-        {
-            auto data = readData(*node, sizeof(T));
-            retval = *(T*)data.data();
-            found = true;
-        }
-    });
-    if(!found)
-        std::cerr << "opcua node " << name << " is not a numeric node" << std::endl; 
-    return retval;
-}
 
 bool Client::isConnected() const
 {
-    return client != nullptr;
+    Guard g(m_mutex);
+    bool b = client != nullptr;
+    b= msController->syncBool(b);
+    return b; 
 }
 
-std::vector<std::string> Client::allAvailableNodes(const NodeMap &map) const
+Client::StatusChange Client::statusChanged(void* caller)
 {
-    std::vector<std::string> fields;
-    fields.reserve(map.size() + 1);
-    fields.push_back(NoNodeName);
-    for(const auto &type :map)
-        for(const auto &field : type.second)
-            fields.push_back(field.first);
-    return fields;
+    Guard g(m_mutex);
+    StatusChange retval = Unchanged;
+    if(msController->isMaster())
+    {
+        auto obs = m_statusObservers.find(caller);
+        if(obs == m_statusObservers.end())
+        {
+            obs = m_statusObservers.insert(obs, std::make_pair(caller, false));
+        }
+        if(!obs->second)
+        {
+            obs->second = true;
+            retval = client != nullptr ? Connected : Disconnected;
+        }
+    } 
+    msController->syncData(&retval, sizeof(StatusChange));
+    return retval;
 }
 
-std::vector<std::string> Client::availableNumericalNodes(const NodeMap &map) const
+std::vector<std::string> Client::findAvailableNodesWith(const std::function<bool(const Client::Node &)> &compare) const
 {
-    std::vector<std::string> v;
-    v.push_back(NoNodeName);
-
-    for_<8>([&] (auto i) {      
-        typedef typename detail::Type<numericalTypes[i.value]>::type T;
-        auto val = availableNodes<T>(map);
-        v.insert(v.end(), val.begin() + 1, val.end());
-    });
-    
-    return v;
+    std::vector<std::string> vec{NoNodeName};
+    for(const auto &node : m_availableNodes)
+    {
+        if(compare(node))
+            vec.push_back(node.name);
+    }
+    return msController->syncVector(vec);
 }
 
 std::vector<std::string> Client::allAvailableScalars() const
 {
-    return allAvailableNodes(m_scalarNodes);
+    return findAvailableNodesWith([](const Node &n){return n.isScalar();});
 }
-
 
 std::vector<std::string> Client::availableNumericalScalars() const
 {
-    return availableNumericalNodes(m_scalarNodes);
+    return findAvailableNodesWith([](const Node &n){return n.isScalar() && std::find(numericalTypes.begin(), numericalTypes.end(), n.type) != numericalTypes.end() ;});
 }
 
 std::vector<std::string> Client::allAvailableArrays() const
 {
-    return allAvailableNodes(m_arrayNodes);
+    return findAvailableNodesWith([](const Node &n){return !n.isScalar();});
+
 
 }
 std::vector<std::string> Client::availableNumericalArrays() const
 {
-    return availableNumericalNodes(m_arrayNodes);
+    return findAvailableNodesWith([](const Node &n){return !n.isScalar() && std::find(numericalTypes.begin(), numericalTypes.end(), n.type) != numericalTypes.end() ;});
 }
-
-
 
 
 

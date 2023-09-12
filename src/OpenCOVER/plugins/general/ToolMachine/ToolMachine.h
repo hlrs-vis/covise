@@ -34,7 +34,8 @@ private:
 
     std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;
-
+    opencover::ui::Slider *m_speed;
+    opencover::ui::Action *m_reset;
 
     SelfDeletingCurrents::Map m_currents;
 

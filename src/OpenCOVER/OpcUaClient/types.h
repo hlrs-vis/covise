@@ -3,6 +3,7 @@
 #include <open62541/types.h>
 #include <open62541/types_generated.h>
 #include <algorithm>
+#include <array>
 namespace opencover{namespace opcua{namespace detail{
 
 struct InvalidType
@@ -56,6 +57,7 @@ SPEZIALIZE_GET_TYPE_ID(UA_Variant, UA_TYPES_VARIANT)
 SPEZIALIZE_GET_TYPE_ID(UA_DiagnosticInfo, UA_TYPES_DIAGNOSTICINFO)
 
 
+constexpr std::array<int, 8> numericalTypes{UA_TYPES_INT16, UA_TYPES_UINT16, UA_TYPES_INT32, UA_TYPES_UINT32, UA_TYPES_INT64, UA_TYPES_UINT64, UA_TYPES_FLOAT, UA_TYPES_DOUBLE};
 
 // SPEZIALIZE_GET_TYPE_ID(UA_DateTime, UA_TYPES_DATETIME)
 // SPEZIALIZE_GET_TYPE_ID(UA_ByteString, UA_TYPES_BYTESTRING)
