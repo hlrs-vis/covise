@@ -315,7 +315,7 @@ void DataManager::UpdateAllSensors(std::vector<Orientation>& orientations)
         {
             auto worldPositions = zone->getWorldPositionOfPoints();
             auto itFound = std::find_if(worldPositions.begin(), worldPositions.end(),[&it, &zone](const osg::Vec3& worldPos){
-                                        if(it->getMatrix().getTrans() == worldPos)
+                                        if((it->getMatrix().getTrans() - worldPos).length2() < 0.00001) //they are equal
                                         {
                                             zone->createSensor(it->getMatrix());
                                             return true;
