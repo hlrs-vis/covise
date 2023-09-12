@@ -21,7 +21,6 @@ macro(find_qt)
     covise_find_package(Qt6 COMPONENTS Core OPTIONAL_COMPONENTS PrintSupport)
     covise_find_package(Qt6 COMPONENTS Core OPTIONAL_COMPONENTS UiTools)
     covise_find_package(Qt6 COMPONENTS Core Gui Xml Network ${required} OPTIONAL_COMPONENTS WebEngineWidgets WebView Quick Svg SvgWidgets OpenGL OpenGLWidgets PrintSupport UiTools)
-    set(CMAKE_CXX_STANDARD 17) #this is forced by Qt6 anyway, but since I dont' know how set this here so that we can check for it
 
     if (Qt6WebEngineWidgets_FOUND)
         set(COVISE_USE_WEBENGINE TRUE)
