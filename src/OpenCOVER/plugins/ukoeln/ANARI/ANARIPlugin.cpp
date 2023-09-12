@@ -192,6 +192,53 @@ void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
             renderer->loadVolume(byteData, sizeX, sizeY, sizeZ, 1,
                                  colors->getMin(0), colors->getMax(0));
         }
+    } else if (geometry->isUnstructuredGrid() && colors) {
+        int numCells, numIndices, numVerts;
+        geometry->getSize(numCells, numIndices, numVerts);
+
+        // Prefix into index array
+        auto *cellIndex = geometry->getInt(Field::Elements);
+
+        // Element indices
+        auto *index = geometry->getInt(Field::Connections);
+
+        // Element types (not needed)
+        // auto *type = geometry->getInt(Field::Types);
+
+        auto *X = geometry->getFloat(Field::X);
+        auto *Y = geometry->getFloat(Field::Y);
+        auto *Z = geometry->getFloat(Field::Z);
+
+        auto *vertexData = colors->getFloat(Field::Red);
+
+        if (cellIndex && index && X && Y && Z && vertexData) {
+            // TODO: ANARI device(s) should support int32 indices!
+            std::vector<uint64_t> cellIndex64(numCells);
+            for (size_t i=0; i<numCells; ++i) {
+                cellIndex64[i] = cellIndex[i];
+            }
+
+            // TODO: dito
+            std::vector<uint64_t> index64(numIndices);
+            for (size_t i=0; i<numIndices; ++i) {
+                index64[i] = index[i];
+            }
+
+            float minValue = HUGE_VAL, maxValue = -HUGE_VAL;
+            std::vector<float> vertexPosition(numVerts*3);
+            for (size_t i=0; i<numVerts; ++i) {
+                vertexPosition[i*3]   = X[i];
+                vertexPosition[i*3+1] = Y[i];
+                vertexPosition[i*3+2] = Z[i];
+
+                minValue = std::min(minValue, vertexData[i]);
+                maxValue = std::max(maxValue, vertexData[i]);
+            }
+
+            renderer->loadUMesh(vertexPosition.data(), cellIndex64.data(), index64.data(),
+                                vertexData, numCells, numIndices, numVerts,
+                                minValue, maxValue);
+        }
     }
 }
 

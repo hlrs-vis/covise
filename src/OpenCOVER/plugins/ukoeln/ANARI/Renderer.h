@@ -39,6 +39,11 @@ public:
     void loadFLASH(std::string fileName);
     void unloadFLASH(std::string fileName);
 
+    void loadUMesh(const float *vertexPosition, const uint64_t *cellIndex, const uint64_t *index,
+                   const float *vertexData, size_t numCells, size_t numIndices, size_t numVerts,
+                   float minValue = 0.f, float maxValue = 1.f);
+    void unloadUMesh();
+
     void setRendererType(std::string type);
 
     std::vector<std::string> getRendererTypes();
@@ -76,6 +81,10 @@ private:
             ANARIVolume volume{nullptr};
             ANARISpatialField field{nullptr};
         } amrVolume;
+        struct {
+            ANARIVolume volume{nullptr};
+            ANARISpatialField field{nullptr};
+        } unstructuredVolume;
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
@@ -86,6 +95,7 @@ private:
     void initMesh();
     void initStructuredVolume();
     void initAMRVolume();
+    void initUnstructuredVolume();
 
     struct {
         std::string fileName;
@@ -121,6 +131,20 @@ private:
         bool changed = false;
     } amrVolumeData;
 #endif
+
+    struct {
+        std::string fileName;
+
+        std::vector<float> vertexPosition;
+        std::vector<uint64_t> cellIndex;
+        std::vector<uint64_t> index;
+        std::vector<float> vertexData; // so far only support per-vertex data!
+        float minValue, maxValue;
+        std::vector<float> rgbLUT;
+        std::vector<float> alphaLUT;
+
+        bool changed = false;
+    } unstructuredVolumeData;
     
     int spp{1};
 };

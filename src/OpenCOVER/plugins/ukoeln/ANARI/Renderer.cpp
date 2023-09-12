@@ -127,6 +127,34 @@ void Renderer::unloadFLASH(std::string fn)
     // NO!
 }
 
+void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex, const uint64_t *index,
+                         const float *vertexData, size_t numCells, size_t numIndices, size_t numVerts,
+                         float minValue, float maxValue)
+{
+    // deferred!
+    unstructuredVolumeData.vertexPosition.resize(numVerts*3);
+    memcpy(unstructuredVolumeData.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
+
+    unstructuredVolumeData.cellIndex.resize(numCells);
+    memcpy(unstructuredVolumeData.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
+
+    unstructuredVolumeData.index.resize(numIndices);
+    memcpy(unstructuredVolumeData.index.data(),index,numIndices*sizeof(uint64_t));
+
+    unstructuredVolumeData.vertexData.resize(numVerts);
+    memcpy(unstructuredVolumeData.vertexData.data(),vertexData,numVerts*sizeof(float));
+
+    unstructuredVolumeData.minValue = minValue;
+    unstructuredVolumeData.maxValue = maxValue;
+    unstructuredVolumeData.changed = true;
+}
+
+void Renderer::unloadUMesh()
+{
+    // NO!
+}
+
+
 void Renderer::setRendererType(std::string type)
 {
     if (anari.frames.empty())
@@ -301,6 +329,11 @@ void Renderer::renderFrame(osg::RenderInfo &info)
         amrVolumeData.changed = false;
     }
 #endif
+
+    if (unstructuredVolumeData.changed) {
+        initUnstructuredVolume();
+        unstructuredVolumeData.changed = false;
+    }
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(info, chan);
@@ -640,6 +673,61 @@ void Renderer::initAMRVolume()
     anariRelease(anari.device, anari.amrVolume.volume);
     anariCommitParameters(anari.device, anari.world);
 #endif
+}
+
+void Renderer::initUnstructuredVolume()
+{
+    anari.unstructuredVolume.field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
+    // TODO: "unstructured" field is an extension - check if it is supported!
+    auto &data = unstructuredVolumeData;
+    printf("Array sizes:\n");
+    printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
+    printf("    'vertexData'    : %zu\n", data.vertexData.size());
+    printf("    'index'         : %zu\n", data.index.size());
+    printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
+
+    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.position",
+            ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
+    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.data",
+            ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
+    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "index",
+            ANARI_UINT64, data.index.data(), data.index.size());
+    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.index",
+            ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
+
+    anari::commitParameters(anari.device, anari.unstructuredVolume.field);
+
+    anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
+    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "field", anari.unstructuredVolume.field);
+
+    {
+        std::vector<glm::vec3> colors;
+        std::vector<float> opacities;
+
+        colors.emplace_back(0.f, 0.f, 1.f);
+        colors.emplace_back(0.f, 1.f, 0.f);
+        colors.emplace_back(1.f, 0.f, 0.f);
+
+        opacities.emplace_back(0.f);
+        opacities.emplace_back(1.f);
+
+        anari::setAndReleaseParameter(
+            anari.device, anari.unstructuredVolume.volume, "color",
+            anari::newArray1D(anari.device, colors.data(), colors.size()));
+        anari::setAndReleaseParameter(
+            anari.device, anari.unstructuredVolume.volume, "opacity",
+            anari::newArray1D(anari.device, opacities.data(), opacities.size()));
+        float voxelRange[2] = {data.minValue, data.maxValue};
+        anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                          voxelRange);
+    }
+
+    anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+
+    anari::setAndReleaseParameter(anari.device, anari.world, "volume",
+                                  anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
+    anariRelease(anari.device, anari.unstructuredVolume.volume);
+    anariCommitParameters(anari.device, anari.world);
 }
 
 
