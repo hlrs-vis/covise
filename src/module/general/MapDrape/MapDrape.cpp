@@ -21,6 +21,26 @@
 #include <string>
 #include <functional>
 
+std::string getCoviseDir()
+{
+#ifdef WIN32
+	char *pValue;
+	size_t len;
+	errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+	if (err || pValue == NULL || strlen(pValue) == 0)
+		err = _dupenv_s(&pValue, &len, "COVISEDIR");
+	if (err)
+		return "";
+#else
+	const char *pValue = getenv("ODDLOTDIR");
+	if (!pValue || pValue[0] == '\0')
+		pValue = getenv("COVISEDIR");
+    if (!pValue)
+        pValue = "";
+#endif
+	return pValue;
+}
+
 MapDrape::MapDrape(int argc, char *argv[])
 	: coSimpleModule(argc, argv, "map coordinates and drape to height field")
 {
@@ -31,22 +51,8 @@ MapDrape::MapDrape(int argc, char *argv[])
 
 	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
 	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
-#ifdef WIN32
-	const char *pValue;
-	size_t len;
-	errno_t err = _dupenv_s(&((char *)pValue), &len, "ODDLOTDIR");
-	if (err || pValue == NULL || strlen(pValue) == 0)
-		err = _dupenv_s(&((char *)pValue), &len, "COVISEDIR");
-	if (err)
-		pValue = "";
-#else
-	const char *pValue = getenv("ODDLOTDIR");
-	if (!pValue || pValue[0] == '\0')
-		pValue = getenv("COVISEDIR");
-    if (!pValue)
-        pValue = "";
-#endif
-	std::string covisedir = pValue;
+	std::string covisedir = getCoviseDir();
+
 	dir = covisedir + "/share/covise/";
 
 	p_mapping_from_ = addStringParam("from", "proj4 mapping from");
