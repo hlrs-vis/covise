@@ -147,11 +147,9 @@ ReadANSYS::extractName(std::string &newFileName)
     theText->getAddress(&text);
     istringstream strText(text);
     size_t maxLen = strlen(text) + 1;
-    std::vector<char> name(maxLen);
-    strText >> &name[0];
     if (maxLen > 1)
     {
-        newFileName = &name[0];
+        strText >> newFileName;
     }
     return 0;
 }
