@@ -197,7 +197,8 @@ static void updateScenegraph()
 
 bool CovisePlugin::update()
 {
-    return VRCoviseConnection::covconn->update();
+    bool ret = RotatorList::instance()->num() > 0 || SliderList::instance()->num() > 0;
+    return VRCoviseConnection::covconn->update() || ret;
 }
 
 void CovisePlugin::preFrame()
