@@ -128,8 +128,8 @@ void Renderer::unloadFLASH(std::string fn)
 }
 
 void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex, const uint64_t *index,
-                         const float *vertexData, size_t numCells, size_t numIndices, size_t numVerts,
-                         float minValue, float maxValue)
+                         const uint8_t *cellType, const float *vertexData, size_t numCells, size_t numIndices,
+                         size_t numVerts, float minValue, float maxValue)
 {
     // deferred!
     unstructuredVolumeData.data.vertexPosition.resize(numVerts*3);
@@ -140,6 +140,9 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
 
     unstructuredVolumeData.data.index.resize(numIndices);
     memcpy(unstructuredVolumeData.data.index.data(),index,numIndices*sizeof(uint64_t));
+
+    unstructuredVolumeData.data.cellType.resize(numCells);
+    memcpy(unstructuredVolumeData.data.cellType.data(),cellType,numCells*sizeof(uint64_t));
 
     unstructuredVolumeData.data.vertexData.resize(numVerts);
     memcpy(unstructuredVolumeData.data.vertexData.data(),vertexData,numVerts*sizeof(float));
@@ -710,8 +713,12 @@ void Renderer::initUnstructuredVolume()
             ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
     anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "index",
             ANARI_UINT64, data.index.data(), data.index.size());
+    anari::setParameter(anari.device, anari.unstructuredVolume.field, "indexPrefixed",
+                        ANARI_BOOL, &data.indexPrefixed);
     anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.index",
             ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
+    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.type",
+                               ANARI_UINT8, data.cellType.data(), data.cellType.size());
 
     anari::commitParameters(anari.device, anari.unstructuredVolume.field);
 

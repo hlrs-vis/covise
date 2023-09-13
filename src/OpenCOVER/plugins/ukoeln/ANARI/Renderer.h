@@ -41,8 +41,8 @@ public:
     void unloadFLASH(std::string fileName);
 
     void loadUMesh(const float *vertexPosition, const uint64_t *cellIndex, const uint64_t *index,
-                   const float *vertexData, size_t numCells, size_t numIndices, size_t numVerts,
-                   float minValue = 0.f, float maxValue = 1.f);
+                   const uint8_t *type, const float *vertexData, size_t numCells, size_t numIndices,
+                   size_t numVerts, float minValue = 0.f, float maxValue = 1.f);
     void unloadUMesh();
 
     void loadUMeshVTK(std::string fileName);

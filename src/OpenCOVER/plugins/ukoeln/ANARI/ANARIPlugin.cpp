@@ -14,6 +14,23 @@
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
 
+/* extern definitions for type constants */
+static int TYPE_HEXAGON = 7;
+static int TYPE_HEXAEDER = 7;
+static int TYPE_PRISM = 6;
+static int TYPE_PYRAMID = 5;
+static int TYPE_TETRAHEDER = 4;
+static int TYPE_QUAD = 3;
+static int TYPE_TRIANGLE = 2;
+static int TYPE_BAR = 1;
+static int TYPE_NONE = 0;
+static int TYPE_POINT = 10;
+
+static uint8_t ANARI_TETRAHEDRON = 10;
+static uint8_t ANARI_HEXAHEDRON = 12;
+static uint8_t ANARI_WEDGE = 13;
+static uint8_t ANARI_PYRAMID = 14;
+
 ANARIPlugin *ANARIPlugin::plugin = nullptr;
 
 static FileHandler handlers[] = {
@@ -226,8 +243,8 @@ void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
         // Element indices
         auto *index = geometry->getInt(Field::Connections);
 
-        // Element types (not needed)
-        // auto *type = geometry->getInt(Field::Types);
+        // Element types
+        auto *type = geometry->getInt(Field::Types);
 
         auto *X = geometry->getFloat(Field::X);
         auto *Y = geometry->getFloat(Field::Y);
@@ -248,6 +265,21 @@ void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
                 index64[i] = index[i];
             }
 
+            // Some devices (e.g., ospray) require types
+            std::vector<uint8_t> type8(numCells);
+            for (size_t i=0; i<numCells; ++i) {
+                if (type[i] == TYPE_TETRAHEDER)
+                    type8[i] = ANARI_TETRAHEDRON;
+                else if (type[i] == TYPE_PYRAMID)
+                    type8[i] = ANARI_PYRAMID;
+                else if (type[i] == TYPE_PRISM)
+                    type8[i] = ANARI_WEDGE;
+                else if (type[i] == TYPE_HEXAEDER)
+                    type8[i] = ANARI_HEXAHEDRON;
+                else
+                    printf("Error %i is an unsupported cell type\n", type[i]);
+            }
+
             float minValue = HUGE_VAL, maxValue = -HUGE_VAL;
             std::vector<float> vertexPosition(numVerts*3);
             for (size_t i=0; i<numVerts; ++i) {
@@ -260,7 +292,7 @@ void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
             }
 
             renderer->loadUMesh(vertexPosition.data(), cellIndex64.data(), index64.data(),
-                                vertexData, numCells, numIndices, numVerts,
+                                type8.data(), vertexData, numCells, numIndices, numVerts,
                                 minValue, maxValue);
         }
     }
