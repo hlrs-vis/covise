@@ -286,7 +286,7 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     // use - and + symbyls with same width
     //const char minus[] = u8"\u2212"; // minus
     //const char minus[] = u8"\uff0d"; // full-width hypen minus
-    const char minus[] = u8"\u2013";  // en-dash
+    const char minus[] = "\u2013";  // en-dash
     //const char plus[] = u8"\uff0b"; // full-width plus
     const char plus[] = "+";
     //const char space[] = u8"\u2002"; // en-space
