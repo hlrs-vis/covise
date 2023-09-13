@@ -7,6 +7,7 @@
 #include <utility>
 #include <unordered_map>
 #include <vector>
+#include <cstring>
 #if ASG_HAVE_ASSIMP
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/Importer.hpp>
