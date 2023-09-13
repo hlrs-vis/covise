@@ -19,7 +19,7 @@ Scaling::Scaling(coVRPlugin *plugin, ui::Group *parent)
 {
     m_coneSize->setValue(plugin->configFloat("Cone", "size", 150.0)->value());
     m_fontFactor->setValue(plugin->configFloat("Text", "size", 3.0)->value());
-    m_lineWidth->setValue(plugin->configFloat("Text", "lineWidth", 28.0)->value());
+    m_lineWidth->setValue(plugin->configFloat("Lin", "width", 28.0)->value());
 
     m_coneSize->setPresentation(ui::Slider::Presentation::AsDial);
     m_fontFactor->setPresentation(ui::Slider::Presentation::AsDial);

@@ -65,7 +65,7 @@ bool ModelViewer::init()
     // add button to main menu (need to adjust)
     cover->getMenu()->add(modelViewerMenuItem);
 
-    std::string modelFile = configString("Model", "modelFile", "")->value();
+    std::string modelFile = configString("Model", "file", "")->value();
     cerr << "Trying to read file: " << modelFile << " ..." << endl;
     if (!modelFile.empty())
     {

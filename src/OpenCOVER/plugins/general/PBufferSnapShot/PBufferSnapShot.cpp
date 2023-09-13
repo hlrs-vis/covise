@@ -700,7 +700,7 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
 
     if (directory.empty())
     {
-        directory = configString("PBufferSnapShot", "Directory", "")->value();
+        directory = configString("Snapshot", "directory", "")->value();
     }
     else
     {
