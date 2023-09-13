@@ -1,7 +1,7 @@
-find_package(anari)
-find_package(glm)
-find_package(HDF5 COMPONENTS CXX)
-find_package(VTK COMPONENTS CommonColor CommonCore CommonDataModel IOCore IOLegacy)
+covise_find_package(anari)
+covise_find_package(glm)
+covise_find_package(HDF5 COMPONENTS CXX)
+covise_find_package(VTK COMPONENTS CommonColor CommonCore CommonDataModel IOCore IOLegacy)
 using(Assimp)
 
 if(NOT ANARI_FOUND)
