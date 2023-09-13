@@ -47,17 +47,17 @@ public:
     ANARIPlugin();
    ~ANARIPlugin();
 
-    bool init();
+    bool init() override;
 
-    void preDraw(osg::RenderInfo &info);
+    void preFrame() override;
 
-    void expandBoundingSphere(osg::BoundingSphere &bs);
+    void expandBoundingSphere(osg::BoundingSphere &bs) override;
 
     void addObject(const RenderObject *container, osg::Group *parent,
                    const RenderObject *geometry, const RenderObject *normals,
-                   const RenderObject *colors, const RenderObject *texture);
+                   const RenderObject *colors, const RenderObject *texture) override;
 
-    void removeObject(const char *objName, bool replaceFlag);
+    void removeObject(const char *objName, bool replaceFlag) override;
 
 protected:
     ui::Menu *anariMenu = nullptr;

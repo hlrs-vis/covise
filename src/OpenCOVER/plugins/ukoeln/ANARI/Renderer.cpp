@@ -318,7 +318,7 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     bs.set(center, radius);
 }
 
-void Renderer::renderFrame(osg::RenderInfo &info)
+void Renderer::renderFrame()
 {
     int numChannels = coVRConfig::instance()->numChannels();
     if (!multiChannelDrawer) {
@@ -357,12 +357,14 @@ void Renderer::renderFrame(osg::RenderInfo &info)
     }
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
-        renderFrame(info, chan);
+        renderFrame(chan);
     }
 }
 
-void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
+void Renderer::renderFrame(unsigned chan)
 {
+    multiChannelDrawer->update();
+
     auto cam = coVRConfig::instance()->channels[chan].camera;
     auto vp = cam->getViewport();
     int width = vp->width();
@@ -444,7 +446,6 @@ void Renderer::renderFrame(osg::RenderInfo &info, unsigned chan)
 
     anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
 
-    multiChannelDrawer->update();
     multiChannelDrawer->swapFrame();
 }
 

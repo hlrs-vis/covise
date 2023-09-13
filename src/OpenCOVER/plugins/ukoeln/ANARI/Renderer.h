@@ -56,8 +56,8 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
-    void renderFrame(osg::RenderInfo &info);
-    void renderFrame(osg::RenderInfo &info, unsigned chan);
+    void renderFrame();
+    void renderFrame(unsigned chan);
 
 private:
     osg::ref_ptr<opencover::MultiChannelDrawer> multiChannelDrawer{nullptr};

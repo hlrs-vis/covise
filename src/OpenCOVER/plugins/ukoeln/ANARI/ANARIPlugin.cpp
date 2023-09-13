@@ -199,12 +199,12 @@ bool ANARIPlugin::init()
     return true;
 }
 
-void ANARIPlugin::preDraw(osg::RenderInfo &info)
+void ANARIPlugin::preFrame()
 {
     if (!renderer)
         return;
 
-    renderer->renderFrame(info);
+    renderer->renderFrame();
 }
 
 void ANARIPlugin::expandBoundingSphere(osg::BoundingSphere &bs)
