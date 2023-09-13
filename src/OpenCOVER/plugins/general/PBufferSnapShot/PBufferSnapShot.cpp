@@ -700,7 +700,7 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
 
     if (directory.empty())
     {
-        directory = coCoviseConfig::getEntry("COVER.Plugin.PBufferSnapShot.Directory");
+        directory = configString("PBufferSnapShot", "Directory", "")->value();
     }
     else
     {

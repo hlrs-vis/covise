@@ -65,7 +65,7 @@ bool ModelViewer::init()
     // add button to main menu (need to adjust)
     cover->getMenu()->add(modelViewerMenuItem);
 
-    std::string modelFile = coCoviseConfig::getEntry("COVER.Plugin.ModelViewer.ModelFile");
+    std::string modelFile = configString("Model", "modelFile", "")->value();
     cerr << "Trying to read file: " << modelFile << " ..." << endl;
     if (!modelFile.empty())
     {

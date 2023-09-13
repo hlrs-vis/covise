@@ -199,8 +199,8 @@ GLTFPlugin::GLTFPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 {
    
-    //scaleGeometry = coCoviseConfig::isOn("COVER.Plugin.GLTF.ScaleGeometry", true);
-    //lodScale = coCoviseConfig::getFloat("COVER.Plugin.GLTF.LodScale", 2000.0f);
+    //scaleGeometry = configBool("Geometry", "scale", true)->value();
+    //lodScale = configFloat("Lod", "scale", 2000.0f)->value();
 	GLTFRoot = new osg::MatrixTransform();
 	GLTFRoot->setName("GLTFRoot");
 	cover->getObjectsRoot()->addChild(GLTFRoot);

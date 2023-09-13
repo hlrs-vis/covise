@@ -14,13 +14,14 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/Slider.h>
+#include <cover/coVRPlugin.h>
 
 class Measure;
 
 class Scaling
 {
 public:
-    Scaling(opencover::ui::Group *parent);
+    Scaling(opencover::coVRPlugin *plugin, opencover::ui::Group *parent);
     Scaling(const Scaling&) = delete;
     Scaling(Scaling&&) = default;
     Scaling &operator=(const Scaling &other);
@@ -32,6 +33,7 @@ public:
     float lineWidth() const;
     void setCallback(const std::function<void()> &onScalingChanged);
 private:
+    opencover::coVRPlugin *m_plugin;
     opencover::ui::Slider *m_coneSize;
     opencover::ui::Slider *m_fontFactor;
     opencover::ui::Slider *m_lineWidth;
@@ -62,7 +64,7 @@ class Dimension
 {
 public:
 
-    Dimension(int id, const std::string &name, opencover::ui::Group *parent, const Scaling &scale);
+    Dimension(int id, const std::string &name, opencover::coVRPlugin *plugin, opencover::ui::Group *parent, const Scaling &scale);
     Dimension(const Dimension &other) = delete;
     Dimension(Dimension &&other) = default;
     Dimension &operator=(const Dimension &) = delete;
@@ -82,6 +84,8 @@ public:
 private:
     std::chrono::system_clock::time_point m_lastPinCheck;
     std::vector<std::unique_ptr<Pin>> m_pins; // cones to mark the measurement
+    opencover::coVRPlugin *m_plugin;
+
 
 protected:
     std::unique_ptr<opencover::ui::Menu> m_gui;

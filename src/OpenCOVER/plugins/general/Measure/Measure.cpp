@@ -21,7 +21,7 @@
 /*
 	Measure is a COVISE plugin used to create a virtual measuring tape.
 	You are able to set the initial coneSize and textSize by adding those values
-	into the config XML file.
+	into the config toml file.
 */
 
 
@@ -29,7 +29,7 @@ Measure::Measure()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , opencover::ui::Owner("MeasurePlugin", cover->ui)
 , m_menu(new ui::Menu("Measure", this))
-, m_scaling(m_menu)
+, m_scaling(this, m_menu) 
 , m_addLinearDimension(new ui::Action(m_menu, "tape measure"))
 , m_removeCurrentDimension(new ui::Action(m_menu, "remove last"))
 , m_clearDimensions(new ui::Action(m_menu, "clear all"))
@@ -41,7 +41,7 @@ Measure::Measure()
             auto &d = m_dimensions[i];
             if(!d)
             {
-                d = std::make_unique<LinearDimension>(i, m_menu, m_scaling);
+                d = std::make_unique<LinearDimension>(i, this, m_menu, m_scaling);
                 break;
             }
         }
@@ -83,4 +83,4 @@ void Measure::setCurrentMeasure(const Pin &pin)
 }
 
 
-COVERPLUGIN(Measure)
+COVERPLUGIN(Measure);

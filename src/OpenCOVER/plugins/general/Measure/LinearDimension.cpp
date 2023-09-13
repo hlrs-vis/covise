@@ -150,8 +150,8 @@ void ThreeDPresentation::update(const osg::Vec3f &pos1, const osg::Vec3f &pos2, 
     }
 }
 
-LinearDimension::LinearDimension(int id, ui::Group *parent, const Scaling &scale)
-: Dimension(id, "distance_" + std::to_string(id), parent, scale)
+LinearDimension::LinearDimension(int id, opencover::coVRPlugin *plugin, ui::Group *parent, const Scaling &scale)
+: Dimension(id, "distance_" + std::to_string(id), plugin, parent, scale)
 , m_distanceEdit(new ui::VectorEditField(m_gui.get(), "distance"))
 , m_presentationSelector(new ui::SelectionList(m_gui.get(), "presentation"))
 , m_presentation(std::make_unique<LinePresentation>())

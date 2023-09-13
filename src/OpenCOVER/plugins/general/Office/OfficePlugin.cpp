@@ -198,7 +198,7 @@ bool OfficePlugin::init()
     bool connected = false;
     if (coVRMSController::instance()->isMaster())
     {
-        int port = coCoviseConfig::getInt("port", "COVER.Plugin.Office.Server", 31315);
+        int port = configInt("Server", "port", 31315)->value();
         serverConn = new ServerConnection(port, 1234, Message::UNDEFINED);
         if (!serverConn->getSocket())
         {

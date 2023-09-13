@@ -11,14 +11,15 @@
 
 using namespace opencover;
 
-Scaling::Scaling(ui::Group *parent)
-: m_coneSize(new ui::Slider(parent, "coneSize"))
+Scaling::Scaling(coVRPlugin *plugin, ui::Group *parent)
+: m_plugin(plugin)
+, m_coneSize(new ui::Slider(parent, "coneSize"))
 , m_fontFactor(new ui::Slider(parent, "fontFactor"))
 , m_lineWidth(new ui::Slider(parent, "lineWidth"))
 {
-    m_coneSize->setValue(covise::coCoviseConfig::getFloat("COVER.Plugin.Measure.ConeSize", 150.0));
-    m_fontFactor->setValue(covise::coCoviseConfig::getFloat("COVER.Plugin.Measure.TextSize", 3.0));
-    m_lineWidth->setValue(covise::coCoviseConfig::getFloat("COVER.Plugin.Measure.LineWidth", 28.0));
+    m_coneSize->setValue(plugin->configFloat("Cone", "size", 150.0)->value());
+    m_fontFactor->setValue(plugin->configFloat("Text", "size", 3.0)->value());
+    m_lineWidth->setValue(plugin->configFloat("Text", "lineWidth", 28.0)->value());
 
     m_coneSize->setPresentation(ui::Slider::Presentation::AsDial);
     m_fontFactor->setPresentation(ui::Slider::Presentation::AsDial);
@@ -203,10 +204,11 @@ bool Dimension::isplaced()
     return false;
 }
 
-Dimension::Dimension(int id, const std::string &name, ui::Group *parent, const Scaling &scale)
-: m_gui(new ui::Menu(parent, name))
+Dimension::Dimension(int id, const std::string &name, coVRPlugin *plugin, ui::Group *parent, const Scaling &scale)
+: m_plugin(plugin)
+, m_gui(new ui::Menu(parent, name))
 , m_id(id)
-, m_scale(m_gui.get())
+, m_scale(plugin, m_gui.get())
 {
     m_scale = scale;
     m_scale.setCallback([this](){

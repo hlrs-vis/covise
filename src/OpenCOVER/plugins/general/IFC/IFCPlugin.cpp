@@ -248,8 +248,8 @@ IFCPlugin::IFCPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 {
    
-    //scaleGeometry = coCoviseConfig::isOn("COVER.Plugin.IFC.ScaleGeometry", true);
-    //lodScale = coCoviseConfig::getFloat("COVER.Plugin.IFC.LodScale", 2000.0f);
+	//scaleGeometry = configBool("Geometry", "scale", true)->value();
+    //lodScale = configFloat("Lod", "scale", 2000.0f)->value();
 	IFCRoot = new osg::MatrixTransform();
 	IFCRoot->setName("IFCRoot");
 	m_system = new IfcPlusPlusSystem();

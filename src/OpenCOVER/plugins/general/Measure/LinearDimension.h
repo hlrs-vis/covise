@@ -42,7 +42,7 @@ private:
 class LinearDimension : public Dimension
 {
 public:
-    LinearDimension(int id, opencover::ui::Group *parent, const Scaling &scale);
+    LinearDimension(int id, opencover::coVRPlugin *plugin, opencover::ui::Group *parent, const Scaling &scale);
     void update() override;
 
 private:
