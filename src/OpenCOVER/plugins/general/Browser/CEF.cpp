@@ -526,8 +526,10 @@ bool CEF::init()
     CefString(&settings.browser_subprocess_path).FromASCII(bsp.c_str());
 
     std::string lfp = "/tmp/cef.log";
+    std::string logfile = *configString("log", "file", lfp);
     CefString(&settings.log_file)
-        .FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());
+        //.FromASCII(covise::coCoviseConfig::getEntry("logFile", "COVER.Plugin.Browser", lfp).c_str());
+        .FromASCII(logfile.c_str());
 #ifdef __APPLE__
     std::string extlib;
     if (auto el = getenv("EXTERNLIBS"))
@@ -541,9 +543,11 @@ bool CEF::init()
     }
     std::string fwpath = extlib + "/cef/Release/Chromium Embedded Framework.framework";
     CefString(&settings.framework_dir_path) =
-        covise::coCoviseConfig::getEntry("frameworkDirPath", "COVER.Plugin.Browser", fwpath);
+        //covise::coCoviseConfig::getEntry("frameworkDirPath", "COVER.Plugin.Browser", fwpath);
+        configString("Browser", "frameworkDirPath", fwpath);
 #endif
-    settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
+    //settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
+    settings.log_severity = (cef_log_severity_t)configInt("log", "level", 99)->value();
     settings.no_sandbox = true;
     settings.windowless_rendering_enabled = true;
     settings.external_message_pump = true;
