@@ -14,11 +14,13 @@ SET(HEADERS
   linalg.hpp
   ANARIPlugin.h
   Renderer.h
+  Projection.h
 )
 SET(SOURCES
   asg.cpp
   ANARIPlugin.cpp
   Renderer.cpp
+  Projection.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})

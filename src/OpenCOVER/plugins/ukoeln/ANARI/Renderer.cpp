@@ -387,27 +387,27 @@ void Renderer::renderFrame(unsigned chan)
     osg::Matrix mv = multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan);
     osg::Matrix pr = multiChannelDrawer->projectionMatrix(chan);
 
+    glm::mat4 glmv, glpr;
+    // glm matrices are column-major, osg matrices are row-major!
+    glmv[0] = glm::vec4(mv(0,0), mv(0,1), mv(0,2), mv(0,3));
+    glmv[1] = glm::vec4(mv(1,0), mv(1,1), mv(1,2), mv(1,3));
+    glmv[2] = glm::vec4(mv(2,0), mv(2,1), mv(2,2), mv(2,3));
+    glmv[3] = glm::vec4(mv(3,0), mv(3,1), mv(3,2), mv(3,3));
+
+    glpr[0] = glm::vec4(pr(0,0), pr(0,1), pr(0,2), pr(0,3));
+    glpr[1] = glm::vec4(pr(1,0), pr(1,1), pr(1,2), pr(1,3));
+    glpr[2] = glm::vec4(pr(2,0), pr(2,1), pr(2,2), pr(2,3));
+    glpr[3] = glm::vec4(pr(3,0), pr(3,1), pr(3,2), pr(3,3));
+
+    glm::vec3 eye, dir, up;
+    float fovy, aspect;
+    glm::box2 imgRegion;
+    offaxisStereoCameraFromTransform(
+        inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
+
     if (channelInfos[chan].mv != mv || channelInfos[chan].pr != pr) {
         channelInfos[chan].mv = mv;
         channelInfos[chan].pr = pr;
-
-        glm::mat4 glmv, glpr;
-        // glm matrices are column-major, osg matrices are row-major!
-        glmv[0] = glm::vec4(mv(0,0), mv(0,1), mv(0,2), mv(0,3));
-        glmv[1] = glm::vec4(mv(1,0), mv(1,1), mv(1,2), mv(1,3));
-        glmv[2] = glm::vec4(mv(2,0), mv(2,1), mv(2,2), mv(2,3));
-        glmv[3] = glm::vec4(mv(3,0), mv(3,1), mv(3,2), mv(3,3));
-
-        glpr[0] = glm::vec4(pr(0,0), pr(0,1), pr(0,2), pr(0,3));
-        glpr[1] = glm::vec4(pr(1,0), pr(1,1), pr(1,2), pr(1,3));
-        glpr[2] = glm::vec4(pr(2,0), pr(2,1), pr(2,2), pr(2,3));
-        glpr[3] = glm::vec4(pr(3,0), pr(3,1), pr(3,2), pr(3,3));
-
-        glm::vec3 eye, dir, up;
-        float fovy, aspect;
-        glm::box2 imgRegion;
-        offaxisStereoCameraFromTransform(
-            inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
 
         anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &fovy);
         anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
@@ -436,12 +436,15 @@ void Renderer::renderFrame(unsigned chan)
            widthOUT*heightOUT*anari::sizeOf(typeOUT));
     anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
 
-    const uint32_t *dbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                "channel.depth",
-                                                                &widthOUT,
-                                                                &heightOUT,
-                                                                &typeOUT);
-    memcpy((uint32_t *)multiChannelDrawer->depth(chan), dbPointer,
+    const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
+                                                          "channel.depth",
+                                                          &widthOUT,
+                                                          &heightOUT,
+                                                          &typeOUT);
+    std::vector<float> dbXformed(widthOUT*heightOUT);
+    transformDepthFromWorldToGL(dbPointer, dbXformed.data(), eye, dir, up, fovy,
+                                aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
+    memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
            widthOUT*heightOUT*anari::sizeOf(typeOUT));
 
     anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");

@@ -15,6 +15,14 @@ struct box2 {
   vec2 min, max;
 };
 
+void transformDepthFromWorldToGL(const float *world, float *gl,
+                                 vec3 eye, vec3 dir, vec3 up,
+                                 float fovy, float aspect, box2 imageRegion,
+                                 mat4 view, mat4 proj,
+                                 int width, int heigh);
+
+// inlineable functions //
+
 static
 void offaxisStereoCamera(vec3 LL, vec3 LR, vec3 UR, vec3 eye,
                          vec3 &dirOUT, vec3 &upOUT,
