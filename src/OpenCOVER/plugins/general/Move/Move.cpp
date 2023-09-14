@@ -137,9 +137,11 @@ bool Move::init()
     didMove = false;
     moveSelection = false;
     selectedNode = NULL;
-    explicitMode = coCoviseConfig::isOn("COVER.Plugin.Move.Explicit", true);
+    //explicitMode = coCoviseConfig::isOn("COVER.Plugin.Move.Explicit", true);
+    explicitMode = configBool("Move", "explicit", true)->value();
     moveTransformMode = false;
-    printMode = coCoviseConfig::isOn("COVER.Plugin.Move.Print", false);
+    //printMode = coCoviseConfig::isOn("COVER.Plugin.Move.Print", false);
+    printMode = configBool("Move", "print", false)->value();
     readPos = writePos = maxWritePos = 0;
     // create the text
     osg::Vec4 fgcolor(0, 1, 0, 1);

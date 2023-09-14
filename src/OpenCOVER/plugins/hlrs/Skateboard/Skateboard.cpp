@@ -56,15 +56,15 @@ bool Skateboard::init()
 	delete udp;
         float floorHeight = VRSceneGraph::instance()->floorHeight();
 
-	const std::string host = covise::coCoviseConfig::getEntry("value", "COVER.Plugin.Skateboard.serverHost", "192.168.178.36");
-	unsigned short serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Skateboard.localPort", 31320);
-        float x = covise::coCoviseConfig::getFloat("x","COVER.Plugin.Skateboard.Position", 0);
-        float y = covise::coCoviseConfig::getFloat("y","COVER.Plugin.Skateboard.Position", 0);
-        float z = covise::coCoviseConfig::getFloat("z","COVER.Plugin.Skateboard.Position", floorHeight);
-        float h = covise::coCoviseConfig::getFloat("h","COVER.Plugin.Skateboard.Position", 0);
-        float p = covise::coCoviseConfig::getFloat("p","COVER.Plugin.Skateboard.Position", 0);
-        float r = covise::coCoviseConfig::getFloat("r","COVER.Plugin.Skateboard.Position", 0);
+    const std::string host = configString("Skateboard", "serverHost", "192.168.178.36")->value();
+	unsigned short serverPort = configInt("Skateboard", "serverPort", 31319)->value();
+	unsigned short localPort = configInt("Skateboard", "localPort", 31320)->value();
+        float x = configFloat("Position", "x", 0)->value();
+        float y = configFloat("Position", "y", 0)->value();
+        float z = configFloat("Position", "z", floorHeight)->value();
+        float h = configFloat("Orientation", "h", 0)->value();
+        float p = configFloat("Orientation", "p", 0)->value();
+        float r = configFloat("Orientation", "r", 0)->value();
 
         MAKE_EULER_MAT(SkateboardPos, h,p,r);
         SkateboardPos.postMultTranslate(osg::Vec3(x,y,z));

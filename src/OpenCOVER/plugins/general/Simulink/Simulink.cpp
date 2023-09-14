@@ -181,10 +181,10 @@ SimulinkPlugin::SimulinkPlugin()
     serverHost = NULL;
     localHost = new Host("localhost");
 
-    serverPort = covise::coCoviseConfig::getInt("COVER.Plugin.Simulink.serverPort", 31319);
-    localPort = covise::coCoviseConfig::getInt("COVER.Plugin.Simulink.localPort", 12345);
-    port = coCoviseConfig::getInt("COVER.Plugin.Simulink.TCPPort", 12345);
-    std::string line = coCoviseConfig::getEntry("COVER.Plugin.Simulink.Server");
+    serverPort = configInt("Simulink", "serverPort", 31319)->value();
+    localPort = configInt("Simulink", "localPort", 12345)->value();
+    port = configInt("Simulink", "tcpPort", 12345)->value();
+    std::string line = configString("Simulink", "server", "")->value();
     if (!line.empty())
     {
         if (strcasecmp(line.c_str(), "NONE") == 0)

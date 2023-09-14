@@ -57,25 +57,26 @@ bool Wheelchair::init()
 {
     float floorHeight = VRSceneGraph::instance()->floorHeight();
 
-	//const std::string host = covise::coCoviseConfig::getEntry("value", "Wheelchair.serverHost", "192.168.178.36");
-	unsigned short serverPort = covise::coCoviseConfig::getInt("Wheelchair.serverPort", 31319);
-	unsigned short localPort = covise::coCoviseConfig::getInt("Wheelchair.localPort", 31321);
-    float x = covise::coCoviseConfig::getFloat("x", "COVER.Plugin.Wheelchair.Position", 0);
-    float y = covise::coCoviseConfig::getFloat("y", "COVER.Plugin.Wheelchair.Position", 0);
-    float z = covise::coCoviseConfig::getFloat("z", "COVER.Plugin.Wheelchair.Position", floorHeight);
-    float h = covise::coCoviseConfig::getFloat("h", "COVER.Plugin.Wheelchair.Position", 0);
-    float p = covise::coCoviseConfig::getFloat("p", "COVER.Plugin.Wheelchair.Position", 0);
-    float r = covise::coCoviseConfig::getFloat("r", "COVER.Plugin.Wheelchair.Position", 0);
+    const std::string host = configString("Wheelchair", "serverHost", "192.168.178.36")->value();
+    unsigned short serverPort = configInt("Wheelchair", "serverPort", 31319)->value();
+    unsigned short localPort = configInt("Wheelchair", "localPort", 31321)->value();
+    
+    float x = configFloat("Position", "x", 0)->value();
+    float y = configFloat("Position", "y", 0)->value();
+    float z = configFloat("Position", "z", floorHeight)->value();
+    float h = configFloat("Orientation", "h", 0)->value();
+    float p = configFloat("Orientation", "p", 0)->value();
+    float r = configFloat("Orientation", "r", 0)->value();
 
     MAKE_EULER_MAT(WheelchairPos, h, p, r);
     WheelchairPos.postMultTranslate(osg::Vec3(x, y, z));
 
-    joystickNumber = covise::coCoviseConfig::getInt("Wheelchair.joystickNumber", 0);
-    yIndex = covise::coCoviseConfig::getInt("Wheelchair.yIndex", 5);
-    yScale = covise::coCoviseConfig::getFloat("Wheelchair.yScale", 10);
-    xIndex = covise::coCoviseConfig::getInt("Wheelchair.xIndex", 2);
-    xScale = covise::coCoviseConfig::getFloat("Wheelchair.xScale", 0.02);
-    debugPrint = covise::coCoviseConfig::isOn("Wheelchair.debugPrint", false);
+    joystickNumber = configInt("Joystick", "number", 0)->value();
+    yIndex = configInt("Index", "yIndex", 5)->value();
+    yScale = configFloat("Scale", "yScale", 10)->value();
+    xIndex = configInt("Index", "xIndex", 2)->value();
+    xScale = configFloat("Scale", "xScale", 0.02)->value();
+    debugPrint = configBool("Wheelchair", "debugPrint", false)->value();
     udp = nullptr;
     dev = nullptr;
     if (coVRMSController::instance()->isMaster())

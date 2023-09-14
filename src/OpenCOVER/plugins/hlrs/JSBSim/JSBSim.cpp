@@ -50,14 +50,16 @@ JSBSimPlugin::JSBSimPlugin()
     const char* GF = coVRFileManager::instance()->getName("share/covise/jsbsim/geometry/paraglider.osgb");
     if (GF == nullptr)
         GF = "";
-    geometryFile = coCoviseConfig::getEntry("geometry", "COVER.Plugin.JSBSim.Geometry", GF);
-    float tx = coCoviseConfig::getFloat("x", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float ty = coCoviseConfig::getFloat("y", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float tz = coCoviseConfig::getFloat("z", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float th = coCoviseConfig::getFloat("h", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float tp = coCoviseConfig::getFloat("p", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float tr = coCoviseConfig::getFloat("r", "COVER.Plugin.JSBSim.Geometry", 0.0);
-    float ts = coCoviseConfig::getFloat("scale", "COVER.Plugin.JSBSim.Geometry", 1000.0);
+   
+    geometryFile = configString("Geometry", "file", GF)->value();
+    float tx = configFloat("Geometry", "x", 0.0)->value();
+    float ty = configFloat("Geometry", "y", 0.0)->value();
+    float tz = configFloat("Geometry", "z", 0.0)->value();
+    float th = configFloat("Geometry", "h", 0.0)->value();
+    float tp = configFloat("Geometry", "p", 0.0)->value();
+    float tr = configFloat("Geometry", "r", 0.0)->value();
+    float ts = configFloat("Geometry", "scale", 1000.0)->value();
+
     osg::Matrix gt = osg::Matrix::scale(ts,ts,ts)*osg::Matrix::rotate(th, osg::Vec3(0,0,1), tp, osg::Vec3(1,0,0),  tr, osg::Vec3(0,1,0)) *  osg::Matrix::translate(tx, ty, tz);
     geometryTrans = new osg::MatrixTransform(gt);
     osg::Node* n = osgDB::readNodeFile(geometryFile.c_str());
@@ -72,16 +74,18 @@ JSBSimPlugin::JSBSimPlugin()
     }
 if (coVRMSController::instance()->isMaster())
         {
-    remoteSoundServer = coCoviseConfig::getEntry("server", "COVER.Plugin.JSBSim.Sound", "localhost");
-    remoteSoundPort = coCoviseConfig::getInt("port", "COVER.Plugin.JSBSim.Sound", 31805);
+  
+    remoteSoundServer = configString("Sound", "server", "localhost")->value();
+    remoteSoundPort = configInt("Sound", "port", 31805)->value();
+
     const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
     if (VS == nullptr)
         VS = "";
-    VarioSound = coCoviseConfig::getEntry("vario", "COVER.Plugin.JSBSim.Sound", VS);
+    VarioSound = configString("Sound", "vario", VS)->value();
     const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav");
     if (WS == nullptr)
         WS = "";
-    WindSound = coCoviseConfig::getEntry("wind", "COVER.Plugin.JSBSim.Sound", WS);
+    WindSound = configString("Sound", "wind", WS)->value();
 #if defined(_MSC_VER)
     // _clearfp();
     // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
@@ -260,13 +264,15 @@ bool JSBSimPlugin::initJSB()
 
     bool result = false;
 
-    std::string line = coCoviseConfig::getEntry("COVER.Plugin.JSBSim.ScriptName");
+    std::string line = configString("JSBSim", "scriptName", "")->value();
     ScriptName.set(line);
-    AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "aircraft");
-    AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
-    EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "engines");
-    SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "paraglider/Systems");
-    resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "reset00.xml");
+    
+    AircraftDir = configString("Model", "aircraftDir", "aircraft")->value();
+    AircraftName = configString("Model", "aircraft", "paraglider")->value();
+    EnginesDir = configString("Model", "enginesDir", "engines")->value();
+    SystemsDir = configString("Model", "systemsDir", "paraglider/Systems")->value();
+    resetFile = configString("Model", "resetFile", "reset00.xml")->value();
+
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
 
@@ -339,14 +345,16 @@ bool JSBSimPlugin::initJSB()
 bool JSBSimPlugin::init()
 {
     delete udp;
+    
+    host = configString("Glider", "host", "141.58.8.212")->value();
+    serverPort = configInt("Glider", "serverPort", 31319)->value();
+    localPort = configInt("Glider", "localPort", 1234)->value();
 
-    host = covise::coCoviseConfig::getEntry("host", "COVER.Plugin.JSBSim.Glider", "141.58.8.212");
-    serverPort = covise::coCoviseConfig::getInt("serverPort","COVER.Plugin.JSBSim.Glider", 31319);
-    localPort = covise::coCoviseConfig::getInt("localPort","COVER.Plugin.JSBSim.Glider", 1234);
     const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
+   
     if(rd==nullptr)
         rd="";
-    RootDir = covise::coCoviseConfig::getEntry("rootDir", "COVER.Plugin.JSBSim", rd).c_str();
+    RootDir = configString("JSBSim", "rootDir", rd)->value().c_str();
 
     //mapping of coordinates
 #ifdef WIN32
@@ -363,21 +371,23 @@ bool JSBSimPlugin::init()
 #endif
     coviseSharedDir = std::string(pValue) + "/share/covise/";
 
-    std::string proj_from = coCoviseConfig::getEntry("from", "COVER.Plugin.JSBSim.Projection", "+proj=latlong +datum=WGS84");
+    std::string proj_from = configString("Projection", "from", "+proj=latlong +datum=WGS84")->value();
     if (!(pj_from = pj_init_plus(proj_from.c_str())))
     {
         fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
     }
 
-    std::string proj_to = coCoviseConfig::getEntry("to", "COVER.Plugin.JSBSim.Projection", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam");// +nadgrids=" + dir + std::string("BETA2007.gsb");
+    std::string proj_to = configString("Projection", "to", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam")->value();// +nadgrids=" + dir + std::string("BETA2007.gsb");
 
     if (!(pj_to = pj_init_plus(proj_to.c_str())))
     {
         fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
     }
-    projectOffset[0] = coCoviseConfig::getFloat("offetX", "COVER.Plugin.JSBSim.Projection", 0);
-    projectOffset[1] = coCoviseConfig::getFloat("offetY", "COVER.Plugin.JSBSim.Projection", 0);
-    projectOffset[2] = coCoviseConfig::getFloat("offetZ", "COVER.Plugin.JSBSim.Projection", 0);
+    
+   
+    projectOffset[0] = configFloat("Projection", "offsetX", 0)->value();
+    projectOffset[1] = configFloat("Projection", "offsetY", 0)->value();
+    projectOffset[2] = configFloat("Projection", "offsetZ", 0)->value();
 
     JSBMenu = new ui::Menu("JSBSim", this);
 

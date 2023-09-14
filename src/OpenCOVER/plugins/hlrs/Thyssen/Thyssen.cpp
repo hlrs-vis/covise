@@ -210,9 +210,8 @@ ThyssenPlugin::ThyssenPlugin()
     sConn=NULL;
     if(coVRMSController::instance()->isMaster())
     {
-
-    port = coCoviseConfig::getInt("COVER.Plugin.ThyssenPlugin.TCPPort", 52051);
-
+        
+    port = configInt("Thyssen", "tcpPort", 52051)->value();
     sConn = new ServerConnection(port, 1234, 0);
 
     if (!sConn->getSocket())

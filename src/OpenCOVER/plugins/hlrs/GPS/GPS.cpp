@@ -115,7 +115,7 @@ GPSPlugin::GPSPlugin()
     }
 
     GDALAllRegister();
-    std::string heightMapFileName = coCoviseConfig::getEntry("heightMap", "COVER.Plugin.GPS", "/data/reallabor/gelaende/Herrenberg10mwgs84.tif");
+    std::string heightMapFileName = configString("GPS", "heightMap", "/data/reallabor/gelaende/Herrenberg10mwgs84.tif")->value();
     openImage(heightMapFileName);
 
 

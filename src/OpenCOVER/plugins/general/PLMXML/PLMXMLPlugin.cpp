@@ -67,10 +67,11 @@ int PLMXMLPlugin::loadPLMXML(const char *filename, osg::Group *loadParent, const
         currentGroup = cover->getObjectsRoot();
     // read XML document here and add parts to currentGroup
 
-    bool loadAll = coCoviseConfig::isOn("COVER.Plugin.PLMXML.LoadAll", true);
-    bool loadSTL = coCoviseConfig::isOn("COVER.Plugin.PLMXML.LoadSTL", false);
-    bool loadVRML = coCoviseConfig::isOn("COVER.Plugin.PLMXML.LoadVRML", true);
-    bool undoVRMLRotate = coCoviseConfig::isOn("COVER.Plugin.PLMXML.UndoVRMLRotate", true);
+    
+    bool loadAll = plugin->configBool("PLMXML", "loadAll", true)->value();
+    bool loadSTL = plugin->configBool("PLMXML", "loadSTL", false)->value();
+    bool loadVRML = plugin->configBool("PLMXML", "loadVRML", true)->value();
+    bool undoVRMLRotate = plugin->configBool("PLMXML", "undoVRMLRotate", true)->value();
 
     // We need a single, dedicated root node for registration in vr-prepare.
     // If no registration is done, we can skip this part.

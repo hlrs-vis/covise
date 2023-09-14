@@ -39,13 +39,12 @@ bool TacxPlugin::init()
 {
         delete tacx;
         float floorHeight = VRSceneGraph::instance()->floorHeight();
-
-        float x = covise::coCoviseConfig::getFloat("x","COVER.Plugin.Tacx.Position", 0);
-        float y = covise::coCoviseConfig::getFloat("y","COVER.Plugin.Tacx.Position", 0);
-        float z = covise::coCoviseConfig::getFloat("z","COVER.Plugin.Tacx.Position", floorHeight);
-        float h = covise::coCoviseConfig::getFloat("h","COVER.Plugin.Tacx.Position", 0);
-        float p = covise::coCoviseConfig::getFloat("p","COVER.Plugin.Tacx.Position", 0);
-        float r = covise::coCoviseConfig::getFloat("r","COVER.Plugin.Tacx.Position", 0);
+        float x = configFloat("Position", "x", 0)->value();
+        float y = configFloat("Position", "y", 0)->value();
+        float z = configFloat("Position", "z", floorHeight)->value();
+        float h = configFloat("Orientation", "h", 0)->value();
+        float p = configFloat("Orientation", "p", 0)->value();
+        float r = configFloat("Orientation", "r", 0)->value();
 
         MAKE_EULER_MAT(TacxPos, h,p,r);
         TacxPos.postMultTranslate(osg::Vec3(x,y,z));

@@ -35,10 +35,10 @@ Encoder::Encoder()
 #else
 	defaultDevice = "/dev/ttyUSB0";
 #endif
-	devstring = covise::coCoviseConfig::getEntry("device", "OpenCOVER/Plugins/Encoder", defaultDevice);
-	loopsPerRev = covise::coCoviseConfig::getInt("loopsPerRev", "OpenCOVER/Plugins/Encoder", 20);
-	countsPerRev = covise::coCoviseConfig::getInt("countsPerRev", "OpenCOVER/Plugins/Encoder", 2000);
-	direction = covise::coCoviseConfig::getInt("direction", "OpenCOVER/Plugins/Encoder", -1);
+	devstring = configString("Encoder", "device", defaultDevice)->value();
+	loopsPerRev = configInt("Encoder", "loopsPerRev", 20)->value();
+	countsPerRev = configInt("Encoder", "countsPerRev", 2000)->value();
+	direction = configInt("Encoder", "direction", -1)->value();
 	serial = NULL;
 	oldAngle = angle = 0.0;
 	doRun = true;

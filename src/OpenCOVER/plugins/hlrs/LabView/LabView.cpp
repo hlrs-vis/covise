@@ -159,8 +159,8 @@ LabViewPlugin::LabViewPlugin()
     serverHost = NULL;
     localHost = new Host("localhost");
 
-    port = coCoviseConfig::getInt("COVER.Plugin.LabViewPlugin.TCPPort", 12345);
-    std::string line = coCoviseConfig::getEntry("COVER.Plugin.LabViewPlugin.Server");
+    port = configInt("LabView", "tcpPort", 12345)->value();
+    std::string line = configString("LabView", "server", "")->value();
     if (!line.empty())
     {
         if (strcasecmp(line.c_str(), "NONE") == 0)

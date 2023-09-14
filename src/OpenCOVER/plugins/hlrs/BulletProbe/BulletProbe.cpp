@@ -701,10 +701,10 @@ BulletProbe::~BulletProbe()
 // ----------------------------------------------------------------------------
 bool BulletProbe::init()
 {
-    //get the values from the config xml files
-    coneSize = coCoviseConfig::getFloat("COVER.Plugin.BulletProbe.ConeSize", 150.0);
-    // fontFactor = coCoviseConfig::getFloat("COVER.Plugin.BulletProbe.TextSize", 3.0);
-    lineWidth = coCoviseConfig::getFloat("COVER.Plugin.BulletProbe.LineWidth", 27.0);
+    //get the values from the config toml files
+    coneSize = configFloat("Cone", "size", 150.0)->value();
+    // fontFactor = configFloat("Text", "size",  3.0)->value();
+    lineWidth = configFloat("Line", "width", 27.0)->value();
 
     maxDimID = 0;
     

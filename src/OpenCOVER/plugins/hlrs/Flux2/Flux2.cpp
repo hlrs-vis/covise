@@ -57,26 +57,25 @@ bool Flux2::init() {
     float floorHeight = VRSceneGraph::instance()->floorHeight();
 
     float x =
-        covise::coCoviseConfig::getFloat("x", "COVER.Plugin.Flux2.Position", 0);
+        configFloat("Position", "x", 0)->value();
     float y =
-        covise::coCoviseConfig::getFloat("y", "COVER.Plugin.Flux2.Position", 0);
-    float z = covise::coCoviseConfig::getFloat(
-        "z", "COVER.Plugin.Flux2.Position", floorHeight);
+        configFloat("Position", "y", 0)->value();
+    float z = 
+        configFloat("Position", "z", floorHeight)->value();
     float h =
-        covise::coCoviseConfig::getFloat("h", "COVER.Plugin.Flux2.Position", 0);
+        configFloat("Orientation", "h", 0)->value();
     float p =
-        covise::coCoviseConfig::getFloat("p", "COVER.Plugin.Flux2.Position", 0);
+        configFloat("Orientation", "p", 0)->value();
     float r =
-        covise::coCoviseConfig::getFloat("r", "COVER.Plugin.Flux2.Position", 0);
+        configFloat("Orientation", "r", 0)->value();
 
     MAKE_EULER_MAT(Flux2Pos, h, p, r);
     Flux2Pos.postMultTranslate(osg::Vec3(x, y, z));
-    const std::string host = covise::coCoviseConfig::getEntry(
-        "value", "COVER.Plugin.Flux2.serverHost", "192.168.178.36");
-    unsigned short serverPort =
-        covise::coCoviseConfig::getInt("COVER.Plugin.Flux2.serverPort", 31319);
-    unsigned short localPort =
-        covise::coCoviseConfig::getInt("COVER.Plugin.Flux2.localPort", 31322);
+    
+    
+    const std::string host = configString("Flux2", "severHost", "192.168.178.36")->value();
+    unsigned short serverPort = configInt("Flux2", "serverPort", 31319)->value();
+    unsigned short localPort = configInt("Flux2", "localPort", 31322)->value();
 
     std::cerr << "Flux2 config: UDP: serverHost: " << host
               << ", localPort: " << localPort << ", serverPort: " << serverPort

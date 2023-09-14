@@ -151,8 +151,8 @@ DLabPlugin::DLabPlugin()
     serverHost = NULL;
     localHost = new Host("localhost");
 
-    port = coCoviseConfig::getInt("COVER.Plugin.DLab.TCPPort", 12345);
-    std::string line = coCoviseConfig::getEntry("value","COVER.Plugin.DLab.Server","192.168.1.170");
+    port = configInt("DLab", "tcpPort", 12345)->value();
+    std::string line = configString("DLab", "server", "192.168.1.170")->value();
     if (!line.empty())
     {
         if (strcasecmp(line.c_str(), "NONE") == 0)

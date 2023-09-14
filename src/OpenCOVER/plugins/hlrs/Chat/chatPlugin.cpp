@@ -99,8 +99,8 @@ bool ChatPlugin::init()
 
 	if (coVRMSController::instance()->isMaster())
 	{
-		int CHATPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.CHAT", 0);
-		int CHATPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.CHAT", 1);
+		int CHATPort = configInt("Port", "in", 0)->value();
+		int CHATPortOut = configInt("Port", "out", 1)->value();
 		input = new QAudioInput(format);
 		output = new QAudioOutput(format);
 		inStream = input->start();
