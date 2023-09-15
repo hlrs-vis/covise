@@ -56,6 +56,8 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
+    void updateLights(const osg::Matrix &viewMat);
+
     void renderFrame();
     void renderFrame(unsigned chan);
 
@@ -77,7 +79,6 @@ private:
         ANARIDevice device{nullptr};
         ANARIRenderer renderer{nullptr};
         ANARIWorld world{nullptr};
-        ANARILight headLight{nullptr};
         ASGObject root{nullptr};
         ASGObject meshes{nullptr};
         ASGStructuredVolume structuredVolume{nullptr};
@@ -90,6 +91,7 @@ private:
             ANARISpatialField field{nullptr};
         } unstructuredVolume;
         ASGLookupTable1D lut{nullptr};
+        std::vector<ANARILight> lights;
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
     } anari;

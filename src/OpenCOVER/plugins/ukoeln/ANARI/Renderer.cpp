@@ -10,8 +10,10 @@
 #include <sstream>
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/glm.h>
+#include <osg/io_utils>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
 #include "Projection.h"
 #include "Renderer.h"
@@ -318,6 +320,44 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     bs.set(center, radius);
 }
 
+void Renderer::updateLights(const osg::Matrix &viewMat)
+{
+    anari.lights.clear();
+    for (size_t l=0; l<opencover::coVRLighting::instance()->lightList.size(); ++l) {
+        auto &light = opencover::coVRLighting::instance()->lightList[l];
+        if (light.on) {
+            ANARILight al;
+            osg::Light *osgLight = light.source->getLight();
+            osg::NodePath np;
+            np.push_back(light.root);
+            np.push_back(light.source);
+            osg::Vec4 pos = osgLight->getPosition();
+            pos = pos * osg::Matrix::inverse(viewMat);
+
+            if (pos.w() == 0.f) {
+                al = anariNewLight(anari.device,"directional");
+                anariSetParameter(anari.device, al, "direction",
+                                  ANARI_FLOAT32_VEC3, pos.ptr());
+            } else {
+                al = anariNewLight(anari.device,"point");
+                anariSetParameter(anari.device, al, "position",
+                                  ANARI_FLOAT32_VEC3, pos.ptr());
+            }
+
+            anariCommitParameters(anari.device, al);
+
+            anari.lights.push_back(al);
+        }
+    }
+
+    ANARIArray1D anariLights = anariNewArray1D(anari.device, anari.lights.data(), 0, 0,
+                                               ANARI_LIGHT, anari.lights.size());
+    anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &anariLights);
+    anariCommitParameters(anari.device, anari.world);
+
+    anariRelease(anari.device, anariLights);
+}
+
 void Renderer::renderFrame()
 {
     int numChannels = coVRConfig::instance()->numChannels();
@@ -416,10 +456,9 @@ void Renderer::renderFrame(unsigned chan)
         anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &up.x);
         anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &imgRegion.min);
         anariCommitParameters(anari.device, anari.cameras[chan]);
-
-        anariSetParameter(anari.device, anari.headLight, "direction", ANARI_FLOAT32_VEC3, &dir.x);
-        anariCommitParameters(anari.device, anari.headLight);
     }
+
+    updateLights(multiChannelDrawer->modelMatrix(chan));
 
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
@@ -496,12 +535,6 @@ void Renderer::initDevice()
 
 void Renderer::initFrames()
 {
-    anari.headLight = anariNewLight(anari.device,"directional");
-    ANARIArray1D lights = anariNewArray1D(anari.device, &anari.headLight, 0, 0,
-                                          ANARI_LIGHT, 1);
-    anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &lights);
-    anariCommitParameters(anari.device, anari.world);
-
     anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
 
     anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &spp);
@@ -535,8 +568,6 @@ void Renderer::initFrames()
         anariSetParameter(anari.device, frame, "camera", ANARI_CAMERA, &camera);
         anariCommitParameters(anari.device, frame);
     }
-
-    anariRelease(anari.device, lights);
 }
 
 // Scene loading
