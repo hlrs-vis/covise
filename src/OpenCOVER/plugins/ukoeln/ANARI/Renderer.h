@@ -56,7 +56,7 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
-    void updateLights(const osg::Matrix &viewMat);
+    void updateLights(const osg::Matrix &modelMat);
 
     void renderFrame();
     void renderFrame(unsigned chan);

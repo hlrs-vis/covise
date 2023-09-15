@@ -320,7 +320,7 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     bs.set(center, radius);
 }
 
-void Renderer::updateLights(const osg::Matrix &viewMat)
+void Renderer::updateLights(const osg::Matrix &modelMat)
 {
     anari.lights.clear();
     for (size_t l=0; l<opencover::coVRLighting::instance()->lightList.size(); ++l) {
@@ -332,7 +332,7 @@ void Renderer::updateLights(const osg::Matrix &viewMat)
             np.push_back(light.root);
             np.push_back(light.source);
             osg::Vec4 pos = osgLight->getPosition();
-            pos = pos * osg::Matrix::inverse(viewMat);
+            pos = pos * osg::Matrix::inverse(modelMat);
 
             if (pos.w() == 0.f) {
                 al = anariNewLight(anari.device,"directional");
