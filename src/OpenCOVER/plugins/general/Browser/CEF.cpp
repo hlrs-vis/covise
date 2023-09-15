@@ -544,7 +544,7 @@ bool CEF::init()
     std::string fwpath = extlib + "/cef/Release/Chromium Embedded Framework.framework";
     CefString(&settings.framework_dir_path) =
         //covise::coCoviseConfig::getEntry("frameworkDirPath", "COVER.Plugin.Browser", fwpath);
-        configString("Browser", "frameworkDirPath", fwpath);
+        *configString("Browser", "frameworkDirPath", fwpath);
 #endif
     //settings.log_severity = (cef_log_severity_t)covise::coCoviseConfig::getInt("logLevel", "COVER.Plugin.Browser", 99);
     settings.log_severity = (cef_log_severity_t)configInt("log", "level", 99)->value();
