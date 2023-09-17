@@ -122,6 +122,24 @@ void initialize_sphere(vector<Vector3d> &sphere_points, const unsigned int depth
 	for (int i = 0; i < 20; i++)
 		subdivide(vdata[tindices[i][0]], vdata[tindices[i][1]], vdata[tindices[i][2]], sphere_points, depth);
 }*/
+
+
+class largeBox : public osg::Drawable::ComputeBoundingBoxCallback
+{
+    public:
+           largeBox() {}
+           virtual osg::BoundingBox computeBound(const osg::Node&) const { fprintf(stderr,"BB\n");return osg::BoundingBox(osg::Vec3(-100000,-100000,-100000),osg::Vec3(100000,100000,100000)); }
+};
+
+class BBVisitor : public osg::NodeVisitor {
+public:
+    BBVisitor() : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
+    void apply(osg::Drawable& drawable) {
+    drawable.setComputeBoundingBoxCallback(new largeBox());
+    drawable.dirtyBound();
+    }
+};
+
 AudioInStream::AudioInStream(std::string deviceName)
 {
 
@@ -132,9 +150,11 @@ AudioInStream::AudioInStream(std::string deviceName)
 		want.freq = 48000;
 		want.format = AUDIO_F32;
 		want.channels = 2;
+		//want.samples = 8192;
 		want.samples = 1024;
 		//want.samples = 4096;
-		want.callback = readData; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+		//want.callback = readData; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+		want.callback = nullptr; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 		want.userdata = this;
 		const char *devName = NULL;
 		if (deviceName.length() > 0)
@@ -142,7 +162,7 @@ AudioInStream::AudioInStream(std::string deviceName)
 
 		dev = SDL_OpenAudioDevice(devName, 1, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
 		if (dev == 0) {
-			SDL_Log("Failed to open audio: %s", SDL_GetError());
+			fprintf(stderr,"Failed to open audio: %s", SDL_GetError());
 		}
 		else {
 			if (have.format != want.format) { /* we let this one thing change. */
@@ -195,6 +215,13 @@ AudioInStream::~AudioInStream()
 void AudioInStream::update()
 {
 	int bytesProcessed = 0;
+	int read = 40960;
+	while(read >= 4096 && gBufferBytePosition < gBufferByteMaxPosition)
+	{
+	    read = SDL_DequeueAudio(dev, &gRecordingBuffer[gBufferBytePosition], 4096);
+	    gBufferBytePosition += read;
+	    //fprintf(stderr,"read:%d %d \n",read,gBufferBytePosition);
+	}
 	if (have.format == AUDIO_F32LSB && bytesPerSample >0)
 	{
 #ifdef WIN32
@@ -244,7 +271,7 @@ void AudioInStream::update()
 
 void AudioInStream::readData(Uint8 * stream, int len)
 {
-	//fprintf(stderr, "read %d\n", len);
+	fprintf(stderr, "read %d\n", len);
 	if ((gBufferBytePosition + len) < gBufferByteSize)
 	{
 		//Copy audio from stream
@@ -927,6 +954,9 @@ device_list();
 	{
 		coVRFileManager::instance()->loadFile(objFileName.c_str(), 0, thereminTransform);
 	}
+	
+        BBVisitor bbVisitor;
+        thereminTransform->accept(bbVisitor);
 
 	hint = new osg::TessellationHints();
 	hint->setDetailRatio(1.0);
@@ -946,7 +976,14 @@ device_list();
 			    if(DeviceName.length()>0)
 			    {
 			    #ifdef HAVE_ALSA
-			    OpenMidiDevice(DeviceName,hMidiDevice[streamNum],hMidiDeviceOut[streamNum]);
+			    if(DeviceName == triplePlay->DeviceName)
+			    {
+			        hMidiDevice[streamNum] = triplePlay->hMidiDeviceIn;
+			    }
+			    else
+			    {
+			        OpenMidiDevice(DeviceName,hMidiDevice[streamNum],hMidiDeviceOut[streamNum]);
+			    }
 			    
 		            //snd_rawmidi_read(hMidiDevice[streamNum], NULL, 0); /* trigger reading */
 			    
@@ -2189,7 +2226,7 @@ void Track::update()
 			
 			    #ifdef HAVE_ALSA
 				unsigned char buf[256];
-				int i, length;
+				int i, length=0;
 				unsigned short revents;
 				int err;
 				if(MidiPlugin::instance()->hMidiDevice[trackNumber]>0)
@@ -2197,7 +2234,8 @@ void Track::update()
 
 				     numRead=1;
 					err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf, sizeof(buf));
-				     //fprintf(stderr,"handle %d %d %ld, %d\n",err,trackNumber,MidiPlugin::instance()->hMidiDevice[trackNumber],(int)sizeof(buf));
+					if(err > 1)
+				     fprintf(stderr,"err %d %d length %d\n",err,trackNumber,length);
 					if (err <= 0)
 						numRead=0;
 					else
@@ -2218,10 +2256,12 @@ void Track::update()
 						   tb << me.getP1();
 						   tb << me.getP2();
 						   tb << me.getP3();
+						   if(me.getVelocity() <0)
+						      me.setVelocity(128);
 						   UdpMessage um(tb, covise::MIDI_STREAM);
 						   cover->sendVrbMessage(&um);
-						   //cerr << "sent:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
-						   //fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
+						   cerr << "noteOn:" << me.isNoteOn() << " " << me.getKeyNumber() << endl;
+						   fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);
                         		       }
 					       else
 					       {
@@ -2917,7 +2957,7 @@ TriplePlay::TriplePlay()
 
 	int InDev = coCoviseConfig::getInt("DeviceIn", "COVER.Plugin.Midi.TriplePlay",1);
 	int OutDev = coCoviseConfig::getInt("DeviceOut", "COVER.Plugin.Midi.TriplePlay",2);
-	std::string DeviceName = coCoviseConfig::getEntry("DeviceName", "COVER.Plugin.Midi.TriplePlay","TriplePlay Connect TP Control");
+	DeviceName = coCoviseConfig::getEntry("DeviceName", "COVER.Plugin.Midi.TriplePlay","TriplePlay Connect TP Control");
 #ifdef HAVE_ALSA
 	MidiPlugin::instance()->OpenMidiDevice(DeviceName,hMidiDeviceIn,hMidiDeviceOut);
 #else
@@ -3002,7 +3042,64 @@ void TriplePlay::MIDItab_create(void)
         setParam(MIDIMode, ftpValue::Poly);
         setParam(MIDIMode, ftpValue::Poly);
         });
-
+	
+   sensitivity = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "sensitivity", 50.0, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   sensitivity->ui()->setBounds(MinDynamicsSensitivity,MaxDynamicsSensitivity);
+   sensitivity->ui()->setIntegral(true);
+   sensitivity->setUpdater([this]()
+   {
+       setParam(Sensitivity,(int)sensitivity->getValue());
+       fprintf(stderr,"sensitivity:%d\n",(int)sensitivity->getValue());
+   });
+   threadSensitivity1 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_e", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity1->ui()->setBounds(0,0x0f);
+   threadSensitivity1->ui()->setIntegral(true);
+   threadSensitivity1->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity1->getValue()+0x00);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity1->getValue()+0x00);
+   });
+   threadSensitivity2 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_b", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity2->ui()->setBounds(0,0x0f);
+   threadSensitivity2->ui()->setIntegral(true);
+   threadSensitivity2->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity2->getValue()+0x10);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity2->getValue()+0x10);
+   });
+   threadSensitivity3 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_g", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity3->ui()->setBounds(0,0x0f);
+   threadSensitivity3->ui()->setIntegral(true);
+   threadSensitivity3->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity3->getValue()+0x20);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity3->getValue()+0x20);
+   });
+   threadSensitivity4 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_d", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity4->ui()->setBounds(0,0x0f);
+   threadSensitivity4->ui()->setIntegral(true);
+   threadSensitivity4->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity4->getValue()+0x30);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity4->getValue()+0x30);
+   });
+   threadSensitivity5 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_a", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity5->ui()->setBounds(0,0x0f);
+   threadSensitivity5->ui()->setIntegral(true);
+   threadSensitivity5->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity5->getValue()+0x40);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity5->getValue()+0x40);
+   });
+   threadSensitivity6 = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "Tread_E", 16, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
+   threadSensitivity6->ui()->setBounds(0,0x0f);
+   threadSensitivity6->ui()->setIntegral(true);
+   threadSensitivity6->setUpdater([this]()
+   {
+       setParam(ThreadSensitivity,(int)threadSensitivity6->getValue()+0x50);
+       fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity6->getValue()+0x50);
+   });
+   
 }
 
 

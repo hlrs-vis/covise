@@ -31,6 +31,7 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
+#include <cover/ui/CovconfigLink.h>
 #include <net/udpMessage.h>
 #include <SDL_audio.h>
 #include <SDL.h>
@@ -444,7 +445,14 @@ public:
 	ui::Group* FTPGroup = nullptr;
 	ui::Action* MonoButton = nullptr;
 	ui::Action* PolyButton = nullptr;
-	ui::Slider* sensitivitySlider = nullptr;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity1;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity2;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity3;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity4;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity5;
+        std::unique_ptr<opencover::ui::SliderConfigValue> threadSensitivity6;
+        std::unique_ptr<opencover::ui::SliderConfigValue> sensitivity;
+	std::string DeviceName;
 
 private:
 
