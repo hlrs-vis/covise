@@ -167,6 +167,34 @@ public:
     int syncMessage(covise::Message *msg); // broadcast in place from master to slaves
     [[nodiscard]] bool syncBool(bool); // broadcast as return value
     [[nodiscard]] std::string syncString(const std::string &s); // broadcast as return value
+    
+    
+    template<typename T> 
+    [[nodiscard]] typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type syncVector(const std::vector<T> &vec)
+    {
+        std::vector<T> retval = vec;
+        auto s = retval.size();
+        syncData(&s, sizeof(typename std::vector<T>::size_type));
+        retval.resize(s);
+        if(s == 0)
+            return retval;
+        syncData(retval.data(), s * sizeof(T));
+        return retval; 
+    }
+    [[nodiscard]] std::vector<std::string> syncVector(const std::vector<std::string> &vec)
+    {
+        std::vector<std::string> retval = vec;
+        auto s = retval.size();
+        syncData(&s, sizeof(typename std::vector<std::string>::size_type));
+        retval.resize(s);
+        if(s == 0)
+            return retval;
+        for (size_t i = 0; i < s; i++)
+        {
+            retval[i] = syncString(retval[i]);
+        }
+        return retval; 
+    }
     bool reduceOr(bool); // master will receive logical or of all inputs
     bool reduceAnd(bool);
     bool allReduceOr(bool); // master and slaves will receive logical or of all inputs
