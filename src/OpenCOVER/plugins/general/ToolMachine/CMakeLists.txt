@@ -10,11 +10,15 @@ endif()
 
 SET(HEADERS
 Currents.h
+Oct.h
+Tool.h
 ToolMachine.h
 )
 
 SET(SOURCES
 Currents.cpp
+Oct.cpp
+Tool.cpp
 ToolMachine.cpp
 )
 

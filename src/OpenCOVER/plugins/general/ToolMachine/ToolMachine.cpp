@@ -1,5 +1,7 @@
 #include "ToolMachine.h"
 
+
+
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeTransform.h>
 #include <vrml97/vrml/VrmlNodeType.h>
@@ -23,6 +25,7 @@
 #include <cover/ui/VectorEditField.h>
 
 #include <OpcUaClient/opcua.h>
+
 
 using namespace covise;
 using namespace opencover;
@@ -82,6 +85,8 @@ public:
         VrmlNodeChild::defineType(t); // Parent class
 
         t->addExposedField("MachineName", VrmlField::SFSTRING);
+        t->addExposedField("VisualizationType", VrmlField::SFSTRING); //None, Currents, Oct
+        t->addExposedField("OctOffset", VrmlField::SFSTRING); 
         t->addExposedField("ToolHeadNode", VrmlField::SFNODE);
         t->addExposedField("TableNode", VrmlField::SFNODE);
         t->addExposedField("Offsets", VrmlField::MFFLOAT);
@@ -101,6 +106,10 @@ public:
     {
         if
             TRY_FIELD(MachineName, SFString)
+        else if
+            TRY_FIELD(VisualizationType, SFString)
+        else if
+            TRY_FIELD(OctOffset, SFString)
         else if
             TRY_FIELD(ToolHeadNode, SFNode)
         else if
@@ -122,11 +131,19 @@ public:
         if (strcmp(fieldName, "MachineName") == 0)
         {
             //connect to the specified machine through OPC-UA
-            opcua::connect(d_MachineName.get());
+            d_client = opcua::connect(d_MachineName.get());
+            
 
         }
-        if(d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
+        if(!d_rdy && d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get() && d_OPCUANames.get())
+        {
             d_rdy = true;
+            
+            for (size_t i = 0; i < d_OPCUANames.size(); i++)
+            {
+                d_valueIds.push_back(d_client->observeNode(d_OPCUANames[i]));
+            }
+        }
     }
 
     virtual VrmlNodeType *nodeType() const { return defineType(); };
@@ -151,6 +168,8 @@ public:
     }
 
     VrmlSFString d_MachineName;
+    VrmlSFString d_VisualizationType = "None";
+    VrmlSFString d_OctOffset;
     VrmlSFNode d_ToolHeadNode;
     VrmlSFNode d_TableNode;
     VrmlMFVec3f d_AxisOrientations;
@@ -160,6 +179,9 @@ public:
     VrmlMFNode d_AxisNodes;
     VrmlSFFloat d_OpcUaToVrml = 1;
     bool d_rdy = false;
+    opcua::Client *d_client;
+    std::vector<opencover::opcua::ObserverHandle> d_valueIds;
+
 
 private:
     size_t m_index = 0;
@@ -178,37 +200,10 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 :coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
-, m_speed(new ui::Slider(m_menu, "speed"))
-, m_reset(new ui::Action(m_menu, "reset"))
+, m_pauseBtn(new ui::Button(m_menu, "pause"))
 {
     m_menu->allowRelayout(true);
-    m_speed->setBounds(0, 1000);
-    m_speed->setValue(10);
 
-    m_reset->setCallback([this]()
-    {
-        for(auto &p : m_axisPositions)
-            p = 0;
-        
-        for (auto m : machineNodes)
-        {
-            for (size_t i = 0; i < m->d_AxisNames.size(); i++)
-            {
-                m->move(i, m_axisPositions[i]);
-            }
-        }
-    });
-    opcua::addOnClientConnectedCallback([this]()
-    {
-        //auto availableFields = opcua::getClient()->availableNumericalScalars();
-    });
-    
-
-    opcua::addOnClientDisconnectedCallback([this]()
-    {
-    });
-    
-    
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
 
     config()->setSaveOnExit(true);
@@ -216,53 +211,45 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 
     // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
     // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
-
+    std::array<std::string, 3> names = {"x", "y", "z"};
+    for (size_t i = 0; i < 3; i++)
+    {
+        auto slider = new ui::Slider(m_menu, names[i] + "Pos");
+        slider->setBounds(-100, 100);
+        slider->setCallback([i, this](double val, bool b){
+            m_pauseMove = !b;
+            for (auto m : machineNodes)
+                m->move(i, val);
+        });
+    }
+    m_pauseBtn->setCallback([this](bool state){
+        for(auto &m : machineNodes)
+            m_tools[m->d_MachineName.get()]->value->pause(state);
+    });
 }
 
-void ToolMaschinePlugin::addCurrent(MachineNode *m)
+void ToolMaschinePlugin::addTool(MachineNode *m)
 {
+    if(strcmp(m->d_VisualizationType.get(), "None") == 0 )
+        return;
     auto toolHead = toOsg(m->d_ToolHeadNode.get());
     auto table = toOsg(m->d_TableNode.get());
     if(!toolHead || !table)
+    {
+        std::cerr << "missing ToolHeadNode or table TableNode, make sure both are set in the VRML file and the corresponding nodes contain some geometry." << std::endl;
         return;
+    }
     ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
-    new SelfDeletingCurrents(m_currents, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
-
-}
-
-void ToolMaschinePlugin::key(int type, int keySym, int mod)
-{
-    std::string key = "unknown";
-    if (!(keySym & 0xff00))
+    if(strcmp(m->d_VisualizationType.get(), "Currents") == 0 )
+        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
+    else if(strcmp(m->d_VisualizationType.get(), "Oct") == 0 )
     {
-        char buf[2] = { static_cast<char>(keySym), '\0' };
-        key = buf;
+        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Oct>(machineGroup, toolHead, table));
+        dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setOffset(m->d_OctOffset.get());
+        dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setScale(m->d_OpcUaToVrml.get());
     }
-    std::cerr << "Key input  " << key << std::endl;
 
-    for (auto m : machineNodes)
-    {
-        float speed = m_speed->value();
-        for (size_t i = 0; i < m->d_AxisNames.size(); i++)
-        {
-            auto& axis = m_axisPositions[i];
-            if (key[0] == std::tolower(m->d_AxisNames[i][0]))
-            {
-                if (mod == 3)
-                {
-                    std::cerr << "decreasing " << m->d_AxisNames[i] << std::endl;
-                    speed *= -1;
-                }
-                else {
-                    std::cerr << "increasing " << m->d_AxisNames[i] << std::endl;
-                }
-                axis += speed;
-                // m->move(v);
-                m->move(i, axis);
-                m_currents[m->d_MachineName.get()]->value->update();
-            }
-        }
-    }
+
 }
 
 osg::Vec3 toOsg(VrmlSFVec3f &v)
@@ -281,16 +268,18 @@ bool ToolMaschinePlugin::update()
     {
         if(!m->d_rdy)
             return true;
-        if(m_currents.find(m->d_MachineName.get()) == m_currents.end())
-            addCurrent(m);
-        auto client = opcua::getClient(m->d_MachineName.get()); // get the client with this name
+        if(m_tools.find(m->d_MachineName.get()) == m_tools.end())
+            addTool(m);
+        auto client = m->d_client;
         if (client && client->isConnected())
         {
             for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
             {
-                m->move(i, client->readNumericValue(m->d_OPCUANames[i]) + m->d_Offsets[i]);
+                auto v = client->getNumericScalar(m->d_OPCUANames[i]);
+                if(!m_pauseMove && !m_pauseBtn->state())
+                    m->move(i, v + m->d_Offsets[i]);
             }
-            m_currents[m->d_MachineName.get()]->value->update();
+            m_tools[m->d_MachineName.get()]->value->update();
         }
     }
 

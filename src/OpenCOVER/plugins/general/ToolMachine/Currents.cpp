@@ -20,62 +20,39 @@ opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const covise::Co
 }
 
 Currents::Currents(ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: m_traceLine(new osg::Geometry)
-, m_points(new osg::Vec3Array)
-, m_drawArrays(new osg::DrawArrays(osg::PrimitiveSet::LINE_STRIP, 0, 0, 1))
-, m_toolHeadNode(toolHeadNode)
-, m_tableNode(tableNode)
-, m_group(group)
-, m_values(new osg::FloatArray)
+: Tool(group, toolHeadNode, tableNode)
 {
-    auto clearBtn = new ui::Action(group, "clear");
-    clearBtn->setCallback([this](){
-        m_clear = true;
+    m_attributeName->setCallback([this](int i){
+        m_opcuaAttribId = m_client->observeNode(m_attributeName->selectedItem());
     });
-    m_numPointsSlider = new ui::Slider(group, "numPoints");
-    m_numPointsSlider->setBounds(-1, 1000);
-    m_numPointsSlider->setValue(-1);
-
-    m_minAttribute = new ui::EditField(group, "minAttribute");
-    m_minAttribute->setValue(0);
-    m_maxAttribute = new ui::EditField(group, "maxAttribute");
-    m_maxAttribute->setValue(1);
-    m_maxAttribute->setCallback([this](const std::string &text){
-        applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
-    });
-    m_minAttribute->setCallback([this](const std::string &text){
-        applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
-    });
-    m_colorMapSelector = new covise::ColorMapSelector(*group);
-    m_colorMapSelector->setCallback([this](const covise::ColorMap &cm)
-    {
-        applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
-    });
-
-    m_attributeName = new ui::SelectionList(group, "attribute");
-    m_client = opcua::getClient(group->name());
-    assert(m_client);
-    m_client->onConnect([this]()
-    {
-        m_attributeName->setList(m_client->availableNumericalScalars());
-    });
-    if(m_client->isConnected())
-        m_attributeName->setList(m_client->availableNumericalScalars());
-
-
-
     initGeo();
 }
 
-Currents::~Currents()
+void Currents::clear()
 {
-    m_client->onConnect(nullptr);
+    m_vertices->clear();
+    m_values->clear();
 }
+
+void Currents::applyShader(const covise::ColorMap& map, float min, float max)
+{
+    applyLineShader(m_traceLine, map, min, max);
+}
+
+std::vector<std::string> Currents::getAttributes()
+{
+    return m_client->availableNumericalScalars();
+}
+
 
 void Currents::initGeo()
 {
+    m_traceLine = new osg::Geometry;
+    m_vertices = new osg::Vec3Array;
+    m_values = new osg::FloatArray;
+    m_drawArrays = new osg::DrawArrays;
     osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadUnlightedGeostate();
-    m_traceLine->setVertexArray(m_points);
+    m_traceLine->setVertexArray(m_vertices);
 
     m_traceLine->setUseDisplayList(false);
     m_traceLine->setSupportsDisplayList(false);
@@ -92,30 +69,22 @@ void Currents::initGeo()
 
 }
 
-
-
-void Currents::update()
+void Currents::updateGeo(bool paused)
 {
-    if(m_clear)
-    {
-        m_clear = false;
-        m_points->clear();
-        m_values->clear();
-    }
-    if(!m_tableNode || !m_toolHeadNode)
-        return;
-    osg::Matrix toolHeadToWorld = m_toolHeadNode->getWorldMatrices(cover->getObjectsRoot())[0];
-    osg::Matrix tableToWorld = m_tableNode->getWorldMatrices(cover->getObjectsRoot())[0];
-    auto worldToTable = osg::Matrix::inverse(tableToWorld);
-    auto pointWorld = osg::Vec3() * toolHeadToWorld;
-    auto pointWorldOld = toolHeadToWorld.getTrans();
-    auto pointTable = pointWorld * worldToTable;
+   
+   auto pointTable = toolHeadInTableCoords();
 
-    m_points->push_back(pointTable);
+    auto octMode = true;
+    
+
     if(m_client->isConnected())
-        m_values->push_back(m_client->readNumericValue(m_attributeName->selectedItem()));
+    {
+        m_values->push_back(m_client->getNumericScalar(m_attributeName->selectedItem()));
+        m_vertices->push_back(pointTable);
+    }        
     else
     {
+        m_vertices->push_back(pointTable);
         auto size = m_values->size() +1;
         auto diff = m_maxAttribute->number() -  m_minAttribute->number();
         diff = diff/size;
@@ -126,29 +95,16 @@ void Currents::update()
             m_values->push_back(x);
         }
     }
-    int numElements = m_numPointsSlider->value() < 0? (int)m_points->size() : m_numPointsSlider->value();
-    m_drawArrays->setFirst(std::max(0, (int)m_points->size() - numElements));
-    m_drawArrays->setCount(std::min(numElements, (int)m_points->size()));
-    m_traceLine->setVertexArray(m_points);
+
+    int numElements = m_numSectionsSlider->value() < 0? (int)m_vertices->size() : m_numSectionsSlider->value();
+    m_drawArrays->setFirst(std::max(0, (int)m_vertices->size() - numElements));
+    m_drawArrays->setCount(std::min(numElements, (int)m_vertices->size()));
+    m_traceLine->setVertexArray(m_vertices);
     m_traceLine->setVertexAttribArray(DataAttrib, m_values, osg::Array::BIND_PER_VERTEX);
 
     if(!m_client->isConnected())
         return;
-    for(const auto &array: m_client->availableNumericalArrays())
-        std::cerr << "arrray " << array << std::endl;
-    auto array = m_client->readArray<UA_Float>("fake_octArray");
-}
-
-SelfDeletingCurrents::SelfDeletingCurrents(Map &currentsMap, const std::string &name, std::unique_ptr<Currents> &&currents)
-: m_currents(currentsMap)
-, value(std::move(currents))
-{
-    m_iter = m_currents.insert(std::make_pair(name, this)).first;
-    value->m_toolHeadNode->addObserver(this);
-    value->m_tableNode->addObserver(this);
-}
-void SelfDeletingCurrents::objectDeleted(void* v){
-    
-    v == value->m_toolHeadNode ? value->m_tableNode->removeObserver(this) : value->m_toolHeadNode->removeObserver(this);
-    m_currents.erase(m_iter);
+    // for(const auto &array: m_client->availableNumericalArrays())
+    //     std::cerr << "arrray " << array << std::endl;
+    // auto array = m_client->readArray<UA_Float>("fake_octArray");
 }
