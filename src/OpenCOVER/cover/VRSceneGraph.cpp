@@ -56,28 +56,29 @@
 #include "coVRIntersectionInteractorManager.h"
 #include "coVRShadowManager.h"
 
-#include <osg/LightModel>
+#include <osg/AlphaFunc>
+#include <osg/BlendFunc>
 #include <osg/ClipNode>
+#include <osg/ComputeBoundsVisitor>
+#include <osg/Depth>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Group>
-#include <osg/Sequence>
-#include <osg/Material>
-#include <osg/StateSet>
 #include <osg/Group>
-#include <osg/PolygonMode>
-#include <osg/MatrixTransform>
+#include <osg/io_utils>
+#include <osg/LightModel>
+#include <osg/Material>
 #include <osg/Matrix>
+#include <osg/MatrixTransform>
+#include <osg/Point>
+#include <osg/PointSprite>
+#include <osg/PolygonMode>
+#include <osg/Sequence>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 #include <osg/Vec3>
 #include <osg/Vec4>
-#include <osg/StateAttribute>
-#include <osg/Depth>
-#include <osg/ComputeBoundsVisitor>
-#include <osg/BlendFunc>
-#include <osg/AlphaFunc>
 #include <osg/Version>
-#include <osg/io_utils>
-#include <osg/PointSprite>
 #include <osgDB/WriteFile>
 #include <osgFX/Scribe>
 
@@ -1889,6 +1890,42 @@ VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
     stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     return stateSet;
 }
+
+osg::StateSet *
+VRSceneGraph::loadDefaultPointstate(float pointSize, osg::Material::ColorMode mode)
+{
+    auto stateset = loadDefaultGeostate();
+    AlphaFunc *alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
+    stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
+
+    osg::ref_ptr<osg::Point> pointstate = new osg::Point();
+    pointstate->setSize(pointSize);
+    stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
+
+    PointSprite *sprite = new PointSprite();
+    stateset->setTextureAttributeAndModes(0, sprite, StateAttribute::ON);
+    stateset->setMode(GL_POINT_SMOOTH, osg::StateAttribute::ON);
+    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
+    if (mapName != NULL)
+    {
+        Image *image = osgDB::readImageFile(mapName);
+        Texture2D *tex = new Texture2D(image);
+
+        tex->setTextureSize(image->s(), image->t());
+        tex->setInternalFormat(GL_RGBA);
+        tex->setFilter(Texture2D::MIN_FILTER, Texture2D::LINEAR);
+        tex->setFilter(Texture2D::MAG_FILTER, Texture2D::LINEAR);
+        stateset->setTextureAttributeAndModes(0, tex, StateAttribute::ON);
+        TexEnv *texEnv = new TexEnv;
+        texEnv->setMode(TexEnv::MODULATE);
+        stateset->setTextureAttributeAndModes(0, texEnv, StateAttribute::ON);
+
+        ref_ptr<TexGen> texGen = new TexGen();
+        stateset->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::OFF);
+    }
+    return stateset;
+}
+
 
 osg::StateSet *
 VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)

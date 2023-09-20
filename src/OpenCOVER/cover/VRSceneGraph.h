@@ -134,7 +134,7 @@ public:
     osg::StateSet *loadGlobalGeostate();
     osg::StateSet *loadUnlightedGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
     osg::StateSet *loadTransparentGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
-
+    osg::StateSet *loadDefaultPointstate(float pointSize = 4, osg::Material::ColorMode mode = osg::Material::OFF); 
     void setWireframe(WireframeMode mode);
     void setPointerType(int pointerType);
     int getPointerType()

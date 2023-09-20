@@ -341,40 +341,6 @@ void setDefaultMaterial(StateSet *geoState)
 
 }
 
-void applyPointState(StateSet *stateset, int pointSize)
-{
-
-    AlphaFunc *alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
-    stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
-
-    Point *pointstate = new Point();
-    pointstate->setSize(pointSize);
-    stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
-
-    PointSprite *sprite = new PointSprite();
-    stateset->setTextureAttributeAndModes(0, sprite, StateAttribute::ON);
-    stateset->setMode(GL_POINT_SMOOTH, osg::StateAttribute::ON);
-    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
-    if (mapName != NULL)
-    {
-        Image *image = osgDB::readImageFile(mapName);
-        Texture2D *tex = new Texture2D(image);
-
-        tex->setTextureSize(image->s(), image->t());
-        tex->setInternalFormat(GL_RGBA);
-        tex->setFilter(Texture2D::MIN_FILTER, Texture2D::LINEAR);
-        tex->setFilter(Texture2D::MAG_FILTER, Texture2D::LINEAR);
-        stateset->setTextureAttributeAndModes(0, tex, StateAttribute::ON);
-        TexEnv *texEnv = new TexEnv;
-        texEnv->setMode(TexEnv::MODULATE);
-        stateset->setTextureAttributeAndModes(0, texEnv, StateAttribute::ON);
-
-        ref_ptr<TexGen> texGen = new TexGen();
-        stateset->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::OFF);
-        std::cerr << "read image file " << mapName << std::endl;
-    }
-}
-
 bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string &symbol, Expression &expr)
 {
     expr().register_symbol_table(symbols.symbols());
@@ -580,12 +546,9 @@ void CsvPointCloudPlugin::createGeometries(DataTable &symbols)
         return;
 
     auto normals = calculateNormals(coords, m_numPointsPerCycle);
-    ref_ptr<StateSet> stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
+    ref_ptr<StateSet> stateSet = VRSceneGraph::instance()->loadDefaultPointstate();
     ref_ptr<StateSet> stateSet2 = VRSceneGraph::instance()->loadDefaultGeostate();
 
-    
-
-    applyPointState(stateSet, pointSize());
     m_points = createOsgGeometry(coords, colors.data, normals, stateSet);
 
     m_surface = createOsgGeometry(coords, colors.data, normals, stateSet2);
