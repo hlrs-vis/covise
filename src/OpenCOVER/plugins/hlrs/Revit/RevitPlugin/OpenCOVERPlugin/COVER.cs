@@ -1962,14 +1962,22 @@ namespace OpenCOVERPlugin
                             if (geomObject is Autodesk.Revit.DB.Arc)
                             {
                                 Arc a = geomObject as Arc;
+                                XYZ c = a.Center;
                                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
                                 if (graphicsStyle != null)
                                 {
-                                    XYZ c = a.Center;
                                     if (graphicsStyle.Name.EndsWith("_Left"))
                                         CenterLeft = c;
                                     if (graphicsStyle.Name.EndsWith("_Right"))
                                         CenterRight = c;
+                                }
+                                if (CenterLeft.X == 10000)
+                                {
+                                    CenterLeft = c;
+                                }
+                                if (CenterLeft != c && CenterRight.X == 10000)
+                                {
+                                    CenterRight = c;
                                 }
                             }
                         }
@@ -2025,6 +2033,10 @@ namespace OpenCOVERPlugin
                 if (hasLeft && hasRight)
                 {
                     SendDoorPart(elementGeom, elem, fi, bbL, "_Left", CenterLeft);
+                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right", CenterRight);
+                }
+                else if (hasRight)
+                {
                     SendDoorPart(elementGeom, elem, fi, bbR, "_Right", CenterRight);
                 }
                 else
