@@ -1,12 +1,12 @@
 covise_find_package(anari)
+if(NOT ANARI_FOUND)
+    return()
+endif()
+
 covise_find_package(glm)
 covise_find_package(HDF5 COMPONENTS CXX)
 covise_find_package(VTK COMPONENTS CommonColor CommonCore CommonDataModel IOCore IOLegacy)
 using(Assimp)
-
-if(NOT ANARI_FOUND)
-    return()
-endif()
 
 SET(HEADERS
   asg.h
