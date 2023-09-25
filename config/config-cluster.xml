@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- run two instances of OpenCOVER on one host (for debugging purposes) -->
-
+<!-- On Windows coviseDaemon must run on localhost using this config -->
 <COCONFIG version="1" >
  <GLOBAL>
    <System>
@@ -17,9 +17,12 @@
     <NumSlaves value="1" />
     
     <Startup ARCH="unix" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
-    <Startup ARCH="windows" value="startOpenCover;" name="0" />   	 
-    <Host ARCH="windows" value="localhost" name="0" />   	 
+    <Startup ARCH="windows" value="startOpenCover" host="localhost" port="31092" name="0" />   	 
+    <Host ARCH="windows" value="localhost" name="0" />  
+    <MasterInterface value="127.0.0.1" />
    </MultiPC>
+   <Daemon port="31092" />
+    
 
    <ScreenConfig>
    <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
