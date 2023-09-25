@@ -13,6 +13,7 @@
   <COVER>
    <MultiPC>
     <SyncMode value="TCP" hosts="localhost,localhost" />
+    <MasterInterface value="localhost" />
     <NumSlaves value="1" />
     
     <Startup ARCH="unix" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
