@@ -66,6 +66,7 @@
   </System>
 
   <COVER>
+  <TabletUI port="31803" host="localhost"/>
     <Collaborative>
       <UserName value="Dennis"/>
       <Email value="grieger@hlrs.de"/>
