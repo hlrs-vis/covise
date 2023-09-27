@@ -1,0 +1,26 @@
+name: Make Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  generate:
+    name: Create release-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Package source code including submodules
+        uses: qmonnet/git-archive-all-action@v1
+        with:
+          output-files: covise-${{ github.ref_name }}.tar.gz covise-${{ github.ref_name }}.zip
+          force-submodules: true
+
+      - name: Create draft release and add artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: covise-*
