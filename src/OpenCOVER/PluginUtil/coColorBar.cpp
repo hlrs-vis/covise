@@ -284,12 +284,12 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
 {
     char str[100];
     // use - and + symbyls with same width
-    //const char minus[] = u8"\u2212"; // minus
-    //const char minus[] = u8"\uff0d"; // full-width hypen minus
-    const char minus[] = "\u2013";  // en-dash
-    //const char plus[] = u8"\uff0b"; // full-width plus
+    //const char minus[] = "\u2212"; // minus
+    //const char minus[] = "\uff0d"; // full-width hypen minus
+    const char minus[] = "\u2013"; // en-dash
+    //const char plus[] = "\uff0b"; // full-width plus
     const char plus[] = "+";
-    //const char space[] = u8"\u2002"; // en-space
+    //const char space[] = "\u2002"; // en-space
     const char space[] = " ";
     const size_t off = std::max(sizeof space, std::max(sizeof minus,sizeof plus)-2); // reuse one char, don't count terminating 0
 
