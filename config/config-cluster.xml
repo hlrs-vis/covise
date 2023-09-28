@@ -19,7 +19,6 @@
     <Startup ARCH="unix" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
     <Startup ARCH="windows" value="startOpenCover" host="localhost" port="31092" name="0" />   	 
     <Host ARCH="windows" value="localhost" name="0" />  
-    <MasterInterface value="127.0.0.1" />
    </MultiPC>
    <Daemon port="31092" />
     
