@@ -27,7 +27,7 @@ public:
     ToolMaschinePlugin();
 private:
     bool update() override;
-    void addTool(MachineNode *m);
+    bool addTool(MachineNode *m);
 
     std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;

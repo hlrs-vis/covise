@@ -155,6 +155,8 @@ public:
 
     void move(int axis, float value)
     {
+        if(axis >= d_AxisNames.size())
+            return;
         auto v = osg::Vec3{*d_AxisOrientations[axis], *(d_AxisOrientations[axis] + 1), *(d_AxisOrientations[axis] +2) };
         auto osgNode = toOsg(d_AxisNodes[axis]);
         if(axis <= 2) // ugly hack to find out if an axis is translational
@@ -211,11 +213,12 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 
     // m_offsets = new opencover::ui::VectorEditField(menu, "offsetInMM");
     // m_offsets->setValue(osg::Vec3(-406.401596,324.97962,280.54943));
-    std::array<std::string, 3> names = {"x", "y", "z"};
-    for (size_t i = 0; i < 3; i++)
+    std::array<std::string, 6> names = {"x", "y", "z", "a", "b", "c"};
+    for (size_t i = 0; i < 6; i++)
     {
         auto slider = new ui::Slider(m_menu, names[i] + "Pos");
-        slider->setBounds(-100, 100);
+        i < 3 ? slider->setBounds(-100, 100) : slider->setBounds(0, 360);
+        
         slider->setCallback([i, this](double val, bool b){
             m_pauseMove = !b;
             for (auto m : machineNodes)
@@ -224,32 +227,44 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     }
     m_pauseBtn->setCallback([this](bool state){
         for(auto &m : machineNodes)
-            m_tools[m->d_MachineName.get()]->value->pause(state);
+        {
+            auto t = m_tools.find(m->d_MachineName.get());
+            if(t != m_tools.end()) 
+                t->second->value->pause(state);
+        }
     });
 }
 
-void ToolMaschinePlugin::addTool(MachineNode *m)
+bool ToolMaschinePlugin::addTool(MachineNode *m)
 {
     if(strcmp(m->d_VisualizationType.get(), "None") == 0 )
-        return;
+    {
+        std::cerr << "missing VisualizationType, make sure this is set in the VRML file to \"Currents\" or \"Oct\"" << std::endl;
+        return false;
+
+    }
     auto toolHead = toOsg(m->d_ToolHeadNode.get());
     auto table = toOsg(m->d_TableNode.get());
     if(!toolHead || !table)
     {
         std::cerr << "missing ToolHeadNode or table TableNode, make sure both are set in the VRML file and the corresponding nodes contain some geometry." << std::endl;
-        return;
+        return false;
     }
     ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
     if(strcmp(m->d_VisualizationType.get(), "Currents") == 0 )
+    {
         new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
-    else if(strcmp(m->d_VisualizationType.get(), "Oct") == 0 )
+        return true;
+    }
+    if(strcmp(m->d_VisualizationType.get(), "Oct") == 0 )
     {
         new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Oct>(machineGroup, toolHead, table));
         dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setOffset(m->d_OctOffset.get());
         dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setScale(m->d_OpcUaToVrml.get());
+        return true;
     }
 
-
+    return false;
 }
 
 osg::Vec3 toOsg(VrmlSFVec3f &v)
@@ -268,18 +283,22 @@ bool ToolMaschinePlugin::update()
     {
         if(!m->d_rdy)
             return true;
+        bool haveTool = true;
         if(m_tools.find(m->d_MachineName.get()) == m_tools.end())
-            addTool(m);
+        {
+            haveTool = addTool(m);
+        }
         auto client = m->d_client;
         if (client && client->isConnected())
         {
             for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
             {
                 auto v = client->getNumericScalar(m->d_OPCUANames[i]);
-                if(!m_pauseMove && !m_pauseBtn->state())
-                    m->move(i, v + m->d_Offsets[i]);
+                // if(!m_pauseMove && !m_pauseBtn->state())
+                //     m->move(i, v + m->d_Offsets[i]);
             }
-            m_tools[m->d_MachineName.get()]->value->update();
+            if(haveTool)
+                m_tools[m->d_MachineName.get()]->value->update();
         }
     }
 

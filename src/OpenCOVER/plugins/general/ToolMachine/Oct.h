@@ -22,9 +22,9 @@ private:
             SurfaceOnly = (1u << 1),
             Visible = PointsOnly | SurfaceOnly};
 
-        Section(double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent);
+        Section(size_t vertsPerCircle, double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent);
         ~Section();
-        bool append(const osg::Vec3 &pos, float spiecies);
+        bool append(const osg::Vec3 &pos, float species);
         void createSurface();
         void show(Visibility status = Visible);
         osg::ref_ptr<osg::Geometry> points, surface;
@@ -32,30 +32,34 @@ private:
         osg::ref_ptr<osg::FloatArray> species;
         osg::ref_ptr<osg::DrawArrays> pointPrimitiveSet;
         osg::ref_ptr<osg::DrawElementsUInt> surfacePrimitiveSet, reducedPointPrimitiveSet;
+        size_t startIndex = 0; //where in the circle the section starts
         bool changed = true;
         Visibility status = Visible;
+        size_t vertsPerCircle = 0;
+
     private:
         osg::MatrixTransform* m_parent;
+        bool lastIsOutsidePoint();
+
     };
     void clear() override;
     void applyShader(const covise::ColorMap& map, float min, float max) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
     void updateGeo(bool paused) override;
-    Section &addSection();
+    Section &addSection(size_t numVerts);
     void addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
     void correctLastUpdate(const osg::Vec3 &toolHeadPos);
-    struct Update{
-        size_t numValues;
-        osg::Vec3 pos;
-    } m_lastUpdate;
 
-    std::deque<Section> m_sections, m_reducedSections;
+    osg::Vec3 m_lastUpdatePos;
+
+    std::deque<Section> m_sections;
     opencover::ui::Slider *m_pointSizeSlider;
     opencover::ui::Button *m_showSurfaceBtn;
     std::string m_offsetName;
     opencover::opcua::ObserverHandle m_opcuaOffsetId;
     float m_opcUaToVrmlScale = 1;
+
 
 
 };

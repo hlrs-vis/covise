@@ -102,16 +102,17 @@ void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, 
     if(data.empty())
         data.push_back(0);
         // std::fill(data.begin(), data.end(), 0);
+    
+    if(offset.empty())
+        return;
     float increment = -2 *osg::PI /offset.size();
     if(m_sections.empty())
-        addSection();
+        addSection(offset.size());
     auto *section = &m_sections.back();
 
     correctLastUpdate(toolHeadPos);
-
-    m_lastUpdate = Update{offset.size(), toolHeadPos};
+    m_lastUpdatePos = toolHeadPos;
     
-    // std::cerr << std::endl;
     for (size_t i = 0; i < offset.size(); i++)
     {
         float theta = increment * i;
@@ -119,16 +120,28 @@ void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, 
             toolHeadPos.x() + r * (float)cos(theta + phaseOffset),
             toolHeadPos.y() - offset[i] * m_opcUaToVrmlScale,
             toolHeadPos.z() + r * (float)sin(theta + phaseOffset) };
-        // std::cerr << "vert[" << v.x() << ", " << v.y() << ", " << v.z() << "]" << std::endl;
         // if(!section->append(v, data.size() == offset.size()? data[i] : data[0]))
         if(!section->append(v, i))
         {
             section->createSurface();
-            section = &addSection();
-            section->append(v, offset[i]);
+            section = &addSection(offset.size());
+            section->startIndex = i;
+            section->append(v, data.size() == offset.size()? data[i] : data[0]);
         }
     }
-    // std::cerr << std::endl;
+}
+
+bool Oct::Section::lastIsOutsidePoint()
+{
+    auto pointIndex = vertices->size() - 1;
+    if(pointIndex < vertsPerCircle)
+        return false;
+    auto speed = (*vertices)[pointIndex] - (*vertices)[pointIndex - vertsPerCircle];
+    float increment = -2 *osg::PI /vertsPerCircle;
+    auto angle = ((startIndex + pointIndex) % vertsPerCircle) *increment + phaseOffset; 
+    auto dx = speed.x();
+    auto dy = speed.z();
+    return std::abs((cos(angle) * dx + sin(angle) * dy)/sqrt(std::pow(dx, 2) + std::pow(dy, 2))) < 0.1;
 }
 
 void Oct::correctLastUpdate(const osg::Vec3 &toolHeadPos)
@@ -136,17 +149,17 @@ void Oct::correctLastUpdate(const osg::Vec3 &toolHeadPos)
     if(m_sections.size() == 1 && m_sections[0].vertices->empty())
         return;
     auto *section = &m_sections.back();
-    auto begin = section->vertices->size() - m_lastUpdate.numValues;
+    auto begin = section->vertices->size() - section->vertsPerCircle;
     if(begin < 0)
     {
         section = &m_sections[m_sections.size() - 2];
         begin += section->vertices->size();
         section->changed = true;
     }
-    auto end = std::min(begin + m_lastUpdate.numValues, maxSectionSize);
-    float angleIncrement = 2 *osg::PI / m_lastUpdate.numValues;
-    auto posIncrement = (toolHeadPos - m_lastUpdate.pos) / m_lastUpdate.numValues;
-    for (size_t i = 0; i < m_lastUpdate.numValues; i++)
+    auto end = std::min(begin + section->vertsPerCircle, maxSectionSize);
+    float angleIncrement = 2 *osg::PI / section->vertsPerCircle;
+    auto posIncrement = (toolHeadPos - m_lastUpdatePos) / section->vertsPerCircle;
+    for (size_t i = 0; i < section->vertsPerCircle; i++)
     {
         (*section->vertices)[begin] += posIncrement * i;
         begin++;
@@ -160,7 +173,7 @@ void Oct::correctLastUpdate(const osg::Vec3 &toolHeadPos)
 
 }
 
-Oct::Section::Section(double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent)
+Oct::Section::Section(size_t vertsPerCircle, double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent)
 : m_parent(parent)
 , points(new osg::Geometry)
 , surface(new osg::Geometry)
@@ -168,7 +181,9 @@ Oct::Section::Section(double pointSize, const covise::ColorMap& map, float min, 
 , species(new osg::FloatArray)
 , pointPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS))
 , reducedPointPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::POINTS))
+, vertsPerCircle(vertsPerCircle)
 {
+    assert(vertsPerCircle > 0);
     osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadDefaultPointstate(pointSize);
     points->setVertexArray(vertices);
     points->setVertexAttribArray(DataAttrib, species, osg::Array::BIND_PER_VERTEX);
@@ -199,6 +214,7 @@ Oct::Section::Section(double pointSize, const covise::ColorMap& map, float min, 
 Oct::Section::~Section()
 {
     show(Invisible);
+    m_parent->removeChild(points);
 }
 
 bool Oct::Section::append(const osg::Vec3 &pos, float val)
@@ -207,6 +223,8 @@ bool Oct::Section::append(const osg::Vec3 &pos, float val)
         return false;
     vertices->push_back(pos);
     species->push_back(val);
+    if(lastIsOutsidePoint())
+        reducedPointPrimitiveSet->push_back(vertices->size() - 1);
     changed = true;
     return true;
 }
@@ -268,7 +286,8 @@ void Oct::Section::show(Visibility s)
 
     if(s & PointsOnly && !(status & PointsOnly))
     {
-        m_parent->addChild(points);
+        // m_parent->addChild(points);
+        points->insertPrimitiveSet(allPointsPrimitiveIndex, pointPrimitiveSet);
     }
     if(s & SurfaceOnly && !(status & SurfaceOnly))
     {
@@ -276,7 +295,9 @@ void Oct::Section::show(Visibility s)
     }
     if(!(s & PointsOnly) && status & PointsOnly)
     {
-        m_parent->removeChild(points);
+        // m_parent->removeChild(points);
+        points->removePrimitiveSet(allPointsPrimitiveIndex);
+
     }
     if(!(s & SurfaceOnly) && status & SurfaceOnly)
     {
@@ -284,9 +305,6 @@ void Oct::Section::show(Visibility s)
     }
     status = s;
 }
-
-
-
 
 void Oct::updateGeo(bool paused)
 {
@@ -310,13 +328,13 @@ void Oct::updateGeo(bool paused)
     }
 }
 
-Oct::Section &Oct::addSection()
+Oct::Section &Oct::addSection(size_t numVerts)
 {
-    auto &section = m_sections.emplace_back(m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number(), m_tableNode);
+    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number(), m_tableNode);
     if(m_sections.size() > numSections)
         m_sections.pop_front();
     if(m_numSectionsSlider->value() > 0 && m_sections.size() > m_numSectionsSlider->value())
-        m_sections.front().show(Section::Invisible);
+        m_sections[m_sections.size() - m_numSectionsSlider->value()].show(Section::Invisible);
     if(!m_showSurfaceBtn->state())
         section.show(Section::PointsOnly);
     return section;
