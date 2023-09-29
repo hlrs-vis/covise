@@ -1,6 +1,8 @@
 #include "Tool.h"
+#include <cassert>
 #include <cover/ui/Action.h>
 #include <cover/coVRPluginSupport.h>
+
 using namespace opencover;
 
 Tool::Tool(ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
