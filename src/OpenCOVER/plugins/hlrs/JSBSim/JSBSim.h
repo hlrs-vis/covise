@@ -124,12 +124,24 @@ private:
 
     JSBSim::FGLocation il;
 
+#pragma pack(push, 1)
     struct FGControl
     {
         double elevator;
         double aileron;
     } fgcontrol;
+    struct GliderValues
+    {
+	int32_t left;
+	int32_t right;
+	int32_t angle;
+	int32_t speed;
+	uint32_t state;
+    };
+    GliderValues gliderValues;
+#pragma pack(pop)
     UDPComm* udp;
+    int deviceVersion=1;
     void initUDP();
     bool initJSB();
     bool updateUdp();

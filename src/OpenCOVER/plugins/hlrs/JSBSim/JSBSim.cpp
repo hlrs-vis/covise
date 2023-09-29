@@ -313,6 +313,11 @@ bool JSBSimPlugin::initJSB()
 
     fgcontrol.aileron = 0.0;
     fgcontrol.elevator = 0.0;
+    gliderValues.left = 0.0;
+    gliderValues.right = 0.0;
+    gliderValues.angle = 0.0;
+    gliderValues.speed = 0.0;
+    gliderValues.state = 0;
 
     reset(0.0);
 
@@ -457,6 +462,10 @@ bool JSBSimPlugin::init()
                 if (i->pluginName == "JSBSim")
                 {
                     host = i->address;
+		    if(i->deviceName == "GliderV2")
+		    {
+		        deviceVersion = 2;
+		    }
                     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
                     reset();
                     udp = new UDPComm(host.c_str(), serverPort, localPort);
@@ -749,13 +758,50 @@ JSBSimPlugin::updateUdp()
     if (udp)
     {
         static bool firstTime = true;
-        int status = udp->receive(&fgcontrol, sizeof(FGControl), 0.0);
+	
+        int status = 0;
+	if(deviceVersion == 2)
+	{
+	    status = udp->receive(&gliderValues, sizeof(gliderValues), 0.0);
+	//fprintf(stderr,"sizeof(gliderValues):%d status %d\n",(int)sizeof(gliderValues),status);
+	}
+	else
+	{
+	    status = udp->receive(&fgcontrol, sizeof(FGControl), 0.0);
+	}
 
         if (status == sizeof(FGControl))
         {
             byteSwap(fgcontrol.aileron);
             byteSwap(fgcontrol.elevator);
             std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
+        }
+        if (status == sizeof(gliderValues))
+        {
+	
+            /*byteSwap(gliderValues.left);
+            byteSwap(gliderValues.right);
+            byteSwap(gliderValues.angle);
+            byteSwap(gliderValues.speed);
+            byteSwap(gliderValues.state);*/
+	    float leftLine = (gliderValues.left/1280.0); 
+            float rightLine =( gliderValues.right/1280.0); 
+	    float angleValue = -(gliderValues.angle/180.0); 
+    if (leftLine>1.0)
+       leftLine=1.0;
+    if (leftLine<0.0)
+       leftLine=0.0;
+    if (rightLine>1.0)
+       rightLine=1.0;
+    if (rightLine<0.0)
+       rightLine=0.0;
+	    
+            double elevatorMin=-1,elevatorMax=1,aileronMax=1;
+	    fgcontrol.elevator=-((leftLine+rightLine)/2*(elevatorMax-elevatorMin)+elevatorMin);
+            fgcontrol.aileron=(-leftLine+rightLine+angleValue)*aileronMax;
+
+            std::cerr << "JSBSimPlugin::left:"<<  gliderValues.left << "     " << leftLine<<"     " << gliderValues.angle<< std::endl;
+            std::cerr << "JSBSimPlugin::right:"<<  gliderValues.right << "     " << rightLine<<"     " << angleValue<< std::endl;
         }
         else if (status == -1)
         {
