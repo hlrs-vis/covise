@@ -2538,6 +2538,46 @@ std::string coVRMSController::syncString(const std::string &s)
     }
 }
 
+template<typename T> 
+typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type coVRMSController::syncVector(const std::vector<T> &vec)
+{
+    std::vector<T> retval = vec;
+    auto s = retval.size();
+    syncData(&s, sizeof(typename std::vector<T>::size_type));
+    retval.resize(s);
+    if(s == 0)
+        return retval;
+    syncData(retval.data(), s * sizeof(T));
+    return retval; 
+}
+
+#define INSTANTIATE_SYNCVECTOR(type)\
+template std::vector<type> coVRMSController::syncVector(const std::vector<type> &vec);
+
+INSTANTIATE_SYNCVECTOR(int16_t)
+INSTANTIATE_SYNCVECTOR(uint16_t)
+INSTANTIATE_SYNCVECTOR(int32_t)
+INSTANTIATE_SYNCVECTOR(uint32_t)
+INSTANTIATE_SYNCVECTOR(int64_t)
+INSTANTIATE_SYNCVECTOR(uint64_t)
+INSTANTIATE_SYNCVECTOR(float)
+INSTANTIATE_SYNCVECTOR(double)
+
+std::vector<std::string> coVRMSController::syncVector(const std::vector<std::string> &vec)
+{
+    std::vector<std::string> retval = vec;
+    auto s = retval.size();
+    syncData(&s, sizeof(typename std::vector<std::string>::size_type));
+    retval.resize(s);
+    if(s == 0)
+        return retval;
+    for (size_t i = 0; i < s; i++)
+    {
+        retval[i] = syncString(retval[i]);
+    }
+    return retval; 
+}
+
 bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
