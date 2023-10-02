@@ -71,8 +71,8 @@ void Oct::setScale(float scale)
     m_opcUaToVrmlScale = scale;
 }
 
-constexpr size_t maxSectionSize = 5000;
-constexpr size_t numSections = 2000;
+constexpr size_t maxSectionSize = 50000;
+constexpr size_t numSections = 500;
 
 
 void Oct::clear()
@@ -149,7 +149,7 @@ void Oct::correctLastUpdate(const osg::Vec3 &toolHeadPos)
     if(m_sections.size() == 1 && m_sections[0].vertices->empty())
         return;
     auto *section = &m_sections.back();
-    auto begin = section->vertices->size() - section->vertsPerCircle;
+    long begin = section->vertices->size() - section->vertsPerCircle;
     if(begin < 0)
     {
         section = &m_sections[m_sections.size() - 2];
@@ -311,8 +311,7 @@ void Oct::updateGeo(bool paused)
     if(paused)
         return;
     auto toolHeadPos = toolHeadInTableCoords();
-    addPoints(m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.005);
-    // addPoints(m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
+    addPoints(m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
 
 
     for(auto &section : m_sections)
