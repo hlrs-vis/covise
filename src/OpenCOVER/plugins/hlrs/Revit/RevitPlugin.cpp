@@ -4084,7 +4084,7 @@ void DoorInfo::checkStart(osg::Vec3 &viewerPosition)
 {
 	if (!isActive)
 	{
-		if ((Center - viewerPosition).length2() < activationDistance2)
+		if ((!(Center[0]==0 && Center[1] == 0 && Center[2] == 0)) && (Center - viewerPosition).length2() < activationDistance2)
 		{
 			isActive = true;
 			RevitPlugin::instance()->activeDoors.push_back(this);
