@@ -593,8 +593,8 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; D
 ; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
           
 [UninstallDelete]   
-Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2022\OpenFOAMInterface.addin"
-Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2022\OpenCOVER.addin"
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2023\OpenFOAMInterface.addin"
+Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2023\OpenCOVER.addin"
 
 [Code]
            
@@ -727,7 +727,7 @@ begin
   CheckInstallForAll.Checked := True;
   CheckInstallForAll.Parent := Page.Surface;
                                                   
-    if RegValueExists(HKLM, 'Software\Autodesk\Revit\2022\Add-Ons', '(Standard)') then
+    if RegValueExists(HKLM, 'Software\Autodesk\Revit\2023\Add-Ons', '(Standard)') then
     begin
      CheckInstallRevitPlugin := TCheckBox.Create(Page);
      CheckInstallRevitPlugin.Top := Lbl11.Top + Lbl11.Height + ScaleY(8);
@@ -871,7 +871,7 @@ if CurStep = ssPostInstall then begin
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2022\OpenCOVER.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2023\OpenCOVER.addin');
   SaveStringToFile(filename, filecontent, False);  
   filecontent :=  '<?xml version="1.0" encoding="utf-8"?>'+ #13#10 +
 '<RevitAddIns>'+ #13#10 +
@@ -884,7 +884,7 @@ if CurStep = ssPostInstall then begin
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2022\OpenFOAMInterface.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2023\OpenFOAMInterface.addin');
   SaveStringToFile(filename, filecontent, False);
   end;
 end;
