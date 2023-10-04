@@ -4,6 +4,7 @@
 #include <PluginUtil/coShaderUtil.h>
 #include <OpcUaClient/opcuaClient.h>
 #include <osg/Point>
+#include <osg/VertexArrayState>
 using namespace opencover;
 
 constexpr unsigned int allPointsPrimitiveIndex = 0;
@@ -87,7 +88,7 @@ void Oct::applyShader(const covise::ColorMap& map, float min, float max)
 }
 
 // constexpr auto phaseOffset = 4.01426;
-const auto phaseOffset = osg::PI;
+const auto phaseOffset = osg::PI_4 + osg::PI_2 + 15 / 100 *osg::PI;
 
 
 void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
@@ -110,7 +111,7 @@ void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, 
         addSection(offset.size());
     auto *section = &m_sections.back();
 
-    correctLastUpdate(toolHeadPos);
+    // correctLastUpdate(toolHeadPos);
     m_lastUpdatePos = toolHeadPos;
     
     for (size_t i = 0; i < offset.size(); i++)
@@ -118,10 +119,10 @@ void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, 
         float theta = increment * i;
         osg::Vec3 v{
             toolHeadPos.x() + r * (float)cos(theta + phaseOffset),
-            toolHeadPos.y() - offset[i] * m_opcUaToVrmlScale,
+            toolHeadPos.y() + offset[i] * m_opcUaToVrmlScale,
             toolHeadPos.z() + r * (float)sin(theta + phaseOffset) };
-        // if(!section->append(v, data.size() == offset.size()? data[i] : data[0]))
-        if(!section->append(v, i))
+        // if(!section->append(v, i))
+        if(!section->append(v, data.size() == offset.size()? data[i] : data[0]))
         {
             section->createSurface();
             section = &addSection(offset.size());
@@ -205,7 +206,6 @@ Oct::Section::Section(size_t vertsPerCircle, double pointSize, const covise::Col
     surface->setSupportsDisplayList(false);
     surface->setUseVertexBufferObjects(true);
     surface->setStateSet(stateSet);
-
     parent->addChild(surface);
     surface->setName("OctSurface");
     opencover::applyShader(surface, map, min, max, "MapColorsAttrib");
