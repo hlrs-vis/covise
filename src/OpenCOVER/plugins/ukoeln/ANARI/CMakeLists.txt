@@ -25,7 +25,7 @@ SET(SOURCES
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
 target_compile_definitions(ANARIPlugin PUBLIC -DASG_USE_VISIONARAY_FOR_PICKING=0)
-target_link_libraries(ANARIPlugin anari::anari glm::glm HDF5::HDF5 ${VTK_LIBRARIES})
+target_link_libraries(ANARIPlugin anari::anari HDF5::HDF5 ${VTK_LIBRARIES})
 if(TARGET glm::glm)
     target_link_libraries(ANARIPlugin glm::glm)
 endif()
