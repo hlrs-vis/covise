@@ -31,7 +31,6 @@ set(HEADERS
     render_cpu.h
     render_gpu.h
     renderer.h
-    scene_monitor.h
     state.h
     visionaray_plugin.h
 )
@@ -39,7 +38,6 @@ set(HEADERS
 set(SOURCES
     pathtrace_cpu.cpp
     render_cpu.cpp
-    scene_monitor.cpp
     visionaray_plugin.cpp
 )
 
