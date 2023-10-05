@@ -12,6 +12,7 @@
 #include <vrml97/vrml/VrmlMFFloat.h>
 #include <vrml97/vrml/VrmlMFVec3f.h>
 #include <vrml97/vrml/VrmlSFInt.h>
+#include <vrml97/vrml/VrmlMFInt.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <plugins/general/Vrml97/ViewerObject.h>
 
@@ -92,6 +93,7 @@ public:
         t->addExposedField("Offsets", VrmlField::MFFLOAT);
         t->addExposedField("AxisNames", VrmlField::MFSTRING);
         t->addExposedField("OPCUANames", VrmlField::MFSTRING);
+        t->addExposedField("OPCUAAxisIndicees", VrmlField::MFINT32);
         t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
         t->addExposedField("AxisNodes", VrmlField::MFNODE);
         t->addExposedField("OpcUaToVrml", VrmlField::SFFLOAT); //
@@ -123,6 +125,8 @@ public:
         else if
             TRY_FIELD(OPCUANames, MFString)
         else if
+            TRY_FIELD(OPCUAAxisIndicees, MFInt)
+        else if
             TRY_FIELD(AxisNodes, MFNode)
         else if
             TRY_FIELD(OpcUaToVrml, SFFloat)
@@ -135,14 +139,21 @@ public:
             
 
         }
-        if(!d_rdy && d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get() && d_OPCUANames.get())
+        if(!d_rdy && d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
         {
-            d_rdy = true;
-            
-            for (size_t i = 0; i < d_OPCUANames.size(); i++)
+            if(d_OPCUAAxisIndicees.get())
             {
-                d_valueIds.push_back(d_client->observeNode(d_OPCUANames[i]));
+                d_valueIds.push_back(d_client->observeNode(d_OPCUANames[0]));
+                d_rdy = true;
+            }  else if (d_OPCUANames.get() && d_OPCUANames.size() > 1)
+            {
+                for (size_t i = 0; i < d_OPCUANames.size(); i++)
+                {
+                    d_valueIds.push_back(d_client->observeNode(d_OPCUANames[i]));
+                }
+                d_rdy = true;
             }
+
         }
     }
 
@@ -169,6 +180,9 @@ public:
         }
     }
 
+    bool arrayMode() const{
+        return d_OPCUAAxisIndicees.get() != nullptr;
+    }
     VrmlSFString d_MachineName;
     VrmlSFString d_VisualizationType = "None";
     VrmlSFString d_OctOffset;
@@ -178,9 +192,11 @@ public:
     VrmlMFFloat d_Offsets;
     VrmlMFString d_AxisNames;
     VrmlMFString d_OPCUANames;
+    VrmlMFInt d_OPCUAAxisIndicees;
     VrmlMFNode d_AxisNodes;
     VrmlSFFloat d_OpcUaToVrml = 1;
     bool d_rdy = false;
+
     opcua::Client *d_client;
     std::vector<opencover::opcua::ObserverHandle> d_valueIds;
 
@@ -259,7 +275,6 @@ bool ToolMaschinePlugin::addTool(MachineNode *m)
     if(strcmp(m->d_VisualizationType.get(), "Oct") == 0 )
     {
         new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Oct>(machineGroup, toolHead, table));
-        dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setOffset(m->d_OctOffset.get());
         dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setScale(m->d_OpcUaToVrml.get());
         return true;
     }
@@ -291,24 +306,43 @@ bool ToolMaschinePlugin::update()
         auto client = m->d_client;
         if (client && client->isConnected())
         {
-            size_t numUpdates = 1000;
-            for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+            if(m->arrayMode())
             {
-                numUpdates = std::min(numUpdates, client->numNodeUpdates(m->d_OPCUANames[i]));
-            }
-            for (size_t update = 0; update < numUpdates; update++)
-            {
-                if(update == numUpdates -1)
-                    std::cerr << std::endl;
+                auto numUpdates = client->numNodeUpdates(m->d_OPCUANames[0]);
+                for (size_t update = 0; update < numUpdates; update++)
+                {
+                    auto v = client->getArray<UA_Double>(m->d_OPCUANames[0]);
+                    for (size_t i = 0; i < 3; i++)
+                    {
+                        if(!m_pauseMove && !m_pauseBtn->state())
+                            m->move(i, v.data[i] + m->d_Offsets[i]);
+                    }
+                    if(haveTool)
+                        m_tools[m->d_MachineName.get()]->value->update(v);
+                }
+            } else{
+                size_t numUpdates = 1000;
                 for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
                 {
-                    auto v = client->getNumericScalar(m->d_OPCUANames[i]);
-                    if(!m_pauseMove && !m_pauseBtn->state())
-                        m->move(i, v + m->d_Offsets[i]);
+                    numUpdates = std::min(numUpdates, client->numNodeUpdates(m->d_OPCUANames[i]));
                 }
-                if(haveTool)
-                    m_tools[m->d_MachineName.get()]->value->update();
+                for (size_t update = 0; update < numUpdates; update++)
+                {
+                    if(update == numUpdates -1)
+                    {
+                        for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+                        {
+                            auto v = client->getNumericScalar(m->d_OPCUANames[i]);
+                            if(!m_pauseMove && !m_pauseBtn->state())
+                                m->move(i, v + m->d_Offsets[i]);
+                        }
+                        if(haveTool)
+                            m_tools[m->d_MachineName.get()]->value->update(opcua::MultiDimensionalArray<double>(nullptr));
+
+                    }
+                }
             }
+            
             
         }
     }

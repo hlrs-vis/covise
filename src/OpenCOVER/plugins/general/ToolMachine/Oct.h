@@ -46,9 +46,9 @@ private:
     void applyShader(const covise::ColorMap& map, float min, float max) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
-    void updateGeo(bool paused) override;
+    void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;
     Section &addSection(size_t numVerts);
-    void addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
+    void addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
     void correctLastUpdate(const osg::Vec3 &toolHeadPos);
 
     osg::Vec3 m_lastUpdatePos;
@@ -56,6 +56,7 @@ private:
     std::deque<Section> m_sections;
     opencover::ui::Slider *m_pointSizeSlider;
     opencover::ui::Button *m_showSurfaceBtn;
+    opencover::ui::Button *m_switchVecScalar;
     std::string m_offsetName;
     opencover::opcua::ObserverHandle m_opcuaOffsetId;
     float m_opcUaToVrmlScale = 1;

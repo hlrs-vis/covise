@@ -17,7 +17,7 @@ private:
     void applyShader(const covise::ColorMap& map, float min, float max) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
-    void updateGeo(bool paused) override;
+    void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;
     void addOctPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
 
 osg::ref_ptr<osg::Geometry> m_traceLine;

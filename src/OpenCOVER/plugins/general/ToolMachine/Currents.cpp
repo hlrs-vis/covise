@@ -69,7 +69,7 @@ void Currents::initGeo()
 
 }
 
-void Currents::updateGeo(bool paused)
+void Currents::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data)
 {
    
    auto pointTable = toolHeadInTableCoords();

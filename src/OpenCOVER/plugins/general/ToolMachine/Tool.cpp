@@ -50,7 +50,7 @@ osg::Vec3 Tool::toolHeadInTableCoords()
     return pointTable;
 }
 
-void Tool::update()
+void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
 {
     if(!m_tableNode || !m_toolHeadNode)
         return;
@@ -66,7 +66,7 @@ void Tool::update()
         break;
     }
 
-    updateGeo(m_paused);
+    updateGeo(m_paused, data);
 }
 
 void Tool::pause(bool state)

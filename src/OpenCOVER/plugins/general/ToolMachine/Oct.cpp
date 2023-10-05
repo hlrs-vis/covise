@@ -14,6 +14,7 @@ Oct::Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::M
 : Tool(group, toolHeadNode, tableNode)
 , m_pointSizeSlider(new ui::Slider(group, "pointSize"))
 , m_showSurfaceBtn(new ui::Button(group, "showSurface"))
+, m_switchVecScalar(new ui::Button(group, "toggleData"))
 
 {
     m_pointSizeSlider->setBounds(0, 20);
@@ -91,21 +92,18 @@ void Oct::applyShader(const covise::ColorMap& map, float min, float max)
 const auto phaseOffset = osg::PI_4 + osg::PI_2 + 15 / 100 *osg::PI;
 
 
-void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
+void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
 {
-    std::vector<UA_Float> offset, data;
+    std::vector<UA_Double> offset, vector;
+    UA_Double scalar;
     if(!m_client->isConnected())
         return;
-    auto array = m_client->getArray<UA_Float>(m_offsetName);
-    offset = std::move(array.data);
-    auto array2 = m_client->getArray<UA_Float>(m_attributeName->selectedItem());
-    data = std::move(array2.data);
-    if(data.empty())
-        data.push_back(0);
-        // std::fill(data.begin(), data.end(), 0);
-    
-    if(offset.empty())
-        return;
+    scalar = data.data[3];
+    vector.resize(200);
+    offset.resize(200);
+    std::copy(data.data.begin() + 4, data.data.begin() + 204, offset.begin());
+    std::copy(data.data.begin() + 204, data.data.begin() + 404, vector.begin());
+
     float increment = -2 *osg::PI /offset.size();
     if(m_sections.empty())
         addSection(offset.size());
@@ -119,15 +117,15 @@ void Oct::addPoints(const std::string &valueName, const osg::Vec3 &toolHeadPos, 
         float theta = increment * i;
         osg::Vec3 v{
             toolHeadPos.x() + r * (float)cos(theta + phaseOffset),
-            toolHeadPos.y() + offset[i] * m_opcUaToVrmlScale,
+            toolHeadPos.y() + (float)offset[i] * m_opcUaToVrmlScale,
             toolHeadPos.z() + r * (float)sin(theta + phaseOffset) };
         // if(!section->append(v, i))
-        if(!section->append(v, data.size() == offset.size()? data[i] : data[0]))
+        if(!section->append(v, m_switchVecScalar->state() ? vector[i] : scalar))
         {
             section->createSurface();
             section = &addSection(offset.size());
             section->startIndex = i;
-            section->append(v, data.size() == offset.size()? data[i] : data[0]);
+            section->append(v, m_switchVecScalar->state() ? vector[i] : scalar);
         }
     }
 }
@@ -306,12 +304,12 @@ void Oct::Section::show(Visibility s)
     status = s;
 }
 
-void Oct::updateGeo(bool paused)
+void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data)
 {
     if(paused)
         return;
     auto toolHeadPos = toolHeadInTableCoords();
-    addPoints(m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
+    addPoints(data, m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
 
 
     for(auto &section : m_sections)

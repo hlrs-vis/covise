@@ -14,6 +14,7 @@
 #include <osg/Observer>
 #include <PluginUtil/coColorMap.h>
 #include <OpcUaClient/opcua.h>
+#include <OpcUaClient/variantAccess.h>
 
 class SelfDeletingTool;
 
@@ -22,10 +23,10 @@ public:
     friend SelfDeletingTool;
     Tool(opencover::ui::Group* group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
     virtual ~Tool() = default;
-    void update();
+    void update(const opencover::opcua::MultiDimensionalArray<double> &data);
     void pause(bool state);
 protected:
-    virtual void updateGeo(bool paused) = 0;
+    virtual void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) = 0;
     virtual void clear() = 0;
     virtual void applyShader(const covise::ColorMap& map, float min, float max) = 0;
     virtual std::vector<std::string> getAttributes() = 0;
