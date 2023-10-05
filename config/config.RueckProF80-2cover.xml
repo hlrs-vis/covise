@@ -266,5 +266,5 @@
  </GLOBAL>
 
  <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
- <INCLUDE global="1" configname="sumo" >config-sumo-hlrs.xml</INCLUDE>
+ <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
 </COCONFIG>
