@@ -43,7 +43,9 @@ private:
         int type;
         std::vector<size_t> dimensions = std::vector<size_t>{1};
         std::map<size_t, Client**> subscribers;
-        UA_Variant_ptr value;
+        size_t numUpdatesPerFrame = 0;
+        std::deque<UA_Variant_ptr> values;
+        std::set<size_t> updatedSubscribers;
         bool operator==(const Node &other) const{return other.name == name;}
         bool operator==(const std::string &name) const{return name == this->name;}
         bool isScalar() const{return (dimensions.size() == 1 && dimensions[0] == 1);}
@@ -85,7 +87,7 @@ public:
     //get a list of values that the server sent since the last get
     
     double getNumericScalar(const std::string &nodeName);
-
+    size_t numNodeUpdates(const std::string &nodeName);
 
     template<typename T>
     MultiDimensionalArray<T> getArray(const std::string &nodeName)

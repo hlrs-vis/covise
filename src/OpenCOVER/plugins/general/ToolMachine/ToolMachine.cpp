@@ -291,14 +291,25 @@ bool ToolMaschinePlugin::update()
         auto client = m->d_client;
         if (client && client->isConnected())
         {
+            size_t numUpdates = 1000;
             for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
             {
-                auto v = client->getNumericScalar(m->d_OPCUANames[i]);
-                if(!m_pauseMove && !m_pauseBtn->state())
-                    m->move(i, v + m->d_Offsets[i]);
+                numUpdates = std::min(numUpdates, client->numNodeUpdates(m->d_OPCUANames[i]));
             }
-            if(haveTool)
-                m_tools[m->d_MachineName.get()]->value->update();
+            for (size_t update = 0; update < numUpdates; update++)
+            {
+                if(update == numUpdates -1)
+                    std::cerr << std::endl;
+                for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+                {
+                    auto v = client->getNumericScalar(m->d_OPCUANames[i]);
+                    if(!m_pauseMove && !m_pauseBtn->state())
+                        m->move(i, v + m->d_Offsets[i]);
+                }
+                if(haveTool)
+                    m_tools[m->d_MachineName.get()]->value->update();
+            }
+            
         }
     }
 

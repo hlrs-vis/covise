@@ -159,7 +159,7 @@ void Client::runClient()
     fetchAvailableNodes(client, browser.response());
     /* Create a subscription */
     UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
-    request.requestedPublishingInterval = 10;
+    request.requestedPublishingInterval = 1;
     m_subscription = UA_Client_Subscriptions_create(client, request, NULL, NULL, NULL);
                        
     statusChanged();
@@ -255,8 +255,8 @@ void Client::registerNode(const NodeRequest &nodeRequest)
 
     UA_MonitoredItemCreateRequest monRequest =
         UA_MonitoredItemCreateRequest_default(node->id);
-    monRequest.requestedParameters.samplingInterval = 1000 / 60;
-    // monRequest.requestedParameters.queueSize = 10;
+    monRequest.requestedParameters.samplingInterval = 1;
+    monRequest.requestedParameters.queueSize = 10;
     // monRequest.requestedParameters.discardOldest = false;
 
     auto it = clientSubscriptions.insert(std::make_pair(nodeRequest.nodeName, ClientSubscription{this, nodeRequest.nodeName})).first;
@@ -324,21 +324,39 @@ UA_Variant_ptr Client::getValue(const std::string &name)
 {
     auto node = findNode(name);
     if(node)
-        return node->value;
+    {
+        if(node->values.empty())
+            return UA_Variant_ptr();
+        auto retval = node->values.back();
+        node->values.pop_back();
+        return retval;
+    }
     return UA_Variant_ptr();
 }
 
 double Client::getNumericScalar(const std::string &nodeName)
 {
     double retval = 0;
+    auto node = findNode(nodeName);
     //not very efficient
-    for_<8>([this, &nodeName, &retval] (auto i) {      
+    for_<8>([this, node, &nodeName, &retval] (auto i) {      
         typedef typename detail::Type<numericalTypes[i.value]>::type T;
-        auto v = getArray<T>(nodeName);
-        if(v.isScalar())
-            retval = (double)v.data[0];
+        if(node->type == numericalTypes[i.value])
+        {
+            auto v = getArray<T>(nodeName);
+            if(v.isScalar())
+                retval = (double)v.data[0];
+        }
     });
     return retval;
+}
+
+size_t Client::numNodeUpdates(const std::string &nodeName)
+{
+    Guard g(m_mutex);
+    auto node = findNode(nodeName);
+    if(node)
+        return node->values.size();
 }
 
 
@@ -402,15 +420,14 @@ ObserverHandle Client::observeNode(const std::string &name)
     return id;
 }
 
-
-
 void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
 {
     Guard g(m_mutex);
     auto node = findNode(nodeName);
     if(!node ||node->type != toTypeId(value->value.type))
         return;
-    node->value = UA_Variant_ptr(&value->value);
+    node->values.push_front(UA_Variant_ptr(&value->value));
+    node->numUpdatesPerFrame++;
 }
 
 void Client::connect()
