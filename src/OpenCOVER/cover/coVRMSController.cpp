@@ -2554,14 +2554,14 @@ typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type coVRMSContr
 #define INSTANTIATE_SYNCVECTOR(type)\
 template std::vector<type> coVRMSController::syncVector(const std::vector<type> &vec);
 
-INSTANTIATE_SYNCVECTOR(int16_t)
-INSTANTIATE_SYNCVECTOR(uint16_t)
-INSTANTIATE_SYNCVECTOR(int32_t)
-INSTANTIATE_SYNCVECTOR(uint32_t)
-INSTANTIATE_SYNCVECTOR(int64_t)
-INSTANTIATE_SYNCVECTOR(uint64_t)
-INSTANTIATE_SYNCVECTOR(long)
+INSTANTIATE_SYNCVECTOR(signed short)
+INSTANTIATE_SYNCVECTOR(unsigned short)
+INSTANTIATE_SYNCVECTOR(signed)
+INSTANTIATE_SYNCVECTOR(unsigned)
+INSTANTIATE_SYNCVECTOR(signed long)
 INSTANTIATE_SYNCVECTOR(unsigned long)
+INSTANTIATE_SYNCVECTOR(signed long long)
+INSTANTIATE_SYNCVECTOR(unsigned long long)
 INSTANTIATE_SYNCVECTOR(float)
 INSTANTIATE_SYNCVECTOR(double)
 

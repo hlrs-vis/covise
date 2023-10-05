@@ -263,12 +263,18 @@ private:
     static coVRMSController *s_singleton;
 };
 
-extern template COVEREXPORT std::vector<int16_t> coVRMSController::syncVector(const std::vector<int16_t> &vec);
-extern template COVEREXPORT std::vector<uint16_t> coVRMSController::syncVector(const std::vector<uint16_t> &vec);
-extern template COVEREXPORT std::vector<int32_t> coVRMSController::syncVector(const std::vector<int32_t> &vec);
-extern template COVEREXPORT std::vector<uint32_t> coVRMSController::syncVector(const std::vector<uint32_t> &vec);
-extern template COVEREXPORT std::vector<int64_t> coVRMSController::syncVector(const std::vector<int64_t> &vec);
-extern template COVEREXPORT std::vector<uint64_t> coVRMSController::syncVector(const std::vector<uint64_t> &vec);
+extern template COVEREXPORT std::vector<signed short> coVRMSController::syncVector(const std::vector<signed short> &vec);
+extern template COVEREXPORT std::vector<unsigned short>
+coVRMSController::syncVector(const std::vector<unsigned short> &vec);
+extern template COVEREXPORT std::vector<signed> coVRMSController::syncVector(const std::vector<signed> &vec);
+extern template COVEREXPORT std::vector<unsigned> coVRMSController::syncVector(const std::vector<unsigned> &vec);
+extern template COVEREXPORT std::vector<signed long> coVRMSController::syncVector(const std::vector<signed long> &vec);
+extern template COVEREXPORT std::vector<unsigned long>
+coVRMSController::syncVector(const std::vector<unsigned long> &vec);
+extern template COVEREXPORT std::vector<signed long long>
+coVRMSController::syncVector(const std::vector<signed long long> &vec);
+extern template COVEREXPORT std::vector<unsigned long long>
+coVRMSController::syncVector(const std::vector<unsigned long long> &vec);
 extern template COVEREXPORT std::vector<float> coVRMSController::syncVector(const std::vector<float> &vec);
 extern template COVEREXPORT std::vector<double> coVRMSController::syncVector(const std::vector<double> &vec);
 
