@@ -83,6 +83,11 @@ IF(COMMAND cmake_policy)
     if (POLICY CMP0111)
         cmake_policy(SET CMP0111 NEW)
     endif()
+
+    if (POLICY CMP0148)
+        # for compatibility with open62541: still uses FindPythonInterp
+        cmake_policy(SET CMP0148 OLD)
+    endif()
 	
 ENDIF()
 endmacro(covise_cmake_policy)
