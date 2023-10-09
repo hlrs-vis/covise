@@ -600,13 +600,6 @@ ModuleFeedbackManager::hideGeometry(bool hide)
         node = myNode_.get();
     if (node)
     {
-        osg::MatrixTransform *dcs = dynamic_cast<osg::MatrixTransform *>(node);
-        if (!dcs)
-        {
-            fprintf(stderr, "ERROR node is not the dcs\n");
-            //writeSgToFile();
-            return;
-        }
         if (hide)
         {
             if (node->getNumParents() > 0)
