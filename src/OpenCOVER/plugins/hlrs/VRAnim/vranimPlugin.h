@@ -34,6 +34,7 @@
 #include <PluginUtil/coSphere.h>
 #include <cover/coVRPlugin.h>
 #include "coPlotItem.h"
+#include <OpenVRUI/coRowMenu.h>
 
 #define VRANIM_MAXNOMENUITEMS 10
 
@@ -90,50 +91,50 @@ private:
     osg::ref_ptr<osg::TessellationHints> hint; //? wozu?
 
     // menus
-    coSubMenuItem *multiBodyMenuButton_; // button in COVER main menu
-    coRowMenu *multiBodyMenu_; // the multibody menu
+    vrui::coSubMenuItem *multiBodyMenuButton_; // button in COVER main menu
+    vrui::coRowMenu *multiBodyMenu_; // the multibody menu
 
-    coSubMenuItem *anim_shaderadio_Button_;
-    coRowMenu *anim_shaderadio_Menu_;
-    coCheckboxMenuItem *anim_shadewire_Checkbox_;
-    coCheckboxMenuItem *anim_shadeflexwire_Checkbox_;
+    vrui::coSubMenuItem *anim_shaderadio_Button_;
+    vrui::coRowMenu *anim_shaderadio_Menu_;
+    vrui::coCheckboxMenuItem *anim_shadewire_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeflexwire_Checkbox_;
 
-    coCheckboxGroup *anim_shade_Radio_Group_;
-    coCheckboxMenuItem *anim_shadeoff_Checkbox_;
-    coCheckboxMenuItem *anim_shadeunlighted_Checkbox_;
-    coCheckboxMenuItem *anim_shadeflat_Checkbox_;
-    coCheckboxMenuItem *anim_shadegouraud_Checkbox_;
+    vrui::coCheckboxGroup *anim_shade_Radio_Group_;
+    vrui::coCheckboxMenuItem *anim_shadeoff_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeunlighted_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeflat_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadegouraud_Checkbox_;
 
-    coCheckboxGroup *anim_shadeflex_Radio_Group_;
-    coCheckboxMenuItem *anim_shadeflexoff_Checkbox_;
-    coCheckboxMenuItem *anim_shadeflexunlighted_Checkbox_;
-    coCheckboxMenuItem *anim_shadeflexflat_Checkbox_;
-    coCheckboxMenuItem *anim_shadeflexgouraud_Checkbox_;
+    vrui::coCheckboxGroup *anim_shadeflex_Radio_Group_;
+    vrui::coCheckboxMenuItem *anim_shadeflexoff_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeflexunlighted_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeflexflat_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_shadeflexgouraud_Checkbox_;
 
-    coButtonMenuItem *anim_interval_Button_;
-    coButtonMenuItem *anim_calcstride_Button_;
+    vrui::coButtonMenuItem *anim_interval_Button_;
+    vrui::coButtonMenuItem *anim_calcstride_Button_;
 
-    coButtonMenuItem *anim_savetrafo_Button_;
-    coCheckboxMenuItem *anim_showcoordsystem_Checkbox_;
-    coCheckboxMenuItem *anim_showsensors_Checkbox_;
-    coCheckboxMenuItem *anim_showplotters_Checkbox_;
+    vrui::coButtonMenuItem *anim_savetrafo_Button_;
+    vrui::coCheckboxMenuItem *anim_showcoordsystem_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_showsensors_Checkbox_;
+    vrui::coCheckboxMenuItem *anim_showplotters_Checkbox_;
 
-    coSubMenuItem *anim_hideradio_Button_;
-    coRowMenu *anim_hideradio_Menu_;
-    coCheckboxMenuItem *anim_nohide_Checkbox_;
-    coCheckboxMenuItem **anim_hide_Checkbox_;
+    vrui::coSubMenuItem *anim_hideradio_Button_;
+    vrui::coRowMenu *anim_hideradio_Menu_;
+    vrui::coCheckboxMenuItem *anim_nohide_Checkbox_;
+    vrui::coCheckboxMenuItem **anim_hide_Checkbox_;
 
-    coSubMenuItem *anim_fixmotionradio_Button_;
-    coRowMenu *anim_fixmotionradio_Menu_;
-    coCheckboxMenuItem *anim_nofixmotion_Checkbox_;
-    coCheckboxGroup *anim_fixmotion_Radio_Group_;
-    coCheckboxMenuItem **anim_fixmotion_Checkbox_;
+    vrui::coSubMenuItem *anim_fixmotionradio_Button_;
+    vrui::coRowMenu *anim_fixmotionradio_Menu_;
+    vrui::coCheckboxMenuItem *anim_nofixmotion_Checkbox_;
+    vrui::coCheckboxGroup *anim_fixmotion_Radio_Group_;
+    vrui::coCheckboxMenuItem **anim_fixmotion_Checkbox_;
 
-    coSubMenuItem *anim_fixtranslationradio_Button_;
-    coRowMenu *anim_fixtranslationradio_Menu_;
-    coCheckboxMenuItem *anim_nofixtranslation_Checkbox_;
-    coCheckboxGroup *anim_fixtranslation_Radio_Group_;
-    coCheckboxMenuItem **anim_fixtranslation_Checkbox_;
+    vrui::coSubMenuItem *anim_fixtranslationradio_Button_;
+    vrui::coRowMenu *anim_fixtranslationradio_Menu_;
+    vrui::coCheckboxMenuItem *anim_nofixtranslation_Checkbox_;
+    vrui::coCheckboxGroup *anim_fixtranslation_Radio_Group_;
+    vrui::coCheckboxMenuItem **anim_fixtranslation_Checkbox_;
 
     //tabletUI
     coTUITab *vranimTab;
