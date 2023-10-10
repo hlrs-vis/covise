@@ -628,7 +628,7 @@ osg::Geode *MultiBodyPlugin::createBodyGeometry(int bodyId, int what)
         for (int k = 0; k < geo.npoints[bodyId][j]; k++)
         {
             index = geo.face[bodyId][j][k] - 1; // array indices start with 0
-            vert->push_back(osg::Vec3(geo.vertex[bodyId][index][0], geo.vertex[bodyId][index][1], geo.vertex[bodyId][iindex][2]));
+            vert->push_back(osg::Vec3(geo.vertex[bodyId][index][0], geo.vertex[bodyId][index][1], geo.vertex[bodyId][index][2]));
             jj++;
         }
     }
@@ -656,7 +656,7 @@ osg::Geode *MultiBodyPlugin::createBodyGeometry(int bodyId, int what)
             for (int k = 0; k < geo.npoints[bodyId][j]; k++)
             {
                 index = geo.face[bodyId][j][k] - 1; // array indices start with 0
-                normalArray->push_back(osg::Vec3(geo.norm[bodyId][index][0], geo.norm[bodyId][index][1], geo.norm[bodyId][iindex][2]));
+                normalArray->push_back(osg::Vec3(geo.norm[bodyId][index][0], geo.norm[bodyId][index][1], geo.norm[bodyId][index][2]));
                 jj++;
             }
         }
@@ -665,22 +665,24 @@ osg::Geode *MultiBodyPlugin::createBodyGeometry(int bodyId, int what)
     }
 
     geom->addPrimitiveSet(primitives);
-
-    geom->setColorArray(colArr);
-    osg::UShortArray *cIndices = new osg::UShortArray(numPolygons);
+    osg::Vec4Array *localColArr = new osg::Vec4Array();
     for (int j = 0; j < numPolygons; j++)
     {
+        
         if (what == CREATE_GEO)
         {
-            (*cIndices)[j] = geo.fcolor[bodyId][j];
+	    int index = geo.fcolor[bodyId][j];
+	    localColArr->push_back(osg::Vec4(colorindex[index][0], colorindex[index][1], colorindex[index][2], colorindex[index][3]));
+    
         }
         if (what == CREATE_WIRE)
         {
-            (*cIndices)[j] = geo.ecolor[bodyId][j];
+	    int index = geo.fcolor[bodyId][j];
+	    localColArr->push_back(osg::Vec4(colorindex[index][0], colorindex[index][1], colorindex[index][2], colorindex[index][3]));
         }
     }
+    geom->setColorArray(localColArr);
     geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    geom->setColorIndices(cIndices);
 
     geode = new osg::Geode();
     geode->addDrawable(geom.get());
@@ -718,103 +720,63 @@ osg::Geode *MultiBodyPlugin::createelBodyGeometry(int bodyId, int what)
     numPolygons = elgeo.nf[bodyId];
     numCoords = elgeo.nvertices[bodyId];
 
+    double tmp = mode.coord_scaling / 0.2; // size coord.system 20% of largest value
+   
+    osg::Vec4Array *localColArr = new osg::Vec4Array();
+    osg::Vec3Array *normalArray = nullptr;
+    if (what == CREATE_GEO)
+    {
+       normalArray = new osg::Vec3Array();
+    }
     if (global_vert[bodyId] == NULL)
     {
         global_vert[bodyId] = new osg::Vec3Array;
-        for (int i = 0; i < numCoords; i++)
+	int jj = 0;
+
+        for (int j = 0; j < numPolygons; j++)
         {
-            global_vert[bodyId]->push_back(osg::Vec3(elgeo.vertex[bodyId][str.act_step][i][0], elgeo.vertex[bodyId][str.act_step][i][1], elgeo.vertex[bodyId][str.act_step][i][2]));
+            primitives->push_back(elgeo.npoints[bodyId][j]);
+	    
+        int cindex = elgeo.fcolor[bodyId][j];
+   
+            for (int k = 0; k < elgeo.npoints[bodyId][j]; k++)
+            {
+                int index = elgeo.face[bodyId][j][k] - 1; // array indices start with 0
+		global_vert[bodyId]->push_back(osg::Vec3(elgeo.vertex[bodyId][str.act_step][index][0], elgeo.vertex[bodyId][str.act_step][index][1], elgeo.vertex[bodyId][str.act_step][index][2]));
+                
+	        localColArr->push_back(osg::Vec4(colorindex[cindex][0], colorindex[cindex][1], colorindex[cindex][2], colorindex[cindex][3]));
+		
+        for (int v = 0; v < 3; v++)
+        {
+            if (tmp < global_vert[bodyId]->at(jj)[v])
+            {
+                tmp = global_vert[bodyId]->at(jj)[v];
+            }
+        }
+	
+    if (what == CREATE_GEO)
+    {
+            normalArray->push_back(osg::Vec3(elgeo.norm[bodyId][str.act_step][index][0], elgeo.norm[bodyId][str.act_step][index][1], elgeo.norm[bodyId][str.act_step][index][2]));   
+    }
+	
+	jj++;
+            }
         }
     }
     geom->setVertexArray(global_vert[bodyId]);
 
-    double tmp = mode.coord_scaling / 0.2; // size coord.system 20% of largest value
-    for (int j = 0; j < numCoords; j++)
-    {
-        for (int jj = 0; jj < 3; jj++)
-        {
-            if (tmp < elgeo.vertex[bodyId][str.act_step][j][jj])
-            {
-                tmp = elgeo.vertex[bodyId][str.act_step][j][jj];
-            }
-        }
-    }
     mode.coord_scaling = tmp * 0.2;
 
     if (what == CREATE_GEO)
     {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-
-        for (int i = 0; i < numCoords; i++)
-        {
-            normalArray->push_back(osg::Vec3(elgeo.norm[bodyId][str.act_step][i][0], elgeo.norm[bodyId][str.act_step][i][1], elgeo.norm[bodyId][str.act_step][i][2]));
-        }
         geom->setNormalArray(normalArray);
         geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
     }
-    // coordinate index list - attention: unsigned short-> list size <65535
-    for (int j = 0; j < numPolygons; j++)
-    {
-        numIndices += elgeo.npoints[bodyId][j];
-    }
-    if (numCoords < USHRT_MAX)
-    {
-        osg::UShortArray *indices = new osg::UShortArray(numIndices);
-        int jj = 0;
-
-        for (int j = 0; j < numPolygons; j++)
-        {
-            primitives->push_back(elgeo.npoints[bodyId][j]);
-            for (int k = 0; k < elgeo.npoints[bodyId][j]; k++)
-            {
-                (*indices)[jj] = elgeo.face[bodyId][j][k] - 1; // array indices start with 0
-                jj++;
-            }
-        }
-        geom->setVertexIndices(indices);
-        if (what == CREATE_GEO)
-        {
-            geom->setNormalIndices(indices);
-        }
-    }
-    else
-    {
-        osg::UIntArray *indices = new osg::UIntArray(numIndices);
-        int jj = 0;
-
-        for (int j = 0; j < numPolygons; j++)
-        {
-            primitives->push_back(elgeo.npoints[bodyId][j]);
-            for (int k = 0; k < elgeo.npoints[bodyId][j]; k++)
-            {
-                (*indices)[jj] = elgeo.face[bodyId][j][k] - 1; // array indices start with 0
-                jj++;
-            }
-        }
-        geom->setVertexIndices(indices);
-
-        if (what == CREATE_GEO)
-        {
-            geom->setNormalIndices(indices);
-        }
-    }
+       
     geom->addPrimitiveSet(primitives);
 
-    geom->setColorArray(colArr);
-    osg::UShortArray *cIndices = new osg::UShortArray(numPolygons);
-    for (int j = 0; j < numPolygons; j++)
-    {
-        if (what == CREATE_GEO)
-        {
-            (*cIndices)[j] = elgeo.fcolor[bodyId][j];
-        }
-        if (what == CREATE_WIRE)
-        {
-            (*cIndices)[j] = elgeo.ecolor[bodyId][j];
-        }
-    }
-    geom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
-    geom->setColorIndices(cIndices);
+    geom->setColorArray(localColArr);
+    geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
     geode = new osg::Geode();
     geode->addDrawable(geom.get());
@@ -859,7 +821,7 @@ osg::Geode *MultiBodyPlugin::createBallGeometry(int ballId)
     return (geode);
 }
 //----------------------------------------------------------------------------
-void MultiBodyPlugin::update(void)
+bool MultiBodyPlugin::update(void)
 {
     updateRigidTransform();
     updateBallTransform();
@@ -870,6 +832,7 @@ void MultiBodyPlugin::update(void)
     updatePlotter();
     updatefixed();
     updateDynColors();
+    return true;
 }
 
 //----------------------------------------------------------------------------
@@ -1931,46 +1894,46 @@ void MultiBodyPlugin::ballcolor(float *color, float fcolor)
 void MultiBodyPlugin::menus_create()
 {
     // add button to cover main menu
-    multiBodyMenuButton_ = new coSubMenuItem("vranim ...");
+    multiBodyMenuButton_ = new vrui::coSubMenuItem("vranim ...");
     cover->getMenu()->add(multiBodyMenuButton_);
 
     // submenu
-    multiBodyMenu_ = new coRowMenu("vranim", NULL);
+    multiBodyMenu_ = new vrui::coRowMenu("vranim", NULL);
     multiBodyMenuButton_->setMenu(multiBodyMenu_);
 
     mode.anim = ANIM_AUTO;
 
     // ----------------------------
     // shadecontrol submenu
-    anim_shaderadio_Button_ = new coSubMenuItem("shading ...");
+    anim_shaderadio_Button_ = new vrui::coSubMenuItem("shading ...");
     multiBodyMenu_->add(anim_shaderadio_Button_);
 
     // shade
-    anim_shaderadio_Menu_ = new coRowMenu("shading");
+    anim_shaderadio_Menu_ = new vrui::coRowMenu("shading");
     anim_shaderadio_Button_->setMenu(anim_shaderadio_Menu_);
 
-    anim_shadewire_Checkbox_ = new coCheckboxMenuItem("rigid bodies as wire", false);
+    anim_shadewire_Checkbox_ = new vrui::coCheckboxMenuItem("rigid bodies as wire", false);
     anim_shadewire_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadewire_Checkbox_);
 
     anim_shadewire_Checkbox_->setState(false);
 
     // shade checkbox
-    anim_shade_Radio_Group_ = new coCheckboxGroup();
+    anim_shade_Radio_Group_ = new vrui::coCheckboxGroup();
 
-    anim_shadeoff_Checkbox_ = new coCheckboxMenuItem("rigid off", false, anim_shade_Radio_Group_);
+    anim_shadeoff_Checkbox_ = new vrui::coCheckboxMenuItem("rigid off", false, anim_shade_Radio_Group_);
     anim_shadeoff_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeoff_Checkbox_);
 
-    anim_shadeunlighted_Checkbox_ = new coCheckboxMenuItem("rigid unlighted", false, anim_shade_Radio_Group_);
+    anim_shadeunlighted_Checkbox_ = new vrui::coCheckboxMenuItem("rigid unlighted", false, anim_shade_Radio_Group_);
     anim_shadeunlighted_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeunlighted_Checkbox_);
 
-    anim_shadeflat_Checkbox_ = new coCheckboxMenuItem("rigid flat", false, anim_shade_Radio_Group_);
+    anim_shadeflat_Checkbox_ = new vrui::coCheckboxMenuItem("rigid flat", false, anim_shade_Radio_Group_);
     anim_shadeflat_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflat_Checkbox_);
 
-    anim_shadegouraud_Checkbox_ = new coCheckboxMenuItem("rigid gouraud", false, anim_shade_Radio_Group_);
+    anim_shadegouraud_Checkbox_ = new vrui::coCheckboxMenuItem("rigid gouraud", false, anim_shade_Radio_Group_);
     anim_shadegouraud_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadegouraud_Checkbox_);
 
@@ -1980,28 +1943,28 @@ void MultiBodyPlugin::menus_create()
     anim_shadegouraud_Checkbox_->setState(true);
 
     // flex
-    anim_shadeflexwire_Checkbox_ = new coCheckboxMenuItem("flex bodies as wire", true);
+    anim_shadeflexwire_Checkbox_ = new vrui::coCheckboxMenuItem("flex bodies as wire", true);
     anim_shadeflexwire_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflexwire_Checkbox_);
 
     anim_shadeflexwire_Checkbox_->setState(true);
 
     // shadeflex checkbox
-    anim_shadeflex_Radio_Group_ = new coCheckboxGroup();
+    anim_shadeflex_Radio_Group_ = new vrui::coCheckboxGroup();
 
-    anim_shadeflexoff_Checkbox_ = new coCheckboxMenuItem("flex off", false, anim_shadeflex_Radio_Group_);
+    anim_shadeflexoff_Checkbox_ = new vrui::coCheckboxMenuItem("flex off", false, anim_shadeflex_Radio_Group_);
     anim_shadeflexoff_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflexoff_Checkbox_);
 
-    anim_shadeflexunlighted_Checkbox_ = new coCheckboxMenuItem("flex unlighted", false, anim_shadeflex_Radio_Group_);
+    anim_shadeflexunlighted_Checkbox_ = new vrui::coCheckboxMenuItem("flex unlighted", false, anim_shadeflex_Radio_Group_);
     anim_shadeflexunlighted_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflexunlighted_Checkbox_);
 
-    anim_shadeflexflat_Checkbox_ = new coCheckboxMenuItem("flex flat", false, anim_shadeflex_Radio_Group_);
+    anim_shadeflexflat_Checkbox_ = new vrui::coCheckboxMenuItem("flex flat", false, anim_shadeflex_Radio_Group_);
     anim_shadeflexflat_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflexflat_Checkbox_);
 
-    anim_shadeflexgouraud_Checkbox_ = new coCheckboxMenuItem("flex gouraud", false, anim_shadeflex_Radio_Group_);
+    anim_shadeflexgouraud_Checkbox_ = new vrui::coCheckboxMenuItem("flex gouraud", false, anim_shadeflex_Radio_Group_);
     anim_shadeflexgouraud_Checkbox_->setMenuListener(this);
     anim_shaderadio_Menu_->add(anim_shadeflexgouraud_Checkbox_);
 
@@ -2011,11 +1974,11 @@ void MultiBodyPlugin::menus_create()
     anim_shadeflexgouraud_Checkbox_->setState(false);
 
     // ----------------------------
-    anim_interval_Button_ = new coButtonMenuItem("interval");
+    anim_interval_Button_ = new vrui::coButtonMenuItem("interval");
     anim_interval_Button_->setMenuListener(this);
     // multiBodyMenu_->add(anim_interval_Button_);
 
-    anim_calcstride_Button_ = new coButtonMenuItem("calc stride");
+    anim_calcstride_Button_ = new vrui::coButtonMenuItem("calc stride");
     anim_calcstride_Button_->setMenuListener(this);
     // multiBodyMenu_->add(anim_calcstride_Button_);
 
@@ -2023,7 +1986,7 @@ void MultiBodyPlugin::menus_create()
     // show sensors
     if (sensor.nr > 0)
     {
-        anim_showsensors_Checkbox_ = new coCheckboxMenuItem("show sensors", false);
+        anim_showsensors_Checkbox_ = new vrui::coCheckboxMenuItem("show sensors", false);
         anim_showsensors_Checkbox_->setMenuListener(this);
         multiBodyMenu_->add(anim_showsensors_Checkbox_);
     }
@@ -2032,33 +1995,33 @@ void MultiBodyPlugin::menus_create()
     // show plotters
     if (dat.ndata > 0)
     {
-        anim_showplotters_Checkbox_ = new coCheckboxMenuItem("show plotters", false);
+        anim_showplotters_Checkbox_ = new vrui::coCheckboxMenuItem("show plotters", false);
         anim_showplotters_Checkbox_->setMenuListener(this);
         multiBodyMenu_->add(anim_showplotters_Checkbox_);
     }
 
     // ----------------------------
     // show coord. systems
-    anim_showcoordsystem_Checkbox_ = new coCheckboxMenuItem("show coord.systems", false);
+    anim_showcoordsystem_Checkbox_ = new vrui::coCheckboxMenuItem("show coord.systems", false);
     anim_showcoordsystem_Checkbox_->setMenuListener(this);
     multiBodyMenu_->add(anim_showcoordsystem_Checkbox_);
 
     // ----------------------------
     // save trafo
-    anim_savetrafo_Button_ = new coButtonMenuItem("save trafo");
+    anim_savetrafo_Button_ = new vrui::coButtonMenuItem("save trafo");
     anim_savetrafo_Button_->setMenuListener(this);
     multiBodyMenu_->add(anim_savetrafo_Button_);
 
     // ----------------------------
     // hidecontrol submenu
-    anim_hideradio_Button_ = new coSubMenuItem("hide bodies ...");
+    anim_hideradio_Button_ = new vrui::coSubMenuItem("hide bodies ...");
     multiBodyMenu_->add(anim_hideradio_Button_);
 
     // hide
-    anim_hideradio_Menu_ = new coRowMenu("hide bodies");
+    anim_hideradio_Menu_ = new vrui::coRowMenu("hide bodies");
     anim_hideradio_Button_->setMenu(anim_hideradio_Menu_);
 
-    anim_nohide_Checkbox_ = new coCheckboxMenuItem("do not hide any bodies", false);
+    anim_nohide_Checkbox_ = new vrui::coCheckboxMenuItem("do not hide any bodies", false);
     anim_nohide_Checkbox_->setMenuListener(this);
     anim_hideradio_Menu_->add(anim_nohide_Checkbox_);
 
@@ -2071,10 +2034,10 @@ void MultiBodyPlugin::menus_create()
     {
         numberofitems = geo.nfiles;
     }
-    anim_hide_Checkbox_ = new coCheckboxMenuItem *[numberofitems];
+    anim_hide_Checkbox_ = new vrui::coCheckboxMenuItem *[numberofitems];
     for (int i = 0; i < geo.nfiles && i < VRANIM_MAXNOMENUITEMS; i++)
     {
-        anim_hide_Checkbox_[i] = new coCheckboxMenuItem(geo.name[i], false);
+        anim_hide_Checkbox_[i] = new vrui::coCheckboxMenuItem(geo.name[i], false);
         anim_hide_Checkbox_[i]->setMenuListener(this);
         anim_hideradio_Menu_->add(anim_hide_Checkbox_[i]);
     }
@@ -2083,25 +2046,25 @@ void MultiBodyPlugin::menus_create()
 
     // ----------------------------
     // fixmotion control submenu
-    anim_fixmotionradio_Button_ = new coSubMenuItem("fix motion ...");
+    anim_fixmotionradio_Button_ = new vrui::coSubMenuItem("fix motion ...");
     multiBodyMenu_->add(anim_fixmotionradio_Button_);
 
     // fixmotion
-    anim_fixmotionradio_Menu_ = new coRowMenu("fix motion");
+    anim_fixmotionradio_Menu_ = new vrui::coRowMenu("fix motion");
     anim_fixmotionradio_Button_->setMenu(anim_fixmotionradio_Menu_);
 
     // fixmotion checkbox group
-    anim_fixmotion_Radio_Group_ = new coCheckboxGroup();
+    anim_fixmotion_Radio_Group_ = new vrui::coCheckboxGroup();
 
-    anim_nofixmotion_Checkbox_ = new coCheckboxMenuItem("do not fix any motion",
+    anim_nofixmotion_Checkbox_ = new vrui::coCheckboxMenuItem("do not fix any motion",
                                                         true, anim_fixmotion_Radio_Group_);
     anim_nofixmotion_Checkbox_->setMenuListener(this);
     anim_fixmotionradio_Menu_->add(anim_nofixmotion_Checkbox_);
 
-    anim_fixmotion_Checkbox_ = new coCheckboxMenuItem *[numberofitems];
+    anim_fixmotion_Checkbox_ = new vrui::coCheckboxMenuItem *[numberofitems];
     for (int i = 0; i < geo.nfiles && i < VRANIM_MAXNOMENUITEMS; i++)
     {
-        anim_fixmotion_Checkbox_[i] = new coCheckboxMenuItem(geo.name[i],
+        anim_fixmotion_Checkbox_[i] = new vrui::coCheckboxMenuItem(geo.name[i],
                                                              false, anim_fixmotion_Radio_Group_);
         anim_fixmotion_Checkbox_[i]->setMenuListener(this);
         anim_fixmotionradio_Menu_->add(anim_fixmotion_Checkbox_[i]);
@@ -2114,24 +2077,24 @@ void MultiBodyPlugin::menus_create()
 
     // ----------------------------
     // fixtranslation control submenu
-    anim_fixtranslationradio_Button_ = new coSubMenuItem("fix translation ...");
+    anim_fixtranslationradio_Button_ = new vrui::coSubMenuItem("fix translation ...");
     multiBodyMenu_->add(anim_fixtranslationradio_Button_);
 
     // fixtranslation
-    anim_fixtranslationradio_Menu_ = new coRowMenu("fix translation");
+    anim_fixtranslationradio_Menu_ = new vrui::coRowMenu("fix translation");
     anim_fixtranslationradio_Button_->setMenu(anim_fixtranslationradio_Menu_);
 
     // fixtranslation checkbox group
-    anim_fixtranslation_Radio_Group_ = new coCheckboxGroup();
+    anim_fixtranslation_Radio_Group_ = new vrui::coCheckboxGroup();
 
-    anim_nofixtranslation_Checkbox_ = new coCheckboxMenuItem("do not fix any translation",
+    anim_nofixtranslation_Checkbox_ = new vrui::coCheckboxMenuItem("do not fix any translation",
                                                              true, anim_fixtranslation_Radio_Group_);
     anim_nofixtranslation_Checkbox_->setMenuListener(this);
     anim_fixtranslationradio_Menu_->add(anim_nofixtranslation_Checkbox_);
-    anim_fixtranslation_Checkbox_ = new coCheckboxMenuItem *[numberofitems];
+    anim_fixtranslation_Checkbox_ = new vrui::coCheckboxMenuItem *[numberofitems];
     for (int i = 0; i < geo.nfiles && i < VRANIM_MAXNOMENUITEMS; i++)
     {
-        anim_fixtranslation_Checkbox_[i] = new coCheckboxMenuItem(geo.name[i],
+        anim_fixtranslation_Checkbox_[i] = new vrui::coCheckboxMenuItem(geo.name[i],
                                                                   false, anim_fixtranslation_Radio_Group_);
         anim_fixtranslation_Checkbox_[i]->setMenuListener(this);
         anim_fixtranslationradio_Menu_->add(anim_fixtranslation_Checkbox_[i]);
@@ -2144,13 +2107,13 @@ void MultiBodyPlugin::menus_create()
 
     if (dat.ndata > 0)
     {
-        plotHandle = new coPopupHandle *[dat.ndata];
+        plotHandle = new vrui::coPopupHandle *[dat.ndata];
         plotItem = new coPlotItem *[dat.ndata];
         for (int i = 0; i < dat.ndata; i++)
         {
             char *name = new char[MAXLENGTH];
             sprintf(name, "%d: %s", i, dat.name[i]);
-            plotHandle[i] = new coPopupHandle(name);
+            plotHandle[i] = new vrui::coPopupHandle(name);
             plotHandle[i]->setPos(0, i * 2.0, i * 100.0);
             //coFrame *panelFrame = new coFrame("UI/Frame");
             plotItem[i] = new coPlotItem(i);
@@ -2770,79 +2733,78 @@ osg::Geode *MultiBodyPlugin::createlinstdGeometry(int linElId)
     geom->setUseDisplayList(false);
     geom->setUseVertexBufferObjects(false);
 
-    osg::DrawArrayLengths *primitives; // = lenList
-    primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::POLYGON);
+    osg::DrawArrays *primitives; 
+    primitives = new osg::DrawArrays(osg::PrimitiveSet::QUADS,0,6*4);
 
     /*create elastic band*/
     if (lin.type[linElId] == 1 || lin.type[linElId] == 2)
     {
 
-        // 8 vertices
+        // 6*4 vertices
         coordList = new osg::Vec3Array();
         coordList->push_back(osg::Vec3(0, -0.1, -0.1));
+        coordList->push_back(osg::Vec3(0, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(0, 0.1, 0.1));
         coordList->push_back(osg::Vec3(0, 0.1, -0.1));
         coordList->push_back(osg::Vec3(0, 0.1, 0.1));
         coordList->push_back(osg::Vec3(0, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(1, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(1, 0.1, 0.1));
         coordList->push_back(osg::Vec3(1, -0.1, -0.1));
         coordList->push_back(osg::Vec3(1, 0.1, -0.1));
         coordList->push_back(osg::Vec3(1, 0.1, 0.1));
         coordList->push_back(osg::Vec3(1, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(1, -0.1, -0.1));
+        coordList->push_back(osg::Vec3(0, -0.1, -0.1));
+        coordList->push_back(osg::Vec3(0, 0.1, -0.1));
+        coordList->push_back(osg::Vec3(1, 0.1, -0.1));
+        coordList->push_back(osg::Vec3(0, 0.1, 0.1));
+        coordList->push_back(osg::Vec3(1, 0.1, 0.1));
+        coordList->push_back(osg::Vec3(1, 0.1, -0.1));
+        coordList->push_back(osg::Vec3(0, 0.1, -0.1));
+        coordList->push_back(osg::Vec3(1, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(0, -0.1, 0.1));
+        coordList->push_back(osg::Vec3(0, -0.1, -0.1));
+        coordList->push_back(osg::Vec3(1, -0.1, -0.1));
         geom->setVertexArray(coordList);
 
-        // 6 polygons
-        for (int i = 0; i < 6; i++)
-        {
-            primitives->push_back(4);
-        }
-
-        // 6*4 polygon-vertices
-        coordIndexList = new osg::UShortArray();
-        coordIndexList->push_back(0);
-        coordIndexList->push_back(3);
-        coordIndexList->push_back(2);
-        coordIndexList->push_back(1);
-        coordIndexList->push_back(2);
-        coordIndexList->push_back(3);
-        coordIndexList->push_back(7);
-        coordIndexList->push_back(6);
-        coordIndexList->push_back(4);
-        coordIndexList->push_back(5);
-        coordIndexList->push_back(6);
-        coordIndexList->push_back(7);
-        coordIndexList->push_back(4);
-        coordIndexList->push_back(0);
-        coordIndexList->push_back(1);
-        coordIndexList->push_back(5);
-        coordIndexList->push_back(2);
-        coordIndexList->push_back(6);
-        coordIndexList->push_back(5);
-        coordIndexList->push_back(1);
-        coordIndexList->push_back(7);
-        coordIndexList->push_back(3);
-        coordIndexList->push_back(0);
-        coordIndexList->push_back(4);
-        geom->setVertexIndices(coordIndexList);
-
-        // 6 normals
+        // 6*4 normals
         normalArray = new osg::Vec3Array();
         normalArray->push_back(osg::Vec3(-1, 0, 0));
+        normalArray->push_back(osg::Vec3(-1, 0, 0));
+        normalArray->push_back(osg::Vec3(-1, 0, 0));
+        normalArray->push_back(osg::Vec3(-1, 0, 0));
+        normalArray->push_back(osg::Vec3(0, 0, 1));
+        normalArray->push_back(osg::Vec3(0, 0, 1));
+        normalArray->push_back(osg::Vec3(0, 0, 1));
         normalArray->push_back(osg::Vec3(0, 0, 1));
         normalArray->push_back(osg::Vec3(1, 0, 0));
+        normalArray->push_back(osg::Vec3(1, 0, 0));
+        normalArray->push_back(osg::Vec3(1, 0, 0));
+        normalArray->push_back(osg::Vec3(1, 0, 0));
+        normalArray->push_back(osg::Vec3(0, 0, -1));
+        normalArray->push_back(osg::Vec3(0, 0, -1));
+        normalArray->push_back(osg::Vec3(0, 0, -1));
         normalArray->push_back(osg::Vec3(0, 0, -1));
         normalArray->push_back(osg::Vec3(0, -1, 0));
+        normalArray->push_back(osg::Vec3(0, -1, 0));
+        normalArray->push_back(osg::Vec3(0, -1, 0));
+        normalArray->push_back(osg::Vec3(0, -1, 0));
+        normalArray->push_back(osg::Vec3(0, 1, 0));
+        normalArray->push_back(osg::Vec3(0, 1, 0));
+        normalArray->push_back(osg::Vec3(0, 1, 0));
         normalArray->push_back(osg::Vec3(0, 1, 0));
         geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE);
+        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
         // 6 colors
-        colorIndexList = new osg::UShortArray();
-        for (int i = 0; i < 6; i++)
+        osg::Vec4Array *lcolArr = new osg::Vec4Array();
+        for (int i = 0; i < 6*4; i++)
         {
-            colorIndexList->push_back(lin.color[linElId]);
+            lcolArr->push_back(colArr->at(lin.color[linElId]));
         }
-        geom->setColorArray(colArr);
-        geom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
-        geom->setColorIndices(colorIndexList);
+        geom->setColorArray(lcolArr);
+        geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
         // scale, rotate and translate
         float cx = lin.dir[linElId][0][0] / lin.length[linElId][0];

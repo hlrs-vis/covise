@@ -35,6 +35,8 @@
 #include <cover/coVRPlugin.h>
 #include "coPlotItem.h"
 #include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coSubMenuItem.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
 
 #define VRANIM_MAXNOMENUITEMS 10
 
@@ -179,7 +181,7 @@ private:
 
     coSphere *sphere;
 
-    void update(void);
+    bool update(void);
     void updateRigidTransform(void);
     void updateBallTransform(void);
     void updateIvTransform(void);
