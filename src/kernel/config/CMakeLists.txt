@@ -14,6 +14,7 @@ add_covise_library(coConfigNew ${CONFIGNEW_SOURCES} ${CONFIGNEW_HEADERS} ${COVCO
 target_compile_definitions(coConfigNew PRIVATE CONFIG_NAMESPACE=covise COVCONFIG_COVISE)
 target_include_directories(coConfigNew PRIVATE ${COVCONFIG_PRIVATE_INCLUDES})
 target_link_libraries(coConfigNew PRIVATE ${COVCONFIG_PRIVATE_LIBRARIES})
+target_link_libraries(coConfigNew PRIVATE Boost::headers)
 covise_install_target(coConfigNew)
 covise_install_headers(config ${COVCONFIG_HEADERS} ${CONFIGNEW_HEADERS})
 
