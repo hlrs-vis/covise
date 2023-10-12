@@ -472,7 +472,8 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   ${OPENSCENEGRAPH_LIBRARIES}) # ${CMAKE_THREAD_LIBS_INIT})
   
   IF(APPLE)
-  ADD_COVISE_LINK_FLAGS(${targetname} "-undefined error")
+  # emits a warning with Apple Clang 15
+  #ADD_COVISE_LINK_FLAGS(${targetname} "-undefined error")
   ELSEIF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   ADD_COVISE_LINK_FLAGS(${targetname} "-Wl,--no-undefined")
   ENDIF(APPLE)
