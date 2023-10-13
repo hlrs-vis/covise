@@ -118,8 +118,8 @@ if [ -z "$COENVERROR" ]; then
       ;;
       spack|spackopt)
       if [ "$(uname)" = "Darwin" ]; then
-          export DYLD_FALLBACK_FRAMEWORK_PATH="${SPACK_DYLD_FALLBACK_FRAMEWORK_PATH}"
-          export DYLD_FALLBACK_LIBRARY_PATH="${SPACK_DYLD_FALLBACK_LIBRARY_PATH}"
+          [ -n "${SPACK_DYLD_FALLBACK_FRAMEWORK_PATH}" ] && export DYLD_FALLBACK_FRAMEWORK_PATH="${SPACK_DYLD_FALLBACK_FRAMEWORK_PATH}"
+          [ -n "${SPACK_DYLD_FALLBACK_LIBRARY_PATH}" ] && export DYLD_FALLBACK_LIBRARY_PATH="${SPACK_DYLD_FALLBACK_LIBRARY_PATH}"
       fi
       ;;
    esac
