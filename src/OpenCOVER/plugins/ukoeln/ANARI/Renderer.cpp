@@ -544,7 +544,7 @@ void Renderer::initFrames()
     float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
     float bgcolor[] = {r,g,b,1.f};
 
-    anariSetParameter(anari.device, anari.renderer, "backgroundColor", ANARI_FLOAT32_VEC4,
+    anariSetParameter(anari.device, anari.renderer, "background", ANARI_FLOAT32_VEC4,
                       bgcolor);
     anariCommitParameters(anari.device, anari.renderer);
 
