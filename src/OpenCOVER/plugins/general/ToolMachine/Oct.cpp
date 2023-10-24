@@ -109,7 +109,7 @@ void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data,
         addSection(offset.size());
     auto *section = &m_sections.back();
 
-    // correctLastUpdate(toolHeadPos);
+    correctLastUpdate(toolHeadPos);
     m_lastUpdatePos = toolHeadPos;
     
     for (size_t i = 0; i < offset.size(); i++)
