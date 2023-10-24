@@ -40,6 +40,14 @@
 #include <util/DLinkList.h>
 #include "coSensiveSensor.h"
 
+
+#ifdef HAVE_BULLET
+#include "VrmlNodeRigidBodyTransform.h"
+#include "VrmlNodePhysicsWorld.h"
+#include "VrmlNodeRigidBodyRoot.h"
+#include <btBulletDynamicsCommon.h>
+#endif
+ 
 #ifdef HAVE_OSGNV
 #include <osgNVExt/RegisterCombiners>
 #include <osgNVExt/CombinerInput>
@@ -76,6 +84,8 @@ public:
     osg::Matrix vm;
     osg::Matrix pm;
     int CameraID;
+
+
 };
 
 namespace osg
@@ -153,6 +163,9 @@ public:
     osg::ref_ptr<osg::Program> combineEnvTextures;
     int numCameras;
     MirrorInfo mirrors[MAX_MIRRORS];
+
+
+
 
 public:
     ViewerOsg(VrmlScene *, osg::Group *rootNode);

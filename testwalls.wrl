@@ -1,0 +1,825 @@
+#VRML V2.0 utf8
+
+# Produced by Uwes VRML Plugin, Version 8, Revision 06, .NET
+# MAX File: testbricks.max, Date: Tue Jun 14 12:14:22 2022
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.33333 },
+NavigationInfo { headlight TRUE }
+DEF Box001 Transform {
+  translation 0 0 0
+  children [
+    DEF Box0013-SHAPE Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.898039 0.65098
+        }
+      }
+      geometry DEF Box001-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box001-COORD Coordinate { point [
+          -0.15 0 0.25, 0.15 0 0.25, -0.15 0 -0.25, 0.15 0 -0.25, 
+          -0.15 0.2 0.25, 0.15 0.2 0.25, -0.15 0.2 -0.25, 0.15 0.2 -0.25]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Plane001 Transform {
+  translation 27.2692 0 -30.214
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.890196 0.6 0.6
+        }
+      }
+      geometry DEF Plane001-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Plane001-COORD Coordinate { point [
+          -32.066 0 59.9355, -16.033 0 59.9355, 0 0 59.9355, 16.033 0 59.9355, 
+          32.066 0 59.9355, -32.066 0 29.9678, -16.033 0 29.9678, 
+          0 0 29.9678, 16.033 0 29.9678, 32.066 0 29.9678, -32.066 0 0, 
+          -16.033 0 0, 0 0 0, 16.033 0 0, 32.066 0 0, -32.066 0 -29.9678, 
+          -16.033 0 -29.9678, 0 0 -29.9678, 16.033 0 -29.9678, 
+          32.066 0 -29.9678, -32.066 0 -59.9355, -16.033 0 -59.9355, 
+          0 0 -59.9355, 16.033 0 -59.9355, 32.066 0 -59.9355]
+        }
+        normal Normal { vector [
+          0 1 0, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          5, 0, 6, -1, 1, 6, 0, -1, 6, 1, 7, -1, 2, 7, 1, -1, 7, 2, 8, -1, 
+          3, 8, 2, -1, 8, 3, 9, -1, 4, 9, 3, -1, 10, 5, 11, -1, 
+          6, 11, 5, -1, 11, 6, 12, -1, 7, 12, 6, -1, 12, 7, 13, -1, 
+          8, 13, 7, -1, 13, 8, 14, -1, 9, 14, 8, -1, 15, 10, 16, -1, 
+          11, 16, 10, -1, 16, 11, 17, -1, 12, 17, 11, -1, 17, 12, 18, -1, 
+          13, 18, 12, -1, 18, 13, 19, -1, 14, 19, 13, -1, 20, 15, 21, -1, 
+          16, 21, 15, -1, 21, 16, 22, -1, 17, 22, 16, -1, 22, 17, 23, -1, 
+          18, 23, 17, -1, 23, 18, 24, -1, 19, 24, 18, -1]
+        normalIndex [
+          0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 
+          0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, ]
+        }
+    }
+  ]
+}
+DEF Box002 Transform {
+  translation 0 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box003 Transform {
+  translation 0 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box004 Transform {
+  translation 0 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box005 Transform {
+  translation 0 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box006 Transform {
+  translation 0.6 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box007 Transform {
+  translation 0.6 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box008 Transform {
+  translation 0.6 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box009 Transform {
+  translation 0.6 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box010 Transform {
+  translation 0.6 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box011 Transform {
+  translation 1.2 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box012 Transform {
+  translation 1.2 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box013 Transform {
+  translation 1.2 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box014 Transform {
+  translation 1.2 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box015 Transform {
+  translation 1.2 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box016 Transform {
+  translation 1.8 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box017 Transform {
+  translation 1.8 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box018 Transform {
+  translation 1.8 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box019 Transform {
+  translation 1.8 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box020 Transform {
+  translation 1.8 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box021 Transform {
+  translation 2.4 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box022 Transform {
+  translation 2.4 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box023 Transform {
+  translation 2.4 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box024 Transform {
+  translation 2.4 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box025 Transform {
+  translation 2.4 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Group001 Transform {
+  translation 6.54581 0.7 0
+  children [
+    DEF Box026 Transform {
+      translation 1.2 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box027 Transform {
+      translation 1.2 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box028 Transform {
+      translation 1.2 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box029 Transform {
+      translation 1.2 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box030 Transform {
+      translation 1.2 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box031 Transform {
+      translation 0.599999 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box032 Transform {
+      translation 0.599999 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box033 Transform {
+      translation 0.599999 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box034 Transform {
+      translation 0.599999 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box035 Transform {
+      translation 0.599999 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box036 Transform {
+      translation 0 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box037 Transform {
+      translation 0 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box038 Transform {
+      translation 0 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box039 Transform {
+      translation 0 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box040 Transform {
+      translation 0 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box041 Transform {
+      translation -0.6 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box042 Transform {
+      translation -0.6 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box043 Transform {
+      translation -0.6 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box044 Transform {
+      translation -0.6 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box045 Transform {
+      translation -0.6 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box046 Transform {
+      translation -1.2 0.5 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box047 Transform {
+      translation -1.2 0.2 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box048 Transform {
+      translation -1.2 -0.1 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box049 Transform {
+      translation -1.2 -0.4 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    },
+    DEF Box050 Transform {
+      translation -1.2 -0.7 0
+      children [
+                USE Box0013-SHAPE 
+      ]
+    }
+  ]
+}
+DEF Group003 Transform {
+  translation 10.64 1.49898 -6.14163
+  children [
+    DEF Box076 Transform {
+      translation 0.560083 -1.49898 0
+      children [
+        Shape {
+          appearance Appearance {
+            material  Material {
+              diffuseColor 0.105882 0.694118 0.345098
+            }
+          }
+          geometry DEF Box076-FACES IndexedFaceSet {
+            ccw TRUE
+            solid TRUE
+            coord DEF Box076-COORD Coordinate { point [
+              -1.94772 0 3.70649, 1.94772 0 3.70649, -1.94772 0 -3.70649, 
+              1.94772 0 -3.70649, -1.94772 1.59018 3.70649, 1.94772 1.59018 3.70649, 
+              -1.94772 1.59018 -3.70649, 1.94772 1.59018 -3.70649]
+            }
+            normal Normal { vector [
+              1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+            normalPerVertex TRUE
+            coordIndex [
+              0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 
+              0, 1, 5, -1, 5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 
+              3, 2, 6, -1, 6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+            normalIndex [
+              4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 
+              3, 3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, 
+              -1, 5, 5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 
+              1, -1, ]
+            }
+        }
+      ]
+    },
+    DEF Group002 Transform {
+      translation -1.27308 0.798975 0.59216
+      rotation 0 -1 0 -0.63568
+      children [
+        DEF Box051 Transform {
+          translation 1.2 0.5 0
+          children [
+            DEF Box0514-SHAPE Shape {
+              appearance Appearance {
+                material  Material {
+                  diffuseColor 0.839216 0.898039 0.65098
+                }
+              }
+              geometry DEF Box051-FACES IndexedFaceSet {
+                ccw TRUE
+                solid TRUE
+                coord DEF Box051-COORD Coordinate { point [
+                  -0.15 0 0.25, 0.15 0 0.25, -0.15 0 -0.25, 0.15 0 -0.25, 
+                  -0.15 0.2 0.25, 0.15 0.2 0.25, -0.15 0.2 -0.25, 
+                  0.15 0.2 -0.25]
+                }
+                normal Normal { vector [
+                  1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, 
+                  ] }
+                normalPerVertex TRUE
+                coordIndex [
+                  0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 
+                  0, 1, 5, -1, 5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 
+                  3, 2, 6, -1, 6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+                normalIndex [
+                  4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 
+                  2, -1, 3, 3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 
+                  0, 0, 0, -1, 5, 5, 5, -1, 5, 5, 5, -1, 1, 1, 
+                  1, -1, 1, 1, 1, -1, ]
+                }
+            }
+          ]
+        },
+        DEF Box052 Transform {
+          translation 1.2 0.2 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box053 Transform {
+          translation 1.2 -0.1 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box054 Transform {
+          translation 1.2 -0.4 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box055 Transform {
+          translation 1.2 -0.7 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box056 Transform {
+          translation 0.599999 0.5 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box057 Transform {
+          translation 0.599999 0.2 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box058 Transform {
+          translation 0.599999 -0.1 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box059 Transform {
+          translation 0.599999 -0.4 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box060 Transform {
+          translation 0.599999 -0.7 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box061 Transform {
+          translation 0 0.5 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box062 Transform {
+          translation 0 0.2 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box063 Transform {
+          translation 0 -0.1 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box064 Transform {
+          translation 0 -0.4 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box065 Transform {
+          translation 0 -0.7 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box066 Transform {
+          translation -0.6 0.5 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box067 Transform {
+          translation -0.6 0.2 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box068 Transform {
+          translation -0.6 -0.1 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box069 Transform {
+          translation -0.6 -0.4 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box070 Transform {
+          translation -0.6 -0.7 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box071 Transform {
+          translation -1.2 0.5 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box072 Transform {
+          translation -1.2 0.2 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box073 Transform {
+          translation -1.2 -0.1 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box074 Transform {
+          translation -1.2 -0.4 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        },
+        DEF Box075 Transform {
+          translation -1.2 -0.7 0
+          children [
+                        USE Box0514-SHAPE 
+          ]
+        }
+      ]
+    }
+  ]
+}
+DEF Group004 Transform {
+  translation 18.3563 0.7 -1.44526
+  children [
+  DEF Group004-POS-INTERP PositionInterpolator {
+    key [0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27, 0.3, 
+        0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.57, 0.6, 
+        0.63, 0.66, 0.69, 0.72, 0.75, 0.78, 0.81, 0.84, 0.87, 0.9, 
+        0.93, 0.96, 0.99, 1, ]
+    keyValue [18.3563 0.7 -1.44526, 18.4212 0.7 -1.44526, 18.605 0.7 -1.44526, 
+      18.8917 0.7 -1.44526, 19.2648 0.7 -1.44526, 19.7083 0.7 -1.44526, 
+      20.2059 0.7 -1.44526, 20.7413 0.7 -1.44526, 21.2983 0.7 -1.44526, 
+      21.8608 0.7 -1.44526, 22.4124 0.7 -1.44526, 22.937 0.7 -1.44526, 
+      23.4184 0.7 -1.44526, 23.8402 0.7 -1.44526, 24.1863 0.7 -1.44526, 
+      24.4405 0.7 -1.44526, 24.5865 0.7 -1.44526, 24.6084 0.7 -1.44526, 
+      24.502 0.7 -1.44526, 24.2821 0.7 -1.44526, 23.9648 0.7 -1.44526, 
+      23.5664 0.7 -1.44526, 23.1031 0.7 -1.44526, 22.5911 0.7 -1.44526, 
+      22.0467 0.7 -1.44526, 21.486 0.7 -1.44526, 20.9254 0.7 -1.44526, 
+      20.3809 0.7 -1.44526, 19.869 0.7 -1.44526, 19.4057 0.7 -1.44526, 
+      19.0072 0.7 -1.44526, 18.69 0.7 -1.44526, 18.47 0.7 -1.44526, 
+      18.3637 0.7 -1.44526, 18.3563 0.7 -1.44526, ] },
+  DEF Group004-ROT-INTERP OrientationInterpolator {
+    key [0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27, 0.3, 
+        0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.57, 0.6, 
+        0.63, 0.66, 0.69, 0.72, 0.75, 0.78, 0.81, 0.84, 0.87, 0.9, 
+        0.93, 0.96, 0.99, 1, ]
+    keyValue [1 0 0 0, 0 -1 0 -0.00112014, 0 -1 0 -0.00451214, 
+      0 -1 0 -0.0102233, 0 -1 0 -0.0183011, 0 -1 0 -0.0287927, 
+      0 -1 0 -0.0417456, 0 -1 0 -0.0572071, 0 -1 0 -0.0752245, 
+      0 -1 0 -0.0958451, 0 -1 0 -0.119116, 0 -1 0 -0.145086, 
+      0 -1 0 -0.1738, 0 -1 0 -0.205308, 0 -1 0 -0.239655, 
+      0 -1 0 -0.27689, 0 -1 0 -0.317059, 0 -1 0 -0.360211, 
+      0 -1 0 -0.406392, 0 -1 0 -0.455649, 0 -1 0 -0.508031, 
+      0 -1 0 -0.563584, 0 -1 0 -0.622356, 0 -1 0 -0.684394, 
+      0 -1 0 -0.777986, 0 -1 0 -0.972822, 0 -1 0 -1.22908, 
+      0 -1 0 -1.49899, 0 -1 0 -1.73479, 0 -1 0 -1.8887, 
+      0 -1 0 -1.87746, 0 -1 0 -1.34455, 0 -1 0 -0.577679, 
+      0 -1 0 -0.04477, 1 0 0 0, ] },
+    DEF Box077 Transform {
+      translation 1.2 0.5 0
+      children [
+        DEF Box0775-SHAPE Shape {
+          appearance Appearance {
+            material  Material {
+              diffuseColor 0.839216 0.898039 0.65098
+            }
+          }
+          geometry DEF Box077-FACES IndexedFaceSet {
+            ccw TRUE
+            solid TRUE
+            coord DEF Box077-COORD Coordinate { point [
+              -0.15 0 0.25, 0.15 0 0.25, -0.15 0 -0.25, 0.15 0 -0.25, 
+              -0.15 0.2 0.25, 0.15 0.2 0.25, -0.15 0.2 -0.25, 
+              0.15 0.2 -0.25]
+            }
+            normal Normal { vector [
+              1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+            normalPerVertex TRUE
+            coordIndex [
+              0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 
+              0, 1, 5, -1, 5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 
+              3, 2, 6, -1, 6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+            normalIndex [
+              4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 
+              3, 3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, 
+              -1, 5, 5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 
+              1, -1, ]
+            }
+        }
+      ]
+    },
+    DEF Box078 Transform {
+      translation 1.2 0.2 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box079 Transform {
+      translation 1.2 -0.1 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box080 Transform {
+      translation 1.2 -0.4 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box081 Transform {
+      translation 1.2 -0.7 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box082 Transform {
+      translation 0.599998 0.5 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box083 Transform {
+      translation 0.599998 0.2 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box084 Transform {
+      translation 0.599998 -0.1 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box085 Transform {
+      translation 0.599998 -0.4 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box086 Transform {
+      translation 0.599998 -0.7 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box087 Transform {
+      translation 0 0.5 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box088 Transform {
+      translation 0 0.2 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box089 Transform {
+      translation 0 -0.1 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box090 Transform {
+      translation 0 -0.4 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box091 Transform {
+      translation 0 -0.7 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box092 Transform {
+      translation -0.6 0.5 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box093 Transform {
+      translation -0.6 0.2 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box094 Transform {
+      translation -0.6 -0.1 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box095 Transform {
+      translation -0.6 -0.4 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box096 Transform {
+      translation -0.6 -0.7 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box097 Transform {
+      translation -1.2 0.5 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box098 Transform {
+      translation -1.2 0.2 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box099 Transform {
+      translation -1.2 -0.1 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box100 Transform {
+      translation -1.2 -0.4 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    },
+    DEF Box101 Transform {
+      translation -1.2 -0.7 0
+      children [
+                USE Box0775-SHAPE 
+      ]
+    }
+  ]
+ROUTE Global-TIMER.fraction_changed TO Group004-POS-INTERP.set_fraction
+ROUTE Group004-POS-INTERP.value_changed TO Group004.set_translation
+ROUTE Global-TIMER.fraction_changed TO Group004-ROT-INTERP.set_fraction
+ROUTE Group004-ROT-INTERP.value_changed TO Group004.set_rotation
+}

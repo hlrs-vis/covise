@@ -1,5 +1,7 @@
 # OpenCOVER plugins general Vrml97
 using(VRML)
+using(Bullet optional)
+using(OsgBullet optional)
 ADD_DEFINITIONS(-DVRML97_IMPORT_PLUGIN -DNEW_OSG)
 
 IF(NOT (${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.9"))
@@ -56,6 +58,21 @@ SET(LIB_SOURCES
   coMLB.cpp
   coIES.cpp
 )
+
+ IF(BULLET_FOUND)
+	LIST(APPEND LIB_SOURCES VrmlMotionState.cpp)
+	LIST(APPEND LIB_HEADERS VrmlMotionState.h)
+	#LIST(APPEND LIB_SOURCES VrmlNodeMotionStateCallback.cpp)
+	#LIST(APPEND LIB_HEADERS VrmlNodeMotionStateCallback.h)
+	LIST(APPEND LIB_SOURCES VrmlNodeRigidBodyTransform.cpp)
+	LIST(APPEND LIB_HEADERS VrmlNodeRigidBodyTransform.h)
+	#LIST(APPEND LIB_SOURCES VrmlNodeRigidBodyRoot.cpp)
+	#LIST(APPEND LIB_HEADERS VrmlNodeRigidBodyRoot.h)
+	LIST(APPEND LIB_SOURCES VrmlNodePhysicsWorld.cpp)
+	LIST(APPEND LIB_HEADERS VrmlNodePhysicsWorld.h)
+	#LIST(APPEND LIB_SOURCES VrmlNodeRigidBodyGroup.cpp)
+	#LIST(APPEND LIB_HEADERS VrmlNodeRigidBodyGroup.h)
+ ENDIF()
 
 add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES} ${LIB_HEADERS})
 target_link_libraries(Vrml97Cover coOpenPluginUtil coOpenCOVER coOpenVRUI

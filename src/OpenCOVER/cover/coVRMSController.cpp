@@ -71,6 +71,7 @@ int debugMessageCounter;
 bool debugMessagesCheck;
 #endif
 
+
 coVRMSController *coVRMSController::s_singleton = NULL;
 
 coVRMSController::SlaveData::SlaveData(int n)

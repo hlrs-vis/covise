@@ -70,6 +70,9 @@
 #include "VrmlNodePrecipitation.h"
 #include "VrmlNodeMatrixLight.h"
 #include "VrmlNodePhotometricLight.h"
+#include "VrmlNodeRigidBodyTransform.h"
+#include "VrmlNodeRigidBodyGroup.h"
+#include "VrmlNodeMotionState.h"
 
 #include <osgGA/GUIEventAdapter>
 #include <osgDB/Registry>
@@ -392,7 +395,12 @@ bool Vrml97Plugin::init()
 
     coEventQueue::registerEventType(&VrmlNodeARSensor::AREventType);
     coEventQueue::registerEventType(&VrmlNodeMultiTouchSensor::MultiTouchEventType);
+#ifdef HAVE_BULLET
+    VrmlNamespace::addBuiltIn(VrmlNodeRigidBodyTransform::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeRigidBodyGroup::defineType());
 
+   
+#endif
     vrmlFilename = "";
 
     return true;

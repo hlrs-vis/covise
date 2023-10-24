@@ -1,0 +1,4234 @@
+#X3D V3.2 utf8 
+PROFILE Interchange
+META "generator" "Uwes VRML Plugin, Version 8, Revision 06, .NET"
+META "modified" "Date: Thu Mar 17 14:53:57 2022"
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.33333 },
+NavigationInfo { headlight TRUE }
+DEF Box001 RigidBodyTransform {
+  mass 0
+  translation 1 0 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box001-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box001-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+		  
+		  
+		  
+        }
+    }
+  ]
+}
+DEF Box002 RigidBodyTransform {
+  mass 1
+  translation 1 0 0.212092 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box002-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box002-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box003 RigidBodyTransform {
+  mass 0
+  translation 0 0 0.424184 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box003-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box003-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box004 RigidBodyTransform {
+  mass 0 
+  translation 0 0 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box004-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box004-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box005 RigidBodyTransform {
+  mass 0 
+  translation 0 0 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box005-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box005-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box006 RigidBodyTransform {
+  mass 0 
+  translation 0 0 1.06046 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box006-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box006-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box007 RigidBodyTransform {
+  mass 0 
+  translation 0 0 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box007-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box007-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box008 RigidBodyTransform {
+  mass 0 
+  translation 0 0 1.48464 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box008-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box008-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box009 RigidBodyTransform {
+  mass 0 
+  translation 0 0 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box009-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box009-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box010 RigidBodyTransform {
+  mass 0 
+  translation 0 0 1.90883
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box010-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box010-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box011 RigidBodyTransform {
+  mass 0 
+  translation 0 0 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box011-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box011-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box012 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box012-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box012-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box013 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 0.320299 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box013-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box013-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box014 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box014-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box014-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box015 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box015-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box015-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box016 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box016-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box016-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box017 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 1.16867
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box017-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box017-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box018 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box018-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box018-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box019 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box019-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box019-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box020 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box020-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box020-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box021 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box021-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box021-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box022 RigidBodyTransform {
+  mass 0 
+  translation 0 0.0605717 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box022-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box022-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box023 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box023-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box023-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box024 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 0.212092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box024-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box024-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box025 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 0.424184
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box025-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box025-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box026 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box026-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box026-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box027 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box027-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box027-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box028 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 1.06046
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box028-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box028-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box029 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box029-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box029-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box030 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 1.48464
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box030-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box030-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box031 RigidBodyTransform {
+  mass 0 
+  translation 0 0.123188 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box031-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box031-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box032 RigidBodyTransform {
+  mass 1
+  translation 0 0.123188 1.90883 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box032-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box032-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box033 RigidBodyTransform {
+  mass 1
+  translation 0 0.123188 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box033-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box033-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box034 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box034-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box034-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box035 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 0.320299
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box035-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box035-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box036 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box036-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box036-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box037 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box037-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box037-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box038 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box038-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box038-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box039 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 1.16867 
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box039-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box039-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box040 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box040-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box040-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box041 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box041-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box041-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box042 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box042-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box042-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box043 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box043-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box043-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box044 RigidBodyTransform {
+  mass 1
+  translation 0 0.18376 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box044-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box044-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box045 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box045-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box045-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box046 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 0.212092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box046-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box046-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box047 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 0.424184
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box047-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box047-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box048 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box048-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box048-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box049 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box049-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box049-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box050 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 1.06046
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box050-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box050-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box051 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box051-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box051-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box052 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 1.48464
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box052-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box052-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box053 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box053-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box053-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box054 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 1.90883
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box054-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box054-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box055 RigidBodyTransform {
+  mass 1
+  translation 0 0.246376 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box055-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box055-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box056 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box056-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box056-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box057 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 0.320299
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box057-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box057-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box058 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box058-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box058-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box059 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box059-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box059-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box060 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box060-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box060-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box061 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 1.16867
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box061-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box061-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box062 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box062-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box062-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box063 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box063-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box063-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box064 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box064-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box064-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box065 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box065-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box065-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box066 RigidBodyTransform {
+  mass 1
+  translation 0 0.306948 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box066-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box066-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box067 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box067-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box067-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box068 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 0.212092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box068-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box068-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box069 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 0.424184
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box069-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box069-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box070 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box070-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box070-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box071 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box071-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box071-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box072 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 1.06046
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box072-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box072-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box073 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box073-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box073-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box074 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 1.48464
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box074-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box074-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box075 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box075-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box075-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box076 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 1.90883
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box076-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box076-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box077 RigidBodyTransform {
+  mass 1
+  translation 0 0.369564 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box077-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box077-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box078 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box078-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box078-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box079 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 0.320299
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box079-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box079-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box080 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box080-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box080-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box081 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box081-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box081-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box082 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box082-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box082-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box083 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 1.16867
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box083-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box083-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box084 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box084-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box084-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box085 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box085-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box085-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box086 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box086-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box086-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box087 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box087-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box087-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box088 RigidBodyTransform {
+  mass 1
+  translation 0 0.430136 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box088-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box088-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box089 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box089-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box089-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box090 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 0.212092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box090-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box090-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box091 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 0.424184
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box091-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box091-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box092 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box092-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box092-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box093 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box093-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box093-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box094 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 1.06046
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box094-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box094-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box095 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box095-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box095-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box096 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 1.48464
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box096-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box096-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box097 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box097-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box097-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box098 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 1.90883
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box098-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box098-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box099 RigidBodyTransform {
+  mass 1
+  translation 0 0.492753 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box099-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box099-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box100 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box100-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box100-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box101 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 0.320299
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box101-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box101-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box102 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box102-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box102-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box103 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box103-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box103-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box104 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box104-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box104-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box105 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 1.16867
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box105-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box105-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box106 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box106-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box106-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box107 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box107-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box107-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box108 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box108-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box108-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box109 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box109-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box109-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box110 RigidBodyTransform {
+  mass 1
+  translation 0 0.553324 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box110-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box110-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box111 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 0
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box111-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box111-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box112 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 0.212092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box112-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box112-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box113 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 0.424184
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box113-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box113-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box114 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 0.636276
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box114-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box114-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box115 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 0.848368
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box115-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box115-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box116 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 1.06046
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box116-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box116-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box117 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 1.27255
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box117-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box117-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box118 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 1.48464
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box118-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box118-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box119 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 1.69674
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box119-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box119-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box120 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 1.90883
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box120-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box120-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box121 RigidBodyTransform {
+  mass 1
+  translation 0 0.615941 2.12092
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box121-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box121-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box122 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 0.108207
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box122-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box122-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box123 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 0.320299
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box123-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box123-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box124 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 0.532391
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box124-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box124-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box125 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 0.744483
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box125-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box125-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box126 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 0.956575
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box126-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box126-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box127 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 1.16867
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box127-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box127-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box128 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 1.38076
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box128-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box128-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box129 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 1.59285
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box129-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box129-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box130 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 1.80494
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box130-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box130-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box131 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 2.01704
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box131-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box131-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box132 RigidBodyTransform {
+  mass 1
+  translation 0 0.676512 2.22913
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.894118 0.6
+        }
+      }
+      geometry DEF Box132-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box132-COORD Coordinate { point [
+          -0.05 0 0.1, 0.05 0 0.1, -0.05 0 -0.1, 0.05 0 -0.1, -0.05 0.05 0.1, 
+          0.05 0.05 0.1, -0.05 0.05 -0.1, 0.05 0.05 -0.1]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}

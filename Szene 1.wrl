@@ -1,0 +1,286 @@
+#VRML V2.0 utf8
+
+# Produced by Uwes VRML Plugin, Version 8, Revision 06, .NET
+# MAX File: testbricks.max, Date: Tue Jun 14 12:14:22 2022
+
+DEF Global-TIMER TimeSensor { loop TRUE cycleInterval 3.33333 },
+NavigationInfo { headlight TRUE }
+
+DEF Box001 RigidBodyTransform {
+	mass 1 
+  shapeType 5 
+ 
+	translation 0 0 0
+	
+	
+  children [
+    DEF Box0013-SHAPE Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.839216 0.898039 0.65098
+        }
+      }
+      geometry DEF Box001-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box001-COORD Coordinate { point [
+          -0.15 0 0.25, 0.15 0 0.25, -0.15 0 -0.25, 0.15 0 -0.25, 
+          -0.15 0.2 0.25, 0.15 0.2 0.25, -0.15 0.2 -0.25, 0.15 0.2 -0.25]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box002 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0 0.3 0
+  restitution 1
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box003 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box004 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box005 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box006 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0.6 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box007 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0.6 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box008 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0.6 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box009 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0.6 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box010 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 0.6 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box011 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.2 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box012 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.2 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box013 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.2 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box014 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.2 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box015 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.2 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box016 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.8 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box017 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.8 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box018 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.8 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box019 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.8 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box020 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 1.8 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box021 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 2.4 0 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box022 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 2.4 0.3 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box023 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 2.4 0.6 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box024 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 2.4 0.9 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+DEF Box025 RigidBodyTransform {
+ 	 	 mass 1 
+  shapeType 5 
+ 
+  translation 2.4 1.2 0
+  children [
+        USE Box0013-SHAPE 
+  ]
+}
+RigidBodyTransform {
+mass 2
+impulse 0 0 -24000
+shapeType 2
+restitution 0.9
+translation 1.2 1.4 20
+children [
+Shape {
+geometry Sphere { radius 1.2}
+} # Ende von Shape
+] # Ende von children
+}
+
+
+
+RigidBodyTransform {
+
+translation 2 -1.5 3
+children [
+Shape {
+geometry Box { size 50 1 50}
+} # Ende von Shape
+] # Ende von children
+}
+

@@ -1,0 +1,118 @@
+einleitung
+motivation
+state of the art
+Grundlagen
+implentierung
+auswertung
+conclusion
+blick in die Zukunft- was hab ich noch nicht gemacht, erweiterungen
+
+
+
+-rigidBodyTransform leitet von nodetransform ab
+-RigidBody Parameter in rigidBodyTransform (rigidBodycollections/ Hierarchy?)->wie macht Bullet das?
+-keine Bullet/osgBullet referenzen in VRML, wenn möglich (wenn dann mit #IF_END)
+-computePhysics() in ViewerOSG (coVRML) 
+
+Aufgabe:
+
+Wand innerhalb einer Vrml-File umfallen lassen.
+
+->essentiel dafür: RigidBodies, CollisionDetection, PhysicsWorld, computePhysics();
+	
+Wie übergibt der User den Körpern die Parameter? (UserInterface?)
+
+Fragen:
+
+in was für Fällen darf ich Bullet referenzen benutzen? (collisionDetection?)
+
+->Was genau hab ich alles zu implementieren (CollisionDetection, Joints, RigidBodyCollections, computePhysics(), PhysicsWorld)  
+
+
+How does Bullet:
+
+-how does bullet handle rigidBodyCollections?
+
+-how does Bullet compute physics? 
+	
+	-how does bullet Transform SceneGraphs and Rigidbodies?
+		-MotionStates: MotionStates allow to set the Transformation of a Subgraph corresponding to a RigidBody
+		
+	-how does Bullet do CollisionDetection?
+
+
+VrmlRigidBodyTransform:
+-Klasse mit RigidBodyAttributen
+	-geometry
+	-forces
+	-linear/angeluar velocity
+	-orientation/ position
+	-friction/ restitution
+	-weitere
+-RigidBody motion Type:
+	-static: unbeweglich, does Collide with Objects, no mass, not affected by Gravity
+	-kinematic: can be animated during the physics simulation, but they are not affected by the simulation itself. 
+		    because kinematic bodies can be moved the physics simulation spends more time updating kinematic than static bodies. 
+	-dynamic: beweglich, fully simulated in physics simulation
+
+PhysicsWorld/ Collision Detection:
+-In Bullet wird eine PhysicsWorld mit folgenden Parametern erstellt:
+	-CollsionConfiguration:
+		is responsible for full, not broad, collision detection.
+		this is where the more fine-grained and accurate collision detection code runs. 
+	-CollisionDispatcher:
+		CollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs. 
+		Time of Impact, Closest Points and Penetration Depth. 
+	-ConstraintSolver:
+		causes an Object to interactporperly
+		meaning Gravity, Forces/impulses, Wind and other natural behavior as well as Hinge constraints	
+	-BroadphaseInterface:
+		Collision detection is done in two phases: broad and narrow. 
+		In the broad phase, the physics engine quickly eliminates objects that cannot collide.
+		It then passes only a small list of objects that can collide to the narrow phase, which is much slower, since it checks actual shapes for collision.
+-btBulletDynamicsCommon.h -> included btDiscreteDynamicsWorld.h -> included die oben genannten algorithmen/klassen
+
+
+Physikalische Grundlagen:
+1. Position, Orientierung:
+-Position x(t) ist ein Ortsvektor im Weltkoordinatensystem zum COM
+-Orientierung R(t) R(t) beschreibt eine Transformationsmatrix, 
+ welche die Repräsentation des Starrk ̈orpers in lokalen Objektkoordinaten
+ in eine Repräsentation in Weltkoordinaten ̈uberführt
+	->RigidBoides unterliegen nur affinen Transformationen (Rotation/Translation), keine Skalierung
+2. Newton'sche Axiome 
+	1. Träheitsprinzip
+	2.F=m*a
+	3.Actio=Reactio
+->Zur Bestimmung von Position und Orientierung eines RigidBodies zu Zeitpunkt t, werden alle wirkenden Kräfte benötigt
+3. Kräfte 
+-Unterteilung in Lineare Kraft Flin (resultiert in linVel) und Drehkraft τ (res. in angVel)
+-Zusammenhang zwischen  τ und F: τ= F x ri (kreuzprodukt) und Flin=(F*ri)ri (skalarprodukt)
+	->mit ri: Abstand von COM zu Kraftangriffspunkt
+4. lineare Bewegung
+-Translation des COM
+-Geschwindigkeit v(t): Änderungsrate der Position in einem Zeitintervall  ∆t 		(Abl. Pos)
+-Beschleunigung a(t): Änderung der Geschwindigkeit in einem Zeitintervall  ∆t 		(Abl. Vel)
+-linearer Impuls eines Körpers: p(t)=m*v(t)	
+-Lineare Kraft: F=m*a(t)								(Abl. Imp)
+
+
+
+
+computePhysics():
+-berechnet aufgrund der physikalischen Eigenschaften von Objekten und Welt die Physics simulation
+->was soll in dieser Methode berechnet werden?
+	-Bewegunszustandsänderungen von RigidBoides
+	-Auswirkungen von Kräften und Impulsen
+		->Äußere Kräfte(Gravitation, Kräfte die übergeben werden
+		->Impulse durch Kollisionen
+			->Kollision von dynamischen Körpern
+			->Kollision von Dynamischen Körpern mit statischen/kinematischen Körpern
+	-Bewegung von kinematischen Körpern
+-PseudoCode (grob vereinfacht):
+	IF (CollisionDetected){
+		node [] collidedNodesArray = {collidedNodes[i]}
+		for (i=0; i++; i<collidedNodesArray.length){
+			angVel[i]=collidedNodes[i].getAngularVelocity();
+			linVel[i]=collidedNodes[i].getLinearVelocity();
+			

@@ -1,0 +1,52 @@
+#X3D V3.2 utf8 
+PROFILE Interchange
+META "generator" "Uwes VRML Plugin, Version 8, Revision 06, .NET"
+META "modified" "Date: Thu Mar 17 14:53:57 2022"
+
+
+
+
+Transform {
+  children [
+    Shape {
+     appearance Appearance {
+       material Material {}
+     }
+     geometry Box {}
+    }
+  ]
+  translation 2.0 0 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
