@@ -736,8 +736,8 @@ void ClipPlanePlugin::addNodeFromPlugin(osg::Node *node, const RenderObject *, c
     if (auto *cn = dynamic_cast<osg::ClipNode *>(node))
     {
         clipNodes.push_back({addingPlugin ? addingPlugin->getName() : "", cn->getName(), cn});
+        updateRootChoices();
     }
-    updateRootChoices();
 }
 
 void ClipPlanePlugin::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
@@ -752,10 +752,10 @@ void ClipPlanePlugin::removeNode(osg::Node *node, bool isGroup, osg::Node *realN
         if (it->node.get() == cn)
         {
             clipNodes.erase(it);
+            updateRootChoices();
             break;
         }
     }
-    updateRootChoices();
 }
 
 void ClipPlanePlugin::updateRootChoices()
