@@ -89,7 +89,7 @@ private:
     coVRBoxOfInterest *myboi;
     osg::ref_ptr<osg::ClipNode> cn;
     VariantPlugin *plugin = nullptr;
-    bool visible = true;
+    bool visible = false;
 };
 
 #endif /* _Variant_H */

@@ -463,10 +463,6 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                    default_state = false;
                    set_default = true;
                 }
-                if (set_default)
-                {
-                    std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
-                }
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {
@@ -495,6 +491,8 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                 varmap[node] = var;
                 if (set_default && !var->defaultVisibilitySet)
                 {
+                    std::cerr << "Variant " << var_att << ", setting default visibility to " << default_state
+                              << std::endl;
                     var->defaultVisibilitySet = true;
                     if (default_state == false)
                     {

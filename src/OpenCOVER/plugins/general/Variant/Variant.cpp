@@ -60,6 +60,8 @@ Variant::Variant(VariantPlugin *plugin, std::string var_Name, osg::Node *node, o
     std::string cnName = "_clNode_";
     cnName.append(varName);
     cn = boi->createClipNode(cnName);
+
+    setVisible(true);
 }
 //------------------------------------------------------------------------------
 
@@ -260,6 +262,9 @@ void Variant::setParents(osg::Node::ParentList pa)
 
 void Variant::setVisible(bool state)
 {
+    if (visible == state)
+        return;
+
     visible = state;
     osg::Node *n = getNode();
     if (n)
