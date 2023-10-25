@@ -319,14 +319,19 @@ bool OpenCOVER::init()
     std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
     if (!startCommand.empty())
     {
+        std::cerr << "Running COVER.StartCommand " << startCommand << std::flush;
         int ret = system(startCommand.c_str());
         if (ret == -1)
         {
-            std::cerr << "COVER.StartCommand " << startCommand << " failed: " << strerror(errno) << std::endl;
+            std::cerr << " failed: " << strerror(errno) << std::endl;
         }
         else if (ret > 0)
         {
-            std::cerr << "COVER.StartCommand " << startCommand << " returned exit code  " << ret << std::endl;
+            std::cerr << " returned exit code  " << ret << std::endl;
+        }
+        else
+        {
+            std::cerr << "." << ret << std::endl;
         }
     }
 
