@@ -111,7 +111,7 @@
         "id": "dependency path win",
         "type": "promptString",
         "description": "path to dependencies (vcpkg or externlibs)",
-        "default": "${workspaceFolder}/../externlibs/zebu"
+        "default": "..../externlibs/zebu"
       },
       {
         "id": "qt version",
