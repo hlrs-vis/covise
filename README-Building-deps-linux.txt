@@ -205,3 +205,6 @@ disable performance tests and normal tests, build (be very patient) and install
 
 #open62541
 cmake ..  -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/open62541 -DUA_FORCE_WERROR=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DUA_ENABLE_ENCRYPTION=OPENSSL -DUA_ENABLE_ENCRYPTION_OPENSSL=1
+
+#ifcpp
+cmake ..  -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/ifcpp -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/openscenegraph/
