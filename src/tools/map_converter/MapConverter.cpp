@@ -108,8 +108,8 @@ int main(int argc, char **argv)
     // handle options and arguments
     //
     int c;
-    extern char *optarg;
-    extern int optind;
+    extern char *covise::optarg;
+    extern int covise::optind;
 
     int errflg = 0;
     int overWrite = 0;
