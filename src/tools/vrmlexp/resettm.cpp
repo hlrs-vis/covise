@@ -165,7 +165,7 @@ void ResetPivot::ResetSel()
         if (SelectedAncestor(node))
             continue;
 
-        Matrix3 ntm, ptm, rtm(1), piv(1), tm;
+        Matrix3 ntm, ptm, rtm, piv, tm;
 
         // Get Parent and Node TMs
         ntm = node->GetNodeTM(ip->GetTime());

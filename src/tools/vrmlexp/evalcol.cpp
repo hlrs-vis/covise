@@ -167,6 +167,8 @@ public:
     Point3 DUVW(int chan);
     void DPdUVW(Point3[], int chan);
     void GetBGColor(Color &bgCol, Color &transp, int fogBG);
+    Matrix3 MatrixTo(RefFrame ito);
+    Matrix3 MatrixFrom(RefFrame ifrom);
     Point3 PointTo(const Point3 &p, RefFrame ito);
     Point3 PointFrom(const Point3 &p, RefFrame ito);
     Point3 VectorTo(const Point3 &p, RefFrame ito);
@@ -1107,6 +1109,23 @@ void SContext::GetBGColor(class Color &bgCol, class Color &transp, int fogBG)
     transp = Color(0.0f, 0.0f, 0.0f);
 }
 
+// Transformation matrix to transform from internal camera space to the specified space.
+Matrix3 SContext::MatrixTo(RefFrame ito)
+{
+    if (ito == REF_OBJECT) {
+        return Inverse(tmAfterWSM);
+    }
+    return Matrix3::Identity;
+}
+
+// Transformation matrix to transformfrom the specified coordinate system to internal camera space.
+Matrix3 SContext::MatrixFrom(RefFrame ifrom)
+{
+    if (ifrom == REF_OBJECT) {
+        return tmAfterWSM;
+    }
+    return Matrix3::Identity;
+}
 // Transforms the specified point from internal camera space to the specified space.
 Point3 SContext::PointTo(const class Point3 &p, RefFrame ito)
 {
