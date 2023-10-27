@@ -16,6 +16,7 @@ using namespace opencover;
 
 opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
 {
+    // return applyShader(drawable, colorMap, min, max, "MapColorsAttrib");
     return applyShader(drawable, colorMap, min, max, "MapColorsAttribUnlit");
 }
 
@@ -50,8 +51,9 @@ void Currents::initGeo()
     m_traceLine = new osg::Geometry;
     m_vertices = new osg::Vec3Array;
     m_values = new osg::FloatArray;
-    m_drawArrays = new osg::DrawArrays;
+    m_drawArrays = new osg::DrawArrays(osg::PrimitiveSet::LINE_STRIP);
     osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadUnlightedGeostate();
+    // osg::ref_ptr<osg::StateSet> stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
     m_traceLine->setVertexArray(m_vertices);
 
     m_traceLine->setUseDisplayList(false);
