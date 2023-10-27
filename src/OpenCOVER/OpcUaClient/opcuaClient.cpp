@@ -338,6 +338,8 @@ double Client::getNumericScalar(const std::string &nodeName)
 {
     double retval = 0;
     auto node = findNode(nodeName);
+    if(!node)
+        return retval;
     //not very efficient
     for_<8>([this, node, &nodeName, &retval] (auto i) {      
         typedef typename detail::Type<numericalTypes[i.value]>::type T;
