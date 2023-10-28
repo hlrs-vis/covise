@@ -10,7 +10,7 @@
 					   <Stream name="2" InPort="2" DeviceName="TriplePlay Connect TP Guitar"/>
 					   <Stream name="3" InPort="3" DeviceName="Moog Theremini Moog Music, Inc."/>
 					   <Stream name="4" InPort="4" DeviceName="TriplePlay Connect TP Control"/>
-					   <Stream name="5" InPort="5" DeviceName="CH345 MIDI 1"/>
+					   <Stream name="5" InPort="5" DeviceName="TD-27 MIDI 1"/>
 					   <Stream name="6" InPort="6" DeviceName="Swissonic 88 MIDI 1"/>
 					   <Stream name="7" InPort="7" DeviceName="Swissonic 88 MIDI 2"/>
 						   <Theremin object="/data/Jeremy/NOTES/Theremin.wrl"   minX="1" maxX="2" minY="1" maxY="2" posX="0.0" posY="200.0" posZ="0.0" />
@@ -18,6 +18,8 @@
 					   <Controller name="0" controllerID="2"   action="Shader0"   min="0"   max="125" minOut="1.0" maxOut="0.0"  />
 					   <Controller name="1" controllerID="3"   action="Shader1"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
+					   <Controller name="3" controllerID="7"   action="rAcceleration"   min="0"   max="127" minOut="-1.0" maxOut="1.0"  />
+					   <Controller name="4" controllerID="10"   action="Acceleration"   min="0"   max="127" minOut="-1000" maxOut="100.0"  />
 					   
 					   <TriplePlay DeviceName="TriplePlay Connect TP Control" DeviceIn="5" DeviceOut="6"/>
 					   
@@ -27,7 +29,7 @@
 					       <Key name="51"   r="0"  g="0"  b="255"/>
 					       <Key name="52"   r="80"  g="0"  b="255"/>
                                            </Instrument>
-					   <Instrument name="0" channel="8" type="Drumkit">
+					   <Instrument name="0" channel="7" type="Drumkit">
 					       <Key name="1"   r="148"   g="0" b="211"/>
 					       <Key name="2"   r="75"  g="0" b="130"/>
 					       <Key name="3"   r="0"  g="0"  b="255"/>
@@ -162,7 +164,7 @@
 					       <Key name="127"  r="150" g="33" b="29"/>
 					   
 					   </Instrument>
-					   <Instrument name="1" channel="9" type="Drumkit">
+					   <Instrument name="1" channel="8" type="Drumkit">
 					       <Key name="1"   r="148"   g="0" b="211"/>
 					       <Key name="2"   r="75"  g="0" b="130"/>
 					       <Key name="3"   r="0"  g="0"  b="255"/>
@@ -205,7 +207,7 @@
 					       <Key name="38"  r="29" g="181" b="49"  modelName = "/data/Jeremy/NOTES/d7.obj" modelScale = "0.5"/>
 						   <Key name="39"  r="29" g="181" b="49" modelName  = "/data/Jeremy/NOTES/a10.obj" modelScale = "1.0"/>
 						   
-						   <Key name="40"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/ao1.obj" modelScale = "1.0" description="DRUM CHORD TITLES"/>
+					       <Key name="40"  r="29" g="181" b="49"  modelName = "/data/Jeremy/NOTES/d7_ring.wrl" modelScale = "0.5"/>
 						   <Key name="41"  r="250" g="22" b="10" modelName  = "/data/Jeremy/NOTES/ao2.obj" modelScale = "1.0"/>
 						   <Key name="42"   r="255"  g="200" b="0" x="-1000" y="0" z="200" modelName = "/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale = "10.0"/>
 					       <Key name="43"  r="250" g="170" b="10"  x="1000" y="0" z="-1000" modelScale = "1.0"/>
