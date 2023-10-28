@@ -76,7 +76,7 @@ using namespace smf;
 class ControllerInfo
 {
 public:
-	enum ControllerAction {NONE,Shader0,Shader1,Shader2,Shader3,Shader4,Shader5,rAcceleration};
+	enum ControllerAction {NONE,Shader0,Shader1,Shader2,Shader3,Shader4,Shader5,rAcceleration,Acceleration};
 	ControllerInfo(std::string& configName);
 	~ControllerInfo();
 	std::string configName;

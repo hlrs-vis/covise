@@ -1043,6 +1043,8 @@ ControllerInfo::ControllerInfo(std::string& cn)
 		action = Shader5;
 	else if (actionName == "rAcceleration")
 		action = rAcceleration;
+	else if (actionName == "Acceleration")
+		action = Acceleration;
 	MidiPlugin::instance()->controllers.push_back(this);
 }
 ControllerInfo::~ControllerInfo()
@@ -1513,6 +1515,11 @@ void MidiPlugin::handleController(MidiEvent& me)
 			{
 				rAcceleration = val;
 				raccelSlider->setValue(val);
+			}
+			else if (ci->action == ControllerInfo::Acceleration)
+			{
+				acceleration = val;
+				accelSlider->setValue(val);
 			}
 		}
 	}
@@ -2233,18 +2240,42 @@ void Track::update()
 				{
 
 				     numRead=1;
-					err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf, sizeof(buf));
-					if(err > 1)
-				     fprintf(stderr,"err %d %d length %d\n",err,trackNumber,length);
+					err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf, 1);
+					if(err==1)
+					{
+                        if(buf[0] != 0xf8)
+				     fprintf(stderr,"length: %d trackNumber: %d buf0:%x\n",err,trackNumber,(unsigned char)buf[0]);
+					    //check command
+					    if((buf[0]&0xf0)==0xf0)
+					    {
+					        //ignore sync
+					    }
+					    else if(buf[0]&0x80)
+					    {
+					    if((buf[0]&0xF0)== 0xC0 || (buf[0]&0xF0)== 0xD0) // Program change and After touch
+					    {
+						numRead=1;
+					        err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf+1, 1);
+					    }
+					    else
+					    {
+					    //read the next two data bytes
+						numRead=2;
+					        err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf+1, 2);
+					    }
+					
+					if(err > 0)
+				     fprintf(stderr,"length: %d trackNumber: %d buf0:%x\n",err,trackNumber,buf[0]);
 					if (err <= 0)
 						numRead=0;
 					else
 					{
 
-					       length = 0;
-					       for (i = 0; i < err; ++i)
-						       if ( buf[i] != 0xfe)
-							       buf[length++] = buf[i];
+					       //length = 0;
+					       //for (i = 0; i < err; ++i)
+						//       if ( buf[i] != 0xfe)
+						//	       buf[length++] = buf[i];
+						length = 1+err;
 					       if (length >=3)
 					       {
 						   me.setP0(buf[0]);
@@ -2268,6 +2299,10 @@ void Track::update()
 						   numRead=0;
 					       }
 					   }
+					 }
+					 }
+					if (err <= 0)
+						numRead=0;
 				}
 				else
 				{
