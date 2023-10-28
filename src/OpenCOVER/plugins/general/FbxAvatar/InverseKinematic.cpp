@@ -99,7 +99,7 @@ bool SoftenTarget(const IKTwoBoneJob& _job, const IKConstantSetup& _setup,
     // The derivative must be 1 for x = 0, and y must never exceeds 1.
     // Negative x aren't used.
 
-    const auto factor = std::powf(alpha + 3, 4);
+    const auto factor = std::pow(alpha + 3, 4);
     const Vec3f ratio = Vec3f{81 / factor, 1, 81 / factor};
     
     // Recomputes start_target_ss vector and length.
