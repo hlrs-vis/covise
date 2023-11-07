@@ -48,10 +48,10 @@ public:
     ARUCOPlugin();
     virtual ~ARUCOPlugin();
 
-    virtual bool init();
-    virtual void preFrame();
-    virtual bool update();
-    virtual bool destroy();
+    bool init() override;
+    void preFrame() override;
+    bool update() override;
+    bool destroy() override;
     int loadPattern(const char* p);
     
 protected:
