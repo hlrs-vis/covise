@@ -59,7 +59,6 @@ Manager::Manager()
 , m_config(cover->configFile("opcua"))
 , m_newClientName(new ui::EditField(m_menu, "clientName"))
 {
-    std::cerr << "opcua menu has elemnt id " << m_menu->elementId() << std::endl;
     m_config->setSaveOnExit(true);
     m_configuredServersList->setList(m_config->sections());
     m_configuredServersList->setCallback([this](int index){

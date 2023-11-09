@@ -11,6 +11,7 @@
 #include <open62541/common.h>
 #include <iostream>
 
+#include <cover/coVRPluginSupport.h>
 #include <cover/ui/VectorEditField.h>
 #include <cover/coVRMSController.h>
 #include <cover/ui/SelectionList.h>
@@ -77,7 +78,9 @@ static UA_INLINE UA_ByteString loadFile(const char *const path) {
 Client::Client(const std::string &name)
 : m_menu(new opencover::ui::Menu(detail::Manager::instance()->m_menu, name))
 , m_connect(new opencover::ui::Button(m_menu, "connect"))
-, m_frequency(new opencover::ui::Slider(m_menu, "frequency"))
+, m_requestedPublishingInterval(std::make_unique<opencover::ui::SliderConfigValue>(m_menu, "requestedPublishingInterval", 1, *detail::Manager::instance()->m_config, name))
+, m_queueSize(std::make_unique<opencover::ui::SliderConfigValue>(m_menu, "queueSize", 1, *detail::Manager::instance()->m_config, name))
+, m_samplingInterval(std::make_unique<opencover::ui::SliderConfigValue>(m_menu, "samplingInterval", 1, *detail::Manager::instance()->m_config, name))
 , m_username(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "username", "", *detail::Manager::instance()->m_config, name))
 , m_password(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "password", "", *detail::Manager::instance()->m_config, name))
 , m_serverIp(std::make_unique<opencover::ui::EditFieldConfigValue>(m_menu, "serverIp", "", *detail::Manager::instance()->m_config, name))
@@ -92,8 +95,11 @@ Client::Client(const std::string &name)
     m_connect->setCallback([this](bool state){
         state ? connect() : disconnect();
     });
-    m_frequency->setBounds(1, 100);
-    m_frequency->setValue(10);
+
+    m_requestedPublishingInterval->ui()->setBounds(1, 100);
+    m_samplingInterval->ui()->setBounds(1, 250);
+    m_queueSize->ui()->setBounds(1, 100);
+
 }
 
 Client::~Client()
@@ -159,7 +165,7 @@ void Client::runClient()
     fetchAvailableNodes(client, browser.response());
     /* Create a subscription */
     UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
-    request.requestedPublishingInterval = 1;
+    request.requestedPublishingInterval = m_requestedPublishingInterval->getValue();
     m_subscription = UA_Client_Subscriptions_create(client, request, NULL, NULL, NULL);
                        
     statusChanged();
@@ -255,8 +261,8 @@ void Client::registerNode(const NodeRequest &nodeRequest)
 
     UA_MonitoredItemCreateRequest monRequest =
         UA_MonitoredItemCreateRequest_default(node->id);
-    monRequest.requestedParameters.samplingInterval = 1;
-    monRequest.requestedParameters.queueSize = 10;
+    monRequest.requestedParameters.samplingInterval = m_samplingInterval->getValue();
+    monRequest.requestedParameters.queueSize = m_queueSize->getValue();
     // monRequest.requestedParameters.discardOldest = false;
 
     auto it = clientSubscriptions.insert(std::make_pair(nodeRequest.nodeName, ClientSubscription{this, nodeRequest.nodeName})).first;
@@ -434,6 +440,7 @@ void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
 
 void Client::connect()
 {
+    m_shutdown = false;
     if(msController->isMaster())
     {
         if(m_communicationThread && m_communicationThread->joinable())

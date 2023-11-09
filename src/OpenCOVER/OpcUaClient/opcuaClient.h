@@ -25,6 +25,7 @@
 #include <string>
 #include <thread>
 
+
 class UA_Client;
 
 namespace opencover{
@@ -141,10 +142,10 @@ private:
     void statusChanged();
     Node* findNode(const std::string &name);
     UA_Variant_ptr getValue(const std::string &name);
-
+    
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_connect;
-    opencover::ui::Slider *m_frequency;
+    std::unique_ptr<opencover::ui::SliderConfigValue> m_requestedPublishingInterval, m_samplingInterval, m_queueSize;
     std::unique_ptr<opencover::ui::FileBrowserConfigValue> m_certificate, m_key;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_password, m_username, m_serverIp;
     std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode;
