@@ -150,8 +150,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace covise
-{
 
 TCHAR *optarg; // global argument pointer
 int optind = 0; // global argv index
@@ -217,5 +215,4 @@ int getopt(int argc, TCHAR *argv[], const TCHAR *optstring)
     }
 
     return c;
-}
 }

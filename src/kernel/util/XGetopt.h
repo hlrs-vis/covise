@@ -17,12 +17,9 @@
 #include <tchar.h>
 #include "coExport.h"
 
-namespace covise
-{
-
 extern UTILEXPORT int optind, opterr;
 extern UTILEXPORT TCHAR *optarg;
 
 int UTILEXPORT getopt(int argc, TCHAR *argv[], const TCHAR *optstring);
-}
+
 #endif //XGETOPT_H
