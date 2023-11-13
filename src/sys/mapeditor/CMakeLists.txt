@@ -24,6 +24,11 @@ INCLUDE_DIRECTORIES(
     covise
   )
 
+find_package(Qt5Core)
+find_package(QtWidgets)
+INCLUDE_DIRECTORIES("${Qt5Core_INCLUDE_DIRS}")
+INCLUDE_DIRECTORIES("${Qt5Widgets_INCLUDE_DIRS}")
+
 SET(MAPEDITOR_SOURCES
   widgets/MEUserInterface.cpp
   widgets/MEGraphicsView.cpp
