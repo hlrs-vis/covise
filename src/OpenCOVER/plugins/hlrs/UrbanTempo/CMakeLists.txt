@@ -2,9 +2,13 @@ USING(GDAL)
 
 SET(HEADERS
   UrbanTempo.h
+  TreeModel.h 
+  Tree.h
 )
 SET(SOURCES
   UrbanTempo.cpp
+  TreeModel.cpp 
+  Tree.cpp
 )
 
 cover_add_plugin(UrbanTempo ${HEADERS} ${SOURCES} coCurlHTTPClient)

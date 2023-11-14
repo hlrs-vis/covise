@@ -20,7 +20,13 @@
 \****************************************************************************/
 
 #include "UrbanTempo.h"
+#include "Tree.h"
+#include "TreeModel.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRConfig.h>
+// #include <OpenVRUI/coMenu.h>
+#include <cover/coVRTui.h>
+// #include <coVRTui>
 #include <curl/curl.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -41,46 +47,9 @@
 #include <HTTPClient/CURL/request.h>
 #include <HTTPClient/CURL/methods.h>
 
+#include <osg/io_utils>
+
 using namespace opencover;
-
-
-TreeModel::TreeModel(std::string configName)
-{
-
-
-    std::vector<double> defaultVec{ 0.0, 0.0, 0.0 };
-    auto configSpeciesName = UrbanTempo::instance()->configString(configName, "species_name", "default");
-    auto configTreeModel = UrbanTempo::instance()->configString(configName, "model_path", "default");
-    auto configSeason = UrbanTempo::instance()->configString(configName, "season", "default");
-    auto configLOD = UrbanTempo::instance()->configInt(configName, "LOD", 0);
-    auto configRotation = UrbanTempo::instance()->configFloatArray(configName, "rotation", defaultVec);
-    auto configTranslation = UrbanTempo::instance()->configFloatArray(configName, "translation", defaultVec);
-    osg::Vec3 translation(configTranslation->value()[0], configTranslation->value()[1], configTranslation->value()[2]);
-
-    speciesName = *configSpeciesName;
-    modelPath = *configTreeModel;
-    model = osgDB::readNodeFile(modelPath);
-    season = UrbanTempo::stringToSeason(*configSeason);
-    transform = osg::Matrixd::rotate(osg::DegreesToRadians((*configRotation)[0]), osg::Vec3(1.0f, 0.0f, 0.0f),
-        osg::DegreesToRadians((*configRotation)[1]), osg::Vec3(0.0f, 1.0f, 0.0f),
-        osg::DegreesToRadians((*configRotation)[2]), osg::Vec3(0.0f, 0.0f, 1.0f));
-    transform.postMultTranslate(translation);
-    if (model)
-    {
-        osg::ComputeBoundsVisitor cbv;
-        model->accept(cbv);
-        osg::BoundingBox bb = cbv.getBoundingBox();
-        osg::Vec3 size(bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin());
-        if((*configRotation)[0]!=0.0)
-            height = size[1]; // hack, if y is up, use y as height, otherwise z
-        else
-            height = size[2];
-    }
-}
-
-TreeModel::~TreeModel()
-{
-}
 
 UrbanTempo *UrbanTempo::plugin = nullptr;
 
@@ -105,6 +74,10 @@ bool UrbanTempo::init()
     }
     // printInformation();
     setupPluginNode();
+    getGeneralConfigData();
+    coVRConfig::instance()->setLODScale(100);
+    setupScenegraph();
+    setTreeModels();
     setTrees();
 
     return true;
@@ -190,62 +163,71 @@ std::string UrbanTempo::readJSONFromFile(const std::string &path)
     return filecontent.str();
 }
 
-void UrbanTempo::setTrees()
+void UrbanTempo::getGeneralConfigData()
 {
-    // read in default tree model
-    //osg::ref_ptr<osg::Node> model;
-    
+    auto configDefaultHeight = configFloat("general", "default_height", 10);
+    defaultHeight = *configDefaultHeight;
 
+    auto configGeotiffpath = configString("general", "geotiff_path", "");
+    geotiffpath = *configGeotiffpath;
+}
+
+void UrbanTempo::setTreeModels()
+{
     int i = 1;
     while (true)
     {
         auto configSpeciesName = configString("treeModel" + std::to_string(i), "species_name", "default");
         std::string speciesName = *configSpeciesName; if (speciesName == "default")
         {
-            treeModels.emplace_back(std::make_unique<TreeModel>("treeModelDefault"));
+            treeModels.emplace_back(std::make_shared<TreeModel>("treeModelDefault"));
 
             defaultTreeIterator = treeModels.end();
             defaultTreeIterator--;
             break;
         }
-        treeModels.emplace_back(std::make_unique<TreeModel>("treeModel" + std::to_string(i)));
+        treeModels.emplace_back(std::make_shared<TreeModel>("treeModel" + std::to_string(i)));
         
         i++;
     }
+}
 
-    // create transform node to translate all placed trees
-    osg::ref_ptr<osg::MatrixTransform> rootTransform(new osg::MatrixTransform);
+void UrbanTempo::setupScenegraph()
+{
+    // osg::ref_ptr<osg::MatrixTransform> rootTransform(new osg::MatrixTransform);
+    rootTransform = new osg::MatrixTransform;
     rootTransform->setName("rootTransform");
-    pluginNode->addChild(rootTransform);
     osg::Matrix rootMatrix;
     auto configOffsetX = configFloat("offset", "x", 0.0);
     auto configOffsetY = configFloat("offset", "y", 0.0);
     rootMatrix.makeTranslate(osg::Vec3d(*configOffsetX, *configOffsetY, 0.0));
     rootTransform->setMatrix(rootMatrix);
+    pluginNode->addChild(rootTransform);
+}
 
-    auto configDefaultHeight = configFloat("general", "default_height", 10);
-    double defaultHeight = *configDefaultHeight;
-
-    // add trees one after another with information from config file
+void UrbanTempo::setTrees()
+{
     GDALAllRegister();
-    auto configGeotiffpath = configString("general", "geotiff_path", "");
-    std::string geotiffpath = *configGeotiffpath;
     openImage(geotiffpath);
 
-    i = 1;
+    int i = 1;
     while (true)
     {
         auto configSpeciesName = configString("tree" + std::to_string(i), "species_name", "default");
         std::string speciesName = *configSpeciesName;
-        int condition = speciesName.compare("default");
-        if (!condition)
+        if (speciesName == "default")
+        {
             break;
+        }
+        trees.emplace_back(std::make_unique<Tree>("tree" + std::to_string(i)));
+        
         osg::ref_ptr<osg::MatrixTransform> treeTransform(new osg::MatrixTransform);
+        trees[i-1]->sceneGraphNode = treeTransform;
         treeTransform->setName("treeTransform"+std::to_string(i));
         rootTransform->addChild(treeTransform);
 
         // choose correct tree model and add it to the scenegraph
-        auto itr = std::find_if(treeModels.begin(), treeModels.end(), [&](const std::unique_ptr<TreeModel>& treeModel){
+        auto itr = std::find_if(treeModels.begin(), treeModels.end(), [&](const std::shared_ptr<TreeModel>& treeModel){
             return treeModel->speciesName == speciesName;
         });
         if (itr == treeModels.end())
@@ -256,51 +238,171 @@ void UrbanTempo::setTrees()
         {
             itr = defaultTreeIterator;
         }
-        /*if ((*itr)->season != stringToSeason(configSeason->value()))
-        {
-            model = defaultTreeModel;
-            rotation = osg::Vec3d(configDefaultRotation->value()[0], configDefaultRotation->value()[1], configDefaultRotation->value()[2]);
-            translate = osg::Vec3d(configDefaultTranslation->value()[0], configDefaultTranslation->value()[1], configDefaultTranslation->value()[2]);
-            // std::cout << "default tree model" << std::endl;
-        }
-        else
-        {
-            model = treeModels[index]->model;
-            rotation = treeModels[index]->rotation;
-            translate = treeModels[index].translation;
-            // std::cout << "index: " << index << "; Model: " << treeModels[index].speciesName << std::endl;
-        }*/
+
         if((*itr)->model)
         {
             treeTransform->addChild((*itr)->model);
+            trees[i-1]->treeModel = *itr;
 
             // read tree position and get altitude from geotiff
-            auto configTreeX = configFloat("tree" + std::to_string(i), "x", 0);
-            auto configTreeY = configFloat("tree" + std::to_string(i), "y", 0);
-            float treeAltitude = getAlt(*configTreeX, *configTreeY);
+            auto treeXPos = trees[i-1]->xPos;
+            auto treeYPos = trees[i-1]->yPos;
+            float treeAltitude = getAlt(treeXPos, treeYPos);
+            trees[i-1]->setAltitude(treeAltitude);
+            // trees[i-1]->setAltitude(getAlt(trees[i-1]->xPos, trees[i-1]->yPos);
 
             // set height for specific trees or get default height, if no height is specified and scale models to height
-            double height;
-            // auto configHeight = configFloat("tree" + std::to_string(i), "height", defaultHeight); // this will lead to an error
-            // height = *configHeight;
-            auto configHeight = configFloat("tree" + std::to_string(i), "height", 0.0);
-            if (*configHeight == 0.0)
-                height = defaultHeight;
-            else
-                height = *configHeight;
+            auto height = trees[i-1]->height;
 
-            // scale tree model to height specifies in config
-            // osg::Vec3 center(bb.xMin() + size.x() / 2.0f, bb.yMin() + size.y() / 2.0f, bb.zMin() + size.z() / 2.0f);
-            ;
             double scaleFactor = height / (*itr)->height;
+            trees[i-1]->scale = scaleFactor;
 
-            treeTransform->setMatrix(osg::Matrixd::scale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor)) * (*itr)->transform * osg::Matrix::translate(osg::Vec3d(*configTreeX, *configTreeY, treeAltitude)));
+            treeTransform->setMatrix(osg::Matrixd::scale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor)) * (*itr)->transform * osg::Matrix::translate(osg::Vec3d(treeXPos, treeYPos, treeAltitude)));
+            trees[i-1]->setTransform();
         }
 
+        trees[i-1]->setTreeModelLODs();
         i++;
     }
     closeImage();
 }
+
+// void UrbanTempo::setTrees()
+// {
+//     // read in default tree model
+//     //osg::ref_ptr<osg::Node> model;
+    
+//     // int i = 1;
+//     // while (true)
+//     // {
+//     //     auto configSpeciesName = configString("treeModel" + std::to_string(i), "species_name", "default");
+//     //     std::string speciesName = *configSpeciesName; if (speciesName == "default")
+//     //     {
+//     //         treeModels.emplace_back(std::make_shared<TreeModel>("treeModelDefault"));
+
+//     //         defaultTreeIterator = treeModels.end();
+//     //         defaultTreeIterator--;
+//     //         break;
+//     //     }
+//     //     treeModels.emplace_back(std::make_shared<TreeModel>("treeModel" + std::to_string(i)));
+        
+//     //     i++;
+//     // }
+
+//     setupScenegraph();
+//     setTreeModels();
+
+//     int i = 1;
+//     while (true)
+//     {
+//         auto configSpeciesName = configString("tree" + std::to_string(i), "species_name", "default");
+//         std::string speciesName = *configSpeciesName;
+//         if (speciesName == "default")
+//         {
+//             // trees.emplace_back(std::make_unique<TreeModel>("treeModelDefault"));
+
+//             // defaultTreeIterator = treeModels.end();
+//             // defaultTreeIterator--;
+//             break;
+//         }
+//         trees.emplace_back(std::make_unique<Tree>("tree" + std::to_string(i)));
+
+//         // auto configTreeX = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "x", 0);
+//         // double xPos = *configTreeX;
+//         // auto configTreeY = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "y", 0);
+//         // double yPos = *configTreeY;
+//         // auto configHeight = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "height", 0.0);
+//         // double height = *configHeight;
+//         // if (height == 0.0)
+//         //     height = UrbanTempo::instance()->defaultHeight;
+
+//         // auto configTreeX = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "x", 0);
+//         // double xPos = *configTreeX;
+//         // treeBuilder.setXPos(xPos);
+//         // auto configTreeY = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "y", 0);
+//         // double yPos = *configTreeY;
+//         // treeBuilder.setYPos(yPos);
+//         // auto configHeight = UrbanTempo::instance()->configFloat("tree" + std::to_string(i), "height", 0.0);
+//         // double height = *configHeight;
+//         // if (height == 0.0)
+//         //     height = UrbanTempo::instance()->defaultHeight;
+//         // treeBuilder.setHeight(height);
+
+//         // trees.emplace_back(std::make_unique<Tree>(speciesName, xPos, yPos, height));
+//         i++;
+//     }
+
+//     // add trees one after another with information from config file
+//     GDALAllRegister();
+//     openImage(geotiffpath);
+
+//     // i = 1;
+//     // while (i >= trees.size())
+//     for (int i = 0; i < trees.size(); ++i)
+//     {
+//         std::string speciesName = trees[i]->speciesName;
+//         // auto configSpeciesName = configString("tree" + std::to_string(i), "species_name", "default");
+//         // std::string speciesName = *configSpeciesName;
+//         // int condition = speciesName.compare("default");
+//         // if (!condition)
+//         //     break;
+//         osg::ref_ptr<osg::MatrixTransform> treeTransform(new osg::MatrixTransform);
+//         trees[i]->sceneGraphNode = treeTransform;
+//         treeTransform->setName("treeTransform"+std::to_string(i));
+//         rootTransform->addChild(treeTransform);
+
+//         // choose correct tree model and add it to the scenegraph
+//         auto itr = std::find_if(treeModels.begin(), treeModels.end(), [&](const std::shared_ptr<TreeModel>& treeModel){
+//             return treeModel->speciesName == speciesName;
+//         });
+//         if (itr == treeModels.end())
+//         {
+//             itr = defaultTreeIterator;
+//         }
+//         if (((*itr)->model) == nullptr)
+//         {
+//             itr = defaultTreeIterator;
+//         }
+//         /*if ((*itr)->season != stringToSeason(configSeason->value()))
+//         {
+//             model = defaultTreeModel;
+//             rotation = osg::Vec3d(configDefaultRotation->value()[0], configDefaultRotation->value()[1], configDefaultRotation->value()[2]);
+//             translate = osg::Vec3d(configDefaultTranslation->value()[0], configDefaultTranslation->value()[1], configDefaultTranslation->value()[2]);
+//             // std::cout << "default tree model" << std::endl;
+//         }
+//         else
+//         {
+//             model = treeModels[index]->model;
+//             rotation = treeModels[index]->rotation;
+//             translate = treeModels[index].translation;
+//             // std::cout << "index: " << index << "; Model: " << treeModels[index].speciesName << std::endl;
+//         }*/
+//         if((*itr)->model)
+//         {
+//             treeTransform->addChild((*itr)->model);
+//             trees[i]->treeModel = *itr;
+
+//             // read tree position and get altitude from geotiff
+//             auto treeXPos = trees[i]->xPos;
+//             auto treeYPos = trees[i]->yPos;
+//             float treeAltitude = getAlt(treeXPos, treeYPos);
+//             trees[i]->setAltitude(treeAltitude);
+
+//             // set height for specific trees or get default height, if no height is specified and scale models to height
+//             auto height = trees[i]->height;
+
+//             double scaleFactor = height / (*itr)->height;
+//             // trees[i]->setScale(scaleFactor);
+//             trees[i]->scale = scaleFactor;
+
+//             treeTransform->setMatrix(osg::Matrixd::scale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor)) * (*itr)->transform * osg::Matrix::translate(osg::Vec3d(treeXPos, treeYPos, treeAltitude)));
+//             trees[i]->setTransform();
+//         }
+
+//         trees[i]->setTreeModelLODs();
+//     }
+//     closeImage();
+// }
 
 std::string UrbanTempo::documentToString(const rapidjson::Document &document)
 {
@@ -495,6 +597,136 @@ Season UrbanTempo::stringToSeason(const std::string& string)
         return Season::Fall;
     else
         return Season::Summer;
+}
+
+double UrbanTempo::getDistance(const osg::Vec3 vec1, const osg::Vec3 vec2)
+{
+    auto diff = vec2 - vec1;
+    return sqrt(diff * diff);
+}
+
+void UrbanTempo::key(int type, int keysym, int mod)
+{
+    std::cout << "pressed key\n";
+    this->updateTrees();
+
+    // auto invBaseMat = cover->getInvBaseMat();
+    // // auto baseMat = cover->getBaseMat();
+
+    // auto viewerMat = cover->getViewerMat(); // -> Koordinatensystem in Cave Weltkoordinaten
+    // auto posViewerWelt = viewerMat.getTrans();
+
+    // auto mat1 = viewerMat * invBaseMat; // -> Scenekoordinaten
+    // auto posViewerObjekt = mat1.getTrans();
+
+    // osg::Group* firstChild = dynamic_cast<osg::Group*>(pluginNode->getChild(0));
+    // auto numChildren = firstChild->getNumChildren();
+    // for (int i = 0; i < numChildren; ++i)
+    // {
+    //     osg::Group* secondChild = dynamic_cast<osg::Group*>(firstChild->getChild(i));
+    //     auto nodeName = secondChild->getName();
+    //     auto nodeNameSec = secondChild->getChild(0)->getName();
+    //     osg::MatrixTransform* matrixTransform = dynamic_cast<osg::MatrixTransform*>(secondChild);
+
+    //     osg::Vec3 posTreeObjekt(0.0, 0.0, 0.0);
+    //     // osg::Vec3 posTreeWelt(0.0, 0.0, 0.0);
+    //     if (matrixTransform)
+    //     {
+    //         osg::Matrix matrix = matrixTransform->getMatrix();
+    //         posTreeObjekt = matrix.getTrans(); // -> Objektkoordinaten
+    //         // osg::Matrix matrix2 = matrix * baseMat;
+    //         // posTreeWelt = matrix2.getTrans(); // -> Weltkoordinaten
+    //     }
+
+    //     // auto distanceWorld = getDistance(posViewerWelt, posTreeWelt);
+    //     auto distanceObjekt = getDistance(posViewerObjekt, posTreeObjekt);
+
+    //     std::cout << "nodeName: " << nodeName << "\n";
+    //     std::cout << "nodeNameSec: " << nodeNameSec << "\n";
+    //     // std::cout << "Abstand Welt: " << distanceWorld << "\n";
+    //     std::cout << "Abstand Objekt: " << distanceObjekt << "\n";
+
+    //     // std::string modelPath = "/home/kilian/projects/trees/Birch-1/Birch 2 N111212.3DS";
+    //     // auto model = osgDB::readNodeFile(modelPath);
+    //     // double height;
+    //     // if (model)
+    //     // {
+    //     //     osg::ComputeBoundsVisitor cbv;
+    //     //     model->accept(cbv);
+    //     //     osg::BoundingBox bb = cbv.getBoundingBox();
+    //     //     osg::Vec3 size(bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin());
+    //     //     // if((*configRotation)[0]!=0.0)
+    //     //     //     height = size[1]; // hack, if y is up, use y as height, otherwise z
+    //     //     // else
+    //     //     //     height = size[2];
+    //     //     height = size[2];
+    //     // }
+
+    //     double threshold = 75.0;
+
+    //     if (distanceObjekt < threshold)
+    //     {
+            
+    //         // secondChild->replaceChild(secondChild->getChild(0), model);
+
+    //         // secondChild->getChild(0);
+
+    //         // osg::MatrixTransform* transform = dynamic_cast<osg::MatrixTransform*>(secondChild);
+    //         // osg::MatrixTransform* scaleOrig = dynamic_cast<osg::MatrixTransform*>(secondChild->getChild(1));
+
+    //         // transform->setScale(osg::Vec3d(1.0, 1.0, 1.0));
+    //         // // auto transformOrigMat = transform->getMatrix();
+    //         // // auto scaleOrigMat = scaleOrig->getMatrix();
+
+    //         // auto configDefaultHeight = configFloat("general", "default_height", 10);
+    //         // double defaultHeight = *configDefaultHeight;
+
+    //         // double scaleFactor = height / defaultHeight;
+
+    //         // transform->setScale(osg::Matrixd::scale(osg::Vec3d(scaleFactor, scaleFactor, scaleFactor));
+
+    //     }
+    // }
+    // // osg::Group* secondChild = dynamic_cast<osg::Group*>(firstChild->getChild(0));
+    // // auto nodeName = secondChild->getName();
+    // // osg::MatrixTransform* matrixTransform = dynamic_cast<osg::MatrixTransform*>(secondChild);
+
+    // // osg::Vec3 posTreeObjekt(0.0, 0.0, 0.0);
+    // // osg::Vec3 posTreeWelt(0.0, 0.0, 0.0);
+    // // if (matrixTransform)
+    // // {
+    // //     osg::Matrix matrix = matrixTransform->getMatrix();
+    // //     posTreeObjekt = matrix.getTrans(); // -> Objektkoordinaten
+    // //     osg::Matrix matrix2 = matrix * baseMat;
+    // //     posTreeWelt = matrix2.getTrans(); // -> Weltkoordinaten
+    // // }
+
+    // // auto distanceWorld = getDistance(posViewerWelt, posTreeWelt);
+    // // auto distanceObjekt = getDistance(posViewerObjekt, posTreeObjekt);
+
+    // // std::cout << "posViewerWelt: " << posViewerWelt << "\n";
+    // // std::cout << "posViewerObjekt: " << posViewerObjekt << "\n";
+    // // std::cout << nodeName << "_Welt: " << posTreeWelt << "\n";
+    // // std::cout << nodeName << "_Objekt: " << posTreeObjekt << "\n";
+    // // std::cout << "Abstand Welt: " << distanceWorld << "\n";
+    // // std::cout << "Abstand Objekt: " << distanceObjekt << "\n";
+
+    // // std::cout << "getInvBaseMat(): " << invBaseMat << "\n";
+    // // std::cout << "getViewerMat(): " << viewerMat << "\n";
+    // std::cout << "-------------------------------------" << "\n";  
+}
+
+void UrbanTempo::updateTrees()
+{
+    for (int i = 0; i < trees.size(); ++i)
+    {
+        trees[i]->updateTreeModel();
+    }
+}
+
+void UrbanTempo::preFrame()
+{
+    this->updateTrees();
 }
 
 COVERPLUGIN(UrbanTempo)
