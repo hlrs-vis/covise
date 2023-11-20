@@ -1,5 +1,5 @@
 #define COVISEDIR GetEnv("COVISEDIR")
-#define REVIT_VERSION "2023"
+#define REVIT_VERSION "2024"
 
 [Files]
 Source: "{#COVISEDIR}\zebuopt\lib\OpenFOAMInterface.dll"; DestDir: "{app}"; Flags: replacesameversion
