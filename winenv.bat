@@ -124,20 +124,22 @@ if "%VC14_15%" EQU "yes" (
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
    ) else if exist "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" ( 
     call "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" ( 
+	call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64 
    ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
    ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" ( 
-   call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
-   )
-    
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
+   ) 
+       
     
     if NOT defined VS150COMNTOOLS% (
-    if NOT defined VS160COMNTOOLS% (
-    if NOT defined VS170COMNTOOLS% (
-    cd /d "%VS140COMNTOOLS%"\..\..\vc
-	call vcvarsall.bat x64
-    cd /d "%COVISEDIR%"\
-	)
+      if NOT defined VS160COMNTOOLS% (
+        if NOT defined VS170COMNTOOLS% ( 
+            cd /d "%VS140COMNTOOLS%"\..\..\vc
+	        call vcvarsall.bat x64
+            cd /d "%COVISEDIR%"\
+	    )
 	)
 	)
 ) else if "%BASEARCHSUFFIX%" EQU "win32" (
@@ -176,7 +178,6 @@ if defined VS110COMNTOOLS  (
 ) else if defined VCVARS32 (
     call "%VCVARS32%"
 )
-
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     if "%VCPKG_ROOT%" EQU "" (
         set "VCPKG_ROOT=C:\vcpkg"
