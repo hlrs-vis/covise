@@ -6,7 +6,7 @@
 #define EXTERNLIBS GetEnv("EXTERNLIBS")
 #define COMMONDIR GetEnv("COVISEDIR") +"\..\common"
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
-#define BUILDDIR "build.2024"
+#define BUILDDIR "build"
 #define BUILDTYPE "Release"
 #define MAXVERSION "2024"
 ; change Max Version in registry section from 25 to next
@@ -65,7 +65,7 @@ ShowLanguageDialog=yes
 [Files]
 
 Source: {#COVISEDIR}\src\tools\vrmlexp\README.txt; DestDir: {app}; DestName: README.txt
-Source: {#COVISEDIR}\src\tools\vrmlexp\{#BUILDDIR}\{#BUILDTYPE}\vrmlexp.dle; DestDir: {app}
+Source: {#COVISEDIR}\{#BUILDDIR}\{#ARCHSUFFIX}\src\tools\vrmlexp\{#BUILDTYPE}\vrmlexp.dle; DestDir: {app}
 ;C:\src\covise\src\tools\vrmlexp\build.2024\Release\Vrmlexp.dle
 
 Source: {#EXTERNLIBS}\cal3d\bin\cal3d.dll; DestDir: {app}; Flags: recursesubdirs
