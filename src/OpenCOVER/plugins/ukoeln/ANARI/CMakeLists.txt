@@ -1,5 +1,5 @@
 covise_find_package(anari)
-if(NOT ANARI_FOUND)
+if(NOT anari_FOUND)
     return()
 endif()
 
