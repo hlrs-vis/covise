@@ -75,6 +75,7 @@ private:
     void waitForWindowID();
 
     bool m_loadVistlePlugin = false;
+    std::string m_vistlePlugin;
     coVRPlugin *m_visPlugin;
     bool m_forceMpi;
 

@@ -576,8 +576,12 @@ bool OpenCOVER::init()
     const char *vistlePlugin = getenv("VISTLE_PLUGIN");
     bool loadVistlePlugin = vistlePlugin;
     m_loadVistlePlugin = coVRMSController::instance()->syncBool(loadVistlePlugin);
+    if (m_loadVistlePlugin)
+    {
+        m_vistlePlugin = coVRMSController::instance()->syncString(vistlePlugin);
+    }
 
-	coVRCommunication::instance();
+    coVRCommunication::instance();
     interactionManager.initializeRemoteLock();
     cover = new coVRPluginSupport();
     coVRCommunication::instance()->init();
@@ -673,10 +677,10 @@ bool OpenCOVER::init()
     if (m_loadVistlePlugin)
     {
         loadFiles = false;
-        m_visPlugin = coVRPluginList::instance()->addPlugin("Vistle", coVRPluginList::Vis);
+        m_visPlugin = coVRPluginList::instance()->addPlugin(m_vistlePlugin.c_str(), coVRPluginList::Vis);
         if (!m_visPlugin)
         {
-            fprintf(stderr, "failed to load Vistle plugin\n");
+            fprintf(stderr, "failed to load Vistle plugin %s\n", m_vistlePlugin.c_str());
             exit(1);
         }
     }
