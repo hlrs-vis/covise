@@ -283,7 +283,7 @@ bool coVRCommunication::collaborative() // returns true, if in collaborative mod
 {
     if (coVRPartnerList::instance()->numberOfPartners() > 1)
         return true;
-    if (OpenCOVER::instance()->visPlugin())
+    if (OpenCOVER::instance()->visPlugin() && OpenCOVER::instance()->visPlugin()->collaborativeSessionId().empty())
         return true;
     return false;
 }
