@@ -60,6 +60,7 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
             fprintf(stderr, "coVRPluginList::loadPlugin %s\n", name);
         else
             fprintf(stderr, "coVRPluginList::loadPlugin name=NULL\n");
+        showErrors = true;
     }
 
     std::string libName = coVRDynLib::libName(name);
