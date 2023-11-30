@@ -83,7 +83,15 @@ int main(int argc, char *argv[])
 #ifdef MPI_COVER
         MPI_Initialized(&mpiinit);
         if (!mpiinit)
-            MPI_Init(&argc, &argv);
+        {
+            int provided = 0;
+            MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+            if (provided != MPI_THREAD_MULTIPLE)
+            {
+                std::cerr << "MPI_Init_thread did not provide MPI_THREAD_MULTIPLE" << std::endl;
+                exit(1);
+            }
+        }
         forceMpi = true;
         MPI_Comm_rank(comm, &myID);
         int len = (int)mastername.size();
@@ -91,6 +99,7 @@ int main(int argc, char *argv[])
         if (myID != 0)
             mastername.resize(len);
         MPI_Bcast(&mastername[0], len, MPI_BYTE, 0, comm);
+        std::cerr << "OpenCOVER: rank " << myID << " on " << my_hostname << std::endl;
 #else
         std::cerr << "OpenCOVER: not compiled with MPI support" << std::endl;
         exit(1);
