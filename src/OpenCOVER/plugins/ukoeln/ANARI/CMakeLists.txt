@@ -15,17 +15,19 @@ SET(HEADERS
   ANARIPlugin.h
   Renderer.h
   Projection.h
+  ui_anari.h
 )
 SET(SOURCES
   asg.cpp
   ANARIPlugin.cpp
   Renderer.cpp
   Projection.cpp
+  ui_anari.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
 target_compile_definitions(ANARIPlugin PUBLIC -DASG_USE_VISIONARAY_FOR_PICKING=0)
-target_link_libraries(ANARIPlugin anari::anari HDF5::HDF5 ${VTK_LIBRARIES})
+target_link_libraries(ANARIPlugin anari::anari anari::helium HDF5::HDF5 ${VTK_LIBRARIES})
 if(TARGET glm::glm)
     target_link_libraries(ANARIPlugin glm::glm)
 endif()

@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cfloat>
 #include <cmath>
+#include <iostream>
 #include <vector>
 #include <H5Cpp.h>
 

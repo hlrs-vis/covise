@@ -18,6 +18,7 @@
 #include "readFlash.h"
 #endif
 #include "readVTK.h"
+#include "ui_anari.h"
 
 class Renderer
 {
@@ -52,7 +53,11 @@ public:
 
     std::vector<std::string> getRendererTypes();
 
-    void setPixelSamples(int spp);
+    std::vector<ui_anari::ParameterList> &getRendererParameters();
+
+    void setParameter(std::string name, bool value);
+    void setParameter(std::string name, int value);
+    void setParameter(std::string name, float value);
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
@@ -151,8 +156,9 @@ private:
 
         bool changed = false;
     } unstructuredVolumeData;
-    
-    int spp{1};
+
+    std::vector<std::string> rendererTypes;
+    std::vector<ui_anari::ParameterList> rendererParameters;
 };
 
 

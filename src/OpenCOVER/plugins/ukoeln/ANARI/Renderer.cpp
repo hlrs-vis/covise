@@ -199,46 +199,68 @@ void Renderer::setRendererType(std::string type)
 
 std::vector<std::string> Renderer::getRendererTypes()
 {
-    std::vector<std::string> result;
-    const char * const *rendererSubtypes = nullptr;
-    anariGetProperty(anari.device, anari.device, "subtypes.renderer", ANARI_STRING_LIST,
-                     &rendererSubtypes, sizeof(rendererSubtypes), ANARI_WAIT);
-    if (rendererSubtypes != nullptr) {
+    if (rendererTypes.empty()) {
+        const char * const *rendererSubtypes = nullptr;
+        anariGetProperty(anari.device, anari.device, "subtypes.renderer", ANARI_STRING_LIST,
+                         &rendererSubtypes, sizeof(rendererSubtypes), ANARI_WAIT);
+        if (rendererSubtypes != nullptr) {
 
-        while (const char* rendererType = *rendererSubtypes++) {
-            result.push_back(rendererType);
+            while (const char* rendererType = *rendererSubtypes++) {
+                rendererTypes.push_back(rendererType);
+            }
         }
-    }
 
-    if (result.empty()) {
-        // If the device does not support the "subtypes.renderer" property,
-        // try to obtain the renderer types from the library directly
-        const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
-        if (deviceSubtypes != nullptr) {
-            while (const char* dstype = *deviceSubtypes++) {
-                const char** rendererTypes = anariGetObjectSubtypes(anari.device, ANARI_RENDERER);
-                while (rendererTypes && *rendererTypes) {
-                    const char* rendererType = *rendererTypes++;
-                    result.push_back(rendererType);
+        if (rendererTypes.empty()) {
+            // If the device does not support the "subtypes.renderer" property,
+            // try to obtain the renderer types from the library directly
+            const char** deviceSubtypes = anariGetDeviceSubtypes(anari.library);
+            if (deviceSubtypes != nullptr) {
+                while (const char* dstype = *deviceSubtypes++) {
+                    const char** rt = anariGetObjectSubtypes(anari.device, ANARI_RENDERER);
+                    while (rt && *rt) {
+                        const char* rendererType = *rt++;
+                        rendererTypes.push_back(rendererType);
+                    }
                 }
             }
         }
     }
 
-    if (result.empty())
-        result.push_back("default");
+    if (rendererTypes.empty())
+        rendererTypes.push_back("default");
 
-    return result;
+    return rendererTypes;
 }
 
-void Renderer::setPixelSamples(int spp)
+std::vector<ui_anari::ParameterList> &Renderer::getRendererParameters()
 {
-    this->spp = spp;
+    if (rendererParameters.empty()) {
+        auto r_subtypes = getRendererTypes();
+        for (auto subtype : r_subtypes) {
+            auto parameters =
+                ui_anari::parseParameters(anari.device, ANARI_RENDERER, subtype.c_str());
+            rendererParameters.push_back(parameters);
+        }
+    }
 
-    if (!anari.renderer)
-        return;
+    return rendererParameters;
+}
 
-    anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &spp);
+void Renderer::setParameter(std::string name, bool value)
+{
+    anari::setParameter(anari.device, anari.renderer, name.c_str(), value);
+    anariCommitParameters(anari.device, anari.renderer);
+}
+
+void Renderer::setParameter(std::string name, int value)
+{
+    anari::setParameter(anari.device, anari.renderer, name.c_str(), value);
+    anariCommitParameters(anari.device, anari.renderer);
+}
+
+void Renderer::setParameter(std::string name, float value)
+{
+    anari::setParameter(anari.device, anari.renderer, name.c_str(), value);
     anariCommitParameters(anari.device, anari.renderer);
 }
 
@@ -536,8 +558,6 @@ void Renderer::initDevice()
 void Renderer::initFrames()
 {
     anari.renderer = anariNewRenderer(anari.device, anari.renderertype.c_str());
-
-    anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &spp);
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);

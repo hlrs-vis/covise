@@ -188,13 +188,10 @@ bool ANARIPlugin::init()
         });
     }
 
-    sppSlider = new ui::Slider(anariMenu, "SPP");
-    sppSlider->setIntegral(true);
-    sppSlider->setBounds(1, 16);
-    sppSlider->setValue(1);
-    sppSlider->setCallback([=](double value, bool /*released*/) {
-        renderer->setPixelSamples((int)value);
-    });
+    auto &rendererParameters = renderer->getRendererParameters();
+    for (auto &p : rendererParameters[0/*TODO*/]) {
+        ui_anari::buildUI(renderer, p, anariMenu);
+    }
 
     return true;
 }
