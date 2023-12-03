@@ -105,7 +105,7 @@ ParameterList parseParameters(
   return retval;
 }
 
-void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
+ui::Element *buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
 {
   ANARIDataType type = p.value.type();
   const char *name = p.name.c_str();
@@ -114,6 +114,8 @@ void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
   const bool bounded = p.min || p.max;
   const bool showTooltip = !p.description.empty();
 
+  ui::Element *result{nullptr};
+
   switch (type) {
   case ANARI_BOOL: {
       auto *button = new ui::Button(menu, name);
@@ -121,6 +123,7 @@ void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
       button->setCallback([=](bool value) {
           renderer->setParameter(p.name, value);
       });
+      result=button;
     }
     break;
   case ANARI_INT32: {
@@ -140,12 +143,14 @@ void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
         slider->setCallback([=](int value, bool /*release*/) {
             renderer->setParameter(p.name, value);
         });
+        result=slider;
       } else {
         auto *edit = new ui::EditField(menu, name);
         edit->setValue(p.value.get<int>());
         edit->setCallback([=](std::string value) {
             renderer->setParameter(p.name, std::stoi(value));
         });
+        result=edit;
       }
     }
     break;
@@ -166,12 +171,14 @@ void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
         slider->setCallback([=](double value, bool /*release*/) {
             renderer->setParameter(p.name, (float)value);
         });
+        result=slider;
       } else {
         auto *edit = new ui::EditField(menu, name);
         edit->setValue(p.value.get<float>());
         edit->setCallback([=](std::string value) {
             renderer->setParameter(p.name, std::stof(value));
         });
+        result=edit;
       }
     }
     break;
@@ -182,6 +189,8 @@ void buildUI(Renderer::SP renderer, Parameter &p, ui::Menu *menu)
     }
     break;
   }
+
+  return result;
 }
 
 } // namespace ui_anari

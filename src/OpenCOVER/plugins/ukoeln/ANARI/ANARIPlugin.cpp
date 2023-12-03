@@ -168,30 +168,7 @@ bool ANARIPlugin::init()
     }
 
     // init menu
-    anariMenu = new ui::Menu("ANARI", this);
-    rendererMenu = new ui::Menu(anariMenu, "Renderer");
-    rendererGroup = new ui::Group(rendererMenu, "Renderer");
-    rendererButtonGroup = new ui::ButtonGroup(rendererGroup, "RendererGroup");
-
-    std::vector<std::string> rendererTypes = renderer->getRendererTypes();
-    rendererButtons.resize(rendererTypes.size());
-
-    for (size_t i=0; i<rendererTypes.size(); ++i) {
-        rendererButtons[i] = new ui::Button(rendererGroup,
-                                            rendererTypes[i],
-                                            rendererButtonGroup);
-        rendererButtons[i]->setText(rendererTypes[i]);
-        rendererButtons[i]->setCallback([=](bool state) {
-            if (state) {
-                renderer->setRendererType(rendererTypes[i]);
-            }
-        });
-    }
-
-    auto &rendererParameters = renderer->getRendererParameters();
-    for (auto &p : rendererParameters[0/*TODO*/]) {
-        ui_anari::buildUI(renderer, p, anariMenu);
-    }
+    buildUI();
 
     return true;
 }
@@ -298,6 +275,62 @@ void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
 void ANARIPlugin::removeObject(const char *objName, bool replaceFlag)
 {
     // NO!
+}
+
+void ANARIPlugin::buildUI()
+{
+    if (!anariMenu)
+        anariMenu = new ui::Menu("ANARI", this);
+
+    if (!rendererMenu)
+        rendererMenu = new ui::Menu(anariMenu, "Renderer");
+
+    if (!rendererGroup)
+        rendererGroup = new ui::Group(rendererMenu, "Renderer");
+
+    if (!rendererButtonGroup)
+        rendererButtonGroup = new ui::ButtonGroup(rendererGroup, "RendererGroup");
+
+    std::vector<std::string> rendererTypes = renderer->getRendererTypes();
+    if (rendererTypes.size() != rendererButtons.size()) {
+        rendererButtons.resize(rendererTypes.size());
+
+        for (size_t i=0; i<rendererTypes.size(); ++i) {
+            rendererButtons[i] = new ui::Button(rendererGroup,
+                                                rendererTypes[i],
+                                                rendererButtonGroup);
+            rendererButtons[i]->setText(rendererTypes[i]);
+            rendererButtons[i]->setCallback([=](bool state) {
+                if (state) {
+                    renderer->setRendererType(rendererTypes[i]);
+                    this->previousRendererType = this->rendererType;
+                    this->rendererType = i;
+                    if (this->previousRendererType != this->rendererType)
+                        buildUI();
+                }
+            });
+        }
+    }
+
+    if (this->previousRendererType != this->rendererType) {
+        tearDownUI();
+        auto &rendererParameters = renderer->getRendererParameters();
+        for (auto &p : rendererParameters[this->rendererType]) {
+            rendererUI.push_back(ui_anari::buildUI(renderer, p, anariMenu));
+        }
+    }
+}
+
+void ANARIPlugin::tearDownUI()
+{
+    for (size_t i=0; i<rendererUI.size(); ++i) {
+        auto *elem = rendererUI[i];
+        if (elem != nullptr) {
+            anariMenu->remove(elem);
+            delete elem;
+        }
+    }
+    rendererUI.clear();
 }
 
 COVERPLUGIN(ANARIPlugin)

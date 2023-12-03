@@ -61,15 +61,20 @@ public:
 
 protected:
     ui::Menu *anariMenu = nullptr;
-    ui::Slider *sppSlider = nullptr;
     ui::Menu *rendererMenu = nullptr;
     ui::Group *rendererGroup = nullptr;
     ui::ButtonGroup *rendererButtonGroup = nullptr;
     std::vector<ui::Button *> rendererButtons;
 
+    std::vector<ui::Element *> rendererUI;
+    int previousRendererType = -1;
+    int rendererType = 0;
+
 private:
     Renderer::SP renderer = nullptr;
 
+    void buildUI();
+    void tearDownUI();
 };
 
 

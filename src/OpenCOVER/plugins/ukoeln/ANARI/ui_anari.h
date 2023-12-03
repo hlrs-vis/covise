@@ -37,6 +37,7 @@ using ParameterList = std::vector<Parameter>;
 ParameterList parseParameters(
     anari::Device d, ANARIDataType objectType, const char *subtype);
 
-void buildUI(std::shared_ptr<Renderer> renderer, Parameter &p, opencover::ui::Menu *menu);
+opencover::ui::Element *buildUI(
+    std::shared_ptr<Renderer> renderer, Parameter &p, opencover::ui::Menu *menu);
 
 } // namespace ui_anari
