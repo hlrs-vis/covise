@@ -1,7 +1,12 @@
 #ifndef COVER_MPI_MAIN_H
 #define COVER_MPI_MAIN_H
 
+#ifdef HAS_MPI
 #include <mpi.h>
+#else
+#define MPI_Comm void *
+#endif
+
 #ifdef __APPLE__
 typedef void pthread_barrier_t;
 #else
