@@ -30,15 +30,23 @@ guess_archsuffix() {
    fi
 
     if [ "$basedir" != "" ]; then
-       if [ -d "$basedir"/spackopt ]; then
-          export ARCHSUFFIX=spackopt
-          check_readme_archsuffix
-          return
-       elif [ -d "$basedir"/spack ]; then
-          export ARCHSUFFIX=spack
-          check_readme_archsuffix
-          return
-       fi
+       case "$ARCHSUFFIX" in
+           spack*)
+              check_readme_archsuffix
+              return
+              ;;
+          *)
+               if [ -d "$basedir"/spackopt ]; then
+                  export ARCHSUFFIX=spackopt
+                  check_readme_archsuffix
+                  return
+               elif [ -d "$basedir"/spack ]; then
+                  export ARCHSUFFIX=spack
+                  check_readme_archsuffix
+                  return
+               fi
+              ;;
+      esac
     fi
 
    case "$ARCH" in
@@ -373,7 +381,12 @@ guess_archsuffix() {
 
 
 check_readme_archsuffix() {
-   local basearch=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/mpi$//' -e 's/xenomai$//'  `
+   local basearch=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/xenomai$//'  `
+   case $basearch in
+       spack*)
+           basearch=spack
+           ;;
+   esac
    local readme="${COVISEDIR}/README-ARCHSUFFIX.txt"
    if [ ! -r "$readme" -o ! -f "$readme" ]; then
        readme="${COVISEDIR}/share/doc/covise/README-ARCHSUFFIX.txt"

@@ -47,8 +47,6 @@
 /macosopt
 /freebsd
 /freebsdopt
-/spack
-/spackopt
 /win32
 /win32opt
 /vista
@@ -285,6 +283,7 @@
 /leopardopt
 /lion
 /lionopt
+/spack*
 .vscode/*     
 !.vscode/configureCovise
 !.vscode/tasks.json

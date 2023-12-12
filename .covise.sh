@@ -68,7 +68,7 @@ fi
 # COVISE environment path (colon separated list)
 #
 
-BASEARCH=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/mpi$//' -e 's/xenomai$//'  `
+BASEARCH=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/xenomai$//'  `
 if [ -z "$EXTERNLIBS" ]; then
   extlibs="${COVISEDIR}/extern_libs/${ARCHSUFFIX}"
   if [ ! -d "$extlibs" ]; then

@@ -7,7 +7,7 @@
 # for the lazy ones who do not want to type the same thing in else(), endif() and so on
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
-if ("${BASEARCHSUFFIX}" STREQUAL "spack")
+if ("${ARCHSUFFIX}" MATCHES "^spack")
     set(COVISE_INSTALL_LIBDIR lib)
 else()
     set(COVISE_INSTALL_LIBDIR ${ARCHSUFFIX}/lib)
