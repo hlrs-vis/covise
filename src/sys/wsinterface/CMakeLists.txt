@@ -17,7 +17,7 @@ QT_ADD_RESOURCES(WSI_RESOURCE_FILES "../../../share/covise/web/web.qrc" OPTIONS 
 INCLUDE_DIRECTORIES(
   ${GSOAP_INCLUDE_DIR}
   "${COVISEDIR}/src/kernel/wslib"
-  "${COVISEDIR}/${ARCHSUFFIX}/include"
+  "${COVISEDIR}/${COVISE_ARCHSUFFIX}/include"
   "${CMAKE_BINARY_DIR}/src/kernel/wslib"
 )
 

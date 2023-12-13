@@ -130,13 +130,12 @@ IF(CURL_FOUND)
 ENDIF()
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-    set(ARCHSUFFIX "${COVISE_ARCHSUFFIX}")
-    string(TOLOWER "${ARCHSUFFIX}" ARCHSUFFIX)
-    string(REGEX REPLACE "opt$" "" BASEARCHSUFFIX "${ARCHSUFFIX}")
+    string(TOLOWER "${COVISE_ARCHSUFFIX}" COVISE_ARCHSUFFIX)
+    string(REGEX REPLACE "opt$" "" BASEARCHSUFFIX "${COVISE_ARCHSUFFIX}")
     set(DBG_ARCHSUFFIX "${BASEARCHSUFFIX}")
     string(REGEX REPLACE "xenomai$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
     string(REGEX REPLACE "mpi$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
-    if(ARCHSUFFIX STREQUAL DBG_ARCHSUFFIX)
+    if(COVISE_ARCHSUFFIX STREQUAL DBG_ARCHSUFFIX)
         set(CMAKE_BUILD_TYPE "Debug")
     else()
         set(CMAKE_BUILD_TYPE "RelWithDebInfo")
@@ -163,7 +162,7 @@ endif()
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     IF(COVISE_EXPORT_TO_INSTALL)
-        set(COVISE_EXPORTS_PATH "${COVISEDIR}/${ARCHSUFFIX}")
+        set(COVISE_EXPORTS_PATH "${COVISEDIR}/${COVISE_ARCHSUFFIX}")
     ELSE()
         set(COVISE_EXPORTS_PATH "${CMAKE_BINARY_DIR}")
     ENDIF()
@@ -227,13 +226,13 @@ INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
 # bundle.depends = opencoverapp
 
 # opencoverapp.depends = main plugins always_out_of_date
-# opencoverapp.target = $$COVISEDIR/$$ARCHSUFFIX/Applications/OpenCOVER.app
+# opencoverapp.target = $$COVISEDIR/$$COVISE_ARCHSUFFIX/Applications/OpenCOVER.app
 # opencoverapp.commands = $(RM) -r "$@" \
-    # && mkdir -p $$COVISEDIR/$$ARCHSUFFIX/Applications \
+# && mkdir -p $$COVISEDIR/$$COVISE_ARCHSUFFIX/Applications \
     # && cp -HR $$BINDESTDIR/Renderer/OpenCOVER.app "$@" \
     # && mkdir -p "$@"/Contents/Resources \
     # && cp -HR $$COVISEDIR/share/covise/icons $$COVISEDIR/share/covise/fonts $$COVISEDIR/config "$@"/Contents/Resources \
     # && mkdir -p "$@"/Contents/PlugIns \
     # && cp -HR ${OPENSCENEGRAPH_LIBPATH}/osgPlugins-2.9.7/* "$@"/Contents/PlugIns/ \
-    # && cp -HR $$COVISEDIR/$$ARCHSUFFIX/lib/OpenCOVER/plugins/* "$@"/Contents/PlugIns/ \
+    # && cp -HR $$COVISEDIR/$$COVISE_ARCHSUFFIX/lib/OpenCOVER/plugins/* "$@"/Contents/PlugIns/ \
     # && ${COVISEDIR}/../common/mkspecs/makebundle.sh "$@"

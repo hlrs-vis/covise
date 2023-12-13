@@ -7,8 +7,10 @@
 # for the lazy ones who do not want to type the same thing in else(), endif() and so on
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
-if ("${ARCHSUFFIX}" MATCHES "^spack")
+if ("${COVISE_ARCHSUFFIX}" MATCHES "^spack")
     set(COVISE_INSTALL_LIBDIR lib)
+    set(CMAKE_SKIP_RPATH FALSE)
+    set(CMAKE_MACOSX_RPATH TRUE)
 else()
     set(COVISE_INSTALL_LIBDIR ${ARCHSUFFIX}/lib)
     # disable rpath - only rely on LD_LIBRARY_PATH and the likes

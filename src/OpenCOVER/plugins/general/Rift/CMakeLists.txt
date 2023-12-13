@@ -14,5 +14,5 @@ SET(SOURCES
   oculusdevice.cpp
 )
 
-cover_add_plugin(Rift optimized ${COVISE_DESTDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins/input_rift  debug ${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/lib/OpenCOVER/plugins/input_rift)
+cover_add_plugin(Rift optimized ${COVISE_DESTDIR}/${COVISE_ARCHSUFFIX}/lib/OpenCOVER/plugins/input_rift  debug ${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/lib/OpenCOVER/plugins/input_rift)
 
