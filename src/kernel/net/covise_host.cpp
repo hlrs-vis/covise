@@ -250,7 +250,11 @@ void Host::HostSymbolic(const char *n)
     //III) If this fails we get "unresolvable IP address"
 
     static std::mutex globalNameMutex;
-    static std::map<std::string, char[4]> globalNameMap;
+    struct Addresses {
+        std::string addr;
+        char char_address[4];
+    };
+    static std::map<std::string, Addresses> globalNameMap;
 
     //TODO coConfig - richtig parsen
     std::string addr = coCoviseConfig::getEntry(std::string("System.IpTable.") + n);
@@ -325,7 +329,8 @@ void Host::HostSymbolic(const char *n)
     if (it != globalNameMap.end())
     {
         //std::cerr << "HostSymbolic: using cache for n=" << n << std::endl;
-        setAddress(it->second);
+        setAddress(it->second.addr.c_str());
+        memcpy(char_address, it->second.char_address, sizeof(char_address));
         guard.unlock();
     }
     else
@@ -374,8 +379,8 @@ void Host::HostSymbolic(const char *n)
                     memcpy(char_address, &saddr->sin_addr, sizeof(char_address));
                     setAddress(address);
                     guard.lock();
-                    auto &addr = globalNameMap[n];
-                    memcpy(addr, char_address, sizeof(char_address));
+                    globalNameMap[n].addr = address;
+                    memcpy(globalNameMap[n].char_address, char_address, sizeof(char_address));
                     guard.unlock();
                     break;
                 }
