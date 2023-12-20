@@ -1507,6 +1507,8 @@ std::string getRemoteFetchHashPrefix(const std::string& filePath, bool doSth)
 
 std::string coVRFileManager::findFile(const std::string &fileName)
 {
+    if(fileName.empty())
+        return "";
     const std::array<fs::path, 6> searchLocations = {
         fs::path(fs::path{fileName}),
         fs::path(fs::current_path() / fileName),
