@@ -4,7 +4,7 @@ if(NOT anari_FOUND)
 endif()
 
 covise_find_package(glm)
-if(TARGET glm::glm)
+if(NOT TARGET glm::glm)
     return()
 endif()
 covise_find_package(HDF5 COMPONENTS CXX)
