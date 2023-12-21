@@ -729,15 +729,6 @@ covise::Message *coVRPluginList::waitForVisMessage(int messageType) const
     return NULL;
 }
 
-bool coVRPluginList::executeAll() const
-{
-    DOALL(if (plugin->executeAll())
-          { return true;
-          });
-
-    return false;
-}
-
 void coVRPluginList::expandBoundingSphere(osg::BoundingSphere &bs) const
 {
     DOALL(plugin->expandBoundingSphere(bs));

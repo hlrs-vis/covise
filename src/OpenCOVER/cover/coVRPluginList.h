@@ -147,8 +147,6 @@ public:
     bool becomeCollaborativeMaster() const;
     //! for visualisation system plugins: wait for message, return NULL if no such plugin
     covise::Message *waitForVisMessage(int messageType) const;
-    //! for visualisation system plugins: execute data flow network - return true if delivered
-    bool executeAll() const;
     //! allow plugins to expand scene bounding sphere
     void expandBoundingSphere(osg::BoundingSphere &bs) const;
 

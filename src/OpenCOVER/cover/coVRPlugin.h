@@ -370,12 +370,6 @@ public:
         return NULL;
     }
 
-    //! for visualisation system plugins: execute data flow network - return true if delivered
-    virtual bool executeAll()
-    {
-        return false;
-    }
-
     //! allow plugin to expand bounding sphere
     virtual void expandBoundingSphere(osg::BoundingSphere &bs)
     {
