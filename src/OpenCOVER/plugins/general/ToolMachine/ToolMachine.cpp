@@ -92,6 +92,9 @@ public:
         t->addExposedField("TableNode", VrmlField::SFNODE);
         t->addExposedField("Offsets", VrmlField::MFFLOAT);
         t->addExposedField("AxisNames", VrmlField::MFSTRING);
+        t->addExposedField("ToolNumber", VrmlField::SFINT32);
+        t->addExposedField("ToolLength", VrmlField::SFFLOAT);
+        t->addExposedField("ToolRadius", VrmlField::SFFLOAT);
         t->addExposedField("OPCUANames", VrmlField::MFSTRING);
         t->addExposedField("OPCUAAxisIndicees", VrmlField::MFINT32);
         t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
@@ -122,6 +125,12 @@ public:
             TRY_FIELD(Offsets, MFFloat)
         else if
             TRY_FIELD(AxisNames, MFString)
+        else if
+            TRY_FIELD(ToolNumber, SFInt)
+        else if
+            TRY_FIELD(ToolLength, SFFloat)
+        else if
+            TRY_FIELD(ToolRadius, SFFloat)
         else if
             TRY_FIELD(OPCUANames, MFString)
         else if
@@ -191,6 +200,9 @@ public:
     VrmlMFVec3f d_AxisOrientations;
     VrmlMFFloat d_Offsets;
     VrmlMFString d_AxisNames;
+    VrmlSFInt d_ToolNumber;
+    VrmlSFFloat d_ToolLength;
+    VrmlSFFloat d_ToolRadius;
     VrmlMFString d_OPCUANames;
     VrmlMFInt d_OPCUAAxisIndicees;
     VrmlMFNode d_AxisNodes;
@@ -336,6 +348,7 @@ bool ToolMaschinePlugin::update()
                             if(!m_pauseMove && !m_pauseBtn->state())
                                 m->move(i, v + m->d_Offsets[i]);
                         }
+                        int toolNumber = client->getNumericScalar("Tool_TNumber");
                         if(haveTool)
                             m_tools[m->d_MachineName.get()]->value->update(opcua::MultiDimensionalArray<double>(nullptr));
 
