@@ -6,21 +6,30 @@ macroScript weldSmooth category:"Optimize"
 				(
 					if x.numverts > 0 do
 					(
-						   case (ClassOf obj) of
+					print (ClassOf x)
+						   case (ClassOf x) of
 				(
-					Editable_Poly:	(	polyOp.weldVertsByThreshold x #{1..x.numverts} 0.0001	)
+					Editable_Poly:	(	x.weldThreshold = 0.0001
+						                polyOp.weldVertsByThreshold x #{1..x.numverts}
+						            )
+					PolyMeshObject:	(	x.weldThreshold = 0.0001
+						                polyOp.weldVertsByThreshold x #{1..x.numverts}
+						            )
 					
 					Editable_mesh:   (	meshOp.weldVertsByThreshold x #{1..x.numverts} 0.0001   )
 				)
 					   if x.numfaces > 0 do
 					   (
-						   case (ClassOf obj) of
+						   case (ClassOf x) of
 				(
-					Editable_Poly:	(	polyOp.autosmooth x #{1..x.numfaces} 25.0	)
+					Editable_Poly:	(	x.autoSmoothThreshold = 45
+						                polyOp.autosmooth x 	)
+					PolyMeshObject:	(	x.autoSmoothThreshold = 45
+						                polyOp.autosmooth x	)
 					
-					Editable_mesh:   (	meshOp.autosmooth x #{1..x.numfaces} 25.0   )
+					Editable_mesh:   (	meshOp.autosmooth x #{1..x.numfaces} 45.0   )
 				)
-					        meshop
+					        
 					   )
 					print x.name
 				   )
