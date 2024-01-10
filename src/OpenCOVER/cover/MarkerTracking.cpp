@@ -536,82 +536,77 @@ void MarkerTracking::update()
                     MarkerPos = currentMarker->getMarkerTrans();
                     osg::Matrix tmpMat2, leftCameraTrans;
                     leftCameraTrans = VRViewer::instance()->getViewerMat();
-                    if (coVRConfig::instance()->stereoState())
-                    {
-                        leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                    }
-                    else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-                    {
-                        leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                    }
+                    int factor = 0;
+                    if (coVRConfig::instance()->stereoState() || coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
+                        factor = 1;
                     else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-                    {
-                        leftCameraTrans.preMult(osg::Matrix::translate((VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                    }
+                        factor = -1;
+                    if(factor)
+                        leftCameraTrans.preMult(osg::Matrix::translate(factor * (VRViewer::instance()->getSeparation() / 2.0), 0, 0));
                     tmpMat = MarkerPos * leftCameraTrans;
                 }
                 //break;
             }
-            if (numVisible)
+        }
+        if (numVisible)
+        {
+            if (doCallibration)
             {
-                if (doCallibration)
+                for (auto currentMarker : objectMarkers)
                 {
-                    for (auto currentMarker : objectMarkers)
+                    if (currentMarker && currentMarker->isVisible() && currentMarker->calibrate->getState())
                     {
-                        if (currentMarker && currentMarker->isVisible() && currentMarker->calibrate->getState())
+                        if (currentMarker->numCalibSamples < 100)
                         {
-                            if (currentMarker->numCalibSamples < 100)
+                            if (currentMarker->numCalibSamples == 0)
                             {
-                                if (currentMarker->numCalibSamples == 0)
-                                {
-                                    for (int i = 0; i < 4; i++)
-                                        for (int j = 0; j < 4; j++)
-                                            currentMarker->matrixSumm(i, j) = 0;
-                                }
-                                currentMarker->numCalibSamples++;
-
-                                osg::Matrix MarkerPos; // marker position in camera coordinate system
-                                MarkerPos = currentMarker->getMarkerTrans();
-                                osg::Matrix tmpMat2, leftCameraTrans;
-                                leftCameraTrans = VRViewer::instance()->getViewerMat();
-                                if (coVRConfig::instance()->stereoState())
-                                {
-                                    leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                                }
-                                else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-                                {
-                                    leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                                }
-                                else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-                                {
-                                    leftCameraTrans.preMult(osg::Matrix::translate((VRViewer::instance()->getSeparation() / 2.0), 0, 0));
-                                }
-                                tmpMat2 = MarkerPos * osg::Matrix::inverse(tmpMat * osg::Matrix::inverse(leftCameraTrans));
-                                //OT = Inv(Ctrans *offset) * leftCameraTrans
-
-                                //Inv(Ctrans) * Inv(OT * Inv(leftCameraTrans)) = offset
-
                                 for (int i = 0; i < 4; i++)
                                     for (int j = 0; j < 4; j++)
-                                        currentMarker->matrixSumm(i, j) += (tmpMat2(i, j) / 100.0);
+                                        currentMarker->matrixSumm(i, j) = 0;
                             }
-                            else
+                            currentMarker->numCalibSamples++;
+
+                            osg::Matrix MarkerPos; // marker position in camera coordinate system
+                            MarkerPos = currentMarker->getMarkerTrans();
+                            osg::Matrix tmpMat2, leftCameraTrans;
+                            leftCameraTrans = VRViewer::instance()->getViewerMat();
+                            if (coVRConfig::instance()->stereoState())
                             {
-                                currentMarker->stopCalibration();
-                                currentMarker->numCalibSamples = 0;
-                                currentMarker->setOffset(currentMarker->matrixSumm);
-                                if (MarkerTracking::instance()->arInterface)
-                                {
-                                    MarkerTracking::instance()->arInterface->updateMarkerParams();
-                                }
+                                leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                            }
+                            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
+                            {
+                                leftCameraTrans.preMult(osg::Matrix::translate(-(VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                            }
+                            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
+                            {
+                                leftCameraTrans.preMult(osg::Matrix::translate((VRViewer::instance()->getSeparation() / 2.0), 0, 0));
+                            }
+                            tmpMat2 = MarkerPos * osg::Matrix::inverse(tmpMat * osg::Matrix::inverse(leftCameraTrans));
+                            //OT = Inv(Ctrans *offset) * leftCameraTrans
+
+                            //Inv(Ctrans) * Inv(OT * Inv(leftCameraTrans)) = offset
+
+                            for (int i = 0; i < 4; i++)
+                                for (int j = 0; j < 4; j++)
+                                    currentMarker->matrixSumm(i, j) += (tmpMat2(i, j) / 100.0);
+                        }
+                        else
+                        {
+                            currentMarker->stopCalibration();
+                            currentMarker->numCalibSamples = 0;
+                            currentMarker->setOffset(currentMarker->matrixSumm);
+                            if (MarkerTracking::instance()->arInterface)
+                            {
+                                MarkerTracking::instance()->arInterface->updateMarkerParams();
                             }
                         }
                     }
                 }
-
-                cover->getObjectsXform()->setMatrix(tmpMat);
-                coVRCollaboration::instance()->SyncXform();
             }
+
+            cover->getObjectsXform()->setMatrix(tmpMat);
+            coVRCollaboration::instance()->SyncXform();
             if (coVRMSController::instance()->isCluster())
             {
                 osg::Matrix tmpMat;
