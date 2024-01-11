@@ -186,6 +186,12 @@ guess_archsuffix() {
                     export ARCHSUFFIX=rhel8
                   elif grep -i -q -s 'CentOS Stream release 8' /etc/system-release; then
                     export ARCHSUFFIX=rhel8
+                  elif grep -i -q -s 'CentOS Stream release 9' /etc/system-release; then
+                    export ARCHSUFFIX=rhel9
+                  elif grep -i -q -s 'Red Hat Enterprise Linux.*release 9..' /etc/system-release; then
+                    export ARCHSUFFIX=rhel9
+                  elif grep -i -q -s 'Rocky Linux release 9' /etc/system-release; then
+                    export ARCHSUFFIX=rhel9
                   fi
                elif grep -i -q -s 'suse.*11.0' /etc/issue; then
                    export ARCHSUFFIX=mabuya
