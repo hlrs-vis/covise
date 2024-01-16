@@ -229,6 +229,7 @@ SET(DEVICE_SOURCES
    input/input.cpp
    input/inputdevice.cpp
    input/input_const.cpp
+   input/gadget.cpp
    input/person.cpp
    input/inputsource.cpp
    input/trackingbody.cpp
@@ -243,6 +244,7 @@ SET(DEVICE_HEADERS
    input/input.h
    input/inputdevice.h
    input/input_const.h
+   input/gadget.h
    input/person.h
    input/inputsource.h
    input/trackingbody.h

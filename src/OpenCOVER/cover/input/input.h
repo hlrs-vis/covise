@@ -20,6 +20,7 @@
 #include <osg/Matrix>
 
 #include "person.h"
+#include "gadget.h"
 #include "trackingbody.h"
 #include "buttondevice.h"
 #include "valuator.h"
@@ -81,6 +82,11 @@ public:
     Person *getPerson(const std::string &name);
     Person *getPerson(size_t idx);
 
+    // other entities providing user input ("gadgets")
+    size_t getNumGadgets() const; //< number of configured gadgets
+    Gadget *getGadget(const std::string &name);
+    Gadget *getGadget(size_t idx);
+
     size_t getNumObjects() const
     {
         return objects.size();
@@ -121,6 +127,10 @@ private:
     PersonMap persons; //< configured persons
     Person *activePerson; //< active person
     std::vector<std::string> personNames; //< ordered list of names of configured persons
+
+    typedef std::map<std::string, Gadget *> GadgetMap;
+    GadgetMap gadgets; //< configured gadgets
+    std::vector<std::string> gadgetNames; //< ordered list of names of configured gadgets
 
     std::vector<TrackingBody *> objects; ///Objects list
 

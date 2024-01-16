@@ -122,6 +122,9 @@ Input::~Input()
     persons.clear();
     personNames.clear();
 
+    gadgets.clear();
+    gadgetNames.clear();
+
     delete m_mouse;
 
     clearMap(buttondevices);
@@ -338,6 +341,21 @@ Person *Input::getPerson(const std::string &name)
     return person;
 }
 
+Gadget *Input::getGadget(const std::string &name)
+{
+    if (name.empty())
+        return NULL;
+
+    Gadget *gadget = findInMap(gadgets, name);
+    if (!gadget)
+    {
+        gadget = new Gadget(name);
+        gadgets[name] = gadget;
+        gadgetNames.push_back(name);
+    }
+    return gadget;
+}
+
 TrackingBody *Input::getBody(const std::string &name)
 {
 
@@ -517,6 +535,12 @@ size_t Input::getNumPersons() const
     return persons.size();
 }
 
+size_t Input::getNumGadgets() const
+{
+    assert(gadgets.size() == gadgetNames.size());
+    return gadgets.size();
+}
+
 size_t Input::getNumBodies() const
 {
     return trackingbodies.size();
@@ -586,12 +610,20 @@ bool Input::setActivePerson(size_t num)
 
 Person *Input::getPerson(size_t num)
 {
-
     if (num >= personNames.size())
         return NULL;
 
     const std::string &name = personNames[num];
     return getPerson(name);
+}
+
+Gadget *Input::getGadget(size_t num)
+{
+    if (num >= gadgetNames.size())
+        return NULL;
+
+    const std::string &name = gadgetNames[num];
+    return getGadget(name);
 }
 
 const osg::Matrix &Input::getMouseMat() const
