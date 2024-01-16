@@ -76,12 +76,14 @@ COVERPLUGIN(Drehgeber)
 Drehgeber::Drehgeber()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("Drehgeber_owner", cover->ui)
+, m_config(config())
 , m_menu(new ui::Menu("Drehgeber", this))
 , m_rotator(new ui::Slider(m_menu, "rotation_angle_in_degree")) 
+, m_serialDevice(std::make_unique<ui::EditFieldConfigValue>(m_menu, "serialDevice", "\\\\.\\COM12", *m_config, "Serial")) 
+, m_baudrate(std::make_unique<ui::EditFieldConfigValue>(m_menu, "baudrate", "115200", *m_config, "Serial")) 
+, m_delay(std::make_unique<ui::SliderConfigValue>(m_menu, "delay", 0, *m_config, "Serial")) 
 {
     m_rotator->setBounds(0, 360);
-    serialDeviceUI = new ui::TextField(m_menu, "serialDevice");
-    baudrateUI = new ui::EditField(m_menu, "baudrate");
 
     VrmlNamespace::addBuiltIn(VrmlNodeDrehgeber::defineType());
 
@@ -89,47 +91,25 @@ Drehgeber::Drehgeber()
         for (auto drehgeber : drehgebers)
             drehgeber->setAngle(angle / 360 * 2 * M_PI);
         });
-}
-bool Drehgeber::init()
-{
-    SerialDevice = configString("Serial", "device", "\\\\.\\COM12");
-    int64_t br = 115200;
-    baudrate = configInt("Serial", "baudrate", br);
-    SerialDevice->setUpdater([this](std::string val) {
-        AVRClose();
-        AVRInit(val.c_str(), (int)*baudrate);
-        });
-    baudrate->setUpdater([this](int64_t val) {
-        AVRClose();
-        std::string name = *SerialDevice;
-        if (name != serialDeviceUI->value())
-            serialDeviceUI->setValue(name);
-        AVRInit(name.c_str(), (int)*baudrate);
-        });
-    serialDeviceUI->setValue(*SerialDevice);
-    serialDeviceUI->setCallback([this](std::string dev) {
-        if (SerialDevice->value() != dev)
-        {
-            *SerialDevice = dev;
-            config()->save();
-        }
-        });
-    baudrateUI->setValue(br);
-    baudrateUI->setCallback([this](const std::string& b) {
-        if (baudrate->value() != (int64_t)baudrateUI->number())
-        {
-            *baudrate = (int64_t)baudrateUI->number();
-            config()->save();
-        }
-        });
-    // already initialized above twice std::string name = *SerialDevice;
-    //AVRInit(name.c_str(), (int)*baudrate);
+    auto value = m_delay->getValue();
+    m_delay->ui()->setText("delay in ms");
+    m_delay->ui()->setBounds(0, 1000);
+    m_delay->setValue(value);
 
+    auto updater = [this]() {
+    AVRClose();
+    std::cerr << "m_serialDevice->getValue()" << m_serialDevice->getValue() << std::endl;
+    AVRInit(m_serialDevice->getValue().c_str(), std::stoi(m_baudrate->getValue()));
+    };
+    m_serialDevice->setUpdater(updater);
+    m_baudrate->setUpdater(updater);
+    updater();
     start(); // start serial thread
-    return true;
 }
+
 Drehgeber::~Drehgeber()
 {
+    m_config->save();
     running = false;
     AVRClose();
 }
@@ -141,6 +121,14 @@ bool Drehgeber::update()
     float na = (float)((counter / 1000.0) * 2 * M_PI)-0.6;
     if (na < 0)
         na += 2 * M_PI;
+
+    auto frametime = cover->frameTime();
+    m_values.emplace_front(std::make_pair(frametime, na));
+    na = m_values.back().second;
+    
+    while(m_values.back().first < frametime - m_delay->getValue() / 1000)
+        m_values.pop_back();
+
     if (na != angle)
     {
         fprintf(stderr, "Angle %f\n",na); 

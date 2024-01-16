@@ -9,7 +9,7 @@
 #define testTFM_H
 
 #include <map>
-
+#include <deque>
 
 #include <cover/coVRPlugin.h>
 
@@ -21,11 +21,11 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
 
+#include <cover/ui/CovconfigLink.h>
+
 #include "../Bicycle/AVRserialcom.h"
 
 using namespace opencover;
-
-
 
 
 class Drehgeber : public coVRPlugin, public ui::Owner,  public OpenThreads::Thread
@@ -34,21 +34,20 @@ public:
     Drehgeber();
     ~Drehgeber();
 
-    bool init();
     void run();
     bool update();
 private:
+    std::shared_ptr<config::File>m_config;
     ui::Menu * m_menu;
     ui::Slider *m_rotator;
-    ui::TextField* serialDeviceUI;
-    ui::EditField* baudrateUI;
+    std::unique_ptr<ui::EditFieldConfigValue> m_serialDevice;
+    std::unique_ptr<ui::EditFieldConfigValue> m_baudrate;
+    std::unique_ptr<ui::SliderConfigValue>m_delay;
     bool running = true;
-    int counter;
-    float angle;
+    int counter = 0;
+    float angle = 0;
     std::string SerialDev;
-
-    std::unique_ptr<ConfigString> SerialDevice;
-    std::unique_ptr<ConfigInt> baudrate;
+    std::deque<std::pair<double, float>> m_values;
 };
 
 
