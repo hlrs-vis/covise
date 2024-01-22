@@ -246,7 +246,7 @@ void FFMPEGPlugin::FillComboBoxSetExtension(int selection, int row)
         for (const auto &c : it->second)
             codecNames.push_back(c.codec->long_name);
     }
-    coVRMSController::instance()->syncString(filterList);
+    filterList = coVRMSController::instance()->syncString(filterList);
     myPlugin->fileNameBrowser->setFilterList(filterList);
     int count = codecNames.size();
     coVRMSController::instance()->syncData(&count, sizeof(count));
