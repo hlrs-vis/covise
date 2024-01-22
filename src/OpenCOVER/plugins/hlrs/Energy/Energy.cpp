@@ -30,6 +30,7 @@
 #include <iterator>
 #include <osg/LineWidth>
 #include <osg/Version>
+#include <config/CoviseConfig.h>
 #include <proj_api.h>
 
 EnergyPlugin *EnergyPlugin::plugin = NULL;
@@ -104,7 +105,8 @@ EnergyPlugin::~EnergyPlugin() {}
 
 bool EnergyPlugin::init()
 {
-    if (!loadFile("/data/DiTEnS/campus/db_building_measurements.csv"))
+    auto filename = configString("CSV", "filename", "default")->value();
+    if (!loadFile(filename))
     {
         return false;
     }
