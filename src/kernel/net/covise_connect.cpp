@@ -1372,6 +1372,7 @@ const Connection *ConnectionList::add(std::unique_ptr<Connection> &&conn){
         maxfd = conn->get_id();
     FD_SET(conn->get_id(), &fdvar); // field for the select call
     connlist.push_back(std::move(conn)); 
+    lastReadConnection = connlist.begin();
     return connPtr;
 }
 
@@ -1423,6 +1424,8 @@ void ConnectionList::remove(const Connection *c) // remove a connection and upda
         }
         m_onRemoveCallbacks.erase(cbIt);
     }
+    lastReadConnection = connlist.begin();
+
 }
 
 // aw 04/2000: Check whether PPID==1 or no sockets left: prevent hanging
@@ -1465,11 +1468,21 @@ const Connection *ConnectionList::check_for_input(float time)
 {
     int numconn = 0;
     // if we already have a pending message, we return it
-    for (auto &ptr: connlist)
+    if(!connlist.empty())
     {
-        ++numconn;
-        if (ptr->has_message())
-            return &*ptr;
+        for(auto con = lastReadConnection + 1; con == lastReadConnection; con++ )
+        {
+            if(con == connlist.end())
+                con = connlist.begin();
+            ++numconn;
+            auto &ptr = *con;
+            if (ptr->has_message())
+            {
+                lastReadConnection = con;
+                return &*ptr;
+            }
+        }
+
     }
 
     fd_set fdread;
