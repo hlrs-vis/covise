@@ -43,7 +43,7 @@ void CuttingSurfacePlugin::newInteractor(const RenderObject *container, coIntera
     }
 
 #ifndef COVISE_BUILD
-    if ((strncmp(moduleName, "CutGeometry", 11) == 0))
+    if ((strncmp(moduleName, "CutGeometry", 11) == 0) || (strncmp(moduleName, "Clip", 4) == 0))
     {
         add(container, i);
     }
