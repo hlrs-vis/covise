@@ -9,6 +9,7 @@
 #include "CuttingSurfacePlane.h"
 #include "CuttingSurfaceCylinder.h"
 #include "CuttingSurfaceSphere.h"
+#include "CuttingSurfaceBox.h"
 #include "CuttingSurfacePlugin.h"
 
 #include <cover/ui/Menu.h>
@@ -46,23 +47,25 @@ const char *CuttingSurfaceInteraction::POINT = "point";
 const char *CuttingSurfaceInteraction::VERTEX = "vertex";
 const char *CuttingSurfaceInteraction::SCALAR = "scalar";
 
-CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName, CuttingSurfacePlugin *p)
-    : ModuleInteraction(container, inter, pluginName)
-    , newObject_(false)
-    , planeOptionsInMenu_(false)
-    , option_(0)
-    , csPlane_(NULL)
-    , csCylX_(NULL)
-    , csCylY_(NULL)
-    , csCylZ_(NULL)
-    , csSphere_(NULL)
-    , activeClipPlane_(-1)
-    , clipPlaneMenu_(NULL)
-    , clipPlaneIndexGroup_(NULL)
-    , clipPlaneNoneCheckbox_(NULL)
-    , clipPlaneOffsetSlider_(NULL)
-    , clipPlaneFlipCheckbox_(NULL)
-    , plugin(NULL)
+CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *container, coInteractor *inter,
+                                                     const char *pluginName, CuttingSurfacePlugin *p)
+: ModuleInteraction(container, inter, pluginName)
+, newObject_(false)
+, planeOptionsInMenu_(false)
+, option_(0)
+, csPlane_(NULL)
+, csCylX_(NULL)
+, csCylY_(NULL)
+, csCylZ_(NULL)
+, csSphere_(NULL)
+, csBox_(NULL)
+, activeClipPlane_(-1)
+, clipPlaneMenu_(NULL)
+, clipPlaneIndexGroup_(NULL)
+, clipPlaneNoneCheckbox_(NULL)
+, clipPlaneOffsetSlider_(NULL)
+, clipPlaneFlipCheckbox_(NULL)
+, plugin(NULL)
 
 
 {
@@ -78,12 +81,16 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
     option_ = OPTION_PLANE;
     getParameters();
 
+    auto moduleName = inter->getModuleName();
+
     // create interactors
     csPlane_ = new CuttingSurfacePlane(inter, plugin);
     csCylX_ = new CuttingSurfaceCylinder(inter);
     csCylY_ = new CuttingSurfaceCylinder(inter);
     csCylZ_ = new CuttingSurfaceCylinder(inter);
     csSphere_ = new CuttingSurfaceSphere(inter);
+    if (strncmp(moduleName, "Clip", 4) == 0)
+        csBox_ = new CuttingSurfaceBox(inter);
 
     // deafult is no restriction
     restrictToAxis_ = RESTRICT_NONE;
@@ -94,7 +101,7 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
     planeOptionsInMenu_ = false;
 
     // create menu
-    createMenu();
+    createMenu(strncmp(moduleName, "Clip", 4) == 0 || strncmp(moduleName, "CutGeometry", 11) == 0);
     updateMenu();
 }
 
@@ -109,6 +116,7 @@ CuttingSurfaceInteraction::~CuttingSurfaceInteraction()
     delete csCylY_;
     delete csCylZ_;
     delete csSphere_;
+    delete csBox_;
 
     if (cover->debugLevel(3))
         fprintf(stderr, "CuttingSurfaceInteraction::~CuttingSurfaceInteraction done\n");
@@ -131,6 +139,8 @@ CuttingSurfaceInteraction::update(const RenderObject *container, coInteractor *i
     csCylY_->update(inter);
     csCylZ_->update(inter);
     csSphere_->update(inter);
+    if (csBox_)
+        csBox_->update(inter);
 
     newObject_ = true;
 
@@ -161,6 +171,8 @@ CuttingSurfaceInteraction::preFrame()
     csCylY_->preFrame();
     csCylZ_->preFrame();
     csSphere_->preFrame();
+    if (csBox_)
+        csBox_->preFrame();
 
     if (option_ == OPTION_PLANE && csPlane_->sendClipPlane())
     {
@@ -199,10 +211,26 @@ CuttingSurfaceInteraction::getParameters()
     inter_->getChoiceParam(OPTION, numoptions, labels, option_);
 }
 
-void
-CuttingSurfaceInteraction::createMenu()
+void CuttingSurfaceInteraction::createMenu(bool invertClip)
 {
     // pick interactor checkbox
+
+    if (invertClip)
+    {
+        clipInvertCheckbox_ = new ui::Button(menu_, "Invert");
+        clipInvertCheckbox_->setCallback(
+            [this](bool state)
+            {
+                plugin->setBooleanParam("flip", state);
+                plugin->executeModule();
+
+                if (clipPlaneFlipCheckbox_)
+                {
+                    bool flip = clipPlaneFlipCheckbox_->state();
+                    clipPlaneFlipCheckbox_->setState(!flip);
+                }
+            });
+    }
 
     optionChoice_ = new ui::SelectionList(menu_, "SurfaceStyle");
     optionChoice_->setText("Surface style");
@@ -211,6 +239,8 @@ CuttingSurfaceInteraction::createMenu()
     optionChoice_->append("Cylinder: X");
     optionChoice_->append("Cylinder: Y");
     optionChoice_->append("Cylinder: Z");
+    if (csBox_)
+        optionChoice_->append("Box");
     optionChoice_->select(option_);
 
     optionChoice_->setCallback([this](int idx){
@@ -244,6 +274,7 @@ CuttingSurfaceInteraction::createMenu()
                 case OPTION_CYLX:
                 case OPTION_CYLY:
                 case OPTION_CYLZ:
+                case OPTION_BOX:
                     sendClipPlaneVisibilityMsg(activeClipPlane_, false);
                     if (planeOptionsInMenu_)
                     {
@@ -628,6 +659,8 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
             csCylY_->hidePickInteractor();
             csCylZ_->hidePickInteractor();
             csSphere_->hidePickInteractor();
+            if (csBox_)
+                csBox_->hidePickInteractor();
         }
         else if (option_ == OPTION_CYLX)
         {
@@ -636,6 +669,8 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
             csCylY_->hidePickInteractor();
             csCylZ_->hidePickInteractor();
             csSphere_->hidePickInteractor();
+            if (csBox_)
+                csBox_->hidePickInteractor();
         }
         else if (option_ == OPTION_CYLY)
         {
@@ -644,6 +679,8 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
             csCylY_->showPickInteractor();
             csCylZ_->hidePickInteractor();
             csSphere_->hidePickInteractor();
+            if (csBox_)
+                csBox_->hidePickInteractor();
         }
         else if (option_ == OPTION_CYLZ)
         {
@@ -652,6 +689,8 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
             csCylY_->hidePickInteractor();
             csCylZ_->showPickInteractor();
             csSphere_->hidePickInteractor();
+            if (csBox_)
+                csBox_->hidePickInteractor();
         }
 
         else if (option_ == OPTION_SPHERE)
@@ -661,6 +700,19 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
             csCylY_->hidePickInteractor();
             csCylZ_->hidePickInteractor();
             csSphere_->showPickInteractor();
+            if (csBox_)
+                csBox_->hidePickInteractor();
+        }
+
+        else if (option_ == OPTION_BOX)
+        {
+            csPlane_->hidePickInteractor();
+            csCylX_->hidePickInteractor();
+            csCylY_->hidePickInteractor();
+            csCylZ_->hidePickInteractor();
+            csSphere_->hidePickInteractor();
+            if (csBox_)
+                csBox_->showPickInteractor();
         }
         //sendShowPickInteractorMsg();
     }
@@ -671,6 +723,8 @@ void CuttingSurfaceInteraction::updatePickInteractors(bool show)
         csCylY_->hidePickInteractor();
         csCylZ_->hidePickInteractor();
         csSphere_->hidePickInteractor();
+        if (csBox_)
+            csBox_->hidePickInteractor();
         //sendHidePickInteractorMsg();
     }
 }
@@ -686,6 +740,8 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
             csCylY_->hideDirectInteractor();
             csCylZ_->hideDirectInteractor();
             csSphere_->hideDirectInteractor();
+            if (csBox_)
+                csBox_->hideDirectInteractor();
         }
         else if (option_ == OPTION_CYLX)
         {
@@ -694,6 +750,8 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
             csCylY_->hideDirectInteractor();
             csCylZ_->hideDirectInteractor();
             csSphere_->hideDirectInteractor();
+            if (csBox_)
+                csBox_->hideDirectInteractor();
         }
         else if (option_ == OPTION_CYLY)
         {
@@ -702,6 +760,8 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
             csCylY_->showDirectInteractor();
             csCylZ_->hideDirectInteractor();
             csSphere_->hideDirectInteractor();
+            if (csBox_)
+                csBox_->hideDirectInteractor();
         }
         else if (option_ == OPTION_CYLZ)
         {
@@ -710,6 +770,8 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
             csCylY_->hideDirectInteractor();
             csCylZ_->showDirectInteractor();
             csSphere_->hideDirectInteractor();
+            if (csBox_)
+                csBox_->hideDirectInteractor();
         }
         else if (option_ == OPTION_SPHERE)
         {
@@ -718,6 +780,18 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
             csCylY_->hideDirectInteractor();
             csCylZ_->hideDirectInteractor();
             csSphere_->showDirectInteractor();
+            if (csBox_)
+                csBox_->hideDirectInteractor();
+        }
+        else if (option_ == OPTION_BOX)
+        {
+            csPlane_->hideDirectInteractor();
+            csCylX_->hideDirectInteractor();
+            csCylY_->hideDirectInteractor();
+            csCylZ_->hideDirectInteractor();
+            csSphere_->hideDirectInteractor();
+            if (csBox_)
+                csBox_->showDirectInteractor();
         }
     }
     else
@@ -727,5 +801,7 @@ void CuttingSurfaceInteraction::updateDirectInteractors(bool show)
         csCylY_->hideDirectInteractor();
         csCylZ_->hideDirectInteractor();
         csSphere_->hideDirectInteractor();
+        if (csBox_)
+            csBox_->hideDirectInteractor();
     }
 }
