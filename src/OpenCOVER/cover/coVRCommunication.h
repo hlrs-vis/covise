@@ -95,13 +95,10 @@ public:
     covise::Message *waitForMessage(int messageType);
     std::unique_ptr<vrb::VrbClientRegistry> registry;
 	std::unique_ptr<vrb::SharedStateManager> sharedStateManager;
-
-	//add callback that is called after first contact with vrb
-	void addOnConnectCallback(std::function<void(void)> function);
-	//add callback that is called when vrb disconnects
-	void addOnDisconnectCallback(std::function<void(void)> function);
-    //called after new session is set
-    void addOnSessionChangedCallback(std::function<void(void)> function);
+    enum class Notification{
+        Connected, Disconnected, SessionChanged, PartnerJoined, PartnerLeft
+    };
+    void subscribeNotification(Notification type, const std::function<void(void)> &function);
 	//set link to covise plugin function to get message from covise socket
 	void setWaitMessagesCallback(std::function<std::vector<covise::Message*>(void)> cb);
 	//set link to covise plugin function to handle a covise message
@@ -120,10 +117,8 @@ private:
     std::map<int, VRBData *> mfbData;
     std::unique_ptr<VrbMenu> m_vrbMenu;
     vrb::SessionID m_privateSessionID;
-	std::vector<std::function<void(void)>> onConnectCallbacks;
-	std::vector<std::function<void(void)>> onDisconnectCallbacks;
-	std::vector<std::function<void(void)>> onSessionChangedCallbacks;
 	//covise plugin callbacks
+	std::map<Notification, std::vector<std::function<void(void)>>> notificationSubscriptions;
 	std::function <std::vector<covise::Message*>(void)> waitMessagesCallback;
 	std::function<void(covise::Message*)> handleMessageCallback;
     coVRCommunication();
@@ -134,7 +129,9 @@ private:
     void toggleClientState(bool state);
     coVRPartner *me();
     const coVRPartner *me() const;
+    void callSubscriptions(Notification type);
 
 };
 }
+
 #endif

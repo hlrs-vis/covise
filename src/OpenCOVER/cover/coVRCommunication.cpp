@@ -108,12 +108,12 @@ coVRCommunication::coVRCommunication()
     srand((unsigned)time(NULL)); // Initialize the random timer
     ignoreRemoteTransform = coCoviseConfig::isOn("COVER.IgnoreRemoteTransform", false);
 
-    onConnectCallbacks.push_back([this]() {
+    subscribeNotification(Notification::Connected, [this]() {
     	registry->setID(me()->ID(), me()->sessionID());
         registry->registerSender(this);
     });
 
-    onDisconnectCallbacks.push_back([this]() {
+    subscribeNotification(Notification::Disconnected,[this]() {
     	registry->setID(-1, me()->sessionID());
         registry->registerSender(nullptr);
     });
@@ -124,10 +124,7 @@ coVRCommunication::coVRCommunication()
 
 coVRCommunication::~coVRCommunication()
 {
-    onConnectCallbacks.clear();
-    onDisconnectCallbacks.clear();
-    onSessionChangedCallbacks.clear();
-
+    notificationSubscriptions.clear();
     waitMessagesCallback = nullptr;
     handleMessageCallback = nullptr;
 
@@ -146,25 +143,14 @@ void coVRCommunication::init()
 	remoteNavInteraction = new vrui::coNavInteraction(vrui::coInteraction::NoButton, "remoteNavInteraction");
 }
 
-void handleEvents(const std::vector<std::function<void(void)>> &events)
-{
-    for (auto function : events)
-	{
-		if (function)
-		{
-			function();
-		}
-	}
-}
-
 void coVRCommunication::connected()
 {
-    handleEvents(onConnectCallbacks);
+    callSubscriptions(Notification::Connected);
 }
 
 void coVRCommunication::disconnected()
 {
-    handleEvents(onDisconnectCallbacks);
+    callSubscriptions(Notification::Disconnected);
 }
 
 void coVRCommunication::toggleClientState(bool state){
@@ -193,6 +179,16 @@ const coVRPartner *coVRCommunication::me() const{
     return coVRPartnerList::instance()->me();
 }
 
+void coVRCommunication::callSubscriptions(Notification type)
+{
+    for (auto &function : notificationSubscriptions[type])
+	{
+		if (function)
+		{
+			function();
+		}
+	}
+}
 
 void coVRCommunication::update(clientRegClass *theChangedClass)
 {
@@ -261,7 +257,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     tb << id;
     tb << me()->ID();
     send(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
-    handleEvents(onSessionChangedCallbacks);
+    callSubscriptions(Notification::SessionChanged);
 }
 
 const char *coVRCommunication::getHostaddress()
@@ -670,8 +666,13 @@ void coVRCommunication::handleVRB(const Message &msg)
         }
         else
         {
+            auto oldSession = coVRPartnerList::instance()->get(id)->sessionID();
             coVRPartnerList::instance()->setSessionID(id, sessionID);
             coVRPartnerList::instance()->print();
+            if(sessionID == me()->sessionID())
+                callSubscriptions(Notification::PartnerJoined);
+            else if(oldSession == me()->sessionID())
+                callSubscriptions(Notification::PartnerLeft);
         }
         coVRCollaboration::instance()->updateSharedStates();
         coVRCollaboration::instance()->updateUi();
@@ -841,22 +842,10 @@ Message *coVRCommunication::waitForMessage(int messageType)
     return m;
 }
 
-
-
-void opencover::coVRCommunication::addOnConnectCallback(std::function<void(void)> function)
+void coVRCommunication::subscribeNotification(Notification type, const std::function<void(void)> &function)
 {
-	onConnectCallbacks.push_back(function);
-}
-
-void opencover::coVRCommunication::addOnDisconnectCallback(std::function<void(void)> function)
-{
-	onDisconnectCallbacks.push_back(function);
-}
-
-void opencover::coVRCommunication::addOnSessionChangedCallback(std::function<void(void)> function)
-{
-    onSessionChangedCallbacks.push_back(function);
-}
+    notificationSubscriptions[type].push_back(function);
+}   
 
 void opencover::coVRCommunication::setWaitMessagesCallback(std::function<std::vector<Message*> (void)> cb)
 {

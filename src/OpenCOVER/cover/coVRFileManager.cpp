@@ -1170,7 +1170,7 @@ coVRFileManager::coVRFileManager()
     assert(!s_instance);
     getSharedDataPath();
 	//register my files with my ID
-	coVRCommunication::instance()->addOnConnectCallback([this](void) {
+	coVRCommunication::instance()->subscribeNotification(coVRCommunication::Notification::Connected, [this]() {
 		fileOwnerList files = m_sharedFiles.value();
 		auto path = files.begin();
 		while (path != files.end())
@@ -1179,7 +1179,7 @@ coVRFileManager::coVRFileManager()
 			++path;
 		}
 		m_sharedFiles = files;
-		});
+    });
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 

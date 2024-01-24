@@ -37,11 +37,11 @@ namespace opencover
 
 VrbMenu::VrbMenu() : ui::Owner("VRBMenu", cover->ui), sender(new coVRMessageSender)
 {
-    coVRCommunication::instance()->addOnConnectCallback([this]()
+    coVRCommunication::instance()->subscribeNotification(coVRCommunication::Notification::Connected, [this]()
                                                         { updateState(true); });
-    coVRCommunication::instance()->addOnDisconnectCallback([this]()
+    coVRCommunication::instance()->subscribeNotification(coVRCommunication::Notification::Disconnected, [this]()
                                                             { updateState(false); });
-    coVRCommunication::instance()->addOnSessionChangedCallback([this]()
+    coVRCommunication::instance()->subscribeNotification(coVRCommunication::Notification::SessionChanged, [this]()
                                                                 {
                                                                     for (const auto cb : m_onSessionChangedCallbacks)
                                                                         cb();
