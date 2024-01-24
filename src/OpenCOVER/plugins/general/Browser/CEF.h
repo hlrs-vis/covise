@@ -141,8 +141,8 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         CEF();
         bool init() override;
         virtual ~CEF();
-        CefRefPtr<CefBrowser> browser;
-        CefRefPtr<CEF_client> client;
+        CefRefPtr<CefBrowser> browser = nullptr;
+        CefRefPtr<CEF_client> client = nullptr;
 
         void setResolution(float a);
         void setAspectRatio(float a);

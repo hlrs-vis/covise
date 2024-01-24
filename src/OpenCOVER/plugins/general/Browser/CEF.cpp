@@ -427,7 +427,6 @@ bool CEF::init()
 
     CEFCoim.reset(new coCOIM(this));
 
-    browser = nullptr;
     menu = new ui::Menu("Browser", this);
     menu->setVisible(false);
     menu->setVisible(true, ui::View::Tablet);
