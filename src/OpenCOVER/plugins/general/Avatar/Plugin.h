@@ -21,13 +21,16 @@ private:
     osg::ref_ptr<osg::MatrixTransform>m_sphereTransform;
     std::shared_ptr<config::File>m_config;
     ui::Menu* m_menu = nullptr;
+
+    std::map<int, std::unique_ptr<LoadedAvatar>> m_avatars;
+
     std::unique_ptr<LoadedAvatar> m_avatar; 
     std::unique_ptr<opencover::coVR3DTransInteractor> m_interactor; 
 
-    void loadAvatar();
-    void key(int type, int keySym, int mod) override;
+    // void loadAvatar();
+    // void key(int type, int keySym, int mod) override;
     bool update() override; //wird in jedem Frame aufgerufen
-    void preFrame() override;
+    // void preFrame() override;
 
 };
 

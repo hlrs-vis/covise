@@ -24,15 +24,18 @@ using namespace covise;
 using namespace opencover;
 using namespace ui;
 
-
+namespace opencover{
+class VRAvatar;
+}
 
 
 class LoadedAvatar{
 public:
-    bool loadAvatar(const std::string &filename, ui::Menu *menu);
+    bool loadAvatar(const std::string &filename, VRAvatar *partnerAvatar, ui::Menu *menu);
     void update(const osg::Vec3 &target);
+    void update();
 private:
-    void positionAndScaleModel(osg::Node* model);
+    void positionAndScaleModel(osg::Node* model, osg::MatrixTransform *pos);
     void initArmJoints(ui::Menu *menu);
     void createAnimationSliders(ui::Menu *menu);
     void buidIkModel();
@@ -50,6 +53,7 @@ private:
     ik_solver_t* ikSolver;
     ik_node_t* ikShoulder, *ikEllbow, *ikAnkle;
     ik_effector_t* ikTarget;
+    osg::MatrixTransform *m_targetTransform;
 
 
 };

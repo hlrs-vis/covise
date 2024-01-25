@@ -35,13 +35,14 @@ static void applyIkToOsgNode(ik_node_t*node)
 
 //public
 
-bool LoadedAvatar::loadAvatar(const std::string &filename, ui::Menu *menu)
+bool LoadedAvatar::loadAvatar(const std::string &filename, VRAvatar *partnerAvatar, ui::Menu *menu)
 {
     
+    m_targetTransform = partnerAvatar->handTransform;
     model = osgDB::readNodeFile(filename);  
     if(!model)
         return false;
-    positionAndScaleModel(model);
+    positionAndScaleModel(model, partnerAvatar->feetTransform);
     std::cerr<< "loaded model " << filename << std::endl;
     
     initArmJoints(menu);
@@ -65,16 +66,40 @@ void LoadedAvatar::update(const osg::Vec3 &targetInWorldCoords)
     ik.solver.iterate_affected_nodes(ikSolver, applyIkToOsgNode);
 }
 
+void LoadedAvatar::update()
+{
+    static size_t count = 0;
+    if(count == 5 && !m_animations.empty())
+    {
+        auto &anim = *m_animations.begin();
+        m_animationFinder.m_am->stopAnimation(anim);
+    }
+    ++count;
+    resetIkTransform(); // not sure why this step is necessary
+    auto targetInShoulderCoords = worldPosToShoulder(m_targetTransform->getMatrix().getTrans());
+    ikTarget->target_position = ik.vec3.vec3(targetInShoulderCoords.x(), targetInShoulderCoords.y(), targetInShoulderCoords.z());
+    // eventually also set rotation -> ikTarget->target_rotation = ik.quat.quat(0.894, 0, 0, 0.447);
+
+    ik.solver.solve(ikSolver);
+
+    //update the osg counterparts of the ik model
+    //ik coords are in the shoulder coord system, so they have to be transformed to their local system
+    ik.solver.iterate_affected_nodes(ikSolver, applyIkToOsgNode);
+
+
+}
+
+
 //private
 
-void LoadedAvatar::positionAndScaleModel(osg::Node* model)
+void LoadedAvatar::positionAndScaleModel(osg::Node* model, osg::MatrixTransform *pos)
 {
     modelTrans = new osg::MatrixTransform;
-    cover->getObjectsRoot()->addChild(modelTrans);
+    pos->addChild(modelTrans);
     auto scale = osg::Matrix::scale(osg::Vec3f(10, 10, 10));
     auto rot1 = osg::Matrix::rotate(osg::PI / 2, 1,0,0);
-    auto rot2 = osg::Matrix::rotate(osg::PI, 0,0,1);
-    auto transM = osg::Matrix::translate(osg::Vec3f{0,0,-1300});
+    auto rot2 = osg::Matrix::rotate(3 *osg::PI /4, 0,0,1);
+    auto transM = osg::Matrix::translate(osg::Vec3f{0,0,0});
     modelTrans->setMatrix(scale * rot1 * rot2 * transM);
     modelTrans->addChild(model);
 }
@@ -91,7 +116,8 @@ void LoadedAvatar::createAnimationSliders(ui::Menu *menu)
 {
     model->accept(m_animationFinder);
     m_animations = m_animationFinder.m_am->getAnimationList();
-
+    if(m_animations.empty())
+        return;
     for(const auto & anim : m_animations)
     {
         anim->setPlayMode(osgAnimation::Animation::PlayMode::LOOP);
@@ -99,9 +125,14 @@ void LoadedAvatar::createAnimationSliders(ui::Menu *menu)
         slider->setBounds(0,1);
         slider->setCallback([this, &anim](double val, bool x){
             m_animationFinder.m_am->playAnimation(anim, 1, val);
+            if(val < 0.01)
+                m_animationFinder.m_am->stopAnimation(anim);
         });
         m_animationFinder.m_am->stopAnimation(anim);
     }
+    //play animation to reset orientation
+    auto &anim = *m_animations.begin();
+    m_animationFinder.m_am->playAnimation(anim, 1, 1);
 }
 
 void LoadedAvatar::buidIkModel()
