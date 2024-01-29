@@ -1,2 +1,5 @@
 [CSV]
-filename = '/home/hpcmdjur/db_building_measurements.csv'
+filename = '/data/DiTEnS/campus/db_building_measurements.csv'
+
+[Ennovatis]
+jsonPath = '/data/DiTEnS/ennovatis/channelids.json'
