@@ -21,7 +21,7 @@
 bool performCurlRequest(const std::string& url, std::string& response);
 
 /**
- * @brief Function to cleanup the CURL library
+ * @brief Function to cleanup the CURL library (need to be called once for each application)
  */
 void cleanupcurl();
 
