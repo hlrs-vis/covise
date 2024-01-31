@@ -12,22 +12,21 @@
  ** Description: OpenCOVER Plug-In for reading building energy data       **
  **                                                                        **
  **                                                                        **
- ** Author: Leyla Kern                                                     **
+ ** Author: Leyla Kern, Marko Djuric                                       **
  **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
+ **  Marko Djuric 01.2024:                                                 **
  **                                                                        **
 \****************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
+// #include <memory>
 #include <util/common.h>
 
 #include <PluginUtil/coSensor.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
-using namespace covise;
-using namespace opencover;
+#include <nlohmann/json.hpp>
 
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -56,7 +55,7 @@ enum Components
 };
 
 class EnergyPlugin : public opencover::coVRPlugin,
-                     public ui::Owner,
+                     public opencover::ui::Owner,
                      public opencover::coTUIListener
 {
 public:
@@ -65,33 +64,44 @@ public:
     bool init();
     bool destroy();
     bool update();
-    bool loadFile(std::string fileName);
 
     void setTimestep(int t);
     static EnergyPlugin *instance() { return plugin; };
 
-    coTUITab *coEnergyTab = nullptr;
-
-    ui::Menu *EnergyTab = nullptr;
-    ui::Button *ShowGraph = nullptr;
-    ui::ButtonGroup *componentGroup = nullptr;
-    ui::Group *componentList = nullptr;
-    ui::Button *StromBt = nullptr;
-    ui::Button *WaermeBt = nullptr;
-    ui::Button *KaelteBt = nullptr;
+    opencover::coTUITab *coEnergyTab = nullptr;
+    opencover::ui::Menu *EnergyTab = nullptr;
+    opencover::ui::Button *ShowGraph = nullptr;
+    opencover::ui::ButtonGroup *componentGroup = nullptr;
+    opencover::ui::Group *componentList = nullptr;
+    opencover::ui::Button *StromBt = nullptr;
+    opencover::ui::Button *WaermeBt = nullptr;
+    opencover::ui::Button *KaelteBt = nullptr;
     void setComponent(Components c);
     int selectedComp = 0;
 
     osg::ref_ptr<osg::Group> EnergyGroup;
     osg::Group *parent = nullptr;
 
-    std::map<std::string, std::vector<Device *>> SDlist;
+    typedef std::map<std::string, std::vector<Device *>> DeviceList;
+    DeviceList SDlist;
     osg::Sequence *sequenceList;
 
 private:
+    bool loadDBFile(const std::string &fileName);
+    bool loadDB(const std::string &path);
+    
+    /**
+     * Loads Ennovatis channelids from the specified JSON file into cache.
+     *
+     * @param pathToJSON The path to the JSON file which contains the channelids for REST-calls.
+     * @return True if the data was successfully loaded, false otherwise.
+     */
+    bool loadChannelIDs(const std::string &pathToJSON);
+
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
     float rad, scaleH;
+    nlohmann::json channelIDs;
 };
 
 #endif

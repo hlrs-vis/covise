@@ -8,30 +8,39 @@
 /****************************************************************************\
  **                                                          (C)2024 HLRS  **
  **                                                                        **
- ** Description: OpenCOVER Plug-In for reading building energy data       **
+ ** Description: OpenCOVER Plug-In for reading building energy data        **
  **                                                                        **
  **                                                                        **
- ** Author: Leyla Kern                                                     **
+ ** Author: Leyla Kern, Marko Djuric                                       **
  **                                                                        **
  ** History:                                                               **
- **  2024  v1                                                         **
+ **  2024  v1                                                              **
+ **  Marko Djuric 01.2024:                                                 **
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
 
 #include "Energy.h"
-#include <boost/filesystem.hpp>
-#include <boost/tokenizer.hpp>
-#include <cover/coVRAnimationManager.h>
-#include <cover/coVRFileManager.h>
-#include <cover/coVRTui.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iterator>
+#include <memory>
+#include <vector>
+
+#include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
+
+#include <cover/coVRAnimationManager.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRTui.h>
+#include <config/CoviseConfig.h>
+
 #include <osg/LineWidth>
 #include <osg/Version>
-#include <config/CoviseConfig.h>
 #include <proj_api.h>
+
+using namespace opencover;
+using json = nlohmann::json;
 
 EnergyPlugin *EnergyPlugin::plugin = NULL;
 
@@ -103,10 +112,9 @@ void EnergyPlugin::setComponent(Components c)
 
 EnergyPlugin::~EnergyPlugin() {}
 
-bool EnergyPlugin::init()
+bool EnergyPlugin::loadDB(const std::string &path)
 {
-    auto filename = configString("CSV", "filename", "default")->value();
-    if (!loadFile(filename))
+    if (!loadDBFile(path))
     {
         return false;
     }
@@ -131,7 +139,44 @@ bool EnergyPlugin::init()
     return true;
 }
 
-bool EnergyPlugin::loadFile(std::string fileName)
+bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
+    std::ifstream inputFilestream(pathToJSON);
+    channelIDs = json::parse(inputFilestream);
+    // sax_channelid_parser slp(SDlist);
+    // channelIDs = json::sax_parse(inputFilestream, &slp);
+    return true;
+}
+
+bool EnergyPlugin::init()
+{
+    auto dbPath= configString("CSV", "filename", "default")->value();
+    auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
+
+    std::cerr << "load database: " << dbPath << std::endl;
+    std::cerr << "load channelIDs: " << channelIdJSONPath << std::endl;
+    
+    if(loadDB(dbPath))
+    {
+        std::cerr << "database loaded in cache" << std::endl;
+    }
+    else
+    {
+        std::cerr << "database not loaded" << std::endl;
+    }
+    
+    if(loadChannelIDs(channelIdJSONPath))
+    {
+        std::cerr << "Ennovatis channelIDs loaded in cache" << std::endl;
+    }
+    else
+    {
+        std::cerr << "Ennovatis channelIDs not loaded" << std::endl;
+    }
+    
+    return true;
+}
+
+bool EnergyPlugin::loadDBFile(const std::string &fileName)
 {
     FILE *fp = fopen(fileName.c_str(), "r");
     if (fp == NULL)
@@ -182,14 +227,16 @@ bool EnergyPlugin::loadFile(std::string fileName)
         auto tok = tokens.begin();
 
         DeviceInfo *di = new DeviceInfo();
+        // auto di = std::make_shared<DeviceInfo>();
 
         di->ID = tok->c_str();
         tok++;
 
+        // location
         if (mapdrape)
         {
             double xlat = std::strtod(tok->c_str(), NULL);
-            tok++;
+            ++tok;
             double xlon = std::strtod(tok->c_str(), NULL);
             float alt = 0.;
             xlat *= DEG_TO_RAD;
@@ -204,36 +251,47 @@ bool EnergyPlugin::loadFile(std::string fileName)
         else
         {
             di->lat = std::strtof(tok->c_str(), NULL);
-            tok++;
+            ++tok;
             di->lon = std::strtof(tok->c_str(), NULL);
             di->height = 0.f;
         }
+        
+        // street
+        std::advance(tok, 3);
+        std::string street(tok->c_str());
+        ++tok;
+        street.append(" ");
+        street.append(tok->c_str());
+        di->strasse = street;
 
-        std::advance(tok, 5);
+        // details
+        ++tok;
         di->name = tok->c_str();
-        tok++;
+        ++tok;
         di->baujahr = std::strtof(tok->c_str(), NULL);
-        tok++;
+        ++tok;
         di->flaeche = std::strtof(tok->c_str(), NULL);
+        
+        // electricity, heat, cold
         std::advance(tok, 11);
         std::vector<float> stromList, kaelteList, waermeList;
 
         for (int j = 0; j < maxTimesteps; ++j)
         {
-            tok++;
+            ++tok;
             stromList.push_back(std::strtof(tok->c_str(), NULL) / 1000.); // kW -> MW
         }
 
         std::advance(tok, 7);
         for (int j = 0; j < maxTimesteps; ++j)
         {
-            tok++;
+            ++tok;
             kaelteList.push_back(std::strtof(tok->c_str(), NULL));
         }
         std::advance(tok, 7);
         for (int j = 0; j < (maxTimesteps - 2); ++j) // FIXME: Problem with last two timesteps (tokens)
         {
-            tok++;
+            ++tok;
             waermeList.push_back(std::strtof(tok->c_str(), NULL));
         }
 
