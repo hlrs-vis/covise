@@ -12,7 +12,6 @@ SET(SOURCES
     DeviceSensor.cpp
 )
 
-
 add_subdirectory(ennovatis)
 cover_add_plugin(EnergyCampus $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
 add_subdirectory(test)
