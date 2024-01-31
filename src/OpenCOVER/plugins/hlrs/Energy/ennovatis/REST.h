@@ -19,13 +19,13 @@ namespace ennovatis {
  * @param response The response data received from the request (storage)
  * @return bool True if the request was successful, false otherwise
  */
-bool performCurlRequest(const std::string& url, std::string& response);
+bool performCurlRequest(const std::string &url, std::string &response);
 
 /**
  * @brief Function to cleanup the CURL library (need to be called once for each application)
  */
 void cleanupcurl();
 
-}
+} // namespace ennovatis
 
 #endif

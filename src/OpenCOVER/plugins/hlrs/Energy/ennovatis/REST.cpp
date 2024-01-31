@@ -16,14 +16,16 @@ namespace {
  * @param userp Pointer to the user-defined data
  * @return size_t The total size of the response data
  */
-size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    ((string*)userp)->append((char*)contents, size * nmemb);
+size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
 }
-}
+} // namespace
 
 namespace ennovatis {
-bool performCurlRequest(const string& url, string& response) {
+bool performCurlRequest(const string &url, string &response)
+{
     auto curl = curl_easy_init();
     if (!curl) {
         // cerr << "Failed to initialize CURL" << endl;
@@ -45,5 +47,8 @@ bool performCurlRequest(const string& url, string& response) {
     return true;
 }
 
-void cleanupcurl() { curl_global_cleanup(); }
+void cleanupcurl()
+{
+    curl_global_cleanup();
 }
+} // namespace ennovatis
