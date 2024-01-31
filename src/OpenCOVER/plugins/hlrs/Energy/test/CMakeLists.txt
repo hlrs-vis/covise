@@ -1,4 +1,4 @@
-option(TEST_ENERGYCAMPUS "Test energy" OFF)
+option(TEST_ENERGYCAMPUS "Test EnergyCampus" OFF)
 
 if(NOT TEST_ENERGYCAMPUS)
     return()
@@ -24,13 +24,8 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-set(SOURCES ../ennovatis/REST.cpp)
-set(HEADERS ../ennovatis/REST.h)
-
 add_executable(Test test_energy.cpp)
-target_sources(Test PRIVATE ${SOURCES})
-target_include_directories(Test PRIVATE ../${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries(Test GTest::gtest_main ${CURL_LIBRARIES})
+target_link_libraries(Test $<TARGET_OBJECTS:Ennovatis> GTest::gtest_main ${CURL_LIBRARIES})
 
 include(GoogleTest)
 gtest_discover_tests(Test)
