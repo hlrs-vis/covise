@@ -1,9 +1,10 @@
 #include <nlohmann/json.hpp>
 #include <sax.h>
+#include <build_options.h>
 
 using json = nlohmann::json;
 namespace {
-constexpr bool debug = true;
+  constexpr bool debug = build_options.debug_ennovatis;
 }
 
 bool sax_channelid_parser::string(string_t &val)
