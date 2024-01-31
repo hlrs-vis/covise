@@ -21,7 +21,7 @@ endif
 all:
 	$(MAKE) $(SCRIPTINTERFACE)
 	$(MAKE) $(CO_PYWRAPPER)
-	$(MAKE) vr-prepare
+	#$(MAKE) vr-prepare # not yet compatible with Qt 6
 	$(MAKE) pyc
 
 install: all
