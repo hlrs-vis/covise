@@ -1,5 +1,5 @@
 #include "REST.h"
-#include <iostream>
+// #include <iostream>
 #include <curl/curl.h>
 #include <string>
 
@@ -22,10 +22,11 @@ size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 }
 }
 
+namespace ennovatis {
 bool performCurlRequest(const string& url, string& response) {
     auto curl = curl_easy_init();
     if (!curl) {
-        cerr << "Failed to initialize CURL" << endl;
+        // cerr << "Failed to initialize CURL" << endl;
         return false;
     }
 
@@ -37,7 +38,7 @@ bool performCurlRequest(const string& url, string& response) {
     curl_easy_cleanup(curl);
 
     if (res != CURLE_OK) {
-        cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
+        // std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
         return false;
     }
 
@@ -45,3 +46,4 @@ bool performCurlRequest(const string& url, string& response) {
 }
 
 void cleanupcurl() { curl_global_cleanup(); }
+}

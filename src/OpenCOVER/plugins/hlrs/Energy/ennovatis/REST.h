@@ -11,6 +11,7 @@
 #include <curl/curl.h>
 #include <string>
 
+namespace ennovatis {
 /**
  * @brief Function to perform a CURL request
  * 
@@ -24,5 +25,7 @@ bool performCurlRequest(const std::string& url, std::string& response);
  * @brief Function to cleanup the CURL library (need to be called once for each application)
  */
 void cleanupcurl();
+
+}
 
 #endif

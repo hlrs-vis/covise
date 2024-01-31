@@ -24,8 +24,8 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-set(SOURCES ../REST.cpp)
-set(HEADERS ../REST.h)
+set(SOURCES ../ennovatis/REST.cpp)
+set(HEADERS ../ennovatis/REST.h)
 
 add_executable(Test test_energy.cpp)
 target_sources(Test PRIVATE ${SOURCES})

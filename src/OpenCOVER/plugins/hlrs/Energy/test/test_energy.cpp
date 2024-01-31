@@ -1,5 +1,7 @@
-#include "../REST.h"
+#include "../ennovatis/REST.h"
 #include <gtest/gtest.h>
+
+using namespace ennovatis;
 
 namespace {
 TEST(performCurlRequestTest, ValidUrl) {
