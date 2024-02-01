@@ -3,11 +3,12 @@
 
 #include <nlohmann/json.hpp>
 
+namespace ennovatis {
 /**
- * @brief JSON SAX handler for parsing JSON data.
+ * @brief JSON SAX handler for parsing JSON channelid data to channelid list.
  *
  * This struct implements the nlohmann::json_sax interface to handle SAX events
- * during JSON parsing. Each event corresponds to a specific type of JSON value,
+ * during JSON parsing and creates a channelid list. Each event corresponds to a specific type of JSON value,
  * such as null, boolean, number, string, object, or array.
  */
 class sax_channelid_parser: public nlohmann::json::json_sax_t {
@@ -36,5 +37,6 @@ private:
     //   std::unique_ptr<EnergyPlugin::DeviceList> m_strDevList;
     std::vector<std::string> m_debugLogs;
 };
+} // namespace ennovatis
 
 #endif

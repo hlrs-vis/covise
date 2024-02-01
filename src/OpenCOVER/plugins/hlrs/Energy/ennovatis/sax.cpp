@@ -4,9 +4,10 @@
 
 using json = nlohmann::json;
 namespace {
-  constexpr bool debug = build_options.debug_ennovatis;
+constexpr bool debug = build_options.debug_ennovatis;
 }
 
+namespace ennovatis {
 bool sax_channelid_parser::string(string_t &val)
 {
     if constexpr (debug)
@@ -105,3 +106,4 @@ bool sax_channelid_parser::parse_error(std::size_t position, const std::string &
                               ",\n            ex=" + std::string(ex.what()) + ")");
     return false;
 }
+} // namespace ennovatis
