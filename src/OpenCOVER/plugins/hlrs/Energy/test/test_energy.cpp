@@ -9,7 +9,9 @@
 using namespace ennovatis;
 
 namespace {
-constexpr auto pathToJSON("/data/DiTEnS/ennovatis/channelids.json");
+constexpr auto testDataDir(ENERGYCAMPUS_TEST_DATA_DIR);
+std::string pathToJSON = testDataDir;
+std::string pokemonJSON = pathToJSON + "/pokemon.json";
 
 TEST(performCurlRequestTest, ValidUrl)
 {
@@ -31,17 +33,26 @@ TEST(performCurlRequestTest, InvalidUrl)
 
 TEST(saxTest, ValidJSONSAXParsing)
 {
-    std::ifstream inputFilestream(pathToJSON);
+    std::ifstream pokemonFilestream(pokemonJSON);
     sax_channelid_parser slp;
     // no errors in parsing
-    ASSERT_TRUE(nlohmann::json::sax_parse(inputFilestream, &slp));
+    ASSERT_TRUE(nlohmann::json::sax_parse(pokemonFilestream, &slp));
+    pokemonFilestream.close();
 }
 
-TEST(saxTest, EnabledLogging)
+TEST(saxTest, ValidLogging)
 {
-    std::ifstream inputFilestream(pathToJSON);
+    std::ifstream pokemonFilestream(pokemonJSON);
+    std::ifstream resultFilestream(pathToJSON + "/test_pokemon_logging.txt");
     sax_channelid_parser slp;
-    nlohmann::json::sax_parse(inputFilestream, &slp);
+    nlohmann::json::sax_parse(pokemonFilestream, &slp);
+    pokemonFilestream.close();
     EXPECT_TRUE(!slp.getDebugLogs().empty());
+    for (auto& log : slp.getDebugLogs())
+    {
+        std::string line;
+        std::getline(resultFilestream, line);
+        EXPECT_EQ(line, log);
+    }
 }
 } // namespace
