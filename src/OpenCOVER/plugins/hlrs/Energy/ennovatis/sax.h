@@ -2,15 +2,9 @@
 #define _SAX_H
 
 #include <nlohmann/json.hpp>
+#include "building.h"
 
 namespace ennovatis {
-/**
- * @brief JSON SAX handler for parsing JSON channelid data to channelid list.
- *
- * This struct implements the nlohmann::json_sax interface to handle SAX events
- * during JSON parsing and creates a channelid list. Each event corresponds to a specific type of JSON value,
- * such as null, boolean, number, string, object, or array.
- */
 class sax_channelid_parser: public nlohmann::json::json_sax_t {
 public:
     //   sax_location_parser(EnergyPlugin::DeviceList &_map)
@@ -31,11 +25,16 @@ public:
     bool binary(nlohmann::json::binary_t &val) override;
     bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override;
     const std::vector<std::string> &getDebugLogs() const { return m_debugLogs; }
+    std::vector<Building> &getBuildings() { return m_buildings; }
 
 private:
     bool m_currBuilding = false;
+    bool m_channel = false;
+    bool m_triggerd_obj = false;
+    Channel m_curChannel;
     //   std::unique_ptr<EnergyPlugin::DeviceList> m_strDevList;
     std::vector<std::string> m_debugLogs;
+    std::vector<Building> m_buildings;
 };
 } // namespace ennovatis
 
