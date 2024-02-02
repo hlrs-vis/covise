@@ -1,5 +1,5 @@
+//TODO: Maybe exclude as own lib for whole covise?
 #include "REST.h"
-// #include <iostream>
 #include <curl/curl.h>
 #include <string>
 
@@ -28,7 +28,6 @@ bool performCurlRequest(const string &url, string &response)
 {
     auto curl = curl_easy_init();
     if (!curl) {
-        // cerr << "Failed to initialize CURL" << endl;
         return false;
     }
 
@@ -40,7 +39,6 @@ bool performCurlRequest(const string &url, string &response)
     curl_easy_cleanup(curl);
 
     if (res != CURLE_OK) {
-        // std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
         return false;
     }
 
