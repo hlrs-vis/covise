@@ -443,7 +443,11 @@ void coVRCommunication::handleVRB(const Message &msg)
         }
         for(auto&& cl : uim.otherClients)
         {
+            auto sessionID = cl.sessionID();
             coVRPartnerList::instance()->addPartner(std::move(cl));
+            if(sessionID == me()->sessionID())
+                callSubscriptions(Notification::PartnerJoined);
+
         }
         coVRPartnerList::instance()->print();
         m_vrbMenu->updateRemoteLauncher();
@@ -471,8 +475,11 @@ void coVRCommunication::handleVRB(const Message &msg)
         tb >> id;
         if (id != me()->ID())
         {
-             coVRPartnerList::instance()->removePartner(id);
-			 vrui::coInteractionManager::the()->resetLock(id);
+            auto sessionID = coVRPartnerList::instance()->get(id)->sessionID();
+            coVRPartnerList::instance()->removePartner(id);
+            vrui::coInteractionManager::the()->resetLock(id);
+            if(sessionID == me()->sessionID())
+                callSubscriptions(Notification::PartnerLeft);
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);
