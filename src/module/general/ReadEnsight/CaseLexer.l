@@ -1,36 +1,18 @@
-/*  -*-Mode: C++;-*-
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// LEX file   CaseLexer.l
+//
+// Description: lexographic analysis for Ensight case files
+//
+// Initial version: 2001
+//
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// LEX file   CaseLexer.l                         
-//
-// Description: lexograpic analysis for Ensight case files
-//
-// Initial version: 2001-  
-//                                               
+// (C) 2001 by VirCinity IT Consulting
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// (C) 2001 by VirCinity IT Consulting 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-// Changes:
-//
 */
 
-%{
-#include "CaseLexer.h"
-
-// define new name for yylex method
-#undef YY_DECL
-#define YY_DECL int CaseLexer::scan( MyTokenType *pToken )
-
-      void CaseLexer::LexerError( const char msg[] )
-      {
-      cerr << msg << endl;
-      }
-%}
-
-
-/** 
+/**
   Don't allow yywrap. There are no multibuffers allowed.
-  */
+ */
 %option noyywrap
 %option yylineno
 
@@ -40,6 +22,16 @@
 %option yyclass="CaseLexer"
 %option prefix="Case"
 
+%{
+#undef YY_DECL
+#include "CaseParser.h"
+#include "CaseLexer.h"
+
+CaseLexer::CaseLexer(std::istream *pDesc): CaseFlexLexer(pDesc) {}
+CaseLexer::~CaseLexer() = default;
+%}
+
+
 %x VARS
 %{
 
@@ -47,123 +39,123 @@
 
 %%
 FORMAT[ \t]* {
-    return( CaseParser::FORMAT_SEC );
+    return( CaseParser::token::FORMAT_SEC );
 }
 
 type[ \t]*: {
-    return( CaseParser::TYPE );
+    return( CaseParser::token::TYPE );
 }
 
 ensight[ \t]* {
-    return( CaseParser::ENSIGHTV);
+    return( CaseParser::token::ENSIGHTV);
 }
 
 gold[ \t]* {
-    return( CaseParser::ENSIGHT_GOLD );
+    return( CaseParser::token::ENSIGHT_GOLD );
 }
 
 
 GEOMETRY[ \t]* {
-    return( CaseParser::GEOMETRY_SEC );
+    return( CaseParser::token::GEOMETRY_SEC );
 }
 
 model[ \t]*: {
-    return( CaseParser::MODEL );
+    return( CaseParser::token::MODEL );
 }
 
 measured[ \t]*: {
-    return( CaseParser::MEASURED );
+    return( CaseParser::token::MEASURED );
 }
 
 match[ \t]*: {
-    return( CaseParser::MATCH );
+    return( CaseParser::token::MATCH );
 }
 
 change_coords_only {
-    return( CaseParser::CH_CO_ONLY );
+    return( CaseParser::token::CH_CO_ONLY );
 }
 
 VARIABLE[ \t]* {
-    return( CaseParser::VARIABLE_SEC );
+    return( CaseParser::token::VARIABLE_SEC );
 }
 
 constant {
-    return( CaseParser::CONSTANT );
+    return( CaseParser::token::CONSTANT );
 }
 
 
 complex {
-    return( CaseParser::COMPLEX );
+    return( CaseParser::token::COMPLEX );
 }
 
 scalar {
-    return( CaseParser::SCALAR );
+    return( CaseParser::token::SCALAR );
 }
 
 vector {
-    return( CaseParser::VECTOR );
+    return( CaseParser::token::VECTOR );
 }
 
 "tensor symm" {
-    return( CaseParser::TENSOR_SYMM );
+    return( CaseParser::token::TENSOR_SYMM );
 }
 
 "per case"[ \t]*: {
-    return( CaseParser::PER_CASE );
+    return( CaseParser::token::PER_CASE );
 }
 
 "per node"[ \t]*: {
     BEGIN VARS;
-    return( CaseParser::PER_NODE );
+    return( CaseParser::token::PER_NODE );
 }
  
 "per measured node"[ \t]*: {
     BEGIN VARS;
-    return( CaseParser::PER_M_NODE );
+    return( CaseParser::token::PER_M_NODE );
 }
 
 "per element"[ \t]*: {
     BEGIN VARS;
-    return( CaseParser::PER_ELEMENT );
+    return( CaseParser::token::PER_ELEMENT );
 }
 
 "per measured element"[ \t]*: {
     BEGIN VARS;
-    return( CaseParser::PER_M_ELEMENT );
+    return( CaseParser::token::PER_M_ELEMENT );
 }
 
 TIME[ \t]* {
-    return( CaseParser::TIME_SEC );
+    return( CaseParser::token::TIME_SEC );
 }
 "time set"[ \t]*: {
-    return( CaseParser::TIME_SET );
+    return( CaseParser::token::TIME_SET );
 }
 
 "number of steps"[ \t]*: {
-    return( CaseParser::NUM_OF_STEPS );
+    return( CaseParser::token::NUM_OF_STEPS );
 }
 
 "filename start number"[ \t]*: {
-    return( CaseParser::FN_ST_NUM );
+    return( CaseParser::token::FN_ST_NUM );
 }
 
 "filename increment"[ \t]*: {
-    return( CaseParser::FN_INCR );
+    return( CaseParser::token::FN_INCR );
 }
 
 "filename numbers"[ \t]*: {
-    return( CaseParser::FN_NUMS );
+    return( CaseParser::token::FN_NUMS );
 }
 
 "time values"[ \t]*: {
-    return( CaseParser::TIME_VAL );
+    return( CaseParser::token::TIME_VAL );
 }
 
 FILE[ \t]* {
-    return( CaseParser::FILE_SEC );
+    return( CaseParser::token::FILE_SEC );
 }
 "file set"[ \t]*: {
-    return( CaseParser::FILE_SET );
+    return( CaseParser::token::FILE_SET );
 }
 
 
@@ -171,30 +163,30 @@ FILE[ \t]* {
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
     BEGIN 0;
-    return( CaseParser::VAR_POST );
+    return( CaseParser::token::VAR_POST );
 } 
 
 
 <VARS>[0-9]+[ \t]* {
     // read integer digits
-    pToken->token.iVal = atoi(yytext);
+    pToken->token.iVal = atol(yytext);
     // also provide characters
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::VAR_INT );
+    return( CaseParser::token::VAR_INT );
 }
 
 [0-9]*[a-zA-Z_@]+[a-zA-Z0-9_@]* { 
     // read characters as IDENTIFIER
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::IDENTIFIER );
+    return( CaseParser::token::IDENTIFIER );
 }
 
 ([^ \n\t])+([*])+[^ \n\t]* {
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-   return( CaseParser::ASTNOTFN );
+   return( CaseParser::token::ASTNOTFN );
 }
 
 
@@ -202,30 +194,30 @@ FILE[ \t]* {
     // read integer digits
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::IPADDRESS );
+    return( CaseParser::token::IPADDRESS );
 }
 
 [0-9\-]*[\.a-zA-Z_@]+[\.a-zA-Z0-9_@\-]* { 
     // read characters as IDENTIFIER
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::POINT_IDENTIFIER );
+    return( CaseParser::token::POINT_IDENTIFIER );
 }
 
 
 [0-9]+[ \n\t] {
     // read integer digits
-    pToken->token.iVal = atoi(yytext);
+    pToken->token.iVal = atol(yytext);
     // also provide characters
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::INTEGER );
+    return( CaseParser::token::INTEGER );
 }
 
 [-+]?([0-9]+|[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?[ \n\t] {
     // read double
     pToken->token.dVal = atof(yytext);
-    return( CaseParser::DOUBLE );
+    return( CaseParser::token::DOUBLE );
 }
 
 
@@ -234,10 +226,10 @@ FILE[ \t]* {
     // read a string value without the quotes
     strncpy( pToken->token.szValue, yytext+1, yyleng-2 );
     pToken->token.szValue[ yyleng-2 ] = '\0';
-    return( CaseParser::STRING );
+    return( CaseParser::token::STRING );
 }
 
-"#"[^\n]* {   
+"#"[^\n]* {
     // suppress comments - all lines start with a #
 } 
 
@@ -247,11 +239,10 @@ FILE[ \t]* {
     // let flex handle incrementing yylineno
 }
 
-. {     
+. {
     // all single characters which not match the rules below
     // will be return as single characters
     return( yytext[ 0 ] );
 }
 
 %%
-
