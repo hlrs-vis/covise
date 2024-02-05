@@ -46,6 +46,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
+#include "ennovatis/sax.h"
 
 enum Components
 {
@@ -102,6 +103,7 @@ private:
     static EnergyPlugin *plugin;
     float rad, scaleH;
     nlohmann::json channelIDs;
+    std::shared_ptr<ennovatis::Buildings> m_buildings;
 };
 
 #endif

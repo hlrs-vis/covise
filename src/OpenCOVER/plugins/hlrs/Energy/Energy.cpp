@@ -21,10 +21,13 @@
 \****************************************************************************/
 
 #include "Energy.h"
+#include "ennovatis/sax.h"
+#include "ennovatis/REST.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iterator>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -53,6 +56,8 @@ EnergyPlugin::EnergyPlugin()
 {
     fprintf(stderr, "Starting Energy Plugin\n");
     plugin = this;
+
+    m_buildings = std::make_shared<ennovatis::Buildings>();
 
     EnergyGroup = new osg::Group();
     EnergyGroup->setName("Energy");
@@ -141,9 +146,19 @@ bool EnergyPlugin::loadDB(const std::string &path)
 
 bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
     std::ifstream inputFilestream(pathToJSON);
-    channelIDs = json::parse(inputFilestream);
-    // sax_channelid_parser slp(SDlist);
-    // channelIDs = json::sax_parse(inputFilestream, &slp);
+    ennovatis::sax_channelid_parser slp(m_buildings);
+    json::sax_parse(inputFilestream, &slp);
+    
+    // if constexpr (build_options.debug_ennovatis)
+    for (auto &log : slp.getDebugLogs())
+        std::cout << log << std::endl;
+    
+    // test rest to ennovatis 
+    // std::string url = "http://129.69.40.93:4029/ControllingService/DataManagement/ReadData?projEid=00-2914207990135212101590650999999998_1&dtf=01.01.2022&dtt=01.02.2022&ts=86400&tsp=0&tst=1&etst=1024&u=&cEid=001FC6E826360571614745481820999977314_5";
+    // std::string response;
+    // ennovatis::performCurlRequest(url, response);
+    // std::cout << response << std::endl;
+    
     return true;
 }
 
