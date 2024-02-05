@@ -14,7 +14,7 @@ std::string pathToJSON = testDataDir;
 std::string pokemonJSON = pathToJSON + "/pokemon.json";
 
 /**************** REST tests ****************/
-TEST(performCurlRequestTest, ValidUrl)
+TEST(REST, ValidUrl)
 {
     std::string url = "example.com";
     std::string response;
@@ -23,7 +23,7 @@ TEST(performCurlRequestTest, ValidUrl)
     // Add additional assertions to validate the response
 }
 
-TEST(performCurlRequestTest, InvalidUrl)
+TEST(REST, InvalidUrl)
 {
     std::string url = "https://api.invalid.com";
     std::string response;
@@ -32,7 +32,7 @@ TEST(performCurlRequestTest, InvalidUrl)
     // Add additional assertions to validate the response
 }
 
-TEST(performCurlRequestTest, ValidResponse)
+TEST(REST, ValidResponse)
 {
     std::string url("https://hacker-news.firebaseio.com/v0/item/8863.json");
     std::string response;
@@ -43,7 +43,7 @@ TEST(performCurlRequestTest, ValidResponse)
     EXPECT_EQ(ref_string, response);
 }
 
-TEST(cleanupCurl, ValidCleanup)
+TEST(REST, ValidCleanup)
 {
     cleanupcurl();
     // Add additional assertions to validate the cleanup
