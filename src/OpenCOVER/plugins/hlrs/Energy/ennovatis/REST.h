@@ -10,10 +10,55 @@
 
 #include <curl/curl.h>
 #include <string>
+#include <chrono>
+#include <ctime>
 
 namespace ennovatis {
+
+constexpr auto dateformat("%d.%m.%Y");
+
+/**
+ * @brief Converts a datetime string to a std::chrono::system_clock::time_point object.
+ * source: https://www.geeksforgeeks.org/date-and-time-parsing-in-cpp/
+ * 
+ * @param datetimeString The datetime string to be converted.
+ * @param format The format of the datetime string.
+ * @return The converted std::chrono::system_clock::time_point object.
+ */
+std::chrono::system_clock::time_point GFG(const std::string &datetimeString, const std::string &format);
+
+/**
+ * @brief Returns a formatted string representation of the given time point.
+ * source: https://www.geeksforgeeks.org/date-and-time-parsing-in-cpp/
+ * 
+ * @param timePoint The time point to format.
+ * @param format The format string specifying the desired format.
+ * @return The formatted string representation of the time point.
+ */
+std::string toDateTimeStr(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
+
+struct RESTRequest {
+    std::string url; // URL
+    std::string projEid; // project ID
+    std::string channelId;
+    std::chrono::system_clock::time_point dtf; // from
+    std::chrono::system_clock::time_point dtt; // until
+    int ts = 86400; // 1 day resolution
+    int tsp = 0;
+    int tst = 1;
+    int etst = 1024;
+
+    /**
+     * @brief This function generates a string representation.
+     * 
+     * @return std::string The string returned by the operator.
+     */
+    std::string operator()();
+};
+
 /**
  * @brief Function to perform a CURL request
+ * @Source: https://stackoverflow.com/a/51319043
  * 
  * @param url The URL to send the request to
  * @param response The response data received from the request (storage)
