@@ -9,9 +9,10 @@
 #define _BUILDING_H
 #include <string>
 #include <vector>
+#include <array>
 
 namespace ennovatis {
-enum class ChannelGroup { Strom, Wasser, Waerme, Kaelte };
+enum class ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
 
 /**
  * @brief Represents a channel in ennovatis.
@@ -25,10 +26,12 @@ struct Channel {
     std::string description;
     std::string type;
     std::string unit;
+    ChannelGroup group = ChannelGroup::None;
 
-    bool everythingEmpty() const
+    bool empty() const
     {
-        return name.empty() && id.empty() && description.empty() && type.empty() && unit.empty();
+        return name.empty() && id.empty() && description.empty() && type.empty() && unit.empty() &&
+               group == ChannelGroup::None;
     }
 
     void clear()
@@ -42,7 +45,7 @@ struct Channel {
 };
 
 typedef std::vector<Channel> ChannelList;
-typedef std::vector<ChannelList> ChannelGroups;
+typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGroups;
 
 /**
  * @brief Represents a building.
