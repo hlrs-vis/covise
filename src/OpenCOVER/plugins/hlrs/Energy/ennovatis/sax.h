@@ -5,7 +5,9 @@
 #include "building.h"
 
 namespace ennovatis {
+
 typedef std::vector<Building> Buildings;
+
 class sax_channelid_parser: public nlohmann::json::json_sax_t {
 public:
     sax_channelid_parser() = default;
@@ -29,10 +31,11 @@ public:
 private:
     bool m_isBuilding = false;
     bool m_isChannel = false;
+    bool m_isBuildingID = false;
     bool m_isObj = false;
     // current channel in iteration
     Channel m_channel;
-    // current attr in channel iteration
+    // current attr key in channel iteration
     std::string m_curChannelAttrKey;
     std::vector<std::string> m_debugLogs;
     std::shared_ptr<Buildings> m_buildings;

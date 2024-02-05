@@ -43,11 +43,13 @@ bool sax_channelid_parser::string(string_t &val)
     if constexpr (debug)
         m_debugLogs.push_back("string(val=" + val + ")");
 
-    if (m_isBuilding){
+    if (m_isBuilding) {
         m_buildings->push_back(Building(val.c_str()));
         m_isBuilding = false;
-    }
-    else if (m_isChannel)
+    } else if (m_isBuildingID) {
+        m_buildings->back().setId(val);
+        m_isBuildingID = false;
+    } else if (m_isChannel)
         add_attr_to_channel(m_channel, m_curChannelAttrKey, val);
 
     return true;
@@ -60,6 +62,7 @@ bool sax_channelid_parser::key(string_t &val)
 
     if (m_isObj) {
         m_isBuilding = val == "building";
+        m_isBuildingID = val == "buildingID";
         m_isChannel = val == "channel";
         m_isObj = false;
     }
