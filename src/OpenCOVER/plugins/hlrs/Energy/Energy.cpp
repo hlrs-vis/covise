@@ -23,6 +23,7 @@
 #include "Energy.h"
 #include "ennovatis/sax.h"
 #include "ennovatis/REST.h"
+#include "build_options.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iterator>
@@ -74,6 +75,7 @@ EnergyPlugin::EnergyPlugin()
     EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::plugin);
     EnergyTab->setText("Energy Campus");
 
+    // db
     componentGroup = new ui::ButtonGroup(EnergyTab, "ComponentGroup");
     componentGroup->setDefaultValue(Strom);
     componentList = new ui::Group(EnergyTab, "Component");
@@ -84,6 +86,8 @@ EnergyPlugin::EnergyPlugin()
     componentGroup->setCallback(
         [this](int value)
         { setComponent(Components(value)); });
+
+    // TODO: add ennovatis UI
 }
 
 void EnergyPlugin::setComponent(Components c)
@@ -148,13 +152,16 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
     std::ifstream inputFilestream(pathToJSON);
     ennovatis::sax_channelid_parser slp(m_buildings);
     json::sax_parse(inputFilestream, &slp);
+
+    // TODO: use another container than a vector to access building data faster
     
-    // if constexpr (build_options.debug_ennovatis)
-    for (auto &log : slp.getDebugLogs())
-        std::cout << log << std::endl;
+    if constexpr (build_options.debug_ennovatis)
+        for (auto &log : slp.getDebugLogs())
+            std::cout << log << std::endl;
     
-    // test rest to ennovatis 
-    // std::string url = "http://129.69.40.93:4029/ControllingService/DataManagement/ReadData?projEid=00-2914207990135212101590650999999998_1&dtf=01.01.2022&dtt=01.02.2022&ts=86400&tsp=0&tst=1&etst=1024&u=&cEid=001FC6E826360571614745481820999977314_5";
+    // TODO: add button to refresh data via REST
+    //test rest to ennovatis 
+    // std::string url = "http://129.69.40.93:4029/ControllingService/DataManagement/ReadData?projEid=00-2914207990135212101590650999999998_1&dtf=01.01.2022&dtt=01.02.2022&ts=86400&tsp=0&tst=1&etst=1024&u=&cEid=001FC6E826360248413038259840999992021_5";
     // std::string response;
     // ennovatis::performCurlRequest(url, response);
     // std::cout << response << std::endl;
@@ -167,26 +174,18 @@ bool EnergyPlugin::init()
     auto dbPath= configString("CSV", "filename", "default")->value();
     auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
 
-    std::cerr << "load database: " << dbPath << std::endl;
-    std::cerr << "load channelIDs: " << channelIdJSONPath << std::endl;
+    std::cout << "load database: " << dbPath << std::endl;
+    std::cout << "load channelIDs: " << channelIdJSONPath << std::endl;
     
     if(loadDB(dbPath))
-    {
-        std::cerr << "database loaded in cache" << std::endl;
-    }
+        std::cout << "database loaded in cache" << std::endl;
     else
-    {
-        std::cerr << "database not loaded" << std::endl;
-    }
+        std::cout << "database not loaded" << std::endl;
     
     if(loadChannelIDs(channelIdJSONPath))
-    {
-        std::cerr << "Ennovatis channelIDs loaded in cache" << std::endl;
-    }
+        std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
     else
-    {
-        std::cerr << "Ennovatis channelIDs not loaded" << std::endl;
-    }
+        std::cout << "Ennovatis channelIDs not loaded" << std::endl;
     
     return true;
 }

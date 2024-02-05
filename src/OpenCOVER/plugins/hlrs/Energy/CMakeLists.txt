@@ -14,4 +14,6 @@ SET(SOURCES
 
 add_subdirectory(ennovatis)
 cover_add_plugin(EnergyCampus $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
+target_include_directories(EnergyCampus PRIVATE
+	"${CMAKE_CURRENT_BINARY_DIR}/ennovatis/include")
 add_subdirectory(test)
