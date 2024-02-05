@@ -46,6 +46,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
+#include "ennovatis/REST.h"
 #include "ennovatis/sax.h"
 
 enum Components
@@ -90,6 +91,7 @@ public:
 private:
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
+    void initRESTRequest();
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -104,6 +106,7 @@ private:
     float rad, scaleH;
     nlohmann::json channelIDs;
     std::shared_ptr<ennovatis::Buildings> m_buildings;
+    ennovatis::RESTRequest m_req;
 };
 
 #endif

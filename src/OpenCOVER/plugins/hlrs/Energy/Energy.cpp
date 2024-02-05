@@ -160,8 +160,9 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
             std::cout << log << std::endl;
     
     // TODO: add button to refresh data via REST
-    //test rest to ennovatis 
-    // std::string url = "http://129.69.40.93:4029/ControllingService/DataManagement/ReadData?projEid=00-2914207990135212101590650999999998_1&dtf=01.01.2022&dtt=01.02.2022&ts=86400&tsp=0&tst=1&etst=1024&u=&cEid=001FC6E826360248413038259840999992021_5";
+
+    // test rest to ennovatis 
+    // std::string url = m_req();
     // std::string response;
     // ennovatis::performCurlRequest(url, response);
     // std::cout << response << std::endl;
@@ -169,10 +170,20 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
     return true;
 }
 
+void EnergyPlugin::initRESTRequest() {
+    m_req.url = configString("Ennovatis", "restUrl", "default")->value();
+    m_req.projEid = configString("Ennovatis", "projEid", "default")->value();
+    m_req.channelId = "";
+    m_req.dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
+    m_req.dtt = std::chrono::system_clock::now();
+}
+
 bool EnergyPlugin::init()
 {
     auto dbPath= configString("CSV", "filename", "default")->value();
     auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
+
+    initRESTRequest();
 
     std::cout << "load database: " << dbPath << std::endl;
     std::cout << "load channelIDs: " << channelIdJSONPath << std::endl;
