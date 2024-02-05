@@ -36,7 +36,8 @@ TEST(REST, ValidResponse)
 {
     std::string url("https://hacker-news.firebaseio.com/v0/item/8863.json");
     std::string response;
-    std::string ref_string(R"({"by":"dhouston","descendants":71,"id":8863,"kids":[9224,8917,8884,8887,8952,8869,8873,8958,8940,8908,9005,9671,9067,9055,8865,8881,8872,8955,10403,8903,8928,9125,8998,8901,8902,8907,8894,8870,8878,8980,8934,8943,8876],"score":104,"time":1175714200,"title":"My YC app: Dropbox - Throw away your USB drive","type":"story","url":"http://www.getdropbox.com/u/2/screencast.html"})");
+    std::string ref_string(
+        R"({"by":"dhouston","descendants":71,"id":8863,"kids":[9224,8917,8884,8887,8952,8869,8873,8958,8940,8908,9005,9671,9067,9055,8865,8881,8872,8955,10403,8903,8928,9125,8998,8901,8902,8907,8894,8870,8878,8980,8934,8943,8876],"score":104,"time":1175714200,"title":"My YC app: Dropbox - Throw away your USB drive","type":"story","url":"http://www.getdropbox.com/u/2/screencast.html"})");
     bool result = performCurlRequest(url, response);
     ASSERT_TRUE(result);
     // Add additional assertions to validate the response
@@ -47,6 +48,25 @@ TEST(REST, ValidCleanup)
 {
     cleanupcurl();
     // Add additional assertions to validate the cleanup
+}
+
+TEST(REST, ValidRequestStr)
+{
+    RESTRequest req;
+    req.url = "https://wurstbrot.com/v0/item";
+    req.projEid = "123";
+    req.channelId = "456";
+    req.dtf = ennovatis::GFG("01.01.1970", ennovatis::dateformat);
+    req.dtt = ennovatis::GFG("01.02.1970", ennovatis::dateformat);
+    req.ts = 86400;
+    req.tsp = 0;
+    req.tst = 1;
+    req.etst = 1024;
+    std::string result = req();
+    std::string ref_string =
+        "https://wurstbrot.com/v0/"
+        "item?projEid=123&dtf=01.01.1970&dtt=01.02.1970&ts=86400&tsp=0&tst=1&etst=1024&channelId=456";
+    EXPECT_EQ(ref_string, result);
 }
 
 /**************** SAX tests ****************/
