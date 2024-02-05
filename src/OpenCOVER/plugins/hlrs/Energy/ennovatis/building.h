@@ -8,8 +8,8 @@
 #ifndef _BUILDING_H
 #define _BUILDING_H
 #include <string>
-#include <vector>
 #include <array>
+#include <set>
 
 namespace ennovatis {
 enum class ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
@@ -44,7 +44,11 @@ struct Channel {
     }
 };
 
-typedef std::vector<Channel> ChannelList;
+struct ChannelCmp {
+    bool operator()(const Channel &lhs, const Channel &rhs) const { return lhs.id < rhs.id; }
+};
+
+typedef std::set<Channel, ChannelCmp> ChannelList;
 typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGroups;
 
 /**
@@ -63,14 +67,15 @@ public:
      * @brief Adds a channel to the building.
      * 
      * This function adds a channel to the building object. The channel is specified by the `channel` parameter,
-     * and the type of the channel is specified by the `type` parameter.
+     * and the type of the channel is specified by the `type` parameter. Channels with existing IDs will be skipped.
      * 
      * @param channel The channel to be added.
      * @param type The type of the channel.
      */
     void addChannel(const Channel &channel, ChannelGroup type)
     {
-        m_channels[static_cast<int>(type)].push_back(channel);
+        // m_channels[static_cast<int>(type)].push_back(channel);
+        m_channels[static_cast<int>(type)].insert(channel);
     }
 
     const ChannelList &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
