@@ -12,13 +12,13 @@
 #include <set>
 
 namespace ennovatis {
-enum class ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
+enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
 
 /**
  * @brief Represents a channel in ennovatis.
  * 
  * The Channel struct represents a channel in ennovatis, which can be associated with a building.
- * It contains information such as the channel's name, ID, description, type, and unit.
+ * It contains information such as the channel's name, ID, description, type, group and unit.
  */
 struct Channel {
     std::string name;
