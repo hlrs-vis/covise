@@ -151,7 +151,8 @@ bool EnergyPlugin::loadDB(const std::string &path)
 bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
     std::ifstream inputFilestream(pathToJSON);
     ennovatis::sax_channelid_parser slp(m_buildings);
-    json::sax_parse(inputFilestream, &slp);
+    if (!json::sax_parse(inputFilestream, &slp))
+        return false;
 
     // TODO: use another container than a vector to access building data faster
     
