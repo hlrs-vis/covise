@@ -11,7 +11,6 @@
 #include <curl/curl.h>
 #include <string>
 #include <chrono>
-#include <ctime>
 
 namespace ennovatis {
 
@@ -19,6 +18,7 @@ constexpr auto dateformat("%d.%m.%Y");
 
 /**
  * @brief Converts a datetime string to a std::chrono::system_clock::time_point object.
+ * Format need to be in the form of "%d.%m.%Y".
  * source: https://www.geeksforgeeks.org/date-and-time-parsing-in-cpp/
  * 
  * @param datetimeString The datetime string to be converted.
