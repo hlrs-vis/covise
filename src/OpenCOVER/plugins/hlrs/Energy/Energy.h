@@ -21,12 +21,12 @@
 \****************************************************************************/
 
 // #include <memory>
+#include <memory>
 #include <util/common.h>
 
 #include <PluginUtil/coSensor.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
-#include <nlohmann/json.hpp>
 
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -47,6 +47,7 @@
 
 #include "Device.h"
 #include "ennovatis/REST.h"
+#include "ennovatis/building.h"
 #include "ennovatis/sax.h"
 
 enum Components
@@ -78,6 +79,15 @@ public:
     opencover::ui::Button *StromBt = nullptr;
     opencover::ui::Button *WaermeBt = nullptr;
     opencover::ui::Button *KaelteBt = nullptr;
+    
+    // ennovatis UI
+    opencover::ui::ButtonGroup *ennovatis_BtnGroup = nullptr;
+    opencover::ui::Group *ennovatis_Group = nullptr;
+    opencover::ui::Button *ennovatis_StromBt = nullptr;
+    opencover::ui::Button *ennovatis_WaermeBt = nullptr;
+    opencover::ui::Button *ennovatis_KaelteBt = nullptr;
+    opencover::ui::Button *ennovatis_WasserBt = nullptr;
+
     void setComponent(Components c);
     int selectedComp = 0;
 
@@ -89,6 +99,11 @@ public:
     osg::Sequence *sequenceList;
 
 private:
+    typedef const ennovatis::Building* building_const_ptr;
+    typedef const ennovatis::Buildings* buildings_const_Ptr;
+    typedef std::vector<building_const_ptr> const_buildings;
+    typedef std::map<const Device *, building_const_ptr> Quarters;
+
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
     void initRESTRequest();
@@ -100,13 +115,15 @@ private:
      * @return True if the data was successfully loaded, false otherwise.
      */
     bool loadChannelIDs(const std::string &pathToJSON);
+    // void createQuartersMap(BuildingsPtr buildings, const DeviceList &deviceList);
+    std::unique_ptr<const_buildings> createQuartersMap(buildings_const_Ptr buildings, const DeviceList &deviceList);
 
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
     float rad, scaleH;
-    nlohmann::json channelIDs;
-    std::shared_ptr<ennovatis::Buildings> m_buildings;
+    ennovatis::BuildingsPtr m_buildings;
     ennovatis::RESTRequest m_req;
+    Quarters m_quarters;
 };
 
 #endif

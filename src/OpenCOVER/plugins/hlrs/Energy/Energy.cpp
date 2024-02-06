@@ -15,21 +15,25 @@
  **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
- **  Marko Djuric 01.2024:                                                 **
+ **  Marko Djuric 02.2024: add ennovatis client                            **
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
 
 #include "Energy.h"
+
+#include "ennovatis/building.h"
 #include "ennovatis/sax.h"
 #include "ennovatis/REST.h"
 #include "build_options.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -46,6 +50,52 @@
 using namespace opencover;
 using json = nlohmann::json;
 
+namespace {
+
+// Case-sensitive char comparer
+static bool charCompare(char a, char b)
+{
+    return (a == b);
+}
+
+// Case-insensitive char comparer
+static bool charCompareIgnoreCase(char a, char b)
+{
+    return (std::tolower(a) == std::tolower(b));
+}
+
+// Source: http://www.blackbeltcoder.com/Articles/algorithms/approximate-string-comparisons-using-levenshtein-distance
+static int computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
+{
+    const int &len1 = s1.size(), len2 = s2.size();
+
+    // allocate distance matrix
+    std::vector<std::vector<int>> d(len1 + 1, std::vector<int>(len2 + 1));
+
+    auto isEqual = [&](char a, char b) {
+        return (ignoreCase) ? charCompareIgnoreCase(a, b) : charCompare(a, b);
+    };
+
+    d[0][0] = 0;
+    // compute distance
+    for (int i = 1; i <= len1; ++i)
+        d[i][0] = i;
+    for (int j = 1; j <= len2; ++j)
+        d[0][j] = j;
+
+    for (int i = 1; i <= len1; ++i) {
+        for (int j = 1; j <= len2; ++j) {
+            if (isEqual(s1[i - 1], s2[j - 1]))
+                d[i][j] = d[i - 1][j - 1];
+            else
+                d[i][j] = std::min({d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + 1});
+        }
+    }
+
+    return d[len1][len2];
+}
+}
+
 EnergyPlugin *EnergyPlugin::plugin = NULL;
 
 std::string proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
@@ -58,7 +108,7 @@ EnergyPlugin::EnergyPlugin()
     fprintf(stderr, "Starting Energy Plugin\n");
     plugin = this;
 
-    m_buildings = std::make_shared<ennovatis::Buildings>();
+    m_buildings = std::make_unique<ennovatis::Buildings>();
 
     EnergyGroup = new osg::Group();
     EnergyGroup->setName("Energy");
@@ -81,13 +131,22 @@ EnergyPlugin::EnergyPlugin()
     componentList = new ui::Group(EnergyTab, "Component");
     componentList->setText("Messwerte (jährlich)");
     StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
-    WaermeBt = new ui::Button(componentList, "Wärme", componentGroup, Waerme);
-    KaelteBt = new ui::Button(componentList, "Kälte", componentGroup, Kaelte);
+    WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
+    KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
     componentGroup->setCallback(
         [this](int value)
         { setComponent(Components(value)); });
 
-    // TODO: add ennovatis UI
+    // ennovatis
+    ennovatis_BtnGroup = new ui::ButtonGroup(EnergyTab, "EnnovatisBtnGroup");
+    ennovatis_BtnGroup->setDefaultValue(ennovatis::ChannelGroup::Strom);
+    ennovatis_Group = new ui::Group(EnergyTab, "Ennovatis");
+    ennovatis_Group->setText("Ennovatis");
+    ennovatis_StromBt = new ui::Button(ennovatis_Group, "Ennovatis_Strom", ennovatis_BtnGroup, ennovatis::ChannelGroup::Strom);
+    ennovatis_WaermeBt = new ui::Button(ennovatis_Group, "Ennovatis_Waerme", ennovatis_BtnGroup, ennovatis::ChannelGroup::Waerme);
+    ennovatis_KaelteBt = new ui::Button(ennovatis_Group, "Ennovatis_Kaelte", ennovatis_BtnGroup, ennovatis::ChannelGroup::Kaelte);
+    ennovatis_WasserBt = new ui::Button(ennovatis_Group, "Ennovatis_Wasser", ennovatis_BtnGroup, ennovatis::ChannelGroup::Wasser);
+    // TODO: add calender widget
 }
 
 void EnergyPlugin::setComponent(Components c)
@@ -160,14 +219,6 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
         for (auto &log : slp.getDebugLogs())
             std::cout << log << std::endl;
     
-    // TODO: add button to refresh data via REST
-
-    // test rest to ennovatis 
-    // std::string url = m_req();
-    // std::string response;
-    // ennovatis::performCurlRequest(url, response);
-    // std::cout << response << std::endl;
-    
     return true;
 }
 
@@ -177,6 +228,54 @@ void EnergyPlugin::initRESTRequest() {
     m_req.channelId = "";
     m_req.dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
     m_req.dtt = std::chrono::system_clock::now();
+}
+
+std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings, const DeviceList &deviceList)
+{
+    auto noDeviceMatches = const_buildings();
+    auto lastDst = 0;
+    Device *devPick;
+    for (const auto &building: *buildings) {
+        lastDst = 100;
+        devPick = nullptr;
+        const auto &ennovatis_strt = building.getName();
+        for (const auto &[_, devices]: deviceList) {
+            const auto &d = devices.front();
+            const auto &device_strt = d->devInfo->strasse;
+            auto lvnstnDst = computeLevensteinDistance(ennovatis_strt, device_strt);
+            
+            // if the distance is 0, we have a perfect match
+            if (!lvnstnDst) {
+                devPick = d;
+                break;
+            }
+            
+            // if the distance is less than the last distance, we have a better match
+            if (lvnstnDst < lastDst) {
+                lastDst = lvnstnDst;
+                devPick = d;
+                continue;
+            }
+            
+            // if the distance is the same as the last distance, we have a match if the street number is the same
+            if (lvnstnDst == lastDst) {
+                auto strtNo = ennovatis_strt.substr(ennovatis_strt.find(" ") + 1);
+                auto deviceStrtNo = device_strt.substr(device_strt.find(" ") + 1);
+                auto lower = [](unsigned char c) {
+                    return std::tolower(c);
+                };
+                std::transform(deviceStrtNo.begin(), deviceStrtNo.end(), deviceStrtNo.begin(), lower);
+                std::transform(strtNo.begin(), strtNo.end(), strtNo.begin(), lower);
+                if (deviceStrtNo == strtNo)
+                    devPick = d;
+            }
+        }
+        if (devPick)
+            m_quarters[devPick] = &building;
+        else
+            noDeviceMatches.push_back(&building);
+    }
+    return std::make_unique<const_buildings>(noDeviceMatches);
 }
 
 bool EnergyPlugin::init()
@@ -198,6 +297,17 @@ bool EnergyPlugin::init()
         std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
+
+    auto noMatches = createQuartersMap(m_buildings.get(), SDlist);
+    for (auto &building: *noMatches)
+        std::cout << "No match for building: " << building->getName() << std::endl;
+
+    //TODO: put this in callback for rest calls
+    // test rest to ennovatis 
+    // std::string url = m_req();
+    // std::string response;
+    // ennovatis::performCurlRequest(url, response);
+    // std::cout << response << std::endl;
     
     return true;
 }
