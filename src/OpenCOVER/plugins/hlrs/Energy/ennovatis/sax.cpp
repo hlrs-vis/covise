@@ -62,10 +62,10 @@ bool sax_channelid_parser::key(string_t &val)
 
     if (m_isObj) {
         m_isBuilding = val == "building";
-        m_isBuildingID = val == "buildingID";
         m_isChannel = val == "channel";
         m_isObj = false;
     }
+    m_isBuildingID = val == "buildingID";
     m_curChannelAttrKey = (m_isChannel) ? val : "";
     return true;
 }
