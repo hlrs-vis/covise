@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-  You can use it under the terms of the GNU Lesser General Public License
-  version 2.1 or later, see lgpl-2.1.txt.
-
-* License: LGPL 2+ */
-
 /****************************************************************************\
  **                                                          (C)2024 HLRS  **
  **                                                                        **
@@ -19,6 +12,7 @@
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
+//TODO: fetch lat lon from googlemaps
 
 #include "Energy.h"
 
@@ -29,6 +23,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <string>
@@ -52,19 +47,61 @@ using json = nlohmann::json;
 
 namespace {
 
+constexpr bool debug = build_options.debug_ennovatis;
+    
+bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
+{
+    try {
+        int intStrtNo = std::stoi(strtNo), intStrtNo2 = std::stoi(strtNo2);
+        auto validConversion = strtNo == std::to_string(intStrtNo) && strtNo2 == std::to_string(intStrtNo2);
+        if (intStrtNo2 == intStrtNo && validConversion)
+            return true;
+    } catch (...) {
+    }
+    return false;
+}
+
+bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
+{
+    auto strtNo = strtName.substr(strtName.find_last_of(" ") + 1);
+    auto strtNo2 = strtName2.substr(strtName2.find_last_of(" ") + 1);
+
+    // compare in lower case str
+    auto lower = [](unsigned char c) {
+        return std::tolower(c);
+    };
+    std::transform(strtNo2.begin(), strtNo2.end(), strtNo2.begin(), lower);
+    std::transform(strtNo.begin(), strtNo.end(), strtNo.begin(), lower);
+    if (strtNo2 == strtNo)
+        return true;
+
+    // compare as integers
+    return helper_cmpStrNo_as_int(strtNo, strtNo2);
+};
+
 // Case-sensitive char comparer
-static bool charCompare(char a, char b)
+static bool helper_cmpChar(char a, char b)
 {
     return (a == b);
 }
 
 // Case-insensitive char comparer
-static bool charCompareIgnoreCase(char a, char b)
+static bool helper_cmpCharIgnoreCase(char a, char b)
 {
     return (std::tolower(a) == std::tolower(b));
 }
 
-// Source: http://www.blackbeltcoder.com/Articles/algorithms/approximate-string-comparisons-using-levenshtein-distance
+/**
+ * Computes the Levenshtein distance between two strings. 0 means the strings are equal. 
+ * The higher the number, the more different chars are in the strings.
+ * e.g. "kitten" and "sitting" have a Levenshtein distance of 3.
+ * Source: http://www.blackbeltcoder.com/Articles/algorithms/approximate-string-comparisons-using-levenshtein-distance
+ *
+ * @param s1 The first string.
+ * @param s2 The second string.
+ * @param ignoreCase Flag indicating whether to ignore case sensitivity (default: false).
+ * @return The Levenshtein distance between the two strings.
+ */
 static int computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
 {
     const int &len1 = s1.size(), len2 = s2.size();
@@ -73,7 +110,7 @@ static int computeLevensteinDistance(const std::string &s1, const std::string &s
     std::vector<std::vector<int>> d(len1 + 1, std::vector<int>(len2 + 1));
 
     auto isEqual = [&](char a, char b) {
-        return (ignoreCase) ? charCompareIgnoreCase(a, b) : charCompare(a, b);
+        return (ignoreCase) ? helper_cmpCharIgnoreCase(a, b) : helper_cmpChar(a, b);
     };
 
     d[0][0] = 0;
@@ -230,10 +267,11 @@ void EnergyPlugin::initRESTRequest() {
     m_req.dtt = std::chrono::system_clock::now();
 }
 
-std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings, const DeviceList &deviceList)
+std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings,
+                                                                               const DeviceList &deviceList)
 {
-    auto noDeviceMatches = const_buildings();
     auto lastDst = 0;
+    auto noDeviceMatches = const_buildings();
     Device *devPick;
     for (const auto &building: *buildings) {
         lastDst = 100;
@@ -243,72 +281,85 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(b
             const auto &d = devices.front();
             const auto &device_strt = d->devInfo->strasse;
             auto lvnstnDst = computeLevensteinDistance(ennovatis_strt, device_strt);
-            
+
             // if the distance is 0, we have a perfect match
             if (!lvnstnDst) {
+                lastDst = 0;
                 devPick = d;
                 break;
             }
-            
+
             // if the distance is less than the last distance, we have a better match
             if (lvnstnDst < lastDst) {
                 lastDst = lvnstnDst;
                 devPick = d;
                 continue;
             }
-            
-            // if the distance is the same as the last distance, we have a match if the street number is the same
-            if (lvnstnDst == lastDst) {
-                auto strtNo = ennovatis_strt.substr(ennovatis_strt.find(" ") + 1);
-                auto deviceStrtNo = device_strt.substr(device_strt.find(" ") + 1);
-                auto lower = [](unsigned char c) {
-                    return std::tolower(c);
-                };
-                std::transform(deviceStrtNo.begin(), deviceStrtNo.end(), deviceStrtNo.begin(), lower);
-                std::transform(strtNo.begin(), strtNo.end(), strtNo.begin(), lower);
-                if (deviceStrtNo == strtNo)
+
+            // if the distance is the same as the last distance, we have a better match if the street number is the same
+            if (lvnstnDst == lastDst)
+                if (cmpStrtNo(ennovatis_strt, device_strt))
                     devPick = d;
-            }
         }
-        if (devPick)
+        if (!lastDst) {
             m_quarters[devPick] = &building;
-        else
-            noDeviceMatches.push_back(&building);
+            continue;
+        }
+        if (devPick) {
+            auto hit = m_quarters.find(devPick);
+            if (hit == m_quarters.end())
+                m_quarters[devPick] = &building;
+            else
+                noDeviceMatches.push_back(&building);
+        }
     }
+
     return std::make_unique<const_buildings>(noDeviceMatches);
 }
 
 bool EnergyPlugin::init()
 {
-    auto dbPath= configString("CSV", "filename", "default")->value();
+    auto dbPath = configString("CSV", "filename", "default")->value();
     auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
 
     initRESTRequest();
 
-    std::cout << "load database: " << dbPath << std::endl;
-    std::cout << "load channelIDs: " << channelIdJSONPath << std::endl;
-    
-    if(loadDB(dbPath))
-        std::cout << "database loaded in cache" << std::endl;
+    if constexpr (debug) {
+        std::cout << "Load database: " << dbPath << std::endl;
+        std::cout << "Load channelIDs: " << channelIdJSONPath << std::endl;
+    }
+
+    if (loadDB(dbPath))
+        std::cout << "Database loaded in cache" << std::endl;
     else
-        std::cout << "database not loaded" << std::endl;
-    
-    if(loadChannelIDs(channelIdJSONPath))
+        std::cout << "Database not loaded" << std::endl;
+
+    if (loadChannelIDs(channelIdJSONPath))
         std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
 
     auto noMatches = createQuartersMap(m_buildings.get(), SDlist);
-    for (auto &building: *noMatches)
-        std::cout << "No match for building: " << building->getName() << std::endl;
 
-    //TODO: put this in callback for rest calls
-    // test rest to ennovatis 
+    if constexpr (debug) {
+        int i = 0;
+        std::cout << "Matches between devices and buildings:" << std::endl;
+        for (auto &[device, building]: m_quarters)
+            std::cout << ++i << ": Device: " << device->devInfo->strasse << " -> Building: " << building->getName()
+                      << std::endl;
+
+        std::cout << "No matches for the following buildings:" << std::endl;
+        for (auto &building: *noMatches)
+            std::cout << building->getName() << std::endl;
+    }
+
+    // TODO: put this in callback for rest calls (e.g. when the user clicks on a building in the UI)
+    // test rest to ennovatis
     // std::string url = m_req();
     // std::string response;
     // ennovatis::performCurlRequest(url, response);
     // std::cout << response << std::endl;
-    
+
     return true;
 }
 

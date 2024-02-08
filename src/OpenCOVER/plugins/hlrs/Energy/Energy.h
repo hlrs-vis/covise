@@ -1,24 +1,19 @@
-/* This file is part of COVISE.
-
-  You can use it under the terms of the GNU Lesser General Public License
-  version 2.1 or later, see lgpl-2.1.txt.
-
-* License: LGPL 2+ */
-#ifndef _Energy_PLUGIN_H
-#define _Energy_PLUGIN_H
 /****************************************************************************\
  **                                                          (C)2024 HLRS  **
  **                                                                        **
- ** Description: OpenCOVER Plug-In for reading building energy data       **
+ ** Description: OpenCOVER Plug-In for reading building energy data        **
  **                                                                        **
  **                                                                        **
  ** Author: Leyla Kern, Marko Djuric                                       **
  **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
- **  Marko Djuric 01.2024:                                                 **
+ **  Marko Djuric 02.2024: add ennovatis client                            **
  **                                                                        **
 \****************************************************************************/
+
+#ifndef _Energy_PLUGIN_H
+#define _Energy_PLUGIN_H
 
 // #include <memory>
 #include <memory>
@@ -115,7 +110,17 @@ private:
      * @return True if the data was successfully loaded, false otherwise.
      */
     bool loadChannelIDs(const std::string &pathToJSON);
-    // void createQuartersMap(BuildingsPtr buildings, const DeviceList &deviceList);
+
+    /**
+     * @brief Creates a quarters map for the EnergyPlugin.
+     * 
+     * This function creates a link map between buildings and devices.
+     * 
+     * TODO: apply this while parsing the JSON file
+     * @param buildings A pointer to the buildings object. Make sure vector is sorted.
+     * @param deviceList The list of devices. Make sure map is sorted.
+     * @return A unique pointer to buildings which have ne matching device.
+     */
     std::unique_ptr<const_buildings> createQuartersMap(buildings_const_Ptr buildings, const DeviceList &deviceList);
 
     int maxTimesteps = 10;
