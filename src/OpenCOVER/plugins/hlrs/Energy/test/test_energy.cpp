@@ -50,14 +50,22 @@ TEST(REST, ValidCleanup)
     // Add additional assertions to validate the cleanup
 }
 
+TEST(REST, ValidDateTimeStrConversion)
+{
+    std::string ref_string = "01.01.2000";
+    auto tp = GFG(ref_string, dateformat);
+    auto result = toDateTimeStr(tp, dateformat);
+    EXPECT_EQ(ref_string, result);
+}
+
 TEST(REST, ValidRequestStr)
 {
     RESTRequest req;
     req.url = "https://wurstbrot.com/v0/item";
     req.projEid = "123";
     req.channelId = "456";
-    req.dtf = ennovatis::GFG("01.01.1970", ennovatis::dateformat);
-    req.dtt = ennovatis::GFG("01.02.1970", ennovatis::dateformat);
+    req.dtf = ennovatis::GFG("01.01.2000", ennovatis::dateformat);
+    req.dtt = ennovatis::GFG("01.02.2000", ennovatis::dateformat);
     req.ts = 86400;
     req.tsp = 0;
     req.tst = 1;
@@ -65,7 +73,7 @@ TEST(REST, ValidRequestStr)
     std::string result = req();
     std::string ref_string =
         "https://wurstbrot.com/v0/"
-        "item?projEid=123&dtf=01.01.1970&dtt=01.02.1970&ts=86400&tsp=0&tst=1&etst=1024&channelId=456";
+        "item?projEid=123&dtf=01.01.2000&dtt=01.02.2000&ts=86400&tsp=0&tst=1&etst=1024&channelId=456";
     EXPECT_EQ(ref_string, result);
 }
 
@@ -93,9 +101,5 @@ TEST(saxTest, ValidLogging)
         EXPECT_EQ(line, log);
     }
 }
-
-/**************** Building tests ****************/
-// TEST(buidlingText, ValidBuidling)
-// {
 
 } // namespace
