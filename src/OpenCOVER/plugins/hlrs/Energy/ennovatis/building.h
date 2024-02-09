@@ -7,6 +7,7 @@
 
 #ifndef _BUILDING_H
 #define _BUILDING_H
+#include <sstream>
 #include <string>
 #include <array>
 #include <set>
@@ -41,6 +42,14 @@ struct Channel {
         description.clear();
         type.clear();
         unit.clear();
+    }
+
+    const std::string to_string() const
+    {
+        std::stringstream ss;
+        ss << "name: " << name << "\nid: " << id << "\ndescription" << description << "\ntype: " << type
+           << "\nunit: " << unit << "\nChannelgroup: " << group;
+        return ss.str();
     }
 };
 
@@ -82,6 +91,9 @@ public:
     const std::string &getName() const { return m_name; }
     const std::string &getId() const { return m_id; }
     void setId(const std::string &id) { m_id = id; }
+    std::string to_string() {
+        return "Building: " + m_name + "\nID: " + m_id + "\n";
+    }
 
 private:
     std::string m_name;
