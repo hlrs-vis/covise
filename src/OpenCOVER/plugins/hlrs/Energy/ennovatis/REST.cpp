@@ -34,7 +34,7 @@ std::string RESTRequest::operator()()
     auto _dtt = time_point_to_str(dtt, dateformat);
     return url + "?projEid=" + projEid + "&dtf=" + _dtf + "&dtt=" + _dtt + "&ts=" + std::to_string(ts) +
            "&tsp=" + std::to_string(tsp) + "&tst=" + std::to_string(tst) + "&etst=" + std::to_string(etst) +
-           "&channelId=" + channelId;
+           "&cEid=" + channelId;
 }
 
 std::chrono::system_clock::time_point str_to_time_point(const std::string &datetimeString, const std::string &format)
