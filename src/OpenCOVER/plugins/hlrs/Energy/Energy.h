@@ -104,6 +104,7 @@ private:
     void initRESTRequest();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
+    const std::string fetchEnnovatisData();
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.

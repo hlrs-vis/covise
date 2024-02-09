@@ -216,7 +216,8 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
 {
     std::string fromOrTo = (isFrom) ? "From: " : "To: ";
     fromOrTo += toSet;
-    const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
+    const std::regex dateRgx(
+        R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
     if (!std::regex_match(toSet, dateRgx)) {
         std::cout << "Invalid date format for " << fromOrTo
                   << " Please use the following format: " << ennovatis::dateformat << std::endl;
@@ -224,10 +225,9 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     }
 
     auto time = ennovatis::str_to_time_point(toSet, ennovatis::dateformat);
-    bool validTime = (isFrom) ? (time < m_req.dtt) : (time > m_req.dtf);
-    if (!validTime)
-    {
-        std::cout << "Invalid date. (To > From)" << std::endl;
+    bool validTime = (isFrom) ? (time <= m_req.dtt) : (time >= m_req.dtf);
+    if (!validTime) {
+        std::cout << "Invalid date. (To >= From)" << std::endl;
         return;
     }
 
@@ -237,9 +237,26 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
         m_req.dtt = time;
 }
 
+const std::string EnergyPlugin::fetchEnnovatisData()
+{
+    std::string response;
+    ennovatis::performCurlRequest(m_req(), response);
+    return response;
+}
+
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
     ennovatisBtns[group]->setState(true, false);
+    //TODO: overwrite current device with ennovatis data
+    if constexpr (debug) {
+        auto &b = m_buildings->at(0);
+        for (auto &channel: b.getChannels(ennovatis::ChannelGroup::Strom)) {
+            m_req.channelId = channel.id;
+            std::cout << "channel:\n" << channel.to_string();
+            auto jsonRepr = json::parse(fetchEnnovatisData());
+            std::cout << b.to_string() << "Response:\n" << jsonRepr.dump(4) << "\n";
+        }
+    }
 }
 
 void EnergyPlugin::setComponent(Components c)
@@ -405,13 +422,6 @@ bool EnergyPlugin::init()
         for (auto &building: *noMatches)
             std::cout << building->getName() << std::endl;
     }
-
-    // TODO: put this in callback for rest calls (e.g. when the user clicks on a building in the UI)
-    // test rest to ennovatis
-    // std::string url = m_req();
-    // std::string response;
-    // ennovatis::performCurlRequest(url, response);
-    // std::cout << response << std::endl;
 
     return true;
 }
