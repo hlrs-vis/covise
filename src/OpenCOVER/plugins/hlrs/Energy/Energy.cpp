@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <regex>
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -117,12 +118,12 @@ bool helper_cmpCharIgnoreCase(char a, char b)
  * @param ignoreCase Flag indicating whether to ignore case sensitivity (default: false).
  * @return The Levenshtein distance between the two strings.
  */
-int computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
+size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
 {
-    const int &len1 = s1.size(), len2 = s2.size();
+    const auto &len1 = s1.size(), len2 = s2.size();
 
     // allocate distance matrix
-    std::vector<std::vector<int>> d(len1 + 1, std::vector<int>(len2 + 1));
+    std::vector<std::vector<size_t>> d(len1 + 1, std::vector<size_t>(len2 + 1));
 
     auto isEqual = [&](char a, char b) {
         return (ignoreCase) ? helper_cmpCharIgnoreCase(a, b) : helper_cmpChar(a, b);
@@ -204,11 +205,30 @@ EnergyPlugin::EnergyPlugin()
         new ui::Button(ennovatisGroup, "Ennovatis_Kaelte", ennovatisBtnGroup, ennovatis::ChannelGroup::Kaelte);
     ennovatisBtns[ennovatis::Wasser] =
         new ui::Button(ennovatisGroup, "Ennovatis_Wasser", ennovatisBtnGroup, ennovatis::ChannelGroup::Wasser);
+
+    // need to be static func for callback
     ennovatisBtnGroup->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
+    ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
+    ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
 }
 
-void EnergyPlugin::setEnnovatisDate(const std::string toSet)
-{}
+void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
+{
+    std::string fromOrTo = (isFrom) ? "From: " : "To: ";
+    fromOrTo += toSet;
+    const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
+    if (!std::regex_match(toSet, dateRgx)) {
+        std::cout << "Invalid date format for " << fromOrTo
+                  << " Please use the following format: " << ennovatis::dateformat << std::endl;
+        return;
+    }
+
+    auto time = ennovatis::str_to_time_point(toSet, ennovatis::dateformat);
+    if (isFrom)
+        m_req.dtf = time;
+    else
+        m_req.dtt = time;
+}
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {

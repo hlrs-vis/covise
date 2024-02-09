@@ -103,7 +103,7 @@ private:
     bool loadDB(const std::string &path);
     void initRESTRequest();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
-    void setEnnovatisDate(const std::string toSet);
+    void setRESTDate(const std::string &toSet, bool isFrom);
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
