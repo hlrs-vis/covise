@@ -30,14 +30,14 @@ namespace ennovatis {
 
 std::string RESTRequest::operator()()
 {
-    auto _dtf = toDateTimeStr(dtf, dateformat);
-    auto _dtt = toDateTimeStr(dtt, dateformat);
+    auto _dtf = time_point_to_str(dtf, dateformat);
+    auto _dtt = time_point_to_str(dtt, dateformat);
     return url + "?projEid=" + projEid + "&dtf=" + _dtf + "&dtt=" + _dtt + "&ts=" + std::to_string(ts) +
            "&tsp=" + std::to_string(tsp) + "&tst=" + std::to_string(tst) + "&etst=" + std::to_string(etst) +
            "&channelId=" + channelId;
 }
 
-std::chrono::system_clock::time_point GFG(const std::string &datetimeString, const std::string &format)
+std::chrono::system_clock::time_point str_to_time_point(const std::string &datetimeString, const std::string &format)
 {
     tm tmStruct = {};
     std::istringstream ss(datetimeString);
@@ -45,7 +45,7 @@ std::chrono::system_clock::time_point GFG(const std::string &datetimeString, con
     return std::chrono::system_clock::from_time_t(mktime(&tmStruct));
 }
 
-std::string toDateTimeStr(const std::chrono::system_clock::time_point &timePoint, const std::string &format)
+std::string time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format)
 {
     time_t time = std::chrono::system_clock::to_time_t(timePoint);
     tm *timeinfo = localtime(&time);

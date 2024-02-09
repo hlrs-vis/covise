@@ -25,7 +25,7 @@ constexpr auto dateformat("%d.%m.%Y");
  * @param format The format of the datetime string.
  * @return The converted std::chrono::system_clock::time_point object.
  */
-std::chrono::system_clock::time_point GFG(const std::string &datetimeString, const std::string &format);
+std::chrono::system_clock::time_point str_to_time_point(const std::string &datetimeString, const std::string &format);
 
 /**
  * @brief Returns a formatted string representation of the given time point.
@@ -35,7 +35,7 @@ std::chrono::system_clock::time_point GFG(const std::string &datetimeString, con
  * @param format The format string specifying the desired format.
  * @return The formatted string representation of the time point.
  */
-std::string toDateTimeStr(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
+std::string time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
 
 struct RESTRequest {
     std::string url; // URL

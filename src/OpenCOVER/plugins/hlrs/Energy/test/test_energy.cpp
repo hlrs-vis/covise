@@ -53,8 +53,8 @@ TEST(REST, ValidCleanup)
 TEST(REST, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
-    auto tp = GFG(ref_string, dateformat);
-    auto result = toDateTimeStr(tp, dateformat);
+    auto tp = str_to_time_point(ref_string, dateformat);
+    auto result = time_point_to_str(tp, dateformat);
     EXPECT_EQ(ref_string, result);
 }
 
@@ -64,8 +64,8 @@ TEST(REST, ValidRequestStr)
     req.url = "https://wurstbrot.com/v0/item";
     req.projEid = "123";
     req.channelId = "456";
-    req.dtf = ennovatis::GFG("01.01.2000", ennovatis::dateformat);
-    req.dtt = ennovatis::GFG("01.02.2000", ennovatis::dateformat);
+    req.dtf = ennovatis::str_to_time_point("01.01.2000", ennovatis::dateformat);
+    req.dtt = ennovatis::str_to_time_point("01.02.2000", ennovatis::dateformat);
     req.ts = 86400;
     req.tsp = 0;
     req.tst = 1;
