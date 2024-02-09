@@ -57,7 +57,7 @@ constexpr auto proj_from = "+proj=latlong";
 constexpr float offset[] = {-507080, -5398430, 450};
     
 // Compare two string numbers as integer using std::stoi
-bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
+static bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
 {
     try {
         int intStrtNo = std::stoi(strtNo), intStrtNo2 = std::stoi(strtNo2);
@@ -77,7 +77,7 @@ bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo
  * @param strtName2 The second string street name.
  * @return true if the street numbers are equal, otherwise false.
  */
-bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
+static bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
 {
     auto strtNo = strtName.substr(strtName.find_last_of(" ") + 1);
     auto strtNo2 = strtName2.substr(strtName2.find_last_of(" ") + 1);
