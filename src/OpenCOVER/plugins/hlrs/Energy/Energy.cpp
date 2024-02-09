@@ -224,6 +224,13 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     }
 
     auto time = ennovatis::str_to_time_point(toSet, ennovatis::dateformat);
+    bool validTime = (isFrom) ? (time < m_req.dtt) : (time > m_req.dtf);
+    if (!validTime)
+    {
+        std::cout << "Invalid date. (To > From)" << std::endl;
+        return;
+    }
+
     if (isFrom)
         m_req.dtf = time;
     else
