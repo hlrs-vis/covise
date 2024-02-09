@@ -52,6 +52,9 @@ using json = nlohmann::json;
 namespace {
 
 constexpr bool debug = build_options.debug_ennovatis;
+constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
+constexpr auto proj_from = "+proj=latlong";
+constexpr float offset[] = {-507080, -5398430, 450};
     
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
@@ -148,10 +151,6 @@ static int computeLevensteinDistance(const std::string &s1, const std::string &s
 
 EnergyPlugin *EnergyPlugin::plugin = NULL;
 
-std::string proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
-std::string proj_from = "+proj=latlong";
-float offset[] = {-507080, -5398430, 450};
-
 EnergyPlugin::EnergyPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
 {
@@ -188,15 +187,25 @@ EnergyPlugin::EnergyPlugin()
         { setComponent(Components(value)); });
 
     // ennovatis
-    ennovatis_BtnGroup = new ui::ButtonGroup(EnergyTab, "EnnovatisBtnGroup");
-    ennovatis_BtnGroup->setDefaultValue(ennovatis::ChannelGroup::Strom);
-    ennovatis_Group = new ui::Group(EnergyTab, "Ennovatis");
-    ennovatis_Group->setText("Ennovatis");
-    ennovatis_StromBt = new ui::Button(ennovatis_Group, "Ennovatis_Strom", ennovatis_BtnGroup, ennovatis::ChannelGroup::Strom);
-    ennovatis_WaermeBt = new ui::Button(ennovatis_Group, "Ennovatis_Waerme", ennovatis_BtnGroup, ennovatis::ChannelGroup::Waerme);
-    ennovatis_KaelteBt = new ui::Button(ennovatis_Group, "Ennovatis_Kaelte", ennovatis_BtnGroup, ennovatis::ChannelGroup::Kaelte);
-    ennovatis_WasserBt = new ui::Button(ennovatis_Group, "Ennovatis_Wasser", ennovatis_BtnGroup, ennovatis::ChannelGroup::Wasser);
+    ennovatisBtnGroup = new ui::ButtonGroup(EnergyTab, "EnnovatisBtnGroup");
+    ennovatisBtnGroup->setDefaultValue(ennovatis::ChannelGroup::Strom);
+    ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
+    ennovatisGroup->setText("Ennovatis");
+    ennovatisBtns[ennovatis::Strom] =
+        new ui::Button(ennovatisGroup, "Ennovatis_Strom", ennovatisBtnGroup, ennovatis::ChannelGroup::Strom);
+    ennovatisBtns[ennovatis::Waerme] =
+        new ui::Button(ennovatisGroup, "Ennovatis_Waerme", ennovatisBtnGroup, ennovatis::ChannelGroup::Waerme);
+    ennovatisBtns[ennovatis::Kaelte] =
+        new ui::Button(ennovatisGroup, "Ennovatis_Kaelte", ennovatisBtnGroup, ennovatis::ChannelGroup::Kaelte);
+    ennovatisBtns[ennovatis::Wasser] =
+        new ui::Button(ennovatisGroup, "Ennovatis_Wasser", ennovatisBtnGroup, ennovatis::ChannelGroup::Wasser);
+    ennovatisBtnGroup->setCallback([this](int value) { setEnnovatisBtn(ennovatis::ChannelGroup(value)); });
     // TODO: add calender widget
+}
+
+void EnergyPlugin::setEnnovatisBtn(ennovatis::ChannelGroup group)
+{
+    ennovatisBtns[group]->setState(true, false);
 }
 
 void EnergyPlugin::setComponent(Components c)
@@ -216,7 +225,6 @@ void EnergyPlugin::setComponent(Components c)
         break;
     }
     selectedComp = c;
-    int scount = 0;
     for (auto s : SDlist)
     {
         if (s.second.empty())
@@ -387,8 +395,8 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
     char buf[lineSize];
 
     bool mapdrape = true;
-    projPJ pj_from = pj_init_plus(proj_from.c_str());
-    projPJ pj_to = pj_init_plus(proj_to.c_str());
+    projPJ pj_from = pj_init_plus(proj_from);
+    projPJ pj_to = pj_init_plus(proj_to);
     if (!pj_from || !pj_to)
     {
         fprintf(stderr, "Energy Plugin: Ignoring mapping. No valid projection was found \n");

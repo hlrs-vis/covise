@@ -76,12 +76,10 @@ public:
     opencover::ui::Button *KaelteBt = nullptr;
     
     // ennovatis UI
-    opencover::ui::ButtonGroup *ennovatis_BtnGroup = nullptr;
-    opencover::ui::Group *ennovatis_Group = nullptr;
-    opencover::ui::Button *ennovatis_StromBt = nullptr;
-    opencover::ui::Button *ennovatis_WaermeBt = nullptr;
-    opencover::ui::Button *ennovatis_KaelteBt = nullptr;
-    opencover::ui::Button *ennovatis_WasserBt = nullptr;
+    opencover::ui::ButtonGroup *ennovatisBtnGroup = nullptr;
+    opencover::ui::Group *ennovatisGroup = nullptr;
+
+    std::array<opencover::ui::Button *, ennovatis::ChannelGroup::None> ennovatisBtns;
 
     void setComponent(Components c);
     int selectedComp = 0;
@@ -102,6 +100,7 @@ private:
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
     void initRESTRequest();
+    void setEnnovatisBtn(ennovatis::ChannelGroup group);
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
