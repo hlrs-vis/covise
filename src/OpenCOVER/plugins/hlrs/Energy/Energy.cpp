@@ -6,6 +6,10 @@
  **                                                                        **
  ** Author: Leyla Kern, Marko Djuric                                       **
  **                                                                        **
+ ** TODO:                                                                  **
+ **  [ ] fetch lat lon from googlemaps                                     **
+ **  [ ] make REST lib independent from ennovatis general use              **
+ **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
  **  Marko Djuric 02.2024: add ennovatis client                            **
@@ -49,6 +53,7 @@ namespace {
 
 constexpr bool debug = build_options.debug_ennovatis;
     
+// Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
 {
     try {
@@ -61,6 +66,14 @@ bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo
     return false;
 }
 
+/**
+ * @brief Compares two string street numbers in the format ("<streetname> <streetnumber>").
+ *
+ * The function compares the street numbers of the two street names as string and integer. If the street numbers are equal, the function returns true. 
+ * @param strtName The first string street name.
+ * @param strtName2 The second string street name.
+ * @return true if the street numbers are equal, otherwise false.
+ */
 bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
 {
     auto strtNo = strtName.substr(strtName.find_last_of(" ") + 1);
@@ -250,8 +263,6 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
     if (!json::sax_parse(inputFilestream, &slp))
         return false;
 
-    // TODO: use another container than a vector to access building data faster
-    
     if constexpr (build_options.debug_ennovatis)
         for (auto &log : slp.getDebugLogs())
             std::cout << log << std::endl;
