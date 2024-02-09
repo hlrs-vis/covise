@@ -32,6 +32,7 @@
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Owner.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
 #include <osg/Material>
 #include <osg/ShapeDrawable>
@@ -78,7 +79,8 @@ public:
     // ennovatis UI
     opencover::ui::ButtonGroup *ennovatisBtnGroup = nullptr;
     opencover::ui::Group *ennovatisGroup = nullptr;
-
+    opencover::ui::EditField *ennovatisFrom = nullptr;
+    opencover::ui::EditField *ennovatisTo = nullptr;
     std::array<opencover::ui::Button *, ennovatis::ChannelGroup::None> ennovatisBtns;
 
     void setComponent(Components c);
@@ -100,7 +102,8 @@ private:
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
     void initRESTRequest();
-    void setEnnovatisBtn(ennovatis::ChannelGroup group);
+    void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
+    void setEnnovatisDate(const std::string toSet);
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.

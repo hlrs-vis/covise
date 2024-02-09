@@ -16,7 +16,6 @@
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
-//TODO: fetch lat lon from googlemaps
 
 #include "Energy.h"
 
@@ -54,10 +53,10 @@ namespace {
 constexpr bool debug = build_options.debug_ennovatis;
 constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
-constexpr float offset[] = {-507080, -5398430, 450};
+constexpr std::array<float, 3> offset {-507080, -5398430, 450};
     
 // Compare two string numbers as integer using std::stoi
-static bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
+bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
 {
     try {
         int intStrtNo = std::stoi(strtNo), intStrtNo2 = std::stoi(strtNo2);
@@ -77,7 +76,7 @@ static bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string 
  * @param strtName2 The second string street name.
  * @return true if the street numbers are equal, otherwise false.
  */
-static bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
+bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
 {
     auto strtNo = strtName.substr(strtName.find_last_of(" ") + 1);
     auto strtNo2 = strtName2.substr(strtName2.find_last_of(" ") + 1);
@@ -96,13 +95,13 @@ static bool cmpStrtNo(const std::string &strtName, const std::string &strtName2)
 };
 
 // Case-sensitive char comparer
-static bool helper_cmpChar(char a, char b)
+bool helper_cmpChar(char a, char b)
 {
     return (a == b);
 }
 
 // Case-insensitive char comparer
-static bool helper_cmpCharIgnoreCase(char a, char b)
+bool helper_cmpCharIgnoreCase(char a, char b)
 {
     return (std::tolower(a) == std::tolower(b));
 }
@@ -118,7 +117,7 @@ static bool helper_cmpCharIgnoreCase(char a, char b)
  * @param ignoreCase Flag indicating whether to ignore case sensitivity (default: false).
  * @return The Levenshtein distance between the two strings.
  */
-static int computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
+int computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false)
 {
     const int &len1 = s1.size(), len2 = s2.size();
 
@@ -191,6 +190,12 @@ EnergyPlugin::EnergyPlugin()
     ennovatisBtnGroup->setDefaultValue(ennovatis::ChannelGroup::Strom);
     ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
     ennovatisGroup->setText("Ennovatis");
+
+    // TODO: add calender widget instead of txtfields
+    ennovatisFrom = new ui::EditField(EnergyTab, "from");
+    ennovatisFrom->setValue("01.01.2022");
+    ennovatisTo = new ui::EditField(EnergyTab, "to");
+    ennovatisTo->setValue("01.02.2022");
     ennovatisBtns[ennovatis::Strom] =
         new ui::Button(ennovatisGroup, "Ennovatis_Strom", ennovatisBtnGroup, ennovatis::ChannelGroup::Strom);
     ennovatisBtns[ennovatis::Waerme] =
@@ -199,11 +204,13 @@ EnergyPlugin::EnergyPlugin()
         new ui::Button(ennovatisGroup, "Ennovatis_Kaelte", ennovatisBtnGroup, ennovatis::ChannelGroup::Kaelte);
     ennovatisBtns[ennovatis::Wasser] =
         new ui::Button(ennovatisGroup, "Ennovatis_Wasser", ennovatisBtnGroup, ennovatis::ChannelGroup::Wasser);
-    ennovatisBtnGroup->setCallback([this](int value) { setEnnovatisBtn(ennovatis::ChannelGroup(value)); });
-    // TODO: add calender widget
+    ennovatisBtnGroup->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
 }
 
-void EnergyPlugin::setEnnovatisBtn(ennovatis::ChannelGroup group)
+void EnergyPlugin::setEnnovatisDate(const std::string toSet)
+{}
+
+void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
     ennovatisBtns[group]->setState(true, false);
 }
