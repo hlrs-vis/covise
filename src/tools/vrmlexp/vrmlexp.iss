@@ -64,8 +64,9 @@ ShowLanguageDialog=yes
 
 [Files]
 
-Source: {#COVISEDIR}\src\tools\vrmlexp\README.txt; DestDir: {app}; DestName: README.txt
-Source: {#COVISEDIR}\{#BUILDDIR}\{#ARCHSUFFIX}\src\tools\vrmlexp\{#BUILDTYPE}\vrmlexp.dle; DestDir: {app}
+Source: {#COVISEDIR}\src\tools\vrmlexp\README.txt; DestDir: {app}; DestName: README.txt     
+Source: {#COVISEDIR}\{#BUILDDIR}\{#ARCHSUFFIX}\src\tools\vrmlexp\{#BUILDTYPE}\vrmlexp.dle; DestDir: {app};  Flags: skipifsourcedoesntexist
+Source: {#MAXDIR}\stdplugs\vrmlexp.dle; DestDir: {app};  Flags: skipifsourcedoesntexist
 ;C:\src\covise\src\tools\vrmlexp\build.2024\Release\Vrmlexp.dle
 
 Source: {#EXTERNLIBS}\cal3d\bin\cal3d.dll; DestDir: {app}; Flags: recursesubdirs

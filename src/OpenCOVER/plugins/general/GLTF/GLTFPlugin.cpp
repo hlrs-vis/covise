@@ -229,3 +229,29 @@ GLTFPlugin::preFrame()
 }
 
 COVERPLUGIN(GLTFPlugin)
+
+class GLTFLoader : public osgDB::ReaderWriter
+{
+public:
+    GLTFLoader()
+    {
+        supportsExtension("glb", "dummy opencover Gltf loader");
+        supportsExtension("gltf", "dummy opencover Gltf loader");
+    }
+
+    virtual const char* className() const { return "GLTFLoader"; }
+
+    virtual ReadResult readObject(const std::string& filename, const osgDB::ReaderWriter::Options* options) const
+    {
+        return readNode(filename, options);
+    }
+
+    virtual ReadResult readNode(const std::string& fileName, const osgDB::ReaderWriter::Options* options) const
+    {
+        return GLTFPlugin::plugin->readNode(fileName, options);
+    }
+protected:
+};
+
+
+REGISTER_OSGPLUGIN(glb, GLTFLoader);

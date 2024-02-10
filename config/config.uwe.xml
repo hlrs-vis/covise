@@ -79,6 +79,7 @@
                 </Configs>
                 </SumoTraCI>
     <PointCloud pointSprites="on"/>
+    <GLTF value="on"/>
    
   </Plugin>
   
@@ -269,7 +270,7 @@
     <Vrml97 value="on">
 
      <Lights value="ON" />
-     <Audio value="OpenAL" >
+     <Audio value="AServer" >
       <Host value="localhost" />
      </Audio>
 
