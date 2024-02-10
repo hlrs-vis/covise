@@ -1113,7 +1113,10 @@ namespace OpenCOVERPlugin
         private void sendMaterial(Autodesk.Revit.DB.Material materialElement, Autodesk.Revit.DB.Element elem)
         {
 
-
+            if(materialElement==null)
+            {
+                return;
+            }
             try
             {
                 bool available = MaterialInfos[materialElement.Id];
@@ -2558,23 +2561,27 @@ namespace OpenCOVERPlugin
 
                             SendMesh(geomMesh, ref mb, face.IsTwoSided);
                             mb.add(getDepthOny(elem));
-                            if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                            Autodesk.Revit.DB.Material materialElement=null;
+
+                            if (face.MaterialElementId != Autodesk.Revit.DB.ElementId.InvalidElementId)
+                            {
+                                materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
+                            }
+                            if(materialElement!=null)
+                            {
+                                sendMaterial(materialElement, elem);
+                                mb.add(materialElement.Color);
+                                mb.add((byte)(getTransparency(materialElement, elem)));
+                                mb.add(materialElement.Id.IntegerValue);
+                                mb.add(DocumentID);
+                            }
+                            else
                             {
                                 mb.add((byte)220); // color
                                 mb.add((byte)220);
                                 mb.add((byte)220);
                                 mb.add((byte)255);
                                 mb.add(-1); // material ID
-                            }
-                            else
-                            {
-                                Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
-
-                                sendMaterial(materialElement, elem);
-                                mb.add(materialElement.Color);
-                                mb.add((byte)(getTransparency(materialElement, elem)));
-                                mb.add(materialElement.Id.IntegerValue);
-                                mb.add(DocumentID);
                             }
                             sendMessage(mb.buf, MessageTypes.NewObject);
                         }

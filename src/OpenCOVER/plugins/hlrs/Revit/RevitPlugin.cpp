@@ -3530,8 +3530,11 @@ RevitPlugin::preFrame()
 				}
 			}
 		}
+		double startTime = cover->currentTime();
 		while (toRevit && toRevit->check_for_input())
 		{
+			if (cover->currentTime() > startTime + 1)
+				break;
 			toRevit->recv_msg(msg);
 			if (msg)
 			{
