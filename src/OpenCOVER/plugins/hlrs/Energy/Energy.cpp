@@ -9,6 +9,7 @@
  ** TODO:                                                                  **
  **  [ ] fetch lat lon from googlemaps                                     **
  **  [ ] make REST lib independent from ennovatis general use              **
+ **  [ ] update via REST in background                                     **
  **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
@@ -211,9 +212,7 @@ EnergyPlugin::EnergyPlugin()
 
     // TODO: add calender widget instead of txtfields
     ennovatisFrom = new ui::EditField(EnergyTab, "from");
-    ennovatisFrom->setValue("01.01.2022");
     ennovatisTo = new ui::EditField(EnergyTab, "to");
-    ennovatisTo->setValue("01.02.2022");
     ennovatisBtns[ennovatis::Strom] =
         new ui::Button(ennovatisGroup, "Ennovatis_Strom", ennovatisBtnGroup, ennovatis::ChannelGroup::Strom);
     ennovatisBtns[ennovatis::Waerme] =
@@ -233,6 +232,7 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
 {
     std::string fromOrTo = (isFrom) ? "From: " : "To: ";
     fromOrTo += toSet;
+    // regex for dd.mm.yyyy
     const std::regex dateRgx(
         R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
     if (!std::regex_match(toSet, dateRgx)) {
@@ -245,6 +245,10 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     bool validTime = (isFrom) ? (time <= m_req.dtt) : (time >= m_req.dtf);
     if (!validTime) {
         std::cout << "Invalid date. (To >= From)" << std::endl;
+        if (isFrom)
+            ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req.dtf, ennovatis::dateformat));
+        else
+            ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
         return;
     }
 
@@ -358,6 +362,9 @@ void EnergyPlugin::initRESTRequest() {
     m_req.channelId = "";
     m_req.dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
     m_req.dtt = std::chrono::system_clock::now();
+    ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req.dtf, ennovatis::dateformat));
+    ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
+    
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings,
