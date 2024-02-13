@@ -30,6 +30,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <osg/Switch>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -181,8 +182,15 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     cover->getObjectsRoot()->addChild(EnergyGroup);
 
     sequenceList = new osg::Sequence();
-    sequenceList->setName("Timesteps");
-    EnergyGroup->addChild(sequenceList);
+    sequenceList->setName("DB");
+    m_ennovatisSeq = new osg::Sequence();
+    m_ennovatisSeq->setName("Ennovatis");
+
+    m_switch = new osg::Switch();
+    m_switch->setName("Switch");
+    m_switch->addChild(sequenceList);
+    m_switch->addChild(m_ennovatisSeq);
+    EnergyGroup->addChild(m_switch);
 
     GDALAllRegister();
 
@@ -278,6 +286,8 @@ void EnergyPlugin::reinitDevices(const ennovatis::ChannelGroup &group)
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
+    m_switch->setAllChildrenOff();
+    m_switch->setChildValue(m_ennovatisSeq, true);
     ennovatisBtns[group]->setState(true, false);
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
@@ -306,6 +316,8 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 
 void EnergyPlugin::setComponent(Components c)
 {
+    m_switch->setAllChildrenOff();
+    m_switch->setChildValue(sequenceList, true);
     switch (c) {
     case Strom:
         StromBt->setState(true, false);

@@ -17,6 +17,8 @@
 
 // #include <memory>
 #include <memory>
+#include <osg/Sequence>
+#include <osg/ref_ptr>
 #include <util/common.h>
 
 #include <PluginUtil/coSensor.h>
@@ -133,6 +135,9 @@ private:
     ennovatis::RESTRequest m_req;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
+    osg::ref_ptr<osg::Sequence> m_ennovatisSeq;
+    // switch used to toggle between ennovatis and db data
+    osg::ref_ptr<osg::Switch> m_switch;
 };
 
 #endif
