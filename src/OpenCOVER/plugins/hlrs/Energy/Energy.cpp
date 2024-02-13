@@ -33,6 +33,8 @@
 #include <vector>
 #include <algorithm>
 #include <regex>
+#include <future>
+#include <thread>
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -147,6 +149,21 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
 
     return d[len1][len2];
 }
+
+/**
+ * Fetches Ennovatis data using the provided REST request.
+ *
+ * @param req The REST request object.
+ * @return The fetched Ennovatis data as a string.
+ */
+std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
+{
+    std::string response;
+    if constexpr (debug)
+        std::cout << "REST-Request thread id = " << std::this_thread::get_id() << "\n";
+    ennovatis::performCurlRequest(req(), response);
+    return response;
+}
 }
 
 EnergyPlugin *EnergyPlugin::plugin = NULL;
@@ -237,24 +254,30 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
         m_req.dtt = time;
 }
 
-const std::string EnergyPlugin::fetchEnnovatisData()
-{
-    std::string response;
-    ennovatis::performCurlRequest(m_req(), response);
-    return response;
-}
-
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
     ennovatisBtns[group]->setState(true, false);
     //TODO: overwrite current device with ennovatis data
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
-        for (auto &channel: b.getChannels(ennovatis::ChannelGroup::Strom)) {
+        auto input = b.getChannels(group);
+        std::vector<std::future<std::string>> futures(input.size());
+        int i = 0;
+        for (auto &channel: input) {
             m_req.channelId = channel.id;
-            std::cout << "channel:\n" << channel.to_string();
-            auto jsonRepr = json::parse(fetchEnnovatisData());
-            std::cout << b.to_string() << "Response:\n" << jsonRepr.dump(4) << "\n";
+            futures[i] = std::async(std::launch::async, fetchEnnovatisData, m_req);
+            ++i;
+        }
+
+        for (auto i = 0; i < futures.size(); ++i) {
+            try {
+                std::string requ = futures[i].get();
+                auto jsonRepr = json::parse(requ);
+                std::cout << b.to_string() << "Response:\n" << jsonRepr.dump(4) << "\n";
+            }
+            catch (const std::exception &e) {
+                std::cout << e.what() << "\n";
+            }
         }
     }
 }
