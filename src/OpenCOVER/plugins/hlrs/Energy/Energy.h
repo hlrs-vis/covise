@@ -97,7 +97,7 @@ private:
     typedef const ennovatis::Building* building_const_ptr;
     typedef const ennovatis::Buildings* buildings_const_Ptr;
     typedef std::vector<building_const_ptr> const_buildings;
-    typedef std::map<Device *, building_const_ptr> Quarters;
+    typedef std::map<Device *, building_const_ptr> DeviceBuildingMap;
 
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
@@ -116,23 +116,23 @@ private:
     bool loadChannelIDs(const std::string &pathToJSON);
 
     /**
-     * @brief Creates a quarters map for the EnergyPlugin.
+     * @brief Set longitude and latitude for building based on existing device list.
      * 
-     * This function creates a link map between ennovatis buildings and devices.
+     * For Debuggung this function creates a link map between ennovatis buildings and devices.
      * 
      * TODO: apply this while parsing the JSON file
-     * @param buildings A pointer to the buildings object. Make sure vector is sorted.
      * @param deviceList The list of devices. Make sure map is sorted.
      * @return A unique pointer to buildings which have ne matching device.
      */
-    std::unique_ptr<const_buildings> createQuartersMap(buildings_const_Ptr buildings, const DeviceList &deviceList);
+    std::unique_ptr<const_buildings> setLatLon(const DeviceList &deviceList);
 
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
     float rad, scaleH;
     ennovatis::BuildingsPtr m_buildings;
     ennovatis::RESTRequest m_req;
-    Quarters m_quarters;
+    // not necessary but better for debugging
+    DeviceBuildingMap m_devBuildMap;
 };
 
 #endif

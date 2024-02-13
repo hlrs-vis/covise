@@ -368,13 +368,16 @@ void EnergyPlugin::initRESTRequest()
     ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
 }
 
-std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings,
-                                                                               const DeviceList &deviceList)
+std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const DeviceList &deviceList)
 {
     auto lastDst = 0;
     auto noDeviceMatches = const_buildings();
     Device *devPick;
-    for (const auto &building: *buildings) {
+    auto fillLatLon = [&](ennovatis::Building &b, Device *dev) {
+        b.setLat(devPick->devInfo->lat);
+        b.setLon(devPick->devInfo->lon);
+    };
+    for (auto &building: *m_buildings) {
         lastDst = 100;
         devPick = nullptr;
         const auto &ennovatis_strt = building.getName();
@@ -403,13 +406,16 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(b
                     devPick = d;
         }
         if (!lastDst) {
-            m_quarters[devPick] = &building;
+            m_devBuildMap[devPick] = &building;
+            fillLatLon(building, devPick);
             continue;
         }
         if (devPick) {
-            auto hit = m_quarters.find(devPick);
-            if (hit == m_quarters.end())
-                m_quarters[devPick] = &building;
+            auto hit = m_devBuildMap.find(devPick);
+            if (hit == m_devBuildMap.end()) {
+                m_devBuildMap[devPick] = &building;
+                fillLatLon(building, devPick);
+            }
             else
                 noDeviceMatches.push_back(&building);
         }
@@ -440,12 +446,12 @@ bool EnergyPlugin::init()
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
 
-    auto noMatches = createQuartersMap(m_buildings.get(), SDlist);
+    auto noMatches = setLatLon(SDlist);
 
     if constexpr (debug) {
         int i = 0;
         std::cout << "Matches between devices and buildings:" << std::endl;
-        for (auto &[device, building]: m_quarters)
+        for (auto &[device, building]: m_devBuildMap)
             std::cout << ++i << ": Device: " << device->devInfo->strasse << " -> Building: " << building->getName()
                       << std::endl;
 
