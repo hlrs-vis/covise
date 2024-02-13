@@ -57,8 +57,8 @@ namespace {
 constexpr bool debug = build_options.debug_ennovatis;
 constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
-constexpr std::array<float, 3> offset {-507080, -5398430, 450};
-    
+constexpr std::array<float, 3> offset{-507080, -5398430, 450};
+
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
 {
@@ -165,12 +165,11 @@ std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
     ennovatis::performCurlRequest(req(), response);
     return response;
 }
-}
+} // namespace
 
 EnergyPlugin *EnergyPlugin::plugin = NULL;
 
-EnergyPlugin::EnergyPlugin()
-    : coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
+EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
 {
     fprintf(stderr, "Starting Energy Plugin\n");
     plugin = this;
@@ -200,9 +199,7 @@ EnergyPlugin::EnergyPlugin()
     StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
     WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
     KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
-    componentGroup->setCallback(
-        [this](int value)
-        { setComponent(Components(value)); });
+    componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
 
     // ennovatis
     ennovatisBtnGroup = new ui::ButtonGroup(EnergyTab, "EnnovatisBtnGroup");
@@ -258,10 +255,30 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
         m_req.dtt = time;
 }
 
+void EnergyPlugin::reinitDevices(int comp)
+{
+    for (auto s: SDlist) {
+        if (s.second.empty())
+            continue;
+        for (auto t: s.second)
+            t->init(rad, scaleH, comp);
+    }
+}
+
+void EnergyPlugin::reinitDevices(const ennovatis::ChannelGroup &group)
+{
+    EnergyGroup->getChild(0);
+    // for (auto &[d, b]: m_quarters)
+    //     d->init(rad, scaleH, group, *b);
+    // for(auto &[_, devs] :SDlist)
+    //     for (auto d: devs)
+    //         d->init(rad, scaleH, group, *m_quarters[d]);
+
+}
+
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
     ennovatisBtns[group]->setState(true, false);
-    //TODO: overwrite current device with ennovatis data
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
         auto input = b.getChannels(group);
@@ -278,18 +295,18 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
                 std::string requ = futures[i].get();
                 auto jsonRepr = json::parse(requ);
                 std::cout << b.to_string() << "Response:\n" << jsonRepr.dump(4) << "\n";
-            }
-            catch (const std::exception &e) {
+            } catch (const std::exception &e) {
                 std::cout << e.what() << "\n";
             }
         }
     }
+    //TODO: overwrite current device with ennovatis data
+    reinitDevices(group);
 }
 
 void EnergyPlugin::setComponent(Components c)
 {
-    switch (c)
-    {
+    switch (c) {
     case Strom:
         StromBt->setState(true, false);
         break;
@@ -303,60 +320,45 @@ void EnergyPlugin::setComponent(Components c)
         break;
     }
     selectedComp = c;
-    for (auto s : SDlist)
-    {
-        if (s.second.empty())
-            continue;
-        for (auto t : s.second)
-        {
-            t->init(rad, scaleH, selectedComp);
-        }
-    }
+    reinitDevices(c);
 }
 
-EnergyPlugin::~EnergyPlugin() {}
+EnergyPlugin::~EnergyPlugin()
+{}
 
 bool EnergyPlugin::loadDB(const std::string &path)
 {
-    if (!loadDBFile(path))
-    {
+    if (!loadDBFile(path)) {
         return false;
     }
 
-    if ((int)sequenceList->getNumChildren() >
-        coVRAnimationManager::instance()->getNumTimesteps())
-    {
-        coVRAnimationManager::instance()->setNumTimesteps(
-            sequenceList->getNumChildren(), sequenceList);
+    if ((int)sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps()) {
+        coVRAnimationManager::instance()->setNumTimesteps(sequenceList->getNumChildren(), sequenceList);
     }
 
     rad = 3.;
     scaleH = 0.1;
 
-    for (auto s : SDlist)
-    {
-        if (s.second.empty())
-            continue;
-        for (auto t : s.second)
-            t->init(rad, scaleH, selectedComp);
-    }
+    reinitDevices(selectedComp);
     return true;
 }
 
-bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON) {
+bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
+{
     std::ifstream inputFilestream(pathToJSON);
     ennovatis::sax_channelid_parser slp(m_buildings);
     if (!json::sax_parse(inputFilestream, &slp))
         return false;
 
     if constexpr (build_options.debug_ennovatis)
-        for (auto &log : slp.getDebugLogs())
+        for (auto &log: slp.getDebugLogs())
             std::cout << log << std::endl;
-    
+
     return true;
 }
 
-void EnergyPlugin::initRESTRequest() {
+void EnergyPlugin::initRESTRequest()
+{
     m_req.url = configString("Ennovatis", "restUrl", "default")->value();
     m_req.projEid = configString("Ennovatis", "projEid", "default")->value();
     m_req.channelId = "";
@@ -364,7 +366,6 @@ void EnergyPlugin::initRESTRequest() {
     m_req.dtt = std::chrono::system_clock::now();
     ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req.dtf, ennovatis::dateformat));
     ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
-    
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::createQuartersMap(buildings_const_Ptr buildings,
@@ -459,8 +460,7 @@ bool EnergyPlugin::init()
 bool EnergyPlugin::loadDBFile(const std::string &fileName)
 {
     FILE *fp = fopen(fileName.c_str(), "r");
-    if (fp == NULL)
-    {
+    if (fp == NULL) {
         fprintf(stderr, "Energy Plugin: could not open file\n");
         return false;
     }
@@ -471,8 +471,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
     bool mapdrape = true;
     projPJ pj_from = pj_init_plus(proj_from);
     projPJ pj_to = pj_init_plus(proj_to);
-    if (!pj_from || !pj_to)
-    {
+    if (!pj_from || !pj_to) {
         fprintf(stderr, "Energy Plugin: Ignoring mapping. No valid projection was found \n");
         mapdrape = false;
     }
@@ -480,14 +479,12 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
     std::string sensorType;
     osg::Group *timestepGroup;
 
-    if (!fgets(buf, lineSize, fp))
-    {
+    if (!fgets(buf, lineSize, fp)) {
         fclose(fp);
         return false;
     }
 
-    for (int t = 0; t < maxTimesteps; ++t)
-    {
+    for (int t = 0; t < maxTimesteps; ++t) {
         timestepGroup = new osg::Group();
         std::string groupName = "timestep" + std::to_string(t);
         timestepGroup->setName(groupName);
@@ -497,8 +494,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
 
     bool firstLine = true;
 
-    while (!feof(fp))
-    {
+    while (!feof(fp)) {
         if (!fgets(buf, lineSize, fp))
             break;
         std::string line(buf);
@@ -513,8 +509,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
         tok++;
 
         // location
-        if (mapdrape)
-        {
+        if (mapdrape) {
             double xlat = std::strtod(tok->c_str(), NULL);
             ++tok;
             double xlon = std::strtod(tok->c_str(), NULL);
@@ -527,15 +522,13 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
             di->lat = xlon + offset[0];
             di->lon = xlat + offset[1];
             di->height = alt + offset[2];
-        }
-        else
-        {
+        } else {
             di->lat = std::strtof(tok->c_str(), NULL);
             ++tok;
             di->lon = std::strtof(tok->c_str(), NULL);
             di->height = 0.f;
         }
-        
+
         // street
         std::advance(tok, 3);
         std::string street(tok->c_str());
@@ -551,20 +544,18 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
         di->baujahr = std::strtof(tok->c_str(), NULL);
         ++tok;
         di->flaeche = std::strtof(tok->c_str(), NULL);
-        
+
         // electricity, heat, cold
         std::advance(tok, 11);
         std::vector<float> stromList, kaelteList, waermeList;
 
-        for (int j = 0; j < maxTimesteps; ++j)
-        {
+        for (int j = 0; j < maxTimesteps; ++j) {
             ++tok;
             stromList.push_back(std::strtof(tok->c_str(), NULL) / 1000.); // kW -> MW
         }
 
         std::advance(tok, 7);
-        for (int j = 0; j < maxTimesteps; ++j)
-        {
+        for (int j = 0; j < maxTimesteps; ++j) {
             ++tok;
             kaelteList.push_back(std::strtof(tok->c_str(), NULL));
         }
@@ -575,8 +566,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
             waermeList.push_back(std::strtof(tok->c_str(), NULL));
         }
 
-        for (int j = 0; j < maxTimesteps; ++j)
-        {
+        for (int j = 0; j < maxTimesteps; ++j) {
             DeviceInfo *diT = new DeviceInfo(*di);
             diT->strom = stromList[j];
             diT->kaelte = kaelteList[j];
@@ -592,12 +582,10 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
 
 bool EnergyPlugin::update()
 {
-    for (auto s = SDlist.begin(); s != SDlist.end(); s++)
-    {
+    for (auto s = SDlist.begin(); s != SDlist.end(); s++) {
         if (s->second.empty())
             continue;
-        for (auto timeElem : s->second)
-        {
+        for (auto timeElem: s->second) {
             timeElem->update();
         }
     }

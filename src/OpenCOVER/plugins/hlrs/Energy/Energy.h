@@ -97,13 +97,15 @@ private:
     typedef const ennovatis::Building* building_const_ptr;
     typedef const ennovatis::Buildings* buildings_const_Ptr;
     typedef std::vector<building_const_ptr> const_buildings;
-    typedef std::map<const Device *, building_const_ptr> Quarters;
+    typedef std::map<Device *, building_const_ptr> Quarters;
 
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
     void initRESTRequest();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
+    void reinitDevices(int comp);
+    void reinitDevices(const ennovatis::ChannelGroup &group);
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -116,7 +118,7 @@ private:
     /**
      * @brief Creates a quarters map for the EnergyPlugin.
      * 
-     * This function creates a link map between buildings and devices.
+     * This function creates a link map between ennovatis buildings and devices.
      * 
      * TODO: apply this while parsing the JSON file
      * @param buildings A pointer to the buildings object. Make sure vector is sorted.
