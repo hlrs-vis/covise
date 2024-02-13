@@ -53,7 +53,7 @@ struct RESTRequest {
      * 
      * @return std::string The string returned by the operator.
      */
-    std::string operator()();
+    std::string operator()() const;
 };
 
 /**

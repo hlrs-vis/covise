@@ -28,7 +28,7 @@ size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
 namespace ennovatis {
 
-std::string RESTRequest::operator()()
+std::string RESTRequest::operator()() const
 {
     auto _dtf = time_point_to_str(dtf, dateformat);
     auto _dtt = time_point_to_str(dtt, dateformat);
