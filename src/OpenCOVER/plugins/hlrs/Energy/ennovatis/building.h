@@ -83,7 +83,6 @@ public:
      */
     void addChannel(const Channel &channel, ChannelGroup type)
     {
-        // m_channels[static_cast<int>(type)].push_back(channel);
         m_channels[static_cast<int>(type)].insert(channel);
     }
 
@@ -91,6 +90,8 @@ public:
     const std::string &getName() const { return m_name; }
     const std::string &getId() const { return m_id; }
     void setId(const std::string &id) { m_id = id; }
+    void setLat(float lat) { m_lat = lat; }
+    void setLon(float lon) { m_lon = lon; }
     std::string to_string() {
         return "Building: " + m_name + "\nID: " + m_id + "\n";
     }
@@ -98,6 +99,8 @@ public:
 private:
     std::string m_name;
     std::string m_id;
+    float m_lat;
+    float m_lon;
     ChannelGroups m_channels;
 };
 } // namespace ennovatis
