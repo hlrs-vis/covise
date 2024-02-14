@@ -25,6 +25,7 @@
 #include "ennovatis/REST.h"
 #include "build_options.h"
 
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -59,6 +60,42 @@ constexpr bool debug = build_options.debug_ennovatis;
 constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
 constexpr std::array<float, 3> offset{-507080, -5398430, 450};
+
+template<typename T>
+struct ThreadWorker {
+    ThreadWorker() = default;
+
+    bool checkStatus()
+    {
+        for (auto &t: threads) {
+            // thread finished
+            if (!t.valid())
+                continue;
+            auto status = t.wait_for(std::chrono::milliseconds(1));
+            if (status != std::future_status::ready)
+                return false;
+        }
+        return true;
+    }
+
+    bool resize(size_t n)
+    {
+        if (!checkStatus())
+            return false;
+        threads.resize(n);
+        return true;
+    }
+
+    void addThread(std::future<T> &&t) { threads.push_back(std::move(t)); }
+    const auto &operator[](size_t i) { return threads[i]; }
+    auto &threadsList() { return threads; }
+    const size_t poolSize() const { return threads.size(); }
+
+private:
+    std::vector<std::future<T>> threads;
+};
+
+ThreadWorker<std::string> rest_worker;
 
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
@@ -275,13 +312,7 @@ void EnergyPlugin::reinitDevices(int comp)
 
 void EnergyPlugin::reinitDevices(const ennovatis::ChannelGroup &group)
 {
-    EnergyGroup->getChild(0);
-    // for (auto &[d, b]: m_quarters)
-    //     d->init(rad, scaleH, group, *b);
-    // for(auto &[_, devs] :SDlist)
-    //     for (auto d: devs)
-    //         d->init(rad, scaleH, group, *m_quarters[d]);
-
+    m_ennovatisSeq->removeChildren(0, m_ennovatisSeq->getNumChildren());
 }
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
@@ -289,25 +320,13 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
     m_switch->setAllChildrenOff();
     m_switch->setChildValue(m_ennovatisSeq, true);
     ennovatisBtns[group]->setState(true, false);
+
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
         auto input = b.getChannels(group);
-        std::vector<std::future<std::string>> futures(input.size());
-        int i = 0;
         for (auto &channel: input) {
             m_req.channelId = channel.id;
-            futures[i] = std::async(std::launch::async, fetchEnnovatisData, m_req);
-            ++i;
-        }
-
-        for (auto i = 0; i < futures.size(); ++i) {
-            try {
-                std::string requ = futures[i].get();
-                auto jsonRepr = json::parse(requ);
-                std::cout << b.to_string() << "Response:\n" << jsonRepr.dump(4) << "\n";
-            } catch (const std::exception &e) {
-                std::cout << e.what() << "\n";
-            }
+            rest_worker.addThread(std::async(std::launch::async, fetchEnnovatisData, m_req));
         }
     }
     //TODO: overwrite current device with ennovatis data
@@ -427,8 +446,7 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const Dev
             if (hit == m_devBuildMap.end()) {
                 m_devBuildMap[devPick] = &building;
                 fillLatLon(building, devPick);
-            }
-            else
+            } else
                 noDeviceMatches.push_back(&building);
         }
     }
@@ -607,6 +625,24 @@ bool EnergyPlugin::update()
             timeElem->update();
         }
     }
+
+    if (rest_worker.checkStatus() && rest_worker.poolSize() > 0) {
+        if constexpr (debug) {
+            std::cout << "All REST-Requests finished" << std::endl;
+            for (auto &t: rest_worker.threadsList()) {
+                try {
+                    std::string requ = t.get();
+                    auto jsonRepr = json::parse(requ);
+                    std::cout << "Response:\n" << jsonRepr.dump(4) << "\n";
+                } catch (const std::exception &e) {
+                    std::cout << e.what() << "\n";
+                }
+            }
+        }
+
+        rest_worker.resize(0);
+    }
+
     return false;
 }
 
