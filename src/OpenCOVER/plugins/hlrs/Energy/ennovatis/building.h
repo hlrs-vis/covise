@@ -86,9 +86,11 @@ public:
         m_channels[static_cast<int>(type)].insert(channel);
     }
 
-    const ChannelList &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
-    const std::string &getName() const { return m_name; }
-    const std::string &getId() const { return m_id; }
+    const auto &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
+    const auto &getName() const { return m_name; }
+    const auto &getId() const { return m_id; }
+    const auto &getLat() const { return m_lat; }
+    const auto &getLon() const { return m_lon; }
     void setId(const std::string &id) { m_id = id; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
