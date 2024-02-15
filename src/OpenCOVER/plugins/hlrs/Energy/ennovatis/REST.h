@@ -57,6 +57,14 @@ struct RESTRequest {
 };
 
 /**
+ * Fetches Ennovatis data using the provided REST request.
+ *
+ * @param req The REST request object.
+ * @return The fetched Ennovatis data as a string.
+ */
+std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
+
+/**
  * @brief Function to perform a CURL request
  * @Source: https://stackoverflow.com/a/51319043
  * 

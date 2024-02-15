@@ -28,6 +28,13 @@ size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
 namespace ennovatis {
 
+std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
+{
+    std::string response;
+    ennovatis::performCurlRequest(req(), response);
+    return response;
+}
+
 std::string RESTRequest::operator()() const
 {
     auto _dtf = time_point_to_str(dtf, dateformat);
