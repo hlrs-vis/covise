@@ -44,7 +44,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
-#include "ennovatis/REST.h"
+#include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "ennovatis/sax.h"
 
@@ -131,8 +131,11 @@ private:
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
     float rad, scaleH;
+
     ennovatis::BuildingsPtr m_buildings;
     ennovatis::RESTRequest m_req;
+    //current selected channel group
+    ennovatis::ChannelGroup m_channelGrp;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
     osg::ref_ptr<osg::Sequence> m_ennovatisSeq;

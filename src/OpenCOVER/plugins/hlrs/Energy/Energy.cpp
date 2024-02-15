@@ -9,7 +9,7 @@
  ** TODO:                                                                  **
  **  [ ] fetch lat lon from googlemaps                                     **
  **  [ ] make REST lib independent from ennovatis general use              **
- **  [ ] update via REST in background                                     **
+ **  [x] update via REST in background                                     **
  **                                                                        **
  ** History:                                                               **
  **  2024  v1                                                              **
@@ -22,10 +22,12 @@
 
 #include "ennovatis/building.h"
 #include "ennovatis/sax.h"
-#include "ennovatis/REST.h"
+#include "ennovatis/rest.h"
+#include "utils/threadworker.h"
 #include "build_options.h"
 
 #include <chrono>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -37,7 +39,6 @@
 #include <algorithm>
 #include <regex>
 #include <future>
-#include <thread>
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -61,41 +62,7 @@ constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
 constexpr std::array<float, 3> offset{-507080, -5398430, 450};
 
-template<typename T>
-struct ThreadWorker {
-    ThreadWorker() = default;
-
-    bool checkStatus()
-    {
-        for (auto &t: threads) {
-            // thread finished
-            if (!t.valid())
-                continue;
-            auto status = t.wait_for(std::chrono::milliseconds(1));
-            if (status != std::future_status::ready)
-                return false;
-        }
-        return true;
-    }
-
-    bool resize(size_t n)
-    {
-        if (!checkStatus())
-            return false;
-        threads.resize(n);
-        return true;
-    }
-
-    void addThread(std::future<T> &&t) { threads.push_back(std::move(t)); }
-    const auto &operator[](size_t i) { return threads[i]; }
-    auto &threadsList() { return threads; }
-    const size_t poolSize() const { return threads.size(); }
-
-private:
-    std::vector<std::future<T>> threads;
-};
-
-ThreadWorker<std::string> rest_worker;
+utils::ThreadWorker<std::string> test_rest_worker;
 
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
@@ -190,18 +157,22 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
 }
 
 /**
- * Fetches Ennovatis data using the provided REST request.
- *
- * @param req The REST request object.
- * @return The fetched Ennovatis data as a string.
+ * @brief Fetches the channels from a given channel group and building.
+ * 
+ * This function fetches the channels from the specified channel group and building
+ * and populates the REST request object with last used channelid. Results will be available in the rest_worker by accessing futures over threads.
+ * 
+ * @param group The channel group to fetch channels from.
+ * @param b The building to fetch channels from.
+ * @param req The REST request object to populate with fetched channels.
  */
-std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
+void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::RESTRequest req)
 {
-    std::string response;
-    if constexpr (debug)
-        std::cout << "REST-Request thread id = " << std::this_thread::get_id() << "\n";
-    ennovatis::performCurlRequest(req(), response);
-    return response;
+    auto input = b.getChannels(group);
+    for (auto &channel: input) {
+        req.channelId = channel.id;
+        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::fetchEnnovatisData, req));
+    }
 }
 } // namespace
 
@@ -323,13 +294,11 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
-        auto input = b.getChannels(group);
-        for (auto &channel: input) {
-            m_req.channelId = channel.id;
-            rest_worker.addThread(std::async(std::launch::async, fetchEnnovatisData, m_req));
-        }
+        fetchChannels(group, b, m_req);
     }
-    //TODO: overwrite current device with ennovatis data
+
+    // for (auto &b: *m_buildings)
+    //     fetchChannels(group, b, m_req);
     reinitDevices(group);
 }
 
@@ -381,7 +350,7 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
     if (!json::sax_parse(inputFilestream, &slp))
         return false;
 
-    if constexpr (build_options.debug_ennovatis)
+    if constexpr (debug)
         for (auto &log: slp.getDebugLogs())
             std::cout << log << std::endl;
 
@@ -626,10 +595,10 @@ bool EnergyPlugin::update()
         }
     }
 
-    if (rest_worker.checkStatus() && rest_worker.poolSize() > 0) {
+    if (test_rest_worker.checkStatus() && test_rest_worker.poolSize() > 0) {
         if constexpr (debug) {
             std::cout << "All REST-Requests finished" << std::endl;
-            for (auto &t: rest_worker.threadsList()) {
+            for (auto &t: test_rest_worker.threadsList()) {
                 try {
                     std::string requ = t.get();
                     auto jsonRepr = json::parse(requ);
@@ -638,9 +607,9 @@ bool EnergyPlugin::update()
                     std::cout << e.what() << "\n";
                 }
             }
+            test_rest_worker.clear();
         }
-
-        rest_worker.resize(0);
+        // TODO: update devices with REST data
     }
 
     return false;
