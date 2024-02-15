@@ -1,5 +1,5 @@
 //TODO: Maybe exclude as own lib for whole covise?
-#include "REST.h"
+#include "rest.h"
 #include <curl/curl.h>
 #include <string>
 #include <chrono>

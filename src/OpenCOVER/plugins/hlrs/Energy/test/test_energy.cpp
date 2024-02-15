@@ -1,4 +1,4 @@
-#include "../ennovatis/REST.h"
+#include "../ennovatis/rest.h"
 #include "../ennovatis/sax.h"
 
 // #include "REST.h"
