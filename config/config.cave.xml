@@ -110,6 +110,10 @@
            <CaveJoyX device="DTrackCave" valuatorIndex="0" />
            <CaveJoyY device="DTrackCave" valuatorIndex="1" />
         </Valuator>
+	
+	<Device>
+           <joystick driver="joystick" device="/dev/input/js"/>
+	</Device>
 
         <Persons>
            <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
@@ -238,7 +242,7 @@
 
      <Lights value="ON" />
      <Audio value="AServer" >
-      <!--Host value="141.58.8.223" /-->
+        <Host value="192.168.0.240"/> 
      </Audio>
 
 
@@ -534,8 +538,8 @@
    <JSBSim menu="on" >
    <Geometry y="-800" z="200" />
    <Glider serverPort="31319" localPort="1234" />
-   <!--Sound server="141.58.8.122" /-->
-   <Sound server="141.58.8.223" />
+   <Sound server="192.168.0.240" />
+   <!--Sound server="141.58.8.223" /-->
 
    <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
    <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml"-->
@@ -585,7 +589,7 @@
    <PorscheHupe value="/dev/input/porschehupe" />
    <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />
    <CAN value="OFF" port="1" speed="1000" nodeID="1" origin="0.0" />
-   <CarSound host="192.168.0.233" port="31804"/>
+   <CarSound host="192.168.0.240" port="31804"/>
    <!--CarSound host="192.168.0.88" port="31804"/-->
    <!--CarSound host="141.58.8.110" port="31804"/-->
    <!--CarSound host="141.58.8.32" port="31804"/-->
