@@ -41,6 +41,22 @@ using namespace std;
 Joystick::Joystick(const std::string &config)
     : InputDevice(config)
 {
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
+    cerr << "test " << numLocalJoysticks << endl;
     JoystickMutex.lock();
 	numLocalJoysticks = 0;
 	for (int i = 0; i < MAX_NUMBER_JOYSTICKS; i++)
@@ -157,6 +173,7 @@ Joystick::Joystick(const std::string &config)
 			m_buttonStates[i] = buttons[joystickNumber][i];
 		}
 	}
+    cerr << "numLocalJoysticks " << numLocalJoysticks << endl;
     JoystickMutex.unlock();
 }
 
@@ -410,7 +427,7 @@ bool Joystick::poll()
        int button_pressed = -1;
     int button_released = -1;
     struct js_event js;
-    if (fd[joystickNumber] == -1)
+    if (fd[joystickNumber] != -1)
     {
         while (read(fd[joystickNumber], &js,
                 sizeof(struct js_event)) == sizeof(struct js_event))

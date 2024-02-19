@@ -9,6 +9,7 @@
 #include <cover/input/dev/Joystick/Joystick.h>
 
 #include <cover/input/input.h>
+#include <cover/coVRMSController.h>
 using namespace vrml;
 using namespace opencover;
 
@@ -144,26 +145,54 @@ void VrmlNodeJoystick::render(Viewer*)
         return;
 
     int joystickNumber = d_joystickNumber.get();
-    if ((joystickNumber >= JoystickPlugin::plugin->dev->numLocalJoysticks) || (joystickNumber >= JoystickPlugin::plugin->dev->numLocalJoysticks + 1))
+    if ((joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks) || (joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks + 1))
         return;
     double timeStamp = System::the->time();
+    
     //if (eventType & JOYSTICK_AXES_EVENTS)
     {
-        if (JoystickPlugin::plugin->dev->number_axes[joystickNumber] && JoystickPlugin::plugin->dev->axes[joystickNumber])
+        if (JoystickPlugin::plugin->number_axes[joystickNumber] && JoystickPlugin::plugin->axes[joystickNumber])
         {
-            d_axes.set(JoystickPlugin::plugin->dev->number_axes[joystickNumber], JoystickPlugin::plugin->dev->axes[joystickNumber]);
+            if(coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(JoystickPlugin::plugin->dev->axes[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_axes[joystickNumber]);
+                d_axes.set(JoystickPlugin::plugin->number_axes[joystickNumber], JoystickPlugin::plugin->dev->axes[joystickNumber]);
+	    }
+	    else
+	    {
+                coVRMSController::instance()->readMaster(JoystickPlugin::plugin->axes[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_axes[joystickNumber]);
+                d_axes.set(JoystickPlugin::plugin->number_axes[joystickNumber], JoystickPlugin::plugin->axes[joystickNumber]);
+	    }
             // Send the new value
             eventOut(timeStamp, "axes_changed", d_axes);
         }
-        if (JoystickPlugin::plugin->dev->number_sliders[joystickNumber] && JoystickPlugin::plugin->dev->sliders[joystickNumber])
+        if (JoystickPlugin::plugin->number_sliders[joystickNumber] && JoystickPlugin::plugin->sliders[joystickNumber])
         {
-            d_sliders.set(JoystickPlugin::plugin->dev->number_sliders[joystickNumber], JoystickPlugin::plugin->dev->sliders[joystickNumber]);
+            if(coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(JoystickPlugin::plugin->dev->sliders[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_sliders[joystickNumber]);
+                d_sliders.set(JoystickPlugin::plugin->number_sliders[joystickNumber], JoystickPlugin::plugin->dev->sliders[joystickNumber]);
+	    }
+	    else
+	    {
+                coVRMSController::instance()->readMaster(JoystickPlugin::plugin->sliders[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_sliders[joystickNumber]);
+                d_sliders.set(JoystickPlugin::plugin->number_sliders[joystickNumber], JoystickPlugin::plugin->sliders[joystickNumber]);
+	    }
             // Send the new value
             eventOut(timeStamp, "sliders_changed", d_sliders);
         }
-        if (JoystickPlugin::plugin->dev->number_POVs[joystickNumber] && JoystickPlugin::plugin->dev->POVs[joystickNumber])
+        if (JoystickPlugin::plugin->number_POVs[joystickNumber] && JoystickPlugin::plugin->POVs[joystickNumber])
         {
-            d_POVs.set(JoystickPlugin::plugin->dev->number_POVs[joystickNumber], JoystickPlugin::plugin->dev->POVs[joystickNumber]);
+            if(coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(JoystickPlugin::plugin->dev->POVs[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_POVs[joystickNumber]);
+                d_POVs.set(JoystickPlugin::plugin->number_POVs[joystickNumber], JoystickPlugin::plugin->dev->POVs[joystickNumber]);
+	    }
+	    else
+	    {
+                coVRMSController::instance()->readMaster(JoystickPlugin::plugin->POVs[joystickNumber], sizeof(float)*JoystickPlugin::plugin->number_POVs[joystickNumber]);
+                d_POVs.set(JoystickPlugin::plugin->number_POVs[joystickNumber], JoystickPlugin::plugin->POVs[joystickNumber]);
+	    }
             // Send the new value
             eventOut(timeStamp, "POVs_changed", d_POVs);
         }
@@ -171,10 +200,18 @@ void VrmlNodeJoystick::render(Viewer*)
 
     //if (eventType & JOYSTICK_BUTTON_EVENTS)
     {
-        if (JoystickPlugin::plugin->dev->number_buttons[joystickNumber] && JoystickPlugin::plugin->dev->buttons[joystickNumber])
+        if (JoystickPlugin::plugin->number_buttons[joystickNumber] && JoystickPlugin::plugin->buttons[joystickNumber])
         {
-            d_buttons.set(JoystickPlugin::plugin->dev->number_buttons[joystickNumber],
-                JoystickPlugin::plugin->dev->buttons[joystickNumber]);
+            if(coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(JoystickPlugin::plugin->dev->buttons[joystickNumber], sizeof(int)*JoystickPlugin::plugin->number_buttons[joystickNumber]);
+                d_buttons.set(JoystickPlugin::plugin->number_buttons[joystickNumber], JoystickPlugin::plugin->dev->buttons[joystickNumber]);
+	    }
+	    else
+	    {
+                coVRMSController::instance()->readMaster(JoystickPlugin::plugin->buttons[joystickNumber], sizeof(int)*JoystickPlugin::plugin->number_buttons[joystickNumber]);
+                d_buttons.set(JoystickPlugin::plugin->number_buttons[joystickNumber], JoystickPlugin::plugin->buttons[joystickNumber]);
+	    }
             // Send the new value
             eventOut(timeStamp, "buttons_changed", d_buttons);
         }
@@ -191,13 +228,67 @@ JoystickPlugin::JoystickPlugin()
 
 bool JoystickPlugin::init()
 {
+    dev = nullptr;
 
     if (JoystickPlugin::plugin != NULL)
         return false;
-
+   
     JoystickPlugin::plugin = this;
     dev = (Joystick *)(Input::instance()->getDevice("joystick"));
+    if(coVRMSController::instance()->isMaster())
+    {
+    numLocalJoysticks = dev->numLocalJoysticks;
+    for(int i=0;i<numLocalJoysticks;i++)
+    {
+        number_buttons[i] = dev->number_buttons[i];
+        number_axes[i] = dev->number_axes[i];
+        number_sliders[i] = dev->number_sliders[i];
+        number_POVs[i] = dev->number_POVs[i];
+    }
+       coVRMSController::instance()->sendSlaves(&numLocalJoysticks, sizeof(int));
+        coVRMSController::instance()->sendSlaves(&number_buttons, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->sendSlaves(&number_axes, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->sendSlaves(&number_sliders, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->sendSlaves(&number_POVs, sizeof(unsigned char)*numLocalJoysticks);
+    
+    }
+    else
+    {
+        dev = nullptr;
+        coVRMSController::instance()->readMaster(&numLocalJoysticks, sizeof(int));
+        coVRMSController::instance()->readMaster(&number_buttons, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->readMaster(&number_axes, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->readMaster(&number_sliders, sizeof(unsigned char)*numLocalJoysticks);
+        coVRMSController::instance()->readMaster(&number_POVs, sizeof(unsigned char)*numLocalJoysticks);
+    }
 
+    for(int i=0;i<numLocalJoysticks;i++)
+    {
+		if (number_buttons[i] > 0)
+		{
+			buttons[i] = new int[number_buttons[i]];
+			for (int n = 0; n < number_buttons[i]; n++)
+				buttons[i][n] = 0;
+		}
+		if (number_sliders[i] > 0)
+		{
+			sliders[i] = new float[number_sliders[i]];
+			for (int n = 0; n < number_sliders[i]; n++)
+				sliders[i][n] = 0;
+		}
+		if (number_axes[i] > 0)
+		{
+			axes[i] = new float[number_axes[i]];
+			for (int n = 0; n < number_axes[i]; n++)
+				axes[i][n] = 0;
+		}
+		if (number_POVs[i] > 0)
+		{
+			POVs[i] = new float[number_POVs[i]];
+			for (int n = 0; n < number_POVs[i]; n++)
+				POVs[i][n] = 0;
+		}
+    }
     VrmlNamespace::addBuiltIn(VrmlNodeJoystick::defineType());
     return true;
 }

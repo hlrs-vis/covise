@@ -67,6 +67,7 @@ private:
     vrml::VrmlMFFloat d_sliders;
     vrml::VrmlMFFloat d_POVs;
     vrml::VrmlMFInt d_buttons;
+    
 };
 namespace vrui
 {
@@ -103,5 +104,15 @@ public:
 
     // this will be called in PreFrame
     bool update();
+	size_t numLocalJoysticks=0;
+	size_t joystickNumber=0;
+	unsigned char number_buttons[MAX_NUMBER_JOYSTICKS];
+	int *buttons[MAX_NUMBER_JOYSTICKS];
+	unsigned char number_axes[MAX_NUMBER_JOYSTICKS];
+	float *axes[MAX_NUMBER_JOYSTICKS];
+	unsigned char number_sliders[MAX_NUMBER_JOYSTICKS];
+	float *sliders[MAX_NUMBER_JOYSTICKS];
+	unsigned char number_POVs[MAX_NUMBER_JOYSTICKS];
+	float *POVs[MAX_NUMBER_JOYSTICKS];
 };
 #endif
