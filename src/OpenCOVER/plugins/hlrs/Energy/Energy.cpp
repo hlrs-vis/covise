@@ -20,6 +20,8 @@
 
 #include "Energy.h"
 
+#include "EnnovatisDevice.h"
+#include "EnnovatisDeviceSensor.h"
 #include "ennovatis/building.h"
 #include "ennovatis/sax.h"
 #include "ennovatis/rest.h"
@@ -33,7 +35,9 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <osg/Group>
 #include <osg/Switch>
+#include <osg/ref_ptr>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -191,13 +195,13 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
     sequenceList = new osg::Sequence();
     sequenceList->setName("DB");
-    m_ennovatisSeq = new osg::Sequence();
-    m_ennovatisSeq->setName("Ennovatis");
+    m_ennovatis = new osg::Group();
+    m_ennovatis->setName("Ennovatis");
 
     m_switch = new osg::Switch();
     m_switch->setName("Switch");
     m_switch->addChild(sequenceList);
-    m_switch->addChild(m_ennovatisSeq);
+    m_switch->addChild(m_ennovatis);
     EnergyGroup->addChild(m_switch);
 
     GDALAllRegister();
@@ -281,31 +285,37 @@ void EnergyPlugin::reinitDevices(int comp)
     }
 }
 
-void EnergyPlugin::reinitDevices(const ennovatis::ChannelGroup &group)
+void EnergyPlugin::initEnnovatisGrp()
 {
-    m_ennovatisSeq->removeChildren(0, m_ennovatisSeq->getNumChildren());
+    m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
+    m_ennovatisDevices.clear();
+    for (auto &b: *m_buildings)
+        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(EnnovatisDevice(b), m_ennovatis));
 }
+
+void EnergyPlugin::changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group)
+{}
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
-    m_switch->setAllChildrenOff();
-    m_switch->setChildValue(m_ennovatisSeq, true);
+    switchTo(m_ennovatis);
     ennovatisBtns[group]->setState(true, false);
 
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
         fetchChannels(group, b, m_req);
     }
+    changeEnnovatisChannelGrp(group);
+}
 
-    // for (auto &b: *m_buildings)
-    //     fetchChannels(group, b, m_req);
-    reinitDevices(group);
+void EnergyPlugin::switchTo(const osg::Node *child) {
+    m_switch->setAllChildrenOff();
+    m_switch->setChildValue(child, true);
 }
 
 void EnergyPlugin::setComponent(Components c)
 {
-    m_switch->setAllChildrenOff();
-    m_switch->setChildValue(sequenceList, true);
+    switchTo(sequenceList);
     switch (c) {
     case Strom:
         StromBt->setState(true, false);
@@ -458,7 +468,8 @@ bool EnergyPlugin::init()
         for (auto &building: *noMatches)
             std::cout << building->getName() << std::endl;
     }
-
+    initEnnovatisGrp();
+    switchTo(sequenceList);
     return true;
 }
 
@@ -609,8 +620,10 @@ bool EnergyPlugin::update()
             }
             test_rest_worker.clear();
         }
-        // TODO: update devices with REST data
     }
+
+    for (auto &devSen : m_ennovatisDevices)
+        devSen->update();
 
     return false;
 }

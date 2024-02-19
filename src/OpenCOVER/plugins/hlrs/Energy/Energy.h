@@ -17,6 +17,8 @@
 
 // #include <memory>
 #include <memory>
+#include <osg/Group>
+#include <osg/Node>
 #include <osg/Sequence>
 #include <osg/ref_ptr>
 #include <util/common.h>
@@ -44,6 +46,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
+#include "EnnovatisDeviceSensor.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "ennovatis/sax.h"
@@ -107,7 +110,9 @@ private:
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
     void reinitDevices(int comp);
-    void reinitDevices(const ennovatis::ChannelGroup &group);
+    void changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group);
+    void initEnnovatisGrp();
+    void switchTo(const osg::Node *child);
     
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -138,7 +143,8 @@ private:
     ennovatis::ChannelGroup m_channelGrp;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
-    osg::ref_ptr<osg::Sequence> m_ennovatisSeq;
+    std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevices;
+    osg::ref_ptr<osg::Group> m_ennovatis;
     // switch used to toggle between ennovatis and db data
     osg::ref_ptr<osg::Switch> m_switch;
 };
