@@ -25,7 +25,8 @@ constexpr auto dateformat("%d.%m.%Y");
  * @param format The format of the datetime string.
  * @return The converted std::chrono::system_clock::time_point object.
  */
-std::chrono::system_clock::time_point str_to_time_point(const std::string &datetimeString, const std::string &format);
+[[nodiscard("Use return time_point.")]] std::chrono::system_clock::time_point
+str_to_time_point(const std::string &datetimeString, const std::string &format);
 
 /**
  * @brief Returns a formatted string representation of the given time point.
@@ -35,7 +36,8 @@ std::chrono::system_clock::time_point str_to_time_point(const std::string &datet
  * @param format The format string specifying the desired format.
  * @return The formatted string representation of the time point.
  */
-std::string time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
+[[nodiscard("Use result str of conversion.")]] std::string
+time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
 
 struct RESTRequest {
     std::string url; // URL
@@ -53,16 +55,17 @@ struct RESTRequest {
      * 
      * @return std::string The string returned by the operator.
      */
-    std::string operator()() const;
+    [[nodiscard("String representation not used.")]] std::string operator()() const;
 };
 
 /**
  * Fetches Ennovatis data using the provided REST request.
+ * .
  *
  * @param req The REST request object.
  * @return The fetched Ennovatis data as a string.
  */
-std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
+[[nodiscard("Data stored in returned string.")]] std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
 
 /**
  * @brief Function to perform a CURL request
@@ -72,7 +75,8 @@ std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
  * @param response The response data received from the request (storage)
  * @return bool True if the request was successful, false otherwise
  */
-bool performCurlRequest(const std::string &url, std::string &response);
+[[nodiscard("Make sure failing gets recognized.")]] bool performCurlRequest(const std::string &url,
+                                                                            std::string &response);
 
 /**
  * @brief Function to cleanup the CURL library (need to be called once for each application)

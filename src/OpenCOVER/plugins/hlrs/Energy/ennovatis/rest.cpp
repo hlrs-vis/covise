@@ -31,7 +31,8 @@ namespace ennovatis {
 std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
 {
     std::string response;
-    ennovatis::performCurlRequest(req(), response);
+    if (!ennovatis::performCurlRequest(req(), response))
+        response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
     return response;
 }
 
