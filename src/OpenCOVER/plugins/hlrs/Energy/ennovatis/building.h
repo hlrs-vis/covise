@@ -29,7 +29,7 @@ struct Channel {
     std::string unit;
     ChannelGroup group = ChannelGroup::None;
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return name.empty() && id.empty() && description.empty() && type.empty() && unit.empty() &&
                group == ChannelGroup::None;
@@ -44,7 +44,7 @@ struct Channel {
         unit.clear();
     }
 
-    const std::string to_string() const
+    [[nodiscard]] const std::string to_string() const
     {
         std::stringstream ss;
         ss << "name: " << name << "\nid: " << id << "\ndescription" << description << "\ntype: " << type
@@ -54,7 +54,7 @@ struct Channel {
 };
 
 struct ChannelCmp {
-    bool operator()(const Channel &lhs, const Channel &rhs) const { return lhs.id < rhs.id; }
+    [[nodiscard]] bool operator()(const Channel &lhs, const Channel &rhs) const { return lhs.id < rhs.id; }
 };
 
 typedef std::set<Channel, ChannelCmp> ChannelList;
@@ -81,22 +81,23 @@ public:
      * @param channel The channel to be added.
      * @param type The type of the channel.
      */
-    void addChannel(const Channel &channel, ChannelGroup type)
-    {
-        m_channels[static_cast<int>(type)].insert(channel);
-    }
+    void addChannel(const Channel &channel, ChannelGroup type) { m_channels[static_cast<int>(type)].insert(channel); }
 
-    const auto &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
-    const auto &getName() const { return m_name; }
-    const auto &getId() const { return m_id; }
-    const auto &getLat() const { return m_lat; }
-    const auto &getLon() const { return m_lon; }
+    [[nodiscard("Unused getter.")]] const auto &getChannels(ChannelGroup type) const
+    {
+        return m_channels[static_cast<int>(type)];
+    }
+    [[nodiscard("Unused getter.")]] const auto &getName() const { return m_name; }
+    [[nodiscard("Unused getter.")]] const auto &getId() const { return m_id; }
+    [[nodiscard("Unused getter.")]] const auto &getLat() const { return m_lat; }
+    [[nodiscard("Unused getter.")]] const auto &getLon() const { return m_lon; }
+    [[nodiscard("Unused str representation")]] const std::string to_string() const
+    {
+        return "Building: " + m_name + "\nID: " + m_id + "\n";
+    }
     void setId(const std::string &id) { m_id = id; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
-    std::string to_string() {
-        return "Building: " + m_name + "\nID: " + m_id + "\n";
-    }
 
 private:
     std::string m_name;
