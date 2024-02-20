@@ -424,8 +424,6 @@ void ClipPlanePlugin::preFrame()
             Matrix o_to_w = cover->getBaseMat();
             Matrix m_w;
             m_w = m_o * o_to_w;
-            coCoord coord = m_w;
-            coord.makeMat(m_w);
             interactorTransform->setMatrix(m_w);
 
             Vec4d eq = matrixToEquation(m_o);
