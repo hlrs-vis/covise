@@ -64,11 +64,11 @@ namespace OpenCOVERPlugin
                 currentPos++;
             }
         }
-        private void incsize(int s)
+        public void incsize(int s)
         {
             if (buf.Length < currentPos + s)
             {
-                byte[] newbuf = new byte[buf.Length + s + 1024];
+                byte[] newbuf = new byte[buf.Length + s + 10240];
                 buf.CopyTo(newbuf, 0);
                 buf = newbuf;
             }

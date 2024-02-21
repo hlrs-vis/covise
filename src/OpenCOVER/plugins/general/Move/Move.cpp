@@ -785,6 +785,10 @@ void Move::preFrame()
                             cerr << "parent not found" << endl;
                         }
                     }
+                    if (iter == intersectedNodePath.begin())
+                    {
+                        break;
+                    }
                 }
 
                 if (!interactionB->isRegistered())
