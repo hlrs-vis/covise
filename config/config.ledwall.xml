@@ -50,14 +50,21 @@
     <Host timeout="60" memory="shm" method="ssh" name="visent" hostname="visent" />
     <Host timeout="60" memory="shm" method="RemoteDaemon" name="vissurface2private" hostname="vissurface2private" />
    </HostConfig>
-
+   <VRB>
+    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
+    <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
+	  <!-- <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/> -->
+   </VRB>
    </System>
   <COVER>
-  
+   <Collaborative>
+      <UserName value="LED_wall"/>
+      <Email value="grieger@hlrs.de"/>
+   </Collaborative>
      <Input>
         <MouseNav value="true" />
         <Device>
-		<DTrackCave driver="dtrack" port="5000" serverHost="192.168.0.3">
+		<DTrackCave driver="dtrack" port="5000" serverHost="192.168.0.2">
               <!--Offset x="0" y="-1500" z="-1030" /-->
               <!--Offset x="0" y="-1500" z="-967" /-->
               <Offset x="0" y="-1500" z="-1323" />
@@ -76,12 +83,12 @@
               <Orientation h="0" p="0" r="0" />
            </ConstHead>
 
-           <CaveHead device="DTrackCave" bodyIndex="0">
+           <CaveHead device="DTrackCave" bodyIndex="1">
               <Offset x="-70" y="-60" z="-110" />
               <Orientation h="0" p="-23" r="-13" />
            </CaveHead>
 
-           <CaveHand device="DTrackCave" bodyIndex="1">
+           <CaveHand device="DTrackCave" bodyIndex="0">
               <Offset x="-60" y="0" z="10" />
               <Orientation h="-10" p="-27" r="0" />
            </CaveHand>
@@ -161,6 +168,10 @@
   <Plugin>
 
    <VncClient value="off" menu="true" rfbHost="visent.hlrs.de" rfbPort="31590" />
+   <!--Revit value="off" /-->
+   <Revit value="on" />
+   <!--Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    </Revit-->
    <PointCloud>
    <PointSize value="2" />
    </PointCloud>
