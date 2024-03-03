@@ -5,13 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef FINDDIR_H
-#define FINDDIR_H
+#ifndef z8ctrl_h
+#define z8ctrl_h
 
-class coDir
-{
-
-public:
-    coDir();
-};
 #endif

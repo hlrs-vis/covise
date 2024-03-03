@@ -7,113 +7,69 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <net/covise_host.h>
-#include <net/covise_connect.h>
-#include <net/covise_socket.h>
+#include <util/UDP_Sender.h>
 using namespace std;
 using namespace covise;
 
-enum
-{
-    END = 0,
-    DVI = 4,
-    VGA = 5,
-    SYNCON = 7,
-    SYNCOFF = 8,
-    POWERON = 9,
-    POWEROFF = 10,
-    GAMMA = 11,
-    UP = 12,
-    DOWN = 13,
-    RIGHT = 14,
-    LEFT = 15,
-    OK = 16,
-    MENU = 17,
-    STEREO = 32,
-    SELECTRIGHT = 33,
-    SELECTLEFT = 34,
-    FORWARD = 30,
-    PROJLEFT = 25,
-    PROJRIGHT = 27,
-    PROJBOTH = 26,
-    FILENAME = 127
-};
-
 int main(int argc, char **argv)
 {
-    // check arguments
-    if (argc != 3)
+    UDP_Sender z8("192.168.1.192", 9099);
+    for (int i = 1; i < argc; i++)
     {
-        cerr << "Wrong argument number" << endl;
-        cerr << "Usage: as3dctrl projector command " << endl;
-        return 1;
-    }
-    Host *pro = new Host(argv[1]);
-
-    SimpleClientConnection *projector = new SimpleClientConnection(pro, 1025);
-    if (projector->is_connected())
-    {
-        char filename[1000];
-        sprintf(filename, "eOps/%s", argv[2]);
-        int file = open(filename, O_RDONLY);
-        char commandBuffer[1000];
-        if (file > 0)
+        if (stricmp(argv[i], "3DON") == 0)
         {
-            int commandLength = read(file, commandBuffer, 1000);
-            if (commandLength > 0)
-            {
-                int numWritten = projector->getSocket()->write(commandBuffer, commandLength);
-                if (numWritten < commandLength)
-                {
-                    cerr << "could not send all bytes, only" << numWritten << " of " << commandLength << endl;
-                }
-            }
-            close(file);
+            //unsigned char buf[] = {0x74, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+            unsigned char buf[] = {0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+            z8.send(buf, sizeof(buf));
         }
-        else
+        else if (stricmp(argv[i], "3DOFF") == 0)
         {
-            //cerr << "could not open file eOps/" <<  argv[2]  << endl;
-            //assume ascii command
-            sprintf(commandBuffer, ": %s\r", argv[2]);
-            int commandLength = strlen(commandBuffer);
-            if (commandLength > 0)
+            //unsigned char buf[] = { 0x74, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            unsigned char buf[] = { 0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            z8.send(buf, sizeof(buf));
+        }
+        if (strnicmp(argv[i], "PRESET",6) == 0)
+        {
+            unsigned char buf[] = { 0x07, 0x10, 0x03, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 };
+            int num = 1;
+            if (sscanf(argv[i] + 6, "%d", &num) == 1)
             {
-                int numWritten = projector->getSocket()->write(commandBuffer, commandLength);
-                if (numWritten < commandLength)
-                {
-                    cerr << "could not send all bytes, only" << numWritten << " of " << commandLength << endl;
-                }
-                else
-                {
-                    char replyBuffer[1000];
-                    projector->getSocket()->setNonBlocking(true);
-                    time_t startZeit = time(NULL);
-                    do
-                    {
-                        int numRead;
-                        do
-                        {
-                            errno = 0;
-#ifdef _WIN32
-                            numRead = ::recv(projector->getSocket()->get_id(), replyBuffer, 1000, 0);
-                        } while (((projector->getSocket()->getErrno() == WSAEINPROGRESS) || (projector->getSocket()->getErrno() == WSAEINTR)));
-#else
-                            numRead = ::read(projector->getSocket()->get_id(), replyBuffer, 1000);
-                        } while ((errno == EAGAIN || errno == EINTR));
-#endif
-
-                        if (numRead > 0)
-                        {
-                            cerr << replyBuffer;
-                            break;
-                        }
-                    } while (time(NULL) < startZeit + 1);
-                }
+                buf[15] = num;
+                z8.send(buf, sizeof(buf));
+                fprintf(stderr, "setting preset %d\n", num);
             }
         }
+        if (strnicmp(argv[i], "Brightness", 10) == 0)
+        {
+            unsigned char buf[] = { 0x50, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00 };
+            unsigned short num = 0;
+            if (sscanf(argv[i] + 6, "%d", &num) == 1)
+            {
+                *((unsigned short *)(buf+11)) = num;
+                z8.send(buf, sizeof(buf));
+                fprintf(stderr, "setting Brightness to %d %d%%\n", num, num/100);
+            }
+        }
+        if (strnicmp(argv[i], "TEST", 4) == 0)
+        {
+            unsigned char buf[] = { 0x12, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00,     0x00, 0x00,     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 };
+            int num = 1;
+            if (sscanf(argv[i] + 4, "%d", &num) == 1)
+            {
+                buf[17] = num;
+                z8.send(buf, sizeof(buf));
+                fprintf(stderr, "setting testpattern %d\n", num);
+            }
+        }
+        if (strnicmp(argv[i], "Black",5) == 0)
+        {
+            unsigned char buf[] = { 0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00,     0x00, 0x00,      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            z8.send(buf, sizeof(buf));
+        }
+        if (strnicmp(argv[i], "Wakeup", 6) == 0)
+        {
+            unsigned char buf[] = { 0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00,     0x00, 0x00,      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+            z8.send(buf, sizeof(buf));
+        }
     }
-    else
-    {
-        cerr << "could not connect to projector " << argv[1] << " on port 1025" << endl;
-    }
-}
+ }
