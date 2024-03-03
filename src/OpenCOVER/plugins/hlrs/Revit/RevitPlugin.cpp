@@ -954,9 +954,8 @@ void RevitViewpointEntry::activate()
 	mat(2, 1) = upDirection[1];
 	mat(2, 2) = upDirection[2];
 
-
 	osg::Matrix ivMat;
-	ivMat.invert(mat* myPlugin->RevitScale * myPlugin->NorthRotMat * myPlugin->RevitGeoRefference); // viewpoint positions are in the master project coordinate system, not in the local one.
+	ivMat.invert(mat* myPlugin->RevitScale  * myPlugin->RevitGeoRefference * myPlugin->NorthRotMat); // viewpoint positions are in the master project coordinate system, not in the local one.
 	//ivMat.invert(mat*myTransform->getMatrix());
     ivMat =  ivMat * osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
 
@@ -2391,17 +2390,17 @@ RevitPlugin::handleMessage(Message *m)
     {
         TokenBuffer tb(m);	
         const char *fileName;
-        tb >> fileName;
-		tb >> TrueNorthAngle;
-		tb >> ProjectHeight;
-		ProjectHeight *= REVIT_FEET_TO_M;
 		double eastWest;
 		double northSouth;
-		double xo=0.0, yo = 0.0, zo = 0.0;
-		double pox=0.0, poy = 0.0, poz = 0.0;
+		double xo = 0.0, yo = 0.0, zo = 0.0;
+		double pox = 0.0, poy = 0.0, poz = 0.0;
+        tb >> fileName;
+		tb >> TrueNorthAngle;
 		int GeoReference;
 		tb >> eastWest;
 		tb >> northSouth;
+		tb >> ProjectHeight;
+		ProjectHeight *= REVIT_FEET_TO_M;
 		tb >> xo;
 		tb >> yo;
 		tb >> zo;
@@ -2414,15 +2413,16 @@ RevitPlugin::handleMessage(Message *m)
             firstDocument = false;
             NorthRotMat = osg::Matrix::rotate(TrueNorthAngle, osg::Vec3(0, 0, 1));
             RevitScale = osg::Matrix::scale(REVIT_FEET_TO_M, REVIT_FEET_TO_M, REVIT_FEET_TO_M);
-			if (GeoReference == 1)
+			/*if (GeoReference == 1)
 			{
 				RevitGeoRefference = osg::Matrix::translate((xo + pox * 1000.0) * REVIT_FEET_TO_M, (yo  + poy * 1000.0) * REVIT_FEET_TO_M, (zo + poz * 1000.0) * REVIT_FEET_TO_M);
 			}
 			else
 			{
 				RevitGeoRefference.makeIdentity();
-			}
-            revitGroup->setMatrix(RevitScale * NorthRotMat * RevitGeoRefference);
+			}*/
+			RevitGeoRefference = osg::Matrix::translate(xo * REVIT_FEET_TO_M, yo * REVIT_FEET_TO_M, zo * REVIT_FEET_TO_M);
+            revitGroup->setMatrix(RevitScale  * RevitGeoRefference* NorthRotMat);
 		}
         if (fileName != currentRevitFile)
         {
@@ -3481,13 +3481,11 @@ RevitPlugin::preFrame()
 		if (toRevit)
 		{
 			static double lastTime = 0;
-			if (abs(cover->frameTime()- lastTime) >   4)
+			if (abs(cover->frameTime()- lastTime) >   2)
 			{
 				TokenBuffer stb;
 				
-				osg::Matrix projectHeightMatrix;
-				projectHeightMatrix.makeTranslate(osg::Vec3(0,0,ProjectHeight));
-				osg::Matrix mat = RevitScale * NorthRotMat * projectHeightMatrix * RevitGeoRefference * cover->getBaseMat();
+				osg::Matrix mat = RevitScale * RevitGeoRefference * NorthRotMat * cover->getBaseMat() ;
 				osg::Matrix invMat;
 				invMat.invert(mat);
 				osg::Matrix viewerTrans = cover->getViewerMat() * invMat;
@@ -3501,7 +3499,7 @@ RevitPlugin::preFrame()
 				viewDir.normalize();
 				
 				static osg::Vec3 oldEyePos(0, 0, 0);
-				if ((eyePos - oldEyePos).length() > 0.3) // if distance to old pos > 30cm
+				if ((eyePos - oldEyePos).length() > 0.3) // if distance to old pos > 30"
 				{
 					oldEyePos = eyePos;
 					lastTime = cover->frameTime();
@@ -3515,6 +3513,7 @@ RevitPlugin::preFrame()
 					viewDirection[0] = viewDir[0];
 					viewDirection[1] = viewDir[1];
 					viewDirection[2] = viewDir[2];
+					fprintf(stderr, "pos %f %f %f\n", eyePosition[0], eyePosition[1], eyePosition[2]);
 					
 
 					stb << (double)eyePosition[0];

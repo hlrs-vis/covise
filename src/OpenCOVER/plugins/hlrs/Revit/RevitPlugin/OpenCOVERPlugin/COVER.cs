@@ -23,6 +23,15 @@ using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using IWin32Window = System.Windows.Forms.IWin32Window;
+using Autodesk.Windows;
+using TaskDialog = Autodesk.Revit.UI.TaskDialog;
+using Autodesk.Revit.DB.ExtensibleStorage;
+using System.Windows.Forms;
+using View = Autodesk.Revit.DB.View;
+using Panel = Autodesk.Revit.DB.Panel;
+using System.Security.Cryptography;
+using Autodesk.Revit.Creation;
+using Document = Autodesk.Revit.DB.Document;
 //using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
@@ -101,6 +110,10 @@ namespace OpenCOVERPlugin
         private Options mOptions;
         public View3D View3D;
         public String LinkedFileName = "";
+        public String CAVEHost ="visent.hlrs.de";
+        public enum CoordSystem { ProjectOrigin=1, ProjectBasePoint, SharedBasePoint, GeoReferenced};
+        public CoordSystem currentCoordSystem= CoordSystem.ProjectOrigin;
+        public bool doRotate=false;
         public RevitLinkInstance CurrentLink = null;
         public int LinkedDocumentID = 0;
         public List<Document> documentList = null;
@@ -109,6 +122,9 @@ namespace OpenCOVERPlugin
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
         public ElementId oldDesignOption = null;
+        public FilteredElementCollector coordinateSystems;
+        public DataStorage ConnectionInfo = null;
+        public Schema ConnectionInfoSchema = null;
 
         public List<cDesignOptionSet> designOptionSets;
         private DesignOptionModifier.Switcher designoptionMod;
@@ -251,6 +267,14 @@ namespace OpenCOVERPlugin
 
         COVER()
         {
+
+            try
+            {
+                CAVEHost = System.Environment.GetEnvironmentVariable("CAVEHOST");
+            }
+            catch
+            {
+            }
 
 
             documentList = new List<Document>();
@@ -466,12 +490,25 @@ namespace OpenCOVERPlugin
             ProjectPosition projectPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
             double ProjectNorthAngle = projectPos.Angle;
             double ProjectHeight = projectPos.Elevation;
-
-            FilteredElementCollector locations = new FilteredElementCollector(doc).OfClass(typeof(BasePoint));
-            foreach (var locationPoint in locations)
+            XYZ ProjectBasePoint = XYZ.Zero;
+            XYZ SharedBasePoint = XYZ.Zero;
+            coordinateSystems = new FilteredElementCollector(doc).OfClass(typeof(BasePoint));
+            foreach (var bp in coordinateSystems)
             {
-                BasePoint basePoint = locationPoint as BasePoint;
-                Location svLoc = basePoint.Location;
+                BasePoint basePoint = bp as BasePoint;
+                
+                if (basePoint.Category.BuiltInCategory == BuiltInCategory.OST_SharedBasePoint)
+                {
+                    SharedBasePoint = basePoint.Position;
+                }
+                else if(basePoint.Category.BuiltInCategory == BuiltInCategory.OST_ProjectBasePoint)
+                {
+                    ProjectBasePoint = basePoint.Position;
+                }
+                else //unknown basePoint
+                {
+                    
+                }
                 if (basePoint.IsShared == true)
                 {
                     //this is the survey point
@@ -492,57 +529,68 @@ namespace OpenCOVERPlugin
 
             MessageBuffer mbdocinfo = new();
             mbdocinfo.add(doc.PathName);
-            mbdocinfo.add(ProjectNorthAngle);
-            mbdocinfo.add(ProjectHeight);
-
+            if(doRotate)
+            { 
+                mbdocinfo.add(ProjectNorthAngle);
+            }
+            else
+            {
+                mbdocinfo.add((double)0);
+            }
             mbdocinfo.add(projectPos.EastWest);
             mbdocinfo.add(projectPos.NorthSouth);
+            mbdocinfo.add(projectPos.Elevation);
 
-            IEnumerable<Element> instances = new FilteredElementCollector(document).OfClass(typeof(FamilyInstance)).Where(x => x.Name == "OpenCOVER");
-
-            FilteredElementCollector a = new FilteredElementCollector(document).OfClass(typeof(BasePoint));
-
-            /*            foreach (BasePoint b in a)
-                        {
-                            BasePoint bp = b as BasePoint;
-                            if(bp.IsShared)
-                            {
-                                // surveyPoint
-
-                                xo = parameters[0].AsDouble();
-                            }
-                            else
-                            {
-                                mbdocinfo.add(b.SharedPosition);
-                            }
-                        }*/
             double xo = 0;
             double yo = 0;
             double zo = 0;
-            int GeoReference = 0;
-            foreach (Element e in instances)
+            int GeoReference = (int)currentCoordSystem;
+            if (currentCoordSystem == CoordSystem.GeoReferenced)
             {
-                IList<Parameter> parameters = e.GetParameters("ProjectOffsetX");
-                if (parameters.Count > 0)
-                {
-                    xo = parameters[0].AsDouble();
-                }
-                parameters = e.GetParameters("ProjectOffsetY");
-                if (parameters.Count > 0)
-                {
-                    yo = parameters[0].AsDouble();
-                }
-                parameters = e.GetParameters("ProjectOffsetZ");
-                if (parameters.Count > 0)
-                {
-                    zo = parameters[0].AsDouble();
-                }
-                parameters = e.GetParameters("GeoReference");
-                if (parameters.Count > 0)
-                {
-                    GeoReference = parameters[0].AsInteger();
-                }
+                xo = projectPos.EastWest-ProjectBasePoint.X ;
+                yo = projectPos.NorthSouth - ProjectBasePoint.Y;
+                zo = projectPos.Elevation - ProjectBasePoint.Z;
             }
+            else if (currentCoordSystem == CoordSystem.ProjectBasePoint)
+            {
+                xo = (-ProjectBasePoint.X);
+                yo = (-ProjectBasePoint.Y);
+                zo = (-ProjectBasePoint.Z);
+            }
+            else if (currentCoordSystem == CoordSystem.SharedBasePoint)
+            {
+                xo = (-SharedBasePoint.X);
+                yo = (-SharedBasePoint.Y);
+                zo = (-SharedBasePoint.Z);
+            }
+
+            /*  IEnumerable<Element> instances = new FilteredElementCollector(document).OfClass(typeof(FamilyInstance)).Where(x => x.Name == "OpenCOVER");
+
+              FilteredElementCollector a = new FilteredElementCollector(document).OfClass(typeof(BasePoint));
+
+              foreach (Element e in instances)
+              {
+                  IList<Parameter> parameters = e.GetParameters("ProjectOffsetX");
+                  if (parameters.Count > 0)
+                  {
+                      xo = parameters[0].AsDouble();
+                  }
+                  parameters = e.GetParameters("ProjectOffsetY");
+                  if (parameters.Count > 0)
+                  {
+                      yo = parameters[0].AsDouble();
+                  }
+                  parameters = e.GetParameters("ProjectOffsetZ");
+                  if (parameters.Count > 0)
+                  {
+                      zo = parameters[0].AsDouble();
+                  }
+                  parameters = e.GetParameters("GeoReference");
+                  if (parameters.Count > 0)
+                  {
+                      GeoReference = parameters[0].AsInteger();
+                  }
+              }*/
             mbdocinfo.add(xo);
             mbdocinfo.add(yo);
             mbdocinfo.add(zo);
@@ -3630,6 +3678,123 @@ namespace OpenCOVERPlugin
                 }
             }
         }
+        internal void newDocument(Document doc)
+        {
+            // Try to read our user data
+            // Retrieve data storage
+
+            FilteredElementCollector collector =
+                new FilteredElementCollector(doc);
+
+            ConnectionInfo = (DataStorage)
+                collector
+                .OfClass(typeof(DataStorage))
+                .FirstElement();
+
+            if (ConnectionInfo == null)
+            {
+                newConnectionInfo(doc);
+            }
+
+            // Retrieve entity from the data storage
+
+            if (ConnectionInfoSchema == null)
+                CreateSchema();
+            Entity createdInfoEntity = ConnectionInfo.GetEntity(
+              ConnectionInfoSchema);
+
+            if (createdInfoEntity.IsValid())
+            {
+                CAVEHost = createdInfoEntity.Get<string>("CAVEHost");
+                doRotate = createdInfoEntity.Get<bool>("doRotate");
+                currentCoordSystem = (CoordSystem)createdInfoEntity.Get<int>("CoordSystem");
+            }
+
+        }
+        internal void closeDocument(int docId)
+        {
+            ConnectionInfo = null;
+        }
+
+        private void newConnectionInfo(Document doc)
+        {
+            using (Transaction t = new Transaction(
+     doc, "add ConnectionInfo"))
+            {
+                t.Start();
+
+                // Create data storage in new document
+
+                ConnectionInfo = DataStorage.Create(doc);
+                if(ConnectionInfoSchema == null)
+                    CreateSchema();
+                Entity entity = new Entity(
+                  ConnectionInfoSchema);
+
+                entity.Set("CAVEHost",
+                  CAVEHost);
+
+                entity.Set("doRotate",
+                  doRotate);
+
+                entity.Set("CoordSystem",
+                  (int)currentCoordSystem);
+
+                // Set entity to the data storage element
+
+                ConnectionInfo.SetEntity(entity);
+
+                t.Commit();
+            }
+            storeConnectionInfo(doc);
+        }
+
+        private void CreateSchema()
+        {
+
+            // Create entity which store created info
+            SchemaBuilder schemaBuilder = new SchemaBuilder(new Guid("720090CB-DA98-40DC-9425-E53F280DA1F0"));
+            schemaBuilder.SetReadAccessLevel(AccessLevel.Public); // allow anyone to read the object
+            schemaBuilder.SetWriteAccessLevel(AccessLevel.Public); // restrict writing to this vendor only
+            schemaBuilder.SetVendorId("HLRS"); // required because of restricted write-access
+            schemaBuilder.SetSchemaName("ConnectionInfo");
+            FieldBuilder fieldBuilder = schemaBuilder.AddSimpleField("CAVEHost", typeof(String));
+            fieldBuilder.SetDocumentation("Host to connect to when connecting to CAVE is selected.");
+            FieldBuilder fieldBuilder2 = schemaBuilder.AddSimpleField("doRotate", typeof(bool));
+            fieldBuilder2.SetDocumentation("rotate project to true north.");
+            FieldBuilder fieldBuilder3 = schemaBuilder.AddSimpleField("CoordSystem", typeof(int));
+            fieldBuilder3.SetDocumentation("coordinatesystem to use.");
+
+            ConnectionInfoSchema = schemaBuilder.Finish(); // register the Schema object
+        }
+
+        internal void storeConnectionInfo(Document doc)
+        {
+            if (ConnectionInfo != null)
+            {
+                using (Transaction t = new Transaction( doc, "change ConnectionInfo"))
+                {
+                    t.Start();
+                    Entity entity = new Entity(
+                  ConnectionInfoSchema);
+
+                    entity.Set("CAVEHost",
+                      CAVEHost);
+
+                    entity.Set("doRotate",
+                      doRotate);
+
+                    entity.Set("CoordSystem",
+                      (int)currentCoordSystem);
+
+                    // Set entity to the data storage element
+
+                    ConnectionInfo.SetEntity(entity);
+                    t.Commit();
+                }
+            }
+            else { newConnectionInfo(doc); }
+        }
 
         public bool ConnectToOpenCOVER(string host, int port, Document doc)
         {
@@ -3752,6 +3917,7 @@ namespace OpenCOVERPlugin
                 toCOVER.GetStream().Write(data, 0, len);
             }
         }
+
 
         class Nested
         {

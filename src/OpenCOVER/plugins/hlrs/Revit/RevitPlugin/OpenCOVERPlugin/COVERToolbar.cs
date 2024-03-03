@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Reflection;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using static OpenCOVERPlugin.COVER;
+using Autodesk.Revit.DB.Events;
+using Autodesk.Revit.Creation;
+using Document = Autodesk.Revit.DB.Document;
 
 
 
@@ -152,6 +156,47 @@ namespace OpenCOVERPlugin
         #endregion
     }
     /// <summary>
+    /// connect to local Opencover.
+    /// </summary>
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
+    public class SettingsButton : IExternalCommand
+    {
+        #region IExternalCommand Members
+
+        /// <summary>
+        /// Implement this method as an external command for Revit.
+        /// </summary>
+        /// <param name="commandData">An object that is passed to the external application
+        /// which contains data related to the command,
+        /// such as the application object and active view.</param>
+        /// <param name="message">A message that can be set by the external application
+        /// which will be displayed if a failure or cancellation is returned by
+        /// the external command.</param>
+        /// <param name="elements">A set of elements to which the external application
+        /// can add elements that are to be highlighted in case of failure or cancellation.</param>
+        /// <returns>Return the status of the external command.
+        /// A result of Succeeded means that the API external method functioned as expected.
+        /// Cancelled can be used to signify that the user cancelled the external operation 
+        /// at some point. Failure should be returned if the application is unable to proceed with
+        /// the operation.</returns>
+        public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
+            ref string message, ElementSet elements)
+        {
+
+
+            SettingsDialog d = new SettingsDialog(commandData.Application.ActiveUIDocument.Document);
+            d.setHost(COVER.Instance.CAVEHost);
+            d.setDoRotate(COVER.Instance.doRotate);
+            d.setCoordinateSystem(COVER.Instance.currentCoordSystem);
+
+            d.ShowDialog();
+            return Autodesk.Revit.UI.Result.Succeeded;
+        }
+
+        #endregion
+    }
+    /// <summary>
     /// connect to OpenCOVER on visent.hlrs.de.
     /// </summary>
     /// 
@@ -180,32 +225,8 @@ namespace OpenCOVERPlugin
         public Autodesk.Revit.UI.Result Execute(ExternalCommandData commandData,
             ref string message, ElementSet elements)
         {
-            string CAVEHost = "visent.hlrs.de";
 
-            try
-            {
-                CAVEHost = System.Environment.GetEnvironmentVariable("CAVEHOST");
-            }
-            catch
-            {
-            }
-
-            IEnumerable<Element> instances = new FilteredElementCollector(commandData.Application.ActiveUIDocument.Document).OfClass(typeof(FamilyInstance)).Where(x => x.Name == "OpenCOVER");
-
-            foreach (Element e in instances)
-            {
-                IList<Parameter> parameters = e.GetParameters("CAVEHost");
-                if (parameters.Count > 0)
-                {
-                    CAVEHost = parameters[0].AsString();
-                }
-            }
-
-            if (CAVEHost == null || CAVEHost.Length == 0)
-            {
-                CAVEHost = "visent.hlrs.de";
-            }
-            COVER.Instance.ConnectToOpenCOVER(CAVEHost, 31821, commandData.Application.ActiveUIDocument.Document);
+            COVER.Instance.ConnectToOpenCOVER(COVER.Instance.CAVEHost, 31821, commandData.Application.ActiveUIDocument.Document);
             return geometrySender.DoSend(commandData);
             //return Autodesk.Revit.UI.Result.Succeeded;
         }
@@ -285,6 +306,19 @@ namespace OpenCOVERPlugin
             {
                 return Autodesk.Revit.UI.Result.Failed;
             }
+            try
+            {
+                // Register event. 
+                application.ControlledApplication.DocumentOpened += new EventHandler
+                     <Autodesk.Revit.DB.Events.DocumentOpenedEventArgs>(application_DocumentOpened);
+                application.ControlledApplication.DocumentClosed += new EventHandler
+                     <Autodesk.Revit.DB.Events.DocumentClosedEventArgs>(application_DocumentClosed);
+            }
+            catch (Exception)
+            {
+                return Result.Failed;
+            }
+
 
             return Autodesk.Revit.UI.Result.Succeeded;
         }/// <summary>
@@ -341,6 +375,10 @@ namespace OpenCOVERPlugin
             pushButtonConnectToAnyHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "prompt.png"), UriKind.Absolute));
 
 
+            PushButton settingsButton = ribbonPanelPushButtons.AddItem(new PushButtonData("SettingsButton", "Settings", dllName,
+                 "OpenCOVERPlugin.SettingsButton")) as Autodesk.Revit.UI.PushButton;
+            settingsButton.ToolTip = "VR Settings";
+            settingsButton.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "settings.png"), UriKind.Absolute));
 
 
 
@@ -397,6 +435,18 @@ namespace OpenCOVERPlugin
             }
 
         }
+        public void application_DocumentOpened(object sender, DocumentOpenedEventArgs args)
+        {
+            // get document from event args.
+            Document doc = args.Document;
+            COVER.Instance.newDocument(doc);
+        }
+        public void application_DocumentClosed(object sender, DocumentClosedEventArgs args)
+        {
+            // get document from event args.
+            int docID = args.DocumentId;
+            COVER.Instance.closeDocument(docID);
+        }
 
         /// <summary>
         /// Implement this method to implement the external application which should be called when 
@@ -413,6 +463,7 @@ namespace OpenCOVERPlugin
         public Autodesk.Revit.UI.Result OnShutdown(UIControlledApplication application)
         {
             application.ControlledApplication.DocumentChanged -= CtrlApp_DocumentChanged;
+            application.ControlledApplication.DocumentOpened -= application_DocumentOpened;
 
             OpenCOVERPlugin.COVER.Instance.shutdown(application);
             return Autodesk.Revit.UI.Result.Succeeded;

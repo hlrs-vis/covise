@@ -11,6 +11,9 @@ DesignOptionChanger.cs
 ConnectionDialog.cs
 ConnectionDialog.Designer.cs
 ConnectionDialog.resx
+SettingsDialog.cs
+SettingsDialog.Designer.cs
+SettingsDialog.resx
 COVER.cs
 COVERToolbar.cs
 ExportContext.cs
@@ -54,12 +57,17 @@ Properties/AssemblyInfo.cs
 ConnectionDialog.cs
 ConnectionDialog.Designer.cs
 ConnectionDialog.resx
+SettingsDialog.cs
+SettingsDialog.Designer.cs
+SettingsDialog.resx
+
 )
 set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 #set_property(TARGET OpenCOVERPlugin PROPERTY WIN32_EXECUTABLE TRUE)
 
 set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_REFERENCES
     ${EXTRA_REFS}
+    "AdWindows"
     "PresentationCore"
     "System"
     "System.Core"
