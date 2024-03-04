@@ -65,6 +65,8 @@ constexpr bool debug = build_options.debug_ennovatis;
 constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
 constexpr std::array<float, 3> offset{-507080, -5398430, 450};
+// regex for dd.mm.yyyy
+const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
 
 utils::ThreadWorker<std::string> test_rest_worker;
 
@@ -249,9 +251,6 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
 {
     std::string fromOrTo = (isFrom) ? "From: " : "To: ";
     fromOrTo += toSet;
-    // regex for dd.mm.yyyy
-    const std::regex dateRgx(
-        R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
     if (!std::regex_match(toSet, dateRgx)) {
         std::cout << "Invalid date format for " << fromOrTo
                   << " Please use the following format: " << ennovatis::dateformat << std::endl;
@@ -259,20 +258,20 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     }
 
     auto time = ennovatis::str_to_time_point(toSet, ennovatis::dateformat);
-    bool validTime = (isFrom) ? (time <= m_req.dtt) : (time >= m_req.dtf);
+    bool validTime = (isFrom) ? (time <= m_req->dtt) : (time >= m_req->dtf);
     if (!validTime) {
         std::cout << "Invalid date. (To >= From)" << std::endl;
         if (isFrom)
-            ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req.dtf, ennovatis::dateformat));
+            ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req->dtf, ennovatis::dateformat));
         else
-            ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
+            ennovatisTo->setValue(ennovatis::time_point_to_str(m_req->dtt, ennovatis::dateformat));
         return;
     }
 
     if (isFrom)
-        m_req.dtf = time;
+        m_req->dtf = time;
     else
-        m_req.dtt = time;
+        m_req->dtt = time;
 }
 
 void EnergyPlugin::reinitDevices(int comp)
@@ -290,11 +289,15 @@ void EnergyPlugin::initEnnovatisGrp()
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
     m_ennovatisDevices.clear();
     for (auto &b: *m_buildings)
-        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(EnnovatisDevice(b), m_ennovatis));
+        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(EnnovatisDevice(b, m_req), m_ennovatis));
 }
 
 void EnergyPlugin::changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group)
-{}
+{
+    m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
+    for (auto &sensor: m_ennovatisDevices)
+        sensor->getDevice()->setChannelGroup(m_channelGrp);
+}
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
@@ -303,12 +306,13 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
-        fetchChannels(group, b, m_req);
+        fetchChannels(group, b, *m_req);
     }
     changeEnnovatisChannelGrp(group);
 }
 
-void EnergyPlugin::switchTo(const osg::Node *child) {
+void EnergyPlugin::switchTo(const osg::Node *child)
+{
     m_switch->setAllChildrenOff();
     m_switch->setChildValue(child, true);
 }
@@ -369,13 +373,14 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
 
 void EnergyPlugin::initRESTRequest()
 {
-    m_req.url = configString("Ennovatis", "restUrl", "default")->value();
-    m_req.projEid = configString("Ennovatis", "projEid", "default")->value();
-    m_req.channelId = "";
-    m_req.dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
-    m_req.dtt = std::chrono::system_clock::now();
-    ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req.dtf, ennovatis::dateformat));
-    ennovatisTo->setValue(ennovatis::time_point_to_str(m_req.dtt, ennovatis::dateformat));
+    m_req = std::make_shared<ennovatis::RESTRequest>();
+    m_req->url = configString("Ennovatis", "restUrl", "default")->value();
+    m_req->projEid = configString("Ennovatis", "projEid", "default")->value();
+    m_req->channelId = "";
+    m_req->dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
+    m_req->dtt = std::chrono::system_clock::now();
+    ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req->dtf, ennovatis::dateformat));
+    ennovatisTo->setValue(ennovatis::time_point_to_str(m_req->dtt, ennovatis::dateformat));
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const DeviceList &deviceList)
@@ -418,12 +423,14 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const Dev
         if (!lastDst) {
             m_devBuildMap[devPick] = &building;
             fillLatLon(building, devPick);
+            building.setHeight(devPick->devInfo->height + offset[2]); 
             continue;
         }
         if (devPick) {
             auto hit = m_devBuildMap.find(devPick);
             if (hit == m_devBuildMap.end()) {
                 m_devBuildMap[devPick] = &building;
+                building.setHeight(devPick->devInfo->height + offset[2]); 
                 fillLatLon(building, devPick);
             } else
                 noDeviceMatches.push_back(&building);
@@ -606,8 +613,8 @@ bool EnergyPlugin::update()
         }
     }
 
-    if (test_rest_worker.checkStatus() && test_rest_worker.poolSize() > 0) {
-        if constexpr (debug) {
+    if constexpr (debug) {
+        if (test_rest_worker.checkStatus() && test_rest_worker.poolSize() > 0) {
             std::cout << "All REST-Requests finished" << std::endl;
             for (auto &t: test_rest_worker.threadsList()) {
                 try {
@@ -622,8 +629,8 @@ bool EnergyPlugin::update()
         }
     }
 
-    for (auto &devSen : m_ennovatisDevices)
-        devSen->update();
+    for (auto &sensor: m_ennovatisDevices)
+        sensor->update();
 
     return false;
 }

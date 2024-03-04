@@ -138,9 +138,9 @@ private:
     float rad, scaleH;
 
     ennovatis::BuildingsPtr m_buildings;
-    ennovatis::RESTRequest m_req;
+    std::shared_ptr<ennovatis::RESTRequest> m_req;
     //current selected channel group
-    ennovatis::ChannelGroup m_channelGrp;
+    std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
     std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevices;

@@ -8,7 +8,6 @@
 
 #include <nlohmann/json.hpp>
 #include <osg/Material>
-#include <osg/Group>
 #include <osg/ref_ptr>
 
 using namespace opencover;
@@ -17,7 +16,7 @@ using json = nlohmann::json;
 namespace {
 float h = 1.f;
 float w = 2.f;
-constexpr float default_height = 1000.f;
+constexpr float default_height = 100.f;
 utils::ThreadWorker<std::string> rest_worker;
 
 /**
@@ -38,10 +37,60 @@ void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Buildi
         rest_worker.addThread(std::async(std::launch::async, ennovatis::fetchEnnovatisData, req));
     }
 }
+
+/**
+ * @brief Adds a cylinder between two points.
+ * Source: http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
+ * 
+ * @param start The starting point of the cylinder.
+ * @param end The ending point of the cylinder.
+ * @param radius The radius of the cylinder.
+ * @param cylinderColor The color of the cylinder.
+ * @param group The group to which the cylinder will be added.
+ */
+void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cyclinderColor, osg::Group *group)
+{
+    osg::ref_ptr geode = new osg::Geode;
+    osg::Vec3 center;
+    float height;
+    osg::ref_ptr<osg::Cylinder> cylinder;
+    osg::ref_ptr<osg::ShapeDrawable> cylinderDrawable;
+    osg::ref_ptr<osg::Material> pMaterial;
+
+    height = (start - end).length();
+    center = osg::Vec3((start.x() + end.x()) / 2, (start.y() + end.y()) / 2, (start.z() + end.z()) / 2);
+
+    // This is the default direction for the cylinders to face in OpenGL
+    osg::Vec3 z = osg::Vec3(0, 0, 1);
+
+    // Get diff between two points you want cylinder along
+    osg::Vec3 p = start - end;
+
+    // Get CROSS product (the axis of rotation)
+    osg::Vec3 t = z ^ p;
+
+    // Get angle. length is magnitude of the vector
+    double angle = acos((z * p) / p.length());
+
+    // Create a cylinder between the two points with the given radius
+    cylinder = new osg::Cylinder(center, radius, height);
+    cylinder->setRotation(osg::Quat(angle, osg::Vec3(t.x(), t.y(), t.z())));
+
+    cylinderDrawable = new osg::ShapeDrawable(cylinder);
+    geode->addDrawable(cylinderDrawable);
+
+    // Set the color of the cylinder that extends between the two points.
+    pMaterial = new osg::Material;
+    pMaterial->setDiffuse(osg::Material::FRONT, cyclinderColor);
+    geode->getOrCreateStateSet()->setAttribute(pMaterial, osg::StateAttribute::OVERRIDE);
+
+    // Add the cylinder between the two points to an existing group
+    group->addChild(geode);
+}
 } // namespace
 
-EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building)
-: m_buildingInfo(BuildingInfo(&building))
+EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::RESTRequest> req)
+: m_buildingInfo(BuildingInfo(&building)), m_request(req)
 {
     m_deviceGroup = new osg::Group();
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
@@ -77,9 +126,12 @@ osg::Vec4 EnnovatisDevice::getColor(float val, float max)
     return col;
 }
 
-void EnnovatisDevice::fetchData(const ennovatis::ChannelGroup &group, const ennovatis::RESTRequest &req)
+// void EnnovatisDevice::fetchData(const ennovatis::ChannelGroup &group, const ennovatis::RESTRequest &req)
+void EnnovatisDevice::fetchData()
 {
-    fetchChannels(group, *m_buildingInfo.building, req);
+    if (!m_InfoVisible)
+        return;
+    fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
 }
 
 void EnnovatisDevice::init(float r)
@@ -93,36 +145,20 @@ void EnnovatisDevice::init(float r)
     w = m_rad * 10;
     h = m_rad * 11;
 
-    osg::ref_ptr<osg::Cylinder> cyl = new osg::Cylinder(
-        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), default_height/2), m_rad, -default_height);
-    osg::Vec4 colVec(0.1, 0.1, 0.1, 1.f);
-    osg::Vec4 colVecLimit(1.f, 1.f, 1.f, 1.f);
+    // RGB Colors 1,1,1 = white, 0,0,0 = black
+    osg::Vec4 color(0.753, 0.443, 0.816, 1.f);
+    const osg::Vec3f bottom(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
+                            -m_buildingInfo.building->getHeight());
+    osg::Vec3f top(bottom);
+    top.z() += default_height;
 
-    osg::ref_ptr<osg::ShapeDrawable> shapeD = new osg::ShapeDrawable(cyl);
-    osg::ref_ptr<osg::Material> mat = new osg::Material();
-    mat->setDiffuse(osg::Material::FRONT_AND_BACK, colVec);
-    mat->setAmbient(osg::Material::FRONT_AND_BACK, colVec);
-    mat->setEmission(osg::Material::FRONT_AND_BACK, colVec);
-    mat->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-    mat->setColorMode(osg::Material::EMISSION);
-
-    osg::ref_ptr<osg::StateSet> state = shapeD->getOrCreateStateSet();
-    state->setAttribute(mat.get(), osg::StateAttribute::PROTECTED);
-    state->setNestRenderBins(false);
-
-    shapeD->setStateSet(state);
-    shapeD->setUseDisplayList(false);
-    shapeD->setColor(colVec);
-
-    m_geoBars = new osg::Geode();
-    m_geoBars->setName(m_buildingInfo.building->getId());
-    m_geoBars->addDrawable(shapeD);
-
-    m_deviceGroup->addChild(m_geoBars.get());
+    addCylinderBetweenPoints(bottom, top, m_rad, color, m_deviceGroup.get());
 }
 
 void EnnovatisDevice::update()
 {
+    if (!m_InfoVisible)
+        return;
     if (rest_worker.checkStatus() && rest_worker.poolSize() > 0) {
         m_buildingInfo.channelResponse.clear();
         for (auto &t: rest_worker.threadsList()) {
@@ -144,8 +180,10 @@ void EnnovatisDevice::activate()
         m_BBoard->removeChild(m_TextGeode);
         m_TextGeode = nullptr;
         m_InfoVisible = false;
-    } else
+    } else {
         m_InfoVisible = true;
+        fetchData();
+    }
 }
 
 void EnnovatisDevice::disactivate()
@@ -192,11 +230,9 @@ void EnnovatisDevice::showInfo()
     for (auto &channel: m_buildingInfo.channelResponse) {
         json j = json::parse(channel);
         textvalues += j.dump(4);
-        // textvalues += " > " + j["name"].get<std::string>() + ":\n";
-        // textvalues += " > " + j["description"].get<std::string>() + ":\n";
-        // textvalues += " > " + j["type"].get<std::string>() + ":\n";
-        // textvalues += " > " + j["unit"].get<std::string>() + ":\n";
     }
+    std::cout << "TextValues:" << "\n"; 
+    std::cout << textvalues << "\n";
 
     textBoxValues->setText(textvalues);
     textBoxValues->setCharacterSize(charSize);

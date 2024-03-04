@@ -4,6 +4,7 @@
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include <cover/coVRPluginSupport.h>
+#include <memory>
 #include <util/common.h>
 
 #include <cover/coBillboard.h>
@@ -14,16 +15,15 @@
 
 class EnnovatisDevice {
 public:
-    EnnovatisDevice(const ennovatis::Building &building);
+    EnnovatisDevice(const ennovatis::Building &building): EnnovatisDevice(building, nullptr){};
+    EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::RESTRequest> req);
     ~EnnovatisDevice();
-    void init(float r);
-    void fetchData(const ennovatis::ChannelGroup &group, const ennovatis::RESTRequest &req);
+    [[nodiscard]] bool getStatus() { return m_InfoVisible; }
+    [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
     void update();
     void activate();
     void disactivate();
-    void showInfo();
-    [[nodiscard]] bool getStatus() { return m_InfoVisible; }
-    [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
+    void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group) { m_channelGroup = group; }
 
 private:
     struct BuildingInfo {
@@ -32,6 +32,9 @@ private:
         std::vector<std::string> channelResponse;
     };
     [[nodiscard]] osg::Vec4 getColor(float val, float max);
+    void init(float r);
+    void showInfo();
+    void fetchData();
 
     osg::ref_ptr<osg::Group> m_TextGeode;
     osg::ref_ptr<osg::Group> m_deviceGroup;
@@ -40,6 +43,8 @@ private:
 
     float m_rad;
     bool m_InfoVisible = false;
+    std::shared_ptr<ennovatis::RESTRequest> m_request;
+    std::shared_ptr<ennovatis::ChannelGroup> m_channelGroup;
     BuildingInfo m_buildingInfo;
 };
 #endif

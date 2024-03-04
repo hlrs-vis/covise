@@ -64,7 +64,7 @@ typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGro
  * @brief Represents a building.
  * 
  * The Building class represents a building entity in ennovatis.
- * It contains information such as the building's name, ID, and channels.
+ * It contains information such as the building's name, ID, coordinates and channels.
  */
 class Building {
 public:
@@ -91,6 +91,7 @@ public:
     [[nodiscard("Unused getter.")]] const auto &getId() const { return m_id; }
     [[nodiscard("Unused getter.")]] const auto &getLat() const { return m_lat; }
     [[nodiscard("Unused getter.")]] const auto &getLon() const { return m_lon; }
+    [[nodiscard("Unused getter.")]] const auto &getHeight() const { return m_height; }
     [[nodiscard("Unused str representation")]] const std::string to_string() const
     {
         return "Building: " + m_name + "\nID: " + m_id + "\n";
@@ -98,12 +99,14 @@ public:
     void setId(const std::string &id) { m_id = id; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
+    void setHeight(float h) { m_height = h; }
 
 private:
     std::string m_name;
     std::string m_id;
     float m_lat;
     float m_lon;
+    float m_height;
     ChannelGroups m_channels;
 };
 } // namespace ennovatis
