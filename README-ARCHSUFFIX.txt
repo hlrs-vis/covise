@@ -45,7 +45,7 @@ darwin          Generic macOS
 macos           macOS, x86_64 or arm64 with libc++
 
 freebsd         Generic FreeBSD
-spack*          Installation via spack (https://spack.io), possibly based on a spack environment
+spack*          Installation of dependencies via spack (https://spack.io), possibly based on a spack environment
 
 
 #
