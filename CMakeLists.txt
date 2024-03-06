@@ -182,7 +182,7 @@ endif()
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 if(APPLE)
-    OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
+    OPTION(COVISE_USE_QT5 "Use Qt 5" OFF)
 elseif( WIN32)
     OPTION(COVISE_USE_QT5 "Use Qt 5" OFF) # we use qt6 on windows
 else()
