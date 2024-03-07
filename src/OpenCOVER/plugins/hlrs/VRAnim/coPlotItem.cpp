@@ -20,7 +20,6 @@
 #include <osg/Material>
 #include <osg/LineWidth>
 #include <osg/PolygonMode>
-#include <osgUtil/IntersectVisitor>
 
 #include <config/CoviseConfig.h>
 #include "coPlotItem.h"
