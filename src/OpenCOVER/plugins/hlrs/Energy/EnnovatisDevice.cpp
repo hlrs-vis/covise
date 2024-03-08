@@ -1,8 +1,8 @@
 #include "EnnovatisDevice.h"
 
-#include "ennovatis/building.h"
-#include "ennovatis/rest.h"
-#include "utils/threadworker.h"
+#include <ennovatis/building.h>
+#include <ennovatis/rest.h>
+#include <utils/threadworker.h>
 
 #include <cover/coVRFileManager.h>
 
@@ -34,7 +34,7 @@ void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Buildi
     auto input = b.getChannels(group);
     for (auto &channel: input) {
         req.channelId = channel.id;
-        rest_worker.addThread(std::async(std::launch::async, ennovatis::fetchEnnovatisData, req));
+        rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetchEnnovatisData, req));
     }
 }
 
@@ -126,7 +126,6 @@ osg::Vec4 EnnovatisDevice::getColor(float val, float max)
     return col;
 }
 
-// void EnnovatisDevice::fetchData(const ennovatis::ChannelGroup &group, const ennovatis::RESTRequest &req)
 void EnnovatisDevice::fetchData()
 {
     if (!m_InfoVisible)
@@ -142,8 +141,8 @@ void EnnovatisDevice::init(float r)
     }
 
     m_rad = r;
-    w = m_rad * 10;
-    h = m_rad * 11;
+    w = m_rad * 20;
+    h = m_rad * 21;
 
     // RGB Colors 1,1,1 = white, 0,0,0 = black
     osg::Vec4 color(0.753, 0.443, 0.816, 1.f);
@@ -212,7 +211,7 @@ void EnnovatisDevice::showInfo()
     textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
     textBoxContent->setLineSpacing(1.25);
-    textBoxContent->setText(" > name:\n > description:\n > type:\n > unit:", osgText::String::ENCODING_UTF8);
+    // textBoxContent->setText(" > name:\n > description:\n > type:\n > unit:", osgText::String::ENCODING_UTF8);
     textBoxContent->setCharacterSize(charSize);
     textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
     textBoxContent->setMaximumWidth(w * 2. / 3.);
@@ -222,16 +221,21 @@ void EnnovatisDevice::showInfo()
     textBoxValues->setAlignment(osgText::Text::LEFT_TOP);
     textBoxValues->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxValues->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
-    textBoxValues->setLineSpacing(1.25);
+    textBoxValues->setLineSpacing(1);
 
     std::string textvalues("");
     textvalues += m_buildingInfo.building->to_string() + "\n";
-    // TODO: iterate through channelResponse and display the data in a text box
-    for (auto &channel: m_buildingInfo.channelResponse) {
-        json j = json::parse(channel);
-        textvalues += j.dump(4);
+    auto channelsIt = m_buildingInfo.building->getChannels(*m_channelGroup).begin();
+    const auto &responses = m_buildingInfo.channelResponse;
+    for (size_t i = 0; i < m_buildingInfo.channelResponse.size(); ++i) {
+        textvalues += (*channelsIt).to_string() + "\n";
+        ++channelsIt;
+        textvalues += "Response:\n";
+        json j = json::parse(responses[i]);
+        textvalues += j.dump(4) + "\n";
     }
-    std::cout << "TextValues:" << "\n"; 
+    std::cout << "TextValues:"
+              << "\n";
     std::cout << textvalues << "\n";
 
     textBoxValues->setText(textvalues);

@@ -1,10 +1,9 @@
 //TODO: Maybe exclude as own lib for whole covise?
 #include "rest.h"
+#include "date.h"
 #include <curl/curl.h>
 #include <string>
-#include <chrono>
 #include <ctime>
-#include <iomanip>
 
 using namespace std;
 
@@ -28,41 +27,24 @@ size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
 namespace ennovatis {
 
-std::string fetchEnnovatisData(const ennovatis::RESTRequest &req)
-{
-    std::string response;
-    if (!ennovatis::performCurlRequest(req(), response))
-        response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
-    return response;
-}
-
 std::string RESTRequest::operator()() const
 {
-    auto _dtf = time_point_to_str(dtf, dateformat);
-    auto _dtt = time_point_to_str(dtt, dateformat);
+    auto _dtf = date::time_point_to_str(dtf, date::dateformat);
+    auto _dtt = date::time_point_to_str(dtt, date::dateformat);
     return url + "?projEid=" + projEid + "&dtf=" + _dtf + "&dtt=" + _dtt + "&ts=" + std::to_string(ts) +
            "&tsp=" + std::to_string(tsp) + "&tst=" + std::to_string(tst) + "&etst=" + std::to_string(etst) +
            "&cEid=" + channelId;
 }
 
-std::chrono::system_clock::time_point str_to_time_point(const std::string &datetimeString, const std::string &format)
+std::string rest::fetchEnnovatisData(const ennovatis::RESTRequest &req)
 {
-    tm tmStruct = {};
-    std::istringstream ss(datetimeString);
-    ss >> std::get_time(&tmStruct, format.c_str());
-    return std::chrono::system_clock::from_time_t(mktime(&tmStruct));
+    std::string response;
+    if (!performCurlRequest(req(), response))
+        response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
+    return response;
 }
 
-std::string time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format)
-{
-    time_t time = std::chrono::system_clock::to_time_t(timePoint);
-    tm *timeinfo = localtime(&time);
-    char buffer[70];
-    strftime(buffer, sizeof(buffer), format.c_str(), timeinfo);
-    return buffer;
-}
-
-bool performCurlRequest(const string &url, string &response)
+bool rest::performCurlRequest(const string &url, string &response)
 {
     auto curl = curl_easy_init();
     if (!curl) {
@@ -83,7 +65,7 @@ bool performCurlRequest(const string &url, string &response)
     return true;
 }
 
-void cleanupcurl()
+void rest::cleanupcurl()
 {
     curl_global_cleanup();
 }

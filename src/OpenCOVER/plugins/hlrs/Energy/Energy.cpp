@@ -22,11 +22,12 @@
 
 #include "EnnovatisDevice.h"
 #include "EnnovatisDeviceSensor.h"
-#include "ennovatis/building.h"
-#include "ennovatis/sax.h"
-#include "ennovatis/rest.h"
-#include "utils/threadworker.h"
 #include "build_options.h"
+#include <ennovatis/building.h>
+#include <ennovatis/date.h>
+#include <ennovatis/sax.h>
+#include <ennovatis/rest.h>
+#include <utils/threadworker.h>
 
 #include <chrono>
 #include <cstddef>
@@ -177,7 +178,7 @@ void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Buildi
     auto input = b.getChannels(group);
     for (auto &channel: input) {
         req.channelId = channel.id;
-        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::fetchEnnovatisData, req));
+        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetchEnnovatisData, req));
     }
 }
 } // namespace
@@ -253,18 +254,18 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     fromOrTo += toSet;
     if (!std::regex_match(toSet, dateRgx)) {
         std::cout << "Invalid date format for " << fromOrTo
-                  << " Please use the following format: " << ennovatis::dateformat << std::endl;
+                  << " Please use the following format: " << ennovatis::date::dateformat << std::endl;
         return;
     }
 
-    auto time = ennovatis::str_to_time_point(toSet, ennovatis::dateformat);
+    auto time = ennovatis::date::str_to_time_point(toSet, ennovatis::date::dateformat);
     bool validTime = (isFrom) ? (time <= m_req->dtt) : (time >= m_req->dtf);
     if (!validTime) {
         std::cout << "Invalid date. (To >= From)" << std::endl;
         if (isFrom)
-            ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req->dtf, ennovatis::dateformat));
+            ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
         else
-            ennovatisTo->setValue(ennovatis::time_point_to_str(m_req->dtt, ennovatis::dateformat));
+            ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
         return;
     }
 
@@ -379,8 +380,8 @@ void EnergyPlugin::initRESTRequest()
     m_req->channelId = "";
     m_req->dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
     m_req->dtt = std::chrono::system_clock::now();
-    ennovatisFrom->setValue(ennovatis::time_point_to_str(m_req->dtf, ennovatis::dateformat));
-    ennovatisTo->setValue(ennovatis::time_point_to_str(m_req->dtt, ennovatis::dateformat));
+    ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
+    ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const DeviceList &deviceList)

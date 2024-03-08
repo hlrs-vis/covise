@@ -7,35 +7,16 @@
 
 namespace ennovatis {
 
-constexpr auto dateformat("%d.%m.%Y");
-
 /**
- * @brief Converts a datetime string to a std::chrono::system_clock::time_point object.
- * Format need to be in the form of "%d.%m.%Y".
- * source: https://www.geeksforgeeks.org/date-and-time-parsing-in-cpp/
+ * @brief The RESTRequest struct represents a REST request object.
  * 
- * @param datetimeString The datetime string to be converted.
- * @param format The format of the datetime string.
- * @return The converted std::chrono::system_clock::time_point object.
+ * It contains the necessary information to make a REST request, such as the URL, project ID, channel ID,
+ * time range, and resolution.
  */
-[[nodiscard("Use return time_point.")]] std::chrono::system_clock::time_point
-str_to_time_point(const std::string &datetimeString, const std::string &format);
-
-/**
- * @brief Returns a formatted string representation of the given time point.
- * source: https://www.geeksforgeeks.org/date-and-time-parsing-in-cpp/
- * 
- * @param timePoint The time point to format.
- * @param format The format string specifying the desired format.
- * @return The formatted string representation of the time point.
- */
-[[nodiscard("Use result str of conversion.")]] std::string
-time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const std::string &format);
-
 struct RESTRequest {
     std::string url; // URL
     std::string projEid; // project ID
-    std::string channelId;
+    std::string channelId; // channel ID
     std::chrono::system_clock::time_point dtf; // from
     std::chrono::system_clock::time_point dtt; // until
     int ts = 86400; // 1 day resolution
@@ -44,37 +25,44 @@ struct RESTRequest {
     int etst = 1024;
 
     /**
-     * @brief This function generates a string representation.
+     * @brief This function generates a string representation of the RESTRequest object.
      * 
-     * @return std::string The string returned by the operator.
+     * @return std::string The string representation of the RESTRequest object.
      */
     [[nodiscard("String representation not used.")]] std::string operator()() const;
 };
 
-/**
- * Fetches Ennovatis data using the provided REST request.
- * .
- *
- * @param req The REST request object.
- * @return The fetched Ennovatis data as a string.
- */
-[[nodiscard("Data stored in returned string.")]] std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
+struct rest {
+    /**
+     * @brief Fetches Ennovatis data using a REST request.
+     * 
+     * This function sends a REST request to the specified URL using the provided RESTRequest object and
+     * returns the response data as a string.
+     * 
+     * @param req The RESTRequest object containing the necessary information for the request.
+     * @return std::string The response data received from the request.
+     */
+    [[nodiscard("Data stored in returned string.")]] static std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
 
-/**
- * @brief Function to perform a CURL request
- * @Source: https://stackoverflow.com/a/51319043
- * 
- * @param url The URL to send the request to
- * @param response The response data received from the request (storage)
- * @return bool True if the request was successful, false otherwise
- */
-[[nodiscard("Make sure failing gets recognized.")]] bool performCurlRequest(const std::string &url,
-                                                                            std::string &response);
+    /**
+     * @brief Performs a CURL request to the specified URL.
+     * 
+     * This function sends a CURL request to the specified URL and stores the response data in the provided string.
+     * 
+     * @param url The URL to send the request to.
+     * @param response The response data received from the request (storage).
+     * @return bool True if the request was successful, false otherwise.
+     */
+    [[nodiscard("Make sure failing gets recognized.")]] static bool performCurlRequest(const std::string &url,
+                                                                                std::string &response);
 
-/**
- * @brief Function to cleanup the CURL library (need to be called once for each application)
- */
-void cleanupcurl();
+    /**
+     * @brief Cleans up the CURL cache.
+     * 
+     * This function needs to be called once for each application to properly clean up the CURL library.
+     */
+    static void cleanupcurl();
+};
 
 } // namespace ennovatis
 
