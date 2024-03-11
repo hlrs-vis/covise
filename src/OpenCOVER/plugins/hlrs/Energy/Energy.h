@@ -138,7 +138,7 @@ private:
     float rad, scaleH;
 
     ennovatis::BuildingsPtr m_buildings;
-    std::shared_ptr<ennovatis::RESTRequest> m_req;
+    std::shared_ptr<ennovatis::rest_request> m_req;
     //current selected channel group
     std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
     // not necessary but better for debugging

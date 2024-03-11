@@ -1,33 +1,12 @@
-//TODO: Maybe exclude as own lib for whole covise?
 #include "rest.h"
 #include "date.h"
-#include <curl/curl.h>
+#include "../utils/rest.h"
 #include <string>
-#include <ctime>
 
 using namespace std;
-
-namespace {
-
-/**
- * @brief Callback function to handle curl's response
- * 
- * @param contents Pointer to the content of data
- * @param size Size of each data element
- * @param nmemb Number of data elements
- * @param userp Pointer to the user-defined data
- * @return size_t The total size of the response data
- */
-size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    ((string *)userp)->append((char *)contents, size * nmemb);
-    return size * nmemb;
-}
-} // namespace
-
 namespace ennovatis {
 
-std::string RESTRequest::operator()() const
+std::string rest_request::operator()() const
 {
     auto _dtf = date::time_point_to_str(dtf, date::dateformat);
     auto _dtt = date::time_point_to_str(dtt, date::dateformat);
@@ -36,37 +15,11 @@ std::string RESTRequest::operator()() const
            "&cEid=" + channelId;
 }
 
-std::string rest::fetchEnnovatisData(const ennovatis::RESTRequest &req)
+std::string rest::fetch_data(const rest_request &req)
 {
     std::string response;
-    if (!performCurlRequest(req(), response))
+    if (!utils::rest::performCurlRequest(req(), response))
         response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
     return response;
-}
-
-bool rest::performCurlRequest(const string &url, string &response)
-{
-    auto curl = curl_easy_init();
-    if (!curl) {
-        return false;
-    }
-
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-    auto res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-
-    if (res != CURLE_OK) {
-        return false;
-    }
-
-    return true;
-}
-
-void rest::cleanupcurl()
-{
-    curl_global_cleanup();
 }
 } // namespace ennovatis

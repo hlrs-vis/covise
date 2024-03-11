@@ -173,12 +173,12 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
  * @param b The building to fetch channels from.
  * @param req The REST request object to populate with fetched channels.
  */
-void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::RESTRequest req)
+void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req)
 {
     auto input = b.getChannels(group);
     for (auto &channel: input) {
         req.channelId = channel.id;
-        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetchEnnovatisData, req));
+        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetch_data, req));
     }
 }
 } // namespace
@@ -374,7 +374,7 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
 
 void EnergyPlugin::initRESTRequest()
 {
-    m_req = std::make_shared<ennovatis::RESTRequest>();
+    m_req = std::make_shared<ennovatis::rest_request>();
     m_req->url = configString("Ennovatis", "restUrl", "default")->value();
     m_req->projEid = configString("Ennovatis", "projEid", "default")->value();
     m_req->channelId = "";

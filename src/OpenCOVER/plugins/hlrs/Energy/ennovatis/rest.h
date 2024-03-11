@@ -1,11 +1,14 @@
-#ifndef _REST_H
-#define _REST_H
+#ifndef _ENERGY_ENNOVATIS_REST_H
+#define _ENERGY_ENNOVATIS_REST_H
 
-#include <curl/curl.h>
 #include <string>
 #include <chrono>
 
 namespace ennovatis {
+
+struct rest_request_handler {
+
+};
 
 /**
  * @brief The RESTRequest struct represents a REST request object.
@@ -13,7 +16,7 @@ namespace ennovatis {
  * It contains the necessary information to make a REST request, such as the URL, project ID, channel ID,
  * time range, and resolution.
  */
-struct RESTRequest {
+struct rest_request {
     std::string url; // URL
     std::string projEid; // project ID
     std::string channelId; // channel ID
@@ -32,6 +35,9 @@ struct RESTRequest {
     [[nodiscard("String representation not used.")]] std::string operator()() const;
 };
 
+/*
+ * @brief The `rest` struct provides utility functions for performing REST requests to Ennovatis.
+ */
 struct rest {
     /**
      * @brief Fetches Ennovatis data using a REST request.
@@ -42,26 +48,7 @@ struct rest {
      * @param req The RESTRequest object containing the necessary information for the request.
      * @return std::string The response data received from the request.
      */
-    [[nodiscard("Data stored in returned string.")]] static std::string fetchEnnovatisData(const ennovatis::RESTRequest &req);
-
-    /**
-     * @brief Performs a CURL request to the specified URL.
-     * 
-     * This function sends a CURL request to the specified URL and stores the response data in the provided string.
-     * 
-     * @param url The URL to send the request to.
-     * @param response The response data received from the request (storage).
-     * @return bool True if the request was successful, false otherwise.
-     */
-    [[nodiscard("Make sure failing gets recognized.")]] static bool performCurlRequest(const std::string &url,
-                                                                                std::string &response);
-
-    /**
-     * @brief Cleans up the CURL cache.
-     * 
-     * This function needs to be called once for each application to properly clean up the CURL library.
-     */
-    static void cleanupcurl();
+    [[nodiscard("Data stored in returned string.")]] static std::string fetch_data(const rest_request &req);
 };
 
 } // namespace ennovatis

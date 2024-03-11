@@ -29,12 +29,12 @@ utils::ThreadWorker<std::string> rest_worker;
  * @param b The building to fetch channels from.
  * @param req The REST request object to populate with fetched channels.
  */
-void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::RESTRequest req)
+void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req)
 {
     auto input = b.getChannels(group);
     for (auto &channel: input) {
         req.channelId = channel.id;
-        rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetchEnnovatisData, req));
+        rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetch_data, req));
     }
 }
 
@@ -89,7 +89,7 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
 }
 } // namespace
 
-EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::RESTRequest> req)
+EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::rest_request> req)
 : m_buildingInfo(BuildingInfo(&building)), m_request(req)
 {
     m_deviceGroup = new osg::Group();
