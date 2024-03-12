@@ -15,7 +15,6 @@
 #ifndef _Energy_PLUGIN_H
 #define _Energy_PLUGIN_H
 
-// #include <memory>
 #include <memory>
 #include <osg/Group>
 #include <osg/Node>
@@ -147,7 +146,6 @@ private:
     osg::ref_ptr<osg::Group> m_ennovatis;
     // switch used to toggle between ennovatis and db data
     osg::ref_ptr<osg::Switch> m_switch;
-    ennovatis::rest_request_handler m_debug_worker;
 };
 
 #endif

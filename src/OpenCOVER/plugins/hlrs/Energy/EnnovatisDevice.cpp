@@ -1,4 +1,5 @@
 #include "EnnovatisDevice.h"
+#include "build_options.h"
 
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
@@ -16,7 +17,9 @@ namespace {
 float h = 1.f;
 float w = 2.f;
 constexpr float default_height = 100.f;
-ennovatis::rest_request_handler rest_worker;
+// static global variable rest request handler only usable in this file
+ennovatis::rest_request_handler m_rest_worker;
+constexpr bool debug = build_options.debug_ennovatis;
 
 /**
  * @brief Adds a cylinder between two points.
@@ -92,9 +95,6 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::share
     init(3.f);
 }
 
-EnnovatisDevice::~EnnovatisDevice()
-{}
-
 osg::Vec4 EnnovatisDevice::getColor(float val, float max)
 {
     osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
@@ -108,9 +108,9 @@ osg::Vec4 EnnovatisDevice::getColor(float val, float max)
 
 void EnnovatisDevice::fetchData()
 {
-    if (!m_InfoVisible)
+    if (!m_InfoVisible || !m_rest_worker.checkStatus())
         return;
-    rest_worker.fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
+    m_rest_worker.fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
 }
 
 void EnnovatisDevice::init(float r)
@@ -138,8 +138,10 @@ void EnnovatisDevice::update()
 {
     if (!m_InfoVisible)
         return;
-    auto requests = rest_worker.getResult();
+    auto requests = m_rest_worker.getResult();
     if (requests) {
+        if (requests->empty())
+            return;
         m_buildingInfo.channelResponse.clear();
         for (auto &t: *requests)
             m_buildingInfo.channelResponse.push_back(t);
@@ -199,13 +201,20 @@ void EnnovatisDevice::showInfo()
 
     std::string textvalues("");
     textvalues += m_buildingInfo.building->to_string() + "\n";
-    auto channelsIt = m_buildingInfo.building->getChannels(*m_channelGroup).begin();
-    const auto &responses = m_buildingInfo.channelResponse;
-    for (size_t i = 0; i < m_buildingInfo.channelResponse.size(); ++i) {
-        textvalues += (*channelsIt).to_string() + "\n";
+    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup);
+    auto responses = m_buildingInfo.channelResponse;
+    auto channelsIt = channels.begin();
+    if constexpr (debug) {
+        auto numActivations = responses.size() / channels.size();
+        std::cout << "NumActivations: " << numActivations << "\n";
+    }
+    
+    for (size_t i = 0; i < channels.size(); ++i) {
+        auto channel = *channelsIt;
+        textvalues += channel.to_string() + "\n";
         ++channelsIt;
-        textvalues += "Response:\n";
         json j = json::parse(responses[i]);
+        textvalues += "Response:\n";
         textvalues += j.dump(4) + "\n";
     }
     std::cout << "TextValues:"

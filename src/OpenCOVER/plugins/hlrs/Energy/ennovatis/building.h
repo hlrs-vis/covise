@@ -15,6 +15,7 @@
 namespace ennovatis {
 enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
 
+
 /**
  * @brief Represents a channel in ennovatis.
  * 
@@ -48,8 +49,25 @@ struct Channel {
     {
         std::stringstream ss;
         ss << "name: " << name << "\nid: " << id << "\ndescription" << description << "\ntype: " << type
-           << "\nunit: " << unit << "\nChannelgroup: " << group;
+           << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToStr(group);
         return ss.str();
+    }
+
+    [[nodiscard]] static std::string ChannelGroupToStr(ChannelGroup group)
+    {
+        switch (group) {
+        case ChannelGroup::Strom:
+            return "Strom";
+        case ChannelGroup::Wasser:
+            return "Wasser";
+        case ChannelGroup::Waerme:
+            return "Waerme";
+        case ChannelGroup::Kaelte:
+            return "Kaelte";
+        case ChannelGroup::None:
+            return "None";
+        }
+        return "None";
     }
 };
 

@@ -66,6 +66,7 @@ constexpr auto proj_from = "+proj=latlong";
 constexpr std::array<float, 3> offset{-507080, -5398430, 450};
 // regex for dd.mm.yyyy
 const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
+ennovatis::rest_request_handler m_debug_worker;
 
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)

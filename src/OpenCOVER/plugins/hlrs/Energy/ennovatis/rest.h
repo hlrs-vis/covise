@@ -57,6 +57,7 @@ struct rest_request_handler {
      * @return A unique pointer to a vector of strings containing the result.
      */
     auto getResult() { return worker.getResult(); }
+    auto checkStatus() { return worker.checkStatus(); }
 
 private:
     utils::ThreadWorker<std::string> worker;
