@@ -3,6 +3,7 @@
 
 #include <future>
 #include <vector>
+#include <iostream>
 
 namespace utils {
 
@@ -17,7 +18,11 @@ namespace utils {
  */
 template<typename T>
 struct ThreadWorker {
+    typedef std::unique_ptr<std::vector<T>> Result;
     ThreadWorker() = default;
+    // delete copy constructor and assignment operator because std::future is not copyable
+    ThreadWorker(const ThreadWorker &) = delete;
+    ThreadWorker &operator=(const ThreadWorker &) = delete;
 
     /**
      * @brief Checks the status of all threads in the pool.
@@ -27,7 +32,7 @@ struct ThreadWorker {
      *
      * @return True if all threads have finished their tasks, false otherwise.
      */
-    bool checkStatus()
+    bool checkStatus() const
     {
         for (auto &t: threads) {
             // thread finished
@@ -50,6 +55,32 @@ struct ThreadWorker {
     {
         if (checkStatus())
             threads.clear();
+    }
+
+    /**
+     * @brief Retrieves the result of the thread worker.
+     * 
+     * This function returns a unique pointer to a vector containing the result of the thread worker.
+     * 
+     * @return A unique pointer to a vector containing the result.
+     */
+    Result getResult()
+    {
+        if (checkStatus() && poolSize() > 0) {
+            Result res = std::make_unique<std::vector<T>>();
+            std::cout << "All REST-Requests finished"
+                      << "\n";
+            for (auto &t: threads) {
+                try {
+                    res->push_back(t.get());
+                } catch (const std::exception &e) {
+                    std::cout << e.what() << "\n";
+                }
+            }
+            clear();
+            return res;
+        }
+        return nullptr;
     }
 
     /**
@@ -78,7 +109,7 @@ struct ThreadWorker {
      *
      * @return A reference to the list of threads in the pool.
      */
-    auto &threadsList() { return threads; }
+    const auto &threadsList() { return threads; }
 
     /**
      * @brief Returns the size of the thread pool.
