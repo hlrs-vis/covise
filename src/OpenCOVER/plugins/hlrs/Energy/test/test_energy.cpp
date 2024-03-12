@@ -1,6 +1,7 @@
 #include "../ennovatis/rest.h"
 #include "../ennovatis/sax.h"
 #include "../ennovatis/date.h"
+#include "../utils/rest.h"
 
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
@@ -18,7 +19,7 @@ TEST(REST, ValidUrl)
 {
     std::string url = "example.com";
     std::string response;
-    bool result = ennovatis::rest::performCurlRequest(url, response);
+    bool result = utils::rest::performCurlRequest(url, response);
     ASSERT_TRUE(result);
     // Add additional assertions to validate the response
 }
@@ -27,7 +28,7 @@ TEST(REST, InvalidUrl)
 {
     std::string url = "https://api.invalid.com";
     std::string response;
-    bool result = ennovatis::rest::performCurlRequest(url, response);
+    bool result = utils::rest::performCurlRequest(url, response);
     ASSERT_FALSE(result);
     // Add additional assertions to validate the response
 }
@@ -38,7 +39,7 @@ TEST(REST, ValidResponse)
     std::string response;
     std::string ref_string(
         R"({"by":"dhouston","descendants":71,"id":8863,"kids":[9224,8917,8884,8887,8952,8869,8873,8958,8940,8908,9005,9671,9067,9055,8865,8881,8872,8955,10403,8903,8928,9125,8998,8901,8902,8907,8894,8870,8878,8980,8934,8943,8876],"score":104,"time":1175714200,"title":"My YC app: Dropbox - Throw away your USB drive","type":"story","url":"http://www.getdropbox.com/u/2/screencast.html"})");
-    bool result = ennovatis::rest::performCurlRequest(url, response);
+    bool result = utils::rest::performCurlRequest(url, response);
     ASSERT_TRUE(result);
     // Add additional assertions to validate the response
     EXPECT_EQ(ref_string, response);
@@ -46,7 +47,7 @@ TEST(REST, ValidResponse)
 
 TEST(REST, ValidCleanup)
 {
-    ennovatis::rest::cleanupcurl();
+    utils::rest::cleanupcurl();
     // Add additional assertions to validate the cleanup
 }
 
@@ -60,7 +61,7 @@ TEST(REST, ValidDateTimeStrConversion)
 
 TEST(REST, ValidRequestStr)
 {
-    RESTRequest req;
+    rest_request req;
     req.url = "https://wurstbrot.com/v0/item";
     req.projEid = "123";
     req.channelId = "456";
@@ -73,7 +74,7 @@ TEST(REST, ValidRequestStr)
     std::string result = req();
     std::string ref_string =
         "https://wurstbrot.com/v0/"
-        "item?projEid=123&dtf=01.01.2000&dtt=01.02.2000&ts=86400&tsp=0&tst=1&etst=1024&channelId=456";
+        "item?projEid=123&dtf=01.01.2000&dtt=01.02.2000&ts=86400&tsp=0&tst=1&etst=1024&cEid=456";
     EXPECT_EQ(ref_string, result);
 }
 
