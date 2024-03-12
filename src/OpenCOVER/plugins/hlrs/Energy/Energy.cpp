@@ -8,7 +8,7 @@
  **                                                                        **
  ** TODO:                                                                  **
  **  [ ] fetch lat lon from googlemaps                                     **
- **  [ ] make REST lib independent from ennovatis general use              **
+ **  [x] make REST lib independent from ennovatis general use              **
  **  [x] update via REST in background                                     **
  **                                                                        **
  ** History:                                                               **
@@ -27,7 +27,6 @@
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
 #include <ennovatis/rest.h>
-#include <utils/threadworker.h>
 
 #include <chrono>
 #include <cstddef>
@@ -43,7 +42,6 @@
 #include <vector>
 #include <algorithm>
 #include <regex>
-#include <future>
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -68,8 +66,6 @@ constexpr auto proj_from = "+proj=latlong";
 constexpr std::array<float, 3> offset{-507080, -5398430, 450};
 // regex for dd.mm.yyyy
 const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
-
-utils::ThreadWorker<std::string> test_rest_worker;
 
 // Compare two string numbers as integer using std::stoi
 bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2)
@@ -161,25 +157,6 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
     }
 
     return d[len1][len2];
-}
-
-/**
- * @brief Fetches the channels from a given channel group and building.
- * 
- * This function fetches the channels from the specified channel group and building
- * and populates the REST request object with last used channelid. Results will be available in the rest_worker by accessing futures over threads.
- * 
- * @param group The channel group to fetch channels from.
- * @param b The building to fetch channels from.
- * @param req The REST request object to populate with fetched channels.
- */
-void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req)
-{
-    auto input = b.getChannels(group);
-    for (auto &channel: input) {
-        req.channelId = channel.id;
-        test_rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetch_data, req));
-    }
 }
 } // namespace
 
@@ -307,7 +284,7 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
-        fetchChannels(group, b, *m_req);
+        m_debug_worker.fetchChannels(group, b, *m_req);
     }
     changeEnnovatisChannelGrp(group);
 }
@@ -615,19 +592,12 @@ bool EnergyPlugin::update()
     }
 
     if constexpr (debug) {
-        if (test_rest_worker.checkStatus() && test_rest_worker.poolSize() > 0) {
-            std::cout << "All REST-Requests finished" << std::endl;
-            for (auto &t: test_rest_worker.threadsList()) {
-                try {
-                    std::string requ = t.get();
-                    auto jsonRepr = json::parse(requ);
-                    std::cout << "Response:\n" << jsonRepr.dump(4) << "\n";
-                } catch (const std::exception &e) {
-                    std::cout << e.what() << "\n";
-                }
+        auto result = m_debug_worker.getResult();
+        if (result)
+            for (auto &requ: *result) {
+                auto jsonRepr = json::parse(requ);
+                std::cout << "Response:\n" << jsonRepr.dump(4) << "\n";
             }
-            test_rest_worker.clear();
-        }
     }
 
     for (auto &sensor: m_ennovatisDevices)

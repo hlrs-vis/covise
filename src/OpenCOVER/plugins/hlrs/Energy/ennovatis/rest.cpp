@@ -1,10 +1,21 @@
 #include "rest.h"
 #include "date.h"
+#include "building.h"
 #include "../utils/rest.h"
 #include <string>
 
 using namespace std;
 namespace ennovatis {
+
+void rest_request_handler::fetchChannels(const ChannelGroup &group, const ennovatis::Building &b,
+                                         ennovatis::rest_request req)
+{
+    auto input = b.getChannels(group);
+    for (auto &channel: input) {
+        req.channelId = channel.id;
+        worker.addThread(std::async(std::launch::async, rest::fetch_data, req));
+    }
+}
 
 std::string rest_request::operator()() const
 {

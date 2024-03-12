@@ -1,15 +1,13 @@
 #ifndef _ENERGY_ENNOVATIS_REST_H
 #define _ENERGY_ENNOVATIS_REST_H
 
+#include <memory>
 #include <string>
 #include <chrono>
+#include "building.h"
+#include "../utils/threadworker.h"
 
 namespace ennovatis {
-
-struct rest_request_handler {
-
-};
-
 /**
  * @brief The RESTRequest struct represents a REST request object.
  * 
@@ -33,6 +31,35 @@ struct rest_request {
      * @return std::string The string representation of the RESTRequest object.
      */
     [[nodiscard("String representation not used.")]] std::string operator()() const;
+};
+
+/*
+ * @brief The `rest_request_handler` struct provides utility functions for handling REST requests to Ennovatis via utils::threadworker.
+*/
+struct rest_request_handler {
+    /**
+     * @brief Fetches the channels from a given channel group and building.
+     * 
+     * This function fetches the channels from the specified channel group and building
+     * and populates the REST request object with last used channelid. Results will be available in worker by accessing futures over threads.
+     * 
+     * @param group The channel group to fetch channels from.
+     * @param b The building to fetch channels from.
+     * @param req The REST request object to populate with fetched channels.
+     */
+    void fetchChannels(const ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req);
+
+    /**
+     * @brief Retrieves the result.
+     * 
+     * This function returns a unique pointer to a vector of strings that represents the result if all threads added to the worker are finished.
+     * 
+     * @return A unique pointer to a vector of strings containing the result.
+     */
+    auto getResult() { return worker.getResult(); }
+
+private:
+    utils::ThreadWorker<std::string> worker;
 };
 
 /*

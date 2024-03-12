@@ -2,7 +2,6 @@
 
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
-#include <utils/threadworker.h>
 
 #include <cover/coVRFileManager.h>
 
@@ -17,26 +16,7 @@ namespace {
 float h = 1.f;
 float w = 2.f;
 constexpr float default_height = 100.f;
-utils::ThreadWorker<std::string> rest_worker;
-
-/**
- * @brief Fetches the channels from a given channel group and building.
- * 
- * This function fetches the channels from the specified channel group and building
- * and populates the REST request object with last used channelid. Results will be available in the rest_worker by accessing futures over threads.
- * 
- * @param group The channel group to fetch channels from.
- * @param b The building to fetch channels from.
- * @param req The REST request object to populate with fetched channels.
- */
-void fetchChannels(const ennovatis::ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req)
-{
-    auto input = b.getChannels(group);
-    for (auto &channel: input) {
-        req.channelId = channel.id;
-        rest_worker.addThread(std::async(std::launch::async, ennovatis::rest::fetch_data, req));
-    }
-}
+ennovatis::rest_request_handler rest_worker;
 
 /**
  * @brief Adds a cylinder between two points.
@@ -130,7 +110,7 @@ void EnnovatisDevice::fetchData()
 {
     if (!m_InfoVisible)
         return;
-    fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
+    rest_worker.fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
 }
 
 void EnnovatisDevice::init(float r)
@@ -158,17 +138,11 @@ void EnnovatisDevice::update()
 {
     if (!m_InfoVisible)
         return;
-    if (rest_worker.checkStatus() && rest_worker.poolSize() > 0) {
+    auto requests = rest_worker.getResult();
+    if (requests) {
         m_buildingInfo.channelResponse.clear();
-        for (auto &t: rest_worker.threadsList()) {
-            try {
-                std::string requ = t.get();
-                m_buildingInfo.channelResponse.push_back(requ);
-            } catch (const std::exception &e) {
-                std::cout << e.what() << "\n";
-            }
-        }
-        rest_worker.clear();
+        for (auto &t: *requests)
+            m_buildingInfo.channelResponse.push_back(t);
         showInfo();
     }
 }
