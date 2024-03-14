@@ -414,7 +414,6 @@ private:
     fd_set fdvar; // field for select call
     int maxfd; // maximum socket id
     ServerConnection *open_sock; // socket for listening
-    std::vector<std::unique_ptr<Connection>>::iterator lastReadConnection;
 };
 
 
