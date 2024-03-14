@@ -36,7 +36,7 @@ EnergyPlugin *EnergyPlugin::plugin = NULL;
 
 std::string proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 std::string proj_from = "+proj=latlong";
-float offset[] = {-507080, -5398430, 450};
+float offset[] = {-507050, -5398550,0};
 
 EnergyPlugin::EnergyPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
