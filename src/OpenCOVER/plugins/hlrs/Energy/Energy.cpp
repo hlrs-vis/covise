@@ -267,8 +267,11 @@ void EnergyPlugin::initEnnovatisGrp()
 {
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
     m_ennovatisDevices.clear();
-    for (auto &b: *m_buildings)
-        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(EnnovatisDevice(b, m_req), m_ennovatis));
+    for (auto &b: *m_buildings) {
+        auto enDev = std::make_unique<EnnovatisDevice>(b, m_req);
+        m_ennovatis->addChild(enDev->getDeviceGroup());
+        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(std::move(enDev), enDev->getDeviceGroup()));
+    }
 }
 
 void EnergyPlugin::changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group)

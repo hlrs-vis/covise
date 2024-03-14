@@ -12,13 +12,7 @@ private:
     std::unique_ptr<EnnovatisDevice> m_dev;
 
 public:
-    EnnovatisDeviceSensor(const EnnovatisDevice &d, osg::Group *n, std::shared_ptr<ennovatis::rest_request> req)
-    : coPickSensor(n), m_dev(std::make_unique<EnnovatisDevice>(d))
-    {
-        n->addChild(m_dev->getDeviceGroup());
-    }
-
-    EnnovatisDeviceSensor(const EnnovatisDevice &d, osg::Group *n): EnnovatisDeviceSensor(d, n, nullptr) {}
+    EnnovatisDeviceSensor(std::unique_ptr<EnnovatisDevice> d, osg::Group *n): coPickSensor(n), m_dev(std::move(d)) {}
 
     ~EnnovatisDeviceSensor()
     {
