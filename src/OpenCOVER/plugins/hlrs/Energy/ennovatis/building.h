@@ -101,16 +101,16 @@ public:
      */
     void addChannel(const Channel &channel, ChannelGroup type) { m_channels[static_cast<int>(type)].insert(channel); }
 
-    [[nodiscard("Unused getter.")]] const auto &getChannels(ChannelGroup type) const
+    [[nodiscard]] const auto &getChannels(ChannelGroup type) const
     {
         return m_channels[static_cast<int>(type)];
     }
-    [[nodiscard("Unused getter.")]] const auto &getName() const { return m_name; }
-    [[nodiscard("Unused getter.")]] const auto &getId() const { return m_id; }
-    [[nodiscard("Unused getter.")]] const auto &getLat() const { return m_lat; }
-    [[nodiscard("Unused getter.")]] const auto &getLon() const { return m_lon; }
-    [[nodiscard("Unused getter.")]] const auto &getHeight() const { return m_height; }
-    [[nodiscard("Unused str representation")]] const std::string to_string() const
+    [[nodiscard]] const auto &getName() const { return m_name; }
+    [[nodiscard]] const auto &getId() const { return m_id; }
+    [[nodiscard]] const auto &getLat() const { return m_lat; }
+    [[nodiscard]] const auto &getLon() const { return m_lon; }
+    [[nodiscard]] const auto &getHeight() const { return m_height; }
+    [[nodiscard]] const std::string to_string() const
     {
         return "Building: " + m_name + "\nID: " + m_id + "\n";
     }

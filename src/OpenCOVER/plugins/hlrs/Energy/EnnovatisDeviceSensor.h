@@ -20,7 +20,7 @@ public:
             disactivate();
     }
 
-    [[nodiscard("Unused Getter")]] auto getDevice() const { return m_dev.get(); }
+    [[nodiscard]] auto getDevice() const { return m_dev.get(); }
 
     void activate() override
     {

@@ -29,7 +29,7 @@ struct rest_request {
      * 
      * @return std::string The string representation of the RESTRequest object.
      */
-    [[nodiscard("String representation not used.")]] std::string operator()() const;
+    [[nodiscard]] std::string operator()() const;
 };
 
 /*
@@ -75,7 +75,7 @@ struct rest {
      * @param req The RESTRequest object containing the necessary information for the request.
      * @return std::string The response data received from the request.
      */
-    [[nodiscard("Data stored in returned string.")]] static std::string fetch_data(const rest_request &req);
+    [[nodiscard]] static std::string fetch_data(const rest_request &req);
 };
 
 } // namespace ennovatis

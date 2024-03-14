@@ -17,7 +17,7 @@ struct date {
      * @param format The format of the datetime string.
      * @return The converted std::chrono::system_clock::time_point object.
      */
-    [[nodiscard("Use return time_point.")]] static std::chrono::system_clock::time_point
+    [[nodiscard]] static std::chrono::system_clock::time_point
     str_to_time_point(const std::string &datetimeString, const char *format);
 
     /**
@@ -28,7 +28,7 @@ struct date {
      * @param format The format string specifying the desired format.
      * @return The formatted string representation of the time point.
      */
-    [[nodiscard("Use result str of conversion.")]] static std::string
+    [[nodiscard]] static std::string
     time_point_to_str(const std::chrono::system_clock::time_point &timePoint, const char *format);
 };
 } // namespace ennovatis

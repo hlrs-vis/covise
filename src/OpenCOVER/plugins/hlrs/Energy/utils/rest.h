@@ -19,7 +19,7 @@ struct rest {
      * @param response The response data received from the request (storage).
      * @return bool True if the request was successful, false otherwise.
      */
-    [[nodiscard("Make sure failing gets recognized.")]] static bool performCurlRequest(const std::string &url,
+    [[nodiscard]] static bool performCurlRequest(const std::string &url,
                                                                                        std::string &response);
 
     /**
