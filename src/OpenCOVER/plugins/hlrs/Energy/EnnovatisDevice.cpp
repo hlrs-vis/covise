@@ -129,7 +129,7 @@ void EnnovatisDevice::init(float r)
     // RGB Colors 1,1,1 = white, 0,0,0 = black
     osg::Vec4 color(0.753, 0.443, 0.816, 1.f);
     const osg::Vec3f bottom(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
-                            -m_buildingInfo.building->getHeight());
+                            m_buildingInfo.building->getHeight());
     osg::Vec3f top(bottom);
     top.z() += default_height;
 
