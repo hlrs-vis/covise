@@ -1,7 +1,6 @@
 #ifndef _ENERGY_ENNOVATIS_REST_H
 #define _ENERGY_ENNOVATIS_REST_H
 
-#include <memory>
 #include <string>
 #include <chrono>
 #include "building.h"
