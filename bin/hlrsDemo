@@ -102,6 +102,12 @@ demo 35 "Hildesheim" cover /data/hildesheim/33-VR/out/praesentation.wrl
 # URBAN PLANNING
 category="Urban Planning"
 
+run_stuttgart_ditens() {
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
+    SUMO=$!
+        vistle -e /data/StuttgartForecast/stuttgart_simulation_ditens.vsl
+    kill $SUMO
+}
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
@@ -133,7 +139,8 @@ run_marienplatz() {
     vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
 }
-demo 48 "Stuttgart with Marienplatz Sumo" run_marienplatz
+demo 41 "Stuttgart with Sumo Ditens" run_stuttgart_ditens
+demo 42 "Stuttgart with Marienplatz Sumo" run_marienplatz
 
 run_stuttgart_hidalgo() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
@@ -145,14 +152,14 @@ demo 49 "Stuttgart Hidalgo with Sumo" run_stuttgart_hidalgo
     
 # LKA
 category="LKA"
-demo 41 "Gasthaus" open /data/LKA/Gasthaus/Gasthaus2.wrl
-demo 42 "Schweizer Autobus" open /data/LKA/InternetCafee/ReisebusMrdTimesteps.wrl
-demo 43 "Sporthalle" cover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
+demo 43 "Gasthaus" open /data/LKA/Gasthaus/Gasthaus2.wrl
+demo 44 "Schweizer Autobus" open /data/LKA/InternetCafee/ReisebusMrdTimesteps.wrl
+#demo 44 "Sporthalle" cover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
 run_utm_crimehouse() {
     cd /data/UTM
     opencover testroom.wrl Trajectories.bpadxf
 }
-demo 44 "Blutspuranalyse - UTM: CrimeHouse" run_utm_crimehouse
+demo 45 "Blutspuranalyse - UTM: CrimeHouse" run_utm_crimehouse
 run_utm_cardoor() {
     # /data/UTM/Parkinglot
     # Parkinglot2mm.sorted.ptsb
@@ -160,9 +167,9 @@ run_utm_cardoor() {
     cd /data/UTM/BloodstainTests/Trial10
     opencover Trial10PointCloudSorted.ptsb Trajectories-Calculated\ Origin.bpadxf 
 }
-demo 45 "Blutspuranalyse - UTM: Cardoor" run_utm_cardoor
-demo 46 "Car Crash" cover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
-demo 47 "Rollercrash" cover /data/visdral/rollercrash/ptsb/RollerLiegendSorted.ptsb
+demo 46 "Blutspuranalyse - UTM: Cardoor" run_utm_cardoor
+demo 47 "Car Crash" cover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
+demo 48 "Rollercrash" cover /data/visdral/rollercrash/ptsb/RollerLiegendSorted.ptsb
 
 # MolecularDynamics
 category="Molecular Dynamics"
