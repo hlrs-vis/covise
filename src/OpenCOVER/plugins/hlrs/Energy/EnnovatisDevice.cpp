@@ -1,5 +1,6 @@
 #include "EnnovatisDevice.h"
 #include "build_options.h"
+#include "ennovatis/json.h"
 
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
@@ -9,6 +10,7 @@
 #include <nlohmann/json.hpp>
 #include <osg/Material>
 #include <osg/ref_ptr>
+#include <string>
 
 using namespace opencover;
 using json = nlohmann::json;
@@ -208,14 +210,17 @@ void EnnovatisDevice::showInfo()
         auto numActivations = responses.size() / channels.size();
         std::cout << "NumActivations: " << numActivations << "\n";
     }
-    
+
+    ennovatis::json_parser parser;
     for (size_t i = 0; i < channels.size(); ++i) {
         auto channel = *channelsIt;
         textvalues += channel.to_string() + "\n";
         ++channelsIt;
         json j = json::parse(responses[i]);
         textvalues += "Response:\n";
-        textvalues += j.dump(4) + "\n";
+        auto resp_obj = parser(j);
+        std::string resp_str(*resp_obj);
+        textvalues += resp_str + "\n";
     }
     std::cout << "TextValues:"
               << "\n";
