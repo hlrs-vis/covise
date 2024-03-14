@@ -1,6 +1,7 @@
 #ifndef _THREADWORKER_H
 #define _THREADWORKER_H
 
+#include <exception>
 #include <future>
 #include <vector>
 #include <iostream>
@@ -20,6 +21,7 @@ template<typename T>
 struct ThreadWorker {
     typedef std::unique_ptr<std::vector<T>> Result;
     ThreadWorker() = default;
+    ~ThreadWorker() { stop(); }
     // delete copy constructor and assignment operator because std::future is not copyable
     ThreadWorker(const ThreadWorker &) = delete;
     ThreadWorker &operator=(const ThreadWorker &) = delete;
@@ -68,7 +70,7 @@ struct ThreadWorker {
     {
         if (checkStatus() && poolSize() > 0) {
             Result res = std::make_unique<std::vector<T>>();
-            std::cout << "All REST-Requests finished"
+            std::cout << "Worker finished"
                       << "\n";
             for (auto &t: threads) {
                 try {
@@ -121,6 +123,16 @@ struct ThreadWorker {
     const size_t poolSize() const { return threads.size(); }
 
 private:
+    void stop()
+    {
+        for (auto &t: threads) {
+            try {
+                t.get();
+            } catch (const std::exception &e) {
+            }
+        }
+        threads.clear();
+    }
     std::vector<std::future<T>> threads;
 };
 } // namespace utils
