@@ -27,6 +27,7 @@ public:
     bool end_array() override;
     bool binary(nlohmann::json::binary_t &val) override;
     bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override;
+    bool parse_filestream(std::basic_istream<char> &file) { return nlohmann::json::sax_parse(file, this); }
     const std::vector<std::string> &getDebugLogs() const { return m_debugLogs; }
 
 private:

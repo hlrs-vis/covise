@@ -25,6 +25,11 @@ struct json_parser {
     {
         return std::make_unique<json_response_obj>(j.template get<ennovatis::json_response_obj>());
     }
+    
+    std::unique_ptr<json_response_obj> operator()(const std::string &s)
+    {
+        return operator()(nlohmann::json::parse(s));
+    }
 };
 } // namespace ennovatis
 #endif

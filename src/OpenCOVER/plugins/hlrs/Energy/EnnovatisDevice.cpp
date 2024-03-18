@@ -216,9 +216,8 @@ void EnnovatisDevice::showInfo()
         auto channel = *channelsIt;
         textvalues += channel.to_string() + "\n";
         ++channelsIt;
-        json j = json::parse(responses[i]);
+        auto resp_obj = parser(responses[i]);
         textvalues += "Response:\n";
-        auto resp_obj = parser(j);
         std::string resp_str(*resp_obj);
         textvalues += resp_str + "\n";
     }

@@ -56,7 +56,6 @@
 #include <proj_api.h>
 
 using namespace opencover;
-using json = nlohmann::json;
 
 namespace {
 
@@ -343,7 +342,7 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
 {
     std::ifstream inputFilestream(pathToJSON);
     ennovatis::sax_channelid_parser slp(m_buildings);
-    if (!json::sax_parse(inputFilestream, &slp))
+    if (!slp.parse_filestream(inputFilestream))
         return false;
 
     if constexpr (debug)
@@ -598,10 +597,8 @@ bool EnergyPlugin::update()
     if constexpr (debug) {
         auto result = m_debug_worker.getResult();
         if (result)
-            for (auto &requ: *result) {
-                auto jsonRepr = json::parse(requ);
-                std::cout << "Response:\n" << jsonRepr.dump(4) << "\n";
-            }
+            for (auto &requ: *result)
+                std::cout << "Response:\n" << requ << "\n";
     }
 
     for (auto &sensor: m_ennovatisDevices)

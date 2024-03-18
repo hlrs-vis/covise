@@ -1,12 +1,5 @@
 USING(PROJ4)
 USING(GDAL)
-find_package(nlohmann_json 3.11.2)
-
-if (NOT nlohmann_json_FOUND)
-    message("nlohmann_json not found")
-    return()
-endif()
-
 
 SET(HEADERS
     Energy.h
@@ -24,7 +17,7 @@ SET(SOURCES
 
 add_subdirectory(utils)
 add_subdirectory(ennovatis)
-cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyUtils> $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
+cover_add_plugin(EnergyCampus $<TARGET_OBJECTS:EnergyUtils> $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
 target_include_directories(EnergyCampus PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/ennovatis/include"
     PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/utils/include")
