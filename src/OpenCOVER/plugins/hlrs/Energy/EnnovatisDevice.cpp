@@ -7,13 +7,11 @@
 
 #include <cover/coVRFileManager.h>
 
-#include <nlohmann/json.hpp>
 #include <osg/Material>
 #include <osg/ref_ptr>
 #include <string>
 
 using namespace opencover;
-using json = nlohmann::json;
 
 namespace {
 float h = 1.f;
