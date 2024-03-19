@@ -7,14 +7,13 @@
 
 #ifndef _BUILDING_H
 #define _BUILDING_H
-#include <sstream>
+
 #include <string>
 #include <array>
 #include <set>
 
 namespace ennovatis {
 enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
-
 
 /**
  * @brief Represents a channel in ennovatis.
@@ -30,45 +29,10 @@ struct Channel {
     std::string unit;
     ChannelGroup group = ChannelGroup::None;
 
-    [[nodiscard]] bool empty() const
-    {
-        return name.empty() && id.empty() && description.empty() && type.empty() && unit.empty() &&
-               group == ChannelGroup::None;
-    }
-
-    void clear()
-    {
-        name.clear();
-        id.clear();
-        description.clear();
-        type.clear();
-        unit.clear();
-    }
-
-    [[nodiscard]] const std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << "name: " << name << "\nid: " << id << "\ndescription" << description << "\ntype: " << type
-           << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToStr(group);
-        return ss.str();
-    }
-
-    [[nodiscard]] static std::string ChannelGroupToStr(ChannelGroup group)
-    {
-        switch (group) {
-        case ChannelGroup::Strom:
-            return "Strom";
-        case ChannelGroup::Wasser:
-            return "Wasser";
-        case ChannelGroup::Waerme:
-            return "Waerme";
-        case ChannelGroup::Kaelte:
-            return "Kaelte";
-        case ChannelGroup::None:
-            return "None";
-        }
-        return "None";
-    }
+    [[nodiscard]] bool empty() const;
+    [[nodiscard]] const std::string to_string() const;
+    [[nodiscard]] static std::string ChannelGroupToStr(ChannelGroup group);
+    void clear();
 };
 
 struct ChannelCmp {
@@ -101,19 +65,13 @@ public:
      */
     void addChannel(const Channel &channel, ChannelGroup type) { m_channels[static_cast<int>(type)].insert(channel); }
 
-    [[nodiscard]] const auto &getChannels(ChannelGroup type) const
-    {
-        return m_channels[static_cast<int>(type)];
-    }
+    [[nodiscard]] const auto &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
     [[nodiscard]] const auto &getName() const { return m_name; }
     [[nodiscard]] const auto &getId() const { return m_id; }
     [[nodiscard]] const auto &getLat() const { return m_lat; }
     [[nodiscard]] const auto &getLon() const { return m_lon; }
     [[nodiscard]] const auto &getHeight() const { return m_height; }
-    [[nodiscard]] const std::string to_string() const
-    {
-        return "Building: " + m_name + "\nID: " + m_id + "\n";
-    }
+    [[nodiscard]] const std::string to_string() const { return "Building: " + m_name + "\nID: " + m_id + "\n"; }
     void setId(const std::string &id) { m_id = id; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
