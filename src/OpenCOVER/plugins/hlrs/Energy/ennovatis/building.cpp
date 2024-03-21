@@ -21,24 +21,7 @@ const std::string Channel::to_string() const
 {
     std::stringstream ss;
     ss << "name: " << name << "\nid: " << id << "\ndescription: " << description << "\ntype: " << type
-       << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToStr(group);
+       << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToString(group);
     return ss.str();
-}
-
-std::string Channel::ChannelGroupToStr(ChannelGroup group)
-{
-    switch (group) {
-    case ChannelGroup::Strom:
-        return "Strom";
-    case ChannelGroup::Wasser:
-        return "Wasser";
-    case ChannelGroup::Waerme:
-        return "Waerme";
-    case ChannelGroup::Kaelte:
-        return "Kaelte";
-    case ChannelGroup::None:
-        return "None";
-    }
-    return "None";
 }
 } // namespace ennovatis
