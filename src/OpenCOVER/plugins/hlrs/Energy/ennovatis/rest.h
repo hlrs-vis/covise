@@ -44,7 +44,7 @@ struct rest_request_handler {
      * 
      * @param group The channel group to fetch channels from.
      * @param b The building to fetch channels from.
-     * @param req The REST request object to populate with fetched channels.
+     * @param req The REST request object to populate with fetched channels. (will be copied to worker threads)
      */
     void fetchChannels(const ChannelGroup &group, const ennovatis::Building &b, ennovatis::rest_request req);
 
