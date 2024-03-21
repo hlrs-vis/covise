@@ -1,12 +1,15 @@
 #include "EnnovatisDevice.h"
 #include "build_options.h"
+#include "cover/ui/SelectionList.h"
 #include "ennovatis/json.h"
 
+#include <algorithm>
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
 
 #include <cover/coVRFileManager.h>
 
+#include <memory>
 #include <osg/Material>
 #include <osg/ref_ptr>
 #include <string>
@@ -72,8 +75,10 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
 }
 } // namespace
 
-EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::rest_request> req)
-: m_buildingInfo(BuildingInfo(&building)), m_request(req)
+EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
+                                 std::shared_ptr<opencover::ui::SelectionList> channelList,
+                                 std::shared_ptr<ennovatis::rest_request> req)
+: m_request(req), m_channelSelectionList(channelList), m_buildingInfo(BuildingInfo(&building))
 {
     m_deviceGroup = new osg::Group();
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
@@ -95,6 +100,34 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building, std::share
     init(3.f);
 }
 
+
+void EnnovatisDevice::setChannel(int idx)
+{
+    m_channelSelectionList.lock()->select(idx);
+    showInfo();
+}
+
+void EnnovatisDevice::setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group)
+{
+    m_channelGroup = group;
+    updateChannelSelectionList();
+}
+
+void EnnovatisDevice::updateChannelSelectionList()
+{
+    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+    std::vector<std::string> channelNames(channels.size());
+    auto channelsIt = channels.begin();
+    std::generate(channelNames.begin(), channelNames.end(), [&channelsIt]() mutable {
+        auto channel = *channelsIt;
+        ++channelsIt;
+        return channel.name;
+    });
+    auto cSLi = m_channelSelectionList.lock();
+    cSLi->setList(channelNames);
+    cSLi->setCallback([this](int idx) { setChannel(idx); });
+}
+
 osg::Vec4 EnnovatisDevice::getColor(float val, float max)
 {
     osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
@@ -110,7 +143,7 @@ void EnnovatisDevice::fetchData()
 {
     if (!m_InfoVisible || !m_rest_worker.checkStatus())
         return;
-    m_rest_worker.fetchChannels(*m_channelGroup, *m_buildingInfo.building, *m_request);
+    m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
 void EnnovatisDevice::init(float r)
@@ -157,6 +190,7 @@ void EnnovatisDevice::activate()
         m_InfoVisible = false;
     } else {
         m_InfoVisible = true;
+        updateChannelSelectionList();
         fetchData();
     }
 }
@@ -187,47 +221,34 @@ void EnnovatisDevice::showInfo()
     textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
     textBoxContent->setLineSpacing(1.25);
-    // textBoxContent->setText(" > name:\n > description:\n > type:\n > unit:", osgText::String::ENCODING_UTF8);
     textBoxContent->setCharacterSize(charSize);
     textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
     textBoxContent->setMaximumWidth(w * 2. / 3.);
     textBoxContent->setPosition(osg::Vec3(m_rad - w / 2.f, 0, h * 0.75));
 
-    osg::ref_ptr<osgText::Text> textBoxValues = new osgText::Text();
-    textBoxValues->setAlignment(osgText::Text::LEFT_TOP);
-    textBoxValues->setAxisAlignment(osgText::Text::XZ_PLANE);
-    textBoxValues->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
-    textBoxValues->setLineSpacing(1);
-
+    // building info
     std::string textvalues("");
-    textvalues += m_buildingInfo.building->to_string() + "\n";
-    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup);
-    auto responses = m_buildingInfo.channelResponse;
-    auto channelsIt = channels.begin();
-    if constexpr (debug) {
-        auto numActivations = responses.size() / channels.size();
-        std::cout << "NumActivations: " << numActivations << "\n";
-    }
+    textvalues += "ID: " + m_buildingInfo.building->getId() + "\n";
 
-    ennovatis::json_parser parser;
-    for (size_t i = 0; i < channels.size(); ++i) {
-        auto channel = *channelsIt;
-        textvalues += channel.to_string() + "\n";
-        ++channelsIt;
-        auto resp_obj = parser(responses[i]);
-        textvalues += "Response:\n";
-        std::string resp_str(*resp_obj);
-        textvalues += resp_str + "\n";
-    }
+    // channel info
+    auto currentSelectedChannel = m_channelSelectionList.lock()->selectedIndex();
+    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+    auto channelIt = channels.begin();
+    for (size_t i = 0; i < currentSelectedChannel; ++i)
+        ++channelIt;
+
+    // channel response
+    auto channel = *channelIt;
+    auto response = m_buildingInfo.channelResponse[currentSelectedChannel];
+    textvalues += channel.to_string() + "\n";
+    auto resp_obj = ennovatis::json_parser()(response);
+    std::string resp_str(*resp_obj);
+    textvalues += "Response:\n";
+    textvalues += resp_str + "\n";
     std::cout << "TextValues:"
               << "\n";
     std::cout << textvalues << "\n";
-
-    textBoxValues->setText(textvalues);
-    textBoxValues->setCharacterSize(charSize);
-    textBoxValues->setFont(coVRFileManager::instance()->getFontFile(NULL));
-    textBoxValues->setMaximumWidth(w / 3.);
-    textBoxValues->setPosition(osg::Vec3(m_rad + w / 6., 0, h * 0.75));
+    textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
 
     osg::Vec4 colVec(0., 0., 0., 0.2);
     osg::ref_ptr<osg::Material> mat = new osg::Material();
@@ -245,14 +266,11 @@ void EnnovatisDevice::showInfo()
     textBoxTitle->setStateSet(textStateT);
     osg::ref_ptr<osg::StateSet> textStateC = textBoxContent->getOrCreateStateSet();
     textBoxContent->setStateSet(textStateC);
-    osg::ref_ptr<osg::StateSet> textStateV = textBoxValues->getOrCreateStateSet();
-    textBoxValues->setStateSet(textStateV);
 
     osg::ref_ptr<osg::Geode> geo = new osg::Geode();
     geo->setName("TextBox");
     geo->addDrawable(textBoxTitle);
     geo->addDrawable(textBoxContent);
-    geo->addDrawable(textBoxValues);
     geo->addDrawable(sdBox);
 
     matShift->addChild(geo);

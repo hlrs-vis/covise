@@ -23,6 +23,7 @@
 #include "EnnovatisDevice.h"
 #include "EnnovatisDeviceSensor.h"
 #include "build_options.h"
+#include "cover/ui/SelectionList.h"
 #include <ennovatis/building.h>
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
@@ -200,27 +201,27 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
     KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
+    
+    initEnnovatisUI();
+}
 
-    // ennovatis
-    ennovatisBtnGroup = new ui::ButtonGroup(EnergyTab, "EnnovatisBtnGroup");
-    ennovatisBtnGroup->setDefaultValue(ennovatis::ChannelGroup::Strom);
+void EnergyPlugin::initEnnovatisUI()
+{
     ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
     ennovatisGroup->setText("Ennovatis");
+    ennovatisSelectionsList = new ui::SelectionList(EnergyTab, "Ennovatis Selections: ");
+    std::vector<std::string> ennovatisSelections;
+    for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
+        ennovatisSelections.push_back(ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
+
+    ennovatisSelectionsList->setList(ennovatisSelections);
+    ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
 
     // TODO: add calender widget instead of txtfields
     ennovatisFrom = new ui::EditField(EnergyTab, "from");
     ennovatisTo = new ui::EditField(EnergyTab, "to");
-    ennovatisBtns[ennovatis::Strom] =
-        new ui::Button(ennovatisGroup, "Ennovatis_Strom", ennovatisBtnGroup, ennovatis::ChannelGroup::Strom);
-    ennovatisBtns[ennovatis::Waerme] =
-        new ui::Button(ennovatisGroup, "Ennovatis_Waerme", ennovatisBtnGroup, ennovatis::ChannelGroup::Waerme);
-    ennovatisBtns[ennovatis::Kaelte] =
-        new ui::Button(ennovatisGroup, "Ennovatis_Kaelte", ennovatisBtnGroup, ennovatis::ChannelGroup::Kaelte);
-    ennovatisBtns[ennovatis::Wasser] =
-        new ui::Button(ennovatisGroup, "Ennovatis_Wasser", ennovatisBtnGroup, ennovatis::ChannelGroup::Wasser);
-
-    // need to be static func for callback
-    ennovatisBtnGroup->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
+    ennovatisSelectionsList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
+    ennovatisChannelList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
     ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
     ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
 }
@@ -265,25 +266,24 @@ void EnergyPlugin::reinitDevices(int comp)
 void EnergyPlugin::initEnnovatisGrp()
 {
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
-    m_ennovatisDevices.clear();
+    m_ennovatisDevicesSensors.clear();
     for (auto &b: *m_buildings) {
-        auto enDev = std::make_unique<EnnovatisDevice>(b, m_req);
+        auto enDev = std::make_unique<EnnovatisDevice>(b, ennovatisChannelList, m_req);
         m_ennovatis->addChild(enDev->getDeviceGroup());
-        m_ennovatisDevices.push_back(std::make_unique<EnnovatisDeviceSensor>(std::move(enDev), enDev->getDeviceGroup()));
+        m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(std::move(enDev), enDev->getDeviceGroup()));
     }
 }
 
 void EnergyPlugin::changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group)
 {
-    m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
-    for (auto &sensor: m_ennovatisDevices)
+    for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->getDevice()->setChannelGroup(m_channelGrp);
 }
 
 void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
 {
     switchTo(m_ennovatis);
-    ennovatisBtns[group]->setState(true, false);
+    m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
 
     if constexpr (debug) {
         auto &b = m_buildings->at(0);
@@ -364,7 +364,7 @@ void EnergyPlugin::initRESTRequest()
     ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
 }
 
-std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::setLatLon(const DeviceList &deviceList)
+std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildings(const DeviceList &deviceList)
 {
     auto lastDst = 0;
     auto noDeviceMatches = const_buildings();
@@ -443,7 +443,7 @@ bool EnergyPlugin::init()
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
 
-    auto noMatches = setLatLon(SDlist);
+    auto noMatches = initEnnovatisBuildings(SDlist);
 
     if constexpr (debug) {
         int i = 0;
@@ -601,7 +601,7 @@ bool EnergyPlugin::update()
                 std::cout << "Response:\n" << requ << "\n";
     }
 
-    for (auto &sensor: m_ennovatisDevices)
+    for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->update();
 
     return false;

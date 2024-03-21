@@ -1,10 +1,13 @@
 #ifndef _ENNOVATISDEVICE_H
 #define _ENNOVATISDEVICE_H
 
+#include "cover/ui/SelectionList.h"
+#include "ennovatis/json.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "ennovatis/rest.h"
 #include <cover/coVRPluginSupport.h>
+#include <fcntl.h>
 #include <memory>
 #include <util/common.h>
 
@@ -16,13 +19,15 @@
 
 class EnnovatisDevice {
 public:
-    EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::rest_request> req);
+    // EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::rest_request> req);
+    EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
+                    std::shared_ptr<ennovatis::rest_request> req);
     [[nodiscard]] bool getStatus() { return m_InfoVisible; }
     [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
     void update();
     void activate();
     void disactivate();
-    void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group) { m_channelGroup = group; }
+    void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group);
 
 private:
     struct BuildingInfo {
@@ -34,16 +39,20 @@ private:
     void init(float r);
     void showInfo();
     void fetchData();
+    void updateChannelSelectionList();
+    void setChannel(int idx);
 
     osg::ref_ptr<osg::Group> m_TextGeode;
     osg::ref_ptr<osg::Group> m_deviceGroup;
     osg::ref_ptr<osg::Geode> m_geoBars;
     osg::ref_ptr<opencover::coBillboard> m_BBoard;
-    std::shared_ptr<ennovatis::rest_request> m_request;
-    std::shared_ptr<ennovatis::ChannelGroup> m_channelGroup;
+    std::weak_ptr<ennovatis::rest_request> m_request;
+    std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
+    std::weak_ptr<opencover::ui::SelectionList> m_channelSelectionList;
 
     float m_rad;
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;
+    // ennovatis::json_parser m_jsonParser;
 };
 #endif

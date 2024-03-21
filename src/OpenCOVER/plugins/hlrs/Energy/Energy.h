@@ -81,11 +81,11 @@ public:
     opencover::ui::Button *KaelteBt = nullptr;
     
     // ennovatis UI
-    opencover::ui::ButtonGroup *ennovatisBtnGroup = nullptr;
+    opencover::ui::SelectionList *ennovatisSelectionsList = nullptr;
     opencover::ui::Group *ennovatisGroup = nullptr;
     opencover::ui::EditField *ennovatisFrom = nullptr;
     opencover::ui::EditField *ennovatisTo = nullptr;
-    std::array<opencover::ui::Button *, ennovatis::ChannelGroup::None> ennovatisBtns;
+    std::shared_ptr<opencover::ui::SelectionList> ennovatisChannelList = nullptr;
 
     void setComponent(Components c);
     int selectedComp = 0;
@@ -106,6 +106,7 @@ private:
     bool loadDBFile(const std::string &fileName);
     bool loadDB(const std::string &path);
     void initRESTRequest();
+    void initEnnovatisUI();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
     void reinitDevices(int comp);
@@ -122,15 +123,16 @@ private:
     bool loadChannelIDs(const std::string &pathToJSON);
 
     /**
-     * @brief Set longitude and latitude for building based on existing device list.
-     * 
-     * For Debuggung this function creates a link map between ennovatis buildings and devices.
-     * 
+     * Initializes the Ennovatis buildings.
+     *
+     * This function takes a `DeviceList` object as a parameter and returns a `std::unique_ptr` to a `const_buildings` object.
+     * The `const_buildings` object represents the initialized Ennovatis buildings.
+     *
      * TODO: apply this while parsing the JSON file
      * @param deviceList The list of devices. Make sure map is sorted.
      * @return A unique pointer to buildings which have ne matching device.
      */
-    std::unique_ptr<const_buildings> setLatLon(const DeviceList &deviceList);
+    std::unique_ptr<const_buildings> initEnnovatisBuildings(const DeviceList &deviceList);
 
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
@@ -142,7 +144,7 @@ private:
     std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
-    std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevices;
+    std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
     osg::ref_ptr<osg::Group> m_ennovatis;
     // switch used to toggle between ennovatis and db data
     osg::ref_ptr<osg::Switch> m_switch;
