@@ -81,11 +81,11 @@ public:
     opencover::ui::Button *KaelteBt = nullptr;
     
     // ennovatis UI
-    opencover::ui::SelectionList *ennovatisSelectionsList = nullptr;
-    opencover::ui::Group *ennovatisGroup = nullptr;
-    opencover::ui::EditField *ennovatisFrom = nullptr;
-    opencover::ui::EditField *ennovatisTo = nullptr;
-    std::shared_ptr<opencover::ui::SelectionList> ennovatisChannelList = nullptr;
+    opencover::ui::SelectionList *m_ennovatisSelectionsList = nullptr;
+    opencover::ui::Group *m_ennovatisGroup = nullptr;
+    opencover::ui::EditField *m_ennovatisFrom = nullptr;
+    opencover::ui::EditField *m_ennovatisTo = nullptr;
+    std::shared_ptr<opencover::ui::SelectionList> m_ennovatisChannelList = nullptr;
 
     void setComponent(Components c);
     int selectedComp = 0;

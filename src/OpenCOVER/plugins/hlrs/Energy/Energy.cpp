@@ -207,23 +207,22 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
 void EnergyPlugin::initEnnovatisUI()
 {
-    ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
-    ennovatisGroup->setText("Ennovatis");
-    ennovatisSelectionsList = new ui::SelectionList(EnergyTab, "Ennovatis Selections: ");
+    m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
+    m_ennovatisGroup->setText("Ennovatis");
+    m_ennovatisSelectionsList = new ui::SelectionList(EnergyTab, "Ennovatis Selections: ");
     std::vector<std::string> ennovatisSelections;
     for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
         ennovatisSelections.push_back(ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
 
-    ennovatisSelectionsList->setList(ennovatisSelections);
-    ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
+    m_ennovatisSelectionsList->setList(ennovatisSelections);
+    m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
 
     // TODO: add calender widget instead of txtfields
-    ennovatisFrom = new ui::EditField(EnergyTab, "from");
-    ennovatisTo = new ui::EditField(EnergyTab, "to");
-    ennovatisSelectionsList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
-    ennovatisChannelList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
-    ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
-    ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
+    m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
+    m_ennovatisTo = new ui::EditField(EnergyTab, "to");
+    m_ennovatisSelectionsList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
+    m_ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
+    m_ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
 }
 
 void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
@@ -241,9 +240,9 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
     if (!validTime) {
         std::cout << "Invalid date. (To >= From)" << std::endl;
         if (isFrom)
-            ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
+            m_ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
         else
-            ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
+            m_ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
         return;
     }
 
@@ -268,7 +267,7 @@ void EnergyPlugin::initEnnovatisGrp()
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
     m_ennovatisDevicesSensors.clear();
     for (auto &b: *m_buildings) {
-        auto enDev = std::make_unique<EnnovatisDevice>(b, ennovatisChannelList, m_req);
+        auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp);
         m_ennovatis->addChild(enDev->getDeviceGroup());
         m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(std::move(enDev), enDev->getDeviceGroup()));
     }
@@ -360,8 +359,8 @@ void EnergyPlugin::initRESTRequest()
     m_req->channelId = "";
     m_req->dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
     m_req->dtt = std::chrono::system_clock::now();
-    ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
-    ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
+    m_ennovatisFrom->setValue(ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
+    m_ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildings(const DeviceList &deviceList)
