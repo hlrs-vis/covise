@@ -47,6 +47,8 @@ struct ThreadWorker {
         return true;
     }
 
+    bool isRunning() const { return threads.size() > 0; }
+
     /**
      * @brief Clears the thread pool.
      *
@@ -55,8 +57,10 @@ struct ThreadWorker {
      */
     void clear()
     {
-        if (checkStatus())
+        if (checkStatus()) {
             threads.clear();
+            threads.shrink_to_fit();
+        }
     }
 
     /**
