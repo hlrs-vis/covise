@@ -57,6 +57,7 @@ struct rest_request_handler {
      */
     auto getResult() { return worker.getResult(); }
     auto checkStatus() { return worker.checkStatus(); }
+    auto isRunning() { return worker.isRunning(); }
 
 private:
     utils::ThreadWorker<std::string> worker;
