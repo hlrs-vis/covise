@@ -2,7 +2,6 @@
 #define _ENNOVATISDEVICE_H
 
 #include "cover/ui/SelectionList.h"
-#include "ennovatis/json.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "ennovatis/rest.h"
@@ -19,9 +18,8 @@
 
 class EnnovatisDevice {
 public:
-    // EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<ennovatis::rest_request> req);
     EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
-                    std::shared_ptr<ennovatis::rest_request> req);
+                    std::shared_ptr<ennovatis::rest_request> req, std::shared_ptr<ennovatis::ChannelGroup> channelGroup);
     [[nodiscard]] bool getStatus() { return m_InfoVisible; }
     [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
     void update();
@@ -53,6 +51,5 @@ private:
     float m_rad;
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;
-    // ennovatis::json_parser m_jsonParser;
 };
 #endif

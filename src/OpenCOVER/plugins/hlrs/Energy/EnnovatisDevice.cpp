@@ -75,22 +75,29 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
     group->addChild(geode);
 }
 
-void deleteChildrenRecursive(osg::Group *grp) {
+void deleteChildrenRecursive(osg::Group *grp)
+{
+    if (!grp)
+        return;
+
     for (int i = 0; i < grp->getNumChildren(); ++i) {
         auto child = grp->getChild(i);
-        auto group = dynamic_cast<osg::Group *>(child);
-        if (group) {
-            deleteChildrenRecursive(group);
-            grp->removeChild(i);
-        }
+        auto child_group = dynamic_cast<osg::Group *>(child);
+        if (child_group)
+            deleteChildrenRecursive(child_group);
+        grp->removeChild(child);
     }
 }
 } // namespace
 
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<opencover::ui::SelectionList> channelList,
-                                 std::shared_ptr<ennovatis::rest_request> req)
-: m_request(req), m_channelSelectionList(channelList), m_buildingInfo(BuildingInfo(&building))
+                                 std::shared_ptr<ennovatis::rest_request> req,
+                                 std::shared_ptr<ennovatis::ChannelGroup> channelGroup)
+: m_request(req)
+, m_channelGroup(channelGroup)
+, m_channelSelectionList(channelList)
+, m_buildingInfo(BuildingInfo(&building))
 {
     m_deviceGroup = new osg::Group();
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
@@ -120,14 +127,17 @@ void EnnovatisDevice::initBillboard()
 void EnnovatisDevice::setChannel(int idx)
 {
     m_channelSelectionList.lock()->select(idx);
-    deleteChildrenRecursive(m_TextGeode);
-    showInfo();
+    if (!m_buildingInfo.channelResponse.empty() && !m_rest_worker.isRunning())
+        showInfo();
 }
 
 void EnnovatisDevice::setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group)
 {
     m_channelGroup = group;
-    updateChannelSelectionList();
+    if (m_InfoVisible) {
+        fetchData();
+        updateChannelSelectionList();
+    }
 }
 
 void EnnovatisDevice::updateChannelSelectionList()
@@ -143,6 +153,7 @@ void EnnovatisDevice::updateChannelSelectionList()
     auto cSLi = m_channelSelectionList.lock();
     cSLi->setList(channelNames);
     cSLi->setCallback([this](int idx) { setChannel(idx); });
+    cSLi->select(0);
 }
 
 osg::Vec4 EnnovatisDevice::getColor(float val, float max)
@@ -212,6 +223,7 @@ void EnnovatisDevice::disactivate()
 
 void EnnovatisDevice::showInfo()
 {
+    deleteChildrenRecursive(m_BBoard);
     osg::ref_ptr<osg::MatrixTransform> matShift = new osg::MatrixTransform();
     osg::Matrix ms;
     int charSize = 2;
