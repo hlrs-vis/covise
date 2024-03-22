@@ -10,6 +10,7 @@
 #include <cover/coVRFileManager.h>
 
 #include <memory>
+#include <osg/Group>
 #include <osg/Material>
 #include <osg/ref_ptr>
 #include <string>
@@ -73,6 +74,17 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
     // Add the cylinder between the two points to an existing group
     group->addChild(geode);
 }
+
+void deleteChildrenRecursive(osg::Group *grp) {
+    for (int i = 0; i < grp->getNumChildren(); ++i) {
+        auto child = grp->getChild(i);
+        auto group = dynamic_cast<osg::Group *>(child);
+        if (group) {
+            deleteChildrenRecursive(group);
+            grp->removeChild(i);
+        }
+    }
+}
 } // namespace
 
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
@@ -89,10 +101,7 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
         osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), default_height + h));
     matTrans->setMatrix(mat);
 
-    m_BBoard = new coBillboard();
-    m_BBoard->setNormal(osg::Vec3(0, -1, 0));
-    m_BBoard->setAxis(osg::Vec3(0, 0, 1));
-    m_BBoard->setMode(coBillboard::AXIAL_ROT);
+    initBillboard();
 
     matTrans->addChild(m_BBoard);
     m_deviceGroup->addChild(matTrans);
@@ -100,10 +109,18 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
     init(3.f);
 }
 
+void EnnovatisDevice::initBillboard()
+{
+    m_BBoard = new coBillboard();
+    m_BBoard->setNormal(osg::Vec3(0, -1, 0));
+    m_BBoard->setAxis(osg::Vec3(0, 0, 1));
+    m_BBoard->setMode(coBillboard::AXIAL_ROT);
+}
 
 void EnnovatisDevice::setChannel(int idx)
 {
     m_channelSelectionList.lock()->select(idx);
+    deleteChildrenRecursive(m_TextGeode);
     showInfo();
 }
 
@@ -148,11 +165,6 @@ void EnnovatisDevice::fetchData()
 
 void EnnovatisDevice::init(float r)
 {
-    if (m_geoBars) {
-        m_deviceGroup->removeChild(m_geoBars);
-        m_geoBars = nullptr;
-    }
-
     m_rad = r;
     w = m_rad * 20;
     h = m_rad * 21;

@@ -40,12 +40,12 @@ private:
     void showInfo();
     void fetchData();
     void updateChannelSelectionList();
+    void initBillboard();
     void setChannel(int idx);
 
-    osg::ref_ptr<osg::Group> m_TextGeode;
-    osg::ref_ptr<osg::Group> m_deviceGroup;
-    osg::ref_ptr<osg::Geode> m_geoBars;
-    osg::ref_ptr<opencover::coBillboard> m_BBoard;
+    osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
+    osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
+    osg::ref_ptr<opencover::coBillboard> m_BBoard = nullptr;
     std::weak_ptr<ennovatis::rest_request> m_request;
     std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
     std::weak_ptr<opencover::ui::SelectionList> m_channelSelectionList;
