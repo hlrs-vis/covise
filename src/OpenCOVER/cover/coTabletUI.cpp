@@ -4367,7 +4367,7 @@ bool coTabletUI::update()
                     {
                         if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
                         std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
-                        nconn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
+                        nconn = new ClientConnection(localHost, port, 0, (sender_type)0, 0, timeout);
                         if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
                         std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
                         firstConnection = false;
