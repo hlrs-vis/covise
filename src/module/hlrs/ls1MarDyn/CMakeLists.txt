@@ -1,3 +1,5 @@
+COVISE_FIND_PACKAGE(Steereo)
+
 USING(Steereo)
 USING(MPI)
 
