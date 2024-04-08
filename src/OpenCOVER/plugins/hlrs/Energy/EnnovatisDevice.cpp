@@ -21,8 +21,7 @@ namespace {
 float h = 1.f;
 float w = 2.f;
 constexpr float default_height = 100.f;
-// static global variable rest request handler only usable in this file
-ennovatis::rest_request_handler m_rest_worker;
+EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
 
 /**
@@ -134,10 +133,10 @@ void EnnovatisDevice::setChannel(int idx)
 void EnnovatisDevice::setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group)
 {
     m_channelGroup = group;
-    if (m_InfoVisible) {
+    if (m_InfoVisible)
         fetchData();
+    if (m_selectedDevice == this)
         updateChannelSelectionList();
-    }
 }
 
 void EnnovatisDevice::updateChannelSelectionList()
@@ -213,6 +212,7 @@ void EnnovatisDevice::activate()
         m_InfoVisible = false;
     } else {
         m_InfoVisible = true;
+        m_selectedDevice = this;
         updateChannelSelectionList();
         fetchData();
     }
@@ -220,6 +220,12 @@ void EnnovatisDevice::activate()
 
 void EnnovatisDevice::disactivate()
 {}
+
+int EnnovatisDevice::getSelectedChannelIdx() 
+{
+    auto selectedChannel = m_channelSelectionList.lock()->selectedIndex();
+    return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;         
+}
 
 void EnnovatisDevice::showInfo()
 {
@@ -255,7 +261,7 @@ void EnnovatisDevice::showInfo()
     textvalues += "ID: " + m_buildingInfo.building->getId() + "\n";
 
     // channel info
-    auto currentSelectedChannel = m_channelSelectionList.lock()->selectedIndex();
+    auto currentSelectedChannel = getSelectedChannelIdx();
     auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
     auto channelIt = channels.begin();
     for (size_t i = 0; i < currentSelectedChannel; ++i)
@@ -266,7 +272,9 @@ void EnnovatisDevice::showInfo()
     auto response = m_buildingInfo.channelResponse[currentSelectedChannel];
     textvalues += channel.to_string() + "\n";
     auto resp_obj = ennovatis::json_parser()(response);
-    std::string resp_str(*resp_obj);
+    std::string resp_str = "Error parsing response"; 
+    if (resp_obj)
+        resp_str = *resp_obj;
     textvalues += "Response:\n";
     textvalues += resp_str + "\n";
     std::cout << "TextValues:"

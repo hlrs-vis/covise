@@ -38,6 +38,7 @@ private:
     void showInfo();
     void fetchData();
     void updateChannelSelectionList();
+    int getSelectedChannelIdx();
     void initBillboard();
     void setChannel(int idx);
 
@@ -51,5 +52,6 @@ private:
     float m_rad;
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;
+    ennovatis::rest_request_handler m_rest_worker;
 };
 #endif
