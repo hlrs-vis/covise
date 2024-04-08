@@ -10,6 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <osg/Group>
 #include <osg/PagedLOD>
+#include <osgTerrain/Terrain>
 #include <osg/MatrixTransform>
 #include <osgDB/Registry>
 #include <osgDB/ReadFile>
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
     double maxx = -100000000000000;
     double miny = 100000000000000;
     double maxy = -100000000000000;
-    double distance = 3000;
+    double distance = 5000;
 
 
     if (exists(p))    // does path p actually exist?
@@ -86,7 +87,13 @@ int main(int argc, char **argv)
                 std::cerr << "numx: " << numx << std::endl;
                 std::cerr << "numy: " << numy << std::endl;
             }
+            osgTerrain::Terrain *terrain = new osgTerrain::Terrain();
             osg::Group* group=new osg::Group();
+            terrain->addChild(group);
+            terrain->setName(p.filename().string() + "Terrain");
+            terrain->setFormat("WKT");
+            terrain->setBlendingPolicy(osgTerrain::TerrainTile::INHERIT);
+            terrain->setCoordinateSystem("PROJCS[\"ETRS89 / UTM zone 32N\",GEOGCS[\"ETRS89\",DATUM[\"European_Terrestrial_Reference_System_1989\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6258\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4258\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",9],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"25832\"]]");
             group->setName(p.filename().string() + "GeometryGroup");
             int i = 0;
             for (directory_entry& x : directory_iterator(p))
@@ -99,12 +106,15 @@ int main(int argc, char **argv)
                 plod->setCenter(positions[i]);
                 plod->setRadius(2000);
                 plod->setRangeMode(osg::LOD::DISTANCE_FROM_EYE_POINT);
-                plod->setRange(0, distance, 100000000000);
+                plod->setRange(0, distance, 10000000000);
                 plod->setRange(1, 0, distance);
                 group->addChild(plod);
+                osg::Group* dummy = new osg::Group();
+                dummy->setName("dummyNode");
+                plod->addChild(dummy);
                 i++;
             }
-            osgDB::writeNodeFile(*group, std::string(argv[2]));
+            osgDB::writeNodeFile(*terrain, std::string(argv[2]));
 
         }
         else
