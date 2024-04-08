@@ -26,7 +26,13 @@ struct json_parser {
         return std::make_unique<json_response_obj>(j.template get<ennovatis::json_response_obj>());
     }
 
-    std::unique_ptr<json_response_obj> operator()(const std::string &s) { return operator()(nlohmann::json::parse(s)); }
+    /**
+     * @brief This function is an operator overload that takes a string as input and returns a unique pointer to a json_response_obj.
+     * 
+     * @param s The string input.
+     * @return std::unique_ptr<json_response_obj> A unique pointer to a json_response_obj if parsing went well otherwise a nullptr.
+     */
+    std::unique_ptr<json_response_obj> operator()(const std::string &s);
 };
 } // namespace ennovatis
 #endif
