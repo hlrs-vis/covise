@@ -373,6 +373,13 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildi
         b.setLat(devPick->devInfo->lat);
         b.setLon(devPick->devInfo->lon);
     };
+
+    auto updateBuildingInfo = [&](ennovatis::Building &b, Device *dev) {
+        m_devBuildMap[dev] = &b;
+        b.setHeight(dev->devInfo->height + offset[2]);
+        fillLatLon(b, dev);
+    };
+
     for (auto &building: *m_buildings) {
         lastDst = 100;
         devPick = nullptr;
@@ -393,28 +400,23 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildi
             if (lvnstnDst < lastDst) {
                 lastDst = lvnstnDst;
                 devPick = d;
-                continue;
             }
-
             // if the distance is the same as the last distance, we have a better match if the street number is the same
-            if (lvnstnDst == lastDst)
-                if (cmpStrtNo(ennovatis_strt, device_strt))
-                    devPick = d;
+            else if (lvnstnDst == lastDst && cmpStrtNo(ennovatis_strt, device_strt)) {
+                devPick = d;
+            }
         }
-        if (!lastDst) {
-            m_devBuildMap[devPick] = &building;
-            fillLatLon(building, devPick);
-            building.setHeight(devPick->devInfo->height + offset[2]); 
+        if (!lastDst && devPick) {
+            updateBuildingInfo(building, devPick);
             continue;
         }
         if (devPick) {
             auto hit = m_devBuildMap.find(devPick);
             if (hit == m_devBuildMap.end()) {
-                m_devBuildMap[devPick] = &building;
-                building.setHeight(devPick->devInfo->height + offset[2]); 
-                fillLatLon(building, devPick);
-            } else
+                updateBuildingInfo(building, devPick);
+            } else {
                 noDeviceMatches.push_back(&building);
+            }
         }
     }
 
