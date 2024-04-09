@@ -1,10 +1,3 @@
-/* This file is part of COVISE.
-
-  You can use it under the terms of the GNU Lesser General Public License
-  version 2.1 or later, see lgpl-2.1.txt.
-
-* License: LGPL 2+ */
-
 #ifndef _BUILDING_H
 #define _BUILDING_H
 
@@ -14,13 +7,19 @@
 
 namespace ennovatis {
 enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
-constexpr const char* ChannelGroupToString(ChannelGroup group) {
+constexpr const char *ChannelGroupToString(ChannelGroup group)
+{
     switch (group) {
-        case ChannelGroup::Strom: return "Strom";
-        case ChannelGroup::Wasser: return "Wasser";
-        case ChannelGroup::Waerme: return "Waerme";
-        case ChannelGroup::Kaelte: return "Kaelte";
-        case ChannelGroup::None: return "None";
+    case ChannelGroup::Strom:
+        return "Strom";
+    case ChannelGroup::Wasser:
+        return "Wasser";
+    case ChannelGroup::Waerme:
+        return "Waerme";
+    case ChannelGroup::Kaelte:
+        return "Kaelte";
+    case ChannelGroup::None:
+        return "None";
     }
     return "None";
 }

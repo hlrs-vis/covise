@@ -223,11 +223,12 @@ void EnnovatisDevice::activate()
 void EnnovatisDevice::disactivate()
 {}
 
-int EnnovatisDevice::getSelectedChannelIdx() 
+int EnnovatisDevice::getSelectedChannelIdx()
 {
     auto selectedChannel = m_channelSelectionList.lock()->selectedIndex();
-    return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;         
+    return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;
 }
+
 void EnnovatisDevice::showInfo()
 {
     deleteChildrenRecursive(m_BBoard);
@@ -237,7 +238,8 @@ void EnnovatisDevice::showInfo()
     ms.makeTranslate(osg::Vec3(w / 2, 0, h));
     matShift->setMatrix(ms);
 
-    auto textBoxTitle = createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_rad - w / 2., 0, h * 0.9), charSize, "DroidSans-Bold.ttf");
+    auto textBoxTitle = createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_rad - w / 2., 0, h * 0.9),
+                                      charSize, "DroidSans-Bold.ttf");
     auto textBoxContent = createTextBox("", osg::Vec3(m_rad - w / 2.f, 0, h * 0.75), charSize, NULL);
 
     // building info
@@ -253,7 +255,7 @@ void EnnovatisDevice::showInfo()
     auto response = m_buildingInfo.channelResponse[currentSelectedChannel];
     textvalues += channel.to_string() + "\n";
     auto resp_obj = ennovatis::json_parser()(response);
-    std::string resp_str = "Error parsing response"; 
+    std::string resp_str = "Error parsing response";
     if (resp_obj)
         resp_str = *resp_obj;
     textvalues += "Response:\n" + resp_str + "\n";
@@ -285,7 +287,8 @@ void EnnovatisDevice::showInfo()
     m_BBoard->addChild(m_TextGeode);
 }
 
-osgText::Text* EnnovatisDevice::createTextBox(const std::string& text, const osg::Vec3& position, int charSize, const char* fontFile)
+osgText::Text *EnnovatisDevice::createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
+                                              const char *fontFile)
 {
     auto textBox = new osgText::Text();
     textBox->setAlignment(osgText::Text::LEFT_TOP);

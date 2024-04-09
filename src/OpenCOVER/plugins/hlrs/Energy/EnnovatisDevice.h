@@ -13,7 +13,8 @@
 class EnnovatisDevice {
 public:
     EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
-                    std::shared_ptr<ennovatis::rest_request> req, std::shared_ptr<ennovatis::ChannelGroup> channelGroup);
+                    std::shared_ptr<ennovatis::rest_request> req,
+                    std::shared_ptr<ennovatis::ChannelGroup> channelGroup);
     [[nodiscard]] bool getStatus() { return m_InfoVisible; }
     [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
     void update();
@@ -35,7 +36,8 @@ private:
     int getSelectedChannelIdx();
     void initBillboard();
     void setChannel(int idx);
-    osgText::Text* createTextBox(const std::string& text, const osg::Vec3& position, int charSize, const char* fontFile);
+    osgText::Text *createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
+                                 const char *fontFile);
 
     osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
