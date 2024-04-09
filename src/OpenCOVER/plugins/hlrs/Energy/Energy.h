@@ -110,7 +110,7 @@ private:
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
     void reinitDevices(int comp);
-    void changeEnnovatisChannelGrp(const ennovatis::ChannelGroup &group);
+    void changeEnnovatisChannelGrp();
     void initEnnovatisGrp();
     void switchTo(const osg::Node *child);
     
