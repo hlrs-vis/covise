@@ -63,7 +63,6 @@ namespace {
 constexpr bool debug = build_options.debug_ennovatis;
 constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
 constexpr auto proj_from = "+proj=latlong";
-constexpr std::array<float, 3> offset{-507080, -5398430, 450};
 // regex for dd.mm.yyyy
 const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
 ennovatis::rest_request_handler m_debug_worker;
@@ -203,6 +202,8 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
     
     initEnnovatisUI();
+
+    offset = configFloatArray("General", "offset", std::vector<double>{ 0,0,0 })->value();
 }
 
 void EnergyPlugin::initEnnovatisUI()

@@ -137,6 +137,7 @@ private:
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
     float rad, scaleH;
+    std::vector<double> offset;
 
     ennovatis::BuildingsPtr m_buildings;
     std::shared_ptr<ennovatis::rest_request> m_req;

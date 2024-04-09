@@ -1,3 +1,6 @@
+[General]
+offset = [-507080.0, -5398430.0, 450.0]
+
 [CSV]
 filename = '/data/DiTEnS/campus/db_building_measurements.csv'
 
