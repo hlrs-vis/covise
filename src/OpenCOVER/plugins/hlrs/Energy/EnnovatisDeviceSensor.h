@@ -2,10 +2,7 @@
 #define _ENNOVATISDEVICESENSOR_H
 
 #include "EnnovatisDevice.h"
-#include <ennovatis/rest.h>
 #include <PluginUtil/coSensor.h>
-#include <cover/coVRPluginSupport.h>
-#include <memory>
 
 class EnnovatisDeviceSensor: public coPickSensor {
 private:

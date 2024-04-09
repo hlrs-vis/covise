@@ -2,7 +2,6 @@
 #define _ENERGY_ENNOVATIS_REST_H
 
 #include <string>
-#include <chrono>
 #include "building.h"
 #include "../utils/threadworker.h"
 

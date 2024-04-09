@@ -4,16 +4,10 @@
 #include "cover/ui/SelectionList.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
-#include "ennovatis/rest.h"
-#include <cover/coVRPluginSupport.h>
-#include <fcntl.h>
 #include <memory>
-#include <util/common.h>
 
 #include <cover/coBillboard.h>
-#include <osg/Geode>
 #include <osg/Group>
-#include <osg/ShapeDrawable>
 #include <osgText/Text>
 
 class EnnovatisDevice {
@@ -41,6 +35,7 @@ private:
     int getSelectedChannelIdx();
     void initBillboard();
     void setChannel(int idx);
+    osgText::Text* createTextBox(const std::string& text, const osg::Vec3& position, int charSize, const char* fontFile);
 
     osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;

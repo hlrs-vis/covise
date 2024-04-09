@@ -12,6 +12,8 @@
 #include <memory>
 #include <osg/Group>
 #include <osg/Material>
+#include <osg/ShapeDrawable>
+#include <osg/MatrixTransform>
 #include <osg/ref_ptr>
 #include <string>
 
@@ -226,46 +228,25 @@ int EnnovatisDevice::getSelectedChannelIdx()
     auto selectedChannel = m_channelSelectionList.lock()->selectedIndex();
     return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;         
 }
-
 void EnnovatisDevice::showInfo()
 {
     deleteChildrenRecursive(m_BBoard);
-    osg::ref_ptr<osg::MatrixTransform> matShift = new osg::MatrixTransform();
+    auto matShift = new osg::MatrixTransform();
     osg::Matrix ms;
-    int charSize = 2;
+    const int charSize = 2;
     ms.makeTranslate(osg::Vec3(w / 2, 0, h));
     matShift->setMatrix(ms);
 
-    osg::ref_ptr<osgText::Text> textBoxTitle = new osgText::Text();
-    textBoxTitle->setAlignment(osgText::Text::LEFT_TOP);
-    textBoxTitle->setAxisAlignment(osgText::Text::XZ_PLANE);
-    textBoxTitle->setColor(osg::Vec4(1, 1, 1, 1));
-    textBoxTitle->setText(m_buildingInfo.building->getName(), osgText::String::ENCODING_UTF8);
-    textBoxTitle->setCharacterSize(charSize);
-    textBoxTitle->setFont(coVRFileManager::instance()->getFontFile("DroidSans-Bold.ttf"));
-    textBoxTitle->setMaximumWidth(w);
-    textBoxTitle->setPosition(osg::Vec3(m_rad - w / 2., 0, h * 0.9));
-
-    osg::ref_ptr<osgText::Text> textBoxContent = new osgText::Text();
-    textBoxContent->setAlignment(osgText::Text::LEFT_TOP);
-    textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
-    textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
-    textBoxContent->setLineSpacing(1.25);
-    textBoxContent->setCharacterSize(charSize);
-    textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
-    textBoxContent->setMaximumWidth(w * 2. / 3.);
-    textBoxContent->setPosition(osg::Vec3(m_rad - w / 2.f, 0, h * 0.75));
+    auto textBoxTitle = createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_rad - w / 2., 0, h * 0.9), charSize, "DroidSans-Bold.ttf");
+    auto textBoxContent = createTextBox("", osg::Vec3(m_rad - w / 2.f, 0, h * 0.75), charSize, NULL);
 
     // building info
-    std::string textvalues("");
-    textvalues += "ID: " + m_buildingInfo.building->getId() + "\n";
+    std::string textvalues = "ID: " + m_buildingInfo.building->getId() + "\n";
 
     // channel info
     auto currentSelectedChannel = getSelectedChannelIdx();
     auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
-    auto channelIt = channels.begin();
-    for (size_t i = 0; i < currentSelectedChannel; ++i)
-        ++channelIt;
+    auto channelIt = std::next(channels.begin(), currentSelectedChannel);
 
     // channel response
     auto channel = *channelIt;
@@ -275,11 +256,8 @@ void EnnovatisDevice::showInfo()
     std::string resp_str = "Error parsing response"; 
     if (resp_obj)
         resp_str = *resp_obj;
-    textvalues += "Response:\n";
-    textvalues += resp_str + "\n";
-    std::cout << "TextValues:"
-              << "\n";
-    std::cout << textvalues << "\n";
+    textvalues += "Response:\n" + resp_str + "\n";
+    std::cout << "TextValues:\n" << textvalues << "\n";
     textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
 
     osg::Vec4 colVec(0., 0., 0., 0.2);
@@ -287,19 +265,14 @@ void EnnovatisDevice::showInfo()
     mat->setDiffuse(osg::Material::FRONT_AND_BACK, colVec);
     mat->setAmbient(osg::Material::FRONT_AND_BACK, colVec);
 
-    osg::ref_ptr<osg::Box> box = new osg::Box(osg::Vec3(m_rad, 0.04 * m_rad, h / 2.f), w, 0, h);
-    osg::ref_ptr<osg::ShapeDrawable> sdBox = new osg::ShapeDrawable(box);
+    auto box = new osg::Box(osg::Vec3(m_rad, 0.04 * m_rad, h / 2.f), w, 0, h);
+    auto sdBox = new osg::ShapeDrawable(box);
     sdBox->setColor(colVec);
-    osg::ref_ptr<osg::StateSet> boxState = sdBox->getOrCreateStateSet();
+    auto boxState = sdBox->getOrCreateStateSet();
     boxState->setAttribute(mat.get(), osg::StateAttribute::PROTECTED);
     sdBox->setStateSet(boxState);
 
-    osg::ref_ptr<osg::StateSet> textStateT = textBoxTitle->getOrCreateStateSet();
-    textBoxTitle->setStateSet(textStateT);
-    osg::ref_ptr<osg::StateSet> textStateC = textBoxContent->getOrCreateStateSet();
-    textBoxContent->setStateSet(textStateC);
-
-    osg::ref_ptr<osg::Geode> geo = new osg::Geode();
+    auto geo = new osg::Geode();
     geo->setName("TextBox");
     geo->addDrawable(textBoxTitle);
     geo->addDrawable(textBoxContent);
@@ -310,4 +283,18 @@ void EnnovatisDevice::showInfo()
     m_TextGeode->setName("TextGroup");
     m_TextGeode->addChild(matShift);
     m_BBoard->addChild(m_TextGeode);
+}
+
+osgText::Text* EnnovatisDevice::createTextBox(const std::string& text, const osg::Vec3& position, int charSize, const char* fontFile)
+{
+    auto textBox = new osgText::Text();
+    textBox->setAlignment(osgText::Text::LEFT_TOP);
+    textBox->setAxisAlignment(osgText::Text::XZ_PLANE);
+    textBox->setColor(osg::Vec4(1, 1, 1, 1));
+    textBox->setText(text, osgText::String::ENCODING_UTF8);
+    textBox->setCharacterSize(charSize);
+    textBox->setFont(coVRFileManager::instance()->getFontFile(fontFile));
+    textBox->setMaximumWidth(w);
+    textBox->setPosition(position);
+    return textBox;
 }
