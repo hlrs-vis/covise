@@ -8,6 +8,7 @@
 #include <ennovatis/rest.h>
 
 #include <cover/coVRFileManager.h>
+#include <cover/coVRMSController.h>
 
 #include <memory>
 #include <osg/Group>
@@ -172,7 +173,10 @@ void EnnovatisDevice::fetchData()
 {
     if (!m_InfoVisible || !m_rest_worker.checkStatus())
         return;
-    m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
+
+    // make sure master node fetches data from Ennovatis and sync response to other nodes
+    if (opencover::coVRMSController::instance())
+        m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
 void EnnovatisDevice::init(float r)
@@ -202,6 +206,7 @@ void EnnovatisDevice::update()
         m_buildingInfo.channelResponse.clear();
         for (auto &t: *requests)
             m_buildingInfo.channelResponse.push_back(t);
+
         showInfo();
     }
 }
@@ -252,7 +257,11 @@ void EnnovatisDevice::showInfo()
 
     // channel response
     auto channel = *channelIt;
-    auto response = m_buildingInfo.channelResponse[currentSelectedChannel];
+    std::string response("");
+    if (opencover::coVRMSController::instance()->isMaster())
+        response = m_buildingInfo.channelResponse[currentSelectedChannel];
+    response = opencover::coVRMSController::instance()->syncString(response);        
+
     textvalues += channel.to_string() + "\n";
     auto resp_obj = ennovatis::json_parser()(response);
     std::string resp_str = "Error parsing response";
