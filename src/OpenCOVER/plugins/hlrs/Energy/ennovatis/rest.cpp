@@ -28,7 +28,7 @@ std::string rest_request::operator()() const
 
 std::string rest::fetch_data(const rest_request &req)
 {
-    std::string response;
+    std::string response = "";
     if (!utils::rest::performCurlRequest(req(), response))
         response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
     return response;
