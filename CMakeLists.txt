@@ -271,6 +271,11 @@ if (POLICY CMP0074)
   # make find_include/find_library search in <PackageName>_ROOT prefix
   cmake_policy(SET CMP0074 NEW)
 endif()
+if (POLICY CMP0144)
+  # make find_include/find_library search in uppercase <PackageName>_ROOT prefix
+  cmake_policy(SET CMP0144 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0144 NEW)
+endif()
 
 INCLUDE(CoviseHelperMacros)
 INCLUDE(ConfigureLinker)
