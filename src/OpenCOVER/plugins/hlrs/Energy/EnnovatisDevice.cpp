@@ -174,8 +174,8 @@ void EnnovatisDevice::fetchData()
     if (!m_InfoVisible || !m_rest_worker.checkStatus())
         return;
 
-    // make sure master node fetches data from Ennovatis and sync response to other nodes
-    if (opencover::coVRMSController::instance())
+    // make sure only master node fetches data from Ennovatis => sync with slave in update()
+    if (opencover::coVRMSController::instance()->isMaster())
         m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
@@ -199,12 +199,15 @@ void EnnovatisDevice::update()
 {
     if (!m_InfoVisible)
         return;
-    auto requests = m_rest_worker.getResult();
-    if (requests) {
-        if (requests->empty())
-            return;
+    auto results = m_rest_worker.getResult();
+    bool finished_master(false);
+    if (opencover::coVRMSController::instance()->isMaster())
+        finished_master = results != nullptr;
+    finished_master = opencover::coVRMSController::instance()->syncBool(finished_master);
+    if (finished_master) {
+        auto results_vec = opencover::coVRMSController::instance()->syncVector(*results);
         m_buildingInfo.channelResponse.clear();
-        for (auto &t: *requests)
+        for (auto &t: results_vec)
             m_buildingInfo.channelResponse.push_back(t);
 
         showInfo();
@@ -257,11 +260,7 @@ void EnnovatisDevice::showInfo()
 
     // channel response
     auto channel = *channelIt;
-    std::string response("");
-    if (opencover::coVRMSController::instance()->isMaster())
-        response = m_buildingInfo.channelResponse[currentSelectedChannel];
-    response = opencover::coVRMSController::instance()->syncString(response);        
-
+    std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
     textvalues += channel.to_string() + "\n";
     auto resp_obj = ennovatis::json_parser()(response);
     std::string resp_str = "Error parsing response";
