@@ -182,6 +182,8 @@ public:
 
     virtual bool isUnstructuredGrid() const = 0;
 
+    virtual bool fromCovise() const = 0;
+
     osg::Matrix transform;
 };
 }

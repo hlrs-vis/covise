@@ -1424,8 +1424,11 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
         return;
     }
 
+    const bool covise = container->fromCovise();
+
 #ifdef VERBOSE
-    fprintf(stderr, "add volume: geo=%s, color=%s\n", geometry->getName(), colorObj->getName());
+    fprintf(stderr, "add volume: geo=%s, color=%s, from %s\n", geometry->getName(), colorObj->getName(),
+            covise ? "COVISE" : "Vistle");
 #endif
     int sizeX, sizeY, sizeZ;
     geometry->getSize(sizeX, sizeY, sizeZ);
@@ -1613,7 +1616,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
             fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), (int)volDesc->frames);
 #endif
         }
-        else
+        else if (covise)
         {
             volDesc = new vvVolDesc("COVISEXX",
                                     sizeZ, sizeY, sizeX, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
@@ -1621,6 +1624,12 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
             volDesc->setDist((maxZ - minZ) / sizeZ,
                              (maxY - minY) / sizeY,
                              (maxX - minX) / sizeX);
+        }
+        else
+        {
+            volDesc = new vvVolDesc("VISTLE", sizeX, sizeY, sizeZ, 1, 1, noChan, &data, vvVolDesc::ARRAY_DELETE);
+            volDesc->pos = vvVector3(minX + maxX, -minY - maxY, -minZ - maxZ) * .5f;
+            volDesc->setDist((maxX - minX) / sizeX, (maxY - minY) / sizeY, (maxZ - minZ) / sizeZ);
         }
 
         if (packedColor)
@@ -1689,14 +1698,14 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *group, c
         
         if (container->getName()){
             updateVolume(container->getName(), volDesc, true, "", container, group);
-            updateTransform(container->getName(), tfMat);
+            updateTransform(container->getName(), tfMat, covise);
         }else if (geometry && geometry->getName()) {
             updateVolume(geometry->getName(), volDesc, true, "", container, group);
-            updateTransform(geometry->getName(), tfMat);
+            updateTransform(geometry->getName(), tfMat, covise);
         }else {
             const char *name = "Anonymous COVISE object";
             updateVolume(name, volDesc, true, "", container, group);
-            updateTransform(name, tfMat);
+            updateTransform(name, tfMat, covise);
         }
 
         if (shader >= 0 && currentVolume != volumes.end())
@@ -1881,17 +1890,27 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateTransform(const std::string &name, const osg::Matrix &tfMat)
+bool VolumePlugin::updateTransform(const std::string &name, const osg::Matrix &tfMat, bool covise)
 {
     VolumeMap::iterator volume = volumes.find(name);
     if (volume == volumes.end())
         return false;
 
-    auto mirror = osg::Matrix::identity();
-    mirror(0, 0) = -1;
     auto &t = volume->second.transform;
-    t->setMatrix(osg::Matrix::rotate(M_PI * 0.5, osg::Vec3(0, 1, 0)) * osg::Matrix::rotate(M_PI, osg::Vec3(1, 0, 0)) *
-                 mirror * tfMat);
+    if (covise)
+    {
+        auto mirror = osg::Matrix::identity();
+        mirror(0, 0) = -1;
+        t->setMatrix(osg::Matrix::rotate(M_PI * 0.5, osg::Vec3(0, 1, 0)) *
+                     osg::Matrix::rotate(M_PI, osg::Vec3(1, 0, 0)) * mirror * tfMat);
+    }
+    else
+    {
+        auto rot = osg::Matrix::identity();
+        rot(1, 1) = -1;
+        rot(2, 2) = -1;
+        t->setMatrix(rot * tfMat);
+    }
     return true;
 }
 
