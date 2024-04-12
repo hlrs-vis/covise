@@ -200,15 +200,19 @@ void EnnovatisDevice::update()
     if (!m_InfoVisible)
         return;
     auto results = m_rest_worker.getResult();
-    bool finished_master(false);
-    if (opencover::coVRMSController::instance()->isMaster())
-        finished_master = results != nullptr;
-    finished_master = opencover::coVRMSController::instance()->syncBool(finished_master);
+    auto opncvr_ctrl = opencover::coVRMSController::instance();
+
+    bool finished_master = opncvr_ctrl->isMaster() && results != nullptr;
+    finished_master = opncvr_ctrl->syncBool(finished_master);
+
     if (finished_master) {
-        auto results_vec = opencover::coVRMSController::instance()->syncVector(*results);
+        std::vector<std::string> results_vec;
+        if (opncvr_ctrl->isMaster())
+            results_vec = *results;
+
+        results_vec = opncvr_ctrl->syncVector(results_vec);
         m_buildingInfo.channelResponse.clear();
-        for (auto &t: results_vec)
-            m_buildingInfo.channelResponse.push_back(t);
+        m_buildingInfo.channelResponse = std::move(results_vec);
 
         showInfo();
     }
