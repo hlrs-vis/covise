@@ -21,7 +21,7 @@ struct json_response_obj {
 void from_json(const nlohmann::json &j, json_response_obj &obj);
 
 struct json_parser {
-    std::unique_ptr<json_response_obj> operator()(const nlohmann::json &j)
+    std::unique_ptr<json_response_obj> operator()(const nlohmann::json &j) const
     {
         return std::make_unique<json_response_obj>(j.template get<ennovatis::json_response_obj>());
     }
@@ -32,7 +32,7 @@ struct json_parser {
      * @param s The string input.
      * @return std::unique_ptr<json_response_obj> A unique pointer to a json_response_obj if parsing went well otherwise a nullptr.
      */
-    std::unique_ptr<json_response_obj> operator()(const std::string &s);
+    std::unique_ptr<json_response_obj> operator()(const std::string &s) const;
 };
 } // namespace ennovatis
 #endif

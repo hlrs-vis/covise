@@ -37,7 +37,7 @@ void from_json(const nlohmann::json &j, json_response_obj &obj)
     j.at("Values").get_to(obj.Values);
 }
 
-std::unique_ptr<json_response_obj> json_parser::operator()(const std::string &s)
+std::unique_ptr<json_response_obj> json_parser::operator()(const std::string &s) const
 {
     try {
         return operator()(nlohmann::json::parse(s));

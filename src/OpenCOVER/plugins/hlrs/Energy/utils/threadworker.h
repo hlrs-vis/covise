@@ -106,7 +106,7 @@ struct ThreadWorker {
      * @param i The index of the thread to be accessed.
      * @return A reference to the thread at the specified index.
      */
-    const auto &operator[](size_t i) { return threads[i]; }
+    const auto &operator[](size_t i) const { return threads[i]; }
 
     /**
      * @brief Returns the list of threads in the pool.
@@ -115,7 +115,7 @@ struct ThreadWorker {
      *
      * @return A reference to the list of threads in the pool.
      */
-    const auto &threadsList() { return threads; }
+    const auto &threadsList() const { return threads; }
 
     /**
      * @brief Returns the size of the thread pool.

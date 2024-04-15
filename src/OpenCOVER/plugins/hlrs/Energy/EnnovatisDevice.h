@@ -1,6 +1,7 @@
 #ifndef _ENNOVATISDEVICE_H
 #define _ENNOVATISDEVICE_H
 
+#include "cover/coVRMSController.h"
 #include "cover/ui/SelectionList.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
@@ -28,16 +29,16 @@ private:
         const ennovatis::Building *building;
         std::vector<std::string> channelResponse;
     };
-    [[nodiscard]] osg::Vec4 getColor(float val, float max);
     void init(float r);
     void showInfo();
     void fetchData();
     void updateChannelSelectionList();
-    int getSelectedChannelIdx();
     void initBillboard();
     void setChannel(int idx);
+    int getSelectedChannelIdx() const;
+    [[nodiscard]] osg::Vec4 getColor(float val, float max) const;
     osgText::Text *createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
-                                 const char *fontFile);
+                                 const char *fontFile) const;
 
     osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
@@ -50,5 +51,6 @@ private:
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;
     ennovatis::rest_request_handler m_rest_worker;
+    opencover::coVRMSController *m_opncvr_ctrl; // cannot be const because syncing methods are not const correct
 };
 #endif

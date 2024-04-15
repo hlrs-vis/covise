@@ -1,5 +1,6 @@
 #include "EnnovatisDevice.h"
 #include "build_options.h"
+#include "cover/coBillboard.h"
 #include "cover/ui/SelectionList.h"
 #include "ennovatis/json.h"
 
@@ -96,12 +97,14 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<opencover::ui::SelectionList> channelList,
                                  std::shared_ptr<ennovatis::rest_request> req,
                                  std::shared_ptr<ennovatis::ChannelGroup> channelGroup)
-: m_request(req)
+: m_deviceGroup(new osg::Group())
+, m_BBoard(new coBillboard())
+, m_request(req)
 , m_channelGroup(channelGroup)
 , m_channelSelectionList(channelList)
 , m_buildingInfo(BuildingInfo(&building))
+, m_opncvr_ctrl(opencover::coVRMSController::instance())
 {
-    m_deviceGroup = new osg::Group();
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
 
     osg::MatrixTransform *matTrans = new osg::MatrixTransform();
@@ -114,13 +117,11 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
 
     matTrans->addChild(m_BBoard);
     m_deviceGroup->addChild(matTrans);
-    m_TextGeode = nullptr;
     init(3.f);
 }
 
 void EnnovatisDevice::initBillboard()
 {
-    m_BBoard = new coBillboard();
     m_BBoard->setNormal(osg::Vec3(0, -1, 0));
     m_BBoard->setAxis(osg::Vec3(0, 0, 1));
     m_BBoard->setMode(coBillboard::AXIAL_ROT);
@@ -158,7 +159,7 @@ void EnnovatisDevice::updateChannelSelectionList()
     cSLi->select(0);
 }
 
-osg::Vec4 EnnovatisDevice::getColor(float val, float max)
+osg::Vec4 EnnovatisDevice::getColor(float val, float max) const
 {
     osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
     osg::Vec4 colLow = osg::Vec4(0, 1, 0.5, 1.0);
@@ -200,17 +201,17 @@ void EnnovatisDevice::update()
     if (!m_InfoVisible)
         return;
     auto results = m_rest_worker.getResult();
-    auto opncvr_ctrl = opencover::coVRMSController::instance();
 
-    bool finished_master = opncvr_ctrl->isMaster() && results != nullptr;
-    finished_master = opncvr_ctrl->syncBool(finished_master);
+    bool finished_master = m_opncvr_ctrl->isMaster() && results != nullptr;
+    finished_master = m_opncvr_ctrl->syncBool(finished_master);
 
     if (finished_master) {
         std::vector<std::string> results_vec;
-        if (opncvr_ctrl->isMaster())
+        if (m_opncvr_ctrl->isMaster())
             results_vec = *results;
 
-        results_vec = opncvr_ctrl->syncVector(results_vec);
+        results_vec = m_opncvr_ctrl->syncVector(results_vec);
+
         m_buildingInfo.channelResponse.clear();
         m_buildingInfo.channelResponse = std::move(results_vec);
 
@@ -235,7 +236,7 @@ void EnnovatisDevice::activate()
 void EnnovatisDevice::disactivate()
 {}
 
-int EnnovatisDevice::getSelectedChannelIdx()
+int EnnovatisDevice::getSelectedChannelIdx() const
 {
     auto selectedChannel = m_channelSelectionList.lock()->selectedIndex();
     return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;
@@ -271,7 +272,6 @@ void EnnovatisDevice::showInfo()
     if (resp_obj)
         resp_str = *resp_obj;
     textvalues += "Response:\n" + resp_str + "\n";
-    std::cout << "TextValues:\n" << textvalues << "\n";
     textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
 
     osg::Vec4 colVec(0., 0., 0., 0.2);
@@ -300,7 +300,7 @@ void EnnovatisDevice::showInfo()
 }
 
 osgText::Text *EnnovatisDevice::createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
-                                              const char *fontFile)
+                                              const char *fontFile) const
 {
     auto textBox = new osgText::Text();
     textBox->setAlignment(osgText::Text::LEFT_TOP);
