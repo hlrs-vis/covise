@@ -1193,6 +1193,7 @@ ReadRST::GetNodes(void)
         element_[i].solidmodel_ = SwitchEndian(etybuf[6]);
         element_[i].shape_ = SwitchEndian(etybuf[7]);
         element_[i].num_ = SwitchEndian(etybuf[8]);
+        element_[i].anznodes_ = 0;
 
         for (j = 0; j < anzety_; ++j)
         {
