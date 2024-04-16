@@ -1540,6 +1540,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 
         std::stringstream sMesh;
         sMesh << "0-" << meshSubSets.size();
+        if(meshSubSets.size()>1)
         meshSet->addAttribute("TIMESTEP", sMesh.str().c_str());
         meshSubSets.clear();
         meshOutPort->setCurrentObject(meshSet);
@@ -1550,6 +1551,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         boundarySet = new coDoSet(boundSetName, int(boundarySubSets.size()), &boundarySubSets.front());
         std::stringstream sBoundary;
         sBoundary << "0-" << boundarySubSets.size();
+        if (boundarySubSets.size() > 1)
         boundarySet->addAttribute("TIMESTEP", sBoundary.str().c_str());
         boundarySubSets.clear();
         boundaryOutPort->setCurrentObject(boundarySet);
@@ -1560,6 +1562,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         particleSet = new coDoSet(particleSetName, int(particleSubSets.size()), &particleSubSets.front());
         std::stringstream s;
         s << "0-" << boundarySubSets.size();
+        if (boundarySubSets.size() > 1)
         particleSet->addAttribute("TIMESTEP", s.str().c_str());
         particleSubSets.clear();
         particleOutPort->setCurrentObject(particleSet);
