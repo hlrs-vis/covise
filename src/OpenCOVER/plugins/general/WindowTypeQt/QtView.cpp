@@ -88,6 +88,11 @@ QtView::QtView(QToolBar *toolbar)
 {
 }
 
+void QtView::setShowSliders(bool show)
+{
+    m_showSliders = show;
+}
+
 View::ViewType QtView::typeBit() const
 {
     return View::WindowMenu;
@@ -134,6 +139,11 @@ void QtView::add(QtViewElement *ve, bool update)
         a = dynamic_cast<QAction *>(ve->object);
     if (!a)
         return;
+    if (!m_showSliders)
+    {
+        if (dynamic_cast<QtSliderAction *>(a))
+            return;
+    }
 
     Group *group = nullptr;
     if (ve->element)

@@ -285,23 +285,17 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         VRSceneGraph::instance()->setMenu(state ? VRSceneGraph::MenuAndObjects : VRSceneGraph::MenuHidden); });
     window->addContextAction(win.toggleMenu);
 
-    win.menubar = nullptr;
     win.nativeMenubar = nullptr;
+    win.menubar = win.window->menuBar();
 #ifdef __APPLE__
-    win.nativeMenubar = new QMenuBar(nullptr);
-    win.nativeMenubar->setNativeMenuBar(true);
-    win.nativeMenubar->show();
+    win.menubar->setNativeMenuBar(false);
     bool nativeMenubar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", true);
     if (nativeMenubar)
     {
+        win.nativeMenubar = new QMenuBar(nullptr);
+        win.nativeMenubar->setNativeMenuBar(true);
+        win.nativeMenubar->show();
     }
-    else
-    {
-        win.menubar = win.window->menuBar();
-        win.menubar->setNativeMenuBar(false);
-    }
-#else
-    win.menubar = win.window->menuBar();
 #endif
     if (win.menubar)
         win.menubar->show();
@@ -337,6 +331,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
             win.view.emplace_back(new ui::QtView(win.nativeMenubar));
         else
             win.view.emplace_back(new ui::QtView(win.nativeMenubar, toolbar));
+        win.view.back()->setShowSliders(false);
         cover->ui->addView(win.view.back());
     }
 #if 0
