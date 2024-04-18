@@ -377,7 +377,7 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildi
 
     auto updateBuildingInfo = [&](ennovatis::Building &b, Device *dev) {
         m_devBuildMap[dev] = &b;
-        b.setHeight(dev->devInfo->height + offset[2]);
+        b.setHeight(dev->devInfo->height);
         fillLatLon(b, dev);
     };
 
