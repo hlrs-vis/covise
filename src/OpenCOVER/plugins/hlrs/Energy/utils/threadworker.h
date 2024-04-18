@@ -137,6 +137,7 @@ private:
         }
         threads.clear();
     }
+    // TODO: use std::queue instead of std::vector
     std::vector<std::future<T>> threads;
 };
 } // namespace utils
