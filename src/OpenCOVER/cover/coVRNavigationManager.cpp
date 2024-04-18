@@ -2008,9 +2008,8 @@ void coVRNavigationManager::doMouseXform()
 
             osg::Matrix doTrans, rot, doRot, doRotObj;
             dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-
             //Rotation um beliebigen Punkt -> Mauszeiger, Viewer-Position, ...
-            doTrans.makeTranslate(-transXRel, (-transYRel), -transZRel);
+            doTrans.makeTranslate(-transRel);
             doRotObj.mult(dcs_mat, doTrans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doRotObj);
             dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -2052,7 +2051,7 @@ void coVRNavigationManager::doMouseXform()
 
             relx0 = mouseX() - originX;
             rely0 = mouseY() - originY;
-            doTrans.makeTranslate(transXRel, (transYRel), transZRel);
+            doTrans.makeTranslate(transRel);
             doRotObj.mult(doRot, doTrans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doRotObj);
         }
@@ -2240,21 +2239,11 @@ void coVRNavigationManager::startMouseNav()
     //float newxTrans = relx0;  //declared but never referenced
     //float newyTrans = rely0;  //dito
 
-    osg::Vec3 transRel = cover->getIntersectionHitPointWorld();
 
     if (isViewerPosRotation)
-    {
-        osg::Vec3 viewerPos = cover->getViewerMat().getTrans();
-        transXRel = viewerPos[0];
-        transYRel = viewerPos[1];
-        transZRel = viewerPos[2];
-    }
+        transRel = cover->getViewerMat().getTrans();
     else
-    {
-        transXRel = transRel[0];
-        transYRel = transRel[1];
-        transZRel = transRel[2];
-    }
+        transRel = cover->getIntersectionHitPointWorld();
 }
 
 void coVRNavigationManager::startXform()
