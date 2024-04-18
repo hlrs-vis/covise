@@ -3,12 +3,15 @@
 
 #include "cover/coVRMSController.h"
 #include "cover/ui/SelectionList.h"
+#include "ennovatis/json.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include <memory>
 
 #include <cover/coBillboard.h>
 #include <osg/Group>
+#include <osg/NodeVisitor>
+#include <osg/Shape>
 #include <osgText/Text>
 
 class EnnovatisDevice {
@@ -22,6 +25,7 @@ public:
     void activate();
     void disactivate();
     void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group);
+    void setTimestep(int timestep) { updateColorByTime(timestep); }
 
 private:
     struct BuildingInfo {
@@ -29,16 +33,21 @@ private:
         const ennovatis::Building *building;
         std::vector<std::string> channelResponse;
     };
+    typedef osg::Vec4 TimestepColor;
+    typedef std::vector<TimestepColor> TimestepColorList;
+
     void init(float r);
     void showInfo();
     void fetchData();
     void updateChannelSelectionList();
     void initBillboard();
     void setChannel(int idx);
-    int getSelectedChannelIdx() const;
+    void updateColorByTime(int timestep);
+    void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
+    [[nodiscard]] int getSelectedChannelIdx() const;
     [[nodiscard]] osg::Vec4 getColor(float val, float max) const;
-    osgText::Text *createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
-                                 const char *fontFile) const;
+    [[nodiscard]] osgText::Text *createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
+                                               const char *fontFile) const;
 
     osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
@@ -52,5 +61,6 @@ private:
     BuildingInfo m_buildingInfo;
     ennovatis::rest_request_handler m_rest_worker;
     opencover::coVRMSController *m_opncvr_ctrl; // cannot be const because syncing methods are not const correct
+    TimestepColorList m_timestepColors;
 };
 #endif

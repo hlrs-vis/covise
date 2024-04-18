@@ -34,6 +34,8 @@ public:
         m_dev->update();
         coPickSensor::update();
     }
+
+    void setTimestep(int t) { m_dev->setTimestep(t); }
 };
 
 #endif

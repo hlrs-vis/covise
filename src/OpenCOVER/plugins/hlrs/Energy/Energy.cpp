@@ -613,6 +613,8 @@ bool EnergyPlugin::update()
 void EnergyPlugin::setTimestep(int t)
 {
     sequenceList->setValue(t);
+    for (auto &sensor: m_ennovatisDevicesSensors)
+        sensor->setTimestep(t);
 }
 
 bool EnergyPlugin::destroy()

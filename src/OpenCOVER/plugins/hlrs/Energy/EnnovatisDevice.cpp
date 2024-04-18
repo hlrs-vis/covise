@@ -10,6 +10,7 @@
 
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRAnimationManager.h>
 
 #include <memory>
 #include <osg/Group>
@@ -163,6 +164,7 @@ osg::Vec4 EnnovatisDevice::getColor(float val, float max) const
 {
     osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
     osg::Vec4 colLow = osg::Vec4(0, 1, 0.5, 1.0);
+    max = std::max(max, 1.f);
     float valN = val / max;
 
     osg::Vec4 col(colHigh.r() * valN + colLow.r() * (1 - valN), colHigh.g() * valN + colLow.g() * (1 - valN),
@@ -176,7 +178,7 @@ void EnnovatisDevice::fetchData()
         return;
 
     // make sure only master node fetches data from Ennovatis => sync with slave in update()
-    if (opencover::coVRMSController::instance()->isMaster())
+    if (m_opncvr_ctrl->isMaster())
         m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
@@ -196,6 +198,21 @@ void EnnovatisDevice::init(float r)
     addCylinderBetweenPoints(bottom, top, m_rad, color, m_deviceGroup.get());
 }
 
+void EnnovatisDevice::updateColorByTime(int timestep)
+{
+    if (m_timestepColors.empty())
+        return;
+    auto numTimesteps = m_timestepColors.size();
+    for (auto i = 0; i < m_deviceGroup->getNumChildren(); ++i) {
+        if (auto geode = dynamic_cast<osg::Geode *>(m_deviceGroup->getChild(i))) {
+            osg::ref_ptr<osg::Material> pMaterial = new osg::Material;
+            osg::Vec4 cylinderColor = m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
+            pMaterial->setDiffuse(osg::Material::FRONT, cylinderColor);
+            geode->getOrCreateStateSet()->setAttribute(pMaterial, osg::StateAttribute::OVERRIDE);
+        }
+    }
+}
+
 void EnnovatisDevice::update()
 {
     if (!m_InfoVisible)
@@ -213,6 +230,7 @@ void EnnovatisDevice::update()
         results_vec = m_opncvr_ctrl->syncVector(results_vec);
 
         m_buildingInfo.channelResponse.clear();
+        m_opncvr_ctrl->waitForSlaves();
         m_buildingInfo.channelResponse = std::move(results_vec);
 
         showInfo();
@@ -242,13 +260,26 @@ int EnnovatisDevice::getSelectedChannelIdx() const
     return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;
 }
 
+void EnnovatisDevice::createTimestepColorList(const ennovatis::json_response_object &j_resp_obj)
+{
+    auto numTimesteps = j_resp_obj.Times.size();
+    auto maxValue = j_resp_obj.MaxValue;
+    m_timestepColors.clear();
+    m_timestepColors.resize(numTimesteps);
+    if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
+        opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
+
+    for (auto i = 0; i < m_timestepColors.size(); ++i)
+        m_timestepColors[i] = getColor(j_resp_obj.Values[i], maxValue);
+}
+
 void EnnovatisDevice::showInfo()
 {
     deleteChildrenRecursive(m_BBoard);
     auto matShift = new osg::MatrixTransform();
     osg::Matrix ms;
     const int charSize = 2;
-    ms.makeTranslate(osg::Vec3(w / 2, 0, h));
+    ms.makeTranslate(osg::Vec3(w / 2, 0, m_buildingInfo.building->getHeight() - default_height));
     matShift->setMatrix(ms);
 
     auto textBoxTitle = createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_rad - w / 2., 0, h * 0.9),
@@ -269,8 +300,11 @@ void EnnovatisDevice::showInfo()
     textvalues += channel.to_string() + "\n";
     auto resp_obj = ennovatis::json_parser()(response);
     std::string resp_str = "Error parsing response";
-    if (resp_obj)
+    if (resp_obj) {
         resp_str = *resp_obj;
+        // TODO: filter timesteps and colorize clyinder according to values
+        createTimestepColorList(*resp_obj);
+    }
     textvalues += "Response:\n" + resp_str + "\n";
     textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
 
