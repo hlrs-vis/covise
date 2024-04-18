@@ -5,7 +5,7 @@ using json = nlohmann::json;
 
 namespace ennovatis {
 
-json_response_obj::operator std::string() const
+json_response_object::operator std::string() const
 {
     std::ostringstream oss;
     oss << "Average: " << std::to_string(Average) << "\n"
@@ -25,7 +25,7 @@ json_response_obj::operator std::string() const
     return oss.str();
 }
 
-void from_json(const nlohmann::json &j, json_response_obj &obj)
+void from_json(const nlohmann::json &j, json_response_object &obj)
 {
     j.at("Average").get_to(obj.Average);
     j.at("MaxTime").get_to(obj.MaxTime);
@@ -37,7 +37,7 @@ void from_json(const nlohmann::json &j, json_response_obj &obj)
     j.at("Values").get_to(obj.Values);
 }
 
-std::unique_ptr<json_response_obj> json_parser::operator()(const std::string &s) const
+std::unique_ptr<json_response_object> json_parser::operator()(const std::string &s) const
 {
     try {
         return operator()(nlohmann::json::parse(s));

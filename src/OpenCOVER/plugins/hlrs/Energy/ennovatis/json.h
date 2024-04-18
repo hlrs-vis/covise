@@ -6,7 +6,7 @@
 #include <string>
 
 namespace ennovatis {
-struct json_response_obj {
+struct json_response_object {
     int Average;
     std::string MaxTime;
     int MaxValue;
@@ -18,12 +18,12 @@ struct json_response_obj {
     operator std::string() const;
 };
 
-void from_json(const nlohmann::json &j, json_response_obj &obj);
+void from_json(const nlohmann::json &j, json_response_object &obj);
 
 struct json_parser {
-    std::unique_ptr<json_response_obj> operator()(const nlohmann::json &j) const
+    std::unique_ptr<json_response_object> operator()(const nlohmann::json &j) const
     {
-        return std::make_unique<json_response_obj>(j.template get<ennovatis::json_response_obj>());
+        return std::make_unique<json_response_object>(j.template get<ennovatis::json_response_object>());
     }
 
     /**
@@ -32,7 +32,7 @@ struct json_parser {
      * @param s The string input.
      * @return std::unique_ptr<json_response_obj> A unique pointer to a json_response_obj if parsing went well otherwise a nullptr.
      */
-    std::unique_ptr<json_response_obj> operator()(const std::string &s) const;
+    std::unique_ptr<json_response_object> operator()(const std::string &s) const;
 };
 } // namespace ennovatis
 #endif
