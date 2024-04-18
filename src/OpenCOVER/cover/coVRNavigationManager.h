@@ -302,7 +302,7 @@ private:
     float x0, y0, relx0, rely0;
     float oldRotx, newRotx, oldRoty, newRoty;
     float modifiedVSize, modifiedHSize, yValViewer, yValObject;
-    float transXRel, transYRel, transZRel;
+    osg::Vec3 transRel;
     float originX, originY;
 
     int wiiFlag;
