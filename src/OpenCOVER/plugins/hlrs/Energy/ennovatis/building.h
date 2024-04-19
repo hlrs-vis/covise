@@ -41,7 +41,9 @@ public:
     {
         return "Building: " + m_name + "\nID: " + m_id + "\n" + "\nStreet: " + m_street + "\n";
     }
+    void setName(const std::string &name) { m_name = name; }
     void setId(const std::string &id) { m_id = id; }
+    void setStreet(const std::string &street) { m_street = street; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
     void setHeight(float h) { m_height = h; }
