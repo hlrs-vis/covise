@@ -19,6 +19,7 @@ SET(SOURCES
     Device.cpp
     DeviceSensor.cpp
     EnnovatisDevice.cpp
+    EnnovatisDeviceSensor.cpp
 )
 
 add_subdirectory(utils)
