@@ -2,54 +2,9 @@
 #define _BUILDING_H
 
 #include <string>
-#include <array>
-#include <set>
+#include "channel.h"
 
 namespace ennovatis {
-enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None }; // keep None at the end
-constexpr const char *ChannelGroupToString(ChannelGroup group)
-{
-    switch (group) {
-    case ChannelGroup::Strom:
-        return "Strom";
-    case ChannelGroup::Wasser:
-        return "Wasser";
-    case ChannelGroup::Waerme:
-        return "Waerme";
-    case ChannelGroup::Kaelte:
-        return "Kaelte";
-    case ChannelGroup::None:
-        return "None";
-    }
-    return "None";
-}
-
-/**
- * @brief Represents a channel in ennovatis.
- * 
- * The Channel struct represents a channel in ennovatis, which can be associated with a building.
- * It contains information such as the channel's name, ID, description, type, group and unit.
- */
-struct Channel {
-    std::string name;
-    std::string id;
-    std::string description;
-    std::string type;
-    std::string unit;
-    ChannelGroup group = ChannelGroup::None;
-
-    [[nodiscard]] bool empty() const;
-    [[nodiscard]] const std::string to_string() const;
-    void clear();
-};
-
-struct ChannelCmp {
-    [[nodiscard]] bool operator()(const Channel &lhs, const Channel &rhs) const { return lhs.id < rhs.id; }
-};
-
-typedef std::set<Channel, ChannelCmp> ChannelList;
-typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGroups;
-
 /**
  * @brief Represents a building.
  * 
@@ -58,8 +13,10 @@ typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGro
  */
 class Building {
 public:
-    Building(const std::string &name, const std::string &id): m_name(name), m_id(id){};
-    Building(const std::string &name): m_name(name), m_id(""){};
+    Building(const std::string &name, const std::string &id, const std::string &street)
+    : m_name(name), m_id(id), m_street(street), m_lat(0), m_lon(0), m_height(0){};
+    Building(const std::string &name, const std::string &id): Building(name, id, ""){};
+    Building(const std::string &name): Building(name, "", ""){};
     ~Building() = default;
 
     /**
@@ -75,11 +32,15 @@ public:
 
     [[nodiscard]] const auto &getChannels(ChannelGroup type) const { return m_channels[static_cast<int>(type)]; }
     [[nodiscard]] const auto &getName() const { return m_name; }
+    [[nodiscard]] const auto &getStreet() const { return m_street; }
     [[nodiscard]] const auto &getId() const { return m_id; }
     [[nodiscard]] const auto &getLat() const { return m_lat; }
     [[nodiscard]] const auto &getLon() const { return m_lon; }
     [[nodiscard]] const auto &getHeight() const { return m_height; }
-    [[nodiscard]] const std::string to_string() const { return "Building: " + m_name + "\nID: " + m_id + "\n"; }
+    [[nodiscard]] const std::string to_string() const
+    {
+        return "Building: " + m_name + "\nID: " + m_id + "\n" + "\nStreet: " + m_street + "\n";
+    }
     void setId(const std::string &id) { m_id = id; }
     void setLat(float lat) { m_lat = lat; }
     void setLon(float lon) { m_lon = lon; }
@@ -87,6 +48,7 @@ public:
 
 private:
     std::string m_name;
+    std::string m_street;
     std::string m_id;
     float m_lat;
     float m_lon;
