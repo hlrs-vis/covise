@@ -8,3 +8,4 @@ filename = '/data/DiTEnS/campus/db_building_measurements.csv'
 jsonPath = '/data/DiTEnS/ennovatis/channelids.json'
 projEid = '00-2914207990135212101590650999999998_1'
 restUrl = 'http://129.69.40.93:4029/ControllingService/DataManagement/ReadData'
+defaultColor = [0.753, 0.443, 0.816, 1.0]
