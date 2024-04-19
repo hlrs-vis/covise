@@ -21,7 +21,6 @@ public:
 
     [[nodiscard]] auto getDevice() const { return m_dev.get(); }
 
-
     void update() override
     {
         m_dev->update();

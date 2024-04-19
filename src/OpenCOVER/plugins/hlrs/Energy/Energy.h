@@ -108,6 +108,7 @@ private:
     bool loadDB(const std::string &path);
     void initRESTRequest();
     void initEnnovatisUI();
+    void selectEnabledDevice();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
     void reinitDevices(int comp);

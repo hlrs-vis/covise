@@ -218,6 +218,7 @@ void EnergyPlugin::initEnnovatisUI()
 
     m_ennovatisSelectionsList->setList(ennovatisSelections);
     m_enabledEnnovatisDevices = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Enabled Devices: ");
+    m_enabledEnnovatisDevices->setCallback([this](int value) { selectEnabledDevice(); });
     m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
 
     // TODO: add calender widget instead of txtfields
@@ -227,6 +228,19 @@ void EnergyPlugin::initEnnovatisUI()
         [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
     m_ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
     m_ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
+}
+
+void EnergyPlugin::selectEnabledDevice()
+{
+    auto selected = m_enabledEnnovatisDevices->selectedItem(); 
+    for (auto &sensor: m_ennovatisDevicesSensors) {
+        auto building = sensor->getDevice()->getBuildingInfo().building;
+        if (building->getName() == selected) {
+            sensor->disactivate();
+            sensor->activate();
+            return;
+        }
+    }
 }
 
 void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
