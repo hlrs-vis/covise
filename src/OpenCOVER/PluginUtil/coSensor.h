@@ -61,9 +61,11 @@ public:
 
     // this method is called if intersection just started
     // and should be overloaded
+    // default: this method is called as soon as the mouse pointer is pressed
     virtual void activate();
 
     // should be overloaded, is called if intersection finishes
+    // default: this method is called as soon as the mouse pointer is released
     virtual void disactivate();
 
     // enable intersection testing, default is enabled
