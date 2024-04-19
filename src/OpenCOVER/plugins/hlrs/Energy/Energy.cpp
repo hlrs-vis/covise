@@ -210,18 +210,21 @@ void EnergyPlugin::initEnnovatisUI()
 {
     m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
     m_ennovatisGroup->setText("Ennovatis");
-    m_ennovatisSelectionsList = new ui::SelectionList(EnergyTab, "Ennovatis Selections: ");
+
+    m_ennovatisSelectionsList = new ui::SelectionList(m_ennovatisGroup, "Ennovatis ChannelType: ");
     std::vector<std::string> ennovatisSelections;
     for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
         ennovatisSelections.push_back(ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
 
     m_ennovatisSelectionsList->setList(ennovatisSelections);
+    m_enabledEnnovatisDevices = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Enabled Devices: ");
     m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
 
     // TODO: add calender widget instead of txtfields
     m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
     m_ennovatisTo = new ui::EditField(EnergyTab, "to");
-    m_ennovatisSelectionsList->setCallback([this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
+    m_ennovatisSelectionsList->setCallback(
+        [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
     m_ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
     m_ennovatisTo->setCallback([this](const std::string &toSet) { setRESTDate(toSet, false); });
 }
@@ -267,11 +270,14 @@ void EnergyPlugin::reinitDevices(int comp)
 void EnergyPlugin::initEnnovatisDevices()
 {
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
+    auto configColorVec = configFloatArray("Ennovatis", "defaultColor", std::vector<double>{ 0,0,0, 1.f})->value();
+    auto m_defaultColor = osg::Vec4(configColorVec[0], configColorVec[1], configColorVec[2], configColorVec[3]);
     m_ennovatisDevicesSensors.clear();
     for (auto &b: *m_buildings) {
-        auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp);
+        auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp, m_defaultColor);
         m_ennovatis->addChild(enDev->getDeviceGroup());
-        m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(std::move(enDev), enDev->getDeviceGroup()));
+        m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
+            std::move(enDev), enDev->getDeviceGroup(), m_enabledEnnovatisDevices));
     }
 }
 

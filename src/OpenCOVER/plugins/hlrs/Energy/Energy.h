@@ -86,6 +86,7 @@ public:
     opencover::ui::EditField *m_ennovatisFrom = nullptr;
     opencover::ui::EditField *m_ennovatisTo = nullptr;
     std::shared_ptr<opencover::ui::SelectionList> m_ennovatisChannelList = nullptr;
+    std::shared_ptr<opencover::ui::SelectionList> m_enabledEnnovatisDevices = nullptr;
 
     void setComponent(Components c);
     int selectedComp = 0;
@@ -149,6 +150,7 @@ private:
     osg::ref_ptr<osg::Group> m_ennovatis;
     // switch used to toggle between ennovatis and db data
     osg::ref_ptr<osg::Switch> m_switch;
+    osg::Vec4 m_defaultColor;
 };
 
 #endif

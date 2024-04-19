@@ -13,10 +13,12 @@
 #include <cover/coVRAnimationManager.h>
 
 #include <memory>
+#include <osg/Geode>
 #include <osg/Group>
 #include <osg/Material>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
+#include <osg/Vec3>
 #include <osg/ref_ptr>
 #include <string>
 
@@ -29,6 +31,19 @@ constexpr float default_height = 100.f;
 EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
 
+auto createMaterial(const osg::Vec4 &color)
+{
+    osg::ref_ptr<osg::Material> mat = new osg::Material;
+    mat->setDiffuse(osg::Material::FRONT, color);
+    return mat;
+}
+
+void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color)
+{
+    auto mat = createMaterial(color);
+    geode->getOrCreateStateSet()->setAttribute(mat, osg::StateAttribute::OVERRIDE);
+}
+
 /**
  * @brief Adds a cylinder between two points.
  * Source: http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
@@ -39,7 +54,7 @@ constexpr bool debug = build_options.debug_ennovatis;
  * @param cylinderColor The color of the cylinder.
  * @param group The group to which the cylinder will be added.
  */
-void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cyclinderColor, osg::Group *group)
+void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cylinderColor, osg::Group *group)
 {
     osg::ref_ptr geode = new osg::Geode;
     osg::Vec3 center;
@@ -71,9 +86,7 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
     geode->addDrawable(cylinderDrawable);
 
     // Set the color of the cylinder that extends between the two points.
-    pMaterial = new osg::Material;
-    pMaterial->setDiffuse(osg::Material::FRONT, cyclinderColor);
-    geode->getOrCreateStateSet()->setAttribute(pMaterial, osg::StateAttribute::OVERRIDE);
+    overrideGeodeColor(geode, cylinderColor);
 
     // Add the cylinder between the two points to an existing group
     group->addChild(geode);
@@ -97,7 +110,7 @@ void deleteChildrenRecursive(osg::Group *grp)
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<opencover::ui::SelectionList> channelList,
                                  std::shared_ptr<ennovatis::rest_request> req,
-                                 std::shared_ptr<ennovatis::ChannelGroup> channelGroup)
+                                 std::shared_ptr<ennovatis::ChannelGroup> channelGroup, const osg::Vec4 &defaultColor)
 : m_deviceGroup(new osg::Group())
 , m_BBoard(new coBillboard())
 , m_request(req)
@@ -105,6 +118,7 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
 , m_channelSelectionList(channelList)
 , m_buildingInfo(BuildingInfo(&building))
 , m_opncvr_ctrl(opencover::coVRMSController::instance())
+, m_defaultColor(defaultColor)
 {
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
 
@@ -189,27 +203,34 @@ void EnnovatisDevice::init(float r)
     h = m_rad * 21;
 
     // RGB Colors 1,1,1 = white, 0,0,0 = black
-    osg::Vec4 color(0.753, 0.443, 0.816, 1.f);
     const osg::Vec3f bottom(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
                             m_buildingInfo.building->getHeight());
     osg::Vec3f top(bottom);
     top.z() += default_height;
 
-    addCylinderBetweenPoints(bottom, top, m_rad, color, m_deviceGroup.get());
+    addCylinderBetweenPoints(bottom, top, m_rad, m_defaultColor, m_deviceGroup.get());
 }
+
+auto EnnovatisDevice::getCylinderGeode()
+{
+    osg::Geode *cyl = nullptr;
+    for (auto i = 0; i < m_deviceGroup->getNumChildren(); ++i)
+        if (auto geode = dynamic_cast<osg::Geode *>(m_deviceGroup->getChild(i)))
+            return geode;
+
+    return cyl;
+}
+
 
 void EnnovatisDevice::updateColorByTime(int timestep)
 {
     if (m_timestepColors.empty())
         return;
     auto numTimesteps = m_timestepColors.size();
-    for (auto i = 0; i < m_deviceGroup->getNumChildren(); ++i) {
-        if (auto geode = dynamic_cast<osg::Geode *>(m_deviceGroup->getChild(i))) {
-            osg::ref_ptr<osg::Material> pMaterial = new osg::Material;
-            osg::Vec4 cylinderColor = m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
-            pMaterial->setDiffuse(osg::Material::FRONT, cylinderColor);
-            geode->getOrCreateStateSet()->setAttribute(pMaterial, osg::StateAttribute::OVERRIDE);
-        }
+    auto geode = getCylinderGeode();
+    if (geode) {
+        osg::Vec4 cylinderColor = m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
+        overrideGeodeColor(geode, cylinderColor);
     }
 }
 
@@ -237,22 +258,26 @@ void EnnovatisDevice::update()
     }
 }
 
+
 void EnnovatisDevice::activate()
+{
+    m_InfoVisible = true;
+    m_selectedDevice = this;
+    updateChannelSelectionList();
+    fetchData();
+}
+
+void EnnovatisDevice::disactivate()
 {
     if (m_TextGeode) {
         m_BBoard->removeChild(m_TextGeode);
         m_TextGeode = nullptr;
         m_InfoVisible = false;
-    } else {
-        m_InfoVisible = true;
-        m_selectedDevice = this;
-        updateChannelSelectionList();
-        fetchData();
+        auto geode = getCylinderGeode();
+        overrideGeodeColor(geode, m_defaultColor);
+        m_timestepColors.clear();
     }
 }
-
-void EnnovatisDevice::disactivate()
-{}
 
 int EnnovatisDevice::getSelectedChannelIdx() const
 {
