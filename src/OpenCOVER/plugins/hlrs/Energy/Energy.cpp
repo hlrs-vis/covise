@@ -264,7 +264,7 @@ void EnergyPlugin::reinitDevices(int comp)
     }
 }
 
-void EnergyPlugin::initEnnovatisGrp()
+void EnergyPlugin::initEnnovatisDevices()
 {
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
     m_ennovatisDevicesSensors.clear();
@@ -365,7 +365,7 @@ void EnergyPlugin::initRESTRequest()
     m_ennovatisTo->setValue(ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
 }
 
-std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildings(const DeviceList &deviceList)
+std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList)
 {
     auto lastDst = 0;
     auto noDeviceMatches = const_buildings();
@@ -377,6 +377,9 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildi
 
     auto updateBuildingInfo = [&](ennovatis::Building &b, Device *dev) {
         m_devBuildMap[dev] = &b;
+        // name in ennovatis is the street => first set it for street => then set the name
+        b.setStreet(b.getName());
+        b.setName(dev->devInfo->name);
         b.setHeight(dev->devInfo->height);
         fillLatLon(b, dev);
     };
@@ -420,7 +423,6 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::initEnnovatisBuildi
             }
         }
     }
-
     return std::make_unique<const_buildings>(noDeviceMatches);
 }
 
@@ -446,7 +448,7 @@ bool EnergyPlugin::init()
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
 
-    auto noMatches = initEnnovatisBuildings(SDlist);
+    auto noMatches = updateEnnovatisBuildings(SDlist);
 
     if constexpr (debug) {
         int i = 0;
@@ -459,7 +461,7 @@ bool EnergyPlugin::init()
         for (auto &building: *noMatches)
             std::cout << building->getName() << std::endl;
     }
-    initEnnovatisGrp();
+    initEnnovatisDevices();
     switchTo(sequenceList);
     return true;
 }

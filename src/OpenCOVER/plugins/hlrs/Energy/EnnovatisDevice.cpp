@@ -263,14 +263,15 @@ int EnnovatisDevice::getSelectedChannelIdx() const
 void EnnovatisDevice::createTimestepColorList(const ennovatis::json_response_object &j_resp_obj)
 {
     auto numTimesteps = j_resp_obj.Times.size();
-    auto maxValue = j_resp_obj.MaxValue;
+    auto &respValues = j_resp_obj.Values;
+    auto maxValue = *std::max_element(respValues.begin(), respValues.end());
     m_timestepColors.clear();
     m_timestepColors.resize(numTimesteps);
     if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
         opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
 
     for (auto i = 0; i < m_timestepColors.size(); ++i)
-        m_timestepColors[i] = getColor(j_resp_obj.Values[i], maxValue);
+        m_timestepColors[i] = getColor(respValues[i], maxValue);
 }
 
 void EnnovatisDevice::showInfo()
@@ -287,7 +288,8 @@ void EnnovatisDevice::showInfo()
     auto textBoxContent = createTextBox("", osg::Vec3(m_rad - w / 2.f, 0, h * 0.75), charSize, NULL);
 
     // building info
-    std::string textvalues = "ID: " + m_buildingInfo.building->getId() + "\n";
+    std::string textvalues =
+        "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
 
     // channel info
     auto currentSelectedChannel = getSelectedChannelIdx();

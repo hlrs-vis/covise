@@ -111,7 +111,7 @@ private:
     void setRESTDate(const std::string &toSet, bool isFrom);
     void reinitDevices(int comp);
     void changeEnnovatisChannelGrp();
-    void initEnnovatisGrp();
+    void initEnnovatisDevices();
     void switchTo(const osg::Node *child);
     
     /**
@@ -132,7 +132,7 @@ private:
      * @param deviceList The list of devices. Make sure map is sorted.
      * @return A unique pointer to buildings which have ne matching device.
      */
-    std::unique_ptr<const_buildings> initEnnovatisBuildings(const DeviceList &deviceList);
+    std::unique_ptr<const_buildings> updateEnnovatisBuildings(const DeviceList &deviceList);
 
     int maxTimesteps = 10;
     static EnergyPlugin *plugin;
