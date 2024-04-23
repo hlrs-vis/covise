@@ -13,12 +13,16 @@
 #include <cover/coVRAnimationManager.h>
 
 #include <memory>
+#include <osg/Array>
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/Group>
 #include <osg/Material>
+#include <osg/Quat>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osg/Vec3>
+#include <osg/Vec4>
 #include <osg/ref_ptr>
 #include <string>
 
@@ -334,23 +338,10 @@ void EnnovatisDevice::showInfo()
     textvalues += "Response:\n" + resp_str + "\n";
     textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
 
-    osg::Vec4 colVec(0., 0., 0., 0.2);
-    osg::ref_ptr<osg::Material> mat = new osg::Material();
-    mat->setDiffuse(osg::Material::FRONT_AND_BACK, colVec);
-    mat->setAmbient(osg::Material::FRONT_AND_BACK, colVec);
-
-    auto box = new osg::Box(osg::Vec3(m_rad, 0.04 * m_rad, h / 2.f), w, 0, h);
-    auto sdBox = new osg::ShapeDrawable(box);
-    sdBox->setColor(colVec);
-    auto boxState = sdBox->getOrCreateStateSet();
-    boxState->setAttribute(mat.get(), osg::StateAttribute::PROTECTED);
-    sdBox->setStateSet(boxState);
-
     auto geo = new osg::Geode();
     geo->setName("TextBox");
     geo->addDrawable(textBoxTitle);
     geo->addDrawable(textBoxContent);
-    geo->addDrawable(sdBox);
 
     matShift->addChild(geo);
     m_TextGeode = new osg::Group();
@@ -371,5 +362,9 @@ osgText::Text *EnnovatisDevice::createTextBox(const std::string &text, const osg
     textBox->setFont(coVRFileManager::instance()->getFontFile(fontFile));
     textBox->setMaximumWidth(w);
     textBox->setPosition(position);
+    /* textBox->setDrawMode(osgText::Text::BOUNDINGBOX | osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT); */
+    textBox->setDrawMode(osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT);
+    textBox->setBoundingBoxColor(osg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
+    textBox->setBoundingBoxMargin(2.0f);
     return textBox;
 }
