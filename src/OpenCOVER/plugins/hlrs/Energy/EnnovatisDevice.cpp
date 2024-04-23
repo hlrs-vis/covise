@@ -329,7 +329,6 @@ void EnnovatisDevice::showInfo()
     std::string resp_str = "Error parsing response";
     if (resp_obj) {
         resp_str = *resp_obj;
-        // TODO: filter timesteps and colorize clyinder according to values
         createTimestepColorList(*resp_obj);
     }
     textvalues += "Response:\n" + resp_str + "\n";

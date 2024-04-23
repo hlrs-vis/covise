@@ -249,7 +249,8 @@ void EnergyPlugin::selectEnabledDevice()
     }
 }
 
-void EnergyPlugin::updateEnnovatis() {
+void EnergyPlugin::updateEnnovatis()
+{
     updateEnnovatisChannelGrp();
 }
 
