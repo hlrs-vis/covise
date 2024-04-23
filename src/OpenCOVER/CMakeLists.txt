@@ -8,24 +8,7 @@
 
 PROJECT(OpenCOVER C CXX)
 # this is already set in the top most CMakeLists.txt set (CMAKE_CXX_STANDARD 11)
-if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-
-    set(COVISE_EXPORTS_FILE "cover-exports.cmake")
-    set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-endif()
-
 set(COVISE_BUILDING_COVER TRUE)
-
-if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-    option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-    option(COVISE_USE_CUDA "Use CUDA" ON)
-    option(COVISE_USE_MPI "Use MPI" ON)
-    option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
-    option(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
-    option(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
-    option(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
-    option(COVISE_USE_OSMESA "Use OSMesa OpenGL library for CPU based off-screen rendering" OFF)
-endif()
 
 option(COVER_ENABLE_VOIP "Enable VoIP linphone client plugin" OFF)
 mark_as_advanced(COVER_ENABLE_VOIP)
@@ -40,51 +23,27 @@ endmacro (GETENV_PATH var name)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(PLUGIN_CATEGORY "default")
 
-if(COVISE_OPENCOVER_INTERNAL_PROJECT)
-   set(COVISE_UTIL_LIBRARY coUtil)
-   set(COVISE_FILE_LIBRARY coFile)
-   set(COVISE_APPL_LIBRARY coAppl)
-   set(COVISE_API_LIBRARY coApi)
-   set(COVISE_CORE_LIBRARY coCore)
-   set(COVISE_NET_LIBRARY coNet)
-   set(COVISE_DO_LIBRARY coDo)
-   set(COVISE_SHM_LIBRARY coShm)
-   set(COVISE_CONFIG_LIBRARY coConfig)
-   set(COVISE_VRBCLIENT_LIBRARY coVRBClient)
-   set(COVISE_VRBCLIENT_LIBRARY coVRBServer)
-   set(COVISE_GRMSG_LIBRARY coGRMsg)
-   set(COVISE_GPU_LIBRARY coGPU)
-   set(COVISE_ALG_LIBRARY coAlg)
-   set(COVISE_IMAGE_LIBRARY coImage)
-   set(COVISE_VTK_LIBRARY coVtk)
+set(COVISE_UTIL_LIBRARY coUtil)
+set(COVISE_FILE_LIBRARY coFile)
+set(COVISE_APPL_LIBRARY coAppl)
+set(COVISE_API_LIBRARY coApi)
+set(COVISE_CORE_LIBRARY coCore)
+set(COVISE_NET_LIBRARY coNet)
+set(COVISE_DO_LIBRARY coDo)
+set(COVISE_SHM_LIBRARY coShm)
+set(COVISE_CONFIG_LIBRARY coConfig)
+set(COVISE_VRBCLIENT_LIBRARY coVRBClient)
+set(COVISE_VRBCLIENT_LIBRARY coVRBServer)
+set(COVISE_GRMSG_LIBRARY coGRMsg)
+set(COVISE_GPU_LIBRARY coGPU)
+set(COVISE_ALG_LIBRARY coAlg)
+set(COVISE_IMAGE_LIBRARY coImage)
+set(COVISE_VTK_LIBRARY coVtk)
 
-   set(COVISE_GPU_LIBRARIES ${COVISE_GPU_LIBRARY})
+set(COVISE_GPU_LIBRARIES ${COVISE_GPU_LIBRARY})
 
-   set(COVISE_INCLUDE_DIRS ../kernel)
-   set(COVISE_FOUND TRUE)
-else()
-   cmake_minimum_required(VERSION 3.1)
-   getenv_path(COVISEDIR COVISEDIR)
-   set(CMAKE_MODULE_PATH "${COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
-
-   # global feature tests
-   INCLUDE(CoviseGlobalFeatureTests)
-
-   find_package(COVISE REQUIRED)
-   find_package(COVISE COMPONENTS GPU REQUIRED)
-   #covise_create_using()
-
-   # preset some initial values for install dir and CFLAGS etc.
-   INCLUDE(CovisePresets)
-   covise_cmake_policy()
-
-   include(CoviseHelperMacros)
-
-   set(CMAKE_INSTALL_PREFIX "${COVISE_INSTALL_PREFIX}")
-
-   INCLUDE(Qt5-6)
-   find_qt()
-endif()
+set(COVISE_INCLUDE_DIRS ../kernel)
+set(COVISE_FOUND TRUE)
 
 if (POLICY CMP0020)
     #qt policy Automatically link Qt executables to qtmain target on Windows.
@@ -129,20 +88,6 @@ IF(CURL_FOUND)
   ENDIF(WIN32)
 ENDIF()
 
-if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-    string(TOLOWER "${COVISE_ARCHSUFFIX}" COVISE_ARCHSUFFIX)
-    string(REGEX REPLACE "opt$" "" BASEARCHSUFFIX "${COVISE_ARCHSUFFIX}")
-    set(DBG_ARCHSUFFIX "${BASEARCHSUFFIX}")
-    string(REGEX REPLACE "xenomai$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
-    string(REGEX REPLACE "mpi$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
-    if(COVISE_ARCHSUFFIX STREQUAL DBG_ARCHSUFFIX)
-        set(CMAKE_BUILD_TYPE "Debug")
-    else()
-        set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-    endif()
-    message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-endif()
-
 if(COVISE_USE_X11)
     add_definitions(-DUSE_X11)
 endif()
@@ -159,15 +104,6 @@ if (COVISE_USE_OSMESA)
 endif()
 
 
-
-if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-    IF(COVISE_EXPORT_TO_INSTALL)
-        set(COVISE_EXPORTS_PATH "${COVISEDIR}/${COVISE_ARCHSUFFIX}")
-    ELSE()
-        set(COVISE_EXPORTS_PATH "${CMAKE_BINARY_DIR}")
-    ENDIF()
-    FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
-endif()
 
 if (COVISE_BUILD_ONLY_COVER)
     set(COVISE_BUILD_DRIVINGSIM OFF)
@@ -202,15 +138,6 @@ ADD_SUBDIRECTORY(createPagedLOD)
 ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(ManagedOpenCOVER)
 ADD_SUBDIRECTORY(Sur40COVER)
-
-if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
-    IF(${CMAKE_VERSION} VERSION_GREATER "2.8.2")
-        INCLUDE(FeatureSummary)
-        FEATURE_SUMMARY(WHAT ALL)
-    ENDIF()
-
-    message("Building for ARCHSUFFIX: ${COVISE_ARCHSUFFIX}, installing to: ${COVISE_DESTDIR}")
-endif()
 
 INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
     "${CMAKE_INSTALL_PREFIX}/share/cover/cmake/" RENAME "cover-config.cmake")

@@ -12,9 +12,7 @@
 /.settings
 /.vs
 /*/bin
-/*/build.cover
 /*/build.covise
-/*/cover-exports.cmake
 /*/covise-exports.cmake
 /*/CoviseOptions.cmake
 /*/lib

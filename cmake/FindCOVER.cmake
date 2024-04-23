@@ -28,33 +28,6 @@ find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
    DOC "COVER - Headers"
 )
 
-if (NOT COVER_EXPORTS_INCLUDED)
-    find_path(COVISE_OPTIONS_FILEPATH "CoviseOptions.cmake"
-        PATHS
-        ${COVISEDIR}/${COVISE_ARCHSUFFIX}
-        DOC "COVER - COVISE CMake options"
-    )
-    if (COVISE_OPTIONS_FILEPATH)
-        include("${COVISE_OPTIONS_FILEPATH}/CoviseOptions.cmake")
-        if (COVISE_OPENCOVER_INTERNAL_PROJECT)
-            message("COVER: using CMake library exports file for COVISE")
-            #include("${COVER_EXPORTS_FILEPATH}/covise-exports.cmake")
-        else()
-            find_path(COVER_EXPORTS_FILEPATH "cover-exports.cmake"
-                PATHS
-                ${COVISEDIR}/${COVISE_ARCHSUFFIX}
-                DOC "COVER - CMake library exports"
-            )
-            if (COVER_EXPORTS_FILEPATH)
-                include("${COVER_EXPORTS_FILEPATH}/cover-exports.cmake")
-            else()
-                message("COVER: CMake library exports file not found")
-            endif()
-        endif()
-    endif()
-    set (COVER_EXPORTS_INCLUDED TRUE)
-endif()
-
 covise_find_library(COVER coOpenCOVER)
 covise_find_library(COVER_CONFIG coOpenConfig)
 covise_find_library(COVER_VRUI coOpenVRUI)

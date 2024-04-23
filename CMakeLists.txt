@@ -173,7 +173,6 @@ if(${NUM_COVISE_BUILD_ONLY_COMPONENTS} GREATER 1)
 endif()
 
 
-option(COVISE_OPENCOVER_INTERNAL_PROJECT "build OpenCOVER from this project" ON)
 if (BASEARCHSUFFIX STREQUAL "cray64")
     OPTION(COVISE_USE_OSMESA "Use OSMesa OpenGL library for off-screen CPU rendering" ON)
 else()
