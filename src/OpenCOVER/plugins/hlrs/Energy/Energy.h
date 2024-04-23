@@ -114,7 +114,7 @@ private:
     void setRESTDate(const std::string &toSet, bool isFrom);
     void updateEnnovatis();
     void reinitDevices(int comp);
-    void changeEnnovatisChannelGrp();
+    void updateEnnovatisChannelGrp();
     void initEnnovatisDevices();
     void switchTo(const osg::Node *child);
     

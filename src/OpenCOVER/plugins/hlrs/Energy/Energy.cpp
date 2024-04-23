@@ -250,7 +250,7 @@ void EnergyPlugin::selectEnabledDevice()
 }
 
 void EnergyPlugin::updateEnnovatis() {
-    changeEnnovatisChannelGrp();
+    updateEnnovatisChannelGrp();
 }
 
 void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
@@ -304,7 +304,7 @@ void EnergyPlugin::initEnnovatisDevices()
     }
 }
 
-void EnergyPlugin::changeEnnovatisChannelGrp()
+void EnergyPlugin::updateEnnovatisChannelGrp()
 {
     for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->getDevice()->setChannelGroup(m_channelGrp);
@@ -319,7 +319,7 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
         auto &b = m_buildings->at(0);
         m_debug_worker.fetchChannels(group, b, *m_req);
     }
-    changeEnnovatisChannelGrp();
+    updateEnnovatisChannelGrp();
 }
 
 void EnergyPlugin::switchTo(const osg::Node *child)
