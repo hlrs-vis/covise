@@ -224,6 +224,12 @@ void EnergyPlugin::initEnnovatisUI()
     // TODO: add calender widget instead of txtfields
     m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
     m_ennovatisTo = new ui::EditField(EnergyTab, "to");
+
+    m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
+    m_ennovatisUpdate->setCallback([this](bool on) {
+        updateEnnovatis();
+    });
+
     m_ennovatisSelectionsList->setCallback(
         [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
     m_ennovatisFrom->setCallback([this](const std::string &toSet) { setRESTDate(toSet, true); });
@@ -241,6 +247,10 @@ void EnergyPlugin::selectEnabledDevice()
             return;
         }
     }
+}
+
+void EnergyPlugin::updateEnnovatis() {
+    changeEnnovatisChannelGrp();
 }
 
 void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
@@ -268,7 +278,6 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
         m_req->dtf = time;
     else
         m_req->dtt = time;
-    changeEnnovatisChannelGrp();
 }
 
 void EnergyPlugin::reinitDevices(int comp)

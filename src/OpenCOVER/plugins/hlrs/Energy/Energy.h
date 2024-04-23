@@ -85,6 +85,7 @@ public:
     opencover::ui::Group *m_ennovatisGroup = nullptr;
     opencover::ui::EditField *m_ennovatisFrom = nullptr;
     opencover::ui::EditField *m_ennovatisTo = nullptr;
+    opencover::ui::Button *m_ennovatisUpdate = nullptr;
     std::shared_ptr<opencover::ui::SelectionList> m_ennovatisChannelList = nullptr;
     std::shared_ptr<opencover::ui::SelectionList> m_enabledEnnovatisDevices = nullptr;
 
@@ -111,6 +112,7 @@ private:
     void selectEnabledDevice();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
+    void updateEnnovatis();
     void reinitDevices(int comp);
     void changeEnnovatisChannelGrp();
     void initEnnovatisDevices();
