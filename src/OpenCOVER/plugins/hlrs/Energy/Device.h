@@ -34,6 +34,7 @@ public:
         flaeche = d.flaeche;
         name = d.name;
         ID = d.ID;
+        strasse = d.strasse;
     }
     ~DeviceInfo(){};
     float lat;
@@ -44,6 +45,7 @@ public:
     float kaelte = 0.f;
     float flaeche = 0;
     float baujahr = 0;
+    std::string strasse;
     std::string ID;
     int timestep = -1;
     std::string name = "NONE";

@@ -36,21 +36,22 @@ Device::Device(DeviceInfo *d, osg::Group *parent)
     TextGeode = nullptr;
 }
 
-Device::~Device() {}
+Device::~Device()
+{}
 
 osg::Vec4 Device::getColor(float val, float max)
 {
     osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
     osg::Vec4 colLow = osg::Vec4(0, 1, 0.5, 1.0);
     float valN = val / max;
-    osg::Vec4 col(colHigh.r() * valN + colLow.r() * (1 - valN), colHigh.g() * valN + colLow.g() * (1 - valN), colHigh.b() * valN + colLow.b() * (1 - valN), colHigh.a() * valN + colLow.a() * (1 - valN));
+    osg::Vec4 col(colHigh.r() * valN + colLow.r() * (1 - valN), colHigh.g() * valN + colLow.g() * (1 - valN),
+                  colHigh.b() * valN + colLow.b() * (1 - valN), colHigh.a() * valN + colLow.a() * (1 - valN));
     return col;
 }
 
 void Device::init(float r, float sH, int c)
 {
-    if (geoBars)
-    {
+    if (geoBars) {
         deviceGroup->removeChild(geoBars);
         geoBars = nullptr;
     }
@@ -59,40 +60,28 @@ void Device::init(float r, float sH, int c)
     w = rad * 10;
     h = rad * 11;
 
-    osg::Cylinder *cyl = new osg::Cylinder(
-        osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height), rad, 0.);
+    osg::Cylinder *cyl = new osg::Cylinder(osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height), rad, 0.);
     osg::Vec4 colVec(0.1, 0.1, 0.1, 1.f);
     osg::Cylinder *cylLimit;
     osg::Vec4 colVecLimit(1.f, 1.f, 1.f, 1.f);
 
-    switch (c)
-    {
+    auto setCyclAndColor = [&](const float &compVal) {
+        cyl->set(osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height + compVal * sH / 2), rad, -compVal * sH);
+        colVec = getColor(compVal, 1000.);
+    };
+
+    switch (c) {
     case 0:
         if (devInfo->strom > 0.)
-        {
-            cyl->set(osg::Vec3(devInfo->lat, devInfo->lon,
-                               devInfo->height + devInfo->strom * sH / 2),
-                     rad, -devInfo->strom * sH);
-            colVec = getColor(devInfo->strom, 1000.);
-        }
+            setCyclAndColor(devInfo->strom);
         break;
     case 1:
         if (devInfo->waerme > 0.)
-        {
-            cyl->set(osg::Vec3(devInfo->lat, devInfo->lon,
-                               devInfo->height + devInfo->waerme * sH / 2),
-                     rad, -devInfo->waerme * sH);
-            colVec = getColor(devInfo->waerme, 1000.);
-        }
+            setCyclAndColor(devInfo->waerme);
         break;
     case 2:
         if (devInfo->kaelte > 0.)
-        {
-            cyl->set(osg::Vec3(devInfo->lat, devInfo->lon,
-                               devInfo->height + devInfo->kaelte * sH / 2),
-                     rad, -devInfo->kaelte * sH);
-            colVec = getColor(devInfo->kaelte, 1000.);
-        }
+            setCyclAndColor(devInfo->kaelte);
         break;
     }
     osg::ShapeDrawable *shapeD = new osg::ShapeDrawable(cyl);
@@ -121,28 +110,25 @@ void Device::init(float r, float sH, int c)
 
 void Device::update()
 {
-    if (devSensor)
-    {
+    if (devSensor) {
         InfoVisible = false;
         devSensor->update();
     }
 }
 void Device::activate()
 {
-    if (TextGeode)
-    {
+    if (TextGeode) {
         BBoard->removeChild(TextGeode);
         TextGeode = nullptr;
         InfoVisible = false;
-    }
-    else
-    {
+    } else {
         showInfo();
         InfoVisible = true;
     }
 }
 
-void Device::disactivate() {}
+void Device::disactivate()
+{}
 
 void Device::showInfo()
 {
@@ -157,8 +143,7 @@ void Device::showInfo()
     textBoxTitle->setColor(osg::Vec4(1, 1, 1, 1));
     textBoxTitle->setText(devInfo->name, osgText::String::ENCODING_UTF8);
     textBoxTitle->setCharacterSize(charSize);
-    textBoxTitle->setFont(
-        coVRFileManager::instance()->getFontFile("DroidSans-Bold.ttf"));
+    textBoxTitle->setFont(coVRFileManager::instance()->getFontFile("DroidSans-Bold.ttf"));
     textBoxTitle->setMaximumWidth(w);
     textBoxTitle->setPosition(osg::Vec3(rad - w / 2., 0, h * 0.9));
 
@@ -167,8 +152,8 @@ void Device::showInfo()
     textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
     textBoxContent->setLineSpacing(1.25);
-    textBoxContent->setText(
-        " > Baujahr:\n > Grundfläche:\n > Strom:\n > Wärme:\n > Kälte:", osgText::String::ENCODING_UTF8);
+    textBoxContent->setText(" > Baujahr:\n > Grundfläche:\n > Strom:\n > Wärme:\n > Kälte:",
+                            osgText::String::ENCODING_UTF8);
     textBoxContent->setCharacterSize(charSize);
     textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
     textBoxContent->setMaximumWidth(w * 2. / 3.);
@@ -179,21 +164,13 @@ void Device::showInfo()
     textBoxValues->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxValues->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
     textBoxValues->setLineSpacing(1.25);
-    std::string textvalues =
-        (devInfo->baujahr > 0.f ? (std::to_string((int)devInfo->baujahr) + " \n")
-                                : "- \n");
-    textvalues +=
-        (devInfo->flaeche > 0.f ? (std::to_string((int)devInfo->flaeche) + " m2 \n")
-                                : "- \n");
-    textvalues +=
-        (devInfo->strom < 0.f ? "- \n"
-                              : (std::to_string((int)devInfo->strom) + " MW\n"));
-    textvalues +=
-        (devInfo->waerme < 0.f ? "- \n"
-                               : (std::to_string((int)devInfo->waerme) + " kW\n"));
-    textvalues +=
-        (devInfo->kaelte < 0.f ? "- \n"
-                               : (std::to_string((int)devInfo->kaelte) + " kW\n"));
+
+    std::string textvalues = (devInfo->baujahr > 0.f ? (std::to_string((int)devInfo->baujahr) + " \n") : "- \n");
+    textvalues += (devInfo->flaeche > 0.f ? (std::to_string((int)devInfo->flaeche) + " m2 \n") : "- \n");
+    textvalues += (devInfo->strom < 0.f ? "- \n" : (std::to_string((int)devInfo->strom) + " MW\n"));
+    textvalues += (devInfo->waerme < 0.f ? "- \n" : (std::to_string((int)devInfo->waerme) + " kW\n"));
+    textvalues += (devInfo->kaelte < 0.f ? "- \n" : (std::to_string((int)devInfo->kaelte) + " kW\n"));
+
     textBoxValues->setText(textvalues);
     textBoxValues->setCharacterSize(charSize);
     textBoxValues->setFont(coVRFileManager::instance()->getFontFile(NULL));
