@@ -65,6 +65,7 @@ public:
     {
         return name;
     }
+    bool fromCovise() const { return true; }
     const char *getAttribute(const char *attributeName) const;
     const char *getAttributeName(size_t idx) const;
     const char *getAttributeValue(size_t idx) const;

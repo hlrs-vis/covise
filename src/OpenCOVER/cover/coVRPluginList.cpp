@@ -624,8 +624,6 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
 {
     std::string arg(name);
-    TokenBuffer tb;
-    tb << domain;
     std::string n = coVRMSController::instance()->syncString(arg);
     if (n != arg)
     {

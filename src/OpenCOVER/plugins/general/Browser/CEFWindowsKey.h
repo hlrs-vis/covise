@@ -2,11 +2,10 @@
 #define CEFWINDOWSKEY_H_INCLUDED
 
 #define XK_3270  // for XK_3270_BackTab
-#ifndef _WIN32
+#ifdef __linux__
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
-#endif
-#ifdef _WIN32
+#else
 #define XK_MISCELLANY
 #define XK_XKB_KEYS
 #define XK_LATIN1

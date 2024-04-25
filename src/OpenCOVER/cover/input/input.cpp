@@ -488,8 +488,12 @@ InputDevice *Input::getDevice(const std::string &name)
 bool Input::initPersons()
 {
     std::vector<std::string> names = coCoviseConfig::getScopeNames(configPath("Persons"), "Person");
-    if (coVRConfig::instance()->useVirtualGL())
+    bool vgl = coVRMSController::instance()->syncBool(coVRConfig::instance()->useVirtualGL());
+    if (vgl)
+    {
+        cout << "Input: running with VirtualGL, using default Persons" << endl;
         names.clear();
+    }
 
     if (names.empty())
     {

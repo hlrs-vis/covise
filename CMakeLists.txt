@@ -271,6 +271,11 @@ if (POLICY CMP0074)
   # make find_include/find_library search in <PackageName>_ROOT prefix
   cmake_policy(SET CMP0074 NEW)
 endif()
+if (POLICY CMP0144)
+  # make find_include/find_library search in uppercase <PackageName>_ROOT prefix
+  cmake_policy(SET CMP0144 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0144 NEW)
+endif()
 
 INCLUDE(CoviseHelperMacros)
 INCLUDE(ConfigureLinker)
@@ -331,9 +336,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     if (NOT COVISE_BUILD_ONLY_ODDLOT)
         COVISE_FIND_PACKAGE(GLUT)
         COVISE_FIND_PACKAGE(FFMPEG)
-        COVISE_FIND_PACKAGE(Steereo)
         covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer osgParticle osgText osgSim osgGA osgFX osgTerrain osgAnimation)
-        covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
         covise_find_package(HDF5 COMPONENTS C HL CXX)
 
         COVISE_FIND_PACKAGE(Cg)
@@ -345,6 +348,10 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     endif(NOT COVISE_BUILD_ONLY_ODDLOT)
     covise_find_package(OPENCRG)
     covise_find_package(PROJ4)
+endif()
+
+if (NOT COVISE_BUILD_ONLY_ODDLOT AND NOT COVISE_BUILD_ONLY_COVER)
+    covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
 endif()
 
 if (APPLE)

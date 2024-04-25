@@ -38,6 +38,8 @@ public:
     const float *getFloat(opencover::Field::Id idx) const override { return nullptr; }
 
     bool isUnstructuredGrid() const override { return false; }
+    bool fromCovise() const override { return true; }
+
 private:
     std::string m_objName;
 };
