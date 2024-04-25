@@ -200,10 +200,10 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
     KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
-    
+
     initEnnovatisUI();
 
-    offset = configFloatArray("General", "offset", std::vector<double>{ 0,0,0 })->value();
+    offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
 void EnergyPlugin::initEnnovatisUI()
@@ -226,9 +226,7 @@ void EnergyPlugin::initEnnovatisUI()
     m_ennovatisTo = new ui::EditField(EnergyTab, "to");
 
     m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
-    m_ennovatisUpdate->setCallback([this](bool on) {
-        updateEnnovatis();
-    });
+    m_ennovatisUpdate->setCallback([this](bool on) { updateEnnovatis(); });
 
     m_ennovatisSelectionsList->setCallback(
         [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
@@ -238,7 +236,7 @@ void EnergyPlugin::initEnnovatisUI()
 
 void EnergyPlugin::selectEnabledDevice()
 {
-    auto selected = m_enabledEnnovatisDevices->selectedItem(); 
+    auto selected = m_enabledEnnovatisDevices->selectedItem();
     for (auto &sensor: m_ennovatisDevicesSensors) {
         auto building = sensor->getDevice()->getBuildingInfo().building;
         if (building->getName() == selected) {
@@ -291,14 +289,33 @@ void EnergyPlugin::reinitDevices(int comp)
     }
 }
 
+CylinderAttributes EnergyPlugin::getCylinderAttributes()
+{
+    auto configDefaultColorVec =
+        configFloatArray("Ennovatis", "defaultColorCycl", std::vector<double>{0, 0, 0, 1.f})->value();
+    auto configMaxColorVec =
+        configFloatArray("Ennovatis", "maxColorCycl", std::vector<double>{0.0, 0.1, 0.0, 1.f})->value();
+    auto configMinColorVec =
+        configFloatArray("Ennovatis", "minColorCycl", std::vector<double>{0.0, 1.0, 0.0, 1.f})->value();
+    auto configDefaultHeightCycl = configFloat("Ennovatis", "defaultHeightCycl", 100.0)->value();
+    auto configRadiusCycl = configFloat("Ennovatis", "radiusCycl", 3.0)->value();
+    auto defaultColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
+                                  configDefaultColorVec[3]);
+    auto maxColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
+                              configDefaultColorVec[3]);
+    auto minColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
+                              configDefaultColorVec[3]);
+    return CylinderAttributes(configRadiusCycl, configDefaultHeightCycl, maxColor, minColor, defaultColor);
+}
+
 void EnergyPlugin::initEnnovatisDevices()
 {
     m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
-    auto configColorVec = configFloatArray("Ennovatis", "defaultColor", std::vector<double>{ 0,0,0, 1.f})->value();
-    auto m_defaultColor = osg::Vec4(configColorVec[0], configColorVec[1], configColorVec[2], configColorVec[3]);
     m_ennovatisDevicesSensors.clear();
+    auto cylinderAttributes = getCylinderAttributes();
     for (auto &b: *m_buildings) {
-        auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp, m_defaultColor);
+        auto enDev =
+            std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp, cylinderAttributes);
         m_ennovatis->addChild(enDev->getDeviceGroup());
         m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
             std::move(enDev), enDev->getDeviceGroup(), m_enabledEnnovatisDevices));

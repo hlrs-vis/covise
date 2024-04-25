@@ -45,6 +45,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
+#include "EnnovatisDevice.h"
 #include "EnnovatisDeviceSensor.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
@@ -115,6 +116,7 @@ private:
     void updateEnnovatis();
     void reinitDevices(int comp);
     void updateEnnovatisChannelGrp();
+    CylinderAttributes getCylinderAttributes();
     void initEnnovatisDevices();
     void switchTo(const osg::Node *child);
     

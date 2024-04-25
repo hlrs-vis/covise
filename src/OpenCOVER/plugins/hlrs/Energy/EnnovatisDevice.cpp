@@ -31,7 +31,6 @@ using namespace opencover;
 namespace {
 float h = 1.f;
 float w = 2.f;
-constexpr float default_height = 100.f;
 EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
 
@@ -114,7 +113,8 @@ void deleteChildrenRecursive(osg::Group *grp)
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<opencover::ui::SelectionList> channelList,
                                  std::shared_ptr<ennovatis::rest_request> req,
-                                 std::shared_ptr<ennovatis::ChannelGroup> channelGroup, const osg::Vec4 &defaultColor)
+                                 std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
+                                 const CylinderAttributes &cylinderAttributes)
 : m_deviceGroup(new osg::Group())
 , m_BBoard(new coBillboard())
 , m_request(req)
@@ -122,21 +122,21 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
 , m_channelSelectionList(channelList)
 , m_buildingInfo(BuildingInfo(&building))
 , m_opncvr_ctrl(opencover::coVRMSController::instance())
-, m_defaultColor(defaultColor)
+, m_cylinderAttributes(cylinderAttributes)
 {
     m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
 
     osg::MatrixTransform *matTrans = new osg::MatrixTransform();
     osg::Matrix mat;
     mat.makeTranslate(
-        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), default_height + h));
+        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), m_cylinderAttributes.height));
     matTrans->setMatrix(mat);
 
     initBillboard();
 
     matTrans->addChild(m_BBoard);
     m_deviceGroup->addChild(matTrans);
-    init(3.f);
+    init();
 }
 
 void EnnovatisDevice::initBillboard()
@@ -180,13 +180,13 @@ void EnnovatisDevice::updateChannelSelectionList()
 
 osg::Vec4 EnnovatisDevice::getColor(float val, float max) const
 {
-    osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
-    osg::Vec4 colLow = osg::Vec4(0, 1, 0.5, 1.0);
+    const auto &colMax = m_cylinderAttributes.color.max;
+    const auto &colMin = m_cylinderAttributes.color.min;
     max = std::max(max, 1.f);
     float valN = val / max;
 
-    osg::Vec4 col(colHigh.r() * valN + colLow.r() * (1 - valN), colHigh.g() * valN + colLow.g() * (1 - valN),
-                  colHigh.b() * valN + colLow.b() * (1 - valN), colHigh.a() * valN + colLow.a() * (1 - valN));
+    osg::Vec4 col(colMax.r() * valN + colMin.r() * (1 - valN), colMax.g() * valN + colMin.g() * (1 - valN),
+                  colMax.b() * valN + colMin.b() * (1 - valN), colMax.a() * valN + colMin.a() * (1 - valN));
     return col;
 }
 
@@ -200,19 +200,19 @@ void EnnovatisDevice::fetchData()
         m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
-void EnnovatisDevice::init(float r)
+void EnnovatisDevice::init()
 {
-    m_rad = r;
-    w = m_rad * 20;
-    h = m_rad * 21;
+    w = m_cylinderAttributes.radius * 20;
+    h = m_cylinderAttributes.radius * 21;
 
     // RGB Colors 1,1,1 = white, 0,0,0 = black
     const osg::Vec3f bottom(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
                             m_buildingInfo.building->getHeight());
     osg::Vec3f top(bottom);
-    top.z() += default_height;
+    top.z() += m_cylinderAttributes.height;
 
-    addCylinderBetweenPoints(bottom, top, m_rad, m_defaultColor, m_deviceGroup.get());
+    addCylinderBetweenPoints(bottom, top, m_cylinderAttributes.radius, m_cylinderAttributes.color.defaultColor,
+                             m_deviceGroup.get());
 }
 
 auto EnnovatisDevice::getCylinderGeode()
@@ -278,7 +278,7 @@ void EnnovatisDevice::disactivate()
         m_TextGeode = nullptr;
         m_InfoVisible = false;
         auto geode = getCylinderGeode();
-        overrideGeodeColor(geode, m_defaultColor);
+        overrideGeodeColor(geode, m_cylinderAttributes.color.defaultColor);
         m_timestepColors.clear();
     }
 }
@@ -309,12 +309,14 @@ void EnnovatisDevice::showInfo()
     auto matShift = new osg::MatrixTransform();
     osg::Matrix ms;
     const int charSize = 2;
-    ms.makeTranslate(osg::Vec3(w / 2, 0, m_buildingInfo.building->getHeight() - default_height));
+    ms.makeTranslate(osg::Vec3(w / 2, 0, m_buildingInfo.building->getHeight() - m_cylinderAttributes.height));
     matShift->setMatrix(ms);
 
-    auto textBoxTitle = createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_rad - w / 2., 0, h * 0.9),
-                                      charSize, "DroidSans-Bold.ttf");
-    auto textBoxContent = createTextBox("", osg::Vec3(m_rad - w / 2.f, 0, h * 0.75), charSize, NULL);
+    auto textBoxTitle =
+        createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_cylinderAttributes.radius - w / 2., 0, h * 0.9),
+                      charSize, "DroidSans-Bold.ttf");
+    auto textBoxContent =
+        createTextBox("", osg::Vec3(m_cylinderAttributes.radius - w / 2.f, 0, h * 0.75), charSize, NULL);
 
     // building info
     std::string textvalues =
@@ -362,7 +364,6 @@ osgText::Text *EnnovatisDevice::createTextBox(const std::string &text, const osg
     textBox->setFont(coVRFileManager::instance()->getFontFile(fontFile));
     textBox->setMaximumWidth(w);
     textBox->setPosition(position);
-    /* textBox->setDrawMode(osgText::Text::BOUNDINGBOX | osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT); */
     textBox->setDrawMode(osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT);
     textBox->setBoundingBoxColor(osg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
     textBox->setBoundingBoxMargin(2.0f);

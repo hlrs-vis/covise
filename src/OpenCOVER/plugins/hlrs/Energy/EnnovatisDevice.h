@@ -17,12 +17,32 @@
 #include <osg/ref_ptr>
 #include <osgText/Text>
 
+struct CylinderColormap {
+    CylinderColormap(const osg::Vec4 &m, const osg::Vec4 &M, const osg::Vec4 &d): max(M), min(m), defaultColor(d) {}
+    osg::Vec4 max;
+    osg::Vec4 min;
+    osg::Vec4 defaultColor;
+};
+
+struct CylinderAttributes {
+    CylinderAttributes(const float &rad, const float &height, const CylinderColormap &colorMap)
+    : radius(rad), height(height), color(colorMap)
+    {}
+
+    CylinderAttributes(const float &rad, const float &height, const osg::Vec4 &maxCol, const osg::Vec4 &minCol,
+                       const osg::Vec4 &defaultCol)
+    : CylinderAttributes(rad, height, CylinderColormap(maxCol, minCol, defaultCol))
+    {}
+    float radius;
+    float height;
+    CylinderColormap color;
+};
+
 class EnnovatisDevice {
 public:
     EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
-                    std::shared_ptr<ennovatis::rest_request> req,
-                    std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-                    const osg::Vec4 &defaultColor);
+                    std::shared_ptr<ennovatis::rest_request> req, std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
+                    const CylinderAttributes &cylinderAttributes);
 
     void update();
     void activate();
@@ -42,7 +62,7 @@ private:
     typedef osg::Vec4 TimestepColor;
     typedef std::vector<TimestepColor> TimestepColorList;
 
-    void init(float r);
+    void init();
     void showInfo();
     void fetchData();
     void updateChannelSelectionList();
@@ -63,12 +83,11 @@ private:
     std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
     std::weak_ptr<opencover::ui::SelectionList> m_channelSelectionList;
 
-    float m_rad;
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;
     ennovatis::rest_request_handler m_rest_worker;
     opencover::coVRMSController *m_opncvr_ctrl; // cannot be const because syncing methods are not const correct
     TimestepColorList m_timestepColors;
-    osg::Vec4 m_defaultColor;
+    CylinderAttributes m_cylinderAttributes;
 };
 #endif
