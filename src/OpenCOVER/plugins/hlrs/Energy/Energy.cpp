@@ -292,13 +292,13 @@ void EnergyPlugin::reinitDevices(int comp)
 CylinderAttributes EnergyPlugin::getCylinderAttributes()
 {
     auto configDefaultColorVec =
-        configFloatArray("Ennovatis", "defaultColorCycl", std::vector<double>{0, 0, 0, 1.f})->value();
+        configFloatArray("Ennovatis", "defaultColorCylinder", std::vector<double>{0, 0, 0, 1.f})->value();
     auto configMaxColorVec =
-        configFloatArray("Ennovatis", "maxColorCycl", std::vector<double>{0.0, 0.1, 0.0, 1.f})->value();
+        configFloatArray("Ennovatis", "maxColorCylinder", std::vector<double>{0.0, 0.1, 0.0, 1.f})->value();
     auto configMinColorVec =
-        configFloatArray("Ennovatis", "minColorCycl", std::vector<double>{0.0, 1.0, 0.0, 1.f})->value();
-    auto configDefaultHeightCycl = configFloat("Ennovatis", "defaultHeightCycl", 100.0)->value();
-    auto configRadiusCycl = configFloat("Ennovatis", "radiusCycl", 3.0)->value();
+        configFloatArray("Ennovatis", "minColorCylinder", std::vector<double>{0.0, 1.0, 0.0, 1.f})->value();
+    auto configDefaultHeightCycl = configFloat("Ennovatis", "defaultHeightCylinder", 100.0)->value();
+    auto configRadiusCycl = configFloat("Ennovatis", "radiusCylinder", 3.0)->value();
     auto defaultColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
                                   configDefaultColorVec[3]);
     auto maxColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
