@@ -129,7 +129,7 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
     osg::MatrixTransform *matTrans = new osg::MatrixTransform();
     osg::Matrix mat;
     mat.makeTranslate(
-        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), m_cylinderAttributes.height));
+        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), m_cylinderAttributes.height + h));
     matTrans->setMatrix(mat);
 
     initBillboard();
@@ -180,8 +180,8 @@ void EnnovatisDevice::updateChannelSelectionList()
 
 osg::Vec4 EnnovatisDevice::getColor(float val, float max) const
 {
-    const auto &colMax = m_cylinderAttributes.color.max;
-    const auto &colMin = m_cylinderAttributes.color.min;
+    const auto &colMax = m_cylinderAttributes.colorMap.max;
+    const auto &colMin = m_cylinderAttributes.colorMap.min;
     max = std::max(max, 1.f);
     float valN = val / max;
 
@@ -211,7 +211,7 @@ void EnnovatisDevice::init()
     osg::Vec3f top(bottom);
     top.z() += m_cylinderAttributes.height;
 
-    addCylinderBetweenPoints(bottom, top, m_cylinderAttributes.radius, m_cylinderAttributes.color.defaultColor,
+    addCylinderBetweenPoints(bottom, top, m_cylinderAttributes.radius, m_cylinderAttributes.colorMap.defaultColor,
                              m_deviceGroup.get());
 }
 
@@ -278,7 +278,7 @@ void EnnovatisDevice::disactivate()
         m_TextGeode = nullptr;
         m_InfoVisible = false;
         auto geode = getCylinderGeode();
-        overrideGeodeColor(geode, m_cylinderAttributes.color.defaultColor);
+        overrideGeodeColor(geode, m_cylinderAttributes.colorMap.defaultColor);
         m_timestepColors.clear();
     }
 }

@@ -18,7 +18,7 @@
 #include <osgText/Text>
 
 struct CylinderColormap {
-    CylinderColormap(const osg::Vec4 &m, const osg::Vec4 &M, const osg::Vec4 &d): max(M), min(m), defaultColor(d) {}
+    CylinderColormap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def): max(max), min(min), defaultColor(def) {}
     osg::Vec4 max;
     osg::Vec4 min;
     osg::Vec4 defaultColor;
@@ -26,7 +26,7 @@ struct CylinderColormap {
 
 struct CylinderAttributes {
     CylinderAttributes(const float &rad, const float &height, const CylinderColormap &colorMap)
-    : radius(rad), height(height), color(colorMap)
+    : radius(rad), height(height), colorMap(colorMap)
     {}
 
     CylinderAttributes(const float &rad, const float &height, const osg::Vec4 &maxCol, const osg::Vec4 &minCol,
@@ -35,7 +35,7 @@ struct CylinderAttributes {
     {}
     float radius;
     float height;
-    CylinderColormap color;
+    CylinderColormap colorMap;
 };
 
 class EnnovatisDevice {

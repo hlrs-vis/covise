@@ -301,10 +301,10 @@ CylinderAttributes EnergyPlugin::getCylinderAttributes()
     auto configRadiusCycl = configFloat("Ennovatis", "radiusCylinder", 3.0)->value();
     auto defaultColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
                                   configDefaultColorVec[3]);
-    auto maxColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
-                              configDefaultColorVec[3]);
-    auto minColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
-                              configDefaultColorVec[3]);
+    auto maxColor = osg::Vec4(configMaxColorVec[0], configMaxColorVec[1], configMaxColorVec[2],
+                              configMaxColorVec[3]);
+    auto minColor = osg::Vec4(configMinColorVec[0], configMinColorVec[1], configMinColorVec[2],
+                              configMinColorVec[3]);
     return CylinderAttributes(configRadiusCycl, configDefaultHeightCycl, maxColor, minColor, defaultColor);
 }
 
