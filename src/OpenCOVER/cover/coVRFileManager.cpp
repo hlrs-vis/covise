@@ -44,6 +44,7 @@
 #include <util/unixcompat.h>
 #include <vrb/client/VRBClient.h>
 
+#include <boost/filesystem/exception.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/locale.hpp>
