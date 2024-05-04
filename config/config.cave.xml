@@ -28,7 +28,7 @@
 
            <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
               <!--Offset x="-86" y="-3080" z="-1260" /-->
-              <Offset x="-75" y="-3075" z="-1260" />
+              <Offset x="0" y="-4075" z="-1260" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCaveOutside>
 
