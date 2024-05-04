@@ -429,6 +429,7 @@ void XenomaiSteeringWheel::run()
 {
     std::cerr << "Starting..." << std::endl;
 
+        std::cerr << "run_currentCurrent "  << current << std::endl;
     resetComm();
     rt_task_sleep(100000000);
     enterPreOp();
@@ -487,7 +488,12 @@ void XenomaiSteeringWheel::run()
 
     startNode();
 
-    uint8_t RPDOData[6] = { 0x1f, 0, 0, 0, 0, 0 }; //enable op
+    RPDOData[0] = 0x1f;//enable op
+    RPDOData[1] = 0x0;
+    RPDOData[2] = 0x0;
+    RPDOData[3] = 0x0;
+    RPDOData[4] = 0x0;
+    RPDOData[5] = 0x0;
     writeRPDO(1, RPDOData, 6);
 
     unsigned int count = 0;
@@ -551,6 +557,7 @@ void XenomaiSteeringWheel::run()
 			if(useSpringDamper)
 			{
 				current = springDamperCurrent;
+				std::cerr << "springDamper" << std::endl;
 			}
 			if (current > peakCurrent)
 			{
@@ -560,7 +567,15 @@ void XenomaiSteeringWheel::run()
 			{
 				current = -peakCurrent;
 			}
+			std::cerr << std::dec << "current: " << current << std::endl;
+        
 			currentMutex.acquire(1000000);
+    RPDOData[0] = 0x1f;//enable op
+    RPDOData[1] = 0;
+    RPDOData[2] = 0;
+    RPDOData[3] = 0;
+    RPDOData[4] = 0;
+    RPDOData[5] = 0;
 			*((int32_t *)(RPDOData + 2)) = current;
 			writeRPDO(1, RPDOData, 6);
 			currentMutex.release();
@@ -672,10 +687,11 @@ void XenomaiSteeringWheel::init()
       std::cerr << "1. tpdo inhibit time set failed" << std::endl;
    }*/
 
+        std::cerr << "init_currentCurrent "  << current << std::endl;
     rt_task_sleep(10000000);
     startNode();
 
-    RPDOData[0] = 0x1f;
+    RPDOData[0] = 0x1f;//enable op
     RPDOData[1] = 0;
     RPDOData[2] = 0;
     RPDOData[3] = 0;
@@ -689,7 +705,12 @@ void XenomaiSteeringWheel::shutdown()
 {
     std::cerr << "Shutting down steering wheel..." << std::endl;
 
-    RPDOData[0] = 0x6; //enable op
+    RPDOData[0] = 0x6; //disable op
+    RPDOData[1] = 0;
+    RPDOData[2] = 0;
+    RPDOData[3] = 0;
+    RPDOData[4] = 0;
+    RPDOData[5] = 0;
     writeRPDO(1, RPDOData, 6);
     controller->sendPDO();
 

@@ -512,6 +512,7 @@ void FourWheelDynamicsRealtime2::run()
 	
 	std::cerr << "--- steerWheel->init(); ---" << std::endl;
     steerWheel->init();
+    steerWheel->setCurrent(0);
 	
 	std::cerr << "--- FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2(): Starting ValidateMotionPlatform task ---" << std::endl;
     //Motion platform
@@ -600,6 +601,7 @@ void FourWheelDynamicsRealtime2::run()
 		}
 		else if (returningToAction)
 		{
+		        steerWheel->setCurrent(0);
 			if (motPlat->isLifted())
 			{
 				returningToAction = false;
@@ -1063,7 +1065,7 @@ void FourWheelDynamicsRealtime2::run()
 			std::cerr << "1st" << std::endl;
 			FWDState K1Acc = integrator.integrate(initialSpeeds, initialPos, carState, h);
 			
-			FWDState K1Pos = initialSpeeds * (h / 2.0);
+			FWDState K1Pos = initialPos + initialSpeeds * (h / 2.0);
 			
 			FWDState K1Speed = initialSpeeds + K1Acc * (h / 2.0);
 			
@@ -1293,6 +1295,7 @@ void FourWheelDynamicsRealtime2::run()
 			
 			double oldCurrent = current;
 			current = -speedState.TcolumnCombined;
+			std::cerr << "-speedState.TcolumnCombined " << current << std::endl;
 			if(std::abs(current - oldCurrent) > carState.maxDeltaCurrent)
 			{
 				if(current > oldCurrent)

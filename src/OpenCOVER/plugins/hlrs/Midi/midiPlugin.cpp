@@ -1636,8 +1636,8 @@ void MidiPlugin::handleController(MidiEvent& me)
 	}
 	if ((controllerID == 61) || (controllerID == 34))
 	{
-		sphereScale = 0.1+((value/127.0)*10.0);
-		sphereScaleSlider->setValue(sphereScale);
+		//sphereScale = 0.1+((value/127.0)*10.0);
+		//sphereScaleSlider->setValue(sphereScale);
 	}
 	if ((controllerID == 56) || (controllerID == 69))
 	{

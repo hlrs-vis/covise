@@ -72,7 +72,7 @@ protected:
     double Kdrill;
     double drillElasticity;
 	
-	int32_t current;
+	int32_t current=0;
 	
 	XenomaiMutex positionMutex;
 	XenomaiMutex currentMutex;
@@ -138,6 +138,7 @@ inline void XenomaiSteeringWheel::getPositionSpeed(int32_t &position, int32_t &s
 
 inline void XenomaiSteeringWheel::setCurrent(int32_t inCurrent)
 {
+        //std::cerr << "setCurrent "  << inCurrent << std::endl;
 	currentMutex.acquire(1000000);
 	current =  inCurrent;
 	currentMutex.release();

@@ -27,8 +27,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double initialOmegaYRL = inSpeedState.OmegaYRL;
 	double initialOmegaZFL = inSpeedState.OmegaZFL;
 	double initialOmegaZFR = inSpeedState.OmegaZFR;
-	double initialOmegaZRR;
-	double initialOmegaZRL;
+	double initialOmegaZRR = inSpeedState.OmegaZRR;
+	double initialOmegaZRL = inSpeedState.OmegaZRL;
 	double initialRpm = inSpeedState.engineRPM;
 	double initialPhiDotFL1 = inSpeedState.phiDotFL1;
 	double initialPhiDotFL2 = inSpeedState.phiDotFL2;
@@ -361,6 +361,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double sGRL = sqrt((sxGRL * cosPhiRL / sxRoofRL) * (sxGRL * cosPhiRL / sxRoofRL) + (syGRL * sinPhiRL / syRoofRL) * (syGRL * sinPhiRL / syRoofRL));
 	
 	//bore torque;
+	std::cerr  << "carState.B :" << carState.B<< std::endl;
+	std::cerr  << "RBFL :" << RBFL<< std::endl;
 	double RBFL1 = 0.9 * RBFL;
 	double RBFL2 = RBFL;
 	double RBFL3 = 1.1 * RBFL;
@@ -388,105 +390,67 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double boreGRL = (boreXGRL + boreYGRL) / 2.0;
 	
 	double TBmaxFL1;
-	if (boreGFL == 0)
+	double TBmaxFL2;
+	double TBmaxFL3;
+	std::cerr  << "boreGFL :" << boreGFL << std::endl;
+	if (std::abs(boreGFL) < 0.1)
 	{
 		TBmaxFL1 = RBFL1 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxFL1 = RBFL1 * boreGFL;
-	}
-	double TBmaxFL2;
-	if (boreGFL == 0)
-	{
 		TBmaxFL2 = RBFL2 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxFL2 = RBFL2 * boreGFL;
-	}
-	double TBmaxFL3;
-	if (boreGFL == 0)
-	{
 		TBmaxFL3 = RBFL3 * (carState.boreXGN + carState.boreYGN) / 2;
 	} else
 	{
+		TBmaxFL1 = RBFL1 * boreGFL;
+		TBmaxFL2 = RBFL2 * boreGFL;
 		TBmaxFL3 = RBFL3 * boreGFL;
 	}
 	
 	double TBmaxFR1;
-	if (boreGFR == 0)
+	double TBmaxFR2;
+	double TBmaxFR3;
+	if (std::abs(boreGFR) < 0.1)
 	{
 		TBmaxFR1 = RBFR1 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxFR1 = RBFR1 * boreGFR;
-	}
-	double TBmaxFR2;
-	if (boreGFR == 0)
-	{
 		TBmaxFR2 = RBFR2 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxFR2 = RBFR2 * boreGFR;
-	}
-	double TBmaxFR3;
-	if (boreGFR == 0)
-	{
 		TBmaxFR3 = RBFR3 * (carState.boreXGN + carState.boreYGN) / 2;
 	} else
 	{
+		TBmaxFR1 = RBFR1 * boreGFR;
+		TBmaxFR2 = RBFR2 * boreGFR;
 		TBmaxFR3 = RBFR3 * boreGFR;
 	}
 	
 	double TBmaxRR1;
-	if (boreGRR == 0)
+	double TBmaxRR2;
+	double TBmaxRR3;
+	if (std::abs(boreGRR) < 0.1)
 	{
 		TBmaxRR1 = RBRR1 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxRR1 = RBRR1 * boreGRR;
-	}
-	double TBmaxRR2;
-	if (boreGRR == 0)
-	{
 		TBmaxRR2 = RBRR2 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxRR2 = RBRR2 * boreGRR;
-	}
-	double TBmaxRR3;
-	if (boreGRR == 0)
-	{
 		TBmaxRR3 = RBRR3 * (carState.boreXGN + carState.boreYGN) / 2;
 	} else
 	{
+		TBmaxRR1 = RBRR1 * boreGRR;
+		TBmaxRR2 = RBRR2 * boreGRR;
 		TBmaxRR3 = RBRR3 * boreGRR;
 	}
 	
 	double TBmaxRL1;
-	if (boreGRL == 0)
+	double TBmaxRL2;
+	double TBmaxRL3;
+	if (std::abs(boreGRL) < 0.1)
 	{
 		TBmaxRL1 = RBRL1 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxRL1 = RBRL1 * boreGRL;
-	}
-	double TBmaxRL2;
-	if (boreGRL == 0)
-	{
 		TBmaxRL2 = RBRL2 * (carState.boreXGN + carState.boreYGN) / 2;
-	} else
-	{
-		TBmaxRL2 = RBRL2 * boreGRL;
-	}
-	double TBmaxRL3;
-	if (boreGRL == 0)
-	{
 		TBmaxRL3 = RBRL3 * (carState.boreXGN + carState.boreYGN) / 2;
 	} else
 	{
+		TBmaxRL1 = RBRL1 * boreGRL;
+		TBmaxRL2 = RBRL2 * boreGRL;
 		TBmaxRL3 = RBRL3 * boreGRL;
 	}
 	
+	std::cerr  << "RBFL1 :" << RBFL1<< std::endl;
 	double cPhiFL1 = carState.cBore * RBFL1 * RBFL1;
 	double cPhiFL2 = carState.cBore * RBFL2 * RBFL2;
 	double cPhiFL3 = carState.cBore * RBFL3 * RBFL3;
@@ -512,6 +476,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double dPhiRL2 = carState.dBore * RBRL2 * RBRL2;
 	double dPhiRL3 = carState.dBore * RBRL3 * RBRL3;
 	
+	std::cerr  << "cPhiFL1 :" << cPhiFL1<< "inPosState.phiDotFL1 :" << inPosState.phiDotFL1<< std::endl;
 	double TBstFL1 = cPhiFL1 * inPosState.phiDotFL1;
 	double TBstFL2 = cPhiFL2 * inPosState.phiDotFL2;
 	double TBstFL3 = cPhiFL3 * inPosState.phiDotFL3;
@@ -577,107 +542,68 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		TBstRL3 = TBstRL3 * TBmaxRL3 / std::abs(TBstRL3);
 	}
 	
+	std::cerr  << "dF0FL :" << dF0FL << std::endl;
 	//TODO add omegaz for entire car to bore motion
 	double phiADotFL1;
-	if(dF0FL == 0)
+	double phiADotFL2;
+	double phiADotFL3;
+	if(std::abs(dF0FL) < 0.01)
 	{
 		phiADotFL1 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFL1 * RBFL1 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL1) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFL1 * RBFL1 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL1);
-	} else
-	{
-		phiADotFL1 = -(dF0FL * RBFL1 * RBFL1 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL1) / (dF0FL * RBFL1 * RBFL1 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL1);
-	}
-	double phiADotFL2;
-	if(dF0FL == 0)
-	{
 		phiADotFL2 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFL2 * RBFL2 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL2) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFL2 * RBFL2 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL2);
-	} else
-	{
-		phiADotFL2 = -(dF0FL * RBFL2 * RBFL2 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL2) / (dF0FL * RBFL2 * RBFL2 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL2);
-	}
-	double phiADotFL3;
-	if(dF0FL == 0)
-	{
 		phiADotFL3 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFL3 * RBFL3 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL3) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFL3 * RBFL3 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL3);
 	} else
 	{
+		phiADotFL1 = -(dF0FL * RBFL1 * RBFL1 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL1) / (dF0FL * RBFL1 * RBFL1 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL1);
+		phiADotFL2 = -(dF0FL * RBFL2 * RBFL2 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL2) / (dF0FL * RBFL2 * RBFL2 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL2);
 		phiADotFL3 = -(dF0FL * RBFL3 * RBFL3 * initialOmegaZFL + rDynFL * std::abs(initialOmegaYFL) * TBstFL3) / (dF0FL * RBFL3 * RBFL3 + rDynFL * std::abs(initialOmegaYFL) * dPhiFL3);
 	}
 	
 	double phiADotFR1;
-	if(dF0FR == 0)
+	double phiADotFR2;
+	double phiADotFR3;
+	if(std::abs(dF0FR) < 0.01)
 	{
 		phiADotFR1 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFR1 * RBFR1 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR1) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFR1 * RBFR1 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR1);
+		phiADotFR2 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFR2 * RBFR2 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR2) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFR2 * RBFR2 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR2);
+		phiADotFR3 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFR3 * RBFR3 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR3) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFR3 * RBFR3 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR3);
 	} else
 	{
 		phiADotFR1 = -(dF0FR * RBFR1 * RBFR1 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR1) / (dF0FR * RBFR1 * RBFR1 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR1);
-	}
-	double phiADotFR2;
-	if(dF0FR == 0)
-	{
-		phiADotFR2 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFR2 * RBFR2 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR2) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFR2 * RBFR2 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR2);
-	} else
-	{
 		phiADotFR2 = -(dF0FR * RBFR2 * RBFR2 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR2) / (dF0FR * RBFR2 * RBFR2 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR2);
-	}
-	double phiADotFR3;
-	if(dF0FR == 0)
-	{
-		phiADotFR3 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBFR3 * RBFR3 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR3) / (((carState.dFx0N * carState.dFy0N) / 2) * RBFR3 * RBFR3 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR2);
-	} else
-	{
 		phiADotFR3 = -(dF0FR * RBFR3 * RBFR3 * initialOmegaZFR + rDynFR * std::abs(initialOmegaYFR) * TBstFR3) / (dF0FR * RBFR3 * RBFR3 + rDynFR * std::abs(initialOmegaYFR) * dPhiFR3);
 	}
 	
 	double phiADotRR1;
-	if(dF0RR == 0)
+	double phiADotRR2;
+	double phiADotRR3;
+	if(std::abs(dF0RR) < 0.01)
 	{
 		phiADotRR1 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRR1 * RBRR1 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR1) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRR1 * RBRR1 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR1);
-	} else
-	{
-		phiADotRR1 = -(dF0RR * RBRR1 * RBRR1 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR1) / (dF0RR * RBRR1 * RBRR1 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR1);
-	}
-	double phiADotRR2;
-	if(dF0RR == 0)
-	{
 		phiADotRR2 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRR2 * RBRR2 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR2) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRR2 * RBRR2 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR2);
-	} else
-	{
-		phiADotRR2 = -(dF0RR * RBRR2 * RBRR2 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR2) / (dF0RR * RBRR2 * RBRR2 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR2);
-	}
-	double phiADotRR3;
-	if(dF0RR == 0)
-	{
 		phiADotRR3 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRR3 * RBRR3 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR3) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRR3 * RBRR3 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR3);
 	} else
 	{
+		phiADotRR1 = -(dF0RR * RBRR1 * RBRR1 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR1) / (dF0RR * RBRR1 * RBRR1 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR1);
+		phiADotRR2 = -(dF0RR * RBRR2 * RBRR2 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR2) / (dF0RR * RBRR2 * RBRR2 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR2);
 		phiADotRR3 = -(dF0RR * RBRR3 * RBRR3 * initialOmegaZRR + rDynRR * std::abs(initialOmegaYRR) * TBstRR3) / (dF0RR * RBRR3 * RBRR3 + rDynRR * std::abs(initialOmegaYRR) * dPhiRR3);
 	}
 	
 	double phiADotRL1;
-	if(dF0RL == 0)
+	double phiADotRL2;
+	double phiADotRL3;
+	if(std::abs(dF0RL) < 0.01)
 	{
 		phiADotRL1 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRL1 * RBRL1 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL1) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRL1 * RBRL1 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL1);
-	} else
-	{
-		phiADotRL1 = -(dF0RL * RBRL1 * RBRL1 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL1) / (dF0RL * RBRL1 * RBRL1 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL1);
-	}
-	double phiADotRL2;
-	if(dF0RL == 0)
-	{
 		phiADotRL2 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRL2 * RBRL2 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL2) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRL2 * RBRL2 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL2);
-	} else
-	{
-		phiADotRL2 = -(dF0RL * RBRL2 * RBRL2 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL2) / (dF0RL * RBRL2 * RBRL2 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL2);
-	}
-	double phiADotRL3;
-	if(dF0RL == 0)
-	{
 		phiADotRL3 = -(((carState.dFx0N * carState.dFy0N) / 2) * RBRL3 * RBRL3 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL3) / (((carState.dFx0N * carState.dFy0N) / 2) * RBRL3 * RBRL3 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL3);
 	} else
 	{
+		phiADotRL1 = -(dF0RL * RBRL1 * RBRL1 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL1) / (dF0RL * RBRL1 * RBRL1 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL1);
+		phiADotRL2 = -(dF0RL * RBRL2 * RBRL2 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL2) / (dF0RL * RBRL2 * RBRL2 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL2);
 		phiADotRL3 = -(dF0RL * RBRL3 * RBRL3 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL3) / (dF0RL * RBRL3 * RBRL3 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL3);
 	}
-	
+	std::cerr  << "TBstFL1 :" << TBstFL1<< "dPhiFL1 :" << dPhiFL1<< "phiADotFL1 :" <<phiADotFL1 << std::endl;
 	
 	double TBDFL1 = TBstFL1 + dPhiFL1 * phiADotFL1;
 	double TBDFL2 = TBstFL2 + dPhiFL2 * phiADotFL2;
@@ -741,7 +667,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double phiDotFR3 = 0;
 	if(!std::isnan(TBDFR3))
 	{
-		phiDotFR2 = phiADotFR2 * (tanh(((TBmaxFR2 / std::abs(TBDFR2)) - 1) * 50) + 1) / 2;
+		phiDotFR3 = phiADotFR3 * (tanh(((TBmaxFR3 / std::abs(TBDFR3)) - 1) * 50) + 1) / 2;
 	}
 	/*if (std::abs(TBDFR3) < TBmaxFR3)
 	{
@@ -1182,7 +1108,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	
 	//steering column torque 
 	outputAccelerationState.TcolumnCombined = -TsFL - TsFR + TBDFL1 + TBDFL2 + TBDFL3 + TBDFR1 + TBDFR2 + TBDFR3;
-        std::cerr << "TsFL " << TsFL << " TsFR " << TsFR << " TBDFL1 " << TBDFL1 << " TBDFL2 " << TBDFL2 << " TBDFL3 " << TBDFL3 << " TBDFR1 " <<  TBDFR1 << " TBDFR2 " << TBDFR2 << " TBDFR3 " << TBDFR3 << std::endl;
+        //std::cerr << "TsFL " << TsFL << " TsFR " << TsFR << " TBDFL1 " << TBDFL1 << " TBDFL2 " << TBDFL2 << " TBDFL3 " << TBDFL3 << " TBDFR1 " <<  TBDFR1 << " TBDFR2 " << TBDFR2 << " TBDFR3 " << TBDFR3 << std::endl;
 	
 	//clutch torques
 	outputAccelerationState.Tclutch = Tclutch;
