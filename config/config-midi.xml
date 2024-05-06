@@ -5,7 +5,7 @@
   <COVER>
             <Plugin>
                 <Midi value="Off" OutPort="0">
-					   <Stream name="0" InPort="0" DeviceName="DJ Control Air DJ Control Air" />
+					   <Stream name="0" InPort="0" DeviceName="DJ Control Air" />
 					   <Stream name="1" InPort="1" DeviceName="CH345 MIDI 1"/>
 					   <Stream name="2" InPort="2" DeviceName="TriplePlay Connect TP Guitar"/>
 					   <Stream name="3" InPort="3" DeviceName="Moog Theremini Moog Music, Inc."/>

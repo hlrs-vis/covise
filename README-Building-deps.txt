@@ -799,3 +799,11 @@ cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externl
 Open Audio Server
 cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenAS -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/fltk;c:/src/externlibs/zebu/mxml;"c:/Progra~2/OpenAL 1.1 SDK";c:/src/externlibs/zebu/alut
 
+
+##########
+OpenXR-SDK
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenXR -DCMAKE_DEBUG_POSTFIX=d
+
+##########
+osgXR
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgXR -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/OpenXR;c:/src/externlibs/zebu/OpenSceneGraph
