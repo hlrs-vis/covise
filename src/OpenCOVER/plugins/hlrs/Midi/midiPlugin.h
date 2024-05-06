@@ -483,6 +483,8 @@ public:
     std::vector<Track *> tracks;
     std::list<MidiEvent> eventqueue[NUMMidiStreams];
 	std::list<ControllerInfo *> controllers;
+	std::vector<std::string> streamDeviceNames;
+	std::vector<std::string> midiDeviceNames;
     static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
