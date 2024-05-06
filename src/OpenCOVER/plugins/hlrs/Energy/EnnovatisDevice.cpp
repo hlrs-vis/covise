@@ -1,18 +1,26 @@
 #include "EnnovatisDevice.h"
 #include "build_options.h"
-#include "cover/coBillboard.h"
-#include "cover/ui/SelectionList.h"
-#include "ennovatis/json.h"
 
-#include <algorithm>
+// core
+#include "core/interfaces/IInfoboard.h"
+
+// ennovatis
+#include "ennovatis/json.h"
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
 
+// cover
+#include "cover/ui/SelectionList.h"
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRAnimationManager.h>
 
+// std
+#include <string>
 #include <memory>
+#include <algorithm>
+
+// osg
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -24,7 +32,6 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/ref_ptr>
-#include <string>
 
 using namespace opencover;
 
@@ -94,29 +101,16 @@ void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg:
     // Add the cylinder between the two points to an existing group
     group->addChild(geode);
 }
-
-void deleteChildrenRecursive(osg::Group *grp)
-{
-    if (!grp)
-        return;
-
-    for (int i = 0; i < grp->getNumChildren(); ++i) {
-        auto child = grp->getChild(i);
-        auto child_group = dynamic_cast<osg::Group *>(child);
-        if (child_group)
-            deleteChildrenRecursive(child_group);
-        grp->removeChild(child);
-    }
-}
 } // namespace
 
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<opencover::ui::SelectionList> channelList,
                                  std::shared_ptr<ennovatis::rest_request> req,
                                  std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
+                                 std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
                                  const CylinderAttributes &cylinderAttributes)
 : m_deviceGroup(new osg::Group())
-, m_BBoard(new coBillboard())
+, m_infoBoard(std::move(infoBoard))
 , m_request(req)
 , m_channelGroup(channelGroup)
 , m_channelSelectionList(channelList)
@@ -124,33 +118,15 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
 , m_opncvr_ctrl(opencover::coVRMSController::instance())
 , m_cylinderAttributes(cylinderAttributes)
 {
-    m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
-
-    osg::MatrixTransform *matTrans = new osg::MatrixTransform();
-    osg::Matrix mat;
-    mat.makeTranslate(
-        osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(), m_cylinderAttributes.height + h));
-    matTrans->setMatrix(mat);
-
-    initBillboard();
-
-    matTrans->addChild(m_BBoard);
-    m_deviceGroup->addChild(matTrans);
     init();
-}
-
-void EnnovatisDevice::initBillboard()
-{
-    m_BBoard->setNormal(osg::Vec3(0, -1, 0));
-    m_BBoard->setAxis(osg::Vec3(0, 0, 1));
-    m_BBoard->setMode(coBillboard::AXIAL_ROT);
 }
 
 void EnnovatisDevice::setChannel(int idx)
 {
     m_channelSelectionList.lock()->select(idx);
     if (!m_buildingInfo.channelResponse.empty() && !m_rest_worker.isRunning())
-        showInfo();
+        /* showInfo(); */
+        m_infoBoard->showInfo();
 }
 
 void EnnovatisDevice::setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group)
@@ -202,6 +178,21 @@ void EnnovatisDevice::fetchData()
 
 void EnnovatisDevice::init()
 {
+    // infoboard
+    m_infoBoard->initInfoboard();
+    m_infoBoard->initDrawable();
+
+    // cylinder
+    m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
+
+    osg::MatrixTransform *matTrans = new osg::MatrixTransform();
+    osg::Matrix mat;
+    mat.makeTranslate(osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
+                                m_cylinderAttributes.height + h));
+    matTrans->setMatrix(mat);
+    matTrans->addChild(m_infoBoard->getDrawable());
+    m_deviceGroup->addChild(matTrans);
+
     w = m_cylinderAttributes.radius * 20;
     h = m_cylinderAttributes.radius * 21;
 
@@ -258,7 +249,28 @@ void EnnovatisDevice::update()
         m_opncvr_ctrl->waitForSlaves();
         m_buildingInfo.channelResponse = std::move(results_vec);
 
-        showInfo();
+        // building info
+        std::string textvalues =
+            "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
+
+        // channel info
+        auto currentSelectedChannel = getSelectedChannelIdx();
+        auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+        auto channelIt = std::next(channels.begin(), currentSelectedChannel);
+
+        // channel response
+        auto channel = *channelIt;
+        std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
+        textvalues += channel.to_string() + "\n";
+        auto resp_obj = ennovatis::json_parser()(response);
+        std::string resp_str = "Error parsing response";
+        if (resp_obj) {
+            resp_str = *resp_obj;
+            createTimestepColorList(*resp_obj);
+        }
+        textvalues += "Response:\n" + resp_str + "\n";
+        m_infoBoard->updateInfo(textvalues);
+        m_infoBoard->showInfo();
     }
 }
 
@@ -273,13 +285,12 @@ void EnnovatisDevice::activate()
 
 void EnnovatisDevice::disactivate()
 {
-    if (m_TextGeode) {
-        m_BBoard->removeChild(m_TextGeode);
-        m_TextGeode = nullptr;
+    if (m_infoBoard->enabled()) {
         m_InfoVisible = false;
         auto geode = getCylinderGeode();
         overrideGeodeColor(geode, m_cylinderAttributes.colorMap.defaultColor);
         m_timestepColors.clear();
+        m_infoBoard->hideInfo();
     }
 }
 
@@ -301,71 +312,4 @@ void EnnovatisDevice::createTimestepColorList(const ennovatis::json_response_obj
 
     for (auto i = 0; i < m_timestepColors.size(); ++i)
         m_timestepColors[i] = getColor(respValues[i], maxValue);
-}
-
-void EnnovatisDevice::showInfo()
-{
-    deleteChildrenRecursive(m_BBoard);
-    auto matShift = new osg::MatrixTransform();
-    osg::Matrix ms;
-    const int charSize = 2;
-    ms.makeTranslate(osg::Vec3(w / 2, 0, m_buildingInfo.building->getHeight() - m_cylinderAttributes.height));
-    matShift->setMatrix(ms);
-
-    auto textBoxTitle =
-        createTextBox(m_buildingInfo.building->getName(), osg::Vec3(m_cylinderAttributes.radius - w / 2., 0, h * 0.9),
-                      charSize, "DroidSans-Bold.ttf");
-    auto textBoxContent =
-        createTextBox("", osg::Vec3(m_cylinderAttributes.radius - w / 2.f, 0, h * 0.75), charSize, NULL);
-
-    // building info
-    std::string textvalues =
-        "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
-
-    // channel info
-    auto currentSelectedChannel = getSelectedChannelIdx();
-    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
-    auto channelIt = std::next(channels.begin(), currentSelectedChannel);
-
-    // channel response
-    auto channel = *channelIt;
-    std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
-    textvalues += channel.to_string() + "\n";
-    auto resp_obj = ennovatis::json_parser()(response);
-    std::string resp_str = "Error parsing response";
-    if (resp_obj) {
-        resp_str = *resp_obj;
-        createTimestepColorList(*resp_obj);
-    }
-    textvalues += "Response:\n" + resp_str + "\n";
-    textBoxContent->setText(textvalues, osgText::String::ENCODING_UTF8);
-
-    auto geo = new osg::Geode();
-    geo->setName("TextBox");
-    geo->addDrawable(textBoxTitle);
-    geo->addDrawable(textBoxContent);
-
-    matShift->addChild(geo);
-    m_TextGeode = new osg::Group();
-    m_TextGeode->setName("TextGroup");
-    m_TextGeode->addChild(matShift);
-    m_BBoard->addChild(m_TextGeode);
-}
-
-osgText::Text *EnnovatisDevice::createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
-                                              const char *fontFile) const
-{
-    auto textBox = new osgText::Text();
-    textBox->setAlignment(osgText::Text::LEFT_TOP);
-    textBox->setAxisAlignment(osgText::Text::XZ_PLANE);
-    textBox->setColor(osg::Vec4(1, 1, 1, 1));
-    textBox->setText(text, osgText::String::ENCODING_UTF8);
-    textBox->setCharacterSize(charSize);
-    textBox->setFont(coVRFileManager::instance()->getFontFile(fontFile));
-    textBox->setMaximumWidth(w);
-    textBox->setPosition(position);
-    textBox->setDrawMode(osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT);
-    textBox->setBoundingBoxColor(osg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    textBox->setBoundingBoxMargin(2.0f);
-    return textBox;
 }

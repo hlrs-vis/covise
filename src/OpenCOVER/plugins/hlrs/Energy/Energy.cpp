@@ -24,6 +24,7 @@
 #include "EnnovatisDeviceSensor.h"
 #include "build_options.h"
 #include "cover/ui/SelectionList.h"
+#include <core/TxtInfoboard.h>
 #include <ennovatis/building.h>
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
@@ -314,8 +315,11 @@ void EnergyPlugin::initEnnovatisDevices()
     m_ennovatisDevicesSensors.clear();
     auto cylinderAttributes = getCylinderAttributes();
     for (auto &b: *m_buildings) {
-        auto enDev =
-            std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp, cylinderAttributes);
+        auto infoboard = std::make_unique<core::TxtInfoboard>(
+            osg::Vec3(cylinderAttributes.radius,0, b.getHeight() - cylinderAttributes.height / 2), b.getName(), "DroidSans-Bold.ttf",
+            cylinderAttributes.radius * 20, cylinderAttributes.radius * 21, 2.0f, 0.1, 2);
+        auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp,
+                                                       std::move(infoboard), cylinderAttributes);
         m_ennovatis->addChild(enDev->getDeviceGroup());
         m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
             std::move(enDev), enDev->getDeviceGroup(), m_enabledEnnovatisDevices));

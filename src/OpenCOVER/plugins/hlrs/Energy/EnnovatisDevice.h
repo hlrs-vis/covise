@@ -6,6 +6,7 @@
 #include "ennovatis/json.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
+#include "core/interfaces/IInfoboard.h"
 #include <memory>
 
 #include <cover/coBillboard.h>
@@ -18,7 +19,9 @@
 #include <osgText/Text>
 
 struct CylinderColormap {
-    CylinderColormap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def): max(max), min(min), defaultColor(def) {}
+    CylinderColormap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def)
+    : max(max), min(min), defaultColor(def)
+    {}
     osg::Vec4 max;
     osg::Vec4 min;
     osg::Vec4 defaultColor;
@@ -42,7 +45,7 @@ class EnnovatisDevice {
 public:
     EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
                     std::shared_ptr<ennovatis::rest_request> req, std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-                    const CylinderAttributes &cylinderAttributes);
+                    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard, const CylinderAttributes &cylinderAttributes);
 
     void update();
     void activate();
@@ -63,10 +66,8 @@ private:
     typedef std::vector<TimestepColor> TimestepColorList;
 
     void init();
-    void showInfo();
     void fetchData();
     void updateChannelSelectionList();
-    void initBillboard();
     void setChannel(int idx);
     void updateColorByTime(int timestep);
     void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
@@ -76,9 +77,8 @@ private:
     [[nodiscard]] osgText::Text *createTextBox(const std::string &text, const osg::Vec3 &position, int charSize,
                                                const char *fontFile) const;
 
-    osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
-    osg::ref_ptr<opencover::coBillboard> m_BBoard = nullptr;
+    std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
     std::weak_ptr<ennovatis::rest_request> m_request;
     std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
     std::weak_ptr<opencover::ui::SelectionList> m_channelSelectionList;

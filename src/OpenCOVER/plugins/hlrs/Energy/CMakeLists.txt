@@ -22,9 +22,10 @@ SET(SOURCES
     EnnovatisDeviceSensor.cpp
 )
 
+add_subdirectory(core)
 add_subdirectory(utils)
 add_subdirectory(ennovatis)
-cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyUtils> $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
+cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyCore> $<TARGET_OBJECTS:EnergyUtils> $<TARGET_OBJECTS:Ennovatis> ${HEADERS} ${SOURCES})
 target_include_directories(EnergyCampus PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/ennovatis/include"
     PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/utils/include")

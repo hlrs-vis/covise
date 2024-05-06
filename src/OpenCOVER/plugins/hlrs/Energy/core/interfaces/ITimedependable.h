@@ -1,0 +1,12 @@
+#ifndef _CORE_INTERFACES_ITIMEDEPENDABLE_H
+#define _CORE_INTERFACES_ITIMEDEPENDABLE_H
+
+namespace core {
+namespace interface {
+class ITimedependable {
+    virtual void updateTime(int timestep) = 0;
+};
+} // namespace interface
+} // namespace core
+
+#endif
