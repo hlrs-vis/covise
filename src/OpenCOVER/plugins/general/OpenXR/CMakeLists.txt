@@ -16,8 +16,6 @@ set(HEADERS
 )
 set(SOURCES
   OpenXR.cpp
-  GraphicsAPI.cpp
-  GraphicsAPI_OpenGL.cpp
   OpenXRDebugUtils.cpp
 )
 
