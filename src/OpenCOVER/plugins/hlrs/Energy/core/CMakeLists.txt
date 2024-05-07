@@ -1,0 +1,5 @@
+file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
+add_library(EnergyCore OBJECT ${SOURCES})
+add_subdirectory(interfaces)
+target_link_libraries(EnergyCore PRIVATE EnergyInterfaces)
+set_target_properties(EnergyCore PROPERTIES LINKER_LANGUAGE CXX POSITION_INDEPENDENT_CODE ON)

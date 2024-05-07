@@ -8,6 +8,7 @@
 #include "ennovatis/json.h"
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
+#include <ennovatis/json.h>
 
 // cover
 #include "cover/ui/SelectionList.h"
