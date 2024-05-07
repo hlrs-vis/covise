@@ -53,6 +53,7 @@ void TxtInfoboard::updateInfo(const std::string &info)
 {
     m_info = info;
     deleteChildrenRecursive(m_BBoard);
+    m_BBoard->removeChild(m_TextGeode);
     osg::Vec3 pos = osg::Vec3(0, 0, 0);
     auto contentPos = pos;
     contentPos.z() -= m_attributes.height * m_attributes.titleHeightPercentage;

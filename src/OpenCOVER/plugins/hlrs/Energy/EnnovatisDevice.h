@@ -39,7 +39,6 @@ public:
     void disactivate();
     void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group);
     void setTimestep(int timestep) { updateColorByTime(timestep); }
-    [[nodiscard]] bool getStatus() const { return m_InfoVisible; }
     [[nodiscard]] const auto &getBuildingInfo() const { return m_buildingInfo; }
     [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
 
@@ -58,6 +57,8 @@ private:
     void setChannel(int idx);
     void updateColorByTime(int timestep);
     void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
+    void updateInfoboard(const std::string &info);
+    [[nodiscard]] auto createBillboardTxt();
     [[nodiscard]] int getSelectedChannelIdx() const;
 
     osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;

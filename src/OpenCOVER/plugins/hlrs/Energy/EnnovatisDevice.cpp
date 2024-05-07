@@ -59,11 +59,39 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
     init();
 }
 
+auto EnnovatisDevice::createBillboardTxt()
+{
+    if (m_buildingInfo.channelResponse.empty())
+        return std::string();
+
+    // building info
+    std::string billboardTxt =
+        "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
+
+    // channel info
+    auto currentSelectedChannel = getSelectedChannelIdx();
+    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+    auto channelIt = std::next(channels.begin(), currentSelectedChannel);
+
+    // channel response
+    auto channel = *channelIt;
+    std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
+    billboardTxt += channel.to_string() + "\n";
+    auto resp_obj = ennovatis::json_parser()(response);
+    std::string resp_str = "Error parsing response";
+    if (resp_obj) {
+        resp_str = *resp_obj;
+        createTimestepColorList(*resp_obj);
+    }
+    billboardTxt += "Response:\n" + resp_str + "\n";
+    return billboardTxt;
+}
+
 void EnnovatisDevice::setChannel(int idx)
 {
     m_channelSelectionList.lock()->select(idx);
     if (!m_buildingInfo.channelResponse.empty() && !m_restWorker.isRunning())
-        m_infoBoard->showInfo();
+        m_infoBoard->updateInfo(createBillboardTxt());
 }
 
 void EnnovatisDevice::setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group)
@@ -145,25 +173,7 @@ void EnnovatisDevice::update()
         m_buildingInfo.channelResponse = std::move(results_vec);
 
         // building info
-        std::string billboardTxt =
-            "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
-
-        // channel info
-        auto currentSelectedChannel = getSelectedChannelIdx();
-        auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
-        auto channelIt = std::next(channels.begin(), currentSelectedChannel);
-
-        // channel response
-        auto channel = *channelIt;
-        std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
-        billboardTxt += channel.to_string() + "\n";
-        auto resp_obj = ennovatis::json_parser()(response);
-        std::string resp_str = "Error parsing response";
-        if (resp_obj) {
-            resp_str = *resp_obj;
-            createTimestepColorList(*resp_obj);
-        }
-        billboardTxt += "Response:\n" + resp_str + "\n";
+        auto billboardTxt = createBillboardTxt();
         m_infoBoard->updateInfo(billboardTxt);
         m_infoBoard->showInfo();
     }
