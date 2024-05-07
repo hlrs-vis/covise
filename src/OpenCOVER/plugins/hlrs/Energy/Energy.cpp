@@ -25,6 +25,7 @@
 #include "build_options.h"
 #include "cover/ui/SelectionList.h"
 #include <core/TxtInfoboard.h>
+#include <core/PrototypeBuilding.h>
 #include <ennovatis/building.h>
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
@@ -39,6 +40,7 @@
 #include <memory>
 #include <osg/Group>
 #include <osg/Switch>
+#include <osg/Vec3>
 #include <osg/ref_ptr>
 #include <string>
 #include <vector>
@@ -290,7 +292,7 @@ void EnergyPlugin::reinitDevices(int comp)
     }
 }
 
-CylinderAttributes EnergyPlugin::getCylinderAttributes()
+core::CylinderAttributes EnergyPlugin::getCylinderAttributes()
 {
     auto configDefaultColorVec =
         configFloatArray("Ennovatis", "defaultColorCylinder", std::vector<double>{0, 0, 0, 1.f})->value();
@@ -306,7 +308,7 @@ CylinderAttributes EnergyPlugin::getCylinderAttributes()
                               configMaxColorVec[3]);
     auto minColor = osg::Vec4(configMinColorVec[0], configMinColorVec[1], configMinColorVec[2],
                               configMinColorVec[3]);
-    return CylinderAttributes(configRadiusCycl, configDefaultHeightCycl, maxColor, minColor, defaultColor);
+    return core::CylinderAttributes(configRadiusCycl, configDefaultHeightCycl, maxColor, minColor, defaultColor);
 }
 
 void EnergyPlugin::initEnnovatisDevices()
@@ -315,11 +317,15 @@ void EnergyPlugin::initEnnovatisDevices()
     m_ennovatisDevicesSensors.clear();
     auto cylinderAttributes = getCylinderAttributes();
     for (auto &b: *m_buildings) {
-        auto infoboard = std::make_unique<core::TxtInfoboard>(
-            osg::Vec3(cylinderAttributes.radius,0, b.getHeight() - cylinderAttributes.height / 2), b.getName(), "DroidSans-Bold.ttf",
-            cylinderAttributes.radius * 20, cylinderAttributes.radius * 21, 2.0f, 0.1, 2);
+        cylinderAttributes.position = osg::Vec3(b.getLat(), b.getLon(), b.getHeight());
+        auto drawableBuilding = std::make_unique<core::PrototypeBuilding>(cylinderAttributes);
+        auto infoboardPos =
+            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon(), b.getHeight() + cylinderAttributes.height);
+        auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, b.getName(), "DroidSans-Bold.ttf",
+                                                              cylinderAttributes.radius * 20,
+                                                              cylinderAttributes.radius * 21, 2.0f, 0.1, 2);
         auto enDev = std::make_unique<EnnovatisDevice>(b, m_ennovatisChannelList, m_req, m_channelGrp,
-                                                       std::move(infoboard), cylinderAttributes);
+                                                       std::move(infoboard), std::move(drawableBuilding));
         m_ennovatis->addChild(enDev->getDeviceGroup());
         m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
             std::move(enDev), enDev->getDeviceGroup(), m_enabledEnnovatisDevices));

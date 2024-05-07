@@ -45,11 +45,11 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
-#include "EnnovatisDevice.h"
 #include "EnnovatisDeviceSensor.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "ennovatis/sax.h"
+#include "core/PrototypeBuilding.h"
 
 enum Components
 {
@@ -116,7 +116,7 @@ private:
     void updateEnnovatis();
     void reinitDevices(int comp);
     void updateEnnovatisChannelGrp();
-    CylinderAttributes getCylinderAttributes();
+    core::CylinderAttributes getCylinderAttributes();
     void initEnnovatisDevices();
     void switchTo(const osg::Node *child);
     

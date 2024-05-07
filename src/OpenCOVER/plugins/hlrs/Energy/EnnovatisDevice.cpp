@@ -37,71 +37,8 @@
 using namespace opencover;
 
 namespace {
-float h = 1.f;
-float w = 2.f;
 EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
-
-auto createMaterial(const osg::Vec4 &color)
-{
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setDiffuse(osg::Material::FRONT, color);
-    return mat;
-}
-
-void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color)
-{
-    auto mat = createMaterial(color);
-    geode->getOrCreateStateSet()->setAttribute(mat, osg::StateAttribute::OVERRIDE);
-}
-
-/**
- * @brief Adds a cylinder between two points.
- * Source: http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
- * 
- * @param start The starting point of the cylinder.
- * @param end The ending point of the cylinder.
- * @param radius The radius of the cylinder.
- * @param cylinderColor The color of the cylinder.
- * @param group The group to which the cylinder will be added.
- */
-void addCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cylinderColor, osg::Group *group)
-{
-    osg::ref_ptr geode = new osg::Geode;
-    osg::Vec3 center;
-    float height;
-    osg::ref_ptr<osg::Cylinder> cylinder;
-    osg::ref_ptr<osg::ShapeDrawable> cylinderDrawable;
-    osg::ref_ptr<osg::Material> pMaterial;
-
-    height = (start - end).length();
-    center = osg::Vec3((start.x() + end.x()) / 2, (start.y() + end.y()) / 2, (start.z() + end.z()) / 2);
-
-    // This is the default direction for the cylinders to face in OpenGL
-    osg::Vec3 z = osg::Vec3(0, 0, 1);
-
-    // Get diff between two points you want cylinder along
-    osg::Vec3 p = start - end;
-
-    // Get CROSS product (the axis of rotation)
-    osg::Vec3 t = z ^ p;
-
-    // Get angle. length is magnitude of the vector
-    double angle = acos((z * p) / p.length());
-
-    // Create a cylinder between the two points with the given radius
-    cylinder = new osg::Cylinder(center, radius, height);
-    cylinder->setRotation(osg::Quat(angle, osg::Vec3(t.x(), t.y(), t.z())));
-
-    cylinderDrawable = new osg::ShapeDrawable(cylinder);
-    geode->addDrawable(cylinderDrawable);
-
-    // Set the color of the cylinder that extends between the two points.
-    overrideGeodeColor(geode, cylinderColor);
-
-    // Add the cylinder between the two points to an existing group
-    group->addChild(geode);
-}
 } // namespace
 
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
@@ -109,15 +46,15 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
                                  std::shared_ptr<ennovatis::rest_request> req,
                                  std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
                                  std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
-                                 const CylinderAttributes &cylinderAttributes)
+                                 std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
 : m_deviceGroup(new osg::Group())
 , m_infoBoard(std::move(infoBoard))
+, m_drawableBuilding(std::move(drawableBuilding))
 , m_request(req)
 , m_channelGroup(channelGroup)
 , m_channelSelectionList(channelList)
 , m_buildingInfo(BuildingInfo(&building))
-, m_opncvr_ctrl(opencover::coVRMSController::instance())
-, m_cylinderAttributes(cylinderAttributes)
+, m_opncvrCtrl(opencover::coVRMSController::instance())
 {
     init();
 }
@@ -125,8 +62,7 @@ EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
 void EnnovatisDevice::setChannel(int idx)
 {
     m_channelSelectionList.lock()->select(idx);
-    if (!m_buildingInfo.channelResponse.empty() && !m_rest_worker.isRunning())
-        /* showInfo(); */
+    if (!m_buildingInfo.channelResponse.empty() && !m_restWorker.isRunning())
         m_infoBoard->showInfo();
 }
 
@@ -155,103 +91,61 @@ void EnnovatisDevice::updateChannelSelectionList()
     cSLi->select(0);
 }
 
-osg::Vec4 EnnovatisDevice::getColor(float val, float max) const
-{
-    const auto &colMax = m_cylinderAttributes.colorMap.max;
-    const auto &colMin = m_cylinderAttributes.colorMap.min;
-    max = std::max(max, 1.f);
-    float valN = val / max;
-
-    osg::Vec4 col(colMax.r() * valN + colMin.r() * (1 - valN), colMax.g() * valN + colMin.g() * (1 - valN),
-                  colMax.b() * valN + colMin.b() * (1 - valN), colMax.a() * valN + colMin.a() * (1 - valN));
-    return col;
-}
-
 void EnnovatisDevice::fetchData()
 {
-    if (!m_InfoVisible || !m_rest_worker.checkStatus())
+    if (!m_InfoVisible || !m_restWorker.checkStatus())
         return;
 
     // make sure only master node fetches data from Ennovatis => sync with slave in update()
-    if (m_opncvr_ctrl->isMaster())
-        m_rest_worker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
+    if (m_opncvrCtrl->isMaster())
+        m_restWorker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building, *m_request.lock());
 }
 
 void EnnovatisDevice::init()
 {
+    m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
+
     // infoboard
     m_infoBoard->initInfoboard();
     m_infoBoard->initDrawable();
+    m_deviceGroup->addChild(m_infoBoard->getDrawable());
 
-    // cylinder
-    m_deviceGroup->setName(m_buildingInfo.building->getId() + ".");
-
-    osg::MatrixTransform *matTrans = new osg::MatrixTransform();
-    osg::Matrix mat;
-    mat.makeTranslate(osg::Vec3(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
-                                m_cylinderAttributes.height + h));
-    matTrans->setMatrix(mat);
-    matTrans->addChild(m_infoBoard->getDrawable());
-    m_deviceGroup->addChild(matTrans);
-
-    w = m_cylinderAttributes.radius * 20;
-    h = m_cylinderAttributes.radius * 21;
-
-    // RGB Colors 1,1,1 = white, 0,0,0 = black
-    const osg::Vec3f bottom(m_buildingInfo.building->getLat(), m_buildingInfo.building->getLon(),
-                            m_buildingInfo.building->getHeight());
-    osg::Vec3f top(bottom);
-    top.z() += m_cylinderAttributes.height;
-
-    addCylinderBetweenPoints(bottom, top, m_cylinderAttributes.radius, m_cylinderAttributes.colorMap.defaultColor,
-                             m_deviceGroup.get());
+    // cylinder / building representation
+    m_drawableBuilding->initDrawable();
+    m_deviceGroup->addChild(m_drawableBuilding->getDrawable());
 }
-
-auto EnnovatisDevice::getCylinderGeode()
-{
-    osg::Geode *cyl = nullptr;
-    for (auto i = 0; i < m_deviceGroup->getNumChildren(); ++i)
-        if (auto geode = dynamic_cast<osg::Geode *>(m_deviceGroup->getChild(i)))
-            return geode;
-
-    return cyl;
-}
-
 
 void EnnovatisDevice::updateColorByTime(int timestep)
 {
     if (m_timestepColors.empty())
         return;
     auto numTimesteps = m_timestepColors.size();
-    auto geode = getCylinderGeode();
-    if (geode) {
-        osg::Vec4 cylinderColor = m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
-        overrideGeodeColor(geode, cylinderColor);
-    }
+    const auto &cylinderColor = m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
+    m_drawableBuilding->updateColor(*cylinderColor);
 }
 
 void EnnovatisDevice::update()
 {
     if (!m_InfoVisible)
         return;
-    auto results = m_rest_worker.getResult();
+    auto results = m_restWorker.getResult();
 
-    bool finished_master = m_opncvr_ctrl->isMaster() && results != nullptr;
-    finished_master = m_opncvr_ctrl->syncBool(finished_master);
+    bool finished_master = m_opncvrCtrl->isMaster() && results != nullptr;
+    finished_master = m_opncvrCtrl->syncBool(finished_master);
 
     if (finished_master) {
         std::vector<std::string> results_vec;
-        if (m_opncvr_ctrl->isMaster())
+        if (m_opncvrCtrl->isMaster())
             results_vec = *results;
 
-        results_vec = m_opncvr_ctrl->syncVector(results_vec);
+        results_vec = m_opncvrCtrl->syncVector(results_vec);
 
         m_buildingInfo.channelResponse.clear();
-        m_opncvr_ctrl->waitForSlaves();
+        m_opncvrCtrl->waitForSlaves();
         m_buildingInfo.channelResponse = std::move(results_vec);
 
         // building info
-        std::string textvalues =
+        std::string billboardTxt =
             "ID: " + m_buildingInfo.building->getId() + "\n" + "Street: " + m_buildingInfo.building->getStreet() + "\n";
 
         // channel info
@@ -262,15 +156,15 @@ void EnnovatisDevice::update()
         // channel response
         auto channel = *channelIt;
         std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
-        textvalues += channel.to_string() + "\n";
+        billboardTxt += channel.to_string() + "\n";
         auto resp_obj = ennovatis::json_parser()(response);
         std::string resp_str = "Error parsing response";
         if (resp_obj) {
             resp_str = *resp_obj;
             createTimestepColorList(*resp_obj);
         }
-        textvalues += "Response:\n" + resp_str + "\n";
-        m_infoBoard->updateInfo(textvalues);
+        billboardTxt += "Response:\n" + resp_str + "\n";
+        m_infoBoard->updateInfo(billboardTxt);
         m_infoBoard->showInfo();
     }
 }
@@ -288,10 +182,12 @@ void EnnovatisDevice::disactivate()
 {
     if (m_infoBoard->enabled()) {
         m_InfoVisible = false;
-        auto geode = getCylinderGeode();
-        overrideGeodeColor(geode, m_cylinderAttributes.colorMap.defaultColor);
-        m_timestepColors.clear();
         m_infoBoard->hideInfo();
+        //reset to default
+        m_deviceGroup->removeChild(m_drawableBuilding->getDrawable());
+        m_drawableBuilding->initDrawable();
+        m_deviceGroup->addChild(m_drawableBuilding->getDrawable());
+        m_timestepColors.clear();
     }
 }
 
@@ -311,6 +207,6 @@ void EnnovatisDevice::createTimestepColorList(const ennovatis::json_response_obj
     if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
         opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
 
-    for (auto i = 0; i < m_timestepColors.size(); ++i)
-        m_timestepColors[i] = getColor(respValues[i], maxValue);
+    for (auto t = 0; t < numTimesteps; ++t)
+        m_timestepColors[t] = m_drawableBuilding->getColorInRange(respValues[t], maxValue);
 }
