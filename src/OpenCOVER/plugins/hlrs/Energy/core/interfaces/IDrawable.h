@@ -1,7 +1,7 @@
 #ifndef _CORE_INTERFACES_IDRAWABLE_H
 #define _CORE_INTERFACES_IDRAWABLE_H
 
-#include <osg/Geode>
+#include <osg/Node>
 #include <osg/ref_ptr>
 
 namespace core {
