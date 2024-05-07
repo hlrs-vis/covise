@@ -4,6 +4,7 @@
 namespace core {
 namespace interface {
 class ITimedependable {
+public:
     virtual void updateTime(int timestep) = 0;
 };
 } // namespace interface

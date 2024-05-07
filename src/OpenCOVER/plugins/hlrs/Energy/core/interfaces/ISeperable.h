@@ -6,6 +6,7 @@
 namespace core {
 namespace interface {
 class ISeperable {
+public:
     virtual void seperate() = 0;
 };
 } // namespace interface
