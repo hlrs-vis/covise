@@ -32,7 +32,10 @@ void TxtInfoboard::updateTime(int timestep)
 
 void TxtInfoboard::initDrawable()
 {
-    m_drawable = m_BBoard;
+    osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform;
+    trans->setMatrix(osg::Matrix::translate(m_attributes.position));
+    trans->addChild(m_BBoard);
+    m_drawable = trans;
 }
 
 void TxtInfoboard::initInfoboard()
@@ -50,11 +53,14 @@ void TxtInfoboard::updateInfo(const std::string &info)
 {
     m_info = info;
     deleteChildrenRecursive(m_BBoard);
-    const auto titlePos = m_attributes.position;
-    auto contentPos = titlePos;
+    osg::Vec3 pos = osg::Vec3(0, 0, 0);
+    auto contentPos = pos;
     contentPos.z() -= m_attributes.height * m_attributes.titleHeightPercentage;
-    auto textBoxTitle = createTextBox(m_attributes.title, titlePos, m_attributes.charSize, m_attributes.fontFile.c_str(), m_attributes.maxWidth, m_attributes.margin);
-    auto textBoxContent = createTextBox("", contentPos, m_attributes.charSize, m_attributes.fontFile.c_str(), m_attributes.maxWidth, m_attributes.margin);
+
+    auto textBoxTitle = createTextBox(m_attributes.title, pos, m_attributes.charSize, m_attributes.fontFile.c_str(),
+                                      m_attributes.maxWidth, m_attributes.margin);
+    auto textBoxContent = createTextBox("", contentPos, m_attributes.charSize, m_attributes.fontFile.c_str(),
+                                        m_attributes.maxWidth, m_attributes.margin);
     textBoxContent->setText(info, osgText::String::ENCODING_UTF8);
 
     osg::ref_ptr<osg::Geode> geo = new osg::Geode();
@@ -89,7 +95,8 @@ void TxtInfoboard::hideInfo()
 }
 
 osg::ref_ptr<osgText::Text> TxtInfoboard::createTextBox(const std::string &text, const osg::Vec3 &position,
-                                                        int charSize, const char *fontFile, const float &maxWidth, const float &margin) const
+                                                        int charSize, const char *fontFile, const float &maxWidth,
+                                                        const float &margin) const
 {
     osg::ref_ptr<osgText::Text> textBox = new osgText::Text();
     textBox->setAlignment(osgText::Text::LEFT_TOP);
