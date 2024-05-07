@@ -365,6 +365,7 @@ size_t Client::numNodeUpdates(const std::string &nodeName)
     auto node = findNode(nodeName);
     if(node)
         return node->values.size();
+    return 0;
 }
 
 
