@@ -320,7 +320,7 @@ void EnergyPlugin::initEnnovatisDevices()
         cylinderAttributes.position = osg::Vec3(b.getLat(), b.getLon(), b.getHeight());
         auto drawableBuilding = std::make_unique<core::PrototypeBuilding>(cylinderAttributes);
         auto infoboardPos =
-            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon(), b.getHeight() + cylinderAttributes.height);
+            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon() + cylinderAttributes.radius + 5, b.getHeight() + cylinderAttributes.height);
         auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, b.getName(), "DroidSans-Bold.ttf",
                                                               cylinderAttributes.radius * 20,
                                                               cylinderAttributes.radius * 21, 2.0f, 0.1, 2);
