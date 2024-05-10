@@ -6,6 +6,7 @@
 #include <cover/ui/FileBrowser.h>
 #include <cover/ui/Owner.h>
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
