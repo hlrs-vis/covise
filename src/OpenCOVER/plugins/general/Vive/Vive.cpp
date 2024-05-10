@@ -211,27 +211,24 @@ bool Vive::init()
 	{
 		m_DeviceID[nDevice] = -1;  // cover ID for a specific DeviceID
 		m_ControllerID[nDevice] = 0;
-		m_DeviceSerial[nDevice] = "";   // for each device, a character representing its class // index is device ID
-	}
+        m_DeviceSerial[nDevice] = ""; // for each device, a character representing its class // index is device ID
 
-	int numSerialConfigs = 0;
-	char str[200];
-	bool exists=false;
-	do {
-		sprintf(str, "COVER.Input.Device.Vive.Device:%d", numSerialConfigs);
-		std::string serial = covise::coCoviseConfig::getEntry("serial", str, "", &exists);
-		serialInfo si;
-		si.ID = covise::coCoviseConfig::getInt("index", str, 0);
-		si.controllerID = covise::coCoviseConfig::getInt("controllerID", str, 0);
-		serialID[serial] = si;
-		numSerialConfigs++;
-	} while (exists);
-	
-	m_buttonsPerController = covise::coCoviseConfig::getInt(configPath("ButtonsPerController"), m_buttonsPerController);
-	for (unsigned int i = 0; i < m_buttonsPerController; i++)
-	{
-                int def = i;
-		switch(i) {
+        bool exists = false;
+        auto str = configPath("Device", nDevice);
+        std::string serial = covise::coCoviseConfig::getEntry("serial", str, "", &exists);
+        if (exists) {
+            serialInfo si;
+            si.ID = covise::coCoviseConfig::getInt("index", str, 0);
+            si.controllerID = covise::coCoviseConfig::getInt("controllerID", str, 0);
+            serialID[serial] = si;
+        }
+    }
+
+    m_buttonsPerController = covise::coCoviseConfig::getInt(configPath("ButtonsPerController"), m_buttonsPerController);
+    for (unsigned int i = 0; i < m_buttonsPerController; i++)
+    {
+        int def = i;
+        switch(i) {
 			case 0: def = 33; break;
 			case 1: def = 32; break;
 			case 2: def = 1; break;
@@ -240,10 +237,10 @@ bool Vive::init()
 			case 5: def = 31; break;
                 }
                 m_buttonMapping[i] = covise::coCoviseConfig::getInt(configPath("RawButton"+std::to_string(i)), def);
-	}
+    }
 
-	if (m_strDriver == "No Driver")
-		return false;
+    if (m_strDriver == "No Driver")
+        return false;
 	
 
 	return true;
@@ -252,9 +249,10 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
-	vr::VR_Shutdown();
-	Input::instance()->removeDevice("Vive", this);
-	fprintf(stderr, "Vive::~Vive\n");
+    if (cover->debugLevel(2))
+        fprintf(stderr, "Vive::~Vive\n");
+    vr::VR_Shutdown();
+    Input::instance()->removeDevice("Vive", this);
 }
 
 void Vive::preFrame()
@@ -316,8 +314,8 @@ void Vive::postFrame()
                 case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; numBaseStations++; break;
 			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
-            fprintf(stderr, "DevClass:%c\n", m_rDevClassChar[nDevice]);
-			int idx;
+            fprintf(stderr, "DevClass:%c %s\n", m_rDevClassChar[nDevice], serial.c_str());
+            int idx;
 			std::map<std::string, serialInfo>::iterator it = serialID.find(std::string(serial));
 			if (it != serialID.end())
 			{
@@ -355,7 +353,7 @@ void Vive::postFrame()
 					idx = firstControllerIdx + controllerNumber;
 					++controllerNumber;
 					break;
-                case 'G': //a controller
+                case 'G':
                     idx = firstTrackerIdx + trackerNumber;
                     ++trackerNumber;
                     break;
