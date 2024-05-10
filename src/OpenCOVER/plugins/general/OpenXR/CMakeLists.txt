@@ -1,8 +1,3 @@
-# cmake_minimum_required(VERSION 2.8)
-# let cmake find FindCOVER.cmake
-set(CMAKE_MODULE_PATH "$ENV{COVISEDIR}/cmake" ${CMAKE_MODULE_PATH})
-#find_package(COVER REQUIRED)
-
 USING(OpenXR)
 
 set(HEADERS
@@ -23,3 +18,4 @@ ADD_DEFINITIONS(-DXR_USE_GRAPHICS_API_OPENGL)
 
 # build the plugin "OpenXR" from the ingredients listed in HEADERS and SOURCES
 cover_add_plugin(OpenXR ${HEADERS} ${SOURCES})
+target_link_libraries(OpenXR OpenXR::openxr_loader)
