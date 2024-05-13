@@ -48,7 +48,7 @@ Current info representation: billboards (***core/TxtInfoboard.cpp/.h***)
 
 tbd
 
-## How to use the plugin
+## Usage
 
 - setup vpn tunnel to the network of the university of stuttgart
 - make sure the correct paths to the channel id json and historical data files are set in the config file ***config/plugin/EnergyCampus.toml***
@@ -67,16 +67,30 @@ opencover
 tabletUI
 ```
 
-and navigate in the tabletUI to the ***Plugin***-tab and enable the plugin manually by clicking on the button ***EnergyCampus***.
+and navigate in the tabletUI to the ***Plugin***-tab and enable the plugin manually by clicking on the button ***EnergyCampus***. If done correct the plugin will add a new tab called ***EnergyCampus*** to the tabletUI and visualizing the historical data first.
 
-If done correct the plugin will add a new tab called ***EnergyCampus*** to the tabletUI and visualizing the historical data first.
-
-If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture
+If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture.
 
 ![channeltype](images/channeltype.svg)
+
+Simlarly you can switch the modes by using the OpenCOVER menu or the before mentioned tabletUI tab. The plugin will switch automatically to ennovatis mode and replace the representation of the historical data with the chosen one for ennovatis. It could look like in the following picture if data has been fetched from the server by clicking on a "building" in the scene.
+
+![ennovatis](images/ennovatis.svg)
+
+Further adjustments to the period of time fetched from ennovatis can be made by adjusting the corresponding input boxes ***from*** and ***to*** in the tabletUI tab of the plugin (at the moment only possible through this tab). Afterwards you need to click the button ***Update*** to fetch new data for the given period of time. Other than that the plugin allows the user to switch between different channels of the ennovatis building for the fetched channeltype by selecting another one in the ***Channels*** section of the plugin menu. Alongside the option to switch between channels another selectionlist called ***Enabled Devices*** can be used to switch between all enabled ***EnnovatisDeviceSensors***. The tabletUI tab should look similar like shown in the next image and can be different depending on your operating system.
+
+![tabletUI](images/tabletUI.svg)
+
+## Notes
+
+- only active ***EnnovatisDevicesSensors*** will be updated, because at the time of implementation it wasn't possible to update all buildings at once (by changing the period of time or channeltype for example)
+- all active ***EnnovatisDeviceSensors*** which are showing information will be updated if there are changes to the period of time or the channeltype
+- ***EnnovatisDeviceSensors*** will change the color of the drawable for each timestep in the color range specified in the config file
 
 ## TODO's
 
 - fetch latitude and longitude data from tile-server like googlemaps or openstreetmap
 - add new buildings for CityGML
+- add calender widget to tabletUI
 - implementing concepts for decisionmaking process
+- update plugin to use successor of ennovatis
