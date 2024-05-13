@@ -347,7 +347,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
         covise_find_package(OpenCV)
     endif(NOT COVISE_BUILD_ONLY_ODDLOT)
     covise_find_package(OPENCRG)
-    covise_find_package(PROJ4)
+    covise_find_package(PROJ)
 endif()
 
 if (NOT COVISE_BUILD_ONLY_ODDLOT AND NOT COVISE_BUILD_ONLY_COVER)
