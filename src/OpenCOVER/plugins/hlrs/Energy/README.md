@@ -30,7 +30,7 @@ void move(const IMoveable &moveable)
 ```
 Example usage for using the interfaces can be seen in the code ***<root-of-this-plugin>/core/PrototypeBuilding.cpp*** and ***<root-of-this-plugin>/core/TxtInfoboard.cpp*** representing buildings and a billboard. For a general overview of available interfaces look at the next figure.
 
-![UML for interfaces](interface_uml)
+![UML for interfaces](images/interface.svg)
 
 At the current state the plugin is using a REST based API from a software called Ennovatis to access the energy consumption of different buildings for different periods of time. The main logic for that is located in ***<root-of-this-plugin>/ennovatis***. Data from ennovatis is only accessible through a valid university account and a vpn tunnel to the university network.
 
@@ -73,7 +73,7 @@ If done correct the plugin will add a new tab called ***EnergyCampus*** to the t
 
 If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture
 
-![channeltype](channeltype)
+![channeltype](images/channeltype.svg)
 
 ## TODO's
 
@@ -81,6 +81,4 @@ If you want to switch to the Ennovatis implementation simply click in the VR men
 [ ] add new buildings for CityGML
 [ ] implementing concepts for decisionmaking process
 
-[interface_uml](images/interface.png)
-[channeltype](images/channeltype.png)
 [^1]: [Carl-Zeis-Stiftung](https://www.carl-zeiss-stiftung.de/)
