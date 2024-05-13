@@ -20,7 +20,7 @@ void Channel::clear()
 const std::string Channel::to_string() const
 {
     std::stringstream ss;
-    ss << "name: " << name << "\nid: " << id << "\ndescription: " << description << "\ntype: " << type
+    ss << "name: " << name << "\ndescription: " << description << "\ntype: " << type
        << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToString(group);
     return ss.str();
 }
