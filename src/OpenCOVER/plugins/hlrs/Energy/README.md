@@ -73,7 +73,7 @@ If done correct the plugin will add a new tab called ***EnergyCampus*** to the t
 
 If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture
 
-[channeltype](channeltype)
+![channeltype](channeltype)
 
 ## TODO's
 
@@ -81,8 +81,6 @@ If you want to switch to the Ennovatis implementation simply click in the VR men
 [ ] add new buildings for CityGML
 [ ] implementing concepts for decisionmaking process
 
-*****
-
-[interface_uml](/images/interface.svg)
-[channeltype](/images/channeltype.svg)
+[interface_uml](images/interface.png)
+[channeltype](images/channeltype.png)
 [^1]: [Carl-Zeis-Stiftung](https://www.carl-zeiss-stiftung.de/)
