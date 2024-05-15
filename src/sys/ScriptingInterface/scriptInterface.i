@@ -39,7 +39,16 @@
 		//DebugBreak();
 	for (i = 0; i < size; i++) {
 	    PyObject *str = PyList_GetItem($input,i);
+
+#if SWIG_VERSION >= 0x040100
+    #if PY_VERSION_HEX >= 0x03000000
+        $1[i] = PyUnicode_AsUTF8(str);
+    #else
+        $1[i] = PyString_AsString(str);
+    #endif
+#else
 		$1[i] = SWIG_Python_str_AsChar(str);
+#endif
 
 	    //if (PyString_Check(o))
 		//$1[i] = PyString_AsString(PyList_GetItem($input,i));
@@ -61,8 +70,11 @@
 #if defined(SWIGPYTHON) 
 %typemap(freearg) char ** {
     //free((char *) $1);
-	
+#if SWIG_VERSION >= 0x040100
+    // No need to deallocate string for SWIG 4.1.0 and later
+#else
     SWIG_Python_str_DelForPy3($1);
+#endif
 }
 #endif
 
