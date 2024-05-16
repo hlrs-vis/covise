@@ -1,5 +1,5 @@
 covise_find_package(anari)
-if(NOT anari_FOUND)
+if(NOT TARGET anari::anari)
     return()
 endif()
 
