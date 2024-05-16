@@ -51,6 +51,8 @@ void transformDepthFromWorldToGL(const float *world, float *gl,
   }
 }
 
+#ifdef ANARI_PLUGIN_HAVE_CUDA
+
 __global__
 void transformDepthFromWorldToGL_CUDA_GPU(const float *world, float *gl,
                                           vec3 eye, vec3 dir_du, vec3 dir_dv, vec3 dir_00,
@@ -111,5 +113,7 @@ void transformDepthFromWorldToGL_CUDA(const float *world, float *gl,
         world, gl, eye, dir_du, dir_dv, dir_00,
         imageRegion, view, proj, width, height);
 }
+
+#endif
 
 } // namespace glm

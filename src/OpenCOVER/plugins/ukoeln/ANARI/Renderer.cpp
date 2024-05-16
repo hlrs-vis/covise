@@ -19,7 +19,7 @@
 #include "Projection.h"
 #include "Renderer.h"
 
-#ifdef HAVE_CUDA
+#ifdef ANARI_PLUGIN_HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
 
@@ -404,7 +404,7 @@ void Renderer::renderFrame()
 {
     int numChannels = coVRConfig::instance()->numChannels();
     if (!multiChannelDrawer) {
-#ifdef HAVE_CUDA
+#ifdef ANARI_PLUGIN_HAVE_CUDA
         multiChannelDrawer = new MultiChannelDrawer(false, anari.hasCUDAInterop);
 #else
         multiChannelDrawer = new MultiChannelDrawer(false, false);
@@ -516,7 +516,7 @@ void Renderer::renderFrame(unsigned chan)
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
 
-#ifdef HAVE_CUDA
+#ifdef ANARI_PLUGIN_HAVE_CUDA
     if (anari.hasCUDAInterop) {
         uint32_t widthOUT;
         uint32_t heightOUT;
@@ -570,7 +570,7 @@ void Renderer::renderFrame(unsigned chan)
                widthOUT*heightOUT*anari::sizeOf(typeOUT));
 
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
-#ifdef HAVE_CUDA
+#ifdef ANARI_PLUGIN_HAVE_CUDA
     }
 #endif
 
