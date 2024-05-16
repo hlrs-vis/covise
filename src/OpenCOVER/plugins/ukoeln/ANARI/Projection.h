@@ -21,6 +21,12 @@ void transformDepthFromWorldToGL(const float *world, float *gl,
                                  mat4 view, mat4 proj,
                                  int width, int heigh);
 
+void transformDepthFromWorldToGL_CUDA(const float *world, float *gl,
+                                      vec3 eye, vec3 dir, vec3 up,
+                                      float fovy, float aspect, box2 imageRegion,
+                                      mat4 view, mat4 proj,
+                                      int width, int heigh);
+
 // inlineable functions //
 
 static

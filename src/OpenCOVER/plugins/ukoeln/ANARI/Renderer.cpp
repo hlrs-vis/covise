@@ -18,6 +18,10 @@
 #include "Projection.h"
 #include "Renderer.h"
 
+#ifdef HAVE_CUDA
+#include <cuda_runtime.h>
+#endif
+
 using namespace covise;
 using namespace opencover;
 
@@ -49,6 +53,21 @@ static std::string getExt(const std::string &fileName)
     if (pos == fileName.npos)
         return "";
     return fileName.substr(pos);
+}
+
+
+static bool deviceHasExtension(anari::Library library,
+    const std::string &deviceSubtype,
+    const std::string &extName)
+{
+    const char **extensions =
+        anariGetDeviceExtensions(library, deviceSubtype.c_str());
+
+    for (; *extensions; extensions++) {
+        if (*extensions == extName)
+            return true;
+    }
+    return false;
 }
 
 static std::vector<std::string> string_split(std::string s, char delim)
@@ -384,7 +403,11 @@ void Renderer::renderFrame()
 {
     int numChannels = coVRConfig::instance()->numChannels();
     if (!multiChannelDrawer) {
+#ifdef HAVE_CUDA
+        multiChannelDrawer = new MultiChannelDrawer(false, anari.hasCUDAInterop);
+#else
         multiChannelDrawer = new MultiChannelDrawer(false, false);
+#endif
         multiChannelDrawer->setMode(MultiChannelDrawer::AsIs);
         cover->getScene()->addChild(multiChannelDrawer);
         channelInfos.resize(numChannels);
@@ -485,30 +508,63 @@ void Renderer::renderFrame(unsigned chan)
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
 
-    uint32_t widthOUT;
-    uint32_t heightOUT;
-    ANARIDataType typeOUT;
-    const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                "channel.color",
-                                                                &widthOUT,
-                                                                &heightOUT,
-                                                                &typeOUT);
-    memcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
-           widthOUT*heightOUT*anari::sizeOf(typeOUT));
-    anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
+#ifdef HAVE_CUDA
+    if (anari.hasCUDAInterop) {
+        uint32_t widthOUT;
+        uint32_t heightOUT;
+        ANARIDataType typeOUT;
+        const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
+                                                                    "channel.colorGPU",
+                                                                    &widthOUT,
+                                                                    &heightOUT,
+                                                                    &typeOUT);
+        cudaMemcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDefault);
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.colorGPU");
 
-    const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
-                                                          "channel.depth",
-                                                          &widthOUT,
-                                                          &heightOUT,
-                                                          &typeOUT);
-    std::vector<float> dbXformed(widthOUT*heightOUT);
-    transformDepthFromWorldToGL(dbPointer, dbXformed.data(), eye, dir, up, fovy,
-                                aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
-    memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
-           widthOUT*heightOUT*anari::sizeOf(typeOUT));
+        const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
+                                                              "channel.depthGPU",
+                                                              &widthOUT,
+                                                              &heightOUT,
+                                                              &typeOUT);
+        float *dbXformed;
+        cudaMalloc(&dbXformed, widthOUT*heightOUT*sizeof(float));
+        transformDepthFromWorldToGL_CUDA(dbPointer, dbXformed, eye, dir, up, fovy,
+                                    aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
+        cudaMemcpy((float *)multiChannelDrawer->depth(chan), dbXformed,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDefault);
+        cudaFree(dbXformed);
 
-    anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
+    } else {
+#endif
+        uint32_t widthOUT;
+        uint32_t heightOUT;
+        ANARIDataType typeOUT;
+        const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
+                                                                    "channel.color",
+                                                                    &widthOUT,
+                                                                    &heightOUT,
+                                                                    &typeOUT);
+        memcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT));
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
+
+        const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
+                                                              "channel.depth",
+                                                              &widthOUT,
+                                                              &heightOUT,
+                                                              &typeOUT);
+        std::vector<float> dbXformed(widthOUT*heightOUT);
+        transformDepthFromWorldToGL(dbPointer, dbXformed.data(), eye, dir, up, fovy,
+                                    aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
+        memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
+               widthOUT*heightOUT*anari::sizeOf(typeOUT));
+
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
+#ifdef HAVE_CUDA
+    }
+#endif
 
     multiChannelDrawer->swapFrame();
 }
@@ -553,6 +609,8 @@ void Renderer::initDevice()
     }
     anariCommitParameters(anari.device, anari.device);
     anari.world = anariNewWorld(anari.device);
+    anari.hasCUDAInterop = false; // TODO: doesn't work yet..
+        //= deviceHasExtension(anari.library, "default", "ANARI_VISRTX_CUDA_OUTPUT_BUFFERS");
 }
 
 void Renderer::initFrames()

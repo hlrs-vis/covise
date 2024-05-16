@@ -99,6 +99,7 @@ private:
         std::vector<ANARILight> lights;
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
+        bool hasCUDAInterop{false};
     } anari;
 
     void initDevice();

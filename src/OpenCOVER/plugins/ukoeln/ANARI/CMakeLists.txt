@@ -24,11 +24,20 @@ SET(SOURCES
   asg.cpp
   ANARIPlugin.cpp
   Renderer.cpp
-  Projection.cpp
   ui_anari.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
+if(COVISE_USE_CUDA)
+  enable_language(CUDA)
+  find_package(CUDAToolkit)
+  target_compile_definitions(ANARIPlugin PUBLIC -DHAVE_CUDA=1)
+  target_link_libraries(ANARIPlugin CUDA::cudart)
+  target_sources(ANARIPlugin PRIVATE Projection.cu)
+else()
+  target_sources(ANARIPlugin PRIVATE Projection.cpp)
+endif()
+
 target_compile_definitions(ANARIPlugin PUBLIC -DASG_USE_VISIONARAY_FOR_PICKING=0)
 target_link_libraries(ANARIPlugin anari::anari anari::helium ${VTK_LIBRARIES})
 target_link_libraries(ANARIPlugin glm::glm)
