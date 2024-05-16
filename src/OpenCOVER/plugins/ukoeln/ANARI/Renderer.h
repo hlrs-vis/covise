@@ -105,6 +105,7 @@ private:
     void initDevice();
     void initFrames();
     void initMesh();
+    void initPointClouds();
     void initStructuredVolume();
     void initAMRVolume();
     void initUnstructuredVolume();
@@ -113,6 +114,11 @@ private:
         std::string fileName;
         bool changed = false;
     } meshData;
+
+    struct {
+        std::vector<std::string> fileNames;
+        bool changed = false;
+    } pointCloudData;
 
     struct {
         std::string fileName;

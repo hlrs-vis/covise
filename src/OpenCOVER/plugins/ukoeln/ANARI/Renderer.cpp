@@ -15,6 +15,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
+#include "generateRandomSpheres.h"
 #include "Projection.h"
 #include "Renderer.h"
 
@@ -424,6 +425,13 @@ void Renderer::renderFrame()
         meshData.changed = false;
     }
 
+    // pointCloudData.fileNames.push_back("random");
+    // pointCloudData.changed = true;
+    if (pointCloudData.changed) {
+        initPointClouds();
+        pointCloudData.changed = false;
+    }
+
     if (structuredVolumeData.changed) {
         initStructuredVolume();
         structuredVolumeData.changed = false;
@@ -675,6 +683,27 @@ void Renderer::initMesh()
                                  ASG_BUILD_WORLD_FLAG_MATERIALS  |
                                  ASG_BUILD_WORLD_FLAG_TRANSFORMS;
     ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
+
+    anariCommitParameters(anari.device, anari.world);
+}
+
+void Renderer::initPointClouds()
+{
+    auto surfaceArray
+        = anari::newArray1D(anari.device, ANARI_SURFACE, pointCloudData.fileNames.size());
+
+    auto *s = anari::map<anari::Surface>(anari.device, surfaceArray);
+    for (size_t i = 0; i < pointCloudData.fileNames.size(); ++i) {
+        std::string fn(pointCloudData.fileNames[i]);
+        // TODO: import
+        if (fn == "random") {
+            auto surface = generateRandomSpheres(anari.device, glm::vec3(0.f));
+            s[i] = surface;
+            anariRelease(anari.device, surface);
+        }
+    }
+    anari::unmap(anari.device, surfaceArray);
+    anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);
 
     anariCommitParameters(anari.device, anari.world);
 }
