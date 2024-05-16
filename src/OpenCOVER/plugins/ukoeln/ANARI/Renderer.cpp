@@ -425,8 +425,10 @@ void Renderer::renderFrame()
         meshData.changed = false;
     }
 
-    // pointCloudData.fileNames.push_back("random");
-    // pointCloudData.changed = true;
+    // if (pointCloudData.fileNames.empty()) {
+    //     pointCloudData.fileNames.push_back("random");
+    //     pointCloudData.changed = true;
+    // }
     if (pointCloudData.changed) {
         initPointClouds();
         pointCloudData.changed = false;
