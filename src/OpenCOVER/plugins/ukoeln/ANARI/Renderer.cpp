@@ -16,6 +16,7 @@
 #include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
 #include "generateRandomSpheres.h"
+#include "readPTS.h"
 #include "Projection.h"
 #include "Renderer.h"
 
@@ -197,6 +198,17 @@ void Renderer::unloadUMeshVTK(std::string fn)
     // NO!
 }
 
+void Renderer::loadPointCloud(std::string fn)
+{
+    // deferred!
+    pointCloudData.fileNames.push_back(fn);
+    pointCloudData.changed = true;
+}
+
+void Renderer::unloadPointCloud(std::string fn)
+{
+    // NO!
+}
 
 void Renderer::setRendererType(std::string type)
 {
@@ -425,10 +437,10 @@ void Renderer::renderFrame()
         meshData.changed = false;
     }
 
-    // if (pointCloudData.fileNames.empty()) {
-    //     pointCloudData.fileNames.push_back("random");
-    //     pointCloudData.changed = true;
-    // }
+    if (pointCloudData.fileNames.empty()) {
+         pointCloudData.fileNames.push_back("random");
+         pointCloudData.changed = true;
+    }
     if (pointCloudData.changed) {
         initPointClouds();
         pointCloudData.changed = false;
@@ -702,7 +714,12 @@ void Renderer::initPointClouds()
             auto surface = generateRandomSpheres(anari.device, glm::vec3(0.f));
             s[i] = surface;
             anariRelease(anari.device, surface);
-        }
+        } else if (getExt(fn)==".pts") {
+            auto surface = readPTS(anari.device, fn);
+            s[i] = surface;
+	    anariRelease(anari.device, surface);
+	}
+
     }
     anari::unmap(anari.device, surfaceArray);
     anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);

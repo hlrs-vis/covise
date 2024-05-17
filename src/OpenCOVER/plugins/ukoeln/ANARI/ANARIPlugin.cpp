@@ -66,6 +66,10 @@ static FileHandler handlers[] = {
       ANARIPlugin::loadUMeshVTK,
       ANARIPlugin::unloadUMeshVTK,
       "vtu" },
+    { NULL,
+      ANARIPlugin::loadPointCloud,
+      ANARIPlugin::unloadPointCloud,
+      "pts" },
 };
 
 ANARIPlugin *ANARIPlugin::instance()
@@ -136,6 +140,24 @@ int ANARIPlugin::unloadUMeshVTK(const char *fileName, const char *)
 
     return 1;
 }
+
+int ANARIPlugin::loadPointCloud(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->loadPointCloud(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::unloadPointCloud(const char *fileName, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->unloadPointCloud(fileName);
+
+    return 1;
+}
+
+
 
 ANARIPlugin::ANARIPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)

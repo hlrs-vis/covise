@@ -48,6 +48,9 @@ public:
 
     void loadUMeshVTK(std::string fileName);
     void unloadUMeshVTK(std::string fileName);
+    
+    void loadPointCloud(std::string fileName);
+    void unloadPointCloud(std::string fileName);
 
     void setRendererType(std::string type);
 
