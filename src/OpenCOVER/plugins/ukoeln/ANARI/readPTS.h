@@ -17,7 +17,8 @@ anari::Surface readPTS(anari::Device device, std::string fn)
   if(!fp) return NULL;
   
   char line[1024];
-  fgets(line, sizeof(line), fp);
+  char* res = fgets(line, sizeof(line), fp);
+  if (res == NULL) return NULL;
   sscanf(line,"%u",&numSpheres);
   
   auto positionsArray =
@@ -30,7 +31,8 @@ anari::Surface readPTS(anari::Device device, std::string fn)
   auto *colors = anari::map<glm::vec3>(device, colorsArray);
  
   for (uint32_t i = 0; i < numSpheres; i++) {
-    fgets(line, sizeof(line), fp);
+    res = fgets(line, sizeof(line), fp);
+    if (res == NULL) break;
     unsigned a,r,g,b;
     sscanf(line,"%f %f %f %u %u %u %u",&positions[i][0],&positions[i][1],&positions[i][2],&a,&r,&g,&b);
     colors[i][0] = r / 255.f;
@@ -38,8 +40,8 @@ anari::Surface readPTS(anari::Device device, std::string fn)
     colors[i][2] = b / 255.f;
   }
 
-    anari::unmap(device, positionsArray);
-    anari::unmap(device, colorsArray);
+  anari::unmap(device, positionsArray);
+  anari::unmap(device, colorsArray);
   
 
   // Create and parameterize geometry //
