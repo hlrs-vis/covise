@@ -130,7 +130,6 @@ private:
     void updateSequence(Sequence &seq, int currentFrame);
     std::vector<Sequence> m_listOfSeq;
     float m_animSliderMin, m_animSliderMax;
-    float m_timeState;
 
     int m_aniDirection = 1; // added for ping pong mode
     int m_aniSkip = 1; // step width for automatic animation
