@@ -9,6 +9,9 @@
 
 #include <memory>
 #include <vector>
+#ifdef ANARI_PLUGIN_HAVE_CUDA
+#include <cuda_runtime.h>
+#endif
 #include <osg/BoundingSphere>
 #include <osg/Geometry>
 #include <PluginUtil/MultiChannelDrawer.h>
@@ -102,7 +105,10 @@ private:
         std::vector<ANARILight> lights;
         std::vector<ANARICamera> cameras;
         std::vector<ANARIFrame> frames;
-        bool hasCUDAInterop{false};
+        struct {
+          bool enabled{false};
+          cudaStream_t copyStream{0};
+        } cudaInterop;
     } anari;
 
     void initDevice();
