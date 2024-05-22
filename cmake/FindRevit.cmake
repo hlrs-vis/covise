@@ -10,6 +10,9 @@ string(REPLACE "\\" "/" tmpPATH "${tmpPATH}")
 
 FIND_PATH(REVIT_DIRECTORY NAMES AdWindows.dll RevitAPI.dll
   PATHS
+  "${tmpPATH}/Autodesk/Revit 2027"
+  "${tmpPATH}/Autodesk/Revit 2026"
+  "${tmpPATH}/Autodesk/Revit 2025"
   "${tmpPATH}/Autodesk/Revit 2024"
   "${tmpPATH}/Autodesk/Revit 2023"
   "${tmpPATH}/Autodesk/Revit 2022"
