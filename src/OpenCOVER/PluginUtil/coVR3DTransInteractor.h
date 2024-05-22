@@ -33,6 +33,7 @@ private:
     float _d;
     osg::Vec3 _diff;
     osg::Matrix _oldHandMat;
+    osg::ref_ptr<osg::Drawable> _crossGeo;
 
 protected:
     virtual void createGeometry();
@@ -60,10 +61,9 @@ public:
     void setPos();
 
     // return the current position
-    osg::Vec3 getPos()
-    {
-        return _interPos;
-    };
+    osg::Vec3 getPos() { return _interPos; }
+
+    void showCross(bool show);
 };
 }
 #endif

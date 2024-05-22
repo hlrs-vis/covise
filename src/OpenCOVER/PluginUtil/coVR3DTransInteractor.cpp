@@ -50,11 +50,41 @@ coVR3DTransInteractor::createGeometry()
     osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint);
     mySphereDrawable->setColor(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
     ((osg::Geode *)geometryNode.get())->addDrawable(mySphereDrawable);
+
     geometryNode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate());
+
+    const float r = 1.5f;
+    auto coords = new osg::Vec3Array(6);
+    (*coords)[0] = osg::Vec3(-r, 0, 0);
+    (*coords)[1] = osg::Vec3(r, 0, 0);
+    (*coords)[2] = osg::Vec3(0, -r, 0);
+    (*coords)[3] = osg::Vec3(0, r, 0);
+    (*coords)[4] = osg::Vec3(0, 0, -r);
+    (*coords)[5] = osg::Vec3(0, 0, r);
+
+    auto prims = new osg::DrawArrays(osg::PrimitiveSet::LINES, 0, 6);
+    auto lines = new osg::Geometry();
+    lines->setVertexArray(coords);
+    lines->addPrimitiveSet(prims);
+    lines->getOrCreateStateSet()->setAttributeAndModes(new osg::LineWidth(3.f));
+    _crossGeo = lines;
 }
 
-void
-coVR3DTransInteractor::startInteraction()
+void coVR3DTransInteractor::showCross(bool show)
+{
+    auto *geode = geometryNode->asGeode();
+    assert(geode);
+    if (show)
+    {
+        geode->addDrawable(_crossGeo);
+    }
+    else
+    {
+        geode->removeDrawable(_crossGeo);
+    }
+}
+
+void coVR3DTransInteractor::startInteraction()
 {
     osg::Matrix currentHandMat;
     osg::Vec3 currentHandPos, currentHandPos_o;

@@ -57,6 +57,7 @@ CuttingSurfaceCylinder::CuttingSurfaceCylinder(coInteractor *inter)
     cylCenterPickInteractor_ = new coVR3DTransInteractor(centerPoint_, interSize, coInteraction::ButtonA, "hand", "Cyl_Center", coInteraction::Medium);
     cylCenterPickInteractor_->hide();
     cylCenterPickInteractor_->disableIntersection();
+    cylCenterPickInteractor_->showCross(true);
 
     cylRadiusPickInteractor_ = new coVR3DTransInteractor(radiusPoint_, interSize, coInteraction::ButtonA, "hand", "Cyl_Radius", coInteraction::Medium);
     cylRadiusPickInteractor_->hide();

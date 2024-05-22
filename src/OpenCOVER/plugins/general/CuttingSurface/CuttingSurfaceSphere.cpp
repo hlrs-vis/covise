@@ -57,6 +57,7 @@ CuttingSurfaceSphere::CuttingSurfaceSphere(coInteractor *inter)
     sphereCenterPickInteractor_ = new coVR3DTransInteractor(centerPoint_, interSize, coInteraction::ButtonA, "hand", "Sphere_Center", coInteraction::Medium);
     sphereCenterPickInteractor_->hide();
     sphereCenterPickInteractor_->disableIntersection();
+    sphereCenterPickInteractor_->showCross(true);
 
     sphereRadiusPickInteractor_ = new coVR3DTransInteractor(radiusPoint_, interSize, coInteraction::ButtonA, "hand", "Sphere_Radius", coInteraction::Medium);
     sphereRadiusPickInteractor_->hide();
