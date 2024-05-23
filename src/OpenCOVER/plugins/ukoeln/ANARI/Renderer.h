@@ -107,7 +107,9 @@ private:
         std::vector<ANARIFrame> frames;
         struct {
           bool enabled{false};
+#ifdef ANARI_PLUGIN_HAVE_CUDA
           cudaStream_t copyStream{0};
+#endif
         } cudaInterop;
     } anari;
 
