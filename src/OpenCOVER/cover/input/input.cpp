@@ -313,7 +313,6 @@ bool Input::initHardware()
 
 namespace
 {
-
     template <typename Map>
     typename Map::mapped_type findInMap(const Map &map, const typename Map::key_type &key)
     {
@@ -325,80 +324,53 @@ namespace
     }
 }
 
+template <typename value_type>
+value_type* Input::findOrAdd(std::map<std::string, value_type*> &map, const std::string &name, bool *added)
+{
+    if (name.empty())
+        return nullptr;
+    auto it = map.find(name);
+    if (it == map.end())
+    {
+        if(added)
+            *added = true;
+        it = map.insert(std::make_pair(name, new value_type(name))).first;
+    }
+    return it->second;
+}
+
 Person *Input::getPerson(const std::string &name)
 {
-
-    if (name.empty())
-        return NULL;
-
-    Person *person = findInMap(persons, name);
-    if (!person)
-    {
-        person = new Person(name);
-        persons[name] = person;
+    
+    bool added = false;
+    auto retval = findOrAdd(persons, name, &added);
+    if(added)
         personNames.push_back(name);
-    }
-    return person;
+    return retval;            
 }
 
 Gadget *Input::getGadget(const std::string &name)
 {
-    if (name.empty())
-        return NULL;
-
-    Gadget *gadget = findInMap(gadgets, name);
-    if (!gadget)
-    {
-        gadget = new Gadget(name);
-        gadgets[name] = gadget;
+    bool added = false;
+    auto retval = findOrAdd(gadgets, name, &added);
+    if(added)
         gadgetNames.push_back(name);
-    }
-    return gadget;
+    return retval;  
 }
 
 TrackingBody *Input::getBody(const std::string &name)
 {
-
-    if (name.empty())
-        return NULL;
-
-    TrackingBody *body = findInMap(trackingbodies, name);
-    if (!body)
-    {
-        body = new TrackingBody(name);
-        trackingbodies[name] = body;
-    }
-    return body;
+    return findOrAdd(trackingbodies, name);
 }
 
 ButtonDevice *Input::getButtons(const std::string &name)
 {
-
-    if (name.empty())
-        return NULL;
-
-    ButtonDevice *buttons = findInMap(buttondevices, name);
-    if (!buttons)
-    {
-        buttons = new ButtonDevice(name);
-        buttondevices[name] = buttons;
-    }
-    return buttons;
+    return findOrAdd(buttondevices, name);
 }
 
 Valuator *Input::getValuator(const std::string &name)
 {
-
-    if (name.empty())
-        return NULL;
-
-    Valuator *val = findInMap(valuators, name);
-    if (!val)
-    {
-        val = new Valuator(name);
-        valuators[name] = val;
-    }
-    return val;
+    return findOrAdd(valuators, name);
 }
 
 DriverFactoryBase *Input::getDriverPlugin(const std::string &type)

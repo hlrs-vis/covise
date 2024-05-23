@@ -148,6 +148,9 @@ private:
 
     std::map<std::string, DriverFactoryBase *> plugins; //< all loaded driver plugins
 
+    template <typename value_type>
+    value_type* findOrAdd(std::map<std::string, value_type*> &map, const std::string &name, bool *added = nullptr);
+
     bool initHardware();
     bool initPersons();
     bool initObjects();
