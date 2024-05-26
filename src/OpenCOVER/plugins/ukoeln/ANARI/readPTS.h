@@ -57,7 +57,7 @@ anari::Surface readPTS(anari::Device device, std::string fn)
   // Create and parameterize material //
 
   auto material = anari::newObject<anari::Material>(device, "matte");
-//  anari::setAndReleaseParameter(device, material, "color", texture);
+  anari::setParameter(device, material, "color", "color");
   anari::commitParameters(device, material);
 
   // Create and parameterize surface //
