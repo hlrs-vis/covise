@@ -413,6 +413,32 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
     anariRelease(anari.device, anariLights);
 }
 
+void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
+{
+    bool doUpdate =  false;
+    if (planes.size() != clipPlanes.data.size()) {
+        doUpdate = true;
+    } else {
+        for (size_t i = 0; i < planes.size(); ++i) {
+            for (int c = 0; c < 4; ++c) {
+                if (clipPlanes.data[i][c] != planes[i][c]) {
+                    doUpdate = true;
+                    break;
+                }
+
+                if (doUpdate)
+                    break;
+            }
+        }
+    }
+
+    if (doUpdate) {
+        clipPlanes.data.clear();
+        clipPlanes.data.insert(clipPlanes.data.begin(), planes.begin(), planes.end());
+        clipPlanes.changed = true;
+    }
+}
+
 void Renderer::renderFrame()
 {
     int numChannels = coVRConfig::instance()->numChannels();
@@ -462,6 +488,11 @@ void Renderer::renderFrame()
     if (unstructuredVolumeData.changed) {
         initUnstructuredVolume();
         unstructuredVolumeData.changed = false;
+    }
+
+    if (clipPlanes.changed) {
+        initClipPlanes();
+        clipPlanes.changed = false;
     }
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
@@ -923,6 +954,22 @@ void Renderer::initUnstructuredVolume()
                                   anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
     anariRelease(anari.device, anari.unstructuredVolume.volume);
     anariCommitParameters(anari.device, anari.world);
+}
+
+void Renderer::initClipPlanes()
+{
+    if (!anari.renderer)
+        return;
+
+    if (clipPlanes.data.empty()) {
+        anari::unsetParameter(anari.device, anari.renderer, "clipPlane");
+    } else {
+        anari::setAndReleaseParameter(
+            anari.device, anari.renderer, "clipPlane",
+            anari::newArray1D(anari.device, clipPlanes.data.data(), clipPlanes.data.size()));
+    }
+
+    anari::commitParameters(anari.device, anari.renderer);
 }
 
 

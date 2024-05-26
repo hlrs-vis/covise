@@ -200,6 +200,21 @@ void ANARIPlugin::preFrame()
     if (!renderer)
         return;
 
+    std::vector<Renderer::ClipPlane> clipPlanes;
+    if (cover->isClippingOn()) {
+        osg::ClipNode *cn = cover->getObjectsRoot();
+        for (unsigned i = 0; i < cn->getNumClipPlanes(); ++i) {
+            auto *cp = cn->getClipPlane(i);
+            Renderer::ClipPlane clipPlane;
+            clipPlane[0] = -cp->getClipPlane().x();
+            clipPlane[1] = -cp->getClipPlane().y();
+            clipPlane[2] = -cp->getClipPlane().z();
+            clipPlane[3] =  cp->getClipPlane().w();
+            clipPlanes.push_back(clipPlane);
+        }
+    }
+    renderer->setClipPlanes(clipPlanes);
+
     renderer->renderFrame();
 }
 

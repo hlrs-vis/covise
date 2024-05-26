@@ -16,6 +16,7 @@
 #include <osg/Geometry>
 #include <PluginUtil/MultiChannelDrawer.h>
 #include <anari/anari.h>
+#include <anari/anari_cpp/ext/glm.h>
 #include "asg.h"
 #ifdef HAVE_HDF5
 #include "readFlash.h"
@@ -27,6 +28,8 @@ class Renderer
 {
 public:
     typedef std::shared_ptr<Renderer> SP;
+
+    typedef glm::vec4 ClipPlane;
 
     Renderer();
    ~Renderer();
@@ -68,6 +71,8 @@ public:
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
     void updateLights(const osg::Matrix &modelMat);
+
+    void setClipPlanes(const std::vector<ClipPlane> &planes);
 
     void renderFrame();
     void renderFrame(unsigned chan);
@@ -120,6 +125,7 @@ private:
     void initStructuredVolume();
     void initAMRVolume();
     void initUnstructuredVolume();
+    void initClipPlanes();
 
     struct {
         std::string fileName;
@@ -174,6 +180,13 @@ private:
 
         bool changed = false;
     } unstructuredVolumeData;
+
+
+    struct {
+        std::vector<ClipPlane> data;
+
+        bool changed = false;
+    } clipPlanes;
 
     std::vector<std::string> rendererTypes;
     std::vector<ui_anari::ParameterList> rendererParameters;
