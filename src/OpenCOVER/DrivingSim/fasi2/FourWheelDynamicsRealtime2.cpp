@@ -514,16 +514,16 @@ void FourWheelDynamicsRealtime2::run()
     steerWheel->init();
     steerWheel->setCurrent(0);
 	
-	std::cerr << "--- FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2(): Starting ValidateMotionPlatform task ---" << std::endl;
+	//std::cerr << "--- FourWheelDynamicsRealtime2::FourWheelDynamicsRealtime2(): Starting ValidateMotionPlatform task ---" << std::endl;
     //Motion platform
     motPlat->start();
-    std::cerr << "--- motPlat->start();  ---" << std::endl;
+    //std::cerr << "--- motPlat->start();  ---" << std::endl;
     while (!motPlat->isInitialized())
     {
         rt_task_sleep(1000000);
-        std::cerr << "--- motPlat->waiting for initialization();  ---" << std::endl;
+        //std::cerr << "--- motPlat->waiting for initialization();  ---" << std::endl;
     }
-    std::cerr << "--- motPlat->start(); done ---" << std::endl;
+    //std::cerr << "--- motPlat->start(); done ---" << std::endl;
     set_periodic(period);
     motPlat->getSendMutex().acquire(period);
     motPlat->switchToMode<ValidateMotionPlatform::controlToGround>();
@@ -532,7 +532,7 @@ void FourWheelDynamicsRealtime2::run()
     {
         rt_task_wait_period(&overruns);
     }
-    std::cerr << "--- isGrounded(); done ---" << std::endl;
+    //std::cerr << "--- isGrounded(); done ---" << std::endl;
     motPlat->getSendMutex().acquire(period);
     motPlat->switchToMode<ValidateMotionPlatform::controlDisabled>();
     motPlat->getSendMutex().release();
@@ -562,7 +562,7 @@ void FourWheelDynamicsRealtime2::run()
 		
 		if (overruns != 0)
 		{
-			std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
+			//std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
 			overruns=0;
 		}
 				
@@ -641,6 +641,8 @@ void FourWheelDynamicsRealtime2::run()
 		double oldPosSteeringWheel = carState.posSteeringWheel;
 		carState.posSteeringWheel = steerWheelAngle;
 		carState.vSteeringWheel=(carState.posSteeringWheel-oldPosSteeringWheel)/h;
+	//std::cerr  << " carState.posSteeringWheel : " << carState.posSteeringWheel<< std::endl;
+	//std::cerr  << " carState.vSteeringWheel : " << carState.vSteeringWheel<< std::endl;
 		
 		if (!pause)
 		{
@@ -838,7 +840,7 @@ void FourWheelDynamicsRealtime2::run()
 			carState.wheelAngleZFR = carState.posWheelRightNeutral + carState.toeFR;
 			carState.posWheelCombined = (carState.posWheelLeftNeutral + carState.posWheelRightNeutral) / 2;
 			carState.deltaWheel = carState.posWheelLeftNeutral - carState.posWheelRightNeutral;
-                        std::cerr << "carState.posWheelLeftNeutral:" << carState.posWheelLeftNeutral << " carState.posWheelRightNeutral" << carState.posWheelRightNeutral << " carState.deltaWheel: " << carState.deltaWheel << std::endl;
+                        //std::cerr << "carState.posWheelLeftNeutral:" << carState.posWheelLeftNeutral << " carState.posWheelRightNeutral" << carState.posWheelRightNeutral << " carState.deltaWheel: " << carState.deltaWheel << std::endl;
 			
 			speedState.OmegaZFL = carState.vSteeringWheel * carState.steeringRatio;
 			speedState.OmegaZFR = carState.vSteeringWheel * carState.steeringRatio;
@@ -1048,21 +1050,21 @@ void FourWheelDynamicsRealtime2::run()
 			initialPos.vSuspZRR = carState.localZPosSuspRR;
 			initialPos.vSuspZRL = carState.localZPosSuspRL;
 			
-			initialPos.phiDotFL1 = carState.phiFL1;
-			initialPos.phiDotFL2 = carState.phiFL2;
-			initialPos.phiDotFL3 = carState.phiFL3;
-			initialPos.phiDotFR1 = carState.phiFR1;
-			initialPos.phiDotFR2 = carState.phiFR2;
-			initialPos.phiDotFR3 = carState.phiFR3;
-			initialPos.phiDotRR1 = carState.phiRR1;
-			initialPos.phiDotRR2 = carState.phiRR2;
-			initialPos.phiDotRR3 = carState.phiRR3;
-			initialPos.phiDotRL1 = carState.phiRL1;
-			initialPos.phiDotRL2 = carState.phiRL2;
-			initialPos.phiDotRL3 = carState.phiRL3;
+			initialPos.phiDotFL1 = 0;carState.phiFL1;
+			initialPos.phiDotFL2 = 0;carState.phiFL2;
+			initialPos.phiDotFL3 = 0;carState.phiFL3;
+			initialPos.phiDotFR1 = 0;carState.phiFR1;
+			initialPos.phiDotFR2 = 0;carState.phiFR2;
+			initialPos.phiDotFR3 = 0;carState.phiFR3;
+			initialPos.phiDotRR1 = 0;carState.phiRR1;
+			initialPos.phiDotRR2 = 0;carState.phiRR2;
+			initialPos.phiDotRR3 = 0;carState.phiRR3;
+			initialPos.phiDotRL1 = 0;carState.phiRL1;
+			initialPos.phiDotRL2 = 0;carState.phiRL2;
+			initialPos.phiDotRL3 = 0;carState.phiRL3;
 			
 			//first integration
-			std::cerr << "1st" << std::endl;
+			//std::cerr << "1st" << std::endl;
 			FWDState K1Acc = integrator.integrate(initialSpeeds, initialPos, carState, h);
 			
 			FWDState K1Pos = initialPos + initialSpeeds * (h / 2.0);
@@ -1104,7 +1106,7 @@ void FourWheelDynamicsRealtime2::run()
 			K1Speed.phiDotRL3 = K1Acc.phiDotRL3;
 			
 			//second integration
-			std::cerr << "2nd" << std::endl;
+			//std::cerr << "2nd" << std::endl;
 			FWDState K2Acc = integrator.integrate(K1Speed, K1Pos, carState, h);
 			
 			FWDState K2Pos = initialPos + K1Speed * (h / 2.0);
@@ -1145,7 +1147,7 @@ void FourWheelDynamicsRealtime2::run()
 			K2Speed.phiDotRL2 = K2Acc.phiDotRL2;
 			K2Speed.phiDotRL3 = K2Acc.phiDotRL3;
 			
-			std::cerr << "3rd" << std::endl;
+			//std::cerr << "3rd" << std::endl;
 			//third integration
 			FWDState K3Acc = integrator.integrate(K2Speed, K2Pos, carState, h);
 			
@@ -1188,7 +1190,7 @@ void FourWheelDynamicsRealtime2::run()
 			K3Speed.phiDotRL3 = K3Acc.phiDotRL3;
 			
 			//fourth integration
-			std::cerr << "4th" << std::endl;
+			//std::cerr << "4th" << std::endl;
 			FWDState K4Acc = integrator.integrate(K3Speed, K3Pos, carState, h);
 			
 			//currentTicks = (double) rt_timer_read();
@@ -1198,7 +1200,7 @@ void FourWheelDynamicsRealtime2::run()
 			double angle = (K1Acc.vYaw + K2Acc.vYaw * 2.0 + K3Acc.vYaw * 2.0 + K4Acc.vYaw) * (h / 6.0);
 			
 			speedState.TcolumnCombined = (K1Acc.TcolumnCombined + 2.0 * K2Acc.TcolumnCombined + 2.0 * K3Acc.TcolumnCombined + K4Acc.TcolumnCombined) / 6.0;
-                        std::cerr << "K1Acc.TcolumnCombine: " << K1Acc.TcolumnCombined << " K2Acc.TcolumnCombined" << K2Acc.TcolumnCombined << "K3Acc.TcolumnCombined " << K3Acc.TcolumnCombined << "K4Acc.TcolumnCombined" << K4Acc.TcolumnCombined << std::endl;
+                        //std::cerr << "K1Acc.TcolumnCombine: " << K1Acc.TcolumnCombined << " K2Acc.TcolumnCombined" << K2Acc.TcolumnCombined << "K3Acc.TcolumnCombined " << K3Acc.TcolumnCombined << "K4Acc.TcolumnCombined" << K4Acc.TcolumnCombined << std::endl;
 			speedState.slipFL = (K1Acc.slipFL + 2.0 * K2Acc.slipFL + 2.0 * K3Acc.slipFL + K4Acc.slipFL) / 6.0;
 			speedState.slipFR = (K1Acc.slipFR + 2.0 * K2Acc.slipFR + 2.0 * K3Acc.slipFR + K4Acc.slipFR) / 6.0;
 			speedState.slipRR = (K1Acc.slipRR + 2.0 * K2Acc.slipRR + 2.0 * K3Acc.slipRR + K4Acc.slipRR) / 6.0;
@@ -1295,7 +1297,7 @@ void FourWheelDynamicsRealtime2::run()
 			
 			double oldCurrent = current;
 			current = -speedState.TcolumnCombined;
-			std::cerr << "-speedState.TcolumnCombined " << current << std::endl;
+			//std::cerr << "-speedState.TcolumnCombined " << current << std::endl;
 			if(std::abs(current - oldCurrent) > carState.maxDeltaCurrent)
 			{
 				if(current > oldCurrent)
@@ -1350,7 +1352,7 @@ void FourWheelDynamicsRealtime2::run()
 			
 			carState.cogOpencoverPos = carState.cogOpencoverPos * deltaX * deltaY * deltaZ;
 			
-			carState.modelOriginOffsetXMatrix.makeTranslate(carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, carState.modelOriginOffsetY * carState.cogOpencoverRotZ1, carState.modelOriginOffsetZ * carState.cogOpencoverRotZ1);
+			carState.modelOriginOffsetXMatrix.makeTranslate(carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, carState.modelOriginOffsetY * carState.cogOpencoverRotZ2, carState.modelOriginOffsetZ * carState.cogOpencoverRotZ3);
 			
 			chassisTrans = carState.cogOpencoverRot * carState.cogOpencoverPos * carState.modelOriginOffsetXMatrix;
 			
@@ -1656,6 +1658,12 @@ void FourWheelDynamicsRealtime2::run()
 		} 
 		else
 		{
+		
+                        double height = (motPlat->getPosition(0) - ValidateMotionPlatform::posMiddle);
+			//std::cerr << "height " << height << std::endl;
+		        //motPlat->setPositionSetpoint(0, ValidateMotionPlatform::posMiddle + carState.mpRZ);
+			carState.modelOriginOffsetXMatrix.makeTranslate(carState.modelOriginOffsetX * carState.cogOpencoverRotZ1, height + (carState.modelOriginOffsetY * carState.cogOpencoverRotZ1), carState.modelOriginOffsetZ * carState.cogOpencoverRotZ1);
+			chassisTrans = carState.cogOpencoverRot * carState.cogOpencoverPos * carState.modelOriginOffsetXMatrix;
 			current = 0;
 		}
 		//std::cout << "steering angle: " << carState.posSteeringWheel << std::endl;

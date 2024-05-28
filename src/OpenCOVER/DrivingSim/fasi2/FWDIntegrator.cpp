@@ -5,6 +5,7 @@
 #include <iostream>
 #include <math.h>
 
+
 FWDIntegrator::FWDIntegrator()
 {
 }
@@ -27,8 +28,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double initialOmegaYRL = inSpeedState.OmegaYRL;
 	double initialOmegaZFL = inSpeedState.OmegaZFL;
 	double initialOmegaZFR = inSpeedState.OmegaZFR;
-	double initialOmegaZRR = inSpeedState.OmegaZRR;
-	double initialOmegaZRL = inSpeedState.OmegaZRL;
+	double initialOmegaZRR = 0;
+	double initialOmegaZRL = 0;
 	double initialRpm = inSpeedState.engineRPM;
 	double initialPhiDotFL1 = inSpeedState.phiDotFL1;
 	double initialPhiDotFL2 = inSpeedState.phiDotFL2;
@@ -51,6 +52,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FAxleLoadFR;
 	double FAxleLoadRR;
 	double FAxleLoadRL;
+	//std::cerr  << " inSpeedState.OmegaZFL : " << inSpeedState.OmegaZFL<< std::endl;
+	//std::cerr  << " inSpeedState.phiDotFL1 : " << inSpeedState.phiDotFL1<< std::endl;
 	
 	//wheel loads due to angle
 	FAxleLoadPitchR=cos(carState.localPitch)*(carState.lFront+carState.cogH*tan(-carState.localPitch))/(carState.lFront+carState.lRear); //higher means more load on this side
@@ -99,6 +102,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double FsdFL = (initialVSuspZFL/* - initialVZ + sin(initialVPitch) * carState.lFront - sin(initialVRoll) * carState.sFrontH*/) * carState.dsFL;
 	double FtsFL = -(carState.localZPosTireFL) * carState.ctFL/* + (carState.localZPosTireFL) * (carState.localZPosTireFL) * carState.ctFL + carState.FtFL*/;
 	double FtdFL = -carState.tireDefSpeedFL * carState.dtFL;
+	//std::cerr  << "    FssFL : " << FssFL<< "    (inPosState.vSuspZFL + carState.suspOffsetFL) : " << (inPosState.vSuspZFL + carState.suspOffsetFL)<< std::endl;
+	//std::cerr  << "    carState.localZPosTireFL : " << carState.localZPosTireFL<< "    carState.ctFL : " << carState.ctFL<< std::endl;
 	
 	double FssFR = (inPosState.vSuspZFR + carState.suspOffsetFR) * carState.csFR + carState.FsFR;
 	double FsdFR = (initialVSuspZFR/* - initialVZ + sin(initialVPitch) * carState.lFront + sin(initialVRoll) * carState.sFrontH*/) * carState.dsFR;
@@ -159,6 +164,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	
 	//combined weighted forces
 	double FweightedFL = FAxleLoadFL * (FssFL + FsdFL + FssFR + FsdFR) * (FssFL + FsdFL + FssRL + FsdRL) / ((FssRR + FsdRR + FssRL + FsdRL) * (FssFR + FsdFR + FssRR + FsdRR));
+	//std::cerr  << " FweightedFL : " << FweightedFL<< std::endl;
 	if(std::isnan(FweightedFL))
 	{
 		FweightedFL = 0;
@@ -179,6 +185,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		FweightedRL = 0;
 	}
 	
+	//std::cerr  << " FtsFL : " << FtsFL<< " FtdFL : " << FtdFL<< std::endl;
 	//forces in Z on tire
 	double FtireFL = FtsFL + FtdFL;
 	double FtireFR = FtsFR + FtdFR;
@@ -224,10 +231,20 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double rDynRL = lambdaRL * carState.tireRadR + (1 - lambdaRL) * (carState.tireRadR - FtireRL/czRL);
 	
 	//bore slip
-	double sBFL = -RBFL * initialOmegaZFL / (rDynFL * std::abs(initialOmegaYFL) + carState.vN);
-	double sBFR = -RBFR * initialOmegaZFR / (rDynFR * std::abs(initialOmegaYFR) + carState.vN);
-	double sBRR = -RBRR * initialOmegaZRR / (rDynRR * std::abs(initialOmegaYRR) + carState.vN);
-	double sBRL = -RBRL * initialOmegaZRL / (rDynRL * std::abs(initialOmegaYRL) + carState.vN);
+	double sBFL = 0;
+	if(initialOmegaYFL > 0.01)
+	    sBFL = -RBFL * initialOmegaZFL / (rDynFL * std::abs(initialOmegaYFL) + carState.vN);
+	double sBFR = 0;
+	if(initialOmegaYFR > 0.01)
+	    sBFR = -RBFR * initialOmegaZFR / (rDynFR * std::abs(initialOmegaYFR) + carState.vN);
+	double sBRR = 0;
+	if(initialOmegaYRR > 0.01)
+	    sBRR = -RBRR * initialOmegaZRR / (rDynRR * std::abs(initialOmegaYRR) + carState.vN);
+	double sBRL = 0;
+	if(initialOmegaYRL > 0.01)
+	    sBRL = -RBRL * initialOmegaZRL / (rDynRL * std::abs(initialOmegaYRL) + carState.vN);
+	//std::cerr  << " sBFL : " << sBFL<< std::endl;
+	//std::cerr  << " RBFL : " << RBFL<<" initialOmegaZFL : " << initialOmegaZFL<<" rDynFL : " << rDynFL<<" carState.vN : " << carState.vN<< std::endl;
 	
 	//parameters for slip curves
 	//Fx_=Fz/FzN*(2*Fx_(FzN)-0.5*Fx_(2FzN)-(Fx_(FzN)-0.5*Fx_(2FzN))*Fz/FzN
@@ -296,6 +313,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double sinWAngleRL = sin(-carState.wheelAngleZRL);
 	double vTangF = initialVYaw * carState.rwF;
 	double vTangR = initialVYaw * carState.rwR;
+	//std::cerr  << " carState.wheelAngleZFL : " << carState.wheelAngleZFL<< std::endl;
 	
 	double vXWFL = cosWAngleFL * (initialVX - vTangF * carState.sinawF) - sinWAngleFL * initialVY;
 	double vYWFL = sinWAngleFL * initialVX + cosWAngleFL * (initialVY + vTangF * carState.cosawF);
@@ -361,8 +379,8 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double sGRL = sqrt((sxGRL * cosPhiRL / sxRoofRL) * (sxGRL * cosPhiRL / sxRoofRL) + (syGRL * sinPhiRL / syRoofRL) * (syGRL * sinPhiRL / syRoofRL));
 	
 	//bore torque;
-	std::cerr  << "carState.B :" << carState.B<< std::endl;
-	std::cerr  << "RBFL :" << RBFL<< std::endl;
+	//std::cerr  << "carState.B :" << carState.B<< std::endl;
+	//std::cerr  << "RBFL :" << RBFL<< std::endl;
 	double RBFL1 = 0.9 * RBFL;
 	double RBFL2 = RBFL;
 	double RBFL3 = 1.1 * RBFL;
@@ -376,6 +394,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double RBRL2 = RBRL;
 	double RBRL3 = 1.1 * RBRL;
 	
+	//std::cerr  << " FtireFL :" << FtireFL<<" carState.FzN :" << carState.FzN<<" carState.boreXGN :" << carState.boreXGN<<" carState.boreXG2N :" << carState.boreXG2N<< std::endl;
 	double boreXGFL = FtireFL / carState.FzN * (2 * carState.boreXGN - 0.5 * carState.boreXG2N - (carState.boreXGN - 0.5 * carState.boreXG2N) * FtireFL / carState.FzN);
 	double boreXGFR = FtireFR / carState.FzN * (2 * carState.boreXGN - 0.5 * carState.boreXG2N - (carState.boreXGN - 0.5 * carState.boreXG2N) * FtireFR / carState.FzN);
 	double boreXGRR = FtireRR / carState.FzN * (2 * carState.boreXGN - 0.5 * carState.boreXG2N - (carState.boreXGN - 0.5 * carState.boreXG2N) * FtireRR / carState.FzN);
@@ -392,7 +411,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double TBmaxFL1;
 	double TBmaxFL2;
 	double TBmaxFL3;
-	std::cerr  << "boreGFL :" << boreGFL << std::endl;
+	//std::cerr  << "boreGFL :" << boreGFL << std::endl;
 	if (std::abs(boreGFL) < 0.1)
 	{
 		TBmaxFL1 = RBFL1 * (carState.boreXGN + carState.boreYGN) / 2;
@@ -450,7 +469,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		TBmaxRL3 = RBRL3 * boreGRL;
 	}
 	
-	std::cerr  << "RBFL1 :" << RBFL1<< std::endl;
+	//std::cerr  << "RBFL1 :" << RBFL1<< std::endl;
 	double cPhiFL1 = carState.cBore * RBFL1 * RBFL1;
 	double cPhiFL2 = carState.cBore * RBFL2 * RBFL2;
 	double cPhiFL3 = carState.cBore * RBFL3 * RBFL3;
@@ -476,7 +495,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 	double dPhiRL2 = carState.dBore * RBRL2 * RBRL2;
 	double dPhiRL3 = carState.dBore * RBRL3 * RBRL3;
 	
-	std::cerr  << "cPhiFL1 :" << cPhiFL1<< "inPosState.phiDotFL1 :" << inPosState.phiDotFL1<< std::endl;
+	//std::cerr  << "cPhiFL1 :" << cPhiFL1<< "inPosState.phiDotFL1 :" << inPosState.phiDotFL1<< std::endl;
 	double TBstFL1 = cPhiFL1 * inPosState.phiDotFL1;
 	double TBstFL2 = cPhiFL2 * inPosState.phiDotFL2;
 	double TBstFL3 = cPhiFL3 * inPosState.phiDotFL3;
@@ -542,7 +561,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		TBstRL3 = TBstRL3 * TBmaxRL3 / std::abs(TBstRL3);
 	}
 	
-	std::cerr  << "dF0FL :" << dF0FL << std::endl;
+	//std::cerr  << "dF0FL :" << dF0FL << std::endl;
 	//TODO add omegaz for entire car to bore motion
 	double phiADotFL1;
 	double phiADotFL2;
@@ -603,7 +622,7 @@ FWDState FWDIntegrator::integrate(FWDState inSpeedState, FWDState inPosState, FW
 		phiADotRL2 = -(dF0RL * RBRL2 * RBRL2 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL2) / (dF0RL * RBRL2 * RBRL2 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL2);
 		phiADotRL3 = -(dF0RL * RBRL3 * RBRL3 * initialOmegaZRL + rDynRL * std::abs(initialOmegaYRL) * TBstRL3) / (dF0RL * RBRL3 * RBRL3 + rDynRL * std::abs(initialOmegaYRL) * dPhiRL3);
 	}
-	std::cerr  << "TBstFL1 :" << TBstFL1<< "dPhiFL1 :" << dPhiFL1<< "phiADotFL1 :" <<phiADotFL1 << std::endl;
+	//std::cerr  << "TBstFL1 :" << TBstFL1<< "dPhiFL1 :" << dPhiFL1<< "phiADotFL1 :" <<phiADotFL1 << std::endl;
 	
 	double TBDFL1 = TBstFL1 + dPhiFL1 * phiADotFL1;
 	double TBDFL2 = TBstFL2 + dPhiFL2 * phiADotFL2;

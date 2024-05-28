@@ -567,7 +567,7 @@ void XenomaiSteeringWheel::run()
 			{
 				current = -peakCurrent;
 			}
-			std::cerr << std::dec << "current: " << current << std::endl;
+			//std::cerr << std::dec << "current: " << current << std::endl;
         
 			currentMutex.acquire(1000000);
     RPDOData[0] = 0x1f;//enable op

@@ -81,7 +81,7 @@ protected:
     const double speedRes = 1875.0 / 262144.0; // = 1 bit
     const double homingSpeed = 10; //revs/min
     const int32_t limitSwitchPosition = -369000; //was -380432;
-    const int32_t zeroMarkPosition = -331000; 
+    const int32_t zeroMarkPosition = -301000; 
 };
 
 inline unsigned long XenomaiSteeringWheel::getPeriodicTaskOverruns()
