@@ -54,7 +54,7 @@
            </CaveHead>
 
            <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
-              <Offset x="0" y="-110" z="0" />
+              <Offset x="10" y="-110" z="0" />
               <Orientation h="-2" p="-2" r="14" />
            </CaveHand>
 
