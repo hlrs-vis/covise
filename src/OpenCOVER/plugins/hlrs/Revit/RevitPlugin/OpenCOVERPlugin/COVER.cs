@@ -1925,8 +1925,25 @@ namespace OpenCOVERPlugin
                 }
             }
 
+            /* check if this object is just a geometry instance , then the actual door comes later down the hierarchy */
+            int numElements=0;
+            IEnumerator<GeometryObject> CountObjects = elementGeom.GetEnumerator();
+            while (CountObjects.MoveNext())
+            {
+                numElements++;
+            }
+            bool isGeometryInstance=false;
+            CountObjects.Reset();
+            if (numElements == 1)
+            {
+                CountObjects.MoveNext();
+                if(CountObjects.Current is GeometryInstance)
+                    isGeometryInstance = true;
 
-            if ( (fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+            }
+
+
+            if ((fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
             {
                 bool hasLeft = false;
                 bool hasRight = false;
@@ -2203,6 +2220,7 @@ namespace OpenCOVERPlugin
         {
             int num = 0;
             double travel = 0.0;
+            double travelPercent = 0.0;
             MessageBuffer mb = new();
             mb.add(elem.Id.IntegerValue);
             mb.add(DocumentID);
@@ -2225,10 +2243,18 @@ namespace OpenCOVERPlugin
                 {
                     sliding = 1;
                 }
+                else if (oper == "SLIDING_TO_LEFT")
+                {
+                    sliding = -1;
+                }
+                else if (oper == "SLIDING_TO_RIGHT")
+                {
+                    sliding = 1;
+                }
                 else if (oper != null && (oper.Length > 7 && oper.Substring(oper.Length - 7) == "SLIDING"))
                     {
                     sliding = 1;
-                }
+                } 
                 else
                 {
                     IList<Parameter> ps = family.GetParameters("isSliding");
@@ -2243,6 +2269,16 @@ namespace OpenCOVERPlugin
                 {
                     travel = pt[0].AsDouble();
                 }
+                //pt = fi.GetParameters("Öffnungsweite Schiebetüre in %");
+                ParameterSet para = fi.Parameters;
+                foreach (Parameter p in para)
+                {
+                    if (p.Definition.Name.EndsWith("re in %"))
+                    {
+
+                        travelPercent = p.AsInteger();
+                    }
+                }
             }
             else
             {
@@ -2251,6 +2287,7 @@ namespace OpenCOVERPlugin
             mb.add(bb.Min);
             mb.add(bb.Max);
             mb.add(travel);
+            mb.add(travelPercent);
             sendMessage(mb.buf, MessageTypes.NewDoorGroup);
             int namelen = name.Length;
 
@@ -3815,7 +3852,13 @@ namespace OpenCOVERPlugin
                 {
                     if (messageThread != null)
                     {
+                        try { 
                         messageThread.Abort(); // stop reading from the old toCOVER connection
+                        }
+                        catch
+                        {
+                            //there will be an exception, thus ignore it
+                        }
                     }
                     toCOVER.Close();
                     toCOVER = null;

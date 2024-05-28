@@ -356,6 +356,7 @@ public:
 	osg::Vec3 Direction;
 	osg::Vec3 Origin;
 	double maxDistance;
+    double openingPercentage=0;
 	osg::Vec3 Center;
 	float activationDistance2;
 	bool entered;

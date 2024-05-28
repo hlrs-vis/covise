@@ -1918,7 +1918,8 @@ RevitPlugin::handleMessage(Message *m)
 		osg::MatrixTransform *newTrans = new osg::MatrixTransform();
 		newTrans->setName(name);
 		currentGroup.top()->addChild(newTrans);
-		doors.push_back(new DoorInfo(ID, name, newTrans, tb));
+		DoorInfo* di = new DoorInfo(ID, name, newTrans, tb);
+		doors.push_back(di);
 		RevitInfo *info = new RevitInfo();
 		info->ObjectID = ID;
 		info->DocumentID = docID;
@@ -4005,6 +4006,7 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	tb >> BBMin;
 	tb >> BBMax;
 	tb >> maxDistance;
+	tb >> openingPercentage;
 	boundingBox.set(BBMin, BBMax);
 	if (isSliding != SlidingDirection::dirNone)
 	{
@@ -4081,6 +4083,7 @@ DoorInfo::DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuff
 	isActive = false;
 	left = false;
 	entered = false;
+	translateDoor(0);
 }
 
 void DoorInfo::checkStart(osg::Vec3 &viewerPosition)
@@ -4102,7 +4105,7 @@ void DoorInfo::translateDoor(float fraction)
 {
 	if (isSliding)
 	{
-		transformNode->setMatrix(osg::Matrix::translate(Direction*maxDistance*fraction));
+		transformNode->setMatrix(osg::Matrix::translate((Direction*fraction)-(Direction * (openingPercentage/100.0))));
 	}
 	else
 	{
