@@ -747,6 +747,14 @@ void Renderer::initPointClouds()
     auto surfaceArray
         = anari::newArray1D(anari.device, ANARI_SURFACE, pointCloudData.fileNames.size());
 
+    bool radiusEntryExists = false;
+    float radius  = covise::coCoviseConfig::getFloat(
+        "radius",
+        "COVER.Plugin.ANARI.PointCloud",
+        0.1f,
+        &radiusEntryExists
+    );
+
     auto *s = anari::map<anari::Surface>(anari.device, surfaceArray);
     for (size_t i = 0; i < pointCloudData.fileNames.size(); ++i) {
         std::string fn(pointCloudData.fileNames[i]);
@@ -756,7 +764,7 @@ void Renderer::initPointClouds()
             s[i] = surface;
             anariRelease(anari.device, surface);
         } else if (getExt(fn)==".pts") {
-            auto surface = readPTS(anari.device, fn);
+            auto surface = readPTS(anari.device, fn, radius);
             s[i] = surface;
 	    anariRelease(anari.device, surface);
 	}

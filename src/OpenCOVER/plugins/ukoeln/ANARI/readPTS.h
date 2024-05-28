@@ -8,10 +8,8 @@
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/glm.h>
 
-anari::Surface readPTS(anari::Device device, std::string fn)
+anari::Surface readPTS(anari::Device device, std::string fn, float radius)
 {
-  const float radius = .5f;
-
   unsigned int numSpheres = 0;
   FILE* fp = fopen(fn.c_str(),"r");
   if(!fp) return NULL;
