@@ -87,7 +87,7 @@ public:
     [[nodiscard]] ObserverHandle observeNode(const std::string &name);
     //get a list of values that the server sent since the last get
     
-    double getNumericScalar(const std::string &nodeName);
+    double getNumericScalar(const std::string &nodeName, UA_DateTime *timestamp = nullptr);
     size_t numNodeUpdates(const std::string &nodeName);
 
     template<typename T>
@@ -96,7 +96,7 @@ public:
         std::lock_guard<std::mutex> g(m_mutex);
         auto variant = getValue(nodeName);
             
-        MultiDimensionalArray<T> array(variant.get());
+        MultiDimensionalArray<T> array(variant);
 
         array.data = coVRMSController::instance()->syncVector(array.data);
         array.dimensions = coVRMSController::instance()->syncVector(array.dimensions);
@@ -105,9 +105,11 @@ public:
     }
 
     template<typename T>
-    T getScalar(const std::string &nodeName)
+    T getScalar(const std::string &nodeName, UA_DateTime *timestamp = nullptr)
     {
         auto array = getArray<T>(nodeName);
+        if(timestamp)
+            *timestamp = array.timestamp;
         if(array.isScalar())
             return array.data[0];
         return T();
@@ -145,10 +147,11 @@ private:
     
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_connect;
+    //times in ms
     std::unique_ptr<opencover::ui::SliderConfigValue> m_requestedPublishingInterval, m_samplingInterval, m_queueSize;
     std::unique_ptr<opencover::ui::FileBrowserConfigValue> m_certificate, m_key;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_password, m_username, m_serverIp;
-    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode;
+    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode, m_communicationMode;
     const std::string m_name;
     UA_Client *client = nullptr;
 

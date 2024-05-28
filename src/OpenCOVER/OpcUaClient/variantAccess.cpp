@@ -14,7 +14,7 @@ int opencover::opcua::toTypeId(const UA_DataType *type)
     {
         return&t == type;
     });
-    return it - UA_TYPES;
+    return (int)(it - UA_TYPES);
 }
 
 MultiDimensionalArray<double> opencover::opcua::toNumericalArray(UA_Variant *variant)

@@ -16,6 +16,11 @@
 #include <OpcUaClient/opcua.h>
 #include <OpcUaClient/variantAccess.h>
 
+struct UpdateValues{
+    std::string name;
+    std::function<void(double)> func;
+};
+
 class SelfDeletingTool;
 
 class Tool{
@@ -25,6 +30,7 @@ public:
     virtual ~Tool() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
     void pause(bool state);
+    const std::vector<UpdateValues> &getUpdateValues();
 protected:
     virtual void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) = 0;
     virtual void clear() = 0;
@@ -41,8 +47,9 @@ protected:
     opencover::opcua::Client *m_client;
     opencover::opcua::ObserverHandle m_opcuaAttribId;
     bool m_paused = false;
-};
+    std::vector<UpdateValues> m_updateValues;
 
+};
 
 class SelfDeletingTool : public osg::Observer
 {

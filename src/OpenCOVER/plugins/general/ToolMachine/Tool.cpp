@@ -74,6 +74,22 @@ void Tool::pause(bool state)
     m_paused = state;
 }
 
+const std::vector<UpdateValues> &Tool::getUpdateValues()
+{
+    switch (m_client->statusChanged(this))
+    {
+    case opcua::Client::Connected:
+    case opcua::Client::Disconnected:
+        m_attributeName->setList(getAttributes());
+    break;
+    
+    default:
+        break;
+    }
+    return m_updateValues;
+;
+}
+
 SelfDeletingTool::SelfDeletingTool(Map &toolMap, const std::string &name, std::unique_ptr<Tool> &&tool)
 : m_tools(toolMap)
 , value(std::move(tool))

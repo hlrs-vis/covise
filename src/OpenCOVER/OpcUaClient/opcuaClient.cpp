@@ -87,11 +87,17 @@ Client::Client(const std::string &name)
 , m_certificate(std::make_unique<opencover::ui::FileBrowserConfigValue>(m_menu, "certificate", "", *detail::Manager::instance()->m_config, name))
 , m_key(std::make_unique<opencover::ui::FileBrowserConfigValue>(m_menu, "key", "", *detail::Manager::instance()->m_config, name))
 , m_authentificationMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "authentification", 0, *detail::Manager::instance()->m_config, name))
+, m_communicationMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "communicationMode", 0, *detail::Manager::instance()->m_config, name))
 , m_name(name)
 {
     const std::vector<std::string> authentificationModes{"anonymous", "username/password"};
     m_authentificationMode->ui()->setList(authentificationModes);
     m_authentificationMode->ui()->select(m_authentificationMode->getValue());
+
+    const std::vector<std::string> communicationModes{"subscribe", "polling"};
+    m_communicationMode->ui()->setList(communicationModes);
+    m_communicationMode->ui()->select(m_communicationMode->getValue());
+
     m_connect->setCallback([this](bool state){
         state ? connect() : disconnect();
     });
@@ -167,7 +173,7 @@ void Client::runClient()
     UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
     request.requestedPublishingInterval = m_requestedPublishingInterval->getValue();
     m_subscription = UA_Client_Subscriptions_create(client, request, NULL, NULL, NULL);
-                       
+    m_requestedPublishingInterval->setValue(m_subscription.revisedPublishingInterval);                   
     statusChanged();
     while (!m_shutdown)
     {
@@ -272,7 +278,7 @@ void Client::registerNode(const NodeRequest &nodeRequest)
     auto result = UA_Client_MonitoredItems_createDataChange(client, subId,
                                             UA_TIMESTAMPSTORETURN_BOTH,
                                             monRequest, const_cast<char*>(it->first.c_str()), handleNodeUpdate, NULL);
-    
+    m_samplingInterval->setValue(result.revisedSamplingInterval);
     it->second.monitoredItemId = result.monitoredItemId;
 
 }
@@ -340,20 +346,23 @@ UA_Variant_ptr Client::getValue(const std::string &name)
     return UA_Variant_ptr();
 }
 
-double Client::getNumericScalar(const std::string &nodeName)
+double Client::getNumericScalar(const std::string &nodeName, UA_DateTime *timestamp)
 {
     double retval = 0;
     auto node = findNode(nodeName);
     if(!node)
         return retval;
     //not very efficient
-    for_<8>([this, node, &nodeName, &retval] (auto i) {      
+    for_<8>([this, node, &nodeName, &retval, timestamp] (auto i) {      
         typedef typename detail::Type<numericalTypes[i.value]>::type T;
         if(node->type == numericalTypes[i.value])
         {
             auto v = getArray<T>(nodeName);
-            if(v.isScalar())
+            if(v.isScalar()){
+                if(timestamp)
+                    *timestamp = v.timestamp;
                 retval = (double)v.data[0];
+            }
         }
     });
     return retval;
@@ -435,7 +444,9 @@ void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
     auto node = findNode(nodeName);
     if(!node ||node->type != toTypeId(value->value.type))
         return;
-    node->values.push_front(UA_Variant_ptr(&value->value));
+    auto v = UA_Variant_ptr(&value->value);
+    v.timestamp = value->sourceTimestamp;
+    node->values.push_front(v);
     node->numUpdatesPerFrame++;
 }
 

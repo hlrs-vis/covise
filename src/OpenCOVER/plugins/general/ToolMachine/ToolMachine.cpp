@@ -92,18 +92,26 @@ public:
         t->addExposedField("TableNode", VrmlField::SFNODE);
         t->addExposedField("Offsets", VrmlField::MFFLOAT);
         t->addExposedField("AxisNames", VrmlField::MFSTRING);
-        t->addExposedField("ToolNumber", VrmlField::SFINT32);
-        t->addExposedField("ToolLength", VrmlField::SFFLOAT);
-        t->addExposedField("ToolRadius", VrmlField::SFFLOAT);
+        t->addExposedField("ToolNumberName", VrmlField::SFSTRING);
+        t->addExposedField("ToolLengthName", VrmlField::SFSTRING);
+        t->addExposedField("ToolRadiusName", VrmlField::SFSTRING);
         t->addExposedField("OPCUANames", VrmlField::MFSTRING);
         t->addExposedField("OPCUAAxisIndicees", VrmlField::MFINT32);
         t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
         t->addExposedField("AxisNodes", VrmlField::MFNODE);
         t->addExposedField("OpcUaToVrml", VrmlField::SFFLOAT); //
 
+        t->addEventOut("ToolNumber", VrmlField::SFINT32);
+        t->addEventOut("ToolLength", VrmlField::SFFLOAT);
+        t->addEventOut("ToolRadius", VrmlField::SFFLOAT);
         return t;
     }
-
+    template<typename T>
+    void triggerEvent(const char* name, T value)
+    {
+        auto t = System::the->time();
+        eventOut(t, name, value);
+    }
     // Set the value of one of the node fields.
 
     void setField(const char* fieldName,
@@ -126,11 +134,11 @@ public:
         else if
             TRY_FIELD(AxisNames, MFString)
         else if
-            TRY_FIELD(ToolNumber, SFInt)
+            TRY_FIELD(ToolNumberName, SFString)
         else if
-            TRY_FIELD(ToolLength, SFFloat)
+            TRY_FIELD(ToolLengthName, SFString)
         else if
-            TRY_FIELD(ToolRadius, SFFloat)
+            TRY_FIELD(ToolRadiusName, SFString)
         else if
             TRY_FIELD(OPCUANames, MFString)
         else if
@@ -163,6 +171,12 @@ public:
                 d_rdy = true;
             }
 
+        }
+        auto tool = {d_ToolNumberName.get(), d_ToolLengthName.get(), d_ToolRadiusName.get()};
+        for(auto t : tool)
+        {
+            if(t)
+                d_valueIds.push_back(d_client->observeNode(t));
         }
     }
 
@@ -200,10 +214,10 @@ public:
     VrmlMFVec3f d_AxisOrientations;
     VrmlMFFloat d_Offsets;
     VrmlMFString d_AxisNames;
-    VrmlSFInt d_ToolNumber;
-    VrmlSFFloat d_ToolLength;
-    VrmlSFFloat d_ToolRadius;
-    VrmlMFString d_OPCUANames;
+    VrmlSFString d_ToolNumberName;
+    VrmlSFString d_ToolLengthName;
+    VrmlSFString d_ToolRadiusName;
+    VrmlMFString d_OPCUANames; //axis names on the opcua server
     VrmlMFInt d_OPCUAAxisIndicees;
     VrmlMFNode d_AxisNodes;
     VrmlSFFloat d_OpcUaToVrml = 1;
@@ -333,30 +347,67 @@ bool ToolMaschinePlugin::update()
                         m_tools[m->d_MachineName.get()]->value->update(v);
                 }
             } else{
-                size_t numUpdates = 1000;
-                for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+                struct Update{
+                    double value;
+                    std::function<void(double)> func;
+                };
+                //read all updates first, then apply them in order
+                std::map<UA_DateTime, Update> updates; 
+                //visualization tool specific updates
+                
+                std::vector<UpdateValues> toolUpdateValues{
+                    {m->d_ToolNumberName.get(), [m](double value){
+                    m->triggerEvent<VrmlSFInt>("ToolNumber", value);
+                    }},
+                    {m->d_ToolLengthName.get(), [m](double value){
+                        m->triggerEvent<VrmlSFFloat>("ToolLength", value);
+                    }},
+                    {m->d_ToolRadiusName.get(), [m](double value){
+                        m->triggerEvent<VrmlSFFloat>("ToolRadius", value);
+                    }}  
+                };
+                if(haveTool)
                 {
-                    numUpdates = std::min(numUpdates, client->numNodeUpdates(m->d_OPCUANames[i]));
+                    auto &tua = m_tools[m->d_MachineName.get()]->value->getUpdateValues();
+                    for(auto &t : tua)
+                        toolUpdateValues.push_back(t);
+                        
                 }
-                for (size_t update = 0; update < numUpdates; update++)
+                for(const auto &update : toolUpdateValues)
                 {
-                    if(update == numUpdates -1)
+                    auto numUpdates = client->numNodeUpdates(update.name);
+                    for (size_t u = 0; u < numUpdates; u++)
                     {
-                        for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
-                        {
-                            auto v = client->getNumericScalar(m->d_OPCUANames[i]);
-                            if(!m_pauseMove && !m_pauseBtn->state())
-                                m->move(i, v + m->d_Offsets[i]);
-                        }
-                        int toolNumber = client->getNumericScalar("Tool_TNumber");
-                        if(haveTool)
-                            m_tools[m->d_MachineName.get()]->value->update(opcua::MultiDimensionalArray<double>(nullptr));
-
+                        UA_DateTime timestamp;
+                        auto v = client->getNumericScalar(update.name, &timestamp);
+                        updates[timestamp] = {v, update.func};
                     }
                 }
+                //machine axis updates
+                for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
+                {
+                    auto numUpdates = client->numNodeUpdates(m->d_OPCUANames[i]);
+                    for (size_t u = 0; u < numUpdates; u++)
+                    {
+                        UA_DateTime timestamp;
+                        auto v = client->getNumericScalar(m->d_OPCUANames[i], &timestamp);
+                        updates[timestamp] = {v, [m, i](double value){//potentially overwrite the value with the same timestamp, could be bad
+                            m->move(i, value + m->d_Offsets[i]);
+                        }}; 
+                    }
+                }
+                //machine tool updates
+
+                //if paused updates are read(deleted) but not executed
+                if(m_pauseMove || m_pauseBtn->state())
+                    return true;
+                //execute updates in order
+                for(const auto &update : updates)
+                {
+                    update.second.func(update.second.value);
+                }
+                
             }
-            
-            
         }
     }
 
