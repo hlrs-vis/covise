@@ -84,7 +84,7 @@ coVRBoxOfInterest::coVRBoxOfInterest(VariantPlugin *plug, coTrackerButtonInterac
 //-----------------------------------------------------------
 coVRBoxOfInterest::~coVRBoxOfInterest()
 {
-    cout << "destr:" << this << ":" << boiNode << endl << endl << endl;
+    //cout << "coVRBoxOfInterest::~" << this << ":" << boiNode << endl << endl << endl;
     this->showHide(false);
     this->parent->removeChild(boiNode);
     this->parent = 0;
