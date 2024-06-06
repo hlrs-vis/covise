@@ -1457,7 +1457,7 @@ Viewer::Object ViewerOsg::insertLineSet(int npoints,
             else
             {
                 iStart = i + 1;
-                lineStart = lines[i + 1];
+                lineStart = i + 1 < nlines ? lines[i + 1] : 0;
                 cpo->addHole(*hole);
                 delete hole;
                 hole = new osg::ConvexPlanarPolygon;
