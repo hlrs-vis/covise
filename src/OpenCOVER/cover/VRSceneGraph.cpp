@@ -2049,7 +2049,6 @@ void VRSceneGraph::setColor(osg::Geode *geode, int *color, float transparency)
         for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
         {
             drawable = geode->getDrawable(i);
-            drawable->ref();
             //bool mtlOn = false;
             /*if (geode->getStateSet())
             mtlOn = (geode->getStateSet()->getMode(StateAttribute::MATERIAL) == StateAttribute::ON) || (geode->getStateSet()->getMode(StateAttribute::MATERIAL) == StateAttribute::INHERIT);
@@ -2111,7 +2110,6 @@ void VRSceneGraph::setColor(osg::Geode *geode, int *color, float transparency)
             }
          }*/
             drawable->dirtyBound();
-            drawable->unref();
         }
     }
 }
@@ -2337,13 +2335,10 @@ void VRSceneGraph::setMaterial(osg::Geode *geode, const int *ambient, const int 
     if (cover->debugLevel(3))
         fprintf(stderr, "VRSceneGraph::setMaterial 2 %f\n", transparency);
 
-    ref_ptr<Drawable> geoset;
-    ref_ptr<StateSet> gstate;
     if (geode != NULL)
     {
         //set the material
         ref_ptr<Material> mtl = new Material();
-        mtl->ref();
         mtl->setColorMode(Material::AMBIENT_AND_DIFFUSE);
         mtl->setAmbient(Material::FRONT_AND_BACK, Vec4(ambient[0] / 255.0, ambient[1] / 255.0, ambient[2] / 255.0, transparency));
         mtl->setDiffuse(Material::FRONT_AND_BACK, Vec4(diffuse[0] / 255.0, diffuse[1] / 255.0, diffuse[2] / 255.0, transparency));
@@ -2353,12 +2348,10 @@ void VRSceneGraph::setMaterial(osg::Geode *geode, const int *ambient, const int 
         mtl->setShininess(Material::FRONT_AND_BACK, shininess);
         for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
         {
-            geoset = geode->getDrawable(i);
-            geoset->ref();
+            ref_ptr<Drawable> geoset = geode->getDrawable(i);
             storeMaterial(geoset);
             geoset->asGeometry()->setColorBinding(Geometry::BIND_OFF);
-            gstate = geoset->getOrCreateStateSet();
-            gstate->ref();
+            ref_ptr<StateSet> gstate = geoset->getOrCreateStateSet();
             gstate->setAttributeAndModes(mtl.get(), StateAttribute::ON);
             gstate->setNestRenderBins(false);
             if (transparency < 1.0)
@@ -2385,10 +2378,7 @@ void VRSceneGraph::setMaterial(osg::Geode *geode, const int *ambient, const int 
             }
 
             geoset->setStateSet(gstate.get());
-            geoset->unref();
-            gstate->unref();
         }
-        mtl->unref();
     }
 }
 
