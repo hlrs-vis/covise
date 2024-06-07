@@ -2755,7 +2755,6 @@ Viewer::Object ViewerOsg::insertText(int *justify,
     {
         if (!pGeode)
         {
-            d_currentObject->pNode->unref();
             d_currentObject->pNode = NULL;
         }
     }
