@@ -228,8 +228,8 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
 
 CarGeometry::~CarGeometry()
 {
-	while(carTransform->getNumParents()>0)
-        carTransform->getParent(0)->removeChild(carTransform);
+    while(carTransform->getNumParents()>0)
+        carTransform->getParent(0)->removeChild(carTransform.get());
 }
 
 void

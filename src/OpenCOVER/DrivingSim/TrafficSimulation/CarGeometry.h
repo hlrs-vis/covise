@@ -64,7 +64,7 @@ namespace TrafficSimulation
         static bool fileExist(const char* fileName);
         static std::map<std::string, osg::Node*> filenameNodeMap;
 
-        osg::MatrixTransform* carTransform;
+        osg::ref_ptr<osg::MatrixTransform> carTransform;
 
         static osg::Node* getCarNode(std::string);
         static osg::Node* getDefaultCarNode();
