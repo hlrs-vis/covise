@@ -4559,8 +4559,9 @@ bool coTabletUI::update()
                 tb >> ID;
                 if (ID >= 0)
                 {
-                    for (auto el: elements)
+                    for(size_t i=0;i<elements.size();i++)
                     {
+                        auto el = elements[i];
                         if (el && el->getID() == ID)
                         {
                             el->parseMessage(tb);
