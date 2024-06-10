@@ -169,8 +169,6 @@ bool WindowTypeQtPlugin::update()
 {
     bool checked = VRSceneGraph::instance()->menuVisible();
     checked = coVRMSController::instance()->syncBool(checked);
-    if (checked != VRSceneGraph::instance()->menuVisible())
-        VRSceneGraph::instance()->setMenu(checked);
     for (auto w: m_windows)
     {
         w.second.toggleMenu->setChecked(checked);
@@ -259,7 +257,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.toggleMenu->setText("VR Menu");
     window->connect(win.toggleMenu, &QAction::triggered, [this](bool state){
         m_update = true;
-        VRSceneGraph::instance()->setMenu(state);
+        VRSceneGraph::instance()->setMenu(state ? VRSceneGraph::MenuAndObjects : VRSceneGraph::MenuHidden);    
     });
     window->addContextAction(win.toggleMenu);
 

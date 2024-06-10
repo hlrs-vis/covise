@@ -1108,7 +1108,7 @@ void coVRTui::tabletPressEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Menu)
     {
-        VRSceneGraph::instance()->setMenu(false);
+        VRSceneGraph::instance()->setMenu(VRSceneGraph::MenuHidden);
     }
     else if ((tUIItem == panNav) || (tUIItem == driveNav))
     {
@@ -1173,7 +1173,7 @@ void coVRTui::tabletReleaseEvent(coTUIElement *tUIItem)
     }
     else if (tUIItem == Menu)
     {
-        VRSceneGraph::instance()->setMenu(true);
+        VRSceneGraph::instance()->setMenu(VRSceneGraph::MenuAndObjects);
     }
 }
 

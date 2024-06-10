@@ -67,6 +67,13 @@ public:
         HiddenLineWhite,
         Points,
     };
+
+    enum MenuMode
+    {
+        MenuHidden,
+        MenuAndObjects,
+        MenuOnly,
+    };
     VRSceneGraph();
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
@@ -91,7 +98,7 @@ public:
     }
     bool menuVisible() const;
     void toggleMenu();
-    void setMenu(bool state);
+    void setMenu(MenuMode state);
     void setMenuMode(bool state);
     void applyMenuModeToMenus();
     void toggleHeadTracking(bool state);
@@ -258,6 +265,7 @@ private:
     void initMatrices();
     void initSceneGraph();
     bool saveScenegraph(bool withMenu);
+    void applyObjectVisibility();
 
 #ifdef PHANTOM_TRACKER
     int m_forceFeedbackON;
@@ -297,7 +305,8 @@ private:
     bool m_textured = true; /* =true: textures are drawn as intended */
     bool m_shaders = true; /* =true: shaders are applied */
     bool m_coordAxis = false; /* =true: coord Axis will be drawn */
-    bool m_showMenu = true;
+    MenuMode m_showMenu = MenuAndObjects;
+    double m_menuToggleTime = 0.;
     bool m_showObjects = true;
     bool m_firstTime = true;
     bool m_pointerVisible = false;
