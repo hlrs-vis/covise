@@ -19,22 +19,11 @@
 #include <alg/coUniTracer.h>
 #endif
 
-#ifdef VRUI
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#else
 #include <cover/ui/Button.h>
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
-#endif
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coInteractor.h>

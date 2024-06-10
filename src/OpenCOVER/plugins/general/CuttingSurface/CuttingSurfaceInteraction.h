@@ -16,18 +16,6 @@ class CuttingSurfaceCylinder;
 class CuttingSurfaceSphere;
 class CuttingSurfaceBox;
 
-#ifdef VRUI
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coMenuItem.h>
-
-namespace vrui
-{
-class coRowMenu;
-class coSubMenuItem;
-class coCheckboxGroup;
-class coSliderMenuItem;
-}
-#else
 namespace opencover
 {
 namespace ui
@@ -39,7 +27,6 @@ class ButtonGroup;
 class SelectionList;
 }
 }
-#endif
 
 
 namespace opencover
@@ -88,9 +75,6 @@ private:
     void createMenu(bool invertClip);
     void updateMenu();
     void deleteMenu();
-#ifdef VRUI
-    void menuEvent(vrui::coMenuItem *menuItem);
-#endif
 
     void getParameters();
 

@@ -23,19 +23,8 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
-#ifdef VRUI
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coLabelMenuItem.h>
-#else
 #include <cover/ui/Owner.h>
 #include <cover/ui/Menu.h>
-#endif
 #include <cover/coVRSelectionManager.h>
 #include <util/coExport.h>
 #include <cover/coTabletUI.h>
@@ -84,9 +73,6 @@ public:
     virtual bool selectionChanged() override;
     virtual bool pickedObjChanged() override;
 
-#ifdef VRUI
-    void menuEvent(coMenuItem *menu_VariantPluginitem);
-#endif
     // this will be called if a COVISE object arrives
     bool init() override;
     void addNode(osg::Node *, const RenderObject *) override;
