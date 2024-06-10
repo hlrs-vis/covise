@@ -909,9 +909,6 @@ VRSceneGraph::update()
             trans[1] = wiiPos;
 
             handMat.setTrans(trans);
-#ifdef OLDINPUT
-            VRTracker::instance()->setHandMat(handMat);
-#endif
             m_handTransform->setMatrix(handMat);
         }
     }
@@ -937,18 +934,6 @@ VRSceneGraph::update()
     // static osg::Vec3Array *coord = new osg::Vec3Array(4*6);
     osg::Matrix dcs_mat, rot_mat, tmpMat;
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
-
-#ifdef OLDINPUT
-    if (VRTracker::instance()->getCameraSensorStation() != -1)
-    {
-        osg::Matrix viewerTrans;
-        osg::Vec3 viewerPos = -VRViewer::instance()->getInitialViewerPos();
-        viewerTrans.makeTranslate(viewerPos);
-        osg::Matrix newWorld = viewerTrans * VRTracker::instance()->getCameraMat();
-        newWorld.invert(newWorld);
-        m_objectsTransform->setMatrix(newWorld);
-    }
-#endif
 
     // update the viewer axis dcs with tracker not viewer mat
     // otherwise it is not updated when freeze is on
