@@ -276,6 +276,9 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
         change = true;
     }
 
+    if (change)
+        m_lastAnimationUpdate = cover->frameTime();
+
     return change;
 }
 
@@ -324,7 +327,6 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && m_numFrames != 0)
             animFrameItem->setValue(m_timestepBase + m_timestepScale * currentFrame);
-        m_lastAnimationUpdate = cover->frameTime();
     }
 }
 
