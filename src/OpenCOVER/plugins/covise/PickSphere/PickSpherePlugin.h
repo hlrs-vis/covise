@@ -11,20 +11,6 @@
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
 
-#ifdef VRUI
-#include <OpenVRUI/coMenuItem.h>
-
-namespace vrui
-{
-class coRowMenu;
-class coSubMenuItem;
-class coSliderMenuItem;
-class coCheckboxMenuItem;
-class coButtonMenuItem;
-class coLabelMenuItem;
-class coPotiMenuItem;
-}
-#else
 #include <cover/ui/Owner.h>
 
 namespace opencover {
@@ -36,7 +22,6 @@ class Action;
 class Button;
 }
 }
-#endif
 
 namespace covise
 {
@@ -64,9 +49,6 @@ public:
     void removeObject(const char *objName, bool r);
     void preFrame();
     void addObject(const RenderObject * container, osg::Group *, const RenderObject *, const RenderObject *, const RenderObject *, const RenderObject *);
-#ifdef VRUI
-    coMenuItem *getMenuButton(const std::string &buttonName);
-#endif
 
     static float getScale()
     {
@@ -96,19 +78,6 @@ private:
     void createSubmenu();
     void deleteSubmenu();
 
-#ifdef VRUI
-    coSubMenuItem *pinboardButton;
-    coRowMenu *pickSphereSubmenu;
-    coSliderMenuItem *startSlider, *stopSlider;
-    coPotiMenuItem *opacityPoti;
-    coPotiMenuItem *scalePoti;
-    coCheckboxMenuItem *showTraceCheckbox, *regardInterruptCheckbox;
-    coCheckboxMenuItem *singlePickCheckbox, *multiplePickCheckbox;
-    coCheckboxMenuItem *attachViewerCheckbox;
-    coButtonMenuItem *executeButton, *clearSelectionButton, *clearPointButton;
-    coLabelMenuItem *particleString;
-    coSliderMenuItem *x_dimSlider, *y_dimSlider, *z_dimSlider;                            
-#else
     ui::Menu *pickSphereSubmenu = nullptr;
     ui::Slider *startSlider=nullptr, *stopSlider=nullptr;
     ui::Slider *opacityPoti=nullptr;
@@ -119,7 +88,6 @@ private:
     ui::Action *executeButton=nullptr, *clearSelectionButton=nullptr, *clearPointButton=nullptr;
     ui::Label *particleString=nullptr;
     ui::Slider *x_dimSlider=nullptr, *y_dimSlider=nullptr, *z_dimSlider=nullptr;
-#endif
 
     static BoxSelection *boxSelection;
     static void selectWithBox();
@@ -130,10 +98,6 @@ private:
     const char *x_dimParamName, *y_dimParamName, *z_dimParamName;			
     void setParticleStringLabel();
 
-#ifdef VRUI
-    void menuEvent(coMenuItem *);
-    void menuReleaseEvent(coMenuItem *);
-#endif
     struct strCmp
     {
         bool operator()(const char *s1, const char *s2) const
