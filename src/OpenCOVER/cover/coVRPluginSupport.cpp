@@ -320,7 +320,7 @@ double coVRPluginSupport::currentTime()
         return time;
     }
 
-    return time + tm.tm_gmtoff;
+    return currentTime.tv_sec + currentTime.tv_usec / 1000000.0 + tm.tm_gmtoff;
 }
 
 double coVRPluginSupport::frameTime() const
