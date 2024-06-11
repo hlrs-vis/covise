@@ -45,8 +45,8 @@ int main(int argc, char **argv)
         if (arg.substr(0,  10) == "Brightness")
         {
             unsigned char buf[] = { 0x50, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00 };
-            unsigned short num = 0;
-            if (sscanf(argv[i] + 6, "%d", &num) == 1)
+            unsigned num = 0;
+            if (sscanf(argv[i] + 6, "%u", &num) == 1)
             {
                 *((unsigned short *)(buf+11)) = num;
                 z8.send(buf, sizeof(buf));
