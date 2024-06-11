@@ -181,5 +181,6 @@ private:
     bool linked;
 
     osg::ref_ptr<osg::Node> pickedObject;
+    std::set<osg::ref_ptr<osg::Switch>> nodesToRemove;
 };
 #endif

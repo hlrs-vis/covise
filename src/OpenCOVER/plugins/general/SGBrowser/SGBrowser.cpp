@@ -280,6 +280,13 @@ bool SGBrowser::init()
 // this is called if the plugin is removed at runtime
 SGBrowser::~SGBrowser()
 {
+    for (auto n: nodesToRemove)
+    {
+        while (n->getNumParents() > 0)
+        {
+            n->getParent(0)->removeChild(n);
+        }
+    }
 
     if (selectionManager)
         selectionManager->removeListener(this);
@@ -826,6 +833,20 @@ void SGBrowser::removeNode(Node *node, bool /*isGroup*/, Node * /*realNode*/)
     std::string parentPath = "";
     for (int i = 0; i < numParents; i++)
     {
+        osg::ref_ptr<osg::Switch> parent = dynamic_cast<osg::Switch *>(node->getParent(i));
+        if (parent)
+        {
+            auto it = nodesToRemove.find(parent.get());
+            if (it != nodesToRemove.end())
+            {
+                while (parent->getNumParents() > 0)
+                {
+                    auto pp = parent->getParent(0);
+                    pp->removeChild(parent);
+                }
+                nodesToRemove.erase(it);
+            }
+        }
         parentPath = selectionManager->generatePath(node->getParent(i));
         for (auto t: tuis)
             t.tab->sendRemoveNode(path, parentPath);
@@ -1691,6 +1712,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
                 {
                     mySwitch = new osg::Switch();
                     mySwitch->setName("SGBrowser:Switch");
+                    nodesToRemove.insert(mySwitch);
                     if (type == PluginMessageTypes::SGBrowserShowNode)
                         selectionManager->insertHelperNode(parent, myNode, mySwitch, selectionManager->SHOWHIDE, true);
                     else
