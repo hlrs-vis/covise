@@ -1,4 +1,4 @@
-#include "rest.h"
+#include "request.h"
 #include <curl/curl.h>
 #include <string>
 
@@ -19,11 +19,13 @@ size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
     ((string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
 }
-} // namespace
+} // namespacje
 
-namespace utils {
+namespace opencover {
+namespace httpclient {
+namespace curl {
 
-bool rest::performCurlRequest(const string &url, string &response)
+bool Request::httpRequest(const string &url, string &response)
 {
     auto curl = curl_easy_init();
     if (!curl)
@@ -42,8 +44,11 @@ bool rest::performCurlRequest(const string &url, string &response)
     return true;
 }
 
-void rest::cleanupcurl()
+void Request::cleanup()
 {
     curl_global_cleanup();
 }
-} // namespace utils
+
+} // namespace curl
+} // namespace httpclient
+} // namespace opencover
