@@ -152,26 +152,30 @@ bool ClipPlanePlugin::init()
         sprintf(name, "Plane%d", i);
         //SharedState update functions
         sharedPlanes[i].reset(new vrb::SharedState<std::vector<double>>(("ClipPlane_Plane_" + std::to_string(i)), std::vector<double>{0, 0, 0, 0}, vrb::USE_COUPLING_MODE));
-        sharedPlanes[i]->setUpdateFunction([this, i]() {
-            std::cerr << "ClipPlane: updating equation for " << i << " from SharedState" << std::endl;
-            std::vector<double> v = sharedPlanes[i]->value();
-            Vec4d eq(v[0], v[1], v[2], v[3]);
-            plane[i].set(eq);
-        });
+        sharedPlanes[i]->setUpdateFunction(
+            [this, i]()
+            {
+                //std::cerr << "ClipPlane: updating equation for " << i << " from SharedState" << std::endl;
+                std::vector<double> v = sharedPlanes[i]->value();
+                Vec4d eq(v[0], v[1], v[2], v[3]);
+                plane[i].set(eq);
+            });
 
         plane[i].enabled = configBool("plane" + std::to_string(i), "enabled", false, config::Flag::PerModel);
-        plane[i].enabled->setUpdater([this, i](bool val) {
-            std::cerr << "ClipPlane: updating enabled for " << i << " from config" << std::endl;
-            if (plane[i].EnableButton)
-                plane[i].EnableButton->setState(val);
-            if (auto *cn = plane[i].getClipNode())
+        plane[i].enabled->setUpdater(
+            [this, i](bool val)
             {
-                if (val)
-                    cn->addClipPlane(plane[i].clip.get());
-                else
-                    cn->removeClipPlane(plane[i].clip.get());
-            }
-        });
+                //std::cerr << "ClipPlane: updating enabled for " << i << " from config" << std::endl;
+                if (plane[i].EnableButton)
+                    plane[i].EnableButton->setState(val);
+                if (auto *cn = plane[i].getClipNode())
+                {
+                    if (val)
+                        cn->addClipPlane(plane[i].clip.get());
+                    else
+                        cn->removeClipPlane(plane[i].clip.get());
+                }
+            });
 
         std::vector<double> veq(4);
         if (i >= 3)
@@ -186,8 +190,8 @@ bool ClipPlanePlugin::init()
         plane[i].equation->setUpdater([this, i]() {
             if (plane[i].inLocalUpdate)
                 return;
-            std::cerr << "ClipPlane: updating equation for " << i << " from config" << std::endl;
-            std::cerr << "ClipPlane: equation " << i << " size: " << plane[i].equation->size() << std::endl;
+            //std::cerr << "ClipPlane: updating equation for " << i << " from config" << std::endl;
+            //std::cerr << "ClipPlane: equation " << i << " size: " << plane[i].equation->size() << std::endl;
             if (plane[i].equation->size() != 4)
             {
                 std::cerr << "ClipPlane: NOT updating equation, size=" << plane[i].equation->size() << std::endl;
