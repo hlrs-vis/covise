@@ -1356,7 +1356,7 @@ void ViewPoints::saveAllViewPoints()
         tb << viewDesc->getAvatar();
         auto avatarElement = doc.createElement("AVATAR");
         auto avatarData = doc.createCDATASection("AVATAR");
-        QByteArray ba(tb.getData().data(), static_cast<qsizetype>(tb.getData().length()));
+        QByteArray ba(tb.getData().data(), static_cast<ssize_t>(tb.getData().length()));
         avatarData.setData(ba.toBase64());
         avatarElement.appendChild(avatarData);
         viewpointElement.appendChild(avatarElement);
