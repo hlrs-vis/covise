@@ -25,7 +25,10 @@
 #include <vrb/VrbSetUserInfoMessage.h>
 #include <vrb/client/LaunchRequest.h>
 
+#include <QtGlobal>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 #include <QRandomGenerator>
+#endif
 #include <QTextStream>
 
 #include <cassert>
@@ -380,7 +383,11 @@ QString getClientInfo(const RemoteClient &cl)
 CoviseDaemon::ProgramToLaunch::ProgramToLaunch(covise::Program p, int requestorId)
     : m_p(p), m_requestorId(requestorId)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     m_code = QRandomGenerator::system()->generate();
+#else
+    m_code = rand();
+#endif
 }
 
 CoviseDaemon::ProgramToLaunch::ProgramToLaunch(covise::Program p, int requestorId, int code)
