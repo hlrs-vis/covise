@@ -35,6 +35,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 
+#include <QtGlobal>
 #include <QMenuBar>
 #include <QToolBar>
 #include <QApplication>
@@ -385,11 +386,14 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
     if (sRGB)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
         format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
+#endif
     }
     QSurfaceFormat::setDefaultFormat(format);
     win.widget = new QtOsgWidget(win.window);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     if (sRGB)
     {
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
@@ -406,6 +410,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     {
         win.widget->setTextureFormat(GL_RGB10_A2);
     }
+#endif
     win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
