@@ -30,6 +30,7 @@ public:
     typedef std::shared_ptr<Renderer> SP;
 
     typedef glm::vec4 ClipPlane;
+    typedef osg::Vec4 Light;
 
     Renderer();
    ~Renderer();
@@ -73,6 +74,7 @@ public:
     void updateLights(const osg::Matrix &modelMat);
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
+    void setLights(const std::vector<Light> &lights);
 
     void renderFrame();
     void renderFrame(unsigned chan);
@@ -181,6 +183,11 @@ private:
         bool changed = false;
     } unstructuredVolumeData;
 
+    struct {
+        std::vector<Light> data;
+
+        bool changed = false;
+    } lights;
 
     struct {
         std::vector<ClipPlane> data;

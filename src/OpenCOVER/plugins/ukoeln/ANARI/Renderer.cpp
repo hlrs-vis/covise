@@ -377,11 +377,12 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
 {
-    anari.lights.clear();
+    std::vector<Light> newLights;
+
+    // assemble new light list
     for (size_t l=0; l<opencover::coVRLighting::instance()->lightList.size(); ++l) {
         auto &light = opencover::coVRLighting::instance()->lightList[l];
         if (light.on) {
-            ANARILight al;
             osg::Light *osgLight = light.source->getLight();
             osg::NodePath np;
             np.push_back(light.root);
@@ -389,6 +390,29 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
             osg::Vec4 pos = osgLight->getPosition();
             pos = pos * osg::Matrix::inverse(modelMat);
 
+            newLights.push_back(pos);
+        }
+    }
+
+    // check if lights have updated
+    if (newLights.size() != lights.data.size()) {
+        lights.data = newLights;
+        lights.changed = true;
+    } else {
+        for (size_t l=0; l<newLights.size(); ++l) {
+            if (newLights[l] != lights.data[l]) {
+                lights.data = newLights;
+                lights.changed = true;
+                break;
+            }
+        }
+    }
+
+    if (lights.changed) {
+        anari.lights.clear();
+        for (size_t l=0; l<lights.data.size(); ++l) {
+            ANARILight al;
+            osg::Vec4 pos = lights.data[l];
             if (pos.w() == 0.f) {
                 al = anariNewLight(anari.device,"directional");
                 anariSetParameter(anari.device, al, "direction",
@@ -403,14 +427,15 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
 
             anari.lights.push_back(al);
         }
+        ANARIArray1D anariLights = anariNewArray1D(anari.device, anari.lights.data(), 0, 0,
+                                                   ANARI_LIGHT, anari.lights.size());
+        anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &anariLights);
+        anariCommitParameters(anari.device, anari.world);
+
+        anariRelease(anari.device, anariLights);
+
+        lights.changed = false;
     }
-
-    ANARIArray1D anariLights = anariNewArray1D(anari.device, anari.lights.data(), 0, 0,
-                                               ANARI_LIGHT, anari.lights.size());
-    anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &anariLights);
-    anariCommitParameters(anari.device, anari.world);
-
-    anariRelease(anari.device, anariLights);
 }
 
 void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
