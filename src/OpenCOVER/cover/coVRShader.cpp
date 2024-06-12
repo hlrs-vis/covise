@@ -466,7 +466,8 @@ std::ostream &operator<<(std::ostream &os, const XmlAttribute &attr)
     return os;
 }
 
-std::string parseProgram(xercesc::DOMElement *node, const std::function<std::string(const std::string&)> &findAsset)
+std::string parseProgram(xercesc::DOMElement *node, const std::function<std::string(const std::string &)> &findAsset,
+                         const std::string &name, const std::string &programType)
 {
     std::string code = "";
     XmlAttribute value("value", node);
@@ -480,11 +481,13 @@ std::string parseProgram(xercesc::DOMElement *node, const std::function<std::str
             buffer << t.rdbuf();
             code = buffer.str();
             if (code.empty())
-                cerr << "WARNING: empty fragment program in " << filename << std::endl;
+                cerr << "WARNING: empty " << programType << " program in " << filename << " for shader " << name
+                     << std::endl;
         }
         else
         {
-            cerr << "WARNING: could not find fragment program " << filename << std::endl;
+            cerr << "WARNING: could not find " << programType << " program " << filename << " for shader " << name
+                 << std::endl;
         }
     }
     if (code == "")
@@ -494,6 +497,8 @@ std::string parseProgram(xercesc::DOMElement *node, const std::function<std::str
             code = c;
 
         xercesc::XMLString::release(&c);
+        if (code.empty())
+            cerr << "WARNING: empty " << programType << " program for shader " << name << std::endl;
     }
     return code;
 }
@@ -586,7 +591,23 @@ void coVRShader::loadMaterial()
             {
                 if (strcmp(tagName, "preamble") == 0)
                 {
-                    preamble = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    preamble = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name,
+                                            "preamble");
+                }
+            }
+            xercesc::XMLString::release(&tagName);
+        }
+
+        for (size_t i = 0; i < nodeList->getLength(); ++i)
+        {
+            xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
+            if (!node)
+                continue;
+            char *tagName = xercesc::XMLString::transcode(node->getTagName());
+            if (tagName)
+            {
+                if (strcmp(tagName, "preamble") == 0)
+                {
                 }
                 else if (strcmp(tagName, "attribute") == 0)
                 {
@@ -615,7 +636,7 @@ void coVRShader::loadMaterial()
                         u->setMin(minValue);
                         u->setMax(maxValue);
                         u->setOverwrite(overwrite == "true");
-                        u->setUnique(unique =="true");
+                        u->setUnique(unique == "true");
                         if (wm)
                             u->setWrapMode(wm);
                         if (textureName)
@@ -634,9 +655,11 @@ void coVRShader::loadMaterial()
                 }
                 else if (strcmp(tagName, "fragmentProgram") == 0)
                 {
-                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = parseProgram(
+                        node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "fragment");
                     if (!code.empty())
                     {
+                        code = preamble + code;
                         fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
                         fragmentShader->setName(name);
                     }
@@ -672,39 +695,55 @@ void coVRShader::loadMaterial()
                     else
                         geomParams[2] = GL_TRIANGLE_STRIP;
 
-                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = parseProgram(
+                        node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "geometry");
                     if (!code.empty())
                     {
+                        code = preamble + code;
                         geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
                         geometryShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "vertexProgram") == 0)
                 {
-                    std::string code = preamble + parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1));
+                    std::string code = parseProgram(
+                        node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "vertex");
                     if (!code.empty())
                     {
+                        code = preamble + code;
                         vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
                         vertexShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "tessControlProgram") == 0)
                 {
-                    char *code = xercesc::XMLString::transcode(node->getTextContent());
-                    if (code && code[0] != '\0')
+                    std::string code = parseProgram(
+                        node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "tessControl");
+                    if (!code.empty())
+                    {
+                        code = preamble + code;
                         tessControlShader = new osg::Shader(osg::Shader::TESSCONTROL, code);
-					xercesc::XMLString::release(&code);
+                        tessControlShader->setName(name);
+                    }
                 }
                 else if (strcmp(tagName, "tessEvalProgram") == 0)
                 {
-                    char *code = xercesc::XMLString::transcode(node->getTextContent());
-                    if (code && code[0] != '\0')
+                    std::string code = parseProgram(
+                        node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "tessEval");
+                    if (!code.empty())
+                    {
+                        code = preamble + code;
                         tessEvalShader = new osg::Shader(osg::Shader::TESSEVALUATION, code);
-					xercesc::XMLString::release(&code);
+                        tessEvalShader->setName(name);
+                    }
                 }
             }
+            else
+            {
+                std::cerr << "ignoring unknown tag" << tagName << " in " << fileName << std::endl;
+            }
 
-			xercesc::XMLString::release(&tagName);
+            xercesc::XMLString::release(&tagName);
         }
     }
 }
@@ -1306,6 +1345,7 @@ void coVRShader::apply(osg::StateSet *stateset)
     if (program.get() == NULL)
     {
         program = new osg::Program;
+        program->setName(name);
         if (fragmentShader.get())
             program->addShader(fragmentShader.get());
         if (geometryShader.get())
@@ -1395,6 +1435,7 @@ coVRShaderInstance *coVRShader::apply(osg::Geode *geode, osg::Drawable *drawable
         if (program.get() == NULL)
         {
             program = new osg::Program;
+            program->setName(name);
             if (fragmentShader.get())
                 program->addShader(fragmentShader.get());
             if (geometryShader.get())
@@ -1594,6 +1635,7 @@ coVRShaderInstance *coVRShader::apply(osg::Geode *geode, osg::Drawable *drawable
         if (program.get() == NULL)
         {
             program = new osg::Program;
+            program->setName(name);
             if (fragmentShader.get())
                 program->addShader(fragmentShader.get());
             if (geometryShader.get())
