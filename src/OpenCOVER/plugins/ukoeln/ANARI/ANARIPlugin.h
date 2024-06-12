@@ -47,6 +47,9 @@ public:
     static int loadPointCloud(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadPointCloud(const char *fileName, const char *);
 
+    static int loadHDRI(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadHDRI(const char *fileName, const char *);
+
 
     ANARIPlugin();
    ~ANARIPlugin();

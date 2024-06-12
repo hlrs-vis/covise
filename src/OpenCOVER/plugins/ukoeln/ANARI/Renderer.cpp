@@ -19,6 +19,7 @@
 #include "readPTS.h"
 #include "Projection.h"
 #include "Renderer.h"
+#include "hdri.h"
 
 using namespace covise;
 using namespace opencover;
@@ -90,6 +91,18 @@ Renderer::Renderer()
 
     if (!anari.device)
         throw std::runtime_error("Could not init ANARI device");
+
+    // Try loading HDRI image from config
+    bool hdriEntryExists = false;
+    std::string hdriName  = covise::coCoviseConfig::getEntry(
+        "value",
+        "COVER.Plugin.ANARI.hdri",
+        &hdriEntryExists
+    );
+
+    if (hdriEntryExists) {
+        loadHDRI(hdriName);
+    }
 }
 
 Renderer::~Renderer()
@@ -207,6 +220,28 @@ void Renderer::loadPointCloud(std::string fn)
 }
 
 void Renderer::unloadPointCloud(std::string fn)
+{
+    // NO!
+}
+
+void Renderer::loadHDRI(std::string fn)
+{
+    HDRI img;
+    img.load(fn);
+    hdri.pixels.resize(img.width * img.height);
+    hdri.width = img.width;
+    hdri.height = img.height;
+    if (img.numComponents == 3) {
+      memcpy(hdri.pixels.data(), img.pixel.data(), sizeof(hdri.pixels[0]) * hdri.pixels.size());
+    } else if (img.numComponents == 4) {
+      for (size_t i = 0; i < img.pixel.size(); i += 4) {
+        hdri.pixels[i / 4] = glm::vec3(img.pixel[i], img.pixel[i + 1], img.pixel[i + 2]);
+      }
+    }
+    hdri.changed = true;
+}
+
+void Renderer::unloadHDRI(std::string fn)
 {
     // NO!
 }
@@ -408,8 +443,23 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         }
     }
 
-    if (lights.changed) {
+    if (lights.changed || hdri.changed) {
         anari.lights.clear();
+
+        if (!hdri.pixels.empty()) {
+            ANARILight al = anariNewLight(anari.device,"hdri");
+
+            ANARIArray2D radiance = anariNewArray2D(anari.device,hdri.pixels.data(),0,0,
+                                                    ANARI_FLOAT32_VEC3,hdri.width,hdri.height);
+            anariSetParameter(anari.device, al, "radiance", ANARI_ARRAY2D, &radiance);
+
+            anariCommitParameters(anari.device, al);
+
+            anariRelease(anari.device, radiance);
+
+            anari.lights.push_back(al);
+        }
+
         for (size_t l=0; l<lights.data.size(); ++l) {
             ANARILight al;
             osg::Vec4 pos = lights.data[l];
@@ -435,6 +485,7 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         anariRelease(anari.device, anariLights);
 
         lights.changed = false;
+        hdri.changed = false;
     }
 }
 

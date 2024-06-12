@@ -19,12 +19,14 @@ SET(HEADERS
   Renderer.h
   Projection.h
   ui_anari.h
+  hdri.h
 )
 SET(SOURCES
   asg.cpp
   ANARIPlugin.cpp
   Renderer.cpp
   ui_anari.cpp
+  hdri.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})

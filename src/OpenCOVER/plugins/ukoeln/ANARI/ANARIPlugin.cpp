@@ -70,6 +70,14 @@ static FileHandler handlers[] = {
       ANARIPlugin::loadPointCloud,
       ANARIPlugin::unloadPointCloud,
       "pts" },
+    { NULL,
+      ANARIPlugin::loadHDRI,
+      ANARIPlugin::unloadHDRI,
+      "ext" },
+    { NULL,
+      ANARIPlugin::loadHDRI,
+      ANARIPlugin::unloadHDRI,
+      "hdr" },
 };
 
 ANARIPlugin *ANARIPlugin::instance()
@@ -153,6 +161,22 @@ int ANARIPlugin::unloadPointCloud(const char *fileName, const char *)
 {
     if (plugin->renderer)
         plugin->renderer->unloadPointCloud(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::loadHDRI(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->loadHDRI(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::unloadHDRI(const char *fileName, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->unloadHDRI(fileName);
 
     return 1;
 }

@@ -59,6 +59,9 @@ public:
     void loadPointCloud(std::string fileName);
     void unloadPointCloud(std::string fileName);
 
+    void loadHDRI(std::string fileName);
+    void unloadHDRI(std::string fileName);
+
     void setRendererType(std::string type);
 
     std::vector<std::string> getRendererTypes();
@@ -128,6 +131,7 @@ private:
     void initAMRVolume();
     void initUnstructuredVolume();
     void initClipPlanes();
+    void initHDRI();
 
     struct {
         std::string fileName;
@@ -194,6 +198,13 @@ private:
 
         bool changed = false;
     } clipPlanes;
+
+    struct {
+        std::vector<glm::vec3> pixels;
+        unsigned width, height;
+
+        bool changed = false;
+    } hdri;
 
     std::vector<std::string> rendererTypes;
     std::vector<ui_anari::ParameterList> rendererParameters;
