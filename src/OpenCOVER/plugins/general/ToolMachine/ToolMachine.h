@@ -32,6 +32,7 @@ private:
     std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_pauseBtn;
+    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_updateMode;
 
     SelfDeletingTool::Map m_tools;
     bool m_pauseMove = false;

@@ -87,16 +87,12 @@ Client::Client(const std::string &name)
 , m_certificate(std::make_unique<opencover::ui::FileBrowserConfigValue>(m_menu, "certificate", "", *detail::Manager::instance()->m_config, name))
 , m_key(std::make_unique<opencover::ui::FileBrowserConfigValue>(m_menu, "key", "", *detail::Manager::instance()->m_config, name))
 , m_authentificationMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "authentification", 0, *detail::Manager::instance()->m_config, name))
-, m_communicationMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "communicationMode", 0, *detail::Manager::instance()->m_config, name))
 , m_name(name)
 {
     const std::vector<std::string> authentificationModes{"anonymous", "username/password"};
     m_authentificationMode->ui()->setList(authentificationModes);
     m_authentificationMode->ui()->select(m_authentificationMode->getValue());
 
-    const std::vector<std::string> communicationModes{"subscribe", "polling"};
-    m_communicationMode->ui()->setList(communicationModes);
-    m_communicationMode->ui()->select(m_communicationMode->getValue());
 
     m_connect->setCallback([this](bool state){
         state ? connect() : disconnect();
@@ -156,6 +152,31 @@ std::string toString(const UA_String &s)
     std::copy(s.data, s.data + s.length, v.begin());
     v[s.length] = '\0';
     return std::string(v.data());
+}
+
+UA_Variant_ptr getInitialValue(UA_Client *client, const UA_NodeId &nodeId)
+{
+    UA_ReadRequest request;
+    UA_ReadRequest_init(&request);
+
+    UA_ReadValueId rvi;
+    UA_ReadValueId_init(&rvi);
+    rvi.nodeId = nodeId; // replace with your NodeId
+    rvi.attributeId = UA_ATTRIBUTEID_VALUE;
+
+    request.nodesToRead = &rvi;
+    request.nodesToReadSize = 1;
+
+    UA_ReadResponse response = UA_Client_Service_read(client, request);
+    UA_Variant_ptr retval;
+    // if(response.responseHeader.serviceResult == UA_STATUSCODE_GOOD &&
+    // response.resultsSize > 0 && response.results[0].hasValue)
+    // {
+    //     retval = &response.results[0].value;
+    //     retval.timestamp = response.responseHeader.timestamp;
+    // }
+    // UA_ReadResponse_clear(&response);
+    return retval;
 }
 
 void Client::runClient()
@@ -265,6 +286,8 @@ void Client::registerNode(const NodeRequest &nodeRequest)
     if(node->subscribers.size() > 1)
         return;
 
+
+
     UA_MonitoredItemCreateRequest monRequest =
         UA_MonitoredItemCreateRequest_default(node->id);
     monRequest.requestedParameters.samplingInterval = m_samplingInterval->getValue();
@@ -280,6 +303,11 @@ void Client::registerNode(const NodeRequest &nodeRequest)
                                             monRequest, const_cast<char*>(it->first.c_str()), handleNodeUpdate, NULL);
     m_samplingInterval->setValue(result.revisedSamplingInterval);
     it->second.monitoredItemId = result.monitoredItemId;
+    auto initial = getInitialValue(client, node->id);
+
+    // node->values.push_front(initial);
+    // node->lastValue = initial;
+    // node->numUpdatesPerFrame++;
 
 }
 
@@ -338,7 +366,7 @@ UA_Variant_ptr Client::getValue(const std::string &name)
     if(node)
     {
         if(node->values.empty())
-            return UA_Variant_ptr();
+            return node->lastValue;
         auto retval = node->values.back();
         node->values.pop_back();
         return retval;
@@ -447,6 +475,7 @@ void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
     auto v = UA_Variant_ptr(&value->value);
     v.timestamp = value->sourceTimestamp;
     node->values.push_front(v);
+    node->lastValue = v;
     node->numUpdatesPerFrame++;
 }
 

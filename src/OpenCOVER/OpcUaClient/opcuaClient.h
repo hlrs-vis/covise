@@ -46,6 +46,7 @@ private:
         std::map<size_t, Client**> subscribers;
         size_t numUpdatesPerFrame = 0;
         std::deque<UA_Variant_ptr> values;
+        UA_Variant_ptr lastValue;
         std::set<size_t> updatedSubscribers;
         bool operator==(const Node &other) const{return other.name == name;}
         bool operator==(const std::string &name) const{return name == this->name;}
@@ -151,7 +152,7 @@ private:
     std::unique_ptr<opencover::ui::SliderConfigValue> m_requestedPublishingInterval, m_samplingInterval, m_queueSize;
     std::unique_ptr<opencover::ui::FileBrowserConfigValue> m_certificate, m_key;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_password, m_username, m_serverIp;
-    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode, m_communicationMode;
+    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_authentificationMode;
     const std::string m_name;
     UA_Client *client = nullptr;
 

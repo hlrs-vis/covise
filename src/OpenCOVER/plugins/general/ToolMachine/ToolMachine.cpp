@@ -245,6 +245,8 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
 , m_pauseBtn(new ui::Button(m_menu, "pause"))
+, m_updateMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "updateMode", 0, *config(), "ToolMachinePlugin"))
+
 {
     m_menu->allowRelayout(true);
 
@@ -275,6 +277,10 @@ ToolMaschinePlugin::ToolMaschinePlugin()
                 t->second->value->pause(state);
         }
     });
+
+    const std::vector<std::string> updateMode{"all", "allOncePerFrame", "updatedOncePerFrame"};
+    m_updateMode->ui()->setList(updateMode);
+    m_updateMode->ui()->select(m_updateMode->getValue());
 }
 
 bool ToolMaschinePlugin::addTool(MachineNode *m)
@@ -350,6 +356,7 @@ bool ToolMaschinePlugin::update()
                 struct Update{
                     double value;
                     std::function<void(double)> func;
+                    std::string name;
                 };
                 //read all updates first, then apply them in order
                 std::map<UA_DateTime, Update> updates; 
@@ -376,24 +383,29 @@ bool ToolMaschinePlugin::update()
                 for(const auto &update : toolUpdateValues)
                 {
                     auto numUpdates = client->numNodeUpdates(update.name);
+                    if(numUpdates == 0 && m_updateMode->ui()->selectedItem() == "allOncePerFrame")
+                        numUpdates = 1;
                     for (size_t u = 0; u < numUpdates; u++)
                     {
                         UA_DateTime timestamp;
                         auto v = client->getNumericScalar(update.name, &timestamp);
-                        updates[timestamp] = {v, update.func};
+                        updates[timestamp] = {v, update.func, update.name};
                     }
                 }
                 //machine axis updates
                 for (size_t i = 0; i < m->d_OPCUANames.size(); i++)
                 {
                     auto numUpdates = client->numNodeUpdates(m->d_OPCUANames[i]);
+                    if(numUpdates == 0 && m_updateMode->ui()->selectedItem() == "allOncePerFrame")
+                        numUpdates = 1;
+
                     for (size_t u = 0; u < numUpdates; u++)
                     {
                         UA_DateTime timestamp;
                         auto v = client->getNumericScalar(m->d_OPCUANames[i], &timestamp);
                         updates[timestamp] = {v, [m, i](double value){//potentially overwrite the value with the same timestamp, could be bad
                             m->move(i, value + m->d_Offsets[i]);
-                        }}; 
+                        }, m->d_OPCUANames[i]}; 
                     }
                 }
                 //machine tool updates
@@ -402,9 +414,21 @@ bool ToolMaschinePlugin::update()
                 if(m_pauseMove || m_pauseBtn->state())
                     return true;
                 //execute updates in order
-                for(const auto &update : updates)
+                if(m_updateMode->ui()->selectedItem() == "all")
                 {
-                    update.second.func(update.second.value);
+                    for(const auto &update : updates)
+                    {
+                        update.second.func(update.second.value);
+                    }
+                } else{
+                    std::set<std::string> items;
+                    for(auto it = updates.rbegin(); it != updates.rend(); ++it)
+                    {
+                        if(items.insert(it->second.name).second)
+                        {
+                            it->second.func(it->second.value);
+                        }
+                    }
                 }
                 
             }
