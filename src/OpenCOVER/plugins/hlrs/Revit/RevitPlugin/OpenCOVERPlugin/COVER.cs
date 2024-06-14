@@ -285,6 +285,11 @@ namespace OpenCOVERPlugin
             designoptionMod = new DesignOptionModifier.Switcher();
             mOptions = new Options();
             mOptions.DetailLevel = Autodesk.Revit.DB.ViewDetailLevel.Fine;
+
+            if(View3D!= null)
+            {
+                mOptions.DetailLevel = View3D.DetailLevel;
+            }
             try
             {
                 ButtonIconsFolder = System.Environment.GetEnvironmentVariable("COVISEDIR");
@@ -1147,6 +1152,10 @@ namespace OpenCOVERPlugin
             {
 
 
+                if (View3D != null)
+                {
+                    mOptions.DetailLevel = View3D.DetailLevel;
+                }
                 // not a group. look at the geom data.
                 GeometryElement geom = elem.get_Geometry(mOptions);
                 if ((geom != null))

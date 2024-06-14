@@ -12,6 +12,8 @@ namespace {
 template<typename Char>
 bool isValidChar(Char c)
 {
+    if (c < 0)
+        return false;
     if (isalnum(c))
         return true;
     return c == '_' || c == '-';

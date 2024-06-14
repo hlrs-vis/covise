@@ -1096,6 +1096,7 @@ ObjectInfo::ObjectInfo(TokenBuffer& tb)
 
 	TypeNameLabel = new ui::Label(RevitPlugin::instance()->objectInfoMenu, TypeName + "_TNLabel");
 	TypeNameLabel->setText(CategoryName);
+
 	for (int i = 0; i < numTypes; i++)
 	{
 		types.push_back(new FamilyType(tb));
@@ -1109,8 +1110,15 @@ ObjectInfo::ObjectInfo(TokenBuffer& tb)
 		[](const FamilyType* LHS, const FamilyType* RHS)
 		{ if (LHS->FamilyName == RHS->FamilyName) return (LHS->Name < RHS->Name); return (LHS->FamilyName < RHS->FamilyName); });
 	std::string lastFamilyName;
+	int numMenuEntries = 0;
 	for (FamilyType*& ft : types)
 	{
+		numMenuEntries++;
+		if (numMenuEntries > 20)
+		{
+			std::cerr << "too many Types" << std::endl;
+			break;
+		}
 		if (lastFamilyName != ft->FamilyName)
 		{
 			lastFamilyName = ft->FamilyName;
@@ -3396,6 +3404,7 @@ RevitPlugin::update()
 					Message message(stb);
 					message.type = (int)RevitPlugin::MSG_ObjectInfo;
 					RevitPlugin::instance()->sendMessage(message);
+					break;
 				}
 			}
 
