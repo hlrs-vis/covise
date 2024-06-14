@@ -49,7 +49,7 @@ varying in float radius[];
 varying out vec4 vColor;
 varying out float vRadius;
 varying out vec3 vObj;
-varying out vec3 vPos;
+varying out vec3 vDir;
 varying out vec3 vCam;
 
 void main()
@@ -71,20 +71,24 @@ void main()
     vec3 vr = normalize(cross(oc_pos, camUp)) * vi;
     vec3 vu = normalize(cross(oc_pos, vr)) * vi;
 
-    vPos = vObj - vr - vu;
-    gl_Position = MVP * vec4(vPos, 1.f);
+    vec3 pos = vObj - vr - vu;
+    vDir = pos - vCam;
+    gl_Position = MVP * vec4(pos, 1.f);
     EmitVertex();
 
-    vPos = vObj + vr - vu;
-    gl_Position = MVP * vec4(vPos, 1.f);
+    pos = vObj + vr - vu;
+    vDir = pos - vCam;
+    gl_Position = MVP * vec4(pos, 1.f);
     EmitVertex();
 
-    vPos = vObj - vr + vu;
-    gl_Position = MVP * vec4(vPos, 1.f);
+    pos = vObj - vr + vu;
+    vDir = pos - vCam;
+    gl_Position = MVP * vec4(pos, 1.f);
     EmitVertex();
 
-    vPos = vObj + vr + vu;
-    gl_Position = MVP * vec4(vPos, 1.f);
+    pos = vObj + vr + vu;
+    vDir = pos - vCam;
+    gl_Position = MVP * vec4(pos, 1.f);
     EmitVertex();
 
     EndPrimitive();
@@ -96,7 +100,7 @@ void main()
 varying vec4 vColor;
 varying vec3 vObj;
 varying vec3 vCam;
-varying vec3 vPos;
+varying vec3 vDir;
 varying float vRadius;
 
 uniform bool blendWithMaterial;
@@ -130,12 +134,12 @@ void directionalLight(in int i, in vec3 normal)
    Specular += gl_LightSource[i].specular * pf;
 }
 
-void pointLight(in int i, in vec3 N, in vec3 eye)
+void pointLight(in int i, in vec3 pos, in vec3 N, in vec3 eye)
 {
    float pf;           // power factor
    float d;            // distance from surface to light source
 
-   vec3 L = normalize(gl_LightSource[i].position.xyz - vPos);
+   vec3 L = normalize(gl_LightSource[i].position.xyz - pos);
    float NdotL = abs(dot(N, L));
    if (NdotL == 0.0)
    {
@@ -143,7 +147,7 @@ void pointLight(in int i, in vec3 N, in vec3 eye)
    }
    else
    {
-       vec3 E = normalize(-vPos);
+       vec3 E = normalize(-pos);
        vec3 R = normalize(-reflect(L, N));
        pf = pow(abs(dot(R, E)), gl_FrontMaterial.shininess);
    }
@@ -162,7 +166,7 @@ void pointLight(in int i, in vec3 N, in vec3 eye)
    Specular += gl_LightSource[i].specular * pf * attenuation;
 }
 
-void flight(in vec3 normal)
+void flight(in vec3 pos, in vec3 normal)
 {
     vec3 eye = vec3 (0.0, 0.0, 1.0);
 
@@ -172,17 +176,17 @@ void flight(in vec3 normal)
     Specular = vec4 (0.0);
 
     if (Light0Enabled)
-        pointLight(0, normal, eye);
+        pointLight(0, pos, normal, eye);
     if (Light1Enabled)
-        pointLight(1, normal, eye);
+        pointLight(1, pos, normal, eye);
 
     //directionalLight(2, normal);
 }
 
 void main()
 {
-    vec3 dir = normalize(vPos - vCam);
     vec3 org = vCam;
+    vec3 dir = normalize(vDir);
 
     vec3 oc = org - vObj;
     float phalf = dot(oc, dir);
@@ -192,14 +196,16 @@ void main()
         discard;
 
     float t = -phalf - sqrt(D);
-    vec3 ps = org + (t * dir);
-    vec4 fragPos = gl_ModelViewProjectionMatrix * vec4(ps, 1.f);
+    vec3 pos = org + (t * dir);
+#ifdef CORRECT_DEPTH
+    vec4 fragPos = gl_ModelViewProjectionMatrix * vec4(pos, 1.f);
     float far = gl_DepthRange.far;
     float near = gl_DepthRange.near;
     gl_FragDepth = (((far-near) * fragPos.z/fragPos.w) + near + far) / 2.0;
+#endif
 
-    vec3 N = ps - vObj;
-    flight(normalize(N));
+    vec3 N = pos - vObj;
+    flight(pos, normalize(N));
 
     if (dataValid)
     {
@@ -220,8 +226,6 @@ void main()
         gl_FragColor = gl_FrontMaterial.diffuse * Diffuse + gl_FrontMaterial.ambient * Ambient + gl_FrontMaterial.specular * Specular;
     }
 }
-
-
 </fragmentProgram>
 
 </MapColorsSpheres>
