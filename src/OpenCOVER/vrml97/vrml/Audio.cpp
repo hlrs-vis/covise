@@ -430,7 +430,8 @@ bool Audio::wavread(FILE *fp)
     }
 
     if (strncmp((const char *)wave_header.data_id, "data", 4) != 0
-        && strncmp((const char *)wave_header.data_id, "PAD ", 4) != 0)
+        && strncmp((const char *)wave_header.data_id, "PAD ", 4) != 0
+        && strncmp((const char*)wave_header.data_id, "LIST", 4) != 0)
     {
         cerr << "got " << (const char *)wave_header.data_id << " expected data" << endl;
         return false;
