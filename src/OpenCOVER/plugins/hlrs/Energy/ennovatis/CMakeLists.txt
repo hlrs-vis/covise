@@ -7,7 +7,8 @@ set(Name "Ennovatis")
 add_library(${Name} ${SOURCES})
 target_link_libraries(${Name} 
 	PRIVATE nlohmann_json::nlohmann_json
-	PRIVATE coCurlHTTPClient)
+	PRIVATE coCurlHTTPClient
+	PRIVATE coThreadUtil)
 
 # tell compiler to generate position independent code => -fPIC
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -15,7 +15,7 @@ find_package(GTest REQUIRED)
 enable_testing()
 
 add_executable(Test test_energy.cpp)
-target_link_libraries(Test EnergyUtils Ennovatis GTest::gtest_main)
+target_link_libraries(Test Ennovatis GTest::gtest_main)
 add_definitions(-DENERGYCAMPUS_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 include(GoogleTest)

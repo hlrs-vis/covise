@@ -3,7 +3,7 @@
 
 #include <string>
 #include "building.h"
-#include "../utils/threadworker.h"
+#include "utils/thread/threadworker.h"
 
 namespace ennovatis {
 /**
@@ -59,7 +59,7 @@ struct rest_request_handler {
     auto isRunning() { return worker.isRunning(); }
 
 private:
-    utils::ThreadWorker<std::string> worker;
+    opencover::utils::ThreadWorker<std::string> worker;
 };
 
 /*

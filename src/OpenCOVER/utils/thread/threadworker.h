@@ -5,7 +5,9 @@
 #include <future>
 #include <vector>
 #include <iostream>
+#include "export.h"
 
+namespace opencover {
 namespace utils {
 
 /**
@@ -18,7 +20,7 @@ namespace utils {
  * @tparam T The type of the result returned by the threads.
  */
 template<typename T>
-struct ThreadWorker {
+struct THREADUTIL ThreadWorker {
     typedef std::unique_ptr<std::vector<T>> Result;
     ThreadWorker() = default;
     ~ThreadWorker() { stop(); }
@@ -74,8 +76,7 @@ struct ThreadWorker {
     {
         if (checkStatus() && poolSize() > 0) {
             Result res = std::make_unique<std::vector<T>>();
-            std::cout << "Worker finished"
-                      << "\n";
+            std::cout << "Worker finished" << "\n";
             for (auto &t: threads) {
                 try {
                     res->push_back(t.get());
@@ -141,4 +142,5 @@ private:
     std::vector<std::future<T>> threads;
 };
 } // namespace utils
+} // namespace opencover
 #endif
