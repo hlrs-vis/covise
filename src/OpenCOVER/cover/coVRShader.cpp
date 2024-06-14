@@ -371,7 +371,7 @@ coVRAttribute::~coVRAttribute()
 {
 }
 
-coVRShader::coVRShader(const std::string &n, const std::string &d)
+coVRShader::coVRShader(const std::string &n, const std::string &d, const std::string &defines): defines(defines)
 {
     wasCloned = false;
     name = n;
@@ -392,6 +392,7 @@ coVRShader::coVRShader(const coVRShader &other)
 : name(other.name)
 , fileName(other.fileName)
 , dir(other.dir)
+, defines(other.defines)
 , wasCloned(true)
 , geometryShader(other.geometryShader)
 , transparent(other.transparent)
@@ -465,6 +466,32 @@ std::ostream &operator<<(std::ostream &os, const XmlAttribute &attr)
     os << attr.c_str();
     return os;
 }
+
+std::string prependPreamble(std::string code, const std::string &preamble)
+{
+    // prepend defines and fragment shader library, but keep #version on first line
+    size_t start = code.find_first_not_of(" \t\n\r");
+    code = code.substr(start);
+
+    std::string::size_type lineend = code.find_first_of("\n\r");
+    if (lineend != std::string::npos)
+    {
+        // retain space/newline after #version
+        ++lineend;
+    }
+    std::string version = code.substr(0, lineend);
+    if (version.find("#version") == std::string::npos)
+    {
+        version.clear();
+    }
+    else
+    {
+        code = code.substr(lineend);
+    }
+
+    return version + preamble + code;
+}
+
 
 std::string parseProgram(xercesc::DOMElement *node, const std::function<std::string(const std::string &)> &findAsset,
                          const std::string &name, const std::string &programType)
@@ -597,6 +624,7 @@ void coVRShader::loadMaterial()
             }
             xercesc::XMLString::release(&tagName);
         }
+        preamble = defines + preamble;
 
         for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
@@ -659,7 +687,7 @@ void coVRShader::loadMaterial()
                         node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "fragment");
                     if (!code.empty())
                     {
-                        code = preamble + code;
+                        code = prependPreamble(code, preamble);
                         fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
                         fragmentShader->setName(name);
                     }
@@ -699,7 +727,7 @@ void coVRShader::loadMaterial()
                         node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "geometry");
                     if (!code.empty())
                     {
-                        code = preamble + code;
+                        code = prependPreamble(code, preamble);
                         geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
                         geometryShader->setName(name);
                     }
@@ -710,7 +738,7 @@ void coVRShader::loadMaterial()
                         node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "vertex");
                     if (!code.empty())
                     {
-                        code = preamble + code;
+                        code = prependPreamble(code, preamble);
                         vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
                         vertexShader->setName(name);
                     }
@@ -721,7 +749,7 @@ void coVRShader::loadMaterial()
                         node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "tessControl");
                     if (!code.empty())
                     {
-                        code = preamble + code;
+                        code = prependPreamble(code, preamble);
                         tessControlShader = new osg::Shader(osg::Shader::TESSCONTROL, code);
                         tessControlShader->setName(name);
                     }
@@ -732,7 +760,7 @@ void coVRShader::loadMaterial()
                         node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name, "tessEval");
                     if (!code.empty())
                     {
-                        code = preamble + code;
+                        code = prependPreamble(code, preamble);
                         tessEvalShader = new osg::Shader(osg::Shader::TESSEVALUATION, code);
                         tessEvalShader->setName(name);
                     }
@@ -1825,9 +1853,9 @@ void coVRShaderList::init()
     cover->getScene()->addChild(geodeShaderR);
 }
 
-coVRShader *coVRShaderList::add(const std::string &name, std::string &dirName)
+coVRShader *coVRShaderList::add(const std::string &name, const std::string &dirName, const std::string &defines)
 {
-    return new coVRShader(name, dirName);
+    return new coVRShader(name, dirName, defines);
 }
 
 void coVRShaderList::applyParams(coVRShader *shader, std::map<std::string, std::string> *params)
@@ -1855,14 +1883,15 @@ void coVRShaderList::applyParams(coVRShader *shader, std::map<std::string, std::
     }
 }
 
-coVRShader *coVRShaderList::getUnique(const std::string &n, std::map<std::string, std::string> *params)
+coVRShader *coVRShaderList::getUnique(const std::string &n, std::map<std::string, std::string> *params,
+                                      const std::string &defines)
 {
     coVRShader *shader = get(n);
     if (!shader)
     {
         return NULL;
     }
-    coVRShader *clone = add(shader->fileName, shader->dir);
+    coVRShader *clone = add(shader->fileName, shader->dir, defines);
     clone->wasCloned = true;
     applyParams(clone, params);
     return clone;

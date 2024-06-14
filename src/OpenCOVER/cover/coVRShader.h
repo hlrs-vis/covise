@@ -181,6 +181,7 @@ private:
     std::string name;
     std::string fileName;
     std::string dir;
+    std::string defines;
     bool wasCloned;
     std::list<coVRUniform *> uniforms;
     std::list<coVRAttribute *> attributes;
@@ -250,7 +251,7 @@ public:
     {
         return wasCloned;
     }
-    coVRShader(const std::string &name, const std::string &d);
+    coVRShader(const std::string &name, const std::string &d, const std::string &defines = "");
     coVRShader(const coVRShader &other);
     void setData(covise::TokenBuffer &tb);
     void setMatrixUniform(const std::string &name, osg::Matrixd m);
@@ -296,8 +297,8 @@ private:
 public:
     ~coVRShaderList();
     coVRShader *get(const std::string &name, std::map<std::string, std::string> *params = NULL);
-    coVRShader *getUnique(const std::string &n, std::map<std::string, std::string> *params = NULL);
-    coVRShader *add(const std::string &name, std::string &dirName);
+    coVRShader *getUnique(const std::string &n, std::map<std::string, std::string> *params = NULL, const std::string &defines = "");
+    coVRShader *add(const std::string &name, const std::string &dirName, const std::string &defines="");
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);
     void addGlobalUniform(const std::string &, osg::Uniform *);
