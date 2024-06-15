@@ -301,26 +301,14 @@ float coVRPluginSupport::getSceneSize() const
     return coVRConfig::instance()->getSceneSize();
 }
 
-// return no. of seconds since epoch adjusted for current time zone so that 0 is at 00:00:00 local time
+// return no. of seconds since epoch 
 double coVRPluginSupport::currentTime()
 {
     START("coVRPluginSupport::currentTime");
     struct timeval currentTime;
     gettimeofday(&currentTime, nullptr);
-    time_t time = currentTime.tv_sec + currentTime.tv_usec / 1000000.0;
-    struct tm tm;
-#ifdef _WIN32
-    auto ret = _localtime64_s(&tm, &time);
-#else
-    auto ret = localtime_r(&time, &tm);
-#endif
-    if (!ret)
-    {
-        std::cerr << "localtime_r failed" << std::endl;
-        return time;
-    }
 
-    return currentTime.tv_sec + currentTime.tv_usec / 1000000.0 + tm.tm_gmtoff;
+    return currentTime.tv_sec + currentTime.tv_usec / 1000000.0;
 }
 
 double coVRPluginSupport::frameTime() const
