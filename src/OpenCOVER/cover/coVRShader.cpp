@@ -1824,11 +1824,12 @@ void coVRShaderList::loadMaterials()
         {
             if (dir->match(dir->name(i), "*.xml"))
             {
-                new coVRShader(dir->name(i), "");
+                new coVRShader(dir->name(i), dir->path());
             }
         }
     }
 }
+
 void coVRShaderList::init()
 {
     osg::Geode *geodeShaderL = new osg::Geode;
