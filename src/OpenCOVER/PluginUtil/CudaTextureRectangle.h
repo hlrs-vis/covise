@@ -29,7 +29,7 @@ public:
     virtual void    apply(osg::State& state) const;
 
     void    resize(osg::State* state, int w, int h, int dataTypeSize);
-    void*   resourceData();
+    void*   resourceData() const;
     void    clear();
 
 protected:

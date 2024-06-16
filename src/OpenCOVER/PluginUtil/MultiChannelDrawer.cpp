@@ -720,19 +720,18 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
 
        vd.colorTex = new osg::TextureRectangle;
        vd.depthTex = new osg::TextureRectangle;
-       for (auto tex: {vd.colorTex, vd.depthTex}) {
-           tex->setResizeNonPowerOfTwoHint(false);
-           tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-           tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-       }
+
        vd.colorTex->setImage(vd.colorImg);
        vd.depthTex->setImage(vd.depthImg);
    }
 
    for (auto tex: {vd.colorTex, vd.depthTex}) {
        tex->setBorderWidth( 0 );
+       tex->setResizeNonPowerOfTwoHint(false);
        tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
        tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+       tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+       tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
    }
 
 
