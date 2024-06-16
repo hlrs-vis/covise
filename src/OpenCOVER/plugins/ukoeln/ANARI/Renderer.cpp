@@ -744,8 +744,8 @@ void Renderer::initDevice()
     anariCommitParameters(anari.device, anari.device);
     anari.world = anariNewWorld(anari.device);
 #ifdef ANARI_PLUGIN_HAVE_CUDA
-    anari.cudaInterop.enabled = false; // TODO: doesn't work yet..
-        //= deviceHasExtension(anari.library, "default", "ANARI_VISRTX_CUDA_OUTPUT_BUFFERS");
+    anari.cudaInterop.enabled
+        = deviceHasExtension(anari.library, "default", "ANARI_VISRTX_CUDA_OUTPUT_BUFFERS");
     if (anari.cudaInterop.enabled) {
         cudaStreamCreate(&anari.cudaInterop.copyStream);
     }
