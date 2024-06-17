@@ -11,14 +11,23 @@ function(do_cuda_compile outfiles)
         return()
     endif()
 
-    foreach(f ${ARGN})
-        cuda_compile(cuda_compile_obj
-            ${f} SHARED)
-        set(out
-            ${out}
-            ${f}
-            ${cuda_compile_obj})
-    endforeach()
+    get_property(languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+
+    if("CUDA" IN_LIST languages)
+        # if compiling in CUDA mode, just pass source files on to the compiler:
+        foreach(f ${ARGN})
+            set(out ${out} ${f})
+        endforeach()
+    else()
+        foreach(f ${ARGN})
+            cuda_compile(cuda_compile_obj
+                ${f} SHARED)
+            set(out
+                ${out}
+                ${f}
+                ${cuda_compile_obj})
+        endforeach()
+    endif()
 
     set(${outfiles}
         ${out}
