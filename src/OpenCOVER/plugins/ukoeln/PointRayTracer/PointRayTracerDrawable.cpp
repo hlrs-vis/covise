@@ -3,11 +3,15 @@
 #include "PointRayTracerKernel.h"
 #include <iostream>
 
+#include <visionaray/render_target.h>
+
 #include <cover/coVRConfig.h>
 #include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
+
+#include <PluginUtil/MultiChannelDrawer.h>
 
 using namespace visionaray;
 
@@ -18,6 +22,52 @@ visionaray::mat4 osg_cast(osg::Matrixd const &m)
     return visionaray::mat4(arr);
 }
 
+struct RenderTarget : render_target, opencover::MultiChannelDrawer
+{
+    using ref_type = render_target_ref<PF_RGBA8, PF_DEPTH24_STENCIL8>;
+    using color_type = typename pixel_traits<PF_RGBA8>::type;
+    using depth_type = typename pixel_traits<PF_DEPTH24_STENCIL8>::type;
+    using accum_type = typename pixel_traits<PF_UNSPECIFIED>::type;
+
+    RenderTarget(bool cuda=false) : MultiChannelDrawer(false, cuda)
+    {
+    }
+
+    void resize(unsigned w, unsigned h)
+    {
+        pixel_format_info dpfi = map_pixel_format(PF_DEPTH24_STENCIL8);
+        pixel_format_info cpfi = map_pixel_format(PF_RGBA8);
+
+        render_target::resize(w, h);
+        opencover::MultiChannelDrawer::resizeView(channel, w, h, dpfi.type, cpfi.type);
+
+        clearColor(channel);
+        clearDepth(channel);
+    }
+
+    void begin_frame() {}
+    void end_frame() {}
+
+    ref_type ref()
+    { return { color(), depth(), /*accum(),*/ width(), height() }; }
+
+    VSNRAY_FUNC color_type* color()
+    { return (color_type *)rgba(channel); }
+
+    VSNRAY_FUNC depth_type* depth()
+    { return (depth_type *)opencover::MultiChannelDrawer::depth(channel); }
+
+    VSNRAY_FUNC const color_type* color() const
+    { return (color_type *)rgba(channel); }
+
+    VSNRAY_FUNC const depth_type* depth() const
+    { return (depth_type *)opencover::MultiChannelDrawer::depth(channel); }
+
+    VSNRAY_FUNC accum_type* accum()
+    { return nullptr; }
+
+    unsigned channel{0};
+};
 
 struct PointRayTracerDrawable::Impl
 {
@@ -25,6 +75,7 @@ struct PointRayTracerDrawable::Impl
 #ifdef __CUDACC__
         // Initialize CUDA scheduler with block dimensions
         : scheduler(8, 8) // TODO: determine best
+        , multiChannelRenderTarget(true)
 #else
         // Initialize CPU scheduler with #threads
         : scheduler(15)
@@ -33,7 +84,7 @@ struct PointRayTracerDrawable::Impl
     }
 
     sched_type                      scheduler;
-    render_target_type              rt;
+    RenderTarget                    multiChannelRenderTarget;
     std::vector<host_bvh_type>*     host_bvh_vector;
 
 #ifdef __CUDACC__
@@ -49,11 +100,13 @@ PointRayTracerDrawable::PointRayTracerDrawable()
     : m_impl(new Impl)
 {
     setSupportsDisplayList(false);
+    m_impl->multiChannelRenderTarget.setMode(opencover::MultiChannelDrawer::AsIs);
+    opencover::cover->getScene()->addChild(&m_impl->multiChannelRenderTarget);
 }
 
 PointRayTracerDrawable::~PointRayTracerDrawable()
 {
-
+    opencover::cover->getScene()->removeChild(&m_impl->multiChannelRenderTarget);
 }
 
 viewing_params PointRayTracerDrawable::getViewingParams(const osg::RenderInfo& info) const
@@ -241,19 +294,22 @@ osg::Object* PointRayTracerDrawable::clone(const osg::CopyOp &op) const
 
 void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 {
+    m_impl->multiChannelRenderTarget.update();
+
     //delay rendering until we actually have data
     if (m_impl->bvh_refs.size() == 0)
         return;
 
     auto vparams = getViewingParams(info);
-    if(vparams.width != m_impl->rt.width() || vparams.height != m_impl->rt.height()){
-        m_impl->rt.resize(vparams.width, vparams.height);
+    if(vparams.width != m_impl->multiChannelRenderTarget.width() ||
+       vparams.height != m_impl->multiChannelRenderTarget.height()){
+        m_impl->multiChannelRenderTarget.resize(vparams.width, vparams.height);
     }
 
     auto sparams = make_sched_params(
         vparams.view_matrix,
         vparams.proj_matrix,
-        m_impl->rt);
+        m_impl->multiChannelRenderTarget);
 
     // some setup
     using R = ray_type;
@@ -280,7 +336,7 @@ void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
     m_impl->scheduler.frame(kernel, sparams);
 
     //display result
-    sparams.rt.display_color_buffer();
+    sparams.rt.swapFrame();
 
     //update member
     m_total_frame_num++;

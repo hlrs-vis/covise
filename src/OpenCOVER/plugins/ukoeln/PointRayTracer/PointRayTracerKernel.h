@@ -29,10 +29,8 @@ struct Kernel
     VSNRAY_FUNC
     visionaray::result_record<S> operator()(R ray)
     {
-        const auto bgcolor = visionaray::vec3(0.2,0.2,0.2);
-
         visionaray::result_record<S> result;
-        result.color = C(bgcolor, 1.0f);
+        result.color = C(0.f);
 
         auto hit_rec = visionaray::closest_hit(
                 ray,
