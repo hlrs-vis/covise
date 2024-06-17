@@ -35,11 +35,9 @@ struct RenderTarget : render_target, opencover::MultiChannelDrawer
 
     void resize(unsigned w, unsigned h)
     {
-        pixel_format_info dpfi = map_pixel_format(PF_DEPTH24_STENCIL8);
-        pixel_format_info cpfi = map_pixel_format(PF_RGBA8);
-
         render_target::resize(w, h);
-        opencover::MultiChannelDrawer::resizeView(channel, w, h, dpfi.type, cpfi.type);
+        opencover::MultiChannelDrawer::resizeView(
+            channel, w, h, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_BYTE);
 
         clearColor(channel);
         clearDepth(channel);
@@ -49,7 +47,7 @@ struct RenderTarget : render_target, opencover::MultiChannelDrawer
     void end_frame() {}
 
     ref_type ref()
-    { return { color(), depth(), /*accum(),*/ width(), height() }; }
+    { return { color(), depth(), accum(), width(), height() }; }
 
     VSNRAY_FUNC color_type* color()
     { return (color_type *)rgba(channel); }
@@ -295,6 +293,9 @@ osg::Object* PointRayTracerDrawable::clone(const osg::CopyOp &op) const
 void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 {
     m_impl->multiChannelRenderTarget.update();
+
+    m_impl->multiChannelRenderTarget.clearColor(0);
+    m_impl->multiChannelRenderTarget.clearDepth(0);
 
     //delay rendering until we actually have data
     if (m_impl->bvh_refs.size() == 0)

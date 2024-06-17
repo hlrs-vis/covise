@@ -39,15 +39,16 @@ struct Kernel
                 );
 
         result.hit = hit_rec.hit;
-        result.isect_pos = ray.ori + ray.dir * hit_rec.t;
 
         auto color = hit_rec.color;
 
-        result.color = select(
+        result.color = visionaray::select(
                 hit_rec.hit,
                 C(visionaray::vector<3, S>(color), S(1.0)),
                 result.color
                 );
+
+        result.depth = hit_rec.t;
 
         return result;
     }
