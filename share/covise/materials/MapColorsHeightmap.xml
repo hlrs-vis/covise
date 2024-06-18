@@ -1,5 +1,6 @@
 <MapColorsHeightMap>
 <!-- used by Vistle -->
+<version min="120" max="330" profile="compatibility" />
 
 <!-- these uniforms are used in MapColorsFragment.glsl -->
 <uniform name="dataValid" type="bool" value="false"/>

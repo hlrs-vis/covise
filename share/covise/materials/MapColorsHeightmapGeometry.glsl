@@ -1,6 +1,12 @@
-#version 120
+#if __VERSION__ <= 120
 #extension GL_EXT_geometry_shader4 : enable
+#endif
 #extension GL_ARB_texture_rectangle : enable
+
+#if __VERSION__ > 120
+layout (points) in;
+layout (triangle_strip, max_vertices = 24) out;
+#endif
 
 uniform sampler2DRect heightTex;
 uniform bool dataValid;
@@ -10,15 +16,20 @@ uniform vec2 dist;
 uniform vec4 origin;
 uniform vec2 patchSize;
 
+#if __VERSION__ > 120
+out vec3 N;
+out vec3 V;
+out float data;
+#else
 varying out vec3 N;
 varying out vec3 V;
 varying out float data;
+#endif
 
 #define CACHE 1
 
 #if CACHE
 #define MaxPatchSizeY 3
-#
 vec4 posCache[MaxPatchSizeY+1];
 vec4 norm_dataCache[MaxPatchSizeY+1];
 #endif
@@ -103,7 +114,11 @@ void createVertex(vec2 xy, int idx)
 
 void main()
 {
+#if __VERSION__ > 120
+    vec2 xy = gl_in[0].gl_Position.xy;
+#else
     vec2 xy = gl_PositionIn[0].xy;
+#endif
 
     createVertex(xy + vec2(0, 0), -1);
     createVertex(xy + vec2(1, 0), 0);

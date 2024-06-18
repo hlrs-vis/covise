@@ -1,5 +1,5 @@
 <MapColorsSpheres>
-<version min="120" max="120"/>
+<version min="120" max="120" profile="compatibility" />
 <attribute name="dataAttrib" type="float" value="10"/>
 <attribute name="radiusAttrib" type="float" value="11"/>
 

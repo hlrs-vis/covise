@@ -1,5 +1,3 @@
-#version 120
-
 uniform sampler1D texUnit1;
 uniform float rangeMin, rangeMax;
 uniform bool blendWithMaterial;
