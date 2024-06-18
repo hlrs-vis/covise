@@ -2,10 +2,11 @@
 <attribute name="dataAttrib" type="float" value="10"/>
 <attribute name="radiusAttrib" type="float" value="11"/>
 
-<uniform name="dataValid" type="bool" value="true"/>
+<uniform name="textureValid" type="bool" value="false"/>
+<uniform name="dataValid" type="bool" value="false"/>
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
-<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="texUnit1" type="sampler1D" value="0"/>
 <uniform name="blendWithMaterial" type="bool" value="false"/>
 <uniform name="Light0Enabled" type="bool" value="true"/>
 <uniform name="Light1Enabled" type="bool" value="false"/>
@@ -14,6 +15,7 @@
 <vertexProgram>
 #version 120
 
+uniform bool textureValid;
 uniform bool dataValid;
 uniform float rangeMin, rangeMax;
 uniform sampler1D texUnit1;
@@ -28,7 +30,9 @@ void main (void)
 {
     radius = radiusAttrib;
     color = vec4(0.8, 0.8, 0.8, 1);
-    if (dataValid) {
+    if (textureValid) {
+        color = texture1D(texUnit1, gl_MultiTexCoord0.s);
+    } else if (dataValid) {
         float data = dataAttrib;
         float t = (data - rangeMin) / (rangeMax - rangeMin);
         color = texture1D(texUnit1, t);
@@ -106,6 +110,7 @@ varying float vRadius;
 uniform bool blendWithMaterial;
 uniform bool Light0Enabled, Light1Enabled;
 uniform bool dataValid;
+uniform bool textureValid;
 
 vec4 Ambient;
 vec4 Diffuse;
@@ -127,7 +132,6 @@ void directionalLight(in int i, in vec3 normal)
    else
    {
        pf = pow(nDotHV, gl_FrontMaterial.shininess);
-
    }
    Ambient  += gl_LightSource[i].ambient;
    Diffuse  += gl_LightSource[i].diffuse * nDotVP;
@@ -207,7 +211,7 @@ void main()
     vec3 N = pos - vObj;
     flight(pos, normalize(N));
 
-    if (dataValid)
+    if (dataValid || textureValid)
     {
         vec4 color = vColor * (Diffuse + Ambient) + Specular * vColor.a;
         if (blendWithMaterial)
