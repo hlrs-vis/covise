@@ -42,9 +42,10 @@ public:
     virtual void operator ()(osg::GraphicsContext* gc);
 
     bool boundSwapBarrier() const;
+    osg::GLExtensions *getExtensions(int contextId = 0) const;
 
 private:
-    OpenThreads::Mutex m_mutex;
+    mutable OpenThreads::Mutex m_mutex;
     static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                     GLsizei length, const GLchar *message, void *userData);
     static void  debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
@@ -59,6 +60,8 @@ private:
     DebugCallbackData m_callbackData;
 
     bool m_boundSwapBarrier = false;
+
+    std::vector<osg::ref_ptr<osg::GLExtensions>> m_extensions;
 };
 
 }

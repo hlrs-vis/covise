@@ -1418,6 +1418,21 @@ void VRViewer::destroyChannels(int i)
     chan.camera = nullptr;
 }
 
+osg::GLExtensions *VRViewer::getExtensions(int chan) const
+{
+    auto &conf = *coVRConfig::instance();
+    auto cam = coVRConfig::instance()->channels[chan].camera;
+    if (cam)
+    {
+        if (auto gc = cam->getGraphicsContext())
+        {
+            int contextID = gc->getState()->getContextID();
+            return m_initGlOp->getExtensions(contextID);
+        }
+    }
+    return nullptr;
+}
+
 void VRViewer::forceCompile()
 {
     culling(false, osg::CullSettings::ENABLE_ALL_CULLING, true); // disable culling for one frame to load data to all GPUs

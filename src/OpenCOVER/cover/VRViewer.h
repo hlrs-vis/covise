@@ -129,6 +129,8 @@ private:
     std::list<osg::ref_ptr<osg::Camera> > myCameras;
     void setAffinity();
 
+    osg::GLExtensions *getExtensions(int channel = 0) const;
+
 public:
     struct FrustumAndView
     {
