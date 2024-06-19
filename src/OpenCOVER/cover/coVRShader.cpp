@@ -50,6 +50,8 @@
 using namespace opencover;
 using namespace covise;
 
+static std::array<int, 13> glslVersions{110, 120, 130, 140, 150, 330, 400, 410, 420, 430, 440, 450, 460};
+
 coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::string &t, const std::string &v)
 {
     shader = s;
@@ -492,6 +494,43 @@ std::string prependPreamble(std::string code, const std::string &preamble)
     return version + preamble + code;
 }
 
+struct VersionInfo
+{
+    int min = -1;
+    int max = -1;
+    std::string profile;
+};
+
+VersionInfo parseVersion(xercesc::DOMElement *node, const std::string &name)
+{
+    VersionInfo info;
+    std::string code = "";
+    XmlAttribute value("value", node);
+    XmlAttribute min("min", node);
+    XmlAttribute max("max", node);
+    XmlAttribute profile("profile", node);
+    if (value)
+    {
+        info.min = info.max = atoi(value.c_str());
+        if (min || max)
+        {
+            std::cerr << "WARNING: ignoring min/max attributes for version as value is set in shader " << name
+                      << std::endl;
+        }
+    }
+    else
+    {
+        if (min)
+            info.min = atoi(min.c_str());
+        if (max)
+            info.max = atoi(max.c_str());
+    }
+    if (profile)
+    {
+        info.profile = profile.c_str();
+    }
+    return info;
+}
 
 std::string parseProgram(xercesc::DOMElement *node, const std::function<std::string(const std::string &)> &findAsset,
                          const std::string &name, const std::string &programType)
@@ -621,10 +660,77 @@ void coVRShader::loadMaterial()
                     preamble = parseProgram(node, std::bind(&coVRShader::findAsset, this, std::placeholders::_1), name,
                                             "preamble");
                 }
+                if (strcmp(tagName, "version") == 0)
+                {
+                    auto info = parseVersion(node, name);
+                    if (info.min > 0)
+                    {
+                        versionMin = info.min;
+                        if (versionMax < versionMin)
+                            versionMax = versionMin;
+                    }
+                    if (info.max > 0)
+                    {
+                        versionMax = info.max;
+                        if (versionMin > versionMax)
+                            versionMin = versionMax;
+                    }
+                    profile = info.profile;
+                }
             }
             xercesc::XMLString::release(&tagName);
         }
-        preamble = defines + preamble;
+
+        if (versionMin > 0 || versionMax > 0)
+        {
+            if (versionMin < 0)
+                versionMin = 110;
+            if (versionMax < 0)
+                versionMax = 460;
+
+            std::stringstream ss;
+            auto versionRange = coVRShaderList::instance()->glslVersion();
+            int ver = 110;
+            if (versionMin > versionRange.second)
+            {
+                ver = versionMin;
+                std::cerr << "Shader " << name << " not supported by OpenGL version " << versionRange.first << " to "
+                          << versionRange.second << std::endl;
+            }
+            else if (versionMax < versionRange.first)
+            {
+                ver = versionMax;
+                std::cerr << "Shader " << name << " not supported by OpenGL version " << versionRange.first << " to "
+                          << versionRange.second << std::endl;
+            }
+            else
+            {
+                for (auto &v: glslVersions)
+                {
+                    if (v < versionRange.first)
+                        continue;
+                    if (v < versionMin)
+                        continue;
+                    if (v > versionRange.second)
+                        break;
+                    if (v > versionMax)
+                        break;
+                    ver = v;
+                }
+            }
+            ss << "#version " << ver;
+            if (!profile.empty())
+            {
+                ss << " " << profile;
+            }
+            ss << "\n";
+            std::string version = ss.str();
+            preamble = version + defines + preamble;
+        }
+        else
+        {
+            preamble = defines + preamble;
+        }
 
         for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
@@ -635,6 +741,9 @@ void coVRShader::loadMaterial()
             if (tagName)
             {
                 if (strcmp(tagName, "preamble") == 0)
+                {
+                }
+                else if (strcmp(tagName, "version") == 0)
                 {
                 }
                 else if (strcmp(tagName, "attribute") == 0)
@@ -1774,6 +1883,9 @@ coVRShaderList::coVRShaderList()
 {
     assert(!s_instance);
 
+    glslVersionRange.first = coCoviseConfig::getInt("versionMin", "COVER.GLSL", 110);
+    glslVersionRange.second = coCoviseConfig::getInt("versionMax", "COVER.GLSL", 120);
+
     projectionMatrix = new osg::Uniform("Projection", osg::Matrixf::translate(100, 0, 0));
     lightMatrix = new osg::Uniform("Light", osg::Matrixf::translate(100, 0, 0));
     lightEnabled.resize(4);
@@ -1806,6 +1918,11 @@ coVRShaderList::~coVRShaderList()
 {
     clear();
     s_instance = NULL;
+}
+
+std::pair<int, int> coVRShaderList::glslVersion() const
+{
+    return glslVersionRange;
 }
 
 void coVRShaderList::loadMaterials()

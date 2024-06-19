@@ -182,6 +182,8 @@ private:
     std::string fileName;
     std::string dir;
     std::string defines;
+    int versionMin = 110, versionMax = 120;
+    std::string profile;
     bool wasCloned;
     std::list<coVRUniform *> uniforms;
     std::list<coVRAttribute *> attributes;
@@ -294,6 +296,8 @@ private:
     osg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
     void applyParams(coVRShader *shader, std::map<std::string, std::string> *params);
     std::map<std::string,osg::Uniform*> globalUniforms;
+    std::pair<int, int> glslVersionRange;
+
 public:
     ~coVRShaderList();
     coVRShader *get(const std::string &name, std::map<std::string, std::string> *params = NULL);
@@ -318,6 +322,8 @@ public:
 
     void init();
     void remove(osg::Node *);
+
+    std::pair<int, int> glslVersion() const;
 };
 
 class COVEREXPORT ShaderNode : public osg::Drawable
