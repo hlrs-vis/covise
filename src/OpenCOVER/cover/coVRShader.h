@@ -182,7 +182,7 @@ private:
     std::string fileName;
     std::string dir;
     std::string defines;
-    int versionMin = 110, versionMax = 120;
+    int versionMin = -1, versionMax = -1;
     std::string profile;
     bool wasCloned;
     std::list<coVRUniform *> uniforms;
@@ -296,7 +296,7 @@ private:
     osg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
     void applyParams(coVRShader *shader, std::map<std::string, std::string> *params);
     std::map<std::string,osg::Uniform*> globalUniforms;
-    std::pair<int, int> glslVersionRange;
+    std::pair<int, int> glslVersionRange{-1, -1};
 
 public:
     ~coVRShaderList();
@@ -320,7 +320,7 @@ public:
     osg::Uniform *getStereo();
     void update();
 
-    void init();
+    void init(osg::GLExtensions *glext = nullptr);
     void remove(osg::Node *);
 
     std::pair<int, int> glslVersion() const;

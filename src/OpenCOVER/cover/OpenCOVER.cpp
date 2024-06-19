@@ -750,7 +750,7 @@ bool OpenCOVER::init()
 
     beginAppTraversal = VRViewer::instance()->elapsedTime();
 
-    coVRShaderList::instance()->init();
+    coVRShaderList::instance()->init(VRViewer::instance()->getExtensions());
 
     m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
     m_quitGroup->setText("");

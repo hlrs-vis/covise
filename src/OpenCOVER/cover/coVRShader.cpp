@@ -719,7 +719,7 @@ void coVRShader::loadMaterial()
                 }
             }
             ss << "#version " << ver;
-            if (!profile.empty())
+            if (ver >= 330 && !profile.empty())
             {
                 ss << " " << profile;
             }
@@ -1883,9 +1883,6 @@ coVRShaderList::coVRShaderList()
 {
     assert(!s_instance);
 
-    glslVersionRange.first = coCoviseConfig::getInt("versionMin", "COVER.GLSL", 110);
-    glslVersionRange.second = coCoviseConfig::getInt("versionMax", "COVER.GLSL", 120);
-
     projectionMatrix = new osg::Uniform("Projection", osg::Matrixf::translate(100, 0, 0));
     lightMatrix = new osg::Uniform("Light", osg::Matrixf::translate(100, 0, 0));
     lightEnabled.resize(4);
@@ -1947,8 +1944,27 @@ void coVRShaderList::loadMaterials()
     }
 }
 
-void coVRShaderList::init()
+void coVRShaderList::init(osg::GLExtensions *glext)
 {
+    int glslVersion = -1;
+    if (glext)
+    {
+        std::cerr << "GLSL supported: " << glext->isGlslSupported << std::endl;
+        std::cerr << "GLSL version: " << glext->glslLanguageVersion << std::endl;
+        if (glext->isGlslSupported)
+        {
+            glslVersion = static_cast<int>(glext->glslLanguageVersion * 100.0 + 0.5);
+        }
+    }
+    else
+    {
+        std::cerr << "coVRShaderList::init: no information on GL extensions available" << std::endl;
+    }
+
+    glslVersionRange.first = coCoviseConfig::getInt("versionMin", "COVER.GLSL", 110);
+    glslVersionRange.second = coCoviseConfig::getInt("versionMax", "COVER.GLSL", glslVersion);
+
+
     osg::Geode *geodeShaderL = new osg::Geode;
     geodeShaderL->setNodeMask(Isect::Left);
     ShaderNode *shaderL;
