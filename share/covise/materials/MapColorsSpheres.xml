@@ -1,4 +1,5 @@
 <MapColorsSpheres>
+<version min="120" max="120"/>
 <attribute name="dataAttrib" type="float" value="10"/>
 <attribute name="radiusAttrib" type="float" value="11"/>
 
@@ -13,8 +14,6 @@
 
 <!-- generate viewer facing triangle strip covering sphere, raycast in fragment shader -->
 <vertexProgram>
-#version 120
-
 uniform bool textureValid;
 uniform bool dataValid;
 uniform float rangeMin, rangeMax;
@@ -44,7 +43,6 @@ void main (void)
 </vertexProgram>
 
 <geometryProgram inputType="POINTS" outputType="TRIANGLE_STRIP" numVertices="4">
-#version 120
 #extension GL_EXT_geometry_shader4 : enable
 
 varying in vec4 color[];
@@ -99,8 +97,6 @@ void main()
 }
 </geometryProgram>
 <fragmentProgram>
-#version 120
-
 varying vec4 vColor;
 varying vec3 vObj;
 varying vec3 vCam;
