@@ -1964,6 +1964,7 @@ void coVRShaderList::init(osg::GLExtensions *glext)
     glslVersionRange.first = coCoviseConfig::getInt("versionMin", "COVER.GLSL", 110);
     glslVersionRange.second = coCoviseConfig::getInt("versionMax", "COVER.GLSL", glslVersion);
 
+    loadMaterials();
 
     osg::Geode *geodeShaderL = new osg::Geode;
     geodeShaderL->setNodeMask(Isect::Left);
@@ -2056,7 +2057,6 @@ coVRShaderList *coVRShaderList::instance()
     if (!s_instance)
     {
         s_instance = new coVRShaderList;
-        s_instance->loadMaterials();
     }
     return s_instance;
 }

@@ -674,6 +674,13 @@ bool OpenCOVER::init()
     cover->ui->addView(cover->vruiView);
 
     hud = coHud::instance();
+
+    VRViewer::instance()->config();
+    coVRShaderList::instance()->init(VRViewer::instance()->getExtensions());
+
+    hud->setText2("loading plugins");
+    hud->redraw();
+
     if (m_loadVistlePlugin)
     {
         loadFiles = false;
@@ -697,11 +704,6 @@ bool OpenCOVER::init()
             }
         }
     }
-
-    VRViewer::instance()->config();
-
-    hud->setText2("loading plugins");
-    hud->redraw();
 
     coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
@@ -749,8 +751,6 @@ bool OpenCOVER::init()
 #endif
 
     beginAppTraversal = VRViewer::instance()->elapsedTime();
-
-    coVRShaderList::instance()->init(VRViewer::instance()->getExtensions());
 
     m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
     m_quitGroup->setText("");
