@@ -8,6 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifdef HAVE_CUDA
 
 #include <GL/glew.h>
+#include <osg/Version>
 
 #include "CudaTextureRectangle.h"
 
@@ -64,7 +65,11 @@ void CudaTextureRectangle::apply(osg::State& state) const
         getTextureHeight(),
         1,
         0);
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 7, 0)
     textureObject->bind(state);
+#else
+    textureObject->bind();
+#endif
     applyTexParameters(GL_TEXTURE_RECTANGLE, state);
     glTexImage2D( GL_TEXTURE_RECTANGLE, 0, getInternalFormat(),
              getTextureWidth(), getTextureHeight(), getBorderWidth(),
