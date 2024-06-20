@@ -5,13 +5,12 @@
 <uniform name="dataValid" type="bool" value="true"/>
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
-<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="texUnit1" type="sampler1D" value="0"/>
 <uniform name="blendWithMaterial" type="bool" value="false"/>
 <uniform name="Light0Enabled" type="bool" value="true"/>
 <uniform name="Light1Enabled" type="bool" value="false"/>
 
 <vertexProgram>
-uniform sampler2D texUnit0;
 attribute float dataAttrib;
 varying float data;
 

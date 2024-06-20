@@ -4,27 +4,16 @@
 
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
-<uniform name="texUnit0" type="sampler2D" value="0"/>
-<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="texUnit1" type="sampler1D" value="0"/>
 <uniform name="blendWithMaterial" type="bool" value="false"/>
-<uniform name="dataFromTexture" type="bool" value="false"/>
 
 <vertexProgram>
-uniform sampler2D texUnit0;
-uniform bool dataFromTexture;
 attribute float dataAttrib;
 varying float data;
 
 void main (void)
 {
-    if (dataFromTexture)
-    {
-        data = texture2D(texUnit0, gl_TexCoord[0].st).r;
-    }
-    else
-    {
-        data = dataAttrib;
-    }
+    data = dataAttrib;
 
     // Do fixed functionality vertex transform
     gl_Position = ftransform();
