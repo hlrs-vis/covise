@@ -18,6 +18,7 @@ if "%1" == "" (
 ) else (
   set ARCHSUFFIX=%1
 )
+set COVISE_ARCHSUFFIX=%ARCHSUFFIX%
 
 set BASEARCHSUFFIX=%ARCHSUFFIX:opt=%
 

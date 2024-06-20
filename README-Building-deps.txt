@@ -807,3 +807,11 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 ##########
 osgXR
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/osgXR -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/OpenXR;c:/src/externlibs/zebu/OpenSceneGraph
+
+##########
+glfw
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/glfw -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/OpenXR;c:/src/externlibs/zebu/OpenSceneGraph
+
+##########
+anari
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/anari -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph
