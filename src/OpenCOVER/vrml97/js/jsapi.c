@@ -86,12 +86,6 @@
 #include "jsxml.h"
 #endif
 
-#ifdef HAVE_VA_LIST_AS_ARRAY
-#define JS_ADDRESSOF_VA_LIST(ap) ((va_list *)(ap))
-#else
-#define JS_ADDRESSOF_VA_LIST(ap) (&(ap))
-#endif
-
 #if defined(JS_PARANOID_REQUEST) && defined(JS_THREADSAFE)
 #define CHECK_REQUEST(cx) JS_ASSERT(cx->requestDepth)
 #else
@@ -268,7 +262,7 @@ JS_ConvertArgumentsVA(JSContext *cx, uintN argc, jsval *argv,
         default:
             format--;
             if (!TryArgumentFormatter(cx, &format, JS_TRUE, &sp,
-                                      JS_ADDRESSOF_VA_LIST(ap)))
+                                      &(ap)))
             {
                 return JS_FALSE;
             }
@@ -375,7 +369,7 @@ JS_PushArgumentsVA(JSContext *cx, void **markp, const char *format, va_list ap)
         default:
             format--;
             if (!TryArgumentFormatter(cx, &format, JS_FALSE, &sp,
-                                      JS_ADDRESSOF_VA_LIST(ap)))
+                                      &(ap)))
             {
                 goto bad;
             }

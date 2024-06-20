@@ -15,8 +15,6 @@ ENDIF()
 IF(UNIX)
   SET(JS_BUILD_TYPE STATIC)
   ADD_DEFINITIONS(-DXP_UNIX)
-  # TODO: the following should be better checked with a feature test with TRY_COMPILE
-  ADD_DEFINITIONS(-DHAVE_VA_LIST_AS_ARRAY)
 ELSE()  
   SET(JS_BUILD_TYPE SHARED)
 ENDIF()

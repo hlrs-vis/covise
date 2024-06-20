@@ -51,18 +51,6 @@
 #include "jsutil.h" /* Added by JSIFY */
 
 /*
-** Note: on some platforms va_list is defined as an array,
-** and requires array notation.
-*/
-#ifdef HAVE_VA_COPY
-#define VARARGS_ASSIGN(foo, bar) VA_COPY(foo, bar)
-#elif defined(HAVE_VA_LIST_AS_ARRAY)
-#define VARARGS_ASSIGN(foo, bar) foo[0] = bar[0]
-#else
-#define VARARGS_ASSIGN(foo, bar) (foo) = (bar)
-#endif
-
-/*
 ** WARNING: This code may *NOT* call JS_LOG (because JS_LOG calls it)
 */
 
@@ -700,7 +688,7 @@ static struct NumArgState *BuildArgArray(const char *fmt, va_list ap, int *rv, s
             continue;
         }
 
-        VARARGS_ASSIGN(nas[cn].ap, ap);
+        va_copy(nas[cn].ap, ap);
 
         switch (nas[cn].type)
         {
