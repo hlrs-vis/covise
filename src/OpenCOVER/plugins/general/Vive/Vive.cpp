@@ -99,7 +99,6 @@ Vive::Vive()
 		return;
 	}
 
-
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		m_rDevClassChar[nDevice] = 0;
@@ -228,6 +227,38 @@ bool Vive::init()
 		numSerialConfigs++;
 	} while (exists);
 	
+	m_buttonsPerController = coCoviseConfig::getInt(configPath("ButtonsPerController"), m_buttonsPerController);
+            m_buttonStates[(m_ControllerID[unDevice] * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
+            m_buttonStates[(m_ControllerID[unDevice] * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
+			m_buttonStates[(m_ControllerID[unDevice] * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
+	for (unsigned int i = 0; i < m_buttonsPerController; i++)
+	{
+		switch(i) {
+			case 0:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 33);
+				break;
+			case 1:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 32);
+				break;
+			case 2:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 1);
+				break;
+			case 3:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 2);
+				break;
+			case 4:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 0);
+				break;
+			case 5:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), 3);
+				break;
+			default:
+				m_buttonMapping[i] = coCoviseConfig::getInt(configPath("Button"+std::to_string(i)), i);
+				break;
+		}
+	}
+
 
 
 	if (m_strDriver == "No Driver")
@@ -378,9 +409,9 @@ void Vive::postFrame()
 		m_bodyMatricesValid.resize(maxBodyNumber);
 		m_mutex.unlock();
 	}
-	if (numControllers * 4 > m_buttonStates.size())
+	if (numControllers * m_buttonsPerController > m_buttonStates.size())
 	{
-		m_buttonStates.resize(numControllers * 4);
+		m_buttonStates.resize(numControllers * m_buttonsPerController);
 	}
 	bool haveBaseStation = false;
 	// Process SteamVR controller state
@@ -390,10 +421,12 @@ void Vive::postFrame()
 		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
 		if ((m_rDevClassChar[unDevice] == 'C') && m_rTrackedDevicePose[unDevice].bPoseIsValid)
 		{
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
+            if (Input::instance()->debug(Input::Driver) && Input::instance()->debug(Input::Buttons)) {
+				std::cerr << "Vive: controller " << unDevice << ": buttons: Ox" << std::hex << state.ulButtonPressed << std::dec << std::endl;
+			}
+			for (unsigned int i = 0; i < m_buttonsPerController; i++) {
+				m_buttonStates[(m_ControllerID[unDevice] * m_buttonsPerController) + i] = ((state.ulButtonPressed & ((uint64_t)1 << m_buttonMapping[i])) != 0);
+			}
 		}
 		if (m_rDevClassChar[unDevice] == 'T')
 		{
@@ -470,4 +503,3 @@ std::string Vive::GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceI
 }
 
 COVERPLUGIN(Vive)
-
