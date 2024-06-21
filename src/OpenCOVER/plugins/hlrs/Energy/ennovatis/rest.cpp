@@ -1,4 +1,5 @@
 #include "rest.h"
+#include "HTTPClient/CURL/methods.h"
 #include "HTTPClient/CURL/request.h"
 #include "date.h"
 #include "building.h"
@@ -29,7 +30,8 @@ std::string rest_request::operator()() const
 std::string rest::fetch_data(const rest_request &req)
 {
     std::string response = "";
-    if (!opencover::httpclient::curl::Request::httpRequest(req(), response))
+    opencover::httpclient::curl::GET getRequest(req());
+    if (!opencover::httpclient::curl::Request().httpRequest(getRequest, response))
         response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
     return response;
 }
