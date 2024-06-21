@@ -2,10 +2,12 @@ USING(CURL)
 
 SET(SOURCES
   request.cpp
+  methods.cpp
 )
 
 SET(HEADERS
   export.h
+  methods.h
   request.h
 )
 

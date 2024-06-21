@@ -4,49 +4,37 @@
 
 using namespace std;
 
-namespace {
-/**
- * @brief Callback function to handle curl's response
- * 
- * @param contents Pointer to the content of data
- * @param size Size of each data element
- * @param nmemb Number of data elements
- * @param userp Pointer to the user-defined data
- * @return size_t The total size of the response data
- */
-size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    ((string *)userp)->append((char *)contents, size * nmemb);
-    return size * nmemb;
-}
-} // namespacje
-
 namespace opencover {
 namespace httpclient {
 namespace curl {
 
-bool Request::httpRequest(const string &url, string &response)
+CURL *Request::initCurl(const HTTPMethod &method, std::string &response)
 {
     auto curl = curl_easy_init();
     if (!curl)
-        return false;
+        return nullptr;
 
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+    method.setupCurl(curl);
+
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-    auto res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-
-    if (res != CURLE_OK)
-        return false;
-
-    return true;
+    return curl;
 }
 
-void Request::cleanup()
+bool Request::httpRequest(const HTTPMethod &method, string &response)
 {
-    curl_global_cleanup();
+    auto curl = initCurl(method, response);
+    if (!curl)
+        return false;
+
+    auto res = curl_easy_perform(curl);
+
+    if (res != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        return false;
+    }
+    method.cleanupCurl(curl);
+
+    return true;
 }
 
 } // namespace curl

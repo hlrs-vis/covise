@@ -2,6 +2,7 @@
 #define _HTTPCLIENT_CURL_REQUEST_H
 
 #include "export.h"
+#include "methods.h"
 #include <curl/curl.h>
 #include <string>
 
@@ -10,23 +11,22 @@ namespace httpclient {
 namespace curl {
 
 struct CURLHTTPCLIENTEXPORT Request {
+    Request() { curl_global_init(CURL_GLOBAL_DEFAULT); };
+    ~Request() { curl_global_cleanup(); };
+
     /**
      * @brief Performs a CURL request to the specified URL.
      * 
      * This function sends a CURL request to the specified URL and stores the response data in the provided string.
      * 
-     * @param url The URL to send the request to.
+     * @param method HTTPMethod object (GET, POST, PUT, DELETE).
      * @param response The response data received from the request (storage).
      * @return bool True if the request was successful, false otherwise.
      */
-    [[nodiscard]] static bool httpRequest(const std::string &url, std::string &response);
+    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response);
 
-    /**
-     * @brief Cleans up the CURL cache.
-     * 
-     * This function needs to be called once for each application to properly clean up the CURL library.
-     */
-    static void cleanup();
+private:
+    CURL *initCurl(const HTTPMethod &httpMethod, std::string &response);
 };
 
 } // namespace curl
