@@ -1425,6 +1425,7 @@ OpenCOVER::~OpenCOVER()
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
+    VRViewer::instance()->unconfig();
     delete VRSceneGraph::instance();
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
