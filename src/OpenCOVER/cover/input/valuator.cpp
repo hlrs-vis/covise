@@ -24,8 +24,8 @@ Valuator::Valuator(const std::string &name)
     std::cerr << "new valuator: conf=" << config() << ", dev=" << device()->getName() << ", idx=" << m_idx << std::endl;
     if (m_idx >= device()->numValuators())
     {
-        std::cerr << "Valuator: valuator index " << m_idx << " out of range - " << device()->numValuators() << " valuators" << std::endl;
-        m_idx = 0;
+        std::cerr << "Valuator: valuator index " << m_idx << " out of range - " << device()->numValuators()
+                  << " valuators" << std::endl;
     }
 }
 
