@@ -412,12 +412,8 @@ void Vive::postFrame()
 			}
 			for (unsigned int i = 0; i < m_buttonsPerController; i++)
                         {
-                                // remap so that old mapping with only 4 buttons/device remains unchanged
-                                unsigned dest = m_ControllerID[unDevice] * 4 + i;
-                                if (i >= 4) {
-                                    dest = numControllers * 4 +  m_ControllerID[unDevice] * (m_buttonsPerController - 4) + (i-4);
-                                }
-				m_buttonStates[dest] = ((state.ulButtonPressed & ((uint64_t)1 << m_buttonMapping[i])) != 0);
+                            unsigned dest = m_ControllerID[unDevice] * m_buttonsPerController + i;
+                            m_buttonStates[dest] = ((state.ulButtonPressed & ((uint64_t)1 << m_buttonMapping[i])) != 0);
 			}
                         for (unsigned int i=0; i<vr::k_unControllerStateAxisCount; ++i)
                         {
