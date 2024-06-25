@@ -118,7 +118,11 @@ Vive::Vive()
 			PBOStruct pbor;
 			uint32_t sx, sy;
 			ivrSystem->GetRecommendedRenderTargetSize(&sx, &sy);
-			pbol.PBOsx = pbor.PBOsx = sx;
+            if (cover->debugLevel(1))
+            {
+                std::cerr << "Vive: configuring render target size to " << sx << "x" << sy << " pixels" << std::endl;
+            }
+            pbol.PBOsx = pbor.PBOsx = sx;
 			pbol.PBOsy = pbor.PBOsy = sy;
 			pbor.windowNum = 0;
 			pbol.windowNum = 0;
