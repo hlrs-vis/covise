@@ -252,13 +252,21 @@ RefResult VRMLInsObject::NotifyRefChanged(Interval changeInt, RefTargetHandle hT
         return REF_HALT;
     }
 
-    case REFMSG_GET_PARAM_NAME:
-    {
-        GetParamName *gpn = (GetParamName *)partID;
-        switch (gpn->index)
-        {
+    case REFMSG_GET_PARAM_NAME_LOCALIZED: {
+        GetParamName* gpn = (GetParamName*)partID;
+        switch (gpn->index) {
         case 0:
             // gpn->name = TSTR(GetResString(IDS_DB_TAPE_LENGTH));
+            break;
+        }
+        return REF_HALT;
+    }
+
+    case REFMSG_GET_PARAM_NAME_NONLOCALIZED: {
+        GetParamName* gpn = (GetParamName*)partID;
+        switch (gpn->index) {
+        case 0:
+            // gpn->name = _T("Length");
             break;
         }
         return REF_HALT;

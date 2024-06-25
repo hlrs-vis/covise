@@ -182,7 +182,7 @@ CallbackTable::GetCallbackMethods(Interface *ip)
     TCHAR lpBuf[MAX_PATH];
     DWORD nSize = sizeof(lpBuf);
 
-    const TCHAR *maxPlugCfgPath = ip->GetDir(APP_PLUGCFG_DIR);
+    const TCHAR *maxPlugCfgPath = ip->GetDir(APP_PLUGCFG_DIR).data();
     TCHAR lpINIFileName[MAX_PATH];
     _stprintf(lpINIFileName, _T("%s\\%s"), maxPlugCfgPath, _T("vrmlexp.ini"));
 

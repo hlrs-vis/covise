@@ -454,7 +454,7 @@ TCHAR *
 ExportIniFilename(Interface *ip)
 {
     static TCHAR ini_file[MAX_PATH];
-    const TCHAR *maxDir = ip->GetDir(APP_PLUGCFG_DIR);
+    const MSTR maxDir = ip->GetDir(APP_PLUGCFG_DIR);
     _tcscpy(ini_file, maxDir);
     _tcscat(ini_file, _T("\\"));
     _tcscat(ini_file, VRMBLIO_INI_FILE);

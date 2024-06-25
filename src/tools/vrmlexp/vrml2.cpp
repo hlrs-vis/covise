@@ -2657,7 +2657,7 @@ BOOL VRML2Export::processTexture(TSTR bitmapFile, TSTR &fileName, TSTR &url)
 	if (movieFile.Replace(_T(".jpg"), _T(".mp4"), true, 0) > 0)
 	{
 		FILE *fp;
-		fp = fopen(movieFile.ToCStr(), "r");
+		fp = fopen(movieFile.ToCStr().data(), "r");
 		if (fp != NULL)
 		{
 			fclose(fp);
@@ -2890,7 +2890,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 			TCHAR title[MAX_PATH];
 			//LoadString(hInstance, IDS_OPEN_FAILED, msg, MAX_PATH);
 			TCHAR msg[500];
-			_stprintf(msg, _T("%s\nnode:%s\nmaterial:%s"), _T("BakeShell within BakeShell, not supported by VRML exporter (jetzt geht's wirklich)"), mNodes.GetNodeName(node), origMtl->GetFullName().data());
+			_stprintf(msg, _T("%s\nnode:%s\nmaterial:%s"), _T("BakeShell within BakeShell, not supported by VRML exporter (jetzt geht's wirklich)"), mNodes.GetNodeName(node), origMtl->GetFullName(false).data());
 			LoadString(hInstance, IDS_VRML_EXPORT, title, MAX_PATH);
 			MessageBox(GetActiveWindow(), msg, title, MB_OK);
 		}
@@ -7770,7 +7770,7 @@ VRML2Export::WriteControllerData(INode *node,
 							else if (th->elements[i]->type == TUIFloatSlider)
 								AddInterpolator(name, KEY_TABLETUI_SLIDER, th->elements[i]->name.data(), nd);
 							else
-								AddInterpolator(th->elements[i]->name.data(), KEY_TABLETUI_SCRIPT, nd->NodeName(), nd);
+								AddInterpolator(th->elements[i]->name.data(), KEY_TABLETUI_SCRIPT, nd->NodeName().data(), nd);
 						}
 						if (th->elements[i]->type == TUIFloatSlider)
 						{
@@ -8977,7 +8977,7 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
 		INode * child = node->GetChildNode(i);
 		const TCHAR *nodeName = child->GetName();
 		const TCHAR *disValue = _tcsstr(nodeName, TEXT("distance_"));
-		float dist = 100000001.0;
+		float dist = 100000001.0f;
 		if (disValue)
 		{
 			_stscanf(disValue, TEXT("distance_%f"), &dist);

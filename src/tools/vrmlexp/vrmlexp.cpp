@@ -3659,7 +3659,7 @@ static INT_PTR CALLBACK
         {
         case IDC_EXP_HELP:
         {
-            const TCHAR *helpDir = exp->mIp->GetDir(APP_HELP_DIR);
+            const TCHAR *helpDir = exp->mIp->GetDir(APP_HELP_DIR).data();
             TCHAR helpFile[MAX_PATH];
             _tcscpy(helpFile, helpDir);
             _tcscat(helpFile, _T("\\vrmlout.hlp"));
