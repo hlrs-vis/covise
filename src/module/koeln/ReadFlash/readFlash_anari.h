@@ -17,6 +17,7 @@
 #include "hdf5.h"
 #define MAX_STRING_LENGTH 80
 
+
 // Data structure of info field
 // Kind of unneccessary information at the moment
 struct sim_info_t
@@ -33,17 +34,23 @@ struct sim_info_t
   char setup_time_stamp[MAX_STRING_LENGTH];
   char build_time_stamp[MAX_STRING_LENGTH];
 };
+#ifdef __GNUC__
+#define PACK(...) __VA_ARGS__  __attribute__((__packed__))
+#endif
 
+#ifdef _MSC_VER
+#define PACK(...) __pragma( pack(push, 1) ) __VA_ARGS__  __pragma( pack(pop))
+#endif
 // Data structure of grid
 struct grid_t
 {
   // Character type for field names
   typedef std::array<char, 4> char4;
   // Data structure of 3 component vector
-  typedef struct __attribute__((packed))
+  typedef PACK(struct
   {
     double x, y, z;
-  } vec3d;
+  }) vec3d;
   // Data structure for bounding boxes
   // lower and upper corner
   typedef struct
@@ -53,12 +60,12 @@ struct grid_t
 
   // Data structure for the gid
   // 6 neighbours, 1 parent, 8 children
-  struct __attribute__((packed)) gid_t
+  PACK(struct gid_t
   {
     int neighbors[6];
     int parent;
     int children[8];
-  };
+  });
 
   // Vector of field names
   std::vector<char4> unknown_names;
@@ -294,8 +301,8 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
 {
   AMRField result;
 
-  bool in_reg[var.global_num_blocks];
-  int bid_first = -1, bid_last = -1;
+  bool *in_reg = new bool[var.global_num_blocks];
+  size_t bid_first = -1, bid_last = -1;
 
   int common_ref = 1000;
   int max_ref = 0;
@@ -537,7 +544,7 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
   }
 
   std::cout << "value range: [" << min_scalar << ',' << max_scalar << "]\n";
-
+  delete[] in_reg;
   return result;
 }
 
