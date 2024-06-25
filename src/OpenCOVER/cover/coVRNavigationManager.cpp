@@ -515,10 +515,11 @@ void coVRNavigationManager::initMenu()
 
     driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
     driveSpeedSlider_->setText("Drive speed");
-    driveSpeedSlider_->setBounds(0., 30.);
+    driveSpeedSlider_->setBounds(.01, 100.);
+    driveSpeedSlider_->setScale(ui::Slider::Logarithmic);
     driveSpeedSlider_->setValue(driveSpeed);
-    ;
     driveSpeedSlider_->setCallback([this](double val, bool released) { driveSpeed = val; });
+
     collisionButton_ = new ui::Button(navMenu_, "Collision");
     collisionButton_->setText("Collision detection");
     collisionButton_->setState(collision);
