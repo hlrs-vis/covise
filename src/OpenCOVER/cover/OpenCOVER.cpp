@@ -282,6 +282,9 @@ bool OpenCOVER::run()
 
         loop();
 
+        if (dl >= 1)
+            fprintf(stderr, "OpenCOVER: Shutting down\n\n");
+
         doneRendering();
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
@@ -291,9 +294,6 @@ bool OpenCOVER::run()
         fprintf(stderr, "OpenCOVER: Start-up failed\n\n");
         return false;
     }
-
-    if (dl >= 1)
-        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
 
     return true;
 }
