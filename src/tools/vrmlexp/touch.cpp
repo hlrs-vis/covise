@@ -661,7 +661,7 @@ TouchSensorObject::SetReference(int ind, RefTargetHandle rtarg)
             int numObjs;
             pblock->GetValue(PB_TS_NUMOBJS, 0, numObjs,
                              FOREVER);
-            if (objects.Count() == 0)
+            if (objects.Count() == 0 && numObjs > 0)
             {
                 objects.SetCount(numObjs);
                 for (int i = 0; i < numObjs; i++)

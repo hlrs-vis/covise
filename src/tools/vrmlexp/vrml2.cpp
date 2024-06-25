@@ -4505,17 +4505,35 @@ void VRML2Export::VrmlOutSwitchCamera(INode *sw, INode *node, int level)
 }
 
 int
-VRML2Export::VrmlOutSwitch(INode *node, int level)
+VRML2Export::VrmlOutSwitch(INode* node, int level)
 {
-	SwitchObject *obj = (SwitchObject *)
+	SwitchObject* obj = (SwitchObject*)
 		node->EvalWorldState(mStart).obj;
 	int defaultValue = -1;
 	obj->pblock->GetValue(PB_S_DEFAULT, mStart, defaultValue, FOREVER);
 
+	Tab<int> index;
+	int k = 0;
+	index.SetCount(switchObjects.Count());
+	for (int i = 0; i < switchObjects.Count(); i++)
+	{
+		int m = 0;
+		while ((m < obj->objects.Count()) && (switchObjects[i] != obj->objects[m]->node))
+			m++;
+		if (m < obj->objects.Count())
+			index[m] = k++;
+	}
 	Indent(level);
 	MSTREAMPRINTF("DEF %s Switch { \n"), mNodes.GetNodeName(node));
 	Indent(level + 1);
-	MSTREAMPRINTF("whichChoice %d\n"), defaultValue);
+	if (defaultValue < 0)
+	{
+		MSTREAMPRINTF("whichChoice %d\n"), defaultValue);
+	}
+	else
+	{
+		MSTREAMPRINTF("whichChoice %d\n"), index[defaultValue]);
+	}
 	Indent(level + 1);
 	MSTREAMPRINTF("choice[\n"));
 
@@ -9100,6 +9118,25 @@ VRML2Export::VrmlOutNode(INode *node, INode *parent, int level, BOOL isLOD,
 			switchNode = isSwitched(children[i].second);
 			if (switchNode)
 			{
+
+				SwitchObject* obj = (SwitchObject*)switchNode->EvalWorldState(mStart).obj;
+				int defaultValue = -1;
+				obj->pblock->GetValue(PB_S_DEFAULT, mStart, defaultValue, FOREVER);
+				if (defaultValue != -1)
+				{
+					int q = 0;
+					for (int p = 0; p < todo; p++)
+					{
+						if (isSwitched(children[p].second, switchNode))
+						{
+							switchObjects[q] = children[p].second;
+							q++;
+							if (q >= switchObjects.Count())
+								break;
+						}
+					}
+				}
+
 				if ((doExport(node)) && !written)
 				{
 					wroteSwitch = true;
