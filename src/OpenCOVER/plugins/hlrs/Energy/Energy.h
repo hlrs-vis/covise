@@ -126,7 +126,8 @@ private:
      * @param pathToJSON The path to the JSON file which contains the channelids for REST-calls.
      * @return True if the data was successfully loaded, false otherwise.
      */
-    bool loadChannelIDs(const std::string &pathToJSON);
+    bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
+    bool updateChannelIDsFromCSV(const std::string &pathToCSV);
 
     /**
      * Initializes the Ennovatis buildings.
