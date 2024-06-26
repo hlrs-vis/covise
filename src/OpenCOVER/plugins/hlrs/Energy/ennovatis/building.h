@@ -2,9 +2,12 @@
 #define _BUILDING_H
 
 #include <string>
+#include <vector>
+#include <memory>
 #include "channel.h"
 
 namespace ennovatis {
+
 /**
  * @brief Represents a building.
  * 
@@ -57,5 +60,8 @@ private:
     float m_height;
     ChannelGroups m_channels;
 };
+
+typedef std::vector<Building> Buildings;
+typedef std::shared_ptr<Buildings> BuildingsPtr;
 } // namespace ennovatis
 #endif
