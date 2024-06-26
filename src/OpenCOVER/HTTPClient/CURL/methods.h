@@ -15,6 +15,7 @@ struct CURLHTTPCLIENTEXPORT HTTPMethod {
     explicit HTTPMethod(const std::string &url): url(url) {}
     virtual void setupCurl(CURL *curl) const;
     virtual void cleanupCurl(CURL *curl) const;
+    virtual const std::string to_string() const { return "URL: " + url + "\n"; }
     std::string url;
 };
 
@@ -41,6 +42,10 @@ HTTP_METHOD(POST)
     }
     void setupCurl(CURL * curl) const override;
     void cleanupCurl(CURL * curl) const override;
+    const std::string to_string() const override
+    {
+        return HTTPMethod::to_string() + "Request: " + requestBody + "\n";
+    }
     std::string requestBody;
 
 private:

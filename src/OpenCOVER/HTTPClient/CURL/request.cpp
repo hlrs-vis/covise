@@ -29,7 +29,8 @@ bool Request::httpRequest(const HTTPMethod &method, string &response)
     auto res = curl_easy_perform(curl);
 
     if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        auto error_msg = method.to_string() + string(curl_easy_strerror(res));
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", error_msg.c_str());
         return false;
     }
     method.cleanupCurl(curl);
