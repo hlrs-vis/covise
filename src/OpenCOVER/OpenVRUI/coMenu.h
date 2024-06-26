@@ -77,6 +77,7 @@ public:
     virtual void remove(coMenuItem *item);
     virtual void removeAll();
     virtual int getItemCount() const;
+    int getIndex(const coMenuItem *item) const;
     virtual void closeMenu();
 
     virtual void selected(bool select); ///< Menu is selected via joystick

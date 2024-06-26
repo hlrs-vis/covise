@@ -163,6 +163,18 @@ int coMenu::getItemCount() const
     return (int)items.size();
 }
 
+int coMenu::getIndex(const coMenuItem *item) const
+{
+    int idx = 0;
+    for (const auto &i: items)
+    {
+        if (i == item)
+            return idx;
+        ++idx;
+    }
+    return -1;
+}
+
 /** This method is called when the menu is closed. If this menu is not
   the topmost menu, it closes the submenu entry by which it was opened previously.
 */

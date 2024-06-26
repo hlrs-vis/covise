@@ -347,6 +347,12 @@ void coSubMenuItem::positionSubmenu()
 
     node->convertToWorld(transMatrix);
 
+    int index = -1;
+    if (auto parent = getParentMenu())
+    {
+        index = parent->getIndex(this);
+    }
+
     switch (attachment)
     {
     // use gaps?
@@ -374,7 +380,7 @@ void coSubMenuItem::positionSubmenu()
         break;
     }
     // generally set new menus to front
-    sm_z = 10.0f;
+    sm_z = 5.0f * (index + 1);
 
     // now multiply submenu's position (in menu coords)
     // to world coords using transmat
