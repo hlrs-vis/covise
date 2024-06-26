@@ -1625,12 +1625,15 @@ VRViewer::FrustaAndViews VRViewer::computeFrustumAndView(int i)
     }
 
     // for rendering images for auto-stereoscopic displays (e.g. Tridelity)
-    const float off = stereoOn ? currentChannel->stereoOffset : 0.f;
-    if (stereoOn && currentChannel->stereo) {
+    const float off = (stereoOn || animateSeparation) ? currentChannel->stereoOffset : 0.f;
+    if (currentChannel->stereo)
+    {
         leftEye = eyeOffset(EyeLeft) + osg::Vec3(off,0,0);
         rightEye = eyeOffset(EyeRight) + osg::Vec3(off,0,0);
         middleEye = eyeOffset(EyeMiddle) + osg::Vec3(off,0,0);
-    } else {
+    }
+    else
+    {
         leftEye = rightEye = middleEye = eyeOffset(EyeMiddle) + osg::Vec3(off,0,0);
     }
 
