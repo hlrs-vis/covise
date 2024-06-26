@@ -282,9 +282,6 @@ bool OpenCOVER::run()
 
         loop();
 
-        if (dl >= 1)
-            fprintf(stderr, "OpenCOVER: Shutting down\n\n");
-
         doneRendering();
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Leaving main loop\n\n");
@@ -941,6 +938,9 @@ void OpenCOVER::loop()
             break;
         frame();
     }
+
+    if (cover->debugLevel(1))
+        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
 
     VRViewer::instance()->disableSync();
 
