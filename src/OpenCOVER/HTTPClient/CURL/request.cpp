@@ -16,6 +16,8 @@ CURL *Request::initCurl(const HTTPMethod &method, std::string &response)
 
     method.setupCurl(curl);
 
+    //don't wait forever
+    curl_easy_setopt(curl,CURLOPT_TIMEOUT, 10);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
     return curl;
 }
