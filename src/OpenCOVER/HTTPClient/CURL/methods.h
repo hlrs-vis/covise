@@ -36,20 +36,40 @@ HTTP_METHOD(POST)
     {
         curl_slist_free_all(headers);
     }
+
     explicit POST(const std::string &url, const std::string &requestBody): HTTPMethod(url), requestBody(requestBody)
     {
-        curl_slist_append(headers, "Content-Type: application/json");
+        initHeaders();
     }
+
+    // copy constructor
+    POST(const POST &other): HTTPMethod(other.url), requestBody(other.requestBody)
+    {
+        initHeaders();
+    }
+
+    // copy assignment opertator
+    POST &operator=(const POST &other)
+    {
+        if (this != &other)
+            initHeaders();
+        return *this;
+    }
+
     void setupCurl(CURL * curl) const override;
     void cleanupCurl(CURL * curl) const override;
     const std::string to_string() const override
     {
-        return HTTPMethod::to_string() + "Request: " + requestBody + "\n";
+        return HTTPMethod::to_string() + "Requestbody: " + requestBody + "\n";
     }
     std::string requestBody;
 
 private:
-    struct curl_slist *headers;
+    void initHeaders()
+    {
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+    }
+    struct curl_slist *headers = nullptr;
 };
 
 // not implemented
