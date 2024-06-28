@@ -6,6 +6,7 @@
 #include <string>
 
 using namespace std;
+using namespace opencover::httpclient::curl;
 namespace ennovatis {
 
 void rest_request_handler::fetchChannels(const ChannelGroup &group, const ennovatis::Building &b,
@@ -30,8 +31,8 @@ std::string rest_request::operator()() const
 std::string rest::fetch_data(const rest_request &req)
 {
     std::string response = "";
-    opencover::httpclient::curl::GET getRequest(req());
-    if (!opencover::httpclient::curl::Request().httpRequest(getRequest, response))
+    GET getRequest(req());
+    if (!Request().httpRequest(getRequest, response))
         response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
     return response;
 }
