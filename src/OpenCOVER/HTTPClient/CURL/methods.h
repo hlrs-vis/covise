@@ -73,13 +73,13 @@ private:
 };
 
 // not implemented
-//HTTP_METHOD(PUT, void);
-//HTTP_METHOD(HEAD, void);
-//HTTP_METHOD(DELETE, void);
-//HTTP_METHOD(PATCH, void);
-//HTTP_METHOD(OPTIONS, void);
-//HTTP_METHOD(CONNECT, void);
-//HTTP_METHOD(TRACE, void);
+//HTTP_METHOD(PUT);
+//HTTP_METHOD(HEAD);
+//HTTP_METHOD(DELETE);
+//HTTP_METHOD(PATCH);
+//HTTP_METHOD(OPTIONS);
+//HTTP_METHOD(CONNECT);
+//HTTP_METHOD(TRACE);
 
 } // namespace curl
 } // namespace httpclient
