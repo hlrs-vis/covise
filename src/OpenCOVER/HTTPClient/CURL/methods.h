@@ -9,20 +9,24 @@ namespace opencover {
 namespace httpclient {
 namespace curl {
 
-struct CURLHTTPCLIENTEXPORT HTTPMethod {
+class CURLHTTPCLIENTEXPORT HTTPMethod {
+public:
     HTTPMethod() = delete;
     ~HTTPMethod() = default;
     explicit HTTPMethod(const std::string &url): url(url) {}
     virtual void setupCurl(CURL *curl) const;
     virtual void cleanupCurl(CURL *curl) const;
     virtual const std::string to_string() const { return "URL: " + url + "\n"; }
+
+protected:
     std::string url;
 };
 
-#define HTTP_METHOD(NAME) struct CURLHTTPCLIENTEXPORT NAME: public HTTPMethod
+#define HTTP_METHOD(NAME) class CURLHTTPCLIENTEXPORT NAME: public HTTPMethod
 
 HTTP_METHOD(GET)
 {
+public:
     GET() = delete;
     ~GET() = default;
     explicit GET(const std::string &url): HTTPMethod(url)
@@ -31,6 +35,7 @@ HTTP_METHOD(GET)
 
 HTTP_METHOD(POST)
 {
+public:
     POST() = delete;
     ~POST()
     {
@@ -62,7 +67,6 @@ HTTP_METHOD(POST)
     {
         return HTTPMethod::to_string() + "Requestbody: " + requestBody + "\n";
     }
-    std::string requestBody;
 
 private:
     void initHeaders()
@@ -70,16 +74,17 @@ private:
         headers = curl_slist_append(headers, "Content-Type: application/json");
     }
     struct curl_slist *headers = nullptr;
+    std::string requestBody;
 };
 
 // not implemented
-//HTTP_METHOD(PUT);
-//HTTP_METHOD(HEAD);
-//HTTP_METHOD(DELETE);
-//HTTP_METHOD(PATCH);
-//HTTP_METHOD(OPTIONS);
-//HTTP_METHOD(CONNECT);
-//HTTP_METHOD(TRACE);
+// HTTP_METHOD(PUT){};
+// HTTP_METHOD(HEAD){};
+// HTTP_METHOD(DELETE){};
+// HTTP_METHOD(PATCH){};
+// HTTP_METHOD(OPTIONS){};
+// HTTP_METHOD(CONNECT){};
+// HTTP_METHOD(TRACE){};
 
 } // namespace curl
 } // namespace httpclient
