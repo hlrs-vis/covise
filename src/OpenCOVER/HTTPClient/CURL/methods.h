@@ -12,7 +12,6 @@ namespace curl {
 class CURLHTTPCLIENTEXPORT HTTPMethod {
 public:
     HTTPMethod() = delete;
-    ~HTTPMethod() = default;
     explicit HTTPMethod(const std::string &url): url(url) {}
     virtual void setupCurl(CURL *curl) const;
     virtual void cleanupCurl(CURL *curl) const;
@@ -28,7 +27,6 @@ HTTP_METHOD(GET)
 {
 public:
     GET() = delete;
-    ~GET() = default;
     explicit GET(const std::string &url): HTTPMethod(url)
     {}
 };
@@ -58,6 +56,7 @@ public:
     {
         if (this != &other)
             initHeaders();
+        requestBody = other.requestBody;
         return *this;
     }
 

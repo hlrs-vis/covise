@@ -13,6 +13,8 @@ namespace curl {
 struct CURLHTTPCLIENTEXPORT Request {
     Request() { curl_global_init(CURL_GLOBAL_DEFAULT); };
     ~Request() { curl_global_cleanup(); };
+    Request(const Request &) = delete;
+    Request &operator=(const Request &other) = delete;
 
     /**
      * @brief Performs a CURL request to the specified URL.
