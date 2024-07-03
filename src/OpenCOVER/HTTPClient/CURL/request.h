@@ -25,10 +25,10 @@ struct CURLHTTPCLIENTEXPORT Request {
      * @param response The response data received from the request (storage).
      * @return bool True if the request was successful, false otherwise.
      */
-    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response);
+    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response) const;
 
 private:
-    CURL *initCurl(const HTTPMethod &httpMethod, std::string &response);
+    CURL *initCurl(const HTTPMethod &httpMethod, std::string &response) const;
 };
 
 } // namespace curl

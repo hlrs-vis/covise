@@ -8,7 +8,7 @@ namespace opencover {
 namespace httpclient {
 namespace curl {
 
-CURL *Request::initCurl(const HTTPMethod &method, std::string &response)
+CURL *Request::initCurl(const HTTPMethod &method, std::string &response) const
 {
     auto curl = curl_easy_init();
     if (!curl)
@@ -22,7 +22,7 @@ CURL *Request::initCurl(const HTTPMethod &method, std::string &response)
     return curl;
 }
 
-bool Request::httpRequest(const HTTPMethod &method, string &response)
+bool Request::httpRequest(const HTTPMethod &method, string &response) const
 {
     auto curl = initCurl(method, response);
     if (!curl)

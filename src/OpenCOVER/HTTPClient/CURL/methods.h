@@ -15,7 +15,7 @@ public:
     explicit HTTPMethod(const std::string &url): url(url) {}
     virtual void setupCurl(CURL *curl) const;
     virtual void cleanupCurl(CURL *curl) const;
-    virtual const std::string to_string() const { return "URL: " + url + "\n"; }
+    virtual std::string to_string() const { return "URL: " + url + "\n"; }
 
 protected:
     std::string url;
@@ -62,7 +62,7 @@ public:
 
     void setupCurl(CURL * curl) const override;
     void cleanupCurl(CURL * curl) const override;
-    const std::string to_string() const override
+    std::string to_string() const override
     {
         return HTTPMethod::to_string() + "Requestbody: " + requestBody + "\n";
     }
