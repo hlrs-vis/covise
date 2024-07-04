@@ -32,6 +32,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/EditField.h>
 
 using namespace osg;
 using covise::coCoviseConfig;
@@ -307,6 +308,18 @@ bool ClipPlanePlugin::init()
         plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
         plane[i].relativeInteractor = new vrui::coRelativeInputInteraction("spacemouse");
 
+        sprintf(name, "Edit values for plane %d", i);        
+        plane[i].ClipEditField = new ui::EditField(group, "Edit"+std::to_string(i));
+        plane[i].ClipEditField->setText(name);
+        plane[i].ClipEditField->setShared(true);
+        plane[i].ClipEditField->setCallback([this, i] (std::string text){
+            double a,b,c,d;
+            sscanf(text.c_str(), "%lf %lf %lf %lf", &a, &b, &c, &d);
+            osg::Vec3d abc(a,b,c);
+            abc.normalize();
+            plane[i].set(osg::Vec4d(abc[0],abc[1],abc[2],d));
+        });
+
         osg::Matrix m;
         // default size for all interactors
         float interSize = -1.f;
@@ -498,6 +511,12 @@ void ClipPlanePlugin::preFrame()
                 plane[i].pickInteractor->enableIntersection();
             }
         }
+
+        //update textedits
+        osg::Vec4d eq = plane[i].get();
+        char buf[100];
+        sprintf(buf,"%f %f %f %f", eq[0], eq[1], eq[2], eq[3]);
+        plane[i].ClipEditField->setValue(std::string(buf));
     }
 }
 
@@ -720,6 +739,15 @@ void ClipPlanePlugin::Plane::set(const osg::Vec4d &eq)
         clip->setClipPlane(eq);
         valid = true;
     }
+}
+
+osg::Vec4d ClipPlanePlugin::Plane::get(){
+    if(clip)
+    {
+        return clip->getClipPlane();
+    }
+
+    return osg::Vec4d(0, 0, 0, 0);
 }
 
 osg::ClipNode *ClipPlanePlugin::Plane::getClipNode() const
