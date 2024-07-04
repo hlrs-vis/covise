@@ -1,5 +1,5 @@
 /* This file is part of COVISE.
-
+:
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
 
@@ -43,7 +43,8 @@ OrientationIndicator::OrientationIndicator()
 
     //The Zoologists asked for this
     bool invert_X = covise::coCoviseConfig::isOn("COVER.Plugin.OrientationIndicator.InvertX", false);
-    std::cout << "OrientationIndicator::invert_X: "<< invert_X << std::endl; 
+    bool invert_Y = covise::coCoviseConfig::isOn("COVER.Plugin.OrientationIndicator.InvertY", false);
+    bool invert_Z = covise::coCoviseConfig::isOn("COVER.Plugin.OrientationIndicator.InvertZ", false);    
 
     //get the size of the arrows from config
     float cylHeight = covise::coCoviseConfig::getFloat("height", "COVER.Plugin.OrientationIndicator.Cylinder", 200.0f);
@@ -57,32 +58,23 @@ OrientationIndicator::OrientationIndicator()
     xMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1,0,0,1));
 
     //create quat for x-direction
-    osg::Quat xQuat;
-    if(!invert_X){
-        xQuat = osg::Quat( 1.5707964f,osg::Vec3f(0,1,0));
-    } else {
-        xQuat = osg::Quat(-1.5707964f,osg::Vec3f(0,1,0));
-    }
+    float radians = 1.5707964f;
+    if(invert_X) radians = -1.5707964f;
+    osg::Quat xQuat(radians ,osg::Vec3f(0,1,0));    
 
     //create cylinder and cone to form green arrow in x-direction
-    osg::Cylinder *xCylinder;    
-    if(!invert_X){
-        xCylinder = new osg::Cylinder(osg::Vec3f(cylHeight / 2.0f,0,0), cylRadius, cylHeight);
-    } else {
-        xCylinder = new osg::Cylinder(osg::Vec3f(-cylHeight / 2.0f,0,0), cylRadius, cylHeight);
-    }
+    osg::Vec3f center = osg::Vec3f(cylHeight / 2.0f,0,0);
+    if(invert_X) center = osg::Vec3f(-cylHeight / 2.0f,0,0);
+    osg::Cylinder *xCylinder = new osg::Cylinder(center, cylRadius, cylHeight);
     xCylinder->setRotation(xQuat);
     xCylinder->setName("xCylinder");
     osg::ShapeDrawable *xCylinderDrawable = new osg::ShapeDrawable(xCylinder);
     xCylinderDrawable->setName("xCylinderDrawable");
     xCylinderDrawable->getOrCreateStateSet()->setAttribute(xMaterial, osg::StateAttribute::OVERRIDE);
 
-    osg::Cone *xCone;
-    if(!invert_X) {
-        xCone = new osg::Cone(osg::Vec3(cylHeight + (coneHeight / 4.0f),0,0), coneRadius, coneHeight);
-    } else {
-        xCone = new osg::Cone(osg::Vec3(-cylHeight - (coneHeight / 4.0f),0,0), coneRadius, coneHeight);
-    }
+    center = osg::Vec3f(cylHeight + (coneHeight / 4.0f),0,0);
+    if(invert_X) center = osg::Vec3f(-cylHeight - (coneHeight / 4.0f),0,0);
+    osg::Cone *xCone = new osg::Cone(center, coneRadius, coneHeight);
     xCone->setRotation(xQuat);
     xCone->setName("xCone");
     osg::ShapeDrawable *xConeDrawable = new osg::ShapeDrawable(xCone);
@@ -90,22 +82,28 @@ OrientationIndicator::OrientationIndicator()
     xConeDrawable->getOrCreateStateSet()->setAttribute(xMaterial, osg::StateAttribute::OVERRIDE);
 
     /**   Y    **/
-    //create green material for the y-direction
+    //create green material for the y-direction    
     osg::Material *yMaterial = new osg::Material();
     yMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0,1,0,1));
 
     //create quat for y-direction
-    osg::Quat yQuat(-1.5707964f,osg::Vec3f(1,0,0));
+    radians = -1.5707964f;
+    if (invert_Y) radians = 1.5707964f;
+    osg::Quat yQuat(radians, osg::Vec3f(1,0,0));
 
     //create cylinder and cone to form green arrow in y-direction
-    osg::Cylinder *yCylinder = new osg::Cylinder(osg::Vec3f(0, cylHeight / 2.0f, 0), cylRadius, cylHeight);
+    center = osg::Vec3f(0, cylHeight / 2.0f, 0);
+    if (invert_Y) center = osg::Vec3f(0, -cylHeight / 2.0f, 0);
+    osg::Cylinder *yCylinder = new osg::Cylinder(center, cylRadius, cylHeight);
     yCylinder->setRotation(yQuat);
     yCylinder->setName("yCylinder");
     osg::ShapeDrawable *yCylinderDrawable = new osg::ShapeDrawable(yCylinder);
     yCylinderDrawable->setName("yCylinderDrawable");
     yCylinderDrawable->getOrCreateStateSet()->setAttribute(yMaterial, osg::StateAttribute::OVERRIDE);
 
-    osg::Cone *yCone = new osg::Cone(osg::Vec3(0,cylHeight + (coneHeight / 4.0f), 0), coneRadius, coneHeight);
+    center = osg::Vec3(0,cylHeight + (coneHeight / 4.0f), 0);
+    if (invert_Y) center = osg::Vec3(0, -cylHeight - (coneHeight / 4.0f), 0);
+    osg::Cone *yCone = new osg::Cone(center, coneRadius, coneHeight);
     yCone->setRotation(yQuat);
     yCone->setName("yCone");
     osg::ShapeDrawable *yConeDrawable = new osg::ShapeDrawable(yCone);
@@ -117,14 +115,24 @@ OrientationIndicator::OrientationIndicator()
     osg::Material *zMaterial = new osg::Material();
     zMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0,0,1,1));
 
+    radians = 0;
+    if(invert_Z) radians = 3.1415927;    
+    osg::Quat zQuat(radians, osg::Vec3(1,0,0));
+
     //create cylinder and cone to form blue arrow in z-direction
-    osg::Cylinder *zCylinder = new osg::Cylinder(osg::Vec3f(0, 0, cylHeight / 2.0f), cylRadius, cylHeight);
+    center = osg::Vec3f(0, 0, cylHeight / 2.0f);
+    if (invert_Z) center = osg::Vec3f(0, 0, -cylHeight / 2.0f);
+    osg::Cylinder *zCylinder = new osg::Cylinder(center, cylRadius, cylHeight);
+    zCylinder->setRotation(zQuat);
     zCylinder->setName("zCylinder");
     osg::ShapeDrawable *zCylinderDrawable = new osg::ShapeDrawable(zCylinder);
     zCylinderDrawable->setName("zCylinderDrawable");
     zCylinderDrawable->getOrCreateStateSet()->setAttribute(zMaterial, osg::StateAttribute::OVERRIDE);
 
-    osg::Cone *zCone = new osg::Cone(osg::Vec3(0, 0, cylHeight + (coneHeight / 4.0f)), coneRadius, coneHeight);
+    center = osg::Vec3(0, 0, cylHeight + (coneHeight / 4.0f));
+    if (invert_Z) center = osg::Vec3(0, 0, -cylHeight - (coneHeight / 4.0f));
+    osg::Cone *zCone = new osg::Cone(center, coneRadius, coneHeight);
+    zCone->setRotation(zQuat);
     zCone->setName("zCone");
     osg::ShapeDrawable *zConeDrawable = new osg::ShapeDrawable(zCone);
     zConeDrawable->setName("zConeDrawable");
