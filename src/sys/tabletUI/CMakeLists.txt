@@ -3,6 +3,9 @@
 # CMakeLists.txt for sys tabletUI
 #
 # @author Blasius Czink
+if(NOT COVISE_USE_QT)
+    return()
+endif()
 
 SET(MAPEDITOR_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../mapeditor")
 

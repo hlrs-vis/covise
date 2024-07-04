@@ -50,8 +50,6 @@ class CoviseSG;
 class CoviseRenderObject;
 namespace opencover
 {
-class RenderObject;
-class coTUIUITab;
 class coVRShader;
 class coInteractor;
 class coVRPlugin;

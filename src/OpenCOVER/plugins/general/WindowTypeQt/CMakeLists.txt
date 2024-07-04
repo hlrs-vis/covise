@@ -1,3 +1,6 @@
+if(NOT COVISE_USE_QT)
+    return()
+endif()
 if (COVISE_USE_QT5 AND Qt5OpenGL_VERSION VERSION_LESS 5.4.0)
     return()
 endif()
