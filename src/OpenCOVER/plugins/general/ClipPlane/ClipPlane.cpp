@@ -33,6 +33,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
+#include <cover/ui/View.h>
 
 using namespace osg;
 using covise::coCoviseConfig;
@@ -312,6 +313,7 @@ bool ClipPlanePlugin::init()
         plane[i].ClipEditField = new ui::EditField(group, "Edit"+std::to_string(i));
         plane[i].ClipEditField->setText(name);
         plane[i].ClipEditField->setShared(true);
+        plane[i].ClipEditField->setVisible(false, ui::View::VR);
         plane[i].ClipEditField->setCallback([this, i] (std::string text){
             double a,b,c,d;
             sscanf(text.c_str(), "%lf %lf %lf %lf", &a, &b, &c, &d);
