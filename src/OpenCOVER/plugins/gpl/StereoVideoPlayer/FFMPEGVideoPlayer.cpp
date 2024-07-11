@@ -151,7 +151,11 @@ bool FFMPEGVideoPlayer::openSDL(VideoStream *vStream)
     movieSpec.format = AUDIO_S16SYS;
 
     movieSpec.silence = 0;
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+    movieSpec.channels = vStream->getAudioCodecContext()->ch_layout.nb_channels;
+#else
     movieSpec.channels = vStream->getAudioCodecContext()->channels;
+#endif
     movieSpec.samples = SDL_AUDIO_BUFFER_SIZE; /* Good values between 512 and 8192 */
     movieSpec.callback = vStream->audio_callback;
     movieSpec.userdata = vStream;
@@ -281,7 +285,11 @@ int VideoStream::audioDecodeFrame(VideoStream *vStream, uint8_t *buffer, int siz
 
             double pts1 = vStream->audioClock; /* PTS for packets with multiple frames */
             *pts = pts1;
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+            int n = 2 * vStream->audioCodecCtx->ch_layout.nb_channels;
+#else
             int n = 2 * vStream->audioCodecCtx->channels;
+#endif
             vStream->audioClock += (double)bytesDecoded / (double)(n * vStream->audioCodecCtx->sample_rate);
 
             return bytesDecoded;
@@ -310,7 +318,11 @@ int VideoStream::syncAudio(VideoStream *vStream, uint8_t *stillBuffer, int len1)
 
     if (diff > 0.2)
     {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+        int bufferSize = diff * vStream->audioCodecCtx->ch_layout.nb_channels * vStream->audioCodecCtx->sample_rate * vStream->audioCodecCtx->bits_per_coded_sample; /* calculate still buffer size */
+#else
         int bufferSize = diff * vStream->audioCodecCtx->channels * vStream->audioCodecCtx->sample_rate * vStream->audioCodecCtx->bits_per_coded_sample; /* calculate still buffer size */
+#endif
         if (bufferSize > len1)
             bufferSize = len1;
 
@@ -321,7 +333,11 @@ int VideoStream::syncAudio(VideoStream *vStream, uint8_t *stillBuffer, int len1)
     else if (diff < -0.1)
     {
 #ifdef WIN32
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+        int bufferSize = -diff * vStream->audioCodecCtx->ch_layout.nb_channels * vStream->audioCodecCtx->sample_rate * vStream->audioCodecCtx->bits_per_coded_sample;
+#else
         int bufferSize = -diff * vStream->audioCodecCtx->channels * vStream->audioCodecCtx->sample_rate * vStream->audioCodecCtx->bits_per_coded_sample;
+#endif
         len -= bufferSize;
         if (len < 0)
             len = 0;
@@ -342,7 +358,11 @@ void VideoStream::getAudioClock(VideoStream *vStream)
     double diff = vStream->audioClock - refClock;
     if (fabs(diff) < 1E-5 * vStream->audioClock)
     {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 0, 0)
+        vStream->audioClock = oldClock + rate * (vStream->audioCodecCtx->ch_layout.nb_channels * 2 * vStream->audioCodecCtx->bits_per_coded_sample);
+#else
         vStream->audioClock = oldClock + rate * (vStream->audioCodecCtx->channels * 2 * vStream->audioCodecCtx->bits_per_coded_sample);
+#endif
     }
     else
         refClock = vStream->audioClock;
