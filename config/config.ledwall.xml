@@ -64,7 +64,7 @@
      <Input>
         <MouseNav value="true" />
         <Device>
-		<DTrackCave driver="dtrack" port="5000" serverHost="192.168.0.2">
+		<DTrackCave driver="dtrack" port="5005" serverHost="192.168.0.2">
               <!--Offset x="0" y="-1500" z="-1030" /-->
               <!--Offset x="0" y="-1500" z="-967" /-->
               <Offset x="0" y="-2000" z="-1323" />
@@ -243,7 +243,7 @@
    <TabletUI host="localhost" />
 
     <UI>
-        <VRUI toolbar="false" />
+        <VRUI toolbar="true" />
     </UI>
     </COVER>
 
