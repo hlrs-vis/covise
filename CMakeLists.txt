@@ -185,7 +185,7 @@ if(APPLE)
 elseif( WIN32)
     OPTION(COVISE_USE_QT5 "Use Qt 5" OFF) # we use qt6 on windows
 else()
-    OPTION(COVISE_USE_QT5 "Use Qt 5" ON)
+    OPTION(COVISE_USE_QT5 "Use Qt 5" OFF)
 endif()
 
 if(DEFINED  $ENV{COVISE_USE_QT5})

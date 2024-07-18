@@ -155,6 +155,11 @@ pyqt5-dev-tools
 gdal:
 ./configure --prefix=/data/extern_libs/rhel8/gdal --with-cpp14 --with-poppler '--with-lzma' '--with-kml' 
 
+xenomai:
+git clone https://source.denx.de/Xenomai/xenomai.git
+scripts/bootstrap
+./configure --prefix=$EXTERNLIBS/xenomai -enable-dlopen-libs -enable-smp -with-core=mercury -enable-debug=symbols -enable-pshared --disable-testsuite --disable-demo
+
 spack:
 checkout to /sw/.../vis/spack
 git clone https://github.com/spack/spack.git
@@ -197,6 +202,31 @@ turbovncserver
 
 #proj
 cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/proj
+
+#OpenCascade
+mkdir build; cd build
+dnf install tcl-devel tk-devel
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/OpenCascade
+
+#OpenSceneGraph
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/openscenegraph -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/OpenCascade
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/openscenegraph -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/fbx
+
+#cla3d (from hlrs-vis)
+./configure --prefix=/data/extern_libs/rhel9/cal3d
+#libcitygml
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/libcitygml -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/openscenegraph
+
+#osgCal (from hlrs-vis)
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/osgcal -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/cal3d
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/osgcal -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/openscenegraph
+
+#osgEphemeris (from hlrs-vis)
+cmake ../osgEphemeris -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/osgEphemeris -DOSGInstallLocation=${EXTERNLIBS}/openscenegraph
+
+#osgearth
+cmake .. -DCMAKE_INSTALL_PREFIX=${EXTERNLIBS}/osgEarth -DCMAKE_PREFIX_PATH=${EXTERNLIBS}/openscenegraph
+
 
 
 #OpenCV4
