@@ -179,8 +179,13 @@ elif [ "$basename" = "_env_for_covise" ]; then
     exit 0
 elif [ "$basename" = "_debug_for_covise" ]; then
     if [ -z "$DEBUGGER" ]; then
+        if [ "$(uname)" != "Darwin" ]; then
+            DEBUGGER=gdb
+        fi
+    fi
+    if [ -z "$DEBUGGER" ]; then
         case "$ARCHSUFFIX" in
-            lion|lionopt|libc++|libc++opt|macos|macosopt)
+            lion|lionopt|libc++|libc++opt|macos|macosopt|spack*)
                 DEBUGGER=/Applications/Xcode.app/Contents/Developer/usr/bin/lldb
                 if [ ! -x "$DEBUGGER" ]; then
                     DEBUGGER=lldb
