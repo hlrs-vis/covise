@@ -297,7 +297,10 @@ inline void read_variable(
 }
 
 // Convert gridData to AMRfield data structure
-inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBoundsf &reg_roi)
+inline AMRField toAMRField(
+  const grid_t &grid, const variable_t &var, BlockBoundsf &reg_roi,
+  int usr_max_level, bool usr_set_log
+  )
 {
   AMRField result;
 
@@ -334,12 +337,18 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
       max_ref = grid.refine_level[i];
     }
   }
-  //std::cout << "common ref " << common_ref << "\n";
-  //std::cout << "max ref " << max_ref << "\n";
+  
+  std::cout << "Common refinement level: " << common_ref << "\n";
+  std::cout << "Maximum refinement level: " << max_ref << "\n";
+  // If user limit is lower than common refinement level
+  // Adjust the common ref level
+  if (common_ref > usr_max_level) {
+    std::cout << "Common level was " << common_ref << " now set to " << usr_max_level << "\n";
+    common_ref = usr_max_level;
+  }
 
   // Find parent blocks at common refinement level
   for (size_t ri = 0; ri < max_ref - common_ref; ++ri) {
-    //std::cout << "l1" << " " << ri << " " << common_ref << " " << max_ref << "\n";
     for (size_t i = 0; i < var.global_num_blocks; ++i) {
       if (!in_reg[i]) continue;
       if (grid.refine_level[i] > common_ref) {
@@ -349,11 +358,17 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
     }
   }
 
+  // Enforce maximum ref level to not be higher than user limit
+  if (max_ref > usr_max_level) {
+    std::cout << "Max level was " << max_ref << " now set to " << usr_max_level << "\n";
+    max_ref = usr_max_level;
+  }
+
   // Replacement parent blocks by children
   for (size_t ri = 0; ri < max_ref - common_ref; ++ri) {
-    //std::cout << "l2" << " " << ri << " " << common_ref << " " << max_ref << "\n";
     for (size_t i = 0; i < var.global_num_blocks; ++i) {
       if (!in_reg[i]) continue;
+      if (grid.refine_level[i] >= max_ref) continue;
       if (grid.gid[i].children[0] != -1) {
         in_reg[i] = false;
         for (size_t ci = 0; ci < 8; ++ci){
@@ -410,6 +425,7 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
       len[2] = grid.bnd_box[i].max.z - grid.bnd_box[i].min.z;
     }
   }
+  std::cout << "Max ref level is " << max_level << "\n";
 
   // --- cellWidth
   // Loop over all refinement levels
@@ -437,9 +453,6 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
 
   std::cout << vox[0] << ' ' << vox[1] << ' ' << vox[2] << '\n';
 
-  // std::cout << grid.bnd_box[0].min.x << ' ' << grid.bnd_box[0].min.y << ' '
-  // << grid.bnd_box[0].min.z << '\n'; std::cout << grid.bnd_box[0].max.x << ' '
-  // << grid.bnd_box[0].max.y << ' ' << grid.bnd_box[0].max.z << '\n';
   // Set initial limits of dataset
   float max_scalar = -FLT_MAX;
   float min_scalar = FLT_MAX;
@@ -482,23 +495,6 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
           lower[0] + (int)var.nxb * cellsize - 1,
           lower[1] + (int)var.nyb * cellsize - 1,
           lower[2] + (int)var.nzb * cellsize - 1}};
-
-//      int lower[3] = {
-//          static_cast<int>(round((grid.bnd_box[i].min.x - grid.bnd_box[0].min.x)
-//              / len_total[0] * vox[0])),
-//          static_cast<int>(round((grid.bnd_box[i].min.y - grid.bnd_box[0].min.y)
-//              / len_total[1] * vox[1])),
-//          static_cast<int>(round((grid.bnd_box[i].min.z - grid.bnd_box[0].min.z)
-//              / len_total[2] * vox[2]))};
-//
-//      BlockBounds bounds = {{lower[0] / cellsize,
-//          lower[1] / cellsize,
-//          lower[2] / cellsize,
-//          int(lower[0] / cellsize + var.nxb - 1),
-//          int(lower[1] / cellsize + var.nyb - 1),
-//          int(lower[2] / cellsize + var.nzb - 1)}};
-
-
       
       // Initialise data object 
       BlockData data;
@@ -510,21 +506,23 @@ inline AMRField toAMRField(const grid_t &grid, const variable_t &var, BlockBound
       for (int z = 0; z < var.nzb; ++z) {
         for (int y = 0; y < var.nyb; ++y) {
           for (int x = 0; x < var.nxb; ++x) {
-	        // Determine index of cell in 1D dataset
-	        // i * nxb * nyb * nzb -- start of dataset
-	        // + x                 -- offset for x
-	        // + y * nxb           -- offset for y
-	        // + z * nyb * nyb     -- offset for z
+            // Determine index of cell in 1D dataset
+            // i * nxb * nyb * nzb -- start of dataset
+            // + x                 -- offset for x
+            // + y * nxb           -- offset for y
+            // + z * nyb * nyb     -- offset for z
             size_t index = i * var.nxb * var.nyb * var.nzb
                 + z * var.nyb * var.nxb + y * var.nxb + x;
-	        // Get cell data
+	          // Get cell data
             double val = var.data[index];
-	        // If data is not 0.0 take log10
-	        // Should probably connected to switch
-            val = val == 0.0 ? 0.0 : log10(val);
-	        // Initialise valf = val
+	          // If data is not 0.0 take log10
+	          // Should probably connected to switch
+            if (usr_set_log) {
+              val = val == 0.0 ? 0.0 : log10(val);
+            }
+	          // Initialise valf = val
             float valf(val);
-	        // Check for minimum and maximum of range
+	          // Check for minimum and maximum of range
             min_scalar = fminf(min_scalar, valf);
             max_scalar = fmaxf(max_scalar, valf);
             // Store data as float in data
@@ -585,7 +583,7 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldNames[index] << "\"\n";
       read_variable(currentField, file, fieldNames[index].c_str());
 
-      return toAMRField(grid, currentField, cutting_reg);
+      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -617,7 +615,7 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldName << "\"\n";
       read_variable(currentField, file, fieldName.c_str());
 
-      return toAMRField(grid, currentField, cutting_reg);
+      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -645,6 +643,13 @@ struct FlashReader
     std::cout << "min\t" << cutting_reg[1] << "\t\t" << cutting_reg[3] << "\t\t" << cutting_reg[5] << "\n";
   }
 
+  void setMaxLevel(int rlvl_max) {
+    usr_max_level = rlvl_max;
+  }
+  void setLog(bool log) {
+    usr_set_log = log;
+  }
+
   // HDF5 file
   H5::H5File file;
   // Derived field names
@@ -658,4 +663,6 @@ struct FlashReader
   BlockBoundsf cutting_reg = {
     {-FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX}
   };
+  int usr_max_level = 1000;
+  bool usr_set_log = false;
 };

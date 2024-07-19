@@ -21,9 +21,14 @@
 #include <cover/coVRLabel.h>
 #include "VariantUI.h"
 #include "coVRBoxOfInterest.h"
+#include <set>
+#ifdef USE_QT
 #include <QtCore>
 #include <qdom.h>
-#include <set>
+#else
+class QDomDocument;
+class QDomElement;
+#endif
 
 namespace opencover {
 namespace ui {
@@ -81,8 +86,10 @@ private:
     osg::Matrix origin_matrix;
     coVRLabel *VarLabel;
 
+#ifdef USE_QT
     QDomDocument *xmlfile;
     QDomElement *qDE_Variant;
+#endif
 
     std::set<osg::Node *> attachedNodesList;
 

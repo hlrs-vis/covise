@@ -3,6 +3,9 @@
 # CMakeLists.txt for kernel - vrbserver
 #
 # @author Dennis Grieger
+if(NOT COVISE_USE_QT)
+    return()
+endif()
 
 USING(BOOST)
 

@@ -1,4 +1,7 @@
 #OpenCOVER plugins general DEMOA
+if(NOT COVISE_USE_QT)
+    return()
+endif()
 
 ADD_DEFINITIONS()
 

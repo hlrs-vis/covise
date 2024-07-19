@@ -38,11 +38,6 @@ SET(COVER_HEADERS
   coShutDownHandler.h
   coTabletCovConfig.h
   coTranslator.h
-  coTUIFileBrowser/AGData.h
-  coTUIFileBrowser/IData.h
-  coTUIFileBrowser/IRemoteData.h
-  coTUIFileBrowser/LocalData.h
-  coTUIFileBrowser/VRBData.h
   coVRAnimationManager.h
   coVrbMenu.h
   coVRCollaboration.h
@@ -112,10 +107,6 @@ SET(COVER_SOURCES
   coTabletCovConfig.cpp
   coTabletUI.cpp
   coTranslator.cpp
-  coTUIFileBrowser/AGData.cpp
-  coTUIFileBrowser/IData.cpp
-  coTUIFileBrowser/LocalData.cpp
-  coTUIFileBrowser/VRBData.cpp
   coTUIListener.cpp
   coTUISGBrowserTab.cpp
   coVRAnimationManager.cpp
@@ -256,6 +247,21 @@ SET(DEVICE_HEADERS
    input/deviceDiscovery.h
 )
 
+SET(FB_HEADERS
+  coTUIFileBrowser/AGData.h
+  coTUIFileBrowser/IData.h
+  coTUIFileBrowser/IRemoteData.h
+  coTUIFileBrowser/LocalData.h
+  coTUIFileBrowser/VRBData.h
+  )
+
+set(FB_SOURCES
+  coTUIFileBrowser/AGData.cpp
+  coTUIFileBrowser/IData.cpp
+  coTUIFileBrowser/LocalData.cpp
+  coTUIFileBrowser/VRBData.cpp
+)
+
 IF(HAVE_NORM) # or NORM_FOUND ... TODO
     LIST(APPEND COVER_SOURCES rel_mcast.cpp)
   LIST(APPEND COVER_HEADERS rel_mcast.h)
@@ -266,6 +272,7 @@ SET(COVER_MOCS
   coVrbMenu.h
 )
 
+if(COVISE_USE_QT)
 SET(TMP_COVER_MOCS )
 FOREACH(tmp_src ${COVER_MOCS})
    LIST(APPEND TMP_COVER_MOCS "${COVERDIR}/cover/${tmp_src}")
@@ -273,9 +280,15 @@ ENDFOREACH(tmp_src)
 SET(COVER_MOCS ${TMP_COVER_MOCS})
 
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
+endif()
 
 SET(ALL_HEADERS ${COVER_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS})
 SET(ALL_SOURCES ${COVER_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES})
+
+if(COVISE_USE_QT)
+    SET(ALL_HEADERS ${ALL_HEADERS} ${FB_HEADERS})
+    SET(ALL_SOURCES ${ALL_SOURCES} ${FB_SOURCES})
+endif()
 
 ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
 target_include_directories(${COVERKERNEL_TARGET} PUBLIC ${PTHREAD_INCLUDE_DIR})
@@ -314,7 +327,7 @@ ENDIF(WIN32)
 
 COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coQtUtil coMessages coOpenConfig
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coMessages coOpenConfig
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 target_include_directories(${COVERKERNEL_TARGET} PRIVATE ${EXTRA_INCS})
@@ -323,4 +336,7 @@ COVISE_INSTALL_HEADERS(cover ${COVER_HEADERS} ${COVER_MOCS})
 COVISE_INSTALL_HEADERS(cover/ui ${UI_HEADERS})
 COVISE_INSTALL_HEADERS(cover/input ${DEVICE_HEADERS})
 
-qt_use_modules(${COVERKERNEL_TARGET} Core Network)
+if(COVISE_USE_QT)
+    TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coQtUtil)
+    qt_use_modules(${COVERKERNEL_TARGET} Core Network)
+endif()

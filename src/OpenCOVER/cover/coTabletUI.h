@@ -26,6 +26,7 @@
 #include <OpenThreads/Mutex>
 #include <queue>
 #include <map>
+#include <list>
 #include <string>
 
 #ifndef _M_CEE //no future in Managed OpenCOVER
@@ -41,9 +42,45 @@
 #include <tui/coAbstractTabletUI.h>
 #include "coTUIListener.h"
 
+#ifdef USE_QT
 #include <QObject>
 #include <QMetaType>
 Q_DECLARE_METATYPE(std::string)
+#define QT(x) x
+#else
+#define Q_OBJECT
+#define Q_PROPERTY(x)
+#define QT(x)
+#define slots
+
+namespace Qt
+{
+enum GlobalColor
+{
+    color0,
+    color1,
+    black,
+    white,
+    darkGray,
+    gray,
+    lightGray,
+    red,
+    green,
+    blue,
+    cyan,
+    magenta,
+    yellow,
+    darkRed,
+    darkGreen,
+    darkBlue,
+    darkCyan,
+    darkMagenta,
+    darkYellow,
+    transparent
+};
+}
+#endif
+#define COMMA ,
 
 #define THREAD_NOTHING_TO_DO 0
 
@@ -77,7 +114,7 @@ class IRemoteData;
  * Tablet PC Userinterface Mamager.
  * This class provides a connection to a Tablet PC and handles all coTUIElements.
  */
-class COVEREXPORT coTabletUI : public QObject, public covise::coAbstractTabletUI
+class COVEREXPORT coTabletUI: QT(public QObject COMMA) public covise::coAbstractTabletUI
 {
     Q_OBJECT
 
@@ -143,9 +180,8 @@ protected:
 /**
  * Base class for Tablet PC UI Elements.
  */
-class COVEREXPORT coTUIElement : public QObject, public covise::coAbstractTUIElement
+class COVEREXPORT coTUIElement: QT(public QObject COMMA) public covise::coAbstractTUIElement
 {
-
     Q_OBJECT
 
     Q_PROPERTY(int id READ getID)
@@ -153,8 +189,10 @@ class COVEREXPORT coTUIElement : public QObject, public covise::coAbstractTUIEle
 
 public:
     coTUIElement(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIElement(QObject *parent, const std::string &, int pID);
     coTUIElement(QObject *parent, const std::string &, int pID, int type);
+#endif
     virtual ~coTUIElement();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     virtual void resend(bool create) override;
@@ -163,8 +201,8 @@ public:
     void createSimple(int type);
     coTabletUI *tui() const;
 
-public slots:
-    void setVal(const std::string &value);
+public
+    QT(slots): void setVal(const std::string &value);
     void setVal(bool value);
     void setVal(int value);
     void setVal(float value);
@@ -217,7 +255,9 @@ private:
 public:
     coTUILabel(const std::string &, int pID = 1);
     coTUILabel(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUILabel(QObject *, const std::string &, int pID = 1);
+#endif
     virtual ~coTUILabel();
     virtual void resend(bool create) override;
 
@@ -235,14 +275,18 @@ private:
 public:
     coTUIBitmapButton(const std::string &, int pID = 1);
     coTUIBitmapButton(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIBitmapButton(QObject *, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIBitmapButton();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
 };
@@ -258,14 +302,18 @@ private:
 public:
     coTUIButton(const std::string &, int pID = 1);
     coTUIButton(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIButton(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIButton();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
 };
@@ -417,7 +465,9 @@ class COVEREXPORT coTUIColorTriangle : public coTUIElement
 private:
 public:
     coTUIColorTriangle(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIColorTriangle(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIColorTriangle();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -452,11 +502,13 @@ public slots:
     {
         coTUIElement::setColor(c);
     }
-//virtual void switchLocation(LocationType type);
+    //virtual void switchLocation(LocationType type);
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     float red;
@@ -475,7 +527,9 @@ class COVEREXPORT coTUIColorButton : public coTUIElement
 private:
 public:
     coTUIColorButton(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIColorButton(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIColorButton();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -518,11 +572,13 @@ public slots:
     {
         coTUIElement::setColor(c);
     }
-//virtual void switchLocation(LocationType type);
+    //virtual void switchLocation(LocationType type);
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     float red;
@@ -531,6 +587,7 @@ protected:
     float alpha;
 };
 
+#ifdef USE_QT
 class COVEREXPORT coTUIColorTab : public coTUIElement
 {
     Q_OBJECT
@@ -596,6 +653,7 @@ protected:
     float blue;
     float alpha;
 };
+#endif
 
 class COVEREXPORT coTUIFunctionEditorTab : public coTUIElement
 {
@@ -677,21 +735,26 @@ private:
 public:
     coTUITab(const std::string &, int pID = 1);
     coTUITab(coTabletUI *tui, const std::string &, int pID);
+#ifdef USE_QT
     coTUITab(QObject *parent, const std::string &, int pID);
+#endif
     virtual ~coTUITab();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     void allowRelayout(bool rl);
     void resend(bool create) override;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     bool m_allowRelayout = false;
 };
 
+#ifdef USE_QT
 /**
  * a dynamic UI tab.
  */
@@ -722,6 +785,7 @@ private:
     QString filename;
     QString uiDescription;
 };
+#endif
 
 /**
  * a tab folder.
@@ -734,14 +798,18 @@ private:
 public:
     coTUITabFolder(const std::string &, int pID = 1);
     coTUITabFolder(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUITabFolder(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUITabFolder();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
 };
@@ -1032,7 +1100,9 @@ public:
     };
 
     coTUISplitter(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUISplitter(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUISplitter();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1054,10 +1124,12 @@ public slots:
         return this->orientation;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     int shape;
@@ -1100,7 +1172,9 @@ public:
 
     coTUIFrame(const std::string &, int pID = 1);
     coTUIFrame(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIFrame(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIFrame();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1118,10 +1192,12 @@ public slots:
         return this->style;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     int style;
@@ -1140,16 +1216,20 @@ private:
 public:
     coTUIGroupBox(const std::string &, int pID = 1);
     coTUIGroupBox(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIGroupBox(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIGroupBox();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 public slots:
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 };
 
 /**
@@ -1165,7 +1245,9 @@ private:
 public:
     coTUIToggleButton(const std::string &, int pID = 1, bool state = false);
     coTUIToggleButton(coTabletUI *tui, const std::string &, int pID = 1, bool state = false);
+#ifdef USE_QT
     coTUIToggleButton(QObject *parent, const std::string &, int pID = 1, bool state = false);
+#endif
     virtual ~coTUIToggleButton();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1174,10 +1256,12 @@ public slots:
     virtual void setState(bool s);
     virtual bool getState() const;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     bool state;
@@ -1195,7 +1279,9 @@ class COVEREXPORT coTUIToggleBitmapButton : public coTUIElement
 private:
 public:
     coTUIToggleBitmapButton(const std::string &, const std::string &, int pID = 1, bool state = false);
+#ifdef USE_QT
     coTUIToggleBitmapButton(QObject *parent, const std::string &, const std::string &, int pID = 1, bool state = false);
+#endif
     virtual ~coTUIToggleBitmapButton();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1204,10 +1290,12 @@ public slots:
     virtual void setState(bool s);
     virtual bool getState() const;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     bool state;
@@ -1225,7 +1313,9 @@ class COVEREXPORT coTUIMessageBox : public coTUIElement
 private:
 public:
     coTUIMessageBox(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIMessageBox(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIMessageBox();
 
 protected:
@@ -1244,7 +1334,9 @@ class COVEREXPORT coTUIProgressBar : public coTUIElement
 private:
 public:
     coTUIProgressBar(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIProgressBar(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIProgressBar();
     virtual void resend(bool create) override;
 
@@ -1288,7 +1380,9 @@ public:
 
     coTUIFloatSlider(const std::string &, int pID = 1, bool state = true);
     coTUIFloatSlider(coTabletUI *tui, const std::string &, int pID = 1, bool state = true);
+#ifdef USE_QT
     coTUIFloatSlider(QObject *parent, const std::string &, int pID = 1, bool state = true);
+#endif
     virtual ~coTUIFloatSlider();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1326,10 +1420,12 @@ public slots:
     {
         return this->logarithmic;
     }
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     float actValue;
@@ -1362,7 +1458,9 @@ public:
 
     coTUISlider(const std::string &, int pID = 1, bool state = true);
     coTUISlider(coTabletUI *tui, const std::string &, int pID = 1, bool state = true);
+#ifdef USE_QT
     coTUISlider(QObject *parent, const std::string &, int pID = 1, bool state = true);
+#endif
     virtual ~coTUISlider();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1396,10 +1494,12 @@ public slots:
         return this->maxValue;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
     void tabletPressEvent();
     void tabletReleaseEvent();
+#endif
 
 protected:
     int actValue;
@@ -1424,7 +1524,9 @@ class COVEREXPORT coTUISpinEditfield : public coTUIElement
 private:
 public:
     coTUISpinEditfield(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUISpinEditfield(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUISpinEditfield();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1452,8 +1554,10 @@ public slots:
         return this->maxValue;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     int actValue;
@@ -1477,7 +1581,9 @@ class COVEREXPORT coTUITextSpinEditField : public coTUIElement
 private:
 public:
     coTUITextSpinEditField(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUITextSpinEditField(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUITextSpinEditField();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1504,8 +1610,10 @@ public slots:
         return this->maxValue;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     std::string text;
@@ -1528,7 +1636,9 @@ private:
 public:
     coTUIEditField(const std::string &, int pID = 1, const std::string &def = "");
     coTUIEditField(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIEditField(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIEditField();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1545,8 +1655,10 @@ public slots:
         return this->immediate;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     std::string text;
@@ -1566,7 +1678,9 @@ private:
 public:
     coTUIEditTextField(const std::string &, int pID = 1, const std::string &def = "");
     coTUIEditTextField(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIEditTextField(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIEditTextField();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1580,8 +1694,10 @@ public slots:
         return this->immediate;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     std::string text;
@@ -1603,7 +1719,9 @@ private:
 public:
     coTUIEditIntField(const std::string &, int pID = 1, int def = 0);
     coTUIEditIntField(coTabletUI *tui, const std::string &, int pID = 1, int def = 0);
+#ifdef USE_QT
     coTUIEditIntField(QObject *parent, const std::string &, int pID = 1, int def = 0);
+#endif
     virtual ~coTUIEditIntField();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     virtual void resend(bool create) override;
@@ -1631,8 +1749,10 @@ public slots:
         return this->max;
     }
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     int value;
@@ -1654,7 +1774,9 @@ private:
 public:
     coTUIEditFloatField(const std::string &, int pID = 1, float def = 0);
     coTUIEditFloatField(coTabletUI *tui, const std::string &, int pID = 1, float def = 0);
+#ifdef USE_QT
     coTUIEditFloatField(QObject *parent, const std::string &, int pID = 1, float def = 0);
+#endif
     virtual ~coTUIEditFloatField();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1670,8 +1792,10 @@ public slots:
     {
         return this->immediate;
     }
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     float value;
@@ -1691,7 +1815,9 @@ private:
 public:
     coTUIComboBox(const std::string &, int pID = 1);
     coTUIComboBox(coTabletUI *tui, const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIComboBox(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIComboBox();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1706,8 +1832,10 @@ public slots:
     virtual const std::string &getSelectedText() const;
     virtual int getNumEntries();
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     std::string text;
@@ -1726,7 +1854,9 @@ class COVEREXPORT coTUIListBox : public coTUIElement
 private:
 public:
     coTUIListBox(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIListBox(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIListBox();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
@@ -1739,8 +1869,10 @@ public slots:
     virtual void setSelectedText(const std::string &t);
     virtual const std::string &getSelectedText() const;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 protected:
     std::string text;
@@ -1818,13 +1950,17 @@ class COVEREXPORT coTUIPopUp : public coTUIElement
 private:
 public:
     coTUIPopUp(const std::string &, int pID = 1);
+#ifdef USE_QT
     coTUIPopUp(QObject *parent, const std::string &, int pID = 1);
+#endif
     virtual ~coTUIPopUp();
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 
 public slots:
     virtual void setText(const std::string &t);
@@ -1851,14 +1987,18 @@ class COVEREXPORT coTUIWebview : public coTUIElement
 public:
 	coTUIWebview(const std::string&, int pID = 1);
     coTUIWebview(coTabletUI* tui, const std::string&, int pID = 1);
+#ifdef USE_QT
     coTUIWebview(QObject* parent, const std::string&, int pID = 1);
-	virtual ~coTUIWebview();
-	virtual void parseMessage(covise::TokenBuffer& tb) override;
+#endif
+    virtual ~coTUIWebview();
+    virtual void parseMessage(covise::TokenBuffer &tb) override;
     void setURL(const std::string& url);
     void doSomething();
 
+#ifdef USE_QT
 signals:
     void tabletEvent();
+#endif
 };
 }
 #endif

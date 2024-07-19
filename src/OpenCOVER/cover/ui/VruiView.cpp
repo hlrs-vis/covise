@@ -807,6 +807,11 @@ VruiViewElement::VruiViewElement(Element *elem)
 
 VruiViewElement::~VruiViewElement()
 {
+    while (isInStack())
+    {
+        popStack();
+    }
+
     if (auto se = dynamic_cast<SpecialElement *>(element))
     {
         se->destroy(this);

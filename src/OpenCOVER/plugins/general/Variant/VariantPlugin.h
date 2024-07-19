@@ -33,9 +33,11 @@
 
 #include <osg/NodeVisitor>
 #include "Variant.h"
+#ifdef USE_QT
 #include <QtCore>
 #include <qdom.h>
 #include <QDir>
+#endif
 #include "coVRBoxOfInterest.h"
 #include <config/CoviseConfig.h>
 #include <cover/MarkerTracking.h>
@@ -132,8 +134,10 @@ private:
 
     osg::BoundingBox box;
 
+#ifdef USE_QT
     QDomDocument *xmlfile;
     QDomElement qDE_Variant;
+#endif
 
     coVRBoxOfInterest *boi;
     bool interActing;
