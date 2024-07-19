@@ -46,30 +46,26 @@ private:
 
     // Parameters:
     coFileBrowserParam *pbrVolumeFile;
-    coIntScalarParam *piSequenceBegin;
-    coIntScalarParam *piSequenceEnd;
-    coIntScalarParam *piSequenceInc;
+    coIntVectorParam *piSequence;
+    // coIntScalarParam *piSequenceBegin;
+    // coIntScalarParam *piSequenceEnd;
+    // coIntScalarParam *piSequenceInc;
 
-    // File name
-    coStringParam *file_name;
     // Field name
     coStringParam *var_names[MAX_CHANNELS];
 
     // Region selection
     coBooleanParam *pfSelectRegion;
-    coFloatParam *pfXmin;
-    coFloatParam *pfXmax;
-    coFloatParam *pfYmin;
-    coFloatParam *pfYmax;
-    coFloatParam *pfZmin;
-    coFloatParam *pfZmax;
+    coFloatVectorParam *pfRegionMin;
+    coFloatVectorParam *pfRegionMax;
+
+    // Limit refinement level
+    coIntScalarParam *pfMaxLevel;
 
     // Custom range
     // TODO
-    coBooleanParam *pfSelectRange;
-    coBooleanParam *pfSelectClipping;
-    coFloatParam *pfRangeLow;
-    coFloatParam *pfRangeHigh;
+    coIntVectorParam *pfDataOpt[MAX_CHANNELS];
+    coFloatVectorParam *pfRange[MAX_CHANNELS];
 
     // Methods:
     virtual int compute(const char *port);
