@@ -3403,11 +3403,6 @@ void ViewerOsg::setModesByName(const char *objectName)
                     {
 
                         pGeode->setNodeMask(pGeode->getNodeMask() & (~Isect::NoMirror));
-                        osg::Drawable *d = pGeode->getDrawable(0);
-                        if (d)
-                        {
-                            d->setCullCallback(new coMirrorCullCallback(numCameras, this));
-                        }
                         mirrors[numCameras].shader = NULL;
                         mirrors[numCameras].CameraID = -1;
                         char *shaderName = new char[strlen(name + 8) + 1];
@@ -3422,9 +3417,56 @@ void ViewerOsg::setModesByName(const char *objectName)
                             }
                             c++;
                         }
+                        bool reuseTexture=false;
                         if (strncmp(shaderName, "Camera", 6) == 0)
                         {
                             sscanf(shaderName, "Camera%d", &mirrors[numCameras].CameraID);
+                            for (int n = 0; n < numCameras; n++)
+                            {
+                                if (mirrors[n].CameraID == mirrors[numCameras].CameraID)
+                                {
+
+                                    osg::Drawable* d = pGeode->getDrawable(0);
+                                    if (d)
+                                    {
+                                        d->setCullCallback(new coMirrorCullCallback(n, this));
+                                    }
+                                    if (textureNumber == 0)
+                                    {
+                                        if (mirrors[n].shader)
+                                            d_currentObject->updateTexData(textureNumber + 2);
+                                        else
+                                            d_currentObject->updateTexData(textureNumber + 1);
+                                    }
+
+                                    if ((d_currentObject->texData.size() > 0) && d_currentObject->texData[textureNumber].texture != NULL)
+                                        d_currentObject->texData[textureNumber].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
+                                    if ((d_currentObject->texData.size() > 1) && d_currentObject->texData[textureNumber + 1].texture != NULL)
+                                        d_currentObject->texData[textureNumber + 1].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
+                                    d_currentObject->texData[textureNumber].texture = mirrors[n].texture1;
+                                    if (mirrors[n].shader)
+                                    {
+                                        if (mirrors[n].shader->isTransparent())
+                                            d_currentObject->transparent = true;
+                                        if (d_currentObject->texData.size() < 2)
+                                        {
+                                            fprintf(stderr, "oops not enought texture objects\n");
+                                        }
+                                        d_currentObject->texData[textureNumber + 1].texture = mirrors[n].texture2;
+                                        mirrors[n].shader->apply(pGeode, drawable);
+                                    }
+
+                                    d_currentObject->setTexEnv(false, textureNumber, 1, 4);
+                                    d_currentObject->setTexGen(false, textureNumber, 1);
+
+                                    fprintf(stderr, "textureNumber %d \n", textureNumber);
+                                    d_currentObject->texData[textureNumber].mirror = 2; // todo only mirror camera if really needed
+                                    d_currentObject->updateTexture();
+                                    reuseTexture = true;
+                                    break;
+                                }
+                            }
+
                             shaderName = c;
                             while (*c != '\0')
                             {
@@ -3436,159 +3478,165 @@ void ViewerOsg::setModesByName(const char *objectName)
                                 c++;
                             }
                         }
-                        coVRShader *shader;
-                        mirrors[numCameras].shader = shader = coVRShaderList::instance()->get(shaderName);
-                        if (shader)
+                        if (!reuseTexture)
                         {
-                            if (shader->isTransparent())
-                                d_currentObject->transparent = true;
-                            mirrors[numCameras].instance = shader->apply(pGeode, drawable);
-                        }
-                        else
-                        {
-                            if (mirrors[numCameras].CameraID < 0)
-                                cerr << "Mirror without a shader (-->flat mirror)" << shaderName << endl;
-                            else
-                                cerr << "rear view Camera " << mirrors[numCameras].CameraID << endl;
-                        }
-
-                        if (textureNumber == 0)
-                        {
+                            osg::Drawable* d = pGeode->getDrawable(0);
+                            if (d)
+                            {
+                                d->setCullCallback(new coMirrorCullCallback(numCameras, this));
+                            }
+                            coVRShader* shader;
+                            mirrors[numCameras].shader = shader = coVRShaderList::instance()->get(shaderName);
                             if (shader)
-                                d_currentObject->updateTexData(textureNumber + 2);
+                            {
+                                if (shader->isTransparent())
+                                    d_currentObject->transparent = true;
+                                mirrors[numCameras].instance = shader->apply(pGeode, drawable);
+                            }
                             else
-                                d_currentObject->updateTexData(textureNumber + 1);
-                        }
-                        int tex_width = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 512);
-                        int tex_height = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 256);
+                            {
+                                if (mirrors[numCameras].CameraID < 0)
+                                    cerr << "Mirror without a shader (-->flat mirror)" << shaderName << endl;
+                                else
+                                    cerr << "rear view Camera " << mirrors[numCameras].CameraID << endl;
+                            }
 
-                        osg::Camera::RenderTargetImplementation renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
+                            if (textureNumber == 0)
+                            {
+                                if (shader)
+                                    d_currentObject->updateTexData(textureNumber + 2);
+                                else
+                                    d_currentObject->updateTexData(textureNumber + 1);
+                            }
+                            int tex_width = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 512);
+                            int tex_height = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 256);
 
-                        std::string buf = coCoviseConfig::getEntry("COVER.Plugin.Vrml97.RTTImplementation");
-                        if (!buf.empty())
-                        {
-                            if (cover->debugLevel(2))
-                                cerr << "renderImplementation: " << buf << endl;
-                            if (strcasecmp(buf.c_str(), "fbo") == 0)
-                                renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
-                            if (strcasecmp(buf.c_str(), "pbuffer") == 0)
-                                renderImplementation = osg::Camera::PIXEL_BUFFER;
-                            if (strcasecmp(buf.c_str(), "pbuffer-rtt") == 0)
-                                renderImplementation = osg::Camera::PIXEL_BUFFER_RTT;
-                            if (strcasecmp(buf.c_str(), "fb") == 0)
-                                renderImplementation = osg::Camera::FRAME_BUFFER;
+                            osg::Camera::RenderTargetImplementation renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
+
+                            std::string buf = coCoviseConfig::getEntry("COVER.Plugin.Vrml97.RTTImplementation");
+                            if (!buf.empty())
+                            {
+                                if (cover->debugLevel(2))
+                                    cerr << "renderImplementation: " << buf << endl;
+                                if (strcasecmp(buf.c_str(), "fbo") == 0)
+                                    renderImplementation = osg::Camera::FRAME_BUFFER_OBJECT;
+                                if (strcasecmp(buf.c_str(), "pbuffer") == 0)
+                                    renderImplementation = osg::Camera::PIXEL_BUFFER;
+                                if (strcasecmp(buf.c_str(), "pbuffer-rtt") == 0)
+                                    renderImplementation = osg::Camera::PIXEL_BUFFER_RTT;
+                                if (strcasecmp(buf.c_str(), "fb") == 0)
+                                    renderImplementation = osg::Camera::FRAME_BUFFER;
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
-                            if (strcasecmp(buf.c_str(), "window") == 0)
-                                renderImplementation = osg::Camera::SEPARATE_WINDOW;
+                                if (strcasecmp(buf.c_str(), "window") == 0)
+                                    renderImplementation = osg::Camera::SEPARATE_WINDOW;
 #else
-                            if (strcasecmp(buf.c_str(), "window") == 0)
-                                renderImplementation = osg::Camera::SEPERATE_WINDOW;
+                                if (strcasecmp(buf.c_str(), "window") == 0)
+                                    renderImplementation = osg::Camera::SEPERATE_WINDOW;
 #endif
-                        }
+                            }
 
-                        osg::Texture *texture = NULL;
-                        osg::Texture *texture2 = NULL;
-                        {
-                            osg::Texture2D *texture2D = new osg::Texture2D;
-                            texture2D->setTextureSize(tex_width, tex_height);
-                            texture2D->setInternalFormat(GL_RGBA);
-                            texture2D->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
-                            texture2D->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+                            {
+                                osg::Texture2D* texture2D = new osg::Texture2D;
+                                texture2D->setTextureSize(tex_width, tex_height);
+                                texture2D->setInternalFormat(GL_RGBA);
+                                texture2D->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+                                texture2D->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
 
-                            texture = texture2D;
+                                mirrors[numCameras].texture1 = texture2D;
+                                if (shader)
+                                {
+                                    osg::Texture2D* texture2D = new osg::Texture2D;
+                                    texture2D->setTextureSize(tex_width, tex_height);
+                                    texture2D->setInternalFormat(GL_DEPTH_COMPONENT);
+                                    texture2D->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+                                    texture2D->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+                                    texture2D->setSourceType(GL_UNSIGNED_SHORT);
+
+                                    mirrors[numCameras].texture2 = texture2D;
+                                }
+                            }
+
+                            if ((d_currentObject->texData.size() > 0) && d_currentObject->texData[textureNumber].texture != NULL)
+                                d_currentObject->texData[textureNumber].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
+                            if ((d_currentObject->texData.size() > 1) && d_currentObject->texData[textureNumber + 1].texture != NULL)
+                                d_currentObject->texData[textureNumber + 1].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
+                            d_currentObject->texData[textureNumber].texture = mirrors[numCameras].texture1;
                             if (shader)
                             {
-                                osg::Texture2D *texture2D = new osg::Texture2D;
-                                texture2D->setTextureSize(tex_width, tex_height);
-                                texture2D->setInternalFormat(GL_DEPTH_COMPONENT);
-                                texture2D->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
-                                texture2D->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
-                                texture2D->setSourceType(GL_UNSIGNED_SHORT);
-
-                                texture2 = texture2D;
+                                if (d_currentObject->texData.size() < 2)
+                                {
+                                    fprintf(stderr, "oops not enought texture objects\n");
+                                }
+                                d_currentObject->texData[textureNumber + 1].texture = mirrors[numCameras].texture2;
                             }
-                        }
 
-                        if ((d_currentObject->texData.size() > 0) && d_currentObject->texData[textureNumber].texture != NULL)
-                            d_currentObject->texData[textureNumber].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
-                        if ((d_currentObject->texData.size() > 1) && d_currentObject->texData[textureNumber + 1].texture != NULL)
-                            d_currentObject->texData[textureNumber + 1].texture.get()->ref(); // make sure the old texture is not deleted because it might be reused better would probably be to keep a reference to it
-                        d_currentObject->texData[textureNumber].texture = texture;
-                        if (shader)
-                        {
-                            if (d_currentObject->texData.size() < 2)
+                            d_currentObject->setTexEnv(false, textureNumber, 1, 4);
+                            d_currentObject->setTexGen(false, textureNumber, 1);
+
+                            fprintf(stderr, "textureNumber %d \n", textureNumber);
+                            d_currentObject->texData[textureNumber].mirror = 2;
+                            d_currentObject->updateTexture();
+
+                            // then create the camera node to do the render to texture
                             {
-                                fprintf(stderr, "oops not enought texture objects\n");
-                            }
-                            d_currentObject->texData[textureNumber + 1].texture = texture2;
-                        }
+                                osg::Camera* camera;
+                                mirrors[numCameras].camera = camera = new osg::Camera;
+                                camera->setName("mirrorCamera");
+                                mirrors[numCameras].geometry = pGeode;
+                                mirrors[numCameras].isVisible = true;
 
-                        d_currentObject->setTexEnv(false, textureNumber, 1, 4);
-                        d_currentObject->setTexGen(false, textureNumber, 1);
-                        
-                                fprintf(stderr, "textureNumber %d \n",textureNumber);
-                        d_currentObject->texData[textureNumber].mirror = 2;
-                        d_currentObject->updateTexture();
-
-                        // then create the camera node to do the render to texture
-                        {
-                            osg::Camera *camera;
-                            mirrors[numCameras].camera = camera = new osg::Camera;
-							camera->setName("mirrorCamera");
-                            mirrors[numCameras].geometry = pGeode;
-                            mirrors[numCameras].isVisible = true;
-
-                            // set up the background color and clear mask.
-                            camera->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-                            camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                            camera->setCullMask(Isect::NoMirror);
+                                // set up the background color and clear mask.
+                                camera->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+                                camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                                camera->setCullMask(Isect::NoMirror);
 
 
-                            // we assume a planar mapping from min to max in x/z  plane
-                            // find out x/z min and max.
-                            const osg::BoundingBox &bb = pGeode->getBoundingBox();
-                            mirrors[numCameras].coords[0].set(bb.xMin(), bb.yMax(), bb.zMin());
-                            mirrors[numCameras].coords[1].set(bb.xMax(), bb.yMax(), bb.zMin());
-                            mirrors[numCameras].coords[2].set(bb.xMax(), bb.yMax(), bb.zMax());
-                            mirrors[numCameras].coords[3].set(bb.xMin(), bb.yMax(), bb.zMax());
-                            //von vorne
-                            // 0     1
-                            // 3     2
+                                // we assume a planar mapping from min to max in x/z  plane
+                                // find out x/z min and max.
+                                const osg::BoundingBox& bb = pGeode->getBoundingBox();
+                                mirrors[numCameras].coords[0].set(bb.xMin(), bb.yMax(), bb.zMin());
+                                mirrors[numCameras].coords[1].set(bb.xMax(), bb.yMax(), bb.zMin());
+                                mirrors[numCameras].coords[2].set(bb.xMax(), bb.yMax(), bb.zMax());
+                                mirrors[numCameras].coords[3].set(bb.xMin(), bb.yMax(), bb.zMax());
+                                //von vorne
+                                // 0     1
+                                // 3     2
 
-                            // set up projection.
-                            camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-                            camera->setComputeNearFarMode(osg::Camera::DO_NOT_COMPUTE_NEAR_FAR);
+                                // set up projection.
+                                camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+                                camera->setComputeNearFarMode(osg::Camera::DO_NOT_COMPUTE_NEAR_FAR);
 
-                            // set viewport
-                            camera->setViewport(0, 0, tex_width, tex_height);
+                                // set viewport
+                                camera->setViewport(0, 0, tex_width, tex_height);
 
-                            // set the camera to render before the main camera.
-                            camera->setRenderOrder(osg::Camera::PRE_RENDER);
+                                // set the camera to render before the main camera.
+                                camera->setRenderOrder(osg::Camera::PRE_RENDER);
 
-                            // tell the camera to use OpenGL frame buffer object where supported.
-                            camera->setRenderTargetImplementation(renderImplementation);
+                                // tell the camera to use OpenGL frame buffer object where supported.
+                                camera->setRenderTargetImplementation(renderImplementation);
 
-                            camera->attach(osg::Camera::COLOR_BUFFER, texture);
-							if(texture2)
-                                camera->attach(osg::Camera::DEPTH_BUFFER, texture2);
+                                camera->attach(osg::Camera::COLOR_BUFFER, mirrors[numCameras].texture1);
+                                if (mirrors[numCameras].texture2)
+                                    camera->attach(osg::Camera::DEPTH_BUFFER, mirrors[numCameras].texture2);
 
-                            mirrors[numCameras].statesetGroup = new osg::Group;
-							mirrors[numCameras].statesetGroup->setName("cameraStatesetGroup");
-                            osg::StateSet *dstate = mirrors[numCameras].statesetGroup->getOrCreateStateSet();
-                            dstate->setNestRenderBins(false);
-                            dstate->setMode(GL_CULL_FACE, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+                                mirrors[numCameras].statesetGroup = new osg::Group;
+                                mirrors[numCameras].statesetGroup->setName("cameraStatesetGroup");
+                                osg::StateSet* dstate = mirrors[numCameras].statesetGroup->getOrCreateStateSet();
+                                dstate->setNestRenderBins(false);
+                                dstate->setMode(GL_CULL_FACE, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
 
-                            mirrors[numCameras].statesetGroup->addChild(cover->getObjectsXform());
+                                mirrors[numCameras].statesetGroup->addChild(cover->getObjectsXform());
 
-                            // add subgraph to render
-                            camera->addChild(mirrors[numCameras].statesetGroup.get());
+                                // add subgraph to render
+                                camera->addChild(mirrors[numCameras].statesetGroup.get());
 
-                            cover->getScene()->addChild(camera);
-                            numCameras++;
-                            if (numCameras > MAX_MIRRORS)
-                            {
-                                cerr << "numMirrors = " << numCameras << " MAX_MIRRORS is " << MAX_MIRRORS << endl;
-                                exit(-1);
+                                cover->getScene()->addChild(camera);
+                                numCameras++;
+                                if (numCameras > MAX_MIRRORS)
+                                {
+                                    cerr << "numMirrors = " << numCameras << " MAX_MIRRORS is " << MAX_MIRRORS << endl;
+                                    exit(-1);
+                                }
                             }
                         }
                     }
@@ -6079,61 +6127,45 @@ void ViewerOsg::preFrame()
 		else
 		{
 			// this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
+            osg::Matrix nmv = mirrors[i].vm;
 
-			osg::Matrix nmv = mirrors[i].vm;
-			osg::Matrix npm = mirrors[i].pm;
-			mirrors[i].camera->setViewMatrix(mirrors[i].vm);
-			mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
-			// this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
-			// todo fix environment map orientation in mirror view
-			/*
-			osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
-			osg::Matrix mv = mirrors[i].camera->getViewMatrix();
-			osg::Matrix rotonly = mv;
-			rotonly(3,0)=0;
-			rotonly(3,1)=0;
-			rotonly(3,2)=0;
-			rotonly(3,3)=1;
-			osg::Matrix invRot;
+            osg::Matrix vrmlBaseMat = cover->getBaseMat();
+            Matrix transformMat = VRMLRoot->getMatrix();
+            vrmlBaseMat.preMult(transformMat);
+            nmv.postMult(viewer->vrmlBaseMat);
+            nmv = nmv.inverse(nmv);
+            osg::Matrix npm = mirrors[i].pm;
+            mirrors[i].camera->setViewMatrix(nmv);
+            mirrors[i].camera->setProjectionMatrix(npm);
 
-			invRot.invert(rotonly);
-			nmv=((mv * invRot) * cover->invEnvCorrectMat);
-			npm=(cover->envCorrectMat *rotonly * proj) ;
-			mirrors[i].camera->setViewMatrix(mirrors[i].vm);
-			mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
-			*/
-			if (mirrors[i].shader)
-			{
-				osg::Matrixf nmvf = nmv;
-				osg::Matrixf npmf = npm;
-				osg::Matrixf geoToWCf = geoToWC;
-				mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
-				mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
-				mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
-				if (mirrors[i].instance)
-				{
-					osg::Uniform *U;
-					U = mirrors[i].instance->getUniform("ViewMatrix");
-					if (U)
-					{
-						U->set(nmv);
-					}
-					U = mirrors[i].instance->getUniform("ProjectionMatrix");
-					if (U)
-					{
-						U->set(npm);
-					}
-					U = mirrors[i].instance->getUniform("ModelMatrix");
-					if (U)
-					{
-						U->set(geoToWC);
-					}
-				}
-				/*osg::Vec3 tmpv(1,1,1);
-				osg::Vec3 tmpv2;
-				tmpv2 = tmpv * ProjInMirrorCS ;
-				fprintf(stderr,"%f %f %f\n",tmpv2[0],tmpv2[1],tmpv2[2]);*/
-			}
+            if (mirrors[i].shader)
+            {
+                osg::Matrixf nmvf = nmv;
+                osg::Matrixf npmf = npm;
+                osg::Matrixf geoToWCf = geoToWC;
+                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
+                if (mirrors[i].instance)
+                {
+                    osg::Uniform* U;
+                    U = mirrors[i].instance->getUniform("ViewMatrix");
+                    if (U)
+                    {
+                        U->set(nmv);
+                    }
+                    U = mirrors[i].instance->getUniform("ProjectionMatrix");
+                    if (U)
+                    {
+                        U->set(npm);
+                    }
+                    U = mirrors[i].instance->getUniform("ModelMatrix");
+                    if (U)
+                    {
+                        U->set(geoToWC);
+                    }
+                }
+            }
 		}
 	}
 }
@@ -6150,6 +6182,74 @@ void ViewerOsg::redraw()
 
     //cerr << "ViewerOsg::redraw" << endl;
     d_scene->render(this);
+    for (int i = 0; i < numCameras; i++)
+    {
+        osg::Camera* camera = mirrors[i].camera;
+        osg::Node* currentNode;
+        osg::Matrix geoToWC, tmpMat;
+        currentNode = mirrors[i].geometry->getParent(0);
+        geoToWC.makeIdentity();
+        while (currentNode != NULL)
+        {
+            if (dynamic_cast<osg::MatrixTransform*>(currentNode))
+            {
+                tmpMat = ((osg::MatrixTransform*)currentNode)->getMatrix();
+                geoToWC.postMult(tmpMat);
+            }
+            if (currentNode->getNumParents() > 0)
+                currentNode = currentNode->getParent(0);
+            else
+                currentNode = NULL;
+        }
+        if (mirrors[i].CameraID < 0)
+        {
+
+        }
+        else
+        {
+            // this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
+
+          /*  osg::Matrix nmv = mirrors[i].vm;
+
+            osg::Matrix vrmlBaseMat = cover->getBaseMat();
+            Matrix transformMat = VRMLRoot->getMatrix();
+            vrmlBaseMat.preMult(transformMat);
+            nmv.postMult(viewer->vrmlBaseMat);
+            nmv = nmv.inverse(nmv);
+            osg::Matrix npm = mirrors[i].pm;
+            mirrors[i].camera->setViewMatrix(nmv);
+            mirrors[i].camera->setProjectionMatrix(npm);
+          
+            if (mirrors[i].shader)
+            {
+                osg::Matrixf nmvf = nmv;
+                osg::Matrixf npmf = npm;
+                osg::Matrixf geoToWCf = geoToWC;
+                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
+                if (mirrors[i].instance)
+                {
+                    osg::Uniform* U;
+                    U = mirrors[i].instance->getUniform("ViewMatrix");
+                    if (U)
+                    {
+                        U->set(nmv);
+                    }
+                    U = mirrors[i].instance->getUniform("ProjectionMatrix");
+                    if (U)
+                    {
+                        U->set(npm);
+                    }
+                    U = mirrors[i].instance->getUniform("ModelMatrix");
+                    if (U)
+                    {
+                        U->set(geoToWC);
+                    }
+                }
+            }*/
+        }
+    }
 
     //pfuTravPrintNodes(scene,"testit");
 

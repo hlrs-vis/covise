@@ -30,6 +30,7 @@
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
 #include <ennovatis/rest.h>
+#include <ennovatis/csv.h>
 
 #include <chrono>
 #include <cstddef>
@@ -38,6 +39,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <filesystem>
 #include <osg/Group>
 #include <osg/Switch>
 #include <osg/Vec3>
@@ -304,10 +306,8 @@ core::CylinderAttributes EnergyPlugin::getCylinderAttributes()
     auto configRadiusCycl = configFloat("Ennovatis", "radiusCylinder", 3.0)->value();
     auto defaultColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1], configDefaultColorVec[2],
                                   configDefaultColorVec[3]);
-    auto maxColor = osg::Vec4(configMaxColorVec[0], configMaxColorVec[1], configMaxColorVec[2],
-                              configMaxColorVec[3]);
-    auto minColor = osg::Vec4(configMinColorVec[0], configMinColorVec[1], configMinColorVec[2],
-                              configMinColorVec[3]);
+    auto maxColor = osg::Vec4(configMaxColorVec[0], configMaxColorVec[1], configMaxColorVec[2], configMaxColorVec[3]);
+    auto minColor = osg::Vec4(configMinColorVec[0], configMinColorVec[1], configMinColorVec[2], configMinColorVec[3]);
     return core::CylinderAttributes(configRadiusCycl, configDefaultHeightCycl, maxColor, minColor, defaultColor);
 }
 
@@ -320,7 +320,8 @@ void EnergyPlugin::initEnnovatisDevices()
         cylinderAttributes.position = osg::Vec3(b.getLat(), b.getLon(), b.getHeight());
         auto drawableBuilding = std::make_unique<core::PrototypeBuilding>(cylinderAttributes);
         auto infoboardPos =
-            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon() + cylinderAttributes.radius + 5, b.getHeight() + cylinderAttributes.height);
+            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon() + cylinderAttributes.radius + 5,
+                      b.getHeight() + cylinderAttributes.height);
         auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, b.getName(), "DroidSans-Bold.ttf",
                                                               cylinderAttributes.radius * 20,
                                                               cylinderAttributes.radius * 21, 2.0f, 0.1, 2);
@@ -396,17 +397,42 @@ bool EnergyPlugin::loadDB(const std::string &path)
     return true;
 }
 
-bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON)
+bool EnergyPlugin::updateChannelIDsFromCSV(const std::string &pathToCSV)
+{
+    auto csvPath = std::filesystem::path(pathToCSV);
+    if (csvPath.extension() == ".csv") {
+        std::ifstream csvFilestream(pathToCSV);
+        if (!csvFilestream.is_open()) {
+            std::cout << "File does not exist or cannot be opened: " << pathToCSV << std::endl;
+            return false;
+        }
+        ennovatis::csv_channelid_parser csvParser;
+        if (!csvParser.update_buildings_by_buildingid(csvFilestream, m_buildings))
+            return false;
+    }
+    return true;
+}
+
+bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV)
 {
     std::ifstream inputFilestream(pathToJSON);
-    ennovatis::sax_channelid_parser slp(m_buildings);
-    if (!slp.parse_filestream(inputFilestream))
+    if (!inputFilestream.is_open()) {
+        std::cout << "File does not exist or cannot be opened: " << pathToJSON << std::endl;
         return false;
+    }
+    auto jsonPath = std::filesystem::path(pathToJSON);
+    if (jsonPath.extension() == ".json") {
+        ennovatis::sax_channelid_parser slp(m_buildings);
+        if (!slp.parse_filestream(inputFilestream))
+            return false;
 
-    if constexpr (debug)
-        for (auto &log: slp.getDebugLogs())
-            std::cout << log << std::endl;
+        if (!updateChannelIDsFromCSV(pathToCSV))
+            return false;
 
+        if constexpr (debug)
+            for (auto &log: slp.getDebugLogs())
+                std::cout << log << std::endl;
+    }
     return true;
 }
 
@@ -487,6 +513,8 @@ bool EnergyPlugin::init()
 {
     auto dbPath = configString("CSV", "filename", "default")->value();
     auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
+    // csv contains only updated buildings
+    auto channelIdCSVPath = configString("Ennovatis", "csvPath", "default")->value();
 
     initRESTRequest();
 
@@ -500,10 +528,11 @@ bool EnergyPlugin::init()
     else
         std::cout << "Database not loaded" << std::endl;
 
-    if (loadChannelIDs(channelIdJSONPath))
+    if (loadChannelIDs(channelIdJSONPath, channelIdCSVPath))
         std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
     else
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
+
 
     auto noMatches = updateEnnovatisBuildings(SDlist);
 

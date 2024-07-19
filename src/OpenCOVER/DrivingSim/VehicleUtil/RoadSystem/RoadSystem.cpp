@@ -24,7 +24,7 @@
 #include <deque>
 #include <iomanip>
 
-#include <proj_api.h>
+#include <proj.h>
 
 using namespace vehicleUtil;
 
@@ -2594,18 +2594,37 @@ void RoadSystem::parseIntermapRoad(const std::string &filename, const std::strin
         return;
     }
 
-    projPJ pj_from, pj_to;
+    // projPJ pj_from, pj_to;
 
-    if (!(pj_from = pj_init_plus(projFromString.c_str())))
+    // if (!(pj_from = pj_init_plus(projFromString.c_str())))
+    // {
+    //     return;
+    //     std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection source: " << projFromString << std::endl;
+    // }
+    // if (!(pj_to = pj_init_plus(projToString.c_str())))
+    // {
+    //     std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection target: " << projToString << std::endl;
+    //     return;
+    // }
+
+    PJ *P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projFromString.c_str(),
+                                           projToString.c_str(), nullptr);
+    if (!P) 
     {
-        return;
-        std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection source: " << projFromString << std::endl;
-    }
-    if (!(pj_to = pj_init_plus(projToString.c_str())))
-    {
-        std::cerr << "RoadSystem::parseIntermapRoad(): couldn't initalize projection target: " << projToString << std::endl;
+        std::cerr << "could not initialize requested mapping"<< std::endl;
         return;
     }
+    
+    PJ *P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+    if (!P_for_GIS) {
+        std::cerr << "could not initialize normalization mapping"<< std::endl;
+        proj_destroy(P);
+        return;
+    }
+    proj_destroy(P);
+    P = P_for_GIS;
+    PJ_COORD c;
+    //c.lpzt.t = HUGE_VAL;
 
     while (!file.eof())
     {
@@ -2643,14 +2662,25 @@ void RoadSystem::parseIntermapRoad(const std::string &filename, const std::strin
          double latMin = 48.7378;
          double latMax = 48.7537;
          if(longMin<=longitude && longitude<=longMax && latMin<=latitude && latitude<=latMax) {*/
-            double x = longitude * DEG_TO_RAD;
-            double y = latitude * DEG_TO_RAD;
-            double z = altitude;
-            pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
+            // double x = longitude * DEG_TO_RAD;
+            // double y = latitude * DEG_TO_RAD;
+            // double z = altitude;
+            // pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
 
-            XVector.push_back(x /* - 1000000.0*/);
-            YVector.push_back(y /* - 6190000.0*/);
-            ZVector.push_back(z /*+10.0*/);
+            // XVector.push_back(x /* - 1000000.0*/);
+            // YVector.push_back(y /* - 6190000.0*/);
+            // ZVector.push_back(z /*+10.0*/);
+
+            c.lpzt.lam = longitude;
+            c.lpzt.phi = latitude;
+            c.lpzt.z = altitude;
+
+            PJ_COORD c_out = proj_trans(P, PJ_FWD, c);
+
+            XVector.push_back(c_out.xyz.x);
+            YVector.push_back(c_out.xyz.y);
+            ZVector.push_back(c_out.xyz.z);
+
             FeatVector.push_back(feature);
             VFOMVector.push_back(vfom);
             // }
@@ -2807,9 +2837,9 @@ void RoadSystem::parseIntermapRoad(const std::string &filename, const std::strin
             road->setLength(roadLength);
         }
     }
-
-    pj_free(pj_from);
-    pj_free(pj_to);
+    proj_destroy(P);
+    // pj_free(pj_from);
+    // pj_free(pj_to);
     //std::cout << "RoadSystem information: " << system << std::endl;
 }
 

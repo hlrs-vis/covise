@@ -418,14 +418,7 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
     for (size_t l=0; l<opencover::coVRLighting::instance()->lightList.size(); ++l) {
         auto &light = opencover::coVRLighting::instance()->lightList[l];
         if (light.on) {
-            osg::Light *osgLight = light.source->getLight();
-            osg::NodePath np;
-            np.push_back(light.root);
-            np.push_back(light.source);
-            osg::Vec4 pos = osgLight->getPosition();
-            pos = pos * osg::Matrix::inverse(modelMat);
-
-            newLights.push_back(pos);
+            newLights.push_back(light);
         }
     }
 
@@ -435,7 +428,8 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         lights.changed = true;
     } else {
         for (size_t l=0; l<newLights.size(); ++l) {
-            if (newLights[l] != lights.data[l]) {
+            if (newLights[l].source != lights.data[l].source ||
+                newLights[l].root != lights.data[l].root) {
                 lights.data = newLights;
                 lights.changed = true;
                 break;
@@ -462,7 +456,13 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
 
         for (size_t l=0; l<lights.data.size(); ++l) {
             ANARILight al;
-            osg::Vec4 pos = lights.data[l];
+            auto &light = lights.data[l];
+            osg::Light *osgLight = light.source->getLight();
+            osg::NodePath np;
+            np.push_back(light.root);
+            np.push_back(light.source);
+            osg::Vec4 pos = osgLight->getPosition();
+            pos = pos * osg::Matrix::inverse(modelMat);
             if (pos.w() == 0.f) {
                 al = anariNewLight(anari.device,"directional");
                 anariSetParameter(anari.device, al, "direction",
@@ -486,6 +486,28 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
 
         lights.changed = false;
         hdri.changed = false;
+    }
+
+    // Even if the light _configuration_ hasn't change, proactively
+    // update the light positions anyway (as this is cheap)
+    for (size_t l=0; l<lights.data.size(); ++l) {
+        ANARILight al = anari.lights[l];
+        auto &light = lights.data[l];
+        osg::Light *osgLight = light.source->getLight();
+        osg::NodePath np;
+        np.push_back(light.root);
+        np.push_back(light.source);
+        osg::Vec4 pos = osgLight->getPosition();
+        pos = pos * osg::Matrix::inverse(modelMat);
+        if (pos.w() == 0.f) {
+            anariSetParameter(anari.device, al, "direction",
+                              ANARI_FLOAT32_VEC3, pos.ptr());
+        } else {
+            anariSetParameter(anari.device, al, "position",
+                              ANARI_FLOAT32_VEC3, pos.ptr());
+        }
+
+        anariCommitParameters(anari.device, al);
     }
 }
 

@@ -24,7 +24,7 @@ FIND_PATH(V8_INCLUDE_DIR "v8.h"
   DOC "V8 - Headers"
 )
 
-SET(V8_NAMES v8 v8_base v8_base.lib)
+SET(V8_NAMES v8 v8_base v8_base.lib libv8_monolith.a)
 SET(V8_DBG_NAMES v8D v8_baseD v8_baseD.lib)
 SET(V8S_NAMES v8_snapshot v8_snapshot.lib)
 SET(V8S_DBG_NAMES v8_snapshotD v8_snapshotD.lib)

@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<GLOBAL>
+  <COVER>
+    <FileManager>
+      <!---FileType name="pts" plugin="PointCloud" />
+      <FileType name="ptsb" plugin="PointCloud" />
+      <FileType name="ptx" plugin="PointCloud" />
+      <FileType name="xyz" plugin="PointCloud" />            
+      <FileType name="c2m" plugin="PointCloud" />                
+      <FileType name="ply" plugin="PointCloud" /-->
+
+      <!--FileType name="pts" plugin="PointRayTracer" /-->
+      <!--FileType name="xyz" plugin="PointRayTracer" /-->
+      <!--FileType name="ptsb" plugin="PointRayTracer" /-->
+      <FileType name="ply" plugin="PointRayTracer" />
+      <!--FileType name="e57" plugin="PointRayTracer" /-->
+
+      <FileType name="obj" plugin="ANARI" />
+      <FileType name="pts" plugin="ANARI" />
+    </FileManager>
+
+  
+  
+    <WelcomeMessage value="Welcome to Daniel" />
+
+    <Plugin>
+
+      <ANARI>
+        <PointCloud radius="0.025" />        
+      </ANARI>
+
+      <Vrml97>
+        <TransparencyMode value="sorted_blended_alphatest" />
+        <Headlight value="ON" />
+        <Lights value="ON" />
+      </Vrml97>
+      
+      <OrientationIndicator value="off">
+        <Position x="-700.0" y="0.0" z="-400.0" />
+	      <InvertX value="true" />
+        <InvertY value="true" />
+        <InvertZ value="true" />
+        <Cylinder height="100.0" radius="7" />
+        <Cone height="20" radius="15" />
+      </OrientationIndicator>
+      
+      <PointRayTracer value="off">
+        <!--PointSize value="0.504" /-->
+        <PointSize value="0.04" />
+        <CacheBinaryFile value="on"/>
+        <CutUTMData value="off" />
+      </PointRayTracer>
+
+      <PointCloud value="off">
+        <PointSize value="6" />
+      </PointCloud>
+
+      <Visionaray value="off" menu="on">
+        <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
+        <Algorithm    value="simple"  />                <!-- "simple" | "whitted" -->
+        <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
+        <NumBounces   value="2" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
+        <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
+        <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
+      </Visionaray>
+
+      <Volume value="on" >
+        <Renderer value="texrend" />
+        <!--Renderer value="texrend" /-->
+        <!--Renderer value="rayrendcuda" /-->
+        <Lighting value="off" />
+        <PreIntegration value="off" />
+        <ShowTFE value="on" />
+        <UseHistogram value="off"/>
+      </Volume>
+
+      <ClipPlane value="on">
+        <!--plane0 enabled="true" />
+        <plane1 enabled="true" />
+        <plane2 enabled="true" /-->
+      </ClipPlane>
+			
+    </Plugin>
+  
+    <!--ViewportConfig>
+      <Viewport width="1200" height="900" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />    
+    </ViewportConfig>
+    
+    <ChannelConfig>
+      <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="1200" left="0" windowIndex="0" screenIndex="0" top="0" name="0" height="900" />  
+    </ChannelConfig>
+
+    <WindowConfig>
+      <Window type="None" width="1200" comment="FRONT" window="0" pipeIndex="0" height="900" left="0" top="0" name="0" decoration="false" stereo="false" />
+    </WindowConfig>
+   
+    <PipeConfig>
+      <Pipe name="0" useDISPLAY="true" screen="0" />
+    </PipeConfig>
+   
+    <NumChannels value="1" />
+    <NumScreens value="1" />
+    <NumViewports value="1" />
+    <NumWindows value="1" />
+    <NumPipes value="1" /-->   
+   
+    <SceneSize value="1500" />
+    <FloorHeight value="-1000" />
+    <Menu>
+      <Orientation h="0" p="0" r="0" />
+      <Position x="500" y="0" z="600" />
+    </Menu>
+
+    <MenuPosition value="600 0 600" />
+    <MenuSize value="0.7" />
+  </COVER>	     
+</GLOBAL>
+<INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+</COCONFIG>

@@ -12,67 +12,87 @@
 using namespace std;
 using namespace covise;
 
+enum Type{
+    INTEGER, UNSIGNED_SHORT
+};
+
+const char *usage = "Usage: z8ctrl [3Don|3Doff|preset n|brightness n|test n|black|wakeup]\n"
+                    "  3Don: turn 3D on\n"
+                    "  3Doff: turn 3D off\n"
+                    "  preset n: set preset to n\n"
+                    "  brightness n: set brightness to n (0-100)\n"
+                    "  test n: set testpattern to n\n"
+                    "  black: set black screen, revert with wakeup\n"
+                    "  wakeup: wake up\n";
+
+struct Command
+{
+    const char *name;
+    std::vector<unsigned char> buf;
+    int argpos = -1;
+    Type type = INTEGER;
+};
+
+static const auto commands = {
+    Command{"3DON",  {0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }},
+    Command{"3DOFF", {0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }},
+    Command{"PRESET", {0x07, 0x10, 0x03, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 }, 15},
+    Command{"BRIGHTNESS", {0x50, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00 }, 11, UNSIGNED_SHORT},
+    Command{"TEST", {0x12, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 }, 17},
+    Command{"BLACK", {0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }},
+    Command{"WAKEUP", {0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }}
+};
+
 int main(int argc, char **argv)
 {
     UDP_Sender z8("192.168.1.192", 9099);
+    std::unique_ptr<Command> cmd;
     for (int i = 1; i < argc; i++)
     {
         string arg = argv[i];
         transform(arg.begin(), arg.end(), arg.begin(), ::toupper);
-        if (arg == "3DON")
+
+        if(cmd)
         {
-            //unsigned char buf[] = {0x74, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
-            unsigned char buf[] = {0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
-            z8.send(buf, sizeof(buf));
-        }
-        else if (arg == "3DOFF")
-        {
-            //unsigned char buf[] = { 0x74, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            unsigned char buf[] = { 0x80, 0x10, 0x01, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            z8.send(buf, sizeof(buf));
-        }
-        if (arg.substr(0, 6) == "PRESET")
-        {
-            unsigned char buf[] = { 0x07, 0x10, 0x03, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 };
-            int num = 1;
-            if (sscanf(argv[i] + 6, "%d", &num) == 1)
-            {
-                buf[15] = num;
-                z8.send(buf, sizeof(buf));
-                fprintf(stderr, "setting preset %d\n", num);
+            int num = 0;
+            try
+            {   
+                num = std::stoi(arg);
             }
-        }
-        if (arg.substr(0,  10) == "Brightness")
-        {
-            unsigned char buf[] = { 0x50, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00 };
-            unsigned num = 0;
-            if (sscanf(argv[i] + 6, "%u", &num) == 1)
+            catch(const std::exception&)
             {
-                *((unsigned short *)(buf+11)) = num;
-                z8.send(buf, sizeof(buf));
-                fprintf(stderr, "setting Brightness to %d %d%%\n", num, num/100);
+                std::cerr << "invalid argument" << std::endl;
+                return 1;
             }
-        }
-        if (arg.substr(0,  4) == "TEST")
-        {
-            unsigned char buf[] = { 0x12, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00,     0x00, 0x00,     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 };
-            int num = 1;
-            if (sscanf(argv[i] + 4, "%d", &num) == 1)
+            if(cmd->type == INTEGER)
             {
-                buf[17] = num;
-                z8.send(buf, sizeof(buf));
-                fprintf(stderr, "setting testpattern %d\n", num);
+                cmd->buf[cmd->argpos] = num;
+            } else {
+                unsigned short i = num;
+                *((unsigned short *)(cmd->buf.data()+11)) = num;
             }
+            z8.send(cmd->buf.data(), cmd->buf.size());
+            std::cerr << "setting " << cmd->name << " to " << num << std::endl;
+            return 0;
         }
-        if (arg.substr(0, 5) == "BLACK")
+        for(const auto command : commands)
         {
-            unsigned char buf[] = { 0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00,     0x00, 0x00,      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            z8.send(buf, sizeof(buf));
-        }
-        if (arg.substr(0,  6) == "WAKEUP")
-        {
-            unsigned char buf[] = { 0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00,     0x00, 0x00,      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
-            z8.send(buf, sizeof(buf));
+            if(arg == command.name)
+            {
+                if(command.argpos != -1)
+                {
+                    cmd = std::make_unique<Command>(command);
+                    break;
+                }
+                else
+                {
+                    z8.send(command.buf.data(), command.buf.size());
+                    std::cerr << "setting " << command.name << std::endl;
+                    return 0;
+                }
+            }
         }
     }
+    std::cerr << usage << std::endl;
+    return 1;
  }

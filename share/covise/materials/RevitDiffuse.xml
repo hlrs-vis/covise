@@ -97,9 +97,9 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
     eye = vec3 (0.0, 0.0, 1.0);
 
     // Clear the light intensity accumulators
-    Ambient  = vec4 (0.0);
-    Diffuse  = vec4 (0.0);
-    Specular = vec4 (0.0);
+    Ambient  = vec4 (0,0,0,1);
+    Diffuse  = vec4 (0.0,0,0,1);
+    Specular = vec4 (0.0,0,0,1);
 
     pointLight(0, normal, eye, ecPosition3);
 
@@ -166,5 +166,8 @@ if(Color.g &gt; 1)
    Color.g=1;
 if(Color.b &gt; 1)
    Color.b=1;*/
+DiffuseColor[3]=1;
+//Color[3]=1;
       gl_FragColor =  DiffuseColor *Color;
+//gl_FragColor = vec4(1,0,0,1);
     }</fragmentProgram></_RevitDiffuse>

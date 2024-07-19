@@ -156,8 +156,7 @@ JS_ConvertArguments(JSContext *cx, uintN argc, jsval *argv, const char *format,
 }
 
 JS_PUBLIC_API(JSBool)
-JS_ConvertArgumentsVA(JSContext *cx, uintN argc, jsval *argv,
-                      const char *format, va_list ap)
+JS_ConvertArgumentsVA(JSContext *cx, uintN argc, jsval *argv, const char *format, va_list ap0)
 {
     jsval *sp;
     JSBool required;
@@ -166,6 +165,8 @@ JS_ConvertArgumentsVA(JSContext *cx, uintN argc, jsval *argv,
     jsdouble d;
     JSString *str;
     JSObject *obj;
+    va_list ap;
+    va_copy(ap, ap0);
 
     CHECK_REQUEST(cx);
     sp = argv;
@@ -261,8 +262,7 @@ JS_ConvertArgumentsVA(JSContext *cx, uintN argc, jsval *argv,
             break;
         default:
             format--;
-            if (!TryArgumentFormatter(cx, &format, JS_TRUE, &sp,
-                                      &(ap)))
+            if (!TryArgumentFormatter(cx, &format, JS_TRUE, &sp, &ap))
             {
                 return JS_FALSE;
             }
@@ -287,7 +287,7 @@ JS_PushArguments(JSContext *cx, void **markp, const char *format, ...)
 }
 
 JS_PUBLIC_API(jsval *)
-JS_PushArgumentsVA(JSContext *cx, void **markp, const char *format, va_list ap)
+JS_PushArgumentsVA(JSContext *cx, void **markp, const char *format, va_list ap0)
 {
     uintN argc;
     jsval *argv, *sp;
@@ -296,6 +296,8 @@ JS_PushArgumentsVA(JSContext *cx, void **markp, const char *format, va_list ap)
     JSString *str;
     JSFunction *fun;
     JSStackHeader *sh;
+    va_list ap;
+    va_copy(ap, ap0);
 
     CHECK_REQUEST(cx);
     *markp = NULL;
@@ -368,8 +370,7 @@ JS_PushArgumentsVA(JSContext *cx, void **markp, const char *format, va_list ap)
             break;
         default:
             format--;
-            if (!TryArgumentFormatter(cx, &format, JS_FALSE, &sp,
-                                      &(ap)))
+            if (!TryArgumentFormatter(cx, &format, JS_FALSE, &sp, &ap))
             {
                 goto bad;
             }

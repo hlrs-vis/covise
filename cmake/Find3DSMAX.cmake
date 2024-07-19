@@ -12,6 +12,10 @@ ENDIF(3DSMAX_INCLUDE_DIR)
 
 FIND_PATH(3DSMAX_STDPLUGS_DIR "3dsexp.dle"
   PATHS
+  "C:/Program Files/Autodesk/3ds Max 2028/stdplugs"
+  "C:/Program Files/Autodesk/3ds Max 2027/stdplugs"
+  "C:/Program Files/Autodesk/3ds Max 2026/stdplugs"
+  "C:/Program Files/Autodesk/3ds Max 2025/stdplugs"
   "C:/Program Files/Autodesk/3ds Max 2024/stdplugs"
   "C:/Program Files/Autodesk/3ds Max 2023/stdplugs"
   "C:/Program Files/Autodesk/3ds Max 2022/stdplugs"
@@ -30,6 +34,10 @@ FIND_PATH(3DSMAX_STDPLUGS_DIR "3dsexp.dle"
 
 FIND_PATH(3DSMAX_INCLUDE_DIR "max.h"
   PATHS
+  "C:/Program Files/Autodesk/3ds Max 2028 SDK/maxsdk/include"
+  "C:/Program Files/Autodesk/3ds Max 2027 SDK/maxsdk/include"
+  "C:/Program Files/Autodesk/3ds Max 2026 SDK/maxsdk/include"
+  "C:/Program Files/Autodesk/3ds Max 2025 SDK/maxsdk/include"
   "C:/Program Files/Autodesk/3ds Max 2024 SDK/maxsdk/include"
   "C:/Program Files/Autodesk/3ds Max 2023 SDK/maxsdk/include"
   "C:/Program Files/Autodesk/3ds Max 2022 SDK/maxsdk/include"
@@ -49,6 +57,10 @@ FIND_PATH(3DSMAX_INCLUDE_DIR "max.h"
 
 FIND_PATH(3DSMAX_SCRIPT_INCLUDE_DIR "maxscript.h"
   PATHS
+  "C:/Program Files/Autodesk/3ds Max 2028 SDK/maxsdk/include/maxscript"
+  "C:/Program Files/Autodesk/3ds Max 2027 SDK/maxsdk/include/maxscript"
+  "C:/Program Files/Autodesk/3ds Max 2026 SDK/maxsdk/include/maxscript"
+  "C:/Program Files/Autodesk/3ds Max 2025 SDK/maxsdk/include/maxscript"
   "C:/Program Files/Autodesk/3ds Max 2024 SDK/maxsdk/include/maxscript"
   "C:/Program Files/Autodesk/3ds Max 2023 SDK/maxsdk/include/maxscript"
   "C:/Program Files/Autodesk/3ds Max 2022 SDK/maxsdk/include/maxscript"
@@ -68,6 +80,10 @@ FIND_PATH(3DSMAX_SCRIPT_INCLUDE_DIR "maxscript.h"
 
 FIND_PATH(3DSMAX_LIB_DIR "maxscrpt.lib"
   PATHS
+  "C:/Program Files/Autodesk/3ds Max 2028 SDK/maxsdk/lib/x64/Release"
+  "C:/Program Files/Autodesk/3ds Max 2027 SDK/maxsdk/lib/x64/Release"
+  "C:/Program Files/Autodesk/3ds Max 2026 SDK/maxsdk/lib/x64/Release"
+  "C:/Program Files/Autodesk/3ds Max 2025 SDK/maxsdk/lib/x64/Release"
   "C:/Program Files/Autodesk/3ds Max 2024 SDK/maxsdk/lib/x64/Release"
   "C:/Program Files/Autodesk/3ds Max 2023 SDK/maxsdk/lib/x64/Release"
   "C:/Program Files/Autodesk/3ds Max 2022 SDK/maxsdk/lib/x64/Release"

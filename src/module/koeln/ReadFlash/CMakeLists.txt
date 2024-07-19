@@ -1,4 +1,5 @@
-using(HDF5:hl)
+using(HDF5:cxx_hl)
+using(Boost)
 
 SET(HEADERS
   

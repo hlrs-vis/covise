@@ -40,8 +40,8 @@ private:
     void setRange(double min, double max);
 
     size_t m_idx;
-    double m_value;
-    double m_min, m_max;
+    double m_value=0., m_oldValue = 0.;
+    double m_min=-1., m_max=1.;
 };
 }
 #endif

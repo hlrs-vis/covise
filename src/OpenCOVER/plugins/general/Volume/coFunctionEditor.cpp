@@ -42,6 +42,8 @@ coFunctionEditor::~coFunctionEditor()
 void coFunctionEditor::setNumChannels(int chan)
 {
     numChannels = chan;
+    if (activeChannel >= numChannels)
+        activeChannel = 0;
 }
 
 int coFunctionEditor::getNumChannels() const

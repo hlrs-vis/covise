@@ -74,7 +74,10 @@ public:
     coVRShaderInstance *instance;
     bool isVisible;
     osg::Matrix vm;
+    osg::Matrix vmTmp[10];
     osg::Matrix pm;
+    osg::Texture2D* texture1 = nullptr; // remember texture to reuse it for further displays of the same camera
+    osg::Texture2D* texture2 = nullptr;
     int CameraID;
 };
 

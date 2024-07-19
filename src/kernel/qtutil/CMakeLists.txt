@@ -1,3 +1,7 @@
+if(NOT COVISE_USE_QT)
+    return()
+endif()
+
 set(QTUTIL_SOURCES
     FileSysAccess.cpp
     NetHelp.cpp

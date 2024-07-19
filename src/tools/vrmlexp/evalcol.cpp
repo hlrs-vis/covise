@@ -299,7 +299,7 @@ BOOL calcVertexColors(INode *node, TimeValue t, int lightModel, VertexColorTab &
     Mesh *mesh;
     SContext sc;
     DefaultLight dl1, dl2;
-    MtlBaseLib mtls;
+    TypedSingleRefMaker<MtlBaseLib> mtls(new MtlBaseLib);
     Matrix3 tm;
 
     sc.SetNodeAndTime(node, t);
@@ -337,7 +337,7 @@ BOOL calcVertexColors(INode *node, TimeValue t, int lightModel, VertexColorTab &
     sc.CalcBoundObj();
 
     // Add the material to the list
-    mtls.AddMtl(mtl);
+    mtls->AddMtl(mtl);
 
     // Setup ambient light
     if (lightModel == LIGHT_AMBIENT)
@@ -352,7 +352,7 @@ BOOL calcVertexColors(INode *node, TimeValue t, int lightModel, VertexColorTab &
     // If we're using the real lights, we need to find them first
     if (lightModel == LIGHT_SCENELIGHT)
     {
-        AddSceneLights(&sc, &mtls);
+        AddSceneLights(&sc, mtls);
 
         // Add default lights if there are no lights in the scene
         if (sc.lightTab.Count() == 0)
@@ -391,7 +391,7 @@ BOOL calcVertexColors(INode *node, TimeValue t, int lightModel, VertexColorTab &
                     delete tri;
                 }
 
-                mtls.Empty();
+                mtls->Empty();
 
                 if (mtl->ClassID() == DUMMTL_CLASS_ID)
                 {
@@ -491,7 +491,7 @@ BOOL calcVertexColors(INode *node, TimeValue t, int lightModel, VertexColorTab &
         delete tri;
     }
 
-    mtls.Empty();
+    mtls->Empty();
 
     if (mtl->ClassID() == DUMMTL_CLASS_ID)
     {
@@ -513,7 +513,7 @@ BOOL calcMixedVertexColors(INode *node, TimeValue t, int lightModel, ColorTab &v
     Mesh *mesh;
     SContext sc;
     DefaultLight dl1, dl2;
-    MtlBaseLib mtls;
+    TypedSingleRefMaker<MtlBaseLib> mtls(new MtlBaseLib);
     Matrix3 tm;
 
     sc.SetNodeAndTime(node, t);
@@ -551,7 +551,7 @@ BOOL calcMixedVertexColors(INode *node, TimeValue t, int lightModel, ColorTab &v
     sc.CalcBoundObj();
 
     // Add the material to the list
-    mtls.AddMtl(mtl);
+    mtls->AddMtl(mtl);
 
     // Setup ambient light
     if (lightModel == LIGHT_AMBIENT)
@@ -566,7 +566,7 @@ BOOL calcMixedVertexColors(INode *node, TimeValue t, int lightModel, ColorTab &v
     // If we're using the real lights, we need to find them first
     if (lightModel == LIGHT_SCENELIGHT)
     {
-        AddSceneLights(&sc, &mtls);
+        AddSceneLights(&sc, mtls);
 
         // Add default lights if there are no lights in the scene
         if (sc.lightTab.Count() == 0)
@@ -605,7 +605,7 @@ BOOL calcMixedVertexColors(INode *node, TimeValue t, int lightModel, ColorTab &v
                     delete tri;
                 }
 
-                mtls.Empty();
+                mtls->Empty();
 
                 if (mtl->ClassID() == DUMMTL_CLASS_ID)
                 {
@@ -718,7 +718,7 @@ BOOL calcMixedVertexColors(INode *node, TimeValue t, int lightModel, ColorTab &v
         delete tri;
     }
 
-    mtls.Empty();
+    mtls->Empty();
 
     if (mtl->ClassID() == DUMMTL_CLASS_ID)
     {

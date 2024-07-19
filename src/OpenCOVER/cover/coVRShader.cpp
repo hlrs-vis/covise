@@ -435,32 +435,23 @@ public:
     XmlAttribute(const std::string& attribute, xercesc::DOMElement *node)
     {
         XMLCh *t1 = nullptr;
-        m_value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode(attribute.c_str())));
+        auto s =
+            xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode(attribute.c_str())));
+        if (s)
+        {
+            m_value = s;
+        }
         xercesc::XMLString::release(&t1);
+        xercesc::XMLString::release(&s);
     }
-    ~XmlAttribute()
-    {
-        xercesc::XMLString::release(&m_value);
-    }
-    bool operator==(const std::string& other) const
-    {
-        return m_value ? m_value == other : other.empty();
-    }
-    operator bool() const
-    {
-        return m_value != nullptr && m_value[0] != '\0';
-    }
-    operator std::string() const
-    {
-        return m_value ? m_value : "";
-    }
-    const char *c_str() const
-    {
-        return m_value ? m_value : "";
-    }
+    ~XmlAttribute() {}
+    bool operator==(const std::string &other) const { return m_value == other; }
+    operator bool() const { return !m_value.empty(); }
+    operator std::string() const { return m_value; }
+    const char *c_str() const { return m_value.c_str(); }
 
 private:
-    char *m_value = nullptr;
+    std::string m_value;
 };
 
 std::ostream &operator<<(std::ostream &os, const XmlAttribute &attr)

@@ -66,6 +66,8 @@ private:
     VrmlSFBool d_enabled;
     VrmlSFFloat d_hFov;
     VrmlSFFloat d_vFov;
+    VrmlSFFloat d_near;
+    VrmlSFFloat d_far;
     VrmlSFInt d_cameraID;
 
     void addMC(VrmlNodeMirrorCamera *node);

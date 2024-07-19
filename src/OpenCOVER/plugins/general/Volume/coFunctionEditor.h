@@ -37,15 +37,15 @@ class coFunctionEditor : public vrui::coButtonActor,
                          public vrui::vruiCollabInterface
 {
 protected:
-    bool instantClassification;
-    int numChannels;
-    int activeChannel;
+    bool instantClassification = false;
+    int numChannels = 1;
+    int activeChannel = 0;
 
     virtual void remoteOngoing(const char *message);
 
 public:
-    vrui::coPanel *panel;
-    vrui::coPopupHandle *dropHandle;
+    vrui::coPanel *panel = nullptr;
+    vrui::coPopupHandle *dropHandle = nullptr;
 
     coFunctionEditor(const char *collaborativeUIName);
     ~coFunctionEditor();
@@ -81,7 +81,7 @@ public:
     int hit(vrui::vruiHit *);
 
 private:
-    coFunctionEditor *editor;
+    coFunctionEditor *editor = nullptr;
 };
 
 class coUndoSlopePoti : public vrui::coSlopePoti

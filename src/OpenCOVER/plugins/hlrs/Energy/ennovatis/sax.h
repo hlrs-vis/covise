@@ -5,10 +5,6 @@
 #include "building.h"
 
 namespace ennovatis {
-
-typedef std::vector<Building> Buildings;
-typedef std::shared_ptr<Buildings> BuildingsPtr;
-
 struct sax_channelid_parser: public nlohmann::json::json_sax_t {
 public:
     sax_channelid_parser() = default;

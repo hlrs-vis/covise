@@ -127,13 +127,15 @@ const string &InputDevice::getName() const
     return m_name;
 }
 
-std::string InputDevice::configPath(const std::string &ent) const
+std::string InputDevice::configPath(const std::string &ent, int n) const
 {
-
-    if (ent.empty())
-        return m_config;
-
-    return m_config + "." + ent;
+    stringstream sstr;
+    sstr << m_config;
+    if (!ent.empty())
+        sstr << "." << ent;
+    if (n >= 0)
+        sstr << ":" << n;
+    return sstr.str();
 }
 
 //==========================main loop =================

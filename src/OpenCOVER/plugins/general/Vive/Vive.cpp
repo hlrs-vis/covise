@@ -99,7 +99,6 @@ Vive::Vive()
 		return;
 	}
 
-
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		m_rDevClassChar[nDevice] = 0;
@@ -119,7 +118,11 @@ Vive::Vive()
 			PBOStruct pbor;
 			uint32_t sx, sy;
 			ivrSystem->GetRecommendedRenderTargetSize(&sx, &sy);
-			pbol.PBOsx = pbor.PBOsx = sx;
+            if (cover->debugLevel(1))
+            {
+                std::cerr << "Vive: configuring render target size to " << sx << "x" << sy << " pixels" << std::endl;
+            }
+            pbol.PBOsx = pbor.PBOsx = sx;
 			pbol.PBOsy = pbor.PBOsy = sy;
 			pbor.windowNum = 0;
 			pbol.windowNum = 0;
@@ -212,26 +215,36 @@ bool Vive::init()
 	{
 		m_DeviceID[nDevice] = -1;  // cover ID for a specific DeviceID
 		m_ControllerID[nDevice] = 0;
-		m_DeviceSerial[nDevice] = "";   // for each device, a character representing its class // index is device ID
-	}
+        m_DeviceSerial[nDevice] = ""; // for each device, a character representing its class // index is device ID
 
-	int numSerialConfigs = 0;
-	char str[200];
-	bool exists=false;
-	do {
-		sprintf(str, "COVER.Input.Device.Vive.Device:%d", numSerialConfigs);
-		std::string serial = covise::coCoviseConfig::getEntry("serial", str, "", &exists);
-		serialInfo si;
-		si.ID = covise::coCoviseConfig::getInt("index", str, 0);
-		si.controllerID = covise::coCoviseConfig::getInt("controllerID", str, 0);
-		serialID[serial] = si;
-		numSerialConfigs++;
-	} while (exists);
-	
+        bool exists = false;
+        auto str = configPath("Device", nDevice);
+        std::string serial = covise::coCoviseConfig::getEntry("serial", str, "", &exists);
+        if (exists) {
+            serialInfo si;
+            si.ID = covise::coCoviseConfig::getInt("index", str, 0);
+            si.controllerID = covise::coCoviseConfig::getInt("controllerID", str, 0);
+            serialID[serial] = si;
+        }
+    }
 
+    m_buttonsPerController = covise::coCoviseConfig::getInt(configPath("ButtonsPerController"), m_buttonsPerController);
+    for (unsigned int i = 0; i < m_buttonsPerController; i++)
+    {
+        int def = i;
+        switch(i) {
+			case 0: def = 33; break;
+			case 1: def = 32; break;
+			case 2: def = 1; break;
+			case 3: def = 2; break;
+			case 4: def = 7; break;
+			case 5: def = 31; break;
+                }
+                m_buttonMapping[i] = covise::coCoviseConfig::getInt(configPath("RawButton"+std::to_string(i)), def);
+    }
 
-	if (m_strDriver == "No Driver")
-		return false;
+    if (m_strDriver == "No Driver")
+        return false;
 	
 
 	return true;
@@ -240,9 +253,10 @@ bool Vive::init()
 // this is called if the plugin is removed at runtime
 Vive::~Vive()
 {
-	vr::VR_Shutdown();
-	Input::instance()->removeDevice("Vive", this);
-	fprintf(stderr, "Vive::~Vive\n");
+    if (cover->debugLevel(2))
+        fprintf(stderr, "Vive::~Vive\n");
+    vr::VR_Shutdown();
+    Input::instance()->removeDevice("Vive", this);
 }
 
 void Vive::preFrame()
@@ -272,7 +286,7 @@ void Vive::preFrame()
         }
         else
         {
-            fprintf(stderr, "configure two channes\n");
+            fprintf(stderr, "configure two channels\n");
         }
     }
 
@@ -304,8 +318,8 @@ void Vive::postFrame()
                 case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; numBaseStations++; break;
 			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
-            fprintf(stderr, "DevClass:%c\n", m_rDevClassChar[nDevice]);
-			int idx;
+            fprintf(stderr, "DevClass:%c %s\n", m_rDevClassChar[nDevice], serial.c_str());
+            int idx;
 			std::map<std::string, serialInfo>::iterator it = serialID.find(std::string(serial));
 			if (it != serialID.end())
 			{
@@ -343,7 +357,7 @@ void Vive::postFrame()
 					idx = firstControllerIdx + controllerNumber;
 					++controllerNumber;
 					break;
-                case 'G': //a controller
+                case 'G':
                     idx = firstTrackerIdx + trackerNumber;
                     ++trackerNumber;
                     break;
@@ -378,11 +392,17 @@ void Vive::postFrame()
 		m_bodyMatricesValid.resize(maxBodyNumber);
 		m_mutex.unlock();
 	}
-	if (numControllers * 4 > m_buttonStates.size())
+	if (numControllers * m_buttonsPerController > m_buttonStates.size())
 	{
-		m_buttonStates.resize(numControllers * 4);
+		m_buttonStates.resize(numControllers * m_buttonsPerController);
 	}
+        if (numControllers * 2*vr::k_unControllerStateAxisCount > m_valuatorValues.size())
+        {
+            m_valuatorValues.resize(numControllers * 2*vr::k_unControllerStateAxisCount);
+            m_valuatorRanges.resize(numControllers * 2*vr::k_unControllerStateAxisCount);
+        }
 	bool haveBaseStation = false;
+	m_mutex.lock();
 	// Process SteamVR controller state
 	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
 	{
@@ -390,10 +410,42 @@ void Vive::postFrame()
 		bool gotState = ivrSystem->GetControllerState(unDevice, &state, sizeof(state));
 		if ((m_rDevClassChar[unDevice] == 'C') && m_rTrackedDevicePose[unDevice].bPoseIsValid)
 		{
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 0] = ((state.ulButtonPressed & ((uint64_t)1 << 33)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 1] = ((state.ulButtonPressed & ((uint64_t)1 << 32)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 2] = ((state.ulButtonPressed & ((uint64_t)1 << 1)) != 0);
-			m_buttonStates[(m_ControllerID[unDevice] * 4) + 3] = ((state.ulButtonPressed & ((uint64_t)1 << 2)) != 0);
+                        if (Input::instance()->debug(Input::Driver) && Input::instance()->debug(Input::Buttons) && state.ulButtonPressed != 0)
+                        {
+				std::cerr << "Vive: controller " << m_ControllerID[unDevice] << ": " << m_buttonsPerController << " buttons: Ox" << std::hex << state.ulButtonPressed << std::dec << std::endl;
+			}
+			for (unsigned int i = 0; i < m_buttonsPerController; i++)
+                        {
+                            unsigned dest = m_ControllerID[unDevice] * m_buttonsPerController + i;
+                            m_buttonStates[dest] = ((state.ulButtonPressed & ((uint64_t)1 << m_buttonMapping[i])) != 0);
+			}
+                        for (unsigned int i=0; i<vr::k_unControllerStateAxisCount; ++i)
+                        {
+                            auto type = ivrSystem->GetInt32TrackedDeviceProperty(
+                                unDevice, static_cast<vr::TrackedDeviceProperty>(vr::Prop_Axis0Type_Int32 + i));
+                            m_valuatorRanges[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) * 2] =
+                                m_valuatorRanges[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) * 2 +
+                                                 1] = std::make_pair(0., 0.);
+                            if (type == vr::k_eControllerAxis_TrackPad || type == vr::k_eControllerAxis_Joystick)
+                            {
+                                m_valuatorRanges[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) * 2] =
+                                    m_valuatorRanges[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) *
+                                                         2 +
+                                                     1] = std::make_pair(-1., +1.);
+                            }
+                            else if (type == vr::k_eControllerAxis_Trigger)
+                            {
+                                m_valuatorRanges[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) * 2] =
+                                    std::make_pair(0., +1.);
+                            }
+                            m_valuatorValues[(m_ControllerID[unDevice] * vr::k_unControllerStateAxisCount + i) * 2] =
+                                state.rAxis[i].x;
+                            m_valuatorValues[(m_ControllerID[unDevice]*vr::k_unControllerStateAxisCount+i)*2+1] = state.rAxis[i].y;
+                            if (Input::instance()->debug(Input::Driver) && Input::instance()->debug(Input::Valuators) && (state.rAxis[i].x != 0 || state.rAxis[i].y != 0))
+                            {
+				std::cerr << "Vive: controller " << m_ControllerID[unDevice] << " axis[" << i << "] x=" << state.rAxis[i].x << ", y=" << state.rAxis[i].y << std::endl;
+                            }
+                        }
 		}
 		if (m_rDevClassChar[unDevice] == 'T')
 		{
@@ -401,7 +453,6 @@ void Vive::postFrame()
 		}
 	}
 
-	m_mutex.lock();
 
 	for (int nDevice = 0; nDevice < maxBodyNumber + 1; ++nDevice)
 	{
@@ -470,4 +521,3 @@ std::string Vive::GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceI
 }
 
 COVERPLUGIN(Vive)
-

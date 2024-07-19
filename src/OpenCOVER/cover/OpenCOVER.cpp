@@ -292,9 +292,6 @@ bool OpenCOVER::run()
         return false;
     }
 
-    if (dl >= 1)
-        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
-
     return true;
 }
 
@@ -942,6 +939,9 @@ void OpenCOVER::loop()
         frame();
     }
 
+    if (cover->debugLevel(1))
+        fprintf(stderr, "OpenCOVER: Shutting down\n\n");
+
     VRViewer::instance()->disableSync();
 
     std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
@@ -1425,6 +1425,7 @@ OpenCOVER::~OpenCOVER()
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
+    VRViewer::instance()->unconfig();
     delete VRSceneGraph::instance();
     delete coVRShaderList::instance();
     delete coVRLighting::instance();

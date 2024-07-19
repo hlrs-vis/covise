@@ -118,7 +118,8 @@ CppOutPickModeCallback::Pick(IObjParam *ip, ViewExp *vpt)
         ofn.lpstrFilter = fl;
         ofn.lpstrFile = fname;
         ofn.nMaxFile = 256;
-        ofn.lpstrInitialDir = ip->GetDir(APP_EXPORT_DIR);
+        const MSTR initialDir = ip->GetDir(APP_EXPORT_DIR);
+        ofn.lpstrInitialDir = initialDir.data();
         ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
         ofn.lpstrDefExt = _T("asc");
         ofn.lpstrTitle = title;

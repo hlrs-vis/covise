@@ -45,7 +45,7 @@ public:
     InputDevice(const std::string &configPath);
     virtual ~InputDevice();
 
-    std::string configPath(const std::string &ent = "") const; //< path to config values for this device
+    std::string configPath(const std::string &ent = "", int n = -1) const; //< path to config values for this device
     virtual bool poll(); //< called regularly to retrieve new values from hardware - reimplement
     virtual void run(); //< regularly calls poll() on another thread - reimplement if this is not appropriate
 

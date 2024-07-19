@@ -1,5 +1,9 @@
 #OpenCOVER plugins general PBufferSnapShot
 
+if(NOT COVISE_USE_QT)
+    return()
+endif()
+
 SET(HEADERS
   PBufferSnapShot.h
 )

@@ -12,7 +12,7 @@ basepath = os.getcwd()
 
 try:
     path = sys.argv[len(sys.argv) - 1]
-    print path
+    print(path)
     cmd.cd(path)
     #index = sys.argv.index("--")
     #params = sys.argv[index:]
@@ -20,12 +20,12 @@ try:
         #path = params[1]
         #cmd.cd(path)
     #else:
-        #print "No Path specified"
+        #print("No Path specified")
 except ValueError:
-    print "No Path specified"
+    print("No Path specified")
 
 for file in glob("*.pdb"):
-    print "file: ", file
+    print(f"file: {file}")
     listname = file.split(".")
     name = listname[0];
     cmd.load(file, name)
@@ -57,5 +57,5 @@ for file in glob("*.pdb"):
     cmd.system("convert " + name.lower() + "_bio_r_250.jpg " + name + ".tif")
     cmd.system("rm -f " + name.lower() + "_bio_r_250.jpg")
     cmd.system("mv " + name + ".tif" + " ../pdb/")
-    print "Created " + name + " models"
+    print("Created " + name + " models")
 cmd.cd(basepath)

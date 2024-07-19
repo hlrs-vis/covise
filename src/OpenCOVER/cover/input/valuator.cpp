@@ -24,8 +24,8 @@ Valuator::Valuator(const std::string &name)
     std::cerr << "new valuator: conf=" << config() << ", dev=" << device()->getName() << ", idx=" << m_idx << std::endl;
     if (m_idx >= device()->numValuators())
     {
-        std::cerr << "Valuator: valuator index " << m_idx << " out of range - " << device()->numValuators() << " valuators" << std::endl;
-        m_idx = 0;
+        std::cerr << "Valuator: valuator index " << m_idx << " out of range - " << device()->numValuators()
+                  << " valuators" << std::endl;
     }
 }
 
@@ -58,9 +58,15 @@ void Valuator::update()
 {
     InputSource::update();
 
+    m_oldValue = m_value;
     m_value = device()->getValuatorValue(m_idx);
     std::pair<double, double> range = device()->getValuatorRange(m_idx);
     m_min = range.first;
     m_max = range.second;
+
+    if (Input::debug(Input::Valuators) && Input::debug(Input::Raw) && m_oldValue!=m_value)
+    {
+        std::cerr << "Input: " << name() << " valuator: raw=" << m_value << " (range: " << m_min << " - " << m_max << ")" << std::endl;
+    }
 }
 }

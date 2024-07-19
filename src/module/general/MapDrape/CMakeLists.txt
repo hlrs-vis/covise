@@ -1,5 +1,9 @@
-USING(PROJ4)
+USING(PROJ)
 USING(GDAL)
+
+IF(NOT PROJ_API)
+  return()
+ENDIF()
 
 SET(HEADERS
   MapDrape.h

@@ -11,6 +11,7 @@ ENDIF(PROJ4_INCLUDE_DIR)
 
 FIND_PATH(PROJ4_INCLUDE_DIR "proj_api.h"
   PATHS
+  $ENV{EXTERNLIBS}/proj
   $ENV{EXTERNLIBS}/proj4
   ~/Library/Frameworks
   /Library/Frameworks
@@ -29,6 +30,7 @@ SET(PROJ4_DBG_NAMES proj_d Proj4D projD proj_4_9_D)
 
 FIND_LIBRARY(PROJ4_LIBRARY NAMES ${PROJ4_NAMES}
   PATHS
+  $ENV{EXTERNLIBS}/proj
   $ENV{EXTERNLIBS}/proj4
   ~/Library/Frameworks
   /Library/Frameworks
@@ -48,6 +50,7 @@ IF(MSVC)
   # VisualStudio needs a debug version
   FIND_LIBRARY(PROJ4_LIBRARY_DEBUG NAMES ${PROJ4_DBG_NAMES}
     PATHS
+    $ENV{EXTERNLIBS}/proj/lib
     $ENV{EXTERNLIBS}/proj4/lib
     DOC "PROJ4 - Library (Debug)"
   )

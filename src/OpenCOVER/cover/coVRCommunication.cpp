@@ -549,7 +549,7 @@ void coVRCommunication::handleVRB(const Message &msg)
     break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {
-
+#ifdef USE_QT
         int subtype;
         int id;
         //Received a filebrowser set command
@@ -604,10 +604,12 @@ void coVRCommunication::handleVRB(const Message &msg)
         {
             cerr << "Unknown type!" << endl;
         }
+#endif
     }
     break;
     case COVISE_MESSAGE_VRB_FB_REMREQ:
     {
+#ifdef USE_QT
 
         if (coVRMSController::instance()->isSlave())
             return;
@@ -642,7 +644,9 @@ void coVRCommunication::handleVRB(const Message &msg)
         {
             cerr << "Unknown type!" << endl;
         }
+#endif
     }
+    break;
     case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
     {
         int size;
@@ -888,9 +892,11 @@ void opencover::coVRCommunication::initVrbFileMenu()
 
 void coVRCommunication::setFBData(IData *data)
 {
+#ifdef USE_QT
     VRBData *locData = dynamic_cast<VRBData *>(data);
     if (locData != NULL)
     {
         this->mfbData[locData->getId()] = locData;
     }
+#endif
 }

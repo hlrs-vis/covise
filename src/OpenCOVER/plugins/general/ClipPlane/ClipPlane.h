@@ -35,6 +35,7 @@ class Button;
 class Menu;
 class Group;
 class SelectionList;
+class EditField;
 }
 }
 
@@ -59,6 +60,8 @@ private:
         ui::Button *DirectInteractorButton = nullptr;
         ui::Button *PickInteractorButton = nullptr;
         ui::SelectionList *RootChoice = nullptr;
+        ui::EditField *ClipEditField = nullptr;
+
         vrui::coTrackerButtonInteraction *directInteractor = nullptr;
         vrui::coRelativeInputInteraction *relativeInteractor = nullptr;
         coVR3DTransRotInteractor *pickInteractor = nullptr;
@@ -66,6 +69,7 @@ private:
         Plane();
         ~Plane();
         void set(const osg::Vec4d &eq);
+        osg::Vec4d get();
         osg::ref_ptr<osg::ClipNode> clipNode;
         osg::ClipNode *getClipNode() const;
         void setClipNode(osg::ClipNode *cn);

@@ -509,8 +509,15 @@ coVRConfig::coVRConfig()
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
             if (!exists)
             {
-                std::cerr << "no ChannelConfig for channel " << i << std::endl;
-                exit(1);
+                if (numWindows > 0)
+                {
+                    vp.window = 0;
+                }
+                else
+                {
+                    std::cerr << "no ChannelConfig for channel " << i << std::endl;
+                    exit(1);
+                }
             }
         }
 

@@ -43,6 +43,8 @@ Variant::Variant(VariantPlugin *plugin, std::string var_Name, osg::Node *node, o
     createVRLabel();
     ui = new VariantUI(var_Name, Variant_menu, VariantPluginTab);
     ui->setPosTUIItems(numVar);
+
+#ifdef USE_QT
     //XML
     xmlfile = xml;
     qDE_Variant = qDE_V;
@@ -57,6 +59,7 @@ Variant::Variant(VariantPlugin *plugin, std::string var_Name, osg::Node *node, o
     qDE_Variant_translations.setAttribute("Z", 0);
     qDE_Variant_item.appendChild(qDE_Variant_translations);
     qDE_Variant->appendChild(qDE_Variant_item);
+#endif
     std::string cnName = "_clNode_";
     cnName.append(varName);
     cn = boi->createClipNode(cnName);
@@ -237,7 +240,7 @@ void Variant::releaseClippingPlane()
 
 void Variant::setQDomElemTRANS(osg::Vec3d vec)
 {
-
+#ifdef USE_QT
     QDomNodeList qdl = xmlfile->elementsByTagName("transform");
     for (int i = 0; i < qdl.size(); i++)
     {
@@ -248,6 +251,7 @@ void Variant::setQDomElemTRANS(osg::Vec3d vec)
             qdl.item(i).toElement().setAttribute("Z", vec.z());
         }
     }
+#endif
 }
 
 int Variant::numParents()

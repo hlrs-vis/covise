@@ -312,7 +312,7 @@ Interaction::IsectType Interaction::getFirstGeodeIntersection(Vec3 &wStart, Vec3
         auto hitInformation = coIsect->getFirstIntersection();
         isect.point = hitInformation.getWorldIntersectPoint();
         isect.normal = hitInformation.getWorldIntersectNormal();
-        osg::Geode *node = dynamic_cast<osg::Geode *>(*hitInformation.nodePath.end());
+        osg::Geode *node = dynamic_cast<osg::Geode *>(hitInformation.nodePath.back());
         if (findGeodeWidget(node, isect.widget))
         {
             isect.found = true;

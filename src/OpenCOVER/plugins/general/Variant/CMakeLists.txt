@@ -17,4 +17,7 @@ SET(SOURCES
 )
 
 cover_add_plugin(Variant)
-qt_use_modules(Variant Xml)
+
+if(COVISE_USE_QT)
+    qt_use_modules(Variant Xml)
+endif()

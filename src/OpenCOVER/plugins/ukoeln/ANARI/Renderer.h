@@ -14,6 +14,7 @@
 #endif
 #include <osg/BoundingSphere>
 #include <osg/Geometry>
+#include <cover/coVRLighting.h>
 #include <PluginUtil/MultiChannelDrawer.h>
 #include <anari/anari.h>
 #include <anari/anari_cpp/ext/glm.h>
@@ -30,7 +31,7 @@ public:
     typedef std::shared_ptr<Renderer> SP;
 
     typedef glm::vec4 ClipPlane;
-    typedef osg::Vec4 Light;
+    typedef opencover::coVRLighting::Light Light;
 
     Renderer();
    ~Renderer();
@@ -77,7 +78,6 @@ public:
     void updateLights(const osg::Matrix &modelMat);
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
-    void setLights(const std::vector<Light> &lights);
 
     void renderFrame();
     void renderFrame(unsigned chan);

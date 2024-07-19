@@ -22,12 +22,14 @@
 #include "coVRCommunication.h"
 #include "coVRFileManager.h"
 #include "coVRPluginList.h"
+#include "OpenCOVER.h"
+#include <iostream>
 
+#ifdef USE_QT
 #include "coTUIFileBrowser/VRBData.h"
 #include "coTUIFileBrowser/LocalData.h"
 #include "coTUIFileBrowser/IRemoteData.h"
 #include <qtutil/NetHelp.h>
-#include "OpenCOVER.h"
 #ifdef FB_USE_AG
 #include "coTUIFileBrowser/AGData.h"
 #endif
@@ -36,7 +38,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-#include <iostream>
+#endif
 
 using namespace covise;
 using namespace opencover;
@@ -52,10 +54,12 @@ coTUIButton::coTUIButton(coTabletUI *tui, const std::string &n, int pID)
 {
 }
 
+#ifdef USE_QT
 coTUIButton::coTUIButton(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_BUTTON)
 {
 }
+#endif
 
 coTUIButton::~coTUIButton()
 {
@@ -67,8 +71,10 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_PRESSED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -77,8 +83,10 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -91,6 +99,7 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
 }
 
+#ifdef USE_QT
 //TABLET_FILEBROWSER_BUTTON
 coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     : coTUIElement(n, pID, TABLET_FILEBROWSER_BUTTON)
@@ -885,6 +894,148 @@ std::string coTUIFileBrowserButton::getSelectedPath()
 {
     return this->mData->getSelectedPath();
 }
+#else
+//TABLET_FILEBROWSER_BUTTON
+coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID): coTUIElement(n, pID, TABLET_FILEBROWSER_BUTTON)
+{
+    mLocalData = nullptr;
+    mData = NULL;
+    this->mVRBCId = 0;
+    mAGData = NULL;
+    mMode = coTUIFileBrowserButton::OPEN;
+
+    this->mId = ID;
+    mLocation = "";
+    mLocalIP = "";
+    this->mDataObj = nullptr;
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_CURDIR;
+    tb << ID;
+    std::string path;
+    tb << path.c_str();
+
+    tui()->send(tb);
+}
+
+coTUIFileBrowserButton::coTUIFileBrowserButton(coTabletUI *tui, const char *n, int pID)
+: coTUIElement(tui, n, pID, TABLET_FILEBROWSER_BUTTON)
+{
+    mLocalData = nullptr;
+    mData = NULL;
+    this->mVRBCId = 0;
+    mAGData = NULL;
+    mMode = coTUIFileBrowserButton::OPEN;
+
+    this->mId = ID;
+    mLocation = "";
+    mLocalIP = "";
+    this->mDataObj = nullptr;
+
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_CURDIR;
+    tb << ID;
+    std::string path;
+    tb << path.c_str();
+
+    tui->send(tb);
+}
+
+coTUIFileBrowserButton::~coTUIFileBrowserButton()
+{
+}
+
+void coTUIFileBrowserButton::setClientList(const covise::Message &msg)
+{
+}
+
+void coTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
+{
+}
+
+void coTUIFileBrowserButton::resend(bool create)
+{
+}
+
+void coTUIFileBrowserButton::setFileList(const covise::Message &msg)
+{
+}
+
+IData *coTUIFileBrowserButton::getData(std::string protocol)
+{
+    return nullptr;
+}
+
+IData *coTUIFileBrowserButton::getVRBData()
+{
+    return nullptr;
+}
+
+void coTUIFileBrowserButton::setDirList(const covise::Message &msg)
+{
+}
+
+void coTUIFileBrowserButton::setDrives(const Message &ms)
+{
+}
+
+void coTUIFileBrowserButton::setCurDir(const covise::Message &msg)
+{
+}
+
+void coTUIFileBrowserButton::setCurDir(const char *dir)
+{
+}
+
+void coTUIFileBrowserButton::sendList(TokenBuffer & /*tb*/)
+{
+}
+
+std::string coTUIFileBrowserButton::getFilename(const std::string url)
+{
+    return std::string("");
+}
+
+void *coTUIFileBrowserButton::getFileHandle(bool sync)
+{
+    return NULL;
+}
+
+void coTUIFileBrowserButton::setMode(DialogMode mode)
+{
+    mMode = mode;
+    TokenBuffer rt;
+    rt << TABLET_SET_VALUE;
+    rt << TABLET_SET_MODE;
+    rt << ID;
+    rt << (int)mMode;
+
+    tui()->send(rt);
+}
+
+// Method which is called from external of coTabletUI to allow
+// OpenCOVER to initially set the range of available filter extensions
+// used in the file dialog in the TUI.
+void coTUIFileBrowserButton::setFilterList(std::string filterList)
+{
+    mFilterList = filterList;
+    TokenBuffer rt;
+    rt << TABLET_SET_VALUE;
+    rt << TABLET_SET_FILTERLIST;
+    rt << ID;
+    rt << filterList.c_str();
+
+    tui()->send(rt);
+}
+
+std::string coTUIFileBrowserButton::getSelectedPath()
+{
+    return "";
+}
+#endif
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -897,6 +1048,7 @@ coTUIColorTriangle::coTUIColorTriangle(const std::string &n, int pID)
     blue = 1.0;
 }
 
+#ifdef USE_QT
 coTUIColorTriangle::coTUIColorTriangle(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_COLOR_TRIANGLE)
 {
@@ -904,6 +1056,7 @@ coTUIColorTriangle::coTUIColorTriangle(QObject *parent, const std::string &n, in
     green = 1.0;
     blue = 1.0;
 }
+#endif
 
 coTUIColorTriangle::~coTUIColorTriangle()
 {
@@ -923,13 +1076,17 @@ void coTUIColorTriangle::parseMessage(TokenBuffer &tb)
 
         if (j == TABLET_RELEASED)
         {
+#ifdef USE_QT
             emit tabletReleaseEvent();
+#endif
             if (listener)
                 listener->tabletReleaseEvent(this);
         }
         if (j == TABLET_PRESSED)
         {
+#ifdef USE_QT
             emit tabletEvent();
+#endif
             if (listener)
                 listener->tabletEvent(this);
         }
@@ -967,6 +1124,7 @@ coTUIColorButton::coTUIColorButton(const std::string &n, int pID)
     alpha = 1.0;
 }
 
+#ifdef USE_QT
 coTUIColorButton::coTUIColorButton(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_COLOR_TRIANGLE)
 {
@@ -975,6 +1133,7 @@ coTUIColorButton::coTUIColorButton(QObject *parent, const std::string &n, int pI
     blue = 1.0;
     alpha = 1.0;
 }
+#endif
 
 coTUIColorButton::~coTUIColorButton()
 {
@@ -995,13 +1154,17 @@ void coTUIColorButton::parseMessage(TokenBuffer &tb)
 
         if (j == TABLET_RELEASED)
         {
+#ifdef USE_QT
             emit tabletEvent();
+#endif
             if (listener)
                 listener->tabletReleaseEvent(this);
         }
         if (j == TABLET_PRESSED)
         {
+#ifdef USE_QT
             emit tabletReleaseEvent();
+#endif
             if (listener)
                 listener->tabletEvent(this);
         }
@@ -1044,6 +1207,7 @@ void coTUIColorButton::resend(bool create)
     tui()->send(t);
 }
 
+#ifdef USE_QT
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -1080,7 +1244,9 @@ void coTUIColorTab::parseMessage(TokenBuffer &tb)
         tb >> blue;
         tb >> alpha;
 
+#ifdef USE_QT
         emit tabletEvent();
+#endif
         if (listener)
             listener->tabletEvent(this);
     }
@@ -1113,6 +1279,7 @@ void coTUIColorTab::resend(bool create)
     coTUIElement::resend(create);
     setColor(red, green, blue, alpha);
 }
+#endif
 
 //----------------------------------------------------------
 //---------------------------------------------------------
@@ -1175,10 +1342,12 @@ coTUIBitmapButton::coTUIBitmapButton(coTabletUI *tui, const std::string &n, int 
 {
 }
 
+#ifdef USE_QT
 coTUIBitmapButton::coTUIBitmapButton(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_BITMAP_BUTTON)
 {
 }
+#endif
 
 coTUIBitmapButton::~coTUIBitmapButton()
 {
@@ -1190,8 +1359,10 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_PRESSED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -1200,8 +1371,10 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -1229,11 +1402,13 @@ coTUILabel::coTUILabel(coTabletUI *tui, const std::string &n, int pID)
     color = Qt::black;
 }
 
+#ifdef USE_QT
 coTUILabel::coTUILabel(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TEXT_FIELD)
 {
     color = Qt::black;
 }
+#endif
 
 coTUILabel::~coTUILabel()
 {
@@ -1258,10 +1433,12 @@ coTUITabFolder::coTUITabFolder(coTabletUI *tui, const std::string &n, int pID)
 {
 }
 
+#ifdef USE_QT
 coTUITabFolder::coTUITabFolder(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TAB_FOLDER)
 {
 }
+#endif
 
 coTUITabFolder::~coTUITabFolder()
 {
@@ -1273,8 +1450,10 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_ACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -1283,8 +1462,10 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -1298,6 +1479,7 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
 }
 
 
+#ifdef USE_QT
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -1415,6 +1597,7 @@ bool coTUIUITab::loadUIFile(const std::string &filename)
 
     return true;
 }
+#endif
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -1430,10 +1613,12 @@ coTUITab::coTUITab(coTabletUI *tui, const std::string &n, int pID)
 
 }
 
+#ifdef USE_QT
 coTUITab::coTUITab(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TAB)
 {
 }
+#endif
 
 coTUITab::~coTUITab()
 {
@@ -1472,8 +1657,10 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_ACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -1482,8 +1669,10 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2080,6 +2269,7 @@ coTUISplitter::coTUISplitter(const std::string &n, int pID)
     setOrientation(orientation);
 }
 
+#ifdef USE_QT
 coTUISplitter::coTUISplitter(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_SPLITTER)
 {
@@ -2089,6 +2279,7 @@ coTUISplitter::coTUISplitter(QObject *parent, const std::string &n, int pID)
     setStyle(style);
     setOrientation(orientation);
 }
+#endif
 
 coTUISplitter::~coTUISplitter()
 {
@@ -2100,8 +2291,10 @@ void coTUISplitter::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_ACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2110,8 +2303,10 @@ void coTUISplitter::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2186,6 +2381,7 @@ coTUIFrame::coTUIFrame(coTabletUI *tui, const std::string &n, int pID)
     setStyle(style);
 }
 
+#ifdef USE_QT
 coTUIFrame::coTUIFrame(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_FRAME)
 {
@@ -2194,6 +2390,7 @@ coTUIFrame::coTUIFrame(QObject *parent, const std::string &n, int pID)
     setShape(shape);
     setStyle(style);
 }
+#endif
 
 coTUIFrame::~coTUIFrame()
 {
@@ -2205,8 +2402,10 @@ void coTUIFrame::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_ACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2215,8 +2414,10 @@ void coTUIFrame::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2275,12 +2476,14 @@ coTUIToggleButton::coTUIToggleButton(coTabletUI *tui, const std::string &n, int 
     setVal(state);
 }
 
+#ifdef USE_QT
 coTUIToggleButton::coTUIToggleButton(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_TOGGLE_BUTTON)
 {
     state = s;
     setVal(state);
 }
+#endif
 
 coTUIToggleButton::~coTUIToggleButton()
 {
@@ -2293,8 +2496,10 @@ void coTUIToggleButton::parseMessage(TokenBuffer &tb)
     if (i == TABLET_ACTIVATED)
     {
         state = true;
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2304,8 +2509,10 @@ void coTUIToggleButton::parseMessage(TokenBuffer &tb)
     else if (i == TABLET_DISACTIVATED)
     {
         state = false;
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2351,6 +2558,7 @@ coTUIToggleBitmapButton::coTUIToggleBitmapButton(const std::string &n, const std
     setVal(state);
 }
 
+#ifdef USE_QT
 coTUIToggleBitmapButton::coTUIToggleBitmapButton(QObject *parent, const std::string &n, const std::string &down, int pID, bool state)
     : coTUIElement(parent, n, pID, TABLET_BITMAP_TOGGLE_BUTTON)
 {
@@ -2360,6 +2568,7 @@ coTUIToggleBitmapButton::coTUIToggleBitmapButton(QObject *parent, const std::str
     setVal(bmpDown);
     setVal(state);
 }
+#endif
 
 coTUIToggleBitmapButton::~coTUIToggleBitmapButton()
 {
@@ -2372,8 +2581,10 @@ void coTUIToggleBitmapButton::parseMessage(TokenBuffer &tb)
     if (i == TABLET_ACTIVATED)
     {
         state = true;
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2383,8 +2594,10 @@ void coTUIToggleBitmapButton::parseMessage(TokenBuffer &tb)
     else if (i == TABLET_DISACTIVATED)
     {
         state = false;
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -2426,10 +2639,12 @@ coTUIMessageBox::coTUIMessageBox(const std::string &n, int pID)
 {
 }
 
+#ifdef USE_QT
 coTUIMessageBox::coTUIMessageBox(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_MESSAGE_BOX)
 {
 }
+#endif
 
 coTUIMessageBox::~coTUIMessageBox()
 {
@@ -2453,12 +2668,14 @@ coTUIEditField::coTUIEditField(coTabletUI *tui, const std::string &n, int pID)
     immediate = false;
 }
 
+#ifdef USE_QT
 coTUIEditField::coTUIEditField(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_EDIT_FIELD)
 {
     this->text = name;
     immediate = false;
 }
+#endif
 
 coTUIEditField::~coTUIEditField()
 {
@@ -2475,7 +2692,9 @@ void coTUIEditField::parseMessage(TokenBuffer &tb)
     const char *m;
     tb >> m;
     text = m;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2527,12 +2746,14 @@ coTUIEditTextField::coTUIEditTextField(coTabletUI *tui, const std::string &n, in
     immediate = false;
 }
 
+#ifdef USE_QT
 coTUIEditTextField::coTUIEditTextField(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TEXT_EDIT_FIELD)
 {
     text = name;
     immediate = false;
 }
+#endif
 
 coTUIEditTextField::~coTUIEditTextField()
 {
@@ -2549,7 +2770,9 @@ void coTUIEditTextField::parseMessage(TokenBuffer &tb)
     const char *m;
     tb >> m;
     text = m;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2594,6 +2817,7 @@ coTUIEditIntField::coTUIEditIntField(coTabletUI *tui, const std::string &n, int 
     setLabel("");
 }
 
+#ifdef USE_QT
 coTUIEditIntField::coTUIEditIntField(QObject *parent, const std::string &n, int pID, int def)
     : coTUIElement(parent, n, pID, TABLET_INT_EDIT_FIELD)
 {
@@ -2602,6 +2826,7 @@ coTUIEditIntField::coTUIEditIntField(QObject *parent, const std::string &n, int 
     setVal(value);
     setLabel("");
 }
+#endif
 
 coTUIEditIntField::~coTUIEditIntField()
 {
@@ -2616,7 +2841,9 @@ void coTUIEditIntField::setImmediate(bool i)
 void coTUIEditIntField::parseMessage(TokenBuffer &tb)
 {
     tb >> value;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2679,6 +2906,7 @@ coTUIEditFloatField::coTUIEditFloatField(coTabletUI *tui, const std::string &n, 
     setLabel("");
 }
 
+#ifdef USE_QT
 coTUIEditFloatField::coTUIEditFloatField(QObject *parent, const std::string &n, int pID, float def)
     : coTUIElement(parent, n, pID, TABLET_FLOAT_EDIT_FIELD)
 {
@@ -2687,6 +2915,7 @@ coTUIEditFloatField::coTUIEditFloatField(QObject *parent, const std::string &n, 
     immediate = 0;
     setLabel("");
 }
+#endif
 
 coTUIEditFloatField::~coTUIEditFloatField()
 {
@@ -2701,7 +2930,9 @@ void coTUIEditFloatField::setImmediate(bool i)
 void coTUIEditFloatField::parseMessage(TokenBuffer &tb)
 {
     tb >> value;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2738,6 +2969,7 @@ coTUISpinEditfield::coTUISpinEditfield(const std::string &n, int pID)
     setVal(TABLET_STEP, step);
 }
 
+#ifdef USE_QT
 coTUISpinEditfield::coTUISpinEditfield(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_SPIN_EDIT_FIELD)
 {
@@ -2750,6 +2982,7 @@ coTUISpinEditfield::coTUISpinEditfield(QObject *parent, const std::string &n, in
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_STEP, step);
 }
+#endif
 
 coTUISpinEditfield::~coTUISpinEditfield()
 {
@@ -2758,7 +2991,9 @@ coTUISpinEditfield::~coTUISpinEditfield()
 void coTUISpinEditfield::parseMessage(TokenBuffer &tb)
 {
     tb >> actValue;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2815,6 +3050,7 @@ coTUITextSpinEditField::coTUITextSpinEditField(const std::string &n, int pID)
     setVal(TABLET_STEP, step);
 }
 
+#ifdef USE_QT
 coTUITextSpinEditField::coTUITextSpinEditField(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_TEXT_SPIN_EDIT_FIELD)
 {
@@ -2827,6 +3063,7 @@ coTUITextSpinEditField::coTUITextSpinEditField(QObject *parent, const std::strin
     setVal(TABLET_MAX, maxValue);
     setVal(TABLET_STEP, step);
 }
+#endif
 
 coTUITextSpinEditField::~coTUITextSpinEditField()
 {
@@ -2837,7 +3074,9 @@ void coTUITextSpinEditField::parseMessage(TokenBuffer &tb)
     const char *m;
     tb >> m;
     text = m;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -2885,12 +3124,14 @@ coTUIProgressBar::coTUIProgressBar(const std::string &n, int pID)
     maxValue = 100;
 }
 
+#ifdef USE_QT
 coTUIProgressBar::coTUIProgressBar(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_PROGRESS_BAR)
 {
     actValue = 0;
     maxValue = 100;
 }
+#endif
 
 coTUIProgressBar::~coTUIProgressBar()
 {
@@ -2947,6 +3188,7 @@ coTUIFloatSlider::coTUIFloatSlider(coTabletUI *tui, const std::string &n, int pI
     setVal(orientation);
 }
 
+#ifdef USE_QT
 coTUIFloatSlider::coTUIFloatSlider(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_FLOAT_SLIDER)
 {
@@ -2959,6 +3201,7 @@ coTUIFloatSlider::coTUIFloatSlider(QObject *parent, const std::string &n, int pI
     orientation = s;
     setVal(orientation);
 }
+#endif
 
 coTUIFloatSlider::~coTUIFloatSlider()
 {
@@ -2971,8 +3214,10 @@ void coTUIFloatSlider::parseMessage(TokenBuffer &tb)
     tb >> actValue;
     if (i == TABLET_PRESSED)
     {
+#ifdef USE_QT
         emit tabletPressEvent();
         emit tabletEvent();
+#endif
         if (listener)
         {
             listener->tabletPressEvent(this);
@@ -2981,8 +3226,10 @@ void coTUIFloatSlider::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+#ifdef USE_QT
         emit tabletReleaseEvent();
         emit tabletEvent();
+#endif
         if (listener)
         {
             listener->tabletReleaseEvent(this);
@@ -2991,7 +3238,9 @@ void coTUIFloatSlider::parseMessage(TokenBuffer &tb)
     }
     else
     {
+#ifdef USE_QT
         emit tabletEvent();
+#endif
         if (listener)
             listener->tabletEvent(this);
     }
@@ -3091,6 +3340,7 @@ coTUISlider::coTUISlider(coTabletUI *tui, const std::string &n, int pID, bool s)
     setVal(orientation);
 }
 
+#ifdef USE_QT
 coTUISlider::coTUISlider(QObject *parent, const std::string &n, int pID, bool s)
     : coTUIElement(parent, n, pID, TABLET_SLIDER)
     , actValue(0)
@@ -3102,6 +3352,7 @@ coTUISlider::coTUISlider(QObject *parent, const std::string &n, int pID, bool s)
     orientation = s;
     setVal(orientation);
 }
+#endif
 
 coTUISlider::~coTUISlider()
 {
@@ -3114,8 +3365,10 @@ void coTUISlider::parseMessage(TokenBuffer &tb)
     tb >> actValue;
     if (i == TABLET_PRESSED)
     {
+#ifdef USE_QT
         emit tabletPressEvent();
         emit tabletEvent();
+#endif
         if (listener)
         {
             listener->tabletPressEvent(this);
@@ -3124,8 +3377,10 @@ void coTUISlider::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_RELEASED)
     {
+#ifdef USE_QT
         emit tabletReleaseEvent();
         emit tabletEvent();
+#endif
         if (listener)
         {
             listener->tabletReleaseEvent(this);
@@ -3134,7 +3389,9 @@ void coTUISlider::parseMessage(TokenBuffer &tb)
     }
     else
     {
+#ifdef USE_QT
         emit tabletEvent();
+#endif
         if (listener)
             listener->tabletEvent(this);
     }
@@ -3214,6 +3471,7 @@ coTUIComboBox::coTUIComboBox(coTabletUI *tui, const std::string &n, int pID)
     selection = -1;
 }
 
+#ifdef USE_QT
 coTUIComboBox::coTUIComboBox(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_COMBOBOX)
 {
@@ -3221,6 +3479,7 @@ coTUIComboBox::coTUIComboBox(QObject *parent, const std::string &n, int pID)
     text = "";
     selection = -1;
 }
+#endif
 
 coTUIComboBox::~coTUIComboBox()
 {
@@ -3240,7 +3499,9 @@ void coTUIComboBox::parseMessage(TokenBuffer &tb)
 		}
 		i++;
 	}
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -3388,12 +3649,14 @@ coTUIListBox::coTUIListBox(const std::string &n, int pID)
     selection = -1;
 }
 
+#ifdef USE_QT
 coTUIListBox::coTUIListBox(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_LISTBOX)
 {
     text = "";
     selection = -1;
 }
+#endif
 
 coTUIListBox::~coTUIListBox()
 {
@@ -3412,7 +3675,9 @@ void coTUIListBox::parseMessage(TokenBuffer &tb)
 		}
 		i++;
 	}
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -3706,12 +3971,14 @@ coTUIPopUp::coTUIPopUp(const std::string &n, int pID)
     immediate = false;
 }
 
+#ifdef USE_QT
 coTUIPopUp::coTUIPopUp(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_POPUP)
 {
     text = "";
     immediate = false;
 }
+#endif
 
 coTUIPopUp::~coTUIPopUp()
 {
@@ -3728,7 +3995,9 @@ void coTUIPopUp::parseMessage(TokenBuffer &tb)
     const char *m;
     tb >> m;
     text = m;
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
         listener->tabletEvent(this);
 }
@@ -3761,9 +4030,7 @@ coTabletUI *coTabletUI::instance()
 //----------------------------------------------------------
 
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
-: QObject(0)
-, type(type)
-, m_tui(coTabletUI::instance())
+: QT(QObject(0) COMMA) type(type), m_tui(coTabletUI::instance())
 {
     xs = -1;
     ys = -1;
@@ -3784,9 +4051,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
 }
 
 coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, int type)
-: QObject(0)
-, type(type)
-, m_tui(tabletUI)
+: QT(QObject(0) COMMA) type(type), m_tui(tabletUI)
 {
     xs = -1;
     ys = -1;
@@ -3828,6 +4093,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
 }
 #endif
 
+#ifdef USE_QT
 coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int type)
 : QObject(parent)
 , type(type)
@@ -3849,6 +4115,7 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
         coVRMSController::instance()->agreeInt(ID);
     }
 }
+#endif
 
 coTUIElement::~coTUIElement()
 {
@@ -4559,8 +4826,9 @@ bool coTabletUI::update()
                 tb >> ID;
                 if (ID >= 0)
                 {
-                    for (auto el: elements)
+                    for(size_t i=0;i<elements.size();i++)
                     {
+                        auto el = elements[i];
                         if (el && el->getID() == ID)
                         {
                             el->parseMessage(tb);
@@ -4615,11 +4883,13 @@ coTUIGroupBox::coTUIGroupBox(coTabletUI *tui, const std::string &n, int pID)
 
 }
 
+#ifdef USE_QT
 coTUIGroupBox::coTUIGroupBox(QObject *parent, const std::string &n, int pID)
     : coTUIElement(parent, n, pID, TABLET_GROUPBOX)
 {
 
 }
+#endif
 
 coTUIGroupBox::~coTUIGroupBox()
 {
@@ -4632,8 +4902,10 @@ void coTUIGroupBox::parseMessage(TokenBuffer &tb)
     tb >> i;
     if (i == TABLET_ACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletPressEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -4642,8 +4914,10 @@ void coTUIGroupBox::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_DISACTIVATED)
     {
+#ifdef USE_QT
         emit tabletEvent();
         emit tabletReleaseEvent();
+#endif
         if (listener)
         {
             listener->tabletEvent(this);
@@ -4665,10 +4939,12 @@ coTUIWebview::coTUIWebview(coTabletUI* tui, const std::string& n, int pID)
 {
 }
 
+#ifdef USE_QT
 coTUIWebview::coTUIWebview(QObject* parent, const std::string& n, int pID)
     : coTUIElement(parent, n, pID, TABLET_WEBVIEW)
 {
 }
+#endif
 
 coTUIWebview::~coTUIWebview()
 {
@@ -4681,7 +4957,9 @@ void coTUIWebview::parseMessage(TokenBuffer& tb)
     tb >> i;
     //url speichern
     //getLoadedURL
+#ifdef USE_QT
     emit tabletEvent();
+#endif
     if (listener)
     {
         listener->tabletEvent(this);
