@@ -2413,27 +2413,6 @@ void VRViewer::removeCamera(osg::Camera *camera)
 
 void VRViewer::renderingTraversals()
 {
-    bool _outputMasterCameraLocation = false;
-    if (_outputMasterCameraLocation)
-    {
-        Views views;
-        getViews(views);
-
-        for (Views::iterator itr = views.begin();
-             itr != views.end();
-             ++itr)
-        {
-            osgViewer::View *view = *itr;
-            if (view)
-            {
-                const osg::Matrixd &m = view->getCamera()->getInverseViewMatrix();
-                OSG_NOTICE << "View " << view << ", Master Camera position(" << m.getTrans().x() << "," << m.getTrans().y() << "," << m.getTrans().z() << ","
-                           << "), rotation(" << m.getRotate().x() << "," << m.getRotate().y() << "," << m.getRotate().z() << "," << m.getRotate().w() << ","
-                           << ")" << std::endl;
-            }
-        }
-    }
-
     Contexts contexts;
     getContexts(contexts);
 
@@ -2542,6 +2521,7 @@ void VRViewer::renderingTraversals()
     {
         _endDynamicDrawBlock->reset();
     }
+
     // dispatch the the rendering threads
     if (_startRenderingBarrier.valid())
         _startRenderingBarrier->block();
@@ -2577,7 +2557,7 @@ void VRViewer::renderingTraversals()
     }
 
     // osg::notify(osg::NOTICE)<<"Joing _endRenderingDispatchBarrier block "<<_endRenderingDispatchBarrier.get()<<std::endl;
-
+    
     // wait till the rendering dispatch is done.
     if (_endRenderingDispatchBarrier.valid())
         _endRenderingDispatchBarrier->block();
