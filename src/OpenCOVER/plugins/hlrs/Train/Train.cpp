@@ -50,19 +50,35 @@ std::ostream& operator<<(std::ostream& os, const osg::Vec3& vec) {
 
 bool Train::init()
 {
-    //Restart Buttom
+    //Restart Button
     trainMenu = new ui::Menu("Train", this);
     trainMenu->setText("Train");
 
+    //Restart Button
     restartButton = new ui::Action(trainMenu, "Restart");
     restartButton->setText("restart");
     restartButton->setCallback([this]() {currentPointIndex = 0; });
+
+    //Switch track
+    SwitchTrack = new ui::Action(trainMenu, "SwitchTrack");
+    SwitchTrack->setText("SwitchTrack");
+    SwitchTrack->setCallback([this]() {useTrack1 = !useTrack1; });
+
+    //Reset at Index 50
+    ResetAt50 = new ui::Action(trainMenu, "ResetAt50");
+    ResetAt50->setText("ResetAt50");
+    ResetAt50->setCallback([this]() {currentPointIndex = 50; });
+
+    //Reset at Index 2480
+    ResetAt2500 = new ui::Action(trainMenu, "ResetAt2500");
+    ResetAt2500->setText("ResetAt2500");
+    ResetAt2500->setCallback([this]() {currentPointIndex = 2500; });
 
     //Speed Slider
     speedSlider = new ui::Slider(trainMenu, "Speed");
     speedSlider->setText("Speed (km/h)");
 
-    speedSlider->setBounds(0.0, 250.0);
+    speedSlider->setBounds(0.0, 1000.0);
     speedSlider->setValue(speed);
     speedSlider->setCallback([this](ui::Slider::ValueType value, bool released) {
         speed = value / 3.6;
@@ -82,14 +98,6 @@ bool Train::init()
     parseTrajectoryFile("C:\\data\\Suedlink\\out2024\\Trajectory.wrl", trajectoryPoints1);
     parseTrajectoryFile("C:\\data\\Suedlink\\out2024\\Trajectory2.wrl", trajectoryPoints2);
 
-    for (int i = 0; i < 16; i++) {
-        std::cout << "trajectoryPoints1 Point" << i << ":" << trajectoryPoints1[i] << std::endl;
-    }
-
-    for (int i = 0; i < 16; i++) {
-        std::cout << "trajectoryPoints2 Point" << i << ":" << trajectoryPoints2[i] << std::endl;
-    }
-
     if (trajectoryPoints1.empty() || trajectoryPoints2.empty()) {
         std::cerr << "No points found in the trajectory file or failed to parse the file." << std::endl;
     }
@@ -101,44 +109,33 @@ bool Train::init()
 
 
 
-//osg::Vec3 lastPosition;
-osg::Vec3 directionVectorXY;
-//osg::Vec3 TrainDirection;
-osg::Matrix rotationMatrix;
-
-
-
-
-
 bool Train::update()
 {
     if (trajectoryPoints1.empty() ||trajectoryPoints2.empty()) {
         return false; // No points or distances to move along
     }
 
-    //Interpolation
     double elapsedTime = cover->frameDuration();
     DistanceSinceLastTime += speed * elapsedTime;
- 
-    if (useTrack1) {
-        trainMoving(reachEnd, trajectoryPoints1, DistanceSinceLastTime, currentPointIndex);
-    }
-    else {
-        trainMoving(reachEnd, trajectoryPoints2, DistanceSinceLastTime, currentPointIndex);
-    }
 
-    //std::cout << "elapsedTime: " << elapsedTime << std::endl;
-    //std::cout << "DistanceSinceLastTime: " << DistanceSinceLastTime << std::endl;
-    //std::cout << "t: " << t << std::endl;
-    //std::cout << "interpolatedPosition: " << interpolatedPosition << std::endl;
+    //std::cout << "\n" << "\n" << "2nd Print: Speed now =" << speed << "m/s" << std::endl;
+    std::cout << "DistanceSinceLastTime =" << DistanceSinceLastTime << "m" << std::endl;
+    //std::cout << "reachEnd or not: " << reachEnd << std::endl;
+    std::cout << "currentPointIndex: " << currentPointIndex << std::endl;
+ 
+    //if (useTrack1) {
+    //    trainMoving(reachEnd, trajectoryPoints1, DistanceSinceLastTime, currentPointIndex);
+    //}
+    //else {
+    //    trainMoving(reachEnd, trajectoryPoints2, DistanceSinceLastTime, currentPointIndex);
+    //}
+
+    const auto& trajectory = useTrack1 ? trajectoryPoints1 : trajectoryPoints2;
+    trainMoving(reachEnd, trajectory, DistanceSinceLastTime, currentPointIndex);
+    std::cout << "trajectory Point: " << trajectory[currentPointIndex] << "\n" << "\n" << std::endl;
 
     return true;
 }
-
-
-
-
-
 
 
 
@@ -177,10 +174,6 @@ void Train::parseTrajectoryFile(const std::string& filename, std::vector<osg::Ve
 
 
 
-
-
-
-
 void Train::findDivergePoint(const std::vector<osg::Vec3>& trajectory1, const std::vector<osg::Vec3>& trajectory2) {
 
     for (int i = 0; i < 5225; i++) {
@@ -192,9 +185,9 @@ void Train::findDivergePoint(const std::vector<osg::Vec3>& trajectory1, const st
 
         float dotProduct = vec1 * vec2;
 
-        if (magnitudeProduct != dotProduct) {
+        if (std::abs(magnitudeProduct - dotProduct) > 1e-6) {   // edited by GPT: Allow for floating-point error
             divergePointIndex = i;
-            std::cout << "The Train Diverges Here: "  << trajectory1[divergePointIndex];
+            std::cout << "The Train Diverges Here: " << trajectory1[i].x() << ", " << trajectory1[i].y() << ", " << trajectory1[i].z() << std::endl;
             return;
         }
     }
@@ -203,81 +196,88 @@ void Train::findDivergePoint(const std::vector<osg::Vec3>& trajectory1, const st
 }
 
 
-
-
-
-
-
-
-
-
-
-//Intropolation
 float t;
 osg::Vec3 interpolatedPosition;
 osg::ref_ptr<osg::MatrixTransform> carPosition;
+osg::Vec3 directionVectorXY;
+osg::Matrix rotationMatrix;
 
 
-void Train::trainMoving(bool& checkReachEnd, const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint) {
+void Train::trainMoving(bool &checkReachEnd, const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint) {
+    
+    if (!checkReachEnd) { // FORWARD!!!!!!!!!!
 
-    if (checkReachEnd == false) {
-        while (distance > (trajectory[currentPoint + 1] - trajectory[currentPoint]).length())
+        float IntervalDistance = (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
+        std::cout << "Interval Distance = " << IntervalDistance << "m" << std::endl;
+
+        while (distance >= IntervalDistance)
         {
-            distance -= (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
-            currentPoint++;
-            t = distance / (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
-            interpolatedPosition = trajectory[currentPoint] * (1.0f - t) + trajectory[(currentPoint + 1) % trajectory.size()] * t;
-
-
-            if (currentPoint == trajectory.size() - 1) {
+            distance -= IntervalDistance;
+            if (currentPoint != trajectory.size() - 2) {
+                currentPoint++;
+            }
+            else {
                 checkReachEnd = true;
+                speed = -speed;
+                distance = 0;
+                currentPoint = trajectory.size() - 1;
+                std::cout << "\n" << "\n" << "\n" << "Reached Far End!" << "Speed now =" << speed << "m/s" << "\n" << "\n" << "\n" << std::endl;
+                return;
             }
-
         }
+
+        t = distance / (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
+        interpolatedPosition = trajectory[currentPoint] * (1.0f - t) + trajectory[(currentPoint + 1)] * t;
+
     }
-    else {
-        while (distance > (trajectory[currentPoint] - trajectory[currentPoint - 1]).length())
+    else {                // BACKWARD!!!!!!!!!!   
+
+        float IntervalDistance = (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
+        std::cout << "Interval Distance = " << IntervalDistance << "m; " << "Now at: " << trajectory[currentPoint] << "; Last at: " << trajectory[currentPoint - 1] << std::endl;
+
+        while (std::abs(distance) > IntervalDistance)
         {
-            distance -= (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
-            currentPoint--;
-            t = distance / (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
-
-            if (currentPoint == 1) {
+            distance += IntervalDistance;
+            if (currentPoint != 1) {
+                currentPoint--;
+            }
+            else {
+                interpolatedPosition = trajectory[0] * t + trajectory[1] * (1.0f - t);
                 checkReachEnd = false;
+                speed = -speed;
+                std::cout << "\n" << "\n" << "\n" << "Reached Start!" << "Speed now =" << speed << "m/s" << "\n" << "\n" << "\n" << std::endl;
+                currentPoint = 0;
+                return;
             }
         }
+        t = std::abs(distance) / (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
+        std::cout  << "t =" << t << std::endl;
+        interpolatedPosition = trajectory[(currentPoint - 1)] * t + trajectory[currentPoint] * (1.0f - t); 
+        std::cout << "interpolatedPosition: " << interpolatedPosition << std::endl;
+
     }
 
-    // Calculate direction vector
-    float angle = 0;
+    //Direction Angle
     if (currentPoint > 0) {
         directionVectorXY = trajectory[currentPoint] - trajectory[currentPoint - 1];
-        directionVectorXY[2] = 0;
-
-        // Normalize the direction vector
-        directionVectorXY.normalize();
-
-        // Calculate the angle to rotate based on the direction vector
-        angle = atan2(directionVectorXY.y(), directionVectorXY.x());
-        angle -= M_PI_2;
-
+    }
+    else {
+        directionVectorXY = trajectory[1] - trajectory[0];
     }
 
+    directionVectorXY[2] = 0;
+    directionVectorXY.normalize();
+
+    angle = atan2(directionVectorXY.y(), directionVectorXY.x()) - M_PI_2;
     rotationMatrix = osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1));
 
     osg::Matrix matrix;
     matrix.makeTranslate(interpolatedPosition);
+
     matrix = rotationMatrix * matrix;
     carPosition->setMatrix(matrix);
 
 }
-
-
-
-//void Train::switchTrack(bool useTrack1) {
-//    this->useTrack1 = useTrack1;
-//}
-
 
 
 COVERPLUGIN(Train)

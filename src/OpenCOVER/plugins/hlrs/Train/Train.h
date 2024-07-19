@@ -68,6 +68,7 @@ public:
 
     float DistanceSinceLastTime = 0;
     float speed = 20;
+    float angle = 0;
 
 private:
     osg::ref_ptr<osg::MatrixTransform> carPosition;
@@ -79,9 +80,14 @@ private:
 
     opencover::ui::Menu *trainMenu;
     opencover::ui::Action *restartButton;
+    opencover::ui::Action* SwitchTrack;
+
+    opencover::ui::Action* ResetAt50;
+    opencover::ui::Action* ResetAt2500;
+
     opencover::ui::Action* switchTrackButton;
     opencover::ui::Slider *speedSlider;
-    bool useTrack1 = true;
+    bool useTrack1 = false;
 
 };
 
