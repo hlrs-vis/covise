@@ -4030,7 +4030,7 @@ coTabletUI *coTabletUI::instance()
 //----------------------------------------------------------
 
 coTUIElement::coTUIElement(const std::string &n, int pID, int type)
-: QT(QObject(0) COMMA) type(type), m_tui(coTabletUI::instance())
+: QT(QObject(0) D_COMMA) type(type), m_tui(coTabletUI::instance())
 {
     xs = -1;
     ys = -1;
@@ -4051,7 +4051,7 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
 }
 
 coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, int type)
-: QT(QObject(0) COMMA) type(type), m_tui(tabletUI)
+: QT(QObject(0) D_COMMA) type(type), m_tui(tabletUI)
 {
     xs = -1;
     ys = -1;

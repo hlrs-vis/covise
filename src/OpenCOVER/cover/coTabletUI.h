@@ -80,7 +80,7 @@ enum GlobalColor
 };
 }
 #endif
-#define COMMA ,
+#define D_COMMA ,
 
 #define THREAD_NOTHING_TO_DO 0
 
@@ -114,7 +114,7 @@ class IRemoteData;
  * Tablet PC Userinterface Mamager.
  * This class provides a connection to a Tablet PC and handles all coTUIElements.
  */
-class COVEREXPORT coTabletUI: QT(public QObject COMMA) public covise::coAbstractTabletUI
+class COVEREXPORT coTabletUI: QT(public QObject D_COMMA) public covise::coAbstractTabletUI
 {
     Q_OBJECT
 
@@ -180,7 +180,7 @@ protected:
 /**
  * Base class for Tablet PC UI Elements.
  */
-class COVEREXPORT coTUIElement: QT(public QObject COMMA) public covise::coAbstractTUIElement
+class COVEREXPORT coTUIElement: QT(public QObject D_COMMA) public covise::coAbstractTUIElement
 {
     Q_OBJECT
 
