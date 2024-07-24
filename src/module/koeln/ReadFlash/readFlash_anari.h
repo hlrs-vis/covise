@@ -305,7 +305,7 @@ inline AMRField toAMRField(
   AMRField result;
 
   bool *in_reg = new bool[var.global_num_blocks];
-  size_t bid_first = -1, bid_last = -1;
+  size_t bid_first = 0, bid_last = 0;
 
   int common_ref = 1000;
   int max_ref = 0;
@@ -380,11 +380,13 @@ inline AMRField toAMRField(
 
   // Get first and last block in list
   // Gives lower and upper corner on fully sampled cuboid
+  bool find_first = true;
   for (size_t i = 0; i < var.global_num_blocks; ++i) {
     if (!in_reg[i]) continue;
     bid_last = i;
-    if (bid_first == -1) {
+    if (find_first) {
       bid_first = i;
+      find_first = false;
     }
   }
 
