@@ -57,22 +57,22 @@ bool Train::init()
     //Restart Button
     restartButton = new ui::Action(trainMenu, "Restart");
     restartButton->setText("restart");
-    restartButton->setCallback([this]() {currentPointIndex = 0; });
+    restartButton->setCallback([this]() {currentPointIndex = 0; DistanceSinceLastPoint = 0.0f; });
 
     //Switch track
     SwitchTrack = new ui::Action(trainMenu, "SwitchTrack");
-    SwitchTrack->setText("SwitchTrack");
+    SwitchTrack->setText("Switch Track");
     SwitchTrack->setCallback([this]() {useTrack1 = !useTrack1; });
 
-    //Reset at Index 50
-    ResetAt50 = new ui::Action(trainMenu, "ResetAt50");
-    ResetAt50->setText("ResetAt50");
-    ResetAt50->setCallback([this]() {currentPointIndex = 50; });
+    //Reset at Index 25
+    ResetAt25 = new ui::Action(trainMenu, "ResetAt25");
+    ResetAt25->setText("ResetAt25");
+    ResetAt25->setCallback([this]() {currentPointIndex = 25; DistanceSinceLastPoint = 0.0f; });
 
     //Reset at Index 2480
     ResetAt2500 = new ui::Action(trainMenu, "ResetAt2500");
     ResetAt2500->setText("ResetAt2500");
-    ResetAt2500->setCallback([this]() {currentPointIndex = 2500; });
+    ResetAt2500->setCallback([this]() {currentPointIndex = 2500; DistanceSinceLastPoint = 0.0f; });
 
     //Speed Slider
     speedSlider = new ui::Slider(trainMenu, "Speed");
@@ -89,9 +89,15 @@ bool Train::init()
     carPosition->setName("carPosition");
     cover->getObjectsRoot()->addChild(carPosition);
 
+    //load Triebwagen & Trajectory2
     if (!coVRFileManager::instance()->loadFile("C:\\data\\Suedlink\\out2024\\Triebwagen_Vorne.wrl", nullptr, carPosition))
     {
         std::cerr << "Error: Failed to load file 'Triebwagen_Vorne.wrl'" << std::endl;
+    }
+
+    if (!coVRFileManager::instance()->loadFile("C:\\data\\Suedlink\\out2024\\Trajectory2.wrl", nullptr, nullptr))
+    {
+        std::cerr << "Error: Failed to load file 'Trajectory2.wrl'" << std::endl;
     }
 
     // Load Trajectory points
@@ -101,8 +107,6 @@ bool Train::init()
     if (trajectoryPoints1.empty() || trajectoryPoints2.empty()) {
         std::cerr << "No points found in the trajectory file or failed to parse the file." << std::endl;
     }
-
-    //findDivergePoint(trajectoryPoints1, trajectoryPoints2);
 
     return true;
 }
@@ -116,13 +120,9 @@ bool Train::update()
     }
 
     double elapsedTime = cover->frameDuration();
-    DistanceSinceLastTime += speed * elapsedTime;
+    DistanceSinceLastPoint += speed * elapsedTime;
+    DistanceSinceLastTime = speed * elapsedTime;
 
-    //std::cout << "\n" << "\n" << "2nd Print: Speed now =" << speed << "m/s" << std::endl;
-    std::cout << "DistanceSinceLastTime =" << DistanceSinceLastTime << "m" << std::endl;
-    //std::cout << "reachEnd or not: " << reachEnd << std::endl;
-    std::cout << "currentPointIndex: " << currentPointIndex << std::endl;
- 
     //if (useTrack1) {
     //    trainMoving(reachEnd, trajectoryPoints1, DistanceSinceLastTime, currentPointIndex);
     //}
@@ -131,8 +131,8 @@ bool Train::update()
     //}
 
     const auto& trajectory = useTrack1 ? trajectoryPoints1 : trajectoryPoints2;
-    trainMoving(reachEnd, trajectory, DistanceSinceLastTime, currentPointIndex);
-    std::cout << "trajectory Point: " << trajectory[currentPointIndex] << "\n" << "\n" << std::endl;
+    trainMoving(trajectory, DistanceSinceLastPoint, currentPointIndex);
+    //std::cout << "trajectory Point: " << trajectory[currentPointIndex] << "\n" << "\n" << std::endl;
 
     return true;
 }
@@ -203,58 +203,84 @@ osg::Vec3 directionVectorXY;
 osg::Matrix rotationMatrix;
 
 
-void Train::trainMoving(bool &checkReachEnd, const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint) {
+void Train::trainMoving(const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint) {
     
-    if (!checkReachEnd) { // FORWARD!!!!!!!!!!
+    float IntervalDistance = (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
+    std::cout << "\nInterval Distance = " << IntervalDistance << "m" << std::endl;
 
-        float IntervalDistance = (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
-        std::cout << "Interval Distance = " << IntervalDistance << "m" << std::endl;
+    if (!reachEnd) {    // FORWARD!!!!!!!!!!
 
-        while (distance >= IntervalDistance)
-        {
-            distance -= IntervalDistance;
-            if (currentPoint != trajectory.size() - 2) {
+        if (currentPoint <= trajectory.size() - 2) {
+
+            while (distance > IntervalDistance && currentPoint < trajectory.size() - 2) {
+                distance -= IntervalDistance;
                 currentPoint++;
+                IntervalDistance = (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
+                std::cout << "Updated Interval Distance = " << IntervalDistance << "m" << std::endl;
+            }
+            
+            std::cout << "currentPointIndex: " << currentPointIndex << std::endl;
+            std::cout << "distanceSinceLastPoint =" << distance << "m" << std::endl;
+            std::cout << "DistanceSinceLastTime =" << DistanceSinceLastTime << "m" << std::endl;
+
+            if (distance < IntervalDistance) {
+                t = distance / IntervalDistance;
+                interpolatedPosition = trajectory[currentPoint] * (1.0f - t) + trajectory[(currentPoint + 1)] * t;
             }
             else {
-                checkReachEnd = true;
+                reachEnd = true;
                 speed = -speed;
                 distance = 0;
-                currentPoint = trajectory.size() - 1;
-                std::cout << "\n" << "\n" << "\n" << "Reached Far End!" << "Speed now =" << speed << "m/s" << "\n" << "\n" << "\n" << std::endl;
+                //currentPoint = trajectory.size() - 2;
+                std::cout << "\n\n\n" << "Reached Far End!" << "  Speed now =" << speed << "m/s" << "\n\n\n" << std::endl;
                 return;
             }
-        }
 
-        t = distance / (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
-        interpolatedPosition = trajectory[currentPoint] * (1.0f - t) + trajectory[(currentPoint + 1)] * t;
+            std::cout << "t = " << t << std::endl;
+            std::cout << "interpolatedPosition: " << interpolatedPosition << std::endl;
+            std::cout << "last Point: " << trajectory[currentPoint] << std::endl;
+            std::cout << "next Point: " << trajectory[currentPoint + 1] << std::endl;
 
+
+        } 
     }
     else {                // BACKWARD!!!!!!!!!!   
 
-        float IntervalDistance = (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
-        std::cout << "Interval Distance = " << IntervalDistance << "m; " << "Now at: " << trajectory[currentPoint] << "; Last at: " << trajectory[currentPoint - 1] << std::endl;
+        //float IntervalDistance = (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
+        //std::cout << "Interval Distance = " << IntervalDistance << "m; " << "Now at: " << trajectory[currentPoint] << "; Last at: " << trajectory[currentPoint - 1] << std::endl;
 
-        while (std::abs(distance) > IntervalDistance)
-        {
-            distance += IntervalDistance;
-            if (currentPoint != 1) {
+        if (currentPoint >= 0) {    
+
+            while (std::abs(distance) > IntervalDistance && currentPoint >= 1) {
+                distance += IntervalDistance;
                 currentPoint--;
+                IntervalDistance = (trajectory[currentPoint + 1] - trajectory[currentPoint]).length();
+                std::cout << "Updated Interval Distance = " << IntervalDistance << "m" << std::endl;
+            }
+
+            std::cout << "\ncurrentPointIndex: " << currentPointIndex << std::endl;
+            std::cout << "distanceSinceLastPoint =" << distance << "m" << std::endl;
+            std::cout << "DistanceSinceLastTime =" << DistanceSinceLastTime << "m" << std::endl;
+
+            if (std::abs(distance) < IntervalDistance) {
+                t = std::abs(distance) / IntervalDistance;
+                interpolatedPosition = trajectory[(currentPoint)] * t + trajectory[currentPoint + 1] * (1.0f - t);
             }
             else {
-                interpolatedPosition = trajectory[0] * t + trajectory[1] * (1.0f - t);
-                checkReachEnd = false;
+                //interpolatedPosition = trajectory[0] * t + trajectory[1] * (1.0f - t);
+                reachEnd = false;
                 speed = -speed;
-                std::cout << "\n" << "\n" << "\n" << "Reached Start!" << "Speed now =" << speed << "m/s" << "\n" << "\n" << "\n" << std::endl;
+                distance = 0;
                 currentPoint = 0;
+                std::cout << "\n" << "\n" << "\n" << "Reached Start!" << "Speed now =" << speed << "m/s" << "\n" << "\n" << "\n" << std::endl;
                 return;
             }
-        }
-        t = std::abs(distance) / (trajectory[currentPoint] - trajectory[currentPoint - 1]).length();
-        std::cout  << "t =" << t << std::endl;
-        interpolatedPosition = trajectory[(currentPoint - 1)] * t + trajectory[currentPoint] * (1.0f - t); 
-        std::cout << "interpolatedPosition: " << interpolatedPosition << std::endl;
 
+            std::cout << "t = " << t << std::endl;
+            std::cout << "interpolatedPosition: " << interpolatedPosition << std::endl;
+            std::cout << "last Point: " << trajectory[currentPoint] << std::endl;
+            std::cout << "next Point: " << trajectory[currentPoint + 1] << std::endl;
+        }
     }
 
     //Direction Angle
@@ -277,6 +303,7 @@ void Train::trainMoving(bool &checkReachEnd, const std::vector<osg::Vec3>& traje
     matrix = rotationMatrix * matrix;
     carPosition->setMatrix(matrix);
 
+    return ;
 }
 
 

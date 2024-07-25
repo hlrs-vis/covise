@@ -56,7 +56,6 @@ public:
 
     // Function to parse the .wrl file and extract points
     void parseTrajectoryFile(const std::string& filename, std::vector<osg::Vec3>& trajectoryPoints);
-    
     void findDivergePoint(const std::vector<osg::Vec3>& trajectory1, const std::vector<osg::Vec3>& trajectory2);
 
     //void switchTrack(bool useTrack1);
@@ -64,8 +63,9 @@ public:
     int divergePointIndex;
 
 
-    void trainMoving(bool& checkReachEnd, const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint);
+    void trainMoving(const std::vector<osg::Vec3>& trajectory, float& distance, size_t& currentPoint);
 
+    float DistanceSinceLastPoint = 0;
     float DistanceSinceLastTime = 0;
     float speed = 20;
     float angle = 0;
@@ -82,7 +82,7 @@ private:
     opencover::ui::Action *restartButton;
     opencover::ui::Action* SwitchTrack;
 
-    opencover::ui::Action* ResetAt50;
+    opencover::ui::Action* ResetAt25;
     opencover::ui::Action* ResetAt2500;
 
     opencover::ui::Action* switchTrackButton;
