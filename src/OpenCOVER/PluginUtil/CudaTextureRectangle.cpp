@@ -10,6 +10,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <GL/glew.h>
 #include <osg/Version>
 
+#include "CudaSafeCall.h"
 #include "CudaTextureRectangle.h"
 
 
@@ -93,7 +94,9 @@ void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeS
     pbo_->setUsage(GL_STREAM_DRAW);
     pbo_->compileBuffer(*state);
 
-    resource_.register_buffer(pbo_->getGLBufferObject(state->getContextID())->getGLObjectID(), cudaGraphicsRegisterFlagsWriteDiscard);
+    CUDA_SAFE_CALL(resource_.register_buffer(
+        pbo_->getGLBufferObject(state->getContextID())->getGLObjectID(),
+        cudaGraphicsRegisterFlagsWriteDiscard));
 
     resource_.map();
 }
@@ -108,7 +111,7 @@ void CudaTextureRectangle::clear()
     if (resourceData() == nullptr)
         return;
 
-    cudaMemset(resourceData(), 0, resourceDataSize_);
+    CUDA_SAFE_CALL(cudaMemset(resourceData(), 0, resourceDataSize_));
 }
 
 }

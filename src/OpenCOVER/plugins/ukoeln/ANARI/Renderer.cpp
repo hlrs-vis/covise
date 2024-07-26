@@ -15,6 +15,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
+#include <PluginUtil/CudaSafeCall.h>
 #include "generateRandomSpheres.h"
 #include "readPTS.h"
 #include "Projection.h"
@@ -109,7 +110,7 @@ Renderer::~Renderer()
 {
 #ifdef ANARI_PLUGIN_HAVE_CUDA
     if (anari.cudaInterop.enabled) {
-        cudaStreamDestroy(anari.cudaInterop.copyStream);
+        CUDA_SAFE_CALL(cudaStreamDestroy(anari.cudaInterop.copyStream));
     }
 #endif
     cover->getScene()->removeChild(multiChannelDrawer);
@@ -670,10 +671,10 @@ void Renderer::renderFrame(unsigned chan)
                                                                     &widthOUT,
                                                                     &heightOUT,
                                                                     &typeOUT);
-        cudaMemcpyAsync((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
+        CUDA_SAFE_CALL(cudaMemcpyAsync((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
                widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
-               anari.cudaInterop.copyStream);
-        cudaStreamSynchronize(anari.cudaInterop.copyStream);
+               anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.colorGPU");
 
         const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
@@ -682,14 +683,14 @@ void Renderer::renderFrame(unsigned chan)
                                                               &heightOUT,
                                                               &typeOUT);
         float *dbXformed;
-        cudaMalloc(&dbXformed, widthOUT*heightOUT*sizeof(float));
+        CUDA_SAFE_CALL(cudaMalloc(&dbXformed, widthOUT*heightOUT*sizeof(float)));
         transformDepthFromWorldToGL_CUDA(dbPointer, dbXformed, eye, dir, up, fovy,
                                     aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
-        cudaMemcpyAsync((float *)multiChannelDrawer->depth(chan), dbXformed,
+        CUDA_SAFE_CALL(cudaMemcpyAsync((float *)multiChannelDrawer->depth(chan), dbXformed,
                widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
-               anari.cudaInterop.copyStream);
-        cudaStreamSynchronize(anari.cudaInterop.copyStream);
-        cudaFree(dbXformed);
+               anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaFree(dbXformed));
 
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
     } else {
@@ -769,7 +770,7 @@ void Renderer::initDevice()
     anari.cudaInterop.enabled
         = deviceHasExtension(anari.library, "default", "ANARI_VISRTX_CUDA_OUTPUT_BUFFERS");
     if (anari.cudaInterop.enabled) {
-        cudaStreamCreate(&anari.cudaInterop.copyStream);
+        CUDA_SAFE_CALL(cudaStreamCreate(&anari.cudaInterop.copyStream));
     }
 #endif
 }

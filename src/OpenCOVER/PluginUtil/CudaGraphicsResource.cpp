@@ -13,6 +13,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cuda_gl_interop.h>
 
 #include <CudaGraphicsResource.h>
+#include <CudaSafeCall.h>
 
 
 namespace opencover
@@ -37,13 +38,13 @@ cudaGraphicsResource_t CudaGraphicsResource::get() const
 
 cudaError_t CudaGraphicsResource::register_buffer(unsigned buffer, cudaGraphicsRegisterFlags flags)
 {
-    unregister();
+    CUDA_SAFE_CALL(unregister());
     return cudaGraphicsGLRegisterBuffer(&m_resource, buffer, flags);
 }
 
 cudaError_t CudaGraphicsResource::register_image(unsigned image, unsigned target, cudaGraphicsRegisterFlags flags)
 {
-    unregister();
+    CUDA_SAFE_CALL(unregister());
     return cudaGraphicsGLRegisterImage(&m_resource, image, target, flags);
 }
 
@@ -70,7 +71,7 @@ void* CudaGraphicsResource::map(size_t* size)
     err = cudaGraphicsResourceGetMappedPointer(&m_devPtr, size, m_resource);
     if (err != cudaSuccess)
     {
-        cudaGraphicsUnmapResources(1, &m_resource);
+        CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &m_resource));
         m_devPtr = 0;
     }
 
@@ -90,7 +91,7 @@ void CudaGraphicsResource::unmap()
         return;
     }
 
-    cudaGraphicsUnmapResources(1, &m_resource);
+    CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &m_resource));
     m_devPtr = 0;
 }
 
