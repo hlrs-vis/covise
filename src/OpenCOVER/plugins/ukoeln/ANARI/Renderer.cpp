@@ -868,8 +868,7 @@ void Renderer::initPointClouds()
             s[i] = surface;
 	        anariRelease(anari.device, surface);
 	    } else if (getExt(fn)==".ply") {
-        std::cout << "radius " << radius << '\n';
-            auto surface = readPLY(anari.device, fn, 0.07f);
+            auto surface = readPLY(anari.device, fn, radius);
             s[i] = surface;
 	        anariRelease(anari.device, surface);
 	    }
