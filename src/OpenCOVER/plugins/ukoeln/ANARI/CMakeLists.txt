@@ -20,6 +20,9 @@ SET(HEADERS
   Projection.h
   ui_anari.h
   hdri.h
+  readPLY.h
+  rply.h
+  rplyfile.h
 )
 SET(SOURCES
   asg.cpp
@@ -27,6 +30,7 @@ SET(SOURCES
   Renderer.cpp
   ui_anari.cpp
   hdri.cpp
+  rply.c
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})

@@ -18,6 +18,7 @@
 #include <PluginUtil/CudaSafeCall.h>
 #include "generateRandomSpheres.h"
 #include "readPTS.h"
+#include "readPLY.h"
 #include "Projection.h"
 #include "Renderer.h"
 #include "hdri.h"
@@ -865,9 +866,13 @@ void Renderer::initPointClouds()
         } else if (getExt(fn)==".pts") {
             auto surface = readPTS(anari.device, fn, radius);
             s[i] = surface;
-	    anariRelease(anari.device, surface);
-	}
-
+	        anariRelease(anari.device, surface);
+	    } else if (getExt(fn)==".ply") {
+        std::cout << "radius " << radius << '\n';
+            auto surface = readPLY(anari.device, fn, 0.07f);
+            s[i] = surface;
+	        anariRelease(anari.device, surface);
+	    }
     }
     anari::unmap(anari.device, surfaceArray);
     anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);
