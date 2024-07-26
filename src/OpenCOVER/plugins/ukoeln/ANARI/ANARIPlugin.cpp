@@ -219,7 +219,7 @@ bool ANARIPlugin::init()
     return true;
 }
 
-void ANARIPlugin::preFrame()
+void ANARIPlugin::preDraw(osg::RenderInfo &)
 {
     if (!renderer)
         return;
