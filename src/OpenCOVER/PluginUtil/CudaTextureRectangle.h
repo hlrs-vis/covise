@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    osg::ref_ptr<osg::PixelDataBufferObject> pbo_;
+    GLuint pbo_{0};
     CudaGraphicsResource resource_;
     int resourceDataSize_;
 };

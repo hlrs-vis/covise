@@ -17,32 +17,22 @@ version 2.1 or later, see lgpl-2.1.txt.
 namespace opencover
 {
 
-CudaTextureRectangle::CudaTextureRectangle() :
-    pbo_(new osg::PixelDataBufferObject),
-    resourceDataSize_(0)
+CudaTextureRectangle::CudaTextureRectangle() : resourceDataSize_(0)
 {
-    pbo_->setTarget(GL_PIXEL_UNPACK_BUFFER);
-
     resource_.map();
 }
 
 CudaTextureRectangle::~CudaTextureRectangle()
 {
     resource_.unmap();
+    glDeleteBuffers(1, &pbo_);
 }
 
 void CudaTextureRectangle::apply(osg::State& state) const
 {
-    osg::GLBufferObject* glBufferObject = pbo_->getGLBufferObject(state.getContextID());
-    if (glBufferObject == nullptr) {
-        osg::TextureRectangle::apply(state);
-
-        return;
-    }
-
     const_cast<CudaGraphicsResource*>(&resource_)->unmap();
 
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, glBufferObject->getGLObjectID());
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo_);
 
     //osg::TextureRectangle::apply(state);
 
@@ -86,17 +76,19 @@ void CudaTextureRectangle::apply(osg::State& state) const
 
 void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeSize)
 {
+    if (!pbo_) {
+        glGenBuffers(1, &pbo_);
+    }
+
     resource_.unmap();
 
     resourceDataSize_ = w * h * dataTypeSize;
 
-    pbo_->setDataSize(resourceDataSize_);
-    pbo_->setUsage(GL_STREAM_DRAW);
-    pbo_->compileBuffer(*state);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo_);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, resourceDataSize_, 0, GL_STREAM_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-    CUDA_SAFE_CALL(resource_.register_buffer(
-        pbo_->getGLBufferObject(state->getContextID())->getGLObjectID(),
-        cudaGraphicsRegisterFlagsWriteDiscard));
+    CUDA_SAFE_CALL(resource_.register_buffer(pbo_, cudaGraphicsRegisterFlagsWriteDiscard));
 
     resource_.map();
 }
