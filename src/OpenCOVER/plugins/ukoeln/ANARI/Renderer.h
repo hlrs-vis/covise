@@ -91,6 +91,10 @@ public:
     void renderFrame();
     void renderFrame(unsigned chan);
 
+    int mpiRank{0};
+    int mpiSize{1};
+    int displayRank{0};
+
 private:
     osg::ref_ptr<opencover::MultiChannelDrawer> multiChannelDrawer{nullptr};
     struct ChannelInfo {

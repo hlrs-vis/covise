@@ -35,6 +35,12 @@ static uint8_t ANARI_HEXAHEDRON = 12;
 static uint8_t ANARI_WEDGE = 13;
 static uint8_t ANARI_PYRAMID = 14;
 
+inline
+bool assignedTo(int fileID, int mpiRank, int mpiSize) {
+    // round-robin:
+    return (fileID%mpiSize) == mpiRank;
+}
+
 ANARIPlugin *ANARIPlugin::plugin = nullptr;
 
 static FileHandler handlers[] = {
@@ -103,7 +109,9 @@ ANARIPlugin *ANARIPlugin::instance()
 
 int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const char *)
 {
-    if (plugin->renderer)
+    static int meshFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->loadMesh(fileName);
 
     return 1;
@@ -111,7 +119,9 @@ int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const ch
 
 int ANARIPlugin::unloadMesh(const char *fileName, const char *)
 {
-    if (plugin->renderer)
+    static int meshFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->unloadMesh(fileName);
 
     return 1;
@@ -151,7 +161,9 @@ int ANARIPlugin::unloadFLASH(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, const char *)
 {
-    if (plugin->renderer)
+    static int umeshFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->loadUMeshFile(fileName);
 
     return 1;
@@ -159,7 +171,9 @@ int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, con
 
 int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 {
-    if (plugin->renderer)
+    static int umeshFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->unloadUMeshFile(fileName);
 
     return 1;
@@ -167,7 +181,9 @@ int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, const char *)
 {
-    if (plugin->renderer)
+    static int umeshScalarFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->loadUMeshScalars(fileName);
 
     return 1;
@@ -175,7 +191,9 @@ int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, 
 
 int ANARIPlugin::unloadUMeshScalars(const char *fileName, const char *)
 {
-    if (plugin->renderer)
+    static int umeshScalarFileCount = 0;
+    if (plugin->renderer
+        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->unloadUMeshScalars(fileName);
 
     return 1;
@@ -254,6 +272,19 @@ bool ANARIPlugin::init()
     plugin = this;
 
     renderer = std::make_shared<Renderer>();
+
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &renderer->mpiRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &renderer->mpiSize);
+
+    bool displayRankEntryExists = false;
+    renderer->displayRank  = covise::coCoviseConfig::getInt(
+        "displayRank",
+        "COVER.Plugin.ANARI.displayRank",
+        0,
+        &displayRankEntryExists
+    );
+#endif
 
     // register file handlers
     int numHandlers = sizeof(handlers) / sizeof(handlers[0]);
