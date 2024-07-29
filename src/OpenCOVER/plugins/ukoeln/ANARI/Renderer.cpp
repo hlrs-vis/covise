@@ -15,7 +15,9 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRLighting.h>
 #include <cover/coVRPluginSupport.h>
+#ifdef ANARI_PLUGIN_HAVE_CUDA
 #include <PluginUtil/CudaSafeCall.h>
+#endif
 #include "generateRandomSpheres.h"
 #include "readPTS.h"
 #include "readPLY.h"
