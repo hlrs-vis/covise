@@ -438,19 +438,21 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     }
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
-    float localBounds[6];
-    for (int i=0; i<6; ++i) {
-        localBounds[i] = bounds[i];
-    }
-    float globalBounds[6];
-    MPI_Allreduce(&localBounds[0], &globalBounds[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&localBounds[1], &globalBounds[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&localBounds[2], &globalBounds[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&localBounds[3], &globalBounds[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-    MPI_Allreduce(&localBounds[4], &globalBounds[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-    MPI_Allreduce(&localBounds[5], &globalBounds[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-    for (int i=0; i<6; ++i) {
-        bounds[i] = globalBounds[i];
+    if (mpiSize > 1) {
+        float localBounds[6];
+        for (int i=0; i<6; ++i) {
+            localBounds[i] = bounds[i];
+        }
+        float globalBounds[6];
+        MPI_Allreduce(&localBounds[0], &globalBounds[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&localBounds[1], &globalBounds[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&localBounds[2], &globalBounds[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&localBounds[3], &globalBounds[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(&localBounds[4], &globalBounds[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(&localBounds[5], &globalBounds[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        for (int i=0; i<6; ++i) {
+            bounds[i] = globalBounds[i];
+        }
     }
 #endif
 
@@ -663,8 +665,10 @@ void Renderer::renderFrame(unsigned chan)
         int height = vp->height();
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
-        MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+        if (mpiSize > 1) {
+            MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+            MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+        }
 #endif
 
         if (channelInfos[chan].width != width || channelInfos[chan].height != height) {
@@ -697,8 +701,10 @@ void Renderer::renderFrame(unsigned chan)
         glpr[3] = glm::vec4(pr(3,0), pr(3,1), pr(3,2), pr(3,3));
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
-        MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+        if (mpiSize > 1) {
+            MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+            MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+        }
 #endif
 
         glm::vec3 eye, dir, up;
@@ -726,7 +732,8 @@ void Renderer::renderFrame(unsigned chan)
         anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
-        MPI_Barrier(MPI_COMM_WORLD);
+        if (mpiSize > 1)
+            MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
 #ifdef ANARI_PLUGIN_HAVE_CUDA

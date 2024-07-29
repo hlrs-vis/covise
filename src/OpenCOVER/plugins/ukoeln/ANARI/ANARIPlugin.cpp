@@ -274,16 +274,21 @@ bool ANARIPlugin::init()
     renderer = std::make_shared<Renderer>();
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &renderer->mpiRank);
-    MPI_Comm_size(MPI_COMM_WORLD, &renderer->mpiSize);
+    int mpiInitCalled = 0;
+    MPI_Initialized(&mpiInitCalled);
 
-    bool displayRankEntryExists = false;
-    renderer->displayRank  = covise::coCoviseConfig::getInt(
-        "displayRank",
-        "COVER.Plugin.ANARI.displayRank",
-        0,
-        &displayRankEntryExists
-    );
+    if (mpiInitCalled) {
+        MPI_Comm_rank(MPI_COMM_WORLD, &renderer->mpiRank);
+        MPI_Comm_size(MPI_COMM_WORLD, &renderer->mpiSize);
+
+        bool displayRankEntryExists = false;
+        renderer->displayRank  = covise::coCoviseConfig::getInt(
+            "displayRank",
+            "COVER.Plugin.ANARI.displayRank",
+            0,
+            &displayRankEntryExists
+        );
+    }
 #endif
 
     // register file handlers
