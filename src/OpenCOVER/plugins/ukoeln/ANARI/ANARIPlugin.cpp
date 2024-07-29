@@ -14,6 +14,10 @@
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
 
+#ifdef ANARI_PLUGIN_HAVE_MPI
+#include <mpi.h>
+#endif
+
 /* extern definitions for type constants */
 static int TYPE_HEXAGON = 7;
 static int TYPE_HEXAEDER = 7;
@@ -62,6 +66,10 @@ static FileHandler handlers[] = {
       ANARIPlugin::loadUMeshFile,
       ANARIPlugin::unloadUMeshFile,
       "umesh" },
+    { NULL,
+      ANARIPlugin::loadUMeshScalars,
+      ANARIPlugin::unloadUMeshScalars,
+      "floats" },
     { NULL,
       ANARIPlugin::loadUMeshVTK,
       ANARIPlugin::unloadUMeshVTK,
@@ -153,6 +161,22 @@ int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 {
     if (plugin->renderer)
         plugin->renderer->unloadUMeshFile(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->loadUMeshScalars(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::unloadUMeshScalars(const char *fileName, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->unloadUMeshScalars(fileName);
 
     return 1;
 }

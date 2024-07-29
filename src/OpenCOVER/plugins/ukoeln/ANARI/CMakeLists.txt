@@ -11,6 +11,7 @@ covise_find_package(HDF5 COMPONENTS CXX)
 covise_find_package(umesh)
 covise_find_package(VTK COMPONENTS CommonColor CommonCore CommonDataModel IOCore IOLegacy)
 using(Assimp)
+using(MPI)
 
 SET(HEADERS
   asg.h
@@ -43,6 +44,9 @@ if(COVISE_USE_CUDA)
   target_sources(ANARIPlugin PRIVATE Projection.cu)
 else()
   target_sources(ANARIPlugin PRIVATE Projection.cpp)
+endif()
+if(COVISE_USE_MPI)
+  target_compile_definitions(ANARIPlugin PUBLIC -DANARI_PLUGIN_HAVE_MPI=1)
 endif()
 
 target_compile_definitions(ANARIPlugin PUBLIC -DASG_USE_VISIONARAY_FOR_PICKING=0)

@@ -58,7 +58,11 @@ public:
     // .umesh file format:
     void loadUMeshFile(std::string fileName);
     void unloadUMeshFile(std::string fileName);
-    
+
+    // (optional) scalar data for umeshes
+    void loadUMeshScalars(std::string fileName);
+    void unloadUMeshScalars(std::string fileName);
+
     void loadUMeshVTK(std::string fileName);
     void unloadUMeshVTK(std::string fileName);
     
@@ -138,6 +142,8 @@ private:
     void initClipPlanes();
     void initHDRI();
 
+    enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
+
     struct {
         std::string fileName;
         bool changed = false;
@@ -180,11 +186,16 @@ private:
 
     struct {
         std::string fileName;
+        ReaderType readerType{UNKNOWN};
 #ifdef HAVE_VTK
         VTKReader vtkReader;
 #endif
 #ifdef HAVE_UMESH
         UMeshReader umeshReader;
+        typedef struct { std::string fileName; int fieldID; } UMeshScalarFile;
+        // *optional* list of file names providing umesh scalars; in this case,
+        // these files overwrite the umesh's perVertex (if it exists)
+        std::vector<UMeshScalarFile> umeshScalarFiles;
 #endif
 
         UnstructuredField data;

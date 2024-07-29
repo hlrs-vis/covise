@@ -202,11 +202,10 @@ void Renderer::loadUMeshFile(std::string fn)
 {
 #ifdef HAVE_UMESH
     // deferred!
-    unstructuredVolumeData.fileName = fn;
-    unstructuredVolumeData.changed = true;
-
     if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
-        unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
+        unstructuredVolumeData.fileName = fn;
+        unstructuredVolumeData.readerType = UMESH;
+        unstructuredVolumeData.changed = true;
     }
 #endif
 }
@@ -216,15 +215,26 @@ void Renderer::unloadUMeshFile(std::string fn)
     // NO!
 }
 
+void Renderer::loadUMeshScalars(std::string fn)
+{
+#ifdef HAVE_UMESH
+    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0});
+#endif
+}
+
+void Renderer::unloadUMeshScalars(std::string fn)
+{
+    // NO!
+}
+
 void Renderer::loadUMeshVTK(std::string fn)
 {
 #ifdef HAVE_VTK
     // deferred!
-    unstructuredVolumeData.fileName = fn;
-    unstructuredVolumeData.changed = true;
-
     if (unstructuredVolumeData.vtkReader.open(fn.c_str())) {
-        unstructuredVolumeData.data = unstructuredVolumeData.vtkReader.getField(0);
+        unstructuredVolumeData.fileName = fn;
+        unstructuredVolumeData.readerType = VTK;
+        unstructuredVolumeData.changed = true;
     }
 #endif
 }
@@ -1031,6 +1041,23 @@ void Renderer::initAMRVolume()
 
 void Renderer::initUnstructuredVolume()
 {
+    if (unstructuredVolumeData.readerType == UMESH) {
+#ifdef HAVE_UMESH
+        for (const auto &sf : unstructuredVolumeData.umeshScalarFiles) {
+            std::cout << sf.fileName << ',' << sf.fieldID << '\n';
+            unstructuredVolumeData.umeshReader.addFieldFromFile(sf.fileName.c_str(), sf.fieldID);
+        }
+        unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
+#else
+        return;
+#endif
+    } else if (unstructuredVolumeData.readerType == VTK) {
+#ifdef HAVE_VTK
+        unstructuredVolumeData.data = unstructuredVolumeData.vtkReader.getField(0);
+#else
+        return;
+#endif
+    }
     anari.unstructuredVolume.field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
     // TODO: "unstructured" field is an extension - check if it is supported!
     auto &data = unstructuredVolumeData.data;
