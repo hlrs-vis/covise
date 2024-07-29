@@ -59,6 +59,10 @@ static FileHandler handlers[] = {
       ANARIPlugin::unloadFLASH,
       "hdf5" },
     { NULL,
+      ANARIPlugin::loadUMeshFile,
+      ANARIPlugin::unloadUMeshFile,
+      "umesh" },
+    { NULL,
       ANARIPlugin::loadUMeshVTK,
       ANARIPlugin::unloadUMeshVTK,
       "vtk" },
@@ -133,6 +137,22 @@ int ANARIPlugin::unloadFLASH(const char *fileName, const char *)
 {
     if (plugin->renderer)
         plugin->renderer->unloadFLASH(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->loadUMeshFile(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
+{
+    if (plugin->renderer)
+        plugin->renderer->unloadUMeshFile(fileName);
 
     return 1;
 }

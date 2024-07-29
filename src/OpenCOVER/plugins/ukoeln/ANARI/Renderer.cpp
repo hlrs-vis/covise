@@ -198,6 +198,24 @@ void Renderer::unloadUMesh()
     // NO!
 }
 
+void Renderer::loadUMeshFile(std::string fn)
+{
+#ifdef HAVE_UMESH
+    // deferred!
+    unstructuredVolumeData.fileName = fn;
+    unstructuredVolumeData.changed = true;
+
+    if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
+        unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
+    }
+#endif
+}
+
+void Renderer::unloadUMeshFile(std::string fn)
+{
+    // NO!
+}
+
 void Renderer::loadUMeshVTK(std::string fn)
 {
 #ifdef HAVE_VTK

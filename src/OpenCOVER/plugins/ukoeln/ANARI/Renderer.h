@@ -22,6 +22,7 @@
 #ifdef HAVE_HDF5
 #include "readFlash.h"
 #endif
+#include "readUMesh.h"
 #include "readVTK.h"
 #include "ui_anari.h"
 
@@ -54,6 +55,10 @@ public:
                    size_t numVerts, float minValue = 0.f, float maxValue = 1.f);
     void unloadUMesh();
 
+    // .umesh file format:
+    void loadUMeshFile(std::string fileName);
+    void unloadUMeshFile(std::string fileName);
+    
     void loadUMeshVTK(std::string fileName);
     void unloadUMeshVTK(std::string fileName);
     
@@ -177,6 +182,9 @@ private:
         std::string fileName;
 #ifdef HAVE_VTK
         VTKReader vtkReader;
+#endif
+#ifdef HAVE_UMESH
+        UMeshReader umeshReader;
 #endif
 
         UnstructuredField data;

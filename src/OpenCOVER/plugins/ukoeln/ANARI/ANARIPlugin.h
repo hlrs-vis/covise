@@ -41,6 +41,9 @@ public:
     static int loadFLASH(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadFLASH(const char *fileName, const char *);
 
+    static int loadUMeshFile(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadUMeshFile(const char *fileName, const char *);
+
     static int loadUMeshVTK(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadUMeshVTK(const char *fileName, const char *);
 
