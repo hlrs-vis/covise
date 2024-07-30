@@ -90,7 +90,27 @@ static std::vector<std::string> string_split(std::string s, char delim)
     return result;
 }
 
+inline glm::mat4 osg2glm(const osg::Matrix &m)
+{
+    glm::mat4 res;
+    // glm matrices are column-major, osg matrices are row-major!
+    res[0] = glm::vec4(m(0,0), m(0,1), m(0,2), m(0,3));
+    res[1] = glm::vec4(m(1,0), m(1,1), m(1,2), m(1,3));
+    res[2] = glm::vec4(m(2,0), m(2,1), m(2,2), m(2,3));
+    res[3] = glm::vec4(m(3,0), m(3,1), m(3,2), m(3,3));
+    return res;
+}
 
+inline osg::Matrix glm2osg(const glm::mat4 &m)
+{
+    osg::Matrix res;
+    // glm matrices are column-major, osg matrices are row-major!
+    res(0,0) = m[0].x; res(0,1) = m[0].y; res(0,2) = m[0].z; res(0,3) = m[0].w;
+    res(1,0) = m[1].x; res(1,1) = m[1].y; res(1,2) = m[1].z; res(1,3) = m[1].w;
+    res(2,0) = m[2].x; res(2,1) = m[2].y; res(2,2) = m[2].z; res(2,3) = m[2].w;
+    res(3,0) = m[3].x; res(3,1) = m[3].y; res(3,2) = m[3].z; res(3,3) = m[3].w;
+    return res;
+}
 
 Renderer::Renderer()
 {
@@ -119,7 +139,9 @@ Renderer::~Renderer()
         CUDA_SAFE_CALL(cudaStreamDestroy(anari.cudaInterop.copyStream));
     }
 #endif
-    cover->getScene()->removeChild(multiChannelDrawer);
+    if (multiChannelDrawer) {
+        cover->getScene()->removeChild(multiChannelDrawer);
+    }
 }
 
 void Renderer::loadMesh(std::string fn)
@@ -593,8 +615,12 @@ void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
 
 void Renderer::renderFrame()
 {
+    const bool isDisplayRank = mpiRank==displayRank;
+
     int numChannels = coVRConfig::instance()->numChannels();
-    if (!multiChannelDrawer) {
+    channelInfos.resize(numChannels);
+
+    if (isDisplayRank && !multiChannelDrawer) {
 #ifdef ANARI_PLUGIN_HAVE_CUDA
         multiChannelDrawer = new MultiChannelDrawer(false, anari.cudaInterop.enabled);
 #else
@@ -602,7 +628,6 @@ void Renderer::renderFrame()
 #endif
         multiChannelDrawer->setMode(MultiChannelDrawer::AsIs);
         cover->getScene()->addChild(multiChannelDrawer);
-        channelInfos.resize(numChannels);
     }
 
     if (anari.frames.empty())
@@ -655,7 +680,6 @@ void Renderer::renderFrame()
 void Renderer::renderFrame(unsigned chan)
 {
     const bool isDisplayRank = mpiRank==displayRank;
-
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
@@ -688,20 +712,13 @@ void Renderer::renderFrame(unsigned chan)
         osg::Matrix mv = multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan);
         osg::Matrix pr = multiChannelDrawer->projectionMatrix(chan);
 
-        glm::mat4 glmv, glpr;
-        // glm matrices are column-major, osg matrices are row-major!
-        glmv[0] = glm::vec4(mv(0,0), mv(0,1), mv(0,2), mv(0,3));
-        glmv[1] = glm::vec4(mv(1,0), mv(1,1), mv(1,2), mv(1,3));
-        glmv[2] = glm::vec4(mv(2,0), mv(2,1), mv(2,2), mv(2,3));
-        glmv[3] = glm::vec4(mv(3,0), mv(3,1), mv(3,2), mv(3,3));
-
-        glpr[0] = glm::vec4(pr(0,0), pr(0,1), pr(0,2), pr(0,3));
-        glpr[1] = glm::vec4(pr(1,0), pr(1,1), pr(1,2), pr(1,3));
-        glpr[2] = glm::vec4(pr(2,0), pr(2,1), pr(2,2), pr(2,3));
-        glpr[3] = glm::vec4(pr(3,0), pr(3,1), pr(3,2), pr(3,3));
+        glm::mat4 glmm = osg2glm(multiChannelDrawer->modelMatrix(chan));
+        glm::mat4 glmv = osg2glm(mv);
+        glm::mat4 glpr = osg2glm(pr);
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
         if (mpiSize > 1) {
+            MPI_Bcast(&glmm, sizeof(glmm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
             MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
             MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
         }
@@ -810,18 +827,14 @@ void Renderer::renderFrame(unsigned chan)
         if (channelInfos[chan].width != width || channelInfos[chan].height != height) {
             channelInfos[chan].width = width;
             channelInfos[chan].height = height;
-            multiChannelDrawer->resizeView(chan, width, height,
-                                           channelInfos[chan].colorFormat,
-                                           channelInfos[chan].depthFormat);
-            multiChannelDrawer->clearColor(chan);
-            multiChannelDrawer->clearDepth(chan);
 
             unsigned imgSize[] = {(unsigned)width,(unsigned)height};
             anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
             anariCommitParameters(anari.device, anari.frames[chan]);
         }
 
-        glm::mat4 glmv, glpr;
+        glm::mat4 glmm, glmv, glpr;
+        MPI_Bcast(&glmm, sizeof(glmm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
         MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
         MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
 
@@ -831,7 +844,8 @@ void Renderer::renderFrame(unsigned chan)
         offaxisStereoCameraFromTransform(
             inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
 
-        osg::Matrix mv, pr;
+        osg::Matrix mv = glm2osg(glmv);
+        osg::Matrix pr = glm2osg(glpr);
         // glm matrices are column-major, osg matrices are row-major!
         mv(0,0) = glmv[0].x; mv(0,1) = glmv[0].y; mv(0,2) = glmv[0].z; mv(0,3) = glmv[0].w;
         mv(1,0) = glmv[1].x; mv(1,1) = glmv[1].y; mv(1,2) = glmv[1].z; mv(1,3) = glmv[1].w;
@@ -856,7 +870,7 @@ void Renderer::renderFrame(unsigned chan)
             anariCommitParameters(anari.device, anari.cameras[chan]);
         }
 
-        updateLights(multiChannelDrawer->modelMatrix(chan));
+        updateLights(glm2osg(glmm));
         anariRenderFrame(anari.device, anari.frames[chan]);
         anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
 
@@ -1152,7 +1166,6 @@ void Renderer::initUnstructuredVolume()
     if (unstructuredVolumeData.readerType == UMESH) {
 #ifdef HAVE_UMESH
         for (const auto &sf : unstructuredVolumeData.umeshScalarFiles) {
-            std::cout << sf.fileName << ',' << sf.fieldID << '\n';
             unstructuredVolumeData.umeshReader.addFieldFromFile(sf.fileName.c_str(), sf.fieldID);
         }
         unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
