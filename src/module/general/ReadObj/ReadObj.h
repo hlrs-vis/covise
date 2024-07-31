@@ -25,6 +25,9 @@
 \**************************************************************************/
 
 #include <api/coModule.h>
+#include <filesystem>
+#include <vector>
+#include <filesystem>
 using namespace covise;
 
 class ReadObj : public coModule
@@ -44,13 +47,20 @@ private:
     int getCurrentColor(const char *mtlName);
 
     //  member data
-    coOutputPort *polyOut, *colorOut, *normalOut;
+    coOutputPort *polyOut, *colorOut, *normalOut, *textureOut;
     coFileBrowserParam *objFileBrowser, *mtlFileBrowser;
     FILE *objFp, *mtlFp;
     int numMtls; // no of materials in the mtl file
     int *pcList; // list of packed colors from the mtl file
     int currentColor; // current color in packed format
+    constexpr static int MAX_PATH_LEN=8192;
+    typedef char PATH[MAX_PATH_LEN];
+    PATH *mapKdList; // list KD map paths
+    typedef struct { float x, y; } TexCoord;
+    typedef std::vector<TexCoord> TexCoordList;
+    std::vector<TexCoordList> tcList; // list of tex coords, per mesh
     typedef char mtlNameType[100];
     mtlNameType *mtlNameList; // list of material names in the mtl file
+    std::filesystem::path basePath; // path where to search for textures etc.
 };
 #endif

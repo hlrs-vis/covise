@@ -43,6 +43,14 @@
 #include "ReadObj.h"
 #include <util/covise_list.h>
 #include <api/coFileBrowserParam.h>
+#include <do/coDoPixelImage.h>
+#include <do/coDoTexture.h>
+#include <filesystem>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+namespace fs = std::filesystem;
 
 ReadObj::ReadObj(int argc, char *argv[])
     : coModule(argc, argv, "Wavefront OBJ Reader")
@@ -51,6 +59,8 @@ ReadObj::ReadObj(int argc, char *argv[])
     polyOut = addOutputPort("GridOut0", "Polygons", "geometry polygons");
     colorOut = addOutputPort("DataOut0", "RGBA", "polygon colors");
     normalOut = addOutputPort("DataOut1", "Vec3", "polygon normals");
+    textureOut = addOutputPort("TextureOut0", "Texture",
+        "diffuse texture map (only that of the first material and first mesh!)");
 
     // select the OBJ file name with a file browser
     objFileBrowser = addFileBrowserParam("objFile", "OBJ file");
@@ -65,6 +75,13 @@ ReadObj::ReadObj(int argc, char *argv[])
 
 int ReadObj::compute(const char *)
 {
+    // get the file name
+    const char *objFile = objFileBrowser->getValue();
+
+    // get the base path so we can find textures etc.
+    fs::path p(objFile);
+    basePath = p.parent_path();
+
     // get the name of the material file
     const char *mtlFile = mtlFileBrowser->getValue();
 
@@ -95,9 +112,6 @@ int ReadObj::compute(const char *)
         currentColor = makePackedColor(0.9f, 0.9f, 0.9f, 1.0f);
     }
 
-    // get the file name
-    const char *objFile = objFileBrowser->getValue();
-
     if (objFile != NULL)
     {
         // open the file
@@ -121,13 +135,50 @@ int ReadObj::compute(const char *)
         return STOP_PIPELINE;
     }
 
+    // Try to load the first kd-map:
+    int w, h, n;
+    if (mapKdList[0][0] != '\0') {
+        void *image = stbi_load(mapKdList[0], &w, &h, &n, 0);
+        if (image) {
+            Covise::sendInfo("Load texture map %s", mapKdList[0]);
+            coDoPixelImage *pix = new coDoPixelImage(textureOut->getNewObjectInfo(), w, h, n, n, (const char *)image);
+
+            std::vector<int> txIndex(tcList[0].size());
+            float *texCoords[2];
+            std::vector<float> texCoordsX(tcList[0].size());
+            std::vector<float> texCoordsY(tcList[0].size());
+            texCoords[0] = texCoordsX.data();
+            texCoords[1] = texCoordsY.data();
+
+
+            for (size_t i=0; i<tcList[0].size(); ++i) {
+                txIndex[i] = i;
+                texCoords[0][i] = tcList[0][i].x;
+                texCoords[1][i] = tcList[0][i].y;
+            }
+
+            std::vector<int> indices(tcList.size()/2);
+            for (size_t i=0;i<indices.size();++i) indices[i] = i;
+            coDoTexture *texture = new coDoTexture(textureOut->getNewObjectInfo(), pix, 0, n, 0,
+                    tcList[0].size(), txIndex.data(), txIndex.size(), texCoords);
+            texture->addAttribute("WRAP_MODE", "repeat");
+            texture->addAttribute("MIN_FILTER", "linear");
+            texture->addAttribute("MAG_FILTER", "linear");
+
+            textureOut->setCurrentObject(texture);
+            Covise::sendInfo("Texture map of size %i x %i loaded", w, h);
+        } else {
+            Covise::sendInfo("Error opening texture map %s", mapKdList[0]);
+        }
+    }
+
     return CONTINUE_PIPELINE;
 }
 
 void
 ReadObj::readObjFile()
 {
-    int numCoords = 0, numVertices = 0, numPolys = 0, numNormals = 0;
+    int numCoords = 0, numTexCoords = 0, numVertices = 0, numPolys = 0, numNormals = 0;
 
     float *cx, *cy, *cz; // vertex coordinate lists
     float *cxTmp, *cyTmp, *czTmp; // temp. variables for resizing the lists
@@ -207,6 +258,7 @@ ReadObj::readObjFile()
 
         if (strcasecmp("v", key) == 0)
         {
+            std::cout << key << '\n';
             // found an obj vertex definition
             //-> create the coordinate lists
 
@@ -235,8 +287,27 @@ ReadObj::readObjFile()
             // scan the line
             sscanf(first, "%f %f %f", &(cx[numCoords - 1]), &(cy[numCoords - 1]), &(cz[numCoords - 1]));
         }
+        else if (strcasecmp("vt", key) == 0)
+        {
+            std::cout << key << '\n';
+            // found an obj vertex definition
+            //-> create the coordinate lists
+
+
+            if (numTexCoords == 0) // only for the first time
+            {
+                tcList.push_back(TexCoordList{});
+            }
+            numTexCoords++;
+
+            // scan the line
+            TexCoord tc;
+            sscanf(first, "%f %f", &tc.x, &tc.y);
+            tcList.back().push_back(tc);
+        }
         else if (strcasecmp("vn", key) == 0)
         {
+            std::cout << key << '\n';
             // found an obj vertex definition
             //-> create the coordinate lists
 
@@ -536,6 +607,7 @@ void ReadObj::readMtlFile()
     gList = new float[CHUNK_SIZE];
     bList = new float[CHUNK_SIZE];
     tList = new float[CHUNK_SIZE];
+    mapKdList = new PATH[CHUNK_SIZE];
     mtlNameList = new mtlNameType[CHUNK_SIZE];
 
     // give it default values
@@ -544,6 +616,7 @@ void ReadObj::readMtlFile()
         rList[i] = gList[i] = bList[i] = 0.9f;
         tList[i] = 0.0;
         strcpy(mtlNameList[i], "None");
+        memset(mapKdList[i], '\0', MAX_PATH_LEN);
     }
 
     // read one line after another
@@ -589,6 +662,7 @@ void ReadObj::readMtlFile()
                 delete[] gList;
                 delete[] bList;
                 delete[] tList;
+                delete[] mapKdList;
                 delete[] mtlNameList;
                 pcList = pcListTmp;
                 rList = rListTmp;
@@ -617,6 +691,17 @@ void ReadObj::readMtlFile()
         {
             sscanf(first, "%f", &(tList[numMtls - 1]));
         }
+        else if (strcasecmp("map_Kd", key) == 0)
+        {
+            sscanf(first, "%s", (char *)&mapKdList[numMtls - 1]);
+            fs::path p(mapKdList[numMtls - 1]);
+            if (p.is_relative()) {
+                fs::path absolutePath = basePath / fs::path(mapKdList[numMtls - 1]);
+                memcpy(&mapKdList[numMtls - 1], absolutePath.string().c_str(),
+                    absolutePath.string().length()*sizeof(char));
+                mapKdList[numMtls - 1][absolutePath.string().length()] = '\0';
+            }
+        }
     }
     for (i = 0; i < numMtls; i++)
         pcList[i] = makePackedColor(rList[i], gList[i], bList[i], 1.0f - tList[i]);
@@ -629,6 +714,8 @@ void ReadObj::readMtlFile()
         fprintf(stderr, "name=%s pc=%d rgba=[%f %f %f %f]\n", mtlNameList[i], pcList[i], rList[i], gList[i], bList[i], tList[i]);
     }
 #endif
+
+  
 }
 
 int ReadObj::makePackedColor(float r, float g, float b, float a)
