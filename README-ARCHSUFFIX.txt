@@ -22,6 +22,7 @@
 # covise/scripts/covise-functions.sh
 # covise/README-ARCHSUFFIX.txt (this file)
 # covise/archive/extlibs-$BASEARCHSUFFIX-files.txt
+# covise/.gitignore
 # 
 # 
 # ARCHSUFFIXes currently used

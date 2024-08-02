@@ -37,6 +37,8 @@
 /rhel7opt
 /rhel8
 /rhel8opt
+/rhel9
+/rhel9opt
 /darwin
 /darwinopt
 /libc++
