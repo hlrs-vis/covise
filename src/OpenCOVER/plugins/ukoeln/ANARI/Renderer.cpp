@@ -69,6 +69,9 @@ static bool deviceHasExtension(anari::Library library,
     const char **extensions =
         anariGetDeviceExtensions(library, deviceSubtype.c_str());
 
+    if (!extensions)
+        return false;
+
     for (; *extensions; extensions++) {
         if (*extensions == extName)
             return true;
