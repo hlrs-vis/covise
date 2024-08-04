@@ -151,7 +151,7 @@ void Renderer::loadMesh(std::string fn)
 {
     // deferred!
     meshData.fileName = fn;
-    meshData.changed = true;
+    meshData.updated = true;
 }
 
 void Renderer::unloadMesh(std::string fn)
@@ -170,7 +170,7 @@ void Renderer::loadVolume(const void *data, int sizeX, int sizeY, int sizeZ, int
     structuredVolumeData.bpc = bpc;
     structuredVolumeData.minValue = minValue;
     structuredVolumeData.maxValue = maxValue;
-    structuredVolumeData.changed = true;
+    structuredVolumeData.updated = true;
 }
 
 void Renderer::unloadVolume()
@@ -183,7 +183,7 @@ void Renderer::loadFLASH(std::string fn)
 #ifdef HAVE_HDF5
     // deferred!
     amrVolumeData.fileName = fn;
-    amrVolumeData.changed = true;
+    amrVolumeData.updated = true;
 
     if (amrVolumeData.flashReader.open(fn.c_str())) {
         amrVolumeData.data = amrVolumeData.flashReader.getField(0);
@@ -218,7 +218,7 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
 
     unstructuredVolumeData.data.dataRange.x = unstructuredVolumeData.minValue = minValue;
     unstructuredVolumeData.data.dataRange.y = unstructuredVolumeData.maxValue = maxValue;
-    unstructuredVolumeData.changed = true;
+    unstructuredVolumeData.updated = true;
 }
 
 void Renderer::unloadUMesh()
@@ -233,7 +233,7 @@ void Renderer::loadUMeshFile(std::string fn)
     if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
         unstructuredVolumeData.fileName = fn;
         unstructuredVolumeData.readerType = UMESH;
-        unstructuredVolumeData.changed = true;
+        unstructuredVolumeData.updated = true;
     }
 #endif
 }
@@ -262,7 +262,7 @@ void Renderer::loadUMeshVTK(std::string fn)
     if (unstructuredVolumeData.vtkReader.open(fn.c_str())) {
         unstructuredVolumeData.fileName = fn;
         unstructuredVolumeData.readerType = VTK;
-        unstructuredVolumeData.changed = true;
+        unstructuredVolumeData.updated = true;
     }
 #endif
 }
@@ -276,7 +276,7 @@ void Renderer::loadPointCloud(std::string fn)
 {
     // deferred!
     pointCloudData.fileNames.push_back(fn);
-    pointCloudData.changed = true;
+    pointCloudData.updated = true;
 }
 
 void Renderer::unloadPointCloud(std::string fn)
@@ -298,7 +298,7 @@ void Renderer::loadHDRI(std::string fn)
         hdri.pixels[i / 4] = glm::vec3(img.pixel[i], img.pixel[i + 1], img.pixel[i + 2]);
       }
     }
-    hdri.changed = true;
+    hdri.updated = true;
 }
 
 void Renderer::unloadHDRI(std::string fn)
@@ -418,7 +418,7 @@ void Renderer::loadVolumeRAW(std::string fn)
     structuredVolumeData.bpc = 1;// !
     structuredVolumeData.minValue = 0.f;
     structuredVolumeData.maxValue = 1.f;
-    structuredVolumeData.changed = true;
+    structuredVolumeData.updated = true;
     structuredVolumeData.deleteData = true;
 
     FILE *file = fopen(fn.c_str(), "rb");
@@ -497,26 +497,26 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
     for (size_t l=0; l<opencover::coVRLighting::instance()->lightList.size(); ++l) {
         auto &light = opencover::coVRLighting::instance()->lightList[l];
         if (light.on) {
-            newLights.push_back(light);
+            newLights.push_back(Light(light));
         }
     }
 
     // check if lights have updated
     if (newLights.size() != lights.data.size()) {
         lights.data = newLights;
-        lights.changed = true;
+        lights.updated = true;
     } else {
         for (size_t l=0; l<newLights.size(); ++l) {
-            if (newLights[l].source != lights.data[l].source ||
-                newLights[l].root != lights.data[l].root) {
+            if (newLights[l].coLight.source != lights.data[l].coLight.source ||
+                newLights[l].coLight.root != lights.data[l].coLight.root) {
                 lights.data = newLights;
-                lights.changed = true;
+                lights.updated = true;
                 break;
             }
         }
     }
 
-    if (lights.changed || hdri.changed) {
+    if (lights.updated || hdri.updated) {
         anari.lights.clear();
 
         if (!hdri.pixels.empty()) {
@@ -536,10 +536,10 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         for (size_t l=0; l<lights.data.size(); ++l) {
             ANARILight al;
             auto &light = lights.data[l];
-            osg::Light *osgLight = light.source->getLight();
+            osg::Light *osgLight = light.coLight.source->getLight();
             osg::NodePath np;
-            np.push_back(light.root);
-            np.push_back(light.source);
+            np.push_back(light.coLight.root);
+            np.push_back(light.coLight.source);
             osg::Vec4 pos = osgLight->getPosition();
             pos = pos * osg::Matrix::inverse(modelMat);
             if (pos.w() == 0.f) {
@@ -563,21 +563,44 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
 
         anariRelease(anari.device, anariLights);
 
-        lights.changed = false;
-        hdri.changed = false;
+        lights.updated = false;
+        hdri.updated = false;
     }
 
-    // Even if the light _configuration_ hasn't change, proactively
-    // update the light positions anyway (as this is cheap)
+    // Even if the light _configuration_ hasn't change, the light properties
+    // themselves might have
+
     for (size_t l=0; l<lights.data.size(); ++l) {
-        ANARILight al = anari.lights[l];
-        auto &light = lights.data[l];
+
+        osg::Light *oldLight = lights.data[l].coLight.source->getLight();
+        osg::Light *newLight = newLights[l].coLight.source->getLight();
+
+        osg::NodePath np;
+        np.push_back(newLights[l].coLight.root);
+        np.push_back(newLights[l].coLight.source);
+
+        osg::Vec4 pos = newLights[l].coLight.source->getLight()->getPosition();
+        pos = pos * osg::Matrix::inverse(modelMat);
+
+        if (*oldLight != *newLight || lights.data[l].prevPos != pos) {
+            lights.data[l].updated = true;
+        }
+    }
+
+    // Update light properties:
+    for (size_t l=0; l<lights.data.size(); ++l) {
+
+        if (!lights.data[l].updated) continue;
+
+        auto &light = lights.data[l].coLight;
         osg::Light *osgLight = light.source->getLight();
         osg::NodePath np;
         np.push_back(light.root);
         np.push_back(light.source);
         osg::Vec4 pos = osgLight->getPosition();
         pos = pos * osg::Matrix::inverse(modelMat);
+
+        ANARILight al = anari.lights[l];
         if (pos.w() == 0.f) {
             anariSetParameter(anari.device, al, "direction",
                               ANARI_FLOAT32_VEC3, pos.ptr());
@@ -587,6 +610,9 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         }
 
         anariCommitParameters(anari.device, al);
+
+        lights.data[l].prevPos = pos;
+        lights.data[l].updated = false;
     }
 }
 
@@ -612,7 +638,7 @@ void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
     if (doUpdate) {
         clipPlanes.data.clear();
         clipPlanes.data.insert(clipPlanes.data.begin(), planes.begin(), planes.end());
-        clipPlanes.changed = true;
+        clipPlanes.updated = true;
     }
 }
 
@@ -639,40 +665,40 @@ void Renderer::renderFrame()
     if (anari.frames.empty()) // init failed!
         return;
 
-    if (meshData.changed) {
+    if (meshData.updated) {
         initMesh();
-        meshData.changed = false;
+        meshData.updated = false;
     }
 
     // if (pointCloudData.fileNames.empty()) {
     //      pointCloudData.fileNames.push_back("random");
-    //      pointCloudData.changed = true;
+    //      pointCloudData.updated = true;
     // }
-    if (pointCloudData.changed) {
+    if (pointCloudData.updated) {
         initPointClouds();
-        pointCloudData.changed = false;
+        pointCloudData.updated = false;
     }
 
-    if (structuredVolumeData.changed) {
+    if (structuredVolumeData.updated) {
         initStructuredVolume();
-        structuredVolumeData.changed = false;
+        structuredVolumeData.updated = false;
     }
 
 #ifdef HAVE_HDF5
-    if (amrVolumeData.changed) {
+    if (amrVolumeData.updated) {
         initAMRVolume();
-        amrVolumeData.changed = false;
+        amrVolumeData.updated = false;
     }
 #endif
 
-    if (unstructuredVolumeData.changed) {
+    if (unstructuredVolumeData.updated) {
         initUnstructuredVolume();
-        unstructuredVolumeData.changed = false;
+        unstructuredVolumeData.updated = false;
     }
 
-    if (clipPlanes.changed) {
+    if (clipPlanes.updated) {
         initClipPlanes();
-        clipPlanes.changed = false;
+        clipPlanes.updated = false;
     }
 
     for (unsigned chan=0; chan<numChannels; ++chan) {

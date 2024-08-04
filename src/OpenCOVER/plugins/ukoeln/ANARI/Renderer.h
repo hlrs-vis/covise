@@ -32,7 +32,16 @@ public:
     typedef std::shared_ptr<Renderer> SP;
 
     typedef glm::vec4 ClipPlane;
-    typedef opencover::coVRLighting::Light Light;
+
+    struct Light
+    {
+        explicit Light(const opencover::coVRLighting::Light &l) : coLight(l), updated(true)
+        {}
+
+        osg::Vec4 prevPos; // subject to the previous light node xform!
+        opencover::coVRLighting::Light coLight;
+        bool updated{false};
+    };
 
     Renderer();
    ~Renderer();
@@ -150,12 +159,12 @@ private:
 
     struct {
         std::string fileName;
-        bool changed = false;
+        bool updated = false;
     } meshData;
 
     struct {
         std::vector<std::string> fileNames;
-        bool changed = false;
+        bool updated = false;
     } pointCloudData;
 
     struct {
@@ -170,7 +179,7 @@ private:
         std::vector<float> rgbLUT;
         std::vector<float> alphaLUT;
 
-        bool changed = false;
+        bool updated = false;
         bool deleteData = false;
     } structuredVolumeData;
 
@@ -184,7 +193,7 @@ private:
         std::vector<float> rgbLUT;
         std::vector<float> alphaLUT;
 
-        bool changed = false;
+        bool updated = false;
     } amrVolumeData;
 #endif
 
@@ -207,26 +216,26 @@ private:
         std::vector<float> rgbLUT;
         std::vector<float> alphaLUT;
 
-        bool changed = false;
+        bool updated = false;
     } unstructuredVolumeData;
 
     struct {
         std::vector<Light> data;
 
-        bool changed = false;
+        bool updated = false;
     } lights;
 
     struct {
         std::vector<ClipPlane> data;
 
-        bool changed = false;
+        bool updated = false;
     } clipPlanes;
 
     struct {
         std::vector<glm::vec3> pixels;
         unsigned width, height;
 
-        bool changed = false;
+        bool updated = false;
     } hdri;
 
     std::vector<std::string> rendererTypes;
