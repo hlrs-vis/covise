@@ -74,6 +74,7 @@ public:
 
 protected:
     ui::Menu *anariMenu = nullptr;
+    ui::Menu *debugMenu = nullptr;
     ui::Menu *rendererMenu = nullptr;
     ui::Group *rendererGroup = nullptr;
     ui::ButtonGroup *rendererButtonGroup = nullptr;

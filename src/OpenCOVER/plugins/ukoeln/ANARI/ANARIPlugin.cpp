@@ -427,6 +427,15 @@ void ANARIPlugin::buildUI()
     if (!anariMenu)
         anariMenu = new ui::Menu("ANARI", this);
 
+    if (!debugMenu)
+        debugMenu = new ui::Menu(anariMenu, "Debug");
+
+    auto *colorByRankButton = new ui::Button(debugMenu, "Color by MPI rank");
+    colorByRankButton->setState(false);
+    colorByRankButton->setCallback([=](bool value) {
+        renderer->setColorRanks(value);
+    });
+
     if (!rendererMenu)
         rendererMenu = new ui::Menu(anariMenu, "Renderer");
 

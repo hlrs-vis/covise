@@ -97,6 +97,9 @@ public:
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
 
+    // volume debug mode where MPI rank IDs are assigned random colors
+    void setColorRanks(bool value);
+
     void renderFrame();
     void renderFrame(unsigned chan);
 
@@ -154,8 +157,13 @@ private:
     void initUnstructuredVolume();
     void initClipPlanes();
     void initHDRI();
+    void initTransFunc();
 
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
+
+    bool colorByRank{false};
+
+    void generateTransFunc();
 
     struct {
         std::string fileName;
@@ -218,6 +226,12 @@ private:
 
         bool updated = false;
     } unstructuredVolumeData;
+
+    struct {
+        std::vector<glm::vec3> colors;
+        std::vector<float> opacities;
+        bool updated = false;
+    } transFunc;
 
     struct {
         std::vector<Light> data;

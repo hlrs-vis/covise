@@ -115,6 +115,16 @@ inline osg::Matrix glm2osg(const glm::mat4 &m)
     return res;
 }
 
+inline glm::vec3 randomColor(unsigned idx)
+{
+  unsigned int r = (unsigned int)(idx*13*17 + 0x234235);
+  unsigned int g = (unsigned int)(idx*7*3*5 + 0x773477);
+  unsigned int b = (unsigned int)(idx*11*19 + 0x223766);
+  return glm::vec3((r&255)/255.f,
+                   (g&255)/255.f,
+                   (b&255)/255.f);
+}
+
 Renderer::Renderer()
 {
     initDevice();
@@ -133,6 +143,9 @@ Renderer::Renderer()
     if (hdriEntryExists) {
         loadHDRI(hdriName);
     }
+
+    // generate default TF:
+    generateTransFunc();
 }
 
 Renderer::~Renderer()
@@ -642,6 +655,13 @@ void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
     }
 }
 
+void Renderer::setColorRanks(bool value)
+{
+    colorByRank = value;
+    generateTransFunc();
+    transFunc.updated = true;
+}
+
 void Renderer::renderFrame()
 {
     const bool isDisplayRank = mpiRank==displayRank;
@@ -694,6 +714,11 @@ void Renderer::renderFrame()
     if (unstructuredVolumeData.updated) {
         initUnstructuredVolume();
         unstructuredVolumeData.updated = false;
+    }
+
+    if (transFunc.updated) {
+        initTransFunc();
+        transFunc.updated = false;
     }
 
     if (clipPlanes.updated) {
@@ -1160,26 +1185,10 @@ void Renderer::initAMRVolume()
     anari.amrVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
     anari::setParameter(anari.device, anari.amrVolume.volume, "field", anari.amrVolume.field);
 
-    {
-        std::vector<glm::vec3> colors;
-        std::vector<float> opacities;
+    initTransFunc();
 
-        colors.emplace_back(0.f, 0.f, 1.f);
-        colors.emplace_back(0.f, 1.f, 0.f);
-        colors.emplace_back(1.f, 0.f, 0.f);
-
-        opacities.emplace_back(0.f);
-        opacities.emplace_back(1.f);
-
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "color",
-            anari::newArray1D(anari.device, colors.data(), colors.size()));
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "opacity",
-            anari::newArray1D(anari.device, opacities.data(), opacities.size()));
-        anariSetParameter(anari.device, anari.amrVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
-                          &data.voxelRange);
-    }
+    anariSetParameter(anari.device, anari.amrVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                      &data.voxelRange);
 
     anari::commitParameters(anari.device, anari.amrVolume.volume);
 
@@ -1234,27 +1243,12 @@ void Renderer::initUnstructuredVolume()
 
     anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
     anari::setParameter(anari.device, anari.unstructuredVolume.volume, "field", anari.unstructuredVolume.field);
+    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "id", (unsigned)mpiRank);
 
-    {
-        std::vector<glm::vec3> colors;
-        std::vector<float> opacities;
+    initTransFunc();
 
-        colors.emplace_back(0.f, 0.f, 1.f);
-        colors.emplace_back(0.f, 1.f, 0.f);
-        colors.emplace_back(1.f, 0.f, 0.f);
-
-        opacities.emplace_back(0.f);
-        opacities.emplace_back(1.f);
-
-        anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "color",
-            anari::newArray1D(anari.device, colors.data(), colors.size()));
-        anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "opacity",
-            anari::newArray1D(anari.device, opacities.data(), opacities.size()));
-        anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
-                          &data.dataRange);
-    }
+    anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                      &data.dataRange);
 
     anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
 
@@ -1278,6 +1272,50 @@ void Renderer::initClipPlanes()
     }
 
     anari::commitParameters(anari.device, anari.renderer);
+}
+
+void Renderer::generateTransFunc()
+{
+    transFunc.colors.clear();
+    transFunc.opacities.clear();
+
+    if (colorByRank) {
+        auto c = randomColor(mpiRank);
+        transFunc.colors.emplace_back(c.x, c.y, c.z);
+    } else {
+        // dflt. color map:
+        transFunc.colors.emplace_back(0.f, 0.f, 1.f);
+        transFunc.colors.emplace_back(0.f, 1.f, 0.f);
+        transFunc.colors.emplace_back(1.f, 0.f, 0.f);
+    }
+
+    transFunc.opacities.emplace_back(0.f);
+    transFunc.opacities.emplace_back(1.f);
+}
+
+void Renderer::initTransFunc()
+{
+    if (anari.amrVolume.volume)
+    {
+        anari::setAndReleaseParameter(
+            anari.device, anari.amrVolume.volume, "color",
+            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
+        anari::setAndReleaseParameter(
+            anari.device, anari.amrVolume.volume, "opacity",
+            anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
+        anari::commitParameters(anari.device, anari.amrVolume.volume);
+    }
+
+    if (anari.unstructuredVolume.volume)
+    {
+        anari::setAndReleaseParameter(
+            anari.device, anari.unstructuredVolume.volume, "color",
+            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
+        anari::setAndReleaseParameter(
+            anari.device, anari.unstructuredVolume.volume, "opacity",
+            anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
+        anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+    }
 }
 
 
