@@ -1444,7 +1444,8 @@ void coVRMSController::barrierDraw()
     else if (syncMode == SYNC_MPI)
     {
 #ifdef MPI_BARRIER
-        MPI_Barrier(drawComm);
+        if (VRViewer::mustDraw())
+            MPI_Barrier(drawComm);
 #else
         waitForSlavesDraw();
         sendGoDraw();
