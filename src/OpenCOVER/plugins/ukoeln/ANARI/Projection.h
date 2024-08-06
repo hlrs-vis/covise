@@ -11,9 +11,9 @@
 
 namespace glm {
 
-struct box2 {
+typedef struct {
   vec2 min, max;
-};
+} box2;
 
 void transformDepthFromWorldToGL(const float *world, float *gl,
                                  vec3 eye, vec3 dir, vec3 up,

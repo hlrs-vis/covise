@@ -14,10 +14,6 @@
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
 
-#ifdef ANARI_PLUGIN_HAVE_MPI
-#include <mpi.h>
-#endif
-
 /* extern definitions for type constants */
 static int TYPE_HEXAGON = 7;
 static int TYPE_HEXAEDER = 7;
@@ -166,6 +162,8 @@ int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, con
         && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->loadUMeshFile(fileName);
 
+    plugin->renderer->wait();
+
     return 1;
 }
 
@@ -175,6 +173,8 @@ int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
     if (plugin->renderer
         && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->unloadUMeshFile(fileName);
+
+    plugin->renderer->wait();
 
     return 1;
 }
@@ -186,6 +186,8 @@ int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, 
         && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->loadUMeshScalars(fileName);
 
+    plugin->renderer->wait();
+
     return 1;
 }
 
@@ -195,6 +197,8 @@ int ANARIPlugin::unloadUMeshScalars(const char *fileName, const char *)
     if (plugin->renderer
         && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
         plugin->renderer->unloadUMeshScalars(fileName);
+
+    plugin->renderer->wait();
 
     return 1;
 }
@@ -273,23 +277,7 @@ bool ANARIPlugin::init()
 
     renderer = std::make_shared<Renderer>();
 
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    int mpiInitCalled = 0;
-    MPI_Initialized(&mpiInitCalled);
-
-    if (mpiInitCalled) {
-        MPI_Comm_rank(MPI_COMM_WORLD, &renderer->mpiRank);
-        MPI_Comm_size(MPI_COMM_WORLD, &renderer->mpiSize);
-
-        bool displayRankEntryExists = false;
-        renderer->displayRank  = covise::coCoviseConfig::getInt(
-            "displayRank",
-            "COVER.Plugin.ANARI.displayRank",
-            0,
-            &displayRankEntryExists
-        );
-    }
-#endif
+    renderer->init();
 
     // register file handlers
     int numHandlers = sizeof(handlers) / sizeof(handlers[0]);
@@ -303,7 +291,7 @@ bool ANARIPlugin::init()
     return true;
 }
 
-void ANARIPlugin::preDraw(osg::RenderInfo &)
+void ANARIPlugin::preFrame()
 {
     if (!renderer)
         return;
@@ -324,6 +312,14 @@ void ANARIPlugin::preDraw(osg::RenderInfo &)
     renderer->setClipPlanes(clipPlanes);
 
     renderer->renderFrame();
+}
+
+void ANARIPlugin::preDraw(osg::RenderInfo &)
+{
+    if (!renderer)
+        return;
+
+    renderer->drawFrame();
 }
 
 void ANARIPlugin::expandBoundingSphere(osg::BoundingSphere &bs)

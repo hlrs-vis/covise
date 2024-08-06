@@ -62,6 +62,7 @@ public:
 
     bool init() override;
 
+    void preFrame() override;
     void preDraw(osg::RenderInfo &) override;
 
     void expandBoundingSphere(osg::BoundingSphere &bs) override;

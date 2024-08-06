@@ -127,6 +127,12 @@ inline glm::vec3 randomColor(unsigned idx)
 
 Renderer::Renderer()
 {
+}
+
+void Renderer::init()
+{
+    initMPI();
+    initChannels();
     initDevice();
 
     if (!anari.device)
@@ -327,10 +333,10 @@ void Renderer::setRendererType(std::string type)
     anari.renderertype = type;
     for (size_t i=0; i<channelInfos.size(); ++i) {
         // Causes frame re-initialization
-        channelInfos[i].width = 1;
-        channelInfos[i].height = 1;
-        channelInfos[i].mv = osg::Matrix::identity();
-        channelInfos[i].pr = osg::Matrix::identity();
+        channelInfos[i].frame.width = 1;
+        channelInfos[i].frame.height = 1;
+        channelInfos[i].mv = glm::mat4();
+        channelInfos[i].pr = glm::mat4();
     }
     initFrames();
     //anariRelease(anari.device, anari.renderer);
@@ -662,12 +668,18 @@ void Renderer::setColorRanks(bool value)
     transFunc.updated = true;
 }
 
+void Renderer::wait()
+{
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    if (mpiSize > 1) {
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
+#endif
+}
+
 void Renderer::renderFrame()
 {
     const bool isDisplayRank = mpiRank==displayRank;
-
-    int numChannels = coVRConfig::instance()->numChannels();
-    channelInfos.resize(numChannels);
 
     if (isDisplayRank && !multiChannelDrawer) {
 #ifdef ANARI_PLUGIN_HAVE_CUDA
@@ -729,11 +741,15 @@ void Renderer::renderFrame()
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(chan);
     }
+
+    wait();
 }
 
 void Renderer::renderFrame(unsigned chan)
 {
     const bool isDisplayRank = mpiRank==displayRank;
+    ChannelInfo &info = channelInfos[chan];
+
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
@@ -749,14 +765,10 @@ void Renderer::renderFrame(unsigned chan)
         }
 #endif
 
-        if (channelInfos[chan].width != width || channelInfos[chan].height != height) {
-            channelInfos[chan].width = width;
-            channelInfos[chan].height = height;
-            multiChannelDrawer->resizeView(chan, width, height,
-                                           channelInfos[chan].colorFormat,
-                                           channelInfos[chan].depthFormat);
-            multiChannelDrawer->clearColor(chan);
-            multiChannelDrawer->clearDepth(chan);
+        if (info.frame.width != width || info.frame.height != height) {
+            info.frame.width = width;
+            info.frame.height = height;
+            info.frame.resized = true;
 
             unsigned imgSize[] = {(unsigned)width,(unsigned)height};
             anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
@@ -778,98 +790,23 @@ void Renderer::renderFrame(unsigned chan)
         }
 #endif
 
-        glm::vec3 eye, dir, up;
-        float fovy, aspect;
-        glm::box2 imgRegion;
         offaxisStereoCameraFromTransform(
-            inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
+            inverse(glpr), inverse(glmv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
 
-        if (channelInfos[chan].mv != mv || channelInfos[chan].pr != pr) {
-            channelInfos[chan].mv = mv;
-            channelInfos[chan].pr = pr;
+        if (info.mv != glmv || info.pr != glpr) {
+            info.mv = glmv;
+            info.pr = glpr;
 
-            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &fovy);
-            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
-            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &eye.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &dir.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &up.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &imgRegion.min);
+            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
+            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
+            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &info.eye.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &info.dir.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &info.up.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &info.imgRegion.min);
             anariCommitParameters(anari.device, anari.cameras[chan]);
         }
 
         updateLights(multiChannelDrawer->modelMatrix(chan));
-
-        anariRenderFrame(anari.device, anari.frames[chan]);
-        anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-        if (mpiSize > 1)
-            MPI_Barrier(MPI_COMM_WORLD);
-#endif
-
-#ifdef ANARI_PLUGIN_HAVE_CUDA
-        if (anari.cudaInterop.enabled) {
-            uint32_t widthOUT;
-            uint32_t heightOUT;
-            ANARIDataType typeOUT;
-            const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                        "channel.colorGPU",
-                                                                        &widthOUT,
-                                                                        &heightOUT,
-                                                                        &typeOUT);
-            CUDA_SAFE_CALL(cudaMemcpyAsync((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
-                   widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
-                   anari.cudaInterop.copyStream));
-            CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
-            anariUnmapFrame(anari.device, anari.frames[chan], "channel.colorGPU");
-
-            const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                  "channel.depthGPU",
-                                                                  &widthOUT,
-                                                                  &heightOUT,
-                                                                  &typeOUT);
-            float *dbXformed;
-            CUDA_SAFE_CALL(cudaMalloc(&dbXformed, widthOUT*heightOUT*sizeof(float)));
-            transformDepthFromWorldToGL_CUDA(dbPointer, dbXformed, eye, dir, up, fovy,
-                                        aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
-            CUDA_SAFE_CALL(cudaMemcpyAsync((float *)multiChannelDrawer->depth(chan), dbXformed,
-                   widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
-                   anari.cudaInterop.copyStream));
-            CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
-            CUDA_SAFE_CALL(cudaFree(dbXformed));
-
-            anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
-        } else {
-#endif
-            uint32_t widthOUT;
-            uint32_t heightOUT;
-            ANARIDataType typeOUT;
-            const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                        "channel.color",
-                                                                        &widthOUT,
-                                                                        &heightOUT,
-                                                                        &typeOUT);
-            memcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
-                   widthOUT*heightOUT*anari::sizeOf(typeOUT));
-            anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
-
-            const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
-                                                                  "channel.depth",
-                                                                  &widthOUT,
-                                                                  &heightOUT,
-                                                                  &typeOUT);
-            std::vector<float> dbXformed(widthOUT*heightOUT);
-            transformDepthFromWorldToGL(dbPointer, dbXformed.data(), eye, dir, up, fovy,
-                                        aspect, imgRegion, glmv, glpr, widthOUT, heightOUT);
-            memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
-                   widthOUT*heightOUT*anari::sizeOf(typeOUT));
-
-            anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
-#ifdef ANARI_PLUGIN_HAVE_CUDA
-        }
-#endif
-
-        multiChannelDrawer->swapFrame();
     }
 #ifdef ANARI_PLUGIN_HAVE_MPI
     else {
@@ -878,9 +815,9 @@ void Renderer::renderFrame(unsigned chan)
         MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
         MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
 
-        if (channelInfos[chan].width != width || channelInfos[chan].height != height) {
-            channelInfos[chan].width = width;
-            channelInfos[chan].height = height;
+        if (info.frame.width != width || info.frame.height != height) {
+            info.frame.width = width;
+            info.frame.height = height;
 
             unsigned imgSize[] = {(unsigned)width,(unsigned)height};
             anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
@@ -892,11 +829,8 @@ void Renderer::renderFrame(unsigned chan)
         MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
         MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
 
-        glm::vec3 eye, dir, up;
-        float fovy, aspect;
-        glm::box2 imgRegion;
         offaxisStereoCameraFromTransform(
-            inverse(glpr), inverse(glmv), eye, dir, up, fovy, aspect, imgRegion);
+            inverse(glpr), inverse(glmv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
 
         osg::Matrix mv = glm2osg(glmv);
         osg::Matrix pr = glm2osg(glpr);
@@ -911,26 +845,161 @@ void Renderer::renderFrame(unsigned chan)
         pr(2,0) = glpr[2].x; pr(2,1) = glpr[2].y; pr(2,2) = glpr[2].z; pr(2,3) = glpr[2].w;
         pr(3,0) = glpr[3].x; pr(3,1) = glpr[3].y; pr(3,2) = glpr[3].z; pr(3,3) = glpr[3].w;
 
-        if (channelInfos[chan].mv != mv || channelInfos[chan].pr != pr) {
-            channelInfos[chan].mv = mv;
-            channelInfos[chan].pr = pr;
+        if (info.mv != glmv || info.pr != glpr) {
+            info.mv = glmv;
+            info.pr = glpr;
 
-            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &fovy);
-            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &aspect);
-            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &eye.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &dir.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &up.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &imgRegion.min);
+            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
+            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
+            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &info.eye.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &info.dir.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &info.up.x);
+            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &info.imgRegion.min);
             anariCommitParameters(anari.device, anari.cameras[chan]);
         }
 
         updateLights(glm2osg(glmm));
-        anariRenderFrame(anari.device, anari.frames[chan]);
-        anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 #endif
+
+    anariRenderFrame(anari.device, anari.frames[chan]);
+    anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
+
+    // trigger redraw:
+    if (isDisplayRank) {
+        info.frame.updated = true;
+    }
+}
+
+void Renderer::drawFrame()
+{
+    for (unsigned chan=0; chan<numChannels; ++chan) {
+        drawFrame(chan);
+    }
+}
+
+void Renderer::drawFrame(unsigned chan)
+{
+    const bool isDisplayRank = mpiRank==displayRank;
+    if (!isDisplayRank)
+        return;
+
+    ChannelInfo &info = channelInfos[chan];
+    if (info.frame.resized) {
+        multiChannelDrawer->resizeView(
+            chan, info.frame.width, info.frame.height, info.frame.colorFormat, info.frame.depthFormat);
+        multiChannelDrawer->clearColor(chan);
+        multiChannelDrawer->clearDepth(chan);
+        info.frame.resized = false;
+    }
+
+    if (!info.frame.updated)
+        return;
+
+#ifdef ANARI_PLUGIN_HAVE_CUDA
+    if (anari.cudaInterop.enabled) {
+        uint32_t widthOUT;
+        uint32_t heightOUT;
+        ANARIDataType typeOUT;
+        const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
+                                                                    "channel.colorGPU",
+                                                                    &widthOUT,
+                                                                    &heightOUT,
+                                                                    &typeOUT);
+        CUDA_SAFE_CALL(cudaMemcpyAsync((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
+               anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.colorGPU");
+
+        const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
+                                                              "channel.depthGPU",
+                                                              &widthOUT,
+                                                              &heightOUT,
+                                                              &typeOUT);
+        float *dbXformed;
+        CUDA_SAFE_CALL(cudaMalloc(&dbXformed, widthOUT*heightOUT*sizeof(float)));
+        transformDepthFromWorldToGL_CUDA(dbPointer, dbXformed, info.eye, info.dir, info.up, info.fovy,
+                                    info.aspect, info.imgRegion, info.mv, info.pr, widthOUT, heightOUT);
+        CUDA_SAFE_CALL(cudaMemcpyAsync((float *)multiChannelDrawer->depth(chan), dbXformed,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT), cudaMemcpyDeviceToDevice,
+               anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaStreamSynchronize(anari.cudaInterop.copyStream));
+        CUDA_SAFE_CALL(cudaFree(dbXformed));
+
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
+    } else {
+#endif
+        uint32_t widthOUT;
+        uint32_t heightOUT;
+        ANARIDataType typeOUT;
+        const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
+                                                                    "channel.color",
+                                                                    &widthOUT,
+                                                                    &heightOUT,
+                                                                    &typeOUT);
+        memcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
+               widthOUT*heightOUT*anari::sizeOf(typeOUT));
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
+
+        const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
+                                                              "channel.depth",
+                                                              &widthOUT,
+                                                              &heightOUT,
+                                                              &typeOUT);
+        std::vector<float> dbXformed(widthOUT*heightOUT);
+        transformDepthFromWorldToGL(dbPointer, dbXformed.data(), info.eye, info.dir, info.up, info.fovy,
+                                    info.aspect, info.imgRegion, info.mv, info.pr, widthOUT, heightOUT);
+        memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
+               widthOUT*heightOUT*anari::sizeOf(typeOUT));
+
+        anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
+#ifdef ANARI_PLUGIN_HAVE_CUDA
+    }
+#endif
+
+    multiChannelDrawer->swapFrame();
+
+    // frame was consumed:
+    info.frame.updated = false;
+}
+
+void Renderer::initMPI()
+{
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    int mpiInitCalled = 0;
+    MPI_Initialized(&mpiInitCalled);
+
+    if (mpiInitCalled) {
+        MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
+        MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
+
+        bool displayRankEntryExists = false;
+        displayRank  = covise::coCoviseConfig::getInt(
+            "displayRank",
+            "COVER.Plugin.ANARI.displayRank",
+            0,
+            &displayRankEntryExists
+        );
+    }
+#endif
+}
+
+void Renderer::initChannels()
+{
+    const bool isDisplayRank = mpiRank==displayRank;
+
+    if (isDisplayRank) {
+        numChannels = coVRConfig::instance()->numChannels();
+    }
+
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    if (mpiSize > 1) {
+        MPI_Bcast(&numChannels, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+    }
+#endif
+
+    channelInfos.resize(numChannels);
 }
 
 void Renderer::initDevice()
@@ -995,7 +1064,6 @@ void Renderer::initFrames()
                       bgcolor);
     anariCommitParameters(anari.device, anari.renderer);
 
-    int numChannels = coVRConfig::instance()->numChannels();
     anari.frames.resize(numChannels);
     anari.cameras.resize(numChannels);
     for (unsigned chan=0; chan<numChannels; ++chan) {

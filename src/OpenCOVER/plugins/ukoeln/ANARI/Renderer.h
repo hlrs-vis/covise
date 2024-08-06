@@ -25,6 +25,7 @@
 #include "readUMesh.h"
 #include "readVTK.h"
 #include "ui_anari.h"
+#include "Projection.h"
 
 class Renderer
 {
@@ -45,6 +46,8 @@ public:
 
     Renderer();
    ~Renderer();
+
+    void init();
 
     void loadMesh(std::string fileName);
     void unloadMesh(std::string fileName);
@@ -100,8 +103,13 @@ public:
     // volume debug mode where MPI rank IDs are assigned random colors
     void setColorRanks(bool value);
 
+    void wait();
+
     void renderFrame();
     void renderFrame(unsigned chan);
+
+    void drawFrame();
+    void drawFrame(unsigned chan);
 
     int mpiRank{0};
     int mpiSize{1};
@@ -110,12 +118,20 @@ public:
 private:
     osg::ref_ptr<opencover::MultiChannelDrawer> multiChannelDrawer{nullptr};
     struct ChannelInfo {
-        int width=1, height=1;
-        GLenum colorFormat=GL_FLOAT;
-        GLenum depthFormat=GL_UNSIGNED_BYTE;
-        osg::Matrix mv, pr;
+        struct {
+            int width=1, height=1;
+            GLenum colorFormat=GL_FLOAT;
+            GLenum depthFormat=GL_UNSIGNED_BYTE;
+            bool resized=false;
+            bool updated=false;
+        } frame;
+        glm::mat4 mv, pr;
+        glm::vec3 eye, dir, up;
+        float fovy, aspect;
+        glm::box2 imgRegion;
     };
     std::vector<ChannelInfo> channelInfos;
+    int numChannels{0};
 
     struct {
         std::string libtype = "environment";
@@ -148,6 +164,8 @@ private:
         } cudaInterop;
     } anari;
 
+    void initMPI();
+    void initChannels();
     void initDevice();
     void initFrames();
     void initMesh();
