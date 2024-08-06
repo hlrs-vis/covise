@@ -1421,6 +1421,8 @@ void VRViewer::destroyChannels(int i)
 osg::GLExtensions *VRViewer::getExtensions(int chan) const
 {
     auto &conf = *coVRConfig::instance();
+    if (chan >= conf.numChannels())
+        return nullptr;
     auto cam = coVRConfig::instance()->channels[chan].camera;
     if (cam)
     {
