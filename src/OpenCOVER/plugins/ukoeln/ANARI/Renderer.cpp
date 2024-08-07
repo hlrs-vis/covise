@@ -793,12 +793,12 @@ void Renderer::renderFrame(unsigned chan)
     }
 #endif
 
-    offaxisStereoCameraFromTransform(
-        inverse(pr), inverse(mv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
-
     if (info.mv != mv || info.pr != pr) {
         info.mv = mv;
         info.pr = pr;
+
+        offaxisStereoCameraFromTransform(
+            inverse(pr), inverse(mv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
 
         anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
         anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
