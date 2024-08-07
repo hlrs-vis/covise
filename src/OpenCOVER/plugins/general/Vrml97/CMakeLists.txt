@@ -61,7 +61,9 @@ add_covise_library(Vrml97Cover SHARED ${LIB_SOURCES} ${LIB_HEADERS})
 target_link_libraries(Vrml97Cover coOpenPluginUtil coOpenCOVER coOpenVRUI
    coOSGVRUI ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY}
    ${COVISE_UTIL_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${EXTRA_LIBS} ${OPENSCENEGRAPH_LIBRARIES}) # ${CMAKE_THREAD_LIBS_INIT})
-qt_use_modules(Vrml97Cover Core)
+IF(COVISE_USE_QT)
+  qt_use_modules(Vrml97Cover Core)
+endif()
 covise_install_target(Vrml97Cover)
 
 set(HEADERS
