@@ -268,12 +268,15 @@ int main(int argc, char *argv[])
         if (rank > 0)
         {
             std::string filename = covise::coCoviseConfig::getEntry("slavelog", "COVER.Console");
-            if (filename.empty())
+            if (filename == "nul" || filename == "NULL" || filename == "/dev/null" || filename == "null")
             {
-                fclose(stderr);
-                fclose(stdout);
+#ifdef _WIN32
+                filename = "nul";
+#else
+                filename = "/dev/null";
+#endif
             }
-            else
+            if (!filename.empty())
             {
                 if (!freopen((filename + ".stderr").c_str(), "w", stderr))
                 {
