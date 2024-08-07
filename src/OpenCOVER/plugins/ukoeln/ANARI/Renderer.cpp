@@ -750,117 +750,69 @@ void Renderer::renderFrame(unsigned chan)
     const bool isDisplayRank = mpiRank==displayRank;
     ChannelInfo &info = channelInfos[chan];
 
+    int width=1, height=1;
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
         auto cam = coVRConfig::instance()->channels[chan].camera;
         auto vp = cam->getViewport();
-        int width = vp->width();
-        int height = vp->height();
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-        if (mpiSize > 1) {
-            MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
-            MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
-        }
-#endif
-
-        if (info.frame.width != width || info.frame.height != height) {
-            info.frame.width = width;
-            info.frame.height = height;
-            info.frame.resized = true;
-
-            unsigned imgSize[] = {(unsigned)width,(unsigned)height};
-            anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
-            anariCommitParameters(anari.device, anari.frames[chan]);
-        }
-
-        osg::Matrix mv = multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan);
-        osg::Matrix pr = multiChannelDrawer->projectionMatrix(chan);
-
-        glm::mat4 glmm = osg2glm(multiChannelDrawer->modelMatrix(chan));
-        glm::mat4 glmv = osg2glm(mv);
-        glm::mat4 glpr = osg2glm(pr);
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-        if (mpiSize > 1) {
-            MPI_Bcast(&glmm, sizeof(glmm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-            MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-            MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        }
-#endif
-
-        offaxisStereoCameraFromTransform(
-            inverse(glpr), inverse(glmv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
-
-        if (info.mv != glmv || info.pr != glpr) {
-            info.mv = glmv;
-            info.pr = glpr;
-
-            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
-            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
-            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &info.eye.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &info.dir.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &info.up.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &info.imgRegion.min);
-            anariCommitParameters(anari.device, anari.cameras[chan]);
-        }
-
-        updateLights(multiChannelDrawer->modelMatrix(chan));
+        width = vp->width();
+        height = vp->height();
     }
+
 #ifdef ANARI_PLUGIN_HAVE_MPI
-    else {
-        // non-display rank:
-        int width, height;
+    if (mpiSize > 1) {
         MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
         MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
-
-        if (info.frame.width != width || info.frame.height != height) {
-            info.frame.width = width;
-            info.frame.height = height;
-
-            unsigned imgSize[] = {(unsigned)width,(unsigned)height};
-            anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
-            anariCommitParameters(anari.device, anari.frames[chan]);
-        }
-
-        glm::mat4 glmm, glmv, glpr;
-        MPI_Bcast(&glmm, sizeof(glmm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&glmv, sizeof(glmv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&glpr, sizeof(glpr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-
-        offaxisStereoCameraFromTransform(
-            inverse(glpr), inverse(glmv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
-
-        osg::Matrix mv = glm2osg(glmv);
-        osg::Matrix pr = glm2osg(glpr);
-        // glm matrices are column-major, osg matrices are row-major!
-        mv(0,0) = glmv[0].x; mv(0,1) = glmv[0].y; mv(0,2) = glmv[0].z; mv(0,3) = glmv[0].w;
-        mv(1,0) = glmv[1].x; mv(1,1) = glmv[1].y; mv(1,2) = glmv[1].z; mv(1,3) = glmv[1].w;
-        mv(2,0) = glmv[2].x; mv(2,1) = glmv[2].y; mv(2,2) = glmv[2].z; mv(2,3) = glmv[2].w;
-        mv(3,0) = glmv[3].x; mv(3,1) = glmv[3].y; mv(3,2) = glmv[3].z; mv(3,3) = glmv[3].w;
-
-        pr(0,0) = glpr[0].x; pr(0,1) = glpr[0].y; pr(0,2) = glpr[0].z; pr(0,3) = glpr[0].w;
-        pr(1,0) = glpr[1].x; pr(1,1) = glpr[1].y; pr(1,2) = glpr[1].z; pr(1,3) = glpr[1].w;
-        pr(2,0) = glpr[2].x; pr(2,1) = glpr[2].y; pr(2,2) = glpr[2].z; pr(2,3) = glpr[2].w;
-        pr(3,0) = glpr[3].x; pr(3,1) = glpr[3].y; pr(3,2) = glpr[3].z; pr(3,3) = glpr[3].w;
-
-        if (info.mv != glmv || info.pr != glpr) {
-            info.mv = glmv;
-            info.pr = glpr;
-
-            anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
-            anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
-            anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &info.eye.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &info.dir.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &info.up.x);
-            anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &info.imgRegion.min);
-            anariCommitParameters(anari.device, anari.cameras[chan]);
-        }
-
-        updateLights(glm2osg(glmm));
     }
 #endif
+
+    if (info.frame.width != width || info.frame.height != height) {
+        info.frame.width = width;
+        info.frame.height = height;
+        info.frame.resized = true;
+
+        unsigned imgSize[] = {(unsigned)width,(unsigned)height};
+        anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
+        anariCommitParameters(anari.device, anari.frames[chan]);
+    }
+
+    glm::mat4 mm, mv, pr;
+    if (isDisplayRank) {
+        mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
+        mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
+        pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
+    }
+
+
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    if (mpiSize > 1) {
+        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+    }
+#endif
+
+    offaxisStereoCameraFromTransform(
+        inverse(pr), inverse(mv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
+
+    if (info.mv != mv || info.pr != pr) {
+        info.mv = mv;
+        info.pr = pr;
+
+        anariSetParameter(anari.device, anari.cameras[chan], "fovy", ANARI_FLOAT32, &info.fovy);
+        anariSetParameter(anari.device, anari.cameras[chan], "aspect", ANARI_FLOAT32, &info.aspect);
+        anariSetParameter(anari.device, anari.cameras[chan], "position", ANARI_FLOAT32_VEC3, &info.eye.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "direction", ANARI_FLOAT32_VEC3, &info.dir.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "up", ANARI_FLOAT32_VEC3, &info.up.x);
+        anariSetParameter(anari.device, anari.cameras[chan], "imageRegion", ANARI_FLOAT32_BOX2, &info.imgRegion.min);
+        anariCommitParameters(anari.device, anari.cameras[chan]);
+    }
+
+    if (info.mm != mm) {
+        info.mm = mm;
+        updateLights(glm2osg(mm));
+    }
 
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);

@@ -125,7 +125,7 @@ private:
             bool resized=false;
             bool updated=false;
         } frame;
-        glm::mat4 mv, pr;
+        glm::mat4 mm, mv, pr;
         glm::vec3 eye, dir, up;
         float fovy, aspect;
         glm::box2 imgRegion;
