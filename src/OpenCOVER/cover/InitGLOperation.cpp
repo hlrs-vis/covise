@@ -45,6 +45,7 @@
 
 #include <config/CoviseConfig.h>
 #include "coVRConfig.h"
+#include "coVRPluginSupport.h"
 
 #include "InitGLOperation.h"
 
@@ -116,6 +117,19 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "glxewInit() failed" << std::endl;
     }
 #endif
+
+#define PRINT_STRING(s) std::cerr << "GL_" #s << ": " << glGetString(GL_ ## s) << std::endl
+    if (cover->debugLevel(2))
+    {
+        PRINT_STRING(RENDERER);
+        PRINT_STRING(VENDOR);
+        PRINT_STRING(VERSION);
+    }
+    if (cover->debugLevel(3))
+    {
+        PRINT_STRING(EXTENSIONS);
+    }
+#undef PRINT_STRING
 
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);
     bool glDebugLevelExists = false;
