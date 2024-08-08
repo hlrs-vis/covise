@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/util/Xerces_autoconf_config.hpp>
 
 struct Deleter
