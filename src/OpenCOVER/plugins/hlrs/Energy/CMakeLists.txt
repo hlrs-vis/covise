@@ -1,4 +1,4 @@
-USING(PROJ4)
+USING(PROJ)
 USING(GDAL)
 find_package(nlohmann_json 3.10.0)
 

@@ -59,7 +59,7 @@
 
 #include <osg/LineWidth>
 #include <osg/Version>
-#include <proj_api.h>
+#include <proj.h>
 
 using namespace opencover;
 
@@ -564,9 +564,11 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
     char buf[lineSize];
 
     bool mapdrape = true;
-    projPJ pj_from = pj_init_plus(proj_from);
-    projPJ pj_to = pj_init_plus(proj_to);
-    if (!pj_from || !pj_to) {
+
+    auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, proj_from, proj_to, NULL);
+    PJ_COORD coord;
+
+    if (!P) {
         fprintf(stderr, "Energy Plugin: Ignoring mapping. No valid projection was found \n");
         mapdrape = false;
     }
@@ -605,17 +607,15 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
 
         // location
         if (mapdrape) {
-            double xlat = std::strtod(tok->c_str(), NULL);
+            coord.lpzt.lam = std::strtod(tok->c_str(), NULL);
             ++tok;
-            double xlon = std::strtod(tok->c_str(), NULL);
+            coord.lpzt.phi = std::strtod(tok->c_str(), NULL);
             float alt = 0.;
-            xlat *= DEG_TO_RAD;
-            xlon *= DEG_TO_RAD;
 
-            int error = pj_transform(pj_from, pj_to, 1, 1, &xlon, &xlat, NULL);
+            coord = proj_trans(P, PJ_FWD, coord);
 
-            di->lat = xlon + offset[0];
-            di->lon = xlat + offset[1];
+            di->lat = coord.xy.x + offset[0];
+            di->lon = coord.xy.y + offset[1];
             di->height = alt + offset[2];
         } else {
             di->lat = std::strtof(tok->c_str(), NULL);
@@ -671,6 +671,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
             SDlist[diT->ID].push_back(sd);
         }
     }
+    proj_destroy(P);
     fclose(fp);
     return true;
 }
