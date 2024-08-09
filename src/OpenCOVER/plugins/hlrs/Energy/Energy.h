@@ -16,6 +16,7 @@
 #define _Energy_PLUGIN_H
 
 #include <memory>
+#include <string>
 #include <osg/Group>
 #include <osg/Node>
 #include <osg/Sequence>
@@ -48,7 +49,6 @@
 #include "EnnovatisDeviceSensor.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
-#include "ennovatis/sax.h"
 #include "core/PrototypeBuilding.h"
 
 enum Components
@@ -105,9 +105,14 @@ private:
     typedef const ennovatis::Buildings* buildings_const_Ptr;
     typedef std::vector<building_const_ptr> const_buildings;
     typedef std::map<Device *, building_const_ptr> DeviceBuildingMap;
+    
+    struct ProjTrans {
+        std::string projFrom;
+        std::string projTo;
+    };
 
-    bool loadDBFile(const std::string &fileName);
-    bool loadDB(const std::string &path);
+    bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
+    bool loadDB(const std::string &path, const ProjTrans &projTrans);
     void initRESTRequest();
     void initEnnovatisUI();
     void selectEnabledDevice();

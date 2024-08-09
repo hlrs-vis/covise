@@ -66,8 +66,6 @@ using namespace opencover;
 namespace {
 
 constexpr bool debug = build_options.debug_ennovatis;
-constexpr auto proj_to = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ";
-constexpr auto proj_from = "+proj=latlong";
 // regex for dd.mm.yyyy
 const std::regex dateRgx(R"(((0[1-9])|([12][0-9])|(3[01]))\.((0[0-9])|(1[012]))\.((20[012]\d|19\d\d)|(1\d|2[0123])))");
 ennovatis::rest_request_handler m_debug_worker;
@@ -380,9 +378,9 @@ void EnergyPlugin::setComponent(Components c)
 EnergyPlugin::~EnergyPlugin()
 {}
 
-bool EnergyPlugin::loadDB(const std::string &path)
+bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
 {
-    if (!loadDBFile(path)) {
+    if (!loadDBFile(path, projTrans)) {
         return false;
     }
 
@@ -515,6 +513,9 @@ bool EnergyPlugin::init()
     auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
     // csv contains only updated buildings
     auto channelIdCSVPath = configString("Ennovatis", "csvPath", "default")->value();
+    ProjTrans pjTrans;
+    pjTrans.projFrom = configString("General", "projFrom", "default")->value();
+    pjTrans.projTo = configString("General", "projTo", "default")->value();
 
     initRESTRequest();
 
@@ -523,7 +524,7 @@ bool EnergyPlugin::init()
         std::cout << "Load channelIDs: " << channelIdJSONPath << std::endl;
     }
 
-    if (loadDB(dbPath))
+    if (loadDB(dbPath, pjTrans))
         std::cout << "Database loaded in cache" << std::endl;
     else
         std::cout << "Database not loaded" << std::endl;
@@ -552,7 +553,7 @@ bool EnergyPlugin::init()
     return true;
 }
 
-bool EnergyPlugin::loadDBFile(const std::string &fileName)
+bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &projTrans)
 {
     FILE *fp = fopen(fileName.c_str(), "r");
     if (fp == NULL) {
@@ -565,7 +566,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName)
 
     bool mapdrape = true;
 
-    auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, proj_from, proj_to, NULL);
+    auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projTrans.projFrom.c_str(), projTrans.projTo.c_str(), NULL);
     PJ_COORD coord;
 
     if (!P) {

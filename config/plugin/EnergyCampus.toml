@@ -1,5 +1,7 @@
 [General]
 offset = [-507080.0, -5398430.0, 450.0]
+protFrom = "+proj=latlong"
+projTo = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs "
 
 [Billboard]
 fontFilePath = "DroidSans-Bold.ttf"
