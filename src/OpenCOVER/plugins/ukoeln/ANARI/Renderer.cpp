@@ -13,6 +13,7 @@
 #endif
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/glm.h>
+#include <glm/gtx/string_cast.hpp>
 #include <osg/io_utils>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
@@ -129,9 +130,28 @@ Renderer::Renderer()
 {
 }
 
+Renderer::~Renderer()
+{
+#ifdef ANARI_PLUGIN_HAVE_CUDA
+    if (anari.cudaInterop.enabled) {
+        CUDA_SAFE_CALL(cudaStreamDestroy(anari.cudaInterop.copyStream));
+    }
+#endif
+    if (multiChannelDrawer) {
+        cover->getScene()->removeChild(multiChannelDrawer);
+    }
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (/*isClient ||*/ isServer) {
+        remoteThread.join();
+    }
+#endif
+}
+
 void Renderer::init()
 {
     initMPI();
+    initRR();
     initChannels();
     initDevice();
 
@@ -152,18 +172,6 @@ void Renderer::init()
 
     // generate default TF:
     generateTransFunc();
-}
-
-Renderer::~Renderer()
-{
-#ifdef ANARI_PLUGIN_HAVE_CUDA
-    if (anari.cudaInterop.enabled) {
-        CUDA_SAFE_CALL(cudaStreamDestroy(anari.cudaInterop.copyStream));
-    }
-#endif
-    if (multiChannelDrawer) {
-        cover->getScene()->removeChild(multiChannelDrawer);
-    }
 }
 
 void Renderer::loadMesh(std::string fn)
@@ -456,36 +464,67 @@ void Renderer::unloadVolumeRAW(std::string fn)
 
 void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 {
-    if (!anari.world)
-        return;
+    AABB bounds = getSceneBounds();
 
-    float bounds[6] = { 1e30f, 1e30f, 1e30f,
-                       -1e30f,-1e30f,-1e30f };
+    osg::Vec3f minCorner(bounds.data[0],bounds.data[1],bounds.data[2]);
+    osg::Vec3f maxCorner(bounds.data[3],bounds.data[4],bounds.data[5]);
+
+    osg::Vec3f center = (minCorner+maxCorner)*.5f;
+    float radius = (center-minCorner).length();
+    bs.set(center, radius);
+}
+
+Renderer::AABB Renderer::getSceneBounds()
+{
+    AABB result;
+    result.data[0] = 1e30f;
+    result.data[1] = 1e30f;
+    result.data[2] = 1e30f;
+    result.data[3] = -1e30f;
+    result.data[4] = -1e30f;
+    result.data[5] = -1e30f;
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        minirr::AABB serverBounds;
+        rr->recvBounds(serverBounds);
+        result.data[0] = fminf(result.data[0], serverBounds[0]);
+        result.data[1] = fminf(result.data[1], serverBounds[1]); 
+        result.data[2] = fminf(result.data[2], serverBounds[2]); 
+        result.data[3] = fmaxf(result.data[3], serverBounds[3]); 
+        result.data[4] = fmaxf(result.data[4], serverBounds[4]); 
+        result.data[5] = fmaxf(result.data[5], serverBounds[5]); 
+        return result;
+    }
+#endif
+
+    if (!anari.world)
+        return result;
 
     // e.g., set when AMR data was loaded!
-    anariGetProperty(anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds, sizeof(bounds), ANARI_WAIT);
+    anariGetProperty(anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &result.data, sizeof(result.data), ANARI_WAIT);
 
     if (anari.meshes) {
         asgComputeBounds(anari.meshes,
-                         &bounds[0],&bounds[1],&bounds[2],
-                         &bounds[3],&bounds[4],&bounds[5]);
+                         &result.data[0],&result.data[1],&result.data[2],
+                         &result.data[3],&result.data[4],&result.data[5]);
     }
 
     if (anari.structuredVolume) {
         // asgComputeBounds doesn't work for volumes yet...
-        bounds[0] = fminf(bounds[0], 0.f);
-        bounds[1] = fminf(bounds[1], 0.f);
-        bounds[2] = fminf(bounds[2], 0.f);
-        bounds[3] = fmaxf(bounds[3], structuredVolumeData.sizeX);
-        bounds[4] = fmaxf(bounds[4], structuredVolumeData.sizeY);
-        bounds[5] = fmaxf(bounds[5], structuredVolumeData.sizeZ);
+        result.data[0] = fminf(result.data[0], 0.f);
+        result.data[1] = fminf(result.data[1], 0.f);
+        result.data[2] = fminf(result.data[2], 0.f);
+        result.data[3] = fmaxf(result.data[3], structuredVolumeData.sizeX);
+        result.data[4] = fmaxf(result.data[4], structuredVolumeData.sizeY);
+        result.data[5] = fmaxf(result.data[5], structuredVolumeData.sizeZ);
     }
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
         float localBounds[6];
         for (int i=0; i<6; ++i) {
-            localBounds[i] = bounds[i];
+            localBounds[i] = result.data[i];
         }
         float globalBounds[6];
         MPI_Allreduce(&localBounds[0], &globalBounds[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
@@ -495,17 +534,12 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
         MPI_Allreduce(&localBounds[4], &globalBounds[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
         MPI_Allreduce(&localBounds[5], &globalBounds[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
         for (int i=0; i<6; ++i) {
-            bounds[i] = globalBounds[i];
+            result.data[i] = globalBounds[i];
         }
     }
 #endif
 
-    osg::Vec3f minCorner(bounds[0],bounds[1],bounds[2]);
-    osg::Vec3f maxCorner(bounds[3],bounds[4],bounds[5]);
-
-    osg::Vec3f center = (minCorner+maxCorner)*.5f;
-    float radius = (center-minCorner).length();
-    bs.set(center, radius);
+    return result;
 }
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
@@ -577,6 +611,8 @@ void Renderer::updateLights(const osg::Matrix &modelMat)
         }
         ANARIArray1D anariLights = anariNewArray1D(anari.device, anari.lights.data(), 0, 0,
                                                    ANARI_LIGHT, anari.lights.size());
+
+
         anariSetParameter(anari.device, anari.world, "light", ANARI_ARRAY1D, &anariLights);
         anariCommitParameters(anari.device, anari.world);
 
@@ -760,6 +796,16 @@ void Renderer::renderFrame(unsigned chan)
         height = vp->height();
     }
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        rr->sendSize(width, height);
+    }
+
+    if (isServer) {
+        rr->recvSize(width, height);
+    }
+#endif
+
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
         MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
@@ -777,13 +823,32 @@ void Renderer::renderFrame(unsigned chan)
         anariCommitParameters(anari.device, anari.frames[chan]);
     }
 
-    glm::mat4 mm, mv, pr;
+    glm::mat4 mm, vv, mv, pr;
     if (isDisplayRank) {
         mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
+        vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
         mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
         pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
     }
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        minirr::Mat4 model, view, proj;
+        std::memcpy(model, &mm[0], sizeof(model));
+        std::memcpy(view, &vv[0], sizeof(view));
+        std::memcpy(proj, &pr[0], sizeof(proj));
+        rr->sendCamera(model, view, proj);
+    }
+
+    if (isServer) {
+        minirr::Mat4 model, view, proj;
+        rr->recvCamera(model, view, proj);
+        std::memcpy(&mm[0], model, sizeof(model));
+        std::memcpy(&vv[0], view, sizeof(view));
+        std::memcpy(&pr[0], proj, sizeof(proj));
+        mv = vv*mm;
+    }
+#endif
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
@@ -817,6 +882,25 @@ void Renderer::renderFrame(unsigned chan)
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        imageBuffer.resize(info.frame.width*info.frame.height);
+        rr->recvImage(imageBuffer.data(), info.frame.width, info.frame.height);
+    }
+
+    if (isServer) {
+        uint32_t widthOUT;
+        uint32_t heightOUT;
+        ANARIDataType typeOUT;
+        const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
+                                                                    "channel.color",
+                                                                    &widthOUT,
+                                                                    &heightOUT,
+                                                                    &typeOUT);
+        rr->sendImage(fbPointer, widthOUT, heightOUT);
+    }
+#endif
+
     // trigger redraw:
     if (isDisplayRank) {
         info.frame.updated = true;
@@ -848,8 +932,11 @@ void Renderer::drawFrame(unsigned chan)
     if (!info.frame.updated)
         return;
 
+    if (isClient) {
+        memcpy((uint32_t *)multiChannelDrawer->rgba(chan), imageBuffer.data(),
+               sizeof(imageBuffer[0]) * imageBuffer.size());
 #ifdef ANARI_PLUGIN_HAVE_CUDA
-    if (anari.cudaInterop.enabled) {
+    } else if (anari.cudaInterop.enabled) {
         uint32_t widthOUT;
         uint32_t heightOUT;
         ANARIDataType typeOUT;
@@ -880,8 +967,8 @@ void Renderer::drawFrame(unsigned chan)
         CUDA_SAFE_CALL(cudaFree(dbXformed));
 
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
-    } else {
 #endif
+    } else {
         uint32_t widthOUT;
         uint32_t heightOUT;
         ANARIDataType typeOUT;
@@ -906,9 +993,7 @@ void Renderer::drawFrame(unsigned chan)
                widthOUT*heightOUT*anari::sizeOf(typeOUT));
 
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
-#ifdef ANARI_PLUGIN_HAVE_CUDA
     }
-#endif
 
     multiChannelDrawer->swapFrame();
 
@@ -926,13 +1011,79 @@ void Renderer::initMPI()
         MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
         MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
 
+        // can be set to a value outside of the range in
+        // the config for headless clusters:
         bool displayRankEntryExists = false;
         displayRank  = covise::coCoviseConfig::getInt(
             "displayRank",
-            "COVER.Plugin.ANARI.displayRank",
+            "COVER.Plugin.ANARI.Cluster",
             0,
             &displayRankEntryExists
         );
+    }
+#endif
+}
+
+void Renderer::initRR()
+{
+#ifdef ANARI_PLUGIN_HAVE_RR
+    bool modeEntryExists = false;
+    std::string mode = covise::coCoviseConfig::getEntry(
+        "mode",
+        "COVER.Plugin.ANARI.RR",
+        "",
+        &modeEntryExists
+    );
+
+    bool hostnameEntryExists = false;
+    std::string hostname = covise::coCoviseConfig::getEntry(
+        "hostname",
+        "COVER.Plugin.ANARI.RR",
+        "localhost",
+        &hostnameEntryExists
+    );
+
+    bool portEntryExists = false;
+    unsigned short port  = covise::coCoviseConfig::getInt(
+        "port",
+        "COVER.Plugin.ANARI.RR",
+        31050,
+        &portEntryExists
+    );
+
+    // TODO:
+    isServer = modeEntryExists && mode == "server";
+    isClient = modeEntryExists && mode == "client";
+
+    rr = std::make_shared<minirr::MiniRR>();
+
+    if (isClient) {
+        std::cout << "ANARI.RR.mode is 'client'\n";
+        rr->initAsClient(hostname, port);
+        rr->run();
+    }
+
+    if (isServer) {
+        std::cout << "ANARI.RR.mode is 'server'\n";
+        rr->initAsServer(port);
+        rr->run();
+    }
+
+    if (/*isClient ||*/ isServer) {
+        // process outstanding requests that aren't handled in lock-step
+        remoteThread = std::thread([&]() {
+            while (1) {
+                if (rr->connectionClosed()) {
+                    break;
+                }
+                else if (rr->boundsRequested()) {
+                    AABB bounds = getSceneBounds();
+                    minirr::AABB rrBounds;
+                    std::memcpy(rrBounds, bounds.data, sizeof(rrBounds));
+                    rr->sendBounds(rrBounds);
+                }
+            }
+        });
     }
 #endif
 }
@@ -944,6 +1095,16 @@ void Renderer::initChannels()
     if (isDisplayRank) {
         numChannels = coVRConfig::instance()->numChannels();
     }
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        rr->sendNumChannels(numChannels);
+    }
+
+    if (isServer) {
+        rr->recvNumChannels(numChannels);
+    }
+#endif
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
@@ -993,7 +1154,7 @@ void Renderer::initDevice()
             anariSetParameter(anari.device, anari.device, "server.port", ANARI_UINT16, &port);
     }
     anariCommitParameters(anari.device, anari.device);
-    anari.world = anariNewWorld(anari.device);
+    anari.world = anari::newObject<anari::World>(anari.device);
 #ifdef ANARI_PLUGIN_HAVE_CUDA
     anari.cudaInterop.enabled
         = deviceHasExtension(anari.library, "default", "ANARI_VISRTX_CUDA_OUTPUT_BUFFERS");

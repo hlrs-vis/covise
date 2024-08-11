@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <vector>
+#include <thread>
 #ifdef ANARI_PLUGIN_HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
@@ -26,6 +27,9 @@
 #include "readVTK.h"
 #include "ui_anari.h"
 #include "Projection.h"
+#ifdef ANARI_PLUGIN_HAVE_RR
+#include <MiniRR.h>
+#endif
 
 class Renderer
 {
@@ -165,9 +169,11 @@ private:
     } anari;
 
     void initMPI();
+    void initRR();
     void initChannels();
     void initDevice();
     void initFrames();
+    void initWorld();
     void initMesh();
     void initPointClouds();
     void initStructuredVolume();
@@ -176,6 +182,9 @@ private:
     void initClipPlanes();
     void initHDRI();
     void initTransFunc();
+
+    struct AABB { float data[6]; };
+    AABB getSceneBounds();
 
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
 
@@ -272,6 +281,15 @@ private:
 
     std::vector<std::string> rendererTypes;
     std::vector<ui_anari::ParameterList> rendererParameters;
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+    // thread to process events on that aren't executed in lockstep
+    std::thread remoteThread;
+    std::shared_ptr<minirr::MiniRR> rr;
+#endif
+    std::vector<uint32_t> imageBuffer;
+    bool isClient{false};
+    bool isServer{false};
 };
 
 
