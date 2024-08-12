@@ -568,6 +568,8 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
 
     auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projTrans.projFrom.c_str(), projTrans.projTo.c_str(), NULL);
     PJ_COORD coord;
+    coord.lpzt.z = 0.0;
+    coord.lpzt.t = HUGE_VAL;
 
     if (!P) {
         fprintf(stderr, "Energy Plugin: Ignoring mapping. No valid projection was found \n");
@@ -608,20 +610,21 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
 
         // location
         if (mapdrape) {
-            coord.lpzt.lam = std::strtod(tok->c_str(), NULL);
-            ++tok;
+            // x = lon, y = lat
             coord.lpzt.phi = std::strtod(tok->c_str(), NULL);
+            ++tok;
+            coord.lpzt.lam = std::strtod(tok->c_str(), NULL);
             float alt = 0.;
 
             coord = proj_trans(P, PJ_FWD, coord);
 
-            di->lat = coord.xy.x + offset[0];
-            di->lon = coord.xy.y + offset[1];
+            di->lon = coord.xy.x + offset[0];
+            di->lat = coord.xy.y + offset[1];
             di->height = alt + offset[2];
         } else {
-            di->lat = std::strtof(tok->c_str(), NULL);
-            ++tok;
             di->lon = std::strtof(tok->c_str(), NULL);
+            ++tok;
+            di->lat = std::strtof(tok->c_str(), NULL);
             di->height = 0.f;
         }
 
