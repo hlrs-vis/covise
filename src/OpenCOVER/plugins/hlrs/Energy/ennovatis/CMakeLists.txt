@@ -27,7 +27,8 @@ add_dependencies(${Name} coCurlHTTPClient coThreadUtil)
 target_link_libraries(${Name} 
 	PRIVATE nlohmann_json::nlohmann_json
 	PRIVATE coCurlHTTPClient
-	PRIVATE coThreadUtil)
+	PRIVATE coThreadUtil
+	PRIVATE coReadCSVUtil)
 
 # tell compiler to generate position independent code => -fPIC
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include "building.h"
+#include "utils/read/csv/csv.h"
 
 namespace {
 
@@ -23,6 +24,47 @@ void channelgroup_switch(ennovatis::Channel &channel, const std::string &val)
 
 
 namespace ennovatis {
+
+bool csv_channelid_parser::update_buildings_by_buildingid(const std::string &filename, BuildingsPtr buildings)
+{
+    using namespace opencover::utils::read;
+    std::map<std::string, std::string> row;
+    try {
+        auto csvStream = CSVStream(filename);
+        std::vector<Building>::iterator buildingIt;
+        std::string lastBuildingId("");
+        while (csvStream >> row) {
+            const auto &building_id = row["BuildingId"];
+            if (building_id != lastBuildingId) {
+                const auto &name_channel_dir = row["Gebaude/Kanalordner"];
+                const auto name = name_channel_dir.substr(0, name_channel_dir.find_last_of('-'));
+                buildingIt = std::find_if(buildings->begin(), buildings->end(),
+                                          [&name](const Building &b) { return b.getId().compare(name) >= 0; });
+                if (buildingIt == buildings->end()) {
+                    buildings->push_back(Building(name, building_id));
+                    buildingIt = buildings->end() - 1;
+                }
+            }
+            lastBuildingId = building_id;
+
+            // channelid in csv is not the same as the channel id on server side
+            const auto &channel_id = row["GlobalId"] + "_5"; // _5 needed to specify as channel
+            const auto &channel_type = row["Medium"];
+
+            Channel channel{row["Kanal"], channel_id, row["Beschreibung"], channel_type, "None", ChannelGroup::None};
+            channelgroup_switch(channel, channel_type);
+            if (channel.group == ChannelGroup::None)
+                continue;
+
+            buildingIt->addChannel(channel, channel.group);
+        }
+
+    } catch (const CSVStream_Exception &ex) {
+        std::cout << ex.what() << "\n";
+    }
+
+    return true;
+}
 
 bool csv_channelid_parser::update_buildings_by_buildingid(std::basic_istream<char> &file, BuildingsPtr buildings)
 {

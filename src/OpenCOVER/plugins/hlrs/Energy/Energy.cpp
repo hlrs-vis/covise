@@ -405,7 +405,7 @@ bool EnergyPlugin::updateChannelIDsFromCSV(const std::string &pathToCSV)
             return false;
         }
         ennovatis::csv_channelid_parser csvParser;
-        if (!csvParser.update_buildings_by_buildingid(csvFilestream, m_buildings))
+        if (!csvParser.update_buildings_by_buildingid(pathToCSV, m_buildings))
             return false;
     }
     return true;

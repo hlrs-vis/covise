@@ -8,6 +8,7 @@ namespace ennovatis {
 
 struct csv_channelid_parser {
     [[nodiscard]] static bool update_buildings_by_buildingid(std::basic_istream<char> &file, BuildingsPtr buildings);
+    [[nodiscard]] static bool update_buildings_by_buildingid(const std::string &filename, BuildingsPtr buildings);
 
 private:
     enum class CSV_ChannelID_Column {
