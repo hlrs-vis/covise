@@ -17,7 +17,7 @@ namespace ennovatis {
 class Building {
 public:
     Building(const std::string &name, const std::string &id, const std::string &street)
-    : m_name(name), m_id(id), m_street(street), m_lat(0), m_lon(0), m_height(0){};
+    : m_name(name), m_id(id), m_street(street), m_y(0), m_x(0), m_height(0){};
     Building(const std::string &name, const std::string &id): Building(name, id, ""){};
     Building(const std::string &name): Building(name, "", ""){};
     ~Building() = default;
@@ -37,8 +37,8 @@ public:
     [[nodiscard]] const auto &getName() const { return m_name; }
     [[nodiscard]] const auto &getStreet() const { return m_street; }
     [[nodiscard]] const auto &getId() const { return m_id; }
-    [[nodiscard]] const auto &getLat() const { return m_lat; }
-    [[nodiscard]] const auto &getLon() const { return m_lon; }
+    [[nodiscard]] const auto &getY() const { return m_y; }
+    [[nodiscard]] const auto &getX() const { return m_x; }
     [[nodiscard]] const auto &getHeight() const { return m_height; }
     [[nodiscard]] const std::string to_string() const
     {
@@ -47,16 +47,16 @@ public:
     void setName(const std::string &name) { m_name = name; }
     void setId(const std::string &id) { m_id = id; }
     void setStreet(const std::string &street) { m_street = street; }
-    void setLat(float lat) { m_lat = lat; }
-    void setLon(float lon) { m_lon = lon; }
+    void setY(float lat) { m_y = lat; }
+    void setX(float lon) { m_x = lon; }
     void setHeight(float h) { m_height = h; }
 
 private:
     std::string m_name;
     std::string m_street;
     std::string m_id;
-    float m_lat;
-    float m_lon;
+    float m_y;
+    float m_x;
     float m_height;
     ChannelGroups m_channels;
 };

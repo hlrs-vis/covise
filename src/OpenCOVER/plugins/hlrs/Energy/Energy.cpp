@@ -314,10 +314,10 @@ void EnergyPlugin::initEnnovatisDevices()
     m_ennovatisDevicesSensors.clear();
     auto cylinderAttributes = getCylinderAttributes();
     for (auto &b: *m_buildings) {
-        cylinderAttributes.position = osg::Vec3(b.getLat(), b.getLon(), b.getHeight());
+        cylinderAttributes.position = osg::Vec3(b.getX(), b.getY(), b.getHeight());
         auto drawableBuilding = std::make_unique<core::PrototypeBuilding>(cylinderAttributes);
         auto infoboardPos =
-            osg::Vec3(b.getLat() + cylinderAttributes.radius + 5, b.getLon() + cylinderAttributes.radius + 5,
+            osg::Vec3(b.getX() + cylinderAttributes.radius + 5, b.getY() + cylinderAttributes.radius + 5,
                       b.getHeight() + cylinderAttributes.height);
         auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, b.getName(), "DroidSans-Bold.ttf",
                                                               cylinderAttributes.radius * 20,
@@ -451,8 +451,8 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuil
     auto noDeviceMatches = const_buildings();
     Device *devPick;
     auto fillLatLon = [&](ennovatis::Building &b, Device *dev) {
-        b.setLat(devPick->devInfo->lat);
-        b.setLon(devPick->devInfo->lon);
+        b.setX(devPick->devInfo->lon);
+        b.setY(devPick->devInfo->lat);
     };
 
     auto updateBuildingInfo = [&](ennovatis::Building &b, Device *dev) {
@@ -607,16 +607,15 @@ void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, con
         auto strom = "Strom " + str_yr;
         auto waerme = "Wärme " + str_yr;
         auto kaelte = "Kälte " + str_yr;
-        DeviceInfo *diT = new DeviceInfo(*di);
         float strom_val = 0.f;
         access_CSVRow(row, strom, strom_val);
-        diT->strom = strom_val / 1000.; // kW -> MW
-        access_CSVRow(row, waerme, diT->waerme);
-        access_CSVRow(row, kaelte, diT->kaelte);
+        access_CSVRow(row, waerme, di->waerme);
+        access_CSVRow(row, kaelte, di->kaelte);
+        di->strom = strom_val / 1000.; // kW -> MW
         auto timestep = year - 2000;
-        diT->timestep = timestep;
-        Device *sd = new Device(diT, sequenceList->getChild(timestep)->asGroup());
-        SDlist[diT->ID].push_back(sd);
+        di->timestep = timestep;
+        Device *sd = new Device(di, sequenceList->getChild(timestep)->asGroup());
+        SDlist[di->ID].push_back(sd);
     }
 }
 
@@ -656,6 +655,7 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
             // location
             helper_projTransformation(mapdrape, P, coord, di, lat, lon);
 
+            di->ID = row["GebäudeID"];
             di->strasse = row["Straße"] + " " + row["Nr"];
             di->name = row["Details"];
             access_CSVRow(row, "Baujahr", di->baujahr);
