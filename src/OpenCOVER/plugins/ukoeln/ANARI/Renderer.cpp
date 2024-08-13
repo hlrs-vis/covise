@@ -808,8 +808,8 @@ void Renderer::renderFrame(unsigned chan)
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
-        MPI_Bcast(&width, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&height, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+        MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
     }
 #endif
 
@@ -852,9 +852,9 @@ void Renderer::renderFrame(unsigned chan)
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
-        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, displayRank, MPI_COMM_WORLD);
-        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, displayRank, MPI_COMM_WORLD);
+        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
     }
 #endif
 
@@ -1108,7 +1108,7 @@ void Renderer::initChannels()
 
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
-        MPI_Bcast(&numChannels, 1, MPI_INT, displayRank, MPI_COMM_WORLD);
+        MPI_Bcast(&numChannels, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
     }
 #endif
 

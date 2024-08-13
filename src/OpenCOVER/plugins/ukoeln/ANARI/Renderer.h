@@ -117,6 +117,7 @@ public:
 
     int mpiRank{0};
     int mpiSize{1};
+    int mainRank{0};
     int displayRank{0};
 
 private:
