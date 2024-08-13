@@ -23,7 +23,7 @@ Device::Device(DeviceInfo *d, osg::Group *parent)
 
     osg::MatrixTransform *matTrans = new osg::MatrixTransform();
     osg::Matrix m;
-    m.makeTranslate(osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height + h));
+    m.makeTranslate(osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + h));
     matTrans->setMatrix(m);
 
     BBoard = new coBillboard();
@@ -60,13 +60,13 @@ void Device::init(float r, float sH, int c)
     w = rad * 10;
     h = rad * 11;
 
-    osg::Cylinder *cyl = new osg::Cylinder(osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height), rad, 0.);
+    osg::Cylinder *cyl = new osg::Cylinder(osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height), rad, 0.);
     osg::Vec4 colVec(0.1, 0.1, 0.1, 1.f);
     osg::Cylinder *cylLimit;
     osg::Vec4 colVecLimit(1.f, 1.f, 1.f, 1.f);
 
     auto setCyclAndColor = [&](const float &compVal) {
-        cyl->set(osg::Vec3(devInfo->lat, devInfo->lon, devInfo->height + compVal * sH / 2), rad, -compVal * sH);
+        cyl->set(osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + compVal * sH / 2), rad, -compVal * sH);
         colVec = getColor(compVal, 1000.);
     };
 
