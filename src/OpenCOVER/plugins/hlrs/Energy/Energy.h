@@ -21,6 +21,7 @@
 #include <osg/Node>
 #include <osg/Sequence>
 #include <osg/ref_ptr>
+#include <proj.h>
 #include <util/common.h>
 
 #include <PluginUtil/coSensor.h>
@@ -50,18 +51,11 @@
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
 #include "core/PrototypeBuilding.h"
+#include "utils/read/csv/csv.h"
 
-enum Components
-{
-    Strom,
-    Waerme,
-    Kaelte
-};
+enum Components { Strom, Waerme, Kaelte };
 
-class EnergyPlugin : public opencover::coVRPlugin,
-                     public opencover::ui::Owner,
-                     public opencover::coTUIListener
-{
+class EnergyPlugin: public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener {
 public:
     EnergyPlugin();
     ~EnergyPlugin();
@@ -80,7 +74,7 @@ public:
     opencover::ui::Button *StromBt = nullptr;
     opencover::ui::Button *WaermeBt = nullptr;
     opencover::ui::Button *KaelteBt = nullptr;
-    
+
     // ennovatis UI
     opencover::ui::SelectionList *m_ennovatisSelectionsList = nullptr;
     opencover::ui::Group *m_ennovatisGroup = nullptr;
@@ -101,16 +95,22 @@ public:
     osg::Sequence *sequenceList;
 
 private:
-    typedef const ennovatis::Building* building_const_ptr;
-    typedef const ennovatis::Buildings* buildings_const_Ptr;
+    typedef const ennovatis::Building *building_const_ptr;
+    typedef const ennovatis::Buildings *buildings_const_Ptr;
     typedef std::vector<building_const_ptr> const_buildings;
     typedef std::map<Device *, building_const_ptr> DeviceBuildingMap;
-    
+
     struct ProjTrans {
         std::string projFrom;
         std::string projTo;
     };
 
+    void helper_initTimestepGrp(size_t maxTimesteps, osg::ref_ptr<osg::Group> &timestepGroup);
+    void helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &minYear, const std::vector<std::string> &header);
+    void helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, DeviceInfo *di, const double &lat,
+                                   const double &lon);
+    void helper_handleEnergyInfo(size_t maxTimesteps, int minYear, const opencover::utils::read::CSVStream::CSVRow &row,
+                                 DeviceInfo *di);
     bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
     bool loadDB(const std::string &path, const ProjTrans &projTrans);
     void initRESTRequest();
@@ -124,7 +124,7 @@ private:
     core::CylinderAttributes getCylinderAttributes();
     void initEnnovatisDevices();
     void switchTo(const osg::Node *child);
-    
+
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
      *
@@ -146,10 +146,10 @@ private:
      */
     std::unique_ptr<const_buildings> updateEnnovatisBuildings(const DeviceList &deviceList);
 
-    int maxTimesteps = 10;
+    // int maxTimesteps = 17;
     static EnergyPlugin *plugin;
     float rad, scaleH;
-    std::vector<double> offset;
+    std::vector<double> m_offset;
 
     ennovatis::BuildingsPtr m_buildings;
     std::shared_ptr<ennovatis::rest_request> m_req;

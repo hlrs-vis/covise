@@ -37,7 +37,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <filesystem>
 #include <osg/Group>
@@ -59,9 +58,9 @@
 
 #include <osg/LineWidth>
 #include <osg/Version>
-#include <proj.h>
 
 using namespace opencover;
+using namespace opencover::utils::read;
 
 namespace {
 
@@ -206,7 +205,7 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
     initEnnovatisUI();
 
-    offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
+    m_offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
 void EnergyPlugin::initEnnovatisUI()
@@ -553,37 +552,8 @@ bool EnergyPlugin::init()
     return true;
 }
 
-bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &projTrans)
+void EnergyPlugin::helper_initTimestepGrp(size_t maxTimesteps, osg::ref_ptr<osg::Group> &timestepGroup)
 {
-    FILE *fp = fopen(fileName.c_str(), "r");
-    if (fp == NULL) {
-        fprintf(stderr, "Energy Plugin: could not open file\n");
-        return false;
-    }
-
-    const int lineSize = 1000;
-    char buf[lineSize];
-
-    bool mapdrape = true;
-
-    auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projTrans.projFrom.c_str(), projTrans.projTo.c_str(), NULL);
-    PJ_COORD coord;
-    coord.lpzt.z = 0.0;
-    coord.lpzt.t = HUGE_VAL;
-
-    if (!P) {
-        fprintf(stderr, "Energy Plugin: Ignoring mapping. No valid projection was found \n");
-        mapdrape = false;
-    }
-
-    std::string sensorType;
-    osg::Group *timestepGroup;
-
-    if (!fgets(buf, lineSize, fp)) {
-        fclose(fp);
-        return false;
-    }
-
     for (int t = 0; t < maxTimesteps; ++t) {
         timestepGroup = new osg::Group();
         std::string groupName = "timestep" + std::to_string(t);
@@ -591,92 +561,114 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
         sequenceList->addChild(timestepGroup);
         sequenceList->setValue(t);
     }
+}
 
-    bool firstLine = true;
-
-    while (!feof(fp)) {
-        if (!fgets(buf, lineSize, fp))
-            break;
-        std::string line(buf);
-        boost::char_separator<char> sep(",");
-        boost::tokenizer<boost::char_separator<char>> tokens(line, sep);
-        auto tok = tokens.begin();
-
-        DeviceInfo *di = new DeviceInfo();
-        // auto di = std::make_shared<DeviceInfo>();
-
-        di->ID = tok->c_str();
-        tok++;
-
-        // location
-        if (mapdrape) {
-            // x = lon, y = lat
-            coord.lpzt.phi = std::strtod(tok->c_str(), NULL);
-            ++tok;
-            coord.lpzt.lam = std::strtod(tok->c_str(), NULL);
-            float alt = 0.;
-
-            coord = proj_trans(P, PJ_FWD, coord);
-
-            di->lon = coord.xy.x + offset[0];
-            di->lat = coord.xy.y + offset[1];
-            di->height = alt + offset[2];
-        } else {
-            di->lon = std::strtof(tok->c_str(), NULL);
-            ++tok;
-            di->lat = std::strtof(tok->c_str(), NULL);
-            di->height = 0.f;
-        }
-
-        // street
-        std::advance(tok, 3);
-        std::string street(tok->c_str());
-        ++tok;
-        street.append(" ");
-        street.append(tok->c_str());
-        di->strasse = street;
-
-        // details
-        ++tok;
-        di->name = tok->c_str();
-        ++tok;
-        di->baujahr = std::strtof(tok->c_str(), NULL);
-        ++tok;
-        di->flaeche = std::strtof(tok->c_str(), NULL);
-
-        // electricity, heat, cold
-        std::advance(tok, 11);
-        std::vector<float> stromList, kaelteList, waermeList;
-
-        for (int j = 0; j < maxTimesteps; ++j) {
-            ++tok;
-            stromList.push_back(std::strtof(tok->c_str(), NULL) / 1000.); // kW -> MW
-        }
-
-        std::advance(tok, 7);
-        for (int j = 0; j < maxTimesteps; ++j) {
-            ++tok;
-            kaelteList.push_back(std::strtof(tok->c_str(), NULL));
-        }
-        std::advance(tok, 7);
-        for (int j = 0; j < (maxTimesteps - 2); ++j) // FIXME: Problem with last two timesteps (tokens)
-        {
-            ++tok;
-            waermeList.push_back(std::strtof(tok->c_str(), NULL));
-        }
-
-        for (int j = 0; j < maxTimesteps; ++j) {
-            DeviceInfo *diT = new DeviceInfo(*di);
-            diT->strom = stromList[j];
-            diT->kaelte = kaelteList[j];
-            diT->waerme = waermeList[j];
-            diT->timestep = j;
-            Device *sd = new Device(diT, sequenceList->getChild(j)->asGroup());
-            SDlist[diT->ID].push_back(sd);
+void EnergyPlugin::helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &minYear,
+                                                  const std::vector<std::string> &header)
+{
+    for (const auto &h: header) {
+        if (h.find("Strom") != std::string::npos) {
+            auto minYearStr = std::regex_replace(h, std::regex("[^0-9]*"), std::string("$1"));
+            int min_year_tmp = std::stoi(minYearStr);
+            if (min_year_tmp < minYear)
+                minYear = min_year_tmp;
+            ++maxTimesteps;
         }
     }
-    proj_destroy(P);
-    fclose(fp);
+}
+
+void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, DeviceInfo *di, const double &lat,
+                                             const double &lon)
+{
+    if (!mapdrape) {
+        di->lon = lon;
+        di->lat = lat;
+        di->height = 0.f;
+        return;
+    }
+
+    // x = lon, y = lat
+    coord.lpzt.lam = lon;
+    coord.lpzt.phi = lat;
+    float alt = 0.;
+
+    coord = proj_trans(P, PJ_FWD, coord);
+
+    di->lon = coord.xy.x + m_offset[0];
+    di->lat = coord.xy.y + m_offset[1];
+    di->height = alt + m_offset[2];
+}
+
+void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, const CSVStream::CSVRow &row,
+                                           DeviceInfo *di)
+{
+    for (size_t year = minYear; year < minYear + maxTimesteps; ++year) {
+        auto str_yr = std::to_string(year);
+        auto strom = "Strom " + str_yr;
+        auto waerme = "Wärme " + str_yr;
+        auto kaelte = "Kälte " + str_yr;
+        DeviceInfo *diT = new DeviceInfo(*di);
+        float strom_val = 0.f;
+        access_CSVRow(row, strom, strom_val);
+        diT->strom = strom_val / 1000.; // kW -> MW
+        access_CSVRow(row, waerme, diT->waerme);
+        access_CSVRow(row, kaelte, diT->kaelte);
+        auto timestep = year - 2000;
+        diT->timestep = timestep;
+        Device *sd = new Device(diT, sequenceList->getChild(timestep)->asGroup());
+        SDlist[diT->ID].push_back(sd);
+    }
+}
+
+bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &projTrans)
+{
+    try {
+        auto csvStream = CSVStream(fileName);
+        size_t maxTimesteps = 0;
+        int minYear = 2000;
+        const auto &header = csvStream.getHeader();
+        helper_initTimestepsAndMinYear(maxTimesteps, minYear, header);
+
+        CSVStream::CSVRow row;
+
+        std::string sensorType;
+        osg::ref_ptr<osg::Group> timestepGroup;
+        bool mapdrape = true;
+
+        auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projTrans.projFrom.c_str(), projTrans.projTo.c_str(), NULL);
+        PJ_COORD coord;
+        coord.lpzt.z = 0.0;
+        coord.lpzt.t = HUGE_VAL;
+
+        if (!P) {
+            fprintf(stderr, "Energy Plugin: Ignore mapping. No valid projection was found between given proj string in "
+                            "config EnergyCampus.toml\n");
+            mapdrape = false;
+        }
+
+        helper_initTimestepGrp(maxTimesteps, timestepGroup);
+
+        while (csvStream >> row) {
+            DeviceInfo *di = new DeviceInfo();
+            auto lat = std::stod(row["lat"]);
+            auto lon = std::stod(row["lon"]);
+
+            // location
+            helper_projTransformation(mapdrape, P, coord, di, lat, lon);
+
+            di->strasse = row["Straße"] + " " + row["Nr"];
+            di->name = row["Details"];
+            access_CSVRow(row, "Baujahr", di->baujahr);
+            access_CSVRow(row, "Grundfläche (GIS)", di->flaeche);
+
+            // electricity, heat, cold
+            helper_handleEnergyInfo(maxTimesteps, minYear, row, di);
+        }
+        proj_destroy(P);
+    } catch (const CSVStream_Exception &ex) {
+        std::cout << ex.what() << std::endl;
+        return false;
+    }
     return true;
 }
 
