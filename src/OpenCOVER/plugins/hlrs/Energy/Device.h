@@ -43,8 +43,8 @@ public:
     float strom = 0.f;
     float waerme = 0.f;
     float kaelte = 0.f;
-    float flaeche = 0;
-    float baujahr = 0;
+    size_t flaeche = 0;
+    size_t baujahr = 0;
     std::string strasse;
     std::string ID;
     int timestep = -1;
