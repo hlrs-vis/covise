@@ -146,7 +146,6 @@ private:
      */
     std::unique_ptr<const_buildings> updateEnnovatisBuildings(const DeviceList &deviceList);
 
-    // int maxTimesteps = 17;
     static EnergyPlugin *plugin;
     float rad, scaleH;
     std::vector<double> m_offset;
