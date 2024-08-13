@@ -13,7 +13,7 @@
 #endif
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/glm.h>
-#include <glm/gtx/string_cast.hpp>
+//#include <glm/gtx/string_cast.hpp>
 #include <osg/io_utils>
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
@@ -1010,17 +1010,17 @@ void Renderer::initMPI()
     if (mpiInitCalled) {
         MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
         MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
-
-        // can be set to a value outside of the range in
-        // the config for headless clusters:
-        bool displayRankEntryExists = false;
-        displayRank  = covise::coCoviseConfig::getInt(
-            "displayRank",
-            "COVER.Plugin.ANARI.Cluster",
-            0,
-            &displayRankEntryExists
-        );
     }
+
+    // can be set to a value outside of the range in
+    // the config for headless clusters:
+    bool displayRankEntryExists = false;
+    displayRank  = covise::coCoviseConfig::getInt(
+        "displayRank",
+        "COVER.Plugin.ANARI.Cluster",
+        0,
+        &displayRankEntryExists
+    );
 #endif
 }
 
