@@ -20,6 +20,7 @@
 
 #include "Energy.h"
 
+#include "Device.h"
 #include "EnnovatisDevice.h"
 #include "EnnovatisDeviceSensor.h"
 #include "build_options.h"
@@ -607,14 +608,15 @@ void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, con
         auto strom = "Strom " + str_yr;
         auto waerme = "Wärme " + str_yr;
         auto kaelte = "Kälte " + str_yr;
+        auto diT = new DeviceInfo(*di);
         float strom_val = 0.f;
         access_CSVRow(row, strom, strom_val);
-        access_CSVRow(row, waerme, di->waerme);
-        access_CSVRow(row, kaelte, di->kaelte);
-        di->strom = strom_val / 1000.; // kW -> MW
+        access_CSVRow(row, waerme, diT->waerme);
+        access_CSVRow(row, kaelte, diT->kaelte);
+        diT->strom = strom_val / 1000.; // kW -> MW
         auto timestep = year - 2000;
-        di->timestep = timestep;
-        Device *sd = new Device(di, sequenceList->getChild(timestep)->asGroup());
+        diT->timestep = timestep;
+        Device *sd = new Device(diT, sequenceList->getChild(timestep)->asGroup());
         SDlist[di->ID].push_back(sd);
     }
 }
