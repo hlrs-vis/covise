@@ -1,4 +1,4 @@
-set(SOURCES)
+set(SOURCES csv.cpp)
 set(HEADERS export.h csv.h)
 
 ADD_COVISE_LIBRARY(coReadCSVUtil ${SOURCES} ${HEADERS})

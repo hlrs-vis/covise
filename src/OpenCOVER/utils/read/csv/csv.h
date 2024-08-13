@@ -24,18 +24,18 @@ private:
 /**
  * @class CSV
  * @brief A utility class for reading CSV files.
+ *
+ * Usage:
+ * auto stream = CSVStream("banane.csv");
+ * CSVStream::CSVRow row;
+ *
+ * while (stream >> row)
+ *  std::cout << row["spaltenName"] << "\n";
  */
 class CSVUTIL CSVStream {
 public:
     typedef std::map<std::string, std::string> CSVRow;
-    CSVStream(const std::string &filename, char delimiter = ','): m_filename(filename), m_delimiter(delimiter)
-    {
-        m_inputFileStream.open(filename.c_str());
-        if (!m_inputFileStream.is_open())
-            throw CSVStream_Exception("Could not open file " + filename);
-        readHeader();
-    }
-
+    CSVStream(const std::string &filename, char delimiter = ',');
     ~CSVStream()
     {
         if (m_inputFileStream.is_open())
@@ -44,7 +44,6 @@ public:
 
     CSVStream(const CSVStream &) = delete;
     CSVStream &operator=(const CSVStream &) = delete;
-
     CSVStream &operator>>(CSVRow &row)
     {
         readLine(row);
@@ -56,31 +55,9 @@ public:
     const std::vector<std::string> &getHeader() { return m_header; }
 
 private:
-    void readHeader()
-    {
-        std::string colName("");
-        auto ss = getLine();
-        while (std::getline(ss, colName, m_delimiter))
-            m_header.push_back(colName);
-    }
-
-    void readLine(std::map<std::string, std::string> &row)
-    {
-        std::string value("");
-        auto ss = getLine();
-        size_t currentColNameIdx = 0;
-        while (std::getline(ss, value, m_delimiter) && currentColNameIdx < m_header.size()) {
-            row[m_header[currentColNameIdx]] = value;
-            ++currentColNameIdx;
-        }
-    }
-
-    std::stringstream getLine()
-    {
-        std::getline(m_inputFileStream, m_currentline);
-        std::stringstream ss(m_currentline);
-        return ss;
-    }
+    void readHeader();
+    void readLine(CSVRow &row);
+    std::stringstream getLine();
 
     std::string m_filename;
     std::ifstream m_inputFileStream;
@@ -124,7 +101,18 @@ private:
     }
 };
 
-// convert string to T if possible
+/**
+ * @brief A utility function for converting a string to a value of type T.
+ * 
+ * Usage: 
+ * double value;
+ * CSVStream::CSVRow row;
+ *
+ * while (stream >> row) {
+ *   access_CSVRow(row, "columnName", value);
+ *   std::cout << value << "\n";
+ * }
+*/
 inline constexpr AccessCSVRow access_CSVRow{};
 } // namespace opencover::utils::read
 
