@@ -3,6 +3,7 @@
 
 // std
 #include <cstdint>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 // async
