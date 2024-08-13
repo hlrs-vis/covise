@@ -28,7 +28,7 @@ namespace ennovatis {
 bool csv_channelid_parser::update_buildings_by_buildingid(const std::string &filename, BuildingsPtr buildings)
 {
     using namespace opencover::utils::read;
-    std::map<std::string, std::string> row;
+    CSVStream::CSVRow row;
     try {
         auto csvStream = CSVStream(filename);
         std::vector<Building>::iterator buildingIt;

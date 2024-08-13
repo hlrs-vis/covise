@@ -25,6 +25,7 @@ private:
  */
 class CSVUTIL CSVStream {
 public:
+    typedef std::map<std::string, std::string> CSVRow;
     CSVStream(const std::string &filename, char delimiter = ','): m_filename(filename), m_delimiter(delimiter)
     {
         m_inputFileStream.open(filename.c_str());
@@ -42,7 +43,7 @@ public:
     CSVStream(const CSVStream &) = delete;
     CSVStream &operator=(const CSVStream &) = delete;
 
-    CSVStream &operator>>(std::map<std::string, std::string> &row)
+    CSVStream &operator>>(CSVRow &row)
     {
         readLine(row);
         return *this;
@@ -86,6 +87,32 @@ private:
 
     char m_delimiter;
 };
+
+struct CSVUTIL AccessCSVRow {
+    template<typename T>
+    void operator()(const CSVStream::CSVRow &row, const std::string &colName, T &value) const
+    {
+        try {
+            auto value_str = row.at(colName);
+            if (value_str.empty() || value_str == "NULL" || value_str == "")
+                value_str = "0";
+            convert(value_str, value);
+        } catch (const std::out_of_range &ex) {
+            throw CSVStream_Exception("Column " + colName + " not found in CSV file");
+        }
+    }
+
+private:
+    template<typename T>
+    void convert(const std::string &value_str, T &value) const
+    {
+        std::istringstream ss(value_str);
+        ss >> value;
+    }
+};
+
+// convert string to T if possible
+inline constexpr AccessCSVRow access_CSVRow{};
 } // namespace opencover::utils::read
 
 #endif
