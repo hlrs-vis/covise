@@ -2,11 +2,13 @@
 #define _READ_CSV_H
 
 #include "export.h"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
+#include <array>
 
 namespace opencover::utils::read {
 
@@ -88,17 +90,28 @@ private:
     char m_delimiter;
 };
 
+const std::array<std::string, 2> INVALID_CELL_CONTENT = {"", "NULL"};
+
+/**
+ * @brief A utility struct for accessing CSV rows.
+ */
 struct CSVUTIL AccessCSVRow {
     template<typename T>
     void operator()(const CSVStream::CSVRow &row, const std::string &colName, T &value) const
     {
         try {
             auto value_str = row.at(colName);
-            if (value_str.empty() || value_str == "NULL" || value_str == "")
+            if (value_str.empty() ||
+                std::any_of(INVALID_CELL_CONTENT.begin(), INVALID_CELL_CONTENT.end(),
+                            [&value_str](const std::string &invalid) { return value_str == invalid; }))
                 value_str = "0";
             convert(value_str, value);
         } catch (const std::out_of_range &ex) {
             throw CSVStream_Exception("Column " + colName + " not found in CSV file");
+        } catch (const std::invalid_argument &ex) {
+            throw CSVStream_Exception("Invalid argument for column " + colName);
+        } catch (const std::exception &ex) {
+            throw CSVStream_Exception(ex.what());
         }
     }
 
