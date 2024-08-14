@@ -464,7 +464,7 @@ void Renderer::unloadVolumeRAW(std::string fn)
 
 void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 {
-    AABB bounds = getSceneBounds();
+    AABB bounds = this->bounds.global;
 
     osg::Vec3f minCorner(bounds.data[0],bounds.data[1],bounds.data[2]);
     osg::Vec3f maxCorner(bounds.data[3],bounds.data[4],bounds.data[5]);
@@ -472,74 +472,6 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     osg::Vec3f center = (minCorner+maxCorner)*.5f;
     float radius = (center-minCorner).length();
     bs.set(center, radius);
-}
-
-Renderer::AABB Renderer::getSceneBounds()
-{
-    AABB result;
-    result.data[0] = 1e30f;
-    result.data[1] = 1e30f;
-    result.data[2] = 1e30f;
-    result.data[3] = -1e30f;
-    result.data[4] = -1e30f;
-    result.data[5] = -1e30f;
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (isClient) {
-        minirr::AABB serverBounds;
-        rr->recvBounds(serverBounds);
-        result.data[0] = fminf(result.data[0], serverBounds[0]);
-        result.data[1] = fminf(result.data[1], serverBounds[1]); 
-        result.data[2] = fminf(result.data[2], serverBounds[2]); 
-        result.data[3] = fmaxf(result.data[3], serverBounds[3]); 
-        result.data[4] = fmaxf(result.data[4], serverBounds[4]); 
-        result.data[5] = fmaxf(result.data[5], serverBounds[5]); 
-        return result;
-    }
-#endif
-
-    if (!anari.world)
-        return result;
-
-    // e.g., set when AMR data was loaded!
-    anariGetProperty(anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &result.data, sizeof(result.data), ANARI_WAIT);
-
-    if (anari.meshes) {
-        asgComputeBounds(anari.meshes,
-                         &result.data[0],&result.data[1],&result.data[2],
-                         &result.data[3],&result.data[4],&result.data[5]);
-    }
-
-    if (anari.structuredVolume) {
-        // asgComputeBounds doesn't work for volumes yet...
-        result.data[0] = fminf(result.data[0], 0.f);
-        result.data[1] = fminf(result.data[1], 0.f);
-        result.data[2] = fminf(result.data[2], 0.f);
-        result.data[3] = fmaxf(result.data[3], structuredVolumeData.sizeX);
-        result.data[4] = fmaxf(result.data[4], structuredVolumeData.sizeY);
-        result.data[5] = fmaxf(result.data[5], structuredVolumeData.sizeZ);
-    }
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    if (mpiSize > 1) {
-        float localBounds[6];
-        for (int i=0; i<6; ++i) {
-            localBounds[i] = result.data[i];
-        }
-        float globalBounds[6];
-        MPI_Allreduce(&localBounds[0], &globalBounds[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[1], &globalBounds[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[2], &globalBounds[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[3], &globalBounds[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[4], &globalBounds[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[5], &globalBounds[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        for (int i=0; i<6; ++i) {
-            result.data[i] = globalBounds[i];
-        }
-    }
-#endif
-
-    return result;
 }
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
@@ -774,6 +706,18 @@ void Renderer::renderFrame()
         clipPlanes.updated = false;
     }
 
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    if (bounds.updated && mpiSize > 1) {
+        MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        bounds.updated = false;
+    }
+#endif
+
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(chan);
     }
@@ -799,10 +743,19 @@ void Renderer::renderFrame(unsigned chan)
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
         rr->sendSize(width, height);
+
+        minirr::AABB rrBounds;
+        rr->recvBounds(rrBounds);
+        std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
+        bounds.global.data[0] = rrBounds[0];
     }
 
     if (isServer) {
         rr->recvSize(width, height);
+
+        minirr::AABB rrBounds;
+        std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
+        rr->sendBounds(rrBounds);
     }
 #endif
 
@@ -1052,7 +1005,7 @@ void Renderer::initRR()
     );
 
     // TODO:
-    isServer = modeEntryExists && mode == "server";
+    isServer = mpiRank == mainRank && modeEntryExists && mode == "server";
     isClient = modeEntryExists && mode == "client";
 
     rr = std::make_shared<minirr::MiniRR>();
@@ -1067,23 +1020,6 @@ void Renderer::initRR()
         std::cout << "ANARI.RR.mode is 'server'\n";
         rr->initAsServer(port);
         rr->run();
-    }
-
-    if (/*isClient ||*/ isServer) {
-        // process outstanding requests that aren't handled in lock-step
-        remoteThread = std::thread([&]() {
-            while (1) {
-                if (rr->connectionClosed()) {
-                    break;
-                }
-                else if (rr->boundsRequested()) {
-                    AABB bounds = getSceneBounds();
-                    minirr::AABB rrBounds;
-                    std::memcpy(rrBounds, bounds.data, sizeof(rrBounds));
-                    rr->sendBounds(rrBounds);
-                }
-            }
-        });
     }
 #endif
 }
@@ -1227,6 +1163,13 @@ void Renderer::initMesh()
     ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    asgComputeBounds(anari.meshes,
+                     &bounds.data[0],&bounds.data[1],&bounds.data[2],
+                     &bounds.data[3],&bounds.data[4],&bounds.data[5]);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 }
 
 void Renderer::initPointClouds()
@@ -1264,6 +1207,12 @@ void Renderer::initPointClouds()
     anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);
 
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    anariGetProperty(
+        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 }
 
 void Renderer::initStructuredVolume()
@@ -1306,6 +1255,17 @@ void Renderer::initStructuredVolume()
         ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
         anariCommitParameters(anari.device, anari.world);
+
+        // asgComputeBounds doesn't work for volumes yet...
+        AABB bounds;
+        bounds.data[0] = 0.f;
+        bounds.data[1] = 0.f;
+        bounds.data[2] = 0.f;
+        bounds.data[3] = structuredVolumeData.sizeX;
+        bounds.data[4] = structuredVolumeData.sizeY;
+        bounds.data[5] = structuredVolumeData.sizeZ;
+        this->bounds.local.extend(bounds);
+        this->bounds.updated = true;
     }
 
     if (structuredVolumeData.deleteData) {
@@ -1377,6 +1337,12 @@ void Renderer::initAMRVolume()
                                   anari::newArray1D(anari.device, &anari.amrVolume.volume));
     anariRelease(anari.device, anari.amrVolume.volume);
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    anariGetProperty(
+        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 #endif
 }
 
@@ -1437,6 +1403,12 @@ void Renderer::initUnstructuredVolume()
                                   anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
     anariRelease(anari.device, anari.unstructuredVolume.volume);
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    anariGetProperty(
+        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 }
 
 void Renderer::initClipPlanes()

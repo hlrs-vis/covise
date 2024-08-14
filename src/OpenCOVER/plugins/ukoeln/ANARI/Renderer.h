@@ -184,14 +184,38 @@ private:
     void initHDRI();
     void initTransFunc();
 
-    struct AABB { float data[6]; };
-    AABB getSceneBounds();
-
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
 
     bool colorByRank{false};
 
     void generateTransFunc();
+
+    struct AABB {
+        AABB() {
+            data[0] =  1e30f;
+            data[1] =  1e30f;
+            data[2] =  1e30f;
+            data[3] = -1e30f;
+            data[4] = -1e30f;
+            data[5] = -1e30f;
+        }
+
+        AABB &extend(const AABB &other) {
+            data[0] = fminf(data[0], other.data[0]);
+            data[1] = fminf(data[1], other.data[1]);
+            data[2] = fminf(data[2], other.data[2]);
+            data[3] = fmaxf(data[3], other.data[3]);
+            data[4] = fmaxf(data[4], other.data[4]);
+            data[5] = fmaxf(data[5], other.data[5]);
+            return *this;
+        }
+        float data[6];
+    };
+    struct {
+        AABB local;
+        AABB global;
+        bool updated = false;
+    } bounds;
 
     struct {
         std::string fileName;
