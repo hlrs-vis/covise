@@ -95,7 +95,7 @@ bool MiniRR::connectionClosed()
   return false; // TODO!
 }
 
-void MiniRR::sendNumChannels(int numChannels, WaitFlag flag)
+void MiniRR::sendNumChannels(int numChannels)
 {
   lock();
   renderState->numChannels.value = numChannels;
@@ -105,9 +105,6 @@ void MiniRR::sendNumChannels(int numChannels, WaitFlag flag)
   auto buf = std::make_shared<Buffer>();
   buf->write(renderState->numChannels.value);
   write(MessageType::SendNumChannels, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvNumChannels(int &numChannels)
@@ -126,7 +123,7 @@ void MiniRR::recvNumChannels(int &numChannels)
   unlock();
 }
 
-void MiniRR::sendBounds(AABB bounds, WaitFlag flag)
+void MiniRR::sendBounds(AABB bounds)
 {
   lock();
   std::memcpy(renderState->bounds.aabb, bounds, sizeof(renderState->bounds.aabb));
@@ -136,9 +133,6 @@ void MiniRR::sendBounds(AABB bounds, WaitFlag flag)
   auto buf = std::make_shared<Buffer>();
   buf->write((const char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
   write(MessageType::SendBounds, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvBounds(AABB &bounds)
@@ -157,7 +151,7 @@ void MiniRR::recvBounds(AABB &bounds)
   unlock();
 }
 
-void MiniRR::sendSize(int w, int h, WaitFlag flag)
+void MiniRR::sendSize(int w, int h)
 {
   lock();
   renderState->size.width = w;
@@ -169,9 +163,6 @@ void MiniRR::sendSize(int w, int h, WaitFlag flag)
   buf->write(renderState->size.width);
   buf->write(renderState->size.height);
   write(MessageType::SendSize, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvSize(int &w, int &h)
@@ -191,7 +182,7 @@ void MiniRR::recvSize(int &w, int &h)
   unlock();
 }
 
-void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag)
+void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix)
 {
   lock();
   std::memcpy(renderState->camera.modelMatrix, modelMatrix, sizeof(renderState->camera.modelMatrix));
@@ -205,9 +196,6 @@ void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, Wait
   buf->write((const char *)renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
   buf->write((const char *)renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
   write(MessageType::SendCamera, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix)
@@ -228,7 +216,7 @@ void MiniRR::recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix)
   unlock();
 }
 
-void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag)
+void MiniRR::sendImage(const uint32_t *img, int width, int height)
 {
   lock();
 
@@ -260,9 +248,6 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag
   buf->write((const char *)renderState->image.data.data(),
       sizeof(renderState->image.data[0])*renderState->image.data.size());
   write(MessageType::SendImage, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvImage(uint32_t *img, int &width, int &height)

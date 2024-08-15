@@ -16,7 +16,6 @@
 namespace minirr
 {
 
-enum WaitFlag { Wait, Async, };
 struct RenderState;
 
 typedef float Mat4[16];
@@ -36,19 +35,19 @@ struct MiniRR
 
   bool connectionClosed();
 
-  void sendNumChannels(int numChannels, WaitFlag flag = Wait);
+  void sendNumChannels(int numChannels);
   void recvNumChannels(int &numChannels);
 
-  void sendBounds(AABB bounds, WaitFlag flag = Wait);
+  void sendBounds(AABB bounds);
   void recvBounds(AABB &bounds);
  
-  void sendSize(int w, int h, WaitFlag flag = Wait);
+  void sendSize(int w, int h);
   void recvSize(int &w, int &h);
 
-  void sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag = Wait);
+  void sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix);
   void recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix);
 
-  void sendImage(const uint32_t *img, int width, int height, WaitFlag flag = Wait);
+  void sendImage(const uint32_t *img, int width, int height);
   void recvImage(uint32_t *img, int &width, int &height);
 
  private:
