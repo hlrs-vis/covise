@@ -4,7 +4,41 @@
 #include "Compression.h"
 #include "MiniRR.h"
 
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <sys/time.h>
+#endif
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
+
 #define LOG_ERR std::cerr
+
+// #define TIMING
+
+inline double getCurrentTime()
+{
+#ifdef _WIN32
+  SYSTEMTIME tp; GetSystemTime(&tp);
+  /*
+     Please note: we are not handling the "leap year" issue.
+ */
+  size_t numSecsSince2020
+      = tp.wSecond
+      + (60ull) * tp.wMinute
+      + (60ull * 60ull) * tp.wHour
+      + (60ull * 60ul * 24ull) * tp.wDay
+      + (60ull * 60ul * 24ull * 365ull) * (tp.wYear - 2020);
+  return double(numSecsSince2020 + tp.wMilliseconds * 1e-3);
+#else
+  struct timeval tp; gettimeofday(&tp,nullptr);
+  return double(tp.tv_sec) + double(tp.tv_usec)/1E6;
+#endif
+}
 
 namespace minirr {
 
@@ -228,11 +262,18 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height)
 
   renderState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
 
+  #ifdef TIMING
+  double t0 = getCurrentTime();
+  #endif
   size_t compressedSize;
   compressTurboJPEG((const uint8_t *)img,
       renderState->image.data.data(),
       compressedSize,
       options);
+  #ifdef TIMING
+  double t1 = getCurrentTime();
+  std::cout << "compressTurboJPEG takes " << (t1-t0) << " sec.\n";
+  #endif
 
   renderState->image.width = width;
   renderState->image.height = height;
@@ -271,10 +312,17 @@ void MiniRR::recvImage(uint32_t *img, int &width, int &height)
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
   options.quality = 80;
 
+  #ifdef TIMING
+  double t0 = getCurrentTime();
+  #endif
   uncompressTurboJPEG(renderState->image.data.data(),
       (uint8_t *)img,
       (size_t)renderState->image.compressedSize,
       options);
+  #ifdef TIMING
+  double t1 = getCurrentTime();
+  std::cout << "uncompressTurboJPEG takes " << (t1-t0) << " sec.\n";
+  #endif
 
   renderState->image.updated = false;
 
