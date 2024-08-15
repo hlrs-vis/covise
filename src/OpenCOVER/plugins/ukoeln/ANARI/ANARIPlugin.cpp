@@ -31,12 +31,6 @@ static uint8_t ANARI_HEXAHEDRON = 12;
 static uint8_t ANARI_WEDGE = 13;
 static uint8_t ANARI_PYRAMID = 14;
 
-inline
-bool assignedTo(int fileID, int mpiRank, int mpiSize) {
-    // round-robin:
-    return (fileID%mpiSize) == mpiRank;
-}
-
 ANARIPlugin *ANARIPlugin::plugin = nullptr;
 
 static FileHandler handlers[] = {
@@ -105,9 +99,7 @@ ANARIPlugin *ANARIPlugin::instance()
 
 int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int meshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadMesh(fileName);
 
     return 1;
@@ -115,9 +107,7 @@ int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const ch
 
 int ANARIPlugin::unloadMesh(const char *fileName, const char *)
 {
-    static int meshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadMesh(fileName);
 
     return 1;
@@ -157,9 +147,7 @@ int ANARIPlugin::unloadFLASH(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int umeshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadUMeshFile(fileName);
 
     plugin->renderer->wait();
@@ -169,9 +157,7 @@ int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, con
 
 int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 {
-    static int umeshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadUMeshFile(fileName);
 
     plugin->renderer->wait();
@@ -181,9 +167,7 @@ int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int umeshScalarFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadUMeshScalars(fileName);
 
     plugin->renderer->wait();
@@ -193,9 +177,7 @@ int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, 
 
 int ANARIPlugin::unloadUMeshScalars(const char *fileName, const char *)
 {
-    static int umeshScalarFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadUMeshScalars(fileName);
 
     plugin->renderer->wait();

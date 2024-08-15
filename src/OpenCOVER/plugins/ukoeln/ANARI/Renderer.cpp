@@ -62,6 +62,58 @@ static std::string getExt(const std::string &fileName)
     return fileName.substr(pos);
 }
 
+enum FileType {
+    OBJ,
+    UMesh,
+    UMeshScalars,
+    VTU,
+    VTK,
+    Unknown,
+    // Keep last:
+    FileTypeCount,
+};
+
+inline
+FileType getFileType(const std::string &fileName)
+{
+    auto ext = getExt(fileName);
+    if (ext == ".obj") return OBJ;
+    else if (ext == ".umesh") return UMesh;
+    else if (ext == ".scalars") return UMeshScalars;
+    else if (ext == ".vtu") return VTU;
+    else if (ext == ".vtk") return VTK;
+    else return Unknown;
+}
+
+inline
+int getID(std::string fileName) {
+    // check if we know this file name:
+    static std::map<std::string,int> knownFileNames[FileTypeCount];
+    FileType type = getFileType(fileName);
+
+    auto it = knownFileNames[type].find(fileName);
+    if (it != knownFileNames[type].end()) {
+      return it->second;
+    }
+
+    // file name is unknown
+    static int nextID[FileTypeCount] = { 0 };
+    int ID = nextID[type]++;
+    knownFileNames[type][fileName] = ID;
+    return ID;
+}
+
+struct Slot {
+    Slot() = default;
+    Slot(std::string fileName, int mpiSize) {
+        int ID = getID(fileName);
+        // round-robin:
+        mpiRank = ID%mpiSize;
+    }
+    int mpiRank{0};
+    int timeStep{0};
+};
+
 
 static bool deviceHasExtension(anari::Library library,
     const std::string &deviceSubtype,
@@ -176,6 +228,12 @@ void Renderer::init()
 
 void Renderer::loadMesh(std::string fn)
 {
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     meshData.fileName = fn;
     meshData.updated = true;
@@ -208,6 +266,12 @@ void Renderer::unloadVolume()
 void Renderer::loadFLASH(std::string fn)
 {
 #ifdef HAVE_HDF5
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     amrVolumeData.fileName = fn;
     amrVolumeData.updated = true;
@@ -256,6 +320,12 @@ void Renderer::unloadUMesh()
 void Renderer::loadUMeshFile(std::string fn)
 {
 #ifdef HAVE_UMESH
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
         unstructuredVolumeData.fileName = fn;
@@ -273,6 +343,12 @@ void Renderer::unloadUMeshFile(std::string fn)
 void Renderer::loadUMeshScalars(std::string fn)
 {
 #ifdef HAVE_UMESH
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0});
 #endif
 }
@@ -301,6 +377,12 @@ void Renderer::unloadUMeshVTK(std::string fn)
 
 void Renderer::loadPointCloud(std::string fn)
 {
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     pointCloudData.fileNames.push_back(fn);
     pointCloudData.updated = true;
