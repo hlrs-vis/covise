@@ -38,23 +38,18 @@ struct MiniRR
 
   void sendNumChannels(int numChannels, WaitFlag flag = Wait);
   void recvNumChannels(int &numChannels);
-  bool numChannelsRequested();
 
   void sendBounds(AABB bounds, WaitFlag flag = Wait);
   void recvBounds(AABB &bounds);
-  bool boundsRequested();
  
   void sendSize(int w, int h, WaitFlag flag = Wait);
   void recvSize(int &w, int &h);
-  bool sizeRequested();
 
   void sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag = Wait);
   void recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix);
-  bool cameraRequested();
 
   void sendImage(const uint32_t *img, int width, int height, WaitFlag flag = Wait);
   void recvImage(uint32_t *img, int &width, int &height);
-  bool imageRequested();
 
  private:
 

@@ -12,14 +12,12 @@ struct RenderState
 {
   struct {
     int value{0};
-    bool requested{false};
     bool updated{false};
   } numChannels;
 
   struct {
     int width{1};
     int height{1};
-    bool requested{false};
     bool updated{false};
   } size;
 
@@ -27,13 +25,11 @@ struct RenderState
     Mat4 modelMatrix;
     Mat4 viewMatrix;
     Mat4 projMatrix;
-    bool requested{false};
     bool updated{false};
   } camera;
 
   struct {
     AABB aabb;
-    bool requested{false};
     bool updated{false};
   } bounds;
 
@@ -48,7 +44,6 @@ struct RenderState
     int width{0};
     int height{0};
     uint32_t compressedSize{0};
-    bool requested{false};
     bool updated{false};
   } image;
 };
@@ -104,7 +99,6 @@ void MiniRR::sendNumChannels(int numChannels, WaitFlag flag)
 {
   lock();
   renderState->numChannels.value = numChannels;
-  renderState->numChannels.requested = false; // request satisfied!
   renderState->numChannels.updated = true;
   unlock();
 
@@ -132,20 +126,10 @@ void MiniRR::recvNumChannels(int &numChannels)
   unlock();
 }
 
-bool MiniRR::numChannelsRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->numChannels.requested;
-  unlock();
-  return result;
-}
-
 void MiniRR::sendBounds(AABB bounds, WaitFlag flag)
 {
   lock();
   std::memcpy(renderState->bounds.aabb, bounds, sizeof(renderState->bounds.aabb));
-  renderState->bounds.requested = false; // request satisfied!
   renderState->bounds.updated = true;
   unlock();
 
@@ -173,21 +157,11 @@ void MiniRR::recvBounds(AABB &bounds)
   unlock();
 }
 
-bool MiniRR::boundsRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->bounds.requested;
-  unlock();
-  return result;
-}
- 
 void MiniRR::sendSize(int w, int h, WaitFlag flag)
 {
   lock();
   renderState->size.width = w;
   renderState->size.height = h;
-  renderState->size.requested = false; // request satisfied!
   renderState->size.updated = true;
   unlock();
 
@@ -217,22 +191,12 @@ void MiniRR::recvSize(int &w, int &h)
   unlock();
 }
 
-bool MiniRR::sizeRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->size.requested;
-  unlock();
-  return result;
-}
-
 void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag)
 {
   lock();
   std::memcpy(renderState->camera.modelMatrix, modelMatrix, sizeof(renderState->camera.modelMatrix));
   std::memcpy(renderState->camera.viewMatrix, viewMatrix, sizeof(renderState->camera.viewMatrix));
   std::memcpy(renderState->camera.projMatrix, projMatrix, sizeof(renderState->camera.projMatrix));
-  renderState->camera.requested = false; // request satisfied!
   renderState->camera.updated = true;
   unlock();
 
@@ -264,15 +228,6 @@ void MiniRR::recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix)
   unlock();
 }
 
-bool MiniRR::cameraRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->camera.requested;
-  unlock();
-  return result;
-}
-
 void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag)
 {
   lock();
@@ -294,7 +249,6 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag
   renderState->image.width = width;
   renderState->image.height = height;
   renderState->image.compressedSize = compressedSize;
-  renderState->image.requested = false; // request satisfied!
   renderState->image.updated = true;
 
   unlock();
@@ -340,15 +294,6 @@ void MiniRR::recvImage(uint32_t *img, int &width, int &height)
   renderState->image.updated = false;
 
   unlock();
-}
-
-bool MiniRR::imageRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->image.requested;
-  unlock();
-  return result;
 }
 
 bool MiniRR::handleNewConnection(
@@ -416,11 +361,6 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     sync[SyncPoints::RecvBounds].cv.notify_all();
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
-  }
-  else if (message->type() == MessageType::RecvBounds) {
-    lock();
-    renderState->bounds.requested = true;
-    unlock();
   }
   else if (message->type() == MessageType::SendSize) {
     lock();
