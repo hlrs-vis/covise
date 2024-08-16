@@ -91,7 +91,7 @@ static FileHandler handlers[] = {
     { NULL,
       ANARIPlugin::loadHDRI,
       ANARIPlugin::unloadHDRI,
-      "ext" },
+      "exr" },
     { NULL,
       ANARIPlugin::loadHDRI,
       ANARIPlugin::unloadHDRI,
