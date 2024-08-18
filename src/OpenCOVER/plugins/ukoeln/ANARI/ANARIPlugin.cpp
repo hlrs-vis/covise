@@ -278,6 +278,10 @@ void ANARIPlugin::preFrame()
     if (!renderer)
         return;
 
+    if (tfe) {
+        tfe->update();
+    }
+
     std::vector<Renderer::ClipPlane> clipPlanes;
     if (cover->isClippingOn()) {
         osg::ClipNode *cn = cover->getObjectsRoot();
@@ -444,6 +448,20 @@ void ANARIPlugin::buildUI()
         }
     }
 
+    tfe = new coTransfuncEditor;
+
+    tfe->setOpacityUpdateFunc([](const float *opacity, unsigned len, void *userData) {
+        Renderer *renderer = (Renderer *)userData;
+        if (!renderer) return;
+
+        // dflt. colors for now:
+        std::vector<glm::vec3> color;
+        color.emplace_back(0.f, 0.f, 1.f);
+        color.emplace_back(0.f, 1.f, 0.f);
+        color.emplace_back(1.f, 0.f, 0.f);
+        renderer->setTransFunc(color.data(), color.size(), opacity, len);
+    }, renderer.get());
+
     if (this->previousRendererType != this->rendererType) {
         tearDownUI();
         auto &rendererParameters = renderer->getRendererParameters();
@@ -455,6 +473,8 @@ void ANARIPlugin::buildUI()
 
 void ANARIPlugin::tearDownUI()
 {
+    //delete tfe;
+
     for (size_t i=0; i<rendererUI.size(); ++i) {
         auto *elem = rendererUI[i];
         if (elem != nullptr) {

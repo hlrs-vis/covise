@@ -25,6 +25,7 @@ SET(HEADERS
   readPLY.h
   rply.h
   rplyfile.h
+  coTransfuncEditor.h
 )
 SET(SOURCES
   asg.cpp
@@ -33,6 +34,7 @@ SET(SOURCES
   ui_anari.cpp
   hdri.cpp
   rply.c
+  coTransfuncEditor.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})

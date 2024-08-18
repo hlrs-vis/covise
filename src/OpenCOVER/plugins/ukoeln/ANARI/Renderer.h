@@ -103,6 +103,9 @@ public:
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
 
+    void setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
+                      const float *opacity, unsigned numOpacity);
+
     // volume debug mode where MPI rank IDs are assigned random colors
     void setColorRanks(bool value);
 

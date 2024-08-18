@@ -705,6 +705,23 @@ void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
     }
 }
 
+void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
+                            const float *opacity, unsigned numOpacity)
+{
+    transFunc.colors.resize(numRGB);
+    transFunc.opacities.resize(numOpacity);
+
+    memcpy(transFunc.colors.data(),
+           rgb,
+           transFunc.colors.size()*sizeof(transFunc.colors[0]));
+
+    memcpy(transFunc.opacities.data(),
+           opacity,
+           transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
+    
+    transFunc.updated = true;
+}
+
 void Renderer::setColorRanks(bool value)
 {
     colorByRank = value;

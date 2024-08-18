@@ -10,6 +10,7 @@
 #include <cover/ui/Owner.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRFileManager.h>
+#include "coTransfuncEditor.h"
 #include "Renderer.h"
 
 namespace opencover {
@@ -82,6 +83,9 @@ protected:
     std::vector<ui::Button *> rendererButtons;
 
     std::vector<ui::Element *> rendererUI;
+
+    coTransfuncEditor *tfe = nullptr;
+
     int previousRendererType = -1;
     int rendererType = 0;
 
