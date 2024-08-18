@@ -192,12 +192,6 @@ Renderer::~Renderer()
     if (multiChannelDrawer) {
         cover->getScene()->removeChild(multiChannelDrawer);
     }
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (/*isClient ||*/ isServer) {
-        remoteThread.join();
-    }
-#endif
 }
 
 void Renderer::init()

@@ -9,7 +9,6 @@
 
 #include <memory>
 #include <vector>
-#include <thread>
 #ifdef ANARI_PLUGIN_HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
@@ -309,7 +308,6 @@ private:
 
 #ifdef ANARI_PLUGIN_HAVE_RR
     // thread to process events on that aren't executed in lockstep
-    std::thread remoteThread;
     std::shared_ptr<minirr::MiniRR> rr;
 #endif
     std::vector<uint32_t> imageBuffer;
