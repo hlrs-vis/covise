@@ -782,17 +782,25 @@ void Renderer::renderFrame()
         clipPlanes.updated = false;
     }
 
+    if (bounds.updated) {
 #ifdef ANARI_PLUGIN_HAVE_MPI
-    if (bounds.updated && mpiSize > 1) {
-        MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        if (mpiSize > 1) {
+            MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        } else
+#endif
+        {
+            memcpy(&bounds.global.data[0],
+                   &bounds.local.data[0],
+                   sizeof(bounds.local.data));
+        }
+
         bounds.updated = false;
     }
-#endif
 
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(chan);
