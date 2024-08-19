@@ -119,9 +119,9 @@ public:
             for (int xi=(int)xBeg; xi<=(int)xEnd; ++xi) {
                 int index = std::max(0,std::min(int(width)-1,xi));
                 float yval = y;
-                if (xPrev < x)
+                if (xEnd-xBeg && xPrev < x)
                     yval = lerp(yPrev,y,(float(xi)-xBeg)/(xEnd-xBeg));
-                else if (xPrev > x)
+                else if (xEnd-xBeg && xPrev > x)
                     yval = lerp(y,yPrev,(float(xi)-xBeg)/(xEnd-xBeg));
                 float val = saturate(yval/(height-1.f));
                 opacity.data[index] = val;
