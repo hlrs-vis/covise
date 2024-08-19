@@ -15,6 +15,7 @@
 
 class Canvas;
 
+typedef void (*coColorUpdateFunc)(const float *rgb, unsigned len, void *userData);
 typedef void (*coOpacityUpdateFunc)(const float *opacity, unsigned len, void *userData);
 
 class coTransfuncEditor
@@ -27,6 +28,7 @@ public:
     void hide();
     void update();
 
+    void setColorUpdateFunc(coOpacityUpdateFunc func, void *userData);
     void setOpacityUpdateFunc(coOpacityUpdateFunc func, void *userData);
 private:
     vrui::coPopupHandle *handle{nullptr};
