@@ -65,6 +65,7 @@ public:
                 coInteractionManager::the()->unregisterInteraction(interactionA);
             }
             xPrev = -1.f;
+            yPrev = -1.f;
             unregister = false;
         }
 
@@ -91,21 +92,36 @@ public:
 
         if (interactionA->wasStopped()) {
             xPrev = -1.f;
+            yPrev = -1.f;
         }
 
         if (interactionA->isRunning()) {
-            int x = hit->getLocalIntersectionPoint()[0];
-            int y = hit->getLocalIntersectionPoint()[1];
+            float x = hit->getLocalIntersectionPoint()[0];
+            float y = hit->getLocalIntersectionPoint()[1];
 
-            if (xPrev < 0.f || xPrev >= width) xPrev = hit->getLocalIntersectionPoint()[0];
+            if (xPrev < 0.f || xPrev >= width) xPrev = x;
+            if (yPrev < 0.f || yPrev >= height) yPrev = y;
 
-            for (int xi=std::min((int)xPrev,x); xi<=std::max((int)xPrev,x); ++xi) {
+            float xBeg = fminf(xPrev,hit->getLocalIntersectionPoint()[0]);
+            float xEnd = fmaxf(xPrev,hit->getLocalIntersectionPoint()[0]);
+
+            auto lerp = [](float a, float b, float x)
+            { return (1.f-x)*a+x*b; };
+
+            for (int xi=(int)xBeg; xi<=(int)xEnd; ++xi) {
                 int index = std::max(0,std::min(int(width)-1,xi));
-                float val = y > 8 ? y/(height-1.f) : 0.f;
+                float yval = y;
+                if (xPrev < x)
+                    yval = lerp(yPrev,y,(float(xi)-xBeg)/(xEnd-xBeg));
+                else if (xPrev > x)
+                    yval = lerp(y,yPrev,(float(xi)-xBeg)/(xEnd-xBeg));
+                float val = yval > 8 ? yval/(height-1.f) : 0.f;
                 opacity.data[index] = val;
                 opacity.updated = true;
             }
-            xPrev = hit->getLocalIntersectionPoint()[0];
+            xPrev = x;
+            yPrev = y;
+
             updateAlphaTextureData();
             auto image = alphaTexture->getImage();
             if (!image) {
@@ -263,7 +279,8 @@ public:
     }
 private:
     float width=512.f, height=256.f;
-    float xPos=0.f, yPos=0.f, xPrev=-1.f;
+    float xPos=0.f, yPos=0.f;
+    float xPrev=-1.f, yPrev=-1.f;
     vrui::OSGVruiTransformNode *dcs{nullptr};
     vrui::coCombinedButtonInteraction *interactionA{nullptr};
     bool unregister{false}; // mouse left, unregister interaction(s)
