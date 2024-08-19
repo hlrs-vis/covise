@@ -60,13 +60,16 @@ public:
 
     void update()
     {
-        if (unregister && interactionA->wasStopped()) {
+        if (unregister) {
             if (interactionA->isRegistered()) {
                 coInteractionManager::the()->unregisterInteraction(interactionA);
             }
+            unregister = false;
+        }
+
+        if (interactionA->wasStopped()) {
             xPrev = -1.f;
             yPrev = -1.f;
-            unregister = false;
         }
 
         if (color.updated) {
@@ -131,10 +134,10 @@ public:
             image->setImage(width, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
                             alphaTextureData.data(), osg::Image::NO_DELETE, 4);
             geom->dirtyDisplayList();
+            return ACTION_DONE;
         }
 
-        return ACTION_DONE;
-        //return ACTION_CALL_ON_MISS;
+        return ACTION_CALL_ON_MISS;
     }
 
     void miss()
