@@ -64,6 +64,7 @@ public:
             if (interactionA->isRegistered()) {
                 coInteractionManager::the()->unregisterInteraction(interactionA);
             }
+            xPrev = -1.f;
             unregister = false;
         }
 
@@ -88,16 +89,23 @@ public:
             interactionA->setHitByMouse(hit->isMouseHit());
         }
 
+        if (interactionA->wasStopped()) {
+            xPrev = -1.f;
+        }
+
         if (interactionA->isRunning()) {
-            int brushSize=10;
             int x = hit->getLocalIntersectionPoint()[0];
             int y = hit->getLocalIntersectionPoint()[1];
-            for (int i=-brushSize/2;i!=brushSize/2;++i) {
-                int xi = std::max(0,std::min(int(width)-1,x+i));
+
+            if (xPrev < 0.f || xPrev >= width) xPrev = hit->getLocalIntersectionPoint()[0];
+
+            for (int xi=std::min((int)xPrev,x); xi<=std::max((int)xPrev,x); ++xi) {
+                int index = std::max(0,std::min(int(width)-1,xi));
                 float val = y > 8 ? y/(height-1.f) : 0.f;
-                opacity.data[xi] = val;
+                opacity.data[index] = val;
                 opacity.updated = true;
             }
+            xPrev = hit->getLocalIntersectionPoint()[0];
             updateAlphaTextureData();
             auto image = alphaTexture->getImage();
             if (!image) {
@@ -255,7 +263,7 @@ public:
     }
 private:
     float width=512.f, height=256.f;
-    float xPos=0.f, yPos=0.f;
+    float xPos=0.f, yPos=0.f, xPrev=-1.f;
     vrui::OSGVruiTransformNode *dcs{nullptr};
     vrui::coCombinedButtonInteraction *interactionA{nullptr};
     bool unregister{false}; // mouse left, unregister interaction(s)
