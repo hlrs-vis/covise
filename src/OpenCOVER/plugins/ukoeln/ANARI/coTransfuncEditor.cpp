@@ -50,7 +50,7 @@ public:
 
     void update()
     {
-        if (unregister) {
+        if (unregister && interactionA->wasStopped()) {
             if (interactionA->isRegistered()) {
                 coInteractionManager::the()->unregisterInteraction(interactionA);
             }
@@ -78,7 +78,8 @@ public:
             int y = hit->getLocalIntersectionPoint()[1];
             for (int i=-brushSize/2;i!=brushSize/2;++i) {
                 int xi = std::max(0,std::min(int(width)-1,x+i));
-                opacity.data[xi] = y/(height-1.f);
+                float val = y > 8 ? y/(height-1.f) : 0.f;
+                opacity.data[xi] = val;
                 opacity.updated = true;
             }
             updateAlphaTextureData();
