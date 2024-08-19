@@ -88,6 +88,11 @@ public:
 
     int hit(vruiHit *hit)
     {
+        float x = hit->getLocalIntersectionPoint()[0];
+        float y = hit->getLocalIntersectionPoint()[1];
+        x = (x-margin)/width*(width+2*margin);
+        y = (y-margin)/height*(height+2*margin);
+
         if (!interactionA->isRegistered()) {
             coInteractionManager::the()->registerInteraction(interactionA);
             interactionA->setHitByMouse(hit->isMouseHit());
@@ -99,17 +104,17 @@ public:
         }
 
         if (interactionA->isRunning()) {
-            float x = hit->getLocalIntersectionPoint()[0];
-            float y = hit->getLocalIntersectionPoint()[1];
-
             if (xPrev < 0.f || xPrev >= width) xPrev = x;
             if (yPrev < 0.f || yPrev >= height) yPrev = y;
 
-            float xBeg = fminf(xPrev,hit->getLocalIntersectionPoint()[0]);
-            float xEnd = fmaxf(xPrev,hit->getLocalIntersectionPoint()[0]);
+            float xBeg = fminf(xPrev,x);
+            float xEnd = fmaxf(xPrev,x);
 
             auto lerp = [](float a, float b, float x)
             { return (1.f-x)*a+x*b; };
+
+            auto saturate = [](float x)
+            { return fmaxf(0.f,fminf(1.f,x)); };
 
             for (int xi=(int)xBeg; xi<=(int)xEnd; ++xi) {
                 int index = std::max(0,std::min(int(width)-1,xi));
@@ -118,7 +123,7 @@ public:
                     yval = lerp(yPrev,y,(float(xi)-xBeg)/(xEnd-xBeg));
                 else if (xPrev > x)
                     yval = lerp(y,yPrev,(float(xi)-xBeg)/(xEnd-xBeg));
-                float val = yval > 8 ? yval/(height-1.f) : 0.f;
+                float val = saturate(yval/(height-1.f));
                 opacity.data[index] = val;
                 opacity.updated = true;
             }
@@ -134,7 +139,9 @@ public:
             image->setImage(width, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
                             alphaTextureData.data(), osg::Image::NO_DELETE, 4);
             geom->dirtyDisplayList();
-            return ACTION_DONE;
+
+            if (x >= 0.f && x <= width && y >= 0.f && y <= height)
+                return ACTION_DONE;
         }
 
         return ACTION_CALL_ON_MISS;
@@ -177,18 +184,23 @@ public:
         (*vertices)[2].set(width, height, 1e-1f);
         (*vertices)[3].set(0.f, height, 1e-1f);
 
+        float texMarginL = margin/width;
+        float texMarginR = margin/width;
+        float texMarginB = margin/height;
+        float texMarginT = margin/height;
+
         texcoords = new osg::Vec2Array(4);
-        (*texcoords)[0].set(0.f, 0.f);
-        (*texcoords)[1].set(1.f, 0.f);
-        (*texcoords)[2].set(1.f, 1.f);
-        (*texcoords)[3].set(0.f, 1.f);
+        (*texcoords)[0].set(0.f-texMarginL, 0.f-texMarginB);
+        (*texcoords)[1].set(1.f+texMarginR, 0.f-texMarginB);
+        (*texcoords)[2].set(1.f+texMarginR, 1.f+texMarginT);
+        (*texcoords)[3].set(0.f-texMarginL, 1.f+texMarginT);
 
         // color tex
         colorTexture = new osg::Texture2D;
         colorTexture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
         colorTexture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-        colorTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
-        colorTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
+        colorTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
+        colorTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
 
         updateColorTextureData();
 
@@ -201,8 +213,8 @@ public:
         alphaTexture = new osg::Texture2D;
         alphaTexture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
         alphaTexture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
-        alphaTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
-        alphaTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
+        alphaTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
+        alphaTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
 
         updateAlphaTextureData();
 
@@ -282,6 +294,7 @@ public:
     }
 private:
     float width=512.f, height=256.f;
+    float margin=20.f;
     float xPos=0.f, yPos=0.f;
     float xPrev=-1.f, yPrev=-1.f;
     vrui::OSGVruiTransformNode *dcs{nullptr};
