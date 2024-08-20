@@ -832,6 +832,7 @@ void Renderer::renderFrame(unsigned chan)
     ChannelInfo &info = channelInfos[chan];
 
     int width=1, height=1;
+    glm::mat4 mm, vv, mv, pr;
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
@@ -839,11 +840,22 @@ void Renderer::renderFrame(unsigned chan)
         auto vp = cam->getViewport();
         width = vp->width();
         height = vp->height();
+
+        mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
+        vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
+        mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
+        pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
     }
 
 #ifdef ANARI_PLUGIN_HAVE_RR
+    minirr::PerFrame rrPerFrame;
     if (isClient) {
-        rr->sendSize(width, height);
+        rrPerFrame.width = width;
+        rrPerFrame.height = height;
+        std::memcpy(rrPerFrame.modelMatrix, &mm[0], sizeof(rrPerFrame.modelMatrix));
+        std::memcpy(rrPerFrame.viewMatrix, &vv[0], sizeof(rrPerFrame.viewMatrix));
+        std::memcpy(rrPerFrame.projMatrix, &pr[0], sizeof(rrPerFrame.projMatrix));
+        rr->sendPerFrame(rrPerFrame);
 
         minirr::AABB rrBounds;
         rr->recvBounds(rrBounds);
@@ -852,7 +864,13 @@ void Renderer::renderFrame(unsigned chan)
     }
 
     if (isServer) {
-        rr->recvSize(width, height);
+        rr->recvPerFrame(rrPerFrame);
+        width = rrPerFrame.width;
+        height = rrPerFrame.height;
+        std::memcpy(&mm[0], rrPerFrame.modelMatrix, sizeof(rrPerFrame.modelMatrix));
+        std::memcpy(&vv[0], rrPerFrame.viewMatrix, sizeof(rrPerFrame.viewMatrix));
+        std::memcpy(&pr[0], rrPerFrame.projMatrix, sizeof(rrPerFrame.projMatrix));
+        mv = vv*mm;
 
         minirr::AABB rrBounds;
         std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
@@ -864,6 +882,9 @@ void Renderer::renderFrame(unsigned chan)
     if (mpiSize > 1) {
         MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
         MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
     }
 #endif
 
@@ -876,41 +897,6 @@ void Renderer::renderFrame(unsigned chan)
         anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
         anariCommitParameters(anari.device, anari.frames[chan]);
     }
-
-    glm::mat4 mm, vv, mv, pr;
-    if (isDisplayRank) {
-        mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
-        vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
-        mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
-        pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
-    }
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (isClient) {
-        minirr::Mat4 model, view, proj;
-        std::memcpy(model, &mm[0], sizeof(model));
-        std::memcpy(view, &vv[0], sizeof(view));
-        std::memcpy(proj, &pr[0], sizeof(proj));
-        rr->sendCamera(model, view, proj);
-    }
-
-    if (isServer) {
-        minirr::Mat4 model, view, proj;
-        rr->recvCamera(model, view, proj);
-        std::memcpy(&mm[0], model, sizeof(model));
-        std::memcpy(&vv[0], view, sizeof(view));
-        std::memcpy(&pr[0], proj, sizeof(proj));
-        mv = vv*mm;
-    }
-#endif
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    if (mpiSize > 1) {
-        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-    }
-#endif
 
     if (info.mv != mv || info.pr != pr) {
         info.mv = mv;

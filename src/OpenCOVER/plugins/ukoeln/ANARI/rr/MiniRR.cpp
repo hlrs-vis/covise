@@ -50,17 +50,9 @@ struct RenderState
   } numChannels;
 
   struct {
-    int width{1};
-    int height{1};
+    PerFrame value;
     bool updated{false};
-  } size;
-
-  struct {
-    Mat4 modelMatrix;
-    Mat4 viewMatrix;
-    Mat4 projMatrix;
-    bool updated{false};
-  } camera;
+  } perFrame;
 
   struct {
     AABB aabb;
@@ -129,7 +121,7 @@ bool MiniRR::connectionClosed()
   return false; // TODO!
 }
 
-void MiniRR::sendNumChannels(int numChannels)
+void MiniRR::sendNumChannels(const int &numChannels)
 {
   lock();
   renderState->numChannels.value = numChannels;
@@ -154,6 +146,34 @@ void MiniRR::recvNumChannels(int &numChannels)
   lock();
   numChannels = renderState->numChannels.value;
   renderState->numChannels.updated = false;
+  unlock();
+}
+
+void MiniRR::sendPerFrame(const PerFrame &perFrame)
+{
+  lock();
+  renderState->perFrame.value = perFrame;
+  renderState->perFrame.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)&renderState->perFrame.value, sizeof(renderState->perFrame.value));
+  write(MessageType::SendPerFrame, buf);
+}
+
+void MiniRR::recvPerFrame(PerFrame &perFrame)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvPerFrame, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvPerFrame].mtx);
+  sync[SyncPoints::RecvPerFrame].cv.wait(
+      l, [this]() { return renderState->perFrame.updated; });
+  l.unlock();
+
+  lock();
+  perFrame = renderState->perFrame.value;
+  renderState->perFrame.updated = false;
   unlock();
 }
 
@@ -182,71 +202,6 @@ void MiniRR::recvBounds(AABB &bounds)
   lock();
   std::memcpy(bounds, renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
   renderState->bounds.updated = false;
-  unlock();
-}
-
-void MiniRR::sendSize(int w, int h)
-{
-  lock();
-  renderState->size.width = w;
-  renderState->size.height = h;
-  renderState->size.updated = true;
-  unlock();
-
-  auto buf = std::make_shared<Buffer>();
-  buf->write(renderState->size.width);
-  buf->write(renderState->size.height);
-  write(MessageType::SendSize, buf);
-}
-
-void MiniRR::recvSize(int &w, int &h)
-{
-  auto buf = std::make_shared<Buffer>();
-  write(MessageType::RecvSize, buf);
-
-  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvSize].mtx);
-  sync[SyncPoints::RecvSize].cv.wait(
-      l, [this]() { return renderState->size.updated; });
-  l.unlock();
-
-  lock();
-  w = renderState->size.width;
-  h = renderState->size.height;
-  renderState->size.updated = false;
-  unlock();
-}
-
-void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix)
-{
-  lock();
-  std::memcpy(renderState->camera.modelMatrix, modelMatrix, sizeof(renderState->camera.modelMatrix));
-  std::memcpy(renderState->camera.viewMatrix, viewMatrix, sizeof(renderState->camera.viewMatrix));
-  std::memcpy(renderState->camera.projMatrix, projMatrix, sizeof(renderState->camera.projMatrix));
-  renderState->camera.updated = true;
-  unlock();
-
-  auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-  buf->write((const char *)renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-  buf->write((const char *)renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-  write(MessageType::SendCamera, buf);
-}
-
-void MiniRR::recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix)
-{
-  auto buf = std::make_shared<Buffer>();
-  write(MessageType::RecvCamera, buf);
-
-  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvCamera].mtx);
-  sync[SyncPoints::RecvCamera].cv.wait(
-      l, [this]() { return renderState->camera.updated; });
-  l.unlock();
-
-  lock();
-  std::memcpy(modelMatrix, renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-  std::memcpy(viewMatrix, renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-  std::memcpy(projMatrix, renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-  renderState->camera.updated = false;
   unlock();
 }
 
@@ -387,6 +342,14 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     unlock();
     sync[SyncPoints::RecvNumChannels].cv.notify_all();
   }
+  else if (message->type() == MessageType::SendPerFrame) {
+    lock();
+    buf->read((char *)&renderState->perFrame.value, sizeof(renderState->perFrame.value));
+    renderState->perFrame.updated = true;
+    sync[SyncPoints::RecvPerFrame].cv.notify_all();
+    unlock();
+    sync[SyncPoints::RecvPerFrame].cv.notify_all();
+  }
   else if (message->type() == MessageType::SendBounds) {
     lock();
     buf->read((char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
@@ -394,23 +357,6 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     sync[SyncPoints::RecvBounds].cv.notify_all();
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
-  }
-  else if (message->type() == MessageType::SendSize) {
-    lock();
-    buf->read(renderState->size.width);
-    buf->read(renderState->size.height);
-    renderState->size.updated = true;
-    unlock();
-    sync[SyncPoints::RecvSize].cv.notify_all();
-  }
-  else if (message->type() == MessageType::SendCamera) {
-    lock();
-    buf->read((char *)renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-    buf->read((char *)renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-    buf->read((char *)renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-    renderState->camera.updated = true;
-    unlock();
-    sync[SyncPoints::RecvCamera].cv.notify_all();
   }
   else if (message->type() == MessageType::SendImage) {
     lock();
@@ -427,18 +373,6 @@ void MiniRR::handleReadMessage(async::message_pointer message)
 
 void MiniRR::handleWriteMessage(async::message_pointer message)
 {
-  // if (message->type() == MessageType::SendNumChannels) {
-  //   sync[SyncPoints::SendNumChannels].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendSize) {
-  //   sync[SyncPoints::SendSize].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendCamera) {
-  //   sync[SyncPoints::SendCamera].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendBounds) {
-  //   sync[SyncPoints::SendBounds].cv.notify_all();
-  // }
 }
 
 void MiniRR::write(unsigned type, std::shared_ptr<Buffer> buf)
@@ -476,7 +410,7 @@ int main(int argc, char **argv) {
     rr.initAsClient("localhost", 31050);
     rr.run();
     while (1) {
-      rr.sendSize(1024,768);
+      //rr.sendSize(1024,768);
     }
   } else {
     minirr::MiniRR rr;

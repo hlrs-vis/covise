@@ -21,6 +21,15 @@ struct RenderState;
 typedef float Mat4[16];
 typedef float AABB[6];
 
+struct PerFrame
+{
+    // Viewport size
+    int32_t width{1}, height{1};
+
+    // Camera:
+    Mat4 modelMatrix, viewMatrix, projMatrix;
+};
+
 struct MiniRR
 {
   MiniRR(); 
@@ -35,18 +44,17 @@ struct MiniRR
 
   bool connectionClosed();
 
-  void sendNumChannels(int numChannels);
+  void sendNumChannels(const int &numChannels);
   void recvNumChannels(int &numChannels);
+
+  void sendPerFrame(const PerFrame &perFrame);
+  void recvPerFrame(PerFrame &perFrame);
+
+  void sendObjectUpdates(const uint64_t &objectUpdates);
 
   void sendBounds(AABB bounds);
   void recvBounds(AABB &bounds);
  
-  void sendSize(int w, int h);
-  void recvSize(int &w, int &h);
-
-  void sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix);
-  void recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix);
-
   void sendImage(const uint32_t *img, int width, int height);
   void recvImage(uint32_t *img, int &width, int &height);
 
@@ -67,12 +75,10 @@ struct MiniRR
       ConnectionEstablished, // internal!
       SendNumChannels,
       RecvNumChannels,
+      SendPerFrame,
+      RecvPerFrame,
       SendBounds,
       RecvBounds,
-      SendSize,
-      RecvSize,
-      SendCamera,
-      RecvCamera,
       SendImage,
       RecvImage,
       Unknown,

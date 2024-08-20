@@ -310,7 +310,6 @@ private:
     std::vector<ui_anari::ParameterList> rendererParameters;
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-    // thread to process events on that aren't executed in lockstep
     std::shared_ptr<minirr::MiniRR> rr;
 #endif
     std::vector<uint32_t> imageBuffer;
