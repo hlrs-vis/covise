@@ -42,7 +42,7 @@ inline double getCurrentTime()
 
 namespace minirr {
 
-struct RenderState
+struct State
 {
   struct {
     int value{0};
@@ -53,6 +53,11 @@ struct RenderState
     PerFrame value;
     bool updated{false};
   } perFrame;
+
+  struct {
+    uint64_t value{0};
+    bool updated{false};
+  } objectUpdates;
 
   struct {
     AABB aabb;
@@ -74,7 +79,7 @@ struct RenderState
   } image;
 };
 
-MiniRR::MiniRR() : renderState(new RenderState)
+MiniRR::MiniRR() : sendState(new State), recvState(new State)
 {
 }
 
@@ -124,12 +129,12 @@ bool MiniRR::connectionClosed()
 void MiniRR::sendNumChannels(const int &numChannels)
 {
   lock();
-  renderState->numChannels.value = numChannels;
-  renderState->numChannels.updated = true;
+  sendState->numChannels.value = numChannels;
+  sendState->numChannels.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write(renderState->numChannels.value);
+  buf->write(sendState->numChannels.value);
   write(MessageType::SendNumChannels, buf);
 }
 
@@ -140,24 +145,24 @@ void MiniRR::recvNumChannels(int &numChannels)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvNumChannels].mtx);
   sync[SyncPoints::RecvNumChannels].cv.wait(
-      l, [this]() { return renderState->numChannels.updated; });
+      l, [this]() { return recvState->numChannels.updated; });
   l.unlock();
 
   lock();
-  numChannels = renderState->numChannels.value;
-  renderState->numChannels.updated = false;
+  numChannels = recvState->numChannels.value;
+  recvState->numChannels.updated = false;
   unlock();
 }
 
 void MiniRR::sendPerFrame(const PerFrame &perFrame)
 {
   lock();
-  renderState->perFrame.value = perFrame;
-  renderState->perFrame.updated = true;
+  sendState->perFrame.value = perFrame;
+  sendState->perFrame.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)&renderState->perFrame.value, sizeof(renderState->perFrame.value));
+  buf->write((const char *)&sendState->perFrame.value, sizeof(sendState->perFrame.value));
   write(MessageType::SendPerFrame, buf);
 }
 
@@ -168,24 +173,52 @@ void MiniRR::recvPerFrame(PerFrame &perFrame)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvPerFrame].mtx);
   sync[SyncPoints::RecvPerFrame].cv.wait(
-      l, [this]() { return renderState->perFrame.updated; });
+      l, [this]() { return recvState->perFrame.updated; });
   l.unlock();
 
   lock();
-  perFrame = renderState->perFrame.value;
-  renderState->perFrame.updated = false;
+  perFrame = recvState->perFrame.value;
+  recvState->perFrame.updated = false;
+  unlock();
+}
+
+void MiniRR::sendObjectUpdates(const uint64_t &objectUpdates)
+{
+  lock();
+  sendState->objectUpdates.value = objectUpdates;
+  sendState->objectUpdates.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write(sendState->objectUpdates.value);
+  write(MessageType::SendObjectUpdates, buf);
+}
+
+void MiniRR::recvObjectUpdates(uint64_t &objectUpdates)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvObjectUpdates, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvObjectUpdates].mtx);
+  sync[SyncPoints::RecvObjectUpdates].cv.wait(
+      l, [this]() { return recvState->objectUpdates.updated; });
+  l.unlock();
+
+  lock();
+  objectUpdates = recvState->objectUpdates.value;
+  recvState->objectUpdates.updated = false;
   unlock();
 }
 
 void MiniRR::sendBounds(AABB bounds)
 {
   lock();
-  std::memcpy(renderState->bounds.aabb, bounds, sizeof(renderState->bounds.aabb));
-  renderState->bounds.updated = true;
+  std::memcpy(sendState->bounds.aabb, bounds, sizeof(sendState->bounds.aabb));
+  sendState->bounds.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
+  buf->write((const char *)sendState->bounds.aabb, sizeof(sendState->bounds.aabb));
   write(MessageType::SendBounds, buf);
 }
 
@@ -196,12 +229,12 @@ void MiniRR::recvBounds(AABB &bounds)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvBounds].mtx);
   sync[SyncPoints::RecvBounds].cv.wait(
-      l, [this]() { return renderState->bounds.updated; });
+      l, [this]() { return recvState->bounds.updated; });
   l.unlock();
 
   lock();
-  std::memcpy(bounds, renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
-  renderState->bounds.updated = false;
+  std::memcpy(bounds, recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
+  recvState->bounds.updated = false;
   unlock();
 }
 
@@ -215,14 +248,14 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height)
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
   options.quality = 80;
 
-  renderState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
+  sendState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
 
   #ifdef TIMING
   double t0 = getCurrentTime();
   #endif
   size_t compressedSize;
   compressTurboJPEG((const uint8_t *)img,
-      renderState->image.data.data(),
+      sendState->image.data.data(),
       compressedSize,
       options);
   #ifdef TIMING
@@ -230,19 +263,19 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height)
   std::cout << "compressTurboJPEG takes " << (t1-t0) << " sec.\n";
   #endif
 
-  renderState->image.width = width;
-  renderState->image.height = height;
-  renderState->image.compressedSize = compressedSize;
-  renderState->image.updated = true;
+  sendState->image.width = width;
+  sendState->image.height = height;
+  sendState->image.compressedSize = compressedSize;
+  sendState->image.updated = true;
 
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)&renderState->image.width, sizeof(renderState->image.width));
-  buf->write((const char *)&renderState->image.height, sizeof(renderState->image.height));
-  buf->write((const char *)&renderState->image.compressedSize, sizeof(renderState->image.compressedSize));
-  buf->write((const char *)renderState->image.data.data(),
-      sizeof(renderState->image.data[0])*renderState->image.data.size());
+  buf->write((const char *)&sendState->image.width, sizeof(sendState->image.width));
+  buf->write((const char *)&sendState->image.height, sizeof(sendState->image.height));
+  buf->write((const char *)&sendState->image.compressedSize, sizeof(sendState->image.compressedSize));
+  buf->write((const char *)sendState->image.data.data(),
+      sizeof(sendState->image.data[0])*sendState->image.data.size());
   write(MessageType::SendImage, buf);
 }
 
@@ -253,13 +286,13 @@ void MiniRR::recvImage(uint32_t *img, int &width, int &height)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvImage].mtx);
   sync[SyncPoints::RecvImage].cv.wait(
-      l, [this]() { return renderState->image.updated; });
+      l, [this]() { return recvState->image.updated; });
   l.unlock();
 
   lock();
 
-  width = renderState->image.width;
-  height = renderState->image.height;
+  width = recvState->image.width;
+  height = recvState->image.height;
 
   TurboJPEGOptions options;
   options.width = width;
@@ -270,16 +303,16 @@ void MiniRR::recvImage(uint32_t *img, int &width, int &height)
   #ifdef TIMING
   double t0 = getCurrentTime();
   #endif
-  uncompressTurboJPEG(renderState->image.data.data(),
+  uncompressTurboJPEG(recvState->image.data.data(),
       (uint8_t *)img,
-      (size_t)renderState->image.compressedSize,
+      (size_t)recvState->image.compressedSize,
       options);
   #ifdef TIMING
   double t1 = getCurrentTime();
   std::cout << "uncompressTurboJPEG takes " << (t1-t0) << " sec.\n";
   #endif
 
-  renderState->image.updated = false;
+  recvState->image.updated = false;
 
   unlock();
 }
@@ -337,35 +370,40 @@ void MiniRR::handleReadMessage(async::message_pointer message)
   auto buf = std::make_shared<Buffer>(message->data(), message->size());
   if (message->type() == MessageType::SendNumChannels) {
     lock();
-    buf->read(renderState->numChannels.value);
-    renderState->numChannels.updated = true;
+    buf->read(recvState->numChannels.value);
+    recvState->numChannels.updated = true;
     unlock();
     sync[SyncPoints::RecvNumChannels].cv.notify_all();
   }
   else if (message->type() == MessageType::SendPerFrame) {
     lock();
-    buf->read((char *)&renderState->perFrame.value, sizeof(renderState->perFrame.value));
-    renderState->perFrame.updated = true;
-    sync[SyncPoints::RecvPerFrame].cv.notify_all();
+    buf->read((char *)&recvState->perFrame.value, sizeof(recvState->perFrame.value));
+    recvState->perFrame.updated = true;
     unlock();
     sync[SyncPoints::RecvPerFrame].cv.notify_all();
   }
+  if (message->type() == MessageType::SendObjectUpdates) {
+    lock();
+    buf->read(recvState->objectUpdates.value);
+    recvState->objectUpdates.updated = true;
+    unlock();
+    sync[SyncPoints::RecvObjectUpdates].cv.notify_all();
+  }
   else if (message->type() == MessageType::SendBounds) {
     lock();
-    buf->read((char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
-    renderState->bounds.updated = true;
-    sync[SyncPoints::RecvBounds].cv.notify_all();
+    buf->read((char *)recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
+    recvState->bounds.updated = true;
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
   }
   else if (message->type() == MessageType::SendImage) {
     lock();
-    buf->read((char *)&renderState->image.width, sizeof(renderState->image.width));
-    buf->read((char *)&renderState->image.height, sizeof(renderState->image.height));
-    buf->read((char *)&renderState->image.compressedSize, sizeof(renderState->image.compressedSize));
-    renderState->image.data.resize(renderState->image.compressedSize);
-    buf->read((char *)renderState->image.data.data(), renderState->image.compressedSize);
-    renderState->image.updated = true;
+    buf->read((char *)&recvState->image.width, sizeof(recvState->image.width));
+    buf->read((char *)&recvState->image.height, sizeof(recvState->image.height));
+    buf->read((char *)&recvState->image.compressedSize, sizeof(recvState->image.compressedSize));
+    recvState->image.data.resize(recvState->image.compressedSize);
+    buf->read((char *)recvState->image.data.data(), recvState->image.compressedSize);
+    recvState->image.updated = true;
     unlock();
     sync[SyncPoints::RecvImage].cv.notify_all();
   }

@@ -816,6 +816,10 @@ void Renderer::renderFrame()
                    sizeof(bounds.local.data));
         }
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+        myObjectUpdates |= RR_BOUNDS_UPDATED;
+#endif
+
         bounds.updated = false;
     }
 
@@ -856,11 +860,18 @@ void Renderer::renderFrame(unsigned chan)
         std::memcpy(rrPerFrame.viewMatrix, &vv[0], sizeof(rrPerFrame.viewMatrix));
         std::memcpy(rrPerFrame.projMatrix, &pr[0], sizeof(rrPerFrame.projMatrix));
         rr->sendPerFrame(rrPerFrame);
+    
+        // Exchange what updated:
+        rr->sendObjectUpdates(myObjectUpdates);
+        rr->recvObjectUpdates(peerObjectUpdates);
 
-        minirr::AABB rrBounds;
-        rr->recvBounds(rrBounds);
-        std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
-        bounds.global.data[0] = rrBounds[0];
+        if (peerObjectUpdates & RR_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            rr->recvBounds(rrBounds);
+            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
+            bounds.global.data[0] = rrBounds[0];
+        }
     }
 
     if (isServer) {
@@ -871,11 +882,20 @@ void Renderer::renderFrame(unsigned chan)
         std::memcpy(&vv[0], rrPerFrame.viewMatrix, sizeof(rrPerFrame.viewMatrix));
         std::memcpy(&pr[0], rrPerFrame.projMatrix, sizeof(rrPerFrame.projMatrix));
         mv = vv*mm;
+    
+        // Exchange what updated:
+        rr->recvObjectUpdates(peerObjectUpdates);
+        rr->sendObjectUpdates(myObjectUpdates);
 
-        minirr::AABB rrBounds;
-        std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
-        rr->sendBounds(rrBounds);
+        if (myObjectUpdates & RR_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
+            rr->sendBounds(rrBounds);
+        }
     }
+
+    myObjectUpdates = peerObjectUpdates = 0x0;
 #endif
 
 #ifdef ANARI_PLUGIN_HAVE_MPI

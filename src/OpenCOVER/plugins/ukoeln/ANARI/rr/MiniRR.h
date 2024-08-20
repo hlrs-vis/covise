@@ -13,10 +13,13 @@
 // ours
 #include "Buffer.h"
 
+#define RR_BOUNDS_UPDATED    0x1
+#define RR_TRANSFUNC_UPDATED 0x2
+
 namespace minirr
 {
 
-struct RenderState;
+struct State;
 
 typedef float Mat4[16];
 typedef float AABB[6];
@@ -51,6 +54,7 @@ struct MiniRR
   void recvPerFrame(PerFrame &perFrame);
 
   void sendObjectUpdates(const uint64_t &objectUpdates);
+  void recvObjectUpdates(uint64_t &objectUpdates);
 
   void sendBounds(AABB bounds);
   void recvBounds(AABB &bounds);
@@ -60,7 +64,7 @@ struct MiniRR
 
  private:
 
-  std::unique_ptr<RenderState> renderState;
+  std::unique_ptr<State> sendState, recvState;
 
   Mode mode{Uninitialized};
 
@@ -77,6 +81,8 @@ struct MiniRR
       RecvNumChannels,
       SendPerFrame,
       RecvPerFrame,
+      SendObjectUpdates,
+      RecvObjectUpdates,
       SendBounds,
       RecvBounds,
       SendImage,
