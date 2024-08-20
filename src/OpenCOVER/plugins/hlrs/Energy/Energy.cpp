@@ -41,6 +41,7 @@
 #include <memory>
 #include <filesystem>
 #include <osg/Group>
+#include <osg/MatrixTransform>
 #include <osg/Switch>
 #include <osg/Vec3>
 #include <osg/ref_ptr>
@@ -180,12 +181,16 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     sequenceList->setName("DB");
     m_ennovatis = new osg::Group();
     m_ennovatis->setName("Ennovatis");
+    
+    osg::ref_ptr<osg::MatrixTransform> EnergyGroupMT = new osg::MatrixTransform();
 
     m_switch = new osg::Switch();
     m_switch->setName("Switch");
     m_switch->addChild(sequenceList);
     m_switch->addChild(m_ennovatis);
-    EnergyGroup->addChild(m_switch);
+
+    EnergyGroupMT->addChild(m_switch);
+    EnergyGroup->addChild(EnergyGroupMT);
 
     GDALAllRegister();
 
