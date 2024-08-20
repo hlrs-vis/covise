@@ -33,6 +33,20 @@ struct PerFrame
     Mat4 modelMatrix, viewMatrix, projMatrix;
 };
 
+struct Transfunc
+{
+    float *rgb{nullptr};
+    float *alpha{nullptr};
+
+    uint32_t numRGB{0};
+    uint32_t numAlpha{0};
+
+    float absRange[2]{0.f, 1.f};
+    float relRange[2]{0.f, 1.f};
+
+    float opacityScale{1.f};
+};
+
 struct MiniRR
 {
   MiniRR(); 
@@ -56,8 +70,11 @@ struct MiniRR
   void sendObjectUpdates(const uint64_t &objectUpdates);
   void recvObjectUpdates(uint64_t &objectUpdates);
 
-  void sendBounds(AABB bounds);
+  void sendBounds(const AABB &bounds);
   void recvBounds(AABB &bounds);
+
+  void sendTransfunc(const Transfunc &transfunc);
+  void recvTransfunc(Transfunc &transfunc);
  
   void sendImage(const uint32_t *img, int width, int height);
   void recvImage(uint32_t *img, int &width, int &height);
@@ -85,6 +102,8 @@ struct MiniRR
       RecvObjectUpdates,
       SendBounds,
       RecvBounds,
+      SendTransfunc,
+      RecvTransfunc,
       SendImage,
       RecvImage,
       Unknown,

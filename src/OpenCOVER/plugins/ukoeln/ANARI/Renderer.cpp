@@ -720,6 +720,10 @@ void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
            transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
     
     transFunc.updated = true;
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+        myObjectUpdates |= RR_TRANSFUNC_UPDATED;
+#endif
 }
 
 void Renderer::setColorRanks(bool value)
@@ -727,6 +731,10 @@ void Renderer::setColorRanks(bool value)
     colorByRank = value;
     generateTransFunc();
     transFunc.updated = true;
+
+#ifdef ANARI_PLUGIN_HAVE_RR
+        myObjectUpdates |= RR_TRANSFUNC_UPDATED;
+#endif
 }
 
 void Renderer::wait()
@@ -872,6 +880,17 @@ void Renderer::renderFrame(unsigned chan)
             std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
             bounds.global.data[0] = rrBounds[0];
         }
+
+        if (myObjectUpdates & RR_TRANSFUNC_UPDATED)
+        {
+            minirr::Transfunc rrTransfunc;
+            rrTransfunc.rgb = (float *)transFunc.colors.data();
+            rrTransfunc.alpha = (float *)transFunc.opacities.data();
+            rrTransfunc.numRGB = transFunc.colors.size();
+            rrTransfunc.numAlpha = transFunc.opacities.size();
+            rr->sendTransfunc(rrTransfunc);
+            // TODO: ranges, scale
+        }
     }
 
     if (isServer) {
@@ -892,6 +911,22 @@ void Renderer::renderFrame(unsigned chan)
             minirr::AABB rrBounds;
             std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
             rr->sendBounds(rrBounds);
+        }
+
+        if (peerObjectUpdates & RR_TRANSFUNC_UPDATED)
+        {
+            minirr::Transfunc rrTransfunc;
+            rr->recvTransfunc(rrTransfunc);
+            transFunc.colors.resize(rrTransfunc.numRGB);
+            std::memcpy((float *)transFunc.colors.data(), rrTransfunc.rgb,
+                sizeof(transFunc.colors[0])*transFunc.colors.size());
+            transFunc.opacities.resize(rrTransfunc.numAlpha);
+            std::memcpy((float *)transFunc.opacities.data(), rrTransfunc.alpha,
+                sizeof(transFunc.opacities[0])*transFunc.opacities.size());
+            // TODO: ranges, scale
+   
+            // consume on next renderFrame:
+            transFunc.updated = true;
         }
     }
 

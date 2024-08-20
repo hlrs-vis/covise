@@ -65,6 +65,17 @@ struct State
   } bounds;
 
   struct {
+    std::vector<float> rgb;
+    std::vector<float> alpha;
+    uint32_t numRGB{0};
+    uint32_t numAlpha{0};
+    float absRange[2]{0.f, 1.f};
+    float relRange[2]{0.f, 1.f};
+    float opacityScale{1.f};
+    bool updated{false};
+  } transfunc;
+
+  struct {
     std::vector<char> colorBuffer;
     std::vector<char> depthBuffer;
     bool updated{false};
@@ -210,7 +221,7 @@ void MiniRR::recvObjectUpdates(uint64_t &objectUpdates)
   unlock();
 }
 
-void MiniRR::sendBounds(AABB bounds)
+void MiniRR::sendBounds(const AABB &bounds)
 {
   lock();
   std::memcpy(sendState->bounds.aabb, bounds, sizeof(sendState->bounds.aabb));
@@ -235,6 +246,72 @@ void MiniRR::recvBounds(AABB &bounds)
   lock();
   std::memcpy(bounds, recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
   recvState->bounds.updated = false;
+  unlock();
+}
+
+void MiniRR::sendTransfunc(const Transfunc &transfunc)
+{
+  lock();
+  sendState->transfunc.rgb.resize(transfunc.numRGB*3);
+  std::memcpy(sendState->transfunc.rgb.data(),
+              transfunc.rgb,
+              sizeof(transfunc.rgb[0])*transfunc.numRGB*3);
+  sendState->transfunc.alpha.resize(transfunc.numAlpha);
+  std::memcpy(sendState->transfunc.alpha.data(),
+              transfunc.alpha,
+              sizeof(transfunc.alpha[0])*transfunc.numAlpha);
+  sendState->transfunc.numRGB = transfunc.numRGB;
+  sendState->transfunc.numAlpha = transfunc.numAlpha;
+  std::memcpy(sendState->transfunc.absRange,
+              transfunc.absRange, sizeof(transfunc.absRange));
+  std::memcpy(sendState->transfunc.relRange,
+              transfunc.relRange, sizeof(transfunc.relRange));
+  sendState->transfunc.opacityScale = transfunc.opacityScale;
+  sendState->transfunc.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)&sendState->transfunc.numRGB,
+      sizeof(sendState->transfunc.numRGB));
+  buf->write((const char *)&sendState->transfunc.numAlpha,
+      sizeof(sendState->transfunc.numAlpha));
+  buf->write((const char *)&sendState->transfunc.absRange,
+      sizeof(sendState->transfunc.absRange));
+  buf->write((const char *)&sendState->transfunc.relRange,
+      sizeof(sendState->transfunc.relRange));
+  buf->write((const char *)&sendState->transfunc.opacityScale,
+      sizeof(sendState->transfunc.opacityScale));
+  buf->write((const char *)sendState->transfunc.rgb.data(),
+      sizeof(sendState->transfunc.rgb[0])*sendState->transfunc.rgb.size());
+  buf->write((const char *)sendState->transfunc.alpha.data(),
+      sizeof(sendState->transfunc.alpha[0])*sendState->transfunc.alpha.size());
+  write(MessageType::SendTransfunc, buf);
+}
+
+void MiniRR::recvTransfunc(Transfunc &transfunc)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvTransfunc, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvTransfunc].mtx);
+  sync[SyncPoints::RecvTransfunc].cv.wait(
+      l, [this]() { return recvState->transfunc.updated; });
+  l.unlock();
+
+  lock();
+
+  transfunc.rgb = recvState->transfunc.rgb.data();
+  transfunc.alpha = recvState->transfunc.alpha.data();
+  transfunc.numRGB = recvState->transfunc.numRGB;
+  transfunc.numAlpha = recvState->transfunc.numAlpha;
+  transfunc.absRange[0] = recvState->transfunc.absRange[0];
+  transfunc.absRange[1] = recvState->transfunc.absRange[1];
+  transfunc.relRange[0] = recvState->transfunc.relRange[0];
+  transfunc.relRange[1] = recvState->transfunc.relRange[1];
+  transfunc.opacityScale = recvState->transfunc.opacityScale;
+
+  recvState->transfunc.updated = false;
+
   unlock();
 }
 
@@ -395,6 +472,23 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     recvState->bounds.updated = true;
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendTransfunc) {
+    lock();
+    buf->read((char *)&recvState->transfunc.numRGB, sizeof(recvState->transfunc.numRGB));
+    buf->read((char *)&recvState->transfunc.numAlpha, sizeof(recvState->transfunc.numAlpha));
+    buf->read((char *)&recvState->transfunc.absRange, sizeof(recvState->transfunc.absRange));
+    buf->read((char *)&recvState->transfunc.relRange, sizeof(recvState->transfunc.relRange));
+    buf->read((char *)&recvState->transfunc.opacityScale, sizeof(recvState->transfunc.opacityScale));
+    recvState->transfunc.rgb.resize(recvState->transfunc.numRGB*3);
+    buf->read((char *)recvState->transfunc.rgb.data(),
+        sizeof(recvState->transfunc.rgb[0])*recvState->transfunc.rgb.size());
+    recvState->transfunc.alpha.resize(recvState->transfunc.numAlpha);
+    buf->read((char *)recvState->transfunc.alpha.data(),
+        sizeof(recvState->transfunc.alpha[0])*recvState->transfunc.alpha.size());
+    recvState->transfunc.updated = true;
+    unlock();
+    sync[SyncPoints::RecvTransfunc].cv.notify_all();
   }
   else if (message->type() == MessageType::SendImage) {
     lock();
