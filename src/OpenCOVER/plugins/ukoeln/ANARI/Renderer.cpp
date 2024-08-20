@@ -32,6 +32,10 @@
 using namespace covise;
 using namespace opencover;
 
+#define OU_VIEWPORT_UPDATED  0x1
+#define OU_CAMERA_UPDATED    0x2
+#define OU_BOUNDS_UPDATED    0x4
+#define OU_TRANSFUNC_UPDATED 0x8
 
 void statusFunc(const void *userData,
     ANARIDevice device,
@@ -720,10 +724,7 @@ void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
            transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
     
     transFunc.updated = true;
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    objectUpdates |= RR_TRANSFUNC_UPDATED;
-#endif
+    objectUpdates |= OU_TRANSFUNC_UPDATED;
 }
 
 void Renderer::setColorRanks(bool value)
@@ -731,10 +732,7 @@ void Renderer::setColorRanks(bool value)
     colorByRank = value;
     generateTransFunc();
     transFunc.updated = true;
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    objectUpdates |= RR_TRANSFUNC_UPDATED;
-#endif
+    objectUpdates |= OU_TRANSFUNC_UPDATED;
 }
 
 void Renderer::wait()
@@ -808,26 +806,11 @@ void Renderer::renderFrame()
     }
 
     if (bounds.updated) {
-#ifdef ANARI_PLUGIN_HAVE_MPI
-        if (mpiSize > 1) {
-            MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-            MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-            MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-            MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-            MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-            MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        } else
-#endif
-        {
-            memcpy(&bounds.global.data[0],
-                   &bounds.local.data[0],
-                   sizeof(bounds.local.data));
-        }
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-        objectUpdates |= RR_BOUNDS_UPDATED;
-#endif
-
+        // set global bounds to local *before* we send them to peers!
+        std::memcpy(&bounds.global.data[0],
+                    &bounds.local.data[0],
+                    sizeof(bounds.local.data));
+        objectUpdates |= OU_BOUNDS_UPDATED;
         bounds.updated = false;
     }
 
@@ -854,7 +837,7 @@ void Renderer::renderFrame(unsigned chan)
         height = vp->height();
     
         if (info.frame.width != width || info.frame.height != height) {
-            objectUpdates |= RR_VIEWPORT_UPDATED;
+            objectUpdates |= OU_VIEWPORT_UPDATED;
         }
 
         mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
@@ -863,20 +846,18 @@ void Renderer::renderFrame(unsigned chan)
         pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
 
         if (info.mv != mv || info.pr != pr) {
-            objectUpdates |= RR_CAMERA_UPDATED;
+            objectUpdates |= OU_CAMERA_UPDATED;
         }
     }
 
+    // Remote rendering: client -> server
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
         // Exchange what updated:
         uint64_t myObjectUpdates = objectUpdates;
-        uint64_t peerObjectUpdates{0x0};
         rr->sendObjectUpdates(objectUpdates);
-        rr->recvObjectUpdates(peerObjectUpdates);
 
-        // Send ours:
-        if (myObjectUpdates & RR_VIEWPORT_UPDATED)
+        if (myObjectUpdates & OU_VIEWPORT_UPDATED)
         {
             minirr::Viewport rrViewport;
             rrViewport.width = width;
@@ -884,7 +865,7 @@ void Renderer::renderFrame(unsigned chan)
             rr->sendViewport(rrViewport);
         }
 
-        if (myObjectUpdates & RR_CAMERA_UPDATED)
+        if (myObjectUpdates & OU_CAMERA_UPDATED)
         {
             minirr::Camera rrCamera;
             std::memcpy(rrCamera.modelMatrix, &mm[0], sizeof(rrCamera.modelMatrix));
@@ -893,7 +874,7 @@ void Renderer::renderFrame(unsigned chan)
             rr->sendCamera(rrCamera);
         }
     
-        if (myObjectUpdates & RR_TRANSFUNC_UPDATED)
+        if (myObjectUpdates & OU_TRANSFUNC_UPDATED)
         {
             minirr::Transfunc rrTransfunc;
             rrTransfunc.rgb = (float *)transFunc.colors.data();
@@ -903,26 +884,14 @@ void Renderer::renderFrame(unsigned chan)
             rr->sendTransfunc(rrTransfunc);
             // TODO: ranges, scale
         }
-
-        // Recv peer:
-        if (peerObjectUpdates & RR_BOUNDS_UPDATED)
-        {
-            minirr::AABB rrBounds;
-            rr->recvBounds(rrBounds);
-            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
-            bounds.global.data[0] = rrBounds[0];
-        }
     }
 
     if (isServer) {
         // Exchange what updated:
-        uint64_t myObjectUpdates = objectUpdates;
         uint64_t peerObjectUpdates{0x0};
         rr->recvObjectUpdates(peerObjectUpdates);
-        rr->sendObjectUpdates(myObjectUpdates);
 
-        // Recv peer:
-        if (peerObjectUpdates & RR_VIEWPORT_UPDATED)
+        if (peerObjectUpdates & OU_VIEWPORT_UPDATED)
         {
             minirr::Viewport rrViewport;
             rr->recvViewport(rrViewport);
@@ -930,7 +899,7 @@ void Renderer::renderFrame(unsigned chan)
             height = rrViewport.height;
         }
 
-        if (peerObjectUpdates & RR_CAMERA_UPDATED)
+        if (peerObjectUpdates & OU_CAMERA_UPDATED)
         {
             minirr::Camera rrCamera;
             rr->recvCamera(rrCamera);
@@ -940,7 +909,7 @@ void Renderer::renderFrame(unsigned chan)
             mv = vv*mm;
         }
 
-        if (peerObjectUpdates & RR_TRANSFUNC_UPDATED)
+        if (peerObjectUpdates & OU_TRANSFUNC_UPDATED)
         {
             minirr::Transfunc rrTransfunc;
             rr->recvTransfunc(rrTransfunc);
@@ -951,32 +920,99 @@ void Renderer::renderFrame(unsigned chan)
             std::memcpy((float *)transFunc.opacities.data(), rrTransfunc.alpha,
                 sizeof(transFunc.opacities[0])*transFunc.opacities.size());
             // TODO: ranges, scale
-   
+
             // consume on next renderFrame:
             transFunc.updated = true;
         }
-   
-        // Send ours:
-        if (myObjectUpdates & RR_BOUNDS_UPDATED)
+
+        // Bump into *our* object updates; as what is now the server
+        // is also possibly the main node of the cluster
+        objectUpdates |= peerObjectUpdates;
+    }
+#endif
+
+    // MPI comm
+#ifdef ANARI_PLUGIN_HAVE_MPI
+    if (mpiSize > 1) {
+        uint64_t clusterObjectUpdates{0x0};
+        if (mpiRank == mainRank) clusterObjectUpdates = objectUpdates;
+        MPI_Bcast(&clusterObjectUpdates, 1, MPI_UINT64_T, mainRank, MPI_COMM_WORLD);
+
+        if (clusterObjectUpdates & OU_VIEWPORT_UPDATED)
+        {
+            MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_CAMERA_UPDATED)
+        {
+            MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_BOUNDS_UPDATED)
+        {
+            MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_TRANSFUNC_UPDATED)
+        {
+            uint32_t numColors = transFunc.colors.size();
+            MPI_Bcast(&numColors, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+            transFunc.colors.resize(numColors);
+            MPI_Bcast(transFunc.colors.data(), sizeof(transFunc.colors[0])*transFunc.colors.size(),
+                MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+            uint32_t numOpacities = transFunc.opacities.size();
+            MPI_Bcast(&numOpacities, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+            transFunc.opacities.resize(numOpacities);
+            MPI_Bcast(transFunc.opacities.data(), sizeof(transFunc.opacities[0])*transFunc.opacities.size(),
+                MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+            // TODO: ranges, scale
+
+            // consume on next renderFrame:
+            transFunc.updated = true;
+        }
+    } else
+#endif
+
+    // Remote rendering: server -> client
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        // Exchange what updated:
+        uint64_t peerObjectUpdates{0x0};
+        rr->recvObjectUpdates(peerObjectUpdates);
+
+        if (peerObjectUpdates & OU_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            rr->recvBounds(rrBounds);
+            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
+        }
+    }
+  
+    if (isServer) {
+        // Exchange what updated:
+        uint64_t myObjectUpdates = objectUpdates;
+        rr->sendObjectUpdates(objectUpdates);
+
+        if (myObjectUpdates & OU_BOUNDS_UPDATED)
         {
             minirr::AABB rrBounds;
             std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
             rr->sendBounds(rrBounds);
         }
     }
+#endif
 
     objectUpdates = 0x0;
-#endif
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    if (mpiSize > 1) {
-        MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-    }
-#endif
 
     if (info.frame.width != width || info.frame.height != height) {
         info.frame.width = width;

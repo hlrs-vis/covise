@@ -13,11 +13,6 @@
 // ours
 #include "Buffer.h"
 
-#define RR_VIEWPORT_UPDATED  0x1
-#define RR_CAMERA_UPDATED    0x2
-#define RR_BOUNDS_UPDATED    0x4
-#define RR_TRANSFUNC_UPDATED 0x8
-
 namespace minirr
 {
 
