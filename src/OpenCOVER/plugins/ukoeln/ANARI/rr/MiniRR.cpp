@@ -50,9 +50,14 @@ struct State
   } numChannels;
 
   struct {
-    PerFrame value;
+    Viewport value;
     bool updated{false};
-  } perFrame;
+  } viewport;
+
+  struct {
+    Camera value;
+    bool updated{false};
+  } camera;
 
   struct {
     uint64_t value{0};
@@ -165,31 +170,59 @@ void MiniRR::recvNumChannels(int &numChannels)
   unlock();
 }
 
-void MiniRR::sendPerFrame(const PerFrame &perFrame)
+void MiniRR::sendViewport(const Viewport &viewport)
 {
   lock();
-  sendState->perFrame.value = perFrame;
-  sendState->perFrame.updated = true;
+  sendState->viewport.value = viewport;
+  sendState->viewport.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)&sendState->perFrame.value, sizeof(sendState->perFrame.value));
-  write(MessageType::SendPerFrame, buf);
+  buf->write((const char *)&sendState->viewport.value, sizeof(sendState->viewport.value));
+  write(MessageType::SendViewport, buf);
 }
 
-void MiniRR::recvPerFrame(PerFrame &perFrame)
+void MiniRR::recvViewport(Viewport &viewport)
 {
   auto buf = std::make_shared<Buffer>();
-  write(MessageType::RecvPerFrame, buf);
+  write(MessageType::RecvViewport, buf);
 
-  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvPerFrame].mtx);
-  sync[SyncPoints::RecvPerFrame].cv.wait(
-      l, [this]() { return recvState->perFrame.updated; });
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvViewport].mtx);
+  sync[SyncPoints::RecvViewport].cv.wait(
+      l, [this]() { return recvState->viewport.updated; });
   l.unlock();
 
   lock();
-  perFrame = recvState->perFrame.value;
-  recvState->perFrame.updated = false;
+  viewport = recvState->viewport.value;
+  recvState->viewport.updated = false;
+  unlock();
+}
+
+void MiniRR::sendCamera(const Camera &camera)
+{
+  lock();
+  sendState->camera.value = camera;
+  sendState->camera.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)&sendState->camera.value, sizeof(sendState->camera.value));
+  write(MessageType::SendCamera, buf);
+}
+
+void MiniRR::recvCamera(Camera &camera)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvCamera, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvCamera].mtx);
+  sync[SyncPoints::RecvCamera].cv.wait(
+      l, [this]() { return recvState->camera.updated; });
+  l.unlock();
+
+  lock();
+  camera = recvState->camera.value;
+  recvState->camera.updated = false;
   unlock();
 }
 
@@ -452,12 +485,19 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     unlock();
     sync[SyncPoints::RecvNumChannels].cv.notify_all();
   }
-  else if (message->type() == MessageType::SendPerFrame) {
+  else if (message->type() == MessageType::SendViewport) {
     lock();
-    buf->read((char *)&recvState->perFrame.value, sizeof(recvState->perFrame.value));
-    recvState->perFrame.updated = true;
+    buf->read((char *)&recvState->viewport.value, sizeof(recvState->viewport.value));
+    recvState->viewport.updated = true;
     unlock();
-    sync[SyncPoints::RecvPerFrame].cv.notify_all();
+    sync[SyncPoints::RecvViewport].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendCamera) {
+    lock();
+    buf->read((char *)&recvState->camera.value, sizeof(recvState->camera.value));
+    recvState->camera.updated = true;
+    unlock();
+    sync[SyncPoints::RecvCamera].cv.notify_all();
   }
   if (message->type() == MessageType::SendObjectUpdates) {
     lock();

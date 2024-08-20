@@ -722,7 +722,7 @@ void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
     transFunc.updated = true;
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-        myObjectUpdates |= RR_TRANSFUNC_UPDATED;
+    objectUpdates |= RR_TRANSFUNC_UPDATED;
 #endif
 }
 
@@ -733,7 +733,7 @@ void Renderer::setColorRanks(bool value)
     transFunc.updated = true;
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-        myObjectUpdates |= RR_TRANSFUNC_UPDATED;
+    objectUpdates |= RR_TRANSFUNC_UPDATED;
 #endif
 }
 
@@ -825,7 +825,7 @@ void Renderer::renderFrame()
         }
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-        myObjectUpdates |= RR_BOUNDS_UPDATED;
+        objectUpdates |= RR_BOUNDS_UPDATED;
 #endif
 
         bounds.updated = false;
@@ -843,8 +843,8 @@ void Renderer::renderFrame(unsigned chan)
     const bool isDisplayRank = mpiRank==displayRank;
     ChannelInfo &info = channelInfos[chan];
 
-    int width=1, height=1;
-    glm::mat4 mm, vv, mv, pr;
+    int width=info.frame.width, height=info.frame.height;
+    glm::mat4 mm=info.mm, mv=info.mv, pr=info.pr, vv{};
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
@@ -852,35 +852,47 @@ void Renderer::renderFrame(unsigned chan)
         auto vp = cam->getViewport();
         width = vp->width();
         height = vp->height();
+    
+        if (info.frame.width != width || info.frame.height != height) {
+            objectUpdates |= RR_VIEWPORT_UPDATED;
+        }
 
         mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
         vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
         mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
         pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
+
+        if (info.mv != mv || info.pr != pr) {
+            objectUpdates |= RR_CAMERA_UPDATED;
+        }
     }
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-    minirr::PerFrame rrPerFrame;
     if (isClient) {
-        rrPerFrame.width = width;
-        rrPerFrame.height = height;
-        std::memcpy(rrPerFrame.modelMatrix, &mm[0], sizeof(rrPerFrame.modelMatrix));
-        std::memcpy(rrPerFrame.viewMatrix, &vv[0], sizeof(rrPerFrame.viewMatrix));
-        std::memcpy(rrPerFrame.projMatrix, &pr[0], sizeof(rrPerFrame.projMatrix));
-        rr->sendPerFrame(rrPerFrame);
-    
         // Exchange what updated:
-        rr->sendObjectUpdates(myObjectUpdates);
+        uint64_t myObjectUpdates = objectUpdates;
+        uint64_t peerObjectUpdates{0x0};
+        rr->sendObjectUpdates(objectUpdates);
         rr->recvObjectUpdates(peerObjectUpdates);
 
-        if (peerObjectUpdates & RR_BOUNDS_UPDATED)
+        // Send ours:
+        if (myObjectUpdates & RR_VIEWPORT_UPDATED)
         {
-            minirr::AABB rrBounds;
-            rr->recvBounds(rrBounds);
-            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
-            bounds.global.data[0] = rrBounds[0];
+            minirr::Viewport rrViewport;
+            rrViewport.width = width;
+            rrViewport.height = height;
+            rr->sendViewport(rrViewport);
         }
 
+        if (myObjectUpdates & RR_CAMERA_UPDATED)
+        {
+            minirr::Camera rrCamera;
+            std::memcpy(rrCamera.modelMatrix, &mm[0], sizeof(rrCamera.modelMatrix));
+            std::memcpy(rrCamera.viewMatrix, &vv[0], sizeof(rrCamera.viewMatrix));
+            std::memcpy(rrCamera.projMatrix, &pr[0], sizeof(rrCamera.projMatrix));
+            rr->sendCamera(rrCamera);
+        }
+    
         if (myObjectUpdates & RR_TRANSFUNC_UPDATED)
         {
             minirr::Transfunc rrTransfunc;
@@ -891,26 +903,41 @@ void Renderer::renderFrame(unsigned chan)
             rr->sendTransfunc(rrTransfunc);
             // TODO: ranges, scale
         }
+
+        // Recv peer:
+        if (peerObjectUpdates & RR_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            rr->recvBounds(rrBounds);
+            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
+            bounds.global.data[0] = rrBounds[0];
+        }
     }
 
     if (isServer) {
-        rr->recvPerFrame(rrPerFrame);
-        width = rrPerFrame.width;
-        height = rrPerFrame.height;
-        std::memcpy(&mm[0], rrPerFrame.modelMatrix, sizeof(rrPerFrame.modelMatrix));
-        std::memcpy(&vv[0], rrPerFrame.viewMatrix, sizeof(rrPerFrame.viewMatrix));
-        std::memcpy(&pr[0], rrPerFrame.projMatrix, sizeof(rrPerFrame.projMatrix));
-        mv = vv*mm;
-    
         // Exchange what updated:
+        uint64_t myObjectUpdates = objectUpdates;
+        uint64_t peerObjectUpdates{0x0};
         rr->recvObjectUpdates(peerObjectUpdates);
         rr->sendObjectUpdates(myObjectUpdates);
 
-        if (myObjectUpdates & RR_BOUNDS_UPDATED)
+        // Recv peer:
+        if (peerObjectUpdates & RR_VIEWPORT_UPDATED)
         {
-            minirr::AABB rrBounds;
-            std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
-            rr->sendBounds(rrBounds);
+            minirr::Viewport rrViewport;
+            rr->recvViewport(rrViewport);
+            width = rrViewport.width;
+            height = rrViewport.height;
+        }
+
+        if (peerObjectUpdates & RR_CAMERA_UPDATED)
+        {
+            minirr::Camera rrCamera;
+            rr->recvCamera(rrCamera);
+            std::memcpy(&mm[0], rrCamera.modelMatrix, sizeof(rrCamera.modelMatrix));
+            std::memcpy(&vv[0], rrCamera.viewMatrix, sizeof(rrCamera.viewMatrix));
+            std::memcpy(&pr[0], rrCamera.projMatrix, sizeof(rrCamera.projMatrix));
+            mv = vv*mm;
         }
 
         if (peerObjectUpdates & RR_TRANSFUNC_UPDATED)
@@ -928,9 +955,17 @@ void Renderer::renderFrame(unsigned chan)
             // consume on next renderFrame:
             transFunc.updated = true;
         }
+   
+        // Send ours:
+        if (myObjectUpdates & RR_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
+            rr->sendBounds(rrBounds);
+        }
     }
 
-    myObjectUpdates = peerObjectUpdates = 0x0;
+    objectUpdates = 0x0;
 #endif
 
 #ifdef ANARI_PLUGIN_HAVE_MPI

@@ -315,8 +315,7 @@ private:
     std::vector<uint32_t> imageBuffer;
     bool isClient{false};
     bool isServer{false};
-    uint64_t myObjectUpdates{0x0};
-    uint64_t peerObjectUpdates{0x0};
+    uint64_t objectUpdates{0x0};
 };
 
 

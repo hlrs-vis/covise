@@ -13,8 +13,10 @@
 // ours
 #include "Buffer.h"
 
-#define RR_BOUNDS_UPDATED    0x1
-#define RR_TRANSFUNC_UPDATED 0x2
+#define RR_VIEWPORT_UPDATED  0x1
+#define RR_CAMERA_UPDATED    0x2
+#define RR_BOUNDS_UPDATED    0x4
+#define RR_TRANSFUNC_UPDATED 0x8
 
 namespace minirr
 {
@@ -24,27 +26,28 @@ struct State;
 typedef float Mat4[16];
 typedef float AABB[6];
 
-struct PerFrame
+struct Viewport
 {
-    // Viewport size
-    int32_t width{1}, height{1};
+  int32_t x{0}, y{0}, width{1}, height{1};
+};
 
-    // Camera:
-    Mat4 modelMatrix, viewMatrix, projMatrix;
+struct Camera
+{
+  Mat4 modelMatrix, viewMatrix, projMatrix;
 };
 
 struct Transfunc
 {
-    float *rgb{nullptr};
-    float *alpha{nullptr};
+  float *rgb{nullptr};
+  float *alpha{nullptr};
 
-    uint32_t numRGB{0};
-    uint32_t numAlpha{0};
+  uint32_t numRGB{0};
+  uint32_t numAlpha{0};
 
-    float absRange[2]{0.f, 1.f};
-    float relRange[2]{0.f, 1.f};
+  float absRange[2]{0.f, 1.f};
+  float relRange[2]{0.f, 1.f};
 
-    float opacityScale{1.f};
+  float opacityScale{1.f};
 };
 
 struct MiniRR
@@ -64,8 +67,11 @@ struct MiniRR
   void sendNumChannels(const int &numChannels);
   void recvNumChannels(int &numChannels);
 
-  void sendPerFrame(const PerFrame &perFrame);
-  void recvPerFrame(PerFrame &perFrame);
+  void sendViewport(const Viewport &viewport);
+  void recvViewport(Viewport &viewport);
+
+  void sendCamera(const Camera &camera);
+  void recvCamera(Camera &camera);
 
   void sendObjectUpdates(const uint64_t &objectUpdates);
   void recvObjectUpdates(uint64_t &objectUpdates);
@@ -96,8 +102,10 @@ struct MiniRR
       ConnectionEstablished, // internal!
       SendNumChannels,
       RecvNumChannels,
-      SendPerFrame,
-      RecvPerFrame,
+      SendViewport,
+      RecvViewport,
+      SendCamera,
+      RecvCamera,
       SendObjectUpdates,
       RecvObjectUpdates,
       SendBounds,
