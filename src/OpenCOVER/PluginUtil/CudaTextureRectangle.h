@@ -30,13 +30,14 @@ public:
 
     void    resize(osg::State* state, int w, int h, int dataTypeSize);
     void*   resourceData() const;
+    size_t  getTotalSizeInBytes() const;
     void    clear();
 
 protected:
 
     GLuint pbo_{0};
     CudaGraphicsResource resource_;
-    int resourceDataSize_;
+    size_t resourceDataSize_;
 };
 
 }

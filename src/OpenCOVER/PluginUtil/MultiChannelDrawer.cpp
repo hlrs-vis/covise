@@ -10,6 +10,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 #include <osg/Depth>
 #include <osg/Geometry>
@@ -23,6 +24,7 @@
 #ifdef HAVE_CUDA
 #include <cuda.h>
 #include <cuda_gl_interop.h>
+#include <thrust/fill.h>
 #include "CudaTextureRectangle.h"
 #include "CudaGraphicsResource.h"
 #endif
@@ -1061,13 +1063,28 @@ void MultiChannelDrawer::clearDepth(int idx) {
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        static_cast<CudaTextureRectangle*>(vd.depthTex.get())->clear();
+        auto texRect = static_cast<CudaTextureRectangle*>(vd.depthTex.get());
+    
+        float *depth = (float *)texRect->resourceData();
+        if (vd.depthFormat == GL_FLOAT) {
+            std::fill(depth, 
+                      depth+texRect->getTotalSizeInBytes()/4,
+                      1.f);
+        } else {
+            throw std::runtime_error("MultiChannelDrawer::clearDepth() unimplemented for format!");
+        }
     }
     else
 #endif
     {
         osg::Image *depth = vd.depthImg;
-        memset(depth->data(), 0, depth->getTotalSizeInBytes());
+        if (vd.depthFormat == GL_FLOAT) {
+            std::fill((float *)depth->data(),
+                      (float *)depth->data()+depth->getTotalSizeInBytes()/4,
+                      1.f);
+        } else {
+            throw std::runtime_error("MultiChannelDrawer::clearDepth() unimplemented for format!");
+        }
         depth->dirty();
     }
 }
