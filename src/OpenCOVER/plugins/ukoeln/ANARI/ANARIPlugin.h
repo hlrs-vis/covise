@@ -57,6 +57,9 @@ public:
     static int loadHDRI(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadHDRI(const char *fileName, const char *);
 
+    static int loadXF(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadXF(const char *fileName, const char *);
+
 
     ANARIPlugin();
    ~ANARIPlugin();

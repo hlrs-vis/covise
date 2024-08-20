@@ -90,6 +90,10 @@ static FileHandler handlers[] = {
       ANARIPlugin::loadHDRI,
       ANARIPlugin::unloadHDRI,
       "hdr" },
+    { NULL,
+      ANARIPlugin::loadXF,
+      ANARIPlugin::unloadXF,
+      "xf" },
 };
 
 ANARIPlugin *ANARIPlugin::instance()
@@ -230,6 +234,55 @@ int ANARIPlugin::unloadHDRI(const char *fileName, const char *)
     if (plugin->renderer)
         plugin->renderer->unloadHDRI(fileName);
 
+    return 1;
+}
+
+int ANARIPlugin::loadXF(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->tfe) {
+        std::cout << "Loading transfer function from file: anari.xf" << std::endl;
+
+        std::ifstream is(fileName);
+        if (!is.good()) {
+            std::cerr << "Cannot open file" << std::endl;
+            return -1;
+        }
+
+        std::vector<glm::vec3> rgb;
+        std::vector<float> alpha;
+
+        unsigned numRGB, numAlpha;
+        is.read((char *)&numRGB, sizeof(numRGB));
+        rgb.resize(numRGB);
+        is.read((char *)rgb.data(), sizeof(rgb[0])*rgb.size());
+
+        is.read((char *)&numAlpha, sizeof(numAlpha));
+        alpha.resize(numAlpha);
+        is.read((char *)alpha.data(), sizeof(alpha[0])*alpha.size());
+
+        float absRangeLo=0.f, absRangeHi=1.f;
+        is.read((char *)&absRangeLo, sizeof(absRangeLo));
+        is.read((char *)&absRangeHi, sizeof(absRangeHi));
+
+        float relRangeLo=0.f, relRangeHi=1.f;
+        is.read((char *)&relRangeLo, sizeof(relRangeLo));
+        is.read((char *)&relRangeHi, sizeof(relRangeHi));
+
+        float opacityScale=1.f;
+        is.read((char *)&opacityScale, sizeof(opacityScale));
+
+        plugin->tfe->setTransfunc((const float *)rgb.data(), numRGB,
+                                  alpha.data(), numAlpha,
+                                  absRangeLo, absRangeHi,
+                                  relRangeLo, relRangeHi,
+                                  opacityScale);
+    }
+
+    return 1;
+}
+
+int ANARIPlugin::unloadXF(const char *fileName, const char *)
+{
     return 1;
 }
 
@@ -450,7 +503,7 @@ void ANARIPlugin::buildUI()
 
     tfe = new coTransfuncEditor;
 
-    tfe->setOpacityUpdateFunc([](const float *opacity, unsigned len, void *userData) {
+    tfe->setOpacityUpdateFunc([](const float *opacity, unsigned numOpacities, void *userData) {
         Renderer *renderer = (Renderer *)userData;
         if (!renderer) return;
 
@@ -459,8 +512,30 @@ void ANARIPlugin::buildUI()
         color.emplace_back(0.f, 0.f, 1.f);
         color.emplace_back(0.f, 1.f, 0.f);
         color.emplace_back(1.f, 0.f, 0.f);
-        renderer->setTransFunc(color.data(), color.size(), opacity, len);
+        renderer->setTransFunc(color.data(), color.size(), opacity, numOpacities);
     }, renderer.get());
+
+    tfe->setOnSaveFunc([](const float *color, unsigned numRGB,
+                          const float *opacity, unsigned numOpacity,
+                          float absRangeLo, float absRangeHi,
+                          float relRangeLo, float relRangeHi,
+                          float opacityScale, void *) {
+        std::cout << "Saving transfer function to file: anari.xf" << std::endl;
+        std::ofstream os("anari.xf");
+        if (!os.good()) {
+            std::cerr << "Cannot open file!" << std::endl;
+            return;
+        }
+        os.write((const char *)&numRGB, sizeof(numRGB));
+        os.write((const char *)color, sizeof(color[0])*numRGB*3);
+        os.write((const char *)&numOpacity, sizeof(numOpacity));
+        os.write((const char *)opacity, sizeof(color[0])*numOpacity);
+        os.write((const char *)&absRangeLo, sizeof(absRangeLo));
+        os.write((const char *)&absRangeHi, sizeof(absRangeHi));
+        os.write((const char *)&relRangeLo, sizeof(relRangeLo));
+        os.write((const char *)&relRangeHi, sizeof(relRangeHi));
+        os.write((const char *)&opacityScale, sizeof(opacityScale));
+    }, nullptr);
 
     if (this->previousRendererType != this->rendererType) {
         tearDownUI();

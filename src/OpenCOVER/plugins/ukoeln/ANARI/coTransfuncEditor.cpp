@@ -15,6 +15,7 @@
 #include <OpenVRUI/coAction.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <OpenVRUI/coFlatPanelGeometry.h>
+#include <OpenVRUI/coSquareButtonGeometry.h>
 #include <OpenVRUI/osg/OSGVruiPresets.h>
 #include <OpenVRUI/osg/OSGVruiTransformNode.h>
 #include <OpenVRUI/sginterface/vruiHit.h>
@@ -40,8 +41,8 @@ public:
         opacity.data.resize(width);
         for (int x=0; x<width; ++x) {
             opacity.data[x] = x/(width-1.f);
-            opacity.updated = true;
         }
+        opacity.updated = true;
 
         dcs->getNodePtr()->asGroup()->addChild(createGeode());
         coIntersection::getIntersectorForAction("coAction")->add(dcs, this);
@@ -56,6 +57,25 @@ public:
         dcs->removeAllChildren();
         dcs->removeAllParents();
         delete dcs;
+    }
+
+    void setTransfunc(const float *rgb, unsigned numRGB,
+                      const float *alpha, unsigned numAlpha,
+                      float absRangeLo, float absRangeHi,
+                      float relRangeLo, float relRangeHi,
+                      float opacityScale)
+    {
+        color.data.resize(numRGB);
+        std::memcpy(color.data.data(), rgb, sizeof(color.data[0])*color.data.size());
+        color.updated = true;
+
+        this->opacity.data.resize(numAlpha);
+        std::memcpy(opacity.data.data(), alpha, sizeof(opacity.data[0])*opacity.data.size());
+        opacity.updated = true;
+
+        updateColorImage();
+        updateAlphaImage();
+        geom->dirtyDisplayList();
     }
 
     void update()
@@ -74,7 +94,7 @@ public:
 
         if (color.updated) {
             if (color.updateFunc) color.updateFunc(color.data.data(),
-                                                   color.data.size(),
+                                                   color.data.size()/3,
                                                    color.userData);
         }
 
@@ -84,6 +104,30 @@ public:
                                                        opacity.userData);
             opacity.updated = false;
         }
+    }
+
+    void updateColorImage()
+    {
+        updateColorTextureData();
+        auto image = colorTexture->getImage();
+        if (!image) {
+            image = new osg::Image;
+            colorTexture->setImage(image);
+        }
+        image->setImage(color.data.size()/3, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                        colorTextureData.data(), osg::Image::NO_DELETE, 4);
+    }
+
+    void updateAlphaImage()
+    {
+        updateAlphaTextureData();
+        auto image = alphaTexture->getImage();
+        if (!image) {
+            image = new osg::Image;
+            alphaTexture->setImage(image);
+        }
+        image->setImage(width, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                        alphaTextureData.data(), osg::Image::NO_DELETE, 4);
     }
 
     int hit(vruiHit *hit)
@@ -130,14 +174,7 @@ public:
             xPrev = x;
             yPrev = y;
 
-            updateAlphaTextureData();
-            auto image = alphaTexture->getImage();
-            if (!image) {
-                image = new osg::Image;
-                alphaTexture->setImage(image);
-            }
-            image->setImage(width, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-                            alphaTextureData.data(), osg::Image::NO_DELETE, 4);
+            updateAlphaImage();
             geom->dirtyDisplayList();
 
             if (x >= 0.f && x <= width && y >= 0.f && y <= height)
@@ -202,12 +239,7 @@ public:
         colorTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
         colorTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
 
-        updateColorTextureData();
-
-        osg::ref_ptr<osg::Image> colorImage = new osg::Image;
-        colorImage->setImage(color.data.size()/3, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-                             colorTextureData.data(), osg::Image::NO_DELETE, 4);
-        colorTexture->setImage(colorImage.get());
+        updateColorImage();
 
         // alpha tex
         alphaTexture = new osg::Texture2D;
@@ -216,12 +248,7 @@ public:
         alphaTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER);
         alphaTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER);
 
-        updateAlphaTextureData();
-
-        osg::ref_ptr<osg::Image> alphaImage = new osg::Image;
-        alphaImage->setImage(width, height, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-                             alphaTextureData.data(), osg::Image::NO_DELETE, 4);
-        alphaTexture->setImage(alphaImage.get());
+        updateAlphaImage();
 
         stateset = new osg::StateSet;
         stateset->setGlobalDefaults();
@@ -292,6 +319,29 @@ public:
         opacity.updateFunc = func;
         opacity.userData = userData;
     }
+
+    const float *getColor() const
+    { return color.data.data(); }
+
+    unsigned getNumColors() const
+    { return color.data.size(); }
+
+    const float *getOpacity() const
+    { return opacity.data.data(); }
+
+    unsigned getNumOpacities() const
+    { return opacity.data.size(); }
+
+    // TODO:
+    typedef struct { float lo, hi; } Range;
+    Range getAbsRange() const
+    { return {0.f, 1.f}; }
+
+    Range getRelRange() const
+    { return {0.f, 1.f}; }
+
+    float getOpacityScale() const
+    { return 1.f; }
 private:
     float width=512.f, height=256.f;
     float margin=20.f;
@@ -334,11 +384,22 @@ coTransfuncEditor::coTransfuncEditor()
     handle = new coPopupHandle("TFE");
     canvas = new Canvas;
     panel->addElement(canvas);
-    panel->resize();
+
+    save = new coPushButton(new coSquareButtonGeometry("Volume/save"), this);
+    save->setPos(126, -16);
+    save->setSize(50);
 
     frame = new coFrame("UI/Frame");
     frame->addElement(panel);
+
+    auto *buttonPanel = new coPanel(new coFlatPanelGeometry(coUIElement::BLACK));
+    buttonPanel->addElement(save);
+    frame->addElement(buttonPanel);
+
     handle->addElement(frame);
+
+    panel->resize();
+    buttonPanel->resize();
 
     show();
 }
@@ -348,6 +409,17 @@ coTransfuncEditor::~coTransfuncEditor()
     delete handle;
     delete panel;
     delete frame;
+}
+
+void coTransfuncEditor::setTransfunc(const float *rgb, unsigned numRGB,
+                                     const float *opacity, unsigned numOpacities,
+                                     float absRangeLo, float absRangeHi,
+                                     float relRangeLo, float relRangeHi,
+                                     float opacityScale)
+{
+    canvas->setTransfunc(rgb, numRGB, opacity, numOpacities,
+                         absRangeLo, absRangeHi, relRangeLo, relRangeHi,
+                         opacityScale);
 }
 
 void coTransfuncEditor::show()
@@ -376,4 +448,31 @@ void coTransfuncEditor::setColorUpdateFunc(coColorUpdateFunc func, void *userDat
 void coTransfuncEditor::setOpacityUpdateFunc(coOpacityUpdateFunc func, void *userData)
 {
     canvas->setOpacityUpdateFunc(func, userData);
+}
+
+void coTransfuncEditor::setOnSaveFunc(coTransfuncOnSaveFunc func, void *userData)
+{
+    onSaveFunc = func;
+    onSaveUserData = userData;
+}
+
+void coTransfuncEditor::buttonEvent(vrui::coButton *button)
+{
+    const bool released = !button->isPressed();
+
+    if (released && button == save)
+    {
+        if (onSaveFunc) {
+            onSaveFunc(canvas->getColor(),
+                       canvas->getNumColors(),
+                       canvas->getOpacity(),
+                       canvas->getNumOpacities(),
+                       canvas->getAbsRange().lo,
+                       canvas->getAbsRange().hi,
+                       canvas->getRelRange().lo,
+                       canvas->getRelRange().hi,
+                       canvas->getOpacityScale(),
+                       onSaveUserData);
+        }
+    }
 }
