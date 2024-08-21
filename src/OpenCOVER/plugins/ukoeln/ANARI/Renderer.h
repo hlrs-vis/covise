@@ -267,7 +267,11 @@ private:
 #endif
 #ifdef HAVE_UMESH
         UMeshReader umeshReader;
-        typedef struct { std::string fileName; int fieldID; } UMeshScalarFile;
+        typedef struct {
+            std::string fileName;
+            int fieldID;
+            int slotID;
+        } UMeshScalarFile;
         // *optional* list of file names providing umesh scalars; in this case,
         // these files overwrite the umesh's perVertex (if it exists)
         std::vector<UMeshScalarFile> umeshScalarFiles;

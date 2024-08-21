@@ -149,7 +149,11 @@ struct Slot {
                 std::cout << "Failed parsing rank from file: " << fileName << '\n';
             } else {
                 mpiRank = (landerRank-1)%mpiSize;
-                std::cout << "Assigning " << fileName << " to rank " << mpiRank << '\n';
+                localID = (landerRank-1)/mpiSize;
+                std::cout << "Assigning " << fileName
+                          << " to rank " << mpiRank
+                          << ", localID: " << localID
+                          << '\n';
             }
         } else if (isLanderScalars(fileName)) {
             auto splt = string_split(base, '.');
@@ -158,14 +162,25 @@ struct Slot {
                 std::cout << "Failed parsing rank from file: " << fileName << '\n';
             } else {
                 mpiRank = (landerRank-1)%mpiSize;
-                std::cout << "Assigning " << fileName << " to rank " << mpiRank << '\n';
+                localID = (landerRank-1)/mpiSize;
+                std::cout << "Assigning " << fileName
+                          << " to rank " << mpiRank
+                          << ", localID: " << localID
+                          << '\n';
             }
         } else { // not recognized: round-robin
           int ID = getID(fileName);
           mpiRank = ID%mpiSize;
         }
     }
+    
+    // Rank the file is assigned to
     int mpiRank{0};
+
+    // ID of the file, across all files assigned to this rank
+    int localID{0};
+
+    // Time step
     int timeStep{0};
 };
 
@@ -362,7 +377,7 @@ void Renderer::loadUMeshFile(std::string fn)
     }
 
     // deferred!
-    if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
+    if (unstructuredVolumeData.umeshReader.open(fn.c_str(), slot.localID)) {
         unstructuredVolumeData.fileName = fn;
         unstructuredVolumeData.readerType = UMESH;
         unstructuredVolumeData.updated = true;
@@ -384,7 +399,7 @@ void Renderer::loadUMeshScalars(std::string fn)
         return;
     }
 
-    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0});
+    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0, slot.localID});
 #endif
 }
 
@@ -1601,7 +1616,8 @@ void Renderer::initUnstructuredVolume()
     if (unstructuredVolumeData.readerType == UMESH) {
 #ifdef HAVE_UMESH
         for (const auto &sf : unstructuredVolumeData.umeshScalarFiles) {
-            unstructuredVolumeData.umeshReader.addFieldFromFile(sf.fileName.c_str(), sf.fieldID);
+            unstructuredVolumeData.umeshReader.addFieldFromFile(
+                sf.fileName.c_str(), sf.fieldID, sf.slotID);
         }
         unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
 #else
