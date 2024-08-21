@@ -7,6 +7,7 @@
 
 //-*-c++-*-
 
+#include <cstring>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/StateSet>
