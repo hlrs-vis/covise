@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <cstdio>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #ifdef ANARI_PLUGIN_HAVE_MPI
@@ -58,6 +59,20 @@ void statusFunc(const void *userData,
         fprintf(stderr, "[INFO] %s\n", message);
 }
 
+static std::vector<std::string> string_split(std::string s, char delim)
+{
+    std::vector<std::string> result;
+
+    std::istringstream stream(s);
+
+    for (std::string token; std::getline(stream, token, delim); )
+    {
+        result.push_back(token);
+    }
+
+    return result;
+}
+
 static std::string getExt(const std::string &fileName)
 {
     int pos = fileName.rfind('.');
@@ -84,6 +99,7 @@ FileType getFileType(const std::string &fileName)
     if (ext == ".obj") return OBJ;
     else if (ext == ".umesh") return UMesh;
     else if (ext == ".scalars") return UMeshScalars;
+    else if (ext == ".floats") return UMeshScalars;
     else if (ext == ".vtu") return VTU;
     else if (ext == ".vtk") return VTK;
     else return Unknown;
@@ -107,12 +123,47 @@ int getID(std::string fileName) {
     return ID;
 }
 
+inline
+bool isLanderUMesh(std::string fileName) {
+    return getFileType(fileName) == UMesh
+        && fileName.find("lander-small") != std::string::npos;
+}
+
+inline
+bool isLanderScalars(std::string fileName) {
+    return getFileType(fileName) == UMeshScalars
+        && fileName.find("lander-small__var_") != std::string::npos;
+}
+
 struct Slot {
     Slot() = default;
     Slot(std::string fileName, int mpiSize) {
-        int ID = getID(fileName);
-        // round-robin:
-        mpiRank = ID%mpiSize;
+        namespace fs = std::filesystem;
+        std::string base = fs::path(fileName).filename().string();
+
+        // special handling for file names we recognize:
+        if (isLanderUMesh(fileName)) {
+            auto splt = string_split(base, '.');
+            int landerRank = std::stoi(splt[1]);
+            if (landerRank <= 0 || landerRank > 72) {
+                std::cout << "Failed parsing rank from file: " << fileName << '\n';
+            } else {
+                mpiRank = (landerRank-1)%mpiSize;
+                std::cout << "Assigning " << fileName << " to rank " << mpiRank << '\n';
+            }
+        } else if (isLanderScalars(fileName)) {
+            auto splt = string_split(base, '.');
+            int landerRank = std::stoi(splt[1]);
+            if (landerRank <= 0 || landerRank > 72) {
+                std::cout << "Failed parsing rank from file: " << fileName << '\n';
+            } else {
+                mpiRank = (landerRank-1)%mpiSize;
+                std::cout << "Assigning " << fileName << " to rank " << mpiRank << '\n';
+            }
+        } else { // not recognized: round-robin
+          int ID = getID(fileName);
+          mpiRank = ID%mpiSize;
+        }
     }
     int mpiRank{0};
     int timeStep{0};
@@ -134,20 +185,6 @@ static bool deviceHasExtension(anari::Library library,
             return true;
     }
     return false;
-}
-
-static std::vector<std::string> string_split(std::string s, char delim)
-{
-    std::vector<std::string> result;
-
-    std::istringstream stream(s);
-
-    for (std::string token; std::getline(stream, token, delim); )
-    {
-        result.push_back(token);
-    }
-
-    return result;
 }
 
 inline glm::mat4 osg2glm(const osg::Matrix &m)
