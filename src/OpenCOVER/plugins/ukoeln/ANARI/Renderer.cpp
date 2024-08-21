@@ -9,6 +9,16 @@
 #include <filesystem>
 #include <iostream>
 #include <sstream>
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <sys/time.h>
+#endif
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
 #ifdef ANARI_PLUGIN_HAVE_MPI
 #include <mpi.h>
 #endif
@@ -32,6 +42,8 @@
 
 using namespace covise;
 using namespace opencover;
+
+// #define TIMING
 
 #define OU_VIEWPORT_UPDATED  0x1
 #define OU_CAMERA_UPDATED    0x2
@@ -57,6 +69,26 @@ void statusFunc(const void *userData,
         fprintf(stderr, "[PERF ] %s\n", message);
     else if (severity == ANARI_SEVERITY_INFO)
         fprintf(stderr, "[INFO] %s\n", message);
+}
+
+inline double getCurrentTime()
+{
+#ifdef _WIN32
+  SYSTEMTIME tp; GetSystemTime(&tp);
+  /*
+     Please note: we are not handling the "leap year" issue.
+ */
+  size_t numSecsSince2020
+      = tp.wSecond
+      + (60ull) * tp.wMinute
+      + (60ull * 60ull) * tp.wHour
+      + (60ull * 60ul * 24ull) * tp.wDay
+      + (60ull * 60ul * 24ull * 365ull) * (tp.wYear - 2020);
+  return double(numSecsSince2020 + tp.wMilliseconds * 1e-3);
+#else
+  struct timeval tp; gettimeofday(&tp,nullptr);
+  return double(tp.tv_sec) + double(tp.tv_usec)/1E6;
+#endif
 }
 
 static std::vector<std::string> string_split(std::string s, char delim)
@@ -1097,8 +1129,15 @@ void Renderer::renderFrame(unsigned chan)
         updateLights(glm2osg(mm));
     }
 
+    #ifdef TIMING
+    double t0 = getCurrentTime();
+    #endif
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
+    #ifdef TIMING
+    double t1 = getCurrentTime();
+    std::cout << "renderFrame() takes " << (t1-t0) << " sec.\n";
+    #endif
 
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
