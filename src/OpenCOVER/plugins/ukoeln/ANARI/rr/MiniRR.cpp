@@ -70,6 +70,13 @@ struct State
   } bounds;
 
   struct {
+    std::vector<std::string> names;
+    std::vector<int> types;
+    std::vector<std::vector<uint8_t>> values;
+    bool updated{false};
+  } appParams;
+
+  struct {
     std::vector<float> rgb;
     std::vector<float> alpha;
     uint32_t numRGB{0};
@@ -282,6 +289,59 @@ void MiniRR::recvBounds(AABB &bounds)
   unlock();
 }
 
+void MiniRR::sendAppParams(const Param *params, unsigned numParams)
+{
+  lock();
+  sendState->appParams.names.resize(numParams);
+  sendState->appParams.types.resize(numParams);
+  sendState->appParams.values.resize(numParams);
+  for (unsigned i=0; i<numParams; ++i) {
+    sendState->appParams.names[i] = params[i].name;
+    sendState->appParams.types[i] = params[i].type;
+    sendState->appParams.values[i].resize(params[i].sizeInBytes);
+    std::memcpy(sendState->appParams.values[i].data(),
+                params[i].value,
+                params[i].sizeInBytes);
+  }
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write(numParams);
+  for (unsigned i=0; i<numParams; ++i) {
+    buf->write(sendState->appParams.names[i]);
+    buf->write(sendState->appParams.types[i]);
+    buf->write((uint64_t)sendState->appParams.values[i].size());
+    buf->write((const char *)sendState->appParams.values[i].data(),
+               sendState->appParams.values[i].size());
+  }
+  write(MessageType::SendAppParams, buf);
+}
+
+void MiniRR::recvAppParams(Param *params, unsigned &numParams)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvAppParams, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvAppParams].mtx);
+  sync[SyncPoints::RecvAppParams].cv.wait(
+      l, [this]() { return recvState->appParams.updated; });
+  l.unlock();
+
+  lock();
+
+  numParams = recvState->appParams.names.size();
+  for (unsigned i=0; i<numParams; ++i) {
+    params[i].name = recvState->appParams.names[i];
+    params[i].type = recvState->appParams.types[i];
+    params[i].value = recvState->appParams.values[i].data();
+    params[i].sizeInBytes = recvState->appParams.values[i].size();
+  }
+
+  recvState->appParams.updated = false;
+
+  unlock();
+}
+
 void MiniRR::sendTransfunc(const Transfunc &transfunc)
 {
   lock();
@@ -348,7 +408,7 @@ void MiniRR::recvTransfunc(Transfunc &transfunc)
   unlock();
 }
 
-void MiniRR::sendImage(const uint32_t *img, int width, int height)
+void MiniRR::sendImage(const uint32_t *img, int width, int height, int jpegQuality)
 {
   lock();
 
@@ -356,7 +416,7 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height)
   options.width = width;
   options.height = height;
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
-  options.quality = 80;
+  options.quality = jpegQuality;
 
   sendState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
 
@@ -389,7 +449,7 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height)
   write(MessageType::SendImage, buf);
 }
 
-void MiniRR::recvImage(uint32_t *img, int &width, int &height)
+void MiniRR::recvImage(uint32_t *img, int &width, int &height, int jpegQuality)
 {
   auto buf = std::make_shared<Buffer>();
   write(MessageType::RecvImage, buf);
@@ -408,7 +468,7 @@ void MiniRR::recvImage(uint32_t *img, int &width, int &height)
   options.width = width;
   options.height = height;
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
-  options.quality = 80;
+  options.quality = jpegQuality;
 
   #ifdef TIMING
   double t0 = getCurrentTime();
@@ -512,6 +572,25 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     recvState->bounds.updated = true;
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendAppParams) {
+    lock();
+    unsigned numParams{0};
+    buf->read(numParams);
+    recvState->appParams.names.resize(numParams);
+    recvState->appParams.types.resize(numParams);
+    recvState->appParams.values.resize(numParams);
+    for (unsigned i=0; i<numParams; ++i) {
+      buf->read(recvState->appParams.names[i]);
+      buf->read(recvState->appParams.types[i]);
+      uint64_t sizeInBytes{0};
+      buf->read(sizeInBytes);
+      recvState->appParams.values[i].resize(sizeInBytes);
+      buf->read((char *)recvState->appParams.values[i].data(), sizeInBytes);
+    }
+    recvState->appParams.updated = true;
+    unlock();
+    sync[SyncPoints::RecvAppParams].cv.notify_all();
   }
   else if (message->type() == MessageType::SendTransfunc) {
     lock();

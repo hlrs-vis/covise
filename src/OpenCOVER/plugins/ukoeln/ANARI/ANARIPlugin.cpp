@@ -468,9 +468,22 @@ void ANARIPlugin::buildUI()
     auto *colorByRankButton = new ui::Button(debugMenu, "Color by MPI rank");
     colorByRankButton->setState(false);
     colorByRankButton->setCallback([=](bool value) {
-        renderer->setColorRanks(value);
+        renderer->setParam("debug.colorByRank", DataType::Bool, value);
     });
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (!remoteMenu)
+        remoteMenu = new ui::Menu(anariMenu, "Remote rendering");
+
+    auto *jpegQualitySlider = new ui::Slider(remoteMenu, "JPEG quality");
+    jpegQualitySlider->setIntegral(true);
+    jpegQualitySlider->setBounds(0,100);
+    jpegQualitySlider->setValue(renderer->getParam("rr.jpegQuality").as<int>());
+    jpegQualitySlider->setCallback([=](int value, bool /*release*/) {
+        renderer->setParam("rr.jpegQuality", DataType::Int32, value);
+    });
+#endif
+        
     if (!rendererMenu)
         rendererMenu = new ui::Menu(anariMenu, "Renderer");
 

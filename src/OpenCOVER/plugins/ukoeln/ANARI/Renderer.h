@@ -1,5 +1,4 @@
 /* This file is part of COVISE.
-
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
 
@@ -25,6 +24,7 @@
 #include "readUMesh.h"
 #include "readVTK.h"
 #include "ui_anari.h"
+#include "Param.h"
 #include "Projection.h"
 #ifdef ANARI_PLUGIN_HAVE_RR
 #include <MiniRR.h>
@@ -87,6 +87,10 @@ public:
     void loadHDRI(std::string fileName);
     void unloadHDRI(std::string fileName);
 
+    // Application params:
+    void setParam(std::string name, DataType type, std::any value);
+    Param getParam(std::string name);
+
     void setRendererType(std::string type);
 
     std::vector<std::string> getRendererTypes();
@@ -105,9 +109,6 @@ public:
 
     void setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
                       const float *opacity, unsigned numOpacity);
-
-    // volume debug mode where MPI rank IDs are assigned random colors
-    void setColorRanks(bool value);
 
     void wait();
 
@@ -188,7 +189,12 @@ private:
 
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
 
-    bool colorByRank{false};
+    Param params[2] = {
+      // debug
+      {"debug.colorByRank", DataType::Bool, false},
+      // remote rendering
+      {"rr.jpegQuality", DataType::Int32, 80},
+    };
 
     void generateTransFunc();
 

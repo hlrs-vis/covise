@@ -31,6 +31,14 @@ struct Camera
   Mat4 modelMatrix, viewMatrix, projMatrix;
 };
 
+struct Param
+{
+  std::string name;
+  int type;
+  uint8_t *value{nullptr};
+  unsigned sizeInBytes{0};
+};
+
 struct Transfunc
 {
   float *rgb{nullptr};
@@ -62,23 +70,26 @@ struct MiniRR
   void sendNumChannels(const int &numChannels);
   void recvNumChannels(int &numChannels);
 
+  void sendObjectUpdates(const uint64_t &objectUpdates);
+  void recvObjectUpdates(uint64_t &objectUpdates);
+
   void sendViewport(const Viewport &viewport);
   void recvViewport(Viewport &viewport);
 
   void sendCamera(const Camera &camera);
   void recvCamera(Camera &camera);
 
-  void sendObjectUpdates(const uint64_t &objectUpdates);
-  void recvObjectUpdates(uint64_t &objectUpdates);
-
   void sendBounds(const AABB &bounds);
   void recvBounds(AABB &bounds);
+
+  void sendAppParams(const Param *params, unsigned numParams);
+  void recvAppParams(Param *params, unsigned &numParams);
 
   void sendTransfunc(const Transfunc &transfunc);
   void recvTransfunc(Transfunc &transfunc);
  
-  void sendImage(const uint32_t *img, int width, int height);
-  void recvImage(uint32_t *img, int &width, int &height);
+  void sendImage(const uint32_t *img, int width, int height, int jpegQuality);
+  void recvImage(uint32_t *img, int &width, int &height, int jpegQuality);
 
  private:
 
@@ -97,14 +108,16 @@ struct MiniRR
       ConnectionEstablished, // internal!
       SendNumChannels,
       RecvNumChannels,
+      SendObjectUpdates,
+      RecvObjectUpdates,
       SendViewport,
       RecvViewport,
       SendCamera,
       RecvCamera,
-      SendObjectUpdates,
-      RecvObjectUpdates,
       SendBounds,
       RecvBounds,
+      SendAppParams,
+      RecvAppParams,
       SendTransfunc,
       RecvTransfunc,
       SendImage,

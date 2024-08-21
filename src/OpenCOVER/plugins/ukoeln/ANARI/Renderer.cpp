@@ -45,10 +45,12 @@ using namespace opencover;
 
 // #define TIMING
 
-#define OU_VIEWPORT_UPDATED  0x1
-#define OU_CAMERA_UPDATED    0x2
-#define OU_BOUNDS_UPDATED    0x4
-#define OU_TRANSFUNC_UPDATED 0x8
+#define OU_VIEWPORT_UPDATED      0x1
+#define OU_CAMERA_UPDATED        0x2
+#define OU_BOUNDS_UPDATED        0x4
+#define OU_TRANSFUNC_UPDATED     0x8
+#define OU_APP_PARAMS_UPDATED   0x10
+#define OU_ANARI_PARAMS_UPDATED 0x20
 
 void statusFunc(const void *userData,
     ANARIDevice device,
@@ -811,12 +813,41 @@ void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
     objectUpdates |= OU_TRANSFUNC_UPDATED;
 }
 
-void Renderer::setColorRanks(bool value)
+void Renderer::setParam(std::string name, DataType type, std::any value)
 {
-    colorByRank = value;
-    generateTransFunc();
-    transFunc.updated = true;
-    objectUpdates |= OU_TRANSFUNC_UPDATED;
+    unsigned numParams = sizeof(params)/sizeof(params[0]);
+    bool found=false;
+    for (unsigned i=0; i<numParams; ++i) {
+        if (params[i].name == name && params[i].type == type) {
+            params[i].value = value;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        std::cerr << "no param: " << name << " of type " << toString(type) << std::endl;
+        return;
+    }
+
+    objectUpdates |= OU_APP_PARAMS_UPDATED;
+
+    // special handling for some params (TODO: deferred?!)
+    if (name == "debug.colorByRank") {
+        generateTransFunc();
+        transFunc.updated = true;
+        objectUpdates |= OU_TRANSFUNC_UPDATED;
+    }
+}
+
+Param Renderer::getParam(std::string name)
+{
+    unsigned numParams = sizeof(params)/sizeof(params[0]);
+    for (unsigned i=0; i<numParams; ++i) {
+        if (params[i].name == name) return params[i];
+    }
+
+    return {};
 }
 
 void Renderer::wait()
@@ -957,6 +988,27 @@ void Renderer::renderFrame(unsigned chan)
             std::memcpy(rrCamera.projMatrix, &pr[0], sizeof(rrCamera.projMatrix));
             rr->sendCamera(rrCamera);
         }
+
+        if (myObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            constexpr unsigned numParams = sizeof(params)/sizeof(params[0]);
+            minirr::Param rrParams[numParams];
+
+            typedef std::vector<uint8_t> ByteArray;
+            std::vector<ByteArray> byteArrays(numParams);
+
+            for (unsigned i=0; i<numParams; ++i) {
+                rrParams[i].name = params[i].name;
+                rrParams[i].type = (int)params[i].type;
+                size_t len = sizeInBytes(params[i].type);
+                byteArrays[i].resize(len);
+                params[i].serialize(byteArrays[i].data());
+                rrParams[i].value = byteArrays[i].data();
+                rrParams[i].sizeInBytes = len;
+            }
+
+            rr->sendAppParams(rrParams, numParams);
+        }
     
         if (myObjectUpdates & OU_TRANSFUNC_UPDATED)
         {
@@ -991,6 +1043,21 @@ void Renderer::renderFrame(unsigned chan)
             std::memcpy(&vv[0], rrCamera.viewMatrix, sizeof(rrCamera.viewMatrix));
             std::memcpy(&pr[0], rrCamera.projMatrix, sizeof(rrCamera.projMatrix));
             mv = vv*mm;
+        }
+
+        if (peerObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            constexpr unsigned numParams = sizeof(params)/sizeof(params[0]);
+            minirr::Param rrParams[numParams];
+            unsigned numParamsReceived{0};
+            rr->recvAppParams(rrParams, numParamsReceived);
+            assert(numParamsReceived==numParams);
+
+            for (unsigned i=0; i<numParams; ++i) {
+                params[i].name = rrParams[i].name;
+                params[i].type = (DataType)rrParams[i].type;
+                params[i].unserialize(rrParams[i].value);
+            }
         }
 
         if (peerObjectUpdates & OU_TRANSFUNC_UPDATED)
@@ -1142,7 +1209,8 @@ void Renderer::renderFrame(unsigned chan)
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
         imageBuffer.resize(info.frame.width*info.frame.height);
-        rr->recvImage(imageBuffer.data(), info.frame.width, info.frame.height);
+        rr->recvImage(imageBuffer.data(), info.frame.width, info.frame.height,
+                      getParam("rr.jpegQuality").as<int32_t>());
     }
 
     if (isServer) {
@@ -1154,7 +1222,8 @@ void Renderer::renderFrame(unsigned chan)
                                                                     &widthOUT,
                                                                     &heightOUT,
                                                                     &typeOUT);
-        rr->sendImage(fbPointer, widthOUT, heightOUT);
+        rr->sendImage(fbPointer, widthOUT, heightOUT,
+                      getParam("rr.jpegQuality").as<int32_t>());
     }
 #endif
 
@@ -1732,7 +1801,7 @@ void Renderer::generateTransFunc()
     transFunc.colors.clear();
     transFunc.opacities.clear();
 
-    if (colorByRank) {
+    if (getParam("debug.colorByRank").as<bool>()) {
         auto c = randomColor(mpiRank);
         transFunc.colors.emplace_back(c.x, c.y, c.z);
     } else {
