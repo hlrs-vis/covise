@@ -164,21 +164,21 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
 }
 } // namespace
 
-EnergyPlugin *EnergyPlugin::plugin = NULL;
+EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
 
 EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
 {
     fprintf(stderr, "Starting Energy Plugin\n");
-    plugin = this;
+    m_plugin = this;
 
     m_buildings = std::make_unique<ennovatis::Buildings>();
 
-    EnergyGroup = new osg::Group();
-    EnergyGroup->setName("Energy");
-    cover->getObjectsRoot()->addChild(EnergyGroup);
+    m_EnergyGroup = new osg::Group();
+    m_EnergyGroup->setName("Energy");
+    cover->getObjectsRoot()->addChild(m_EnergyGroup);
 
-    sequenceList = new osg::Sequence();
-    sequenceList->setName("DB");
+    m_sequenceList = new osg::Sequence();
+    m_sequenceList->setName("DB");
     m_ennovatis = new osg::Group();
     m_ennovatis->setName("Ennovatis");
     
@@ -186,17 +186,17 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
     m_switch = new osg::Switch();
     m_switch->setName("Switch");
-    m_switch->addChild(sequenceList);
+    m_switch->addChild(m_sequenceList);
     m_switch->addChild(m_ennovatis);
 
     EnergyGroupMT->addChild(m_switch);
-    EnergyGroup->addChild(EnergyGroupMT);
+    m_EnergyGroup->addChild(EnergyGroupMT);
 
     GDALAllRegister();
 
     SDlist.clear();
 
-    EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::plugin);
+    EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::m_plugin);
     EnergyTab->setText("Energy Campus");
 
     // db
@@ -362,7 +362,7 @@ void EnergyPlugin::switchTo(const osg::Node *child)
 
 void EnergyPlugin::setComponent(Components c)
 {
-    switchTo(sequenceList);
+    switchTo(m_sequenceList);
     switch (c) {
     case Strom:
         StromBt->setState(true, false);
@@ -389,8 +389,8 @@ bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
         return false;
     }
 
-    if ((int)sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps()) {
-        coVRAnimationManager::instance()->setNumTimesteps(sequenceList->getNumChildren(), sequenceList);
+    if ((int)m_sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps()) {
+        coVRAnimationManager::instance()->setNumTimesteps(m_sequenceList->getNumChildren(), m_sequenceList);
     }
 
     rad = 3.;
@@ -554,7 +554,7 @@ bool EnergyPlugin::init()
             std::cout << building->getName() << std::endl;
     }
     initEnnovatisDevices();
-    switchTo(sequenceList);
+    switchTo(m_sequenceList);
     return true;
 }
 
@@ -564,8 +564,8 @@ void EnergyPlugin::helper_initTimestepGrp(size_t maxTimesteps, osg::ref_ptr<osg:
         timestepGroup = new osg::Group();
         std::string groupName = "timestep" + std::to_string(t);
         timestepGroup->setName(groupName);
-        sequenceList->addChild(timestepGroup);
-        sequenceList->setValue(t);
+        m_sequenceList->addChild(timestepGroup);
+        m_sequenceList->setValue(t);
     }
 }
 
@@ -621,7 +621,7 @@ void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, con
         diT->strom = strom_val / 1000.; // kW -> MW
         auto timestep = year - 2000;
         diT->timestep = timestep;
-        Device *sd = new Device(diT, sequenceList->getChild(timestep)->asGroup());
+        Device *sd = new Device(diT, m_sequenceList->getChild(timestep)->asGroup());
         SDlist[di->ID].push_back(sd);
     }
 }
@@ -704,14 +704,14 @@ bool EnergyPlugin::update()
 
 void EnergyPlugin::setTimestep(int t)
 {
-    sequenceList->setValue(t);
+    m_sequenceList->setValue(t);
     for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->setTimestep(t);
 }
 
 bool EnergyPlugin::destroy()
 {
-    cover->getObjectsRoot()->removeChild(EnergyGroup);
+    cover->getObjectsRoot()->removeChild(m_EnergyGroup);
     return false;
 }
 
