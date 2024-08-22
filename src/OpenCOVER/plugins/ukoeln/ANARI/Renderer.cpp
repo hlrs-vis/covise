@@ -1545,12 +1545,7 @@ void Renderer::initStructuredVolume()
         structuredVolumeData.rgbLUT.resize(15);
         structuredVolumeData.alphaLUT.resize(5);
 
-        anari.lut = asgNewLookupTable1D(structuredVolumeData.rgbLUT.data(),
-                                        structuredVolumeData.alphaLUT.data(),
-                                        structuredVolumeData.alphaLUT.size(),
-                                        nullptr);
-        ASG_SAFE_CALL(asgMakeDefaultLUT1D(anari.lut, ASG_LUT_ID_DEFAULT_LUT));
-        ASG_SAFE_CALL(asgStructuredVolumeSetLookupTable1D(anari.structuredVolume, anari.lut));
+        initTransFunc();
 
         ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.structuredVolume));
 
@@ -1753,6 +1748,22 @@ void Renderer::generateTransFunc()
 
 void Renderer::initTransFunc()
 {
+    if (anari.structuredVolume)
+    {
+        ANARIVolume anariVolume;
+        asgStructuredVolumeGetAnariHandle(anari.structuredVolume, &anariVolume);
+
+        if (anariVolume) {
+            anari::setAndReleaseParameter(
+                anari.device, anariVolume, "color",
+                anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
+            anari::setAndReleaseParameter(
+                anari.device, anariVolume, "opacity",
+                anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
+            anari::commitParameters(anari.device, anariVolume);
+        }
+    }
+
     if (anari.amrVolume.volume)
     {
         anari::setAndReleaseParameter(

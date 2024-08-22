@@ -1463,6 +1463,13 @@ ASGStructuredVolume asgNewStructuredVolume(void* data, int32_t width, int32_t he
     return vol;
 }
 
+ASGAPI ASGError_t asgStructuredVolumeGetAnariHandle(ASGStructuredVolume vol,
+                                                    ANARIVolume* handle)
+{
+    *handle = ((StructuredVolume*)vol->impl)->anariVolume;
+    return ASG_ERROR_NO_ERROR;
+}
+
 ASGError_t asgStructuredVolumeGetData(ASGStructuredVolume vol, void** data)
 {
     *data = ((StructuredVolume*)vol->impl)->data;
@@ -3131,7 +3138,7 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                 float valueRange[2] = {0.f,1.f};
                 //anariSetParameter(anari->device,vol->anariVolume,"valueRange",ANARI_FLOAT32_BOX1,&valueRange);
 
-                anariSetParameter(anari->device,vol->anariVolume,"field",
+                anariSetParameter(anari->device,vol->anariVolume,"value",
                                   ANARI_SPATIAL_FIELD, &vol->anariSpatialField);
 
                 anariCommitParameters(anari->device, vol->anariVolume);
