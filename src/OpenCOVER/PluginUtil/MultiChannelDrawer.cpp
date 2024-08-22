@@ -1067,9 +1067,9 @@ void MultiChannelDrawer::clearDepth(int idx) {
     
         float *depth = (float *)texRect->resourceData();
         if (vd.depthFormat == GL_FLOAT) {
-            std::fill(depth, 
-                      depth+texRect->getTotalSizeInBytes()/4,
-                      1.f);
+            thrust::fill(depth, 
+                         depth+texRect->getTotalSizeInBytes()/4,
+                         1.f);
         } else {
             throw std::runtime_error("MultiChannelDrawer::clearDepth() unimplemented for format!");
         }
