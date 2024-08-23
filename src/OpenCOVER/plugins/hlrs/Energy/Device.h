@@ -16,11 +16,11 @@
 #include <osg/ShapeDrawable>
 #include <osgText/Text>
 
-class DeviceSensor;
+namespace energy {
 
-class DeviceInfo
-{
+struct DeviceInfo {
 public:
+    typedef std::shared_ptr<DeviceInfo> ptr;
     DeviceInfo(){};
     DeviceInfo(DeviceInfo &d)
     {
@@ -36,7 +36,6 @@ public:
         ID = d.ID;
         strasse = d.strasse;
     }
-    ~DeviceInfo(){};
     float lat;
     float lon;
     float height = 0.f;
@@ -51,33 +50,34 @@ public:
     std::string name = "NONE";
 };
 
-class Device
-{
+class Device {
 public:
-    Device(DeviceInfo *d, osg::Group *parent);
+    typedef std::shared_ptr<Device> ptr;
+    Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent);
     ~Device();
+    Device(const Device &other) = delete;
+    Device &operator=(const Device &) = delete;
     void init(float r, float sH, int c);
-
-    DeviceInfo *devInfo;
-    DeviceSensor *devSensor;
-
     void update();
     void activate();
     void disactivate();
     void showInfo();
     bool getStatus() { return InfoVisible; }
     osg::Vec4 getColor(float val, float max);
+    osg::ref_ptr<osg::Group> getGroup() { return deviceGroup; }
+    const DeviceInfo::ptr getInfo() { return devInfo; }
 
+private:
+    DeviceInfo::ptr devInfo;
     osg::ref_ptr<osg::Group> myParent;
     osg::ref_ptr<osg::Group> TextGeode;
     osg::ref_ptr<opencover::coBillboard> BBoard;
     osg::ref_ptr<osg::Group> deviceGroup;
     osg::ref_ptr<osg::Geode> geoBars;
-
-private:
     float h = 1.f;
     float w = 2.f;
     float rad;
     bool InfoVisible = false;
 };
+} // namespace energy
 #endif

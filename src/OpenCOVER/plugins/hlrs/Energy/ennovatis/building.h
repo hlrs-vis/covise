@@ -16,11 +16,14 @@ namespace ennovatis {
  */
 class Building {
 public:
+    // typedef std::shared_ptr<Building> ptr;
     Building(const std::string &name, const std::string &id, const std::string &street)
     : m_name(name), m_id(id), m_street(street), m_y(0), m_x(0), m_height(0){};
     Building(const std::string &name, const std::string &id): Building(name, id, ""){};
     Building(const std::string &name): Building(name, "", ""){};
     ~Building() = default;
+    Building(const Building &other) = default;
+    Building &operator=(const Building &other) = default;
 
     /**
      * @brief Adds a channel to the building.

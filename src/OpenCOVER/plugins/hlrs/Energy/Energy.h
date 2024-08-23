@@ -47,6 +47,7 @@
 #include <gdal_priv.h>
 
 #include "Device.h"
+#include "DeviceSensor.h"
 #include "EnnovatisDeviceSensor.h"
 #include "ennovatis/rest.h"
 #include "ennovatis/building.h"
@@ -74,19 +75,22 @@ public:
     static EnergyPlugin *instance() { return m_plugin; };
 
 private:
+    // typedef const ennovatis::Building *building_const_ptr;
+    // typedef const ennovatis::Buildings *buildings_const_Ptr;
     typedef const ennovatis::Building *building_const_ptr;
     typedef const ennovatis::Buildings *buildings_const_Ptr;
     typedef std::vector<building_const_ptr> const_buildings;
-    typedef std::map<Device *, building_const_ptr> DeviceBuildingMap;
-    typedef std::map<std::string, std::vector<Device *>> DeviceList;
-    DeviceList SDlist;
+    typedef std::map<energy::Device::ptr, building_const_ptr> DeviceBuildingMap;
+    // typedef std::vector<ennovatis::Building::ptr> const_buildings;
+    // typedef std::map<energy::Device::ptr, ennovatis::Building::ptr> DeviceBuildingMap;
+    typedef std::map<std::string, std::vector<energy::DeviceSensor::ptr>> DeviceList;
 
     void helper_initTimestepGrp(size_t maxTimesteps, osg::ref_ptr<osg::Group> &timestepGroup);
     void helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &minYear, const std::vector<std::string> &header);
-    void helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, DeviceInfo *di, const double &lat,
-                                   const double &lon);
+    void helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, energy::DeviceInfo::ptr deviceInfoPtr,
+                                   const double &lat, const double &lon);
     void helper_handleEnergyInfo(size_t maxTimesteps, int minYear, const opencover::utils::read::CSVStream::CSVRow &row,
-                                 DeviceInfo *di);
+                                 energy::DeviceInfo::ptr deviceInfoPtr);
     bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
     bool loadDB(const std::string &path, const ProjTrans &projTrans);
     void initRESTRequest();
@@ -98,7 +102,7 @@ private:
     void reinitDevices(int comp);
     void updateEnnovatisChannelGrp();
     void initEnnovatisDevices();
-    void switchTo(const osg::Node *child);
+    void switchTo(const osg::ref_ptr<osg::Node> child);
 
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -121,32 +125,34 @@ private:
      * @return A unique pointer to buildings which have ne matching device.
      */
     std::unique_ptr<const_buildings> updateEnnovatisBuildings(const DeviceList &deviceList);
+    // std::unique_ptr<ennovatis::Buildings> updateEnnovatisBuildings(const DeviceList &deviceList);
 
     static EnergyPlugin *m_plugin;
 
-    opencover::coTUITab *coEnergyTab = nullptr;
-    opencover::ui::Menu *EnergyTab = nullptr;
-    opencover::ui::Button *ShowGraph = nullptr;
-    opencover::ui::ButtonGroup *componentGroup = nullptr;
-    opencover::ui::Group *componentList = nullptr;
-    opencover::ui::Button *StromBt = nullptr;
-    opencover::ui::Button *WaermeBt = nullptr;
-    opencover::ui::Button *KaelteBt = nullptr;
+    std::shared_ptr<opencover::coTUITab> coEnergyTab = nullptr;
+    std::shared_ptr<opencover::ui::Menu> EnergyTab = nullptr;
+    std::shared_ptr<opencover::ui::Button> ShowGraph = nullptr;
+    std::shared_ptr<opencover::ui::ButtonGroup> componentGroup = nullptr;
+    std::shared_ptr<opencover::ui::Group> componentList = nullptr;
+    std::shared_ptr<opencover::ui::Button> StromBt = nullptr;
+    std::shared_ptr<opencover::ui::Button> WaermeBt = nullptr;
+    std::shared_ptr<opencover::ui::Button> KaelteBt = nullptr;
 
     // ennovatis UI
-    opencover::ui::SelectionList *m_ennovatisSelectionsList = nullptr;
-    opencover::ui::Group *m_ennovatisGroup = nullptr;
-    opencover::ui::EditField *m_ennovatisFrom = nullptr;
-    opencover::ui::EditField *m_ennovatisTo = nullptr;
-    opencover::ui::Button *m_ennovatisUpdate = nullptr;
+    std::shared_ptr<opencover::ui::SelectionList> m_ennovatisSelectionsList = nullptr;
+    std::shared_ptr<opencover::ui::Group> m_ennovatisGroup = nullptr;
+    std::shared_ptr<opencover::ui::EditField> m_ennovatisFrom = nullptr;
+    std::shared_ptr<opencover::ui::EditField> m_ennovatisTo = nullptr;
+    std::shared_ptr<opencover::ui::Button> m_ennovatisUpdate = nullptr;
     std::shared_ptr<opencover::ui::SelectionList> m_ennovatisChannelList = nullptr;
     std::shared_ptr<opencover::ui::SelectionList> m_enabledEnnovatisDevices = nullptr;
 
     float rad, scaleH;
-    int selectedComp = 0;
+    int m_selectedComp = 0;
     std::vector<double> m_offset;
 
     ennovatis::BuildingsPtr m_buildings;
+    DeviceList m_SDlist;
     std::shared_ptr<ennovatis::rest_request> m_req;
     //current selected channel group
     std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;

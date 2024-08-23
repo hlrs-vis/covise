@@ -17,7 +17,7 @@ SET(HEADERS
 SET(SOURCES
     Energy.cpp
     Device.cpp
-    DeviceSensor.cpp
+    # DeviceSensor.cpp
     EnnovatisDevice.cpp
     EnnovatisDeviceSensor.cpp
 )

@@ -63,6 +63,7 @@
 
 using namespace opencover;
 using namespace opencover::utils::read;
+using namespace energy;
 
 namespace {
 
@@ -181,7 +182,7 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     m_sequenceList->setName("DB");
     m_ennovatis = new osg::Group();
     m_ennovatis->setName("Ennovatis");
-    
+
     osg::ref_ptr<osg::MatrixTransform> EnergyGroupMT = new osg::MatrixTransform();
 
     m_switch = new osg::Switch();
@@ -194,19 +195,19 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
     GDALAllRegister();
 
-    SDlist.clear();
+    m_SDlist.clear();
 
-    EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::m_plugin);
+    EnergyTab = std::make_shared<ui::Menu>("Energy Campus", EnergyPlugin::m_plugin);
     EnergyTab->setText("Energy Campus");
 
     // db
-    componentGroup = new ui::ButtonGroup(EnergyTab, "ComponentGroup");
+    componentGroup = std::make_shared<ui::ButtonGroup>(EnergyTab.get(), "ComponentGroup");
     componentGroup->setDefaultValue(Strom);
-    componentList = new ui::Group(EnergyTab, "Component");
+    componentList = std::make_shared<ui::Group>(EnergyTab.get(), "Component");
     componentList->setText("Messwerte (jährlich)");
-    StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
-    WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
-    KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
+    StromBt = std::make_shared<ui::Button>(componentList.get(), "Strom", componentGroup.get(), Strom);
+    WaermeBt = std::make_shared<ui::Button>(componentList.get(), "Waerme", componentGroup.get(), Waerme);
+    KaelteBt = std::make_shared<ui::Button>(componentList.get(), "Kaelte", componentGroup.get(), Kaelte);
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
 
     initEnnovatisUI();
@@ -216,24 +217,24 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
 void EnergyPlugin::initEnnovatisUI()
 {
-    m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
+    m_ennovatisGroup = std::make_shared<ui::Group>(EnergyTab.get(), "Ennovatis");
     m_ennovatisGroup->setText("Ennovatis");
 
-    m_ennovatisSelectionsList = new ui::SelectionList(m_ennovatisGroup, "Ennovatis ChannelType: ");
+    m_ennovatisSelectionsList = std::make_shared<ui::SelectionList>(m_ennovatisGroup.get(), "Ennovatis ChannelType: ");
     std::vector<std::string> ennovatisSelections;
     for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
         ennovatisSelections.push_back(ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
 
     m_ennovatisSelectionsList->setList(ennovatisSelections);
-    m_enabledEnnovatisDevices = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Enabled Devices: ");
+    m_enabledEnnovatisDevices = std::make_shared<opencover::ui::SelectionList>(EnergyTab.get(), "Enabled Devices: ");
     m_enabledEnnovatisDevices->setCallback([this](int value) { selectEnabledDevice(); });
-    m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab, "Channels: ");
+    m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab.get(), "Channels: ");
 
     // TODO: add calender widget instead of txtfields
-    m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
-    m_ennovatisTo = new ui::EditField(EnergyTab, "to");
+    m_ennovatisFrom = std::make_shared<ui::EditField>(EnergyTab.get(), "from");
+    m_ennovatisTo = std::make_shared<ui::EditField>(EnergyTab.get(), "to");
 
-    m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
+    m_ennovatisUpdate = std::make_shared<ui::Button>(m_ennovatisGroup.get(), "Update");
     m_ennovatisUpdate->setCallback([this](bool on) { updateEnnovatis(); });
 
     m_ennovatisSelectionsList->setCallback(
@@ -289,11 +290,13 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
 
 void EnergyPlugin::reinitDevices(int comp)
 {
-    for (auto s: SDlist) {
+    for (auto s: m_SDlist) {
         if (s.second.empty())
             continue;
-        for (auto t: s.second)
+        for (auto devSens: s.second) {
+            auto t = devSens->getDevice();
             t->init(rad, scaleH, comp);
+        }
     }
 }
 
@@ -354,7 +357,7 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
     updateEnnovatisChannelGrp();
 }
 
-void EnergyPlugin::switchTo(const osg::Node *child)
+void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child)
 {
     m_switch->setAllChildrenOff();
     m_switch->setChildValue(child, true);
@@ -376,7 +379,7 @@ void EnergyPlugin::setComponent(Components c)
     default:
         break;
     }
-    selectedComp = c;
+    m_selectedComp = c;
     reinitDevices(c);
 }
 
@@ -396,7 +399,7 @@ bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
     rad = 3.;
     scaleH = 0.1;
 
-    reinitDevices(selectedComp);
+    reinitDevices(m_selectedComp);
     return true;
 }
 
@@ -452,64 +455,68 @@ void EnergyPlugin::initRESTRequest()
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList)
+// std::unique_ptr<ennovatis::Buildings> EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList)
 {
     auto lastDst = 0;
     auto noDeviceMatches = const_buildings();
-    Device *devPick;
-    auto fillLatLon = [&](ennovatis::Building &b, Device *dev) {
-        b.setX(devPick->devInfo->lon);
-        b.setY(devPick->devInfo->lat);
+    Device::ptr devicePickInteractor;
+    auto fillLatLon = [&](ennovatis::Building &b) {
+        b.setX(devicePickInteractor->getInfo()->lon);
+        b.setY(devicePickInteractor->getInfo()->lat);
     };
 
-    auto updateBuildingInfo = [&](ennovatis::Building &b, Device *dev) {
+    auto updateBuildingInfo = [&](ennovatis::Building &b, Device::ptr dev) {
+        if (m_devBuildMap.find(dev) != m_devBuildMap.end())
+            return;
         m_devBuildMap[dev] = &b;
         // name in ennovatis is the street => first set it for street => then set the name
         b.setStreet(b.getName());
-        b.setName(dev->devInfo->name);
-        b.setHeight(dev->devInfo->height);
-        fillLatLon(b, dev);
+        b.setName(dev->getInfo()->name);
+        b.setHeight(dev->getInfo()->height);
+        fillLatLon(b);
     };
 
     for (auto &building: *m_buildings) {
         lastDst = 100;
-        devPick = nullptr;
+        devicePickInteractor = nullptr;
         const auto &ennovatis_strt = building.getName();
         for (const auto &[_, devices]: deviceList) {
-            const auto &d = devices.front();
-            const auto &device_strt = d->devInfo->strasse;
+            const auto &d = devices.front()->getDevice();
+            const auto &device_strt = d->getInfo()->strasse;
             auto lvnstnDst = computeLevensteinDistance(ennovatis_strt, device_strt);
 
             // if the distance is 0, we have a perfect match
             if (!lvnstnDst) {
                 lastDst = 0;
-                devPick = d;
+                devicePickInteractor = d;
                 break;
             }
 
             // if the distance is less than the last distance, we have a better match
             if (lvnstnDst < lastDst) {
                 lastDst = lvnstnDst;
-                devPick = d;
+                devicePickInteractor = d;
             }
             // if the distance is the same as the last distance, we have a better match if the street number is the same
             else if (lvnstnDst == lastDst && cmpStrtNo(ennovatis_strt, device_strt)) {
-                devPick = d;
+                devicePickInteractor = d;
             }
         }
-        if (!lastDst && devPick) {
-            updateBuildingInfo(building, devPick);
+        if (!lastDst && devicePickInteractor) {
+            updateBuildingInfo(building, devicePickInteractor);
             continue;
         }
-        if (devPick) {
-            auto hit = m_devBuildMap.find(devPick);
+        if (devicePickInteractor) {
+            auto hit = m_devBuildMap.find(devicePickInteractor);
             if (hit == m_devBuildMap.end()) {
-                updateBuildingInfo(building, devPick);
+                updateBuildingInfo(building, devicePickInteractor);
             } else {
                 noDeviceMatches.push_back(&building);
             }
         }
     }
     return std::make_unique<const_buildings>(noDeviceMatches);
+    // return std::make_unique<ennovatis::Buildings>(noDeviceMatches);
 }
 
 bool EnergyPlugin::init()
@@ -540,13 +547,13 @@ bool EnergyPlugin::init()
         std::cout << "Ennovatis channelIDs not loaded" << std::endl;
 
 
-    auto noMatches = updateEnnovatisBuildings(SDlist);
+    auto noMatches = updateEnnovatisBuildings(m_SDlist);
 
     if constexpr (debug) {
         int i = 0;
         std::cout << "Matches between devices and buildings:" << std::endl;
         for (auto &[device, building]: m_devBuildMap)
-            std::cout << ++i << ": Device: " << device->devInfo->strasse << " -> Building: " << building->getName()
+            std::cout << ++i << ": Device: " << device->getInfo()->strasse << " -> Building: " << building->getName()
                       << std::endl;
 
         std::cout << "No matches for the following buildings:" << std::endl;
@@ -583,13 +590,13 @@ void EnergyPlugin::helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &min
     }
 }
 
-void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, DeviceInfo *di, const double &lat,
-                                             const double &lon)
+void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord, DeviceInfo::ptr deviceInfoPtr,
+                                             const double &lat, const double &lon)
 {
     if (!mapdrape) {
-        di->lon = lon;
-        di->lat = lat;
-        di->height = 0.f;
+        deviceInfoPtr->lon = lon;
+        deviceInfoPtr->lat = lat;
+        deviceInfoPtr->height = 0.f;
         return;
     }
 
@@ -600,29 +607,32 @@ void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coo
 
     coord = proj_trans(P, PJ_FWD, coord);
 
-    di->lon = coord.xy.x + m_offset[0];
-    di->lat = coord.xy.y + m_offset[1];
-    di->height = alt + m_offset[2];
+    deviceInfoPtr->lon = coord.xy.x + m_offset[0];
+    deviceInfoPtr->lat = coord.xy.y + m_offset[1];
+    deviceInfoPtr->height = alt + m_offset[2];
 }
 
 void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, const CSVStream::CSVRow &row,
-                                           DeviceInfo *di)
+                                           DeviceInfo::ptr deviceInfoPtr)
 {
     for (size_t year = minYear; year < minYear + maxTimesteps; ++year) {
         auto str_yr = std::to_string(year);
         auto strom = "Strom " + str_yr;
         auto waerme = "Wärme " + str_yr;
         auto kaelte = "Kälte " + str_yr;
-        auto diT = new DeviceInfo(*di);
+        auto deviceInfoTimestep = std::make_shared<energy::DeviceInfo>(*deviceInfoPtr);
         float strom_val = 0.f;
         access_CSVRow(row, strom, strom_val);
-        access_CSVRow(row, waerme, diT->waerme);
-        access_CSVRow(row, kaelte, diT->kaelte);
-        diT->strom = strom_val / 1000.; // kW -> MW
+        access_CSVRow(row, waerme, deviceInfoTimestep->waerme);
+        access_CSVRow(row, kaelte, deviceInfoTimestep->kaelte);
+        deviceInfoTimestep->strom = strom_val / 1000.; // kW -> MW
         auto timestep = year - 2000;
-        diT->timestep = timestep;
-        Device *sd = new Device(diT, m_sequenceList->getChild(timestep)->asGroup());
-        SDlist[di->ID].push_back(sd);
+        deviceInfoTimestep->timestep = timestep;
+        auto device =
+            std::make_shared<energy::Device>(deviceInfoTimestep, m_sequenceList->getChild(timestep)->asGroup());
+        auto deviceSensor =
+            std::make_shared<energy::DeviceSensor>(device, device->getGroup());
+        m_SDlist[deviceInfoPtr->ID].push_back(deviceSensor);
     }
 }
 
@@ -655,21 +665,21 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
         helper_initTimestepGrp(maxTimesteps, timestepGroup);
 
         while (csvStream >> row) {
-            DeviceInfo *di = new DeviceInfo();
+            auto deviceInfoPtr = std::make_shared<DeviceInfo>();
             auto lat = std::stod(row["lat"]);
             auto lon = std::stod(row["lon"]);
 
             // location
-            helper_projTransformation(mapdrape, P, coord, di, lat, lon);
+            helper_projTransformation(mapdrape, P, coord, deviceInfoPtr, lat, lon);
 
-            di->ID = row["GebäudeID"];
-            di->strasse = row["Straße"] + " " + row["Nr"];
-            di->name = row["Details"];
-            access_CSVRow(row, "Baujahr", di->baujahr);
-            access_CSVRow(row, "Grundfläche (GIS)", di->flaeche);
+            deviceInfoPtr->ID = row["GebäudeID"];
+            deviceInfoPtr->strasse = row["Straße"] + " " + row["Nr"];
+            deviceInfoPtr->name = row["Details"];
+            access_CSVRow(row, "Baujahr", deviceInfoPtr->baujahr);
+            access_CSVRow(row, "Grundfläche (GIS)", deviceInfoPtr->flaeche);
 
             // electricity, heat, cold
-            helper_handleEnergyInfo(maxTimesteps, minYear, row, di);
+            helper_handleEnergyInfo(maxTimesteps, minYear, row, deviceInfoPtr);
         }
         proj_destroy(P);
     } catch (const CSVStream_Exception &ex) {
@@ -681,11 +691,12 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
 
 bool EnergyPlugin::update()
 {
-    for (auto s = SDlist.begin(); s != SDlist.end(); s++) {
+    for (auto s = m_SDlist.begin(); s != m_SDlist.end(); s++) {
         if (s->second.empty())
             continue;
         for (auto timeElem: s->second) {
-            timeElem->update();
+            if (timeElem)
+                timeElem->update();
         }
     }
 

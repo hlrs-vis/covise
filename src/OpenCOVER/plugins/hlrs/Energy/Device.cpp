@@ -6,19 +6,21 @@
 * License: LGPL 2+ */
 
 #include "Device.h"
-#include "DeviceSensor.h"
 #include <cover/coVRFileManager.h>
 #include <cstdio>
 #include <osg/Material>
 
-Device::Device(DeviceInfo *d, osg::Group *parent)
+using namespace opencover;
+
+namespace energy {
+
+Device::Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent)
 {
     myParent = parent;
     devInfo = d;
 
     deviceGroup = new osg::Group();
     deviceGroup->setName(devInfo->ID + ".");
-    devSensor = new DeviceSensor(this, deviceGroup);
     myParent->addChild(deviceGroup);
 
     osg::MatrixTransform *matTrans = new osg::MatrixTransform();
@@ -26,10 +28,10 @@ Device::Device(DeviceInfo *d, osg::Group *parent)
     m.makeTranslate(osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + h));
     matTrans->setMatrix(m);
 
-    BBoard = new coBillboard();
+    BBoard = new opencover::coBillboard();
     BBoard->setNormal(osg::Vec3(0, -1, 0));
     BBoard->setAxis(osg::Vec3(0, 0, 1));
-    BBoard->setMode(coBillboard::AXIAL_ROT);
+    BBoard->setMode(opencover::coBillboard::AXIAL_ROT);
 
     matTrans->addChild(BBoard);
     deviceGroup->addChild(matTrans);
@@ -110,11 +112,9 @@ void Device::init(float r, float sH, int c)
 
 void Device::update()
 {
-    if (devSensor) {
-        InfoVisible = false;
-        devSensor->update();
-    }
+    InfoVisible = false;
 }
+
 void Device::activate()
 {
     if (TextGeode) {
@@ -132,12 +132,12 @@ void Device::disactivate()
 
 void Device::showInfo()
 {
-    osg::MatrixTransform *matShift = new osg::MatrixTransform();
+    osg::ref_ptr<osg::MatrixTransform> matShift = new osg::MatrixTransform();
     osg::Matrix ms;
     int charSize = 2;
     ms.makeTranslate(osg::Vec3(w / 2, 0, h));
     matShift->setMatrix(ms);
-    osgText::Text *textBoxTitle = new osgText::Text();
+    osg::ref_ptr<osgText::Text> textBoxTitle = new osgText::Text();
     textBoxTitle->setAlignment(osgText::Text::LEFT_TOP);
     textBoxTitle->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxTitle->setColor(osg::Vec4(1, 1, 1, 1));
@@ -147,7 +147,7 @@ void Device::showInfo()
     textBoxTitle->setMaximumWidth(w);
     textBoxTitle->setPosition(osg::Vec3(rad - w / 2., 0, h * 0.9));
 
-    osgText::Text *textBoxContent = new osgText::Text();
+    osg::ref_ptr<osgText::Text> textBoxContent = new osgText::Text();
     textBoxContent->setAlignment(osgText::Text::LEFT_TOP);
     textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
@@ -159,7 +159,7 @@ void Device::showInfo()
     textBoxContent->setMaximumWidth(w * 2. / 3.);
     textBoxContent->setPosition(osg::Vec3(rad - w / 2.f, 0, h * 0.75));
 
-    osgText::Text *textBoxValues = new osgText::Text();
+    osg::ref_ptr<osgText::Text> textBoxValues = new osgText::Text();
     textBoxValues->setAlignment(osgText::Text::LEFT_TOP);
     textBoxValues->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBoxValues->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
@@ -182,21 +182,21 @@ void Device::showInfo()
     mat->setDiffuse(osg::Material::FRONT_AND_BACK, colVec);
     mat->setAmbient(osg::Material::FRONT_AND_BACK, colVec);
 
-    osg::Box *box = new osg::Box(osg::Vec3(rad, 0.04 * rad, h / 2.f), w, 0, h);
+    osg::ref_ptr<osg::Box> box = new osg::Box(osg::Vec3(rad, 0.04 * rad, h / 2.f), w, 0, h);
     osg::ShapeDrawable *sdBox = new osg::ShapeDrawable(box);
     sdBox->setColor(colVec);
-    osg::StateSet *boxState = sdBox->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> boxState = sdBox->getOrCreateStateSet();
     boxState->setAttribute(mat.get(), osg::StateAttribute::PROTECTED);
     sdBox->setStateSet(boxState);
 
-    osg::StateSet *textStateT = textBoxTitle->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> textStateT = textBoxTitle->getOrCreateStateSet();
     textBoxTitle->setStateSet(textStateT);
-    osg::StateSet *textStateC = textBoxContent->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> textStateC = textBoxContent->getOrCreateStateSet();
     textBoxContent->setStateSet(textStateC);
-    osg::StateSet *textStateV = textBoxValues->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> textStateV = textBoxValues->getOrCreateStateSet();
     textBoxValues->setStateSet(textStateV);
 
-    osg::Geode *geo = new osg::Geode();
+    osg::ref_ptr<osg::Geode> geo = new osg::Geode();
     geo->setName("TextBox");
     geo->addDrawable(textBoxTitle);
     geo->addDrawable(textBoxContent);
@@ -208,4 +208,5 @@ void Device::showInfo()
     TextGeode->setName("TextGroup");
     TextGeode->addChild(matShift);
     BBoard->addChild(TextGeode);
+}
 }

@@ -5,16 +5,12 @@
 
 * License: LGPL 2+ */
 
-#include "DeviceSensor.h"
+// #include "DeviceSensor.h"
 
-DeviceSensor::DeviceSensor(Device *d, osg::Node *n) : coPickSensor(n)
-{
-    dev = d;
-}
-DeviceSensor::~DeviceSensor()
-{
-    if (active)
-        disactivate();
-}
-void DeviceSensor::activate() { dev->activate(); }
-void DeviceSensor::disactivate() { dev->disactivate(); }
+// DeviceSensor::~DeviceSensor()
+// {
+//     if (active)
+//         disactivate();
+// }
+// void DeviceSensor::activate() { dev->activate(); }
+// void DeviceSensor::disactivate() { dev->disactivate(); }
