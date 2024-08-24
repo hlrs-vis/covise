@@ -103,6 +103,10 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
+    void setTimeStep(int timeStep);
+
+    int getNumTimeSteps() const;
+
     void updateLights(const osg::Matrix &modelMat);
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
@@ -158,7 +162,8 @@ private:
         } amrVolume;
         struct {
             ANARIVolume volume{nullptr};
-            ANARISpatialField field{nullptr};
+            // per time step:
+            std::vector<ANARISpatialField> fields;
         } unstructuredVolume;
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARILight> lights;
@@ -277,17 +282,16 @@ private:
             std::string fileName;
             int fieldID;
             int slotID;
+            int timeStep;
         } UMeshScalarFile;
         // *optional* list of file names providing umesh scalars; in this case,
         // these files overwrite the umesh's perVertex (if it exists)
         std::vector<UMeshScalarFile> umeshScalarFiles;
 #endif
 
-        UnstructuredField data;
-        float minValue, maxValue;
-        std::vector<float> rgbLUT;
-        std::vector<float> alphaLUT;
-
+        // this is used when data doesn't come from
+        // a file but from COVISE etc.:
+        UnstructuredField dataSource;
         bool updated = false;
     } unstructuredVolumeData;
 

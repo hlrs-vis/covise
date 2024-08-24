@@ -71,6 +71,8 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs) override;
 
+    void setTimestep(int ts) override;
+
     void addObject(const RenderObject *container, osg::Group *parent,
                    const RenderObject *geometry, const RenderObject *normals,
                    const RenderObject *colors, const RenderObject *texture) override;

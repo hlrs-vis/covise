@@ -10,6 +10,7 @@
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
+#include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
@@ -335,6 +336,10 @@ void ANARIPlugin::preFrame()
         tfe->update();
     }
 
+    if (renderer->getNumTimeSteps() != coVRAnimationManager::instance()->getNumTimesteps()) {
+        coVRAnimationManager::instance()->setNumTimesteps(renderer->getNumTimeSteps(), this);
+    }
+
     std::vector<Renderer::ClipPlane> clipPlanes;
     if (cover->isClippingOn()) {
         osg::ClipNode *cn = cover->getObjectsRoot();
@@ -367,6 +372,14 @@ void ANARIPlugin::expandBoundingSphere(osg::BoundingSphere &bs)
         return;
 
     renderer->expandBoundingSphere(bs);
+}
+
+void ANARIPlugin::setTimestep(int ts)
+{
+    if (!renderer)
+        return;
+
+    renderer->setTimeStep(ts);
 }
 
 void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,

@@ -22,20 +22,25 @@ bool UMeshReader::open(const char *fileName, int slotID)
   return true;
 }
 
-bool UMeshReader::addFieldFromFile(const char *fileName, int index, int slotID)
+bool UMeshReader::addFieldFromFile(const char *fileName, int index, int slotID, int timeStep)
 {
   std::ifstream scalarFile(fileName);
   if (!scalarFile.good())
     return false;
 
+  // make room for time step:
+  if (timeStep >= scalars.size()) {
+    scalars.resize(timeStep+1);
+  }
+
   // make room for slot:
-  if (slotID >= scalars.size()) {
-    scalars.resize(slotID+1);
+  if (slotID >= scalars[timeStep].size()) {
+    scalars[timeStep].resize(slotID+1);
   }
 
   // make room for this field variable inside the slot:
-  if (index >= scalars[slotID].size()) {
-    scalars[slotID].resize(index+1);
+  if (index >= scalars[timeStep][slotID].size()) {
+    scalars[timeStep][slotID].resize(index+1);
   }
 
   size_t numScalars = 0;
@@ -43,35 +48,37 @@ bool UMeshReader::addFieldFromFile(const char *fileName, int index, int slotID)
   numScalars = scalarFile.tellg()/sizeof(float);
   scalarFile.seekg(0,scalarFile.beg);
 
-  scalars[slotID][index].resize(numScalars);
-  scalarFile.read((char *)scalars[slotID][index].data(),
-                  scalars[slotID][index].size()*sizeof(scalars[slotID][index][0]));
+  scalars[timeStep][slotID][index].resize(numScalars);
+  scalarFile.read((char *)scalars[timeStep][slotID][index].data(),
+      scalars[timeStep][slotID][index].size()*sizeof(scalars[timeStep][slotID][index][0]));
 
   return true;
 }
 
-UnstructuredField UMeshReader::getField(int index)
+UnstructuredField UMeshReader::getField(int index, int timeStep)
 {
   assert(mesh);
 
-  if (index < fields.size()) {
-    return fields[index];
+  if (timeStep < fields.size() && index < fields[timeStep].size()) {
+    return fields[timeStep][index];
   }
 
-  fields.resize(index + 1);
-  initField(index);
-  return fields[index];
+  fields.resize(timeStep + 1);
+  fields[timeStep].resize(index + 1);
+  initField(index, timeStep);
+  return fields[timeStep][index];
 }
 
-void UMeshReader::initField(int index)
+void UMeshReader::initField(int index, int timeStep)
 {
-  if (!scalars.empty() && (scalars.size() != meshes.size())) {
+  if (!scalars.empty() && !scalars[timeStep].empty() && (scalars[timeStep].size() != meshes.size())) {
     std::cerr << "#slots of meshes (" << meshes.size()
-              << ") don't match those of of scalars: (" << scalars.size() << ")\n";
+              << ") don't match those of of scalars: ("
+              << scalars[timeStep].size() << ")\n";
     return;
   }
 
-  UnstructuredField &field = fields[index];
+  UnstructuredField &field = fields[timeStep][index];
 
   field.dataRange.x = FLT_MAX;
   field.dataRange.y = -FLT_MAX;
@@ -88,8 +95,8 @@ void UMeshReader::initField(int index)
     }
 
     const float *scalarValues{nullptr};
-    if (!scalars.empty()) {
-      scalarValues = scalars[slotID][index].data();
+    if (!scalars[timeStep].empty()) {
+      scalarValues = scalars[timeStep][slotID][index].data();
     }
 
     for (size_t i = 0; i < mesh->vertices.size(); ++i) {
@@ -179,6 +186,6 @@ void UMeshReader::initField(int index)
     slotOffset += mesh->vertices.size();
   }
 
-  std::cout << "INIT FIELD(" << index << "), has " << meshes.size() << " slots, "
+  std::cout << "INIT FIELD(" << timeStep << ',' << index << "), has " << meshes.size() << " slots, "
     << field.vertexPosition.size() << " vertices and " << field.cellIndex.size() << " cells\n";
 }

@@ -192,6 +192,11 @@ struct Slot {
         } else if (isLanderScalars(fileName)) {
             auto splt = string_split(base, '.');
             int landerRank = std::stoi(splt[1]);
+            size_t pos = splt[0].find("ts_");
+            std::string tsString = splt[0].substr(pos+3);
+            if (!tsString.empty()) {
+                timeStep = (std::stoi(tsString)-6200)/200;
+            }
             if (landerRank <= 0 || landerRank > 72) {
                 std::cout << "Failed parsing rank from file: " << fileName << '\n';
             } else {
@@ -200,6 +205,7 @@ struct Slot {
                 std::cout << "Assigning " << fileName
                           << " to rank " << mpiRank
                           << ", localID: " << localID
+                          << ", timeStep: " << timeStep
                           << '\n';
             }
         } else { // not recognized: round-robin
@@ -376,23 +382,23 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
                          size_t numVerts, float minValue, float maxValue)
 {
     // deferred!
-    unstructuredVolumeData.data.vertexPosition.resize(numVerts*3);
-    memcpy(unstructuredVolumeData.data.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
+    unstructuredVolumeData.dataSource.vertexPosition.resize(numVerts*3);
+    memcpy(unstructuredVolumeData.dataSource.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
 
-    unstructuredVolumeData.data.cellIndex.resize(numCells);
-    memcpy(unstructuredVolumeData.data.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.cellIndex.resize(numCells);
+    memcpy(unstructuredVolumeData.dataSource.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.index.resize(numIndices);
-    memcpy(unstructuredVolumeData.data.index.data(),index,numIndices*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.index.resize(numIndices);
+    memcpy(unstructuredVolumeData.dataSource.index.data(),index,numIndices*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.cellType.resize(numCells);
-    memcpy(unstructuredVolumeData.data.cellType.data(),cellType,numCells*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.cellType.resize(numCells);
+    memcpy(unstructuredVolumeData.dataSource.cellType.data(),cellType,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.vertexData.resize(numVerts);
-    memcpy(unstructuredVolumeData.data.vertexData.data(),vertexData,numVerts*sizeof(float));
+    unstructuredVolumeData.dataSource.vertexData.resize(numVerts);
+    memcpy(unstructuredVolumeData.dataSource.vertexData.data(),vertexData,numVerts*sizeof(float));
 
-    unstructuredVolumeData.data.dataRange.x = unstructuredVolumeData.minValue = minValue;
-    unstructuredVolumeData.data.dataRange.y = unstructuredVolumeData.maxValue = maxValue;
+    unstructuredVolumeData.dataSource.dataRange.x = minValue;
+    unstructuredVolumeData.dataSource.dataRange.y = maxValue;
     unstructuredVolumeData.updated = true;
 }
 
@@ -433,7 +439,7 @@ void Renderer::loadUMeshScalars(std::string fn)
         return;
     }
 
-    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0, slot.localID});
+    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0, slot.localID, slot.timeStep});
 #endif
 }
 
@@ -638,6 +644,32 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     osg::Vec3f center = (minCorner+maxCorner)*.5f;
     float radius = (center-minCorner).length();
     bs.set(center, radius);
+}
+
+void Renderer::setTimeStep(int timeStep)
+{
+    // currently only used with umesh fields:
+    if (anari.unstructuredVolume.fields.size() <= timeStep
+        || !anari.unstructuredVolume.fields[timeStep]) {
+        std::cerr << "time step unavailable: " << timeStep << '\n';
+        return;
+    }
+
+    std::cout << "set time step: " << timeStep << '\n';
+
+    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
+                        anari.unstructuredVolume.fields[timeStep]);
+
+    anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+}
+
+int Renderer::getNumTimeSteps() const
+{
+    // currently only used with umesh fields:
+    if (!anari.unstructuredVolume.fields.empty())
+        return anari.unstructuredVolume.fields.size();
+    else
+        return 1;
 }
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
@@ -1692,7 +1724,7 @@ void Renderer::initAMRVolume()
     amrVolumeData.maxValue = data.voxelRange.y;
 
     anari.amrVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
-    anari::setParameter(anari.device, anari.amrVolume.volume, "field", anari.amrVolume.field);
+    anari::setParameter(anari.device, anari.amrVolume.volume, "value", anari.amrVolume.field);
 
     initTransFunc();
 
@@ -1716,68 +1748,104 @@ void Renderer::initAMRVolume()
 
 void Renderer::initUnstructuredVolume()
 {
+    UnstructuredField data;
+    int numTimeSteps = 1;
+
     if (unstructuredVolumeData.readerType == UMESH) {
 #ifdef HAVE_UMESH
         for (const auto &sf : unstructuredVolumeData.umeshScalarFiles) {
             unstructuredVolumeData.umeshReader.addFieldFromFile(
-                sf.fileName.c_str(), sf.fieldID, sf.slotID);
+                sf.fileName.c_str(), sf.fieldID, sf.slotID, sf.timeStep);
         }
-        unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
-#else
-        return;
-#endif
-    } else if (unstructuredVolumeData.readerType == VTK) {
-#ifdef HAVE_VTK
-        unstructuredVolumeData.data = unstructuredVolumeData.vtkReader.getField(0);
+
+        // here we'll init the field in the loop (don't know if ts=0 is actually loaded..)
+        numTimeSteps = unstructuredVolumeData.umeshReader.numTimeSteps();
 #else
         return;
 #endif
     }
-    anari.unstructuredVolume.field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
-    // TODO: "unstructured" field is an extension - check if it is supported!
-    auto &data = unstructuredVolumeData.data;
-    printf("Array sizes:\n");
-    printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
-    printf("    'vertexData'    : %zu\n", data.vertexData.size());
-    printf("    'index'         : %zu\n", data.index.size());
-    printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
 
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.position",
-            ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.data",
-            ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "index",
-            ANARI_UINT64, data.index.data(), data.index.size());
-    anari::setParameter(anari.device, anari.unstructuredVolume.field, "indexPrefixed",
-                        ANARI_BOOL, &data.indexPrefixed);
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.index",
-            ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.type",
-                               ANARI_UINT8, data.cellType.data(), data.cellType.size());
+    float dataRange[] = {1e30f,-1e30f};
 
-    anari::commitParameters(anari.device, anari.unstructuredVolume.field);
+    ANARISpatialField firstField{nullptr};
 
-    anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
-    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "field", anari.unstructuredVolume.field);
-    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "id", (unsigned)mpiRank);
+    for (int timeStep=0; timeStep<numTimeSteps; ++timeStep) {
+        data = {}; //clear!
+#ifdef HAVE_UMESH
+        if (unstructuredVolumeData.readerType == UMESH
+            && unstructuredVolumeData.umeshReader.haveTimeStep(timeStep))
+            data = unstructuredVolumeData.umeshReader.getField(0,timeStep);
+#endif
 
-    initTransFunc();
+#ifdef HAVE_VTK
+        if (unstructuredVolumeData.readerType == VTK) {
+            assert(timeStep == 0);
+            data = unstructuredVolumeData.vtkReader.getField(0);
+        }
+#endif
 
-    anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
-                      &data.dataRange);
+        if (unstructuredVolumeData.readerType == UNKNOWN) {
+            assert(timeStep == 0);
+            // comes from a data source!
+            data = unstructuredVolumeData.dataSource;
+        }
 
-    anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+        if (data.vertexPosition.empty()) {
+            continue;
+        }
 
-    anari::setAndReleaseParameter(anari.device, anari.world, "volume",
-                                  anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
-    anariRelease(anari.device, anari.unstructuredVolume.volume);
-    anariCommitParameters(anari.device, anari.world);
+        // TODO: "unstructured" field is an extension - check if it is supported!
+        auto field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
+        printf("Array sizes:\n");
+        printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
+        printf("    'vertexData'    : %zu\n", data.vertexData.size());
+        printf("    'index'         : %zu\n", data.index.size());
+        printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
 
-    AABB bounds;
-    anariGetProperty(
-        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
-    this->bounds.local.extend(bounds);
-    this->bounds.updated = true;
+        anari::setParameterArray1D(anari.device, field, "vertex.position",
+                ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
+        anari::setParameterArray1D(anari.device, field, "vertex.data",
+                ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
+        anari::setParameterArray1D(anari.device, field, "index",
+                ANARI_UINT64, data.index.data(), data.index.size());
+        anari::setParameter(anari.device, field, "indexPrefixed",
+                            ANARI_BOOL, &data.indexPrefixed);
+        anari::setParameterArray1D(anari.device, field, "cell.index",
+                ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
+        anari::setParameterArray1D(anari.device, field, "cell.type",
+                                   ANARI_UINT8, data.cellType.data(), data.cellType.size());
+
+        anari::commitParameters(anari.device, field);
+
+        anari.unstructuredVolume.fields.push_back(field);
+
+        dataRange[0] = fminf(dataRange[0],data.dataRange.x);
+        dataRange[1] = fmaxf(dataRange[1],data.dataRange.y);
+    }
+
+    if (!anari.unstructuredVolume.volume && !anari.unstructuredVolume.fields.empty()) {
+        anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "id", (unsigned)mpiRank);
+
+        initTransFunc();
+
+        anari::setAndReleaseParameter(anari.device, anari.world, "volume",
+                                      anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
+        anariCommitParameters(anari.device, anari.world);
+
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
+                            anari.unstructuredVolume.fields[0]);
+
+        anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                          dataRange);
+        anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+
+        AABB bounds;
+        anariGetProperty(
+            anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+        this->bounds.local.extend(bounds);
+        this->bounds.updated = true;
+    }
 }
 
 void Renderer::initClipPlanes()
@@ -1855,5 +1923,6 @@ void Renderer::initTransFunc()
         anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
     }
 }
+
 
 
