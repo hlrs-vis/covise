@@ -48,9 +48,10 @@ using namespace opencover;
 #define OU_VIEWPORT_UPDATED      0x1
 #define OU_CAMERA_UPDATED        0x2
 #define OU_BOUNDS_UPDATED        0x4
-#define OU_TRANSFUNC_UPDATED     0x8
-#define OU_APP_PARAMS_UPDATED   0x10
-#define OU_ANARI_PARAMS_UPDATED 0x20
+#define OU_ANIMATION_UPDATED     0x8
+#define OU_TRANSFUNC_UPDATED    0x10
+#define OU_APP_PARAMS_UPDATED   0x20
+#define OU_ANARI_PARAMS_UPDATED 0x40
 
 void statusFunc(const void *userData,
     ANARIDevice device,
@@ -648,28 +649,14 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 
 void Renderer::setTimeStep(int timeStep)
 {
-    // currently only used with umesh fields:
-    if (anari.unstructuredVolume.fields.size() <= timeStep
-        || !anari.unstructuredVolume.fields[timeStep]) {
-        std::cerr << "time step unavailable: " << timeStep << '\n';
-        return;
-    }
-
-    std::cout << "set time step: " << timeStep << '\n';
-
-    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
-                        anari.unstructuredVolume.fields[timeStep]);
-
-    anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+    animation.timeStep = timeStep;
+    animation.updated = true;
+    objectUpdates |= OU_ANIMATION_UPDATED;
 }
 
 int Renderer::getNumTimeSteps() const
 {
-    // currently only used with umesh fields:
-    if (!anari.unstructuredVolume.fields.empty())
-        return anari.unstructuredVolume.fields.size();
-    else
-        return 1;
+    return animation.numTimeSteps;
 }
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
@@ -961,6 +948,11 @@ void Renderer::renderFrame()
         bounds.updated = false;
     }
 
+    if (animation.updated) {
+        initAnimation();
+        animation.updated = false;
+    }
+
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(chan);
     }
@@ -1021,6 +1013,15 @@ void Renderer::renderFrame(unsigned chan)
             rr->sendCamera(rrCamera);
         }
 
+        if (myObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            // client updates time step, server sets num time steps
+            rr->sendAnimation(animation.timeStep, animation.numTimeSteps);
+            int ignore=0;
+            rr->recvAnimation(ignore, animation.numTimeSteps);
+            animation.updated = true;
+        }
+
         if (myObjectUpdates & OU_APP_PARAMS_UPDATED)
         {
             constexpr unsigned numParams = sizeof(params)/sizeof(params[0]);
@@ -1075,6 +1076,15 @@ void Renderer::renderFrame(unsigned chan)
             std::memcpy(&vv[0], rrCamera.viewMatrix, sizeof(rrCamera.viewMatrix));
             std::memcpy(&pr[0], rrCamera.projMatrix, sizeof(rrCamera.projMatrix));
             mv = vv*mm;
+        }
+
+        if (peerObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            // client updates time step, server sets num time steps
+            rr->sendAnimation(animation.timeStep, animation.numTimeSteps);
+            int ignore=0;
+            rr->recvAnimation(animation.timeStep, ignore);
+            animation.updated = true;
         }
 
         if (peerObjectUpdates & OU_APP_PARAMS_UPDATED)
@@ -1142,6 +1152,13 @@ void Renderer::renderFrame(unsigned chan)
             MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
             MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
             MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            MPI_Bcast(&animation.timeStep, 1, MPI_INT, animation.timeStep, MPI_COMM_WORLD);
+            MPI_Bcast(&animation.numTimeSteps, 1, MPI_INT, animation.numTimeSteps, MPI_COMM_WORLD);
+            animation.updated = true;
         }
 
         if (clusterObjectUpdates & OU_TRANSFUNC_UPDATED)
@@ -1846,6 +1863,9 @@ void Renderer::initUnstructuredVolume()
         this->bounds.local.extend(bounds);
         this->bounds.updated = true;
     }
+
+    animation.numTimeSteps = numTimeSteps;
+    animation.updated = true;
 }
 
 void Renderer::initClipPlanes()
@@ -1924,5 +1944,21 @@ void Renderer::initTransFunc()
     }
 }
 
+void Renderer::initAnimation()
+{
+    // currently only used with umesh fields:
+    if (animation.numTimeSteps <= animation.timeStep) {
+        std::cerr << "time step unavailable: " << animation.timeStep << '\n';
+        return;
+    }
+
+    // client e.g. has no field data
+    if (animation.timeStep < anari.unstructuredVolume.fields.size()) {
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
+                            anari.unstructuredVolume.fields[animation.timeStep]);
+
+        anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+    }
+}
 
 

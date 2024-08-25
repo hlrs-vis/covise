@@ -182,15 +182,14 @@ private:
     void initChannels();
     void initDevice();
     void initFrames();
-    void initWorld();
     void initMesh();
     void initPointClouds();
     void initStructuredVolume();
     void initAMRVolume();
     void initUnstructuredVolume();
     void initClipPlanes();
-    void initHDRI();
     void initTransFunc();
+    void initAnimation();
 
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
 
@@ -229,6 +228,12 @@ private:
         AABB global;
         bool updated = false;
     } bounds;
+
+    struct {
+        int timeStep = 0;
+        int numTimeSteps = 1;
+        bool updated = false;
+    } animation;
 
     struct {
         std::string fileName;

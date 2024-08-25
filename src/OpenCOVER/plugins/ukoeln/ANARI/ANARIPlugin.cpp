@@ -336,7 +336,9 @@ void ANARIPlugin::preFrame()
         tfe->update();
     }
 
-    if (renderer->getNumTimeSteps() != coVRAnimationManager::instance()->getNumTimesteps()) {
+    const bool isDisplayRank = renderer->mpiRank==renderer->displayRank;
+    if (isDisplayRank
+      && renderer->getNumTimeSteps() != coVRAnimationManager::instance()->getNumTimesteps()) {
         coVRAnimationManager::instance()->setNumTimesteps(renderer->getNumTimeSteps(), this);
     }
 

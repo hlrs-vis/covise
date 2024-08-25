@@ -70,6 +70,12 @@ struct State
   } bounds;
 
   struct {
+    int timeStep{0};
+    int numTimeSteps{1};
+    bool updated{false};
+  } animation;
+
+  struct {
     std::vector<std::string> names;
     std::vector<int> types;
     std::vector<std::vector<uint8_t>> values;
@@ -286,6 +292,37 @@ void MiniRR::recvBounds(AABB &bounds)
   lock();
   std::memcpy(bounds, recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
   recvState->bounds.updated = false;
+  unlock();
+}
+
+void MiniRR::sendAnimation(const int &timeStep, const int &numTimeSteps)
+{
+  lock();
+  sendState->animation.timeStep = timeStep;
+  sendState->animation.numTimeSteps = numTimeSteps;
+  sendState->animation.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write(sendState->animation.timeStep);
+  buf->write(sendState->animation.numTimeSteps);
+  write(MessageType::SendAnimation, buf);
+}
+
+void MiniRR::recvAnimation(int &timeStep, int &numTimeSteps)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvAnimation, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvAnimation].mtx);
+  sync[SyncPoints::RecvAnimation].cv.wait(
+      l, [this]() { return recvState->animation.updated; });
+  l.unlock();
+
+  lock();
+  timeStep = recvState->animation.timeStep;
+  numTimeSteps = recvState->animation.numTimeSteps;
+  recvState->animation.updated = false;
   unlock();
 }
 
@@ -572,6 +609,14 @@ void MiniRR::handleReadMessage(async::message_pointer message)
     recvState->bounds.updated = true;
     unlock();
     sync[SyncPoints::RecvBounds].cv.notify_all();
+  }
+  if (message->type() == MessageType::SendAnimation) {
+    lock();
+    buf->read(recvState->animation.timeStep);
+    buf->read(recvState->animation.numTimeSteps);
+    recvState->animation.updated = true;
+    unlock();
+    sync[SyncPoints::RecvAnimation].cv.notify_all();
   }
   else if (message->type() == MessageType::SendAppParams) {
     lock();

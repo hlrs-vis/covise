@@ -82,6 +82,9 @@ struct MiniRR
   void sendBounds(const AABB &bounds);
   void recvBounds(AABB &bounds);
 
+  void sendAnimation(const int &timeStep, const int &numTimeSteps);
+  void recvAnimation(int &timeStep, int &numTimeSteps);
+
   void sendAppParams(const Param *params, unsigned numParams);
   void recvAppParams(Param *params, unsigned &numParams);
 
@@ -116,6 +119,8 @@ struct MiniRR
       RecvCamera,
       SendBounds,
       RecvBounds,
+      SendAnimation,
+      RecvAnimation,
       SendAppParams,
       RecvAppParams,
       SendTransfunc,
