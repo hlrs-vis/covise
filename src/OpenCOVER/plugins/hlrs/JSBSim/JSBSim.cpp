@@ -38,6 +38,8 @@
 #include <cover/coVRFileManager.h>
 #include <osg/Vec3>
 
+#include <cover/input/input.h>
+
 JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 
 JSBSimPlugin::JSBSimPlugin()
@@ -63,6 +65,7 @@ JSBSimPlugin::JSBSimPlugin()
     osg::Matrix gt = osg::Matrix::scale(ts,ts,ts)*osg::Matrix::rotate(th, osg::Vec3(0,0,1), tp, osg::Vec3(1,0,0),  tr, osg::Vec3(0,1,0)) *  osg::Matrix::translate(tx, ty, tz);
     geometryTrans = new osg::MatrixTransform(gt);
     osg::Node* n = osgDB::readNodeFile(geometryFile.c_str());
+
     if(n!=nullptr)
     {
         n->setName(geometryFile);
@@ -101,7 +104,7 @@ if (coVRMSController::instance()->isMaster())
     windSound->setLoop(true, -1);
 }
     plugin = this;
-    udp = nullptr;
+    udp = 0;
 }
 
 
@@ -376,20 +379,24 @@ bool JSBSimPlugin::init()
 #endif
     coviseSharedDir = std::string(pValue) + "/share/covise/";
 
-    std::string proj_from = configString("Projection", "from", "+proj=latlong +datum=WGS84")->value();
-    if (!(pj_from = pj_init_plus(proj_from.c_str())))
-    {
-        fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
-    }
+    //std::string proj_from = configString("Projection", "from", "+proj=latlong +datum=WGS84")->value();
+    //if (!(pj_from = pj_init_plus(proj_from.c_str())))
+    //{
+    //    fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
+    //}
 
-    std::string proj_to = configString("Projection", "to", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam")->value();// +nadgrids=" + dir + std::string("BETA2007.gsb");
+    //std::string proj_to = configString("Projection", "to", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam")->value();// +nadgrids=" + dir + std::string("BETA2007.gsb");
 
-    if (!(pj_to = pj_init_plus(proj_to.c_str())))
-    {
-        fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
-    }
-    
-   
+    //if (!(pj_to = pj_init_plus(proj_to.c_str())))
+    //{
+    //    fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
+    //}
+
+    coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX, 
+        "+proj=latlong +datum=WGS84", 
+        "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam",
+        NULL);
+
     projectOffset[0] = configFloat("Projection", "offsetX", 0)->value();
     projectOffset[1] = configFloat("Projection", "offsetY", 0)->value();
     projectOffset[2] = configFloat("Projection", "offsetZ", 0)->value();
@@ -548,14 +555,55 @@ if (coVRMSController::instance()->isMaster())
 bool
 JSBSimPlugin::update()
 {
+    joystickDev = (Joystick*)(Input::instance()->getDevice("joystick"));
+
+    if (joystickDev != nullptr)
+    {/*
+        std::cout << */
+            //"\n[0][0]:" << joystickDev->buttons[0][0] <<
+            //", [0][1]:" << joystickDev->buttons[0][1] <<
+            //", [0][2]:" << joystickDev->buttons[0][2] <<
+            //", [0][3]:" << joystickDev->buttons[0][3] <<
+            //", [0][4]:" << joystickDev->buttons[0][4] <<
+            //", [0][5]:" << joystickDev->buttons[0][5] <<
+            //", [0][6]:" << joystickDev->buttons[0][6] <<
+            //", [0][7]:" << joystickDev->buttons[0][7] <<
+      
+            //"\nsliders[0]:" << joystickDev->sliders[0][0] <<
+            //"axes[0]:" << joystickDev->axes[0][0] << 
+            //", axes[1]:" << joystickDev->axes[0][1] << std::endl;
+    }
+
+    if (joystickDev) {
+
+        // Read joystick axis values
+        float joystickX = joystickDev->axes[0][0];
+        float joystickY = joystickDev->axes[0][1];
+        float throttle = joystickDev->sliders[0][0];
+        std::cout << "joystickX = " << joystickX << ", joystickY = " << joystickY << ", throttle = " << throttle;
+
+        // Map joystick input to control surfaces
+        fgcontrol.aileron = joystickX;  //joystickDev->axes[0][0];
+        fgcontrol.elevator = joystickY;  //joystickDev->axes[0][1];
+        gliderValues.speed = throttle;
+        gliderValues.state = joystickDev->buttons[0][0];
+    }
+
+    //gliderValues.left = joystickX;
+    //gliderValues.right = joystickY;
+    //gliderValues.speed = throttle;
+
+
 if (coVRMSController::instance()->isMaster())
         {
     updateUdp();
+    //std::cout << "Entered coVRMSController::instance()_>isMAster()" << std::endl;
     rsClient->update();
 }
 
     if (isEnabled())
     {
+
 if (coVRMSController::instance()->isMaster())
         {
             bool result = true;
@@ -567,7 +615,9 @@ if (coVRMSController::instance()->isMaster())
         else
         {
             FCS->SetDaCmd(fgcontrol.aileron);
+            std::cout << "\nfgcontrol.aileron:" << fgcontrol.aileron << std::endl;
             FCS->SetDeCmd(fgcontrol.elevator);
+            std::cout << "fgcontrol.elevator:" << fgcontrol.elevator << std::endl;
 
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
                 FCS->SetThrottleCmd(i, 1.0);
@@ -757,9 +807,11 @@ JSBSimPlugin::updateUdp()
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
     if (udp)
     {
+        std::cout << "udp = true" << endl;
         static bool firstTime = true;
 	
         int status = 0;
+
 	if(deviceVersion == 2)
 	{
 	    status = udp->receive(&gliderValues, sizeof(gliderValues), 0.0);
@@ -772,6 +824,7 @@ JSBSimPlugin::updateUdp()
 
         if (status == sizeof(FGControl))
         {
+            std::cout << "status == sizeof(FGControl)" << endl;
             byteSwap(fgcontrol.aileron);
             byteSwap(fgcontrol.elevator);
             std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
@@ -784,6 +837,7 @@ JSBSimPlugin::updateUdp()
             byteSwap(gliderValues.angle);
             byteSwap(gliderValues.speed);
             byteSwap(gliderValues.state);*/
+
 	    float leftLine = (gliderValues.left/1280.0); 
             float rightLine =( gliderValues.right/1280.0); 
 	    float angleValue = -(gliderValues.angle/180.0); 
@@ -797,8 +851,23 @@ JSBSimPlugin::updateUdp()
        rightLine=0.0;
 	    
             double elevatorMin=-1,elevatorMax=1,aileronMax=1;
-	    fgcontrol.elevator=-((leftLine+rightLine)/2*(elevatorMax-elevatorMin)+elevatorMin);
-            fgcontrol.aileron=(-leftLine+rightLine+angleValue)*aileronMax;
+	    //fgcontrol.elevator=-((leftLine+rightLine)/2*(elevatorMax-elevatorMin)+elevatorMin);
+            //fgcontrol.aileron=(-leftLine+rightLine+angleValue)*aileronMax;
+            fgcontrol.aileron = joystickDev->axes[0][0];
+            fgcontrol.elevator = joystickDev->axes[0][1];
+
+            if (joystickDev) {
+
+                // Read joystick axis values
+                float joystickX = joystickDev->axes[0][0];
+                float joystickY = joystickDev->axes[0][1];
+                float throttle = joystickDev->sliders[0][0];
+
+                // Map joystick input to control surfaces
+                fgcontrol.aileron = joystickX;
+                fgcontrol.elevator = -joystickY;
+                //gliderValues.speed = throttle;
+            }
 
             std::cerr << "JSBSimPlugin::left:"<<  gliderValues.left << "     " << leftLine<<"     " << gliderValues.angle<< std::endl;
             std::cerr << "JSBSimPlugin::right:"<<  gliderValues.right << "     " << rightLine<<"     " << angleValue<< std::endl;

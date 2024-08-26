@@ -8,6 +8,9 @@
 #ifndef _JSBSim_NODE_PLUGIN_H
 #define _JSBSim_NODE_PLUGIN_H
 
+#include <cover/coVRPlugin.h>
+#include <cover/input/dev/Joystick/Joystick.h>
+
 #include <util/common.h>
 
 #include <math.h>
@@ -36,13 +39,14 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 
-#include <proj_api.h>
+#include <proj.h>
 
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
 
 #include <rsClient/remoteSoundClient.h>
+
 
 class UDPComm;
 
@@ -81,6 +85,11 @@ private:
     ui::EditField* WY;
     ui::EditField* WZ;
     remoteSound::Client* rsClient;
+
+    Joystick* joystickDev = nullptr;
+    //bool state0 = false;
+    //bool state1 = false;
+    //bool state2 = false;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -129,6 +138,7 @@ private:
     {
         double elevator;
         double aileron;
+        double throttle;
     } fgcontrol;
     struct GliderValues
     {
@@ -160,8 +170,7 @@ private:
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
     OpenThreads::Mutex mutex;
-
-    projPJ pj_from, pj_to;
+    PJ* coordTransformation;
     std::string coviseSharedDir;
     osg::Vec3d projectOffset;
     osg::Matrix lastPos;
