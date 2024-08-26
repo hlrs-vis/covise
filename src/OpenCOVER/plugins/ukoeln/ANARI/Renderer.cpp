@@ -181,7 +181,7 @@ struct Slot {
             auto splt = string_split(base, '.');
             int landerRank = std::stoi(splt[1]);
             if (landerRank <= 0 || landerRank > 72) {
-                std::cout << "Failed parsing rank from file: " << fileName << '\n';
+                std::cerr << "Failed parsing rank from file: " << fileName << '\n';
             } else {
                 mpiRank = (landerRank-1)%mpiSize;
                 localID = (landerRank-1)/mpiSize;
@@ -199,7 +199,7 @@ struct Slot {
                 timeStep = (std::stoi(tsString)-6200)/200;
             }
             if (landerRank <= 0 || landerRank > 72) {
-                std::cout << "Failed parsing rank from file: " << fileName << '\n';
+                std::cerr << "Failed parsing rank from file: " << fileName << '\n';
             } else {
                 mpiRank = (landerRank-1)%mpiSize;
                 localID = (landerRank-1)/mpiSize;
@@ -1156,8 +1156,8 @@ void Renderer::renderFrame(unsigned chan)
 
         if (clusterObjectUpdates & OU_ANIMATION_UPDATED)
         {
-            MPI_Bcast(&animation.timeStep, 1, MPI_INT, animation.timeStep, MPI_COMM_WORLD);
-            MPI_Bcast(&animation.numTimeSteps, 1, MPI_INT, animation.numTimeSteps, MPI_COMM_WORLD);
+            MPI_Bcast(&animation.timeStep, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&animation.numTimeSteps, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
             animation.updated = true;
         }
 
@@ -1864,8 +1864,9 @@ void Renderer::initUnstructuredVolume()
         this->bounds.updated = true;
     }
 
-    animation.numTimeSteps = numTimeSteps;
+    animation.numTimeSteps = anari.unstructuredVolume.fields.size();
     animation.updated = true;
+    objectUpdates |= OU_ANIMATION_UPDATED;
 }
 
 void Renderer::initClipPlanes()
