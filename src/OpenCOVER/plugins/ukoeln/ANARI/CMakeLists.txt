@@ -38,9 +38,7 @@ SET(SOURCES
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
-if(COVISE_USE_CUDA)
-  enable_language(CUDA)
-  find_package(CUDAToolkit)
+if(CUDA_FOUND)
   target_compile_definitions(ANARIPlugin PUBLIC -DANARI_PLUGIN_HAVE_CUDA=1)
   target_link_libraries(ANARIPlugin CUDA::cudart)
   target_sources(ANARIPlugin PRIVATE Projection.cu)
