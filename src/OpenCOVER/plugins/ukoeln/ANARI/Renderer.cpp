@@ -855,7 +855,6 @@ void Renderer::setParam(std::string name, DataType type, std::any value)
     if (name == "debug.colorByRank") {
         generateTransFunc();
         transFunc.updated = true;
-        objectUpdates |= OU_TRANSFUNC_UPDATED;
     }
 }
 
@@ -1096,9 +1095,11 @@ void Renderer::renderFrame(unsigned chan)
             assert(numParamsReceived==numParams);
 
             for (unsigned i=0; i<numParams; ++i) {
-                params[i].name = rrParams[i].name;
-                params[i].type = (DataType)rrParams[i].type;
-                params[i].unserialize(rrParams[i].value);
+                Param param;
+                param.name = rrParams[i].name;
+                param.type = (DataType)rrParams[i].type;
+                param.unserialize(rrParams[i].value);
+                setParam(param.name, param.type, param.value);
             }
         }
 
@@ -1161,24 +1162,48 @@ void Renderer::renderFrame(unsigned chan)
             animation.updated = true;
         }
 
+        if (clusterObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            unsigned numParams = sizeof(params)/sizeof(params[0]);
+
+            typedef std::vector<uint8_t> ByteArray;
+            std::vector<ByteArray> byteArrays(numParams);
+
+            MPI_Bcast(&numParams, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+            for (unsigned i=0; i<numParams; ++i) {
+                size_t len = sizeInBytes(params[i].type);
+                byteArrays[i].resize(len);
+                params[i].serialize(byteArrays[i].data());
+                MPI_Bcast(byteArrays[i].data(), byteArrays[i].size(), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+                Param param;
+                param.name = params[i].name;
+                param.type = params[i].type;
+                param.unserialize(byteArrays[i].data());
+                setParam(param.name, param.type, param.value);
+            }
+        }
+
         if (clusterObjectUpdates & OU_TRANSFUNC_UPDATED)
         {
-            uint32_t numColors = transFunc.colors.size();
-            MPI_Bcast(&numColors, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
-            transFunc.colors.resize(numColors);
-            MPI_Bcast(transFunc.colors.data(), sizeof(transFunc.colors[0])*transFunc.colors.size(),
-                MPI_BYTE, mainRank, MPI_COMM_WORLD);
+            if (!getParam("debug.colorByRank").as<bool>()) { // debug colors -> each rank has its own TF!
+                uint32_t numColors = transFunc.colors.size();
+                MPI_Bcast(&numColors, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+                transFunc.colors.resize(numColors);
+                MPI_Bcast(transFunc.colors.data(), sizeof(transFunc.colors[0])*transFunc.colors.size(),
+                    MPI_BYTE, mainRank, MPI_COMM_WORLD);
 
-            uint32_t numOpacities = transFunc.opacities.size();
-            MPI_Bcast(&numOpacities, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
-            transFunc.opacities.resize(numOpacities);
-            MPI_Bcast(transFunc.opacities.data(), sizeof(transFunc.opacities[0])*transFunc.opacities.size(),
-                MPI_BYTE, mainRank, MPI_COMM_WORLD);
+                uint32_t numOpacities = transFunc.opacities.size();
+                MPI_Bcast(&numOpacities, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+                transFunc.opacities.resize(numOpacities);
+                MPI_Bcast(transFunc.opacities.data(), sizeof(transFunc.opacities[0])*transFunc.opacities.size(),
+                    MPI_BYTE, mainRank, MPI_COMM_WORLD);
 
-            // TODO: ranges, scale
+                // TODO: ranges, scale
 
-            // consume on next renderFrame:
-            transFunc.updated = true;
+                // consume on next renderFrame:
+                transFunc.updated = true;
+            }
         }
     } else
 #endif
@@ -1900,8 +1925,11 @@ void Renderer::generateTransFunc()
         transFunc.colors.emplace_back(1.f, 0.f, 0.f);
     }
 
-    transFunc.opacities.emplace_back(0.f);
-    transFunc.opacities.emplace_back(1.f);
+    // preserve alpha if it was set before
+    if (transFunc.opacities.empty()) {
+        transFunc.opacities.emplace_back(0.f);
+        transFunc.opacities.emplace_back(1.f);
+    }
 }
 
 void Renderer::initTransFunc()
