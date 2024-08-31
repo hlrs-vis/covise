@@ -579,14 +579,14 @@ JSBSimPlugin::update()
         // Read joystick axis values
         float joystickX = joystickDev->axes[0][0];
         float joystickY = joystickDev->axes[0][1];
-        float throttle = joystickDev->sliders[0][0];
-        std::cout << "joystickX = " << joystickX << ", joystickY = " << joystickY << ", throttle = " << throttle;
+        //float throttle = joystickDev->sliders[0][0];
+        //std::cout << "joystickX = " << joystickX << ", joystickY = " << joystickY << ", throttle = " << throttle;
 
         // Map joystick input to control surfaces
         fgcontrol.aileron = joystickX;  //joystickDev->axes[0][0];
         fgcontrol.elevator = joystickY;  //joystickDev->axes[0][1];
-        gliderValues.speed = throttle;
-        gliderValues.state = joystickDev->buttons[0][0];
+        //gliderValues.speed = throttle;
+        //gliderValues.state = joystickDev->buttons[0][0];
     }
 
     //gliderValues.left = joystickX;
