@@ -2820,6 +2820,8 @@ TCHAR *VRML2Export::textureName(const TCHAR *name, int blendMode, bool environme
 			newName[i] = _T('_');
 		if (newName[i] == _T('/'))
 			newName[i] = _T('_');
+		if (newName[i] == _T(','))
+			newName[i] = _T('_');
 		if (newName[i] == _T('\\'))
 			newName[i] = _T('_');
 	}

@@ -3583,7 +3583,7 @@ static INT_PTR CALLBACK
                         CB_SELECTSTRING, 0, (LPARAM)name.data());
         }
 
-        GetAppData(exp->mIp, OUTPUT_LANG_ID, _T("X3D(V)"), text, MAX_PATH);
+        GetAppData(exp->mIp, OUTPUT_LANG_ID, _T("Vrml97_COVER"), text, MAX_PATH);
         if (_tcscmp(text, _T("X3D(V)")) == 0)
         {
             type = Export_X3D_V;
@@ -4350,9 +4350,9 @@ VRBLExport::Ext(int n)
     switch (n)
     {
     case 0:
-        return _T("x3dv");
-    case 1:
         return _T("wrl");
+    case 1:
+        return _T("x3dv");
     case 2:
         return _T("iv");
     }
