@@ -105,8 +105,8 @@ int main(int argc, char* argv[]) {
 
 
     // Iterate over each "core:cityObjectMember" node and save to individual files
-    for (XMLSize_t i = 0; i < cityObjectMembers->getLength(); ++i) {
-        DOMNode* cityObjectMember = cityObjectMembers->item(i);
+    for (XMLSize_t n = 0; n < cityObjectMembers->getLength(); ++n) {
+        DOMNode* cityObjectMember = cityObjectMembers->item(n);
 
         DOMElement* currentElement = dynamic_cast<DOMElement*>(cityObjectMember);
         DOMNodeList* posLists = currentElement->getElementsByTagName(XMLString::transcode("gml:posList"));
@@ -114,28 +114,35 @@ int main(int argc, char* argv[]) {
         if (posLists->getLength() > 0)
         {
             DOMNode* posList = posLists->item(0);
-            char* value = XMLString::transcode(posList->getNodeValue());
-            float x, y;
-            sscanf(value, "%f %f",&x,&y);
-            size_t xi = (size_t)x;
-            size_t yi = (size_t)y;
-            size_t i, j;
-            i = (xi / 1000) - 6633;
-            j = (yi / 1000) - 370;
-            cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
-        }
-        for (size_t i = 0; i < nx; i++)
-        {
-            for (size_t j = 0; j < ny; j++)
+            //char* value = XMLString::transcode(posList->getNodeValue());
+            DOMText* data = dynamic_cast<DOMText*>(posList);
+            //if(DOMNode::TEXT_NODE == posList->getNodeType())
+            if(data != nullptr)
             {
-                // Write the nodes to files
-                // Construct filename
-                std::ostringstream filename;
-                filename << "lod2_" << i*1000 << "_" << j*1000 << ".gml";
-                if (cityObjectMembersSorted[i * ny + j].size() > 0)
-                {
-                    writeNodeToFile(cityObjectMembersSorted[i * ny + j], filename.str());
-                }
+                const XMLCh* val = data->getWholeText();
+                char *strVal = XMLString::transcode(val);
+                float x, y;
+                sscanf(strVal, "%f %f",&x,&y);
+                size_t xi = (size_t)x;
+                size_t yi = (size_t)y;
+                size_t i, j;
+                i = (xi / 1000) - 6633;
+                j = (yi / 1000) - 370;
+                cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
+            }
+        }
+    }
+    for (size_t i = 0; i < nx; i++)
+    {
+        for (size_t j = 0; j < ny; j++)
+        {
+            // Write the nodes to files
+            // Construct filename
+            std::ostringstream filename;
+            filename << "lod2_" << i*1000 << "_" << j*1000 << ".gml";
+            if (cityObjectMembersSorted[i * ny + j].size() > 0)
+            {
+                writeNodeToFile(cityObjectMembersSorted[i * ny + j], filename.str());
             }
         }
     }
