@@ -45,10 +45,110 @@
 #include <osgUtil/Optimizer>
 #include <osgTerrain/Terrain>
 #include <osgViewer/Renderer>
+#include <iostream>
+#include <string>
+#include <curl/curl.h>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h> 
+#include <rapidjson/rapidjson.h>
+
+namespace opencover
+{
+    namespace ui
+    {
+        class Menu;
+        class Label;
+        class Group;
+        class Button;
+        class EditField;
+    }
+}
 
 
 using namespace covise;
 using namespace opencover;
+
+
+// Callback function to handle data received from curl
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
+    size_t newLength = size * nmemb;
+    try {
+        s->append((char*)contents, newLength);
+    }
+    catch (std::bad_alloc& ) {
+        return 0;
+    }
+    return newLength;
+}
+
+std::string getCoordinates(const std::string& address) {
+    CURL* curl;
+    CURLcode res;
+    std::string readBuffer;
+
+    // Nominatim request URL
+    std::string url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&limit=1";
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0");  // Nominatim requires a User-Agent
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
+        }
+        curl_easy_cleanup(curl);
+    }
+
+    curl_global_cleanup();
+
+    return readBuffer;
+}
+
+void GeoDataLoader::parseCoordinates(const std::string& jsonData) {
+    rapidjson::Document document;
+
+    if (document.Parse(jsonData.c_str()).HasParseError()) {
+        std::cerr << "Failed to parse JSON data." << std::endl;
+        return;
+    }
+
+    if (document.IsArray() && !document.Empty()) {
+        const rapidjson::Value& location = document[0];
+        if (location.HasMember("lat") && location.HasMember("lon")) {
+            double latitude = std::stod(location["lat"].GetString());
+            double longitude = std::stod(location["lon"].GetString());
+
+            std::cout << "Latitude: " << latitude << std::endl;
+            std::cout << "Longitude: " << longitude << std::endl;
+            PJ_COORD input;
+            input.lp.lam = longitude * DEG_TO_RAD; // Convert degrees to radians
+            input.lp.phi = latitude * DEG_TO_RAD; // Convert degrees to radians
+
+            // Perform the transformation
+            PJ_COORD output;
+            output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
+
+            // Output UTM coordinates
+            std::cout << "Easting (X): " << output.enu.e << " meters" << std::endl;
+            std::cout << "Northing (Y): " << output.enu.n << " meters" << std::endl;
+        }
+        else {
+            std::cerr << "Error: Latitude and/or Longitude not found in the response." << std::endl;
+        }
+    }
+    else {
+        std::cerr << "Error: No results found." << std::endl;
+    }
+}
+
+
 
 
 GeoDataLoader* GeoDataLoader::s_instance = nullptr;
@@ -61,6 +161,10 @@ GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME)
 }
 bool GeoDataLoader::init()
 {
+    ProjContext = proj_context_create();
+    // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
+    ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N
+
     return loadTerrain("D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive",osg::Vec3d(0,0,0));
 }
 
@@ -68,6 +172,8 @@ bool GeoDataLoader::init()
 GeoDataLoader::~GeoDataLoader()
 {
     s_instance = nullptr;
+    proj_destroy(ProjInstance);
+    proj_context_destroy(ProjContext);
 }
 
 

@@ -25,6 +25,12 @@
 #include <osgTerrain/Terrain>
 #include <cover/coVRPlugin.h>
 #include "CutGeometry.h"
+#include <proj.h>
+
+#ifndef RAD_TO_DEG
+#define RAD_TO_DEG    57.295779513082321
+#define DEG_TO_RAD   .017453292519943296
+#endif
 
 
 class  GeoDataLoader: public opencover::coVRPlugin
@@ -40,9 +46,13 @@ public:
     static GeoDataLoader *instance();
     osg::Vec3 offset;
     float NorthAngle;
+    void parseCoordinates(const std::string& jsonData);
+
 
 private:
     static GeoDataLoader *s_instance;
+    PJ_CONTEXT* ProjContext;
+    PJ* ProjInstance;
 
 
 };
