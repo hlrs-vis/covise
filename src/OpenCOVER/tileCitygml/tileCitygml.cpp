@@ -3,6 +3,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -13,38 +14,61 @@
 using namespace xercesc;
 
 void writeNodeToFile(const std::vector<DOMNode*> &nodes, const std::string& filename) {
-    // Convert DOMNode to XML string
+    // Create a new document to hold the node without namespace context
     DOMImplementation* impl = DOMImplementationRegistry::getDOMImplementation(XMLString::transcode("LS"));
+    DOMDocument* newDoc = impl->createDocument(nullptr, nullptr, nullptr);
+    //DOMNode* newNode = new DOM("CityModel");
+    // 
+    DOMElement* groupNode = newDoc->createElementNS(L"http://www.opengis.net/citygml/2.0",L"core:CityModel");
+    newDoc->appendChild(groupNode);
+    XMLCh* nsURI = XMLString::transcode("http://www.opengis.net");
+    XMLCh* nsURI2 = XMLString::transcode("http://www.opengis.net/gml");
+    XMLCh* xmlnsPrefix2 = XMLString::transcode("xmlns:gml");
+    // Set the additional namespace as an attribute on the root element
+    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", xmlnsPrefix2, nsURI2);
+    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", L"xmlns:bldg", L"http://www.opengis.net/citygml/building/2.0");
+    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", L"xmlns:gen", L"http://www.opengis.net/citygml/generics/2.0");
+    // Convert DOMNode to XML string
     DOMLSSerializer* serializer = impl->createLSSerializer();
+    DOMLSOutput* output = impl->createLSOutput();
 
     // Make sure the output is nicely formatted
-    if (serializer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    if (serializer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
         serializer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-
-    // Write the XML string to a file
-    std::ofstream file(filename);
-    if (file.is_open()) {
-        for (const auto& node : nodes)
-        {
-            // Serialize the node to an XML string
-            XMLCh* xmlStr = serializer->writeToString(node);
-
-            // Convert XMLCh* to std::string
-            char* cStr = XMLString::transcode(xmlStr);
-            std::string xmlContent(cStr);
-            XMLString::release(&cStr);
-            file << xmlContent;
-            XMLString::release(&xmlStr);
-        }
-        file.close();
-        std::cout << "Written to " << filename << std::endl;
-    } else {
-        std::cerr << "Error: Could not open file " << filename << " for writing." << std::endl;
     }
 
+    // Set encoding to UTF-8
+    output->setEncoding(XMLString::transcode("UTF-8"));
+
+    // Set the target for writing output to a file
+    XMLFormatTarget* formatTarget = new LocalFileFormatTarget(filename.c_str());
+    output->setByteStream(formatTarget);
+
+
+        //file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<core:CityModel xmlns:brid=\"http://www.opengis.net/citygml/bridge/2.0\" xmlns:tran=\"http://www.opengis.net/citygml/transportation/2.0\" xmlns:frn=\"http://www.opengis.net/citygml/cityfurniture/2.0\" xmlns:wtr=\"http://www.opengis.net/citygml/waterbody/2.0\" xmlns:sch=\"http://www.ascc.net/xml/schematron\" xmlns:veg=\"http://www.opengis.net/citygml/vegetation/2.0\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:tun=\"http://www.opengis.net/citygml/tunnel/2.0\" xmlns:tex=\"http://www.opengis.net/citygml/texturedsurface/2.0\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:gen=\"http://www.opengis.net/citygml/generics/2.0\" xmlns:dem=\"http://www.opengis.net/citygml/relief/2.0\" xmlns:app=\"http://www.opengis.net/citygml/appearance/2.0\" xmlns:luse=\"http://www.opengis.net/citygml/landuse/2.0\" xmlns:xAL=\"urn:oasis:names:tc:ciq:xsdschema:xAL:2.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:smil20lang=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:pbase=\"http://www.opengis.net/citygml/profiles/base/2.0\" xmlns:smil20=\"http://www.w3.org/2001/SMIL20/\" xmlns:bldg=\"http://www.opengis.net/citygml/building/2.0\" xmlns:core=\"http://www.opengis.net/citygml/2.0\" xmlns:grp=\"http://www.opengis.net/citygml/cityobjectgroup/2.0\">" << std::endl;
+        for (const auto& node : nodes)
+        {
+            // Import the node into the new document (detaches it from namespace context)
+            DOMNode* importedNode = newDoc->importNode(node, true);
+
+            groupNode->appendChild(importedNode);
+
+        }
+        // Make sure the output is nicely formatted
+        if (serializer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
+            serializer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+        }
+
+        // Serialize the node to an XML string without xmlns attributes
+        serializer->write(newDoc, output);
+
+        std::cout << "Written to " << filename << std::endl;
+
     // Clean up
+    delete formatTarget;
+    output->release();
     serializer->release();
+    newDoc->release();
 }
 
 int main(int argc, char* argv[]) {
@@ -114,21 +138,33 @@ int main(int argc, char* argv[]) {
         if (posLists->getLength() > 0)
         {
             DOMNode* posList = posLists->item(0);
-            //char* value = XMLString::transcode(posList->getNodeValue());
-            DOMText* data = dynamic_cast<DOMText*>(posList);
-            //if(DOMNode::TEXT_NODE == posList->getNodeType())
-            if(data != nullptr)
+            //std::cerr << "nodeName" << XMLString::transcode(posList->getNodeName()) << std::endl;
+            //std::cerr << "textContent" << XMLString::transcode(posList->getTextContent()) << std::endl;
+            const XMLCh* val = posList->getTextContent();
+            char* strVal = XMLString::transcode(val);
+            float x = 0, y = 0;
+            int num = sscanf(strVal, "%f %f", &x, &y);
+            if (num == 2)
             {
-                const XMLCh* val = data->getWholeText();
-                char *strVal = XMLString::transcode(val);
-                float x, y;
-                sscanf(strVal, "%f %f",&x,&y);
                 size_t xi = (size_t)x;
                 size_t yi = (size_t)y;
                 size_t i, j;
-                i = (xi / 1000) - 6633;
+                i = (xi / 1000) - 6377;
                 j = (yi / 1000) - 370;
-                cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
+                if (i < nx && j < ny)
+                {
+                    cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
+                }
+            }
+        }
+        DOMNodeList* surfaceList = currentElement->getElementsByTagName(XMLString::transcode("gml:MultiSurface"));
+        for (XMLSize_t m = 0; m < surfaceList->getLength(); ++m)
+        {
+            DOMNode* multiSurface = surfaceList->item(m);
+            DOMElement* currentElement = dynamic_cast<DOMElement*>(multiSurface);
+            if (currentElement)
+            {
+                currentElement->setAttribute(L"orientation", L"-");
             }
         }
     }
