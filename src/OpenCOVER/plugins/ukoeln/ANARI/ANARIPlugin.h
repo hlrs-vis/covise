@@ -12,6 +12,7 @@
 #include <cover/coVRFileManager.h>
 #include "coTransfuncEditor.h"
 #include "Renderer.h"
+#include "ColorMaps.h"
 
 namespace opencover {
 namespace ui {
@@ -91,6 +92,7 @@ protected:
     std::vector<ui::Element *> rendererUI;
 
     coTransfuncEditor *tfe = nullptr;
+    util::ColorMapLibrary colorMaps;
 
     int previousRendererType = -1;
     int rendererType = 0;

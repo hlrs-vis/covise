@@ -66,7 +66,7 @@ public:
                       float relRangeLo, float relRangeHi,
                       float opacityScale)
     {
-        color.data.resize(numRGB);
+        color.data.resize(numRGB*3);
         std::memcpy(color.data.data(), rgb, sizeof(color.data[0])*color.data.size());
         color.updated = true;
 
@@ -75,6 +75,26 @@ public:
         opacity.updated = true;
 
         updateColorImage();
+        updateAlphaImage();
+        geom->dirtyDisplayList();
+    }
+
+    void setColor(const float *rgb, unsigned numRGB)
+    {
+        color.data.resize(numRGB*3);
+        std::memcpy(color.data.data(), rgb, sizeof(color.data[0])*color.data.size());
+        color.updated = true;
+
+        updateColorImage();
+        geom->dirtyDisplayList();
+    }
+
+    void setOpacity(const float *alpha, unsigned numAlpha)
+    {
+        this->opacity.data.resize(numAlpha);
+        std::memcpy(opacity.data.data(), alpha, sizeof(opacity.data[0])*opacity.data.size());
+        opacity.updated = true;
+
         updateAlphaImage();
         geom->dirtyDisplayList();
     }
@@ -421,6 +441,16 @@ void coTransfuncEditor::setTransfunc(const float *rgb, unsigned numRGB,
     canvas->setTransfunc(rgb, numRGB, opacity, numOpacities,
                          absRangeLo, absRangeHi, relRangeLo, relRangeHi,
                          opacityScale);
+}
+
+void coTransfuncEditor::setColor(const float *rgb, unsigned numRGB)
+{
+    canvas->setColor(rgb, numRGB);
+}
+
+void coTransfuncEditor::setOpacity(const float *opacity, unsigned numOpacities)
+{
+    canvas->setOpacity(opacity, numOpacities);
 }
 
 void coTransfuncEditor::show()

@@ -26,6 +26,7 @@ SET(HEADERS
   rply.h
   rplyfile.h
   coTransfuncEditor.h
+  ColorMaps.h
 )
 SET(SOURCES
   asg.cpp
@@ -35,6 +36,7 @@ SET(SOURCES
   hdri.cpp
   rply.c
   coTransfuncEditor.cpp
+  ColorMaps.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})

@@ -35,6 +35,8 @@ public:
                       float absRangeLo, float absRangeHi,
                       float relRangeLo, float relRangeHi,
                       float opacityScale);
+    void setColor(const float *rgb, unsigned numRGB);
+    void setOpacity(const float *opacity, unsigned numOpacities);
 
     void show();
     void hide();

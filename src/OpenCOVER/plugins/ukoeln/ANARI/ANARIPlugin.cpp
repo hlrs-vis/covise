@@ -531,16 +531,16 @@ void ANARIPlugin::buildUI()
 
     tfe = new coTransfuncEditor;
 
+    tfe->setColorUpdateFunc([](const float *rgb, unsigned numRGB, void *userData) {
+        Renderer *renderer = (Renderer *)userData;
+        if (!renderer) return;
+        renderer->setTransFunc((const glm::vec3 *)rgb, numRGB, nullptr, 0);
+    }, renderer.get());
+
     tfe->setOpacityUpdateFunc([](const float *opacity, unsigned numOpacities, void *userData) {
         Renderer *renderer = (Renderer *)userData;
         if (!renderer) return;
-
-        // dflt. colors for now:
-        std::vector<glm::vec3> color;
-        color.emplace_back(0.f, 0.f, 1.f);
-        color.emplace_back(0.f, 1.f, 0.f);
-        color.emplace_back(1.f, 0.f, 0.f);
-        renderer->setTransFunc(color.data(), color.size(), opacity, numOpacities);
+        renderer->setTransFunc(nullptr, 0, opacity, numOpacities);
     }, renderer.get());
 
     tfe->setOnSaveFunc([](const float *color, unsigned numRGB,
@@ -564,6 +564,17 @@ void ANARIPlugin::buildUI()
         os.write((const char *)&relRangeHi, sizeof(relRangeHi));
         os.write((const char *)&opacityScale, sizeof(opacityScale));
     }, nullptr);
+
+    // set default color map:
+    auto &cm = colorMaps.getMap(7);
+    // Flatten, and RGBA -> RGB
+    std::vector<float> rgb(cm.size()*3);
+    for (size_t i=0; i<cm.size(); ++i) {
+        rgb[i*3] = cm[i].x;
+        rgb[i*3+1] = cm[i].y;
+        rgb[i*3+2] = cm[i].z;
+    }
+    tfe->setColor(rgb.data(), rgb.size()/3);
 
     if (this->previousRendererType != this->rendererType) {
         tearDownUI();
