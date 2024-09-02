@@ -14,6 +14,8 @@
 // limitations under the License.                                           //
 // ======================================================================== //
 
+#include <stdexcept>
+
 #include "ColorMaps.h"
 
 //#define STB_IMAGE_IMPLEMENTATION 1
