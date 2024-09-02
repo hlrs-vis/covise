@@ -117,6 +117,7 @@ public:
             if (color.updateFunc) color.updateFunc(color.data.data(),
                                                    color.data.size()/3,
                                                    color.userData);
+            color.updated = false;
         }
 
         if (opacity.updated) {
