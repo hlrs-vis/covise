@@ -312,6 +312,9 @@ void Renderer::init()
     if (hdriEntryExists) {
         loadHDRI(hdriName);
     }
+
+    // generate default TF:
+    generateTransFunc();
 }
 
 void Renderer::loadMesh(std::string fn)
@@ -815,17 +818,17 @@ void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
                             const float *opacity, unsigned numOpacity)
 {
     if (rgb && numRGB != 0) {
-        newTransFunc.colors.resize(numRGB);
-        memcpy(newTransFunc.colors.data(),
+        transFunc.colors.resize(numRGB);
+        memcpy(transFunc.colors.data(),
                rgb,
-               newTransFunc.colors.size()*sizeof(newTransFunc.colors[0]));
+               transFunc.colors.size()*sizeof(transFunc.colors[0]));
     }
 
     if (opacity && numOpacity > 0) {
-        newTransFunc.opacities.resize(numOpacity);
-        memcpy(newTransFunc.opacities.data(),
+        transFunc.opacities.resize(numOpacity);
+        memcpy(transFunc.opacities.data(),
                opacity,
-               newTransFunc.opacities.size()*sizeof(newTransFunc.opacities[0]));
+               transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
     }
     
     transFunc.updated = true;
@@ -853,6 +856,7 @@ void Renderer::setParam(std::string name, DataType type, std::any value)
 
     // special handling for some params (TODO: deferred?!)
     if (name == "debug.colorByRank") {
+        generateTransFunc();
         transFunc.updated = true;
     }
 }
@@ -1909,58 +1913,30 @@ void Renderer::initClipPlanes()
     anari::commitParameters(anari.device, anari.renderer);
 }
 
-void Renderer::populateTransFunc()
+void Renderer::generateTransFunc()
 {
+    transFunc.colors.clear();
+    transFunc.opacities.clear();
+
     if (getParam("debug.colorByRank").as<bool>()) {
-        // store here so we can later restore it:
-        if (!transFunc.colors.empty()) {
-            newTransFunc.colors.resize(transFunc.colors.size());
-            memcpy(newTransFunc.colors.data(),
-                   transFunc.colors.data(),
-                   transFunc.colors.size()*sizeof(transFunc.colors[0]));
-        }
-
-        if (!transFunc.opacities.empty()) {
-            newTransFunc.opacities.resize(transFunc.opacities.size());
-            memcpy(newTransFunc.opacities.data(),
-                   transFunc.opacities.data(),
-                   transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
-        }
-
-        // apply per-rank colors:
-        transFunc.colors.clear();
         auto c = randomColor(mpiRank);
         transFunc.colors.emplace_back(c.x, c.y, c.z);
     } else {
-        if (!newTransFunc.colors.empty()) {
-            transFunc.colors.resize(newTransFunc.colors.size());
-            memcpy(transFunc.colors.data(),
-                   newTransFunc.colors.data(),
-                   newTransFunc.colors.size()*sizeof(newTransFunc.colors[0]));
-            newTransFunc.colors.clear();
-        } else {
-            transFunc.colors.emplace_back(0.f, 0.f, 1.f);
-            transFunc.colors.emplace_back(0.f, 1.f, 0.f);
-            transFunc.colors.emplace_back(1.f, 0.f, 0.f);
-        }
-       
-        if (!newTransFunc.opacities.empty()) {
-            transFunc.opacities.resize(newTransFunc.opacities.size());
-            memcpy(transFunc.opacities.data(),
-                   newTransFunc.opacities.data(),
-                   newTransFunc.opacities.size()*sizeof(newTransFunc.opacities[0]));
-            newTransFunc.opacities.clear();
-        } else {
-            transFunc.opacities.emplace_back(0.f);
-            transFunc.opacities.emplace_back(1.f);
-        }
+        // dflt. color map:
+        transFunc.colors.emplace_back(0.f, 0.f, 1.f);
+        transFunc.colors.emplace_back(0.f, 1.f, 0.f);
+        transFunc.colors.emplace_back(1.f, 0.f, 0.f);
+    }
+
+    // preserve alpha if it was set before
+    if (transFunc.opacities.empty()) {
+        transFunc.opacities.emplace_back(0.f);
+        transFunc.opacities.emplace_back(1.f);
     }
 }
 
 void Renderer::initTransFunc()
 {
-    populateTransFunc();
-
     if (anari.structuredVolume)
     {
         ANARIVolume anariVolume;

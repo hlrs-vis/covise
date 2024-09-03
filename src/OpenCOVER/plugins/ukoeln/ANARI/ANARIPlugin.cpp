@@ -575,10 +575,6 @@ void ANARIPlugin::buildUI()
         rgb[i*3+2] = cm[i].z;
     }
     tfe->setColor(rgb.data(), rgb.size()/3);
-    // default alpha ramp:
-    std::vector<float> alpha(2);
-    alpha[0] = 0.f; alpha[1] = 1.f;
-    tfe->setOpacity(alpha.data(), alpha.size());
 
     if (this->previousRendererType != this->rendererType) {
         tearDownUI();

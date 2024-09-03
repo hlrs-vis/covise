@@ -200,7 +200,7 @@ private:
       {"rr.jpegQuality", DataType::Int32, 80},
     };
 
-    void populateTransFunc();
+    void generateTransFunc();
 
     struct AABB {
         AABB() {
@@ -305,11 +305,6 @@ private:
         std::vector<float> opacities;
         bool updated = false;
     } transFunc;
-
-    struct {
-        std::vector<glm::vec3> colors;
-        std::vector<float> opacities;
-    } newTransFunc; // for deferred updates!
 
     struct {
         std::vector<Light> data;
