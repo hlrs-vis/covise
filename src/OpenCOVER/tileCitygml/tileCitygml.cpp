@@ -19,15 +19,15 @@ void writeNodeToFile(const std::vector<DOMNode*> &nodes, const std::string& file
     DOMDocument* newDoc = impl->createDocument(nullptr, nullptr, nullptr);
     //DOMNode* newNode = new DOM("CityModel");
     // 
-    DOMElement* groupNode = newDoc->createElementNS(L"http://www.opengis.net/citygml/2.0",L"core:CityModel");
+    DOMElement* groupNode = newDoc->createElementNS(u"http://www.opengis.net/citygml/2.0",u"core:CityModel");
     newDoc->appendChild(groupNode);
     XMLCh* nsURI = XMLString::transcode("http://www.opengis.net");
     XMLCh* nsURI2 = XMLString::transcode("http://www.opengis.net/gml");
     XMLCh* xmlnsPrefix2 = XMLString::transcode("xmlns:gml");
     // Set the additional namespace as an attribute on the root element
-    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", xmlnsPrefix2, nsURI2);
-    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", L"xmlns:bldg", L"http://www.opengis.net/citygml/building/2.0");
-    groupNode->setAttributeNS(L"http://www.w3.org/2000/xmlns/", L"xmlns:gen", L"http://www.opengis.net/citygml/generics/2.0");
+    groupNode->setAttributeNS(u"http://www.w3.org/2000/xmlns/", xmlnsPrefix2, nsURI2);
+    groupNode->setAttributeNS(u"http://www.w3.org/2000/xmlns/", u"xmlns:bldg", u"http://www.opengis.net/citygml/building/2.0");
+    groupNode->setAttributeNS(u"http://www.w3.org/2000/xmlns/", u"xmlns:gen", u"http://www.opengis.net/citygml/generics/2.0");
     // Convert DOMNode to XML string
     DOMLSSerializer* serializer = impl->createLSSerializer();
     DOMLSOutput* output = impl->createLSOutput();
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
             DOMElement* currentElement = dynamic_cast<DOMElement*>(multiSurface);
             if (currentElement)
             {
-                currentElement->setAttribute(L"orientation", L"-");
+                currentElement->setAttribute(u"orientation", u"-");
             }
         }
     }
