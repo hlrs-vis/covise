@@ -566,7 +566,7 @@ void ANARIPlugin::buildUI()
     }, nullptr);
 
     // set default color map:
-    auto &cm = colorMaps.getMap(7);
+    auto &cm = colorMaps.getMap(0);
     // Flatten, and RGBA -> RGB
     std::vector<float> rgb(cm.size()*3);
     for (size_t i=0; i<cm.size(); ++i) {
