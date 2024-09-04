@@ -5,7 +5,7 @@
 
 using namespace opencover;
 
-Tool::Tool(ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+Tool::Tool(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
 : m_toolHeadNode(toolHeadNode)
 , m_tableNode(tableNode)
 , m_group(group)
@@ -14,27 +14,24 @@ Tool::Tool(ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTran
     clearBtn->setCallback([this](){
         clear();
     });
-    m_numSectionsSlider = new ui::Slider(group, "numSections");
-    m_numSectionsSlider->setBounds(-1, 100);
-    m_numSectionsSlider->setValue(-1);
+    m_numSectionsSlider = std::make_unique<ui::SliderConfigValue>(group, "numSections", -1, file, "ToolMachinePlugin", config::Flag::PerModel);
+    m_numSectionsSlider->ui()->setBounds(-1, 100);
 
-    m_minAttribute = new ui::EditField(group, "minAttribute");
-    m_minAttribute->setValue(0);
-    m_maxAttribute = new ui::EditField(group, "maxAttribute");
-    m_maxAttribute->setValue(1);
-    m_maxAttribute->setCallback([this](const std::string &text){
-        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
+    m_minAttribute = std::make_unique<ui::EditFieldConfigValue>(group, "minAttribute", "0", file, "ToolMachinePlugin", config::Flag::PerModel);
+    m_maxAttribute = std::make_unique<ui::EditFieldConfigValue>(group, "maxAttribute", "1", file, "ToolMachinePlugin", config::Flag::PerModel);
+    m_maxAttribute->setUpdater([this](){
+        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number());
     });
-    m_minAttribute->setCallback([this](const std::string &text){
-        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
+    m_minAttribute->setUpdater([this](){
+        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number());
     });
     m_colorMapSelector = new covise::ColorMapSelector(*group);
     m_colorMapSelector->setCallback([this](const covise::ColorMap &cm)
     {
-        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
+        applyShader(m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number());
     });
 
-    m_attributeName = new ui::SelectionList(group, "attribute");
+    m_attributeName = std::make_unique<ui::SelectionListConfigValue>(group, "attribute", 0, file, "ToolMachinePlugin", config::Flag::PerModel);
     m_client = opcua::getClient(group->name());
     assert(m_client);
 }
@@ -59,7 +56,12 @@ void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
     {
     case opcua::Client::Connected:
     case opcua::Client::Disconnected:
-        m_attributeName->setList(getAttributes());
+    {
+        auto attributes = getAttributes();
+        attributes.push_back("custom");
+        m_attributeName->ui()->setList(attributes);
+        m_attributeName->ui()->select(m_attributeName->getValue());
+    }
     break;
     
     default:
@@ -80,7 +82,11 @@ const std::vector<UpdateValues> &Tool::getUpdateValues()
     {
     case opcua::Client::Connected:
     case opcua::Client::Disconnected:
-        m_attributeName->setList(getAttributes());
+    {
+        auto attributes = getAttributes();
+        m_attributeName->ui()->setList(attributes);
+        m_attributeName->ui()->select(m_attributeName->getValue());
+    }
     break;
     
     default:

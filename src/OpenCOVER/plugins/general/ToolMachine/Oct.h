@@ -10,7 +10,7 @@
 class Oct : public Tool
 {
 public:
-    Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    Oct(opencover::ui::Group *group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
     void setOffset(const std::string &name);    
     void setScale(float scale);
 private:

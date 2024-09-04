@@ -5,11 +5,13 @@
 #include <memory>
 #include <map>
 
+#include <cover/ui/Button.h>
+#include <cover/ui/CovConfigLink.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
-#include <cover/ui/Button.h>
+
 #include <osg/MatrixTransform>
 #include <osg/Observer>
 #include <PluginUtil/coColorMap.h>
@@ -21,12 +23,13 @@ struct UpdateValues{
     std::function<void(double)> func;
 };
 
+
 class SelfDeletingTool;
 
 class Tool{
 public:
     friend SelfDeletingTool;
-    Tool(opencover::ui::Group* group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    Tool(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
     virtual ~Tool() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
     void pause(bool state);
@@ -40,10 +43,10 @@ protected:
     osg::MatrixTransform *m_toolHeadNode = nullptr;
     osg::MatrixTransform *m_tableNode = nullptr;
     std::unique_ptr<opencover::ui::Group> m_group;
-    opencover::ui::Slider *m_numSectionsSlider;
+    std::unique_ptr<opencover::ui::SliderConfigValue> m_numSectionsSlider;
     covise::ColorMapSelector *m_colorMapSelector;
-    opencover::ui::SelectionList *m_attributeName;
-    opencover::ui::EditField *m_minAttribute, *m_maxAttribute;
+    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_attributeName;
+    std::unique_ptr<opencover::ui::EditFieldConfigValue> m_minAttribute, m_maxAttribute;
     opencover::opcua::Client *m_client;
     opencover::opcua::ObserverHandle m_opcuaAttribId;
     bool m_paused = false;

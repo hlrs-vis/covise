@@ -301,12 +301,12 @@ bool ToolMaschinePlugin::addTool(MachineNode *m)
     ui::Group *machineGroup = new ui::Group(m_menu, m->d_MachineName.get());
     if(strcmp(m->d_VisualizationType.get(), "Currents") == 0 )
     {
-        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, toolHead, table));
+        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Currents>(machineGroup, *config(), toolHead, table));
         return true;
     }
     if(strcmp(m->d_VisualizationType.get(), "Oct") == 0 )
     {
-        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Oct>(machineGroup, toolHead, table));
+        new SelfDeletingTool(m_tools, m->d_MachineName.get(), std::make_unique<Oct>(machineGroup, *config(), toolHead, table));
         dynamic_cast<Oct*>(m_tools[m->d_MachineName.get()]->value.get())->setScale(m->d_OpcUaToVrml.get());
         return true;
     }

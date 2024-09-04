@@ -10,8 +10,8 @@ using namespace opencover;
 constexpr unsigned int allPointsPrimitiveIndex = 0;
 constexpr unsigned int reducedPointsPrimitiveIndex = 1;
 
-Oct::Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: Tool(group, toolHeadNode, tableNode)
+Oct::Oct(opencover::ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+: Tool(group, file, toolHeadNode, tableNode)
 , m_pointSizeSlider(new ui::Slider(group, "pointSize"))
 , m_showSurfaceBtn(new ui::Button(group, "showSurface"))
 , m_switchVecScalar(new ui::Button(group, "toggleData"))
@@ -24,11 +24,12 @@ Oct::Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::M
         for(auto &section : m_sections)
             static_cast<osg::Point *>(section.points->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(m_pointSizeSlider->value());
     });
-    m_attributeName->setCallback([this](int i){
-        m_opcuaAttribId = m_client->observeNode(m_attributeName->selectedItem());
+    m_attributeName->setUpdater([this](){
+        m_opcuaAttribId = m_client->observeNode(m_attributeName->ui()->selectedItem());
     });
-    m_numSectionsSlider->setCallback([this](ui::Slider::ValueType val, bool b){
+    m_numSectionsSlider->setUpdater([this](){
         Section::Visibility vis = Section::Visible;
+        auto val = m_numSectionsSlider->getValue();
         if(!m_showSurfaceBtn->state())
             vis = Section::PointsOnly;
         if(val < 0)
@@ -309,7 +310,7 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
     if(paused)
         return;
     auto toolHeadPos = toolHeadInTableCoords();
-    addPoints(data, m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
+    addPoints(data, m_attributeName->ui()->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
 
 
     for(auto &section : m_sections)
@@ -327,11 +328,11 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
 
 Oct::Section &Oct::addSection(size_t numVerts)
 {
-    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number(), m_tableNode);
+    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number(), m_tableNode);
     if(m_sections.size() > numSections)
         m_sections.pop_front();
-    if(m_numSectionsSlider->value() > 0 && m_sections.size() > m_numSectionsSlider->value())
-        m_sections[m_sections.size() - m_numSectionsSlider->value()].show(Section::Invisible);
+    if(m_numSectionsSlider->getValue() > 0 && m_sections.size() > m_numSectionsSlider->getValue())
+        m_sections[m_sections.size() - m_numSectionsSlider->getValue()].show(Section::Invisible);
     if(!m_showSurfaceBtn->state())
         section.show(Section::PointsOnly);
     return section;

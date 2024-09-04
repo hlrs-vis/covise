@@ -20,17 +20,17 @@ opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const covise::Co
     return applyShader(drawable, colorMap, min, max, "MapColorsAttribUnlit");
 }
 
-Currents::Currents(ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: Tool(group, toolHeadNode, tableNode)
+Currents::Currents(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+: Tool(group, file, toolHeadNode, tableNode)
 {
     initGeo();
-    m_attributeName->setCallback([this](int i){
-        m_opcuaAttribId = m_client->observeNode(m_attributeName->selectedItem());
+    m_attributeName->setUpdater([this](){
+        m_opcuaAttribId = m_client->observeNode(m_attributeName->ui()->selectedItem());
         m_updateValues.clear();
-        m_updateValues.push_back({m_attributeName->selectedItem(), [this](double value){
+        m_updateValues.push_back({m_attributeName->ui()->selectedItem(), [this](double value){
             m_values->push_back(value);
             m_vertices->push_back(toolHeadInTableCoords());
-            int numElements = m_numSectionsSlider->value() < 0? (int)m_vertices->size() : m_numSectionsSlider->value();
+            int numElements = m_numSectionsSlider->getValue() < 0? (int)m_vertices->size() : m_numSectionsSlider->getValue();
             m_drawArrays->setFirst(std::max(0, (int)m_vertices->size() - numElements));
             m_drawArrays->setCount(std::min(numElements, (int)m_vertices->size()));
             m_traceLine->setVertexArray(m_vertices);
@@ -77,7 +77,7 @@ void Currents::initGeo()
     linewidth->setWidth(10.0f);
     stateSet->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
     m_tableNode->addChild(m_traceLine);
-    applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number());
+    applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number());
 
 }
 
