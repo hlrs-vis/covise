@@ -34,7 +34,9 @@
 #  include <osgEarth/URI>
 #endif // ENABLE_OE
 #include <unordered_map>
+#ifndef TINYGLTF_ENABLE_DRACO
 #define TINYGLTF_ENABLE_DRACO
+#endif
 #include "tiny_gltf.h"
 /**
  * Simple convenience construct to make another type "lockable"
