@@ -117,15 +117,52 @@ int main(int argc, char **argv) {
             }
 
             // Search and replace in lines containing "gml:MultiSurface"
-            if (line.find("gml:MultiSurface") != std::string::npos && line.find("/gml:MultiSurface") == std::string::npos) {
+            /*if (line.find("gml:MultiSurface") != std::string::npos && line.find("/gml:MultiSurface") == std::string::npos) {
                 size_t pos = line.find(">");
                 if (pos != std::string::npos) {
                     line.insert(pos, " orientation=\"-\"");
                 }
-            }
+            }*/
+                size_t pospos = line.find("posList");
+                if (pospos != std::string::npos) {
+                    std::ostringstream oss;
+                    oss << line.substr(0,pospos+8);
+                    std::string coordinatesStr = line.substr(pospos+8);
+                    std::istringstream iss(coordinatesStr);
+                    double x=0, y=0, z=0;
+                    std::vector<double> coordinates;
+                    oss << std::setprecision(12);
 
+                    // Read triplets of coordinates (x, y, z)
+                    while (iss >> x >> y >> z) {
+                        auto nextChar = iss.peek();
+                        if (nextChar == '<') {
+                            break; // Stop parsing coordinates if "<" is found
+                        }
+                        if(x!=0 && y!=0)
+                        {
+                            // Switch x and y for each coordinate triple
+                            coordinates.push_back(y);
+                            coordinates.push_back(x);
+                            coordinates.push_back(z);
+                        }
+                        x=0;y=0;z=0;
+                    }
+                    for(const auto &c:coordinates)
+                    {
+                        oss << c << " ";
+                    }
+                    oss << "</gml:posList>";
             // Write the modified or original line to the output file
-            outputFile << line << std::endl;
+            outputFile << oss.str() << std::endl;
+               }
+               else
+               {
+                    
+
+                // Write the modified or original line to the output file
+                outputFile << line << std::endl;
+               }
         }
             }
         outputFile << "</core:CityModel>" << std::endl;
