@@ -1,5 +1,5 @@
 MACRO(USE_SDL2)
-    covise_find_package(sdl2)
+    covise_find_package(SDL2)
     if ((NOT SDL2_INCLUDE_DIRS) AND (${ARGC} LESS 1))
         using_message("Skipping because of missing SDL2 includes")
         return()
