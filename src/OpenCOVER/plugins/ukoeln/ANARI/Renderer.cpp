@@ -856,7 +856,6 @@ void Renderer::setParam(std::string name, DataType type, std::any value)
 
     // special handling for some params (TODO: deferred?!)
     if (name == "debug.colorByRank") {
-        generateTransFunc();
         transFunc.updated = true;
     }
 }
@@ -1915,20 +1914,14 @@ void Renderer::initClipPlanes()
 
 void Renderer::generateTransFunc()
 {
-    transFunc.colors.clear();
-    transFunc.opacities.clear();
-
-    if (getParam("debug.colorByRank").as<bool>()) {
-        auto c = randomColor(mpiRank);
-        transFunc.colors.emplace_back(c.x, c.y, c.z);
-    } else {
-        // dflt. color map:
+    // dflt. color map:
+    if (transFunc.colors.empty()) {
         transFunc.colors.emplace_back(0.f, 0.f, 1.f);
         transFunc.colors.emplace_back(0.f, 1.f, 0.f);
         transFunc.colors.emplace_back(1.f, 0.f, 0.f);
     }
 
-    // preserve alpha if it was set before
+    // dflt. alpha ramp:
     if (transFunc.opacities.empty()) {
         transFunc.opacities.emplace_back(0.f);
         transFunc.opacities.emplace_back(1.f);
@@ -1937,42 +1930,38 @@ void Renderer::generateTransFunc()
 
 void Renderer::initTransFunc()
 {
+    ANARIVolume anariVolume{nullptr};
     if (anari.structuredVolume)
     {
-        ANARIVolume anariVolume;
         asgStructuredVolumeGetAnariHandle(anari.structuredVolume, &anariVolume);
-
-        if (anariVolume) {
-            anari::setAndReleaseParameter(
-                anari.device, anariVolume, "color",
-                anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
-            anari::setAndReleaseParameter(
-                anari.device, anariVolume, "opacity",
-                anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
-            anari::commitParameters(anari.device, anariVolume);
-        }
     }
 
     if (anari.amrVolume.volume)
     {
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "color",
-            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "opacity",
-            anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
-        anari::commitParameters(anari.device, anari.amrVolume.volume);
+        anariVolume = anari.amrVolume.volume;
     }
 
     if (anari.unstructuredVolume.volume)
     {
+        anariVolume = anari.unstructuredVolume.volume;
+    }
+
+    std::vector<glm::vec3> colors;
+    if (getParam("debug.colorByRank").as<bool>()) {
+        auto c = randomColor(mpiRank);
+        colors.emplace_back(c.x, c.y, c.z);
+    } else {
+        colors = transFunc.colors;
+    }
+
+    if (anariVolume) {
         anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "color",
-            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
+            anari.device, anariVolume, "color",
+            anari::newArray1D(anari.device, colors.data(), colors.size()));
         anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "opacity",
+            anari.device, anariVolume, "opacity",
             anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
-        anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+        anari::commitParameters(anari.device, anariVolume);
     }
 }
 
