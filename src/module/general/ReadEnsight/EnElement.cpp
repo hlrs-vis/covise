@@ -229,8 +229,8 @@ const EnElement &
 // extend it later to Ensight elements which are not present in COVISE
 // like hexa20...
 // EnElement::remap(int *eleIn, int *eleOut, int *newTypes, int *newElem...)
-int
-EnElement::remap(int *cornIn, int *cornOut)
+unsigned int
+EnElement::remap(unsigned int *cornIn, unsigned int *cornOut)
 {
     // only 2D elements have to be remaped
     // at the first stage
@@ -269,13 +269,13 @@ EnElement::empty() const
     return empty_;
 }
 
-int
+unsigned int
 EnElement::getNumberOfCorners() const
 {
     return numCorn_;
 }
 
-int
+unsigned int
 EnElement::getDim() const
 {
     return dim_;
@@ -294,13 +294,13 @@ EnElement::getEnTypeStr() const
 }
 
 // return number and array of distinct corners
-int
-EnElement::distinctCorners(const int *ci, int *co) const
+unsigned int
+EnElement::distinctCorners(const unsigned int *ci, unsigned int *co) const
 {
     if (ci != NULL)
     {
-        int i, j;
-        int distinct(numCorn_);
+        unsigned int i, j;
+        unsigned int distinct(numCorn_);
         bool fnd;
         for (i = 0; i < numCorn_; ++i)
         {
@@ -326,12 +326,12 @@ EnElement::distinctCorners(const int *ci, int *co) const
 }
 
 void
-EnElement::setBlacklist(const vector<int> &bl)
+EnElement::setBlacklist(const vector<unsigned int> &bl)
 {
     dataBlacklist_ = bl;
 }
 
-vector<int>
+vector<unsigned int>
 EnElement::getBlacklist() const
 {
     return dataBlacklist_;

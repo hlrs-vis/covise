@@ -87,13 +87,13 @@ public:
 
     // return the dimensionality of element
     // i.e. 2D 3D
-    int getDim() const;
+    unsigned int getDim() const;
 
     // is it a valid ENSIGHT element
     bool valid() const;
 
     // return the number of corners
-    int getNumberOfCorners() const;
+    unsigned int getNumberOfCorners() const;
 
     // return COVISE type
     int getCovType() const;
@@ -101,32 +101,32 @@ public:
     bool empty() const;
 
     // remap: either resort element corners or make new connectivity
-    int remap(int *cornIn, int *cornOut);
+    unsigned int remap(unsigned int *cornIn, unsigned int *cornOut);
 
     // return ENSIGHT type as a string
     string getEnTypeStr() const;
 
     // returns true if cell is fully degenerated i.e. a point
-    int distinctCorners(const int *ci, int *co) const;
+    unsigned int distinctCorners(const unsigned int *ci, unsigned int *co) const;
 
-    void setBlacklist(const vector<int> &bl);
+    void setBlacklist(const vector<unsigned int> &bl);
 
-    vector<int> getBlacklist() const;
+    vector<unsigned int> getBlacklist() const;
 
 private:
     bool valid_;
     bool empty_;
-    int numCorn_;
-    int dim_;
-    int covType_;
-    int enType_;
+    unsigned int numCorn_;
+    unsigned int dim_;
+    unsigned int covType_;
+    unsigned int enType_;
 
-    int startIdx_;
-    int endIdx_;
+    unsigned int startIdx_;
+    unsigned int endIdx_;
 
     string enTypeStr_;
 
-    vector<int> dataBlacklist_;
+    vector<unsigned int> dataBlacklist_;
 };
 
 #endif

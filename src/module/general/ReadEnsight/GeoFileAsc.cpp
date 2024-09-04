@@ -215,18 +215,18 @@ En6GeoASC::readCoords()
         dc_.x = new float[numCoords_];
         dc_.y = new float[numCoords_];
         dc_.z = new float[numCoords_];
-        indexMap_ = new int[numCoords_];
+        indexMap_ = new unsigned int[numCoords_];
         maxIndex_ = numCoords_ - 1;
 
         // read all coordinates
-        int i;
+        unsigned int i;
         for (i = 0; i < numCoords_; ++i)
         {
             fgets(buf, lineLen, in_);
             ++lineCnt_;
             //	    string tmp(buf);
             float x, y, z;
-            int idx, entries;
+            unsigned int idx, entries;
             switch (nodeId_)
             {
             case ASSIGN:
@@ -274,8 +274,8 @@ void
 En6GeoASC::parseForParts()
 {
     char buf[lineLen];
-    int numParts(0);
-    int totNumElements;
+    unsigned int numParts(0);
+    unsigned int totNumElements;
 
     EnPart *actPart(NULL);
 
@@ -284,7 +284,7 @@ En6GeoASC::parseForParts()
         fgets(buf, lineLen, in_);
         ++lineCnt_;
         string tmp(buf);
-        int actPartNr;
+        unsigned int actPartNr;
 
         // scan for part token
         // read comment and print part line
@@ -330,7 +330,7 @@ En6GeoASC::parseForParts()
             // get number of elements
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int numElements = atoi(buf);
+            unsigned int numElements = atoi(buf);
 
             // add element info to the part
             if (actPart != NULL)
@@ -352,7 +352,7 @@ En6GeoASC::parseForParts()
             }
 
             totNumElements += numElements;
-            int i;
+            unsigned int i;
             // proceed number of elements lines
             for (i = 0; i < numElements; ++i)
             {
@@ -392,24 +392,24 @@ En6GeoASC::readConn()
     char buf[lineLen];
     size_t id;
 
-    int nEle(0);
-    int *elePtr(NULL), *typePtr(NULL), *connPtr(NULL);
-    int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
-    int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
-    int currEleIdx2d = 0, currEleIdx3d = 0, currConnIdx(0);
+    unsigned int nEle(0);
+    unsigned int *elePtr(NULL), *typePtr(NULL), *connPtr(NULL);
+    unsigned int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
+    unsigned int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
+    unsigned int currEleIdx2d = 0, currEleIdx3d = 0, currConnIdx(0);
 
-    int tNc, begNc(0);
+    unsigned int tNc, begNc(0);
 
-    int *locArr = new int[21]; // an ENSIGHT element has max. 20 corners + 1 index
-    int cornIn[20];
-    int cornOut[20];
+    unsigned int *locArr = new unsigned int[21]; // an ENSIGHT element has max. 20 corners + 1 index
+    unsigned int cornIn[20];
+    unsigned int cornOut[20];
 
-    int numElements;
-    int nc;
-    int covType;
-    int onEle;
-    int onCorner;
-    int cnt(0);
+    unsigned int numElements;
+    unsigned int nc;
+    unsigned int covType;
+    unsigned int onEle;
+    unsigned int onCorner;
+    unsigned int cnt(0);
 
     EnPart *actPart(NULL);
 
@@ -419,14 +419,14 @@ En6GeoASC::readConn()
 
     bool partActive = false;
 
-    vector<int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
+    vector<unsigned int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
 
     while (!feof(in_))
     {
         fgets(buf, lineLen, in_);
         ++lineCnt_;
         string tmp(buf);
-        int actPartNr;
+        unsigned int actPartNr;
 
         // scan for part token
         id = tmp.find("part");
@@ -451,12 +451,12 @@ En6GeoASC::readConn()
                 if (actPart != NULL)
                 {
                     // create arrys explicitly
-                    elePtr2d = new int[eleLst2d.size()];
-                    elePtr3d = new int[eleLst3d.size()];
-                    typePtr2d = new int[typeLst2d.size()];
-                    typePtr3d = new int[typeLst3d.size()];
-                    connPtr2d = new int[cornLst2d.size()];
-                    connPtr3d = new int[cornLst3d.size()];
+                    elePtr2d = new unsigned int[eleLst2d.size()];
+                    elePtr3d = new unsigned int[eleLst3d.size()];
+                    typePtr2d = new unsigned int[typeLst2d.size()];
+                    typePtr3d = new unsigned int[typeLst3d.size()];
+                    connPtr2d = new unsigned int[cornLst2d.size()];
+                    connPtr3d = new unsigned int[cornLst3d.size()];
 
                     copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
                     copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -539,7 +539,7 @@ En6GeoASC::readConn()
             nc = elem.getNumberOfCorners();
             covType = elem.getCovType();
             // read the connectivity
-            int i;
+            unsigned int i;
             for (i = 0; i < numElements; ++i)
             {
                 fgets(buf, lineLen, in_);
@@ -570,9 +570,9 @@ En6GeoASC::readConn()
 
                 // remap indicees (Ensight elements may have a different numbering scheme
                 //                 as COVISE elements)
-                int k(0);
+                unsigned int k(0);
                 //  prepare arrays
-                int j;
+                unsigned int j;
                 for (j = begNc; j < tNc; ++j)
                 {
                     switch (nodeId_)
@@ -626,12 +626,12 @@ En6GeoASC::readConn()
         if ((actPart != NULL))
         {
             // create arrys explicitly
-            elePtr2d = new int[eleLst2d.size()];
-            elePtr3d = new int[eleLst3d.size()];
-            typePtr2d = new int[typeLst2d.size()];
-            typePtr3d = new int[typeLst3d.size()];
-            connPtr2d = new int[cornLst2d.size()];
-            connPtr3d = new int[cornLst3d.size()];
+            elePtr2d = new unsigned int[eleLst2d.size()];
+            elePtr3d = new unsigned int[eleLst3d.size()];
+            typePtr2d = new unsigned int[typeLst2d.size()];
+            typePtr3d = new unsigned int[typeLst3d.size()];
+            connPtr2d = new unsigned int[cornLst2d.size()];
+            connPtr3d = new unsigned int[cornLst3d.size()];
 
             copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
             copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -675,11 +675,11 @@ En6GeoASC::readConn()
 
 // helper converts char buf containing num ints of length int_leng to int-array arr
 void
-En6GeoASC::atoiArr(const int &int_leng, char *buf, int *arr, const int &num)
+En6GeoASC::atoiArr(const unsigned int &int_leng, char *buf, unsigned int *arr, const unsigned int &num)
 {
     if ((buf != NULL) && (arr != NULL))
     {
-        int cnt = 0, i = 0;
+        unsigned int cnt = 0, i = 0;
         string str(buf);
         //cerr << "En6GeoASC::atoiArr(..) STR: " << str << endl;
         string::iterator it = str.begin();
@@ -718,7 +718,7 @@ En6GeoASC::readPart()
     if (isOpen_)
     {
         char buf[lineLen];
-        int noRead(0);
+        unsigned int noRead(0);
         // 2 lines decription - ignore it
         fgets(buf, lineLen, in_);
         ++lineCnt_;
@@ -728,7 +728,7 @@ En6GeoASC::readPart()
             // part No
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int partNo;
+            unsigned int partNo;
             noRead = sscanf(buf, "%d", &partNo);
             cerr << className_ << "::readPart() got part No: " << partNo << endl;
             if (noRead != 1)
@@ -751,7 +751,7 @@ En6GeoASC::readPart()
             // number of coordinates
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int nc(0);
+            unsigned int nc(0);
             noRead = sscanf(buf, "%d", &nc);
             cerr << className_ << "::readPart() got No. of coordinates (per part): " << nc << endl;
             if (noRead != 1)
@@ -760,7 +760,7 @@ En6GeoASC::readPart()
                 return -1;
             }
 
-            int onc(numCoords_);
+            unsigned int onc(numCoords_);
             numCoords_ += nc;
 
             // allocate memory
@@ -794,7 +794,7 @@ En6GeoASC::readPart()
 
             // id's or coordinates
             float val;
-            int i;
+            unsigned int i;
             switch (nodeId_)
             {
             case ASSIGN:
@@ -841,7 +841,7 @@ En6GeoASC::readPart()
                 break;
             case GIVEN:
                 // index array
-                int iVal;
+                unsigned int iVal;
                 for (i = 0; i < nc; ++i)
                 {
                     fgets(buf, lineLen, in_);
@@ -1000,22 +1000,22 @@ En6GeoASC::readPartConn(void)
 }
 
 void
-En6GeoASC::fillIndexMap(const int &i, const int &natIdx)
+En6GeoASC::fillIndexMap(const unsigned int &i, const unsigned int &natIdx)
 {
     //const int offSet(100);
     // initial
     if (maxIndex_ == 0)
     {
         maxIndex_ = numCoords_;
-        indexMap_ = new int[maxIndex_];
+        indexMap_ = new unsigned int[maxIndex_];
     }
     // realloc
     if (i >= maxIndex_)
     {
         //int * tmp = new int[i+offSet];
-        int newSize = (int)(i * 1.25);
-        int *tmp = new int[newSize];
-        int j;
+        unsigned int newSize = (unsigned int)(i * 1.25);
+        unsigned int *tmp = new unsigned int[newSize];
+        unsigned int j;
         for (j = 0; j < maxIndex_; ++j)
             tmp[j] = indexMap_[j];
         maxIndex_ = newSize;

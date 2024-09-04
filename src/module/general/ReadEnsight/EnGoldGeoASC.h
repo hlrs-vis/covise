@@ -61,15 +61,15 @@ private:
     // skip part
     int skipPart();
 
-    int lineCnt_; // actual linecount
-    int numCoords_; // number of coordinates
-    int *indexMap_; // index map array if node id: GIVEN
-    int maxIndex_; // max possible  index of indexmap
-    int lastNc_;
-    int globalCoordIndexOffset_;
-    int actPartNumber_;
-    int currElementIdx_;
-    int currCornerIdx_;
+    unsigned int lineCnt_; // actual linecount
+    unsigned int numCoords_; // number of coordinates
+    unsigned int *indexMap_; // index map array if node id: GIVEN
+    unsigned int maxIndex_; // max possible  index of indexmap
+    unsigned int lastNc_;
+    unsigned int globalCoordIndexOffset_;
+    unsigned int actPartNumber_;
+    unsigned int currElementIdx_;
+    unsigned int currCornerIdx_;
 
     vector<EnPart> parts_; // contains all parts of the current geometry
 

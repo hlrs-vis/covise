@@ -98,7 +98,7 @@ EnGoldGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
     // allocate memory for coords, connectivities...
     //allocateMemory();
 
-    int allPartsToRead(0);
+    unsigned int allPartsToRead(0);
     if (!ens->masterPL_.empty())
     {
         unsigned int ii;
@@ -112,7 +112,7 @@ EnGoldGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
     }
 
     char buf[256];
-    int cnt = 0;
+    unsigned int cnt = 0;
     partFound = false;
     // read parts and connectivity
     PartList::iterator it(ens->masterPL_.begin());
@@ -298,13 +298,13 @@ EnGoldGeoBIN::readPart(EnPart &actPart)
                 return -1;
             }
             // number of coordinates
-            int nc(getInt());
+            unsigned int nc(getInt());
             numCoords_ += nc;
             // we don't allocate indexMap_
             // fillIndexMap will do everything for us
             // id's or coordinates
-            int i;
-            int *iMap(NULL);
+            unsigned int i;
+            unsigned int *iMap(NULL);
 
             float *x = new float[nc];
             float *y = new float[nc];
@@ -315,8 +315,8 @@ EnGoldGeoBIN::readPart(EnPart &actPart)
             case GIVEN:
             {
                 // index array
-                iMap = new int[nc];
-                getIntArr(nc, iMap);
+                iMap = new unsigned int[nc];
+                getuIntArr(nc, iMap);
                 // workaround for broken EnsightFiles with Index map as floats
                 float *tmpf = (float *)(iMap);
                 if (nc > 2 && tmpf[0] == 1.0 && tmpf[1] == 2.0 && tmpf[2] == 3.0)
@@ -367,32 +367,32 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
     cerr << "readPartConn()" << endl;
 #endif
 
-    int &partNo(actPartNumber_);
+    unsigned int &partNo(actPartNumber_);
     int ret(0);
     if (!isOpen_)
         return -1;
 
     char buf[lineLen];
 
-    int currElePtr2d = 0, currElePtr3d = 0;
-    int *locArr(NULL);
-    int cornIn[20], cornOut[20];
-    int numElements, nc, covType;
+    unsigned int currElePtr2d = 0, currElePtr3d = 0;
+    unsigned int *locArr(NULL);
+    unsigned int cornIn[20], cornOut[20];
+    unsigned int numElements, nc, covType;
 
     partFound = false;
-    int numDistCorn;
-    int statistic[30];
-    int rstatistic[30][30];
-    int ii, jj;
+    unsigned int numDistCorn;
+    unsigned int statistic[30];
+    unsigned int rstatistic[30][30];
+    unsigned int ii, jj;
     for (ii = 0; ii < 30; ++ii)
     {
         statistic[ii] = 0;
         for (jj = 0; jj < 9; ++jj)
             rstatistic[ii][jj] = 0;
     }
-    int degCells(0);
+    unsigned int degCells(0);
 
-    vector<int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
+    vector<unsigned int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
 
     // we don't know a priori how many Ensight elements we can expect here therefore we have to read
     // until we find a new 'part'
@@ -410,7 +410,7 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
         // we have a valid ENSIGHT element
         if (elem.valid() && !partFound)
         {
-            vector<int> blacklist;
+            vector<unsigned int> blacklist;
             // get number of elements
             numElements = getInt();
 #ifdef DEBUG
@@ -427,27 +427,27 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                 if (elem.getEnTypeStr() == "nfaced")
                 {
                     // Read number of faces/points
-                    int *numFaces = new int[numElements];
-                    int **numPoints = new int *[numElements];
-                    getIntArr(numElements, numFaces);
-                    for (int i = 0; i < numElements; ++i)
+                    unsigned int *numFaces = new unsigned int[numElements];
+                    unsigned int **numPoints = new unsigned int *[numElements];
+                    getuIntArr(numElements, numFaces);
+                    for (unsigned int i = 0; i < numElements; ++i)
                     {
-                        numPoints[i] = new int[numFaces[i]];
-                        getIntArr(numFaces[i], numPoints[i]);
+                        numPoints[i] = new unsigned int[numFaces[i]];
+                        getuIntArr(numFaces[i], numPoints[i]);
                     }
                     if (includePolyeder_)
                     {
                         // Read elements (VARIANT 1)
-                        for (int i = 0; i < numElements; ++i)
+                        for (unsigned int i = 0; i < numElements; ++i)
                         {
                             typeLst3d.push_back(elem.getCovType());
                             eleLst3d.push_back(currElePtr3d);
-                            for (int j = 0; j < numFaces[i]; ++j)
+                            for (unsigned int j = 0; j < numFaces[i]; ++j)
                             {
                                 nc = numPoints[i][j];
-                                locArr = new int[nc];
-                                getIntArr(nc, locArr);
-                                for (int k = 0; k < nc; ++k)
+                                locArr = new unsigned int[nc];
+                                getuIntArr(nc, locArr);
+                                for (unsigned int k = 0; k < nc; ++k)
                                 {
                                     cornLst3d.push_back(locArr[k] - 1);
                                     currElePtr3d++;
@@ -490,9 +490,9 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                     }
                     else
                     {
-                        for (int i = 0; i < numElements; ++i)
+                        for (unsigned int i = 0; i < numElements; ++i)
                         {
-                            for (int j = 0; j < numFaces[i]; ++j)
+                            for (unsigned int j = 0; j < numFaces[i]; ++j)
                             {
                                 skipInt(numPoints[i][j]);
                             }
@@ -500,7 +500,7 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                         }
                     }
                     delete[] numFaces;
-                    for (int i = 0; i < numElements; ++i)
+                    for (unsigned int i = 0; i < numElements; ++i)
                         delete[] numPoints[i];
                     delete[] numPoints;
                 }
@@ -510,17 +510,17 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                 else if (elem.getEnTypeStr() == "nsided")
                 {
                     // Read number of points
-                    int *numPoints = new int[numElements];
-                    getIntArr(numElements, numPoints);
+                    unsigned int *numPoints = new unsigned int[numElements];
+                    getuIntArr(numElements, numPoints);
                     // Read elements
-                    for (int i = 0; i < numElements; ++i)
+                    for (unsigned int i = 0; i < numElements; ++i)
                     {
                         typeLst2d.push_back(elem.getCovType());
                         eleLst2d.push_back(currElePtr2d);
                         nc = numPoints[i];
-                        locArr = new int[nc];
-                        getIntArr(nc, locArr);
-                        for (int k = 0; k < nc; ++k)
+                        locArr = new unsigned int[nc];
+                        getuIntArr(nc, locArr);
+                        for (unsigned int k = 0; k < nc; ++k)
                         {
                             cornLst2d.push_back(locArr[k] - 1);
                         }
@@ -538,15 +538,15 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                 {
                     nc = elem.getNumberOfCorners();
                     covType = elem.getCovType();
-                    locArr = new int[numElements * nc];
-                    getIntArr(numElements * nc, locArr);
-                    int eleCnt(0), idx;
-                    for (int i = 0; i < numElements; ++i)
+                    locArr = new unsigned int[numElements * nc];
+                    getuIntArr(numElements * nc, locArr);
+                    unsigned int eleCnt(0), idx;
+                    for (unsigned int i = 0; i < numElements; ++i)
                     {
                         // remap indicees (Ensight elements may have a different numbering scheme
                         //                 as COVISE elements)
                         //  prepare arrays
-                        int j;
+                        unsigned int j;
                         for (j = 0; j < nc; ++j)
                         {
                             idx = eleCnt + j;
@@ -560,7 +560,7 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
                         {
                             if (numDistCorn != elem.getNumberOfCorners())
                             {
-                                int iii = elem.getNumberOfCorners();
+                                unsigned int iii = elem.getNumberOfCorners();
                                 statistic[iii]++;
                                 rstatistic[iii][numDistCorn]++;
                             }
@@ -613,15 +613,15 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
     if (partList_ != NULL)
     {
         // create arrys explicitly
-        int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
-        int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
+        unsigned int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
+        unsigned int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
 
-        elePtr2d = new int[eleLst2d.size()];
-        elePtr3d = new int[eleLst3d.size()];
-        typePtr2d = new int[typeLst2d.size()];
-        typePtr3d = new int[typeLst3d.size()];
-        connPtr2d = new int[cornLst2d.size()];
-        connPtr3d = new int[cornLst3d.size()];
+        elePtr2d = new unsigned int[eleLst2d.size()];
+        elePtr3d = new unsigned int[eleLst3d.size()];
+        typePtr2d = new unsigned int[typeLst2d.size()];
+        typePtr3d = new unsigned int[typeLst3d.size()];
+        connPtr2d = new unsigned int[cornLst2d.size()];
+        connPtr3d = new unsigned int[cornLst3d.size()];
 
         std::copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
         std::copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -675,8 +675,8 @@ EnGoldGeoBIN::~EnGoldGeoBIN()
 void
 EnGoldGeoBIN::parseForParts()
 {
-    int numParts(0);
-    int totNumElements;
+    unsigned int numParts(0);
+    unsigned int totNumElements;
 
     EnPart *actPart(NULL);
 
@@ -688,12 +688,12 @@ EnGoldGeoBIN::parseForParts()
 	{
 		return;
 	}
-    int cnt = 0;
+    unsigned int cnt = 0;
     bool validElementFound = false;
     while (!feof(in_))
     {
         string tmp(getStr());
-        int actPartNr;
+        unsigned int actPartNr;
         // scan for part token
         // read comment and print part line
         size_t id = tmp.find("part");
@@ -717,7 +717,7 @@ EnGoldGeoBIN::parseForParts()
             // coordinates token
             string coordTok(getStr());
             id = coordTok.find("coordinates");
-            int numCoords(0);
+            unsigned int numCoords(0);
             if (id != string::npos)
             {
                 // number of coordinates
@@ -766,24 +766,24 @@ EnGoldGeoBIN::parseForParts()
         else if (elem.valid())
         {
             // get number of elements
-            int numElements = getInt();
+            unsigned int numElements = getInt();
             if (elementId_ == GIVEN)
                 skipInt(numElements);
 
             if (elem.getEnTypeStr() == "nfaced")
             {
-                int numFaces = 0;
-                int numNodes = 0;
-                for (int i = 0; i < numElements; i++)
+                unsigned int numFaces = 0;
+                unsigned int numNodes = 0;
+                for (unsigned int i = 0; i < numElements; i++)
                     numFaces += getInt();
-                for (int i = 0; i < numFaces; i++)
+                for (unsigned int i = 0; i < numFaces; i++)
                     numNodes += getInt();
                 skipInt(numNodes);
             }
             else if (elem.getEnTypeStr() == "nsided")
             {
-                int numPoints = 0;
-                for (int i = 0; i < numElements; i++)
+                unsigned int numPoints = 0;
+                for (unsigned int i = 0; i < numElements; i++)
                     numPoints += getInt();
                 skipInt(numPoints);
             }
@@ -866,10 +866,10 @@ EnGoldGeoBIN::allocateMemory()
         dc_.z = new float[totNumCoords];
 
         dc_.setNumElem(totNumEle);
-        dc_.el = new int[totNumEle];
-        dc_.tl = new int[totNumEle];
+        dc_.el = new unsigned int[totNumEle];
+        dc_.tl = new unsigned int[totNumEle];
 
-        dc_.cl = new int[totNumCorners];
+        dc_.cl = new unsigned int[totNumCorners];
         dc_.setNumConn(totNumCorners);
 
         allocated_ = (dc_.x != NULL) && (dc_.y != NULL) && (dc_.z != NULL);
@@ -911,7 +911,7 @@ EnGoldGeoBIN::skipPart()
     {
         // part line found
         // get part number
-        int pn = getInt();
+        unsigned int pn = getInt();
         if (pn > 10000 || pn < 0)
         {
             byteSwap_ = !byteSwap_;
@@ -930,7 +930,7 @@ EnGoldGeoBIN::skipPart()
         string coordTok(getStr());
         // int id = coordTok.find("coordinates");
         id = coordTok.find("coordinates");
-        int numCoords(0);
+        unsigned int numCoords(0);
         if (id != string::npos)
         {
             // number of coordinates
@@ -989,25 +989,25 @@ EnGoldGeoBIN::skipPart()
         if (elem.valid())
         {
             // get number of elements
-            int numElements = getInt();
+            unsigned int numElements = getInt();
             if (elementId_ == GIVEN)
             {
                 skipInt(numElements);
             }
             if (elem.getEnTypeStr() == "nfaced")
             {
-                int numFaces = 0;
-                int numNodes = 0;
-                for (int i = 0; i < numElements; i++)
+                unsigned int numFaces = 0;
+                unsigned int numNodes = 0;
+                for (unsigned int i = 0; i < numElements; i++)
                     numFaces += getInt();
-                for (int i = 0; i < numFaces; i++)
+                for (unsigned int i = 0; i < numFaces; i++)
                     numNodes += getInt();
                 skipInt(numNodes);
             }
             else if (elem.getEnTypeStr() == "nsided")
             {
-                int numPoints = 0;
-                for (int i = 0; i < numElements; i++)
+                unsigned int numPoints = 0;
+                for (unsigned int i = 0; i < numElements; i++)
                     numPoints += getInt();
                 skipInt(numPoints);
             }
@@ -1026,20 +1026,20 @@ EnGoldGeoBIN::skipPart()
 }
 
 void
-EnGoldGeoBIN::fillIndexMap(const int &i, const int &natIdx)
+EnGoldGeoBIN::fillIndexMap(const unsigned int &i, const unsigned int &natIdx)
 {
-    const int offSet(10000);
+    const unsigned int offSet(10000);
     // initial
     if (maxIndex_ == 0)
     {
         maxIndex_ = numCoords_;
-        indexMap_ = new int[maxIndex_];
+        indexMap_ = new unsigned int[maxIndex_];
     }
     // realloc
     if (i >= maxIndex_)
     {
-        int *tmp = new int[i + offSet];
-        int j;
+        unsigned int *tmp = new unsigned int[i + offSet];
+        unsigned int j;
         for (j = 0; j < maxIndex_; ++j)
             tmp[j] = indexMap_[j];
         maxIndex_ = i + offSet;

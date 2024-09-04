@@ -210,9 +210,9 @@ En6GeoBIN::parseForParts()
         else if ((elementType.find("block")) < elementType.size())
         {
             cerr << "parseForParts::elementType is " << elementType << endl;
-            int num = 3;
-            int ijk[3];
-            getIntArr(num, ijk);
+            unsigned int num = 3;
+            unsigned int ijk[3];
+            getuIntArr(num, ijk);
             i = ijk[0];
             j = ijk[1];
             k = ijk[2];
@@ -414,7 +414,7 @@ En6GeoBIN::readCoords()
         {
             cerr << "Exception (alloc of coordinate arrays Line: __LINE__) : " << e.what();
         }
-        int *tmpIdxMap(NULL);
+        unsigned int *tmpIdxMap(NULL);
 
         float *coords(NULL);
         switch (nodeId_)
@@ -425,8 +425,8 @@ En6GeoBIN::readCoords()
             getFloatArr(3 * numCoords_, coords);
             break;
         case GIVEN:
-            tmpIdxMap = new int[numCoords_];
-            getIntArr(numCoords_, tmpIdxMap);
+            tmpIdxMap = new unsigned int[numCoords_];
+            getuIntArr(numCoords_, tmpIdxMap);
             coords = new float[3 * numCoords_];
             getFloatArr(3 * numCoords_, coords);
             break;
@@ -435,7 +435,7 @@ En6GeoBIN::readCoords()
             break;
         }
 
-        int cnt(0);
+        unsigned int cnt(0);
         for (int i = 0; i < 3 * numCoords_; i += 3)
         {
             dc_.x[cnt] = coords[i];
@@ -444,17 +444,17 @@ En6GeoBIN::readCoords()
             cnt++;
         }
         // fill the index map now
-        int idx(0);
+        unsigned int idx(0);
         if (tmpIdxMap != NULL)
         {
             // pre allocate indexMap_ to a reasonable size
             // this avoids that the indexMap_ has to be reallocated several times
             // which is extremely time consuming
-            int idxMax = *(std::max_element(tmpIdxMap, tmpIdxMap + numCoords_));
+            unsigned int idxMax = *(std::max_element(tmpIdxMap, tmpIdxMap + numCoords_));
             maxIndex_ = idxMax + 10; // we alloc 10 ints more 'cause fillIdxMap checks >= and are surely on the safe side
             try
             {
-                indexMap_ = new int[maxIndex_];
+                indexMap_ = new unsigned int[maxIndex_];
             }
             catch (std::exception &e)
             {
@@ -520,22 +520,22 @@ En6GeoBIN::readConn()
     // read until EOF is found
     size_t id;
 
-    int nEle(0);
-    int *elePtr(NULL), *typePtr(NULL), *connPtr(NULL);
-    int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
-    int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
-    int currEleIdx2d = 0, currEleIdx3d = 0, currConnIdx(0);
+    unsigned int nEle(0);
+    unsigned int *elePtr(NULL), *typePtr(NULL), *connPtr(NULL);
+    unsigned int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
+    unsigned int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
+    unsigned int currEleIdx2d = 0, currEleIdx3d = 0, currConnIdx(0);
 
-    int *locArr(NULL);
-    int cornIn[20];
-    int cornOut[20];
+    unsigned int *locArr(NULL);
+    unsigned int cornIn[20];
+    unsigned int cornOut[20];
 
-    int numElements;
-    int nc;
-    int covType;
-    int onEle;
-    int onCorner;
-    int cnt(0);
+    unsigned int numElements;
+    unsigned int nc;
+    unsigned int covType;
+    unsigned int onEle;
+    unsigned int onCorner;
+    unsigned int cnt(0);
 
     EnPart *actPart(NULL);
     if (ens->masterPL_.empty())
@@ -543,7 +543,7 @@ En6GeoBIN::readConn()
 
     bool partActive(false);
 
-    vector<int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
+    vector<unsigned int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
 
     while (!feof(in_))
     {
@@ -580,12 +580,12 @@ En6GeoBIN::readConn()
                 if (actPart != NULL)
                 {
                     // create arrys explicitly
-                    elePtr2d = new int[eleLst2d.size()];
-                    elePtr3d = new int[eleLst3d.size()];
-                    typePtr2d = new int[typeLst2d.size()];
-                    typePtr3d = new int[typeLst3d.size()];
-                    connPtr2d = new int[cornLst2d.size()];
-                    connPtr3d = new int[cornLst3d.size()];
+                    elePtr2d = new unsigned int[eleLst2d.size()];
+                    elePtr3d = new unsigned int[eleLst3d.size()];
+                    typePtr2d = new unsigned int[typeLst2d.size()];
+                    typePtr3d = new unsigned int[typeLst3d.size()];
+                    connPtr2d = new unsigned int[cornLst2d.size()];
+                    connPtr3d = new unsigned int[cornLst3d.size()];
 
                     copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
                     copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -660,13 +660,13 @@ En6GeoBIN::readConn()
             nc = elem.getNumberOfCorners();
             covType = elem.getCovType();
             // read the connectivity
-            int arrSize(numElements * nc);
+            unsigned int arrSize(numElements * nc);
             if (locArr != NULL)
                 cerr << "En6GeoBIN::readConnX(..) WARNING locArr != NULL before allocation" << endl;
 
             try
             {
-                locArr = new int[arrSize];
+                locArr = new unsigned int[arrSize];
             }
             catch (std::exception &e)
             {
@@ -683,20 +683,20 @@ En6GeoBIN::readConn()
                 switch (elementId_)
                 {
                 case ASSIGN:
-                    getIntArr(arrSize, locArr);
+                    getuIntArr(arrSize, locArr);
                     break;
                 case GIVEN:
                     //getIntArr( numElements, NULL);
                     skipInt(numElements);
-                    getIntArr(arrSize, locArr);
+                    getuIntArr(arrSize, locArr);
                     break;
                 case OFF:
                     // !!!!! find out what to do here
-                    getIntArr(arrSize, locArr);
+                    getuIntArr(arrSize, locArr);
                     break;
                 case EN_IGNORE:
                     // !!!! check this !!
-                    getIntArr(arrSize, locArr);
+                    getuIntArr(arrSize, locArr);
                     break;
                 }
             }
@@ -726,8 +726,8 @@ En6GeoBIN::readConn()
             if (partActive)
             {
                 // fill corner list
-                int locCnt(0);
-                int i, j;
+                unsigned int locCnt(0);
+                unsigned int i, j;
                 for (i = 0; i < numElements; ++i)
                 {
                     switch (elementId_)
@@ -792,10 +792,10 @@ En6GeoBIN::readConn()
         else if ((elementType.find("block")) < elementType.size())
         {
             cerr << "elementType is " << elementType << endl;
-            int num = 3;
-            int ijk[3];
-            int i, j, k;
-            getIntArr(num, ijk);
+            unsigned int num = 3;
+            unsigned int ijk[3];
+            unsigned int i, j, k;
+            getuIntArr(num, ijk);
             i = ijk[0];
             j = ijk[1];
             k = ijk[2];
@@ -815,12 +815,12 @@ En6GeoBIN::readConn()
         if ((actPart != NULL))
         {
             // create arrys explicitly
-            elePtr2d = new int[eleLst2d.size()];
-            elePtr3d = new int[eleLst3d.size()];
-            typePtr2d = new int[typeLst2d.size()];
-            typePtr3d = new int[typeLst3d.size()];
-            connPtr2d = new int[cornLst2d.size()];
-            connPtr3d = new int[cornLst3d.size()];
+            elePtr2d = new unsigned int[eleLst2d.size()];
+            elePtr3d = new unsigned int[eleLst3d.size()];
+            typePtr2d = new unsigned int[typeLst2d.size()];
+            typePtr3d = new unsigned int[typeLst3d.size()];
+            connPtr2d = new unsigned int[cornLst2d.size()];
+            connPtr3d = new unsigned int[cornLst3d.size()];
 
             copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
             copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -892,7 +892,7 @@ En6GeoBIN::checkAllocOffset()
     if (nStr)
     {
         bool ok = true;
-        for (int i = 0; i < strlen(nStr); ++i)
+        for (size_t i = 0; i < strlen(nStr); ++i)
             ok = ok && isdigit(nStr[i]);
         if (ok)
         {
@@ -907,16 +907,16 @@ En6GeoBIN::checkAllocOffset()
 }
 
 void
-En6GeoBIN::fillIndexMap(const int &i, const int &natIdx)
+En6GeoBIN::fillIndexMap(const unsigned int &i, const unsigned int &natIdx)
 {
-    int offSet = allocOffset_;
+    unsigned int offSet = allocOffset_;
     // initial
     if (maxIndex_ == 0)
     {
         maxIndex_ = numCoords_;
         try
         {
-            indexMap_ = new int[maxIndex_];
+            indexMap_ = new unsigned int[maxIndex_];
         }
         catch (std::exception &e)
         {
@@ -929,19 +929,19 @@ En6GeoBIN::fillIndexMap(const int &i, const int &natIdx)
         if (debug_)
         {
             cerr << "En6GeoBIN::fillIndexMap(..) reallocation indexMap up to "
-                 << (i + offSet) * sizeof(int) << " bytes" << endl;
+                 << (i + offSet) * sizeof(unsigned int) << " bytes" << endl;
         }
-        int *tmp = NULL;
+        unsigned int *tmp = NULL;
         try
         {
-            tmp = new int[i + offSet];
+            tmp = new unsigned int[i + offSet];
         }
         catch (std::exception &e)
         {
             cerr << "Exception (realloc of indexMap Line: __LINE__) : " << e.what();
             throw(e);
         }
-        int j;
+        unsigned int j;
         for (j = 0; j < maxIndex_; ++j)
             tmp[j] = indexMap_[j];
         maxIndex_ = i + offSet;

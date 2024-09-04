@@ -66,17 +66,17 @@ private:
     int readConn();
 
     // enter value i to index map (incl realloc)
-    void fillIndexMap(const int &i, const int &natIdx);
+    void fillIndexMap(const unsigned int &i, const unsigned int &natIdx);
 
     void checkAllocOffset();
 
-    int numCoords_; // number of coordinates
-    int *indexMap_; // index map array if node id: GIVEN
-    int maxIndex_; // max possible  index of indexmap
+    unsigned int numCoords_; // number of coordinates
+    unsigned int *indexMap_; // index map array if node id: GIVEN
+    unsigned int maxIndex_; // max possible  index of indexmap
 
     //vector<EnPart> parts_; // contains all parts of the current geometry
     bool resetAllocInc_;
-    int allocOffset_;
+    unsigned int allocOffset_;
     bool debug_;
 };
 #endif

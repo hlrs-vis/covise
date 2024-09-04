@@ -29,7 +29,7 @@
 //
 // Constructor
 //
-DataFileGold::DataFileGold(ReadEnsight *mod, const string &name, const int &dim, const int &numVals)
+DataFileGold::DataFileGold(ReadEnsight *mod, const string &name, const unsigned int &dim, const unsigned int &numVals)
     : EnFile(mod, name, dim)
     , lineCnt_(0)
     , numVals_(numVals)
@@ -66,14 +66,14 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
         // 1 lines decription - ignore it
         fgets(buf, lineLen, in_);
         ++lineCnt_;
-        int entries(0);
+        unsigned int entries(0);
         float val;
         size_t id(0);
-        int actPartNr;
+        unsigned int actPartNr;
         uint64_t numVal = 0;
         EnPart *actPart(NULL);
         float *arr1 = NULL, *arr2 = NULL, *arr3 = NULL;
-        int j, eleCnt2d = 0, eleCnt3d = 0;
+        unsigned int j, eleCnt2d = 0, eleCnt3d = 0;
         float **tArr = NULL;
 
         while (!feof(in_))
@@ -180,13 +180,13 @@ DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const str
                         anzEle = actPart->getElementNum(elementType);
                         //                         cerr << "DataFileGoldBin::readCells() " << anzEle << " for " << elementType  << endl;
                         EnElement thisEle = actPart->findElement(elementType);
-                        vector<int> bl(thisEle.getBlacklist());
+                        vector<unsigned int> bl(thisEle.getBlacklist());
                         if (thisEle.getBlacklist().size() != anzEle)
                         {
                             cerr << "DataFileGold::readCells( ) blacklist size problem " << bl.size() << endl;
                         }
 
-                        int i;
+                        unsigned int i;
                         switch (dim_)
                         {
                         case 1:
@@ -322,11 +322,11 @@ DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &
         fgets(buf, lineLen, in_);
         ++lineCnt_;
 
-        int entries(0);
+        unsigned int entries(0);
         float val;
-        int numGot(0);
+        unsigned int numGot(0);
         size_t id(0);
-        int actPartNr;
+        unsigned int actPartNr;
         uint64_t numVal = 0;
         EnPart *actPart = NULL, altPart;
 
@@ -392,7 +392,7 @@ DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &
             id = tmp.find("coordinates");
             if (id != string::npos)
             {
-                int i(0);
+                unsigned int i(0);
                 if ((actPart != NULL) && (actPart->isActive()))
                 {
                     numGot = 0;

@@ -1675,8 +1675,8 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                                                (int)dc.getNumElem(),
                                                (int)dc.getNumConn(),
                                                (int)dc.getNumCoord(),
-                                               dc.el, dc.cl,
-                                               xn, yn, zn, dc.tl);
+                                               (int *)dc.el, (int *)dc.cl,
+                                               xn, yn, zn, (int *)dc.tl);
 
                 delete[] xn;
                 delete[] yn;
@@ -1698,13 +1698,13 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                 uint64_t connOffset(0);
                 for (int i = 0; i < it->numEleRead3d(); ++i)
                 {
-                    uint64_t nextElementsConn = (i < it->numEleRead3d() - 1) ? (it->el3d_[i + 1]) : (it->numConnRead3d());
+                    uint64_t nextElementsConn =  (it->numEleRead3d() - 1) ? (it->el3d_[i + 1]) : (it->el3d_[i]); // if there is no next element, use currentElement
                     if (nextElementsConn > connOffset + MAX_LIST_SIZE)
                     {
                         // found a reason to split
                         // i is the first element after the split
-                        unsigned int numElem = (unsigned int)(i - elemOffset);
-                        unsigned int numConn = (unsigned int)(it->el3d_[i] - connOffset);
+                        unsigned int numElem = (unsigned int)(i - elemOffset)+1;
+                        unsigned int numConn = (unsigned int)(it->el3d_[i+1] - connOffset);
                         it->subParts_numElem.push_back(numElem);
                         it->subParts_numConn.push_back(numConn);
                         elemOffset += numElem;
@@ -1731,15 +1731,15 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                     cerr << "    copy lists" << endl;
 #endif
 
-                    int *tmp_el = new int[currentNumElem];
-                    int *tmp_tl = new int[currentNumElem];
-                    for (int i = 0; i < currentNumElem; ++i)
+                    unsigned int *tmp_el = new unsigned int[currentNumElem];
+                    unsigned int *tmp_tl = new unsigned int[currentNumElem];
+                    for (unsigned int i = 0; i < currentNumElem; ++i)
                     {
-                        tmp_el[i] = (int)(it->el3d_[elemOffset + i] - connOffset);
+                        tmp_el[i] = (unsigned int)(it->el3d_[elemOffset + i] - connOffset);
                         tmp_tl[i] = it->tl3d_[elemOffset + i];
                     }
-                    int *tmp_cl = new int[currentNumConn];
-                    for (int i = 0; i < currentNumConn; ++i)
+                    unsigned int *tmp_cl = new unsigned int[currentNumConn];
+                    for (unsigned int i = 0; i < currentNumConn; ++i)
                         tmp_cl[i] = it->cl3d_[connOffset + i];
 // standard reduce
 #ifdef DEBUG
@@ -1775,8 +1775,8 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
                                                                    (int)dc.getNumElem(),
                                                                    (int)dc.getNumConn(),
                                                                    (int)dc.getNumCoord(),
-                                                                   dc.el, dc.cl,
-                                                                   xn, yn, zn, dc.tl);
+                                                                   (int *)dc.el, (int *)dc.cl,
+                                                                   xn, yn, zn, (int *)dc.tl);
                     //             // clean tmp lists
                     delete[] xn;
                     delete[] yn;
@@ -1925,8 +1925,8 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 
             coDoPolygons *tmp = new coDoPolygons(oNm.c_str(),
                                                  (int)dc.getNumCoord(), xn, yn, zn,
-                                                 (int)dc.getNumConn(), dc.cl,
-                                                 (int)dc.getNumElem(), dc.el);
+                                                 (int)dc.getNumConn(), (int *)dc.cl,
+                                                 (int)dc.getNumElem(), (int *)dc.el);
 
             tmp->addAttribute("PART", partname.c_str());
             if (autoColoring_->getValue())

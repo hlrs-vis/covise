@@ -31,8 +31,8 @@ public:
     /// default CONSTRUCTOR
     DataFileGoldBin(ReadEnsight *mod,
                     const string &name,
-                    const int &dim,
-                    const int &numVals,
+                    const unsigned int &dim,
+                    const unsigned int &numVals,
                     const EnFile::BinType &binType = CBIN);
 
     void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
@@ -43,10 +43,10 @@ public:
     ~DataFileGoldBin();
 
 private:
-    int lineCnt_; // actual linecount
-    int numVals_; // number of values
-    int *indexMap_; // may contain indexMap
-    int actPartIndex_;
+    unsigned int lineCnt_; // actual linecount
+    unsigned int numVals_; // number of values
+    unsigned int *indexMap_; // may contain indexMap
+    unsigned int actPartIndex_;
 };
 
 #endif

@@ -76,9 +76,9 @@ public:
     float *y;
     float *z;
 
-    int *el;
-    int *cl;
-    int *tl;
+    unsigned int *el;
+    unsigned int *cl;
+    unsigned int *tl;
 
     void cleanAll();
 
@@ -131,7 +131,7 @@ public:
 
     EnFile(ReadEnsight *mod, const string &name, const BinType &binType = UNKNOWN);
 
-    EnFile(ReadEnsight *mod, const string &name, const int &dim, const BinType &binType = UNKNOWN);
+    EnFile(ReadEnsight *mod, const string &name, const unsigned int &dim, const BinType &binType = UNKNOWN);
 
     bool isOpen();
 
@@ -195,21 +195,26 @@ protected:
 
     // get integer
     virtual int getInt();
+    virtual unsigned int getuInt();
     int getIntRaw();
+    unsigned int getuIntRaw();
 
     // get integer array
     virtual int *getIntArr(const uint64_t &n, int *iarr = NULL);
+
+    // get unsigned integer array
+    virtual void getuIntArr(const uint64_t &n, unsigned int *iarr = NULL);
 
     // get float array
     virtual float *getFloatArr(const uint64_t &n, float *farr = NULL);
 
     // find a part by its part number
-    virtual EnPart *findPart(const int &partNum) const;
+    virtual EnPart *findPart(const unsigned int &partNum) const;
 
     // find a part by its part number in the master part list
-    virtual EnPart findMasterPart(const int &partNum) const;
+    virtual EnPart findMasterPart(const unsigned int &partNum) const;
 
-    virtual void resetPart(const int &partNum, EnPart *p);
+    virtual void resetPart(const unsigned int &partNum, EnPart *p);
 
     // send a list of all parts to covise info
     void sendPartsToInfo();
@@ -220,9 +225,9 @@ protected:
 
     FILE *in_;
 
-    int nodeId_;
+    unsigned int nodeId_;
 
-    int elementId_;
+    unsigned int elementId_;
 
     DataCont dc_; // container for read data
 
@@ -232,7 +237,7 @@ protected:
 
     PartList *partList_;
 
-    int dim_;
+    unsigned int dim_;
 
     bool activeAlloc_;
 
@@ -245,6 +250,6 @@ protected:
 private:
     string name_;
 
-    void getIntArrHelper(const uint64_t &n, int *iarr = NULL);
+    void getIntArrHelper(const uint64_t &n, unsigned int *iarr = NULL);
 };
 #endif
