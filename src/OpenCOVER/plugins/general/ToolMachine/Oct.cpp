@@ -232,9 +232,10 @@ osg::Vec3 getNormal(const osg::Vec3Array& vertices, size_t vertexIndex, size_t n
 {
     using namespace osg;
     std::array<Vec3, 4> neigbors = {vertexIndex >= 1 ? vertices[vertexIndex - 1] : vertices[vertexIndex],
+                                    vertexIndex >= numPointsPerCycle ? vertices[vertexIndex - numPointsPerCycle] : vertices[vertexIndex],
                                     vertexIndex  + 1 < vertices.size() ? vertices[vertexIndex + 1] : vertices[vertexIndex],
-                                    vertexIndex + numPointsPerCycle < vertices.size() ? vertices[vertexIndex + numPointsPerCycle] : vertices[vertexIndex],
-                                    vertexIndex >= numPointsPerCycle ? vertices[vertexIndex - numPointsPerCycle] : vertices[vertexIndex]};
+                                    vertexIndex + numPointsPerCycle < vertices.size() ? vertices[vertexIndex + numPointsPerCycle] : vertices[vertexIndex]                                  
+                                    };
     Vec3 normal;
 
     for (size_t i = 0; i < neigbors.size(); i++)
