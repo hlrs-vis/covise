@@ -127,9 +127,20 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<DOMNode*>> cityObjectMembersSorted;
     cityObjectMembersSorted.resize(nx * ny);
 
-
+    static int oldp=1000;
     // Iterate over each "core:cityObjectMember" node and save to individual files
-    for (XMLSize_t n = 0; n < cityObjectMembers->getLength(); ++n) {
+    XMLSize_t length = cityObjectMembers->getLength();
+#pragma omp parallel for
+    for (XMLSize_t n = 0; n < length; ++n) {
+        int perc = (int)((double)n/(double)length) *1000.0;
+        if(oldp!=perc)
+        {
+            #pragma omp critical
+            {
+                oldp=perc;
+                std::cerr << "PercentDone: " << (float)perc/10.0 << std::endl;
+            }
+        }
         DOMNode* cityObjectMember = cityObjectMembers->item(n);
 
         DOMElement* currentElement = dynamic_cast<DOMElement*>(cityObjectMember);
@@ -153,23 +164,31 @@ int main(int argc, char* argv[]) {
                 j = (yi / 1000) - 370;
                 if (i < nx && j < ny)
                 {
-                    cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
+                    #pragma omp critical
+                    {
+                        cityObjectMembersSorted[i * ny + j].push_back(cityObjectMember);
+                    }
                 }
             }
         }
         DOMNodeList* surfaceList = currentElement->getElementsByTagName(XMLString::transcode("gml:MultiSurface"));
-        for (XMLSize_t m = 0; m < surfaceList->getLength(); ++m)
+        XMLSize_t numSurf=surfaceList->getLength();
+        for (XMLSize_t m = 0; m < numSurf; ++m)
         {
             DOMNode* multiSurface = surfaceList->item(m);
             DOMElement* currentElement = dynamic_cast<DOMElement*>(multiSurface);
             if (currentElement)
             {
-                currentElement->setAttribute(XMLString::transcode("orientation"), XMLString::transcode("-"));
+                #pragma omp critical
+                {
+                    currentElement->setAttribute(XMLString::transcode("orientation"), XMLString::transcode("-"));
+                }
             }
         }
     }
     for (size_t i = 0; i < nx; i++)
     {
+#pragma omp parallel for
         for (size_t j = 0; j < ny; j++)
         {
             // Write the nodes to files
