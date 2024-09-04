@@ -210,8 +210,11 @@ void Client::runClient()
             }
             while (!m_nodesToUnregister.empty())
             {
-                unregisterNode(m_nodesToUnregister.back());
+                auto unregister = m_nodesToUnregister.back();
                 m_nodesToUnregister.pop_back();
+                g.unlock();
+                unregisterNode(unregister);
+                g.lock();
             }
         }
         UA_Client_run_iterate(client, 1000);
