@@ -7,6 +7,7 @@ SET(HEADERS
   CsvPointCloud.h
   DataTable.h  
   Interactor.h
+  OctUtils.h
   RenderObject.h
   SurfacePrimitiveSet.h
 )
@@ -16,6 +17,7 @@ SET(SOURCES
   CsvPointCloud.cpp
   DataTable.cpp
   Interactor.cpp
+  OctUtils.cpp
   RenderObject.cpp  
 )
 

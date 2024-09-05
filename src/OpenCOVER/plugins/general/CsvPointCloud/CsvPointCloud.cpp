@@ -9,6 +9,7 @@
 
 #include "ColorMapShader.h"
 #include "CsvPointCloud.h"
+#include "OctUtils.h"
 #include "RenderObject.h"
 #include "SurfacePrimitiveSet.h"
 
@@ -507,35 +508,6 @@ ref_ptr<Vec3Array> CsvPointCloudPlugin::getCoords(DataTable &symbols)
 constexpr unsigned int allPointsPrimitiveIndex = 0;
 constexpr unsigned int reducedPointsPrimitiveIndex = 1;
 
-Vec3 getNormal(const Vec3Array& vertices, size_t vertexIndex, size_t numPointsPerCycle)
-{
-    std::array<Vec3, 4> neigbors = {vertexIndex >= 1 ? vertices[vertexIndex - 1] : vertices[vertexIndex],
-                                    vertexIndex >= numPointsPerCycle ? vertices[vertexIndex - numPointsPerCycle] : vertices[vertexIndex],
-                                    vertexIndex  + 1 < vertices.size() ? vertices[vertexIndex + 1] : vertices[vertexIndex],
-                                    vertexIndex + numPointsPerCycle < vertices.size() ? vertices[vertexIndex + numPointsPerCycle] : vertices[vertexIndex]                                  
-                                    };
-    Vec3 normal;
-
-    for (size_t i = 0; i < neigbors.size(); i++)
-    {
-        auto last = i == 0 ? 3 : i - 1;
-        auto x = vertices[vertexIndex] - neigbors[i] ^ vertices[vertexIndex] - neigbors[last];
-        x.normalize();
-        normal += x;
-    }
-
-    return normal;
-}
-
-ref_ptr<Vec3Array> calculateNormals(ref_ptr<Vec3Array> &vertices, size_t numPointsPerCycle)
-{
-    ref_ptr<Vec3Array> normals = new Vec3Array;
-    
-    for (size_t i = 0; i < vertices->size() - numPointsPerCycle - 1; i++)
-        normals->push_back(getNormal(*vertices, i, numPointsPerCycle));
-    return normals;
-}
-
 void CsvPointCloudPlugin::createGeometries(DataTable &symbols)
 {
     try
@@ -551,7 +523,7 @@ void CsvPointCloudPlugin::createGeometries(DataTable &symbols)
     if (!colors.data || !coords)
         return;
 
-    auto normals = calculateNormals(coords, m_numPointsPerCycle);
+    auto normals = oct::calculateNormals(coords, m_numPointsPerCycle);
     ref_ptr<StateSet> stateSet = VRSceneGraph::instance()->loadDefaultPointstate();
     ref_ptr<StateSet> stateSet2 = VRSceneGraph::instance()->loadDefaultGeostate();
 

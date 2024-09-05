@@ -13,6 +13,7 @@ Currents.h
 Oct.h
 Tool.h
 ToolMachine.h
+../CsvPointCloud/OctUtils.h
 )
 
 SET(SOURCES
@@ -20,6 +21,7 @@ Currents.cpp
 Oct.cpp
 Tool.cpp
 ToolMachine.cpp
+../CsvPointCloud/OctUtils.cpp
 )
 
 cover_add_plugin(ToolMachine)
