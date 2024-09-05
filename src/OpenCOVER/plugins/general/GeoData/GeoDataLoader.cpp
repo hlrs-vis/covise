@@ -153,7 +153,7 @@ void GeoDataLoader::parseCoordinates(const std::string& jsonData) {
 
 GeoDataLoader* GeoDataLoader::s_instance = nullptr;
 
-GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME)
+GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("GeoData", cover->ui)
 {
     assert(s_instance == nullptr);
     s_instance = this;
@@ -164,6 +164,33 @@ bool GeoDataLoader::init()
     ProjContext = proj_context_create();
     // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
     ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N
+
+    geoDataMenu = new ui::Menu("GeoData", this);
+    geoDataMenu->setText("GeoData");
+    rootNode = new osg::MatrixTransform();
+    skyRootNode = new osg::MatrixTransform();
+    skyNode = coVRFileManager::instance()->loadFile("/data/Geodata/sky/sky1.wrl", nullptr, skyRootNode);
+    cover->getObjectsRoot()->addChild(rootNode);
+    cover->getScene()->addChild(skyRootNode);
+    //Restart Button
+    skyButton = new ui::Button(geoDataMenu, "Sky");
+    skyButton->setText("Sky");
+    skyButton->setState(true);
+    skyButton->setCallback([this](bool state) 
+        {
+            if (state && skyNode.get()!=nullptr &&  skyNode->getNumParents()==0)
+                cover->getScene()->addChild(skyNode.get());
+            else if(!state && skyNode.get()!=nullptr) 
+                cover->getScene()->removeChild(skyNode.get()); 
+        });
+    
+    location = new ui::EditField(geoDataMenu, "location");
+    location->setText("location:");
+    location->setCallback([this](std::string val) 
+        {
+            std::string coord = getCoordinates(val);
+            parseCoordinates(coord);
+        });
 
     return loadTerrain("D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive",osg::Vec3d(0,0,0));
 }
@@ -264,7 +291,7 @@ bool GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d offset)
         terrainTransform->addChild(terrain);
         terrainTransform->setPosition(-offset);
 
-        cover->getObjectsRoot()->addChild(terrainTransform);
+        rootNode->addChild(terrainTransform);
 
         const osg::BoundingSphere &terrainBS = terrain->getBound();
         std::cout << "Terrain BB: center: (" << terrainBS.center()[0] << ", " << terrainBS.center()[1] << ", " << terrainBS.center()[2] << "), radius: " << terrainBS.radius() << std::endl;

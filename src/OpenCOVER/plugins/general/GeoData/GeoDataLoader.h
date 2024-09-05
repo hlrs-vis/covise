@@ -26,6 +26,12 @@
 #include <cover/coVRPlugin.h>
 #include "CutGeometry.h"
 #include <proj.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Owner.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Button.h>
 
 #ifndef RAD_TO_DEG
 #define RAD_TO_DEG    57.295779513082321
@@ -33,7 +39,7 @@
 #endif
 
 
-class  GeoDataLoader: public opencover::coVRPlugin
+class  GeoDataLoader: public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
     GeoDataLoader();
@@ -53,6 +59,12 @@ private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT* ProjContext;
     PJ* ProjInstance;
+    osg::ref_ptr<osg::MatrixTransform> rootNode;
+    osg::ref_ptr<osg::MatrixTransform> skyRootNode;
+    osg::ref_ptr<osg::Node> skyNode;
+    opencover::ui::Menu* geoDataMenu;
+    opencover::ui::Button* skyButton;
+    opencover::ui::EditField* location;
 
 
 };
