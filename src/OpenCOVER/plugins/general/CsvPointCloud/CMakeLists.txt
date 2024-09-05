@@ -25,5 +25,5 @@ SET(SOURCES
 cover_add_plugin(CsvPointCloud)
 target_link_libraries(CsvPointCloud Boost::timer exprtk)
 if(MSVC)
-  target_compile_options(CsvPointCloud PRIVATE /bigobj exprtk)
+  target_compile_options(CsvPointCloud PRIVATE /bigobj)
 endif()
