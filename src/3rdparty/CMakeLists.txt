@@ -55,3 +55,24 @@ if (COVISE_USE_VIRVO)
       message("Cannot build virvo_osg: no OpenSceneGraph - maybe disable COVISE_USE_VIRVO?")
    endif()
 endif()
+
+add_library(exprtk INTERFACE)
+target_include_directories(exprtk INTERFACE ${CMAKE_CURRENT_LISTS_DIR}/exprtk)
+target_include_directories(exprtk INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/exprtk>
+    $<INSTALL_INTERFACE:include>
+)
+# Export the exprtk target
+install(TARGETS exprtk EXPORT exprtkTargets)
+
+# Install exprtk header file
+COVISE_INSTALL_HEADERS(${CMAKE_CURRENT_LISTS_DIR}/exprtk/exprtk.hpp)
+
+# Export the exprtkTargets export set
+install(EXPORT exprtkTargets
+    FILE exprtkTargets.cmake
+    NAMESPACE exprtk::
+    DESTINATION lib/cmake/exprtk
+)
+
+covise_export_target(exprtk)
