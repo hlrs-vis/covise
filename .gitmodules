@@ -22,3 +22,6 @@
 [submodule "src/OpenCOVER/OpenCovConfig"]
 	path = src/OpenCOVER/OpenConfig/covconfig
 	url = https://github.com/vistle/covconfig.git
+[submodule "src/3rdparty/exprtk"]
+	path = src/3rdparty/exprtk
+	url = https://github.com/ArashPartow/exprtk.git
