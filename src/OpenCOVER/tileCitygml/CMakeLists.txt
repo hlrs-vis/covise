@@ -1,6 +1,7 @@
 USING(OpenSceneGraph)
 #Using(XercesC)
 Using(Boost)
+USING(gdal)
 
 # Find the OpenMP package
 #find_package(OpenMP REQUIRED)
