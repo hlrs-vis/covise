@@ -179,10 +179,12 @@ bool GeoDataLoader::init()
     skyButton->setCallback([this](bool state) 
         {
             if (state && skyNode.get()!=nullptr &&  skyNode->getNumParents()==0)
-                cover->getScene()->addChild(skyNode.get());
+                skyRootNode->addChild(skyNode.get());
             else if(!state && skyNode.get()!=nullptr) 
-                cover->getScene()->removeChild(skyNode.get()); 
+                skyRootNode->removeChild(skyNode.get());
         });
+    northAngle = 0;
+    skyRootNode->setMatrix(osg::Matrix::scale(1000,1000,1000)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
     
     location = new ui::EditField(geoDataMenu, "location");
     location->setText("location:");
@@ -204,6 +206,16 @@ GeoDataLoader::~GeoDataLoader()
 }
 
 
+bool GeoDataLoader::update()
+{
+    const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
+    //double x = m(0, 0);
+    //double y = m(1, 0);
+    //northAngle = -atan2(y, x);
+    //skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
+    skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    return false; // don't request that scene be re-rendered
+}
 GeoDataLoader *GeoDataLoader::instance()
 {
     if (!s_instance)

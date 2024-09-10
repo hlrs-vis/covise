@@ -53,6 +53,7 @@ public:
     osg::Vec3 offset;
     float NorthAngle;
     void parseCoordinates(const std::string& jsonData);
+    virtual bool update();
 
 
 private:
@@ -65,6 +66,7 @@ private:
     opencover::ui::Menu* geoDataMenu;
     opencover::ui::Button* skyButton;
     opencover::ui::EditField* location;
+    float northAngle;
 
 
 };
