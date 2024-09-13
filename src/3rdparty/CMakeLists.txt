@@ -62,6 +62,10 @@ target_include_directories(exprtk INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/exprtk>
     $<INSTALL_INTERFACE:include>
 )
+if(MSVC)
+  target_compile_options(exprtk INTERFACE /bigobj)
+endif()
+
 # Export the exprtk target
 install(TARGETS exprtk EXPORT exprtkTargets)
 
