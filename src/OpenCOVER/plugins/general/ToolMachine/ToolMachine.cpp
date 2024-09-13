@@ -4,13 +4,9 @@
 
 #include <vrml97/vrml/VrmlScene.h>
 
-
 using namespace covise;
 using namespace opencover;
 using namespace vrml;
-
-std::vector<MachineNode *> machineNodes;
-
 
 osg::MatrixTransform *toOsg(VrmlNode *node)
 {
@@ -29,145 +25,48 @@ osg::MatrixTransform *toOsg(VrmlNode *node)
     return trans->asMatrixTransform();
 }
 
+Machine::Machine(MachineNodeBase *node)
+: m_machineNode(node)
+{}
 
-VrmlNode *MachineNode::creator(VrmlScene *scene)
-{
-    return new MachineNode(scene);
-}
-MachineNode::MachineNode(VrmlScene *scene)
-: VrmlNodeChild(scene), m_index(machineNodes.size())
-, m_tool(std::make_shared<std::unique_ptr<SelfDeletingTool>>())
 
+void Machine::connectOpcua()
 {
 
-    std::cerr << "vrml Machine node created" << std::endl;
-    machineNodes.push_back(this);
-}
+    
+    m_rdy = true;
+    m_client = opcua::connect(m_machineNode->MachineName->get());
+    auto arrayMode = dynamic_cast<MachineNodeArrayMode *>(m_machineNode);
+    auto singleMode = dynamic_cast<MachineNodeSingleMode *>(m_machineNode);
 
-MachineNode::~MachineNode()
-{
-    machineNodes.erase(machineNodes.begin() + m_index);
-}
-
-VrmlNodeType *MachineNode::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if(arrayMode)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ToolMachine", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("MachineName", VrmlField::SFSTRING);
-    t->addExposedField("VisualizationType", VrmlField::SFSTRING); //None, Currents, Oct
-    t->addExposedField("OctOffset", VrmlField::SFSTRING); 
-    t->addExposedField("ToolHeadNode", VrmlField::SFNODE);
-    t->addExposedField("TableNode", VrmlField::SFNODE);
-    t->addExposedField("Offsets", VrmlField::MFFLOAT);
-    t->addExposedField("AxisNames", VrmlField::MFSTRING);
-    t->addExposedField("ToolNumberName", VrmlField::SFSTRING);
-    t->addExposedField("ToolLengthName", VrmlField::SFSTRING);
-    t->addExposedField("ToolRadiusName", VrmlField::SFSTRING);
-    t->addExposedField("OPCUANames", VrmlField::MFSTRING);
-    t->addExposedField("OPCUAAxisIndicees", VrmlField::MFINT32);
-    t->addExposedField("AxisOrientations", VrmlField::MFVEC3F);
-    t->addExposedField("AxisNodes", VrmlField::MFNODE);
-    t->addExposedField("OpcUaToVrml", VrmlField::SFFLOAT); //
-
-    t->addEventOut("ToolNumber", VrmlField::SFINT32);
-    t->addEventOut("ToolLength", VrmlField::SFFLOAT);
-    t->addEventOut("ToolRadius", VrmlField::SFFLOAT);
-    return t;
-}
-
-    // Set the value of one of the node fields.
-
-void MachineNode::setField(const char* fieldName,
-    const VrmlField& fieldValue)
-{
-    if
-        TRY_FIELD(MachineName, SFString)
-    else if
-        TRY_FIELD(VisualizationType, SFString)
-    else if
-        TRY_FIELD(OctOffset, SFString)
-    else if
-        TRY_FIELD(ToolHeadNode, SFNode)
-    else if
-        TRY_FIELD(TableNode, SFNode)
-    else if
-        TRY_FIELD(AxisOrientations, MFVec3f)
-    else if
-        TRY_FIELD(Offsets, MFFloat)
-    else if
-        TRY_FIELD(AxisNames, MFString)
-    else if
-        TRY_FIELD(ToolNumberName, SFString)
-    else if
-        TRY_FIELD(ToolLengthName, SFString)
-    else if
-        TRY_FIELD(ToolRadiusName, SFString)
-    else if
-        TRY_FIELD(OPCUANames, MFString)
-    else if
-        TRY_FIELD(OPCUAAxisIndicees, MFInt)
-    else if
-        TRY_FIELD(AxisNodes, MFNode)
-    else if
-        TRY_FIELD(OpcUaToVrml, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp(fieldName, "MachineName") == 0)
+        m_valueIds.push_back(m_client->observeNode(arrayMode->OPCUAArrayName->get()));
+    }  else if (singleMode)
     {
-        //connect to the specified machine through OPC-UA
-        m_client = opcua::connect(d_MachineName.get());
-        
-
-    }
-    if(!d_rdy && d_MachineName.get() && d_AxisNames.get() && d_ToolHeadNode.get() && d_TableNode.get())
-    {
-        if(d_OPCUAAxisIndicees.get())
+        for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
         {
-            d_valueIds.push_back(m_client->observeNode(d_OPCUANames[0]));
-            d_rdy = true;
-        }  else if (d_OPCUANames.get() && d_OPCUANames.size() > 1)
-        {
-            for (size_t i = 0; i < d_OPCUANames.size(); i++)
-            {
-                d_valueIds.push_back(m_client->observeNode(d_OPCUANames[i]));
-            }
-            d_rdy = true;
+            m_valueIds.push_back(m_client->observeNode((*singleMode->OPCUANames)[i]));
         }
-
     }
-    auto tool = {d_ToolNumberName.get(), d_ToolLengthName.get(), d_ToolRadiusName.get()};
+
+    auto tool = {m_machineNode->ToolNumberName->get(), m_machineNode->ToolLengthName->get(), m_machineNode->ToolRadiusName->get()};
     for(auto t : tool)
     {
         if(t)
-            d_valueIds.push_back(m_client->observeNode(t));
+            m_valueIds.push_back(m_client->observeNode(t));
     }
 }
 
-VrmlNodeType *MachineNode::nodeType() const { return defineType(); };
-
-VrmlNode *MachineNode::cloneMe() const 
+void Machine::move(int axis, float value)
 {
-    return new MachineNode(*this);
-}
-
-void MachineNode::move(int axis, float value)
-{
-    if(axis >= d_AxisNames.size())
+    if(axis >= m_machineNode->AxisNames->size())
         return;
-    auto v = osg::Vec3{*d_AxisOrientations[axis], *(d_AxisOrientations[axis] + 1), *(d_AxisOrientations[axis] +2) };
-    auto osgNode = toOsg(d_AxisNodes[axis]);
+    auto v = osg::Vec3{*(*m_machineNode->AxisOrientations)[axis], *((*m_machineNode->AxisOrientations)[axis] + 1), *((*m_machineNode->AxisOrientations)[axis] +2) };
+    auto osgNode = toOsg((*m_machineNode->AxisNodes)[axis]);
     if(axis <= 2) // ugly hack to find out if an axis is translational
     {
-        v *= (value * d_OpcUaToVrml.get());
+        v *= (value * m_machineNode->OpcUaToVrml->get());
         osgNode->setMatrix(osg::Matrix::translate(v));
     }
     else{
@@ -175,37 +74,38 @@ void MachineNode::move(int axis, float value)
     }
 }
 
-bool MachineNode::arrayMode() const{
-    return d_OPCUAAxisIndicees.get() != nullptr;
+bool Machine::arrayMode() const{
+    return dynamic_cast<MachineNodeArrayMode *>(m_machineNode) != nullptr;
 }
 
-
-VrmlNode *creator(VrmlScene *scene)
-{
-    return new MachineNode(scene);
-}
-
-void MachineNode::setUi(opencover::ui::Menu *menu, opencover::config::File *file)
+void Machine::setUi(opencover::ui::Menu *menu, opencover::config::File *file)
 {
     m_menu = menu;
     m_configFile = file;
 }
 
 
-void MachineNode::pause(bool state)
+void Machine::pause(bool state)
 {
-    if(*m_tool) 
-        m_tool.get()->get()->value->pause(state);
+    if(m_tool) 
+        m_tool->value->pause(state);
+}
+
+osg::MatrixTransform *Machine::getToolHead() const
+{
+    return toOsg(m_machineNode->ToolHeadNode->get());
 }
 
 
-void MachineNode::update(UpdateMode updateMode)
+void Machine::update(UpdateMode updateMode)
 {
-    if(!d_rdy)
-        return;
+    if(!m_rdy && m_machineNode->allInitialized())
+    {
+        connectOpcua();
+    }
     
     bool haveTool = true;
-    if(!*m_tool)
+    if(!m_tool)
     {
         haveTool = addTool();
     }
@@ -215,55 +115,56 @@ void MachineNode::update(UpdateMode updateMode)
     }
 }
 
-bool MachineNode::addTool()
+bool Machine::addTool()
 {
 
-    if(strcmp(d_VisualizationType.get(), "None") == 0 )
+    if(strcmp(m_machineNode->VisualizationType->get(), "None") == 0 )
     {
         std::cerr << "missing VisualizationType, make sure this is set in the VRML file to \"Currents\" or \"Oct\"" << std::endl;
         return false;
 
     }
-    auto toolHead = toOsg(d_ToolHeadNode.get());
-    auto table = toOsg(d_TableNode.get());
+    auto toolHead = toOsg(m_machineNode->ToolHeadNode->get());
+    auto table = toOsg(m_machineNode->TableNode->get());
     if(!toolHead || !table)
     {
         std::cerr << "missing ToolHeadNode or table TableNode, make sure both are set in the VRML file and the corresponding nodes contain some geometry." << std::endl;
         return false;
     }
-    ui::Group *machineGroup = new ui::Group(m_menu, d_MachineName.get());
-    auto &ptr = *m_tool.get();
-    if(strcmp(d_VisualizationType.get(), "Currents") == 0 )
+    ui::Group *machineGroup = new ui::Group(m_menu, m_machineNode->MachineName->get());
+    if(strcmp(m_machineNode->VisualizationType->get(), "Currents") == 0 )
     {
-        SelfDeletingTool::create(ptr, std::make_unique<Currents>(machineGroup, *m_configFile, toolHead, table));
+        SelfDeletingTool::create(m_tool, std::make_unique<Currents>(machineGroup, *m_configFile, toolHead, table));
         return true;
     }
-    if(strcmp(d_VisualizationType.get(), "Oct") == 0 )
+    if(strcmp(m_machineNode->VisualizationType->get(), "Oct") == 0 )
     {
-        SelfDeletingTool::create(ptr, std::make_unique<Oct>(machineGroup, *m_configFile, toolHead, table));
-        dynamic_cast<Oct*>(m_tool.get()->get()->value.get())->setScale(d_OpcUaToVrml.get());
+        SelfDeletingTool::create(m_tool, std::make_unique<Oct>(machineGroup, *m_configFile, toolHead, table));
+        dynamic_cast<Oct*>(m_tool->value.get())->setScale(m_machineNode->OpcUaToVrml->get());
         return true;
     }
 
     return false;
 }
 
-bool MachineNode::updateMachine(bool haveTool, UpdateMode updateMode)
+bool Machine::updateMachine(bool haveTool, UpdateMode updateMode)
 {
     if(arrayMode())
     {
-        auto numUpdates = m_client->numNodeUpdates(d_OPCUANames[0]);
+        auto arrayMode = dynamic_cast<MachineNodeArrayMode *>(m_machineNode);
+        auto numUpdates = m_client->numNodeUpdates(arrayMode->OPCUAArrayName->get());
         for (size_t update = 0; update < numUpdates; update++)
         {
-            auto v = m_client->getArray<UA_Double>(d_OPCUANames[0]);
+            auto v = m_client->getArray<UA_Double>(arrayMode->OPCUAArrayName->get());
             for (size_t i = 0; i < 3; i++)
             {
-                move(i, v.data[i] + d_Offsets[i]);
+                move(i, v.data[i] + (*m_machineNode->Offsets)[i]);
             }
             if(haveTool)
-                m_tool.get()->get()->value->update(v);
+                m_tool->value->update(v);
         }
     } else{
+        auto singleMode = dynamic_cast<MachineNodeSingleMode *>(m_machineNode);
         struct Update{
             double value;
             std::function<void(double)> func;
@@ -273,21 +174,11 @@ bool MachineNode::updateMachine(bool haveTool, UpdateMode updateMode)
         std::map<UA_DateTime, Update> updates; 
 
         //vrml specific updates
-        std::vector<UpdateValues> toolUpdateValues{
-            {d_ToolNumberName.get(), [this](double value){
-                triggerEvent<VrmlSFInt>("ToolNumber", value);
-            }},
-            {d_ToolLengthName.get(), [this](double value){
-                triggerEvent<VrmlSFFloat>("ToolLength", value);
-            }},
-            {d_ToolRadiusName.get(), [this](double value){
-                triggerEvent<VrmlSFFloat>("ToolRadius", value);
-            }}  
-        };
+        std::vector<UpdateValues> toolUpdateValues;
         if(haveTool)
         {
             //get the tool specific update functions 
-            auto &tua = m_tool.get()->get()->value->getUpdateValues();
+            auto &tua = m_tool->value->getUpdateValues();
             for(auto &t : tua)
                 toolUpdateValues.push_back(t);
                 
@@ -305,19 +196,19 @@ bool MachineNode::updateMachine(bool haveTool, UpdateMode updateMode)
             }
         }
         //machine axis updates
-        for (size_t i = 0; i < d_OPCUANames.size(); i++)
+        for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
         {
-            auto numUpdates = m_client->numNodeUpdates(d_OPCUANames[i]);
+            auto numUpdates = m_client->numNodeUpdates((*singleMode->OPCUANames)[i]);
             if(numUpdates == 0 && updateMode == UpdateMode::AllOncePerFrame)
                 numUpdates = 1;
 
             for (size_t u = 0; u < numUpdates; u++)
             {
                 UA_DateTime timestamp;
-                auto v = m_client->getNumericScalar(d_OPCUANames[i], &timestamp);
+                auto v = m_client->getNumericScalar((*singleMode->OPCUANames)[i], &timestamp);
                 updates[timestamp] = {v, [this, i](double value){//potentially overwrite the value with the same timestamp, could be bad
-                    move(i, value + d_Offsets[i]);
-                }, d_OPCUANames[i]}; 
+                    move(i, value + (*m_machineNode->Offsets)[i]);
+                }, (*singleMode->OPCUANames)[i]}; 
             }
         }
         //machine tool updates
@@ -340,7 +231,7 @@ bool MachineNode::updateMachine(bool haveTool, UpdateMode updateMode)
             }
         }
         if(haveTool)
-            m_tool.get()->get()->value->frameOver();
+            m_tool->value->frameOver();
     }
     return true;
 }

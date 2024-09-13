@@ -7,7 +7,7 @@
 #include <osg/Geometry>
 
 
-class Currents : public Tool
+class Currents : public ToolModel
 {
 public:
     Currents(opencover::ui::Group *group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);

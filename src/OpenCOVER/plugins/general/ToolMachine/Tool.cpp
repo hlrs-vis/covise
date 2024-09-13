@@ -7,7 +7,7 @@ using namespace opencover;
 
 
 
-Tool::Tool(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+ToolModel::ToolModel(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
 : m_toolHeadNode(toolHeadNode)
 , m_tableNode(tableNode)
 , m_group(group)
@@ -48,7 +48,7 @@ Tool::Tool(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadN
     assert(m_client);
 }
 
-osg::Vec3 Tool::toolHeadInTableCoords()
+osg::Vec3 ToolModel::toolHeadInTableCoords()
 {
     osg::Matrix toolHeadToWorld = m_toolHeadNode->getWorldMatrices(cover->getObjectsRoot())[0];
     osg::Matrix tableToWorld = m_tableNode->getWorldMatrices(cover->getObjectsRoot())[0];
@@ -60,7 +60,7 @@ osg::Vec3 Tool::toolHeadInTableCoords()
 }
 
 
-void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
+void ToolModel::update(const opencover::opcua::MultiDimensionalArray<double> &data)
 {
     if(!m_tableNode || !m_toolHeadNode)
         return;
@@ -70,7 +70,7 @@ void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
     updateGeo(m_paused, data);
 }
 
-void Tool::updateAttributes(){
+void ToolModel::updateAttributes(){
     switch (m_client->statusChanged(this))
     {
     case opcua::Client::Connected:
@@ -90,17 +90,17 @@ void Tool::updateAttributes(){
     }
 }
 
-void Tool::pause(bool state)
+void ToolModel::pause(bool state)
 {
     m_paused = state;
 }
 
-const std::vector<UpdateValues> &Tool::getUpdateValues()
+const std::vector<UpdateValues> &ToolModel::getUpdateValues()
 {
     return m_updateValues;
 }
 
-SelfDeletingTool::SelfDeletingTool(std::unique_ptr<Tool> &&tool)
+SelfDeletingTool::SelfDeletingTool(std::unique_ptr<ToolModel> &&tool)
 : value(std::move(tool))
 {
     value->m_toolHeadNode->addObserver(this);
@@ -113,7 +113,7 @@ void SelfDeletingTool::objectDeleted(void* v){
     m_this->reset();
 }
 
-void SelfDeletingTool::create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<Tool> &&tool)
+void SelfDeletingTool::create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<ToolModel> &&tool)
 {
     selfDeletingToolPtr.reset(new SelfDeletingTool(std::move(tool)));
     selfDeletingToolPtr->m_this = &selfDeletingToolPtr;
@@ -141,7 +141,7 @@ std::set<std::string> getSymbols(const std::string &expression_string)
    return symbols;
 }
 
-void Tool::observeCustomAttributes()
+void ToolModel::observeCustomAttributes()
 {
     auto symbols = getSymbols(m_customAttribute->ui()->text());
     //check if all custom attributes are available
@@ -192,7 +192,7 @@ void Tool::observeCustomAttributes()
 
 }
 
-void Tool::attributeChanged()
+void ToolModel::attributeChanged()
 {
     auto attr = m_attributeName->ui()->selectedItem();
     if(attr == "custom")
@@ -211,7 +211,7 @@ void Tool::attributeChanged()
     } 
 }
 
-void Tool::frameOver()
+void ToolModel::frameOver()
 {
     m_frameOver = true;
     updateAttributes();

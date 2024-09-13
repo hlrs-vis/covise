@@ -11,7 +11,7 @@
 #include "Currents.h"
 #include "Oct.h"
 #include "ToolMachine.h"
-#include "ToolChanger.h"
+#include "ToolChanger/ToolChanger.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/ui/Button.h>
@@ -29,9 +29,10 @@ private:
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_pauseBtn;
     std::unique_ptr<opencover::ui::SelectionListConfigValue> m_updateMode;
-
-    
     bool m_pauseMove = false;
+    std::unique_ptr<Machine> m_machine;
+    std::unique_ptr<ToolChanger> m_toolChanger;
+    bool m_toolHeadSet = false;
 };
 
 
