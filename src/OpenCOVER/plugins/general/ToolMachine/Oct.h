@@ -48,8 +48,9 @@ private:
     void initGeo();
     void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;
     Section &addSection(size_t numVerts);
-    void addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
+    void addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float radius);
     void correctLastUpdate(const osg::Vec3 &toolHeadPos);
+    void attributeChanged(float value) override;
 
     osg::Vec3 m_lastUpdatePos;
 

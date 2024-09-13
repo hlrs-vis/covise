@@ -13,6 +13,7 @@ Currents.h
 Oct.h
 Tool.h
 ToolMachine.h
+Plugin.h
 ../CsvPointCloud/OctUtils.h
 )
 
@@ -21,9 +22,10 @@ Currents.cpp
 Oct.cpp
 Tool.cpp
 ToolMachine.cpp
+Plugin.cpp
 ../CsvPointCloud/OctUtils.cpp
 )
 
 cover_add_plugin(ToolMachine)
-target_link_libraries(ToolMachine coOpenOpcUaClient)
+target_link_libraries(ToolMachine coOpenOpcUaClient exprtk)
 

@@ -24,19 +24,6 @@ Currents::Currents(ui::Group *group, config::File &file, osg::MatrixTransform *t
 : Tool(group, file, toolHeadNode, tableNode)
 {
     initGeo();
-    m_attributeName->setUpdater([this](){
-        m_opcuaAttribId = m_client->observeNode(m_attributeName->ui()->selectedItem());
-        m_updateValues.clear();
-        m_updateValues.push_back({m_attributeName->ui()->selectedItem(), [this](double value){
-            m_values->push_back(value);
-            m_vertices->push_back(toolHeadInTableCoords());
-            int numElements = m_numSectionsSlider->getValue() < 0? (int)m_vertices->size() : m_numSectionsSlider->getValue();
-            m_drawArrays->setFirst(std::max(0, (int)m_vertices->size() - numElements));
-            m_drawArrays->setCount(std::min(numElements, (int)m_vertices->size()));
-            m_traceLine->setVertexArray(m_vertices);
-            m_traceLine->setVertexAttribArray(DataAttrib, m_values, osg::Array::BIND_PER_VERTEX);
-        }});
-    });
 }
 
 void Currents::clear()
@@ -77,12 +64,24 @@ void Currents::initGeo()
     linewidth->setWidth(10.0f);
     stateSet->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
     m_tableNode->addChild(m_traceLine);
-    applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number());
+    applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), getMinAttribute(), getMaxAttribute());
 
 }
 
 void Currents::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data)
 {
-   
-
+    std::cerr << "updateGeo not implemented for currents tool" << std::endl;
 }
+
+
+void Currents::attributeChanged(float value)
+{
+    m_values->push_back(value);
+    m_vertices->push_back(toolHeadInTableCoords());
+    int numElements = m_numSectionsSlider->getValue() < 0? (int)m_vertices->size() : m_numSectionsSlider->getValue();
+    m_drawArrays->setFirst(std::max(0, (int)m_vertices->size() - numElements));
+    m_drawArrays->setCount(std::min(numElements, (int)m_vertices->size()));
+    m_traceLine->setVertexArray(m_vertices);
+    m_traceLine->setVertexAttribArray(DataAttrib, m_values, osg::Array::BIND_PER_VERTEX);
+}
+

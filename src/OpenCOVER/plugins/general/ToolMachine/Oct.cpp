@@ -27,9 +27,7 @@ Oct::Oct(opencover::ui::Group *group, config::File &file, osg::MatrixTransform *
         for(auto &section : m_sections)
             static_cast<osg::Point *>(section.points->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(m_pointSizeSlider->value());
     });
-    m_attributeName->setUpdater([this](){
-        m_opcuaAttribId = m_client->observeNode(m_attributeName->ui()->selectedItem());
-    });
+
     m_numSectionsSlider->setUpdater([this](){
         Section::Visibility vis = Section::Visible;
         auto val = m_numSectionsSlider->getValue();
@@ -96,7 +94,7 @@ void Oct::applyShader(const covise::ColorMap& map, float min, float max)
 const auto phaseOffset = osg::PI_4 + osg::PI_2 + 15 / 100 *osg::PI;
 
 
-void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
+void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
 {
     std::vector<UA_Double> offset, vector;
     UA_Double scalar;
@@ -282,7 +280,7 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
     if(paused)
         return;
     auto toolHeadPos = toolHeadInTableCoords();
-    addPoints(data, m_attributeName->ui()->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
+    addPoints(data, toolHeadPos, osg::Z_AXIS, 0.0015);
 
 
     for(auto &section : m_sections)
@@ -300,7 +298,7 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
 
 Oct::Section &Oct::addSection(size_t numVerts)
 {
-    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->ui()->number(), m_maxAttribute->ui()->number(), m_tableNode);
+    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), getMinAttribute(), getMaxAttribute(), m_tableNode);
     if(m_sections.size() > numSections)
         m_sections.pop_front();
     if(m_numSectionsSlider->getValue() > 0 && m_sections.size() > m_numSectionsSlider->getValue())
@@ -313,4 +311,9 @@ Oct::Section &Oct::addSection(size_t numVerts)
 std::vector<std::string> Oct::getAttributes()
 {
     return m_client->availableNumericalArrays();
+}
+
+void Oct::attributeChanged(float value)
+{
+    //this tool only works in array mode
 }
