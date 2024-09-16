@@ -337,8 +337,12 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   pfRegionMax->setValue(FLT_MAX, FLT_MAX, FLT_MAX);
 
   // Maximum level selection
-  pfMaxLevel = addInt32Param("rlvl_max", "Maximum allowed refinement level");
-  pfMaxLevel->setValue(20);
+  // pfMaxLevel = addInt32Param("rlvl_max", "Maximum allowed refinement level");
+  // pfMaxLevel->setValue(20);
+
+  pfLevels = addInt32VectorParam("ref_lvls", "Common lower and upper refinement level", 2);
+  pfLevels->setValue(0, -1);
+  pfLevels->setValue(1, 20);
 
   // Variables
   for (int i = 0; i < MAX_CHANNELS; ++i)
@@ -424,8 +428,9 @@ int coReadFlash::compute(const char *)
       flashReader.setROI(
         xmin, xmax, ymin, ymax, zmin, zmax
       );
-    }
-    flashReader.setMaxLevel(pfMaxLevel->getValue());
+    
+    flashReader.setMinLevel(pfLevels->getValue(0));}
+    flashReader.setMaxLevel(pfLevels->getValue(1));
 
     // Check if fields are active by string length
     for (int i = 0; i < MAX_CHANNELS; ++i) {
