@@ -299,7 +299,7 @@ inline void read_variable(
 // Convert gridData to AMRfield data structure
 inline AMRField toAMRField(
   const grid_t &grid, const variable_t &var, BlockBoundsf &reg_roi,
-  int usr_max_level, bool usr_set_log
+  int usr_min_level, int usr_max_level, bool usr_set_log
   )
 {
   AMRField result;
@@ -347,6 +347,14 @@ inline AMRField toAMRField(
     common_ref = usr_max_level;
   }
 
+  if (usr_min_level > 0)
+  {
+    if (common_ref > usr_min_level)
+    {
+      common_ref = usr_min_level;
+    }
+  }
+
   // Find parent blocks at common refinement level
   for (size_t ri = 0; ri < max_ref - common_ref; ++ri) {
     for (size_t i = 0; i < var.global_num_blocks; ++i) {
@@ -360,6 +368,11 @@ inline AMRField toAMRField(
 
   // Enforce maximum ref level to not be higher than user limit
   if (max_ref > usr_max_level) {
+    std::cout << "Max level was " << max_ref << " now set to " << usr_max_level << "\n";
+    max_ref = usr_max_level;
+  }
+
+  if (max_ref < usr_max_level) {
     std::cout << "Max level was " << max_ref << " now set to " << usr_max_level << "\n";
     max_ref = usr_max_level;
   }
@@ -448,12 +461,27 @@ inline AMRField toAMRField(
   vox[1] = static_cast<int>(round(len_total[1] / len[1]));
   vox[2] = static_cast<int>(round(len_total[2] / len[2]));
 
-  // Store size of domain in counts of cells at highest refinement level
-  result.domainSize[0] = vox[0];
-  result.domainSize[1] = vox[1];
-  result.domainSize[2] = vox[2];
+  int corr_fac = 1;
+  if (max_level < max_ref)
+  {
+    corr_fac = pow(2.0, max_ref-max_level);
+    max_level = max_ref;
 
-  std::cout << vox[0] << ' ' << vox[1] << ' ' << vox[2] << '\n';
+  }
+  if (max_level > max_ref)
+  {
+    max_level = max_ref;
+  }
+
+  // Store size of domain in counts of cells at highest refinement level
+  result.domainSize[0] = vox[0] * corr_fac;
+  result.domainSize[1] = vox[1] * corr_fac;
+  result.domainSize[2] = vox[2] * corr_fac;
+
+
+
+
+  std::cout << vox[0]*corr_fac << ' ' << vox[1]*corr_fac << ' ' << vox[2]*corr_fac << '\n';
 
   // Set initial limits of dataset
   float max_scalar = -FLT_MAX;
@@ -480,11 +508,11 @@ inline AMRField toAMRField(
       // Get lower index position in uniform grid
       int lower[3] = {
         static_cast<int>(
-          round((grid.bnd_box[i].min.x - grid.bnd_box[bid_first].min.x) / len[0])),
+          round((grid.bnd_box[i].min.x - grid.bnd_box[bid_first].min.x) / len[0] * corr_fac)),
         static_cast<int>(
-          round((grid.bnd_box[i].min.y - grid.bnd_box[bid_first].min.y) / len[1])),
+          round((grid.bnd_box[i].min.y - grid.bnd_box[bid_first].min.y) / len[1] * corr_fac)),
         static_cast<int>(
-          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2]))};
+          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2] * corr_fac))};
 
       // Bounding box in index reference frame assuming
       // uniform grid at lowest refinement
@@ -585,7 +613,7 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldNames[index] << "\"\n";
       read_variable(currentField, file, fieldNames[index].c_str());
 
-      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
+      return toAMRField(grid, currentField, cutting_reg, usr_min_level, usr_max_level, usr_set_log);
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -617,7 +645,7 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldName << "\"\n";
       read_variable(currentField, file, fieldName.c_str());
 
-      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
+      return toAMRField(grid, currentField, cutting_reg, usr_min_level, usr_max_level, usr_set_log);
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -645,6 +673,9 @@ struct FlashReader
     std::cout << "min\t" << cutting_reg[1] << "\t\t" << cutting_reg[3] << "\t\t" << cutting_reg[5] << "\n";
   }
 
+  void setMinLevel(int rlvl_min) {
+    usr_min_level = rlvl_min;
+  }
   void setMaxLevel(int rlvl_max) {
     usr_max_level = rlvl_max;
   }
@@ -665,6 +696,7 @@ struct FlashReader
   BlockBoundsf cutting_reg = {
     {-FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX}
   };
+  int usr_min_level = -1;
   int usr_max_level = 1000;
   bool usr_set_log = false;
 };

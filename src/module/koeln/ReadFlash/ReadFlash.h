@@ -60,6 +60,7 @@ private:
     coFloatVectorParam *pfRegionMax;
 
     // Limit refinement level
+    coIntVectorParam *pfLevels;
     coIntScalarParam *pfMaxLevel;
 
     // Custom range
