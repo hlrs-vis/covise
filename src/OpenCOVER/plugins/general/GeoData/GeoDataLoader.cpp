@@ -53,6 +53,8 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/prettywriter.h> 
 #include <rapidjson/rapidjson.h>
+#include "cover/coVRConfig.h"
+#include <PluginUtil/PluginMessageTypes.h>
 
 namespace opencover
 {
@@ -169,7 +171,6 @@ bool GeoDataLoader::init()
     geoDataMenu->setText("GeoData");
     rootNode = new osg::MatrixTransform();
     skyRootNode = new osg::MatrixTransform();
-    skyNode = coVRFileManager::instance()->loadFile("/data/Geodata/sky/sky1.wrl", nullptr, skyRootNode);
     cover->getObjectsRoot()->addChild(rootNode);
     cover->getScene()->addChild(skyRootNode);
     //Restart Button
@@ -183,8 +184,40 @@ bool GeoDataLoader::init()
             else if(!state && skyNode.get()!=nullptr) 
                 skyRootNode->removeChild(skyNode.get());
         });
-    northAngle = 0;
-    skyRootNode->setMatrix(osg::Matrix::scale(1000,1000,1000)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
+    skys = new ui::SelectionList(geoDataMenu, "Skys");
+    skys->append("None");
+    skyPath = coCoviseConfig::getEntry("COVER.Plugin.GeoData", "skyDir" ,"/data/Geodata/sky");
+    defaultSky = coCoviseConfig::getInt("COVER.Plugin.GeoData", "defaultSky", 6);
+    int skyNumber = 1;
+    try {
+        for (const auto& entry : fs::directory_iterator(skyPath))
+        {
+            if (entry.is_regular_file() && entry.path().extension() == ".wrl") {
+                std::string name = entry.path().filename().string();
+                if (skyNumber == defaultSky)
+                {
+                    skyNode = coVRFileManager::instance()->loadFile(entry.path().string().c_str(), nullptr, skyRootNode);
+                }
+                skyNumber++;
+                skys->append(name.substr(0,name.length()-4));
+            }
+        }
+    }
+    catch (const fs::filesystem_error& err) {
+        std::cerr << "Filesystem error: " << err.what() << std::endl;
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "General error: " << ex.what() << std::endl;
+    }
+    skys->setCallback([this](int selection)
+        {
+            setSky(selection);
+        });
+    float northAngle = 0;
+
+    float farValue = coVRConfig::instance()->farClip();
+    float scale = (farValue * 2) / 20000;
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
     
     location = new ui::EditField(geoDataMenu, "location");
     location->setText("location:");
@@ -194,7 +227,8 @@ bool GeoDataLoader::init()
             parseCoordinates(coord);
         });
 
-    return loadTerrain("D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive",osg::Vec3d(0,0,0));
+    terrainFile = coCoviseConfig::getEntry("COVER.Plugin.GeoData","terrain", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive");
+    return loadTerrain(terrainFile,osg::Vec3d(0,0,0));
 }
 
 // this is called if the plugin is removed at runtime
@@ -205,6 +239,37 @@ GeoDataLoader::~GeoDataLoader()
     proj_context_destroy(ProjContext);
 }
 
+void GeoDataLoader::message(int toWhom, int type, int length, const void* data)
+{
+    const char* messageData = (const char*)data;
+    if(type == PluginMessageTypes::LoadTerrain)
+        loadTerrain(messageData, osg::Vec3d(0, 0, 0));
+    else if (type == PluginMessageTypes::setSky)
+    {
+        int offset = 0;
+        if(messageData[0]=='/' || messageData[0] == '\\')
+            offset = 1;
+        int num = atoi(messageData + offset);
+        setSky(num);
+    }
+}
+void GeoDataLoader::setSky(int selection)
+{
+    if (skyNode.get() != nullptr)
+        skyRootNode->removeChild(skyNode.get());
+    if (selection == 0)
+    {
+        skyNode = nullptr;
+    }
+    else
+    {
+        if (skyNode.get() != nullptr)
+            skyRootNode->removeChild(skyNode.get());
+        skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + skys->items()[selection] + ".wrl").c_str(), nullptr, skyRootNode);
+        cover->getScene()->addChild(skyRootNode);
+
+    }
+}
 
 bool GeoDataLoader::update()
 {
@@ -213,7 +278,9 @@ bool GeoDataLoader::update()
     //double y = m(1, 0);
     //northAngle = -atan2(y, x);
     //skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
-    skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    float farValue = coVRConfig::instance()->farClip();
+    float scale = ((farValue) /20000)+500; // scale the sphere so that it stays a bit closer than the far clipping plane.
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
     return false; // don't request that scene be re-rendered
 }
 GeoDataLoader *GeoDataLoader::instance()

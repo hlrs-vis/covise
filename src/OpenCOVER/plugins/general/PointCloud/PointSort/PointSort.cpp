@@ -57,7 +57,7 @@ struct Point
     float y;
     float z;
     uint32_t rgba;
-    int l;
+    uint32_t l;
     uint32_t ID = 0;
 };
 
@@ -548,7 +548,7 @@ int readPTSB(char *filename, std::vector<Point> &vec, formatTypes format,
 //! computes a grid structure and maps the points to the structure, then sorts
 //! the points in vector<Point> according to their positions within the grid
 // ----------------------------------------------------------------------------
-void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
+void labelData(int grid, std::vector<Point> &vec, std::map<uint32_t, uint32_t> &lookUp,
                PointCloudStatistics &pcStats)
 {
     cout << "sorting point cloud" << endl;
@@ -600,7 +600,7 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
     cout << "    number of grid elements " << xs << " x " << ys << " x " << zs << " = " << xs * ys * zs << endl;
 
     // find corresponding grid element for each point
-    std::map<int, int>::iterator it;
+    std::map<uint32_t, uint32_t>::iterator it;
 
     for (int i = 0; i < vec.size(); ++i)
     {
@@ -627,7 +627,7 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
         }
         else
         {
-            lookUp.insert(std::pair<int, int>(vec.at(i).l, 1));
+            lookUp.insert(std::pair<uint32_t, uint32_t>(vec.at(i).l, 1));
         }
     }
 
@@ -668,7 +668,7 @@ void labelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp,
 // ----------------------------------------------------------------------------
 // writeData()
 // ----------------------------------------------------------------------------
-void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp,
+void writeData(char *filename, std::vector<Point> &vec, std::map<uint32_t, uint32_t> &lookUp,
                int maxPointsPerCube, std::vector<ScannerPosition> scanPositions,
                PointCloudStatistics &pcStats)
 {
@@ -692,7 +692,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
         int g = 55;
         int b = 55;
         std::srand(std::time(nullptr));
-        int maxHeatmapValue = 0;
+        uint32_t maxHeatmapValue = 0;
 
         // we need to know the maxPointsPerCube in advance
         if ((bTestMode == true) && (bShowHeatMap == true))
@@ -702,8 +702,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 // get first in set to find set number
                 Point first = vec.at(index);
                 
-                std::map<int, int>::iterator it;
-                it = lookUp.find(first.l);
+                auto it = lookUp.find(first.l);
                 if (it != lookUp.end())
                 {
                     int numPoints = (*it).second;
@@ -736,8 +735,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
             // get first in set to find set number
             Point first = vec.at(index);
                  
-            std::map<int, int>::iterator it;
-            it = lookUp.find(first.l);
+            auto it = lookUp.find(first.l);
             if (it != lookUp.end())
             {
                 int numPoints = (*it).second;
@@ -763,7 +761,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 file.write((char *)&(numPointsToWrite), sizeof(int));
 
                 // write points
-                for (int j = index; j < numPointsToWrite + index; ++j)
+                for (uint32_t j = index; j < numPointsToWrite + index; ++j)
                 {
                     file.write((char *)&(vec.at(j).x), sizeof(float) * 3);
                 }
@@ -788,7 +786,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 }
                
                 // write colors
-                for (int j = index; j < numPointsToWrite + index; ++j)
+                for (uint32_t j = index; j < numPointsToWrite + index; ++j)
                 {
                     if (bTestMode == true)
                     {
@@ -836,8 +834,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 // get first in set to find set number
                 Point first = vec.at(index);
 
-                std::map<int, int>::iterator it;
-                it = lookUp.find(first.l);
+                auto it = lookUp.find(first.l);
                 if (it != lookUp.end())
                 {
                     int numPoints = (*it).second;
@@ -857,7 +854,7 @@ void writeData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                     file.write((char *)&(numPointsToWrite), sizeof(int));
 
                     // write position ID
-                    for (int j = index; j < numPointsToWrite + index; j++)
+                    for (uint32_t j = index; j < numPointsToWrite + index; j++)
                     {
                         file.write((char *)&(vec.at(j).ID), sizeof(uint32_t));
                     }
@@ -909,7 +906,7 @@ int main(int argc, char **argv)
     formatTypes format = FORMAT_IRGB;
     
     std::vector<Point> vec;
-    std::map<int, int> lookUp;
+    std::map<uint32_t, uint32_t> lookUp;
     std::vector<ScannerPosition> positions;
 
     int nread = 0;

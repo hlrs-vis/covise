@@ -823,3 +823,11 @@ cd exprtk
 mkdir c:\src\externlibs\zebu\exprtk
 mkdir c:\src\externlibs\zebu\exprtk\include
 copy exprtk.hpp c:\src\externlibs\zebu\exprtk\include
+
+
+############
+###
+cesium native
+
+git clone https://github.com/CesiumGS/cesium-native.git --recurse-submodules
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cesium -DCMAKE_DEBUG_POSTFIX=d  -DCESIUM_TESTS_ENABLED=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph

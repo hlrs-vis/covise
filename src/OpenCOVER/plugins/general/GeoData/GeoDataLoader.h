@@ -32,6 +32,10 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/SelectionList.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 #ifndef RAD_TO_DEG
 #define RAD_TO_DEG    57.295779513082321
@@ -54,19 +58,26 @@ public:
     float NorthAngle;
     void parseCoordinates(const std::string& jsonData);
     virtual bool update();
+    virtual void message(int toWhom, int type, int length, const void* data);
+    void setSky(int num);
 
 
 private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT* ProjContext;
     PJ* ProjInstance;
+
     osg::ref_ptr<osg::MatrixTransform> rootNode;
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Node> skyNode;
     opencover::ui::Menu* geoDataMenu;
     opencover::ui::Button* skyButton;
     opencover::ui::EditField* location;
+    opencover::ui::SelectionList* skys;
     float northAngle;
+    std::string terrainFile;
+    std::string skyPath;
+    int defaultSky;
 
 
 };

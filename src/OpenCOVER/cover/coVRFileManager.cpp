@@ -51,6 +51,7 @@
 #include <fcntl.h>
 #include <osg/Texture2D>
 #include <osgText/Font>
+#include <PluginUtil/PluginMessageTypes.h>
 
 #ifdef HAVE_LIBCURL
 #include <curl/curl.h>
@@ -777,6 +778,28 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         if (url.authority() == "plugin")
         {
             coVRPluginList::instance()->addPlugin(url.path().c_str()+1);
+        }
+        else if (url.authority() == "terrain")
+        {
+            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            if (plugin)
+            {
+                std::string terrainFile = url.str();
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::LoadTerrain, terrainFile.size() + 1, terrainFile.c_str());
+            }
+            else
+            {
+                adjustedFileName = url.str();
+            }
+        }
+        else if (url.authority() == "sky")
+        {
+            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            if (plugin)
+            {
+                std::string skyNumber = url.str();
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyNumber.size() + 1, skyNumber.c_str());
+            }
         }
         return nullptr;
     }

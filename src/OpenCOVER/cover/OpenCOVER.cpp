@@ -59,6 +59,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
+#include <osgDB/WriteFile>
 
 #include <vrb/client/SharedStateManager.h>
 #include <vrb/client/VRBClient.h>
@@ -357,7 +358,8 @@ bool OpenCOVER::init()
 
     int c = 0;
     std::string collaborativeOptionsFile, viewpointsFile;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
+    bool saveAndExit = false;
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "ShdC:s:v:c:::g:")) != -1)
     {
         switch (c)
         {
@@ -370,6 +372,9 @@ bool OpenCOVER::init()
             break;
         case 'v':
             viewpointsFile = optarg;
+            break;
+        case 'S':
+            saveAndExit = true;;
             break;
         case 'C':
         {
@@ -829,6 +834,16 @@ bool OpenCOVER::init()
             {
                 //fprintf(stderr,"Arg %d : %s",optind, coCommandLine::argv(optind));
                 coVRMSController::instance()->loadFile(coCommandLine::argv(optind));
+                if (saveAndExit)
+                {
+                    std::string saveFile = coCommandLine::argv(optind);
+                    saveFile = saveFile.substr(0,saveFile.length() - 3) + "obj";
+                    osgDB::writeNodeFile(*cover->getObjectsRoot(), saveFile.c_str());
+                }
+            }
+            if (saveAndExit)
+            {
+                exit(0);
             }
         }
         else
