@@ -303,6 +303,7 @@ demo 130 "Oper" cover /data/Staatstheater_Stuttgart_local/FrauOhneSchatten/praes
 demo 131 "Theater" cover /data/Staatstheater_Stuttgart_local/out/praesentation.wrl
 demo 132 "Ludwigsburg Punktwolke" cover /data/Ludwigsburg/TheaterNeu.ptsb
 demo 133 "Ludwigsburg Modell" cover /data/Ludwigsburg/out/allPloy.wrl
+demo 134 "Mantis_Uwe" cover /data/Spar3d/Mantis-vision/PLY/uwe.wrl
 # Mobilitaetswoche
 category="MOBILITAETSWOCHE"
 run_marienplatz_mobilitaetswoche() {
