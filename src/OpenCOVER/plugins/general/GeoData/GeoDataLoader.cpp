@@ -228,7 +228,8 @@ bool GeoDataLoader::init()
         });
 
     terrainFile = coCoviseConfig::getEntry("COVER.Plugin.GeoData","terrain", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive");
-    return loadTerrain(terrainFile,osg::Vec3d(0,0,0));
+    loadTerrain(terrainFile,osg::Vec3d(0,0,0));
+    return true;
 }
 
 // this is called if the plugin is removed at runtime
