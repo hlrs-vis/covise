@@ -6,7 +6,7 @@
 #include <map>
 
 #include <cover/ui/Button.h>
-#include <cover/ui/CovConfigLink.h>
+#include <cover/ui/CovconfigLink.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
