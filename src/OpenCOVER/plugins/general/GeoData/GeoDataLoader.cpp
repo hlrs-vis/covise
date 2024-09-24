@@ -47,7 +47,8 @@
 #include <osgViewer/Renderer>
 #include <iostream>
 #include <string>
-#include <curl/curl.h>
+#include "HTTPClient/CURL/methods.h"
+#include "HTTPClient/CURL/request.h"
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
@@ -72,43 +73,19 @@ namespace opencover
 using namespace covise;
 using namespace opencover;
 
-
-// Callback function to handle data received from curl
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
-    size_t newLength = size * nmemb;
-    try {
-        s->append((char*)contents, newLength);
-    }
-    catch (std::bad_alloc& ) {
-        return 0;
-    }
-    return newLength;
-}
-
 std::string getCoordinates(const std::string& address) {
-    CURL* curl;
-    CURLcode res;
+    using namespace opencover::httpclient::curl;
     std::string readBuffer;
 
-    // Nominatim request URL
+    // // Nominatim request URL
     std::string url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&limit=1";
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    curl = curl_easy_init();
-
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0");  // Nominatim requires a User-Agent
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
-        }
-        curl_easy_cleanup(curl);
-    }
-
-    curl_global_cleanup();
+    GET getRequest(url);
+    Request::Options options = {
+        {CURLOPT_USERAGENT, "Mozilla/5.0"},
+    };
+    if (!Request().httpRequest(getRequest, readBuffer, options))
+        readBuffer = "[ERROR] Failed to fetch data from Ennovatis. With request: " + url;
 
     return readBuffer;
 }
