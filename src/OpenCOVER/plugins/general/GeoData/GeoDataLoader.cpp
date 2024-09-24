@@ -85,7 +85,7 @@ std::string getCoordinates(const std::string& address) {
         {CURLOPT_USERAGENT, "Mozilla/5.0"},
     };
     if (!Request().httpRequest(getRequest, readBuffer, options))
-        readBuffer = "[ERROR] Failed to fetch data from Ennovatis. With request: " + url;
+        readBuffer = "[ERROR] Failed to fetch data from Nominatim. With request: " + url;
 
     return readBuffer;
 }
@@ -163,8 +163,8 @@ bool GeoDataLoader::init()
         });
     skys = new ui::SelectionList(geoDataMenu, "Skys");
     skys->append("None");
-    skyPath = coCoviseConfig::getEntry("COVER.Plugin.GeoData", "skyDir" ,"/data/Geodata/sky");
-    defaultSky = coCoviseConfig::getInt("COVER.Plugin.GeoData", "defaultSky", 6);
+    skyPath = configString("sky", "skyDir" ,"/data/Geodata/sky")->value();
+    defaultSky = configInt("sky", "defaultSky", 6)->value();
     int skyNumber = 1;
     try {
         for (const auto& entry : fs::directory_iterator(skyPath))
@@ -204,7 +204,7 @@ bool GeoDataLoader::init()
             parseCoordinates(coord);
         });
 
-    terrainFile = coCoviseConfig::getEntry("COVER.Plugin.GeoData","terrain", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive");
+    terrainFile = configString("terrain","file", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive")->value();
     loadTerrain(terrainFile,osg::Vec3d(0,0,0));
     return true;
 }
