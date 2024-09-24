@@ -27,22 +27,10 @@ struct CURLHTTPCLIENTEXPORT Request {
      * 
      * @param method HTTPMethod object (GET, POST, PUT, DELETE).
      * @param response The response data received from the request (storage).
-     * @return bool True if the request was successful, false otherwise.
-     */
-    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response) const;
-    /**
-     * @brief Performs a CURL request to the specified URL.
-     * 
-     * This function sends a CURL request to the specified URL and stores the response data in the provided string.
-     * 
-     * @param method HTTPMethod object (GET, POST, PUT, DELETE).
-     * @param response The response data received from the request (storage).
      * @param options Custom options parameter passed to curl_easy_setopt.
      * @return bool True if the request was successful, false otherwise.
      */
-    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response, const Options &options) const;
-
-    // [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response) const;
+    [[nodiscard]] bool httpRequest(const HTTPMethod &method, std::string &response, const Options &options = Options()) const;
 
 private:
     CURL *initCurl(const HTTPMethod &httpMethod, std::string &response, const Options &options) const;
