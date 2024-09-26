@@ -1,5 +1,5 @@
 [sky]
-skyDir = "data/GeoData/sky"
+skyDir = "/data/Geodata/sky"
 defaultSky = 6
 
 [terrain]
