@@ -23,7 +23,10 @@ struct UMeshReader
   { return scalars.empty() ? 1 : (int)scalars.size(); } // TODO: should check if mesh has perVertex!
 
   bool haveTimeStep(int timeStep) const
-  { return numTimeSteps() > timeStep && !scalars[timeStep].empty(); }
+  {
+    return (scalars.empty() && timeStep == 0) // scalars come from separate file
+      || (!scalars.empty() && numTimeSteps() > timeStep && !scalars[timeStep].empty()); // scalars come from umesh file
+  }
 
  private:
   // fields _after_ umesh/scalar files were combined

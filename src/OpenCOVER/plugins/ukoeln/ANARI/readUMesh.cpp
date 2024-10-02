@@ -95,7 +95,7 @@ void UMeshReader::initField(int index, int timeStep)
     }
 
     const float *scalarValues{nullptr};
-    if (!scalars[timeStep].empty()) {
+    if (!scalars.empty() && !scalars[timeStep].empty()) {
       scalarValues = scalars[timeStep][slotID][index].data();
     }
 
