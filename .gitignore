@@ -284,6 +284,7 @@
 /lion
 /lionopt
 /spack*
+/.spack
 .vscode/*     
 !.vscode/configureCovise
 !.vscode/tasks.json
