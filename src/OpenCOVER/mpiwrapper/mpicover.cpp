@@ -92,10 +92,19 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
 
     covise::coConfigConstants::setRank(myID, shmGroupRoot);
     covise::coConfigConstants::setMaster(mastername);
-    opencover::config::Access config(my_hostname, mastername, myID);
-    if (auto covisedir = getenv("COVISEDIR"))
+
+    std::unique_ptr<opencover::config::Access> config;
+    if (opencover::config::Access::isInitialized())
     {
-        config.setPrefix(covisedir);
+        config = std::make_unique<opencover::config::Access>();
+    }
+    else
+    {
+        config = std::make_unique<opencover::config::Access>(my_hostname, mastername, myID);
+        if (auto covisedir = getenv("COVISEDIR"))
+        {
+            config->setPrefix(covisedir);
+        }
     }
 
 // timing printouts only if enabled in covise.config
@@ -117,7 +126,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
     opencover::OpenCOVER *Renderer = new opencover::OpenCOVER();
 #endif
     Renderer->run();
-    config.save();
+    config->save();
     delete Renderer;
 
     return 0;
