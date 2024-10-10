@@ -87,3 +87,16 @@ struct UnstructuredField
   std::vector<GridDomain> gridDomains;
   std::vector<GridData> gridData;
 };
+
+
+struct partVec
+  {
+    float x, y, z;
+  };
+struct ParticleField
+{
+  int nrpart;
+  std::vector<partVec> particlePosition;
+  std::vector<partVec> particleVelocity;
+  std::vector<float> particleMass;
+};
