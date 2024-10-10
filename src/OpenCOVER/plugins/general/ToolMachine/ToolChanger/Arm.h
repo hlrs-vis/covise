@@ -24,8 +24,9 @@ const float pathLength = 2 * pathSideLength + 2 * pathRadius * osg::PI;
 const float pathDistance = pathLength / numArms;
 const float relativeStreigthLength = 2 * pathSideLength / pathLength;
 
-// const std::array<float, 4> relativeParts = {pathSideLength/ pathLength, pathRadius * osg::PI / pathLength, pathSideLength/ pathLength, pathRadius * osg::PI / pathLength};
-const std::array<float, 4> parts = {pathRadius * osg::PI, pathSideLength, pathRadius * osg::PI, pathSideLength};
+const float fPI = static_cast<float>(osg::PI);
+// const std::array<float, 4> relativeParts = {pathSideLength/ pathLength, pathRadius * fPI / pathLength, pathSideLength/ pathLength, pathRadius * fPI / pathLength};
+const std::array<float, 4> parts = {pathRadius * fPI, pathSideLength, pathRadius * fPI, pathSideLength};
 const std::array<float, 4> partPathDistance = {pathDistance, pathDistance, pathDistance, pathDistance};
 
 class Arm{
