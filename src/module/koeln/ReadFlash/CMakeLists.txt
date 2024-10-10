@@ -1,4 +1,9 @@
+if(WIN32)
+using(HDF5:cxx_hl)
+else()
 using(HDF5:cxx)
+endif()
+
 using(Boost)
 
 SET(HEADERS
