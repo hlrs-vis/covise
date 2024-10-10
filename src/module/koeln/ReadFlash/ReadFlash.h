@@ -68,6 +68,9 @@ private:
     coIntVectorParam *pfDataOpt[MAX_CHANNELS];
     coFloatVectorParam *pfRange[MAX_CHANNELS];
 
+    // Particles
+    coBooleanParam *pfGetParticles;
+
     // Methods:
     virtual int compute(const char *port);
 
