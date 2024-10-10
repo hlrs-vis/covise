@@ -33,6 +33,8 @@
 #include <api/coFeedback.h>
 #include <do/coDoData.h>
 #include <do/coDoUniformGrid.h>
+#include <do/coDoPoints.h>
+#include <do/coDoSpheres.h>
 #include <do/coDoSet.h>
 //#include <virvo/vvfileio.h>
 //#include <virvo/vvvoldesc.h>
@@ -327,6 +329,9 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   piSequence = addInt32VectorParam("Sequence", "First, last and increment in file number", 3);
   piSequence->setValue(0, 0, 1);
 
+  pfGetParticles = addBooleanParam("Particles", "Return particle positions at the last output port");
+  pfGetParticles->setValue(false);
+
   // Region selection
   pfSelectRegion = addBooleanParam("useRegion", "Enable a region selection with xmin, xmax...");
   pfSelectRegion->setValue(false);
@@ -371,14 +376,17 @@ coReadFlash::coReadFlash(int argc, char *argv[])
 /// This is our compute-routine
 int coReadFlash::compute(const char *)
 {
-
   // Create a pointer to the pointer of gridData
   coDoUniformGrid **gridData = NULL;
+  coDoPoints **particleData = NULL;
+
   std::vector<AMRField> dataOut;
+  std::vector<ParticleField> particleOut;
   std::vector<int> fieldOut;
   
   // Create pointers to volumeSet and gridSet
   coDoSet *volumeSet = NULL;
+  coDoSet *particleSet = NULL;
   coDoSet *gridSet = NULL;
 
   // Path to the file
@@ -388,6 +396,10 @@ int coReadFlash::compute(const char *)
   int numFiles = 0;
   int numFields = 0;
 
+  // Check if particles should be returned
+  bool retPart = pfGetParticles->getValue();
+
+  // Count how man files to process
   int iter = 1;
   long sbegin, send, sinc;
   piSequence->getValue(sbegin, send, sinc);
@@ -395,15 +407,21 @@ int coReadFlash::compute(const char *)
     iter = (send - sbegin) / sinc + 1;
   }
 
+  // Prepare file name to cutoff number at the end
   int len = strlen(pathtemplate);
   string path_temp = pathtemplate;
   path_temp = path_temp.substr(0, len-5);
 
+  // Count number of iterations
   int niter = (send - sbegin) / sinc + 1;
 
+  // Loop over all files
   char path_fname[1024];
-  for (int it=sbegin; it < send + sinc; it = it + sinc) {
-    if (niter > 1){
+  for (int it=sbegin; it < send + sinc; it = it + sinc)
+  {
+    // Create name of current file
+    if (niter > 1)
+    {
       sprintf(path_fname, "%s_%04d", path_temp.c_str(), it);
       std::cout << path_fname << "\n";
     }
@@ -414,12 +432,15 @@ int coReadFlash::compute(const char *)
     
     // Init data field
     AMRField data;
+    ParticleField particles;
     
     // Init flashReader
     FlashReader flashReader;
+    
     // Open File
     // flashReader.open(path_fname.c_str());
     flashReader.open(path_fname);
+    
     // If region needs to be selected apply region of interest
     if (pfSelectRegion->getValue()) {
       float xmin, xmax, ymin, ymax, zmin, zmax;
@@ -429,19 +450,40 @@ int coReadFlash::compute(const char *)
         xmin, xmax, ymin, ymax, zmin, zmax
       );
     
+    // Set minimum and maximum refinement level of uniform grid.
     flashReader.setMinLevel(pfLevels->getValue(0));}
     flashReader.setMaxLevel(pfLevels->getValue(1));
 
     // Check if fields are active by string length
-    for (int i = 0; i < MAX_CHANNELS; ++i) {
-      if (strlen(var_names[i]->getValue()) > 0) {
+    for (int i = 0; i < MAX_CHANNELS; ++i)
+    {
+      if (strlen(var_names[i]->getValue()) > 0)
+      {
         long use_log = pfDataOpt[i]->getValue(0);
-        // Read the data
+      
+        // Set flag to use linear or log space for data
         flashReader.setLog((bool) use_log);
+      
+        // Read the data
         data = flashReader.getFieldByName(var_names[i]->getValue());
+      
         // Store the data
         dataOut.push_back(data);
+      
+        // Check if last channel is 
+        if (i+1 == MAX_CHANNELS && retPart)
+        {
+          std::cout << "Last channel already occupied for a different field\n";
+          retPart = false;
+        }
       }
+    }
+
+    // Store particle if flag is still active
+    if (retPart)
+    {
+      particles = flashReader.getSinkList();
+      particleOut.push_back(particles);
     }
 
     // Increase file counter
@@ -449,11 +491,15 @@ int coReadFlash::compute(const char *)
   }
 
   // Count the active fields and store the index of it
-  for (int i = 0; i < MAX_CHANNELS; ++i) {
-    if (strlen(var_names[i]->getValue()) > 0) {
+  for (int i = 0; i < MAX_CHANNELS; ++i)
+  {
+    // Field is active if string exists
+    if (strlen(var_names[i]->getValue()) > 0)
+    {
       // Keep track of corresponding channel
       fieldOut.push_back(i);
       std::cout << "File out " << i << "\n";
+
       // Increase field counter
       numFields++;
     }
@@ -462,17 +508,22 @@ int coReadFlash::compute(const char *)
   // Conversion factor for the coordinates
   // from parsec to cm
   float pc2cm = 3.086e18;
+  
   // Determine the grid for each file
-  if (numFiles > 0) {
+  if (numFiles > 0)
+  {
     // Create set of uniform grids for each file
     // Requires one more entry than number of files 
     gridData = new coDoUniformGrid *[numFiles+1];
     std::cout << "numFiles " << numFiles << "\n";
+   
     // Determine the bounding box of the first dataset
     // All other datasets should have the same grid
     for (int t = 0; t < numFiles; ++t) {
+
       // Select first dataset of current file
       auto &dat = dataOut[t * numFields];
+
       // Get bounding box, rescale from cm to pc
       float minX = dat.domainBounds[0] / pc2cm;
       float minY = dat.domainBounds[1] / pc2cm;
@@ -503,6 +554,7 @@ int coReadFlash::compute(const char *)
     }
 
     // Set last entry to NULL (?)
+    // Tells end of timeseries 
     gridData[numFiles] = NULL;
     coFeedback browserFeedback("FileBrowserParam");
     browserFeedback.addPara(pbrVolumeFile);
@@ -510,14 +562,18 @@ int coReadFlash::compute(const char *)
     // If more than 1 file is read, make a set
     // and apply to output
     // Else just apply the current grid
-    if (numFiles > 1) {
+    if (numFiles > 1)
+    {
       char buf[1024];
       sprintf(buf, "0 %d", (int)numFiles - 1);
+
       gridSet = new coDoSet(poGrid->getObjName(), (coDistributedObject **)gridData);
       gridSet->addAttribute("TIMESTEP", buf);
+      
       browserFeedback.apply(gridSet);
       poGrid->setCurrentObject(gridSet);
-      for (size_t t = 0; t < numFiles; t++)
+
+      for (size_t t = 0; t < numFiles; ++t)
       {
           delete gridData[t];
       }
@@ -530,7 +586,8 @@ int coReadFlash::compute(const char *)
     }
 
     // Loop over all channels
-    for (int c = 0; c < numFields; ++c) {
+    for (int c = 0; c < numFields; ++c)
+    {
       // Create output object for the data
       std::vector<coDistributedObject *> timesteps;
 
@@ -539,21 +596,33 @@ int coReadFlash::compute(const char *)
       long use_range = pfDataOpt[fieldOut[c]]->getValue(1);
       long ret_float = pfDataOpt[fieldOut[c]]->getValue(2);
       
+      // Limits to use by default
       float use_vmin = 0;
       float use_vmax = 1;
-      if ((bool) use_range) {
+      
+      // Check if user specified range needs to be applied
+      if ((bool) use_range)
+      {
         use_vmin = pfRange[fieldOut[c]]->getValue(0);
         use_vmax = pfRange[fieldOut[c]]->getValue(1);
-        if((bool) use_log) {
+        
+        // Check if log is active
+        // in that case automatically update values to log values
+        if((bool) use_log)
+        {
           use_vmin = log10(use_vmin);
           use_vmax = log10(use_vmax);
         }
       }
 
+      // Loop over all files (times)
       for (int t = 0; t < numFiles; ++t)
       {
+        // Get dataset of current channel (dataset)
         auto &dat = dataOut[numFields * t + c];
 
+        // Get bounds of dataset
+        // May be time-dependent
         float minX = dat.domainBounds[0];
         float minY = dat.domainBounds[1];
         float minZ = dat.domainBounds[2];
@@ -561,39 +630,58 @@ int coReadFlash::compute(const char *)
         float maxY = dat.domainBounds[4];
         float maxZ = dat.domainBounds[5];
         
+        // Get size of uniform grid
+        // May be time-dependent
         int npixx = dat.domainSize[0];
         int npixy = dat.domainSize[1];
         int npixz = dat.domainSize[2];
         
-        
+        // Get object name for covise
         std::stringstream name(poVolume[fieldOut[c]]->getObjName());
+        // For time series append id of current "time"
         if (numFiles > 1) name << "_" << t;
 
+        // Get total size of array
         unsigned long long int size_arr = npixx * npixy * npixz;
+
+        // Initialise float and byte data address
         coDoFloat *dof = NULL;
         float *fdata = NULL;
         coDoByte *dob = NULL;
         unsigned char *bdata = NULL;
         
-        if ((bool) ret_float) {
+        // Allocate new float/byte array 
+        // get start address of dataset
+        // and append to timeseries
+        if ((bool) ret_float)
+        {
           dof = new coDoFloat(name.str(), int(npixx * npixy * npixz));
           fdata = dof->getAddress();
           timesteps.push_back(dof);
         }
-        else {  
+        else
+        {
           dob = new coDoByte(name.str(), size_arr);
           bdata = dob->getAddress();
           timesteps.push_back(dob);
         }
 
+        
         int cnt = 0;
+        
+        // Get dataset value limits
         float vmin = dat.voxelRange.x;
         float vmax = dat.voxelRange.y;
         
-        if ((bool) use_range) {
+        // Update to user defined values if set
+        if ((bool) use_range)
+        {
           vmin = use_vmin;
           vmax = use_vmax;
         }
+        
+        // Get total range of data values
+        // Needed to create linear space for byte data
         float range = vmax - vmin;
         
         // Not sure yet what this does
@@ -601,69 +689,107 @@ int coReadFlash::compute(const char *)
         std::string mapping_max_str = boost::lexical_cast<std::string>(1);
         std::string range_min_str = boost::lexical_cast<std::string>(0);
         std::string range_max_str = boost::lexical_cast<std::string>(1);
+
         timesteps.back()->addAttribute("MAPPING_MIN", mapping_min_str.c_str());
         timesteps.back()->addAttribute("MAPPING_MAX", mapping_max_str.c_str());
         timesteps.back()->addAttribute("RANGE_MIN", range_min_str.c_str());
         timesteps.back()->addAttribute("RANGE_MAX", range_max_str.c_str());
         
         // Map data onto uniform grid
-        for (int i = 0; i < dat.blockData.size(); ++i) {
+        // Loop over all blocks in dataset
+        for (int i = 0; i < dat.blockData.size(); ++i)
+        {
+          // Get shape of current block
           int ncx = dat.blockData[i].dims[0];
           int ncy = dat.blockData[i].dims[1];
           int ncz = dat.blockData[i].dims[2];
+
+          // Get level difference to highest refined block
           int lvl_diff = 1 << dat.blockLevel[i];
           
+          // Get lower and upper corner of block
+          // in cell space (not physical space)
           BlockBounds bnds = dat.blockBounds[i];
+
           // Loop over all cells in block
-          for (int kk = 0; kk < ncx; ++kk) {
-            for (int jj = 0; jj < ncy; ++jj) {
-              for (int ii = 0; ii < ncz; ++ii) {
-                // Cell position in block
+          for (int kk = 0; kk < ncz; ++kk)
+          {
+            for (int jj = 0; jj < ncy; ++jj)
+            {
+              for (int ii = 0; ii < ncx; ++ii)
+              {
+                // Get cell position in block
                 unsigned long long int blk_ind = ii + ncx * jj + ncy * ncx * kk;
+                
                 // Data in current cell
                 float cdata_val;
                 unsigned char cdata_uc;
 
-                if ((bool) ret_float) {
+                // Apply limits onto data set
+                if ((bool) ret_float)
+                {
+                  // Data in current cell
                   cdata_val = dat.blockData[i].values[blk_ind];
 
-                  if (cdata_val < vmin) {
-                    cdata_val = vmin;
-                  }
-                  else if (cdata_val > vmax) {
-                    cdata_val = vmax;
-                  }
+                  // Apply limits
+                  cdata_val = fmax(cdata_val, vmin);
+                  cdata_val = fmin(cdata_val, vmax);
+                  
+                  // if (cdata_val < vmin)
+                  // {
+                  //   cdata_val = vmin;
+                  // }
+                  // else if (cdata_val > vmax)
+                  // {
+                  //   cdata_val = vmax;
+                  // }
                 }
-                else {
+                else
+                {
+                  // Data in current cell remapped on to [0, 1] space
                   cdata_val = (dat.blockData[i].values[blk_ind] - vmin) / range;
-                  if (cdata_val < 0.0) {
-                    cdata_val = 0.0;
-                  }
-                  else if (cdata_val > 1.0)
-                  {
-                    cdata_val = 1.0;
-                  }
+
+                  // Apply limits
+                  cdata_val = fmax(cdata_val, 0.0);
+                  cdata_val = fmin(cdata_val, 1.0);
+                  
+                  // if (cdata_val < 0.0)
+                  // {
+                  //   cdata_val = 0.0;
+                  // }
+                  // else if (cdata_val > 1.0)
+                  // {
+                  //   cdata_val = 1.0;
+                  // }
+                  
+                  // Convert to unsigned char range [0, 255]
                   cdata_uc = cdata_val * 255;
                 }
                 
                 // Loop over all duplicates due to level mismatch
-                for (int ok = 0; ok < lvl_diff; ++ok) {
+                for (int ok = 0; ok < lvl_diff; ++ok)
+                {
                   unsigned long long int dkk = bnds[2] + kk * lvl_diff + ok;
-                  for (int oj = 0; oj < lvl_diff; ++oj) {
+                  for (int oj = 0; oj < lvl_diff; ++oj)
+                  {
                     unsigned long long int djj = bnds[1] + jj * lvl_diff + oj;
-                    for (int oi = 0; oi < lvl_diff; ++oi) {
+                    for (int oi = 0; oi < lvl_diff; ++oi)
+                    {
                       unsigned long long int dii = bnds[0] + ii * lvl_diff + oi;
-                      // Index in output
+                      
+                      // Index in output dataset
                       unsigned long long int dof_ind = dkk + npixz * djj + npixz * npixy * dii;
                       
-                      // Add data to output
-                      if ((bool) ret_float) {
+                      // Store data in output
+                      if ((bool) ret_float)
+                      {
                         fdata[dof_ind] = *(float *) &cdata_val;
                       }
                       else
                       {
                         bdata[dof_ind] = (unsigned char) cdata_uc;
                       }
+
                       cnt = cnt + 1;
                     } // oi
                   } // oj
@@ -673,19 +799,23 @@ int coReadFlash::compute(const char *)
           } // kk
         } // block
       } // files
-      if (numFiles > 1) {
+
+      // Place dataset on the correct output ports
+      if (numFiles > 1)
+      {
         // Create set objects:
         volumeSet = new coDoSet(poVolume[fieldOut[c]]->getObjName(), int(timesteps.size()), &timesteps[0]);
 
         // Set timestep attribute:
         char buf[1024];
-        sprintf(buf, "%d %d", 0, (int)numFiles - 1);
+        sprintf(buf, "0 %d", (int)numFiles - 1);
         volumeSet->addAttribute("TIMESTEP", buf);
 
         // Assign sets to output ports:
         poVolume[fieldOut[c]]->setCurrentObject(volumeSet);
 
-        for (int t = 0; t < numFiles; ++t)
+        // Cleanup?
+        for (size_t t = 0; t < numFiles; ++t)
         {
             delete timesteps[t];
         }
@@ -696,6 +826,89 @@ int coReadFlash::compute(const char *)
         poVolume[fieldOut[c]]->setCurrentObject(timesteps[0]);
       }
     }
+    
+    // Get particle information
+    if (retPart)
+    {
+      // Timeseries of particle data
+      //std::vector<coDistributedObject *> timePart;
+      particleData = new coDoPoints *[numFiles+1];
+      // Loop over times
+      for (size_t t = 0; t < numFiles; ++t)
+      {
+        auto &dat = particleOut[t];
+        int npart = dat.nrpart;
+
+        vector<float> px;
+        vector<float> py;
+        vector<float> pz;
+
+        // Get object name for covise
+        std::stringstream name(poVolume[MAX_CHANNELS-1]->getObjName());
+        // For time series append id of current "time"
+        if (numFiles > 1) name << "_" << t;
+
+        for (size_t pid = 0; pid < npart; ++pid)
+        {
+          std::cout << "Partcile position\n";
+          std::cout << dat.particlePosition[pid].x / pc2cm;
+          std::cout << " " << dat.particlePosition[pid].y / pc2cm;
+          std::cout << " " << dat.particlePosition[pid].z / pc2cm << "\n";
+          px.push_back(dat.particlePosition[pid].x / pc2cm);
+          py.push_back(dat.particlePosition[pid].y / pc2cm);
+          pz.push_back(dat.particlePosition[pid].z / pc2cm);
+        }
+
+        float *ppx = &px[0];
+        float *ppy = &py[0];
+        float *ppz = &pz[0];
+
+        // If more than 1 file is read, give timeseries
+        if (numFiles > 1)
+        {
+          char buf[1024];
+          sprintf(buf, "%s_%d", poVolume[MAX_CHANNELS-1]->getObjName(), (int) t);
+          particleData[t] = new coDoPoints(buf, npart, ppx, ppy, ppz);
+        }
+        else
+        {
+          particleData[t] = new coDoPoints(poVolume[MAX_CHANNELS-1]->getObjName(), npart, ppx, ppy, ppz);
+        }
+
+        // coDoPoints *new_part = new coDoPoints(name.str(), npart, ppx, ppy, ppz);
+        // particleData[t] = new coDoPoints(name.str(), npart, ppx, ppy, ppz);
+        // timePart.push_back(new_part);
+      }
+
+      particleData[numFiles] = NULL;
+
+      // If more than 1 file is read, make a set
+      // and apply to output
+      // Else just apply the current particles
+      if (numFiles > 1)
+      {
+        char buf[1024];
+        sprintf(buf, "0 %d", (int)numFiles - 1);
+
+        particleSet = new coDoSet(poVolume[MAX_CHANNELS-1]->getObjName(), (coDistributedObject **)particleData);
+        particleSet->addAttribute("TIMESTEP", buf);
+        
+        browserFeedback.apply(particleSet);
+        poVolume[MAX_CHANNELS-1]->setCurrentObject(particleSet);
+
+        for (size_t t = 0; t < numFiles; ++t)
+        {
+            delete particleData[t];
+        }
+      }
+      else
+      {
+        browserFeedback.apply(particleData[0]);
+        poVolume[MAX_CHANNELS-1]->setCurrentObject(particleData[0]);
+        delete[] particleData;
+      }
+    }
+    
   }
 
   return retVal;
