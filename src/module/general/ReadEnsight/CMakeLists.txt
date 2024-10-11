@@ -9,12 +9,12 @@ IF(NOT BISON_FOUND)
 ENDIF()
 
 BISON_TARGET(CaseParser CaseParser.y ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.cpp COMPILE_FLAGS "--header=${CMAKE_CURRENT_BINARY_DIR}/CaseParser.h")
-IF(UNIX)
-  FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-+")
-ELSE(UNIX) 
-  FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-+ -S${FLEX_INCLUDE_DIR}/flex.skl")
-ENDIF(UNIX)
+FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-+")
 ADD_FLEX_BISON_DEPENDENCY(CaseScanner CaseParser)
+
+if(WIN32)
+  ADD_DEFINITIONS(-DYY_NO_UNISTD_H)
+endif()
 
 SET(HEADERS
   CaseFile.h

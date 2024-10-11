@@ -831,3 +831,9 @@ cesium native
 
 git clone https://github.com/CesiumGS/cesium-native.git --recurse-submodules
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cesium -DCMAKE_DEBUG_POSTFIX=d  -DCESIUM_TESTS_ENABLED=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph
+
+#############
+###Bison and Flex
+Download https://github.com/lexxmark/winflexbison/releases/tag/v2.5.25
+unpck to externlibs/zebu/bison and copy to externlibs/zebu/bison/flex
+delete win_flex.exe in bison folder and win_bison.exe in flex folder
