@@ -83,6 +83,27 @@ struct grid_t
   std::vector<aabbd> bnd_box;
   // Vector of child id (1-8)
   std::vector<int> which_child;
+  // Vector of sinkList
+};
+
+struct particle_t
+{
+  // Index of position, velocity and mass of particles
+  int ind_posx;
+  int ind_posy;
+  int ind_posz;
+  
+  int ind_velx;
+  int ind_vely;
+  int ind_velz;
+  
+  int ind_mass;
+
+  // Number of particles and properties
+  int npart;
+  int nprop;
+
+  std::vector<double> data;
 };
 
 // Data structure of general information
@@ -270,6 +291,45 @@ inline void read_grid(grid_t &dest, H5::H5File const &file)
   }
 }
 
+inline void read_sinks(particle_t &part, H5::H5File const &file)
+{
+  // Initialize the dataset and dataspace
+  H5::DataSet dataset;
+  H5::DataSpace dataspace;
+
+  // Open grid datasets
+  // Field names
+  {
+    // Open dataset
+    dataset = file.openDataSet("sinkList");
+    // Get dataspace
+    dataspace = dataset.getSpace();
+    // Allocate 1D space for data (nsinks * nprops)
+    int tot_entries = dataspace.getSimpleExtentNpoints();
+    part.data.resize(tot_entries);
+    // Read data from dataset and store in dest as sinkList
+    dataset.read(part.data.data(), H5::PredType::NATIVE_DOUBLE, dataspace, dataspace);
+
+    part.ind_posx = 0;
+    part.ind_posy = 1;
+    part.ind_posz = 2;
+    part.ind_velx = 3;
+    part.ind_vely = 4;
+    part.ind_velz = 5;
+    part.ind_mass = 59;
+
+    for (size_t i=1; i < 100; ++i)
+    {
+      part.npart = 100 * i;
+      if (tot_entries / (100 * i) < 200)
+      {
+        part.nprop = tot_entries / (100 * i);
+        break;
+      }
+    }
+  }
+}
+
 // Read variable field
 inline void read_variable(
     variable_t &var, H5::H5File const &file, char const *varname)
@@ -296,10 +356,61 @@ inline void read_variable(
   // << '\n';
 }
 
+inline ParticleField toParticleField(particle_t particles)
+{
+  // Create output dataset
+  ParticleField result;
+  
+  std::cout << particles.npart << "\t" << particles.nprop << "\n";
+  
+  // Count all particles that exist
+  int cnt_part = 0;
+
+  for (size_t part_ind=0; part_ind < particles.npart; ++part_ind)
+  {
+    bool particle_exist = false;
+    for (size_t prop_ind=0; prop_ind < particles.nprop; ++prop_ind)
+    {
+      if (particles.data[part_ind * particles.nprop + prop_ind] != 0.0)
+      {
+        particle_exist = true;
+        break;
+      }
+    }
+    if (particle_exist)
+    {
+      partVec position;
+      partVec velocity;
+
+      // Get position of current particle
+      position.x = particles.data[part_ind * particles.nprop + particles.ind_posx];
+      position.y = particles.data[part_ind * particles.nprop + particles.ind_posy];
+      position.z = particles.data[part_ind * particles.nprop + particles.ind_posz];
+      
+      // Get velocity of current particle
+      velocity.x = particles.data[part_ind * particles.nprop + particles.ind_velx];
+      velocity.y = particles.data[part_ind * particles.nprop + particles.ind_vely];
+      velocity.z = particles.data[part_ind * particles.nprop + particles.ind_velz];
+
+      // Store data of current particle
+      result.particlePosition.push_back(position);
+      result.particlePosition.push_back(position);
+      result.particleMass.push_back(particles.data[part_ind * particles.nprop + particles.ind_mass]);
+
+      // Increase counter of active particles
+      cnt_part++;
+    }
+
+    // Store total number of particles
+    result.nrpart = cnt_part;
+  }
+  return result;
+}
+
 // Convert gridData to AMRfield data structure
 inline AMRField toAMRField(
   const grid_t &grid, const variable_t &var, BlockBoundsf &reg_roi,
-  int usr_max_level, bool usr_set_log
+  int usr_min_level, int usr_max_level, bool usr_set_log
   )
 {
   AMRField result;
@@ -347,6 +458,14 @@ inline AMRField toAMRField(
     common_ref = usr_max_level;
   }
 
+  if (usr_min_level > 0)
+  {
+    if (common_ref > usr_min_level)
+    {
+      common_ref = usr_min_level;
+    }
+  }
+
   // Find parent blocks at common refinement level
   for (size_t ri = 0; ri < max_ref - common_ref; ++ri) {
     for (size_t i = 0; i < var.global_num_blocks; ++i) {
@@ -360,6 +479,11 @@ inline AMRField toAMRField(
 
   // Enforce maximum ref level to not be higher than user limit
   if (max_ref > usr_max_level) {
+    std::cout << "Max level was " << max_ref << " now set to " << usr_max_level << "\n";
+    max_ref = usr_max_level;
+  }
+
+  if (max_ref < usr_max_level) {
     std::cout << "Max level was " << max_ref << " now set to " << usr_max_level << "\n";
     max_ref = usr_max_level;
   }
@@ -448,12 +572,27 @@ inline AMRField toAMRField(
   vox[1] = static_cast<int>(round(len_total[1] / len[1]));
   vox[2] = static_cast<int>(round(len_total[2] / len[2]));
 
-  // Store size of domain in counts of cells at highest refinement level
-  result.domainSize[0] = vox[0];
-  result.domainSize[1] = vox[1];
-  result.domainSize[2] = vox[2];
+  int corr_fac = 1;
+  if (max_level < max_ref)
+  {
+    corr_fac = pow(2.0, max_ref-max_level);
+    max_level = max_ref;
 
-  std::cout << vox[0] << ' ' << vox[1] << ' ' << vox[2] << '\n';
+  }
+  if (max_level > max_ref)
+  {
+    max_level = max_ref;
+  }
+
+  // Store size of domain in counts of cells at highest refinement level
+  result.domainSize[0] = vox[0] * corr_fac;
+  result.domainSize[1] = vox[1] * corr_fac;
+  result.domainSize[2] = vox[2] * corr_fac;
+
+
+
+
+  std::cout << vox[0]*corr_fac << ' ' << vox[1]*corr_fac << ' ' << vox[2]*corr_fac << '\n';
 
   // Set initial limits of dataset
   float max_scalar = -FLT_MAX;
@@ -480,11 +619,11 @@ inline AMRField toAMRField(
       // Get lower index position in uniform grid
       int lower[3] = {
         static_cast<int>(
-          round((grid.bnd_box[i].min.x - grid.bnd_box[bid_first].min.x) / len[0])),
+          round((grid.bnd_box[i].min.x - grid.bnd_box[bid_first].min.x) / len[0] * corr_fac)),
         static_cast<int>(
-          round((grid.bnd_box[i].min.y - grid.bnd_box[bid_first].min.y) / len[1])),
+          round((grid.bnd_box[i].min.y - grid.bnd_box[bid_first].min.y) / len[1] * corr_fac)),
         static_cast<int>(
-          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2]))};
+          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2] * corr_fac))};
 
       // Bounding box in index reference frame assuming
       // uniform grid at lowest refinement
@@ -585,7 +724,7 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldNames[index] << "\"\n";
       read_variable(currentField, file, fieldNames[index].c_str());
 
-      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
+      return toAMRField(grid, currentField, cutting_reg, usr_min_level, usr_max_level, usr_set_log);
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -602,8 +741,8 @@ struct FlashReader
   {
     for (std::size_t i = 0; i < fieldNames.size(); ++i) {
       if (strcmp(fieldNames[i].c_str(), name.c_str()) == 0) {
-	std::cout << name << " found at index " << i << "\n";
-	return i;
+	      std::cout << name << " found at index " << i << "\n";
+	      return i;
       }
     }
     std::cout << "No entry found for " << name << "\n";
@@ -617,7 +756,24 @@ struct FlashReader
       std::cout << "Reading field \"" << fieldName << "\"\n";
       read_variable(currentField, file, fieldName.c_str());
 
-      return toAMRField(grid, currentField, cutting_reg, usr_max_level, usr_set_log);
+      return toAMRField(grid, currentField, cutting_reg, usr_min_level, usr_max_level, usr_set_log);
+    } catch (H5::DataSpaceIException error) {
+      error.printErrorStack();
+      exit(EXIT_FAILURE);
+    } catch (H5::DataTypeIException error) {
+      error.printErrorStack();
+      exit(EXIT_FAILURE);
+    }
+
+    return {};
+  }
+
+  ParticleField getSinkList()
+  {
+    try {
+      read_sinks(particle, file);
+      return toParticleField(particle);
+
     } catch (H5::DataSpaceIException error) {
       error.printErrorStack();
       exit(EXIT_FAILURE);
@@ -645,6 +801,9 @@ struct FlashReader
     std::cout << "min\t" << cutting_reg[1] << "\t\t" << cutting_reg[3] << "\t\t" << cutting_reg[5] << "\n";
   }
 
+  void setMinLevel(int rlvl_min) {
+    usr_min_level = rlvl_min;
+  }
   void setMaxLevel(int rlvl_max) {
     usr_max_level = rlvl_max;
   }
@@ -658,6 +817,8 @@ struct FlashReader
   std::vector<std::string> fieldNames;
   // Grid structure
   grid_t grid;
+  // Particle structure
+  particle_t particle;
   // Current field being read
   variable_t currentField;
   // Cutting region
@@ -665,6 +826,11 @@ struct FlashReader
   BlockBoundsf cutting_reg = {
     {-FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX, -FLT_MAX, FLT_MAX}
   };
+
+  // Initial values of user parameters
+  // minimum and maximum refinement level of uniform grid
+  int usr_min_level = -1;
   int usr_max_level = 1000;
+  // flag to enable log space
   bool usr_set_log = false;
 };
