@@ -25,7 +25,6 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 , ui::Owner("ToolMachinePlugin", cover->ui)
 , m_menu(new ui::Menu("ToolMachine", this))
 , m_pauseBtn(new ui::Button(m_menu, "pause"))
-, m_updateMode(std::make_unique<opencover::ui::SelectionListConfigValue>(m_menu, "updateMode", 0, *config(), "ToolMachinePlugin"))
 {
     m_menu->allowRelayout(true);
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
@@ -42,7 +41,7 @@ ToolMaschinePlugin::ToolMaschinePlugin()
     for (size_t i = 0; i < 6; i++)
     {
         auto slider = new ui::Slider(m_menu, names[i] + "Pos");
-        i < 3 ? slider->setBounds(-100, 100) : slider->setBounds(0, 360);
+        i < 3 ? slider->setBounds(-200, 200) : slider->setBounds(0, 360);
         
         slider->setCallback([i, this](double val, bool b){
             m_pauseMove = !b;
@@ -54,10 +53,6 @@ ToolMaschinePlugin::ToolMaschinePlugin()
         if(m_machine)
             m_machine->pause(state);
     });
-
-    const std::vector<std::string> updateMode{"all", "allOncePerFrame", "updatedOncePerFrame"};
-    m_updateMode->ui()->setList(updateMode);
-    m_updateMode->ui()->select(m_updateMode->getValue());
 }
 
 
@@ -95,7 +90,7 @@ bool ToolMaschinePlugin::update()
     }
     
     if(m_machine)
-        m_machine->update(static_cast<UpdateMode>(m_updateMode->getValue()));
+        m_machine->update();
     if(m_toolChanger)
         m_toolChanger->update();
 

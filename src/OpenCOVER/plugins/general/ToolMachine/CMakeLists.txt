@@ -11,6 +11,7 @@ endif()
 SET(HEADERS
 ../CsvPointCloud/OctUtils.h
 Currents.h
+MathExpressions.h
 Oct.h
 Plugin.h
 Tool.h
@@ -26,6 +27,7 @@ VrmlNode.h
 SET(SOURCES
 ../CsvPointCloud/OctUtils.cpp
 Currents.cpp
+MathExpressions.cpp
 Oct.cpp
 Plugin.cpp
 Tool.cpp

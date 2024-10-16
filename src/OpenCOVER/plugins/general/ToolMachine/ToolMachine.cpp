@@ -33,9 +33,12 @@ Machine::Machine(MachineNodeBase *node)
 void Machine::connectOpcua()
 {
 
-    
+    if(!m_client)
+        m_client = opcua::connect(m_machineNode->MachineName->get());
+    if(!m_client || !m_client->isConnected())
+        return;
+    m_mathExpressionObserver = std::make_unique<MathExpressionObserver>(m_client);
     m_rdy = true;
-    m_client = opcua::connect(m_machineNode->MachineName->get());
     auto arrayMode = dynamic_cast<MachineNodeArrayMode *>(m_machineNode);
     auto singleMode = dynamic_cast<MachineNodeSingleMode *>(m_machineNode);
 
@@ -44,9 +47,13 @@ void Machine::connectOpcua()
         m_valueIds.push_back(m_client->observeNode(arrayMode->OPCUAArrayName->get()));
     }  else if (singleMode)
     {
+        m_axisValueHandles.clear();
         for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
         {
-            m_valueIds.push_back(m_client->observeNode((*singleMode->OPCUANames)[i]));
+            auto v = m_mathExpressionObserver->observe((*singleMode->OPCUANames)[i]);
+            if(!v)
+                m_rdy = false;
+            m_axisValueHandles.push_back(std::move(v));
         }
     }
 
@@ -97,7 +104,7 @@ osg::MatrixTransform *Machine::getToolHead() const
 }
 
 
-void Machine::update(UpdateMode updateMode)
+void Machine::update()
 {
     if(!m_rdy && m_machineNode->allInitialized())
     {
@@ -111,7 +118,8 @@ void Machine::update(UpdateMode updateMode)
     }
     if (m_client && m_client->isConnected())
     {
-        updateMachine(haveTool, updateMode);
+        m_mathExpressionObserver->update();
+        updateMachine(haveTool);
     }
 }
 
@@ -147,7 +155,7 @@ bool Machine::addTool()
     return false;
 }
 
-bool Machine::updateMachine(bool haveTool, UpdateMode updateMode)
+bool Machine::updateMachine(bool haveTool)
 {
     if(arrayMode())
     {
@@ -165,73 +173,16 @@ bool Machine::updateMachine(bool haveTool, UpdateMode updateMode)
         }
     } else{
         auto singleMode = dynamic_cast<MachineNodeSingleMode *>(m_machineNode);
-        struct Update{
-            double value;
-            std::function<void(double)> func;
-            std::string name;
-        };
-        //read all updates first, then apply them in order
-        std::map<UA_DateTime, Update> updates; 
-
-        //vrml specific updates
-        std::vector<UpdateValues> toolUpdateValues;
         if(haveTool)
         {
-            //get the tool specific update functions 
-            auto &tua = m_tool->value->getUpdateValues();
-            for(auto &t : tua)
-                toolUpdateValues.push_back(t);
-                
+            m_tool->value->update();
         }
-        for(const auto &update : toolUpdateValues)
-        {
-            auto numUpdates = m_client->numNodeUpdates(update.name);
-            if(numUpdates == 0 && updateMode == UpdateMode::AllOncePerFrame)
-                numUpdates = 1;
-            for (size_t u = 0; u < numUpdates; u++)
-            {
-                UA_DateTime timestamp;
-                auto v = m_client->getNumericScalar(update.name, &timestamp);
-                updates[timestamp] = {v, update.func, update.name};
-            }
-        }
+
         //machine axis updates
         for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
         {
-            auto numUpdates = m_client->numNodeUpdates((*singleMode->OPCUANames)[i]);
-            if(numUpdates == 0 && updateMode == UpdateMode::AllOncePerFrame)
-                numUpdates = 1;
-
-            for (size_t u = 0; u < numUpdates; u++)
-            {
-                UA_DateTime timestamp;
-                auto v = m_client->getNumericScalar((*singleMode->OPCUANames)[i], &timestamp);
-                updates[timestamp] = {v, [this, i](double value){//potentially overwrite the value with the same timestamp, could be bad
-                    move(i, value + (*m_machineNode->Offsets)[i]);
-                }, (*singleMode->OPCUANames)[i]}; 
-            }
+            move(i, m_axisValueHandles[i]->value() + (*m_machineNode->Offsets)[i]);
         }
-        //machine tool updates
-
-        //execute updates in order
-        if(updateMode == UpdateMode::All)
-        {
-            for(const auto &update : updates)
-            {
-                update.second.func(update.second.value);
-            }
-        } else{
-            std::set<std::string> items;
-            for(auto it = updates.rbegin(); it != updates.rend(); ++it)
-            {
-                if(items.insert(it->second.name).second)
-                {
-                    it->second.func(it->second.value);
-                }
-            }
-        }
-        if(haveTool)
-            m_tool->value->frameOver();
     }
     return true;
 }

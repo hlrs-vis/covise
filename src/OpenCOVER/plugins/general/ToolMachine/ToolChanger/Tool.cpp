@@ -31,9 +31,7 @@ ToolModel::ToolModel(osg::Node *model)
 
 void ToolModel::resize(float length, float radius)
 {
-    auto shaftScale = totalHeight - length;
-    m_shaftScale->setScale(osg::Vec3(1, shaftScale, 1));
-    m_tipScale->setScale(osg::Vec3(radius, length / shaftScale, radius) );
+    m_tipScale->setScale(osg::Vec3(radius, length, radius) );
 }
 
 void ToolModel::setParent(osg::Group *p)
@@ -49,7 +47,7 @@ osg::Group* ToolModel::parent()
 
 float ToolModel::getLength() const
 {
-    return totalHeight - m_shaftScale->getScale().y();
+    return m_tipScale->getScale().y();
 }
 
 float ToolModel::getRadius() const

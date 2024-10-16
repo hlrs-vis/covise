@@ -1,4 +1,5 @@
 
+#include "MathExpressions.h"
 #include "Tool.h"
 #include "ToolChanger/ToolChanger.h"
 #include "VrmlNode.h"
@@ -19,12 +20,6 @@
 #include <OpcUaClient/opcua.h>
 #include <cover/ui/Menu.h>
 
-enum UpdateMode
-{
-    All,
-    AllOncePerFrame,
-    UpdatedOncePerFrame
-};
 
 class Machine 
 {
@@ -34,23 +29,24 @@ public:
 
     void move(int axis, float value);
     bool arrayMode() const;
-    void update(UpdateMode updateMode);
+    void update();
     void setUi(opencover::ui::Menu *menu, opencover::config::File *file);
     void pause(bool state);
     osg::MatrixTransform *getToolHead() const;
 
 private:
     bool m_rdy = false;
-    MachineNodeBase *m_machineNode;
-    opcua::Client *m_client;
+    MachineNodeBase *m_machineNode = nullptr;
+    opcua::Client *m_client = nullptr;
     std::vector<opencover::opcua::ObserverHandle> m_valueIds;
     size_t m_index = 0;
     std::unique_ptr<SelfDeletingTool> m_tool;
-    opencover::ui::Menu *m_menu;
-    opencover::config::File *m_configFile;
-
+    opencover::ui::Menu *m_menu = nullptr;
+    opencover::config::File *m_configFile = nullptr;
+    std::unique_ptr<MathExpressionObserver> m_mathExpressionObserver;
+    std::vector<MathExpressionObserver::ObserverHandle::ptr> m_axisValueHandles;
     bool addTool();
     void connectOpcua();
-    bool updateMachine(bool haveTool, UpdateMode updateMode);
+    bool updateMachine(bool haveTool);
 
 };

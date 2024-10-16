@@ -49,36 +49,8 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
 : m_toolHead(toolHead)
 , m_configFile(file)
 {
-    
-
-    // std::this_thread::sleep_for(std::chrono::seconds(10));
-    covise::ColorMapSelector *colorMapSelector = new covise::ColorMapSelector(*menu);
-    // auto model = osgDB::readNodeFile("C:/Users/Dennis/Data/IfW/animationTest.fbx"); 
     osg::ref_ptr model = osgDB::readNodeFile(files.arm); 
-    
-    // cover->getObjectsRoot()->addChild(model);
-    // AnimationManagerFinder *animation = new AnimationManagerFinder;
-    // model->accept(*animation);
 
-    // for(auto &a : animation->m_am->getAnimationList())
-    // {
-    //     std::cerr << "obj has animation " << a->getName() << std::endl;
-    // }
-
-    // ui::Slider *animSlider = new ui::Slider(menu, "animation");
-    // animSlider->setBounds(0, 1);
-    // animSlider->setCallback([animation](double val, bool x){
-    //     for(auto &a : animation->m_am->getAnimationList())
-    //     {
-    //         // a->setPlayMode(osgAnimation::Animation::STAY);
-    //         // animation->m_am->playAnimation(a, 1, val);
-    //         animation->m_am->playAnimation(a, 1, 1);
-    //         animation->m_am->update(val);
-    //         animation->m_am->stopAnimation(a);
-    //     }
-    // });
-
-    // return;
     m_trans = new osg::MatrixTransform;
     m_trans->setName("ToolChanger");
     auto scale = new ui::Slider(menu, "scale");
@@ -90,54 +62,15 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
         m_trans->setMatrix(osg::Matrix::scale(scale, scale, scale));
     });
 
-    if(!toolHead)
-    {
-        // auto th = osgDB::readNodeFile("C:/Users/Dennis/Data/IfW/Werkzeugwechsler/ToolMachineHead.fbx");
-        // m_trans->addChild(th);
-        // m_toolHead = findTransform(th, "Maschinenkopf");
-        // m_toolHead->addChild(createSphere({0,0,0}, 10));
-    }
-    else
-    {
-        m_toolHead = toolHead;
-    }
+    //position toolChanger 
     osg::Matrix m = osg::Matrix::translate(-1, 0, 0.8);
     m = osg::Matrix::rotate(-osg::PI_2, osg::Vec3(1, 0, 0)) * m;
     m = osg::Matrix::rotate(-osg::PI_2, osg::Vec3(0, 1, 0)) * m;
     m = osg::Matrix::scale(fbxScale, fbxScale, fbxScale) * m;
     osg::Matrix finalCorrection = osg::Matrix::translate(-19.4889, -45, 23.151);
     m = finalCorrection * m;
-    osg::Vec3 testTrans, testScale;
-    osg::Quat testRot, testScaleRot;
-    m.decompose(testTrans, testRot, testScale, testScaleRot);
-    osg::Vec3 testRotAxis;
-    double testRotAngle;
-    testRot.getRotate(testRotAngle, testRotAxis);
-    std::cerr << "translate: " << testTrans.x() << " " << testTrans.y() << " " << testTrans.z() << std::endl;
-    std::cerr << "rotate: " <<  testRot.x() << " " << testRot.y() << " " << testRot.z() << testRot.w() << " " << std::endl;
-    std::cerr << "scale: " << testScale.x() << " " << testScale.y() << " " << testScale.z() << std::endl;
-    std::cerr << "scaleRot: " << testScaleRot.x() << " " << testScaleRot.y() << " " << testScaleRot.z() << testScaleRot.w() << std::endl;
-    std::cerr << "rotation axis: " << testRotAxis.x() << " " << testRotAxis.y() << " " << testRotAxis.z() << std::endl;
-    std::cerr << "rotation angle: " << testRotAngle << std::endl;
     m_trans->setMatrix(m);
 
-
-    auto offset = new ui::VectorEditField(menu, "ToolChangerOffset");
-    offset->setValue(osg::Vec3(0,0,0));
-    offset->setCallback([this, m](const osg::Vec3 &v){
-        osg::Matrix o = osg::Matrix::translate(v);
-        auto mm = o * m;
-        m_trans->setMatrix(mm);
-
-    });
-
-    // osg::MatrixTransform *mt = new osg::MatrixTransform;
-    // osg::Matrix m;
-    // m.makeScale(2,2,2);
-    // m.setTrans(0,-1000,0);
-    // mt->setMatrix(m);
-    // mt->addChild(model);
-    // cover->getObjectsRoot()->addChild(mt);
 
     m_anim = new ui::EditField(menu, "selectTool");
     m_anim->setValue("55");
@@ -155,21 +88,6 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
         m_distanceToSeletedArm = m_selectedArm->getDistance();
     });
 
-    auto tipLenght = new ui::Slider(menu, "tipLength");
-    tipLenght->setBounds(0, 10);
-    tipLenght->setCallback([this](double val, bool x){
-        auto &arm = m_arms[m_anim->number()];
-        if(arm->tool())
-            arm->tool()->resize(val, arm->tool()->getRadius());
-    });
-    auto tipRadius = new ui::Slider(menu, "tipRadius");
-    tipRadius->setBounds(0, 10);
-    tipRadius->setCallback([this](double val, bool x){
-        auto &arm = m_arms[m_anim->number()];
-        if(arm->tool())
-            arm->tool()->resize(arm->tool()->getLength(), val);
-    });
-
     auto changer = osgDB::readNodeFile(files.swapArm);
     m_changer = std::make_unique<Changer>(changer, m_trans); 
     m_changeDuration = m_changer->getAnimationDuration();
@@ -178,23 +96,10 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
     m_trans->addChild(coverNode); 
     cover->getObjectsRoot()->addChild(m_trans);
 
-    auto doorAnimSlider = new ui::Slider(menu, "doorAnim");
-    doorAnimSlider->setBounds(0, 1000);
-    doorAnimSlider->setCallback([this](double val, bool x){
-        if(m_door)
-        {
-            auto m = m_doorTransform;
-            m.setTrans(m.getTrans() + m_doorOffset * val);
-            m_door->setMatrix(m);
-        }
-    });
-
     auto materials = file->array<std::string>("materials", "materials");
-    std::cerr << "printing materials " << file->pathname() << std::endl;
     for(auto &m : materials->value())
     {
         auto color = file->array<double>("materials", m);
-        std::cerr << "num elements: " << color->size() << std::endl;
         if(color->size() != 4)
         {
             std::cerr << "color array has to have 4 elements" << std::endl;
@@ -207,14 +112,12 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
             node = findTransform(coverNode, m);
         if(node)
         {
-            std::cerr << "applying color to " << m << std::endl;
             applyColor(node, osg::Vec4(color->value()[0], color->value()[1], color->value()[2], color->value()[3]));
         }
     }
     for (size_t i = 0; i < numArms; i++)
     {
-        auto c = colorMapSelector->getColor(i, 0, numArms);
-        m_arms.push_back(std::make_unique<Arm>(model, m_trans, i, c));
+        m_arms.push_back(std::make_unique<Arm>(model, m_trans, i));
     }
 }
 
@@ -402,6 +305,7 @@ void ToolChanger::findDoor()
     if(!m_door)
     {
         m_door = findTransform(cover->getObjectsRoot(), "LASERTEC65_3Dhy_US_FD_TTAC_S840D_Case_10");
+        m_door->getParent(0)->removeChild(m_door);
         if(!m_door)
             return;
         m_doorTransform = m_door->getMatrix();

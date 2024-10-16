@@ -31,7 +31,7 @@ const std::array<float, 4> partPathDistance = {pathDistance, pathDistance, pathD
 
 class Arm{
 public:
-    Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id, const osg::Vec4& color);
+    Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id);
     void position(float offset);
     void play();
     float getDistance() const;

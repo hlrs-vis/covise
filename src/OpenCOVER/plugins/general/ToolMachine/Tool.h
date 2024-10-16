@@ -1,6 +1,8 @@
 #ifndef COVER_TOOLMACHINE_TOOL_H
 #define COVER_TOOLMACHINE_TOOL_H
 
+#include "MathExpressions.h"
+
 #include <string>
 #include <memory>
 #include <map>
@@ -33,6 +35,7 @@ public:
     ToolModel(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
     virtual ~ToolModel() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
+    void update();
     void pause(bool state);
     const std::vector<UpdateValues> &getUpdateValues();
     void frameOver();
@@ -52,13 +55,12 @@ protected:
     covise::ColorMapSelector *m_colorMapSelector;
 
     opencover::opcua::Client *m_client;
-    std::map<std::string, opencover::opcua::ObserverHandle> m_opcuaAttribId;
     bool m_paused = false;
 private:
     void observeCustomAttributes();
     void attributeChanged();
     void updateAttributes();
-
+    MathExpressionObserver m_mathExpressionObserver;
     std::vector<UpdateValues> m_updateValues;
     std::unique_ptr<opencover::ui::SelectionListConfigValue> m_attributeName;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_minAttribute, m_maxAttribute, m_customAttribute;
@@ -67,12 +69,7 @@ private:
         bool updated = false;
         
     };
-    std::map<std::string, CustomAttributeVariable> m_customAttributeData;
-    exprtk::symbol_table<float> m_symbolTable;
-    exprtk::expression<float> m_expression;
-    exprtk::parser<float> m_parser;
-    bool m_frameOver = false;
-
+    MathExpressionObserver::ObserverHandle::ptr m_customAttributeHandle;
 
 };
 

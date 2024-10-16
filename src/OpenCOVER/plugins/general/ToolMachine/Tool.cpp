@@ -2,7 +2,6 @@
 #include <cassert>
 #include <cover/ui/Action.h>
 #include <cover/coVRPluginSupport.h>
-
 using namespace opencover;
 
 
@@ -11,6 +10,8 @@ ToolModel::ToolModel(ui::Group *group, config::File &file, osg::MatrixTransform 
 : m_toolHeadNode(toolHeadNode)
 , m_tableNode(tableNode)
 , m_group(group)
+, m_client(opcua::getClient(group->name()))
+, m_mathExpressionObserver(m_client)
 {
     auto clearBtn = new ui::Action(group, "clear");
     clearBtn->setCallback([this](){
@@ -64,10 +65,18 @@ void ToolModel::update(const opencover::opcua::MultiDimensionalArray<double> &da
 {
     if(!m_tableNode || !m_toolHeadNode)
         return;
-
     updateAttributes();
-
     updateGeo(m_paused, data);
+}
+
+void ToolModel::update()
+{
+    if(!m_tableNode || !m_toolHeadNode)
+        return;
+    updateAttributes();
+    m_mathExpressionObserver.update();
+    if(m_customAttributeHandle)
+        attributeChanged(m_customAttributeHandle->value());
 }
 
 void ToolModel::updateAttributes(){
@@ -119,77 +128,9 @@ void SelfDeletingTool::create(std::unique_ptr<SelfDeletingTool> &selfDeletingToo
     selfDeletingToolPtr->m_this = &selfDeletingToolPtr;
 }
 
-
-bool istReserved(const std::string& symbol)
-{
-   return exprtk::details::is_reserved_word(symbol) || exprtk::details::is_reserved_symbol(symbol);
-}
-
-std::set<std::string> getSymbols(const std::string &expression_string)
-{
-   exprtk::lexer::parser_helper p;
-   p.init(expression_string);
-   std::set<std::string> symbols;
-   while(p.current_token().type != exprtk::lexer::token::token_type::e_eof)
-   {
-      if(p.current_token().type == exprtk::lexer::token::token_type::e_symbol && !istReserved(p.current_token().value))
-      {
-         symbols.insert(p.current_token().value);
-      }
-      p.next_token();
-   }
-   return symbols;
-}
-
 void ToolModel::observeCustomAttributes()
 {
-    auto symbols = getSymbols(m_customAttribute->ui()->text());
-    //check if all custom attributes are available
-    for(const auto &s : symbols)
-    {
-        const auto &items = m_attributeName->ui()->items();
-        if(std::find(items.begin(), items.end(), s) == items.end())
-        {
-            std::cerr << "ToolMachinePlugin: custom attribute " << s << " not available" << std::endl;
-            return;
-        }
-    }
-    //set update functions, only update the expression if the frame is over, triggered by updated values in the next frame
-    m_updateValues.clear();
-    m_symbolTable.clear();
-    for(const auto &s : symbols)
-    {
-        m_symbolTable.add_variable(s, m_customAttributeData[s].value);
-        m_updateValues.push_back({s, [this, s](double value){
-            if(m_frameOver)
-            {
-                attributeChanged(m_expression.value());
-                m_frameOver = false;
-            }
-            m_customAttributeData[s].value = value;
-        }});
-    }
-    m_expression = exprtk::expression<float>();
-    m_expression.register_symbol_table(m_symbolTable);
-    m_parser.compile(m_customAttribute->ui()->text(), m_expression);
-    
-    //unsubscribe attributes that are not needed anymore and ignore attribute that are already observed
-    for(auto it = m_opcuaAttribId.begin(); it != m_opcuaAttribId.end();)
-    {
-        if(symbols.find(it->first) == symbols.end())
-        {
-            it = m_opcuaAttribId.erase(it);
-        } else{
-            symbols.erase(it->first);
-            ++it;
-        }
-    }
-    //observe the rest
-    for(const auto &s : symbols)
-    {
-        m_opcuaAttribId[s] = m_client->observeNode(s);
-    }
-
+    m_customAttributeHandle = m_mathExpressionObserver.observe(m_customAttribute->ui()->value());
 }
 
 void ToolModel::attributeChanged()
@@ -200,19 +141,8 @@ void ToolModel::attributeChanged()
         observeCustomAttributes();
         m_customAttribute->ui()->setVisible(true);
     } else{
-        m_opcuaAttribId.clear();
+        m_customAttributeHandle = m_mathExpressionObserver.observe(attr);
         m_customAttribute->ui()->setVisible(false);
-        m_opcuaAttribId[attr] = m_client->observeNode(attr);
 
-        m_updateValues.clear();
-        m_updateValues.push_back({attr, [this](double value){
-            attributeChanged(value);
-        }});       
     } 
-}
-
-void ToolModel::frameOver()
-{
-    m_frameOver = true;
-    updateAttributes();
 }

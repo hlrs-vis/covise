@@ -21,7 +21,6 @@ public:
 private:
     osg::ref_ptr<osg::MatrixTransform> m_shaft, m_tip, m_tool;
     osgAnimation::StackedScaleElement *m_shaftScale, *m_tipScale;
-    const float totalHeight = 10;
 
 };
 

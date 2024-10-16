@@ -28,7 +28,6 @@ private:
     bool update() override;
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_pauseBtn;
-    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_updateMode;
     bool m_pauseMove = false;
     std::unique_ptr<Machine> m_machine;
     std::unique_ptr<ToolChanger> m_toolChanger;

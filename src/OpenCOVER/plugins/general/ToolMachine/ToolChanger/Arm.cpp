@@ -105,7 +105,7 @@ osg::Matrix calculatePath(int id, float offset)
     return posMat;
 }
 
-Arm::Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id, const osg::Vec4& color)
+Arm::Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id)
 : m_model(static_cast<osg::Node*>(model->clone(osg::CopyOp::DEEP_COPY_ALL)))
 , m_transform (new osg::MatrixTransform)
 , m_id(id)
@@ -117,21 +117,15 @@ Arm::Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id, const osg::V
 
     m_model->accept(m_animation);
     auto &animations = m_animation.m_am->getAnimationList();
-    // for(auto &a : m_animation.m_am->getAnimationList())
-    // {
-    //     std::cerr << "arm " << id << " has animation " << a->getName() << std::endl;
-    // }
-    // applyColor(color);
-    m_toolParent = m_tool->parent();
 
-    // if(id == 0)
-    // {
-    //     BoneParser boneParser;
-    //     m_swapSocket1->accept(boneParser);
-    //     auto sphere = createSphere({0,0,0}, 10);
-    //     m_swapSocket1->addChild(sphere);
-    //     // m_model->accept(boneParser);
-    // }
+    m_toolParent = m_tool->parent();
+    
+    const auto numThicknes = 6;
+    const auto numLenght = numArms / numThicknes;
+    auto l = id % numLenght;
+    auto r = id % numThicknes;
+    m_tool->resize(1 + l, 1+r);
+
 }
 
 void Arm::position(float offset)
@@ -193,20 +187,4 @@ void swapParent(osg::Group *newParent, const std::vector<osg::MatrixTransform*> 
 
 void Arm::update(){
     
-}
-
-void Arm::applyColor(const osg::Vec4& color)
-{
-    osg::ref_ptr<osg::Material> material = new osg::Material;
-    material->setDiffuse(osg::Material::FRONT_AND_BACK, color);
-    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-    material->setShininess(osg::Material::FRONT_AND_BACK, 0.5);
-
-    osg::StateSet* stateSet = m_model->getOrCreateStateSet();
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-    stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-
-    stateSet = findTransform(m_model, "Werkzeug")->getOrCreateStateSet();
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
-    stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
 }
