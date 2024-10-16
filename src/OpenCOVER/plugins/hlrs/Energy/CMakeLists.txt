@@ -26,7 +26,7 @@ SET(SOURCES
 
 add_subdirectory(core)
 add_subdirectory(ennovatis)
-cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyCore> $<TARGET_OBJECTS:Ennovatis> coCurlHTTPClient coThreadUtil coReadCSVUtil ${HEADERS} ${SOURCES})
+cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyCore> $<TARGET_OBJECTS:Ennovatis> coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
 target_include_directories(EnergyCampus PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/ennovatis/include")
 add_subdirectory(test)
