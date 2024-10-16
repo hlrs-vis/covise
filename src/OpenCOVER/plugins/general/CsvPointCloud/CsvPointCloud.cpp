@@ -354,6 +354,7 @@ bool CsvPointCloudPlugin::compileSymbol(DataTable &symbols, const std::string &s
     if (!expr.parser.compile(symbol, expr()))
     {
         std::cerr << "failed to parse symbol " << symbol << std::endl;
+        std::cerr << expr.parser.error() << std::endl;
         return false;
     }
     return true;
