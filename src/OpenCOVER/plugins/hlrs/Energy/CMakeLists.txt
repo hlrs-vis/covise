@@ -1,5 +1,6 @@
 USING(PROJ)
 USING(GDAL)
+USING(CURL)
 covise_find_package(nlohmann_json 3.10.0)
 
 if (NOT nlohmann_json_FOUND)
