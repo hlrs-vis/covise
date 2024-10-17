@@ -186,7 +186,9 @@ private:
     std::string WindSound;
     std::string host;
     unsigned short serverPort;
-    unsigned short localPort; 
+    unsigned short localPort;
+    int Joysticknumber = -1;
+    int Ruddernumber = -1;
 };
 
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild

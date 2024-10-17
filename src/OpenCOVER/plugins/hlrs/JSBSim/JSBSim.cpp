@@ -48,12 +48,14 @@ JSBSimPlugin::JSBSimPlugin()
 , coVRNavigationProvider("Paraglider", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
-    
-    const char* GF = coVRFileManager::instance()->getName("share/covise/jsbsim/geometry/paraglider.osgb");
+
+    std::string AircraftGeometry = configString("Model", "aircraftGeometry", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
+   
+    geometryFile = configString("Geometry", "file", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
+    const char* GF = coVRFileManager::instance()->getName(geometryFile.c_str());
     if (GF == nullptr)
         GF = "";
-   
-    geometryFile = configString("Geometry", "file", GF)->value();
+    geometryFile = GF;
     float tx = configFloat("Geometry", "x", 0.0)->value();
     float ty = configFloat("Geometry", "y", 0.0)->value();
     float tz = configFloat("Geometry", "z", 0.0)->value();
@@ -73,7 +75,7 @@ JSBSimPlugin::JSBSimPlugin()
     }
     else
     {
-        cerr << "could not load Geometry file " << geometryFile << endl;
+        coVRFileManager::instance()->loadFile(geometryFile.c_str(), nullptr, geometryTrans);
     }
 if (coVRMSController::instance()->isMaster())
         {
@@ -272,7 +274,7 @@ bool JSBSimPlugin::initJSB()
     
     AircraftDir = configString("Model", "aircraftDir", "aircraft")->value();
     AircraftName = configString("Model", "aircraft", "paraglider")->value();
-    EnginesDir = configString("Model", "enginesDir", "engines")->value();
+    EnginesDir = configString("Model", "enginesDir", "engine")->value();
     SystemsDir = configString("Model", "systemsDir", "paraglider/Systems")->value();
     resetFile = configString("Model", "resetFile", "reset00.xml")->value();
 
@@ -556,6 +558,25 @@ bool
 JSBSimPlugin::update()
 {
     joystickDev = (Joystick*)(Input::instance()->getDevice("joystick"));
+    if (joystickDev->numLocalJoysticks > 0)
+    {
+        for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
+        {
+            if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1)
+            {
+                Joysticknumber = i;
+            }
+            if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
+            {
+                Ruddernumber = i;
+            }
+        }
+
+    }
+    else
+    {
+        joystickDev = nullptr;
+    }
 
     if (joystickDev != nullptr)
     {/*
@@ -577,14 +598,14 @@ JSBSimPlugin::update()
     if (joystickDev) {
 
         // Read joystick axis values
-        float joystickX = joystickDev->axes[0][0];
-        float joystickY = joystickDev->axes[0][1];
+        float joystickX = joystickDev->axes[Joysticknumber][0];
+        float joystickY = joystickDev->axes[Joysticknumber][1];
         //float throttle = joystickDev->sliders[0][0];
         //std::cout << "joystickX = " << joystickX << ", joystickY = " << joystickY << ", throttle = " << throttle;
 
         // Map joystick input to control surfaces
         fgcontrol.aileron = joystickX;  //joystickDev->axes[0][0];
-        fgcontrol.elevator = joystickY;  //joystickDev->axes[0][1];
+        fgcontrol.elevator = -joystickY;  //joystickDev->axes[0][1];
         //gliderValues.speed = throttle;
         //gliderValues.state = joystickDev->buttons[0][0];
     }
@@ -618,10 +639,25 @@ if (coVRMSController::instance()->isMaster())
             std::cout << "\nfgcontrol.aileron:" << fgcontrol.aileron << std::endl;
             FCS->SetDeCmd(fgcontrol.elevator);
             std::cout << "fgcontrol.elevator:" << fgcontrol.elevator << std::endl;
+            if (joystickDev)
+            {
+                if(Ruddernumber>=0)
+                    FCS->SetDrCmd(joystickDev->axes[Ruddernumber][2]);
+                else if(Joysticknumber>=0)
+                    FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
+            }
 
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
-                FCS->SetThrottleCmd(i, 1.0);
-                FCS->SetMixtureCmd(i, 1.0);
+                if (joystickDev)
+                {
+                    FCS->SetThrottleCmd(i,1.0-((1+joystickDev->axes[Joysticknumber][2])/2.0));
+                    FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+                }
+                else
+                {
+                    FCS->SetThrottleCmd(i, 1.0);
+                    FCS->SetMixtureCmd(i, 1.0);
+                }
 
                 switch (Propulsion->GetEngine(i)->GetType())
                 {
@@ -670,7 +706,7 @@ if (coVRMSController::instance()->isMaster())
                 }
 
                 osg::Matrix rot;
-                rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(0, 1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0));
+                rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(0, -1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1));
                 osg::Matrix trans;
 
                 JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
@@ -851,23 +887,9 @@ JSBSimPlugin::updateUdp()
        rightLine=0.0;
 	    
             double elevatorMin=-1,elevatorMax=1,aileronMax=1;
-	    //fgcontrol.elevator=-((leftLine+rightLine)/2*(elevatorMax-elevatorMin)+elevatorMin);
-            //fgcontrol.aileron=(-leftLine+rightLine+angleValue)*aileronMax;
-            fgcontrol.aileron = joystickDev->axes[0][0];
-            fgcontrol.elevator = joystickDev->axes[0][1];
+	        fgcontrol.elevator=-((leftLine+rightLine)/2*(elevatorMax-elevatorMin)+elevatorMin);
+            fgcontrol.aileron=(-leftLine+rightLine+angleValue)*aileronMax;
 
-            if (joystickDev) {
-
-                // Read joystick axis values
-                float joystickX = joystickDev->axes[0][0];
-                float joystickY = joystickDev->axes[0][1];
-                float throttle = joystickDev->sliders[0][0];
-
-                // Map joystick input to control surfaces
-                fgcontrol.aileron = joystickX;
-                fgcontrol.elevator = -joystickY;
-                //gliderValues.speed = throttle;
-            }
 
             std::cerr << "JSBSimPlugin::left:"<<  gliderValues.left << "     " << leftLine<<"     " << gliderValues.angle<< std::endl;
             std::cerr << "JSBSimPlugin::right:"<<  gliderValues.right << "     " << rightLine<<"     " << angleValue<< std::endl;
