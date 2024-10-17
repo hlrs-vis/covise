@@ -38,6 +38,8 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/Vec3d>
 #include <unordered_map>
+#include <HTTPClient/CURL/request.h>
+#include <HTTPClient/CURL/methods.h>
 
 using namespace opencover;
 
@@ -121,32 +123,13 @@ void UrbanTempo::setupPluginNode()
     pluginNode->setName(getName());
 }
 
-static size_t writeCallback(char *ptr, size_t size, size_t nmemb, void *userdata)
-{
-    std::string *response = static_cast<std::string *>(userdata);
-    response->append(ptr, size * nmemb);
-    return size * nmemb;
-}
-
 void UrbanTempo::request()
 {
-    CURL *curl = curl_easy_init();
-    if (!curl)
+    httpclient::curl::GET get(url);
+    if (!httpclient::curl::Request().httpRequest(get, response))
     {
-        std::cerr << "Failed to create cURL handle" << std::endl;
+        std::cerr << "Failed to fetch data from UrbanTempo" << std::endl;
     }
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK)
-    {
-        std::cerr << "Failed to execute HTTP request: " << curl_easy_strerror(res) << std::endl;
-    }
-
-    curl_easy_cleanup(curl);
 }
 
 void UrbanTempo::simplifyResponse()
