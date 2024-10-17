@@ -29,7 +29,7 @@
 
 class EnnovatisDevice {
 public:
-    EnnovatisDevice(const ennovatis::Building &building, std::shared_ptr<opencover::ui::SelectionList> channelList,
+    EnnovatisDevice(const ennovatis::Building &building, opencover::ui::SelectionList* channelList,
                     std::shared_ptr<ennovatis::rest_request> req, std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
                     std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
                     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding);
@@ -66,7 +66,7 @@ private:
     std::unique_ptr<core::interface::IBuilding> m_drawableBuilding;
     std::weak_ptr<ennovatis::rest_request> m_request;
     std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
-    std::weak_ptr<opencover::ui::SelectionList> m_channelSelectionList;
+    opencover::ui::SelectionList* m_channelSelectionList;
 
     bool m_InfoVisible = false;
     BuildingInfo m_buildingInfo;

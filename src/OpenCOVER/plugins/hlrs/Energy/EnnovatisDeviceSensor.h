@@ -9,7 +9,7 @@
 class EnnovatisDeviceSensor: public coPickSensor {
 public:
     EnnovatisDeviceSensor(std::unique_ptr<EnnovatisDevice> d, osg::Group *n,
-                          std::shared_ptr<opencover::ui::SelectionList> selList)
+                          opencover::ui::SelectionList* selList)
     : coPickSensor(n), m_dev(std::move(d)), m_enabledDevices(selList)
     {}
 
@@ -32,7 +32,7 @@ public:
     void disactivate() override;
 
 private:
-    std::weak_ptr<opencover::ui::SelectionList> m_enabledDevices;
+    opencover::ui::SelectionList* m_enabledDevices;
     std::unique_ptr<EnnovatisDevice> m_dev;
     bool m_activated = false;
 };

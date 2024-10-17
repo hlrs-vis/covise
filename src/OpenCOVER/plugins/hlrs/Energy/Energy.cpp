@@ -197,17 +197,17 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
 
     m_SDlist.clear();
 
-    EnergyTab = std::make_shared<ui::Menu>("Energy Campus", EnergyPlugin::m_plugin);
+    EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::m_plugin);
     EnergyTab->setText("Energy Campus");
 
     // db
-    componentGroup = std::make_shared<ui::ButtonGroup>(EnergyTab.get(), "ComponentGroup");
+    componentGroup = new ui::ButtonGroup(EnergyTab, "ComponentGroup");
     componentGroup->setDefaultValue(Strom);
-    componentList = std::make_shared<ui::Group>(EnergyTab.get(), "Component");
+    componentList = new ui::Group(EnergyTab, "Component");
     componentList->setText("Messwerte (jährlich)");
-    StromBt = std::make_shared<ui::Button>(componentList.get(), "Strom", componentGroup.get(), Strom);
-    WaermeBt = std::make_shared<ui::Button>(componentList.get(), "Waerme", componentGroup.get(), Waerme);
-    KaelteBt = std::make_shared<ui::Button>(componentList.get(), "Kaelte", componentGroup.get(), Kaelte);
+    StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
+    WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
+    KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
 
     initEnnovatisUI();
@@ -215,26 +215,36 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     m_offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
+EnergyPlugin::~EnergyPlugin()
+{
+    if (m_EnergyGroup) {
+        m_EnergyGroup->removeChild(0, m_EnergyGroup->getNumChildren());
+        cover->getObjectsRoot()->removeChild(m_EnergyGroup.get());
+    }
+
+    m_plugin = nullptr;
+}
+
 void EnergyPlugin::initEnnovatisUI()
 {
-    m_ennovatisGroup = std::make_shared<ui::Group>(EnergyTab.get(), "Ennovatis");
+    m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
     m_ennovatisGroup->setText("Ennovatis");
 
-    m_ennovatisSelectionsList = std::make_shared<ui::SelectionList>(m_ennovatisGroup.get(), "Ennovatis ChannelType: ");
+    m_ennovatisSelectionsList = new ui::SelectionList(m_ennovatisGroup, "Ennovatis ChannelType: ");
     std::vector<std::string> ennovatisSelections;
     for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
         ennovatisSelections.push_back(ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
 
     m_ennovatisSelectionsList->setList(ennovatisSelections);
-    m_enabledEnnovatisDevices = std::make_shared<opencover::ui::SelectionList>(EnergyTab.get(), "Enabled Devices: ");
+    m_enabledEnnovatisDevices = new opencover::ui::SelectionList(EnergyTab, "Enabled Devices: ");
     m_enabledEnnovatisDevices->setCallback([this](int value) { selectEnabledDevice(); });
-    m_ennovatisChannelList = std::make_shared<opencover::ui::SelectionList>(EnergyTab.get(), "Channels: ");
+    m_ennovatisChannelList = new opencover::ui::SelectionList(EnergyTab, "Channels: ");
 
     // TODO: add calender widget instead of txtfields
-    m_ennovatisFrom = std::make_shared<ui::EditField>(EnergyTab.get(), "from");
-    m_ennovatisTo = std::make_shared<ui::EditField>(EnergyTab.get(), "to");
+    m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
+    m_ennovatisTo = new ui::EditField(EnergyTab, "to");
 
-    m_ennovatisUpdate = std::make_shared<ui::Button>(m_ennovatisGroup.get(), "Update");
+    m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
     m_ennovatisUpdate->setCallback([this](bool on) { updateEnnovatis(); });
 
     m_ennovatisSelectionsList->setCallback(
@@ -383,9 +393,6 @@ void EnergyPlugin::setComponent(Components c)
     reinitDevices(c);
 }
 
-EnergyPlugin::~EnergyPlugin()
-{}
-
 bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
 {
     if (!loadDBFile(path, projTrans)) {
@@ -455,7 +462,6 @@ void EnergyPlugin::initRESTRequest()
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList)
-// std::unique_ptr<ennovatis::Buildings> EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList)
 {
     auto lastDst = 0;
     auto noDeviceMatches = const_buildings();
@@ -516,7 +522,6 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuil
         }
     }
     return std::make_unique<const_buildings>(noDeviceMatches);
-    // return std::make_unique<ennovatis::Buildings>(noDeviceMatches);
 }
 
 bool EnergyPlugin::init()
@@ -630,8 +635,7 @@ void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear, con
         deviceInfoTimestep->timestep = timestep;
         auto device =
             std::make_shared<energy::Device>(deviceInfoTimestep, m_sequenceList->getChild(timestep)->asGroup());
-        auto deviceSensor =
-            std::make_shared<energy::DeviceSensor>(device, device->getGroup());
+        auto deviceSensor = std::make_shared<energy::DeviceSensor>(device, device->getGroup());
         m_SDlist[deviceInfoPtr->ID].push_back(deviceSensor);
     }
 }
@@ -718,12 +722,6 @@ void EnergyPlugin::setTimestep(int t)
     m_sequenceList->setValue(t);
     for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->setTimestep(t);
-}
-
-bool EnergyPlugin::destroy()
-{
-    cover->getObjectsRoot()->removeChild(m_EnergyGroup);
-    return false;
 }
 
 COVERPLUGIN(EnergyPlugin)

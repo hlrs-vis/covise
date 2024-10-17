@@ -42,7 +42,7 @@ constexpr bool debug = build_options.debug_ennovatis;
 } // namespace
 
 EnnovatisDevice::EnnovatisDevice(const ennovatis::Building &building,
-                                 std::shared_ptr<opencover::ui::SelectionList> channelList,
+                                 opencover::ui::SelectionList* channelList,
                                  std::shared_ptr<ennovatis::rest_request> req,
                                  std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
                                  std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
@@ -89,7 +89,7 @@ auto EnnovatisDevice::createBillboardTxt()
 
 void EnnovatisDevice::setChannel(int idx)
 {
-    m_channelSelectionList.lock()->select(idx);
+    m_channelSelectionList->select(idx);
     if (!m_buildingInfo.channelResponse.empty() && !m_restWorker.isRunning())
         m_infoBoard->updateInfo(createBillboardTxt());
 }
@@ -113,10 +113,9 @@ void EnnovatisDevice::updateChannelSelectionList()
         ++channelsIt;
         return channel.name;
     });
-    auto cSLi = m_channelSelectionList.lock();
-    cSLi->setList(channelNames);
-    cSLi->setCallback([this](int idx) { setChannel(idx); });
-    cSLi->select(0);
+    m_channelSelectionList->setList(channelNames);
+    m_channelSelectionList->setCallback([this](int idx) { setChannel(idx); });
+    m_channelSelectionList->select(0);
 }
 
 void EnnovatisDevice::fetchData()
@@ -203,7 +202,7 @@ void EnnovatisDevice::disactivate()
 
 int EnnovatisDevice::getSelectedChannelIdx() const
 {
-    auto selectedChannel = m_channelSelectionList.lock()->selectedIndex();
+    auto selectedChannel = m_channelSelectionList->selectedIndex();
     return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel : 0;
 }
 

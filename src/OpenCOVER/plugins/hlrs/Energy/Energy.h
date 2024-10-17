@@ -68,11 +68,17 @@ public:
     void operator=(const EnergyPlugin &) = delete;
 
     bool init();
-    bool destroy();
+    // bool destroy();
     bool update();
     void setTimestep(int t);
     void setComponent(Components c);
-    static EnergyPlugin *instance() { return m_plugin; };
+    static EnergyPlugin *instance()
+    {
+        if (!m_plugin)
+            m_plugin = new EnergyPlugin;
+        return m_plugin;
+    };
+
 
 private:
     // typedef const ennovatis::Building *building_const_ptr;
@@ -103,6 +109,7 @@ private:
     void updateEnnovatisChannelGrp();
     void initEnnovatisDevices();
     void switchTo(const osg::ref_ptr<osg::Node> child);
+    void clearItems() {}
 
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -129,23 +136,23 @@ private:
 
     static EnergyPlugin *m_plugin;
 
-    std::shared_ptr<opencover::coTUITab> coEnergyTab = nullptr;
-    std::shared_ptr<opencover::ui::Menu> EnergyTab = nullptr;
-    std::shared_ptr<opencover::ui::Button> ShowGraph = nullptr;
-    std::shared_ptr<opencover::ui::ButtonGroup> componentGroup = nullptr;
-    std::shared_ptr<opencover::ui::Group> componentList = nullptr;
-    std::shared_ptr<opencover::ui::Button> StromBt = nullptr;
-    std::shared_ptr<opencover::ui::Button> WaermeBt = nullptr;
-    std::shared_ptr<opencover::ui::Button> KaelteBt = nullptr;
+    opencover::coTUITab *coEnergyTab = nullptr;
+    opencover::ui::Menu *EnergyTab = nullptr;
+    opencover::ui::Button *ShowGraph = nullptr;
+    opencover::ui::ButtonGroup *componentGroup = nullptr;
+    opencover::ui::Group *componentList = nullptr;
+    opencover::ui::Button *StromBt = nullptr;
+    opencover::ui::Button *WaermeBt = nullptr;
+    opencover::ui::Button *KaelteBt = nullptr;
 
     // ennovatis UI
-    std::shared_ptr<opencover::ui::SelectionList> m_ennovatisSelectionsList = nullptr;
-    std::shared_ptr<opencover::ui::Group> m_ennovatisGroup = nullptr;
-    std::shared_ptr<opencover::ui::EditField> m_ennovatisFrom = nullptr;
-    std::shared_ptr<opencover::ui::EditField> m_ennovatisTo = nullptr;
-    std::shared_ptr<opencover::ui::Button> m_ennovatisUpdate = nullptr;
-    std::shared_ptr<opencover::ui::SelectionList> m_ennovatisChannelList = nullptr;
-    std::shared_ptr<opencover::ui::SelectionList> m_enabledEnnovatisDevices = nullptr;
+    opencover::ui::SelectionList *m_ennovatisSelectionsList = nullptr;
+    opencover::ui::Group *m_ennovatisGroup = nullptr;
+    opencover::ui::EditField *m_ennovatisFrom = nullptr;
+    opencover::ui::EditField *m_ennovatisTo = nullptr;
+    opencover::ui::Button *m_ennovatisUpdate = nullptr;
+    opencover::ui::SelectionList *m_ennovatisChannelList = nullptr;
+    opencover::ui::SelectionList *m_enabledEnnovatisDevices = nullptr;
 
     float rad, scaleH;
     int m_selectedComp = 0;
@@ -164,7 +171,6 @@ private:
     osg::ref_ptr<osg::Switch> m_switch;
     osg::ref_ptr<osg::Sequence> m_sequenceList;
     osg::ref_ptr<osg::Group> m_EnergyGroup;
-    osg::ref_ptr<osg::Group> m_parent = nullptr;
     osg::Vec4 m_defaultColor;
 };
 
