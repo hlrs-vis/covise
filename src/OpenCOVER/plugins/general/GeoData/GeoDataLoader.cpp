@@ -117,6 +117,12 @@ void GeoDataLoader::parseCoordinates(const std::string& jsonData) {
             // Output UTM coordinates
             std::cout << "Easting (X): " << output.enu.e << " meters" << std::endl;
             std::cout << "Northing (Y): " << output.enu.n << " meters" << std::endl;
+            float z = cover->getXformMat().getTrans().z();
+            osg::Vec3 pos(output.enu.e, output.enu.n, z);
+            osg::Matrix mat;
+            pos += offset;
+            mat.setTrans(pos);
+            cover->setXformMat(mat);
         }
         else {
             std::cerr << "Error: Latitude and/or Longitude not found in the response." << std::endl;
@@ -221,7 +227,7 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void* data)
 {
     const char* messageData = (const char*)data;
     if(type == PluginMessageTypes::LoadTerrain)
-        loadTerrain(messageData, osg::Vec3d(0, 0, 0));
+        loadTerrain(messageData+20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
     else if (type == PluginMessageTypes::setSky)
     {
         int offset = 0;

@@ -359,7 +359,8 @@ bool OpenCOVER::init()
     int c = 0;
     std::string collaborativeOptionsFile, viewpointsFile;
     bool saveAndExit = false;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "ShdC:s:v:c:::g:")) != -1)
+    int saveFormat = 0;
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "SIhdC:s:v:c:::g:")) != -1)
     {
         switch (c)
         {
@@ -374,6 +375,11 @@ bool OpenCOVER::init()
             viewpointsFile = optarg;
             break;
         case 'S':
+            saveFormat = 0;
+            saveAndExit = true;;
+            break;
+        case 'I':
+            saveFormat = 1;
             saveAndExit = true;;
             break;
         case 'C':
@@ -837,7 +843,12 @@ bool OpenCOVER::init()
                 if (saveAndExit)
                 {
                     std::string saveFile = coCommandLine::argv(optind);
+                    if(saveFormat == 0)
                     saveFile = saveFile.substr(0,saveFile.length() - 3) + "obj";
+                    else if(saveFormat == 1)
+                        saveFile = saveFile.substr(0, saveFile.length() - 3) + "ive";
+                    else
+                        saveFile = saveFile.substr(0, saveFile.length() - 3) + "osg";
                     osgDB::writeNodeFile(*cover->getObjectsRoot(), saveFile.c_str());
                 }
             }
