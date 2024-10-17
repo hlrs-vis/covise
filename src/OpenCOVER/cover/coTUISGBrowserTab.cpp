@@ -1,4 +1,5 @@
 #include "coTabletUI.h"
+#include "coVRPluginSupport.h"
 
 #include <util/coTabletUIMessages.h>
 #include <util/threadname.h>
@@ -217,6 +218,7 @@ void coTUISGBrowserTab::loadFilesFlag(bool state)
     else
         setVal(TABLET_LOADFILE_SATE, 0);
 }
+
 void coTUISGBrowserTab::hideSimNode(bool state, const char *nodePath, const char *simPath)
 {
     if (state)
@@ -523,6 +525,7 @@ void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
 
     if (!tui()->isConnected())
         return;
+
     TokenBuffer tb;
     const char *currentPath = path.c_str();
     tb << TABLET_SET_VALUE;
@@ -727,202 +730,471 @@ void coTUISGBrowserTab::updateShaderInputType(std::string shader, int value)
     tui()->send(tb);
 }
 
+std::vector<std::string> coTUISGBrowserTab::parsePathString(std::string path)
+{
+    std::vector<std::string> path_indices = { };
+
+    size_t pos = 0;
+
+    while ((pos = path.find(";")) != std::string::npos)
+    {
+        path_indices.push_back(path.substr(0, pos));
+        path.erase(0, pos + 1);
+    }
+
+    path_indices.push_back(path);
+
+    return path_indices;
+}
+
+osg::Node* coTUISGBrowserTab::getNode(std::string path)
+{
+    osg::ref_ptr<osg::Node> objectsRoot_node = cover->getObjectsRoot()->asNode();
+    osg::ref_ptr<osg::Node> vrmlRoot_node = objectsRoot_node->asGroup()->getChild(1);
+
+    // osg::ref_ptr<osg::Node> vrmlRoot_node = cover->getScene()->asNode();
+    // osg::ref_ptr<osg::Node> objectsRoot_node = cover->getScene()->asNode();
+    // osg::ref_ptr<osg::Node> vrmlRoot_node = objectsRoot_node->asGroup()->getChild(0);
+
+    // osg::ref_ptr<osg::Node> vrmlRoot_node = cover->getScene()->asNode();
+
+    std::vector<std::string> path_str_vector = coTUISGBrowserTab::parsePathString(path);
+
+    osg::ref_ptr<osg::Node> path_cursorNode = nullptr;
+
+    for (int i = 0; i < path_str_vector.size(); i++)
+    {
+        int path_index = -1;
+        std::string path_str_index;
+
+        try
+        {
+            path_index = std::stoi(path_str_vector[i]);
+        }
+        catch(const std::exception& e)
+        {
+            // std::cerr << e.what() << '\n';
+
+            path_str_index = path_str_vector[i];
+        }
+        
+        if (path_index != -1)
+        {
+            path_cursorNode = path_cursorNode->asGroup()->getChild(path_index);
+        }
+        else if (!path_str_index.empty())
+        {
+            if (path_str_index == "ROOT")
+            {
+                path_cursorNode = objectsRoot_node;
+            }
+            else if (path_str_index == "VRMLRoot")
+            {
+                path_cursorNode = vrmlRoot_node;
+            }
+        }
+    }
+
+    return path_cursorNode;
+}
+
+void coTUISGBrowserTab::addNode(const char* nodePath, int nodeType)
+{
+    std::string nodePath_str = std::string(nodePath);
+    osg::ref_ptr<osg::Node> currentNode = coTUISGBrowserTab::getNode(nodePath_str)->asGroup()->getChild(0);
+
+    switch (nodeType)
+    {
+        case SG_GROUP:
+        {
+            currentNode->asGroup()->addChild(new osg::Group);
+            
+            std::cout << "Added new GROUP to: " << nodePath_str << std::endl;
+
+            break;
+        }
+
+        case SG_MATRIX_TRANSFORM:
+        {
+            currentNode->asGroup()->addChild(new osg::MatrixTransform);
+
+            std::cout << "Added new MATRIX TRANSFORM to: " << nodePath_str << std::endl;
+
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void coTUISGBrowserTab::removeNode(const char* nodePath, const char* parent_nodePath)
+{
+    std::string nodePath_str = std::string(nodePath);
+    std::string parentPath_str = std::string(parent_nodePath);
+
+    osg::ref_ptr<osg::Node> node_remove = coTUISGBrowserTab::getNode(nodePath_str);
+    osg::ref_ptr<osg::Node> parentNode = coTUISGBrowserTab::getNode(parentPath_str);
+
+    cover->removeNode(node_remove);
+
+    /*
+    if (parentNode->asGroup()->containsNode(node_remove))
+    {
+        parentNode->asGroup()->removeChild(node_remove);
+        // cover->removeNode(node_remove);
+    }
+    */
+}
+
+void coTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex)
+{
+    std::string oldPath_str = std::string(nodePath);
+    std::string oldParent_str = std::string(oldParent_nodePath);
+    std::string newParent_str = std::string(newParent_nodePath);
+
+    osg::ref_ptr<osg::Node> oldPath_node = coTUISGBrowserTab::getNode(oldPath_str);
+    osg::ref_ptr<osg::Node> oldParent_node = coTUISGBrowserTab::getNode(oldParent_str);
+    osg::ref_ptr<osg::Node> newParent_node = coTUISGBrowserTab::getNode(newParent_str);
+
+    if (oldParent_node->asGroup()->containsNode(oldPath_node))
+    {
+        oldParent_node->asGroup()->removeChild(oldPath_node);
+
+        if ((dropIndex <= -1) || (dropIndex >= newParent_node->asGroup()->getNumChildren()))
+        {
+            // oldParent_node->asGroup()->removeChild(oldPath_node);
+            newParent_node->asGroup()->addChild(oldPath_node);
+        }
+        else
+        {
+            // oldParent_node->asGroup()->removeChild(oldPath_node);
+            newParent_node->asGroup()->insertChild(dropIndex, oldPath_node);
+        }
+    }
+}
+
+void coTUISGBrowserTab::renameNode(const char* nodePath, const char* nodeNewName)
+{
+    std::string nodePath_str = std::string(nodePath);
+    // std::string nodeNewName_str = std::string(nodeNewName);
+
+    std::cout << nodePath_str << std::endl;
+
+    osg::ref_ptr<osg::Node> path_node = coTUISGBrowserTab::getNode(nodePath_str);
+    osg::ref_ptr<osg::Node> outlinedObject_node = path_node->asGroup()->getChild(0);
+
+    // osg::ref_ptr<osg::Group> parent_group = path_node->getParent(0);
+    
+    // path_node = parent_group->getChild(parent_group->getChildIndex(path_node));
+
+    outlinedObject_node->setName(nodeNewName);
+}
+
 void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
 {
     int i;
     tb >> i;
+
     switch (i)
     {
-
-    case TABLET_INIT_SECOND_CONNECTION:
-    {
-        std::cerr << "coTUISGBrowserTab: recreating 2nd connection" << std::endl;
-
-        if (tui()->serverMode)
+        case TABLET_INIT_SECOND_CONNECTION:
         {
-            openServer();
-        }
+            std::cerr << "coTUISGBrowserTab: recreating 2nd connection" << std::endl;
 
-        if (thread)
-        {
-            thread->terminateTextureThread();
-
-            while (thread->isRunning())
+            if (tui()->serverMode)
             {
-                sleep(1);
+                openServer();
             }
-            delete thread;
-            thread = NULL;
+
+            if (thread)
+            {
+                thread->terminateTextureThread();
+
+                while (thread->isRunning())
+                {
+                    sleep(1);
+                }
+                delete thread;
+                thread = NULL;
+            }
+
+            thread = new SGTextureThread(this);
+            thread->setType(THREAD_NOTHING_TO_DO);
+            thread->traversingFinished(false);
+            thread->nodeFinished(false);
+            thread->noTexturesFound(false);
+            thread->start();
+
+            break;
         }
 
-        thread = new SGTextureThread(this);
-        thread->setType(THREAD_NOTHING_TO_DO);
-        thread->traversingFinished(false);
-        thread->nodeFinished(false);
-        thread->noTexturesFound(false);
-        thread->start();
-
-        break;
-    }
-
-    case TABLET_BROWSER_PROPERTIES:
-    {
-        if (listener)
-            listener->tabletDataEvent(this, tb);
-        break;
-    }
-    case TABLET_BROWSER_UPDATE:
-    {
-        visitorMode = UPDATE_NODES;
-        if (listener)
-            listener->tabletPressEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_EXPAND_UPDATE:
-    {
-        visitorMode = UPDATE_EXPAND;
-        const char *path;
-        tb >> path;
-        expandPath = std::string(path);
-
-        if (listener)
-            listener->tabletPressEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_SELECTED_NODE:
-    {
-        visitorMode = SET_SELECTION;
-        const char *path, *pPath;
-        tb >> path;
-        selectPath = std::string(path);
-        tb >> pPath;
-        selectParentPath = std::string(pPath);
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_CLEAR_SELECTION:
-    {
-        visitorMode = CLEAR_SELECTION;
-        if (listener)
-            listener->tabletSelectEvent(this);
-
-        break;
-    }
-    case TABLET_BROWSER_SHOW_NODE:
-    {
-        visitorMode = SHOW_NODE;
-        const char *path, *pPath;
-        tb >> path;
-        showhidePath = std::string(path);
-        tb >> pPath;
-        showhideParentPath = std::string(pPath);
-
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_HIDE_NODE:
-    {
-        visitorMode = HIDE_NODE;
-        const char *path, *pPath;
-        tb >> path;
-        showhidePath = std::string(path);
-        tb >> pPath;
-        showhideParentPath = std::string(pPath);
-
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_COLOR:
-    {
-        visitorMode = UPDATE_COLOR;
-        tb >> ColorR;
-        tb >> ColorG;
-        tb >> ColorB;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_WIRE:
-    {
-        visitorMode = UPDATE_WIRE;
-        tb >> polyMode;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_SEL_ONOFF:
-    {
-        visitorMode = UPDATE_SEL;
-        tb >> selOnOff;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_FIND:
-    {
-        const char *fname;
-        visitorMode = FIND_NODE;
-        tb >> fname;
-        findName = std::string(fname);
-        if (listener)
-            listener->tabletFindEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_LOAD_FILES:
-    {
-        const char *fname;
-        tb >> fname;
-
-        if (listener)
-            listener->tabletLoadFilesEvent((char*)fname);
-        break;
-    }
-    break;
-    case TABLET_TEX_UPDATE:
-    {
-        thread->setType(TABLET_TEX_UPDATE);
-        sendImageMode = SEND_IMAGES;
-        if (listener)
+        case TABLET_BROWSER_PROPERTIES:
         {
-            listener->tabletEvent(this);
-            listener->tabletReleaseEvent(this);
+            if (listener)
+            {
+                listener->tabletDataEvent(this, tb);
+            }
+
+            break;
         }
-        break;
-    }
-    case TABLET_TEX_PORT:
-    {
-        tb >> texturePort;
-        tryConnect();
-        break;
-    }
-    case TABLET_TEX_CHANGE:
-    {
-        //cout << " currentNode : " << currentNode << "\n";
-        if (currentNode)
+
+        case TABLET_BROWSER_UPDATE:
         {
-            // let the tabletui know that it can send texture data now
-            TokenBuffer t;
-            int buttonNumber;
-            const char *path = currentPath.c_str();
-            tb >> buttonNumber;
-            t << TABLET_SET_VALUE;
-            t << TABLET_TEX_CHANGE;
-            t << ID;
-            t << buttonNumber;
-            t << path;
-            tui()->send(t);
-            //thread->setType(TABLET_TEX_CHANGE);
-            texturesToChange++;
+            visitorMode = UPDATE_NODES;
+        
+            if (listener)
+                listener->tabletPressEvent(this);
+            
+            break;
         }
-        break;
-    }
-    default:
-    {
-        std::cerr << "unknown event " << i << std::endl;
-    }
+
+        case TABLET_BROWSER_EXPAND_UPDATE:
+        {
+            visitorMode = UPDATE_EXPAND;
+            const char *path;
+            tb >> path;
+            expandPath = std::string(path);
+
+            if (listener)
+                listener->tabletPressEvent(this);
+
+            break;
+        }
+
+        case TABLET_BROWSER_CURRENT_NODE:
+        {
+            const char* path;
+
+            tb >> path;
+            std::string path_str = std::string(path);
+            osg::Node* path_node = coTUISGBrowserTab::getNode(path_str);
+
+            coTUISGBrowserTab::sendCurrentNode(path_node, path_str);
+
+            break;
+        }
+
+        case TABLET_BROWSER_SELECTED_NODE:
+        {
+            visitorMode = SET_SELECTION;
+            const char *path, *pPath;
+            tb >> path;
+            selectPath = std::string(path);
+            tb >> pPath;
+            selectParentPath = std::string(pPath);
+
+            if (listener)
+                listener->tabletSelectEvent(this);
+        
+            break;
+        }
+    
+        case TABLET_BROWSER_CLEAR_SELECTION:
+        {
+            visitorMode = CLEAR_SELECTION;
+
+            if (listener)
+                listener->tabletSelectEvent(this);
+
+            break;
+        }
+    
+        case TABLET_BROWSER_SHOW_NODE:
+        {
+            visitorMode = SHOW_NODE;
+            const char *path, *pPath;
+            tb >> path;
+            showhidePath = std::string(path);
+            tb >> pPath;
+            showhideParentPath = std::string(pPath);
+
+            if (listener)
+                listener->tabletSelectEvent(this);
+        
+            break;
+        }
+        
+        case TABLET_BROWSER_HIDE_NODE:
+        {
+            visitorMode = HIDE_NODE;
+            const char *path, *pPath;
+            tb >> path;
+            showhidePath = std::string(path);
+            tb >> pPath;
+            showhideParentPath = std::string(pPath);
+
+            if (listener)
+                listener->tabletSelectEvent(this);
+        
+            break;
+        }
+
+        case TABLET_BROWSER_COLOR:
+        {
+            visitorMode = UPDATE_COLOR;
+            tb >> ColorR;
+            tb >> ColorG;
+            tb >> ColorB;
+
+            if (listener)
+                listener->tabletChangeModeEvent(this);
+        
+            break;
+        }
+    
+        case TABLET_BROWSER_WIRE:
+        {
+            visitorMode = UPDATE_WIRE;
+            tb >> polyMode;
+
+            if (listener)
+                listener->tabletChangeModeEvent(this);
+        
+            break;
+        }
+    
+        case TABLET_BROWSER_SEL_ONOFF:
+        {
+            visitorMode = UPDATE_SEL;
+            tb >> selOnOff;
+
+            if (listener)
+                listener->tabletChangeModeEvent(this);
+        
+            break;
+        }
+    
+        case TABLET_BROWSER_FIND:
+        {
+            const char *fname;
+            visitorMode = FIND_NODE;
+            tb >> fname;
+            findName = std::string(fname);
+
+            if (listener)
+                listener->tabletFindEvent(this);
+
+            break;
+        }
+
+        case TABLET_BROWSER_LOAD_FILES:
+        {
+            const char *fname;
+            tb >> fname;
+
+            if (listener)
+                listener->tabletLoadFilesEvent((char*)fname);
+
+            break;
+        }
+
+        case TABLET_BROWSER_ADDED_NODE:
+        {
+            const char* path;
+            int node_type;
+
+            tb >> path;
+            tb >> node_type;
+
+            coTUISGBrowserTab::addNode(path, node_type);
+
+            break;
+        }
+
+        case TABLET_BROWSER_REMOVED_NODE:
+        {
+            // std::cout << "TABLET_BROWSER_REMOVE_NODE" << std::endl;
+            const char* path;
+            const char* parentPath;
+
+            tb >> path;
+            tb >> parentPath;
+
+            coTUISGBrowserTab::removeNode(path, parentPath);
+
+            break;
+        }
+
+        case TABLET_BROWSER_MOVED_NODE:
+        {
+            const char* old_path;
+            const char* oldParent_path;
+            const char* newParent_path;
+            int drop_index;
+
+            tb >> old_path;
+            tb >> oldParent_path;
+            tb >> newParent_path;
+            tb >> drop_index;
+
+            coTUISGBrowserTab::moveNode(old_path, oldParent_path, newParent_path, drop_index);
+
+            break;
+        }
+
+        case TABLET_BROWSER_RENAMED_NODE:
+        {
+            const char* path;
+            const char* newName;
+
+            tb >> path;
+            tb >> newName;
+
+            coTUISGBrowserTab::renameNode(path, newName);
+        }
+
+        // break;
+        case TABLET_TEX_UPDATE:
+        {
+            thread->setType(TABLET_TEX_UPDATE);
+            sendImageMode = SEND_IMAGES;
+
+            if (listener)
+            {
+                listener->tabletEvent(this);
+                listener->tabletReleaseEvent(this);
+            }
+            
+            break;
+        }
+    
+        case TABLET_TEX_PORT:
+        {
+            tb >> texturePort;
+            tryConnect();
+            break;
+        }
+    
+        case TABLET_TEX_CHANGE:
+        {
+            //cout << " currentNode : " << currentNode << "\n";
+            if (currentNode)
+            {
+                // let the tabletui know that it can send texture data now
+                TokenBuffer t;
+                int buttonNumber;
+                const char *path = currentPath.c_str();
+                tb >> buttonNumber;
+                t << TABLET_SET_VALUE;
+                t << TABLET_TEX_CHANGE;
+                t << ID;
+                t << buttonNumber;
+                t << path;
+                tui()->send(t);
+                //thread->setType(TABLET_TEX_CHANGE);
+                texturesToChange++;
+            }
+
+            break;
+        }
+        
+        default:
+        {
+            std::cerr << "unknown event " << i << std::endl;
+        }
     }
 }
 
