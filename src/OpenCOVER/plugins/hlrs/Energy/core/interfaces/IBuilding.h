@@ -3,14 +3,13 @@
 
 #include "IDrawable.h"
 #include "IColorable.h"
-#include "IMovable.h"
 #include "ITimedependable.h"
 #include <memory>
 #include <osg/Vec4>
 
 namespace core {
 namespace interface {
-class IBuilding: public IDrawable, public IColorable, public IMoveable, public ITimedependable {
+class IBuilding: public IDrawable, public IColorable, public ITimedependable {
 public:
     /**
      * Returns the color in the range [0, maxValue] based on the given value based on colorRange of building instance.
