@@ -42,6 +42,7 @@
 #include <filesystem>
 #include <osg/Group>
 #include <osg/MatrixTransform>
+#include <osg/Node>
 #include <osg/Switch>
 #include <osg/Vec3>
 #include <osg/ref_ptr>
@@ -88,7 +89,7 @@ bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo
 /**
  * @brief Compares two string street numbers in the format ("<streetname> <streetnumber>").
  *
- * The function compares the street numbers of the two street names as string and integer. If the street numbers are equal, the function returns true. 
+ * The function compares the street numbers of the two street names as string and integer. If the street numbers are equal, the function returns true.
  * @param strtName The first string street name.
  * @param strtName2 The second string street name.
  * @return true if the street numbers are equal, otherwise false.
@@ -124,7 +125,7 @@ bool helper_cmpCharIgnoreCase(char a, char b)
 }
 
 /**
- * Computes the Levenshtein distance between two strings. 0 means the strings are equal. 
+ * Computes the Levenshtein distance between two strings. 0 means the strings are equal.
  * The higher the number, the more different chars are in the strings.
  * e.g. "kitten" and "sitting" have a Levenshtein distance of 3.
  * Source: http://www.blackbeltcoder.com/Articles/algorithms/approximate-string-comparisons-using-levenshtein-distance
@@ -182,6 +183,8 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     m_sequenceList->setName("DB");
     m_ennovatis = new osg::Group();
     m_ennovatis->setName("Ennovatis");
+		m_cityGML = new osg::Group();
+		m_cityGML->setName("CityGML");
 
     osg::ref_ptr<osg::MatrixTransform> EnergyGroupMT = new osg::MatrixTransform();
 
@@ -189,6 +192,7 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     m_switch->setName("Switch");
     m_switch->addChild(m_sequenceList);
     m_switch->addChild(m_ennovatis);
+    m_switch->addChild(m_cityGML);
 
     EnergyGroupMT->addChild(m_switch);
     m_EnergyGroup->addChild(EnergyGroupMT);
@@ -211,18 +215,73 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     componentGroup->setCallback([this](int value) { setComponent(Components(value)); });
 
     initEnnovatisUI();
+    initCityGMLUI();
 
     m_offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
 EnergyPlugin::~EnergyPlugin()
 {
+    auto root = cover->getObjectsRoot();
+
+    if (m_cityGML) {
+        for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
+            auto child = m_cityGML->getChild(i);
+            m_cityGML->removeChild(child);
+            root->addChild(child);
+        }
+    }
+
     if (m_EnergyGroup) {
-        m_EnergyGroup->removeChild(0, m_EnergyGroup->getNumChildren());
-        cover->getObjectsRoot()->removeChild(m_EnergyGroup.get());
+    //     m_EnergyGroup->removeChild(0, m_EnergyGroup->getNumChildren());
+        root->removeChild(m_EnergyGroup.get());
     }
 
     m_plugin = nullptr;
+}
+
+void EnergyPlugin::initCityGMLUI()
+{
+    m_cityGMLGroup = new ui::Group(EnergyTab, "CityGML");
+    m_cityGMLEnable = new ui::Button(m_cityGMLGroup, "Enable");
+    m_cityGMLEnable->setCallback([this](bool on) { enableCityGML(on); });
+}
+
+void EnergyPlugin::enableCityGML(bool on) {
+  if (on) {
+    if (m_cityGMLObjs.empty()) {
+      auto root = cover->getObjectsRoot();
+      for (auto i = 0; i < root->getNumChildren(); ++i) {
+        osg::ref_ptr<osg::MatrixTransform> child =
+            dynamic_cast<osg::MatrixTransform *>(
+                cover->getObjectsRoot()->getChild(i));
+        if (child) {
+          auto name = child->getName();
+          if (name.find(".gml") != std::string::npos) {
+            addCityGMLObjects(child);
+            root->removeChild(child);
+            m_cityGML->addChild(child);
+          }
+        }
+      }
+    }
+    switchTo(m_cityGML);
+  } else {
+    switchTo(m_sequenceList);
+  }
+}
+
+void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
+  for (auto i = 0; i < node->getNumChildren(); ++i) {
+    osg::ref_ptr<osg::Group> child =
+        dynamic_cast<osg::Group *>(node->getChild(i));
+    if (child) {
+      auto name = child->getName();
+      if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end())
+        continue;
+      m_cityGMLObjs.insert({child->getName(), child});
+    }
+  }
 }
 
 void EnergyPlugin::initEnnovatisUI()

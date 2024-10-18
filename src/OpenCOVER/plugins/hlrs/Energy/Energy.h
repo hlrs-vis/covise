@@ -16,6 +16,8 @@
 #define _Energy_PLUGIN_H
 
 #include <memory>
+#include <map>
+#include <osg/MatrixTransform>
 #include <string>
 #include <osg/Group>
 #include <osg/Node>
@@ -101,6 +103,9 @@ private:
     bool loadDB(const std::string &path, const ProjTrans &projTrans);
     void initRESTRequest();
     void initEnnovatisUI();
+    void initCityGMLUI();
+    void enableCityGML(bool on);
+    void addCityGMLObjects(osg::MatrixTransform *node);
     void selectEnabledDevice();
     void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
     void setRESTDate(const std::string &toSet, bool isFrom);
@@ -109,7 +114,6 @@ private:
     void updateEnnovatisChannelGrp();
     void initEnnovatisDevices();
     void switchTo(const osg::ref_ptr<osg::Node> child);
-    void clearItems() {}
 
     /**
      * Loads Ennovatis channelids from the specified JSON file into cache.
@@ -154,6 +158,10 @@ private:
     opencover::ui::SelectionList *m_ennovatisChannelList = nullptr;
     opencover::ui::SelectionList *m_enabledEnnovatisDevices = nullptr;
 
+    // citygml UI
+    opencover::ui::Group *m_cityGMLGroup = nullptr;
+    opencover::ui::Button *m_cityGMLEnable = nullptr;
+
     float rad, scaleH;
     int m_selectedComp = 0;
     std::vector<double> m_offset;
@@ -167,10 +175,12 @@ private:
     DeviceBuildingMap m_devBuildMap;
     std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
     osg::ref_ptr<osg::Group> m_ennovatis;
-    // switch used to toggle between ennovatis and db data
+    // switch used to toggle between ennovatis, db and citygml data
     osg::ref_ptr<osg::Switch> m_switch;
     osg::ref_ptr<osg::Sequence> m_sequenceList;
     osg::ref_ptr<osg::Group> m_EnergyGroup;
+    osg::ref_ptr<osg::Group> m_cityGML;
+    std::map<std::string, osg::ref_ptr<osg::Group>> m_cityGMLObjs;
     osg::Vec4 m_defaultColor;
 };
 
