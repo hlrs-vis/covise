@@ -38,7 +38,6 @@ class PrototypeBuilding: public interface::IBuilding {
 public:
     PrototypeBuilding(const CylinderAttributes &cylinderAttributes): m_attributes(cylinderAttributes){};
     void initDrawable() override;
-    void move(const osg::Vec3 &pos) override;
     void updateColor(const osg::Vec4 &color) override;
     void updateTime(int timestep) override;
     void updateDrawable() override;

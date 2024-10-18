@@ -1,4 +1,5 @@
 #include "PrototypeBuilding.h"
+#include "utils/color.h"
 #include <memory>
 #include <osg/Geode>
 #include <osg/Material>
@@ -7,23 +8,11 @@
 #include <osg/ref_ptr>
 
 namespace {
-auto createMaterial(const osg::Vec4 &color)
-{
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setDiffuse(osg::Material::FRONT, color);
-    return mat;
-}
-
-void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color)
-{
-    auto mat = createMaterial(color);
-    geode->getOrCreateStateSet()->setAttribute(mat, osg::StateAttribute::OVERRIDE);
-}
 
 /**
  * @brief Adds a cylinder between two points.
  * Source: http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
- * 
+ *
  * @param start The starting point of the cylinder.
  * @param end The ending point of the cylinder.
  * @param radius The radius of the cylinder.
@@ -62,7 +51,7 @@ auto createCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, o
     geode->addDrawable(cylinderDrawable);
 
     // Set the color of the cylinder that extends between the two points.
-    overrideGeodeColor(geode, cylinderColor);
+    core::utils::color::overrideGeodeColor(geode, cylinderColor);
 
     return geode;
 }
@@ -86,12 +75,7 @@ auto PrototypeBuilding::getColor(float val, float max) const
 void PrototypeBuilding::updateColor(const osg::Vec4 &color)
 {
     if (auto geode = dynamic_cast<osg::Geode *>(m_drawable.get()))
-        overrideGeodeColor(geode, color);
-}
-
-void PrototypeBuilding::move(const osg::Vec3 &pos)
-{
-    // TODO: move the building
+        utils::color::overrideGeodeColor(geode, color);
 }
 
 void PrototypeBuilding::initDrawable()
@@ -104,7 +88,6 @@ void PrototypeBuilding::initDrawable()
 }
 
 std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value, float maxValue)
-
 {
     return getColor(value, maxValue);
 }

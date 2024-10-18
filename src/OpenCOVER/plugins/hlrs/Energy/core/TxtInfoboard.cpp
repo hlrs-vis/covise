@@ -1,5 +1,6 @@
 #include "TxtInfoboard.h"
 #include "cover/coBillboard.h"
+#include "utils/osgUtils.h"
 #include <cover/coVRFileManager.h>
 
 #include <osg/Geode>
@@ -7,21 +8,6 @@
 #include <osg/MatrixTransform>
 #include <osg/ref_ptr>
 #include <osgText/Text>
-
-namespace {
-void deleteChildrenRecursive(osg::Group *grp)
-{
-    if (!grp)
-        return;
-
-    for (int i = 0; i < grp->getNumChildren(); ++i) {
-        auto child = grp->getChild(i);
-        if (auto child_group = dynamic_cast<osg::Group *>(child))
-            deleteChildrenRecursive(child_group);
-        grp->removeChild(child);
-    }
-}
-} // namespace
 
 namespace core {
 
@@ -52,7 +38,7 @@ void TxtInfoboard::updateDrawable()
 void TxtInfoboard::updateInfo(const std::string &info)
 {
     m_info = info;
-    deleteChildrenRecursive(m_BBoard);
+    utils::osgUtils::deleteChildrenRecursive(m_BBoard);
     m_BBoard->removeChild(m_TextGeode);
     osg::Vec3 pos = osg::Vec3(0, 0, 0);
     auto contentPos = pos;
