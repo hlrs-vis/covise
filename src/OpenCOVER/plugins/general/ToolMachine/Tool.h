@@ -29,11 +29,11 @@ struct UpdateValues{
 
 class SelfDeletingTool;
 
-class ToolModel{
+class Tool{
 public:
     friend SelfDeletingTool;
-    ToolModel(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
-    virtual ~ToolModel() = default;
+    Tool(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    virtual ~Tool() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
     void update();
     void pause(bool state);
@@ -77,11 +77,11 @@ private:
 class SelfDeletingTool : public osg::Observer
 {
 public:
-    static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<ToolModel> &&tool);
+    static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<Tool> &&tool);
     void objectDeleted(void*) override;
-    std::unique_ptr<ToolModel> value;
+    std::unique_ptr<Tool> value;
 private:
-    SelfDeletingTool(std::unique_ptr<ToolModel> &&tool);
+    SelfDeletingTool(std::unique_ptr<Tool> &&tool);
     std::unique_ptr<SelfDeletingTool>* m_this;
 };
 

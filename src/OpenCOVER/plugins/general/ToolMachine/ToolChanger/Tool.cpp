@@ -19,13 +19,13 @@ osgAnimation::StackedScaleElement *addScaleElement(osg::Node *node)
 }
 
 ToolModel::ToolModel(osg::Node *model)
+: m_shaft(findTransform(model, "Schaft"))
+, m_tip(findTransform(model, "Spitze"))
+, m_tool(findTransform(model, "Werkzeug"))
+, m_shaftScale(addScaleElement(m_shaft))
+, m_tipScale(addScaleElement(m_tip))
 {
-    m_shaft = findTransform(model, "Schaft");
-    m_tip = findTransform(model, "Spitze"); 
-    m_tool = findTransform(model, "Werkzeug");
     assert(m_shaft && m_tip && m_tool);
-    m_shaftScale = addScaleElement(m_shaft);
-    m_tipScale = addScaleElement(m_tip);
     assert(m_shaftScale && m_tipScale);
 }
 

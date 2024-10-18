@@ -8,27 +8,27 @@ using namespace covise;
 using namespace opencover;
 using namespace vrml;
 
-osg::MatrixTransform *toOsg(VrmlNode *node)
-{
-    auto g = node->toGroup();
-    if(!g)
-        return nullptr;
-    auto vo = g->getViewerObject();
-    if(!vo)
-        return nullptr;
-    auto pNode = ((osgViewerObject *)vo)->pNode;
-    if(!pNode)
-        return nullptr;
-    auto trans = pNode->asTransform();
-    if(!trans)
-        return nullptr;
-    return trans->asMatrixTransform();
-}
-
-Machine::Machine(MachineNodeBase *node)
+Machine::Machine(opencover::ui::Menu *menu, opencover::config::File *file, MachineNodeBase *node)
 : m_machineNode(node)
-{}
-
+, m_menu(menu)
+, m_configFile(file)
+, m_pauseBtn(new ui::Button(m_menu, "pause"))
+{
+    std::array<std::string, 6> names = {"x", "y", "z", "a", "b", "c"};
+    for (size_t i = 0; i < 6; i++)
+    {
+        auto slider = new ui::Slider(m_menu, names[i] + "Pos");
+        i < 3 ? slider->setBounds(-200, 200) : slider->setBounds(0, 360);
+        
+        slider->setCallback([i, this](double val, bool b){
+            m_pauseMove = !b;
+                move(i, val);
+        });
+    }
+    m_pauseBtn->setCallback([this](bool state){
+                pause(state);
+    });
+}
 
 void Machine::connectOpcua()
 {
@@ -85,24 +85,11 @@ bool Machine::arrayMode() const{
     return dynamic_cast<MachineNodeArrayMode *>(m_machineNode) != nullptr;
 }
 
-void Machine::setUi(opencover::ui::Menu *menu, opencover::config::File *file)
-{
-    m_menu = menu;
-    m_configFile = file;
-}
-
-
 void Machine::pause(bool state)
 {
     if(m_tool) 
         m_tool->value->pause(state);
 }
-
-osg::MatrixTransform *Machine::getToolHead() const
-{
-    return toOsg(m_machineNode->ToolHeadNode->get());
-}
-
 
 void Machine::update()
 {
@@ -110,7 +97,8 @@ void Machine::update()
     {
         connectOpcua();
     }
-    
+    if(m_pauseMove || m_pauseBtn->state())
+        return;
     bool haveTool = true;
     if(!m_tool)
     {

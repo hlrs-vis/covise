@@ -1,10 +1,13 @@
 #include "VrmlNode.h"
 #include <cassert>
 
+#include <plugins/general/Vrml97/ViewerObject.h>
+
+
 using namespace vrml;
 
-std::vector<MachineNodeBase *> machineNodes;
-std::vector<ToolChangerNode *> toolChangers;
+std::set<MachineNodeBase *> machineNodes;
+std::set<ToolChangerNode *> toolChangers;
 
 // template <typename... Ts>
 // auto make_variant_vector(Ts&&... args) {
@@ -56,12 +59,12 @@ MachineNodeBase::MachineNodeBase(VrmlScene *scene)
 , AxisNodes(registerField<VrmlMFNode>("AxisNodes"))
 , OpcUaToVrml(registerField<VrmlSFFloat>("OpcUaToVrml"))
 {
-    machineNodes.push_back(this);
+    machineNodes.emplace(this);
 }
 
 MachineNodeBase::~MachineNodeBase()
 {
-    machineNodes.erase(machineNodes.begin() + m_index);
+    machineNodes.erase(this);
 }
 
 VrmlNodeType *MachineNodeBase::defineType(VrmlNodeType *t)
@@ -169,13 +172,14 @@ ToolChangerNode::ToolChangerNode(VrmlScene *scene)
 , arm(registerField<VrmlSFString>("arm"))
 , changer(registerField<VrmlSFString>("changer"))
 , cover(registerField<VrmlSFString>("cover"))
+, toolHead(registerField<VrmlSFNode>("ToolHeadNode"))
 {
-    toolChangers.push_back(this);
+    toolChangers.emplace(this);
 }
 
 ToolChangerNode::~ToolChangerNode()
 {
-    toolChangers.erase(toolChangers.begin() + m_index);
+    toolChangers.erase(this);
 }
 
 VrmlNode *ToolChangerNode::creator(VrmlScene *scene)
@@ -205,55 +209,10 @@ VrmlNodeType *ToolChangerNode::defineType(VrmlNodeType *t)
     t->addExposedField("arm", VrmlField::SFSTRING);
     t->addExposedField("changer", VrmlField::SFSTRING);
     t->addExposedField("cover", VrmlField::SFSTRING);
+    t->addExposedField("ToolHeadNode", VrmlField::SFNODE);
 
     return t;
 }
-
-// ToolChangerNodeVrml 
-
-ToolChangerNodeVrml::ToolChangerNodeVrml(VrmlScene *scene)
-: VrmlNodeChildTemplate(scene), m_index(toolChangers.size())
-, arm(registerField<VrmlSFNode>("arm"))
-{
-    toolChangersVrml.push_back(this);
-}
-
-ToolChangerNodeVrml::~ToolChangerNodeVrml()
-{
-    toolChangersVrml.erase(toolChangersVrml.begin() + m_index);
-}
-
-VrmlNode *ToolChangerNodeVrml::creator(VrmlScene *scene)
-{
-    return new ToolChangerNodeVrml(scene);
-}
-
-VrmlNodeType *ToolChangerNodeVrml::nodeType() const { return defineType(); };
-
-VrmlNode *ToolChangerNodeVrml::cloneMe() const 
-{
-    return new ToolChangerNodeVrml(*this);
-}
-
-VrmlNodeType *ToolChangerNodeVrml::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ToolChangerNodeVrml", creator);
-    }
-
-    MachineNodeBase::defineType(t); // Parent class
-    
-    t->addExposedField("arm", VrmlField::SFNODE);
-    return t;
-}
-
-std::vector<ToolChangerNodeVrml *> toolChangersVrml;
-
-
 
 // MachineNode dummy
 
@@ -287,4 +246,21 @@ VrmlNodeType *MachineNode::defineType(VrmlNodeType *t)
     MachineNodeBase::defineType(t); // Parent class
     
     return t;
+}
+
+osg::MatrixTransform *toOsg(VrmlNode *node)
+{
+    auto g = node->toGroup();
+    if(!g)
+        return nullptr;
+    auto vo = g->getViewerObject();
+    if(!vo)
+        return nullptr;
+    auto pNode = ((osgViewerObject *)vo)->pNode;
+    if(!pNode)
+        return nullptr;
+    auto trans = pNode->asTransform();
+    if(!trans)
+        return nullptr;
+    return trans->asMatrixTransform();
 }

@@ -105,7 +105,7 @@ osg::Matrix calculatePath(int id, float offset)
     return posMat;
 }
 
-Arm::Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id)
+Arm::Arm(osg::Node *model, osg::Group* parent, int id)
 : m_model(static_cast<osg::Node*>(model->clone(osg::CopyOp::DEEP_COPY_ALL)))
 , m_transform (new osg::MatrixTransform)
 , m_id(id)
@@ -165,9 +165,7 @@ void Arm::giveTool(ToolModel::ptr &&tool)
 }
 ToolModel::ptr Arm::takeTool()
 {
-    auto tool = std::move(m_tool);
-    m_tool = nullptr;
-    return tool;
+    return std::move(m_tool);
 }
 
 bool Arm::isPlaying() const

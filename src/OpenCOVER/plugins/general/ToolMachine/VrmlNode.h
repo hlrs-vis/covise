@@ -4,6 +4,15 @@
 #include <vrml97/vrml/VrmlNodeChildTemplate.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 
+#include <osg/MatrixTransform>
+
+
+class LogicInterface{
+public:
+    virtual void update() = 0;
+    virtual ~LogicInterface() = default;
+};
+
 class MachineNodeBase : public vrml::VrmlNodeChildTemplate
 {
 public:
@@ -11,7 +20,6 @@ public:
     MachineNodeBase(vrml::VrmlScene *scene);
     ~MachineNodeBase();
     static vrml::VrmlNodeType *defineType(vrml::VrmlNodeType *t);
-
     // Set the value of one of the node fields.
 
     // void setField(const char* fieldName, const VrmlField& fieldValue) override;
@@ -28,12 +36,12 @@ public:
     vrml::VrmlSFString *ToolRadiusName = nullptr;
     vrml::VrmlMFNode *AxisNodes = nullptr;
     vrml::VrmlSFFloat *OpcUaToVrml = nullptr;
-
+    std::shared_ptr<LogicInterface> machine;
 private:
     size_t m_index = 0; // used to remove the node from the machineNodes list
 
 };
-extern std::vector<MachineNodeBase *> machineNodes;
+extern std::set<MachineNodeBase *> machineNodes;
 
 class MachineNodeArrayMode : public MachineNodeBase
 {
@@ -72,29 +80,13 @@ public:
     vrml::VrmlSFString* arm = nullptr;
     vrml::VrmlSFString* changer = nullptr;
     vrml::VrmlSFString* cover = nullptr;
+    vrml::VrmlSFNode *toolHead = nullptr;
+    std::shared_ptr<LogicInterface> toolChanger;
 private:
     size_t m_index = 0; // used to remove the node from the toolChanger list
 };
 
-extern std::vector<ToolChangerNode *> toolChangers;
-
-class ToolChangerNodeVrml : public vrml::VrmlNodeChildTemplate
-{
-public:
-    static VrmlNode *creator(vrml::VrmlScene *scene);
-    static vrml::VrmlNodeType *defineType(vrml::VrmlNodeType *t = nullptr);
-    ToolChangerNodeVrml(vrml::VrmlScene *scene);
-    ~ToolChangerNodeVrml();
-    vrml::VrmlNodeType *nodeType() const override;
-    vrml::VrmlNode *cloneMe() const override;
-    vrml::VrmlSFNode *arm = nullptr;
-private:
-    size_t m_index = 0; // used to remove the node from the toolChanger list
-};
-
-extern std::vector<ToolChangerNodeVrml *> toolChangersVrml;
-
-
+extern std::set<ToolChangerNode *> toolChangers;
 
 class MachineNode : public vrml::VrmlNodeChildTemplate //dummy to load plugin
 {
@@ -109,5 +101,7 @@ public:
 private:
     size_t m_index = 0; // used to remove the node from the toolChanger list
 };
+
+osg::MatrixTransform *toOsg(vrml::VrmlNode *node);
 
 #endif // COVER_PLUGIN_TOOLMACHINE_VRMLNODE_H

@@ -7,7 +7,7 @@
 #include <osg/Geometry>
 #include <cover/ui/Button.h>
 
-class Oct : public ToolModel
+class Oct : public Tool
 {
 public:
     Oct(opencover::ui::Group *group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);

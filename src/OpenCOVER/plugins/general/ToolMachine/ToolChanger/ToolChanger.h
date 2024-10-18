@@ -2,6 +2,7 @@
 #define TOOLMACHINETOOLCHANGER_H
 
 #include "Utility.h"
+#include "VrmlNode.h"
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/VectorEditField.h>
@@ -25,12 +26,12 @@ struct ToolChangerFiles{
     const std::string arm, swapArm, cover;
 };
 
-class ToolChanger{
+class ToolChanger : public LogicInterface
+{
 public:
-    ToolChanger(opencover::ui::Menu *menu, opencover::config::File *file, const ToolChangerFiles &files, osg::MatrixTransform *toolHead);
+    ToolChanger(opencover::ui::Menu *menu, opencover::config::File *file, ToolChangerNode *node);
     ~ToolChanger(); //do not implement destructor in header because it can't delete m_animationFinder
     void update();
-    void setToolHead(osg::MatrixTransform *toolHead);
 private:
 
     enum AnimationState{ BeforeSwap, Swapping, AfterSwap, LAST} m_animationState = BeforeSwap;
@@ -38,8 +39,11 @@ private:
     void changeTools();
     bool animationStepReached(AnimationState state);
     void swapTools();
-    void findDoor();
+    void init();
 
+    opencover::ui::Menu *m_menu = nullptr;
+    ToolChangerNode *m_toolChangerNode = nullptr;
+    bool m_initialized = false;
     std::vector<std::unique_ptr<Arm>> m_arms;
     bool m_update = false;
     int m_currentArm = 0;

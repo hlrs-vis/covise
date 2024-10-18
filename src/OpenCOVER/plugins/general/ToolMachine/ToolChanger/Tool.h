@@ -20,7 +20,7 @@ public:
     osg::MatrixTransform *model() { return m_tool; }
 private:
     osg::ref_ptr<osg::MatrixTransform> m_shaft, m_tip, m_tool;
-    osgAnimation::StackedScaleElement *m_shaftScale, *m_tipScale;
+    osgAnimation::StackedScaleElement *m_shaftScale = nullptr, *m_tipScale = nullptr;
 
 };
 

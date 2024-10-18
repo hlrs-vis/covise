@@ -45,22 +45,22 @@ void applyColor(osg::Node* node, const osg::Vec4& color)
     node->setStateSet(stateSet);
 }
 
-ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const ToolChangerFiles &files,  osg::MatrixTransform *toolHead)
-: m_toolHead(toolHead)
+ToolChanger::ToolChanger(opencover::ui::Menu *menu, opencover::config::File *file, ToolChangerNode *node)
+: m_toolChangerNode(node)
+, m_menu(menu)
 , m_configFile(file)
+{}
+
+ToolChanger::~ToolChanger() = default;
+
+void ToolChanger::init()
 {
-    osg::ref_ptr model = osgDB::readNodeFile(files.arm); 
+    if(!m_toolChangerNode->allInitialized())
+        return;
+    osg::ref_ptr model = osgDB::readNodeFile(m_toolChangerNode->arm->get()); 
 
     m_trans = new osg::MatrixTransform;
     m_trans->setName("ToolChanger");
-    auto scale = new ui::Slider(menu, "scale");
-    scale->setBounds(0.001, 1);
-    scale->setValue(0.001);
-    scale->setCallback([this](double scale, bool b){
-        
-
-        m_trans->setMatrix(osg::Matrix::scale(scale, scale, scale));
-    });
 
     //position toolChanger 
     osg::Matrix m = osg::Matrix::translate(-1, 0, 0.8);
@@ -72,34 +72,34 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
     m_trans->setMatrix(m);
 
 
-    m_anim = new ui::EditField(menu, "selectTool");
+    m_anim = new ui::EditField(m_menu, "selectTool");
     m_anim->setValue("55");
     // m_anim->setCallback([this](const std::string &value){
     //     m_arms[m_anim->number()]->play();
     // });
-    m_maxSpeed = new ui::Slider(menu, "speed");
+    m_maxSpeed = new ui::Slider(m_menu, "speed");
     m_maxSpeed->setBounds(-1, 1);
     m_maxSpeed->setValue(0.5);
 
-    m_action = new ui::Action(menu, "changeTool");
+    m_action = new ui::Action(m_menu, "changeTool");
     m_action->setCallback([this](){
         m_changeTool = true;
         m_selectedArm = m_arms[m_anim->number()].get();
         m_distanceToSeletedArm = m_selectedArm->getDistance();
     });
 
-    auto changer = osgDB::readNodeFile(files.swapArm);
+    auto changer = osgDB::readNodeFile(m_toolChangerNode->changer->get());
     m_changer = std::make_unique<Changer>(changer, m_trans); 
     m_changeDuration = m_changer->getAnimationDuration();
 
-    auto coverNode = osgDB::readNodeFile(files.cover);
+    auto coverNode = osgDB::readNodeFile(m_toolChangerNode->cover->get());
     m_trans->addChild(coverNode); 
     cover->getObjectsRoot()->addChild(m_trans);
 
-    auto materials = file->array<std::string>("materials", "materials");
+    auto materials = m_configFile->array<std::string>("materials", "materials");
     for(auto &m : materials->value())
     {
-        auto color = file->array<double>("materials", m);
+        auto color = m_configFile->array<double>("materials", m);
         if(color->size() != 4)
         {
             std::cerr << "color array has to have 4 elements" << std::endl;
@@ -119,32 +119,17 @@ ToolChanger::ToolChanger(ui::Menu* menu, opencover::config::File *file, const To
     {
         m_arms.push_back(std::make_unique<Arm>(model, m_trans, i));
     }
+    m_toolHead = toOsg(m_toolChangerNode->toolHead->get());
+
+    m_initialized = true;
 }
-
-ToolChanger::~ToolChanger() = default;
-
-// float numFramesUntilStop(float speed, float distance)
-// {
-//     int i = 0;
-//     auto d = distance;
-//     while (d > 0)
-//     {
-//         d -= (speed + speed / acceletation * i);
-//         ++i;
-//     }
-//     i;
-    
-//     auto part = sqrt(pow(speed, 2) + 4 * speed/ acceletation *distance);
-//     auto retval = (-speed + part) / (2 * speed / acceletation);
-//     assert(retval > 0);
-
-//     std::cerr << "frames until stop: " << retval << " numerisch: " << i << std::endl;
-//     return i;
-// }
 
 void ToolChanger::update()
 {
-    findDoor();
+    if(!m_initialized)
+        init();
+    if(!m_initialized)
+        return;
     if(m_playingArm)
     {
         changeTools();
@@ -228,10 +213,10 @@ void ToolChanger::changeTools(){
     {
         if(animationStepReached(m_animationState))
         {
-            std::cerr << "before swap" << std::endl;
             auto tool = m_playingArm->takeTool();
             if(tool)
                 m_changer->giveTool(std::move(tool), Changer::End::front);
+            
             if(m_toolHeadTool)
             {
                 m_toolHeadTool->model()->setMatrix(m_toolHeadMatrix);
@@ -298,56 +283,4 @@ void ToolChanger::swapTools(){
         m_changer->giveTool(std::move(t1), Changer::End::back);
     if(t2)
         m_changer->giveTool(std::move(t2), Changer::End::front);
-}
-
-void ToolChanger::findDoor()
-{
-    if(!m_door)
-    {
-        m_door = findTransform(cover->getObjectsRoot(), "LASERTEC65_3Dhy_US_FD_TTAC_S840D_Case_10");
-        m_door->getParent(0)->removeChild(m_door);
-        if(!m_door)
-            return;
-        m_doorTransform = m_door->getMatrix();
-    }
-
-    if(m_doorAnimationTime > 0)
-    {
-        m_doorAnimationTime -= cover->frameDuration();
-        auto factor = 1;  
-        auto m = m_doorTransform;
-        if(m_doorAnimationTime <= 0)
-        {
-            m.setTrans(m.getTrans() + m_doorOffset);
-            m_door->setMatrix(m);
-            m_doorAnimationTime = 0;
-            return;
-        }
-        m.setTrans(m.getTrans() + m_doorOffset * m_doorAnimationTime / m_doorAnimationDuration);
-        m_door->setMatrix(m);
-
-    } 
-    else if(m_doorAnimationTime < 0)
-    {
-        m_doorAnimationTime += cover->frameDuration();
-        auto factor = 1;  
-        auto m = m_doorTransform;
-        if(m_doorAnimationTime >= 0)
-        {
-            m_door->setMatrix(m);
-            m_doorAnimationTime = 0;
-            return;
-        }
-        m.setTrans(m.getTrans() + m_doorOffset * (1 - m_doorAnimationTime / m_doorAnimationDuration));
-        m_door->setMatrix(m);
-
-    } 
-    // else
-    //     m_door->setMatrix(m_doorTransform);
-
-}
-
-void ToolChanger::setToolHead(osg::MatrixTransform *toolHead)
-{
-    m_toolHead = toolHead;
 }

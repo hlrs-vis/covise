@@ -31,7 +31,7 @@ const std::array<float, 4> partPathDistance = {pathDistance, pathDistance, pathD
 
 class Arm{
 public:
-    Arm(osg::ref_ptr<osg::Node> model, osg::Group* parent, int id);
+    Arm(osg::Node *model, osg::Group* parent, int id);
     void position(float offset);
     void play();
     float getDistance() const;
@@ -45,16 +45,14 @@ public:
 private:
     osg::ref_ptr<osg::Node> m_model;
     osg::ref_ptr<osg::MatrixTransform> m_transform;
+    int m_id = -1;
     ToolModel::ptr m_tool;
     osg::Group *m_toolParent;
-    int m_id = -1;
     AnimationManagerFinder m_animation;
     float m_distance = 0;
     const float m_intPlayTime = 100;
     float m_playtime = 0;
 
-
-    void applyColor(const osg::Vec4& color);
 };
 
 osg::MatrixTransform* createSphere(const osg::Vec3& pos, float radius);
