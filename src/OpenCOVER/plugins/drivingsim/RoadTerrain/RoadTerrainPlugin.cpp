@@ -52,108 +52,34 @@
 using namespace covise;
 using namespace opencover;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeRoadTerrain::initFields(VrmlNodeRoadTerrain *node, VrmlNodeType *t)
 {
-    return new VrmlNodeRoadTerrain(scene);
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("url", node->d_url),
+                     exposedField("layersUrl", node->d_layersUrl),
+                     exposedField("offset", node->d_offset),
+                     exposedField("minPositions", node->d_minPositions),
+                     exposedField("maxPositions", node->d_maxPositions));
 }
 
-// Define the built in VrmlNodeType:: "Sky" fields
-
-VrmlNodeType *VrmlNodeRoadTerrain::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("RoadTerrain", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("url", VrmlField::SFSTRING);
-    t->addExposedField("layersUrl", VrmlField::MFSTRING);
-    t->addExposedField("offset", VrmlField::SFVEC3F);
-    t->addExposedField("minPositions", VrmlField::MFVEC2F);
-    t->addExposedField("maxPositions", VrmlField::MFVEC2F);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeRoadTerrain::nodeType() const
-{
-    return defineType(0);
-}
+const char *VrmlNodeRoadTerrain::name() { return "RoadTerrain"; }
 
 VrmlNodeRoadTerrain::VrmlNodeRoadTerrain(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     setModified();
 }
 
 VrmlNodeRoadTerrain::VrmlNodeRoadTerrain(const VrmlNodeRoadTerrain &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
-
     setModified();
-}
-
-VrmlNodeRoadTerrain::~VrmlNodeRoadTerrain()
-{
-}
-
-VrmlNode *VrmlNodeRoadTerrain::cloneMe() const
-{
-    return new VrmlNodeRoadTerrain(*this);
 }
 
 VrmlNodeRoadTerrain *VrmlNodeRoadTerrain::toRoadTerrain() const
 {
     return (VrmlNodeRoadTerrain *)this;
-}
-
-ostream &VrmlNodeRoadTerrain::printFields(ostream &os, int indent)
-{
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeRoadTerrain::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-
-    if
-        TRY_FIELD(offset, SFVec3f)
-    else if
-        TRY_FIELD(minPositions, MFVec2f)
-    else if
-        TRY_FIELD(maxPositions, MFVec2f)
-    else if
-        TRY_FIELD(url, SFString)
-    else if
-        TRY_FIELD(layersUrl, MFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeRoadTerrain::getField(const char *fieldName)
-{
-
-    if (strcmp(fieldName, "offset") == 0)
-        return &d_offset;
-    else if (strcmp(fieldName, "url") == 0)
-        return &d_url;
-    else if (strcmp(fieldName, "layersUrl") == 0)
-        return &d_layersUrl;
-    else if (strcmp(fieldName, "minPositions") == 0)
-        return &d_minPositions;
-    else if (strcmp(fieldName, "maxPositions") == 0)
-        return &d_maxPositions;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeRoadTerrain::eventIn(double timeStamp,
@@ -200,7 +126,7 @@ bool RoadTerrainPlugin::init()
 {
     //cover->setScale(1000);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeRoadTerrain::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeRoadTerrain>());
 
     pluginTab = new coTUITab("Road Terrain", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);

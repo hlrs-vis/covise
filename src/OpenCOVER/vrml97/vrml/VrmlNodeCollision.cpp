@@ -25,39 +25,24 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeCollision(s); }
 
-// Define the built in VrmlNodeType:: "Collision" fields
-
-VrmlNodeType *VrmlNodeCollision::defineType(VrmlNodeType *t)
+void VrmlNodeCollision::initFields(VrmlNodeCollision *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Collision", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("collide", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addField("proxy", VrmlField::SFNODE);
-    t->addEventOut("collideTime", VrmlField::SFTIME);
-
-    return t;
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("collide", node->d_collide),
+                     exposedField("enabled", node->d_collide),
+                     field("proxy", node->d_proxy));
+    if (t)
+        t->addEventOut("collideTime", VrmlField::SFTIME);                
+                     
 }
 
-VrmlNodeType *VrmlNodeCollision::nodeType() const { return defineType(0); }
+const char *VrmlNodeCollision::name() { return "Collision"; }
 
 VrmlNodeCollision::VrmlNodeCollision(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
     , d_collide(true)
-{
-}
-
-VrmlNodeCollision::~VrmlNodeCollision()
 {
 }
 
@@ -115,11 +100,6 @@ void VrmlNodeCollision::render(Viewer *viewer)
     clearModified();
 }
 
-VrmlNode *VrmlNodeCollision::cloneMe() const
-{
-    return new VrmlNodeCollision(*this);
-}
-
 void VrmlNodeCollision::cloneChildren(VrmlNamespace *ns)
 {
     VrmlNodeGroup::cloneChildren(ns);
@@ -160,50 +140,4 @@ void VrmlNodeCollision::copyRoutes(VrmlNamespace *ns)
     if (d_proxy.get())
         d_proxy.get()->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeCollision::printFields(std::ostream &os, int indent)
-{
-    if (!d_collide.get())
-        PRINT_FIELD(collide);
-    if (d_proxy.get())
-        PRINT_FIELD(proxy);
-
-    VrmlNodeGroup::printFields(os, indent);
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCollision::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    // check against both fieldnames cause scene() and getNamespace() maybe NULL
-    // no easy way to check X3D status
-    if ((strcmp(fieldName, "collide") == 0) || (strcmp(fieldName, "enabled") == 0))
-    {
-        if (fieldValue.toSFBool())
-            d_collide = (VrmlSFBool &)fieldValue;
-        else
-            System::the->error("Invalid type (%s) for %s field of %s node (expected %s).\n",
-                               fieldValue.fieldTypeName(), "collide or enabled", nodeType()->getName(), "SFBool");
-    }
-    else if
-        TRY_SFNODE_FIELD(proxy, Child)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeCollision::getField(const char *fieldName) const
-{
-    // check against both fieldnames cause scene() and getNamespace() maybe NULL
-    // no easy way to check X3D status
-    if ((strcmp(fieldName, "collide") == 0) || (strcmp(fieldName, "enabled") == 0))
-        return &d_collide;
-    else if (strcmp(fieldName, "proxy") == 0)
-        return &d_proxy;
-    else if (strcmp(fieldName, "collideTime") == 0)
-        return &d_collideTime;
-
-    return VrmlNodeGroup::getField(fieldName);
 }

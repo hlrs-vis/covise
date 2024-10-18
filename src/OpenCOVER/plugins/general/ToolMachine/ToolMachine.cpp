@@ -34,7 +34,7 @@ void Machine::connectOpcua()
 {
 
     if(!m_client)
-        m_client = opcua::connect(m_machineNode->MachineName->get());
+        m_client = opcua::connect(m_machineNode->machineName.get());
     if(!m_client || !m_client->isConnected())
         return;
     m_mathExpressionObserver = std::make_unique<MathExpressionObserver>(m_client);
@@ -44,20 +44,20 @@ void Machine::connectOpcua()
 
     if(arrayMode)
     {
-        m_valueIds.push_back(m_client->observeNode(arrayMode->OPCUAArrayName->get()));
+        m_valueIds.push_back(m_client->observeNode(arrayMode->opcuaArrayName.get()));
     }  else if (singleMode)
     {
         m_axisValueHandles.clear();
-        for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
+        for (size_t i = 0; i < singleMode->opcuaNames.size(); i++)
         {
-            auto v = m_mathExpressionObserver->observe((*singleMode->OPCUANames)[i]);
+            auto v = m_mathExpressionObserver->observe(singleMode->opcuaNames[i]);
             if(!v)
                 m_rdy = false;
             m_axisValueHandles.push_back(std::move(v));
         }
     }
 
-    auto tool = {m_machineNode->ToolNumberName->get(), m_machineNode->ToolLengthName->get(), m_machineNode->ToolRadiusName->get()};
+    auto tool = {m_machineNode->toolNumberName.get(), m_machineNode->toolLengthName.get(), m_machineNode->toolRadiusName.get()};
     for(auto t : tool)
     {
         if(t)
@@ -67,13 +67,13 @@ void Machine::connectOpcua()
 
 void Machine::move(int axis, float value)
 {
-    if(axis >= m_machineNode->AxisNames->size())
+    if(axis >= m_machineNode->axisNames.size())
         return;
-    auto v = osg::Vec3{*(*m_machineNode->AxisOrientations)[axis], *((*m_machineNode->AxisOrientations)[axis] + 1), *((*m_machineNode->AxisOrientations)[axis] +2) };
-    auto osgNode = toOsg((*m_machineNode->AxisNodes)[axis]);
+    auto v = osg::Vec3{*m_machineNode->axisOrientations[axis], *(m_machineNode->axisOrientations[axis] + 1), *(m_machineNode->axisOrientations[axis] +2) };
+    auto osgNode = toOsg(m_machineNode->axisNodes[axis]);
     if(axis <= 2) // ugly hack to find out if an axis is translational
     {
-        v *= (value * m_machineNode->OpcUaToVrml->get());
+        v *= (value * m_machineNode->opcUaToVrml.get());
         osgNode->setMatrix(osg::Matrix::translate(v));
     }
     else{
@@ -93,11 +93,11 @@ void Machine::pause(bool state)
 
 void Machine::update()
 {
-    if(!m_rdy && m_machineNode->allInitialized())
+    if(!m_rdy && dynamic_cast<const VrmlNodeTemplate*>(m_machineNode)->allFieldsInitialized())
     {
         connectOpcua();
     }
-    if(m_pauseMove || m_pauseBtn->state())
+    if(!m_rdy | m_pauseMove || m_pauseBtn->state())
         return;
     bool haveTool = true;
     if(!m_tool)
@@ -114,29 +114,29 @@ void Machine::update()
 bool Machine::addTool()
 {
 
-    if(strcmp(m_machineNode->VisualizationType->get(), "None") == 0 )
+    if(strcmp(m_machineNode->visualizationType.get(), "None") == 0 )
     {
         std::cerr << "missing VisualizationType, make sure this is set in the VRML file to \"Currents\" or \"Oct\"" << std::endl;
         return false;
 
     }
-    auto toolHead = toOsg(m_machineNode->ToolHeadNode->get());
-    auto table = toOsg(m_machineNode->TableNode->get());
+    auto toolHead = toOsg(m_machineNode->toolHeadNode.get());
+    auto table = toOsg(m_machineNode->tableNode.get());
     if(!toolHead || !table)
     {
         std::cerr << "missing ToolHeadNode or table TableNode, make sure both are set in the VRML file and the corresponding nodes contain some geometry." << std::endl;
         return false;
     }
-    ui::Group *machineGroup = new ui::Group(m_menu, m_machineNode->MachineName->get());
-    if(strcmp(m_machineNode->VisualizationType->get(), "Currents") == 0 )
+    ui::Group *machineGroup = new ui::Group(m_menu, m_machineNode->machineName.get());
+    if(strcmp(m_machineNode->visualizationType.get(), "Currents") == 0 )
     {
         SelfDeletingTool::create(m_tool, std::make_unique<Currents>(machineGroup, *m_configFile, toolHead, table));
         return true;
     }
-    if(strcmp(m_machineNode->VisualizationType->get(), "Oct") == 0 )
+    if(strcmp(m_machineNode->visualizationType.get(), "Oct") == 0 )
     {
         SelfDeletingTool::create(m_tool, std::make_unique<Oct>(machineGroup, *m_configFile, toolHead, table));
-        dynamic_cast<Oct*>(m_tool->value.get())->setScale(m_machineNode->OpcUaToVrml->get());
+        dynamic_cast<Oct*>(m_tool->value.get())->setScale(m_machineNode->opcUaToVrml.get());
         return true;
     }
 
@@ -148,13 +148,13 @@ bool Machine::updateMachine(bool haveTool)
     if(arrayMode())
     {
         auto arrayMode = dynamic_cast<MachineNodeArrayMode *>(m_machineNode);
-        auto numUpdates = m_client->numNodeUpdates(arrayMode->OPCUAArrayName->get());
+        auto numUpdates = m_client->numNodeUpdates(arrayMode->opcuaArrayName.get());
         for (size_t update = 0; update < numUpdates; update++)
         {
-            auto v = m_client->getArray<UA_Double>(arrayMode->OPCUAArrayName->get());
+            auto v = m_client->getArray<UA_Double>(arrayMode->opcuaArrayName.get());
             for (size_t i = 0; i < 3; i++)
             {
-                move(i, v.data[i] + (*m_machineNode->Offsets)[i]);
+                move(i, v.data[i] + m_machineNode->offsets[i]);
             }
             if(haveTool)
                 m_tool->value->update(v);
@@ -167,9 +167,9 @@ bool Machine::updateMachine(bool haveTool)
         }
 
         //machine axis updates
-        for (size_t i = 0; i < singleMode->OPCUANames->size(); i++)
+        for (size_t i = 0; i < singleMode->opcuaNames.size(); i++)
         {
-            move(i, m_axisValueHandles[i]->value() + (*m_machineNode->Offsets)[i]);
+            move(i, m_axisValueHandles[i]->value() + m_machineNode->offsets[i]);
         }
     }
     return true;

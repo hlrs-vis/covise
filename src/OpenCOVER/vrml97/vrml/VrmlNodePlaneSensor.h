@@ -32,23 +32,14 @@ class VRMLEXPORT VrmlNodePlaneSensor : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of PlaneSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePlaneSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodePlaneSensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodePlaneSensor();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodePlaneSensor *toPlaneSensor() const;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     void activate(double timeStamp, bool isActive, double *p);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void accumulateTransform(VrmlNode *);
     virtual VrmlNode *getParentTransform();

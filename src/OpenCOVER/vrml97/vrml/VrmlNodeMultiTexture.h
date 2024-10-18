@@ -37,13 +37,11 @@ class VRMLEXPORT VrmlNodeMultiTexture : public VrmlNodeTexture
 
 public:
     // Define the fields of MultiTexture nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMultiTexture *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMultiTexture(VrmlScene *);
     virtual ~VrmlNodeMultiTexture();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual void cloneChildren(VrmlNamespace *);
 
@@ -53,14 +51,10 @@ public:
 
     virtual bool isModified() const;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeMultiTexture *toMultiTexture() const;
 

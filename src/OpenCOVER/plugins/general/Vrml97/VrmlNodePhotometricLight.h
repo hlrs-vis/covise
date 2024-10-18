@@ -55,22 +55,15 @@ class VRML97COVEREXPORT VrmlNodePhotometricLight : public VrmlNodeChild
 
 public:
     // Define the fields of PhotometricLight nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePhotometricLight *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodePhotometricLight(VrmlScene *scene = 0);
     VrmlNodePhotometricLight(const VrmlNodePhotometricLight &n);
     virtual ~VrmlNodePhotometricLight();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodePhotometricLight *toPhotometricLight() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 
@@ -108,7 +101,8 @@ private:
     Viewer::Object d_viewerObject;
     osg::ref_ptr<osg::MatrixTransform> lightNodeInSceneGraph;
     static const int MAX_LIGHTS = 4;  // must always be 4 or less!
-
+    void handleMLBFile();
+    void handleIESFile();
 
 };
 #endif

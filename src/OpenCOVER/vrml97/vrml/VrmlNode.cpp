@@ -959,14 +959,13 @@ const VrmlField *VrmlNode::getEventOut(const char *fieldName) const
 //
 #include "VrmlNodeChild.h"
 
-// Define the fields of all built in child nodes
-VrmlNodeType *VrmlNodeChild::defineType(VrmlNodeType *t)
+void VrmlNodeChild::initFields(VrmlNodeChild *node, VrmlNodeType *t)
 {
-    return VrmlNode::defineType(t);
+    //space for future implementations
 }
 
-VrmlNodeChild::VrmlNodeChild(VrmlScene *scene)
-    : VrmlNode(scene)
+VrmlNodeChild::VrmlNodeChild(VrmlScene *scene, const std::string& name)
+    : VrmlNodeTemplate(scene, name)
 {
 }
 
@@ -975,26 +974,4 @@ VrmlNodeChild *VrmlNodeChild::toChild() const
     return (VrmlNodeChild *)this; // discards const...
 }
 
-//
-//  VrmlNodeTexture- should move to its own file
-//
-#include "VrmlNodeTexture.h"
-
-VrmlNodeType *VrmlNodeTexture::defineType(VrmlNodeType *t)
-{
-    return VrmlNode::defineType(t);
-}
-
-VrmlNodeTexture::VrmlNodeTexture(VrmlScene *s)
-    : VrmlNode(s)
-{
-    d_blendModeOverwrite = -1;
-}
-
-VrmlNodeTexture::~VrmlNodeTexture() {}
-
-VrmlNodeTexture *VrmlNodeTexture::toTexture() const
-{
-    return (VrmlNodeTexture *)this;
-}
 #endif

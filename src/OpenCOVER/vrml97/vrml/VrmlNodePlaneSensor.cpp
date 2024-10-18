@@ -30,39 +30,27 @@ static VrmlNode *creator(VrmlScene *scene)
     return new VrmlNodePlaneSensor(scene);
 }
 
-// Define the built in VrmlNodeType:: "PlaneSensor" fields
-
-VrmlNodeType *VrmlNodePlaneSensor::defineType(VrmlNodeType *t)
+void VrmlNodePlaneSensor::initFields(VrmlNodePlaneSensor *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    initFieldsHelper(node, t,
+                     exposedField("autoOffset", node->d_autoOffset),
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("maxPosition", node->d_maxPosition),
+                     exposedField("minPosition", node->d_minPosition),
+                     exposedField("offset", node->d_offset));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("PlaneSensor", creator);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
+        t->addEventOut("translation_changed", VrmlField::SFVEC3F);
+        t->addEventOut("trackPoint_changed", VrmlField::SFVEC3F);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("autoOffset", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("maxPosition", VrmlField::SFVEC2F);
-    t->addExposedField("minPosition", VrmlField::SFVEC2F);
-    t->addExposedField("offset", VrmlField::SFVEC3F);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-    t->addEventOut("translation_changed", VrmlField::SFVEC3F);
-    t->addEventOut("trackPoint_changed", VrmlField::SFVEC3F);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodePlaneSensor::nodeType() const
-{
-    return defineType(0);
-}
+const char *VrmlNodePlaneSensor::name() { return "PlaneSensor"; }
 
 VrmlNodePlaneSensor::VrmlNodePlaneSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_autoOffset(true)
     , d_enabled(true)
     , d_maxPosition(-1.0, -1.0)
@@ -72,37 +60,9 @@ VrmlNodePlaneSensor::VrmlNodePlaneSensor(VrmlScene *scene)
     setModified();
 }
 
-// need copy constructor for d_parentTransform ...
-
-VrmlNodePlaneSensor::~VrmlNodePlaneSensor()
-{
-}
-
-VrmlNode *VrmlNodePlaneSensor::cloneMe() const
-{
-    return new VrmlNodePlaneSensor(*this);
-}
-
 VrmlNodePlaneSensor *VrmlNodePlaneSensor::toPlaneSensor() const
 {
     return (VrmlNodePlaneSensor *)this;
-}
-
-std::ostream &VrmlNodePlaneSensor::printFields(std::ostream &os, int indent)
-{
-    if (!d_autoOffset.get())
-        PRINT_FIELD(autoOffset);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!FPEQUAL(d_maxPosition.x(), -1.0) || !FPEQUAL(d_maxPosition.y(), -1.0))
-        PRINT_FIELD(maxPosition);
-    if (!FPEQUAL(d_minPosition.x(), -1.0) || !FPEQUAL(d_minPosition.y(), -1.0))
-        PRINT_FIELD(minPosition);
-
-    if (!FPZERO(d_offset.x()) || !FPZERO(d_offset.y()) || !FPZERO(d_offset.z()))
-        PRINT_FIELD(offset);
-
-    return os;
 }
 
 // Cache a pointer to (one of the) parent transforms for converting
@@ -208,39 +168,4 @@ void VrmlNodePlaneSensor::activate(double timeStamp,
         d_translation.set(t[0], t[1], t[2]);
         eventOut(timeStamp, "translation_changed", d_translation);
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePlaneSensor::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(autoOffset, SFBool)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(maxPosition, SFVec2f)
-    else if
-        TRY_FIELD(minPosition, SFVec2f)
-    else if
-        TRY_FIELD(offset, SFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodePlaneSensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "autoOffset") == 0)
-        return &d_autoOffset;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "maxPosition") == 0)
-        return &d_maxPosition;
-    else if (strcmp(fieldName, "minPosition") == 0)
-        return &d_minPosition;
-    else if (strcmp(fieldName, "offset") == 0)
-        return &d_offset;
-
-    return VrmlNodeChild::getField(fieldName);
 }

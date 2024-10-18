@@ -27,52 +27,21 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeTriangleStripSet(s); }
-
-// Define the built in VrmlNodeType:: "TriangleStripSet" fields
-
-VrmlNodeType *VrmlNodeTriangleStripSet::defineType(VrmlNodeType *t)
+void VrmlNodeTriangleStripSet::initFields(VrmlNodeTriangleStripSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodePolygonsCommon::initFields(node, t); // Parent class
+    initFieldsHelper(node, t, exposedField("stripCount", node->d_stripCount));
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TriangleStripSet", creator);
-    }
-
-    VrmlNodePolygonsCommon::defineType(t); // Parent class
-
-    t->addExposedField("stripCount", VrmlField::MFINT32);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTriangleStripSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeTriangleStripSet::name()
+{
+    return "TriangleStripSet";
+}
 
 VrmlNodeTriangleStripSet::VrmlNodeTriangleStripSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene)
+    : VrmlNodePolygonsCommon(scene, name())
 {
-}
-
-VrmlNodeTriangleStripSet::~VrmlNodeTriangleStripSet()
-{
-}
-
-VrmlNode *VrmlNodeTriangleStripSet::cloneMe() const
-{
-    return new VrmlNodeTriangleStripSet(*this);
-}
-
-std::ostream &VrmlNodeTriangleStripSet::printFields(std::ostream &os, int indent)
-{
-    if (!d_stripCount.get())
-        PRINT_FIELD(stripCount);
-
-    VrmlNodePolygonsCommon::printFields(os, indent);
-
-    return os;
 }
 
 Viewer::Object VrmlNodeTriangleStripSet::insertGeometry(Viewer *viewer)
@@ -149,24 +118,6 @@ Viewer::Object VrmlNodeTriangleStripSet::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTriangleStripSet::setField(const char *fieldName,
-                                        const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(stripCount, MFInt)
-    else
-        VrmlNodePolygonsCommon::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTriangleStripSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "stripCount") == 0)
-        return &d_stripCount;
-    return VrmlNodePolygonsCommon::getField(fieldName);
 }
 
 VrmlNodeTriangleStripSet *VrmlNodeTriangleStripSet::toTriangleStripSet() const

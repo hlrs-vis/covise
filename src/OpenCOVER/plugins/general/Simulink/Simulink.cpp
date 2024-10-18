@@ -16,60 +16,39 @@
 
 SimulinkPlugin *SimulinkPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeSimulink(scene);
-}
-
 // Define the built in VrmlNodeType:: "Simulink" fields
 
-VrmlNodeType *VrmlNodeSimulink::defineType(VrmlNodeType *t)
+void VrmlNodeSimulink::initFields(VrmlNodeSimulink *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("enabled", node->d_enabled));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Simulink", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("ints_changed", VrmlField::MFINT32);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
-    t->addEventIn("intsIn", VrmlField::MFINT32);
-    t->addEventIn("floatsIn", VrmlField::MFFLOAT);
-
-    return t;
+        t->addEventOut("ints_changed", VrmlField::MFINT32);
+        t->addEventOut("floats_changed", VrmlField::MFFLOAT);
+        t->addEventIn("intsIn", VrmlField::MFINT32);
+        t->addEventIn("floatsIn", VrmlField::MFFLOAT);
+    }                     
 }
 
-VrmlNodeType *VrmlNodeSimulink::nodeType() const
+const char *VrmlNodeSimulink::name()
 {
-    return defineType(0);
+    return "Simulink";
 }
 
 VrmlNodeSimulink::VrmlNodeSimulink(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
 {
     setModified();
 }
 
 VrmlNodeSimulink::VrmlNodeSimulink(const VrmlNodeSimulink &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
 {
     setModified();
-}
-
-VrmlNodeSimulink::~VrmlNodeSimulink()
-{
-}
-
-VrmlNode *VrmlNodeSimulink::cloneMe() const
-{
-    return new VrmlNodeSimulink(*this);
 }
 
 VrmlNodeSimulink *VrmlNodeSimulink::toSimulink() const
@@ -77,30 +56,9 @@ VrmlNodeSimulink *VrmlNodeSimulink::toSimulink() const
     return (VrmlNodeSimulink *)this;
 }
 
-ostream &VrmlNodeSimulink::printFields(ostream &os, int indent)
+const VrmlField *VrmlNodeSimulink::getField(const char *fieldName) const 
 {
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeSimulink::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeSimulink::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "floats_changed") == 0)
+    if (strcmp(fieldName, "floats_changed") == 0)
         return &d_floats;
     else if (strcmp(fieldName, "intsIn") == 0)
         return &d_intsIn;
@@ -108,9 +66,7 @@ const VrmlField *VrmlNodeSimulink::getField(const char *fieldName)
         return &d_floatsIn;
     else if (strcmp(fieldName, "ints_changed") == 0)
         return &d_ints;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+    return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeSimulink::eventIn(double timeStamp,
@@ -218,7 +174,7 @@ SimulinkPlugin::~SimulinkPlugin()
 
 bool SimulinkPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeSimulink::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSimulink>());
     bool ret = false;
     if (coVRMSController::instance()->isMaster())
     {

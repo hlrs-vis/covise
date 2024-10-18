@@ -57,21 +57,15 @@ class PLUGINEXPORT VrmlNodeThyssen : public VrmlNodeChild
 {
 public:
     // Define the fields of Thyssen nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeThyssen *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeThyssen(VrmlScene *scene = 0);
     VrmlNodeThyssen(const VrmlNodeThyssen &n);
-    virtual ~VrmlNodeThyssen();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeThyssen *toThyssen() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
+    ostream &printFields(ostream &os, int indent) override;
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

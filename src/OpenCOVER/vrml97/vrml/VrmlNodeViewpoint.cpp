@@ -23,48 +23,37 @@ using std::cerr;
 using std::endl;
 using namespace vrml;
 
-//  Viewpoint factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeViewpoint::initFields(VrmlNodeViewpoint *node, VrmlNodeType *t)
 {
-    return new VrmlNodeViewpoint(scene);
-}
-
-// Define the built in VrmlNodeType:: "Viewpoint" fields
-
-VrmlNodeType *VrmlNodeViewpoint::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("fieldOfView", node->d_fieldOfView),
+                     exposedField("jump", node->d_jump),
+                     exposedField("orientation", node->d_orientation, [node](auto fieldValue){
+                            node->d_lastOrientation = *fieldValue;
+                     }),
+                     exposedField("centerOfRotation", node->d_centerOfRotation),
+                     exposedField("position", node->d_position, [node](auto fieldValue){
+                            node->d_lastPosition = *fieldValue;
+                     }),
+                     exposedField("type", node->d_type),
+                     field("description", node->d_description));
+    
+    if (t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Viewpoint", creator);
+        t->addEventIn("set_bind", VrmlField::SFBOOL);
+        t->addEventIn("set_bindLast", VrmlField::SFBOOL);
+        t->addEventOut("bindTime", VrmlField::SFTIME);
+        t->addEventOut("isBound", VrmlField::SFBOOL);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_bind", VrmlField::SFBOOL);
-    t->addEventIn("set_bindLast", VrmlField::SFBOOL);
-    t->addExposedField("fieldOfView", VrmlField::SFFLOAT);
-    t->addExposedField("jump", VrmlField::SFBOOL);
-    t->addExposedField("orientation", VrmlField::SFROTATION);
-    t->addExposedField("centerOfRotation", VrmlField::SFVEC3F);
-    t->addExposedField("position", VrmlField::SFVEC3F);
-    t->addExposedField("type", VrmlField::SFSTRING);
-    t->addField("description", VrmlField::SFSTRING);
-    t->addEventOut("bindTime", VrmlField::SFTIME);
-    t->addEventOut("isBound", VrmlField::SFBOOL);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeViewpoint::nodeType() const { return defineType(0); }
+const char *VrmlNodeViewpoint::name() { return "Viewpoint"; }
 
 static const float DEFAULT_FIELD_OF_VIEW = 0.785398f;
 
 VrmlNodeViewpoint::VrmlNodeViewpoint(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , lastBind(true)
     , d_fieldOfView(DEFAULT_FIELD_OF_VIEW)
     , d_jump(true)
@@ -92,11 +81,6 @@ VrmlNodeViewpoint::~VrmlNodeViewpoint()
         d_scene->removeViewpoint(this);
 }
 
-VrmlNode *VrmlNodeViewpoint::cloneMe() const
-{
-    return new VrmlNodeViewpoint(*this);
-}
-
 VrmlNodeViewpoint *VrmlNodeViewpoint::toViewpoint() const
 {
     return (VrmlNodeViewpoint *)this;
@@ -106,24 +90,6 @@ void VrmlNodeViewpoint::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addViewpoint(this);
-}
-
-std::ostream &VrmlNodeViewpoint::printFields(std::ostream &os, int indent)
-{
-    if (!FPEQUAL(d_fieldOfView.get(), DEFAULT_FIELD_OF_VIEW))
-        PRINT_FIELD(fieldOfView);
-    if (!d_jump.get())
-        PRINT_FIELD(jump);
-    if (!FPZERO(d_orientation.x()) || !FPZERO(d_orientation.y()) || !FPEQUAL(d_orientation.z(), 1.0) || !FPZERO(d_orientation.r()))
-        PRINT_FIELD(orientation);
-    if (!FPZERO(d_position.x()) || !FPZERO(d_position.y()) || !FPEQUAL(d_position.z(), 10.0))
-        PRINT_FIELD(position);
-    if (d_description.get())
-        PRINT_FIELD(description);
-    if (d_type.get())
-        PRINT_FIELD(type);
-
-    return os;
 }
 
 // Cache a pointer to (one of the) parent transforms for proper
@@ -307,58 +273,4 @@ void VrmlNodeViewpoint::getLastPosition(float *pos, float *ori)
         ori[2] = d_lastOrientation.z();
         ori[3] = d_lastOrientation.r();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeViewpoint::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "orientation") == 0)
-    {
-        if (fieldValue.toSFRotation())
-            d_lastOrientation = (VrmlSFRotation &)fieldValue;
-    }
-    else if (strcmp(fieldName, "position") == 0)
-    {
-        if (fieldValue.toSFVec3f())
-            d_lastPosition = (VrmlSFVec3f &)fieldValue;
-    }
-    if
-        TRY_FIELD(fieldOfView, SFFloat)
-    else if
-        TRY_FIELD(jump, SFBool)
-    else if
-        TRY_FIELD(orientation, SFRotation)
-    else if
-        TRY_FIELD(position, SFVec3f)
-    else if
-        TRY_FIELD(centerOfRotation, SFVec3f)
-    else if
-        TRY_FIELD(type, SFString)
-    else if
-        TRY_FIELD(description, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeViewpoint::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "fieldOfView") == 0)
-        return &d_fieldOfView;
-    else if (strcmp(fieldName, "jump") == 0)
-        return &d_jump;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    else if (strcmp(fieldName, "centerOfRotation") == 0)
-        return &d_centerOfRotation;
-
-    else if (strcmp(fieldName, "type") == 0)
-        return &d_type;
-    else if (strcmp(fieldName, "description") == 0)
-        return &d_description;
-
-    return VrmlNodeChild::getField(fieldName);
 }

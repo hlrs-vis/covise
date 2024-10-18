@@ -61,41 +61,27 @@ using namespace vehicleUtil;
 
 SteeringWheelPlugin *SteeringWheelPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeSteeringWheel::initFields(VrmlNodeSteeringWheel *node, VrmlNodeType *t)
 {
-    return new VrmlNodeSteeringWheel(scene);
-}
-
-// Define the built in VrmlNodeType:: "SteeringWheel" fields
-
-VrmlNodeType *VrmlNodeSteeringWheel::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("joystickNumber", node->d_joystickNumber));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("SteeringWheel", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_time", VrmlField::SFTIME);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("joystickNumber", VrmlField::SFINT32);
-    t->addEventOut("buttons_changed", VrmlField::MFINT32);
-    t->addEventOut("axes_changed", VrmlField::MFFLOAT);
-
-    return t;
+        t->addEventIn("set_time", VrmlField::SFTIME);
+        t->addEventOut("buttons_changed", VrmlField::MFINT32);
+        t->addEventOut("axes_changed", VrmlField::MFFLOAT);
+    }                     
 }
 
-VrmlNodeType *VrmlNodeSteeringWheel::nodeType() const
+const char *VrmlNodeSteeringWheel::name()
 {
-    return defineType(0);
+    return "SteeringWheel";
 }
 
 VrmlNodeSteeringWheel::VrmlNodeSteeringWheel(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
     , d_joystickNumber(-1)
 {
@@ -103,7 +89,7 @@ VrmlNodeSteeringWheel::VrmlNodeSteeringWheel(VrmlScene *scene)
 }
 
 VrmlNodeSteeringWheel::VrmlNodeSteeringWheel(const VrmlNodeSteeringWheel &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
     , d_joystickNumber(n.d_joystickNumber)
 {
@@ -111,56 +97,21 @@ VrmlNodeSteeringWheel::VrmlNodeSteeringWheel(const VrmlNodeSteeringWheel &n)
     setModified();
 }
 
-VrmlNodeSteeringWheel::~VrmlNodeSteeringWheel()
-{
-}
-
-VrmlNode *VrmlNodeSteeringWheel::cloneMe() const
-{
-    return new VrmlNodeSteeringWheel(*this);
-}
-
 VrmlNodeSteeringWheel *VrmlNodeSteeringWheel::toSteeringWheel() const
 {
     return (VrmlNodeSteeringWheel *)this;
 }
 
-ostream &VrmlNodeSteeringWheel::printFields(ostream &os, int indent)
+
+
+const VrmlField *VrmlNodeSteeringWheel::getField(const char *fieldName) const 
 {
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_joystickNumber.get())
-        PRINT_FIELD(joystickNumber);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeSteeringWheel::setField(const char *fieldName,
-                                     const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(joystickNumber, SFInt)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeSteeringWheel::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "joystickNumber") == 0)
-        return &d_joystickNumber;
-    else if (strcmp(fieldName, "axes_changed") == 0)
+    if (strcmp(fieldName, "axes_changed") == 0)
         return &d_axes;
     else if (strcmp(fieldName, "buttons_changed") == 0)
         return &d_buttons;
     else
-        cout << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+        return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeSteeringWheel::eventIn(double timeStamp,
@@ -1493,10 +1444,10 @@ bool SteeringWheelPlugin::sendValues()
 int SteeringWheelPlugin::initUI()
 {
 
-    VrmlNamespace::addBuiltIn(VrmlNodeSteeringWheel::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeVehicle::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeRemoteVehicle::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodePorscheVFP::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSteeringWheel>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeVehicle>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeRemoteVehicle>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodePorscheVFP>());
 
 #ifdef WIN32
 

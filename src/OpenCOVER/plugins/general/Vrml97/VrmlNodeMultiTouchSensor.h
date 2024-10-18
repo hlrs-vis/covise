@@ -34,23 +34,16 @@ class VRML97COVEREXPORT VrmlNodeMultiTouchSensor : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of MultiTouchSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMultiTouchSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMultiTouchSensor(VrmlScene *scene = 0);
     VrmlNodeMultiTouchSensor(const VrmlNodeMultiTouchSensor &n);
     virtual ~VrmlNodeMultiTouchSensor();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeMultiTouchSensor *toMultiTouchSensor() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
@@ -86,7 +79,7 @@ private:
     VrmlSFRotation d_markerRotation;
     VrmlSFVec3f d_invisiblePosition;
     VrmlSFString d_markerName;
-
+    VrmlSFBool d_headingOnly;
     VrmlSFBool d_visible;
 
     VrmlSFVec3f d_translation;

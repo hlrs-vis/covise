@@ -37,20 +37,16 @@ class VRMLEXPORT VrmlNodeBackground : public VrmlNodeChild
 
 public:
     // Define the fields of Background nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeBackground *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeBackground(VrmlScene *);
     virtual ~VrmlNodeBackground();
 
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeBackground *toBackground() const;
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     // render backgrounds once per scene, not via the render() method
     void renderBindable(Viewer *);
@@ -59,8 +55,6 @@ public:
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     int nGroundAngles()
     {

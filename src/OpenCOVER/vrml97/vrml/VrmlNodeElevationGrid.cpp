@@ -25,48 +25,32 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeElevationGrid::initFields(VrmlNodeElevationGrid *node, VrmlNodeType *t)
 {
-    return new VrmlNodeElevationGrid(s);
+    VrmlNodeGeometry::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                    exposedField("color", node->d_color),
+                    exposedField("normal", node->d_normal),
+                    exposedField("texCoord", node->d_texCoord),
+                    field("ccw", node->d_ccw),
+                    field("colorPerVertex", node->d_colorPerVertex),
+                    field("creaseAngle", node->d_creaseAngle),
+                    field("height", node->d_height),
+                    field("normalPerVertex", node->d_normalPerVertex),
+                    field("solid", node->d_solid),
+                    field("xDimension", node->d_xDimension),
+                    field("xSpacing", node->d_xSpacing),
+                    field("zDimension", node->d_zDimension),
+                    field("zSpacing", node->d_zSpacing), 
+                    eventInCallBack("set_height", node->d_height));
+
 }
 
-// Define the built in VrmlNodeType:: "ElevationGrid" fields
+const char *VrmlNodeElevationGrid::name() { return "ElevationGrid"; }
 
-VrmlNodeType *VrmlNodeElevationGrid::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("ElevationGrid", creator);
-    }
-
-    VrmlNodeGeometry::defineType(t); // Parent class
-
-    t->addEventIn("set_height", VrmlField::MFFLOAT);
-    t->addExposedField("color", VrmlField::SFNODE);
-    t->addExposedField("normal", VrmlField::SFNODE);
-    t->addExposedField("texCoord", VrmlField::SFNODE);
-    t->addField("ccw", VrmlField::SFBOOL);
-    t->addField("colorPerVertex", VrmlField::SFBOOL);
-    t->addField("creaseAngle", VrmlField::SFFLOAT);
-    t->addField("height", VrmlField::MFFLOAT);
-    t->addField("normalPerVertex", VrmlField::SFBOOL);
-    t->addField("solid", VrmlField::SFBOOL);
-    t->addField("xDimension", VrmlField::SFINT32);
-    t->addField("xSpacing", VrmlField::SFFLOAT);
-    t->addField("zDimension", VrmlField::SFINT32);
-    t->addField("zSpacing", VrmlField::SFFLOAT);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeElevationGrid::nodeType() const { return defineType(0); }
 
 VrmlNodeElevationGrid::VrmlNodeElevationGrid(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+    : VrmlNodeGeometry(scene, name())
     , d_ccw(true)
     , d_colorPerVertex(true)
     , d_normalPerVertex(true)
@@ -74,15 +58,6 @@ VrmlNodeElevationGrid::VrmlNodeElevationGrid(VrmlScene *scene)
     , d_xSpacing(1.0)
     , d_zSpacing(1.0)
 {
-}
-
-VrmlNodeElevationGrid::~VrmlNodeElevationGrid()
-{
-}
-
-VrmlNode *VrmlNodeElevationGrid::cloneMe() const
-{
-    return new VrmlNodeElevationGrid(*this);
 }
 
 void VrmlNodeElevationGrid::cloneChildren(VrmlNamespace *ns)
@@ -144,41 +119,6 @@ void VrmlNodeElevationGrid::copyRoutes(VrmlNamespace *ns)
     if (d_texCoord.get())
         d_texCoord.get()->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeElevationGrid::printFields(std::ostream &os, int indent)
-{
-    if (d_color.get())
-        PRINT_FIELD(color);
-    if (d_normal.get())
-        PRINT_FIELD(normal);
-    if (d_texCoord.get())
-        PRINT_FIELD(texCoord);
-
-    if (!d_ccw.get())
-        PRINT_FIELD(ccw);
-    if (!d_colorPerVertex.get())
-        PRINT_FIELD(colorPerVertex);
-    if (!d_normalPerVertex.get())
-        PRINT_FIELD(normalPerVertex);
-    if (!d_solid.get())
-        PRINT_FIELD(solid);
-
-    if (d_creaseAngle.get() != 0.0)
-        PRINT_FIELD(creaseAngle);
-    if (d_height.size() > 0)
-        PRINT_FIELD(height);
-
-    if (d_xDimension.get() != 0)
-        PRINT_FIELD(xDimension);
-    if (d_xSpacing.get() != 0)
-        PRINT_FIELD(xSpacing);
-    if (d_zDimension.get() != 0)
-        PRINT_FIELD(zDimension);
-    if (d_zSpacing.get() != 0)
-        PRINT_FIELD(zSpacing);
-
-    return os;
 }
 
 VrmlNodeColor *VrmlNodeElevationGrid::color()
@@ -253,73 +193,6 @@ Viewer::Object VrmlNodeElevationGrid::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeElevationGrid::setField(const char *fieldName,
-                                     const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD2(color, Color, ColorRGBA)
-    else if
-        TRY_SFNODE_FIELD(normal, Normal)
-    else if
-        TRY_SFNODE_FIELD(texCoord, TextureCoordinate)
-    else if
-        TRY_FIELD(ccw, SFBool)
-    else if
-        TRY_FIELD(colorPerVertex, SFBool)
-    else if
-        TRY_FIELD(creaseAngle, SFFloat)
-    else if
-        TRY_FIELD(height, MFFloat)
-    else if
-        TRY_FIELD(normalPerVertex, SFBool)
-    else if
-        TRY_FIELD(solid, SFBool)
-    else if
-        TRY_FIELD(xDimension, SFInt)
-    else if
-        TRY_FIELD(xSpacing, SFFloat)
-    else if
-        TRY_FIELD(zDimension, SFInt)
-    else if
-        TRY_FIELD(zSpacing, SFFloat)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeElevationGrid::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "normal") == 0)
-        return &d_normal;
-    else if (strcmp(fieldName, "texCoord") == 0)
-        return &d_texCoord;
-    else if (strcmp(fieldName, "ccw") == 0)
-        return &d_ccw;
-    else if (strcmp(fieldName, "colorPerVertex") == 0)
-        return &d_colorPerVertex;
-    else if (strcmp(fieldName, "creaseAngle") == 0)
-        return &d_creaseAngle;
-    else if (strcmp(fieldName, "height") == 0)
-        return &d_height;
-    else if (strcmp(fieldName, "normalPerVertex") == 0)
-        return &d_normalPerVertex;
-    else if (strcmp(fieldName, "solid") == 0)
-        return &d_solid;
-    else if (strcmp(fieldName, "xDimension") == 0)
-        return &d_xDimension;
-    else if (strcmp(fieldName, "xSpacing") == 0)
-        return &d_xSpacing;
-    else if (strcmp(fieldName, "zDimension") == 0)
-        return &d_zDimension;
-    else if (strcmp(fieldName, "zSpacing") == 0)
-        return &d_zSpacing;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }
 
 // LarryD Mar 09/99

@@ -19,59 +19,24 @@
 
 using namespace vrml;
 
-// PositionInt factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodePositionInt::initFields(VrmlNodePositionInt *node, VrmlNodeType *t)
 {
-    return new VrmlNodePositionInt(scene);
-}
-
-// Define the built in VrmlNodeType:: "PositionInt" fields
-
-VrmlNodeType *VrmlNodePositionInt::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("PositionInterpolator", creator);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::SFVEC3F);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFVEC3F);
-    t->addEventOut("value_changed", VrmlField::SFVEC3F);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodePositionInt::nodeType() const { return defineType(0); }
+const char *VrmlNodePositionInt::name() { return "PositionInterpolator"; }
 
 VrmlNodePositionInt::VrmlNodePositionInt(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodePositionInt::~VrmlNodePositionInt()
-{
-}
-
-VrmlNode *VrmlNodePositionInt::cloneMe() const
-{
-    return new VrmlNodePositionInt(*this);
-}
-
-std::ostream &VrmlNodePositionInt::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodePositionInt::eventIn(double timeStamp,
@@ -134,29 +99,6 @@ void VrmlNodePositionInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePositionInt::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodePositionInt::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 VrmlNodePositionInt *VrmlNodePositionInt::toPositionInt() const

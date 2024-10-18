@@ -55,9 +55,9 @@ ToolChanger::~ToolChanger() = default;
 
 void ToolChanger::init()
 {
-    if(!m_toolChangerNode->allInitialized())
+    if(!m_toolChangerNode->allFieldsInitialized())
         return;
-    osg::ref_ptr model = osgDB::readNodeFile(m_toolChangerNode->arm->get()); 
+    osg::ref_ptr model = osgDB::readNodeFile(m_toolChangerNode->arm.get()); 
 
     m_trans = new osg::MatrixTransform;
     m_trans->setName("ToolChanger");
@@ -88,11 +88,11 @@ void ToolChanger::init()
         m_distanceToSeletedArm = m_selectedArm->getDistance();
     });
 
-    auto changer = osgDB::readNodeFile(m_toolChangerNode->changer->get());
+    auto changer = osgDB::readNodeFile(m_toolChangerNode->changer.get());
     m_changer = std::make_unique<Changer>(changer, m_trans); 
     m_changeDuration = m_changer->getAnimationDuration();
 
-    auto coverNode = osgDB::readNodeFile(m_toolChangerNode->cover->get());
+    auto coverNode = osgDB::readNodeFile(m_toolChangerNode->cover.get());
     m_trans->addChild(coverNode); 
     cover->getObjectsRoot()->addChild(m_trans);
 
@@ -119,7 +119,7 @@ void ToolChanger::init()
     {
         m_arms.push_back(std::make_unique<Arm>(model, m_trans, i));
     }
-    m_toolHead = toOsg(m_toolChangerNode->toolHead->get());
+    m_toolHead = toOsg(m_toolChangerNode->toolHead.get());
 
     m_initialized = true;
 }
@@ -223,9 +223,7 @@ void ToolChanger::changeTools(){
                 m_changer->giveTool(std::move(m_toolHeadTool), Changer::End::back);
             }
 
-            
             m_animationState = AnimationState::Swapping;
-
         }
     }
     break;

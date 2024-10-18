@@ -18,26 +18,23 @@
 
 using namespace vrml;
 
-// Define the built in VrmlNodeType:: "Indexed*Set" fields
-
-VrmlNodeType *VrmlNodeIndexedSet::defineType(VrmlNodeType *t)
+void VrmlNodeIndexedSet::initFields(VrmlNodeIndexedSet *node, VrmlNodeType *t)
 {
-    VrmlNodeColoredSet::defineType(t); // Parent class
+    VrmlNodeColoredSet::initFields(node, t); // Parent class
 
-    t->addEventIn("set_colorIndex", VrmlField::MFINT32);
-    t->addEventIn("set_coordIndex", VrmlField::MFINT32);
-    t->addField("colorIndex", VrmlField::MFINT32);
-    t->addField("coordIndex", VrmlField::MFINT32);
+    initFieldsHelper(node, t,
+                     field("colorIndex", node->d_colorIndex),
+                     field("coordIndex", node->d_coordIndex));
 
-    return t;
+    if (t)
+    {
+        t->addEventIn("set_colorIndex", VrmlField::MFINT32);
+        t->addEventIn("set_coordIndex", VrmlField::MFINT32);
+    }
 }
 
-VrmlNodeIndexedSet::VrmlNodeIndexedSet(VrmlScene *scene)
-    : VrmlNodeColoredSet(scene)
-{
-}
-
-VrmlNodeIndexedSet::~VrmlNodeIndexedSet()
+VrmlNodeIndexedSet::VrmlNodeIndexedSet(VrmlScene *scene, const std::string &name)
+    : VrmlNodeColoredSet(scene, name)
 {
 }
 
@@ -65,15 +62,6 @@ void VrmlNodeIndexedSet::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeIndexedSet::printFields(std::ostream &os, int indent)
-{
-    if (d_colorIndex.size() > 0)
-        PRINT_FIELD(colorIndex);
-    if (d_coordIndex.size() > 0)
-        PRINT_FIELD(coordIndex);
-    return os;
-}
-
 const VrmlMFInt &VrmlNodeIndexedSet::getCoordIndex() const
 {
     return d_coordIndex;
@@ -83,27 +71,4 @@ const VrmlMFInt &VrmlNodeIndexedSet::getCoordIndex() const
 const VrmlMFInt &VrmlNodeIndexedSet::getColorIndex() const
 {
     return d_colorIndex;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeIndexedSet::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(colorIndex, MFInt)
-    else if
-        TRY_FIELD(coordIndex, MFInt)
-    else
-        VrmlNodeColoredSet::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeIndexedSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "colorIndex") == 0)
-        return &d_colorIndex;
-    else if (strcmp(fieldName, "coordIndex") == 0)
-        return &d_coordIndex;
-
-    return VrmlNodeColoredSet::getField(fieldName);
 }

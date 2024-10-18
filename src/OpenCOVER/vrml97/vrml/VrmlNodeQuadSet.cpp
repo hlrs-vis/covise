@@ -27,40 +27,17 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeQuadSet(s); }
-
-// Define the built in VrmlNodeType:: "QuadSet" fields
-
-VrmlNodeType *VrmlNodeQuadSet::defineType(VrmlNodeType *t)
+void VrmlNodeQuadSet::initFields(VrmlNodeQuadSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("QuadSet", creator);
-    }
-
-    VrmlNodePolygonsCommon::defineType(t); // Parent class
-
-    return t;
+    VrmlNodePolygonsCommon::initFields(node, t); 
 }
 
-VrmlNodeType *VrmlNodeQuadSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeQuadSet::name() { return "QuadSet"; }
+
 
 VrmlNodeQuadSet::VrmlNodeQuadSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene)
+    : VrmlNodePolygonsCommon(scene, name())
 {
-}
-
-VrmlNodeQuadSet::~VrmlNodeQuadSet()
-{
-}
-
-VrmlNode *VrmlNodeQuadSet::cloneMe() const
-{
-    return new VrmlNodeQuadSet(*this);
 }
 
 Viewer::Object VrmlNodeQuadSet::insertGeometry(Viewer *viewer)

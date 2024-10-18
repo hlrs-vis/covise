@@ -31,27 +31,20 @@ class VRMLEXPORT VrmlNodeFog : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of Fog nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeFog *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeFog(VrmlScene *);
     virtual ~VrmlNodeFog();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeFog *toFog() const;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     float *color()
     {

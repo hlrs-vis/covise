@@ -33,27 +33,19 @@ public:
     bool lastBind;
 
     // Define the built in VrmlNodeType:: "NavigationInfo"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
-
+    static void initFields(VrmlNodeNavigationInfo *node, VrmlNodeType *t);
+    static const char *name();
     VrmlNodeNavigationInfo(VrmlScene *scene);
     virtual ~VrmlNodeNavigationInfo();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeNavigationInfo *toNavigationInfo() const;
 
     // Bindable nodes must notify the scene of their existence.
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     float *avatarSize()
     {
@@ -73,7 +65,7 @@ public:
     }
     float lastScale()
     {
-        return d_lastScale.get();
+        return d_scale.get();
     }
     bool headlightOn()
     {
@@ -100,7 +92,6 @@ private:
     VrmlMFFloat d_avatarSize;
     VrmlSFBool d_headlight;
     VrmlSFFloat d_scale;
-    VrmlSFFloat d_lastScale;
     VrmlSFFloat d_speed;
     VrmlSFFloat d_near;
     VrmlSFFloat d_far;

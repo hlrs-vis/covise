@@ -28,51 +28,24 @@ static VrmlNode *creator(VrmlScene *scene)
 }
 
 // Define the built in VrmlNodeType:: "OrientationInt" fields
-
-VrmlNodeType *VrmlNodeOrientationInt::defineType(VrmlNodeType *t)
+void VrmlNodeOrientationInt::initFields(VrmlNodeOrientationInt *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("OrientationInterpolator", creator);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::SFROTATION);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFROTATION);
-    t->addEventOut("value_changed", VrmlField::SFROTATION);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeOrientationInt::nodeType() const { return defineType(0); }
+const char *VrmlNodeOrientationInt::name() { return "OrientationInterpolator"; }
 
 VrmlNodeOrientationInt::VrmlNodeOrientationInt(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodeOrientationInt::~VrmlNodeOrientationInt()
-{
-}
-
-VrmlNode *VrmlNodeOrientationInt::cloneMe() const
-{
-    return new VrmlNodeOrientationInt(*this);
-}
-
-std::ostream &VrmlNodeOrientationInt::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodeOrientationInt::eventIn(double timeStamp,
@@ -195,29 +168,6 @@ void VrmlNodeOrientationInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeOrientationInt::setField(const char *fieldName,
-                                      const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFRotation)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeOrientationInt::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 VrmlNodeOrientationInt *VrmlNodeOrientationInt::toOrientationInt() const

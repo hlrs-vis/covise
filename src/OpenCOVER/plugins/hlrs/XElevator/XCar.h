@@ -70,24 +70,13 @@ class PLUGINEXPORT VrmlNodeXCar : public VrmlNodeChild,public coTUIListener
 public:
     enum CarState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
     // Define the fields of XCar nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeXCar *node, VrmlNodeType *type);
+    static const char *name();
 
     VrmlNodeXCar(VrmlScene *scene = 0);
     VrmlNodeXCar(const VrmlNodeXCar &n);
-    virtual ~VrmlNodeXCar();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeXCar *toXCar() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
-
-    void eventIn(double timeStamp, const char *eventName,
-        const VrmlField *fieldValue);
 
     virtual void render(Viewer *);
     void update();

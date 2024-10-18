@@ -20,49 +20,59 @@ SkyPlugin *SkyPlugin::plugin = NULL;
 #include <sys/time.h>
 #endif
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeSky::initFields(VrmlNodeSky *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeSky(scene);
-}
-
-// Define the built in VrmlNodeType:: "Sky" fields
-
-VrmlNodeType *VrmlNodeSky::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("enabled", node->d_enabled, [node](auto f){
+                        SkyPlugin::plugin->setShowSky(node->d_enabled.get());
+                     }),
+                     exposedField("timeLapse", node->d_timeLapse, [node](auto f){
+                        SkyPlugin::plugin->setTimeLapse(node->d_timeLapse.get());
+                     }),
+                     exposedField("currentTime", node->d_currentTime, [node](auto f){
+                        SkyPlugin::plugin->setCurrentTime(node->d_currentTime.get());
+                     }),
+                     exposedField("year", node->d_year, [node](auto f){
+                        SkyPlugin::plugin->setYear(node->d_year.get());
+                     }),
+                     exposedField("month", node->d_month, [node](auto f){
+                        SkyPlugin::plugin->setMonth(node->d_month.get());
+                     }),
+                     exposedField("day", node->d_day, [node](auto f){
+                        SkyPlugin::plugin->setDay(node->d_day.get());
+                     }),
+                     exposedField("hour", node->d_hour, [node](auto f){
+                        SkyPlugin::plugin->setHour(node->d_hour.get());
+                     }),
+                     exposedField("minute", node->d_minute, [node](auto f){
+                        SkyPlugin::plugin->setMinute(node->d_minute.get());
+                     }),
+                     exposedField("radius", node->d_radius, [node](auto f){
+                        SkyPlugin::plugin->setRadius(node->d_radius.get() * 1000);
+                     }),
+                     exposedField("latitude", node->d_latitude, [node](auto f){
+                        SkyPlugin::plugin->setLatitude(node->d_latitude.get());
+                     }),
+                     exposedField("longitude", node->d_longitude, [node](auto f){
+                        SkyPlugin::plugin->setLongitude(node->d_longitude.get());
+                     }),
+                     exposedField("altitude", node->d_altitude, [node](auto f){
+                        SkyPlugin::plugin->setAltitude(node->d_altitude.get());
+                     }));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Sky", creator);
+        t->addEventIn("set_time", VrmlField::SFTIME);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_time", VrmlField::SFTIME);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("timeLapse", VrmlField::SFBOOL);
-    t->addExposedField("currentTime", VrmlField::SFBOOL);
-    t->addExposedField("year", VrmlField::SFINT32);
-    t->addExposedField("month", VrmlField::SFINT32);
-    t->addExposedField("day", VrmlField::SFINT32);
-    t->addExposedField("hour", VrmlField::SFINT32);
-    t->addExposedField("minute", VrmlField::SFINT32);
-    t->addExposedField("radius", VrmlField::SFFLOAT);
-    t->addExposedField("latitude", VrmlField::SFFLOAT);
-    t->addExposedField("longitude", VrmlField::SFFLOAT);
-    t->addExposedField("altitude", VrmlField::SFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeSky::nodeType() const
+const char *VrmlNodeSky::name()
 {
-    return defineType(0);
+    return "Sky";
 }
 
 VrmlNodeSky::VrmlNodeSky(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
     , d_timeLapse(false)
     , d_currentTime(true)
@@ -83,7 +93,7 @@ VrmlNodeSky::VrmlNodeSky(VrmlScene *scene)
 }
 
 VrmlNodeSky::VrmlNodeSky(const VrmlNodeSky &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
     , d_timeLapse(n.d_timeLapse)
     , d_currentTime(n.d_currentTime)
@@ -101,143 +111,9 @@ VrmlNodeSky::VrmlNodeSky(const VrmlNodeSky &n)
     setModified();
 }
 
-VrmlNodeSky::~VrmlNodeSky()
-{
-}
-
-VrmlNode *VrmlNodeSky::cloneMe() const
-{
-    return new VrmlNodeSky(*this);
-}
-
 VrmlNodeSky *VrmlNodeSky::toSky() const
 {
     return (VrmlNodeSky *)this;
-}
-
-ostream &VrmlNodeSky::printFields(ostream &os, int indent)
-{
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeSky::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-
-    if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(timeLapse, SFBool)
-    else if
-        TRY_FIELD(currentTime, SFBool)
-    else if
-        TRY_FIELD(year, SFInt)
-    else if
-        TRY_FIELD(month, SFInt)
-    else if
-        TRY_FIELD(day, SFInt)
-    else if
-        TRY_FIELD(hour, SFInt)
-    else if
-        TRY_FIELD(minute, SFInt)
-    else if
-        TRY_FIELD(radius, SFFloat)
-    else if
-        TRY_FIELD(latitude, SFFloat)
-    else if
-        TRY_FIELD(longitude, SFFloat)
-    else if
-        TRY_FIELD(altitude, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp(fieldName, "set_time") == 0)
-    {
-    }
-    if (strcmp(fieldName, "enabled") == 0)
-    {
-        SkyPlugin::plugin->setShowSky(fieldValue.toSFBool()->get());
-    }
-    if (strcmp(fieldName, "timeLapse") == 0)
-    {
-        SkyPlugin::plugin->setTimeLapse(fieldValue.toSFBool()->get());
-    }
-    if (strcmp(fieldName, "currentTime") == 0)
-    {
-        SkyPlugin::plugin->setCurrentTime(fieldValue.toSFBool()->get());
-    }
-    if (strcmp(fieldName, "year") == 0)
-    {
-        SkyPlugin::plugin->setYear(fieldValue.toSFInt()->get());
-    }
-    if (strcmp(fieldName, "month") == 0)
-    {
-        SkyPlugin::plugin->setMonth(fieldValue.toSFInt()->get());
-    }
-    if (strcmp(fieldName, "day") == 0)
-    {
-        SkyPlugin::plugin->setDay(fieldValue.toSFInt()->get());
-    }
-    if (strcmp(fieldName, "hour") == 0)
-    {
-        SkyPlugin::plugin->setHour(fieldValue.toSFInt()->get());
-    }
-    if (strcmp(fieldName, "minute") == 0)
-    {
-        SkyPlugin::plugin->setMinute(fieldValue.toSFInt()->get());
-    }
-    if (strcmp(fieldName, "radius") == 0)
-    {
-        SkyPlugin::plugin->setRadius(fieldValue.toSFFloat()->get() * 1000);
-    }
-    if (strcmp(fieldName, "latitude") == 0)
-    {
-        SkyPlugin::plugin->setLatitude(fieldValue.toSFFloat()->get());
-    }
-    if (strcmp(fieldName, "longitude") == 0)
-    {
-        SkyPlugin::plugin->setLongitude(fieldValue.toSFFloat()->get());
-    }
-    if (strcmp(fieldName, "altitude") == 0)
-    {
-        SkyPlugin::plugin->setAltitude(fieldValue.toSFFloat()->get());
-    }
-}
-
-const VrmlField *VrmlNodeSky::getField(const char *fieldName)
-{
-
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    if (strcmp(fieldName, "timeLapse") == 0)
-        return &d_timeLapse;
-    if (strcmp(fieldName, "currentTime") == 0)
-        return &d_currentTime;
-    else if (strcmp(fieldName, "year") == 0)
-        return &d_year;
-    else if (strcmp(fieldName, "month") == 0)
-        return &d_month;
-    else if (strcmp(fieldName, "day") == 0)
-        return &d_day;
-    else if (strcmp(fieldName, "hour") == 0)
-        return &d_hour;
-    else if (strcmp(fieldName, "minute") == 0)
-        return &d_minute;
-    else if (strcmp(fieldName, "radius") == 0)
-        return &d_radius;
-    else if (strcmp(fieldName, "latitude") == 0)
-        return &d_latitude;
-    else if (strcmp(fieldName, "longitude") == 0)
-        return &d_longitude;
-    else if (strcmp(fieldName, "altitude") == 0)
-        return &d_altitude;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeSky::eventIn(double timeStamp,
@@ -552,7 +428,7 @@ SkyPlugin::~SkyPlugin()
 
 bool SkyPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeSky::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSky>());
     return true;
 }
 

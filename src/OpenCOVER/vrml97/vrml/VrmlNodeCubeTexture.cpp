@@ -23,11 +23,6 @@ using std::cerr;
 using std::endl;
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
-{
-    return new VrmlNodeCubeTexture(s);
-}
-
 const VrmlMFString &VrmlNodeCubeTexture::getUrl() const
 {
     return d_urlXP;
@@ -40,35 +35,45 @@ VrmlNodeCubeTexture *VrmlNodeCubeTexture::toCubeTexture() const
 
 // Define the built in VrmlNodeType:: "CubeTexture" fields
 
-VrmlNodeType *VrmlNodeCubeTexture::defineType(VrmlNodeType *t)
+void VrmlNodeCubeTexture::initFields(VrmlNodeCubeTexture *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTexture::initFields(node, t);
+    initFieldsHelper(node, t,
+                        exposedField("urlXP", node->d_urlXP, [node](auto value){
+                            delete node->d_imageXP;
+                            node->d_imageXP = nullptr;
+                        }),
+                        exposedField("urlXN", node->d_urlXN, [node](auto value){
+                            delete node->d_imageXN;
+                            node->d_imageXN = nullptr;
+                        }),
+                        exposedField("urlYP", node->d_urlYP, [node](auto value){
+                            delete node->d_imageYP;
+                            node->d_imageYP = nullptr;
+                        }),
+                        exposedField("urlYN", node->d_urlYN, [node](auto value){
+                            delete node->d_imageYN;
+                            node->d_imageYN = nullptr;
+                        }),
+                        exposedField("urlZP", node->d_urlZP, [node](auto value){
+                            delete node->d_imageYN;
+                            node->d_imageYN = nullptr;
+                        }),
+                        exposedField("urlZN", node->d_urlZN, [node](auto value){
+                            delete node->d_imageYN;
+                            node->d_imageYN = nullptr;
+                        }),
+                        field("repeatS", node->d_repeatS),
+                        field("repeatT", node->d_repeatT),
+                        field("blendMode", node->d_blendMode));
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("CubeTexture", creator);
-    }
-
-    VrmlNodeTexture::defineType(t); // Parent class
-
-    t->addExposedField("urlXP", VrmlField::MFSTRING);
-    t->addExposedField("urlXN", VrmlField::MFSTRING);
-    t->addExposedField("urlYP", VrmlField::MFSTRING);
-    t->addExposedField("urlYN", VrmlField::MFSTRING);
-    t->addExposedField("urlZP", VrmlField::MFSTRING);
-    t->addExposedField("urlZN", VrmlField::MFSTRING);
-
-    t->addField("repeatS", VrmlField::SFBOOL);
-    t->addField("repeatT", VrmlField::SFBOOL);
-    t->addField("blendMode", VrmlField::SFINT32);
-
-    return t;
 }
 
+const char *VrmlNodeCubeTexture::name() { return "CubeTexture"; }
+
+
 VrmlNodeCubeTexture::VrmlNodeCubeTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene)
+    : VrmlNodeTexture(scene, name())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_imageXP(0)
@@ -81,8 +86,6 @@ VrmlNodeCubeTexture::VrmlNodeCubeTexture(VrmlScene *scene)
 {
 }
 
-VrmlNodeType *VrmlNodeCubeTexture::nodeType() const { return defineType(0); }
-
 VrmlNodeCubeTexture::~VrmlNodeCubeTexture()
 {
     delete d_imageXP;
@@ -92,32 +95,6 @@ VrmlNodeCubeTexture::~VrmlNodeCubeTexture()
     delete d_imageZP;
     delete d_imageZN;
     // delete d_texObject...
-}
-
-VrmlNode *VrmlNodeCubeTexture::cloneMe() const
-{
-    return new VrmlNodeCubeTexture(*this);
-}
-
-std::ostream &VrmlNodeCubeTexture::printFields(std::ostream &os, int indent)
-{
-    if (d_urlXP.get())
-        PRINT_FIELD(urlXP);
-    if (d_urlXN.get())
-        PRINT_FIELD(urlXN);
-    if (d_urlYP.get())
-        PRINT_FIELD(urlYP);
-    if (d_urlYN.get())
-        PRINT_FIELD(urlYN);
-    if (d_urlZP.get())
-        PRINT_FIELD(urlZP);
-    if (d_urlZN.get())
-        PRINT_FIELD(urlZN);
-    if (!d_repeatS.get())
-        PRINT_FIELD(repeatS);
-    if (!d_repeatT.get())
-        PRINT_FIELD(repeatT);
-    return os;
 }
 
 void VrmlNodeCubeTexture::readCubeTexture(Image* &image,VrmlMFString& texture, const std::string &textureName)
@@ -250,86 +227,4 @@ int VrmlNodeCubeTexture::nFrames()
 unsigned char *VrmlNodeCubeTexture::pixels()
 {
     return d_imageXP ? d_imageXP->pixels() : 0;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCubeTexture::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "urlXP") == 0)
-    {
-        delete d_imageXP;
-        d_imageXP = 0;
-    }
-    else if (strcmp(fieldName, "urlXN") == 0)
-    {
-        delete d_imageXN;
-        d_imageXN = 0;
-    }
-    else if (strcmp(fieldName, "urlYP") == 0)
-    {
-        delete d_imageYP;
-        d_imageYP = 0;
-    }
-    else if (strcmp(fieldName, "urlYN") == 0)
-    {
-        delete d_imageYN;
-        d_imageYN = 0;
-    }
-    else if (strcmp(fieldName, "urlZP") == 0)
-    {
-        delete d_imageZP;
-        d_imageZP = 0;
-    }
-    else if (strcmp(fieldName, "urlZN") == 0)
-    {
-        delete d_imageZN;
-        d_imageZN = 0;
-    }
-
-    if
-        TRY_FIELD(urlXP, MFString)
-    else if
-        TRY_FIELD(urlXN, MFString)
-    else if
-        TRY_FIELD(urlYP, MFString)
-    else if
-        TRY_FIELD(urlYN, MFString)
-    else if
-        TRY_FIELD(urlZP, MFString)
-    else if
-        TRY_FIELD(urlZN, MFString)
-    else if
-        TRY_FIELD(repeatS, SFBool)
-    else if
-        TRY_FIELD(repeatT, SFBool)
-    else if
-        TRY_FIELD(blendMode, SFInt)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeCubeTexture::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "urlXP") == 0)
-        return &d_urlXP;
-    else if (strcmp(fieldName, "urlXN") == 0)
-        return &d_urlXN;
-    else if (strcmp(fieldName, "urlYP") == 0)
-        return &d_urlYP;
-    else if (strcmp(fieldName, "urlYN") == 0)
-        return &d_urlYN;
-    else if (strcmp(fieldName, "urlZP") == 0)
-        return &d_urlZP;
-    else if (strcmp(fieldName, "urlZN") == 0)
-        return &d_urlZN;
-    else if (strcmp(fieldName, "repeatS") == 0)
-        return &d_repeatS;
-    else if (strcmp(fieldName, "repeatT") == 0)
-        return &d_repeatT;
-    else if (strcmp(fieldName, "blendMode") == 0)
-        return &d_blendMode;
-
-    return VrmlNode::getField(fieldName);
 }

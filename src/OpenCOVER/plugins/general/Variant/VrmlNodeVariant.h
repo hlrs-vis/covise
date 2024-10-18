@@ -43,22 +43,15 @@ public:
     static VrmlNodeVariant *theVariantNode;
     static VrmlNodeVariant *instance();
     // Define the fields of Variant nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeVariant *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeVariant(VrmlScene *scene = 0);
     VrmlNodeVariant(const VrmlNodeVariant &n);
     virtual ~VrmlNodeVariant();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeVariant *toVariant() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 
@@ -72,4 +65,10 @@ private:
     
     VrmlSFString d_variant;
 };
+
+template<>
+inline VrmlNode *VrmlNodeTemplate::creator<VrmlNodeVariant>(vrml::VrmlScene *scene){
+    return VrmlNodeVariant::instance();
+}
+
 #endif //_VRMLNODEVariant_

@@ -26,15 +26,10 @@ class VRMLEXPORT VrmlNodeBillboard : public VrmlNodeGroup
 
 public:
     // Define the fields of Billboard nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
-    VrmlNodeBillboard(VrmlScene *);
-    virtual ~VrmlNodeBillboard();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    VrmlNodeBillboard(VrmlScene *, const std::string &name = "");
 
     virtual void render(Viewer *);
 
@@ -42,9 +37,6 @@ public:
     virtual VrmlNode *getParentTransform();
     virtual void inverseTransform(Viewer *);
     virtual void inverseTransform(double *mat);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 private:
     VrmlSFVec3f d_axisOfRotation;

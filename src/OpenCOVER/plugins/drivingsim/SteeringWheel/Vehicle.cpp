@@ -36,146 +36,102 @@ void playerUnavailableCB()
 #endif
 }
 
-static VrmlNode *creatorVehicle(VrmlScene *scene)
+void VrmlNodeVehicle::initFields(VrmlNodeVehicle *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeVehicle(scene);
-}
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("carRotation", node->d_carRotation, [node](auto f) {
+                         node->recalcMatrix();
+                     }),
+                     exposedField("carTranslation", node->d_carTranslation, [node](auto f) {
+                         node->recalcMatrix();
+                     }),
+                     exposedField("carBodyRotation", node->d_carBodyRotation),
+                     exposedField("carBodyTranslation", node->d_carBodyTranslation),
+                     exposedField("axle1Rotation", node->d_axle1Rotation),
+                     exposedField("axle1Translation", node->d_axle1Translation),
+                     exposedField("axle2Rotation", node->d_axle2Rotation),
+                     exposedField("axle2Translation", node->d_axle2Translation),
 
-// Define the built in VrmlNodeType:: "SteeringWheel" fields
+                     exposedField("wheelFLRotation", node->d_wheelFLRotation),
+                     exposedField("wheelFLTranslation", node->d_wheelFLTranslation),
+                     exposedField("wheelFRRotation", node->d_wheelFRRotation),
+                     exposedField("wheelFRTranslation", node->d_wheelFRTranslation),
+                     exposedField("wheelRLRotation", node->d_wheelRLRotation),
+                     exposedField("wheelRLTranslation", node->d_wheelRLTranslation),
+                     exposedField("wheelRRRotation", node->d_wheelRRRotation),
+                     exposedField("wheelRRTranslation", node->d_wheelRRTranslation),
 
-VrmlNodeType *VrmlNodeVehicle::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
+                     exposedField("cameraRotation", node->d_cameraRotation),
+                     exposedField("cameraTranslation", node->d_cameraTranslation),
+                     exposedField("mirrorLRotation", node->d_mirrorLRotation),
+                     exposedField("mirrorMRotation", node->d_mirrorMRotation),
+                     exposedField("mirrorRRotation", node->d_mirrorRRotation),
 
-    if (!t)
+                     exposedField("offsetLoc", node->d_offsetLoc),
+                     exposedField("offsetRot", node->d_offsetRot),
+    
+                     exposedField("numCars", node->d_numCars),
+                     exposedField("followTerrain", node->d_followTerrain),
+
+                     exposedField("ffz1Rotation", node->d_ffz1Rotation),
+                     exposedField("ffz1Translation", node->d_ffz1Translation),
+                     eventInCallBack("vMax", node->d_vMax), 
+                     eventInCallBack("aMax", node->d_aMax),
+                     eventInCallBack("reset", node->d_reset),
+                     eventInCallBack("offsetLoc", node->d_offsetLoc),
+                     eventInCallBack("offsetRot", node->d_offsetRot),
+                     eventInCallBack("setOffset", node->d_setOffset),
+                     eventInCallBack("printTransformation", node->d_printTransformation)
+                     );
+
+    for (size_t i = 0; i < NUM_WHEELS; i++)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Vehicle", creatorVehicle);
+        initFieldsHelper(node, t,
+                         exposedField("wheel" + std::to_string(i) + "Rotation", node->d_wheelRotations[i]),
+                         exposedField("wheel" + std::to_string(i) + "Translation", node->d_wheelTranslations[i]));
     }
+    
+    for (size_t i = 0; i < 15; i++)
+    {
+        initFieldsHelper(node, t,
+            eventInCallBack("carTranslation_" + std::to_string(i), node->d_carTranslations[i]));
+    }
+    for (size_t i = 0; i < 10; i++)
+    {
+        initFieldsHelper(node, t,
+            eventInCallBack("float_value" + std::to_string(i), node->d_float_values[i]),
+            eventInCallBack("int_value" + std::to_string(i), node->d_int_values[i]));
+    }
+    if(t)
+    {
+        t->addEventOut("brakePedalRotation", VrmlField::SFROTATION);
+        t->addEventOut("clutchPedaRotation", VrmlField::SFROTATION);
+        t->addEventOut("gasPedalRotation", VrmlField::SFROTATION);
+        t->addEventOut("steeringWheelRotation", VrmlField::SFROTATION);
+        t->addEventOut("wheelRotation", VrmlField::SFROTATION);
 
-    VrmlNodeChild::defineType(t); // Parent class
+        t->addEventOut("speed", VrmlField::SFFLOAT);
+        t->addEventOut("revs", VrmlField::SFFLOAT);
+        t->addEventOut("acceleration", VrmlField::SFFLOAT);
+        t->addEventOut("gear", VrmlField::SFINT32);
 
-    t->addEventOut("brakePedalRotation", VrmlField::SFROTATION);
-    t->addEventOut("clutchPedaRotation", VrmlField::SFROTATION);
-    t->addEventOut("gasPedalRotation", VrmlField::SFROTATION);
-    t->addEventOut("steeringWheelRotation", VrmlField::SFROTATION);
-    t->addEventOut("wheelRotation", VrmlField::SFROTATION);
-    t->addExposedField("carRotation", VrmlField::SFROTATION);
-    t->addExposedField("carTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("carBodyRotation", VrmlField::SFROTATION);
-    t->addExposedField("carBodyTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("axle1Rotation", VrmlField::SFROTATION);
-    t->addExposedField("axle1Translation", VrmlField::SFVEC3F);
-    t->addExposedField("axle2Rotation", VrmlField::SFROTATION);
-    t->addExposedField("axle2Translation", VrmlField::SFVEC3F);
+        t->addEventIn("reset", VrmlField::SFBOOL);
+        t->addEventIn("gear", VrmlField::SFINT32);
 
-    t->addExposedField("wheelFLRotation", VrmlField::SFROTATION);
-    t->addExposedField("wheelFLTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("wheelFRRotation", VrmlField::SFROTATION);
-    t->addExposedField("wheelFRTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("wheelRLRotation", VrmlField::SFROTATION);
-    t->addExposedField("wheelRLTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("wheelRRRotation", VrmlField::SFROTATION);
-    t->addExposedField("wheelRRTranslation", VrmlField::SFVEC3F);
 
-    t->addExposedField("wheel1Rotation", VrmlField::SFROTATION);
-    t->addExposedField("wheel1Translation", VrmlField::SFVEC3F);
-    t->addExposedField("wheel2Rotation", VrmlField::SFROTATION);
-    t->addExposedField("wheel2Translation", VrmlField::SFVEC3F);
-    t->addExposedField("wheel3Rotation", VrmlField::SFROTATION);
-    t->addExposedField("wheel3Translation", VrmlField::SFVEC3F);
-    t->addExposedField("wheel4Rotation", VrmlField::SFROTATION);
-    t->addExposedField("wheel4Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body1Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body1Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body2Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body2Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body3Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body3Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body4Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body4Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body5Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body5Translation", VrmlField::SFVEC3F);
-    t->addExposedField("body6Rotation", VrmlField::SFROTATION);
-    t->addExposedField("body6Translation", VrmlField::SFVEC3F);
-    t->addExposedField("cameraRotation", VrmlField::SFROTATION);
-    t->addExposedField("cameraTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("mirrorLRotation", VrmlField::SFROTATION);
-    t->addExposedField("mirrorMRotation", VrmlField::SFROTATION);
-    t->addExposedField("mirrorRRotation", VrmlField::SFROTATION);
 
-    t->addEventOut("speed", VrmlField::SFFLOAT);
-    t->addEventOut("revs", VrmlField::SFFLOAT);
-    t->addEventOut("acceleration", VrmlField::SFFLOAT);
-    t->addEventOut("gear", VrmlField::SFINT32);
-
-    t->addExposedField("offsetLoc", VrmlField::SFVEC3F);
-    t->addExposedField("offsetRot", VrmlField::SFROTATION);
-    t->addEventIn("offsetLoc", VrmlField::SFVEC3F);
-    t->addEventIn("offsetRot", VrmlField::SFROTATION);
-    t->addEventIn("setOffset", VrmlField::SFBOOL);
-    t->addEventIn("printTransformation", VrmlField::SFBOOL);
-
-    t->addEventIn("reset", VrmlField::SFBOOL);
-    t->addEventIn("aMax", VrmlField::SFFLOAT);
-    t->addEventIn("vMax", VrmlField::SFFLOAT);
-    t->addEventIn("gear", VrmlField::SFINT32);
-    t->addExposedField("numCars", VrmlField::SFINT32);
-    t->addExposedField("followTerrain", VrmlField::SFBOOL);
-    t->addEventIn("carTranslation_0", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_1", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_2", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_3", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_4", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_5", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_6", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_7", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_8", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_9", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_10", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_11", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_12", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_13", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_14", VrmlField::SFVEC3F);
-    t->addEventIn("carTranslation_15", VrmlField::SFVEC3F);
-
-    t->addExposedField("ffz1Rotation", VrmlField::SFROTATION);
-    t->addExposedField("ffz1Translation", VrmlField::SFVEC3F);
-
-    //additonal data
-    t->addEventIn("float_value0", VrmlField::SFFLOAT);
-    t->addEventIn("float_value1", VrmlField::SFFLOAT);
-    t->addEventIn("float_value2", VrmlField::SFFLOAT);
-    t->addEventIn("float_value3", VrmlField::SFFLOAT);
-    t->addEventIn("float_value4", VrmlField::SFFLOAT);
-    t->addEventIn("float_value5", VrmlField::SFFLOAT);
-    t->addEventIn("float_value6", VrmlField::SFFLOAT);
-    t->addEventIn("float_value7", VrmlField::SFFLOAT);
-    t->addEventIn("float_value8", VrmlField::SFFLOAT);
-    t->addEventIn("float_value9", VrmlField::SFFLOAT);
-
-    t->addEventIn("int_value0", VrmlField::SFINT32);
-    t->addEventIn("int_value1", VrmlField::SFINT32);
-    t->addEventIn("int_value2", VrmlField::SFINT32);
-    t->addEventIn("int_value3", VrmlField::SFINT32);
-    t->addEventIn("int_value4", VrmlField::SFINT32);
-    t->addEventIn("int_value5", VrmlField::SFINT32);
-    t->addEventIn("int_value6", VrmlField::SFINT32);
-    t->addEventIn("int_value7", VrmlField::SFINT32);
-    t->addEventIn("int_value8", VrmlField::SFINT32);
-    t->addEventIn("int_value9", VrmlField::SFINT32);
-
-    return t;
+        
+    }
 }
 
-VrmlNodeType *VrmlNodeVehicle::nodeType() const
+const char *VrmlNodeVehicle::name()
 {
-    return defineType(0);
+    return "Vehicle";
 }
 
 VrmlNodeVehicle::VrmlNodeVehicle(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_brakePedalRotation(1, 0, 0, 0)
     , d_clutchPedaRotation(1, 0, 0, 0)
     , d_gasPedalRotation(1, 0, 0, 0)
@@ -209,14 +165,6 @@ VrmlNodeVehicle::VrmlNodeVehicle(VrmlScene *scene)
     , d_ffz1wheelRRTranslation(0, 0, 0)
     , d_ffz1wheelRRRotation(1, 0, 0, 0)
 
-    , d_wheel1Rotation(1, 0, 0, 0)
-    , d_wheel1Translation(0, 0, 0)
-    , d_wheel2Rotation(1, 0, 0, 0)
-    , d_wheel2Translation(0, 0, 0)
-    , d_wheel3Rotation(1, 0, 0, 0)
-    , d_wheel3Translation(0, 0, 0)
-    , d_wheel4Rotation(1, 0, 0, 0)
-    , d_wheel4Translation(0, 0, 0)
     , d_cameraRotation(1, 0, 0, 0)
     , d_cameraTranslation(0, 0, 0)
     , d_mirrorLRotation(1, 0, 0, 0)
@@ -242,29 +190,12 @@ VrmlNodeVehicle::VrmlNodeVehicle(VrmlScene *scene)
     , d_ffz1Rotation(1, 0, 0, 0)
     , d_ffz1Translation(0, 0, 0)
 
-    //additional Data
-    , d_float_value0(0.0)
-    , d_float_value1(0.0)
-    , d_float_value2(0.0)
-    , d_float_value3(0.0)
-    , d_float_value4(0.0)
-    , d_float_value5(0.0)
-    , d_float_value6(0.0)
-    , d_float_value7(0.0)
-    , d_float_value8(0.0)
-    , d_float_value9(0.0)
-
-    , d_int_value0(0)
-    , d_int_value1(0)
-    , d_int_value2(0)
-    , d_int_value3(0)
-    , d_int_value4(0)
-    , d_int_value5(0)
-    , d_int_value6(0)
-    , d_int_value7(0)
-    , d_int_value8(0)
-    , d_int_value9(0)
 {
+    std::fill(d_wheelRotations.begin(), d_wheelRotations.end(), VrmlSFRotation(1, 0, 0, 0));
+    std::fill(d_wheelTranslations.begin(), d_wheelTranslations.end(), VrmlSFVec3f(0, 0, 0));
+    std::fill(d_float_values.begin(), d_float_values.end(), 0.0);
+    std::fill(d_int_values.begin(), d_int_values.end(), 0);
+    
     int i;
     for (i = 0; i < MAX_BODIES; i++)
     {
@@ -285,7 +216,7 @@ VrmlNodeVehicle::VrmlNodeVehicle(VrmlScene *scene)
 }
 
 VrmlNodeVehicle::VrmlNodeVehicle(const VrmlNodeVehicle &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_brakePedalRotation(n.d_brakePedalRotation)
     , d_clutchPedaRotation(n.d_clutchPedaRotation)
     , d_gasPedalRotation(n.d_gasPedalRotation)
@@ -319,14 +250,8 @@ VrmlNodeVehicle::VrmlNodeVehicle(const VrmlNodeVehicle &n)
     , d_ffz1wheelRRTranslation(n.d_ffz1wheelRRTranslation)
     , d_ffz1wheelRRRotation(n.d_ffz1wheelRRRotation)
 
-    , d_wheel1Rotation(n.d_wheel1Rotation)
-    , d_wheel1Translation(n.d_wheel1Translation)
-    , d_wheel2Rotation(n.d_wheel2Rotation)
-    , d_wheel2Translation(n.d_wheel2Translation)
-    , d_wheel3Rotation(n.d_wheel3Rotation)
-    , d_wheel3Translation(n.d_wheel3Translation)
-    , d_wheel4Rotation(n.d_wheel4Rotation)
-    , d_wheel4Translation(n.d_wheel4Translation)
+    , d_wheelRotations(n.d_wheelRotations)
+    , d_wheelTranslations(n.d_wheelTranslations)
     , d_cameraRotation(n.d_cameraRotation)
     , d_cameraTranslation(n.d_cameraTranslation)
     , d_mirrorLRotation(n.d_mirrorLRotation)
@@ -353,27 +278,9 @@ VrmlNodeVehicle::VrmlNodeVehicle(const VrmlNodeVehicle &n)
     , d_ffz1Translation(n.d_ffz1Translation)
 
     //additional Data
-    , d_float_value0(n.d_float_value0)
-    , d_float_value1(n.d_float_value1)
-    , d_float_value2(n.d_float_value2)
-    , d_float_value3(n.d_float_value3)
-    , d_float_value4(n.d_float_value4)
-    , d_float_value5(n.d_float_value5)
-    , d_float_value6(n.d_float_value6)
-    , d_float_value7(n.d_float_value7)
-    , d_float_value8(n.d_float_value8)
-    , d_float_value9(n.d_float_value9)
+    , d_float_values(n.d_float_values)
 
-    , d_int_value0(n.d_int_value0)
-    , d_int_value1(n.d_int_value1)
-    , d_int_value2(n.d_int_value2)
-    , d_int_value3(n.d_int_value3)
-    , d_int_value4(n.d_int_value4)
-    , d_int_value5(n.d_int_value5)
-    , d_int_value6(n.d_int_value6)
-    , d_int_value7(n.d_int_value7)
-    , d_int_value8(n.d_int_value8)
-    , d_int_value9(n.d_int_value9)
+    , d_int_values(n.d_int_values)
 {
     int i;
     for (i = 0; i < MAX_BODIES; i++)
@@ -484,183 +391,9 @@ VrmlNodeVehicle::~VrmlNodeVehicle()
 #endif */
 }
 
-VrmlNode *VrmlNodeVehicle::cloneMe() const
-{
-    return new VrmlNodeVehicle(*this);
-}
-
 VrmlNodeVehicle *VrmlNodeVehicle::toVehicleWheel() const
 {
     return (VrmlNodeVehicle *)this;
-}
-
-ostream &VrmlNodeVehicle::printFields(ostream &os, int indent)
-{
-    if (!d_brakePedalRotation.get())
-        PRINT_FIELD(brakePedalRotation);
-    if (!d_clutchPedaRotation.get())
-        PRINT_FIELD(clutchPedaRotation);
-    if (!d_gasPedalRotation.get())
-        PRINT_FIELD(gasPedalRotation);
-    if (!d_steeringWheelRotation.get())
-        PRINT_FIELD(steeringWheelRotation);
-
-    if (!d_wheelRotation.get())
-        PRINT_FIELD(wheelRotation);
-    if (!d_carRotation.get())
-        PRINT_FIELD(carRotation);
-    if (!d_carTranslation.get())
-        PRINT_FIELD(carTranslation);
-
-    if (!d_speed.get())
-        PRINT_FIELD(speed);
-    if (!d_revs.get())
-        PRINT_FIELD(revs);
-    if (!d_acceleration.get())
-        PRINT_FIELD(acceleration);
-
-    if (!d_mirrorLightLeft.get())
-        PRINT_FIELD(mirrorLightLeft);
-    if (!d_mirrorLightRight.get())
-        PRINT_FIELD(mirrorLightRight);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeVehicle::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(vMax, SFFloat)
-    else if
-        TRY_FIELD(aMax, SFFloat)
-    else if
-        TRY_FIELD(numCars, SFInt)
-    else if
-        TRY_FIELD(followTerrain, SFBool)
-    else if
-        TRY_FIELD(reset, SFBool)
-    else if
-        TRY_FIELD(carRotation, SFRotation)
-    else if
-        TRY_FIELD(carTranslation, SFVec3f)
-    else if
-        TRY_FIELD(carBodyRotation, SFRotation)
-    else if
-        TRY_FIELD(carBodyTranslation, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_0, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_1, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_2, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_3, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_4, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_5, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_6, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_7, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_8, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_9, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_10, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_11, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_12, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_13, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_14, SFVec3f)
-    else if
-        TRY_FIELD(carTranslation_15, SFVec3f)
-    else if
-        TRY_FIELD(offsetLoc, SFVec3f)
-    else if
-        TRY_FIELD(offsetRot, SFRotation)
-    else if
-        TRY_FIELD(setOffset, SFBool)
-    else if
-        TRY_FIELD(printTransformation, SFBool)
-    else if
-        TRY_FIELD(ffz1Rotation, SFRotation)
-    else if
-        TRY_FIELD(ffz1Translation, SFVec3f)
-    //additional data
-    else if
-        TRY_FIELD(float_value0, SFFloat)
-    else if
-        TRY_FIELD(float_value1, SFFloat)
-    else if
-        TRY_FIELD(float_value2, SFFloat)
-    else if
-        TRY_FIELD(float_value3, SFFloat)
-    else if
-        TRY_FIELD(float_value4, SFFloat)
-    else if
-        TRY_FIELD(float_value5, SFFloat)
-    else if
-        TRY_FIELD(float_value6, SFFloat)
-    else if
-        TRY_FIELD(float_value7, SFFloat)
-    else if
-        TRY_FIELD(float_value8, SFFloat)
-    else if
-        TRY_FIELD(float_value9, SFFloat)
-
-    else if
-        TRY_FIELD(int_value0, SFInt)
-    else if
-        TRY_FIELD(int_value1, SFInt)
-    else if
-        TRY_FIELD(int_value2, SFInt)
-    else if
-        TRY_FIELD(int_value3, SFInt)
-    else if
-        TRY_FIELD(int_value4, SFInt)
-    else if
-        TRY_FIELD(int_value5, SFInt)
-    else if
-        TRY_FIELD(int_value6, SFInt)
-    else if
-        TRY_FIELD(int_value7, SFInt)
-    else if
-        TRY_FIELD(int_value8, SFInt)
-    else if
-        TRY_FIELD(int_value9, SFInt)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp(fieldName, "carRotation") == 0)
-    {
-        recalcMatrix();
-    }
-    else if (strcmp(fieldName, "carTranslation") == 0)
-    {
-        recalcMatrix();
-    }
-}
-
-const VrmlField *VrmlNodeVehicle::getField(const char *)
-{
-    /*if (strcmp(fieldName,"enabled")==0)
-   return &d_enabled;
-   else if (strcmp(fieldName,"joystickNumber")==0)
-   return &d_joystickNumber;
-   else if (strcmp(fieldName,"axes_changed")==0)
-   return &d_axes;
-   else if (strcmp(fieldName,"buttons_changed")==0)
-   return &d_buttons;
-   else
-   cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName()<< "::" << name() << "." << fieldName << endl;
-   */ return 0;
 }
 
 void VrmlNodeVehicle::recalcMatrix()
@@ -674,13 +407,14 @@ void VrmlNodeVehicle::recalcMatrix()
     rot.makeRotate(ct[3], tr);
     carTrans.preMult(rot);
 }
+
 void VrmlNodeVehicle::eventIn(double timeStamp,
                               const char *eventName,
                               const VrmlField *fieldValue)
 {
     if (strcmp(eventName, "reset") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         if (d_reset.get() == true)
         {
             std::cout << "VRML-Script reset" << std::endl;
@@ -707,102 +441,47 @@ void VrmlNodeVehicle::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "carRotation") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         recalcMatrix();
         if (SteeringWheelPlugin::plugin->dynamics)
             SteeringWheelPlugin::plugin->dynamics->setVehicleTransformation(carTrans);
     }
     else if (strcmp(eventName, "carTranslation") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         recalcMatrix();
         if (SteeringWheelPlugin::plugin->dynamics)
             SteeringWheelPlugin::plugin->dynamics->setVehicleTransformation(carTrans);
     }
     else if (strcmp(eventName, "numCars") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "followTerrain") == 0)
     {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_0") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_1") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_2") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_3") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_4") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_5") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_6") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_7") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_8") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_9") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_10") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_11") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_12") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_13") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_14") == 0)
-    {
-        setField(eventName, *fieldValue);
-    }
-    else if (strcmp(eventName, "carTranslation_15") == 0)
-    {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
     }
 
-    else if (strcmp(eventName, "offsetLoc") == 0)
+    for (size_t i = 0; i < d_carTranslations.size(); i++)
     {
-        setField(eventName, *fieldValue);
+        if(eventName == ("carTranslation_" + std::to_string(i)))
+        {
+            setFieldByName(eventName, *fieldValue);
+            break;
+        }
+    }
+
+    if (strcmp(eventName, "offsetLoc") == 0)
+    {
+        setFieldByName(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "offsetRot") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "setOffset") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         if (d_setOffset.get() == true)
         {
             PorscheRealtimeDynamics *dynamics = dynamic_cast<PorscheRealtimeDynamics *>(SteeringWheelPlugin::plugin->dynamics);
@@ -824,7 +503,7 @@ void VrmlNodeVehicle::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "printTransformation") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         if (SteeringWheelPlugin::plugin->dynamics)
         {
             if (d_printTransformation.get() == true && coVRMSController::instance()->isMaster())
@@ -1746,117 +1425,10 @@ void VrmlNodeVehicle::render(Viewer *)
         SteeringWheelPlugin::plugin->dataController->floatValuesOut[7] = v;
         SteeringWheelPlugin::plugin->dataController->floatValuesOut[8] = enginespeed;
         SteeringWheelPlugin::plugin->dataController->floatValuesOut[9] = a;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_0.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_0.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_0.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_1.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_1.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_1.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_2.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_2.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_2.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_3.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_3.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_3.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_4.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_4.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_4.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_5.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_5.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_5.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_6.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_6.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_6.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_7.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_7.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_7.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_8.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_8.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_8.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_9.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_9.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_9.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_10.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_10.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_10.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_11.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_11.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_11.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_12.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_12.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_12.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_13.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_13.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_13.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_14.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_14.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_14.get()[2];
-        }
-        i++;
-        if (i < numTrans)
-        {
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 0] = d_carTranslation_15.get()[0];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 1] = d_carTranslation_15.get()[1];
-            SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + 2] = d_carTranslation_15.get()[2];
-        }
+        
+        for (size_t i = 0; i < numTrans; i++)
+            for (size_t j = 0; j < 3; j++)
+                SteeringWheelPlugin::plugin->dataController->floatValuesOut[i * 3 + numextra + j] = d_carTranslations[i].get()[j];
     }
 }
 
@@ -1891,68 +1463,33 @@ void VrmlNodeVehicle::setVRMLVehicleFFZBody(const osg::Matrix &trans)
 void VrmlNodeVehicle::setVRMLAdditionalData(float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9)
 {
     // //
-    d_int_value0 = i0;
-    d_int_value1 = i1;
-    d_int_value2 = i2;
-    d_int_value3 = i3;
-    d_int_value4 = i4;
-    d_int_value5 = i5;
-    d_int_value6 = i6;
-    d_int_value7 = i7;
-    d_int_value8 = i8;
-    d_int_value9 = i9;
+    d_int_values[0] = i0;
+    d_int_values[1] = i1;
+    d_int_values[2] = i2;
+    d_int_values[3] = i3;
+    d_int_values[4] = i4;
+    d_int_values[5] = i5;
+    d_int_values[6] = i6;
+    d_int_values[7] = i7;
+    d_int_values[8] = i8;
+    d_int_values[9] = i9;
 
-    d_float_value0 = f0;
-    d_float_value1 = f1;
-    d_float_value2 = f2;
-    d_float_value3 = f3;
-    d_float_value4 = f4;
-    d_float_value5 = f5;
-    d_float_value6 = f6;
-    d_float_value7 = f7;
-    d_float_value8 = f8;
-    d_float_value9 = f9;
+    d_float_values[0] = f0;
+    d_float_values[1] = f1;
+    d_float_values[2] = f2;
+    d_float_values[3] = f3;
+    d_float_values[4] = f4;
+    d_float_values[5] = f5;
+    d_float_values[6] = f6;
+    d_float_values[7] = f7;
+    d_float_values[8] = f8;
+    d_float_values[9] = f9;
 
-    eventOut(timeStamp, "float_value0", d_float_value0);
-    eventOut(timeStamp, "float_value1", d_float_value1);
-    eventOut(timeStamp, "float_value2", d_float_value2);
-    eventOut(timeStamp, "float_value3", d_float_value3);
-    eventOut(timeStamp, "float_value4", d_float_value4);
-    eventOut(timeStamp, "float_value5", d_float_value5);
-    eventOut(timeStamp, "float_value6", d_float_value6);
-    eventOut(timeStamp, "float_value7", d_float_value7);
-    eventOut(timeStamp, "float_value8", d_float_value8);
-    eventOut(timeStamp, "float_value9", d_float_value9);
-    eventOut(timeStamp, "int_value0", d_int_value0);
-    eventOut(timeStamp, "int_value1", d_int_value1);
-    eventOut(timeStamp, "int_value2", d_int_value2);
-    eventOut(timeStamp, "int_value3", d_int_value3);
-    eventOut(timeStamp, "int_value4", d_int_value4);
-    eventOut(timeStamp, "int_value5", d_int_value5);
-    eventOut(timeStamp, "int_value6", d_int_value6);
-    eventOut(timeStamp, "int_value7", d_int_value7);
-    eventOut(timeStamp, "int_value8", d_int_value8);
-    eventOut(timeStamp, "int_value9", d_int_value9);
-    /*	eventOut(timeStamp, "float_value0", f0);
- 	eventOut(timeStamp, "float_value1", f1);
- 	eventOut(timeStamp, "float_value2", f2);
- 	eventOut(timeStamp, "float_value3", f3);
- 	eventOut(timeStamp, "float_value4", f4);
- 	eventOut(timeStamp, "float_value5", f5);
- 	eventOut(timeStamp, "float_value6", f6);
- 	eventOut(timeStamp, "float_value7", f7);
- 	eventOut(timeStamp, "float_value8", f8);
- 	eventOut(timeStamp, "float_value9", f9);
- 	eventOut(timeStamp, "int_value0", i0);
- 	eventOut(timeStamp, "int_value1", i1);
- 	eventOut(timeStamp, "int_value2", i2);
- 	eventOut(timeStamp, "int_value3", i3);
- 	eventOut(timeStamp, "int_value4", i4);
- 	eventOut(timeStamp, "int_value5", i5);
- 	eventOut(timeStamp, "int_value6", i6);
- 	eventOut(timeStamp, "int_value7", i7);
- 	eventOut(timeStamp, "int_value8", i8);
- 	eventOut(timeStamp, "int_value9", i9);*/
+    for (size_t i = 0; i < NUM_ADDITIONAL_FIELDS; i++)
+    {
+        eventOut(timeStamp, ("int_value" + std::to_string(i)).c_str(), d_int_values[i]);
+        eventOut(timeStamp, ("float_value" + std::to_string(i)).c_str(), d_float_values[i]);
+    }
 }
 
 void VrmlNodeVehicle::setVRMLVehicleBody(int body, const osg::Matrix &trans)
@@ -2105,30 +1642,17 @@ void VrmlNodeVehicle::setVRMLVehicleWheels(const osg::Matrix &wheel1Trans, const
 {
     osg::Quat q;
     osg::Quat::value_type orient[4];
-    q.set(wheel1Trans);
-    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-    d_wheel1Translation.set(wheel1Trans(3, 0), wheel1Trans(3, 1), wheel1Trans(3, 2));
-    d_wheel1Rotation.set(orient[0], orient[1], orient[2], orient[3]);
-    eventOut(timeStamp, "wheel1Translation", d_wheel1Translation);
-    eventOut(timeStamp, "wheel1Rotation", d_wheel1Rotation);
-    q.set(wheel2Trans);
-    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-    d_wheel2Translation.set(wheel2Trans(3, 0), wheel2Trans(3, 1), wheel2Trans(3, 2));
-    d_wheel2Rotation.set(orient[0], orient[1], orient[2], orient[3]);
-    eventOut(timeStamp, "wheel2Translation", d_wheel2Translation);
-    eventOut(timeStamp, "wheel2Rotation", d_wheel2Rotation);
-    q.set(wheel3Trans);
-    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-    d_wheel3Translation.set(wheel3Trans(3, 0), wheel3Trans(3, 1), wheel3Trans(3, 2));
-    d_wheel3Rotation.set(orient[0], orient[1], orient[2], orient[3]);
-    eventOut(timeStamp, "wheel3Translation", d_wheel3Translation);
-    eventOut(timeStamp, "wheel3Rotation", d_wheel3Rotation);
-    q.set(wheel4Trans);
-    q.getRotate(orient[3], orient[0], orient[1], orient[2]);
-    d_wheel4Translation.set(wheel4Trans(3, 0), wheel4Trans(3, 1), wheel4Trans(3, 2));
-    d_wheel4Rotation.set(orient[0], orient[1], orient[2], orient[3]);
-    eventOut(timeStamp, "wheel4Translation", d_wheel4Translation);
-    eventOut(timeStamp, "wheel4Rotation", d_wheel4Rotation);
+
+    std::array<const osg::Matrix*, NUM_WHEELS> wheelTranslations = {&wheel1Trans, &wheel2Trans, &wheel3Trans, &wheel4Trans};
+    for (size_t i = 0; i < NUM_WHEELS; i++)
+    {
+        q.set((*wheelTranslations[i]));
+        q.getRotate(orient[3], orient[0], orient[1], orient[2]);
+        d_wheelTranslations[i].set((*wheelTranslations[i])(3, 0), (*wheelTranslations[i])(3, 1), (*wheelTranslations[i])(3, 2));
+        d_wheelRotations[i].set(orient[0], orient[1], orient[2], orient[3]);
+        eventOut(timeStamp, ("wheel" + std::to_string(i) + "Translation").c_str(), d_wheelTranslations[i]);
+        eventOut(timeStamp, ("wheel" + std::to_string(i) + "Rotation").c_str(), d_wheelRotations[i]);
+    }
 }
 
 osg::Vec2d VrmlNodeVehicle::getPos()

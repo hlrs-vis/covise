@@ -29,50 +29,24 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "NormalInterpolator" fields
 
-VrmlNodeType *VrmlNodeNormalInt::defineType(VrmlNodeType *t)
+void VrmlNodeNormalInt::initFields(VrmlNodeNormalInt *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("NormalInterpolator", creator);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::MFVEC3F);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFVEC3F);
-    t->addEventOut("value_changed", VrmlField::MFVEC3F);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeNormalInt::nodeType() const { return defineType(0); }
+const char *VrmlNodeNormalInt::name() { return "NormalInterpolator"; }
 
 VrmlNodeNormalInt::VrmlNodeNormalInt(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodeNormalInt::~VrmlNodeNormalInt()
-{
-}
-
-VrmlNode *VrmlNodeNormalInt::cloneMe() const
-{
-    return new VrmlNodeNormalInt(*this);
-}
-
-std::ostream &VrmlNodeNormalInt::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodeNormalInt::eventIn(double timeStamp,
@@ -168,27 +142,4 @@ void VrmlNodeNormalInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeNormalInt::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeNormalInt::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }

@@ -33,32 +33,24 @@ static VrmlNode *creator(VrmlScene *scene)
 }
 
 // Define the built in VrmlNodeType:: "Fog" fields
-
-VrmlNodeType *VrmlNodeFog::defineType(VrmlNodeType *t)
+void VrmlNodeFog::initFields(VrmlNodeFog *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    initFieldsHelper(node, t,
+                     field("color", node->d_color),
+                     field("fogType", node->d_fogType),
+                     field("visibilityRange", node->d_visibilityRange));
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Fog", creator);
+        t->addEventIn("set_bind", VrmlField::SFBOOL);
+        t->addEventOut("isBound", VrmlField::SFBOOL);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_bind", VrmlField::SFBOOL);
-    t->addExposedField("color", VrmlField::SFCOLOR);
-    t->addExposedField("fogType", VrmlField::SFSTRING);
-    t->addExposedField("visibilityRange", VrmlField::SFFLOAT);
-    t->addEventOut("isBound", VrmlField::SFBOOL);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeFog::nodeType() const { return defineType(0); }
+const char *VrmlNodeFog::name() { return "Fog"; }
 
 VrmlNodeFog::VrmlNodeFog(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_color(1.0, 1.0, 1.0)
     , d_fogType("LINEAR")
     , d_visibilityRange(0.0)
@@ -73,11 +65,6 @@ VrmlNodeFog::~VrmlNodeFog()
         d_scene->removeFog(this);
 }
 
-VrmlNode *VrmlNodeFog::cloneMe() const
-{
-    return new VrmlNodeFog(*this);
-}
-
 VrmlNodeFog *VrmlNodeFog::toFog() const
 {
     return (VrmlNodeFog *)this;
@@ -87,18 +74,6 @@ void VrmlNodeFog::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addFog(this);
-}
-
-std::ostream &VrmlNodeFog::printFields(std::ostream &os, int indent)
-{
-    if (d_color.r() != 1.0 || d_color.g() != 1.0 || d_color.b() != 1.0)
-        PRINT_FIELD(color);
-    if (strcmp(d_fogType.get(), "LINEAR") != 0)
-        PRINT_FIELD(fogType);
-    if (d_visibilityRange.get() != 0.0)
-        PRINT_FIELD(visibilityRange);
-
-    return os;
 }
 
 void VrmlNodeFog::eventIn(double timeStamp,
@@ -144,31 +119,4 @@ void VrmlNodeFog::eventIn(double timeStamp,
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeFog::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(color, SFColor)
-    else if
-        TRY_FIELD(fogType, SFString)
-    else if
-        TRY_FIELD(visibilityRange, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeFog::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "fogType") == 0)
-        return &d_fogType;
-    else if (strcmp(fieldName, "visibilityRange") == 0)
-        return &d_visibilityRange;
-
-    return VrmlNodeChild::getField(fieldName);
 }

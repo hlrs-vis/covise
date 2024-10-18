@@ -34,55 +34,24 @@ VrmlNodePixelTexture *VrmlNodePixelTexture::toPixelTexture() const
 
 // Define the built in VrmlNodeType:: "PixelTexture" fields
 
-VrmlNodeType *VrmlNodePixelTexture::defineType(VrmlNodeType *t)
+void VrmlNodePixelTexture::initFields(VrmlNodePixelTexture *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("PixelTexture", creator);
-    }
-
-    VrmlNodeTexture::defineType(t); // Parent class
-
-    t->addExposedField("image", VrmlField::SFIMAGE);
-    t->addField("repeatS", VrmlField::SFBOOL);
-    t->addField("repeatT", VrmlField::SFBOOL);
-    t->addField("blendMode", VrmlField::SFINT32);
-    return t;
+    VrmlNodeTexture::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("image", node->d_image),
+                     field("repeatS", node->d_repeatS),
+                     field("repeatT", node->d_repeatT),
+                     field("blendMode", node->d_blendMode));
 }
 
-VrmlNodeType *VrmlNodePixelTexture::nodeType() const { return defineType(0); }
+const char *VrmlNodePixelTexture::name() { return "PixelTexture"; }
 
 VrmlNodePixelTexture::VrmlNodePixelTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene)
+    : VrmlNodeTexture(scene, name())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_texObject(0)
 {
-}
-
-VrmlNodePixelTexture::~VrmlNodePixelTexture()
-{
-    // viewer->removeTextureObject( d_texObject ); ...
-}
-
-VrmlNode *VrmlNodePixelTexture::cloneMe() const
-{
-    return new VrmlNodePixelTexture(*this);
-}
-
-std::ostream &VrmlNodePixelTexture::printFields(std::ostream &os, int indent)
-{
-    if (!d_repeatS.get())
-        PRINT_FIELD(repeatS);
-    if (!d_repeatT.get())
-        PRINT_FIELD(repeatT);
-    if (d_image.width() > 0 && d_image.height() > 0 && d_image.nComponents() > 0 && d_image.pixels() != 0)
-        PRINT_FIELD(image);
-    return os;
 }
 
 void VrmlNodePixelTexture::render(Viewer *viewer)
@@ -168,35 +137,4 @@ int VrmlNodePixelTexture::nFrames()
 unsigned char *VrmlNodePixelTexture::pixels()
 {
     return d_image.pixels();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePixelTexture::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(image, SFImage)
-    else if
-        TRY_FIELD(repeatS, SFBool)
-    else if
-        TRY_FIELD(repeatT, SFBool)
-    else if
-        TRY_FIELD(blendMode, SFInt)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodePixelTexture::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "image") == 0)
-        return &d_image;
-    else if (strcmp(fieldName, "repeatS") == 0)
-        return &d_repeatS;
-    else if (strcmp(fieldName, "repeatT") == 0)
-        return &d_repeatT;
-    else if (strcmp(fieldName, "blendMode") == 0)
-        return &d_blendMode;
-
-    return VrmlNode::getField(fieldName);
 }

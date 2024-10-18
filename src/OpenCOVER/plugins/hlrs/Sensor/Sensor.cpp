@@ -100,60 +100,25 @@ void *thdGetSensorSpeed(void *ptr)
     return NULL;
 }
 
-// --------------------------------------------------------------------
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeSensor::initFields(VrmlNodeSensor *node, VrmlNodeType *t)
 {
-    return new VrmlNodeSensor(scene);
-}
-
-// --------------------------------------------------------------------
-// Define the built in VrmlNodeType:: "Sensor" fields
-// --------------------------------------------------------------------
-
-VrmlNodeType *VrmlNodeSensor::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    for (size_t i = 0; i < numSensors; i++)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Sensor", creator);
+        initFieldsHelper(node, t,
+                        eventInCallBack("sensor" + std::to_string(i), node->d_sensor[i]));
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("sensor1", VrmlField::SFTIME);
-    t->addEventIn("sensor2", VrmlField::SFTIME);
-    t->addEventIn("sensor3", VrmlField::SFTIME);
-    t->addEventIn("sensor4", VrmlField::SFTIME);
-    t->addEventIn("sensor5", VrmlField::SFTIME);
-    t->addEventIn("sensor6", VrmlField::SFTIME);
-    t->addEventIn("sensor7", VrmlField::SFTIME);
-    t->addEventIn("sensor8", VrmlField::SFTIME);
-    t->addEventIn("sensor9", VrmlField::SFTIME);
-    t->addEventIn("sensor10", VrmlField::SFTIME);
-    t->addEventIn("sensor11", VrmlField::SFTIME);
-    t->addEventIn("sensor12", VrmlField::SFTIME);
-    t->addEventIn("sensor13", VrmlField::SFTIME);
-    t->addEventIn("sensor14", VrmlField::SFTIME);
-    t->addEventIn("sensor15", VrmlField::SFTIME);
-    t->addEventIn("sensor16", VrmlField::SFTIME);
-
-    return t;
 }
 
-// --------------------------------------------------------------------
-
-VrmlNodeType *VrmlNodeSensor::nodeType() const
+const char *VrmlNodeSensor::name()
 {
-    return defineType(0);
+    return "Sensor";
 }
 
 // --------------------------------------------------------------------
 
 VrmlNodeSensor::VrmlNodeSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     fp = NULL;
     if (coVRMSController::instance()->isMaster())
@@ -167,7 +132,7 @@ VrmlNodeSensor::VrmlNodeSensor(VrmlScene *scene)
 // --------------------------------------------------------------------
 
 VrmlNodeSensor::VrmlNodeSensor(const VrmlNodeSensor &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     //fp =fopen("logfile.txt","a");
     setModified();
@@ -186,52 +151,9 @@ VrmlNodeSensor::~VrmlNodeSensor()
 
 // --------------------------------------------------------------------
 
-VrmlNode *VrmlNodeSensor::cloneMe() const
-{
-    return new VrmlNodeSensor(*this);
-}
-
-// --------------------------------------------------------------------
-
 VrmlNodeSensor *VrmlNodeSensor::toSensor() const
 {
     return (VrmlNodeSensor *)this;
-}
-
-// --------------------------------------------------------------------
-
-ostream &VrmlNodeSensor::printFields(ostream &os, int indent)
-{
-    return os;
-}
-
-// --------------------------------------------------------------------
-// Set the value of one of the node fields.
-// --------------------------------------------------------------------
-
-void VrmlNodeSensor::setField(const char *fieldName, const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(sensor1, SFTime)
-    else if
-        TRY_FIELD(sensor2, SFTime)
-}
-
-//
-
-const VrmlField *VrmlNodeSensor::getField(const char *fieldName)
-{
-    /* if (strcmp(fieldName,"enabled")==0)
-      return &d_enabled;
-   else if (strcmp(fieldName,"joystickNumber")==0)
-      return &d_joystickNumber;
-   else if (strcmp(fieldName,"axes_changed")==0)
-      return &d_axes;
-   else if (strcmp(fieldName,"buttons_changed")==0)
-      return &d_buttons;
-   else
-      cout << "Node does not have this eventOut or exposed field " << nodeType()->getName()<< "::" << name() << "." << fieldName << endl;*/
-    return 0;
 }
 
 void VrmlNodeSensor::eventIn(double timeStamp,
@@ -385,7 +307,7 @@ SensorPlugin::~SensorPlugin()
 
 int SensorPlugin::initUI()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeSensor::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSensor>());
     return 1;
 }
 

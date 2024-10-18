@@ -19,73 +19,23 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeSphere(s); }
-
-// Define the built in VrmlNodeType:: "Sphere" fields
-
-VrmlNodeType *VrmlNodeSphere::defineType(VrmlNodeType *t)
+void VrmlNodeSphere::initFields(VrmlNodeSphere *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Sphere", creator);
-    }
-
-    VrmlNodeGeometry::defineType(t); // Parent class
-    t->addField("radius", VrmlField::SFFLOAT);
-
-    return t;
+    VrmlNodeGeometry::initFields(node, t); 
+    initFieldsHelper(node, t, field("radius", node->d_radius));
 }
 
-VrmlNodeType *VrmlNodeSphere::nodeType() const { return defineType(0); }
+const char *VrmlNodeSphere::name() { return "Sphere"; }
 
 VrmlNodeSphere::VrmlNodeSphere(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+    : VrmlNodeGeometry(scene, name())
     , d_radius(1.0)
 {
-}
-
-VrmlNodeSphere::~VrmlNodeSphere()
-{
-}
-
-VrmlNode *VrmlNodeSphere::cloneMe() const
-{
-    return new VrmlNodeSphere(*this);
-}
-
-std::ostream &VrmlNodeSphere::printFields(std::ostream &os, int)
-{
-    if (d_radius.get() != 1.0)
-        os << "radius " << d_radius;
-    return os;
 }
 
 Viewer::Object VrmlNodeSphere::insertGeometry(Viewer *viewer)
 {
     return viewer->insertSphere(d_radius.get());
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeSphere::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(radius, SFFloat)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeSphere::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "radius") == 0)
-        return &d_radius;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }
 
 VrmlNodeSphere *VrmlNodeSphere::toSphere() const //LarryD Mar 08/99

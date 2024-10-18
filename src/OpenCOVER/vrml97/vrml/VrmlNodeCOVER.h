@@ -22,6 +22,8 @@
 #include "VrmlSFRotation.h"
 #include "VrmlNodeChild.h"
 
+#include <array>
+
 #ifdef VRML_PUI
 #include <vrui/coPocketUI.h>
 #endif
@@ -46,13 +48,11 @@ public:
     };
 
     // Define the built in VrmlNodeType:: "COVER"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCOVER *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCOVER(VrmlScene *scene);
     virtual ~VrmlNodeCOVER();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeCOVER *toCOVER() const;
 
@@ -60,13 +60,11 @@ public:
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
 
     // process key events
     void keyEvent(enum KeyEventType type, const char *keyModString);
@@ -96,36 +94,11 @@ private:
     VrmlSFRotation d_localOrientation;
     VrmlSFVec3f d_localViewerPosition;
     VrmlSFRotation d_localViewerOrientation;
-    VrmlSFVec3f d_position1;
-    VrmlSFVec3f d_position2;
-    VrmlSFVec3f d_position3;
-    VrmlSFVec3f d_position4;
-    VrmlSFVec3f d_position5;
-    VrmlSFVec3f d_position6;
-    VrmlSFVec3f d_position7;
-    VrmlSFVec3f d_position8;
-    VrmlSFVec3f d_position9;
-    VrmlSFVec3f d_position10;
-    VrmlSFVec3f d_position11;
-    VrmlSFVec3f d_position12;
-    VrmlSFVec3f d_position13;
-    VrmlSFVec3f d_position14;
-    VrmlSFVec3f d_position15;
-    VrmlSFRotation d_orientation1;
-    VrmlSFRotation d_orientation2;
-    VrmlSFRotation d_orientation3;
-    VrmlSFRotation d_orientation4;
-    VrmlSFRotation d_orientation5;
-    VrmlSFRotation d_orientation6;
-    VrmlSFRotation d_orientation7;
-    VrmlSFRotation d_orientation8;
-    VrmlSFRotation d_orientation9;
-    VrmlSFRotation d_orientation10;
-    VrmlSFRotation d_orientation11;
-    VrmlSFRotation d_orientation12;
-    VrmlSFRotation d_orientation13;
-    VrmlSFRotation d_orientation14;
-    VrmlSFRotation d_orientation15;
+    
+    static const int NUM_POSITIONS = 15;
+    std::array<VrmlSFVec3f, NUM_POSITIONS> d_positions;
+    std::array<VrmlSFRotation, NUM_POSITIONS> d_orientations;
+   
     VrmlSFString d_saveTimestamp;
 	VrmlSFString d_loadPlugin;
 #ifdef VRML_PUI

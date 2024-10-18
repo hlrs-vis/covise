@@ -13,45 +13,30 @@
 using namespace vrml;
 using namespace opencover;
 
-
-
-static VrmlNode* creator(VrmlScene* scene)
+void VrmlNodeJoystick::initFields(VrmlNodeJoystick* node, VrmlNodeType* t)
 {
-    return new VrmlNodeJoystick(scene);
-}
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+        exposedField("enabled", node->d_enabled),
+        exposedField("joystickNumber", node->d_joystickNumber));
 
-// Define the built in VrmlNodeType:: "SteeringWheel" fields
-
-VrmlNodeType* VrmlNodeJoystick::defineType(VrmlNodeType* t)
-{
-    static VrmlNodeType* st = 0;
-
-    if (!t)
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Joystick", creator);
+        t->addEventIn("set_time", VrmlField::SFTIME);
+        t->addEventOut("buttons_changed", VrmlField::MFINT32);
+        t->addEventOut("axes_changed", VrmlField::MFFLOAT);
+        t->addEventOut("sliders_changed", VrmlField::MFFLOAT);
+        t->addEventOut("POVs_changed", VrmlField::MFFLOAT);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_time", VrmlField::SFTIME);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("joystickNumber", VrmlField::SFINT32);
-    t->addEventOut("buttons_changed", VrmlField::MFINT32);
-    t->addEventOut("axes_changed", VrmlField::MFFLOAT);
-    t->addEventOut("sliders_changed", VrmlField::MFFLOAT);
-    t->addEventOut("POVs_changed", VrmlField::MFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType* VrmlNodeJoystick::nodeType() const
+const char* VrmlNodeJoystick::name()
 {
-    return defineType(0);
+    return "Joystick";
 }
 
 VrmlNodeJoystick::VrmlNodeJoystick(VrmlScene* scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
     , d_joystickNumber(-1)
 {
@@ -59,21 +44,11 @@ VrmlNodeJoystick::VrmlNodeJoystick(VrmlScene* scene)
 }
 
 VrmlNodeJoystick::VrmlNodeJoystick(const VrmlNodeJoystick& n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
     , d_joystickNumber(n.d_joystickNumber)
 {
-
     setModified();
-}
-
-VrmlNodeJoystick::~VrmlNodeJoystick()
-{
-}
-
-VrmlNode* VrmlNodeJoystick::cloneMe() const
-{
-    return new VrmlNodeJoystick(*this);
 }
 
 VrmlNodeJoystick* VrmlNodeJoystick::toSteeringWheel() const
@@ -81,36 +56,9 @@ VrmlNodeJoystick* VrmlNodeJoystick::toSteeringWheel() const
     return (VrmlNodeJoystick*)this;
 }
 
-ostream& VrmlNodeJoystick::printFields(ostream& os, int indent)
+const VrmlField* VrmlNodeJoystick::getField(const char* fieldName) const
 {
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_joystickNumber.get())
-        PRINT_FIELD(joystickNumber);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeJoystick::setField(const char* fieldName,
-    const VrmlField& fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(joystickNumber, SFInt)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField* VrmlNodeJoystick::getField(const char* fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "joystickNumber") == 0)
-        return &d_joystickNumber;
-    else if (strcmp(fieldName, "axes_changed") == 0)
+    if (strcmp(fieldName, "axes_changed") == 0)
         return &d_axes;
     else if (strcmp(fieldName, "sliders_changed") == 0)
         return &d_sliders;
@@ -118,9 +66,7 @@ const VrmlField* VrmlNodeJoystick::getField(const char* fieldName)
         return &d_POVs;
     else if (strcmp(fieldName, "buttons_changed") == 0)
         return &d_buttons;
-    else
-        cout << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+    return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeJoystick::eventIn(double timeStamp,
@@ -289,7 +235,7 @@ bool JoystickPlugin::init()
 				POVs[i][n] = 0;
 		}
     }
-    VrmlNamespace::addBuiltIn(VrmlNodeJoystick::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeJoystick>());
     return true;
 }
 

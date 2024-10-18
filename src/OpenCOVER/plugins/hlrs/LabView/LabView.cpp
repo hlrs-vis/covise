@@ -16,58 +16,35 @@
 
 LabViewPlugin *LabViewPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeLabView::initFields(VrmlNodeLabView *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeLabView(scene);
-}
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, exposedField("enabled", node->d_enabled));
 
-// Define the built in VrmlNodeType:: "LabView" fields
-
-VrmlNodeType *VrmlNodeLabView::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("LabView", creator);
+        t->addEventOut("ints_changed", VrmlField::MFINT32);
+        t->addEventOut("floats_changed", VrmlField::MFFLOAT);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("ints_changed", VrmlField::MFINT32);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeLabView::nodeType() const
+const char *VrmlNodeLabView::name()
 {
-    return defineType(0);
+    return "LabView";
 }
 
 VrmlNodeLabView::VrmlNodeLabView(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
 {
     setModified();
 }
 
 VrmlNodeLabView::VrmlNodeLabView(const VrmlNodeLabView &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
 {
     setModified();
-}
-
-VrmlNodeLabView::~VrmlNodeLabView()
-{
-}
-
-VrmlNode *VrmlNodeLabView::cloneMe() const
-{
-    return new VrmlNodeLabView(*this);
 }
 
 VrmlNodeLabView *VrmlNodeLabView::toLabView() const
@@ -75,36 +52,15 @@ VrmlNodeLabView *VrmlNodeLabView::toLabView() const
     return (VrmlNodeLabView *)this;
 }
 
-ostream &VrmlNodeLabView::printFields(ostream &os, int indent)
+const VrmlField *VrmlNodeLabView::getField(const char *fieldName) const
 {
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
 
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeLabView::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeLabView::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "floats_changed") == 0)
+    if (strcmp(fieldName, "floats_changed") == 0)
         return &d_floats;
     else if (strcmp(fieldName, "ints_changed") == 0)
         return &d_ints;
     else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+        return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeLabView::eventIn(double timeStamp,
@@ -194,7 +150,7 @@ LabViewPlugin::~LabViewPlugin()
 
 bool LabViewPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeLabView::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeLabView>());
 
     return true;
 }

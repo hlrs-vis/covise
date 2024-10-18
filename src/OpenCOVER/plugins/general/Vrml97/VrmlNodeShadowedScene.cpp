@@ -45,43 +45,26 @@
 #include <osg/MatrixTransform>
 #include <osg/Quat>
 
-// ShadowedScene factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeShadowedScene::initFields(VrmlNodeShadowedScene *node, VrmlNodeType *t)
 {
-    return new VrmlNodeShadowedScene(scene);
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t,
+                    exposedField("technique", node->d_technique),
+                    exposedField("shadowLight", node->d_shadowLight),
+                    exposedField("jitteringScale", node->d_jitterScale),
+                    exposedField("softnessWidth", node->d_softnessWidth),
+                    exposedField("textureSize", node->d_textureSize));
+
 }
 
-// Define the built in VrmlNodeType:: "ShadowedScene" fields
-
-VrmlNodeType *VrmlNodeShadowedScene::defineType(VrmlNodeType *t)
+const char *VrmlNodeShadowedScene::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ShadowedScene", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("technique", VrmlField::SFSTRING);
-    t->addExposedField("shadowLight", VrmlField::SFNODE);
-    t->addExposedField("jitteringScale", VrmlField::SFFLOAT);
-    t->addExposedField("softnessWidth", VrmlField::SFFLOAT);
-    t->addExposedField("textureSize",VrmlField::SFVEC2F);
-
-    return t;
+    return "ShadowedScene";
 }
 
-VrmlNodeType *VrmlNodeShadowedScene::nodeType() const
-{
-    return defineType(0);
-}
 
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
     , d_technique("ShadowMap")
     , d_jitterScale(32)
     , d_softnessWidth(0.005)
@@ -90,10 +73,8 @@ VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
     d_shadowObject = 0;
 }
 
-// need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
-
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n)
-    : VrmlNodeGroup(n.d_scene)
+    : VrmlNodeGroup(n)
     , d_technique(n.d_technique)
     , d_shadowLight(n.d_shadowLight)
     , d_jitterScale(n.d_jitterScale)
@@ -101,15 +82,6 @@ VrmlNodeShadowedScene::VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n)
     , d_textureSize(n.d_textureSize)
 {
     d_shadowObject = 0;
-}
-
-VrmlNodeShadowedScene::~VrmlNodeShadowedScene()
-{
-}
-
-VrmlNode *VrmlNodeShadowedScene::cloneMe() const
-{
-    return new VrmlNodeShadowedScene(*this);
 }
 
 void VrmlNodeShadowedScene::render(Viewer *viewer)
@@ -161,57 +133,4 @@ void VrmlNodeShadowedScene::render(Viewer *viewer)
         viewer->endObject();
     }
     clearModified();
-}
-
-ostream &VrmlNodeShadowedScene::printFields(ostream &os, int indent)
-{
-    if (!d_technique.get())
-        PRINT_FIELD(technique);
-    if(!d_shadowLight.get())
-        PRINT_FIELD(shadowLight);
-    if(!d_jitterScale.get())
-        PRINT_FIELD(jitterScale);
-    if(!d_softnessWidth.get())
-        PRINT_FIELD(softnessWidth);
-    if(!d_textureSize.get())
-        PRINT_FIELD(textureSize);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeShadowedScene::setField(const char *fieldName,
-                                     const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(technique, SFString)
-    else if
-        TRY_FIELD(shadowLight,SFNode)
-    else if
-        TRY_FIELD(softnessWidth,SFFloat)
-    else if
-        TRY_FIELD(jitterScale,SFFloat)
-    else if
-        TRY_FIELD(textureSize,SFVec2f)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-    setModified();
-}
-
-const VrmlField *VrmlNodeShadowedScene::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "technique") == 0)
-        return &d_technique;
-    else if(strcmp(fieldName,"shadowLight") == 0)
-        return &d_shadowLight;
-    else if(strcmp(fieldName,"softnessWidth") == 0)
-        return &d_softnessWidth;
-    else if(strcmp(fieldName,"jitterScale") == 0)
-        return &d_jitterScale;
-    else if(strcmp(fieldName,"textureSize") == 0)
-        return &d_textureSize;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

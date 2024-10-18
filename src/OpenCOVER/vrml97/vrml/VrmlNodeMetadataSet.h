@@ -22,18 +22,14 @@ namespace vrml
 {
 
 class VRMLEXPORT VrmlNodeMetadataSet : public VrmlNodeMetadata
-
 {
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMetadataSet(VrmlScene *);
-    virtual ~VrmlNodeMetadataSet();
-
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual bool isModified() const;
@@ -42,11 +38,6 @@ public:
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeMetadataSet *toMetadataSet() const;
 

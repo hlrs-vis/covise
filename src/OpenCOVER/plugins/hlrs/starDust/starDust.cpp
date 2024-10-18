@@ -256,7 +256,8 @@ starDust::starDust()
         fprintf(stderr, "Could not open file %s\n", "/data/irs/objects.txt");
     }
 
-    VrmlNamespace::addBuiltIn(VrmlNodeSolarSystem::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSolarSystem>());
+
 }
 
 starDust::~starDust()

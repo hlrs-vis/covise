@@ -30,11 +30,6 @@ Cal3DPlugin *Cal3DPlugin::plugin = NULL;
 #include <sys/time.h>
 #endif
 
-static VrmlNode *creatorCore(VrmlScene *scene)
-{
-    return new Cal3dCore(scene);
-}
-
 void Cal3dCore::loadCore(const char *fn)
 {
     coreModel = new osgCal::CoreModel();
@@ -107,42 +102,26 @@ void Cal3dCore::loadCore(const char *fn)
     }
 }
 
-// Define the built in VrmlNodeType:: "COVER" fields
-
-VrmlNodeType *Cal3dCore::defineType(VrmlNodeType *t)
+void Cal3dCore::initFields(Cal3dCore *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Cal3DCore", creatorCore);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("modelName", VrmlField::SFSTRING);
-    t->addExposedField("scale", VrmlField::SFFLOAT);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("modelName", node->d_modelName, [node](auto f){
+                        node->loadCore(f->get());
+                     }),
+                     exposedField("scale", node->d_scale));
 }
 
-VrmlNodeType *Cal3dCore::nodeType() const { return defineType(0); }
+const char *Cal3dCore::name()
+{
+    return "Cal3DCore";
+}
 
 Cal3dCore::Cal3dCore(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     fprintf(stderr, "Cal3dCore::Cal3dCore\n");
     d_scale = 1.0;
-}
-
-Cal3dCore::~Cal3dCore()
-{
-}
-
-VrmlNode *Cal3dCore::cloneMe() const
-{
-    return (vrml::VrmlNode *)this;
 }
 
 Cal3dCore *Cal3dCore::toCal3dCore() const
@@ -153,12 +132,6 @@ Cal3dCore *Cal3dCore::toCal3dCore() const
 void Cal3dCore::addToScene(VrmlScene *s, const char *)
 {
     d_scene = s;
-}
-
-ostream &Cal3dCore::printFields(ostream &os, int indent)
-{
-    (void)indent;
-    return os;
 }
 
 void Cal3dCore::eventIn(double timeStamp,
@@ -175,29 +148,7 @@ void Cal3dCore::eventIn(double timeStamp,
     }
 }
 
-// Set the value of one of the node fields.
-
-void Cal3dCore::setField(const char *fieldName,
-                         const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(modelName, SFString)
-    else if
-        TRY_FIELD(modelName, SFString)
-    else if
-        TRY_FIELD(scale, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp("modelName", fieldName) == 0)
-    {
-        loadCore(d_modelName.get());
-    }
-}
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new Cal3dNode(scene);
-}
+// Cal3dNode
 
 void Cal3dNode::loadModel(Cal3dCore *core)
 {
@@ -217,40 +168,52 @@ void Cal3dNode::loadModel(Cal3dCore *core)
     myTransform->setMatrix(mat * osg::Matrix::rotate(-M_PI / 2.0, 1, 0, 0));
 }
 
-// Define the built in VrmlNodeType:: "COVER" fields
-
-VrmlNodeType *Cal3dNode::defineType(VrmlNodeType *t)
+void Cal3dNode::initFields(Cal3dNode *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("core", node->d_core, [node](auto f){
+                        node->loadModel((Cal3dCore *)f->get());
+                     }),
+                     exposedField("materialSet", node->d_materialSet),
+                     exposedField("executeAction", node->d_executeAction,[node](auto f){
+                        node->model->executeAction(node->d_executeAction.get(), node->d_fadeInTime.get(), node->d_fadeOutTime.get());
+                     }),
+                     exposedField("animationId", node->d_animationId, [node](auto f){
+                        if (node->currentAnimation != -1)
+                        {
+                            node->model->clearCycle(node->currentAnimation, node->d_animationBlendTime.get()); // clear in 1sec
+                        }
+                        node->currentAnimation = node->d_animationId.get();
+                        if (node->currentAnimation == -1)
+                        {
+                            node->model->clearCycle(node->currentAnimation, 0.0); // clear now
+                        }
+                        node->model->blendCycle(node->currentAnimation, node->d_animationWeight.get(), node->d_animationBlendTime.get());
+                     }),
+                     exposedField("animationOffset", node->d_animationOffset, [node](auto f){
+                        osgCal::ModelData *md = (osgCal::ModelData *)node->model->getModelData();
+                        md->getCalMixer()->updateAnimation(node->d_animationOffset.get());
+                     }),
+                     exposedField("animationWeight", node->d_animationWeight),
+                     exposedField("animationBlendTime", node->d_animationBlendTime),
+                     exposedField("fadeInTime", node->d_fadeInTime),
+                     exposedField("fadeOutTime", node->d_fadeOutTime));
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Cal3DNode", creator);
+        t->addEventIn("startCycle", VrmlField::SFTIME);
+        t->addEventIn("stopCycle", VrmlField::SFTIME);
+        t->addEventIn("startAction", VrmlField::SFTIME);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("core", VrmlField::SFNODE);
-    t->addExposedField("materialSet", VrmlField::SFINT32);
-    t->addEventIn("startCycle", VrmlField::SFTIME);
-    t->addEventIn("stopCycle", VrmlField::SFTIME);
-    t->addEventIn("startAction", VrmlField::SFTIME);
-    t->addExposedField("executeAction", VrmlField::SFINT32);
-    t->addExposedField("animationId", VrmlField::SFINT32);
-    t->addExposedField("animationOffset", VrmlField::SFFLOAT);
-    t->addExposedField("animationWeight", VrmlField::SFFLOAT);
-    t->addExposedField("animationBlendTime", VrmlField::SFFLOAT);
-    t->addExposedField("fadeInTime", VrmlField::SFFLOAT);
-    t->addExposedField("fadeOutTime", VrmlField::SFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType *Cal3dNode::nodeType() const { return defineType(0); }
+const char *Cal3dNode::name()
+{
+    return "Cal3DNode";
+}
 
 Cal3dNode::Cal3dNode(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     fprintf(stderr, "Cal3dNode::Cal3dNode\n");
     model = new osgCal::Model();
@@ -269,15 +232,6 @@ Cal3dNode::Cal3dNode(VrmlScene *scene)
     d_viewerObject = 0;
     currentAnimation = -1;
 	Cal3DPlugin::instance()->nodes.push_back(this);
-}
-
-Cal3dNode::~Cal3dNode()
-{
-}
-
-VrmlNode *Cal3dNode::cloneMe() const
-{
-    return new Cal3dNode(*this);
 }
 
 void Cal3dNode::render(Viewer *v)
@@ -304,12 +258,6 @@ Cal3dNode *Cal3dNode::toCal3dNode() const
 void Cal3dNode::addToScene(VrmlScene *s, const char *)
 {
     d_scene = s;
-}
-
-ostream &Cal3dNode::printFields(ostream &os, int indent)
-{
-    (void)indent;
-    return os;
 }
 
 void Cal3dNode::eventIn(double timeStamp,
@@ -351,63 +299,6 @@ void Cal3dNode::eventIn(double timeStamp,
     }
 }
 
-// Set the value of one of the node fields.
-
-void Cal3dNode::setField(const char *fieldName,
-                         const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(core, SFNode)
-    else if
-        TRY_FIELD(materialSet, SFInt)
-    else if
-        TRY_FIELD(animationId, SFInt)
-    else if
-        TRY_FIELD(executeAction, SFInt)
-    else if
-        TRY_FIELD(animationWeight, SFFloat)
-    else if
-        TRY_FIELD(animationOffset, SFFloat)
-    else if
-        TRY_FIELD(animationBlendTime, SFFloat)
-    else if
-        TRY_FIELD(fadeInTime, SFFloat)
-    else if
-        TRY_FIELD(fadeOutTime, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp("core", fieldName) == 0)
-    {
-        loadModel((Cal3dCore *)d_core.get());
-    }
-    /* else if ((strcmp(fieldName, "materialSet") == 0))
-   {
-      myNode->materialSet = d_materialSet.get();
-   }*/
-    else if ((strcmp(fieldName, "executeAction") == 0))
-    {
-        model->executeAction(d_executeAction.get(), d_fadeInTime.get(), d_fadeOutTime.get());
-    }
-    else if ((strcmp(fieldName, "animationId") == 0))
-    {
-        if (currentAnimation != -1)
-        {
-            model->clearCycle(currentAnimation, d_animationBlendTime.get()); // clear in 1sec
-        }
-        currentAnimation = d_animationId.get();
-        if (currentAnimation == -1)
-        {
-            model->clearCycle(currentAnimation, 0.0); // clear now
-        }
-        model->blendCycle(currentAnimation, d_animationWeight.get(), d_animationBlendTime.get());
-    }
-    else if ((strcmp(fieldName, "animationOffset") == 0))
-    {
-        osgCal::ModelData *md = (osgCal::ModelData *)model->getModelData();
-        md->getCalMixer()->updateAnimation(d_animationOffset.get());
-    }
-}
-
 Cal3DPlugin::Cal3DPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 {
@@ -441,8 +332,8 @@ Cal3DPlugin::~Cal3DPlugin()
 
 bool Cal3DPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(Cal3dCore::defineType());
-    VrmlNamespace::addBuiltIn(Cal3dNode::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<Cal3dCore>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<Cal3dNode>());
     return true;
 }
 

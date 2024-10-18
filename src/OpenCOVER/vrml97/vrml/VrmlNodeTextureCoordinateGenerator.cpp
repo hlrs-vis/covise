@@ -17,85 +17,25 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeTextureCoordinateGenerator::initFields(VrmlNodeTextureCoordinateGenerator *node, VrmlNodeType *t)
 {
-    return new VrmlNodeTextureCoordinateGenerator(s);
+    VrmlNodeTemplate::initFieldsHelper(node, t, 
+        exposedField("mode", node->d_mode), 
+        exposedField("parameter", node->d_parameter));
 }
 
-// Define the built in VrmlNodeType:: "TextureCoordinateGenerator" fields
-
-VrmlNodeType *VrmlNodeTextureCoordinateGenerator::defineType(VrmlNodeType *t)
+const char *VrmlNodeTextureCoordinateGenerator::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TextureCoordinateGenerator", creator);
-    }
-
-    VrmlNode::defineType(t); // Parent class
-    t->addExposedField("mode", VrmlField::SFSTRING);
-    t->addExposedField("parameter", VrmlField::MFFLOAT);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeTextureCoordinateGenerator::nodeType() const
-{
-    return defineType(0);
+    return "TextureCoordinateGenerator";
 }
 
 VrmlNodeTextureCoordinateGenerator::VrmlNodeTextureCoordinateGenerator(VrmlScene *scene)
-    : VrmlNode(scene)
+    : VrmlNodeTemplate(scene, name())
     , d_mode("SPHERE")
 {
-}
-
-VrmlNodeTextureCoordinateGenerator::~VrmlNodeTextureCoordinateGenerator()
-{
-}
-
-VrmlNode *VrmlNodeTextureCoordinateGenerator::cloneMe() const
-{
-    return new VrmlNodeTextureCoordinateGenerator(*this);
 }
 
 VrmlNodeTextureCoordinateGenerator *VrmlNodeTextureCoordinateGenerator::toTextureCoordinateGenerator() const
 {
     return (VrmlNodeTextureCoordinateGenerator *)this;
-}
-
-std::ostream &VrmlNodeTextureCoordinateGenerator::printFields(std::ostream &os, int indent)
-{
-    if (d_mode.get() && strcmp(d_mode.get(), "SPHERE"))
-        PRINT_FIELD(mode);
-    if (d_parameter.size() > 0)
-        PRINT_FIELD(parameter);
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTextureCoordinateGenerator::setField(const char *fieldName,
-                                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(mode, SFString)
-    else if
-        TRY_FIELD(parameter, MFFloat)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTextureCoordinateGenerator::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "mode") == 0)
-        return &d_mode;
-
-    if (strcmp(fieldName, "parameter") == 0)
-        return &d_parameter;
-
-    return VrmlNode::getField(fieldName);
 }

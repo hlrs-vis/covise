@@ -35,23 +35,17 @@ class VRML97COVEREXPORT VrmlNodePrecipitation : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of Precipitation nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePrecipitation *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodePrecipitation(VrmlScene *scene = 0);
     VrmlNodePrecipitation(const VrmlNodePrecipitation &n);
     virtual ~VrmlNodePrecipitation();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodePrecipitation *toPrecipitation() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    const VrmlField *getField(const char *fieldName) const override;
 
     virtual void render(Viewer *);
 
@@ -59,7 +53,6 @@ public:
     {
         return d_enabled.get();
     }
-    static void update();
 
 private:
     // Fields

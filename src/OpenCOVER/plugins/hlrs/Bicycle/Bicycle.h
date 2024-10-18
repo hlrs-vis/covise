@@ -97,8 +97,8 @@ class PLUGINEXPORT VrmlNodeBicycle : public VrmlNodeChild
 {
 public:
     // Define the fields of Bicycle nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeBicycle *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeBicycle(VrmlScene *scene = 0);
     VrmlNodeBicycle(const VrmlNodeBicycle &n);
@@ -106,16 +106,10 @@ public:
     VrmlSFRotation d_bikeRotation;
     VrmlSFVec3f d_bikeTranslation;
     VrmlSFBool d_thermal;
-    virtual ~VrmlNodeBicycle();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeBicycle *toBicycle() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
+    const VrmlField *getField(const char *fieldName) const override;
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

@@ -31,10 +31,9 @@ class VRMLEXPORT VrmlNodePolygonsCommon : public VrmlNodeColoredSet
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
+    static void initFields(VrmlNodePolygonsCommon *node, VrmlNodeType *t);
 
-    VrmlNodePolygonsCommon(VrmlScene *);
-    virtual ~VrmlNodePolygonsCommon();
+    VrmlNodePolygonsCommon(VrmlScene *, const std::string &name);
 
     virtual void cloneChildren(VrmlNamespace *);
 
@@ -45,11 +44,6 @@ public:
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual bool getCcw() // LarryD  Feb18/99
     {

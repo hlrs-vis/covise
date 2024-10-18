@@ -33,39 +33,32 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "Sound" fields
 
-VrmlNodeType *VrmlNodeSound::defineType(VrmlNodeType *t)
+void VrmlNodeSound::initFields(VrmlNodeSound *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("direction", node->d_direction),
+                     exposedField("intensity", node->d_intensity),
+                     exposedField("location", node->d_location),
+                     exposedField("maxBack", node->d_maxBack),
+                     exposedField("maxFront", node->d_maxFront),
+                     exposedField("minBack", node->d_minBack),
+                     exposedField("minFront", node->d_minFront),
+                     exposedField("priority", node->d_priority),
+                     exposedField("source", node->d_source, [node](auto value){
+                        delete node->source;
+                        node->source = NULL;
+                     }),
+                     field("spatialize", node->d_spatialize),
+                     exposedField("doppler", node->d_doppler));
 
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Sound", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("direction", VrmlField::SFVEC3F);
-    t->addExposedField("intensity", VrmlField::SFFLOAT);
-    t->addExposedField("location", VrmlField::SFVEC3F);
-    t->addExposedField("maxBack", VrmlField::SFFLOAT);
-    t->addExposedField("maxFront", VrmlField::SFFLOAT);
-    t->addExposedField("minBack", VrmlField::SFFLOAT);
-    t->addExposedField("minFront", VrmlField::SFFLOAT);
-    t->addExposedField("priority", VrmlField::SFFLOAT);
-    t->addExposedField("source", VrmlField::SFNODE);
-    t->addField("spatialize", VrmlField::SFBOOL);
-    t->addExposedField("doppler", VrmlField::SFBOOL);
-
-    return t;
 }
 
+const char *VrmlNodeSound::name() { return "Sound"; }
+
 // Should subclass NodeType and have each Sound maintain its own type...
-
-VrmlNodeType *VrmlNodeSound::nodeType() const { return defineType(0); }
-
 VrmlNodeSound::VrmlNodeSound(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_direction(0, 0, 1)
     , d_intensity(1)
     , d_maxBack(10)
@@ -97,11 +90,6 @@ VrmlNodeSound::VrmlNodeSound(VrmlNodeSound *sound)
 VrmlNodeSound::~VrmlNodeSound()
 {
     delete source;
-}
-
-VrmlNode *VrmlNodeSound::cloneMe() const
-{
-    return new VrmlNodeSound(*this);
 }
 
 void VrmlNodeSound::cloneChildren(VrmlNamespace *ns)
@@ -141,16 +129,6 @@ void VrmlNodeSound::copyRoutes(VrmlNamespace *ns)
     if (d_source.get())
         d_source.get()->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeSound::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_direction.x()) || !FPZERO(d_direction.y()) || !FPEQUAL(d_direction.z(), 1.0))
-        PRINT_FIELD(direction);
-
-    // ...
-
-    return os;
 }
 
 void VrmlNodeSound::render(Viewer *viewer)
@@ -253,69 +231,4 @@ void VrmlNodeSound::render(Viewer *viewer)
 
     lastLocation = d_location;
     lastTime = timeNow;
-}
-
-// Set the value of one of the node fields/events.
-// setField is public so the parser can access it.
-
-void VrmlNodeSound::setField(const char *fieldName,
-                             const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(direction, SFVec3f)
-    else if
-        TRY_FIELD(intensity, SFFloat)
-    else if
-        TRY_FIELD(location, SFVec3f)
-    else if
-        TRY_FIELD(maxBack, SFFloat)
-    else if
-        TRY_FIELD(maxFront, SFFloat)
-    else if
-        TRY_FIELD(minBack, SFFloat)
-    else if
-        TRY_FIELD(minFront, SFFloat)
-    else if
-        TRY_FIELD(priority, SFFloat)
-    else if
-        TRY_SFNODE_FIELD2(source, AudioClip, MovieTexture)
-    else if
-        TRY_FIELD(spatialize, SFBool)
-    else if
-        TRY_FIELD(doppler, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (!strcmp(fieldName, "source"))
-    {
-        delete source;
-        source = NULL;
-    }
-}
-
-const VrmlField *VrmlNodeSound::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "direction") == 0)
-        return &d_direction;
-    else if (strcmp(fieldName, "intensity") == 0)
-        return &d_intensity;
-    else if (strcmp(fieldName, "location") == 0)
-        return &d_location;
-    else if (strcmp(fieldName, "maxBack") == 0)
-        return &d_maxBack;
-    else if (strcmp(fieldName, "maxFront") == 0)
-        return &d_maxFront;
-    else if (strcmp(fieldName, "minBack") == 0)
-        return &d_minBack;
-    else if (strcmp(fieldName, "minFront") == 0)
-        return &d_minFront;
-    else if (strcmp(fieldName, "priority") == 0)
-        return &d_priority;
-    else if (strcmp(fieldName, "source") == 0)
-        return &d_source;
-    else if (strcmp(fieldName, "spatialize") == 0)
-        return &d_spatialize;
-    else if (strcmp(fieldName, "doppler") == 0)
-        return &d_doppler;
-
-    return VrmlNodeChild::getField(fieldName);
 }

@@ -36,29 +36,18 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "Inline" fields
 
-VrmlNodeType *VrmlNodeInline::defineType(VrmlNodeType *t)
+void VrmlNodeInline::initFields(VrmlNodeInline *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Inline", creator);
-    }
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("url", node->d_url));
 
-    // Having Inline a subclass of Group is not right since
-    // Groups have an exposedField "children" and eventIns
-    // addChildren/deleteChildren that Inlines don't support...
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("url", VrmlField::MFSTRING);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeInline::nodeType() const { return defineType(0); }
+const char *VrmlNodeInline::name() { return "Inline"; }
 
 VrmlNodeInline::VrmlNodeInline(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
     , d_namespace(0)
     , sgObject(0)
     , d_hasLoaded(false)
@@ -69,11 +58,6 @@ VrmlNodeInline::~VrmlNodeInline()
 {
     delete d_namespace;
     d_isDeletedInline = true;
-}
-
-VrmlNode *VrmlNodeInline::cloneMe() const
-{
-    return new VrmlNodeInline(*this);
 }
 
 VrmlNodeInline *VrmlNodeInline::toInline() const
@@ -97,45 +81,7 @@ void VrmlNodeInline::addToScene(VrmlScene *s, const char *relativeUrl)
     VrmlNodeGroup::addToScene(s, relativeUrl);
 }
 
-std::ostream &VrmlNodeInline::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_bboxCenter.x()) || !FPZERO(d_bboxCenter.y()) || !FPZERO(d_bboxCenter.z()))
-        PRINT_FIELD(bboxCenter);
-
-    if (!FPEQUAL(d_bboxSize.x(), -1) || !FPEQUAL(d_bboxSize.y(), -1) || !FPEQUAL(d_bboxSize.z(), -1))
-        PRINT_FIELD(bboxCenter);
-
-    if (d_url.get())
-        PRINT_FIELD(url);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeInline::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(url, MFString)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeInline::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "url") == 0)
-        return &d_url;
-    else if (strcmp(fieldName, "bboxCenter") == 0)
-        return &d_bboxCenter;
-    else if (strcmp(fieldName, "bboxSize") == 0)
-        return &d_bboxSize;
-
-    return VrmlNode::getField(fieldName); // no other fields
-}
-
 // Render each of the children
-
 void VrmlNodeInline::render(Viewer *viewer)
 {
     if (!haveToRender())

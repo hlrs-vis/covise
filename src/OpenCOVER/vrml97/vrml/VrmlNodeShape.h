@@ -28,13 +28,11 @@ class VRMLEXPORT VrmlNodeShape : public VrmlNodeChild
 
 public:
     // Define the fields of Shape nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const override;
+    static void initFields(VrmlNodeShape *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeShape(VrmlScene *);
-    virtual ~VrmlNodeShape();
 
-    virtual VrmlNode *cloneMe() const override;
     virtual void cloneChildren(VrmlNamespace *) override;
 
     virtual bool isModified() const override;
@@ -47,12 +45,7 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns) override;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent) override;
-
     virtual void render(Viewer *) override;
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
-    const VrmlField *getField(const char *fieldName) const override;
 
     virtual VrmlNode *getAppearance()
     {

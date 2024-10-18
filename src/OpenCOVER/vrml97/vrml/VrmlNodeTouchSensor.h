@@ -33,22 +33,14 @@ class VRMLEXPORT VrmlNodeTouchSensor : public VrmlNodeChild
 
 public:
     // Define the fields of TouchSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeTouchSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeTouchSensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeTouchSensor();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeTouchSensor *toTouchSensor() const;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     void activate(double timeStamp, bool isOver, bool isActive, double *p);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
 
     bool isEnabled()
     {

@@ -24,41 +24,26 @@
 
 using namespace vrml;
 
-// VisibilitySensor factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeVisibilitySensor::initFields(VrmlNodeVisibilitySensor *node, VrmlNodeType *t)
 {
-    return new VrmlNodeVisibilitySensor(scene);
-}
-
-// Define the built in VrmlNodeType:: "VisibilitySensor" fields
-
-VrmlNodeType *VrmlNodeVisibilitySensor::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("center", node->d_center),
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("size", node->d_size));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("VisibilitySensor", creator);
-    }
+        t->addEventOut("enterTime", VrmlField::SFTIME);
+        t->addEventOut("exitTime", VrmlField::SFTIME);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
+    }                     
 
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("center", VrmlField::SFVEC3F);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("size", VrmlField::SFVEC3F);
-    t->addEventOut("enterTime", VrmlField::SFTIME);
-    t->addEventOut("exitTime", VrmlField::SFTIME);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeVisibilitySensor::nodeType() const { return defineType(0); }
+const char *VrmlNodeVisibilitySensor::name() { return "VisibilitySensor"; }
 
 VrmlNodeVisibilitySensor::VrmlNodeVisibilitySensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_center(0.0, 0.0, 0.0)
     , d_enabled(true)
     , d_size(0.0, 0.0, 0.0)
@@ -67,27 +52,6 @@ VrmlNodeVisibilitySensor::VrmlNodeVisibilitySensor(VrmlScene *scene)
     , d_exitTime(0.0)
 {
     setModified();
-}
-
-VrmlNodeVisibilitySensor::~VrmlNodeVisibilitySensor()
-{
-}
-
-VrmlNode *VrmlNodeVisibilitySensor::cloneMe() const
-{
-    return new VrmlNodeVisibilitySensor(*this);
-}
-
-std::ostream &VrmlNodeVisibilitySensor::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_center.x()) || !FPZERO(d_center.y()) || !FPZERO(d_center.z()))
-        PRINT_FIELD(center);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!FPZERO(d_size.x()) || !FPZERO(d_size.y()) || !FPZERO(d_size.z()))
-        PRINT_FIELD(size);
-
-    return os;
 }
 
 //
@@ -168,31 +132,4 @@ void VrmlNodeVisibilitySensor::render(Viewer *viewer)
 
     else
         clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeVisibilitySensor::setField(const char *fieldName,
-                                        const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(center, SFVec3f)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(size, SFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeVisibilitySensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "center") == 0)
-        return &d_center;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "size") == 0)
-        return &d_size;
-
-    return VrmlNodeChild::getField(fieldName);
 }

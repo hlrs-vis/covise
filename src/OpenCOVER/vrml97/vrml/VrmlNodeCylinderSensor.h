@@ -31,21 +31,11 @@ class VRMLEXPORT VrmlNodeCylinderSensor : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of CylinderSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCylinderSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCylinderSensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeCylinderSensor();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeCylinderSensor *toCylinderSensor() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual const VrmlField *getField(const char *fieldName) const;
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
+    virtual VrmlNodeCylinderSensor *toCylinderSensor() const override;
 
     void activate(double timeStamp, bool isActive, double *p);
 

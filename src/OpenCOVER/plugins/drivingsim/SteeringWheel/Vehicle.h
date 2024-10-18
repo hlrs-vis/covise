@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <array>
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
@@ -78,20 +79,15 @@ public:
     EngineSound *engineSound;
 #endif
     // Define the fields of SteeringWheel nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeVehicle *node, VrmlNodeType *t);
+    static const char *name();
+
     VrmlNodeVehicle(VrmlScene *scene = 0);
     VrmlNodeVehicle(const VrmlNodeVehicle &n);
     virtual ~VrmlNodeVehicle();
 
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeVehicle *toVehicleWheel() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);
@@ -180,36 +176,15 @@ private:
     VrmlSFRotation d_ffz1wheelRRRotation;
 
     //additional Data
-    VrmlSFFloat d_float_value0;
-    VrmlSFFloat d_float_value1;
-    VrmlSFFloat d_float_value2;
-    VrmlSFFloat d_float_value3;
-    VrmlSFFloat d_float_value4;
-    VrmlSFFloat d_float_value5;
-    VrmlSFFloat d_float_value6;
-    VrmlSFFloat d_float_value7;
-    VrmlSFFloat d_float_value8;
-    VrmlSFFloat d_float_value9;
+    static const size_t NUM_ADDITIONAL_FIELDS = 10;
+    std::array<VrmlSFFloat, NUM_ADDITIONAL_FIELDS> d_float_values;
+    std::array<VrmlSFInt, NUM_ADDITIONAL_FIELDS> d_int_values;
 
-    VrmlSFInt d_int_value0;
-    VrmlSFInt d_int_value1;
-    VrmlSFInt d_int_value2;
-    VrmlSFInt d_int_value3;
-    VrmlSFInt d_int_value4;
-    VrmlSFInt d_int_value5;
-    VrmlSFInt d_int_value6;
-    VrmlSFInt d_int_value7;
-    VrmlSFInt d_int_value8;
-    VrmlSFInt d_int_value9;
 
-    VrmlSFRotation d_wheel1Rotation;
-    VrmlSFVec3f d_wheel1Translation;
-    VrmlSFRotation d_wheel2Rotation;
-    VrmlSFVec3f d_wheel2Translation;
-    VrmlSFRotation d_wheel3Rotation;
-    VrmlSFVec3f d_wheel3Translation;
-    VrmlSFRotation d_wheel4Rotation;
-    VrmlSFVec3f d_wheel4Translation;
+    static const int NUM_WHEELS = 4;
+    std::array<VrmlSFRotation, NUM_WHEELS> d_wheelRotations;
+    std::array<VrmlSFVec3f, NUM_WHEELS> d_wheelTranslations;
+
     VrmlSFRotation d_bodyRotation[MAX_BODIES];
     VrmlSFVec3f d_bodyTranslation[MAX_BODIES];
     char *bodyTransName[MAX_BODIES];
@@ -222,22 +197,7 @@ private:
     VrmlSFRotation d_mirrorMRotation;
     VrmlSFRotation d_mirrorRRotation;
 
-    VrmlSFVec3f d_carTranslation_0;
-    VrmlSFVec3f d_carTranslation_1;
-    VrmlSFVec3f d_carTranslation_2;
-    VrmlSFVec3f d_carTranslation_3;
-    VrmlSFVec3f d_carTranslation_4;
-    VrmlSFVec3f d_carTranslation_5;
-    VrmlSFVec3f d_carTranslation_6;
-    VrmlSFVec3f d_carTranslation_7;
-    VrmlSFVec3f d_carTranslation_8;
-    VrmlSFVec3f d_carTranslation_9;
-    VrmlSFVec3f d_carTranslation_10;
-    VrmlSFVec3f d_carTranslation_11;
-    VrmlSFVec3f d_carTranslation_12;
-    VrmlSFVec3f d_carTranslation_13;
-    VrmlSFVec3f d_carTranslation_14;
-    VrmlSFVec3f d_carTranslation_15;
+    std::array<VrmlSFVec3f, 16> d_carTranslations;
 
     VrmlSFInt d_numCars;
     VrmlSFBool d_followTerrain;

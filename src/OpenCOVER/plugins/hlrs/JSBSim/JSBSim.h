@@ -215,20 +215,13 @@ private:
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
 {
 public:
-    // Define the fields of Car nodes
-    static VrmlNodeType* defineType(VrmlNodeType* t = 0);
-    virtual VrmlNodeType* nodeType() const;
+
+    static void initFields(VrmlNodeThermal* node, VrmlNodeType* t);
+    static const char* name();
 
     VrmlNodeThermal(VrmlScene* scene = 0);
     VrmlNodeThermal(const VrmlNodeThermal& n);
     virtual ~VrmlNodeThermal();
-
-    virtual VrmlNode* cloneMe() const;
-
-    virtual ostream& printFields(ostream& os, int indent);
-
-    virtual void setField(const char* fieldName, const VrmlField& fieldValue);
-    const VrmlField* getField(const char* fieldName);
 
     void eventIn(double timeStamp, const char* eventName,
         const VrmlField* fieldValue);

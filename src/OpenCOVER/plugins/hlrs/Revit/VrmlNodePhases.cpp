@@ -44,47 +44,26 @@
 
 VrmlNodePhases *VrmlNodePhases::theInstance = nullptr;
 
-// Timesteps factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodePhases(scene);
-}
-
 void VrmlNodePhases::update()
 {
     
 }
 
-// Define the built in VrmlNodeType:: "Timesteps" fields
-
-VrmlNodeType *VrmlNodePhases::defineType(VrmlNodeType *t)
+void VrmlNodePhases::initFields(VrmlNodePhases *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Phases", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("numPhases", VrmlField::SFINT32);
-    t->addExposedField("phase", VrmlField::SFINT32);
-    t->addExposedField("phaseName", VrmlField::SFSTRING);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("numPhases", node->d_numPhases),
+                     exposedField("phase", node->d_Phase, [](auto f){
+                         RevitPlugin::instance()->setPhase(f->get());
+                     }),
+                     exposedField("phaseName", node->d_PhaseName));
 }
 
-VrmlNodeType *VrmlNodePhases::nodeType() const
-{
-    return defineType(0);
-}
+const char *VrmlNodePhases::name() { return "Phases"; }
 
 VrmlNodePhases::VrmlNodePhases(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_numPhases(0)
     , d_Phase(-1)
     , d_PhaseName("")
@@ -109,7 +88,7 @@ void VrmlNodePhases::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodePhases::VrmlNodePhases(const VrmlNodePhases &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_numPhases(n.d_numPhases)
     , d_Phase(n.d_Phase)
     , d_PhaseName(n.d_PhaseName)
@@ -117,16 +96,6 @@ VrmlNodePhases::VrmlNodePhases(const VrmlNodePhases &n)
     theInstance = this;
     setModified();
 }
-
-VrmlNodePhases::~VrmlNodePhases()
-{
-}
-
-VrmlNode *VrmlNodePhases::cloneMe() const
-{
-    return new VrmlNodePhases(*this);
-}
-
 
 void VrmlNodePhases::render(Viewer *viewer)
 {
@@ -142,55 +111,6 @@ void VrmlNodePhases::render(Viewer *viewer)
     {
         eventOut(timeNow, "numPhases", d_numPhases);
     }*/
-}
-
-ostream &VrmlNodePhases::printFields(ostream &os, int indent)
-{
-    if (!d_numPhases.get())
-        PRINT_FIELD(numPhases);
-    if (!d_Phase.get())
-        PRINT_FIELD(Phase);
-    if (!d_PhaseName.get())
-        PRINT_FIELD(PhaseName);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePhases::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(numPhases, SFInt)
-    else if
-        TRY_FIELD(Phase, SFInt)
-    else if
-        TRY_FIELD(PhaseName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "Phase") == 0)
-    {
-        RevitPlugin::instance()->setPhase(d_Phase.get());
-    }
-    if (strcmp(fieldName, "Phase") == 0)
-    {
-        RevitPlugin::instance()->setPhase(d_Phase.get());
-    }
-}
-
-const VrmlField *VrmlNodePhases::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "numPhases") == 0)
-        return &d_numPhases;
-    if (strcmp(fieldName, "phase") == 0)
-        return &d_Phase;
-    if (strcmp(fieldName, "phaseName") == 0)
-        return &d_PhaseName;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodePhases::setPhase(int phase)

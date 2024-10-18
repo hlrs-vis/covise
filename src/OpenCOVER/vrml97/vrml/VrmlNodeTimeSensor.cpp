@@ -30,35 +30,29 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "TimeSensor" fields
 
-VrmlNodeType *VrmlNodeTimeSensor::defineType(VrmlNodeType *t)
+void VrmlNodeTimeSensor::initFields(VrmlNodeTimeSensor *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("cycleInterval", node->d_cycleInterval),
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("loop", node->d_loop),
+                     exposedField("startTime", node->d_startTime),
+                     exposedField("stopTime", node->d_stopTime));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("TimeSensor", creator);
-    }
+        t->addEventOut("cycleTime", VrmlField::SFTIME);
+        t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
+        t->addEventOut("time", VrmlField::SFTIME);
+    }                     
 
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("cycleInterval", VrmlField::SFTIME);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("loop", VrmlField::SFBOOL);
-    t->addExposedField("startTime", VrmlField::SFTIME);
-    t->addExposedField("stopTime", VrmlField::SFTIME);
-    t->addEventOut("cycleTime", VrmlField::SFTIME);
-    t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-    t->addEventOut("time", VrmlField::SFTIME);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTimeSensor::nodeType() const { return defineType(0); }
+const char *VrmlNodeTimeSensor::name() { return "TimeSensor"; }
 
 VrmlNodeTimeSensor::VrmlNodeTimeSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_cycleInterval(1.0)
     , d_enabled(true)
     , d_loop(false)
@@ -85,11 +79,6 @@ VrmlNodeTimeSensor::~VrmlNodeTimeSensor()
         d_scene->removeTimeSensor(this);
 }
 
-VrmlNode *VrmlNodeTimeSensor::cloneMe() const
-{
-    return new VrmlNodeTimeSensor(*this);
-}
-
 VrmlNodeTimeSensor *VrmlNodeTimeSensor::toTimeSensor() const
 {
     return (VrmlNodeTimeSensor *)this;
@@ -99,22 +88,6 @@ void VrmlNodeTimeSensor::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addTimeSensor(this);
-}
-
-std::ostream &VrmlNodeTimeSensor::printFields(std::ostream &os, int indent)
-{
-    if (!FPEQUAL(d_cycleInterval.get(), 1.0))
-        PRINT_FIELD(cycleInterval);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (d_loop.get())
-        PRINT_FIELD(loop);
-    if (!FPZERO(d_startTime.get()))
-        PRINT_FIELD(startTime);
-    if (!FPZERO(d_stopTime.get()))
-        PRINT_FIELD(stopTime);
-
-    return os;
 }
 
 //
@@ -246,7 +219,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     {
         if (!d_isActive.get())
         {
-            setField(eventName, *fieldValue);
+            setFieldByName(eventName, *fieldValue);
             char eventOutName[256];
             strcpy(eventOutName, eventName);
             strcat(eventOutName, "_changed");
@@ -255,7 +228,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "stopTime") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         char eventOutName[256];
         strcpy(eventOutName, eventName);
         strcat(eventOutName, "_changed");
@@ -271,7 +244,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     // Shutdown if set_enabled FALSE is received when active
     else if (strcmp(eventName, "enabled") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         if (d_isActive.get() && !d_enabled.get())
         {
             d_isActive.set(false);
@@ -323,45 +296,4 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
 
     // TimeSensors shouldn't generate redraws.
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTimeSensor::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(cycleInterval, SFTime)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(loop, SFBool)
-    else if
-        TRY_FIELD(startTime, SFTime)
-    else if
-        TRY_FIELD(stopTime, SFTime)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTimeSensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "cycleInterval") == 0)
-        return &d_cycleInterval;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "loop") == 0)
-        return &d_loop;
-    else if (strcmp(fieldName, "startTime") == 0)
-        return &d_startTime;
-    else if (strcmp(fieldName, "stopTime") == 0)
-        return &d_stopTime;
-    else if (strcmp(fieldName, "fraction") == 0)
-        return &d_fraction;
-    else if (strcmp(fieldName, "isActive") == 0)
-        return &d_isActive;
-    else if (strcmp(fieldName, "time") == 0)
-        return &d_time;
-
-    return VrmlNodeChild::getField(fieldName);
 }

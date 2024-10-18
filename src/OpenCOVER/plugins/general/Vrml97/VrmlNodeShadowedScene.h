@@ -39,25 +39,13 @@ class VRML97COVEREXPORT VrmlNodeShadowedScene : public VrmlNodeGroup
 {
 
 public:
-    // Define the fields of ARSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeShadowedScene *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeShadowedScene(VrmlScene *scene = 0);
     VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n);
-    virtual ~VrmlNodeShadowedScene();
 
-    virtual VrmlNode *cloneMe() const;
-
-    //virtual VrmlNodeShadowedScene* toClippingPlane() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
-
-    virtual void render(Viewer *);
-
+    void render(Viewer *) override;
 
 private:
     // Fields

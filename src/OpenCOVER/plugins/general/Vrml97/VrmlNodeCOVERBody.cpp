@@ -44,13 +44,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 static list<VrmlNodeCOVERBody *> allCOVERBody;
 
-// COVERBody factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeCOVERBody(scene);
-}
-
 void VrmlNodeCOVERBody::update()
 {
     list<VrmlNodeCOVERBody *>::iterator ts;
@@ -59,36 +52,25 @@ void VrmlNodeCOVERBody::update()
     }
 }
 
-// Define the built in VrmlNodeType:: "COVERBody" fields
-
-VrmlNodeType *VrmlNodeCOVERBody::defineType(VrmlNodeType *t)
+void VrmlNodeCOVERBody::initFields(VrmlNodeCOVERBody *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("COVERBody", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("position", VrmlField::SFVEC3F);
-    t->addExposedField("orientation", VrmlField::SFROTATION);
-    t->addExposedField("name", VrmlField::SFSTRING);
-    t->addExposedField("vrmlCoordinates", VrmlField::SFBOOL);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("position", node->d_position),
+                     exposedField("orientation", node->d_orientation),
+                     exposedField("name", node->d_name, [node](auto f){
+                            node->body=Input::instance()->getBody(node->d_name.get());
+                     }),
+                     exposedField("vrmlCoordinates", node->d_vrmlCoordinates));
 }
 
-VrmlNodeType *VrmlNodeCOVERBody::nodeType() const
+const char *VrmlNodeCOVERBody::name()
 {
-    return defineType(0);
+    return "COVERBody";
 }
 
 VrmlNodeCOVERBody::VrmlNodeCOVERBody(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_position(0)
     , d_orientation(0.0)
     , d_name("noname")
@@ -115,7 +97,7 @@ void VrmlNodeCOVERBody::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeCOVERBody::VrmlNodeCOVERBody(const VrmlNodeCOVERBody &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_position(n.d_position)
     , d_orientation(n.d_orientation)
     , d_name(n.d_name)
@@ -128,11 +110,6 @@ VrmlNodeCOVERBody::VrmlNodeCOVERBody(const VrmlNodeCOVERBody &n)
 VrmlNodeCOVERBody::~VrmlNodeCOVERBody()
 {
     allCOVERBody.remove(this);
-}
-
-VrmlNode *VrmlNodeCOVERBody::cloneMe() const
-{
-    return new VrmlNodeCOVERBody(*this);
 }
 
 VrmlNodeCOVERBody *VrmlNodeCOVERBody::toCOVERBody() const
@@ -186,54 +163,4 @@ void VrmlNodeCOVERBody::render(Viewer *viewer)
     }
 
     setModified();
-}
-
-ostream &VrmlNodeCOVERBody::printFields(ostream &os, int indent)
-{
-    if (!d_position.get())
-        PRINT_FIELD(position);
-    if (!d_name.get())
-        PRINT_FIELD(name);
-    if (!d_orientation.get())
-        PRINT_FIELD(orientation);
-    if (!d_vrmlCoordinates.get())
-        PRINT_FIELD(vrmlCoordinates);
-    
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCOVERBody::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(position, SFVec3f)
-    else if
-        TRY_FIELD(name, SFString)
-    else if
-        TRY_FIELD(orientation, SFRotation)
-    else if
-        TRY_FIELD(vrmlCoordinates, SFBool)
-    else
-    VrmlNodeChild::setField(fieldName, fieldValue);
-    if(strcmp(fieldName,"name")==0)
-    {
-        body=Input::instance()->getBody(d_name.get());
-    }
-}
-
-const VrmlField *VrmlNodeCOVERBody::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    if (strcmp(fieldName, "name") == 0)
-        return &d_name;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "vrmlCoordinates") == 0)
-        return &d_vrmlCoordinates;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

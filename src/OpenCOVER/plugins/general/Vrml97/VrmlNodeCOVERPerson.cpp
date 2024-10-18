@@ -45,13 +45,6 @@
 
 static list<VrmlNodeCOVERPerson *> allCOVERPerson;
 
-// COVERPerson factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeCOVERPerson(scene);
-}
-
 void VrmlNodeCOVERPerson::update()
 {
     list<VrmlNodeCOVERPerson *>::iterator ts;
@@ -60,33 +53,25 @@ void VrmlNodeCOVERPerson::update()
     }
 }
 
-// Define the built in VrmlNodeType:: "COVERPerson" fields
-
-VrmlNodeType *VrmlNodeCOVERPerson::defineType(VrmlNodeType *t)
+void VrmlNodeCOVERPerson::initFields(VrmlNodeCOVERPerson *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("COVERPerson", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("activePerson", VrmlField::SFINT32);
-    t->addExposedField("eyeDistance", VrmlField::SFFLOAT);
-    return t;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("activePerson", node->d_activePerson, [](auto f){
+            Input::instance()->setActivePerson(f->get());
+        }),
+        exposedField("eyeDistance", node->d_eyeDistance, [](auto f){
+            VRViewer::instance()->setSeparation(f->get());
+        }));
 }
 
-VrmlNodeType *VrmlNodeCOVERPerson::nodeType() const
+const char *VrmlNodeCOVERPerson::name()
 {
-    return defineType(0);
+    return "COVERPerson";
 }
 
 VrmlNodeCOVERPerson::VrmlNodeCOVERPerson(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_activePerson(Input::instance()->getActivePerson())
 {
     setModified();
@@ -109,7 +94,7 @@ void VrmlNodeCOVERPerson::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeCOVERPerson::VrmlNodeCOVERPerson(const VrmlNodeCOVERPerson &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_activePerson(n.d_activePerson)
 {
     setModified();
@@ -118,11 +103,6 @@ VrmlNodeCOVERPerson::VrmlNodeCOVERPerson(const VrmlNodeCOVERPerson &n)
 VrmlNodeCOVERPerson::~VrmlNodeCOVERPerson()
 {
     allCOVERPerson.remove(this);
-}
-
-VrmlNode *VrmlNodeCOVERPerson::cloneMe() const
-{
-    return new VrmlNodeCOVERPerson(*this);
 }
 
 VrmlNodeCOVERPerson *VrmlNodeCOVERPerson::toCOVERPerson() const
@@ -140,45 +120,4 @@ void VrmlNodeCOVERPerson::render(Viewer *viewer)
         eventOut(timeNow, "activePerson", d_activePerson);
     }
     setModified();
-}
-
-ostream &VrmlNodeCOVERPerson::printFields(ostream &os, int indent)
-{
-    if (!d_activePerson.get())
-        PRINT_FIELD(activePerson);
-    if (!d_eyeDistance.get())
-        PRINT_FIELD(eyeDistance);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCOVERPerson::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(activePerson, SFInt)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "activePerson") == 0)
-    {
-        Input::instance()->setActivePerson(d_activePerson.get());
-    }
-    else if (strcmp(fieldName, "eyeDistance") == 0)
-    {
-        VRViewer::instance()->setSeparation(d_eyeDistance.get());
-    }
-}
-
-const VrmlField *VrmlNodeCOVERPerson::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "activePerson") == 0)
-        return &d_activePerson;
-    else if (strcmp(fieldName, "eyeDistance") == 0)
-        return &d_eyeDistance;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

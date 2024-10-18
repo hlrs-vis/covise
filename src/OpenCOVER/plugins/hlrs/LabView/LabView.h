@@ -48,22 +48,16 @@ using namespace covise;
 class PLUGINEXPORT VrmlNodeLabView : public VrmlNodeChild
 {
 public:
-    // Define the fields of LabView nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeLabView *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeLabView(VrmlScene *scene = 0);
     VrmlNodeLabView(const VrmlNodeLabView &n);
-    virtual ~VrmlNodeLabView();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeLabView *toLabView() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
+    const VrmlField *getField(const char *fieldName) const override;
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

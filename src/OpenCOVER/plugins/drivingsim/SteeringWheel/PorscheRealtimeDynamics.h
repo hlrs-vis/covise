@@ -13,6 +13,7 @@
 #include <util/UDPComm.h>
 
 #include <fstream>
+#include <array>
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Barrier>
@@ -144,21 +145,14 @@ class PLUGINEXPORT VrmlNodePorscheVFP : public VrmlNodeChild /* , public coTUILi
 {
 public:
     // Define the fields of TUI nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePorscheVFP *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodePorscheVFP(VrmlScene *);
     VrmlNodePorscheVFP(const VrmlNodePorscheVFP &);
-    virtual ~VrmlNodePorscheVFP();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual void eventIn(double timeStamp, const char *eventName, const VrmlField *fieldValue);
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     void connectToServer(std::string destinationIP, int port /*, int localPort*/);
     void sendTCPData();
@@ -197,75 +191,16 @@ protected:
 
     VrmlSFInt d_messageID;
 
-    VrmlSFFloat d_floatValue0;
-    VrmlSFFloat d_floatValue1;
-    VrmlSFFloat d_floatValue2;
-    VrmlSFFloat d_floatValue3;
-    VrmlSFFloat d_floatValue4;
-    VrmlSFFloat d_floatValue5;
-    VrmlSFFloat d_floatValue6;
-    VrmlSFFloat d_floatValue7;
-    VrmlSFFloat d_floatValue8;
-    VrmlSFFloat d_floatValue9;
-    VrmlSFFloat d_floatValue10;
-    VrmlSFFloat d_floatValue11;
-    VrmlSFFloat d_floatValue12;
-    VrmlSFFloat d_floatValue13;
-    VrmlSFFloat d_floatValue14;
-    VrmlSFFloat d_floatValue15;
+    static const int NUM_FIELDS = 16;
 
-    VrmlSFInt d_intValue0;
-    VrmlSFInt d_intValue1;
-    VrmlSFInt d_intValue2;
-    VrmlSFInt d_intValue3;
-    VrmlSFInt d_intValue4;
-    VrmlSFInt d_intValue5;
-    VrmlSFInt d_intValue6;
-    VrmlSFInt d_intValue7;
-    VrmlSFInt d_intValue8;
-    VrmlSFInt d_intValue9;
-    VrmlSFInt d_intValue10;
-    VrmlSFInt d_intValue11;
-    VrmlSFInt d_intValue12;
-    VrmlSFInt d_intValue13;
-    VrmlSFInt d_intValue14;
-    VrmlSFInt d_intValue15;
+    std::array<VrmlSFFloat, NUM_FIELDS> d_floatValues;
+    std::array<VrmlSFInt, NUM_FIELDS> d_intValues;
 
     VrmlSFInt d_messageIDIn;
 
-    VrmlSFFloat d_floatValueIn0;
-    VrmlSFFloat d_floatValueIn1;
-    VrmlSFFloat d_floatValueIn2;
-    VrmlSFFloat d_floatValueIn3;
-    VrmlSFFloat d_floatValueIn4;
-    VrmlSFFloat d_floatValueIn5;
-    VrmlSFFloat d_floatValueIn6;
-    VrmlSFFloat d_floatValueIn7;
-    VrmlSFFloat d_floatValueIn8;
-    VrmlSFFloat d_floatValueIn9;
-    VrmlSFFloat d_floatValueIn10;
-    VrmlSFFloat d_floatValueIn11;
-    VrmlSFFloat d_floatValueIn12;
-    VrmlSFFloat d_floatValueIn13;
-    VrmlSFFloat d_floatValueIn14;
-    VrmlSFFloat d_floatValueIn15;
+    std::array<VrmlSFFloat, NUM_FIELDS> d_floatValueIn;
+    std::array<VrmlSFInt, NUM_FIELDS> d_intValueIn;
 
-    VrmlSFInt d_intValueIn0;
-    VrmlSFInt d_intValueIn1;
-    VrmlSFInt d_intValueIn2;
-    VrmlSFInt d_intValueIn3;
-    VrmlSFInt d_intValueIn4;
-    VrmlSFInt d_intValueIn5;
-    VrmlSFInt d_intValueIn6;
-    VrmlSFInt d_intValueIn7;
-    VrmlSFInt d_intValueIn8;
-    VrmlSFInt d_intValueIn9;
-    VrmlSFInt d_intValueIn10;
-    VrmlSFInt d_intValueIn11;
-    VrmlSFInt d_intValueIn12;
-    VrmlSFInt d_intValueIn13;
-    VrmlSFInt d_intValueIn14;
-    VrmlSFInt d_intValueIn15;
 
     VrmlSFTime d_lastReceiveTime;
 };

@@ -28,26 +28,19 @@
 #include "Viewer.h"
 using namespace vrml;
 
-// Define the built in VrmlNodeType:: "Colored*Set" fields
-
-VrmlNodeType *VrmlNodeColoredSet::defineType(VrmlNodeType *t)
+void VrmlNodeColoredSet::initFields(VrmlNodeColoredSet *node, VrmlNodeType *t)
 {
-    VrmlNodeGeometry::defineType(t); // Parent class
+    VrmlNodeGeometry::initFields(node, t); // Parent class
 
-    t->addExposedField("color", VrmlField::SFNODE);
-    t->addExposedField("coord", VrmlField::SFNODE);
-    t->addField("colorPerVertex", VrmlField::SFBOOL);
-
-    return t;
+    initFieldsHelper(node, t,
+                     exposedField("color", node->d_color),
+                     field("colorPerVertex", node->d_colorPerVertex),
+                     exposedField("coord", node->d_coord));
 }
 
-VrmlNodeColoredSet::VrmlNodeColoredSet(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+VrmlNodeColoredSet::VrmlNodeColoredSet(VrmlScene *scene, const std::string &name)
+    : VrmlNodeGeometry(scene, name)
     , d_colorPerVertex(true)
-{
-}
-
-VrmlNodeColoredSet::~VrmlNodeColoredSet()
 {
 }
 
@@ -87,17 +80,6 @@ void VrmlNodeColoredSet::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeColoredSet::printFields(std::ostream &os, int indent)
-{
-    if (d_color.get())
-        PRINT_FIELD(color);
-    if (!d_colorPerVertex.get())
-        PRINT_FIELD(colorPerVertex);
-    if (d_coord.get())
-        PRINT_FIELD(coord);
-    return os;
-}
-
 VrmlNodeColor *VrmlNodeColoredSet::color()
 {
     return d_color.get() ? d_color.get()->toColor() : 0;
@@ -106,33 +88,6 @@ VrmlNodeColor *VrmlNodeColoredSet::color()
 VrmlNode *VrmlNodeColoredSet::getCoordinate()
 {
     return d_coord.get();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeColoredSet::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD2(color, Color, ColorRGBA)
-    else if
-        TRY_FIELD(colorPerVertex, SFBool)
-    else if
-        TRY_SFNODE_FIELD(coord, Coordinate)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeColoredSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "colorPerVertex") == 0)
-        return &d_colorPerVertex;
-    else if (strcmp(fieldName, "coord") == 0)
-        return &d_coord;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }
 
 static void generateDefaultTextureCoordinates(float **tc, int numberTexture,

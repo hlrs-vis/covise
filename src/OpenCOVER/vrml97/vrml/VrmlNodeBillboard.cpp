@@ -22,50 +22,20 @@ using namespace vrml;
 static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeBillboard(s); }
 
 // Define the built in VrmlNodeType:: "Billboard" fields
-
-VrmlNodeType *VrmlNodeBillboard::defineType(VrmlNodeType *t)
+void VrmlNodeBillboard::initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Billboard", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("axisOfRotation", VrmlField::SFVEC3F);
-
-    return t;
+    initFieldsHelper(node, t,
+                     exposedField("axisOfRotation", node->d_axisOfRotation));
+    VrmlNodeGroup::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeBillboard::nodeType() const { return defineType(0); }
+const char *VrmlNodeBillboard::name() { return "Billboard"; }
 
-VrmlNodeBillboard::VrmlNodeBillboard(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+VrmlNodeBillboard::VrmlNodeBillboard(VrmlScene *scene, const std::string &name)
+    : VrmlNodeGroup(scene, name == ""? this->name() : name)
     , d_axisOfRotation(0.0, 1.0, 0.0)
     , d_xformObject(0)
 {
-}
-
-VrmlNodeBillboard::~VrmlNodeBillboard()
-{
-    // delete d_xformObject...
-}
-
-VrmlNode *VrmlNodeBillboard::cloneMe() const
-{
-    return new VrmlNodeBillboard(*this);
-}
-
-std::ostream &VrmlNodeBillboard::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_axisOfRotation.x()) || !FPZERO(d_axisOfRotation.y()) || !FPZERO(d_axisOfRotation.z()))
-        PRINT_FIELD(axisOfRotation);
-
-    VrmlNodeGroup::printFields(os, indent);
-    return os;
 }
 
 void VrmlNodeBillboard::render(Viewer *viewer)
@@ -137,23 +107,4 @@ void VrmlNodeBillboard::inverseTransform(double *m)
 
     // Invert bb transform...
     // ...
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeBillboard::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(axisOfRotation, SFVec3f)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeBillboard::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "axisOfRotation") == 0)
-        return &d_axisOfRotation;
-
-    return VrmlNodeGroup::getField(fieldName);
 }

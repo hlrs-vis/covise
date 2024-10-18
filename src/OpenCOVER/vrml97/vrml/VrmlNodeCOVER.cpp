@@ -17,6 +17,9 @@
 #include "VrmlNodeType.h"
 #include "VrmlScene.h"
 #include "coEventQueue.h"
+
+#include <cassert>
+
 #define XK_MISCELLANY
 #if !defined(_WIN32) && !defined(__APPLE__)
 #include <X11/X.h>
@@ -117,74 +120,59 @@ static VrmlNode *creator(VrmlScene *scene)
     return theCOVER;
 }
 
-// Define the built in VrmlNodeType:: "COVER" fields
-
-VrmlNodeType *VrmlNodeCOVER::defineType(VrmlNodeType *t)
+void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    for (size_t i = 0; i < NUM_POSITIONS; i++)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("COVER", creator);
+        initFieldsHelper(node, t,
+                         exposedField("position" + std::to_string(i + 1), node->d_positions[i]),
+                         exposedField("orientation" + std::to_string(i + 1), node->d_orientations[i]));
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("position1", VrmlField::SFVEC3F);
-    t->addExposedField("position2", VrmlField::SFVEC3F);
-    t->addExposedField("position3", VrmlField::SFVEC3F);
-    t->addExposedField("position4", VrmlField::SFVEC3F);
-    t->addExposedField("position5", VrmlField::SFVEC3F);
-    t->addExposedField("position6", VrmlField::SFVEC3F);
-    t->addExposedField("position7", VrmlField::SFVEC3F);
-    t->addExposedField("position8", VrmlField::SFVEC3F);
-    t->addExposedField("position9", VrmlField::SFVEC3F);
-    t->addExposedField("position10", VrmlField::SFVEC3F);
-    t->addExposedField("position11", VrmlField::SFVEC3F);
-    t->addExposedField("position12", VrmlField::SFVEC3F);
-    t->addExposedField("position13", VrmlField::SFVEC3F);
-    t->addExposedField("position14", VrmlField::SFVEC3F);
-    t->addExposedField("position15", VrmlField::SFVEC3F);
-    t->addExposedField("orientation1", VrmlField::SFROTATION);
-    t->addExposedField("orientation2", VrmlField::SFROTATION);
-    t->addExposedField("orientation3", VrmlField::SFROTATION);
-    t->addExposedField("orientation4", VrmlField::SFROTATION);
-    t->addExposedField("orientation5", VrmlField::SFROTATION);
-    t->addExposedField("orientation6", VrmlField::SFROTATION);
-    t->addExposedField("orientation7", VrmlField::SFROTATION);
-    t->addExposedField("orientation8", VrmlField::SFROTATION);
-    t->addExposedField("orientation9", VrmlField::SFROTATION);
-    t->addExposedField("orientation10", VrmlField::SFROTATION);
-    t->addExposedField("orientation11", VrmlField::SFROTATION);
-    t->addExposedField("orientation12", VrmlField::SFROTATION);
-    t->addExposedField("orientation13", VrmlField::SFROTATION);
-    t->addExposedField("orientation14", VrmlField::SFROTATION);
-    t->addExposedField("orientation15", VrmlField::SFROTATION);
-    //t->addEventIn("avatarSize", VrmlField::MFFLOAT);
-    t->addEventOut("localKeyPressed", VrmlField::SFSTRING);
-    t->addEventOut("localKeyReleased", VrmlField::SFSTRING);
-    t->addEventOut("keyPressed", VrmlField::SFSTRING);
-    t->addEventOut("keyReleased", VrmlField::SFSTRING);
-    t->addEventOut("avatar1Position", VrmlField::SFVEC3F);
-    t->addEventOut("avatar1Orientation", VrmlField::SFROTATION);
-    t->addEventOut("localPosition", VrmlField::SFVEC3F);
-    t->addEventOut("localOrientation", VrmlField::SFROTATION);
-    t->addEventOut("localViewerPosition", VrmlField::SFVEC3F);
-    t->addEventOut("localViewerOrientation", VrmlField::SFROTATION);
-    t->addExposedField("soundEnvironment", VrmlField::SFINT32);
-    t->addExposedField("animationTimeStep", VrmlField::SFINT32);
-    t->addExposedField("activePerson", VrmlField::SFINT32);
-    t->addEventIn("saveTimestamp", VrmlField::SFSTRING);
-	t->addExposedField("loadPlugin", VrmlField::SFSTRING);
-
-    return t;
+    initFieldsHelper(node, t,
+                        exposedField("soundEnvironment", node->d_soundEnvironment, [](auto fieldValue) {
+                            Player *player = System::the->getPlayer();
+                            if (player)
+                            {
+                                player->setEAXEnvironment(theCOVER->d_soundEnvironment.get());
+                            }
+                        }),
+                        exposedField("animationTimeStep", node->d_animationTimeStep, [](auto fieldValue) {
+                            System::the->setTimeStep(theCOVER->d_animationTimeStep.get());
+                        }),
+                        exposedField("activePerson", node->d_activePerson, [](auto fieldValue){
+                            System::the->setActivePerson(theCOVER->d_activePerson.get());
+                        }),
+                        exposedField("loadPlugin", node->d_loadPlugin, [](auto fieldValue){
+                            System::the->loadPlugin(theCOVER->d_loadPlugin.get());
+                        }),
+                        exposedField("set_loadPlugin", node->d_loadPlugin, [](auto fieldValue){
+                            System::the->loadPlugin(theCOVER->d_loadPlugin.get());
+                            //this could be a hack to make the plugin load immediately or it is a mistake
+                        }));
+                        
+    if(t)
+    {
+        t->addEventOut("localKeyPressed", VrmlField::SFSTRING);
+        t->addEventOut("localKeyReleased", VrmlField::SFSTRING);
+        t->addEventOut("keyPressed", VrmlField::SFSTRING);
+        t->addEventOut("keyReleased", VrmlField::SFSTRING);
+        t->addEventOut("avatar1Position", VrmlField::SFVEC3F);
+        t->addEventOut("avatar1Orientation", VrmlField::SFROTATION);
+        t->addEventOut("localPosition", VrmlField::SFVEC3F);
+        t->addEventOut("localOrientation", VrmlField::SFROTATION);
+        t->addEventOut("localViewerPosition", VrmlField::SFVEC3F);
+        t->addEventOut("localViewerOrientation", VrmlField::SFROTATION);
+        t->addEventIn("saveTimestamp", VrmlField::SFSTRING);
+    }
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeCOVER::nodeType() const { return defineType(0); }
+const char *VrmlNodeCOVER::name() { return "COVER"; }
+
+
 
 VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     d_soundEnvironment.set(26);
     d_animationTimeStep.set(0);
@@ -213,36 +201,16 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     fKeys = new coPUIFKeys("fKeys", 0);
     fKeys->setEventListener(this);
 #endif
-    d_position1.set(1000000, 1000000, 1000000);
-    d_position2.set(1000000, 1000000, 1000000);
-    d_position3.set(1000000, 1000000, 1000000);
-    d_position4.set(1000000, 1000000, 1000000);
-    d_position5.set(1000000, 1000000, 1000000);
-    d_position6.set(1000000, 1000000, 1000000);
-    d_position7.set(1000000, 1000000, 1000000);
-    d_position8.set(1000000, 1000000, 1000000);
-    d_position9.set(1000000, 1000000, 1000000);
-    d_position10.set(1000000, 1000000, 1000000);
-    d_position11.set(1000000, 1000000, 1000000);
-    d_position12.set(1000000, 1000000, 1000000);
-    d_position13.set(1000000, 1000000, 1000000);
-    d_position14.set(1000000, 1000000, 1000000);
-    d_position15.set(1000000, 1000000, 1000000);
-    d_orientation1.set(0, 1, 0, 0);
-    d_orientation2.set(0, 1, 0, 0);
-    d_orientation3.set(0, 1, 0, 0);
-    d_orientation4.set(0, 1, 0, 0);
-    d_orientation5.set(0, 1, 0, 0);
-    d_orientation6.set(0, 1, 0, 0);
-    d_orientation7.set(0, 1, 0, 0);
-    d_orientation8.set(0, 1, 0, 0);
-    d_orientation9.set(0, 1, 0, 0);
-    d_orientation10.set(0, 1, 0, 0);
-    d_orientation11.set(0, 1, 0, 0);
-    d_orientation12.set(0, 1, 0, 0);
-    d_orientation13.set(0, 1, 0, 0);
-    d_orientation14.set(0, 1, 0, 0);
-    d_orientation15.set(0, 1, 0, 0);
+    for (size_t i = 0; i < NUM_POSITIONS; i++)
+    {
+        d_positions[i].set(1000000, 1000000, 1000000);
+        d_orientations[i].set(0, 1, 0, 0);
+    }
+    if(!theCOVER)
+    {
+        theCOVER = this;
+    } else  
+        assert(false);
 }
 
 #ifdef VRML_PUI
@@ -308,78 +276,23 @@ VrmlNodeCOVER::~VrmlNodeCOVER()
     cerr << "This node (COVER) should never be deleted!!!!\n";
 }
 
-VrmlNode *VrmlNodeCOVER::cloneMe() const
-{
-    return new VrmlNodeCOVER(*this);
-}
-
 void VrmlNodeCOVER::update(double timeNow)
 {
     double tmpRot[16], tmpTrans[16];
 
-    Mrotation(tmpRot, d_orientation1.get(), d_orientation1.r());
-    Mtrans(tmpTrans, d_position1.get());
-    Mmult(transformations[0], tmpRot, tmpTrans);
+    for (size_t i = 0; i < NUM_POSITIONS; i++)
+    {
+        Mrotation(tmpRot, d_orientations[i].get(), d_orientations[i].r());
+        Mtrans(tmpTrans, d_positions[i].get());
+        Mmult(transformations[i], tmpRot, tmpTrans);
+    }
+    
+    
     //for(int u=0;u<4;u++)
     //cerr << "vrml:" << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
     //cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
     //cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
 
-    Mrotation(tmpRot, d_orientation2.get(), d_orientation2.r());
-    Mtrans(tmpTrans, d_position2.get());
-    Mmult(transformations[1], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation3.get(), d_orientation3.r());
-    Mtrans(tmpTrans, d_position3.get());
-    Mmult(transformations[2], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation4.get(), d_orientation4.r());
-    Mtrans(tmpTrans, d_position4.get());
-    Mmult(transformations[3], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation5.get(), d_orientation5.r());
-    Mtrans(tmpTrans, d_position5.get());
-    Mmult(transformations[4], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation6.get(), d_orientation6.r());
-    Mtrans(tmpTrans, d_position6.get());
-    Mmult(transformations[5], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation7.get(), d_orientation7.r());
-    Mtrans(tmpTrans, d_position7.get());
-    Mmult(transformations[6], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation8.get(), d_orientation8.r());
-    Mtrans(tmpTrans, d_position8.get());
-    Mmult(transformations[7], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation9.get(), d_orientation9.r());
-    Mtrans(tmpTrans, d_position9.get());
-    Mmult(transformations[8], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation10.get(), d_orientation10.r());
-    Mtrans(tmpTrans, d_position10.get());
-    Mmult(transformations[9], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation11.get(), d_orientation11.r());
-    Mtrans(tmpTrans, d_position11.get());
-    Mmult(transformations[10], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation12.get(), d_orientation12.r());
-    Mtrans(tmpTrans, d_position12.get());
-    Mmult(transformations[11], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation13.get(), d_orientation13.r());
-    Mtrans(tmpTrans, d_position13.get());
-    Mmult(transformations[12], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation14.get(), d_orientation14.r());
-    Mtrans(tmpTrans, d_position14.get());
-    Mmult(transformations[13], tmpRot, tmpTrans);
-
-    Mrotation(tmpRot, d_orientation15.get(), d_orientation15.r());
-    Mtrans(tmpTrans, d_position15.get());
-    Mmult(transformations[14], tmpRot, tmpTrans);
 
     float pos[3];
     float ori[4];
@@ -410,12 +323,6 @@ VrmlNodeCOVER *VrmlNodeCOVER::toCOVER() const
 void VrmlNodeCOVER::addToScene(VrmlScene *s, const char *)
 {
     d_scene = s;
-}
-
-std::ostream &VrmlNodeCOVER::printFields(std::ostream &os, int /*indent*/)
-{
-
-    return os;
 }
 
 void VrmlNodeCOVER::eventIn(double timeStamp,
@@ -450,103 +357,6 @@ void VrmlNodeCOVER::eventIn(double timeStamp,
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCOVER::setField(const char *fieldName,
-                             const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(soundEnvironment, SFInt)
-    else if
-        TRY_FIELD(animationTimeStep, SFInt)
-    else if
-        TRY_FIELD(activePerson, SFInt)
-    else if
-        TRY_FIELD(position1, SFVec3f)
-    else if
-        TRY_FIELD(position2, SFVec3f)
-    else if
-        TRY_FIELD(position3, SFVec3f)
-    else if
-        TRY_FIELD(position4, SFVec3f)
-    else if
-        TRY_FIELD(position5, SFVec3f)
-    else if
-        TRY_FIELD(position6, SFVec3f)
-    else if
-        TRY_FIELD(position7, SFVec3f)
-    else if
-        TRY_FIELD(position8, SFVec3f)
-    else if
-        TRY_FIELD(position9, SFVec3f)
-    else if
-        TRY_FIELD(position10, SFVec3f)
-    else if
-        TRY_FIELD(position11, SFVec3f)
-    else if
-        TRY_FIELD(position12, SFVec3f)
-    else if
-        TRY_FIELD(position13, SFVec3f)
-    else if
-        TRY_FIELD(position14, SFVec3f)
-    else if
-        TRY_FIELD(position15, SFVec3f)
-    else if
-        TRY_FIELD(orientation1, SFRotation)
-    else if
-        TRY_FIELD(orientation2, SFRotation)
-    else if
-        TRY_FIELD(orientation3, SFRotation)
-    else if
-        TRY_FIELD(orientation4, SFRotation)
-    else if
-        TRY_FIELD(orientation5, SFRotation)
-    else if
-        TRY_FIELD(orientation6, SFRotation)
-    else if
-        TRY_FIELD(orientation7, SFRotation)
-    else if
-        TRY_FIELD(orientation8, SFRotation)
-    else if
-        TRY_FIELD(orientation9, SFRotation)
-    else if
-        TRY_FIELD(orientation10, SFRotation)
-    else if
-        TRY_FIELD(orientation11, SFRotation)
-    else if
-        TRY_FIELD(orientation12, SFRotation)
-    else if
-        TRY_FIELD(orientation13, SFRotation)
-    else if
-        TRY_FIELD(orientation14, SFRotation)
-    else if
-        TRY_FIELD(orientation15, SFRotation)
-	else if
-		TRY_FIELD(loadPlugin, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp("soundEnvironment", fieldName) == 0)
-    {
-        Player *player = System::the->getPlayer();
-        if (player)
-        {
-            player->setEAXEnvironment(d_soundEnvironment.get());
-        }
-    }
-    else if (strcmp("animationTimeStep", fieldName) == 0)
-    {
-        System::the->setTimeStep(d_animationTimeStep.get());
-    }
-    else if (strcmp("activePerson", fieldName) == 0)
-    {
-        System::the->setActivePerson(d_activePerson.get());
-    }
-	else if ((strcmp(fieldName, "set_loadPlugin") == 0) || (strcmp(fieldName, "loadPlugin") == 0))
-	{
-		System::the->loadPlugin(d_loadPlugin.get());
-	}
 }
 
 // process remote key events, called by eventQueue

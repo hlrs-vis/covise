@@ -27,36 +27,24 @@
 #include "Viewer.h"
 using namespace vrml;
 
-// Define the built in VrmlNodeType:: "IndexedPolygons*Set" fields
-
-VrmlNodeType *VrmlNodePolygonsCommon::defineType(VrmlNodeType *t)
+void VrmlNodePolygonsCommon::initFields(VrmlNodePolygonsCommon *node, VrmlNodeType *t)
 {
-    if (!t)
-    {
-        return NULL;
-    }
-    VrmlNodeColoredSet::defineType(t); // Parent class
-
-    t->addExposedField("normal", VrmlField::SFNODE);
-    t->addExposedField("texCoord", VrmlField::SFNODE);
-    t->addExposedField("fogCoord", VrmlField::SFNODE);
-    t->addExposedField("attrib", VrmlField::MFNODE);
-    t->addField("ccw", VrmlField::SFBOOL);
-    t->addField("normalPerVertex", VrmlField::SFBOOL);
-    t->addField("solid", VrmlField::SFBOOL);
-
-    return t;
+    VrmlNodeColoredSet::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("normal", node->d_normal),
+                     exposedField("texCoord", node->d_texCoord),
+                     exposedField("fogCoord", node->d_fogCoord),
+                     exposedField("attrib", node->d_attrib),
+                     field("ccw", node->d_ccw),
+                     field("normalPerVertex", node->d_normalPerVertex),
+                     field("solid", node->d_solid));
 }
 
-VrmlNodePolygonsCommon::VrmlNodePolygonsCommon(VrmlScene *scene)
-    : VrmlNodeColoredSet(scene)
+VrmlNodePolygonsCommon::VrmlNodePolygonsCommon(VrmlScene *scene, const std::string &name)
+    : VrmlNodeColoredSet(scene, name)
     , d_ccw(true)
     , d_normalPerVertex(true)
     , d_solid(true)
-{
-}
-
-VrmlNodePolygonsCommon::~VrmlNodePolygonsCommon()
 {
 }
 
@@ -175,69 +163,6 @@ void VrmlNodePolygonsCommon::copyRoutes(VrmlNamespace *ns)
         if (d_attrib[i])
             d_attrib[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodePolygonsCommon::printFields(std::ostream &os, int indent)
-{
-    if (!d_ccw.get())
-        PRINT_FIELD(ccw);
-    if (!d_normalPerVertex.get())
-        PRINT_FIELD(normalPerVertex);
-    if (!d_solid.get())
-        PRINT_FIELD(solid);
-
-    if (d_normal.get())
-        PRINT_FIELD(normal);
-    if (d_color.get())
-        PRINT_FIELD(color);
-    if (d_texCoord.get())
-        PRINT_FIELD(texCoord);
-
-    if (d_fogCoord.get())
-        PRINT_FIELD(fogCoord);
-    if (d_attrib.size() > 0)
-        PRINT_FIELD(attrib);
-
-    VrmlNodeColoredSet::printFields(os, indent);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePolygonsCommon::setField(const char *fieldName,
-                                      const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(ccw, SFBool)
-    else if
-        TRY_SFNODE_FIELD(normal, Normal)
-    else if
-        TRY_FIELD(normalPerVertex, SFBool)
-    else if
-        TRY_FIELD(solid, SFBool)
-    else if
-        TRY_SFNODE_FIELD3(texCoord, TextureCoordinate, MultiTextureCoordinate, TextureCoordinateGenerator)
-    else
-        VrmlNodeColoredSet::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodePolygonsCommon::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "ccw") == 0)
-        return &d_ccw;
-    else if (strcmp(fieldName, "normal") == 0)
-        return &d_normal;
-    else if (strcmp(fieldName, "normalPerVertex") == 0)
-        return &d_normalPerVertex;
-    else if (strcmp(fieldName, "solid") == 0)
-        return &d_solid;
-    else if (strcmp(fieldName, "texCoord") == 0)
-        return &d_texCoord;
-    else if (strcmp(fieldName, "colorPerVertex") == 0)
-        return &d_colorPerVertex;
-
-    return VrmlNodeColoredSet::getField(fieldName);
 }
 
 VrmlNode *VrmlNodePolygonsCommon::getNormal()

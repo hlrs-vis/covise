@@ -34,26 +34,16 @@ class VRMLEXPORT VrmlNodeWave : public VrmlNodeChild
 
 public:
     // Define the built in VrmlNodeType:: "Wave"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeWave *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeWave(VrmlScene *);
-    virtual ~VrmlNodeWave();
-
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeWave *toWave() const;
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 protected:
     VrmlSFFloat d_fraction;

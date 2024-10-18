@@ -26,41 +26,30 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "Wave" fields
 
-VrmlNodeType *VrmlNodeWave::defineType(VrmlNodeType *t)
+void VrmlNodeWave::initFields(VrmlNodeWave *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Wave", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("fraction", VrmlField::SFFLOAT);
-    t->addExposedField("freq1", VrmlField::SFFLOAT);
-    t->addExposedField("height1", VrmlField::SFFLOAT);
-    t->addExposedField("damping1", VrmlField::SFFLOAT);
-    t->addExposedField("dir1", VrmlField::SFVEC3F);
-    t->addExposedField("freq2", VrmlField::SFFLOAT);
-    t->addExposedField("height2", VrmlField::SFFLOAT);
-    t->addExposedField("damping2", VrmlField::SFFLOAT);
-    t->addExposedField("dir2", VrmlField::SFVEC3F);
-    t->addExposedField("speed1", VrmlField::SFFLOAT);
-    t->addExposedField("speed2", VrmlField::SFFLOAT);
-    t->addExposedField("coeffSin", VrmlField::SFROTATION);
-    t->addExposedField("coeffCos", VrmlField::SFROTATION);
-    t->addExposedField("fileName", VrmlField::SFSTRING);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("fraction", node->d_fraction),
+                     exposedField("speed1", node->d_speed1),
+                     exposedField("speed2", node->d_speed2),
+                     exposedField("freq1", node->d_freq1),
+                     exposedField("height1", node->d_height1),
+                     exposedField("damping1", node->d_damping1),
+                     exposedField("dir1", node->d_dir1),
+                     exposedField("freq2", node->d_freq2),
+                     exposedField("height2", node->d_height2),
+                     exposedField("damping2", node->d_damping2),
+                     exposedField("dir2", node->d_dir2),
+                     exposedField("coeffSin", node->d_coeffSin),
+                     exposedField("coeffCos", node->d_coeffCos),
+                     exposedField("fileName", node->d_fileName));
 }
 
-VrmlNodeType *VrmlNodeWave::nodeType() const { return defineType(0); }
+const char *VrmlNodeWave::name() { return "Wave"; }
 
 VrmlNodeWave::VrmlNodeWave(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_fraction(0)
     , d_speed1(1.0f)
     , d_speed2(1.0f)
@@ -78,15 +67,6 @@ VrmlNodeWave::VrmlNodeWave(VrmlScene *scene)
 {
 }
 
-VrmlNodeWave::~VrmlNodeWave()
-{
-}
-
-VrmlNode *VrmlNodeWave::cloneMe() const
-{
-    return new VrmlNodeWave(*this);
-}
-
 VrmlNodeWave *VrmlNodeWave::toWave() const
 {
     return (VrmlNodeWave *)this;
@@ -94,14 +74,6 @@ VrmlNodeWave *VrmlNodeWave::toWave() const
 
 void VrmlNodeWave::addToScene(VrmlScene *, const char * /*rel*/)
 {
-}
-
-std::ostream &VrmlNodeWave::printFields(std::ostream &os, int indent)
-{
-    if (d_fileName.get())
-        PRINT_FIELD(fileName);
-
-    return os;
 }
 
 void VrmlNodeWave::render(Viewer *viewer)
@@ -125,75 +97,4 @@ void VrmlNodeWave::render(Viewer *viewer)
                        d_fileName.get());
 
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeWave::setField(const char *fieldName,
-                            const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(fraction, SFFloat)
-    else if
-        TRY_FIELD(speed1, SFFloat)
-    else if
-        TRY_FIELD(speed2, SFFloat)
-    else if
-        TRY_FIELD(freq1, SFFloat)
-    else if
-        TRY_FIELD(height1, SFFloat)
-    else if
-        TRY_FIELD(damping1, SFFloat)
-    else if
-        TRY_FIELD(dir1, SFVec3f)
-    else if
-        TRY_FIELD(freq2, SFFloat)
-    else if
-        TRY_FIELD(height2, SFFloat)
-    else if
-        TRY_FIELD(damping2, SFFloat)
-    else if
-        TRY_FIELD(dir2, SFVec3f)
-    else if
-        TRY_FIELD(coeffSin, SFRotation)
-    else if
-        TRY_FIELD(coeffCos, SFRotation)
-    else if
-        TRY_FIELD(fileName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeWave::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "fraction") == 0)
-        return &d_fraction;
-    else if (strcmp(fieldName, "speed1") == 0)
-        return &d_speed1;
-    else if (strcmp(fieldName, "speed2") == 0)
-        return &d_speed2;
-    else if (strcmp(fieldName, "freq1") == 0)
-        return &d_freq1;
-    else if (strcmp(fieldName, "height1") == 0)
-        return &d_height1;
-    else if (strcmp(fieldName, "damping1") == 0)
-        return &d_damping1;
-    else if (strcmp(fieldName, "dir1") == 0)
-        return &d_dir1;
-    else if (strcmp(fieldName, "freq2") == 0)
-        return &d_freq2;
-    else if (strcmp(fieldName, "height2") == 0)
-        return &d_height2;
-    else if (strcmp(fieldName, "damping2") == 0)
-        return &d_damping2;
-    else if (strcmp(fieldName, "dir2") == 0)
-        return &d_dir2;
-    else if (strcmp(fieldName, "coeffSin") == 0)
-        return &d_coeffSin;
-    else if (strcmp(fieldName, "coeffCos") == 0)
-        return &d_coeffCos;
-    else if (strcmp(fieldName, "fileName") == 0)
-        return &d_fileName;
-
-    return VrmlNodeChild::getField(fieldName);
 }

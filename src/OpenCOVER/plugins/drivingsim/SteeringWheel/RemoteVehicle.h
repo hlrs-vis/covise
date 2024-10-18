@@ -44,21 +44,14 @@ class PLUGINEXPORT VrmlNodeRemoteVehicle : public VrmlNodeChild
 {
 public:
     static VrmlNodeRemoteVehicle *instance();
-    // Define the fields of SteeringWheel nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeRemoteVehicle *node, VrmlNodeType *t);
+    static const char *name();
+
     VrmlNodeRemoteVehicle(VrmlScene *scene = 0);
     VrmlNodeRemoteVehicle(const VrmlNodeRemoteVehicle &n);
-    virtual ~VrmlNodeRemoteVehicle();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeRemoteVehicle *toRemoteVehicle() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

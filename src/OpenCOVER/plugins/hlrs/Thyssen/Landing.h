@@ -63,21 +63,13 @@ class PLUGINEXPORT VrmlNodeLanding : public VrmlNodeChild
 public:
     enum LandingState {Idle=0,Occupied, Uninitialized};
     // Define the fields of Landing nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeLanding *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeLanding(VrmlScene *scene = 0);
     VrmlNodeLanding(const VrmlNodeLanding &n);
-    virtual ~VrmlNodeLanding();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeLanding *toLanding() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
         const VrmlField *fieldValue);

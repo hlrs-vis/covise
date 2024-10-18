@@ -20,52 +20,36 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace covise;
 
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeXCar::initFields(VrmlNodeXCar *node, VrmlNodeType *t)
 {
-    return new VrmlNodeXCar(scene);
-}
-
-// Define the built in VrmlNodeType:: "XCar" fields
-
-VrmlNodeType *VrmlNodeXCar::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, 
+                    exposedField("carNumber", node->d_carNumber),
+                    exposedField("carPos", node->d_carPos),
+                    exposedField("carOffset", node->d_carOffset),
+                    exposedField("stationList", node->d_stationList),
+                    exposedField("stationOpenTime", node->d_stationOpenTime),
+                    exposedField("currentLanding", node->d_currentLanding));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("XCar", creator);
+        t->addEventOut("carTransformPos", VrmlField::SFVEC3F);
+        t->addEventOut("carDoorClose", VrmlField::SFTIME);
+        t->addEventOut("carDoorOpen", VrmlField::SFTIME);
+        t->addEventOut("carRotation", VrmlField::SFROTATION);
+        t->addEventOut("carFraction", VrmlField::SFFLOAT);
+        t->addEventOut("Unlock", VrmlField::SFTIME);
+        t->addEventOut("Lock", VrmlField::SFTIME);   
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-
-    t->addExposedField("carNumber", VrmlField::SFINT32);
-    t->addExposedField("carPos", VrmlField::SFVEC3F);
-    t->addExposedField("carOffset", VrmlField::SFVEC3F);
-    t->addExposedField("stationList", VrmlField::MFINT32);
-    t->addExposedField("stationOpenTime", VrmlField::MFFLOAT);
-    t->addExposedField("currentLanding", VrmlField::SFINT32);
-    t->addEventOut("carTransformPos", VrmlField::SFVEC3F);
-    t->addEventOut("carDoorClose", VrmlField::SFTIME);
-    t->addEventOut("carDoorOpen", VrmlField::SFTIME);
-    t->addEventOut("carRotation", VrmlField::SFROTATION);
-    t->addEventOut("carFraction", VrmlField::SFFLOAT);
-	t->addEventOut("Unlock", VrmlField::SFTIME);
-	t->addEventOut("Lock", VrmlField::SFTIME);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeXCar::nodeType() const
+const char *VrmlNodeXCar::name()
 {
-    return defineType(0);
+    return "XCar";
 }
 
 int VrmlNodeXCar::IDCounter=0;
 VrmlNodeXCar::VrmlNodeXCar(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     state=Uninitialized;
     oldState=Uninitialized;
@@ -91,7 +75,7 @@ VrmlNodeXCar::VrmlNodeXCar(VrmlScene *scene)
 }
 
 VrmlNodeXCar::VrmlNodeXCar(const VrmlNodeXCar &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     state=Uninitialized;
     oldState=Uninitialized;
@@ -116,9 +100,7 @@ VrmlNodeXCar::VrmlNodeXCar(const VrmlNodeXCar &n)
     ID = IDCounter++;
 }
 
-VrmlNodeXCar::~VrmlNodeXCar()
-{
-}
+
 
 void VrmlNodeXCar::lock()
 {
@@ -144,93 +126,11 @@ void VrmlNodeXCar::setTravelDirection(enum CarState t)
     travelDirection = t;
 }
 
-VrmlNode *VrmlNodeXCar::cloneMe() const
-{
-    return new VrmlNodeXCar(*this);
-}
-
 VrmlNodeXCar *VrmlNodeXCar::toXCar() const
 {
     return (VrmlNodeXCar *)this;
 }
 
-ostream &VrmlNodeXCar::printFields(ostream &os, int indent)
-{
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeXCar::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-
-    if
-        TRY_FIELD(carNumber, SFInt)
-    else if
-    TRY_FIELD(carPos, SFVec3f)
-    else if
-    TRY_FIELD(carOffset, SFVec3f)
-    else if
-    TRY_FIELD(carDoorClose, SFTime)
-    else if
-    TRY_FIELD(carDoorOpen, SFTime)
-    else if
-    TRY_FIELD(carRotation, SFRotation)
-    else if
-    TRY_FIELD(carFraction, SFFloat)
-    else if
-    TRY_FIELD(stationList, MFInt)
-    else if
-    TRY_FIELD(stationOpenTime, MFFloat)
-    else if
-    TRY_FIELD(currentLanding, SFInt)
-    else
-    VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeXCar::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "carNumber") == 0)
-        return &d_carNumber;
-    else if (strcmp(fieldName, "carPos") == 0)
-        return &d_carPos;
-    else if (strcmp(fieldName, "carOffset") == 0)
-        return &d_carOffset;
-    else if (strcmp(fieldName, "carDoorClose") == 0)
-        return &d_carDoorClose;
-    else if (strcmp(fieldName, "carDoorOpen") == 0)
-        return &d_carDoorOpen;
-    else if (strcmp(fieldName, "carRotation") == 0)
-        return &d_carRotation;
-    else if (strcmp(fieldName, "carFraction") == 0)
-        return &d_carFraction;
-    else if (strcmp(fieldName, "stationList") == 0)
-        return &d_stationList;
-    else if (strcmp(fieldName, "stationOpenTime") == 0)
-        return &d_stationOpenTime;
-    else if (strcmp(fieldName, "currentLanding") == 0)
-        return &d_currentLanding;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
-}
-
-void VrmlNodeXCar::eventIn(double timeStamp,
-                          const char *eventName,
-                          const VrmlField *fieldValue)
-{
-    //if (strcmp(eventName, "carNumber"))
-    // {
-    //}
-    // Check exposedFields
-    //else
-    {
-        VrmlNode::eventIn(timeStamp, eventName, fieldValue);
-    }
-
-}
 
 void VrmlNodeXCar::goTo(int landing)
 {
@@ -375,7 +275,6 @@ void VrmlNodeXCar::update()
     
 
 }
-
 
 void VrmlNodeXCar::tabletPressEvent(coTUIElement *tUIItem)
 {

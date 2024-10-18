@@ -25,48 +25,20 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeDirLight(s); }
 
 // Define the built in VrmlNodeType:: "DirLight" fields
 
-VrmlNodeType *VrmlNodeDirLight::defineType(VrmlNodeType *t)
+void VrmlNodeDirLight::initFields(VrmlNodeDirLight *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("DirectionalLight", creator);
-    }
-
-    VrmlNodeLight::defineType(t); // Parent class
-    t->addExposedField("direction", VrmlField::SFVEC3F);
-
-    return t;
+    initFieldsHelper(node, t,
+                     exposedField("direction", node->d_direction));
+    VrmlNodeLight::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeDirLight::nodeType() const { return defineType(0); }
+const char *VrmlNodeDirLight::name() { return "DirectionalLight"; }
 
 VrmlNodeDirLight::VrmlNodeDirLight(VrmlScene *scene)
-    : VrmlNodeLight(scene)
+    : VrmlNodeLight(scene, name())
     , d_direction(0.0, 0.0, -1.0)
 {
     setModified();
-}
-
-VrmlNodeDirLight::~VrmlNodeDirLight()
-{
-}
-
-VrmlNode *VrmlNodeDirLight::cloneMe() const
-{
-    return new VrmlNodeDirLight(*this);
-}
-
-std::ostream &VrmlNodeDirLight::printFields(std::ostream &os, int indent)
-{
-    VrmlNodeLight::printFields(os, indent);
-    if (!FPZERO(d_direction.x()) || !FPZERO(d_direction.y()) || !FPEQUAL(d_direction.z(), -1.0))
-        PRINT_FIELD(direction);
-
-    return os;
 }
 
 // This should be called before rendering any sibling nodes.
@@ -89,26 +61,6 @@ void VrmlNodeDirLight::render(Viewer *viewer)
         clearModified();
     }
     viewer->endObject();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeDirLight::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(direction, SFVec3f)
-    else
-        VrmlNodeLight::setField(fieldName, fieldValue);
-    setModified();
-}
-
-const VrmlField *VrmlNodeDirLight::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "direction") == 0)
-        return &d_direction;
-
-    return VrmlNodeLight::getField(fieldName);
 }
 
 // LarryD Mar 04/99

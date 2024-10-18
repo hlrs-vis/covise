@@ -33,26 +33,17 @@ class VRMLEXPORT VrmlNodeProximitySensor : public VrmlNodeChild
 
 public:
     // Define the fields of ProximitySensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeProximitySensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeProximitySensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeProximitySensor();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
 
     virtual VrmlNodeProximitySensor *toProximitySensor() const;
 
     virtual void remoteEvent(double timeStamp,
                              bool isOver, bool isActive, float *point);
-
-    virtual const VrmlField *getField(const char *fieldName) const;
 
 private:
     // Fields

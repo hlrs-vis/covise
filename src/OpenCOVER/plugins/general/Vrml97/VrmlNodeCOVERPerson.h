@@ -35,22 +35,15 @@ class VRML97COVEREXPORT VrmlNodeCOVERPerson : public VrmlNodeChild
 
 public:
     // Define the fields of COVERPerson nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCOVERPerson *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCOVERPerson(VrmlScene *scene = 0);
     VrmlNodeCOVERPerson(const VrmlNodeCOVERPerson &n);
     virtual ~VrmlNodeCOVERPerson();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeCOVERPerson *toCOVERPerson() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 

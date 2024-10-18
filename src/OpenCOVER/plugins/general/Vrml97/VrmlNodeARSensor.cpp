@@ -47,55 +47,41 @@ static list<VrmlNodeARSensor *> arSensors;
 
 coEventType VrmlNodeARSensor::AREventType = { AR_EVENTS, &VrmlNodeARSensor::handleAREvent };
 
-// ARSensor factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeARSensor::initFields(VrmlNodeARSensor *node, VrmlNodeType *t)
 {
-    return new VrmlNodeARSensor(scene);
-}
-
-// Define the built in VrmlNodeType:: "ARSensor" fields
-
-VrmlNodeType *VrmlNodeARSensor::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+        exposedField("trackObjects", node->d_trackObjects),
+        exposedField("freeze", node->d_freeze),
+        exposedField("enabled", node->d_enabled),
+        exposedField("currentCamera", node->d_currentCamera),
+        exposedField("headingOnly", node->d_headingOnly),
+        exposedField("maxPosition", node->d_maxPosition),
+        exposedField("minPosition", node->d_minPosition),
+        exposedField("orientationThreshold", node->d_orientationThreshold),
+        exposedField("positionThreshold", node->d_positionThreshold),
+        exposedField("invisiblePosition", node->d_invisiblePosition),
+        exposedField("cameraPosition", node->d_cameraPosition),
+        exposedField("cameraOrientation", node->d_cameraOrientation),
+        exposedField("markerName", node->d_markerName));
+    
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ARSensor", creator);
+        t->addEventOut("isVisible", VrmlField::SFBOOL);
+        t->addEventOut("translation_changed", VrmlField::SFVEC3F);
+        t->addEventOut("rotation_changed", VrmlField::SFROTATION);
+        t->addEventOut("scale_changed", VrmlField::SFVEC3F);        
     }
 
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("trackObjects", VrmlField::SFBOOL);
-    t->addExposedField("freeze", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("currentCamera", VrmlField::SFBOOL);
-    t->addExposedField("headingOnly", VrmlField::SFBOOL);
-    t->addExposedField("maxPosition", VrmlField::SFVEC3F);
-    t->addExposedField("minPosition", VrmlField::SFVEC3F);
-    t->addExposedField("orientationThreshold", VrmlField::SFFLOAT);
-    t->addExposedField("positionThreshold", VrmlField::SFFLOAT);
-    t->addExposedField("invisiblePosition", VrmlField::SFVEC3F);
-    t->addExposedField("cameraPosition", VrmlField::SFVEC3F);
-    t->addExposedField("cameraOrientation", VrmlField::SFVEC3F);
-    t->addExposedField("markerName", VrmlField::SFSTRING);
-    t->addEventOut("isVisible", VrmlField::SFBOOL);
-    t->addEventOut("translation_changed", VrmlField::SFVEC3F);
-    t->addEventOut("rotation_changed", VrmlField::SFROTATION);
-    t->addEventOut("scale_changed", VrmlField::SFVEC3F);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeARSensor::nodeType() const
+const char *VrmlNodeARSensor::name()
 {
-    return defineType(0);
+    return "ARSensor";
 }
 
 VrmlNodeARSensor::VrmlNodeARSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_freeze(false)
     , d_trackObjects(false)
     , d_enabled(true)
@@ -142,7 +128,7 @@ void VrmlNodeARSensor::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeARSensor::VrmlNodeARSensor(const VrmlNodeARSensor &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_freeze(n.d_freeze)
     , d_trackObjects(n.d_trackObjects)
     , d_enabled(n.d_enabled)
@@ -176,11 +162,6 @@ VrmlNodeARSensor::~VrmlNodeARSensor()
 {
     delete marker;
     removeARNode(this);
-}
-
-VrmlNode *VrmlNodeARSensor::cloneMe() const
-{
-    return new VrmlNodeARSensor(*this);
 }
 
 VrmlNodeARSensor *VrmlNodeARSensor::toARSensor() const
@@ -473,94 +454,6 @@ void VrmlNodeARSensor::render(Viewer *viewer)
         }
     }
     setModified();
-}
-
-ostream &VrmlNodeARSensor::printFields(ostream &os, int indent)
-{
-    if (!d_trackObjects.get())
-        PRINT_FIELD(trackObjects);
-    if (!d_freeze.get())
-        PRINT_FIELD(freeze);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_currentCamera.get())
-        PRINT_FIELD(currentCamera);
-    if (!d_headingOnly.get())
-        PRINT_FIELD(headingOnly);
-    if (!FPEQUAL(d_maxPosition.x(), -1.0) || !FPEQUAL(d_maxPosition.y(), -1.0) || !FPEQUAL(d_maxPosition.z(), -1.0))
-        PRINT_FIELD(maxPosition);
-    if (!FPEQUAL(d_minPosition.x(), -1.0) || !FPEQUAL(d_minPosition.y(), -1.0) || !FPEQUAL(d_minPosition.z(), -1.0))
-        PRINT_FIELD(minPosition);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeARSensor::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(trackObjects, SFBool)
-    else if
-        TRY_FIELD(freeze, SFBool)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(currentCamera, SFBool)
-    else if
-        TRY_FIELD(headingOnly, SFBool)
-    else if
-        TRY_FIELD(maxPosition, SFVec3f)
-    else if
-        TRY_FIELD(minPosition, SFVec3f)
-    else if
-        TRY_FIELD(invisiblePosition, SFVec3f)
-    else if
-        TRY_FIELD(cameraPosition, SFVec3f)
-    else if
-        TRY_FIELD(cameraOrientation, SFVec3f)
-    else if
-        TRY_FIELD(orientationThreshold, SFFloat)
-    else if
-        TRY_FIELD(positionThreshold, SFFloat)
-    else if
-        TRY_FIELD(markerName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeARSensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "trackObjects") == 0)
-        return &d_trackObjects;
-    if (strcmp(fieldName, "freeze") == 0)
-        return &d_freeze;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "currentCamera") == 0)
-        return &d_currentCamera;
-    else if (strcmp(fieldName, "headingOnly") == 0)
-        return &d_headingOnly;
-    else if (strcmp(fieldName, "maxPosition") == 0)
-        return &d_maxPosition;
-    else if (strcmp(fieldName, "minPosition") == 0)
-        return &d_minPosition;
-    else if (strcmp(fieldName, "positionThreshold") == 0)
-        return &d_positionThreshold;
-    else if (strcmp(fieldName, "orientationThreshold") == 0)
-        return &d_orientationThreshold;
-    else if (strcmp(fieldName, "invisiblePosition") == 0)
-        return &d_invisiblePosition;
-    else if (strcmp(fieldName, "cameraPosition") == 0)
-        return &d_cameraPosition;
-    else if (strcmp(fieldName, "cameraOrientation") == 0)
-        return &d_cameraOrientation;
-    else if (strcmp(fieldName, "markerName") == 0)
-        return &d_markerName;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeARSensor::sendAREvent(const char *markerName, bool visible, float *pos, float *ori)

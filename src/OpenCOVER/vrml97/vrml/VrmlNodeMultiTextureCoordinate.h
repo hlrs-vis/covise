@@ -15,35 +15,27 @@
 #ifndef _VRMLNODEMULTITEXTURECOORDINATE_
 #define _VRMLNODEMULTITEXTURECOORDINATE_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "VrmlMFNode.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeMultiTextureCoordinate : public VrmlNode
+class VRMLEXPORT VrmlNodeMultiTextureCoordinate : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of TextureCoordinate nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMultiTextureCoordinate *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMultiTextureCoordinate(VrmlScene *);
-    virtual ~VrmlNodeMultiTextureCoordinate();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual VrmlNodeMultiTextureCoordinate *toMultiTextureCoordinate() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    VrmlNodeMultiTextureCoordinate *toMultiTextureCoordinate() const override;
 
     VrmlMFNode &texCoord()
     {

@@ -67,26 +67,20 @@ class VrmlNodeLanding;
 #define LANDING_HEIGHT_2 1.8 // Half height of the exchanger
 #define SAFETY_DISTANCE 0.1
 
-class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild,public coTUIListener
+class PLUGINEXPORT VrmlNodeCar : public VrmlNodeChild, public coTUIListener
 {
 public:
     enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
     // Define the fields of Car nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCar *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCar(VrmlScene *scene = 0);
     VrmlNodeCar(const VrmlNodeCar &n);
-    virtual ~VrmlNodeCar();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeCar *toCar() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
+    const VrmlField *getField(const char *fieldName) const override;
 
     void eventIn(double timeStamp, const char *eventName,
         const VrmlField *fieldValue);

@@ -32,20 +32,13 @@ class VRMLEXPORT VrmlNodeCubeTexture : public VrmlNodeTexture
 
 public:
     // Define the fields of CubeTexture nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCubeTexture *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCubeTexture(VrmlScene *);
     virtual ~VrmlNodeCubeTexture();
 
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual int nComponents();
     virtual int width();

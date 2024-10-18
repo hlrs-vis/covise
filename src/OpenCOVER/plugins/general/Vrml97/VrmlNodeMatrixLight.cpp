@@ -48,13 +48,6 @@
 std::list<VrmlNodeMatrixLight *> VrmlNodeMatrixLight::allMatrixLights;
 osg::ref_ptr<osg::Uniform> VrmlNodeMatrixLight::matrixLightMatrix;
 
-// MatrixLight factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeMatrixLight(scene);
-}
-
 void VrmlNodeMatrixLight::updateAll()
 {
     for(std::list<VrmlNodeMatrixLight *>::iterator it = allMatrixLights.begin();it != allMatrixLights.end(); it++)
@@ -74,40 +67,47 @@ void VrmlNodeMatrixLight::update()
     }
 }
 
-// Define the built in VrmlNodeType:: "MatrixLight" fields
-
-VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
+void VrmlNodeMatrixLight::initFields(VrmlNodeMatrixLight *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("lightNumber", node->d_lightNumber),
+                     exposedField("numRows", node->d_numRows),
+                     exposedField("numColumns", node->d_numColumns),
+                     exposedField("IESFile", node->d_IESFile, [node](auto f){
+                         node->iesFile = new coIES(node->d_IESFile.get());
+                        //float my_texture[] = iesFile->getTexture();
+                        osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
+                        lightTexture->setResizeNonPowerOfTwoHint(false);
+                        lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+                        lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+                        lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
+                        lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
+                        lightTexture->setImage(0, node->iesFile->getTexture());
 
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("MatrixLight", creator);
-    }
+                        osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
 
-    VrmlNodeChild::defineType(t); // Parent class
-    
-    t->addExposedField("lightNumber", VrmlField::SFINT32);
-    t->addExposedField("numRows", VrmlField::SFINT32);
-    t->addExposedField("numColumns", VrmlField::SFINT32);
-    t->addExposedField("IESFile", VrmlField::SFSTRING);
-    static osg::Matrixf lightMatrices[MAX_LIGHTS];
-    matrixLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "matrixLightMatrix", MAX_LIGHTS);
-    osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
-    state->addUniform(matrixLightMatrix);
+                        cout << "light number(single): " << node->d_lightNumber.get() << endl;
+                        state->setTextureAttributeAndModes(5 + node->d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
+                     }));
 
-    return t;
+        static bool once = false;
+        if(!once)
+        {
+            matrixLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "matrixLightMatrix", MAX_LIGHTS);
+            osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+            state->addUniform(matrixLightMatrix);
+            once = true;
+        }
 }
 
-VrmlNodeType *VrmlNodeMatrixLight::nodeType() const
+const char *VrmlNodeMatrixLight::name()
 {
-    return defineType(0);
+    return "MatrixLight";
 }
 
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_lightNumber(0)
     , d_numRows(1)
     , d_numColumns(1)
@@ -135,7 +135,7 @@ void VrmlNodeMatrixLight::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_lightNumber(n.d_lightNumber)
     , d_numRows(n.d_numRows)
     , d_numColumns(n.d_numColumns)
@@ -150,11 +150,6 @@ VrmlNodeMatrixLight::VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n)
 VrmlNodeMatrixLight::~VrmlNodeMatrixLight()
 {
     allMatrixLights.remove(this);
-}
-
-VrmlNode *VrmlNodeMatrixLight::cloneMe() const
-{
-    return new VrmlNodeMatrixLight(*this);
 }
 
 VrmlNodeMatrixLight *VrmlNodeMatrixLight::toMatrixLight() const
@@ -184,105 +179,4 @@ void VrmlNodeMatrixLight::render(Viewer *viewer)
     viewer->endObject();
 
     clearModified();
-}
-
-ostream &VrmlNodeMatrixLight::printFields(ostream &os, int indent)
-{
-    if (!d_lightNumber.get())
-        PRINT_FIELD(lightNumber);
-    if (!d_numRows.get())
-        PRINT_FIELD(numRows);
-    if (!d_numColumns.get())
-        PRINT_FIELD(numColumns);
-    if (!d_IESFile.get())
-        PRINT_FIELD(IESFile);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeMatrixLight::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(lightNumber, SFInt)
-    else if
-        TRY_FIELD(numRows, SFInt)
-    else if
-        TRY_FIELD(numColumns, SFInt)
-    else if
-        TRY_FIELD(IESFile, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "lightNumber") == 0)
-    {
-    }
-    if (strcmp(fieldName, "IESFile") == 0)
-    {
-
-		iesFile = new coIES(d_IESFile.get());
-		//float my_texture[] = iesFile->getTexture();
-		osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
-		lightTexture->setResizeNonPowerOfTwoHint(false);
-		lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
-		lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
-		lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
-		lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
-		lightTexture->setImage(0, iesFile->getTexture());
-
-		osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
-
-		cout << "light number(single): " << d_lightNumber.get() << endl;
-		state->setTextureAttributeAndModes(5 + d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
-//		state->addUniform(new osg::Uniform("width_rad", (iesFile->width))); // /57.29577951308232
-//		state->addUniform(new osg::Uniform("height_rad", (iesFile->height)));
-
-
-        //osg::ref_ptr<osg::Texture2DArray> mytextureArray = new osg::Texture2DArray;
-        //mytextureArray->setFilter(osg::Texture2DArray::MIN_FILTER, osg::Texture2DArray::NEAREST);
-        //mytextureArray->setFilter(osg::Texture2DArray::MAG_FILTER, osg::Texture2DArray::NEAREST);
-        //mytextureArray->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
-        //mytextureArray->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
-
-//		iesFile = new coIES(d_IESFile.get());
-
-		//mytextureArray->setResizeNonPowerOfTwoHint(false);
-        //int numLights = d_numRows.get()*d_numColumns.get();
-        //mytextureArray->setTextureDepth(numLights);
-        //std::string filename = d_IESFile.get();
-        //std::string dirName = filename.substr(0, filename.find_last_of("\\/"));
-		//cout << "filename: " << filename << endl;
-		//cout << "dirName: " << dirName << endl;
-		//mytextureArray->setImage(0, iesFile->getTexture());
-//        for(int i=0;i<numLights;i++)
-//        {
-//            char iesName[2000];
-//            snprintf(iesName,2000,"%s/%d.ies",dirName.c_str(),i+1);
-//            iesFile = new coIES(iesName);
-//
-//            mytextureArray->setImage(i, iesFile->getTexture());
-//        }
-//
-//        osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
-//
-		//cout << "light number(arr): " << d_lightNumber.get() << endl;
-        //state->setTextureAttributeAndModes(6+d_lightNumber.get(), mytextureArray, osg::StateAttribute::ON);
-    }
-}
-
-const VrmlField *VrmlNodeMatrixLight::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "lightNumber") == 0)
-        return &d_lightNumber;
-    if (strcmp(fieldName, "numRows") == 0)
-        return &d_numRows;
-    if (strcmp(fieldName, "numColumns") == 0)
-        return &d_numColumns;
-    if (strcmp(fieldName, "IESFile") == 0)
-        return &d_IESFile;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

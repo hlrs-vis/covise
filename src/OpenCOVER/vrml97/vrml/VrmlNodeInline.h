@@ -31,25 +31,18 @@ class VRMLEXPORT VrmlNodeInline : public VrmlNodeGroup
 
 public:
     // Define the built in VrmlNodeType:: "Inline"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeInline *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeInline(VrmlScene *);
     virtual ~VrmlNodeInline();
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeInline *toInline() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     virtual void render(Viewer *viewer);
-
-    virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
 
     void load(const char *relativeUrl, int parentId = -1);
 

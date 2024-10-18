@@ -31,23 +31,14 @@ class VRMLEXPORT VrmlNodeScalarInt : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of ScalarInt nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeScalarInt *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeScalarInt(VrmlScene *scene = 0);
-    virtual ~VrmlNodeScalarInt();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeScalarInt *toScalarInt() const;
     virtual const VrmlMFFloat &getKey() const;

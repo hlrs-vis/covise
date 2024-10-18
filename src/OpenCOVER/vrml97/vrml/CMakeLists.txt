@@ -103,7 +103,7 @@ SET(VRML_SOURCES
   Viewer.cpp
   VrmlField.cpp
   VrmlNamespace.cpp
-  VrmlNodeChildTemplate.cpp
+  VrmlNodeTemplate.cpp
   VrmlNodeAnchor.cpp
   VrmlNodeAppearance.cpp
   VrmlNodeAudioClip.cpp
@@ -146,11 +146,7 @@ SET(VRML_SOURCES
   VrmlNodeLOD.cpp
   VrmlNodeMaterial.cpp
   VrmlNodeMetadata.cpp
-  VrmlNodeMetadataBoolean.cpp
-  VrmlNodeMetadataDouble.cpp
-  VrmlNodeMetadataFloat.cpp
-  VrmlNodeMetadataInteger.cpp
-  VrmlNodeMetadataString.cpp
+  VrmlNodeMetadataNumeric.cpp
   VrmlNodeMetadataSet.cpp
   VrmlNodeMovieTexture.cpp
   VrmlNodeMultiTexture.cpp
@@ -255,9 +251,8 @@ SET(VRML_HEADERS
   VrmlMFVec3d.h
   VrmlMFVec3f.h
   VrmlNamespace.h
-  VrmlNodeBindable.h
   VrmlNodeChild.h
-  VrmlNodeChildTemplate.h
+  VrmlNodeTemplate.h
   VrmlNodeTexture.h
   VrmlNode.h
   VrmlNodeAnchor.h
@@ -302,10 +297,7 @@ SET(VRML_HEADERS
   VrmlNodeLOD.h
   VrmlNodeMaterial.h
   VrmlNodeMetadata.h
-  VrmlNodeMetadataDouble.h
-  VrmlNodeMetadataFloat.h
-  VrmlNodeMetadataInteger.h
-  VrmlNodeMetadataString.h
+  VrmlNodeMetadataNumeric.h
   VrmlNodeMetadataSet.h
   VrmlNodeMovieTexture.h
   VrmlNodeMultiTexture.h

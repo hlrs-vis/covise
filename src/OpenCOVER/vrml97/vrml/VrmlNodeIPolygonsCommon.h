@@ -25,15 +25,9 @@ class VRMLEXPORT VrmlNodeIPolygonsCommon : public VrmlNodePolygonsCommon
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
+    static void initFields(VrmlNodeIPolygonsCommon *node, VrmlNodeType *t);
 
-    VrmlNodeIPolygonsCommon(VrmlScene *);
-    virtual ~VrmlNodeIPolygonsCommon();
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    VrmlNodeIPolygonsCommon(VrmlScene *, const std::string &name);
 
 protected:
     VrmlMFInt d_index;

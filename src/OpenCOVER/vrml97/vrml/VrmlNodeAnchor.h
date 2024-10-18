@@ -30,27 +30,17 @@ class VRMLEXPORT VrmlNodeAnchor : public VrmlNodeGroup
 
 public:
     // Define the built in VrmlNodeType:: "Anchor"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const override;
+    static void initFields(VrmlNodeAnchor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeAnchor(VrmlScene *);
     VrmlNodeAnchor(const VrmlNodeAnchor &);
-    virtual ~VrmlNodeAnchor();
-
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const override;
 
     virtual VrmlNodeAnchor *toAnchor() const override;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
     virtual void render(Viewer *) override;
 
     void activate();
-
-    virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue) override;
-    const VrmlField *getField(const char *fieldName) const override;
 
     const char *description()
     {

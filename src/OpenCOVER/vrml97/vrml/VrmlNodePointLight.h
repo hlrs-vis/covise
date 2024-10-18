@@ -27,26 +27,19 @@ class VRMLEXPORT VrmlNodePointLight : public VrmlNodeLight
 
 public:
     // Define the fields of pointLight nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePointLight *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodePointLight(VrmlScene *);
     virtual ~VrmlNodePointLight();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodePointLight *toPointLight() const;
 
     // Bindable/scoped nodes must notify the scene of their existence.
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
-
     //LarryD Mar 04/99
     virtual const VrmlSFVec3f &getAttenuation() const;
     //LarryD Mar 04/99

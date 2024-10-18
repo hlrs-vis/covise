@@ -20,37 +20,18 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeMultiTextureTransform::initFields(VrmlNodeMultiTextureTransform *node, VrmlNodeType *t)
 {
-    return new VrmlNodeMultiTextureTransform(s);
+    initFieldsHelper(node, t, exposedField("textureTransform", node->d_textureTransform));
 }
 
-// Define the built in VrmlNodeType:: "MultiTextureTransform" fields
-
-VrmlNodeType *VrmlNodeMultiTextureTransform::defineType(VrmlNodeType *t)
+const char *VrmlNodeMultiTextureTransform::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("MultiTextureTransform", creator);
-    }
-
-    VrmlNode::defineType(t); // Parent class
-    t->addExposedField("textureTransform", VrmlField::MFNODE);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeMultiTextureTransform::nodeType() const
-{
-    return defineType(0);
+    return "MultiTextureTransform";
 }
 
 VrmlNodeMultiTextureTransform::VrmlNodeMultiTextureTransform(VrmlScene *scene)
-    : VrmlNode(scene)
+    : VrmlNodeTemplate(scene, name())
     , d_textureTransform(0)
 {
 }
@@ -67,47 +48,15 @@ VrmlNodeMultiTextureTransform::~VrmlNodeMultiTextureTransform()
     }
 }
 
-VrmlNode *VrmlNodeMultiTextureTransform::cloneMe() const
-{
-    return new VrmlNodeMultiTextureTransform(*this);
-}
-
 VrmlNodeMultiTextureTransform *VrmlNodeMultiTextureTransform::toMultiTextureTransform() const
 {
     return (VrmlNodeMultiTextureTransform *)this;
-}
-
-std::ostream &VrmlNodeMultiTextureTransform::printFields(std::ostream &os, int indent)
-{
-    if (d_textureTransform.size() > 0)
-        PRINT_FIELD(textureTransform);
-
-    return os;
 }
 
 void VrmlNodeMultiTextureTransform::render(Viewer *viewer, int numberTexture)
 {
     d_textureTransform[numberTexture]->render(viewer);
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeMultiTextureTransform::setField(const char *fieldName,
-                                             const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(textureTransform, MFNode)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeMultiTextureTransform::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "textureTransform") == 0)
-        return &d_textureTransform;
-
-    return VrmlNode::getField(fieldName);
 }
 
 void VrmlNodeMultiTextureTransform::cloneChildren(VrmlNamespace *ns)

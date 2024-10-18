@@ -15,7 +15,7 @@
 #ifndef _VRMLNODETEXTURETRANSFORM_
 #define _VRMLNODETEXTURETRANSFORM_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "VrmlSFFloat.h"
 #include "VrmlSFVec2f.h"
 
@@ -24,27 +24,20 @@ namespace vrml
 
 class Viewer;
 
-class VRMLEXPORT VrmlNodeTextureTransform : public VrmlNode
+class VRMLEXPORT VrmlNodeTextureTransform : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of TextureTransform nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeTextureTransform *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeTextureTransform(VrmlScene *);
-    virtual ~VrmlNodeTextureTransform();
 
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeTextureTransform *toTextureTransform() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    VrmlNodeTextureTransform *toTextureTransform() const override;
 
     virtual void render(Viewer *);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     float *center()
     {

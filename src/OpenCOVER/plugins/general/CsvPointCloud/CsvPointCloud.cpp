@@ -66,7 +66,12 @@ public:
     {
         return new MachineNode(scene);
     }
-    MachineNode(VrmlScene *scene) : VrmlNodeChild(scene), m_index(machineNodes.size())
+
+    static const char *name() { return "CsvPointCloud"; }
+
+    MachineNode(VrmlScene *scene) 
+    : VrmlNodeChild(scene, name())
+    , m_index(machineNodes.size())
     {
 
         std::cerr << "vrml Machine node created" << std::endl;
@@ -77,30 +82,16 @@ public:
         machineNodes.erase(machineNodes.begin() + m_index);
     }
     // Define the fields of XCar nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0)
-    {
-        static VrmlNodeType *st = 0;
-
-        if (!t)
+    static void initFields(MachineNode *node, VrmlNodeType *t){
+        VrmlNodeChild::initFields(node, t);
+        if(t)
         {
-            if (st)
-                return st; // Only define the type once.
-            t = st = new VrmlNodeType("CsvPointCloud", creator);
+            t->addEventOut("x", VrmlField::SFVEC3F);
+            t->addEventOut("y", VrmlField::SFVEC3F);
+            t->addEventOut("z", VrmlField::SFVEC3F);            
         }
-
-        VrmlNodeChild::defineType(t); // Parent class
-
-        t->addEventOut("x", VrmlField::SFVEC3F);
-        t->addEventOut("y", VrmlField::SFVEC3F);
-        t->addEventOut("z", VrmlField::SFVEC3F);
-
-        return t;
     }
-    virtual VrmlNodeType *nodeType() const { return defineType(); };
-    VrmlNode *cloneMe() const
-    {
-        return new MachineNode(*this);
-    }
+
     void move(VrmlSFVec3f &position)
     {
         auto t = System::the->time();
@@ -112,11 +103,6 @@ public:
 private:
     size_t m_index = 0;
 };
-
-VrmlNode *creator(VrmlScene *scene)
-{
-    return new MachineNode(scene);
-}
 
 namespace fs = boost::filesystem;
 
@@ -155,7 +141,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
-    VrmlNamespace::addBuiltIn(MachineNode::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNode>());
     std::cerr << "getName: " << getName() << std::endl;
     m_config->setSaveOnExit(true);
     m_dataSelector->ui()->setShared(true);
@@ -288,7 +274,7 @@ bool CsvPointCloudPlugin::init()
 
     coVRFileManager::instance()->registerFileHandler(&m_handler[0]);
     coVRFileManager::instance()->registerFileHandler(&m_handler[1]);
-    VrmlNamespace::addBuiltIn(MachineNode::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNode>());
     return true;
 }
 

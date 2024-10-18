@@ -50,58 +50,53 @@ static list<VrmlNodeMultiTouchSensor *> multiTouchSensors;
 
 coEventType VrmlNodeMultiTouchSensor::MultiTouchEventType = { MULTI_TOUCH_EVENTS, &VrmlNodeMultiTouchSensor::handleMultiTouchEvent };
 
-// MultiTouchSensor factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeMultiTouchSensor::initFields(VrmlNodeMultiTouchSensor *node, VrmlNodeType *t)
 {
-    return new VrmlNodeMultiTouchSensor(scene);
-}
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("trackObjects", node->d_trackObjects),
+                     exposedField("freeze", node->d_freeze),
+                     exposedField("adjustHeight", node->d_adjustHeight),
+                     exposedField("adjustOrientation", node->d_adjustOrientation),
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("currentCamera", node->d_currentCamera),
+                     exposedField("headingOnly", node->d_headingOnly),
+                     exposedField("size", node->d_size),
+                     exposedField("minPosition", node->d_minPosition, [node](auto f){
+                        node->recalcMatrix();
+                     }),
+                     exposedField("markerPosition", node->d_markerPosition, [node](auto f){
+                        node->recalcMatrix();
+                     }),
+                     exposedField("markerRotation", node->d_markerRotation, [node](auto f){
+                        node->recalcMatrix();
+                     }),
+                     exposedField("orientation", node->d_orientation, [node](auto f){
+                        node->recalcMatrix();
+                     }),
+                     exposedField("orientationThreshold", node->d_orientationThreshold),
+                     exposedField("positionThreshold", node->d_positionThreshold),
+                     exposedField("invisiblePosition", node->d_invisiblePosition),
+                     exposedField("markerName", node->d_markerName, [node](auto f){
+                        node->markerID = coVRTouchTable::instance()->ttInterface->getMarker(node->d_markerName.get());
+                     }));
 
-// Define the built in VrmlNodeType:: "MultiTouchSensor" fields
-
-VrmlNodeType *VrmlNodeMultiTouchSensor::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("MultiTouchSensor", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("trackObjects", VrmlField::SFBOOL);
-    t->addExposedField("freeze", VrmlField::SFBOOL);
-   t->addExposedField("adjustHeight", VrmlField::SFBOOL);
-   t->addExposedField("adjustOrientation", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("currentCamera", VrmlField::SFBOOL);
-    t->addExposedField("headingOnly", VrmlField::SFBOOL);
-    t->addExposedField("size", VrmlField::SFVEC2F);
-    t->addExposedField("minPosition", VrmlField::SFVEC3F);
-    t->addExposedField("markerPosition", VrmlField::SFVEC3F);
-    t->addExposedField("markerRotation", VrmlField::SFVEC3F);
-    t->addExposedField("orientationThreshold", VrmlField::SFFLOAT);
-    t->addExposedField("orientation", VrmlField::SFROTATION);
-    t->addExposedField("positionThreshold", VrmlField::SFFLOAT);
-    t->addExposedField("invisiblePosition", VrmlField::SFVEC3F);
-    t->addExposedField("markerName", VrmlField::SFSTRING);
-    t->addEventOut("isVisible", VrmlField::SFBOOL);
-    t->addEventOut("translation_changed", VrmlField::SFVEC3F);
-    t->addEventOut("rotation_changed", VrmlField::SFROTATION);
-    t->addEventOut("scale_changed", VrmlField::SFVEC3F);
-
-    return t;
+        t->addEventOut("isVisible", VrmlField::SFBOOL);
+        t->addEventOut("translation_changed", VrmlField::SFVEC3F);
+        t->addEventOut("rotation_changed", VrmlField::SFROTATION);
+        t->addEventOut("scale_changed", VrmlField::SFVEC3F);
+    }                     
 }
 
-VrmlNodeType *VrmlNodeMultiTouchSensor::nodeType() const
+const char *VrmlNodeMultiTouchSensor::name()
 {
-    return defineType(0);
+    return "MultiTouchSensor";
 }
 
 VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_freeze(false)
     , d_adjustHeight(false)
     , d_adjustOrientation(false)
@@ -148,7 +143,7 @@ void VrmlNodeMultiTouchSensor::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(const VrmlNodeMultiTouchSensor &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_freeze(n.d_freeze)
     , d_adjustHeight(n.d_adjustHeight)
     , d_adjustOrientation(n.d_adjustOrientation)
@@ -189,11 +184,6 @@ VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(const VrmlNodeMultiTouchSenso
 VrmlNodeMultiTouchSensor::~VrmlNodeMultiTouchSensor()
 {
     removeMultiTouchNode(this);
-}
-
-VrmlNode *VrmlNodeMultiTouchSensor::cloneMe() const
-{
-    return new VrmlNodeMultiTouchSensor(*this);
 }
 
 VrmlNodeMultiTouchSensor *VrmlNodeMultiTouchSensor::toMultiTouchSensor() const
@@ -365,26 +355,6 @@ void VrmlNodeMultiTouchSensor::render(Viewer *viewer)
     setModified();
 }
 
-ostream &VrmlNodeMultiTouchSensor::printFields(ostream &os, int indent)
-{
-    if (!d_trackObjects.get())
-        PRINT_FIELD(trackObjects);
-    if (!d_freeze.get())
-        PRINT_FIELD(freeze);
-   if (! d_adjustHeight.get()) PRINT_FIELD(adjustHeight);
-   if (! d_adjustOrientation.get()) PRINT_FIELD(adjustOrientation);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_currentCamera.get())
-        PRINT_FIELD(currentCamera);
-    if (!FPEQUAL(d_size.x(), -1.0) || !FPEQUAL(d_size.y(), -1.0))
-        PRINT_FIELD(size);
-    if (!FPEQUAL(d_minPosition.x(), -1.0) || !FPEQUAL(d_minPosition.y(), -1.0))
-        PRINT_FIELD(minPosition);
-
-    return os;
-}
-
 void VrmlNodeMultiTouchSensor::eventIn(double timeStamp,
                                        const char *eventName,
                                        const VrmlField *fieldValue)
@@ -433,105 +403,6 @@ void VrmlNodeMultiTouchSensor::recalcMatrix()
     tr.set(ct[0], ct[1], ct[2]);
     rot.makeRotate(ct[3], tr);
     surfaceTrans.preMult(rot);
-}
-
-// Set the value of one of the node fields.
-void VrmlNodeMultiTouchSensor::setField(const char *fieldName,
-                                        const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "markerName") == 0)
-    {
-
-        if (fieldValue.toSFString()->get())
-            markerID = coVRTouchTable::instance()->ttInterface->getMarker(fieldValue.toSFString()->get());
-        else
-            markerID = -1;
-    }
-    else if (strcmp(fieldName, "markerRotation"))
-    {
-        recalcMatrix();
-    }
-    else if (strcmp(fieldName, "markerPosition"))
-    {
-        recalcMatrix();
-    }
-    else if (strcmp(fieldName, "orientation"))
-    {
-        recalcMatrix();
-    }
-    else if (strcmp(fieldName, "minPosition"))
-    {
-        recalcMatrix();
-    }
-    if
-        TRY_FIELD(trackObjects, SFBool)
-    else if
-        TRY_FIELD(freeze, SFBool)
-    else if 
-        TRY_FIELD(adjustHeight, SFBool)
-    else if 
-	    TRY_FIELD(adjustOrientation, SFBool)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(currentCamera, SFBool)
-    else if
-        TRY_FIELD(size, SFVec2f)
-    else if
-        TRY_FIELD(minPosition, SFVec3f)
-    else if
-        TRY_FIELD(markerPosition, SFVec3f)
-    else if
-        TRY_FIELD(markerRotation, SFRotation)
-    else if
-        TRY_FIELD(invisiblePosition, SFVec3f)
-    else if
-        TRY_FIELD(orientationThreshold, SFFloat)
-    else if
-        TRY_FIELD(orientation, SFRotation)
-    else if
-        TRY_FIELD(positionThreshold, SFFloat)
-    else if
-        TRY_FIELD(markerName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeMultiTouchSensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "trackObjects") == 0)
-        return &d_trackObjects;
-    if (strcmp(fieldName, "freeze") == 0)
-        return &d_freeze;
-   if(strcmp(fieldName,"adjustHeight")==0)
-      return &d_adjustHeight;
-   if(strcmp(fieldName,"adjustOrientation")==0)
-      return &d_adjustOrientation;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "currentCamera") == 0)
-        return &d_currentCamera;
-    else if (strcmp(fieldName, "size") == 0)
-        return &d_size;
-    else if (strcmp(fieldName, "minPosition") == 0)
-        return &d_minPosition;
-    else if (strcmp(fieldName, "markerPosition") == 0)
-        return &d_markerPosition;
-    else if (strcmp(fieldName, "markerRotation") == 0)
-        return &d_markerRotation;
-    else if (strcmp(fieldName, "positionThreshold") == 0)
-        return &d_positionThreshold;
-    else if (strcmp(fieldName, "orientationThreshold") == 0)
-        return &d_orientationThreshold;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "invisiblePosition") == 0)
-        return &d_invisiblePosition;
-    else if (strcmp(fieldName, "markerName") == 0)
-        return &d_markerName;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeMultiTouchSensor::sendMultiTouchEvent(const char *markerName, bool visible, float *pos, float angle)

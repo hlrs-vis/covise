@@ -1,5 +1,4 @@
 #include "Plugin.h"
-#include "VrmlNode.h"
 #include "ToolMachine.h"
 #include "ToolChanger/ToolChanger.h"
 
@@ -31,12 +30,11 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 {
     m_menu->allowRelayout(true);
     VrmlNamespace::addBuiltIn(MachineNode::defineType());
-    VrmlNamespace::addBuiltIn(MachineNodeArrayMode::defineType());
-    VrmlNamespace::addBuiltIn(MachineNodeSingleMode::defineType());
-    VrmlNamespace::addBuiltIn(ToolChangerNode::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNodeArrayMode>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNodeSingleMode>());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<ToolChangerNode>());
     std::cerr << "added vrml nodes" << "MachineNode, MachineNodeArrayMode, MachineNodeSingleMode, ToolChangerNode" << std::endl;
     config()->setSaveOnExit(true);
-
 }
 
 osg::Vec3 toOsg(VrmlSFVec3f &v)
@@ -51,15 +49,18 @@ osg::Quat toOsg(VrmlSFRotation &r)
 
 bool ToolMaschinePlugin::update()
 {
+    //FIXME: multiple machines and toolchangers need their own ui::Menu with unique name
     for(auto machine : machineNodes)
     {
         if(!machine->machine)
-            machine->machine = std::make_unique<Machine>(m_menu, config().get(), machine);
+        {
+            machine->machine = utils::pointer::makeNullCopyPtr<Machine>(m_menu, config().get(), machine);
+        }
     }
     for(auto toolChanger : toolChangers)
     {
         if(!toolChanger->toolChanger)
-            toolChanger->toolChanger = std::make_unique<ToolChanger>(m_menu, config().get(), toolChanger);
+            toolChanger->toolChanger = utils::pointer::makeNullCopyPtr<ToolChanger>(m_menu, config().get(), toolChanger);
     }
     
     

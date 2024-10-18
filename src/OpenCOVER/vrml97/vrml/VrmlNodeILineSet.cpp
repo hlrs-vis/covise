@@ -24,40 +24,17 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeILineSet(s); }
-
-// Define the built in VrmlNodeType:: "IndexedLineSet" fields
-
-VrmlNodeType *VrmlNodeILineSet::defineType(VrmlNodeType *t)
+void VrmlNodeILineSet::initFields(VrmlNodeILineSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("IndexedLineSet", creator);
-    }
-
-    VrmlNodeIndexedSet::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeIndexedSet::initFields(node, t); // Parent class
 }
 
-VrmlNodeType *VrmlNodeILineSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeILineSet::name() { return "IndexedLineSet"; }
+
 
 VrmlNodeILineSet::VrmlNodeILineSet(VrmlScene *scene)
-    : VrmlNodeIndexedSet(scene)
+    : VrmlNodeIndexedSet(scene, name())
 {
-}
-
-VrmlNodeILineSet::~VrmlNodeILineSet()
-{
-}
-
-VrmlNode *VrmlNodeILineSet::cloneMe() const
-{
-    return new VrmlNodeILineSet(*this);
 }
 
 void VrmlNodeILineSet::cloneChildren(VrmlNamespace *ns)

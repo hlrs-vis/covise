@@ -79,22 +79,14 @@ class PLUGINEXPORT VrmlNodeXElevator : public VrmlNodeGroup
 {
 public:
     // Define the fields of XElevator nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeXElevator *node, VrmlNodeType *t = 0);
+    static const char *name();
 
     VrmlNodeXElevator(VrmlScene *scene = 0);
     VrmlNodeXElevator(const VrmlNodeXElevator &n);
-    virtual ~VrmlNodeXElevator();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeXElevator *toXElevator() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
-
+    
     void eventIn(double timeStamp, const char *eventName,
         const VrmlField *fieldValue);
 
@@ -113,7 +105,7 @@ public:
     coTUITab *XElevatorTab;
 
 private:
-
+    void childrenChanged() override;
 };
 
 

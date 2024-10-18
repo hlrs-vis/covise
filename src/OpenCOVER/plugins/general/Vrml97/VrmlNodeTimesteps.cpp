@@ -59,39 +59,37 @@ void VrmlNodeTimesteps::update()
     }
 }
 
-// Define the built in VrmlNodeType:: "Timesteps" fields
-
-VrmlNodeType *VrmlNodeTimesteps::defineType(VrmlNodeType *t)
+void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t, 
+                     field("numTimesteps", node->d_numTimesteps, [node](auto f){
+                            coVRAnimationManager::instance()->setNumTimesteps(node->d_numTimesteps.get(), node);
+                     }),
+                     field("enabled", node->d_enabled, [](auto f){
+                            coVRAnimationManager::instance()->enableAnimation(f->get());
+                     }),
+                     field("loop", node->d_loop),
+                     field("maxFrameRate", node->d_maxFrameRate, [](auto f){
+                            coVRAnimationManager::instance()->setMaxFrameRate(f->get());
+                     }));
+    
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Timesteps", creator);
-    }
+        t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
+        t->addEventOut("timestep_changed", VrmlField::SFINT32);
+        t->addEventIn("timestep", VrmlField::SFINT32); //event might not be handled
+    }                     
 
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("numTimesteps", VrmlField::SFINT32);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("loop", VrmlField::SFBOOL);
-    t->addExposedField("maxFrameRate", VrmlField::SFINT32);
-    t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
-    t->addEventOut("timestep_changed", VrmlField::SFINT32);
-    t->addEventIn("timestep", VrmlField::SFINT32);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTimesteps::nodeType() const
+const char *VrmlNodeTimesteps::name()
 {
-    return defineType(0);
+    return "Timesteps";
 }
 
 VrmlNodeTimesteps::VrmlNodeTimesteps(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_numTimesteps(0)
     , d_fraction_changed(0.0)
     , d_enabled(true)
@@ -119,7 +117,7 @@ void VrmlNodeTimesteps::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeTimesteps::VrmlNodeTimesteps(const VrmlNodeTimesteps &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_numTimesteps(n.d_numTimesteps)
     , d_fraction_changed(n.d_fraction_changed)
     , d_enabled(n.d_enabled)
@@ -133,11 +131,6 @@ VrmlNodeTimesteps::VrmlNodeTimesteps(const VrmlNodeTimesteps &n)
 VrmlNodeTimesteps::~VrmlNodeTimesteps()
 {
     allTimesteps.remove(this);
-}
-
-VrmlNode *VrmlNodeTimesteps::cloneMe() const
-{
-    return new VrmlNodeTimesteps(*this);
 }
 
 VrmlNodeTimesteps *VrmlNodeTimesteps::toTimesteps() const
@@ -176,74 +169,4 @@ void VrmlNodeTimesteps::render(Viewer *viewer)
         eventOut(timeNow, "timestep_changed", d_currentTimestep);
     }
     setModified();
-}
-
-ostream &VrmlNodeTimesteps::printFields(ostream &os, int indent)
-{
-    if (!d_numTimesteps.get())
-        PRINT_FIELD(numTimesteps);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_loop.get())
-        PRINT_FIELD(loop);
-    if (!d_maxFrameRate.get())
-        PRINT_FIELD(maxFrameRate);
-    if (!d_fraction_changed.get())
-        PRINT_FIELD(fraction_changed);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTimesteps::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(numTimesteps, SFInt)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(loop, SFBool)
-    else if
-        TRY_FIELD(maxFrameRate, SFInt)
-    else if
-        TRY_FIELD(fraction_changed, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "numTimesteps") == 0)
-    {
-        coVRAnimationManager::instance()->setNumTimesteps(d_numTimesteps.get(), this);
-    }
-    else if (strcmp(fieldName, "maxFrameRate") == 0)
-    {
-        coVRAnimationManager::instance()->setMaxFrameRate(d_maxFrameRate.get());
-    }
-    else if (strcmp(fieldName, "timestep") == 0)
-    {
-        VrmlSFInt frame = (VrmlSFInt &)fieldValue;
-        coVRAnimationManager::instance()->requestAnimationFrame(frame.get());
-    }
-    else if (strcmp(fieldName, "enabled") == 0)
-    {
-        coVRAnimationManager::instance()->enableAnimation(d_enabled.get());
-    }
-}
-
-const VrmlField *VrmlNodeTimesteps::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "numTimesteps") == 0)
-        return &d_numTimesteps;
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "loop") == 0)
-        return &d_loop;
-    else if (strcmp(fieldName, "maxFrameRate") == 0)
-        return &d_maxFrameRate;
-    else if (strcmp(fieldName, "fraction_changed") == 0)
-        return &d_fraction_changed;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

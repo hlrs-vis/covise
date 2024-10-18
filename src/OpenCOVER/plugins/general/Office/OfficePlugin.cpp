@@ -239,7 +239,7 @@ bool OfficePlugin::init()
 
     if (connected)
     {
-        VrmlNamespace::addBuiltIn(VrmlNodeOffice::defineType());
+        VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeOffice>());
         createMenu();
     }
     return connected;

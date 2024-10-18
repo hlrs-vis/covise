@@ -32,23 +32,14 @@ class VRMLEXPORT VrmlNodeNormalInt : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of NormalInt nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeNormalInt *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeNormalInt(VrmlScene *scene = 0);
-    virtual ~VrmlNodeNormalInt();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 private:
     // Fields

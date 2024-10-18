@@ -27,56 +27,17 @@
 #include "Viewer.h"
 using namespace vrml;
 
-// Define the built in VrmlNodeType:: "IndexedPolygons*Set" fields
-
-VrmlNodeType *VrmlNodeIPolygonsCommon::defineType(VrmlNodeType *t)
+void VrmlNodeIPolygonsCommon::initFields(VrmlNodeIPolygonsCommon *node, VrmlNodeType *t)
 {
-    if (!t)
-    {
-        return NULL;
-    }
-    VrmlNodePolygonsCommon::defineType(t); // Parent class
+    VrmlNodePolygonsCommon::initFields(node, t);
+    initFieldsHelper(node, t,
+                        field("index", node->d_index));
+    if(t)
+        t->addEventIn("set_index", VrmlField::MFINT32);
 
-    t->addEventIn("set_index", VrmlField::MFINT32);
-    t->addField("index", VrmlField::MFINT32);
-
-    return t;
 }
 
-VrmlNodeIPolygonsCommon::VrmlNodeIPolygonsCommon(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene)
+VrmlNodeIPolygonsCommon::VrmlNodeIPolygonsCommon(VrmlScene *scene, const std::string &name)
+    : VrmlNodePolygonsCommon(scene, name)
 {
-}
-
-VrmlNodeIPolygonsCommon::~VrmlNodeIPolygonsCommon()
-{
-}
-
-std::ostream &VrmlNodeIPolygonsCommon::printFields(std::ostream &os, int indent)
-{
-    if (!d_index.get())
-        PRINT_FIELD(index);
-
-    VrmlNodePolygonsCommon::printFields(os, indent);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeIPolygonsCommon::setField(const char *fieldName,
-                                       const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(index, MFInt)
-    else
-        VrmlNodePolygonsCommon::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeIPolygonsCommon::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "index") == 0)
-        return &d_index;
-
-    return VrmlNodePolygonsCommon::getField(fieldName);
 }

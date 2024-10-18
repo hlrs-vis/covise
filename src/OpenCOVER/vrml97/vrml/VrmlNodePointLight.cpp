@@ -21,34 +21,21 @@
 
 using namespace vrml;
 
-// Return a new VrmlNodePointLight
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodePointLight(s); }
-
-// Define the built in VrmlNodeType:: "PointLight" fields
-
-VrmlNodeType *VrmlNodePointLight::defineType(VrmlNodeType *t)
+void VrmlNodePointLight::initFields(VrmlNodePointLight *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("PointLight", creator);
-    }
-
-    VrmlNodeLight::defineType(t); // Parent class
-    t->addExposedField("attenuation", VrmlField::SFVEC3F);
-    t->addExposedField("location", VrmlField::SFVEC3F);
-    t->addExposedField("radius", VrmlField::SFFLOAT);
-
-    return t;
+    VrmlNodeLight::initFields(node, t); 
+    initFieldsHelper(node, t,
+        exposedField("attenuation", node->d_attenuation),
+        exposedField("location", node->d_location),
+        exposedField("radius", node->d_radius)
+    );
 }
 
-VrmlNodeType *VrmlNodePointLight::nodeType() const { return defineType(0); }
+const char *VrmlNodePointLight::name() { return "PointLight"; }
+
 
 VrmlNodePointLight::VrmlNodePointLight(VrmlScene *scene)
-    : VrmlNodeLight(scene)
+    : VrmlNodeLight(scene, name())
     , d_attenuation(1.0, 0.0, 0.0)
     , d_location(0.0, 0.0, 0.0)
     , d_radius(100)
@@ -64,11 +51,6 @@ VrmlNodePointLight::~VrmlNodePointLight()
         d_scene->removeScopedLight(this);
 }
 
-VrmlNode *VrmlNodePointLight::cloneMe() const
-{
-    return new VrmlNodePointLight(*this);
-}
-
 VrmlNodePointLight *VrmlNodePointLight::toPointLight() const
 {
     return (VrmlNodePointLight *)this;
@@ -78,19 +60,6 @@ void VrmlNodePointLight::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addScopedLight(this);
-}
-
-std::ostream &VrmlNodePointLight::printFields(std::ostream &os, int indent)
-{
-    VrmlNodeLight::printFields(os, indent);
-    if (!FPEQUAL(d_attenuation.x(), 1.0) || !FPZERO(d_attenuation.y()) || !FPZERO(d_attenuation.z()))
-        PRINT_FIELD(attenuation);
-    if (!FPZERO(d_location.x()) || !FPZERO(d_location.y()) || !FPZERO(d_location.z()))
-        PRINT_FIELD(location);
-    if (!FPEQUAL(d_radius.get(), 100.0))
-        PRINT_FIELD(radius);
-
-    return os;
 }
 
 // This should be called before rendering any geometry nodes in the scene.
@@ -122,34 +91,6 @@ void VrmlNodePointLight::render(Viewer *viewer)
         clearModified();
     }
     viewer->endObject();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePointLight::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(attenuation, SFVec3f)
-    else if
-        TRY_FIELD(location, SFVec3f)
-    else if
-        TRY_FIELD(radius, SFFloat)
-    else
-        VrmlNodeLight::setField(fieldName, fieldValue);
-    setModified();
-}
-
-const VrmlField *VrmlNodePointLight::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "attenuation") == 0)
-        return &d_attenuation;
-    else if (strcmp(fieldName, "location") == 0)
-        return &d_location;
-    else if (strcmp(fieldName, "radius") == 0)
-        return &d_radius;
-
-    return VrmlNodeLight::getField(fieldName);
 }
 
 // LarryD Mar 04/99

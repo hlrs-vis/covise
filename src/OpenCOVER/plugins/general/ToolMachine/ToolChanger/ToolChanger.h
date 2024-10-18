@@ -2,7 +2,7 @@
 #define TOOLMACHINETOOLCHANGER_H
 
 #include "Utility.h"
-#include "VrmlNode.h"
+#include "VrmlToolChanger.h"
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/VectorEditField.h>

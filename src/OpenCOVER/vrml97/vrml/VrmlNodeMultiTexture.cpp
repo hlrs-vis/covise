@@ -43,33 +43,29 @@ VrmlNodeMultiTexture *VrmlNodeMultiTexture::toMultiTexture() const
     return (VrmlNodeMultiTexture *)this;
 }
 
-// Define the built in VrmlNodeType:: "MultiTexture" fields
-
-VrmlNodeType *VrmlNodeMultiTexture::defineType(VrmlNodeType *t)
+void VrmlNodeMultiTexture::initFields(VrmlNodeMultiTexture *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTexture::initFields(node, t);
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("MultiTexture", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("alpha", VrmlField::SFFLOAT);
-    t->addExposedField("color", VrmlField::SFCOLOR);
-    t->addExposedField("function", VrmlField::MFSTRING);
-    t->addExposedField("mode", VrmlField::MFSTRING);
-    t->addExposedField("source", VrmlField::MFSTRING);
-    t->addExposedField("texture", VrmlField::MFNODE);
-
-    return t;
+    initFieldsHelper(node, t,
+                     exposedField("alpha", node->d_alpha, [](auto value){
+                            cerr << "Sorry: MultiTexture.alpha is not supported yet" << endl;
+                     }),
+                     exposedField("color", node->d_color),
+                     exposedField("function", node->d_function, [](auto value){
+                            cerr << "Sorry: MultiTexture.function is not supported yet" << endl;
+                     }),
+                     exposedField("mode", node->d_mode),
+                     exposedField("source", node->d_source, [](auto value){
+                            cerr << "Sorry: MultiTexture.source is not supported yet" << endl;
+                     }),
+                     exposedField("texture", node->d_texture));
 }
 
+const char *VrmlNodeMultiTexture::name() { return "MultiTexture"; }
+
 VrmlNodeMultiTexture::VrmlNodeMultiTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene)
+    : VrmlNodeTexture(scene, name())
     , d_alpha(1)
     , d_color(1, 1, 1)
     , d_function()
@@ -80,8 +76,6 @@ VrmlNodeMultiTexture::VrmlNodeMultiTexture(VrmlScene *scene)
     d_appearance = NULL;
 }
 
-VrmlNodeType *VrmlNodeMultiTexture::nodeType() const { return defineType(0); }
-
 VrmlNodeMultiTexture::~VrmlNodeMultiTexture()
 {
     while (d_texture.size())
@@ -91,28 +85,6 @@ VrmlNodeMultiTexture::~VrmlNodeMultiTexture()
             d_texture.removeNode(d_texture[0]);
         }
     }
-}
-
-VrmlNode *VrmlNodeMultiTexture::cloneMe() const
-{
-    return new VrmlNodeMultiTexture(*this);
-}
-
-std::ostream &VrmlNodeMultiTexture::printFields(std::ostream &os, int indent)
-{
-    if (!FPEQUAL(d_alpha.get(), 1))
-        PRINT_FIELD(alpha);
-    if (!FPEQUAL(d_color.r(), 1) || !FPEQUAL(d_color.g(), 1) || !FPEQUAL(d_color.b(), 1))
-        PRINT_FIELD(color);
-    if (d_function.get())
-        PRINT_FIELD(function);
-    if (d_mode.get())
-        PRINT_FIELD(mode);
-    if (d_source.get())
-        PRINT_FIELD(source);
-    if (d_texture.size() > 0)
-        PRINT_FIELD(texture);
-    return os;
 }
 
 void VrmlNodeMultiTexture::render(Viewer *viewer)
@@ -178,48 +150,6 @@ void VrmlNodeMultiTexture::render(Viewer *viewer)
     }
 
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeMultiTexture::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(alpha, SFFloat)
-    else if
-        TRY_FIELD(color, SFColor)
-    else if
-        TRY_FIELD(function, MFString)
-    else if
-        TRY_FIELD(mode, MFString)
-    else if
-        TRY_FIELD(source, MFString)
-    else if
-        TRY_FIELD(texture, MFNode)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-
-    if ((strcmp(fieldName, "alpha") == 0) || (strcmp(fieldName, "function") == 0) || (strcmp(fieldName, "source") == 0))
-        cerr << "Sorry: MultiTexture." << fieldName << " is not supported yet" << endl;
-}
-
-const VrmlField *VrmlNodeMultiTexture::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "alpha") == 0)
-        return &d_alpha;
-    else if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "function") == 0)
-        return &d_function;
-    else if (strcmp(fieldName, "mode") == 0)
-        return &d_mode;
-    else if (strcmp(fieldName, "source") == 0)
-        return &d_source;
-    else if (strcmp(fieldName, "texture") == 0)
-        return &d_texture;
-
-    return VrmlNode::getField(fieldName);
 }
 
 void VrmlNodeMultiTexture::cloneChildren(VrmlNamespace *ns)

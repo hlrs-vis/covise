@@ -47,14 +47,6 @@ void VrmlNodeOffice::setMessage(const char *s)
     eventOut(timeNow, "events",d_events);
 }
 
-
-// Office factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeOffice(scene);
-}
-
 void VrmlNodeOffice::update()
 {
     list<VrmlNodeOffice *>::iterator ts;
@@ -65,33 +57,55 @@ void VrmlNodeOffice::update()
 
 // Define the built in VrmlNodeType:: "Office" fields
 
-VrmlNodeType *VrmlNodeOffice::defineType(VrmlNodeType *t)
+void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("applicationType", node->d_applicationType, [node](auto f){
+                        for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
+                        {
+                            if((*it)->applicationType == node->d_applicationType.get() || (*it)->productName == node->d_applicationType.get())
+                            {
+                                node->officeConnection = (*it);
+                            }
+                        }                           
+                     }), 
+                     exposedField("command", node->d_command, [node](auto f){
+                        if(node->officeConnection==NULL)
+                        {
+                            for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
+                            {
+                                if((*it)->applicationType == node->d_applicationType.get() || (*it)->productName == node->d_applicationType.get())
+                                {
+                                    node->officeConnection = (*it);
+                                }
+                            }
+                        }
+                        if(node->officeConnection!=NULL)
+                        {
+                            covise::TokenBuffer stb;
+                            stb << node->d_command.get();
 
-    if (!t)
+                            Message message(stb);
+                            message.type = (int)OfficePlugin::MSG_String;
+                            node->officeConnection->sendMessage(message);
+                        }
+                     }));
+    
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Office", creator);
-    }
+        t->addEventIn("events", VrmlField::SFSTRING);
+    }                     
 
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("applicationType", VrmlField::SFSTRING);
-    t->addEventOut("command", VrmlField::SFSTRING);
-    t->addEventIn("events", VrmlField::SFSTRING);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeOffice::nodeType() const
+const char *VrmlNodeOffice::name()
 {
-    return defineType(0);
+    return "Office";
 }
 
 VrmlNodeOffice::VrmlNodeOffice(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_applicationType("PowerPoint")
     , d_command("")
     , d_events("")
@@ -116,7 +130,7 @@ void VrmlNodeOffice::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeOffice::VrmlNodeOffice(const VrmlNodeOffice &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_applicationType(n.d_applicationType)
     , d_command(n.d_command)
     , d_events(n.d_events)
@@ -127,11 +141,6 @@ VrmlNodeOffice::VrmlNodeOffice(const VrmlNodeOffice &n)
 VrmlNodeOffice::~VrmlNodeOffice()
 {
     allOffice.remove(this);
-}
-
-VrmlNode *VrmlNodeOffice::cloneMe() const
-{
-    return new VrmlNodeOffice(*this);
 }
 
 VrmlNodeOffice *VrmlNodeOffice::toOffice() const
@@ -146,67 +155,9 @@ void VrmlNodeOffice::render(Viewer *viewer)
 
 ostream &VrmlNodeOffice::printFields(ostream &os, int indent)
 {
-    if (!d_applicationType.get())
-        PRINT_FIELD(applicationType);
-    if (!d_command.get())
-        PRINT_FIELD(command);
     if (!d_events.get())
         PRINT_FIELD(events);
+    VrmlNodeChild::printFields(os, indent);
 
     return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeOffice::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(applicationType, SFString)
-    else if
-        TRY_FIELD(command, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "applicationType") == 0)
-    {
-        for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
-        {
-            if((*it)->applicationType == d_applicationType.get() || (*it)->productName == d_applicationType.get())
-            {
-                officeConnection = (*it);
-            }
-        }
-    }
-    if (strcmp(fieldName, "command") == 0)
-    {
-        if(officeConnection==NULL)
-        {
-            for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
-            {
-                if((*it)->applicationType == d_applicationType.get() || (*it)->productName == d_applicationType.get())
-                {
-                    officeConnection = (*it);
-                }
-            }
-        }
-        if(officeConnection!=NULL)
-        {
-            covise::TokenBuffer stb;
-            stb << fieldValue.toSFString()->get();
-
-            Message message(stb);
-            message.type = (int)OfficePlugin::MSG_String;
-            officeConnection->sendMessage(message);
-        }
-    }
-}
-
-const VrmlField *VrmlNodeOffice::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "applicationType") == 0)
-        return &d_applicationType;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

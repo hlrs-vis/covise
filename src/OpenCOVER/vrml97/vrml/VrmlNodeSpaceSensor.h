@@ -33,22 +33,14 @@ class VRMLEXPORT VrmlNodeSpaceSensor : public VrmlNodeChild
 
 public:
     // Define the fields of SpaceSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSpaceSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSpaceSensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeSpaceSensor();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeSpaceSensor *toSpaceSensor() const;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     void activate(double timeStamp, bool isActive, double *p, const double *M);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void accumulateTransform(VrmlNode *);
     virtual VrmlNode *getParentTransform();

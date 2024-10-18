@@ -15,24 +15,22 @@
 #ifndef _VRMLNODECHILD_
 #define _VRMLNODECHILD_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 
 namespace vrml
 {
 class VRMLEXPORT VrmlNodeScene;
 
-class VRMLEXPORT VrmlNodeChild : public VrmlNode
+class VRMLEXPORT VrmlNodeChild : public VrmlNodeTemplate
 {
 
 public:
-    // Define the fields of all built in child nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
-
-    VrmlNodeChild(VrmlScene *);
+    static void initFields(VrmlNodeChild *node, VrmlNodeType *t);
+    VrmlNodeChild(VrmlScene *scene, const std::string& name);
 
     virtual VrmlNodeChild *toChild() const;
 
-protected:
 };
+
 }
 #endif //_VRMLNODECHILD_

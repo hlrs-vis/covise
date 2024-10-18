@@ -57,13 +57,6 @@
 std::list<VrmlNodePhotometricLight *> VrmlNodePhotometricLight::allPhotometricLights;
 osg::ref_ptr<osg::Uniform> VrmlNodePhotometricLight::photometricLightMatrix;
 
-// PhotometricLight factory.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodePhotometricLight(scene);
-}
-
 void VrmlNodePhotometricLight::updateAll()
 {
 	for (std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin(); it != allPhotometricLights.end(); it++)
@@ -127,40 +120,35 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 
 }
 
-
-// Define the built in VrmlNodeType:: "PhotometricLight" fields
-
-VrmlNodeType *VrmlNodePhotometricLight::defineType(VrmlNodeType *t)
+void VrmlNodePhotometricLight::initFields(VrmlNodePhotometricLight *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+	VrmlNodeChild::initFields(node, t);
+	initFieldsHelper(node, t, 
+		exposedField("lightNumber", node->d_lightNumber),
+		exposedField("MLBFile", node->d_MLBFile, [node](auto f){
+			node->handleMLBFile();
+		}),
+		exposedField("IESFile", node->d_IESFile, [node](auto f){
+			node->handleIESFile();
+		}));
 
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("PhotometricLight", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("lightNumber", VrmlField::SFINT32);
-	t->addExposedField("MLBFile", VrmlField::SFSTRING);
-	t->addExposedField("IESFile", VrmlField::SFSTRING);
-    static osg::Matrixf lightMatrices[MAX_LIGHTS];
-    photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
-	osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
-    state->addUniform(photometricLightMatrix);
-
-    return t;
+		static bool once = false;
+        if(!once)
+        {
+			photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
+			osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
+			state->addUniform(photometricLightMatrix);
+            once = true;
+        }
 }
 
-VrmlNodeType *VrmlNodePhotometricLight::nodeType() const
+const char *VrmlNodePhotometricLight::name()
 {
-    return defineType(0);
+	return "PhotometricLight";
 }
 
 VrmlNodePhotometricLight::VrmlNodePhotometricLight(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_lightNumber(0)
     , d_viewerObject(0)
 	, d_MLBFile("")
@@ -175,19 +163,17 @@ void VrmlNodePhotometricLight::addToScene(VrmlScene *s, const char *relUrl)
 {
     (void)relUrl;
     d_scene = s;
-    if (s)
-    {
-    }
-    else
+    if (!s)
     {
         cerr << "no Scene" << endl;
     }
+
 }
 
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodePhotometricLight::VrmlNodePhotometricLight(const VrmlNodePhotometricLight &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_lightNumber(n.d_lightNumber)
     , d_viewerObject(n.d_viewerObject)
 	, d_MLBFile(n.d_MLBFile)
@@ -209,11 +195,6 @@ VrmlNodePhotometricLight::~VrmlNodePhotometricLight()
 	is always the safest approach.
 	*/
     allPhotometricLights.remove(this);
-}
-
-VrmlNode *VrmlNodePhotometricLight::cloneMe() const
-{
-    return new VrmlNodePhotometricLight(*this);
 }
 
 VrmlNodePhotometricLight *VrmlNodePhotometricLight::toPhotometricLight() const
@@ -245,234 +226,192 @@ void VrmlNodePhotometricLight::render(Viewer *viewer)
     clearModified();
 }
 
-ostream &VrmlNodePhotometricLight::printFields(ostream &os, int indent)
-{
-    if (!d_lightNumber.get())
-        PRINT_FIELD(lightNumber);
-	if (!d_MLBFile.get())
-		PRINT_FIELD(MLBFile);
-	if (!d_IESFile.get())
-		PRINT_FIELD(IESFile);
-
-    return os;
-}
-
 // Set the value of one of the node fields.
 
-void VrmlNodePhotometricLight::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
+void VrmlNodePhotometricLight::handleMLBFile()
 {
-    if
-        TRY_FIELD(lightNumber, SFInt)
-	else if
-		TRY_FIELD(MLBFile, SFString)
-	else if
-		TRY_FIELD(IESFile, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
+// please use osg::ref_ptr rather than normal pointer.
+	mlbFile = new coMLB(d_MLBFile.get());
+	int numHorizontalAngles = mlbFile->header.t_width;
+	int numVerticalAngles = mlbFile->header.t_height;
+	int num_lights = mlbFile->header.t_depth;
+	int numValues = numHorizontalAngles * numVerticalAngles;
+	std::cout << "Tex. size: " << numHorizontalAngles << " x " << numVerticalAngles << std::endl;
 
-    if (strcmp(fieldName, "lightNumber") == 0)
-    {
-    }
-	if (strcmp(fieldName, "MLBFile") == 0)
+	// load compute shader code
+	std::string buf = "share/covise/materials/MatrixLight.comp";
+	std::string code = "";
+	const char *fn = coVRFileManager::instance()->getName(buf.c_str());
+	std::string filename = fn;
+	if (!filename.empty())
 	{
-		// please use osg::ref_ptr rather than normal pointer.
-		mlbFile = new coMLB(d_MLBFile.get());
-		int numHorizontalAngles = mlbFile->header.t_width;
-		int numVerticalAngles = mlbFile->header.t_height;
-		int num_lights = mlbFile->header.t_depth;
-		int numValues = numHorizontalAngles * numVerticalAngles;
-		std::cout << "Tex. size: " << numHorizontalAngles << " x " << numVerticalAngles << std::endl;
-
-		// load compute shader code
-		std::string buf = "share/covise/materials/MatrixLight.comp";
-		std::string code = "";
-		const char *fn = coVRFileManager::instance()->getName(buf.c_str());
-		std::string filename = fn;
-		if (!filename.empty())
-		{
-			std::ifstream t(filename.c_str());
-			std::stringstream buffer;
-			buffer << t.rdbuf();
-			code = buffer.str();
-		}
-
-		//set binding numbers in the compute shader code
-		for (int binding_number = 0; binding_number < 3; binding_number++)
-		{
-			string from = std::string("binding=") + std::to_string(binding_number);
-			string to = std::string("binding=") + std::to_string(binding_number + d_lightNumber.get() * 3);
-			size_t start_pos = code.find(from);
-			if (start_pos != std::string::npos)
-				code.replace(start_pos, from.length(), to);
-			std::cout << "changed binding nr from " << binding_number << " to "<< (binding_number + d_lightNumber.get() * 3) << std::endl;
-		}
-		std::cout << code << "\n";
-
-		// matrix light data as texture3D
-		osg::ref_ptr<osg::Texture3D> all_lights_tex = new osg::Texture3D();
-		all_lights_tex->setInternalFormat(GL_R8);
-		all_lights_tex->setSourceFormat(GL_RED);
-		all_lights_tex->setSourceType(GL_UNSIGNED_BYTE);
-		all_lights_tex->setResizeNonPowerOfTwoHint(false);
-		all_lights_tex->setFilter(osg::Texture3D::MIN_FILTER, osg::Texture3D::NEAREST);
-		all_lights_tex->setFilter(osg::Texture3D::MAG_FILTER, osg::Texture3D::NEAREST);
-		all_lights_tex->setWrap(osg::Texture3D::WRAP_S, osg::Texture3D::CLAMP);
-		all_lights_tex->setWrap(osg::Texture3D::WRAP_T, osg::Texture3D::CLAMP);
-		all_lights_tex->setImage(mlbFile->getTexture()); // 		pixelFormat = GL_LUMINANCE; type = GL_UNSIGNED_BYTE
-
-		//output texture: sum of all matrix lights
-		osg::ref_ptr<osg::Texture2D> sum_lights_tex = new osg::Texture2D();
-		sum_lights_tex->setTextureSize(numHorizontalAngles, numVerticalAngles);
-		sum_lights_tex->setResizeNonPowerOfTwoHint(false);
-		sum_lights_tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
-		sum_lights_tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
-		// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
-		sum_lights_tex->setInternalFormat(GL_R16F);
-		sum_lights_tex->setSourceFormat(GL_RED);
-		sum_lights_tex->setSourceType(GL_FLOAT);
-
-		//texture holding the configuration of the matrix lights (to be updated!)
-		configuration_vec.resize(mlbFile->header.t_depth);
-		std::fill(configuration_vec.begin(), configuration_vec.end(), 1.0);
-
-		light_conf_tex = new osg::Texture2D;
-		configuration_img = new osg::Image();
-		configuration_img->allocateImage(num_lights, 1, 1, GL_RED, GL_FLOAT);  //  GLenum pixelFormat, GLenum type
-		light_conf_tex->setInternalFormat(GL_R32F);
-		light_conf_tex->setSourceFormat(GL_RED);
-		light_conf_tex->setSourceType(GL_FLOAT);
-		light_conf_tex->setResizeNonPowerOfTwoHint(false);
-		light_conf_tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
-		light_conf_tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
-		light_conf_tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-		light_conf_tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-		light_conf_tex->setImage(configuration_img.get());
-
-
-	    // The compute shader can't work with other kinds of shaders
-		computeProg = new osg::Program;
-		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
-		// Create a node for outputting to the texture.
-		comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
-		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
-		osg::ref_ptr<osg::StateSet> state = sourceNode->getOrCreateStateSet();
-		sourceNode->setDataVariance(osg::Object::DYNAMIC);
-
-		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer. Don't use raw pointer!
-
-		std::cout << "light number: " << d_lightNumber.get() << std::endl;
-		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTexX", (int)(1 + d_lightNumber.get() * 3)));
-
-		// textures are read only, images not. we need to bind the image of a texture to a binding point.
-		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8); //, 0, GL_TRUE, 0
-		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
-        //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
-		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		state->setTextureAttributeAndModes((0 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes((1 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
-		state->setAttributeAndModes(imagbinding1.get());
-		state->setAttributeAndModes(imagbinding2.get());
-		state->setAttributeAndModes(imagbinding3.get());
-		
-		// prepare state for all objects in the scene
-		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
-		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
-		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
-		// only the targetTex is needed if you use compute shader. If you dont want to use it (=version 1) uncomment the following lines
-		/*
-		state->addUniform(new osg::Uniform("configuration0", (int)(5 + 0 * 3)));
-		state->addUniform(new osg::Uniform("configuration1", (int)(5 + 1 * 3)));
-		state->addUniform(new osg::Uniform("configuration2", (int)(5 + 2 * 3)));
-		state->addUniform(new osg::Uniform("configuration3", (int)(5 + 3 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
-		*/
-		state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
-		state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
-		state->addUniform(new osg::Uniform("targetTex2", (int)(7 + 2 * 3)));
-		state->addUniform(new osg::Uniform("targetTex3", (int)(7 + 3 * 3)));
-
-		// the fragemnt shader needs to know the size of the light:
-		// TODO: use vectors rather than a osg::vec4 if you want to have more than 4 matrix lights. Take care of the shader accordingly.
-		if (d_lightNumber.get() >= 4) {
-			throw std::invalid_argument("light number must be below 4!");
-		}
-
-		osg::Vec4f tmp;
-
-		state->getOrCreateUniform(std::string("left"), osg::Uniform::FLOAT_VEC4)->get(tmp);
-		tmp[d_lightNumber.get()] = (mlbFile->header.left);
-		state->addUniform(new osg::Uniform("left", tmp));
-		std::cout << "left = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
-
-		state->getOrCreateUniform(std::string("bottom"), osg::Uniform::FLOAT_VEC4)->get(tmp);
-		tmp[d_lightNumber.get()] = (mlbFile->header.bottom);
-		state->addUniform(new osg::Uniform("bottom", tmp));
-		std::cout << "bottom = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
-
-		state->getOrCreateUniform(std::string("width"), osg::Uniform::FLOAT_VEC4)->get(tmp);
-		tmp[d_lightNumber.get()] = (mlbFile->header.width);
-		state->addUniform(new osg::Uniform("width", tmp));
-		std::cout << "width = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
-
-		state->getOrCreateUniform(std::string("height"), osg::Uniform::FLOAT_VEC4)->get(tmp);
-		tmp[d_lightNumber.get()] = (mlbFile->header.height);
-		state->addUniform(new osg::Uniform("height", tmp));
-		std::cout << "height = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
-
-		state->getOrCreateUniform(std::string("is_active"), osg::Uniform::FLOAT_VEC4)->get(tmp); // bool or int not implemented in osg v 
-		if (tmp[d_lightNumber.get()] == 1.0) {
-			throw std::invalid_argument("this light already exists");
-		}
-		tmp[d_lightNumber.get()] = 1.0;
-		state->addUniform(new osg::Uniform("is_active", tmp));
-		std::cout << "is_active = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
-
-		state->addUniform(new osg::Uniform("MAX_LIGHTS", (MAX_LIGHTS)));
-
-		// Create the scene graph and start the viewer
-		cover->getScene()->addChild(sourceNode);
-		
-		coMLB_initialized = true;
-
+		std::ifstream t(filename.c_str());
+		std::stringstream buffer;
+		buffer << t.rdbuf();
+		code = buffer.str();
 	}
 
-	if (strcmp(fieldName, "IESFile") == 0)
-    {
-		std::cout << "IESFile" << std::endl;
-        iesFile = new coIES(d_IESFile.get());
-        osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
-        lightTexture->setResizeNonPowerOfTwoHint(false);
-        lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
-        lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
-        lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
-        lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
-        lightTexture->setImage(iesFile->getTexture());
-		osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
+	//set binding numbers in the compute shader code
+	for (int binding_number = 0; binding_number < 3; binding_number++)
+	{
+		string from = std::string("binding=") + std::to_string(binding_number);
+		string to = std::string("binding=") + std::to_string(binding_number + d_lightNumber.get() * 3);
+		size_t start_pos = code.find(from);
+		if (start_pos != std::string::npos)
+			code.replace(start_pos, from.length(), to);
+		std::cout << "changed binding nr from " << binding_number << " to "<< (binding_number + d_lightNumber.get() * 3) << std::endl;
+	}
+	std::cout << code << "\n";
 
-        state->setTextureAttributeAndModes(5+d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
-    }
+	// matrix light data as texture3D
+	osg::ref_ptr<osg::Texture3D> all_lights_tex = new osg::Texture3D();
+	all_lights_tex->setInternalFormat(GL_R8);
+	all_lights_tex->setSourceFormat(GL_RED);
+	all_lights_tex->setSourceType(GL_UNSIGNED_BYTE);
+	all_lights_tex->setResizeNonPowerOfTwoHint(false);
+	all_lights_tex->setFilter(osg::Texture3D::MIN_FILTER, osg::Texture3D::NEAREST);
+	all_lights_tex->setFilter(osg::Texture3D::MAG_FILTER, osg::Texture3D::NEAREST);
+	all_lights_tex->setWrap(osg::Texture3D::WRAP_S, osg::Texture3D::CLAMP);
+	all_lights_tex->setWrap(osg::Texture3D::WRAP_T, osg::Texture3D::CLAMP);
+	all_lights_tex->setImage(mlbFile->getTexture()); // 		pixelFormat = GL_LUMINANCE; type = GL_UNSIGNED_BYTE
+
+	//output texture: sum of all matrix lights
+	osg::ref_ptr<osg::Texture2D> sum_lights_tex = new osg::Texture2D();
+	sum_lights_tex->setTextureSize(numHorizontalAngles, numVerticalAngles);
+	sum_lights_tex->setResizeNonPowerOfTwoHint(false);
+	sum_lights_tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+	sum_lights_tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+	// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
+	sum_lights_tex->setInternalFormat(GL_R16F);
+	sum_lights_tex->setSourceFormat(GL_RED);
+	sum_lights_tex->setSourceType(GL_FLOAT);
+
+	//texture holding the configuration of the matrix lights (to be updated!)
+	configuration_vec.resize(mlbFile->header.t_depth);
+	std::fill(configuration_vec.begin(), configuration_vec.end(), 1.0);
+
+	light_conf_tex = new osg::Texture2D;
+	configuration_img = new osg::Image();
+	configuration_img->allocateImage(num_lights, 1, 1, GL_RED, GL_FLOAT);  //  GLenum pixelFormat, GLenum type
+	light_conf_tex->setInternalFormat(GL_R32F);
+	light_conf_tex->setSourceFormat(GL_RED);
+	light_conf_tex->setSourceType(GL_FLOAT);
+	light_conf_tex->setResizeNonPowerOfTwoHint(false);
+	light_conf_tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
+	light_conf_tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+	light_conf_tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+	light_conf_tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+	light_conf_tex->setImage(configuration_img.get());
+
+
+	// The compute shader can't work with other kinds of shaders
+	computeProg = new osg::Program;
+	computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
+	// Create a node for outputting to the texture.
+	comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
+	osg::ref_ptr<osg::Node> sourceNode = comp_disp;
+	osg::ref_ptr<osg::StateSet> state = sourceNode->getOrCreateStateSet();
+	sourceNode->setDataVariance(osg::Object::DYNAMIC);
+
+	state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer. Don't use raw pointer!
+
+	std::cout << "light number: " << d_lightNumber.get() << std::endl;
+	state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
+	state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
+	state->addUniform(new osg::Uniform("AllPhotometricLightsTexX", (int)(1 + d_lightNumber.get() * 3)));
+
+	// textures are read only, images not. we need to bind the image of a texture to a binding point.
+	osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
+	osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8); //, 0, GL_TRUE, 0
+	osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
+	//https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
+	//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
+	state->setTextureAttributeAndModes((0 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes((1 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
+	state->setAttributeAndModes(imagbinding1.get());
+	state->setAttributeAndModes(imagbinding2.get());
+	state->setAttributeAndModes(imagbinding3.get());
+	
+	// prepare state for all objects in the scene
+	state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
+	state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
+	state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+	state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
+	// only the targetTex is needed if you use compute shader. If you dont want to use it (=version 1) uncomment the following lines
+	/*
+	state->addUniform(new osg::Uniform("configuration0", (int)(5 + 0 * 3)));
+	state->addUniform(new osg::Uniform("configuration1", (int)(5 + 1 * 3)));
+	state->addUniform(new osg::Uniform("configuration2", (int)(5 + 2 * 3)));
+	state->addUniform(new osg::Uniform("configuration3", (int)(5 + 3 * 3)));
+	state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
+	state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
+	state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
+	state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
+	*/
+	state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
+	state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
+	state->addUniform(new osg::Uniform("targetTex2", (int)(7 + 2 * 3)));
+	state->addUniform(new osg::Uniform("targetTex3", (int)(7 + 3 * 3)));
+
+	// the fragemnt shader needs to know the size of the light:
+	// TODO: use vectors rather than a osg::vec4 if you want to have more than 4 matrix lights. Take care of the shader accordingly.
+	if (d_lightNumber.get() >= 4) {
+		throw std::invalid_argument("light number must be below 4!");
+	}
+
+	osg::Vec4f tmp;
+
+	state->getOrCreateUniform(std::string("left"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+	tmp[d_lightNumber.get()] = (mlbFile->header.left);
+	state->addUniform(new osg::Uniform("left", tmp));
+	std::cout << "left = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
+
+	state->getOrCreateUniform(std::string("bottom"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+	tmp[d_lightNumber.get()] = (mlbFile->header.bottom);
+	state->addUniform(new osg::Uniform("bottom", tmp));
+	std::cout << "bottom = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
+
+	state->getOrCreateUniform(std::string("width"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+	tmp[d_lightNumber.get()] = (mlbFile->header.width);
+	state->addUniform(new osg::Uniform("width", tmp));
+	std::cout << "width = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
+
+	state->getOrCreateUniform(std::string("height"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+	tmp[d_lightNumber.get()] = (mlbFile->header.height);
+	state->addUniform(new osg::Uniform("height", tmp));
+	std::cout << "height = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
+
+	state->getOrCreateUniform(std::string("is_active"), osg::Uniform::FLOAT_VEC4)->get(tmp); // bool or int not implemented in osg v 
+	if (tmp[d_lightNumber.get()] == 1.0) {
+		throw std::invalid_argument("this light already exists");
+	}
+	tmp[d_lightNumber.get()] = 1.0;
+	state->addUniform(new osg::Uniform("is_active", tmp));
+	std::cout << "is_active = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
+
+	state->addUniform(new osg::Uniform("MAX_LIGHTS", (MAX_LIGHTS)));
+
+	// Create the scene graph and start the viewer
+	cover->getScene()->addChild(sourceNode);
+	
+	coMLB_initialized = true;
 }
 
-const VrmlField *VrmlNodePhotometricLight::getField(const char *fieldName) const
+void VrmlNodePhotometricLight::handleIESFile()
 {
-    if (strcmp(fieldName, "lightNumber") == 0)
-        return &d_lightNumber;
-	if (strcmp(fieldName, "MLBFile") == 0)
-		return &d_MLBFile;
-	if (strcmp(fieldName, "IESFile") == 0)
-		return &d_IESFile;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+	std::cout << "IESFile" << std::endl;
+	iesFile = new coIES(d_IESFile.get());
+	osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
+	lightTexture->setResizeNonPowerOfTwoHint(false);
+	lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+	lightTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+	lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
+	lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
+	lightTexture->setImage(iesFile->getTexture());
+	osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
+
+	state->setTextureAttributeAndModes(5+d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
 }
 
 #endif // HAVE_VRMLNODEPHOTOMETRICLIGHT

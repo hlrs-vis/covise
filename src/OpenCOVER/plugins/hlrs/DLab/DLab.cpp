@@ -17,58 +17,35 @@
 
 DLabPlugin *DLabPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeDLab::initFields(VrmlNodeDLab *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeDLab(scene);
-}
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, exposedField("enabled", node->d_enabled));
 
-// Define the built in VrmlNodeType:: "DLab" fields
-
-VrmlNodeType *VrmlNodeDLab::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("DLab", creator);
+        t->addEventOut("ints_changed", VrmlField::MFINT32);
+        t->addEventOut("floats_changed", VrmlField::MFFLOAT);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("ints_changed", VrmlField::MFINT32);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeDLab::nodeType() const
+const char *VrmlNodeDLab::name()
 {
-    return defineType(0);
+    return "DLab";
 }
 
 VrmlNodeDLab::VrmlNodeDLab(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
 {
     setModified();
 }
 
 VrmlNodeDLab::VrmlNodeDLab(const VrmlNodeDLab &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
 {
     setModified();
-}
-
-VrmlNodeDLab::~VrmlNodeDLab()
-{
-}
-
-VrmlNode *VrmlNodeDLab::cloneMe() const
-{
-    return new VrmlNodeDLab(*this);
 }
 
 VrmlNodeDLab *VrmlNodeDLab::toDLab() const
@@ -76,36 +53,17 @@ VrmlNodeDLab *VrmlNodeDLab::toDLab() const
     return (VrmlNodeDLab *)this;
 }
 
-ostream &VrmlNodeDLab::printFields(ostream &os, int indent)
+
+
+const VrmlField *VrmlNodeDLab::getField(const char *fieldName) const
 {
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
 
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeDLab::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeDLab::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "floats_changed") == 0)
+    if (strcmp(fieldName, "floats_changed") == 0)
         return &d_floats;
     else if (strcmp(fieldName, "ints_changed") == 0)
         return &d_ints;
     else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+        return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeDLab::eventIn(double timeStamp,
@@ -244,7 +202,7 @@ DLabPlugin::~DLabPlugin()
 
 bool DLabPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeDLab::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeDLab>());
     createGeometry();
     opencover::cover->getScene()->addChild(targetTransform);
 

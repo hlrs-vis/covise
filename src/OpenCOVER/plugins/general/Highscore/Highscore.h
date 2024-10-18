@@ -34,25 +34,19 @@ class VrmlNodeHighscore : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of Timesteps nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeHighscore *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeHighscore(VrmlScene *scene = 0);
     VrmlNodeHighscore(const VrmlNodeHighscore &n);
-    virtual ~VrmlNodeHighscore();
+
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeHighscore *toHighscore() const;
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 private:
 };

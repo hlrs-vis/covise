@@ -18,47 +18,24 @@
 
 using namespace vrml;
 
-// Return a new VrmlNodeSwitch
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeSwitch(s); }
-
-// Define the built in VrmlNodeType:: "Switch" fields
-
-VrmlNodeType *VrmlNodeSwitch::defineType(VrmlNodeType *t)
+void VrmlNodeSwitch::initFields(VrmlNodeSwitch *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Switch", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("choice", VrmlField::MFNODE);
-    t->addExposedField("children", VrmlField::MFNODE);
-    t->addExposedField("whichChoice", VrmlField::SFINT32);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("choice", node->d_choice),
+                     exposedField("children", node->d_choice),
+                     exposedField("whichChoice", node->d_whichChoice));
 }
 
-VrmlNodeType *VrmlNodeSwitch::nodeType() const { return defineType(0); }
+const char *VrmlNodeSwitch::name() { return "Switch"; }
+
 
 VrmlNodeSwitch::VrmlNodeSwitch(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_whichChoice(-1)
 {
     firstTime = true;
     forceTraversal(false);
-}
-
-VrmlNodeSwitch::~VrmlNodeSwitch()
-{
-}
-
-VrmlNode *VrmlNodeSwitch::cloneMe() const
-{
-    return new VrmlNodeSwitch(*this);
 }
 
 void VrmlNodeSwitch::cloneChildren(VrmlNamespace *ns)
@@ -116,15 +93,6 @@ void VrmlNodeSwitch::copyRoutes(VrmlNamespace *ns)
     for (int i = 0; i < n; ++i)
         d_choice[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeSwitch::printFields(std::ostream &os, int indent)
-{
-    if (d_choice.size() > 0)
-        PRINT_FIELD(choice);
-    if (d_whichChoice.get() != -1)
-        PRINT_FIELD(whichChoice);
-    return os;
 }
 
 // Render the selected child
@@ -185,34 +153,6 @@ void VrmlNodeSwitch::accumulateTransform(VrmlNode *parent)
         VrmlNode *kid = d_choice[i];
         kid->accumulateTransform(parent);
     }
-}
-
-// Set the value of one of the node fields.
-void VrmlNodeSwitch::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-    if ((strcmp(fieldName, "children") == 0) || (strcmp(fieldName, "choice") == 0))
-    {
-        if (fieldValue.toMFNode())
-            d_choice = (VrmlMFNode &)fieldValue;
-        else
-            System::the->error("Invalid type (%s) for %s field of %s node (expected %s).\n",
-                               fieldValue.fieldTypeName(), "children or choice", nodeType()->getName(), "MFNode");
-    }
-    else if
-        TRY_FIELD(whichChoice, SFInt)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeSwitch::getField(const char *fieldName) const
-{
-    if ((strcmp(fieldName, "children") == 0) || (strcmp(fieldName, "choice") == 0))
-        return &d_choice;
-    else if (strcmp(fieldName, "whichChoice") == 0)
-        return &d_whichChoice;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 VrmlNodeSwitch *VrmlNodeSwitch::toSwitch() const //LarryD

@@ -34,24 +34,17 @@ class VRMLEXPORT VrmlNodeBooleanSequencer : public VrmlNodeChild
 
 public:
     // Define the fields of BooleanSequencer nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeBooleanSequencer *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeBooleanSequencer(VrmlScene *scene = 0);
-    virtual ~VrmlNodeBooleanSequencer();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
+    
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
-    virtual VrmlNodeBooleanSequencer *toBooleanSequencer() const;
+    virtual VrmlNodeBooleanSequencer *toBooleanSequencer() const override;
     virtual const VrmlMFFloat &getKey() const;
     virtual const VrmlMFBool &getKeyValue() const;
 

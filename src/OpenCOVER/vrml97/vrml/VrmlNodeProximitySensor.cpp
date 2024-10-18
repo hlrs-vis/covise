@@ -35,34 +35,28 @@ VrmlNodeProximitySensor *VrmlNodeProximitySensor::toProximitySensor() const { re
 
 // Define the built in VrmlNodeType:: "ProximitySensor" fields
 
-VrmlNodeType *VrmlNodeProximitySensor::defineType(VrmlNodeType *t)
+void VrmlNodeProximitySensor::initFields(VrmlNodeProximitySensor *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("center", node->d_center),
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("size", node->d_size));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ProximitySensor", creator);
+        t->addEventOut("enterTime", VrmlField::SFTIME);
+        t->addEventOut("exitTime", VrmlField::SFTIME);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
+        t->addEventOut("orientation_changed", VrmlField::SFROTATION);
+        t->addEventOut("position_changed", VrmlField::SFVEC3F);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("center", VrmlField::SFVEC3F);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("size", VrmlField::SFVEC3F);
-    t->addEventOut("enterTime", VrmlField::SFTIME);
-    t->addEventOut("exitTime", VrmlField::SFTIME);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-    t->addEventOut("orientation_changed", VrmlField::SFROTATION);
-    t->addEventOut("position_changed", VrmlField::SFVEC3F);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeProximitySensor::nodeType() const { return defineType(0); }
+const char *VrmlNodeProximitySensor::name() { return "ProximitySensor"; }
+
 
 VrmlNodeProximitySensor::VrmlNodeProximitySensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_center(0.0, 0.0, 0.0)
     , d_enabled(true)
     , d_size(0.0, 0.0, 0.0)
@@ -73,49 +67,6 @@ VrmlNodeProximitySensor::VrmlNodeProximitySensor(VrmlScene *scene)
 {
     forceTraversal(false);
     setModified();
-}
-
-VrmlNodeProximitySensor::~VrmlNodeProximitySensor()
-{
-}
-
-VrmlNode *VrmlNodeProximitySensor::cloneMe() const
-{
-    return new VrmlNodeProximitySensor(*this);
-}
-
-const VrmlField *VrmlNodeProximitySensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "center") == 0)
-        return &d_center;
-    else if (strcmp(fieldName, "size") == 0)
-        return &d_size;
-    else if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "isActive") == 0)
-        return &d_isActive;
-    else if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "enterTime") == 0)
-        return &d_enterTime;
-    else if (strcmp(fieldName, "exitTime") == 0)
-        return &d_exitTime;
-
-    return VrmlNodeChild::getField(fieldName);
-}
-
-std::ostream &VrmlNodeProximitySensor::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_center.x()) || !FPZERO(d_center.y()) || !FPZERO(d_center.z()))
-        PRINT_FIELD(center);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!FPZERO(d_size.x()) || !FPZERO(d_size.y()) || !FPZERO(d_size.z()))
-        PRINT_FIELD(size);
-
-    return os;
 }
 
 //
@@ -214,21 +165,6 @@ void VrmlNodeProximitySensor::render(Viewer *viewer)
 
     else
         clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeProximitySensor::setField(const char *fieldName,
-                                       const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(center, SFVec3f)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(size, SFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
 }
 
 void VrmlNodeProximitySensor::remoteEvent(double timeStamp,

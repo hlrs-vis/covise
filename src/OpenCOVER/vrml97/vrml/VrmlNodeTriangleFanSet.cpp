@@ -27,52 +27,19 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeTriangleFanSet(s); }
-
-// Define the built in VrmlNodeType:: "TriangleFanSet" fields
-
-VrmlNodeType *VrmlNodeTriangleFanSet::defineType(VrmlNodeType *t)
+void VrmlNodeTriangleFanSet::initFields(VrmlNodeTriangleFanSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodePolygonsCommon::initFields(node, t); // Parent class
+    initFieldsHelper(node, t, 
+                    exposedField("fanCount", node->d_fanCount));
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TriangleFanSet", creator);
-    }
-
-    VrmlNodePolygonsCommon::defineType(t); // Parent class
-
-    t->addExposedField("fanCount", VrmlField::MFINT32);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTriangleFanSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeTriangleFanSet::name() { return "TriangleFanSet"; }
 
 VrmlNodeTriangleFanSet::VrmlNodeTriangleFanSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene)
+    : VrmlNodePolygonsCommon(scene, name())
 {
-}
-
-VrmlNodeTriangleFanSet::~VrmlNodeTriangleFanSet()
-{
-}
-
-VrmlNode *VrmlNodeTriangleFanSet::cloneMe() const
-{
-    return new VrmlNodeTriangleFanSet(*this);
-}
-
-std::ostream &VrmlNodeTriangleFanSet::printFields(std::ostream &os, int indent)
-{
-    if (!d_fanCount.get())
-        PRINT_FIELD(fanCount);
-
-    VrmlNodePolygonsCommon::printFields(os, indent);
-
-    return os;
 }
 
 Viewer::Object VrmlNodeTriangleFanSet::insertGeometry(Viewer *viewer)
@@ -141,24 +108,6 @@ Viewer::Object VrmlNodeTriangleFanSet::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTriangleFanSet::setField(const char *fieldName,
-                                      const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(fanCount, MFInt)
-    else
-        VrmlNodePolygonsCommon::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTriangleFanSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "fanCount") == 0)
-        return &d_fanCount;
-    return VrmlNodePolygonsCommon::getField(fieldName);
 }
 
 VrmlNodeTriangleFanSet *VrmlNodeTriangleFanSet::toTriangleFanSet() const

@@ -2,7 +2,7 @@
 #include "MathExpressions.h"
 #include "Tool.h"
 #include "ToolChanger/ToolChanger.h"
-#include "VrmlNode.h"
+#include "VrmlMachine.h"
 
 #include <OpcUaClient/opcua.h>
 #include <cover/ui/Menu.h>
@@ -14,8 +14,6 @@ class Machine : public LogicInterface
 public:
     Machine(opencover::ui::Menu *menu, opencover::config::File *file, MachineNodeBase *node);
     void update() override;
-
-
 
 private:
     bool m_rdy = false;

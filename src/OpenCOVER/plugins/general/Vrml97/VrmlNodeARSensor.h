@@ -41,22 +41,15 @@ class VRML97COVEREXPORT VrmlNodeARSensor : public VrmlNodeChild
 
 public:
     // Define the fields of ARSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeARSensor *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeARSensor(VrmlScene *scene = 0);
     VrmlNodeARSensor(const VrmlNodeARSensor &n);
     virtual ~VrmlNodeARSensor();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeARSensor *toARSensor() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 

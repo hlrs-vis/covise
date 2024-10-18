@@ -15,31 +15,23 @@
 #ifndef _VRMLNODECOORDINATE_
 #define _VRMLNODECOORDINATE_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "VrmlMFVec3f.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeCoordinate : public VrmlNode
+class VRMLEXPORT VrmlNodeCoordinate : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of Coordinate nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCoordinate *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCoordinate(VrmlScene *);
-    virtual ~VrmlNodeCoordinate();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeCoordinate *toCoordinate() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFVec3f &coordinate()
     {

@@ -43,23 +43,18 @@ class VrmlNodeOffice : public VrmlNodeChild
 
 public:
     static std::list<VrmlNodeOffice *> allOffice;
-    // Define the fields of Office nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeOffice(VrmlScene *scene = 0);
     VrmlNodeOffice(const VrmlNodeOffice &n);
     virtual ~VrmlNodeOffice();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeOffice *toOffice() const;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
     virtual void render(Viewer *);
 

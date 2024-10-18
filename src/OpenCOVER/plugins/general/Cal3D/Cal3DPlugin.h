@@ -49,25 +49,20 @@ class PLUGINEXPORT Cal3dCore : public VrmlNodeChild
 
 public:
     // Define the built in VrmlNodeType:: "Cal3D"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(Cal3dCore *node, VrmlNodeType *t);
+    static const char *name();
 
     Cal3dCore(VrmlScene *scene);
-    virtual ~Cal3dCore();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual Cal3dCore *toCal3dCore() const;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     osgCal::CoreModel *getCoreModel()
     {
         return coreModel.get();
@@ -96,26 +91,18 @@ class PLUGINEXPORT Cal3dNode : public VrmlNodeChild
 {
 
 public:
-    // Define the built in VrmlNodeType:: "Cal3D"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(Cal3dNode *node, VrmlNodeType *t);
+    static const char *name();
 
     Cal3dNode(VrmlScene *scene);
-    virtual ~Cal3dNode();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual Cal3dNode *toCal3dNode() const;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
 
     virtual void render(Viewer *);
 

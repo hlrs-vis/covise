@@ -40,31 +40,25 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeGroup(s); }
 
 // Define the built in VrmlNodeType:: "Group" fields
 
-VrmlNodeType *VrmlNodeGroup::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+void VrmlNodeGroup::initFields(VrmlNodeGroup *node, VrmlNodeType *t) {
+    initFieldsHelper(node, t,
+        exposedField("children", node->d_children, [node](auto children){
+            node->childrenChanged();
+        }),
+        field("bboxCenter", node->d_bboxCenter),
+        field("bboxSize", node->d_bboxSize)
+    );
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Group", creator);
+        t->addEventIn("addChildren", VrmlField::MFNODE);
+        t->addEventIn("removeChildren", VrmlField::MFNODE);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("addChildren", VrmlField::MFNODE);
-    t->addEventIn("removeChildren", VrmlField::MFNODE);
-    t->addExposedField("children", VrmlField::MFNODE);
-    t->addField("bboxCenter", VrmlField::SFVEC3F);
-    t->addField("bboxSize", VrmlField::SFVEC3F);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeGroup::nodeType() const { return defineType(0); }
 
-VrmlNodeGroup::VrmlNodeGroup(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+VrmlNodeGroup::VrmlNodeGroup(VrmlScene *scene, const std::string &name)
+    : VrmlNodeChild(scene, name == "" ? this->name() : name)
     , d_bboxSize(-1.0, -1.0, -1.0)
     , d_parentTransform(0)
     , d_viewerObject(0)
@@ -201,18 +195,6 @@ bool VrmlNodeGroup::isOnlyGeometry() const
     }
 
     return true;
-}
-
-std::ostream &VrmlNodeGroup::printFields(std::ostream &os, int indent)
-{
-    if (d_bboxCenter.x() != 0.0 || d_bboxCenter.z() != 0.0 || d_bboxCenter.y() != 0.0)
-        PRINT_FIELD(bboxCenter);
-    if (d_bboxSize.x() != -1.0 || d_bboxSize.z() != -1.0 || d_bboxSize.y() != -1.0)
-        PRINT_FIELD(bboxSize);
-    if (d_children.size() > 0)
-        PRINT_FIELD(children);
-
-    return os;
 }
 
 void VrmlNodeGroup::checkAndRemoveNodes(Viewer *viewer)
@@ -501,53 +483,38 @@ void VrmlNodeGroup::eventIn(double timeStamp,
 }
 
 // Set the value of one of the node fields.
-void VrmlNodeGroup::setField(const char *fieldName,
-                             const VrmlField &fieldValue)
+void VrmlNodeGroup::updateChildren()
 {
-    if
-        TRY_FIELD(bboxCenter, SFVec3f)
-    else if
-        TRY_FIELD(bboxSize, SFVec3f)
-    else if (!strcmp(fieldName, "children"))
+    for (int i = 0; i < d_oldChildren.size(); i++)
     {
-        if (fieldValue.toMFNode())
+        if (d_children[i])
         {
-            for (int i = 0; i < d_children.size(); i++)
-            {
-                if (d_children[i])
-                {
-                    d_children[i]->decreaseTraversalForce();
-                    d_children[i]->parentList.remove(this);
-                }
-                else
-                {
-                    cerr << "VrmlNodeGroup::setField(children): had NULL child" << endl;
-                }
-            }
-
-            d_children = (VrmlMFNode &)fieldValue;
-
-            for (int i = 0; i < d_children.size(); i++)
-            {
-                VrmlNode *child = d_children[i];
-                if (child == NULL)
-                {
-                    continue;
-                }
-
-                child->parentList.push_back(this);
-                if (child->getTraversalForce() > 0)
-                {
-                    forceTraversal(false, child->getTraversalForce());
-                }
-            }
+            d_children[i]->decreaseTraversalForce();
+            d_children[i]->parentList.remove(this);
         }
         else
-            System::the->error("Invalid type (%s) for %s field of %s node (expected %s).\n",
-                               fieldValue.fieldTypeName(), "children", nodeType()->getName(), "MFNode");
+        {
+            cerr << "VrmlNodeGroup::setField(children): had NULL child" << endl;
+        }
     }
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
+
+
+    d_oldChildren = d_children;
+
+    for (int i = 0; i < d_children.size(); i++)
+    {
+        VrmlNode *child = d_children[i];
+        if (child == NULL)
+        {
+            continue;
+        }
+
+        child->parentList.push_back(this);
+        if (child->getTraversalForce() > 0)
+        {
+            forceTraversal(false, child->getTraversalForce());
+        }
+    }
 }
 
 const VrmlField *VrmlNodeGroup::getField(const char *fieldName) const
@@ -574,3 +541,9 @@ VrmlNode *VrmlNodeGroup::child(int index)
 
     return 0;
 }
+
+void VrmlNodeGroup::childrenChanged(  )
+{
+    //optional implementation in subclasses
+}
+

@@ -28,54 +28,28 @@ static VrmlNode *creator(VrmlScene *scene)
 }
 
 // Define the built in VrmlNodeType:: "BooleanSequencer" fields
-
-VrmlNodeType *VrmlNodeBooleanSequencer::defineType(VrmlNodeType *t)
+void VrmlNodeBooleanSequencer::initFields(VrmlNodeBooleanSequencer *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("BooleanSequencer", creator);
+        t->addEventIn("next", VrmlField::SFBOOL);
+        t->addEventIn("previous", VrmlField::SFBOOL);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::SFBOOL);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("next", VrmlField::SFBOOL);
-    t->addEventIn("previous", VrmlField::SFBOOL);
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFBOOL);
-    t->addEventOut("value_changed", VrmlField::SFBOOL);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeBooleanSequencer::nodeType() const { return defineType(0); }
+const char *VrmlNodeBooleanSequencer::name() { return "BooleanSequencer"; }
+
 
 VrmlNodeBooleanSequencer::VrmlNodeBooleanSequencer(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodeBooleanSequencer::~VrmlNodeBooleanSequencer()
-{
-}
-
-VrmlNode *VrmlNodeBooleanSequencer::cloneMe() const
-{
-    return new VrmlNodeBooleanSequencer(*this);
-}
-
-std::ostream &VrmlNodeBooleanSequencer::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodeBooleanSequencer::eventIn(double timeStamp, const char *eventName,
@@ -140,29 +114,6 @@ void VrmlNodeBooleanSequencer::eventIn(double timeStamp, const char *eventName,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeBooleanSequencer::setField(const char *fieldName,
-                                        const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeBooleanSequencer::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 VrmlNodeBooleanSequencer *VrmlNodeBooleanSequencer::toBooleanSequencer() const

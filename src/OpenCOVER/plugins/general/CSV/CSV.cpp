@@ -23,44 +23,44 @@ using namespace boost;
 
 CSVPlugin *CSVPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeCSV::initFields(VrmlNodeCSV *node, VrmlNodeType *t)
 {
-    return new VrmlNodeCSV(scene);
-}
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("enabled", node->d_enabled),
+                     exposedField("row", node->d_row, [node](auto f){
+                        double timeStamp = System::the->time();
+                        if (node->d_row.get() < node->rows.size())
+                        {
+                            node->d_floats.set(node->d_numColumns.get(), node->rows[node->d_row.get()]);
+                            node->eventOut(timeStamp, "floats_changed", node->d_floats);
+                        }
+                     }),
+                     exposedField("fileName", node->d_fileName, [node](auto f){
+                        node->loadFile(node->d_fileName.get());
+                     }),
+                     exposedField("labelFileName", node->d_labelFileName, [node](auto f){
+                        node->loadLabelFile(node->d_labelFileName.get());
+                     }),
+                     exposedField("gpsFileName", node->d_gpsFileName, [node](auto f){
+                        node->loadGPSFile(node->d_gpsFileName.get());
+                     }));
 
-// Define the built in VrmlNodeType:: "CSV" fields
-
-VrmlNodeType *VrmlNodeCSV::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("CSV", creator);
+        t->addEventOut("floats_changed", VrmlField::MFFLOAT);
+        t->addEventOut("numRows", VrmlField::SFINT32);
+        t->addEventOut("numColumns", VrmlField::SFINT32);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("floats_changed", VrmlField::MFFLOAT);
-    t->addEventOut("numRows", VrmlField::SFINT32);
-    t->addEventOut("numColumns", VrmlField::SFINT32);
-    t->addExposedField("row", VrmlField::SFINT32);
-    t->addExposedField("fileName", VrmlField::SFSTRING);
-    t->addExposedField("labelFileName", VrmlField::SFSTRING);
-    t->addExposedField("gpsFileName", VrmlField::SFSTRING);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeCSV::nodeType() const
+const char *VrmlNodeCSV::name()
 {
-    return defineType(0);
+    return "CSV";
 }
 
 VrmlNodeCSV::VrmlNodeCSV(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
 {
     changedFile = false;
@@ -69,7 +69,7 @@ VrmlNodeCSV::VrmlNodeCSV(VrmlScene *scene)
 }
 
 VrmlNodeCSV::VrmlNodeCSV(const VrmlNodeCSV &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
 {
     changedFile = false;
@@ -77,77 +77,9 @@ VrmlNodeCSV::VrmlNodeCSV(const VrmlNodeCSV &n)
     CSVPlugin::plugin->CSVNode = this;
 }
 
-VrmlNodeCSV::~VrmlNodeCSV()
-{
-}
-
-VrmlNode *VrmlNodeCSV::cloneMe() const
-{
-    return new VrmlNodeCSV(*this);
-}
-
 VrmlNodeCSV *VrmlNodeCSV::toCSV() const
 {
     return (VrmlNodeCSV *)this;
-}
-
-ostream &VrmlNodeCSV::printFields(ostream &os, int indent)
-{
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCSV::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(row, SFInt)
-    else if
-        TRY_FIELD(fileName, SFString)
-    else if
-        TRY_FIELD(labelFileName, SFString)
-    else if
-        TRY_FIELD(gpsFileName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-    if (strcmp(fieldName, "fileName") == 0)
-    {
-        loadFile(fieldValue.toSFString()->get());
-    }
-    else if (strcmp(fieldName, "labelFileName") == 0)
-    {
-        loadLabelFile(fieldValue.toSFString()->get());
-    }
-    else if (strcmp(fieldName, "gpsFileName") == 0)
-    {
-        loadGPSFile(fieldValue.toSFString()->get());
-    }
-    else if (strcmp(fieldName, "row") == 0)
-    {
-        double timeStamp = System::the->time();
-        if (d_row.get() < rows.size())
-        {
-            d_floats.set(d_numColumns.get(), rows[d_row.get()]);
-            eventOut(timeStamp, "floats_changed", d_floats);
-        }
-    }
-}
-
-const VrmlField *VrmlNodeCSV::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "floats_changed") == 0)
-        return &d_floats;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeCSV::eventIn(double timeStamp,
@@ -333,7 +265,6 @@ bool VrmlNodeCSV::loadLabelFile(const std::string &fileName)
     return true;
 }
 
-
 bool VrmlNodeCSV::loadGPSFile(const std::string &fileName)
 {
     FILE *fp = fopen(fileName.c_str(), "r");
@@ -440,7 +371,7 @@ CSVPlugin::~CSVPlugin()
 
 bool CSVPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeCSV::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCSV>());
 
     return true;
 }

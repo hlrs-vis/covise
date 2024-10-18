@@ -40,46 +40,46 @@ list<coTUITab *> VrmlNodeTUITab::VrmlTUITabs;
 list<coTUITabFolder *> VrmlNodeTUITabFolder::VrmlTUITabFolders;
 list<coTUIFrame *> VrmlNodeTUIFrame::VrmlTUIFrames;
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeTUIElement(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIElement::defineType(VrmlNodeType *t)
+void VrmlNodeTUIElement::initFields(VrmlNodeTUIElement *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIElement", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("elementName", VrmlField::SFSTRING);
-    t->addExposedField("parent", VrmlField::SFSTRING);
-    t->addExposedField("shaderParam", VrmlField::SFSTRING);
-	t->addExposedField("pos", VrmlField::SFVEC2F);
-	t->addExposedField("shared", VrmlField::SFBOOL);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("elementName", node->d_elementName, [node](auto f){
+            if(node->d_TUIElement != NULL)
+            {
+                node->d_TUIElement->setLabel(node->d_elementName.get());
+            }
+        }),
+        exposedField("parent", node->d_parent),
+        exposedField("shaderParam", node->d_shaderParam),
+        exposedField("pos", node->d_pos, [node](auto f){
+            if(node->d_TUIElement != NULL)
+            {
+                node->d_TUIElement->setPos((int)node->d_pos.x(), (int)node->d_pos.y());
+            }
+        }),
+        exposedField("shared", node->d_shared));
 }
 
-VrmlNodeType *VrmlNodeTUIElement::nodeType() const { return defineType(0); }
-
-VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene)
-    : VrmlNodeChild(scene)
-    , d_elementName("")
-    , d_parent("")
-    , d_shaderParam("")
-	, d_pos(0, 0)
-	, d_shared(false)
-    , d_TUIElement(NULL)
+const char *VrmlNodeTUIElement::name()
 {
+    return "TUIElement";
 }
 
-VrmlNodeTUIElement::VrmlNodeTUIElement(const VrmlNodeTUIElement& n): VrmlNodeChild(n.d_scene)
+VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene, const std::string &name)
+: VrmlNodeChild(scene, name == "" ? this->name() : name)
+, d_elementName("")
+, d_parent("")
+, d_shaderParam("")
+, d_pos(0, 0)
+, d_shared(false)
+, d_TUIElement(NULL)
+{
+    setModified();
+}
+
+VrmlNodeTUIElement::VrmlNodeTUIElement(const VrmlNodeTUIElement& n)
+: VrmlNodeChild(n)
 , d_elementName(n.d_elementName)
 , d_parent(n.d_parent)
 , d_shaderParam(n.d_shaderParam)
@@ -93,11 +93,6 @@ VrmlNodeTUIElement::~VrmlNodeTUIElement()
 {
 	VrmlTUIElements.remove(d_TUIElement);
     delete d_TUIElement;
-}
-
-VrmlNode *VrmlNodeTUIElement::cloneMe() const
-{
-    return new VrmlNodeTUIElement(*this);
 }
 
 void VrmlNodeTUIElement::render(Viewer *)
@@ -118,19 +113,6 @@ VrmlNodeTUIElement *VrmlNodeTUIElement::toTUIElement() const
     return (VrmlNodeTUIElement *)this;
 }
 
-std::ostream &VrmlNodeTUIElement::printFields(std::ostream &os, int indent)
-{
-    if (strcmp(d_elementName.get(), "") != 0)
-        PRINT_FIELD(elementName);
-    if (strcmp(d_parent.get(), "") != 0)
-        PRINT_FIELD(parent);
-    if (strcmp(d_shaderParam.get(), "") != 0)
-        PRINT_FIELD(shaderParam);
-    PRINT_FIELD(pos);
-
-    return os;
-}
-
 void VrmlNodeTUIElement::eventIn(double timeStamp,
                                  const char *eventName,
                                  const VrmlField *fieldValue)
@@ -148,55 +130,6 @@ void VrmlNodeTUIElement::eventIn(double timeStamp,
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
         }
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIElement::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(elementName, SFString)
-    else if
-        TRY_FIELD(parent, SFString)
-    else if
-        TRY_FIELD(shaderParam, SFString)
-    else if
-        TRY_FIELD(pos, SFVec2f)
-    else if
-		TRY_FIELD(shared, SFBool)
-	else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if(d_TUIElement != NULL)
-    {
-        if(strcmp(fieldName, "elementName") == 0)
-        {
-            d_TUIElement->setLabel(d_elementName.get());
-        }
-        if (strcmp(fieldName, "pos") == 0)
-        {
-            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
-        }
-    }
-}
-
-const VrmlField *VrmlNodeTUIElement::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "elementName") == 0)
-        return &d_elementName;
-    else if (strcmp(fieldName, "parent") == 0)
-        return &d_parent;
-    else if (strcmp(fieldName, "shaderParam") == 0)
-        return &d_shaderParam;
-	else if (strcmp(fieldName, "pos") == 0)
-		return &d_pos;
-	else if (strcmp(fieldName, "shared") == 0)
-		return &d_shared;
-    else
-        cerr << "Node does not have this eventOunt or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 int VrmlNodeTUIElement::getID(const char *name)
@@ -219,35 +152,35 @@ int VrmlNodeTUIElement::getID(const char *name)
 //
 //
 
-static VrmlNode *creatorTab(VrmlScene *s) { return new VrmlNodeTUITab(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUITab::defineType(VrmlNodeType *t)
+void VrmlNodeTUITab::initFields(VrmlNodeTUITab *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        eventInCallBack<VrmlSFTime>("activate", [node](auto f){
+            ((coTUITab *)node->d_TUIElement)->setVal(true);
+        }),
+        eventInCallBack<VrmlSFTime>("set_activate", [node](auto f){
+            ((coTUITab *)node->d_TUIElement)->setVal(true);
+        }));
 
-    if (!t)
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUITab", creatorTab);
+        t->addEventOut("touchTime", VrmlField::SFTIME);
+        t->addEventOut("deactivateTime", VrmlField::SFTIME);
     }
-
-    t->addEventOut("touchTime", VrmlField::SFTIME);
-    t->addEventOut("deactivateTime", VrmlField::SFTIME);
-    t->addEventIn("activate", VrmlField::SFTIME);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTUITab::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUITab::name()
+{
+    return "TUITab";
+}
+
 
 VrmlNodeTUITab::VrmlNodeTUITab(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
 {
 }
+
 VrmlNodeTUITab::VrmlNodeTUITab(const VrmlNodeTUITab& n)
     : VrmlNodeTUIElement(n)
 {
@@ -255,12 +188,7 @@ VrmlNodeTUITab::VrmlNodeTUITab(const VrmlNodeTUITab& n)
 
 VrmlNodeTUITab::~VrmlNodeTUITab()
 {
-
     VrmlTUITabs.remove(static_cast<coTUITab *>(d_TUIElement));
-}
-VrmlNode* VrmlNodeTUITab::cloneMe() const
-{
-    return new VrmlNodeTUITab(*this);
 }
 
 void VrmlNodeTUITab::tabletPressEvent(coTUIElement *)
@@ -309,23 +237,6 @@ void VrmlNodeTUITab::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUITab::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-
-    if (strcmp(fieldName, "activate") == 0 || strcmp(fieldName, "set_activate") == 0)
-        ((coTUITab *)d_TUIElement)->setVal(true);
-    VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUITab::getField(const char *fieldName) const
-{
-
-    return VrmlNodeTUIElement::getField(fieldName);
-}
-
 //
 //
 //
@@ -334,32 +245,21 @@ const VrmlField *VrmlNodeTUITab::getField(const char *fieldName) const
 //
 //
 
-static VrmlNode *creatorProgressBar(VrmlScene *s) { return new VrmlNodeTUIProgressBar(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIProgressBar::defineType(VrmlNodeType *t)
+void VrmlNodeTUIProgressBar::initFields(VrmlNodeTUIProgressBar *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIProgressBar", creatorProgressBar);
-    }
-
-    t->addExposedField("max", VrmlField::SFINT32);
-    t->addExposedField("value", VrmlField::SFINT32);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("max", node->d_max),
+        exposedField("value", node->d_value));
 }
 
-VrmlNodeType *VrmlNodeTUIProgressBar::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIProgressBar::name()
+{
+    return "TUIProgressBar";
+}
 
 VrmlNodeTUIProgressBar::VrmlNodeTUIProgressBar(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_max(100)
     , d_value(0)
 {
@@ -369,15 +269,6 @@ VrmlNodeTUIProgressBar::VrmlNodeTUIProgressBar(const VrmlNodeTUIProgressBar& n)
     , d_max(n.d_max)
     , d_value(n.d_value)
 {
-}
-
-VrmlNodeTUIProgressBar::~VrmlNodeTUIProgressBar()
-{
-}
-
-VrmlNode* VrmlNodeTUIProgressBar::cloneMe() const
-{
-    return new VrmlNodeTUIProgressBar(*this);
 }
 
 void VrmlNodeTUIProgressBar::tabletPressEvent(coTUIElement *)
@@ -408,25 +299,6 @@ void VrmlNodeTUIProgressBar::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-void VrmlNodeTUIProgressBar::setField(const char *fieldName,
-                                      const VrmlField &fieldValue)
-{
-
-    setModified();
-    if
-        TRY_FIELD(max, SFInt)
-    else if
-        TRY_FIELD(value, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUIProgressBar::getField(const char *fieldName) const
-{
-
-    return VrmlNodeTUIElement::getField(fieldName);
-}
-
 //
 //
 //
@@ -435,30 +307,19 @@ const VrmlField *VrmlNodeTUIProgressBar::getField(const char *fieldName) const
 //
 //
 
-static VrmlNode *creatorTabFolder(VrmlScene *s) { return new VrmlNodeTUITabFolder(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUITabFolder::defineType(VrmlNodeType *t)
+void VrmlNodeTUITabFolder::initFields(VrmlNodeTUITabFolder *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUITabFolder", creatorTabFolder);
-    }
-
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeTUITabFolder::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUITabFolder::name()
+{
+    return "TUITabFolder";
+}
+
 
 VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
 {
 }
 VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder& n)
@@ -469,10 +330,6 @@ VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder& n)
 VrmlNodeTUITabFolder::~VrmlNodeTUITabFolder()
 {
     VrmlTUITabFolders.remove(static_cast<coTUITabFolder *>(d_TUIElement));
-}
-VrmlNode* VrmlNodeTUITabFolder::cloneMe() const
-{
-    return new VrmlNodeTUITabFolder(*this);
 }
 
 void VrmlNodeTUITabFolder::tabletPressEvent(coTUIElement *)
@@ -515,21 +372,6 @@ void VrmlNodeTUITabFolder::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUITabFolder::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-
-    VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUITabFolder::getField(const char *fieldName) const
-{
-
-    return VrmlNodeTUIElement::getField(fieldName);
-}
-
 //
 //
 //
@@ -538,33 +380,23 @@ const VrmlField *VrmlNodeTUITabFolder::getField(const char *fieldName) const
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorButton(VrmlScene *s) { return new VrmlNodeTUIButton(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIButton::defineType(VrmlNodeType *t)
+void VrmlNodeTUIButton::initFields(VrmlNodeTUIButton *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeTUIElement::initFields(node, t);
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIButton", creatorButton);
+        t->addEventOut("touchTime", VrmlField::SFTIME);
+        t->addEventOut("releaseTime", VrmlField::SFTIME); 
     }
-
-    t->addEventOut("touchTime", VrmlField::SFTIME);
-    t->addEventOut("releaseTime", VrmlField::SFTIME);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTUIButton::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIButton::name()
+{
+    return "TUIButton";
+}
 
 VrmlNodeTUIButton::VrmlNodeTUIButton(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_touchTime(0.0)
 {
 }
@@ -572,15 +404,6 @@ VrmlNodeTUIButton::VrmlNodeTUIButton(const VrmlNodeTUIButton& n)
     : VrmlNodeTUIElement(n)
     , d_touchTime(n.d_touchTime)
 {
-}
-
-VrmlNodeTUIButton::~VrmlNodeTUIButton()
-{
-}
-
-VrmlNode* VrmlNodeTUIButton::cloneMe() const
-{
-    return new VrmlNodeTUIButton(*this);
 }
 
 void VrmlNodeTUIButton::tabletPressEvent(coTUIElement *)
@@ -622,27 +445,32 @@ void VrmlNodeTUIButton::render(Viewer *viewer)
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorToggleButton(VrmlScene *s) { return new VrmlNodeTUIToggleButton(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIToggleButton::defineType(VrmlNodeType *t)
+void VrmlNodeTUIToggleButton::initFields(VrmlNodeTUIToggleButton *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("choice", node->d_choice, [node](auto f){
+            if(node->d_TUIElement != NULL)
+            {
+                coTUIToggleButton *tb = (coTUIToggleButton *)node->d_TUIElement;
+                node->d_state.set(node->d_choice.get() >= 0);
+                tb->setState(node->d_choice.get() >= 0);
+            }
+        }),
+        exposedField("state", node->d_state, [node](auto f){
+            if(node->d_TUIElement != NULL)
+            {
+                coTUIToggleButton *tb = (coTUIToggleButton *)node->d_TUIElement;
+                tb->setState(node->d_state.get());
+                if (node->sharedState && node->d_shared.get())
+				    *node->sharedState = node->d_state.get();
+            }
+        }));
+}
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIToggleButton", creatorToggleButton);
-    }
-
-    t->addExposedField("choice", VrmlField::SFINT32);
-    t->addExposedField("state", VrmlField::SFBOOL);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+const char *VrmlNodeTUIToggleButton::name()
+{
+    return "TUIToggleButton";
 }
 
 void VrmlNodeTUIToggleButton::eventIn(double timeStamp,
@@ -659,64 +487,16 @@ void VrmlNodeTUIToggleButton::eventIn(double timeStamp,
 	}
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIToggleButton::setField(const char *fieldName,
-                                       const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(state, SFBool)
-    else if
-        TRY_FIELD(choice, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-
-    if (d_TUIElement)
-	{
-		
-        coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
-		if (strcmp(fieldName, "state") == 0 && fieldValue.toSFBool() != NULL)
-		{
-			tb->setState(fieldValue.toSFBool()->get());
-			if (sharedState && d_shared.get())
-				*sharedState = fieldValue.toSFBool()->get();
-		}
-        else if (strcmp(fieldName, "choice") == 0 && fieldValue.toSFInt() != NULL)
-        {
-            d_state.set(fieldValue.toSFInt()->get() >= 0);
-            tb->setState(fieldValue.toSFInt()->get() >= 0);
-        }
-    }
-}
-
-const VrmlField *VrmlNodeTUIToggleButton::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "state") == 0)
-        return &d_state;
-    return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
-VrmlNodeType *VrmlNodeTUIToggleButton::nodeType() const { return defineType(0); }
-
 VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_state(false)
     , d_choice(-1)
 {
 }
-VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton& n): VrmlNodeTUIElement(n), d_state(n.d_state), d_choice(n.d_choice)
-{
-    
-}
 
-VrmlNodeTUIToggleButton::~VrmlNodeTUIToggleButton()
+VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton& n)
+: VrmlNodeTUIElement(n), d_state(n.d_state), d_choice(n.d_choice)
 {
-}
-VrmlNode* VrmlNodeTUIToggleButton::cloneMe() const
-{
-    return new VrmlNodeTUIToggleButton(*this);
 }
 
 void VrmlNodeTUIToggleButton::tabletEvent(coTUIElement *)
@@ -797,32 +577,23 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
 //
 //
 
-static VrmlNode *creatorFrame(VrmlScene *s) { return new VrmlNodeTUIFrame(s); }
 
-// Define the built in VrmlNodeType:: "TUI" fields
 
-VrmlNodeType *VrmlNodeTUIFrame::defineType(VrmlNodeType *t)
+void VrmlNodeTUIFrame::initFields(VrmlNodeTUIFrame *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIFrame", creatorFrame);
-    }
-
-    t->addExposedField("shape", VrmlField::SFINT32);
-    t->addExposedField("style", VrmlField::SFINT32);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("shape", node->d_shape),
+        exposedField("style", node->d_style));
 }
 
-VrmlNodeType *VrmlNodeTUIFrame::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIFrame::name()
+{
+    return "TUIFrame";
+}
 
 VrmlNodeTUIFrame::VrmlNodeTUIFrame(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_shape(0)
     , d_style(0)
 {
@@ -837,10 +608,6 @@ VrmlNodeTUIFrame::VrmlNodeTUIFrame(const VrmlNodeTUIFrame& n)
 VrmlNodeTUIFrame::~VrmlNodeTUIFrame()
 {
     VrmlTUIFrames.remove(static_cast<coTUIFrame *>(d_TUIElement));
-}
-VrmlNode* VrmlNodeTUIFrame::cloneMe() const
-{
-    return new VrmlNodeTUIFrame(*this);
 }
 
 void VrmlNodeTUIFrame::render(Viewer *viewer)
@@ -875,31 +642,6 @@ void VrmlNodeTUIFrame::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIFrame::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(shape, SFInt)
-    else if
-        TRY_FIELD(style, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUIFrame::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "shape") == 0)
-        return &d_shape;
-    else if (strcmp(fieldName, "style") == 0)
-        return &d_style;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -908,33 +650,22 @@ const VrmlField *VrmlNodeTUIFrame::getField(const char *fieldName) const
 //
 //
 
-static VrmlNode *creatorSplitter(VrmlScene *s) { return new VrmlNodeTUISplitter(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUISplitter::defineType(VrmlNodeType *t)
+void VrmlNodeTUISplitter::initFields(VrmlNodeTUISplitter *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUISplitter", creatorSplitter);
-    }
-
-    t->addExposedField("shape", VrmlField::SFINT32);
-    t->addExposedField("style", VrmlField::SFINT32);
-    t->addExposedField("orientation", VrmlField::SFINT32);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("shape", node->d_shape),
+        exposedField("style", node->d_style),
+        exposedField("orientation", node->d_orientation));
 }
 
-VrmlNodeType *VrmlNodeTUISplitter::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUISplitter::name()
+{
+    return "TUISplitter";
+}   
 
 VrmlNodeTUISplitter::VrmlNodeTUISplitter(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_shape(0)
     , d_style(0)
     , d_orientation(0x1)
@@ -946,14 +677,6 @@ VrmlNodeTUISplitter::VrmlNodeTUISplitter(const VrmlNodeTUISplitter& n)
     , d_style(n.d_style)
     , d_orientation(n.d_orientation)
 {
-}
-
-VrmlNodeTUISplitter::~VrmlNodeTUISplitter()
-{
-}
-VrmlNode* VrmlNodeTUISplitter::cloneMe() const
-{
-    return new VrmlNodeTUISplitter(*this);
 }
 
 void VrmlNodeTUISplitter::render(Viewer *viewer)
@@ -976,35 +699,6 @@ void VrmlNodeTUISplitter::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUISplitter::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(shape, SFInt)
-    else if
-        TRY_FIELD(style, SFInt)
-    else if
-        TRY_FIELD(orientation, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUISplitter::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "shape") == 0)
-        return &d_shape;
-    else if (strcmp(fieldName, "style") == 0)
-        return &d_style;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -1013,43 +707,24 @@ const VrmlField *VrmlNodeTUISplitter::getField(const char *fieldName) const
 //
 //
 
-static VrmlNode *creatorLabel(VrmlScene *s) { return new VrmlNodeTUILabel(s); }
 
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUILabel::defineType(VrmlNodeType *t)
+void VrmlNodeTUILabel::initFields(VrmlNodeTUILabel *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUILabel", creatorLabel);
-    }
-
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeTUILabel::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUILabel::name()
+{
+    return "TUILabel";
+}
 
 VrmlNodeTUILabel::VrmlNodeTUILabel(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
 {
 }
 VrmlNodeTUILabel::VrmlNodeTUILabel(const VrmlNodeTUILabel& n)
     : VrmlNodeTUIElement(n)
 {
-}
-
-VrmlNodeTUILabel::~VrmlNodeTUILabel()
-{
-}
-VrmlNode* VrmlNodeTUILabel::cloneMe() const
-{
-    return new VrmlNodeTUILabel(*this);
 }
 
 void VrmlNodeTUILabel::render(Viewer *viewer)
@@ -1076,35 +751,48 @@ void VrmlNodeTUILabel::render(Viewer *viewer)
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorFloatSlider(VrmlScene *s) { return new VrmlNodeTUIFloatSlider(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIFloatSlider::defineType(VrmlNodeType *t)
+void VrmlNodeTUIFloatSlider::initFields(VrmlNodeTUIFloatSlider *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIFloatSlider", creatorFloatSlider);
-    }
-
-    t->addExposedField("min", VrmlField::SFFLOAT);
-    t->addExposedField("max", VrmlField::SFFLOAT);
-    t->addExposedField("value", VrmlField::SFFLOAT);
-    t->addExposedField("orientation", VrmlField::SFSTRING);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("min", node->d_min, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+                ts->setMin(node->d_min.get());
+        }),
+        exposedField("max", node->d_max, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+                ts->setMax(node->d_max.get());
+        }),
+        exposedField("value", node->d_value, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+            {
+                ts->setValue(node->d_value.get());
+                if(node->sharedState)
+                    *node->sharedState = node->d_value.get();
+            }
+        }),
+        exposedField("orientation", node->d_orientation, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+            {
+                bool ori = false;
+                if (strcasecmp(node->d_orientation.get(), "horizontal") == 0)
+                    ori = true;
+                ts->setOrientation(ori);
+            }
+        }));
 }
 
-VrmlNodeType *VrmlNodeTUIFloatSlider::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIFloatSlider::name()
+{
+    return "TUIFloatSlider";
+}
 
 VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_min(0.0)
     , d_max(0.0)
     , d_value(50.0)
@@ -1119,13 +807,6 @@ VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(const VrmlNodeTUIFloatSlider& n)
     , d_value(n.d_value)
     , d_orientation(n.d_orientation)
 {
-}
-VrmlNodeTUIFloatSlider::~VrmlNodeTUIFloatSlider()
-{
-}
-VrmlNode* VrmlNodeTUIFloatSlider::cloneMe() const
-{
-    return new VrmlNodeTUIFloatSlider(*this);
 }
 
 void VrmlNodeTUIFloatSlider::tabletEvent(coTUIElement *)
@@ -1260,66 +941,6 @@ void VrmlNodeTUIFloatSlider::eventIn(double timeStamp,
     }
 }
 
-// Set the value of one of the node fields.
-void VrmlNodeTUIFloatSlider::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(min, SFFloat)
-    else if
-        TRY_FIELD(max, SFFloat)
-    else if
-        TRY_FIELD(value, SFFloat)
-    else if
-        TRY_FIELD(orientation, SFString)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-    coTUISlider *ts = dynamic_cast<coTUISlider *>(d_TUIElement);
-    if(ts!=NULL)
-    {
-        if(strcmp(fieldName,"min")==0)
-        {
-            ts->setMin(d_min.get());
-        }
-        else if(strcmp(fieldName,"max")==0)
-        {
-            ts->setMax(d_max.get());
-        }
-        else if(strcmp(fieldName,"value")==0)
-        {
-            ts->setValue(d_value.get());
-			if (sharedState)
-			{
-				*sharedState = d_value.get();
-			}
-        }
-        else if(strcmp(fieldName,"orientation")==0)
-        {
-            bool ori = false;
-            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
-                ori = true;
-            ts->setOrientation(ori);
-        }
-    }
-}
-
-
-const VrmlField *VrmlNodeTUIFloatSlider::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "min") == 0)
-        return &d_min;
-    else if (strcmp(fieldName, "max") == 0)
-        return &d_max;
-    else if (strcmp(fieldName, "value") == 0)
-        return &d_value;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -1328,35 +949,44 @@ const VrmlField *VrmlNodeTUIFloatSlider::getField(const char *fieldName) const
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorSlider(VrmlScene *s) { return new VrmlNodeTUISlider(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUISlider::defineType(VrmlNodeType *t)
+void VrmlNodeTUISlider::initFields(VrmlNodeTUISlider *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUISlider", creatorSlider);
-    }
-
-    t->addExposedField("min", VrmlField::SFINT32);
-    t->addExposedField("max", VrmlField::SFINT32);
-    t->addExposedField("value", VrmlField::SFINT32);
-    t->addExposedField("orientation", VrmlField::SFSTRING);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("min", node->d_min, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+                ts->setMin(node->d_min.get());
+        }),
+        exposedField("max", node->d_max, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+                ts->setMax(node->d_max.get());
+        }),
+        exposedField("value", node->d_value, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+                ts->setValue(node->d_value.get());
+        }),
+        exposedField("orientation", node->d_orientation, [node](auto f){
+            coTUISlider *ts = dynamic_cast<coTUISlider *>(node->d_TUIElement);
+            if(ts)
+            {
+                bool ori = false;
+                if (strcasecmp(node->d_orientation.get(), "horizontal") == 0)
+                    ori = true;
+                ts->setOrientation(ori);
+            }
+        }));
 }
 
-VrmlNodeType *VrmlNodeTUISlider::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUISlider::name()
+{
+    return "TUISlider";
+}
 
 VrmlNodeTUISlider::VrmlNodeTUISlider(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_min(0)
     , d_max(0)
     , d_value(50)
@@ -1370,14 +1000,6 @@ VrmlNodeTUISlider::VrmlNodeTUISlider(const VrmlNodeTUISlider& n)
     , d_value(n.d_value)
     , d_orientation(n.d_orientation)
 {
-}
-
-VrmlNodeTUISlider::~VrmlNodeTUISlider()
-{
-}
-VrmlNode* VrmlNodeTUISlider::cloneMe() const
-{
-    return new VrmlNodeTUISlider(*this);
 }
 
 void VrmlNodeTUISlider::tabletEvent(coTUIElement *)
@@ -1432,7 +1054,6 @@ void VrmlNodeTUISlider::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-
 void VrmlNodeTUISlider::eventIn(double timeStamp,
                                  const char *fieldName,
                                  const VrmlField *fieldValue)
@@ -1465,61 +1086,6 @@ void VrmlNodeTUISlider::eventIn(double timeStamp,
     }
 }
 
-// Set the value of one of the node fields.
-void VrmlNodeTUISlider::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(min, SFInt)
-    else if
-        TRY_FIELD(max, SFInt)
-    else if
-        TRY_FIELD(value, SFInt)
-    else if
-        TRY_FIELD(orientation, SFString)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-    coTUISlider *ts = dynamic_cast<coTUISlider *>(d_TUIElement);
-    if(ts!=NULL)
-    {
-        if(strcmp(fieldName,"min")==0)
-        {
-            ts->setMin(d_min.get());
-        }
-        else if(strcmp(fieldName,"max")==0)
-        {
-            ts->setMax(d_max.get());
-        }
-        else if(strcmp(fieldName,"value")==0)
-        {
-            ts->setValue(d_value.get());
-        }
-        else if(strcmp(fieldName,"orientation")==0)
-        {
-            bool ori = false;
-            if (strcasecmp(d_orientation.get(), "horizontal") == 0)
-                ori = true;
-            ts->setOrientation(ori);
-        }
-    }
-}
-
-const VrmlField *VrmlNodeTUISlider::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "min") == 0)
-        return &d_min;
-    else if (strcmp(fieldName, "max") == 0)
-        return &d_max;
-    else if (strcmp(fieldName, "value") == 0)
-        return &d_value;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -1528,51 +1094,45 @@ const VrmlField *VrmlNodeTUISlider::getField(const char *fieldName) const
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorComboBox(VrmlScene *s) { return new VrmlNodeTUIComboBox(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIComboBox::defineType(VrmlNodeType *t)
+void VrmlNodeTUIComboBox::initFields(VrmlNodeTUIComboBox *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIComboBox", creatorComboBox);
-    }
-
-    t->addExposedField("items", VrmlField::MFSTRING);
-    t->addExposedField("withNone", VrmlField::SFBOOL);
-    t->addExposedField("defaultChoice", VrmlField::SFINT32);
-    t->addExposedField("choice", VrmlField::SFINT32);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("items", node->d_items),
+        exposedField("withNone", node->d_withNone),
+        exposedField("defaultChoice", node->d_defaultChoice),
+        exposedField("choice", node->d_choice, [node](auto f){
+            coTUIComboBox *cb = dynamic_cast<coTUIComboBox *>(node->d_TUIElement);
+            if(cb)
+            {
+                if (node->sharedState)
+                {
+                    *node->sharedState = node->d_choice.get();
+                }
+                if (node->d_withNone.get())
+                    cb->setSelectedEntry(node->d_choice.get() + 1);
+                else
+                    cb->setSelectedEntry(node->d_choice.get());
+            }
+        }));
 }
 
-VrmlNodeType *VrmlNodeTUIComboBox::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIComboBox::name()
+{
+    return "TUIComboBox";
+}
 
 VrmlNodeTUIComboBox::VrmlNodeTUIComboBox(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_withNone(true)
     , d_defaultChoice(0)
 {
 }
 VrmlNodeTUIComboBox::VrmlNodeTUIComboBox(const VrmlNodeTUIComboBox& n)
-    : VrmlNodeTUIElement(n.d_scene)
+    : VrmlNodeTUIElement(n)
     , d_withNone(n.d_withNone)
     , d_defaultChoice(n.d_defaultChoice)
 {
-}
-VrmlNodeTUIComboBox::~VrmlNodeTUIComboBox()
-{
-}
-VrmlNode* VrmlNodeTUIComboBox::cloneMe() const
-{
-    return new VrmlNodeTUIComboBox(*this);
 }
 
 void VrmlNodeTUIComboBox::tabletEvent(coTUIElement *)
@@ -1633,53 +1193,6 @@ void VrmlNodeTUIComboBox::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIComboBox::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(items, MFString)
-    else if
-        TRY_FIELD(withNone, SFBool)
-    else if
-        TRY_FIELD(defaultChoice, SFInt)
-    else if
-        TRY_FIELD(choice, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-
-    coTUIComboBox *cb = (coTUIComboBox *)d_TUIElement;
-    if (d_TUIElement)
-    {
-        if (strcmp(fieldName, "choice") == 0 && fieldValue.toSFInt() != NULL)
-        {
-			if (sharedState)
-			{
-				*sharedState = d_choice.get();
-			}
-            if (d_withNone.get())
-                cb->setSelectedEntry(fieldValue.toSFInt()->get() + 1);
-            else
-                cb->setSelectedEntry(fieldValue.toSFInt()->get());
-        }
-    }
-}
-
-const VrmlField *VrmlNodeTUIComboBox::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "items") == 0)
-        return &d_items;
-    else if (strcmp(fieldName, "withNone") == 0)
-        return &d_withNone;
-    else if (strcmp(fieldName, "defaultChoice") == 0)
-        return &d_defaultChoice;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -1688,52 +1201,34 @@ const VrmlField *VrmlNodeTUIComboBox::getField(const char *fieldName) const
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorListBox(VrmlScene *s) { return new VrmlNodeTUIListBox(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIListBox::defineType(VrmlNodeType *t)
+void VrmlNodeTUIListBox::initFields(VrmlNodeTUIListBox *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("items", node->d_items),
+        exposedField("withNone", node->d_withNone),
+        exposedField("defaultChoice", node->d_defaultChoice));
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIListBox", creatorListBox);
-    }
-
-    t->addExposedField("items", VrmlField::MFSTRING);
-    t->addExposedField("withNone", VrmlField::SFBOOL);
-    t->addExposedField("defaultChoice", VrmlField::SFINT32);
-    t->addEventOut("choice", VrmlField::SFINT32);
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
+    if(t)
+        t->addEventOut("choice", VrmlField::SFINT32);     
 }
 
-VrmlNodeType *VrmlNodeTUIListBox::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIListBox::name()
+{
+    return "TUIListBox";
+}
 
 VrmlNodeTUIListBox::VrmlNodeTUIListBox(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_withNone(true)
     , d_defaultChoice(0)
 {
 }
 VrmlNodeTUIListBox::VrmlNodeTUIListBox(const VrmlNodeTUIListBox& n)
-    : VrmlNodeTUIElement(n.d_scene)
+    : VrmlNodeTUIElement(n)
     , d_withNone(n.d_withNone)
     , d_defaultChoice(n.d_defaultChoice)
 {
-}
-
-VrmlNodeTUIListBox::~VrmlNodeTUIListBox()
-{
-}
-VrmlNode* VrmlNodeTUIListBox::cloneMe() const
-{
-    return new VrmlNodeTUIListBox(*this);
 }
 
 void VrmlNodeTUIListBox::tabletEvent(coTUIElement *)
@@ -1793,40 +1288,6 @@ void VrmlNodeTUIListBox::render(Viewer *viewer)
     // the elements are created in subclasses
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIListBox::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(items, MFString)
-    else if
-        TRY_FIELD(withNone, SFBool)
-    else if
-        TRY_FIELD(defaultChoice, SFInt)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-
-	if (sharedState)
-	{
-		*sharedState = d_choice.get();
-	}
-}
-
-const VrmlField *VrmlNodeTUIListBox::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "items") == 0)
-        return &d_items;
-    else if (strcmp(fieldName, "withNone") == 0)
-        return &d_withNone;
-    else if (strcmp(fieldName, "defaultChoice") == 0)
-        return &d_defaultChoice;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
-}
-
 //
 //
 //
@@ -1835,59 +1296,43 @@ const VrmlField *VrmlNodeTUIListBox::getField(const char *fieldName) const
 //
 //
 
-// Return a new VrmlNodeGroup
-static VrmlNode *creatorMap(VrmlScene *s) { return new VrmlNodeTUIMap(s); }
-
-// Define the built in VrmlNodeType:: "TUI" fields
-
-VrmlNodeType *VrmlNodeTUIMap::defineType(VrmlNodeType *t)
+void VrmlNodeTUIMap::initFields(VrmlNodeTUIMap *node, vrml::VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeTUIElement::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("ox", node->d_ox),
+        exposedField("oy", node->d_oy),
+        exposedField("xSize", node->d_xSize),
+        exposedField("ySize", node->d_ySize),
+        exposedField("height", node->d_height),
+        exposedField("maps", node->d_maps));
 
-    if (!t)
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("TUIMap", creatorMap);
-    }
+        t->addEventOut("currentMap", VrmlField::SFINT32);
+        t->addEventOut("currentPos", VrmlField::SFVEC3F);
+        t->addEventOut("currentRot", VrmlField::SFROTATION);
+    }        
 
-    t->addExposedField("ox", VrmlField::MFSTRING);
-    t->addExposedField("oy", VrmlField::MFFLOAT);
-    t->addExposedField("xSize", VrmlField::MFFLOAT);
-    t->addExposedField("ySize", VrmlField::MFFLOAT);
-    t->addExposedField("height", VrmlField::MFFLOAT);
-    t->addExposedField("maps", VrmlField::MFSTRING);
-    t->addEventOut("currentMap", VrmlField::SFINT32);
-    t->addEventOut("currentPos", VrmlField::SFVEC3F);
-    ;
-    t->addEventOut("currentRot", VrmlField::SFROTATION);
-    ;
-    VrmlNodeTUIElement::defineType(t); // Parent class
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeTUIMap::nodeType() const { return defineType(0); }
+const char *VrmlNodeTUIMap::name()
+{
+    return "TUIMap";
+}
 
 VrmlNodeTUIMap::VrmlNodeTUIMap(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene)
+    : VrmlNodeTUIElement(scene, name())
     , d_currentMap(-1)
     , d_currentPos(0, 0, 0)
 {
 }
+
 VrmlNodeTUIMap::VrmlNodeTUIMap(const VrmlNodeTUIMap& n)
     : VrmlNodeTUIElement(n)
     , d_currentMap(n.d_currentMap)
     , d_currentPos(n.d_currentPos)
 {
-}
-
-VrmlNodeTUIMap::~VrmlNodeTUIMap()
-{
-}
-VrmlNode* VrmlNodeTUIMap::cloneMe() const
-{
-    return new VrmlNodeTUIMap(*this);
 }
 
 void VrmlNodeTUIMap::tabletEvent(coTUIElement *)
@@ -1921,43 +1366,4 @@ void VrmlNodeTUIMap::render(Viewer *viewer)
         clearModified();
     }
     // the elements are created in subclasses
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTUIMap::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-    setModified();
-    if
-        TRY_FIELD(maps, MFString)
-    else if
-        TRY_FIELD(ox, MFFloat)
-    else if
-        TRY_FIELD(oy, MFFloat)
-    else if
-        TRY_FIELD(xSize, MFFloat)
-    else if
-        TRY_FIELD(ySize, MFFloat)
-    else if
-        TRY_FIELD(height, MFFloat)
-    else
-        VrmlNodeTUIElement::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTUIMap::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "maps") == 0)
-        return &d_maps;
-    else if (strcmp(fieldName, "ox") == 0)
-        return &d_ox;
-    else if (strcmp(fieldName, "xSize") == 0)
-        return &d_xSize;
-    else if (strcmp(fieldName, "ySize") == 0)
-        return &d_ySize;
-    else if (strcmp(fieldName, "height") == 0)
-        return &d_height;
-    else
-        return VrmlNodeTUIElement::getField(fieldName);
-    return 0;
 }

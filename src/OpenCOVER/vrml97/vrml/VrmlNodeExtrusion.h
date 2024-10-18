@@ -31,20 +31,12 @@ class VRMLEXPORT VrmlNodeExtrusion : public VrmlNodeGeometry
 
 public:
     // Define the fields of extrusion nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeExtrusion *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeExtrusion(VrmlScene *);
-    virtual ~VrmlNodeExtrusion();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual Viewer::Object insertGeometry(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     // Larry
     virtual VrmlNodeExtrusion *toExtrusion() const;

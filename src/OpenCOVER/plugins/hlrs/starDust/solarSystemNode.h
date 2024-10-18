@@ -40,20 +40,13 @@ class PLUGINEXPORT VrmlNodeSolarSystem : public VrmlNodeChild
 {
 public:
     // Define the fields of SteeringWheel nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSolarSystem *node, VrmlNodeType *t);
+    static const char *name();
+
     VrmlNodeSolarSystem(VrmlScene *scene = 0);
     VrmlNodeSolarSystem(const VrmlNodeSolarSystem &n);
-    virtual ~VrmlNodeSolarSystem();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeSolarSystem *toSolarSystemWheel() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);
@@ -68,6 +61,11 @@ public:
     void setPlanetScale(double s);
     static VrmlNodeSolarSystem *instance()
     {
+        if(!inst)
+        {
+            inst = new VrmlNodeSolarSystem();
+            initFields(inst, nullptr);
+        }
         return inst;
     };
 
@@ -91,5 +89,10 @@ private:
     VrmlSFVec3f d_planetScale;
     static VrmlNodeSolarSystem *inst;
 };
+
+template<>
+inline VrmlNode *VrmlNodeTemplate::creator<VrmlNodeSolarSystem>(vrml::VrmlScene *scene){
+    return VrmlNodeSolarSystem::instance();
+}
 
 #endif

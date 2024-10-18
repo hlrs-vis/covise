@@ -32,21 +32,13 @@ class VRMLEXPORT VrmlNodeVisibilitySensor : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of VisibilitySensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    
+    static void initFields(VrmlNodeVisibilitySensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeVisibilitySensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeVisibilitySensor();
 
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    void render(Viewer *) override;
 
 private:
     // Fields

@@ -15,7 +15,7 @@
 #ifndef _VRMLNODECOLORRGBA_
 #define _VRMLNODECOLORRGBA_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "VrmlMFColorRGBA.h"
 
 namespace vrml
@@ -23,25 +23,17 @@ namespace vrml
 
 class VRMLEXPORT VrmlScene;
 
-class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNode
+class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of Color nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeColorRGBA *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeColorRGBA(VrmlScene *);
-    virtual ~VrmlNodeColorRGBA();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeColorRGBA *toColorRGBA() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFColorRGBA &color()
     {

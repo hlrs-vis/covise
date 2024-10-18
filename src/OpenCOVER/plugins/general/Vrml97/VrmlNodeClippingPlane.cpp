@@ -40,43 +40,25 @@
 #include <osg/MatrixTransform>
 #include <osg/Quat>
 
-// ARSensor factory.
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeClippingPlane::initFields(VrmlNodeClippingPlane *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeClippingPlane(scene);
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t,
+        exposedField("global", node->d_global),
+        exposedField("enabled", node->d_enabled),
+        exposedField("position", node->d_position),
+        exposedField("orientation", node->d_orientation),
+        exposedField("number", node->d_number));
 }
 
-// Define the built in VrmlNodeType:: "ARSensor" fields
-
-VrmlNodeType *VrmlNodeClippingPlane::defineType(VrmlNodeType *t)
+const char *VrmlNodeClippingPlane::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ClippingPlane", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("global", VrmlField::SFBOOL);
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addExposedField("orientation", VrmlField::SFROTATION);
-    t->addExposedField("position", VrmlField::SFVEC3F);
-    t->addExposedField("number", VrmlField::SFINT32);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeClippingPlane::nodeType() const
-{
-    return defineType(0);
+    return "ClippingPlane";
 }
 
 VrmlNodeClippingPlane::VrmlNodeClippingPlane(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
     , d_global(false)
     , d_enabled(true)
     , d_position(0, 0, 0)
@@ -89,7 +71,7 @@ VrmlNodeClippingPlane::VrmlNodeClippingPlane(VrmlScene *scene)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeClippingPlane::VrmlNodeClippingPlane(const VrmlNodeClippingPlane &n)
-    : VrmlNodeGroup(n.d_scene)
+    : VrmlNodeGroup(n)
     , d_global(n.d_global)
     , d_enabled(n.d_enabled)
     , d_position(n.d_position)
@@ -97,15 +79,6 @@ VrmlNodeClippingPlane::VrmlNodeClippingPlane(const VrmlNodeClippingPlane &n)
     , d_number(n.d_number)
 {
     d_clipObject = 0;
-}
-
-VrmlNodeClippingPlane::~VrmlNodeClippingPlane()
-{
-}
-
-VrmlNode *VrmlNodeClippingPlane::cloneMe() const
-{
-    return new VrmlNodeClippingPlane(*this);
 }
 
 void VrmlNodeClippingPlane::render(Viewer *viewer)
@@ -167,56 +140,4 @@ void VrmlNodeClippingPlane::render(Viewer *viewer)
         viewer->endObject();
     }
     clearModified();
-}
-
-ostream &VrmlNodeClippingPlane::printFields(ostream &os, int indent)
-{
-    if (!d_global.get())
-        PRINT_FIELD(global);
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    if (!d_position.get())
-        PRINT_FIELD(position);
-    if (!d_orientation.get())
-        PRINT_FIELD(orientation);
-    if (!d_number.get())
-        PRINT_FIELD(number);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeClippingPlane::setField(const char *fieldName,
-                                     const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(global, SFBool)
-    else if
-        TRY_FIELD(enabled, SFBool)
-    else if
-        TRY_FIELD(position, SFVec3f)
-    else if
-        TRY_FIELD(orientation, SFRotation)
-    else if
-        TRY_FIELD(number, SFInt)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeClippingPlane::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "global") == 0)
-        return &d_global;
-    else if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    else if (strcmp(fieldName, "orientation") == 0)
-        return &d_orientation;
-    else if (strcmp(fieldName, "number") == 0)
-        return &d_number;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

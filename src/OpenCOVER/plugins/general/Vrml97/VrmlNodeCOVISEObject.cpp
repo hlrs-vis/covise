@@ -48,37 +48,20 @@ void VrmlNodeCOVISEObject::addNode(osg::Node *node)
     }
 }
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeCOVISEObject::initFields(VrmlNodeCOVISEObject *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeCOVISEObject(scene);
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("objectName", node->d_objectName));
 }
 
-// Define the built in VrmlNodeType:: "ARSensor" fields
-
-VrmlNodeType *VrmlNodeCOVISEObject::defineType(VrmlNodeType *t)
+const char *VrmlNodeCOVISEObject::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("COVISEObject", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("objectName", VrmlField::SFSTRING);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeCOVISEObject::nodeType() const
-{
-    return defineType(0);
+    return "COVISEObject";
 }
 
 VrmlNodeCOVISEObject::VrmlNodeCOVISEObject(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_objectName(NULL)
 {
     d_viewerObject = 0;
@@ -90,7 +73,7 @@ VrmlNodeCOVISEObject::VrmlNodeCOVISEObject(VrmlScene *scene)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeCOVISEObject::VrmlNodeCOVISEObject(const VrmlNodeCOVISEObject &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_objectName(NULL)
 {
     d_viewerObject = 0;
@@ -104,11 +87,6 @@ VrmlNodeCOVISEObject::~VrmlNodeCOVISEObject()
     }
 
     COVISEObjectNodes.remove(this);
-}
-
-VrmlNode *VrmlNodeCOVISEObject::cloneMe() const
-{
-    return new VrmlNodeCOVISEObject(*this);
 }
 
 VrmlNodeCOVISEObject *VrmlNodeCOVISEObject::toCOVISEObject() const
@@ -131,34 +109,6 @@ void VrmlNodeCOVISEObject::render(Viewer *v)
     }
 
     clearModified();
-}
-
-ostream &VrmlNodeCOVISEObject::printFields(ostream &os, int indent)
-{
-    if (!d_objectName.get())
-        PRINT_FIELD(objectName);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCOVISEObject::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(objectName, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeCOVISEObject::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "objectName") == 0)
-        return &d_objectName;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeCOVISEObject::addCoviseNode(osg::Node *node)

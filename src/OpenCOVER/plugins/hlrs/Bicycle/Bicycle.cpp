@@ -122,51 +122,38 @@ void *thdGetBicycleSpeed(void *ptr)
     return NULL;
 }
 
-// --------------------------------------------------------------------
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeBicycle::initFields(VrmlNodeBicycle *node, VrmlNodeType *t)
 {
-    return new VrmlNodeBicycle(scene);
-}
-
-// --------------------------------------------------------------------
-// Define the built in VrmlNodeType:: "Bicycle" fields
-// --------------------------------------------------------------------
-
-VrmlNodeType *VrmlNodeBicycle::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("bikeRotation", node->d_bikeRotation, [node](auto f){
+                         node->recalcMatrix();
+                     }),
+                     exposedField("bikeTranslation", node->d_bikeTranslation, [node](auto f){
+                         node->recalcMatrix();
+                     }), 
+                     eventInCallBack<VrmlSFBool>("thermal", [node](auto fieldValue){
+                         node->d_thermal = fieldValue->get();
+                     }));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Bicycle", creator);
+        t->addEventOut("speed", VrmlField::SFFLOAT);
+        t->addEventOut("revs", VrmlField::SFFLOAT);
+        t->addEventOut("gear", VrmlField::SFINT32);
+        t->addEventOut("button", VrmlField::SFINT32);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventOut("speed", VrmlField::SFFLOAT);
-    t->addEventOut("revs", VrmlField::SFFLOAT);
-    t->addEventOut("gear", VrmlField::SFINT32);
-    t->addEventOut("button", VrmlField::SFINT32);
-    t->addEventIn("thermal", VrmlField::SFBOOL);
-    t->addExposedField("bikeRotation", VrmlField::SFROTATION);
-    t->addExposedField("bikeTranslation", VrmlField::SFVEC3F);
-
-    return t;
 }
 
-// --------------------------------------------------------------------
 
-VrmlNodeType *VrmlNodeBicycle::nodeType() const
+const char *VrmlNodeBicycle::name()
 {
-    return defineType(0);
+    return "Bicycle";
 }
 
 // --------------------------------------------------------------------
 
 VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_bikeRotation(1, 0, 0, 0)
     , d_bikeTranslation(0, 0, 0)
     , d_button(0)
@@ -182,7 +169,7 @@ VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
 // --------------------------------------------------------------------
 
 VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_bikeRotation(n.d_bikeRotation)
     , d_bikeTranslation(n.d_bikeTranslation)
     , d_button(n.d_button)
@@ -197,64 +184,11 @@ VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
 
 // --------------------------------------------------------------------
 
-VrmlNodeBicycle::~VrmlNodeBicycle()
-{
-}
-
-// --------------------------------------------------------------------
-
-VrmlNode *VrmlNodeBicycle::cloneMe() const
-{
-    return new VrmlNodeBicycle(*this);
-}
-
-// --------------------------------------------------------------------
-
 VrmlNodeBicycle *VrmlNodeBicycle::toBicycle() const
 {
     return (VrmlNodeBicycle *)this;
 }
 
-// --------------------------------------------------------------------
-
-ostream &VrmlNodeBicycle::printFields(ostream &os, int indent)
-{
-    if (!d_bikeRotation.get())
-    {
-        PRINT_FIELD(bikeRotation);
-    }
-    if (!d_bikeTranslation.get())
-    {
-        PRINT_FIELD(bikeTranslation);
-    }
-    return os;
-}
-
-// --------------------------------------------------------------------
-// Set the value of one of the node fields.
-// --------------------------------------------------------------------
-
-void VrmlNodeBicycle::setField(const char *fieldName, const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(bikeRotation, SFRotation)
-    else if
-        TRY_FIELD(bikeTranslation, SFVec3f)
-    else if
-        TRY_FIELD(thermal, SFBool)
-    else
-    {
-        VrmlNodeChild::setField(fieldName, fieldValue);
-        if (strcmp(fieldName, "bikeRotation") == 0)
-        {
-            recalcMatrix();
-        }
-        else if (strcmp(fieldName, "bikeTranslation") == 0)
-        {
-            recalcMatrix();
-        }
-    }
-}
 
 // --------------------------------------------------------------------
 
@@ -273,7 +207,7 @@ void VrmlNodeBicycle::recalcMatrix()
        fprintf(stderr,"recalcbikeTrans: %f %f %f\n",bikeTrans(3, 0), bikeTrans(3, 1), bikeTrans(3, 2) );
 }
 
-const VrmlField *VrmlNodeBicycle::getField(const char *fieldName)
+const VrmlField *VrmlNodeBicycle::getField(const char *fieldName) const
 {
     if (strcmp(fieldName, "enabled") == 0)
         return &d_enabled;
@@ -284,8 +218,7 @@ const VrmlField *VrmlNodeBicycle::getField(const char *fieldName)
     else if (strcmp(fieldName, "buttons_changed") == 0)
         return &d_buttons;
     else
-        cout << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+        return VrmlNodeChild::getField(fieldName);
 }
 
 void VrmlNodeBicycle::eventIn(double timeStamp,
@@ -295,18 +228,18 @@ void VrmlNodeBicycle::eventIn(double timeStamp,
     if (strcmp(eventName, "bikeRotation") == 0)
     {
         fprintf(stderr, "resetRot\n");
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         recalcMatrix();
     }
     else if (strcmp(eventName, "bikeTranslation") == 0)
     {
         fprintf(stderr, "resetTrans\n");
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         recalcMatrix();
     }
     else if (strcmp(eventName, "thermal") == 0)
     {
-        setField(eventName, *fieldValue);
+        setFieldByName(eventName, *fieldValue);
         fprintf(stderr, "thermal: %d\n", d_thermal.get());
         
     }
@@ -1138,7 +1071,7 @@ BicyclePlugin::~BicyclePlugin()
 
 int BicyclePlugin::initUI()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeBicycle::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeBicycle>());
     return 1;
 }
 

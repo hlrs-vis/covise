@@ -43,52 +43,28 @@ VrmlNodeVariant *VrmlNodeVariant::instance()
     if (System::the)
     {
         if(theVariantNode==NULL)
-            theVariantNode=new VrmlNodeVariant();
+        {
+            theVariantNode = new VrmlNodeVariant();
+            initFields(theVariantNode, nullptr);
+        }
         return theVariantNode;
     }
     return nullptr;
 }
 
-
-
-// Variant factory.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeVariant::initFields(VrmlNodeVariant *node, VrmlNodeType *t)
 {
-    
-    VrmlNodeVariant *var = VrmlNodeVariant::instance();
-    //var->d_scene = scene;
-    return var;
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("variant", node->d_variant, [](auto f){
+                        VariantPlugin::plugin->setVariant(f->get());
+                     }));
 }
 
-
-// Define the built in VrmlNodeType:: "Variant" fields
-
-VrmlNodeType *VrmlNodeVariant::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Variant", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("variant", VrmlField::SFSTRING);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeVariant::nodeType() const
-{
-    return defineType(0);
-}
+const char *VrmlNodeVariant::name() { return "Variant"; }
 
 VrmlNodeVariant::VrmlNodeVariant(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_variant("none")
 {
     setModified();
@@ -110,7 +86,7 @@ void VrmlNodeVariant::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeVariant::VrmlNodeVariant(const VrmlNodeVariant &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_variant(n.d_variant)
 {
     setModified();
@@ -123,11 +99,6 @@ VrmlNodeVariant::~VrmlNodeVariant()
     }
 }
 
-VrmlNode *VrmlNodeVariant::cloneMe() const
-{
-    return new VrmlNodeVariant(*this);
-}
-
 VrmlNodeVariant *VrmlNodeVariant::toVariant() const
 {
     return (VrmlNodeVariant *)this;
@@ -138,41 +109,7 @@ void VrmlNodeVariant::render(Viewer *viewer)
     (void)viewer;
 }
 
-ostream &VrmlNodeVariant::printFields(ostream &os, int indent)
-{
-    if (!d_variant.get())
-        PRINT_FIELD(variant);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeVariant::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(variant, SFString)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "variant") == 0)
-    {
-        VariantPlugin::plugin->setVariant(fieldValue.toSFString()->get());
-    }
-}
-
-
 void VrmlNodeVariant::setVariant(std::string varName)
 {
     d_variant.set(varName.c_str());
-}
-
-const VrmlField *VrmlNodeVariant::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "variant") == 0)
-        return &d_variant;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }

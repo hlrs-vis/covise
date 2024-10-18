@@ -8,50 +8,31 @@
 
 #include "solarSystemNode.h"
 
-static VrmlNode *creatorSolarSystem(VrmlScene *scene)
+void VrmlNodeSolarSystem::initFields(VrmlNodeSolarSystem *node, VrmlNodeType *t)
 {
-    if (VrmlNodeSolarSystem::instance())
-        return VrmlNodeSolarSystem::instance();
-    return new VrmlNodeSolarSystem(scene);
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+        eventOutCallBack("venusRotation", node->d_venusRotation),
+        eventOutCallBack("venusTranslation", node->d_venusTranslation),
+        eventOutCallBack("marsRotation", node->d_marsRotation),
+        eventOutCallBack("marsTranslation", node->d_marsTranslation),
+        eventOutCallBack("earthRotation", node->d_earthRotation),
+        eventOutCallBack("earthTranslation", node->d_earthTranslation),
+        eventOutCallBack("saturnRotation", node->d_saturnRotation),
+        eventOutCallBack("saturnTranslation", node->d_saturnTranslation),
+        eventOutCallBack("jupiterRotation", node->d_jupiterRotation),
+        eventOutCallBack("jupiterTranslation", node->d_jupiterTranslation),
+        eventOutCallBack("planetScale", node->d_planetScale)
+    );
 }
 
-// Define the built in VrmlNodeType:: "SteeringWheel" fields
-
-VrmlNodeType *VrmlNodeSolarSystem::defineType(VrmlNodeType *t)
+const char *VrmlNodeSolarSystem::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("SolarSystem", creatorSolarSystem);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addEventOut("venusRotation", VrmlField::SFROTATION);
-    t->addEventOut("venusTranslation", VrmlField::SFVEC3F);
-    t->addEventOut("marsRotation", VrmlField::SFROTATION);
-    t->addEventOut("marsTranslation", VrmlField::SFVEC3F);
-    t->addEventOut("earthRotation", VrmlField::SFROTATION);
-    t->addEventOut("earthTranslation", VrmlField::SFVEC3F);
-    t->addEventOut("saturnRotation", VrmlField::SFROTATION);
-    t->addEventOut("saturnTranslation", VrmlField::SFVEC3F);
-    t->addEventOut("jupiterRotation", VrmlField::SFROTATION);
-    t->addEventOut("jupiterTranslation", VrmlField::SFVEC3F);
-    t->addEventOut("planetScale", VrmlField::SFVEC3F);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeSolarSystem::nodeType() const
-{
-    return defineType(0);
+    return "SolarSystem";
 }
 
 VrmlNodeSolarSystem::VrmlNodeSolarSystem(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_venusRotation(1, 0, 0, 0)
     , d_venusTranslation(0, 0, 0)
     , d_marsRotation(1, 0, 0, 0)
@@ -74,7 +55,7 @@ VrmlNodeSolarSystem *VrmlNodeSolarSystem::inst = NULL;
 ;
 
 VrmlNodeSolarSystem::VrmlNodeSolarSystem(const VrmlNodeSolarSystem &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_venusRotation(n.d_venusRotation)
     , d_venusTranslation(n.d_venusTranslation)
     , d_marsRotation(n.d_marsRotation)
@@ -92,107 +73,9 @@ VrmlNodeSolarSystem::VrmlNodeSolarSystem(const VrmlNodeSolarSystem &n)
     setModified();
 }
 
-VrmlNodeSolarSystem::~VrmlNodeSolarSystem()
-{
-}
-
-VrmlNode *VrmlNodeSolarSystem::cloneMe() const
-{
-    return new VrmlNodeSolarSystem(*this);
-}
-
 VrmlNodeSolarSystem *VrmlNodeSolarSystem::toSolarSystemWheel() const
 {
     return (VrmlNodeSolarSystem *)this;
-}
-
-ostream &VrmlNodeSolarSystem::printFields(ostream &os, int indent)
-{
-    if (!d_venusRotation.get())
-        PRINT_FIELD(venusRotation);
-    if (!d_venusTranslation.get())
-        PRINT_FIELD(venusTranslation);
-    if (!d_marsRotation.get())
-        PRINT_FIELD(marsRotation);
-    if (!d_marsTranslation.get())
-        PRINT_FIELD(marsTranslation);
-    if (!d_earthRotation.get())
-        PRINT_FIELD(earthRotation);
-    if (!d_earthTranslation.get())
-        PRINT_FIELD(earthTranslation);
-    if (!d_saturnRotation.get())
-        PRINT_FIELD(saturnRotation);
-    if (!d_saturnTranslation.get())
-        PRINT_FIELD(saturnTranslation);
-    if (!d_jupiterRotation.get())
-        PRINT_FIELD(jupiterRotation);
-    if (!d_jupiterTranslation.get())
-        PRINT_FIELD(jupiterTranslation);
-    if (!d_comet_CG_Translation.get())
-        PRINT_FIELD(comet_CG_Translation);
-    if (!d_rosettaTranslation.get())
-        PRINT_FIELD(rosettaTranslation);
-
-    if (!d_planetScale.get())
-        PRINT_FIELD(planetScale);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeSolarSystem::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(venusRotation, SFRotation)
-    else if
-        TRY_FIELD(venusTranslation, SFVec3f)
-    else if
-        TRY_FIELD(marsRotation, SFRotation)
-    else if
-        TRY_FIELD(marsTranslation, SFVec3f)
-    else if
-        TRY_FIELD(earthRotation, SFRotation)
-    else if
-        TRY_FIELD(earthTranslation, SFVec3f)
-    else if
-        TRY_FIELD(saturnRotation, SFRotation)
-    else if
-        TRY_FIELD(saturnTranslation, SFVec3f)
-    else if
-        TRY_FIELD(jupiterRotation, SFRotation)
-    else if
-        TRY_FIELD(jupiterTranslation, SFVec3f)
-    else if
-        TRY_FIELD(planetScale, SFVec3f)
-}
-
-const VrmlField *VrmlNodeSolarSystem::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "venusRotation") == 0)
-        return &d_venusRotation;
-    else if (strcmp(fieldName, "venusTranslation") == 0)
-        return &d_venusTranslation;
-    else if (strcmp(fieldName, "marsRotation") == 0)
-        return &d_marsRotation;
-    else if (strcmp(fieldName, "marsTranslation") == 0)
-        return &d_marsTranslation;
-    else if (strcmp(fieldName, "earthRotation") == 0)
-        return &d_earthRotation;
-    else if (strcmp(fieldName, "earthTranslation") == 0)
-        return &d_earthTranslation;
-    else if (strcmp(fieldName, "saturnRotation") == 0)
-        return &d_saturnRotation;
-    else if (strcmp(fieldName, "saturnTranslation") == 0)
-        return &d_saturnTranslation;
-    else if (strcmp(fieldName, "jupiterRotation") == 0)
-        return &d_jupiterRotation;
-    else if (strcmp(fieldName, "planetScale") == 0)
-        return &d_planetScale;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeSolarSystem::eventIn(double timeStamp,

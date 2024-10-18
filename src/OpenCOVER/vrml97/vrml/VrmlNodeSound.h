@@ -37,14 +37,13 @@ class VRMLEXPORT VrmlNodeSound : public VrmlNodeChild
 
 public:
     // Define the fields of Sound nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSound *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSound(VrmlScene *scene = 0);
     VrmlNodeSound(VrmlNodeSound *sound);
     virtual ~VrmlNodeSound();
 
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual void clearFlags();
@@ -56,11 +55,6 @@ public:
     virtual void render(Viewer *);
 
     virtual VrmlNodeSound *toSound() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 private:
     // Fields

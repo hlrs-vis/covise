@@ -17,21 +17,16 @@
 
 using namespace vrml;
 
-// Define the fields of all built in geometry nodes
-VrmlNodeType *VrmlNodeGeometry::defineType(VrmlNodeType *t)
+
+void VrmlNodeGeometry::initFields(VrmlNodeGeometry *node, VrmlNodeType *t)
 {
-    return VrmlNode::defineType(t);
+    //space for future implementations
 }
 
-VrmlNodeGeometry::VrmlNodeGeometry(VrmlScene *s)
-    : VrmlNode(s)
+VrmlNodeGeometry::VrmlNodeGeometry(VrmlScene *s, const std::string &name)
+    : VrmlNodeTemplate(s, name)
     , d_viewerObject(0)
 {
-}
-
-VrmlNodeGeometry::~VrmlNodeGeometry()
-{
-    /* Need access to viewer to delete viewerObject...*/
 }
 
 VrmlNodeGeometry *VrmlNodeGeometry::toGeometry() const

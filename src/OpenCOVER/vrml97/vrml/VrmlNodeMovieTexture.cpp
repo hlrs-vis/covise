@@ -26,50 +26,33 @@ using std::cerr;
 using std::endl;
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeMovieTexture::initFields(VrmlNodeMovieTexture *node, VrmlNodeType *t)
 {
-    return new VrmlNodeMovieTexture(s);
-}
-
-// Define the built in VrmlNodeType:: "MovieTexture" fields
-
-VrmlNodeType *VrmlNodeMovieTexture::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeTexture::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("loop", node->d_loop),
+                     exposedField("speed", node->d_speed),
+                     exposedField("startTime", node->d_startTime),
+                     exposedField("stopTime", node->d_stopTime),
+                     exposedField("url", node->d_url),
+                     field("repeatS", node->d_repeatS),
+                    field("repeatT", node->d_repeatT),
+                    field("blendMode", node->d_blendMode),
+                    field("environment", node->d_environment),
+                    field("anisotropy", node->d_anisotropy),
+                    field("filter", node->d_filter));
+                    
+    if (t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("MovieTexture", creator);
+        t->addEventOut("duration_changed", VrmlField::SFTIME);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
     }
-
-    VrmlNodeTexture::defineType(t); // Parent class
-
-    t->addExposedField("loop", VrmlField::SFBOOL);
-    t->addExposedField("speed", VrmlField::SFFLOAT);
-    t->addExposedField("startTime", VrmlField::SFTIME);
-    t->addExposedField("stopTime", VrmlField::SFTIME);
-    t->addExposedField("url", VrmlField::MFSTRING);
-    t->addField("repeatS", VrmlField::SFBOOL);
-    t->addField("repeatT", VrmlField::SFBOOL);
-    t->addEventOut("duration_changed", VrmlField::SFTIME);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-    t->addField("blendMode", VrmlField::SFINT32);
-    t->addField("environment", VrmlField::SFBOOL);
-    t->addField("anisotropy", VrmlField::SFINT32);
-    t->addField("filter", VrmlField::SFINT32);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeMovieTexture::nodeType() const
-{
-    return defineType(0);
-}
+const char *VrmlNodeMovieTexture::name(){ return "MovieTexture";}
 
 VrmlNodeMovieTexture::VrmlNodeMovieTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene)
+    : VrmlNodeTexture(scene, name())
     , d_loop(false)
     , d_speed(1.0)
     , d_repeatS(true)
@@ -101,11 +84,6 @@ VrmlNodeMovieTexture::~VrmlNodeMovieTexture()
     delete d_image;
 }
 
-VrmlNode *VrmlNodeMovieTexture::cloneMe() const
-{
-    return new VrmlNodeMovieTexture(*this);
-}
-
 VrmlNodeMovieTexture *VrmlNodeMovieTexture::toMovieTexture() const
 {
     return (VrmlNodeMovieTexture *)this;
@@ -116,25 +94,6 @@ void VrmlNodeMovieTexture::addToScene(VrmlScene *s, const char *rel)
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addMovie(this);
     VrmlNodeTexture::addToScene(s, rel);
-}
-
-std::ostream &VrmlNodeMovieTexture::printFields(std::ostream &os, int indent)
-{
-    if (d_loop.get())
-        PRINT_FIELD(loop);
-    if (!FPEQUAL(d_speed.get(), 1.0))
-        PRINT_FIELD(speed);
-    if (!FPZERO(d_startTime.get()))
-        PRINT_FIELD(startTime);
-    if (!FPZERO(d_stopTime.get()))
-        PRINT_FIELD(stopTime);
-    if (d_url.get())
-        PRINT_FIELD(url);
-    if (!d_repeatS.get())
-        PRINT_FIELD(repeatS);
-    if (!d_repeatT.get())
-        PRINT_FIELD(repeatT);
-    return os;
 }
 
 void VrmlNodeMovieTexture::update(VrmlSFTime &timeNow)
@@ -259,7 +218,7 @@ void VrmlNodeMovieTexture::eventIn(double timeStamp,
     {
         if (!d_isActive.get())
         {
-            setField(eventName, *fieldValue);
+            setFieldByName(eventName, *fieldValue);
             eventOut(timeStamp, "speed_changed", *fieldValue);
             movProp.speed = d_speed.get();
             setModified();
@@ -269,7 +228,7 @@ void VrmlNodeMovieTexture::eventIn(double timeStamp,
     {
         if (!d_isActive.get())
         {
-            setField(eventName, *fieldValue);
+            setFieldByName(eventName, *fieldValue);
             eventOut(timeStamp, "start_changed", *fieldValue);
             movProp.start = d_startTime.get();
             setModified();
@@ -279,7 +238,7 @@ void VrmlNodeMovieTexture::eventIn(double timeStamp,
     {
         if (!d_isActive.get())
         {
-            setField(eventName, *fieldValue);
+            setFieldByName(eventName, *fieldValue);
             eventOut(timeStamp, "stop_changed", *fieldValue);
             movProp.stop = d_stopTime.get();
             setModified();
@@ -420,65 +379,16 @@ unsigned char *VrmlNodeMovieTexture::pixels()
 
 const VrmlField *VrmlNodeMovieTexture::getField(const char *fieldName) const
 {
-    // exposedFields
-    if (strcmp(fieldName, "loop") == 0)
-        return &d_loop;
-    else if (strcmp(fieldName, "speed") == 0)
-        return &d_speed;
-    else if (strcmp(fieldName, "startTime") == 0)
-        return &d_startTime;
-    else if (strcmp(fieldName, "stopTime") == 0)
-        return &d_stopTime;
-    else if (strcmp(fieldName, "url") == 0)
-        return &d_url;
-
     // eventOuts
-    else if (strcmp(fieldName, "duration") == 0)
+    if (strcmp(fieldName, "duration") == 0)
         return &d_duration;
     else if (strcmp(fieldName, "isActive") == 0)
         return &d_isActive;
-    else if (strcmp(fieldName, "blendMode") == 0)
-        return &d_blendMode;
-    else if (strcmp(fieldName, "environment") == 0)
-        return &d_environment;
-    else if (strcmp(fieldName, "anisotropy") == 0)
-        return &d_anisotropy;
-    else if (strcmp(fieldName, "filter") == 0)
-        return &d_filter;
 
-    return VrmlNode::getField(fieldName); // Parent class
+    return VrmlNodeTemplate::getField(fieldName); // Parent class
 }
 
 // Set the value of one of the node fields.
-
-void VrmlNodeMovieTexture::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(loop, SFBool)
-    else if
-        TRY_FIELD(speed, SFFloat)
-    else if
-        TRY_FIELD(startTime, SFTime)
-    else if
-        TRY_FIELD(stopTime, SFTime)
-    else if
-        TRY_FIELD(url, MFString)
-    else if
-        TRY_FIELD(repeatS, SFBool)
-    else if
-        TRY_FIELD(repeatT, SFBool)
-    else if
-        TRY_FIELD(blendMode, SFInt)
-    else if
-        TRY_FIELD(environment, SFBool)
-    else if
-        TRY_FIELD(anisotropy, SFInt)
-    else if
-        TRY_FIELD(filter, SFInt)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
 
 bool VrmlNodeMovieTexture::isOnlyGeometry() const
 {
@@ -486,6 +396,5 @@ bool VrmlNodeMovieTexture::isOnlyGeometry() const
     {
         return false;
     }
-
     return false;
 }

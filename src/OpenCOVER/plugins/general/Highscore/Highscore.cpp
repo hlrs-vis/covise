@@ -128,38 +128,34 @@ HSEntry::~HSEntry()
     delete InterimLabel;
 }
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeHighscore::initFields(VrmlNodeHighscore *node, VrmlNodeType *t)
 {
-    return new VrmlNodeHighscore(scene);
-}
-
-VrmlNodeType *VrmlNodeHighscore::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                    eventInCallBack<VrmlSFTime>("startTime", [node](auto fieldValue){
+                        Highscore::instance()->setStartTime(fieldValue->get());
+                    }),
+                    eventInCallBack<VrmlSFTime>("interimTime", [node](auto fieldValue){
+                        Highscore::instance()->setInterimTime(fieldValue->get());
+                    }),
+                    eventInCallBack<VrmlSFTime>("reset", [node](auto fieldValue){
+                        Highscore::instance()->setResetTime(fieldValue->get());
+                    }));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Highscore", creator);
+        t->addEventIn("startTime", VrmlField::SFTIME);
+        t->addEventIn("interimTime", VrmlField::SFTIME);
+        t->addEventIn("reset", VrmlField::SFTIME);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addEventIn("startTime", VrmlField::SFTIME);
-    t->addEventIn("interimTime", VrmlField::SFTIME);
-    t->addEventIn("reset", VrmlField::SFTIME);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeHighscore::nodeType() const
+const char *VrmlNodeHighscore::name()
 {
-    return defineType(0);
+    return "Highscore";
 }
 
 VrmlNodeHighscore::VrmlNodeHighscore(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     setModified();
 }
@@ -171,41 +167,13 @@ void VrmlNodeHighscore::addToScene(VrmlScene *, const char * /*relUrl*/)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeHighscore::VrmlNodeHighscore(const VrmlNodeHighscore &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
-}
-
-VrmlNodeHighscore::~VrmlNodeHighscore()
-{
-}
-
-VrmlNode *VrmlNodeHighscore::cloneMe() const
-{
-    return new VrmlNodeHighscore(*this);
 }
 
 VrmlNodeHighscore *VrmlNodeHighscore::toHighscore() const
 {
     return (VrmlNodeHighscore *)this;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeHighscore::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "startTime") == 0)
-    {
-        Highscore::instance()->setStartTime(fieldValue.toSFTime()->get());
-    }
-    if (strcmp(fieldName, "interimTime") == 0)
-    {
-        Highscore::instance()->setInterimTime(fieldValue.toSFTime()->get());
-    }
-    if (strcmp(fieldName, "reset") == 0)
-    {
-        Highscore::instance()->setResetTime(fieldValue.toSFTime()->get());
-    }
 }
 
 void VrmlNodeHighscore::eventIn(double timeStamp,
@@ -229,12 +197,6 @@ void VrmlNodeHighscore::eventIn(double timeStamp,
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
     }
-}
-
-const VrmlField *VrmlNodeHighscore::getField(const char *fieldName) const
-{
-    cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 Highscore *Highscore::myInstance = NULL;
@@ -278,7 +240,7 @@ bool Highscore::init()
     DriverName = new coTUIEditField("NoName", HighscoreTab->getID());
     DriverName->setPos(1, 22);
     DriverName->setEventListener(this);
-    VrmlNamespace::addBuiltIn(VrmlNodeHighscore::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeHighscore>());
     passedInterim = false;
     currentEntry = new HSEntry(this);
     load();

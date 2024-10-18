@@ -15,25 +15,24 @@
 #ifndef _VRMLNODEGEOMETRY_
 #define _VRMLNODEGEOMETRY_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "Viewer.h"
-
+#include <string>
 namespace vrml
 {
 
 class VRMLEXPORT VrmlNodeColor;
 
-class VRMLEXPORT VrmlNodeGeometry : public VrmlNode
+class VRMLEXPORT VrmlNodeGeometry : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of all built in geometry nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
+    static void initFields(VrmlNodeGeometry *node, VrmlNodeType *t);
 
-    VrmlNodeGeometry(VrmlScene *);
-    ~VrmlNodeGeometry();
+    VrmlNodeGeometry(VrmlScene *, const std::string &name);
 
-    virtual VrmlNodeGeometry *toGeometry() const override;
+    VrmlNodeGeometry *toGeometry() const override;
 
     // Geometry nodes need only define insertGeometry(), not render().
     virtual void render(Viewer *) override;

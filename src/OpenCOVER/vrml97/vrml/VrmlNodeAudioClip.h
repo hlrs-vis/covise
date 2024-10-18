@@ -16,7 +16,7 @@
 #ifndef _VRMLNODEAUDIOCLIP_
 #define _VRMLNODEAUDIOCLIP_
 
-#include "VrmlNode.h"
+#include "VrmlNodeTemplate.h"
 #include "VrmlMFString.h"
 #include "VrmlSFBool.h"
 #include "VrmlSFFloat.h"
@@ -30,20 +30,17 @@ namespace vrml
 class Audio;
 class Doc;
 
-class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
+class VRMLEXPORT VrmlNodeAudioClip : public VrmlNodeTemplate
 {
 
 public:
     // Define the fields of AudioClip nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeAudioClip *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeAudioClip(VrmlScene *);
     VrmlNodeAudioClip(const VrmlNodeAudioClip &);
     virtual ~VrmlNodeAudioClip();
-
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const;
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
@@ -51,11 +48,6 @@ public:
     virtual void update(VrmlSFTime &now);
 
     virtual VrmlNodeAudioClip *toAudioClip() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     const Audio *getAudio() const;
 

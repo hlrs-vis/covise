@@ -33,20 +33,15 @@ class VRMLEXPORT VrmlNodeMovieTexture : public VrmlNodeTexture
 
 public:
     // Define the fields of MovieTexture nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const override;
+    static void initFields(VrmlNodeMovieTexture *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMovieTexture(VrmlScene *);
     virtual ~VrmlNodeMovieTexture();
 
-    virtual VrmlNode *cloneMe() const override;
-
     virtual VrmlNodeMovieTexture *toMovieTexture() const override;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl) override;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent) override;
-
     void update(VrmlSFTime &now);
 
     virtual void render(Viewer *) override;
@@ -56,7 +51,6 @@ public:
                          const VrmlField *fieldValue) override;
 
     virtual const VrmlField *getField(const char *fieldName) const override;
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
 
     virtual int nComponents() override;
     virtual int width() override;

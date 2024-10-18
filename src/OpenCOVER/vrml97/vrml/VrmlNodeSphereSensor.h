@@ -32,21 +32,14 @@ class VRMLEXPORT VrmlNodeSphereSensor : public VrmlNodeChild
 
 public:
     // Define the fields of SphereSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSphereSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSphereSensor(VrmlScene *scene = 0);
-    virtual ~VrmlNodeSphereSensor();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual VrmlNodeSphereSensor *toSphereSensor() const;
 
-    virtual const VrmlField *getField(const char *fieldName) const;
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
+    virtual const VrmlField *getField(const char *fieldName) const override;
 
     void activate(double timeStamp, bool isActive, double *p);
 

@@ -37,22 +37,11 @@ class VRML97COVEREXPORT VrmlNodeClippingPlane : public VrmlNodeGroup
 {
 
 public:
-    // Define the fields of ARSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeClippingPlane *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeClippingPlane(VrmlScene *scene = 0);
     VrmlNodeClippingPlane(const VrmlNodeClippingPlane &n);
-    virtual ~VrmlNodeClippingPlane();
-
-    virtual VrmlNode *cloneMe() const;
-
-    //virtual VrmlNodeClippingPlane* toClippingPlane() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 

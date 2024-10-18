@@ -32,28 +32,22 @@ class VRMLEXPORT VrmlNodeTimeSensor : public VrmlNodeChild
 
 public:
     // Define the fields of TimeSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeTimeSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeTimeSensor(VrmlScene *scene = 0);
     virtual ~VrmlNodeTimeSensor();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeTimeSensor *toTimeSensor() const;
 
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     void update(VrmlSFTime &now);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual double getCycleInterval()
     {

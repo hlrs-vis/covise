@@ -21,6 +21,8 @@
 #include "VrmlSFNode.h"
 #include "VrmlMFInt.h"
 
+
+#include <array>
 namespace vrml
 {
 
@@ -29,13 +31,11 @@ class VRMLEXPORT VrmlNodeIFaceSet : public VrmlNodeIndexedSet
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeIFaceSet(VrmlScene *);
-    virtual ~VrmlNodeIFaceSet();
 
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual bool isModified() const;
@@ -46,12 +46,8 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual Viewer::Object insertGeometry(Viewer *v);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeIFaceSet *toIFaceSet() const;
 
@@ -110,28 +106,12 @@ protected:
     VrmlMFInt d_normalIndex;
     VrmlSFBool d_normalPerVertex;
     VrmlSFBool d_solid;
-    VrmlSFNode d_texCoord;
-    VrmlMFInt d_texCoordIndex;
 
     // additional fields for multi-texturing
-    VrmlSFNode d_texCoord2;
-    VrmlMFInt d_texCoordIndex2;
-    VrmlSFNode d_texCoord3;
-    VrmlMFInt d_texCoordIndex3;
-    VrmlSFNode d_texCoord4;
-    VrmlMFInt d_texCoordIndex4;
-    VrmlSFNode d_texCoord5;
-    VrmlMFInt d_texCoordIndex5;
-    VrmlSFNode d_texCoord6;
-    VrmlMFInt d_texCoordIndex6;
-    VrmlSFNode d_texCoord7;
-    VrmlMFInt d_texCoordIndex7;
-    VrmlSFNode d_texCoord8;
-    VrmlMFInt d_texCoordIndex8;
-    VrmlSFNode d_texCoord9;
-    VrmlMFInt d_texCoordIndex9;
-    VrmlSFNode d_texCoord10;
-    VrmlMFInt d_texCoordIndex10;
+    static const size_t MAX_TEXCOORDS = 10;
+    std::array<VrmlSFNode, MAX_TEXCOORDS> d_texCoords;
+    std::array<VrmlMFInt, MAX_TEXCOORDS> d_texCoordIndices;
+
 };
 }
 #endif // _VRMLNODEIFACESET_

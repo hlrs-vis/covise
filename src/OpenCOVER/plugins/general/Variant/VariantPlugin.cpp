@@ -90,7 +90,7 @@ VariantPlugin::VariantPlugin()
     }
 
     
-    VrmlNamespace::addBuiltIn(VrmlNodeVariant::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeVariant>());
 }
 //------------------------------------------------------------------------------------------------------------------------------
 

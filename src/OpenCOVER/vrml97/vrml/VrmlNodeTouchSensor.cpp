@@ -32,33 +32,26 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "TouchSensor" fields
 
-VrmlNodeType *VrmlNodeTouchSensor::defineType(VrmlNodeType *t)
+void VrmlNodeTouchSensor::initFields(VrmlNodeTouchSensor *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("enabled", node->d_enabled));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("TouchSensor", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("enabled", VrmlField::SFBOOL);
-    t->addEventOut("hitNormal_changed", VrmlField::SFVEC3F);
-    t->addEventOut("hitPoint_changed", VrmlField::SFVEC3F);
-    t->addEventOut("hitTexCoord_changed", VrmlField::SFVEC2F);
-    t->addEventOut("isOver", VrmlField::SFBOOL);
-    t->addEventOut("isActive", VrmlField::SFBOOL);
-    t->addEventOut("touchTime", VrmlField::SFTIME);
-
-    return t;
+        t->addEventOut("hitNormal_changed", VrmlField::SFVEC3F);
+        t->addEventOut("hitPoint_changed", VrmlField::SFVEC3F);
+        t->addEventOut("hitTexCoord_changed", VrmlField::SFVEC2F);
+        t->addEventOut("isOver", VrmlField::SFBOOL);
+        t->addEventOut("isActive", VrmlField::SFBOOL);
+        t->addEventOut("touchTime", VrmlField::SFTIME);
+    }                     
 }
 
-VrmlNodeType *VrmlNodeTouchSensor::nodeType() const { return defineType(0); }
+const char *VrmlNodeTouchSensor::name() { return "TouchSensor"; }
 
 VrmlNodeTouchSensor::VrmlNodeTouchSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_enabled(true)
     , d_isActive(false)
     , d_isOver(false)
@@ -68,25 +61,9 @@ VrmlNodeTouchSensor::VrmlNodeTouchSensor(VrmlScene *scene)
     forceTraversal(false);
 }
 
-VrmlNodeTouchSensor::~VrmlNodeTouchSensor()
-{
-}
-
-VrmlNode *VrmlNodeTouchSensor::cloneMe() const
-{
-    return new VrmlNodeTouchSensor(*this);
-}
-
 VrmlNodeTouchSensor *VrmlNodeTouchSensor::toTouchSensor() const
 {
     return (VrmlNodeTouchSensor *)this;
-}
-
-std::ostream &VrmlNodeTouchSensor::printFields(std::ostream &os, int indent)
-{
-    if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-    return os;
 }
 
 // Doesn't compute the xxx_changed eventOuts yet...
@@ -125,23 +102,4 @@ void VrmlNodeTouchSensor::activate(double timeStamp,
 
     // if (isOver && any routes from eventOuts)
     //   generate xxx_changed eventOuts...
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTouchSensor::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeTouchSensor::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-
-    return VrmlNodeChild::getField(fieldName);
 }

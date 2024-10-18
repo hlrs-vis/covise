@@ -27,51 +27,25 @@ static VrmlNode *creator(VrmlScene *scene)
 }
 
 // Define the built in VrmlNodeType:: "ScalarInterpolator" fields
-
-VrmlNodeType *VrmlNodeScalarInt::defineType(VrmlNodeType *t)
+void VrmlNodeScalarInt::initFields(VrmlNodeScalarInt *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ScalarInterpolator", creator);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::SFFLOAT);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFFLOAT);
-    t->addEventOut("value_changed", VrmlField::SFFLOAT);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeScalarInt::nodeType() const { return defineType(0); }
+const char *VrmlNodeScalarInt::name() { return "ScalarInterpolator"; }
+
 
 VrmlNodeScalarInt::VrmlNodeScalarInt(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodeScalarInt::~VrmlNodeScalarInt()
-{
-}
-
-VrmlNode *VrmlNodeScalarInt::cloneMe() const
-{
-    return new VrmlNodeScalarInt(*this);
-}
-
-std::ostream &VrmlNodeScalarInt::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodeScalarInt::eventIn(double timeStamp,
@@ -130,29 +104,6 @@ void VrmlNodeScalarInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeScalarInt::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeScalarInt::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 VrmlNodeScalarInt *VrmlNodeScalarInt::toScalarInt() const

@@ -29,41 +29,22 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeShape(s); }
 
 // Define the built in VrmlNodeType:: "Shape" fields
 
-VrmlNodeType *VrmlNodeShape::defineType(VrmlNodeType *t)
+void VrmlNodeShape::initFields(VrmlNodeShape *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Shape", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("appearance", VrmlField::SFNODE);
-    t->addExposedField("geometry", VrmlField::SFNODE);
-    t->addExposedField("effect", VrmlField::SFNODE);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("appearance", node->d_appearance),
+                     exposedField("geometry", node->d_geometry),
+                     exposedField("effect", node->d_effect));
 }
 
-VrmlNodeType *VrmlNodeShape::nodeType() const { return defineType(0); }
+const char *VrmlNodeShape::name() { return "Shape"; }
+
 
 VrmlNodeShape::VrmlNodeShape(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_viewerObject(0)
 {
-}
-
-VrmlNodeShape::~VrmlNodeShape()
-{
-    // need viewer to free d_viewerObject ...
-}
-
-VrmlNode *VrmlNodeShape::cloneMe() const
-{
-    return new VrmlNodeShape(*this);
 }
 
 void VrmlNodeShape::cloneChildren(VrmlNamespace *ns)
@@ -123,18 +104,6 @@ void VrmlNodeShape::copyRoutes(VrmlNamespace *ns)
     if (d_effect.get())
         d_effect.get()->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeShape::printFields(std::ostream &os, int indent)
-{
-    if (d_appearance.get())
-        PRINT_FIELD(appearance);
-    if (d_geometry.get())
-        PRINT_FIELD(geometry);
-    if (d_effect.get())
-        PRINT_FIELD(effect);
-
-    return os;
 }
 
 VrmlNodeShape *VrmlNodeShape::toShape() const
@@ -203,34 +172,6 @@ void VrmlNodeShape::render(Viewer *viewer)
     }
 
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeShape::setField(const char *fieldName,
-                             const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD(appearance, Appearance)
-    else if
-        TRY_SFNODE_FIELD(geometry, Geometry)
-    //else if TRY_SFNODE_FIELD(effect, Wave)
-    else if
-        TRY_FIELD(effect, SFNode)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeShape::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "appearance") == 0)
-        return &d_appearance;
-    else if (strcmp(fieldName, "geometry") == 0)
-        return &d_geometry;
-    else if (strcmp(fieldName, "effect") == 0)
-        return &d_effect;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 bool VrmlNodeShape::isOnlyGeometry() const

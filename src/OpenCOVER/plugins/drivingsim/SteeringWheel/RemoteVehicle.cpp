@@ -15,54 +15,36 @@
 #include "SteeringWheel.h"
 #include <OpenVRUI/osg/mathUtils.h>
 
-// Define the built in VrmlNodeType:: "SteeringWheel" fields
 
-static VrmlNode *creatorRemoteVehicle(VrmlScene *scene)
+void VrmlNodeRemoteVehicle::initFields(VrmlNodeRemoteVehicle *node, VrmlNodeType *t)
 {
-    if (VrmlNodeRemoteVehicle::instance())
-        return VrmlNodeRemoteVehicle::instance();
-    return new VrmlNodeRemoteVehicle(scene);
+    VrmlNodeChild::initFields(node, t); 
+    initFieldsHelper(node, t,
+                    exposedField("carRotation", node->d_carRotation),
+                    exposedField("carTranslation", node->d_carTranslation),
+                    exposedField("carBodyRotation", node->d_carBodyRotation),
+                    exposedField("carBodyTranslation", node->d_carBodyTranslation));
 }
 
-VrmlNodeType *VrmlNodeRemoteVehicle::defineType(VrmlNodeType *t)
+const char *VrmlNodeRemoteVehicle::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("RemoteVehicle", creatorRemoteVehicle);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    t->addExposedField("carRotation", VrmlField::SFROTATION);
-    t->addExposedField("carTranslation", VrmlField::SFVEC3F);
-    t->addExposedField("carBodyRotation", VrmlField::SFROTATION);
-    t->addExposedField("carBodyTranslation", VrmlField::SFVEC3F);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeRemoteVehicle::nodeType() const
-{
-    return defineType(0);
+    return "RemoteVehicle";
 }
 
 VrmlNodeRemoteVehicle::VrmlNodeRemoteVehicle(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_carRotation(1, 0, 0, 0)
     , d_carTranslation(0, 0, 0)
     , d_carBodyRotation(1, 0, 0, 0)
     , d_carBodyTranslation(0, 0, 0)
 {
     clearModified();
+    assert(!singleton);
     singleton = this;
 }
 
 VrmlNodeRemoteVehicle::VrmlNodeRemoteVehicle(const VrmlNodeRemoteVehicle &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_carRotation(n.d_carRotation)
     , d_carTranslation(n.d_carTranslation)
     , d_carBodyRotation(n.d_carBodyRotation)
@@ -72,60 +54,9 @@ VrmlNodeRemoteVehicle::VrmlNodeRemoteVehicle(const VrmlNodeRemoteVehicle &n)
     singleton = this;
 }
 
-VrmlNodeRemoteVehicle::~VrmlNodeRemoteVehicle()
-{
-}
-
-VrmlNode *VrmlNodeRemoteVehicle::cloneMe() const
-{
-    return new VrmlNodeRemoteVehicle(*this);
-}
-
 VrmlNodeRemoteVehicle *VrmlNodeRemoteVehicle::toRemoteVehicle() const
 {
     return (VrmlNodeRemoteVehicle *)this;
-}
-
-ostream &VrmlNodeRemoteVehicle::printFields(ostream &os, int indent)
-{
-    if (!d_carRotation.get())
-        PRINT_FIELD(carRotation);
-    if (!d_carTranslation.get())
-        PRINT_FIELD(carTranslation);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeRemoteVehicle::setField(const char *fieldName,
-                                     const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(carRotation, SFRotation)
-    else if
-        TRY_FIELD(carTranslation, SFVec3f)
-    else if
-        TRY_FIELD(carBodyRotation, SFRotation)
-    else if
-        TRY_FIELD(carBodyTranslation, SFVec3f)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeRemoteVehicle::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "carRotation") == 0)
-        return &d_carRotation;
-    else if (strcmp(fieldName, "carTranslation") == 0)
-        return &d_carTranslation;
-    else if (strcmp(fieldName, "carBodyRotation") == 0)
-        return &d_carBodyRotation;
-    else if (strcmp(fieldName, "carBodyTranslation") == 0)
-        return &d_carBodyTranslation;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeRemoteVehicle::eventIn(double timeStamp,

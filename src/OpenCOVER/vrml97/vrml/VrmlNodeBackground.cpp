@@ -35,42 +35,34 @@ static VrmlNode *creator(VrmlScene *scene)
 
 // Define the built in VrmlNodeType:: "Background" fields
 
-VrmlNodeType *VrmlNodeBackground::defineType(VrmlNodeType *t)
+void VrmlNodeBackground::initFields(VrmlNodeBackground *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    
+    initFieldsHelper(node, t,
+                     exposedField("groundAngle", node->d_groundAngle),
+                     exposedField("groundColor", node->d_groundColor),
+                     exposedField("backUrl", node->d_backUrl),
+                     exposedField("bottomUrl", node->d_bottomUrl),
+                     exposedField("frontUrl", node->d_frontUrl),
+                     exposedField("leftUrl", node->d_leftUrl),
+                     exposedField("rightUrl", node->d_rightUrl),
+                     exposedField("topUrl", node->d_topUrl),
+                     exposedField("skyAngle", node->d_skyAngle),
+                     exposedField("skyColor", node->d_skyColor));
+    
+    if (t)
     {
-        if (st)
-            return st; // Define the type once.
-        t = st = new VrmlNodeType("Background", creator);
+
+        t->addEventIn("set_bind", VrmlField::SFBOOL);
+        t->addEventOut("isBound", VrmlField::SFBOOL);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_bind", VrmlField::SFBOOL);
-
-    t->addExposedField("groundAngle", VrmlField::MFFLOAT);
-    t->addExposedField("groundColor", VrmlField::MFCOLOR);
-
-    t->addExposedField("backUrl", VrmlField::MFSTRING);
-    t->addExposedField("bottomUrl", VrmlField::MFSTRING);
-    t->addExposedField("frontUrl", VrmlField::MFSTRING);
-    t->addExposedField("leftUrl", VrmlField::MFSTRING);
-    t->addExposedField("rightUrl", VrmlField::MFSTRING);
-    t->addExposedField("topUrl", VrmlField::MFSTRING);
-
-    t->addExposedField("skyAngle", VrmlField::MFFLOAT);
-    t->addExposedField("skyColor", VrmlField::MFCOLOR);
-
-    t->addEventOut("isBound", VrmlField::SFBOOL);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeBackground::nodeType() const { return defineType(0); }
+const char *VrmlNodeBackground::name() { return "Background"; }
 
 VrmlNodeBackground::VrmlNodeBackground(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_viewerObject(0)
 {
     for (int i = 0; i < 6; ++i)
@@ -86,11 +78,6 @@ VrmlNodeBackground::~VrmlNodeBackground()
     // remove d_viewerObject...
 }
 
-VrmlNode *VrmlNodeBackground::cloneMe() const
-{
-    return new VrmlNodeBackground(*this);
-}
-
 VrmlNodeBackground *VrmlNodeBackground::toBackground() const
 {
     return (VrmlNodeBackground *)this;
@@ -101,32 +88,6 @@ void VrmlNodeBackground::addToScene(VrmlScene *s, const char *rel)
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addBackground(this);
     d_relativeUrl.set(rel);
-}
-
-std::ostream &VrmlNodeBackground::printFields(std::ostream &os, int indent)
-{
-    if (d_groundAngle.size())
-        PRINT_FIELD(groundAngle);
-    if (d_groundColor.size())
-        PRINT_FIELD(groundColor);
-    if (d_skyAngle.size())
-        PRINT_FIELD(skyAngle);
-    if (d_skyColor.size())
-        PRINT_FIELD(skyColor);
-    if (d_backUrl.get())
-        PRINT_FIELD(backUrl);
-    if (d_bottomUrl.get())
-        PRINT_FIELD(bottomUrl);
-    if (d_frontUrl.get())
-        PRINT_FIELD(frontUrl);
-    if (d_leftUrl.get())
-        PRINT_FIELD(leftUrl);
-    if (d_rightUrl.get())
-        PRINT_FIELD(rightUrl);
-    if (d_topUrl.get())
-        PRINT_FIELD(topUrl);
-
-    return os;
 }
 
 // Load and scale textures as needed.
@@ -303,59 +264,4 @@ void VrmlNodeBackground::eventIn(double timeStamp,
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeBackground::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(groundAngle, MFFloat)
-    else if
-        TRY_FIELD(groundColor, MFColor)
-    else if
-        TRY_FIELD(backUrl, MFString)
-    else if
-        TRY_FIELD(bottomUrl, MFString)
-    else if
-        TRY_FIELD(frontUrl, MFString)
-    else if
-        TRY_FIELD(leftUrl, MFString)
-    else if
-        TRY_FIELD(rightUrl, MFString)
-    else if
-        TRY_FIELD(topUrl, MFString)
-    else if
-        TRY_FIELD(skyAngle, MFFloat)
-    else if
-        TRY_FIELD(skyColor, MFColor)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeBackground::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "groundAngle") == 0)
-        return &d_groundAngle;
-    else if (strcmp(fieldName, "groundColor") == 0)
-        return &d_groundColor;
-    else if (strcmp(fieldName, "backUrl") == 0)
-        return &d_backUrl;
-    else if (strcmp(fieldName, "bottomUrl") == 0)
-        return &d_bottomUrl;
-    else if (strcmp(fieldName, "frontUrl") == 0)
-        return &d_frontUrl;
-    else if (strcmp(fieldName, "leftUrl") == 0)
-        return &d_leftUrl;
-    else if (strcmp(fieldName, "rightUrl") == 0)
-        return &d_rightUrl;
-    else if (strcmp(fieldName, "topUrl") == 0)
-        return &d_topUrl;
-    else if (strcmp(fieldName, "skyAngle") == 0)
-        return &d_skyAngle;
-    else if (strcmp(fieldName, "skyColor") == 0)
-        return &d_skyColor;
-
-    return VrmlNodeChild::getField(fieldName);
 }

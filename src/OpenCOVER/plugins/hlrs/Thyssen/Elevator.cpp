@@ -20,38 +20,21 @@ version 2.1 or later, see lgpl-2.1.txt.
 using namespace covise;
 
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeElevator::initFields(VrmlNodeElevator *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeElevator(scene);
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t, 
+        exposedField("landingHeights", node->d_landingHeights),
+        exposedField("shaftPositions", node->d_shaftPositions));
 }
 
-// Define the built in VrmlNodeType:: "Elevator" fields
-
-VrmlNodeType *VrmlNodeElevator::defineType(VrmlNodeType *t)
+const char *VrmlNodeElevator::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Elevator", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("landingHeights", VrmlField::MFFLOAT);
-    t->addExposedField("shaftPositions", VrmlField::MFFLOAT);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeElevator::nodeType() const
-{
-    return defineType(0);
+    return "Elevator";
 }
 
 VrmlNodeElevator::VrmlNodeElevator(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
 {
     setModified();
     elevatorTab = new coTUITab("Elevator", coVRTui::instance()->mainFolder->getID());
@@ -59,19 +42,10 @@ VrmlNodeElevator::VrmlNodeElevator(VrmlScene *scene)
 }
 
 VrmlNodeElevator::VrmlNodeElevator(const VrmlNodeElevator &n)
-    : VrmlNodeGroup(n.d_scene)
+    : VrmlNodeGroup(n)
 {
     setModified();
     elevatorTab = n.elevatorTab;
-}
-
-VrmlNodeElevator::~VrmlNodeElevator()
-{
-}
-
-VrmlNode *VrmlNodeElevator::cloneMe() const
-{
-    return new VrmlNodeElevator(*this);
 }
 
 VrmlNodeElevator *VrmlNodeElevator::toElevator() const
@@ -79,131 +53,101 @@ VrmlNodeElevator *VrmlNodeElevator::toElevator() const
     return (VrmlNodeElevator *)this;
 }
 
-ostream &VrmlNodeElevator::printFields(ostream &os, int indent)
+void VrmlNodeElevator::childrenChanged()
 {
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeElevator::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(landingHeights, MFFloat)
-    else if
-        TRY_FIELD(shaftPositions, MFFloat)
-    else
-    VrmlNodeGroup::setField(fieldName, fieldValue);
     
-    if(strcmp(fieldName,"children")==0)
+    stations.resize(d_landingHeights.size()*d_shaftPositions.size());
+    exchangers.resize(d_landingHeights.size()*d_shaftPositions.size());
+    landings.resize(d_landingHeights.size()*d_shaftPositions.size());
+    for(int i=0;i<stations.size();i++)
     {
-        
-        stations.resize(d_landingHeights.size()*d_shaftPositions.size());
-        exchangers.resize(d_landingHeights.size()*d_shaftPositions.size());
-        landings.resize(d_landingHeights.size()*d_shaftPositions.size());
-        for(int i=0;i<stations.size();i++)
-        {
-            stations[i].car=NULL;
-            exchangers[i]=NULL;
-            landings[i]=NULL;
-        }
-        for(int i=0;i<d_landingHeights.size();i++)
-        {
-            hShafts.push_back(new Rail);
-        }
-        for(int i=0;i<d_shaftPositions.size();i++)
-        {
-            shafts.push_back(new Rail);
-        }
+        stations[i].car=NULL;
+        exchangers[i]=NULL;
+        landings[i]=NULL;
+    }
+    for(int i=0;i<d_landingHeights.size();i++)
+    {
+        hShafts.push_back(new Rail);
+    }
+    for(int i=0;i<d_shaftPositions.size();i++)
+    {
+        shafts.push_back(new Rail);
+    }
 
-        for(int i=0;i<d_children.size();i++)
+    for(int i=0;i<d_children.size();i++)
+    {
+        VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
+        if(car)
         {
-            VrmlNodeCar *car = dynamic_cast<VrmlNodeCar *>(d_children[i]);
-            if(car)
+            if(car->d_carNumber.get() >= cars.size())
             {
-                if(car->d_carNumber.get() >= cars.size())
-                {
-                    cars.resize(car->d_carNumber.get()+1);
-                }
-                cars[car->d_carNumber.get()] = car;
-                car->setElevator(this);
+                cars.resize(car->d_carNumber.get()+1);
             }
-            VrmlNodeExchanger *exchanger = dynamic_cast<VrmlNodeExchanger *>(d_children[i]);
-            if(exchanger)
-            {
-                if(exchanger->d_LandingNumber.get() >= exchangers.size())
-                {
-                    exchangers.resize(exchanger->d_LandingNumber.get()+1);
-                    int oldSize=exchangers.size();
-                    int newSize=exchanger->d_LandingNumber.get()+1;
-                    exchangers.resize(newSize);
-                    for(int i=oldSize;i<newSize;i++)
-                    {
-                        exchangers[i]=NULL;
-                    }
-                }
-                exchangers[exchanger->d_LandingNumber.get()] = exchanger;
-                exchanger->setElevator(this);
-            }
-            VrmlNodeLanding *landing = dynamic_cast<VrmlNodeLanding *>(d_children[i]);
-            if(landing)
-            {
-                if(landing->d_LandingNumber.get() >= landings.size())
-                {
-                    int oldSize=landings.size();
-                    int newSize=landing->d_LandingNumber.get()+1;
-                    landings.resize(newSize);
-                    for(int i=oldSize;i<newSize;i++)
-                    {
-                        landings[i]=NULL;
-                    }
-                }
-                landings[landing->d_LandingNumber.get()] = landing;
-                landing->setElevator(this);
-            }
+            cars[car->d_carNumber.get()] = car;
+            car->setElevator(this);
         }
-        //assign cars to exchangers
-        for(int i=0;i<cars.size();i++)
+        VrmlNodeExchanger *exchanger = dynamic_cast<VrmlNodeExchanger *>(d_children[i]);
+        if(exchanger)
         {
-            if(cars[i])
+            if(exchanger->d_LandingNumber.get() >= exchangers.size())
             {
-                int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
-                if(exchangers.size() > station && exchangers[station] !=NULL)
+                exchangers.resize(exchanger->d_LandingNumber.get()+1);
+                int oldSize=exchangers.size();
+                int newSize=exchanger->d_LandingNumber.get()+1;
+                exchangers.resize(newSize);
+                for(int i=oldSize;i<newSize;i++)
                 {
-                    exchangers[station]->setCar(cars[i]);
-                }
-            }if(cars[i])
-            {
-                int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
-                if(landings.size() > station && landings[station] !=NULL)
-                {
-                    landings[station]->setCar(cars[i]);
+                    exchangers[i]=NULL;
                 }
             }
+            exchangers[exchanger->d_LandingNumber.get()] = exchanger;
+            exchanger->setElevator(this);
         }
-        
-        for(int i=0;i<stations.size();i++)
+        VrmlNodeLanding *landing = dynamic_cast<VrmlNodeLanding *>(d_children[i]);
+        if(landing)
         {
-            
-            int landing = i % d_landingHeights.size();
-            int shaft = i / d_landingHeights.size();
-            stations[i].setX(d_shaftPositions[shaft]);
-            stations[i].setY(d_landingHeights[landing]);
+            if(landing->d_LandingNumber.get() >= landings.size())
+            {
+                int oldSize=landings.size();
+                int newSize=landing->d_LandingNumber.get()+1;
+                landings.resize(newSize);
+                for(int i=oldSize;i<newSize;i++)
+                {
+                    landings[i]=NULL;
+                }
+            }
+            landings[landing->d_LandingNumber.get()] = landing;
+            landing->setElevator(this);
         }
     }
-}
-
-const VrmlField *VrmlNodeElevator::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "landingHeights") == 0)
-        return &d_landingHeights;
-    else if (strcmp(fieldName, "shaftPositions") == 0)
-        return &d_shaftPositions;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
+    //assign cars to exchangers
+    for(int i=0;i<cars.size();i++)
+    {
+        if(cars[i])
+        {
+            int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
+            if(exchangers.size() > station && exchangers[station] !=NULL)
+            {
+                exchangers[station]->setCar(cars[i]);
+            }
+        }if(cars[i])
+        {
+            int station = cars[i]->d_stationList[cars[i]->d_currentStationIndex.get()];
+            if(landings.size() > station && landings[station] !=NULL)
+            {
+                landings[station]->setCar(cars[i]);
+            }
+        }
+    }
+    
+    for(int i=0;i<stations.size();i++)
+    {
+        
+        int landing = i % d_landingHeights.size();
+        int shaft = i / d_landingHeights.size();
+        stations[i].setX(d_shaftPositions[shaft]);
+        stations[i].setY(d_landingHeights[landing]);
+    }
 }
 
 void VrmlNodeElevator::eventIn(double timeStamp,

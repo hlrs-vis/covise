@@ -1489,7 +1489,7 @@ bool RevitPlugin::init()
 	currentGroup.push(revitGroup.get());
 	cover->getObjectsRoot()->addChild(revitGroup.get());
 	createMenu();
-	VrmlNamespace::addBuiltIn(VrmlNodePhases::defineType());
+	VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodePhases>());
 
 
 	return true;

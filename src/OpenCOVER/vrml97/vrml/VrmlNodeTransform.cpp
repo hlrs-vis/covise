@@ -22,31 +22,22 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeTransform(s); }
 
 // Define the built in VrmlNodeType:: "Transform" fields
 
-VrmlNodeType *VrmlNodeTransform::defineType(VrmlNodeType *t)
+void VrmlNodeTransform::initFields(VrmlNodeTransform *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Transform", creator);
-    }
-
-    VrmlNodeGroup::defineType(t); // Parent class
-    t->addExposedField("center", VrmlField::SFVEC3F);
-    t->addExposedField("rotation", VrmlField::SFROTATION);
-    t->addExposedField("scale", VrmlField::SFVEC3F);
-    t->addExposedField("scaleOrientation", VrmlField::SFROTATION);
-    t->addExposedField("translation", VrmlField::SFVEC3F);
-
-    return t;
+    VrmlNodeGroup::initFields(node, t);
+    initFieldsHelper(node, t,
+        exposedField("center", node->d_center),
+        exposedField("rotation", node->d_rotation),
+        exposedField("scale", node->d_scale),
+        exposedField("scaleOrientation", node->d_scaleOrientation),
+        exposedField("translation", node->d_translation)
+    );
 }
 
-VrmlNodeType *VrmlNodeTransform::nodeType() const { return defineType(0); }
+const char *VrmlNodeTransform::name() { return "Transform"; }
 
 VrmlNodeTransform::VrmlNodeTransform(VrmlScene *scene)
-    : VrmlNodeGroup(scene)
+    : VrmlNodeGroup(scene, name())
     , d_center(0.0, 0.0, 0.0)
     , d_rotation(0.0, 0.0, 1.0, 0.0)
     , d_scale(1.0, 1.0, 1.0)
@@ -55,11 +46,6 @@ VrmlNodeTransform::VrmlNodeTransform(VrmlScene *scene)
     , d_xformObject(0)
 {
     d_modified = true;
-}
-
-VrmlNodeTransform::~VrmlNodeTransform()
-{
-    // delete d_xformObject...
 }
 
 //LarryD Feb24/99
@@ -96,28 +82,6 @@ const VrmlSFRotation &VrmlNodeTransform::getScaleOrientation() const
 const VrmlSFVec3f &VrmlNodeTransform::getTranslation() const
 {
     return d_translation;
-}
-
-VrmlNode *VrmlNodeTransform::cloneMe() const
-{
-    return new VrmlNodeTransform(*this);
-}
-
-std::ostream &VrmlNodeTransform::printFields(std::ostream &os, int indent)
-{
-    if (!FPZERO(d_center.x()) || !FPZERO(d_center.y()) || !FPZERO(d_center.z()))
-        PRINT_FIELD(center);
-    if (!FPZERO(d_rotation.x()) || !FPZERO(d_rotation.y()) || !FPEQUAL(d_rotation.z(), 1.0) || !FPZERO(d_rotation.r()))
-        PRINT_FIELD(rotation);
-    if (!FPEQUAL(d_scale.x(), 1.0) || !FPEQUAL(d_scale.y(), 1.0) || !FPEQUAL(d_scale.z(), 1.0))
-        PRINT_FIELD(scale);
-    if (!FPZERO(d_scaleOrientation.x()) || !FPZERO(d_scaleOrientation.y()) || !FPEQUAL(d_scaleOrientation.z(), 1.0) || !FPZERO(d_scaleOrientation.r()))
-        PRINT_FIELD(scaleOrientation);
-    if (!FPZERO(d_translation.x()) || !FPZERO(d_translation.y()) || !FPZERO(d_translation.z()))
-        PRINT_FIELD(translation);
-
-    VrmlNodeGroup::printFields(os, indent);
-    return os;
 }
 
 void VrmlNodeTransform::render(Viewer *viewer)
@@ -158,42 +122,6 @@ void VrmlNodeTransform::render(Viewer *viewer)
     }
 
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeTransform::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(center, SFVec3f)
-    else if
-        TRY_FIELD(rotation, SFRotation)
-    else if
-        TRY_FIELD(scale, SFVec3f)
-    else if
-        TRY_FIELD(scaleOrientation, SFRotation)
-    else if
-        TRY_FIELD(translation, SFVec3f)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-    d_modified = true;
-}
-
-const VrmlField *VrmlNodeTransform::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "center") == 0)
-        return &d_center;
-    else if (strcmp(fieldName, "rotation") == 0)
-        return &d_rotation;
-    else if (strcmp(fieldName, "scale") == 0)
-        return &d_scale;
-    else if (strcmp(fieldName, "scaleOrientation") == 0)
-        return &d_scaleOrientation;
-    else if (strcmp(fieldName, "translation") == 0)
-        return &d_translation;
-
-    return VrmlNodeGroup::getField(fieldName);
 }
 
 // Cache a pointer to (one of the) parent transforms for proper

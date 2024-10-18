@@ -30,13 +30,11 @@ class VRMLEXPORT VrmlNodeSwitch : public VrmlNodeChild
 
 public:
     // Define the fields of all built in switch nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSwitch *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSwitch(VrmlScene *);
-    virtual ~VrmlNodeSwitch();
 
-    virtual VrmlNode *cloneMe() const;
     void cloneChildren(VrmlNamespace *);
 
     virtual VrmlNodeSwitch *toSwitch() const; //LarryD
@@ -49,12 +47,7 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
 
     virtual void accumulateTransform(VrmlNode *parent);
 

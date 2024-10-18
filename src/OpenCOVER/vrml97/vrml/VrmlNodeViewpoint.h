@@ -35,28 +35,19 @@ class VRMLEXPORT VrmlNodeViewpoint : public VrmlNodeChild
 
 public:
     bool lastBind;
-
-    // Define the fields of Viewpoint nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeViewpoint *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeViewpoint(VrmlScene *);
     virtual ~VrmlNodeViewpoint();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeViewpoint *toViewpoint() const;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void accumulateTransform(VrmlNode *);
     virtual VrmlNode *getParentTransform();

@@ -61,13 +61,11 @@ class PLUGINEXPORT VrmlNodeBillboardSwitch : public VrmlNodeBillboard
 
 public:
     // Define the fields of BillboardSwitch nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeBillboardSwitch *node, vrml::VrmlNodeType *t);
+    static const char *name(); 
 
     VrmlNodeBillboardSwitch(VrmlScene *);
-    virtual ~VrmlNodeBillboardSwitch();
 
-    virtual VrmlNode *cloneMe() const;
     virtual VrmlNodeBillboardSwitch *toBillboardSwitch() const;
     void cloneChildren(VrmlNamespace *);
 
@@ -82,7 +80,6 @@ public:
     virtual void accumulateTransform(VrmlNode *);
     virtual VrmlNode *getParentTransform();
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     const VrmlField *getField(const char *fieldName) const;
 
     virtual void clearFlags();

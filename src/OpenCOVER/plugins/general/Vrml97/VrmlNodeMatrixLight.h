@@ -37,22 +37,15 @@ class VRML97COVEREXPORT VrmlNodeMatrixLight : public VrmlNodeChild
 
 public:
     // Define the fields of MatrixLight nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMatrixLight *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMatrixLight(VrmlScene *scene = 0);
     VrmlNodeMatrixLight(const VrmlNodeMatrixLight &n);
     virtual ~VrmlNodeMatrixLight();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNode *cloneMe() const;
-
     virtual VrmlNodeMatrixLight *toMatrixLight() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
     

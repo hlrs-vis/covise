@@ -17,47 +17,19 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeMultiTextureCoordinate::initFields(VrmlNodeMultiTextureCoordinate *node, VrmlNodeType *t)
 {
-    return new VrmlNodeMultiTextureCoordinate(s);
+    initFieldsHelper(node, t, exposedField("texCoord", node->d_texCoord));
 }
 
-// Define the built in VrmlNodeType:: "MultiTextureCoordinate" fields
-
-VrmlNodeType *VrmlNodeMultiTextureCoordinate::defineType(VrmlNodeType *t)
+const char *VrmlNodeMultiTextureCoordinate::name()
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("MultiTextureCoordinate", creator);
-    }
-
-    VrmlNode::defineType(t); // Parent class
-    t->addExposedField("texCoord", VrmlField::MFNODE);
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeMultiTextureCoordinate::nodeType() const
-{
-    return defineType(0);
+    return "MultiTextureCoordinate";
 }
 
 VrmlNodeMultiTextureCoordinate::VrmlNodeMultiTextureCoordinate(VrmlScene *scene)
-    : VrmlNode(scene)
+    : VrmlNodeTemplate(scene, name())
 {
-}
-
-VrmlNodeMultiTextureCoordinate::~VrmlNodeMultiTextureCoordinate()
-{
-}
-
-VrmlNode *VrmlNodeMultiTextureCoordinate::cloneMe() const
-{
-    return new VrmlNodeMultiTextureCoordinate(*this);
 }
 
 void VrmlNodeMultiTextureCoordinate::cloneChildren(VrmlNamespace *ns)
@@ -97,30 +69,4 @@ void VrmlNodeMultiTextureCoordinate::copyRoutes(VrmlNamespace *ns)
 VrmlNodeMultiTextureCoordinate *VrmlNodeMultiTextureCoordinate::toMultiTextureCoordinate() const
 {
     return (VrmlNodeMultiTextureCoordinate *)this;
-}
-
-std::ostream &VrmlNodeMultiTextureCoordinate::printFields(std::ostream &os, int indent)
-{
-    if (d_texCoord.size() > 0)
-        PRINT_FIELD(texCoord);
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeMultiTextureCoordinate::setField(const char *fieldName,
-                                              const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(texCoord, MFNode)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeMultiTextureCoordinate::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "texCoord") == 0)
-        return &d_texCoord;
-
-    return VrmlNode::getField(fieldName);
 }

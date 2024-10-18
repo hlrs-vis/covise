@@ -21,7 +21,8 @@ ToolChanger/Tool.h
 ToolChanger/ToolChanger.h
 ToolChanger/Utility.h
 ToolMachine.h
-VrmlNode.h
+VrmlMachine.h
+VrmlToolChanger.h
 )
 
 SET(SOURCES
@@ -37,9 +38,10 @@ ToolChanger/Tool.cpp
 ToolChanger/ToolChanger.cpp
 ToolChanger/Utility.cpp
 ToolMachine.cpp
-VrmlNode.cpp
+VrmlMachine.cpp
+VrmlToolChanger.cpp
 )
 
 cover_add_plugin(ToolMachine)
-target_link_libraries(ToolMachine coOpenOpcUaClient exprtk)
+target_link_libraries(ToolMachine coOpenOpcUaClient exprtk coPointerUtil)
 

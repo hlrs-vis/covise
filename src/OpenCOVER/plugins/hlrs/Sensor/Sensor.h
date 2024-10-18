@@ -101,39 +101,21 @@ class PLUGINEXPORT VrmlNodeSensor : public VrmlNodeChild
 {
 public:
     // Define the fields of Sensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSensor *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSensor(VrmlScene *scene = 0);
     VrmlNodeSensor(const VrmlNodeSensor &n);
 
-    VrmlSFTime d_sensor1;
-    VrmlSFTime d_sensor2;
-    VrmlSFTime d_sensor3;
-    VrmlSFTime d_sensor4;
-    VrmlSFTime d_sensor5;
-    VrmlSFTime d_sensor6;
-    VrmlSFTime d_sensor7;
-    VrmlSFTime d_sensor8;
-    VrmlSFTime d_sensor9;
-    VrmlSFTime d_sensor10;
-    VrmlSFTime d_sensor11;
-    VrmlSFTime d_sensor12;
-    VrmlSFTime d_sensor13;
-    VrmlSFTime d_sensor14;
-    VrmlSFTime d_sensor15;
-    VrmlSFTime d_sensor16;
+    static const size_t numSensors = 16;
+    std::array<VrmlSFTime, numSensors> d_sensor;
+
     VrmlSFBool d_enabled;
     virtual ~VrmlNodeSensor();
 
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeSensor *toSensor() const;
 
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

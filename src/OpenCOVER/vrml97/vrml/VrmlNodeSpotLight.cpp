@@ -25,32 +25,23 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeSpotLight(s); }
 
 // Define the built in VrmlNodeType:: "SpotLight" fields
 
-VrmlNodeType *VrmlNodeSpotLight::defineType(VrmlNodeType *t)
+void VrmlNodeSpotLight::initFields(VrmlNodeSpotLight *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("SpotLight", creator);
-    }
-
-    VrmlNodeLight::defineType(t); // Parent class
-    t->addExposedField("attenuation", VrmlField::SFVEC3F);
-    t->addExposedField("beamWidth", VrmlField::SFFLOAT);
-    t->addExposedField("cutOffAngle", VrmlField::SFFLOAT);
-    t->addExposedField("direction", VrmlField::SFVEC3F);
-    t->addExposedField("location", VrmlField::SFVEC3F);
-    t->addExposedField("radius", VrmlField::SFFLOAT);
-
-    return t;
+    VrmlNodeLight::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("attenuation", node->d_attenuation),
+                     exposedField("beamWidth", node->d_beamWidth),
+                     exposedField("cutOffAngle", node->d_cutOffAngle),
+                     exposedField("direction", node->d_direction),
+                     exposedField("location", node->d_location),
+                     exposedField("radius", node->d_radius));
 }
 
-VrmlNodeType *VrmlNodeSpotLight::nodeType() const { return defineType(0); }
+const char *VrmlNodeSpotLight::name() { return "SpotLight"; }
+
 
 VrmlNodeSpotLight::VrmlNodeSpotLight(VrmlScene *scene)
-    : VrmlNodeLight(scene)
+    : VrmlNodeLight(scene, name())
     , d_attenuation(1.0f, 0.0f, 0.0f)
     , d_beamWidth(1.570796f)
     , d_cutOffAngle(0.785398f)
@@ -69,11 +60,6 @@ VrmlNodeSpotLight::~VrmlNodeSpotLight()
         d_scene->removeScopedLight(this);
 }
 
-VrmlNode *VrmlNodeSpotLight::cloneMe() const
-{
-    return new VrmlNodeSpotLight(*this);
-}
-
 VrmlNodeSpotLight *VrmlNodeSpotLight::toSpotLight() const
 {
     return (VrmlNodeSpotLight *)this;
@@ -83,28 +69,6 @@ void VrmlNodeSpotLight::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)
         d_scene->addScopedLight(this);
-}
-
-std::ostream &VrmlNodeSpotLight::printFields(std::ostream &os, int indent)
-{
-    VrmlNodeLight::printFields(os, indent);
-    if (!FPEQUAL(d_attenuation.x(), 1.0) || !FPZERO(d_attenuation.y()) || !FPZERO(d_attenuation.z()))
-        PRINT_FIELD(attenuation);
-    if (!FPEQUAL(d_beamWidth.get(), 1.570796))
-        PRINT_FIELD(beamWidth);
-
-    if (!FPEQUAL(d_cutOffAngle.get(), 1.570796))
-        PRINT_FIELD(cutOffAngle);
-    if (!FPZERO(d_direction.x()) || !FPZERO(d_direction.y()) || !FPEQUAL(d_direction.z(), -1.0))
-        PRINT_FIELD(direction);
-
-    if (!FPZERO(d_location.x()) || !FPZERO(d_location.y()) || !FPZERO(d_location.z()))
-        PRINT_FIELD(location);
-
-    if (!FPEQUAL(d_radius.get(), 100.0))
-        PRINT_FIELD(radius);
-
-    return os;
 }
 
 // This should be called before rendering any geometry in the scene.
@@ -143,45 +107,6 @@ void VrmlNodeSpotLight::render(Viewer *viewer)
     viewer->endObject();
 }
 
-// Set the value of one of the node fields.
-
-void VrmlNodeSpotLight::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(attenuation, SFVec3f)
-    else if
-        TRY_FIELD(beamWidth, SFFloat)
-    else if
-        TRY_FIELD(cutOffAngle, SFFloat)
-    else if
-        TRY_FIELD(direction, SFVec3f)
-    else if
-        TRY_FIELD(location, SFVec3f)
-    else if
-        TRY_FIELD(radius, SFFloat)
-    else
-        VrmlNodeLight::setField(fieldName, fieldValue);
-    setModified();
-}
-
-const VrmlField *VrmlNodeSpotLight::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "attenuation") == 0)
-        return &d_attenuation;
-    else if (strcmp(fieldName, "beamWidth") == 0)
-        return &d_beamWidth;
-    else if (strcmp(fieldName, "cutOffAngle") == 0)
-        return &d_cutOffAngle;
-    else if (strcmp(fieldName, "direction") == 0)
-        return &d_direction;
-    else if (strcmp(fieldName, "location") == 0)
-        return &d_location;
-    else if (strcmp(fieldName, "radius") == 0)
-        return &d_radius;
-
-    return VrmlNodeLight::getField(fieldName);
-}
 
 // LarryD Mar 04/99
 const VrmlSFVec3f &VrmlNodeSpotLight::getAttenuation() const

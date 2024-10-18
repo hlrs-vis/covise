@@ -34,22 +34,14 @@ class VRMLEXPORT VrmlNodeColorInt : public VrmlNodeChild
 
 public:
     // Define the fields of ColorInt nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeColorInt *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeColorInt(VrmlScene *scene = 0);
-    virtual ~VrmlNodeColorInt();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
 private:
     // Fields

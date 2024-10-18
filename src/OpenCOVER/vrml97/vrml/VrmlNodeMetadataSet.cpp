@@ -19,42 +19,17 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeMetadataSet(s); }
-
-// Define the built in VrmlNodeType:: "MetadataSet" fields
-
-VrmlNodeType *VrmlNodeMetadataSet::defineType(VrmlNodeType *t)
+void VrmlNodeMetadataSet::initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("MetadataSet", creator);
-    }
-
-    VrmlNodeMetadata::defineType(t); // Parent class
-
-    t->addExposedField("value", VrmlField::MFNODE);
-
-    return t;
+    VrmlNodeMetadata::initFields(node, t);
+    initFieldsHelper(node, t, exposedField("value", node->d_value));
 }
 
-VrmlNodeType *VrmlNodeMetadataSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeMetadataSet::name() { return "MetadataSet"; }
 
 VrmlNodeMetadataSet::VrmlNodeMetadataSet(VrmlScene *scene)
-    : VrmlNodeMetadata(scene)
+    : VrmlNodeMetadata(scene, name())
 {
-}
-
-VrmlNodeMetadataSet::~VrmlNodeMetadataSet()
-{
-}
-
-VrmlNode *VrmlNodeMetadataSet::cloneMe() const
-{
-    return new VrmlNodeMetadataSet(*this);
 }
 
 void VrmlNodeMetadataSet::cloneChildren(VrmlNamespace *ns)
@@ -131,41 +106,6 @@ void VrmlNodeMetadataSet::copyRoutes(VrmlNamespace *ns)
         if (d_value[i])
             d_value[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-std::ostream &VrmlNodeMetadataSet::printFields(std::ostream &os, int indent)
-{
-    if (!d_value.get())
-        PRINT_FIELD(value);
-
-    VrmlNodeMetadata::printFields(os, indent);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeMetadataSet::setField(const char *fieldName,
-                                   const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "value") == 0)
-    {
-        if (fieldValue.toMFNode())
-            d_value = (VrmlMFNode &)fieldValue;
-        else
-            System::the->error("Invalid type (%s) for %s field of %s node (expected %s).\n",
-                               fieldValue.fieldTypeName(), "value", nodeType()->getName(), "MFNode");
-    }
-    else
-        VrmlNodeMetadata::setField(fieldName, fieldValue);
-    d_modified = true;
-}
-
-const VrmlField *VrmlNodeMetadataSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "value") == 0)
-        return &d_value;
-    return VrmlNodeMetadata::getField(fieldName);
 }
 
 VrmlNodeMetadataSet *VrmlNodeMetadataSet::toMetadataSet() const

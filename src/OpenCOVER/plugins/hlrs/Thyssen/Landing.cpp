@@ -17,92 +17,39 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 using namespace covise;
 
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeLanding::initFields(VrmlNodeLanding *node, VrmlNodeType *t)
 {
-    return new VrmlNodeLanding(scene);
-}
-
-// Define the built in VrmlNodeType:: "Landing" fields
-
-VrmlNodeType *VrmlNodeLanding::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t, exposedField("LandingNumber", node->d_LandingNumber));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Landing", creator);
+        t->addEventOut("doorClose", VrmlField::SFTIME);
+        t->addEventOut("doorOpen", VrmlField::SFTIME);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-    
-    t->addExposedField("LandingNumber", VrmlField::SFINT32);
-    t->addEventOut("doorClose", VrmlField::SFTIME);
-    t->addEventOut("doorOpen", VrmlField::SFTIME);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeLanding::nodeType() const
+const char *VrmlNodeLanding::name()
 {
-    return defineType(0);
+    return "Landing";
 }
 
 VrmlNodeLanding::VrmlNodeLanding(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     state=Uninitialized;
     currentCar = NULL;
 }
 
 VrmlNodeLanding::VrmlNodeLanding(const VrmlNodeLanding &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     state=Uninitialized;
     currentCar = NULL;
 }
 
-VrmlNodeLanding::~VrmlNodeLanding()
-{
-}
-
-VrmlNode *VrmlNodeLanding::cloneMe() const
-{
-    return new VrmlNodeLanding(*this);
-}
-
 VrmlNodeLanding *VrmlNodeLanding::toLanding() const
 {
     return (VrmlNodeLanding *)this;
-}
-
-ostream &VrmlNodeLanding::printFields(ostream &os, int indent)
-{
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeLanding::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(LandingNumber, SFInt)
-    else
-    VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeLanding::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "LandingNumber") == 0)
-        return &d_LandingNumber;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeLanding::eventIn(double timeStamp,

@@ -17,44 +17,29 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 using namespace covise;
 
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeExchanger::initFields(VrmlNodeExchanger *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeExchanger(scene);
-}
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("LandingNumber", node->d_LandingNumber));
 
-// Define the built in VrmlNodeType:: "Exchanger" fields
-
-VrmlNodeType *VrmlNodeExchanger::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Exchanger", creator);
-    }
+        t->addEventOut("Fraction", VrmlField::SFFLOAT);
+        t->addEventOut("Rotation", VrmlField::SFROTATION);
+        t->addEventOut("Unlock", VrmlField::SFTIME);
+        t->addEventOut("Lock", VrmlField::SFTIME);        
+    }                     
 
-    VrmlNodeChild::defineType(t); // Parent class
-
-    
-    t->addExposedField("LandingNumber", VrmlField::SFINT32);
-    t->addEventOut("Fraction", VrmlField::SFFLOAT);
-	t->addEventOut("Rotation", VrmlField::SFROTATION);
-	t->addEventOut("Unlock", VrmlField::SFTIME);
-	t->addEventOut("Lock", VrmlField::SFTIME);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeExchanger::nodeType() const
+const char *VrmlNodeExchanger::name()
 {
-    return defineType(0);
+    return "Exchanger";
 }
 
 VrmlNodeExchanger::VrmlNodeExchanger(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     state=Uninitialized;
     aaMax = 0.3;
@@ -66,7 +51,7 @@ VrmlNodeExchanger::VrmlNodeExchanger(VrmlScene *scene)
 }
 
 VrmlNodeExchanger::VrmlNodeExchanger(const VrmlNodeExchanger &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     state=Uninitialized;
     aaMax = 0.3;
@@ -77,44 +62,9 @@ VrmlNodeExchanger::VrmlNodeExchanger(const VrmlNodeExchanger &n)
     rotatingState = Idle;
 }
 
-VrmlNodeExchanger::~VrmlNodeExchanger()
-{
-}
-
-VrmlNode *VrmlNodeExchanger::cloneMe() const
-{
-    return new VrmlNodeExchanger(*this);
-}
-
 VrmlNodeExchanger *VrmlNodeExchanger::toExchanger() const
 {
     return (VrmlNodeExchanger *)this;
-}
-
-ostream &VrmlNodeExchanger::printFields(ostream &os, int indent)
-{
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeExchanger::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(LandingNumber, SFInt)
-    else
-    VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeExchanger::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "LandingNumber") == 0)
-        return &d_LandingNumber;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeExchanger::eventIn(double timeStamp,

@@ -21,46 +21,20 @@
 
 using namespace vrml;
 
-// Make a VrmlNodeText
-
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeText(s); }
-
-// Define the built in VrmlNodeType:: "Text" fields
-
-VrmlNodeType *VrmlNodeText::defineType(VrmlNodeType *t)
+void VrmlNodeText::initFields(VrmlNodeText *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Define type only once.
-        t = st = new VrmlNodeType("Text", creator);
-    }
-
-    VrmlNodeGeometry::defineType(t); // Parent class
-    t->addExposedField("string", VrmlField::MFSTRING);
-    t->addExposedField("fontStyle", VrmlField::SFNODE);
-    t->addExposedField("length", VrmlField::MFFLOAT);
-    t->addExposedField("maxExtent", VrmlField::SFFLOAT);
-
-    return t;
+    VrmlNodeGeometry::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("string", node->d_string),
+                     exposedField("fontStyle", node->d_fontStyle),
+                     exposedField("length", node->d_length),
+                     exposedField("maxExtent", node->d_maxExtent));
 }
-
-VrmlNodeType *VrmlNodeText::nodeType() const { return defineType(0); }
+const char *VrmlNodeText::name() { return "Text"; }
 
 VrmlNodeText::VrmlNodeText(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+    : VrmlNodeGeometry(scene, name())
 {
-}
-
-VrmlNodeText::~VrmlNodeText()
-{
-}
-
-VrmlNode *VrmlNodeText::cloneMe() const
-{
-    return new VrmlNodeText(*this);
 }
 
 void VrmlNodeText::cloneChildren(VrmlNamespace *ns)
@@ -102,19 +76,6 @@ void VrmlNodeText::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeText::printFields(std::ostream &os, int indent)
-{
-    if (d_string.size() > 0)
-        PRINT_FIELD(string);
-    if (d_fontStyle.get())
-        PRINT_FIELD(fontStyle);
-    if (d_length.size() > 0)
-        PRINT_FIELD(length);
-    if (!FPZERO(d_maxExtent.get()))
-        PRINT_FIELD(maxExtent);
-    return os;
-}
-
 Viewer::Object VrmlNodeText::insertGeometry(Viewer *viewer)
 {
     char **s = d_string.get();
@@ -145,35 +106,4 @@ Viewer::Object VrmlNodeText::insertGeometry(Viewer *viewer)
     }
 
     return 0;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeText::setField(const char *fieldName,
-                            const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(string, MFString)
-    else if
-        TRY_SFNODE_FIELD(fontStyle, FontStyle)
-    else if
-        TRY_FIELD(length, MFFloat)
-    else if
-        TRY_FIELD(maxExtent, SFFloat)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeText::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "string") == 0)
-        return &d_string;
-    else if (strcmp(fieldName, "fontStyle") == 0)
-        return &d_fontStyle;
-    else if (strcmp(fieldName, "length") == 0)
-        return &d_length;
-    else if (strcmp(fieldName, "maxExtent") == 0)
-        return &d_maxExtent;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }

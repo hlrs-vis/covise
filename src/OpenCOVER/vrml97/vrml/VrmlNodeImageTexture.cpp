@@ -24,10 +24,6 @@ using std::endl;
 using namespace vrml;
 
 bool VrmlNodeImageTexture::scaledown = false;
-static VrmlNode *creator(VrmlScene *s)
-{
-    return new VrmlNodeImageTexture(s);
-}
 
 const VrmlMFString &VrmlNodeImageTexture::getUrl() const
 {
@@ -39,46 +35,48 @@ VrmlNodeImageTexture *VrmlNodeImageTexture::toImageTexture() const
     return (VrmlNodeImageTexture *)this;
 }
 
-// Define the built in VrmlNodeType:: "ImageTexture" fields
 
-VrmlNodeType *VrmlNodeImageTexture::defineType(VrmlNodeType *t)
+void VrmlNodeImageTexture::initFields(VrmlNodeImageTexture *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeTexture::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("url", node->d_url, [node](auto f){
+                        delete node->d_image;
+                        node->d_image = nullptr;
+                     }),
+                     field("repeatS", node->d_repeatS),
+                     field("repeatT", node->d_repeatT),
+                     field("environment", node->d_environment),
+                     field("blendMode", node->d_blendMode),
+                     field("filterMode", node->d_filterMode),
+                     field("anisotropy", node->d_anisotropy));
+    
+    
+    if(t)
     {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("ImageTexture", creator);
-        scaledown = System::the->getConfigState("COVER.Plugin.Vrml97.SmallTextures", false);
-        std::string sizeString = System::the->getConfigEntry("COVER.Plugin.Vrml97.MaxTextureSize");
-        if (!sizeString.empty())
-        {
-            int maxSize = 0;
-            sscanf(sizeString.c_str(), "%d", &maxSize);
-            if (maxSize > 0)
-            {
-                setMaxTextureSize(maxSize);
-            }
-        }
-        //cerr << "Scaledown" << scaledown << endl;
+        initScaling();
     }
+}
 
-    VrmlNodeTexture::defineType(t); // Parent class
+const char *VrmlNodeImageTexture::name() { return "ImageTexture"; }
 
-    t->addExposedField("url", VrmlField::MFSTRING);
-    t->addField("repeatS", VrmlField::SFBOOL);
-    t->addField("repeatT", VrmlField::SFBOOL);
-    t->addField("environment", VrmlField::SFBOOL);
-    t->addField("blendMode", VrmlField::SFINT32);
-    t->addField("filterMode", VrmlField::SFINT32);
-    t->addField("anisotropy", VrmlField::SFINT32);
-
-    return t;
+void VrmlNodeImageTexture::initScaling()
+{
+    scaledown = System::the->getConfigState("COVER.Plugin.Vrml97.SmallTextures", false);
+    std::string sizeString = System::the->getConfigEntry("COVER.Plugin.Vrml97.MaxTextureSize");
+    if (!sizeString.empty())
+    {
+        int maxSize = 0;
+        sscanf(sizeString.c_str(), "%d", &maxSize);
+        if (maxSize > 0)
+        {
+            setMaxTextureSize(maxSize);
+        }
+    }
 }
 
 VrmlNodeImageTexture::VrmlNodeImageTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene)
+    : VrmlNodeTexture(scene, name())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_environment(false)
@@ -89,30 +87,10 @@ VrmlNodeImageTexture::VrmlNodeImageTexture(VrmlScene *scene)
 {
 }
 
-VrmlNodeType *VrmlNodeImageTexture::nodeType() const { return defineType(0); }
-
 VrmlNodeImageTexture::~VrmlNodeImageTexture()
 {
     delete d_image;
     // delete d_texObject...
-}
-
-VrmlNode *VrmlNodeImageTexture::cloneMe() const
-{
-    return new VrmlNodeImageTexture(*this);
-}
-
-std::ostream &VrmlNodeImageTexture::printFields(std::ostream &os, int indent)
-{
-    if (d_url.get())
-        PRINT_FIELD(url);
-    if (!d_repeatS.get())
-        PRINT_FIELD(repeatS);
-    if (!d_repeatT.get())
-        PRINT_FIELD(repeatT);
-    if (d_environment.get())
-        PRINT_FIELD(environment);
-    return os;
 }
 
 void VrmlNodeImageTexture::render(Viewer *viewer)
@@ -236,53 +214,4 @@ int VrmlNodeImageTexture::nFrames()
 unsigned char *VrmlNodeImageTexture::pixels()
 {
     return d_image ? d_image->pixels() : 0;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeImageTexture::setField(const char *fieldName,
-                                    const VrmlField &fieldValue)
-{
-    if (strcmp(fieldName, "url") == 0)
-    {
-        delete d_image;
-        d_image = 0;
-    }
-
-    if
-        TRY_FIELD(url, MFString)
-    else if
-        TRY_FIELD(repeatS, SFBool)
-    else if
-        TRY_FIELD(repeatT, SFBool)
-    else if
-        TRY_FIELD(environment, SFBool)
-    else if
-        TRY_FIELD(blendMode, SFInt)
-    else if
-        TRY_FIELD(filterMode, SFInt)
-    else if
-        TRY_FIELD(anisotropy, SFInt)
-    else
-        VrmlNode::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeImageTexture::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "url") == 0)
-        return &d_url;
-    else if (strcmp(fieldName, "repeatS") == 0)
-        return &d_repeatS;
-    else if (strcmp(fieldName, "repeatT") == 0)
-        return &d_repeatT;
-    else if (strcmp(fieldName, "environment") == 0)
-        return &d_environment;
-    else if (strcmp(fieldName, "filterMode") == 0)
-        return &d_filterMode;
-    else if (strcmp(fieldName, "anisotropy") == 0)
-        return &d_anisotropy;
-    else if (strcmp(fieldName, "blendMode") == 0)
-        return &d_blendMode;
-
-    return VrmlNode::getField(fieldName);
 }

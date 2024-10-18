@@ -38,20 +38,13 @@ class VRML97COVEREXPORT VrmlNodeMirrorCamera : public VrmlNodeChild
 
 public:
     // Define the fields of ARSensor nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMirrorCamera *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeMirrorCamera(VrmlScene *scene = 0);
     VrmlNodeMirrorCamera(const VrmlNodeMirrorCamera &n);
     virtual ~VrmlNodeMirrorCamera();
     virtual void addToScene(VrmlScene *s, const char *);
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
 

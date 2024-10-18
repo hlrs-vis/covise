@@ -27,14 +27,12 @@ class VRMLEXPORT VrmlNodeCollision : public VrmlNodeGroup
 {
 
 public:
-    // Define the fields of Collision nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+
+    static void initFields(VrmlNodeCollision *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeCollision(VrmlScene *);
-    virtual ~VrmlNodeCollision();
 
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual bool isModified() const;
@@ -45,12 +43,6 @@ public:
     virtual void addToScene(VrmlScene *s, const char *rel);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
-
 private:
     VrmlSFBool d_collide;
     VrmlSFNode d_proxy;

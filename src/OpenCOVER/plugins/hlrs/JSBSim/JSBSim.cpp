@@ -601,7 +601,7 @@ bool JSBSimPlugin::init()
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeThermal::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeThermal>());
 
     initAircraft();
     return true;
@@ -1033,49 +1033,27 @@ void JSBSimPlugin::addThermal(const osg::Vec3& velocity, float turbulence)
 COVERPLUGIN(JSBSimPlugin)
 
 
-static VrmlNode* creator(VrmlScene* scene)
+void VrmlNodeThermal::initFields(VrmlNodeThermal* node, VrmlNodeType* t)
 {
-    return new VrmlNodeThermal(scene);
+    initFieldsHelper(node, t,
+    exposedField("direction", node->d_direction),
+    exposedField("location", node->d_location),
+    exposedField("maxBack", node->d_maxBack),
+    exposedField("maxFront", node->d_maxFront),
+    exposedField("minBack", node->d_minBack),
+    exposedField("minFront", node->d_minFront),
+    exposedField("height", node->d_height),
+    exposedField("velocity", node->d_velocity),
+    exposedField("turbulence", node->d_turbulence));
 }
 
-// Define the built in VrmlNodeType:: "Thermal" fields
-
-VrmlNodeType* VrmlNodeThermal::defineType(VrmlNodeType* t)
+const char* VrmlNodeThermal::name()
 {
-    static VrmlNodeType* st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Thermal", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-
-
-    t->addExposedField("direction", VrmlField::SFVEC3F);
-    t->addExposedField("intensity", VrmlField::SFFLOAT);
-    t->addExposedField("location", VrmlField::SFVEC3F);
-    t->addExposedField("maxBack", VrmlField::SFFLOAT);
-    t->addExposedField("maxFront", VrmlField::SFFLOAT);
-    t->addExposedField("minBack", VrmlField::SFFLOAT);
-    t->addExposedField("minFront", VrmlField::SFFLOAT);
-    t->addExposedField("height", VrmlField::SFFLOAT);
-    t->addExposedField("velocity", VrmlField::SFVEC3F);
-    t->addExposedField("turbulence", VrmlField::SFFLOAT);
-
-    return t;
-}
-
-VrmlNodeType* VrmlNodeThermal::nodeType() const
-{
-    return defineType(0);
+    return "Thermal";
 }
 
 VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_direction(0, 0, 1)
     , d_location(0, 0, 0)
     , d_maxBack(10)
@@ -1091,7 +1069,7 @@ VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
 int VrmlNodeThermal::numThermalNodes = 0;
 
 VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     d_direction = n.d_direction;
     d_location = n.d_location;
@@ -1108,69 +1086,6 @@ VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
 VrmlNodeThermal::~VrmlNodeThermal()
 {
     numThermalNodes--;
-}
-
-VrmlNode* VrmlNodeThermal::cloneMe() const
-{
-    return new VrmlNodeThermal(*this);
-}
-
-ostream& VrmlNodeThermal::printFields(ostream& os, int indent)
-{
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeThermal::setField(const char* fieldName,
-    const VrmlField& fieldValue)
-{
-
-    if
-        TRY_FIELD(direction, SFVec3f)
-    else if
-        TRY_FIELD(location, SFVec3f)
-    else if
-        TRY_FIELD(maxBack, SFFloat)
-    else if
-        TRY_FIELD(maxFront, SFFloat)
-    else if
-        TRY_FIELD(minBack, SFFloat)
-    else if
-        TRY_FIELD(minFront, SFFloat)
-    else if
-        TRY_FIELD(height, SFFloat)
-    else if
-        TRY_FIELD(velocity, SFVec3f)
-    else if
-        TRY_FIELD(turbulence, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField* VrmlNodeThermal::getField(const char* fieldName)
-{
-    if (strcmp(fieldName, "direction") == 0)
-        return &d_direction;
-    else if (strcmp(fieldName, "location") == 0)
-        return &d_location;
-    else if (strcmp(fieldName, "maxBack") == 0)
-        return &d_maxBack;
-    else if (strcmp(fieldName, "maxFront") == 0)
-        return &d_maxFront;
-    else if (strcmp(fieldName, "minBack") == 0)
-        return &d_minBack;
-    else if (strcmp(fieldName, "minFront") == 0)
-        return &d_minFront;
-    else if (strcmp(fieldName, "height") == 0)
-        return &d_height;
-    else if (strcmp(fieldName, "velocity") == 0)
-        return &d_velocity;
-    else if (strcmp(fieldName, "turbulence") == 0)
-        return &d_turbulence;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeThermal::eventIn(double timeStamp,

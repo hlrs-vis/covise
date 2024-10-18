@@ -21,75 +21,27 @@
 
 using namespace vrml;
 
-// Make a VrmlNodeBox
-
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeBox(s); }
-
-// Define the built in VrmlNodeType:: "Box" fields
-
-VrmlNodeType *VrmlNodeBox::defineType(VrmlNodeType *t)
+void VrmlNodeBox::initFields(VrmlNodeBox *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Define type only once.
-        t = st = new VrmlNodeType("Box", creator);
-    }
-
-    VrmlNodeGeometry::defineType(t); // Parent class
-    t->addField("size", VrmlField::SFVEC3F);
-
-    return t;
+    VrmlNodeGeometry::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     field("size", node->d_size));
 }
 
-VrmlNodeType *VrmlNodeBox::nodeType() const { return defineType(0); }
+const char *VrmlNodeBox::name()
+{
+    return "Box";
+}
 
 VrmlNodeBox::VrmlNodeBox(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+    : VrmlNodeGeometry(scene, name())
     , d_size(2.0, 2.0, 2.0)
 {
-}
-
-VrmlNodeBox::~VrmlNodeBox()
-{
-}
-
-VrmlNode *VrmlNodeBox::cloneMe() const
-{
-    return new VrmlNodeBox(*this);
-}
-
-std::ostream &VrmlNodeBox::printFields(std::ostream &os, int)
-{
-    if (!FPEQUAL(d_size.x(), 2.0) || !FPEQUAL(d_size.y(), 2.0) || !FPEQUAL(d_size.z(), 2.0))
-        os << " size " << d_size;
-    return os;
 }
 
 Viewer::Object VrmlNodeBox::insertGeometry(Viewer *viewer)
 {
     return viewer->insertBox(d_size.x(), d_size.y(), d_size.z());
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeBox::setField(const char *fieldName,
-                           const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(size, SFVec3f)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeBox::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "size") == 0)
-        return &d_size;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }
 
 VrmlNodeBox *VrmlNodeBox::toBox() const //LarryD Mar 08/99

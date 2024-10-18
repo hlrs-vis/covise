@@ -86,22 +86,13 @@ public:
 class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
 {
 public:
-    // Define the fields of Elevator nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeElevator *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeElevator(VrmlScene *scene = 0);
     VrmlNodeElevator(const VrmlNodeElevator &n);
-    virtual ~VrmlNodeElevator();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual VrmlNodeElevator *toElevator() const;
-
-    virtual ostream &printFields(ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName);
 
     void eventIn(double timeStamp, const char *eventName,
         const VrmlField *fieldValue);
@@ -127,7 +118,7 @@ public:
     coTUITab *elevatorTab;
 
 private:
-
+    void childrenChanged() override;
 };
 
 #endif

@@ -27,52 +27,24 @@ static VrmlNode *creator(VrmlScene *scene)
     return new VrmlNodeColorInt(scene);
 }
 
-// Define the built in VrmlNodeType:: "ColorInterpolator" fields
-
-VrmlNodeType *VrmlNodeColorInt::defineType(VrmlNodeType *t)
+void VrmlNodeColorInt::initFields(VrmlNodeColorInt *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    initFieldsHelper(node, t,
+                     exposedField("key", node->d_key),
+                     exposedField("keyValue", node->d_keyValue));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ColorInterpolator", creator);
+        t->addEventIn("set_fraction", VrmlField::SFFLOAT);
+        t->addEventOut("value_changed", VrmlField::SFCOLOR);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addEventIn("set_fraction", VrmlField::SFFLOAT);
-    t->addExposedField("key", VrmlField::MFFLOAT);
-    t->addExposedField("keyValue", VrmlField::MFCOLOR);
-    t->addEventOut("value_changed", VrmlField::SFCOLOR);
-
-    return t;
+    VrmlNodeChild::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeColorInt::nodeType() const { return defineType(0); }
+const char *VrmlNodeColorInt::name() { return "ColorInterpolator"; }
 
 VrmlNodeColorInt::VrmlNodeColorInt(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
-}
-
-VrmlNodeColorInt::~VrmlNodeColorInt()
-{
-}
-
-VrmlNode *VrmlNodeColorInt::cloneMe() const
-{
-    return new VrmlNodeColorInt(*this);
-}
-
-std::ostream &VrmlNodeColorInt::printFields(std::ostream &os, int indent)
-{
-    if (d_key.size() > 0)
-        PRINT_FIELD(key);
-    if (d_keyValue.size() > 0)
-        PRINT_FIELD(keyValue);
-
-    return os;
 }
 
 void VrmlNodeColorInt::eventIn(double timeStamp,
@@ -156,27 +128,4 @@ void VrmlNodeColorInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeColorInt::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(key, MFFloat)
-    else if
-        TRY_FIELD(keyValue, MFColor)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeColorInt::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "key") == 0)
-        return &d_key;
-    else if (strcmp(fieldName, "keyValue") == 0)
-        return &d_keyValue;
-
-    return VrmlNodeChild::getField(fieldName);
 }

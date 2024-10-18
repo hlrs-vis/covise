@@ -26,42 +26,24 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeLOD(s); }
 
 // Define the built in VrmlNodeType:: "LOD" fields
 
-VrmlNodeType *VrmlNodeLOD::defineType(VrmlNodeType *t)
+void VrmlNodeLOD::initFields(VrmlNodeLOD *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("LOD", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("level", VrmlField::MFNODE);
-    t->addExposedField("children", VrmlField::MFNODE);
-    t->addField("center", VrmlField::SFVEC3F);
-    t->addField("range", VrmlField::MFFLOAT);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("level", node->d_level),
+                     exposedField("children", node->d_level),
+                     field("center", node->d_center),
+                     field("range", node->d_range));
 }
 
-VrmlNodeType *VrmlNodeLOD::nodeType() const { return defineType(0); }
+const char *VrmlNodeLOD::name() { return "LOD"; }
+
 
 VrmlNodeLOD::VrmlNodeLOD(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
 {
     firstTime = true;
     forceTraversal(false);
-}
-
-VrmlNodeLOD::~VrmlNodeLOD()
-{
-}
-
-VrmlNode *VrmlNodeLOD::cloneMe() const
-{
-    return new VrmlNodeLOD(*this);
 }
 
 void VrmlNodeLOD::cloneChildren(VrmlNamespace *ns)
@@ -126,19 +108,6 @@ void VrmlNodeLOD::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeLOD::printFields(std::ostream &os, int indent)
-{
-    if (d_level.size() > 0)
-        PRINT_FIELD(level);
-    if (!FPZERO(d_center.x()) || !FPZERO(d_center.y()) || !FPZERO(d_center.z()))
-        PRINT_FIELD(center);
-
-    if (d_range.size() > 0)
-        PRINT_FIELD(range);
-
-    return os;
-}
-
 // Render one of the children
 
 void VrmlNodeLOD::render(Viewer *viewer)
@@ -197,41 +166,6 @@ void VrmlNodeLOD::render(Viewer *viewer)
     for (i = 0; i < n; ++i)
         d_level[i]->clearModified();
     viewer->endObject();
-}
-
-// Set the value of one of the node fields.
-void VrmlNodeLOD::setField(const char *fieldName, const VrmlField &fieldValue)
-{
-    // check against both fieldnames cause scene() and getNamespace() maybe NULL
-    // no easy way to check X3D status
-    if ((strcmp(fieldName, "children") == 0) || (strcmp(fieldName, "level") == 0))
-    {
-        if (fieldValue.toMFNode())
-            d_level = (VrmlMFNode &)fieldValue;
-        else
-            System::the->error("Invalid type (%s) for %s field of %s node (expected %s).\n",
-                               fieldValue.fieldTypeName(), "children or level", nodeType()->getName(), "MFNode");
-    }
-    else if
-        TRY_FIELD(center, SFVec3f)
-    else if
-        TRY_FIELD(range, MFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeLOD::getField(const char *fieldName) const
-{
-    // check against both fieldnames cause scene() and getNamespace() maybe NULL
-    // no easy way to check X3D status
-    if ((strcmp(fieldName, "children") == 0) || (strcmp(fieldName, "level") == 0))
-        return &d_level;
-    else if (strcmp(fieldName, "center") == 0)
-        return &d_center;
-    else if (strcmp(fieldName, "range") == 0)
-        return &d_range;
-
-    return VrmlNode::getField(fieldName);
 }
 
 VrmlNodeLOD *VrmlNodeLOD::toLOD() const

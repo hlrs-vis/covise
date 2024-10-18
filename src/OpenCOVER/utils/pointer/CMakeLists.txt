@@ -1,4 +1,4 @@
-ADD_LIBRARY(coPointerUtil INTERFACE ResetOnCopy.h)
+ADD_LIBRARY(coPointerUtil INTERFACE NullCopyPtr.h)
 #additional stuff from covise_add_library which we can't use to build an interface library
 SET_TARGET_PROPERTIES(coPointerUtil PROPERTIES OUTPUT_NAME "coPointerUtil")
 
@@ -16,5 +16,5 @@ SET_TARGET_PROPERTIES(coPointerUtil PROPERTIES LINK_FLAGS "${COVISE_LINK_FLAGS}"
 
 
 COVISE_INSTALL_TARGET(coPointerUtil)
-COVISE_INSTALL_HEADERS(coPointerUtil ResetOnCopy.h)
+COVISE_INSTALL_HEADERS(coPointerUtil NullCopyPtr.h)
 COVISE_WNOERROR(coPointerUtil BASEARCH zebu)

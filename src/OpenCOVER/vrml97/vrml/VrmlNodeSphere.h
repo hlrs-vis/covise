@@ -26,20 +26,12 @@ class VRMLEXPORT VrmlNodeSphere : public VrmlNodeGeometry
 
 public:
     // Define the fields of sphere nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeSphere *node, VrmlNodeType *t);
+    static const char *name();
 
     VrmlNodeSphere(VrmlScene *);
-    virtual ~VrmlNodeSphere();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual Viewer::Object insertGeometry(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeSphere *toSphere() const; //LarryD Mar 08/99
     virtual float getRadius() //LarryD Mar 08/99
