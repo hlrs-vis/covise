@@ -1,5 +1,7 @@
 USING(OpenSceneGraph)
 set(SOURCES
+    utils/color.cpp
+    utils/osgUtils.cpp
     PrototypeBuilding.cpp
     TxtInfoboard.cpp
 )
@@ -13,6 +15,8 @@ set(HEADERS
     interfaces/IMovable.h
     interfaces/ISeperable.h
     interfaces/ITimedependable.h
+    utils/color.h
+    utils/osgUtils.h
     PrototypeBuilding.h
     TxtInfoboard.h
 )
