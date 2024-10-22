@@ -121,6 +121,7 @@ EnElement::EnElement(const string &name)
         numCorn_ = 5;
         dim_ = D3;
         covType_ = TYPE_PYRAMID;
+        enType_ = pyramid5;
     }
     else if (name.find("pyramid13") != string::npos)
     {
