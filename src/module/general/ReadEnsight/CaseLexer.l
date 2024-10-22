@@ -15,6 +15,10 @@
 */
 
 %{
+#ifdef _WIN32
+#define YY_NO_UNISTD_H
+#endif
+
 #include "CaseLexer.h"
 
 // define new name for yylex method

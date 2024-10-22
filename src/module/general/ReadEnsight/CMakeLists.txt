@@ -9,11 +9,8 @@ IF(NOT BISON++_FOUND)
 ENDIF()
 
 BISONPP_TARGET(CaseParser CaseParser.y ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.cpp COMPILE_FLAGS "-h ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.hpp -y -dt")
-IF(UNIX)
-  FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-+")
-ELSE(UNIX) 
-  FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-+ -S${FLEX_INCLUDE_DIR}/flex.skl")
-ENDIF(UNIX)
+FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-c++")
+
 ADD_FLEX_BISONPP_DEPENDENCY(CaseScanner CaseParser)
 
 SET(HEADERS
