@@ -3,10 +3,6 @@
 # Simply descend to subdirectories
 #
 # @author Blasius Czink
-if(COVISE_BUILD_ONLY_COVER)
-    return()
-endif()
-
 IF(NOT WIN32)
 ADD_SUBDIRECTORY(rTCPTunnel)
 ENDIF()
@@ -34,5 +30,6 @@ IF(NOT UNIX)
 ENDIF()
 
 ADD_SUBDIRECTORY(clean)
+ADD_SUBDIRECTORY(bison++)
 #ADD_SUBDIRECTORY(catcov)
 #ADD_SUBDIRECTORY(erg2cov)

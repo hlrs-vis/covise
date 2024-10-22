@@ -30,7 +30,7 @@
 #include <reader/ReaderControl.h>
 
 #include "ReadEnsight.h"
-#include "CaseParserDriver.h"
+#include "CaseParser.hpp"
 #include "GeoFileAsc.h"
 #include "EnFile.h"
 #include "EnPart.h"
@@ -173,7 +173,8 @@ ReadEnsight::param(const char *paramName, bool inMapLoading)
                 {
                     // cerr << "ReadEnsight::param(..) filename " << caseNm << endl;
                     // we parse the case file
-                    auto *parser = new CaseParserDriver(caseNm);
+                    CaseParser *parser;
+                    parser = new CaseParser(caseNm);
                     // uncomment this line to see more debug output
                     //parser->yydebug=1;
                     if (!parser->isOpen())
@@ -182,7 +183,7 @@ ReadEnsight::param(const char *paramName, bool inMapLoading)
                         return;
                     }
 
-                    parser->parse();
+                    parser->yyparse();
 
                     case_ = parser->getCaseObj();
 
