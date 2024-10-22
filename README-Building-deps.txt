@@ -816,15 +816,6 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 anari
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/anari -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph
 
-#########
-##exprtk
-git clone https://github.com/ArashPartow/exprtk.git
-cd exprtk
-mkdir c:\src\externlibs\zebu\exprtk
-mkdir c:\src\externlibs\zebu\exprtk\include
-copy exprtk.hpp c:\src\externlibs\zebu\exprtk\include
-
-
 ############
 ###
 cesium native
