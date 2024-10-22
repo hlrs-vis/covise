@@ -18,15 +18,16 @@
  **                                                                        **
 \****************************************************************************/
 
-#include "Energy.h"
+#include <Energy.h>
 
-#include "Device.h"
-#include "EnnovatisDevice.h"
-#include "EnnovatisDeviceSensor.h"
-#include "build_options.h"
-#include "cover/ui/SelectionList.h"
+#include <Device.h>
+#include <EnnovatisDevice.h>
+#include <EnnovatisDeviceSensor.h>
+#include <build_options.h>
+#include <cover/ui/SelectionList.h>
 #include <core/TxtInfoboard.h>
 #include <core/PrototypeBuilding.h>
+#include <core/CityGMLBuilding.h>
 #include <ennovatis/building.h>
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
@@ -279,7 +280,23 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
       auto name = child->getName();
       if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end())
         continue;
-      m_cityGMLObjs.insert({child->getName(), child});
+
+      constexpr float height = 10;
+
+      if (osg::ref_ptr<osg::Geode> geo =
+              dynamic_cast<osg::Geode *>(child->getChild(0))) {
+        auto pos = geo->getBound().center();
+        auto infoboardPos = pos;
+        infoboardPos.z() += height;
+        auto infoboard = std::make_unique<core::TxtInfoboard>(
+            infoboardPos, name, "DroidSans-Bold.ttf", 20, 21, 2.0f, 0.1, 2);
+        auto building = std::make_unique<core::CityGMLBuilding>(geo);
+        auto sensor = std::make_unique<CityGMLDeviceSensor>(
+            geo, std::move(infoboard), std::move(building));
+        m_cityGMLObjs.insert({name, std::move(sensor)});
+      }
+
+      //   m_cityGMLObjs.insert({child->getName(), child});
     }
   }
 }
@@ -773,6 +790,9 @@ bool EnergyPlugin::update()
     for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->update();
 
+    for (auto &[name, sensor]: m_cityGMLObjs)
+        sensor->update();
+
     return false;
 }
 
@@ -781,6 +801,9 @@ void EnergyPlugin::setTimestep(int t)
     m_sequenceList->setValue(t);
     for (auto &sensor: m_ennovatisDevicesSensors)
         sensor->setTimestep(t);
+
+    for (auto &[_,sensor]: m_cityGMLObjs)
+        sensor->updateTime(t);
 }
 
 COVERPLUGIN(EnergyPlugin)

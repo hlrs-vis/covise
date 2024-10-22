@@ -48,13 +48,14 @@
 
 #include <gdal_priv.h>
 
-#include "Device.h"
-#include "DeviceSensor.h"
-#include "EnnovatisDeviceSensor.h"
-#include "ennovatis/rest.h"
-#include "ennovatis/building.h"
-#include "core/PrototypeBuilding.h"
-#include "utils/read/csv/csv.h"
+#include <Device.h>
+#include <DeviceSensor.h>
+#include <EnnovatisDeviceSensor.h>
+#include <ennovatis/rest.h>
+#include <ennovatis/building.h>
+#include <core/PrototypeBuilding.h>
+#include <utils/read/csv/csv.h>
+#include <CityGMLDeviceSensor.h>
 
 class EnergyPlugin: public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener {
     enum Components { Strom, Waerme, Kaelte };
@@ -169,7 +170,7 @@ private:
     ennovatis::BuildingsPtr m_buildings;
     DeviceList m_SDlist;
     std::shared_ptr<ennovatis::rest_request> m_req;
-    //current selected channel group
+    // current selected channel group
     std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
@@ -180,7 +181,8 @@ private:
     osg::ref_ptr<osg::Sequence> m_sequenceList;
     osg::ref_ptr<osg::Group> m_EnergyGroup;
     osg::ref_ptr<osg::Group> m_cityGML;
-    std::map<std::string, osg::ref_ptr<osg::Group>> m_cityGMLObjs;
+    // std::map<std::string, osg::ref_ptr<osg::Group>> m_cityGMLObjs;
+    std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
     osg::Vec4 m_defaultColor;
 };
 

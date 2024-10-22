@@ -3,6 +3,7 @@ set(SOURCES
     utils/color.cpp
     utils/osgUtils.cpp
     PrototypeBuilding.cpp
+    CityGMLBuilding.cpp
     TxtInfoboard.cpp
 )
 
@@ -18,6 +19,7 @@ set(HEADERS
     utils/color.h
     utils/osgUtils.h
     PrototypeBuilding.h
+    CityGMLBuilding.h
     TxtInfoboard.h
 )
 add_library(EnergyCore OBJECT ${SOURCES} ${HEADERS})
