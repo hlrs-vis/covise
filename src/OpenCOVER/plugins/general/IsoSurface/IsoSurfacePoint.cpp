@@ -20,6 +20,15 @@ using namespace vrui;
 using namespace opencover;
 using covise::coCoviseConfig;
 
+bool isValueInteraction(coInteractor *inter)
+{
+    int num = 0;
+    int active = IsoSurfaceInteraction::INTERACTOR_VALUE;
+    char **labels = nullptr;
+    inter->getChoiceParam(IsoSurfaceInteraction::INTERACTOR, num, labels, active);
+    return active == IsoSurfaceInteraction::INTERACTOR_VALUE;
+}
+
 IsoSurfacePoint::IsoSurfacePoint(coInteractor *inter, IsoSurfacePlugin *pl)
 {
 
@@ -93,7 +102,10 @@ IsoSurfacePoint::preFrame()
 
             plugin->getSyncInteractors(inter_);
             plugin->setVectorParam(IsoSurfaceInteraction::ISOPOINT, isoPoint_[0], isoPoint_[1], isoPoint_[2]);
-            plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
+            if (isValueInteraction(inter_))
+            {
+                plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
+            }
             plugin->executeModule();
 
             wait_ = true;
@@ -109,7 +121,11 @@ IsoSurfacePoint::preFrame()
             isoPoint_ = pointPickInteractor_->getPos();
             plugin->getSyncInteractors(inter_);
             plugin->setVectorParam(IsoSurfaceInteraction::ISOPOINT, isoPoint_[0], isoPoint_[1], isoPoint_[2]);
-            plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
+            int choice = IsoSurfaceInteraction::INTERACTOR_VALUE;
+            if (isValueInteraction(inter_))
+            {
+                plugin->setChoiceParam(IsoSurfaceInteraction::INTERACTOR, IsoSurfaceInteraction::INTERACTOR_POINT);
+            }
             plugin->executeModule();
 
             wait_ = true;
