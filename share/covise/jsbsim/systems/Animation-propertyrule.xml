@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyList>
+<!-- Version: 2017-04-12 -->
+
+<!-- properties needed for the wing animation
+     (pivot-point for wing rotation on ground)
+-->
+
+<filter>
+ <type>gain</type>
+ <gain>1.</gain>
+ <input>
+  <condition>
+   <not>
+    <property>sim/model/MRX13/on-ground</property>
+   </not>
+  </condition>
+  <value>1</value>
+ </input>
+ <input>
+  <condition>
+   <greater-than>
+    <property>surface-positions/pilot_shift-z-norm</property>
+    <value>0.</value>
+   </greater-than>
+  </condition>
+  <value>0</value>
+ </input>
+ <input>
+  <value>1</value>
+ </input>
+ <output>sim/model/MRX13/RotateAboutHangpoint</output>
+</filter>
+
+<filter>
+ <type>gain</type>
+ <gain>1.</gain>
+ <input>
+  <condition>
+   <not>
+    <property>sim/model/MRX13/on-ground</property>
+   </not>
+  </condition>
+  <value>0</value>
+ </input>
+ <input>
+  <condition>
+   <greater-than>
+    <property>surface-positions/pilot_shift-z-norm</property>
+    <value>0.</value>
+   </greater-than>
+  </condition>
+  <value>1</value>
+ </input>
+ <input>
+  <value>0</value>
+ </input>
+ <output>sim/model/MRX13/RotateAboutPilot</output>
+</filter>
+
+</PropertyList>

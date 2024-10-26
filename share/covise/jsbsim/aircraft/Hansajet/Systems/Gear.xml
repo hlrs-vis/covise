@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<system name="gear">
+
+  <property value="1.191">gear/unit[0]/wheel-circumfence-ft</property>
+  <property value="2.502">gear/unit[1]/wheel-circumfence-ft</property>
+  <property value="2.502">gear/unit[2]/wheel-circumfence-ft</property>
+
+  <channel name="Gear">
+
+    <!-- the center of gravity as arm from reference datum -->
+
+    <fcs_function name="gear/unit[0]/wheel-speed-rps">
+      <function>
+          <quotient>
+            <property>gear/unit[0]/wheel-speed-fps</property>
+            <property>gear/unit[0]/wheel-circumfence-ft</property>
+          </quotient>
+      </function>
+    </fcs_function>
+
+    <fcs_function name="gear/unit[1]/wheel-speed-rps">
+      <function>
+          <quotient>
+            <property>gear/unit[1]/wheel-speed-fps</property>
+            <property>gear/unit[1]/wheel-circumfence-ft</property>
+          </quotient>
+      </function>
+    </fcs_function>
+
+    <fcs_function name="gear/unit[2]/wheel-speed-rps">
+      <function>
+          <quotient>
+            <property>gear/unit[2]/wheel-speed-fps</property>
+            <property>gear/unit[2]/wheel-circumfence-ft</property>
+          </quotient>
+      </function>
+    </fcs_function>
+
+  </channel>
+
+</system>

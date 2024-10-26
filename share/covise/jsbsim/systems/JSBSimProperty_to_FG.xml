@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyList>
+<!-- Version: 2016-07-07 -->
+
+<!-- Export some JSBSim-properties to FlightGear.
+     This is necessary to get the flight recorder working.
+     All JSBSim properties are tied properties and hence
+     cannot be used by the recorder. JSBSim is inactive during replay!
+
+     Also some helper-properties (needed for the vector-animations) are
+     calculated here.
+ -->
+
+
+<!-- properties needed for the flight recorder
+     (with unit conversion to SI) -->
+
+<filter>
+  <type>gain</type>
+  <gain>1.</gain>
+  <input>/fdm/jsbsim/aero/alpha-deg</input>
+  <output>sim/model/aero/alpha-deg</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>1.</gain>
+  <input>/fdm/jsbsim/aero/beta-deg</input>
+  <output>sim/model/aero/beta-deg</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>0.0254</gain>
+  <input>fdm/jsbsim/inertia/cg-x-in</input>
+  <output>sim/model/inertia/cg-x-m</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>0.0254</gain>
+  <input>fdm/jsbsim/inertia/cg-y-in</input>
+  <output>sim/model/inertia/cg-y-m</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>0.0254</gain>
+  <input>fdm/jsbsim/inertia/cg-z-in</input>
+  <output>sim/model/inertia/cg-z-m</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+  <input>fdm/jsbsim/forces/fbx-aero-lbs</input>
+  <output>sim/model/forces/fbx-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+  <input>fdm/jsbsim/forces/fby-aero-lbs</input>
+  <output>sim/model/forces/fby-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+
+  <input>
+   <condition>
+    <and>
+     <greater-than>
+      <property>fdm/jsbsim/forces/fbz-aero-lbs</property>
+      <value>-0.1</value>
+     </greater-than>
+     <less-than>
+      <property>fdm/jsbsim/forces/fbz-aero-lbs</property>
+      <value>0.1</value>
+     </less-than>
+    </and>
+   </condition>
+   <value>0.1</value>
+  </input>
+
+  <input>fdm/jsbsim/forces/fbz-aero-lbs</input>
+  <output>sim/model/forces/fbz-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+  <input>fdm/jsbsim/forces/fwx-aero-lbs</input>
+  <output>sim/model/forces/fwx-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+  <input>fdm/jsbsim/forces/fwy-aero-lbs</input>
+  <output>sim/model/forces/fwy-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>4.44822</gain>
+  <input>fdm/jsbsim/forces/fwz-aero-lbs</input>
+  <output>sim/model/forces/fwz-aero-N</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>1.35582</gain>
+  <input>fdm/jsbsim/moments/m-aero-lbsft</input>
+  <output>sim/model/moments/m-aero-Nm</output>
+</filter>
+
+<filter>
+  <type>gain</type>
+  <gain>1.35582</gain>
+  <input>fdm/jsbsim/moments/l-aero-lbsft</input>
+  <output>sim/model/moments/l-aero-Nm</output>
+</filter>
+
+
+<!-- helper-properties for vector-animation -->
+
+<filter>
+ <name>fbxz</name>
+ <debug>false</debug>
+ <type>gain</type>
+ <gain>4.44822</gain>
+ <input>
+  <expression>
+   <sqrt>
+    <sum>
+     <pow>
+      <property>fdm/jsbsim/forces/fbx-aero-lbs</property>
+      <value>2</value>
+     </pow>
+     <pow>
+      <property>fdm/jsbsim/forces/fbz-aero-lbs</property>
+      <value>2</value>
+     </pow>
+    </sum>
+   </sqrt>
+  </expression>
+ </input>
+ <output>sim/model/forces/fbxz-aero-N</output>
+</filter>
+
+<filter>
+ <name>fbxyz</name>
+ <debug>false</debug>
+ <type>gain</type>
+ <gain>4.44822</gain>
+ <input>
+  <expression>
+   <sqrt>
+    <sum>
+     <pow>
+      <property>fdm/jsbsim/forces/fbx-aero-lbs</property>
+      <value>2</value>
+     </pow>
+     <pow>
+      <property>fdm/jsbsim/forces/fby-aero-lbs</property>
+      <value>2</value>
+     </pow>
+     <pow>
+      <property>fdm/jsbsim/forces/fbz-aero-lbs</property>
+      <value>2</value>
+     </pow>
+    </sum>
+   </sqrt>
+  </expression>
+ </input>
+ <output>sim/model/forces/fbxyz-aero-N</output>
+</filter>
+
+
+<!-- sound -->
+
+<filter>
+  <type>gain</type>
+  <gain>1.</gain>
+  <input>/fdm/jsbsim/external_reactions/GenericEngine/magnitude</input>
+  <output>sim/model/GenericEngine/magnitude</output>
+</filter>
+
+
+</PropertyList>

@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+
+<system name="WeightShift">
+
+ <!-- hang point coordinates -->
+ <property value=" 0.0 ">systems/weightshift/hangpoint-x-inch</property>  <!-- x = 0.0m -->
+ <property value=" 0.0 ">systems/weightshift/hangpoint-y-inch</property>  <!-- y = 0.0m -->
+ <property value=" 0.0 ">systems/weightshift/hangpoint-z-inch</property>  <!-- z = 0.0m -->
+
+ <!-- pointmass locations (1m = 39.370079in) -->
+ <property value="   0.0">systems/weightshift/pointmass-location-X-inches[0]</property>  <!-- pilot x = 0.0m -->
+ <property value="   0.0">systems/weightshift/pointmass-location-Y-inches[0]</property>  <!-- pilot y = 0.0m -->
+ <property value="-53.15">systems/weightshift/pointmass-location-Z-inches[0]</property>  <!-- pilot z = 1.35m -->
+
+ <!-- add here additional pointmasses like parachute, camelback, etc.
+ <property value=" 0.0">systems/weightshift/pointmass-location-X-inches[0]</property>
+ <property value=" 0.0">systems/weightshift/pointmass-location-Y-inches[0]</property>
+ <property value="51.2">systems/weightshift/pointmass-location-Z-inches[0]</property>
+ -->
+
+ <!-- Pilot with 0deg deflection according to model -->
+ <property value="   0.0"> systems/weightshift/cg_pilot-x-inch </property>
+ <property value="   0.0"> systems/weightshift/cg_pilot-y-inch </property>
+ <property value="-53.15"> systems/weightshift/cg_pilot-z-inch </property>
+
+ <!-- Pilot mass shift due to loose hangstrap -->
+ <property value="0"> systems/weightshift/cg_pilot_shift-z-inch </property>
+ 
+ 
+ <channel name="WeightShift">
+
+  <!--
+  Strategy:
+  Up to now only the common cg of all pointmasses is shifted!
+  Hence all pointmasses have the same x,y,z-locations.
+  -->
+
+  <!-- Transformation: move hang point to origin -->
+  <summer name="systems/weightshift/cg_pilot-xlocal-inch">
+   <input> systems/weightshift/cg_pilot-x-inch </input>
+   <input> -systems/weightshift/hangpoint-x-inch </input>
+  </summer>
+  <summer name="systems/weightshift/cg_pilot-ylocal-inch">
+   <input> systems/weightshift/cg_pilot-y-inch </input>
+   <input> -systems/weightshift/hangpoint-y-inch </input>
+  </summer>
+  <summer name="systems/weightshift/cg_pilot-zlocal-inch">
+   <input> systems/weightshift/cg_pilot-z-inch </input>
+   <input> -systems/weightshift/hangpoint-z-inch </input>
+  </summer>
+
+  <!-- First rotation about y-axis (pitch axis) -->
+  <fcs_function name="systems/weightshift/delta-x-inch">
+   <function >
+    <description>shift pilot weight forward/backward X-component</description>
+    <sum>
+     <product>
+      <property>systems/weightshift/cg_pilot-xlocal-inch</property>
+      <cos>
+       <property>fcs/elevator-pos-rad</property>
+      </cos>
+     </product>
+     <product>
+      <property>systems/weightshift/cg_pilot-zlocal-inch</property>
+      <sin>
+       <property>fcs/elevator-pos-rad</property>
+      </sin>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/weightshift/delta-z_elevator-inch">
+   <function>
+    <description>shift pilot weight forward/backward Z-component</description>
+    <sum>
+     <product>
+      <property>systems/weightshift/cg_pilot-xlocal-inch</property>
+      <value> -1. </value>
+      <sin>
+       <property>fcs/elevator-pos-rad</property>
+      </sin>
+     </product>
+     <product>
+      <property>systems/weightshift/cg_pilot-zlocal-inch</property>
+      <cos>
+       <property>fcs/elevator-pos-rad</property>
+      </cos>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <!-- Subsequent rotation about x-axis (roll axis) -->
+  <fcs_function name="systems/weightshift/delta-y-inch">
+   <function >
+    <description>shift pilot weight left/right Y-component</description>
+    <sum>
+     <product>
+      <property>systems/weightshift/cg_pilot-ylocal-inch</property>
+      <cos>
+       <property>fcs/left-aileron-pos-rad</property>
+      </cos>
+     </product>
+     <product>
+      <property>systems/weightshift/delta-z_elevator-inch</property>
+      <value> -1. </value>
+      <sin>
+       <property>fcs/left-aileron-pos-rad</property>
+      </sin>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/weightshift/delta-z-inch">
+   <function>
+   <description>shift pilot weight left/right Z-component</description>
+    <sum>
+     <product>
+      <property>systems/weightshift/cg_pilot-ylocal-inch</property>
+      <sin>
+       <property>fcs/left-aileron-pos-rad</property>
+      </sin>
+     </product>
+     <product>
+      <property>systems/weightshift/delta-z_elevator-inch</property>
+      <cos>
+       <property>fcs/left-aileron-pos-rad</property>
+      </cos>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <!-- Transformation: move back to FDM-coordinates  -->
+  <summer name="systems/weightshift/cg_pilot-xglobal-inch">
+   <input> systems/weightshift/delta-x-inch </input>
+   <input> systems/weightshift/hangpoint-x-inch </input>
+  </summer>
+
+  <summer name="systems/weightshift/cg_pilot-yglobal-inch">
+   <input> systems/weightshift/delta-y-inch </input>
+   <input> systems/weightshift/hangpoint-y-inch </input>
+  </summer>
+
+  <summer name="systems/weightshift/cg_pilot-zglobal-inch">
+   <input> systems/weightshift/delta-z-inch </input>
+   <input> systems/weightshift/hangpoint-z-inch </input>
+   <input> systems/weightshift/cg_pilot_shift-z-inch </input>
+  </summer>
+
+  <!-- weightshift only in air / no weighshift on ground -->
+  <switch name="switch_onground_x">
+   <default value="systems/weightshift/cg_pilot-xglobal-inch"/>
+   <test value="systems/weightshift/cg_pilot-x-inch">
+    systems/on-ground GE 0.1
+   </test>
+   <output>inertia/pointmass-location-X-inches[0]</output>
+   <output>external_reactions/pilotdrag/location-x-in</output>
+  </switch>
+
+  <switch name="switch_onground_y">
+   <default value="systems/weightshift/cg_pilot-yglobal-inch"/>
+   <test value="systems/weightshift/cg_pilot-y-inch">
+    systems/on-ground GE 0.1
+   </test>
+   <output>inertia/pointmass-location-Y-inches[0]</output>
+   <output>external_reactions/pilotdrag/location-y-in</output>
+  </switch>
+
+  <switch name="switch_onground_z">
+   <default value="systems/weightshift/cg_pilot-zglobal-inch"/>
+   <test value="systems/weightshift/cg_pilot-z-inch">
+    systems/on-ground GE 0.1
+   </test>
+   <output>inertia/pointmass-location-Z-inches[0]</output>
+   <output>external_reactions/pilotdrag/location-z-in</output>
+  </switch>
+
+ </channel>
+
+</system>

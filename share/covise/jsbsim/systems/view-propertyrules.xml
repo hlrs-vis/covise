@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyList>
+ 
+ <filter>
+   <name>cg back</name>
+   <debug>false</debug>
+   <type>gain</type>
+   <gain>0.0254</gain>
+   <input>/fdm/jsbsim/inertia/cg-x-in</input>
+   <output>/sim/current-view/target-z-offset-m</output>
+ </filter>
+
+ <filter>
+   <name>cg right</name>
+   <type>gain</type>
+   <gain>0.0254</gain>
+   <input>/fdm/jsbsim/inertia/cg-y-in</input>
+   <output>/sim/current-view/target-x-offset-m</output>
+ </filter>
+
+ <filter>
+   <name>cg up</name>
+   <type>gain</type>
+   <gain>0.0254</gain>
+   <input>/fdm/jsbsim/inertia/cg-z-in</input>
+   <output>/sim/current-view/target-y-offset-m</output>
+ </filter>
+
+</PropertyList>

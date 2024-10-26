@@ -1,0 +1,381 @@
+<?xml version="1.0"?>
+<!--
+  Gyrosyn Compass System, Sperry Sperry C-9
+  Modeled after HFB 320 Hansa Jet Operations Manual, Section 10.8
+  Functions and items not marked with a reference to the manual
+  are pure imagination or trial-and-error
+
+  (c) Torsten Dreyer - Torsten@no-spam-t3r.de (ignore no-spam-)
+  
+-->
+<PropertyList>
+  <params>
+    <serviceable>instrumentation/heading-indicator/serviceable</serviceable>
+    <bus-voltage>systems/electrical/bus[0]/voltage-v</bus-voltage>
+    <spin>instrumentation/heading-indicator/spin</spin>
+    <internal-heading>instrumentation/heading-indicator/internal-heading-deg</internal-heading>
+    <indicated-heading>instrumentation/heading-indicator/indicated-heading-deg</indicated-heading>
+    <heading-offset>instrumentation/heading-indicator/heading-offset-deg</heading-offset>
+    <mode-magnetic>instrumentation/heading-indicator/mode-magnetic</mode-magnetic>
+    <off>instrumentation/heading-indicator/off</off>
+
+    <sync-knob>instrumentation/heading-indicator/sync-knob</sync-knob>
+    <sync-down>instrumentation/heading-indicator/sync-down-command</sync-down> 
+    <sync-up>instrumentation/heading-indicator/sync-up-command</sync-up> 
+    <servo-control>instrumentation/heading-indicator/servo-control-degps</servo-control>
+    <time-based-offset>instrumentation/heading-indicator/time-based-offset</time-based-offset>
+    <servo-based-offset>instrumentation/heading-indicator/servo-based-offset</servo-based-offset>
+  </params>
+
+  <pi-simple-controller>
+    <name>SperryC9:ideal vertial gyro:spin</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/serviceable"/>
+      </condition>
+    </enable>
+    <input>0</input>
+    <reference>1</reference>
+    <output alias="/params/spin"/>
+    <Ki>
+      <expression>
+        <sum>
+          <product>
+            <value>0.25</value>
+            <property alias="/params/bus-voltage"/>
+            <value>0.03571</value> <!-- 1/28 -->
+          </product>
+          <value>-0.005</value> 
+        </sum>
+      </expression>
+    </Ki>
+    <min>0.0</min>
+    <max>1.0</max>
+  </pi-simple-controller>
+
+  <pi-simple-controller>
+    <name>SperryC9:ideal vertical gyro:heading</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/serviceable"/>
+      </condition>
+    </enable>
+    <input>0</input>
+    <reference>/orientation/yaw-rate-degps</reference>
+    <output alias="/params/internal-heading"/>
+    <Ki>
+      <expression>
+        <min>
+          <product>
+            <property alias="/params/spin"/>
+            <property alias="/params/spin"/>
+          </product>
+          <value>1.0</value>
+        </min>
+      </expression>
+    </Ki>
+    <period>
+      <min>0.0</min>
+      <max>360.0</max>
+    </period>
+  </pi-simple-controller>
+
+  <pi-simple-controller>
+    <name>SperryC9:heading offset</name>
+    <debug>false</debug>
+    <reference alias="/params/indicated-heading"/>
+    <!-- TODO: create fluxgate -->
+    <input>/orientation/heading-magnetic-deg</input>
+    <output alias="/params/heading-offset"/>
+    <Kp>1.0</Kp>
+    <period>
+      <min>-180.0</min>
+      <max>180.0</max>
+    </period>
+  </pi-simple-controller>
+
+  <!-- 
+    Off flag, if
+    not serviceable
+    spin less than 0.9
+    not mode magnetic
+    heading-offet greater than 5deg
+  -->
+  <logic>
+    <name>SperryC9:Off</name>
+    <input>
+      <not>
+        <and>
+         <property alias="/params/serviceable"/>
+         <property alias="/params/mode-magnetic"/>
+         <greater-than>
+           <property alias="/params/spin"/>
+           <value>0.9</value>
+         </greater-than>
+         <equals>
+            <property alias="/params/heading-offset"/>
+            <value>0.0</value>
+            <precision-value>10.0</precision-value>
+          </equals>
+        </and>
+      </not>
+    </input>
+    <output alias="/params/off"/>
+  </logic>
+
+  <logic>
+    <name>SperryC9:sync down command</name>
+    <input> 
+      <property alias="/params/mode-magnetic"/>
+      <or>
+        <greater-than>
+          <property alias="/params/heading-offset"/>
+          <value>0.05</value>
+        </greater-than>
+        <and>
+          <property alias="/params/sync-down"/>
+          <greater-than>
+            <property alias="/params/heading-offset"/>
+            <value>0.0</value>
+          </greater-than>
+        </and>
+      </or>
+    </input> 
+    <output alias="/params/sync-down"/>
+  </logic>
+
+  <logic>
+    <name>SperryC9:sync up command</name>
+    <input> 
+      <property alias="/params/mode-magnetic"/>
+      <or>
+        <less-than>
+          <property alias="/params/heading-offset"/>
+          <value>-0.05</value>
+        </less-than>
+        <and>
+          <property alias="/params/sync-up"/>
+          <less-than>
+            <property alias="/params/heading-offset"/>
+            <value>0.0</value>
+          </less-than>
+        </and>
+      </or>
+    </input> 
+    <output alias="/params/sync-up"/>
+  </logic>
+
+  <filter>
+    <name>SperryC9:Synchronize Offset</name>
+    <type>gain</type>
+    <gain>1.0</gain>
+    <enable>
+      <condition>
+        <property alias="/params/serviceable"/>
+      </condition>
+    </enable>
+    <input> <!-- manual sync: 10deg per second -->
+      <condition>
+        <not-equals>
+          <property alias="/params/sync-knob"/>
+          <value>0.0</value>
+          <precision-value>0.01</precision-value>
+        </not-equals>
+      </condition>
+      <property alias="/params/sync-knob"/>
+      <scale>10.0</scale> <!-- guess -->
+    </input>
+    <input> <!-- fast automatic sync: 180 deg per minute -->
+      <condition>
+        <property alias="/params/sync-up"/>
+        <not-equals>
+          <property alias="/params/heading-offset"/>
+          <value>0.0</value>
+          <precision-value>10.0</precision-value>
+        </not-equals>
+      </condition>
+      <value>3.0</value>
+    </input>
+    <input><!-- slow automatic sync: 3 deg per minute -->
+      <condition>
+        <property alias="/params/sync-up"/>
+        <equals>
+          <property alias="/params/heading-offset"/>
+          <value>0.0</value>
+          <precision-value>10.0</precision-value>
+        </equals>
+      </condition>
+      <value>0.05</value>
+    </input>
+    <input> <!-- fast automatic sync: 180 deg per minute -->
+      <condition>
+        <property alias="/params/sync-down"/>
+        <not-equals>
+          <property alias="/params/heading-offset"/>
+          <value>0.0</value>
+          <precision-value>10.0</precision-value>
+        </not-equals>
+      </condition>
+      <value>-3.0</value>
+    </input>
+    <input><!-- slow automatic sync: 3 deg per minute -->
+      <condition>
+        <property alias="/params/sync-down"/>
+        <equals>
+          <property alias="/params/heading-offset"/>
+          <value>0.0</value>
+          <precision-value>10.0</precision-value>
+        </equals>
+      </condition>
+      <value>-0.05</value>
+    </input>
+    <input>0</input> <!-- no syncing -->
+    <output alias="/params/servo-control"/>
+  </filter>
+
+  <!-- time based drift: 15*sin(latitude)*elapsed-sec/3600 -->
+  <filter>
+    <name>SperryC9:Time Based Offset</name>
+    <type>gain</type>
+    <gain>1.0</gain>
+    <input>
+      <expression>
+        <product>
+          <value>0.00416666666667</value> <!-- 15/3600 -->
+          <property>sim/time/elapsed-sec</property>
+          <sin>
+            <deg2rad>
+              <property>position/latitude-deg</property>
+            </deg2rad>
+          </sin>
+        </product>
+      </expression>
+    </input>
+    <output alias="/params/time-based-offset"/>
+  </filter>
+
+  <pi-simple-controller>
+    <name>SperryC9:Servo Based Offset</name>
+    <debug>false</debug>
+    <input>0</input>
+    <reference alias="/params/servo-control"/>
+    <output alias="/params/servo-based-offset"/>
+    <Ki>1.0</Ki>
+  </pi-simple-controller>
+
+  <filter>
+    <debug>false</debug>
+    <name>SperryC9:Indicated Heading Summer</name>
+    <type>gain</type>
+    <gain>1.0</gain>
+    <input>
+      <expression>
+        <sum>
+          <property alias="/params/internal-heading"/>
+          <property alias="/params/time-based-offset"/>
+          <property alias="/params/servo-based-offset"/>
+        </sum>
+      </expression>
+    </input>
+    <output alias="/params/indicated-heading"/>
+    <period>
+      <min>0.0</min>
+      <max>360.0</max>
+    </period>
+  </filter>
+
+  <!-- the vor input -->
+  <!-- if this is a valid input, compute the relative bearing 
+       if input is not valid, point needle to the right -->
+  <filter>
+    <name>SperryC9:VOR1 Bearing Computer</name>
+    <debug>false</debug>
+    <type>gain</type>
+    <gain>1.0</gain>
+    <input>
+      <condition>
+        <property>instrumentation/heading-indicator[0]/vor[0]/valid</property>
+      </condition>
+      <expression>
+        <difference>
+          <property>instrumentation/heading-indicator[0]/vor[0]/bearing</property>
+          <property alias="/params/indicated-heading"/>
+        </difference>
+      </expression>
+    </input>
+    <input>90</input>
+    <output>instrumentation/heading-indicator[0]/vor[0]/rotation-deg</output>
+  </filter>
+
+  <filter>
+    <name>SperryC9:VOR1 Bearing Computer</name>
+    <debug>false</debug>
+    <type>gain</type>
+    <gain>1.0</gain>
+    <input>
+      <condition>
+        <property>instrumentation/heading-indicator[0]/vor[1]/valid</property>
+      </condition>
+      <expression>
+        <difference>
+          <property>instrumentation/heading-indicator[0]/vor[1]/bearing</property>
+          <property alias="/params/indicated-heading"/>
+        </difference>
+      </expression>
+    </input>
+    <input>90</input>
+    <output>instrumentation/heading-indicator[0]/vor[1]/rotation-deg</output>
+  </filter>
+
+  <!-- limit the rate of turn for the two needles -->
+  <filter>
+    <name>SperryC9:Needle1 Filter</name>
+    <debug>false</debug>
+    <type>noise-spike</type>
+    <max-rate-of-change>95</max-rate-of-change> <!-- a little faster than #2 -->
+    <input>instrumentation/heading-indicator[0]/needle1-rotation-deg</input>
+    <output>instrumentation/heading-indicator[0]/needle1-rotation-filtered-deg</output>
+    <period>
+      <min>0.0</min>
+      <max>360.0</max>
+    </period>
+  </filter>
+
+  <filter>
+    <name>SperryC9:Needle2 Filter</name>
+    <debug>false</debug>
+    <type>noise-spike</type>
+    <max-rate-of-change>85</max-rate-of-change> <!-- a little slower than #1 -->
+    <input>instrumentation/heading-indicator[0]/needle2-rotation-deg</input>
+    <output>instrumentation/heading-indicator[0]/needle2-rotation-filtered-deg</output>
+    <period>
+      <min>0.0</min>
+      <max>360.0</max>
+    </period>
+  </filter>
+
+  <logic>
+    <name>SperryC9:Sync Indicator Cross</name>
+    <input>
+      <greater-than>
+        <property alias="/params/servo-control"/>
+        <value>0.0</value>
+      </greater-than>
+    </input>
+    <output>instrumentation/heading-indicator/sync-increase</output>
+  </logic>
+
+  <logic>
+    <name>SperryC9:Sync Indicator Dot</name>
+    <input>
+      <less-than>
+        <property alias="/params/servo-control"/>
+        <value>-0.0</value>
+      </less-than>
+    </input>
+    <output>instrumentation/heading-indicator/sync-decrease</output>
+  </logic>
+
+</PropertyList>

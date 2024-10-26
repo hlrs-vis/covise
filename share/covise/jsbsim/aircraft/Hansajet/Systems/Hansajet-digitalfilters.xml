@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+  <!-- ========================================================================== -->
+  <!-- Other filters, not related to the autopilot                                -->
+  <!-- ========================================================================== -->
+
+  <!-- compute property for AOA indicator -->
+  <filter>
+    <name>OTHER:aoa-indexer</name>
+    <debug>false</debug>
+    <type>gain</type>
+    <input>
+      <property>/fdm/jsbsim/aero/alpha-deg</property>
+      <scale>
+        <!-- mach 0.05 gives full indication (approx 30kts) -->
+        <property>/fdm/jsbsim/velocities/mach</property>
+        <scale>-20</scale>
+        <min>-1.0</min>
+        <max>0.0</max>
+      </scale>
+      <offset>
+        <!-- gravity forces the pickup down, airspeed up -->
+        <!-- no speed: indicated aoa=-90 -->
+        <property>/fdm/jsbsim/velocities/mach</property>
+        <scale>-600</scale>
+        <offset>30</offset>
+        <min>0.0</min>
+        <max>90.0</max>
+      </offset>
+    </input>
+    <output>
+      <property>/instrumentation/aoa-indexer/aoa-deg</property>
+      <value>0.0</value>
+    </output>
+    <gain>-1.0</gain>
+    <min>-90</min>
+    <max>90</max>
+  </filter>
+
+  <!-- Compute Oil Temperature (JSBSim does not compute it) -->
+  <!--
+target-oil-temp = egt + (rho_air*ias*C+D)*(ambient-egt)
+	-->
+  <filter>
+    <name>OTHER:Oil Temperature</name>
+    <debug>false</debug>
+    <type>gain</type>
+    <input>
+      <property>/environment/density-slugft3</property>
+      <scale>
+        <property>/instrumentation/airspeed-indicator/indicated-speed-kt</property>
+        <scale>0.05</scale>
+      </scale>
+      <offset>0.73</offset>
+    </input>
+    <gain>1</gain>
+    <output>/engines/cooling-factor</output>
+  </filter>
+
+  <filter>
+    <name>OTHER:Oil Temperature 0</name>
+    <debug>false</debug>
+    <type>exponential</type>
+    <input>
+      <property>/engines/engine[0]/egt-degf</property>
+      <offset>
+        <property>/engines/cooling-factor</property>
+        <scale>
+          <property>/environment/temperature-degf</property>
+          <offset>
+            <property>/engines/engine[0]/egt-degf</property>
+            <scale>-1.0</scale>
+          </offset>
+        </scale>
+      </offset>
+    </input>
+    <output>/engines/engine[0]/oil-temperature-degf</output>
+    <!-- engine running, filter time is 120
+	engine off, filter time is 600 -->
+    <filter-time>
+      <property>/engines/engine[0]/running</property>
+      <scale>-480</scale>
+      <offset>600</offset>
+    </filter-time>
+  </filter>
+
+  <filter>
+    <name>OTHER:Oil Temperature 1</name>
+    <debug>false</debug>
+    <type>exponential</type>
+    <input>
+      <property>/engines/engine[1]/egt-degf</property>
+      <offset>
+        <property>/engines/cooling-factor</property>
+        <scale>
+          <property>/environment/temperature-degf</property>
+          <offset>
+            <property>/engines/engine[1]/egt-degf</property>
+            <scale>-1.0</scale>
+          </offset>
+        </scale>
+      </offset>
+    </input>
+    <output>/engines/engine[1]/oil-temperature-degf</output>
+    <!-- behave a little different/faster than engine 0 -->
+    <filter-time>
+      <property>/engines/engine[1]/running</property>
+      <scale>-400</scale>
+      <offset>500</offset>
+    </filter-time>
+  </filter>
+
+</PropertyList>

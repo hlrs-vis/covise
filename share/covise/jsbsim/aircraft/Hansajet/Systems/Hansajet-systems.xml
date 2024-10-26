@@ -1,0 +1,38 @@
+<PropertyList>
+
+  <electrical>
+    <name>electrical</name>
+    <number>0</number>
+    <path>Aircraft/Generic/generic-electrical.xml</path>
+  </electrical>
+
+  <pitot>
+    <name>pitot</name>
+    <number>0</number>
+  </pitot>
+
+  <pitot>
+    <name>pitot</name>
+    <number>1</number>
+  </pitot>
+
+  <static>
+    <name>static</name>
+    <number>0</number>
+  </static>
+
+  <static>
+    <name>static</name>
+    <number>1</number>
+  </static>
+
+  <vacuum>
+    <name>vacuum</name>
+    <number>0</number>
+    <rpm>engines/engine[0]/thrust_lb</rpm>
+    <rpm>engines/engine[1]/thrust_lb</rpm>
+    <scale>4.5</scale>
+  </vacuum>
+
+</PropertyList>
+

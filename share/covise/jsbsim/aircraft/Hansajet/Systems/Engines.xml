@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<system name="Engines">
+
+  <property>propulsion/reset-fuel-consumed</property>
+  <property>/engines/engine[0]/epr</property>
+  <property>/engines/engine[1]/epr</property>
+  <property>/engines/engine[0]/egt-degF</property>
+  <property>/engines/engine[1]/egt-degF</property>
+
+  <channel name="Engine 1">
+    <pid name="propulsion/engine[0]/fuel-consumed-lbs">
+      <input>propulsion/engine[0]/fuel-flow-rate-pps</input>
+      <trigger>propulsion/reset-fuel-consumed</trigger>
+      <kp>0</kp>
+      <ki>1</ki>
+      <kd>0</kd>
+    </pid>
+
+<!-- Bleed Air
+  Bleed air is used for engine intake deice
+ bleed air signal lamps illuminate
+  engine intake heating will increase EGT approx 15degC and
+  decrease EPR approx 0.05 - 0.08
+  assume: bleed air pressure switch works at 37%RPM and above
+-->
+
+    <switch name="propulsion/engine[0]/bleed-air-pressure-switch">
+      <default value="0.0"/>
+      <test value="1">
+        propulsion/engine[0]/n2 gt 37
+      </test>
+    </switch>
+
+    <!-- let egt increase slowly -->
+    <lag_filter name="propulsion/engine[0]/egt-due-to-bleedair">
+      <input>propulsion/engine[0]/bleed-air-pressure-switch</input>
+      <c1>0.10</c1>
+    </lag_filter>
+
+    <fcs_function name="propulsion/engine[0]/egt-degf-corrected">
+      <description>corrected egt due to bleed air</description>
+      <function>
+        <sum>
+          <property>/engines/engine[0]/egt-degF</property>
+          <product>
+            <property>propulsion/engine[0]/egt-due-to-bleedair</property>
+            <value>27</value> <!-- fahrenheit -->
+          </product>
+        </sum>
+      </function>
+    </fcs_function>
+
+    <fcs_function name="propulsion/engine[0]/epr-corrected">
+      <description>corrected epr due to bleed air and cj610-1 values</description>
+      <!-- jsbsim's max epr is 2.0, cj610-1 max epr is 2.5 -->
+      <!-- (epr-1)*1.5+1-bleedair*0.07 -->
+      <function>
+        <sum>
+          <product>
+            <sum>
+              <property>/engines/engine[0]/epr</property>
+              <value>-1.0</value> 
+            </sum>
+            <value>1.5</value>
+          </product>
+          <value>1.0</value>
+          <product>
+            <property>propulsion/engine[0]/bleed-air-pressure-switch</property>
+            <value>-0.07</value>
+          </product>
+        </sum>
+      </function>
+    </fcs_function>
+
+  </channel>
+
+  <channel name="Engine 2">
+    <pid name="propulsion/engine[1]/fuel-consumed-lbs">
+      <input>propulsion/engine[1]/fuel-flow-rate-pps</input>
+      <trigger>propulsion/reset-fuel-consumed</trigger>
+      <kp>0</kp>
+      <ki>1</ki>
+      <kd>0</kd>
+    </pid>
+
+    <switch name="propulsion/engine[1]/bleed-air-pressure-switch">
+      <default value="0.0"/>
+      <test value="1">
+        propulsion/engine[1]/n2 gt 37
+      </test>
+    </switch>
+
+    <!-- let egt increase slowly -->
+    <lag_filter name="propulsion/engine[1]/egt-due-to-bleedair">
+      <input>propulsion/engine[1]/bleed-air-pressure-switch</input>
+      <c1>0.10</c1>
+    </lag_filter>
+
+    <fcs_function name="propulsion/engine[1]/egt-degf-corrected">
+      <description>corrected egt due to bleed air</description>
+      <function>
+        <sum>
+          <property>/engines/engine[1]/egt-degF</property>
+          <product>
+            <property>propulsion/engine[1]/egt-due-to-bleedair</property>
+            <value>27</value> 
+          </product>
+        </sum>
+      </function>
+    </fcs_function>
+
+    <fcs_function name="propulsion/engine[1]/epr-corrected">
+      <description>corrected epr due to bleed air and cj610-1 values</description>
+      <!-- jsbsim's max epr is 2.0, cj610-1 max epr is 2.5 -->
+      <!-- (epr-1)*1.5+1-bleedair*0.07 -->
+      <function>
+        <sum>
+          <product>
+            <sum>
+              <property>/engines/engine[1]/epr</property>
+              <value>-1.0</value> 
+            </sum>
+            <value>1.5</value>
+          </product>
+          <value>1.0</value>
+          <product>
+            <property>propulsion/engine[1]/bleed-air-pressure-switch</property>
+            <value>-0.07</value>
+          </product>
+        </sum>
+      </function>
+    </fcs_function>
+
+  </channel>
+
+  <channel name="All Engines">
+    <summer name="propulsion/total-fuel-consumed-lbs">
+      <input>propulsion/engine[0]/fuel-consumed-lbs</input>
+      <input>propulsion/engine[1]/fuel-consumed-lbs</input>
+    </summer>
+
+    <pure_gain name="propulsion/total-fuel-consumed-kg">
+      <input>propulsion/total-fuel-consumed-lbs</input>
+      <gain>0.45454</gain>
+    </pure_gain>
+
+  </channel>
+
+</system>

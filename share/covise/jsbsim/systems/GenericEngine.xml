@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<system name="GenericEngine">
+
+ <channel name="GenericThrust">
+  <fcs_function name="systems/Thrust">
+   <function>
+    <product>
+     <p>fcs/throttle-generic-engine-norm</p>
+     <v>80.</v>
+    </product>
+   </function>
+  </fcs_function>
+  <switch>
+   <default value="0.0"/>
+   <test value="systems/Thrust">
+    /sim/model/MRX13/engine_running eq 1
+   </test>
+   <clipto>
+    <min>  0.</min>
+    <max> 800.</max>
+   </clipto>
+   <output>external_reactions/GenericEngine/magnitude</output>
+  </switch>
+ </channel>
+
+</system>

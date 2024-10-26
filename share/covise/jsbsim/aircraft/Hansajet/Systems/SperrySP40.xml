@@ -1,0 +1,718 @@
+<?xml version="1.0"?>
+<!--
+  Flight Control Computer, Sperry 1781218-50
+  Modeled after HFB 320 Hansa Jet Operations Manual, Section 9.1.2
+  Functions and items not marked with a reference to the manual
+  are pure imagination or trial-and-error
+
+  (c) Torsten Dreyer - Torsten@no-spam-t3r.de (ignore no-spam-)
+  
+  History:
+  2009-11-28 initial work 
+-->
+<!--
+  Quote from HFB 320 Operations Manual:
+9.0
+  The Sperry SP-40 autopilot provides three axis control of the airplane.
+  Upon pilot's command the autopilot will perform the following maneuvers
+  a) Coordinated turn
+  b) Pitch trim
+  c) Fly to preselected heading
+  d) Maintain constant altitude
+  e) Fly on VOR radials and ILS beams
+
+9.3
+  The autopilot will maintain the pitch attitude existing at the time of engagement. 
+  Interlocks allow the system to be engaged at bank angles up to 6 degrees, thereby 
+  relieving to trim the airplane accurately before engagement.
+  Bank angle limited to 30 degrees
+-->
+<!--
+TODO: 9.3: While TURN knob out of detend [..] a nose up signal proportional to the 
+           bank angle is fed to the elevator servo to compensate for reduced lift.
+
+-->
+<PropertyList>
+
+  <!-- Interface properties for the autopilot model -->
+  <params>
+    <!-- the width of the turn knob detent (guess) -->
+    <turn-knob-detent type="double">0.02</turn-knob-detent>
+
+    <!-- define "beam center" as cdi-deflection of +/- 0.10 -->
+    <beam-capture-width type="double">0.1</beam-capture-width>
+
+    <!-- 9.3.3 bank angle limits -->
+    <bank-angle-limit-default type="double">30.0</bank-angle-limit-default>
+    <bank-angle-limit-vor type="double">6.0</bank-angle-limit-vor>
+    <bank-angle-limit-loc type="double">12.0</bank-angle-limit-loc>
+
+    <!-- master switch -->
+    <engaged>instrumentation/sp40/afcs-engaged</engaged>
+    <engage-switch>instrumentation/sp40/afcs-engage-switch</engage-switch>
+
+    <!-- the input properties -->
+    <magnetic-heading>orientation/heading-magnetic-deg</magnetic-heading>
+    <heading-bug>autopilot/settings/heading-bug-deg</heading-bug>
+    <pitch>orientation/pitch-deg</pitch>
+    <roll>orientation/roll-deg</roll>
+    <altitude>instrumentation/altimeter[0]/pressure-alt-ft</altitude>
+    <selected-course>instrumentation/nav[0]/radials/selected-deg</selected-course>
+    <cdi-deflection>instrumentation/nav[0]/heading-needle-deflection-norm</cdi-deflection>
+    <is-loc>instrumentation/nav[0]/nav-loc</is-loc>
+    <signal-quality>instrumentation/nav[0]/signal-quality-norm</signal-quality>
+
+    <locks>
+      <roll>instrumentation/sp40/locks/roll</roll>
+      <pitch>instrumentation/sp40/locks/pitch</pitch>
+      <yaw>instrumentation/sp40/locks/yaw</yaw>
+    </locks>
+    <lights>
+      <alt>instrumentation/sp40/lights/alt</alt>
+      <hdgsel>instrumentation/sp40/lights/hdgsel</hdgsel>
+      <radio>instrumentation/sp40/lights/radio</radio>
+      <hdghold>instrumentation/sp40/lights/hdghold</hdghold>
+    </lights>
+
+
+    <!-- the output properties -->
+    <target-heading>instrumentation/sp40/target-heading-deg</target-heading>
+    <target-altitude>instrumentation/sp40/target-altitude-ft</target-altitude>
+    <target-pitch>instrumentation/sp40/target-pitch-deg</target-pitch>
+    <target-roll>instrumentation/sp40/target-roll-deg</target-roll>
+
+    <heading-offset>instrumentation/sp40/heading-offset-deg</heading-offset>
+
+    <elevator-cmd>instrumentation/sp40/elevator-cmd</elevator-cmd>
+    <aileron-cmd>instrumentation/sp40/aileron-cmd</aileron-cmd>
+    <rudder-cmd>instrumentation/sp40/rudder-cmd</rudder-cmd>
+
+  </params>
+
+  <!-- ***************** CONTROLLER ************************* -->
+  <!-- 9.3: Interlocks allow the system to be engaged at bank
+       angles up to 6 degrees.
+  -->
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:Engage</name>
+    <set>
+      <equals>
+        <property>/orientation/roll-deg</property>
+        <value type="double">0.0</value>
+        <!-- +/- 6 degrees -->
+        <precision-value type="double">12.0</precision-value>
+      </equals>
+      <property alias="/params/engage-switch"/>
+    </set>
+    <reset>
+      <not>
+        <property alias="/params/engage-switch"/>
+      </not>
+    </reset>
+    <output alias="/params/engaged"/>
+  </flipflop>
+
+  <logic>
+    <name>SP40:Engage Switch self-holding solenoid</name>
+    <input>
+      <property alias="/params/engage-switch"/>
+      <property alias="/params/engaged"/>
+    </input>
+    <output alias="/params/engage-switch"/>
+  </logic>
+
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:Radio Lock Switch</name>
+    <set>
+      <property>instrumentation/sp40/radio-switch</property>
+    </set>
+    <reset>
+      <or>
+        <property>instrumentation/sp40/hdghold-switch</property>
+        <property>instrumentation/sp40/hdgsel-switch</property>
+        <not><property alias="/params/engaged"/></not>
+        <not-equals>
+          <property>instrumentation/sp40/turn-norm</property>
+          <value>0.0</value>
+          <precision-value alias="/params/turn-knob-detent"/>
+        </not-equals>
+      </or>
+    </reset>
+    <output alias="/params/lights/radio"/>
+  </flipflop>
+
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:Heading Select Switch</name>
+    <set>
+      <property>instrumentation/sp40/hdgsel-switch</property>
+    </set>
+    <reset>
+      <or>
+        <property>instrumentation/sp40/hdghold-switch</property>
+        <property>instrumentation/sp40/radio-switch</property>
+        <not><property alias="/params/engaged"/></not>
+        <not-equals>
+          <property>instrumentation/sp40/turn-norm</property>
+          <value>0.0</value>
+          <precision-value alias="/params/turn-knob-detent"/>
+        </not-equals>
+      </or>
+    </reset>
+    <output alias="/params/lights/hdgsel"/>
+  </flipflop>
+
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:Heading Hold Switch</name>
+    <set>
+      <or>
+        <property>instrumentation/sp40/hdghold-switch</property>
+        <and>
+          <not><property alias="/params/lights/radio"/></not>
+          <not><property alias="/params/lights/hdgsel"/></not>
+          <equals>
+            <property>instrumentation/sp40/turn-norm</property>
+            <value>0.0</value>
+            <precision-value alias="/params/turn-knob-detent"/>
+          </equals>
+        </and>
+      </or>
+    </set>
+    <reset>
+      <or>
+        <property>instrumentation/sp40/hdgsel-switch</property>
+        <property>instrumentation/sp40/radio-switch</property>
+        <not><property alias="/params/engaged"/></not>
+        <not-equals>
+          <property>instrumentation/sp40/turn-norm</property>
+          <value>0.0</value>
+          <precision-value alias="/params/turn-knob-detent"/>
+        </not-equals>
+      </or>
+    </reset>
+    <output alias="/params/lights/hdghold"/>
+  </flipflop>
+
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:Altitude Hold Switch</name>
+    <set>
+      <property>instrumentation/sp40/alt-switch</property>
+    </set>
+    <reset>
+      <or>
+        <property>instrumentation/sp40/pitch-switch</property>
+        <not><property alias="/params/engaged"/></not>
+      </or>
+    </reset>
+    <output alias="/params/lights/alt"/>
+  </flipflop>
+
+  <!-- ***************** MODEL ****************************** -->
+
+  <!-- 9.3.3 Radio Capture
+       Step 1: 
+       - start at beam edge with 45deg intercept angle 
+       Step 2: 
+       - midway between beam edge and center, turn to course 
+       - on the beam center, max bank angle 6deg (VOR), 12deg (LOC)
+       - VOR only: in cone of confusion (rapid deviation of signal), 
+         continue heading until signal is usable
+    -->
+  <flipflop>
+    <type>RS</type>
+    <name>SP40:VORLOC Beam Edge Detector</name>
+    <set>
+      <property alias="/params/lights/radio"/>
+      <equals>
+        <!-- define "beam edge" as cdi-deflection of +/- 0.99 -->
+        <property alias="/params/cdi-deflection"/>
+        <value type="double">0.0</value>
+        <precision-value type="double">1.980</precision-value>
+      </equals>
+    </set>
+    <reset>
+      <not>
+        <property alias="/params/lights/radio"/>
+        <property alias="/params/engaged"/>
+      </not>
+    </reset>
+    <output>instrumentation/sp40/vorloc-beam-edge</output>
+  </flipflop>
+
+  <logic>
+    <name>SP40:VORLOC Beam Center Detector</name>
+    <input>
+      <property alias="/params/lights/radio"/>
+      <equals>
+        <property alias="/params/cdi-deflection"/>
+        <value type="double">0.0</value>
+        <precision-value alias="/params/beam-capture-width"/>
+      </equals>
+    </input>
+    <output>instrumentation/sp40/vorloc-beam-center</output>
+  </logic>
+
+  <flipflop>
+    <name>SP40:VORLOC Beam Center Timer</name>
+    <type>monostable</type>
+    <time>10.0</time>
+    <J><true/></J>
+    <clock><property>instrumentation/sp40/vorloc-beam-center</property></clock>
+    <R>
+      <not>
+        <property alias="/params/lights/radio"/>
+        <property alias="/params/engaged"/>
+      </not>
+    </R>
+    <output>instrumentation/sp40/vorloc-beam-center-timer</output>
+  </flipflop>
+
+  <flipflop>
+    <name>SP40:VORLOC Beam Center Lock</name>
+    <type>RS</type>
+    <set>
+      <property>instrumentation/sp40/vorloc-beam-center</property>
+      <not><property>instrumentation/sp40/vorloc-beam-center-timer</property></not>
+    </set>
+    <reset>
+      <not>
+        <property alias="/params/lights/radio"/>
+        <property alias="/params/engaged"/>
+      </not>
+    </reset>
+    <output>instrumentation/sp40/vorloc-beam-center-lock</output>
+  </flipflop>
+
+  <!--  Monitor current magnetic heading for heading-hold -->
+  <filter>
+    <name>SP40:MagHeading Sample-and-Hold</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <not>
+          <or>
+            <property alias="/params/lights/hdghold"/>
+            <and>
+              <property alias="/params/lights/radio"/>
+              <not>
+                <or>
+                  <property>instrumentation/sp40/vorloc-beam-edge</property>
+                  <and>
+                    <property alias="/params/lights/radio"/>
+                    <property alias="/params/is-loc"/>
+                    <greater-than>
+                      <property alias="/params/signal-quality"/>
+                      <value>0.8</value>
+                    </greater-than>
+                  </and>
+                </or>
+              </not>
+            </and>
+          </or>
+        </not>
+      </condition>
+    </enable>
+    <type>gain</type>
+    <input alias="/params/magnetic-heading"/>
+    <output alias="/params/target-heading"/>
+    <gain>1.0</gain>
+  </filter>
+
+  <filter>
+    <name>SP40:CDI Deflection Speed</name>
+    <type>derivative</type>
+    <filter-time>1.0</filter-time>
+    <input alias="/params/cdi-deflection"/>
+    <output>instrumentation/sp40/cdi-deflection-speed</output>
+  </filter>
+  <filter>
+    <name>SP40:CDI Deflection Speed</name>
+    <type>exponential</type>
+    <filter-time>0.2</filter-time>
+    <input>instrumentation/sp40/cdi-deflection-speed</input>
+    <output>instrumentation/sp40/cdi-deflection-speed-filtered</output>
+  </filter>
+
+  <!-- ===================================================== -->
+  <!-- =================== PITCH AXIS ====================== -->
+  <!-- ===================================================== -->
+  <!--  Monitor current pitch for pitch-hold -->
+  <filter>
+    <name>SP40:Pitch Sample-and-Hold</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <or>
+          <not><property alias="/params/engaged"/></not>
+          <property alias="/params/lights/alt"/>
+        </or>
+      </condition>
+    </enable>
+    <type>gain</type>
+    <input alias="/params/pitch"/>
+    <output>instrumentation/sp40/pitch-memory-deg</output>
+    <gain>1.0</gain>
+  </filter>
+
+  <!-- PITCH switch HFB 320 Operations Manual 9.1.1 -->
+  <pi-simple-controller>
+    <name>SP40:Pitch Offset</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <not><property alias="/params/lights/alt"/></not>
+      </condition>
+    </enable>
+    <input>/instrumentation/sp40/pitch-switch</input>
+    <reference>0</reference>
+    <output>/instrumentation/sp40/pitch-offset-deg</output>
+    <config> <!-- just integrate -->
+      <Kp>0.0</Kp>
+      <Ki>1.0</Ki> <!-- one deg per second -->
+    </config>
+  </pi-simple-controller>
+
+  <filter>
+    <name>SP40:Pitch Hold Target-Pitch</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <not><property alias="/params/lights/alt"/></not>
+      </condition>
+    </enable>
+    <type>gain</type>
+    <input>
+      <property>instrumentation/sp40/pitch-memory-deg</property>
+      <offset>instrumentation/sp40/pitch-offset-deg</offset>
+    </input>
+    <output alias="/params/target-pitch"/>
+    <gain>1.0</gain>
+  </filter>
+
+  <!--  Monitor current pressure altitude for altitude-hold -->
+  <filter>
+    <name>SP40:Pressure Altitude Monitor</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <not><property alias="/params/lights/alt"/></not>
+      </condition>
+    </enable>
+    <type>gain</type>
+    <input alias="/params/altitude"/>
+    <output alias="/params/target-altitude"/>
+    <gain>1.0</gain>
+  </filter>
+
+  <pid-controller>
+    <name>SP40:Altitude Hold</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <property alias="/params/lights/alt"/>
+      </condition>
+    </enable>
+    <input alias="/params/altitude"/>
+    <reference alias="/params/target-altitude"/>
+    <output alias="/params/target-pitch"/>
+    <config>
+      <Kp>0.0100</Kp>
+      <beta>1.0</beta> 
+      <alpha>0.1</alpha>
+      <gamma>1.0</gamma>
+      <Ti>20</Ti>
+      <Td>0.0</Td>
+      <min>-5.0</min>
+      <max>15.0</max>
+    </config>
+  </pid-controller>
+
+  <pid-controller>
+    <name>SP40:Pitch Hold</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+      </condition>
+    </enable>
+    <input alias="/params/pitch"/>
+    <reference alias="/params/target-pitch"/>
+    <output alias="/params/elevator-cmd"/>
+    <config>
+      <Kp>-0.03</Kp>
+      <beta>1.0</beta> 
+      <alpha>0.1</alpha>
+      <gamma>1.0</gamma>
+      <Ti>7.5</Ti>
+      <Td>0.0</Td>
+      <min>-1.0</min>
+      <max>1.0</max>
+    </config>
+  </pid-controller>
+
+  <!-- ===================================================== -->
+  <!-- =================== ROLL  AXIS ====================== -->
+  <!-- ===================================================== -->
+  <filter>
+    <name>SP40:Rate of Turn normalizer</name>
+    <type>gain</type>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <not-equals>
+          <property>instrumentation/sp40/turn-norm</property>
+          <value>0.0</value>
+          <precision-value alias="/params/turn-knob-detent"/>
+        </not-equals>
+      </condition>
+    </enable>
+    <gain alias="/params/bank-angle-limit-default"/>
+    <input>instrumentation/sp40/turn-norm</input>
+    <output alias="/params/target-roll"/>
+  </filter>
+
+  <!--  first stage: Compute heading offset -->
+  <!--  output is in the range -180 .. +180 degree -->
+  <pi-simple-controller>
+    <name>SP40:Heading Offset Computer</name>
+    <debug>false</debug>
+    <enable>
+      <property alias="/params/engaged"/>
+    </enable>
+    <input>
+      <property alias="/params/magnetic-heading"/>
+    </input>
+
+    <reference>
+      <!-- radio has two modes:
+           1st: outside the "beam" aka full deflection of the cdi
+                fly current heading
+           2nd: inside the "beam" aka cdi moving in
+                intercept course with 45deg at half deflection
+      -->
+      <condition>
+        <or>
+          <property>instrumentation/sp40/vorloc-beam-edge</property>
+          <and>
+            <property alias="/params/lights/radio"/>
+            <property alias="/params/is-loc"/>
+            <greater-than>
+              <property alias="/params/signal-quality"/>
+              <value>0.8</value>
+            </greater-than>
+          </and>
+        </or>
+      </condition>
+      <expression>
+        <sum>
+          <property alias="/params/selected-course"/>
+          <max> <!-- clip intercept angle to [-45..45] -->
+            <min><!-- max(min(cdi*90),45),-45) -->
+              <product>
+                <value>45.0</value>
+                <property alias="/params/cdi-deflection"/>
+              </product>
+              <value>45.0</value>
+            </min>
+            <value>-45.0</value>
+          </max>
+        </sum>
+      </expression>
+      <period>
+        <min>0</min>
+        <max>360</max>
+      </period>
+    </reference>
+
+    <reference>
+      <!-- hdgel: use heading bug -->
+      <condition>
+        <property alias="/params/lights/hdgsel"/>
+      </condition>
+      <property alias="/params/heading-bug"/>
+    </reference>
+    <reference>
+      <!-- default: use target heading -->
+      <property alias="/params/target-heading"/>
+    </reference>
+    <output alias="/params/heading-offset"/>
+    <config> <!-- just build the delta, no integration -->
+      <Kp>1.0</Kp>
+      <Ki>0.0</Ki>
+    </config>
+    <period>
+      <min>-180</min>
+      <max>180</max>
+    </period>
+  </pi-simple-controller>
+
+  <!--  second stage: compute target roll based on heading offset
+        rule of thumb: start level off at half bank angle
+        opposite rule of thumb: bank angle is twice the heading offset
+  -->
+  <filter>
+    <name>SP40:Target Roll Computer</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property alias="/params/engaged"/>
+        <equals>
+          <property>instrumentation/sp40/turn-norm</property>
+          <value>0.0</value>
+          <precision-value alias="/params/turn-knob-detent"/>
+        </equals>
+      </condition>
+    </enable>
+    <type>gain</type>
+    <input alias="/params/heading-offset"/>
+    <output alias="/params/target-roll"/>
+    <gain>2.0</gain>
+    <min>
+      <condition>
+        <property>instrumentation/sp40/vorloc-beam-center-lock</property>
+        <!-- and navstation is vor -->
+        <not><property alias="/params/is-loc"/></not>
+      </condition>
+      <value alias="/params/bank-angle-limit-vor"/>
+      <scale type="double">-1.0</scale>
+    </min>
+    <min>
+      <condition>
+        <property>instrumentation/sp40/vorloc-beam-center-lock</property>
+        <!-- and navstation is loc -->
+        <property alias="/params/is-loc"/>
+      </condition>
+      <value alias="/params/bank-angle-limit-loc"/>
+      <scale type="double">-1.0</scale>
+    </min>
+    <min>
+      <value alias="/params/bank-angle-limit-default"/>
+      <scale type="double">-1.0</scale>
+    </min>
+    <max>
+      <condition>
+        <property>instrumentation/sp40/vorloc-beam-center-lock</property>
+        <!-- and navstation is vor -->
+        <not><property alias="/params/is-loc"/></not>
+      </condition>
+      <value alias="/params/bank-angle-limit-vor"/>
+    </max>
+    <max>
+      <condition>
+        <property>instrumentation/sp40/vorloc-beam-center-lock</property>
+        <!-- and navstation is loc -->
+        <property alias="/params/is-loc"/>
+      </condition>
+      <value alias="/params/bank-angle-limit-loc"/>
+    </max>
+    <max>
+      <value alias="/params/bank-angle-limit-default"/>
+    </max>
+  </filter>
+
+
+  <!--  third stage: compute the aileron command
+        for the target roll
+    -->
+  <pid-controller>
+    <name>SP40:Roll Hold</name>
+    <debug>false</debug>
+    <enable>
+      <property alias="/params/engaged"/>
+    </enable>
+    <input alias="/params/roll"/>
+    <reference alias="/params/target-roll"/>
+    <output alias="/params/aileron-cmd"/>
+    <config>
+      <Kp>0.005</Kp>
+      <beta>1.0</beta>
+      <alpha>0.1</alpha>
+      <gamma>1.0</gamma>
+      <Ti>100</Ti>
+      <Td>0.0</Td>
+      <min>-1.0</min>
+      <max>1.0</max>
+    </config>
+  </pid-controller>
+
+
+  <!-- ====================================================================== -->
+  <!-- =============== Yaw Axis ============================================= -->
+  <!-- ====================================================================== -->
+  <!-- Yaw Damper, automatic ball kicker -->
+  <pid-controller>
+    <name>SP40:Yaw Damper</name>
+    <debug>false</debug>
+    <enable>
+      <condition>
+        <property>/instrumentation/autopilot/yaw-damper</property>
+      </condition>
+    </enable>
+    <input>/instrumentation/slip-skid-ball/indicated-slip-skid</input>
+    <reference>0.0</reference>
+    <output alias="/params/rudder-cmd"/>
+    <config>
+      <Kp>0.5</Kp>
+      <Ti>20.0</Ti>
+      <Td>0.0</Td>
+      <min>-0.5</min>
+      <max>0.5</max>
+    </config>
+  </pid-controller>
+
+  <!-- ========================================================================== -->
+  <!-- Servo Driver - Pass output commands thru a noise spike filter to avoid     -->
+  <!-- rapid control inputs and simulate slow movement of the servos              -->
+  <!-- Disable servos in passive-mode                                             -->
+  <!-- ========================================================================== -->
+  <filter>
+    <name>SERVO-DRIVER:aileron</name>
+    <debug>false</debug>
+    <feedback-if-disabled>true</feedback-if-disabled>
+    <enable>
+      <!-- enable aileron servo if any heading mode is locked -->
+      <property alias="/params/engaged"/>
+    </enable>
+    <input alias="/params/aileron-cmd"/>
+    <output>/controls/flight/aileron</output>
+    <type>noise-spike</type>
+    <max-rate-of-change>0.5</max-rate-of-change>
+  </filter>
+
+  <filter>
+    <name>SERVO-DRIVER:elevator</name>
+    <debug>false</debug>
+    <feedback-if-disabled>true</feedback-if-disabled>
+    <enable>
+      <!-- enable aileron servo if  ap is engaged-->
+      <property alias="/params/engaged"/>
+    </enable>
+    <input alias="/params/elevator-cmd"/>
+    <output>/controls/flight/elevator</output>
+    <type>noise-spike</type>
+    <max-rate-of-change>0.2</max-rate-of-change>
+  </filter>
+
+  <filter>
+    <name>SERVO-DRIVER:rudder</name>
+    <debug>false</debug>
+    <feedback-if-disabled>true</feedback-if-disabled>
+    <enable>
+      <property>/instrumentation/autopilot/yaw-damper</property>
+    </enable>
+    <input alias="/params/rudder-cmd"/>
+    <output>/controls/flight/rudder-trim</output>
+    <type>noise-spike</type>
+    <max-rate-of-change>0.10</max-rate-of-change>
+  </filter>
+
+</PropertyList>

@@ -1,0 +1,38 @@
+[JSBSim]
+aircrafts = ["paraglider", "J3Cub", "c172p", "Hansajet"]
+
+[J3Cub]
+geometry="share/covise/jsbsim/geometry/A50.wrl"
+y = -1200
+z = -700
+h = 180
+aircraftDir = "aircraft"
+enginesDir = "engine"
+systemsDir = "systems"
+scale = 1000
+[paraglider]
+geometry="share/covise/jsbsim/geometry/paraglider.osgb"
+scale = 1000
+[c172p]
+geometry="share/covise/jsbsim/geometry/c172r/c172-dpm.ac"
+systemsDir = "systems"
+x = 0
+y = -700
+z = -100
+h = 90
+p = 180
+r = 90
+scale = 1000
+[Hansajet]
+geometry="share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
+systemsDir = "Hansajet/Systems"
+aircraftDir = "aircraft"
+enginesDir = "Hansajet/Engines"
+resetFile = "Reset00.xml"
+x = 0
+y = -6900
+z = -2500
+h = 90
+p = 180
+r = 90
+scale = 1000
