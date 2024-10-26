@@ -45,30 +45,85 @@ JSBSimPlugin* JSBSimPlugin::plugin = NULL;
 JSBSimPlugin::JSBSimPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("JSBSimPlugin", cover->ui)
-, coVRNavigationProvider("Paraglider", this)
+, coVRNavigationProvider("JSBsim", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
+    geometryTrans = new osg::MatrixTransform();
 
-    std::string AircraftGeometry = configString("Model", "aircraftGeometry", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
-   
-    geometryFile = configString("Geometry", "file", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
-    const char* GF = coVRFileManager::instance()->getName(geometryFile.c_str());
+    if (coVRMSController::instance()->isMaster())
+    {
+
+        remoteSoundServer = configString("Sound", "server", "localhost")->value();
+        remoteSoundPort = configInt("Sound", "port", 31805)->value();
+
+        const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
+        if (VS == nullptr)
+            VS = "";
+        VarioSound = configString("Sound", "vario", VS)->value();
+        const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav");
+        if (WS == nullptr)
+            WS = "";
+        WindSound = configString("Sound", "wind", WS)->value();
+#if defined(_MSC_VER)
+        // _clearfp();
+        // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
+        //     _MCW_EM);
+#elif defined(__GNUC__) && !defined(sgi) && !defined(__APPLE__)
+        //feenableexcept(FE_DIVBYZERO | FE_INVALID);
+#endif
+
+        rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
+        varioSound = rsClient->getSound(VarioSound);
+        windSound = rsClient->getSound(WindSound);
+        varioSound->setLoop(true, -1);
+        windSound->setLoop(true, -1);
+    }
+    plugin = this;
+    udp = 0;
+}
+void JSBSimPlugin::updateTrans()
+{
+    float tx = cX->value();
+    float ty = cY->value();
+    float tz = cZ->value();
+    float th = cH->value() / 180 * M_PI;
+    float tp = cP->value() / 180 * M_PI;
+    float tr = cR->value() / 180 * M_PI;
+    float ts = cS->value();
+    osg::Matrix gt = osg::Matrix::scale(ts, ts, ts) * osg::Matrix::rotate(th, osg::Vec3(0, 0, 1), tp, osg::Vec3(1, 0, 0), tr, osg::Vec3(0, 1, 0)) * osg::Matrix::translate(tx, ty, tz);
+    geometryTrans->setMatrix(gt);
+}
+
+void JSBSimPlugin::initAircraft()
+{
+    std::string AircraftGeometry = configString(currentAircraft, "geometry", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
+
+    const char* GF = coVRFileManager::instance()->getName(AircraftGeometry.c_str());
     if (GF == nullptr)
         GF = "";
     geometryFile = GF;
-    float tx = configFloat("Geometry", "x", 0.0)->value();
-    float ty = configFloat("Geometry", "y", 0.0)->value();
-    float tz = configFloat("Geometry", "z", 0.0)->value();
-    float th = configFloat("Geometry", "h", 0.0)->value();
-    float tp = configFloat("Geometry", "p", 0.0)->value();
-    float tr = configFloat("Geometry", "r", 0.0)->value();
-    float ts = configFloat("Geometry", "scale", 1000.0)->value();
+    cX = configFloat(currentAircraft, "x", 0.0);
+    cY = configFloat(currentAircraft, "y", 0.0);
+    cZ = configFloat(currentAircraft, "z", 0.0);
+    cH = configFloat(currentAircraft, "h", 0.0);
+    cP = configFloat(currentAircraft, "p", 0.0);
+    cR = configFloat(currentAircraft, "r", 0.0);
+    cS = configFloat(currentAircraft, "scale", 1000.0);
 
-    osg::Matrix gt = osg::Matrix::scale(ts,ts,ts)*osg::Matrix::rotate(th, osg::Vec3(0,0,1), tp, osg::Vec3(1,0,0),  tr, osg::Vec3(0,1,0)) *  osg::Matrix::translate(tx, ty, tz);
-    geometryTrans = new osg::MatrixTransform(gt);
+    tX->setValue(cX->value());
+    tY->setValue(cY->value());
+    tZ->setValue(cZ->value());
+    tH->setValue(cH->value() / 180 * M_PI);
+    tP->setValue(cP->value() / 180 * M_PI);
+    tR->setValue(cR->value() / 180 * M_PI);
+    tS->setValue(cS->value());
+
+    updateTrans();
+    while (geometryTrans->getNumChildren())
+        geometryTrans->removeChild(0,1); //remove old geometries
     osg::Node* n = osgDB::readNodeFile(geometryFile.c_str());
 
-    if(n!=nullptr)
+    if (n != nullptr)
     {
         n->setName(geometryFile);
         geometryTrans->addChild(n);
@@ -77,38 +132,8 @@ JSBSimPlugin::JSBSimPlugin()
     {
         coVRFileManager::instance()->loadFile(geometryFile.c_str(), nullptr, geometryTrans);
     }
-if (coVRMSController::instance()->isMaster())
-        {
-  
-    remoteSoundServer = configString("Sound", "server", "localhost")->value();
-    remoteSoundPort = configInt("Sound", "port", 31805)->value();
-
-    const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
-    if (VS == nullptr)
-        VS = "";
-    VarioSound = configString("Sound", "vario", VS)->value();
-    const char* WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav");
-    if (WS == nullptr)
-        WS = "";
-    WindSound = configString("Sound", "wind", WS)->value();
-#if defined(_MSC_VER)
-    // _clearfp();
-    // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
-    //     _MCW_EM);
-#elif defined(__GNUC__) && !defined(sgi) && !defined(__APPLE__)
-    //feenableexcept(FE_DIVBYZERO | FE_INVALID);
-#endif
-
-    rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
-    varioSound = rsClient->getSound(VarioSound);
-    windSound = rsClient->getSound(WindSound);
-    varioSound->setLoop(true, -1);
-    windSound->setLoop(true, -1);
+    initJSB();
 }
-    plugin = this;
-    udp = 0;
-}
-
 
 //! reimplement to do early cleanup work and return false to prevent unloading
 bool JSBSimPlugin::destroy()
@@ -269,14 +294,13 @@ bool JSBSimPlugin::initJSB()
 
     bool result = false;
 
-    std::string line = configString("JSBSim", "scriptName", "")->value();
+    std::string line = configString(currentAircraft, "scriptName", "")->value();
     ScriptName.set(line);
     
-    AircraftDir = configString("Model", "aircraftDir", "aircraft")->value();
-    AircraftName = configString("Model", "aircraft", "paraglider")->value();
-    EnginesDir = configString("Model", "enginesDir", "engine")->value();
-    SystemsDir = configString("Model", "systemsDir", "paraglider/Systems")->value();
-    resetFile = configString("Model", "resetFile", "reset00.xml")->value();
+    AircraftDir = configString(currentAircraft, "aircraftDir", "aircraft")->value();
+    EnginesDir = configString(currentAircraft, "enginesDir", "engine")->value();
+    SystemsDir = configString(currentAircraft, "systemsDir", "paraglider/Systems")->value();
+    resetFile = configString(currentAircraft, "resetFile", "reset00.xml")->value();
 
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
@@ -290,14 +314,14 @@ bool JSBSimPlugin::initJSB()
 
         // *** OPTION B: LOAD AN AIRCRAFT AND A SET OF INITIAL CONDITIONS *** //
     }
-    else if (!AircraftName.empty() || !resetFile.length() == 0) {
+    else if (!currentAircraft.empty() || !resetFile.length() == 0) {
 
         if (catalog) FDMExec->SetDebugLevel(0);
 
         if (!FDMExec->LoadModel(SGPath(AircraftDir),
             SGPath(EnginesDir),
             SGPath(SystemsDir),
-            AircraftName)) {
+            currentAircraft)) {
             cerr << "  JSBSim could not be started" << endl << endl;
             return false;
         }
@@ -366,6 +390,8 @@ bool JSBSimPlugin::init()
         rd="";
     RootDir = configString("JSBSim", "rootDir", rd)->value().c_str();
 
+
+
     //mapping of coordinates
 #ifdef WIN32
     const char* pValue="";
@@ -405,6 +431,15 @@ bool JSBSimPlugin::init()
 
     JSBMenu = new ui::Menu("JSBSim", this);
 
+    aircrafts = configStringArray("JSBSim", "aircrafts", { "Paraglider", "c172b", "J3Cub" });
+    currentAircraft = aircrafts->value()[0]; 
+    planeType = new ui::SelectionList(JSBMenu, "planeType");
+    planeType->setList(aircrafts->value());
+    planeType->setCallback([this](int val) {
+        currentAircraft = aircrafts->value()[val];
+        initAircraft();
+        });
+
     printCatalog = new ui::Action(JSBMenu, "printCatalog");
     printCatalog->setCallback([this]() {
         if (FDMExec)
@@ -440,6 +475,7 @@ bool JSBSimPlugin::init()
 
 
     Weather = new ui::Group(JSBMenu, "Weather");
+    Geometry = new ui::Group(JSBMenu, "Geometry");
     WindLabel = new ui::Label(Weather, "Wind");
     WX = new ui::EditField(Weather, "X");
     WY = new ui::EditField(Weather, "Y");
@@ -455,6 +491,69 @@ bool JSBSimPlugin::init()
         });
     WZ->setCallback([this](std::string v) {
         if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
+        });
+    tX = new ui::EditField(Geometry, "X");
+    tY = new ui::EditField(Geometry, "Y");
+    tZ = new ui::EditField(Geometry, "Z");
+    tX->setValue(0.0);
+    tY->setValue(0.0);
+    tZ->setValue(0.0);
+    tX->setCallback([this](std::string v) {
+        if (cX)
+        {
+            *cX = double(tX->number());
+            updateTrans();
+        }
+        });
+    tY->setCallback([this](std::string v) {
+        if (cY)
+        {
+            *cY = double(tY->number());
+        updateTrans();
+        }
+        });
+    tZ->setCallback([this](std::string v) {
+        if (cZ)
+        {
+            *cZ = double(tZ->number());
+        updateTrans();
+        }
+        });
+    tH = new ui::EditField(Geometry, "H");
+    tP = new ui::EditField(Geometry, "P");
+    tR = new ui::EditField(Geometry, "R");
+    tH->setValue(0.0);
+    tP->setValue(0.0);
+    tR->setValue(0.0);
+    tH->setCallback([this](std::string v) {
+        if (cH)
+        {
+            *cH = double(tH->number() / M_PI * 180);
+        updateTrans();
+        }
+        });
+    tP->setCallback([this](std::string v) {
+        if (cP)
+        {
+            *cP = double(tP->number() / M_PI * 180);
+        updateTrans();
+        }
+        });
+    tR->setCallback([this](std::string v) {
+        if (cR)
+        {
+            *cR = double(tR->number() / M_PI * 180);
+        updateTrans();
+        }
+        });
+    tS = new ui::EditField(Geometry, "S");
+    tS->setValue(1000.0);
+    tS->setCallback([this](std::string v) {
+        if (cS)
+        {
+            *cS = double(tS->number());
+            updateTrans();
+        }
         });
     VLabel = new ui::Label(JSBMenu,"V");
     VzLabel = new ui::Label(JSBMenu,"Vz");
@@ -503,6 +602,8 @@ bool JSBSimPlugin::init()
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
     VrmlNamespace::addBuiltIn(VrmlNodeThermal::defineType());
+
+    initAircraft();
     return true;
 }
 

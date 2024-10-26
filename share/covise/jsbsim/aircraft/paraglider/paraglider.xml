@@ -47,7 +47,7 @@
     <location name="EYEPOINT" unit="IN">
       <x> 0 </x>
       <y> 0 </y>
-      <z> -230 </z>
+      <z> -140 </z>
     </location>
     <location name="VRP" unit="IN">
       <x> 0 </x>

@@ -289,3 +289,4 @@
 !.vscode/configureCovise
 !.vscode/tasks.json
 compile_commands.json
+/share/covise/jsbsim/geometry/A50.wrl
