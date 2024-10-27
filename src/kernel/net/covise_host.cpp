@@ -269,13 +269,6 @@ void Host::HostSymbolic(const char *n)
     if (err == 1)
     {
         memcpy(char_address, &v4, sizeof(char_address));
-        setAddress(n);
-        auto name = lookupHostname(n);
-        if (name.empty())
-            setName(n);
-        else
-            setName(name.c_str());
-        return;
     }
     if (err == 0)
     {
@@ -294,42 +287,21 @@ void Host::HostSymbolic(const char *n)
     }
     memset(char_address, 0, sizeof(char_address));
 
-#if 0
-    struct hostent *hent = gethostbyname(n);
-    if (NULL == hent)
-    {
-        fprintf(stderr, "lookup for %s failed\n", n);
-        if (strchr(n, ' '))
-            abort();
-        setAddress(NULL);
-        return;
-    }
-    if (hent->h_addrtype == AF_INET6)
-    {
-        fprintf(stderr, "cannot handle inet6 address: lookup for %s failed\n", n);
-    }
-    else if (hent->h_addrtype == AF_INET)
-    {
-        char_address[0] = *hent->h_addr_list[0];
-        char_address[1] = *(hent->h_addr_list[0] + 1);
-        char_address[2] = *(hent->h_addr_list[0] + 2);
-        char_address[3] = *(hent->h_addr_list[0] + 3);
-        char buf[1024];
-        sprintf(buf, "%d.%d.%d.%d",
-                char_address[0],
-                char_address[1],
-                char_address[2],
-                char_address[3]);
-        setAddress(buf);
-    }
-#else
-
     std::unique_lock guard(globalNameMutex);
     auto it = globalNameMap.find(n);
     if (it != globalNameMap.end())
     {
         //std::cerr << "HostSymbolic: using cache for n=" << n << std::endl;
-        setAddress(it->second.addr.c_str());
+        auto &entry = it->second;
+        bool valid = !entry.addr.empty();
+        if (valid)
+        {
+            setAddress(it->second.addr.c_str());
+        }
+        else
+        {
+            setAddress(nullptr);
+        }
         memcpy(char_address, it->second.char_address, sizeof(char_address));
         guard.unlock();
     }
@@ -351,6 +323,11 @@ void Host::HostSymbolic(const char *n)
         {
             //std::cerr << "Host::HostSymbolic: getaddrinfo failed for " << n << ": " << s << " " << gai_strerror(s) << std::endl;
             fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
+            setAddress(nullptr);
+            guard.lock();
+            globalNameMap[n].addr.clear();
+            memcpy(globalNameMap[n].char_address, char_address, sizeof(char_address));
+            guard.unlock();
             return;
         }
         else
@@ -389,7 +366,6 @@ void Host::HostSymbolic(const char *n)
             freeaddrinfo(result); /* No longer needed */
         }
     }
-#endif
     setName(n);
 }
 
