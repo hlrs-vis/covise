@@ -421,7 +421,20 @@ InputDevice *Input::getDevice(const std::string &name)
     {
         std::string conf = configPath("Device." + name);
         std::string type = coCoviseConfig::getEntry("driver", conf, "const");
-        if (type.empty())
+        DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
+        if (!plug)
+        {
+            std::cerr << "Input: replaced driver " << name << " with \"const\"" << std::endl;
+            plug = getDriverPlugin("const");
+        }
+        if (plug)
+        {
+            dev = plug->newInstance("COVER.Input.Device." + name);
+            drivers[name] = dev;
+            if (dev->needsThread())
+                dev->start();
+        }
+        else if (type.empty())
         {
             if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
             {
@@ -440,19 +453,6 @@ InputDevice *Input::getDevice(const std::string &name)
             }
         }
         //std::cerr << "Input: creating dev " << name << ", driver " << type << std::endl;
-        DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
-        if (!plug)
-        {
-            std::cerr << "Input: replaced driver " << name << " with \"const\"" << std::endl;
-            plug = getDriverPlugin("const");
-        }
-        if (plug)
-        {
-            dev = plug->newInstance("COVER.Input.Device." + name);
-            drivers[name] = dev;
-            if (dev->needsThread())
-                dev->start();
-        }
     }
     return dev;
 }
