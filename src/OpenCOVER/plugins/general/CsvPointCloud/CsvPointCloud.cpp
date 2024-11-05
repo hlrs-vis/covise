@@ -155,6 +155,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
+    VrmlNamespace::addBuiltIn(MachineNode::defineType());
     std::cerr << "getName: " << getName() << std::endl;
     m_config->setSaveOnExit(true);
     m_dataSelector->ui()->setShared(true);
@@ -281,7 +282,7 @@ bool CsvPointCloudPlugin::init()
     if (m_plugin)
         return false;
     m_plugin = this;
-
+    std::cerr << "init CsvPointCloudPlugin" << std::endl;
     m_handler[0] = FileHandler{nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "csv"};
     m_handler[1] = FileHandler{ nullptr, CsvPointCloudPlugin::load, CsvPointCloudPlugin::unload, "oct"};
 
