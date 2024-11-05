@@ -24,10 +24,7 @@
 #include "TreeModel.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
-// #include <OpenVRUI/coMenu.h>
 #include <cover/coVRTui.h>
-// #include <coVRTui>
-#include <curl/curl.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>

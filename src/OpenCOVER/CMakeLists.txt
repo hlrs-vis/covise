@@ -122,6 +122,7 @@ ADD_SUBDIRECTORY(DrivingSim)
 USING(MPI optional)
 USING(Pthreads optional)
 using(Boost)
+using(CURL)
 
 if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(osgcaveui)
