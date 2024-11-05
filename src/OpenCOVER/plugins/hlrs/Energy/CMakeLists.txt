@@ -23,7 +23,9 @@ SET(SOURCES
 )
 
 add_subdirectory(core)
+MESSAGE("CORE HAS BEEN BUILDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
 add_subdirectory(ennovatis)
+MESSAGE("ENNOVATIS HAS BEEN BUILDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
 cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json $<TARGET_OBJECTS:EnergyCore> $<TARGET_OBJECTS:Ennovatis> coCurlHTTPClient coThreadUtil coReadCSVUtil ${HEADERS} ${SOURCES})
 target_include_directories(EnergyCampus PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/ennovatis/include")

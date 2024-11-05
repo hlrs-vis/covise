@@ -14,6 +14,7 @@
 
 using namespace opencover;
 
+
 namespace energy {
 class DeviceSensor: public coPickSensor {
 private:
