@@ -43,7 +43,6 @@ DeviceThread::DeviceThread(SpaceNavigator *s)
     exit = false;
     fileDesc = 0;
     buttonStatus = 0;
-    buf = NULL;
     for (int i = 0; i < 6; i++)
         fvalues[i] = 0.0;
 
@@ -60,7 +59,6 @@ DeviceThread::DeviceThread(SpaceNavigator *s)
 #else
         bufSize = 4096;
 #endif
-        buf = new char[bufSize];
     }
     else
     {
@@ -70,7 +68,6 @@ DeviceThread::DeviceThread(SpaceNavigator *s)
 DeviceThread::~DeviceThread()
 {
     exit = true;
-    delete[] buf;
 }
 
 // see <linux/input.h>
@@ -85,6 +82,8 @@ struct InputEvent
 void DeviceThread::run()
 {
 
+    std::vector<char> bufvec(bufSize);
+    char *buf = bufvec.data();
     while (!exit)
     {
         int numRead = read(fileDesc, buf, bufSize);
