@@ -1221,7 +1221,11 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     {
         MEColorPoint *cp = colorMap->points.at(i);
         QRect ra = cp->geometry();
+#if QT_VERSION >= 0x060000
+        if (ra.contains(e->position().x(), e->position().y()))
+#else
         if (ra.contains(e->pos().x(), e->y()))
+#endif
             list.append(cp);
     }
 
@@ -1229,7 +1233,11 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     if (list.isEmpty())
     {
         clickPoint = NULL;
+#if QT_VERSION >= 0x060000
+        float xpos = (float)(e->position().x()) / (float)width();
+#else
         float xpos = (float)(e->pos().x()) / (float)width();
+#endif
         emit newPoint(xpos);
         return;
     }
@@ -1254,7 +1262,11 @@ void MEColorMarkerContainer::mousePressEvent(QMouseEvent *e)
     if (clickPoint)
     {
         QRect ra = clickPoint->geometry();
+#if QT_VERSION >= 0x060000
+        offset = e->position().x() - ra.left();
+#else
         offset = e->pos().x() - ra.left();
+#endif
         emit pickPoint(clickPoint);
     }
 }
@@ -1283,7 +1295,11 @@ void MEColorMarkerContainer::mouseMoveEvent(QMouseEvent *e)
         return;
 
     // get neighbours
+#if QT_VERSION >= 0x060000
+    float xx = float(e->position().x()) / float(width());
+#else
     float xx = float(e->x()) / float(width());
+#endif
     float xmin = (colorMap->points.at(index - 1))->getX();
     float xmax = (colorMap->points.at(index + 1))->getX();
 
@@ -1291,7 +1307,11 @@ void MEColorMarkerContainer::mouseMoveEvent(QMouseEvent *e)
     if (xx <= xmin || xx >= xmax)
         return;
 
+#if QT_VERSION >= 0x060000
+    clickPoint->move(e->position().x() - offset, 2);
+#else
     clickPoint->move(e->x() - offset, 2);
+#endif
     clickPoint->setX(xx);
     clickPoint->update();
     emit movePoint(clickPoint);
