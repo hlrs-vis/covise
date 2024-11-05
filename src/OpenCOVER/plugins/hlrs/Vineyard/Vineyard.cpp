@@ -77,7 +77,7 @@ bool VineyardPlugin::init()
 {
     PVL = osgDB::readNodeFile("/data/Weinberge/PVL.ive");
     PVP = osgDB::readNodeFile("/data/Weinberge/PVP.ive");
-    loadPVShp("/data/Weinberge/hessigheim-solar-corrected-elevation.shp");
+    loadPVShp("/data/Weinberge/07_final_individual_features.shp");
     return true;
 }
 
