@@ -1,6 +1,5 @@
 using(VRML)
 using(boost)
-using(exprtk)
 covise_find_package(Boost COMPONENTS timer REQUIRED)
 
 SET(HEADERS
