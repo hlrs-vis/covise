@@ -2094,10 +2094,16 @@ std::string coVRFileManager::httpFetch(const std::string &url)
   std::string readBuffer;
 
   httpclient::curl::GET get(url);
-  if (!httpclient::curl::Request().httpRequest(get, readBuffer))
+  if (httpclient::curl::Request().httpRequest(get, readBuffer))
   {
     return writeRemoteFetchedFile(url, readBuffer.data(), readBuffer.size());
   }
+  else
+  {
+    std::cerr << "coVRFileManager::httpFetch: getting " << url << " failed" << std::endl;
+  }
+#else
+  std::cerr << "coVRFileManager::httpFetch: cannot get " << url << " - no CURL" << std::endl;
 #endif
   return "";
 }
