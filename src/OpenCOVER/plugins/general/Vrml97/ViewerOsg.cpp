@@ -5510,6 +5510,7 @@ bool ViewerOsg::update(double timeNow)
             {
                 movDat->movieProp->playing = false;
                 movDat->movieProp->mtNode->stopped();
+                updated = true;
             }
             if (movDat->movieProp->start > 0)
             {
@@ -5523,6 +5524,7 @@ bool ViewerOsg::update(double timeNow)
                     movDat->movieProp->stop = -2;
                 movDat->movieProp->start = -2;
                 movDat->movieProp->speed = -movDat->movieProp->speed;
+                updated = true;
             }
             else if (!movDat->movieProp->loop && (movDat->movieProp->stop > 0))
             {
@@ -5531,10 +5533,12 @@ bool ViewerOsg::update(double timeNow)
 #else
                 imageS->setReferenceTime(0);
 #endif
+                updated = true;
             }
         }
         else
         {
+            updated = true;
 #ifdef NEW_OSG
             if (imageS->getStatus() != osg::ImageStream::PAUSED)
             {
@@ -5577,7 +5581,8 @@ bool ViewerOsg::update(double timeNow)
     if (d_scene)
     {
         currentTransform.makeIdentity();
-        updated = d_scene->update(timeNow);
+        if (d_scene->update(timeNow))
+            updated = true;
         redraw();
     }
     if (cover->debugLevel(5))
