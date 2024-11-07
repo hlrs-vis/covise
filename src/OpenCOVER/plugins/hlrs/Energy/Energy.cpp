@@ -168,6 +168,7 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2, b
 }
 } // namespace
 
+/* #region GENERAL */
 EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
 
 EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui)
@@ -240,6 +241,97 @@ EnergyPlugin::~EnergyPlugin() {
   m_plugin = nullptr;
 }
 
+bool EnergyPlugin::update()
+{
+    for (auto s = m_SDlist.begin(); s != m_SDlist.end(); s++) {
+        if (s->second.empty())
+            continue;
+        for (auto timeElem: s->second) {
+            if (timeElem)
+                timeElem->update();
+        }
+    }
+
+    if constexpr (debug) {
+        auto result = m_debug_worker.getResult();
+        if (result)
+            for (auto &requ: *result)
+                std::cout << "Response:\n" << requ << "\n";
+    }
+
+    for (auto &sensor: m_ennovatisDevicesSensors)
+        sensor->update();
+
+    for (auto &[name, sensor]: m_cityGMLObjs)
+        sensor->update();
+
+    return false;
+}
+
+void EnergyPlugin::setTimestep(int t)
+{
+    m_sequenceList->setValue(t);
+    for (auto &sensor: m_ennovatisDevicesSensors)
+        sensor->setTimestep(t);
+
+    for (auto &[_,sensor]: m_cityGMLObjs)
+        sensor->updateTime(t);
+}
+
+void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child) {
+  m_switch->setAllChildrenOff();
+  m_switch->setChildValue(child, true);
+}
+
+bool EnergyPlugin::init()
+{
+    auto dbPath = configString("CSV", "filename", "default")->value();
+    auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
+    // csv contains only updated buildings
+    auto channelIdCSVPath = configString("Ennovatis", "csvPath", "default")->value();
+    ProjTrans pjTrans;
+    pjTrans.projFrom = configString("General", "projFrom", "default")->value();
+    pjTrans.projTo = configString("General", "projTo", "default")->value();
+
+    initRESTRequest();
+
+    if constexpr (debug) {
+        std::cout << "Load database: " << dbPath << std::endl;
+        std::cout << "Load channelIDs: " << channelIdJSONPath << std::endl;
+    }
+
+    if (loadDB(dbPath, pjTrans))
+        std::cout << "Database loaded in cache" << std::endl;
+    else
+        std::cout << "Database not loaded" << std::endl;
+
+    if (loadChannelIDs(channelIdJSONPath, channelIdCSVPath))
+        std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
+    else
+        std::cout << "Ennovatis channelIDs not loaded" << std::endl;
+
+
+    auto noMatches = updateEnnovatisBuildings(m_SDlist);
+
+    if constexpr (debug) {
+        int i = 0;
+        std::cout << "Matches between devices and buildings:" << std::endl;
+        for (auto &[device, building]: m_devBuildMap)
+            std::cout << ++i << ": Device: " << device->getInfo()->strasse << " -> Building: " << building->getName()
+                      << std::endl;
+
+        std::cout << "No matches for the following buildings:" << std::endl;
+        for (auto &building: *noMatches)
+            std::cout << building->getName() << std::endl;
+    }
+    initEnnovatisDevices();
+    switchTo(m_sequenceList);
+    return true;
+}
+
+/* #endregion */
+
+/* #region CITYGML */
 void EnergyPlugin::initCityGMLUI()
 {
     m_cityGMLGroup = new ui::Group(EnergyTab, "CityGML");
@@ -298,7 +390,9 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
     }
   }
 }
+/* #endregion */
 
+/* #region ENNOVATIS */
 void EnergyPlugin::initEnnovatisUI()
 {
     m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
@@ -372,18 +466,6 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false)
         m_req->dtt = time;
 }
 
-void EnergyPlugin::reinitDevices(int comp)
-{
-    for (auto s: m_SDlist) {
-        if (s.second.empty())
-            continue;
-        for (auto devSens: s.second) {
-            auto t = devSens->getDevice();
-            t->init(rad, scaleH, comp);
-        }
-    }
-}
-
 core::CylinderAttributes EnergyPlugin::getCylinderAttributes()
 {
     auto configDefaultColorVec =
@@ -439,48 +521,6 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
         m_debug_worker.fetchChannels(group, b, *m_req);
     }
     updateEnnovatisChannelGrp();
-}
-
-void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child) {
-  m_switch->setAllChildrenOff();
-  m_switch->setChildValue(child, true);
-}
-
-void EnergyPlugin::setComponent(Components c)
-{
-    switchTo(m_sequenceList);
-    switch (c) {
-    case Strom:
-        StromBt->setState(true, false);
-        break;
-    case Waerme:
-        WaermeBt->setState(true, false);
-        break;
-    case Kaelte:
-        KaelteBt->setState(true, false);
-        break;
-    default:
-        break;
-    }
-    m_selectedComp = c;
-    reinitDevices(c);
-}
-
-bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
-{
-    if (!loadDBFile(path, projTrans)) {
-        return false;
-    }
-
-    if ((int)m_sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps()) {
-        coVRAnimationManager::instance()->setNumTimesteps(m_sequenceList->getNumChildren(), m_sequenceList);
-    }
-
-    rad = 3.;
-    scaleH = 0.1;
-
-    reinitDevices(m_selectedComp);
-    return true;
 }
 
 bool EnergyPlugin::updateChannelIDsFromCSV(const std::string &pathToCSV)
@@ -597,51 +637,61 @@ std::unique_ptr<EnergyPlugin::const_buildings> EnergyPlugin::updateEnnovatisBuil
     return std::make_unique<const_buildings>(noDeviceMatches);
 }
 
-bool EnergyPlugin::init()
+/* #endregion */
+
+/* #region CAMPUS_DB */
+
+void EnergyPlugin::reinitDevices(int comp)
 {
-    auto dbPath = configString("CSV", "filename", "default")->value();
-    auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
-    // csv contains only updated buildings
-    auto channelIdCSVPath = configString("Ennovatis", "csvPath", "default")->value();
-    ProjTrans pjTrans;
-    pjTrans.projFrom = configString("General", "projFrom", "default")->value();
-    pjTrans.projTo = configString("General", "projTo", "default")->value();
-
-    initRESTRequest();
-
-    if constexpr (debug) {
-        std::cout << "Load database: " << dbPath << std::endl;
-        std::cout << "Load channelIDs: " << channelIdJSONPath << std::endl;
+    for (auto s: m_SDlist) {
+        if (s.second.empty())
+            continue;
+        for (auto devSens: s.second) {
+            auto t = devSens->getDevice();
+            t->init(rad, scaleH, comp);
+        }
     }
-
-    if (loadDB(dbPath, pjTrans))
-        std::cout << "Database loaded in cache" << std::endl;
-    else
-        std::cout << "Database not loaded" << std::endl;
-
-    if (loadChannelIDs(channelIdJSONPath, channelIdCSVPath))
-        std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
-    else
-        std::cout << "Ennovatis channelIDs not loaded" << std::endl;
+}
 
 
-    auto noMatches = updateEnnovatisBuildings(m_SDlist);
-
-    if constexpr (debug) {
-        int i = 0;
-        std::cout << "Matches between devices and buildings:" << std::endl;
-        for (auto &[device, building]: m_devBuildMap)
-            std::cout << ++i << ": Device: " << device->getInfo()->strasse << " -> Building: " << building->getName()
-                      << std::endl;
-
-        std::cout << "No matches for the following buildings:" << std::endl;
-        for (auto &building: *noMatches)
-            std::cout << building->getName() << std::endl;
-    }
-    initEnnovatisDevices();
+void EnergyPlugin::setComponent(Components c)
+{
     switchTo(m_sequenceList);
+    switch (c) {
+    case Strom:
+        StromBt->setState(true, false);
+        break;
+    case Waerme:
+        WaermeBt->setState(true, false);
+        break;
+    case Kaelte:
+        KaelteBt->setState(true, false);
+        break;
+    default:
+        break;
+    }
+    m_selectedComp = c;
+    reinitDevices(c);
+}
+
+bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans)
+{
+    if (!loadDBFile(path, projTrans)) {
+        return false;
+    }
+
+    if ((int)m_sequenceList->getNumChildren() > coVRAnimationManager::instance()->getNumTimesteps()) {
+        coVRAnimationManager::instance()->setNumTimesteps(m_sequenceList->getNumChildren(), m_sequenceList);
+    }
+
+    rad = 3.;
+    scaleH = 0.1;
+
+    reinitDevices(m_selectedComp);
     return true;
 }
+
+
 
 void EnergyPlugin::helper_initTimestepGrp(size_t maxTimesteps, osg::ref_ptr<osg::Group> &timestepGroup)
 {
@@ -766,41 +816,6 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName, const ProjTrans &proj
     return true;
 }
 
-bool EnergyPlugin::update()
-{
-    for (auto s = m_SDlist.begin(); s != m_SDlist.end(); s++) {
-        if (s->second.empty())
-            continue;
-        for (auto timeElem: s->second) {
-            if (timeElem)
-                timeElem->update();
-        }
-    }
-
-    if constexpr (debug) {
-        auto result = m_debug_worker.getResult();
-        if (result)
-            for (auto &requ: *result)
-                std::cout << "Response:\n" << requ << "\n";
-    }
-
-    for (auto &sensor: m_ennovatisDevicesSensors)
-        sensor->update();
-
-    for (auto &[name, sensor]: m_cityGMLObjs)
-        sensor->update();
-
-    return false;
-}
-
-void EnergyPlugin::setTimestep(int t)
-{
-    m_sequenceList->setValue(t);
-    for (auto &sensor: m_ennovatisDevicesSensors)
-        sensor->setTimestep(t);
-
-    for (auto &[_,sensor]: m_cityGMLObjs)
-        sensor->updateTime(t);
-}
+/* #endregion */
 
 COVERPLUGIN(EnergyPlugin)
