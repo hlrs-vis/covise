@@ -13,8 +13,6 @@ ADD_DEFINITIONS(-DCOVISE_PLUGIN_UTIL)
 
 
 if(COVISE_USE_CUDA)
-   covise_find_package(CUDA)
-
    if(CUDA_FOUND)
       include_directories(${CUDA_INCLUDE_DIRS})
       set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
