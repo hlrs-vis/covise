@@ -28,6 +28,7 @@
 #include <core/TxtInfoboard.h>
 #include <core/PrototypeBuilding.h>
 #include <core/CityGMLBuilding.h>
+#include <core/utils/osgUtils.h>
 #include <ennovatis/building.h>
 #include <ennovatis/date.h>
 #include <ennovatis/sax.h>
@@ -221,24 +222,22 @@ EnergyPlugin::EnergyPlugin(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPl
     m_offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
-EnergyPlugin::~EnergyPlugin()
-{
-    auto root = cover->getObjectsRoot();
+EnergyPlugin::~EnergyPlugin() {
+  auto root = cover->getObjectsRoot();
 
-    if (m_cityGML) {
-        for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
-            auto child = m_cityGML->getChild(i);
-            m_cityGML->removeChild(child);
-            root->addChild(child);
-        }
+  if (m_cityGML) {
+    for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
+      auto child = m_cityGML->getChild(i);
+      root->addChild(child);
     }
+    core::utils::osgUtils::deleteChildrenFromOtherGroup(m_cityGML, root);
+  }
 
-    if (m_EnergyGroup) {
-    //     m_EnergyGroup->removeChild(0, m_EnergyGroup->getNumChildren());
-        root->removeChild(m_EnergyGroup.get());
-    }
+  if (m_EnergyGroup) {
+    root->removeChild(m_EnergyGroup.get());
+  }
 
-    m_plugin = nullptr;
+  m_plugin = nullptr;
 }
 
 void EnergyPlugin::initCityGMLUI()
@@ -254,17 +253,16 @@ void EnergyPlugin::enableCityGML(bool on) {
       auto root = cover->getObjectsRoot();
       for (auto i = 0; i < root->getNumChildren(); ++i) {
         osg::ref_ptr<osg::MatrixTransform> child =
-            dynamic_cast<osg::MatrixTransform *>(
-                cover->getObjectsRoot()->getChild(i));
+            dynamic_cast<osg::MatrixTransform *>(root->getChild(i));
         if (child) {
           auto name = child->getName();
           if (name.find(".gml") != std::string::npos) {
             addCityGMLObjects(child);
-            root->removeChild(child);
             m_cityGML->addChild(child);
           }
         }
       }
+      core::utils::osgUtils::deleteChildrenFromOtherGroup(root, m_cityGML);
     }
     switchTo(m_cityGML);
   } else {
@@ -281,22 +279,22 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
       if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end())
         continue;
 
-      constexpr float height = 10;
+      if (!child->getNumChildren())
+        continue;
 
       if (osg::ref_ptr<osg::Geode> geo =
               dynamic_cast<osg::Geode *>(child->getChild(0))) {
-        auto pos = geo->getBound().center();
-        auto infoboardPos = pos;
-        infoboardPos.z() += height;
+        auto boundingbox = geo->getBoundingBox();
+        auto infoboardPos = geo->getBound().center() ;
+        infoboardPos.z() +=
+            (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
         auto infoboard = std::make_unique<core::TxtInfoboard>(
             infoboardPos, name, "DroidSans-Bold.ttf", 20, 21, 2.0f, 0.1, 2);
         auto building = std::make_unique<core::CityGMLBuilding>(geo);
         auto sensor = std::make_unique<CityGMLDeviceSensor>(
-            geo, std::move(infoboard), std::move(building));
+            child, std::move(infoboard), std::move(building));
         m_cityGMLObjs.insert({name, std::move(sensor)});
       }
-
-      //   m_cityGMLObjs.insert({child->getName(), child});
     }
   }
 }
@@ -443,10 +441,9 @@ void EnergyPlugin::setEnnovatisChannelGrp(ennovatis::ChannelGroup group)
     updateEnnovatisChannelGrp();
 }
 
-void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child)
-{
-    m_switch->setAllChildrenOff();
-    m_switch->setChildValue(child, true);
+void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child) {
+  m_switch->setAllChildrenOff();
+  m_switch->setChildValue(child, true);
 }
 
 void EnergyPlugin::setComponent(Components c)

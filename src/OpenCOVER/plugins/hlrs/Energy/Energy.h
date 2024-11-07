@@ -170,18 +170,20 @@ private:
     ennovatis::BuildingsPtr m_buildings;
     DeviceList m_SDlist;
     std::shared_ptr<ennovatis::rest_request> m_req;
+
     // current selected channel group
     std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
+
     // not necessary but better for debugging
     DeviceBuildingMap m_devBuildMap;
     std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
     osg::ref_ptr<osg::Group> m_ennovatis;
+
     // switch used to toggle between ennovatis, db and citygml data
     osg::ref_ptr<osg::Switch> m_switch;
     osg::ref_ptr<osg::Sequence> m_sequenceList;
     osg::ref_ptr<osg::Group> m_EnergyGroup;
     osg::ref_ptr<osg::Group> m_cityGML;
-    // std::map<std::string, osg::ref_ptr<osg::Group>> m_cityGMLObjs;
     std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
     osg::Vec4 m_defaultColor;
 };

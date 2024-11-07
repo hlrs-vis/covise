@@ -10,7 +10,7 @@
 class CityGMLDeviceSensor : public coPickSensor {
 public:
   CityGMLDeviceSensor(
-      osg::ref_ptr<osg::Group> geo,
+      osg::ref_ptr<osg::Group> group,
       std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
       std::unique_ptr<core::interface::IBuilding> &&drawableBuilding);
 
