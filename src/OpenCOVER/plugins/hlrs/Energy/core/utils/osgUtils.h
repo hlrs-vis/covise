@@ -4,6 +4,8 @@
 #include <osg/Geode>
 
 namespace core::utils::osgUtils {
+
+void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *anotherGrp);
 void deleteChildrenRecursive(osg::Group *grp);
 /**
  * @brief Adds a cylinder between two points.
@@ -15,6 +17,9 @@ void deleteChildrenRecursive(osg::Group *grp);
  * @param cylinderColor The color of the cylinder.
  * @param group The group to which the cylinder will be added.
  */
-osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cylinderColor);
-}
+osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start,
+                                                     osg::Vec3 end,
+                                                     float radius,
+                                                     osg::Vec4 cylinderColor);
+} // namespace core::utils::osgUtils
 #endif
