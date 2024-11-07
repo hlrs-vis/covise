@@ -12,12 +12,15 @@ CURL *Request::initCurl(const HTTPMethod &method, std::string &response, const O
 {
     auto curl = curl_easy_init();
     if (!curl)
+    {
+        fprintf(stderr, "curl_easy_init() failed\n");
         return nullptr;
+    }
 
     method.setupCurl(curl);
 
     //don't wait forever
-    curl_easy_setopt(curl,CURLOPT_TIMEOUT, 10);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 100);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
     
     //custom options
