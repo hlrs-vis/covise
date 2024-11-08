@@ -19,7 +19,7 @@
 #else
 #include <winsock2.h>
 #endif
-#include "TUIApplication.h"
+#include <tui/TUIMainWindow.h>
 
 
 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-    qaw = TUIMainWindow::getInstance();
+    qaw = new TUIMainWindow();
     qaw->show();
     int overridePort = 0;
     for (int i = 1; i < argc; ++i)

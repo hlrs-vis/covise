@@ -18,7 +18,7 @@
 #include "MEDataArray.h"
 #include "MEDataViewer.h"
 #include "MEDataTree.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "widgets/MEUserInterface.h"
 

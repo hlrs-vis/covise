@@ -16,7 +16,7 @@
 #include "MEColormapChoicePort.h"
 #include "MELineEdit.h"
 #include "MEExtendedPart.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "color/MEColorMap.h"
 #include "widgets/MEUserInterface.h"

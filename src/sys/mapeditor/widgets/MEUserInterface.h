@@ -65,7 +65,9 @@ class MEDaemon;
 class MERegistry;
 class MEPreference;
 
-class TUIMainWindow;
+#ifdef TABLET_PLUGIN
+class TUIMainFrame;
+#endif
 
 typedef VinceRendererWidget *(*VinceRendererWidgetCreate)(QWidget *w, int argc, const char **argv);
 
@@ -210,7 +212,9 @@ private:
     METabBar *m_tabBar = nullptr;
     METabWidget *m_tabWidgets = nullptr;
 
-    TUIMainWindow *m_tablet = nullptr;
+#ifdef TABLET_PLUGIN
+    TUIMainFrame *m_tablet = nullptr;
+#endif
     covise::coConfigGroup *getConfig() const;
     
     covise::config::File &m_mapConfig;

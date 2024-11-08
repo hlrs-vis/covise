@@ -14,7 +14,7 @@
 
 #include "MEPreference.h"
 #include "MEUserInterface.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "color/MEColorMap.h"
 
 ;

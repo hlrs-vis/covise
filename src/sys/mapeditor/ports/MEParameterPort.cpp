@@ -12,7 +12,7 @@
 
 #include "MEParameterPort.h"
 #include "METimer.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MENode.h"
 #include "modulePanel/MEModuleParameterLine.h"

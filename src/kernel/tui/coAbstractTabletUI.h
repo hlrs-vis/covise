@@ -21,7 +21,7 @@
  \date
  */
 
-#include <util/coExport.h>
+#include "export.h"
 
 namespace covise
 {

@@ -11,7 +11,7 @@
 #include "MEExtendedPart.h"
 #include "MEFileBrowserPort.h"
 #include "MEColorMapPort.h"
-#include "MEFileBrowser.h"
+#include "../covise/MEFileBrowser.h"
 #include "color/MEColorMap.h"
 
 int stretch = 4;

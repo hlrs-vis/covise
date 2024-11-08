@@ -8,7 +8,7 @@
 
 #include "MEFileBrowserListHandler.h"
 #include "widgets/MEUserInterface.h"
-#include "MEFileBrowser.h"
+#include "../covise/MEFileBrowser.h"
 
 //======================================================================
 

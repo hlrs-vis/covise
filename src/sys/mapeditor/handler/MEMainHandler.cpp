@@ -40,14 +40,14 @@
 #include <util/covise_version.h>
 
 #include "MEFavoriteListHandler.h"
-#include "MEFileBrowser.h"
+#include "../covise/MEFileBrowser.h"
 #include "MEFileBrowserListHandler.h"
 #include "MEHostListHandler.h"
 #include "MELinkListHandler.h"
 #include "MEMainHandler.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "MENodeListHandler.h"
-#include "MERemotePartner.h"
+#include "../covise/MERemotePartner.h"
 #include "modulePanel/MEModulePanel.h"
 #include "nodes/MECategory.h"
 #include "nodes/MENode.h"

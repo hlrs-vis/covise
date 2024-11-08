@@ -24,7 +24,7 @@
 
 #include "MEModuleTree.h"
 #include "MEUserInterface.h"
-#include "MEMessageHandler.h"
+#include "covise/MEMessageHandler.h"
 #include "nodes/MECategory.h"
 #include "hosts/MEHost.h"
 #include "handler/MEFavoriteListHandler.h"

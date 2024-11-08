@@ -1,0 +1,160 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
+#include <assert.h>
+#include "TUIToggleBitmapButton.h"
+#include "TUIMain.h"
+#include <stdio.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
+#include <qlabel.h>
+#include <qpixmap.h>
+#include <net/tokenbuffer.h>
+
+/// Constructor
+TUIToggleBitmapButton::TUIToggleBitmapButton(int id, int type, QWidget *w, int parent, QString name)
+    : TUIElement(id, type, w, parent, name)
+{
+    QPushButton *b = createWidget<QPushButton>(w);
+    b->setCheckable(true);
+    if (name.contains("."))
+    {
+        QPixmap pm(name);
+        if (pm.isNull())
+        {
+            QString covisedir = QString(getenv("COVISEDIR"));
+            QPixmap pm(covisedir + "/" + name);
+            QPixmap qm(covisedir + "/icons/" + name);
+            if (pm.isNull() && qm.isNull())
+            {
+                upName = name;
+                b->setText(name);
+            }
+            else if (pm.isNull())
+            {
+                upName = covisedir + "/icons/" + name;
+                b->setIcon(qm);
+            }
+            else
+            {
+                upName = covisedir + "/" + name;
+                b->setIcon(pm);
+            }
+        }
+        else
+        {
+            upName = name;
+            b->setIcon(pm);
+        }
+    }
+    else
+    {
+        upName = name;
+        b->setText(name);
+    }
+
+    //b->setFixedSize(b->sizeHint());
+    // dont use toggle, clicked only sends event when the user actually clicked the button and not when the state has been changed by the application
+    connect(b, SIGNAL(clicked(bool)), this, SLOT(valueChanged(bool)));
+}
+
+void TUIToggleBitmapButton::valueChanged(bool)
+{
+    QCheckBox *b = (QCheckBox *)widget();
+
+    covise::TokenBuffer tb;
+    tb << ID;
+    if (b->isChecked())
+    {
+        tb << TABLET_ACTIVATED;
+        QPixmap pm(downName);
+
+        if (pm.isNull())
+            b->setText(downName);
+        else
+            b->setIcon(pm);
+    }
+    else
+    {
+        tb << TABLET_DISACTIVATED;
+        QPixmap pm(upName);
+        if (pm.isNull())
+            b->setText(upName);
+        else
+            b->setIcon(pm);
+    }
+    TUIMain::getInstance()->send(tb);
+}
+
+void TUIToggleBitmapButton::setSize(int w, int h)
+{
+    QPushButton *b = (QPushButton *)widget();
+    b->setIconSize(QSize(w, h)); /* Max size of icons, smaller icons will not be scaled up */
+    b->setFixedSize(b->sizeHint());
+}
+
+const char *TUIToggleBitmapButton::getClassName() const
+{
+    return "TUIToggleBitmapButton";
+}
+
+void TUIToggleBitmapButton::setValue(TabletValue type, covise::TokenBuffer &tb)
+{
+    if (type == TABLET_BOOL)
+    {
+        char state;
+        tb >> state;
+        bool bState = (bool)state;
+        QCheckBox *b = (QCheckBox *)widget();
+        b->setChecked(bState);
+        if (b->isChecked())
+        {
+            QPixmap pm(downName);
+
+            if (pm.isNull())
+                b->setText(downName);
+            else
+                b->setIcon(pm);
+        }
+        else
+        {
+            QPixmap pm(upName);
+            if (pm.isNull())
+                b->setText(upName);
+            else
+                b->setIcon(pm);
+        }
+    }
+    else if (type == TABLET_STRING)
+    {
+        const char *v;
+        tb >> v;
+        QString name = v;
+
+        if (name.contains("."))
+        {
+            QPixmap pm(name);
+            if (pm.isNull())
+            {
+                QString covisedir = QString(getenv("COVISEDIR"));
+                QPixmap pm(covisedir + "/" + name);
+                QPixmap qm(covisedir + "/icons/" + name);
+                if (pm.isNull() && qm.isNull())
+                    downName = name;
+                else if (pm.isNull())
+                    downName = covisedir + "/icons/" + name;
+                else
+                    downName = covisedir + "/" + name;
+            }
+            else
+                downName = name;
+        }
+        else
+            downName = name;
+    }
+    TUIElement::setValue(type, tb);
+}

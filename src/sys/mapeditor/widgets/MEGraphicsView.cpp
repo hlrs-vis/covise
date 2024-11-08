@@ -26,7 +26,7 @@
 #include "MEUserInterface.h"
 #include "MEFavorites.h"
 #include "MEDialogTools.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 #include "handler/MEMainHandler.h"
 #include "handler/MEPortSelectionHandler.h"

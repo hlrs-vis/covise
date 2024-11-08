@@ -15,7 +15,7 @@
 
 #include "MENodeLink.h"
 #include "MENode.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "widgets/MEGraphicsView.h"
 #include "ports/MEPort.h"

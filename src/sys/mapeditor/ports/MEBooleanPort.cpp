@@ -11,7 +11,7 @@
 
 #include "MEBooleanPort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 
 /*!

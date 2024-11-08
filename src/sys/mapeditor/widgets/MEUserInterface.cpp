@@ -36,8 +36,8 @@
 
 #include "MEUserInterface.h"
 #include "MEGraphicsView.h"
-#include "MEMessageHandler.h"
-#include "MEFileBrowser.h"
+#include "covise/MEMessageHandler.h"
+#include "covise/MEFileBrowser.h"
 #include "MEModuleTree.h"
 #include "MERegistry.h"
 #include "color/MEColorMap.h"
@@ -51,7 +51,9 @@
 #include "gridProxy/MEGridProxy.h"
 #include "widgets/MEPreference.h"
 
-#include "TUIApplication.h"
+#ifdef TABLET_PLUGIN
+#include "TUIMainFrame.h"
+#endif
 
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
@@ -502,9 +504,11 @@ void MEUserInterface::createActions()
     addShowAction(m_showDataViewer_a, "Data Viewer", ocstate, showDataViewer);
     showDataViewer(ocstate);
 
+#ifdef TABLET_PLUGIN
     ocstate = m_showTabletUICfg->value();
     addShowAction(m_showTabletUI_a, "Tablet UI", ocstate, showTabletUI);
     showTabletUI(ocstate);
+#endif
 
     // programming area is the main visible tab widget
 
@@ -573,7 +577,8 @@ void MEUserInterface::createMenubar()
     tools->addAction(m_showToolbar_a);
     tools->addAction(m_showMessageArea_a);
     tools->addAction(m_showDataViewer_a);
-    tools->addAction(m_showTabletUI_a);
+    if (m_showTabletUI_a)
+        tools->addAction(m_showTabletUI_a);
     tools->addAction(m_showControlPanel_a);
 
     // Pipeline  Menu
@@ -731,8 +736,9 @@ void MEUserInterface::storeSessionParam(bool store)
     // store values for data viewer, colormap, control panel & registry
     *m_showDataViewerCfg = m_showDataViewer_a->isChecked();
     *m_showControlPanelCfg = m_showControlPanel_a->isChecked();
-    *m_showTabletUICfg = m_showTabletUI_a->isChecked();
-    *m_showToolbarCfg = m_showTabletUI_a->isChecked();
+    if (m_showTabletUI_a)
+        *m_showTabletUICfg = m_showTabletUI_a->isChecked();
+    *m_showToolbarCfg = m_showToolbar_a->isChecked();
     *m_showMessageAreaCfg = m_showMessageArea_a->isChecked();
     if (store)
     {
@@ -1072,6 +1078,7 @@ void MEUserInterface::showControlPanel(bool state)
 //!
 void MEUserInterface::showTabletUI(bool state)
 {
+#ifdef TABLET_PLUGIN
     // don't block port if tablet ui is disabled
     if (state)
         state = m_showTabletUI_a->isChecked();
@@ -1100,6 +1107,7 @@ void MEUserInterface::showTabletUI(bool state)
             m_tablet = NULL;
         }
     }
+#endif
 }
 
 //!
@@ -1213,7 +1221,11 @@ void MEUserInterface::changeEditItems(bool state)
 void MEUserInterface::tabChanged(int index)
 {
     bool data = m_tabWidgets->widget(index) == m_dataPanel;
+#ifdef TABLET_PLUGIN
     bool tui = m_tabWidgets->widget(index) == m_tablet;
+#else
+    bool tui = false;
+#endif
     bool net = m_tabWidgets->widget(index) == m_mainArea;
 
     if (m_comboLabel_a)
@@ -1384,6 +1396,7 @@ void MEUserInterface::switchMasterState(bool state)
 //!
 void MEUserInterface::removeTabletUI()
 {
+#ifdef TABLET_PLUGIN
     if (m_tablet)
     {
         m_tabWidgets->removeTab(m_tabWidgets->indexOf(m_tablet));
@@ -1391,6 +1404,7 @@ void MEUserInterface::removeTabletUI()
         m_tablet = NULL;
         m_showTabletUI_a->setEnabled(false);
     }
+#endif
 }
 
 //!
@@ -1398,6 +1412,7 @@ void MEUserInterface::removeTabletUI()
 //!
 void MEUserInterface::activateTabletUI()
 {
+#ifdef TABLET_PLUGIN
     const char *text = "<p>The <b>Tablet Userinterface</b> contains items for navigation with the OpenCOVER.</p>";
 
     if (m_tabletUIisDead)
@@ -1415,7 +1430,7 @@ void MEUserInterface::activateTabletUI()
             QDockWidget *dw = new QDockWidget("Tablet User Interface", m_miniUserInterface);
             m_miniUserInterface->addDockWidget(Qt::RightDockWidgetArea, dw, Qt::Vertical);
             dw->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            m_tablet = new TUIMainWindow(dw);
+            m_tablet = new TUIMainFrame(dw);
             dw->setWidget(m_tablet);
             m_tablet->show();
         }
@@ -1427,9 +1442,9 @@ void MEUserInterface::activateTabletUI()
         if (!m_tablet)
         {
             if (m_mainHandler->cfg_TabletUITabs->value())
-                m_tablet = new TUIMainWindow(m_tabWidgets, m_tabWidgets);
+                m_tablet = new TUIMainFrame(m_tabWidgets, m_tabWidgets);
             else
-                m_tablet = new TUIMainWindow(m_tabWidgets);
+                m_tablet = new TUIMainFrame(m_tabWidgets);
             m_tablet->setWhatsThis(text);
         }
     }
@@ -1462,6 +1477,7 @@ void MEUserInterface::activateTabletUI()
             }
         }
     }
+#endif
 }
 
 //!

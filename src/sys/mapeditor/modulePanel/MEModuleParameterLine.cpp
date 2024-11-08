@@ -11,7 +11,7 @@
 
 #include "MEModuleParameterLine.h"
 #include "MEModuleParameter.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MENode.h"
 #include "ports/MEParameterPort.h"

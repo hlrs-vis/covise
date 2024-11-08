@@ -26,7 +26,7 @@
 #include "MEColorMap.h"
 #include <qtutil/MEColorChooser.h>
 #include "MEColorSelector.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 #include "ports/MEColorMapPort.h"
 #include "ports/MEColormapChoicePort.h"

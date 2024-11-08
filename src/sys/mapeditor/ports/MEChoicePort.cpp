@@ -13,7 +13,7 @@
 
 #include "MEChoicePort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "widgets/MEUserInterface.h"
 #include "nodes/MENode.h"
 

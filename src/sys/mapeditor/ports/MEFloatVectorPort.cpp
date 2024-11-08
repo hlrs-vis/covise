@@ -10,7 +10,7 @@
 
 #include "MEFloatVectorPort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 
 #include <qtutil/Qt5_15_deprecated.h>
