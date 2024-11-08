@@ -7,7 +7,7 @@ namespace core {
 namespace interface {
 class IColorable {
 public:
-    virtual void updateColor(const osg::Vec4& color) = 0;
+  virtual void updateColor(const osg::Vec4 &color) = 0;
 };
 } // namespace interface
 } // namespace core

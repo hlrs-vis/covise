@@ -1,6 +1,9 @@
 USING(OpenSceneGraph)
 set(SOURCES
+    utils/color.cpp
+    utils/osgUtils.cpp
     PrototypeBuilding.cpp
+    CityGMLBuilding.cpp
     TxtInfoboard.cpp
 )
 
@@ -13,7 +16,10 @@ set(HEADERS
     interfaces/IMovable.h
     interfaces/ISeperable.h
     interfaces/ITimedependable.h
+    utils/color.h
+    utils/osgUtils.h
     PrototypeBuilding.h
+    CityGMLBuilding.h
     TxtInfoboard.h
 )
 add_library(EnergyCore OBJECT ${SOURCES} ${HEADERS})

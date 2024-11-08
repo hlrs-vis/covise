@@ -13,13 +13,14 @@ SET(HEADERS
     DeviceSensor.h
     EnnovatisDevice.h
     EnnovatisDeviceSensor.h
+    CityGMLDeviceSensor.h
 )
 SET(SOURCES
     Energy.cpp
     Device.cpp
-    # DeviceSensor.cpp
     EnnovatisDevice.cpp
     EnnovatisDeviceSensor.cpp
+    CityGMLDeviceSensor.cpp
 )
 
 add_subdirectory(core)

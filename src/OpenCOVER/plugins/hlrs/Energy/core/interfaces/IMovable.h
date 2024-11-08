@@ -7,7 +7,7 @@ namespace core {
 namespace interface {
 class IMoveable {
 public:
-    virtual void move(const osg::Vec3 &pos) = 0;
+  virtual void move(const osg::Vec3 &pos) = 0;
 };
 } // namespace interface
 } // namespace core
