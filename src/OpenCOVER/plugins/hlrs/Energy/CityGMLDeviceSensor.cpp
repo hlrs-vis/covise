@@ -18,7 +18,7 @@ CityGMLDeviceSensor::CityGMLDeviceSensor(
 }
 
 CityGMLDeviceSensor::~CityGMLDeviceSensor() {
-  if (active)
+  if (m_active)
     disactivate();
   auto parent = m_cityGMLBuilding->getDrawable()->getParent(0);
   parent->removeChild(m_infoBoard->getDrawable());
@@ -31,11 +31,18 @@ void CityGMLDeviceSensor::update() {
 }
 
 void CityGMLDeviceSensor::activate() {
-  m_infoBoard->updateInfo("const basic_string<char> &info");
-  m_infoBoard->showInfo();
+  if (!m_active) {
+    m_infoBoard->updateInfo("DAS IST EIN TEST");
+    m_infoBoard->showInfo();
+  }
+  m_active = !m_active;
 }
 
-void CityGMLDeviceSensor::disactivate() { m_infoBoard->hideInfo(); }
+void CityGMLDeviceSensor::disactivate() {
+  if (m_active)
+    return;
+  m_infoBoard->hideInfo();
+}
 
 void CityGMLDeviceSensor::updateTime(int timestep) {
   static uint r = 255;

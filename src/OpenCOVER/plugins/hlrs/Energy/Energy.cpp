@@ -381,7 +381,7 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
         infoboardPos.z() +=
             (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
         auto infoboard = std::make_unique<core::TxtInfoboard>(
-            infoboardPos, name, "DroidSans-Bold.ttf", 20, 21, 2.0f, 0.1, 2);
+            infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
         auto building = std::make_unique<core::CityGMLBuilding>(geo);
         auto sensor = std::make_unique<CityGMLDeviceSensor>(
             child, std::move(infoboard), std::move(building));

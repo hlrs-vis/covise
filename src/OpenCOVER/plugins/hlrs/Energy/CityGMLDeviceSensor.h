@@ -28,6 +28,7 @@ public:
 private:
   std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
+  bool m_active = false;
 };
 
 #endif
