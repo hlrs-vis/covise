@@ -5506,13 +5506,13 @@ bool ViewerOsg::update(double timeNow)
         osg::ImageStream *imageS = movDat->imageStream.get();
         if (imageS->getStatus() != osg::ImageStream::PLAYING)
         {
-            if (movDat->movieProp->playing && !(movDat->movieProp->start > 0))
+            if (movDat->movieProp->playing && !(movDat->movieProp->start >= 0))
             {
                 movDat->movieProp->playing = false;
                 movDat->movieProp->mtNode->stopped();
                 updated = true;
             }
-            if (movDat->movieProp->start > 0)
+            if (movDat->movieProp->start >= 0)
             {
                 //     	                	imageS->setReferenceTime((cover->frameTime()-startLoadTime)*movieProp->speed*1000);
                 imageS->setReferenceTime(0);
