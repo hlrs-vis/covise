@@ -6,12 +6,11 @@
 
 namespace core::utils::color {
 struct ColorMap {
-    ColorMap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def)
-    : max(max), min(min), defaultColor(def)
-    {}
-    osg::Vec4 max;
-    osg::Vec4 min;
-    osg::Vec4 defaultColor;
+  ColorMap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def)
+      : max(max), min(min), defaultColor(def) {}
+  osg::Vec4 max;
+  osg::Vec4 min;
+  osg::Vec4 defaultColor;
 };
 
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);
