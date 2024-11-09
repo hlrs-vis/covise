@@ -28,7 +28,7 @@
 #endif
 
 #include "MEColorMap.h"
-#include "MEColorChooser.h"
+#include <qtutil/MEColorChooser.h>
 #include "MEColorSelector.h"
 #include "MEMessageHandler.h"
 #include "nodes/MENode.h"

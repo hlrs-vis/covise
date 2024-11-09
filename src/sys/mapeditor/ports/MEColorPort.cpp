@@ -19,7 +19,7 @@
 #include "MEMessageHandler.h"
 #include "widgets/MEUserInterface.h"
 #include "handler/MEMainHandler.h"
-#include "color/MEColorChooser.h"
+#include <qtutil/MEColorChooser.h>
 #include "color/MEColorSelector.h"
 #include "nodes/MENode.h"
 #include "controlPanel/MEControlParameterLine.h"

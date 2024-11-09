@@ -36,7 +36,6 @@ SET(MAPEDITOR_SOURCES
   widgets/MEDialogTools.cpp
   material/MEMaterialChooser.cpp
   material/MEMaterialDisplay.cpp
-  color/MEColorChooser.cpp
   color/MEColorSelector.cpp
   color/MEColorMap.cpp
   hosts/MEDaemon.cpp
@@ -107,7 +106,6 @@ SET(MAPEDITOR_HEADERS
 )
 
 SET(MAPEDITOR_MOC_HEADERS
-  color/MEColorChooser.h
   color/MEColorSelector.h
   color/MEColorMap.h
   widgets/MEUserInterface.h

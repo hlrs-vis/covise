@@ -11,6 +11,7 @@
 #include <QFrame>
 #include <QDoubleSpinBox>
 #include <QDebug>
+#include "export.h"
 
 class MEColorSpinBox;
 class MEColorDisplay;
@@ -21,7 +22,7 @@ class MEAlphaSlider;
 class MEAlphaValue;
 
 //================================================
-class MEColorChooser : public QWidget
+class QTUTIL_EXPORT MEColorChooser : public QWidget
 //================================================
 {
     Q_OBJECT
@@ -180,7 +181,7 @@ protected:
 };
 
 //================================================
-class MEColorDisplay : public QWidget
+class QTUTIL_EXPORT MEColorDisplay : public QWidget
 //================================================
 {
 public:
