@@ -139,13 +139,8 @@ Connection::Connection(int sfd)
     read_buf = new char[READ_BUFFER_SIZE];
     sock = new Socket(sfd, sfd);
     //		   fprintf(stderr, "new Socket: %x\n", sock);
+    sock->setNonBlocking(true); // this is non-blocking, since we do not know, what will arrive
     hostid = -1;
-#if defined _WIN32
-    tru = 1;
-    ioctlsocket(sfd, FIONBIO, &tru);
-#else
-    fcntl(sfd, F_SETFL, O_NDELAY); // this is non-blocking, since we do not know, what will arrive
-#endif
     peer_id_ = 0;
     peer_type_ = Message::UNDEFINED; // initialiaze connection with existing socket
     header_int = new int[4 * SIZEOF_IEEE_INT];
@@ -1054,12 +1049,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
         //	LOGINFO( "in send_type == STDINOUT");
         do
         {
-#ifdef _WIN32
-            unsigned long tru = 1;
-            ioctlsocket(sock->get_id(), FIONBIO, &tru);
-#else
-            fcntl(sock->get_id(), F_SETFL, O_NDELAY); // this is non-blocking
-#endif
+            sock->setNonBlocking(true); // this is non-blocking
             bytes_read = sock->read(read_buf, READ_BUFFER_SIZE);
             if (bytes_read < 0)
             {
@@ -1682,12 +1672,7 @@ int SSLConnection::recv_msg(Message *msg, char *ip) const
     {
         do
         {
-#ifdef _WIN32
-            unsigned long tru = 1;
-            ioctlsocket(sock->get_id(), FIONBIO, &tru);
-#else
-            fcntl(sock->get_id(), F_SETFL, O_NDELAY);
-#endif
+            sock->setNonBlocking(true);
 
             bytes_read = locSocket->read(read_buf, READ_BUFFER_SIZE);
             if (bytes_read < 0)
