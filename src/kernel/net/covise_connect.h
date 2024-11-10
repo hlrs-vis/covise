@@ -171,21 +171,13 @@ public:
     int get_port() const // give port number
     {
         return port;
-    };
+    }
     void set_hostid(int id);
-    int get_hostid() const
-    {
-        return hostid;
-    };
-    int get_sendertype() const
-    {
-        return (send_type);
-    };
+    int get_hostid() const { return hostid; }
+    void set_sendertype(int type);
+    int get_sendertype() const { return (send_type); }
     int get_id(void (*remove_func)(int)) const; // give socket id
-    int get_sender_id() const
-    {
-        return sender_id;
-    };
+    int get_sender_id() const { return sender_id; }
     void close(); // send close msg for partner and delete socket
     void close_inform(); // close without msg for partner
     void cancel(); // just close underlying socket, letting further operations fail
@@ -196,11 +188,8 @@ public:
         //	else
         //	    LOGINFO( "message_to_do == 0");
         return message_to_do; // message is already read
-    };
-    void print() const
-    {
-        std::cerr << "port: " << port << std::endl;
-    };
+    }
+    void print() const { std::cerr << "port: " << port << std::endl; }
     Host *get_host();
     const Host *get_host() const;
     const char *get_hostname() const;

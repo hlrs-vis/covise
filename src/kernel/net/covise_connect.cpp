@@ -163,6 +163,11 @@ int Connection::get_id(void (*remove_func)(int)) const
     return sock->get_id();
 }
 
+void Connection::set_sendertype(int type)
+{
+    send_type = type;
+}
+
 const Host *Connection::get_host() const
 {
     return sock ? sock->get_host() : NULL;
