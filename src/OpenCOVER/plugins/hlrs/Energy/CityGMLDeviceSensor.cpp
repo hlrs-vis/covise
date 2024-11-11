@@ -1,6 +1,7 @@
 #include <CityGMLDeviceSensor.h>
 #include <PluginUtil/coSensor.h>
 #include <core/CityGMLBuilding.h>
+#include <cstdint>
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> group,
@@ -45,9 +46,9 @@ void CityGMLDeviceSensor::disactivate() {
 }
 
 void CityGMLDeviceSensor::updateTime(int timestep) {
-  static uint r = 255;
-  static uint g = 0;
-  static uint b = 0;
+  static std::uint8_t r = 255;
+  static std::uint8_t g = 0;
+  static std::uint8_t b = 0;
 
   if (r == 255 && g < 255 && b == 0) {
     g++;
