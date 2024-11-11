@@ -17,6 +17,7 @@
 
 #include <map>
 #include <memory>
+#include <osg/Geode>
 #include <osg/Group>
 #include <osg/MatrixTransform>
 #include <osg/Node>
@@ -114,6 +115,11 @@ private:
   void initCityGMLUI();
   void enableCityGML(bool on);
   void addCityGMLObjects(osg::MatrixTransform *node);
+  void addCityGMLDefaultGeode(const std::string &name,
+                                      osg::ref_ptr<osg::Geode> geo);
+  void restoreCityGMLDefault();
+  void restoreCityGMLGeodesDefault(const std::string &name,
+                           osg::ref_ptr<osg::Geode> geo);
   void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
   void setRESTDate(const std::string &toSet, bool isFrom);
@@ -196,6 +202,7 @@ private:
   osg::ref_ptr<osg::Sequence> m_sequenceList;
   osg::ref_ptr<osg::Group> m_EnergyGroup;
   osg::ref_ptr<osg::Group> m_cityGML;
+  std::map<std::string, osg::ref_ptr<osg::Geode>> m_cityGMLDefault;
   std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
   osg::Vec4 m_defaultColor;
 };

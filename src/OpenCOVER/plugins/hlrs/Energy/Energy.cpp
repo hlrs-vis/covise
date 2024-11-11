@@ -229,6 +229,7 @@ EnergyPlugin::~EnergyPlugin() {
   auto root = cover->getObjectsRoot();
 
   if (m_cityGML) {
+    restoreCityGMLDefault();
     for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
       auto child = m_cityGML->getChild(i);
       root->addChild(child);
@@ -375,6 +376,10 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
 
       if (osg::ref_ptr<osg::Geode> geo =
               dynamic_cast<osg::Geode *>(child->getChild(0))) {
+
+        // store default material
+        addCityGMLDefaultGeode(name, geo);
+
         auto boundingbox = geo->getBoundingBox();
         auto infoboardPos = geo->getBound().center();
         infoboardPos.z() +=
@@ -388,6 +393,30 @@ void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
       }
     }
   }
+}
+
+void EnergyPlugin::addCityGMLDefaultGeode(const std::string &name,
+                                          osg::ref_ptr<osg::Geode> geo) {
+  osg::ref_ptr<osg::Geode> defaultGeo =
+      dynamic_cast<osg::Geode *>(geo->clone(osg::CopyOp::DEEP_COPY_STATESETS));
+  m_cityGMLDefault.insert({name, defaultGeo});
+}
+
+void EnergyPlugin::restoreCityGMLGeodesDefault(const std::string &name,
+                                               osg::ref_ptr<osg::Geode> geo) {
+  if (m_cityGMLDefault.find(name) != m_cityGMLDefault.end()) {
+    auto defaultGeo = m_cityGMLDefault[name];
+    geo->setStateSet(defaultGeo->getStateSet());
+  }
+}
+
+void EnergyPlugin::restoreCityGMLDefault() {
+  for (auto &[name, sensor] : m_cityGMLObjs) {
+    if (osg::ref_ptr<osg::Geode> geo =
+            dynamic_cast<osg::Geode *>(sensor->getDrawable()))
+      restoreCityGMLGeodesDefault(name, geo);
+  }
+  m_cityGMLDefault.clear();
 }
 /* #endregion */
 
