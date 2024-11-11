@@ -16,5 +16,6 @@ struct ColorMap {
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);
 void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color,
                         osg::Material::Face faceMask = osg::Material::FRONT);
+void overrideGeodeMaterial(osg::Geode *geode, osg::Material *material);
 } // namespace core::utils::color
 #endif

@@ -11,7 +11,11 @@ auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask) {
 void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color,
                         osg::Material::Face faceMask) {
   auto mat = createMaterial(color, faceMask);
-  geode->getOrCreateStateSet()->setAttribute(mat,
+  overrideGeodeMaterial(geode, mat);
+}
+
+void overrideGeodeMaterial(osg::Geode *geode, osg::Material *material) {
+  geode->getOrCreateStateSet()->setAttribute(material,
                                              osg::StateAttribute::OVERRIDE);
 }
 } // namespace core::utils::color
