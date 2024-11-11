@@ -45,98 +45,98 @@ using namespace opencover;
 using namespace grmsg;
 using namespace covise;
 
-COVEREXPORT coVRTui *coVRTui::tui = NULL;
+COVEREXPORT coVRTui *coVRTui::vrtui = NULL;
 coVRTui *coVRTui::instance()
 {
-    if (tui == NULL)
-        tui = new coVRTui();
-    return tui;
+    assert(vrtui);
+    return vrtui;
 }
 
-coVRTui::coVRTui()
-    : collision(false)
-    , navigationMode(coVRNavigationManager::NavNone)
-    , driveSpeed(0.0)
-    , ScaleValue(1.0)
+coVRTui::coVRTui(coTabletUI *tui)
+: tui(tui), collision(false), navigationMode(coVRNavigationManager::NavNone), driveSpeed(0.0), ScaleValue(1.0)
 {
-    assert(!tui);
+    if (!tui)
+    {
+        tui = coTabletUI::instance();
+        assert(!vrtui);
+        vrtui = this;
+    }
 
-    tui = this;
     lastUpdateTime = 0;
-    binList = new BinList;
-    mainFolder = new coTUITabFolder("COVERMainFolder");
-    coverTab = new coTUITab("COVER", mainFolder->getID());
+    binList = new BinList(tui);
+    mainFolder = new coTUITabFolder(tui, "COVERMainFolder");
+    coverTab = new coTUITab(tui, "COVER", mainFolder->getID());
 #ifdef PRESENTATION
-    presentationTab = new coTUITab("Presentation", mainFolder->getID());
+    presentationTab = new coTUITab(tui, "Presentation", mainFolder->getID());
 #endif
-    inputTUI = new coInputTUI();
-    topContainer = new coTUIFrame("Buttons", coverTab->getID());
-    bottomContainer = new coTUIFrame("Nav", coverTab->getID());
-    rightContainer = new coTUIFrame("misc", bottomContainer->getID());
+    inputTUI = new coInputTUI(tui);
+    topContainer = new coTUIFrame(tui, "Buttons", coverTab->getID());
+    bottomContainer = new coTUIFrame(tui, "Nav", coverTab->getID());
+    rightContainer = new coTUIFrame(tui, "misc", bottomContainer->getID());
 
-    Walk = new coTUIToggleButton("Walk", topContainer->getID());
-    Drive = new coTUIToggleButton("Drive", topContainer->getID());
-    Fly = new coTUIToggleButton("Fly", topContainer->getID());
-    XForm = new coTUIToggleButton("Move world", topContainer->getID());
-    DebugBins = new coTUIToggleButton("DebugBins", topContainer->getID(), false);
+    Walk = new coTUIToggleButton(tui, "Walk", topContainer->getID());
+    Drive = new coTUIToggleButton(tui, "Drive", topContainer->getID());
+    Fly = new coTUIToggleButton(tui, "Fly", topContainer->getID());
+    XForm = new coTUIToggleButton(tui, "Move world", topContainer->getID());
+    DebugBins = new coTUIToggleButton(tui, "DebugBins", topContainer->getID(), false);
     DebugBins->setEventListener(this);
-    
-    FlipStereo = new coTUIToggleButton("Flip eyes", topContainer->getID(), false);
+
+    FlipStereo = new coTUIToggleButton(tui, "Flip eyes", topContainer->getID(), false);
     FlipStereo->setEventListener(this);
 
-    Scale = new coTUIToggleButton("Scale", topContainer->getID());
-    Collision = new coTUIToggleButton("Detect collisions", topContainer->getID());
-    DisableIntersection = new coTUIToggleButton("Disable intersection", topContainer->getID());
-    testImage = new coTUIToggleButton("TestImage", topContainer->getID());
+    Scale = new coTUIToggleButton(tui, "Scale", topContainer->getID());
+    Collision = new coTUIToggleButton(tui, "Detect collisions", topContainer->getID());
+    DisableIntersection = new coTUIToggleButton(tui, "Disable intersection", topContainer->getID());
+    testImage = new coTUIToggleButton(tui, "TestImage", topContainer->getID());
     testImage->setState(false);
-    Quit = new coTUIButton("Quit", topContainer->getID());
-    Freeze = new coTUIToggleButton("Stop headtracking", topContainer->getID());
-    Wireframe = new coTUIToggleButton("Wireframe", topContainer->getID());
-    ViewAll = new coTUIButton("View all", topContainer->getID());
-    Menu = new coTUIToggleButton("Hide menu", topContainer->getID());
-    scaleLabel = new coTUILabel("Scale factor", topContainer->getID());
-    ScaleSlider = new coTUIFloatSlider("ScaleFactor", topContainer->getID());
-    SceneUnit = new coTUIComboBox("SceneUni", topContainer->getID());
+    Quit = new coTUIButton(tui, "Quit", topContainer->getID());
+    Freeze = new coTUIToggleButton(tui, "Stop headtracking", topContainer->getID());
+    Wireframe = new coTUIToggleButton(tui, "Wireframe", topContainer->getID());
+    ViewAll = new coTUIButton(tui, "View all", topContainer->getID());
+    Menu = new coTUIToggleButton(tui, "Hide menu", topContainer->getID());
+    scaleLabel = new coTUILabel(tui, "Scale factor", topContainer->getID());
+    ScaleSlider = new coTUIFloatSlider(tui, "ScaleFactor", topContainer->getID());
+    SceneUnit = new coTUIComboBox(tui, "SceneUni", topContainer->getID());
     Menu->setState(false);
-    debugLabel = new coTUILabel("Debug level", topContainer->getID());
-    debugLevel = new coTUIEditIntField("DebugLevel", topContainer->getID());
+    debugLabel = new coTUILabel(tui, "Debug level", topContainer->getID());
+    debugLevel = new coTUIEditIntField(tui, "DebugLevel", topContainer->getID());
 #ifndef NOFB
-    FileBrowser = new coTUIFileBrowserButton("Load file...", topContainer->getID());
+    FileBrowser = new coTUIFileBrowserButton(tui, "Load file...", topContainer->getID());
     coVRCommunication::instance()->setFBData(FileBrowser->getVRBData());
-    SaveFileFB = new coTUIFileBrowserButton("Save file...", topContainer->getID());
+    SaveFileFB = new coTUIFileBrowserButton(tui, "Save file...", topContainer->getID());
     SaveFileFB->setMode(coTUIFileBrowserButton::SAVE);
     coVRCommunication::instance()->setFBData(SaveFileFB->getVRBData());
     coVRFileManager::instance()->SetDefaultFB(FileBrowser);
 
 #endif
 
-    speedLabel = new coTUILabel("Navigation speed", bottomContainer->getID());
-    NavSpeed = new coTUIFloatSlider("NavSpeed", bottomContainer->getID());
-    viewerLabel = new coTUILabel("Viewer position", bottomContainer->getID());
-    posX = new coTUIEditFloatField("ViewerX", bottomContainer->getID());
-    posY = new coTUIEditFloatField("ViewerY", bottomContainer->getID());
-    posZ = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
-    fovLabel = new coTUILabel("FieldOfView in ", bottomContainer->getID());
-    fovH = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
-    stereoSepLabel = new coTUILabel("EyeDistance", bottomContainer->getID());
-    stereoSep = new coTUIEditFloatField("ViewerZ", bottomContainer->getID());
-    FPSLabel = new coTUILabel("Fps:", bottomContainer->getID());
-    CFPSLabel = new coTUILabel("Constant fps", bottomContainer->getID());
-    CFPS = new coTUIEditFloatField("cfps", bottomContainer->getID());
-    backgroundLabel = new coTUILabel("Background color", bottomContainer->getID());
-    backgroundColor = new coTUIColorButton("background", bottomContainer->getID());
-    LODScaleLabel = new coTUILabel("LODScale", bottomContainer->getID());
-    LODScaleEdit = new coTUIEditFloatField("LODScaleE", bottomContainer->getID());
+    speedLabel = new coTUILabel(tui, "Navigation speed", bottomContainer->getID());
+    NavSpeed = new coTUIFloatSlider(tui, "NavSpeed", bottomContainer->getID());
+    viewerLabel = new coTUILabel(tui, "Viewer position", bottomContainer->getID());
+    posX = new coTUIEditFloatField(tui, "ViewerX", bottomContainer->getID());
+    posY = new coTUIEditFloatField(tui, "ViewerY", bottomContainer->getID());
+    posZ = new coTUIEditFloatField(tui, "ViewerZ", bottomContainer->getID());
+    fovLabel = new coTUILabel(tui, "FieldOfView in ", bottomContainer->getID());
+    fovH = new coTUIEditFloatField(tui, "ViewerZ", bottomContainer->getID());
+    stereoSepLabel = new coTUILabel(tui, "EyeDistance", bottomContainer->getID());
+    stereoSep = new coTUIEditFloatField(tui, "ViewerZ", bottomContainer->getID());
+    FPSLabel = new coTUILabel(tui, "Fps:", bottomContainer->getID());
+    CFPSLabel = new coTUILabel(tui, "Constant fps", bottomContainer->getID());
+    CFPS = new coTUIEditFloatField(tui, "cfps", bottomContainer->getID());
+    backgroundLabel = new coTUILabel(tui, "Background color", bottomContainer->getID());
+    backgroundColor = new coTUIColorButton(tui, "background", bottomContainer->getID());
+    LODScaleLabel = new coTUILabel(tui, "LODScale", bottomContainer->getID());
+    LODScaleEdit = new coTUIEditFloatField(tui, "LODScaleE", bottomContainer->getID());
 
-    driveLabel = new coTUILabel("Drive navigation", bottomContainer->getID());
-    driveNav = new coTUINav("driveNav", bottomContainer->getID());
-    panLabel = new coTUILabel("Pan navigation", bottomContainer->getID());
-    panNav = new coTUINav("panNav", bottomContainer->getID());
+    driveLabel = new coTUILabel(tui, "Drive navigation", bottomContainer->getID());
+    driveNav = new coTUINav(tui, "driveNav", bottomContainer->getID());
+    panLabel = new coTUILabel(tui, "Pan navigation", bottomContainer->getID());
+    panNav = new coTUINav(tui, "panNav", bottomContainer->getID());
 
-    nearEdit = new coTUIEditFloatField("near", rightContainer->getID());
-    farEdit = new coTUIEditFloatField("far", rightContainer->getID());
-    nearLabel = new coTUILabel("near", rightContainer->getID());
-    farLabel = new coTUILabel("far", rightContainer->getID());
+    nearEdit = new coTUIEditFloatField(tui, "near", rightContainer->getID());
+    farEdit = new coTUIEditFloatField(tui, "far", rightContainer->getID());
+    nearLabel = new coTUILabel(tui, "near", rightContainer->getID());
+    farLabel = new coTUILabel(tui, "far", rightContainer->getID());
 
     NavSpeed->setEventListener(this);
     Walk->setEventListener(this);
@@ -267,10 +267,10 @@ coVRTui::coVRTui()
 
 #ifdef PRESENTATION
     // Animation tab
-    PresentationLabel = new coTUILabel("Presentation", presentationTab->getID());
-    PresentationForward = new coTUIButton("Forward", presentationTab->getID());
-    PresentationBack = new coTUIButton("Back", presentationTab->getID());
-    PresentationStep = new coTUIEditIntField("PresStep", presentationTab->getID());
+    PresentationLabel = new coTUILabel(tui, "Presentation", presentationTab->getID());
+    PresentationForward = new coTUIButton(tui, "Forward", presentationTab->getID());
+    PresentationBack = new coTUIButton(tui, "Back", presentationTab->getID());
+    PresentationStep = new coTUIEditIntField(tui, "PresStep", presentationTab->getID());
     PresentationForward->setEventListener(this);
     PresentationBack->setEventListener(this);
     PresentationStep->setEventListener(this);
@@ -352,47 +352,50 @@ coVRTui::~coVRTui()
     delete binList;
     delete inputTUI;
 
-    tui = NULL;
+    if (tui == coTabletUI::instance())
+    {
+        vrtui = NULL;
+    }
 }
 
-coInputTUI::coInputTUI()
+coInputTUI::coInputTUI(coTabletUI *tui): tui(tui)
 {
-    inputTab = new coTUITab("Input", coVRTui::instance()->mainFolder->getID());
-    
-    personContainer = new coTUIFrame("pc",inputTab->getID());
+    inputTab = new coTUITab(tui, "Input", coVRTui::instance()->mainFolder->getID());
+
+    personContainer = new coTUIFrame(tui, "pc", inputTab->getID());
     personContainer->setPos(0,0);
-    personsLabel= new coTUILabel("Person",personContainer->getID());
+    personsLabel = new coTUILabel(tui, "Person", personContainer->getID());
     personsLabel->setPos(0,0);
-    personsChoice = new coTUIComboBox("personsCombo",personContainer->getID());
+    personsChoice = new coTUIComboBox(tui, "personsCombo", personContainer->getID());
     personsChoice->setPos(0,1);
     personsChoice->setEventListener(this);
 
-    eyeDistanceLabel = new coTUILabel("Eye distance", personContainer->getID());
+    eyeDistanceLabel = new coTUILabel(tui, "Eye distance", personContainer->getID());
     eyeDistanceLabel->setPos(0,3);
-    eyeDistanceEdit = new coTUIEditFloatField("EyeDistance", personContainer->getID());
+    eyeDistanceEdit = new coTUIEditFloatField(tui, "EyeDistance", personContainer->getID());
     eyeDistanceEdit->setPos(0,4);
     eyeDistanceEdit->setEventListener(this);
-    
-    bodiesContainer = new coTUIFrame("bc",inputTab->getID());
+
+    bodiesContainer = new coTUIFrame(tui, "bc", inputTab->getID());
     bodiesContainer->setPos(1,0);
-    bodiesLabel= new coTUILabel("Body",bodiesContainer->getID());
+    bodiesLabel = new coTUILabel(tui, "Body", bodiesContainer->getID());
     bodiesLabel->setPos(0,0);
-    bodiesChoice = new coTUIComboBox("bodiesCombo",bodiesContainer->getID());
+    bodiesChoice = new coTUIComboBox(tui, "bodiesCombo", bodiesContainer->getID());
     bodiesChoice->setPos(0,1);
     bodiesChoice->setEventListener(this);
-    
-    bodyTrans[0] = new coTUIEditFloatField("xe", bodiesContainer->getID());
-    bodyTransLabel[0] = new coTUILabel("x", bodiesContainer->getID());
-    bodyTrans[1] = new coTUIEditFloatField("ye", bodiesContainer->getID());
-    bodyTransLabel[1] = new coTUILabel("y", bodiesContainer->getID());
-    bodyTrans[2] = new coTUIEditFloatField("ze", bodiesContainer->getID());
-    bodyTransLabel[2] = new coTUILabel("z", bodiesContainer->getID());
-    bodyRot[0] = new coTUIEditFloatField("he", bodiesContainer->getID());
-    bodyRotLabel[0] = new coTUILabel("h", bodiesContainer->getID());
-    bodyRot[1] = new coTUIEditFloatField("pe", bodiesContainer->getID());
-    bodyRotLabel[1] = new coTUILabel("p", bodiesContainer->getID());
-    bodyRot[2] = new coTUIEditFloatField("re", bodiesContainer->getID());
-    bodyRotLabel[2] = new coTUILabel("r", bodiesContainer->getID());
+
+    bodyTrans[0] = new coTUIEditFloatField(tui, "xe", bodiesContainer->getID());
+    bodyTransLabel[0] = new coTUILabel(tui, "x", bodiesContainer->getID());
+    bodyTrans[1] = new coTUIEditFloatField(tui, "ye", bodiesContainer->getID());
+    bodyTransLabel[1] = new coTUILabel(tui, "y", bodiesContainer->getID());
+    bodyTrans[2] = new coTUIEditFloatField(tui, "ze", bodiesContainer->getID());
+    bodyTransLabel[2] = new coTUILabel(tui, "z", bodiesContainer->getID());
+    bodyRot[0] = new coTUIEditFloatField(tui, "he", bodiesContainer->getID());
+    bodyRotLabel[0] = new coTUILabel(tui, "h", bodiesContainer->getID());
+    bodyRot[1] = new coTUIEditFloatField(tui, "pe", bodiesContainer->getID());
+    bodyRotLabel[1] = new coTUILabel(tui, "p", bodiesContainer->getID());
+    bodyRot[2] = new coTUIEditFloatField(tui, "re", bodiesContainer->getID());
+    bodyRotLabel[2] = new coTUILabel(tui, "r", bodiesContainer->getID());
     for (int i = 0; i < 3; i++)
     {
         bodyTrans[i]->setPos(1+i * 2 + 1, 1);
@@ -402,10 +405,10 @@ coInputTUI::coInputTUI()
         bodyRotLabel[i]->setPos(1+i * 2, 2);
         bodyRot[i]->setEventListener(this);
     }
-    
-    devicesLabel= new coTUILabel("Device",bodiesContainer->getID());
+
+    devicesLabel = new coTUILabel(tui, "Device", bodiesContainer->getID());
     devicesLabel->setPos(0,4);
-    devicesChoice = new coTUIComboBox("devicesCombo",bodiesContainer->getID());
+    devicesChoice = new coTUIComboBox(tui, "devicesCombo", bodiesContainer->getID());
     devicesChoice->setPos(0,5);
     devicesChoice->setEventListener(this);
     for (size_t i = 0; i < Input::instance()->getNumDevices(); i++)
@@ -413,19 +416,19 @@ coInputTUI::coInputTUI()
         devicesChoice->addEntry(Input::instance()->getDevice(i)->getName());
     }
     devicesChoice->setSelectedEntry(Input::instance()->getActivePerson());
-    
-    deviceTrans[0] = new coTUIEditFloatField("xe", bodiesContainer->getID());
-    deviceTransLabel[0] = new coTUILabel("x", bodiesContainer->getID());
-    deviceTrans[1] = new coTUIEditFloatField("ye", bodiesContainer->getID());
-    deviceTransLabel[1] = new coTUILabel("y", bodiesContainer->getID());
-    deviceTrans[2] = new coTUIEditFloatField("ze", bodiesContainer->getID());
-    deviceTransLabel[2] = new coTUILabel("z", bodiesContainer->getID());
-    deviceRot[0] = new coTUIEditFloatField("he", bodiesContainer->getID());
-    deviceRotLabel[0] = new coTUILabel("h", bodiesContainer->getID());
-    deviceRot[1] = new coTUIEditFloatField("pe", bodiesContainer->getID());
-    deviceRotLabel[1] = new coTUILabel("p", bodiesContainer->getID());
-    deviceRot[2] = new coTUIEditFloatField("re", bodiesContainer->getID());
-    deviceRotLabel[2] = new coTUILabel("r", bodiesContainer->getID());
+
+    deviceTrans[0] = new coTUIEditFloatField(tui, "xe", bodiesContainer->getID());
+    deviceTransLabel[0] = new coTUILabel(tui, "x", bodiesContainer->getID());
+    deviceTrans[1] = new coTUIEditFloatField(tui, "ye", bodiesContainer->getID());
+    deviceTransLabel[1] = new coTUILabel(tui, "y", bodiesContainer->getID());
+    deviceTrans[2] = new coTUIEditFloatField(tui, "ze", bodiesContainer->getID());
+    deviceTransLabel[2] = new coTUILabel(tui, "z", bodiesContainer->getID());
+    deviceRot[0] = new coTUIEditFloatField(tui, "he", bodiesContainer->getID());
+    deviceRotLabel[0] = new coTUILabel(tui, "h", bodiesContainer->getID());
+    deviceRot[1] = new coTUIEditFloatField(tui, "pe", bodiesContainer->getID());
+    deviceRotLabel[1] = new coTUILabel(tui, "p", bodiesContainer->getID());
+    deviceRot[2] = new coTUIEditFloatField(tui, "re", bodiesContainer->getID());
+    deviceRotLabel[2] = new coTUILabel(tui, "r", bodiesContainer->getID());
     for (int i = 0; i < 3; i++)
     {
         deviceTrans[i]->setPos(1+i * 2 + 1, 5);
@@ -436,39 +439,39 @@ coInputTUI::coInputTUI()
         deviceRot[i]->setEventListener(this);
     }
 
-	calibrateTrackingsystem = new coTUIToggleButton("Calibrate Device", bodiesContainer->getID());
-	calibrateTrackingsystem->setPos(0, 7);
-	calibrateTrackingsystem->setEventListener(this);
+    calibrateTrackingsystem = new coTUIToggleButton(tui, "Calibrate Device", bodiesContainer->getID());
+    calibrateTrackingsystem->setPos(0, 7);
+    calibrateTrackingsystem->setEventListener(this);
 
-	calibrateToHand = new coTUIToggleButton("CalibrateToHand", bodiesContainer->getID());
+    calibrateToHand = new coTUIToggleButton(tui, "CalibrateToHand", bodiesContainer->getID());
     calibrateToHand->setPos(2, 7);
 	calibrateToHand->setEventListener(this);
 
-    calibrationLabel = new coTUILabel("Select device and press Calibrate Device button", inputTab->getID());
+    calibrationLabel = new coTUILabel(tui, "Select device and press Calibrate Device button", inputTab->getID());
     calibrationLabel->setPos(1, 6);
 
-    debugContainer = new coTUIFrame("Debug", inputTab->getID());
+    debugContainer = new coTUIFrame(tui, "Debug", inputTab->getID());
     debugContainer->setPos(1,7);
-    debugLabel = new coTUILabel("Debug", debugContainer->getID());
+    debugLabel = new coTUILabel(tui, "Debug", debugContainer->getID());
     debugLabel->setPos(0,0);
 
-    debugMatrices = new coTUIToggleButton("Matrices", debugContainer->getID());
+    debugMatrices = new coTUIToggleButton(tui, "Matrices", debugContainer->getID());
     debugMatrices->setPos(2,1);
     debugMatrices->setEventListener(this);
-    debugOther = new coTUIToggleButton("Buttons+Valuators", debugContainer->getID());
+    debugOther = new coTUIToggleButton(tui, "Buttons+Valuators", debugContainer->getID());
     debugOther->setPos(3,1);
     debugOther->setEventListener(this);
-    
-    debugMouseButton = new coTUIToggleButton("Mouse", debugContainer->getID());
+
+    debugMouseButton = new coTUIToggleButton(tui, "Mouse", debugContainer->getID());
     debugMouseButton->setPos(0,2);
     debugMouseButton->setEventListener(this);
-    debugDriverButton = new coTUIToggleButton("Driver", debugContainer->getID());
+    debugDriverButton = new coTUIToggleButton(tui, "Driver", debugContainer->getID());
     debugDriverButton->setPos(1,2);
     debugDriverButton->setEventListener(this);
-    debugRawButton = new coTUIToggleButton("Raw", debugContainer->getID());
+    debugRawButton = new coTUIToggleButton(tui, "Raw", debugContainer->getID());
     debugRawButton->setPos(2,2);
     debugRawButton->setEventListener(this);
-    debugTransformedButton = new coTUIToggleButton("Transformed", debugContainer->getID());
+    debugTransformedButton = new coTUIToggleButton(tui, "Transformed", debugContainer->getID());
     debugTransformedButton->setPos(3,2);
     debugTransformedButton->setEventListener(this);
 
@@ -1387,14 +1390,14 @@ coTUIFileBrowserButton *coVRTui::getExtFB()
     return SaveFileFB;
 }
 
-BinListEntry::BinListEntry(osgUtil::RenderBin *rb, int num)
+BinListEntry::BinListEntry(coTabletUI *tui, osgUtil::RenderBin *rb, int num)
 {
     binNumber = rb->getBinNum();
     std::string name;
     std::stringstream ss;
     ss << binNumber;
     name = ss.str();
-    tb = new coTUIToggleButton(name, coVRTui::instance()->getTopContainer()->getID(), true);
+    tb = new coTUIToggleButton(tui, name, coVRTui::instance()->getTopContainer()->getID(), true);
     tb->setPos(4, num);
     tb->setEventListener(this);
 }
@@ -1468,7 +1471,7 @@ void BinListEntry::tabletEvent(coTUIElement *tUIItem)
 	}*/
 }
 
-BinList::BinList()
+BinList::BinList(coTabletUI *tui): tui(tui)
 {
 }
 
@@ -1494,20 +1497,20 @@ void BinList::refresh()
         {
             for (osgUtil::RenderBin::RenderBinList::iterator it = rb->getRenderBinList().begin(); it != rb->getRenderBinList().end(); it++)
             {
-                push_back(new BinListEntry(it->second, size()));
+                push_back(new BinListEntry(tui, it->second, size()));
             }
         }
         rb = rs;
         for (osgUtil::RenderBin::RenderBinList::iterator it = rb->getRenderBinList().begin(); it != rb->getRenderBinList().end(); it++)
         {
-            push_back(new BinListEntry(it->second, size()));
+            push_back(new BinListEntry(tui, it->second, size()));
         }
         rb = bs.getPostRenderStage();
         if (rb)
         {
             for (osgUtil::RenderBin::RenderBinList::iterator it = rb->getRenderBinList().begin(); it != rb->getRenderBinList().end(); it++)
             {
-                push_back(new BinListEntry(it->second, size()));
+                push_back(new BinListEntry(tui, it->second, size()));
             }
         }
     }

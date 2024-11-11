@@ -1115,8 +1115,16 @@ void coTUIColorTriangle::resend(bool create)
     setVal(TABLET_BLUE, blue);
 }
 
-coTUIColorButton::coTUIColorButton(const std::string &n, int pID)
-    : coTUIElement(n, pID, TABLET_COLOR_BUTTON)
+coTUIColorButton::coTUIColorButton(const std::string &n, int pID): coTUIElement(n, pID, TABLET_COLOR_BUTTON)
+{
+    red = 1.0;
+    green = 1.0;
+    blue = 1.0;
+    alpha = 1.0;
+}
+
+coTUIColorButton::coTUIColorButton(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_COLOR_BUTTON)
 {
     red = 1.0;
     green = 1.0;
@@ -1284,8 +1292,7 @@ void coTUIColorTab::resend(bool create)
 //----------------------------------------------------------
 //---------------------------------------------------------
 
-coTUINav::coTUINav(const char *n, int pID)
-    : coTUIElement(n, pID, TABLET_NAV_ELEMENT)
+coTUINav::coTUINav(coTabletUI *tui, const char *n, int pID): coTUIElement(tui, n, pID, TABLET_NAV_ELEMENT)
 {
     down = false;
     x = 0;

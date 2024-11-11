@@ -532,6 +532,7 @@ class COVEREXPORT coTUIColorButton : public coTUIElement
 private:
 public:
     coTUIColorButton(const std::string &, int pID = 1);
+    coTUIColorButton(coTabletUI *tui, const std::string &, int pID = 1);
 #ifdef USE_QT
     coTUIColorButton(QObject *parent, const std::string &, int pID = 1);
 #endif
@@ -1082,7 +1083,7 @@ class COVEREXPORT coTUINav : public coTUIElement
 {
 private:
 public:
-    coTUINav(const char *, int pID = 1);
+    coTUINav(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUINav();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     bool down;

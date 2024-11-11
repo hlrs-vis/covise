@@ -628,7 +628,26 @@ bool OpenCOVER::init()
 
 	Input::instance()->init();
 
-    coVRTui::instance();
+    auto mainTui = coTabletUI::instance();
+    auto vrtui = new coVRTui(nullptr);
+    vrtui->config();
+    auto tab = vrtui->mainFolder;
+    cover->ui->addView(new ui::TabletView("mainTui", tab));
+    pushTui(mainTui, tab);
+
+    auto mapeditorTui = new coTabletUI("localhost", 31803);
+    auto mapeditorVrTui = new coVRTui(mapeditorTui);
+    mapeditorVrTui->config();
+    tab = mapeditorVrTui->mainFolder;
+    cover->ui->addView(new ui::TabletView("mapeditor", tab));
+    pushTui(mapeditorTui, tab);
+
+    for (auto tui: tabletUIs)
+    {
+        tui->tryConnect();
+        tui->update();
+    }
+
 
     MarkerTracking::instance();
 
@@ -736,7 +755,6 @@ bool OpenCOVER::init()
     MarkerTracking::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
-    coVRTui::instance()->config();
 
     if (cover->debugLevel(5))
     {
@@ -780,22 +798,6 @@ bool OpenCOVER::init()
     {
         m_quit->setEnabled(false);
         m_quit->setVisible(false);
-    }
-
-    auto tab = coVRTui::instance()->mainFolder;
-    cover->ui->addView(new ui::TabletView("mainTui", tab));
-    tabletUIs.push_back(coTabletUI::instance());
-    tabletTabs.push_back(tab);
-
-    auto mapeditorTui = new coTabletUI("localhost", 31803);
-    tab = new coTUITabFolder(mapeditorTui, "root");
-    cover->ui->addView(new ui::TabletView("mapeditor", tab));
-    tabletUIs.push_back(mapeditorTui);
-    tabletTabs.push_back(tab);
-    for (auto tui: tabletUIs)
-    {
-        tui->tryConnect();
-        tui->update();
     }
 
     hud->setText2("initialising plugins");
