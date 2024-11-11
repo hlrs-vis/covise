@@ -178,10 +178,6 @@ EnergyPlugin::EnergyPlugin()
 
   m_buildings = std::make_unique<ennovatis::Buildings>();
 
-  m_EnergyGroup = new osg::Group();
-  m_EnergyGroup->setName("Energy");
-  cover->getObjectsRoot()->addChild(m_EnergyGroup);
-
   m_sequenceList = new osg::Sequence();
   m_sequenceList->setName("DB");
   m_ennovatis = new osg::Group();
@@ -189,7 +185,9 @@ EnergyPlugin::EnergyPlugin()
   m_cityGML = new osg::Group();
   m_cityGML->setName("CityGML");
 
-  osg::ref_ptr<osg::MatrixTransform> EnergyGroupMT = new osg::MatrixTransform();
+  m_Energy = new osg::MatrixTransform();
+  m_Energy->setName("Energy");
+  cover->getObjectsRoot()->addChild(m_Energy);
 
   m_switch = new osg::Switch();
   m_switch->setName("Switch");
@@ -197,8 +195,7 @@ EnergyPlugin::EnergyPlugin()
   m_switch->addChild(m_ennovatis);
   m_switch->addChild(m_cityGML);
 
-  EnergyGroupMT->addChild(m_switch);
-  m_EnergyGroup->addChild(EnergyGroupMT);
+  m_Energy->addChild(m_switch);
 
   GDALAllRegister();
 
@@ -237,8 +234,8 @@ EnergyPlugin::~EnergyPlugin() {
     core::utils::osgUtils::deleteChildrenFromOtherGroup(m_cityGML, root);
   }
 
-  if (m_EnergyGroup) {
-    root->removeChild(m_EnergyGroup.get());
+  if (m_Energy) {
+    root->removeChild(m_Energy.get());
   }
 
   m_plugin = nullptr;

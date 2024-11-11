@@ -200,7 +200,7 @@ private:
   // switch used to toggle between ennovatis, db and citygml data
   osg::ref_ptr<osg::Switch> m_switch;
   osg::ref_ptr<osg::Sequence> m_sequenceList;
-  osg::ref_ptr<osg::Group> m_EnergyGroup;
+  osg::ref_ptr<osg::MatrixTransform> m_Energy;
   osg::ref_ptr<osg::Group> m_cityGML;
   std::map<std::string, osg::ref_ptr<osg::Geode>> m_cityGMLDefault;
   std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
