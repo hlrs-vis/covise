@@ -758,6 +758,13 @@ void QtViewElement::markForDeletion(QObject *obj)
 QtLabelAction::QtLabelAction(QObject *parent)
 : QWidgetAction(parent)
 {
+    connect(this, &QAction::changed, this, &QtLabelAction::actionChanged);
+}
+
+void QtLabelAction::actionChanged()
+{
+    for (auto w: createdWidgets())
+        w->setVisible(isVisible());
 }
 
 void QtLabelAction::setText(const QString &text)
@@ -772,7 +779,9 @@ void QtLabelAction::setText(const QString &text)
 
 QWidget *QtLabelAction::createWidget(QWidget *parent)
 {
-    return new QLabel(parent);
+    auto l = new QLabel(parent);
+    l->setVisible(isVisible());
+    return l;
 }
 
 QtSliderWidget::QtSliderWidget(QBoxLayout::Direction dir, QWidget *parent)

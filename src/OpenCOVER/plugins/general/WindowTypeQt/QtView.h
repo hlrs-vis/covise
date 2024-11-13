@@ -44,6 +44,9 @@ public:
     QtLabelAction(QObject *parent);
     void setText(const QString &text);
 
+private slots:
+    void actionChanged();
+
 protected:
     QWidget *createWidget(QWidget *parent) override;
 };
