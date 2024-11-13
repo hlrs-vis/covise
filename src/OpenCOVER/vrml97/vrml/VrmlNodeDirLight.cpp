@@ -68,9 +68,3 @@ const VrmlSFVec3f &VrmlNodeDirLight::getDirection() const
 {
     return d_direction;
 }
-
-// LarryD Mar 04/99
-VrmlNodeDirLight *VrmlNodeDirLight::toDirLight() const
-{
-    return (VrmlNodeDirLight *)this;
-}

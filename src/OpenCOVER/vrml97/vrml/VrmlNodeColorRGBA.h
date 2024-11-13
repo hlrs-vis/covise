@@ -15,7 +15,7 @@
 #ifndef _VRMLNODECOLORRGBA_
 #define _VRMLNODECOLORRGBA_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFColorRGBA.h"
 
 namespace vrml
@@ -23,7 +23,7 @@ namespace vrml
 
 class VRMLEXPORT VrmlScene;
 
-class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNode
 {
 
 public:
@@ -32,8 +32,6 @@ public:
     static const char *name();
 
     VrmlNodeColorRGBA(VrmlScene *);
-
-    virtual VrmlNodeColorRGBA *toColorRGBA() const;
 
     VrmlMFColorRGBA &color()
     {

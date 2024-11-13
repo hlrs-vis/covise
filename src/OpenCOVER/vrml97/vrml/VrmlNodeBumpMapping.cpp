@@ -38,18 +38,8 @@ VrmlNodeBumpMapping::VrmlNodeBumpMapping(VrmlScene *scene)
 {
 }
 
-VrmlNodeBumpMapping *VrmlNodeBumpMapping::toBumpMapping() const
-{
-    return (VrmlNodeBumpMapping *)this;
-}
-
 void VrmlNodeBumpMapping::addToScene(VrmlScene *, const char * /*rel*/)
 {
-}
-
-std::ostream &VrmlNodeBumpMapping::printFields(std::ostream &os, int)
-{
-    return os;
 }
 
 void VrmlNodeBumpMapping::render(Viewer *viewer)

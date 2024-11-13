@@ -34,8 +34,6 @@ public:
     VrmlNodeBox(VrmlScene *);
 
     virtual Viewer::Object insertGeometry(Viewer *);
-
-    virtual VrmlNodeBox *toBox() const; //LarryD Mar 08/99
     virtual const VrmlSFVec3f &getSize() const; //LarryD Mar 08/99
 
 protected:

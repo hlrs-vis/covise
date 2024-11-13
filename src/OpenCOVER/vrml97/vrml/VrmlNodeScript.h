@@ -50,8 +50,6 @@ public:
     // Copy the ROUTEs
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual VrmlNodeScript *toScript() const;
-
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
     virtual void eventIn(double timeStamp,

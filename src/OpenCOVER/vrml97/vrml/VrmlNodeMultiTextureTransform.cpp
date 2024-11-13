@@ -31,7 +31,7 @@ const char *VrmlNodeMultiTextureTransform::name()
 }
 
 VrmlNodeMultiTextureTransform::VrmlNodeMultiTextureTransform(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
     , d_textureTransform(0)
 {
 }
@@ -46,11 +46,6 @@ VrmlNodeMultiTextureTransform::~VrmlNodeMultiTextureTransform()
             d_textureTransform.removeNode(d_textureTransform[0]);
         }
     }
-}
-
-VrmlNodeMultiTextureTransform *VrmlNodeMultiTextureTransform::toMultiTextureTransform() const
-{
-    return (VrmlNodeMultiTextureTransform *)this;
 }
 
 void VrmlNodeMultiTextureTransform::render(Viewer *viewer, int numberTexture)

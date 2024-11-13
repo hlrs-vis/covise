@@ -16,6 +16,7 @@
 #include "VrmlNodeType.h"
 
 #include "VrmlScene.h"
+#include "System.h"
 #include <math.h>
 
 using namespace vrml;
@@ -168,11 +169,6 @@ void VrmlNodeOrientationInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-VrmlNodeOrientationInt *VrmlNodeOrientationInt::toOrientationInt() const
-{
-    return (VrmlNodeOrientationInt *)this;
 }
 
 const VrmlMFFloat &VrmlNodeOrientationInt::getKey() const

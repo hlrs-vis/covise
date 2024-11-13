@@ -38,8 +38,6 @@ public:
     VrmlNodeFog(VrmlScene *);
     virtual ~VrmlNodeFog();
 
-    virtual VrmlNodeFog *toFog() const;
-
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
     virtual void eventIn(double timeStamp,

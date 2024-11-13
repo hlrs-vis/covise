@@ -428,7 +428,7 @@ SkyPlugin::~SkyPlugin()
 
 bool SkyPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSky>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeSky>());
     return true;
 }
 

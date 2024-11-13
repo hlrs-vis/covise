@@ -38,11 +38,6 @@ static VrmlNode *creator(VrmlScene *s)
     return new VrmlNodeMultiTexture(s);
 }
 
-VrmlNodeMultiTexture *VrmlNodeMultiTexture::toMultiTexture() const
-{
-    return (VrmlNodeMultiTexture *)this;
-}
-
 void VrmlNodeMultiTexture::initFields(VrmlNodeMultiTexture *node, VrmlNodeType *t)
 {
     VrmlNodeTexture::initFields(node, t);
@@ -94,7 +89,7 @@ void VrmlNodeMultiTexture::render(Viewer *viewer)
     int numTextures = 0;
     for (int i = 0; i < d_texture.size(); i++)
     {
-        if (d_texture.get(i) && d_texture.get(i)->toTexture())
+        if (d_texture.get(i) && d_texture.get(i)->as<VrmlNodeTexture>())
             numTextures++;
     }
 
@@ -104,7 +99,7 @@ void VrmlNodeMultiTexture::render(Viewer *viewer)
     {
         viewer->textureNumber = i;
 
-        VrmlNodeTexture *t = d_texture.get(i) ? d_texture.get(i)->toTexture() : 0;
+        VrmlNodeTexture *t = d_texture.get(i) ? d_texture.get(i)->as<VrmlNodeTexture>() : 0;
 
         if (t)
         {
@@ -112,7 +107,7 @@ void VrmlNodeMultiTexture::render(Viewer *viewer)
             bool foundTextureTransform = false;
             if (d_appearance)
             {
-                VrmlNodeAppearance *appearance = d_appearance->toAppearance();
+                VrmlNodeAppearance *appearance = d_appearance->as<VrmlNodeAppearance>();
                 if (strcmp(appearance->nodeType()->getName(), "Appearance") == 0)
                 {
                     if (appearance->textureTransform())
@@ -121,7 +116,7 @@ void VrmlNodeMultiTexture::render(Viewer *viewer)
                                    "MultiTextureTransform") == 0)
                         {
                             foundTextureTransform = true;
-                            VrmlNodeMultiTextureTransform *mtexTrans = appearance->textureTransform()->toMultiTextureTransform();
+                            VrmlNodeMultiTextureTransform *mtexTrans = appearance->textureTransform()->as<VrmlNodeMultiTextureTransform>();
                             mtexTrans->render(viewer, i);
                         }
                         else if (strcmp(appearance->textureTransform()->nodeType()->getName(),

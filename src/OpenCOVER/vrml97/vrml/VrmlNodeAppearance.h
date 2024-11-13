@@ -39,8 +39,6 @@ public:
     // Copy the node.
     virtual void cloneChildren(VrmlNamespace *) override;
 
-    virtual VrmlNodeAppearance *toAppearance() const override;
-
     virtual bool isModified() const override;
     virtual void clearFlags() override; // Clear childrens flags too.
 

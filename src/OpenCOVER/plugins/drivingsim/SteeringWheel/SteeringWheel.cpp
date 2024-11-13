@@ -1444,10 +1444,10 @@ bool SteeringWheelPlugin::sendValues()
 int SteeringWheelPlugin::initUI()
 {
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSteeringWheel>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeVehicle>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeRemoteVehicle>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodePorscheVFP>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeSteeringWheel>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeVehicle>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeRemoteVehicle>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodePorscheVFP>());
 
 #ifdef WIN32
 

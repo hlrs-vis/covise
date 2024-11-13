@@ -32,8 +32,6 @@ public:
     VrmlNodeITriangleFanSet(VrmlScene *);
 
     virtual Viewer::Object insertGeometry(Viewer *v);
-
-    virtual VrmlNodeITriangleFanSet *toITriangleFanSet() const;
 };
 }
 #endif // _VRMLNODEITRIANGLEFANSET_

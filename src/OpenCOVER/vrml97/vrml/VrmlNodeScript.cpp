@@ -22,6 +22,8 @@
 #include "ScriptObject.h"
 
 #include "VrmlScene.h"
+#include "System.h"
+
 #include <stdio.h>
 
 using namespace vrml;
@@ -195,11 +197,6 @@ void VrmlNodeScript::copyRoutes(VrmlNamespace *ns)
             }
         }
     nodeStack.pop_front();
-}
-
-VrmlNodeScript *VrmlNodeScript::toScript() const
-{
-    return (VrmlNodeScript *)this;
 }
 
 void VrmlNodeScript::addToScene(VrmlScene *s, const char *relUrl)

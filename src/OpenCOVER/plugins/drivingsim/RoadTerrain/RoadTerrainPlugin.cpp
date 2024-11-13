@@ -126,7 +126,7 @@ bool RoadTerrainPlugin::init()
 {
     //cover->setScale(1000);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeRoadTerrain>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeRoadTerrain>());
 
     pluginTab = new coTUITab("Road Terrain", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);

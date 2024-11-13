@@ -123,7 +123,7 @@ void VrmlNodeElevationGrid::copyRoutes(VrmlNamespace *ns)
 
 VrmlNodeColor *VrmlNodeElevationGrid::color()
 {
-    return d_color.get() ? d_color.get()->toColor() : 0;
+    return d_color.get() ? d_color.get()->as<VrmlNodeColor>() : 0;
 }
 
 Viewer::Object VrmlNodeElevationGrid::insertGeometry(Viewer *viewer)
@@ -136,13 +136,13 @@ Viewer::Object VrmlNodeElevationGrid::insertGeometry(Viewer *viewer)
 
         if (d_texCoord.get())
         {
-            VrmlMFVec2f &texcoord = d_texCoord.get()->toTextureCoordinate()->coordinate();
+            VrmlMFVec2f &texcoord = d_texCoord.get()->as<VrmlNodeTextureCoordinate>()->coordinate();
             tc = &texcoord[0][0];
         }
 
         if (d_normal.get())
         {
-            VrmlMFVec3f &n = d_normal.get()->toNormal()->normal();
+            VrmlMFVec3f &n = d_normal.get()->as<VrmlNodeNormal>()->normal();
             normals = &n[0][0];
         }
 
@@ -150,13 +150,13 @@ Viewer::Object VrmlNodeElevationGrid::insertGeometry(Viewer *viewer)
         VrmlNode *colorNode = d_color.get();
         if (colorNode && (strcmp(colorNode->nodeType()->getName(), "ColorRGBA") == 0))
         {
-            VrmlMFColorRGBA &c = d_color.get()->toColorRGBA()->color();
+            VrmlMFColorRGBA &c = d_color.get()->as<VrmlNodeColorRGBA>()->color();
             colors = &c[0][0];
             componentsPerColor = 4;
         }
         else if (d_color.get())
         {
-            VrmlMFColor &c = d_color.get()->toColor()->color();
+            VrmlMFColor &c = d_color.get()->as<VrmlNodeColor>()->color();
             colors = &c[0][0];
         }
 
@@ -193,12 +193,6 @@ Viewer::Object VrmlNodeElevationGrid::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-// LarryD Mar 09/99
-VrmlNodeElevationGrid *VrmlNodeElevationGrid::toElevationGrid() const
-{
-    return (VrmlNodeElevationGrid *)this;
 }
 
 VrmlNode *VrmlNodeElevationGrid::getNormal() // LarryD Mar 09/99

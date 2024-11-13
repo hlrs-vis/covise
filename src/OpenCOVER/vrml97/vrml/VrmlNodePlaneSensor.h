@@ -37,8 +37,6 @@ public:
 
     VrmlNodePlaneSensor(VrmlScene *scene = 0);
 
-    virtual VrmlNodePlaneSensor *toPlaneSensor() const;
-
     void activate(double timeStamp, bool isActive, double *p);
 
     virtual void accumulateTransform(VrmlNode *);

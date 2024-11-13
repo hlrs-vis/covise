@@ -40,7 +40,6 @@ public:
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual VrmlNodeScalarInt *toScalarInt() const;
     virtual const VrmlMFFloat &getKey() const;
     virtual const VrmlMFFloat &getKeyValue() const;
 

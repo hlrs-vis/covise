@@ -15,7 +15,7 @@
 #ifndef _VRMLNODESHAPE_
 #define _VRMLNODESHAPE_
 
-#include "VrmlNode.h"
+#include "VrmlNodeChild.h"
 #include "VrmlSFNode.h"
 
 #include "Viewer.h"
@@ -38,8 +38,6 @@ public:
     virtual bool isModified() const override;
 
     virtual void clearFlags() override;
-
-    virtual VrmlNodeShape *toShape() const override;
 
     virtual void addToScene(VrmlScene *s, const char *relUrl) override;
 

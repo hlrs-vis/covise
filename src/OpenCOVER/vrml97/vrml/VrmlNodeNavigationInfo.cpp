@@ -86,11 +86,6 @@ VrmlNodeNavigationInfo::~VrmlNodeNavigationInfo()
         d_scene->removeNavigationInfo(this);
 }
 
-VrmlNodeNavigationInfo *VrmlNodeNavigationInfo::toNavigationInfo() const
-{
-    return (VrmlNodeNavigationInfo *)this;
-}
-
 void VrmlNodeNavigationInfo::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)

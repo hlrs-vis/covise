@@ -26,6 +26,7 @@
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/Viewer.h>
+#include <vrml97/vrml/System.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRShader.h>
 #include <string>

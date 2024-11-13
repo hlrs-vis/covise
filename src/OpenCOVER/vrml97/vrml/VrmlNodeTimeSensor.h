@@ -38,8 +38,6 @@ public:
     VrmlNodeTimeSensor(VrmlScene *scene = 0);
     virtual ~VrmlNodeTimeSensor();
 
-    virtual VrmlNodeTimeSensor *toTimeSensor() const;
-
     virtual void addToScene(VrmlScene *s, const char *);
 
 

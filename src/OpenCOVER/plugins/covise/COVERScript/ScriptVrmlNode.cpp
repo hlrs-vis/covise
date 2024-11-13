@@ -22,44 +22,31 @@ ScriptPlugin *ScriptVrmlNode::scriptPlugin = 0;
 
 using namespace vrml;
 
-static vrml::VrmlNode *creator(vrml::VrmlScene *scene)
+void ScriptVrmlNode::initFields(vrml::VrmlNodeChild *node, vrml::VrmlNodeType *t)
 {
-    return new ScriptVrmlNode(scene);
-}
-
-vrml::VrmlNodeType *ScriptVrmlNode::defineType(vrml::VrmlNodeType *t)
-{
-    static vrml::VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("command", node->d_command, [node](auto t){
+                        executeCommand(t);
+                     }));
+    if(t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new vrml::VrmlNodeType("COVERScript", creator);
+        t->addExposedField("command", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventLink", vrml::VrmlField::MFSTRING);
+        t->addEventOut("coviseEventModuleAdd", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventModuleDel", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventModuleDied", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventParameterChanged", vrml::VrmlField::MFSTRING);
+        t->addEventOut("coviseEventOpenNet", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventOpenNetDone", vrml::VrmlField::SFSTRING);
+        t->addEventOut("coviseEventQuit", vrml::VrmlField::SFSTRING); // TODO How to define an event without parameter?
+
     }
-
-    vrml::VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("command", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventLink", vrml::VrmlField::MFSTRING);
-    t->addEventOut("coviseEventModuleAdd", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventModuleDel", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventModuleDied", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventParameterChanged", vrml::VrmlField::MFSTRING);
-    t->addEventOut("coviseEventOpenNet", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventOpenNetDone", vrml::VrmlField::SFSTRING);
-    t->addEventOut("coviseEventQuit", vrml::VrmlField::SFSTRING); // TODO How to define an event without parameter?
-
-    return t;
-}
-
-vrml::VrmlNodeType *ScriptVrmlNode::nodeType() const
-{
-    return defineType(0);
 }
 
 ScriptVrmlNode::ScriptVrmlNode(vrml::VrmlScene *scene)
     : QObject(0)
-    , vrml::VrmlNodeChild(scene)
+    , vrml::VrmlNodeChild(scene, name())
 {
 
     connect(ScriptVrmlNode::scriptPlugin->covise(), SIGNAL(eventLink(QString, QString)),
@@ -87,45 +74,10 @@ ScriptVrmlNode::ScriptVrmlNode(vrml::VrmlScene *scene)
             this, SLOT(coviseEventParameterChanged(QString, QString, QString)));
 }
 
-ScriptVrmlNode::~ScriptVrmlNode()
+ScriptVrmlNode::ScriptVrmlNode(const ScriptVrmlNode &other)
+:ScriptVrmlNode(other.scene())
 {
-}
-
-vrml::VrmlNode *ScriptVrmlNode::cloneMe() const
-{
-    ScriptVrmlNode *node = new ScriptVrmlNode(this->scene());
-    node->d_command = this->d_command;
-    return node;
-}
-
-std::ostream &ScriptVrmlNode::printFields(std::ostream &os, int indent)
-{
-    if (!this->d_command.get())
-        PRINT_FIELD(command);
-    return os;
-}
-
-void ScriptVrmlNode::setField(const char *fieldName,
-                              const vrml::VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(command, SFString)
-    else
-        vrml::VrmlNodeChild::setField(fieldName, fieldValue);
-
-    if (strcmp(fieldName, "command") == 0)
-    {
-        executeCommand(d_command.get());
-    }
-}
-
-const VrmlField *ScriptVrmlNode::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "command") == 0)
-        return &d_command;
-    else
-        std::cout << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << VrmlNode::name() << "." << fieldName << std::endl;
-    return 0;
+    d_command = other.d_command;
 }
 
 void ScriptVrmlNode::eventIn(double timeStamp,

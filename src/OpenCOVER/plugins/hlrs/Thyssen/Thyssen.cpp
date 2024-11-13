@@ -72,10 +72,10 @@ VrmlNodeThyssen *VrmlNodeThyssen::toThyssen() const
     return (VrmlNodeThyssen *)this;
 }
 
-ostream &VrmlNodeThyssen::printFields(ostream &os, int indent)
+ostream &VrmlNodeThyssen::printFields(ostream &os, int indent) const
 {
     if (!d_enabled.get())
-        PRINT_FIELD(enabled);
+        printField(os, indent + INDENT_INCREMENT, "enabledd", d_enabled);
     VrmlNodeChild::printFields(os, indent);
     return os;
 }
@@ -211,11 +211,11 @@ ThyssenPlugin::~ThyssenPlugin()
 
 bool ThyssenPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeThyssen>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeElevator>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCar>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeExchanger>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeLanding>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThyssen>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeElevator>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCar>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeExchanger>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeLanding>());
 
     return true;
 }

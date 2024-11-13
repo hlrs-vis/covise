@@ -60,11 +60,6 @@ VrmlNodeInline::~VrmlNodeInline()
     d_isDeletedInline = true;
 }
 
-VrmlNodeInline *VrmlNodeInline::toInline() const
-{
-    return (VrmlNodeInline *)this;
-}
-
 // Inlines are loaded during addToScene traversal
 
 void VrmlNodeInline::addToScene(VrmlScene *s, const char *relativeUrl)

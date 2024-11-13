@@ -60,11 +60,6 @@ VrmlNodePlaneSensor::VrmlNodePlaneSensor(VrmlScene *scene)
     setModified();
 }
 
-VrmlNodePlaneSensor *VrmlNodePlaneSensor::toPlaneSensor() const
-{
-    return (VrmlNodePlaneSensor *)this;
-}
-
 // Cache a pointer to (one of the) parent transforms for converting
 // hits into local coords.
 

@@ -44,11 +44,6 @@ Viewer::Object VrmlNodeBox::insertGeometry(Viewer *viewer)
     return viewer->insertBox(d_size.x(), d_size.y(), d_size.z());
 }
 
-VrmlNodeBox *VrmlNodeBox::toBox() const //LarryD Mar 08/99
-{
-    return (VrmlNodeBox *)this;
-}
-
 const VrmlSFVec3f &VrmlNodeBox::getSize() const // LarryD Mar 08/99
 {
     return d_size;

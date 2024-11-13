@@ -235,7 +235,7 @@ bool JoystickPlugin::init()
 				POVs[i][n] = 0;
 		}
     }
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeJoystick>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeJoystick>());
     return true;
 }
 

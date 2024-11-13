@@ -32,8 +32,6 @@ public:
     VrmlNodeITriangleSet(VrmlScene *);
 
     virtual Viewer::Object insertGeometry(Viewer *v);
-
-    virtual VrmlNodeITriangleSet *toITriangleSet() const;
 };
 }
 #endif // _VRMLNODEITRIANGLESET_

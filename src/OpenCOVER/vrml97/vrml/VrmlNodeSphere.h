@@ -33,7 +33,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    virtual VrmlNodeSphere *toSphere() const; //LarryD Mar 08/99
     virtual float getRadius() //LarryD Mar 08/99
     {
         return d_radius.get();

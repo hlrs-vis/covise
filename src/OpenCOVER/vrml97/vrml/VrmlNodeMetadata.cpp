@@ -30,6 +30,6 @@ void VrmlNodeMetadata::initFields(VrmlNodeMetadata *node, VrmlNodeType *t)
 const char *VrmlNodeMetadata::name() { return "Metadata"; }
 
 VrmlNodeMetadata::VrmlNodeMetadata(VrmlScene *scene, const std::string &name)
-    : VrmlNodeTemplate(scene, name)
+    : VrmlNode(scene, name)
 {
 }

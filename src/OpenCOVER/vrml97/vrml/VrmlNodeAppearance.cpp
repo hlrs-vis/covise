@@ -38,12 +38,11 @@ void VrmlNodeAppearance::initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType
     {
         std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         initFieldsHelper(node, t,
-                     exposedField("texture" + suffix, node->d_textures[i]),
-                     exposedField("textureTransform" + suffix, node->d_textureTransforms[i]));
+                         exposedField("texture" + suffix, node->d_textures[i]),
+                         exposedField("textureTransform" + suffix, node->d_textureTransforms[i]));
     }
     VrmlNodeChild::initFields(node, t);
 }
-
 
 VrmlNodeAppearance::VrmlNodeAppearance(VrmlScene *scene)
     : VrmlNodeChild(scene, name())
@@ -60,12 +59,12 @@ void VrmlNodeAppearance::cloneChildren(VrmlNamespace *ns)
     }
     for (size_t i = 0; i < d_textures.size(); i++)
     {
-        if(d_textures[i].get())
+        if (d_textures[i].get())
         {
             d_textures[i].set(d_textures[i].get()->clone(ns));
             d_textures[i].get()->parentList.push_back(this);
         }
-        if(d_textureTransforms[i].get())
+        if (d_textureTransforms[i].get())
         {
             d_textureTransforms[i].set(d_textureTransforms[i].get()->clone(ns));
             d_textureTransforms[i].get()->parentList.push_back(this);
@@ -73,19 +72,21 @@ void VrmlNodeAppearance::cloneChildren(VrmlNamespace *ns)
     }
 }
 
-VrmlNodeAppearance *VrmlNodeAppearance::toAppearance() const
+inline bool isTextureModified(const std::array<VrmlSFNode, 10> &textures, const std::array<VrmlSFNode, 10> &textureTransforms)
 {
-    return (VrmlNodeAppearance *)this;
+    for (size_t i = 0; i < textures.size(); i++)
+    {
+        if ((textures[i].get() && textures[i].get()->isModified()) || (textureTransforms[i].get() && textureTransforms[i].get()->isModified()))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool VrmlNodeAppearance::isModified() const
 {
-    bool modified =d_modified || (d_material.get() && d_material.get()->isModified());
-    for (size_t i = 0; i < MAX_TEXTURES; i++)
-    {
-        modified = modified || (d_textures[i].get() && d_textures[i].get()->isModified()) || (d_textureTransforms[i].get() && d_textureTransforms[i].get()->isModified());
-    }
-    return modified;
+    return d_modified || (d_material.get() && d_material.get()->isModified() || isTextureModified(d_textures, d_textureTransforms));
 }
 
 void VrmlNodeAppearance::clearFlags()
@@ -93,7 +94,7 @@ void VrmlNodeAppearance::clearFlags()
     VrmlNode::clearFlags();
     if (d_material.get())
         d_material.get()->clearFlags();
-    
+
     for (size_t i = 0; i < MAX_TEXTURES; i++)
     {
         if (d_textures[i].get())
@@ -111,7 +112,7 @@ void VrmlNodeAppearance::addToScene(VrmlScene *s, const char *rel)
     d_scene = s;
     if (d_material.get())
         d_material.get()->addToScene(s, rel);
-    
+
     for (size_t i = 0; i < MAX_TEXTURES; i++)
     {
         if (d_textures[i].get())
@@ -132,7 +133,7 @@ void VrmlNodeAppearance::copyRoutes(VrmlNamespace *ns)
     // Copy subnode routes
     if (d_material.get())
         d_material.get()->copyRoutes(ns);
-    
+
     for (size_t i = 0; i < MAX_TEXTURES; i++)
     {
         if (d_textures[i].get())
@@ -145,16 +146,16 @@ void VrmlNodeAppearance::copyRoutes(VrmlNamespace *ns)
 
 void VrmlNodeAppearance::render(Viewer *viewer)
 {
-    VrmlNodeMaterial *m = d_material.get() ? d_material.get()->toMaterial() : 0;
+    VrmlNodeMaterial *m = d_material.get() ? d_material.get()->as<VrmlNodeMaterial>() : 0;
     if (m)
     {
         float trans = m->transparency();
         float *diff = m->diffuseColor();
-        float diffuse[3] = { diff[0], diff[1], diff[2] };
-        //int nTexComponents = t ? t->nComponents() : 0;
-        //if (nTexComponents == 2 || nTexComponents == 4)
-        //   trans = 0.0;
-        //if (nTexComponents >= 3)
+        float diffuse[3] = {diff[0], diff[1], diff[2]};
+        // int nTexComponents = t ? t->nComponents() : 0;
+        // if (nTexComponents == 2 || nTexComponents == 4)
+        //    trans = 0.0;
+        // if (nTexComponents >= 3)
         //	diffuse[0] = diffuse[1] = diffuse[2] = 1.0;
 
         auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
@@ -171,18 +172,18 @@ void VrmlNodeAppearance::render(Viewer *viewer)
     else
     {
         viewer->setColor(1.0, 1.0, 1.0); // default color
-        viewer->enableLighting(false); // turn lighting off for this object
+        viewer->enableLighting(false);   // turn lighting off for this object
     }
 
     int numTextures = MAX_TEXTURES;
     for (; numTextures > 0; numTextures--)
     {
-        if(d_textures[numTextures - 1].get())
+        if (d_textures[numTextures - 1].get())
             break;
     }
 
     viewer->setNumTextures(numTextures);
-    for (size_t i = 0; i < numTextures; i++)
+    for (int i = 0; i < numTextures; i++)
     {
         viewer->textureNumber = i;
         if (d_textures[i].get())
@@ -192,12 +193,11 @@ void VrmlNodeAppearance::render(Viewer *viewer)
             else
                 viewer->setTextureTransform(0, 0, 0, 0);
         }
-        auto t = d_textures[i].get()->toTexture();
-        if(i == 0)
+        auto t = d_textures[i].get()->as<VrmlNodeTexture>();
+        if (i == 0)
             t->setAppearance(this);
         // MAYBE something must be done here for multi-texturing to work correctly
         t->render(viewer);
-
     }
     clearModified();
 }
@@ -209,7 +209,7 @@ bool VrmlNodeAppearance::isOnlyGeometry() const
 
     for (size_t i = 0; i < MAX_TEXTURES; i++)
     {
-        if(d_textures[i].get() && !d_textures[i].get()->isOnlyGeometry())
+        if (d_textures[i].get() && !d_textures[i].get()->isOnlyGeometry())
             return false;
     }
 

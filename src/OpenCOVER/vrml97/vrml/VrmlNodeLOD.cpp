@@ -17,6 +17,7 @@
 #include "VrmlScene.h"
 
 #include "MathUtils.h"
+#include "System.h"
 #include "Viewer.h"
 
 using namespace vrml;
@@ -166,11 +167,6 @@ void VrmlNodeLOD::render(Viewer *viewer)
     for (i = 0; i < n; ++i)
         d_level[i]->clearModified();
     viewer->endObject();
-}
-
-VrmlNodeLOD *VrmlNodeLOD::toLOD() const
-{
-    return (VrmlNodeLOD *)this;
 }
 
 const VrmlMFFloat &VrmlNodeLOD::getRange() const

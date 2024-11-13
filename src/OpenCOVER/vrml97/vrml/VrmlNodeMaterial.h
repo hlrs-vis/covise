@@ -15,14 +15,14 @@
 #ifndef _VRMLNODEMATERIAL_
 #define _VRMLNODEMATERIAL_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlSFColor.h"
 #include "VrmlSFFloat.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeMaterial : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeMaterial : public VrmlNode
 {
 
 public:
@@ -31,8 +31,6 @@ public:
     static const char *name();
 
     VrmlNodeMaterial(VrmlScene *);
-
-    virtual VrmlNodeMaterial *toMaterial() const;
 
     virtual void render(Viewer *);
 

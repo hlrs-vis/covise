@@ -14,6 +14,7 @@
 
 #include "VrmlNodeTimeSensor.h"
 #include "VrmlNodeType.h"
+#include "System.h"
 
 #include "MathUtils.h"
 
@@ -77,11 +78,6 @@ VrmlNodeTimeSensor::~VrmlNodeTimeSensor()
 {
     if (d_scene)
         d_scene->removeTimeSensor(this);
-}
-
-VrmlNodeTimeSensor *VrmlNodeTimeSensor::toTimeSensor() const
-{
-    return (VrmlNodeTimeSensor *)this;
 }
 
 void VrmlNodeTimeSensor::addToScene(VrmlScene *s, const char *)
@@ -219,7 +215,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     {
         if (!d_isActive.get())
         {
-            setFieldByName(eventName, *fieldValue);
+            setField(eventName, *fieldValue);
             char eventOutName[256];
             strcpy(eventOutName, eventName);
             strcat(eventOutName, "_changed");
@@ -228,7 +224,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "stopTime") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         char eventOutName[256];
         strcpy(eventOutName, eventName);
         strcat(eventOutName, "_changed");
@@ -244,7 +240,7 @@ void VrmlNodeTimeSensor::eventIn(double timeStamp,
     // Shutdown if set_enabled FALSE is received when active
     else if (strcmp(eventName, "enabled") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         if (d_isActive.get() && !d_enabled.get())
         {
             d_isActive.set(false);

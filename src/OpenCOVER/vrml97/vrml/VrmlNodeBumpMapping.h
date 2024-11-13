@@ -39,11 +39,7 @@ public:
 
     VrmlNodeBumpMapping(VrmlScene *);
 
-    virtual VrmlNodeBumpMapping *toBumpMapping() const;
-
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
 

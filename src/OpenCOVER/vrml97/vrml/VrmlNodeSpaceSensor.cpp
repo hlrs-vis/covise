@@ -73,11 +73,6 @@ VrmlNodeSpaceSensor::VrmlNodeSpaceSensor(VrmlScene *scene)
     setModified();
 }
 
-VrmlNodeSpaceSensor *VrmlNodeSpaceSensor::toSpaceSensor() const
-{
-    return (VrmlNodeSpaceSensor *)this;
-}
-
 // Cache a pointer to (one of the) parent transforms for converting
 // hits into local coords.
 

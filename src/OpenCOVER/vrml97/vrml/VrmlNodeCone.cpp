@@ -47,8 +47,3 @@ Viewer::Object VrmlNodeCone::insertGeometry(Viewer *viewer)
                               d_bottom.get(),
                               d_side.get());
 }
-
-VrmlNodeCone *VrmlNodeCone::toCone() const //LarryD Mar 08/99
-{
-    return (VrmlNodeCone *)this;
-}

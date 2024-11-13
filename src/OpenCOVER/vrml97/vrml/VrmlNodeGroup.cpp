@@ -31,6 +31,8 @@
 #include "VrmlNodeProto.h"
 #include "VrmlNodeShape.h"
 
+#include "System.h"
+
 using std::cerr;
 using std::endl;
 using namespace vrml;
@@ -85,13 +87,6 @@ void VrmlNodeGroup::flushRemoveList()
     }
 }
 
-//
-
-VrmlNode *VrmlNodeGroup::cloneMe() const
-{
-    return new VrmlNodeGroup(*this);
-}
-
 void VrmlNodeGroup::cloneChildren(VrmlNamespace *ns)
 {
     int n = d_children.size();
@@ -105,11 +100,6 @@ void VrmlNodeGroup::cloneChildren(VrmlNamespace *ns)
         kids[i] = newKid;
         kids[i]->parentList.push_back(this);
     }
-}
-
-VrmlNodeGroup *VrmlNodeGroup::toGroup() const
-{
-    return (VrmlNodeGroup *)this;
 }
 
 bool VrmlNodeGroup::isModified() const
@@ -207,14 +197,14 @@ void VrmlNodeGroup::checkAndRemoveNodes(Viewer *viewer)
         {
             Viewer::Object child_viewerObject = 0;
             VrmlNode *kid = d_childrenToRemove[i];
-            if (kid->toGeometry())
-                child_viewerObject = kid->toGeometry()->getViewerObject();
-            else if (kid->toGroup())
-                child_viewerObject = kid->toGroup()->d_viewerObject;
-            else if (kid->toProto())
-                child_viewerObject = kid->toProto()->getViewerObject();
-            else if (kid->toShape())
-                child_viewerObject = kid->toShape()->getViewerObject();
+            if (kid->as<VrmlNodeGeometry>())
+                child_viewerObject = kid->as<VrmlNodeGeometry>()->getViewerObject();
+            else if (kid->as<VrmlNodeGroup>())
+                child_viewerObject = kid->as<VrmlNodeGroup>()->d_viewerObject;
+            else if (kid->as<VrmlNodeProto>())
+                child_viewerObject = kid->as<VrmlNodeProto>()->getViewerObject();
+            else if (kid->as<VrmlNodeShape>())
+                child_viewerObject = kid->as<VrmlNodeShape>()->getViewerObject();
             if (child_viewerObject)
                 viewer->removeChild(child_viewerObject);
         }
@@ -260,7 +250,7 @@ void VrmlNodeGroup::render(Viewer *viewer)
             //if ( kid->toLight() ) && ! (kid->toPointLight() || kid->toSpotLight()) )
             //  kid->render(viewer);
             //else
-            if (kid && ((kid->toTouchSensor() && kid->toTouchSensor()->isEnabled()) || (kid->toPlaneSensor() && kid->toPlaneSensor()->isEnabled()) || (kid->toCylinderSensor() && kid->toCylinderSensor()->isEnabled()) || (kid->toSphereSensor() && kid->toSphereSensor()->isEnabled()) || (kid->toSpaceSensor() && kid->toSpaceSensor()->isEnabled())))
+            if (kid && ((kid->as<VrmlNodeTouchSensor>() && kid->as<VrmlNodeTouchSensor>()->isEnabled()) || (kid->as<VrmlNodePlaneSensor>() && kid->as<VrmlNodePlaneSensor>()->isEnabled()) || (kid->as<VrmlNodeCylinderSensor>() && kid->as<VrmlNodeCylinderSensor>()->isEnabled()) || (kid->as<VrmlNodeSphereSensor>() && kid->as<VrmlNodeSphereSensor>()->isEnabled()) || (kid->as<VrmlNodeSpaceSensor>() && kid->as<VrmlNodeSpaceSensor>()->isEnabled())))
             {
                 if (++nSensors == 1)
                     viewer->setSensitive(this);
@@ -273,7 +263,7 @@ void VrmlNodeGroup::render(Viewer *viewer)
             if (d_children[i])
             {
                 if (!(/*d_children[i]->toLight() ||*/
-                      d_children[i]->toPlaneSensor() || d_children[i]->toCylinderSensor() || d_children[i]->toSpaceSensor() || d_children[i]->toTouchSensor()))
+                      d_children[i]->as<VrmlNodePlaneSensor>() || d_children[i]->as<VrmlNodeCylinderSensor>() || d_children[i]->as<VrmlNodeSpaceSensor>() || d_children[i]->as<VrmlNodeTouchSensor>()))
                     d_children[i]->render(viewer);
             }
         }
@@ -320,29 +310,29 @@ void VrmlNodeGroup::activate(double time,
 
         if (kid == NULL)
             continue;
-        if (kid->toTouchSensor() && kid->toTouchSensor()->isEnabled())
+        if (kid->as<VrmlNodeTouchSensor>() && kid->as<VrmlNodeTouchSensor>()->isEnabled())
         {
-            kid->toTouchSensor()->activate(time, isOver, isActive, p);
+            kid->as<VrmlNodeTouchSensor>()->activate(time, isOver, isActive, p);
             break;
         }
-        else if (kid->toPlaneSensor() && kid->toPlaneSensor()->isEnabled())
+        else if (kid->as<VrmlNodePlaneSensor>() && kid->as<VrmlNodePlaneSensor>()->isEnabled())
         {
-            kid->toPlaneSensor()->activate(time, isActive, p);
+            kid->as<VrmlNodePlaneSensor>()->activate(time, isActive, p);
             break;
         }
-        else if (kid->toSpaceSensor() && kid->toSpaceSensor()->isEnabled())
+        else if (kid->as<VrmlNodeSpaceSensor>() && kid->as<VrmlNodeSpaceSensor>()->isEnabled())
         {
-            kid->toSpaceSensor()->activate(time, isActive, p, M);
+            kid->as<VrmlNodeSpaceSensor>()->activate(time, isActive, p, M);
             break;
         }
-        else if (kid->toSphereSensor() && kid->toSphereSensor()->isEnabled())
+        else if (kid->as<VrmlNodeSphereSensor>() && kid->as<VrmlNodeSphereSensor>()->isEnabled())
         {
-            kid->toSphereSensor()->activate(time, isActive, p);
+            kid->as<VrmlNodeSphereSensor>()->activate(time, isActive, p);
             break;
         }
-        else if (kid->toCylinderSensor() && kid->toCylinderSensor()->isEnabled())
+        else if (kid->as<VrmlNodeCylinderSensor>() && kid->as<VrmlNodeCylinderSensor>()->isEnabled())
         {
-            kid->toCylinderSensor()->activate(time, isActive, p);
+            kid->as<VrmlNodeCylinderSensor>()->activate(time, isActive, p);
             break;
         }
     }
@@ -371,7 +361,7 @@ void VrmlNodeGroup::addChildren(const VrmlMFNode &children)
 
         // Add legal children and un-instantiated EXTERNPROTOs
         // Is it legal to add null children nodes?
-        if (child == 0 || child->toChild() || ((p = child->toProto()) != 0 && p->size() == 0))
+        if (child == 0 || child->as<VrmlNodeChild>() || ((p = child->as<VrmlNodeProto>()) != 0 && p->size() == 0))
         {
             d_children.addNode(child);
             if (child)

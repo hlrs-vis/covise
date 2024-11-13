@@ -44,8 +44,6 @@ public:
     VrmlNodeBackground(VrmlScene *);
     virtual ~VrmlNodeBackground();
 
-    virtual VrmlNodeBackground *toBackground() const;
-
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     // render backgrounds once per scene, not via the render() method

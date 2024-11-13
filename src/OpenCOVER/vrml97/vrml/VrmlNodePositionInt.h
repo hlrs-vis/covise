@@ -43,7 +43,6 @@ public:
                          const char *eventName,
                          const VrmlField *fieldValue);
 
-    virtual VrmlNodePositionInt *toPositionInt() const;
     virtual const VrmlMFFloat &getKey() const;
     virtual const VrmlMFVec3f &getKeyValue() const;
 

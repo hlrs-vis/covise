@@ -38,8 +38,6 @@ public:
     VrmlNodeInline(VrmlScene *);
     virtual ~VrmlNodeInline();
 
-    virtual VrmlNodeInline *toInline() const;
-
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     virtual void render(Viewer *viewer);

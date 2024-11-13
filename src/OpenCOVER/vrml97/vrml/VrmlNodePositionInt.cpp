@@ -15,6 +15,7 @@
 #include "VrmlNodePositionInt.h"
 #include "VrmlNodeType.h"
 
+#include "System.h"
 #include "VrmlScene.h"
 
 using namespace vrml;
@@ -99,11 +100,6 @@ void VrmlNodePositionInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-VrmlNodePositionInt *VrmlNodePositionInt::toPositionInt() const
-{
-    return (VrmlNodePositionInt *)this;
 }
 
 const VrmlMFFloat &VrmlNodePositionInt::getKey() const

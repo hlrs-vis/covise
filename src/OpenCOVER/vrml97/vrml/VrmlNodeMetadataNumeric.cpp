@@ -33,11 +33,8 @@ using namespace vrml;
     VrmlNodeMetadata##typename::VrmlNodeMetadata##typename(VrmlScene *scene) \
         : VrmlNodeMetadata(scene, name()) \
     { \
-    } \
-    VrmlNodeMetadata##typename *VrmlNodeMetadata##typename::toMetadata##typename() const \
-    { \
-        return (VrmlNodeMetadata##typename *)this; \
     }
+
 
 
 VRML_NODE_METADATA_NUMERIC_IMPL(Boolean, VrmlMFBool)

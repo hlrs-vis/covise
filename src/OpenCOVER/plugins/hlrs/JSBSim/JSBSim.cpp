@@ -35,6 +35,8 @@
 
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/Viewer.h>
+
 #include <cover/coVRFileManager.h>
 #include <osg/Vec3>
 
@@ -601,7 +603,7 @@ bool JSBSimPlugin::init()
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeThermal>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
 
     initAircraft();
     return true;

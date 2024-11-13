@@ -65,11 +65,6 @@ VrmlNodeFog::~VrmlNodeFog()
         d_scene->removeFog(this);
 }
 
-VrmlNodeFog *VrmlNodeFog::toFog() const
-{
-    return (VrmlNodeFog *)this;
-}
-
 void VrmlNodeFog::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)

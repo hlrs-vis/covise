@@ -37,8 +37,6 @@ public:
 
     void cloneChildren(VrmlNamespace *);
 
-    virtual VrmlNodeSwitch *toSwitch() const; //LarryD
-
     virtual bool isModified() const;
 
     virtual void clearFlags();

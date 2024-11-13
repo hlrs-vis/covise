@@ -16,7 +16,9 @@
 
 #include "VrmlNodeType.h"
 
+#include "System.h"
 #include "Viewer.h"
+
 using namespace vrml;
 
 void VrmlNodeMetadataSet::initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t)
@@ -106,9 +108,4 @@ void VrmlNodeMetadataSet::copyRoutes(VrmlNamespace *ns)
         if (d_value[i])
             d_value[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-VrmlNodeMetadataSet *VrmlNodeMetadataSet::toMetadataSet() const
-{
-    return (VrmlNodeMetadataSet *)this;
 }

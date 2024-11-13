@@ -56,8 +56,6 @@ public:
 
     virtual void render(Viewer *);
 
-    virtual VrmlNodeMultiTexture *toMultiTexture() const;
-
     VrmlNode *texture();
     VrmlNode *textureTransform();
 

@@ -18,6 +18,7 @@
 #include "VrmlScene.h"
 #include "Viewer.h"
 #include "VrmlSFTime.h"
+#include "System.h"
 
 using std::cerr;
 using std::endl;
@@ -79,11 +80,6 @@ VrmlNodeViewpoint::~VrmlNodeViewpoint()
 {
     if (d_scene)
         d_scene->removeViewpoint(this);
-}
-
-VrmlNodeViewpoint *VrmlNodeViewpoint::toViewpoint() const
-{
-    return (VrmlNodeViewpoint *)this;
 }
 
 void VrmlNodeViewpoint::addToScene(VrmlScene *s, const char *)

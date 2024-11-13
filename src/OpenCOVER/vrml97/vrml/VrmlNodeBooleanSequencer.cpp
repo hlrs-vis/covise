@@ -18,6 +18,8 @@
 #include "VrmlScene.h"
 #include "VrmlSFBool.h"
 
+#include "System.h"
+
 using namespace vrml;
 
 // BooleanSequencer factory.
@@ -114,11 +116,6 @@ void VrmlNodeBooleanSequencer::eventIn(double timeStamp, const char *eventName,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-VrmlNodeBooleanSequencer *VrmlNodeBooleanSequencer::toBooleanSequencer() const
-{
-    return (VrmlNodeBooleanSequencer *)this;
 }
 
 const VrmlMFFloat &VrmlNodeBooleanSequencer::getKey() const

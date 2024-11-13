@@ -33,8 +33,6 @@ public:
     VrmlNodePointLight(VrmlScene *);
     virtual ~VrmlNodePointLight();
 
-    virtual VrmlNodePointLight *toPointLight() const;
-
     // Bindable/scoped nodes must notify the scene of their existence.
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 

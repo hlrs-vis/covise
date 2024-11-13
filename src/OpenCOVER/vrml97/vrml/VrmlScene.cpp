@@ -281,7 +281,7 @@ void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
     /* end = d_audioClips->end();
    for (i = d_audioClips->begin(); i != end; ++i)
    {
-      VrmlNodeAudioClip *c = (*i)->toAudioClip();
+      VrmlNodeAudioClip *c = (*i)->as<VrmlNodeAudioClip>();
       if (c) c->getAudio()->;
    }*/
 
@@ -964,7 +964,7 @@ void VrmlScene::sensitiveEvent(void *object,
     if (n)
     {
         //cerr << "event for " << n->name() << endl;
-        VrmlNodeAnchor *a = n->toAnchor();
+        VrmlNodeAnchor *a = n->as<VrmlNodeAnchor>();
         if (a)
         {
             // This should really be (isOver && !isActive && n->wasActive)
@@ -995,7 +995,7 @@ void VrmlScene::sensitiveEvent(void *object,
         {
             //cerr << "local Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
             d_sensorEventQueue->addEvent(n, timeStamp, isOver, isActive, point);
-            VrmlNodeGroup *g = n->toGroup();
+            VrmlNodeGroup *g = n->as<VrmlNodeGroup>();
             if (g)
             {
                 //System::the->inform("");
@@ -1019,7 +1019,7 @@ void VrmlScene::remoteSensitiveEvent(void *object,
     if (n)
     {
         //cerr << "event for " << n->name() << endl;
-        VrmlNodeAnchor *a = n->toAnchor();
+        VrmlNodeAnchor *a = n->as<VrmlNodeAnchor>();
         if (a)
         {
             // This should really be (isOver && !isActive && n->wasActive)
@@ -1047,7 +1047,7 @@ void VrmlScene::remoteSensitiveEvent(void *object,
         // The parent grouping node is registered for Touch/Drag Sensors
         else
         {
-            VrmlNodeGroup *g = n->toGroup();
+            VrmlNodeGroup *g = n->as<VrmlNodeGroup>();
             if (g)
             {
                 //cerr << "remote Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
@@ -1080,7 +1080,7 @@ bool VrmlScene::update(double timeStamp)
     VrmlNodeList::iterator i, end = d_timers->end();
     for (i = d_timers->begin(); i != end; ++i)
     {
-        VrmlNodeTimeSensor *t = (*i)->toTimeSensor();
+        VrmlNodeTimeSensor *t = (*i)->as<VrmlNodeTimeSensor>();
         if (t)
             t->update(now);
     }
@@ -1091,7 +1091,7 @@ bool VrmlScene::update(double timeStamp)
     end = d_audioClips->end();
     for (i = d_audioClips->begin(); i != end; ++i)
     {
-        VrmlNodeAudioClip *c = (*i)->toAudioClip();
+        VrmlNodeAudioClip *c = (*i)->as<VrmlNodeAudioClip>();
         if (c)
             c->update(now);
     }
@@ -1100,7 +1100,7 @@ bool VrmlScene::update(double timeStamp)
     end = d_scripts->end();
     for (i = d_scripts->begin(); i != end; ++i)
     {
-        VrmlNodeScript *s = (*i)->toScript();
+        VrmlNodeScript *s = (*i)->as<VrmlNodeScript>();
         if (s)
             s->update(now);
     }
@@ -1109,7 +1109,7 @@ bool VrmlScene::update(double timeStamp)
     end = d_movies->end();
     for (i = d_movies->begin(); i != end; ++i)
     {
-        VrmlNodeMovieTexture *m = (*i)->toMovieTexture();
+        VrmlNodeMovieTexture *m = (*i)->as<VrmlNodeMovieTexture>();
         if (m)
             m->update(now);
     }
@@ -1433,7 +1433,7 @@ void VrmlScene::removeBackground(VrmlNodeBackground *n)
 VrmlNodeBackground *VrmlScene::bindableBackgroundTop()
 {
     VrmlNode *b = bindableTop(d_backgroundStack);
-    return b ? b->toBackground() : 0;
+    return b ? b->as<VrmlNodeBackground>() : 0;
 }
 
 void VrmlScene::bindablePush(VrmlNodeBackground *n)
@@ -1461,7 +1461,7 @@ void VrmlScene::removeFog(VrmlNodeFog *n)
 VrmlNodeFog *VrmlScene::bindableFogTop()
 {
     VrmlNode *f = bindableTop(d_fogStack);
-    return f ? f->toFog() : 0;
+    return f ? f->as<VrmlNodeFog>() : 0;
 }
 
 void VrmlScene::bindablePush(VrmlNodeFog *n)
@@ -1488,7 +1488,7 @@ void VrmlScene::removeNavigationInfo(VrmlNodeNavigationInfo *n)
 VrmlNodeNavigationInfo *VrmlScene::bindableNavigationInfoTop()
 {
     VrmlNode *n = bindableTop(d_navigationInfoStack);
-    return n ? n->toNavigationInfo() : 0;
+    return n ? n->as<VrmlNodeNavigationInfo>() : 0;
 }
 
 void VrmlScene::bindablePush(VrmlNodeNavigationInfo *n)
@@ -1519,7 +1519,7 @@ void VrmlScene::removeViewpoint(VrmlNodeViewpoint *n)
 VrmlNodeViewpoint *VrmlScene::bindableViewpointTop()
 {
     VrmlNode *t = bindableTop(d_viewpointStack);
-    return t ? t->toViewpoint() : 0;
+    return t ? t->as<VrmlNodeViewpoint>() : 0;
 }
 
 void VrmlScene::bindablePush(VrmlNodeViewpoint *n)
@@ -1581,7 +1581,7 @@ void VrmlScene::nextViewpoint()
                 i = d_viewpoints->begin();
 
             VrmlSFBool flag(true);
-            if ((*i) && (vp = (*i)->toViewpoint()) != 0)
+            if ((*i) && (vp = (*i)->as<VrmlNodeViewpoint>()) != 0)
                 vp->eventIn(System::the->time(), "set_bind", &flag);
 
             return;
@@ -1600,7 +1600,7 @@ void VrmlScene::prevViewpoint()
                 i = d_viewpoints->end();
 
             VrmlSFBool flag(true);
-            if (*(--i) && (vp = (*i)->toViewpoint()) != 0)
+            if (*(--i) && (vp = (*i)->as<VrmlNodeViewpoint>()) != 0)
                 vp->eventIn(System::the->time(), "set_bind", &flag);
 
             return;

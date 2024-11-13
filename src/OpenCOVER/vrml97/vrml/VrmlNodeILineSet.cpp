@@ -58,7 +58,7 @@ Viewer::Object VrmlNodeILineSet::insertGeometry(Viewer *viewer)
     Viewer::Object obj = 0;
     if (d_coord.get())
     {
-        VrmlMFVec3f &coord = d_coord.get()->toCoordinate()->coordinate();
+        VrmlMFVec3f &coord = d_coord.get()->as<VrmlNodeCoordinate>()->coordinate();
         int nvert = coord.size();
         int ncoord = nvert;
         float *color = NULL;
@@ -87,14 +87,14 @@ Viewer::Object VrmlNodeILineSet::insertGeometry(Viewer *viewer)
         VrmlNode *colorNode = d_color.get();
         if (colorNode && (strcmp(colorNode->nodeType()->getName(), "ColorRGBA") == 0))
         {
-            VrmlMFColorRGBA &c = d_color.get()->toColorRGBA()->color();
+            VrmlMFColorRGBA &c = d_color.get()->as<VrmlNodeColorRGBA>()->color();
             color = &c[0][0];
             cSize = c.size();
             componentsPerColor = 4;
         }
         else if (d_color.get())
         {
-            VrmlMFColor &c = d_color.get()->toColor()->color();
+            VrmlMFColor &c = d_color.get()->as<VrmlNodeColor>()->color();
             color = &c[0][0];
             cSize = c.size();
         }

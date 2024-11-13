@@ -35,8 +35,6 @@ public:
     static const char *name();
 
     VrmlNodeCylinderSensor(VrmlScene *scene = 0);
-    virtual VrmlNodeCylinderSensor *toCylinderSensor() const override;
-
     void activate(double timeStamp, bool isActive, double *p);
 
     bool isEnabled()

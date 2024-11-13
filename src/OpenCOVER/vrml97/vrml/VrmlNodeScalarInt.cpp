@@ -16,6 +16,7 @@
 #include "VrmlNodeType.h"
 
 #include "VrmlScene.h"
+#include "System.h"
 
 using namespace vrml;
 
@@ -104,11 +105,6 @@ void VrmlNodeScalarInt::eventIn(double timeStamp,
         // This node is not renderable, so don't re-render on changes to it.
         clearModified();
     }
-}
-
-VrmlNodeScalarInt *VrmlNodeScalarInt::toScalarInt() const
-{
-    return (VrmlNodeScalarInt *)this;
 }
 
 const VrmlMFFloat &VrmlNodeScalarInt::getKey() const

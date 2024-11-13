@@ -16,6 +16,7 @@
 #include "VrmlNodeType.h"
 #include "MathUtils.h"
 
+#include "System.h"
 #include "VrmlScene.h"
 
 using namespace vrml;

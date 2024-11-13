@@ -67,14 +67,6 @@ VrmlNodeCylinderSensor::VrmlNodeCylinderSensor(VrmlScene *scene)
     setModified();
 }
 
-
-// mgiger 6/16/00
-VrmlNodeCylinderSensor *VrmlNodeCylinderSensor::toCylinderSensor() const
-{
-    return (VrmlNodeCylinderSensor *)this;
-}
-
-
 void VrmlNodeCylinderSensor::activate(double timeStamp,
                                       bool isActive,
                                       double *p)

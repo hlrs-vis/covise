@@ -27,11 +27,6 @@ static VrmlNode *creator(VrmlScene *s)
     return new VrmlNodePixelTexture(s);
 }
 
-VrmlNodePixelTexture *VrmlNodePixelTexture::toPixelTexture() const
-{
-    return (VrmlNodePixelTexture *)this;
-}
-
 // Define the built in VrmlNodeType:: "PixelTexture" fields
 
 void VrmlNodePixelTexture::initFields(VrmlNodePixelTexture *node, VrmlNodeType *t)

@@ -48,12 +48,6 @@ VrmlNodeTransform::VrmlNodeTransform(VrmlScene *scene)
     d_modified = true;
 }
 
-//LarryD Feb24/99
-VrmlNodeTransform *VrmlNodeTransform::toTransform() const
-{
-    return (VrmlNodeTransform *)this;
-}
-
 // LarryD Feb 18/99
 const VrmlSFVec3f &VrmlNodeTransform::getCenter() const
 {

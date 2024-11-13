@@ -95,8 +95,3 @@ Viewer::Object VrmlNodeIQuadSet::insertGeometry(Viewer *viewer)
 
     return obj;
 }
-
-VrmlNodeIQuadSet *VrmlNodeIQuadSet::toIQuadSet() const
-{
-    return (VrmlNodeIQuadSet *)this;
-}

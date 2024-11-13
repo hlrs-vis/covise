@@ -20,6 +20,8 @@
 #include "VrmlSFColor.h"
 #include "VrmlSFFloat.h"
 
+#include "Viewer.h"
+
 #include "VrmlNodeChild.h"
 
 namespace vrml
@@ -32,8 +34,6 @@ public:
     static void initFields(VrmlNodeLight *node, VrmlNodeType *t);
     
     VrmlNodeLight(VrmlScene *, const std::string &name);
-
-    virtual VrmlNodeLight *toLight() const;
 
     virtual void render(Viewer *);
 

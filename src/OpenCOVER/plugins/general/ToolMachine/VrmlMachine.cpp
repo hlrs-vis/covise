@@ -25,7 +25,7 @@ void MachineNodeBase::initFields(MachineNodeBase *node, VrmlNodeType *t) {
 }
 
 MachineNodeBase::MachineNodeBase(vrml::VrmlScene *scene, const std::string &name)
-: VrmlNodeTemplate(scene, name)
+: VrmlNodeChild(scene, name)
 {
     machineNodes.emplace(this);
 }
@@ -49,7 +49,6 @@ void MachineNodeArrayMode::initFields(MachineNodeArrayMode *node, VrmlNodeType *
 MachineNodeArrayMode::MachineNodeArrayMode(VrmlScene *scene)
 : MachineNodeBase(scene, name())
 {
-    initFields(this, nullptr);
 }
 
 // single mode
@@ -58,7 +57,6 @@ MachineNodeArrayMode::MachineNodeArrayMode(VrmlScene *scene)
 MachineNodeSingleMode::MachineNodeSingleMode(VrmlScene *scene)
 : MachineNodeBase(scene, name())
 {
-    initFields(this, nullptr);
 }
 
 void MachineNodeSingleMode::initFields(MachineNodeSingleMode *node, VrmlNodeType *t) {
@@ -70,31 +68,14 @@ void MachineNodeSingleMode::initFields(MachineNodeSingleMode *node, VrmlNodeType
 
 // MachineNode dummy
 
+void MachineNode::initFields(MachineNode *node, VrmlNodeType *t) {
+    //do nothing
+}
+
+const char *MachineNode::name() {
+    return "ToolMachine";
+}
+
 MachineNode::MachineNode(VrmlScene *scene)
-: VrmlNode(scene)
+: VrmlNodeChild(scene, name())
 {}
-
-VrmlNode *MachineNode::creator(VrmlScene *scene)
-{
-    return new MachineNode(scene);
-}
-
-VrmlNodeType *MachineNode::nodeType() const { return defineType(); };
-
-VrmlNode *MachineNode::cloneMe() const 
-{
-    return new MachineNode(*this);
-}
-
-VrmlNodeType *MachineNode::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-    std::cerr << "defining ToolMachine type " << std::endl;
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("ToolMachine", creator);
-    }
-    return t;
-}

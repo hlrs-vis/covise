@@ -15,7 +15,7 @@
 #ifndef _VRMLNODEMULTITEXTURETRANSFORM_
 #define _VRMLNODEMULTITEXTURETRANSFORM_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFNode.h"
 
 namespace vrml
@@ -23,7 +23,7 @@ namespace vrml
 
 class Viewer;
 
-class VRMLEXPORT VrmlNodeMultiTextureTransform : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeMultiTextureTransform : public VrmlNode
 {
 
 public:
@@ -37,8 +37,6 @@ public:
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    virtual VrmlNodeMultiTextureTransform *toMultiTextureTransform() const;
 
     virtual void render(Viewer *, int numberTexture);
 

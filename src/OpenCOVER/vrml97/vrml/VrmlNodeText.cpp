@@ -86,7 +86,7 @@ Viewer::Object VrmlNodeText::insertGeometry(Viewer *viewer)
         float size = 1.0;
         VrmlNodeFontStyle *f = 0;
         if (d_fontStyle.get())
-            f = d_fontStyle.get()->toFontStyle();
+            f = d_fontStyle.get()->as<VrmlNodeFontStyle>();
 
         if (f)
         {

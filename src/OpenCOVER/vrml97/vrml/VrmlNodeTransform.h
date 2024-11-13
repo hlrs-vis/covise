@@ -39,8 +39,6 @@ public:
     virtual void inverseTransform(double *mat);
 
     //LarryD Feb 24/99
-    virtual VrmlNodeTransform *toTransform() const;
-    //LarryD Feb 24/99
     virtual const VrmlSFVec3f &getCenter() const;
     //LarryD Feb 24/99
     virtual const VrmlSFRotation &getRotation() const;

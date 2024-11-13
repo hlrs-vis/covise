@@ -150,7 +150,7 @@ LabViewPlugin::~LabViewPlugin()
 
 bool LabViewPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeLabView>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeLabView>());
 
     return true;
 }

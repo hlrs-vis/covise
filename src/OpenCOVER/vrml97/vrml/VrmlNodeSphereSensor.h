@@ -37,8 +37,6 @@ public:
 
     VrmlNodeSphereSensor(VrmlScene *scene = 0);
 
-    virtual VrmlNodeSphereSensor *toSphereSensor() const;
-
     virtual const VrmlField *getField(const char *fieldName) const override;
 
     void activate(double timeStamp, bool isActive, double *p);

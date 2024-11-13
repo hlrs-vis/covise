@@ -15,13 +15,13 @@
 #ifndef _VRMLNODETEXTURECOORDINATE_
 #define _VRMLNODETEXTURECOORDINATE_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFVec2f.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeTextureCoordinate : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeTextureCoordinate : public VrmlNode
 {
 
 public:
@@ -30,8 +30,6 @@ public:
     static const char *name();
 
     VrmlNodeTextureCoordinate(VrmlScene *);
-
-    VrmlNodeTextureCoordinate *toTextureCoordinate() const override;
 
     VrmlMFVec2f &coordinate()
     {

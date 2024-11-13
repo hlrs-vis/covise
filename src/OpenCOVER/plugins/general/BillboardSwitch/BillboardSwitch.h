@@ -73,8 +73,6 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void render(Viewer *);
 
     virtual void accumulateTransform(VrmlNode *);

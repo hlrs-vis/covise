@@ -92,8 +92,3 @@ Viewer::Object VrmlNodeExtrusion::insertGeometry(Viewer *viewer)
 
     return obj;
 }
-
-VrmlNodeExtrusion *VrmlNodeExtrusion::toExtrusion() const
-{
-    return (VrmlNodeExtrusion *)this;
-}

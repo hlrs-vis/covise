@@ -42,8 +42,6 @@ public:
     virtual int nFrames();
     virtual unsigned char *pixels();
 
-    virtual VrmlNodePixelTexture *toPixelTexture() const;
-
     virtual bool getRepeatS()
     {
         return d_repeatS.get();

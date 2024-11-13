@@ -54,8 +54,6 @@ public:
     VrmlNodeCOVER(VrmlScene *scene);
     virtual ~VrmlNodeCOVER();
 
-    virtual VrmlNodeCOVER *toCOVER() const;
-
     virtual void update(double timeStamp);
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);

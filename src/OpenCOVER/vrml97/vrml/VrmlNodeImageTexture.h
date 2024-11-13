@@ -49,8 +49,6 @@ public:
 
     virtual const VrmlMFString &getUrl() const;
 
-    virtual VrmlNodeImageTexture *toImageTexture() const;
-
     virtual bool getRepeatS() // LarryD Feb18/99
     {
         return d_repeatS.get();

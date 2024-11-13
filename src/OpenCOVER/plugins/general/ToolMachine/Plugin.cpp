@@ -29,10 +29,10 @@ ToolMaschinePlugin::ToolMaschinePlugin()
 , m_menu(new ui::Menu("ToolMachine", this))
 {
     m_menu->allowRelayout(true);
-    VrmlNamespace::addBuiltIn(MachineNode::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNodeArrayMode>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNodeSingleMode>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<ToolChangerNode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNodeArrayMode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNodeSingleMode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<ToolChangerNode>());
     std::cerr << "added vrml nodes" << "MachineNode, MachineNodeArrayMode, MachineNodeSingleMode, ToolChangerNode" << std::endl;
     config()->setSaveOnExit(true);
 }

@@ -31,8 +31,6 @@ public:\
 \
     VrmlNodeMetadata##typename(VrmlScene *);\
 \
-    VrmlNodeMetadata##typename *toMetadata##typename() const override;\
-\
 protected:\
     vrml_type d_value;\
 };\

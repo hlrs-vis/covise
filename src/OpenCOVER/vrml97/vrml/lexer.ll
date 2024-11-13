@@ -15,6 +15,7 @@
 using std::vector;
 
 #include "VrmlNode.h"
+#include "System.h"
 
 #include "VrmlMFBool.h"
 #include "VrmlMFColor.h"

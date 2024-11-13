@@ -19,6 +19,7 @@
 
 #include "MathUtils.h"
 #include "VrmlScene.h"
+#include "System.h"
 
 #include "Player.h"
 
@@ -101,11 +102,6 @@ void VrmlNodeSound::cloneChildren(VrmlNamespace *ns)
     }
 }
 
-VrmlNodeSound *VrmlNodeSound::toSound() const
-{
-    return (VrmlNodeSound *)this;
-}
-
 void VrmlNodeSound::clearFlags()
 {
     VrmlNode::clearFlags();
@@ -166,9 +162,9 @@ void VrmlNodeSound::render(Viewer *viewer)
             intensity = (rmax - dist) / (rmax - rmin);
         }
 
-        if (d_source.get()->toAudioClip())
+        if (d_source.get()->as<VrmlNodeAudioClip>())
         {
-            VrmlNodeAudioClip *clip = d_source.get()->toAudioClip();
+            VrmlNodeAudioClip *clip = d_source.get()->as<VrmlNodeAudioClip>();
             if (!source)
             {
                 if (clip->getAudio()->numSamples() > 0)

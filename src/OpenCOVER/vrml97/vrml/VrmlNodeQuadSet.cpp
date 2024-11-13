@@ -96,8 +96,3 @@ Viewer::Object VrmlNodeQuadSet::insertGeometry(Viewer *viewer)
 
     return obj;
 }
-
-VrmlNodeQuadSet *VrmlNodeQuadSet::toQuadSet() const
-{
-    return (VrmlNodeQuadSet *)this;
-}

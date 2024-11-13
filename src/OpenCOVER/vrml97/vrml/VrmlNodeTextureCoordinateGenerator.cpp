@@ -19,7 +19,7 @@ using namespace vrml;
 
 void VrmlNodeTextureCoordinateGenerator::initFields(VrmlNodeTextureCoordinateGenerator *node, VrmlNodeType *t)
 {
-    VrmlNodeTemplate::initFieldsHelper(node, t, 
+    VrmlNode::initFieldsHelper(node, t, 
         exposedField("mode", node->d_mode), 
         exposedField("parameter", node->d_parameter));
 }
@@ -30,12 +30,7 @@ const char *VrmlNodeTextureCoordinateGenerator::name()
 }
 
 VrmlNodeTextureCoordinateGenerator::VrmlNodeTextureCoordinateGenerator(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
     , d_mode("SPHERE")
 {
-}
-
-VrmlNodeTextureCoordinateGenerator *VrmlNodeTextureCoordinateGenerator::toTextureCoordinateGenerator() const
-{
-    return (VrmlNodeTextureCoordinateGenerator *)this;
 }

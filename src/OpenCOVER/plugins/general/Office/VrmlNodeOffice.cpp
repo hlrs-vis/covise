@@ -29,6 +29,7 @@
 #include <vrml97/vrml/System.h>
 #include <vrml97/vrml/Viewer.h>
 #include <vrml97/vrml/VrmlScene.h>
+#include <vrml97/vrml/System.h>
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRAnimationManager.h>
@@ -90,13 +91,8 @@ void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
                             message.type = (int)OfficePlugin::MSG_String;
                             node->officeConnection->sendMessage(message);
                         }
-                     }));
-    
-    if (t)
-    {
-        t->addEventIn("events", VrmlField::SFSTRING);
-    }                     
-
+                     }),
+                     eventInCallBack("events", node->d_events));
 }
 
 const char *VrmlNodeOffice::name()
@@ -143,21 +139,7 @@ VrmlNodeOffice::~VrmlNodeOffice()
     allOffice.remove(this);
 }
 
-VrmlNodeOffice *VrmlNodeOffice::toOffice() const
-{
-    return (VrmlNodeOffice *)this;
-}
-
 void VrmlNodeOffice::render(Viewer *viewer)
 {
     (void)viewer;
-}
-
-ostream &VrmlNodeOffice::printFields(ostream &os, int indent)
-{
-    if (!d_events.get())
-        PRINT_FIELD(events);
-    VrmlNodeChild::printFields(os, indent);
-
-    return os;
 }

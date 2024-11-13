@@ -61,11 +61,6 @@ VrmlNodeTouchSensor::VrmlNodeTouchSensor(VrmlScene *scene)
     forceTraversal(false);
 }
 
-VrmlNodeTouchSensor *VrmlNodeTouchSensor::toTouchSensor() const
-{
-    return (VrmlNodeTouchSensor *)this;
-}
-
 // Doesn't compute the xxx_changed eventOuts yet...
 
 void VrmlNodeTouchSensor::activate(double timeStamp,

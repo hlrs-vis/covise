@@ -39,6 +39,7 @@
 #include <vrml97/vrml/VrmlNodeTransform.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/VrmlNamespace.h>
+#include <vrml97/vrml/System.h>
 
 #include <boost/filesystem.hpp>
 
@@ -141,7 +142,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
     , m_colorInteractor(new CsvInteractor())
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNode>());
     std::cerr << "getName: " << getName() << std::endl;
     m_config->setSaveOnExit(true);
     m_dataSelector->ui()->setShared(true);
@@ -274,7 +275,7 @@ bool CsvPointCloudPlugin::init()
 
     coVRFileManager::instance()->registerFileHandler(&m_handler[0]);
     coVRFileManager::instance()->registerFileHandler(&m_handler[1]);
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<MachineNode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNode>());
     return true;
 }
 

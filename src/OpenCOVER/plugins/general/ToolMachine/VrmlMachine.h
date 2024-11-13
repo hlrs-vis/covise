@@ -3,14 +3,14 @@
 
 #include "LogicInterface.h"
 
-#include <vrml97/vrml/VrmlNodeTemplate.h>
+#include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 
 #include <osg/MatrixTransform>
 #include <utils/pointer/NullCopyPtr.h>
 
 
-class MachineNodeBase : public vrml::VrmlNodeTemplate {
+class MachineNodeBase : public vrml::VrmlNodeChild {
 public:
     static void initFields(MachineNodeBase *node, vrml::VrmlNodeType *t);
     MachineNodeBase(vrml::VrmlScene *scene, const std::string &name);
@@ -55,14 +55,11 @@ public:
     vrml::VrmlMFString opcuaNames; // axis names on the opcua server
 };
 
-class MachineNode : public vrml::VrmlNode { // dummy to load plugin
+class MachineNode : public vrml::VrmlNodeChild { // dummy to load plugin
 public:
-    static VrmlNode *creator(vrml::VrmlScene *scene);
-    static vrml::VrmlNodeType *defineType(vrml::VrmlNodeType *t = nullptr);
+    static void initFields(MachineNode *node, vrml::VrmlNodeType *t);
+    static const char *name();
     MachineNode(vrml::VrmlScene *scene);
-
-    vrml::VrmlNodeType *nodeType() const override;
-    vrml::VrmlNode *cloneMe() const override;
 };
 
 #endif // COVER_PLUGIN_TOOLMACHINE_VRMLNODE_H

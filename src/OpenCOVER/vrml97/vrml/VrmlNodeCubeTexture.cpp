@@ -28,11 +28,6 @@ const VrmlMFString &VrmlNodeCubeTexture::getUrl() const
     return d_urlXP;
 }
 
-VrmlNodeCubeTexture *VrmlNodeCubeTexture::toCubeTexture() const
-{
-    return (VrmlNodeCubeTexture *)this;
-}
-
 // Define the built in VrmlNodeType:: "CubeTexture" fields
 
 void VrmlNodeCubeTexture::initFields(VrmlNodeCubeTexture *node, VrmlNodeType *t)

@@ -48,7 +48,6 @@ public:
 
     virtual void render(Viewer *);
 
-    virtual VrmlNodeLOD *toLOD() const;
     VrmlMFNode *getLevel()
     {
         return &d_level;

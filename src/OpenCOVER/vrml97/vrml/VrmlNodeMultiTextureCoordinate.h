@@ -15,13 +15,13 @@
 #ifndef _VRMLNODEMULTITEXTURECOORDINATE_
 #define _VRMLNODEMULTITEXTURECOORDINATE_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFNode.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeMultiTextureCoordinate : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeMultiTextureCoordinate : public VrmlNode
 {
 
 public:
@@ -34,8 +34,6 @@ public:
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    VrmlNodeMultiTextureCoordinate *toMultiTextureCoordinate() const override;
 
     VrmlMFNode &texCoord()
     {

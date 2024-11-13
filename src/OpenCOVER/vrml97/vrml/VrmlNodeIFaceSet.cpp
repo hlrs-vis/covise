@@ -20,7 +20,9 @@
 
 #include "MathUtils.h"
 
+#include "System.h"
 #include "Viewer.h"
+
 using namespace vrml;
 
 void VrmlNodeIFaceSet::initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t)
@@ -95,21 +97,25 @@ void VrmlNodeIFaceSet::cloneChildren(VrmlNamespace *ns)
     }
 }
 
+inline bool isTexCoordModified(const std::array<VrmlSFNode, 10> &texCoords)
+{
+    for (size_t i = 0; i < texCoords.size(); i++)
+    {
+        if (texCoords[i].get() && texCoords[i].get()->isModified())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool VrmlNodeIFaceSet::isModified() const
 {
-    bool retval = (d_modified
+    return(d_modified
             || (d_color.get() && d_color.get()->isModified())
             || (d_coord.get() && d_coord.get()->isModified())
-            || (d_normal.get() && d_normal.get()->isModified()));
-
-            for (size_t i = 0; i < MAX_TEXCOORDS; i++)
-            {
-                if(d_texCoords[i].get() && d_texCoords[i].get()->isModified())
-                {
-                    return true;
-                }
-            }
-    return retval;
+            || (d_normal.get() && d_normal.get()->isModified())
+            || isTexCoordModified(d_texCoords));
 }
 
 void VrmlNodeIFaceSet::clearFlags()
@@ -308,9 +314,4 @@ VrmlNode *VrmlNodeIFaceSet::getTexCoord10()
 const VrmlMFInt &VrmlNodeIFaceSet::getTexCoordIndex10() const
 {
     return d_texCoordIndices[9];
-}
-
-VrmlNodeIFaceSet *VrmlNodeIFaceSet::toIFaceSet() const
-{
-    return (VrmlNodeIFaceSet *)this;
 }

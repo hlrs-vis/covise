@@ -18,6 +18,7 @@
 #include "VrmlNodeType.h"
 #include "VrmlScene.h"
 #include "Doc.h"
+#include "System.h"
 
 using std::cerr;
 using std::endl;
@@ -29,12 +30,6 @@ const VrmlMFString &VrmlNodeImageTexture::getUrl() const
 {
     return d_url;
 }
-
-VrmlNodeImageTexture *VrmlNodeImageTexture::toImageTexture() const
-{
-    return (VrmlNodeImageTexture *)this;
-}
-
 
 void VrmlNodeImageTexture::initFields(VrmlNodeImageTexture *node, VrmlNodeType *t)
 {

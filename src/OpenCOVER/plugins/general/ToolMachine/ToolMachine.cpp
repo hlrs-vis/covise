@@ -93,7 +93,7 @@ void Machine::pause(bool state)
 
 void Machine::update()
 {
-    if(!m_rdy && dynamic_cast<const VrmlNodeTemplate*>(m_machineNode)->allFieldsInitialized())
+    if(!m_rdy && m_machineNode->allFieldsInitialized())
     {
         connectOpcua();
     }

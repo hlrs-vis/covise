@@ -934,7 +934,7 @@ node_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
         if (!expect)
         {
             VrmlNodeScript *scriptNode;
-            if ((scriptNode = n->toScript()))
+            if ((scriptNode = n->as<VrmlNodeScript>()))
             {
                 // Handle exposedFields
                 expect = scriptNode->hasExposedField(eventIn);
@@ -949,7 +949,7 @@ node_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
             strcat(setEventIn, eventIn);
             expect = n->nodeType()->hasEventIn(setEventIn);
             VrmlNodeScript *scriptNode;
-            if ((scriptNode = n->toScript()))
+            if ((scriptNode = n->as<VrmlNodeScript>()))
             {
                 if (!expect)
                     expect = scriptNode->hasEventIn(setEventIn);

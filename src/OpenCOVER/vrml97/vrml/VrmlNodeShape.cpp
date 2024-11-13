@@ -12,7 +12,6 @@
 //  %W% %G%
 //  VrmlNodeShape.cpp
 
-#include "VrmlNode.h"
 
 #include "VrmlNodeAppearance.h"
 #include "VrmlNodeGeometry.h"
@@ -106,11 +105,6 @@ void VrmlNodeShape::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-VrmlNodeShape *VrmlNodeShape::toShape() const
-{
-    return (VrmlNodeShape *)this;
-}
-
 void VrmlNodeShape::render(Viewer *viewer)
 {
     if (d_viewerObject && isModified())
@@ -119,7 +113,7 @@ void VrmlNodeShape::render(Viewer *viewer)
         d_viewerObject = 0;
     }
 
-    VrmlNodeGeometry *g = d_geometry.get() ? d_geometry.get()->toGeometry() : 0;
+    VrmlNodeGeometry *g = d_geometry.get() ? d_geometry.get()->as<VrmlNodeGeometry>() : 0;
 
     if (d_viewerObject)
         viewer->insertReference(d_viewerObject);
@@ -134,13 +128,13 @@ void VrmlNodeShape::render(Viewer *viewer)
         {
             int nTexComponents = 0;
 
-            if (!picking && d_appearance.get() && d_appearance.get()->toAppearance())
+            if (!picking && d_appearance.get() && d_appearance.get()->as<VrmlNodeAppearance>())
             {
-                VrmlNodeAppearance *a = d_appearance.get()->toAppearance();
+                VrmlNodeAppearance *a = d_appearance.get()->as<VrmlNodeAppearance>();
                 a->render(viewer);
 
-                if (a->texture() && a->texture()->toTexture())
-                    nTexComponents = a->texture()->toTexture()->nComponents();
+                if (a->texture() && a->texture()->as<VrmlNodeTexture>())
+                    nTexComponents = a->texture()->as<VrmlNodeTexture>()->nComponents();
             }
             else
             {

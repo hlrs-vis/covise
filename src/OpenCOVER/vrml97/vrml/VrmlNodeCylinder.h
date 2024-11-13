@@ -34,8 +34,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    //LarryD Mar 08/99
-    virtual VrmlNodeCylinder *toCylinder() const;
     virtual bool getBottom() //LarryD Mar 08/99
     {
         return d_bottom.get();

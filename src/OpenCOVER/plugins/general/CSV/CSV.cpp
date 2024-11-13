@@ -371,7 +371,7 @@ CSVPlugin::~CSVPlugin()
 
 bool CSVPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCSV>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCSV>());
 
     return true;
 }

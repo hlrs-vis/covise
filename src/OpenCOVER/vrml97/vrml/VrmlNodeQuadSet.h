@@ -32,8 +32,6 @@ public:
   VrmlNodeQuadSet(VrmlScene *);
 
   virtual Viewer::Object insertGeometry(Viewer *v);
-
-  virtual VrmlNodeQuadSet *toQuadSet() const;
 };
 }
 #endif // _VRMLNODEQUADSET_

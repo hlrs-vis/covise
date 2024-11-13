@@ -52,10 +52,6 @@ public:
     virtual ~VrmlNodeOffice();
     virtual void addToScene(VrmlScene *s, const char *);
 
-    virtual VrmlNodeOffice *toOffice() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent) override;
-
     virtual void render(Viewer *);
 
     static void update();

@@ -37,8 +37,3 @@ Viewer::Object VrmlNodeSphere::insertGeometry(Viewer *viewer)
 {
     return viewer->insertSphere(d_radius.get());
 }
-
-VrmlNodeSphere *VrmlNodeSphere::toSphere() const //LarryD Mar 08/99
-{
-    return (VrmlNodeSphere *)this;
-}

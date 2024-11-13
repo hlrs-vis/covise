@@ -33,8 +33,6 @@ public:
     VrmlNodeSpotLight(VrmlScene *);
     virtual ~VrmlNodeSpotLight();
 
-    virtual VrmlNodeSpotLight *toSpotLight() const;
-
     virtual void addToScene(VrmlScene *s, const char *);
 
     virtual void render(Viewer *);

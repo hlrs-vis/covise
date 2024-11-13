@@ -18,12 +18,12 @@
 #include "VrmlSFString.h"
 #include "VrmlMFString.h"
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeMetadata : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeMetadata : public VrmlNode
 {
 
 public:

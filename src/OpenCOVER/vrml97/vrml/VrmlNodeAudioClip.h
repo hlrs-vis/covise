@@ -16,7 +16,7 @@
 #ifndef _VRMLNODEAUDIOCLIP_
 #define _VRMLNODEAUDIOCLIP_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFString.h"
 #include "VrmlSFBool.h"
 #include "VrmlSFFloat.h"
@@ -30,7 +30,7 @@ namespace vrml
 class Audio;
 class Doc;
 
-class VRMLEXPORT VrmlNodeAudioClip : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
 {
 
 public:
@@ -46,8 +46,6 @@ public:
 
     // an update. Renderable nodes need to redefine this.
     virtual void update(VrmlSFTime &now);
-
-    virtual VrmlNodeAudioClip *toAudioClip() const;
 
     const Audio *getAudio() const;
 

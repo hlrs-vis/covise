@@ -36,7 +36,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    virtual VrmlNodeCone *toCone() const; //LarryD Mar 08/99
     virtual bool getBottom() //LarryD Mar 08/99
     {
         return d_bottom.get();

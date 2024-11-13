@@ -91,7 +91,7 @@ private:
 };
 
 template<>
-inline VrmlNode *VrmlNodeTemplate::creator<VrmlNodeSolarSystem>(vrml::VrmlScene *scene){
+inline VrmlNode *VrmlNode::creator<VrmlNodeSolarSystem>(vrml::VrmlScene *scene){
     return VrmlNodeSolarSystem::instance();
 }
 

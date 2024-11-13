@@ -153,8 +153,3 @@ Viewer::Object VrmlNodeITriangleFanSet::insertGeometry(Viewer *viewer)
 
     return obj;
 }
-
-VrmlNodeITriangleFanSet *VrmlNodeITriangleFanSet::toITriangleFanSet() const
-{
-    return (VrmlNodeITriangleFanSet *)this;
-}

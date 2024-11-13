@@ -319,7 +319,6 @@ Vrml97Plugin::Vrml97Plugin()
 , viewer(NULL)
 , vrmlScene(NULL)
 , player(NULL)
-, sensorList(NULL)
 {
     //fprintf(stderr,"Vrml97Plugin::Vrml97Plugin\n");
     if (plugin)
@@ -353,42 +352,40 @@ bool Vrml97Plugin::init()
         cover->registerPlayer(player);
     }
 
-    sensorList = new coSensorList();
-
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[2]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[3]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIProgressBar>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUITab>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUITabFolder>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIButton>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIToggleButton>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIFrame>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUISplitter>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIListBox>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIMap>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIComboBox>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUISlider>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUIFloatSlider>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTUILabel>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeTimesteps>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCOVERPerson>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCOVERBody>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeCOVISEObject>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodePrecipitation>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeMatrixLight>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIProgressBar>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUITab>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUITabFolder>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIButton>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIToggleButton>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIFrame>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUISplitter>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIListBox>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIMap>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIComboBox>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUISlider>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUIFloatSlider>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTUILabel>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTimesteps>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCOVERPerson>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCOVERBody>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCOVISEObject>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodePrecipitation>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeMatrixLight>());
 #ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodePhotometricLight>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodePhotometricLight>());
 #endif
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeARSensor>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeMirrorCamera>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeMultiTouchSensor>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeClippingPlane>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeShadowedScene>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeARSensor>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeMirrorCamera>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeMultiTouchSensor>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeClippingPlane>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeShadowedScene>());
 
     coEventQueue::registerEventType(&VrmlNodeARSensor::AREventType);
     coEventQueue::registerEventType(&VrmlNodeMultiTouchSensor::MultiTouchEventType);
@@ -424,9 +421,6 @@ Vrml97Plugin::~Vrml97Plugin()
 
     coEventQueue::unregisterEventType(&VrmlNodeARSensor::AREventType);
 
-    delete sensorList;
-    sensorList = NULL;
-
     delete System::the;
 }
 
@@ -435,8 +429,6 @@ Vrml97Plugin::update()
 {
     bool render = false;
 
-    if (this->sensorList)
-        sensorList->update();
     if (this->viewer)
     {
         render = this->viewer->update();

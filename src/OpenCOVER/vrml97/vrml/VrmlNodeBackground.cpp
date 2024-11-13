@@ -78,11 +78,6 @@ VrmlNodeBackground::~VrmlNodeBackground()
     // remove d_viewerObject...
 }
 
-VrmlNodeBackground *VrmlNodeBackground::toBackground() const
-{
-    return (VrmlNodeBackground *)this;
-}
-
 void VrmlNodeBackground::addToScene(VrmlScene *s, const char *rel)
 {
     if (d_scene != s && (d_scene = s) != 0)

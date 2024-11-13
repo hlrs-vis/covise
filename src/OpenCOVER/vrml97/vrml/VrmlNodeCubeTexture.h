@@ -48,8 +48,6 @@ public:
 
     virtual const VrmlMFString &getUrl() const;
 
-    virtual VrmlNodeCubeTexture *toCubeTexture() const;
-
     virtual bool getRepeatS() // LarryD Feb18/99
     {
         return d_repeatS.get();

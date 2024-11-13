@@ -95,8 +95,3 @@ Viewer::Object VrmlNodeTriangleSet::insertGeometry(Viewer *viewer)
 
     return obj;
 }
-
-VrmlNodeTriangleSet *VrmlNodeTriangleSet::toTriangleSet() const
-{
-    return (VrmlNodeTriangleSet *)this;
-}

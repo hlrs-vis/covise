@@ -206,9 +206,9 @@ XElevatorPlugin::~XElevatorPlugin()
 
 bool XElevatorPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeXElevator>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeXCar>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeXLanding>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeXElevator>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeXCar>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeXLanding>());
 
     return true;
 }

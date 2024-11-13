@@ -228,18 +228,18 @@ void VrmlNodeBicycle::eventIn(double timeStamp,
     if (strcmp(eventName, "bikeRotation") == 0)
     {
         fprintf(stderr, "resetRot\n");
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         recalcMatrix();
     }
     else if (strcmp(eventName, "bikeTranslation") == 0)
     {
         fprintf(stderr, "resetTrans\n");
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         recalcMatrix();
     }
     else if (strcmp(eventName, "thermal") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         fprintf(stderr, "thermal: %d\n", d_thermal.get());
         
     }
@@ -1071,7 +1071,7 @@ BicyclePlugin::~BicyclePlugin()
 
 int BicyclePlugin::initUI()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeBicycle>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeBicycle>());
     return 1;
 }
 

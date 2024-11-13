@@ -28,7 +28,7 @@ const char *VrmlNodeMultiTextureCoordinate::name()
 }
 
 VrmlNodeMultiTextureCoordinate::VrmlNodeMultiTextureCoordinate(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
 {
 }
 
@@ -64,9 +64,4 @@ void VrmlNodeMultiTextureCoordinate::copyRoutes(VrmlNamespace *ns)
         d_texCoord[i]->copyRoutes(ns);
     }
     nodeStack.pop_front();
-}
-
-VrmlNodeMultiTextureCoordinate *VrmlNodeMultiTextureCoordinate::toMultiTextureCoordinate() const
-{
-    return (VrmlNodeMultiTextureCoordinate *)this;
 }

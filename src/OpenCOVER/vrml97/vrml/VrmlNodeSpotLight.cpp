@@ -60,11 +60,6 @@ VrmlNodeSpotLight::~VrmlNodeSpotLight()
         d_scene->removeScopedLight(this);
 }
 
-VrmlNodeSpotLight *VrmlNodeSpotLight::toSpotLight() const
-{
-    return (VrmlNodeSpotLight *)this;
-}
-
 void VrmlNodeSpotLight::addToScene(VrmlScene *s, const char *)
 {
     if (d_scene != s && (d_scene = s) != 0)

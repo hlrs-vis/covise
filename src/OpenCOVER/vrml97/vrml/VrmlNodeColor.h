@@ -15,7 +15,7 @@
 #ifndef _VRMLNODECOLOR_
 #define _VRMLNODECOLOR_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFColor.h"
 
 namespace vrml
@@ -23,7 +23,7 @@ namespace vrml
 
 class VRMLEXPORT VrmlScene;
 
-class VRMLEXPORT VrmlNodeColor : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeColor : public VrmlNode
 {
 
 public:
@@ -32,8 +32,6 @@ public:
     static const char *name();
 
     VrmlNodeColor(VrmlScene *);
-
-    virtual VrmlNodeColor *toColor() const;
 
     VrmlMFColor &color()
     {

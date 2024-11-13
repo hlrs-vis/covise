@@ -21,7 +21,7 @@ using namespace vrml;
 
 void VrmlNodeTextureTransform::initFields(VrmlNodeTextureTransform *node, VrmlNodeType *t)
 {
-    VrmlNodeTemplate::initFieldsHelper(node, t,
+    VrmlNode::initFieldsHelper(node, t,
                                        exposedField("center", node->d_center),
                                        exposedField("rotation", node->d_rotation),
                                        exposedField("scale", node->d_scale),
@@ -34,17 +34,12 @@ const char *VrmlNodeTextureTransform::name()
 }
 
 VrmlNodeTextureTransform::VrmlNodeTextureTransform(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
     , d_center(0.0, 0.0)
     , d_rotation(0.0)
     , d_scale(1.0, 1.0)
     , d_translation(0.0, 0.0)
 {
-}
-
-VrmlNodeTextureTransform *VrmlNodeTextureTransform::toTextureTransform() const
-{
-    return (VrmlNodeTextureTransform *)this;
 }
 
 void VrmlNodeTextureTransform::render(Viewer *viewer)

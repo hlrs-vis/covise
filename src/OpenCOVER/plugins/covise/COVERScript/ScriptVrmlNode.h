@@ -21,18 +21,10 @@ class ScriptVrmlNode : public QObject, public vrml::VrmlNodeChild
 
 public:
     ScriptVrmlNode(vrml::VrmlScene *scene = 0);
+    ScriptVrmlNode(const ScriptVrmlNode &other);
 
-    virtual ~ScriptVrmlNode();
-
-    static vrml::VrmlNodeType *defineType(vrml::VrmlNodeType *t = 0);
-    virtual vrml::VrmlNodeType *nodeType() const;
-
-    virtual vrml::VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const vrml::VrmlField &fieldValue);
-    const vrml::VrmlField *getField(const char *fieldName);
+    static void initFields(vrml::VrmlNodeChild *node, vrml::VrmlNodeType *t);
+    static const char *name();
 
     void eventIn(double timeStamp, const char *eventName,
                  const vrml::VrmlField *fieldValue);

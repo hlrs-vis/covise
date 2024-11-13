@@ -15,6 +15,7 @@
 #include "VrmlNodeSwitch.h"
 #include "VrmlNodeType.h"
 #include "Viewer.h"
+#include "System.h"
 
 using namespace vrml;
 
@@ -153,9 +154,4 @@ void VrmlNodeSwitch::accumulateTransform(VrmlNode *parent)
         VrmlNode *kid = d_choice[i];
         kid->accumulateTransform(parent);
     }
-}
-
-VrmlNodeSwitch *VrmlNodeSwitch::toSwitch() const //LarryD
-{
-    return (VrmlNodeSwitch *)this;
 }

@@ -15,14 +15,14 @@
 #ifndef _VRMLNODETEXTURECOORDINATEGENERATOR_
 #define _VRMLNODETEXTURECOORDINATEGENERATOR_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlSFString.h"
 #include "VrmlMFFloat.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeTextureCoordinateGenerator : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeTextureCoordinateGenerator : public VrmlNode
 {
 
 public:
@@ -31,8 +31,6 @@ public:
     static const char *name();
 
     VrmlNodeTextureCoordinateGenerator(VrmlScene *);
-
-    VrmlNodeTextureCoordinateGenerator *toTextureCoordinateGenerator() const override;
 
 private:
     VrmlSFString d_mode;

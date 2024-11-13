@@ -49,9 +49,6 @@ public:
 
     virtual VrmlNodeColor *color();
 
-    //LarryD Mar 09/99
-    virtual VrmlNodeElevationGrid *toElevationGrid() const;
-
     virtual VrmlNode *getNormal(); //LarryD Mar 09/99
     virtual VrmlNode *getTexCoord(); //LarryD Mar 09/99
     virtual bool getCcw() //LarryD Mar 09/99

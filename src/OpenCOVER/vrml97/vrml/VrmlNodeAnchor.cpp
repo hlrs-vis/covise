@@ -51,12 +51,6 @@ VrmlNodeAnchor::VrmlNodeAnchor(const VrmlNodeAnchor &n)
     d_url = n.d_url;
 }
 
-
-VrmlNodeAnchor *VrmlNodeAnchor::toAnchor() const
-{
-    return (VrmlNodeAnchor *)this;
-}
-
 void VrmlNodeAnchor::render(Viewer *viewer)
 {
     viewer->beginObject(name(), 0, this);

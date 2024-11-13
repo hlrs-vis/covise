@@ -35,8 +35,6 @@ public:
 
     //LarryD Mar 04/99
     virtual const VrmlSFVec3f &getDirection() const;
-    //LarryD Mar 04/99
-    virtual VrmlNodeDirLight *toDirLight() const;
 
 protected:
     VrmlSFVec3f d_direction;

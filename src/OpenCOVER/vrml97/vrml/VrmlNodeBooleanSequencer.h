@@ -44,7 +44,6 @@ public:
                          const VrmlField *fieldValue);
 
 
-    virtual VrmlNodeBooleanSequencer *toBooleanSequencer() const override;
     virtual const VrmlMFFloat &getKey() const;
     virtual const VrmlMFBool &getKeyValue() const;
 

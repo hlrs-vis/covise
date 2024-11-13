@@ -48,9 +48,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *v);
 
-
-    virtual VrmlNodeIFaceSet *toIFaceSet() const;
-
     virtual VrmlNode *getNormal();
     virtual const VrmlMFInt &getNormalIndex() const;
 

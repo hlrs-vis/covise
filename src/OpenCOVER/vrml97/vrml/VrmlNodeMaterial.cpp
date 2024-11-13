@@ -22,7 +22,7 @@ using namespace vrml;
 
 void VrmlNodeMaterial::initFields(VrmlNodeMaterial *node, VrmlNodeType *t)
 {
-    VrmlNodeTemplate::initFieldsHelper(node, t,
+    VrmlNode::initFieldsHelper(node, t,
                                        exposedField("ambientIntensity", node->d_ambientIntensity),
                                        exposedField("diffuseColor", node->d_diffuseColor),
                                        exposedField("emissiveColor", node->d_emissiveColor),
@@ -35,7 +35,7 @@ void VrmlNodeMaterial::initFields(VrmlNodeMaterial *node, VrmlNodeType *t)
 const char *VrmlNodeMaterial::name() { return "Material"; }
 
 VrmlNodeMaterial::VrmlNodeMaterial(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
     , d_ambientIntensity(0.2f)
     , d_diffuseColor(0.8f, 0.8f, 0.8f)
     , d_emissiveColor(0.0f, 0.0f, 0.0f)
@@ -43,11 +43,6 @@ VrmlNodeMaterial::VrmlNodeMaterial(VrmlScene *scene)
     , d_specularColor(0.0f, 0.0f, 0.0f)
     , d_transparency(0.0f)
 {
-}
-
-VrmlNodeMaterial *VrmlNodeMaterial::toMaterial() const
-{
-    return (VrmlNodeMaterial *)this;
 }
 
 // This currently isn't used - see VrmlNodeAppearance.cpp.

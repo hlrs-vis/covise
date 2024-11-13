@@ -414,7 +414,7 @@ void VrmlNodeVehicle::eventIn(double timeStamp,
 {
     if (strcmp(eventName, "reset") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         if (d_reset.get() == true)
         {
             std::cout << "VRML-Script reset" << std::endl;
@@ -441,47 +441,47 @@ void VrmlNodeVehicle::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "carRotation") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         recalcMatrix();
         if (SteeringWheelPlugin::plugin->dynamics)
             SteeringWheelPlugin::plugin->dynamics->setVehicleTransformation(carTrans);
     }
     else if (strcmp(eventName, "carTranslation") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         recalcMatrix();
         if (SteeringWheelPlugin::plugin->dynamics)
             SteeringWheelPlugin::plugin->dynamics->setVehicleTransformation(carTrans);
     }
     else if (strcmp(eventName, "numCars") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "followTerrain") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
     }
 
     for (size_t i = 0; i < d_carTranslations.size(); i++)
     {
         if(eventName == ("carTranslation_" + std::to_string(i)))
         {
-            setFieldByName(eventName, *fieldValue);
+            setField(eventName, *fieldValue);
             break;
         }
     }
 
     if (strcmp(eventName, "offsetLoc") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "offsetRot") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
     }
     else if (strcmp(eventName, "setOffset") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         if (d_setOffset.get() == true)
         {
             PorscheRealtimeDynamics *dynamics = dynamic_cast<PorscheRealtimeDynamics *>(SteeringWheelPlugin::plugin->dynamics);
@@ -503,7 +503,7 @@ void VrmlNodeVehicle::eventIn(double timeStamp,
     }
     else if (strcmp(eventName, "printTransformation") == 0)
     {
-        setFieldByName(eventName, *fieldValue);
+        setField(eventName, *fieldValue);
         if (SteeringWheelPlugin::plugin->dynamics)
         {
             if (d_printTransformation.get() == true && coVRMSController::instance()->isMaster())

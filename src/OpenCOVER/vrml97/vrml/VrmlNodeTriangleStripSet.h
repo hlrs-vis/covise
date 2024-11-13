@@ -32,8 +32,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *v);
 
-    virtual VrmlNodeTriangleStripSet *toTriangleStripSet() const;
-
 protected:
     VrmlMFInt d_stripCount;
 };

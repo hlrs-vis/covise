@@ -40,8 +40,6 @@ public:
 
     virtual void render(Viewer *);
 
-    virtual VrmlNodeProximitySensor *toProximitySensor() const;
-
     virtual void remoteEvent(double timeStamp,
                              bool isOver, bool isActive, float *point);
 

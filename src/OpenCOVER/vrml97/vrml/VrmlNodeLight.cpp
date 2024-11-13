@@ -39,11 +39,6 @@ VrmlNodeLight::VrmlNodeLight(VrmlScene *scene, const std::string &name)
 {
 }
 
-VrmlNodeLight *VrmlNodeLight::toLight() const
-{
-    return (VrmlNodeLight *)this;
-}
-
 void VrmlNodeLight::render(Viewer *)
 {
 }

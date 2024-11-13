@@ -65,7 +65,7 @@ public:
 
     virtual VrmlNodeThyssen *toThyssen() const;
 
-    ostream &printFields(ostream &os, int indent) override;
+    ostream &printFields(ostream &os, int indent) const override;
 
     void eventIn(double timeStamp, const char *eventName,
                  const VrmlField *fieldValue);

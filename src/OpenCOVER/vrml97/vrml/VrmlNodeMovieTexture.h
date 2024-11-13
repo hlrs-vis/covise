@@ -39,8 +39,6 @@ public:
     VrmlNodeMovieTexture(VrmlScene *);
     virtual ~VrmlNodeMovieTexture();
 
-    virtual VrmlNodeMovieTexture *toMovieTexture() const override;
-
     virtual void addToScene(VrmlScene *s, const char *relUrl) override;
     void update(VrmlSFTime &now);
 

@@ -83,7 +83,7 @@ const char *VrmlNodeAudioClip::name() { return "AudioClip"; }
 
 
 VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
     , d_pitch(1.0)
     , d_isActive(false)
     , d_audio(new Audio(0))
@@ -97,7 +97,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
 
 // Define copy constructor so clones don't share d_audio (for now, anyway...)
 VrmlNodeAudioClip::VrmlNodeAudioClip(const VrmlNodeAudioClip &n)
-    : VrmlNodeTemplate(n)
+    : VrmlNode(n)
     , d_description(n.d_description)
     , d_loop(n.d_loop)
     , d_pitch(n.d_pitch)
@@ -128,11 +128,6 @@ void VrmlNodeAudioClip::addToScene(VrmlScene *s, const char *rel)
         d_scene->addAudioClip(this);
     if (d_relativeUrl.get() == NULL)
         d_relativeUrl.set(rel);
-}
-
-VrmlNodeAudioClip *VrmlNodeAudioClip::toAudioClip() const
-{
-    return (VrmlNodeAudioClip *)this;
 }
 
 const Audio *VrmlNodeAudioClip::getAudio() const

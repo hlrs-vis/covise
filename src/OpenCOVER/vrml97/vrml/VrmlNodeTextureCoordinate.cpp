@@ -28,11 +28,6 @@ const char *VrmlNodeTextureCoordinate::name()
 }
 
 VrmlNodeTextureCoordinate::VrmlNodeTextureCoordinate(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
 {
-}
-
-VrmlNodeTextureCoordinate *VrmlNodeTextureCoordinate::toTextureCoordinate() const
-{
-    return (VrmlNodeTextureCoordinate *)this;
 }

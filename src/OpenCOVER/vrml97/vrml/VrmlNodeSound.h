@@ -54,8 +54,6 @@ public:
 
     virtual void render(Viewer *);
 
-    virtual VrmlNodeSound *toSound() const;
-
 private:
     // Fields
     VrmlSFVec3f d_direction;

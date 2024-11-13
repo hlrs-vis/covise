@@ -174,7 +174,7 @@ SimulinkPlugin::~SimulinkPlugin()
 
 bool SimulinkPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSimulink>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeSimulink>());
     bool ret = false;
     if (coVRMSController::instance()->isMaster())
     {

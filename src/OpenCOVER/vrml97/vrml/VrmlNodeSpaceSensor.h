@@ -38,8 +38,6 @@ public:
 
     VrmlNodeSpaceSensor(VrmlScene *scene = 0);
 
-    virtual VrmlNodeSpaceSensor *toSpaceSensor() const;
-
     void activate(double timeStamp, bool isActive, double *p, const double *M);
 
     virtual void accumulateTransform(VrmlNode *);

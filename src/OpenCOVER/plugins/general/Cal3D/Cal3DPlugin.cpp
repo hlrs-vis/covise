@@ -332,8 +332,8 @@ Cal3DPlugin::~Cal3DPlugin()
 
 bool Cal3DPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<Cal3dCore>());
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<Cal3dNode>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<Cal3dCore>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<Cal3dNode>());
     return true;
 }
 

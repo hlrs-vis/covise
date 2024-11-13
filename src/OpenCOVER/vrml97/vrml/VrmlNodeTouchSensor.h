@@ -38,8 +38,6 @@ public:
 
     VrmlNodeTouchSensor(VrmlScene *scene = 0);
 
-    virtual VrmlNodeTouchSensor *toTouchSensor() const;
-
     void activate(double timeStamp, bool isOver, bool isActive, double *p);
 
     bool isEnabled()

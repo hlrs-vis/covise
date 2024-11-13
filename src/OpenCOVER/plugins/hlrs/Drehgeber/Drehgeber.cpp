@@ -9,6 +9,7 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
+#include <vrml97/vrml/System.h>
 
 #include <util/coExport.h>
 #include <vector>
@@ -68,7 +69,7 @@ Drehgeber::Drehgeber()
 {
     m_rotator->setBounds(0, 360);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeDrehgeber>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeDrehgeber>());
 
     m_rotator->setCallback([this](float angle, bool) {
         for (auto drehgeber : drehgebers)

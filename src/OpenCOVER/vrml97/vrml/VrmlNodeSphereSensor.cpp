@@ -52,13 +52,6 @@ VrmlNodeSphereSensor::VrmlNodeSphereSensor(VrmlScene *scene)
     setModified();
 }
 
-// mgiger 6/16/00
-VrmlNodeSphereSensor *VrmlNodeSphereSensor::toSphereSensor() const
-{
-    return (VrmlNodeSphereSensor *)this;
-}
-
-
 const VrmlField *VrmlNodeSphereSensor::getField(const char *fieldName) const
 {
     // eventOuts

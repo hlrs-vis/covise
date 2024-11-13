@@ -38,8 +38,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    // Larry
-    virtual VrmlNodeExtrusion *toExtrusion() const;
     virtual bool getBeginCap()
     {
         return d_beginCap.get();

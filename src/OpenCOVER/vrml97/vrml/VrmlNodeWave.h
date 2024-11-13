@@ -39,8 +39,6 @@ public:
 
     VrmlNodeWave(VrmlScene *);
 
-    virtual VrmlNodeWave *toWave() const;
-
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     virtual void render(Viewer *);

@@ -15,13 +15,13 @@
 #ifndef _VRMLNODECOORDINATE_
 #define _VRMLNODECOORDINATE_
 
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 #include "VrmlMFVec3f.h"
 
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeCoordinate : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeCoordinate : public VrmlNode
 {
 
 public:
@@ -30,8 +30,6 @@ public:
     static const char *name();
 
     VrmlNodeCoordinate(VrmlScene *);
-
-    virtual VrmlNodeCoordinate *toCoordinate() const;
 
     VrmlMFVec3f &coordinate()
     {

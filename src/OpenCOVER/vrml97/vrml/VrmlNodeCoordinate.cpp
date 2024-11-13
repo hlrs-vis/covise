@@ -19,20 +19,15 @@ using namespace vrml;
 
 void VrmlNodeCoordinate::initFields(VrmlNodeCoordinate *node, VrmlNodeType *t)
 {
-    VrmlNodeTemplate::initFieldsHelper(node, t,
+    VrmlNode::initFieldsHelper(node, t,
                                        exposedField("point", node->d_point));
 }
 
 const char *VrmlNodeCoordinate::name() { return "Coordinate"; }
 
 VrmlNodeCoordinate::VrmlNodeCoordinate(VrmlScene *scene)
-    : VrmlNodeTemplate(scene, name())
+    : VrmlNode(scene, name())
 {
-}
-
-VrmlNodeCoordinate *VrmlNodeCoordinate::toCoordinate() const
-{
-    return (VrmlNodeCoordinate *)this;
 }
 
 int VrmlNodeCoordinate::getNumberCoordinates()

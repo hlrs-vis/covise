@@ -51,9 +51,3 @@ Viewer::Object VrmlNodeCylinder::insertGeometry(Viewer *viewer)
                                   d_side.get(),
                                   d_top.get());
 }
-
-//LarryD Mar 08/99
-VrmlNodeCylinder *VrmlNodeCylinder::toCylinder() const
-{
-    return (VrmlNodeCylinder *)this;
-}

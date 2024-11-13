@@ -18,6 +18,8 @@
 #include "VrmlScene.h"
 #include "coEventQueue.h"
 
+#include "System.h"
+
 #include <cassert>
 
 #define XK_MISCELLANY
@@ -313,11 +315,6 @@ void VrmlNodeCOVER::update(double timeNow)
     d_localViewerOrientation.set(ori[0], ori[1], ori[2], ori[3]);
     eventOut(timeNow, "localViewerPosition", d_localViewerPosition);
     eventOut(timeNow, "localViewerOrientation", d_localViewerOrientation);
-}
-
-VrmlNodeCOVER *VrmlNodeCOVER::toCOVER() const
-{
-    return (VrmlNodeCOVER *)this;
 }
 
 void VrmlNodeCOVER::addToScene(VrmlScene *s, const char *)

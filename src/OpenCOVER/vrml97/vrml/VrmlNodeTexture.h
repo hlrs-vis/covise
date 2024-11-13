@@ -18,7 +18,7 @@
 #include "VrmlNode.h"
 #include "VrmlSFString.h"
 #include "VrmlSFInt.h"
-#include "VrmlNodeTemplate.h"
+#include "VrmlNode.h"
 
 namespace vrml
 {
@@ -28,14 +28,13 @@ class VRMLEXPORT VrmlNodeImageTexture;
 class VRMLEXPORT VrmlNodeCubeTexture;
 class VRMLEXPORT VrmlNodeMultiTexture;
 
-class VRMLEXPORT VrmlNodeTexture : public VrmlNodeTemplate
+class VRMLEXPORT VrmlNodeTexture : public VrmlNode
 {
 
 public:
     
     static void initFields(VrmlNodeTexture *node, VrmlNodeType *t);    
     // Define the fields of Texture nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
 
     static void enableTextureNPOT(bool flag);
     static bool useTextureNPOT();
@@ -43,8 +42,6 @@ public:
     static int maxTextureSize();
 
     VrmlNodeTexture(VrmlScene *s, const std::string &name);
-
-    virtual VrmlNodeTexture *toTexture() const;
 
     virtual int nComponents() = 0;
     virtual int width() = 0;

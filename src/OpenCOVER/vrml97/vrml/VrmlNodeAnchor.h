@@ -36,8 +36,6 @@ public:
     VrmlNodeAnchor(VrmlScene *);
     VrmlNodeAnchor(const VrmlNodeAnchor &);
 
-    virtual VrmlNodeAnchor *toAnchor() const override;
-
     virtual void render(Viewer *) override;
 
     void activate();

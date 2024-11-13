@@ -307,7 +307,7 @@ SensorPlugin::~SensorPlugin()
 
 int SensorPlugin::initUI()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeSensor>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeSensor>());
     return 1;
 }
 

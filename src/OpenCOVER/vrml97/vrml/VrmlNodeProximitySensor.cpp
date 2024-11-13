@@ -31,8 +31,6 @@ static VrmlNode *creator(VrmlScene *scene)
     return new VrmlNodeProximitySensor(scene);
 }
 
-VrmlNodeProximitySensor *VrmlNodeProximitySensor::toProximitySensor() const { return (VrmlNodeProximitySensor *)this; }
-
 // Define the built in VrmlNodeType:: "ProximitySensor" fields
 
 void VrmlNodeProximitySensor::initFields(VrmlNodeProximitySensor *node, VrmlNodeType *t)

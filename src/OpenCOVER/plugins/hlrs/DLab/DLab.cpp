@@ -202,7 +202,7 @@ DLabPlugin::~DLabPlugin()
 
 bool DLabPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeDLab>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeDLab>());
     createGeometry();
     opencover::cover->getScene()->addChild(targetTransform);
 

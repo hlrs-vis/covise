@@ -67,11 +67,6 @@ VrmlNodeWave::VrmlNodeWave(VrmlScene *scene)
 {
 }
 
-VrmlNodeWave *VrmlNodeWave::toWave() const
-{
-    return (VrmlNodeWave *)this;
-}
-
 void VrmlNodeWave::addToScene(VrmlScene *, const char * /*rel*/)
 {
 }

@@ -240,7 +240,7 @@ bool Highscore::init()
     DriverName = new coTUIEditField("NoName", HighscoreTab->getID());
     DriverName->setPos(1, 22);
     DriverName->setEventListener(this);
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeHighscore>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeHighscore>());
     passedInterim = false;
     currentEntry = new HSEntry(this);
     load();

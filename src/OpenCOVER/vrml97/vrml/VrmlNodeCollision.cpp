@@ -75,7 +75,7 @@ void VrmlNodeCollision::render(Viewer *viewer)
             //if ( kid->toLight() ) && ! (kid->toPointLight() || kid->toSpotLight()) )
             //  kid->render(viewer);
             //else
-            if ((kid->toTouchSensor() && kid->toTouchSensor()->isEnabled()) || (kid->toPlaneSensor() && kid->toPlaneSensor()->isEnabled()) || (kid->toCylinderSensor() && kid->toCylinderSensor()->isEnabled()) || (kid->toSphereSensor() && kid->toSphereSensor()->isEnabled()) || (kid->toSpaceSensor() && kid->toSpaceSensor()->isEnabled()))
+            if ((kid->as<VrmlNodeTouchSensor>() && kid->as<VrmlNodeTouchSensor>()->isEnabled()) || (kid->as<VrmlNodePlaneSensor>() && kid->as<VrmlNodePlaneSensor>()->isEnabled()) || (kid->as<VrmlNodeCylinderSensor>() && kid->as<VrmlNodeCylinderSensor>()->isEnabled()) || (kid->as<VrmlNodeSphereSensor>() && kid->as<VrmlNodeSphereSensor>()->isEnabled()) || (kid->as<VrmlNodeSpaceSensor>() && kid->as<VrmlNodeSpaceSensor>()->isEnabled()))
             {
                 if (++nSensors == 1)
                     viewer->setSensitive(this);
@@ -85,7 +85,7 @@ void VrmlNodeCollision::render(Viewer *viewer)
         // Do the rest of the children (except the scene-level lights)
         for (i = 0; i < n; ++i)
             if (!(/*d_children[i]->toLight() ||*/
-                  d_children[i]->toPlaneSensor() || d_children[i]->toSpaceSensor() || d_children[i]->toTouchSensor()))
+                  d_children[i]->as<VrmlNodePlaneSensor>() || d_children[i]->as<VrmlNodeSpaceSensor>() || d_children[i]->as<VrmlNodeTouchSensor>()))
                 d_children[i]->render(viewer);
 
         // Turn off sensitivity

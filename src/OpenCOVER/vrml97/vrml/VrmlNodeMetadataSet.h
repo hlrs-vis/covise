@@ -39,8 +39,6 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual VrmlNodeMetadataSet *toMetadataSet() const;
-
 protected:
     VrmlMFNode d_value;
 };

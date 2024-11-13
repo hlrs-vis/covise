@@ -33,8 +33,6 @@ public:
 
     virtual Viewer::Object insertGeometry(Viewer *v);
 
-    virtual VrmlNodeTriangleFanSet *toTriangleFanSet() const;
-
 protected:
     VrmlMFInt d_fanCount;
 };

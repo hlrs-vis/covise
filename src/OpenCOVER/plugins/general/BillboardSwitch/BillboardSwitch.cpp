@@ -44,6 +44,7 @@
 #include "BillboardSwitch.h"
 #include <vrml97/vrml/MathUtils.h>
 #include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/System.h>
 #include <osg/Matrix>
 #include "../Vrml97/ViewerOsg.h"
 #include <math.h>
@@ -55,10 +56,8 @@ void VrmlNodeBillboardSwitch::initFields(VrmlNodeBillboardSwitch *node, VrmlNode
                      exposedField("choice", node->d_choice),
                      exposedField("alternative", node->d_alternative),
                      exposedField("axisOfRotation", node->d_axisOfRotation),
-                     field("angle", node->d_angle));
-    if(t)
-        t->addEventOut("activeChildChanged", VrmlField::MFINT32);
-
+                     field("angle", node->d_angle),
+                     eventOutCallBack("activeChildChanged", node->d_activeChild));
 }
 
 const char *VrmlNodeBillboardSwitch::name()
@@ -114,13 +113,6 @@ void VrmlNodeBillboardSwitch::copyRoutes(VrmlNamespace *ns)
     for (int i = 0; i < n; ++i)
         d_choice[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-ostream &VrmlNodeBillboardSwitch::printFields(ostream &os, int indent)
-{
-    PRINT_FIELD(activeChild);
-    VrmlNodeGroup::printFields(os, indent);
-    return os;
 }
 
 void VrmlNodeBillboardSwitch::render(Viewer *viewer)
@@ -269,7 +261,7 @@ BillboardSwitchPlugin::~BillboardSwitchPlugin()
 bool
 BillboardSwitchPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeTemplate::defineType<VrmlNodeBillboardSwitch>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeBillboardSwitch>());
 
     return true;
 }

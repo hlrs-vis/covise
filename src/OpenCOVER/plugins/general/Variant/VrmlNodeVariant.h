@@ -67,7 +67,7 @@ private:
 };
 
 template<>
-inline VrmlNode *VrmlNodeTemplate::creator<VrmlNodeVariant>(vrml::VrmlScene *scene){
+inline VrmlNode *VrmlNode::creator<VrmlNodeVariant>(vrml::VrmlScene *scene){
     return VrmlNodeVariant::instance();
 }
 
