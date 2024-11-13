@@ -6,8 +6,19 @@
  * License: LGPL 2+ */
 
 #include <cstdio>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <sys/time.h>
+#endif
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
 #ifdef ANARI_PLUGIN_HAVE_MPI
 #include <mpi.h>
 #endif
@@ -32,6 +43,15 @@
 using namespace covise;
 using namespace opencover;
 
+// #define TIMING
+
+#define OU_VIEWPORT_UPDATED      0x1
+#define OU_CAMERA_UPDATED        0x2
+#define OU_BOUNDS_UPDATED        0x4
+#define OU_ANIMATION_UPDATED     0x8
+#define OU_TRANSFUNC_UPDATED    0x10
+#define OU_APP_PARAMS_UPDATED   0x20
+#define OU_ANARI_PARAMS_UPDATED 0x40
 
 void statusFunc(const void *userData,
     ANARIDevice device,
@@ -54,6 +74,40 @@ void statusFunc(const void *userData,
         fprintf(stderr, "[INFO] %s\n", message);
 }
 
+inline double getCurrentTime()
+{
+#ifdef _WIN32
+  SYSTEMTIME tp; GetSystemTime(&tp);
+  /*
+     Please note: we are not handling the "leap year" issue.
+ */
+  size_t numSecsSince2020
+      = tp.wSecond
+      + (60ull) * tp.wMinute
+      + (60ull * 60ull) * tp.wHour
+      + (60ull * 60ul * 24ull) * tp.wDay
+      + (60ull * 60ul * 24ull * 365ull) * (tp.wYear - 2020);
+  return double(numSecsSince2020 + tp.wMilliseconds * 1e-3);
+#else
+  struct timeval tp; gettimeofday(&tp,nullptr);
+  return double(tp.tv_sec) + double(tp.tv_usec)/1E6;
+#endif
+}
+
+static std::vector<std::string> string_split(std::string s, char delim)
+{
+    std::vector<std::string> result;
+
+    std::istringstream stream(s);
+
+    for (std::string token; std::getline(stream, token, delim); )
+    {
+        result.push_back(token);
+    }
+
+    return result;
+}
+
 static std::string getExt(const std::string &fileName)
 {
     int pos = fileName.rfind('.');
@@ -61,6 +115,115 @@ static std::string getExt(const std::string &fileName)
         return "";
     return fileName.substr(pos);
 }
+
+enum FileType {
+    OBJ,
+    UMesh,
+    UMeshScalars,
+    VTU,
+    VTK,
+    Unknown,
+    // Keep last:
+    FileTypeCount,
+};
+
+inline
+FileType getFileType(const std::string &fileName)
+{
+    auto ext = getExt(fileName);
+    if (ext == ".obj") return OBJ;
+    else if (ext == ".umesh") return UMesh;
+    else if (ext == ".scalars") return UMeshScalars;
+    else if (ext == ".floats") return UMeshScalars;
+    else if (ext == ".vtu") return VTU;
+    else if (ext == ".vtk") return VTK;
+    else return Unknown;
+}
+
+inline
+int getID(std::string fileName) {
+    // check if we know this file name:
+    static std::map<std::string,int> knownFileNames[FileTypeCount];
+    FileType type = getFileType(fileName);
+
+    auto it = knownFileNames[type].find(fileName);
+    if (it != knownFileNames[type].end()) {
+      return it->second;
+    }
+
+    // file name is unknown
+    static int nextID[FileTypeCount] = { 0 };
+    int ID = nextID[type]++;
+    knownFileNames[type][fileName] = ID;
+    return ID;
+}
+
+inline
+bool isLanderUMesh(std::string fileName) {
+    return getFileType(fileName) == UMesh
+        && fileName.find("lander-small") != std::string::npos;
+}
+
+inline
+bool isLanderScalars(std::string fileName) {
+    return getFileType(fileName) == UMeshScalars
+        && fileName.find("lander-small__var_") != std::string::npos;
+}
+
+struct Slot {
+    Slot() = default;
+    Slot(std::string fileName, int mpiSize) {
+        namespace fs = std::filesystem;
+        std::string base = fs::path(fileName).filename().string();
+
+        // special handling for file names we recognize:
+        if (isLanderUMesh(fileName)) {
+            auto splt = string_split(base, '.');
+            int landerRank = std::stoi(splt[1]);
+            if (landerRank <= 0 || landerRank > 72) {
+                std::cerr << "Failed parsing rank from file: " << fileName << '\n';
+            } else {
+                mpiRank = (landerRank-1)%mpiSize;
+                localID = (landerRank-1)/mpiSize;
+                std::cout << "Assigning " << fileName
+                          << " to rank " << mpiRank
+                          << ", localID: " << localID
+                          << '\n';
+            }
+        } else if (isLanderScalars(fileName)) {
+            auto splt = string_split(base, '.');
+            int landerRank = std::stoi(splt[1]);
+            size_t pos = splt[0].find("ts_");
+            std::string tsString = splt[0].substr(pos+3);
+            if (!tsString.empty()) {
+                timeStep = (std::stoi(tsString)-6200)/200;
+            }
+            if (landerRank <= 0 || landerRank > 72) {
+                std::cerr << "Failed parsing rank from file: " << fileName << '\n';
+            } else {
+                mpiRank = (landerRank-1)%mpiSize;
+                localID = (landerRank-1)/mpiSize;
+                std::cout << "Assigning " << fileName
+                          << " to rank " << mpiRank
+                          << ", localID: " << localID
+                          << ", timeStep: " << timeStep
+                          << '\n';
+            }
+        } else { // not recognized: round-robin
+          int ID = getID(fileName);
+          mpiRank = ID%mpiSize;
+        }
+    }
+    
+    // Rank the file is assigned to
+    int mpiRank{0};
+
+    // ID of the file, across all files assigned to this rank
+    int localID{0};
+
+    // Time step
+    int timeStep{0};
+};
 
 
 static bool deviceHasExtension(anari::Library library,
@@ -78,20 +241,6 @@ static bool deviceHasExtension(anari::Library library,
             return true;
     }
     return false;
-}
-
-static std::vector<std::string> string_split(std::string s, char delim)
-{
-    std::vector<std::string> result;
-
-    std::istringstream stream(s);
-
-    for (std::string token; std::getline(stream, token, delim); )
-    {
-        result.push_back(token);
-    }
-
-    return result;
 }
 
 inline glm::mat4 osg2glm(const osg::Matrix &m)
@@ -140,12 +289,6 @@ Renderer::~Renderer()
     if (multiChannelDrawer) {
         cover->getScene()->removeChild(multiChannelDrawer);
     }
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (/*isClient ||*/ isServer) {
-        remoteThread.join();
-    }
-#endif
 }
 
 void Renderer::init()
@@ -176,6 +319,12 @@ void Renderer::init()
 
 void Renderer::loadMesh(std::string fn)
 {
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     meshData.fileName = fn;
     meshData.updated = true;
@@ -208,6 +357,12 @@ void Renderer::unloadVolume()
 void Renderer::loadFLASH(std::string fn)
 {
 #ifdef HAVE_HDF5
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     amrVolumeData.fileName = fn;
     amrVolumeData.updated = true;
@@ -228,23 +383,23 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
                          size_t numVerts, float minValue, float maxValue)
 {
     // deferred!
-    unstructuredVolumeData.data.vertexPosition.resize(numVerts*3);
-    memcpy(unstructuredVolumeData.data.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
+    unstructuredVolumeData.dataSource.vertexPosition.resize(numVerts*3);
+    memcpy(unstructuredVolumeData.dataSource.vertexPosition.data(),vertexPosition,numVerts*3*sizeof(float));
 
-    unstructuredVolumeData.data.cellIndex.resize(numCells);
-    memcpy(unstructuredVolumeData.data.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.cellIndex.resize(numCells);
+    memcpy(unstructuredVolumeData.dataSource.cellIndex.data(),cellIndex,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.index.resize(numIndices);
-    memcpy(unstructuredVolumeData.data.index.data(),index,numIndices*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.index.resize(numIndices);
+    memcpy(unstructuredVolumeData.dataSource.index.data(),index,numIndices*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.cellType.resize(numCells);
-    memcpy(unstructuredVolumeData.data.cellType.data(),cellType,numCells*sizeof(uint64_t));
+    unstructuredVolumeData.dataSource.cellType.resize(numCells);
+    memcpy(unstructuredVolumeData.dataSource.cellType.data(),cellType,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.data.vertexData.resize(numVerts);
-    memcpy(unstructuredVolumeData.data.vertexData.data(),vertexData,numVerts*sizeof(float));
+    unstructuredVolumeData.dataSource.vertexData.resize(numVerts);
+    memcpy(unstructuredVolumeData.dataSource.vertexData.data(),vertexData,numVerts*sizeof(float));
 
-    unstructuredVolumeData.data.dataRange.x = unstructuredVolumeData.minValue = minValue;
-    unstructuredVolumeData.data.dataRange.y = unstructuredVolumeData.maxValue = maxValue;
+    unstructuredVolumeData.dataSource.dataRange.x = minValue;
+    unstructuredVolumeData.dataSource.dataRange.y = maxValue;
     unstructuredVolumeData.updated = true;
 }
 
@@ -256,8 +411,14 @@ void Renderer::unloadUMesh()
 void Renderer::loadUMeshFile(std::string fn)
 {
 #ifdef HAVE_UMESH
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
-    if (unstructuredVolumeData.umeshReader.open(fn.c_str())) {
+    if (unstructuredVolumeData.umeshReader.open(fn.c_str(), slot.localID)) {
         unstructuredVolumeData.fileName = fn;
         unstructuredVolumeData.readerType = UMESH;
         unstructuredVolumeData.updated = true;
@@ -273,7 +434,13 @@ void Renderer::unloadUMeshFile(std::string fn)
 void Renderer::loadUMeshScalars(std::string fn)
 {
 #ifdef HAVE_UMESH
-    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0});
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
+    unstructuredVolumeData.umeshScalarFiles.push_back({fn, 0, slot.localID, slot.timeStep});
 #endif
 }
 
@@ -301,6 +468,12 @@ void Renderer::unloadUMeshVTK(std::string fn)
 
 void Renderer::loadPointCloud(std::string fn)
 {
+    Slot slot(fn, mpiSize);
+    if (slot.mpiRank != mpiRank) {
+        bounds.updated = true; // all ranks participate in Bcast
+        return;
+    }
+
     // deferred!
     pointCloudData.fileNames.push_back(fn);
     pointCloudData.updated = true;
@@ -464,7 +637,7 @@ void Renderer::unloadVolumeRAW(std::string fn)
 
 void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
 {
-    AABB bounds = getSceneBounds();
+    AABB bounds = this->bounds.global;
 
     osg::Vec3f minCorner(bounds.data[0],bounds.data[1],bounds.data[2]);
     osg::Vec3f maxCorner(bounds.data[3],bounds.data[4],bounds.data[5]);
@@ -474,72 +647,16 @@ void Renderer::expandBoundingSphere(osg::BoundingSphere &bs)
     bs.set(center, radius);
 }
 
-Renderer::AABB Renderer::getSceneBounds()
+void Renderer::setTimeStep(int timeStep)
 {
-    AABB result;
-    result.data[0] = 1e30f;
-    result.data[1] = 1e30f;
-    result.data[2] = 1e30f;
-    result.data[3] = -1e30f;
-    result.data[4] = -1e30f;
-    result.data[5] = -1e30f;
+    animation.timeStep = timeStep;
+    animation.updated = true;
+    objectUpdates |= OU_ANIMATION_UPDATED;
+}
 
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (isClient) {
-        minirr::AABB serverBounds;
-        rr->recvBounds(serverBounds);
-        result.data[0] = fminf(result.data[0], serverBounds[0]);
-        result.data[1] = fminf(result.data[1], serverBounds[1]); 
-        result.data[2] = fminf(result.data[2], serverBounds[2]); 
-        result.data[3] = fmaxf(result.data[3], serverBounds[3]); 
-        result.data[4] = fmaxf(result.data[4], serverBounds[4]); 
-        result.data[5] = fmaxf(result.data[5], serverBounds[5]); 
-        return result;
-    }
-#endif
-
-    if (!anari.world)
-        return result;
-
-    // e.g., set when AMR data was loaded!
-    anariGetProperty(anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &result.data, sizeof(result.data), ANARI_WAIT);
-
-    if (anari.meshes) {
-        asgComputeBounds(anari.meshes,
-                         &result.data[0],&result.data[1],&result.data[2],
-                         &result.data[3],&result.data[4],&result.data[5]);
-    }
-
-    if (anari.structuredVolume) {
-        // asgComputeBounds doesn't work for volumes yet...
-        result.data[0] = fminf(result.data[0], 0.f);
-        result.data[1] = fminf(result.data[1], 0.f);
-        result.data[2] = fminf(result.data[2], 0.f);
-        result.data[3] = fmaxf(result.data[3], structuredVolumeData.sizeX);
-        result.data[4] = fmaxf(result.data[4], structuredVolumeData.sizeY);
-        result.data[5] = fmaxf(result.data[5], structuredVolumeData.sizeZ);
-    }
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    if (mpiSize > 1) {
-        float localBounds[6];
-        for (int i=0; i<6; ++i) {
-            localBounds[i] = result.data[i];
-        }
-        float globalBounds[6];
-        MPI_Allreduce(&localBounds[0], &globalBounds[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[1], &globalBounds[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[2], &globalBounds[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[3], &globalBounds[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[4], &globalBounds[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(&localBounds[5], &globalBounds[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-        for (int i=0; i<6; ++i) {
-            result.data[i] = globalBounds[i];
-        }
-    }
-#endif
-
-    return result;
+int Renderer::getNumTimeSteps() const
+{
+    return animation.numTimeSteps;
 }
 
 void Renderer::updateLights(const osg::Matrix &modelMat)
@@ -697,11 +814,60 @@ void Renderer::setClipPlanes(const std::vector<Renderer::ClipPlane> &planes)
     }
 }
 
-void Renderer::setColorRanks(bool value)
+void Renderer::setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
+                            const float *opacity, unsigned numOpacity)
 {
-    colorByRank = value;
-    generateTransFunc();
+    if (rgb && numRGB != 0) {
+        transFunc.colors.resize(numRGB);
+        memcpy(transFunc.colors.data(),
+               rgb,
+               transFunc.colors.size()*sizeof(transFunc.colors[0]));
+    }
+
+    if (opacity && numOpacity > 0) {
+        transFunc.opacities.resize(numOpacity);
+        memcpy(transFunc.opacities.data(),
+               opacity,
+               transFunc.opacities.size()*sizeof(transFunc.opacities[0]));
+    }
+    
     transFunc.updated = true;
+    objectUpdates |= OU_TRANSFUNC_UPDATED;
+}
+
+void Renderer::setParam(std::string name, DataType type, std::any value)
+{
+    unsigned numParams = sizeof(params)/sizeof(params[0]);
+    bool found=false;
+    for (unsigned i=0; i<numParams; ++i) {
+        if (params[i].name == name && params[i].type == type) {
+            params[i].value = value;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        std::cerr << "no param: " << name << " of type " << toString(type) << std::endl;
+        return;
+    }
+
+    objectUpdates |= OU_APP_PARAMS_UPDATED;
+
+    // special handling for some params (TODO: deferred?!)
+    if (name == "debug.colorByRank") {
+        transFunc.updated = true;
+    }
+}
+
+Param Renderer::getParam(std::string name)
+{
+    unsigned numParams = sizeof(params)/sizeof(params[0]);
+    for (unsigned i=0; i<numParams; ++i) {
+        if (params[i].name == name) return params[i];
+    }
+
+    return {};
 }
 
 void Renderer::wait()
@@ -774,6 +940,20 @@ void Renderer::renderFrame()
         clipPlanes.updated = false;
     }
 
+    if (bounds.updated) {
+        // set global bounds to local *before* we send them to peers!
+        std::memcpy(&bounds.global.data[0],
+                    &bounds.local.data[0],
+                    sizeof(bounds.local.data));
+        objectUpdates |= OU_BOUNDS_UPDATED;
+        bounds.updated = false;
+    }
+
+    if (animation.updated) {
+        initAnimation();
+        animation.updated = false;
+    }
+
     for (unsigned chan=0; chan<numChannels; ++chan) {
         renderFrame(chan);
     }
@@ -786,7 +966,8 @@ void Renderer::renderFrame(unsigned chan)
     const bool isDisplayRank = mpiRank==displayRank;
     ChannelInfo &info = channelInfos[chan];
 
-    int width=1, height=1;
+    int width=info.frame.width, height=info.frame.height;
+    glm::mat4 mm=info.mm, mv=info.mv, pr=info.pr, vv{};
     if (isDisplayRank) {
         multiChannelDrawer->update();
 
@@ -794,24 +975,271 @@ void Renderer::renderFrame(unsigned chan)
         auto vp = cam->getViewport();
         width = vp->width();
         height = vp->height();
+    
+        if (info.frame.width != width || info.frame.height != height) {
+            objectUpdates |= OU_VIEWPORT_UPDATED;
+        }
+
+        mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
+        vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
+        mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
+        pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
+
+        if (info.mv != mv || info.pr != pr) {
+            objectUpdates |= OU_CAMERA_UPDATED;
+        }
     }
 
+    // Remote rendering: client -> server
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
-        rr->sendSize(width, height);
+        // Exchange what updated:
+        uint64_t myObjectUpdates = objectUpdates;
+        rr->sendObjectUpdates(objectUpdates);
+
+        if (myObjectUpdates & OU_VIEWPORT_UPDATED)
+        {
+            minirr::Viewport rrViewport;
+            rrViewport.width = width;
+            rrViewport.height = height;
+            rr->sendViewport(rrViewport);
+        }
+
+        if (myObjectUpdates & OU_CAMERA_UPDATED)
+        {
+            minirr::Camera rrCamera;
+            std::memcpy(rrCamera.modelMatrix, &mm[0], sizeof(rrCamera.modelMatrix));
+            std::memcpy(rrCamera.viewMatrix, &vv[0], sizeof(rrCamera.viewMatrix));
+            std::memcpy(rrCamera.projMatrix, &pr[0], sizeof(rrCamera.projMatrix));
+            rr->sendCamera(rrCamera);
+        }
+
+        if (myObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            // client updates time step, server sets num time steps
+            rr->sendAnimation(animation.timeStep, animation.numTimeSteps);
+            int ignore=0;
+            rr->recvAnimation(ignore, animation.numTimeSteps);
+            animation.updated = true;
+        }
+
+        if (myObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            constexpr unsigned numParams = sizeof(params)/sizeof(params[0]);
+            minirr::Param rrParams[numParams];
+
+            typedef std::vector<uint8_t> ByteArray;
+            std::vector<ByteArray> byteArrays(numParams);
+
+            for (unsigned i=0; i<numParams; ++i) {
+                rrParams[i].name = params[i].name;
+                rrParams[i].type = (int)params[i].type;
+                size_t len = sizeInBytes(params[i].type);
+                byteArrays[i].resize(len);
+                params[i].serialize(byteArrays[i].data());
+                rrParams[i].value = byteArrays[i].data();
+                rrParams[i].sizeInBytes = len;
+            }
+
+            rr->sendAppParams(rrParams, numParams);
+        }
+    
+        if (myObjectUpdates & OU_TRANSFUNC_UPDATED)
+        {
+            minirr::Transfunc rrTransfunc;
+            rrTransfunc.rgb = (float *)transFunc.colors.data();
+            rrTransfunc.alpha = (float *)transFunc.opacities.data();
+            rrTransfunc.numRGB = transFunc.colors.size();
+            rrTransfunc.numAlpha = transFunc.opacities.size();
+            rr->sendTransfunc(rrTransfunc);
+            // TODO: ranges, scale
+        }
     }
 
     if (isServer) {
-        rr->recvSize(width, height);
+        // Exchange what updated:
+        uint64_t peerObjectUpdates{0x0};
+        rr->recvObjectUpdates(peerObjectUpdates);
+
+        if (peerObjectUpdates & OU_VIEWPORT_UPDATED)
+        {
+            minirr::Viewport rrViewport;
+            rr->recvViewport(rrViewport);
+            width = rrViewport.width;
+            height = rrViewport.height;
+        }
+
+        if (peerObjectUpdates & OU_CAMERA_UPDATED)
+        {
+            minirr::Camera rrCamera;
+            rr->recvCamera(rrCamera);
+            std::memcpy(&mm[0], rrCamera.modelMatrix, sizeof(rrCamera.modelMatrix));
+            std::memcpy(&vv[0], rrCamera.viewMatrix, sizeof(rrCamera.viewMatrix));
+            std::memcpy(&pr[0], rrCamera.projMatrix, sizeof(rrCamera.projMatrix));
+            mv = vv*mm;
+        }
+
+        if (peerObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            // client updates time step, server sets num time steps
+            rr->sendAnimation(animation.timeStep, animation.numTimeSteps);
+            int ignore=0;
+            rr->recvAnimation(animation.timeStep, ignore);
+            animation.updated = true;
+        }
+
+        if (peerObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            constexpr unsigned numParams = sizeof(params)/sizeof(params[0]);
+            minirr::Param rrParams[numParams];
+            unsigned numParamsReceived{0};
+            rr->recvAppParams(rrParams, numParamsReceived);
+            assert(numParamsReceived==numParams);
+
+            for (unsigned i=0; i<numParams; ++i) {
+                Param param;
+                param.name = rrParams[i].name;
+                param.type = (DataType)rrParams[i].type;
+                param.unserialize(rrParams[i].value);
+                setParam(param.name, param.type, param.value);
+            }
+        }
+
+        if (peerObjectUpdates & OU_TRANSFUNC_UPDATED)
+        {
+            minirr::Transfunc rrTransfunc;
+            rr->recvTransfunc(rrTransfunc);
+            transFunc.colors.resize(rrTransfunc.numRGB);
+            std::memcpy((float *)transFunc.colors.data(), rrTransfunc.rgb,
+                sizeof(transFunc.colors[0])*transFunc.colors.size());
+            transFunc.opacities.resize(rrTransfunc.numAlpha);
+            std::memcpy((float *)transFunc.opacities.data(), rrTransfunc.alpha,
+                sizeof(transFunc.opacities[0])*transFunc.opacities.size());
+            // TODO: ranges, scale
+
+            // consume on next renderFrame:
+            transFunc.updated = true;
+        }
+
+        // Bump into *our* object updates; as what is now the server
+        // is also possibly the main node of the cluster
+        objectUpdates |= peerObjectUpdates;
     }
 #endif
 
+    // MPI comm
 #ifdef ANARI_PLUGIN_HAVE_MPI
     if (mpiSize > 1) {
-        MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+        uint64_t clusterObjectUpdates{0x0};
+        if (mpiRank == mainRank) clusterObjectUpdates = objectUpdates;
+        MPI_Bcast(&clusterObjectUpdates, 1, MPI_UINT64_T, mainRank, MPI_COMM_WORLD);
+
+        if (clusterObjectUpdates & OU_VIEWPORT_UPDATED)
+        {
+            MPI_Bcast(&width, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&height, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_CAMERA_UPDATED)
+        {
+            MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_BOUNDS_UPDATED)
+        {
+            MPI_Allreduce(&bounds.local.data[0], &bounds.global.data[0], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[1], &bounds.global.data[1], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[2], &bounds.global.data[2], 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[3], &bounds.global.data[3], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[4], &bounds.global.data[4], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+            MPI_Allreduce(&bounds.local.data[5], &bounds.global.data[5], 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+        }
+
+        if (clusterObjectUpdates & OU_ANIMATION_UPDATED)
+        {
+            MPI_Bcast(&animation.timeStep, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+            MPI_Bcast(&animation.numTimeSteps, 1, MPI_INT, mainRank, MPI_COMM_WORLD);
+            animation.updated = true;
+        }
+
+        if (clusterObjectUpdates & OU_APP_PARAMS_UPDATED)
+        {
+            unsigned numParams = sizeof(params)/sizeof(params[0]);
+
+            typedef std::vector<uint8_t> ByteArray;
+            std::vector<ByteArray> byteArrays(numParams);
+
+            MPI_Bcast(&numParams, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+            for (unsigned i=0; i<numParams; ++i) {
+                size_t len = sizeInBytes(params[i].type);
+                byteArrays[i].resize(len);
+                params[i].serialize(byteArrays[i].data());
+                MPI_Bcast(byteArrays[i].data(), byteArrays[i].size(), MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+                Param param;
+                param.name = params[i].name;
+                param.type = params[i].type;
+                param.unserialize(byteArrays[i].data());
+                setParam(param.name, param.type, param.value);
+            }
+        }
+
+        if (clusterObjectUpdates & OU_TRANSFUNC_UPDATED)
+        {
+            if (!getParam("debug.colorByRank").as<bool>()) { // debug colors -> each rank has its own TF!
+                uint32_t numColors = transFunc.colors.size();
+                MPI_Bcast(&numColors, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+                transFunc.colors.resize(numColors);
+                MPI_Bcast(transFunc.colors.data(), sizeof(transFunc.colors[0])*transFunc.colors.size(),
+                    MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+                uint32_t numOpacities = transFunc.opacities.size();
+                MPI_Bcast(&numOpacities, 1, MPI_UINT32_T, mainRank, MPI_COMM_WORLD);
+                transFunc.opacities.resize(numOpacities);
+                MPI_Bcast(transFunc.opacities.data(), sizeof(transFunc.opacities[0])*transFunc.opacities.size(),
+                    MPI_BYTE, mainRank, MPI_COMM_WORLD);
+
+                // TODO: ranges, scale
+
+                // consume on next renderFrame:
+                transFunc.updated = true;
+            }
+        }
+    } else
+#endif
+
+    // Remote rendering: server -> client
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (isClient) {
+        // Exchange what updated:
+        uint64_t peerObjectUpdates{0x0};
+        rr->recvObjectUpdates(peerObjectUpdates);
+
+        if (peerObjectUpdates & OU_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            rr->recvBounds(rrBounds);
+            std::memcpy(&bounds.global.data[0], &rrBounds[0], sizeof(rrBounds));
+        }
+    }
+  
+    if (isServer) {
+        // Exchange what updated:
+        uint64_t myObjectUpdates = objectUpdates;
+        rr->sendObjectUpdates(objectUpdates);
+
+        if (myObjectUpdates & OU_BOUNDS_UPDATED)
+        {
+            minirr::AABB rrBounds;
+            std::memcpy(&rrBounds[0], &bounds.global.data[0], sizeof(rrBounds));
+            rr->sendBounds(rrBounds);
+        }
     }
 #endif
+
+    objectUpdates = 0x0;
 
     if (info.frame.width != width || info.frame.height != height) {
         info.frame.width = width;
@@ -822,41 +1250,6 @@ void Renderer::renderFrame(unsigned chan)
         anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
         anariCommitParameters(anari.device, anari.frames[chan]);
     }
-
-    glm::mat4 mm, vv, mv, pr;
-    if (isDisplayRank) {
-        mm = osg2glm(multiChannelDrawer->modelMatrix(chan));
-        vv = osg2glm(multiChannelDrawer->viewMatrix(chan));
-        mv = osg2glm(multiChannelDrawer->modelMatrix(chan) * multiChannelDrawer->viewMatrix(chan));
-        pr = osg2glm(multiChannelDrawer->projectionMatrix(chan));
-    }
-
-#ifdef ANARI_PLUGIN_HAVE_RR
-    if (isClient) {
-        minirr::Mat4 model, view, proj;
-        std::memcpy(model, &mm[0], sizeof(model));
-        std::memcpy(view, &vv[0], sizeof(view));
-        std::memcpy(proj, &pr[0], sizeof(proj));
-        rr->sendCamera(model, view, proj);
-    }
-
-    if (isServer) {
-        minirr::Mat4 model, view, proj;
-        rr->recvCamera(model, view, proj);
-        std::memcpy(&mm[0], model, sizeof(model));
-        std::memcpy(&vv[0], view, sizeof(view));
-        std::memcpy(&pr[0], proj, sizeof(proj));
-        mv = vv*mm;
-    }
-#endif
-
-#ifdef ANARI_PLUGIN_HAVE_MPI
-    if (mpiSize > 1) {
-        MPI_Bcast(&mm, sizeof(mm), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&mv, sizeof(mv), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-        MPI_Bcast(&pr, sizeof(pr), MPI_BYTE, mainRank, MPI_COMM_WORLD);
-    }
-#endif
 
     if (info.mv != mv || info.pr != pr) {
         info.mv = mv;
@@ -879,13 +1272,21 @@ void Renderer::renderFrame(unsigned chan)
         updateLights(glm2osg(mm));
     }
 
+    #ifdef TIMING
+    double t0 = getCurrentTime();
+    #endif
     anariRenderFrame(anari.device, anari.frames[chan]);
     anariFrameReady(anari.device, anari.frames[chan], ANARI_WAIT);
+    #ifdef TIMING
+    double t1 = getCurrentTime();
+    std::cout << "renderFrame() takes " << (t1-t0) << " sec.\n";
+    #endif
 
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
         imageBuffer.resize(info.frame.width*info.frame.height);
-        rr->recvImage(imageBuffer.data(), info.frame.width, info.frame.height);
+        rr->recvImage(imageBuffer.data(), info.frame.width, info.frame.height,
+                      getParam("rr.jpegQuality").as<int32_t>());
     }
 
     if (isServer) {
@@ -897,7 +1298,8 @@ void Renderer::renderFrame(unsigned chan)
                                                                     &widthOUT,
                                                                     &heightOUT,
                                                                     &typeOUT);
-        rr->sendImage(fbPointer, widthOUT, heightOUT);
+        rr->sendImage(fbPointer, widthOUT, heightOUT,
+                      getParam("rr.jpegQuality").as<int32_t>());
     }
 #endif
 
@@ -1052,7 +1454,7 @@ void Renderer::initRR()
     );
 
     // TODO:
-    isServer = modeEntryExists && mode == "server";
+    isServer = mpiRank == mainRank && modeEntryExists && mode == "server";
     isClient = modeEntryExists && mode == "client";
 
     rr = std::make_shared<minirr::MiniRR>();
@@ -1067,23 +1469,6 @@ void Renderer::initRR()
         std::cout << "ANARI.RR.mode is 'server'\n";
         rr->initAsServer(port);
         rr->run();
-    }
-
-    if (/*isClient ||*/ isServer) {
-        // process outstanding requests that aren't handled in lock-step
-        remoteThread = std::thread([&]() {
-            while (1) {
-                if (rr->connectionClosed()) {
-                    break;
-                }
-                else if (rr->boundsRequested()) {
-                    AABB bounds = getSceneBounds();
-                    minirr::AABB rrBounds;
-                    std::memcpy(rrBounds, bounds.data, sizeof(rrBounds));
-                    rr->sendBounds(rrBounds);
-                }
-            }
-        });
     }
 #endif
 }
@@ -1227,6 +1612,13 @@ void Renderer::initMesh()
     ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    asgComputeBounds(anari.meshes,
+                     &bounds.data[0],&bounds.data[1],&bounds.data[2],
+                     &bounds.data[3],&bounds.data[4],&bounds.data[5]);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 }
 
 void Renderer::initPointClouds()
@@ -1264,6 +1656,12 @@ void Renderer::initPointClouds()
     anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);
 
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    anariGetProperty(
+        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 }
 
 void Renderer::initStructuredVolume()
@@ -1292,12 +1690,7 @@ void Renderer::initStructuredVolume()
         structuredVolumeData.rgbLUT.resize(15);
         structuredVolumeData.alphaLUT.resize(5);
 
-        anari.lut = asgNewLookupTable1D(structuredVolumeData.rgbLUT.data(),
-                                        structuredVolumeData.alphaLUT.data(),
-                                        structuredVolumeData.alphaLUT.size(),
-                                        nullptr);
-        ASG_SAFE_CALL(asgMakeDefaultLUT1D(anari.lut, ASG_LUT_ID_DEFAULT_LUT));
-        ASG_SAFE_CALL(asgStructuredVolumeSetLookupTable1D(anari.structuredVolume, anari.lut));
+        initTransFunc();
 
         ASG_SAFE_CALL(asgObjectAddChild(anari.root, anari.structuredVolume));
 
@@ -1306,6 +1699,17 @@ void Renderer::initStructuredVolume()
         ASG_SAFE_CALL(asgBuildANARIWorld(anari.root, anari.device, anari.world, flags, 0));
 
         anariCommitParameters(anari.device, anari.world);
+
+        // asgComputeBounds doesn't work for volumes yet...
+        AABB bounds;
+        bounds.data[0] = 0.f;
+        bounds.data[1] = 0.f;
+        bounds.data[2] = 0.f;
+        bounds.data[3] = structuredVolumeData.sizeX;
+        bounds.data[4] = structuredVolumeData.sizeY;
+        bounds.data[5] = structuredVolumeData.sizeZ;
+        this->bounds.local.extend(bounds);
+        this->bounds.updated = true;
     }
 
     if (structuredVolumeData.deleteData) {
@@ -1364,7 +1768,7 @@ void Renderer::initAMRVolume()
     amrVolumeData.maxValue = data.voxelRange.y;
 
     anari.amrVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
-    anari::setParameter(anari.device, anari.amrVolume.volume, "field", anari.amrVolume.field);
+    anari::setParameter(anari.device, anari.amrVolume.volume, "value", anari.amrVolume.field);
 
     initTransFunc();
 
@@ -1377,66 +1781,119 @@ void Renderer::initAMRVolume()
                                   anari::newArray1D(anari.device, &anari.amrVolume.volume));
     anariRelease(anari.device, anari.amrVolume.volume);
     anariCommitParameters(anari.device, anari.world);
+
+    AABB bounds;
+    anariGetProperty(
+        anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+    this->bounds.local.extend(bounds);
+    this->bounds.updated = true;
 #endif
 }
 
 void Renderer::initUnstructuredVolume()
 {
+    UnstructuredField data;
+    int numTimeSteps = 1;
+
     if (unstructuredVolumeData.readerType == UMESH) {
 #ifdef HAVE_UMESH
         for (const auto &sf : unstructuredVolumeData.umeshScalarFiles) {
-            unstructuredVolumeData.umeshReader.addFieldFromFile(sf.fileName.c_str(), sf.fieldID);
+            unstructuredVolumeData.umeshReader.addFieldFromFile(
+                sf.fileName.c_str(), sf.fieldID, sf.slotID, sf.timeStep);
         }
-        unstructuredVolumeData.data = unstructuredVolumeData.umeshReader.getField(0);
-#else
-        return;
-#endif
-    } else if (unstructuredVolumeData.readerType == VTK) {
-#ifdef HAVE_VTK
-        unstructuredVolumeData.data = unstructuredVolumeData.vtkReader.getField(0);
+
+        // here we'll init the field in the loop (don't know if ts=0 is actually loaded..)
+        numTimeSteps = unstructuredVolumeData.umeshReader.numTimeSteps();
 #else
         return;
 #endif
     }
-    anari.unstructuredVolume.field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
-    // TODO: "unstructured" field is an extension - check if it is supported!
-    auto &data = unstructuredVolumeData.data;
-    printf("Array sizes:\n");
-    printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
-    printf("    'vertexData'    : %zu\n", data.vertexData.size());
-    printf("    'index'         : %zu\n", data.index.size());
-    printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
 
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.position",
-            ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "vertex.data",
-            ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "index",
-            ANARI_UINT64, data.index.data(), data.index.size());
-    anari::setParameter(anari.device, anari.unstructuredVolume.field, "indexPrefixed",
-                        ANARI_BOOL, &data.indexPrefixed);
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.index",
-            ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
-    anari::setParameterArray1D(anari.device, anari.unstructuredVolume.field, "cell.type",
-                               ANARI_UINT8, data.cellType.data(), data.cellType.size());
+    float dataRange[] = {1e30f,-1e30f};
 
-    anari::commitParameters(anari.device, anari.unstructuredVolume.field);
+    ANARISpatialField firstField{nullptr};
 
-    anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
-    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "field", anari.unstructuredVolume.field);
-    anari::setParameter(anari.device, anari.unstructuredVolume.volume, "id", (unsigned)mpiRank);
+    for (int timeStep=0; timeStep<numTimeSteps; ++timeStep) {
+        data = {}; //clear!
+#ifdef HAVE_UMESH
+        if (unstructuredVolumeData.readerType == UMESH
+            && unstructuredVolumeData.umeshReader.haveTimeStep(timeStep))
+            data = unstructuredVolumeData.umeshReader.getField(0,timeStep);
+#endif
 
-    initTransFunc();
+#ifdef HAVE_VTK
+        if (unstructuredVolumeData.readerType == VTK) {
+            assert(timeStep == 0);
+            data = unstructuredVolumeData.vtkReader.getField(0);
+        }
+#endif
 
-    anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
-                      &data.dataRange);
+        if (unstructuredVolumeData.readerType == UNKNOWN) {
+            assert(timeStep == 0);
+            // comes from a data source!
+            data = unstructuredVolumeData.dataSource;
+        }
 
-    anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+        if (data.vertexPosition.empty()) {
+            continue;
+        }
 
-    anari::setAndReleaseParameter(anari.device, anari.world, "volume",
-                                  anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
-    anariRelease(anari.device, anari.unstructuredVolume.volume);
-    anariCommitParameters(anari.device, anari.world);
+        // TODO: "unstructured" field is an extension - check if it is supported!
+        auto field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
+        printf("Array sizes:\n");
+        printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
+        printf("    'vertexData'    : %zu\n", data.vertexData.size());
+        printf("    'index'         : %zu\n", data.index.size());
+        printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
+
+        anari::setParameterArray1D(anari.device, field, "vertex.position",
+                ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
+        anari::setParameterArray1D(anari.device, field, "vertex.data",
+                ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
+        anari::setParameterArray1D(anari.device, field, "index",
+                ANARI_UINT64, data.index.data(), data.index.size());
+        anari::setParameter(anari.device, field, "indexPrefixed",
+                            ANARI_BOOL, &data.indexPrefixed);
+        anari::setParameterArray1D(anari.device, field, "cell.index",
+                ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
+        anari::setParameterArray1D(anari.device, field, "cell.type",
+                                   ANARI_UINT8, data.cellType.data(), data.cellType.size());
+
+        anari::commitParameters(anari.device, field);
+
+        anari.unstructuredVolume.fields.push_back(field);
+
+        dataRange[0] = fminf(dataRange[0],data.dataRange.x);
+        dataRange[1] = fmaxf(dataRange[1],data.dataRange.y);
+    }
+
+    if (!anari.unstructuredVolume.volume && !anari.unstructuredVolume.fields.empty()) {
+        anari.unstructuredVolume.volume = anari::newObject<anari::Volume>(anari.device, "transferFunction1D");
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "id", (unsigned)mpiRank);
+
+        initTransFunc();
+
+        anari::setAndReleaseParameter(anari.device, anari.world, "volume",
+                                      anari::newArray1D(anari.device, &anari.unstructuredVolume.volume));
+        anariCommitParameters(anari.device, anari.world);
+
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
+                            anari.unstructuredVolume.fields[0]);
+
+        anariSetParameter(anari.device, anari.unstructuredVolume.volume, "valueRange", ANARI_FLOAT32_BOX1,
+                          dataRange);
+        anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
+
+        AABB bounds;
+        anariGetProperty(
+            anari.device, anari.world, "bounds", ANARI_FLOAT32_BOX3, &bounds.data, sizeof(bounds.data), ANARI_WAIT);
+        this->bounds.local.extend(bounds);
+        this->bounds.updated = true;
+    }
+
+    animation.numTimeSteps = anari.unstructuredVolume.fields.size();
+    animation.updated = true;
+    objectUpdates |= OU_ANIMATION_UPDATED;
 }
 
 void Renderer::initClipPlanes()
@@ -1457,44 +1914,70 @@ void Renderer::initClipPlanes()
 
 void Renderer::generateTransFunc()
 {
-    transFunc.colors.clear();
-    transFunc.opacities.clear();
-
-    if (colorByRank) {
-        auto c = randomColor(mpiRank);
-        transFunc.colors.emplace_back(c.x, c.y, c.z);
-    } else {
-        // dflt. color map:
+    // dflt. color map:
+    if (transFunc.colors.empty()) {
         transFunc.colors.emplace_back(0.f, 0.f, 1.f);
         transFunc.colors.emplace_back(0.f, 1.f, 0.f);
         transFunc.colors.emplace_back(1.f, 0.f, 0.f);
     }
 
-    transFunc.opacities.emplace_back(0.f);
-    transFunc.opacities.emplace_back(1.f);
+    // dflt. alpha ramp:
+    if (transFunc.opacities.empty()) {
+        transFunc.opacities.emplace_back(0.f);
+        transFunc.opacities.emplace_back(1.f);
+    }
 }
 
 void Renderer::initTransFunc()
 {
+    ANARIVolume anariVolume{nullptr};
+    if (anari.structuredVolume)
+    {
+        asgStructuredVolumeGetAnariHandle(anari.structuredVolume, &anariVolume);
+    }
+
     if (anari.amrVolume.volume)
     {
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "color",
-            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
-        anari::setAndReleaseParameter(
-            anari.device, anari.amrVolume.volume, "opacity",
-            anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
-        anari::commitParameters(anari.device, anari.amrVolume.volume);
+        anariVolume = anari.amrVolume.volume;
     }
 
     if (anari.unstructuredVolume.volume)
     {
+        anariVolume = anari.unstructuredVolume.volume;
+    }
+
+    std::vector<glm::vec3> colors;
+    if (getParam("debug.colorByRank").as<bool>()) {
+        auto c = randomColor(mpiRank);
+        colors.emplace_back(c.x, c.y, c.z);
+    } else {
+        colors = transFunc.colors;
+    }
+
+    if (anariVolume) {
         anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "color",
-            anari::newArray1D(anari.device, transFunc.colors.data(), transFunc.colors.size()));
+            anari.device, anariVolume, "color",
+            anari::newArray1D(anari.device, colors.data(), colors.size()));
         anari::setAndReleaseParameter(
-            anari.device, anari.unstructuredVolume.volume, "opacity",
+            anari.device, anariVolume, "opacity",
             anari::newArray1D(anari.device, transFunc.opacities.data(), transFunc.opacities.size()));
+        anari::commitParameters(anari.device, anariVolume);
+    }
+}
+
+void Renderer::initAnimation()
+{
+    // currently only used with umesh fields:
+    if (animation.numTimeSteps <= animation.timeStep) {
+        std::cerr << "time step unavailable: " << animation.timeStep << '\n';
+        return;
+    }
+
+    // client e.g. has no field data
+    if (animation.timeStep < anari.unstructuredVolume.fields.size()) {
+        anari::setParameter(anari.device, anari.unstructuredVolume.volume, "value",
+                            anari.unstructuredVolume.fields[animation.timeStep]);
+
         anari::commitParameters(anari.device, anari.unstructuredVolume.volume);
     }
 }

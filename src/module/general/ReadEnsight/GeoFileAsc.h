@@ -37,7 +37,7 @@ using namespace std;
 // helper strip off spaces
 string strip(const string &str);
 
-const int lineLen(250);
+const unsigned int lineLen(250);
 
 //
 // read Ensight 6 geometry files
@@ -62,7 +62,7 @@ public:
 
     // helper converts char buf containing num ints of length int_leng to int-array arr
     // -> should better go to EnFile
-    static void atoiArr(const int &int_leng, char *buf, int *arr, const int &num);
+    static void atoiArr(const unsigned int &int_leng, char *buf, unsigned int *arr, const unsigned int &num);
 
 private:
     // read header (ENSIGHT 6, Gold)
@@ -81,13 +81,13 @@ private:
     int readPartConn();
 
     // enter value i to index map (incl realloc)
-    void fillIndexMap(const int &i, const int &natIdx);
+    void fillIndexMap(const unsigned int &i, const unsigned int &natIdx);
 
-    int lineCnt_; // actual linecount
-    int numCoords_; // number of coordinates
-    int *indexMap_; // index map array if node id: GIVEN
-    int maxIndex_; // max possible  index of indexmap
-    int lastNc_;
+    unsigned int lineCnt_; // actual linecount
+    unsigned int numCoords_; // number of coordinates
+    unsigned int *indexMap_; // index map array if node id: GIVEN
+    unsigned int maxIndex_; // max possible  index of indexmap
+    unsigned int lastNc_;
 
     //vector<EnPart> parts_; // contains all parts of the current geometry
 };

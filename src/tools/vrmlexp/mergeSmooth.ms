@@ -22,7 +22,8 @@ macroScript weldSmooth category:"Optimize"
 					   (
 						   case (ClassOf x) of
 				(
-					Editable_Poly:	(	x.autoSmoothThreshold = 45
+					Editable_Poly:	(	x.autoSmoothThreshold = 50
+										polyop.setFaceSelection x #{1..x.numfaces}
 						                polyOp.autosmooth x 	)
 					PolyMeshObject:	(	x.autoSmoothThreshold = 45
 						                polyOp.autosmooth x	)

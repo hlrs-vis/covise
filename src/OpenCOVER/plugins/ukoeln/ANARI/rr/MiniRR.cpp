@@ -4,38 +4,94 @@
 #include "Compression.h"
 #include "MiniRR.h"
 
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <sys/time.h>
+#endif
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
+
 #define LOG_ERR std::cerr
+
+// #define TIMING
+
+inline double getCurrentTime()
+{
+#ifdef _WIN32
+  SYSTEMTIME tp; GetSystemTime(&tp);
+  /*
+     Please note: we are not handling the "leap year" issue.
+ */
+  size_t numSecsSince2020
+      = tp.wSecond
+      + (60ull) * tp.wMinute
+      + (60ull * 60ull) * tp.wHour
+      + (60ull * 60ul * 24ull) * tp.wDay
+      + (60ull * 60ul * 24ull * 365ull) * (tp.wYear - 2020);
+  return double(numSecsSince2020 + tp.wMilliseconds * 1e-3);
+#else
+  struct timeval tp; gettimeofday(&tp,nullptr);
+  return double(tp.tv_sec) + double(tp.tv_usec)/1E6;
+#endif
+}
 
 namespace minirr {
 
-struct RenderState
+struct State
 {
   struct {
     int value{0};
-    bool requested{false};
     bool updated{false};
   } numChannels;
 
   struct {
-    int width{1};
-    int height{1};
-    bool requested{false};
+    Viewport value;
     bool updated{false};
-  } size;
+  } viewport;
 
   struct {
-    Mat4 modelMatrix;
-    Mat4 viewMatrix;
-    Mat4 projMatrix;
-    bool requested{false};
+    Camera value;
     bool updated{false};
   } camera;
 
   struct {
+    uint64_t value{0};
+    bool updated{false};
+  } objectUpdates;
+
+  struct {
     AABB aabb;
-    bool requested{false};
     bool updated{false};
   } bounds;
+
+  struct {
+    int timeStep{0};
+    int numTimeSteps{1};
+    bool updated{false};
+  } animation;
+
+  struct {
+    std::vector<std::string> names;
+    std::vector<int> types;
+    std::vector<std::vector<uint8_t>> values;
+    bool updated{false};
+  } appParams;
+
+  struct {
+    std::vector<float> rgb;
+    std::vector<float> alpha;
+    uint32_t numRGB{0};
+    uint32_t numAlpha{0};
+    float absRange[2]{0.f, 1.f};
+    float relRange[2]{0.f, 1.f};
+    float opacityScale{1.f};
+    bool updated{false};
+  } transfunc;
 
   struct {
     std::vector<char> colorBuffer;
@@ -48,12 +104,11 @@ struct RenderState
     int width{0};
     int height{0};
     uint32_t compressedSize{0};
-    bool requested{false};
     bool updated{false};
   } image;
 };
 
-MiniRR::MiniRR() : renderState(new RenderState)
+MiniRR::MiniRR() : sendState(new State), recvState(new State)
 {
 }
 
@@ -100,20 +155,16 @@ bool MiniRR::connectionClosed()
   return false; // TODO!
 }
 
-void MiniRR::sendNumChannels(int numChannels, WaitFlag flag)
+void MiniRR::sendNumChannels(const int &numChannels)
 {
   lock();
-  renderState->numChannels.value = numChannels;
-  renderState->numChannels.requested = false; // request satisfied!
-  renderState->numChannels.updated = true;
+  sendState->numChannels.value = numChannels;
+  sendState->numChannels.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write(renderState->numChannels.value);
+  buf->write(sendState->numChannels.value);
   write(MessageType::SendNumChannels, buf);
-
-  if (flag == Wait) {
-  }
 }
 
 void MiniRR::recvNumChannels(int &numChannels)
@@ -123,38 +174,109 @@ void MiniRR::recvNumChannels(int &numChannels)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvNumChannels].mtx);
   sync[SyncPoints::RecvNumChannels].cv.wait(
-      l, [this]() { return renderState->numChannels.updated; });
+      l, [this]() { return recvState->numChannels.updated; });
   l.unlock();
 
   lock();
-  numChannels = renderState->numChannels.value;
-  renderState->numChannels.updated = false;
+  numChannels = recvState->numChannels.value;
+  recvState->numChannels.updated = false;
   unlock();
 }
 
-bool MiniRR::numChannelsRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->numChannels.requested;
-  unlock();
-  return result;
-}
-
-void MiniRR::sendBounds(AABB bounds, WaitFlag flag)
+void MiniRR::sendViewport(const Viewport &viewport)
 {
   lock();
-  std::memcpy(renderState->bounds.aabb, bounds, sizeof(renderState->bounds.aabb));
-  renderState->bounds.requested = false; // request satisfied!
-  renderState->bounds.updated = true;
+  sendState->viewport.value = viewport;
+  sendState->viewport.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
-  write(MessageType::SendBounds, buf);
+  buf->write((const char *)&sendState->viewport.value, sizeof(sendState->viewport.value));
+  write(MessageType::SendViewport, buf);
+}
 
-  if (flag == Wait) {
-  }
+void MiniRR::recvViewport(Viewport &viewport)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvViewport, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvViewport].mtx);
+  sync[SyncPoints::RecvViewport].cv.wait(
+      l, [this]() { return recvState->viewport.updated; });
+  l.unlock();
+
+  lock();
+  viewport = recvState->viewport.value;
+  recvState->viewport.updated = false;
+  unlock();
+}
+
+void MiniRR::sendCamera(const Camera &camera)
+{
+  lock();
+  sendState->camera.value = camera;
+  sendState->camera.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)&sendState->camera.value, sizeof(sendState->camera.value));
+  write(MessageType::SendCamera, buf);
+}
+
+void MiniRR::recvCamera(Camera &camera)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvCamera, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvCamera].mtx);
+  sync[SyncPoints::RecvCamera].cv.wait(
+      l, [this]() { return recvState->camera.updated; });
+  l.unlock();
+
+  lock();
+  camera = recvState->camera.value;
+  recvState->camera.updated = false;
+  unlock();
+}
+
+void MiniRR::sendObjectUpdates(const uint64_t &objectUpdates)
+{
+  lock();
+  sendState->objectUpdates.value = objectUpdates;
+  sendState->objectUpdates.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write(sendState->objectUpdates.value);
+  write(MessageType::SendObjectUpdates, buf);
+}
+
+void MiniRR::recvObjectUpdates(uint64_t &objectUpdates)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvObjectUpdates, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvObjectUpdates].mtx);
+  sync[SyncPoints::RecvObjectUpdates].cv.wait(
+      l, [this]() { return recvState->objectUpdates.updated; });
+  l.unlock();
+
+  lock();
+  objectUpdates = recvState->objectUpdates.value;
+  recvState->objectUpdates.updated = false;
+  unlock();
+}
+
+void MiniRR::sendBounds(const AABB &bounds)
+{
+  lock();
+  std::memcpy(sendState->bounds.aabb, bounds, sizeof(sendState->bounds.aabb));
+  sendState->bounds.updated = true;
+  unlock();
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)sendState->bounds.aabb, sizeof(sendState->bounds.aabb));
+  write(MessageType::SendBounds, buf);
 }
 
 void MiniRR::recvBounds(AABB &bounds)
@@ -164,116 +286,166 @@ void MiniRR::recvBounds(AABB &bounds)
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvBounds].mtx);
   sync[SyncPoints::RecvBounds].cv.wait(
-      l, [this]() { return renderState->bounds.updated; });
+      l, [this]() { return recvState->bounds.updated; });
   l.unlock();
 
   lock();
-  std::memcpy(bounds, renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
-  renderState->bounds.updated = false;
+  std::memcpy(bounds, recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
+  recvState->bounds.updated = false;
   unlock();
 }
 
-bool MiniRR::boundsRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->bounds.requested;
-  unlock();
-  return result;
-}
- 
-void MiniRR::sendSize(int w, int h, WaitFlag flag)
+void MiniRR::sendAnimation(const int &timeStep, const int &numTimeSteps)
 {
   lock();
-  renderState->size.width = w;
-  renderState->size.height = h;
-  renderState->size.requested = false; // request satisfied!
-  renderState->size.updated = true;
+  sendState->animation.timeStep = timeStep;
+  sendState->animation.numTimeSteps = numTimeSteps;
+  sendState->animation.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write(renderState->size.width);
-  buf->write(renderState->size.height);
-  write(MessageType::SendSize, buf);
+  buf->write(sendState->animation.timeStep);
+  buf->write(sendState->animation.numTimeSteps);
+  write(MessageType::SendAnimation, buf);
+}
 
-  if (flag == Wait) {
+void MiniRR::recvAnimation(int &timeStep, int &numTimeSteps)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvAnimation, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvAnimation].mtx);
+  sync[SyncPoints::RecvAnimation].cv.wait(
+      l, [this]() { return recvState->animation.updated; });
+  l.unlock();
+
+  lock();
+  timeStep = recvState->animation.timeStep;
+  numTimeSteps = recvState->animation.numTimeSteps;
+  recvState->animation.updated = false;
+  unlock();
+}
+
+void MiniRR::sendAppParams(const Param *params, unsigned numParams)
+{
+  lock();
+  sendState->appParams.names.resize(numParams);
+  sendState->appParams.types.resize(numParams);
+  sendState->appParams.values.resize(numParams);
+  for (unsigned i=0; i<numParams; ++i) {
+    sendState->appParams.names[i] = params[i].name;
+    sendState->appParams.types[i] = params[i].type;
+    sendState->appParams.values[i].resize(params[i].sizeInBytes);
+    std::memcpy(sendState->appParams.values[i].data(),
+                params[i].value,
+                params[i].sizeInBytes);
   }
-}
-
-void MiniRR::recvSize(int &w, int &h)
-{
-  auto buf = std::make_shared<Buffer>();
-  write(MessageType::RecvSize, buf);
-
-  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvSize].mtx);
-  sync[SyncPoints::RecvSize].cv.wait(
-      l, [this]() { return renderState->size.updated; });
-  l.unlock();
-
-  lock();
-  w = renderState->size.width;
-  h = renderState->size.height;
-  renderState->size.updated = false;
-  unlock();
-}
-
-bool MiniRR::sizeRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->size.requested;
-  unlock();
-  return result;
-}
-
-void MiniRR::sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag)
-{
-  lock();
-  std::memcpy(renderState->camera.modelMatrix, modelMatrix, sizeof(renderState->camera.modelMatrix));
-  std::memcpy(renderState->camera.viewMatrix, viewMatrix, sizeof(renderState->camera.viewMatrix));
-  std::memcpy(renderState->camera.projMatrix, projMatrix, sizeof(renderState->camera.projMatrix));
-  renderState->camera.requested = false; // request satisfied!
-  renderState->camera.updated = true;
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-  buf->write((const char *)renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-  buf->write((const char *)renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-  write(MessageType::SendCamera, buf);
-
-  if (flag == Wait) {
+  buf->write(numParams);
+  for (unsigned i=0; i<numParams; ++i) {
+    buf->write(sendState->appParams.names[i]);
+    buf->write(sendState->appParams.types[i]);
+    buf->write((uint64_t)sendState->appParams.values[i].size());
+    buf->write((const char *)sendState->appParams.values[i].data(),
+               sendState->appParams.values[i].size());
   }
+  write(MessageType::SendAppParams, buf);
 }
 
-void MiniRR::recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix)
+void MiniRR::recvAppParams(Param *params, unsigned &numParams)
 {
   auto buf = std::make_shared<Buffer>();
-  write(MessageType::RecvCamera, buf);
+  write(MessageType::RecvAppParams, buf);
 
-  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvCamera].mtx);
-  sync[SyncPoints::RecvCamera].cv.wait(
-      l, [this]() { return renderState->camera.updated; });
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvAppParams].mtx);
+  sync[SyncPoints::RecvAppParams].cv.wait(
+      l, [this]() { return recvState->appParams.updated; });
   l.unlock();
 
   lock();
-  std::memcpy(modelMatrix, renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-  std::memcpy(viewMatrix, renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-  std::memcpy(projMatrix, renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-  renderState->camera.updated = false;
+
+  numParams = recvState->appParams.names.size();
+  for (unsigned i=0; i<numParams; ++i) {
+    params[i].name = recvState->appParams.names[i];
+    params[i].type = recvState->appParams.types[i];
+    params[i].value = recvState->appParams.values[i].data();
+    params[i].sizeInBytes = recvState->appParams.values[i].size();
+  }
+
+  recvState->appParams.updated = false;
+
   unlock();
 }
 
-bool MiniRR::cameraRequested()
+void MiniRR::sendTransfunc(const Transfunc &transfunc)
 {
-  bool result = false;
   lock();
-  result = renderState->camera.requested;
+  sendState->transfunc.rgb.resize(transfunc.numRGB*3);
+  std::memcpy(sendState->transfunc.rgb.data(),
+              transfunc.rgb,
+              sizeof(transfunc.rgb[0])*transfunc.numRGB*3);
+  sendState->transfunc.alpha.resize(transfunc.numAlpha);
+  std::memcpy(sendState->transfunc.alpha.data(),
+              transfunc.alpha,
+              sizeof(transfunc.alpha[0])*transfunc.numAlpha);
+  sendState->transfunc.numRGB = transfunc.numRGB;
+  sendState->transfunc.numAlpha = transfunc.numAlpha;
+  std::memcpy(sendState->transfunc.absRange,
+              transfunc.absRange, sizeof(transfunc.absRange));
+  std::memcpy(sendState->transfunc.relRange,
+              transfunc.relRange, sizeof(transfunc.relRange));
+  sendState->transfunc.opacityScale = transfunc.opacityScale;
+  sendState->transfunc.updated = true;
   unlock();
-  return result;
+
+  auto buf = std::make_shared<Buffer>();
+  buf->write((const char *)&sendState->transfunc.numRGB,
+      sizeof(sendState->transfunc.numRGB));
+  buf->write((const char *)&sendState->transfunc.numAlpha,
+      sizeof(sendState->transfunc.numAlpha));
+  buf->write((const char *)&sendState->transfunc.absRange,
+      sizeof(sendState->transfunc.absRange));
+  buf->write((const char *)&sendState->transfunc.relRange,
+      sizeof(sendState->transfunc.relRange));
+  buf->write((const char *)&sendState->transfunc.opacityScale,
+      sizeof(sendState->transfunc.opacityScale));
+  buf->write((const char *)sendState->transfunc.rgb.data(),
+      sizeof(sendState->transfunc.rgb[0])*sendState->transfunc.rgb.size());
+  buf->write((const char *)sendState->transfunc.alpha.data(),
+      sizeof(sendState->transfunc.alpha[0])*sendState->transfunc.alpha.size());
+  write(MessageType::SendTransfunc, buf);
 }
 
-void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag)
+void MiniRR::recvTransfunc(Transfunc &transfunc)
+{
+  auto buf = std::make_shared<Buffer>();
+  write(MessageType::RecvTransfunc, buf);
+
+  std::unique_lock<std::mutex> l(sync[SyncPoints::RecvTransfunc].mtx);
+  sync[SyncPoints::RecvTransfunc].cv.wait(
+      l, [this]() { return recvState->transfunc.updated; });
+  l.unlock();
+
+  lock();
+
+  transfunc.rgb = recvState->transfunc.rgb.data();
+  transfunc.alpha = recvState->transfunc.alpha.data();
+  transfunc.numRGB = recvState->transfunc.numRGB;
+  transfunc.numAlpha = recvState->transfunc.numAlpha;
+  transfunc.absRange[0] = recvState->transfunc.absRange[0];
+  transfunc.absRange[1] = recvState->transfunc.absRange[1];
+  transfunc.relRange[0] = recvState->transfunc.relRange[0];
+  transfunc.relRange[1] = recvState->transfunc.relRange[1];
+  transfunc.opacityScale = recvState->transfunc.opacityScale;
+
+  recvState->transfunc.updated = false;
+
+  unlock();
+}
+
+void MiniRR::sendImage(const uint32_t *img, int width, int height, int jpegQuality)
 {
   lock();
 
@@ -281,74 +453,75 @@ void MiniRR::sendImage(const uint32_t *img, int width, int height, WaitFlag flag
   options.width = width;
   options.height = height;
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
-  options.quality = 80;
+  options.quality = jpegQuality;
 
-  renderState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
+  sendState->image.data.resize(getMaxCompressedBufferSizeTurboJPEG(options));
 
+  #ifdef TIMING
+  double t0 = getCurrentTime();
+  #endif
   size_t compressedSize;
   compressTurboJPEG((const uint8_t *)img,
-      renderState->image.data.data(),
+      sendState->image.data.data(),
       compressedSize,
       options);
+  #ifdef TIMING
+  double t1 = getCurrentTime();
+  std::cout << "compressTurboJPEG takes " << (t1-t0) << " sec.\n";
+  #endif
 
-  renderState->image.width = width;
-  renderState->image.height = height;
-  renderState->image.compressedSize = compressedSize;
-  renderState->image.requested = false; // request satisfied!
-  renderState->image.updated = true;
+  sendState->image.width = width;
+  sendState->image.height = height;
+  sendState->image.compressedSize = compressedSize;
+  sendState->image.updated = true;
 
   unlock();
 
   auto buf = std::make_shared<Buffer>();
-  buf->write((const char *)&renderState->image.width, sizeof(renderState->image.width));
-  buf->write((const char *)&renderState->image.height, sizeof(renderState->image.height));
-  buf->write((const char *)&renderState->image.compressedSize, sizeof(renderState->image.compressedSize));
-  buf->write((const char *)renderState->image.data.data(),
-      sizeof(renderState->image.data[0])*renderState->image.data.size());
+  buf->write((const char *)&sendState->image.width, sizeof(sendState->image.width));
+  buf->write((const char *)&sendState->image.height, sizeof(sendState->image.height));
+  buf->write((const char *)&sendState->image.compressedSize, sizeof(sendState->image.compressedSize));
+  buf->write((const char *)sendState->image.data.data(),
+      sizeof(sendState->image.data[0])*sendState->image.data.size());
   write(MessageType::SendImage, buf);
-
-  if (flag == Wait) {
-  }
 }
 
-void MiniRR::recvImage(uint32_t *img, int &width, int &height)
+void MiniRR::recvImage(uint32_t *img, int &width, int &height, int jpegQuality)
 {
   auto buf = std::make_shared<Buffer>();
   write(MessageType::RecvImage, buf);
 
   std::unique_lock<std::mutex> l(sync[SyncPoints::RecvImage].mtx);
   sync[SyncPoints::RecvImage].cv.wait(
-      l, [this]() { return renderState->image.updated; });
+      l, [this]() { return recvState->image.updated; });
   l.unlock();
 
   lock();
 
-  width = renderState->image.width;
-  height = renderState->image.height;
+  width = recvState->image.width;
+  height = recvState->image.height;
 
   TurboJPEGOptions options;
   options.width = width;
   options.height = height;
   options.pixelFormat = TurboJPEGOptions::PixelFormat::RGBX;
-  options.quality = 80;
+  options.quality = jpegQuality;
 
-  uncompressTurboJPEG(renderState->image.data.data(),
+  #ifdef TIMING
+  double t0 = getCurrentTime();
+  #endif
+  uncompressTurboJPEG(recvState->image.data.data(),
       (uint8_t *)img,
-      (size_t)renderState->image.compressedSize,
+      (size_t)recvState->image.compressedSize,
       options);
+  #ifdef TIMING
+  double t1 = getCurrentTime();
+  std::cout << "uncompressTurboJPEG takes " << (t1-t0) << " sec.\n";
+  #endif
 
-  renderState->image.updated = false;
+  recvState->image.updated = false;
 
   unlock();
-}
-
-bool MiniRR::imageRequested()
-{
-  bool result = false;
-  lock();
-  result = renderState->image.requested;
-  unlock();
-  return result;
 }
 
 bool MiniRR::handleNewConnection(
@@ -404,49 +577,91 @@ void MiniRR::handleReadMessage(async::message_pointer message)
   auto buf = std::make_shared<Buffer>(message->data(), message->size());
   if (message->type() == MessageType::SendNumChannels) {
     lock();
-    buf->read(renderState->numChannels.value);
-    renderState->numChannels.updated = true;
+    buf->read(recvState->numChannels.value);
+    recvState->numChannels.updated = true;
     unlock();
     sync[SyncPoints::RecvNumChannels].cv.notify_all();
   }
-  else if (message->type() == MessageType::SendBounds) {
+  else if (message->type() == MessageType::SendViewport) {
     lock();
-    buf->read((char *)renderState->bounds.aabb, sizeof(renderState->bounds.aabb));
-    renderState->bounds.updated = true;
-    sync[SyncPoints::RecvBounds].cv.notify_all();
+    buf->read((char *)&recvState->viewport.value, sizeof(recvState->viewport.value));
+    recvState->viewport.updated = true;
     unlock();
-    sync[SyncPoints::RecvBounds].cv.notify_all();
-  }
-  else if (message->type() == MessageType::RecvBounds) {
-    lock();
-    renderState->bounds.requested = true;
-    unlock();
-  }
-  else if (message->type() == MessageType::SendSize) {
-    lock();
-    buf->read(renderState->size.width);
-    buf->read(renderState->size.height);
-    renderState->size.updated = true;
-    unlock();
-    sync[SyncPoints::RecvSize].cv.notify_all();
+    sync[SyncPoints::RecvViewport].cv.notify_all();
   }
   else if (message->type() == MessageType::SendCamera) {
     lock();
-    buf->read((char *)renderState->camera.modelMatrix, sizeof(renderState->camera.modelMatrix));
-    buf->read((char *)renderState->camera.viewMatrix, sizeof(renderState->camera.viewMatrix));
-    buf->read((char *)renderState->camera.projMatrix, sizeof(renderState->camera.projMatrix));
-    renderState->camera.updated = true;
+    buf->read((char *)&recvState->camera.value, sizeof(recvState->camera.value));
+    recvState->camera.updated = true;
     unlock();
     sync[SyncPoints::RecvCamera].cv.notify_all();
   }
+  if (message->type() == MessageType::SendObjectUpdates) {
+    lock();
+    buf->read(recvState->objectUpdates.value);
+    recvState->objectUpdates.updated = true;
+    unlock();
+    sync[SyncPoints::RecvObjectUpdates].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendBounds) {
+    lock();
+    buf->read((char *)recvState->bounds.aabb, sizeof(recvState->bounds.aabb));
+    recvState->bounds.updated = true;
+    unlock();
+    sync[SyncPoints::RecvBounds].cv.notify_all();
+  }
+  if (message->type() == MessageType::SendAnimation) {
+    lock();
+    buf->read(recvState->animation.timeStep);
+    buf->read(recvState->animation.numTimeSteps);
+    recvState->animation.updated = true;
+    unlock();
+    sync[SyncPoints::RecvAnimation].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendAppParams) {
+    lock();
+    unsigned numParams{0};
+    buf->read(numParams);
+    recvState->appParams.names.resize(numParams);
+    recvState->appParams.types.resize(numParams);
+    recvState->appParams.values.resize(numParams);
+    for (unsigned i=0; i<numParams; ++i) {
+      buf->read(recvState->appParams.names[i]);
+      buf->read(recvState->appParams.types[i]);
+      uint64_t sizeInBytes{0};
+      buf->read(sizeInBytes);
+      recvState->appParams.values[i].resize(sizeInBytes);
+      buf->read((char *)recvState->appParams.values[i].data(), sizeInBytes);
+    }
+    recvState->appParams.updated = true;
+    unlock();
+    sync[SyncPoints::RecvAppParams].cv.notify_all();
+  }
+  else if (message->type() == MessageType::SendTransfunc) {
+    lock();
+    buf->read((char *)&recvState->transfunc.numRGB, sizeof(recvState->transfunc.numRGB));
+    buf->read((char *)&recvState->transfunc.numAlpha, sizeof(recvState->transfunc.numAlpha));
+    buf->read((char *)&recvState->transfunc.absRange, sizeof(recvState->transfunc.absRange));
+    buf->read((char *)&recvState->transfunc.relRange, sizeof(recvState->transfunc.relRange));
+    buf->read((char *)&recvState->transfunc.opacityScale, sizeof(recvState->transfunc.opacityScale));
+    recvState->transfunc.rgb.resize(recvState->transfunc.numRGB*3);
+    buf->read((char *)recvState->transfunc.rgb.data(),
+        sizeof(recvState->transfunc.rgb[0])*recvState->transfunc.rgb.size());
+    recvState->transfunc.alpha.resize(recvState->transfunc.numAlpha);
+    buf->read((char *)recvState->transfunc.alpha.data(),
+        sizeof(recvState->transfunc.alpha[0])*recvState->transfunc.alpha.size());
+    recvState->transfunc.updated = true;
+    unlock();
+    sync[SyncPoints::RecvTransfunc].cv.notify_all();
+  }
   else if (message->type() == MessageType::SendImage) {
     lock();
-    buf->read((char *)&renderState->image.width, sizeof(renderState->image.width));
-    buf->read((char *)&renderState->image.height, sizeof(renderState->image.height));
-    buf->read((char *)&renderState->image.compressedSize, sizeof(renderState->image.compressedSize));
-    renderState->image.data.resize(renderState->image.compressedSize);
-    buf->read((char *)renderState->image.data.data(), renderState->image.compressedSize);
-    renderState->image.updated = true;
+    buf->read((char *)&recvState->image.width, sizeof(recvState->image.width));
+    buf->read((char *)&recvState->image.height, sizeof(recvState->image.height));
+    buf->read((char *)&recvState->image.compressedSize, sizeof(recvState->image.compressedSize));
+    recvState->image.data.resize(recvState->image.compressedSize);
+    buf->read((char *)recvState->image.data.data(), recvState->image.compressedSize);
+    recvState->image.updated = true;
     unlock();
     sync[SyncPoints::RecvImage].cv.notify_all();
   }
@@ -454,18 +669,6 @@ void MiniRR::handleReadMessage(async::message_pointer message)
 
 void MiniRR::handleWriteMessage(async::message_pointer message)
 {
-  // if (message->type() == MessageType::SendNumChannels) {
-  //   sync[SyncPoints::SendNumChannels].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendSize) {
-  //   sync[SyncPoints::SendSize].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendCamera) {
-  //   sync[SyncPoints::SendCamera].cv.notify_all();
-  // }
-  // else if (message->type() == MessageType::SendBounds) {
-  //   sync[SyncPoints::SendBounds].cv.notify_all();
-  // }
 }
 
 void MiniRR::write(unsigned type, std::shared_ptr<Buffer> buf)
@@ -503,7 +706,7 @@ int main(int argc, char **argv) {
     rr.initAsClient("localhost", 31050);
     rr.run();
     while (1) {
-      rr.sendSize(1024,768);
+      //rr.sendSize(1024,768);
     }
   } else {
     minirr::MiniRR rr;

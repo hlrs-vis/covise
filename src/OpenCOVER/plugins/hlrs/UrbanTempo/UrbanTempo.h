@@ -20,6 +20,8 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
+#include "Tree.h"
+#include "TreeModel.h"
 #include <string>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRFileManager.h>
@@ -28,48 +30,42 @@
 #include <osg/ref_ptr>
 #include <gdal_priv.h>
 
-enum Season { 
-    Winter,
-    Spring,
-    Summer,
-    Fall
-};
-
-
-class  TreeModel
-{
-public:
-    TreeModel(std::string configName);
-    ~TreeModel();
-    std::string speciesName;
-    std::string modelPath;
-    Season season;
-    osg::ref_ptr<osg::Node> model;
-    osg::Matrix transform;
-    float height;
-};
-
 class UrbanTempo : public opencover::coVRPlugin
 {
 public:
     UrbanTempo();
     bool init() override;
     bool destroy() override;
+    void key(int type, int keysym, int mod) override;
+    void preFrame() override;
     void request();
     void simplifyResponse();
     void saveStringToFile(const std::string&);
     std::string readJSONFromFile(const std::string&);
+    void getGeneralConfigData();
+    void setTreeModels();
+    void setupScenegraph();
     void setTrees();
+    void updateTrees();
     std::string documentToString(const rapidjson::Document&);
     void printResponseToConfig();
     void setupPluginNode();
     void printInformation();
+    static double getDistance(const osg::Vec3, const osg::Vec3);
+    double defaultHeight;
+    std::string geotiffpath;
 
     float getAlt(double x, double y);
     static Season stringToSeason(const std::string&);
 
-    std::vector<std::unique_ptr<TreeModel>> treeModels;
-    std::vector<std::unique_ptr<TreeModel>>::iterator defaultTreeIterator;
+    std::vector<std::shared_ptr<TreeModel>> treeModels;
+    std::vector<std::shared_ptr<TreeModel>>::iterator defaultTreeIterator;
+    // std::vector<std::unique_ptr<TreeModel>> treeModels;
+    // std::vector<std::unique_ptr<TreeModel>>::iterator defaultTreeIterator;
+
+    std::vector<std::unique_ptr<Tree>> trees;
+    // std::vector<std::unique_ptr<Tree>>::iterator defaultTreeIterator;
+
     static UrbanTempo* instance() { return plugin; };
 
 private:
@@ -78,6 +74,7 @@ private:
     std::string response;
     std::string simpleResponse;
     osg::ref_ptr<osg::Group> pluginNode;
+    osg::ref_ptr<osg::MatrixTransform> rootTransform;
 
     float *rasterData=NULL;
     double xOrigin;
@@ -91,6 +88,7 @@ private:
     void openImage(std::string& name);
     void closeImage();
     static UrbanTempo* plugin;
+    
 };
 #endif
 

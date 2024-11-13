@@ -3,6 +3,6 @@
 #cmakedefine01 DEBUG_ENNOVATIS
 
 struct BuildOptions {
-	constexpr static bool debug_ennovatis = static_cast<bool>(DEBUG_ENNOVATIS);
+  constexpr static bool debug_ennovatis = static_cast<bool>(DEBUG_ENNOVATIS);
 };
 inline constexpr BuildOptions build_options;

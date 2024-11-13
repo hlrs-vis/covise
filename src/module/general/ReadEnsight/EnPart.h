@@ -120,8 +120,8 @@ public:
     float *x2d_, *y2d_, *z2d_;
     float *x3d_, *y3d_, *z3d_;
 
-    int *el2d_, *cl2d_, *tl2d_;
-    int *el3d_, *cl3d_, *tl3d_;
+    unsigned int *el2d_, *cl2d_, *tl2d_;
+    unsigned int *el3d_, *cl3d_, *tl3d_;
     int *indexMap2d_, *indexMap3d_;
     coDistributedObject *distGeo2d_;
     coDistributedObject *distGeo3d_;

@@ -258,6 +258,7 @@ bool Source::needReproject(const osg::CoordinateSystemNode *cs) const
 
 bool Source::needReproject(const osg::CoordinateSystemNode *cs, double minResolution, double maxResolution) const
 {
+        return false;
     if (!_sourceData)
         return false;
 

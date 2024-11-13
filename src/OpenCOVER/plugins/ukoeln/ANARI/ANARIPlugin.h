@@ -10,7 +10,9 @@
 #include <cover/ui/Owner.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRFileManager.h>
+#include "coTransfuncEditor.h"
 #include "Renderer.h"
+#include "ColorMaps.h"
 
 namespace opencover {
 namespace ui {
@@ -56,6 +58,9 @@ public:
     static int loadHDRI(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadHDRI(const char *fileName, const char *);
 
+    static int loadXF(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadXF(const char *fileName, const char *);
+
 
     ANARIPlugin();
    ~ANARIPlugin();
@@ -67,6 +72,8 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs) override;
 
+    void setTimestep(int ts) override;
+
     void addObject(const RenderObject *container, osg::Group *parent,
                    const RenderObject *geometry, const RenderObject *normals,
                    const RenderObject *colors, const RenderObject *texture) override;
@@ -76,12 +83,17 @@ public:
 protected:
     ui::Menu *anariMenu = nullptr;
     ui::Menu *debugMenu = nullptr;
+    ui::Menu *remoteMenu = nullptr;
     ui::Menu *rendererMenu = nullptr;
     ui::Group *rendererGroup = nullptr;
     ui::ButtonGroup *rendererButtonGroup = nullptr;
     std::vector<ui::Button *> rendererButtons;
 
     std::vector<ui::Element *> rendererUI;
+
+    coTransfuncEditor *tfe = nullptr;
+    util::ColorMapLibrary colorMaps;
+
     int previousRendererType = -1;
     int rendererType = 0;
 

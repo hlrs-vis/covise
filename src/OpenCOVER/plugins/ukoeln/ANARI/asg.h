@@ -380,6 +380,8 @@ ASGAPI ASGStructuredVolume asgNewStructuredVolume(void* data, int32_t width,
                                                   ASGDataType_t type,
                                                   ASGFreeFunc freeData
                                                   ASG_DFLT_PARAM(NULL));
+ASGAPI ASGError_t asgStructuredVolumeGetAnariHandle(ASGStructuredVolume vol,
+                                                    ANARIVolume* handle);
 ASGAPI ASGError_t asgStructuredVolumeGetData(ASGStructuredVolume vol, void** data);
 ASGAPI ASGError_t asgStructuredVolumeGetDims(ASGStructuredVolume vol, int32_t* width,
                                              int32_t* height, int32_t* depth);

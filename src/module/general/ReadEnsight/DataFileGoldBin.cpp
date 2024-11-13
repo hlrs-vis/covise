@@ -28,8 +28,8 @@
 //
 DataFileGoldBin::DataFileGoldBin(ReadEnsight *mod,
                                  const string &name,
-                                 const int &dim,
-                                 const int &numVals,
+                                 const unsigned int &dim,
+                                 const unsigned int &numVals,
                                  const EnFile::BinType &binType)
     : EnFile(mod, name, dim, binType)
     , lineCnt_(0)
@@ -65,9 +65,9 @@ DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const 
     {
         bool written = false;
         size_t id(0);
-        int actPartNr;
+        unsigned int actPartNr;
         EnPart *actPart(NULL);
-        int eleCnt2d = 0, eleCnt3d = 0;
+        unsigned int eleCnt2d = 0, eleCnt3d = 0;
 
         // 1 lines decription - ignore it
         string currentLine(getStr());
@@ -175,13 +175,13 @@ DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const 
                     anzEle = actPart->getElementNum(elementType);
                     //cerr << "DataFileGoldBin::readCells() " << anzEle << " for " << elementType  << endl;
                     EnElement thisEle = actPart->findElement(elementType);
-                    vector<int> bl(thisEle.getBlacklist());
+                    vector<unsigned int> bl(thisEle.getBlacklist());
                     if (thisEle.getBlacklist().size() != anzEle)
                     {
                         //cerr << "DataFileGoldBin::readCells( ) blacklist size problem " << bl.size() << endl;
                     }
 
-                    int i;
+                    unsigned int i;
                     float *tArr1 = NULL, *tArr2 = NULL, *tArr3 = NULL;
                     switch (dim_)
                     {
@@ -328,7 +328,7 @@ DataFileGoldBin::read(dimType dim, coDistributedObject **outObjects, const strin
     if (isOpen_)
     {
         size_t id(0);
-        int actPartNr;
+        unsigned int actPartNr;
 
         while (!feof(in_))
         {

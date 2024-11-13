@@ -8,6 +8,9 @@
 #ifndef _JSBSim_NODE_PLUGIN_H
 #define _JSBSim_NODE_PLUGIN_H
 
+#include <cover/coVRPlugin.h>
+#include <cover/input/dev/Joystick/Joystick.h>
+
 #include <util/common.h>
 
 #include <math.h>
@@ -35,14 +38,16 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/SelectionList.h>
 
-#include <proj_api.h>
+#include <proj.h>
 
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
 
 #include <rsClient/remoteSoundClient.h>
+
 
 class UDPComm;
 
@@ -74,13 +79,29 @@ private:
     ui::Action* resetButton;
     ui::Action* upButton;
     ui::Group* Weather;
+    ui::Group* Geometry;
     ui::Label* WindLabel;
     ui::Label* VLabel;
     ui::Label* VzLabel;
     ui::EditField* WX;
     ui::EditField* WY;
     ui::EditField* WZ;
+    ui::EditField* tX;
+    ui::EditField* tY;
+    ui::EditField* tZ;
+    ui::EditField* tH;
+    ui::EditField* tP;
+    ui::EditField* tR;
+    ui::EditField* tS;
+    ui::SelectionList* planeType;
+    std::unique_ptr<config::Array<std::string>> aircrafts;
     remoteSound::Client* rsClient;
+    void initAircraft();
+
+    Joystick* joystickDev = nullptr;
+    //bool state0 = false;
+    //bool state1 = false;
+    //bool state2 = false;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -90,6 +111,7 @@ private:
     std::string AircraftName;
     std::string resetFile;
     std::string geometryFile;
+    std::string currentAircraft;
     osg::ref_ptr<osg::MatrixTransform> geometryTrans;
     vector <string> LogOutputName;
     vector <SGPath> LogDirectiveName;
@@ -101,6 +123,13 @@ private:
     double SimStartTime = 0.0;
     double frame_duration = 0.0;
     double printTime = 0.0;
+    std::unique_ptr<config::Value<double>> cX;
+    std::unique_ptr<config::Value<double>> cY;
+    std::unique_ptr<config::Value<double>> cZ;
+    std::unique_ptr<config::Value<double>> cH;
+    std::unique_ptr<config::Value<double>> cP;
+    std::unique_ptr<config::Value<double>> cR;
+    std::unique_ptr<config::Value<double>> cS;
 
     JSBSim::FGFDMExec* FDMExec = nullptr;
     JSBSim::FGTrim* trimmer = nullptr;
@@ -129,6 +158,7 @@ private:
     {
         double elevator;
         double aileron;
+        double throttle;
     } fgcontrol;
     struct GliderValues
     {
@@ -146,6 +176,7 @@ private:
     bool initJSB();
     bool updateUdp();
     void reset(double dz = 0.0);
+    void updateTrans();
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod);
@@ -160,8 +191,7 @@ private:
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
     OpenThreads::Mutex mutex;
-
-    projPJ pj_from, pj_to;
+    PJ* coordTransformation;
     std::string coviseSharedDir;
     osg::Vec3d projectOffset;
     osg::Matrix lastPos;
@@ -177,7 +207,9 @@ private:
     std::string WindSound;
     std::string host;
     unsigned short serverPort;
-    unsigned short localPort; 
+    unsigned short localPort;
+    int Joysticknumber = -1;
+    int Ruddernumber = -1;
 };
 
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild

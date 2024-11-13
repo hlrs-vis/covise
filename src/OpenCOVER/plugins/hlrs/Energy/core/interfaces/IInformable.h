@@ -5,14 +5,14 @@
 
 namespace core {
 namespace interface {
-template<typename Info>
-class IInformable: public IDrawable {
+template <typename Info> class IInformable : public IDrawable {
 public:
-    virtual void showInfo() = 0;
-    virtual void hideInfo() = 0;
-    virtual void updateInfo(const Info &info) = 0;
+  virtual void showInfo() = 0;
+  virtual void hideInfo() = 0;
+  virtual void updateInfo(const Info &info) = 0;
+
 protected:
-    Info m_info;
+  Info m_info;
 };
 } // namespace interface
 } // namespace core

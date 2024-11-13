@@ -45,15 +45,100 @@
 #include <osgUtil/Optimizer>
 #include <osgTerrain/Terrain>
 #include <osgViewer/Renderer>
+#include <iostream>
+#include <string>
+#include "HTTPClient/CURL/methods.h"
+#include "HTTPClient/CURL/request.h"
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h> 
+#include <rapidjson/rapidjson.h>
+#include "cover/coVRConfig.h"
+#include <PluginUtil/PluginMessageTypes.h>
+
+namespace opencover
+{
+    namespace ui
+    {
+        class Menu;
+        class Label;
+        class Group;
+        class Button;
+        class EditField;
+    }
+}
 
 
 using namespace covise;
 using namespace opencover;
 
+std::string getCoordinates(const std::string& address) {
+    using namespace opencover::httpclient::curl;
+    std::string readBuffer;
+
+    // // Nominatim request URL
+    std::string url = "https://nominatim.openstreetmap.org/search?q=" + address + "&format=json&limit=1";
+
+    GET getRequest(url);
+    Request::Options options = {
+        {CURLOPT_USERAGENT, "Mozilla/5.0"},
+    };
+    if (!Request().httpRequest(getRequest, readBuffer, options))
+        readBuffer = "[ERROR] Failed to fetch data from Nominatim. With request: " + url;
+
+    return readBuffer;
+}
+
+void GeoDataLoader::parseCoordinates(const std::string& jsonData) {
+    rapidjson::Document document;
+
+    if (document.Parse(jsonData.c_str()).HasParseError()) {
+        std::cerr << "Failed to parse JSON data." << std::endl;
+        return;
+    }
+
+    if (document.IsArray() && !document.Empty()) {
+        const rapidjson::Value& location = document[0];
+        if (location.HasMember("lat") && location.HasMember("lon")) {
+            double latitude = std::stod(location["lat"].GetString());
+            double longitude = std::stod(location["lon"].GetString());
+
+            std::cout << "Latitude: " << latitude << std::endl;
+            std::cout << "Longitude: " << longitude << std::endl;
+            PJ_COORD input;
+            input.lp.lam = longitude * DEG_TO_RAD; // Convert degrees to radians
+            input.lp.phi = latitude * DEG_TO_RAD; // Convert degrees to radians
+
+            // Perform the transformation
+            PJ_COORD output;
+            output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
+
+            // Output UTM coordinates
+            std::cout << "Easting (X): " << output.enu.e << " meters" << std::endl;
+            std::cout << "Northing (Y): " << output.enu.n << " meters" << std::endl;
+            float z = cover->getXformMat().getTrans().z();
+            osg::Vec3 pos(output.enu.e, output.enu.n, z);
+            osg::Matrix mat;
+            pos += offset;
+            mat.setTrans(pos);
+            cover->setXformMat(mat);
+        }
+        else {
+            std::cerr << "Error: Latitude and/or Longitude not found in the response." << std::endl;
+        }
+    }
+    else {
+        std::cerr << "Error: No results found." << std::endl;
+    }
+}
+
+
+
 
 GeoDataLoader* GeoDataLoader::s_instance = nullptr;
 
-GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME)
+GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("GeoData", cover->ui)
 {
     assert(s_instance == nullptr);
     s_instance = this;
@@ -61,16 +146,127 @@ GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME)
 }
 bool GeoDataLoader::init()
 {
-    return loadTerrain("D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive",osg::Vec3d(0,0,0));
+    ProjContext = proj_context_create();
+    // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
+    ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N
+
+    geoDataMenu = new ui::Menu("GeoData", this);
+    geoDataMenu->setText("GeoData");
+    rootNode = new osg::MatrixTransform();
+    skyRootNode = new osg::MatrixTransform();
+    cover->getObjectsRoot()->addChild(rootNode);
+    cover->getScene()->addChild(skyRootNode);
+    //Restart Button
+    skyButton = new ui::Button(geoDataMenu, "Sky");
+    skyButton->setText("Sky");
+    skyButton->setState(true);
+    skyButton->setCallback([this](bool state) 
+        {
+            if (state && skyNode.get()!=nullptr &&  skyNode->getNumParents()==0)
+                skyRootNode->addChild(skyNode.get());
+            else if(!state && skyNode.get()!=nullptr) 
+                skyRootNode->removeChild(skyNode.get());
+        });
+    skys = new ui::SelectionList(geoDataMenu, "Skys");
+    skys->append("None");
+    skyPath = configString("sky", "skyDir" ,"/data/Geodata/sky")->value();
+    defaultSky = configInt("sky", "defaultSky", 6)->value();
+    int skyNumber = 1;
+    try {
+        for (const auto& entry : fs::directory_iterator(skyPath))
+        {
+            if (entry.is_regular_file() && entry.path().extension() == ".wrl") {
+                std::string name = entry.path().filename().string();
+                if (skyNumber == defaultSky)
+                {
+                    skyNode = coVRFileManager::instance()->loadFile(entry.path().string().c_str(), nullptr, skyRootNode);
+                }
+                skyNumber++;
+                skys->append(name.substr(0,name.length()-4));
+            }
+        }
+    }
+    catch (const fs::filesystem_error& err) {
+        std::cerr << "Filesystem error: " << err.what() << std::endl;
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "General error: " << ex.what() << std::endl;
+    }
+    skys->setCallback([this](int selection)
+        {
+            setSky(selection);
+        });
+    float northAngle = 0;
+
+    float farValue = coVRConfig::instance()->farClip();
+    float scale = (farValue * 2) / 20000;
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
+    
+    location = new ui::EditField(geoDataMenu, "location");
+    location->setText("location:");
+    location->setCallback([this](std::string val) 
+        {
+            std::string coord = getCoordinates(val);
+            parseCoordinates(coord);
+        });
+
+    terrainFile = configString("terrain","file", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive")->value();
+    loadTerrain(terrainFile,osg::Vec3d(0,0,0));
+    return true;
 }
 
 // this is called if the plugin is removed at runtime
 GeoDataLoader::~GeoDataLoader()
 {
     s_instance = nullptr;
+    proj_destroy(ProjInstance);
+    proj_context_destroy(ProjContext);
 }
 
+void GeoDataLoader::message(int toWhom, int type, int length, const void* data)
+{
+    const char* messageData = (const char*)data;
+    if(type == PluginMessageTypes::LoadTerrain)
+        loadTerrain(messageData+20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
+    else if (type == PluginMessageTypes::setSky)
+    {
+        int offset = 0;
+        if(messageData[0]=='/' || messageData[0] == '\\')
+            offset = 1;
+        int num = atoi(messageData + offset);
+        setSky(num);
+    }
+}
+void GeoDataLoader::setSky(int selection)
+{
+    if (skyNode.get() != nullptr)
+        skyRootNode->removeChild(skyNode.get());
+    if (selection == 0)
+    {
+        skyNode = nullptr;
+    }
+    else
+    {
+        if (skyNode.get() != nullptr)
+            skyRootNode->removeChild(skyNode.get());
+        skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + skys->items()[selection] + ".wrl").c_str(), nullptr, skyRootNode);
+        cover->getScene()->addChild(skyRootNode);
 
+    }
+}
+
+bool GeoDataLoader::update()
+{
+    const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
+    //double x = m(0, 0);
+    //double y = m(1, 0);
+    //northAngle = -atan2(y, x);
+    //skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
+    float farValue = coVRConfig::instance()->farClip();
+    float scale = ((farValue) /20000)+500; // scale the sphere so that it stays a bit closer than the far clipping plane.
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    return false; // don't request that scene be re-rendered
+}
 GeoDataLoader *GeoDataLoader::instance()
 {
     if (!s_instance)
@@ -158,7 +354,7 @@ bool GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d offset)
         terrainTransform->addChild(terrain);
         terrainTransform->setPosition(-offset);
 
-        cover->getObjectsRoot()->addChild(terrainTransform);
+        rootNode->addChild(terrainTransform);
 
         const osg::BoundingSphere &terrainBS = terrain->getBound();
         std::cout << "Terrain BB: center: (" << terrainBS.center()[0] << ", " << terrainBS.center()[1] << ", " << terrainBS.center()[2] << "), radius: " << terrainBS.radius() << std::endl;

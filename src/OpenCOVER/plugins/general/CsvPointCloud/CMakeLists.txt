@@ -7,9 +7,9 @@ SET(HEADERS
   CsvPointCloud.h
   DataTable.h  
   Interactor.h
+  OctUtils.h
   RenderObject.h
   SurfacePrimitiveSet.h
-  exprtk.hpp
 )
 
 SET(SOURCES
@@ -17,11 +17,10 @@ SET(SOURCES
   CsvPointCloud.cpp
   DataTable.cpp
   Interactor.cpp
+  OctUtils.cpp
   RenderObject.cpp  
 )
 
 cover_add_plugin(CsvPointCloud)
-target_link_libraries(CsvPointCloud Boost::timer)
-if(MSVC)
-  target_compile_options(CsvPointCloud PRIVATE /bigobj)
-endif()
+target_link_libraries(CsvPointCloud Boost::timer exprtk)
+

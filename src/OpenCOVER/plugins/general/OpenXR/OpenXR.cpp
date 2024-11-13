@@ -33,7 +33,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <osg/Texture2D>
 #include <osg/GraphicsContext>
 #include <osgViewer/GraphicsWindow>
-#include <osgViewer/api/Win32/GraphicsWindowWin32>
+//#include <osgViewer/api/Win32/GraphicsWindowWin32>
 
 using namespace opencover;
 #define OPENXR_CHECK_RETURN(x, y)                                                                                                                                  \

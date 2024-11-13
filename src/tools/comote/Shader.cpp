@@ -84,7 +84,7 @@ printGLError(const char *msg)
 {
     while (GLenum err = glGetError())
     {
-        const GLubyte *str = gluErrorString(err);
+        const GLubyte *str = glewGetErrorString(err);
         qDebug() << "GL error:" << msg << "-" << str;
     }
 }

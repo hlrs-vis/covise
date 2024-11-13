@@ -1,0 +1,354 @@
+<?xml version="1.0"?>
+
+<system name="VerticalStabilizer">
+
+ <!-- initialization -->
+ <property value="0"> systems/Stabilizer/vstab_enable </property>
+
+ <!-- variables
+  aero/beta-deg: angle between flow and datum
+  aero/beta-eff-deg: angle between flow and keel (keel and datum can differ on ground)
+  systems/Stabilizer/vstab_beta-deg: angle between vstab and keel
+  systems/Stabilizer/vstab_beta_rel-deg: angle between relative flow (at vstab position) and datum
+  aero/beta-eff-vstab-deg: angle between relative flow (at vstab position) and vstab chord
+                           (angle in vstab-body-system)
+  v: velocity component in ??? system (v is positive to the LEFT)
+  systems/Stabilizer/vstab_location-xb-ft in body system (positive to the tail)
+  systems/Stabilizer/vstab_location-yb-ft in body system (positive to the right)
+  systems/Stabilizer/CSbeta_rel-vstab: Side force of vstab (positive to the LEFT)
+  systems/Stabilizer/CY-vstab: Side force in body system (normal to keel; positive to the right)
+  systems/Stabilizer/CA-vstab: Axial force in body system (positive to the back)
+  systems/Stabilizer/CYbeta-vstab: Side force in wind system (normal to flow; positive to the right)
+  systems/Stabilizer/CDbeta-vstab: Drag in wind system (in flow direction; positive to the back)
+
+  Beware: Positve beta leads to negative CY. This leads to modified rotation formulars
+
+  Note: This implementation accounts implicitly for the aerodamping of the stabilizer because
+        the RELATIVE flow vector (flow + induced flow due to yaw-rate) is used
+ -->
+
+
+ <channel name="vertical stabilizer" execute="systems/Stabilizer/vstab_enable">
+
+
+  <fcs_function name="systems/Stabilizer/vstab_v_rel-fts">
+   <function>
+    <description>Relative velocity for vstab: v + (v due to beta_dot) (Pivot C.G.)</description>
+    <sum>
+     <property>velocities/v-aero-fps</property>
+     <product>
+      <difference>
+       <property>systems/Stabilizer/vstab_location-xb-ft</property>
+       <product>
+        <property>inertia/cg-x-in</property>
+        <value>0.083333</value>
+       </product>
+      </difference>
+      <property>velocities/r-rad_sec</property>
+      <value>-1</value>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/vstab_u_rel-fts">
+   <function>
+    <description>Relative velocity for vstab: u + (u due to alpha_dot) (Pivot C.G.)</description>
+    <sum>
+     <property>velocities/u-aero-fps</property>
+     <product>
+      <difference>
+       <property>systems/Stabilizer/vstab_location-yb-ft</property>
+       <product>
+        <property>inertia/cg-y-in</property>
+        <value>0.083333</value>
+       </product>
+      </difference>
+      <property>velocities/r-rad_sec</property>
+      <value>-1</value>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/vstab_beta_rel-deg">
+   <function>
+    <description>Relative angle of attack for vstab</description>
+    <todegrees>
+     <atan2>
+      <property>systems/Stabilizer/vstab_v_rel-fts</property>
+      <property>systems/Stabilizer/vstab_u_rel-fts</property>
+     </atan2>
+    </todegrees>
+   </function>
+  </fcs_function>
+
+  <summer name="aero/beta-eff-vstab-deg">
+   <input>systems/Stabilizer/vstab_deflection-deg</input>
+   <input>systems/Stabilizer/vstab_beta_rel-deg</input>
+   <input>-aero/beta-deg</input>
+   <input>aero/beta-eff-deg</input>
+  </summer>
+
+  <!--
+  <summer name="aero/beta-eff-vstab-deg">
+   <input>systems/Stabilizer/vstab_deflection-deg</input>
+   <input>aero/beta-eff-deg</input>
+  </summer>
+  -->
+
+
+  <fcs_function name="systems/Stabilizer/vstab_qbarUV-psf">
+   <function>
+    <description>Relative dynamic pressure for vstab</description>
+    <product>
+     <value>0.5</value>
+     <property>atmosphere/rho-slugs_ft3</property>
+     <sum>
+      <pow>
+       <property>systems/Stabilizer/vstab_u_rel-fts</property>
+       <value>2</value>
+      </pow>
+      <pow>
+       <property>systems/Stabilizer/vstab_v_rel-fts</property>
+       <value>2</value>
+      </pow>
+     </sum>
+    </product>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CSbeta_rel-vstab">
+   <function>
+    <description>
+     Vertical Stabilizer: Side_Force_due_to_beta (Ref 8: NACA0009 Re=360.000)
+     CSbeta-vstab is positive to the left (CSbeta is positive for positive beta)
+     CYbeta-vstab is positive to the right (CYbeta is negative for positive beta)
+    </description>
+    <product>
+     <property>systems/Stabilizer/vstab_qbarUV-psf</property>
+     <property>systems/Stabilizer/Sv-sqft</property>
+     <table>
+      <independentVar lookup="row">aero/beta-eff-vstab-deg</independentVar>
+      <tableData>
+        -180.  0.0
+        -170.  0.8
+        -160.  0.68
+        -150.  0.86
+        -140.  0.98
+        -130.  0.9
+        -120.  0.8
+         -90.  0.0
+         -60. -0.9
+         -50. -1.05
+         -40. -1.1
+         -30. -0.95
+         -20. -0.73
+         -15. -0.7
+         -10. -0.8
+          -5. -0.48
+           0.  0.0
+           5.  0.48
+          10.  0.8
+          15.  0.7
+          20.  0.73
+          30.  0.95
+          40.  1.1
+          50.  1.05
+          60.  0.9
+          90.  0.0
+         120. -0.8
+         130. -0.9
+         140. -0.98
+         150. -0.86
+         160. -0.68
+         170. -0.8
+         180.  0.0
+      </tableData>
+     </table>
+    </product>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CDbeta_rel-vstab">
+   <function>
+    <description>Vertical Stabilizer: Drag_due_to_beta (Ref 8: NACA0009 Re=360.000)</description>
+    <product>
+     <property>systems/Stabilizer/vstab_qbarUV-psf</property>
+     <property>systems/Stabilizer/Sh-sqft</property>
+     <table>
+      <independentVar lookup="row">aero/beta-eff-vstab-deg</independentVar>
+      <tableData>
+        -180. 0
+        -170. 0.1
+        -160. 0.3
+        -150. 0.58
+        -130. 1.25
+        -110. 1.7
+         -90. 1.8
+         -70. 1.7
+         -60. 1.5
+         -50. 1.26
+         -40. 0.9
+         -30. 0.6
+         -20. 0.3
+         -10. 0.04
+          -5. 0.011
+           0. 0.006
+           5. 0.011
+          10. 0.04
+          20. 0.3
+          30. 0.6
+          40. 0.9
+          50. 1.26
+          60. 1.5
+          70. 1.7
+          90. 1.8
+         110. 1.7
+         130. 1.25
+         150. 0.58
+         160. 0.3
+         170. 0.1
+         180. 0
+      </tableData>
+     </table>
+    </product>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CY-vstab">
+   <function>
+    <description>
+     Side force in glider-system (normal to keel/body system)
+     CY-vstab is positive to the right (CY is negative for positive beta)
+    </description>
+    <product>
+     <value>-1</value>
+     <sum>
+      <product>
+       <property>systems/Stabilizer/CSbeta_rel-vstab</property>
+       <cos>
+        <toradians>
+         <property>systems/Stabilizer/vstab_beta_rel-deg</property>
+        </toradians>
+       </cos>
+      </product>
+      <product>
+       <property>systems/Stabilizer/CDbeta_rel-vstab</property>
+       <sin>
+        <toradians>
+         <property>systems/Stabilizer/vstab_beta_rel-deg</property>
+        </toradians>
+       </sin>
+      </product>
+     </sum>
+    </product>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CA-vstab">
+   <function>
+    <description>Axial force in glider system (body system)</description>
+    <difference>
+     <product>
+      <property>systems/Stabilizer/CDbeta_rel-vstab</property>
+      <cos>
+       <toradians>
+        <property>systems/Stabilizer/vstab_beta_rel-deg</property>
+       </toradians>
+      </cos>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CSbeta_rel-vstab</property>
+      <sin>
+       <toradians>
+        <property>systems/Stabilizer/vstab_beta_rel-deg</property>
+       </toradians>
+      </sin>
+     </product>
+    </difference>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/Cn-vstab">
+   <function>
+    <description>
+     Moment due to Vertical Stabilizer (Pivot Hang Point)
+     z-axis points downwards
+    </description>
+    <difference>
+     <product>
+      <property>systems/Stabilizer/CA-vstab</property>
+      <property>systems/Stabilizer/vstab_location-yb-ft</property>
+     </product>
+     <product>
+      <property>systems/Stabilizer/CY-vstab</property>
+      <property>systems/Stabilizer/vstab_location-xb-ft</property>
+     </product>
+    </difference>
+   </function>
+  </fcs_function>
+
+
+  <fcs_function name="systems/Stabilizer/CYbeta-vstab">
+   <function>
+    <description>
+     Side force in glider-system (wind system)
+     Side force (CYbeta) is positive to the right (CYbeta-vstab is negative for positive beta)
+    </description>
+    <product>
+     <value>-1</value>
+     <difference>
+      <product>
+       <property>systems/Stabilizer/CY-vstab</property>
+       <value>-1</value>
+       <cos>
+        <toradians>
+         <property>aero/beta-deg</property>
+        </toradians>
+       </cos>
+      </product>
+      <product>
+       <property>systems/Stabilizer/CA-vstab</property>
+       <sin>
+        <toradians>
+         <property>aero/beta-deg</property>
+        </toradians>
+       </sin>
+      </product>
+     </difference>
+    </product>
+   </function>
+  </fcs_function>
+
+  <fcs_function name="systems/Stabilizer/CDbeta-vstab">
+   <function>
+    <description>Drag in glider-system (wind system)</description>
+    <sum>
+     <product>
+      <property>systems/Stabilizer/CA-vstab</property>
+      <cos>
+       <toradians>
+        <property>aero/beta-deg</property>
+       </toradians>
+      </cos>
+     </product>
+     <product>
+      <value>-1</value>
+      <property>systems/Stabilizer/CY-vstab</property>
+      <sin>
+       <toradians>
+        <property>aero/beta-deg</property>
+       </toradians>
+      </sin>
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+ </channel>
+
+</system>

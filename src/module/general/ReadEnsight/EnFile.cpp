@@ -180,7 +180,7 @@ EnFile::EnFile(ReadEnsight *mod, const BinType &binType)
 {
 }
 
-EnFile::EnFile(ReadEnsight *mod, const string &name, const int &dim, const BinType &binType)
+EnFile::EnFile(ReadEnsight *mod, const string &name, const unsigned int &dim, const BinType &binType)
     : fileMayBeCorrupt_(false)
     , className_(string("EnFile"))
     , isOpen_(false)
@@ -327,8 +327,8 @@ EnFile::binType()
         char buf[81];
         buf[80] = '\0';
         char c;
-        int j(0);
-        for (int i = 0; i < 80; ++i)
+        unsigned int j(0);
+        for (unsigned int i = 0; i < 80; ++i)
         {
             c = fgetc(in_);
             if (c > 0 && static_cast<unsigned char>(c) < 255 && isprint(c))
@@ -382,7 +382,7 @@ EnFile::skipFloat(const uint64_t &n)
 {
     if (binType_ == EnFile::FBIN)
     { // check for block markers
-        int ilen(getIntRaw());
+        unsigned int ilen(getuIntRaw());
 
 #ifdef WIN32
         _fseeki64(in_, ilen, SEEK_CUR);
@@ -390,7 +390,7 @@ EnFile::skipFloat(const uint64_t &n)
         fseek(in_, ilen, SEEK_CUR);
 #endif
 
-        int olen(getIntRaw());
+        unsigned int olen(getuIntRaw());
         if ((ilen != olen))
         {
 #ifdef WIN32
@@ -417,14 +417,14 @@ EnFile::skipInt(const uint64_t&n)
 {
     if (binType_ == EnFile::FBIN)
     { // check for block markers
-        int ilen(getIntRaw());
+        unsigned int ilen(getuIntRaw());
 #ifdef WIN32
         _fseeki64(in_, n * 4, SEEK_CUR);
 #else
         fseek(in_, n * 4, SEEK_CUR);
 #endif
 
-        int olen(getIntRaw());
+        unsigned int olen(getuIntRaw());
         if ((ilen != olen) || (ilen != n * 4))
         {
 #ifdef WIN32
@@ -447,15 +447,15 @@ EnFile::skipInt(const uint64_t&n)
 string
 EnFile::getStr()
 {
-    const int strLen(80);
+    const unsigned int strLen(80);
     char buf[81];
     buf[80] = '\0';
-    int olen(0);
+    unsigned int olen(0);
     string ret;
 
     if (binType_ == EnFile::FBIN)
     {
-        int ilen(getIntRaw());
+        unsigned int ilen(getuIntRaw());
         if (feof(in_))
         {
             //end of file reached
@@ -464,7 +464,7 @@ EnFile::getStr()
         //automatic byteorder detection
         if (ilen == 0)
         {
-            olen = getIntRaw();
+            olen = getuIntRaw();
             cerr << "WARNING: EnFile::getStr(): empty string" << endl;
             if (olen != 0)
             {
@@ -497,7 +497,7 @@ EnFile::getStr()
             cerr << "ERROR: EnFile::getStr(): end of file during read of a fortran string of length 80" << endl;
             return ret;
         }
-        olen = getIntRaw();
+        olen = getuIntRaw();
         if (ilen != olen)
         {
 #ifdef WIN32
@@ -509,7 +509,7 @@ EnFile::getStr()
     }
     else
     {
-        for (int i = 0; i < strLen; ++i)
+        for (unsigned int i = 0; i < strLen; ++i)
         {
             buf[i] = fgetc(in_);
         }
@@ -537,6 +537,34 @@ EnFile::getInt()
     return ret;
 }
 
+unsigned int
+EnFile::getuInt()
+{
+    int ret;
+    if (binType_ == EnFile::FBIN)
+    {
+        getuIntRaw();
+        ret = getuIntRaw();
+        getuIntRaw();
+    }
+    else
+    {
+        ret = getuIntRaw();
+    }
+    return ret;
+}
+unsigned int
+EnFile::getuIntRaw()
+{
+    unsigned int ret = 0;
+    fread(&ret, 4, 1, in_); // read a 4 byte integer
+    if (byteSwap_)
+    {
+        byteSwap(ret);
+    }
+    return ret;
+}
+
 int
 EnFile::getIntRaw()
 {
@@ -549,19 +577,18 @@ EnFile::getIntRaw()
     return ret;
 }
 
-int *
-EnFile::getIntArr(const uint64_t &n, int *iarr)
+void EnFile::getuIntArr(const uint64_t &n, unsigned int *iarr)
 {
     if ((n == 0) || (iarr == NULL))
-        return NULL;
+        return;
 
     if (binType_ == EnFile::FBIN)
     {
         if (in_)
         {
-            int ilen(getIntRaw());
+            unsigned int ilen(getuIntRaw());
             getIntArrHelper(n, iarr);
-            int olen(getIntRaw());
+            unsigned int olen(getuIntRaw());
             if ((ilen != olen) && (!feof(in_)))
             {
 #ifdef WIN32
@@ -580,11 +607,45 @@ EnFile::getIntArr(const uint64_t &n, int *iarr)
         getIntArrHelper(n, iarr);
     }
 
+    return;
+}
+
+int *
+EnFile::getIntArr(const uint64_t &n, int *iarr)
+{
+    if ((n == 0) || (iarr == NULL))
+        return NULL;
+
+    if (binType_ == EnFile::FBIN)
+    {
+        if (in_)
+        {
+            int ilen(getIntRaw());
+            getIntArrHelper(n, (unsigned int *)iarr);
+            int olen(getIntRaw());
+            if ((ilen != olen) && (!feof(in_)))
+            {
+#ifdef WIN32
+                DebugBreak();
+#endif
+                cerr << "EnFile::getIntArr(..) length mismatch (fortran) " << endl;
+            }
+        }
+        else
+        {
+            cerr << "EnFile::getIntArr(..) stream not in good condition" << endl;
+        }
+    }
+    else
+    {
+        getIntArrHelper(n, (unsigned int *)iarr);
+    }
+
     return NULL;
 }
 
 void
-EnFile::getIntArrHelper(const uint64_t &n, int *iarr)
+EnFile::getIntArrHelper(const uint64_t &n, unsigned int *iarr)
 {
     //////////////////////////// quick workaround (the original code doesn't work if n*sizeof(int) exceeds maxint)
     // TODO: we now use fread() -> is this still nescessary?
@@ -603,7 +664,7 @@ EnFile::getIntArrHelper(const uint64_t &n, int *iarr)
     }
     ////////////////////////////
 
-    const int len(sizeof(int));
+    const unsigned int len(sizeof(int));
     char *buf = new char[n * len];
 
     fread(buf, len, n, in_);
@@ -630,14 +691,14 @@ EnFile::getFloatArr(const uint64_t &n, float *farr)
     if ((n == 0) || (farr == NULL))
         return NULL;
 
-    const int len(sizeof(float));
+    const unsigned int len(sizeof(float));
     char *buf = new char[n * len];
     bool eightBytePerFloat = false;
 
     if (binType_ == EnFile::FBIN)
     {
-        int ilen(getIntRaw());
-        int olen;
+        unsigned int ilen(getuIntRaw());
+        unsigned int olen;
 
         // we may have obtained double arrays
         // unfortionately ifstream.read will read only basic types
@@ -650,12 +711,12 @@ EnFile::getFloatArr(const uint64_t &n, float *farr)
             delete[] buf;
             buf = new char[ilen];
             fread(buf, 8, n, in_);
-            olen = getIntRaw();
+            olen = getuIntRaw();
             if (byteSwap_)
                 byteSwap((uint64_t *)buf, n);
             memcpy(dummyArr, buf, ilen);
             cerr << "got 64-bit floats" << endl;
-            int i;
+            unsigned int i;
             if (farr != NULL)
                 for (i = 0; i < n; ++i)
                     farr[i] = (float)dummyArr[i];
@@ -664,7 +725,7 @@ EnFile::getFloatArr(const uint64_t &n, float *farr)
         else
         {
             fread(buf, len, n, in_);
-            olen = getIntRaw();
+            olen = getuIntRaw();
         }
         if ((ilen != olen) && (!feof(in_)))
         {
@@ -692,7 +753,7 @@ EnFile::getFloatArr(const uint64_t &n, float *farr)
 
 // find a part by its part number
 EnPart *
-EnFile::findPart(const int &partNum) const
+EnFile::findPart(const unsigned int &partNum) const
 {
     if (partList_ != NULL)
     {
@@ -707,7 +768,7 @@ EnFile::findPart(const int &partNum) const
 }
 
 void
-EnFile::resetPart(const int &partNum, EnPart *p)
+EnFile::resetPart(const unsigned int &partNum, EnPart *p)
 {
     if (partList_ != NULL)
     {
@@ -725,7 +786,7 @@ EnFile::resetPart(const int &partNum, EnPart *p)
 
 // find a part by its part number in the master part list
 EnPart
-EnFile::findMasterPart(const int &partNum) const
+EnFile::findMasterPart(const unsigned int &partNum) const
 {
 	unsigned int i;
 	for (i = 0; i < ens->masterPL_.size(); ++i)
@@ -792,7 +853,7 @@ EnFile::buildParts(const bool &isPerVert)
         }
 
         // now copy the part arrays to the data container
-        int cnt(0);
+        unsigned int cnt(0);
         for (i = 0; i < partList_->size(); ++i)
         {
             EnPart &p((*partList_)[i]);
@@ -804,7 +865,7 @@ EnFile::buildParts(const bool &isPerVert)
                 else
                     numEle = p.getTotNumEle();
 
-                int j;
+                unsigned int j;
                 switch (dim_)
                 {
                 case 1:
@@ -896,7 +957,7 @@ EnFile::sendPartsToInfo()
     strcpy(ostr, "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
     ens->sendInfo("%s", ostr);
 
-    int cnt(0);
+    unsigned int cnt(0);
     if (partList_ != NULL)
     {
         vector<EnPart>::iterator pos(partList_->begin());

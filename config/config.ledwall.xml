@@ -10,8 +10,8 @@
     <Viewport width="3840" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
     <Viewport width="3840" height="1" left="3840" bottom="0" windowIndex="0" channelIndex="1" name="1"  /> </ViewportConfig>
    <ChannelConfig>
-    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
-    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
    </ChannelConfig>
 
    <WindowConfig>
@@ -19,7 +19,7 @@
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
    <PipeConfig>
-       <Pipe name="0" useDISPLAY="false" screen="0" server="1"/>
+       <Pipe name="0" useDISPLAY="true" screen="0" server="1"/>
        <Pipe name="1" useDISPLAY="false" screen="1" server="1"/>
    </PipeConfig>
    

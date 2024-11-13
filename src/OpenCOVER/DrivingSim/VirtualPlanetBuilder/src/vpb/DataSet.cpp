@@ -1187,6 +1187,10 @@ bool DataSet::requiresReprojection()
 
         if (source && source->needReproject(_intermediateCoordinateSystem.get()))
         {
+            std::cerr << "file: " << source->getFileName() << std::endl;
+            std::cerr << "expected:" << _intermediateCoordinateSystem.get()->getFormat() << std::endl;
+            std::cerr << "got:" << source->getCoordinateSystem()->getFormat() << std::endl;
+            // it would work if we convert on the fly but conversion would need to be done multiple times, at least for every level, thus it is better to convert the files before return false;
             return true;
         }
     }

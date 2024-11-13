@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- 
+-->
+
+<system name="CG">
+
+  <property value="11.905">metrics/reference-datum-m</property>
+  <property value="10.0895">metrics/leading-edge-arm-m</property>
+  <property value="10.594">metrics/base-arm-m</property>
+
+  <channel name="Center of Gravity">
+
+    <!-- the center of gravity as arm from reference datum -->
+    <fcs_function name="inertia/cg-x-arm-m">
+      <function>
+        <sum>
+          <property>metrics/reference-datum-m</property>
+          <product>
+            <property>inertia/cg-x-in</property>
+            <value>0.0254</value>
+          </product>
+        </sum>
+      </function>
+    </fcs_function>
+
+    <!-- the center of gravity as percentage mac -->
+    <fcs_function name="inertia/cg-x-mac-percent">
+      <function>
+        <quotient>
+          <difference>
+            <property>inertia/cg-x-arm-m</property>
+            <property>metrics/leading-edge-arm-m</property>
+          </difference>
+          <value>0.02427</value>
+        </quotient>
+      </function>
+    </fcs_function>
+
+    <!-- the center of gravity as index -->
+    <fcs_function name="inertia/cg-x-index">
+      <function>
+        <product>
+          <difference>
+            <property>inertia/cg-x-arm-m</property>
+            <property>metrics/base-arm-m</property>
+          </difference>
+          <property>inertia/weight-lbs</property>
+          <value>0.004545</value>
+        </product>
+      </function>
+    </fcs_function>
+
+  </channel>
+
+</system>

@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!-- 
+  - two engine driven starter generators, 350A
+  - two batteries (NiCd,24V,25Ah)
+  - one apu starter generator (if equipped)
+  - one ground power receptacle
+
+  operations manual 18.3 page 18.3-1 (427) ff
+
+  generator output voltage 28.5V
+-->
+
+<system name="DC">
+
+  <property>/systems/electrical/bus[0]/battery[0]/current-a</property>
+  <property>/systems/electrical/bus[0]/battery[1]/current-a</property>
+  <property>/systems/electrical/bus[1]/generator[0]/current-a</property>
+  <property>/systems/electrical/bus[1]/generator[1]/current-a</property>
+  <property>/systems/electrical/bus[0]/voltage-v</property>
+
+  <channel name="Instrument normalization">
+
+    <fcs_function name="systems/overhead-panel/dc-amps/i1-norm">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[0]/battery[0]/current-a</property>
+          <value>150</value>
+        </quotient>
+      </function>
+      <clipto>
+        <min>-1.0</min>
+        <max>1.0</max>
+      </clipto>
+      <output>/instrumentation/overhead-panel/dc-amps/i1-norm</output>
+    </fcs_function>
+
+    <fcs_function name="systems/overhead-panel/dc-amps/i2-norm">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[0]/battery[1]/current-a</property>
+          <value>150</value>
+        </quotient>
+      </function>
+      <clipto>
+        <min>-1.0</min>
+        <max>1.0</max>
+      </clipto>
+      <output>/instrumentation/overhead-panel/dc-amps/i2-norm</output>
+    </fcs_function>
+
+    <fcs_function name="systems/overhead-panel/dc-amps/i3-norm">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[1]/generator[0]/current-a</property>
+          <value>500</value>
+        </quotient>
+      </function>
+      <clipto>
+        <min>0.0</min>
+        <max>1.0</max>
+      </clipto>
+      <output>/instrumentation/overhead-panel/dc-amps/i3-norm</output>
+    </fcs_function>
+
+    <fcs_function name="systems/overhead-panel/dc-amps/i4-norm">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[1]/generator[1]/current-a</property>
+          <value>500</value>
+        </quotient>
+      </function>
+      <clipto>
+        <min>0.0</min>
+        <max>1.0</max>
+      </clipto>
+      <output>/instrumentation/overhead-panel/dc-amps/i4-norm</output>
+    </fcs_function>
+
+  </channel>
+
+  <channel name="Gyro supply normalization">
+
+    <!-- provide "power" for electricat gyros -->
+    <fcs_function name="systems/electrical/left-ai-gyro">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[0]/voltage-v</property>
+          <value>5.18182</value> <!-- scale 28.5 down to 5.5  -->
+        </quotient>
+      </function>
+      <output>/instrumentation/attitude-indicator[0]/power</output>
+    </fcs_function>
+
+    <fcs_function name="systems/electrical/right-ai-gyro">
+      <function>
+        <quotient>
+          <property>/systems/electrical/bus[0]/voltage-v</property>
+          <value>5.18182</value> <!-- scale 28.5 down to 5.5  -->
+        </quotient>
+      </function>
+      <output>/instrumentation/attitude-indicator[1]/power</output>
+    </fcs_function>
+
+  </channel>
+
+</system>

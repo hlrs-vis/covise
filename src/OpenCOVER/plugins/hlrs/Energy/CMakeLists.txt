@@ -1,9 +1,9 @@
 USING(PROJ)
 USING(GDAL)
-find_package(nlohmann_json 3.10.0)
+covise_find_package(nlohmann_json 3.10.0)
 
 if (NOT nlohmann_json_FOUND)
-    message("nlohmann_json not found")
+    #message("nlohmann_json not found")
     return()
 endif()
 
@@ -13,13 +13,14 @@ SET(HEADERS
     DeviceSensor.h
     EnnovatisDevice.h
     EnnovatisDeviceSensor.h
+    CityGMLDeviceSensor.h
 )
 SET(SOURCES
     Energy.cpp
     Device.cpp
-    DeviceSensor.cpp
     EnnovatisDevice.cpp
     EnnovatisDeviceSensor.cpp
+    CityGMLDeviceSensor.cpp
 )
 
 add_subdirectory(core)

@@ -45,6 +45,11 @@
 #ifdef USE_QT
 #include <QObject>
 #include <QMetaType>
+
+#include <osg/Node>
+#include <osg/Group>
+#include <osg/MatrixTransform>
+
 Q_DECLARE_METATYPE(std::string)
 #define QT(x) x
 #else
@@ -830,6 +835,9 @@ private:
     std::string showhidePath;
     std::string showhideParentPath;
 
+    std::vector<std::string> parsePathString(std::string path);
+    osg::Node* getNode(std::string path);
+
 public:
     float diffuse[4];
     float specular[4];
@@ -864,6 +872,11 @@ public:
     virtual void updateShaderOutputType(std::string shader, int);
     virtual void updateShaderInputType(std::string shader, int);
 
+    virtual void addNode(const char* nodePath, int nodeType);
+    virtual void removeNode(const char* nodePath, const char* parent_nodePath);
+    virtual void moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex);
+    virtual void renameNode(const char* nodePath, const char* nodeNewName);
+
     virtual const std::string &getFindName() const
     {
         return findName;
@@ -876,6 +889,7 @@ public:
     {
         return sendImageMode;
     }
+
     virtual osg::Node *getCurrentNode()
     {
         return currentNode;

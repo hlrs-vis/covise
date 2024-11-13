@@ -2260,7 +2260,7 @@ void Track::update()
 				int i, length=0;
 				unsigned short revents;
 				int err;
-				if(MidiPlugin::instance()->hMidiDevice[trackNumber]>0)
+				if(MidiPlugin::instance()->hMidiDevice[trackNumber]!=nullptr)
 				{
 
 				     numRead=1;

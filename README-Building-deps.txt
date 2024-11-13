@@ -59,7 +59,7 @@ get SGI Inventor
 change include directories and lib directories to externlibs/freetype and zlib
 replace abs with fabs in source code
 remove #ifndef Win32 from image.h
-compile debug and release and manually copy to externlibs/zebu/inventor
+compile c anityd release and manually copy to externlibs/zebu/inventor
 
 #Coin 3.1.3
 set COINDIR=c:\src\externlibs\zebu\coin3d
@@ -815,3 +815,19 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 ##########
 anari
 cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/anari -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph
+
+#########
+##exprtk
+git clone https://github.com/ArashPartow/exprtk.git
+cd exprtk
+mkdir c:\src\externlibs\zebu\exprtk
+mkdir c:\src\externlibs\zebu\exprtk\include
+copy exprtk.hpp c:\src\externlibs\zebu\exprtk\include
+
+
+############
+###
+cesium native
+
+git clone https://github.com/CesiumGS/cesium-native.git --recurse-submodules
+cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cesium -DCMAKE_DEBUG_POSTFIX=d  -DCESIUM_TESTS_ENABLED=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/glfw;c:/src/externlibs/zebu/OpenSceneGraph

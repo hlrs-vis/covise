@@ -43,8 +43,9 @@
 #include <stdlib.h>
 #ifdef WIN32
 #else
-
+#ifdef HAVE_ALSA
 #include <alsa/asoundlib.h>
+#endif
 #endif
 
 #define BINSIZE 1024

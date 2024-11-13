@@ -16,11 +16,42 @@
 namespace minirr
 {
 
-enum WaitFlag { Wait, Async, };
-struct RenderState;
+struct State;
 
 typedef float Mat4[16];
 typedef float AABB[6];
+
+struct Viewport
+{
+  int32_t x{0}, y{0}, width{1}, height{1};
+};
+
+struct Camera
+{
+  Mat4 modelMatrix, viewMatrix, projMatrix;
+};
+
+struct Param
+{
+  std::string name;
+  int type;
+  uint8_t *value{nullptr};
+  unsigned sizeInBytes{0};
+};
+
+struct Transfunc
+{
+  float *rgb{nullptr};
+  float *alpha{nullptr};
+
+  uint32_t numRGB{0};
+  uint32_t numAlpha{0};
+
+  float absRange[2]{0.f, 1.f};
+  float relRange[2]{0.f, 1.f};
+
+  float opacityScale{1.f};
+};
 
 struct MiniRR
 {
@@ -36,29 +67,36 @@ struct MiniRR
 
   bool connectionClosed();
 
-  void sendNumChannels(int numChannels, WaitFlag flag = Wait);
+  void sendNumChannels(const int &numChannels);
   void recvNumChannels(int &numChannels);
-  bool numChannelsRequested();
 
-  void sendBounds(AABB bounds, WaitFlag flag = Wait);
+  void sendObjectUpdates(const uint64_t &objectUpdates);
+  void recvObjectUpdates(uint64_t &objectUpdates);
+
+  void sendViewport(const Viewport &viewport);
+  void recvViewport(Viewport &viewport);
+
+  void sendCamera(const Camera &camera);
+  void recvCamera(Camera &camera);
+
+  void sendBounds(const AABB &bounds);
   void recvBounds(AABB &bounds);
-  bool boundsRequested();
+
+  void sendAnimation(const int &timeStep, const int &numTimeSteps);
+  void recvAnimation(int &timeStep, int &numTimeSteps);
+
+  void sendAppParams(const Param *params, unsigned numParams);
+  void recvAppParams(Param *params, unsigned &numParams);
+
+  void sendTransfunc(const Transfunc &transfunc);
+  void recvTransfunc(Transfunc &transfunc);
  
-  void sendSize(int w, int h, WaitFlag flag = Wait);
-  void recvSize(int &w, int &h);
-  bool sizeRequested();
-
-  void sendCamera(Mat4 modelMatrix, Mat4 viewMatrix, Mat4 projMatrix, WaitFlag flag = Wait);
-  void recvCamera(Mat4 &modelMatrix, Mat4 &viewMatrix, Mat4 &projMatrix);
-  bool cameraRequested();
-
-  void sendImage(const uint32_t *img, int width, int height, WaitFlag flag = Wait);
-  void recvImage(uint32_t *img, int &width, int &height);
-  bool imageRequested();
+  void sendImage(const uint32_t *img, int width, int height, int jpegQuality);
+  void recvImage(uint32_t *img, int &width, int &height, int jpegQuality);
 
  private:
 
-  std::unique_ptr<RenderState> renderState;
+  std::unique_ptr<State> sendState, recvState;
 
   Mode mode{Uninitialized};
 
@@ -73,12 +111,20 @@ struct MiniRR
       ConnectionEstablished, // internal!
       SendNumChannels,
       RecvNumChannels,
-      SendBounds,
-      RecvBounds,
-      SendSize,
-      RecvSize,
+      SendObjectUpdates,
+      RecvObjectUpdates,
+      SendViewport,
+      RecvViewport,
       SendCamera,
       RecvCamera,
+      SendBounds,
+      RecvBounds,
+      SendAnimation,
+      RecvAnimation,
+      SendAppParams,
+      RecvAppParams,
+      SendTransfunc,
+      RecvTransfunc,
       SendImage,
       RecvImage,
       Unknown,

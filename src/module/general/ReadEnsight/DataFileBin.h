@@ -32,8 +32,8 @@ public:
     DataFileBin(ReadEnsight *mod);
     DataFileBin(ReadEnsight *mod,
                 const string &name,
-                const int &dim,
-                const int &numVals,
+                const unsigned int &dim,
+                const unsigned int &numVals,
                 const EnFile::BinType &binType = CBIN);
 
     void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
@@ -43,9 +43,9 @@ public:
     virtual coDistributedObject *getDataObject(std::string s);
 
 private:
-    int dim_;
-    int lineCnt_; // actual linecount
-    int numVals_; // number of values
-    int *indexMap_; // may contain indexMap
+    unsigned int dim_;
+    unsigned int lineCnt_; // actual linecount
+    unsigned int numVals_; // number of values
+    unsigned int *indexMap_; // may contain indexMap
 };
 #endif

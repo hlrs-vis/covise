@@ -25,6 +25,8 @@ SET(HEADERS
   readPLY.h
   rply.h
   rplyfile.h
+  coTransfuncEditor.h
+  ColorMaps.h
 )
 SET(SOURCES
   asg.cpp
@@ -33,12 +35,12 @@ SET(SOURCES
   ui_anari.cpp
   hdri.cpp
   rply.c
+  coTransfuncEditor.cpp
+  ColorMaps.cpp
 )
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
-if(COVISE_USE_CUDA)
-  enable_language(CUDA)
-  find_package(CUDAToolkit)
+if(CUDA_FOUND)
   target_compile_definitions(ANARIPlugin PUBLIC -DANARI_PLUGIN_HAVE_CUDA=1)
   target_link_libraries(ANARIPlugin CUDA::cudart)
   target_sources(ANARIPlugin PRIVATE Projection.cu)

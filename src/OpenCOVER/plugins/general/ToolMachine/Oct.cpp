@@ -5,13 +5,16 @@
 #include <OpcUaClient/opcuaClient.h>
 #include <osg/Point>
 #include <osg/VertexArrayState>
+
+#include "../CsvPointCloud/OctUtils.h"
+
 using namespace opencover;
 
 constexpr unsigned int allPointsPrimitiveIndex = 0;
 constexpr unsigned int reducedPointsPrimitiveIndex = 1;
 
-Oct::Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: Tool(group, toolHeadNode, tableNode)
+Oct::Oct(opencover::ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+: ToolModel(group, file, toolHeadNode, tableNode)
 , m_pointSizeSlider(new ui::Slider(group, "pointSize"))
 , m_showSurfaceBtn(new ui::Button(group, "showSurface"))
 , m_switchVecScalar(new ui::Button(group, "toggleData"))
@@ -24,11 +27,10 @@ Oct::Oct(opencover::ui::Group *group, osg::MatrixTransform *toolHeadNode, osg::M
         for(auto &section : m_sections)
             static_cast<osg::Point *>(section.points->getStateSet()->getAttribute(osg::StateAttribute::Type::POINT))->setSize(m_pointSizeSlider->value());
     });
-    m_attributeName->setCallback([this](int i){
-        m_opcuaAttribId = m_client->observeNode(m_attributeName->selectedItem());
-    });
-    m_numSectionsSlider->setCallback([this](ui::Slider::ValueType val, bool b){
+
+    m_numSectionsSlider->setUpdater([this](){
         Section::Visibility vis = Section::Visible;
+        auto val = m_numSectionsSlider->getValue();
         if(!m_showSurfaceBtn->state())
             vis = Section::PointsOnly;
         if(val < 0)
@@ -92,7 +94,7 @@ void Oct::applyShader(const covise::ColorMap& map, float min, float max)
 const auto phaseOffset = osg::PI_4 + osg::PI_2 + 15 / 100 *osg::PI;
 
 
-void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const std::string &valueName, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
+void Oct::addPoints(const opencover::opcua::MultiDimensionalArray<double> &data, const osg::Vec3 &toolHeadPos, const osg::Vec3 &up, float r)
 {
     std::vector<UA_Double> offset, vector;
     UA_Double scalar;
@@ -227,37 +229,6 @@ bool Oct::Section::append(const osg::Vec3 &pos, float val)
     return true;
 }
 
-osg::Vec3 getNormal(const osg::Vec3Array& vertices, size_t vertexIndex, size_t numPointsPerCycle)
-{
-    using namespace osg;
-    std::array<Vec3, 4> neigbors = {vertexIndex >= 1 ? vertices[vertexIndex - 1] : vertices[vertexIndex],
-                                    vertexIndex  + 1 < vertices.size() ? vertices[vertexIndex + 1] : vertices[vertexIndex],
-                                    vertexIndex + numPointsPerCycle < vertices.size() ? vertices[vertexIndex + numPointsPerCycle] : vertices[vertexIndex],
-                                    vertexIndex >= numPointsPerCycle ? vertices[vertexIndex - numPointsPerCycle] : vertices[vertexIndex]};
-    Vec3 normal;
-
-    for (size_t i = 0; i < neigbors.size(); i++)
-    {
-        auto last = i == 0 ? 3 : i - 1;
-        auto x = vertices[vertexIndex] - neigbors[i] ^ vertices[vertexIndex] - neigbors[last];
-        x.normalize();
-        normal += x;
-    }
-
-    return normal;
-}
-
-osg::ref_ptr<osg::Vec3Array> calculateNormals(osg::ref_ptr<osg::Vec3Array> &vertices, size_t numPointsPerCycle)
-{
-    using namespace osg;
-    
-    ref_ptr<Vec3Array> normals = new Vec3Array;
-    
-    for (size_t i = 0; i < vertices->size() - numPointsPerCycle - 1; i++)
-        normals->push_back(getNormal(*vertices, i, numPointsPerCycle));
-    return normals;
-}
-
 void Oct::Section::createSurface()
 {
     surfacePrimitiveSet = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS);
@@ -271,7 +242,7 @@ void Oct::Section::createSurface()
         surfacePrimitiveSet->push_back(i + 1);
     }
     surface->addPrimitiveSet(surfacePrimitiveSet);
-    auto normals = calculateNormals(vertices, numPointsPerCycle);
+    auto normals = oct::calculateNormals(vertices, numPointsPerCycle);
     surface->setVertexArray(vertices);
     surface->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
     surface->setVertexAttribArray(DataAttrib, species, osg::Array::BIND_PER_VERTEX);
@@ -309,7 +280,7 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
     if(paused)
         return;
     auto toolHeadPos = toolHeadInTableCoords();
-    addPoints(data, m_attributeName->selectedItem(), toolHeadPos, osg::Z_AXIS, 0.0015);
+    addPoints(data, toolHeadPos, osg::Z_AXIS, 0.0015);
 
 
     for(auto &section : m_sections)
@@ -327,11 +298,11 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
 
 Oct::Section &Oct::addSection(size_t numVerts)
 {
-    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), m_minAttribute->number(), m_maxAttribute->number(), m_tableNode);
+    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), getMinAttribute(), getMaxAttribute(), m_tableNode);
     if(m_sections.size() > numSections)
         m_sections.pop_front();
-    if(m_numSectionsSlider->value() > 0 && m_sections.size() > m_numSectionsSlider->value())
-        m_sections[m_sections.size() - m_numSectionsSlider->value()].show(Section::Invisible);
+    if(m_numSectionsSlider->getValue() > 0 && m_sections.size() > m_numSectionsSlider->getValue())
+        m_sections[m_sections.size() - m_numSectionsSlider->getValue()].show(Section::Invisible);
     if(!m_showSurfaceBtn->state())
         section.show(Section::PointsOnly);
     return section;
@@ -340,4 +311,9 @@ Oct::Section &Oct::addSection(size_t numVerts)
 std::vector<std::string> Oct::getAttributes()
 {
     return m_client->availableNumericalArrays();
+}
+
+void Oct::attributeChanged(float value)
+{
+    //this tool only works in array mode
 }

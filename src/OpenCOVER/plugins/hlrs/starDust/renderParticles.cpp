@@ -17,6 +17,9 @@
  */
 
 #include "renderParticles.h"
+#ifdef WIN32
+#include <Windows.h>
+#endif
 #include <GL/glew.h>
 
 #include <cuda_runtime.h>

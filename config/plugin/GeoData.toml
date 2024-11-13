@@ -1,0 +1,6 @@
+[sky]
+skyDir = "/data/Geodata/sky"
+defaultSky = 6
+
+[terrain]
+file = "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive"

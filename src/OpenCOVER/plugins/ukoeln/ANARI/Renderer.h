@@ -1,5 +1,4 @@
 /* This file is part of COVISE.
-
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
 
@@ -9,7 +8,6 @@
 
 #include <memory>
 #include <vector>
-#include <thread>
 #ifdef ANARI_PLUGIN_HAVE_CUDA
 #include <cuda_runtime.h>
 #endif
@@ -26,6 +24,7 @@
 #include "readUMesh.h"
 #include "readVTK.h"
 #include "ui_anari.h"
+#include "Param.h"
 #include "Projection.h"
 #ifdef ANARI_PLUGIN_HAVE_RR
 #include <MiniRR.h>
@@ -88,6 +87,10 @@ public:
     void loadHDRI(std::string fileName);
     void unloadHDRI(std::string fileName);
 
+    // Application params:
+    void setParam(std::string name, DataType type, std::any value);
+    Param getParam(std::string name);
+
     void setRendererType(std::string type);
 
     std::vector<std::string> getRendererTypes();
@@ -100,12 +103,16 @@ public:
 
     void expandBoundingSphere(osg::BoundingSphere &bs);
 
+    void setTimeStep(int timeStep);
+
+    int getNumTimeSteps() const;
+
     void updateLights(const osg::Matrix &modelMat);
 
     void setClipPlanes(const std::vector<ClipPlane> &planes);
 
-    // volume debug mode where MPI rank IDs are assigned random colors
-    void setColorRanks(bool value);
+    void setTransFunc(const glm::vec3 *rgb, unsigned numRGB,
+                      const float *opacity, unsigned numOpacity);
 
     void wait();
 
@@ -155,7 +162,8 @@ private:
         } amrVolume;
         struct {
             ANARIVolume volume{nullptr};
-            ANARISpatialField field{nullptr};
+            // per time step:
+            std::vector<ANARISpatialField> fields;
         } unstructuredVolume;
         ASGLookupTable1D lut{nullptr};
         std::vector<ANARILight> lights;
@@ -174,24 +182,58 @@ private:
     void initChannels();
     void initDevice();
     void initFrames();
-    void initWorld();
     void initMesh();
     void initPointClouds();
     void initStructuredVolume();
     void initAMRVolume();
     void initUnstructuredVolume();
     void initClipPlanes();
-    void initHDRI();
     void initTransFunc();
-
-    struct AABB { float data[6]; };
-    AABB getSceneBounds();
+    void initAnimation();
 
     enum ReaderType { FLASH, VTK, UMESH, UNKNOWN };
 
-    bool colorByRank{false};
+    Param params[2] = {
+      // debug
+      {"debug.colorByRank", DataType::Bool, false},
+      // remote rendering
+      {"rr.jpegQuality", DataType::Int32, 80},
+    };
 
     void generateTransFunc();
+
+    struct AABB {
+        AABB() {
+            data[0] =  1e30f;
+            data[1] =  1e30f;
+            data[2] =  1e30f;
+            data[3] = -1e30f;
+            data[4] = -1e30f;
+            data[5] = -1e30f;
+        }
+
+        AABB &extend(const AABB &other) {
+            data[0] = fminf(data[0], other.data[0]);
+            data[1] = fminf(data[1], other.data[1]);
+            data[2] = fminf(data[2], other.data[2]);
+            data[3] = fmaxf(data[3], other.data[3]);
+            data[4] = fmaxf(data[4], other.data[4]);
+            data[5] = fmaxf(data[5], other.data[5]);
+            return *this;
+        }
+        float data[6];
+    };
+    struct {
+        AABB local;
+        AABB global;
+        bool updated = false;
+    } bounds;
+
+    struct {
+        int timeStep = 0;
+        int numTimeSteps = 1;
+        bool updated = false;
+    } animation;
 
     struct {
         std::string fileName;
@@ -241,17 +283,20 @@ private:
 #endif
 #ifdef HAVE_UMESH
         UMeshReader umeshReader;
-        typedef struct { std::string fileName; int fieldID; } UMeshScalarFile;
+        typedef struct {
+            std::string fileName;
+            int fieldID;
+            int slotID;
+            int timeStep;
+        } UMeshScalarFile;
         // *optional* list of file names providing umesh scalars; in this case,
         // these files overwrite the umesh's perVertex (if it exists)
         std::vector<UMeshScalarFile> umeshScalarFiles;
 #endif
 
-        UnstructuredField data;
-        float minValue, maxValue;
-        std::vector<float> rgbLUT;
-        std::vector<float> alphaLUT;
-
+        // this is used when data doesn't come from
+        // a file but from COVISE etc.:
+        UnstructuredField dataSource;
         bool updated = false;
     } unstructuredVolumeData;
 
@@ -284,13 +329,12 @@ private:
     std::vector<ui_anari::ParameterList> rendererParameters;
 
 #ifdef ANARI_PLUGIN_HAVE_RR
-    // thread to process events on that aren't executed in lockstep
-    std::thread remoteThread;
     std::shared_ptr<minirr::MiniRR> rr;
 #endif
     std::vector<uint32_t> imageBuffer;
     bool isClient{false};
     bool isServer{false};
+    uint64_t objectUpdates{0x0};
 };
 
 

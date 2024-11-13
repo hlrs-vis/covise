@@ -317,8 +317,8 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     COVISE_FIND_PACKAGE(OpenSSL)
     set(OpenGL_GL_PREFERENCE LEGACY)
     COVISE_FIND_PACKAGE(OpenGL)
-    COVISE_FIND_PACKAGE(GLEW) # virvo depends on it
     COVISE_FIND_PACKAGE(OpenXR)
+    COVISE_FIND_PACKAGE(GLEW) # virvo depends on it
     if (NOT GLEW_FOUND)
         set (COVISE_USE_VIRVO OFF)
         message("Not building Virvo: no GLEW")

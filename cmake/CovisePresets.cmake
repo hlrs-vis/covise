@@ -9,14 +9,12 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
 if ("${COVISE_ARCHSUFFIX}" MATCHES "^spack")
     set(COVISE_INSTALL_LIBDIR lib)
-    set(CMAKE_SKIP_RPATH FALSE)
-    set(CMAKE_MACOSX_RPATH TRUE)
 else()
     set(COVISE_INSTALL_LIBDIR ${ARCHSUFFIX}/lib)
-    # disable rpath - only rely on LD_LIBRARY_PATH and the likes
-    set(CMAKE_SKIP_RPATH TRUE)
-    set(CMAKE_MACOSX_RPATH FALSE)
 endif()
+# in order to allow linking to libraries installed with spack
+set(CMAKE_SKIP_RPATH FALSE)
+set(CMAKE_MACOSX_RPATH TRUE)
 
 macro(covise_cmake_policy)
 # policy settings

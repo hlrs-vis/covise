@@ -29,7 +29,7 @@ class DataFileGold : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    DataFileGold(ReadEnsight *mod, const string &name, const int &dim, const int &numVals);
+    DataFileGold(ReadEnsight *mod, const string &name, const unsigned int &dim, const unsigned int &numVals);
 
     void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
@@ -39,10 +39,10 @@ public:
     ~DataFileGold();
 
 private:
-    int lineCnt_; // actual linecount
-    int numVals_; // number of values
-    int *indexMap_; // may contain indexMap
-    int actPartIndex_;
+    unsigned int lineCnt_; // actual linecount
+    unsigned int numVals_; // number of values
+    unsigned int *indexMap_; // may contain indexMap
+    unsigned int actPartIndex_;
 };
 
 #endif

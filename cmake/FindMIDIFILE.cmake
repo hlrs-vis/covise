@@ -21,6 +21,7 @@ FIND_PATH(MIDIFILE_INCLUDE_DIR "MidiFile.h"
   /opt/local/include # DarwinPorts
   /opt/csw/include # Blastwave
   /opt/include
+  PATH_SUFFIXES midifile
   DOC "MIDIFILE - Headers"
 )
 

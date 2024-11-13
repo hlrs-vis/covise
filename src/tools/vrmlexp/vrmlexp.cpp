@@ -3583,7 +3583,7 @@ static INT_PTR CALLBACK
                         CB_SELECTSTRING, 0, (LPARAM)name.data());
         }
 
-        GetAppData(exp->mIp, OUTPUT_LANG_ID, _T("X3D(V)"), text, MAX_PATH);
+        GetAppData(exp->mIp, OUTPUT_LANG_ID, _T("Vrml97_COVER"), text, MAX_PATH);
         if (_tcscmp(text, _T("X3D(V)")) == 0)
         {
             type = Export_X3D_V;
@@ -3625,7 +3625,11 @@ static INT_PTR CALLBACK
         ComboBox_AddString(cb, _T("4"));
         ComboBox_AddString(cb, _T("5"));
         ComboBox_AddString(cb, _T("6"));
-        GetAppData(exp->mIp, DIGITS_ID, _T("6"), text, MAX_PATH);
+        ComboBox_AddString(cb, _T("7"));
+        ComboBox_AddString(cb, _T("8"));
+        ComboBox_AddString(cb, _T("9"));
+        ComboBox_AddString(cb, _T("10"));
+        GetAppData(exp->mIp, DIGITS_ID, _T("7"), text, MAX_PATH);
         ComboBox_SelectString(cb, 0, text);
 
         cb = GetDlgItem(hDlg, IDC_POLYGON_TYPE);
@@ -4350,9 +4354,9 @@ VRBLExport::Ext(int n)
     switch (n)
     {
     case 0:
-        return _T("x3dv");
-    case 1:
         return _T("wrl");
+    case 1:
+        return _T("x3dv");
     case 2:
         return _T("iv");
     }

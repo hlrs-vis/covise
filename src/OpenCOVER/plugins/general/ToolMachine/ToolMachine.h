@@ -1,44 +1,56 @@
-/* This file is part of COVISE.
 
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
+#include "Tool.h"
+#include "ToolChanger/ToolChanger.h"
+#include "VrmlNode.h"
 
- * License: LGPL 2+ */
+#include <vrml97/vrml/VrmlNode.h>
+#include <vrml97/vrml/VrmlNodeTransform.h>
+#include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/VrmlNamespace.h>
+#include <vrml97/vrml/VrmlSFVec3f.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
+#include <vrml97/vrml/VrmlMFString.h>
+#include <vrml97/vrml/VrmlMFFloat.h>
+#include <vrml97/vrml/VrmlMFVec3f.h>
+#include <vrml97/vrml/VrmlSFInt.h>
+#include <vrml97/vrml/VrmlMFInt.h>
+#include <vrml97/vrml/VrmlNodeChildTemplate.h>
+#include <plugins/general/Vrml97/ViewerObject.h>
+#include <OpcUaClient/opcua.h>
+#include <cover/ui/Menu.h>
 
-#ifndef COVER_PLUGIN_TOOL_MASCHIE_H
-#define COVER_PLUGIN_TOOL_MASCHIE_H
-
-#include "Currents.h"
-#include "Oct.h"
-#include <cover/coVRPluginSupport.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/Owner.h>
-#include <memory>
-#include <open62541/client.h>
-#include <osg/Vec3>
-
-
-class MachineNode;
-
-
-class ToolMaschinePlugin : public opencover::coVRPlugin, opencover::ui::Owner
+enum UpdateMode
 {
-public:
-    ToolMaschinePlugin();
-private:
-    bool update() override;
-    bool addTool(MachineNode *m);
-
-    std::array<double, 10> m_axisPositions{ 0,0,0,0,0,0,0,0,0,0}; //A, C, X, Y, Z
-    opencover::ui::Menu *m_menu;
-    opencover::ui::Button *m_pauseBtn;
-
-    SelfDeletingTool::Map m_tools;
-    bool m_pauseMove = false;
-
+    All,
+    AllOncePerFrame,
+    UpdatedOncePerFrame
 };
 
+class Machine 
+{
+public:
+    Machine(MachineNodeBase *node);
 
 
+    void move(int axis, float value);
+    bool arrayMode() const;
+    void update(UpdateMode updateMode);
+    void setUi(opencover::ui::Menu *menu, opencover::config::File *file);
+    void pause(bool state);
+    osg::MatrixTransform *getToolHead() const;
 
-#endif
+private:
+    bool m_rdy = false;
+    MachineNodeBase *m_machineNode;
+    opcua::Client *m_client;
+    std::vector<opencover::opcua::ObserverHandle> m_valueIds;
+    size_t m_index = 0;
+    std::unique_ptr<SelfDeletingTool> m_tool;
+    opencover::ui::Menu *m_menu;
+    opencover::config::File *m_configFile;
+
+    bool addTool();
+    void connectOpcua();
+    bool updateMachine(bool haveTool, UpdateMode updateMode);
+
+};

@@ -228,6 +228,7 @@ void ModuleFeedbackManager::createMenu()
     hideCheckbox_->setCallback([this](bool state){
         triggerHide(state);
     });
+    hideCheckbox_->setShared(true);
     syncCheckbox_ = new ui::Button(menu_, "Sync");
     syncCheckbox_->setVisible(covise);
     syncCheckbox_->setState(covise);

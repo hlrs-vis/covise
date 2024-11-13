@@ -10,21 +10,34 @@
 #include "Device.h"
 #include <PluginUtil/coSensor.h>
 #include <cover/coVRPluginSupport.h>
+#include <memory>
 
-using namespace covise;
 using namespace opencover;
 
-class DeviceSensor : public coPickSensor
-{
+namespace energy {
+class DeviceSensor : public coPickSensor {
 private:
-    Device *dev;
+  energy::Device::ptr dev;
 
 public:
-    DeviceSensor(Device *h, osg::Node *n);
-    ~DeviceSensor();
+  typedef std::shared_ptr<DeviceSensor> ptr;
+  DeviceSensor(energy::Device::ptr d, osg::ref_ptr<osg::Node> n)
+      : coPickSensor(n), dev(d){};
+  ~DeviceSensor() {
+    if (active)
+      disactivate();
+  }
+  DeviceSensor(const DeviceSensor &other) = delete;
+  DeviceSensor &operator=(const DeviceSensor &) = delete;
 
-    void activate();
-    void disactivate();
+  void activate() override { dev->activate(); }
+  void disactivate() override { dev->disactivate(); }
+  void update() override {
+    dev->update();
+    coPickSensor::update();
+  }
+  energy::Device::ptr getDevice() const { return dev; }
 };
+} // namespace energy
 
 #endif

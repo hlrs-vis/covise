@@ -3,10 +3,6 @@ MACRO(USE_VISIONARAY)
         IF(NOT VISIONARAY_USED)
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
 
-            if(COVISE_USE_CUDA)
-                covise_find_package(CUDA)
-            endif()
-
             if(NOT APPLE AND NOT WIN32)
                 covise_find_package(PTHREAD REQUIRED)
             endif()

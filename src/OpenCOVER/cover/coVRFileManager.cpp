@@ -51,10 +51,11 @@
 #include <fcntl.h>
 #include <osg/Texture2D>
 #include <osgText/Font>
+#include <PluginUtil/PluginMessageTypes.h>
 
 #ifdef HAVE_LIBCURL
-#include <curl/curl.h>
-#include <curl/easy.h>
+#include <HTTPClient/CURL/request.h>
+#include <HTTPClient/CURL/methods.h>
 #endif
 
 #ifdef __DARWIN_OSX__
@@ -777,6 +778,28 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         if (url.authority() == "plugin")
         {
             coVRPluginList::instance()->addPlugin(url.path().c_str()+1);
+        }
+        else if (url.authority() == "terrain")
+        {
+            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            if (plugin)
+            {
+                std::string terrainFile = url.str();
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::LoadTerrain, terrainFile.size() + 1, terrainFile.c_str());
+            }
+            else
+            {
+                adjustedFileName = url.str();
+            }
+        }
+        else if (url.authority() == "sky")
+        {
+            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            if (plugin)
+            {
+                std::string skyNumber = url.str();
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyNumber.size() + 1, skyNumber.c_str());
+            }
         }
         return nullptr;
     }
@@ -2065,33 +2088,24 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 
 }
 
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
-                        assert(size == sizeof(char));
-                        auto buff = (std::vector<char> *)userp;
-                        buff->insert(buff->end(), (char *)contents, ((char *)contents) + nmemb);
-                        return size * nmemb;
-}
-
 std::string coVRFileManager::httpFetch(const std::string &url)
 {
-    
 #if defined(HAVE_LIBCURL)
+  std::string readBuffer;
 
-  CURLcode res;
-  std::vector<char> readBuffer;
-
-  auto curl = curl_easy_init();
-  if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-
+  httpclient::curl::GET get(url);
+  if (httpclient::curl::Request().httpRequest(get, readBuffer))
+  {
     return writeRemoteFetchedFile(url, readBuffer.data(), readBuffer.size());
   }
+  else
+  {
+    std::cerr << "coVRFileManager::httpFetch: getting " << url << " failed" << std::endl;
+  }
+#else
+  std::cerr << "coVRFileManager::httpFetch: cannot get " << url << " - no CURL" << std::endl;
 #endif
-    return "";
+  return "";
 }
 
 int coVRFileManager::getFileId(const std::string &url)

@@ -25,7 +25,9 @@
 #include <QShortcut>
 #include <QColorDialog>
 #include <QAction>
+#include <QMenu>
 #include <QTimer>
+#include <QThread>
 #include <QDateTime>
 #include <util/unixcompat.h>
 
@@ -124,6 +126,8 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(itemProperties()));
     connect(treeWidget, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(updateExpand(QTreeWidgetItem *)));
     connect(treeWidget, SIGNAL(itemCheckStateChanged(QTreeWidgetItem *,bool)), this, SLOT(showNode(QTreeWidgetItem *,bool)));
+
+    connect(treeWidget, SIGNAL(itemDropped(QTreeWidgetItem*, QTreeWidgetItem*, QTreeWidgetItem*, int)), this, SLOT(handleMoveNode(QTreeWidgetItem*, QTreeWidgetItem*, QTreeWidgetItem*, int)));
 
     QHBoxLayout *Hlayout = new QHBoxLayout();
     grid->addLayout(Hlayout, 1, 0, 1, 1, Qt::AlignLeft);
@@ -224,6 +228,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
     QAction *newAct = new QAction("Update", this);
     connect(newAct, SIGNAL(triggered()), this, SLOT(updateItem()));
+    
     propAct = new QAction("Properties", this);
     propAct->setCheckable(true);
     propAct->setChecked(false);
@@ -234,10 +239,44 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     QAction *center = new QAction("Center Object", this);
     connect(center, SIGNAL(triggered()), this, SLOT(centerObject()));
 
+    QAction* renameNode_action = new QAction("Rename Node", this);
+    connect(renameNode_action, SIGNAL(triggered()), this, SLOT(handleRenamingCurrentNode()));
+
+    QAction* addNode_action = new QAction("Add Node", this);
+    
+    QMenu* addNode_menu = new QMenu("Node type:", treeWidget);
+    QAction* addNode_group_action = new QAction("Group", this);
+    QAction* addNode_matrixTransform_action = new QAction("MatrixTransform", this);
+    // QAction* addNode_geode_action = new QAction("Geode", this);
+
+    addNode_menu->addAction(addNode_group_action);
+    addNode_menu->addAction(addNode_matrixTransform_action);
+    // addNode_menu->addAction(addNode_geode_action);
+
+    connect(addNode_group_action, SIGNAL(triggered()), this, SLOT(handleAddNodeGroup()));
+    connect(addNode_matrixTransform_action, SIGNAL(triggered()), this, SLOT(handleAddNodeMatrixTransform()));
+    // connect(addNode_geode_action, SIGNAL(triggered()), this, SLOT(handleAddNodeGeode()));
+
+    addNode_action->setMenu(addNode_menu);
+
+    QAction* removeNode_action = new QAction("Remove Node", this);
+    connect(removeNode_action, SIGNAL(triggered()), this, SLOT(handleRemoveCurrentNode()));
+
+    QAction* checkChildren_action = new QAction("Check All Children", this);
+    connect(checkChildren_action, SIGNAL(triggered()), this, SLOT(checkChildrenCurrentNode()));
+
+    QAction* uncheckChildren_action = new QAction("Uncheck All Children", this);
+    connect(uncheckChildren_action, SIGNAL(triggered()), this, SLOT(uncheckChildrenCurrentNode()));
+
     treeWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
     treeWidget->addAction(center);
     treeWidget->addAction(propAct);
     treeWidget->addAction(newAct);
+    treeWidget->addAction(renameNode_action);
+    treeWidget->addAction(addNode_action);
+    treeWidget->addAction(removeNode_action);
+    treeWidget->addAction(checkChildren_action);
+    treeWidget->addAction(uncheckChildren_action);
     //treeWidget->addAction(load);
 
     propertyDialog = new PropertyDialog(this);
@@ -329,7 +368,8 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> nodePath;
         tb >> simPath;
 
-        //cout<<"-**Calling showhideSimItems="<<state<<" ||| "<<nodePath<<" ||| "<<simPath<<endl;
+        //cout<<"-**Calling showhideSimItems="<<state<<" ||| "<<nodePath<<" ||| "<<simPath<<endl;  
+
         showhideSimItems(state, simPath);
     }
 
@@ -349,6 +389,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         {
         } //>gottlieb
     }
+
     if (type == TABLET_BROWSER_NODE)
     {
         int nodetype, numChildren;
@@ -433,9 +474,13 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 
         treeWidget->clearSelection();
         selectCBox->setCheckState(Qt::Unchecked);
-        nodeTreeItem *currentItem = treeWidget->findParent(itemPath);
+        
+        // nodeTreeItem* currentItem = treeWidget->search(treeWidget->topLevelItem(0), itemPath);
+        
+        nodeTreeItem* currentItem = treeWidget->findParent(itemPath);
+
         treeWidget->scrollToItem(currentItem);
-        currentItem->setSelected(true);
+
         connect(treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
     }
     else if (type == TABLET_BROWSER_REMOVE_NODE)
@@ -1444,6 +1489,320 @@ void TUISGBrowserTab::changeTexture(int listindex, std::string geode)
     }
 }
 
+void TUISGBrowserTab::sendAddNodeRequest(const char* parent_path, int node_type)
+{
+    covise::TokenBuffer tb;
+    tb << ID;
+    // tb << TABLET_BROWSER_PROPERTIES;
+    tb << TABLET_BROWSER_ADDED_NODE;
+    tb << parent_path;
+    tb << node_type;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
+void TUISGBrowserTab::handleAddNode(QTreeWidgetItem* parent_item, int node_type)
+{
+    QString parent_str = parent_item->text(8);
+    QByteArray parent_ba = parent_str.toUtf8();
+    const char* parentPath_add = parent_ba.data();
+
+    sendAddNodeRequest(parentPath_add, node_type);
+
+    updateScene();
+
+    if (parent_item->childCount() > 0)
+    {
+        QString new_current_path = parent_str + QString(";");
+
+        new_current_path += QString::number(parent_item->childCount());
+
+        setCurrentNode(new_current_path);
+    }
+    else
+    {
+        setCurrentNode(parent_str);
+    }
+
+    updateItem();
+}
+
+void TUISGBrowserTab::handleAddNodeGroup()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+
+    handleAddNode(current_item, SG_GROUP);
+}
+
+void TUISGBrowserTab::handleAddNodeMatrixTransform()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+
+    handleAddNode(current_item, SG_MATRIX_TRANSFORM);
+}
+
+void TUISGBrowserTab::sendRemoveNodeRequest(const char* item_path, const char* parent_path)
+{
+    // std::cout << "PATH REMOVE: " << path_remove << std::endl;
+    // std::cout << "PARENT PATH REMOVE: " << parentPath_remove << std::endl;
+
+    covise::TokenBuffer tb;
+    tb << ID;
+    tb << TABLET_BROWSER_REMOVED_NODE;
+    tb << item_path;
+    tb << parent_path;
+
+    // std::cout << "TABLET_SET_VALUE: " << TABLET_SET_VALUE << std::endl;
+    // std::cout << "TABLET_BROWSER_REMOVED_NODE: " << TABLET_BROWSER_REMOVED_NODE << std::endl;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
+void TUISGBrowserTab::handleRemoveCurrentNode()
+{
+    QString item_str = treeWidget->currentItem()->text(8);
+    QByteArray item_ba = item_str.toUtf8();
+    const char* item_path = item_ba.data();
+
+    QTreeWidgetItem* parent_item = treeWidget->currentItem()->parent();
+    QString parent_str = parent_item->text(8);
+    QByteArray parent_ba = parent_str.toUtf8();
+    const char* parent_path = parent_ba.data();
+
+    sendRemoveNodeRequest(item_path, parent_path);
+
+    updateScene();
+
+    if (parent_item->childCount() > 0)
+    {
+        QString new_current_path = parent_str + QString(";");
+
+        new_current_path += QString::number(parent_item->childCount() - 2);
+
+        setCurrentNode(new_current_path);
+    }
+    else
+    {
+        setCurrentNode(parent_str);
+    }
+
+    updateItem();
+}
+
+void TUISGBrowserTab::handleRemoveNode(QTreeWidgetItem* item, QTreeWidgetItem* parent_item)
+{
+    QString item_str = item->text(8);
+    QByteArray item_ba = item_str.toUtf8();
+    const char* item_path = item_ba.data();
+
+    QString parent_str = parent_item->text(8);
+    QByteArray parent_ba = parent_str.toUtf8();
+    const char* parent_path = parent_ba.data();
+
+    sendRemoveNodeRequest(item_path, parent_path);
+
+    updateScene();
+
+    if (parent_item->childCount() > 0)
+    {
+        QString new_current_path = parent_str + QString(";");
+
+        new_current_path += QString::number(parent_item->childCount() - 2);
+
+        setCurrentNode(new_current_path);
+    }
+    else
+    {
+        setCurrentNode(parent_str);
+    }
+
+    updateItem();
+}
+
+void TUISGBrowserTab::sendMoveNodeRequest(const char* item_oldPath, const char* oldParent_path, const char* newParent_path, int dropIndex)
+{
+    covise::TokenBuffer tb;
+    tb << ID;
+    // tb << TABLET_BROWSER_PROPERTIES;
+    tb << TABLET_BROWSER_MOVED_NODE;
+    tb << item_oldPath;
+    tb << oldParent_path;
+    tb << newParent_path;
+    tb << dropIndex;
+
+    // std::cout << "sendMoveNodeRequest" << std::endl;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
+void TUISGBrowserTab::handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* oldParent_item, QTreeWidgetItem* newParent_item, int dropIndex)
+{
+    QString item_str = item->text(8);
+    QByteArray item_ba = item_str.toUtf8();
+    const char* item_oldPath = item_ba.data();
+
+    QString oldParent_str = oldParent_item->text(8);
+    QByteArray oldParent_ba = oldParent_str.toUtf8();
+    const char* oldParent_path = oldParent_ba.data();
+
+    QString newParent_str = newParent_item->text(8);
+    QByteArray newParent_ba = newParent_str.toUtf8();
+    const char* newParent_path = newParent_ba.data();
+
+    sendMoveNodeRequest(item_oldPath, oldParent_path, newParent_path, dropIndex);
+
+    // std::cout << "Updating scene..." << std::endl;
+
+    updateScene();
+    
+    // updateItem();
+
+    // std::cout << "Update scene requested." << std::endl;
+
+    QTreeWidgetItem* parentCheck = newParent_item->parent();
+    int checkIndex = parentCheck->indexOfChild(newParent_item);
+
+    while (parentCheck)
+    {
+        if (oldParent_item == parentCheck)
+        {
+            // std::cout << "Check" << std::endl;
+
+            if (oldParent_item->indexOfChild(item) < checkIndex)
+            {   
+                QString focusPath_str = "";
+                QString remainder_str = newParent_str;
+                remainder_str.remove(oldParent_str + ";");
+                int buffer_index = remainder_str.indexOf(';');
+                
+                // std::cout << remainder_str.toStdString() << std::endl;
+
+                if (buffer_index > -1)
+                {
+                    remainder_str.replace(0, buffer_index, QString::number(checkIndex - 1));
+                }
+                else
+                {
+                    remainder_str = QString::number(checkIndex - 1);
+                }
+                
+                focusPath_str = QString("%1;%2").arg(oldParent_str).arg(remainder_str);
+
+                // std::cout << "focusPath_str: " << focusPath_str.toStdString() << std::endl;
+
+                setCurrentNode(focusPath_str);
+
+                return;
+            }
+
+            break;
+        }
+        else
+        {
+            if (parentCheck->parent())
+            {
+                checkIndex = parentCheck->parent()->indexOfChild(parentCheck);
+                parentCheck = parentCheck->parent();
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    if (dropIndex > newParent_item->childCount() - 1)
+    {
+        std::cout << "dropIndex exceeds highest child index " << std::endl;
+        setCurrentNode(newParent_item, newParent_item->childCount() - 1);
+    }
+    else if (dropIndex > -1)
+    {   
+        std::cout << "dropIndex = " << dropIndex << std::endl;
+        setCurrentNode(newParent_item, dropIndex);
+    }
+    else
+    {
+        std::cout << "dropIndex == -1" << std::endl;
+        
+        if (newParent_item == oldParent_item)
+        {
+            setCurrentNode(newParent_item, newParent_item->childCount() - 1);
+        }
+        else
+        {
+            setCurrentNode(newParent_item, newParent_item->childCount());
+        }
+    }
+
+    // setCurrentNode(newParent_item);
+}
+
+void TUISGBrowserTab::sendRenameNodeRequest(const char* item_path, const char* item_newName)
+{
+    covise::TokenBuffer tb;
+    tb << ID;
+    tb << TABLET_BROWSER_RENAMED_NODE;
+    tb << item_path;
+    tb << item_newName;
+
+    // std::cout << "sendMoveNodeRequest" << std::endl;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
+void TUISGBrowserTab::handleRenamedCurrentNode()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+
+    current_item->setFlags(current_item->flags() ^ Qt::ItemIsEditable);
+
+    disconnect(treeWidget->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(handleRenamedCurrentNode()));
+
+    QString item_str = current_item->text(8);
+    QByteArray item_ba = item_str.toUtf8();
+    const char* itemPath = item_ba.data();
+
+    QString itemName_str = current_item->text(0);
+    QByteArray itemName_ba = itemName_str.toUtf8();
+    const char* itemName = itemName_ba.data();
+
+    std::cout << "handleRenamedCurrentNode: " << item_str.toStdString() << ", " << itemName_str.toStdString() << std::endl;
+
+    sendRenameNodeRequest(itemPath, itemName);
+}
+
+void TUISGBrowserTab::handleRenamingCurrentNode()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+    
+    current_item->setFlags(current_item->flags() | Qt::ItemIsEditable);
+
+    treeWidget->editItem(current_item);
+
+    connect(treeWidget->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(handleRenamedCurrentNode()));
+}
+
+void TUISGBrowserTab::checkChildrenCurrentNode()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+
+    for (int i = 0; i < current_item->childCount(); i++)
+    {
+        current_item->child(i)->setCheckState(0, Qt::Checked);
+    }
+}
+
+void TUISGBrowserTab::uncheckChildrenCurrentNode()
+{
+    QTreeWidgetItem* current_item = treeWidget->currentItem();
+
+    for (int i = 0; i < current_item->childCount(); i++)
+    {
+        current_item->child(i)->setCheckState(0, Qt::Unchecked);
+    }
+}
+
 covise::Connection *TUISGBrowserTab::getClient()
 {
     return TUIMainWindow::getInstance()->toCOVERSG;
@@ -1567,9 +1926,61 @@ void TUISGBrowserTab::updateScene()
     TUIMainWindow::getInstance()->send(tb);
 }
 
+void TUISGBrowserTab::setCurrentNode(QTreeWidgetItem* focusItem)
+{
+    covise::TokenBuffer tb;
+
+    QString str = focusItem->text(8);
+    QByteArray ba = str.toUtf8();
+    const char* path = ba.data();
+
+    std::cout << path << std::endl;
+
+    tb << ID;
+    tb << TABLET_BROWSER_CURRENT_NODE;
+    tb << path;
+    TUIMainWindow::getInstance()->send(tb);
+
+    // this->treeWidget->scrollToItem(focusItem);
+}
+
+void TUISGBrowserTab::setCurrentNode(QTreeWidgetItem* focusParentItem, int index)
+{
+    covise::TokenBuffer tb;
+
+    QString str = QString("%1;%2").arg(focusParentItem->text(8)).arg(QString::number(index));
+    QByteArray ba = str.toUtf8();
+    const char* path = ba.data();
+
+    std::cout << path << std::endl;
+
+    tb << ID;
+    tb << TABLET_BROWSER_CURRENT_NODE;
+    tb << path;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
+void TUISGBrowserTab::setCurrentNode(QString focusPath_str)
+{
+    covise::TokenBuffer tb;
+
+    QByteArray ba = focusPath_str.toUtf8();
+    const char* path = ba.data();
+
+    std::cout << path << std::endl;
+
+    tb << ID;
+    tb << TABLET_BROWSER_CURRENT_NODE;
+    tb << path;
+
+    TUIMainWindow::getInstance()->send(tb);
+}
+
 void TUISGBrowserTab::updateItem()
 {
     QTreeWidgetItem *item = treeWidget->currentItem();
+
     if (item)
     {
         item->setText(7, "no");
@@ -1584,7 +1995,6 @@ void TUISGBrowserTab::updateExpand(QTreeWidgetItem *item)
 
     if (item->text(7) == "no")
     {
-
         QString str = item->text(8);
         QByteArray ba = str.toUtf8();
         const char *path = ba.data();
@@ -2421,6 +2831,7 @@ nodeTreeItem::nodeTreeItem(nodeTreeItem *item, const QString &text, QString clas
 
 nodeTreeItem::~nodeTreeItem()
 {
+
 }
 
 // see http:://stackoverflow.com/a/32403843
@@ -2453,6 +2864,14 @@ nodeTree::nodeTree(QWidget *parent)
     setRootIsDecorated(true);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     //setSelectionBehavior(QAbstractItemView::SelectItems);
+
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::InternalMove);
+    setDropIndicatorShown(true);
+
+    this->invisibleRootItem()->setFlags(this->invisibleRootItem()->flags() ^ Qt::ItemIsDropEnabled);
+
+    viewport()->installEventFilter(this);
 }
 
 nodeTree::~nodeTree()
@@ -2468,7 +2887,7 @@ void nodeTree::init()
 //------------------------------------------------------------------------
 // get the (parent) tree item for a given QString
 //------------------------------------------------------------------------
-nodeTreeItem *nodeTree::findParent(QString parentStr)
+nodeTreeItem* nodeTree::findParent(QString parentStr)
 {
     // find item (recursive loop)
     nodeTreeItem *it = NULL;
@@ -2483,6 +2902,7 @@ nodeTreeItem *nodeTree::findParent(QString parentStr)
             return static_cast<nodeTreeItem *>(top);
 
         it = search(top, parentStr);
+
         if (it != NULL)
             return it;
     }
@@ -2493,22 +2913,27 @@ nodeTreeItem *nodeTree::findParent(QString parentStr)
 //------------------------------------------------------------------------
 // search tree items for a certain QString
 //------------------------------------------------------------------------
-nodeTreeItem *nodeTree::search(QTreeWidgetItem *item, QString parent)
+nodeTreeItem* nodeTree::search(QTreeWidgetItem *item, QString parent)
 {
     QTreeWidgetItem *child = NULL;
+
     for (int i = 0; i < item->childCount(); i++)
     {
         child = item->child(i);
         QString str = child->text(8);
 
         if (str == parent)
+        {
             return static_cast<nodeTreeItem *>(child);
-
+        }
         else
         {
-            nodeTreeItem *it = search(child, parent);
+            nodeTreeItem* it = search(child, parent);
+
             if (it != NULL)
+            {
                 return it;
+            }
         }
     }
 
@@ -2606,6 +3031,108 @@ QList<QTreeWidgetItem *> nodeTree::searchString(QTreeWidgetItem *item, QString s
     }
 
     return childlist;
+}
+
+bool nodeTree::eventFilter(QObject* object, QEvent* event)
+{
+    if (object == this->viewport())
+    {
+        if (event->type() == QEvent::MouseButtonPress)
+        {
+            QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+
+            if (mouse_event->button() == Qt::LeftButton)
+            {
+                QModelIndex clicked_index = this->indexAt(mouse_event->pos());
+                
+                this->setCurrentIndex(clicked_index);
+
+                if (!clicked_index.isValid())
+                {
+                    this->clearSelection();
+                }
+            }   
+        }
+        else if (event->type() == QEvent::Drop)
+        {
+            QTreeWidgetItem* dragged_item = currentItem();
+            QTreeWidgetItem* dragged_item_previousParent = currentItem()->parent();
+            QTreeWidgetItem* dragged_item_newParent = nullptr;
+
+            int drop_index = -1;
+
+            QDropEvent* drop_event = static_cast<QDropEvent*>(event);
+
+            switch (this->dropIndicatorPosition())
+            {
+                case DropIndicatorPosition::OnItem:
+                {
+                    dragged_item_newParent = itemAt(drop_event->pos());
+                    drop_index = -1;
+                    break;
+                }
+
+                case DropIndicatorPosition::AboveItem:
+                {
+                    dragged_item_newParent = itemAt(drop_event->pos())->parent();
+                    drop_index = dragged_item_newParent->indexOfChild(itemAt(drop_event->pos()));
+                    break;
+                }
+
+                case DropIndicatorPosition::BelowItem:
+                {
+                    dragged_item_newParent = itemAt(drop_event->pos())->parent();
+                    drop_index = dragged_item_newParent->indexOfChild(itemAt(drop_event->pos())) + 1;
+                    break;
+                }
+
+                case DropIndicatorPosition::OnViewport:
+                {
+                    break;
+                }
+
+                default:
+                {
+
+                }
+            }
+
+            std::string printOut = "";
+
+            printOut += "\nMoved item: " + dragged_item->text(8).toStdString();
+
+            if (dragged_item_previousParent != nullptr)
+            {
+                printOut += "\nMoved item previous parent: " + dragged_item_previousParent->text(8).toStdString();
+            }
+            else
+            {
+                printOut += "\nMoved item previous parent: <None>, -1";
+            }
+
+            if (dragged_item_newParent != nullptr)
+            {
+                printOut += "\nMoved item new parent: " + dragged_item_newParent->text(8).toStdString();
+            }
+            else
+            {
+               printOut += "\nMoved item new parent: <None>, -1";
+            }
+
+            if ((dragged_item_previousParent != nullptr) && (dragged_item_newParent != nullptr))
+            {
+                emit itemDropped(dragged_item, dragged_item_previousParent, dragged_item_newParent, drop_index);
+            }
+
+            printOut += "\n";
+
+            std::cout << printOut << std::endl;
+
+            // std::cout << "IsSortingEnabled: " << this->isSortingEnabled() << std::endl;
+        }
+    }
+
+    return false;
 }
 
 SGTextureThread::SGTextureThread(TUISGBrowserTab *tab)

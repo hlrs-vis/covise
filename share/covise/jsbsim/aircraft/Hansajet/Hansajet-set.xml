@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+-->
+<PropertyList>
+  <sim>
+
+    <description>Hamburger Flugzeugbau HFB Hansajet</description>
+    <long-description>The HFB Hansa Jet had its maiden flight in 1964; It thereby became the first german jet engine driven aircraft to be built in serial production.
+At the time when the Hansa Jet was operated by U.S. civil airlines and the West German Airforce, it could be easily recognized in the sky by its distinctive forward-swept wings.</long-description>
+    <author>Torsten Dreyer</author>
+    <aircraft-version>0.1</aircraft-version>
+    <status>beta</status>
+    <flight-model>jsb</flight-model>
+    <aero>Hansajet-jsbsim</aero>
+
+    <rating>
+      <FDM type="int">     2 </FDM>
+      <systems type="int"> 3 </systems>
+      <cockpit type="int"> 3 </cockpit>
+      <model type="int">   2 </model>
+    </rating>
+
+    <startup>
+      <splash-texture>Aircraft/Hansajet/Splash.png</splash-texture>
+    </startup>
+
+    <model>
+      <path>Aircraft/Hansajet/Models/Hansajet.xml</path>
+      <Hansajet>
+        <lod>
+          <cockpit type="double">10</cockpit>
+        </lod>
+        <shadows>
+          <cockpit type="bool">0</cockpit>
+        </shadows>
+        <sound>
+          <volume>
+            <cockpit type="double">5</cockpit>
+          </volume>
+        </sound>
+        <!--radio-panel type="string">king</radio-panel-->
+        <radio-panel type="string">collins</radio-panel>
+      </Hansajet>
+      <instrument-lighting>
+        <emission>
+          <red type="double">1</red>
+          <green type="double">0.5</green>
+          <blue type="double">0.5</blue>
+        </emission>
+      </instrument-lighting>
+
+      <cockpit-lighting>
+        <emission>
+          <red type="double">0.2</red>
+          <green type="double">0.0</green>
+          <blue type="double">0.0</blue>
+        </emission>
+      </cockpit-lighting>
+
+      <pushback>
+        <kp type="double">100</kp>
+        <ki type="double">25</ki>
+        <kd type="double">0</kd>
+      </pushback>
+    </model>
+
+    <rendering>
+      <camera-group>
+        <znear type="double">0.1</znear>
+      </camera-group>
+    </rendering>
+
+    <view n="0">
+      <name>Cockpit Left Seat</name>
+      <type>lookfrom</type>
+      <internal type="bool">true</internal>
+      <config>
+        <x-offset-m type="double">-0.42</x-offset-m>
+        <y-offset-m type="double">2.44</y-offset-m>
+        <z-offset-m type="double">-6.05</z-offset-m>
+        <pitch-offset-deg>-13</pitch-offset-deg>
+        <default-field-of-view-deg type="double">60.0</default-field-of-view-deg>
+        <ground-level-nearplane-m type="double">0.01</ground-level-nearplane-m>
+      </config>
+    </view>
+    <view n="1">
+      <config>
+        <y-offset-m type="double">2.60</y-offset-m>
+      </config>
+    </view>
+
+    <view n="101">
+      <name>Cockpit Right Seat</name>
+      <type>lookfrom</type>
+      <internal type="bool">true</internal>
+      <config>
+        <from-model type="bool">true</from-model>
+        <from-model-idx type="int">0</from-model-idx>
+        <ground-level-nearplane-m type="double">0.01</ground-level-nearplane-m>
+        <default-field-of-view-deg type="double">55</default-field-of-view-deg>
+        <pitch-offset-deg>-15</pitch-offset-deg>
+        <x-offset-m type="double">0.35</x-offset-m>
+        <y-offset-m type="double">2.38</y-offset-m>
+        <z-offset-m type="double">-6.2</z-offset-m>
+      </config>
+    </view>
+
+    <view n="102">
+      <name>Fuel&amp;Hydraulics Panel</name>
+      <type>lookfrom</type>
+      <internal>true</internal>
+      <config>
+        <from-model type="bool">true</from-model>
+        <from-model-idx type="int">0</from-model-idx>
+        <ground-level-nearplane-m type="double">0.01</ground-level-nearplane-m>
+        <default-field-of-view-deg type="double">55</default-field-of-view-deg>
+        <pitch-offset-deg>-89</pitch-offset-deg>
+        <x-offset-m> 0.000 </x-offset-m> <!--Right-->
+        <y-offset-m> 2.100 </y-offset-m> <!--Up-->
+        <z-offset-m> -6.900 </z-offset-m> <!--Back-->
+      </config>
+    </view>
+
+    <view n="103">
+      <name>Overhead Panel</name>
+      <type>lookfrom</type>
+      <internal>true</internal>
+      <config>
+        <from-model type="bool">true</from-model>
+        <from-model-idx type="int">0</from-model-idx>
+        <ground-level-nearplane-m type="double">0.01</ground-level-nearplane-m>
+        <default-field-of-view-deg type="double">55</default-field-of-view-deg>
+        <pitch-offset-deg>53</pitch-offset-deg>
+        <x-offset-m> 0.000 </x-offset-m> <!--Right-->
+        <y-offset-m> 2.380 </y-offset-m> <!--Up-->
+        <z-offset-m> -6.200 </z-offset-m> <!--Back-->
+      </config>
+    </view>
+
+    <menubar include="GUI/Menubar.xml"/>
+
+    <systems>
+      <path>Aircraft/Hansajet/Systems/Hansajet-systems.xml</path>
+      <autopilot>
+        <path>Aircraft/Hansajet/Systems/Hansajet-flightdirector.xml</path>
+      </autopilot>
+      <autopilot>
+        <path>Aircraft/Hansajet/Systems/SperrySP40.xml</path>
+      </autopilot>
+      <autopilot>
+        <path>Aircraft/Hansajet/Models/Radio/Collins-313N-3-Controller.xml</path>
+      </autopilot>
+      <autopilot>
+        <path>Aircraft/Hansajet/Models/Radio/Collins-313N-3D-Controller.xml</path>
+      </autopilot>
+      <autopilot>
+        <path>Aircraft/Hansajet/Systems/SperryC9.xml</path>
+      </autopilot>
+      <autopilot>
+        <path>Aircraft/Hansajet/Systems/Hansajet-digitalfilters.xml</path>
+      </autopilot>
+    </systems>
+
+    <instrumentation>
+      <path>Aircraft/Hansajet/Systems/Hansajet-instruments.xml</path>
+    </instrumentation>
+
+    <sound>
+      <path>Aircraft/Hansajet/Hansajet-sound.xml</path>
+    </sound>
+    <hud>
+      <enable3d>false</enable3d>
+    </hud>
+    <virtual-cockpit>true</virtual-cockpit>
+    <allow-toggle-cockpit>true</allow-toggle-cockpit>
+
+
+    <flaps>
+      <setting>0.000</setting> <!-- Flaps 0 -->
+      <setting>0.400</setting> <!-- Flaps 20 -->
+      <setting>0.800</setting> <!-- Flaps 40 -->
+      <setting>1.000</setting> <!-- Flaps 50 -->
+    </flaps>
+
+    <spoilers>
+      <setting>0.000</setting> 
+      <setting>1.000</setting> 
+    </spoilers>
+
+    <aircraft-data>
+      <path>consumables/fuel/used-kg</path>
+      <path>instrumentation/comm[0]/volume</path>
+      <path>instrumentation/comm[0]/frequencies/selected-mhz</path>
+      <path>instrumentation/comm[0]/frequencies/standby-mhz</path>
+      <path>instrumentation/comm[0]/test-btn</path>
+      <path>instrumentation/nav[0]/audio-btn</path>
+      <path>instrumentation/nav[0]/power-btn</path>
+      <path>instrumentation/nav[0]/frequencies/selected-mhz</path>
+      <path>instrumentation/nav[0]/frequencies/standby-mhz</path>
+      <path>instrumentation/comm[1]/volume</path>
+      <path>instrumentation/comm[1]/frequencies/selected-mhz</path>
+      <path>instrumentation/comm[1]/frequencies/standby-mhz</path>
+      <path>instrumentation/comm[1]/test-btn</path>
+      <path>instrumentation/nav[1]/audio-btn</path>
+      <path>instrumentation/nav[1]/power-btn</path>
+      <path>instrumentation/nav[1]/frequencies/selected-mhz</path>
+      <path>instrumentation/nav[1]/frequencies/standby-mhz</path>
+      <path>instrumentation/adf/frequencies/selected-khz</path>
+      <path>instrumentation/adf/frequencies/standby-khz</path>
+      <path>instrumentation/dme/frequencies/selected-mhz</path>
+      <path>instrumentation/dme/switch-position</path>
+      <path>instrumentation/nav[0]/radials/selected-deg</path>
+      <path>autopilot/settings/heading-bug-deg</path>
+      <path>instrumentation/heading-indicator/internal-heading-deg</path>
+      <path>instrumentation/heading-indicator/time-based-offset</path>
+      <path>instrumentation/heading-indicator/servo-based-offset</path>
+      <path>instrumentation/heading-indicator/mode-magnetic</path>
+      <!--path>instrumentation/heading-indicator/voradf-position</path-->
+      <path>instrumentation/altimeter[0]/setting-hpa</path>
+      <path>instrumentation/altimeter[1]/setting-hpa</path>
+    </aircraft-data>
+
+    <help include="help.xml"/>
+    <tutorials include="Tutorials/tutorials.xml"/>
+  </sim>
+
+  <input>
+    <keyboard>
+
+<!--Autopilot Controls; Alt-A to dis-/engage, Ctrl-A for ALT-Hold-->
+      <key n="97">
+       <name>a</name><!-- Alt-A-->
+       <desc>Toggle AFC engaged lock</desc>
+        <mod-alt>
+         <binding>
+          <command>property-toggle</command>
+          <property>instrumentation/sp40/afcs-engage-switch</property>
+         </binding>
+        </mod-alt>
+      </key>
+
+      <key n="1">
+       <name>Ctrl-A</name>
+       <desc>Engage altitude-lock</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/alt-switch</property>
+          <value type="int">1</value>
+        </binding>
+        <mod-up>
+         <binding>
+           <command>property-assign</command>
+           <property>instrumentation/sp40/alt-switch</property>
+           <value type="int">0</value>
+         </binding>
+        </mod-up>
+      </key>
+
+      <key n="49">
+        <name>1</name>
+        <desc>A/P pitch down</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/pitch-switch</property>
+          <value type="int">1</value>
+        </binding>
+        <mod-up>
+          <binding>
+            <command>property-assign</command>
+            <property>instrumentation/sp40/pitch-switch</property>
+            <value type="int">0</value>
+          </binding>
+        </mod-up>
+      </key>
+
+      <key n="50">
+        <name>2</name>
+        <desc>A/P pitch up</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/pitch-switch</property>
+          <value type="int">-1</value>
+        </binding>
+        <mod-up>
+          <binding>
+            <command>property-assign</command>
+            <property>instrumentation/sp40/pitch-switch</property>
+            <value type="int">0</value>
+          </binding>
+        </mod-up>
+      </key>
+
+      <key n="7">
+        <name>Ctrl-g</name>
+        <desc>gyro heading hold</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/hdgsel-switch</property>
+          <value type="int">1</value>
+        </binding>
+        <mod-up>
+          <binding>
+            <command>property-assign</command>
+            <property>instrumentation/sp40/hdgsel-switch</property>
+            <value type="int">0</value>
+          </binding>
+        </mod-up>
+      </key>
+
+      <key n="8">
+        <name>Ctrl-h</name>
+        <desc>heading hold</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/hdghold-switch</property>
+          <value type="int">1</value>
+        </binding>
+        <mod-up>
+          <binding>
+            <command>property-assign</command>
+            <property>instrumentation/sp40/hdghold-switch</property>
+            <value type="int">0</value>
+          </binding>
+        </mod-up>
+      </key>
+
+      <key n="14">
+        <name>Ctrl-n</name>
+        <desc>NAV hold</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>instrumentation/sp40/radio-switch</property>
+          <value type="int">1</value>
+        </binding>
+        <mod-up>
+          <binding>
+            <command>property-assign</command>
+            <property>instrumentation/sp40/radio-switch</property>
+            <value type="int">0</value>
+          </binding>
+        </mod-up>
+      </key>
+
+<!--Yaw damper-->
+      <key n="89">
+        <name>Y</name>
+        <desc>Disable Yaw damper</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>/instrumentation/autopilot/yaw-damper</property>
+          <value>0</value>
+        </binding>
+      </key>
+      <key n="121">
+        <name>y</name>
+        <desc>Enable Yaw damper</desc>
+        <binding>
+          <command>property-assign</command>
+          <property>/instrumentation/autopilot/yaw-damper</property>
+          <value>1</value>
+        </binding>
+      </key>
+
+<!--Braking-->
+      <key n="2">
+        <name>Ctrl-B</name>
+        <desc>Toggle Speedbrakes</desc>
+        <binding>
+          <command>property-toggle</command>
+          <property>controls/flight/speedbrake</property>
+        </binding>
+      </key>
+
+      <key n="98">
+        <name>b</name>
+        <desc>Apply all brakes, jettision dragchut (ALT-b)</desc>
+        <binding>
+          <condition>
+            <property>devices/status/keyboard/alt</property>
+          </condition>
+          <command>nasal</command>
+          <script>controls.deployChute(1)</script>
+        </binding>
+
+        <binding>
+          <condition>
+            <not>
+              <property>devices/status/keyboard/alt</property>
+            </not>
+          </condition>
+          <command>nasal</command>
+          <script>controls.applyBrakes(1)</script>
+        </binding>
+        <mod-up>
+          <binding>
+            <condition>
+              <property>devices/status/keyboard/alt</property>
+            </condition>
+            <command>nasal</command>
+            <script>controls.deployChute(0)</script>
+          </binding>
+          <binding>
+            <condition>
+              <not>
+                <property>devices/status/keyboard/alt</property>
+              </not>
+            </condition>
+            <command>nasal</command>
+            <script>controls.applyBrakes(0)</script>
+          </binding>
+        </mod-up>
+       </key>
+    </keyboard>
+  </input>
+
+  <controls>
+    <flight>
+      <speedbrake type="bool">false</speedbrake>
+    </flight>
+    <engines>
+      <off type="bool">0</off>
+    </engines>
+    <fuel>
+      <fuel-pump-test type="bool">false</fuel-pump-test>
+      <cross-feed type="bool">false</cross-feed>
+    </fuel>
+    <gear>
+      <brake-parking type="bool">true</brake-parking>
+      <brake-parking-position type="double">1.0</brake-parking-position>
+      <emergency-gear-down type="bool">false</emergency-gear-down>
+    </gear>
+    <lighting>
+      <landing-lights type="bool" n="0">false</landing-lights>
+      <landing-lights type="bool" n="1">false</landing-lights>
+      <taxi-light type="bool" >false</taxi-light>
+      <nav-lights type="bool">false</nav-lights>
+      <beacon type="bool">false</beacon>
+    </lighting>
+    <electric>
+      <generator n="0" type="int">0</generator>
+      <generator n="1" type="int">0</generator>
+    </electric>
+  </controls>
+
+  <systems>
+    <pitot n="0">
+      <serviceable type="bool">true</serviceable>
+    </pitot>
+    <pitot n="1">
+      <serviceable type="bool">true</serviceable>
+    </pitot>
+
+    <static n="0">
+      <serviceable type="bool">true</serviceable>
+      <pressure-inhg type="double">29.92</pressure-inhg>
+    </static>
+    <static n="1">
+      <serviceable type="bool">true</serviceable>
+      <pressure-inhg type="double">29.92</pressure-inhg>
+    </static>
+
+    <!-- operations manual 14.2.6: 
+         fuselage pump transfers to both wing tanks -->
+    <fuel>
+      <pressure-psi type="double">14</pressure-psi>
+      <low-level-warning-kg type="double">440</low-level-warning-kg>
+      <fuel-pump n="0">
+        <name>fuselage pump</name>
+        <source-tank type="int">2</source-tank>
+        <destination-tank type="int">1</destination-tank>
+        <destination-tank type="int">3</destination-tank>
+        <max-fuel-flow-pph type="double">5000</max-fuel-flow-pph>
+      </fuel-pump>
+      <fuel-pump n="1">
+        <name>left tip pump</name>
+        <source-tank type="int">0</source-tank>
+        <destination-tank type="int">1</destination-tank>
+        <max-fuel-flow-pph type="double">5000</max-fuel-flow-pph>
+      </fuel-pump>
+      <fuel-pump n="2">
+        <name>right tip pump</name>
+        <source-tank type="int">4</source-tank>
+        <destination-tank type="int">3</destination-tank>
+        <max-fuel-flow-pph type="double">5000</max-fuel-flow-pph>
+      </fuel-pump>
+      <fuel-pump n="3">
+        <name>left main wing pump</name>
+        <source-tank type="int">1</source-tank>
+        <max-pressure-psi type="double">14</max-pressure-psi>
+      </fuel-pump>
+      <fuel-pump n="4">
+        <name>left aux wing pump</name>
+        <source-tank type="int">1</source-tank>
+        <max-pressure-psi type="double">14</max-pressure-psi>
+      </fuel-pump>
+      <fuel-pump n="5">
+        <name>right main wing pump</name>
+        <source-tank type="int">3</source-tank>
+        <max-pressure-psi type="double">14</max-pressure-psi>
+      </fuel-pump>
+      <fuel-pump n="6">
+        <name>right aux wing pump</name>
+        <source-tank type="int">3</source-tank>
+        <max-pressure-psi type="double">14</max-pressure-psi>
+      </fuel-pump>
+
+      <!-- LH auto sequencer -->
+      <auto-sequencer n="0">
+        <tank-number>1</tank-number>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[0]</pump>
+          <on-level-kg>820</on-level-kg>
+          <off-level-kg>830</off-level-kg>
+        </transfer-unit>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[1]</pump>
+          <on-level-kg>600</on-level-kg>
+          <off-level-kg>610</off-level-kg>
+        </transfer-unit>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[2]</pump>
+          <on-level-kg>600</on-level-kg>
+          <off-level-kg>610</off-level-kg>
+        </transfer-unit>
+      </auto-sequencer>
+
+      <!-- LH auto sequencer -->
+      <auto-sequencer n="1">
+        <tank-number>3</tank-number>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[0]</pump>
+          <on-level-kg>820</on-level-kg>
+          <off-level-kg>830</off-level-kg>
+        </transfer-unit>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[1]</pump>
+          <on-level-kg>600</on-level-kg>
+          <off-level-kg>610</off-level-kg>
+        </transfer-unit>
+        <transfer-unit>
+          <pump>systems/fuel/fuel-pump[2]</pump>
+          <on-level-kg>600</on-level-kg>
+          <off-level-kg>610</off-level-kg>
+        </transfer-unit>
+      </auto-sequencer>
+    </fuel>
+
+    <electrical include="Systems/electrical.xml"/>
+
+  </systems>
+
+  <autopilot>
+    <flightdirector n="0"> 
+      <serviceable type="bool">true</serviceable>
+      <switch-position type="int">0</switch-position>
+    </flightdirector> 
+    <settings>
+      <max-roc-fpm type="double">2000</max-roc-fpm>
+      <max-rod-fpm type="double">-2000</max-rod-fpm>
+      <max-pitch-deg type="double">10.0</max-pitch-deg>
+      <min-pitch-deg type="double">-5.0</min-pitch-deg>
+      <max-roll-deg type="double">30.0</max-roll-deg>
+      <go-around-pitch-deg type="double">8.0</go-around-pitch-deg>
+      <standard-turn-rate-degps type="double">1.5</standard-turn-rate-degps>
+      <cdi-filter-time type="double">1.0</cdi-filter-time>
+      <nav-intercept-angle-deg2 type="double">90</nav-intercept-angle-deg2>
+    </settings>
+  </autopilot>
+
+  <instrumentation>
+    <use-new-navradio type="bool">true</use-new-navradio>
+    <altimeter n="0">
+      <serviceable type="bool">true</serviceable>
+      <setting-hpa type="double">1013</setting-hpa>
+    </altimeter>
+    <altimeter n="1">
+      <serviceable type="bool">true</serviceable>
+      <setting-hpa type="double">1013</setting-hpa>
+    </altimeter>
+    <airspeed-indicator n="0">
+      <serviceable type="bool">true</serviceable>
+    </airspeed-indicator>
+    <airspeed-indicator n="1">
+      <serviceable type="bool">true</serviceable>
+    </airspeed-indicator>
+    <vertical-speed-indicator n="0">
+      <serviceable type="bool">true</serviceable>
+    </vertical-speed-indicator>
+    <vertical-speed-indicator n="1">
+      <serviceable type="bool">true</serviceable>
+    </vertical-speed-indicator>
+    <slip-skid-ball n="0">
+      <serviceable type="bool">true</serviceable>
+    </slip-skid-ball>
+    <slip-skid-ball n="1">
+      <serviceable type="bool">true</serviceable>
+    </slip-skid-ball>
+    <turn-indicator n="0">
+      <serviceable type="bool">true</serviceable>
+    </turn-indicator>
+    <turn-indicator n="1">
+      <serviceable type="bool">true</serviceable>
+    </turn-indicator>
+    <attitude-indicator n="0">
+      <config>
+        <spin-thresh>0.6</spin-thresh>
+        <max-roll-error-deg>90</max-roll-error-deg>
+        <max-pitch-error-deg>10</max-pitch-error-deg>
+      </config>
+    </attitude-indicator>
+    <attitude-indicator n="1">
+      <config>
+        <spin-thresh>0.7</spin-thresh>
+        <max-roll-error-deg>90</max-roll-error-deg>
+        <max-pitch-error-deg>9</max-pitch-error-deg>
+      </config>
+    </attitude-indicator>
+
+    <comm n="0">
+      <power-btn type="bool">1</power-btn>
+      <test-btn type="bool">0</test-btn>
+      <volume type="double">0.8</volume>
+    </comm>
+
+    <comm n="1">
+      <power-btn type="bool">1</power-btn>
+      <test-btn type="bool">0</test-btn>
+      <volume type="double">0.8</volume>
+    </comm>
+
+    <nav n="0">
+      <power-btn type="bool">1</power-btn>
+      <volume type="double">0.8</volume>
+    </nav>
+
+    <nav n="1">
+      <power-btn type="bool">1</power-btn>
+      <volume type="double">0.8</volume>
+    </nav>
+
+    <collins-313n n="0">
+      <comm-left-outer-position type="int">1</comm-left-outer-position>
+      <comm-left-inner-position type="int">0</comm-left-inner-position>
+      <comm-right-inner-position type="int">0</comm-right-inner-position>
+      <nav-left-outer-position type="int">1</nav-left-outer-position>
+      <nav-left-inner-position type="int">0</nav-left-inner-position>
+      <nav-right-inner-position type="int">0</nav-right-inner-position>
+      <test-position type="int">0</test-position>
+    </collins-313n>
+
+    <collins-313n n="1">
+      <comm-left-outer-position type="int">1</comm-left-outer-position>
+      <comm-left-inner-position type="int">0</comm-left-inner-position>
+      <comm-right-inner-position type="int">0</comm-right-inner-position>
+      <nav-left-outer-position type="int">1</nav-left-outer-position>
+      <nav-left-inner-position type="int">0</nav-left-inner-position>
+      <nav-right-inner-position type="int">0</nav-right-inner-position>
+      <test-position type="int">0</test-position>
+    </collins-313n>
+
+    <adf n="0">
+      <serviceable type="bool">true</serviceable>
+      <frequencies>
+        <selected-khz type="int">543</selected-khz>
+        <standby-khz type="int">1234</standby-khz>
+      </frequencies>
+      <indicated-bearing-deg type="double">90</indicated-bearing-deg>
+      <error-deg type="double">2</error-deg>
+      <mode>adf</mode>
+      <rotation-deg type="double">0</rotation-deg>
+      <volume-norm type="double">0.5</volume-norm>
+    </adf>
+
+
+    <adf n="1">
+      <serviceable type="bool">true</serviceable>
+      <frequencies>
+        <selected-khz type="int">654</selected-khz>
+        <standby-khz type="int">1234</standby-khz>
+      </frequencies>
+      <indicated-bearing-deg type="double">90</indicated-bearing-deg>
+      <error-deg type="double">2.5</error-deg>
+      <mode>adf</mode>
+      <rotation-deg type="double">0</rotation-deg>
+      <volume-norm type="double">0.5</volume-norm>
+    </adf>
+
+    <heading-indicator>
+      <mode-magnetic type="bool">true</mode-magnetic>
+      <sync-knob type="double">0.0</sync-knob>
+      <vor n="0">
+        <bearing alias="/instrumentation/nav[0]/mag-bearing-to-deg"/>
+        <valid alias="/instrumentation/nav[0]/bearing-valid"/>
+      </vor>
+      <vor n="1">
+        <bearing alias="/instrumentation/nav[1]/mag-bearing-to-deg"/>
+        <valid alias="/instrumentation/nav[1]/bearing-valid"/>
+      </vor>
+    </heading-indicator>
+
+  </instrumentation>
+
+  <nasal>
+    <Hansajet>
+      <file>Aircraft/Hansajet/Nasal/Hansajet.nas</file>
+      <file>Aircraft/Hansajet/Nasal/electric.nas</file>
+      <file>Aircraft/Hansajet/Nasal/SelectorSwitch.nas</file>
+      <file>Aircraft/Hansajet/Models/Radio/kr87.nas</file>
+      <script><![CDATA[
+        kr87.new("/instrumentation/adf[0]");
+        kr87.new("/instrumentation/adf[1]");
+        SelectorSwitch.new( 
+          "instrumentation/heading-indicator[0]/voradf-position",
+          "instrumentation/heading-indicator[0]/needle1-rotation-deg", [
+          "instrumentation/adf[0]/indicated-bearing-deg",
+          "instrumentation/heading-indicator[0]/vor[0]/rotation-deg",
+          "instrumentation/heading-indicator[0]/vor[0]/rotation-deg",
+          "instrumentation/adf[0]/indicated-bearing-deg",
+          ] );
+        SelectorSwitch.new( 
+          "instrumentation/heading-indicator[0]/voradf-position",
+          "instrumentation/heading-indicator[0]/needle2-rotation-deg", [
+          "instrumentation/adf[1]/indicated-bearing-deg",
+          "instrumentation/adf[1]/indicated-bearing-deg",
+          "instrumentation/heading-indicator[0]/vor[1]/rotation-deg",
+          "instrumentation/heading-indicator[0]/vor[1]/rotation-deg"
+          ]);
+        SelectorSwitch.new( 
+          "instrumentation/overhead-panel/dc-instr-source",
+          "instrumentation/overhead-panel/dc-amps/deflection-norm", [
+          "instrumentation/overhead-panel/dc-amps/i0-norm",
+          "instrumentation/overhead-panel/dc-amps/i1-norm",
+          "instrumentation/overhead-panel/dc-amps/i2-norm",
+          "instrumentation/overhead-panel/dc-amps/i3-norm",
+          "instrumentation/overhead-panel/dc-amps/i4-norm"
+          ]);
+        SelectorSwitch.new( 
+          "instrumentation/overhead-panel/dc-instr-source",
+          "instrumentation/overhead-panel/dc-volts", [
+          "instrumentation/overhead-panel/dc-amps/i0-norm",
+          "systems/electrical/bus[0]/battery[0]/voltage-v",
+          "systems/electrical/bus[0]/battery[1]/voltage-v",
+          "systems/electrical/bus[1]/generator[0]/voltage-v",
+          "systems/electrical/bus[1]/generator[1]/voltage-v"
+          ]);
+      ]]></script>
+    </Hansajet>
+  </nasal>
+
+  <consumables>
+    <fuel> <!-- 14.1 page 14.11 Flight Manual: Fuel Tanks -->
+      <!-- total of 67kg unusable fuel.
+           Guess: 10kg each tip tank, 15kg each wing tank, 17kg fuselage tank -->
+      <tank n="0">
+        <name type="string">Tip L/H</name>
+        <capacity-m3 type="double">0.55</capacity-m3>
+        <unusable-m3 type="double">0.0125</unusable-m3>
+        <density-kgpm3 type="double">800.0</density-kgpm3>
+      </tank>
+      <tank n="1">
+        <name type="string">Wing L/H</name>
+        <capacity-m3 type="double">1.175</capacity-m3>
+        <unusable-m3 type="double">0.01875</unusable-m3>
+        <density-kgpm3 type="double">800.0</density-kgpm3>
+      </tank>
+      <tank n="2">
+        <name type="string">Fuselage</name>
+        <capacity-m3 type="double">0.625</capacity-m3>
+        <unusable-m3 type="double">0.02125</unusable-m3>
+        <density-kgpm3 type="double">800.0</density-kgpm3>
+      </tank>
+      <tank n="3">
+        <name type="string">Wing R/H</name>
+        <capacity-m3 type="double">1.175</capacity-m3>
+        <unusable-m3 type="double">0.01875</unusable-m3>
+        <density-kgpm3 type="double">800.0</density-kgpm3>
+      </tank>
+      <tank n="4">
+        <name type="string">Tip R/H</name>
+        <capacity-m3 type="double">0.55</capacity-m3>
+        <unusable-m3 type="double">0.0125</unusable-m3>
+        <density-kgpm3 type="double">800.0</density-kgpm3>
+      </tank>
+    </fuel>
+  </consumables>
+
+  <limits>
+    <max-flap-extension-speed>
+      <flaps type="double">0.40</flaps>
+      <speed type="double">190</speed>
+    </max-flap-extension-speed>
+    <max-flap-extension-speed>
+      <flaps type="double">1.00</flaps>
+      <speed type="double">175</speed>
+    </max-flap-extension-speed>
+    <max-slat-extension-speed type="double">200</max-slat-extension-speed>
+    <max-gear-extension-speed type="double">170</max-gear-extension-speed>
+    <vne type="double">320</vne> <!-- FIXME: SL to 25,000ft, 0.76Mi above -->
+    <max-positive-g type="double">2.5</max-positive-g>
+    <max-negative-g type="double">-1.5</max-negative-g>
+    <max-tire-speed type="double">146</max-tire-speed>
+
+    <mass-and-balance>
+      <maximum-ramp-mass-lbs type="double">20500</maximum-ramp-mass-lbs>
+      <maximum-takeoff-mass-lbs type="double">20280</maximum-takeoff-mass-lbs>
+      <maximum-landing-mass-lbs type="double">19400</maximum-landing-mass-lbs>
+      <maximum-zero-fuel-mass-lbs type="double">15870</maximum-zero-fuel-mass-lbs>
+      <cg>
+        <dimension>%%MAC</dimension>
+        <factor type="double">1.0</factor>
+        <offset type="double">0.0</offset>
+        <limit>
+          <mass-lbs type="double">12000</mass-lbs>
+          <mac type="double">10</mac>
+        </limit>
+        <limit>
+          <mass-lbs type="double">15500</mass-lbs>
+          <mac type="double">10</mac>
+        </limit>
+        <limit>
+          <mass-lbs type="double">16500</mass-lbs>
+          <mac type="double">13</mac>
+        </limit>
+        <limit>
+          <mass-lbs type="double">20500</mass-lbs>
+          <mac type="double">13</mac>
+        </limit>
+        <limit>
+          <mass-lbs type="double">20500</mass-lbs>
+          <mac type="double">23</mac>
+        </limit>
+        <limit>
+          <mass-lbs type="double">12000</mass-lbs>
+          <mac type="double">23</mac>
+        </limit>
+      </cg>
+    </mass-and-balance>
+  </limits>
+
+  <payload>
+     <weight>
+        <name type="string">Crew</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[0]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">440.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Jump Seat</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[1]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">220.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Attendant Seat</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[2]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">220.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Passenger Seat 1+2</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[3]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">440.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Passenger Seat 3+4</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[4]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">440.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Passenger Seat 5-8</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[5]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">777.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Baggage Compartment</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[6]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">660.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">FWD Baggage Compartment</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[7]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">110.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Nose Ballast</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[8]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">110.0</max-lb>
+     </weight>
+     <weight>
+        <name type="string">Tail Ballast</name>
+        <weight-lb alias="/fdm/jsbsim/inertia/pointmass-weight-lbs[9]"/>
+        <min-lb type="double">0.0</min-lb>
+        <max-lb type="double">110.0</max-lb>
+     </weight>
+  </payload>
+
+</PropertyList>

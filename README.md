@@ -296,7 +296,7 @@ To create a permanent link to a covise command prompt edit and execute Scripts/i
 
 #### Building with VS Code
 
-This is an experimental alternative to Visual Studio. You need VS Code with the C/C++ Extension Pack and the CMake Tools expansions installed. You also need the MSVC compiler and one of the supported generators (Ninja, Visual Studio). An additional dependency is https://github.com/nlohmann/json which should be installed like COVISE's other dependencies in the EXTERNLIBS directory.
+This is an experimental alternative to Visual Studio. You need VS Code with the C/C++ Extension Pack and the CMake Tools expansions installed. You also need the MSVC compiler (with ATL support) and one of the supported generators (Ninja, Visual Studio). An additional dependency is https://github.com/nlohmann/json which should be installed like COVISE's other dependencies in the EXTERNLIBS directory.
 To configure and build COVISE:
 
     open the COVISE directory with VS Code

@@ -463,7 +463,7 @@ osg::Geode *BoreHole::createGeometry()
 			float a = i * 2.0 * M_PI / numSides;
 			vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, 0.0));
 			if(texture)
-			    texCoord->push_back(osg::Vec2(i/(float)numSides, 0.0));
+			    texCoord->push_back(osg::Vec2(i/(float)numSides, 1.0));
 			else
 				color->push_back(colors[ci->verw_max]);
 			normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));
@@ -477,7 +477,7 @@ osg::Geode *BoreHole::createGeometry()
 			float a = i * 2.0 * M_PI / numSides;
 			vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, ci->DepthTop));
 			if (texture)
-				texCoord->push_back(osg::Vec2(i / (float)numSides, (ci->DepthTop - minT) / (maxT - minT)));
+				texCoord->push_back(osg::Vec2(i / (float)numSides, 1.0 -((ci->DepthTop - minT) / (maxT - minT))));
 			else
 				color->push_back(colors[ci->verw_max]);
 			normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));
@@ -489,7 +489,7 @@ osg::Geode *BoreHole::createGeometry()
 				float a = i * 2.0 * M_PI / numSides;
 				vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, ci->DepthBase));
 				if (texture)
-					texCoord->push_back(osg::Vec2(i / (float)numSides, (ci->DepthBase - minT) / (maxT - minT)));
+					texCoord->push_back(osg::Vec2(i / (float)numSides, 1.0 -((ci->DepthBase - minT) / (maxT - minT))));
 				else
 					color->push_back(colors[ci->verw_max]);
 				normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));

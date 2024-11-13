@@ -88,6 +88,10 @@ public:
         TUITab::setColor(c);
     }
 
+    // void handleAddNode(QTreeWidgetItem* item, QTreeWidgetItem* parent_item);
+    // void handleRemoveNode(QTreeWidgetItem* item, QTreeWidgetItem* parent_item);
+    // void handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* oldParent_item, QTreeWidgetItem* newParent_item);
+
 protected:
     void closeEvent(QCloseEvent *);
 
@@ -108,6 +112,15 @@ private:
     void findItem();
     void sendSetShaderRequest(QTreeWidgetItem *item, const char *shaderName);
     void sendRemoveShaderRequest(QTreeWidgetItem *item);
+
+    void sendAddNodeRequest(const char* parent_path, int node_type);
+    void sendRemoveNodeRequest(const char* item_path, const char* parent_path);
+    void sendMoveNodeRequest(const char* item_oldPath, const char* oldParent_path, const char* newParent_path, int dropIndex);
+    void sendRenameNodeRequest(const char* item_path, const char* item_newName);
+
+    void setCurrentNode(QTreeWidgetItem* focusItem);
+    void setCurrentNode(QTreeWidgetItem* focusParentItem, int index);
+    void setCurrentNode(QString focusPath_str);
 
     float ColorR, ColorG, ColorB;
     int polyMode;
@@ -164,6 +177,7 @@ private:
 
 public slots:
     void updateScene();
+    
     void updateItemState(QTreeWidgetItem *, int);
     void handleApply();
     void handleCloseDialog();
@@ -192,6 +206,17 @@ public slots:
     void handleOutputTypeChanged(int);
     void handleShaderList(QListWidgetItem *);
 
+    void handleAddNode(QTreeWidgetItem* parent_item, int node_type);
+    void handleAddNodeGroup();
+    void handleAddNodeMatrixTransform();
+    // void handleAddNodeGeode();
+
+    void handleRemoveCurrentNode();
+    void handleRemoveNode(QTreeWidgetItem* item, QTreeWidgetItem* parent_item);
+    void handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* oldParent_item, QTreeWidgetItem* newParent_item, int dropIndex);
+    void handleRenamedCurrentNode();
+    void handleRenamingCurrentNode();
+
 private slots:
     void itemChangedSlot(QTreeWidgetItem *, QTreeWidgetItem *);
     void centerObject();
@@ -215,6 +240,9 @@ private slots:
     void itemProperties();
     void showhideSimItems(int state, const char *nodePath);
     void showNode(QTreeWidgetItem *item, bool visible);
+
+    void checkChildrenCurrentNode();
+    void uncheckChildrenCurrentNode();
 };
 
 class SGTextureThread : public QThread
@@ -267,5 +295,11 @@ public:
 
 signals:
     void itemCheckStateChanged(QTreeWidgetItem *item, bool state);
+    void itemDropped(QTreeWidgetItem* item, QTreeWidgetItem* oldParent_item, QTreeWidgetItem* newParent_item, int dropIndex);
+    // void itemRenamed(QTreeWidgetItem* item);
+    // void itemChanged(QTreeWidgetItem* item, int column);
+
+protected:
+    bool eventFilter(QObject* object, QEvent* event);
 };
 #endif

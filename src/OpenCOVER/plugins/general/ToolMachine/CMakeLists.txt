@@ -9,19 +9,35 @@ endif()
 
 
 SET(HEADERS
+../CsvPointCloud/OctUtils.h
 Currents.h
 Oct.h
+Plugin.h
 Tool.h
+ToolChanger/Arm.h
+ToolChanger/Changer.h
+ToolChanger/Tool.h
+ToolChanger/ToolChanger.h
+ToolChanger/Utility.h
 ToolMachine.h
+VrmlNode.h
 )
 
 SET(SOURCES
+../CsvPointCloud/OctUtils.cpp
 Currents.cpp
 Oct.cpp
+Plugin.cpp
 Tool.cpp
+ToolChanger/Arm.cpp
+ToolChanger/Changer.cpp
+ToolChanger/Tool.cpp
+ToolChanger/ToolChanger.cpp
+ToolChanger/Utility.cpp
 ToolMachine.cpp
+VrmlNode.cpp
 )
 
 cover_add_plugin(ToolMachine)
-target_link_libraries(ToolMachine coOpenOpcUaClient)
+target_link_libraries(ToolMachine coOpenOpcUaClient exprtk)
 

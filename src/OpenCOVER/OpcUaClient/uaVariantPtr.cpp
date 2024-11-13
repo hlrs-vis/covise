@@ -16,7 +16,17 @@ UA_Variant *UA_Variant_ptr::operator->()
     return m_ptr.get();
 }
 
+const UA_Variant *UA_Variant_ptr::operator->() const
+{
+    return m_ptr.get();
+}
+
 UA_Variant *UA_Variant_ptr::get()
+{
+    return m_ptr.get();
+}
+
+const UA_Variant *UA_Variant_ptr::get() const 
 {
     return m_ptr.get();
 }

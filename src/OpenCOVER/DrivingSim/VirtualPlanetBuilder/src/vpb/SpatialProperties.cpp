@@ -26,6 +26,7 @@
 
 #include <cpl_string.h>
 #include <ogr_spatialref.h>
+bool assumeEqual=true;
 
 using namespace vpb;
 
@@ -112,6 +113,8 @@ double vpb::getLinearUnits(const osg::CoordinateSystemNode *lhs)
 
 bool vpb::areCoordinateSystemEquivalent(const osg::CoordinateSystemNode *lhs, const osg::CoordinateSystemNode *rhs)
 {
+    if(assumeEqual)
+        return true;
     // if ptr's equal the return true
     if (lhs == rhs)
         return true;

@@ -76,7 +76,7 @@ EnGoldGeoASC::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
     // allocate memory for coords, connectivities...
     allocateMemory();
 
-    int allPartsToRead(0);
+    unsigned int allPartsToRead(0);
 	unsigned int ii;
 	for (ii = 0; ii < ens->masterPL_.size(); ++ii)
 	{
@@ -87,7 +87,7 @@ EnGoldGeoASC::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
 	}
 
     char buf[256];
-    int cnt(1);
+    unsigned int cnt(1);
     // read parts and connectivity
     PartList::iterator it(ens->masterPL_.begin());
     for (; it != ens->masterPL_.end(); it++)
@@ -150,7 +150,7 @@ EnGoldGeoASC::readBB()
 int
 EnGoldGeoASC::readHeader()
 {
-    int ret(0);
+    unsigned int ret(0);
     if (isOpen_)
     {
         char buf[lineLen];
@@ -238,13 +238,13 @@ EnGoldGeoASC::readHeader()
 int
 EnGoldGeoASC::readPart(EnPart &actPart)
 {
-    int ret(0);
-    int partNo;
+    unsigned int ret(0);
+    unsigned int partNo;
 
     if (isOpen_)
     {
         char buf[lineLen];
-        int noRead(0);
+        unsigned int noRead(0);
         // 2 lines decription - ignore it
         fgets(buf, lineLen, in_);
         ++lineCnt_;
@@ -281,7 +281,7 @@ EnGoldGeoASC::readPart(EnPart &actPart)
             // number of coordinates
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int nc(0);
+            unsigned int nc(0);
             noRead = sscanf(buf, "%d", &nc);
             //cerr << className_ << "::readPart() got No. of coordinates (per part): " << nc << endl;
             if (noRead != 1)
@@ -290,7 +290,7 @@ EnGoldGeoASC::readPart(EnPart &actPart)
                 return -1;
             }
             numCoords_ += nc;
-            int numCoords = nc;
+            unsigned int numCoords = nc;
 
             // allocate memory for the coordinate list per part
             float *x = new float[nc];
@@ -299,7 +299,7 @@ EnGoldGeoASC::readPart(EnPart &actPart)
 
             // id's or coordinates
             float val;
-            int i;
+            unsigned int i;
             switch (nodeId_)
             {
             case OFF:
@@ -348,7 +348,7 @@ EnGoldGeoASC::readPart(EnPart &actPart)
             case GIVEN:
                 // index array
                 // the index array is currently ignored
-                int iVal;
+                unsigned int iVal;
                 for (i = 0; i < nc; ++i)
                 {
                     fgets(buf, lineLen, in_);
@@ -418,37 +418,37 @@ int
 EnGoldGeoASC::readPartConn(EnPart &actPart)
 {
 
-    int &partNo(actPartNumber_);
-    int ret(0);
+    unsigned int &partNo(actPartNumber_);
+    unsigned int ret(0);
 
     if (!isOpen_)
         return -1;
 
     char buf[lineLen];
-    int currElePtr3d = 0, currElePtr2d = 0;
+    unsigned int currElePtr3d = 0, currElePtr2d = 0;
 
-    int *locArr = new int[21]; // an ENSIGHT element has max. 20 corners + 1 index
-    int cornIn[20], cornOut[20];
+    unsigned int *locArr = new unsigned int[21]; // an ENSIGHT element has max. 20 corners + 1 index
+    unsigned int cornIn[20], cornOut[20];
 
-    int numElements;
-    int nc;
-    int covType;
-    int numDistCorn(0);
+    unsigned int numElements;
+    unsigned int nc;
+    unsigned int covType;
+    unsigned int numDistCorn(0);
 
     bool partFound(false);
 
-    int statistic[30];
-    int rstatistic[30][30];
-    int ii, jj;
+    unsigned int statistic[30];
+    unsigned int rstatistic[30][30];
+    unsigned int ii, jj;
     for (ii = 0; ii < 30; ++ii)
     {
         statistic[ii] = 0;
         for (jj = 0; jj < 9; ++jj)
             rstatistic[ii][jj] = 0;
     }
-    int degCells(0);
+    unsigned int degCells(0);
 
-    vector<int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
+    vector<unsigned int> eleLst2d, eleLst3d, cornLst2d, cornLst3d, typeLst2d, typeLst3d;
 
     // we don't know a priori how many Ensight elements we can expect here therefore we have to read
     // until we find a new 'part'
@@ -469,7 +469,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
         // we have a valid ENSIGHT element
         if (elem.valid())
         {
-            vector<int> blacklist;
+            vector<unsigned int> blacklist;
             // get number of elements
             fgets(buf, lineLen, in_);
             ++lineCnt_;
@@ -478,7 +478,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
             nc = elem.getNumberOfCorners();
             covType = elem.getCovType();
 
-            int i;
+            unsigned int i;
             // read elements id's
             switch (elementId_)
             {
@@ -505,7 +505,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
                 // remap indicees (Ensight elements may have a different numbering scheme
                 //                 as COVISE elements)
                 //  prepare arrays
-                int j;
+                unsigned int j;
                 for (j = 0; j < nc; ++j)
                     cornIn[j] = locArr[j] - 1;
                 // we add the element to the list of points if it has more than one
@@ -515,7 +515,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
                 {
                     if (numDistCorn != elem.getNumberOfCorners())
                     {
-                        int iii = elem.getNumberOfCorners();
+                        unsigned int iii = elem.getNumberOfCorners();
                         statistic[iii]++;
                         rstatistic[iii][numDistCorn]++;
                     }
@@ -565,15 +565,15 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
     if (partList_ != NULL)
     {
         // create arrys explicitly
-        int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
-        int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
+        unsigned int *elePtr2d(NULL), *typePtr2d(NULL), *connPtr2d(NULL);
+        unsigned int *elePtr3d(NULL), *typePtr3d(NULL), *connPtr3d(NULL);
 
-        elePtr2d = new int[eleLst2d.size()];
-        elePtr3d = new int[eleLst3d.size()];
-        typePtr2d = new int[typeLst2d.size()];
-        typePtr3d = new int[typeLst3d.size()];
-        connPtr2d = new int[cornLst2d.size()];
-        connPtr3d = new int[cornLst3d.size()];
+        elePtr2d = new unsigned int[eleLst2d.size()];
+        elePtr3d = new unsigned int[eleLst3d.size()];
+        typePtr2d = new unsigned int[typeLst2d.size()];
+        typePtr3d = new unsigned int[typeLst3d.size()];
+        connPtr2d = new unsigned int[cornLst2d.size()];
+        connPtr3d = new unsigned int[cornLst3d.size()];
 
         std::copy(eleLst2d.begin(), eleLst2d.end(), elePtr2d);
         std::copy(eleLst3d.begin(), eleLst3d.end(), elePtr3d);
@@ -631,8 +631,8 @@ void
 EnGoldGeoASC::parseForParts()
 {
     char buf[lineLen];
-    int numParts(0);
-    int totNumElements;
+    unsigned int numParts(0);
+    unsigned int totNumElements;
 
     EnPart *actPart(NULL);
 
@@ -644,7 +644,7 @@ EnGoldGeoASC::parseForParts()
         fgets(buf, lineLen, in_);
         ++lineCnt_;
         string tmp(buf);
-        int actPartNr;
+        unsigned int actPartNr;
 
         // scan for part token
         // read comment and print part line
@@ -668,7 +668,7 @@ EnGoldGeoASC::parseForParts()
             ++lineCnt_;
             string coordTok(buf);
             id = coordTok.find("coordinates");
-            int numCoords(0);
+            unsigned int numCoords(0);
             if (id != string::npos)
             {
                 // number of coordinates
@@ -724,8 +724,8 @@ EnGoldGeoASC::parseForParts()
             // get number of elements
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int numElements = atoi(buf);
-            int nc(elem.getNumberOfCorners());
+            unsigned int numElements = atoi(buf);
+            unsigned int nc(elem.getNumberOfCorners());
             switch (elementId_)
             {
             case GIVEN:
@@ -811,10 +811,10 @@ EnGoldGeoASC::allocateMemory()
         dc_.z = new float[totNumCoords];
 
         dc_.setNumElem(totNumEle);
-        dc_.el = new int[totNumEle];
-        dc_.tl = new int[totNumEle];
+        dc_.el = new unsigned int[totNumEle];
+        dc_.tl = new unsigned int[totNumEle];
 
-        dc_.cl = new int[totNumCorners];
+        dc_.cl = new unsigned int[totNumCorners];
         dc_.setNumConn(totNumCorners);
 
         allocated_ = (dc_.x != NULL) && (dc_.y != NULL) && (dc_.z != NULL);
@@ -858,7 +858,7 @@ EnGoldGeoASC::skipPart()
         // get part number
         fgets(buf, lineLen, in_);
         ++lineCnt_;
-        int actPartNr = atoi(buf);
+        unsigned int actPartNr = atoi(buf);
         actPart.setPartNum(actPartNr);
 
         // comment line we need it for the table output
@@ -872,7 +872,7 @@ EnGoldGeoASC::skipPart()
         ++lineCnt_;
         string coordTok(buf);
         id = coordTok.find("coordinates");
-        int numCoords(0);
+        unsigned int numCoords(0);
         if (id != string::npos)
         {
             // number of coordinates
@@ -934,8 +934,8 @@ EnGoldGeoASC::skipPart()
             // get number of elements
             fgets(buf, lineLen, in_);
             ++lineCnt_;
-            int numElements = atoi(buf);
-            int nc(elem.getNumberOfCorners());
+            unsigned int numElements = atoi(buf);
+            unsigned int nc(elem.getNumberOfCorners());
             switch (elementId_)
             {
             case GIVEN:

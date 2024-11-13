@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<system name="Pilot Drag">
+
+  <function name="aero/coefficient/CD_Pilot_Trim">
+   <description>Drag_due_to_Pilot</description>
+   <product>
+    <property>aero/qbar-psf</property>
+    <value>10.76</value>  <!-- sqm2sqft -->
+    <value>0.15</value>   <!-- Pilot prone (trim) Ref 3 + Ref 4 (cd*A_pilot = 0.15 = 0.9375*(0.4m*0.4m) ) -->
+   </product>
+  </function>
+
+  <function name="aero/coefficient/CD_Pilot_Attitude">
+   <description>Drag_due_to_Pilot</description>
+   <product>
+    <property>aero/qbar-psf</property>
+    <abs>
+     <cos>
+      <difference>
+       <property>aero/beta-rad</property>
+       <property>fcs/rudder-pos-rad</property>
+      </difference>
+     </cos>
+    </abs>
+    <value>10.76</value> <!-- sqm2sqft -->
+    <product>
+     <value>0.27</value> <!-- Pilot upright (landing config.) calculated with data from Ref 3 -->
+     <abs>        <!-- 0.27 = (0.42-0.15) -->
+      <sin>
+       <product>
+        <sum>
+         <property>aero/alpha-eff-deg</property>
+         <value>-15.</value>
+         <property>fcs/pilot-attitude-pos-deg</property>
+         <property>fcs/elevator-pos-deg</property>
+        </sum>
+        <value>0.0174532</value>  <!-- deg2rad -->
+       </product>
+      </sin>
+     </abs>
+    </product>
+   </product>
+  </function>
+
+  <function name="aero/coefficient/CD_Pilot_Legs">
+   <description>Drag_due_to_Legs</description>
+   <product>
+    <property>aero/qbar-psf</property>
+    <property>gear/gear-pos-norm</property>
+    <value>10.76</value>  <!-- sqm2sqft -->
+    <value>0.26</value>   <!-- Ref 3 cd*A_Legs = 0.35*(0.3m*0.9m)= 0.1 (ref. cw cylinder)  -->
+   </product>
+  </function>
+
+  <function name="aero/coefficient/CD_Pilot_beta">
+   <description>Drag_due_to_Pilot_beta</description>
+   <product>
+    <property>aero/qbar-psf</property>
+    <abs>
+     <sin>
+      <difference>
+       <property>aero/beta-rad</property>
+       <property>fcs/rudder-pos-rad</property>
+      </difference>
+     </sin>
+    </abs>
+    <value>0.53</value> <!-- Pilot drag due to beta=90deg -->
+   </product>
+  </function>
+
+  <channel name="PiLoTdRaG">
+
+   <summer name="dummy magnitude pilotdrag"> <!-- w/o name message in shell: Failed to tie property fcs/ to object methods -->
+    <input>aero/coefficient/CD_Pilot_Trim</input>
+    <input>aero/coefficient/CD_Pilot_Attitude</input>
+    <input>aero/coefficient/CD_Pilot_Legs</input>
+    <input>aero/coefficient/CD_Pilot_beta</input>
+    <output>external_reactions/pilotdrag/magnitude</output>
+   </summer>
+
+  </channel>
+
+</system>

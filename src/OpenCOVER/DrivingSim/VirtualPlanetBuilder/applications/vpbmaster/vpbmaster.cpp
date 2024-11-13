@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include <signal.h>
+//extern bool assumeEqual;
 
 int main(int argc, char **argv)
 {
@@ -55,6 +56,7 @@ int main(int argc, char **argv)
     arguments.getApplicationUsage()->setDescription(arguments.getApplicationName() + " application is utility tools which can be used to generate paged geospatial terrain databases.");
     arguments.getApplicationUsage()->setCommandLineUsage(arguments.getApplicationName() + " [options] filename ...");
     arguments.getApplicationUsage()->addCommandLineOption("--version", "Display version information");
+    //arguments.getApplicationUsage()->addCommandLineOption("--equal", "assume Coordinatesystems are equal");
     arguments.getApplicationUsage()->addCommandLineOption("--cache <filename>", "Read the cache file to use a look up for locally cached files.");
     arguments.getApplicationUsage()->addCommandLineOption("-h or --help", "Display this information");
 
@@ -63,6 +65,12 @@ int main(int argc, char **argv)
         std::cout << "VirtualPlanetBuilder/vpbmaster version " << vpbGetVersion() << std::endl;
         return 0;
     }
+    /*if (arguments.read("--equal"))
+    {
+        assumeEqual = true;
+    }
+    */
+
 
     if (arguments.read("--version-number"))
     {

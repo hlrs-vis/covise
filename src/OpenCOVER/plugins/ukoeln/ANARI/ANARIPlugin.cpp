@@ -10,6 +10,7 @@
 #include <cover/ui/ButtonGroup.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
+#include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <config/CoviseConfig.h>
@@ -30,12 +31,6 @@ static uint8_t ANARI_TETRAHEDRON = 10;
 static uint8_t ANARI_HEXAHEDRON = 12;
 static uint8_t ANARI_WEDGE = 13;
 static uint8_t ANARI_PYRAMID = 14;
-
-inline
-bool assignedTo(int fileID, int mpiRank, int mpiSize) {
-    // round-robin:
-    return (fileID%mpiSize) == mpiRank;
-}
 
 ANARIPlugin *ANARIPlugin::plugin = nullptr;
 
@@ -91,11 +86,15 @@ static FileHandler handlers[] = {
     { NULL,
       ANARIPlugin::loadHDRI,
       ANARIPlugin::unloadHDRI,
-      "ext" },
+      "exr" },
     { NULL,
       ANARIPlugin::loadHDRI,
       ANARIPlugin::unloadHDRI,
       "hdr" },
+    { NULL,
+      ANARIPlugin::loadXF,
+      ANARIPlugin::unloadXF,
+      "xf" },
 };
 
 ANARIPlugin *ANARIPlugin::instance()
@@ -105,9 +104,7 @@ ANARIPlugin *ANARIPlugin::instance()
 
 int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int meshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadMesh(fileName);
 
     return 1;
@@ -115,9 +112,7 @@ int ANARIPlugin::loadMesh(const char *fileName, osg::Group *loadParent, const ch
 
 int ANARIPlugin::unloadMesh(const char *fileName, const char *)
 {
-    static int meshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(meshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadMesh(fileName);
 
     return 1;
@@ -157,9 +152,7 @@ int ANARIPlugin::unloadFLASH(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int umeshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadUMeshFile(fileName);
 
     plugin->renderer->wait();
@@ -169,9 +162,7 @@ int ANARIPlugin::loadUMeshFile(const char *fileName, osg::Group *loadParent, con
 
 int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 {
-    static int umeshFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadUMeshFile(fileName);
 
     plugin->renderer->wait();
@@ -181,9 +172,7 @@ int ANARIPlugin::unloadUMeshFile(const char *fileName, const char *)
 
 int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, const char *)
 {
-    static int umeshScalarFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->loadUMeshScalars(fileName);
 
     plugin->renderer->wait();
@@ -193,9 +182,7 @@ int ANARIPlugin::loadUMeshScalars(const char *fileName, osg::Group *loadParent, 
 
 int ANARIPlugin::unloadUMeshScalars(const char *fileName, const char *)
 {
-    static int umeshScalarFileCount = 0;
-    if (plugin->renderer
-        && assignedTo(umeshScalarFileCount++, plugin->renderer->mpiRank, plugin->renderer->mpiSize))
+    if (plugin->renderer)
         plugin->renderer->unloadUMeshScalars(fileName);
 
     plugin->renderer->wait();
@@ -251,6 +238,55 @@ int ANARIPlugin::unloadHDRI(const char *fileName, const char *)
     return 1;
 }
 
+int ANARIPlugin::loadXF(const char *fileName, osg::Group *loadParent, const char *)
+{
+    if (plugin->tfe) {
+        std::cout << "Loading transfer function from file: anari.xf" << std::endl;
+
+        std::ifstream is(fileName);
+        if (!is.good()) {
+            std::cerr << "Cannot open file" << std::endl;
+            return -1;
+        }
+
+        std::vector<glm::vec3> rgb;
+        std::vector<float> alpha;
+
+        unsigned numRGB, numAlpha;
+        is.read((char *)&numRGB, sizeof(numRGB));
+        rgb.resize(numRGB);
+        is.read((char *)rgb.data(), sizeof(rgb[0])*rgb.size());
+
+        is.read((char *)&numAlpha, sizeof(numAlpha));
+        alpha.resize(numAlpha);
+        is.read((char *)alpha.data(), sizeof(alpha[0])*alpha.size());
+
+        float absRangeLo=0.f, absRangeHi=1.f;
+        is.read((char *)&absRangeLo, sizeof(absRangeLo));
+        is.read((char *)&absRangeHi, sizeof(absRangeHi));
+
+        float relRangeLo=0.f, relRangeHi=1.f;
+        is.read((char *)&relRangeLo, sizeof(relRangeLo));
+        is.read((char *)&relRangeHi, sizeof(relRangeHi));
+
+        float opacityScale=1.f;
+        is.read((char *)&opacityScale, sizeof(opacityScale));
+
+        plugin->tfe->setTransfunc((const float *)rgb.data(), numRGB,
+                                  alpha.data(), numAlpha,
+                                  absRangeLo, absRangeHi,
+                                  relRangeLo, relRangeHi,
+                                  opacityScale);
+    }
+
+    return 1;
+}
+
+int ANARIPlugin::unloadXF(const char *fileName, const char *)
+{
+    return 1;
+}
+
 
 
 ANARIPlugin::ANARIPlugin()
@@ -296,6 +332,16 @@ void ANARIPlugin::preFrame()
     if (!renderer)
         return;
 
+    if (tfe) {
+        tfe->update();
+    }
+
+    const bool isDisplayRank = renderer->mpiRank==renderer->displayRank;
+    if (isDisplayRank
+      && renderer->getNumTimeSteps() != coVRAnimationManager::instance()->getNumTimesteps()) {
+        coVRAnimationManager::instance()->setNumTimesteps(renderer->getNumTimeSteps(), this);
+    }
+
     std::vector<Renderer::ClipPlane> clipPlanes;
     if (cover->isClippingOn()) {
         osg::ClipNode *cn = cover->getObjectsRoot();
@@ -328,6 +374,14 @@ void ANARIPlugin::expandBoundingSphere(osg::BoundingSphere &bs)
         return;
 
     renderer->expandBoundingSphere(bs);
+}
+
+void ANARIPlugin::setTimestep(int ts)
+{
+    if (!renderer)
+        return;
+
+    renderer->setTimeStep(ts);
 }
 
 void ANARIPlugin::addObject(const RenderObject *container, osg::Group *parent,
@@ -429,9 +483,22 @@ void ANARIPlugin::buildUI()
     auto *colorByRankButton = new ui::Button(debugMenu, "Color by MPI rank");
     colorByRankButton->setState(false);
     colorByRankButton->setCallback([=](bool value) {
-        renderer->setColorRanks(value);
+        renderer->setParam("debug.colorByRank", DataType::Bool, value);
     });
 
+#ifdef ANARI_PLUGIN_HAVE_RR
+    if (!remoteMenu)
+        remoteMenu = new ui::Menu(anariMenu, "Remote rendering");
+
+    auto *jpegQualitySlider = new ui::Slider(remoteMenu, "JPEG quality");
+    jpegQualitySlider->setIntegral(true);
+    jpegQualitySlider->setBounds(0,100);
+    jpegQualitySlider->setValue(renderer->getParam("rr.jpegQuality").as<int>());
+    jpegQualitySlider->setCallback([=](int value, bool /*release*/) {
+        renderer->setParam("rr.jpegQuality", DataType::Int32, value);
+    });
+#endif
+        
     if (!rendererMenu)
         rendererMenu = new ui::Menu(anariMenu, "Renderer");
 
@@ -462,6 +529,53 @@ void ANARIPlugin::buildUI()
         }
     }
 
+    tfe = new coTransfuncEditor;
+
+    tfe->setColorUpdateFunc([](const float *rgb, unsigned numRGB, void *userData) {
+        Renderer *renderer = (Renderer *)userData;
+        if (!renderer) return;
+        renderer->setTransFunc((const glm::vec3 *)rgb, numRGB, nullptr, 0);
+    }, renderer.get());
+
+    tfe->setOpacityUpdateFunc([](const float *opacity, unsigned numOpacities, void *userData) {
+        Renderer *renderer = (Renderer *)userData;
+        if (!renderer) return;
+        renderer->setTransFunc(nullptr, 0, opacity, numOpacities);
+    }, renderer.get());
+
+    tfe->setOnSaveFunc([](const float *color, unsigned numRGB,
+                          const float *opacity, unsigned numOpacity,
+                          float absRangeLo, float absRangeHi,
+                          float relRangeLo, float relRangeHi,
+                          float opacityScale, void *) {
+        std::cout << "Saving transfer function to file: anari.xf" << std::endl;
+        std::ofstream os("anari.xf");
+        if (!os.good()) {
+            std::cerr << "Cannot open file!" << std::endl;
+            return;
+        }
+        os.write((const char *)&numRGB, sizeof(numRGB));
+        os.write((const char *)color, sizeof(color[0])*numRGB*3);
+        os.write((const char *)&numOpacity, sizeof(numOpacity));
+        os.write((const char *)opacity, sizeof(color[0])*numOpacity);
+        os.write((const char *)&absRangeLo, sizeof(absRangeLo));
+        os.write((const char *)&absRangeHi, sizeof(absRangeHi));
+        os.write((const char *)&relRangeLo, sizeof(relRangeLo));
+        os.write((const char *)&relRangeHi, sizeof(relRangeHi));
+        os.write((const char *)&opacityScale, sizeof(opacityScale));
+    }, nullptr);
+
+    // set default color map:
+    auto &cm = colorMaps.getMap(0);
+    // Flatten, and RGBA -> RGB
+    std::vector<float> rgb(cm.size()*3);
+    for (size_t i=0; i<cm.size(); ++i) {
+        rgb[i*3] = cm[i].x;
+        rgb[i*3+1] = cm[i].y;
+        rgb[i*3+2] = cm[i].z;
+    }
+    tfe->setColor(rgb.data(), rgb.size()/3);
+
     if (this->previousRendererType != this->rendererType) {
         tearDownUI();
         auto &rendererParameters = renderer->getRendererParameters();
@@ -473,6 +587,8 @@ void ANARIPlugin::buildUI()
 
 void ANARIPlugin::tearDownUI()
 {
+    //delete tfe;
+
     for (size_t i=0; i<rendererUI.size(); ++i) {
         auto *elem = rendererUI[i];
         if (elem != nullptr) {

@@ -43,6 +43,7 @@ public:
     {
         INTERACTOR_POINT = 0,
         INTERACTOR_VALUE = 1,
+        INTERACTOR_POINT_FIRST_TIMESTEP = 2, // vistle only
     };
 
     IsoSurfacePlugin *plugin;

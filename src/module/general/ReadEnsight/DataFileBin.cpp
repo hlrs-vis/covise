@@ -39,8 +39,8 @@ DataFileBin::DataFileBin(ReadEnsight *mod)
 }
 
 DataFileBin::DataFileBin(ReadEnsight *mod, const string &name,
-                         const int &dim,
-                         const int &numVals,
+                         const unsigned int &dim,
+                         const unsigned int &numVals,
                          const EnFile::BinType &binType)
     : EnFile(mod, name, dim, binType)
     , lineCnt_(0)
@@ -84,7 +84,7 @@ DataFileBin::read(dimType dim, coDistributedObject **outObjects, const string &b
         getStr();
 
         // data dim
-        int dataDim(dim_ * numVals_);
+        unsigned int dataDim(dim_ * numVals_);
 
         float *locArr = new float[dataDim];
         getFloatArr(dataDim, locArr);
@@ -95,8 +95,8 @@ DataFileBin::read(dimType dim, coDistributedObject **outObjects, const string &b
             memcpy(dc_.x, locArr, dataDim * sizeof(float));
             break;
         case 3:
-            int cnt(0);
-            for (int i = 0; i < dataDim; i += 3)
+            unsigned int cnt(0);
+            for (unsigned int i = 0; i < dataDim; i += 3)
             {
                 dc_.x[cnt] = locArr[i];
                 dc_.y[cnt] = locArr[i + 1];
@@ -125,7 +125,7 @@ void
 DataFileBin::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     EnPart *actPart;
-    int numGot2d = 0, numGot3d = 0;
+    unsigned int numGot2d = 0, numGot3d = 0;
 
     if (isOpen_)
     {
@@ -152,7 +152,7 @@ DataFileBin::readCells(dimType dim, coDistributedObject **outObjects, const stri
 
             size_t anf(str.find_first_not_of(" ", 4));
             string s(str.substr(anf, 8));
-            int actPartNr(atoi(s.c_str()));
+            unsigned int actPartNr(atoi(s.c_str()));
             actPart = findPart(actPartNr);
             numGot2d = 0;
             numGot3d = 0;
@@ -228,7 +228,7 @@ DataFileBin::readCells(dimType dim, coDistributedObject **outObjects, const stri
                                 // here we have to disperse the arrays
                                 tempCoords = new float[3 * nCellsPerEle];
                                 getFloatArr(3 * nCellsPerEle, tempCoords);
-                                int i, j(0);
+                                unsigned int i, j(0);
                                 if (actEle.getDim() == EnElement::D2)
                                 {
                                     for (i = 0; i < nCellsPerEle; ++i)

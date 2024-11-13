@@ -59,6 +59,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
+#include <osgDB/WriteFile>
 
 #include <vrb/client/SharedStateManager.h>
 #include <vrb/client/VRBClient.h>
@@ -357,7 +358,9 @@ bool OpenCOVER::init()
 
     int c = 0;
     std::string collaborativeOptionsFile, viewpointsFile;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
+    bool saveAndExit = false;
+    int saveFormat = 0;
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "SIhdC:s:v:c:::g:")) != -1)
     {
         switch (c)
         {
@@ -370,6 +373,14 @@ bool OpenCOVER::init()
             break;
         case 'v':
             viewpointsFile = optarg;
+            break;
+        case 'S':
+            saveFormat = 0;
+            saveAndExit = true;;
+            break;
+        case 'I':
+            saveFormat = 1;
+            saveAndExit = true;;
             break;
         case 'C':
         {
@@ -829,6 +840,21 @@ bool OpenCOVER::init()
             {
                 //fprintf(stderr,"Arg %d : %s",optind, coCommandLine::argv(optind));
                 coVRMSController::instance()->loadFile(coCommandLine::argv(optind));
+                if (saveAndExit)
+                {
+                    std::string saveFile = coCommandLine::argv(optind);
+                    if(saveFormat == 0)
+                    saveFile = saveFile.substr(0,saveFile.length() - 3) + "obj";
+                    else if(saveFormat == 1)
+                        saveFile = saveFile.substr(0, saveFile.length() - 3) + "ive";
+                    else
+                        saveFile = saveFile.substr(0, saveFile.length() - 3) + "osg";
+                    osgDB::writeNodeFile(*cover->getObjectsRoot(), saveFile.c_str());
+                }
+            }
+            if (saveAndExit)
+            {
+                exit(0);
             }
         }
         else

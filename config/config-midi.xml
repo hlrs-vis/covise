@@ -9,7 +9,7 @@
 					   <Stream name="1" InPort="1" DeviceName="CH345 MIDI 1"/>
 					   <Stream name="2" InPort="2" DeviceName="Fishman TriplePlay TP Guitar"/>
 					   <Stream name="3" InPort="3" DeviceName="Moog Theremini Moog Music, Inc."/>
-					   <Stream name="4" InPort="4" DeviceName="TriplePlay Connect TP Control"/>
+					   <Stream name="4" InPort="4" DeviceName="TriplePlay Connect TP Guitar"/>
 					   <Stream name="5" InPort="5" DeviceName="TD-27 MIDI 1"/>
 					   <Stream name="6" InPort="6" DeviceName="Swissonic 88 MIDI 1"/>
 					   <Stream name="7" InPort="7" DeviceName="Swissonic 88 MIDI 2"/>

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<system name="WingFailure">
+
+ <channel name="WingFailure">
+
+  <fcs_function name="systems/WingFailure/wing_load_lbs">
+   <function>
+    <sum>
+     <property>forces/fbz-aero-lbs</property>
+     <product>
+      <property>accelerations/Nz</property>
+      <!--  will cause wing-failure at initialization -->
+      <!-- <property>/accelerations/n-z-cg-fps_sec</property>
+      <value>-1.</value> -->
+      <value>38.58</value> <!--  Ref. 1 2.3.1 and Ref. 2 : 35kg/2 * kg2lbs (1kg=2.20462262185lbs)  -->
+     </product>
+    </sum>
+   </function>
+  </fcs_function>
+
+  <switch name="systems/WingFailure/wing_failure">
+   <default value="/sim/model/MRX13/wing-failure"/>
+   <test  logic="AND" value="1"> <!-- 1 := wing failure -->
+    /sim/model/MRX13/wing-failure-enable eq 1
+    systems/WingFailure/wing_load_lbs gt 711.   <!-- Ref. 1 2.3.1 and Ref. 2 : -3g * ( 125kg - 35/2kg ) * 2.2046lbs/kg -->
+   </test>
+   <test logic="AND" value="1">
+    /sim/model/MRX13/wing-failure-enable eq 1
+    systems/WingFailure/wing_load_lbs lt -1422. <!-- Ref. 1 2.3.1 and Ref. 2 : +6g * ( 125kg - 35/2kg ) * 2.2046lbs/kg -->
+   </test>
+   <output>/sim/model/MRX13/wing-failure</output>
+  </switch>
+
+
+  <fcs_function name="systems/WingFailure/failure_direction">
+   <function>
+    <product>
+     <!-- <property>forces/fbz-aero-lbs</property>  -->
+     <property>systems/WingFailure/wing_load_lbs</property>
+     <property>moments/l-aero-lbsft</property>
+    </product>
+   </function>
+  </fcs_function>
+
+  <switch name="systems/WingFailure/wing_failure_direction">
+   <default value="/sim/model/MRX13/wing-failure-direction"/>
+   <test  value="/sim/model/MRX13/wing-failure-direction">
+    /sim/model/MRX13/wing-failure-direction ne 0
+   </test>
+   <test  logic="AND" value="-1">  <!-- -1 := left wing failure -->
+    /sim/model/MRX13/wing-failure eq 1
+    systems/WingFailure/failure_direction gt 0.
+   </test>
+   <test logic="AND" value="+1">   <!-- 1 := right wing failure -->
+    /sim/model/MRX13/wing-failure eq 1
+    systems/WingFailure/failure_direction lt 0.
+   </test>
+   <output>/sim/model/MRX13/wing-failure-direction</output>
+  </switch>
+
+
+<!-- only 1 wing remaining -->
+<!--
+    <switch name="systems/switch/SW_sqft">
+      <default value="113"/>
+      <test  value="56.5">
+       /sim/model/MRX13/wing-failure eq 1
+      </test>
+      <output>/fdm/jsbsim/metrics/Sw-sqft</output>
+    </switch>
+-->
+
+  <switch name="systems/WingFailure/wing_failure_left">
+   <default value="0"/>
+   <test  value="1">
+    /sim/model/MRX13/wing-failure-direction eq 1
+   </test>
+   <output>/sim/model/MRX13/wing-failure-left</output>
+  </switch>
+  <switch name="systems/WingFailure/wing_failure_right">
+   <default value="0"/>
+   <test  value="1">
+    /sim/model/MRX13/wing-failure-direction eq -1
+   </test>
+   <output>/sim/model/MRX13/wing-failure-right</output>
+  </switch>
+
+ </channel>
+
+</system>

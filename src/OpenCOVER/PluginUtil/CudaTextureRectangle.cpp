@@ -82,7 +82,7 @@ void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeS
 
     resource_.unmap();
 
-    resourceDataSize_ = w * h * dataTypeSize;
+    resourceDataSize_ = w * size_t(h) * dataTypeSize;
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo_);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, resourceDataSize_, 0, GL_STREAM_DRAW);
@@ -96,6 +96,11 @@ void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeS
 void* CudaTextureRectangle::resourceData() const
 {
     return resource_.dev_ptr();
+}
+
+size_t CudaTextureRectangle::getTotalSizeInBytes() const
+{
+    return resourceDataSize_;
 }
 
 void CudaTextureRectangle::clear()

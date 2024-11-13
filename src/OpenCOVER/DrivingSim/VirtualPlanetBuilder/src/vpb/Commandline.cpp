@@ -490,7 +490,11 @@ void Commandline::processModel(const std::string &filename, LayerOperation layer
         log(osg::NOTICE, "Error: unable to load file %s", filename.c_str());
     }
 }
-
+inline bool ends_with(std::string const & value, std::string const & ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 void Commandline::processDirectory(vpb::Source::Type type, const std::string &filename, LayerOperation layerOp)
 {
     osgDB::DirectoryContents dirContents = osgDB::getDirectoryContents(filename);
@@ -500,7 +504,7 @@ void Commandline::processDirectory(vpb::Source::Type type, const std::string &fi
     std::string fullfilename;
     for (i = dirContents.begin(); i != dirContents.end(); ++i)
     {
-        if ((*i != ".") && (*i != ".."))
+        if ((*i != ".") && (*i != "..") && !ends_with(*i,".xml"))
         {
             fullfilename = filename + '/' + *i;
             processFile(type, fullfilename, layerOp);

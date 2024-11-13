@@ -75,7 +75,6 @@ private:
     int bufSize;
     std::string deviceFile;
     int fileDesc;
-    char *buf;
     bool exit;
 };
 

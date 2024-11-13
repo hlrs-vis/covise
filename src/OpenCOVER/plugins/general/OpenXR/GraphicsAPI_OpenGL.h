@@ -6,7 +6,7 @@
 
 #pragma once
 #include <GraphicsAPI.h>
-#include <Windows.h>
+//#include <Windows.h>
 #include <osg/Geode>
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL)

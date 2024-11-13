@@ -61,13 +61,14 @@
         <isSkateboard value="on"/>
    </Bicycle>
    <JSBSim>
+   <!-- now in new config AppData/roaming/covise-->
    <Sound  server="192.168.178.100"   />
    
-   <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
-   <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml">
-   </Model-->
-   <Model aircraft="paraglider" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml">
+   <ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" />
+   <Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml">
    </Model>
+   <!--Model aircraft="paraglider" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml">
+   </Model-->
    <!--Model aircraft="lcaro" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/aircraft/lcaro/Systems" resetFile="C:/src/gitbase/jsbsim/aircraft/lcaro/reset00.xml">
    </Model-->
    </JSBSim>

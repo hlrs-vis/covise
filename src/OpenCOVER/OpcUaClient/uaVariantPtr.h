@@ -10,7 +10,10 @@ public:
     UA_Variant_ptr();
     UA_Variant_ptr(UA_Variant*);
     UA_Variant *operator->();
+    const UA_Variant *operator->() const;
     UA_Variant *get();
+    const UA_Variant *get() const;
+    UA_DateTime timestamp = 0;
 private:
     std::shared_ptr<UA_Variant> m_ptr;
     struct OPCUACLIENTEXPORT CustomDeleter {

@@ -5,55 +5,87 @@
 #include <memory>
 #include <map>
 
+#include <cover/ui/Button.h>
+#include <cover/ui/CovconfigLink.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
-#include <cover/ui/Button.h>
+
 #include <osg/MatrixTransform>
 #include <osg/Observer>
 #include <PluginUtil/coColorMap.h>
 #include <OpcUaClient/opcua.h>
 #include <OpcUaClient/variantAccess.h>
 
+#include <exprtk.hpp>
+
+struct UpdateValues{
+    std::string name;
+    std::function<void(double)> func;
+};
+
 class SelfDeletingTool;
 
-class Tool{
+class ToolModel{
 public:
     friend SelfDeletingTool;
-    Tool(opencover::ui::Group* group, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
-    virtual ~Tool() = default;
+    ToolModel(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    virtual ~ToolModel() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
     void pause(bool state);
+    const std::vector<UpdateValues> &getUpdateValues();
+    void frameOver();
 protected:
     virtual void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) = 0;
     virtual void clear() = 0;
     virtual void applyShader(const covise::ColorMap& map, float min, float max) = 0;
     virtual std::vector<std::string> getAttributes() = 0;
+    virtual void attributeChanged(float value) = 0;
     osg::Vec3 toolHeadInTableCoords();
+    float getMinAttribute() const { return m_minAttribute->ui()->number(); }
+    float getMaxAttribute() const { return m_maxAttribute->ui()->number(); }
     osg::MatrixTransform *m_toolHeadNode = nullptr;
     osg::MatrixTransform *m_tableNode = nullptr;
     std::unique_ptr<opencover::ui::Group> m_group;
-    opencover::ui::Slider *m_numSectionsSlider;
+    std::unique_ptr<opencover::ui::SliderConfigValue> m_numSectionsSlider;
     covise::ColorMapSelector *m_colorMapSelector;
-    opencover::ui::SelectionList *m_attributeName;
-    opencover::ui::EditField *m_minAttribute, *m_maxAttribute;
+
     opencover::opcua::Client *m_client;
-    opencover::opcua::ObserverHandle m_opcuaAttribId;
+    std::map<std::string, opencover::opcua::ObserverHandle> m_opcuaAttribId;
     bool m_paused = false;
+private:
+    void observeCustomAttributes();
+    void attributeChanged();
+    void updateAttributes();
+
+    std::vector<UpdateValues> m_updateValues;
+    std::unique_ptr<opencover::ui::SelectionListConfigValue> m_attributeName;
+    std::unique_ptr<opencover::ui::EditFieldConfigValue> m_minAttribute, m_maxAttribute, m_customAttribute;
+    struct CustomAttributeVariable{
+        float value = 0;
+        bool updated = false;
+        
+    };
+    std::map<std::string, CustomAttributeVariable> m_customAttributeData;
+    exprtk::symbol_table<float> m_symbolTable;
+    exprtk::expression<float> m_expression;
+    exprtk::parser<float> m_parser;
+    bool m_frameOver = false;
+
+
 };
 
 
 class SelfDeletingTool : public osg::Observer
 {
 public:
-    typedef std::map<std::string, std::unique_ptr<SelfDeletingTool>> Map;
-    SelfDeletingTool(Map &toolMap, const std::string &name, std::unique_ptr<Tool> &&tool);
+    static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<ToolModel> &&tool);
     void objectDeleted(void*) override;
-    std::unique_ptr<Tool> value;
+    std::unique_ptr<ToolModel> value;
 private:
-    Map::iterator m_iter;
-    Map &m_tools;
+    SelfDeletingTool(std::unique_ptr<ToolModel> &&tool);
+    std::unique_ptr<SelfDeletingTool>* m_this;
 };
 
 #endif // COVER_TOOLMACHINE_TOOL_H

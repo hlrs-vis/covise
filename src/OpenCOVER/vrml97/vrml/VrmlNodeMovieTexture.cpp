@@ -183,7 +183,7 @@ void VrmlNodeMovieTexture::update(VrmlSFTime &timeNow)
     if (d_image->nc() != -1)
     {
         // No pictures to show
-        if (!d_image || d_image->nFrames() == 0 || d_startTime.get() <= 0)
+        if (!d_image || d_image->nFrames() == 0 || d_startTime.get() < 0)
             return;
 
         // Become active at the first tick at or after startTime if either

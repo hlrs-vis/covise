@@ -92,6 +92,8 @@ Client::Client(const std::string &name)
     const std::vector<std::string> authentificationModes{"anonymous", "username/password"};
     m_authentificationMode->ui()->setList(authentificationModes);
     m_authentificationMode->ui()->select(m_authentificationMode->getValue());
+
+
     m_connect->setCallback([this](bool state){
         state ? connect() : disconnect();
     });
@@ -152,6 +154,31 @@ std::string toString(const UA_String &s)
     return std::string(v.data());
 }
 
+UA_Variant_ptr getInitialValue(UA_Client *client, const UA_NodeId &nodeId)
+{
+    UA_ReadRequest request;
+    UA_ReadRequest_init(&request);
+
+    UA_ReadValueId rvi;
+    UA_ReadValueId_init(&rvi);
+    rvi.nodeId = nodeId; // replace with your NodeId
+    rvi.attributeId = UA_ATTRIBUTEID_VALUE;
+
+    request.nodesToRead = &rvi;
+    request.nodesToReadSize = 1;
+
+    UA_ReadResponse response = UA_Client_Service_read(client, request);
+    UA_Variant_ptr retval;
+    // if(response.responseHeader.serviceResult == UA_STATUSCODE_GOOD &&
+    // response.resultsSize > 0 && response.results[0].hasValue)
+    // {
+    //     retval = &response.results[0].value;
+    //     retval.timestamp = response.responseHeader.timestamp;
+    // }
+    // UA_ReadResponse_clear(&response);
+    return retval;
+}
+
 void Client::runClient()
 {
     while(!connectCommunication())
@@ -167,7 +194,7 @@ void Client::runClient()
     UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
     request.requestedPublishingInterval = m_requestedPublishingInterval->getValue();
     m_subscription = UA_Client_Subscriptions_create(client, request, NULL, NULL, NULL);
-                       
+    m_requestedPublishingInterval->setValue(m_subscription.revisedPublishingInterval);                   
     statusChanged();
     while (!m_shutdown)
     {
@@ -183,8 +210,11 @@ void Client::runClient()
             }
             while (!m_nodesToUnregister.empty())
             {
-                unregisterNode(m_nodesToUnregister.back());
+                auto unregister = m_nodesToUnregister.back();
                 m_nodesToUnregister.pop_back();
+                g.unlock();
+                unregisterNode(unregister);
+                g.lock();
             }
         }
         UA_Client_run_iterate(client, 1000);
@@ -259,6 +289,8 @@ void Client::registerNode(const NodeRequest &nodeRequest)
     if(node->subscribers.size() > 1)
         return;
 
+
+
     UA_MonitoredItemCreateRequest monRequest =
         UA_MonitoredItemCreateRequest_default(node->id);
     monRequest.requestedParameters.samplingInterval = m_samplingInterval->getValue();
@@ -272,8 +304,13 @@ void Client::registerNode(const NodeRequest &nodeRequest)
     auto result = UA_Client_MonitoredItems_createDataChange(client, subId,
                                             UA_TIMESTAMPSTORETURN_BOTH,
                                             monRequest, const_cast<char*>(it->first.c_str()), handleNodeUpdate, NULL);
-    
+    m_samplingInterval->setValue(result.revisedSamplingInterval);
     it->second.monitoredItemId = result.monitoredItemId;
+    auto initial = getInitialValue(client, node->id);
+
+    // node->values.push_front(initial);
+    // node->lastValue = initial;
+    // node->numUpdatesPerFrame++;
 
 }
 
@@ -332,7 +369,7 @@ UA_Variant_ptr Client::getValue(const std::string &name)
     if(node)
     {
         if(node->values.empty())
-            return UA_Variant_ptr();
+            return node->lastValue;
         auto retval = node->values.back();
         node->values.pop_back();
         return retval;
@@ -340,20 +377,23 @@ UA_Variant_ptr Client::getValue(const std::string &name)
     return UA_Variant_ptr();
 }
 
-double Client::getNumericScalar(const std::string &nodeName)
+double Client::getNumericScalar(const std::string &nodeName, UA_DateTime *timestamp)
 {
     double retval = 0;
     auto node = findNode(nodeName);
     if(!node)
         return retval;
     //not very efficient
-    for_<8>([this, node, &nodeName, &retval] (auto i) {      
+    for_<8>([this, node, &nodeName, &retval, timestamp] (auto i) {      
         typedef typename detail::Type<numericalTypes[i.value]>::type T;
         if(node->type == numericalTypes[i.value])
         {
             auto v = getArray<T>(nodeName);
-            if(v.isScalar())
+            if(v.isScalar()){
+                if(timestamp)
+                    *timestamp = v.timestamp;
                 retval = (double)v.data[0];
+            }
         }
     });
     return retval;
@@ -435,7 +475,10 @@ void Client::updateNode(const std::string& nodeName, UA_DataValue *value)
     auto node = findNode(nodeName);
     if(!node ||node->type != toTypeId(value->value.type))
         return;
-    node->values.push_front(UA_Variant_ptr(&value->value));
+    auto v = UA_Variant_ptr(&value->value);
+    v.timestamp = value->sourceTimestamp;
+    node->values.push_front(v);
+    node->lastValue = v;
     node->numUpdatesPerFrame++;
 }
 

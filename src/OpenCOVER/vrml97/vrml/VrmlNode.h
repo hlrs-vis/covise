@@ -464,6 +464,7 @@ private:
 #define PRINT_FIELD(_f) printField(os, indent + INDENT_INCREMENT, #_f, d_##_f)
 
 // Ugly macros used in setField
+// use VrmlNodeChildTemplate to avoid setField and this mess in the future
 
 #define TRY_FIELD(_f, _t)                                                                                                                                  \
     (strcmp(fieldName, #_f) == 0)                                                                                                                          \

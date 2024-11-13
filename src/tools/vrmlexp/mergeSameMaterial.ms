@@ -142,26 +142,63 @@ sel = selection as array
 			)
 		)
 		select sel
-        for x in $ do
+		
+		mergeddObjects = true
+		while mergeddObjects == true do
 		(
-			if IsValidNode x  do
+			mergeddObjects=false
+			for x in $ do
 			(
-				print x.name
-			    if x.category == #Editable_Objects do
+				if IsValidNode x  do
 				(
-					
-                    for y in $ do
-		            (
-						if x != y and x.material == y.material do
-					   (
-						    s = "merge "+y.name+" to "+x.name
-					        print s
-					        meshop.attach x y attachMat:#IDToMat condenseMat:true
-					   )
-				    )
-			    )
+					if x.category == #Editable_Objects do
+					(
+						
+						print x.name
+						merged = false
+						for y in $ do
+						(
+							if x != y and x.material == y.material do
+						   (
+							   
+								merged = true
+								s = "merge "+y.name+" to "+x.name
+								print s
+								meshop.attach x y attachMat:#IDToMat condenseMat:true
+							   
+								mergeddObjects=true
+						   )
+						)
+						if merged == true do
+						(
+							print x.name
+						)
+					)
+				)
+			)
+	    )
+		print "removing empty dummys"
+		deletedObjects = true
+		while deletedObjects == true do
+		(
+			deletedObjects=false
+			for x in $ do
+			(
+				if IsValidNode x  do
+				(
+					if classof x == Dummy do
+					(
+						if x.children.count == 0 do
+						(
+							deletedObjects=true
+							print x.name
+							delete x
+						)
+					)
+				)
 			)
 		)
+		
 		print "Done"
 		
 	)
