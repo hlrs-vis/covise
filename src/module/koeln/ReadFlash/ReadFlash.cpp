@@ -575,7 +575,7 @@ int coReadFlash::compute(const char *)
 
       for (size_t t = 0; t < numFiles; ++t)
       {
-          delete gridData[t];
+        delete gridData[t];
       }
     }
     else
@@ -734,15 +734,6 @@ int coReadFlash::compute(const char *)
                   // Apply limits
                   cdata_val = fmax(cdata_val, vmin);
                   cdata_val = fmin(cdata_val, vmax);
-                  
-                  // if (cdata_val < vmin)
-                  // {
-                  //   cdata_val = vmin;
-                  // }
-                  // else if (cdata_val > vmax)
-                  // {
-                  //   cdata_val = vmax;
-                  // }
                 }
                 else
                 {
@@ -752,15 +743,6 @@ int coReadFlash::compute(const char *)
                   // Apply limits
                   cdata_val = fmax(cdata_val, 0.0);
                   cdata_val = fmin(cdata_val, 1.0);
-                  
-                  // if (cdata_val < 0.0)
-                  // {
-                  //   cdata_val = 0.0;
-                  // }
-                  // else if (cdata_val > 1.0)
-                  // {
-                  //   cdata_val = 1.0;
-                  // }
                   
                   // Convert to unsigned char range [0, 255]
                   cdata_uc = cdata_val * 255;
