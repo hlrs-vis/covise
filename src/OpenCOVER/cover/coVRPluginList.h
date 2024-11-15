@@ -200,7 +200,7 @@ private:
     int m_numOutstandingTimestepPlugins = 0;
     int m_requestedTimestep = -1;
     int m_currentTimestep = 0;
-
+    mutable bool m_stopIteration = false;
 };
 }
 #endif
