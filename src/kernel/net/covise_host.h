@@ -56,6 +56,7 @@ public:
 
     const char *getName() const;
     const char *getAddress() const;
+    const char *getPrintable() const;
     bool hasValidName() const;
     bool hasValidAddress() const;
 
