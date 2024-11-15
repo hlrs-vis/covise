@@ -532,10 +532,12 @@ Socket::Socket(int *p)
     setTCPOptions();
 
     std::unique_lock<std::mutex> guard(mutex);
+    int port = stport++;
+    guard.unlock();
     memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
     s_addr_in.sin_family = AF_INET;
     s_addr_in.sin_addr.s_addr = INADDR_ANY;
-    s_addr_in.sin_port = htons(stport);
+    s_addr_in.sin_port = htons(port);
 
     /* Assign an address to this socket and finds an unused port */
 
@@ -543,7 +545,7 @@ Socket::Socket(int *p)
     while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
 #ifdef DEBUG
-        fprintf(stderr, "bind to port %d failed: %s\n", stport, coStrerror(getErrno()));
+        fprintf(stderr, "bind to port %d failed: %s\n", port, coStrerror(getErrno()));
 #endif
 #ifndef _WIN32
         if (errno == EADDRINUSE)
@@ -551,9 +553,11 @@ Socket::Socket(int *p)
         if (WSAGetLastError() == WSAEADDRINUSE)
 #endif
         {
-            stport++;
-            s_addr_in.sin_port = htons(stport);
-//	    cerr << "neuer port: " << stport << "\n";
+            guard.lock();
+            port = stport++;
+            guard.unlock();
+            s_addr_in.sin_port = htons(port);
+//	    cerr << "neuer port: " << port << "\n";
 #ifdef _WIN32
             /* after an unsuccessfull bind we need to close the socket and reopen it on windows, or at least this was the case here on vista on a surface box */
             closesocket(sock_id);
@@ -569,7 +573,7 @@ Socket::Socket(int *p)
             memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
             s_addr_in.sin_family = AF_INET;
             s_addr_in.sin_addr.s_addr = INADDR_ANY;
-            s_addr_in.sin_port = htons(stport);
+            s_addr_in.sin_port = htons(port);
 #endif
         }
         else
@@ -582,8 +586,6 @@ Socket::Socket(int *p)
         errno = 0;
     }
     *p = port = ntohs(s_addr_in.sin_port);
-    stport++;
-    guard.unlock();
 #ifdef DEBUG
     fprintf(stderr, "bind succeeded: port=%d, addr=0x%08x\n", *p, s_addr_in.sin_addr.s_addr);
 #endif
