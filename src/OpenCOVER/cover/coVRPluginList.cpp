@@ -602,9 +602,9 @@ void coVRPluginList::init2()
     DOALL(plugin->setTimestep(m_currentTimestep));
 }
 
-void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b, const coVRPlugin *exclude) const
 {
-    DOALL(plugin->message(toWhom, t, l, b));
+    DOALL(if (plugin != exclude) plugin->message(toWhom, t, l, b));
 }
 
 void coVRPluginList::UDPmessage(covise::UdpMessage* msg) const

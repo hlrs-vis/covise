@@ -133,8 +133,8 @@ public:
     //! call setTimestep method of all plugins
     void setTimestep(int timestep);
     //! send a message to all plugins
-    void message(int toWhom, int t, int l, const void *b) const;
-	//! send a UDPmessage to all plugins
+    void message(int toWhom, int t, int l, const void *b, const coVRPlugin *exclude = nullptr) const;
+    //! send a UDPmessage to all plugins
 	void UDPmessage(covise::UdpMessage* msg) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
