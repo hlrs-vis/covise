@@ -615,6 +615,14 @@ void Connection::close()
     }
 }
 
+void Connection::cancel()
+{
+    if (sock)
+    {
+        sock->cancel();
+    }
+}
+
 void Connection::set_hostid(int id)
 {
     TokenBuffer tb;

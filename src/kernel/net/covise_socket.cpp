@@ -830,6 +830,16 @@ int Socket::acceptOnly(float wait)
     return 0;
 }
 
+void Socket::cancel()
+{
+    if (sock_id != -1)
+    {
+        shutdown(sock_id, SHUT_RDWR);
+        closesocket(sock_id);
+        sock_id = -1;
+    }
+}
+
 
 Socket::~Socket()
 {

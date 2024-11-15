@@ -154,6 +154,7 @@ public:
     Socket(const Socket &); // initiate as server and use free port
     Socket(int socket_id, sockaddr_in *sockaddr);
     virtual ~Socket(); // NIL
+    void cancel();
     static void initialize();
     static void uninitialize();
     static void set_start_port(int stp)

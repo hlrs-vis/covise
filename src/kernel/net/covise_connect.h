@@ -188,6 +188,7 @@ public:
     };
     void close(); // send close msg for partner and delete socket
     void close_inform(); // close without msg for partner
+    void cancel(); // just close underlying socket, letting further operations fail
     int has_message() const
     {
         //	if(message_to_do)
