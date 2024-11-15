@@ -10,24 +10,48 @@
 #include "Variant.h"
 #include <net/tokenbuffer.h>
 #include <PluginUtil/PluginMessageTypes.h>
+#include <cover/ui/ButtonGroup.h>
 
 using namespace opencover;
 
-VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab)
+VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab, Variant *var)
+: varName(varName), variant(var)
 {
     //new ui::Menu *variantMenu
 
+    std::string name = varName;
+    ui::ButtonGroup *bg = nullptr;
+    std::string group = VariantPlugin::plugin->getGroupFromName(varName);
+    if (!group.empty())
+    {
+        auto colon = name.find_first_of(":");
+        name = name.substr(colon + 1);
+        auto *g = VariantPlugin::plugin->addVariantToGroup(group, var);
+        if (g->group == nullptr)
+        {
+            g->group = new ui::ButtonGroup(group, Variant_menu);
+            g->group->enableDeselect(true);
+        }
+        bg = g->group;
+    }
+
+
     //Creating the Checkbox for show/hide the variant in the Cover VR-menue
-    Cb_item = new ui::Button(Variant_menu, ui::Owner::makeName(varName));
+    Cb_item = new ui::Button(Variant_menu, ui::Owner::makeName(varName), bg);
+    Cb_item->setText(varName);
     Cb_item->setState(true);
-    Cb_item->setCallback([this, varName](bool state){
-        TokenBuffer tb;
-        tb << varName;
-        if (state)
-            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
-        else
-            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.getData().length(), tb.getData().data());
-    });
+    Cb_item->setCallback(
+        [this, varName](bool state)
+        {
+            TokenBuffer tb;
+            tb << varName;
+            if (state)
+                cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow,
+                                   tb.getData().length(), tb.getData().data());
+            else
+                cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide,
+                                   tb.getData().length(), tb.getData().data());
+        });
     //Cb_item->setMenuListener(Variant::variantClass);
     //Variant_menu->add(Cb_item);
 
@@ -53,6 +77,12 @@ VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *Vari
 
 VariantUI::~VariantUI()
 {
+    std::string group = VariantPlugin::plugin->getGroupFromName(varName);
+    if (!group.empty())
+    {
+        VariantPlugin::plugin->removeVariantFromGroup(group, variant);
+    }
+
     delete Cb_item;
     delete VariantPluginTUIItem;
     delete xTRansItem;

@@ -16,21 +16,23 @@
 #define _VARIANTUI_H
 
 #include <cover/ui/Button.h>
+#include <cover/coTabletUI.h>
+#include <cover/coVRTui.h>
+
 namespace opencover {
 namespace ui {
 class Menu;
 }
 } // namespace opencover
 
-#include <cover/coTabletUI.h>
-#include <cover/coVRTui.h>
+class Variant;
 
 using namespace opencover;
 
 class VariantUI
 {
 public:
-    VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab);
+    VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *VariantPluginTab, Variant *var);
     ~VariantUI();
 
     ui::Button *getVRUI_Item();
@@ -44,6 +46,8 @@ public:
     void setTransVec(osg::Vec3d vec);
 
 private:
+    std::string varName;
+    Variant *variant = nullptr;
     ui::Button *Cb_item;
     coTUIToggleButton *VariantRadioButton;
     coTUIToggleButton *VariantPluginTUIItem;
