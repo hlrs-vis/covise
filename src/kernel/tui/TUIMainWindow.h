@@ -76,13 +76,16 @@ private slots:
     void about();
     void closeServer();
     void processMessages();
-    bool handleClient(covise::Message *msg);
+    bool handleClient(covise::Message *msg) override;
+    void notifyRemoveTabletUI() override;
 
 private:
     void createMenubar();
-    void createToolbar();
+    QToolBar *createToolbar();
     QTabWidget *mainFolder = nullptr;
 
     QAction *_exit = nullptr, *_help = nullptr;
+    QToolBar *toolbar = nullptr;
+    bool toolbarVisible = true;
 };
 #endif

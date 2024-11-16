@@ -47,7 +47,7 @@ public:
 
     void closeServer();
     void processMessages();
-    bool handleClient(covise::Message *msg);
+    virtual bool handleClient(covise::Message *msg);
 
     bool serverRunning();
     int openServer();

@@ -108,6 +108,9 @@
 #define ACTIVATED activated
 #endif
 
+static const char *organization = "HLRS";
+static const char *application = "tabletUI";
+
 //======================================================================
 
 //======================================================================
@@ -145,7 +148,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 // create the menus and toolbar buttons
 //createMenubar();
 #ifndef _WIN32_WCE
-    createToolbar();
+    toolbar = createToolbar();
 #endif
 
     // widget that contains the main windows(mainFrame)
@@ -186,16 +189,25 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     setMaximumWidth(480);
     setMaximumHeight(480);
 #else
-    QSettings s("HLRS", "tabletUI");
+    QSettings s(organization, application);
     auto geo = s.value("geometry");
     auto state = s.value("state");
-    if(geo.isValid() && state.isValid())
+    if (geo.isValid() && state.isValid())
     {
+        std::cerr << "restoreGeometry from " << s.fileName().toStdString() << std::endl;
         restoreGeometry(geo.toByteArray());
         restoreState(state.toByteArray());
-    } else
+    }
+    else
+    {
         resize(1066, 600);
+    }
 #endif
+    if (toolbar)
+    {
+        toolbarVisible = toolbar->isVisible();
+        toolbar->setVisible(true);
+    }
 }
 
 TUIMainWindow::~TUIMainWindow()
@@ -219,7 +231,21 @@ void TUIMainWindow::processMessages()
 
 bool TUIMainWindow::handleClient(covise::Message *msg)
 {
+    if (toolbar)
+    {
+        toolbar->setVisible(toolbarVisible);
+    }
     return TUIMain::handleClient(msg);
+}
+
+void TUIMainWindow::notifyRemoveTabletUI()
+{
+    if (toolbar)
+    {
+        toolbarVisible = toolbar->isVisible();
+        toolbar->setVisible(true);
+    }
+    TUIMain::notifyRemoveTabletUI();
 }
 
 #ifdef HAVE_WIRINGPI
@@ -231,10 +257,10 @@ void TUIMainWindow::thyssenTimerDone()
 
 void TUIMainWindow::storeGeometry()
 {
-    QSettings s("HLRS", "tabletUI");
+    QSettings s(organization, application);
     s.setValue("geometry", saveGeometry());
     s.setValue("state", saveState());
-    std::cerr << "storeGeometry()" << std::endl;
+    //std::cerr << "storeGeometry to " << s.fileName().toStdString() << std::endl;
 }
 
 //------------------------------------------------------------------------
@@ -299,9 +325,11 @@ void TUIMainWindow::createMenubar()
 //------------------------------------------------------------------------
 // create all stuff for the toolbar
 //------------------------------------------------------------------------
-void TUIMainWindow::createToolbar()
+QToolBar *TUIMainWindow::createToolbar()
 {
     QToolBar *toolbar = addToolBar("TabletUI Toolbar");
+    toolbar->setObjectName("tabletUI.Toolbar");
+    //toolbar->toggleViewAction()->setVisible(false);
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
     bool visible = covise::coCoviseConfig::isOn("toolbar", "COVER.TabletUI", true);
@@ -442,4 +470,5 @@ void TUIMainWindow::createToolbar()
     });
     toolbar->addWidget(numColumns);
 
+    return toolbar;
 }
