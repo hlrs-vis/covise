@@ -846,12 +846,10 @@ public:
     float matrix[16];
     bool loadFile;
 
-    coTUISGBrowserTab(const char *, int pID = 1);
     coTUISGBrowserTab(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUISGBrowserTab();
     virtual void resend(bool create) override;
 
-    int openServer();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     virtual void sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren = 0);
     virtual void sendEnd();
@@ -1017,7 +1015,6 @@ public:
     }
 
     void send(covise::TokenBuffer &tb);
-    void tryConnect();
     void parseTextureMessage();
 
 protected:
