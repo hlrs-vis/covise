@@ -1,9 +1,9 @@
-#ifndef _CORE_INTERFACES_ISEPERABLE_H
-#define _CORE_INTERFACES_ISEPERABLE_H
+#ifndef _CORE_INTERFACES_ISEPARABLE_H
+#define _CORE_INTERFACES_ISEPARABLE_H
 
 namespace core {
 namespace interface {
-class ISeperable {
+class ISeparable {
 public:
   virtual void seperate() = 0;
 };
