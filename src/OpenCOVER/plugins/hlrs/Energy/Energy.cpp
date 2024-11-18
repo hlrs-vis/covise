@@ -63,6 +63,8 @@
 
 #include <osg/LineWidth>
 #include <osg/Version>
+#include <osgUtil/Optimizer>
+
 
 using namespace opencover;
 using namespace opencover::utils::read;
@@ -359,35 +361,45 @@ void EnergyPlugin::enableCityGML(bool on) {
   }
 }
 
-void EnergyPlugin::addCityGMLObjects(osg::MatrixTransform *node) {
-  for (auto i = 0; i < node->getNumChildren(); ++i) {
+void EnergyPlugin::addCityGMLObject(const std::string &name, osg::ref_ptr<osg::Group> grp) {
+    using namespace core::utils;
+
+    if (!grp->getNumChildren()) return;
+
+    if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end()) return;
+
+    auto geodes = osgUtils::getGeodes(grp);
+    if (geodes->empty()) return;
+
+    // store default material
+    //     addCityGMLDefaultGeode(name, geo);
+    //
+    auto boundingbox = osgUtils::getBoundingBox(*geodes);
+    auto infoboardPos = boundingbox.center();
+    infoboardPos.z() += (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
+    auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, name, "DroidSans-Bold.ttf",
+                                                          50, 50, 2.0f, 0.1, 2);
+    auto building = std::make_unique<core::CityGMLBuilding>(*geodes);
+    auto sensor =
+        std::make_unique<CityGMLDeviceSensor>(grp, std::move(infoboard), std::move(building));
+    m_cityGMLObjs.insert({name, std::move(sensor)});
+}
+
+void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> grp) {
+  using namespace core::utils;
+  for (auto i = 0; i < grp->getNumChildren(); ++i) {
     osg::ref_ptr<osg::Group> child =
-        dynamic_cast<osg::Group *>(node->getChild(i));
+        dynamic_cast<osg::Group *>(grp->getChild(i));
     if (child) {
-      auto name = child->getName();
-      if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end())
-        continue;
+        const auto &name = child->getName();
 
-      if (!child->getNumChildren())
-        continue;
+        // handle quad tree optimized scenegraph
+        if (name == "GROUP" || name == "") {
+            addCityGMLObjects(child);
+            continue;
+        }
 
-      if (osg::ref_ptr<osg::Geode> geo =
-              dynamic_cast<osg::Geode *>(child->getChild(0))) {
-
-        // store default material
-        addCityGMLDefaultGeode(name, geo);
-
-        auto boundingbox = geo->getBoundingBox();
-        auto infoboardPos = geo->getBound().center();
-        infoboardPos.z() +=
-            (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
-        auto infoboard = std::make_unique<core::TxtInfoboard>(
-            infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
-        auto building = std::make_unique<core::CityGMLBuilding>(geo);
-        auto sensor = std::make_unique<CityGMLDeviceSensor>(
-            child, std::move(infoboard), std::move(building));
-        m_cityGMLObjs.insert({name, std::move(sensor)});
-      }
+        addCityGMLObject(name, child);
     }
   }
 }
@@ -409,9 +421,11 @@ void EnergyPlugin::restoreCityGMLGeodesDefault(const std::string &name,
 
 void EnergyPlugin::restoreCityGMLDefault() {
   for (auto &[name, sensor] : m_cityGMLObjs) {
-    if (osg::ref_ptr<osg::Geode> geo =
-            dynamic_cast<osg::Geode *>(sensor->getDrawable()))
-      restoreCityGMLGeodesDefault(name, geo);
+    for (auto drawble : sensor->getDrawables()) {
+      if (osg::ref_ptr<osg::Geode> geo =
+              dynamic_cast<osg::Geode *>(drawble.get()))
+        restoreCityGMLGeodesDefault(name, geo);
+    }
   }
   m_cityGMLDefault.clear();
 }

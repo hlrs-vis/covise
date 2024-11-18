@@ -114,9 +114,10 @@ private:
   void initEnnovatisUI();
   void initCityGMLUI();
   void enableCityGML(bool on);
-  void addCityGMLObjects(osg::MatrixTransform *node);
+  void addCityGMLObjects(osg::ref_ptr<osg::Group> grp);
+  void addCityGMLObject(const std::string &name, osg::ref_ptr<osg::Group> grp);
   void addCityGMLDefaultGeode(const std::string &name,
-                                      osg::ref_ptr<osg::Geode> geo);
+                              osg::ref_ptr<osg::Geode> geo);
   void restoreCityGMLDefault();
   void restoreCityGMLGeodesDefault(const std::string &name,
                            osg::ref_ptr<osg::Geode> geo);
