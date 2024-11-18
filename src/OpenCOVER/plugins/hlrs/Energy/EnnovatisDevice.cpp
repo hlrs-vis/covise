@@ -1,20 +1,20 @@
 #include "EnnovatisDevice.h"
+
 #include "build_options.h"
 
 // core
 #include "core/interfaces/IInfoboard.h"
 
 // ennovatis
-#include "ennovatis/json.h"
 #include <ennovatis/building.h>
 #include <ennovatis/json.h>
 #include <ennovatis/rest.h>
 
 // cover
-#include "cover/ui/SelectionList.h"
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
+#include <cover/ui/SelectionList.h>
 
 // std
 #include <algorithm>
@@ -39,26 +39,27 @@ using namespace opencover;
 namespace {
 EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
-} // namespace
+}  // namespace
 
 EnnovatisDevice::EnnovatisDevice(
-    const ennovatis::Building &building,
-    opencover::ui::SelectionList *channelList,
+    const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
     std::shared_ptr<ennovatis::rest_request> req,
     std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
     std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
-    : m_deviceGroup(new osg::Group()), m_infoBoard(std::move(infoBoard)),
-      m_drawableBuilding(std::move(drawableBuilding)), m_request(req),
-      m_channelGroup(channelGroup), m_channelSelectionList(channelList),
+    : m_deviceGroup(new osg::Group()),
+      m_infoBoard(std::move(infoBoard)),
+      m_drawableBuilding(std::move(drawableBuilding)),
+      m_request(req),
+      m_channelGroup(channelGroup),
+      m_channelSelectionList(channelList),
       m_buildingInfo(BuildingInfo(&building)),
       m_opncvrCtrl(opencover::coVRMSController::instance()) {
   init();
 }
 
 auto EnnovatisDevice::createBillboardTxt() {
-  if (m_buildingInfo.channelResponse.empty())
-    return std::string();
+  if (m_buildingInfo.channelResponse.empty()) return std::string();
 
   // building info
   std::string billboardTxt = "ID: " + m_buildingInfo.building->getId() + "\n" +
@@ -93,30 +94,26 @@ void EnnovatisDevice::setChannel(int idx) {
 void EnnovatisDevice::setChannelGroup(
     std::shared_ptr<ennovatis::ChannelGroup> group) {
   m_channelGroup = group;
-  if (m_InfoVisible)
-    fetchData();
-  if (m_selectedDevice == this)
-    updateChannelSelectionList();
+  if (m_InfoVisible) fetchData();
+  if (m_selectedDevice == this) updateChannelSelectionList();
 }
 
 void EnnovatisDevice::updateChannelSelectionList() {
   auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
   std::vector<std::string> channelNames(channels.size());
   auto channelsIt = channels.begin();
-  std::generate(channelNames.begin(), channelNames.end(),
-                [&channelsIt]() mutable {
-                  auto channel = *channelsIt;
-                  ++channelsIt;
-                  return channel.name;
-                });
+  std::generate(channelNames.begin(), channelNames.end(), [&channelsIt]() mutable {
+    auto channel = *channelsIt;
+    ++channelsIt;
+    return channel.name;
+  });
   m_channelSelectionList->setList(channelNames);
   m_channelSelectionList->setCallback([this](int idx) { setChannel(idx); });
   m_channelSelectionList->select(0);
 }
 
 void EnnovatisDevice::fetchData() {
-  if (!m_InfoVisible || !m_restWorker.checkStatus())
-    return;
+  if (!m_InfoVisible || !m_restWorker.checkStatus()) return;
 
   // make sure only master node fetches data from Ennovatis => sync with slave
   // in update()
@@ -140,8 +137,7 @@ void EnnovatisDevice::init() {
 }
 
 void EnnovatisDevice::updateColorByTime(int timestep) {
-  if (m_timestepColors.empty())
-    return;
+  if (m_timestepColors.empty()) return;
   auto numTimesteps = m_timestepColors.size();
   const auto &cylinderColor =
       m_timestepColors[timestep < numTimesteps ? timestep : numTimesteps - 1];
@@ -149,8 +145,7 @@ void EnnovatisDevice::updateColorByTime(int timestep) {
 }
 
 void EnnovatisDevice::update() {
-  if (!m_InfoVisible)
-    return;
+  if (!m_InfoVisible) return;
   auto results = m_restWorker.getResult();
 
   bool finished_master = m_opncvrCtrl->isMaster() && results != nullptr;
@@ -158,8 +153,7 @@ void EnnovatisDevice::update() {
 
   if (finished_master) {
     std::vector<std::string> results_vec;
-    if (m_opncvrCtrl->isMaster())
-      results_vec = *results;
+    if (m_opncvrCtrl->isMaster()) results_vec = *results;
 
     results_vec = m_opncvrCtrl->syncVector(results_vec);
 
@@ -196,9 +190,8 @@ void EnnovatisDevice::disactivate() {
 
 int EnnovatisDevice::getSelectedChannelIdx() const {
   auto selectedChannel = m_channelSelectionList->selectedIndex();
-  return (selectedChannel < m_buildingInfo.channelResponse.size())
-             ? selectedChannel
-             : 0;
+  return (selectedChannel < m_buildingInfo.channelResponse.size()) ? selectedChannel
+                                                                   : 0;
 }
 
 void EnnovatisDevice::createTimestepColorList(
@@ -208,8 +201,7 @@ void EnnovatisDevice::createTimestepColorList(
   auto maxValue = *std::max_element(respValues.begin(), respValues.end());
   m_timestepColors.clear();
   m_timestepColors.resize(numTimesteps);
-  if (numTimesteps >
-      opencover::coVRAnimationManager::instance()->getNumTimesteps())
+  if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
     opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
 
   for (auto t = 0; t < numTimesteps; ++t)

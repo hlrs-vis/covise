@@ -5,15 +5,15 @@
 
 namespace core::interface {
 class IDrawables {
-public:
+ public:
   virtual void initDrawables() = 0;
   virtual void updateDrawables() = 0;
   auto getDrawables() { return m_drawables; }
   auto getDrawable(size_t index) { return m_drawables.at(index); }
 
-protected:
+ protected:
   std::vector<osg::ref_ptr<osg::Node>> m_drawables;
 };
-} // namespace core
+}  // namespace core::interface
 
 #endif

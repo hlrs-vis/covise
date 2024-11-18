@@ -6,14 +6,15 @@
 * License: LGPL 2+ */
 
 #include "Device.h"
+
 #include <cover/coVRFileManager.h>
+
 #include <cstdio>
 #include <osg/Material>
 
 using namespace opencover;
 
 namespace energy {
-
 Device::Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent) {
   myParent = parent;
   devInfo = d;
@@ -67,25 +68,22 @@ void Device::init(float r, float sH, int c) {
   osg::Vec4 colVecLimit(1.f, 1.f, 1.f, 1.f);
 
   auto setCyclAndColor = [&](const float &compVal) {
-    cyl->set(osg::Vec3(devInfo->lon, devInfo->lat,
-                       devInfo->height + compVal * sH / 2),
-             rad, -compVal * sH);
+    cyl->set(
+        osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + compVal * sH / 2),
+        rad, -compVal * sH);
     colVec = getColor(compVal, 1000.);
   };
 
   switch (c) {
-  case 0:
-    if (devInfo->strom > 0.)
-      setCyclAndColor(devInfo->strom);
-    break;
-  case 1:
-    if (devInfo->waerme > 0.)
-      setCyclAndColor(devInfo->waerme);
-    break;
-  case 2:
-    if (devInfo->kaelte > 0.)
-      setCyclAndColor(devInfo->kaelte);
-    break;
+    case 0:
+      if (devInfo->strom > 0.) setCyclAndColor(devInfo->strom);
+      break;
+    case 1:
+      if (devInfo->waerme > 0.) setCyclAndColor(devInfo->waerme);
+      break;
+    case 2:
+      if (devInfo->kaelte > 0.) setCyclAndColor(devInfo->kaelte);
+      break;
   }
   osg::ShapeDrawable *shapeD = new osg::ShapeDrawable(cyl);
 
@@ -165,18 +163,18 @@ void Device::showInfo() {
   std::string textvalues =
       (devInfo->baujahr > 0.f ? (std::to_string((int)devInfo->baujahr) + " \n")
                               : "- \n");
-  textvalues += (devInfo->flaeche > 0.f
-                     ? (std::to_string((int)devInfo->flaeche) + " m2 \n")
-                     : "- \n");
+  textvalues +=
+      (devInfo->flaeche > 0.f ? (std::to_string((int)devInfo->flaeche) + " m2 \n")
+                              : "- \n");
   textvalues +=
       (devInfo->strom < 0.f ? "- \n"
                             : (std::to_string((int)devInfo->strom) + " MW\n"));
-  textvalues += (devInfo->waerme < 0.f
-                     ? "- \n"
-                     : (std::to_string((int)devInfo->waerme) + " kW\n"));
-  textvalues += (devInfo->kaelte < 0.f
-                     ? "- \n"
-                     : (std::to_string((int)devInfo->kaelte) + " kW\n"));
+  textvalues +=
+      (devInfo->waerme < 0.f ? "- \n"
+                             : (std::to_string((int)devInfo->waerme) + " kW\n"));
+  textvalues +=
+      (devInfo->kaelte < 0.f ? "- \n"
+                             : (std::to_string((int)devInfo->kaelte) + " kW\n"));
 
   textBoxValues->setText(textvalues);
   textBoxValues->setCharacterSize(charSize);
@@ -199,8 +197,7 @@ void Device::showInfo() {
 
   osg::ref_ptr<osg::StateSet> textStateT = textBoxTitle->getOrCreateStateSet();
   textBoxTitle->setStateSet(textStateT);
-  osg::ref_ptr<osg::StateSet> textStateC =
-      textBoxContent->getOrCreateStateSet();
+  osg::ref_ptr<osg::StateSet> textStateC = textBoxContent->getOrCreateStateSet();
   textBoxContent->setStateSet(textStateC);
   osg::ref_ptr<osg::StateSet> textStateV = textBoxValues->getOrCreateStateSet();
   textBoxValues->setStateSet(textStateV);
@@ -218,4 +215,4 @@ void Device::showInfo() {
   TextGeode->addChild(matShift);
   BBoard->addChild(TextGeode);
 }
-} // namespace energy
+}  // namespace energy

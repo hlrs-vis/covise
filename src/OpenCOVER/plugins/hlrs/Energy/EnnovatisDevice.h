@@ -6,14 +6,14 @@
 #include "core/interfaces/IInfoboard.h"
 
 // ennovatis
-#include "ennovatis/building.h"
-#include "ennovatis/json.h"
-#include "ennovatis/rest.h"
+#include <ennovatis/building.h>
+#include <ennovatis/json.h>
+#include <ennovatis/rest.h>
 
 // cover
-#include "cover/coVRMSController.h"
-#include "cover/ui/SelectionList.h"
 #include <cover/coBillboard.h>
+#include <cover/coVRMSController.h>
+#include <cover/ui/SelectionList.h>
 
 // osg
 #include <osg/Geode>
@@ -28,10 +28,9 @@
 #include <memory>
 
 class EnnovatisDevice {
-public:
+ public:
   EnnovatisDevice(
-      const ennovatis::Building &building,
-      opencover::ui::SelectionList *channelList,
+      const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
       std::shared_ptr<ennovatis::rest_request> req,
       std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
       std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
@@ -43,11 +42,9 @@ public:
   void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group);
   void setTimestep(int timestep) { updateColorByTime(timestep); }
   [[nodiscard]] const auto &getBuildingInfo() const { return m_buildingInfo; }
-  [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() {
-    return m_deviceGroup;
-  }
+  [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
 
-private:
+ private:
   struct BuildingInfo {
     BuildingInfo(const ennovatis::Building *b) : building(b) {}
     const ennovatis::Building *building;
@@ -61,8 +58,7 @@ private:
   void updateChannelSelectionList();
   void setChannel(int idx);
   void updateColorByTime(int timestep);
-  void
-  createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
+  void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
   void updateInfoboard(const std::string &info);
   [[nodiscard]] auto createBillboardTxt();
   [[nodiscard]] int getSelectedChannelIdx() const;
@@ -77,8 +73,8 @@ private:
   bool m_InfoVisible = false;
   BuildingInfo m_buildingInfo;
   ennovatis::rest_request_handler m_restWorker;
-  opencover::coVRMSController *m_opncvrCtrl; // cannot be const because syncing
-                                             // methods are not const correct
+  opencover::coVRMSController *m_opncvrCtrl;  // cannot be const because syncing
+                                              // methods are not const correct
   TimestepColorList m_timestepColors;
 };
 #endif

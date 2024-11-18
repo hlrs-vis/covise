@@ -1,4 +1,5 @@
 #include "json.h"
+
 #include <sstream>
 
 using json = nlohmann::json;
@@ -14,11 +15,9 @@ json_response_object::operator std::string() const {
       << "MinValue: " << std::to_string(MinValue) << "\n"
       << "StandardDeviation: " << std::to_string(StandardDeviation) << "\n";
   oss << "Times: " << "\n";
-  for (auto &time : Times)
-    oss << time << "\n";
+  for (auto &time : Times) oss << time << "\n";
   oss << "Values: " << "\n";
-  for (auto &value : Values)
-    oss << std::to_string(value) << "\n";
+  for (auto &value : Values) oss << std::to_string(value) << "\n";
   return oss.str();
 }
 
@@ -33,12 +32,12 @@ void from_json(const nlohmann::json &j, json_response_object &obj) {
   j.at("Values").get_to(obj.Values);
 }
 
-std::unique_ptr<json_response_object>
-json_parser::operator()(const std::string &s) const {
+std::unique_ptr<json_response_object> json_parser::operator()(
+    const std::string &s) const {
   try {
     return operator()(nlohmann::json::parse(s));
   } catch (json::parse_error &e) {
     return nullptr;
   }
 }
-} // namespace ennovatis
+}  // namespace ennovatis

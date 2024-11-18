@@ -4,14 +4,14 @@
 namespace core {
 namespace interface {
 class ITimedependable {
-public:
+ public:
   virtual void updateTime(int timestep) = 0;
   virtual int getCurrentTimeStep() const { return m_timestep; }
 
-protected:
+ protected:
   int m_timestep = 0;
 };
-} // namespace interface
-} // namespace core
+}  // namespace interface
+}  // namespace core
 
 #endif

@@ -1,6 +1,5 @@
 #include "TxtInfoboard.h"
-#include "cover/coBillboard.h"
-#include "utils/osgUtils.h"
+
 #include <cover/coVRFileManager.h>
 
 #include <osg/Geode>
@@ -8,6 +7,9 @@
 #include <osg/Vec3>
 #include <osg/ref_ptr>
 #include <osgText/Text>
+
+#include "cover/coBillboard.h"
+#include "utils/osgUtils.h"
 
 namespace core {
 
@@ -40,13 +42,12 @@ void TxtInfoboard::updateInfo(const std::string &info) {
   auto contentPos = pos;
   contentPos.z() -= m_attributes.height * m_attributes.titleHeightPercentage;
 
-  auto textBoxTitle =
-      createTextBox(m_attributes.title, pos, m_attributes.charSize,
-                    m_attributes.fontFile.c_str(), m_attributes.maxWidth,
-                    m_attributes.margin);
-  auto textBoxContent = createTextBox(
-      "", contentPos, m_attributes.charSize, m_attributes.fontFile.c_str(),
-      m_attributes.maxWidth, m_attributes.margin);
+  auto textBoxTitle = createTextBox(m_attributes.title, pos, m_attributes.charSize,
+                                    m_attributes.fontFile.c_str(),
+                                    m_attributes.maxWidth, m_attributes.margin);
+  auto textBoxContent = createTextBox("", contentPos, m_attributes.charSize,
+                                      m_attributes.fontFile.c_str(),
+                                      m_attributes.maxWidth, m_attributes.margin);
   textBoxContent->setText(info, osgText::String::ENCODING_UTF8);
 
   osg::ref_ptr<osg::Geode> geo = new osg::Geode();
@@ -57,8 +58,7 @@ void TxtInfoboard::updateInfo(const std::string &info) {
   m_TextGeode = new osg::Group();
   m_TextGeode->setName("TextGroup");
   m_TextGeode->addChild(geo);
-  if (m_enabled)
-    showInfo();
+  if (m_enabled) showInfo();
 }
 
 void TxtInfoboard::showInfo() {
@@ -68,8 +68,7 @@ void TxtInfoboard::showInfo() {
 
 void TxtInfoboard::move(const osg::Vec3 &pos) {
   m_attributes.position = pos;
-  if (m_enabled)
-    updateInfo(m_info);
+  if (m_enabled) updateInfo(m_info);
 }
 
 void TxtInfoboard::hideInfo() {
@@ -77,18 +76,16 @@ void TxtInfoboard::hideInfo() {
   m_enabled = false;
 }
 
-osg::ref_ptr<osgText::Text>
-TxtInfoboard::createTextBox(const std::string &text, const osg::Vec3 &position,
-                            int charSize, const char *fontFile,
-                            const float &maxWidth, const float &margin) const {
+osg::ref_ptr<osgText::Text> TxtInfoboard::createTextBox(
+    const std::string &text, const osg::Vec3 &position, int charSize,
+    const char *fontFile, const float &maxWidth, const float &margin) const {
   osg::ref_ptr<osgText::Text> textBox = new osgText::Text();
   textBox->setAlignment(osgText::Text::LEFT_TOP);
   textBox->setAxisAlignment(osgText::Text::XZ_PLANE);
   textBox->setColor(osg::Vec4(1, 1, 1, 1));
   textBox->setText(text, osgText::String::ENCODING_UTF8);
   textBox->setCharacterSize(charSize);
-  textBox->setFont(
-      opencover::coVRFileManager::instance()->getFontFile(fontFile));
+  textBox->setFont(opencover::coVRFileManager::instance()->getFontFile(fontFile));
   textBox->setMaximumWidth(maxWidth);
   textBox->setPosition(position);
   textBox->setDrawMode(osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT);
@@ -96,4 +93,4 @@ TxtInfoboard::createTextBox(const std::string &text, const osg::Vec3 &position,
   textBox->setBoundingBoxMargin(margin);
   return textBox;
 }
-} // namespace core
+}  // namespace core

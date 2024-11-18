@@ -1,12 +1,13 @@
 #ifndef _SAX_H
 #define _SAX_H
 
-#include "building.h"
 #include <nlohmann/json.hpp>
+
+#include "building.h"
 
 namespace ennovatis {
 struct sax_channelid_parser : public nlohmann::json::json_sax_t {
-public:
+ public:
   sax_channelid_parser() = default;
   sax_channelid_parser(BuildingsPtr buildings) : m_buildings(buildings){};
 
@@ -29,7 +30,7 @@ public:
   }
   const std::vector<std::string> &getDebugLogs() const { return m_debugLogs; }
 
-private:
+ private:
   bool m_isBuilding = false;
   bool m_isChannel = false;
   bool m_isBuildingID = false;
@@ -41,6 +42,6 @@ private:
   std::vector<std::string> m_debugLogs;
   BuildingsPtr m_buildings;
 };
-} // namespace ennovatis
+}  // namespace ennovatis
 
 #endif

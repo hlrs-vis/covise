@@ -7,10 +7,10 @@
 #ifndef _Energy_Device_H
 #define _Energy_Device_H
 
+#include <cover/coBillboard.h>
 #include <cover/coVRPluginSupport.h>
 #include <util/common.h>
 
-#include <cover/coBillboard.h>
 #include <osg/Geode>
 #include <osg/Group>
 #include <osg/ShapeDrawable>
@@ -19,7 +19,7 @@
 namespace energy {
 
 struct DeviceInfo {
-public:
+ public:
   typedef std::shared_ptr<DeviceInfo> ptr;
   DeviceInfo(){};
   DeviceInfo(DeviceInfo &d) {
@@ -50,7 +50,7 @@ public:
 };
 
 class Device {
-public:
+ public:
   typedef std::shared_ptr<Device> ptr;
   Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent);
   ~Device();
@@ -66,7 +66,7 @@ public:
   osg::ref_ptr<osg::Group> getGroup() { return deviceGroup; }
   const DeviceInfo::ptr getInfo() { return devInfo; }
 
-private:
+ private:
   DeviceInfo::ptr devInfo;
   osg::ref_ptr<osg::Group> myParent;
   osg::ref_ptr<osg::Group> TextGeode;
@@ -78,5 +78,5 @@ private:
   float rad;
   bool InfoVisible = false;
 };
-} // namespace energy
+}  // namespace energy
 #endif

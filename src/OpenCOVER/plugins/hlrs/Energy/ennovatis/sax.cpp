@@ -1,8 +1,9 @@
 #include <build_options.h>
 #include <building.h>
+#include <sax.h>
+
 #include <cstdlib>
 #include <nlohmann/json.hpp>
-#include <sax.h>
 
 using json = nlohmann::json;
 namespace {
@@ -34,12 +35,11 @@ void add_attr_to_channel(ennovatis::Channel &channel, const std::string &key,
   else if (key == "group")
     channelgroup_switch(channel, val);
 }
-} // namespace
+}  // namespace
 
 namespace ennovatis {
 bool sax_channelid_parser::string(string_t &val) {
-  if constexpr (debug)
-    m_debugLogs.push_back("string(val=" + val + ")");
+  if constexpr (debug) m_debugLogs.push_back("string(val=" + val + ")");
 
   if (m_isBuilding) {
     m_buildings->push_back(Building(val.c_str()));
@@ -54,8 +54,7 @@ bool sax_channelid_parser::string(string_t &val) {
 }
 
 bool sax_channelid_parser::key(string_t &val) {
-  if constexpr (debug)
-    m_debugLogs.push_back("key(val=" + val + ")");
+  if constexpr (debug) m_debugLogs.push_back("key(val=" + val + ")");
 
   if (m_isObj) {
     m_isBuilding = val == "building";
@@ -68,8 +67,7 @@ bool sax_channelid_parser::key(string_t &val) {
 }
 
 bool sax_channelid_parser::null() {
-  if constexpr (debug)
-    m_debugLogs.push_back("null()");
+  if constexpr (debug) m_debugLogs.push_back("null()");
   return true;
 }
 
@@ -94,25 +92,22 @@ bool sax_channelid_parser::number_unsigned(number_unsigned_t val) {
 
 bool sax_channelid_parser::number_float(number_float_t val, const string_t &s) {
   if constexpr (debug)
-    m_debugLogs.push_back("number_float(val=" + std::to_string(val) +
-                          ", s=" + s + ")");
+    m_debugLogs.push_back("number_float(val=" + std::to_string(val) + ", s=" + s +
+                          ")");
   return true;
 }
 
 bool sax_channelid_parser::start_object(std::size_t elements) {
   if constexpr (debug)
-    m_debugLogs.push_back("start_object(elements=" + std::to_string(elements) +
-                          ")");
+    m_debugLogs.push_back("start_object(elements=" + std::to_string(elements) + ")");
   m_isObj = true;
   return true;
 }
 
 bool sax_channelid_parser::end_object() {
-  if constexpr (debug)
-    m_debugLogs.push_back("end_object()");
+  if constexpr (debug) m_debugLogs.push_back("end_object()");
 
-  if (m_isChannel)
-    m_buildings->back().addChannel(m_channel, m_channel.group);
+  if (m_isChannel) m_buildings->back().addChannel(m_channel, m_channel.group);
 
   m_isChannel = false;
   return true;
@@ -120,20 +115,17 @@ bool sax_channelid_parser::end_object() {
 
 bool sax_channelid_parser::start_array(std::size_t elements) {
   if constexpr (debug)
-    m_debugLogs.push_back("start_array(elements=" + std::to_string(elements) +
-                          ")");
+    m_debugLogs.push_back("start_array(elements=" + std::to_string(elements) + ")");
   return true;
 }
 
 bool sax_channelid_parser::end_array() {
-  if constexpr (debug)
-    m_debugLogs.push_back("end_array()");
+  if constexpr (debug) m_debugLogs.push_back("end_array()");
   return true;
 }
 
 bool sax_channelid_parser::binary(json::binary_t &val) {
-  if constexpr (debug)
-    m_debugLogs.push_back("binary(val=[...])");
+  if constexpr (debug) m_debugLogs.push_back("binary(val=[...])");
   return true;
 }
 
@@ -146,4 +138,4 @@ bool sax_channelid_parser::parse_error(std::size_t position,
                           ",\n            ex=" + std::string(ex.what()) + ")");
   return false;
 }
-} // namespace ennovatis
+}  // namespace ennovatis

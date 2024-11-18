@@ -1,4 +1,5 @@
 #include "building.h"
+
 #include <sstream>
 
 namespace ennovatis {
@@ -17,9 +18,8 @@ void Channel::clear() {
 
 const std::string Channel::to_string() const {
   std::stringstream ss;
-  ss << "name: " << name << "\ndescription: " << description
-     << "\ntype: " << type << "\nunit: " << unit
-     << "\nChannelgroup: " << ChannelGroupToString(group);
+  ss << "name: " << name << "\ndescription: " << description << "\ntype: " << type
+     << "\nunit: " << unit << "\nChannelgroup: " << ChannelGroupToString(group);
   return ss.str();
 }
-} // namespace ennovatis
+}  // namespace ennovatis

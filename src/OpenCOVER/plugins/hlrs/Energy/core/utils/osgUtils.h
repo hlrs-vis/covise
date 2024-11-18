@@ -10,7 +10,7 @@ namespace core::utils::osgUtils {
 
 typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
 
-std::unique_ptr<Geodes> getGeodes(osg::Group* grp);
+std::unique_ptr<Geodes> getGeodes(osg::Group *grp);
 osg::BoundingBox getBoundingBox(const Geodes &geodes);
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *anotherGrp);
 void deleteChildrenRecursive(osg::Group *grp);
@@ -24,9 +24,8 @@ void deleteChildrenRecursive(osg::Group *grp);
  * @param cylinderColor The color of the cylinder.
  * @param group The group to which the cylinder will be added.
  */
-osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start,
-                                                     osg::Vec3 end,
+osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end,
                                                      float radius,
                                                      osg::Vec4 cylinderColor);
-} // namespace core::utils::osgUtils
+}  // namespace core::utils::osgUtils
 #endif

@@ -15,25 +15,15 @@
 #ifndef _Energy_PLUGIN_H
 #define _Energy_PLUGIN_H
 
-#include <map>
-#include <memory>
-#include <osg/Geode>
-#include <osg/Group>
-#include <osg/MatrixTransform>
-#include <osg/Node>
-#include <osg/Sequence>
-#include <osg/ref_ptr>
-#include <proj.h>
-#include <string>
-#include <util/common.h>
-
+#include <CityGMLDeviceSensor.h>
+#include <Device.h>
+#include <DeviceSensor.h>
+#include <EnnovatisDeviceSensor.h>
 #include <PluginUtil/coSensor.h>
+#include <core/PrototypeBuilding.h>
 #include <cover/VRViewer.h>
-#include <cover/coVRPluginSupport.h>
-
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
-
 #include <cover/coVRTui.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
@@ -42,21 +32,26 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
-#include <osg/Material>
-#include <osg/ShapeDrawable>
-#include <osg/Vec3>
-#include <util/coTypes.h>
-
-#include <gdal_priv.h>
-
-#include <CityGMLDeviceSensor.h>
-#include <Device.h>
-#include <DeviceSensor.h>
-#include <EnnovatisDeviceSensor.h>
-#include <core/PrototypeBuilding.h>
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
+#include <gdal_priv.h>
+#include <proj.h>
+#include <util/coTypes.h>
+#include <util/common.h>
 #include <utils/read/csv/csv.h>
+
+#include <map>
+#include <memory>
+#include <osg/Geode>
+#include <osg/Group>
+#include <osg/Material>
+#include <osg/MatrixTransform>
+#include <osg/Node>
+#include <osg/Sequence>
+#include <osg/ShapeDrawable>
+#include <osg/Vec3>
+#include <osg/ref_ptr>
+#include <string>
 
 class EnergyPlugin : public opencover::coVRPlugin,
                      public opencover::ui::Owner,
@@ -67,7 +62,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
     std::string projTo;
   };
 
-public:
+ public:
   EnergyPlugin();
   ~EnergyPlugin();
   EnergyPlugin(const EnergyPlugin &) = delete;
@@ -79,12 +74,11 @@ public:
   void setTimestep(int t);
   void setComponent(Components c);
   static EnergyPlugin *instance() {
-    if (!m_plugin)
-      m_plugin = new EnergyPlugin;
+    if (!m_plugin) m_plugin = new EnergyPlugin;
     return m_plugin;
   };
 
-private:
+ private:
   // typedef const ennovatis::Building *building_const_ptr;
   // typedef const ennovatis::Buildings *buildings_const_Ptr;
   typedef const ennovatis::Building *building_const_ptr;
@@ -94,8 +88,7 @@ private:
   // typedef std::vector<ennovatis::Building::ptr> const_buildings;
   // typedef std::map<energy::Device::ptr, ennovatis::Building::ptr>
   // DeviceBuildingMap;
-  typedef std::map<std::string, std::vector<energy::DeviceSensor::ptr>>
-      DeviceList;
+  typedef std::map<std::string, std::vector<energy::DeviceSensor::ptr>> DeviceList;
 
   void helper_initTimestepGrp(size_t maxTimesteps,
                               osg::ref_ptr<osg::Group> &timestepGroup);
@@ -104,10 +97,9 @@ private:
   void helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord,
                                  energy::DeviceInfo::ptr deviceInfoPtr,
                                  const double &lat, const double &lon);
-  void
-  helper_handleEnergyInfo(size_t maxTimesteps, int minYear,
-                          const opencover::utils::read::CSVStream::CSVRow &row,
-                          energy::DeviceInfo::ptr deviceInfoPtr);
+  void helper_handleEnergyInfo(size_t maxTimesteps, int minYear,
+                               const opencover::utils::read::CSVStream::CSVRow &row,
+                               energy::DeviceInfo::ptr deviceInfoPtr);
   bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
   bool loadDB(const std::string &path, const ProjTrans &projTrans);
   void initRESTRequest();
@@ -116,11 +108,10 @@ private:
   void enableCityGML(bool on);
   void addCityGMLObjects(osg::ref_ptr<osg::Group> grp);
   void addCityGMLObject(const std::string &name, osg::ref_ptr<osg::Group> grp);
-  void addCityGMLDefaultGeode(const std::string &name,
-                              osg::ref_ptr<osg::Geode> geo);
+  void addCityGMLDefaultGeode(const std::string &name, osg::ref_ptr<osg::Geode> geo);
   void restoreCityGMLDefault();
   void restoreCityGMLGeodesDefault(const std::string &name,
-                           osg::ref_ptr<osg::Geode> geo);
+                                   osg::ref_ptr<osg::Geode> geo);
   void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
   void setRESTDate(const std::string &toSet, bool isFrom);
@@ -137,8 +128,7 @@ private:
    * for REST-calls.
    * @return True if the data was successfully loaded, false otherwise.
    */
-  bool loadChannelIDs(const std::string &pathToJSON,
-                      const std::string &pathToCSV);
+  bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
   bool updateChannelIDsFromCSV(const std::string &pathToCSV);
   core::CylinderAttributes getCylinderAttributes();
 
@@ -153,8 +143,8 @@ private:
    * @param deviceList The list of devices. Make sure map is sorted.
    * @return A unique pointer to buildings which have ne matching device.
    */
-  std::unique_ptr<const_buildings>
-  updateEnnovatisBuildings(const DeviceList &deviceList);
+  std::unique_ptr<const_buildings> updateEnnovatisBuildings(
+      const DeviceList &deviceList);
   // std::unique_ptr<ennovatis::Buildings> updateEnnovatisBuildings(const
   // DeviceList &deviceList);
 

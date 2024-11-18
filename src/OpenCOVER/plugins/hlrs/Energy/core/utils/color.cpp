@@ -18,4 +18,4 @@ void overrideGeodeMaterial(osg::Geode *geode, osg::Material *material) {
   geode->getOrCreateStateSet()->setAttribute(material,
                                              osg::StateAttribute::OVERRIDE);
 }
-} // namespace core::utils::color
+}  // namespace core::utils::color

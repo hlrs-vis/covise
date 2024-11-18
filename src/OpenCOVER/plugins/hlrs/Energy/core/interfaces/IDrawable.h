@@ -7,15 +7,15 @@
 namespace core {
 namespace interface {
 class IDrawable {
-public:
+ public:
   virtual void initDrawable() = 0;
   virtual void updateDrawable() = 0;
   auto getDrawable() { return m_drawable; }
 
-protected:
+ protected:
   osg::ref_ptr<osg::Node> m_drawable;
 };
-} // namespace interface
-} // namespace core
+}  // namespace interface
+}  // namespace core
 
 #endif

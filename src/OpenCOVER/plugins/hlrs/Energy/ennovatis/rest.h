@@ -1,9 +1,10 @@
 #ifndef _ENERGY_ENNOVATIS_REST_H
 #define _ENERGY_ENNOVATIS_REST_H
 
+#include <string>
+
 #include "building.h"
 #include "utils/thread/threadworker.h"
-#include <string>
 
 namespace ennovatis {
 /**
@@ -13,12 +14,12 @@ namespace ennovatis {
  * URL, project ID, channel ID, time range, and resolution.
  */
 struct rest_request {
-  std::string url;                           // URL
-  std::string projEid;                       // project ID
-  std::string channelId;                     // channel ID
-  std::chrono::system_clock::time_point dtf; // from
-  std::chrono::system_clock::time_point dtt; // until
-  int ts = 86400;                            // 1 day resolution
+  std::string url;                            // URL
+  std::string projEid;                        // project ID
+  std::string channelId;                      // channel ID
+  std::chrono::system_clock::time_point dtf;  // from
+  std::chrono::system_clock::time_point dtt;  // until
+  int ts = 86400;                             // 1 day resolution
   int tsp = 0;
   int tst = 1;
   int etst = 1024;
@@ -64,7 +65,7 @@ struct rest_request_handler {
   auto checkStatus() { return worker.checkStatus(); }
   auto isRunning() { return worker.isRunning(); }
 
-private:
+ private:
   opencover::utils::ThreadWorker<std::string> worker;
 };
 
@@ -86,6 +87,6 @@ struct rest {
   [[nodiscard]] static std::string fetch_data(const rest_request &req);
 };
 
-} // namespace ennovatis
+}  // namespace ennovatis
 
 #endif

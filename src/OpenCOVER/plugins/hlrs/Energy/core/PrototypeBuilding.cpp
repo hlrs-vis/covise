@@ -1,8 +1,10 @@
-#include "osg/ref_ptr"
 #include <PrototypeBuilding.h>
-#include <memory>
 #include <utils/color.h>
 #include <utils/osgUtils.h>
+
+#include <memory>
+
+#include "osg/ref_ptr"
 
 namespace core {
 
@@ -24,7 +26,7 @@ auto PrototypeBuilding::getColor(float val, float max) const {
 void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
   for (auto drawable : m_drawables)
     if (auto geode = dynamic_cast<osg::Geode *>(drawable.get()))
-        utils::color::overrideGeodeColor(geode, color);
+      utils::color::overrideGeodeColor(geode, color);
 }
 
 void PrototypeBuilding::initDrawables() {
@@ -44,7 +46,8 @@ std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
 void PrototypeBuilding::updateDrawables() {}
 
 void PrototypeBuilding::updateTime(int timestep) {
-  // TODO: update for example the height of the cylinder with each timestep
+  // TODO: update for example the height of the cylinder with each
+  // timestep
 }
 
-} // namespace core
+}  // namespace core

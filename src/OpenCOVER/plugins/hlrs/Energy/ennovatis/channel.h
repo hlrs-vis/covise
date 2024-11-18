@@ -6,25 +6,19 @@
 #include <string>
 
 namespace ennovatis {
-enum ChannelGroup {
-  Strom,
-  Wasser,
-  Waerme,
-  Kaelte,
-  None
-}; // keep None at the end
+enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None };  // keep None at the end
 constexpr const char *ChannelGroupToString(ChannelGroup group) {
   switch (group) {
-  case ChannelGroup::Strom:
-    return "Strom";
-  case ChannelGroup::Wasser:
-    return "Wasser";
-  case ChannelGroup::Waerme:
-    return "Waerme";
-  case ChannelGroup::Kaelte:
-    return "Kaelte";
-  case ChannelGroup::None:
-    return "None";
+    case ChannelGroup::Strom:
+      return "Strom";
+    case ChannelGroup::Wasser:
+      return "Wasser";
+    case ChannelGroup::Waerme:
+      return "Waerme";
+    case ChannelGroup::Kaelte:
+      return "Kaelte";
+    case ChannelGroup::None:
+      return "None";
   }
   return "None";
 }
@@ -56,7 +50,6 @@ struct ChannelCmp {
 };
 
 typedef std::set<Channel, ChannelCmp> ChannelList;
-typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)>
-    ChannelGroups;
-} // namespace ennovatis
+typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGroups;
+}  // namespace ennovatis
 #endif
