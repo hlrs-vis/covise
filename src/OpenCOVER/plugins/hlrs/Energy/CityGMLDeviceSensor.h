@@ -24,9 +24,12 @@ public:
   void updateColorOfBuilding(const osg::Vec4 &color) {
     m_cityGMLBuilding->updateColor(color);
   }
-  osg::Node* getDrawable() const {
-    return m_cityGMLBuilding->getDrawable();
+
+  auto getDrawables() const { return m_cityGMLBuilding->getDrawables(); }
+  osg::Node* getDrawable(size_t index) const {
+    return m_cityGMLBuilding->getDrawable(index);
   }
+  auto getParent() { return getNode()->asGroup(); }
 
 private:
   std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;

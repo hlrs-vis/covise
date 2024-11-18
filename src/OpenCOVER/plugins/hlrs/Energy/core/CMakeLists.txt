@@ -11,10 +11,11 @@ set(HEADERS
     interfaces/IBuilding.h
     interfaces/IColorable.h
     interfaces/IDrawable.h
+    interfaces/IDrawables.h
     interfaces/IInfoboard.h
     interfaces/IInformable.h
     interfaces/IMovable.h
-    interfaces/ISeperable.h
+    interfaces/ISeparable.h
     interfaces/ITimedependable.h
     utils/color.h
     utils/osgUtils.h
