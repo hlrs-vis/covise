@@ -34,10 +34,10 @@ class PrototypeBuilding : public interface::IBuilding {
 public:
   PrototypeBuilding(const CylinderAttributes &cylinderAttributes)
       : m_attributes(cylinderAttributes){};
-  void initDrawable() override;
+  void initDrawables() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;
-  void updateDrawable() override;
+  void updateDrawables() override;
   std::unique_ptr<osg::Vec4> getColorInRange(float value,
                                              float maxValue) override;
 

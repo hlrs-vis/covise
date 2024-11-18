@@ -4,29 +4,28 @@
 #include <cstdint>
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
-    osg::ref_ptr<osg::Group> group,
+    osg::ref_ptr<osg::Group> parent,
     std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
-    : coPickSensor(group), m_cityGMLBuilding(std::move(drawableBuilding)),
+    : coPickSensor(parent), m_cityGMLBuilding(std::move(drawableBuilding)),
       m_infoBoard(std::move(infoBoard)) {
 
-  m_cityGMLBuilding->initDrawable();
+  m_cityGMLBuilding->initDrawables();
 
   // infoboard
   m_infoBoard->initInfoboard();
   m_infoBoard->initDrawable();
-  group->addChild(m_infoBoard->getDrawable());
+  parent->addChild(m_infoBoard->getDrawable());
 }
 
 CityGMLDeviceSensor::~CityGMLDeviceSensor() {
   if (m_active)
     disactivate();
-  auto parent = m_cityGMLBuilding->getDrawable()->getParent(0);
-  parent->removeChild(m_infoBoard->getDrawable());
+  getParent()->removeChild(m_infoBoard->getDrawable());
 }
 
 void CityGMLDeviceSensor::update() {
-  m_cityGMLBuilding->updateDrawable();
+  m_cityGMLBuilding->updateDrawables();
   m_infoBoard->updateDrawable();
   coPickSensor::update();
 }

@@ -1,3 +1,4 @@
+#include "osg/ref_ptr"
 #include <PrototypeBuilding.h>
 #include <memory>
 #include <utils/color.h>
@@ -21,17 +22,18 @@ auto PrototypeBuilding::getColor(float val, float max) const {
 }
 
 void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
-  if (auto geode = dynamic_cast<osg::Geode *>(m_drawable.get()))
-    utils::color::overrideGeodeColor(geode, color);
+  for (auto drawable : m_drawables)
+    if (auto geode = dynamic_cast<osg::Geode *>(drawable.get()))
+        utils::color::overrideGeodeColor(geode, color);
 }
 
-void PrototypeBuilding::initDrawable() {
-  m_drawable = new osg::Geode;
+void PrototypeBuilding::initDrawables() {
   const osg::Vec3f bottom(m_attributes.position);
   osg::Vec3f top(bottom);
   top.z() += m_attributes.height;
-  m_drawable = utils::osgUtils::createCylinderBetweenPoints(
+  osg::ref_ptr<osg::Geode> drawable = utils::osgUtils::createCylinderBetweenPoints(
       bottom, top, m_attributes.radius, m_attributes.colorMap.defaultColor);
+  m_drawables.push_back(drawable);
 }
 
 std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
@@ -39,7 +41,7 @@ std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
   return getColor(value, maxValue);
 }
 
-void PrototypeBuilding::updateDrawable() {}
+void PrototypeBuilding::updateDrawables() {}
 
 void PrototypeBuilding::updateTime(int timestep) {
   // TODO: update for example the height of the cylinder with each timestep

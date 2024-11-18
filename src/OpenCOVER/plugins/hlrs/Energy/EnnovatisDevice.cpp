@@ -134,8 +134,9 @@ void EnnovatisDevice::init() {
   m_deviceGroup->addChild(m_infoBoard->getDrawable());
 
   // cylinder / building representation
-  m_drawableBuilding->initDrawable();
-  m_deviceGroup->addChild(m_drawableBuilding->getDrawable());
+  m_drawableBuilding->initDrawables();
+  for (auto drawable : m_drawableBuilding->getDrawables())
+    m_deviceGroup->addChild(drawable);
 }
 
 void EnnovatisDevice::updateColorByTime(int timestep) {
@@ -185,9 +186,10 @@ void EnnovatisDevice::disactivate() {
     m_InfoVisible = false;
     m_infoBoard->hideInfo();
     // reset to default
-    m_deviceGroup->removeChild(m_drawableBuilding->getDrawable());
-    m_drawableBuilding->initDrawable();
-    m_deviceGroup->addChild(m_drawableBuilding->getDrawable());
+    for (auto drawable : m_drawableBuilding->getDrawables())
+      m_deviceGroup->removeChild(drawable);
+
+    m_drawableBuilding->initDrawables();
     m_timestepColors.clear();
   }
 }
