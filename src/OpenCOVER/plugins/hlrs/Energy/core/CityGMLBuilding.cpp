@@ -1,13 +1,14 @@
 #include "CityGMLBuilding.h"
-#include "utils/color.h"
+
 #include <osg/Geode>
 #include <osg/MatrixTransform>
+
+#include "utils/color.h"
 
 namespace core {
 using namespace utils;
 
-CityGMLBuilding::CityGMLBuilding(
-    const osgUtils::Geodes &geodes) {
+CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes) {
   m_drawables.reserve(geodes.size());
   m_drawables.insert(m_drawables.begin(), geodes.begin(), geodes.end());
 }
@@ -15,10 +16,9 @@ CityGMLBuilding::CityGMLBuilding(
 void CityGMLBuilding::initDrawables() {}
 
 void CityGMLBuilding::updateColor(const osg::Vec4 &color) {
-    for (auto drawable : m_drawables) {
-        if (auto geo = drawable->asGeode())
-            color::overrideGeodeColor(geo, color);
-    }
+  for (auto drawable : m_drawables) {
+    if (auto geo = drawable->asGeode()) color::overrideGeodeColor(geo, color);
+  }
 }
 
 void CityGMLBuilding::updateTime(int timestep) { m_timestep = timestep; }
@@ -28,4 +28,4 @@ std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
                                                             float maxValue) {
   return nullptr;
 }
-} // namespace core
+}  // namespace core

@@ -1,15 +1,16 @@
 #include <CityGMLDeviceSensor.h>
 #include <PluginUtil/coSensor.h>
 #include <core/CityGMLBuilding.h>
+
 #include <cstdint>
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> parent,
     std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
-    : coPickSensor(parent), m_cityGMLBuilding(std::move(drawableBuilding)),
+    : coPickSensor(parent),
+      m_cityGMLBuilding(std::move(drawableBuilding)),
       m_infoBoard(std::move(infoBoard)) {
-
   m_cityGMLBuilding->initDrawables();
 
   // infoboard
@@ -19,8 +20,7 @@ CityGMLDeviceSensor::CityGMLDeviceSensor(
 }
 
 CityGMLDeviceSensor::~CityGMLDeviceSensor() {
-  if (m_active)
-    disactivate();
+  if (m_active) disactivate();
   getParent()->removeChild(m_infoBoard->getDrawable());
 }
 
@@ -39,8 +39,7 @@ void CityGMLDeviceSensor::activate() {
 }
 
 void CityGMLDeviceSensor::disactivate() {
-  if (m_active)
-    return;
+  if (m_active) return;
   m_infoBoard->hideInfo();
 }
 
@@ -63,8 +62,7 @@ void CityGMLDeviceSensor::updateTime(int timestep) {
     b--;
   }
 
-  m_cityGMLBuilding->updateColor(
-      osg::Vec4(r / 255.0, g / 255.0, b / 255.0, 1.0));
+  m_cityGMLBuilding->updateColor(osg::Vec4(r / 255.0, g / 255.0, b / 255.0, 1.0));
   m_cityGMLBuilding->updateTime(timestep);
   m_infoBoard->updateTime(timestep);
 }

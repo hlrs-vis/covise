@@ -1,4 +1,5 @@
 #include "EnnovatisDeviceSensor.h"
+
 #include <algorithm>
 
 void EnnovatisDeviceSensor::activate() {
@@ -11,8 +12,7 @@ void EnnovatisDeviceSensor::activate() {
 }
 
 void EnnovatisDeviceSensor::disactivate() {
-  if (m_activated)
-    return;
+  if (m_activated) return;
 
   m_dev->disactivate();
   auto selList = m_enabledDevices->items();

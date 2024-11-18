@@ -21,8 +21,7 @@ struct json_response_object {
 void from_json(const nlohmann::json &j, json_response_object &obj);
 
 struct json_parser {
-  std::unique_ptr<json_response_object>
-  operator()(const nlohmann::json &j) const {
+  std::unique_ptr<json_response_object> operator()(const nlohmann::json &j) const {
     return std::make_unique<json_response_object>(
         j.template get<ennovatis::json_response_object>());
   }
@@ -37,5 +36,5 @@ struct json_parser {
    */
   std::unique_ptr<json_response_object> operator()(const std::string &s) const;
 };
-} // namespace ennovatis
+}  // namespace ennovatis
 #endif

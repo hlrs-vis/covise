@@ -1,9 +1,11 @@
 #include "rest.h"
+
+#include <string>
+
 #include "HTTPClient/CURL/methods.h"
 #include "HTTPClient/CURL/request.h"
 #include "building.h"
 #include "date.h"
-#include <string>
 
 using namespace std;
 using namespace opencover::httpclient::curl;
@@ -32,8 +34,7 @@ std::string rest::fetch_data(const rest_request &req) {
   std::string response = "";
   GET getRequest(req());
   if (!Request().httpRequest(getRequest, response))
-    response =
-        "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
+    response = "[ERROR] Failed to fetch data from Ennovatis. With request: " + req();
   return response;
 }
-} // namespace ennovatis
+}  // namespace ennovatis

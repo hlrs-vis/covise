@@ -1,20 +1,21 @@
 #ifndef _ENNOVATISDEVICESENSOR_H
 #define _ENNOVATISDEVICESENSOR_H
 
-#include "EnnovatisDevice.h"
-#include "cover/ui/SelectionList.h"
 #include <PluginUtil/coSensor.h>
+
 #include <memory>
 
+#include "EnnovatisDevice.h"
+#include "cover/ui/SelectionList.h"
+
 class EnnovatisDeviceSensor : public coPickSensor {
-public:
+ public:
   EnnovatisDeviceSensor(std::unique_ptr<EnnovatisDevice> d, osg::Group *n,
                         opencover::ui::SelectionList *selList)
       : coPickSensor(n), m_dev(std::move(d)), m_enabledDevices(selList) {}
 
   ~EnnovatisDeviceSensor() {
-    if (active)
-      disactivate();
+    if (active) disactivate();
   }
 
   [[nodiscard]] auto getDevice() const { return m_dev.get(); }
@@ -28,7 +29,7 @@ public:
   void activate() override;
   void disactivate() override;
 
-private:
+ private:
   opencover::ui::SelectionList *m_enabledDevices;
   std::unique_ptr<EnnovatisDevice> m_dev;
   bool m_activated = false;

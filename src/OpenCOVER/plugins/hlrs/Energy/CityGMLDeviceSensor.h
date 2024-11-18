@@ -4,11 +4,12 @@
 #include <PluginUtil/coSensor.h>
 #include <core/interfaces/IBuilding.h>
 #include <core/interfaces/IInfoboard.h>
+
 #include <memory>
 #include <osg/Group>
 
 class CityGMLDeviceSensor : public coPickSensor {
-public:
+ public:
   CityGMLDeviceSensor(
       osg::ref_ptr<osg::Group> group,
       std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
@@ -26,12 +27,12 @@ public:
   }
 
   auto getDrawables() const { return m_cityGMLBuilding->getDrawables(); }
-  osg::Node* getDrawable(size_t index) const {
+  osg::Node *getDrawable(size_t index) const {
     return m_cityGMLBuilding->getDrawable(index);
   }
   auto getParent() { return getNode()->asGroup(); }
 
-private:
+ private:
   std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
   bool m_active = false;

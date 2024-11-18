@@ -1,39 +1,45 @@
 #ifndef _CORE_TXTINFOBOARD_H
 #define _CORE_TXTINFOBOARD_H
 
-#include "interfaces/IInfoboard.h"
 #include <cover/coBillboard.h>
+
 #include <osg/ref_ptr>
 #include <osgText/Text>
+
+#include "interfaces/IInfoboard.h"
 
 namespace core {
 struct TxtBoxAttributes {
   TxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
-                   const std::string &font, const float &width,
-                   const float &height, const float &margin,
-                   const float &titleHeightPercentage, int charSize = 2)
-      : position(pos), title(title), fontFile(font), maxWidth(width),
-        height(height), margin(margin),
-        titleHeightPercentage(titleHeightPercentage), charSize(charSize) {}
+                   const std::string &font, const float &width, const float &height,
+                   const float &margin, const float &titleHeightPercentage,
+                   int charSize = 2)
+      : position(pos),
+        title(title),
+        fontFile(font),
+        maxWidth(width),
+        height(height),
+        margin(margin),
+        titleHeightPercentage(titleHeightPercentage),
+        charSize(charSize) {}
   osg::Vec3 position;
   std::string title;
   std::string fontFile;
   float maxWidth;
   float height;
   float margin;
-  float titleHeightPercentage; // title height in percentage of total height
+  float titleHeightPercentage;  // title height in percentage of total height
   int charSize;
 };
 class TxtInfoboard : public interface::IInfoboard<std::string> {
-public:
+ public:
   TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes){};
   TxtInfoboard(const osg::Vec3 &position, const std::string &title,
-               const std::string &font, const float &maxWidth,
-               const float &height, const float &margin,
-               const float &titleHeightPercentage, int charSize = 2)
+               const std::string &font, const float &maxWidth, const float &height,
+               const float &margin, const float &titleHeightPercentage,
+               int charSize = 2)
       : m_attributes(TxtBoxAttributes(position, title, font, maxWidth, height,
-                                      margin, titleHeightPercentage,
-                                      charSize)){};
+                                      margin, titleHeightPercentage, charSize)){};
 
   // IInfoboard interface
   void updateTime(int timestep) override;
@@ -54,9 +60,7 @@ public:
   [[nodiscard]] const auto &getMaxWidth(float width) {
     return m_attributes.maxWidth;
   }
-  [[nodiscard]] const auto &getHeight(float height) {
-    return m_attributes.height;
-  }
+  [[nodiscard]] const auto &getHeight(float height) { return m_attributes.height; }
   [[nodiscard]] const auto &getFont(const std::string &font) {
     return m_attributes.fontFile;
   }
@@ -67,10 +71,10 @@ public:
     return m_attributes.charSize;
   }
 
-private:
+ private:
   osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,
-                                            const osg::Vec3 &position,
-                                            int charSize, const char *fontFile,
+                                            const osg::Vec3 &position, int charSize,
+                                            const char *fontFile,
                                             const float &maxWidth,
                                             const float &margin) const;
   osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
@@ -79,6 +83,6 @@ private:
   // txtbox attributes
   TxtBoxAttributes m_attributes;
 };
-} // namespace core
+}  // namespace core
 
 #endif

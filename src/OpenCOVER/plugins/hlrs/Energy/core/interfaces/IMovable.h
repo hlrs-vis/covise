@@ -6,10 +6,10 @@
 namespace core {
 namespace interface {
 class IMoveable {
-public:
+ public:
   virtual void move(const osg::Vec3 &pos) = 0;
 };
-} // namespace interface
-} // namespace core
+}  // namespace interface
+}  // namespace core
 
 #endif

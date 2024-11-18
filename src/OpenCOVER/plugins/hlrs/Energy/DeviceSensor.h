@@ -7,25 +7,26 @@
 #ifndef _Energy_DeviceSensor_H
 #define _Energy_DeviceSensor_H
 
-#include "Device.h"
 #include <PluginUtil/coSensor.h>
 #include <cover/coVRPluginSupport.h>
+
 #include <memory>
+
+#include "Device.h"
 
 using namespace opencover;
 
 namespace energy {
 class DeviceSensor : public coPickSensor {
-private:
+ private:
   energy::Device::ptr dev;
 
-public:
+ public:
   typedef std::shared_ptr<DeviceSensor> ptr;
   DeviceSensor(energy::Device::ptr d, osg::ref_ptr<osg::Node> n)
       : coPickSensor(n), dev(d){};
   ~DeviceSensor() {
-    if (active)
-      disactivate();
+    if (active) disactivate();
   }
   DeviceSensor(const DeviceSensor &other) = delete;
   DeviceSensor &operator=(const DeviceSensor &) = delete;
@@ -38,6 +39,6 @@ public:
   }
   energy::Device::ptr getDevice() const { return dev; }
 };
-} // namespace energy
+}  // namespace energy
 
 #endif

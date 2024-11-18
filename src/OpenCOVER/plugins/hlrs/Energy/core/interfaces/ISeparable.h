@@ -4,10 +4,10 @@
 namespace core {
 namespace interface {
 class ISeparable {
-public:
+ public:
   virtual void seperate() = 0;
 };
-} // namespace interface
-} // namespace core
+}  // namespace interface
+}  // namespace core
 
 #endif

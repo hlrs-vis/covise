@@ -1,10 +1,12 @@
 #include "csv.h"
-#include "building.h"
-#include "utils/read/csv/csv.h"
+
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <sstream>
 #include <string>
+
+#include "building.h"
+#include "utils/read/csv/csv.h"
 
 namespace {
 
@@ -19,7 +21,7 @@ void channelgroup_switch(ennovatis::Channel &channel, const std::string &val) {
   else if (algo::contains(val, "COOLING"))
     channel.group = ennovatis::ChannelGroup::Kaelte;
 }
-} // namespace
+}  // namespace
 
 namespace ennovatis {
 
@@ -37,10 +39,9 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
         const auto &name_channel_dir = row["Gebaude/Kanalordner"];
         const auto name =
             name_channel_dir.substr(0, name_channel_dir.find_last_of('-'));
-        buildingIt = std::find_if(buildings->begin(), buildings->end(),
-                                  [&name](const Building &b) {
-                                    return b.getId().compare(name) >= 0;
-                                  });
+        buildingIt = std::find_if(
+            buildings->begin(), buildings->end(),
+            [&name](const Building &b) { return b.getId().compare(name) >= 0; });
         if (buildingIt == buildings->end()) {
           buildings->push_back(Building(name, building_id));
           buildingIt = buildings->end() - 1;
@@ -50,14 +51,13 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
 
       // channelid in csv is not the same as the channel id on server side
       const auto &channel_id =
-          row["GlobalId"] + "_5"; // _5 needed to specify as channel
+          row["GlobalId"] + "_5";  // _5 needed to specify as channel
       const auto &channel_type = row["Medium"];
 
       Channel channel{row["Kanal"], channel_id, row["Beschreibung"],
                       channel_type, "None",     ChannelGroup::None};
       channelgroup_switch(channel, channel_type);
-      if (channel.group == ChannelGroup::None)
-        continue;
+      if (channel.group == ChannelGroup::None) continue;
 
       buildingIt->addChannel(channel, channel.group);
     }
@@ -73,18 +73,16 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
     std::basic_istream<char> &file, BuildingsPtr buildings) {
   std::string row("");
   std::string lastBuildingId("");
-  std::getline(file, row); // skip header
+  std::getline(file, row);  // skip header
   std::vector<Building>::iterator buildingIt;
   while (file.good()) {
     std::getline(file, row);
-    if (row.empty())
-      continue;
+    if (row.empty()) continue;
 
     std::istringstream ss(row);
     std::string column("");
     std::vector<std::string> columns;
-    while (std::getline(ss, column, ','))
-      columns.push_back(column);
+    while (std::getline(ss, column, ',')) columns.push_back(column);
 
     const auto &building_id = columns[(int)CSV_ChannelID_Column::BUILDING_ID];
     if (building_id != lastBuildingId) {
@@ -106,7 +104,7 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
     const auto &channel_name = columns[(int)CSV_ChannelID_Column::CHANNEL];
     // channelid in csv is not the same as the channel id on server side
     const auto &channel_id = columns[(int)CSV_ChannelID_Column::GLOBAL_ID] +
-                             "_5"; // _5 needed to specify as channel
+                             "_5";  // _5 needed to specify as channel
     const auto &channel_description =
         columns[(int)CSV_ChannelID_Column::DESCRIPTION];
     const auto &channel_type = columns[(int)CSV_ChannelID_Column::TYPE];
@@ -114,11 +112,10 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
     Channel channel{channel_name, channel_id, channel_description,
                     channel_type, "None",     ChannelGroup::None};
     channelgroup_switch(channel, channel_type);
-    if (channel.group == ChannelGroup::None)
-      continue;
+    if (channel.group == ChannelGroup::None) continue;
 
     buildingIt->addChannel(channel, channel.group);
   }
   return true;
 }
-} // namespace ennovatis
+}  // namespace ennovatis

@@ -18,16 +18,19 @@
  **                                                                        **
 \****************************************************************************/
 
-#include <Energy.h>
-
 #include <Device.h>
+#include <Energy.h>
 #include <EnnovatisDevice.h>
 #include <EnnovatisDeviceSensor.h>
 #include <build_options.h>
+#include <config/CoviseConfig.h>
 #include <core/CityGMLBuilding.h>
 #include <core/PrototypeBuilding.h>
 #include <core/TxtInfoboard.h>
 #include <core/utils/osgUtils.h>
+#include <cover/coVRAnimationManager.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRTui.h>
 #include <cover/ui/SelectionList.h>
 #include <ennovatis/building.h>
 #include <ennovatis/csv.h>
@@ -36,6 +39,8 @@
 #include <ennovatis/sax.h>
 
 #include <algorithm>
+#include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
@@ -44,27 +49,17 @@
 #include <iostream>
 #include <memory>
 #include <osg/Group>
+#include <osg/LineWidth>
 #include <osg/MatrixTransform>
 #include <osg/Node>
 #include <osg/Switch>
 #include <osg/Vec3>
+#include <osg/Version>
 #include <osg/ref_ptr>
+#include <osgUtil/Optimizer>
 #include <regex>
 #include <string>
 #include <vector>
-
-#include <boost/filesystem.hpp>
-#include <boost/tokenizer.hpp>
-
-#include <config/CoviseConfig.h>
-#include <cover/coVRAnimationManager.h>
-#include <cover/coVRFileManager.h>
-#include <cover/coVRTui.h>
-
-#include <osg/LineWidth>
-#include <osg/Version>
-#include <osgUtil/Optimizer>
-
 
 using namespace opencover;
 using namespace opencover::utils::read;
@@ -79,14 +74,12 @@ const std::regex dateRgx(
 ennovatis::rest_request_handler m_debug_worker;
 
 // Compare two string numbers as integer using std::stoi
-bool helper_cmpStrNo_as_int(const std::string &strtNo,
-                            const std::string &strtNo2) {
+bool helper_cmpStrNo_as_int(const std::string &strtNo, const std::string &strtNo2) {
   try {
     int intStrtNo = std::stoi(strtNo), intStrtNo2 = std::stoi(strtNo2);
-    auto validConversion = strtNo == std::to_string(intStrtNo) &&
-                           strtNo2 == std::to_string(intStrtNo2);
-    if (intStrtNo2 == intStrtNo && validConversion)
-      return true;
+    auto validConversion =
+        strtNo == std::to_string(intStrtNo) && strtNo2 == std::to_string(intStrtNo2);
+    if (intStrtNo2 == intStrtNo && validConversion) return true;
   } catch (...) {
   }
   return false;
@@ -110,8 +103,7 @@ bool cmpStrtNo(const std::string &strtName, const std::string &strtName2) {
   auto lower = [](unsigned char c) { return std::tolower(c); };
   std::transform(strtNo2.begin(), strtNo2.end(), strtNo2.begin(), lower);
   std::transform(strtNo.begin(), strtNo.end(), strtNo.begin(), lower);
-  if (strtNo2 == strtNo)
-    return true;
+  if (strtNo2 == strtNo) return true;
 
   // compare as integers
   return helper_cmpStrNo_as_int(strtNo, strtNo2);
@@ -151,24 +143,21 @@ size_t computeLevensteinDistance(const std::string &s1, const std::string &s2,
 
   d[0][0] = 0;
   // compute distance
-  for (int i = 1; i <= len1; ++i)
-    d[i][0] = i;
-  for (int j = 1; j <= len2; ++j)
-    d[0][j] = j;
+  for (int i = 1; i <= len1; ++i) d[i][0] = i;
+  for (int j = 1; j <= len2; ++j) d[0][j] = j;
 
   for (int i = 1; i <= len1; ++i) {
     for (int j = 1; j <= len2; ++j) {
       if (isEqual(s1[i - 1], s2[j - 1]))
         d[i][j] = d[i - 1][j - 1];
       else
-        d[i][j] =
-            std::min({d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + 1});
+        d[i][j] = std::min({d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + 1});
     }
   }
 
   return d[len1][len2];
 }
-} // namespace
+}  // namespace
 
 /* #region GENERAL */
 EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
@@ -220,8 +209,8 @@ EnergyPlugin::EnergyPlugin()
   initEnnovatisUI();
   initCityGMLUI();
 
-  m_offset = configFloatArray("General", "offset", std::vector<double>{0, 0, 0})
-                 ->value();
+  m_offset =
+      configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
 }
 
 EnergyPlugin::~EnergyPlugin() {
@@ -245,37 +234,30 @@ EnergyPlugin::~EnergyPlugin() {
 
 bool EnergyPlugin::update() {
   for (auto s = m_SDlist.begin(); s != m_SDlist.end(); s++) {
-    if (s->second.empty())
-      continue;
+    if (s->second.empty()) continue;
     for (auto timeElem : s->second) {
-      if (timeElem)
-        timeElem->update();
+      if (timeElem) timeElem->update();
     }
   }
 
   if constexpr (debug) {
     auto result = m_debug_worker.getResult();
     if (result)
-      for (auto &requ : *result)
-        std::cout << "Response:\n" << requ << "\n";
+      for (auto &requ : *result) std::cout << "Response:\n" << requ << "\n";
   }
 
-  for (auto &sensor : m_ennovatisDevicesSensors)
-    sensor->update();
+  for (auto &sensor : m_ennovatisDevicesSensors) sensor->update();
 
-  for (auto &[name, sensor] : m_cityGMLObjs)
-    sensor->update();
+  for (auto &[name, sensor] : m_cityGMLObjs) sensor->update();
 
   return false;
 }
 
 void EnergyPlugin::setTimestep(int t) {
   m_sequenceList->setValue(t);
-  for (auto &sensor : m_ennovatisDevicesSensors)
-    sensor->setTimestep(t);
+  for (auto &sensor : m_ennovatisDevicesSensors) sensor->setTimestep(t);
 
-  for (auto &[_, sensor] : m_cityGMLObjs)
-    sensor->updateTime(t);
+  for (auto &[_, sensor] : m_cityGMLObjs) sensor->updateTime(t);
 }
 
 void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child) {
@@ -285,11 +267,9 @@ void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child) {
 
 bool EnergyPlugin::init() {
   auto dbPath = configString("CSV", "filename", "default")->value();
-  auto channelIdJSONPath =
-      configString("Ennovatis", "jsonPath", "default")->value();
+  auto channelIdJSONPath = configString("Ennovatis", "jsonPath", "default")->value();
   // csv contains only updated buildings
-  auto channelIdCSVPath =
-      configString("Ennovatis", "csvPath", "default")->value();
+  auto channelIdCSVPath = configString("Ennovatis", "csvPath", "default")->value();
   ProjTrans pjTrans;
   pjTrans.projFrom = configString("General", "projFrom", "default")->value();
   pjTrans.projTo = configString("General", "projTo", "default")->value();
@@ -321,8 +301,7 @@ bool EnergyPlugin::init() {
                 << " -> Building: " << building->getName() << std::endl;
 
     std::cout << "No matches for the following buildings:" << std::endl;
-    for (auto &building : *noMatches)
-      std::cout << building->getName() << std::endl;
+    for (auto &building : *noMatches) std::cout << building->getName() << std::endl;
   }
   initEnnovatisDevices();
   switchTo(m_sequenceList);
@@ -361,45 +340,46 @@ void EnergyPlugin::enableCityGML(bool on) {
   }
 }
 
-void EnergyPlugin::addCityGMLObject(const std::string &name, osg::ref_ptr<osg::Group> grp) {
-    using namespace core::utils;
+void EnergyPlugin::addCityGMLObject(const std::string &name,
+                                    osg::ref_ptr<osg::Group> grp) {
+  using namespace core::utils;
 
-    if (!grp->getNumChildren()) return;
+  if (!grp->getNumChildren()) return;
 
-    if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end()) return;
+  if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end()) return;
 
-    auto geodes = osgUtils::getGeodes(grp);
-    if (geodes->empty()) return;
+  auto geodes = osgUtils::getGeodes(grp);
+  if (geodes->empty()) return;
 
-    // store default material
-    //     addCityGMLDefaultGeode(name, geo);
-    //
-    auto boundingbox = osgUtils::getBoundingBox(*geodes);
-    auto infoboardPos = boundingbox.center();
-    infoboardPos.z() += (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
-    auto infoboard = std::make_unique<core::TxtInfoboard>(infoboardPos, name, "DroidSans-Bold.ttf",
-                                                          50, 50, 2.0f, 0.1, 2);
-    auto building = std::make_unique<core::CityGMLBuilding>(*geodes);
-    auto sensor =
-        std::make_unique<CityGMLDeviceSensor>(grp, std::move(infoboard), std::move(building));
-    m_cityGMLObjs.insert({name, std::move(sensor)});
+  // store default material
+  //     addCityGMLDefaultGeode(name, geo);
+  //
+  auto boundingbox = osgUtils::getBoundingBox(*geodes);
+  auto infoboardPos = boundingbox.center();
+  infoboardPos.z() +=
+      (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
+  auto infoboard = std::make_unique<core::TxtInfoboard>(
+      infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
+  auto building = std::make_unique<core::CityGMLBuilding>(*geodes);
+  auto sensor = std::make_unique<CityGMLDeviceSensor>(grp, std::move(infoboard),
+                                                      std::move(building));
+  m_cityGMLObjs.insert({name, std::move(sensor)});
 }
 
 void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> grp) {
   using namespace core::utils;
   for (auto i = 0; i < grp->getNumChildren(); ++i) {
-    osg::ref_ptr<osg::Group> child =
-        dynamic_cast<osg::Group *>(grp->getChild(i));
+    osg::ref_ptr<osg::Group> child = dynamic_cast<osg::Group *>(grp->getChild(i));
     if (child) {
-        const auto &name = child->getName();
+      const auto &name = child->getName();
 
-        // handle quad tree optimized scenegraph
-        if (name == "GROUP" || name == "") {
-            addCityGMLObjects(child);
-            continue;
-        }
+      // handle quad tree optimized scenegraph
+      if (name == "GROUP" || name == "") {
+        addCityGMLObjects(child);
+        continue;
+      }
 
-        addCityGMLObject(name, child);
+      addCityGMLObject(name, child);
     }
   }
 }
@@ -422,8 +402,7 @@ void EnergyPlugin::restoreCityGMLGeodesDefault(const std::string &name,
 void EnergyPlugin::restoreCityGMLDefault() {
   for (auto &[name, sensor] : m_cityGMLObjs) {
     for (auto drawble : sensor->getDrawables()) {
-      if (osg::ref_ptr<osg::Geode> geo =
-              dynamic_cast<osg::Geode *>(drawble.get()))
+      if (osg::ref_ptr<osg::Geode> geo = dynamic_cast<osg::Geode *>(drawble.get()))
         restoreCityGMLGeodesDefault(name, geo);
     }
   }
@@ -440,16 +419,15 @@ void EnergyPlugin::initEnnovatisUI() {
       new ui::SelectionList(m_ennovatisGroup, "Ennovatis ChannelType: ");
   std::vector<std::string> ennovatisSelections;
   for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
-    ennovatisSelections.push_back(ennovatis::ChannelGroupToString(
-        static_cast<ennovatis::ChannelGroup>(i)));
+    ennovatisSelections.push_back(
+        ennovatis::ChannelGroupToString(static_cast<ennovatis::ChannelGroup>(i)));
 
   m_ennovatisSelectionsList->setList(ennovatisSelections);
   m_enabledEnnovatisDevices =
       new opencover::ui::SelectionList(EnergyTab, "Enabled Devices: ");
   m_enabledEnnovatisDevices->setCallback(
       [this](int value) { selectEnabledDevice(); });
-  m_ennovatisChannelList =
-      new opencover::ui::SelectionList(EnergyTab, "Channels: ");
+  m_ennovatisChannelList = new opencover::ui::SelectionList(EnergyTab, "Channels: ");
 
   // TODO: add calender widget instead of txtfields
   m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
@@ -458,9 +436,8 @@ void EnergyPlugin::initEnnovatisUI() {
   m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
   m_ennovatisUpdate->setCallback([this](bool on) { updateEnnovatis(); });
 
-  m_ennovatisSelectionsList->setCallback([this](int value) {
-    setEnnovatisChannelGrp(ennovatis::ChannelGroup(value));
-  });
+  m_ennovatisSelectionsList->setCallback(
+      [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
   m_ennovatisFrom->setCallback(
       [this](const std::string &toSet) { setRESTDate(toSet, true); });
   m_ennovatisTo->setCallback(
@@ -486,13 +463,12 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false) {
   fromOrTo += toSet;
   if (!std::regex_match(toSet, dateRgx)) {
     std::cout << "Invalid date format for " << fromOrTo
-              << " Please use the following format: "
-              << ennovatis::date::dateformat << std::endl;
+              << " Please use the following format: " << ennovatis::date::dateformat
+              << std::endl;
     return;
   }
 
-  auto time =
-      ennovatis::date::str_to_time_point(toSet, ennovatis::date::dateformat);
+  auto time = ennovatis::date::str_to_time_point(toSet, ennovatis::date::dateformat);
   bool validTime = (isFrom) ? (time <= m_req->dtt) : (time >= m_req->dtf);
   if (!validTime) {
     std::cout << "Invalid date. (To >= From)" << std::endl;
@@ -512,25 +488,20 @@ void EnergyPlugin::setRESTDate(const std::string &toSet, bool isFrom = false) {
 }
 
 core::CylinderAttributes EnergyPlugin::getCylinderAttributes() {
-  auto configDefaultColorVec =
-      configFloatArray("Ennovatis", "defaultColorCylinder",
-                       std::vector<double>{0, 0, 0, 1.f})
-          ->value();
-  auto configMaxColorVec =
-      configFloatArray("Ennovatis", "maxColorCylinder",
-                       std::vector<double>{0.0, 0.1, 0.0, 1.f})
-          ->value();
-  auto configMinColorVec =
-      configFloatArray("Ennovatis", "minColorCylinder",
-                       std::vector<double>{0.0, 1.0, 0.0, 1.f})
-          ->value();
+  auto configDefaultColorVec = configFloatArray("Ennovatis", "defaultColorCylinder",
+                                                std::vector<double>{0, 0, 0, 1.f})
+                                   ->value();
+  auto configMaxColorVec = configFloatArray("Ennovatis", "maxColorCylinder",
+                                            std::vector<double>{0.0, 0.1, 0.0, 1.f})
+                               ->value();
+  auto configMinColorVec = configFloatArray("Ennovatis", "minColorCylinder",
+                                            std::vector<double>{0.0, 1.0, 0.0, 1.f})
+                               ->value();
   auto configDefaultHeightCycl =
       configFloat("Ennovatis", "defaultHeightCylinder", 100.0)->value();
-  auto configRadiusCycl =
-      configFloat("Ennovatis", "radiusCylinder", 3.0)->value();
-  auto defaultColor =
-      osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1],
-                configDefaultColorVec[2], configDefaultColorVec[3]);
+  auto configRadiusCycl = configFloat("Ennovatis", "radiusCylinder", 3.0)->value();
+  auto defaultColor = osg::Vec4(configDefaultColorVec[0], configDefaultColorVec[1],
+                                configDefaultColorVec[2], configDefaultColorVec[3]);
   auto maxColor = osg::Vec4(configMaxColorVec[0], configMaxColorVec[1],
                             configMaxColorVec[2], configMaxColorVec[3]);
   auto minColor = osg::Vec4(configMinColorVec[0], configMinColorVec[1],
@@ -552,8 +523,8 @@ void EnergyPlugin::initEnnovatisDevices() {
                                   b.getHeight() + cylinderAttributes.height);
     auto infoboard = std::make_unique<core::TxtInfoboard>(
         infoboardPos, b.getName(), "DroidSans-Bold.ttf",
-        cylinderAttributes.radius * 20, cylinderAttributes.radius * 21, 2.0f,
-        0.1, 2);
+        cylinderAttributes.radius * 20, cylinderAttributes.radius * 21, 2.0f, 0.1,
+        2);
     auto enDev = std::make_unique<EnnovatisDevice>(
         b, m_ennovatisChannelList, m_req, m_channelGrp, std::move(infoboard),
         std::move(drawableBuilding));
@@ -606,15 +577,12 @@ bool EnergyPlugin::loadChannelIDs(const std::string &pathToJSON,
   auto jsonPath = std::filesystem::path(pathToJSON);
   if (jsonPath.extension() == ".json") {
     ennovatis::sax_channelid_parser slp(m_buildings);
-    if (!slp.parse_filestream(inputFilestream))
-      return false;
+    if (!slp.parse_filestream(inputFilestream)) return false;
 
-    if (!updateChannelIDsFromCSV(pathToCSV))
-      return false;
+    if (!updateChannelIDsFromCSV(pathToCSV)) return false;
 
     if constexpr (debug)
-      for (auto &log : slp.getDebugLogs())
-        std::cout << log << std::endl;
+      for (auto &log : slp.getDebugLogs()) std::cout << log << std::endl;
   }
   return true;
 }
@@ -626,10 +594,10 @@ void EnergyPlugin::initRESTRequest() {
   m_req->channelId = "";
   m_req->dtf = std::chrono::system_clock::now() - std::chrono::hours(24);
   m_req->dtt = std::chrono::system_clock::now();
-  m_ennovatisFrom->setValue(ennovatis::date::time_point_to_str(
-      m_req->dtf, ennovatis::date::dateformat));
-  m_ennovatisTo->setValue(ennovatis::date::time_point_to_str(
-      m_req->dtt, ennovatis::date::dateformat));
+  m_ennovatisFrom->setValue(
+      ennovatis::date::time_point_to_str(m_req->dtf, ennovatis::date::dateformat));
+  m_ennovatisTo->setValue(
+      ennovatis::date::time_point_to_str(m_req->dtt, ennovatis::date::dateformat));
 }
 
 std::unique_ptr<EnergyPlugin::const_buildings>
@@ -643,8 +611,7 @@ EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList) {
   };
 
   auto updateBuildingInfo = [&](ennovatis::Building &b, Device::ptr dev) {
-    if (m_devBuildMap.find(dev) != m_devBuildMap.end())
-      return;
+    if (m_devBuildMap.find(dev) != m_devBuildMap.end()) return;
     m_devBuildMap[dev] = &b;
     // name in ennovatis is the street => first set it for street => then set
     // the name
@@ -703,8 +670,7 @@ EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList) {
 
 void EnergyPlugin::reinitDevices(int comp) {
   for (auto s : m_SDlist) {
-    if (s.second.empty())
-      continue;
+    if (s.second.empty()) continue;
     for (auto devSens : s.second) {
       auto t = devSens->getDevice();
       t->init(rad, scaleH, comp);
@@ -715,17 +681,17 @@ void EnergyPlugin::reinitDevices(int comp) {
 void EnergyPlugin::setComponent(Components c) {
   switchTo(m_sequenceList);
   switch (c) {
-  case Strom:
-    StromBt->setState(true, false);
-    break;
-  case Waerme:
-    WaermeBt->setState(true, false);
-    break;
-  case Kaelte:
-    KaelteBt->setState(true, false);
-    break;
-  default:
-    break;
+    case Strom:
+      StromBt->setState(true, false);
+      break;
+    case Waerme:
+      WaermeBt->setState(true, false);
+      break;
+    case Kaelte:
+      KaelteBt->setState(true, false);
+      break;
+    default:
+      break;
   }
   m_selectedComp = c;
   reinitDevices(c);
@@ -749,8 +715,8 @@ bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans) {
   return true;
 }
 
-void EnergyPlugin::helper_initTimestepGrp(
-    size_t maxTimesteps, osg::ref_ptr<osg::Group> &timestepGroup) {
+void EnergyPlugin::helper_initTimestepGrp(size_t maxTimesteps,
+                                          osg::ref_ptr<osg::Group> &timestepGroup) {
   for (int t = 0; t < maxTimesteps; ++t) {
     timestepGroup = new osg::Group();
     std::string groupName = "timestep" + std::to_string(t);
@@ -761,25 +727,21 @@ void EnergyPlugin::helper_initTimestepGrp(
 }
 
 void EnergyPlugin::helper_initTimestepsAndMinYear(
-    size_t &maxTimesteps, int &minYear,
-    const std::vector<std::string> &header) {
+    size_t &maxTimesteps, int &minYear, const std::vector<std::string> &header) {
   for (const auto &h : header) {
     if (h.find("Strom") != std::string::npos) {
       auto minYearStr =
           std::regex_replace(h, std::regex("[^0-9]*"), std::string("$1"));
       int min_year_tmp = std::stoi(minYearStr);
-      if (min_year_tmp < minYear)
-        minYear = min_year_tmp;
+      if (min_year_tmp < minYear) minYear = min_year_tmp;
       ++maxTimesteps;
     }
   }
 }
 
-void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P,
-                                             PJ_COORD &coord,
+void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord,
                                              DeviceInfo::ptr deviceInfoPtr,
-                                             const double &lat,
-                                             const double &lon) {
+                                             const double &lat, const double &lon) {
   if (!mapdrape) {
     deviceInfoPtr->lon = lon;
     deviceInfoPtr->lat = lat;
@@ -807,13 +769,12 @@ void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear,
     auto strom = "Strom " + str_yr;
     auto waerme = "Wärme " + str_yr;
     auto kaelte = "Kälte " + str_yr;
-    auto deviceInfoTimestep =
-        std::make_shared<energy::DeviceInfo>(*deviceInfoPtr);
+    auto deviceInfoTimestep = std::make_shared<energy::DeviceInfo>(*deviceInfoPtr);
     float strom_val = 0.f;
     access_CSVRow(row, strom, strom_val);
     access_CSVRow(row, waerme, deviceInfoTimestep->waerme);
     access_CSVRow(row, kaelte, deviceInfoTimestep->kaelte);
-    deviceInfoTimestep->strom = strom_val / 1000.; // kW -> MW
+    deviceInfoTimestep->strom = strom_val / 1000.;  // kW -> MW
     auto timestep = year - 2000;
     deviceInfoTimestep->timestep = timestep;
     auto device = std::make_shared<energy::Device>(
@@ -846,9 +807,10 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName,
     coord.lpzt.t = HUGE_VAL;
 
     if (!P) {
-      fprintf(stderr, "Energy Plugin: Ignore mapping. No valid projection was "
-                      "found between given proj string in "
-                      "config EnergyCampus.toml\n");
+      fprintf(stderr,
+              "Energy Plugin: Ignore mapping. No valid projection was "
+              "found between given proj string in "
+              "config EnergyCampus.toml\n");
       mapdrape = false;
     }
 
