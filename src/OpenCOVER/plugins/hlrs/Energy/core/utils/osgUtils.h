@@ -1,10 +1,17 @@
 #ifndef _CORE_UTILS_OSGUTILS_H
 #define _CORE_UTILS_OSGUTILS_H
 
+#include <memory>
+#include <osg/BoundingBox>
 #include <osg/Geode>
+#include <vector>
 
 namespace core::utils::osgUtils {
 
+typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
+
+std::unique_ptr<Geodes> getGeodes(osg::Group* grp);
+osg::BoundingBox getBoundingBox(const Geodes &geodes);
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *anotherGrp);
 void deleteChildrenRecursive(osg::Group *grp);
 /**

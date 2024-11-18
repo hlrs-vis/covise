@@ -1,4 +1,6 @@
 #include "osgUtils.h"
+#include <memory>
+#include <osg/BoundingBox>
 #include <osg/Geode>
 #include <osg/Material>
 #include <osg/ShapeDrawable>
@@ -7,6 +9,30 @@
 #include <utils/color.h>
 
 namespace core::utils::osgUtils {
+std::unique_ptr<Geodes> getGeodes(osg::Group* grp) {
+    Geodes geodes{};
+    for (auto i = 0; i < grp->getNumChildren(); ++i) {
+        auto child = grp->getChild(i);
+        if (osg::ref_ptr<osg::Geode> child_geode = dynamic_cast<osg::Geode*>(child)) {
+            geodes.push_back(child_geode);
+            continue;
+        }
+        if (osg::ref_ptr<osg::Group> child_group = dynamic_cast<osg::Group*>(child)) {
+            auto child_geodes = getGeodes(child_group);
+            std::move(child_geodes->begin(), child_geodes->end(), std::back_inserter(geodes));
+        }
+    }
+    return std::make_unique<Geodes>(geodes);
+}
+
+osg::BoundingBox getBoundingBox(const std::vector<osg::ref_ptr<osg::Geode>> &geodes) {
+    osg::BoundingBox bb;
+    for (auto geode: geodes) {
+        bb.expandBy(geode->getBoundingBox());
+    }
+    return bb;
+}
+
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *other) {
   if (!grp || !other)
     return;
