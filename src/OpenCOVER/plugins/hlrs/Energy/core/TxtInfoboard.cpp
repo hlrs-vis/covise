@@ -19,6 +19,7 @@ void TxtInfoboard::initDrawable() {
   osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform;
   trans->setMatrix(osg::Matrix::translate(m_attributes.position));
   trans->addChild(m_BBoard);
+  trans->setName("Billboard");
   m_drawable = trans;
 }
 
