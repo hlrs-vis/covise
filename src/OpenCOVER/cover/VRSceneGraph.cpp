@@ -1416,7 +1416,60 @@ VRSceneGraph::getBoundingSphere()
 
     scaleNode->dirtyBound();
     //osg::BoundingSphere bsphere = coVRSelectionManager::instance()->getBoundingSphere(m_objectsRoot);
-    auto bsphere = scaleNode->computeBound();
+    osg::BoundingSphere bsphere;
+
+    // determine center of bounding sphere
+    BoundingBox bb;
+    bb.init();
+    osg::Node *currentNode = NULL;
+    for (unsigned int i = 0; i < scaleNode->getNumChildren(); i++)
+    {
+        currentNode = scaleNode->getChild(i);
+        const osg::Transform *transform = currentNode->asTransform();
+        if ((!transform || transform->getReferenceFrame() == osg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
+        {
+            // Using the Visitor from scaleNode doesn't work if it's m_scaleTransform (ScaleWithInteractors==true) -> therefore the loop)
+            NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
+            if (it == m_specialBoundsNodeList.end())
+            {
+                osg::ComputeBoundsVisitor cbv;
+                cbv.setTraversalMask(Isect::Visible);
+                currentNode->accept(cbv);
+                bb.expandBy(cbv.getBoundingBox());
+            }
+            else
+            {
+                bb.expandBy(currentNode->getBound());
+            }
+        }
+    }
+
+    // determine radius of bounding sphere
+    if (bb.valid())
+    {
+        bsphere._center = bb.center();
+        bsphere._radius = 0.0f;
+        for (unsigned int i = 0; i < scaleNode->getNumChildren(); i++)
+        {
+            currentNode = scaleNode->getChild(i);
+            const osg::Transform *transform = currentNode->asTransform();
+            if ((!transform || transform->getReferenceFrame() == osg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
+            {
+                NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
+                if (it == m_specialBoundsNodeList.end())
+                {
+                    osg::ComputeBoundsVisitor cbv;
+                    cbv.setTraversalMask(Isect::Visible);
+                    currentNode->accept(cbv);
+                    bsphere.expandRadiusBy(cbv.getBoundingBox());
+                }
+                else
+                {
+                    bsphere.expandRadiusBy(currentNode->getBound());
+                }
+            }
+        }
+    }
 
     m_scalingAllObjects = false;
 
@@ -1468,9 +1521,9 @@ VRSceneGraph::getBoundingSphere()
     return bsphere;
 }
 
-void VRSceneGraph::scaleAllObjects(bool resetView)
+void VRSceneGraph::scaleAllObjects(bool resetView, bool simple)
 {
-    osg::BoundingSphere bsphere = getBoundingSphere();
+    osg::BoundingSphere bsphere = simple ? m_objectsRoot->computeBound() : getBoundingSphere();
     if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
@@ -1599,11 +1652,11 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 #endif
 
 void
-VRSceneGraph::viewAll(bool resetView)
+VRSceneGraph::viewAll(bool resetView, bool simple)
 {
     coVRNavigationManager::instance()->enableViewerPosRotation(false);
 
-    scaleAllObjects(resetView);
+    scaleAllObjects(resetView, simple);
 
     coVRCollaboration::instance()->SyncXform();
 }
