@@ -217,7 +217,7 @@ EnergyPlugin::~EnergyPlugin() {
   auto root = cover->getObjectsRoot();
 
   if (m_cityGML) {
-    restoreCityGMLDefault();
+    restoreCityGMLDefaultStatesets();
     for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
       auto child = m_cityGML->getChild(i);
       root->addChild(child);
@@ -341,35 +341,34 @@ void EnergyPlugin::enableCityGML(bool on) {
 }
 
 void EnergyPlugin::addCityGMLObject(const std::string &name,
-                                    osg::ref_ptr<osg::Group> grp) {
-  using namespace core::utils;
-
-  if (!grp->getNumChildren()) return;
+                                    osg::ref_ptr<osg::Group> citygmlObjGroup) {
+  if (!citygmlObjGroup->getNumChildren()) return;
 
   if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end()) return;
 
-  auto geodes = osgUtils::getGeodes(grp);
+  auto geodes = core::utils::osgUtils::getGeodes(citygmlObjGroup);
   if (geodes->empty()) return;
 
-  // store default material
-  //     addCityGMLDefaultGeode(name, geo);
-  //
-  auto boundingbox = osgUtils::getBoundingBox(*geodes);
+  // store default stateset
+  saveCityGMLObjectDefaultStateSet(name, *geodes);
+
+  auto boundingbox = core::utils::osgUtils::getBoundingBox(*geodes);
   auto infoboardPos = boundingbox.center();
   infoboardPos.z() +=
       (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
   auto infoboard = std::make_unique<core::TxtInfoboard>(
       infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
   auto building = std::make_unique<core::CityGMLBuilding>(*geodes);
-  auto sensor = std::make_unique<CityGMLDeviceSensor>(grp, std::move(infoboard),
-                                                      std::move(building));
+  auto sensor = std::make_unique<CityGMLDeviceSensor>(
+      citygmlObjGroup, std::move(infoboard), std::move(building));
   m_cityGMLObjs.insert({name, std::move(sensor)});
 }
 
-void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> grp) {
+void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup) {
   using namespace core::utils;
-  for (auto i = 0; i < grp->getNumChildren(); ++i) {
-    osg::ref_ptr<osg::Group> child = dynamic_cast<osg::Group *>(grp->getChild(i));
+  for (auto i = 0; i < citygmlGroup->getNumChildren(); ++i) {
+    osg::ref_ptr<osg::Group> child =
+        dynamic_cast<osg::Group *>(citygmlGroup->getChild(i));
     if (child) {
       const auto &name = child->getName();
 
@@ -384,29 +383,42 @@ void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> grp) {
   }
 }
 
-void EnergyPlugin::addCityGMLDefaultGeode(const std::string &name,
-                                          osg::ref_ptr<osg::Geode> geo) {
-  osg::ref_ptr<osg::Geode> defaultGeo =
-      dynamic_cast<osg::Geode *>(geo->clone(osg::CopyOp::DEEP_COPY_STATESETS));
-  m_cityGMLDefault.insert({name, defaultGeo});
-}
-
-void EnergyPlugin::restoreCityGMLGeodesDefault(const std::string &name,
-                                               osg::ref_ptr<osg::Geode> geo) {
-  if (m_cityGMLDefault.find(name) != m_cityGMLDefault.end()) {
-    auto defaultGeo = m_cityGMLDefault[name];
-    geo->setStateSet(defaultGeo->getStateSet());
+void EnergyPlugin::saveCityGMLObjectDefaultStateSet(const std::string &name,
+                                                    const Geodes &citygmlGeodes) {
+  Geodes geodesCopy(citygmlGeodes.size());
+  for (auto i = 0; i < citygmlGeodes.size(); ++i) {
+    auto geode = citygmlGeodes[i];
+    geodesCopy[i] =
+        dynamic_cast<osg::Geode *>(geode->clone(osg::CopyOp::DEEP_COPY_STATESETS));
   }
+  m_cityGMLDefaultStatesets.insert({name, std::move(geodesCopy)});
 }
 
-void EnergyPlugin::restoreCityGMLDefault() {
-  for (auto &[name, sensor] : m_cityGMLObjs) {
-    for (auto drawble : sensor->getDrawables()) {
-      if (osg::ref_ptr<osg::Geode> geo = dynamic_cast<osg::Geode *>(drawble.get()))
-        restoreCityGMLGeodesDefault(name, geo);
+void EnergyPlugin::restoreGeodesStatesets(CityGMLDeviceSensor &sensor,
+                                          const std::string &name,
+                                          const Geodes &citygmlGeodes) {
+  if (m_cityGMLDefaultStatesets.find(name) == m_cityGMLDefaultStatesets.end())
+    return;
+
+  if (citygmlGeodes.empty()) return;
+
+  for (auto i = 0; i < citygmlGeodes.size(); ++i) {
+    auto gmlDefault = citygmlGeodes[i];
+    osg::ref_ptr<osg::Geode> toRestore = sensor.getDrawable(i)->asGeode();
+    if (toRestore) {
+      toRestore->setStateSet(gmlDefault->getStateSet());
     }
   }
-  m_cityGMLDefault.clear();
+}
+
+void EnergyPlugin::restoreCityGMLDefaultStatesets() {
+  for (auto &[name, sensor] : m_cityGMLObjs) {
+    osg::ref_ptr<osg::Group> sensorParent = sensor->getParent();
+    if (!sensorParent) continue;
+
+    restoreGeodesStatesets(*sensor, name, m_cityGMLDefaultStatesets[name]);
+  }
+  m_cityGMLDefaultStatesets.clear();
 }
 /* #endregion */
 
