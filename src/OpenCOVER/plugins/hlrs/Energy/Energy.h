@@ -21,6 +21,7 @@
 #include <EnnovatisDeviceSensor.h>
 #include <PluginUtil/coSensor.h>
 #include <core/PrototypeBuilding.h>
+#include <core/utils/osgUtils.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -79,6 +80,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
   };
 
  private:
+  using Geodes = core::utils::osgUtils::Geodes;
   // typedef const ennovatis::Building *building_const_ptr;
   // typedef const ennovatis::Buildings *buildings_const_Ptr;
   typedef const ennovatis::Building *building_const_ptr;
@@ -106,12 +108,14 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void initEnnovatisUI();
   void initCityGMLUI();
   void enableCityGML(bool on);
-  void addCityGMLObjects(osg::ref_ptr<osg::Group> grp);
-  void addCityGMLObject(const std::string &name, osg::ref_ptr<osg::Group> grp);
-  void addCityGMLDefaultGeode(const std::string &name, osg::ref_ptr<osg::Geode> geo);
-  void restoreCityGMLDefault();
-  void restoreCityGMLGeodesDefault(const std::string &name,
-                                   osg::ref_ptr<osg::Geode> geo);
+  void addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup);
+  void addCityGMLObject(const std::string &name,
+                        osg::ref_ptr<osg::Group> citygmlObjGroup);
+  void saveCityGMLObjectDefaultStateSet(const std::string &name,
+                                        const Geodes &citygmlGeodes);
+  void restoreCityGMLDefaultStatesets();
+  void restoreGeodesStatesets(CityGMLDeviceSensor &sensor, const std::string &name,
+                              const Geodes &citygmlGeodes);
   void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
   void setRESTDate(const std::string &toSet, bool isFrom);
@@ -193,9 +197,8 @@ class EnergyPlugin : public opencover::coVRPlugin,
   osg::ref_ptr<osg::Sequence> m_sequenceList;
   osg::ref_ptr<osg::MatrixTransform> m_Energy;
   osg::ref_ptr<osg::Group> m_cityGML;
-  std::map<std::string, osg::ref_ptr<osg::Geode>> m_cityGMLDefault;
+  std::map<std::string, Geodes> m_cityGMLDefaultStatesets;
   std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
-  osg::Vec4 m_defaultColor;
 };
 
 #endif
