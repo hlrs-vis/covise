@@ -4,6 +4,9 @@
 #ifdef HAVE_QTX11EXTRAS
 #include <QX11Info>
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+#include <QGuiApplication>
+#endif
 
 #include <GL/glxew.h>
 #undef Status
@@ -47,24 +50,31 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
         return;
     }
 
-#ifdef HAVE_QTX11EXTRAS
-    Display *dpy = QX11Info::display();
-#else
     Display *dpy = nullptr;
-#endif
+
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        dpy = qGuiApp->nativeInterface<QNativeInterface::QX11Application>()->display();
+    #else
+        #ifdef HAVE_QTX11EXTRAS
+            dpy = QX11Info::display();
+        #endif
+    #endif
     if (!dpy)
     {
         std::cerr << "setSyncToVBlank: did not find Display for application" << std::endl;
         return;
     }
-    
-     const char *s = glXQueryExtensionsString(dpy, wid);
+
+    int screenNumber = XScreenNumberOfScreen(XDefaultScreenOfDisplay(dpy));
+
+    //  const char *s = glXQueryExtensionsString(dpy, wid);
+     const char *s = glXQueryExtensionsString(dpy, screenNumber);
      if(s==nullptr)
      {
          std::cerr << "no extensions, probably running MESA" << std::endl;
          return;
      }
-   
+
      if (!glXSwapIntervalEXT)
     {
         std::cerr << "setSyncToVBlank: no glXSwapIntervalEXT" << std::endl;
