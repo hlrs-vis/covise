@@ -23,8 +23,6 @@
 
 
 
-TUIMainWindow *qaw = NULL;
-
 int main(int argc, char **argv)
 {
     bool verbose = false;
@@ -63,7 +61,7 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-    qaw = new TUIMainWindow();
+    auto qaw = new TUIMainWindow();
     qaw->show();
     int overridePort = 0;
     for (int i = 1; i < argc; ++i)
