@@ -38,9 +38,10 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     }
     else
 #endif
-    if (glewInit() != GLEW_OK)
+    GLenum err = glewInit();
+    if (err != GLEW_OK)
     {
-        std::cerr << "setSyncToVBlank: failed to initialize GLEW" << std::endl;
+        std::cerr << "setSyncToVBlank: failed to initialize GLEW. Error: " << glewGetErrorString(err) << std::endl;
     }
 
     auto wid = m_glWidget->effectiveWinId();
@@ -66,7 +67,6 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     }
 
     int screenNumber = XScreenNumberOfScreen(XDefaultScreenOfDisplay(dpy));
-
     //  const char *s = glXQueryExtensionsString(dpy, wid);
      const char *s = glXQueryExtensionsString(dpy, screenNumber);
      if(s==nullptr)
@@ -82,5 +82,6 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     }
 
     glXSwapIntervalEXT(dpy, wid, flag ? 1 : 0);
+    std::cout << "setSyncToVBlank: " << (flag ? "enabled" : "disabled") << " for XScreen " << screenNumber << std::endl;
 #endif
 }
