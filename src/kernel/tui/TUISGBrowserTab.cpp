@@ -1503,6 +1503,9 @@ void TUISGBrowserTab::sendAddNodeRequest(const char* parent_path, int node_type)
 
 void TUISGBrowserTab::handleAddNode(QTreeWidgetItem* parent_item, int node_type)
 {
+    if (!parent_item)
+        return;
+
     QString parent_str = parent_item->text(8);
     QByteArray parent_ba = parent_str.toUtf8();
     const char* parentPath_add = parent_ba.data();
@@ -1565,6 +1568,8 @@ void TUISGBrowserTab::handleRemoveCurrentNode()
     const char* item_path = item_ba.data();
 
     QTreeWidgetItem* parent_item = treeWidget->currentItem()->parent();
+    if (!parent_item)
+        return;
     QString parent_str = parent_item->text(8);
     QByteArray parent_ba = parent_str.toUtf8();
     const char* parent_path = parent_ba.data();
@@ -1591,6 +1596,9 @@ void TUISGBrowserTab::handleRemoveCurrentNode()
 
 void TUISGBrowserTab::handleRemoveNode(QTreeWidgetItem* item, QTreeWidgetItem* parent_item)
 {
+    if (!item || !parent_item)
+        return;
+
     QString item_str = item->text(8);
     QByteArray item_ba = item_str.toUtf8();
     const char* item_path = item_ba.data();
