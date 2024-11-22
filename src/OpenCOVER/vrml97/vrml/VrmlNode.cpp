@@ -12,6 +12,7 @@
 #include <string>
 #include <tuple>
 #include <variant>
+#include <algorithm>
 
 namespace vrml{
 
