@@ -62,10 +62,10 @@ void SharedStateBase::setVar(const DataHandle & val)
     m_valueData = val;
 	if (syncInterval <= 0)
 	{
-            if(m_registry)
-            {
-		m_registry->setVar(sessionID, m_className, variableName, val, muted);
-            }
+        if(m_registry)
+        {
+            m_registry->setVar(sessionID, m_className, variableName, val, muted);
+        }
 	}
 	else
 	{

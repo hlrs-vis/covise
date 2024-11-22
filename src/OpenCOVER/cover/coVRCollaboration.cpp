@@ -97,13 +97,6 @@ void coVRCollaboration::init()
     });
     avatarPosition.setUpdateFunction([this]()
     {
-        //overwrite other's viewpoints after initiating tight coupling
-        constexpr double overwriteTime = 1; //sec
-        if (syncMode == SyncMode::TightCoupling && cover->frameTime() - couplingModeChangedTime < overwriteTime)
-        {
-            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-            return;
-        }
         updated = true;
         osg::Matrix m = avatarPosition;
         remoteTransform(m);
@@ -158,7 +151,14 @@ void coVRCollaboration::initCollMenu()
         {
             syncMode = mode;
             syncModeChanged(syncMode);
-            couplingModeChangedTime = cover->frameTime();
+            if(syncMode == MasterSlaveCoupling)
+            {
+                coVRCommunication::instance()->becomeMaster();
+                vrb::SharedStateManager::instance()->becomeMaster();
+                updateSharedStates();
+            }
+            if(syncMode == TightCoupling || syncMode == MasterSlaveCoupling)
+                looseCouplingDeactivated = true;
             avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
         });
     m_collaborationMode->select(syncMode);
@@ -277,6 +277,12 @@ bool coVRCollaboration::update()
         coVRPartnerList::instance()->sendAvatarMessage();
         lastAvatarUpdateTime = thisTime;
     }
+    if(looseCouplingDeactivated)
+    {
+        looseCouplingDeactivated = false;
+        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+    }
+
 	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()|| syncXform) //i am navigating
 	{
 		//store my viewpoint in shared state to be able to reload it
