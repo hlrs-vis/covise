@@ -47,18 +47,9 @@ public:
     virtual void copyRoutes(VrmlNamespace *ns) override;
     virtual void render(Viewer *) override;
 
-    VrmlNode *material()
-    {
-        return (VrmlNode *)d_material.get();
-    }
-    VrmlNode *texture(int i = 0)
-    {
-        return (VrmlNode *)d_textures[i].get();
-    }
-    VrmlNode *textureTransform(int i = 0)
-    {
-        return (VrmlNode *)d_textureTransforms[i].get();
-    }
+    VrmlNode *material() { return d_material.get(); }
+    VrmlNode *texture(int i = 0) { return d_textures[i].get(); }
+    VrmlNode *textureTransform(int i = 0) { return d_textureTransforms[i].get(); }
 
     bool isOnlyGeometry() const override;
 
