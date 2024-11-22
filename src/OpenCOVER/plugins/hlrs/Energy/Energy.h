@@ -70,7 +70,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void operator=(const EnergyPlugin &) = delete;
 
   bool init();
-  // bool destroy();
   bool update();
   void setTimestep(int t);
   void setComponent(Components c);
@@ -81,17 +80,16 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
  private:
   using Geodes = core::utils::osgUtils::Geodes;
-  // typedef const ennovatis::Building *building_const_ptr;
-  // typedef const ennovatis::Buildings *buildings_const_Ptr;
   typedef const ennovatis::Building *building_const_ptr;
   typedef const ennovatis::Buildings *buildings_const_Ptr;
   typedef std::vector<building_const_ptr> const_buildings;
   typedef std::map<energy::Device::ptr, building_const_ptr> DeviceBuildingMap;
-  // typedef std::vector<ennovatis::Building::ptr> const_buildings;
-  // typedef std::map<energy::Device::ptr, ennovatis::Building::ptr>
-  // DeviceBuildingMap;
   typedef std::map<std::string, std::vector<energy::DeviceSensor::ptr>> DeviceList;
 
+  // GENERAL
+  void switchTo(const osg::ref_ptr<osg::Node> child);
+
+  // CAMPUS_DB
   void helper_initTimestepGrp(size_t maxTimesteps,
                               osg::ref_ptr<osg::Group> &timestepGroup);
   void helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &minYear,
@@ -104,38 +102,19 @@ class EnergyPlugin : public opencover::coVRPlugin,
                                energy::DeviceInfo::ptr deviceInfoPtr);
   bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
   bool loadDB(const std::string &path, const ProjTrans &projTrans);
+  void reinitDevices(int comp);
+
+  // ENNOVATIS
   void initRESTRequest();
   void initEnnovatisUI();
-  void initCityGMLUI();
-  void enableCityGML(bool on);
-  void addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup);
-  void addCityGMLObject(const std::string &name,
-                        osg::ref_ptr<osg::Group> citygmlObjGroup);
-  void saveCityGMLObjectDefaultStateSet(const std::string &name,
-                                        const Geodes &citygmlGeodes);
-  void restoreCityGMLDefaultStatesets();
-  void restoreGeodesStatesets(CityGMLDeviceSensor &sensor, const std::string &name,
-                              const Geodes &citygmlGeodes);
   void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
   void setRESTDate(const std::string &toSet, bool isFrom);
   void updateEnnovatis();
-  void reinitDevices(int comp);
   void updateEnnovatisChannelGrp();
   void initEnnovatisDevices();
-  void switchTo(const osg::ref_ptr<osg::Node> child);
-
-  /**
-   * Loads Ennovatis channelids from the specified JSON file into cache.
-   *
-   * @param pathToJSON The path to the JSON file which contains the channelids
-   * for REST-calls.
-   * @return True if the data was successfully loaded, false otherwise.
-   */
-  bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
   bool updateChannelIDsFromCSV(const std::string &pathToCSV);
   core::CylinderAttributes getCylinderAttributes();
-
   /**
    * Initializes the Ennovatis buildings.
    *
@@ -149,8 +128,26 @@ class EnergyPlugin : public opencover::coVRPlugin,
    */
   std::unique_ptr<const_buildings> updateEnnovatisBuildings(
       const DeviceList &deviceList);
-  // std::unique_ptr<ennovatis::Buildings> updateEnnovatisBuildings(const
-  // DeviceList &deviceList);
+  /**
+   * Loads Ennovatis channelids from the specified JSON file into cache.
+   *
+   * @param pathToJSON The path to the JSON file which contains the channelids
+   * for REST-calls.
+   * @return True if the data was successfully loaded, false otherwise.
+   */
+  bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
+
+  // CITYGML
+  void initCityGMLUI();
+  void enableCityGML(bool on);
+  void addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup);
+  void addCityGMLObject(const std::string &name,
+                        osg::ref_ptr<osg::Group> citygmlObjGroup);
+  void saveCityGMLObjectDefaultStateSet(const std::string &name,
+                                        const Geodes &citygmlGeodes);
+  void restoreCityGMLDefaultStatesets();
+  void restoreGeodesStatesets(CityGMLDeviceSensor &sensor, const std::string &name,
+                              const Geodes &citygmlGeodes);
 
   static EnergyPlugin *m_plugin;
 
