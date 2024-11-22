@@ -232,8 +232,9 @@ void VrmlNodeGroup::render(Viewer *viewer)
     checkAndRemoveNodes(viewer);
 
     if (d_viewerObject)
+    {
         viewer->insertReference(d_viewerObject);
-
+    }
     else if (d_children.size() > 0)
     {
         int i, n = d_children.size();
