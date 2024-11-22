@@ -153,26 +153,35 @@ private:
     VrmlNode *m_nodeChild;
     std::function<void(const char *, const VrmlField &)> m_setFieldFunc;
 
+    inline const VrmlTypeStructBase *findField(const char *fieldName) const
+    {
+        auto it = std::find_if(m_fields.begin(), m_fields.end(),
+                               [fieldName](const auto &f) { return strcmp(f->name.c_str(), fieldName) == 0; });
+        if (it == m_fields.end())
+        {
+            return nullptr;
+        }
+        return it->get();
+    }
+
 public:
     const VrmlField *getField(const char *fieldName) const
     {
-        auto it = std::find_if(m_fields.begin(), m_fields.end(), [fieldName](const auto& f){
-            return f->name == fieldName;
-        });
-        if(it == m_fields.end()){
+        auto *field = findField(fieldName);
+        if (!field)
+        {
             return nullptr;
         }
-        return it->get()->getField();
+        return field->getField();
     }
 
     inline void setField(const char *fieldName, const VrmlField &fieldValue) {
-        auto it = std::find_if(m_fields.begin(), m_fields.end(), [fieldName](const auto& f){
-            return f->name == fieldName;
-        });
-        if(it == m_fields.end()){
+        auto *field = const_cast<VrmlTypeStructBase *>(findField(fieldName));
+        if (!field)
+        {
             return;
         }
-        (*it)->setField(fieldValue);
+        field->setField(fieldValue);
     }
 
     template<typename VrmlType>

@@ -41,7 +41,12 @@ void VrmlNodeIFaceSet::initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t)
     {
         std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         initFieldsHelper(node, t,
-                         exposedField("texCoord" + suffix, node->d_texCoords[i]),
+                         exposedField("texCoord" + suffix, node->d_texCoords[i],
+                                      [node, i](const VrmlSFNode *)
+                                      {
+                                          if (i >= node->d_numTexCoords)
+                                              node->d_numTexCoords = i + 1;
+                                      }),
                          field("texCoordIndex" + suffix, node->d_texCoordIndices[i]));
         if(t)
         {
@@ -97,9 +102,9 @@ void VrmlNodeIFaceSet::cloneChildren(VrmlNamespace *ns)
     }
 }
 
-inline bool isTexCoordModified(const std::array<VrmlSFNode, 10> &texCoords)
+inline bool isTexCoordModified(int numCoords, const std::array<VrmlSFNode, 10> &texCoords)
 {
-    for (size_t i = 0; i < texCoords.size(); i++)
+    for (int i = 0; i < numCoords; i++)
     {
         if (texCoords[i].get() && texCoords[i].get()->isModified())
         {
@@ -111,11 +116,9 @@ inline bool isTexCoordModified(const std::array<VrmlSFNode, 10> &texCoords)
 
 bool VrmlNodeIFaceSet::isModified() const
 {
-    return(d_modified
-            || (d_color.get() && d_color.get()->isModified())
-            || (d_coord.get() && d_coord.get()->isModified())
-            || (d_normal.get() && d_normal.get()->isModified())
-            || isTexCoordModified(d_texCoords));
+    return (d_modified || (d_color.get() && d_color.get()->isModified()) ||
+            (d_coord.get() && d_coord.get()->isModified()) || (d_normal.get() && d_normal.get()->isModified()) ||
+            isTexCoordModified(d_numTexCoords, d_texCoords));
 }
 
 void VrmlNodeIFaceSet::clearFlags()

@@ -38,7 +38,12 @@ void VrmlNodeAppearance::initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType
     {
         std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         initFieldsHelper(node, t,
-                         exposedField("texture" + suffix, node->d_textures[i]),
+                         exposedField("texture" + suffix, node->d_textures[i],
+                                      [node, i](const VrmlSFNode *)
+                                      {
+                                          if (i >= node->d_numTextures)
+                                              node->d_numTextures = i + 1;
+                                      }),
                          exposedField("textureTransform" + suffix, node->d_textureTransforms[i]));
     }
     VrmlNodeChild::initFields(node, t);
@@ -72,11 +77,14 @@ void VrmlNodeAppearance::cloneChildren(VrmlNamespace *ns)
     }
 }
 
-inline bool isTextureModified(const std::array<VrmlSFNode, 10> &textures, const std::array<VrmlSFNode, 10> &textureTransforms)
+inline bool isTextureModified(int numTextures, const std::array<VrmlSFNode, 10> &textures,
+                              const std::array<VrmlSFNode, 10> &textureTransforms)
 {
-    for (size_t i = 0; i < textures.size(); i++)
+    for (int i = 0; i < numTextures; i++)
     {
-        if ((textures[i].get() && textures[i].get()->isModified()) || (textureTransforms[i].get() && textureTransforms[i].get()->isModified()))
+        if (!textures[i].get())
+            continue;
+        if (textures[i].get()->isModified() || (textureTransforms[i].get() && textureTransforms[i].get()->isModified()))
         {
             return true;
         }
@@ -86,7 +94,8 @@ inline bool isTextureModified(const std::array<VrmlSFNode, 10> &textures, const 
 
 bool VrmlNodeAppearance::isModified() const
 {
-    return d_modified || (d_material.get() && d_material.get()->isModified() || isTextureModified(d_textures, d_textureTransforms));
+    return d_modified || (d_material.get() && d_material.get()->isModified() ||
+                          isTextureModified(d_numTextures, d_textures, d_textureTransforms));
 }
 
 void VrmlNodeAppearance::clearFlags()

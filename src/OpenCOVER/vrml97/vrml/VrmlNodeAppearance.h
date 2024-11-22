@@ -57,6 +57,7 @@ protected:
     VrmlSFNode d_material;
     // additional fields for multi-texturing
     static const int MAX_TEXTURES = 10;
+    int d_numTextures = 0;
     std::array<VrmlSFNode, MAX_TEXTURES> d_textures;
     std::array<VrmlSFNode, MAX_TEXTURES> d_textureTransforms;
 

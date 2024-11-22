@@ -106,6 +106,7 @@ protected:
 
     // additional fields for multi-texturing
     static const size_t MAX_TEXCOORDS = 10;
+    int d_numTexCoords = 0;
     std::array<VrmlSFNode, MAX_TEXCOORDS> d_texCoords;
     std::array<VrmlMFInt, MAX_TEXCOORDS> d_texCoordIndices;
 
