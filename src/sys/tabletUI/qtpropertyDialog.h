@@ -31,7 +31,7 @@
 #include <QAction>
 #include <QMatrix4x4>
 //#include <util/coRestraint.h>
-#include "color/MEColorChooser.h"
+#include <qtutil/MEColorChooser.h>
 #include "TUISGBrowserTab.h"
 
 class TextureItem;

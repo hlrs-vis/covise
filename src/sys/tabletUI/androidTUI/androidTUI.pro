@@ -57,7 +57,7 @@ SOURCES +=\
     ../TUIToggleButton.cpp \
     ../TUIUITab.cpp \
     ../FileBrowser/FileBrowser.cpp \
-    ../../mapeditor/color/MEColorChooser.cpp \
+    ../../../kernel/qtutil/MEColorChooser.cpp \
     ../TUIUI/TUIUIScriptWidget.cpp \
     ../TUIUI/TUIUIWidget.cpp \
     ../TUIUI/TUIUIWidgetSet.cpp
@@ -105,7 +105,7 @@ HEADERS  += \
     ../TUIUI/TUIUIScriptWidget.h \
     ../TUIUI/TUIUIWidget.h \
     ../TUIUI/TUIUIWidgetSet.h \
-    ../../mapeditor/color/MEColorChooser.h
+    ../../../kernel/qtutil/MEColorChooser.h
 
 CONFIG += mobility
 MOBILITY = 

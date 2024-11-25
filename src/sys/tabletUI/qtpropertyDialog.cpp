@@ -9,7 +9,7 @@
  **
  */
 #include "qtpropertyDialog.h"
-#include "color/MEColorChooser.h"
+#include <qtutil/MEColorChooser.h>
 #include <QDebug>
 #include <QQuaternion>
 #include <QIcon>
@@ -46,7 +46,7 @@
 
        // Algorithm from:
        // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q37
-   
+
        float xx = xp * xp;
        float xy = xp * yp;
        float xz = xp * zp;
@@ -56,7 +56,7 @@
        float yw = yp * wp;
        float zz = zp * zp;
        float zw = zp * wp;
-   
+
        const float lengthSquared = xx + yy + zz + wp * wp;
        if (!qFuzzyIsNull(lengthSquared - 1.0f) && !qFuzzyIsNull(lengthSquared)) {
            xx /= lengthSquared;
@@ -69,7 +69,7 @@
            zz /= lengthSquared;
            zw /= lengthSquared;
        }
-   
+
        *pitch = std::asin(-2.0f * (yz - xw));
        if (*pitch < M_PI_2) {
            if (*pitch > -M_PI_2) {
@@ -85,7 +85,7 @@
            *roll = 0.0f;
            *yaw = std::atan2(-2.0f * (xy - zw), 1.0f - 2.0f * (yy + zz));
        }
-   
+
        *pitch = (*pitch)*180.0/M_PI;
        *yaw = (*yaw)*180.0/M_PI;
        *roll = (*roll)*180.0/M_PI;
@@ -129,15 +129,15 @@ QQuaternion fromRotationMatrix(const QMatrix3x3 &rot3x3)
  {
      // Algorithm from:
      // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q60
- 
+
      pitch = (pitch)/180.0*M_PI;
      yaw = (yaw)/180.0*M_PI;
      roll = (roll)/180.0*M_PI;
- 
+
      pitch *= 0.5f;
      yaw *= 0.5f;
      roll *= 0.5f;
- 
+
      const float c1 = std::cos(yaw);
      const float s1 = std::sin(yaw);
      const float c2 = std::cos(roll);
@@ -146,12 +146,12 @@ QQuaternion fromRotationMatrix(const QMatrix3x3 &rot3x3)
      const float s3 = std::sin(pitch);
      const float c1c2 = c1 * c2;
      const float s1s2 = s1 * s2;
- 
+
      const float w = c1c2 * c3 + s1s2 * s3;
      const float x = c1c2 * s3 + s1s2 * c3;
      const float y = s1 * c2 * c3 - c1 * s2 * s3;
      const float z = c1 * s2 * c3 - s1 * c2 * s3;
- 
+
      return QQuaternion(w, x, y, z);
  }
 #define MY_GL_LINES_ADJACENCY_EXT 0x000A
@@ -162,7 +162,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Properties Dialog"));
-    
+
     osgToVrml.rotate(90,1,0,0);
     vrmlToOsg.rotate(-90,1,0,0);
 
@@ -701,7 +701,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     connect(edtRotY, SIGNAL(textEdited(QString)), this, SLOT(onMatrixEdited()));
     connect(edtRotZ, SIGNAL(editingFinished()), this, SLOT(onDeltaRotChanged()));
     connect(edtRotZ, SIGNAL(textEdited(QString)), this, SLOT(onMatrixEdited()));
-    
+
     // get the QLineEdit Widget, who called us
     QLineEdit *qle = (QLineEdit *)QObject::sender();
 
@@ -709,7 +709,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
    // QPalette *palette = new QPalette();
    // palette->setColor(QPalette::Text, Qt::black);
     QLabel *l = new QLabel("r_1,1 =");
-   
+
     page4Layout->addWidget(l, 0, 0, Qt::AlignRight);
     QPalette palette = l->palette();
         palette.setColor(l->backgroundRole(), Qt::black);
@@ -778,19 +778,19 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     edtP2->setEnabled(false);
     edtP3->setEnabled(false);
     edtW->setEnabled(false);
-    
+
     sliderH = new QSlider(page4);
     sliderP = new QSlider(page4);
     sliderR = new QSlider(page4);
-    
+
     sliderH->setOrientation(Qt::Horizontal);
     sliderP->setOrientation(Qt::Horizontal);
     sliderR->setOrientation(Qt::Horizontal);
-    
+
     page4Layout->addWidget(sliderH, 6, 1, Qt::AlignLeft);
     page4Layout->addWidget(sliderP, 6, 3, Qt::AlignLeft);
     page4Layout->addWidget(sliderR, 6, 5, Qt::AlignLeft);
-    
+
     stringH = new QLineEdit(page4);
     stringP = new QLineEdit(page4);
     stringR = new QLineEdit(page4);
@@ -804,12 +804,12 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     sliderP->setMaximum(1000);
     sliderR->setMinimum(0);
     sliderR->setMaximum(1000);
-    
+
     connect(sliderH, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(sliderP, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(sliderR, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
-    
-    
+
+
     connect(stringH, SIGNAL(editingFinished()), this, SLOT(onHPRChanged()));
     connect(stringH, SIGNAL(textEdited(QString)), this, SLOT(onHPREdited()));
     connect(stringP, SIGNAL(editingFinished()), this, SLOT(onHPRChanged()));
@@ -1482,7 +1482,7 @@ void PropertyDialog::onMatrixChanged()
     QPalette *palette = new QPalette();
     palette->setColor(QPalette::Text, Qt::black);
     qle->setPalette(*palette);
-    
+
         emit apply();
 }
 
@@ -1492,7 +1492,7 @@ void PropertyDialog::onHPRChanged()
     H = stringH->text().toFloat();
     P = stringP->text().toFloat();
     R = stringR->text().toFloat();
-    
+
     sliderH->blockSignals(true);
     sliderH->setValue(H / 360.0* 1000.0 );
     sliderH->blockSignals(false);
@@ -1502,11 +1502,11 @@ void PropertyDialog::onHPRChanged()
     sliderR->blockSignals(true);
     sliderR->setValue(R / 360.0* 1000.0 );
     sliderR->blockSignals(false);
-    
+
     QMatrix4x4 rotMat,mT;
     QQuaternion quat = fromEulerAngles(P,H,R);
     rotMat.rotate(quat);
-    
+
     rotMat = vrmlToOsg * rotMat * osgToVrml;
 
     float tX,tY,tZ;
@@ -1515,7 +1515,7 @@ void PropertyDialog::onHPRChanged()
     tZ = _matrix.data()[14];
     mT.translate(tX,tY,tZ);
     _matrix = rotMat*mT;
-    
+
     _matrix.data()[12] = tX;
     _matrix.data()[13] = tY;
     _matrix.data()[14] = tZ;
@@ -1546,7 +1546,7 @@ void PropertyDialog::sliderChanged(int ival)
 
     QQuaternion quat = fromEulerAngles(P,H,R);
     rotMat.rotate(quat);
-    
+
     rotMat = vrmlToOsg * rotMat * osgToVrml;
 
     float tX,tY,tZ;
@@ -1555,7 +1555,7 @@ void PropertyDialog::sliderChanged(int ival)
     tZ = _matrix.data()[14];
     mT.translate(tX,tY,tZ);
     _matrix = rotMat*mT;
-    
+
     _matrix.data()[12] = tX;
     _matrix.data()[13] = tY;
     _matrix.data()[14] = tZ;
@@ -1612,7 +1612,7 @@ void PropertyDialog::onDeltaRotChanged()
     QPalette *palette = new QPalette();
     palette->setColor(QPalette::Text, Qt::black);
     qle->setPalette(*palette);
-    
+
         emit apply();
 }
 
@@ -1875,7 +1875,7 @@ void PropertyDialog::writeMatrixToLineEdit()
 
 void PropertyDialog::updateTransformSliders()
 {
- 
+
     QMatrix3x3 rotMat;
 
     QMatrix4x4 mat = _matrix;
@@ -1890,7 +1890,7 @@ void PropertyDialog::updateTransformSliders()
     QQuaternion quat = fromRotationMatrix(rotMat);
     float h,p,r;
     getEulerAngles(quat,&p,&h,&r);
-    
+
     char buf[1000];
     sprintf(buf,"%f",h);
     stringH->setText(buf);
