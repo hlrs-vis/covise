@@ -40,7 +40,6 @@ class PrototypeBuilding : public interface::IBuilding {
   std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue) override;
 
  private:
-  auto getColor(float val, float max) const;
 
   CylinderAttributes m_attributes;
 };

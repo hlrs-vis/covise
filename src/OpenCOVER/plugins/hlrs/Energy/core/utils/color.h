@@ -1,6 +1,7 @@
 #ifndef _CORE_UTILS_COLOR_H
 #define _CORE_UTILS_COLOR_H
 
+#include <memory>
 #include <osg/Geode>
 #include <osg/Material>
 
@@ -11,6 +12,7 @@ struct ColorMap {
   osg::Vec4 max;
   osg::Vec4 min;
   osg::Vec4 defaultColor;
+  std::unique_ptr<osg::Vec4> getColor(float value, float maxValue) const;
 };
 
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);
