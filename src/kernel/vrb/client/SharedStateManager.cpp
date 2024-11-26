@@ -139,4 +139,18 @@ void SharedStateManager::frame(double time)
         sharedState->frame(time);
     }
 }
+
+double SharedStateManager::frameTime()
+{
+    if(m_frametime)
+        return m_frametime();
+    return 0;
+}
+
+void SharedStateManager::setFrameTime(double (*ft)())
+{
+    m_frametime = ft;
+}
+
+
 }

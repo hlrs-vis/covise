@@ -39,6 +39,10 @@ public:
     void becomeMaster();
     ///lets sharedStates send their value if it has changed and their syncInterval allows it
     void frame(double time);
+    ///returns the current frameTime
+    double frameTime();
+    ///sets the frameTime function -->cover->frameTime()
+    void setFrameTime(double (*ft)());
 private:
     static SharedStateManager *s_instance;
     std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare, shareWithAll;
@@ -46,6 +50,7 @@ private:
     SessionID m_publicSessionID;
     bool m_muted = false;
     VrbClientRegistry *registry = nullptr;
+    double (*m_frametime)();
 };
 }
 #endif

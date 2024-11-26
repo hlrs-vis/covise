@@ -86,7 +86,7 @@ private:
     SessionID sessionID = 0; ///the session to send updates to 
     bool muted = false;
     bool send = false;
-    float syncInterval = 0.1f; ///how often messages get sent. if >= 0 messages will be sent immediately
+    float syncInterval = 0.1f; ///how often messages get sent. if <= 0 messages will always be sent immediately
     double lastUpdateTime = 0.0;
     covise::DataHandle  m_valueData;
 };

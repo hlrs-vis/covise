@@ -60,7 +60,7 @@ void SharedStateBase::subscribe(const DataHandle &val)
 void SharedStateBase::setVar(const DataHandle & val)
 {
     m_valueData = val;
-	if (syncInterval <= 0)
+	if (syncInterval <= 0 || SharedStateManager::instance()->frameTime() >= lastUpdateTime + syncInterval)
 	{
         if(m_registry)
         {
