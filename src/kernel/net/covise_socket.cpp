@@ -836,7 +836,11 @@ void Socket::cancel()
 {
     if (sock_id != -1)
     {
+#ifdef _WIN32
+        shutdown(sock_id, SD_BOTH);
+#else
         shutdown(sock_id, SHUT_RDWR);
+#endif
         closesocket(sock_id);
         sock_id = -1;
     }
