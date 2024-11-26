@@ -158,7 +158,10 @@ void coVRCollaboration::initCollMenu()
                 updateSharedStates();
             }
             if(syncMode == TightCoupling || syncMode == MasterSlaveCoupling)
+            {
                 looseCouplingDeactivated = true;
+                SyncXform();
+            }
             avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
         });
     m_collaborationMode->select(syncMode);
@@ -277,22 +280,21 @@ bool coVRCollaboration::update()
         coVRPartnerList::instance()->sendAvatarMessage();
         lastAvatarUpdateTime = thisTime;
     }
-    if(looseCouplingDeactivated)
-    {
-        looseCouplingDeactivated = false;
-        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-    }
+
 
 	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()|| syncXform) //i am navigating
 	{
 		//store my viewpoint in shared state to be able to reload it
-        auto &currentPos = VRSceneGraph::instance()->getTransform()->getMatrix();
-        if(currentPos != avatarPosition)
-            avatarPosition = currentPos;
-        if(scaleFactor != VRSceneGraph::instance()->scaleFactor())
-            scaleFactor = VRSceneGraph::instance()->scaleFactor();
+        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+        scaleFactor = VRSceneGraph::instance()->scaleFactor();
         syncXform = false;
 	}
+    if(looseCouplingDeactivated)
+    {
+        avatarPosition.push();
+        scaleFactor.push();
+        looseCouplingDeactivated = false;
+    }
     return changed;
 }
 
