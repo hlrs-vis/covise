@@ -2151,7 +2151,7 @@ void coVRNavigationManager::doMouseScale(float newScaleFactor)
 
     VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
     VRSceneGraph::instance()->setScaleFactor(newScaleFactor);
-    coVRCollaboration::instance()->SyncXform();
+    
 }
 
 void coVRNavigationManager::doMouseScale()

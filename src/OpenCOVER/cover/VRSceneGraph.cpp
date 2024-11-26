@@ -831,6 +831,7 @@ void VRSceneGraph::setScaleFactor(float s, bool sync)
         scale_mat.mult(temp, trans);
     }
     m_scaleTransform->setMatrix(scale_mat);
+    coVRCollaboration::instance()->SyncXform();
 }
 
 void
