@@ -33,10 +33,6 @@ public:
 
     ~MEFileBrowserPort();
 
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &);
-#endif
-
     void restoreParam();
     void storeParam();
     void defineParam(QString value, int apptype);
@@ -66,20 +62,7 @@ public:
 
     QString getPathname();
     QString getFullFilename();
-#ifdef YAC
-
-    int currentFilter;
-    void setPath(const QString &name);
-    void setPathname(const QString &name);
-    void setFilename(const QString &name);
-    QString browserFile, browserPath;
-    QString getPath();
-    QStringList browserFilter;
-
-#else
-
     QString getFilename();
-#endif
 
 private slots:
 

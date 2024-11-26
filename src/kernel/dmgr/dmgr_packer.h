@@ -26,13 +26,8 @@ const int SIZEOF_IEEE_FLOAT = 4;
 const int SIZEOF_IEEE_DOUBLE = 8;
 
 const int IOVEC_MIN_SIZE = 10000;
-#ifdef CRAY
-const int OBJECT_BUFFER_SIZE = 25000 * SIZEOF_ALIGNMENT;
-const int IOVEC_MAX_LENGTH = 1;
-#else
 const size_t OBJECT_BUFFER_SIZE = 50000 * SIZEOF_ALIGNMENT;
 const int IOVEC_MAX_LENGTH = 16;
-#endif
 
 // the following computes the size of a type entry for a data object
 // usually: TYPE + Data (for char, short, int, etc.) or
@@ -101,9 +96,7 @@ class DMGREXPORT Packer
     // include header)
     coShmPtr *shm_ptr;
     DataManagerProcess *datamgr; // to allow shm_alloc
-#ifndef CRAY
     static int iovcovise_arr[IOVEC_MAX_LENGTH];
-#endif
     int get_buffer_ptr(int);
     int write_object();
     int write_header();

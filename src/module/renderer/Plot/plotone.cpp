@@ -1893,11 +1893,7 @@ void drawseterrbar(int gno, int setno, double offsx, double offsy)
 void set_timestamp(void)
 {
     struct tm tm;
-#if defined(__old_hpux) || (_MIPS_SZLONG == 64)
-    int time_value;
-#else
     long time_value;
-#endif
     char *str;
 
     (void)time(&time_value);

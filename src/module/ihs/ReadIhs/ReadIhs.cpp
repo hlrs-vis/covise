@@ -24,17 +24,9 @@
 
 int main(int argc, char *argv[])
 {
-#ifdef YAC
-	coDispatcher *dispatcher = coDispatcher::Instance();
-	ReadIhs *application = new ReadIhs(argc, argv);
-	dispatcher->add(application);
-	while (dispatcher->dispatch(1000));
-	coDispatcher::deleteDispatcher();
-#else
 	// create the module
 	ReadIhs *application = new ReadIhs(argc, argv);
 	application->start(argc,argv);
-#endif
 	return(0);
 }
 
@@ -359,11 +351,7 @@ int ReadIhs::compute(const char *)
 			{
 				cerr << "ReadIhs::compute: sscanf3 failed" << endl;
 			}
-#ifdef YAC
-			if(Mesh.name != NULL)
-#else
 				if(Mesh != NULL)
-#endif
 				{
 					tbt=tb=new int[n_coord];
 					if(n_timesteps>1)
@@ -376,11 +364,7 @@ int ReadIhs::compute(const char *)
 					grid=NULL;
 					if(twoD)
 					{
-#ifdef YAC
-						polygons = new coDoPolygons(grid->getObjName(), n_coord,n_elem*4, n_elem);
-#else
 						polygons = new coDoPolygons(buf, n_coord,n_elem*4, n_elem);
-#endif
 						if (polygons->objectOk())
 						{
 							grid = polygons;
@@ -611,11 +595,7 @@ int ReadIhs::compute(const char *)
 				}
 				else
 					sprintf(buf,"%s%d%s",dp,fileNumber,dpend);
-#ifdef YAC
-				if ((grid_fp = fopen(buf, "r")) != NULL)
-#else
 					if ((grid_fp = Covise::fopen(buf, "r")) != NULL)
-#endif
 					{
 						fclose(grid_fp);
 						break;

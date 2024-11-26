@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef COMMON_INCLUDE_FILES_AND_DEFINES_FOR_COVISE_AND_YAC
-#define COMMON_INCLUDE_FILES_AND_DEFINES_FOR_COVISE_AND_YAC
+#ifndef COMMON_INCLUDE_FILES_AND_DEFINES_FOR_COVISE
+#define COMMON_INCLUDE_FILES_AND_DEFINES_FOR_COVISE
 
 #if defined(__linux__) && !defined(_POSIX_SOURCE)
 #define _POSIX_SOURCE
@@ -87,10 +87,8 @@
 #endif
 #else
 #include <unistd.h>
-#ifndef __hpux
 #include <sys/select.h>
-#endif
-#if defined(__sgi) || defined(__hpux) || defined(_SX) || defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <fcntl.h>
 #endif
 #endif

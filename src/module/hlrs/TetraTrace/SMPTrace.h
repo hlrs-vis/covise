@@ -10,22 +10,10 @@
 
 #include "trace.h"
 
-#if defined(__sgi)
-#include <ulocks.h>
-
-struct SMPInfo
-{
-    trace *classPtr;
-    int traceFrom, traceTo;
-    barrier_t *b;
-};
-#else
-
 struct SMPInfo
 {
     int dummy;
 };
-#endif
 
 void SMPTraceNoClass(void *p, size_t qwery = 0);
 #endif // __SMPTRACE_H

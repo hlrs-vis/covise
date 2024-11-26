@@ -25,10 +25,6 @@
 #define GEOFILEASC_H
 
 #include <util/coviseCompat.h>
-#ifdef __sgi
-using namespace std;
-#endif
-
 #include <do/coDoPoints.h>
 #include "EnFile.h"
 #include "EnElement.h"

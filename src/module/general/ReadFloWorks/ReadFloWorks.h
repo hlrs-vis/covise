@@ -26,10 +26,6 @@
 #include <reader/ReaderControl.h>
 #include "FloWorks.h"
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 const int Success(0);
 const int Failure(1);
 

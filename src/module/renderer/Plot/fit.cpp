@@ -31,9 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#ifdef __hpux
-#define finite(x) isfinite(x)
-#endif
 #include "defines.h"
 #include "noxprotos.h"
 

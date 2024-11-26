@@ -196,10 +196,8 @@ fob::sendSer(unsigned char *bfr, int num)
     else
     {
 //ioctl(serialChannel, TCFLUSH, 2);
-#if !defined(__hpux)
         if (tcdrain(serialChannel) < 0)
             perror("fob::sendSer tcdrain");
-#endif
         // we have to wait here because the bird is not the fastest
         //sleep( 1 );
         return (1);
@@ -269,7 +267,7 @@ fob::startServerProcess()
         fprintf(stderr, "CLIENT: server process forked\n");
 #endif
 
-#if !defined(__linux__) && !defined(__hpux)
+#if !defined(__linux__)
         prctl(PR_TERMCHILD); // Exit when parent does
 #endif
 

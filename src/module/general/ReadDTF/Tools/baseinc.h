@@ -27,10 +27,6 @@ om for more informations about STL.
 
 #include "covise.h"
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 //#define DEBUG_MODE
 
 //#define DEBUG_MODE2

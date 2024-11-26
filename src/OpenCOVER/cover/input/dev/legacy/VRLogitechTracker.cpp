@@ -37,7 +37,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#ifndef __sgi
 #ifndef _WIN32
 #include <sys/ioctl.h>
 #include <asm/ioctls.h>
@@ -48,7 +47,6 @@
 #define fsin sin
 #define fcos cos
 #define facos acos
-#endif
 #endif
 
 void

@@ -1946,7 +1946,7 @@ float stepsize(float px[3], float p0[3], float p1[3], float p2[3], float p3[3],
     if (vq == 0.0)
         return (0.0);
 
-#if defined(__sgi) || defined(_WIN32)
+#if defined(_WIN32)
     vol = fabsf(tetra_vol(p0, p1, p2, p3));
     dt = 1.0f / vq * powf(vol, 1.0f / 3.0f) / (float)NUM_STEPS;
 #else

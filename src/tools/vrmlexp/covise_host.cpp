@@ -12,21 +12,6 @@
 #include <sys/socket.h>
 #endif
 
-#ifdef __alpha
-extern "C" {
-struct servent *getservbyname(
-    const char *name,
-    const char *proto);
-void endservent(void);
-struct hostent *gethostbyaddr(
-    const char *addr,
-    int len,
-    int type);
-struct hostent *gethostbyname(
-    const char *name);
-}
-#endif
-
 #include "covise_host.h"
 
 #undef DEBUG

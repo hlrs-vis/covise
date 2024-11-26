@@ -28,7 +28,6 @@ for mechanical files, and the heat flux for thermal analysis.
 % short information about versions 
 %
 ReadANSYS is available for COVISE version 5.2 and higher.
-It has been tested on SGI systems (IRIX 6.5).
 
 %
 %=============================================================

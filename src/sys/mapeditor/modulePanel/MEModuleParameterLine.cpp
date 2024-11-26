@@ -63,14 +63,6 @@ MEModuleParameterLine::MEModuleParameterLine(MEParameterPort *port, QFrame *fram
     if (m_port->isMapped())
         m_mappedPB->setIcon(MEMainHandler::instance()->pm_pindown);
 
-#ifdef YAC
-    // visibleCol -- set light pixmap
-    addIcon(m_lightPB, MEMainHandler::instance()->pm_lightoff, this, lightCB, "Click on this icon to show/hide\nthe module icon port in the canvas area");
-    m_lightPB->setFocusPolicy(Qt::NoFocus);
-    if (m_port->isShown())
-        m_lightPB->setIcon(MEMainHandler::instance()->pm_lighton);
-#endif
-
     // nameCol -- set port name
     m_appearanceTypes = new MEParameterAppearance(m_textFrame, m_port);
     hb1->addWidget(m_appearanceTypes);
@@ -82,10 +74,8 @@ MEModuleParameterLine::MEModuleParameterLine(MEParameterPort *port, QFrame *fram
     // set appearance & values in m_conatiner
     m_port->makeLayout(MEParameterPort::MODULE, m_container);
 
-#ifndef YAC
     m_textFrame->setEnabled(m_port->isEnabled());
     m_container->setEnabled(m_port->isEnabled());
-#endif
 }
 
 MEModuleParameterLine::~MEModuleParameterLine()
@@ -127,15 +117,6 @@ void MEModuleParameterLine::changeLightPixmap(bool on)
 //!
 void MEModuleParameterLine::lightCB()
 {
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << m_port->getNode()->getNodeID() << m_port->getName();
-    if (m_port->isShown())
-        sb << 0;
-    else
-        sb << 1;
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_PORT_VISIBLE, sb);
-#endif
 }
 
 //!
@@ -143,24 +124,11 @@ void MEModuleParameterLine::lightCB()
 //!
 void MEModuleParameterLine::mappedCB()
 {
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << m_port->getNode()->getNodeID() << m_port->getName();
-    if (m_port->isMapped())
-        sb << 0;
-    else
-        sb << 1;
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_PORT_MAPPED, sb);
-
-#else
-
     if (m_port->isMapped())
         m_port->sendPanelMessage("RM_PANEL");
 
     else
         m_port->sendPanelMessage("ADD_PANEL");
-#endif
 
     MEMainHandler::instance()->mapWasChanged("RM/ADD_PANEL");
 }

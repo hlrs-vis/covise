@@ -6,11 +6,6 @@
  * License: LGPL 2+ */
 
 
-#ifndef _WIN32
-#define COIDENT "$Header: /vobs/covise/src/application/general/READ_PAM/ReadPAM.cpp /main/vir_main/11 10-Aug-2001.11:50:12 dirk_te $"
-#include <util/coIdent.h>
-#endif
-
 #include "ReadPAM.h"
 
 ReadPam::ReadPam(int argc, char *argv[])

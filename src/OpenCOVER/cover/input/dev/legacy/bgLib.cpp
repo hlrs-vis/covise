@@ -105,11 +105,7 @@ int check_inputs(bglv *bgp)
         {
             printf("Handshake requested (%d)\n", i);
             w_lv(bgp->sp_fd, (char *)"h");
-#ifndef __sgi
             sleep(1);
-#else
-            sginap(10);
-#endif
             return (-1);
         }
 /**
@@ -292,11 +288,7 @@ int get_ack(int sp_fd)
     {
         if (st != 0)
             printf("read: %s\n", str);
-#ifndef __sgi
         sleep(1);
-#else
-        sginap(5);
-#endif
 #ifdef WIN32
         DWORD nBytesRead = 0;
         BOOL bResult;
@@ -977,11 +969,7 @@ int check_rev(bglv *bgp)
     *  Set str_len to 44 for the copyright string.
     */
     w_lv(bgp->sp_fd, (char *)"T");
-#ifndef __sgi
     sleep(1);
-#else
-    sginap(100);
-#endif
     bgp->str_len = 44;
     chars_read = r_cs(bgp, str);
 

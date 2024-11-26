@@ -400,9 +400,7 @@ double fx(double x);
 double normp(double b, double *s);
 double invnorm(double p);
 double invt(double p, int n);
-#ifndef __hpux
 int yyparse(void);
-#endif
 
 void draw_polar_graph(int gno);
 void plotone(int gno);

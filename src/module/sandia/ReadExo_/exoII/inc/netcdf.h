@@ -293,16 +293,7 @@ typedef int nc_type;
 typedef char ncchar;
 typedef char ncbyte;
 typedef short ncshort;
-#ifdef __alpha
-typedef long nclong; /* when the library is modified to
-					 * use `nclong' declarations, this
-					 * will become an `int' */
-#define NCLONG_DEFINED
-#endif
-#ifndef NCLONG_DEFINED
 typedef long nclong; /* default, compatible type */
-#endif
-#undef NCLONG_DEFINED
 typedef float ncfloat;
 typedef double ncdouble;
 

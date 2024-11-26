@@ -12,10 +12,6 @@
 #include <QGridLayout>
 #include <QCheckBox>
 
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
-
 #include "MEPreference.h"
 #include "MEUserInterface.h"
 #include "MEMessageHandler.h"
@@ -136,54 +132,19 @@ void MEPreference::update(QString name, QString value)
 
 void MEPreference::cachSelected(int id)
 {
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << "UI" << 0 << "DataCaching";
-    QString s = caching->itemText(id);
-    sb << s.toAscii().data();
-    MEMessageHandler::instance()->sendControlMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-#else
     Q_UNUSED(id);
-#endif
 }
 
 void MEPreference::regModeSelected(int id)
 
 {
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << "UI" << 0 << "RegistryMode";
-    QString s = registry->itemText(id);
-    sb << s.toAscii().data();
-    MEMessageHandler::instance()->sendControlMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-#else
     Q_UNUSED(id);
-#endif
 }
 
 void MEPreference::debugPressed()
 {
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << "UI" << 0 << "DebugMode";
-    if (debugToggle->isChecked())
-        sb << "true";
-
-    else
-        sb << "false";
-    MEMessageHandler::instance()->sendControlMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-#endif
 }
 
 void MEPreference::execConnSelected()
 {
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << "UI" << 0 << "ExecutionOnConnect";
-    if (execConn->isChecked())
-        sb << "true";
-    else
-        sb << "false";
-    MEMessageHandler::instance()->sendControlMessage(covise::coCtrlMsg::REGISTRY_SET_VALUE, sb);
-#endif
 }

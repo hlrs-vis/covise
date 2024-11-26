@@ -23,10 +23,6 @@ public:
 
     ~MEFloatVectorPort();
 
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &);
-#endif
-
 private slots:
 
     void textCB(const QString &);

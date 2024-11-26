@@ -8,8 +8,6 @@
 #ifndef _READ_PAM_AUXILIAR_H_
 #define _READ_PAM_AUXILIAR_H_
 
-#define COIDENT "$Header: /vobs/covise/src/application/general/READ_PAM/aux.h /main/vir_main/1 18-Dec-2001.11:15:29 we_te $"
-#include <util/coIdent.h>
 #include <do/coDoData.h>
 #include <do/coDoUnstructuredGrid.h>
 

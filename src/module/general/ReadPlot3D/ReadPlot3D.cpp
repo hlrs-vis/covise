@@ -179,11 +179,7 @@ void Application::compute(const char *)
                 byteswap_flag = 1;
                 byteswap(&bsize1, sizeof(int));
             }
-#ifdef __sgi
-            seekRes = fseek64(fGrid, bsize1, SEEK_CUR);
-#else
             seekRes = fseek(fGrid, bsize1, SEEK_CUR);
-#endif
             if (seekRes)
             {
                 numBlocks = -1;
@@ -1053,11 +1049,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 // lf_te: added 14.10.2003, each zone may have its own conditions
                 sfPos = ftell(fFile);
                 file_beginBlock(fFile);
-#ifdef __sgi
-                fseek64(fFile, sfPos, SEEK_SET);
-#else
                 fseek(fFile, sfPos, SEEK_SET);
-#endif
                 if (blockSize == 16 || blockSize64 == 32 || blockSize64 == 16 || blockSize == 32)
                     read_solution_conditions(fFile, &mach, &alpha, &re, &time_var);
 

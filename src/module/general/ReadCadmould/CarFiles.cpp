@@ -18,12 +18,8 @@
 #include "CarFiles.h"
 #include <util/coviseCompat.h>
 
-#ifdef __sgi
-#include <sys/dir.h>
-#else
 #ifndef WIN32
 #include <dirent.h>
-#endif
 #endif
 
 #ifdef WIN32
@@ -49,11 +45,7 @@ CarFiles::CarFiles(const char *path)
     strcpy(path_, path);
 #ifndef WIN32
     DIR *dirp;
-#ifdef __sgi
-    struct direct *entry;
-#else
     struct dirent *entry;
-#endif
 #endif
 
     char *model = strrchr(path_, DIR_SEP);

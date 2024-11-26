@@ -595,9 +595,6 @@ VRWindow::createWin(int i)
    if (visId == -1)
    {
      visId = covise::coCoviseConfig::getInt(entry, coVRConfig::instance()->windows[i].visualId);
-#ifdef __sgi
-     visId += 134*coVRConfig::instance()->windows[i].pipeNum;
-#endif
    }
    else
      visId = coVRConfig::instance()->windows[i].visualId;

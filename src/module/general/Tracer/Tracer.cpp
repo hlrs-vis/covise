@@ -49,9 +49,7 @@ Tracer::postInst()
     p_randomOffset->hide();
 // at first only the main thread may modify the list of
 // lazy threads and done threads
-#ifndef CO_hp1020
     lockMMutex();
-#endif
 }
 
 float epsilon;
@@ -76,9 +74,7 @@ bool randomOffset;
 bool randomStartpoint;
 int no_start_points;
 
-// compute, quit and worker_function for all
-// platforms with the exception of CO_hp1020
-#ifndef CO_hp1020
+// compute, quit and worker_function for all platforms
 // accesses to doneThreads are synchronised by m_mutex
 pthread_mutex_t m_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t done = PTHREAD_COND_INITIALIZER;
@@ -292,7 +288,6 @@ void *worker_function(void *arg)
     // the thread never gets here
     return 0;
 }
-#endif
 
 #ifdef _DEBUG_
 void
@@ -346,11 +341,9 @@ int Tracer::compute(const char *)
 #endif
 
     BBoxAdmin_.setSurname();
-#ifndef CO_hp1020
     startThreads();
     int diagnostics = 0;
     int label;
-#endif
     if (computeGlobals() < 0)
         return FAIL;
     fillWhatOut(); // read output magnitude choice
@@ -392,7 +385,6 @@ int Tracer::compute(const char *)
         {
             if (crewSize_ > 0)
             {
-#ifndef CO_hp1020
                 while (theTask->unserviced() && !lazyThreads_.isEmpty())
                 {
                     // decide assignation of an unserviced task in theTask.ptasks_
@@ -455,7 +447,6 @@ int Tracer::compute(const char *)
                         sendWarning("Could not unlock a mutex after gatherPTask.");
                     }
                 } while (!doneThreads.isEmpty());
-#endif
             }
             else
             {
@@ -479,9 +470,7 @@ int Tracer::compute(const char *)
 #endif
 
     delete theTask;
-#ifndef CO_hp1020
     terminateThreads();
-#endif
 #if defined(_PROFILE_)
     sendInfo("stop run: %6.3f s", _ww.elapsed());
 #endif
@@ -980,9 +969,7 @@ Tracer::SampleToGeometry(const coDistributedObject *grid,
 
 Tracer::Tracer(int argc, char **argv)
     : coFunctionModule(argc, argv, "Tracer")
-#ifndef CO_hp1020
     , read_task_(NULL)
-#endif
 {
     const char *TimeChoices[] = { "forward", "backward", "both" };
     const char *MagnitudeChoices[] = { "mag", "v_x", "v_y", "v_z", "time", "id", "v" };
@@ -1484,14 +1471,12 @@ Tracer::param(const char *paramname, bool inMapLoading)
         }
     }
 #endif
-#ifndef CO_hp1020
     else if (strcmp(paramname, p_no_threads_w->getName()) == 0)
     {
         crewSize_ = p_no_threads_w->getValue();
         if (crewSize_ < 0)
             crewSize_ = 0;
     }
-#endif
     else if (strcmp(paramname, p_newParticles->getName()) == 0)
     {
         if (p_newParticles->getValue())

@@ -244,11 +244,7 @@ int File09::readField(int fieldNo, float *f1, float *f2, float *f3)
                 f1[i] += tmp[i] * tmp[i];
 
             for (i = 0; i < ncell; i++)
-#ifdef __sgi
-                f1[i] = fsqrt(f1[i]);
-#else
                 f1[i] = sqrt(tmp[i]);
-#endif
             delete[] tmp;
             if (input.fail())
                 return -1;

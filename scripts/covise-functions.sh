@@ -85,32 +85,13 @@ guess_archsuffix() {
             esac
             ;;
 
-        IRIX*)
-            export ARCHSUFFIX=sgin32
-            ;;
-
         FreeBSD*)
             export ARCHSUFFIX=freebsd
-            ;;
-        
-        HP-UX)
-	    export ARCHSUFFIX=hp
-            uname -a|grep ia64 && export ARCHSUFFIX=hpux_ia64
             ;;
      
         Linux)
         export ARCHSUFFIX=linux
         case "`uname -m`" in
-            ia64)
-              if grep -i -q -s "SUSE LINUX Enterprise Server 9 (ia64)" /etc/issue; then
-                 export ARCHSUFFIX=cayman
-              elif  grep -i -q -s "SUSE LINUX Enterprise Server 10 (ia64)" /etc/issue; then
-                 export ARCHSUFFIX=cayenne
-              else
-                 export ARCHSUFFIX=ia64
-              fi
-              ;;
-            
             x86_64)
                export ARCHSUFFIX=linux64
                if grep -i -q -s stentz /etc/issue; then

@@ -100,7 +100,6 @@ SET(VRML_SOURCES
   PlayerAServer.cpp
   PlayerEsd.cpp
   PlayerFactory.cpp
-  PlayerIrixAL.cpp
   PlayerMix.cpp
   PlayerOpenAL.cpp
   PlayerOSS.cpp
@@ -222,7 +221,6 @@ SET(VRML_HEADERS
   PlayerAServer.h
   PlayerEsd.h
   PlayerFactory.h
-  PlayerIrixAL.h
   PlayerMix.h
   PlayerOpenAL.h
   PlayerOSS.h

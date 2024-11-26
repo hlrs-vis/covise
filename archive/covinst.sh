@@ -38,21 +38,9 @@ case x$ARCHSUFFIX in
       ARCHSUFFIX="unknown"
       ARCH=`uname`
       case "$ARCH" in
-         HP-UX)	ARCHSUFFIX=hp
-            case `uname -a` in HP-UX*10.20*)
-               ARCHSUFFIX=hp1020
-         esac
-         ;;
-      SunOS) 	ARCHSUFFIX=sparc	;;
-   AIX)   	ARCHSUFFIX=aix  	;;
-OSF1)  	ARCHSUFFIX=dec  	;;
-       SUPER-UX)	ARCHSUFFIX=nec  	;;
     Linux)
        mach=`uname -m`
        case "$mach" in
-          ia64)
-             export ARCHSUFFIX=IA64
-             ;;
           *)
              if [ -f /lib/libgcc_s.so ]
              then
@@ -63,17 +51,11 @@ OSF1)  	ARCHSUFFIX=dec  	;;
              ;;
        esac
        ;;
-    IRIX)  	ARCHSUFFIX=sgin32	;;
- IRIX64)	ARCHSUFFIX=sgin32	;;
      esac
 
   esac
 
   ARCH=`uname -m`
-  case "$ARCH" in
-     "CRAY Y-MP") ARCHSUFFIX=ymp 	;;
-  "CRAY C90")  ARCHSUFFIX=c90 	;;
-  esac
 
   ### detect the directory where the install file is
   BASEDIR=`dirname $0`
@@ -676,15 +658,6 @@ esac
     fi
     if [ ! -d $GLOBALINSTDIR/covise/$ARCHSUFFIX ]
     then
-       if [ $ARCHSUFFIX = "sgin32" ] ; then
-          if [ ! -d $GLOBALINSTDIR/covise/sgi64 ]; then
-             echo "ERROR: $GLOBALINSTDIR/covise/sgi64 does not exist!"
-             echo "as well as $GLOBALINSTDIR/covise/sgin32"
-             echo "...leaving the installation script."
-             exit
-          fi
-          ARCHSUFFIX=sgin64
-       else
           if [ $ARCHSUFFIX = "linux" ] ; then
              if [ ! -d $GLOBALINSTDIR/covise/gcc3 ]; then
                 echo "ERROR: $GLOBALINSTDIR/covise/linux does not exist!"
@@ -699,8 +672,6 @@ esac
              exit
 
           fi
-
-       fi
     fi
 
 
@@ -1063,10 +1034,6 @@ adjust_dot_cshrc_files()
             fi
             echo "setenv COVISEDIR $COVISEDIR" >> $HOME/.tcshrc
             echo "set path=(${COVISEDIR}/bin \$path)" >> $HOME/.tcshrc
-            if [ "$ARCHSUFFIX" = "hp"  ]
-            then
-               echo "setenv OIV_NO_OVERLAYS 1" >> $HOME/.tcshrc
-            fi
          else
             ans='y'
             echo "your .tcshrc was already modified"
@@ -1103,10 +1070,6 @@ adjust_dot_cshrc_files()
             fi
             echo "setenv COVISEDIR $COVISEDIR" >> $HOME/.cshrc
             echo "set path=(${COVISEDIR}/bin \$path)" >> $HOME/.cshrc
-            if [ "$ARCHSUFFIX" = "hp"  ]
-            then
-               echo "setenv OIV_NO_OVERLAYS 1" >> $HOME/.cshrc
-            fi
          else
             ans='y'
             echo "your .cshrc was already modified"

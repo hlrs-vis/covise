@@ -62,10 +62,8 @@ MEColormapChoicePort::MEColormapChoicePort(MENode *node, QGraphicsScene *scene,
 MEColormapChoicePort::~MEColormapChoicePort()
 {
 
-#ifndef YAC
     delete m_colorMap;
     m_colorMap = NULL;
-#endif
 }
 
 void MEColormapChoicePort::restoreParam()
@@ -94,14 +92,6 @@ void MEColormapChoicePort::moduleParameterRequest()
 //!-------------------------------------------------------------------------
 void MEColormapChoicePort::defineParam(QString value, int apptype)
 {
-
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     QString values = value.trimmed();
     // create a new colormap
     m_colorMap = new MEColorMap(this, 0);
@@ -141,7 +131,6 @@ void MEColormapChoicePort::defineParam(QString value, int apptype)
     m_colorMap->updateColorMap(m_mapPoints[m_currentChoice], m_values[m_currentChoice]);
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //!-------------------------------------------------------------------------
@@ -159,11 +148,6 @@ void MEColormapChoicePort::modifyParam(QStringList list, int noOfValues, int ist
 //!-------------------------------------------------------------------------
 void MEColormapChoicePort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
     // clear old lists
     m_choiceValues.clear();
     m_mapPoints.clear();
@@ -236,8 +220,6 @@ void MEColormapChoicePort::modifyParameter(QString lvalue)
     }
 
     m_colorMap->updateColorMap(m_mapPoints[m_currentChoice], m_values[m_currentChoice]);
-
-#endif
 }
 
 void MEColormapChoicePort::sendParamMessage()
@@ -308,25 +290,9 @@ void MEColormapChoicePort::makeLayout(layoutType type, QWidget *w)
 void MEColormapChoicePort::choiceCB(int state)
 {
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << 0 << state;
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     m_currentChoice = state;
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
 }
-
-#ifdef YAC
-void MEColormapChoicePort::setValues(covise::coRecvBuffer &)
-{
-}
-#endif

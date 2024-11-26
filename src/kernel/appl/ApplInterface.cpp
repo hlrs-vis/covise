@@ -40,11 +40,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
-#ifdef __sgi
-#define BEST_TIMER CLOCK_SGI_CYCLE
-#else
 #define BEST_TIMER CLOCK_REALTIME
-#endif
 #endif
 
 using namespace covise;

@@ -958,11 +958,7 @@ void find_uni_value(float point[3], float &isowert)
     }
     else
     {
-#ifdef __sgi
-        cellx = int(ffloor(fabsf((point[0] - x_min) / dx)));
-#else
         cellx = int(floor(fabs((point[0] - x_min) / dx)));
-#endif
     }
 
     if (y_size == 1 || dy == 0.0)
@@ -971,11 +967,7 @@ void find_uni_value(float point[3], float &isowert)
     }
     else
     {
-#ifdef __sgi
-        celly = int(ffloor(fabsf((point[1] - y_min) / dy)));
-#else
         celly = int(floor(fabs((point[1] - y_min) / dy)));
-#endif
     }
 
     if (z_size == 1 || dz == 0.0)
@@ -984,11 +976,7 @@ void find_uni_value(float point[3], float &isowert)
     }
     else
     {
-#ifdef __sgi
-        cellz = int(ffloor(fabsf((point[2] - z_min) / dz)));
-#else
         cellz = int(floor(fabs((point[2] - z_min) / dz)));
-#endif
     }
 
     // Now we have to read in the 8 scalar values at the corners of the cell
@@ -1160,11 +1148,7 @@ void find_rct_value(float point[3], float &isowert)
             dies = next;
         }
         if (i == x_size - 1)
-#ifdef __sgi
-            cellx = (fabsf(x_min - point[0]) <= fabsf(x_max - point[0]) ? 0 : x_size - 2);
-#else
             cellx = (fabs(x_min - point[0]) <= fabs(x_max - point[0]) ? 0 : x_size - 2);
-#endif
         else
             cellx = i;
     }
@@ -1187,11 +1171,7 @@ void find_rct_value(float point[3], float &isowert)
             dies = next;
         }
         if (j == y_size - 1)
-#ifdef __sgi
-            celly = (fabsf(y_min - point[1]) <= fabsf(y_max - point[1]) ? 0 : y_size - 2);
-#else
             celly = (fabs(y_min - point[1]) <= fabs(y_max - point[1]) ? 0 : y_size - 2);
-#endif
         else
             celly = j;
     }
@@ -1214,11 +1194,7 @@ void find_rct_value(float point[3], float &isowert)
             dies = next;
         }
         if (k == z_size - 1)
-#ifdef __sgi
-            cellz = (fabsf(z_min - point[2]) <= fabsf(z_max - point[2]) ? 0 : z_size - 2);
-#else
             cellz = (fabs(z_min - point[2]) <= fabs(z_max - point[2]) ? 0 : z_size - 2);
-#endif
         else
             cellz = k;
     }

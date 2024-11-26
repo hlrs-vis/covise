@@ -15,10 +15,6 @@
 #define SHARED_MEMORY
 #endif
 
-#ifdef _CRAYT3E
-#define HANDLE unsigned int
-#endif
-
 #include <util/coTypes.h>
 
 #include <util/covise_list.h>

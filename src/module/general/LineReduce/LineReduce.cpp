@@ -31,12 +31,10 @@ LineReduce::LineReduce(int argc, char *argv[])
     dataOut->setDependencyPort(dataIn);
 
 // we don't handle any multiblock/timestep stuff, because this is a REALLY SIMPLE module
-#ifndef YAC
     setComputeTimesteps(0);
     setComputeMultiblock(0);
     // and the API should take care of attributes
     setCopyAttributes(1);
-#endif
     // done
     return;
 }

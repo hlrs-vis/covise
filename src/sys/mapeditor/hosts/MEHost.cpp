@@ -8,9 +8,6 @@
 #include <QMenu>
 
 #include <net/covise_host.h>
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
 
 #include "MEDaemon.h"
 #include "MEHost.h"

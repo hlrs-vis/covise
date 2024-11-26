@@ -21,27 +21,16 @@ typedef unsigned short uint16;
 
 /*************** Nameserver request ****************/
 
-#ifdef _CRAY
-#define CONV (char *)
-#else
 #define CONV
-#endif
 
 static unsigned int getIP(const char *name)
 {
     struct hostent *hostinfo;
     hostinfo = gethostbyname(CONV name); /* Hack for Cray */
     if (hostinfo)
-
-#ifndef _CRAY
-        return *((unsigned int *)*hostinfo->h_addr_list);
-#else
     {
-        unsigned char *x = (unsigned char *)*hostinfo->h_addr_list;
-        return ((*x) << 24) | (*(x + 1) << 16) | (*(x + 2) << 8) | *(x + 3);
+        return *((unsigned int *)*hostinfo->h_addr_list);
     }
-#endif
-
     else
     {
         fprintf(stderr, "Nameserver didn't find '%s'", name);

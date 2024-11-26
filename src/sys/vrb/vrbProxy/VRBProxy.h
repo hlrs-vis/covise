@@ -5,10 +5,9 @@
 
  * License: LGPL 2+ */
 
-#ifndef YAC
-#include "covise/covise.h"
-#endif
 #include <memory>
+#include <list>
+
 namespace covise
 {
 class ServerConnection;

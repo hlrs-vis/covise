@@ -16,7 +16,7 @@ echo $desc > doc/shortdesc.tex.in
 echo >> doc/shortdesc.tex.in
 
 ALL_ARCHS="win32 gcc3 teck amd64 x64 bishorn heiner gecko skink basilisk waran chuckwalla dapper
-hardy heron ia64 sgin32 sgi64 leopard monshuygens lycaeus"
+hardy heron leopard monshuygens lycaeus"
 if [ -z "$AVAILABLE_ON" ]; then
    AVAILABLE_ON="$ALL_ARCHS"
 fi
@@ -60,15 +60,6 @@ else
            ;;
            amd64)
                 echo -n "x86\\_64 Fedora Linux Core 3 (amd64)" >> doc/available.tex.in
-           ;;
-           ia64)
-                echo -n "ia64 Red Hat Enterprise Linux 3 (ia64)" >> doc/available.tex.in
-           ;;
-           sgin32)
-                echo -n "32 bit IRIX 6.5 (sgin32)" >> doc/available.tex.in
-           ;;
-           sgi64)
-                echo -n "64 bit IRIX 6.5 (sgi64)" >> doc/available.tex.in
            ;;
            macx)
                 echo -n "Mac OS X Panther 10.3 (macx)" >> doc/available.tex.in

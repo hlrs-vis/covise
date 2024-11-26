@@ -172,17 +172,13 @@ Message *DataManagerProcess::wait_for_msg()
 
 void DataManagerProcess::send_trf_msg(Message *msg)
 {
-#ifndef CRAY
     transfermanager->sendMessage(msg);
-#endif
 }
 
 void DataManagerProcess::exch_trf_msg(Message *msg)
 {
-#ifndef CRAY
     transfermanager->sendMessage(msg);
     transfermanager->recv_msg(msg);
-#endif
 }
 
 Message *DataManagerProcess::wait_for_msg(int covise_msg_type, const Connection *conn = 0)
@@ -373,9 +369,7 @@ DataManagerProcess::DataManagerProcess(char *name, int id, int *key)
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "vor new coShmAlloc", 4);
 #endif
-#ifndef _SX
     signal(SIGINT, ::clean_all);
-#endif
     shm = new coShmAlloc(key, this);
     //    objects = new AVLTree<ObjectEntry>();
     objects = new AVLTree<ObjectEntry>(ObjectEntry_compare, "objects");
@@ -413,9 +407,7 @@ print_comment(__LINE__, __FILE__, "in DataManagerProcess",4);
 list_of_connections = new ConnectionList;
 tmpconn = NULL;
 transfermanager = NULL;
-#ifndef _SX
 signal(SIGINT, ::clean_all);
-#endif
 shm = new coShmAlloc(&key, this);
 objects = new AVLTree<ObjectEntry>(ObjectEntry_compare, "objects");
 //    objects = new AVLTree<ObjectEntry>();
@@ -432,12 +424,7 @@ this_process = this;
 
 void DataManagerProcess::contact_controller(int p, Host *h)
 {
-#if defined(CRAY) && !defined(_CRAYT3E)
-    print_comment(__LINE__, __FILE__,
-                  "contact_controller not necessary on machines w/o shared memory\n", 4);
-#else
     controller = list_of_connections->tryAddNewConnectedConn<ControllerConnection>(h, p, id, CRB);
-#endif
 }
 
 void DataManagerProcess::contact_datamanager(int p, Host &host)
@@ -447,16 +434,8 @@ void DataManagerProcess::contact_datamanager(int p, Host &host)
     unsigned int sid;
 
     const Connection *dm = list_of_connections->add(std::unique_ptr<ClientConnection>(new ClientConnection(&host, p, id, CRB)));
-#if defined(CRAY) && !defined(_WIN32)
-#ifdef _CRAYT3E
-    converter.int_to_exch(id, msg_data);
-#else
-    conv_single_int_c8i4(id, (int *)msg_data);
-#endif
-#else
     *((int *)msg_data) = id;
     swap_byte(*((unsigned int *)msg_data));
-#endif
     strcpy(&msg_data[SIZEOF_IEEE_INT], get_host()->getAddress());
     int len = SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1;
     Message msg{ COVISE_MESSAGE_SEND_ID, DataHandle{msg_data, len, false} };
@@ -467,16 +446,8 @@ void DataManagerProcess::contact_datamanager(int p, Host &host)
 
     if (msg.type == COVISE_MESSAGE_SEND_ID)
     {
-#if defined(CRAY) && !defined(_WIN32)
-#ifdef _CRAYT3E
-        converter.exch_to_int(msg_data, (int *)&sid);
-#else
-        conv_single_int_i4c8(*(int *)msg_data, &sid);
-#endif
-#else
         sid = *((int *)msg_data);
         swap_byte(sid);
-#endif
         dme = new DMEntry(sid, &msg_data[SIZEOF_IEEE_INT], dm);
     }
     else
@@ -498,16 +469,8 @@ void DataManagerProcess::wait_for_dm_contact()
     {
         dme = new DMEntry(*((int *)msg->data.data()), &msg->data.accessData()[SIZEOF_IEEE_INT], tmpconn);
         data_mgrs->add(dme);
-#if defined(CRAY) && !defined(_WIN32)
-#ifdef _CRAYT3E
-        converter.int_to_exch(id, msg_data);
-#else
-        conv_single_int_c8i4(id, (int *)msg_data);
-#endif
-#else
         *((int *)msg_data) = id;
         swap_byte(*((unsigned int *)msg_data));
-#endif
         strcpy(&msg_data[SIZEOF_IEEE_INT], get_host()->getAddress());
         msg->data = DataHandle(msg_data, SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1);
 
@@ -583,13 +546,9 @@ void DataManagerProcess::start_transfermanager()
                 thost = &msg->data.accessData()[SIZEOF_IEEE_INT];
                 mdata = new char[sizeof(int) + strlen(thost) + 1];
 
-#ifdef CRAY
-// conv
-#else
                 *(int *)mdata = tport;
                 strcpy(&mdata[sizeof(int)], &msg->data.data()[SIZEOF_IEEE_INT]);
                 msg->data = DataHandle(mdata, msg->data.length());
-#endif
                 msg->type = COVISE_MESSAGE_CONNECT_TRANSFERMANAGER;
                 send_trf_msg(msg);
             }
@@ -1376,26 +1335,16 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
 #ifdef DEBUG
             print_comment(__LINE__, __FILE__, "scalar part of shm_free", 4);
 #endif
-#ifdef CRAY
-            objptr += 2;
-            incr = 2;
-#else
             incr = 1 + sizeof(long) / sizeof(int) + (sizeof(long) % sizeof(int) != 0);
             objptr += incr;
-#endif
             count += incr * sizeof(int);
             break;
         case DOUBLESHM:
 #ifdef DEBUG
             print_comment(__LINE__, __FILE__, "scalar part of shm_free");
 #endif
-#ifdef CRAY
-            objptr += 2;
-            incr = 2;
-#else
             incr = 1 + sizeof(double) / sizeof(int) + (sizeof(double) % sizeof(int) != 0);
             objptr += incr;
-#endif
             count += incr * sizeof(int);
             break;
         case COVISE_NULLPTR:
@@ -1655,16 +1604,8 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
             print_comment(__LINE__, __FILE__, "oe->dmgr != NULL", 4);
 #endif
             char *data = new char[strlen(oe->name.data()) + 1 + sizeof(int)];
-#if defined(CRAY) && !defined(_WIN32)
-#ifdef _CRAYT3E
-            converter.int_to_exch(oe->version, data);
-#else
-            conv_single_int_c8i4(oe->version, (int *)data);
-#endif
-#else
             *(int *)data = oe->version;
             swap_byte(*(unsigned int *)data);
-#endif
             strcpy(&data[SIZEOF_IEEE_INT], oe->name.data());
             len = n.length() + SIZEOF_IEEE_INT;
 

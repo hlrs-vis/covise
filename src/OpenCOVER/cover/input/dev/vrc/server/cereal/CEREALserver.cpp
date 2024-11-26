@@ -24,7 +24,7 @@
 #endif
 #include <string.h>
 #include <signal.h>
-#if !defined(WIN32) && !defined(__hpux) && !defined(__FreeBSD__)
+#if !defined(WIN32) && !defined(__FreeBSD__)
 #include <sys/prctl.h>
 #include <errno.h>
 #endif
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     /// establich some signal handlers
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
-#if !defined(WIN32) && !defined(__hpux)
+#if !defined(WIN32)
     signal(SIGPIPE, sigHandler);
     signal(SIGCHLD, sigHandler);
     signal(SIGHUP, sigHandler);

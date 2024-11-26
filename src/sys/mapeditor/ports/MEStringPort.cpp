@@ -85,17 +85,10 @@ void MEStringPort::moduleParameterRequest()
 //------------------------------------------------------------------------
 void MEStringPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
     svalue = value.replace(QChar('\177'), " ");
     if (svalue.size() == 1 && svalue[0] == '\001')
         svalue = "";
     MEParameterPort::defineParam(svalue, apptype);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -103,14 +96,6 @@ void MEStringPort::defineParam(QString value, int apptype)
 //------------------------------------------------------------------------
 void MEStringPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     if (istart >= list.count())
@@ -129,7 +114,6 @@ void MEStringPort::modifyParam(QStringList list, int noOfValues, int istart)
 
     if (editLine[CONTROL])
         editLine[CONTROL]->setText(svalue);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -137,12 +121,6 @@ void MEStringPort::modifyParam(QStringList list, int noOfValues, int istart)
 //------------------------------------------------------------------------
 void MEStringPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     svalue = lvalue.replace(QChar('\177'), " ");
     if (svalue.size() == 1 && svalue[0] == '\001')
         svalue = "";
@@ -153,7 +131,6 @@ void MEStringPort::modifyParameter(QString lvalue)
 
     if (editLine[CONTROL])
         editLine[CONTROL]->setText(svalue);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -202,40 +179,9 @@ void MEStringPort::removeFromControlPanel()
 //------------------------------------------------------------------------
 void MEStringPort::textCB(const QString &text)
 {
-
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << text;
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     svalue = text;
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
 }
-
-#ifdef YAC
-
-//------------------------------------------------------------------------
-void MEStringPort::setValues(covise::coRecvBuffer &tb)
-//------------------------------------------------------------------------
-{
-    const char *name;
-
-    tb >> name;
-    svalue = name;
-
-    // modify module & control line content
-    if (editLine[MODULE])
-        editLine[MODULE]->setText(svalue);
-
-    if (editLine[CONTROL])
-        editLine[CONTROL]->setText(svalue);
-}
-#endif

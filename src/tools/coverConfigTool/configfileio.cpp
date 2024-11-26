@@ -720,9 +720,6 @@ void ConfigFileIO::writeSection(QString sectionName,
 
         // crate a new QStringList with all lines
         QStringList lines = QStringList();
-#if defined(CO_sgi64) || defined(CO_sgin32) || defined(IRIX)
-        lines = "";
-#endif
         lines.append(sectionName);
         lines += valueList;
         lines.append("\n");
@@ -753,9 +750,6 @@ void ConfigFileIO::writeCommentLine(QString commentString)
             stream.readLine();
         }
         QStringList lines = QStringList();
-#if defined(CO_sgi64) || defined(CO_sgin32) || defined(IRIX)
-        lines = "";
-#endif
         lines.append(commentString);
 
         for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)

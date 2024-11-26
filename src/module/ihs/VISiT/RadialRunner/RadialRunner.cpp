@@ -11,11 +11,7 @@
 #include "../lib/General/include/CreateFileNameParam.h"
 
 RadialRunner::RadialRunner(int argc, char *argv[])
-#ifndef YAC
 : coModule(argc, argv, "Radial Runner")
-#else
-: coSimpleModule(argc, argv, "Radial Runner")
-#endif
 {
 	char buf[256];
 	char *pfn;
@@ -163,11 +159,7 @@ void RadialRunner::param(const char *portname, bool inMapLoading)
 			sendError("We Had an input file before...");
 			return;
 		}
-#ifndef YAC
 		Covise::getname(buf,startFile->getValue());
-#else
-                coFileHandler::getName(buf, startFile->getValue());
-#endif
 		dprintf(2, "RadialRunner::param = ReadGeometry(%s) ...", buf);
 		geo = ReadGeometry(buf);
 		dprintf(2, "done\n");
@@ -181,29 +173,19 @@ void RadialRunner::param(const char *portname, bool inMapLoading)
 	if (!inMapLoading) {
 		dprintf(2,"RadialRunner::param(): !inMapLoading\n");
 		if (CheckUserInput(portname, geo, rrg) || changed) {
-#ifndef YAC
 			//dprintf(2,"\n selfExec() ... \n");
 			//selfExec();
 			//dprintf(2,"\n selfExec() ... done!\n");
-#endif
 		}
 	}
 	dprintf(2,"RadialRunner::param() ... done!\n");
 }
 
 
-#ifndef YAC
 void RadialRunner::quit()
 {
 	// :-)
 }
-#else
-int RadialRunner::quit()
-{
-   return 0;
-}
-
-#endif
 
 int RadialRunner::compute(const char *)
 {
@@ -218,11 +200,7 @@ int RadialRunner::compute(const char *)
 		return FAIL;
 	}
 
-#ifndef YAC
         Covise::getname(name,startFile->getValue());
-#else
-        coFileHandler::getName(name, startFile->getValue());
-#endif
 	strcat(name, ".new");
 	WriteGeometry(geo, name);
 

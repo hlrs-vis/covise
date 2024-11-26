@@ -27,14 +27,6 @@
 #include <errno.h>
 #include <string.h>
 
-#ifdef _SX
-#include <sys/select.h>
-#endif
-
-#if defined(CO_t3e)
-#include <fortran.h>
-#endif
-
 #include <ctype.h>
 #include "coSimClient.h"
 #include "coSimLibComm.h"
@@ -53,7 +45,7 @@ globus_soap_message_attr_t message_attr;
 #endif
 
 /* SGI uses lowercase and trailing _ for FORTRAN */
-#if defined(__sgi) || defined(__linux) || defined(_SX)
+#if defined(__linux)
 #define COVINI covini_
 #define COVWSI covwsi_
 #define COVWSE covwse_
@@ -89,42 +81,6 @@ globus_soap_message_attr_t message_attr;
 #define COSIPD cosipd_
 #define COEXIT coexit_
 #define COSLEP coslep_
-#else
-#ifdef __hpux
-#define COVINI covini
-#define COVWSI covwsi
-#define COVWSE covwse
-#define COFINI cofini
-#define CONOCO conoco
-#define COGPSL cogpsl
-#define COGPFL cogpfl
-#define COGVFL cogvfl
-#define COGPIN cogpin
-#define COGPTX cogptx
-#define COGPFI cogpfi
-#define COGPBO cogpbo
-#define COGPCH cogpch
-#define COSU1D cosu1d
-#define COSU3D cosu3d
-#define COEXEC coexec
-#define COPAIN copain
-#define COPAPO copapo
-#define COPACM copacm
-#define COPAVM copavm
-#define COPANO copano
-#define CORECV corecv
-#define CORRCV corrcv
-#define COSEND cosend
-#define COVERB coverb
-#define COATTR coattr
-#define COGDIM cogdim
-#define COBDIM cobdim
-#define CORGEO corgeo
-#define ATTACH attach
-#define DETACH detach
-#define COEXIT coexit
-#define COSIPD cosipd
-#endif
 #endif
 #ifdef __cplusplus
 extern "C" {
@@ -186,11 +142,7 @@ extern int COATTR(const char *portName, int poLen, const char *attrName, int naL
 }
 #endif
 
-#ifdef CO_t3e
-typedef short int32;
-#else
 typedef int int32;
-#endif
 
 /**** All commands return an exit code: =0 ok, =1 error ****/
 /* Startup : read connectivity parameters but do NOT connect
@@ -536,15 +488,6 @@ static int coGetParaSli(float *min, float *max, float *val)
 }
 
 /* Fortran API */
-#ifdef CO_t3e
-int COGPSL(_fcd name, float *min, float *max, float *val)
-{
-    if (coSendFTN(GET_SLI_PARA, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaSli(min, max, val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPSL(char *name, int length, float *min, float *max, float *val)
 #else
@@ -555,7 +498,6 @@ int COGPSL(char *name, float *min, float *max, float *val, int length)
         return -1;
     return coGetParaSli(min, max, val);
 }
-#endif
 
 /* C API */
 int coGetParaSlider(const char *name, float *min, float *max, float *val)
@@ -587,15 +529,6 @@ static int coGetParaScaFlo(float *val)
 }
 
 /* Fortran API */
-#ifdef CO_t3e
-int COGPFL(_fcd name, float *val)
-{
-    if (coSendFTN(GET_SC_PARA_FLO, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaScaFlo(val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPFL(char *name, int length, float *val)
 #else
@@ -608,7 +541,6 @@ int COGPFL(char *name, float *val, int length)
     }
     return coGetParaScaFlo(val);
 }
-#endif
 
 int coGetParaFloatScalar(const char *name, float *val)
 {
@@ -640,15 +572,6 @@ static int coGetParaVecFlo(float *val)
 }
 
 /* Fortran API */
-#ifdef CO_t3e
-int COGVFL(_fcd name, float *val)
-{
-    if (coSendFTN(GET_V3_PARA_FLO, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaVecFlo(val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGVFL(char *name, int length, float *val)
 #else
@@ -661,7 +584,6 @@ int COGVFL(char *name, float *val, int length)
     }
     return coGetParaVecFlo(val);
 }
-#endif
 
 int coGetParaFloatVector(const char *name, float *val)
 {
@@ -691,15 +613,6 @@ static int coGetParaScaInt(int *val) /* Receive result */
 
 /* Fortran API */
 
-#ifdef CO_t3e
-int COGPIN(_fcd name, int *val)
-{
-    if (coSendFTN(GET_SC_PARA_INT, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaScaInt(val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPIN(char *name, int length, int *val)
 #else
@@ -710,7 +623,6 @@ int COGPIN(char *name, int *val, int length)
         return -1;
     return coGetParaScaInt(val);
 }
-#endif
 
 int coGetParaIntScalar(const char *name, int *val)
 {
@@ -739,15 +651,6 @@ static int coGetParaCh(int *val) /* Receive result */
 }
 
 /* Fortran API */
-#ifdef CO_t3e
-int COGPCH(_fcd name, int *val)
-{
-    if (coSendFTN(GET_CHOICE_PARA, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaCh(val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPCH(char *name, int length, int *val)
 #else
@@ -758,7 +661,6 @@ int COGPCH(char *name, int *val, int length)
         return -1;
     return coGetParaCh(val);
 }
-#endif
 
 /* C API */
 int coGetParaChoice(const char *name, int *val)
@@ -788,15 +690,6 @@ static int coGetParaBo(int *val) /* Receive result */
 }
 
 /* Fortran API */
-#ifdef CO_t3e
-int COGPBO(_fcd name, int *val)
-{
-    if (coSendFTN(GET_BOOL_PARA, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-    return coGetParaBo(val);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPBO(char *name, int length, int *val)
 #else
@@ -807,7 +700,6 @@ int COGPBO(char *name, int *val, int length)
         return -1;
     return coGetParaBo(val);
 }
-#endif
 
 /* C API */
 int coGetParaBool(const char *name, int *val)
@@ -838,25 +730,6 @@ int coGetParaText(const char *name, char *data)
     return 0;
 }
 
-#ifdef CO_t3e
-int COGPTX(_fcd name, _fcd strdata)
-{
-    char buffer[256], *data;
-    int i;
-    data = _fcdtocp(strdata);
-    if (coSendFTN(GET_TEXT_PARA, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-
-    if (recvData((void *)&buffer, 256) != 256)
-        return -1;
-
-    strcpy(data, buffer);
-    for (i = strlen(buffer); i < 256; i++) /* FORTRAN is blank padded  */
-        data[i] = ' ';
-    return 0;
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPTX(const char *name, int lenName, char *data, int lenData)
 #else
@@ -877,7 +750,6 @@ int COGPTX(const char *name, char *data, int lenName, int lenData)
         data[i] = ' ';
     return 0;
 }
-#endif
 
 /*******************************************************************************/
 
@@ -892,25 +764,6 @@ int coGetParaFile(const char *name, int *data) /* Fortran 77: COGPFI() */
     return 0;
 }
 
-#ifdef CO_t3e
-int COGOFI(_fcd name, _fcd strdata)
-{
-    char buffer[256], *data;
-    int i;
-    data = _fcdtocp(strdata);
-    if (coSendFTN(GET_FILE_PARA, _fcdtocp(name), _fcdlen(name)))
-        return -1;
-
-    if (recvData((void *)&buffer, 256) != 256)
-        return -1;
-
-    strcpy(data, buffer);
-    for (i = strlen(buffer); i < 256; i++) /* FORTRAN is blank padded  */
-        data[i] = ' ';
-    return 0;
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COGPFI(const char *name, int lenName, char *data, int lenData)
 #else
@@ -929,7 +782,6 @@ int COGPFI(const char *name, char *data, int lenName, int lenData)
         data[i] = ' ';
     return 0;
 }
-#endif
 
 /* Send an Unstructured Grid, Covise format */
 int coSendUSGcov(const char *portName,
@@ -975,15 +827,6 @@ int coSend1DataCommon(int numElem, float *data)
     return 0;
 }
 
-#ifdef CO_t3e
-int COSU1D(_fcd portName, int *numElem, float *data)
-{
-    if (coSendFTN(SEND_1DATA, _fcdtocp(portName), _fcdlen(portName)))
-        return -1;
-    return coSend1DataCommon(*numElem, data);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COSU1D(const char *portName, int length, int *numElem, float *data)
 #else
@@ -994,7 +837,7 @@ int COSU1D(const char *portName, int *numElem, float *data, int length)
         return -1;
     return coSend1DataCommon(*numElem, data);
 }
-#endif
+
 int coSend1Data(const char *portName, int numElem, float *data)
 {
     if (coSendC(SEND_1DATA, portName))
@@ -1017,15 +860,6 @@ int coSend3DataCommon(int numElem, float *data0, float *data1, float *data2)
     return 0;
 }
 
-#ifdef CO_t3e
-int COSU3D(_fcd portName, int *numElem, float *data0, float *data1, float *data2)
-{
-    if (coSendFTN(SEND_3DATA, _fcdtocp(portName), _fcdlen(portName)))
-        return -1;
-    return coSend3DataCommon(*numElem, data0, data1, data2);
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COSU3D(const char *portName, int length, int *numElem, float *data0, float *data1, float *data2)
 #else
@@ -1036,7 +870,6 @@ int COSU3D(const char *portName, int *numElem, float *data0, float *data1, float
         return -1;
     return coSend3DataCommon(*numElem, data0, data1, data2);
 }
-#endif
 
 int coSend3Data(const char *portName, int numElem, float *data0,
                 float *data1, float *data2)
@@ -1108,19 +941,6 @@ int coParallelInit(int numParts, int numPorts)
 
 /* --------------------------------------------------------------*/
 /* Declare this port as parallel output port         F77: COPAPO */
-#ifdef CO_t3e
-int COPAPO(_fcd portName, const int *isCellData)
-{
-    int32 data = *isCellData;
-    if (coSendFTN(PARA_PORT, _fcdtocp(portName), _fcdlen(portName)))
-        return -1;
-    if (sendData((void *)&data, sizeof(data)) != sizeof(data))
-        return -1;
-    else
-        return 0;
-}
-
-#else
 #ifdef MIXED_STR_LEN
 int COPAPO(const char *portName, int length, const int *isCellData)
 #else
@@ -1136,7 +956,6 @@ int COPAPO(const char *portName, const int *isCellData, int length)
     else
         return 0;
 }
-#endif
 
 int coParallelPort(const char *portName, int isCellData)
 {
@@ -1332,21 +1151,6 @@ int coAttach(void)
 
 /* --------------------------------------------------------------*/
 /* Attach attribute to object at port                            */
-#ifdef CO_t3e
-int COATTR(_fcd pn, _fcd an, _fcd av)
-{
-    char buf[1024], *bPtr;
-    int32 i;
-
-    const char *portName = _fcdtocp(pn);
-    int poLen = _fcdlen(pn);
-    const char *attrName = _fcdtocp(an);
-    int naLen = _fcdlen(an);
-    const char *attrVal = _fcdtocp(av);
-    int vaLen = _fcdlen(av);
-
-#else
-
 #ifdef MIXED_STR_LEN
 int COATTR(const char *portName, int poLen,
            const char *attrName, int naLen,
@@ -1358,7 +1162,6 @@ int COATTR(const char *portName, const char *attrName, const char *attrVal,
 {
     char buf[1024];
     int32 i;
-#endif
 
     if (coSendFTN(ATTRIBUTE, portName, poLen))
         return -1;
@@ -1730,7 +1533,7 @@ static int acceptServer(float wait)
     fd_set fdread;
     int i;
     struct sockaddr_in s_addr_in;
-#if !(defined(WIN32) || defined(WIN64) || defined(_SX))
+#if !(defined(WIN32) || defined(WIN64)
     socklen_t length;
 #else
     unsigned int length;

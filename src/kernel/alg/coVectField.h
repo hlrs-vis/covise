@@ -10,9 +10,7 @@
 #include <do/coDoData.h>
 #include <do/coDoLines.h>
 
-#ifndef YAC
 #include "coColors.h"
-#endif
 
 #define S_U 1
 #define S_V 2
@@ -141,7 +139,6 @@ public:
     }
 };
 
-#ifndef YAC
 class ALGEXPORT coDistrVectField
 {
 public:
@@ -175,5 +172,4 @@ private:
     float _angle;
     int _project_lines;
 };
-#endif
 }

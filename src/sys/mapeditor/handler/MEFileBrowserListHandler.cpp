@@ -49,36 +49,3 @@ void MEFileBrowserListHandler::removeFileBrowser(MEFileBrowser *fb)
 {
     browserList.remove(browserList.indexOf(fb));
 }
-
-#ifdef YAC
-//------------------------------------------------------------------------
-// add host to all browser
-//------------------------------------------------------------------------
-void MEFileBrowserListHandler::addHostToBrowser(MEHost *host)
-{
-    foreach (MEFileBrowser *nptr, browserList)
-        nptr->addHost(host);
-}
-
-//------------------------------------------------------------------------
-// delete host from all browser
-//------------------------------------------------------------------------
-void MEFileBrowserListHandler::removeHostFromBrowser(MEHost *host)
-{
-    foreach (MEFileBrowser *nptr, browserList)
-        nptr->removeHost(host);
-}
-
-//------------------------------------------------------------------------
-// get the file browser record for a given number
-//------------------------------------------------------------------------
-MEFileBrowser *MEFileBrowserListHandler::getBrowserByID(int id)
-{
-    foreach (MEFileBrowser *nptr, browserList)
-    {
-        if (nptr->getIdent() == id)
-            return (nptr);
-    }
-    return (NULL);
-}
-#endif

@@ -15,13 +15,8 @@
 using namespace covise;
 #include <api/coSimpleModule.h>
 
-#ifndef YAC
 class ReadCasts : public coSimpleModule
 {
-#else
-class ReadCasts : public coFunctionModule
-{
-#endif
     COMODULE
 public:
     ReadCasts(int argc, char *argv[]);

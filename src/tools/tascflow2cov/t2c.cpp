@@ -33,37 +33,6 @@
 
 /// Mapping Fortran identifiers to "C" standard
 
-#ifdef CO_hp1020
-#define rread_ rread
-#define nexts_ nexts
-#define scalar_ scalar
-#define blocko_ blocko
-#define nxtr_ nxtr
-#define dims_ dims
-#define file_ file
-#define rinit_ rinit
-#define rclose_ rclose
-#define ngbl_ ngbl
-#define subreg_ subreg
-#define region_ region
-#endif
-
-#ifdef CO_hp
-#define rread_ rread
-#define nexts_ nexts
-#define scalar_ scalar
-#define blocko_ blocko
-#define nxtr_ nxtr
-#define dims_ dims
-#define gnum_ gnum
-#define file_ file
-#define rinit_ rinit
-#define rclose_ rclose
-#define ngbl_ ngbl
-#define subreg_ subreg
-#define region_ region
-#endif
-
 extern "C" {
 
 void dims_(int *, int *, int *, int *, char *, int *, int);

@@ -20,9 +20,6 @@
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
-#ifdef _AIX
-int kill(pid_t pid, int sig);
-#endif
 
 /***********************************************************************\ 
  **                                                                     **
@@ -214,9 +211,6 @@ public:
 
 class DMGREXPORT DataManagerProcess : public OrdinaryProcess
 {
-#ifdef CRAY
-    friend class ApplicationProcess;
-#endif
     friend void ObjectEntry::pack_and_send_object(Message *, DataManagerProcess *);
     const ServerConnection *transfermanager = nullptr; // Connection to the transfermanager
     const Connection *tmpconn = nullptr; // tmpconn for intermediate use
@@ -239,15 +233,7 @@ public:
         print_comment(__LINE__, __FILE__, "Anfang von ~DataManagerProcess");
         /*while(no_of_pids > 0 && sleep_count < 500)
          {
-#if defined(__hpux)
-            struct timeval timeout;
-            timeout.tv_sec = 0;
-            timeout.tv_usec = 50;
-
-            select(0, 0, 0, 0, &timeout);
-#else
             select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout);
-#endif
             sleep_count++;
          }*/
         //cout << "sleep_count: " << sleep_count << endl;

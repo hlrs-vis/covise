@@ -20,9 +20,7 @@
  ** Date:  18.10.2010                                                      **
 \**************************************************************************/
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 #include <api/coSimLibComm.h>
 #include <api/coSimLib.h>
 #include <stdlib.h>
@@ -95,9 +93,5 @@ public:
     virtual ~OpenFoam()
     {
     }
-
-#ifdef YAC
-    virtual void paramChanged(coParam *param);
-#endif
 };
 #endif // _READSTAR_H

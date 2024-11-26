@@ -143,7 +143,7 @@ WINCOMPATINLINE int gettimeofday(struct timeval *tv, struct timezone *tz)
 #include <sys/time.h>
 #endif /* _WIN32 or _WIN64 */
 
-#if defined(_WIN32) || defined(__hpux)
+#if defined(_WIN32)
 WINCOMPATINLINE char *strtok_r(char *s1, const char *s2, char **lasts)
 {
     char *ret;

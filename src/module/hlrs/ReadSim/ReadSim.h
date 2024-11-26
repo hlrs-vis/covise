@@ -8,10 +8,8 @@
 #ifndef _READSIM_H
 #define _READSIM_H
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
 using namespace covise;
-#endif
 #include <api/coSimLib.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -70,9 +68,5 @@ public:
     virtual ~ReadSim()
     {
     }
-
-#ifdef YAC
-    virtual void paramChanged(coParam *param);
-#endif
 };
 #endif // _READSIM_H

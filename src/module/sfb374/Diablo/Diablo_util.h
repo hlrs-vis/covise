@@ -9,7 +9,6 @@
 
 // some fortran definitions
 
-#ifdef _SGI
 extern "C" {
 void dif1dim_(char[], double[][5500], int *, int *, double *, double *,
               double *, int *, int *, double *,
@@ -48,47 +47,6 @@ void wrtver_(int *, int *, double[], int *, double *, double *,
                    CCRESM, TAC3, TAUA3X, TAUAC3, TSCHM, TAUMS, NOMAX,
                    NTAUMAX, TEMPARR, ERRFLG)                      */
 }
-#endif
-#ifdef _CRAY
-extern "C" {
-void DIF1DIM(char[], double[][5500], int *, int *, double *, double *,
-             double *, int *, int *, double *,
-             double *, double *, double[], int *, int *, int);
-void HARD(double[][5500], double[], int *, int *, int *, double *,
-          double *, double *, int *, int *, int *,
-          double *, int *, double *, int *, double *, int *);
-/*     HARD    (H, TSCHM, TX, CCMAX, CCRESM, CCRESZ, DTRESZ,
-                   DTMAXZ, EXEMOD, CCDEF, FMESH, ERRFLG)	       */
-void PREP(char[], char[], int[], double[], double[], double[], int *, int *,
-          double[], int *, int *, double[][5500], int *, int, int);
-/*     PREP    (NODEID, XND, YND, ZND, NNODES, NNDMAX,
-                   TAU, NTAU, NTMAX, TEMPARR, ERRFLG)             */
-void RDABK(double[], double *, double *, int *);
-/*     RDABK   (DT, TSCHM, TX, ERRFLG)                         */
-void RDC1dd(double[], double *, double *, int *, int *);
-/*     rdc1dd  (CC, CCMIN, CCMAX, FMESH, ERRFLG)               */
-void RDCOUT(double[], double *, double *, int *, int *, int *);
-/*     RDCOUT  (CC, CCMIN, CCMAX, NND, NNDMAX, ERRFLG)         */
-void RDDK(int *);
-/*     RDDK    (ERRFLG)                                        */
-void RDMART(char[], double *, int *, double *, double *, int *, int);
-/*     RDMART  (MFILE, CCMAX, CCRESM, TSCHM, DTMAX, ERRFLG)    */
-void RDZTA(char[], double *, int *, int);
-/*     RDZTA   (AFILE, TSCHM, ERRFLG)                          */
-void RDZW(char[], double *, int *, double *, int *, int *, int);
-/*     RDZW    (ZFILE, CCMAX, CCRESZ, DTMAX, DTRESZ, ERRFLG)   */
-void WRFIIN(double *, double *, int *, int *, double *, double *,
-            double *, int *);
-/*     WRFIIN  (LKORN, FMIKRO, FMESH, NSTEPS, TAU1, TAU2,
-                   TEMP1, ERRFLG)                                 */
-void WRTVER(int *, int *, double[], int *, double *, double *,
-            int *, double *, double *, double *, double *, double *, int *,
-            int *, double[][5500], int *);
-/*     WRTVER  (NODENO, NNODES, TAU, NTAU, CCNODE, CCMAX,
-                   CCRESM, TAC3, TauA3x, TAUAC3, TSCHM, TAUMS, NOMAX,
-                   NTAUMAX, TEMPARR, ERRFLG)                      */
-}
-#endif
 
 // Hilfsproceduren
 void fsearch(FILE *fp, char *str)

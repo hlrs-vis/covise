@@ -1569,29 +1569,6 @@ void MEUserInterface::showColorMap(bool state)
     }
 }
 
-//!
-//! show the registry
-//!
-void MEUserInterface::showRegistry(bool state)
-{
-    if (state)
-    {
-        if (m_tabWidgets->indexOf(MERegistry::instance()) == -1)
-        {
-            m_tabWidgets->addTab(MERegistry::instance(), "Registry");
-            m_tabWidgets->setTabToolTip(m_tabWidgets->indexOf(MERegistry::instance()), "Have a look into the registry");
-        }
-
-        m_tabWidgets->setCurrentWidget(MERegistry::instance());
-    }
-
-    else
-    {
-        if (m_tabWidgets->indexOf(MERegistry::instance()) != -1)
-            m_tabWidgets->removeTab(m_tabWidgets->indexOf(MERegistry::instance()));
-    }
-}
-
 void MEUserInterface::clearOpenAutosaveMenu()
 {
     m_openAutosaveMenu->clear();

@@ -16,11 +16,9 @@
 #define MULTICAST
 
 #ifndef _WIN32
-#ifndef _SX
 extern "C" {
 #include <netinet/in.h>
 }
-#endif
 #include <netdb.h>
 #endif
 
@@ -74,14 +72,9 @@ extern "C" {
 
 const char DF_NONE = 0;
 const char DF_IEEE = 1;
-const char DF_CRAY = 2;
 const int COVISE_SOCKET_INVALID = -2;
 
-#if defined(CRAY) && !defined(_WIN32)
-const char df_local_machine = DF_CRAY;
-#else
 const char df_local_machine = DF_IEEE;
-#endif
 
 class FirewallConfig
 {
@@ -146,9 +139,6 @@ public:
     int setNonBlocking(bool on);
     //int read_non_blocking(void *buf, unsigned nbyte);
     virtual int write(const void *buf, unsigned nbyte);
-#ifdef CRAY
-    int writea(const void *buf, unsigned nbyte);
-#endif
     int get_id()
     {
         return sock_id;

@@ -73,13 +73,8 @@ int info29(const char *filename)
                file29.headerBlock[i - 1] - 1, file29.getRealTime(i), file29.getNumDrops(i));
     }
 
-#ifdef __sgi
-    struct stat64 filestat;
-    fstat64(fd29, &filestat);
-#else
     struct stat filestat;
     fstat(fd29, &filestat);
-#endif
     long numBlk = filestat.st_size / 8192;
 
     if (numBlk == file29.headerBlock[i - 1])

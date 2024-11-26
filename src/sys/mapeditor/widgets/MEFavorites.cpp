@@ -61,17 +61,7 @@ QString MEFavorites::getModuleName()
 //------------------------------------------------------------------------
 QString MEFavorites::getStartText()
 {
-#ifdef YAC
-    MEHost *h = MEHostListHandler::instance()->getFirstHost();
-    int hostid = -1;
-    if (h)
-    {
-        hostid = h->getID();
-    }
-    QString text = QString::number(hostid);
-#else
     QString text = MEHostListHandler::instance()->getIPAddress(MEMainHandler::instance()->localHost);
-#endif
 
     text.append(":" + MEMainHandler::instance()->localUser + ":" + m_category + ":" + m_label);
 

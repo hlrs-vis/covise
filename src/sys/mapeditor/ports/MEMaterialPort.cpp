@@ -91,14 +91,6 @@ void MEMaterialPort::moduleParameterRequest()
 //!-------------------------------------------------------------------------
 void MEMaterialPort::defineParam(QString value, int apptype)
 {
-
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     // define a material
     QStringList list = value.split(' ', SplitBehaviorFlags::SkipEmptyParts);
 
@@ -107,7 +99,6 @@ void MEMaterialPort::defineParam(QString value, int apptype)
         m_values.append(list[j].toFloat());
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //!-------------------------------------------------------------------------
@@ -125,12 +116,6 @@ void MEMaterialPort::modifyParam(QStringList list, int noOfValues, int istart)
 //!-------------------------------------------------------------------------
 void MEMaterialPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     QStringList list = lvalue.split(' ', SplitBehaviorFlags::SkipEmptyParts);
     m_name = list[0];
 
@@ -141,8 +126,6 @@ void MEMaterialPort::modifyParameter(QString lvalue)
     showMaterial();
     if (m_chooser)
         m_chooser->setMaterial(m_values);
-
-#endif
 }
 
 void MEMaterialPort::sendParamMessage()
@@ -386,9 +369,3 @@ void MEMaterialPort::materialChanged(const QVector<float> &data)
     m_values.clear();
     m_values = data;
 }
-
-#ifdef YAC
-void MEMaterialPort::setValues(covise::coRecvBuffer &)
-{
-}
-#endif

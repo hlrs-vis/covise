@@ -28,9 +28,7 @@
 #include <pwd.h>
 #endif
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 #include "CFX.h"
 
 #include <string>
@@ -62,9 +60,7 @@ CFX::CFX(int argc, char *argv[])
     cerr << "#####   PID =  " << getpid() << endl;
     cerr << "##############################" << endl;
 #endif
-#ifndef YAC
     set_module_description("CFX Simulation");
-#endif
 #ifndef WIN32
     uid_t myuid;
     struct passwd *mypwd;
@@ -1174,9 +1170,7 @@ int CFX::compute(const char *port)
 
     } //if stepNo == 1
 
-#ifndef YAC
     executeCommands();
-#endif
     Covise::sendInfo("complete run of compute: %6.3f s\n", ww_.elapsed());
     return SUCCESS;
 }
@@ -1424,13 +1418,5 @@ int CFX::endIteration()
 
     return 1;
 }
-
-#ifdef YAC
-void CFX::paramChanged(coParam *param)
-{
-
-    (void)param;
-}
-#endif
 
 MODULE_MAIN(Simulation, CFX)

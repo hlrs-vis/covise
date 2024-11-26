@@ -6,9 +6,6 @@
  * License: LGPL 2+ */
 
 #include "coTypes.h"
-#ifdef __alpha
-#include "externc_alpha.h"
-#endif
 
 #include "covise_connect.h"
 
@@ -48,11 +45,6 @@
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-
-#if defined __sgi || defined __hpux || defined _AIX
-#include <strings.h>
-#endif
-
 #undef SHOWMSG
 #undef DEBUG
 
@@ -546,18 +538,6 @@ int Connection::send_msg(const Message* msg)
 #ifdef SHOWMSG
 	LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], data.length());
 #endif
-#ifdef CRAY
-	int tmp_buf[4];
-	tmp_buf[0] = sender_id;
-	tmp_buf[1] = send_type;
-	tmp_buf[2] = msg->type;
-	tmp_buf[3] = msg->data.length();
-#ifdef _CRAYT3E
-	converter.int_array_to_exch(tmp_buf, write_buf, 4);
-#else
-	conv_array_int_c8i4(tmp_buf, (int*)write_buf, 4, START_EVEN);
-#endif
-#else
 	//Compose COVISE header
 	write_buf_int = (int*)write_buf;
 	write_buf_int[0] = sender_id;
@@ -565,7 +545,6 @@ int Connection::send_msg(const Message* msg)
 	write_buf_int[2] = msg->type;
 	write_buf_int[3] = msg->data.length();
 	swap_bytes((unsigned int*)write_buf_int, 4);
-#endif
 
 	if (msg->data.length() == 0)
 		retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT);
@@ -596,15 +575,10 @@ int Connection::send_msg(const Message* msg)
 #endif
 			//Send first packet of size WRITE_BUFFER_SIZE
 			retval = sock->write(write_buf, WRITE_BUFFER_SIZE);
-#ifdef CRAY
-			tmp_bytes_written = sock->writea(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
-#else
 			// Send next packet with remaining data. Thnis code assumes that an overall
 			// message size does never exceed 2x WRITE_BUFFER_SIZE.
 			tmp_bytes_written = sock->write(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
 				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
-#endif
 			// Check if the socket was invalidated while transmitting multiple packets.
 			// Otherwise returned the summed-up amount of bytes as return value
 			if (tmp_bytes_written == COVISE_SOCKET_INVALID)
@@ -804,9 +778,6 @@ int Connection::recv_msg(Message* msg, char* ip)
 #ifdef SHOWMSG
 	char tmp_str[255];
 #endif
-#ifdef CRAY
-	int tmp_buf[4];
-#endif
 
 	msg->sender = 0;
 	msg->data.setLength(0);
@@ -881,18 +852,6 @@ int Connection::recv_msg(Message* msg, char* ip)
 		LOGINFO("read_buf: %d %d %d %d", int_read_buf[0], int_read_buf[1], int_read_buf[2], int_read_buf[3]);
 #endif
 
-#ifdef CRAY
-#ifdef _CRAYT3E
-		converter.exch_to_int_array(read_buf_ptr, tmp_buf, 4);
-		//	conv_array_int_i4t8(int_read_buf, tmp_buf, 4, START_EVEN);
-#else
-		conv_array_int_i4c8(int_read_buf, tmp_buf, 4, START_EVEN);
-#endif
-		msg->sender = tmp_buf[0];
-		msg->send_type = int(tmp_buf[1]);
-		msg->type = covise_msg_type(tmp_buf[2]);
-		msg->data.setLength(tmp_buf[3]);
-#else
 #ifdef BYTESWAP
 		swap_bytes((unsigned int*)int_read_buf, 4);
 #endif
@@ -903,7 +862,6 @@ int Connection::recv_msg(Message* msg, char* ip)
 		//	sprintf(retstr, "msg header: sender %d, sender_type %d, covise_msg_type %d, length %d",
 		//	        msg->sender, msg->send_type, msg->type, msg->data.length());
 		//	        LOGINFO( retstr);
-#endif
 
 #ifdef SHOWMSG
 		sprintf(tmp_str, "recv: s: %d st: %d mt: %s l: %d",

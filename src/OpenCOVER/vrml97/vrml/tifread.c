@@ -12,11 +12,7 @@
 
 #define _XOPEN_SOURCE
 
-#ifdef __sgi
-/* sgi uses ifl */
-#else
 #define HAVE_LIBTIF 1
-#endif
 #include "tifread.h"
 #ifdef HAVE_LIBTIF
 #include <stdio.h>

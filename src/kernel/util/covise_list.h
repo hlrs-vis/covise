@@ -91,9 +91,6 @@ public:
     ~List();
     void add(T *d); // add new element
     void remove(T *d); // remove element
-#if defined(__hpux) || defined(_SX)
-    T *next();
-#else
     T *next()
     {
         if (iter == NULL)
@@ -103,7 +100,6 @@ public:
         iter = iter->next;
         return tmpptr->data;
     }; // get next element (increments iter)
-#endif
 
     T *current()
     {
@@ -163,20 +159,6 @@ public:
         return mElemCount;
     };
 };
-
-#if defined(__hpux) || defined(_SX)
-template <class T>
-inline T *List<T>::next()
-{
-    if (iter == NULL)
-        return NULL;
-
-    ListElement<T> *tmpptr;
-    tmpptr = iter;
-    iter = iter->next;
-    return tmpptr->data;
-}
-#endif
 
 template <class T>
 inline void List<T>::add(T *d)

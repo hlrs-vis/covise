@@ -17,15 +17,8 @@
 #include <windows.h>
 #else
 #include <sys/socket.h>
-#ifndef _SX
-extern "C" {
 #include <netinet/in.h>
-}
 
-#else
-#include <sys/socket.h>
-#include <sys/select.h>
-#endif
 #include <netdb.h>
 #endif
 #include <string.h>
@@ -35,7 +28,7 @@ extern "C" {
 #ifdef MULTICAST
 #include <iostream>
 #include <stdio.h>
-#if !defined _WIN32 && !defined __GNUC__ && !defined __hpux && !defined __sun
+#if !defined _WIN32 && !defined __GNUC__
 #include <bstring.h>
 #include <unistd.h>
 #endif
@@ -94,14 +87,9 @@ extern "C" {
 
 const char DF_NONE = 0;
 const char DF_IEEE = 1;
-const char DF_CRAY = 2;
 const int COVISE_SOCKET_INVALID = -2;
 
-#if defined(CRAY) && !defined(_WIN32)
-const char df_local_machine = DF_CRAY;
-#else
 const char df_local_machine = DF_IEEE;
-#endif
 
 class ServerConnection;
 
@@ -145,9 +133,6 @@ public:
     int Read(void *buf, unsigned nbyte); // does not exit when read failes but returns -1
     int read_non_blocking(void *buf, unsigned nbyte);
     virtual int write(const void *buf, unsigned nbyte);
-#ifdef CRAY
-    int writea(const void *buf, unsigned nbyte);
-#endif
     int get_id()
     {
         return sock_id;

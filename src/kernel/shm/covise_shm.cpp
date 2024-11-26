@@ -40,12 +40,6 @@ static bool use_posix = true;
 #endif
 #endif
 
-#if defined(__alpha) || defined(_AIX)
-extern "C" {
-extern unsigned int sleep(unsigned int);
-}
-#endif
-
 #undef DEBUG
 
 /***********************************************************************\
@@ -208,10 +202,6 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     next = (SharedMemory *)0L;
     shmstate = invalid;
     global_seq_no++;
-#ifdef CRAY
-    print_comment(__LINE__, __FILE__, "no shared memory available");
-    print_exit(__LINE__, __FILE__, 1);
-#else
     key = shm_key;
     tmp_perm = PERMS;
     print_comment(__LINE__, __FILE__, "PERMS = %d", tmp_perm);
@@ -357,7 +347,6 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     {
         (*shmC)(key, size, data);
     }
-#endif
     //   fprintf(stderr,"Proc(%ld) SharedMemory::SharedMemory attach[%d]: KEY=%x, SEGSZ=%d, noDelete=%d\n",
     //                    getpid(), global_seq_no, shm_key,shm_size,nD);
 }
@@ -376,19 +365,6 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     shmstate = invalid;
     seq_no = ++global_seq_no;
     key = *shm_key;
-#ifdef CRAY
-    shmstate = attached;
-    data = new char[size];
-    if (data == 0L)
-    {
-        print_comment(__LINE__, __FILE__, "malloc returns null");
-        print_exit(__LINE__, __FILE__, 1);
-    }
-#ifdef DEBUG
-    sprintf(tmp_str, "new SharedMemory with %d bytes", size);
-    print_comment(__LINE__, __FILE__, tmp_str);
-#endif
-#else
     if (key == 0)
     {
         shmlist->reset();
@@ -412,11 +388,6 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
                 cerr << "The administratur can change the maximal shared memory\n"
                      << "size of the system by setting the kernel variable\n"
                      << "kernel.shmmax with the 'sysctl' command without reboot.\n"
-                     << endl;
-#elif __sgi
-                cerr << "The administratur can change the maximal shared memory\n"
-                     << "size of the system by setting the kernel variable\n"
-                     << "shmmax with the 'systune' command and rebooting.\n"
                      << endl;
 #endif
                 print_exit(__LINE__, __FILE__, 1);
@@ -582,7 +553,6 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
 		print_exit(__LINE__, __FILE__, 1);
 	}
 #endif
-#endif
     *(int *)data = seq_no;
     *(int *)(&data[sizeof(int)]) = key;
 
@@ -614,10 +584,6 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
 
 SharedMemory::~SharedMemory()
 {
-#ifdef CRAY
-    print_comment(__LINE__, __FILE__, "in ~SharedMemory");
-    delete[] data;
-#else
     SharedMemory *ptr;
 #ifdef SHARED_MEMORY
 #ifdef SYSV_SHMEM
@@ -768,27 +734,10 @@ SharedMemory::~SharedMemory()
     shmlist->reset();
     ptr = shmlist->next();
     delete ptr;
-#endif
 }
-
-#if defined(__hpux) || defined(_SX)
-void *SharedMemory::get_pointer(int no)
-{
-    if (SharedMemory::shmlist)
-    {
-        return &(shm_array[no - 1]->data[2 * sizeof(int)]);
-    }
-    print_comment(__LINE__, __FILE__, "getting pointer: 0x0");
-    return (void *)0L;
-}
-#endif
 
 int SharedMemory::detach()
 {
-#ifdef CRAY
-    shmstate = detached;
-    return 1;
-#else
 #ifdef SHARED_MEMORY
 #ifdef SYSV_SHMEM
     if (!use_posix)
@@ -835,7 +784,6 @@ int SharedMemory::detach()
         CloseHandle(handle);
     return (1);
 #endif
-#endif
     return 0;
 }
 
@@ -862,7 +810,7 @@ void SharedMemory::get_shmlist(int *ptr)
 
 void *Malloc_tmp::large_new(long size)
 {
-#if defined(CRAY) || defined(_WIN32) || defined(_SX)
+#if defined(_WIN32)
     return new char[size];
 #else
     MMapEntry *mapentry;
@@ -879,7 +827,7 @@ void *Malloc_tmp::large_new(long size)
 
 void Malloc_tmp::large_delete(void *ptr)
 {
-#if defined(CRAY) || defined(_WIN32) || defined(_SX)
+#if defined(_WIN32)
     delete[](char *)ptr;
 #else
     MMapEntry *tmpptr;

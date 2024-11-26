@@ -33,12 +33,6 @@ using std::flush;
 #include "HeadFind.h"
 #endif
 
-#ifdef __sgi
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <sys/prctl.h>
-#endif
-
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginList.h>
@@ -84,8 +78,6 @@ float staticViewerZ = 0.0;
 
 #if defined(__linux__)
 #define DEFAULTSERIAL "/dev/ttyS0"
-#elif defined(__sgi)
-#define DEFAULTSERIAL "/dev/ttyd2"
 #elif defined(_WIN32)
 #define DEFAULTSERIAL "COM1"
 #else
@@ -1044,9 +1036,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
 
             cout << "INFO: PINCH button server forked" << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
 #endif
         pinchfd = openPinch(buttonDevice, 9600);
@@ -1104,9 +1093,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
 
             cout << "INFO: Virtual Presence button server forked" << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
             if (!Init(buttonDevice, 9600))
             {
@@ -1173,9 +1159,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
 
             cout << "INFO: Cyberstick button server forked" << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
             if (!Init(buttonDevice, 9600))
             {
@@ -1223,9 +1206,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
 
             cout << "INFO: HORNET button server forked" << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
             if (!Init(buttonDevice, 19200))
             {
@@ -1289,9 +1269,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
 
             cout << "INFO: MIKE button server forked" << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
             if (!Init(buttonDevice, 9600))
             {
@@ -1343,9 +1320,6 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
             cout << "INFO: CEREAL button server forked"
                  << ", pid=" << getpid() << endl;
 
-#ifdef __sgi
-            prctl(PR_TERMCHILD); // Exit when parent does
-#endif
             signal(SIGHUP, SIG_DFL); // Exit when sent SIGHUP by TERMCHILD
 
             // ---- AWe: read config file for CEREAL box configuration -----

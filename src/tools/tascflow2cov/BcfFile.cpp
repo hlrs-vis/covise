@@ -10,16 +10,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef CO_hp1020
-
-#define dims_ dims
-#define gnum_ gnum
-#endif
-#ifdef CO_hp
-
-#define dims_ dims
-#define gnum_ gnum
-#endif
 extern "C" {
 
 void dims_(int *, int *, int *, int *, char *, int *, int);

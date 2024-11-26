@@ -32,12 +32,6 @@ using namespace covise;
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-#ifdef __hpux
-#define fmain_ FMAIN
-#define readbeta_ READBETA
-#define timeadv_ TIMEADV
-#define mmain_ MMAIN
-#endif
 extern int computeit;
 
 extern char *filename;

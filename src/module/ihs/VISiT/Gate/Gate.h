@@ -19,10 +19,6 @@ class Gate : public coSimpleModule
 
       // Gate.cpp
 
-#ifdef YAC
-      virtual void paramChanged(coParam *param);
-#endif
-
       virtual int   compute(const char *port);
       virtual void  param(const char *, bool inMapLoading);
       virtual void  postInst();
@@ -37,11 +33,7 @@ class Gate : public coSimpleModule
       virtual void  Struct2CtrlPanel(void);
       virtual void  CtrlPanel2Struct(void);
       int CheckUserInput(const char *portname, struct geometry *g);
-#ifndef YAC
       coDistributedObject *GenerateNormals(int part, coDoPolygons *poly, const char *out_name);
-#else
-      coDistributedObject *GenerateNormals(int part, coDoPolygons *poly, coObjInfo out_name);
-#endif
 
       // in ModLib.cpp
       virtual int   CheckUserFloatValue(coFloatParam *f, float old, float min, float max, float *dest);
@@ -49,11 +41,7 @@ class Gate : public coSimpleModule
       virtual int   CheckUserFloatSliderValue(coFloatSliderParam *f, float old, float min, float max, float *dest);
       virtual int   CheckUserIntValue(coIntScalarParam *f, int old, int min, int max, int *dest);
       virtual int   SplitPortname(const char *portname, char *name, int *index);
-#ifndef YAC
       virtual void  quit();
-#else
-      virtual int  quit();
-#endif
 
       coOutputPort   *grid;
 

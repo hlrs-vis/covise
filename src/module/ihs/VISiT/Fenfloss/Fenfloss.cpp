@@ -74,9 +74,7 @@ Fenfloss::Fenfloss(int  argc,  char  *argv[])
 	cerr << "#####   PID =  " << getpid()   << endl;
 	cerr << "##############################" << endl;
 #endif
-#ifndef YAC
 	set_module_description("Fenfloss Simulation");
-#endif
 	SetDebugPath(coCoviseConfig::getEntry("Module.IHS.DebPath").c_str(),getenv(ENV_IHS_DEBPATH));
 /*
 	SetDebugLevel(0);
@@ -648,9 +646,7 @@ int Fenfloss::compute(const char *)
       }
    } /* endif(stepno < 0) */
 
-#ifndef YAC
    executeCommands();
-#endif
 
    numbc = 0;
    
@@ -755,7 +751,6 @@ int Fenfloss::compute(const char *)
       poly_out->addAttribute("COLOR","red");
       p_out_bcin->setCurrentObject(poly_out);
    }
-#ifndef YAC
    coFeedback feedback("FenflossPlugin");
    feedback.addPara(p_updateInterval);
    feedback.addPara(p_pauseSim);
@@ -765,7 +760,6 @@ int Fenfloss::compute(const char *)
    feedback.addPara(p_stopSim);
    if (poly_in)
       feedback.apply(poly_out);
-#endif
 
    // Flow knows now, that it has to send new simulation data
    if (p_GetSimData->getValue())
@@ -810,18 +804,10 @@ void Fenfloss::StopSimulation(void)
 	if (stopshell) free(stopshell);
 }
 
-#ifndef YAC
 void Fenfloss::quit()
 {
 	StopSimulation();
 }
-#else
-int Fenfloss::quit()
-{
-	StopSimulation();
-        return 0;
-}
-#endif
 
 void Fenfloss::PrepareSimStart(int numProc)
 {
@@ -948,13 +934,5 @@ bool Fenfloss::findAttribute(coDistributedObject *obj, const char *name, const c
 
    return false;
 }
-
-#ifdef YAC
-void Fenfloss::paramChanged(coParam *param) {
-
-   this->param(param->getName(), false);
-}
-#endif
-
 
 MODULE_MAIN(VISiT, Fenfloss)

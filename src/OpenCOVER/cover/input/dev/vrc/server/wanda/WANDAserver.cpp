@@ -25,9 +25,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/ioctl.h>
-#if !defined(__hpux)
 #include <sys/prctl.h>
-#endif
 
 #endif
 
@@ -113,10 +111,8 @@ int main(int argc, char *argv[])
 #endif
     signal(SIGTERM, sigHandler);
 #ifndef __linux__
-#ifndef __hpux
 #ifndef WIN32
     prctl(PR_TERMCHILD); // Exit when parent does
-#endif
 #endif
 #else
     prctl(PR_SET_PDEATHSIG, SIGTERM);

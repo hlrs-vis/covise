@@ -6,9 +6,6 @@
  * License: LGPL 2+ */
 
 #include <covise/covise.h>
-#ifdef _AIX
-#include <grp.h>
-#endif
 
 #include "coDoSet.h"
 #include <covise/covise_appproc.h>

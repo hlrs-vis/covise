@@ -34,7 +34,7 @@
 
 #include <covise/covise_process.h>
 
-#if defined(__ia64) || defined(__FreeBSD__)
+#if defined(__FreeBSD__)
 extern char **environ;
 #endif
 
@@ -915,12 +915,6 @@ int coSimLib::setUserArg(int num, const char *data)
 ////////////////////////////////////////////////////////////////////////
 
 ///// Nameserver request
-
-#ifdef _CRAY
-#define CONV (char *)
-#else
-#define CONV
-#endif
 
 uint32_t coSimLib::nslookup(const char *name)
 {

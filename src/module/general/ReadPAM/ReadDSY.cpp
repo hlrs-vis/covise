@@ -6,8 +6,6 @@
  * License: LGPL 2+ */
 
 
-#define COIDENT "$Header: /vobs/covise/src/application/general/READ_PAM/ReadDSY.cpp /main/vir_main/2 18-Dec-2001.11:08:15 we_te $"
-#include <util/coIdent.h>
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
 

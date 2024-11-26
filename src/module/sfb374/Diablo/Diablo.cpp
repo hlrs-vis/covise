@@ -275,12 +275,7 @@ void Application::compute(void *)
     NDNMAX = 5500;
     ERRFLG = 0;
 
-#ifdef _SGI
     rdmart_(MARTNAME, &CCMAX, &CCRESM, &TSCHM, &DTMAX, &ERRFLG, 120);
-#endif
-#ifdef _CRAY
-    RDMART(MARTNAME, &CCMAX, &CCRESM, &TSCHM, &DTMAX, &ERRFLG, 120);
-#endif
     if (ERRFLG != 0)
     {
         strcpy(buf, "Error in File ");
@@ -292,12 +287,7 @@ void Application::compute(void *)
     {
         Covise::sendInfo("Martensitdaten eingelesen ...");
     }
-#ifdef _SGI
     rdzw_(ZWNAME, &CCMAX, &CCRESZ, &DTMAX, &DTRESZ, &ERRFLG, 120);
-#endif
-#ifdef _CRAY
-    RDZW(ZWNAME, &CCMAX, &CCRESZ, &DTMAX, &DTRESZ, &ERRFLG, 120);
-#endif
     if (ERRFLG != 0)
     {
         strcpy(buf, "Error in File ");
@@ -309,12 +299,7 @@ void Application::compute(void *)
     {
         Covise::sendInfo("Zwischengefuegedaten eingelesen ...");
     }
-#ifdef _SGI
     rdzta_(ZTANAME, &TSCHM, &ERRFLG, 120);
-#endif
-#ifdef _CRAY
-    RDZTA(ZTANAME, &TSCHM, &ERRFLG, 120);
-#endif
     if (ERRFLG != 0)
     {
         strcpy(buf, "Error in File ");
@@ -330,14 +315,8 @@ void Application::compute(void *)
     strcat(FIOUT1, "temp.FIOUT.nodes");
     strcpy(FIOUT2, DATAPATH);
     strcat(FIOUT2, "temp.FIOUT");
-#ifdef _SGI
     prep_(FIOUT1, FIOUT2, NDID, NDX, NDY, NDZ, &NDN, &NDNMAX, MVTIME, &MVN, &MVNMAX,
           &TEMPERATURES[0], &ERRFLG, 120, 120);
-#endif
-#ifdef _CRAY
-    PREP(FIOUT1, FIOUT2, NDID, NDX, NDY, NDZ, &NDN, &NDNMAX, MVTIME, &MVN, &MVNMAX,
-         &TEMPERATURES[0], &ERRFLG, 120, 120);
-#endif
     if (ERRFLG != 0)
     {
         strcpy(buf, "Error in File ");
@@ -362,16 +341,9 @@ void Application::compute(void *)
         {
             sprintf(buf, "Calculating node %d of %d", NDACT, NDN);
             Covise::sendInfo(buf);
-#ifdef _SGI
             wrtver_(&NDACT, &NDN, MVTIME, &MVN, &CCNODE, &CCMAX, &CCRESM, &TEMP1,
                     &TIME1, &TAUA3X, &TSCHM, &TIME2, &NDNMAX, &MVNMAX, TEMPERATURES,
                     &ERRFLG);
-#endif
-#ifdef _CRAY
-            WRTVER(&NDACT, &NDN, MVTIME, &MVN, &CCNODE, &CCMAX, &CCRESM, &TEMP1,
-                   &TIME1, &TAUA3X, &TSCHM, &TIME2, &NDNMAX, &MVNMAX, TEMPERATURES,
-                   &ERRFLG);
-#endif
             if (ERRFLG != 0)
             {
                 if (ERRFLG == 1)
@@ -389,22 +361,12 @@ void Application::compute(void *)
             }
             else
             {
-#ifdef _SGI
                 dif1dim_(DIFFNAME, TEMPERATURES, &MVN, &NDACT, &CCNODE, &CCMAX, &LKORN,
                          &FMESH, &NSTEPS, &TEMP1,
                          &TIME1, &TIME2, MVTIME, &EXEMOD, &ERRFLG, 120);
                 hard_(TEMPERATURES, MVTIME, &NDACT, &MVN, &NDHARD, &TSCHM, &TX, &CCMAX,
                       &CCRESM, &CCRESZ, &DTRESZ, &DTMAX, &EXEMOD, &CCNODE, &FMESH,
                       &TAUA3X, &ERRFLG);
-#endif
-#ifdef _CRAY
-                DIF1DIM(DIFFNAME, TEMPERATURES, &MVN, &NDACT, &CCNODE, &CCMAX, &LKORN,
-                        &FMESH, &NSTEPS, &TEMP1,
-                        &TIME1, &TIME2, MVTIME, &EXEMOD, &ERRFLG, 120);
-                HARD(TEMPERATURES, MVTIME, &NDACT, &MVN, &NDHARD, &TSCHM, &TX, &CCMAX,
-                     &CCRESM, &CCRESZ, &DTRESZ, &DTMAX, &EXEMOD, &CCNODE, &FMESH,
-                     &TAUA3X, &ERRFLG);
-#endif
             }
             ERRFLG = 0;
             fprintf(f, "%d %d\n", NDID[NDACT - 1], NDHARD);

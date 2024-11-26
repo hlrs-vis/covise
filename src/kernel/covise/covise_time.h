@@ -12,11 +12,7 @@
 #include <sys/types.h>
 #ifndef _WIN32
 #include <sys/time.h>
-#endif
-#ifndef __sgi
-#ifndef _WIN32
 #include <sys/times.h>
-#endif
 #endif
 
 /*
@@ -36,16 +32,10 @@ class COVISEEXPORT CoviseTime
 private:
     int size;
     int count;
-#ifdef __sgi
-    volatile unsigned *iotimer_addr;
-    struct timeval *list;
-    unsigned *counter_val;
-#else
 #ifndef _WIN32
     struct tms *user_sys;
     clock_t *list;
     struct timeval val;
-#endif
 #endif
     int *line;
     const char **text;
@@ -60,28 +50,6 @@ public:
         delete[] line;
         delete[] text;
     };
-#ifdef __sgi
-    void mark(int l, const char *t)
-    {
-        if (COVISE_time_hdl)
-        {
-            gettimeofday(&list[count], 0);
-            counter_val[count] = *iotimer_addr;
-            line[count] = l;
-            text[count++] = t;
-        }
-    };
-    void mark_fine(int l, const char *t)
-    {
-        if (COVISE_time_hdl)
-        {
-            list[count].tv_sec = 0;
-            counter_val[count] = *iotimer_addr;
-            line[count] = l;
-            text[count++] = t;
-        }
-    };
-#else
     void mark(int l, const char *t)
     {
         if (COVISE_time_hdl)
@@ -94,7 +62,6 @@ public:
         }
     };
     void init_mark(int l, const char *t);
-#endif
     void print();
 };
 }

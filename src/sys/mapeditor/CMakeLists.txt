@@ -27,7 +27,6 @@ INCLUDE_DIRECTORIES(
 SET(MAPEDITOR_SOURCES
   widgets/MEUserInterface.cpp
   widgets/MEGraphicsView.cpp
-  widgets/MERegistry.cpp
   widgets/MEPreference.cpp
   widgets/MESessionSettings.cpp
   widgets/MEHelpViewer.cpp
@@ -110,7 +109,6 @@ SET(MAPEDITOR_MOC_HEADERS
   color/MEColorMap.h
   widgets/MEUserInterface.h
   widgets/MEGraphicsView.h
-  widgets/MERegistry.h
   widgets/MEPreference.h
   widgets/MESessionSettings.h
   widgets/MEHelpViewer.h

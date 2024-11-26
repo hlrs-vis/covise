@@ -6,9 +6,7 @@
 #include <unistd.h>
 
 #include <string>
-//#ifdef __sgi
 using namespace std;
-//#endif
 
 #include <iostream>
 #include <iomanip>

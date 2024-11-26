@@ -28,10 +28,6 @@
  **                           for this task that is not available in the   **
  **                           documentation of the DSY library.            **
 \**************************************************************************/
-#ifndef _WIN32
-#define COIDENT "$Header: /vobs/covise/src/application/general/READ_PAM/ReadPAM.h /main/vir_main/1 18-Dec-2001.11:12:59 we_te $"
-#include <util/coIdent.h>
-#endif
 
 #include <api/coModule.h>
 #include "ReadDSY.h"

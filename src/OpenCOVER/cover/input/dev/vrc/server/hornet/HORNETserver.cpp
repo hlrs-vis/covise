@@ -21,9 +21,7 @@
 #include <covise/covise.h>
 #include <unistd.h>
 #include <signal.h>
-#ifndef __hpux
 #include <sys/prctl.h>
-#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/ioctl.h>
@@ -116,9 +114,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, sigHandler);
     signal(SIGHUP, sigHandler);
 #ifndef __linux__
-#ifndef __hpux
     prctl(PR_TERMCHILD); // Exit when parent does
-#endif
 #else
     prctl(PR_SET_PDEATHSIG, SIGTERM);
 #endif

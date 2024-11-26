@@ -68,21 +68,13 @@ ReadASCIIDyna::getMinMax(int level)
     return NULL;
 }
 
-//#ifdef __sgi
-//   #include <sys/dir.h>
-//#else
 #include <dirent.h>
-//#endif
 
 int
 ReadASCIIDyna::cleanFiles(const vector<string> &spurs)
 {
     DIR *dirp;
-    //#ifdef __sgi
-    //   struct direct *entry;
-    //#else
     struct dirent *entry;
-    //#endif
     dirp = opendir(".");
     if (dirp == NULL)
     {

@@ -98,11 +98,7 @@ birdTracker::birdTracker(const char *ipAddr,
     server.sin_port = htons(birdPort);
     server.sin_addr.s_addr = inet_addr(ipAddr);
     fprintf(stderr, "connecting to MotionStar at %s\n", ipAddr);
-#ifdef __sgi
-    if (connect(sockId, (struct SOCKADDR *)&server, sizeof(server)))
-#else
     if (connect(sockId, (sockaddr *)&server, sizeof(server)))
-#endif
     {
         fprintf(stderr, "can't connect to MotionStar\n");
         return;
@@ -814,11 +810,7 @@ int birdTracker::send()
 //   fprintf(stderr, "send: %s\n", (t=packet.getType()));
 //   delete[] t;
 
-#ifndef __sgi
     return (sendto(sockId, (const char *)packet.getPtr(), packet.getSize(), 0, (sockaddr *)&server, sizeof(server)));
-#else
-    return (sendto(sockId, packet.getPtr(), packet.getSize(), 0, &server, sizeof(server)));
-#endif
 }
 
 int birdTracker::receive(birdPacket::command c)
@@ -895,11 +887,7 @@ int birdTracker::sendAck()
 //   fprintf(stderr, "send-ack: %s\n", (t=packet.getType()));
 //   delete[] t;
 
-#ifndef __sgi
     return (sendto(sockId, (const char *)packet.getPtr(), packet.getSize(), 0, (sockaddr *)&server, sizeof(server)));
-#else
-    return (sendto(sockId, packet.getPtr(), packet.getSize(), 0, &server, sizeof(server)));
-#endif
 }
 
 void birdTracker::setBit(unsigned char *b, int nr)

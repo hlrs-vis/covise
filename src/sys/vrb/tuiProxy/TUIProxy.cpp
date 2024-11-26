@@ -48,7 +48,6 @@ TUIProxy::TUIProxy(int argc, char **argv)
                 debugOn = true;
                 break;
             }
-#ifndef YAC
             case 'v':
                 printf("TUIProxy 1.0, Covise: %s\n", CoviseVersion::shortVersion());
                 exit(0);
@@ -57,15 +56,10 @@ TUIProxy::TUIProxy(int argc, char **argv)
                 printf("TUIProxy 1.0, Covise: %s\n", CoviseVersion::longVersion());
                 exit(0);
                 break;
-#endif
             default:
             {
                 cerr << "Unrecognized Option -" << argv[i][1] << " \n";
-#ifndef YAC
                 cerr << "usage: tuiProxy [port] [-v] [-V] [-d]\n   port = TCP port to listen for incomping tabletUI connections,\n     default: 31802, or TabletPC.TCPPort\n   -v : Version\n    -V : Version Long\n    -d : debug Output\n";
-#else
-                cerr << "usage: tuiProxy [port] [-d]\n   port = TCP port to listen for incomping tabletUI connections,\n     default: 31802, or TabletPC.TCPPort\n    -d : debug Output\n";
-#endif
                 exit(-1);
                 break;
             }

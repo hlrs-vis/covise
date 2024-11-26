@@ -773,21 +773,13 @@ void set_default_message(char *buf)
 {
     char *str, hbuf[256];
     struct tm tm; //, *localtime();
-#if defined(__old_hpux) || (_MIPS_SZLONG == 64)
-    int time_value;
-#else
     long time_value;
-#endif
     (void)time(&time_value);
     tm = *localtime(&time_value);
     str = asctime(&tm);
     str[strlen(str) - 1] = 0;
 
-#ifdef SOLARIS
-    (void)sysinfo(SI_HOSTNAME, hbuf, 256);
-#else
     gethostname(hbuf, 256);
-#endif
 
     sprintf(buf, "%s, %s, %s", hbuf, DisplayString(disp), str);
 }

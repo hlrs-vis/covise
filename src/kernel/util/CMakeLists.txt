@@ -71,7 +71,6 @@ SET(UTIL_HEADERS
   coHash.h
   coHashBase.h
   coHashIter.h
-  coIdent.h
   coIntHash.h
   coIntMultiHash.h
   coLog.h

@@ -29,7 +29,6 @@ public:
     MEDataTreeItem(MEDataTree *, const QString &, const QColor &color);
     MEDataTreeItem(MEDataTreeItem *, const QString &);
     MEDataTreeItem(MEDataTreeItem *, const QString &, MEDataPort *port);
-    MEDataTreeItem(MEDataTreeItem *, const QString &, int);
 
     ~MEDataTreeItem();
 
@@ -63,10 +62,6 @@ public:
         return m_dataObjectType;
     };
 
-    int getIndex()
-    {
-        return m_index;
-    };
     QColor getColor()
     {
         return m_color;
@@ -82,7 +77,6 @@ private:
     MEDataPort *m_port;
 
     int m_dataObjectType; // POINTER (0) or ARRAY (1)
-    int m_index;
 
     QColor m_color;
 };
@@ -101,9 +95,6 @@ public:
     int getDepth(QTreeWidgetItem *);
 
     MEDataTreeItem *lostfound;
-    MEDataTreeItem *findObject(int, int, int);
-    MEDataTreeItem *findArray(MEDataTreeItem *, int);
-    MEDataTreeItem *search(QTreeWidgetItem *);
 
 private:
     int m_id1, m_id2, m_id3;

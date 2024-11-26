@@ -110,7 +110,6 @@ public:
     void updateMax(float);
     void setPredefinedMap(const QString &);
     void getStep(int step, float *r, float *g, float *b, float *a, float *x);
-    void updateColorMap(const QString &, const QString &);
     void updateColorMap(int numColors, const float *rgbax);
     void storeCurrentMap();
     void updateHistogram(int np, const float &xmin, const float &xmax, int *values);

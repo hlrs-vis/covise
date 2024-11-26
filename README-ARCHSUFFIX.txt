@@ -3,8 +3,8 @@
 # 
 # The variable ARCHSUFFIX specifies the system environment for which COVISE
 # is compiled. It depends on the combination of
-# - the system architecture (e.g. ia32, ia64, x86_64, mips4, ...)
-# - the operating system (e.g. Windows XP SP2, Fedora Linux Core 3, Red Hat Enterprise Linux 3, IRIX 6.5.20, ...)
+# - the system architecture (e.g. ia32, x86_64, mips4, ...)
+# - the operating system (e.g. Windows XP SP2, Fedora Linux Core 3, Red Hat Enterprise Linux 3, ...)
 # - the programming model (e.g. N32, O32, 64 bit, 32 bit, ...)
 # - the version of your system libraries (e.g. glibc 2.3.2, 
 # - the C++ ABI version (e.g. as used by GCC 2.95/2.96, GCC 3.0, GCC 3.1, GCC 3.2/3.3, GCC 3.4/4.0, ...)
@@ -66,8 +66,6 @@ berrenda        Visual Studio 2010 for x86_64
 tamarau         Visual Studio 2012 for x86_64
 mingw           Windows XP/Vista with gcc 4.4.0 on ia32
 
-hpux_ia64       HP-UX 11 for IA64
-
 linux           Red Hat 7.3 (with GCC 2.96) on ia32
 gcc3            Red Hat 8 with glibc 2.3.2 on ia32
 rhel3           Red Hat Enterprise Linux 3 with updates on x86_64 (64 bit mode)
@@ -79,11 +77,6 @@ rhel52          Red Hat Enterprise Linux 5.2 with updates on x86_64 (64 bit mode
 rhel53          Red Hat Enterprise Linux 5.3 with updates on x86_64 (64 bit mode)
 rhel6           Red Hat Enterprise Linux 6 with updates on x86_64 (64 bit mode)
 rhel7           Red Hat Enterprise Linux/CentOS 7 with updates on x86_64 (64 bit mode)
-ia64            Red Hat Enterprise Linux 3 on ia64 (e.g. SGI Prism)
-ia64icc         Red Hat Enterprise Linux 3 on ia64 with Intel Compiler
-ia64_glibc23    SGI ProPack 3SP5 for Linux, ia64, glibc-2.3.2-95.30sgi305r1, libgcc-3.2.3-47
-cayman          SuSE Linux Enterprise Server 9 on ia64 with Intel Compiler
-cayenne         SuSE Linux Enterprise Server 10 on ia64 with Intel Compiler
 
 teck            Fedora Linux Core 3 with updates on ia32
 gcc4            Fedora Linux Core 4 with updates on ia32
@@ -177,10 +170,6 @@ werewolf        Ubuntu 15.10 Wily Werewolf on x86_64 (64 bit mode)
 xerus           Ubuntu 16.04 Xenial Xerus on x86_64 (64 bit mode)
 bionic          Ubuntu 18.04 Bionic Beaver on x86_64 (64 bit mode)
 focal           Ubuntu 20.04 Focal Fossa on x86_64 (64 bit mode)
-
-sgin32          IRIX 6.5, N32, Performer 2.5.2
-sgin32p31       IRIX 6.5, N32, Performer 3.1
-sgi64           IRIX 6.5, 64 bit
 
 macx            Mac OS X 10.3, PPC
 tiger           Mac OS X 10.4

@@ -244,7 +244,6 @@ private slots:
     void showTabletUI(bool);
     void showMatchingNodes();
     void showColorMap(bool);
-    void showRegistry(bool);
     void scaleViewCB(const QString &);
     void tabChanged(int index);
     void filterCB();

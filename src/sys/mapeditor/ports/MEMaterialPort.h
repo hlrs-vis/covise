@@ -40,11 +40,6 @@ public:
     void restoreParam();
     void storeParam();
 
-#ifdef YAC
-    void addPorts(covise::coRecvBuffer &);
-    void setValues(covise::coRecvBuffer &);
-#endif
-
 public slots:
 
     void applyCB();

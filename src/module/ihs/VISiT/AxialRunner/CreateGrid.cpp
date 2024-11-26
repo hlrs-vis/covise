@@ -102,11 +102,7 @@ void AxialRunner::CreateGrid(void)
          char paramtext[80];
          int  rotdir=1;
 
-#ifndef YAC
          snprintf(paramtext, 80, "%ld", p_NumberOfBlades->getValue());
-#else
-         snprintf(paramtext, 80, "%d", p_NumberOfBlades->getValue());
-#endif
          unsGrd->addAttribute(M_NO_BLADES, paramtext);
          
          snprintf(paramtext, 80, "%16.6f", rotdir*p_DRevolut->getValue());
@@ -122,11 +118,7 @@ void AxialRunner::CreateGrid(void)
                  rotdir*p_DRevolut->getValue()*M_PI/30.);
          unsGrd->addAttribute("walltext",paramtext);
          
-#ifndef YAC
          sprintf(paramtext,"111,nomatch,110,120,perio_rota,%ld,3", p_NumberOfBlades->getValue());
-#else
-         sprintf(paramtext,"111,nomatch,110,120,perio_rota,%d,3", p_NumberOfBlades->getValue());
-#endif
          unsGrd->addAttribute("periotext",paramtext);
 
 // **************************************************

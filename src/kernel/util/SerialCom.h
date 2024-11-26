@@ -18,8 +18,6 @@
 //
 #include "common.h"
 #ifdef WIN32
-#elif defined(__hpux)
-#include <termio.h>
 #else
 #include <termios.h>
 #endif

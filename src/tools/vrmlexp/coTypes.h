@@ -48,7 +48,7 @@
 //#include <util/coTypes.h>
 #include <sys/types.h>
 
-#if defined __cplusplus && defined(_STANDARD_C_PLUS_PLUS) && !defined(__sgi)
+#if defined __cplusplus && defined(_STANDARD_C_PLUS_PLUS)
 #include <cassert>
 #include <cctype>
 #include <cerrno>
@@ -81,15 +81,9 @@
 #include <io.h>
 #else
 #include <unistd.h>
-#ifndef __hpux
 #include <sys/select.h>
-#endif
-#if defined(__sgi) || defined(__hpux) || defined(_SX) || defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <fcntl.h>
-#endif
-#ifdef _AIX
-#include <strings.h>
-#include "externc_aix.h"
 #endif
 #endif
 
@@ -142,20 +136,11 @@ using std::stack;
 #include <algorithm>
 using std::find;
 
-#ifdef __hpux
-#define hash_map map
-#define hash_set set
-#else
-#if (defined(__linux__) && !defined(CO_ia64_icc) && !defined(CO_linux)) || defined(__APPLE__)
+#if (defined(__linux__) && !defined(CO_linux)) || defined(__APPLE__)
 #include <ext/hash_map>
 #include <ext/hash_set>
-#if defined(CO_ia64_glibc22)
-using std::hash_map;
-using std::hash_set;
-#else
 using __gnu_cxx::hash_map;
 using __gnu_cxx::hash_set;
-#endif
 #else
 #ifdef _WIN32
 #define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
@@ -168,7 +153,6 @@ using stdext::hash_set;
 using std::hash_map;
 #include <hash_set>
 using std::hash_set;
-#endif
 #endif
 #endif
 
@@ -192,30 +176,16 @@ typedef istrstream istringstream;
 typedef ostrstream ostringstream;
 typedef strstream stringstream;
 
-#ifdef __hpux
 #include <vector>
-#else
-#include <vector.h>
-#endif
-
 #include <string>
 
 #include <hash_map>
 #include <hash_set>
-#ifdef __sgi
-using std::string;
-using std::hash_map;
-using std::hash_set;
-#endif
 
 //#endif
 #include <stack.h>
 #endif /* _STANDARD_C_PLUS_PLUS */
 #endif /* __cplusplus */
-
-#ifdef __hpux
-#include <util/unixcompat.h> /* for strtok_r */
-#endif
 
 #ifdef __linux__
 #include <stdint.h>
@@ -243,34 +213,9 @@ typedef __int64 int64_t;
 #endif
 /* +++++++++++ System Thread support */
 
-#if defined(CO_sgi) || defined(CO_sgin32) || defined(CO_sgi64)
-
-/* coThreads library using SGI native threads instead of posix */
-#define SGI_NATIVE_THREADS
-/* #define POSIX_THREADS */
-
-/* comment this out for engine lib when using normal coThreads lib */
-/* #define SGI_THREADS_LIBRARY */
-
-/*
-#ifndef CERR
-#define CERR cerr
-#include <fstream.h>
-ofstream myout("/dev/null");
-#define CERR myout
-#endif
-*/
-#define SGIDLADD
-#define SVR4_DYNAMIC_LINKING
-#endif
-
 #ifdef __linux__
 #define POSIX_THREADS
 #define SVR4_DYNAMIC_LINKING
-#endif
-
-#ifdef CO_hp
-#define DCE_THREADS
 #endif
 
 /* +++++++++++ Alignment: currently constant */
@@ -283,32 +228,6 @@ ofstream myout("/dev/null");
 #endif
 typedef int pid_t;
 #endif
-
-/* +++++++++++ SGI type definitions : insure uses SGI compiler */
-
-#if defined(__sgi) || defined(__insure__)
-
-typedef unsigned char coUByte;
-
-typedef int coInt32;
-typedef unsigned int coUInt32;
-
-#if (_MIPS_SZLONG == 64)
-typedef long coInt64;
-typedef unsigned long coUInt64;
-#else
-typedef long long coInt64;
-typedef unsigned long long coUInt64;
-#endif
-
-/* SGI compilers introduce Symbol _BOOL if boolean types available
- * we have to use own symbol to prevent problems on other platforms
- * (HP-UX)
- */
-#ifdef _BOOL
-#define _BOOL_
-#endif
-#endif /* CO_sgi    SGI type definitions */
 
 /* +++++++++++ Windows type definitions */
 
@@ -341,17 +260,6 @@ typedef unsigned int uint32_t;
 
 /* +++++++++++ Cray-T3E type definitions */
 
-#ifdef CO_t3e
-
-typedef unsigned char coUByte;
-typedef short coInt32;
-typedef unsigned short coUInt32;
-typedef int coInt64;
-typedef unsigned int coUInt64;
-
-#define PARALLEL
-#endif /* CO_t3e */
-
 /* +++++++++++ Linux type definitions */
 
 #ifdef __linux__
@@ -366,17 +274,6 @@ typedef unsigned long long coUInt64;
 #endif /* LINUX */
 
 /* +++++++++++ HP-UX type definitions (IA-64, PA-RISC not tested!) */
-
-#ifdef __hpux
-
-typedef unsigned char coUByte;
-typedef int coInt32;
-typedef unsigned int coUInt32;
-typedef long coInt64;
-typedef unsigned long coUInt64;
-
-#define _BOOL_
-#endif /* HP_UX */
 
 /* ++++++++++ Mac OS X type definitions */
 #ifdef __APPLE__

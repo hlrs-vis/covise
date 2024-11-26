@@ -611,7 +611,7 @@ fob::startServerProcess()
         fprintf(stderr, "CLIENT: server process forked\n");
 #endif
 
-#if !defined(__linux__) && !defined(__hpux) && !defined(__APPLE__)
+#if !defined(__linux__) && !defined(__APPLE__)
         prctl(PR_TERMCHILD); // Exit when parent does
 #endif
 
@@ -1164,7 +1164,7 @@ fob::sendSer(unsigned char *bfr, int num)
     else
     {
 //ioctl(serialChannel, TCFLUSH, 2);
-#if !defined(WIN32) && !defined(__hpux)
+#if !defined(WIN32)
         if (tcdrain(serialChannel) < 0)
             perror("fob::sendSer tcdrain");
 #endif

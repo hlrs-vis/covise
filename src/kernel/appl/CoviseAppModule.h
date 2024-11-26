@@ -18,10 +18,6 @@
 #include <covise/covise.h>
 #include "ApplInterface.h"
 
-#if defined(__sgi)
-#include <ulocks.h>
-#endif
-
 namespace covise
 {
 
@@ -113,10 +109,6 @@ public:
     // required for multiprocessing
     void lockNewObjects();
     void unlockNewObjects();
-#if defined(__sgi)
-    barrier_t *thisGroupsBarrier;
-    ulock_t *thisGroupsMutex;
-#endif
 
     // virtual stuff - may be provided by programmer
     virtual void preCompute(const coDistributedObject **){};
@@ -131,25 +123,5 @@ public:
                        coDistributedObject ***obj_set_out = NULL, int set_id = 0, int num_proc_wait = 1);
 };
 
-#if defined(__sgi)
-
-struct CoviseAppModuleInfo
-{
-    // SMP stuff
-    barrier_t *barrier;
-    int first, max, step;
-    int num;
-
-    // the module
-    CoviseAppModule *mod;
-
-    // and the parameters
-    coDistributedObject ***obj_in;
-    char ***obj_out_names;
-    coDistributedObject ***obj_set_out;
-};
-
-void scMultiProcCoviseAppModule(void *p, size_t qwery = 0);
-#endif
 }
 #endif // __COVISE_APP_MODULE_H

@@ -23,16 +23,12 @@ string speciesAttr;
 int
 Tracer::findCrewSize()
 {
-#ifndef CO_hp1020
     int numNodes = coCoviseConfig::getInt("System.HostInfo.NumProcessors", 1);
     if ((numNodes < 1) || (numNodes > 200))
     {
         numNodes = 1;
     }
     return numNodes;
-#else
-    return 0;
-#endif
 }
 
 // determine starting points (for a line of starting points)

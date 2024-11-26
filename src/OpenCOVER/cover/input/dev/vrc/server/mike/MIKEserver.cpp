@@ -26,7 +26,7 @@
 #endif
 #include <string.h>
 #include <signal.h>
-#if !defined(__hpux) && !defined(_WIN32)
+#if !defined(_WIN32)
 #include <sys/prctl.h>
 #endif
 #include <util/SerialCom.h>
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, sigHandler);
     signal(SIGINT, sigHandler);
 #ifndef __linux__
-#if !defined(__hpux) && !defined(_WIN32)
+#if !defined(_WIN32)
     prctl(PR_TERMCHILD); // Exit when parent does
 #endif
 #else

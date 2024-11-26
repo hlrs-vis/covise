@@ -894,10 +894,9 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
         {
             cerr << "Transparency mode: default" << endl;
         }
-#ifndef __sgi
         Sorted = 1;
         Blended = 1;
-#endif
+        AlphaTest = 1;
     }
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);

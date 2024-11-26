@@ -90,9 +90,6 @@ public:
         if (data)
             delete data;
     }
-#if defined(__hpux) || defined(_SX)
-    CO_AVL_Node<T> *search_identical_node(T *d);
-#else
     CO_AVL_Node<T> *search_identical_node(T *d)
     {
         CO_AVL_Node<T> *retval = 0L;
@@ -111,7 +108,6 @@ public:
         }
         return retval;
     };
-#endif
 };
 
 template <class T>
@@ -278,27 +274,6 @@ CO_AVL_Node<T> *AVLTree<T>::search_identical_node(T *d, CO_AVL_Node<T> *start)
 //static int covise_n_node=0;
 //static int covise_depth=0;
 
-#if defined(__hpux) || defined(_SX)
-template <class T>
-CO_AVL_Node<T> *CO_AVL_Node<T>::search_identical_node(T *d)
-{
-    CO_AVL_Node<T> *retval = 0L;
-
-    if (d == data)
-        return this;
-    if (left)
-    {
-        retval = left->search_identical_node(d);
-        if (retval)
-            return retval;
-    }
-    if (right)
-    {
-        retval = right->search_identical_node(d);
-    }
-    return retval;
-}
-#endif
 template <class T>
 T *AVLTree<T>::search_node(T *data, int search)
 {

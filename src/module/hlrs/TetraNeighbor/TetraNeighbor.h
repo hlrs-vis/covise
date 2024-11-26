@@ -17,9 +17,6 @@ using namespace covise;
 class TetraNeighbor : public CoviseAppModule
 {
 private:
-#if defined(__sgi)
-    int m_numNodes; // number of nodes to use for multiprocessing
-#endif
     float getNeighbor(int el, int c0, int c1, int c2, int numNeighbors, int *neighborList, int *neighborIndexList, int numPoints);
     int localNeighbors(const coDoUnstructuredGrid *grid, float *newNeighborList, float tval = -1);
     void timeNeighbors(const coDoUnstructuredGrid *grid, float *neighborList,
@@ -39,11 +36,6 @@ public:
         Covise::add_port(OUTPUT_PORT, "neighborOut", "Float", "...");
 
         Covise::init(argc, argv);
-
-#if defined(__sgi)
-        m_numNodes = 1;
-        coCoviseConfig::getEntry("HostInfo.NumProcessors", &m_numNodes);
-#endif
 
         const char *in_names[] = { "gridIn", NULL };
         const char *out_names[] = { "neighborOut", NULL };

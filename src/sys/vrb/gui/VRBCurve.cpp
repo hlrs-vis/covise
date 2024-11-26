@@ -9,9 +9,6 @@
 //#include "application.h"
 #include "VRBCurve.h"
 #include "VrbUiClientList.h"
-#ifndef YAC
-#include <covise/covise.h>
-#endif
 
 #include <QPainter>
 #include <QWidget>

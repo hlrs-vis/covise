@@ -74,11 +74,7 @@ class SSLSocket;
 class UDPSocket;
 class UdpMessage;
 
-#ifdef CRAY
-#define WRITE_BUFFER_SIZE 393216
-#else
 #define WRITE_BUFFER_SIZE 64000
-#endif
 #define READ_BUFFER_SIZE WRITE_BUFFER_SIZE
 
 /***********************************************************************\ 

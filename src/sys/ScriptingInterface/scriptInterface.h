@@ -42,12 +42,6 @@ extern char Buffer[BUFSIZE]; // global text buffer
 extern char *token[TOKMAX];
 extern bool Master; // false, if not master userinterface
 
-#ifdef __alpha
-extern "C" {
-gethostname(char *, int);
-}
-#endif
-
 int Msg_Parse(char *line, char *token[], int tmax, const char *sep);
 CoMsg getSingleMsg();
 int openMap(const char *fileName);

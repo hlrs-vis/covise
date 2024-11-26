@@ -106,11 +106,7 @@ int main(int argc, char **argv)
 
             if (tfile == NULL)
             {
-#ifdef YAC
-                char *covisepath = getenv("YACDIR");
-#else
                 char *covisepath = getenv("COVISEDIR");
-#endif
                 transformFile = QString(covisepath) + "/config/transform.xml";
             }
             else

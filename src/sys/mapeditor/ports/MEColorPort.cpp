@@ -101,13 +101,6 @@ void MEColorPort::moduleParameterRequest()
 //------------------------------------------------------------------------
 void MEColorPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     QStringList list = value.split(" ", SplitBehaviorFlags::SkipEmptyParts);
     if (list.count() != 4)
     {
@@ -128,8 +121,6 @@ void MEColorPort::defineParam(QString value, int apptype)
     }
 
     m_fileOpen = false;
-
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -144,12 +135,6 @@ void MEColorPort::modifyParam(QStringList, int, int)
 //------------------------------------------------------------------------
 void MEColorPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     lvalue = lvalue.trimmed();
 
     QStringList list = QString(lvalue).split(" ");
@@ -169,7 +154,6 @@ void MEColorPort::modifyParameter(QString lvalue)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -346,25 +330,11 @@ void MEColorPort::textCB(const QString &)
         endl;
 #endif        
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << 4 << m_dataList[type].at(0)->text().toFloat();
-    sb << m_dataList[type].at(1)->text().toFloat();
-    sb << m_dataList[type].at(2)->text().toFloat();
-    sb << m_dataList[type].at(3)->text().toFloat();
-
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     m_red = m_dataList[type].at(0)->text().toFloat();
     m_green = m_dataList[type].at(1)->text().toFloat();
     m_blue = m_dataList[type].at(2)->text().toFloat();
     m_alpha = m_dataList[type].at(3)->text().toFloat();
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
@@ -511,18 +481,3 @@ void MEColorPort::newColor(const QColor &col)
 {
     m_currColor = col;
 }
-
-#ifdef YAC
-
-//------------------------------------------------------------------------
-void MEColorPort::setValues(covise::coRecvBuffer &tb)
-//------------------------------------------------------------------------
-{
-    tb >> m_red;
-    tb >> m_green;
-    tb >> m_blue;
-    tb >> m_alpha;
-
-    updateItems();
-}
-#endif

@@ -157,9 +157,7 @@ int ReadASCII::compute(const char *)
     char *ptr = strstr(title, ".");
     if (ptr && ptr != filename)
         *ptr = '\0';
-#ifndef YAC
     setTitle(title);
-#endif
 
     // find out how many points are needed
     printf("pGeom: %d\n", pGeom->getValue());

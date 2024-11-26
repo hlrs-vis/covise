@@ -19,9 +19,6 @@ namespace covise
 class COVISEEXPORT ApplicationProcess : public OrdinaryProcess
 {
 //friend class DO_PartitionedObject;
-#ifdef CRAY
-    DataManagerProcess *datamgr;
-#endif
     const DataManagerConnection *datamanager;
     ShmAccess *shm; // pointer to the sharedmemory
     //List<coDistributedObject> *part_obj_list;

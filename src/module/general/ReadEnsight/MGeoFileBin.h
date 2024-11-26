@@ -25,10 +25,6 @@
 
 #include <util/coviseCompat.h>
 #include <do/coDoPoints.h>
-#ifdef __sgi
-using namespace std;
-#endif
-
 #include "EnFile.h"
 #include "EnElement.h"
 

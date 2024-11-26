@@ -158,24 +158,17 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
     m_portConnectionList.clear();
     m_clickedPort = port;
 
-#ifndef YAC
-
     // show the current dataobject type if available
 
     QString text = port->getDataNameList();
     QAction *ac = m_portPopup->addAction(text);
     ac->setFont(MEMainHandler::s_boldFont);
     m_portPopup->addSeparator();
-#endif
 
     // show possible ports for a connection
 
     int portType = port->getPortType();
     if ((portType == MEPort::DIN && port->getNoOfLinks() == 0) ||
-
-#ifdef YAC
-        portType == MEPort::MULTY_IN ||
-#endif
         portType == MEPort::DOUT || port->getNode()->getCategory() == "Renderer")
     {
 
@@ -229,9 +222,6 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
     }
 
 // add callback for showing data content
-
-#ifndef YAC
-
     if (MEMainHandler::instance()->isDeveloperMode())
     {
         m_portPopup->addSeparator();
@@ -253,7 +243,6 @@ void MEPortSelectionHandler::showPossiblePorts(MEDataPort *port, QGraphicsSceneC
             connect(ac, SIGNAL(triggered()), m_clickedPort, SLOT(showDataContent()));
         }
     }
-#endif
 
     // show popup
     m_portPopup->exec(e->screenPos());
