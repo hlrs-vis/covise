@@ -992,7 +992,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     else if (tUIItem == ScaleSlider)
     {
         ScaleValue = ScaleSlider->getValue();
-        coVRNavigationManager::instance()->doMouseScale(ScaleValue);
+        cover->setScale(ScaleValue);
     }
     else if(tUIItem == SceneUnit)
     {
