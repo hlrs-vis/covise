@@ -25,3 +25,4 @@
 [submodule "src/3rdparty/exprtk"]
 	path = src/3rdparty/exprtk
 	url = https://github.com/ArashPartow/exprtk.git
+	branch = release
