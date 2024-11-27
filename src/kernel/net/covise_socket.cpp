@@ -176,7 +176,6 @@ Socket::Socket(int, int sfd)
 {
     sock_id = sfd;
     host = NULL;
-    port = 0;
     this->connected = true;
 }
 
@@ -508,12 +507,12 @@ Socket::Socket(int *p)
     setTCPOptions();
 
     std::unique_lock<std::mutex> guard(mutex);
-    int port = stport++;
+    int listenPort = stport++;
     guard.unlock();
     memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
     s_addr_in.sin_family = AF_INET;
     s_addr_in.sin_addr.s_addr = INADDR_ANY;
-    s_addr_in.sin_port = htons(port);
+    s_addr_in.sin_port = htons(listenPort);
 
     /* Assign an address to this socket and finds an unused port */
 
@@ -521,7 +520,7 @@ Socket::Socket(int *p)
     while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
 #ifdef DEBUG
-        fprintf(stderr, "bind to port %d failed: %s\n", port, coStrerror(getErrno()));
+        fprintf(stderr, "bind to port %d failed: %s\n", listenPort, coStrerror(getErrno()));
 #endif
 #ifndef _WIN32
         if (errno == EADDRINUSE)
@@ -530,12 +529,11 @@ Socket::Socket(int *p)
 #endif
         {
             guard.lock();
-            port = stport++;
+            listenPort = stport++;
             guard.unlock();
-            s_addr_in.sin_port = htons(port);
-//	    cerr << "neuer port: " << port << "\n";
+//	    cerr << "neuer port: " << listenPort << "\n";
 #ifdef _WIN32
-            /* after an unsuccessfull bind we need to close the socket and reopen it on windows, or at least this was the case here on vista on a surface box */
+            /* after an unsuccessful bind we need to close the socket and reopen it on windows, or at least this was the case here on vista on a surface box */
             closesocket(sock_id);
             sock_id = (int)socket(AF_INET, SOCK_STREAM, 0);
             if (sock_id < 0)
@@ -549,8 +547,8 @@ Socket::Socket(int *p)
             memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
             s_addr_in.sin_family = AF_INET;
             s_addr_in.sin_addr.s_addr = INADDR_ANY;
-            s_addr_in.sin_port = htons(port);
 #endif
+            s_addr_in.sin_port = htons(listenPort);
         }
         else
         {
@@ -641,51 +639,12 @@ int Socket::setTCPOptions()
 
 int Socket::accept()
 {
-    errno = 0;
-    int err = ::listen(sock_id, 20);
-    if (err == -1)
-    {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
-    return acceptOnly();
+    return accept(-1.0);
 }
+
 int Socket::acceptOnly()
 {
-    int tmp_sock_id;
-#ifdef DEBUG
-    printf("Listening for connect requests on port %d\n", port);
-#endif
-    errno = 0;
-
-    socklen_t length = sizeof(s_addr_in);
-    tmp_sock_id = (int)::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
-
-    port = ntohs(s_addr_in.sin_port);
-
-    if (tmp_sock_id < 0)
-    {
-        fprintf(stderr, "error with accept (socket to %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
-
-#ifdef DEBUG
-    printf("Connection from host %s, port %u\n",
-           inet_ntoa(s_addr_in.sin_addr), ntohs(s_addr_in.sin_port));
-    fflush(stdout);
-#endif
-
-    //    shutdown(s, 2);
-    closesocket(sock_id);
-    sock_id = tmp_sock_id;
-    host = new Host(s_addr_in.sin_addr.s_addr);
-#ifdef DEBUG
-    print();
-#endif
-    this->connected = true;
-
-    return 0;
+    return acceptOnly(-1.0);
 }
 
 int Socket::listen()
@@ -697,8 +656,7 @@ int Socket::listen()
     int err = ::listen(sock_id, 20);
     if (err == -1)
     {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
+        fprintf(stderr, "error with listen (socket on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
         return -1;
     }
 
@@ -707,31 +665,29 @@ int Socket::listen()
 
 int Socket::accept(float wait)
 {
-    errno = 0;
-    int err = ::listen(sock_id, 20);
+    int err = listen();
     if (err == -1)
-    {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
+        return err;
    return acceptOnly(wait);
-   }
+}
+
 int Socket::acceptOnly(float wait)
 {
-    int tmp_sock_id;
-    struct timeval timeout;
-    fd_set fdread;
-    int i;
 #ifdef DEBUG
     printf("Listening for connect requests on port %d\n", port);
 #endif
-    errno = 0;
 
-    do
+    int i = 0;
+    if (wait >= 0)
     {
-        timeout.tv_sec = (int)wait;
-        timeout.tv_usec = (int)((wait - timeout.tv_sec) * 1000000);
+        i = -1;
+    }
+    while (i < 0)
+    {
+        struct timeval timeout;
+        timeout.tv_sec = wait;
+        timeout.tv_usec = ((wait - timeout.tv_sec) * 1e6);
+        fd_set fdread;
         FD_ZERO(&fdread);
         FD_SET(sock_id, &fdread);
         errno = 0;
@@ -745,6 +701,8 @@ int Socket::acceptOnly(float wait)
         }
         if (i == 0)
         {
+            fprintf(stderr, "timeout with select (socket listening on %s:%d, wait=%f)\n", host->getAddress(), port,
+                    wait);
             return -1;
         }
         else if (i < 0)
@@ -755,29 +713,32 @@ int Socket::acceptOnly(float wait)
             if (getErrno() != EINTR)
 #endif
             {
-                fprintf(stderr, "error with select (socket listening on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
+                fprintf(stderr, "error with select (socket listening on %s:%d): %s\n", host->getAddress(), port,
+                        coStrerror(getErrno()));
                 return -1;
             }
         }
         //fprintf(stderr, "retrying select, listening on %s:%d, timeout was %ds, pid=%d\n", host->getAddress(), port, wait, getpid());
-    } while (i < 0);
-
-    socklen_t length = sizeof(s_addr_in);
-    errno = 0;
-    tmp_sock_id = (int)::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
-
-    port = ntohs(s_addr_in.sin_port);
-
-    if (tmp_sock_id < 0)
-    {
-        fprintf(stderr, "error with accept (socket listening on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
     }
 
+#ifdef DEBUG
+    printf("Listening for connect requests on port %d\n", port);
+#endif
+    socklen_t length = sizeof(s_addr_in);
+    errno = 0;
+    int tmp_sock_id = ::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
+    if (tmp_sock_id < 0)
+    {
+        fprintf(stderr, "error with accept (socket listening on %s:%d): %s\n", host->getAddress(), port,
+                coStrerror(getErrno()));
+        return -1;
+    }
 #ifdef DEBUG
     printf("Connection from host %s, port %u\n",
            inet_ntoa(s_addr_in.sin_addr), ntohs(s_addr_in.sin_port));
     fflush(stdout);
 #endif
+    port = ntohs(s_addr_in.sin_port);
 
     //    shutdown(s, 2);
     closesocket(sock_id);
@@ -950,7 +911,8 @@ int Socket::setNonBlocking(bool on)
     int flags = fcntl(sock_id, F_GETFL, 0);
     if (flags < 0)
     {
-        fprintf(stderr, "getting flags on socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+        fprintf(stderr, "getting flags on socket to %s:%d failed: %s\n", host->getAddress(), port,
+                coStrerror(getErrno()));
         return -1;
     }
 #endif
@@ -963,7 +925,8 @@ int Socket::setNonBlocking(bool on)
         errno = 0;
         if (fcntl(sock_id, F_SETFL, flags | O_NONBLOCK))
         {
-            fprintf(stderr, "setting O_NONBLOCK on socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+            fprintf(stderr, "setting O_NONBLOCK on socket to %s:%d failed: %s\n", host->getAddress(), port,
+                    coStrerror(getErrno()));
             return -1;
         }
 #endif
@@ -977,7 +940,8 @@ int Socket::setNonBlocking(bool on)
         errno = 0;
         if (fcntl(sock_id, F_SETFL, flags & (~O_NONBLOCK)))
         {
-            fprintf(stderr, "removing O_NONBLOCK from socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+            fprintf(stderr, "removing O_NONBLOCK from socket to %s:%d failed: %s\n", host->getAddress(), port,
+                    coStrerror(getErrno()));
             return -1;
         }
 #endif
@@ -1043,7 +1007,7 @@ void Socket::print()
 
 UDPSocket::UDPSocket(int p,const char *address)
 {
-	port = p;
+    port = p;
     this->connected = false;	
     sock_id = (int)socket(AF_INET, SOCK_DGRAM, 0);	
     if (sock_id < 0)
@@ -1054,17 +1018,17 @@ UDPSocket::UDPSocket(int p,const char *address)
 	memset((char*)& s_addr_in, 0, sizeof(s_addr_in));
 	s_addr_in.sin_family = AF_INET;
 	s_addr_in.sin_addr.s_addr = INADDR_ANY;
-	s_addr_in.sin_port = htons(port);
-	sockaddr_in c_addr_in = s_addr_in; //save adress in s_addr_in for sending, but bind without it
-	if (address)
-	{
-		int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);
+    s_addr_in.sin_port = htons(port);
+    sockaddr_in c_addr_in = s_addr_in; //save address in s_addr_in for sending, but bind without it
+    if (address)
+    {
+        int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);
 		if (err != 1)
 		{
 			sock_id = -1;
 			return;
 		}
-	}
+    }
 
 
 #ifndef _WIN32

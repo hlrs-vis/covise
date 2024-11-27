@@ -127,11 +127,11 @@ protected:
     static std::vector<Host *> host_alias_list;
     static bool bInitialised;
     struct sockaddr_in s_addr_in;
-    Host *host; // host on the other end of the socket
+    Host *host = nullptr; // host on the other end of the socket
     std::atomic<int> sock_id;
-    int port;
+    int port = 0;
     int setTCPOptions();
-    bool connected;
+    bool connected = false;
 
 public:
     // connect as client
