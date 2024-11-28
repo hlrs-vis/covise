@@ -1940,11 +1940,15 @@ void coVRShaderList::init(osg::GLExtensions *glext)
     int glslVersion = -1;
     if (glext)
     {
-        std::cerr << "GLSL supported: " << glext->isGlslSupported << std::endl;
-        std::cerr << "GLSL version: " << glext->glslLanguageVersion << std::endl;
         if (glext->isGlslSupported)
         {
+            if (cover->debugLevel(1))
+                std::cerr << "GLSL supported: version " << glext->glslLanguageVersion << std::endl;
             glslVersion = static_cast<int>(glext->glslLanguageVersion * 100.0 + 0.5);
+        }
+        else
+        {
+            std::cerr << "GLSL supported: NO" << std::endl;
         }
     }
     else
