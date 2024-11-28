@@ -500,6 +500,7 @@ bool OpenCOVER::init()
 #endif
 
 #ifndef _WIN32
+#ifdef USE_X11
     bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
     if (useVirtualGL)
     {
@@ -544,7 +545,10 @@ bool OpenCOVER::init()
             putenv(envDisplay);
         }
     }
+    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
+#endif
+
 #ifndef __APPLE__
     int fsaa = coCoviseConfig::getInt("COVER.FSAAMode", -1);
     if (fsaa >= 0)
@@ -577,10 +581,6 @@ bool OpenCOVER::init()
         sprintf(envString, "__GL_SYNC_DISPLAY_DEVICE=%s", syncDevice.c_str());
         putenv(envString);
     }
-#endif
-
-#ifndef _WIN32
-    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
 
     const char *vistlePlugin = getenv("VISTLE_PLUGIN");
