@@ -545,6 +545,7 @@ bool OpenCOVER::init()
         }
     }
 #endif
+#ifndef __APPLE__
     int fsaa = coCoviseConfig::getInt("COVER.FSAAMode", -1);
     if (fsaa >= 0)
     {
@@ -576,6 +577,7 @@ bool OpenCOVER::init()
         sprintf(envString, "__GL_SYNC_DISPLAY_DEVICE=%s", syncDevice.c_str());
         putenv(envString);
     }
+#endif
 
 #ifndef _WIN32
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
