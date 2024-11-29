@@ -446,7 +446,7 @@ void WindowTypeQtPlugin::aboutCover() const
         .arg(CoviseVersion::hash())
         .arg(CoviseVersion::compileDate())
         .arg(CoviseVersion::arch());
-    text.append("<br>Follow COVER and COVISE developement on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
+    text.append("<br>Follow COVER and COVISE development on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
 
     ui->label->setText(text);
     ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::LinksAccessibleByMouse);
