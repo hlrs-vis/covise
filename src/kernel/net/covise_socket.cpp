@@ -100,15 +100,6 @@ int Socket::stport = 31000;
 bool Socket::bInitialised = false;
 std::vector<std::string> Socket::ip_alias_list;
 std::vector<Host *> Socket::host_alias_list;
-#ifdef PROTOTYPES_FOR_FUNCTIONS_FROM_SYSTEM_HEADERS
-extern "C" void herror(const char *string);
-
-#ifndef _WIN32
-extern "C" int shutdown(int s, int how);
-extern "C" char *inet_ntoa(struct in_addr in);
-#endif
-extern "C" int close(int fildes);
-#endif
 
 #ifndef _WIN32
 #define closesocket close
@@ -116,7 +107,11 @@ extern "C" int close(int fildes);
 
 void covise::shutdownSocket(int socketDescriptor)
 {
-    ::shutdown(socketDescriptor, 2); //2 for read and write
+#ifdef _WIN32
+    ::shutdown(socketDescriptor, SD_BOTH);
+#else
+    ::shutdown(socketDescriptor, SHUT_RDWR);
+#endif
 }
 
 
@@ -395,9 +390,9 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
 #endif
 
         closesocket(sock_id);
+        sock_id = -1;
         if (numconn >= retries)
         {
-            sock_id = -1;
             return;
         }
 
