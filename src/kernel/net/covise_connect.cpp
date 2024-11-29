@@ -378,6 +378,18 @@ ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
 
     if (get_id() == -1)
         return; // connection not established
+    double wait = timeout;
+    while (wait > 0. && sock->available() == 0)
+    {
+        wait -= 1.0;
+        sleep(1);
+    }
+    if (timeout > 0. && sock->available() == 0)
+    {
+        delete sock;
+        sock = NULL;
+        return; // connection not established
+    }
     if (sock->Read(&dataformat, 1) != 1)
     {
         delete sock;
@@ -922,6 +934,10 @@ bool Connection::sendMessage(int senderId, int senderType, const Message* msg) c
 {
     if (!sock)
         return false;
+    if (!is_connected())
+    {
+        return false;
+    }
     std::array<int, 4> header{senderId, senderType, msg->type, msg->data.length()};
         
     swap_bytes((unsigned int *)header.data(), 4);
@@ -1237,8 +1253,8 @@ int Connection::check_for_input(float time) const
     do
     {
         struct timeval timeout;
-        timeout.tv_sec = (int)time;
-        timeout.tv_usec = (int)((time - timeout.tv_sec) * 1000000);
+        timeout.tv_sec = time;
+        timeout.tv_usec = ((time - timeout.tv_sec) * 1000000);
 
         // initialize the bit fields according to the existing sockets
         // so far only reads are of interest
@@ -1247,11 +1263,11 @@ int Connection::check_for_input(float time) const
         FD_ZERO(&fdread);
         FD_SET(sock->get_id(), &fdread);
 
-        i = select(sock->get_id() + 1, &fdread, NULL, NULL, &timeout);
+        i = select(sock->get_id() + 1, &fdread, NULL, NULL, time >= 0 ? &timeout : nullptr);
 #ifdef WIN32
-    } while (i == -1 && (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEINPROGRESS));
+    } while (time != 0 && i == -1 && (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEINPROGRESS));
 #else
-    } while (i == -1 && errno == EINTR);
+    } while (time != 0 && i == -1 && errno == EINTR);
 #endif
 
     // find the connection that has the read attempt
@@ -1361,9 +1377,8 @@ void ConnectionList::remove(const Connection *c) // remove a connection and upda
 {
     if (!c)
         return;
-    auto it = std::find_if(connlist.begin(), connlist.end(), [c](const std::unique_ptr<Connection> &conn) {
-        return &*conn == c;
-    });
+    auto it = std::find_if(connlist.begin(), connlist.end(),
+                           [c](const std::unique_ptr<Connection> &conn) { return conn.get() == c; });
     // the field for the select call
     FD_CLR(c->get_id(), &fdvar);
     if (it != connlist.end())
