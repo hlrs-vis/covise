@@ -1,6 +1,8 @@
 #ifndef _CORE_CITYGMLBUILDING_H
 #define _CORE_CITYGMLBUILDING_H
 
+#include <memory>
+
 #include "interfaces/IBuilding.h"
 #include "utils/osgUtils.h"
 

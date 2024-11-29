@@ -1,6 +1,6 @@
 #include "color.h"
-
 namespace core::utils::color {
+
 std::unique_ptr<osg::Vec4> ColorMap::getColor(float value, float maxValue) const {
   // RGB Colors 1,1,1 = white, 0,0,0 = black
   maxValue = std::max(maxValue, 1.f);

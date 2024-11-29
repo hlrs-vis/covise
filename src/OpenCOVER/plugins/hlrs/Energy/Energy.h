@@ -22,6 +22,7 @@
 #include <PluginUtil/coSensor.h>
 #include <core/PrototypeBuilding.h>
 #include <core/utils/osgUtils.h>
+#include <core/utils/color.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -33,6 +34,8 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/CovconfigLink.h>
+#include <cover/ui/Group.h>
 #include <ennovatis/building.h>
 #include <ennovatis/rest.h>
 #include <gdal_priv.h>
@@ -80,6 +83,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
  private:
   using Geodes = core::utils::osgUtils::Geodes;
+//   using ColorMap = core::utils::color::ColorMap;
   typedef const ennovatis::Building *building_const_ptr;
   typedef const ennovatis::Buildings *buildings_const_Ptr;
   typedef std::vector<building_const_ptr> const_buildings;
@@ -88,6 +92,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   // GENERAL
   void switchTo(const osg::ref_ptr<osg::Node> child);
+  void updateColorMap(const covise::ColorMap& map);
 
   // CAMPUS_DB
   void helper_initTimestepGrp(size_t maxTimesteps,
@@ -151,8 +156,16 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   static EnergyPlugin *m_plugin;
 
+  //general
   opencover::coTUITab *coEnergyTab = nullptr;
   opencover::ui::Menu *EnergyTab = nullptr;
+  opencover::ui::Group *m_colorMapGroup = nullptr;
+  opencover::ui::Slider* m_minAttribute = nullptr;
+  opencover::ui::Slider* m_maxAttribute = nullptr;
+  opencover::ui::Slider* m_numSteps = nullptr;
+  std::unique_ptr<covise::ColorMapSelector> m_colorMapSelector = nullptr;
+
+  // db
   opencover::ui::Button *ShowGraph = nullptr;
   opencover::ui::ButtonGroup *componentGroup = nullptr;
   opencover::ui::Group *componentList = nullptr;
@@ -196,6 +209,8 @@ class EnergyPlugin : public opencover::coVRPlugin,
   osg::ref_ptr<osg::Group> m_cityGML;
   std::map<std::string, Geodes> m_cityGMLDefaultStatesets;
   std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_cityGMLObjs;
+
+  std::shared_ptr<core::utils::color::ColorMapExtended> m_colorMap = nullptr;
 };
 
 #endif

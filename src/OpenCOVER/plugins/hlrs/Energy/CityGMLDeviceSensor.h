@@ -1,6 +1,7 @@
 #ifndef _CITYGMLDEVICESENSOR_H
 #define _CITYGMLDEVICESENSOR_H
 
+#include <core/utils/color.h>
 #include <PluginUtil/coSensor.h>
 #include <core/interfaces/IBuilding.h>
 #include <core/interfaces/IInfoboard.h>
@@ -9,11 +10,13 @@
 #include <osg/Group>
 
 class CityGMLDeviceSensor : public coPickSensor {
+ typedef core::utils::color::ColorMapExtended ColorMapExtended;
  public:
   CityGMLDeviceSensor(
       osg::ref_ptr<osg::Group> group,
       std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
-      std::unique_ptr<core::interface::IBuilding> &&drawableBuilding);
+      std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
+      std::shared_ptr<ColorMapExtended> colorMap);
 
   ~CityGMLDeviceSensor();
 
@@ -31,10 +34,12 @@ class CityGMLDeviceSensor : public coPickSensor {
     return m_cityGMLBuilding->getDrawable(index);
   }
   auto getParent() { return getNode()->asGroup(); }
+//   void updateShader();
 
  private:
   std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
+  std::weak_ptr<ColorMapExtended> m_colorMapRef;
   bool m_active = false;
 };
 

@@ -14,6 +14,7 @@
  ** History:                                                               **
  **  2024  v1                                                              **
  **  Marko Djuric 02.2024: add ennovatis client                            **
+ **  Marko Djuric 10.2024: add citygml interface                           **
  **                                                                        **
  **                                                                        **
 \****************************************************************************/
@@ -28,19 +29,28 @@
 #include <core/PrototypeBuilding.h>
 #include <core/TxtInfoboard.h>
 #include <core/utils/osgUtils.h>
+
+// COVER
+#include <PluginUtil/coColorMap.h>
+#include <PluginUtil/coShaderUtil.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRTui.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/View.h>
+#include <utils/string/LevenshteinDistane.h>
+
+// Ennovatis
 #include <ennovatis/building.h>
 #include <ennovatis/csv.h>
 #include <ennovatis/date.h>
 #include <ennovatis/rest.h>
 #include <ennovatis/sax.h>
 
+// std
 #include <algorithm>
-#include <boost/filesystem.hpp>
-#include <boost/tokenizer.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
@@ -48,6 +58,11 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <regex>
+#include <string>
+#include <vector>
+
+// OSG
 #include <osg/Group>
 #include <osg/LineWidth>
 #include <osg/MatrixTransform>
@@ -57,21 +72,12 @@
 #include <osg/Version>
 #include <osg/ref_ptr>
 #include <osgUtil/Optimizer>
-#include <regex>
-#include <string>
-#include <vector>
 
+// boost
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 
-#include <config/CoviseConfig.h>
-#include <cover/coVRAnimationManager.h>
-#include <cover/coVRFileManager.h>
-#include <cover/coVRTui.h>
-#include <utils/string/LevenshteinDistane.h>
-
-#include <osg/LineWidth>
-#include <osg/Version>
+#include "core/utils/color.h"
 
 using namespace opencover;
 using namespace opencover::utils::read;
@@ -122,7 +128,7 @@ bool cmpStrtNo(const std::string &strtName, const std::string &strtName2) {
   return helper_cmpStrNo_as_int(strtNo, strtNo2);
 };
 
-} // namespace
+}  // namespace
 
 /* #region GENERAL */
 EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
@@ -173,6 +179,42 @@ EnergyPlugin::EnergyPlugin()
 
   initEnnovatisUI();
   initCityGMLUI();
+
+  m_colorMapGroup = new ui::Group(EnergyTab, "ColorMap");
+  m_colorMapSelector = std::make_unique<covise::ColorMapSelector>(*m_colorMapGroup);
+  m_colorMapSelector->setCallback([this](const covise::ColorMap &cm) {
+    updateColorMap(m_colorMapSelector->selectedMap());
+  });
+  //   m_colorMap =
+  //   std::make_shared<covise::ColorMap>(m_colorMapSelector->selectedMap());
+  m_colorMap = std::make_shared<core::utils::color::ColorMapExtended>(
+      m_colorMapSelector->selectedMap());
+  m_minAttribute = new ui::Slider(m_colorMapGroup, "min");
+  m_minAttribute->setBounds(0, 1);
+  m_minAttribute->setPresentation(ui::Slider::AsDial);
+  m_minAttribute->setValue(0);
+  m_minAttribute->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->min = value;
+  });
+  m_maxAttribute = new ui::Slider(m_colorMapGroup, "max");
+  m_maxAttribute->setBounds(0, 1);
+  m_maxAttribute->setValue(1);
+  m_maxAttribute->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->max = value;
+  });
+  m_numSteps = new ui::Slider(m_colorMapGroup, "steps");
+  m_numSteps->setBounds(32, 1024);
+  m_numSteps->setPresentation(ui::Slider::AsDial);
+  m_numSteps->setScale(ui::Slider::Linear);
+  m_numSteps->setIntegral(true);
+  m_numSteps->setLinValue(32);
+  m_numSteps->setValue(32);
+  m_numSteps->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->map = covise::interpolateColorMap(m_colorMap->map, value);
+  });
 
   m_offset =
       configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
@@ -273,6 +315,13 @@ bool EnergyPlugin::init() {
   return true;
 }
 
+void EnergyPlugin::updateColorMap(const covise::ColorMap &map) {
+  std::cout << "ColorMap changed" << std::endl;
+  std::cout << "Min: " << m_minAttribute->value()
+            << " Max: " << m_maxAttribute->value() << std::endl;
+  m_colorMap->map = map;
+  //   for (auto &[_, sensor] : m_cityGMLObjs) sensor->updateShader();
+}
 /* #endregion */
 
 /* #region CITYGML */
@@ -325,7 +374,7 @@ void EnergyPlugin::addCityGMLObject(const std::string &name,
       infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
   auto building = std::make_unique<core::CityGMLBuilding>(*geodes);
   auto sensor = std::make_unique<CityGMLDeviceSensor>(
-      citygmlObjGroup, std::move(infoboard), std::move(building));
+      citygmlObjGroup, std::move(infoboard), std::move(building), m_colorMap);
   m_cityGMLObjs.insert({name, std::move(sensor)});
 }
 
