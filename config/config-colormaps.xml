@@ -100,6 +100,15 @@
          <Point r="0.956" g="0.603" b="0.486" index="3" />
          <Point r="0.705" g="0.015" b="0.149" index="4" />
      </CoolWarm>
+
+     <CoolWarmBrewer>
+         <Point r="0.172" g="0.482" b="0.714" a="1.000" x="0.00" index="0"/>
+         <Point r="0.671" g="0.851" b="0.914" a="1.000" x="0.25" index="1"/>
+         <Point r="1.000" g="1.000" b="0.749" a="1.000" x="0.5"  index="2"/>
+         <Point r="0.992" g="0.682" b="0.38"  a="1.000" x="0.75" index="3"/>
+         <Point r="0.843" g="0.098" b="0.11"  a="1.000" x="1.00" index="4"/>
+     </CoolWarmBrewer>
+
      <StarRGBRedBlue>
       <Point a="1" b="1" g="0" name="0" r="0" x="0">
       </Point>
@@ -124,6 +133,7 @@
       <Point a="1" b="0" g="0" name="10" r="1" x="1">
       </Point>
     </StarRGBRedBlue>
+
    <OCT-6000W>
       <Point r="0"   g="0" b="0.345" a="0" x="0"        index="0"/>
       <Point r="0"   g="0" b="1"     a="0.1" x="0.26" index="1"/>
