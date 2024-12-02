@@ -1021,11 +1021,6 @@ int Connection::recv_msg_fast(Message *msg) const
 
 int Connection::recv_msg(Message *msg, char* ip) const
 {
-    int bytes_read, bytes_to_read, tmp_read;
-    char *read_buf_ptr;
-    int *int_read_buf;
-    int data_length;
-    char *read_data;
 #ifdef SHOWMSG
     char tmp_str[255];
 #endif
@@ -1044,6 +1039,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
     if (send_type == Message::STDINOUT)
     {
         //	LOGINFO( "in send_type == STDINOUT");
+        int bytes_read = 0;
         do
         {
             sock->setNonBlocking(true); // this is non-blocking
@@ -1076,7 +1072,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 
     while (bytes_to_process < 16)
     {
-        tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process, ip);
+        int tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process, ip);
         if (tmp_read == 0)
             return (0);
         if (tmp_read < 0)
@@ -1088,11 +1084,11 @@ int Connection::recv_msg(Message *msg, char* ip) const
         bytes_to_process += tmp_read;
     }
 
-    read_buf_ptr = read_buf;
+    char *read_buf_ptr = read_buf;
 
     while (1)
     {
-        int_read_buf = (int *)read_buf_ptr;
+        auto int_read_buf = (int *)read_buf_ptr;
 
 #ifdef SHOWMSG
         LOGINFO("read_buf: %d %d %d %d", int_read_buf[0], int_read_buf[1], int_read_buf[2], int_read_buf[3]);
@@ -1125,19 +1121,19 @@ int Connection::recv_msg(Message *msg, char* ip) const
         if (msg->data.length() > 0) // if msg->data.length() == 0, no data will be received
         {
             // bring message data space to 16 byte alignment
-            data_length = msg->data.length() + ((msg->data.length() % 16 != 0) * (16 - msg->data.length() % 16));
+            int data_length = msg->data.length() + ((msg->data.length() % 16 != 0) * (16 - msg->data.length() % 16));
             msg->data = DataHandle(new char[data_length], msg->data.length());
             if (msg->data.length() > bytes_to_process)
             {
-                bytes_read = bytes_to_process;
+                int bytes_read = bytes_to_process;
 #ifdef SHOWMSG
                 LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
                 if (bytes_read != 0)
                     memcpy(msg->data.accessData(), read_buf_ptr, bytes_read);
                 bytes_to_process = 0;
-                bytes_to_read = msg->data.length() - bytes_read;
-                read_data = &msg->data.accessData()[bytes_read];
+                int bytes_to_read = msg->data.length() - bytes_read;
+                auto *read_data = &msg->data.accessData()[bytes_read];
                 while (bytes_read < msg->data.length())
                 {
 
@@ -1146,7 +1142,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
                     LOGINFO("bytes_to_read    %d bytes", bytes_to_read);
                     LOGINFO("bytes_read       %d bytes", bytes_read);
 #endif
-                    tmp_read = sock->Read(read_data, bytes_to_read);
+                    int tmp_read = sock->Read(read_data, bytes_to_read);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle();
@@ -1181,8 +1177,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 #ifdef SHOWMSG
                     LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
-                    tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
-                                          READ_BUFFER_SIZE - bytes_to_process);
+                    int tmp_read = sock->Read(&read_buf_ptr[bytes_to_process], READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle();
@@ -1224,8 +1219,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 #ifdef SHOWMSG
                     LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
-                    tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
-                                          READ_BUFFER_SIZE - bytes_to_process);
+                    int tmp_read = sock->Read(&read_buf_ptr[bytes_to_process], READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle(nullptr, msg->data.length());

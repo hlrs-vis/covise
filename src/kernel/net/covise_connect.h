@@ -120,26 +120,29 @@ protected:
     friend class ServerConnection;
     friend class ConnectionList;
     class Socket *sock = nullptr; // Socket for connection
-    int port; // port for connection
+    int port = 0; // port for connection
     int sender_id; // id of the sending process
     int send_type; // type of module for messages
     int peer_id_; // id of the peer process
     int peer_type_; // type of peer
-    mutable int message_to_do; // if more than one message has been read
-    mutable int bytes_to_process;
+    mutable int message_to_do = 0; // if more than one message has been read
+    mutable int bytes_to_process = 0;
     unsigned long tru;
     char *read_buf = nullptr;
     Host *other_host = nullptr;
     int hostid; //hostid of remote host
     mutable void (*remove_socket)(int);
     int get_id() const;
-    int *header_int;
+    int *header_int = nullptr;
     bool sendMessage(int senderId, int senderType, const Message *msg) const;
 
 public:
     char convert_to; // to what format do we need to convert data?
     Connection();
     Connection(int sfd);
+    Connection(Connection &&c) = delete;
+    Connection(const Connection &c) = delete;
+    Connection &operator=(const Connection &c) = delete;
     virtual ~Connection(); // close connection (for subclasses)
 
     Socket *getSocket() const
