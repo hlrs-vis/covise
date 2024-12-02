@@ -110,31 +110,18 @@ int Connection::get_id() const
 
 Connection::Connection()
 {
-    sock = NULL;
-    convert_to = DF_NONE;
-    message_to_do = 0;
     //		   LOGINFO( "message_to_do == 0");
     read_buf = new char[READ_BUFFER_SIZE];
-    bytes_to_process = 0;
-    remove_socket = 0L;
-    hostid = -1;
-    peer_id_ = 0;
-    peer_type_ = Message::UNDEFINED; // prepare connection (for subclasses)
     header_int = new int[4 * SIZEOF_IEEE_INT];
 };
 
 Connection::Connection(int sfd)
 {
     send_type = Message::STDINOUT;
-    message_to_do = 0;
-    remove_socket = 0L;
     read_buf = new char[READ_BUFFER_SIZE];
     sock = new Socket(sfd, sfd);
     //		   fprintf(stderr, "new Socket: %x\n", sock);
     sock->setNonBlocking(true); // this is non-blocking, since we do not know, what will arrive
-    hostid = -1;
-    peer_id_ = 0;
-    peer_type_ = Message::UNDEFINED; // initialiaze connection with existing socket
     header_int = new int[4 * SIZEOF_IEEE_INT];
 };
 

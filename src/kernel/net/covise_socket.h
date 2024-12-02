@@ -93,9 +93,10 @@ class Host;
  **                                                                     **
 \***********************************************************************/
 
-const char DF_NONE = 0;
-const char DF_IEEE = 1;
-const int COVISE_SOCKET_INVALID = -2;
+enum
+{
+    COVISE_SOCKET_INVALID = -2
+};
 
 const char df_local_machine = DF_IEEE;
 
