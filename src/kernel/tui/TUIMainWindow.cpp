@@ -173,10 +173,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     setFont(mainFont);
 
 #ifdef _WIN32_WCE
-    setWindowTitle("COVISE: PocketUI");
+    setWindowTitle("COVER: PocketUI");
     setCentralWidget(w);
 #else
-    setWindowTitle("COVISE: TabletUI");
+    setWindowTitle("COVER: TabletUI");
     setCentralWidget(mainFrame);
 #endif
 
