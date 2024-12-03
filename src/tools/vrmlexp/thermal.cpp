@@ -287,7 +287,7 @@ static ParamUIDesc descParam[] = {
         PB_THERMAL_HEIGHT,
         EDITTYPE_UNIVERSE,
         IDC_HEIGHT_EDIT, IDC_HEIGHT_SPIN,
-        0.0f, 1000.0f,
+        0.0f, 10000.0f,
         10.0f),
 
     // Min Back
@@ -373,7 +373,7 @@ float ThermalObject::GetHeight(TimeValue t, Interval& valid)
     Interval iv;
 
     float h;
-    pblock->GetValue(PB_THERMAL_MIN_BACK, t, h, valid);
+    pblock->GetValue(PB_THERMAL_HEIGHT, t, h, valid);
     return h;
 }
 float ThermalObject::GetTurbulence(TimeValue t, Interval& valid)
@@ -582,7 +582,7 @@ ThermalObject::BeginEditParams(IObjParam *ip, ULONG flags,
     maxFrontSpin->SetScale(1.0f);
     maxFrontSpin->LinkToEdit(GetDlgItem(hRollup, IDC_MAX_FRONT_EDIT), EDITTYPE_UNIVERSE);
 
-    heightSpin->SetLimits(0.0f, 100.0f, FALSE);
+    heightSpin->SetLimits(0.0f, 10000.0f, FALSE);
     heightSpin->SetValue(GetHeight(t), FALSE);
     heightSpin->SetScale(1.0f);
     heightSpin->LinkToEdit(GetDlgItem(hRollup, IDC_HEIGHT_EDIT), EDITTYPE_UNIVERSE);
@@ -611,7 +611,7 @@ ThermalObject::ThermalObject()
     pb->SetValue(PB_THERMAL_MIN_BACK, 0, 50.0f);
     pb->SetValue(PB_THERMAL_MAX_FRONT, 0, 70.0f);
     pb->SetValue(PB_THERMAL_MIN_FRONT, 0, 50.0f);
-    pb->SetValue(PB_THERMAL_HEIGHT, 0, 100.0f);
+    pb->SetValue(PB_THERMAL_HEIGHT, 0, 800.0f);
     pb->SetValue(PB_THERMAL_VX, 0, 0.0f);
     pb->SetValue(PB_THERMAL_VY, 0, 6.0f);
     pb->SetValue(PB_THERMAL_VZ, 0, 0.0f);

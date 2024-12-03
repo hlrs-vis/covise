@@ -9,6 +9,7 @@
 #define BUILDDIR "build"
 #define BUILDTYPE "Release"
 #define MAXVERSION "2025"
+#define MAXVERSIONNUMBER "27"
 ; change Max Version in registry section from 25 to next
 #define MAXDIR "c:/Program Files/Autodesk/3ds Max 2025"
 
@@ -228,7 +229,7 @@ begin
   Result:=true;
                                
       
-  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\26.0','Installdir',MaxDir)) then
+  if(RegQueryStringValue(HKLM64,'SOFTWARE\Autodesk\3dsMax\{#MAXVERSIONNUMBER}.0','Installdir',MaxDir)) then
       begin
           MaxVersion:=25;    
       end;
