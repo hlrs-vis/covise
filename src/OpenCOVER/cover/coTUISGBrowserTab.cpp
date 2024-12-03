@@ -166,7 +166,7 @@ char *coTUISGBrowserTab::getData()
 Connection *coTUISGBrowserTab::getConnection()
 {
     if (tui()->connectedHost)
-        return tui()->sgConn;
+        return tui()->sgConn.get();
 
     return nullptr;
 }

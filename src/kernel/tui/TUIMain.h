@@ -11,20 +11,16 @@
 
 #include <list>
 #include <set>
-#include <QMainWindow>
-#include <QFrame>
-#include <QFont>
+#include <thread>
+
+#include "TUIElement.h"
 
 class QGridLayout;
 class QWidget;
 class QTimer;
-class QDialog;
-class QTabWidget;
-class QSplitter;
 class QSocketNotifier;
 class QFrame;
 
-class TUIMain;
 namespace covise
 {
 class ServerConnection;
@@ -36,7 +32,6 @@ class TokenBuffer;
 
 class TUITab;
 
-#include "TUIElement.h"
 
 class TUIEXPORT TUIMain
 {
@@ -48,6 +43,7 @@ public:
     void send(covise::TokenBuffer &tb);
 
     void setPort(int port);
+    void setFds(int fd, int fdSg); // provide a connected socket for connection and Scenegraph browser
 
     void closeServer();
     void processMessages();
@@ -55,15 +51,16 @@ public:
 
     bool serverRunning();
     int openServer();
-    void deActivateTab(TUITab *activedTab);
+    void deActivateTab(TUITab *activeTab);
     TUIElement *getElement(int ID);
     TUIElement *createElement(int id, TabletObjectType type, QWidget *w, int parent, QString name);
     QWidget *getWidget(int ID);
 
-    covise::Connection *toCOVERSG = nullptr;
+    std::unique_ptr<covise::Connection> toCOVERSG;
 
 protected:
     TUIMain(QWidget *w);
+    virtual ~TUIMain();
 
     void timerDone();
     virtual void notifyRemoveTabletUI();
@@ -85,10 +82,12 @@ protected:
     std::vector<TUIElement *> elements; // sorted by ID
     const covise::ServerConnection *sConn = nullptr;
     covise::ConnectionList connections;
-    covise::Message *msg = nullptr;
-    covise::ServerConnection *sgConn = nullptr;
 
     int numberOfColumns = 5;
+    template<class Conn>
+    bool checkNewClient(std::unique_ptr<Conn> &conn);
+    bool makeSGConnection(covise::Connection *conn);
+
 private:
     static TUIMain *tuimain;
 };

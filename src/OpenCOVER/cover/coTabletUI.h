@@ -22,6 +22,7 @@
  */
 
 #include <util/coTypes.h>
+#include <net/tokenbuffer.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <queue>
@@ -133,8 +134,31 @@ public slots:
     int getID();
 
 public:
-    coTabletUI();
-    coTabletUI(const std::string &host, int port);
+    enum ConnectionMode
+    {
+        None,
+        Config,
+        Client,
+        ConnectedSocket,
+    };
+    struct ConfigData
+    {
+        ConfigData(const std::string &h, int p): mode(Client), host(h), port(p) {}
+        ConfigData(): mode(Config) {}
+        ConfigData(int fd, int fdSg): mode(ConnectedSocket), fd(fd), fdSg(fdSg) {}
+
+        ConnectionMode mode = None;
+        int fd = -1;
+        int fdSg = -1;
+        int port = 0;
+        std::string host;
+    };
+
+    coTabletUI(); // Config: read from config
+    coTabletUI(const std::string &host, int port); // Client: connect as client to host:port
+    coTabletUI(
+        int fd,
+        int fdS); // ConnectedSocket: (connected) file descriptors, e.g. from socketpair(2), also for Scenegraph browser connection
     virtual ~coTabletUI();
     static coTabletUI *instance();
 
@@ -146,6 +170,8 @@ public:
     void close();
     bool debugTUI();
     bool isConnected() const;
+    void init();
+    void reinit(const ConfigData &cd);
 
     void lock()
     {
@@ -158,17 +184,20 @@ public:
     covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
-    covise::Connection *sgConn = nullptr;
+    std::unique_ptr<covise::Connection> sgConn;
 
 protected:
-    void init();
+    ConnectionMode mode = None;
+    ConfigData connectionConfig;
+    void config();
+
     void resendAll();
     std::vector<coTUIElement *> elements;
     std::vector<coTUIElement *> newElements;
     covise::ServerConnection *serverConn = nullptr;
     covise::Host *serverHost = nullptr;
     covise::Host *localHost = nullptr;
-    int port = 31802;
+    int port = 0;
     int ID = 3;
     float timeout = 1.f;
     bool debugTUIState = false;
@@ -177,7 +206,12 @@ protected:
 
     std::unique_ptr<covise::Connection> conn;
 #ifndef _M_CEE //no future in Managed OpenCOVER
-    std::future<covise::Host *> connFuture;
+    std::atomic<bool> connecting = false;
+    std::thread connThread;
+    std::mutex sendMutex;
+    std::thread sendThread;
+    std::condition_variable sendCond;
+    std::deque<covise::DataHandle> sendQueue;
 #endif
 };
 

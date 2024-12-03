@@ -95,6 +95,7 @@
 
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
+#include <util/threadname.h>
 
 #ifndef _WIN32
 #include <signal.h>
@@ -117,6 +118,11 @@ TUIMain::TUIMain(QWidget *w)
     tuimain = this;
 }
 
+TUIMain::~TUIMain()
+{
+    tuimain = nullptr;
+}
+
 TUIMain *TUIMain::getInstance()
 {
     assert(tuimain != nullptr);
@@ -125,7 +131,6 @@ TUIMain *TUIMain::getInstance()
 
 void TUIMain::addElement(TUIElement *e)
 {
-    //std::cerr << "new element: ID=" << e->getID() << ", name=" << e->getName().toStdString() << std::endl;
     auto iter = elements.end();
     if (!elements.empty() && e->getID() < elements.back()->getID())
     {
@@ -167,12 +172,33 @@ void TUIMain::send(covise::TokenBuffer &tb)
         return;
     covise::Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
-    clientConn->sendMessage(&m);
+    if (!clientConn->sendMessage(&m))
+    {
+        std::cerr << "send: could not send message" << std::endl;
+    }
 }
 
 void TUIMain::setPort(int p)
 {
     port = p;
+}
+
+void TUIMain::setFds(int fd, int fdSg)
+{
+    closeServer();
+
+    port = 0;
+
+    auto preconnectedClientConn = std::make_unique<covise::Connection>(fd);
+    preconnectedClientConn->set_sendertype(0);
+    auto preconnectedSgConn = std::make_unique<covise::Connection>(fdSg);
+    preconnectedSgConn->set_sendertype(0);
+
+    toCOVERSG = std::move(preconnectedSgConn);
+    clientConn = connections.add(std::move(preconnectedClientConn)); //add new connection;
+
+    clientSN = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
+    QObject::connect(clientSN, SIGNAL(activated(int)), widget, SLOT(processMessages()));
 }
 
 //------------------------------------------------------------------------
@@ -210,9 +236,7 @@ void TUIMain::closeServer()
         delete ele;
     }
 
-    delete  toCOVERSG;
-    toCOVERSG = NULL;
-    sgConn = NULL;
+    toCOVERSG.reset();
 
     if (!tabs.empty())
     {
@@ -226,15 +250,6 @@ int TUIMain::openServer()
 //------------------------------------------------------------------------
 {
     connections.remove(sConn);
-    sConn = connections.tryAddNewListeningConn<covise::ServerConnection>(port, 0, 0);
-    if (!sConn)
-    {
-        return (-1);
-    }
-
-    msg = new covise::Message;
-
-    serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
 
     //cerr << "listening on port " << port << endl;
 // weil unter windows manchmal Messages verloren gehen
@@ -245,6 +260,16 @@ int TUIMain::openServer()
     m_periodictimer->start(1000);
 #endif
 
+    if (port == 0)
+        return 0;
+
+    sConn = connections.tryAddNewListeningConn<covise::ServerConnection>(port, 0, 0);
+    if (!sConn)
+    {
+        return (-1);
+    }
+
+    serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
     QObject::connect(serverSN, SIGNAL(activated(int)), widget, SLOT(processMessages()));
     return 0;
 }
@@ -256,87 +281,96 @@ bool TUIMain::serverRunning()
     return sConn && sConn->is_connected();
 }
 
+bool TUIMain::makeSGConnection(covise::Connection *conn)
+{
+    if (!conn->is_connected())
+    {
+        std::cerr << "makeSGConnection: not connected" << std::endl;
+        return false;
+    }
+
+    // create connections for SceneGraph Browser Thread
+    auto sgConn = std::make_unique<covise::ServerConnection>(&port, 0, (covise::sender_type)0);
+    sgConn->listen();
+
+    covise::TokenBuffer stb;
+    stb << port;
+    covise::Message m(stb);
+    m.type = covise::COVISE_MESSAGE_TABLET_UI;
+    if (!conn->sendMessage(&m))
+    {
+        std::cerr << "makeSGConnection: could not send port " << port << " to client" << std::endl;
+        return false;
+    }
+
+    std::cerr << "add connection: waiting for SGBrowser connection on port " << port << std::endl;
+
+    if (sgConn->acceptOne(5) < 0)
+    {
+        fprintf(stderr, "Could not accept connection to sg port in time %d\n", port);
+        return false;
+    }
+    if (!sgConn->getSocket())
+    {
+        fprintf(stderr, "sg connection closed during connection %d\n", port);
+        return false;
+    }
+
+    struct linger linger;
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    setsockopt(sgConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+    if (!sgConn->is_connected()) // could not open server port
+    {
+        fprintf(stderr, "Could not open server port %d\n", port);
+        return false;
+    }
+
+    toCOVERSG = std::move(sgConn);
+    std::cerr << "add connection: SGBrowser connected to port " << port << std::endl;
+    return true;
+}
+
+template<class Conn>
+bool TUIMain::checkNewClient(std::unique_ptr<Conn> &conn)
+{
+    struct linger linger;
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+    clientSN = new QSocketNotifier(conn->get_id(NULL), QSocketNotifier::Read);
+    QObject::connect(clientSN, SIGNAL(activated(int)), widget, SLOT(processMessages()));
+
+    return makeSGConnection(conn.get());
+}
+
 //------------------------------------------------------------------------
 void TUIMain::processMessages()
 //------------------------------------------------------------------------
 {
-    //qDebug() << "process message called";
-    const covise::Connection *conn;
+    covise::Message msg;
+    const covise::Connection *conn = nullptr;
     while ((conn = connections.check_for_input(0.0001f)))
     {
         if (conn == sConn) // connection to server port
         {
-            if (clientConn == NULL) // only accept connections if not already connected to a COVER
+            auto newConn = sConn->spawn_connection();
+            if (!clientConn)
             {
-                auto conn = sConn->spawn_connection();
-                struct linger linger;
-                linger.l_onoff = 0;
-                linger.l_linger = 0;
-                setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-                clientSN = new QSocketNotifier(conn->get_id(NULL), QSocketNotifier::Read);
-                QObject::connect(clientSN, SIGNAL(activated(int)),
-                                 widget, SLOT(processMessages()));
-
-                // create connections for SceneGraph Browser Thread
-                sgConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
-                sgConn->listen();
-
-                covise::TokenBuffer stb;
-                stb << port;
-                covise::Message m(stb);
-                m.type = covise::COVISE_MESSAGE_TABLET_UI;
-                conn->sendMessage(&m);
-
-                std::cerr << "SGBrowser port: " << port << std::endl;
-
-                if (sgConn->acceptOne(5) < 0)
+                if (checkNewClient(newConn))
                 {
-                    fprintf(stderr, "Could not accept connection to sg port in time %d\n", port);
-                    delete sgConn;
-                    sgConn = nullptr;
-                    return;
+                    clientConn = connections.add(std::move(newConn)); //add new connection;
                 }
-                if (!sgConn->getSocket())
-                {
-					fprintf(stderr, "sg connection closed during connection %d\n", port);
-                    delete sgConn;
-                    sgConn = nullptr;
-                    return;
-                }
-
-                linger.l_onoff = 0;
-                linger.l_linger = 0;
-                setsockopt(sgConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-                if (!sgConn->is_connected()) // could not open server port
-                {
-                    fprintf(stderr, "Could not open server port %d\n", port);
-                    delete sgConn;
-                    sgConn = NULL;
-                    return;
-                }
-
-                toCOVERSG = sgConn;
-
-                clientConn = connections.add(std::move(conn)); //add new connection;
             }
-            else
-            {
-                sConn->spawn_connection();
-            }
+            return;
         }
-        else
+        else if (conn->recv_msg(&msg))
         {
-            if (conn->recv_msg(msg))
+            if (handleClient(&msg))
             {
-                if (msg)
-                {
-                    if (handleClient(msg))
-                    {
-                        return; // we have been deleted, exit immediately
-                    }
-                }
+                return; // we have been deleted, exit immediately
             }
         }
     }
@@ -470,6 +504,12 @@ TUIElement *TUIMain::getElement(int ID)
             return *iter;
         std::cerr << "TUIMainWidget::getElement(ID=" << ID << "), got " << (*iter)->getID() << std::endl;
     }
+    iter = std::find_if(elements.begin(), elements.end(), [ID](const TUIElement *el) { return el->getID() == ID; });
+    if (iter != elements.end())
+    {
+        std::cerr << "TUIMainWidget::getElement(ID=" << ID << "), STILL found !!!!!!" << std::endl;
+        return *iter;
+    }
     return nullptr;
 }
 
@@ -489,7 +529,10 @@ bool TUIMain::handleClient(covise::Message *msg)
 {
     if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
-        std::cerr << "TUIMainWidget: socket closed" << std::endl;
+        if (msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED)
+            std::cerr << "TUIMainWidget: socket closed" << std::endl;
+        else
+            std::cerr << "TUIMainWidget: closing socket" << std::endl;
 
         delete clientSN;
         clientSN = NULL;
@@ -504,9 +547,7 @@ bool TUIMain::handleClient(covise::Message *msg)
             delete ele;
         }
 
-        delete  toCOVERSG;
-        toCOVERSG = NULL;
-        sgConn = NULL;
+        toCOVERSG.reset();
 
         notifyRemoveTabletUI();
         return true; // we have been deleted, exit immediately
@@ -574,7 +615,8 @@ bool TUIMain::handleClient(covise::Message *msg)
             }
             else
             {
-                std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID << std::endl;
+                std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID
+                          << ", value type=" << type << std::endl;
             }
         }
         break;

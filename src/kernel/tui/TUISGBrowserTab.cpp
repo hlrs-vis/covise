@@ -1813,12 +1813,12 @@ void TUISGBrowserTab::uncheckChildrenCurrentNode()
 
 covise::Connection *TUISGBrowserTab::getClient()
 {
-    return TUIMain::getInstance()->toCOVERSG;
+    return TUIMain::getInstance()->toCOVERSG.get();
 }
 
 covise::Connection *TUISGBrowserTab::getServer()
 {
-    return TUIMain::getInstance()->toCOVERSG;
+    return TUIMain::getInstance()->toCOVERSG.get();
 }
 
 void TUISGBrowserTab::updateTextures()

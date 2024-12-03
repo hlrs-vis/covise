@@ -63,7 +63,7 @@ private slots:
     void timerDone();
     void closeServer();
     void processMessages();
-    bool handleClient(covise::Message *msg);
+    bool handleClient(covise::Message *msg) override;
 
 private:
     int firstTabFolderID = -1;

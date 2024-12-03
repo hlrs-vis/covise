@@ -16,6 +16,7 @@
 #include "TUIContainer.h"
 #include "TUIMain.h"
 #include <QGridLayout>
+#include <QWidget>
 
 /// Constructor.
 TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QString name)
