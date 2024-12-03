@@ -149,6 +149,7 @@
    <NvTop ARCH="windows" menu="true" />
    <PBufferSnapShot menu="true" />
    <Video menu="true" />
+   <TabletUI menu="true" />
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
    <Annotation menu="true" />
