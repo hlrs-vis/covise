@@ -290,7 +290,8 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
                     }
                     else
                     {
-                        fprintf(stderr, "select after socket connect to %s:%d failed: %s\n", host->getAddress(), p, coStrerror(errno));
+                        fprintf(stderr, "select after socket connect to %s:%d failed: %s\n", host->getAddress(), p,
+                                coStrerror(getErrno()));
                         remain = timeout + 1.0;
                         break;
                     }
@@ -314,7 +315,8 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
                 errno = 0;
                 if (getsockopt(sock_id, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
                 {
-                    fprintf(stderr, "getsockopt after select on socket to %s:%d: %s\n", host->getAddress(), p, coStrerror(errno));
+                    fprintf(stderr, "getsockopt after select on socket to %s:%d: %s\n", host->getAddress(), p,
+                            coStrerror(getErrno()));
                 }
                 else
                 {
@@ -841,7 +843,7 @@ int Socket::read(void *buf, unsigned nbyte)
 #endif
     if (no_of_bytes < 0)
     {
-        sprintf(tmp_str, "Socket read error = %d", getErrno());
+        sprintf(tmp_str, "Socket::read error: %s", coStrerror(getErrno()));
         LOGINFO(tmp_str);
         //    perror("Socket read error");
         LOGINFO("read returns <= 0: close socket.");
@@ -1315,7 +1317,8 @@ SSLSocket::SSLSocket()
         }
         else
         {
-            fprintf(stderr, "error with bind (socket to %s:%d): %s\n", host->getAddress(), s_addr_in.sin_port, strerror(errno));
+            fprintf(stderr, "error with bind (socket to %s:%d): %s\n", host->getAddress(), s_addr_in.sin_port,
+                    coStrerror(errno));
             closesocket(sock_id);
             sock_id = -1;
             return;
@@ -1422,11 +1425,11 @@ int SSLSocket::write(const void *buf, unsigned int nbyte)
             return COVISE_SOCKET_INVALID;
         if (errno == ECONNRESET)
             return COVISE_SOCKET_INVALID;
-        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
+        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
 #ifdef _DEBUG
-        fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, strerror(errno));
+        fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, coStrerror(errno));
 #endif
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;
