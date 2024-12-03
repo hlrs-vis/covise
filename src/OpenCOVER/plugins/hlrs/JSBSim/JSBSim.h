@@ -199,10 +199,12 @@ private:
     float currentTurbulence;
     osg::Vec3 targetVelocity;
     float targetTurbulence;
+    remoteSound::Sound* engineSound;
     remoteSound::Sound* varioSound;
     remoteSound::Sound* windSound;
     std::string remoteSoundServer;
     int remoteSoundPort;
+    std::string EngineSound;
     std::string VarioSound;
     std::string WindSound;
     std::string host;

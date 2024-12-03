@@ -58,6 +58,10 @@ JSBSimPlugin::JSBSimPlugin()
         remoteSoundServer = configString("Sound", "server", "localhost")->value();
         remoteSoundPort = configInt("Sound", "port", 31805)->value();
 
+        const char* ES = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/engine.wav");
+        if (ES == nullptr)
+            ES = "";
+        EngineSound = configString("Sound", "engine", ES)->value();
         const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
         if (VS == nullptr)
             VS = "";
@@ -75,10 +79,15 @@ JSBSimPlugin::JSBSimPlugin()
 #endif
 
         rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
+        engineSound = rsClient->getSound(EngineSound);
         varioSound = rsClient->getSound(VarioSound);
         windSound = rsClient->getSound(WindSound);
+        engineSound->setLoop(true, -1);
         varioSound->setLoop(true, -1);
         windSound->setLoop(true, -1);
+        varioSound->play();
+        engineSound->play();
+        windSound->play();
     }
     plugin = this;
     udp = 0;
@@ -665,6 +674,7 @@ JSBSimPlugin::update()
     {
         for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
         {
+            fprintf(stderr, "joysticks: %d %d %d\n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i]);
             if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1)
             {
                 Joysticknumber = i;
@@ -672,6 +682,7 @@ JSBSimPlugin::update()
             if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
             {
                 Ruddernumber = i;
+                fprintf(stderr, "FoundRudder\n");
             }
         }
 
@@ -744,10 +755,16 @@ if (coVRMSController::instance()->isMaster())
             std::cout << "fgcontrol.elevator:" << fgcontrol.elevator << std::endl;
             if (joystickDev)
             {
-                if(Ruddernumber>=0)
+                if (Ruddernumber >= 0)
+                {
+                    std::cout << "Rudder" << joystickDev->axes[Ruddernumber][2] << std::endl;
                     FCS->SetDrCmd(joystickDev->axes[Ruddernumber][2]);
-                else if(Joysticknumber>=0)
+                }
+                else if (Joysticknumber >= 0)
+                {
+
                     FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
+                }
             }
 
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
@@ -867,6 +884,9 @@ if (coVRMSController::instance()->isMaster())
                         pitch = 1;
                     pitch = 0.8 + (pitch + 1.0) * 0.3;
                     varioSound->setPitch(pitch);
+                    windSound->setVolume(1.0);
+                    engineSound->setVolume(1.0);
+                    engineSound->setPitch(1.0);
 
                     float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
                     if (vol > 1.0)
@@ -921,10 +941,14 @@ if (coVRMSController::instance()->isMaster())
     {
         reset();
         varioSound->play();
+        windSound->play();
+        engineSound->play();
     }
     else
     {
         varioSound->stop();
+        windSound->stop();
+        engineSound->stop();
     }
     if (udp)
     {
