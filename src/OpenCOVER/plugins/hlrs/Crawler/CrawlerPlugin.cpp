@@ -60,7 +60,7 @@ CrawlerPlugin::CrawlerPlugin()
 {
     plugin = this;
 
-    VrmlNamespace::addBuiltIn(VrmlNodeCrawler::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNodeCrawler::defineType<VrmlNodeCrawler>());
 
 
     gFoundation = NULL;

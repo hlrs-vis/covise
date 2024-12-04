@@ -39,59 +39,46 @@
 
 
 
-// Crawler factory.
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeCrawler::initFields(VrmlNodeCrawler* node, vrml::VrmlNodeType* t)
 {
-    
-    VrmlNodeCrawler *var = new VrmlNodeCrawler(scene);
-    return var;
-}
-
-
-// Define the built in VrmlNodeType:: "Crawler" fields
-
-VrmlNodeType *VrmlNodeCrawler::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+        exposedField("speed", node->d_speed, [node](auto f) {
+            }),
+        exposedField("lademodus", node->d_lademodus, [node](auto f) {
+            }),
+        eventOutCallBack("position", node->d_position, [node](auto f) {
+            }),
+        eventOutCallBack("rotation", node->d_rotation, [node](auto f) {
+            }),
+        eventOutCallBack("main0Angle", node->d_main0Angle, [node](auto f) {
+            }),
+        eventOutCallBack("main1Angle", node->d_main1Angle, [node](auto f) {
+            }),
+        eventOutCallBack("main2Angle", node->d_main2Angle, [node](auto f) {
+            }),
+        eventOutCallBack("sec0Angle", node->d_sec0Angle, [node](auto f) {
+            }),
+        eventOutCallBack("sec1Angle", node->d_sec1Angle, [node](auto f) {
+            }),
+        eventOutCallBack("sec2Angle", node->d_sec2Angle, [node](auto f) {
+            })
+        );
+    if (t)
     {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Crawler", creator);
+        t->addEventIn("set_time", VrmlField::SFTIME);
     }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    
-    t->addExposedField("speed", VrmlField::SFFLOAT);
-    t->addExposedField("lademodus", VrmlField::SFBOOL);
-    t->addEventOut("position",VrmlField::SFVEC3F);
-    t->addEventOut("rotation",VrmlField::SFROTATION);
-    t->addEventOut("main0Angle",VrmlField::SFFLOAT);
-    t->addEventOut("main1Angle",VrmlField::SFFLOAT);
-    t->addEventOut("main2Angle",VrmlField::SFFLOAT);
-    t->addEventOut("sec0Angle",VrmlField::SFFLOAT);
-    t->addEventOut("sec1Angle",VrmlField::SFFLOAT);
-    t->addEventOut("sec2Angle",VrmlField::SFFLOAT);
-    
-    VrmlSFFloat d_main0Angle;
-    VrmlSFFloat d_main1Angle;
-    VrmlSFFloat d_main2Angle;
-    VrmlSFFloat d_sec0Angle;
-    VrmlSFFloat d_sec1Angle;
-    VrmlSFFloat d_sec2Angle;
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodeCrawler::nodeType() const
+const char* VrmlNodeCrawler::name()
 {
-    return defineType(0);
+    return "Crawler";
 }
+
 
 VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, name())
     , d_speed(1.0)
     , d_lademodus(true)
     , d_position(0,0,0)
@@ -308,7 +295,7 @@ void VrmlNodeCrawler::addToScene(VrmlScene *s, const char *relUrl)
 // need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
 
 VrmlNodeCrawler::VrmlNodeCrawler(const VrmlNodeCrawler &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_speed(n.d_speed)
     , d_lademodus(n.d_lademodus)
     , d_position(n.d_position)
@@ -325,16 +312,6 @@ VrmlNodeCrawler::VrmlNodeCrawler(const VrmlNodeCrawler &n)
 
 VrmlNodeCrawler::~VrmlNodeCrawler()
 {
-}
-
-VrmlNode *VrmlNodeCrawler::cloneMe() const
-{
-    return new VrmlNodeCrawler(*this);
-}
-
-VrmlNodeCrawler *VrmlNodeCrawler::toCrawler() const
-{
-    return (VrmlNodeCrawler *)this;
 }
 
 void VrmlNodeCrawler::render(Viewer *viewer)
@@ -366,89 +343,6 @@ void VrmlNodeCrawler::render(Viewer *viewer)
     setModified();
 }
 
-ostream &VrmlNodeCrawler::printFields(ostream &os, int indent)
-{
-    if (!d_speed.get())
-        PRINT_FIELD(speed);
-    if (!d_lademodus.get())
-        PRINT_FIELD(lademodus);
-    if (!d_position.get())
-        PRINT_FIELD(position);
-    if (!d_rotation.get())
-        PRINT_FIELD(rotation);
-    if (!d_main0Angle.get())
-        PRINT_FIELD(main0Angle);
-    if (!d_main1Angle.get())
-        PRINT_FIELD(main1Angle);
-    if (!d_main2Angle.get())
-        PRINT_FIELD(main2Angle);
-    if (!d_sec0Angle.get())
-        PRINT_FIELD(sec0Angle);
-    if (!d_sec1Angle.get())
-        PRINT_FIELD(sec1Angle);
-    if (!d_sec2Angle.get())
-        PRINT_FIELD(sec2Angle);
-
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeCrawler::setField(const char *fieldName,
-                                 const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(speed, SFFloat)
-    else if
-        TRY_FIELD(lademodus, SFBool)
-    else if
-        TRY_FIELD(position, SFVec3f)
-    else if
-        TRY_FIELD(rotation, SFRotation)
-    else if
-        TRY_FIELD(main0Angle, SFFloat)
-    else if
-        TRY_FIELD(main1Angle, SFFloat)
-    else if
-        TRY_FIELD(main2Angle, SFFloat)
-    else if
-        TRY_FIELD(sec0Angle, SFFloat)
-    else if
-        TRY_FIELD(sec1Angle, SFFloat)
-    else if
-        TRY_FIELD(sec2Angle, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-
-}
-
-const VrmlField *VrmlNodeCrawler::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "speed") == 0)
-        return &d_speed;
-    else if (strcmp(fieldName, "lademodus") == 0)
-        return &d_lademodus;
-    else if (strcmp(fieldName, "position") == 0)
-        return &d_position;
-    else if (strcmp(fieldName, "rotation") == 0)
-        return &d_rotation;
-    else if (strcmp(fieldName, "main0Angle") == 0)
-        return &d_main0Angle;
-    else if (strcmp(fieldName, "main1Angle") == 0)
-        return &d_main1Angle;
-    else if (strcmp(fieldName, "main2Angle") == 0)
-        return &d_main2Angle;
-    else if (strcmp(fieldName, "sec0Angle") == 0)
-        return &d_sec0Angle;
-    else if (strcmp(fieldName, "sec1Angle") == 0)
-        return &d_sec1Angle;
-    else if (strcmp(fieldName, "sec2Angle") == 0)
-        return &d_sec2Angle;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
-    
-}
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------*/
 void VrmlNodeCrawler::OpenFlap()
