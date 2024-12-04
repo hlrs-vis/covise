@@ -39,7 +39,7 @@ int coVRDynLib::dlclose(CO_SHLIB_HANDLE handle)
 #if defined(_WIN32)
     ::FreeLibrary(handle);
     return 1;
-
+#else
 #if defined(__GNUC__) || __cplusplus >= 199707L
     ::shl_unload(handle);
 #else
@@ -47,9 +47,6 @@ int coVRDynLib::dlclose(CO_SHLIB_HANDLE handle)
 #endif /* aC++ vs. Hp C++ */
     return 1;
 
-#else
-    cerr << "Dynamic Linking is not supported on this platform" << endl;
-    return 0;
 #endif
 }
 
@@ -98,12 +95,11 @@ CO_SHLIB_HANDLE try_dlopen(const char *filename, bool showErrors)
     handle = ::dlopen(filename, mode);
 #elif defined(_WIN32)
     handle = LoadLibraryA(filename);
-#if defined(__GNUC__) || __cplusplus >= 199707L
+#elif defined(__GNUC__) || __cplusplus >= 199707L
     handle = shl_load(filename, mode, 0L);
 #else
     handle = cxxshl_load(filename, mode, 0L);
 #endif
-#endif /* SGIDLADD */
 
     if (handle == NULL)
     {
