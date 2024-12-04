@@ -23,7 +23,7 @@ set(HEADERS
     CityGMLBuilding.h
     TxtInfoboard.h
 )
-add_library(EnergyCore OBJECT ${SOURCES} ${HEADERS})
-target_link_libraries(EnergyCore PRIVATE ${EXTRA_LIBS})
+ADD_COVISE_LIBRARY(EnergyCore STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(EnergyCore ${EXTRA_LIBS})
 target_include_directories(EnergyCore PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS})
 set_target_properties(EnergyCore PROPERTIES LINKER_LANGUAGE CXX POSITION_INDEPENDENT_CODE ON)

@@ -13,7 +13,7 @@
 namespace core::utils::osgUtils {
 std::unique_ptr<Geodes> getGeodes(osg::Group *grp) {
   Geodes geodes{};
-  for (auto i = 0; i < grp->getNumChildren(); ++i) {
+  for (unsigned int i = 0; i < grp->getNumChildren(); ++i) {
     auto child = grp->getChild(i);
     if (osg::ref_ptr<osg::Geode> child_geode = dynamic_cast<osg::Geode *>(child)) {
       geodes.push_back(child_geode);
@@ -40,7 +40,7 @@ osg::BoundingBox getBoundingBox(
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *other) {
   if (!grp || !other) return;
 
-  for (int i = 0; i < other->getNumChildren(); ++i) {
+  for (unsigned int i = 0; i < other->getNumChildren(); ++i) {
     auto child = other->getChild(i);
     if (grp->containsNode(child)) grp->removeChild(child);
   }
@@ -49,7 +49,7 @@ void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *other) {
 void deleteChildrenRecursive(osg::Group *grp) {
   if (!grp) return;
 
-  for (int i = 0; i < grp->getNumChildren(); ++i) {
+  for (unsigned int i = 0; i < grp->getNumChildren(); ++i) {
     auto child = grp->getChild(i);
     if (auto child_group = dynamic_cast<osg::Group *>(child))
       deleteChildrenRecursive(child_group);
