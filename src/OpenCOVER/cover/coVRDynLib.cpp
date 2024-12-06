@@ -34,20 +34,13 @@ int coVRDynLib::dlclose(CO_SHLIB_HANDLE handle)
 #if defined(SVR4_DYNAMIC_LINKING)
     ::dlclose(handle);
     return 1;
-#endif
 
-#if defined(_WIN32)
+#elif defined(_WIN32)
     ::FreeLibrary(handle);
     return 1;
-#elif(HPUX)
-#if defined(__GNUC__) || __cplusplus >= 199707L
-    ::shl_unload(handle);
-#else
-    ::cxxshl_unload(handle);
 #endif /* aC++ vs. Hp C++ */
     return 1;
 
-#endif
 }
 
 const char *coVRDynLib::dlerror(void)
