@@ -662,7 +662,7 @@ osg::Node* coTUISGBrowserTab::getNode(std::string path)
         {
             path_index = std::stoi(path_str_vector[i]);
         }
-        catch(const std::exception& e)
+        catch(const std::exception& /*e*/)
         {
             // std::cerr << e.what() << '\n';
 

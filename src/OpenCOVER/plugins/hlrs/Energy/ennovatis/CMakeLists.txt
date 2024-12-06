@@ -33,3 +33,5 @@ target_link_libraries(${Name}
 # Add generated header path to include paths.
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/include")
+	
+COVISE_INSTALL_TARGET(Ennovatis)

@@ -23,7 +23,8 @@ SET(SOURCES
     EnnovatisDeviceSensor.cpp
     CityGMLDeviceSensor.cpp
 )
-
+SET(EnergyCore_INSTALL TRUE)
+SET(Ennovatis_INSTALL TRUE)
 add_subdirectory(core)
 add_subdirectory(ennovatis)
 cover_add_plugin(EnergyCampus nlohmann_json::nlohmann_json EnergyCore Ennovatis coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
