@@ -39,7 +39,7 @@ int coVRDynLib::dlclose(CO_SHLIB_HANDLE handle)
 #if defined(_WIN32)
     ::FreeLibrary(handle);
     return 1;
-#else
+#elif(HPUX)
 #if defined(__GNUC__) || __cplusplus >= 199707L
     ::shl_unload(handle);
 #else

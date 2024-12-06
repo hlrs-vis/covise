@@ -23,6 +23,7 @@ set(HEADERS
 
 set(Name "Ennovatis")
 ADD_COVISE_LIBRARY(${Name} STATIC ${SOURCES} ${HEADERS})
+ADD_COVISE_COMPILE_FLAGS(${Name} "-fPIC")
 add_dependencies(${Name} coCurlHTTPClient coThreadUtil)
 target_link_libraries(${Name} 
 	nlohmann_json::nlohmann_json
