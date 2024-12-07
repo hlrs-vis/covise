@@ -907,7 +907,7 @@ public:
 
     virtual void addNode(const char* nodePath, int nodeType);
     virtual void removeNode(const char* nodePath, const char* parent_nodePath);
-    virtual void moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex);
+    virtual void moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, unsigned int dropIndex);
     virtual void renameNode(const char* nodePath, const char* nodeNewName);
 
     virtual const std::string &getFindName() const

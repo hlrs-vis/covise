@@ -1123,8 +1123,8 @@ ObjectInfo::ObjectInfo(TokenBuffer& tb)
 		{
 			lastFamilyName = ft->FamilyName;
 			ft->createFamilyLabel();
+			ft->createMenuEntry(); // do not create Menu entries with duplicate names, this will crash.
 		}
-		ft->createMenuEntry();
 	}
 	std::sort(parameters.begin(), parameters.end(),
 		[](const ObjectParamater* LHS, const ObjectParamater* RHS)

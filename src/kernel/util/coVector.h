@@ -44,9 +44,9 @@ class UTILEXPORT coVector
     friend class coMatrix;
 
 public:
-    int dim;
-    double vec4[4];
-    double *vec;
+    int dim=3;
+    double vec4[4] = { 0,0,0,0 };
+    double *vec=nullptr;
 
     coVector()
     {

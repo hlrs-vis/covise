@@ -186,19 +186,19 @@ struct viewportStruct // describes an OpenGL Viewport
         TridelityML, //< 5 PBOs are copied interweaved into viewport
         TridelityMV, //< 5 PBOs are copied interweaved into viewport
     };
-    Mode mode; //< image source
-    int window;
+    Mode mode=Channel; //< image source
+    int window=-1;
     std::vector<int> pbos;
-    int PBOnum;
-    float sourceXMin;
-    float sourceYMin;
-    float sourceXMax;
-    float sourceYMax;
+    int PBOnum=-1;
+    float sourceXMin = 0.0f;
+    float sourceYMin = 0.0f;
+    float sourceXMax = 0.0f;
+    float sourceYMax = 0.0f;
 
-    float viewportXMin;
-    float viewportYMin;
-    float viewportXMax;
-    float viewportYMax;
+    float viewportXMin = 0.0f;
+    float viewportYMin = 0.0f;
+    float viewportXMax = 0.0f;
+    float viewportYMax = 0.0f;
     
     std::string distortMeshName;
     std::string blendingTextureName;

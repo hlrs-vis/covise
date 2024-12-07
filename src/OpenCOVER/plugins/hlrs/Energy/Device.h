@@ -35,8 +35,8 @@ struct DeviceInfo {
     ID = d.ID;
     strasse = d.strasse;
   }
-  float lat;
-  float lon;
+  float lat=0.0f;
+  float lon=0.0f;
   float height = 0.f;
   float strom = 0.f;
   float waerme = 0.f;

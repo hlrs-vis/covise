@@ -36,7 +36,7 @@ std::unique_ptr<json_response_object> json_parser::operator()(
     const std::string &s) const {
   try {
     return operator()(nlohmann::json::parse(s));
-  } catch (json::parse_error &e) {
+  } catch (json::parse_error &) {
     return nullptr;
   }
 }

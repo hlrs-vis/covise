@@ -7,12 +7,12 @@
 
 namespace ennovatis {
 struct json_response_object {
-  int Average;
+  int Average=0;
   std::string MaxTime;
-  int MaxValue;
+  int MaxValue=0;
   std::string MinTime;
-  int MinValue;
-  int StandardDeviation;
+  int MinValue=0;
+  int StandardDeviation=0;
   std::vector<std::string> Times;
   std::vector<int> Values;
   operator std::string() const;

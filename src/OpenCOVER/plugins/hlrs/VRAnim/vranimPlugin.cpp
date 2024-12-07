@@ -2726,7 +2726,6 @@ osg::Geode *MultiBodyPlugin::createlinstdGeometry(int linElId)
     osg::Geode *geode;
     osg::Vec3Array *coordList, *normalArray;
     osg::Vec3f c1, c2;
-    osg::UShortArray *coordIndexList, *colorIndexList;
     osg::Matrix scaleMat, rotMat, transMat;
 
     osg::ref_ptr<osg::Geometry> geom = new osg::Geometry();

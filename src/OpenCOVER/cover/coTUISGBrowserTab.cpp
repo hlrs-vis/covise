@@ -33,7 +33,7 @@ public:
         this->tab = tab;
         running = true;
         textureListCount = 0;
-        sendedTextures = 0;
+        sentTextures = 0;
     }
     virtual void run();
     void setType(int type)
@@ -64,13 +64,13 @@ public:
 
 private:
     coTUISGBrowserTab *tab;
-    int type;
-    int textureListCount;
-    int sendedTextures;
-    bool running;
-    bool finishedTraversing;
-    bool finishedNode;
-    bool noTextures;
+    int type=0;
+    int textureListCount=0;
+    int sentTextures=0;
+    bool running=false;
+    bool finishedTraversing=false;
+    bool finishedNode=false;
+    bool noTextures=true;
 };
 
 coTUISGBrowserTab::coTUISGBrowserTab(coTabletUI *tui, const char *n, int pID)
@@ -740,7 +740,7 @@ void coTUISGBrowserTab::removeNode(const char* nodePath, const char* parent_node
     */
 }
 
-void coTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex)
+void coTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, unsigned int dropIndex)
 {
     std::string oldPath_str = std::string(nodePath);
     std::string oldParent_str = std::string(oldParent_nodePath);
@@ -1030,9 +1030,9 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             tb >> newName;
 
             coTUISGBrowserTab::renameNode(path, newName);
+            break;
         }
 
-        // break;
         case TABLET_TEX_UPDATE:
         {
             thread->setType(TABLET_TEX_UPDATE);
@@ -1145,26 +1145,26 @@ void SGTextureThread::run()
         if (!tab->queueIsEmpty())
         {
             tab->sendTexture();
-            sendedTextures++;
+            sentTextures++;
 
             //cout << " sended textures : " << sendedTextures << "\n";
-            if (finishedTraversing && textureListCount == sendedTextures)
+            if (finishedTraversing && textureListCount == sentTextures)
             {
                 //cout << " finished sending with: " << textureListCount << "  textures \n";
                 tab->sendTraversedTextures();
                 //type = THREAD_NOTHING_TO_DO;
                 finishedTraversing = false;
                 textureListCount = 0;
-                sendedTextures = 0;
+                sentTextures = 0;
             }
-            if (finishedNode && textureListCount == sendedTextures)
+            if (finishedNode && textureListCount == sentTextures)
             {
                 //cout << " finished sending with: " << textureListCount << "  textures \n";
                 tab->sendNodeTextures();
 
                 finishedNode = false;
                 textureListCount = 0;
-                sendedTextures = 0;
+                sentTextures = 0;
             }
 
             work = true;

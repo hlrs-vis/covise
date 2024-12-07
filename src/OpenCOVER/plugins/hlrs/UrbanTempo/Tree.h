@@ -50,7 +50,6 @@ public:
     void updateScale();
     void updateTreeModel();
     void setTransform();
-    void attachToNode(osg::Node*);
     double getDistanceToViewer();
     void updateSceneGraphNode();
     void setTreeModelLODs();

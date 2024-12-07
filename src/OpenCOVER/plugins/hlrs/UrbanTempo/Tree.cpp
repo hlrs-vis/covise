@@ -174,15 +174,6 @@ void Tree::setTransform()
         * osg::Matrix::translate(osg::Vec3d(xPos, yPos, altitude));
 }
 
-void Tree::attachToNode(osg::Node* node)
-{
-    // osg::MatrixTransform* nodeTransform = dynamic_cast<osg::MatrixTransform*>(node);
-    osg::MatrixTransform* newNode;
-    newNode->setMatrix(transform);
-    newNode->addChild(treeModel->model);
-    node = newNode;
-}
-
 void Tree::updateSceneGraphNode()
 {
     this->sceneGraphNode->setMatrix(transform);

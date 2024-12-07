@@ -183,7 +183,7 @@ EnergyPlugin::~EnergyPlugin() {
 
   if (m_cityGML) {
     restoreCityGMLDefaultStatesets();
-    for (auto i = 0; i < m_cityGML->getNumChildren(); ++i) {
+    for (unsigned int i = 0; i < m_cityGML->getNumChildren(); ++i) {
       auto child = m_cityGML->getChild(i);
       root->addChild(child);
     }
@@ -286,7 +286,7 @@ void EnergyPlugin::enableCityGML(bool on) {
   if (on) {
     if (m_cityGMLObjs.empty()) {
       auto root = cover->getObjectsRoot();
-      for (auto i = 0; i < root->getNumChildren(); ++i) {
+      for (unsigned int i = 0; i < root->getNumChildren(); ++i) {
         osg::ref_ptr<osg::MatrixTransform> child =
             dynamic_cast<osg::MatrixTransform *>(root->getChild(i));
         if (child) {
@@ -331,7 +331,7 @@ void EnergyPlugin::addCityGMLObject(const std::string &name,
 
 void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup) {
   using namespace core::utils;
-  for (auto i = 0; i < citygmlGroup->getNumChildren(); ++i) {
+  for (unsigned int i = 0; i < citygmlGroup->getNumChildren(); ++i) {
     osg::ref_ptr<osg::Group> child =
         dynamic_cast<osg::Group *>(citygmlGroup->getChild(i));
     if (child) {
