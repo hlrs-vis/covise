@@ -196,7 +196,11 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Ninja Multi-Co
   OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
 else()
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
-  OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
+  if (MSVC)
+    OPTION(COVISE_USE_CSHARP "Enable C#" ON)
+  else()
+    OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
+  endif()
 endif()
 
 set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
