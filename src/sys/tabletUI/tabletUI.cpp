@@ -61,6 +61,7 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
+    a.setWindowIcon(QIcon(":/icons/tabletui.png"));
     auto qaw = new TUIMainWindow();
     qaw->show();
     int overridePort = 0;

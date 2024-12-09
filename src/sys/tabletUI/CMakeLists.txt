@@ -7,9 +7,18 @@ if(NOT COVISE_USE_QT)
     return()
 endif()
 
-ADD_COVISE_EXECUTABLE(tabletUI MACOSX_BUNDLE tabletUI.cpp)
+qt_add_resources(RCC_FILES
+  icons.qrc
+)
+
+add_covise_executable(tabletUI MACOSX_BUNDLE tabletUI.cpp ${RCC_FILES})
 target_link_libraries(tabletUI coTUI)
 qt_use_modules(tabletUI Xml UiTools Widgets Quick)
+
+set_target_properties(${TARGETNAME} PROPERTIES 
+    MACOSX_BUNDLE_BUNDLE_NAME TabletUI
+    MACOSX_BUNDLE_GUI_IDENTIFIER de.hlrs.tabletui
+)
 
 if(APPLE)
    set_target_properties(tabletUI PROPERTIES OUTPUT_NAME "TabletUI")
