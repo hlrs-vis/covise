@@ -670,15 +670,6 @@ bool OpenCOVER::init()
     {
         loadCovisePlugin = true;
         //fprintf(stderr, "need covise connection\n");
-
-        auto mapeditorTui = new coTabletUI("localhost", 31803);
-        auto mapeditorVrTui = new coVRTui(mapeditorTui);
-        mapeditorVrTui->config();
-        pushTui(mapeditorTui, mapeditorVrTui);
-        tab = tuiTab(numTuis() - 1);
-        cover->ui->addView(new ui::TabletView("mapeditor", tab));
-
-        // if there's an embedded OpenCOVER, then wait for a window ID
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {
             if (coVRConfig::instance()->windows[i].embedded)
@@ -724,6 +715,15 @@ bool OpenCOVER::init()
                 fprintf(stderr, "failed to load COVISE plugin\n");
                 exit(1);
             }
+
+        auto mapeditorTui = new coTabletUI("localhost", 31803);
+        auto mapeditorVrTui = new coVRTui(mapeditorTui);
+        mapeditorVrTui->config();
+        pushTui(mapeditorTui, mapeditorVrTui);
+        tab = tuiTab(numTuis() - 1);
+        cover->ui->addView(new ui::TabletView("mapeditor", tab));
+
+        // if there's an embedded OpenCOVER, then wait for a window ID
         }
     }
 
