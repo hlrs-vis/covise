@@ -24,3 +24,6 @@ maxColorCylinder = [1.0, 0.1, 0.0, 1.0]
 minColorCylinder = [0.0, 1.0, 0.5, 1.0]
 defaultHeightCylinder = 100.0
 radiusCylinder = 3.0
+
+[Simulation]
+staticInfluxCSV = "/home/hpcmdjur/data/DiTEnS/campus/johannes.csv"

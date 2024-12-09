@@ -34,12 +34,13 @@ class CityGMLDeviceSensor : public coPickSensor {
     return m_cityGMLBuilding->getDrawable(index);
   }
   auto getParent() { return getNode()->asGroup(); }
-//   void updateShader();
+  void updateTimestepColors(const std::vector<float> &values);
 
  private:
   std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
   std::weak_ptr<ColorMapExtended> m_colorMapRef;
+  std::vector<osg::Vec4> m_colors;
   bool m_active = false;
 };
 

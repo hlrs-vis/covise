@@ -4,13 +4,8 @@
 #include <PluginUtil/coShaderUtil.h>
 #include <core/CityGMLBuilding.h>
 
-#include <cstdint>
 #include <memory>
 #include <osg/Geometry>
-
-namespace {
-constexpr const char *SHADER_FILE = "MapColorsAttrib";
-}
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> parent,
@@ -53,50 +48,22 @@ void CityGMLDeviceSensor::disactivate() {
   m_infoBoard->hideInfo();
 }
 
-// void CityGMLDeviceSensor::updateShader() {
-//   auto color_map = m_colorMapRef.lock();
-//   for (auto node : m_cityGMLBuilding->getDrawables()) {
-//     osg::ref_ptr<osg::Geode> geode = node->asGeode();
-//     osg::ref_ptr<osg::Drawable> drawable = geode->getDrawable(0);
-//     opencover::applyShader(drawable->asDrawable(), *color_map, 0, 100,
-//     SHADER_FILE);
-//   }
-// }
+void CityGMLDeviceSensor::updateTimestepColors(const std::vector<float> &values) {
+    auto color_map = m_colorMapRef.lock();
+    m_colors.clear();
+    m_colors.resize(values.size());
+    const auto &max = m_colorMapRef;
+    for (auto i = 0; i < m_colors.size(); ++i) {
+        auto value = values[i];
+        auto color = covise::getColor(value, color_map->map, color_map->min,
+                                    color_map->max);
+        m_colors[i] = color;
+    }
+}
 
 void CityGMLDeviceSensor::updateTime(int timestep) {
-  static std::uint8_t r = 255;
-  static std::uint8_t g = 0;
-  static std::uint8_t b = 0;
-
-  if (r == 255 && g < 255 && b == 0) {
-    g++;
-  } else if (r > 0 && g == 255 && b == 0) {
-    r--;
-  } else if (r == 0 && g == 255 && b < 255) {
-    b++;
-  } else if (r == 0 && g > 0 && b == 255) {
-    g--;
-  } else if (r < 255 && g == 0 && b == 255) {
-    r++;
-  } else if (r == 255 && g == 0 && b > 0) {
-    b--;
-  }
-
-  //   osg::Vec4 color = osg::Vec4(r / 255.0, g / 255.0, b / 255.0, 1.0);
-
-  //   m_cityGMLBuilding->updateColor(osg::Vec4(r / 255.0, g / 255.0, b /
-  //   255.0, 1.0));
-  //   int val = rand() % 255 / 255;
-
-  auto color_map = m_colorMapRef.lock();
-  auto val = r / 255.0;
-  if (val >= color_map->min && val <= color_map->max) {
-    auto color = covise::getColor(val, color_map->map, color_map->min,
-                                  color_map->max);
-    //   opencover::applyShader(m_cityGMLBuilding->get, const covise::ColorMap
-    //   &colorMap, float min, float max, const std::string &shaderFile)
-    m_cityGMLBuilding->updateColor(color);
-  }
+  if (timestep >= m_colors.size()) return;
+  m_cityGMLBuilding->updateColor(m_colors[timestep]);
   m_cityGMLBuilding->updateTime(timestep);
   m_infoBoard->updateTime(timestep);
 }

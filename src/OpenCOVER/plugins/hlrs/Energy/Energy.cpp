@@ -78,6 +78,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "core/utils/color.h"
+#include "utils/read/csv/csv.h"
 
 using namespace opencover;
 using namespace opencover::utils::read;
@@ -127,6 +128,12 @@ bool cmpStrtNo(const std::string &strtName, const std::string &strtName2) {
   // compare as integers
   return helper_cmpStrNo_as_int(strtNo, strtNo2);
 };
+
+float computeDistributionCenter(const std::vector<float> &values) {
+  float sum = 0;
+  for (auto &value : values) sum += value;
+  return sum / values.size();
+}
 
 }  // namespace
 
@@ -349,6 +356,62 @@ void EnergyPlugin::enableCityGML(bool on) {
       core::utils::osgUtils::deleteChildrenFromOtherGroup(root, m_cityGML);
     }
     switchTo(m_cityGML);
+
+    if (m_cityGMLObjs.empty()) return;
+
+    //TODO: export into function and add input field for csv path => currently rly bad
+    using namespace opencover::utils::read;
+    auto influxStatic =
+        configString("Simulation", "staticInfluxCSV", "default")->value();
+    if (!boost::filesystem::exists(influxStatic)) return;
+
+    auto csvStream = CSVStream(influxStatic);
+    const auto &headers = csvStream.getHeader();
+    std::map<std::string, std::vector<float>> values;
+    float max = 0, min = -1;
+    float sum = 0;
+    int timesteps = 0;
+    if (csvStream && headers.size() > 1) {
+      CSVStream::CSVRow row;
+      while (csvStream >> row) {
+        for (auto cityGMLBuildingName : headers) {
+          auto sensor = m_cityGMLObjs.find(cityGMLBuildingName);
+          if (sensor != m_cityGMLObjs.end()) {
+            float value = 0;
+            access_CSVRow(row, cityGMLBuildingName, value);
+            if (value > max)
+              max = value;
+            else if (value < min || min == -1)
+              min = value;
+            sum += value;
+            if (values.find(cityGMLBuildingName) == values.end())
+              values.insert({cityGMLBuildingName, {value}});
+            else
+              values[cityGMLBuildingName].push_back(value);
+          }
+        }
+        ++timesteps;
+      }
+    }
+
+    m_colorMap->max = max;
+    m_colorMap->min = min;
+    m_colorMap->map =
+        covise::interpolateColorMap(m_colorMap->map, m_numSteps->value());
+    auto distributionCenter = sum  / (timesteps * values.size());
+    m_minAttribute->setBounds(0, distributionCenter);
+    m_maxAttribute->setBounds(distributionCenter, max);
+
+    for (auto &[name, values] : values) {
+      auto sensorIt = m_cityGMLObjs.find(name);
+      if (sensorIt != m_cityGMLObjs.end()) {
+        sensorIt->second->updateTimestepColors(values);
+      }
+    }
+
+    if (timesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
+      opencover::coVRAnimationManager::instance()->setNumTimesteps(timesteps);
+
   } else {
     switchTo(m_sequenceList);
   }
