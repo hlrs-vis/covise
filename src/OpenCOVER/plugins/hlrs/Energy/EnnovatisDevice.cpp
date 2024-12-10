@@ -83,9 +83,7 @@ auto EnnovatisDevice::createBillboardTxt(const std::string &resp_obj) {
   // channel response
   auto channel = *channelIt;
   billboardTxt += channel.to_string() + "\n";
-  std::string resp_str = "Error parsing response";
-  resp_str = resp_obj;
-  billboardTxt += "Response:\n" + resp_str + "\n";
+  billboardTxt += "Response:\n" + resp_obj + "\n";
   return billboardTxt;
 }
 
@@ -157,8 +155,12 @@ void EnnovatisDevice::update() {
   bool finished_master = m_opncvrCtrl->isMaster() && results != nullptr;
   finished_master = m_opncvrCtrl->syncBool(finished_master);
 
-  if (finished_master)
-    if (handleResponse(*results)) std::cout << "Error parsing response\n";
+  if (finished_master) {
+    if (!handleResponse(*results)) {
+        std::cout << "Error parsing response: \n";
+        for (auto &res : *results) std::cout << res << "\n";
+    }
+  }
 }
 
 bool EnnovatisDevice::handleResponse(const std::vector<std::string> &results) {
