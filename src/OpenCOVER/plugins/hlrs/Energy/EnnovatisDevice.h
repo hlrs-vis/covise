@@ -41,7 +41,7 @@ class EnnovatisDevice {
   void activate();
   void disactivate();
   void setChannelGroup(std::shared_ptr<ennovatis::ChannelGroup> group);
-  void setTimestep(int timestep) { updateColorByTime(timestep); }
+  void setTimestep(int timestep);
   [[nodiscard]] const auto &getBuildingInfo() const { return m_buildingInfo; }
   [[nodiscard]] osg::ref_ptr<osg::Group> getDeviceGroup() { return m_deviceGroup; }
 
@@ -53,15 +53,18 @@ class EnnovatisDevice {
   };
   typedef std::unique_ptr<osg::Vec4> TimestepColor;
   typedef std::vector<TimestepColor> TimestepColorList;
+  typedef std::vector<int> SensorData;
 
   void init();
   void fetchData();
   void updateChannelSelectionList();
   void setChannel(int idx);
   void updateColorByTime(int timestep);
+  void updateHeightByTime(int timestep);
   void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
   void updateInfoboard(const std::string &info);
   bool handleResponse(const std::vector<std::string> &results);
+
   [[nodiscard]] int getSelectedChannelIdx() const;
   [[nodiscard]] auto getSelectedChannelIterator() const;
   [[nodiscard]] auto getResponseObjectForSelectedChannel() const;
@@ -80,5 +83,6 @@ class EnnovatisDevice {
   opencover::coVRMSController *m_opncvrCtrl;  // cannot be const because syncing
                                               // methods are not const correct
   TimestepColorList m_timestepColors;
+  SensorData m_sensorData;
 };
 #endif

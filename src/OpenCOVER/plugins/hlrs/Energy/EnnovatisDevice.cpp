@@ -157,8 +157,8 @@ void EnnovatisDevice::update() {
 
   if (finished_master) {
     if (!handleResponse(*results)) {
-        std::cout << "Error parsing response: \n";
-        for (auto &res : *results) std::cout << res << "\n";
+      std::cout << "Error parsing response: \n";
+      for (auto &res : *results) std::cout << res << "\n";
     }
   }
 }
@@ -182,6 +182,7 @@ bool EnnovatisDevice::handleResponse(const std::vector<std::string> &results) {
   m_infoBoard->showInfo();
 
   createTimestepColorList(*resp_obj);
+  m_sensorData = resp_obj->Values;
   return true;
 }
 
@@ -190,6 +191,45 @@ void EnnovatisDevice::activate() {
   m_selectedDevice = this;
   updateChannelSelectionList();
   fetchData();
+}
+
+void EnnovatisDevice::setTimestep(int timestep) {
+  updateColorByTime(timestep);
+  updateHeightByTime(timestep);
+}
+
+void EnnovatisDevice::updateHeightByTime(int timestep) {
+  if (m_sensorData.empty()) return;
+  auto numTimesteps = m_sensorData.size();
+  auto height = m_sensorData[timestep < numTimesteps ? timestep : numTimesteps - 1];
+  for (auto drawable : m_drawableBuilding->getDrawables()) {
+    osg::ref_ptr<osg::Geode> geo = drawable->asGeode();
+    if (!geo) continue;
+    osg::ref_ptr<osg::ShapeDrawable> shape =
+        dynamic_cast<osg::ShapeDrawable *>(geo->getDrawable(0));
+    if (!shape) continue;
+    osg::ref_ptr<osg::Cylinder> cylinder =
+        dynamic_cast<osg::Cylinder *>(shape->getShape());
+    if (!cylinder) continue;
+    cylinder->setHeight(height);
+    // TODO: Shader implementation later?!
+    // NOTE: The new ShapeDrawable is written completely differently, and is now
+    // subclassed from osg::Geometry and has ShapeDrawable::build() function that
+    // computes all the appropriate vertex arrays etc, So try just calling
+    // shapedrawabl->build() when you update the shape.
+
+    // I should however suggest that perhaps ShapeDrawable isn't the tool for the
+    // job for this type of interactive updating, it's written as a create once,
+    // use many times features. If you are updating the height interactively then
+    // it may be best to just use a shader to set the height within the vertex
+    // shader. For instance if you had a 1000 cyclinders that all had
+    // independently varying heights then I'd write this as an instanced geometry
+    // with a uniform arrays or 1D texture that stores the position and sizes then
+    // have the vertex shader positing and scale the geometry accordingly. This
+    // way you'd just update the uniform/1D texture in a super lightweigth way and
+    // everything would just render smoothly and efficiently.
+    shape->build();
+  }
 }
 
 void EnnovatisDevice::disactivate() {
