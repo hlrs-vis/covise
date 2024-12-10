@@ -92,8 +92,11 @@ auto EnnovatisDevice::createBillboardTxt(
 
   const auto &values = j_resp_obj.Values;
   auto sum = std::accumulate(values.begin(), values.end(), 0);
-  auto mean = sum / j_resp_obj.Values.size();
+  auto mean = sum / values.size();
   billboardTxt += "> Average Consumption: " + std::to_string(mean) + " " +
+                  channel.unit + ENDLINE;
+
+  billboardTxt += "> Total Consumption: " + std::to_string(sum) + " " +
                   channel.unit + ENDLINE;
   return billboardTxt;
 }
