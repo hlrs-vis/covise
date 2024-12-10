@@ -216,6 +216,7 @@ void EnnovatisDevice::updateHeightByTime(int timestep) {
   if (m_sensorData.empty()) return;
   auto numTimesteps = m_sensorData.size();
   auto height = m_sensorData[timestep < numTimesteps ? timestep : numTimesteps - 1];
+  if (height <= 0) return;
   for (auto drawable : m_drawableBuilding->getDrawables()) {
     osg::ref_ptr<osg::Geode> geo = drawable->asGeode();
     if (!geo) continue;
@@ -225,6 +226,18 @@ void EnnovatisDevice::updateHeightByTime(int timestep) {
     osg::ref_ptr<osg::Cylinder> cylinder =
         dynamic_cast<osg::Cylinder *>(shape->getShape());
     if (!cylinder) continue;
+    switch (getSelectedChannelIdx()) {
+        case ennovatis::ChannelGroup::Strom:
+        case ennovatis::ChannelGroup::Waerme:
+        case ennovatis::ChannelGroup::Kaelte:
+            height = height * 0.1;
+            break;
+        case ennovatis::ChannelGroup::Wasser:
+            height = height * 10;
+            break;
+      default:
+        break;
+    }
     cylinder->setHeight(height);
     // TODO: Shader implementation later?!
     // NOTE: The new ShapeDrawable is written completely differently, and is now
