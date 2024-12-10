@@ -3,10 +3,11 @@
 #include "build_options.h"
 
 // core
-#include "core/interfaces/IInfoboard.h"
+#include <core/interfaces/IInfoboard.h>
 
 // ennovatis
 #include <ennovatis/building.h>
+#include <ennovatis/channel.h>
 #include <ennovatis/json.h>
 #include <ennovatis/rest.h>
 
@@ -58,37 +59,42 @@ EnnovatisDevice::EnnovatisDevice(
   init();
 }
 
-auto EnnovatisDevice::createBillboardTxt() {
+auto EnnovatisDevice::getSelectedChannelIterator() const {
+    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+    auto currentSelectedChannel = getSelectedChannelIdx();
+    return std::next(channels.begin(), currentSelectedChannel);
+}
+
+auto EnnovatisDevice::getResponseObjectForSelectedChannel() const {
+  auto currentSelectedChannel = getSelectedChannelIdx();
+  auto response = m_buildingInfo.channelResponse[currentSelectedChannel];
+  return ennovatis::json_parser()(response);
+}
+
+auto EnnovatisDevice::createBillboardTxt(const std::string &resp_obj) {
   if (m_buildingInfo.channelResponse.empty()) return std::string();
 
   // building info
   std::string billboardTxt = "ID: " + m_buildingInfo.building->getId() + "\n" +
                              "Street: " + m_buildingInfo.building->getStreet() +
                              "\n";
-
-  // channel info
-  auto currentSelectedChannel = getSelectedChannelIdx();
-  auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
-  auto channelIt = std::next(channels.begin(), currentSelectedChannel);
+  auto channelIt = getSelectedChannelIterator();
 
   // channel response
   auto channel = *channelIt;
-  std::string response = m_buildingInfo.channelResponse[currentSelectedChannel];
   billboardTxt += channel.to_string() + "\n";
-  auto resp_obj = ennovatis::json_parser()(response);
   std::string resp_str = "Error parsing response";
-  if (resp_obj) {
-    resp_str = *resp_obj;
-    createTimestepColorList(*resp_obj);
-  }
+  resp_str = resp_obj;
   billboardTxt += "Response:\n" + resp_str + "\n";
   return billboardTxt;
 }
 
 void EnnovatisDevice::setChannel(int idx) {
   m_channelSelectionList->select(idx);
-  if (!m_buildingInfo.channelResponse.empty() && !m_restWorker.isRunning())
-    m_infoBoard->updateInfo(createBillboardTxt());
+  if (!m_buildingInfo.channelResponse.empty() && !m_restWorker.isRunning()) {
+    auto resp_obj = getResponseObjectForSelectedChannel();
+    m_infoBoard->updateInfo(createBillboardTxt(*resp_obj));
+  }
 }
 
 void EnnovatisDevice::setChannelGroup(
@@ -162,9 +168,15 @@ void EnnovatisDevice::update() {
     m_buildingInfo.channelResponse = std::move(results_vec);
 
     // building info
-    auto billboardTxt = createBillboardTxt();
+    auto resp_obj = getResponseObjectForSelectedChannel();
+    if (!resp_obj)
+        return;
+
+    auto billboardTxt = createBillboardTxt(*resp_obj);
     m_infoBoard->updateInfo(billboardTxt);
     m_infoBoard->showInfo();
+
+    createTimestepColorList(*resp_obj);
   }
 }
 

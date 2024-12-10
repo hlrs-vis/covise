@@ -2,10 +2,11 @@
 #define _ENNOVATISDEVICE_H
 
 // core
-#include "core/interfaces/IBuilding.h"
-#include "core/interfaces/IInfoboard.h"
+#include <core/interfaces/IBuilding.h>
+#include <core/interfaces/IInfoboard.h>
 
 // ennovatis
+#include <ennovatis/channel.h>
 #include <ennovatis/building.h>
 #include <ennovatis/json.h>
 #include <ennovatis/rest.h>
@@ -60,8 +61,10 @@ class EnnovatisDevice {
   void updateColorByTime(int timestep);
   void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
   void updateInfoboard(const std::string &info);
-  [[nodiscard]] auto createBillboardTxt();
   [[nodiscard]] int getSelectedChannelIdx() const;
+  [[nodiscard]] auto getSelectedChannelIterator() const;
+  [[nodiscard]] auto getResponseObjectForSelectedChannel() const;
+  [[nodiscard]] auto createBillboardTxt(const std::string &txt);
 
   osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
