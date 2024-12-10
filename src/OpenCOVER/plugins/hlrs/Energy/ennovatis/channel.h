@@ -7,7 +7,23 @@
 
 namespace ennovatis {
 enum ChannelGroup { Strom, Wasser, Waerme, Kaelte, None };  // keep None at the end
-constexpr const char *ChannelGroupToString(ChannelGroup group) {
+constexpr const char *ChannelGroupToStringConstExpr(ChannelGroup group) {
+  switch (group) {
+    case ChannelGroup::Strom:
+      return "Strom";
+    case ChannelGroup::Wasser:
+      return "Wasser";
+    case ChannelGroup::Waerme:
+      return "Waerme";
+    case ChannelGroup::Kaelte:
+      return "Kaelte";
+    case ChannelGroup::None:
+      return "None";
+  }
+  return "None";
+}
+
+inline const std::string ChannelGroupToString(ChannelGroup group) {
   switch (group) {
     case ChannelGroup::Strom:
       return "Strom";

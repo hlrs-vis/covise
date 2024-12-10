@@ -68,7 +68,7 @@ class EnnovatisDevice {
   [[nodiscard]] int getSelectedChannelIdx() const;
   [[nodiscard]] auto getSelectedChannelIterator() const;
   [[nodiscard]] auto getResponseObjectForSelectedChannel() const;
-  [[nodiscard]] auto createBillboardTxt(const std::string &txt);
+  [[nodiscard]] auto createBillboardTxt(const ennovatis::json_response_object &j_resp_obj);
 
   osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
   std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;

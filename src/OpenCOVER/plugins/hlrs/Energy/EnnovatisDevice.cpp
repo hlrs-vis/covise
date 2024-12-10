@@ -71,19 +71,30 @@ auto EnnovatisDevice::getResponseObjectForSelectedChannel() const {
   return ennovatis::json_parser()(response);
 }
 
-auto EnnovatisDevice::createBillboardTxt(const std::string &resp_obj) {
+auto EnnovatisDevice::createBillboardTxt(
+    const ennovatis::json_response_object &j_resp_obj) {
   if (m_buildingInfo.channelResponse.empty()) return std::string();
 
+  constexpr auto ENDLINE = "\n\n";
+
   // building info
-  std::string billboardTxt = "ID: " + m_buildingInfo.building->getId() + "\n" +
-                             "Street: " + m_buildingInfo.building->getStreet() +
-                             "\n";
+  std::string billboardTxt = "> ID: " + m_buildingInfo.building->getId() + ENDLINE +
+                             "> Street: " + m_buildingInfo.building->getStreet() +
+                             ENDLINE;
   auto channelIt = getSelectedChannelIterator();
 
   // channel response
   auto channel = *channelIt;
-  billboardTxt += channel.to_string() + "\n";
-  billboardTxt += "Response:\n" + resp_obj + "\n";
+  billboardTxt += "> Channel: " + channel.name + ENDLINE;
+  billboardTxt +=
+      "> Group: " + ennovatis::ChannelGroupToString(channel.group) + ENDLINE;
+  billboardTxt += "> Type: " + channel.type + ENDLINE;
+
+  const auto &values = j_resp_obj.Values;
+  auto sum = std::accumulate(values.begin(), values.end(), 0);
+  auto mean = sum / j_resp_obj.Values.size();
+  billboardTxt += "> Average Consumption: " + std::to_string(mean) + " " +
+                  channel.unit + ENDLINE;
   return billboardTxt;
 }
 
