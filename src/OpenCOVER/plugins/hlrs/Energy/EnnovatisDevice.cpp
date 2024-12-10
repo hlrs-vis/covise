@@ -60,9 +60,9 @@ EnnovatisDevice::EnnovatisDevice(
 }
 
 auto EnnovatisDevice::getSelectedChannelIterator() const {
-    auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
-    auto currentSelectedChannel = getSelectedChannelIdx();
-    return std::next(channels.begin(), currentSelectedChannel);
+  auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+  auto currentSelectedChannel = getSelectedChannelIdx();
+  return std::next(channels.begin(), currentSelectedChannel);
 }
 
 auto EnnovatisDevice::getResponseObjectForSelectedChannel() const {
@@ -157,27 +157,30 @@ void EnnovatisDevice::update() {
   bool finished_master = m_opncvrCtrl->isMaster() && results != nullptr;
   finished_master = m_opncvrCtrl->syncBool(finished_master);
 
-  if (finished_master) {
-    std::vector<std::string> results_vec;
-    if (m_opncvrCtrl->isMaster()) results_vec = *results;
+  if (finished_master)
+    if (handleResponse(*results)) std::cout << "Error parsing response\n";
+}
 
-    results_vec = m_opncvrCtrl->syncVector(results_vec);
+bool EnnovatisDevice::handleResponse(const std::vector<std::string> &results) {
+  std::vector<std::string> results_vec;
+  if (m_opncvrCtrl->isMaster()) results_vec = results;
 
-    m_buildingInfo.channelResponse.clear();
-    m_opncvrCtrl->waitForSlaves();
-    m_buildingInfo.channelResponse = std::move(results_vec);
+  results_vec = m_opncvrCtrl->syncVector(results_vec);
 
-    // building info
-    auto resp_obj = getResponseObjectForSelectedChannel();
-    if (!resp_obj)
-        return;
+  m_buildingInfo.channelResponse.clear();
+  m_opncvrCtrl->waitForSlaves();
+  m_buildingInfo.channelResponse = std::move(results_vec);
 
-    auto billboardTxt = createBillboardTxt(*resp_obj);
-    m_infoBoard->updateInfo(billboardTxt);
-    m_infoBoard->showInfo();
+  // building info
+  auto resp_obj = getResponseObjectForSelectedChannel();
+  if (!resp_obj) return false;
 
-    createTimestepColorList(*resp_obj);
-  }
+  auto billboardTxt = createBillboardTxt(*resp_obj);
+  m_infoBoard->updateInfo(billboardTxt);
+  m_infoBoard->showInfo();
+
+  createTimestepColorList(*resp_obj);
+  return true;
 }
 
 void EnnovatisDevice::activate() {

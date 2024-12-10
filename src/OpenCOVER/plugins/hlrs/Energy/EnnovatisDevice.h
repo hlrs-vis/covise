@@ -61,6 +61,7 @@ class EnnovatisDevice {
   void updateColorByTime(int timestep);
   void createTimestepColorList(const ennovatis::json_response_object &j_resp_obj);
   void updateInfoboard(const std::string &info);
+  bool handleResponse(const std::vector<std::string> &results);
   [[nodiscard]] int getSelectedChannelIdx() const;
   [[nodiscard]] auto getSelectedChannelIterator() const;
   [[nodiscard]] auto getResponseObjectForSelectedChannel() const;
