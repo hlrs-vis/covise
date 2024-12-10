@@ -42,10 +42,10 @@ void VrmlNodeColorInt::initFields(VrmlNodeColorInt *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeColorInt::name() { return "ColorInterpolator"; }
+const char *VrmlNodeColorInt::typeName() { return "ColorInterpolator"; }
 
 VrmlNodeColorInt::VrmlNodeColorInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

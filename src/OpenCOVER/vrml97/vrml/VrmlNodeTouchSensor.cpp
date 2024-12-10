@@ -48,10 +48,10 @@ void VrmlNodeTouchSensor::initFields(VrmlNodeTouchSensor *node, VrmlNodeType *t)
     }                     
 }
 
-const char *VrmlNodeTouchSensor::name() { return "TouchSensor"; }
+const char *VrmlNodeTouchSensor::typeName() { return "TouchSensor"; }
 
 VrmlNodeTouchSensor::VrmlNodeTouchSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
     , d_isActive(false)
     , d_isOver(false)

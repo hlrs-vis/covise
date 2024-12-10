@@ -38,10 +38,10 @@ void VrmlNodeCollision::initFields(VrmlNodeCollision *node, VrmlNodeType *t)
                      
 }
 
-const char *VrmlNodeCollision::name() { return "Collision"; }
+const char *VrmlNodeCollision::typeName() { return "Collision"; }
 
 VrmlNodeCollision::VrmlNodeCollision(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
     , d_collide(true)
 {
 }

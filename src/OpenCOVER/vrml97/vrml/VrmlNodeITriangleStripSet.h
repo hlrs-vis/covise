@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeITriangleStripSet : public VrmlNodeIPolygonsCommon
 public:
     // Define the fields of indexed face set nodes
   static void initFields(VrmlNodeITriangleStripSet *node, VrmlNodeType *t);
-  static const char *name();
+  static const char *typeName();
 
     VrmlNodeITriangleStripSet(VrmlScene *);
 

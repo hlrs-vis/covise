@@ -37,7 +37,7 @@ extern std::set<MachineNodeBase *> machineNodes;
 class MachineNodeArrayMode : public MachineNodeBase {
 public:
     static void initFields(MachineNodeArrayMode *node, vrml::VrmlNodeType *t);
-    static const char *name() { return "MachineNodeArrayMode"; }
+    static const char *typeName() { return "MachineNodeArrayMode"; }
 
     MachineNodeArrayMode(vrml::VrmlScene *scene);
 
@@ -48,7 +48,7 @@ public:
 class MachineNodeSingleMode : public MachineNodeBase {
 public:
     static void initFields(MachineNodeSingleMode *node, vrml::VrmlNodeType *t);
-    static const char *name() { return "MachineNodeSingleMode"; }
+    static const char *typeName() { return "MachineNodeSingleMode"; }
 
     MachineNodeSingleMode(vrml::VrmlScene *scene);
     
@@ -58,7 +58,7 @@ public:
 class MachineNode : public vrml::VrmlNodeChild { // dummy to load plugin
 public:
     static void initFields(MachineNode *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
     MachineNode(vrml::VrmlScene *scene);
 };
 

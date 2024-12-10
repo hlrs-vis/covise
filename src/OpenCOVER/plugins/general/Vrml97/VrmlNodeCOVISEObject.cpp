@@ -55,13 +55,13 @@ void VrmlNodeCOVISEObject::initFields(VrmlNodeCOVISEObject *node, vrml::VrmlNode
                      exposedField("objectName", node->d_objectName));
 }
 
-const char *VrmlNodeCOVISEObject::name()
+const char *VrmlNodeCOVISEObject::typeName() 
 {
     return "COVISEObject";
 }
 
 VrmlNodeCOVISEObject::VrmlNodeCOVISEObject(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_objectName(NULL)
 {
     d_viewerObject = 0;

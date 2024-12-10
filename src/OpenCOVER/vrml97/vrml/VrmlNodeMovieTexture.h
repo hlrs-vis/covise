@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeMovieTexture : public VrmlNodeTexture
 public:
     // Define the fields of MovieTexture nodes
     static void initFields(VrmlNodeMovieTexture *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMovieTexture(VrmlScene *);
     virtual ~VrmlNodeMovieTexture();

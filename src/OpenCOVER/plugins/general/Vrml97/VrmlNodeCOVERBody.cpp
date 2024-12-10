@@ -64,13 +64,13 @@ void VrmlNodeCOVERBody::initFields(VrmlNodeCOVERBody *node, VrmlNodeType *t)
                      exposedField("vrmlCoordinates", node->d_vrmlCoordinates));
 }
 
-const char *VrmlNodeCOVERBody::name()
+const char *VrmlNodeCOVERBody::typeName() 
 {
     return "COVERBody";
 }
 
 VrmlNodeCOVERBody::VrmlNodeCOVERBody(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_position(0)
     , d_orientation(0.0)
     , d_name("noname")

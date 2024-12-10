@@ -47,10 +47,10 @@ void VrmlNodeFog::initFields(VrmlNodeFog *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeFog::name() { return "Fog"; }
+const char *VrmlNodeFog::typeName() { return "Fog"; }
 
 VrmlNodeFog::VrmlNodeFog(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_color(1.0, 1.0, 1.0)
     , d_fogType("LINEAR")
     , d_visibilityRange(0.0)

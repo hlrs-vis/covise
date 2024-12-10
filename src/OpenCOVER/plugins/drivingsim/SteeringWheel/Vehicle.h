@@ -80,7 +80,7 @@ public:
 #endif
     // Define the fields of SteeringWheel nodes
     static void initFields(VrmlNodeVehicle *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeVehicle(VrmlScene *scene = 0);
     VrmlNodeVehicle(const VrmlNodeVehicle &n);

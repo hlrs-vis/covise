@@ -45,7 +45,7 @@ public:
     static std::list<VrmlNodeOffice *> allOffice;
 
     static void initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeOffice(VrmlScene *scene = 0);
     VrmlNodeOffice(const VrmlNodeOffice &n);

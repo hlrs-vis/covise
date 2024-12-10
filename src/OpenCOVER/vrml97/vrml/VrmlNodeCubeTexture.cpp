@@ -64,11 +64,11 @@ void VrmlNodeCubeTexture::initFields(VrmlNodeCubeTexture *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeCubeTexture::name() { return "CubeTexture"; }
+const char *VrmlNodeCubeTexture::typeName() { return "CubeTexture"; }
 
 
 VrmlNodeCubeTexture::VrmlNodeCubeTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene, name())
+    : VrmlNodeTexture(scene, typeName())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_imageXP(0)

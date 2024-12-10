@@ -32,10 +32,10 @@ void VrmlNodeITriangleSet::initFields(VrmlNodeITriangleSet *node, VrmlNodeType *
     VrmlNodeIPolygonsCommon::initFields(node, t); // Parent class
 }
 
-const char *VrmlNodeITriangleSet::name() { return "IndexedTriangleSet"; }
+const char *VrmlNodeITriangleSet::typeName() { return "IndexedTriangleSet"; }
 
 VrmlNodeITriangleSet::VrmlNodeITriangleSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene, name())
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
 }
 

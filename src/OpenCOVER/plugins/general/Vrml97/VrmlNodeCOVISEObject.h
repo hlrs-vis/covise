@@ -38,7 +38,7 @@ class VRML97COVEREXPORT VrmlNodeCOVISEObject : public VrmlNodeChild
 public:
     // Define the fields of ARSensor nodes
     static void initFields(VrmlNodeCOVISEObject *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCOVISEObject(VrmlScene *scene = 0);
     VrmlNodeCOVISEObject(const VrmlNodeCOVISEObject &n);

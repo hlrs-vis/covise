@@ -142,13 +142,13 @@ void VrmlNodePhotometricLight::initFields(VrmlNodePhotometricLight *node, vrml::
         }
 }
 
-const char *VrmlNodePhotometricLight::name()
+const char *VrmlNodePhotometricLight::typeName() 
 {
 	return "PhotometricLight";
 }
 
 VrmlNodePhotometricLight::VrmlNodePhotometricLight(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_lightNumber(0)
     , d_viewerObject(0)
 	, d_MLBFile("")

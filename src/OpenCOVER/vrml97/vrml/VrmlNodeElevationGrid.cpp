@@ -46,11 +46,11 @@ void VrmlNodeElevationGrid::initFields(VrmlNodeElevationGrid *node, VrmlNodeType
 
 }
 
-const char *VrmlNodeElevationGrid::name() { return "ElevationGrid"; }
+const char *VrmlNodeElevationGrid::typeName() { return "ElevationGrid"; }
 
 
 VrmlNodeElevationGrid::VrmlNodeElevationGrid(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_ccw(true)
     , d_colorPerVertex(true)
     , d_normalPerVertex(true)

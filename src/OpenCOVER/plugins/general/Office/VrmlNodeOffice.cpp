@@ -95,13 +95,13 @@ void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
                      eventInCallBack("events", node->d_events));
 }
 
-const char *VrmlNodeOffice::name()
+const char *VrmlNodeOffice::typeName() 
 {
     return "Office";
 }
 
 VrmlNodeOffice::VrmlNodeOffice(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_applicationType("PowerPoint")
     , d_command("")
     , d_events("")

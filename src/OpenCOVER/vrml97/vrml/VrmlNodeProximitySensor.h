@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeProximitySensor : public VrmlNodeChild
 public:
     // Define the fields of ProximitySensor nodes
     static void initFields(VrmlNodeProximitySensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeProximitySensor(VrmlScene *scene = 0);
 

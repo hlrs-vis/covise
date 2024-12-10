@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeSphere : public VrmlNodeGeometry
 public:
     // Define the fields of sphere nodes
     static void initFields(VrmlNodeSphere *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSphere(VrmlScene *);
 

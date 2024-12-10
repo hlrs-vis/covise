@@ -32,10 +32,10 @@ void VrmlNodeDirLight::initFields(VrmlNodeDirLight *node, VrmlNodeType *t)
     VrmlNodeLight::initFields(node, t);
 }
 
-const char *VrmlNodeDirLight::name() { return "DirectionalLight"; }
+const char *VrmlNodeDirLight::typeName() { return "DirectionalLight"; }
 
 VrmlNodeDirLight::VrmlNodeDirLight(VrmlScene *scene)
-    : VrmlNodeLight(scene, name())
+    : VrmlNodeLight(scene, typeName())
     , d_direction(0.0, 0.0, -1.0)
 {
     setModified();

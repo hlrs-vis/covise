@@ -26,7 +26,7 @@ class VRMLEXPORT VrmlNodeDirLight : public VrmlNodeLight
 
 public:
     static void initFields(VrmlNodeDirLight *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
     
     VrmlNodeDirLight(VrmlScene *);
 

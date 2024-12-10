@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeMultiTextureCoordinate : public VrmlNode
 public:
     // Define the fields of TextureCoordinate nodes
     static void initFields(VrmlNodeMultiTextureCoordinate *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMultiTextureCoordinate(VrmlScene *);
 

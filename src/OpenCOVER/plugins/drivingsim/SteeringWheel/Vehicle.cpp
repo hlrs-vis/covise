@@ -125,13 +125,13 @@ void VrmlNodeVehicle::initFields(VrmlNodeVehicle *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeVehicle::name()
+const char *VrmlNodeVehicle::typeName() 
 {
     return "Vehicle";
 }
 
 VrmlNodeVehicle::VrmlNodeVehicle(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_brakePedalRotation(1, 0, 0, 0)
     , d_clutchPedaRotation(1, 0, 0, 0)
     , d_gasPedalRotation(1, 0, 0, 0)

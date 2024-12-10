@@ -72,7 +72,7 @@ class PLUGINEXPORT VrmlNodeCSV : public VrmlNodeChild
 public:
     // Define the fields of CSV nodes
     static void initFields(VrmlNodeCSV *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCSV(VrmlScene *scene = 0);
     VrmlNodeCSV(const VrmlNodeCSV &n);

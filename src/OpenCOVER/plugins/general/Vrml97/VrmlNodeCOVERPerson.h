@@ -36,7 +36,7 @@ class VRML97COVEREXPORT VrmlNodeCOVERPerson : public VrmlNodeChild
 public:
     // Define the fields of COVERPerson nodes
     static void initFields(VrmlNodeCOVERPerson *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCOVERPerson(VrmlScene *scene = 0);
     VrmlNodeCOVERPerson(const VrmlNodeCOVERPerson &n);

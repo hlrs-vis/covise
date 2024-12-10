@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodeTimeSensor : public VrmlNodeChild
 public:
     // Define the fields of TimeSensor nodes
     static void initFields(VrmlNodeTimeSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTimeSensor(VrmlScene *scene = 0);
     virtual ~VrmlNodeTimeSensor();

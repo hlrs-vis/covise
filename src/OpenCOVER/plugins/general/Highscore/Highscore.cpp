@@ -149,13 +149,13 @@ void VrmlNodeHighscore::initFields(VrmlNodeHighscore *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeHighscore::name()
+const char *VrmlNodeHighscore::typeName() 
 {
     return "Highscore";
 }
 
 VrmlNodeHighscore::VrmlNodeHighscore(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     setModified();
 }

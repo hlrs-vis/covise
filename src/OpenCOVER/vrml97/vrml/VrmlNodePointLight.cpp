@@ -31,11 +31,11 @@ void VrmlNodePointLight::initFields(VrmlNodePointLight *node, VrmlNodeType *t)
     );
 }
 
-const char *VrmlNodePointLight::name() { return "PointLight"; }
+const char *VrmlNodePointLight::typeName() { return "PointLight"; }
 
 
 VrmlNodePointLight::VrmlNodePointLight(VrmlScene *scene)
-    : VrmlNodeLight(scene, name())
+    : VrmlNodeLight(scene, typeName())
     , d_attenuation(1.0, 0.0, 0.0)
     , d_location(0.0, 0.0, 0.0)
     , d_radius(100)

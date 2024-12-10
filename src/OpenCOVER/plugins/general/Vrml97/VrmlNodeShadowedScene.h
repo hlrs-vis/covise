@@ -40,7 +40,7 @@ class VRML97COVEREXPORT VrmlNodeShadowedScene : public VrmlNodeGroup
 
 public:
     static void initFields(VrmlNodeShadowedScene *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeShadowedScene(VrmlScene *scene = 0);
     VrmlNodeShadowedScene(const VrmlNodeShadowedScene &n);

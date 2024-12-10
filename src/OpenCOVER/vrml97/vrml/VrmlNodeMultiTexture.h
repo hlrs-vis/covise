@@ -38,7 +38,7 @@ class VRMLEXPORT VrmlNodeMultiTexture : public VrmlNodeTexture
 public:
     // Define the fields of MultiTexture nodes
     static void initFields(VrmlNodeMultiTexture *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMultiTexture(VrmlScene *);
     virtual ~VrmlNodeMultiTexture();

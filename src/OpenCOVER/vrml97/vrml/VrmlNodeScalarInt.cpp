@@ -41,11 +41,11 @@ void VrmlNodeScalarInt::initFields(VrmlNodeScalarInt *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeScalarInt::name() { return "ScalarInterpolator"; }
+const char *VrmlNodeScalarInt::typeName() { return "ScalarInterpolator"; }
 
 
 VrmlNodeScalarInt::VrmlNodeScalarInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

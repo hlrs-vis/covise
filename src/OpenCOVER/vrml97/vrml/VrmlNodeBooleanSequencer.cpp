@@ -46,11 +46,11 @@ void VrmlNodeBooleanSequencer::initFields(VrmlNodeBooleanSequencer *node, VrmlNo
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeBooleanSequencer::name() { return "BooleanSequencer"; }
+const char *VrmlNodeBooleanSequencer::typeName() { return "BooleanSequencer"; }
 
 
 VrmlNodeBooleanSequencer::VrmlNodeBooleanSequencer(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

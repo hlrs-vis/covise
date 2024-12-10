@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeTouchSensor : public VrmlNodeChild
 public:
     // Define the fields of TouchSensor nodes
     static void initFields(VrmlNodeTouchSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTouchSensor(VrmlScene *scene = 0);
 

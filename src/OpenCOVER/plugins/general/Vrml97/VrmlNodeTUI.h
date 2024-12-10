@@ -46,7 +46,7 @@ class VRML97COVEREXPORT VrmlNodeTUIElement : public VrmlNodeChild, public coTUIL
 
 public:
     static void initFields(VrmlNodeTUIElement *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIElement(VrmlScene *, const std::string &name);
     VrmlNodeTUIElement(const VrmlNodeTUIElement&);
@@ -74,7 +74,7 @@ class VRML97COVEREXPORT VrmlNodeTUITab : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUITab *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUITab(VrmlScene *);
     VrmlNodeTUITab(const VrmlNodeTUITab&);
@@ -97,7 +97,7 @@ class VRML97COVEREXPORT VrmlNodeTUIProgressBar : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIProgressBar *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIProgressBar(VrmlScene *);
     VrmlNodeTUIProgressBar(const VrmlNodeTUIProgressBar&);
@@ -117,7 +117,7 @@ class VRML97COVEREXPORT VrmlNodeTUITabFolder : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUITabFolder *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUITabFolder(VrmlScene *);
     VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder&);
@@ -138,7 +138,7 @@ class VRML97COVEREXPORT VrmlNodeTUIButton : public VrmlNodeTUIElement
 
 public:
     static void initFields(VrmlNodeTUIButton *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIButton(VrmlScene *);
     VrmlNodeTUIButton(const VrmlNodeTUIButton&);
@@ -159,7 +159,7 @@ class VRML97COVEREXPORT VrmlNodeTUIToggleButton : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIToggleButton *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
 	virtual void eventIn(double timeStamp, const char* eventName, const VrmlField* fieldValue);
     VrmlNodeTUIToggleButton(VrmlScene *);
@@ -180,7 +180,7 @@ class VRML97COVEREXPORT VrmlNodeTUIFrame : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIFrame *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIFrame(VrmlScene *);
     VrmlNodeTUIFrame(const VrmlNodeTUIFrame&);
@@ -199,7 +199,7 @@ class VRML97COVEREXPORT VrmlNodeTUISplitter : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUISplitter *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUISplitter(VrmlScene *);
     VrmlNodeTUISplitter(const VrmlNodeTUISplitter&);
@@ -217,7 +217,7 @@ class VRML97COVEREXPORT VrmlNodeTUISlider : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUISlider *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUISlider(VrmlScene *);
     VrmlNodeTUISlider(const VrmlNodeTUISlider&);
@@ -243,7 +243,7 @@ class VRML97COVEREXPORT VrmlNodeTUIFloatSlider : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIFloatSlider *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIFloatSlider(VrmlScene *);
     VrmlNodeTUIFloatSlider(const VrmlNodeTUIFloatSlider& n);
@@ -270,7 +270,7 @@ class VRML97COVEREXPORT VrmlNodeTUIComboBox : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIComboBox *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIComboBox(VrmlScene *);
     VrmlNodeTUIComboBox(const VrmlNodeTUIComboBox& n);
@@ -292,7 +292,7 @@ class VRML97COVEREXPORT VrmlNodeTUIListBox : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIListBox *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIListBox(VrmlScene *);
     VrmlNodeTUIListBox(const VrmlNodeTUIListBox& n);
@@ -314,7 +314,7 @@ class VRML97COVEREXPORT VrmlNodeTUIMap : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUIMap *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUIMap(VrmlScene *);
     VrmlNodeTUIMap(const VrmlNodeTUIMap& n);
@@ -340,7 +340,7 @@ class VRML97COVEREXPORT VrmlNodeTUILabel : public VrmlNodeTUIElement
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodeTUILabel *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTUILabel(VrmlScene *);
     VrmlNodeTUILabel(const VrmlNodeTUILabel& n);

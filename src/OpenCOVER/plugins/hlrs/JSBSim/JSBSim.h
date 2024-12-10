@@ -219,7 +219,7 @@ class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
 public:
 
     static void initFields(VrmlNodeThermal* node, VrmlNodeType* t);
-    static const char* name();
+    static const char *typeName();
 
     VrmlNodeThermal(VrmlScene* scene = 0);
     VrmlNodeThermal(const VrmlNodeThermal& n);

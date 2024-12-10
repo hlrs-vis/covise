@@ -48,13 +48,13 @@ void VrmlNodeThyssen::initFields(VrmlNodeThyssen *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeThyssen::name()
+const char *VrmlNodeThyssen::typeName() 
 {
     return "Thyssen";
 }
 
 VrmlNodeThyssen::VrmlNodeThyssen(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
 {
     setModified();

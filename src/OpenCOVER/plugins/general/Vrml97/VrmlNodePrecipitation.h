@@ -36,7 +36,7 @@ class VRML97COVEREXPORT VrmlNodePrecipitation : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodePrecipitation *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePrecipitation(VrmlScene *scene = 0);
     VrmlNodePrecipitation(const VrmlNodePrecipitation &n);

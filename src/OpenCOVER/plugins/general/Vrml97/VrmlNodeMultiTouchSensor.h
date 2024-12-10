@@ -35,7 +35,7 @@ class VRML97COVEREXPORT VrmlNodeMultiTouchSensor : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeMultiTouchSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMultiTouchSensor(VrmlScene *scene = 0);
     VrmlNodeMultiTouchSensor(const VrmlNodeMultiTouchSensor &n);

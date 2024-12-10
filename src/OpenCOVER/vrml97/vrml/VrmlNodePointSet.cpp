@@ -32,11 +32,11 @@ void VrmlNodePointSet::initFields(VrmlNodePointSet *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodePointSet::name() { return "PointSet"; }
+const char *VrmlNodePointSet::typeName() { return "PointSet"; }
 
 
 VrmlNodePointSet::VrmlNodePointSet(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
 {
 }
 

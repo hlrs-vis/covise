@@ -31,7 +31,7 @@ class VRMLEXPORT VrmlNodeAnchor : public VrmlNodeGroup
 public:
     // Define the built in VrmlNodeType:: "Anchor"
     static void initFields(VrmlNodeAnchor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeAnchor(VrmlScene *);
     VrmlNodeAnchor(const VrmlNodeAnchor &);

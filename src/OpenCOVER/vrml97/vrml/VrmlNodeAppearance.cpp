@@ -45,7 +45,7 @@ void VrmlNodeAppearance::initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType
 }
 
 VrmlNodeAppearance::VrmlNodeAppearance(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

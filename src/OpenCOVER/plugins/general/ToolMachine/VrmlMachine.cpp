@@ -47,7 +47,7 @@ void MachineNodeArrayMode::initFields(MachineNodeArrayMode *node, VrmlNodeType *
 }
 
 MachineNodeArrayMode::MachineNodeArrayMode(VrmlScene *scene)
-: MachineNodeBase(scene, name())
+: MachineNodeBase(scene, typeName())
 {
 }
 
@@ -55,7 +55,7 @@ MachineNodeArrayMode::MachineNodeArrayMode(VrmlScene *scene)
 
 
 MachineNodeSingleMode::MachineNodeSingleMode(VrmlScene *scene)
-: MachineNodeBase(scene, name())
+: MachineNodeBase(scene, typeName())
 {
 }
 
@@ -72,10 +72,10 @@ void MachineNode::initFields(MachineNode *node, VrmlNodeType *t) {
     //do nothing
 }
 
-const char *MachineNode::name() {
+const char *MachineNode::typeName() {
     return "ToolMachine";
 }
 
 MachineNode::MachineNode(VrmlScene *scene)
-: VrmlNodeChild(scene, name())
+: VrmlNodeChild(scene, typeName())
 {}

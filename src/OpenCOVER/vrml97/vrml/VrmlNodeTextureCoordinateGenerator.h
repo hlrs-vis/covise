@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodeTextureCoordinateGenerator : public VrmlNode
 public:
     // Define the fields of TextureCoordinate nodes
     static void initFields(VrmlNodeTextureCoordinateGenerator *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTextureCoordinateGenerator(VrmlScene *);
 

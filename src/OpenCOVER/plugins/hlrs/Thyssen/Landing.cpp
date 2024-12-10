@@ -28,13 +28,13 @@ void VrmlNodeLanding::initFields(VrmlNodeLanding *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeLanding::name()
+const char *VrmlNodeLanding::typeName() 
 {
     return "Landing";
 }
 
 VrmlNodeLanding::VrmlNodeLanding(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     state=Uninitialized;
     currentCar = NULL;

@@ -57,14 +57,14 @@ void VrmlNodeShadowedScene::initFields(VrmlNodeShadowedScene *node, VrmlNodeType
 
 }
 
-const char *VrmlNodeShadowedScene::name()
+const char *VrmlNodeShadowedScene::typeName() 
 {
     return "ShadowedScene";
 }
 
 
 VrmlNodeShadowedScene::VrmlNodeShadowedScene(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
     , d_technique("ShadowMap")
     , d_jitterScale(32)
     , d_softnessWidth(0.005)

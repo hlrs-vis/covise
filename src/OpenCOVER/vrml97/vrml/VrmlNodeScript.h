@@ -40,7 +40,7 @@ class VRMLEXPORT VrmlNodeScript : public VrmlNodeChild
 public:
     // Define the fields of Script nodes
     static void initFields(VrmlNodeScript *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeScript(VrmlScene *scene = 0);
     VrmlNodeScript(const VrmlNodeScript &);

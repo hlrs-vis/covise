@@ -75,13 +75,13 @@ void VrmlNodeSteeringWheel::initFields(VrmlNodeSteeringWheel *node, VrmlNodeType
     }                     
 }
 
-const char *VrmlNodeSteeringWheel::name()
+const char *VrmlNodeSteeringWheel::typeName() 
 {
     return "SteeringWheel";
 }
 
 VrmlNodeSteeringWheel::VrmlNodeSteeringWheel(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
     , d_joystickNumber(-1)
 {

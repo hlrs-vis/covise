@@ -31,13 +31,13 @@ void VrmlNodeJoystick::initFields(VrmlNodeJoystick* node, VrmlNodeType* t)
     }
 }
 
-const char* VrmlNodeJoystick::name()
+const char* VrmlNodeJoystick::typeName()
 {
     return "Joystick";
 }
 
 VrmlNodeJoystick::VrmlNodeJoystick(VrmlScene* scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
     , d_joystickNumber(-1)
 {

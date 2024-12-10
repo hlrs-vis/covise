@@ -61,11 +61,11 @@ void VrmlNodeIFaceSet::initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t)
 }
 
 
-const char *VrmlNodeIFaceSet::name() { return "IndexedFaceSet"; }
+const char *VrmlNodeIFaceSet::typeName() { return "IndexedFaceSet"; }
 
 
 VrmlNodeIFaceSet::VrmlNodeIFaceSet(VrmlScene *scene)
-    : VrmlNodeIndexedSet(scene, name())
+    : VrmlNodeIndexedSet(scene, typeName())
     , d_ccw(true)
     , d_convex(true)
     , d_creaseAngle(System::the->defaultCreaseAngle())

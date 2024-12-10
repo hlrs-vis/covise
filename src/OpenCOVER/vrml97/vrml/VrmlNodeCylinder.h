@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodeCylinder : public VrmlNodeGeometry
 public:
     // Define the fields of cylinder nodes
     static void initFields(VrmlNodeCylinder *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCylinder(VrmlScene *);
 

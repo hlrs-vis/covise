@@ -33,10 +33,10 @@ void VrmlNodePositionInt::initFields(VrmlNodePositionInt *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodePositionInt::name() { return "PositionInterpolator"; }
+const char *VrmlNodePositionInt::typeName() { return "PositionInterpolator"; }
 
 VrmlNodePositionInt::VrmlNodePositionInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

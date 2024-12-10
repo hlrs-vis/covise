@@ -30,7 +30,7 @@ class VRMLEXPORT VrmlNodeTextureTransform : public VrmlNode
 public:
     // Define the fields of TextureTransform nodes
     static void initFields(VrmlNodeTextureTransform *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTextureTransform(VrmlScene *);
 

@@ -29,9 +29,9 @@ public:
             t->addEventOut("angle", VrmlField::SFFLOAT);
     }
     
-    static const char* name() { return "Drehgeber"; }
+    static const char* typeName() { return "Drehgeber"; }
 
-    VrmlNodeDrehgeber(VrmlScene* scene) : VrmlNodeChild(scene, name()), m_index(drehgebers.size())
+    VrmlNodeDrehgeber(VrmlScene* scene) : VrmlNodeChild(scene, typeName()), m_index(drehgebers.size())
     {
 
         std::cerr << "vrml Machine node created" << std::endl;

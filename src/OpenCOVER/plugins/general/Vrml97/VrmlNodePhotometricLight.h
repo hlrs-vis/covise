@@ -56,7 +56,7 @@ class VRML97COVEREXPORT VrmlNodePhotometricLight : public VrmlNodeChild
 public:
     // Define the fields of PhotometricLight nodes
     static void initFields(VrmlNodePhotometricLight *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePhotometricLight(VrmlScene *scene = 0);
     VrmlNodePhotometricLight(const VrmlNodePhotometricLight &n);

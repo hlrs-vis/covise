@@ -32,10 +32,10 @@ void VrmlNodeTriangleSet::initFields(VrmlNodeTriangleSet *node, VrmlNodeType *t)
     VrmlNodePolygonsCommon::initFields(node, t); // Parent class
 }
 
-const char *VrmlNodeTriangleSet::name() { return "TriangleSet"; }   
+const char *VrmlNodeTriangleSet::typeName() { return "TriangleSet"; }   
 
 VrmlNodeTriangleSet::VrmlNodeTriangleSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene, name())
+    : VrmlNodePolygonsCommon(scene, typeName())
 {
 }
 

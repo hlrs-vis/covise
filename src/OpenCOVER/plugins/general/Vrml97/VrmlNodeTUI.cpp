@@ -62,13 +62,13 @@ void VrmlNodeTUIElement::initFields(VrmlNodeTUIElement *node, VrmlNodeType *t)
         exposedField("shared", node->d_shared));
 }
 
-const char *VrmlNodeTUIElement::name()
+const char *VrmlNodeTUIElement::typeName() 
 {
     return "TUIElement";
 }
 
 VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene, const std::string &name)
-: VrmlNodeChild(scene, name == "" ? this->name() : name)
+: VrmlNodeChild(scene, name == "" ? typeName() : name)
 , d_elementName("")
 , d_parent("")
 , d_shaderParam("")
@@ -171,14 +171,14 @@ void VrmlNodeTUITab::initFields(VrmlNodeTUITab *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeTUITab::name()
+const char *VrmlNodeTUITab::typeName() 
 {
     return "TUITab";
 }
 
 
 VrmlNodeTUITab::VrmlNodeTUITab(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
 {
 }
 
@@ -254,13 +254,13 @@ void VrmlNodeTUIProgressBar::initFields(VrmlNodeTUIProgressBar *node, vrml::Vrml
         exposedField("value", node->d_value));
 }
 
-const char *VrmlNodeTUIProgressBar::name()
+const char *VrmlNodeTUIProgressBar::typeName() 
 {
     return "TUIProgressBar";
 }
 
 VrmlNodeTUIProgressBar::VrmlNodeTUIProgressBar(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_max(100)
     , d_value(0)
 {
@@ -313,14 +313,14 @@ void VrmlNodeTUITabFolder::initFields(VrmlNodeTUITabFolder *node, vrml::VrmlNode
     VrmlNodeTUIElement::initFields(node, t);
 }
 
-const char *VrmlNodeTUITabFolder::name()
+const char *VrmlNodeTUITabFolder::typeName() 
 {
     return "TUITabFolder";
 }
 
 
 VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
 {
 }
 VrmlNodeTUITabFolder::VrmlNodeTUITabFolder(const VrmlNodeTUITabFolder& n)
@@ -391,13 +391,13 @@ void VrmlNodeTUIButton::initFields(VrmlNodeTUIButton *node, vrml::VrmlNodeType *
     }
 }
 
-const char *VrmlNodeTUIButton::name()
+const char *VrmlNodeTUIButton::typeName() 
 {
     return "TUIButton";
 }
 
 VrmlNodeTUIButton::VrmlNodeTUIButton(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_touchTime(0.0)
 {
 }
@@ -469,7 +469,7 @@ void VrmlNodeTUIToggleButton::initFields(VrmlNodeTUIToggleButton *node, vrml::Vr
         }));
 }
 
-const char *VrmlNodeTUIToggleButton::name()
+const char *VrmlNodeTUIToggleButton::typeName() 
 {
     return "TUIToggleButton";
 }
@@ -489,7 +489,7 @@ void VrmlNodeTUIToggleButton::eventIn(double timeStamp,
 }
 
 VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_state(false)
     , d_choice(-1)
 {
@@ -588,13 +588,13 @@ void VrmlNodeTUIFrame::initFields(VrmlNodeTUIFrame *node, vrml::VrmlNodeType *t)
         exposedField("style", node->d_style));
 }
 
-const char *VrmlNodeTUIFrame::name()
+const char *VrmlNodeTUIFrame::typeName() 
 {
     return "TUIFrame";
 }
 
 VrmlNodeTUIFrame::VrmlNodeTUIFrame(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_shape(0)
     , d_style(0)
 {
@@ -660,13 +660,13 @@ void VrmlNodeTUISplitter::initFields(VrmlNodeTUISplitter *node, vrml::VrmlNodeTy
         exposedField("orientation", node->d_orientation));
 }
 
-const char *VrmlNodeTUISplitter::name()
+const char *VrmlNodeTUISplitter::typeName() 
 {
     return "TUISplitter";
 }   
 
 VrmlNodeTUISplitter::VrmlNodeTUISplitter(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_shape(0)
     , d_style(0)
     , d_orientation(0x1)
@@ -714,13 +714,13 @@ void VrmlNodeTUILabel::initFields(VrmlNodeTUILabel *node, vrml::VrmlNodeType *t)
     VrmlNodeTUIElement::initFields(node, t);
 }
 
-const char *VrmlNodeTUILabel::name()
+const char *VrmlNodeTUILabel::typeName() 
 {
     return "TUILabel";
 }
 
 VrmlNodeTUILabel::VrmlNodeTUILabel(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
 {
 }
 VrmlNodeTUILabel::VrmlNodeTUILabel(const VrmlNodeTUILabel& n)
@@ -787,13 +787,13 @@ void VrmlNodeTUIFloatSlider::initFields(VrmlNodeTUIFloatSlider *node, vrml::Vrml
         }));
 }
 
-const char *VrmlNodeTUIFloatSlider::name()
+const char *VrmlNodeTUIFloatSlider::typeName() 
 {
     return "TUIFloatSlider";
 }
 
 VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_min(0.0)
     , d_max(0.0)
     , d_value(50.0)
@@ -981,13 +981,13 @@ void VrmlNodeTUISlider::initFields(VrmlNodeTUISlider *node, vrml::VrmlNodeType *
         }));
 }
 
-const char *VrmlNodeTUISlider::name()
+const char *VrmlNodeTUISlider::typeName() 
 {
     return "TUISlider";
 }
 
 VrmlNodeTUISlider::VrmlNodeTUISlider(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_min(0)
     , d_max(0)
     , d_value(50)
@@ -1118,13 +1118,13 @@ void VrmlNodeTUIComboBox::initFields(VrmlNodeTUIComboBox *node, vrml::VrmlNodeTy
         }));
 }
 
-const char *VrmlNodeTUIComboBox::name()
+const char *VrmlNodeTUIComboBox::typeName() 
 {
     return "TUIComboBox";
 }
 
 VrmlNodeTUIComboBox::VrmlNodeTUIComboBox(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_withNone(true)
     , d_defaultChoice(0)
 {
@@ -1214,13 +1214,13 @@ void VrmlNodeTUIListBox::initFields(VrmlNodeTUIListBox *node, vrml::VrmlNodeType
         t->addEventOut("choice", VrmlField::SFINT32);     
 }
 
-const char *VrmlNodeTUIListBox::name()
+const char *VrmlNodeTUIListBox::typeName() 
 {
     return "TUIListBox";
 }
 
 VrmlNodeTUIListBox::VrmlNodeTUIListBox(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_withNone(true)
     , d_defaultChoice(0)
 {
@@ -1317,13 +1317,13 @@ void VrmlNodeTUIMap::initFields(VrmlNodeTUIMap *node, vrml::VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeTUIMap::name()
+const char *VrmlNodeTUIMap::typeName() 
 {
     return "TUIMap";
 }
 
 VrmlNodeTUIMap::VrmlNodeTUIMap(VrmlScene *scene)
-    : VrmlNodeTUIElement(scene, name())
+    : VrmlNodeTUIElement(scene, typeName())
     , d_currentMap(-1)
     , d_currentPos(0, 0, 0)
 {

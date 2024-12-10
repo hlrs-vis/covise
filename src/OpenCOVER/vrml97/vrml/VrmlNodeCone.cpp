@@ -29,10 +29,10 @@ void VrmlNodeCone::initFields(VrmlNodeCone *node, VrmlNodeType *t)
                         field("side", node->d_side));
 }
 
-const char *VrmlNodeCone::name() { return "Cone"; }
+const char *VrmlNodeCone::typeName() { return "Cone"; }
 
 VrmlNodeCone::VrmlNodeCone(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_bottom(true)
     , d_bottomRadius(1.0)
     , d_height(2.0)

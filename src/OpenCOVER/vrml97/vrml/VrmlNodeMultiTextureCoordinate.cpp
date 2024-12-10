@@ -22,13 +22,13 @@ void VrmlNodeMultiTextureCoordinate::initFields(VrmlNodeMultiTextureCoordinate *
     initFieldsHelper(node, t, exposedField("texCoord", node->d_texCoord));
 }
 
-const char *VrmlNodeMultiTextureCoordinate::name()
+const char *VrmlNodeMultiTextureCoordinate::typeName() 
 {
     return "MultiTextureCoordinate";
 }
 
 VrmlNodeMultiTextureCoordinate::VrmlNodeMultiTextureCoordinate(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
 {
 }
 

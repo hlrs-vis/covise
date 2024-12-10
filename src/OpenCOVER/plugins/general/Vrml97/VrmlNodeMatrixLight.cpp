@@ -101,13 +101,13 @@ void VrmlNodeMatrixLight::initFields(VrmlNodeMatrixLight *node, VrmlNodeType *t)
         }
 }
 
-const char *VrmlNodeMatrixLight::name()
+const char *VrmlNodeMatrixLight::typeName() 
 {
     return "MatrixLight";
 }
 
 VrmlNodeMatrixLight::VrmlNodeMatrixLight(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_lightNumber(0)
     , d_numRows(1)
     , d_numColumns(1)

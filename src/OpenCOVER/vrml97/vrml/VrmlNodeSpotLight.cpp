@@ -37,11 +37,11 @@ void VrmlNodeSpotLight::initFields(VrmlNodeSpotLight *node, VrmlNodeType *t)
                      exposedField("radius", node->d_radius));
 }
 
-const char *VrmlNodeSpotLight::name() { return "SpotLight"; }
+const char *VrmlNodeSpotLight::typeName() { return "SpotLight"; }
 
 
 VrmlNodeSpotLight::VrmlNodeSpotLight(VrmlScene *scene)
-    : VrmlNodeLight(scene, name())
+    : VrmlNodeLight(scene, typeName())
     , d_attenuation(1.0f, 0.0f, 0.0f)
     , d_beamWidth(1.570796f)
     , d_cutOffAngle(0.785398f)

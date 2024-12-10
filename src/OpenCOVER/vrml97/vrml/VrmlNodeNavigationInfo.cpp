@@ -55,10 +55,10 @@ void VrmlNodeNavigationInfo::initFields(VrmlNodeNavigationInfo *node, VrmlNodeTy
     }                    
 }
 
-const char *VrmlNodeNavigationInfo::name() { return "NavigationInfo"; }
+const char *VrmlNodeNavigationInfo::typeName() { return "NavigationInfo"; }
 
 VrmlNodeNavigationInfo::VrmlNodeNavigationInfo(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , lastBind(true)
     , d_headlight(true)
     , d_scale(-1.0)

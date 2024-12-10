@@ -55,11 +55,11 @@ void VrmlNodeSound::initFields(VrmlNodeSound *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeSound::name() { return "Sound"; }
+const char *VrmlNodeSound::typeName() { return "Sound"; }
 
 // Should subclass NodeType and have each Sound maintain its own type...
 VrmlNodeSound::VrmlNodeSound(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_direction(0, 0, 1)
     , d_intensity(1)
     , d_maxBack(10)

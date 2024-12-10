@@ -34,7 +34,7 @@ public:
 
     // Define the built in VrmlNodeType:: "NavigationInfo"
     static void initFields(VrmlNodeNavigationInfo *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
     VrmlNodeNavigationInfo(VrmlScene *scene);
     virtual ~VrmlNodeNavigationInfo();
 

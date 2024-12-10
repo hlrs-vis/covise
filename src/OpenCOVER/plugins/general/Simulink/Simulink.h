@@ -51,7 +51,7 @@ class PLUGINEXPORT VrmlNodeSimulink : public VrmlNodeChild
 public:
     // Define the fields of Simulink nodes
     static void initFields(VrmlNodeSimulink *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSimulink(VrmlScene *scene = 0);
     VrmlNodeSimulink(const VrmlNodeSimulink &n);

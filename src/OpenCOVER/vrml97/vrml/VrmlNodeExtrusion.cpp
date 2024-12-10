@@ -42,11 +42,11 @@ void VrmlNodeExtrusion::initFields(VrmlNodeExtrusion *node, VrmlNodeType *t)
         t->addEventIn("set_spine", VrmlField::MFVEC3F);}
 }
 
-const char *VrmlNodeExtrusion::name() { return "Extrusion"; }
+const char *VrmlNodeExtrusion::typeName() { return "Extrusion"; }
 
 
 VrmlNodeExtrusion::VrmlNodeExtrusion(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_beginCap(true)
     , d_ccw(true)
     , d_convex(true)

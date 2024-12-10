@@ -22,9 +22,9 @@ void VrmlNodeNormal::initFields(VrmlNodeNormal *node, VrmlNodeType *t)
     initFieldsHelper(node, t, exposedField("vector", node->d_vector));
 }
 
-const char *VrmlNodeNormal::name() { return "Normal"; }
+const char *VrmlNodeNormal::typeName() { return "Normal"; }
 
 VrmlNodeNormal::VrmlNodeNormal(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
 {
 }

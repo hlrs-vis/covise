@@ -26,13 +26,13 @@ void VrmlNodeXElevator::initFields(VrmlNodeXElevator *node, VrmlNodeType *t)
         exposedField("shaftPositions", node->d_shaftPositions));
 }
 
-const char *VrmlNodeXElevator::name()
+const char *VrmlNodeXElevator::typeName() 
 {
     return "XElevator";
 }
 
 VrmlNodeXElevator::VrmlNodeXElevator(VrmlScene *scene)
-: VrmlNodeGroup(scene, name())
+: VrmlNodeGroup(scene, typeName())
 {
     setModified();
     XElevatorTab = new coTUITab("XElevator", coVRTui::instance()->mainFolder->getID());

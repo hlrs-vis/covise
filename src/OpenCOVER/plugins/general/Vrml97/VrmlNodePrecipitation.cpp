@@ -58,13 +58,13 @@ void VrmlNodePrecipitation::initFields(VrmlNodePrecipitation *node, vrml::VrmlNo
     }
 }
 
-const char *VrmlNodePrecipitation::name()
+const char *VrmlNodePrecipitation::typeName() 
 {
     return "Precipitation";
 }
 
 VrmlNodePrecipitation::VrmlNodePrecipitation(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_numPrecipitation(0)
     , d_fraction_changed(0.0)
     , d_enabled(true)

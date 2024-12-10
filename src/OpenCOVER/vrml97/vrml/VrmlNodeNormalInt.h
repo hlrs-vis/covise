@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodeNormalInt : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeNormalInt *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeNormalInt(VrmlScene *scene = 0);
 

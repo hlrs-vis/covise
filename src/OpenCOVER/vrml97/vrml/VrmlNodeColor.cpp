@@ -24,9 +24,9 @@ void VrmlNodeColor::initFields(VrmlNodeColor *node, VrmlNodeType *t)
                      exposedField("color", node->d_color));
 }
 
-const char *VrmlNodeColor::name() { return "Color"; }
+const char *VrmlNodeColor::typeName() { return "Color"; }
 
 VrmlNodeColor::VrmlNodeColor(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
 {
 }

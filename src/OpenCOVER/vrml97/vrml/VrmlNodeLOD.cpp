@@ -37,11 +37,11 @@ void VrmlNodeLOD::initFields(VrmlNodeLOD *node, VrmlNodeType *t)
                      field("range", node->d_range));
 }
 
-const char *VrmlNodeLOD::name() { return "LOD"; }
+const char *VrmlNodeLOD::typeName() { return "LOD"; }
 
 
 VrmlNodeLOD::VrmlNodeLOD(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     firstTime = true;
     forceTraversal(false);

@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeLOD : public VrmlNodeChild
 public:
     // Define the fields of all built in LOD nodes
     static void initFields(VrmlNodeLOD *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeLOD(VrmlScene *);
 

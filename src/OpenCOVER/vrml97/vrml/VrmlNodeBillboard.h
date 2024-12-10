@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeBillboard : public VrmlNodeGroup
 public:
     // Define the fields of Billboard nodes
     static void initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBillboard(VrmlScene *, const std::string &name = "");
 

@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeVisibilitySensor : public VrmlNodeChild
 public:
     
     static void initFields(VrmlNodeVisibilitySensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeVisibilitySensor(VrmlScene *scene = 0);
 

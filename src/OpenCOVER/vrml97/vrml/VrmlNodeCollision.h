@@ -29,7 +29,7 @@ class VRMLEXPORT VrmlNodeCollision : public VrmlNodeGroup
 public:
 
     static void initFields(VrmlNodeCollision *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCollision(VrmlScene *);
 

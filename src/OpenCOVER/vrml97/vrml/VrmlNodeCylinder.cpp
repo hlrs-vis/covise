@@ -30,11 +30,11 @@ void VrmlNodeCylinder::initFields(VrmlNodeCylinder *node, VrmlNodeType *t)
                      field("top", node->d_top));
 }
 
-const char *VrmlNodeCylinder::name() { return "Cylinder"; }
+const char *VrmlNodeCylinder::typeName() { return "Cylinder"; }
 
 
 VrmlNodeCylinder::VrmlNodeCylinder(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_bottom(true)
     , d_height(2.0)
     , d_radius(1.0)

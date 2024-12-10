@@ -36,7 +36,7 @@ class VRML97COVEREXPORT VrmlNodeTimesteps : public VrmlNodeChild
 public:
     // Define the fields of Timesteps nodes
     static void initFields(VrmlNodeTimesteps *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTimesteps(VrmlScene *scene = 0);
     VrmlNodeTimesteps(const VrmlNodeTimesteps &n);

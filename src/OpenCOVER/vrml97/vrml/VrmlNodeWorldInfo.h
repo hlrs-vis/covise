@@ -31,7 +31,7 @@ class VRMLEXPORT VrmlNodeWorldInfo : public VrmlNodeChild
 public:
     // Define the built in VrmlNodeType:: "WorldInfo"
     static void initFields(VrmlNodeWorldInfo *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeWorldInfo(VrmlScene *);
 

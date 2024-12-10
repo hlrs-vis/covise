@@ -54,13 +54,13 @@ void VrmlNodeCSV::initFields(VrmlNodeCSV *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeCSV::name()
+const char *VrmlNodeCSV::typeName() 
 {
     return "CSV";
 }
 
 VrmlNodeCSV::VrmlNodeCSV(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
 {
     changedFile = false;

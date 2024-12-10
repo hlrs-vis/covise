@@ -28,11 +28,11 @@ void VrmlNodeSwitch::initFields(VrmlNodeSwitch *node, VrmlNodeType *t)
                      exposedField("whichChoice", node->d_whichChoice));
 }
 
-const char *VrmlNodeSwitch::name() { return "Switch"; }
+const char *VrmlNodeSwitch::typeName() { return "Switch"; }
 
 
 VrmlNodeSwitch::VrmlNodeSwitch(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_whichChoice(-1)
 {
     firstTime = true;

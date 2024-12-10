@@ -29,7 +29,7 @@ class VRMLEXPORT VrmlNodeILineSet : public VrmlNodeIndexedSet
 public:
     // Define the fields of indexed line set nodes
     static void initFields(VrmlNodeILineSet *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeILineSet(VrmlScene *);
 

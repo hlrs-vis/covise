@@ -32,13 +32,13 @@ void VrmlNodeSimulink::initFields(VrmlNodeSimulink *node, vrml::VrmlNodeType *t)
     }                     
 }
 
-const char *VrmlNodeSimulink::name()
+const char *VrmlNodeSimulink::typeName() 
 {
     return "Simulink";
 }
 
 VrmlNodeSimulink::VrmlNodeSimulink(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
 {
     setModified();

@@ -22,7 +22,7 @@ void ToolChangerNode::initFields(ToolChangerNode *node, VrmlNodeType *t) {
 }
 
 ToolChangerNode::ToolChangerNode(VrmlScene *scene)
-: VrmlNodeChild(scene, name())
+: VrmlNodeChild(scene, typeName())
 {
     toolChangers.emplace(this);
 }

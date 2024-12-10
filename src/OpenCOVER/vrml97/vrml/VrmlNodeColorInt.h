@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodeColorInt : public VrmlNodeChild
 public:
     // Define the fields of ColorInt nodes
     static void initFields(VrmlNodeColorInt *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeColorInt(VrmlScene *scene = 0);
 

@@ -30,10 +30,10 @@ void VrmlNodeText::initFields(VrmlNodeText *node, VrmlNodeType *t)
                      exposedField("length", node->d_length),
                      exposedField("maxExtent", node->d_maxExtent));
 }
-const char *VrmlNodeText::name() { return "Text"; }
+const char *VrmlNodeText::typeName() { return "Text"; }
 
 VrmlNodeText::VrmlNodeText(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
 {
 }
 

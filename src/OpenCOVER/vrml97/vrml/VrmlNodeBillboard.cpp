@@ -29,7 +29,7 @@ void VrmlNodeBillboard::initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *
     VrmlNodeGroup::initFields(node, t);
 }
 
-const char *VrmlNodeBillboard::name() { return "Billboard"; }
+const char *VrmlNodeBillboard::typeName() { return "Billboard"; }
 
 VrmlNodeBillboard::VrmlNodeBillboard(VrmlScene *scene, const std::string &name)
     : VrmlNodeGroup(scene, name == ""? this->name() : name)

@@ -53,7 +53,7 @@ class PLUGINEXPORT VrmlNodeDLab : public VrmlNodeChild
 {
 public:
     static void initFields(VrmlNodeDLab *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeDLab(VrmlScene *scene = 0);
     VrmlNodeDLab(const VrmlNodeDLab &n);

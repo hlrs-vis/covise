@@ -29,11 +29,11 @@ void VrmlNodeILineSet::initFields(VrmlNodeILineSet *node, VrmlNodeType *t)
     VrmlNodeIndexedSet::initFields(node, t); // Parent class
 }
 
-const char *VrmlNodeILineSet::name() { return "IndexedLineSet"; }
+const char *VrmlNodeILineSet::typeName() { return "IndexedLineSet"; }
 
 
 VrmlNodeILineSet::VrmlNodeILineSet(VrmlScene *scene)
-    : VrmlNodeIndexedSet(scene, name())
+    : VrmlNodeIndexedSet(scene, typeName())
 {
 }
 

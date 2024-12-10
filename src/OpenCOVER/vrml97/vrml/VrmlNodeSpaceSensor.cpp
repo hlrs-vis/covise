@@ -55,10 +55,10 @@ void VrmlNodeSpaceSensor::initFields(VrmlNodeSpaceSensor *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeSpaceSensor::name(){return "SpaceSensor";}
+const char *VrmlNodeSpaceSensor::typeName() {return "SpaceSensor";}
 
 VrmlNodeSpaceSensor::VrmlNodeSpaceSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_autoOffset(true)
     , d_enabled(true)
     , d_rotationEnabled(false)

@@ -64,7 +64,7 @@ public:
     enum LandingState {Idle=0,Occupied, Uninitialized};
     // Define the fields of Landing nodes
     static void initFields(VrmlNodeLanding *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeLanding(VrmlScene *scene = 0);
     VrmlNodeLanding(const VrmlNodeLanding &n);

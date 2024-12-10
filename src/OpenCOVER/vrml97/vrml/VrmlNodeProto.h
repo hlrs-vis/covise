@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeProto : public VrmlNode
 
 public:
     static void initFields(VrmlNodeProto *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
     VrmlNodeType *nodeType() const override;
 
     VrmlNodeProto(VrmlNodeType *nodeDef, VrmlScene *scene);

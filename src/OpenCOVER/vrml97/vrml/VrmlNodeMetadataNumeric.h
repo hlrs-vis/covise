@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeMetadata##typename : public VrmlNodeMetadata\
 \
 public:\
     static void initFields(VrmlNodeMetadata##typename *node, VrmlNodeType *t);\
-    static const char *name();\
+    static const char *typeName();\
 \
     VrmlNodeMetadata##typename(VrmlScene *);\
 \

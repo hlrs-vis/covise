@@ -60,10 +60,10 @@ void VrmlNodePhases::initFields(VrmlNodePhases *node, VrmlNodeType *t)
                      exposedField("phaseName", node->d_PhaseName));
 }
 
-const char *VrmlNodePhases::name() { return "Phases"; }
+const char *VrmlNodePhases::typeName() { return "Phases"; }
 
 VrmlNodePhases::VrmlNodePhases(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_numPhases(0)
     , d_Phase(-1)
     , d_PhaseName("")

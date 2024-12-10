@@ -60,7 +60,7 @@ void VrmlNodeGroup::initFields(VrmlNodeGroup *node, VrmlNodeType *t) {
 
 
 VrmlNodeGroup::VrmlNodeGroup(VrmlScene *scene, const std::string &name)
-    : VrmlNodeChild(scene, name == "" ? this->name() : name)
+    : VrmlNodeChild(scene, name == "" ? typeName() : name)
     , d_bboxSize(-1.0, -1.0, -1.0)
     , d_parentTransform(0)
     , d_viewerObject(0)

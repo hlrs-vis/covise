@@ -40,7 +40,7 @@ public:
 
     // Define the built in VrmlNodeType:: "COVER"
     static void initFields(VrmlNodeCOVER *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCOVER(VrmlScene *scene);
     virtual ~VrmlNodeCOVER();

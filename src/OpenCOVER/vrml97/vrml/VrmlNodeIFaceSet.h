@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeIFaceSet : public VrmlNodeIndexedSet
 public:
     // Define the fields of indexed face set nodes
     static void initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeIFaceSet(VrmlScene *);
 

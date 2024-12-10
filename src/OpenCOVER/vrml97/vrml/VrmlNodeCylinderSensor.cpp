@@ -48,14 +48,14 @@ void VrmlNodeCylinderSensor::initFields(VrmlNodeCylinderSensor *node, VrmlNodeTy
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeCylinderSensor::name()
+const char *VrmlNodeCylinderSensor::typeName() 
 {
     return "CylinderSensor";
 }
 
 
 VrmlNodeCylinderSensor::VrmlNodeCylinderSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_autoOffset(true)
     , d_diskAngle(0.262f)
     , d_enabled(true)

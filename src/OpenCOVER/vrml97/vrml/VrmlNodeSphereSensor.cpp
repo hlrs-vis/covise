@@ -37,14 +37,14 @@ void VrmlNodeSphereSensor::initFields(VrmlNodeSphereSensor *node, VrmlNodeType *
     }
 }
 
-const char *VrmlNodeSphereSensor::name()
+const char *VrmlNodeSphereSensor::typeName() 
 {
     return "SphereSensor";
 }
 
 
 VrmlNodeSphereSensor::VrmlNodeSphereSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_autoOffset(true)
     , d_enabled(true)
     , d_isActive(false)

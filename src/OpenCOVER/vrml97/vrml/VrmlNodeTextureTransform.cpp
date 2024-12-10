@@ -28,13 +28,13 @@ void VrmlNodeTextureTransform::initFields(VrmlNodeTextureTransform *node, VrmlNo
                                        exposedField("translation", node->d_translation));
 }
 
-const char *VrmlNodeTextureTransform::name()
+const char *VrmlNodeTextureTransform::typeName() 
 {
     return "TextureTransform";
 }
 
 VrmlNodeTextureTransform::VrmlNodeTextureTransform(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_center(0.0, 0.0)
     , d_rotation(0.0)
     , d_scale(1.0, 1.0)

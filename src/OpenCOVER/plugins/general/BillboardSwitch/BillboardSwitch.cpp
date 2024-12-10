@@ -60,13 +60,13 @@ void VrmlNodeBillboardSwitch::initFields(VrmlNodeBillboardSwitch *node, VrmlNode
                      eventOutCallBack("activeChildChanged", node->d_activeChild));
 }
 
-const char *VrmlNodeBillboardSwitch::name()
+const char *VrmlNodeBillboardSwitch::typeName() 
 {
     return "BillboardSwitch";
 }
 
 VrmlNodeBillboardSwitch::VrmlNodeBillboardSwitch(VrmlScene *scene)
-    : VrmlNodeBillboard(scene, name())
+    : VrmlNodeBillboard(scene, typeName())
     , d_axisOfRotation(0.0, 1.0, 0.0)
     , d_activeChild(0)
 {

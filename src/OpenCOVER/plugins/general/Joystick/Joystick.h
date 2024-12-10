@@ -32,7 +32,7 @@ class PLUGINEXPORT VrmlNodeJoystick : public vrml::VrmlNodeChild
 public:
     // Define the fields of SteeringWheel nodes
     static void initFields(VrmlNodeJoystick* node, vrml::VrmlNodeType* t);
-    static const char* name(); 
+    static const char *typeName(); 
 
     VrmlNodeJoystick(vrml::VrmlScene* scene = 0);
     VrmlNodeJoystick(const VrmlNodeJoystick& n);

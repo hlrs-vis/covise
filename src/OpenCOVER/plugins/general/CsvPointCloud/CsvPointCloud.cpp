@@ -68,10 +68,10 @@ public:
         return new MachineNode(scene);
     }
 
-    static const char *name() { return "CsvPointCloud"; }
+    static const char *typeName() { return "CsvPointCloud"; }
 
     MachineNode(VrmlScene *scene) 
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , m_index(machineNodes.size())
     {
 

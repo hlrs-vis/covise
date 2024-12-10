@@ -27,7 +27,7 @@ void VrmlNodeMetadata::initFields(VrmlNodeMetadata *node, VrmlNodeType *t)
                         field("reference", node->d_reference));
 }
 
-const char *VrmlNodeMetadata::name() { return "Metadata"; }
+const char *VrmlNodeMetadata::typeName() { return "Metadata"; }
 
 VrmlNodeMetadata::VrmlNodeMetadata(VrmlScene *scene, const std::string &name)
     : VrmlNode(scene, name)

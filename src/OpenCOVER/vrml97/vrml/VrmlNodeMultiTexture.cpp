@@ -57,10 +57,10 @@ void VrmlNodeMultiTexture::initFields(VrmlNodeMultiTexture *node, VrmlNodeType *
                      exposedField("texture", node->d_texture));
 }
 
-const char *VrmlNodeMultiTexture::name() { return "MultiTexture"; }
+const char *VrmlNodeMultiTexture::typeName() { return "MultiTexture"; }
 
 VrmlNodeMultiTexture::VrmlNodeMultiTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene, name())
+    : VrmlNodeTexture(scene, typeName())
     , d_alpha(1)
     , d_color(1, 1, 1)
     , d_function()

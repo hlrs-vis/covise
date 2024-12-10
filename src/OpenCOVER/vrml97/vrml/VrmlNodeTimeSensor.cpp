@@ -50,10 +50,10 @@ void VrmlNodeTimeSensor::initFields(VrmlNodeTimeSensor *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeTimeSensor::name() { return "TimeSensor"; }
+const char *VrmlNodeTimeSensor::typeName() { return "TimeSensor"; }
 
 VrmlNodeTimeSensor::VrmlNodeTimeSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_cycleInterval(1.0)
     , d_enabled(true)
     , d_loop(false)

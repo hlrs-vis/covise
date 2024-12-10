@@ -34,10 +34,10 @@ void VrmlNodeTransform::initFields(VrmlNodeTransform *node, VrmlNodeType *t)
     );
 }
 
-const char *VrmlNodeTransform::name() { return "Transform"; }
+const char *VrmlNodeTransform::typeName() { return "Transform"; }
 
 VrmlNodeTransform::VrmlNodeTransform(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
     , d_center(0.0, 0.0, 0.0)
     , d_rotation(0.0, 0.0, 1.0, 0.0)
     , d_scale(1.0, 1.0, 1.0)

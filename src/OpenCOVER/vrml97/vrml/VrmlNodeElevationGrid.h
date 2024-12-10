@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeElevationGrid : public VrmlNodeGeometry
 public:
     // Define the fields of elevationGrid nodes
     static void initFields(VrmlNodeElevationGrid *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeElevationGrid(VrmlScene *);
 

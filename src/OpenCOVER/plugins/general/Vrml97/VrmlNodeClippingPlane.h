@@ -38,7 +38,7 @@ class VRML97COVEREXPORT VrmlNodeClippingPlane : public VrmlNodeGroup
 
 public:
     static void initFields(VrmlNodeClippingPlane *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeClippingPlane(VrmlScene *scene = 0);
     VrmlNodeClippingPlane(const VrmlNodeClippingPlane &n);

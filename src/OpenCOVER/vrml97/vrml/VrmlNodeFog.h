@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodeFog : public VrmlNodeChild
 public:
 
     static void initFields(VrmlNodeFog *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeFog(VrmlScene *);
     virtual ~VrmlNodeFog();

@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeITriangleFanSet : public VrmlNodeIPolygonsCommon
 public:
     // Define the fields of indexed face set nodes
     static void initFields(VrmlNodeITriangleFanSet *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeITriangleFanSet(VrmlScene *);
 

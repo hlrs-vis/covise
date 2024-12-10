@@ -49,12 +49,12 @@ void VrmlNodeViewpoint::initFields(VrmlNodeViewpoint *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeViewpoint::name() { return "Viewpoint"; }
+const char *VrmlNodeViewpoint::typeName() { return "Viewpoint"; }
 
 static const float DEFAULT_FIELD_OF_VIEW = 0.785398f;
 
 VrmlNodeViewpoint::VrmlNodeViewpoint(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , lastBind(true)
     , d_fieldOfView(DEFAULT_FIELD_OF_VIEW)
     , d_jump(true)

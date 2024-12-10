@@ -146,7 +146,7 @@ class PLUGINEXPORT VrmlNodePorscheVFP : public VrmlNodeChild /* , public coTUILi
 public:
     // Define the fields of TUI nodes
     static void initFields(VrmlNodePorscheVFP *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePorscheVFP(VrmlScene *);
     VrmlNodePorscheVFP(const VrmlNodePorscheVFP &);

@@ -32,11 +32,11 @@ void VrmlNodeITriangleStripSet::initFields(VrmlNodeITriangleStripSet *node, Vrml
     VrmlNodeIPolygonsCommon::initFields(node, t);
 }
 
-const char *VrmlNodeITriangleStripSet::name() { return "IndexedTriangleStripSet"; }
+const char *VrmlNodeITriangleStripSet::typeName() { return "IndexedTriangleStripSet"; }
 
 
 VrmlNodeITriangleStripSet::VrmlNodeITriangleStripSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene, name())
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
 }
 

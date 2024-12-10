@@ -56,7 +56,7 @@ class ROADTERRAINPLUGINEXPORT VrmlNodeRoadTerrain : public VrmlNodeChild
 public:
     // Define the fields of Sky nodes
     static void initFields(VrmlNodeRoadTerrain *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeRoadTerrain(VrmlScene *scene = 0);
     VrmlNodeRoadTerrain(const VrmlNodeRoadTerrain &n);

@@ -25,10 +25,10 @@ void VrmlNodeSphere::initFields(VrmlNodeSphere *node, VrmlNodeType *t)
     initFieldsHelper(node, t, field("radius", node->d_radius));
 }
 
-const char *VrmlNodeSphere::name() { return "Sphere"; }
+const char *VrmlNodeSphere::typeName() { return "Sphere"; }
 
 VrmlNodeSphere::VrmlNodeSphere(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_radius(1.0)
 {
 }

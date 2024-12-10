@@ -52,13 +52,13 @@ void VrmlNodeClippingPlane::initFields(VrmlNodeClippingPlane *node, vrml::VrmlNo
         exposedField("number", node->d_number));
 }
 
-const char *VrmlNodeClippingPlane::name()
+const char *VrmlNodeClippingPlane::typeName() 
 {
     return "ClippingPlane";
 }
 
 VrmlNodeClippingPlane::VrmlNodeClippingPlane(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
     , d_global(false)
     , d_enabled(true)
     , d_position(0, 0, 0)

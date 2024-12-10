@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodeImageTexture : public VrmlNodeTexture
 public:
     // Define the fields of ImageTexture nodes
     static void initFields(VrmlNodeImageTexture *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     static void initScaling();
     VrmlNodeImageTexture(VrmlScene *);

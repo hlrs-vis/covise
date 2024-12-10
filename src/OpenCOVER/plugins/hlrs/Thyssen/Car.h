@@ -73,7 +73,7 @@ public:
     enum carState {Idle=0,DoorOpening, DoorOpen, DoorClosing, Moving, RotatingRight, RotatingLeft, Uninitialized, MoveUp, MoveDown, MoveLeft, MoveRight,StartRotatingRight,StartRotatingLeft};
     // Define the fields of Car nodes
     static void initFields(VrmlNodeCar *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCar(VrmlScene *scene = 0);
     VrmlNodeCar(const VrmlNodeCar &n);

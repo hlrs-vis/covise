@@ -38,7 +38,7 @@ class VRMLEXPORT VrmlNodeSound : public VrmlNodeChild
 public:
     // Define the fields of Sound nodes
     static void initFields(VrmlNodeSound *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSound(VrmlScene *scene = 0);
     VrmlNodeSound(VrmlNodeSound *sound);

@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodePointSet : public VrmlNodeGeometry
 public:
     // Define the fields of pointSet nodes
     static void initFields(VrmlNodePointSet *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePointSet(VrmlScene *);
 

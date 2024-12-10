@@ -24,13 +24,13 @@ void VrmlNodeTextureCoordinateGenerator::initFields(VrmlNodeTextureCoordinateGen
         exposedField("parameter", node->d_parameter));
 }
 
-const char *VrmlNodeTextureCoordinateGenerator::name()
+const char *VrmlNodeTextureCoordinateGenerator::typeName() 
 {
     return "TextureCoordinateGenerator";
 }
 
 VrmlNodeTextureCoordinateGenerator::VrmlNodeTextureCoordinateGenerator(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_mode("SPHERE")
 {
 }

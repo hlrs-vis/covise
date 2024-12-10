@@ -30,7 +30,7 @@ class VRMLEXPORT VrmlNodePixelTexture : public VrmlNodeTexture
 public:
     // Define the fields of PixelTexture nodes
     static void initFields(VrmlNodePixelTexture *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePixelTexture(VrmlScene *);
 

@@ -169,12 +169,12 @@ void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeCOVER::name() { return "COVER"; }
+const char *VrmlNodeCOVER::typeName() { return "COVER"; }
 
 
 
 VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     assert(!theCOVER);
 

@@ -33,11 +33,11 @@ void VrmlNodeCoordinateInt::initFields(VrmlNodeCoordinateInt *node, VrmlNodeType
     }
 }
 
-const char *VrmlNodeCoordinateInt::name() { return "CoordinateInterpolator"; }
+const char *VrmlNodeCoordinateInt::typeName() { return "CoordinateInterpolator"; }
 
 
 VrmlNodeCoordinateInt::VrmlNodeCoordinateInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

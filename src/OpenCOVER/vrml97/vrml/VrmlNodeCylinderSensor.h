@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeCylinderSensor : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeCylinderSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCylinderSensor(VrmlScene *scene = 0);
     void activate(double timeStamp, bool isActive, double *p);

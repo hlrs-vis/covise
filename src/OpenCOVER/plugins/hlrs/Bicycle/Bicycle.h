@@ -98,7 +98,7 @@ class PLUGINEXPORT VrmlNodeBicycle : public VrmlNodeChild
 public:
     // Define the fields of Bicycle nodes
     static void initFields(VrmlNodeBicycle *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBicycle(VrmlScene *scene = 0);
     VrmlNodeBicycle(const VrmlNodeBicycle &n);

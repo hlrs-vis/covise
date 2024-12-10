@@ -36,7 +36,7 @@ class VRMLEXPORT VrmlNodeViewpoint : public VrmlNodeChild
 public:
     bool lastBind;
     static void initFields(VrmlNodeViewpoint *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeViewpoint(VrmlScene *);
     virtual ~VrmlNodeViewpoint();

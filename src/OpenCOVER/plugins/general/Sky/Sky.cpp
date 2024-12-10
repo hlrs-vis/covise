@@ -66,13 +66,13 @@ void VrmlNodeSky::initFields(VrmlNodeSky *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeSky::name()
+const char *VrmlNodeSky::typeName() 
 {
     return "Sky";
 }
 
 VrmlNodeSky::VrmlNodeSky(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
     , d_timeLapse(false)
     , d_currentTime(true)

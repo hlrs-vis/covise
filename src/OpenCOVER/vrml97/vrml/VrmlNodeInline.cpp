@@ -44,10 +44,10 @@ void VrmlNodeInline::initFields(VrmlNodeInline *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeInline::name() { return "Inline"; }
+const char *VrmlNodeInline::typeName() { return "Inline"; }
 
 VrmlNodeInline::VrmlNodeInline(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
     , d_namespace(0)
     , sgObject(0)
     , d_hasLoaded(false)

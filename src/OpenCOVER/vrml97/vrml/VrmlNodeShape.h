@@ -29,7 +29,7 @@ class VRMLEXPORT VrmlNodeShape : public VrmlNodeChild
 public:
     // Define the fields of Shape nodes
     static void initFields(VrmlNodeShape *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeShape(VrmlScene *);
 

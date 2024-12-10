@@ -42,14 +42,14 @@ void VrmlNodeXCar::initFields(VrmlNodeXCar *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeXCar::name()
+const char *VrmlNodeXCar::typeName() 
 {
     return "XCar";
 }
 
 int VrmlNodeXCar::IDCounter=0;
 VrmlNodeXCar::VrmlNodeXCar(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     state=Uninitialized;
     oldState=Uninitialized;

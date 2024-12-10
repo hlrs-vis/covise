@@ -983,7 +983,7 @@ void VrmlNodePorscheVFP::initFields(VrmlNodePorscheVFP *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodePorscheVFP::name()
+const char *VrmlNodePorscheVFP::typeName() 
 {
     return "PorscheVFP";
 }
@@ -991,7 +991,7 @@ const char *VrmlNodePorscheVFP::name()
 /** Constructor.
 */
 VrmlNodePorscheVFP::VrmlNodePorscheVFP(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , clientConn_(NULL)
     , d_targetIP("")
     , d_targetPort(0)

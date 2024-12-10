@@ -36,10 +36,10 @@ void VrmlNodeAnchor::initFields(VrmlNodeAnchor *node, VrmlNodeType *t)
                      exposedField("url", node->d_url));
 }
 
-const char *VrmlNodeAnchor::name() { return "Anchor"; }
+const char *VrmlNodeAnchor::typeName() { return "Anchor"; }
 
 VrmlNodeAnchor::VrmlNodeAnchor(VrmlScene *scene)
-    : VrmlNodeGroup(scene, name())
+    : VrmlNodeGroup(scene, typeName())
 {
 }
 

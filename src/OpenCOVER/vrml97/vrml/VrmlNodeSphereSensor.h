@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodeSphereSensor : public VrmlNodeChild
 public:
     // Define the fields of SphereSensor nodes
     static void initFields(VrmlNodeSphereSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSphereSensor(VrmlScene *scene = 0);
 

@@ -44,14 +44,14 @@ void VrmlNodeCar::initFields(VrmlNodeCar *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeCar::name()
+const char *VrmlNodeCar::typeName() 
 {
     return "Car";
 }
 
 int VrmlNodeCar::IDCounter=0;
 VrmlNodeCar::VrmlNodeCar(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     state=Uninitialized;
     oldState=Uninitialized;

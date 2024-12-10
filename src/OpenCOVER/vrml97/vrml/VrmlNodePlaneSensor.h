@@ -33,7 +33,7 @@ class VRMLEXPORT VrmlNodePlaneSensor : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodePlaneSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePlaneSensor(VrmlScene *scene = 0);
 

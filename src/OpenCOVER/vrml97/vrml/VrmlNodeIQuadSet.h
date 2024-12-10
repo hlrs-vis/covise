@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeIQuadSet : public VrmlNodeIPolygonsCommon
 public:
     // Define the fields of indexed face set nodes
   static void initFields(VrmlNodeIQuadSet *node, VrmlNodeType *t);
-  static const char *name();
+  static const char *typeName();
 
     VrmlNodeIQuadSet(VrmlScene *);
 

@@ -46,7 +46,7 @@ public:
     static VrmlNodeRemoteVehicle *instance();
 
     static void initFields(VrmlNodeRemoteVehicle *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeRemoteVehicle(VrmlScene *scene = 0);
     VrmlNodeRemoteVehicle(const VrmlNodeRemoteVehicle &n);

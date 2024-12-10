@@ -105,7 +105,7 @@ class PLUGINEXPORT VrmlNodeSteeringWheel : public VrmlNodeChild
 public:
     // Define the fields of SteeringWheel nodes
     static void initFields(VrmlNodeSteeringWheel *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSteeringWheel(VrmlScene *scene = 0);
     VrmlNodeSteeringWheel(const VrmlNodeSteeringWheel &n);

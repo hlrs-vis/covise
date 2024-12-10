@@ -26,13 +26,13 @@ void VrmlNodeSolarSystem::initFields(VrmlNodeSolarSystem *node, VrmlNodeType *t)
     );
 }
 
-const char *VrmlNodeSolarSystem::name()
+const char *VrmlNodeSolarSystem::typeName() 
 {
     return "SolarSystem";
 }
 
 VrmlNodeSolarSystem::VrmlNodeSolarSystem(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_venusRotation(1, 0, 0, 0)
     , d_venusTranslation(0, 0, 0)
     , d_marsRotation(1, 0, 0, 0)

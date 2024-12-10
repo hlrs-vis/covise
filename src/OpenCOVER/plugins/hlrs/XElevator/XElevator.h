@@ -80,7 +80,7 @@ class PLUGINEXPORT VrmlNodeXElevator : public VrmlNodeGroup
 public:
     // Define the fields of XElevator nodes
     static void initFields(VrmlNodeXElevator *node, VrmlNodeType *t = 0);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeXElevator(VrmlScene *scene = 0);
     VrmlNodeXElevator(const VrmlNodeXElevator &n);

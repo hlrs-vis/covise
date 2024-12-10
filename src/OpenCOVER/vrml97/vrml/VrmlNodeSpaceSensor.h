@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeSpaceSensor : public VrmlNodeChild
 public:
     // Define the fields of SpaceSensor nodes
     static void initFields(VrmlNodeSpaceSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSpaceSensor(VrmlScene *scene = 0);
 

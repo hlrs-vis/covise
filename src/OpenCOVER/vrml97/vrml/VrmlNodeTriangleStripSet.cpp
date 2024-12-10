@@ -34,13 +34,13 @@ void VrmlNodeTriangleStripSet::initFields(VrmlNodeTriangleStripSet *node, VrmlNo
 
 }
 
-const char *VrmlNodeTriangleStripSet::name()
+const char *VrmlNodeTriangleStripSet::typeName() 
 {
     return "TriangleStripSet";
 }
 
 VrmlNodeTriangleStripSet::VrmlNodeTriangleStripSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene, name())
+    : VrmlNodePolygonsCommon(scene, typeName())
 {
 }
 

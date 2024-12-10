@@ -56,7 +56,7 @@ class VrmlNodeCrawler : public VrmlNodeChild
 public:
     // Define the fields of Crawler nodes
     static void initFields(VrmlNodeCrawler* node, vrml::VrmlNodeType* t);
-    static const char* name();
+    static const char *typeName();
 
     VrmlNodeCrawler(VrmlScene *scene = 0);
     VrmlNodeCrawler(const VrmlNodeCrawler &n);

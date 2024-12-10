@@ -63,7 +63,7 @@ public:
     enum XLandingState {Idle=0,Occupied, Uninitialized};
 
     static void initFields(VrmlNodeXLanding *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeXLanding(VrmlScene *scene = 0);
     VrmlNodeXLanding(const VrmlNodeXLanding &n);

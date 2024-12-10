@@ -63,10 +63,10 @@ void VrmlNodeRoadTerrain::initFields(VrmlNodeRoadTerrain *node, VrmlNodeType *t)
                      exposedField("maxPositions", node->d_maxPositions));
 }
 
-const char *VrmlNodeRoadTerrain::name() { return "RoadTerrain"; }
+const char *VrmlNodeRoadTerrain::typeName() { return "RoadTerrain"; }
 
 VrmlNodeRoadTerrain::VrmlNodeRoadTerrain(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     setModified();
 }

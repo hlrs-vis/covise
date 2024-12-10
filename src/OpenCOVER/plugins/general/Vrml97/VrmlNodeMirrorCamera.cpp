@@ -62,13 +62,13 @@ void VrmlNodeMirrorCamera::initFields(VrmlNodeMirrorCamera *node, vrml::VrmlNode
                      exposedField("cameraID", node->d_cameraID));
 }
 
-const char *VrmlNodeMirrorCamera::name()
+const char *VrmlNodeMirrorCamera::typeName() 
 {
     return "MirrorCamera";
 }
 
 VrmlNodeMirrorCamera::VrmlNodeMirrorCamera(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_hFov(90.0)
     , d_vFov(90.0)
     , d_near(0.1)

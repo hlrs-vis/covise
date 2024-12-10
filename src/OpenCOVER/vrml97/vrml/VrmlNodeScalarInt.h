@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeScalarInt : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeScalarInt *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeScalarInt(VrmlScene *scene = 0);
 

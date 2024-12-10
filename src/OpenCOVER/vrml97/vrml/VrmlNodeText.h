@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeText : public VrmlNodeGeometry
 public:
     // Define the fields of text nodes
     static void initFields(VrmlNodeText *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeText(VrmlScene *);
 

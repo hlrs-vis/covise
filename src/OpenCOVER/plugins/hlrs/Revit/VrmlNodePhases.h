@@ -44,7 +44,7 @@ class VrmlNodePhases : public VrmlNodeChild
 public:
     // Define the fields of Timesteps nodes
     static void initFields(VrmlNodePhases *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePhases(VrmlScene* scene = 0);
     VrmlNodePhases(const VrmlNodePhases& n);

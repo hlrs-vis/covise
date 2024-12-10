@@ -90,13 +90,13 @@ void VrmlNodeMultiTouchSensor::initFields(VrmlNodeMultiTouchSensor *node, VrmlNo
     }                     
 }
 
-const char *VrmlNodeMultiTouchSensor::name()
+const char *VrmlNodeMultiTouchSensor::typeName() 
 {
     return "MultiTouchSensor";
 }
 
 VrmlNodeMultiTouchSensor::VrmlNodeMultiTouchSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_freeze(false)
     , d_adjustHeight(false)
     , d_adjustOrientation(false)

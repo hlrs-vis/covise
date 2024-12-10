@@ -23,10 +23,10 @@ void VrmlNodeCoordinate::initFields(VrmlNodeCoordinate *node, VrmlNodeType *t)
                                        exposedField("point", node->d_point));
 }
 
-const char *VrmlNodeCoordinate::name() { return "Coordinate"; }
+const char *VrmlNodeCoordinate::typeName() { return "Coordinate"; }
 
 VrmlNodeCoordinate::VrmlNodeCoordinate(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
 {
 }
 

@@ -30,7 +30,7 @@ class VRMLEXPORT VrmlNodeFontStyle : public VrmlNode
 public:
     // Define the fields of FontStyle nodes
     static void initFields(VrmlNodeFontStyle *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeFontStyle(VrmlScene *);
 

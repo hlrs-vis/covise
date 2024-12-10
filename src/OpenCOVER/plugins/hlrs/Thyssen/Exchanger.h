@@ -64,7 +64,7 @@ public:
     enum ExchangerState {Idle=0,Occupied, Uninitialized,UnlockL,RotatingLeft,LockL,UnlockR,RotatingRight,LockR};
 
     static void initFields(VrmlNodeExchanger *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeExchanger(VrmlScene *scene = 0);
     VrmlNodeExchanger(const VrmlNodeExchanger &n);

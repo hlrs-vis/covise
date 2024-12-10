@@ -29,9 +29,9 @@ class VRMLEXPORT VrmlNodeMetadata : public VrmlNode
 public:
     // Define the built in VrmlNodeType:: "Metadata"
     static void initFields(VrmlNodeMetadata *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
-    VrmlNodeMetadata(VrmlScene *, const std::string &n = name());
+    VrmlNodeMetadata(VrmlScene *, const std::string &n = typeName());
 
 private:
     VrmlSFString d_name;

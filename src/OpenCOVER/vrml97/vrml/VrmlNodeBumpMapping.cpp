@@ -30,7 +30,7 @@ void VrmlNodeBumpMapping::initFields(VrmlNodeBumpMapping *node, vrml::VrmlNodeTy
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodeBumpMapping::name() { return "BumpMapping"; }
+const char *VrmlNodeBumpMapping::typeName() { return "BumpMapping"; }
 
 
 VrmlNodeBumpMapping::VrmlNodeBumpMapping(VrmlScene *scene)

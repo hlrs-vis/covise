@@ -32,10 +32,10 @@ void VrmlNodeIQuadSet::initFields(VrmlNodeIQuadSet *node, VrmlNodeType *t)
     VrmlNodeIPolygonsCommon::initFields(node, t); // Parent class
 }
 
-const char *VrmlNodeIQuadSet::name() { return "IndexedQuadSet"; }
+const char *VrmlNodeIQuadSet::typeName() { return "IndexedQuadSet"; }
 
 VrmlNodeIQuadSet::VrmlNodeIQuadSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene, name())
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
 }
 

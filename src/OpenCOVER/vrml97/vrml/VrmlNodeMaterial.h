@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodeMaterial : public VrmlNode
 public:
     // Define the fields of Material nodes
     static void initFields(VrmlNodeMaterial *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMaterial(VrmlScene *);
 

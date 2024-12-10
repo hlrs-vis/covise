@@ -1079,7 +1079,7 @@ const char* VrmlNodeThermal::name()
 }
 
 VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_direction(0, 0, 1)
     , d_location(0, 0, 0)
     , d_maxBack(10)

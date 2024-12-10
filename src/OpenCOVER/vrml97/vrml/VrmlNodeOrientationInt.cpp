@@ -42,10 +42,10 @@ void VrmlNodeOrientationInt::initFields(VrmlNodeOrientationInt *node, VrmlNodeTy
     }
 }
 
-const char *VrmlNodeOrientationInt::name() { return "OrientationInterpolator"; }
+const char *VrmlNodeOrientationInt::typeName() { return "OrientationInterpolator"; }
 
 VrmlNodeOrientationInt::VrmlNodeOrientationInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

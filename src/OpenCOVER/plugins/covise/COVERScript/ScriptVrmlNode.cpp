@@ -46,7 +46,7 @@ void ScriptVrmlNode::initFields(vrml::VrmlNodeChild *node, vrml::VrmlNodeType *t
 
 ScriptVrmlNode::ScriptVrmlNode(vrml::VrmlScene *scene)
     : QObject(0)
-    , vrml::VrmlNodeChild(scene, name())
+    , vrml::VrmlNodeChild(scene, typeName())
 {
 
     connect(ScriptVrmlNode::scriptPlugin->covise(), SIGNAL(eventLink(QString, QString)),

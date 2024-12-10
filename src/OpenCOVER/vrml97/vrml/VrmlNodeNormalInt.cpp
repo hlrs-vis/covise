@@ -43,10 +43,10 @@ void VrmlNodeNormalInt::initFields(VrmlNodeNormalInt *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeNormalInt::name() { return "NormalInterpolator"; }
+const char *VrmlNodeNormalInt::typeName() { return "NormalInterpolator"; }
 
 VrmlNodeNormalInt::VrmlNodeNormalInt(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
 }
 

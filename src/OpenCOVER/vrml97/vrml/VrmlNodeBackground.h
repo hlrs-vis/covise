@@ -39,7 +39,7 @@ public:
     // Define the fields of Background nodes
 
     static void initFields(VrmlNodeBackground *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBackground(VrmlScene *);
     virtual ~VrmlNodeBackground();

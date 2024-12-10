@@ -31,7 +31,7 @@ class VRMLEXPORT VrmlNodeSwitch : public VrmlNodeChild
 public:
     // Define the fields of all built in switch nodes
     static void initFields(VrmlNodeSwitch *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSwitch(VrmlScene *);
 

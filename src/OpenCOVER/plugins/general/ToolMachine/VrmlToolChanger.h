@@ -16,7 +16,7 @@ public:
     ToolChangerNode(vrml::VrmlScene *scene);
     ~ToolChangerNode();
     static void initFields(ToolChangerNode *node, vrml::VrmlNodeType *t);
-    static const char *name() { return "ToolChangerNode"; }
+    static const char *typeName() { return "ToolChangerNode"; }
 
     vrml::VrmlSFString arm;
     vrml::VrmlSFString changer;

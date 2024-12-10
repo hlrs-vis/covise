@@ -40,10 +40,10 @@ void VrmlNodeVisibilitySensor::initFields(VrmlNodeVisibilitySensor *node, VrmlNo
 
 }
 
-const char *VrmlNodeVisibilitySensor::name() { return "VisibilitySensor"; }
+const char *VrmlNodeVisibilitySensor::typeName() { return "VisibilitySensor"; }
 
 VrmlNodeVisibilitySensor::VrmlNodeVisibilitySensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_center(0.0, 0.0, 0.0)
     , d_enabled(true)
     , d_size(0.0, 0.0, 0.0)

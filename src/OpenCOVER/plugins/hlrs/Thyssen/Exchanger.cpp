@@ -33,13 +33,13 @@ void VrmlNodeExchanger::initFields(VrmlNodeExchanger *node, vrml::VrmlNodeType *
 
 }
 
-const char *VrmlNodeExchanger::name()
+const char *VrmlNodeExchanger::typeName() 
 {
     return "Exchanger";
 }
 
 VrmlNodeExchanger::VrmlNodeExchanger(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     state=Uninitialized;
     aaMax = 0.3;

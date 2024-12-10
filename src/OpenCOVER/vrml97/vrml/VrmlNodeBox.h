@@ -29,7 +29,7 @@ class VRMLEXPORT VrmlNodeBox : public VrmlNodeGeometry
 public:
     // Define the fields of box nodes
     static void initFields(VrmlNodeBox *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBox(VrmlScene *);
 

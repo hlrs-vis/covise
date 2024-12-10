@@ -29,7 +29,7 @@ class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNode
 public:
     // Define the fields of Color nodes
     static void initFields(VrmlNodeColorRGBA *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeColorRGBA(VrmlScene *);
 

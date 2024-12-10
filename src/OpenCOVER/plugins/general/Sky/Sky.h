@@ -65,7 +65,7 @@ class PLUGINEXPORT VrmlNodeSky : public VrmlNodeChild
 {
 public:
     static void initFields(VrmlNodeSky *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSky(VrmlScene *scene = 0);
     VrmlNodeSky(const VrmlNodeSky &n);

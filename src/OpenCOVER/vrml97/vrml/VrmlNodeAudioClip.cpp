@@ -79,11 +79,11 @@ void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeAudioClip::name() { return "AudioClip"; }
+const char *VrmlNodeAudioClip::typeName() { return "AudioClip"; }
 
 
 VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_pitch(1.0)
     , d_isActive(false)
     , d_audio(new Audio(0))

@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodeSpotLight : public VrmlNodeLight
 public:
     // Define the fields of spotLight nodes
     static void initFields(VrmlNodeSpotLight *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSpotLight(VrmlScene *);
     virtual ~VrmlNodeSpotLight();

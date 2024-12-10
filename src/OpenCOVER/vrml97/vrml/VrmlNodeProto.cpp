@@ -55,13 +55,13 @@ void VrmlNodeProto::initFields(VrmlNodeProto *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeProto::name()
+const char *VrmlNodeProto::typeName() 
 {
     return "PROTO";
 }
 
 VrmlNodeProto::VrmlNodeProto(VrmlNodeType *nodeDef, VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_nodeType(nodeDef->reference())
     , d_instantiated(false)
     , d_scope(0)

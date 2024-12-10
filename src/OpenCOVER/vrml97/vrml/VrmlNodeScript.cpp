@@ -43,11 +43,11 @@ void VrmlNodeScript::initFields(VrmlNodeScript *node, VrmlNodeType *t)
                      field("myself", node->d_myself));
 }
 
-const char *VrmlNodeScript::name() { return "Script"; }
+const char *VrmlNodeScript::typeName() { return "Script"; }
 
 
 VrmlNodeScript::VrmlNodeScript(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_directOutput(false)
     , d_mustEvaluate(false)
     , d_script(0)

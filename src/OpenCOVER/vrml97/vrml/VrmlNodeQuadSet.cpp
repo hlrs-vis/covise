@@ -32,11 +32,11 @@ void VrmlNodeQuadSet::initFields(VrmlNodeQuadSet *node, VrmlNodeType *t)
     VrmlNodePolygonsCommon::initFields(node, t); 
 }
 
-const char *VrmlNodeQuadSet::name() { return "QuadSet"; }
+const char *VrmlNodeQuadSet::typeName() { return "QuadSet"; }
 
 
 VrmlNodeQuadSet::VrmlNodeQuadSet(VrmlScene *scene)
-    : VrmlNodePolygonsCommon(scene, name())
+    : VrmlNodePolygonsCommon(scene, typeName())
 {
 }
 

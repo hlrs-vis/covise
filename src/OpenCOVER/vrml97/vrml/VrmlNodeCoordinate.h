@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeCoordinate : public VrmlNode
 public:
     // Define the fields of Coordinate nodes
     static void initFields(VrmlNodeCoordinate *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCoordinate(VrmlScene *);
 

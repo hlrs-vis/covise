@@ -36,7 +36,7 @@ class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
 public:
     // Define the fields of AudioClip nodes
     static void initFields(VrmlNodeAudioClip *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeAudioClip(VrmlScene *);
     VrmlNodeAudioClip(const VrmlNodeAudioClip &);

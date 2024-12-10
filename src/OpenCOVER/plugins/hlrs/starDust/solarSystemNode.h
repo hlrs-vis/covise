@@ -41,7 +41,7 @@ class PLUGINEXPORT VrmlNodeSolarSystem : public VrmlNodeChild
 public:
     // Define the fields of SteeringWheel nodes
     static void initFields(VrmlNodeSolarSystem *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSolarSystem(VrmlScene *scene = 0);
     VrmlNodeSolarSystem(const VrmlNodeSolarSystem &n);

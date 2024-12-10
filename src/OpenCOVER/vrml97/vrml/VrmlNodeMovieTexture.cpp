@@ -49,10 +49,10 @@ void VrmlNodeMovieTexture::initFields(VrmlNodeMovieTexture *node, VrmlNodeType *
     }
 }
 
-const char *VrmlNodeMovieTexture::name(){ return "MovieTexture";}
+const char *VrmlNodeMovieTexture::typeName() { return "MovieTexture";}
 
 VrmlNodeMovieTexture::VrmlNodeMovieTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene, name())
+    : VrmlNodeTexture(scene, typeName())
     , d_loop(false)
     , d_speed(1.0)
     , d_repeatS(true)

@@ -36,7 +36,7 @@ class VRML97COVEREXPORT VrmlNodeCOVERBody : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeCOVERBody *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCOVERBody(VrmlScene *scene = 0);
     VrmlNodeCOVERBody(const VrmlNodeCOVERBody &n);

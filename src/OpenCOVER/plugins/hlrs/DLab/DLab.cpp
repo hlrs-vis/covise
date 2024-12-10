@@ -29,13 +29,13 @@ void VrmlNodeDLab::initFields(VrmlNodeDLab *node, vrml::VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeDLab::name()
+const char *VrmlNodeDLab::typeName() 
 {
     return "DLab";
 }
 
 VrmlNodeDLab::VrmlNodeDLab(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
 {
     setModified();

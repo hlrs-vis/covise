@@ -65,13 +65,13 @@ void VrmlNodeCOVERPerson::initFields(VrmlNodeCOVERPerson *node, vrml::VrmlNodeTy
         }));
 }
 
-const char *VrmlNodeCOVERPerson::name()
+const char *VrmlNodeCOVERPerson::typeName() 
 {
     return "COVERPerson";
 }
 
 VrmlNodeCOVERPerson::VrmlNodeCOVERPerson(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_activePerson(Input::instance()->getActivePerson())
 {
     setModified();

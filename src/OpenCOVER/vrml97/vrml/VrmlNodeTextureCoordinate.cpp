@@ -22,12 +22,12 @@ void VrmlNodeTextureCoordinate::initFields(VrmlNodeTextureCoordinate *node, Vrml
     initFieldsHelper(node, t, exposedField("point", node->d_point));
 }
 
-const char *VrmlNodeTextureCoordinate::name()
+const char *VrmlNodeTextureCoordinate::typeName() 
 {
     return "TextureCoordinate";
 }
 
 VrmlNodeTextureCoordinate::VrmlNodeTextureCoordinate(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
 {
 }

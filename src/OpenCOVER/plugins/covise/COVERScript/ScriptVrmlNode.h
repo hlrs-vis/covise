@@ -24,7 +24,7 @@ public:
     ScriptVrmlNode(const ScriptVrmlNode &other);
 
     static void initFields(vrml::VrmlNodeChild *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     void eventIn(double timeStamp, const char *eventName,
                  const vrml::VrmlField *fieldValue);

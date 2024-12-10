@@ -30,7 +30,7 @@ class VRMLEXPORT VrmlNodeCone : public VrmlNodeGeometry
 public:
     // Define the fields of cone nodes
     static void initFields(VrmlNodeCone *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCone(VrmlScene *);
 

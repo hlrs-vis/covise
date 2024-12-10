@@ -32,10 +32,10 @@ void VrmlNodeITriangleFanSet::initFields(VrmlNodeITriangleFanSet *node, VrmlNode
     VrmlNodeIPolygonsCommon::initFields(node, t);
 }
 
-const char *VrmlNodeITriangleFanSet::name() { return "IndexedTriangleFanSet"; }
+const char *VrmlNodeITriangleFanSet::typeName() { return "IndexedTriangleFanSet"; }
 
 VrmlNodeITriangleFanSet::VrmlNodeITriangleFanSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene, name())
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
 }
 

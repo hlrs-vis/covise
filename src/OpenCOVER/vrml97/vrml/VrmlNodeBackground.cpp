@@ -59,10 +59,10 @@ void VrmlNodeBackground::initFields(VrmlNodeBackground *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeBackground::name() { return "Background"; }
+const char *VrmlNodeBackground::typeName() { return "Background"; }
 
 VrmlNodeBackground::VrmlNodeBackground(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_viewerObject(0)
 {
     for (int i = 0; i < 6; ++i)

@@ -83,13 +83,13 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeTimesteps::name()
+const char *VrmlNodeTimesteps::typeName() 
 {
     return "Timesteps";
 }
 
 VrmlNodeTimesteps::VrmlNodeTimesteps(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_numTimesteps(0)
     , d_fraction_changed(0.0)
     , d_enabled(true)

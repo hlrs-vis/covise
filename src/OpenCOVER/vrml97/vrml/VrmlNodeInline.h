@@ -33,7 +33,7 @@ public:
     // Define the built in VrmlNodeType:: "Inline"
 
     static void initFields(VrmlNodeInline *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeInline(VrmlScene *);
     virtual ~VrmlNodeInline();

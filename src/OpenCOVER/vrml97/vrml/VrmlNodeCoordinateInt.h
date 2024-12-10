@@ -34,7 +34,7 @@ class VRMLEXPORT VrmlNodeCoordinateInt : public VrmlNodeChild
 public:
     // Define the fields of CoordinateInt nodes
     static void initFields(VrmlNodeCoordinateInt *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeCoordinateInt(VrmlScene *scene = 0);
 

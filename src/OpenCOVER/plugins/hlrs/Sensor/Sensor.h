@@ -102,7 +102,7 @@ class PLUGINEXPORT VrmlNodeSensor : public VrmlNodeChild
 public:
     // Define the fields of Sensor nodes
     static void initFields(VrmlNodeSensor *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeSensor(VrmlScene *scene = 0);
     VrmlNodeSensor(const VrmlNodeSensor &n);

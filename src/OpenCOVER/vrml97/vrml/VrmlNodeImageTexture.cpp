@@ -53,7 +53,7 @@ void VrmlNodeImageTexture::initFields(VrmlNodeImageTexture *node, VrmlNodeType *
     }
 }
 
-const char *VrmlNodeImageTexture::name() { return "ImageTexture"; }
+const char *VrmlNodeImageTexture::typeName() { return "ImageTexture"; }
 
 void VrmlNodeImageTexture::initScaling()
 {
@@ -71,7 +71,7 @@ void VrmlNodeImageTexture::initScaling()
 }
 
 VrmlNodeImageTexture::VrmlNodeImageTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene, name())
+    : VrmlNodeTexture(scene, typeName())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_environment(false)

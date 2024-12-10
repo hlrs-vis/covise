@@ -112,13 +112,13 @@ void Cal3dCore::initFields(Cal3dCore *node, VrmlNodeType *t)
                      exposedField("scale", node->d_scale));
 }
 
-const char *Cal3dCore::name()
+const char *Cal3dCore::typeName() 
 {
     return "Cal3DCore";
 }
 
 Cal3dCore::Cal3dCore(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     fprintf(stderr, "Cal3dCore::Cal3dCore\n");
     d_scale = 1.0;
@@ -207,13 +207,13 @@ void Cal3dNode::initFields(Cal3dNode *node, VrmlNodeType *t)
     }
 }
 
-const char *Cal3dNode::name()
+const char *Cal3dNode::typeName() 
 {
     return "Cal3DNode";
 }
 
 Cal3dNode::Cal3dNode(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     fprintf(stderr, "Cal3dNode::Cal3dNode\n");
     model = new osgCal::Model();

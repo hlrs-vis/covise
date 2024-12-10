@@ -50,11 +50,11 @@ void VrmlNodeProximitySensor::initFields(VrmlNodeProximitySensor *node, VrmlNode
     }
 }
 
-const char *VrmlNodeProximitySensor::name() { return "ProximitySensor"; }
+const char *VrmlNodeProximitySensor::typeName() { return "ProximitySensor"; }
 
 
 VrmlNodeProximitySensor::VrmlNodeProximitySensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_center(0.0, 0.0, 0.0)
     , d_enabled(true)
     , d_size(0.0, 0.0, 0.0)

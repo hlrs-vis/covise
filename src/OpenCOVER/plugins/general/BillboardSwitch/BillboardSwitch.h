@@ -62,7 +62,7 @@ class PLUGINEXPORT VrmlNodeBillboardSwitch : public VrmlNodeBillboard
 public:
     // Define the fields of BillboardSwitch nodes
     static void initFields(VrmlNodeBillboardSwitch *node, vrml::VrmlNodeType *t);
-    static const char *name(); 
+    static const char *typeName(); 
 
     VrmlNodeBillboardSwitch(VrmlScene *);
 

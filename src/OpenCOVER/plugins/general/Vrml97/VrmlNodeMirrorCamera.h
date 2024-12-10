@@ -39,7 +39,7 @@ class VRML97COVEREXPORT VrmlNodeMirrorCamera : public VrmlNodeChild
 public:
     // Define the fields of ARSensor nodes
     static void initFields(VrmlNodeMirrorCamera *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMirrorCamera(VrmlScene *scene = 0);
     VrmlNodeMirrorCamera(const VrmlNodeMirrorCamera &n);

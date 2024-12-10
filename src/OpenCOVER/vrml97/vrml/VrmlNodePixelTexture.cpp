@@ -39,10 +39,10 @@ void VrmlNodePixelTexture::initFields(VrmlNodePixelTexture *node, VrmlNodeType *
                      field("blendMode", node->d_blendMode));
 }
 
-const char *VrmlNodePixelTexture::name() { return "PixelTexture"; }
+const char *VrmlNodePixelTexture::typeName() { return "PixelTexture"; }
 
 VrmlNodePixelTexture::VrmlNodePixelTexture(VrmlScene *scene)
-    : VrmlNodeTexture(scene, name())
+    : VrmlNodeTexture(scene, typeName())
     , d_repeatS(true)
     , d_repeatT(true)
     , d_texObject(0)

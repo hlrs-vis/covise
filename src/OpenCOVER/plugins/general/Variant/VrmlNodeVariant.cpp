@@ -61,10 +61,10 @@ void VrmlNodeVariant::initFields(VrmlNodeVariant *node, VrmlNodeType *t)
                      }));
 }
 
-const char *VrmlNodeVariant::name() { return "Variant"; }
+const char *VrmlNodeVariant::typeName() { return "Variant"; }
 
 VrmlNodeVariant::VrmlNodeVariant(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_variant("none")
 {
     setModified();

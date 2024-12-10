@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodeOrientationInt : public VrmlNodeChild
 public:
     // Define the fields of OrientationInt nodes
     static void initFields(VrmlNodeOrientationInt *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeOrientationInt(VrmlScene *scene = 0);
 

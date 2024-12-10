@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodePointLight : public VrmlNodeLight
 public:
     // Define the fields of pointLight nodes
     static void initFields(VrmlNodePointLight *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodePointLight(VrmlScene *);
     virtual ~VrmlNodePointLight();

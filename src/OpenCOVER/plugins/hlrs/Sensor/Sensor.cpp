@@ -110,7 +110,7 @@ void VrmlNodeSensor::initFields(VrmlNodeSensor *node, VrmlNodeType *t)
     }
 }
 
-const char *VrmlNodeSensor::name()
+const char *VrmlNodeSensor::typeName() 
 {
     return "Sensor";
 }
@@ -118,7 +118,7 @@ const char *VrmlNodeSensor::name()
 // --------------------------------------------------------------------
 
 VrmlNodeSensor::VrmlNodeSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     fp = NULL;
     if (coVRMSController::instance()->isMaster())

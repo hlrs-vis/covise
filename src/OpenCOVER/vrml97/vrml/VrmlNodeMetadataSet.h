@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeMetadataSet : public VrmlNodeMetadata
 public:
     // Define the fields of indexed face set nodes
     static void initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeMetadataSet(VrmlScene *);
     virtual void cloneChildren(VrmlNamespace *);

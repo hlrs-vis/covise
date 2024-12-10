@@ -27,7 +27,7 @@ class VRMLEXPORT VrmlNodeNormal : public VrmlNode
 public:
     // Define the fields of Normal nodes
     static void initFields(VrmlNodeNormal *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeNormal(VrmlScene *);
 

@@ -145,7 +145,7 @@ void VrmlNodeBicycle::initFields(VrmlNodeBicycle *node, VrmlNodeType *t)
 }
 
 
-const char *VrmlNodeBicycle::name()
+const char *VrmlNodeBicycle::typeName() 
 {
     return "Bicycle";
 }
@@ -153,7 +153,7 @@ const char *VrmlNodeBicycle::name()
 // --------------------------------------------------------------------
 
 VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_bikeRotation(1, 0, 0, 0)
     , d_bikeTranslation(0, 0, 0)
     , d_button(0)

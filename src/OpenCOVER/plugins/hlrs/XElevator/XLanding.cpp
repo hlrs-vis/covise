@@ -32,13 +32,13 @@ void VrmlNodeXLanding::initFields(VrmlNodeXLanding *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeXLanding::name()
+const char *VrmlNodeXLanding::typeName() 
 {
     return "XLanding";
 }
 
 VrmlNodeXLanding::VrmlNodeXLanding(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
 {
     state=Uninitialized;
     currentCar = NULL;

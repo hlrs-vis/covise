@@ -32,11 +32,11 @@ void VrmlNodeFontStyle::initFields(VrmlNodeFontStyle *node, VrmlNodeType *t)
                                        exposedField("topToBottom", node->d_topToBottom));
 }
 
-const char *VrmlNodeFontStyle::name() { return "FontStyle"; }
+const char *VrmlNodeFontStyle::typeName() { return "FontStyle"; }
 
 
 VrmlNodeFontStyle::VrmlNodeFontStyle(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_family("SERIF")
     , d_horizontal(true)
     , d_justify("BEGIN")

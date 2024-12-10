@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeAppearance : public VrmlNodeChild
 public:
     // Define the built in VrmlNodeType:: "Appearance"
     static void initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType *t);
-    static const char *name() { return "Appearance"; }
+    static const char *typeName() { return "Appearance"; }
 
     VrmlNodeAppearance(VrmlScene *);
 

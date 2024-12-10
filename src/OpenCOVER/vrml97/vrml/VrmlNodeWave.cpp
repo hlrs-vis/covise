@@ -46,10 +46,10 @@ void VrmlNodeWave::initFields(VrmlNodeWave *node, VrmlNodeType *t)
                      exposedField("fileName", node->d_fileName));
 }
 
-const char *VrmlNodeWave::name() { return "Wave"; }
+const char *VrmlNodeWave::typeName() { return "Wave"; }
 
 VrmlNodeWave::VrmlNodeWave(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_fraction(0)
     , d_speed1(1.0f)
     , d_speed2(1.0f)

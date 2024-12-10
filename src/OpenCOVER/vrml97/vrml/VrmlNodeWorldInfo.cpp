@@ -34,10 +34,10 @@ void VrmlNodeWorldInfo::initFields(VrmlNodeWorldInfo *node, VrmlNodeType *t)
                      }));
 }
 
-const char *VrmlNodeWorldInfo::name() { return "WorldInfo"; }
+const char *VrmlNodeWorldInfo::typeName() { return "WorldInfo"; }
 
 VrmlNodeWorldInfo::VrmlNodeWorldInfo(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_correctBackFaceCulling(true)
     , d_correctSpatializedAudio(true)
 {

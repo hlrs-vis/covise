@@ -78,7 +78,7 @@ const char* VrmlNodeCrawler::name()
 
 
 VrmlNodeCrawler::VrmlNodeCrawler(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_speed(1.0)
     , d_lademodus(true)
     , d_position(0,0,0)

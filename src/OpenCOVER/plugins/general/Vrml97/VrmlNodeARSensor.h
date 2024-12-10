@@ -42,7 +42,7 @@ class VRML97COVEREXPORT VrmlNodeARSensor : public VrmlNodeChild
 public:
     // Define the fields of ARSensor nodes
     static void initFields(VrmlNodeARSensor *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeARSensor(VrmlScene *scene = 0);
     VrmlNodeARSensor(const VrmlNodeARSensor &n);

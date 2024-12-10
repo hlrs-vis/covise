@@ -32,10 +32,10 @@ void VrmlNodeMaterial::initFields(VrmlNodeMaterial *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeMaterial::name() { return "Material"; }
+const char *VrmlNodeMaterial::typeName() { return "Material"; }
 
 VrmlNodeMaterial::VrmlNodeMaterial(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_ambientIntensity(0.2f)
     , d_diffuseColor(0.8f, 0.8f, 0.8f)
     , d_emissiveColor(0.0f, 0.0f, 0.0f)

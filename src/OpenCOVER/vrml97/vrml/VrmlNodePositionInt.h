@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodePositionInt : public VrmlNodeChild
 public:
     
     static void initFields(VrmlNodePositionInt *node, VrmlNodeType *t);
-    static const char *name();  
+    static const char *typeName();  
 
     VrmlNodePositionInt(VrmlScene *scene = 0);
 

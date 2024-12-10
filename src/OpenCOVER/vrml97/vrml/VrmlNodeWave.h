@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodeWave : public VrmlNodeChild
 public:
     // Define the built in VrmlNodeType:: "Wave"
     static void initFields(VrmlNodeWave *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeWave(VrmlScene *);
 

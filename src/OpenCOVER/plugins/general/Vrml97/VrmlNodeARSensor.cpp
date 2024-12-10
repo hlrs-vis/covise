@@ -75,13 +75,13 @@ void VrmlNodeARSensor::initFields(VrmlNodeARSensor *node, VrmlNodeType *t)
 
 }
 
-const char *VrmlNodeARSensor::name()
+const char *VrmlNodeARSensor::typeName() 
 {
     return "ARSensor";
 }
 
 VrmlNodeARSensor::VrmlNodeARSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_freeze(false)
     , d_trackObjects(false)
     , d_enabled(true)

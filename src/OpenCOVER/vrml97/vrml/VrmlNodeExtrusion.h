@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeExtrusion : public VrmlNodeGeometry
 public:
     // Define the fields of extrusion nodes
     static void initFields(VrmlNodeExtrusion *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeExtrusion(VrmlScene *);
 

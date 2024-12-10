@@ -28,7 +28,7 @@ class VRMLEXPORT VrmlNodeTransform : public VrmlNodeGroup
 public:
     // Define the fields of Transform nodes
     static void initFields(VrmlNodeTransform *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeTransform(VrmlScene *);
 

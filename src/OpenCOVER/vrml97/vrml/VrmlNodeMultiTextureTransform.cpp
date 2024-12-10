@@ -25,13 +25,13 @@ void VrmlNodeMultiTextureTransform::initFields(VrmlNodeMultiTextureTransform *no
     initFieldsHelper(node, t, exposedField("textureTransform", node->d_textureTransform));
 }
 
-const char *VrmlNodeMultiTextureTransform::name()
+const char *VrmlNodeMultiTextureTransform::typeName() 
 {
     return "MultiTextureTransform";
 }
 
 VrmlNodeMultiTextureTransform::VrmlNodeMultiTextureTransform(VrmlScene *scene)
-    : VrmlNode(scene, name())
+    : VrmlNode(scene, typeName())
     , d_textureTransform(0)
 {
 }

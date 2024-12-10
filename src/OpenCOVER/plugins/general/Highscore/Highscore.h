@@ -35,7 +35,7 @@ class VrmlNodeHighscore : public VrmlNodeChild
 
 public:
     static void initFields(VrmlNodeHighscore *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeHighscore(VrmlScene *scene = 0);
     VrmlNodeHighscore(const VrmlNodeHighscore &n);

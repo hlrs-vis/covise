@@ -87,7 +87,7 @@ class PLUGINEXPORT VrmlNodeElevator : public VrmlNodeGroup
 {
 public:
     static void initFields(VrmlNodeElevator *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeElevator(VrmlScene *scene = 0);
     VrmlNodeElevator(const VrmlNodeElevator &n);

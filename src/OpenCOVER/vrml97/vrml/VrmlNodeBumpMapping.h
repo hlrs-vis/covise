@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodeBumpMapping : public VrmlNodeChild
 public:
     // Define the built in VrmlNodeType:: "BumpMapping"
     static void initFields(VrmlNodeBumpMapping *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBumpMapping(VrmlScene *);
 

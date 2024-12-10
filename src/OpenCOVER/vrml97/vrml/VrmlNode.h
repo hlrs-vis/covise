@@ -326,14 +326,14 @@ private:
     template<typename Derived>
     static vrml::VrmlNodeType *defineType_impl(vrml::VrmlNodeType *t = nullptr)
     {
-        assert(Derived::name() != nullptr);
-        assert(strcmp(Derived::name(), "") != 0);
+        assert(Derived::typeName() != nullptr);
+        assert(strcmp(Derived::typeName(), "") != 0);
         static VrmlNodeType *st = 0;
         if (!t)
         {
             if (st)
                 return st; // Only define the type once.
-            t = st = new VrmlNodeType(Derived::name(), creator<Derived>);
+            t = st = new VrmlNodeType(Derived::typeName(), creator<Derived>);
             Constructors cs;
             cs.creator = t;
             cs.clone = [](const VrmlNode *node){ 
@@ -342,7 +342,7 @@ private:
                 Derived::initFields(newNode, nullptr);
                 return static_cast<vrml::VrmlNode*>(newNode);
             };
-            m_constructors[Derived::name()] = cs;
+            m_constructors[Derived::typeName()] = cs;
         }
 
         initFields(nullptr, t);

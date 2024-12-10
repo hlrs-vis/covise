@@ -27,10 +27,10 @@ void VrmlNodeMetadataSet::initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t)
     initFieldsHelper(node, t, exposedField("value", node->d_value));
 }
 
-const char *VrmlNodeMetadataSet::name() { return "MetadataSet"; }
+const char *VrmlNodeMetadataSet::typeName() { return "MetadataSet"; }
 
 VrmlNodeMetadataSet::VrmlNodeMetadataSet(VrmlScene *scene)
-    : VrmlNodeMetadata(scene, name())
+    : VrmlNodeMetadata(scene, typeName())
 {
 }
 

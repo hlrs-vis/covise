@@ -28,13 +28,13 @@ void VrmlNodeBox::initFields(VrmlNodeBox *node, VrmlNodeType *t)
                      field("size", node->d_size));
 }
 
-const char *VrmlNodeBox::name()
+const char *VrmlNodeBox::typeName() 
 {
     return "Box";
 }
 
 VrmlNodeBox::VrmlNodeBox(VrmlScene *scene)
-    : VrmlNodeGeometry(scene, name())
+    : VrmlNodeGeometry(scene, typeName())
     , d_size(2.0, 2.0, 2.0)
 {
 }

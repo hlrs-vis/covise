@@ -37,11 +37,11 @@ void VrmlNodeShape::initFields(VrmlNodeShape *node, VrmlNodeType *t)
                      exposedField("effect", node->d_effect));
 }
 
-const char *VrmlNodeShape::name() { return "Shape"; }
+const char *VrmlNodeShape::typeName() { return "Shape"; }
 
 
 VrmlNodeShape::VrmlNodeShape(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_viewerObject(0)
 {
 }

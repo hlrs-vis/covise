@@ -26,13 +26,13 @@ void VrmlNodeRemoteVehicle::initFields(VrmlNodeRemoteVehicle *node, VrmlNodeType
                     exposedField("carBodyTranslation", node->d_carBodyTranslation));
 }
 
-const char *VrmlNodeRemoteVehicle::name()
+const char *VrmlNodeRemoteVehicle::typeName() 
 {
     return "RemoteVehicle";
 }
 
 VrmlNodeRemoteVehicle::VrmlNodeRemoteVehicle(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_carRotation(1, 0, 0, 0)
     , d_carTranslation(0, 0, 0)
     , d_carBodyRotation(1, 0, 0, 0)

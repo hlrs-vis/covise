@@ -47,10 +47,10 @@ void VrmlNodePlaneSensor::initFields(VrmlNodePlaneSensor *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t);
 }
 
-const char *VrmlNodePlaneSensor::name() { return "PlaneSensor"; }
+const char *VrmlNodePlaneSensor::typeName() { return "PlaneSensor"; }
 
 VrmlNodePlaneSensor::VrmlNodePlaneSensor(VrmlScene *scene)
-    : VrmlNodeChild(scene, name())
+    : VrmlNodeChild(scene, typeName())
     , d_autoOffset(true)
     , d_enabled(true)
     , d_maxPosition(-1.0, -1.0)

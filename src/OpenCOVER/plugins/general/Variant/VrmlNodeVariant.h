@@ -44,7 +44,7 @@ public:
     static VrmlNodeVariant *instance();
     // Define the fields of Variant nodes
     static void initFields(VrmlNodeVariant *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeVariant(VrmlScene *scene = 0);
     VrmlNodeVariant(const VrmlNodeVariant &n);

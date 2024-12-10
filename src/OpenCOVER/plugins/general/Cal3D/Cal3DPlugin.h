@@ -50,7 +50,7 @@ class PLUGINEXPORT Cal3dCore : public VrmlNodeChild
 public:
     // Define the built in VrmlNodeType:: "Cal3D"
     static void initFields(Cal3dCore *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     Cal3dCore(VrmlScene *scene);
 
@@ -92,7 +92,7 @@ class PLUGINEXPORT Cal3dNode : public VrmlNodeChild
 
 public:
     static void initFields(Cal3dNode *node, VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     Cal3dNode(VrmlScene *scene);
 

@@ -35,7 +35,7 @@ class VRMLEXPORT VrmlNodeBooleanSequencer : public VrmlNodeChild
 public:
     // Define the fields of BooleanSequencer nodes
     static void initFields(VrmlNodeBooleanSequencer *node, vrml::VrmlNodeType *t);
-    static const char *name();
+    static const char *typeName();
 
     VrmlNodeBooleanSequencer(VrmlScene *scene = 0);
     

@@ -32,7 +32,7 @@ class VRMLEXPORT VrmlNodeGroup : public VrmlNodeChild
 public:
     // Define the fields of all built in group nodes
     static void initFields(VrmlNodeGroup *node, vrml::VrmlNodeType *t);
-    static const char *name() { return "Group"; }
+    static const char *typeName() { return "Group"; }
     VrmlNodeGroup(VrmlScene *s = 0, const std::string &name = "");
     virtual ~VrmlNodeGroup();
     void flushRemoveList();
