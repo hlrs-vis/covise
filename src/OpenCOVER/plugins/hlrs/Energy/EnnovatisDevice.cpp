@@ -264,6 +264,13 @@ void EnnovatisDevice::updateHeightByTime(int timestep) {
       default:
         break;
     }
+    auto old_height = cylinder->getHeight();
+    if (old_height == height) return;
+    else {
+        auto tmp_height = osg::Vec3(0, 0, std::abs(height - old_height) / 2);
+        if (old_height < height) cylinder->setCenter(cylinder->getCenter() + tmp_height);
+        else cylinder->setCenter(cylinder->getCenter() - tmp_height);
+    }
     cylinder->setHeight(height);
     // TODO: Shader implementation later?!
     // NOTE: The new ShapeDrawable is written completely differently, and is now
