@@ -707,6 +707,7 @@ EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList) {
     b.setStreet(b.getName());
     b.setName(dev->getInfo()->name);
     b.setHeight(dev->getInfo()->height);
+    b.setArea(dev->getInfo()->flaeche);
     fillLatLon(b);
   };
 

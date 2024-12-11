@@ -14,7 +14,7 @@ struct json_response_object {
   int MinValue=0;
   int StandardDeviation=0;
   std::vector<std::string> Times;
-  std::vector<int> Values;
+  std::vector<float> Values;
   operator std::string() const;
 };
 

@@ -20,7 +20,7 @@ class Building {
  public:
   // typedef std::shared_ptr<Building> ptr;
   Building(const std::string &name, const std::string &id, const std::string &street)
-      : m_name(name), m_id(id), m_street(street), m_y(0), m_x(0), m_height(0){};
+      : m_name(name), m_id(id), m_street(street), m_y(0), m_x(0), m_height(0), m_area(0){};
   Building(const std::string &name, const std::string &id)
       : Building(name, id, ""){};
   Building(const std::string &name) : Building(name, "", ""){};
@@ -52,6 +52,7 @@ class Building {
   [[nodiscard]] const auto &getY() const { return m_y; }
   [[nodiscard]] const auto &getX() const { return m_x; }
   [[nodiscard]] const auto &getHeight() const { return m_height; }
+  [[nodiscard]] const auto &getArea() const { return m_area; }
   [[nodiscard]] const std::string to_string() const {
     return "Building: " + m_name + "\nID: " + m_id + "\n" + "\nStreet: " + m_street +
            "\n";
@@ -62,6 +63,7 @@ class Building {
   void setY(float lat) { m_y = lat; }
   void setX(float lon) { m_x = lon; }
   void setHeight(float h) { m_height = h; }
+  void setArea(float a) { m_area = a; }
 
  private:
   std::string m_name;
@@ -70,6 +72,7 @@ class Building {
   float m_y;
   float m_x;
   float m_height;
+  float m_area;
   ChannelGroups m_channels;
 };
 

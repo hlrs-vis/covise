@@ -40,6 +40,12 @@ using namespace opencover;
 namespace {
 EnnovatisDevice *m_selectedDevice = nullptr;
 constexpr bool debug = build_options.debug_ennovatis;
+
+auto roundToString(float value, int precision = 2) {
+  std::ostringstream out;
+  out << std::fixed << std::setprecision(precision) << value;
+  return out.str();
+}
 }  // namespace
 
 EnnovatisDevice::EnnovatisDevice(
@@ -91,13 +97,26 @@ auto EnnovatisDevice::createBillboardTxt(
   billboardTxt += "> Type: " + channel.type + ENDLINE;
 
   const auto &values = j_resp_obj.Values;
-  auto sum = std::accumulate(values.begin(), values.end(), 0);
-  auto mean = sum / values.size();
-  billboardTxt += "> Average Consumption: " + std::to_string(mean) + " " +
-                  channel.unit + ENDLINE;
+  if (channel.unit.find("/m²") != std::string::npos) {
+    // TODO: compute it when area is available => ennovatis data looks wrong (at
+    // least in the rest api; in Cofely it looks fine)
+    billboardTxt += "Ennovatis REST-API is not working correctly!\n";
+    billboardTxt +=
+        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) + ENDLINE;
+  } else {
+    // it seems that the first value at 0 is always the same as the second value
+    auto sum = std::accumulate(values.begin() + 1, values.end(), 0.0f);
+    m_consumptionPerArea = sum / m_buildingInfo.building->getArea();
+    auto mean = sum / (values.size() - 1);
+    billboardTxt += "> Average Consumption: " + roundToString(mean) + " " +
+                    channel.unit + ENDLINE;
 
-  billboardTxt += "> Total Consumption: " + std::to_string(sum) + " " +
-                  channel.unit + ENDLINE;
+    billboardTxt +=
+        "> Total Consumption: " + roundToString(sum) + " " + channel.unit + ENDLINE;
+
+    billboardTxt +=
+        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) + " " + channel.unit + "/m²" + ENDLINE;
+  }
   return billboardTxt;
 }
 
@@ -227,14 +246,14 @@ void EnnovatisDevice::updateHeightByTime(int timestep) {
         dynamic_cast<osg::Cylinder *>(shape->getShape());
     if (!cylinder) continue;
     switch (getSelectedChannelIdx()) {
-        case ennovatis::ChannelGroup::Strom:
-        case ennovatis::ChannelGroup::Waerme:
-        case ennovatis::ChannelGroup::Kaelte:
-            height = height * 0.1;
-            break;
-        case ennovatis::ChannelGroup::Wasser:
-            height = height * 10;
-            break;
+      case ennovatis::ChannelGroup::Strom:
+      case ennovatis::ChannelGroup::Waerme:
+      case ennovatis::ChannelGroup::Kaelte:
+        height = height * 0.1;
+        break;
+      case ennovatis::ChannelGroup::Wasser:
+        height = height * 10;
+        break;
       default:
         break;
     }

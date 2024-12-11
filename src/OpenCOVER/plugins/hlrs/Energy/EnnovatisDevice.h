@@ -53,7 +53,7 @@ class EnnovatisDevice {
   };
   typedef std::unique_ptr<osg::Vec4> TimestepColor;
   typedef std::vector<TimestepColor> TimestepColorList;
-  typedef std::vector<int> SensorData;
+  typedef std::vector<float> SensorData;
 
   void init();
   void fetchData();
@@ -84,5 +84,6 @@ class EnnovatisDevice {
                                               // methods are not const correct
   TimestepColorList m_timestepColors;
   SensorData m_sensorData;
+  float m_consumptionPerArea = 0.0f;
 };
 #endif
