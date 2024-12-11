@@ -227,6 +227,8 @@ public:
 	///get the filename + extension from a path: path/fileName -> fileName
 	std::string getFileName(const std::string& filePath);
 
+    const std::string &getMainFile() const;
+
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
@@ -314,6 +316,7 @@ private:
     std::string m_defaultFontFile;
 
     std::unique_ptr<SidecarConfigBridge> m_settings;
+    std::string m_mainFile; // the first file that was loaded
 };
 }
 #endif

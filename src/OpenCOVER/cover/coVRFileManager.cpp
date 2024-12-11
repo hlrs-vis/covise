@@ -87,7 +87,7 @@ Url::Url(const std::string &url)
         return;
 
     auto it = url.begin();
-    // must contain scheme and must begin with an aplhabet character
+    // must contain scheme and must begin with an alphabet character
     if (!isalpha(*it))
         return;
 
@@ -856,6 +856,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         std::cerr << "Sidecar file for " << fe->url.str() << std::endl;
         m_settings = std::make_unique<SidecarConfigBridge>(fe->url.str(), coVRMSController::instance()->isMaster());
         cover->m_config.setWorkspaceBridge(m_settings.get());
+        m_mainFile = fe->url.str();
     }
 
     OpenCOVER::instance()->hud->setText2("loading");
@@ -1173,6 +1174,7 @@ void coVRFileManager::unloadFile(const char *file)
         {
             cover->m_config.removeWorkspaceBridge(m_settings.get());
             m_settings.reset();
+            m_mainFile.clear();
         }
     }
 }
@@ -2351,4 +2353,8 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 	return stringWithoutEnvs;
 }
 
+const std::string &coVRFileManager::getMainFile() const
+{
+    return m_mainFile;
+}
 }
