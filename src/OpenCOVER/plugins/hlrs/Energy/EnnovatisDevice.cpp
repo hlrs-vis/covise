@@ -98,24 +98,31 @@ auto EnnovatisDevice::createBillboardTxt(
 
   const auto &values = j_resp_obj.Values;
   if (channel.unit.find("/m²") != std::string::npos) {
-    // TODO: compute it when area is available => ennovatis data looks wrong (at
+    // NOTE: compute it when area is available => ennovatis data looks wrong (at
     // least in the rest api; in Cofely it looks fine)
-    billboardTxt += "Ennovatis REST-API is not working correctly!\n";
+    billboardTxt += "Ennovatis REST-API is not working correctly!\n\n";
     billboardTxt +=
-        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) + ENDLINE;
+        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) +
+        ENDLINE;
   } else {
     // it seems that the first value at 0 is always the same as the second value
     auto sum = std::accumulate(values.begin() + 1, values.end(), 0.0f);
+    auto max  = *std::max_element(values.begin(), values.end());
     m_consumptionPerArea = sum / m_buildingInfo.building->getArea();
     auto mean = sum / (values.size() - 1);
-    billboardTxt += "> Average Consumption: " + roundToString(mean) + " " +
+    billboardTxt += "> Average Consumption per day: " + roundToString(mean) + " " +
                     channel.unit + ENDLINE;
 
     billboardTxt +=
         "> Total Consumption: " + roundToString(sum) + " " + channel.unit + ENDLINE;
 
     billboardTxt +=
-        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) + " " + channel.unit + "/m²" + ENDLINE;
+        "> Total Consumption per m²: " + roundToString(m_consumptionPerArea) + " " +
+        channel.unit + "/m²" + ENDLINE;
+
+    billboardTxt +=
+        "> Peak load: " + roundToString(max) + " " +
+        channel.unit + ENDLINE;
   }
   return billboardTxt;
 }
