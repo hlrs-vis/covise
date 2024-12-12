@@ -2,10 +2,7 @@
 #define _CORE_TXTINFOBOARD_H
 
 #include <cover/coBillboard.h>
-
 #include <osg/ref_ptr>
-#include <osgText/Text>
-
 #include "interfaces/IInfoboard.h"
 
 namespace core {
@@ -31,6 +28,7 @@ struct TxtBoxAttributes {
   float titleHeightPercentage;  // title height in percentage of total height
   int charSize;
 };
+
 class TxtInfoboard : public interface::IInfoboard<std::string> {
  public:
   TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes){};
@@ -72,11 +70,6 @@ class TxtInfoboard : public interface::IInfoboard<std::string> {
   }
 
  private:
-  osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,
-                                            const osg::Vec3 &position, int charSize,
-                                            const char *fontFile,
-                                            const float &maxWidth,
-                                            const float &margin) const;
   osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
   osg::ref_ptr<opencover::coBillboard> m_BBoard = nullptr;
 

@@ -12,6 +12,7 @@ class IInfoboard : public IInformable<Info>,
                    public ITimedependable,
                    public IMoveable {
  public:
+  virtual ~IInfoboard() = default;
   virtual void initInfoboard() = 0;
   bool enabled() { return m_enabled; }
 

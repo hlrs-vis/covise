@@ -9,8 +9,30 @@
 #include <osg/ShapeDrawable>
 #include <osg/Vec4>
 #include <osg/ref_ptr>
+#include <osgText/Text>
 
 namespace core::utils::osgUtils {
+
+osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,
+                                          const osg::Vec3 &position, int charSize,
+                                          const char *fontFile,
+                                          const float &maxWidth,
+                                          const float &margin) {
+  osg::ref_ptr<osgText::Text> textBox = new osgText::Text();
+  textBox->setAlignment(osgText::Text::LEFT_TOP);
+  textBox->setAxisAlignment(osgText::Text::XZ_PLANE);
+  textBox->setColor(osg::Vec4(1, 1, 1, 1));
+  textBox->setText(text, osgText::String::ENCODING_UTF8);
+  textBox->setCharacterSize(charSize);
+  textBox->setFont(fontFile);
+  textBox->setMaximumWidth(maxWidth);
+  textBox->setPosition(position);
+  textBox->setDrawMode(osgText::Text::FILLEDBOUNDINGBOX | osgText::Text::TEXT);
+  textBox->setBoundingBoxColor(osg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
+  textBox->setBoundingBoxMargin(margin);
+  return textBox;
+}
+
 std::unique_ptr<Geodes> getGeodes(osg::Group *grp) {
   Geodes geodes{};
   for (unsigned int i = 0; i < grp->getNumChildren(); ++i) {
@@ -57,19 +79,9 @@ void deleteChildrenRecursive(osg::Group *grp) {
   }
 }
 
-/**
- * @brief Adds a cylinder between two points.
- * Source: http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
- *
- * @param start The starting point of the cylinder.
- * @param end The ending point of the cylinder.
- * @param radius The radius of the cylinder.
- * @param cylinderColor The color of the cylinder.
- * @param group The group to which the cylinder will be added.
- */
-osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 end,
-                                                     float radius,
-                                                     osg::Vec4 cylinderColor) {
+osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(
+    osg::Vec3 start, osg::Vec3 end, float radius, osg::Vec4 cylinderColor,
+    osg::ref_ptr<osg::TessellationHints> hints) {
   osg::ref_ptr geode = new osg::Geode;
   osg::Vec3 center;
   float height;
@@ -97,7 +109,7 @@ osg::ref_ptr<osg::Geode> createCylinderBetweenPoints(osg::Vec3 start, osg::Vec3 
   cylinder = new osg::Cylinder(center, radius, height);
   cylinder->setRotation(osg::Quat(angle, osg::Vec3(t.x(), t.y(), t.z())));
 
-  cylinderDrawable = new osg::ShapeDrawable(cylinder);
+  cylinderDrawable = new osg::ShapeDrawable(cylinder, hints);
   geode->addDrawable(cylinderDrawable);
 
   // Set the color of the cylinder that extends between the two points.

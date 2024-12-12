@@ -10,6 +10,7 @@ class IDrawable {
  public:
   virtual void initDrawable() = 0;
   virtual void updateDrawable() = 0;
+  virtual ~IDrawable() = default;
   auto getDrawable() { return m_drawable; }
 
  protected:

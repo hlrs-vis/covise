@@ -11,6 +11,7 @@
 namespace core::interface {
 class IBuilding : public IDrawables, public IColorable, public ITimedependable {
  public:
+   virtual ~IBuilding() = default;
   /**
    * Returns the color in the range [0, maxValue] based on the given value based
    * on colorRange of building instance.

@@ -5,6 +5,7 @@ namespace core {
 namespace interface {
 class ITimedependable {
  public:
+  virtual ~ITimedependable() = default;
   virtual void updateTime(int timestep) = 0;
   virtual int getCurrentTimeStep() const { return m_timestep; }
 

@@ -25,10 +25,6 @@
 #include <EnnovatisDeviceSensor.h>
 #include <build_options.h>
 #include <config/CoviseConfig.h>
-#include <core/CityGMLBuilding.h>
-#include <core/PrototypeBuilding.h>
-#include <core/TxtInfoboard.h>
-#include <core/utils/osgUtils.h>
 
 // COVER
 #include <PluginUtil/coColorMap.h>
@@ -37,9 +33,11 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coVRTui.h>
 #include <cover/ui/EditField.h>
+#include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/View.h>
+#include <utils/read/csv/csv.h>
 #include <utils/string/LevenshteinDistane.h>
 
 // Ennovatis
@@ -63,10 +61,14 @@
 #include <vector>
 
 // OSG
+#include <osg/Geometry>
 #include <osg/Group>
 #include <osg/LineWidth>
 #include <osg/MatrixTransform>
 #include <osg/Node>
+#include <osg/Sequence>
+#include <osg/Shape>
+#include <osg/ShapeDrawable>
 #include <osg/Switch>
 #include <osg/Vec3>
 #include <osg/Version>
@@ -75,15 +77,27 @@
 
 // boost
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/tokenizer.hpp>
 
-#include "core/utils/color.h"
-#include "utils/read/csv/csv.h"
+#include "OpenConfig/covconfig/array.h"
+
+// core
+#include <core/CityGMLBuilding.h>
+#include <core/EnergyGrid.h>
+#include <core/PrototypeBuilding.h>
+#include <core/TxtInfoboard.h>
+#include <core/grid.h>
+#include <core/utils/color.h>
+#include <core/utils/osgUtils.h>
 
 using namespace opencover;
 using namespace opencover::utils::read;
 using namespace opencover::utils::string;
 using namespace energy;
+
+namespace fs = boost::filesystem;
 
 namespace {
 
@@ -141,24 +155,31 @@ float computeDistributionCenter(const std::vector<float> &values) {
 EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
 
 EnergyPlugin::EnergyPlugin()
-    : coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("EnergyPlugin", cover->ui) {
+    : coVRPlugin(COVER_PLUGIN_NAME),
+      ui::Owner("EnergyPlugin", cover->ui),
+      m_offset(3),
+      m_req(nullptr),
+      m_ennovatis(new osg::Group()),
+      m_switch(new osg::Switch()),
+      m_sequenceList(new osg::Sequence()),
+      m_Energy(new osg::MatrixTransform()),
+      m_cityGML(new osg::Group()),
+      m_colorMap(nullptr) {
+  // need to save the config on exit => will only be saved when COVER is closed
+  // correctly via q or closing the window
+  config()->setSaveOnExit(true);
   fprintf(stderr, "Starting Energy Plugin\n");
   m_plugin = this;
 
   m_buildings = std::make_unique<ennovatis::Buildings>();
 
-  m_sequenceList = new osg::Sequence();
   m_sequenceList->setName("DB");
-  m_ennovatis = new osg::Group();
   m_ennovatis->setName("Ennovatis");
-  m_cityGML = new osg::Group();
   m_cityGML->setName("CityGML");
 
-  m_Energy = new osg::MatrixTransform();
   m_Energy->setName("Energy");
   cover->getObjectsRoot()->addChild(m_Energy);
 
-  m_switch = new osg::Switch();
   m_switch->setName("Switch");
   m_switch->addChild(m_sequenceList);
   m_switch->addChild(m_ennovatis);
@@ -170,13 +191,13 @@ EnergyPlugin::EnergyPlugin()
 
   m_SDlist.clear();
 
-  EnergyTab = new ui::Menu("Energy Campus", EnergyPlugin::m_plugin);
+  EnergyTab = new ui::Menu("Energy_Campus", EnergyPlugin::m_plugin);
   EnergyTab->setText("Energy Campus");
 
   // db
   componentGroup = new ui::ButtonGroup(EnergyTab, "ComponentGroup");
   componentGroup->setDefaultValue(Strom);
-  componentList = new ui::Group(EnergyTab, "Component");
+  componentList = new ui::Menu(EnergyTab, "Component");
   componentList->setText("Messwerte (jährlich)");
   StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
   WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
@@ -186,45 +207,11 @@ EnergyPlugin::EnergyPlugin()
 
   initEnnovatisUI();
   initCityGMLUI();
-
-  m_colorMapGroup = new ui::Group(EnergyTab, "ColorMap");
-  m_colorMapSelector = std::make_unique<covise::ColorMapSelector>(*m_colorMapGroup);
-  m_colorMapSelector->setCallback([this](const covise::ColorMap &cm) {
-    updateColorMap(m_colorMapSelector->selectedMap());
-  });
-  //   m_colorMap =
-  //   std::make_shared<covise::ColorMap>(m_colorMapSelector->selectedMap());
-  m_colorMap = std::make_shared<core::utils::color::ColorMapExtended>(
-      m_colorMapSelector->selectedMap());
-  m_minAttribute = new ui::Slider(m_colorMapGroup, "min");
-  m_minAttribute->setBounds(0, 1);
-  m_minAttribute->setPresentation(ui::Slider::AsDial);
-  m_minAttribute->setValue(0);
-  m_minAttribute->setCallback([this](float value, bool moving) {
-    if (!moving) return;
-    m_colorMap->min = value;
-  });
-  m_maxAttribute = new ui::Slider(m_colorMapGroup, "max");
-  m_maxAttribute->setBounds(0, 1);
-  m_maxAttribute->setValue(1);
-  m_maxAttribute->setCallback([this](float value, bool moving) {
-    if (!moving) return;
-    m_colorMap->max = value;
-  });
-  m_numSteps = new ui::Slider(m_colorMapGroup, "steps");
-  m_numSteps->setBounds(32, 1024);
-  m_numSteps->setPresentation(ui::Slider::AsDial);
-  m_numSteps->setScale(ui::Slider::Linear);
-  m_numSteps->setIntegral(true);
-  m_numSteps->setLinValue(32);
-  m_numSteps->setValue(32);
-  m_numSteps->setCallback([this](float value, bool moving) {
-    if (!moving) return;
-    m_colorMap->map = covise::interpolateColorMap(m_colorMap->map, value);
-  });
-
+  initColorMap();
   m_offset =
       configFloatArray("General", "offset", std::vector<double>{0, 0, 0})->value();
+
+  initGrid();
 }
 
 EnergyPlugin::~EnergyPlugin() {
@@ -243,7 +230,73 @@ EnergyPlugin::~EnergyPlugin() {
     root->removeChild(m_Energy.get());
   }
 
+  config()->save();
   m_plugin = nullptr;
+}
+
+std::pair<PJ *, PJ_COORD> EnergyPlugin::initProj() {
+  ProjTrans pjTrans;
+  pjTrans.projFrom = configString("General", "projFrom", "default")->value();
+  pjTrans.projTo = configString("General", "projTo", "default")->value();
+  auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, pjTrans.projFrom.c_str(),
+                                  pjTrans.projTo.c_str(), NULL);
+  PJ_COORD coord;
+  coord.lpzt.z = 0.0;
+  coord.lpzt.t = HUGE_VAL;
+  bool mapdrape = true;
+
+  if (!P) {
+    fprintf(stderr,
+            "Energy Plugin: Ignore mapping. No valid projection was "
+            "found between given proj string in "
+            "config EnergyCampus.toml\n");
+    mapdrape = false;
+  }
+  return std::make_pair(P, coord);
+}
+
+void EnergyPlugin::initColorMap() {
+  if (m_simulationMenu == nullptr) {
+    m_simulationMenu = new ui::Menu(EnergyTab, "Simulation");
+    m_simulationMenu->setText("Simulation");
+  }
+
+  m_colorMapGroup = new ui::Group(m_simulationMenu, "ColorMap");
+  m_colorMapSelector = std::make_unique<covise::ColorMapSelector>(*m_colorMapGroup);
+  m_colorMapSelector->setCallback([this](const covise::ColorMap &cm) {
+    updateColorMap(m_colorMapSelector->selectedMap());
+  });
+
+  m_colorMap = std::make_shared<core::utils::color::ColorMapExtended>(
+      m_colorMapSelector->selectedMap());
+  m_minAttribute = new ui::Slider(m_colorMapGroup, "min");
+  m_minAttribute->setBounds(0, 1);
+  m_minAttribute->setPresentation(ui::Slider::AsDial);
+  m_minAttribute->setValue(0);
+  m_minAttribute->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->min = value;
+  });
+
+  m_maxAttribute = new ui::Slider(m_colorMapGroup, "max");
+  m_maxAttribute->setBounds(0, 1);
+  m_maxAttribute->setValue(1);
+  m_maxAttribute->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->max = value;
+  });
+
+  m_numSteps = new ui::Slider(m_colorMapGroup, "steps");
+  m_numSteps->setBounds(32, 1024);
+  m_numSteps->setPresentation(ui::Slider::AsDial);
+  m_numSteps->setScale(ui::Slider::Linear);
+  m_numSteps->setIntegral(true);
+  m_numSteps->setLinValue(32);
+  m_numSteps->setValue(32);
+  m_numSteps->setCallback([this](float value, bool moving) {
+    if (!moving) return;
+    m_colorMap->map = covise::interpolateColorMap(m_colorMap->map, value);
+  });
 }
 
 bool EnergyPlugin::update() {
@@ -329,12 +382,27 @@ void EnergyPlugin::updateColorMap(const covise::ColorMap &map) {
   m_colorMap->map = map;
   //   for (auto &[_, sensor] : m_cityGMLObjs) sensor->updateShader();
 }
+
+EnergyPlugin::CSVStreamMapPtr EnergyPlugin::getCSVStreams(
+    const boost::filesystem::path &dirPath) {
+  auto csv_files = std::make_unique<CSVStreamMap>();
+  for (auto &entry : fs::directory_iterator(dirPath)) {
+    if (fs::is_regular_file(entry)) {
+      if (entry.path().extension() == ".csv") {
+        auto path = entry.path();
+        csv_files->insert(
+            {path.stem().string(), std::make_unique<CSVStream>(path.string())});
+      }
+    }
+  }
+  return csv_files;
+}
 /* #endregion */
 
 /* #region CITYGML */
 void EnergyPlugin::initCityGMLUI() {
-  m_cityGMLGroup = new ui::Group(EnergyTab, "CityGML");
-  m_cityGMLEnable = new ui::Button(m_cityGMLGroup, "Enable");
+  m_cityGMLMenu = new ui::Menu(EnergyTab, "CityGML");
+  m_cityGMLEnable = new ui::Button(m_cityGMLMenu, "Enable");
   m_cityGMLEnable->setCallback([this](bool on) { enableCityGML(on); });
 }
 
@@ -357,61 +425,10 @@ void EnergyPlugin::enableCityGML(bool on) {
     }
     switchTo(m_cityGML);
 
-    if (m_cityGMLObjs.empty()) return;
-
-    //TODO: export into function and add input field for csv path => currently rly bad
-    using namespace opencover::utils::read;
     auto influxStatic =
         configString("Simulation", "staticInfluxCSV", "default")->value();
-    if (!boost::filesystem::exists(influxStatic)) return;
-
-    auto csvStream = CSVStream(influxStatic);
-    const auto &headers = csvStream.getHeader();
-    std::map<std::string, std::vector<float>> values;
-    float max = 0, min = -1;
-    float sum = 0;
-    int timesteps = 0;
-    if (csvStream && headers.size() > 1) {
-      CSVStream::CSVRow row;
-      while (csvStream >> row) {
-        for (auto cityGMLBuildingName : headers) {
-          auto sensor = m_cityGMLObjs.find(cityGMLBuildingName);
-          if (sensor != m_cityGMLObjs.end()) {
-            float value = 0;
-            access_CSVRow(row, cityGMLBuildingName, value);
-            if (value > max)
-              max = value;
-            else if (value < min || min == -1)
-              min = value;
-            sum += value;
-            if (values.find(cityGMLBuildingName) == values.end())
-              values.insert({cityGMLBuildingName, {value}});
-            else
-              values[cityGMLBuildingName].push_back(value);
-          }
-        }
-        ++timesteps;
-      }
-    }
-
-    m_colorMap->max = max;
-    m_colorMap->min = min;
-    m_colorMap->map =
-        covise::interpolateColorMap(m_colorMap->map, m_numSteps->value());
-    auto distributionCenter = sum  / (timesteps * values.size());
-    m_minAttribute->setBounds(0, distributionCenter);
-    m_maxAttribute->setBounds(distributionCenter, max);
-
-    for (auto &[name, values] : values) {
-      auto sensorIt = m_cityGMLObjs.find(name);
-      if (sensorIt != m_cityGMLObjs.end()) {
-        sensorIt->second->updateTimestepColors(values);
-      }
-    }
-
-    if (timesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
-      opencover::coVRAnimationManager::instance()->setNumTimesteps(timesteps);
-
+    applyStaticInfluxToCityGML(influxStatic);
+    initSimUI();
   } else {
     switchTo(m_sequenceList);
   }
@@ -501,11 +518,12 @@ void EnergyPlugin::restoreCityGMLDefaultStatesets() {
 
 /* #region ENNOVATIS */
 void EnergyPlugin::initEnnovatisUI() {
-  m_ennovatisGroup = new ui::Group(EnergyTab, "Ennovatis");
-  m_ennovatisGroup->setText("Ennovatis");
+  m_ennovatisMenu = new ui::Menu(EnergyTab, "Ennovatis");
+  m_ennovatisMenu->setText("Ennovatis");
 
   m_ennovatisSelectionsList =
-      new ui::SelectionList(m_ennovatisGroup, "Ennovatis ChannelType: ");
+      new ui::SelectionList(m_ennovatisMenu, "Ennovatis_ChannelType");
+  m_ennovatisSelectionsList->setText("Channel Type: ");
   std::vector<std::string> ennovatisSelections;
   for (int i = 0; i < static_cast<int>(ennovatis::ChannelGroup::None); ++i)
     ennovatisSelections.push_back(
@@ -513,16 +531,19 @@ void EnergyPlugin::initEnnovatisUI() {
 
   m_ennovatisSelectionsList->setList(ennovatisSelections);
   m_enabledEnnovatisDevices =
-      new opencover::ui::SelectionList(EnergyTab, "Enabled Devices: ");
+      new opencover::ui::SelectionList(m_ennovatisMenu, "Enabled_Devices");
+  m_enabledEnnovatisDevices->setText("Enabled Devices: ");
   m_enabledEnnovatisDevices->setCallback(
       [this](int value) { selectEnabledDevice(); });
-  m_ennovatisChannelList = new opencover::ui::SelectionList(EnergyTab, "Channels: ");
+  m_ennovatisChannelList =
+      new opencover::ui::SelectionList(m_ennovatisMenu, "Channels");
+  m_ennovatisChannelList->setText("Channels: ");
 
   // TODO: add calender widget instead of txtfields
-  m_ennovatisFrom = new ui::EditField(EnergyTab, "from");
-  m_ennovatisTo = new ui::EditField(EnergyTab, "to");
+  m_ennovatisFrom = new ui::EditField(m_ennovatisMenu, "from");
+  m_ennovatisTo = new ui::EditField(m_ennovatisMenu, "to");
 
-  m_ennovatisUpdate = new ui::Button(m_ennovatisGroup, "Update");
+  m_ennovatisUpdate = new ui::Button(m_ennovatisMenu, "Update");
   m_ennovatisUpdate->setCallback([this](bool on) { updateEnnovatis(); });
 
   m_ennovatisSelectionsList->setCallback(
@@ -756,7 +777,7 @@ EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList) {
 
 /* #endregion */
 
-/* #region CAMPUS_DB */
+/* #region HISTORIC */
 
 void EnergyPlugin::reinitDevices(int comp) {
   for (auto s : m_SDlist) {
@@ -933,4 +954,426 @@ bool EnergyPlugin::loadDBFile(const std::string &fileName,
 
 /* #endregion */
 
+/* #region SIMULATION_DATA */
+
+void EnergyPlugin::initPowerGridStreams() {
+  auto powerGridDir = configString("Simulation", "powerGridDir", "default")->value();
+  fs::path dir_path(powerGridDir);
+  if (!fs::exists(dir_path)) return;
+  m_powerGridStreams = getCSVStreams(dir_path);
+  if (!m_powerGridStreams) {
+    std::cout << "No csv files found in " << powerGridDir << std::endl;
+    return;
+  }
+}
+
+void EnergyPlugin::initSimUI() {
+  if (!m_cityGMLEnable->enabled()) return;
+}
+
+// TODO:
+// [ ] - add a button to enable/disable the simulation data
+// [ ] - plan uniform grid structure file => csv file in specific format
+std::unique_ptr<EnergyPlugin::FloatMap> EnergyPlugin::getInlfuxDataFromCSV(
+    utils::read::CSVStream &stream, float &max, float &min, float &sum,
+    int &timesteps) {
+  const auto &headers = stream.getHeader();
+  FloatMap values;
+  if (stream && headers.size() > 1) {
+    CSVStream::CSVRow row;
+    while (stream >> row) {
+      for (auto cityGMLBuildingName : headers) {
+        auto sensor = m_cityGMLObjs.find(cityGMLBuildingName);
+        if (sensor != m_cityGMLObjs.end()) {
+          float value = 0;
+          access_CSVRow(row, cityGMLBuildingName, value);
+          if (value > max)
+            max = value;
+          else if (value < min || min == -1)
+            min = value;
+          sum += value;
+          if (values.find(cityGMLBuildingName) == values.end())
+            values.insert({cityGMLBuildingName, {value}});
+          else
+            values[cityGMLBuildingName].push_back(value);
+        }
+      }
+      ++timesteps;
+    }
+  }
+  return std::make_unique<FloatMap>(values);
+}
+
+void EnergyPlugin::applyStaticInfluxToCityGML(
+    const std::string &filePathToInfluxCSV) {
+  if (m_cityGMLObjs.empty()) return;
+  if (!boost::filesystem::exists(filePathToInfluxCSV)) return;
+  auto csvStream = CSVStream(filePathToInfluxCSV);
+  float max = 0, min = -1;
+  float sum = 0;
+  int timesteps = 0;
+  auto values = getInlfuxDataFromCSV(csvStream, max, min, sum, timesteps);
+
+  m_colorMap->max = max;
+  m_colorMap->min = min;
+  m_colorMap->map =
+      covise::interpolateColorMap(m_colorMap->map, m_numSteps->value());
+
+  auto distributionCenter = sum / (timesteps * values->size());
+  m_minAttribute->setBounds(0, distributionCenter);
+  m_maxAttribute->setBounds(distributionCenter, max);
+
+  for (auto &[name, values] : *values) {
+    auto sensorIt = m_cityGMLObjs.find(name);
+    if (sensorIt != m_cityGMLObjs.end()) {
+      sensorIt->second->updateTimestepColors(values);
+    }
+  }
+
+  if (timesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
+    opencover::coVRAnimationManager::instance()->setNumTimesteps(timesteps);
+}
+
+bool EnergyPlugin::checkBoxSelection_powergrid(const std::string &tableName,
+                                               const std::string &paramName) {
+  using namespace std::placeholders;
+  auto eq_name = [](const std::string &compare,
+                    const auto &pointerWithNameFunction) {
+    return compare == pointerWithNameFunction->name();
+  };
+  auto eq_tableName = [&tableName, &eq_name](const auto &pair) {
+    auto menu = pair.first;
+    return eq_name(tableName, menu);
+  };
+  if (auto it = std::find_if(m_powerGridCheckboxes.begin(),
+                             m_powerGridCheckboxes.end(), eq_tableName);
+      it != m_powerGridCheckboxes.end()) {
+    const auto &checkBoxes = it->second;
+    if (auto it = std::find_if(checkBoxes.begin(), checkBoxes.end(),
+                               std::bind(eq_name, paramName, _1));
+        it != checkBoxes.end()) {
+      return (*it)->state();
+    }
+  }
+  return false;
+}
+
+void EnergyPlugin::rebuildPowerGrid() {
+  initPowerGridStreams();
+  buildPowerGrid();
+}
+
+void EnergyPlugin::updatePowerGridConfig(const std::string &tableName,
+                                         const std::string &name, bool on) {
+  int idx = 0;
+  for (auto &[menuName, checkBoxes] : m_powerGridCheckboxes) {
+    if (menuName->name() != tableName) {
+      idx += checkBoxes.size();
+      continue;
+    }
+    for (auto &checkBox : checkBoxes) {
+      if (checkBox->name() == name) {
+        (*m_powerGridSelectionPtr)[idx] = on;
+        return;
+      }
+      ++idx;
+    }
+  }
+}
+
+void EnergyPlugin::updatePowerGridSelection(bool on) {
+  if (!on) return;
+  m_updatePowerGridSelection->setState(false);
+  for (auto i = 0; i < m_Energy->getNumChildren(); ++i) {
+    auto child = m_Energy->getChild(i);
+    if (child->getName() == "PowerGrid") {
+      m_Energy->removeChild(i);
+      break;
+    }
+  }
+  rebuildPowerGrid();
+}
+
+void EnergyPlugin::initPowerGridUI(const std::vector<std::string> &tablesToSkip) {
+  if (!m_powerGridStreams) initPowerGridStreams();
+  m_powerGridMenu = new opencover::ui::Menu("Power Grid Data Selection", EnergyTab);
+
+  m_updatePowerGridSelection = new opencover::ui::Button(m_powerGridMenu, "Update");
+  m_updatePowerGridSelection->setState(false);
+  m_updatePowerGridSelection->setCallback(
+      [this](bool enable) { updatePowerGridSelection(enable); });
+
+  m_powerGridSelectionPtr =
+      configBoolArray("Simulation", "powerGridDataSelection", std::vector<bool>{});
+  auto powerGridSelection = m_powerGridSelectionPtr->value();
+  bool initConfig = false;
+  if (powerGridSelection.size() < 1) initConfig = true;
+
+  int i = 0;
+  for (auto &[name, stream] : *m_powerGridStreams) {
+    if (std::any_of(tablesToSkip.begin(), tablesToSkip.end(),
+                    [n = name](const std::string &table) { return table == n; }))
+      continue;
+
+    auto menu = new opencover::ui::Menu(m_powerGridMenu, name);
+    menu->allowRelayout(true);
+
+    auto header = stream->getHeader();
+    std::vector<opencover::ui::Button *> checkBoxMap;
+    for (auto &col : header) {
+      if (col.find("Unnamed") == 0) continue;
+      auto checkBox = new opencover::ui::Button(menu, col);
+      checkBox->setCallback([this, tableName = name, col](bool on) {
+        updatePowerGridConfig(tableName, col, on);
+      });
+      if (initConfig) {
+        checkBox->setState(true);
+        powerGridSelection.push_back(true);
+      } else {
+        checkBox->setState(powerGridSelection[i]);
+      }
+      //   checkBoxMap.insert({col, checkBox});
+      checkBoxMap.push_back(checkBox);
+      ++i;
+    }
+    if (auto it = m_powerGridCheckboxes.find(menu);
+        it != m_powerGridCheckboxes.end()) {
+      auto &[_, chBxMap] = *it;
+      //   chBxMap.insert(checkBoxMap.begin(), checkBoxMap.end());
+      std::move(checkBoxMap.begin(), checkBoxMap.end(), std::back_inserter(chBxMap));
+    } else {
+      m_powerGridCheckboxes.emplace(menu, checkBoxMap);
+    }
+  }
+  if (initConfig) {
+    m_powerGridSelectionPtr->resize(powerGridSelection.size());
+    for (auto i = 0; i < powerGridSelection.size(); ++i)
+      (*m_powerGridSelectionPtr)[i] = powerGridSelection[i];
+  }
+}
+
+void EnergyPlugin::initPowerGrid() {
+  initPowerGridStreams();
+  initPowerGridUI({"trafo3w_std_types", "trafo_std_types", "trafo", "parameters",
+                   "dtypes", "bus_geodata", "fuse_std_types", "line_std_types"});
+  buildPowerGrid();
+  m_powerGridStreams->clear();
+}
+
+void EnergyPlugin::initGrid() {
+  initPowerGrid();
+  buildCoolingGrid();
+  buildHeatingGrid();
+}
+
+std::unique_ptr<std::vector<std::string>> EnergyPlugin::getBusNames(
+    utils::read::CSVStream &stream) {
+  auto busNames = std::vector<std::string>();
+  CSVStream::CSVRow bus;
+  std::string busName("");
+  while (stream >> bus) {
+    access_CSVRow(bus, "name", busName);
+    busNames.push_back(busName);
+  }
+  return std::make_unique<std::vector<std::string>>(busNames);
+}
+
+void EnergyPlugin::helper_getAdditionalPowerGridPointData_addData(
+    int busId, core::grid::DataList &additionalData, const core::grid::Data &data) {
+  if (busId > -1 && busId < additionalData.size()) {
+    auto &existingData = additionalData[busId];
+    if (existingData.empty())
+      additionalData[busId] = data;
+    else
+      existingData.insert(data.begin(), data.end());
+  }
+}
+
+void EnergyPlugin::helper_getAdditionalPowerGridPointData_handleDuplicate(
+    std::string &name, std::map<std::string, uint> &duplicateMap) {
+  if (auto it = duplicateMap.find(name); it != duplicateMap.end())
+    // if there is a similar entity, add the id to the name
+    name = name + "_" + std::to_string(++it->second);
+  else
+    duplicateMap.insert({name, 0});
+}
+
+std::unique_ptr<core::grid::DataList> EnergyPlugin::getAdditionalPowerGridPointData(
+    const std::size_t &numOfBus) {
+  using DataList = core::grid::DataList;
+
+  // additional bus data
+  DataList additionalData(numOfBus);
+
+  for (auto &[tableName, tableStream] : *m_powerGridStreams) {
+    auto header = tableStream->getHeader();
+    if (auto it = std::find(header.begin(), header.end(), "bus"); it == header.end())
+      continue;
+    auto it = std::find(header.begin(), header.end(), "bus");
+    if (it == header.end()) CSVStream::CSVRow busdata;
+    int busId = -1;
+    std::map<std::string, uint> duplicate{};
+    CSVStream::CSVRow row;
+    // row
+    while (*tableStream >> row) {
+      core::grid::Data data;
+      // column
+      for (auto &colName : header) {
+        if (!checkBoxSelection_powergrid(tableName, colName)) continue;
+        // get bus id without adding it
+        if (colName == "bus") {
+          access_CSVRow(row, colName, busId);
+          continue;
+        }
+        std::string value;
+        access_CSVRow(row, colName, value);
+
+        // add the name of the table to the name
+        std::string columnNameWithTable = tableName + " > " + colName;
+        helper_getAdditionalPowerGridPointData_handleDuplicate(columnNameWithTable,
+                                                               duplicate);
+        data[columnNameWithTable] = value;
+      }
+      helper_getAdditionalPowerGridPointData_addData(busId, additionalData, data);
+    }
+  }
+  return std::make_unique<DataList>(additionalData);
+}
+
+std::unique_ptr<core::grid::Points> EnergyPlugin::createPowerGridPoints(
+    utils::read::CSVStream &stream, const float &sphereRadius,
+    const std::vector<std::string> &busNames) {
+  using Points = core::grid::Points;
+
+  auto [P, coord] = initProj();
+
+  CSVStream::CSVRow point;
+  float lat = 0, lon = 0;
+  Points points;
+  int busID = 0;
+
+  auto additionalData = getAdditionalPowerGridPointData(busNames.size());
+
+  while (stream >> point) {
+    access_CSVRow(point, "x", lon);
+    access_CSVRow(point, "y", lat);
+
+    // x = lon, y = lat
+    coord.lpzt.lam = lon;
+    coord.lpzt.phi = lat;
+    float alt = 0.;
+
+    coord = proj_trans(P, PJ_FWD, coord);
+
+    lon = coord.xy.x + m_offset[0];
+    lat = coord.xy.y + m_offset[1];
+
+    auto busName = busNames[busID];
+    auto busData = (*additionalData)[busID];
+
+    osg::ref_ptr<core::grid::Point> p =
+        new core::grid::Point(busName, lon, lat, 0.0f, sphereRadius, busData);
+    points.push_back(p);
+    ++busID;
+  }
+  return std::make_unique<Points>(points);
+}
+
+std::pair<std::unique_ptr<core::grid::Indices>,
+          std::unique_ptr<core::grid::DataList>>
+EnergyPlugin::getPowerGridIndicesAndOptionalData(utils::read::CSVStream &stream,
+                                                 const size_t &numBus) {
+  using Indices = core::grid::Indices;
+  using DataList = core::grid::DataList;
+  Indices indices(numBus);
+  CSVStream::CSVRow line;
+  int from = 0, to = 0;
+  core::grid::DataList additionalData;
+  // TODO: add window for user to select the columns
+  auto header = stream.getHeader();
+  while (stream >> line) {
+    core::grid::Data data;
+
+    for (auto colName : header) {
+      fs::path filename(stream.getFilename());
+      auto filename_without_ext = filename.stem().string();
+      if (!checkBoxSelection_powergrid(filename_without_ext, colName)) continue;
+      std::string value;
+      access_CSVRow(line, colName, value);
+      data[colName] = value;
+    }
+
+    access_CSVRow(line, "from_bus", from);
+    access_CSVRow(line, "to_bus", to);
+
+    indices[from].push_back(to);
+    additionalData.push_back(data);
+  }
+  return std::make_pair(std::make_unique<Indices>(indices),
+                        std::make_unique<DataList>(additionalData));
+}
+
+void EnergyPlugin::buildPowerGrid() {
+  if (!m_powerGridStreams) return;
+
+  // fetch bus names
+  auto busData = m_powerGridStreams->find("bus");
+  std::unique_ptr<std::vector<std::string>> busNames(nullptr);
+  if (busData != m_powerGridStreams->end()) {
+    auto &[name, busStream] = *busData;
+    busNames = getBusNames(*busStream);
+  }
+
+  if (!busNames) return;
+
+  // create points
+  auto pointsData = m_powerGridStreams->find("bus_geodata");
+  std::unique_ptr<core::grid::Points> points(nullptr);
+  int busId(0);
+  float sphereRadius(1.0f);
+  if (pointsData != m_powerGridStreams->end()) {
+    auto &[name, pointStream] = *pointsData;
+    points = createPowerGridPoints(*pointStream, sphereRadius, *busNames);
+  }
+
+  // create line
+  auto lineData = m_powerGridStreams->find("line");
+  std::unique_ptr<core::grid::Indices> indices = nullptr;
+  std::unique_ptr<core::grid::DataList> optData = nullptr;
+  if (lineData != m_powerGridStreams->end()) {
+    auto &[name, lineStream] = *lineData;
+    std::tie(indices, optData) =
+        getPowerGridIndicesAndOptionalData(*lineStream, busNames->size());
+  }
+
+  // create grid
+  if (indices == nullptr || points == nullptr) return;
+
+  osg::ref_ptr<osg::Group> powerGroup = new osg::Group();
+  core::TxtBoxAttributes infoboardAttributes =
+      core::TxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText",
+                             "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
+  powerGroup->setName("PowerGrid");
+  m_powerGrid = std::make_unique<core::EnergyGrid>(core::EnergyGridConfig{
+      "POWER", *points, *indices, powerGroup, 0.5f, *optData, infoboardAttributes});
+  m_powerGrid->initDrawables();
+  m_Energy->addChild(powerGroup);
+
+  // TODO:
+  //  [ ] set trafo as 3d model or block
+  //  [ ] make points and lines clickable and add bill board to it with data from csv
+
+  // how to implement this generically?
+  // - fixed grid structure for discussion in AK Software
+  // - look into Energy ADE
+}
+
+void EnergyPlugin::buildHeatingGrid() {
+  // NOTE: implement when data available
+}
+void EnergyPlugin::buildCoolingGrid() {
+  // NOTE: implement when data is available
+}
+
+/* #endregion */
 COVERPLUGIN(EnergyPlugin)
