@@ -182,27 +182,6 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     d_saveTimestamp.set("");
 	d_loadPlugin.set("");
     reference();
-#ifdef VRML_PUI
-    pTab1 = new coPUITab("VRML Keyboard");
-    pText = new coPUIEditField("test", pTab1->getID());
-    pText->setPos(10, 10);
-    pText->setImmediate(true);
-    pText->setEventListener(this);
-    flyButton = new coPUIBitmapButton("Fly.bmp", pTab1->getID());
-    flyButton->setPos(10, 50);
-    flyButton->setEventListener(this);
-    driveButton = new coPUIBitmapButton("Drive.bmp", pTab1->getID());
-    driveButton->setPos(60, 50);
-    driveButton->setEventListener(this);
-    walkButton = new coPUIBitmapButton("Walk.bmp", pTab1->getID());
-    walkButton->setPos(10, 100);
-    walkButton->setEventListener(this);
-    xformButton = new coPUIBitmapButton("XForm.bmp", pTab1->getID());
-    xformButton->setPos(60, 100);
-    xformButton->setEventListener(this);
-    fKeys = new coPUIFKeys("fKeys", 0);
-    fKeys->setEventListener(this);
-#endif
     for (size_t i = 0; i < NUM_POSITIONS; i++)
     {
         d_positions[i].set(1000000, 1000000, 1000000);
@@ -214,64 +193,6 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     } else  
         assert(false);
 }
-
-#ifdef VRML_PUI
-void VrmlNodeCOVER::pocketPressEvent(coPUIElement * /*pUIItem*/)
-{
-    cerr << "button Event" << endl;
-}
-
-void VrmlNodeCOVER::pocketEvent(coPUIElement *pUIItem)
-{
-    cerr << "bpocket Event" << endl;
-    if (pUIItem == fKeys)
-    {
-        if (strlen(fKeys->FKey) > 0)
-        {
-            double timeStamp = System::the->time();
-            d_keyPressed.set(fKeys->FKey);
-            eventOut(timeStamp, "keyPressed", d_keyPressed);
-            d_localKeyPressed.set(fKeys->FKey);
-            eventOut(timeStamp, "localKeyPressed", d_keyPressed);
-            d_scene->getIncomingSensorEventQueue()->sendKeyEvent(KeyPress, fKeys->FKey);
-        }
-    }
-    if (pUIItem == pText)
-    {
-        const char *text = pText->getText();
-        if (strlen(text) > 0)
-        {
-            char keystringMod[200];
-
-            keystringMod[0] = text[strlen(text) - 1];
-            keystringMod[1] = '\0';
-
-            /* keystringMod[0]='\0';
-          if(mod&MOD_CTRL)
-          {
-              strcat(keystringMod,"Ctrl-");
-          }
-          if(mod&MOD_ALT)
-          {
-              strcat(keystringMod,"Alt-");
-          }
-          if(mod&MOD_ALT_GR)
-          {
-         strcat(keystringMod,"AltGr-");
-         }
-         strcat(keystringMod,keystring);
-         */
-            double timeStamp = System::the->time();
-            d_keyPressed.set(keystringMod);
-            eventOut(timeStamp, "keyPressed", d_keyPressed);
-            d_localKeyPressed.set(keystringMod);
-            eventOut(timeStamp, "localKeyPressed", d_keyPressed);
-            d_scene->getIncomingSensorEventQueue()->sendKeyEvent(KeyPress, keystringMod);
-            pText->setText("");
-        }
-    }
-}
-#endif
 
 VrmlNodeCOVER::~VrmlNodeCOVER()
 {

@@ -24,19 +24,10 @@
 
 #include <array>
 
-#ifdef VRML_PUI
-#include <vrui/coPocketUI.h>
-#endif
-
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeCOVER
-    : public VrmlNodeChild
-#ifdef VRML_PUI
-      ,
-      public coPUIListener
-#endif
+class VRMLEXPORT VrmlNodeCOVER: public VrmlNodeChild
 {
 
 public:
@@ -70,12 +61,6 @@ public:
     // process remote key events, called by eventQueue
     void remoteKeyEvent(enum KeyEventType type, const char *keyModString);
 
-#ifdef VRML_PUI
-    virtual void pocketPressEvent(coPUIElement *pUIItem);
-
-    virtual void pocketEvent(coPUIElement *pUIItem);
-#endif
-
     double transformations[15][16];
 
 private:
@@ -98,16 +83,7 @@ private:
     std::array<VrmlSFRotation, NUM_POSITIONS> d_orientations;
    
     VrmlSFString d_saveTimestamp;
-	VrmlSFString d_loadPlugin;
-#ifdef VRML_PUI
-    coPUITab *pTab1;
-    coPUIEditField *pText;
-    coPUIBitmapButton *flyButton;
-    coPUIBitmapButton *driveButton;
-    coPUIBitmapButton *walkButton;
-    coPUIBitmapButton *xformButton;
-    coPUIFKeys *fKeys;
-#endif
+    VrmlSFString d_loadPlugin;
 };
 
 extern VRMLEXPORT VrmlNodeCOVER *theCOVER;
