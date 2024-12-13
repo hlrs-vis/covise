@@ -240,7 +240,7 @@ void TUIMain::closeServer()
 
     if (!tabs.empty())
     {
-        std::cerr << "TUIMainWidget::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
+        std::cerr << "TUIMain::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
     }
     assert(tabs.empty());
 }
@@ -378,7 +378,7 @@ void TUIMain::processMessages()
 
 TUIElement *TUIMain::createElement(int id, TabletObjectType type, QWidget *w, int parent, QString name)
 {
-    //cerr << "TUIMainWidget::createElement info: creating '" << name.toStdString()
+    //cerr << "TUIMain::createElement info: creating '" << name.toStdString()
     //         << "' of type " << type << " for parent " << id << endl;
     switch (type)
     {
@@ -502,12 +502,12 @@ TUIElement *TUIMain::getElement(int ID)
     {
         if ((*iter)->getID() == ID)
             return *iter;
-        std::cerr << "TUIMainWidget::getElement(ID=" << ID << "), got " << (*iter)->getID() << std::endl;
+        std::cerr << "TUIMain::getElement(ID=" << ID << "), got " << (*iter)->getID() << std::endl;
     }
     iter = std::find_if(elements.begin(), elements.end(), [ID](const TUIElement *el) { return el->getID() == ID; });
     if (iter != elements.end())
     {
-        std::cerr << "TUIMainWidget::getElement(ID=" << ID << "), STILL found !!!!!!" << std::endl;
+        std::cerr << "TUIMain::getElement(ID=" << ID << "), STILL found !!!!!!" << std::endl;
         return *iter;
     }
     return nullptr;
@@ -519,7 +519,7 @@ QWidget *TUIMain::getWidget(int ID)
 {
     if (auto el = getElement(ID))
         return el->getWidget();
-    std::cerr << "TUIMainWidget::getWidget(ID=" << ID << "): mainFrame" << std::endl;
+    std::cerr << "TUIMain::getWidget(ID=" << ID << "): mainFrame" << std::endl;
     return mainFrame;
 }
 
@@ -530,9 +530,9 @@ bool TUIMain::handleClient(covise::Message *msg)
     if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
         if (msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED)
-            std::cerr << "TUIMainWidget: socket closed" << std::endl;
+            std::cerr << "TUIMain: socket closed" << std::endl;
         else
-            std::cerr << "TUIMainWidget: closing socket" << std::endl;
+            std::cerr << "TUIMain: closing socket" << std::endl;
 
         delete clientSN;
         clientSN = NULL;
@@ -577,14 +577,15 @@ bool TUIMain::handleClient(covise::Message *msg)
             tb >> parent;
             tb >> name;
             enum TabletObjectType elementType = static_cast<TabletObjectType>(elementTypeInt);
-            //cerr << "TUIApplication::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
+            //cerr << "TUIMain::handleClient info: Create: ID: " << ID << " Type: " << elementType << " name: "<< name << " parent: " << parent << std::endl;
             TUIElement *parentElement = getElement(parent);
             TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
             if (parentElement && !parentElem)
-                std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
+                std::cerr << "TUIMain::handleClient warn: parent element " << parent << " is not a container: " << ID
+                          << std::endl;
 #if 0
             else if (!parentElement)
-                std::cerr << "TUIApplication::handleClient warn: no parent for: " << ID << std::endl;
+                std::cerr << "TUIMain::handleClient warn: no parent for: " << ID << std::endl;
 #endif
 
             QWidget *parentWidget = mainFrame;
@@ -607,7 +608,7 @@ bool TUIMain::handleClient(covise::Message *msg)
             tb >> typeInt;
             tb >> ID;
             auto type = static_cast<TabletValue>(typeInt);
-            //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
+            //std::cerr << "TUIMain::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
             TUIElement *ele = getElement(ID);
             if (ele)
             {
@@ -615,7 +616,7 @@ bool TUIMain::handleClient(covise::Message *msg)
             }
             else
             {
-                std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID
+                std::cerr << "TUIMain::handleClient warn: element not available in setValue: " << ID
                           << ", value type=" << type << std::endl;
             }
         }
@@ -631,7 +632,7 @@ bool TUIMain::handleClient(covise::Message *msg)
             else
             {
 #ifdef DEBUG
-                std::cerr << "TUIApplication::handleClient warn: element not available in remove: " << ID << std::endl;
+                std::cerr << "TUIMain::handleClient warn: element not available in remove: " << ID << std::endl;
 #endif
             }
         }
@@ -639,7 +640,7 @@ bool TUIMain::handleClient(covise::Message *msg)
 
         default:
         {
-            std::cerr << "TUIApplication::handleClient err: unhandled message type " << type << std::endl;
+            std::cerr << "TUIMain::handleClient err: unhandled message type " << type << std::endl;
         }
         break;
         }
@@ -649,9 +650,10 @@ bool TUIMain::handleClient(covise::Message *msg)
     default:
     {
         if (msg->type >= 0 && msg->type < covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE)
-            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << " " << covise::covise_msg_types_array[msg->type] << std::endl;
+            std::cerr << "TUIMain::handleClient err: unknown COVISE message type " << msg->type << " "
+                      << covise::covise_msg_types_array[msg->type] << std::endl;
         else
-            std::cerr << "TUIApplication::handleClient err: unknown COVISE message type " << msg->type << std::endl;
+            std::cerr << "TUIMain::handleClient err: unknown COVISE message type " << msg->type << std::endl;
     }
     break;
     }
