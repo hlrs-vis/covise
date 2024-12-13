@@ -176,6 +176,8 @@ const char *VrmlNodeCOVER::name() { return "COVER"; }
 VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     : VrmlNodeChild(scene, name())
 {
+    assert(!theCOVER);
+
     d_soundEnvironment.set(26);
     d_animationTimeStep.set(0);
     d_activePerson.set(0);
@@ -187,11 +189,6 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
         d_positions[i].set(1000000, 1000000, 1000000);
         d_orientations[i].set(0, 1, 0, 0);
     }
-    if(!theCOVER)
-    {
-        theCOVER = this;
-    } else  
-        assert(false);
 }
 
 VrmlNodeCOVER::~VrmlNodeCOVER()
