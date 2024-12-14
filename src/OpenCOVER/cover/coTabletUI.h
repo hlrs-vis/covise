@@ -204,7 +204,8 @@ protected:
     double oldTime = 0.0;
     bool firstConnection = true;
 
-    std::unique_ptr<covise::Connection> conn;
+    std::unique_ptr<covise::Connection> conn; // protected by lock/unlock
+    covise::Host *connectingHost = nullptr; // protected by lock/unlock
 #ifndef _M_CEE //no future in Managed OpenCOVER
     std::atomic<bool> connecting = false;
     std::thread connThread;

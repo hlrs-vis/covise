@@ -4753,13 +4753,10 @@ bool coTabletUI::update()
         if (!connecting)
         {
             connThread.join();
-            if (connectedHost)
+            if (connectingHost)
             {
                 assert(conn);
                 assert(sgConn);
-
-                // resend all ui Elements to the TabletPC
-                resendAll();
             }
             else
             {
@@ -4770,10 +4767,20 @@ bool coTabletUI::update()
         unlock();
     }
 
-    if (connectedHost)
+    bool hasConnected = false;
+    lock();
+    if (connectingHost)
     {
+        assert(conn);
+        assert(sgConn);
+        assert(!connectedHost);
+        std::swap(connectedHost, connectingHost);
+        assert(!connectingHost);
+        hasConnected = true;
     }
-    else if (port == 0)
+    unlock();
+
+    if (connectedHost)
     {
     }
     else if (coVRMSController::instance()->isMaster() && serverMode)
@@ -4797,7 +4804,7 @@ bool coTabletUI::update()
             lock();
             if (!connThread.joinable())
             {
-                connectedHost = NULL;
+                connectingHost = nullptr;
                 connecting = true;
                 connThread = std::thread(
                     [this]()
@@ -4821,8 +4828,8 @@ bool coTabletUI::update()
                             {
                                 lock();
                                 conn.reset(nconn);
-                                host = h;
                                 unlock();
+                                host = h;
                                 break;
                             }
                             else if (nconn) // could not open server port
@@ -4832,15 +4839,11 @@ bool coTabletUI::update()
                             }
                         }
 
-                        lock();
                         if (!conn || !host)
                         {
-                            connectedHost = nullptr;
                             connecting = false;
-                            unlock();
                             return;
                         }
-                        unlock();
 
                         // create Texture and SGBrowser Connections
                         Message msg;
@@ -4849,11 +4852,9 @@ bool coTabletUI::update()
                         {
                             lock();
                             conn.reset();
-                            sgConn.reset();
-
-                            connectedHost = nullptr;
-                            connecting = false;
                             unlock();
+                            sgConn.reset();
+                            connecting = false;
                             return;
                         }
                         if (msg.type == covise::COVISE_MESSAGE_TABLET_UI)
@@ -4872,18 +4873,15 @@ bool coTabletUI::update()
                                             host->getPrintable(), sgPort, strerror(errno));
                                 }
 #else
-                                fprintf(stderr, "Could not connect to TabletPC %s; port %d\n",
-                                        connectedHost->getPrintable(), sgPort);
+                                fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", host->getPrintable(),
+                                        sgPort);
 #endif
                                 lock();
                                 conn.reset();
-
+                                unlock();
                                 delete cconn;
                                 cconn = NULL;
-
-                                connectedHost = nullptr;
                                 connecting = false;
-                                unlock();
                                 return;
                             }
                             sgConn.reset(cconn);
@@ -4892,16 +4890,14 @@ bool coTabletUI::update()
                         {
                             lock();
                             conn.reset();
-                            sgConn.reset();
-
-                            connectedHost = nullptr;
-                            connecting = false;
                             unlock();
+                            sgConn.reset();
+                            connecting = false;
                             return;
                         }
 
                         lock();
-                        connectedHost = host;
+                        connectingHost = host;
                         connecting = false;
                         unlock();
                         return;
@@ -4922,7 +4918,7 @@ bool coTabletUI::update()
             tb >> hostName;
             serverHost = new Host(hostName);
 
-            resendAll();
+            hasConnected = true;
         }
     }
     else if (serverConn && serverConn->check_for_input())
@@ -4942,8 +4938,14 @@ bool coTabletUI::update()
             tb >> hostName;
             serverHost = new Host(hostName);
 
-            resendAll();
+            hasConnected = true;
         }
+    }
+
+    if (hasConnected)
+    {
+        std::cerr << "coTabletUI: new connection - sending all elements" << std::endl;
+        resendAll();
     }
 
     for (auto el: newElements)
