@@ -709,7 +709,7 @@ JSBSimPlugin::update()
             //", axes[1]:" << joystickDev->axes[0][1] << std::endl;
     }
 
-    if (joystickDev) {
+    if (joystickDev && Joysticknumber > 0) {
 
         // Read joystick axis values
         float joystickX = joystickDev->axes[Joysticknumber][0];
