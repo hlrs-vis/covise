@@ -819,6 +819,11 @@ int Socket::write(const void *buf, unsigned nbyte)
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;
     }
+    else if (no_of_bytes == 0)
+    {
+        LOGERROR("write returns 0: close socket.");
+        return COVISE_SOCKET_INVALID;
+    }
 
     return no_of_bytes;
 }
