@@ -40,7 +40,7 @@ public:
     void addElement(TUIElement *);
     virtual void removeElement(TUIElement *e);
     void addElementToLayout(TUIElement *);
-    void send(covise::TokenBuffer &tb);
+    bool send(covise::TokenBuffer &tb);
 
     void setPort(int port);
     void setFds(int fd, int fdSg); // provide a connected socket for connection and Scenegraph browser

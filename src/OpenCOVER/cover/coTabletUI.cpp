@@ -4134,7 +4134,7 @@ coTUIElement::~coTUIElement()
     tui()->removeElement(this);
 }
 
-void coTUIElement::createSimple(int type)
+bool coTUIElement::createSimple(int type)
 {
     TokenBuffer tb;
     tb << TABLET_CREATE;
@@ -4142,7 +4142,7 @@ void coTUIElement::createSimple(int type)
     tb << type;
     tb << parentID;
     tb << name.c_str();
-    tui()->send(tb);
+    return tui()->send(tb);
 }
 
 coTabletUI *coTUIElement::tui() const
@@ -4314,7 +4314,13 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath, cons
 void coTUIElement::resend(bool create)
 {
     if (create)
-        createSimple(type);
+    {
+        if (!createSimple(type))
+        {
+            std::cerr << "coTUIElement::resend(create=true): createSimple failed for ID=" << ID
+                      << ", parent=" << parentID << std::endl;
+        }
+    }
 
     TokenBuffer tb;
 
@@ -4602,6 +4608,7 @@ void coTabletUI::resendAll()
     {
         el->resend(true);
     }
+    newElements.clear();
 }
 
 bool coTabletUI::isConnected() const
@@ -4710,11 +4717,11 @@ int coTabletUI::getID()
     return ID++;
 }
 
-void coTabletUI::send(TokenBuffer &tb)
+bool coTabletUI::send(TokenBuffer &tb)
 {
     if (!connectedHost)
     {
-        return;
+        return false;
     }
     assert(conn);
     if (sendThread.joinable())
@@ -4722,16 +4729,17 @@ void coTabletUI::send(TokenBuffer &tb)
         std::unique_lock<std::mutex> lock(sendMutex);
         sendQueue.emplace_back(tb.getData());
         sendCond.notify_one();
+        return true;
     }
-    else
+
+    Message m(tb);
+    m.type = COVISE_MESSAGE_TABLET_UI;
+    if (!conn->sendMessage(&m))
     {
-        Message m(tb);
-        m.type = COVISE_MESSAGE_TABLET_UI;
-        if (!conn->sendMessage(&m))
-        {
-            std::cerr << "coTabletUI::send: connection failed" << std::endl;
-        }
+        std::cerr << "coTabletUI::send: connection failed" << std::endl;
+        return false;
     }
+    return true;
 }
 
 bool coTabletUI::update()

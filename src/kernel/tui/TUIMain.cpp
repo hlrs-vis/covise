@@ -166,16 +166,18 @@ void TUIMain::addElementToLayout(TUIElement *elem)
         mainGrid->addLayout(elem->getLayout(), elem->getXpos(), elem->getYpos());
 }
 
-void TUIMain::send(covise::TokenBuffer &tb)
+bool TUIMain::send(covise::TokenBuffer &tb)
 {
     if (clientConn == NULL)
-        return;
+        return false;
     covise::Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
     if (!clientConn->sendMessage(&m))
     {
         std::cerr << "send: could not send message" << std::endl;
+        return false;
     }
+    return true;
 }
 
 void TUIMain::setPort(int p)

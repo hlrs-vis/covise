@@ -165,7 +165,7 @@ public:
     virtual bool update();
     void addElement(coTUIElement *);
     void removeElement(coTUIElement *e);
-    void send(covise::TokenBuffer &tb);
+    bool send(covise::TokenBuffer &tb);
     void tryConnect();
     void close();
     bool debugTUI();
@@ -237,7 +237,7 @@ public:
     virtual void resend(bool create) override;
     virtual void setEventListener(coTUIListener *);
     virtual coTUIListener *getMenuListener() override;
-    void createSimple(int type);
+    bool createSimple(int type);
     coTabletUI *tui() const;
 
 public
