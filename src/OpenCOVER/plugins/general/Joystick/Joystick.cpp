@@ -18,7 +18,8 @@ void VrmlNodeJoystick::initFields(VrmlNodeJoystick* node, VrmlNodeType* t)
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
         exposedField("enabled", node->d_enabled),
-        exposedField("joystickNumber", node->d_joystickNumber));
+        exposedField("joystickNumber", node->d_joystickNumber),
+        exposedField("joystickName", node->d_joystickName));
 
     if (t)
     {
@@ -76,6 +77,14 @@ void VrmlNodeJoystick::eventIn(double timeStamp,
     if (strcmp(eventName, "set_time") == 0)
     {
     }
+    else if (strcmp(eventName, "joystickName") == 0)
+    {
+        joystickNumber=-1;
+    }
+    else if (strcmp(eventName, "set_joystickName") == 0)
+    {
+        joystickNumber=-1;
+    }
     // Check exposedFields
     else
     {
@@ -90,7 +99,19 @@ void VrmlNodeJoystick::render(Viewer*)
     if (!d_enabled.get())
         return;
 
-    int joystickNumber = d_joystickNumber.get();
+    if(joystickNumber<0)
+    {
+        for(int i=0;i<JoystickPlugin::plugin->numLocalJoysticks;i++)
+        {
+           if(strcmp(JoystickPlugin::plugin->names[i].c_str(),d_joystickName.get())==0) 
+           {
+            joystickNumber=i;
+            break;
+           }
+        }
+        if(joystickNumber < 0)
+            joystickNumber = d_joystickNumber.get();
+    }
     if ((joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks) || (joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks + 1))
         return;
     double timeStamp = System::the->time();
@@ -190,6 +211,7 @@ bool JoystickPlugin::init()
         number_axes[i] = dev->number_axes[i];
         number_sliders[i] = dev->number_sliders[i];
         number_POVs[i] = dev->number_POVs[i];
+        names[i] = dev->names[i];
     }
        coVRMSController::instance()->sendSlaves(&numLocalJoysticks, sizeof(int));
         coVRMSController::instance()->sendSlaves(&number_buttons, sizeof(unsigned char)*numLocalJoysticks);

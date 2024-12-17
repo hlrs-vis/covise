@@ -93,6 +93,7 @@ public:
 	float *sliders[MAX_NUMBER_JOYSTICKS];
 	unsigned char number_POVs[MAX_NUMBER_JOYSTICKS];
 	float *POVs[MAX_NUMBER_JOYSTICKS];
+	std::string names[MAX_NUMBER_JOYSTICKS];
 
 
 	virtual bool needsThread() const; //< whether a thread should be spawned - reimplement if not necessary

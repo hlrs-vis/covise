@@ -55,12 +55,14 @@ private:
     // Fields
     vrml::VrmlSFBool d_enabled;
     vrml::VrmlSFInt d_joystickNumber;
+    vrml::VrmlSFString d_joystickName;
 
     // State
     vrml::VrmlMFFloat d_axes;
     vrml::VrmlMFFloat d_sliders;
     vrml::VrmlMFFloat d_POVs;
     vrml::VrmlMFInt d_buttons;
+    int joystickNumber = -1;
     
 };
 namespace vrui
@@ -108,5 +110,6 @@ public:
 	float *sliders[MAX_NUMBER_JOYSTICKS];
 	unsigned char number_POVs[MAX_NUMBER_JOYSTICKS];
 	float *POVs[MAX_NUMBER_JOYSTICKS];
+	std::string names[MAX_NUMBER_JOYSTICKS];
 };
 #endif

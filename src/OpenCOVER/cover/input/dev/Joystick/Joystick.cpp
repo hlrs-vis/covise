@@ -140,6 +140,15 @@ Joystick::Joystick(const std::string &config)
         }
 
         ioctl(fd[numLocalJoysticks], JSIOCGVERSION, &version);
+        char joyname[128];
+        std::string jName;
+        if (ioctl(fd[numLocalJoysticks], JSIOCGNAME(128), joyname) < 0) {
+            jName = "Unknown Joystick";
+        } else {
+            jName = joyname;
+        }
+        cerr << "found Joystick " << numLocalJoysticks << " name:" << jName << endl;
+        names[numLocalJoysticks] = jName;
         ioctl(fd[numLocalJoysticks], JSIOCGAXES, &number_axes[numLocalJoysticks]);
         if (number_axes[numLocalJoysticks] > 0)
         {
