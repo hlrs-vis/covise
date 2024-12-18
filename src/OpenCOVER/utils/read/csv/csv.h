@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <array>
+#include <variant>
 
 namespace opencover::utils::read {
 
@@ -99,12 +100,22 @@ private:
         std::istringstream ss(value_str);
         ss >> value;
     }
+
+    template<typename... Ts>
+    void convert(const std::string &value_str, std::variant<Ts...> &value) const
+    {
+        std::visit([&value_str](auto &val) {
+            std::istringstream ss(value_str);
+            ss >> val;
+        }, value);
+    }
+
 };
 
 /**
  * @brief A utility function for converting a string to a value of type T.
- * 
- * Usage: 
+ *
+ * Usage:
  * double value;
  * CSVStream::CSVRow row;
  *
