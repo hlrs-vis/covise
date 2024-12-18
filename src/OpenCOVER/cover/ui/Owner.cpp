@@ -45,7 +45,8 @@ std::string Owner::makeName(const std::string &name)
             s.push_back(c);
         }
     }
-    std::cerr << "ui::Owner: invalid name " << name << " transformed to \"" << s << "\"" << std::endl;
+    if (name != s)
+        std::cerr << "ui::Owner: invalid name " << name << " transformed to \"" << s << "\"" << std::endl;
     return s;
 }
 
