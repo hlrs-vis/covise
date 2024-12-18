@@ -286,10 +286,6 @@ CuttingSurfacePlane::update(coInteractor *inter)
         normal_.set(n[0], n[1], n[2]);
         normal_.normalize();
     }
-    else
-    {
-        std::cerr << "getFloatVectorParam(" << CuttingSurfaceInteraction::VERTEX << ") failed" << std::endl;
-    }
 
     if (p && n)
     {
