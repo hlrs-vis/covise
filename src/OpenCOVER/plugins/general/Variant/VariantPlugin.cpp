@@ -615,7 +615,6 @@ void VariantPlugin::removeVariantFromGroup(std::string groupName, Variant *var)
     if (g->variants.empty())
     {
         variantGroups.erase(groupName);
-        delete g;
     }
 }
 
