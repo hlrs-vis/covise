@@ -168,7 +168,7 @@ void VrmlNodeAppearance::render(Viewer *viewer)
         //	diffuse[0] = diffuse[1] = diffuse[2] = 1.0;
 
         auto relUrl = d_relativeUrl.get() ? d_relativeUrl.get() : d_scene->urlDoc()->url();
-        viewer->setNameModes(m->name(), relUrl.c_str());
+        viewer->setNameModes(m->VrmlNode::name(), relUrl.c_str());
         viewer->setMaterial(m->ambientIntensity(),
                             diffuse,
                             m->emissiveColor(),
