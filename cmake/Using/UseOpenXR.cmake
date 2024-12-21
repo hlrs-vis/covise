@@ -4,7 +4,12 @@ MACRO(USE_OPENXR)
     RETURN()
   ENDIF()
   IF (OPENXR_FOUND AND NOT TARGET OpenXR::openxr_loader)
-      add_library(OpenXR::openxr_loader ALIAS ${OPENXR_LIBRARIES})
+	  add_library(OpenXR::openxr_loader STATIC IMPORTED)
+    set_target_properties(OpenXR::openxr_loader PROPERTIES
+        IMPORTED_CONFIGURATIONS "DEBUG;RELEASE"
+        IMPORTED_LOCATION_DEBUG "${OPENXR_LIBRARY_DEBUG}"
+        IMPORTED_LOCATION_RELEASE "${OPENXR_LIBRARY}"
+    )
   ENDIF()
   IF(NOT OPENXR_USED AND OPENXR_FOUND)
     SET(OPENXR_USED TRUE)
