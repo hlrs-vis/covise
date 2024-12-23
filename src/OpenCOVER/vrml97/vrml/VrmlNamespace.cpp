@@ -65,7 +65,11 @@ vrml::VrmlNamespace::VrmlNamespace(int parentId)
 VrmlNamespace::~VrmlNamespace()
 {
     // Free nameList
-    for (auto &n: d_nameList)
+    // operate on a copy of the list to prevent iterator invalidation when nodes
+    // remote themselves from the list
+    auto nameList = d_nameList; 
+
+    for (auto &n: nameList)
         n.second->dereference();
 
     // Free typeList
