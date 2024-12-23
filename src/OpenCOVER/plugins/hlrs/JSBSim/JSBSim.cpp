@@ -1111,7 +1111,7 @@ void VrmlNodeThermal::initFields(VrmlNodeThermal* node, VrmlNodeType* t)
     exposedField("turbulence", node->d_turbulence));
 }
 
-const char* VrmlNodeThermal::name()
+const char* VrmlNodeThermal::typeName()
 {
     return "Thermal";
 }
