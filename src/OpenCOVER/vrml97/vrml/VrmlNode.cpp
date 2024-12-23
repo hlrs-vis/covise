@@ -702,7 +702,7 @@ void VrmlNode::eventIn(double timeStamp,
                        const VrmlField *fieldValue)
 {
 #ifdef DEBUG
-    cout << "eventIn "
+    std::cerr << "eventIn "
          << nodeType()->getName()
          << "::"
          << (name() ? name() : "")
@@ -710,7 +710,7 @@ void VrmlNode::eventIn(double timeStamp,
          << eventName
          << " "
          << *fieldValue
-         << endl;
+         << std::endl;
 #endif
 
     // Strip set_ prefix
@@ -864,13 +864,13 @@ void VrmlNode::eventOut(double timeStamp,
         if ((strcmp(eventOut, r->fromEventOut()) == 0) || ((strncmp(eventOut, r->fromEventOut(), strlen(eventOut)) == 0) && (strlen(r->fromEventOut()) > 8) && (strcmp(r->fromEventOut() + strlen(r->fromEventOut()) - 8, "_changed") == 0)))
         {
 #ifdef DEBUG
-            cerr << "  => "
+            std::cerr << "  => "
                  << r->toNode()->nodeType()->getName()
                  << "::"
                  << r->toNode()->name()
                  << "."
                  << r->toEventIn()
-                 << endl;
+                 << std::endl;
 #endif
             VrmlField *eventValue = fieldValue.clone();
             d_scene->queueEvent(timeStamp, eventValue,

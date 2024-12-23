@@ -215,12 +215,12 @@ void VrmlNodeProto::instantiate(const char* relUrl, int parentId)
         {
             VrmlField *value = (*ifld)->value;
 #ifdef DEBUG
-            cerr << d_nodeType->getName() << "::" << name()
+            std::cerr << d_nodeType->getName() << "::" << name()
                  << " setting IS field " << (*ifld)->name;
             if (value)
-                cerr << " to " << *value << endl;
+                std::cerr << " to " << *value << std::endl;
             else
-                cerr << " to null\n";
+                std::cerr << " to null\n";
 #endif
             if (!value)
                 continue;
@@ -231,7 +231,7 @@ void VrmlNodeProto::instantiate(const char* relUrl, int parentId)
                     //    cerr << (*j)->node->name() << endl;
                     VrmlNode *n = d_scope->findNode((*j)->node->name());
 #ifdef DEBUG
-                    cerr << " on " << n->name() << "::" << (*j)->fieldName << endl;
+                    std::cerr << " on " << n->name() << "::" << (*j)->fieldName << std::endl;
 #endif
                     if (n)
                         n->setField((*j)->fieldName, *value);
