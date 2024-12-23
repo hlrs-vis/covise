@@ -394,7 +394,9 @@ bool JSBSimPlugin::init()
     host = configString("Glider", "host", "141.58.8.212")->value();
     serverPort = configInt("Glider", "serverPort", 31319)->value();
     localPort = configInt("Glider", "localPort", 1234)->value();
-
+    jsName = configString("JSBSim", "joystick", "Logitech X52 Professional H.O.T.A.S.")->value();
+    rudderName = configString("JSBSim", "rudder", "Thrustmaster T-Pendular-Rudder")->value();
+    
     const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
    
     if(rd==nullptr)
@@ -669,22 +671,41 @@ if (coVRMSController::instance()->isMaster())
 bool
 JSBSimPlugin::update()
 {
+
+if (coVRMSController::instance()->isMaster())
+{
     joystickDev = (Joystick*)(Input::instance()->getDevice("joystick"));
     if (joystickDev->numLocalJoysticks > 0)
     {
+        if(Joysticknumber <0) // did not find a joystick yet
+	{
+	fprintf(stderr, "looking for joystick %s %s\n", jsName.c_str(), rudderName.c_str()); 
         for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
         {
-            fprintf(stderr, "joysticks: %d %d %d\n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i]);
-            if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1)
+            fprintf(stderr, "joysticks: %d %d %d %s \n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i],joystickDev->names[i].c_str());
+	    if(joystickDev->names[i] == jsName)
+	    {
+                Joysticknumber = i;
+	    }
+            else if(joystickDev->names[i] == rudderName)
+	    {
+                Ruddernumber = i;
+	    }
+            else if (joystickDev->number_axes[i] == 11 && joystickDev->number_sliders[i] == 0) // linux
             {
                 Joysticknumber = i;
             }
-            if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
+            else if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1) // windows
+            {
+                Joysticknumber = i;
+            }
+            else if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
             {
                 Ruddernumber = i;
-                fprintf(stderr, "FoundRudder\n");
+                //fprintf(stderr, "FoundRudder\n");
             }
         }
+	}
 
     }
     else
@@ -709,7 +730,7 @@ JSBSimPlugin::update()
             //", axes[1]:" << joystickDev->axes[0][1] << std::endl;
     }
 
-    if (joystickDev && Joysticknumber > 0) {
+    if (joystickDev && Joysticknumber >= 0) {
 
         // Read joystick axis values
         float joystickX = joystickDev->axes[Joysticknumber][0];
@@ -729,8 +750,6 @@ JSBSimPlugin::update()
     //gliderValues.speed = throttle;
 
 
-if (coVRMSController::instance()->isMaster())
-        {
     updateUdp();
     //std::cout << "Entered coVRMSController::instance()_>isMAster()" << std::endl;
     rsClient->update();
@@ -739,6 +758,7 @@ if (coVRMSController::instance()->isMaster())
     if (isEnabled())
     {
 
+	bool stopNav = false;
 if (coVRMSController::instance()->isMaster())
         {
             bool result = true;
@@ -768,10 +788,17 @@ if (coVRMSController::instance()->isMaster())
             }
 
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
-                if (joystickDev)
+                if (joystickDev && Joysticknumber >=0)
                 {
                     FCS->SetThrottleCmd(i,1.0-((1+joystickDev->axes[Joysticknumber][2])/2.0));
-                    FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+		    if(joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
+		    {
+                        FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+		    }
+		    else if(joystickDev->number_axes[Joysticknumber] == 11)
+		    {
+                        FCS->SetMixtureCmd(i, joystickDev->axes[Joysticknumber][10]);
+		    }
                 }
                 else
                 {
@@ -803,19 +830,19 @@ if (coVRMSController::instance()->isMaster())
                     result = FDMExec->Run();
                     if (!result)
                     {
-                        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	                stopNav = true;
                         break;
                     }
                 }
                 catch (std::string s)
                 {
                     fprintf(stderr, "oops, exception %s\n", s.c_str());
-                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	            stopNav = true;
                 }
                 catch (...)
                 {
                     fprintf(stderr, "oops, exception\n");
-                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	            stopNav = true;
                 }
             }
             if (result)
@@ -907,18 +934,29 @@ if (coVRMSController::instance()->isMaster())
             }
 
         }
-
+        coVRMSController::instance()->sendSlaves((char *)&stopNav, sizeof(stopNav));
+	if(!stopNav)
+	{
             coVRMSController::instance()->sendSlaves((char *)lastPos.ptr(), sizeof(lastPos));
                     VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
                     coVRCollaboration::instance()->SyncXform();
-            return result;
+        }
 }
 else
 {
+        coVRMSController::instance()->readMaster((char *)&stopNav, sizeof(stopNav));
+	if(!stopNav)
+	{
             coVRMSController::instance()->readMaster((char *)lastPos.ptr(), sizeof(lastPos));
                     VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
                     coVRCollaboration::instance()->SyncXform();
+        }
 }
+	if(stopNav)
+	{
+	    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	    return false;
+	}
         return true;
     }
     return false;

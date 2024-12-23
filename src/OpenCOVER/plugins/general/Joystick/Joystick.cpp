@@ -103,7 +103,7 @@ void VrmlNodeJoystick::render(Viewer*)
     {
         for(int i=0;i<JoystickPlugin::plugin->numLocalJoysticks;i++)
         {
-           if(strcmp(JoystickPlugin::plugin->names[i].c_str(),d_joystickName.get())==0) 
+           if(d_joystickName.get() && strcmp(JoystickPlugin::plugin->names[i].c_str(),d_joystickName.get())==0) 
            {
             joystickNumber=i;
             break;
@@ -112,6 +112,14 @@ void VrmlNodeJoystick::render(Viewer*)
         if(joystickNumber < 0)
             joystickNumber = d_joystickNumber.get();
     }
+            if(coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(&joystickNumber, sizeof(joystickNumber));
+	    }
+	    else
+	    {
+                coVRMSController::instance()->readMaster(&joystickNumber, sizeof(joystickNumber));
+	    }
     if ((joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks) || (joystickNumber >= JoystickPlugin::plugin->numLocalJoysticks + 1))
         return;
     double timeStamp = System::the->time();

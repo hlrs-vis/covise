@@ -133,6 +133,8 @@ private:
 
     JSBSim::FGFDMExec* FDMExec = nullptr;
     JSBSim::FGTrim* trimmer = nullptr;
+    std::string jsName;
+    std::string rudderName;
 
     std::shared_ptr <JSBSim::FGAtmosphere>      Atmosphere;
     std::shared_ptr <JSBSim::FGWinds>           Winds;

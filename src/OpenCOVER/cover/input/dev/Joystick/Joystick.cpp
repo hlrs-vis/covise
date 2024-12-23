@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <linux/joystick.h> // das muss nach osg kommen, wegen KEY_F1
 #include <unistd.h>
+#include <sys/select.h>
 
 #endif
 
@@ -41,22 +42,7 @@ using namespace std;
 Joystick::Joystick(const std::string &config)
     : InputDevice(config)
 {
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
-    cerr << "test " << numLocalJoysticks << endl;
+    //cerr << "test " << numLocalJoysticks << endl;
     JoystickMutex.lock();
 	numLocalJoysticks = 0;
 	for (int i = 0; i < MAX_NUMBER_JOYSTICKS; i++)
@@ -126,18 +112,28 @@ Joystick::Joystick(const std::string &config)
 #define DEVICE_LEN 512
         string joystickDev = covise::coCoviseConfig::getEntry("device", configPath(), devName);
     int version=0;
-	for (numLocalJoysticks  = 0; numLocalJoysticks < MAX_NUMBER_JOYSTICKS; numLocalJoysticks++)
+        numLocalJoysticks=0;
+	for (int deviceNumber  = 0; deviceNumber < MAX_NUMBER_JOYSTICKS; deviceNumber++)
 	{
-        std::string devName = joystickDev+to_string(numLocalJoysticks);
+        std::string devName = joystickDev+to_string(deviceNumber);
         if ((fd[numLocalJoysticks] = open(devName.c_str(), O_RDONLY)) < 0)
         {
             if(numLocalJoysticks == 0)
             {
-            cerr << "failed to opent " << devName << endl;
-            perror("joystick initialisation failed: ");
+                cerr << "failed to opent " << devName << endl;
+                perror("joystick initialisation failed: ");
+	        if(deviceNumber > 4)
+	        {
+                    break;
+		}
             }
-            break;
+	    else if((deviceNumber - numLocalJoysticks) > 4)
+	    {
+                break; //stop if we already found one
+	    }
         }
+	else
+	{
 
         ioctl(fd[numLocalJoysticks], JSIOCGVERSION, &version);
         char joyname[128];
@@ -163,6 +159,8 @@ Joystick::Joystick(const std::string &config)
             for (int i = 0; i < number_buttons[numLocalJoysticks]; i++)
                 buttons[numLocalJoysticks][i] = 0;
         }
+	numLocalJoysticks++;
+	}
      }
 #endif
 	if(numLocalJoysticks > joystickNumber)
@@ -431,14 +429,35 @@ bool Joystick::poll()
     m_valid = true;
     m_mutex.unlock();
     #else
-	for (int joystickNumber = 0; joystickNumber < numLocalJoysticks; joystickNumber++)
+    fd_set read_fds;      // Set of file descriptors to monitor
+    int max_fd = -1;      // Highest file descriptor value
+
+    FD_ZERO(&read_fds);   // Clear the fd set
+
+    // Add valid joystick file descriptors to the set
+    for (int joystickNumber = 0; joystickNumber < numLocalJoysticks; joystickNumber++) {
+        if (fd[joystickNumber] != -1) {
+            FD_SET(fd[joystickNumber], &read_fds);
+            if (fd[joystickNumber] > max_fd) {
+                max_fd = fd[joystickNumber];
+            }
+        }
+    }
+    // Use select to wait for input on any of the file descriptors
+    int activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL);
+
+    if (activity < 0) {
+        perror("select");
+    }
+
+    for (int joystickNumber = 0; joystickNumber < numLocalJoysticks; joystickNumber++)
     {
        int button_pressed = -1;
-    int button_released = -1;
-    struct js_event js;
-    if (fd[joystickNumber] != -1)
-    {
-        while (read(fd[joystickNumber], &js,
+       int button_released = -1;
+       struct js_event js;
+       if (fd[joystickNumber] != -1 && FD_ISSET(fd[joystickNumber], &read_fds))
+       {
+        if(read(fd[joystickNumber], &js,
                 sizeof(struct js_event)) == sizeof(struct js_event))
         {
 #ifdef DEBUG
@@ -470,7 +489,7 @@ bool Joystick::poll()
                 break;
         }
  
-        }
+       }
     }
     #endif
 	for (size_t i = 0; i < number_axes[joystickNumber]; i++)
