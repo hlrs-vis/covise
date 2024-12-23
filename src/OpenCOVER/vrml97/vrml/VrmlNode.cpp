@@ -186,7 +186,16 @@ public:
 
     template<typename VrmlType>
     void registerField(const std::string& name, VrmlType *field, const VrmlNode::FieldUpdateCallback<VrmlType> &updateCb = VrmlNode::FieldUpdateCallback<VrmlType>{}){
-        m_fields.push_back(std::make_unique<VrmlTypeStruct<VrmlType>>(name, field, updateCb));
+        auto it = std::find_if(m_fields.begin(), m_fields.end(), [&name](const auto& f){
+            return f->name == name;
+        });
+        if(it != m_fields.end()){
+            VrmlTypeStructBase* base = it->get();
+            auto v = dynamic_cast<VrmlTypeStruct<VrmlType>*>(base);
+            v->value = field;
+            v->updateCb = updateCb;
+        } else
+            m_fields.push_back(std::make_unique<VrmlTypeStruct<VrmlType>>(name, field, updateCb));
     }
 
     bool initialized(const std::string& name){
