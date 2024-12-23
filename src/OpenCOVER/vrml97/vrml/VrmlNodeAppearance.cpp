@@ -24,11 +24,6 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *scene)
-{
-    return new VrmlNodeAppearance(scene);
-}
-
 // Define the built in VrmlNodeType:: "Appearance" fields
 void VrmlNodeAppearance::initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType *t)
 {
