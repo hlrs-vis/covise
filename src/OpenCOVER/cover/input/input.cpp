@@ -424,34 +424,31 @@ InputDevice *Input::getDevice(const std::string &name)
         DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
         if (!plug)
         {
+            if (type.empty())
+            {
+                if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
+                {
+                    dev = findInMap(drivers, name);
+                    if (dev)
+                        return dev;
+                }
+            }
+            else if (type != "const")
+            {
+                if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
+                {
+                    dev = findInMap(drivers, name);
+                    if (dev)
+                        return dev;
+                }
+            }
             std::cerr << "Input: replaced driver " << name << " with \"const\"" << std::endl;
             plug = getDriverPlugin("const");
         }
-        if (plug)
-        {
-            dev = plug->newInstance("COVER.Input.Device." + name);
-            drivers[name] = dev;
-            if (dev->needsThread())
-                dev->start();
-        }
-        else if (type.empty())
-        {
-            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
-            {
-                dev = findInMap(drivers, name);
-                if (dev)
-                    return dev;
-            }
-        }
-        else if (type != "const")
-        {
-            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
-            {
-                dev = findInMap(drivers, name);
-                if (dev)
-                    return dev;
-            }
-        }
+        dev = plug->newInstance("COVER.Input.Device." + name);
+        drivers[name] = dev;
+        if (dev->needsThread())
+            dev->start();
         //std::cerr << "Input: creating dev " << name << ", driver " << type << std::endl;
     }
     return dev;
