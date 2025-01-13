@@ -533,3 +533,19 @@ VrmlNodeScript::set(const FieldList &recs,
         }
     }
 }
+
+void VrmlNodeScript::setField(const char *fieldName,
+                              const VrmlField &fieldValue)
+{
+    VrmlField::VrmlFieldType ft;
+    if ((ft = hasField(fieldName)) != 0)
+    {
+        if (ft == VrmlField::fieldType(fieldValue.fieldTypeName()))
+            set(d_fields, fieldName, &fieldValue);
+        else
+            System::the->error("Invalid type (%s) for %s field of Script node.\n",
+                               fieldValue.fieldTypeName(), fieldName);
+    }
+    else
+        VrmlNodeChild::setField(fieldName, fieldValue);
+}

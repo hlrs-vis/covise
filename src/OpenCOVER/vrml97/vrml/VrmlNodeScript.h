@@ -135,6 +135,7 @@ private:
     VrmlField::VrmlFieldType has(const FieldList &, const char *) const;
     VrmlField *get(const FieldList &, const char *) const;
     void set(const FieldList &, const char *, const VrmlField *);
+    void setField(const char *fieldName, const VrmlField &fieldValue) override;
 
     int d_eventsReceived;
 };
