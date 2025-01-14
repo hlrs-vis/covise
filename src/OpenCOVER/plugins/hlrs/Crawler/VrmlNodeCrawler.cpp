@@ -71,7 +71,7 @@ void VrmlNodeCrawler::initFields(VrmlNodeCrawler* node, vrml::VrmlNodeType* t)
     }
 }
 
-const char* VrmlNodeCrawler::name()
+const char* VrmlNodeCrawler::typeName()
 {
     return "Crawler";
 }
