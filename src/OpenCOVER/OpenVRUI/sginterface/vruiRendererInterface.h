@@ -21,6 +21,10 @@
 #include <map>
 
 EXPORT_TEMPLATE2(template class OPENVRUIEXPORT std::map<std::string, vrui::vruiNode *>)
+namespace vsg
+{
+    class Data;
+}
 
 namespace vrui
 {
@@ -62,6 +66,7 @@ public:
     virtual vruiUIElementProvider *createUIElementProvider(coUIElement *element) = 0;
     virtual vruiButtonProvider *createButtonProvider(coButtonGeometry *button) = 0;
     virtual vruiPanelGeometryProvider *createPanelGeometryProvider(coPanelGeometry *panel) = 0;
+    virtual void addToTransfer(vsg::Data*) {};
 
     virtual vruiTransformNode *createTransformNode() = 0;
     virtual void deleteNode(vruiNode *node)

@@ -69,6 +69,13 @@
 #define OSGVRUIEXPORT COIMPORT
 #endif
 
+#if defined(COVISE_VSGVRUI)
+#define VSGVRUIEXPORT COEXPORT
+#else
+#define VSGVRUIEXPORT COIMPORT
+#endif
+
+
 #if defined(SG_VRUI)
 #define SGVRUIEXPORT COEXPORT
 #else
@@ -180,6 +187,12 @@
 #define COVEREXPORT COEXPORT
 #else
 #define COVEREXPORT COIMPORT
+#endif
+
+#if defined(vvCore_EXPORTS)
+#define VVCORE_EXPORT COEXPORT
+#else
+#define VVCORE_EXPORT COIMPORT
 #endif
 
 #if defined(COVISE_PFIV)

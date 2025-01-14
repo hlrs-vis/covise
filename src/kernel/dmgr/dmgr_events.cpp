@@ -43,17 +43,16 @@ int DataManagerProcess::handle_msg(Message *msg)
     int ok;
     coShmPtr *shmptr = NULL;
     unsigned int port;
-    int len, i, number;
+    int i, number;
     int retval = 2;
 #ifdef DEBUG
     int bytes_sent;
 #endif
     int *idata;
     pid_t *tmp_pid;
-    char dmsg_data[80];
     char remote_name[256];
     char new_interface_name[256];
-    char *tmp_ptr, *data;
+    char *tmp_ptr;
     ObjectEntry *oe;
     static int first = 1;
 

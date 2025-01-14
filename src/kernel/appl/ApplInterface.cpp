@@ -377,7 +377,7 @@ void Covise::init(int argc, char *argv[])
         m_name = p + 1;
     else
         m_name = crbExec.name();
-    int len = m_name.size();
+    size_t len = m_name.size();
     if (len >= 4 && m_name.compare(len - 4, 4, ".exe") == 0)
     {
         m_name.erase(len - 4, 4);

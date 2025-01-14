@@ -12,7 +12,7 @@
 #include <memory>
 #include <list>
 
-#include <OpenVRUI/coInteraction.h>
+#include "coInteraction.h"
 
 #include <vrb/client/SharedState.h>
 

@@ -26,7 +26,7 @@
 
 #include <util/coTypes.h>
 
-#include <OpenVRUI/sginterface/vruiMatrix.h>
+#include "sginterface/vruiMatrix.h"
 #include <util/coTypes.h>
 
 #include <string>

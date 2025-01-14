@@ -16,6 +16,7 @@ enum class Program
     coviseDaemon,
     crb,
     external,
+    vive,
     LAST_DUMMY
 };
 namespace detail{

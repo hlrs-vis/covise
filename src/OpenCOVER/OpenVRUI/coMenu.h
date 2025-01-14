@@ -8,9 +8,9 @@
 #ifndef CO_MENU_H
 #define CO_MENU_H
 
-#include <OpenVRUI/coUpdateManager.h>
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coAction.h>
+#include "coUpdateManager.h"
+#include "coMenuItem.h"
+#include "coAction.h"
 
 #include <util/coTypes.h>
 

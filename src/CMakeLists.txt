@@ -33,8 +33,10 @@ ENDIF()
 if (NOT COVISE_BUILD_ONLY_ODDLOT
         AND (COVISE_BUILD_COVER OR COVISE_BUILD_ONLY_COVER))
     add_subdirectory(OpenCOVER)
+    add_subdirectory(VIVE)
 endif()
 
 if (COVISE_BUILD_ONLY_ODDLOT OR NOT COVISE_BUILD_ONLY_COVER)
     add_subdirectory(oddlot)
 endif()
+    

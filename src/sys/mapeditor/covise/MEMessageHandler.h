@@ -18,7 +18,7 @@ class QTimer;
 namespace covise
 {
 class Message;
-class NEW_UI;
+struct NEW_UI;
 class UdpMessage;
 class UserInterface;
 } // namespace covise
