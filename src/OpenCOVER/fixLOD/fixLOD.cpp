@@ -13,6 +13,7 @@
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 #include <osg/PagedLOD>
+#include <filesystem>
 
 
 int fixLOD(const std::string& filename)
@@ -22,7 +23,12 @@ int fixLOD(const std::string& filename)
 
     options->setOptionString("WriteImageHint=IncludeFile");
     osg::Node *root=nullptr;
-    root = osgDB::readNodeFile(filename.c_str());
+    std::filesystem::path p;
+    p = filename;
+    if(!p.parent_path().empty())
+        std::filesystem::current_path(p.parent_path());
+    std::string fn = p.filename().string();
+    root = osgDB::readNodeFile(fn.c_str());
     osg::PagedLOD* plod = dynamic_cast<osg::PagedLOD*>(root);
     if (plod)
     {
@@ -33,8 +39,12 @@ int fixLOD(const std::string& filename)
         {
             nrl.push_back(ranges[i]);
         }
+        nrl[0].first = plod->getRadius();
+        nrl[0].second = 1.0E10;
+        nrl[1].first = 0.0;
+        nrl[1].second = plod->getRadius();
         plod->setRangeList(nrl);
-        osgDB::writeNodeFile(*root, filename.c_str(), options);
+        osgDB::writeNodeFile(*root, fn.c_str(), options);
     }
     else
     {
@@ -55,6 +65,10 @@ int fixLOD(const std::string& filename)
                     {
                         nrl.push_back(ranges[i]);
                     }
+                    nrl[0].first = plod->getRadius();
+                    nrl[0].second = 1.0E10;
+                    nrl[1].first = 0.0;
+                    nrl[1].second = plod->getRadius();
                     plod->setRangeList(nrl);
                     found = true;
                 }
@@ -62,7 +76,7 @@ int fixLOD(const std::string& filename)
             }
             if (found)
             {
-                osgDB::writeNodeFile(*root, filename.c_str(), options);
+                osgDB::writeNodeFile(*root, fn.c_str(), options);
             }
             else
             {
