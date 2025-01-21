@@ -54,6 +54,7 @@ public:
     explicit operator bool() const { return m_inputFileStream.good(); }
 
     const std::vector<std::string> &getHeader() { return m_header; }
+    const std::string &getFilename() const { return m_filename; }
 
 private:
     void readHeader();
