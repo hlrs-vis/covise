@@ -60,7 +60,7 @@ void VSGVruiColoredBackground::resizeGeometry()
     (*coord)[2].set(myWidth, myHeight, 0.0f);
     (*coord)[1].set(myWidth, 0.0f, 0.0f);
     (*coord)[0].set(0.0f, 0.0f, 0.0f);
-    vruiRendererInterface::the()->addToTransfer(coord.get());
+    //vruiRendererInterface::the()->addToTransfer(coord);
 }
 
 /** create geometry elements shared by all VSGVruiColoredBackgrounds
@@ -206,7 +206,7 @@ void VSGVruiColoredBackground::setEnabled(bool en)
     {
         material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_DISABLED];
     }
-    vruiRendererInterface::the()->addToTransfer(material);
+    //vruiRendererInterface::the()->addToTransfer(material);
 }
 
 void VSGVruiColoredBackground::setHighlighted(bool hl)
@@ -226,6 +226,6 @@ void VSGVruiColoredBackground::setHighlighted(bool hl)
     {
         material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_DISABLED];
     }
-    vruiRendererInterface::the()->addToTransfer(material);
+    //vruiRendererInterface::the()->addToTransfer(material);
 }
 }

@@ -42,7 +42,7 @@ protected:
     vsg::ref_ptr<vsg::vec2Array> texCoord2; ///< texture coordinates of dial
     vsg::ref_ptr<vsg::Node> positionNode; ///< position indicator geode
     vsg::ref_ptr<vsg::Node> dialNode; ///< dial geode
-    vsg::ref_ptr<vsg::Node> textNode;
+    vsg::ref_ptr<vsg::Text> textNode;
     vsg::ref_ptr<vsg::Node> positionNodeDisabled; ///< disabled position indicator geode
     vsg::ref_ptr<vsg::Node> dialNodeDisabled; ///< disabled dial geode
 

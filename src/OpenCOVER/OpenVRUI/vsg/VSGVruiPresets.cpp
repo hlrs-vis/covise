@@ -63,12 +63,14 @@ VSGVruiPresets::VSGVruiPresets()
 
     setColorFromConfig("COVER.Background", coUIElement::BACKGROUND, vsg::vec4(9.f, 0.f, 0.f, 1.f));
     options = vsg::Options::create();
-    auto fontName = coCoviseConfig::getEntry("value", "COVER.VRUI.Font", "");
-    fontFile = vruiRendererInterface::the()->getFont(fontName); 
-    font = vsg::read_cast<vsg::Font>(fontName, options);
+    auto fontName = coCoviseConfig::getEntry("value", "COVER.VRUI.Font", "times.vsgb");
+
+    fontFile = vruiRendererInterface::the()->getFont(fontName);
+    std::string fontFileName  = vruiRendererInterface::the()->getFont(fontName); 
+    font = vsg::read_cast<vsg::Font>(fontFileName, options);
     if (!font)
     {
-        std::cout << "Failed to read font : " << fontName << std::endl;
+        std::cout << "Failed to read font : " << fontFileName << std::endl;
     }
     sharedObjects = vsg::SharedObjects::create();
 }

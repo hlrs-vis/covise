@@ -42,7 +42,7 @@ public:
     const vsg::dmat4 &getMatrix() const;
     void setMatrix(const vsg::dmat4 &matrix);
 
-private:
     vsg::dmat4 matrix;
+private:
 };
 }

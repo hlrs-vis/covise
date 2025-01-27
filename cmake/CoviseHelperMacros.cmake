@@ -483,6 +483,101 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   ENDIF(COVISE_USE_QT)
 ENDMACRO(COVER_ADD_PLUGIN_TARGET)
 
+MACRO(VIVE_ADD_PLUGIN targetname)
+ set(LIBS "")
+  foreach(f ${ARGN})
+     get_filename_component(ext ${f} EXT)
+     if(ext MATCHES "\\.(h|hpp|hxx|inl|inc)\$")
+        #message("Header: ${f} - ${ext}")
+        set(HEADERS ${HEADERS} ${f})
+     elseif(ext MATCHES "\\.(c|cu|cpp|cxx|mm)\$")
+        #message("Source: ${f} - ${ext}")
+        set(SOURCES ${SOURCES} ${f})
+     elseif(ext MATCHES "\\.(obj)\$")
+        #message("Obj: ${f} - ${ext}") 
+		#don#t add obj files as lib
+        set(OBJECTS ${OBJECTS} ${f})
+     elseif(ext MATCHES "\\.(ui)\$")
+     else()
+        #message("Lib: ${f} - ${ext}")
+        set(LIBS ${LIBS} ${f})
+     endif()
+  endforeach()
+  
+  VIVE_ADD_PLUGIN_TARGET(${targetname} ${OBJECTS})
+
+ 
+
+  TARGET_LINK_LIBRARIES(${targetname} ${LIBS})
+  IF(DEFINED EXTRA_LIBS)
+     TARGET_LINK_LIBRARIES(${targetname} ${EXTRA_LIBS})
+  ENDIF()
+  if(CUDA_FOUND AND COVISE_USE_CUDA)
+     TARGET_LINK_LIBRARIES(${targetname} ${CUDA_LIBRARIES})
+  endif()
+  VIVE_INSTALL_PLUGIN(${targetname})
+ENDMACRO(VIVE_ADD_PLUGIN)
+
+# Macro to add VIVE plugins
+MACRO(VIVE_ADD_PLUGIN_TARGET targetname)
+  USING(vsg)
+  
+  IF(WIN32)
+    ADD_DEFINITIONS(-DIMPORT_PLUGIN)
+  ENDIF(WIN32)
+
+  INCLUDE_DIRECTORIES(SYSTEM
+    ${ZLIB_INCLUDE_DIR}
+    ${JPEG_INCLUDE_DIR}
+    ${PNG_INCLUDE_DIR}
+    ${TIFF_INCLUDE_DIR}
+    ${OPENSCENEGRAPH_INCLUDE_DIRS}
+  )
+  INCLUDE_DIRECTORIES(
+    "${COVISEDIR}/src/VIVE"
+  )
+  IF(APPLE)
+    ADD_LIBRARY(${targetname} MODULE ${ARGN} ${SOURCES} ${HEADERS})
+  ELSE(APPLE)
+    ADD_LIBRARY(${targetname} SHARED ${ARGN} ${SOURCES} ${HEADERS})
+  ENDIF(APPLE)
+  
+  IF("${MAIN_FOLDER}" STREQUAL "")
+      set_target_properties(${targetname} PROPERTIES FOLDER "Plugins/${PLUGIN_CATEGORY}")
+  ELSE()
+      set_target_properties(${targetname} PROPERTIES FOLDER "${MAIN_FOLDER}/Plugins/${PLUGIN_CATEGORY}")
+  ENDIF()
+  
+  # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
+  SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
+  
+  COVISE_ADJUST_OUTPUT_DIR(${targetname} "VIVE/plugins")
+  
+  # set additional COVISE_COMPILE_FLAGS
+  SET_TARGET_PROPERTIES(${targetname} PROPERTIES COMPILE_FLAGS "${COVISE_COMPILE_FLAGS}")
+  # set additional COVISE_LINK_FLAGS
+  SET_TARGET_PROPERTIES(${targetname} PROPERTIES LINK_FLAGS "${COVISE_LINK_FLAGS}")
+  # switch off "lib" prefix for MinGW
+  IF(MINGW)
+  SET_TARGET_PROPERTIES(${targetname} PROPERTIES PREFIX "")
+  ENDIF(MINGW)
+  
+  TARGET_LINK_LIBRARIES(${targetname} vvCore coOpenVRUI coVSGVRUI
+  ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY}
+   ${EXTRA_LIBS}) # ${CMAKE_THREAD_LIBS_INIT})
+  
+  IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  ADD_COVISE_LINK_FLAGS(${targetname} "-Wl,--no-undefined")
+  ENDIF()
+  
+  UNSET(SOURCES)
+  UNSET(HEADERS)
+  target_compile_definitions(${targetname} PRIVATE VIVE_PLUGIN_NAME="${targetname}")
+  IF(COVISE_USE_QT)
+    qt_use_modules(${targetname} Core)
+  ENDIF(COVISE_USE_QT)
+ENDMACRO(VIVE_ADD_PLUGIN_TARGET)
+
 MACRO(COVISE_INSTALL_DEPENDENCIES targetname)
   IF (${targetname}_LIB_DEPENDS)
      IF(WIN32)
@@ -601,6 +696,17 @@ MACRO(COVER_INSTALL_PLUGIN targetname)
   # does not work with Qt5
   #COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVER_INSTALL_PLUGIN)
+# Macro to install an VIVE plugin
+MACRO(VIVE_INSTALL_PLUGIN targetname)
+  INSTALL(TARGETS ${ARGV} EXPORT covise-targets
+      RUNTIME DESTINATION ${COVISE_ARCHSUFFIX}/lib/VIVE/plugins
+      LIBRARY DESTINATION ${COVISE_ARCHSUFFIX}/lib/VIVE/plugins
+      ARCHIVE DESTINATION ${COVISE_ARCHSUFFIX}/lib/VIVE/plugins
+          COMPONENT osgplugins.${category}
+  )
+  # does not work with Qt5
+  #COVISE_INSTALL_DEPENDENCIES(${targetname})
+ENDMACRO(VIVE_INSTALL_PLUGIN)
 
 # Macro to install headers
 MACRO(COVISE_INSTALL_HEADERS dirname)

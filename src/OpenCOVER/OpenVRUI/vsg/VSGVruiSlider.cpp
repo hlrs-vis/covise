@@ -240,6 +240,20 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
     }
 
     //numberText->setPosition(position);
+    auto layout = vsg::StandardLayout::create();
+    layout->horizontalAlignment = vsg::StandardLayout::CENTER_ALIGNMENT;
+    layout->position = vsg::vec3(6.0, 0.0, 0.0);
+    layout->horizontal = vsg::vec3(1.0, 0.0, 0.0);
+    layout->vertical = vsg::vec3(0.0, 1.0, 0.0);
+    layout->color = vsg::vec4(1.0, 1.0, 1.0, 1.0);
+    layout->outlineWidth = 0.1f;
+    layout->billboard = true;
+
+    textNode = vsg::Text::create();
+    textNode->text = vsg::stringValue::create(number);
+    textNode->font = VSGVruiPresets::instance()->font;
+    textNode->layout = layout;
+    textNode->setup(0, VSGVruiPresets::instance()->options);
 
     return textNode;
 }

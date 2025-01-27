@@ -13,6 +13,7 @@
 #include <OpenVRUI/vsg/VSGVruiUserDataCollection.h>
 
 #include <OpenVRUI/util/vruiLog.h>
+#include <OpenVRUI/sginterface/vruiRendererInterface.h>
 
 using namespace vsg;
 using namespace std;
@@ -33,8 +34,11 @@ VSGVruiNode::~VSGVruiNode()
 
 void VSGVruiNode::addChild(vruiNode *node)
 {
-    vsg::ref_ptr<vsg::Node> newNode = (dynamic_cast<VSGVruiNode *>(node))->node;
-    vsg::Group* group = dynamic_cast<vsg::Group *>(this->node.get());
+    vsg::ref_ptr<vsg::Node> newNode = (dynamic_cast<VSGVruiNode*>(node))->node;
+    if (!newNode.get())
+        return;
+    vruiRendererInterface::the()->compileNode(node);
+    vsg::Group* group = dynamic_cast<vsg::Group*>(this->node.get());
     bool found = false;
     for(auto it = group->children.begin();it != group->children.end(); it++)
     {
@@ -51,7 +55,12 @@ void VSGVruiNode::addChild(vruiNode *node)
 void VSGVruiNode::insertChild(int location, vruiNode *node)
 {
     VSGVruiNode *vsgNode = dynamic_cast<VSGVruiNode *>(node);
+
+    if (!vsgNode)
+        return;
     vsg::Group* group = dynamic_cast<vsg::Group*>(this->node.get());
+    //compile new nodes
+    vruiRendererInterface::the()->compileNode(node);
     group->children.insert(group->children.begin()+location, vsgNode->node);
 }
 
