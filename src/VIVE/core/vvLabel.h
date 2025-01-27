@@ -59,13 +59,13 @@ private:
     vsg::vec3Array *lc, *qc;
     vsg::Node *lineGeoset, *quadGeoset;
     osg::Geode *label;
-    vsg::vec3 position;
+    vsg::dvec3 position;
     bool keepPositionInScene;
     float distanceFromCamera;
     bool moveToCam;
     bool depthScale;
 
-    vsg::vec3 moveToCamera(const vsg::vec3 &point, float distance);
+    vsg::dvec3 moveToCamera(const vsg::dvec3& point, float distance);
 
 public:
     // creates scene graph
@@ -94,8 +94,8 @@ public:
     void reAttachTo(vsg::Group *anchor);
 
     // position in world coordinates
-    void setPosition(const vsg::vec3 &pos);
-    void setPositionInScene(const vsg::vec3 &pos);
+    void setPosition(const vsg::dvec3 &pos);
+    void setPositionInScene(const vsg::dvec3 &pos);
 
     // move label towards camera to keep above geometry
     void keepDistanceFromCamera(bool enable, float distanceFromCamera = 50.0f);

@@ -17,7 +17,9 @@
 
 #include <OpenThreads/Thread>
 #include <string>
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 /**
  * @brief The Joystick class interacts with input hardware
@@ -56,7 +58,7 @@
 
 #include "TempWindow.h"
 #endif
-#include "cover/coVRPluginSupport.h"
+#include <core/vvPluginSupport.h>
 
 #define NUM_BUTTONS 3
 
@@ -66,7 +68,7 @@ enum
 	JOYSTICK_AXES_EVENTS = 2
 };
 
-class Joystick : public opencover::InputDevice
+class Joystick : public vive::InputDevice
 {
     virtual bool poll();
 

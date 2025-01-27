@@ -20,9 +20,9 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <osg/Matrix>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
+#include <vsg/maths/quat.h>
 
 using namespace std;
 using namespace covise;
@@ -30,7 +30,6 @@ using namespace covise;
 #include <util/unixcompat.h>
 #include <iostream>
 
-#include <osg/Quat>
 
 // MessageHandler receives NatNet error/debug messages
 void NATNET_CALLCONV MessageHandler(Verbosity msgType, const char* msg)
@@ -180,12 +179,12 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 			m_bodyMatricesValid[data->RigidBodies[i].ID] = bTrackingValid;
 			if (bTrackingValid)
 			{
-				osg::Matrix matrix;
-				osg::Quat q(data->RigidBodies[i].qx, data->RigidBodies[i].qy, data->RigidBodies[i].qz, data->RigidBodies[i].qw);
-				matrix.makeRotate(q);
-				matrix(3, 0) = data->RigidBodies[i].x * 1000.;
-				matrix(3, 1) = data->RigidBodies[i].y * 1000.;
-				matrix(3, 2) = data->RigidBodies[i].z * 1000.;
+				vsg::dmat4 matrix;
+				vsg::quat q(data->RigidBodies[i].qx, data->RigidBodies[i].qy, data->RigidBodies[i].qz, data->RigidBodies[i].qw);
+				matrix = rotate(q);
+				matrix(0, 3) = data->RigidBodies[i].x * 1000.;
+				matrix(1, 3) = data->RigidBodies[i].y * 1000.;
+				matrix(2, 3) = data->RigidBodies[i].z * 1000.;
 				m_bodyMatrices[data->RigidBodies[i].ID] = matrix;
 			}
 		}

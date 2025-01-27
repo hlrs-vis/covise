@@ -8,4 +8,4 @@ SET(SOURCES
    zSpaceDriver.cpp
 )
 
-cover_add_plugin(input_zspace)
+vive_add_plugin(vvInput_zspace)

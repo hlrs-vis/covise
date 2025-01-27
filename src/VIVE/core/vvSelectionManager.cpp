@@ -67,16 +67,16 @@ osg::BoundingSphere vvSelectionManager::getBoundingSphere(vsg::Node *objRoot)
 
     if (selectedNodeList.empty())
     {
-        vsg::Group *root = objRoot->asGroup();
+        vsg::Group *root = dynamic_cast<vsg::Group *>(objRoot);
         if (root)
         {
             for (unsigned int i = 0; i < root->children.size(); i++)
             {
-                currentNode = root->getChild(i);
+                currentNode = root->children[i];
                 const vsg::MatrixTransform *transform = currentNode->asTransform();
                 if ((!transform || transform->getReferenceFrame() == vsg::MatrixTransform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
                 {
-                    bb.expandBy(/*currentNode->getBound()*/ vv->getBBox(currentNode));
+                    bb.expandBy(vv->getBBox(currentNode));
                 }
             }
 
@@ -87,11 +87,11 @@ osg::BoundingSphere vvSelectionManager::getBoundingSphere(vsg::Node *objRoot)
                 bsphere._radius = 0.0f;
                 for (unsigned int i = 0; i < root->children.size(); i++)
                 {
-                    currentNode = root->getChild(i);
+                    currentNode = root->children[i];
                     const vsg::MatrixTransform *transform = currentNode->asTransform();
                     if ((!transform || transform->getReferenceFrame() == vsg::MatrixTransform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
                     {
-                        bsphere.expandRadiusBy(/*currentNode->getBound()*/ vv->getBBox(currentNode));
+                        bsphere.expandRadiusBy( vv->getBBox(currentNode));
                     }
                 }
             }
@@ -187,9 +187,9 @@ bool vvSelectionManager::update()
             pickedObjChanged();
             return true;
         }
-        const vsg::NodePath &intersectedNodePath = vv->getIntersectedNodePath();
+        const vsg::Intersector::NodePath &intersectedNodePath = vv->getIntersectedNodePath();
         bool isSceneNode = false;
-        for (std::vector<vsg::Node *>::const_iterator iter = intersectedNodePath.begin();
+        for (auto iter = intersectedNodePath.begin();
              iter != intersectedNodePath.end();
              ++iter)
         {
@@ -202,14 +202,14 @@ bool vvSelectionManager::update()
 
         if (isSceneNode)
         {
-            std::vector<vsg::Node *>::const_iterator iter = intersectedNodePath.end();
+            auto iter = intersectedNodePath.end();
             --iter;
             --iter;
-            vsg::Group *parent = (*iter)->asGroup();
+            const vsg::Group *parent = dynamic_cast<const vsg::Group *>(*iter);
             while (parent && isHelperNode(parent))
             {
                 iter--;
-                parent = (*iter)->asGroup();
+                parent = dynamic_cast<const vsg::Group*>(*iter);
             }
             if (parent)
             {
@@ -278,10 +278,10 @@ void vvSelectionManager::removeNode(vsg::Node *node)
             {
                 vsg::Group *mygroup = NULL;
                 vsg::Node *child = NULL;
-                if ((*nodeIter).get()->getNumParents())
+                /*if ((*nodeIter).get()->getNumParents())
                 {
                     vsg::Node *parent = (*nodeIter).get()->getParent(0);
-                    mygroup = parent->asGroup();
+                    mygroup = dynamic_cast<vsg::Group *>(parent);
                 }
                 if ((*nodeIter).get()->children.size())
                 {
@@ -291,7 +291,7 @@ void vvSelectionManager::removeNode(vsg::Node *node)
                 {
                     mygroup->replaceChild((*nodeIter).get(), child);
                     (*nodeIter).get()->removeChild(child);
-                }
+                }*/
             }
             childIter = selectedNodeList.erase(childIter);
             parentIter = selectedParentList.erase(parentIter);
@@ -309,7 +309,7 @@ void vvSelectionManager::removeNode(vsg::Node *node)
 
 bool vvSelectionManager::haveToDelete(vsg::Node *parent, vsg::Node *node)
 {
-    if ((parent->getNumParents() > 1) || (parent->getNumParents() == 0))
+   /* if ((parent->getNumParents() > 1) || (parent->getNumParents() == 0))
         return false;
     else
     {
@@ -317,7 +317,8 @@ bool vvSelectionManager::haveToDelete(vsg::Node *parent, vsg::Node *node)
             return true;
         else
             return haveToDelete(parent->getParent(0), node);
-    }
+    }*/
+    return false;
 }
 
 #if 0
@@ -386,13 +387,13 @@ void vvSelectionManager::receiveAdd(covise::TokenBuffer &messageData)
 
     vsg::Node *parent = validPath(parentPath);
     vsg::Node *node = validPath(nodePath);
-    vsg::Group *parentG = parent->asGroup();
+    vsg::Group *parentG = dynamic_cast<vsg::Group *>(parent);
 
     addSelection(parentG, node, false);
     pickedObjChanged();
 }
 
-void vvSelectionManager::addSelection(vsg::Group *parent, vsg::Node *selectedNode, bool send)
+void vvSelectionManager::addSelection(const vsg::Group *parent, const vsg::Node *selectedNode, bool send)
 {
     if ((!parent) || (!selectedNode))
         return;
@@ -415,10 +416,10 @@ void vvSelectionManager::addSelection(vsg::Group *parent, vsg::Node *selectedNod
       selectionNode = existNode->asGroup();
    else*/
 
-    if (SelOnOff)
+   /* if (SelOnOff)
     {
         // create a material
-        osg::Material *selMaterial = new osg::Material();
+        osg::Material* selMaterial = new osg::Material();
         selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, vsg::vec4f(SelRed, SelGreen, SelBlue, 1.0f));
         selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, vsg::vec4f(SelRed, SelGreen, SelBlue, 1.0f));
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, vsg::vec4f(0.1f, 0.1f, 0.1f, 1.0f));
@@ -479,17 +480,14 @@ void vvSelectionManager::addSelection(vsg::Group *parent, vsg::Node *selectedNod
     {
         selectionNode = new vsg::Group();
         selectionNode->setName("Selection:None");
-    }
+    }*/
 
-    /*if(!existNode)*/
-    /*{*/
-    insertHelperNode(parent, selectedNode, selectionNode, SELECTION);
+    /*insertHelperNode(parent, selectedNode, selectionNode, SELECTION);
 
     selectedNodeList.push_back(selectedNode);
     selectedParentList.push_back(parent);
     selectionNodeList.push_back(selectionNode);
-    selectionChanged();
-    /*}*/
+    selectionChanged();*/
 }
 
 void vvSelectionManager::receiveClear()
@@ -511,19 +509,19 @@ void vvSelectionManager::clearSelection(bool send)
     while (!selectionNodeList.empty())
     {
         vsg::ref_ptr<vsg::Group> mySelectionNode = selectionNodeList.front();
-        if (mySelectionNode->getNumParents())
+       /* if (mySelectionNode->getNumParents())
         {
             vsg::Node *parent = mySelectionNode->getParent(0);
             vsg::Node *child = NULL;
             if (mySelectionNode->children.size() > 0)
-                child = mySelectionNode->getChild(0);
-            vsg::Group *mygroup = parent->asGroup();
+                child = mySelectionNode->children{0];
+            vsg::Group *mygroup = dynamic_cast<vsg::Group*>(parent);
             if (child && mygroup && mySelectionNode.get())
             {
                 mygroup->replaceChild(mySelectionNode.get(), child);
-                mySelectionNode->removeChild(child);
+                vvPluginSupport::removeChild(mySelectionNode.get(), child);
             }
-        }
+        }*/
         selectionNodeList.pop_front();
     }
 
@@ -543,7 +541,7 @@ vsg::Group *vvSelectionManager::getHelperNode(vsg::Group *parent, vsg::Node *chi
     vsg::Group *helpParent = NULL;
     vsg::Group *helpParent2 = NULL;
 
-    for (unsigned int i = 0; i < child->getNumParents(); i++)
+    /*for (unsigned int i = 0; i < child->getNumParents(); i++)
     {
         helpParent = child->getParent(i);
         if (helpParent == parent)
@@ -567,7 +565,7 @@ vsg::Group *vvSelectionManager::getHelperNode(vsg::Group *parent, vsg::Node *chi
                     return NULL;
             }
         }
-    }
+    }*/
     return NULL;
 }
 
@@ -585,7 +583,7 @@ void vvSelectionManager::insertHelperNode(vsg::Group *parent, vsg::Node *child, 
         ss << index;
         ss >> strNumber;
         strType.append(strNumber);
-        insertNode->addDescription(strType);
+        //insertNode->addDescription(strType);
     }
 
     bool equal = false;
@@ -595,7 +593,7 @@ void vvSelectionManager::insertHelperNode(vsg::Group *parent, vsg::Node *child, 
     vsg::Group *helpParent2 = NULL;
     vsg::Node *helpChild = NULL;
 
-    for (unsigned int i = 0; i < child->getNumParents(); i++)
+    /*for (unsigned int i = 0; i < child->getNumParents(); i++)
     {
         helpParent = child->getParent(i);
         if (helpParent == parent)
@@ -626,18 +624,18 @@ void vvSelectionManager::insertHelperNode(vsg::Group *parent, vsg::Node *child, 
                 myParent = helpParent2;
             }
         }
-    }
-
+    }*/
+    /*
     if (insertNode && myParent && myChild)
     {
         if (equal)
         {
-            vsg::Group *equalNode = myChild->asGroup();
-            insertNode->addChild(equalNode->getChild(0));
+            vsg::Group *equalNode = dynamic_cast<vsg::Group*>(myChild);
+            insertNode->addChild(equalNode->children[0]);
 
             if (index == SHOWHIDE)
             {
-                osg::Switch *mySwitch = (osg::Switch *)insertNode;
+                vsg::Switch *mySwitch = (vsg::Switch *)insertNode;
                 mySwitch->setChildValue(equalNode->getChild(0), show);
                 myParent->replaceChild(myChild, mySwitch);
             }
@@ -661,48 +659,42 @@ void vvSelectionManager::insertHelperNode(vsg::Group *parent, vsg::Node *child, 
         }
         if (!isHelperNode(insertNode))
             markAsHelperNode(insertNode);
-    }
+    }*/
 }
 
 void vvSelectionManager::markAsHelperNode(vsg::Node *node)
 {
-    node->addDescription("SELECTIONHELPER");
+    node->setValue("SELECTIONHELPER","");
 }
 
-bool vvSelectionManager::isHelperNode(vsg::Node *node)
+bool vvSelectionManager::isHelperNode(const vsg::Node *node)
 {
-    for (unsigned int j = 0; node && j < node->getNumDescriptions(); j++)
-    {
-        if (strncmp(node->getDescription(j).c_str(), "SELECTIONHELPER", 15) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
+    std::string val;
+    return node->getValue("SELECTIONHELPER", val);
 }
 
 bool vvSelectionManager::hasType(vsg::Node *node)
 {
-    for (unsigned int j = 0; node && j < node->getNumDescriptions(); j++)
+    /*for (unsigned int j = 0; node && j < node->getNumDescriptions(); j++)
     {
         if (strncmp(node->getDescription(j).c_str(), "TYPE", 4) == 0)
         {
             return true;
         }
-    }
+    }*/
     return false;
 }
 
 int vvSelectionManager::getHelperType(vsg::Node *node)
 {
-
+   /*
     for (unsigned int j = 0; node && j < node->getNumDescriptions(); j++)
     {
         if (strncmp(node->getDescription(j).c_str(), "TYPE ", 5) == 0)
         {
             return atoi(node->getDescription(j).c_str() + 5);
         }
-    }
+    }*/
     return 100;
 }
 std::string vvSelectionManager::generateNames(vsg::Node *node)
@@ -714,7 +706,7 @@ std::string vvSelectionManager::generateNames(vsg::Node *node)
 
     bool arrive = false;
 
-    while (!arrive)
+   /* while (!arrive)
     {
         name = node->getName();
         if (node == vv->getObjectsRoot())
@@ -763,11 +755,11 @@ std::string vvSelectionManager::generateNames(vsg::Node *node)
 
         } //end else
 
-    } //end while
+    } //end while*/
 
     return oldstr;
 }
-std::string vvSelectionManager::generatePath(vsg::Node *node)
+std::string vvSelectionManager::generatePath(const vsg::Node *node)
 {
     std::string name = "";
     std::string newpath = "";
@@ -776,10 +768,11 @@ std::string vvSelectionManager::generatePath(vsg::Node *node)
     vsg::Group *parent = NULL;
     vsg::Node *realNode = NULL;
     bool arrive = false;
+    fprintf(stderr, "TODO:\n");
 
     while (!arrive)
     {
-        name = node->getName();
+        node->getValue("name",name);
         if (node == vv->getObjectsRoot())
         {
             newpath = "ROOT";
@@ -792,7 +785,7 @@ std::string vvSelectionManager::generatePath(vsg::Node *node)
         }
         else
         {
-            if (node->getNumParents())
+            /*if (node->getNumParents())
             {
 
                 parent = node->getParent(0)->asGroup();
@@ -806,7 +799,7 @@ std::string vvSelectionManager::generatePath(vsg::Node *node)
 
                 for (unsigned int i = 0; parent && i < parent->children.size(); i++)
                 {
-                    if (parent->getChild(i) == node)
+                    if (parent->children[i] == node)
                     {
                         index = i;
                     }
@@ -835,7 +828,7 @@ std::string vvSelectionManager::generatePath(vsg::Node *node)
             else
             {
                 arrive = true;
-            }
+            }*/
 
         } //end else
 
@@ -876,22 +869,22 @@ vsg::Node *vvSelectionManager::validPath(std::string path)
             {
                 if (returnValue)
                 {
-                    help = returnValue->asGroup();
+                    help = dynamic_cast<vsg::Group*>(returnValue);
                     if (help)
-                        returnValue = help->getChild(0);
+                        returnValue = help->children[0];
                     else
                         returnValue = NULL;
                 }
             }
             if (returnValue)
             {
-                help = returnValue->asGroup();
+                help = dynamic_cast<vsg::Group*>(returnValue);
                 if (help)
                 {
                     //CoOP
                     if (isdigit(result[0]) && (((unsigned int)i) < help->children.size()))
                     {
-                        returnValue = help->getChild(i);
+                        returnValue = help->children[i];
                         //else
                         //ERROR Node was deleted?
                     }
@@ -900,18 +893,20 @@ vsg::Node *vvSelectionManager::validPath(std::string path)
                         std::string name = std::string(result);
                         for (unsigned int j = 0; j < help->children.size(); j++)
                         {
-                            child = help->getChild(j);
+                            child = help->children[j];
                             while (isHelperNode(child))
                             {
-                                parent = child->asGroup();
+                                parent = dynamic_cast<vsg::Group*>(child);
                                 if (parent)
-                                    child = parent->getChild(0);
+                                    child = parent->children[0];
                                 else
                                     child = NULL;
                             }
                             if (child)
                             {
-                                if (child->getName() == name)
+                                std::string n;
+                                child->getValue("name", name);
+                                if (n == name)
                                     returnValue = child;
                             }
                         }
@@ -927,9 +922,9 @@ vsg::Node *vvSelectionManager::validPath(std::string path)
     //path leads to a helper node
     while (isHelperNode(returnValue))
     {
-        help = returnValue->asGroup();
+        help = dynamic_cast<vsg::Group*>(returnValue);
         if (help!=NULL && help->children.size()>0)
-            returnValue = help->getChild(0);
+            returnValue = help->children[0];
         else
             returnValue = NULL;
     }

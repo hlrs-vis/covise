@@ -12,9 +12,6 @@
 #include "vvFileManager.h"
 #include <iostream>
 #include <config/CoviseConfig.h>
-#include <osgDB/ReaderWriter>
-#include <osgDB/ReadFile>
-#include <osg/Geometry>
 #include <vsg/nodes/MatrixTransform.h>
 #include <config/coConfig.h>
 
@@ -24,12 +21,12 @@ using namespace vive;
 
 vvHud *vvHud::instance_ = NULL;
 
-class UpdateCamera: public osg::Camera
+class UpdateCamera: public vsg::Camera
 {
  public:
     UpdateCamera()
     {
-        setNumChildrenRequiringUpdateTraversal(children.sizeRequiringUpdateTraversal()+1);
+        //setNumChildrenRequiringUpdateTraversal(children.sizeRequiringUpdateTraversal()+1);
     }
 };
 
@@ -39,7 +36,7 @@ vvHud::vvHud()
 
     visible = false;
     doHide = false;
-
+    /*
     geode = new osg::Geode();
 
     std::string defaultFont = vvFileManager::instance()->getFontFile(NULL);
@@ -64,7 +61,7 @@ vvHud::vvHud()
     vsg::vec3 delta(0.0f, -40.0f, 0.0f);
 
     line1 = new osgText::Text;
-    geode->addDrawable(line1.get());
+    geode->addDrawable(line1);
 
     line1->setFont(defaultFont);
     line1->setColor(vsg::vec4(tr, tg, tb, ta));
@@ -77,7 +74,7 @@ vvHud::vvHud()
     line2 = new osgText::Text;
     if (!coCoviseConfig::isOn("CyberClassroom", false)) // dont display too much information in CyberClassroom
     {
-        geode->addDrawable(line2.get());
+        geode->addDrawable(line2);
     }
     line2->setFont(defaultFont);
     line2->setColor(vsg::vec4(tr, tg, tb, ta));
@@ -91,7 +88,7 @@ vvHud::vvHud()
     line3 = new osgText::Text;
     if (!coCoviseConfig::isOn("CyberClassroom", false)) // dont display too much information in CyberClassroom
     {
-        geode->addDrawable(line3.get());
+        geode->addDrawable(line3);
     }
     line3->setFont(defaultFont);
     line3->setColor(vsg::vec4(tr, tg, tb, ta));
@@ -149,13 +146,8 @@ vvHud::vvHud()
             osg::Texture2D *texture = new osg::Texture2D;
             texture->setImage(image);
 
-            /* osg::TexEnv* texenv = new osg::TexEnv;
-         texenv->setMode(osg::TexEnv::BLEND);
-         texenv->setColor(vsg::vec4(0.3f,0.3f,0.3f,0.3f));*/
 
             stateset->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-            /*stateset->setTextureAttributeAndModes(0,texgen,osg::StateAttribute::ON);
-         stateset->setTextureAttribute(0,texenv);*/
         }
         else
         {
@@ -189,7 +181,7 @@ vvHud::vvHud()
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     // set the view matrix
     camera->setReferenceFrame(vsg::MatrixTransform::ABSOLUTE_RF);
-    camera->setViewMatrix(vsg::dmat4::translate(vsg::vec3(0, 0, 100)));
+    camera->setViewMatrix(vsg::translate(vsg::vec3(0, 0, 100)));
     camera->setViewMatrix(vsg::dmat4::identity());
 
     // only clear the depth buffer
@@ -199,11 +191,11 @@ vvHud::vvHud()
     camera->setRenderOrder(osg::Camera::POST_RENDER);
 
     vsg::MatrixTransform *m = vsg::MatrixTransform::create();
-    m->addChild(geode.get());
-    m->matrix = (vsg::dmat4::translate((projx - width) / 2.0, (projy - height) / 2.0, 0));
+    m->addChild(geode);
+    m->matrix = (vsg::translate((projx - width) / 2.0, (projy - height) / 2.0, 0));
     camera->addChild(m);
-
-    //vv->getScene()->addChild(camera.get());
+    */
+    //vv->getScene()->addChild(camera);
 }
 
 vvHud *vvHud::instance()
@@ -219,15 +211,15 @@ void vvHud::redraw()
 }
 void vvHud::setText1(const std::string &text)
 {
-    line1->setText(text, osgText::String::ENCODING_UTF8);
+    //line1->setText(text, osgText::String::ENCODING_UTF8);
 }
 void vvHud::setText2(const std::string &text)
 {
-    line2->setText(text, osgText::String::ENCODING_UTF8);
+    //line2->setText(text, osgText::String::ENCODING_UTF8);
 }
 void vvHud::setText3(const std::string &text)
 {
-    line3->setText(text, osgText::String::ENCODING_UTF8);
+    //line3->setText(text, osgText::String::ENCODING_UTF8);
 }
 
 bool vvHud::update()
@@ -271,7 +263,7 @@ void vvHud::show()
     {
         visible = true;
         doHide = false;
-        vv->getScene()->addChild(camera.get());
+        //vv->getScene()->addChild(camera);
     }
 }
 
@@ -280,7 +272,7 @@ void vvHud::hide()
     if (visible)
     {
         visible = false;
-        vv->getScene()->removeChild(camera.get());
+        //vv->getScene()->removeChild(camera);
     }
 }
 

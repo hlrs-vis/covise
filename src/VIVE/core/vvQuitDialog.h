@@ -3,7 +3,7 @@
 
 #include <OpenVRUI/coMenu.h>
 
-#include "vvvvDeletable.h"
+#include "vvDeletable.h"
 
 namespace vrui
 {

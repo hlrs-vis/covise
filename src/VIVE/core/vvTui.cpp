@@ -23,21 +23,19 @@
 #include "vvCommunication.h"
 #include "vvMSController.h"
 #include "vvIntersection.h"
-#include "MarkerTracking.h"
+#include "vvMarkerTracking.h"
 #include "vvVIVE.h"
 #include <config/CoviseConfig.h>
 #include <util/coFileUtil.h>
 #include <util/environment.h>
 #include <grmsg/coGRKeyWordMsg.h>
 #include <vsg/nodes/MatrixTransform.h>
-#include <osgViewer/Renderer>
+#include <vsg/io/write.h>
 #include "vvVIVE.h"
 #include "vvHud.h"
-#include <osgDB/WriteFile>
-#include <osg/ClipNode>
 #include <input/input.h>
 #include <input/inputdevice.h>
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include <OpenVRUI/vsg/mathUtils.h> //for MAKE_EULER_MAT
 
 //#define PRESENTATION
 
@@ -63,15 +61,15 @@ vvTui::vvTui(vvTabletUI *tui)
     }
 
     lastUpdateTime = 0;
-    binList = new BinList(tui);
-    mainFolder = new vvTUITabFolder(tui, "COVERMainFolder");
-    coverTab = new vvTUITab(tui, "COVER", mainFolder->getID());
+    //binList = new BinList(tui);
+    mainFolder = new vvTUITabFolder(tui, "VIVEMainFolder");
+    viveTab = new vvTUITab(tui, "VIVE", mainFolder->getID());
 #ifdef PRESENTATION
     presentationTab = new vvTUITab(tui, "Presentation", mainFolder->getID());
 #endif
     inputTUI = new coInputTUI(tui);
-    topContainer = new vvTUIFrame(tui, "Buttons", coverTab->getID());
-    bottomContainer = new vvTUIFrame(tui, "Nav", coverTab->getID());
+    topContainer = new vvTUIFrame(tui, "Buttons", viveTab->getID());
+    bottomContainer = new vvTUIFrame(tui, "Nav", viveTab->getID());
     rightContainer = new vvTUIFrame(tui, "misc", bottomContainer->getID());
 
     Walk = new vvTUIToggleButton(tui, "Walk", topContainer->getID());
@@ -176,16 +174,16 @@ vvTui::vvTui(vvTabletUI *tui)
     SaveFileFB->setMode(vvTUIFileBrowserButton::OPEN);
 #endif
 
-    ScaleSlider->setMin(1e-5);
-    ScaleSlider->setMax(1e+5);
-    ScaleSlider->setValue(1.);
+    ScaleSlider->setMin(1e-5f);
+    ScaleSlider->setMax(1e+5f);
+    ScaleSlider->setValue(1.0f);
     ScaleSlider->setLogarithmic(true);
 
     for(auto unit : LengthUnitNames)
         SceneUnit->addEntry(unit);
     SceneUnit->setSelectedEntry((int)vv->getSceneUnit());
 
-    NavSpeed->setMin(0.03);
+    NavSpeed->setMin(0.03f);
     NavSpeed->setMax(30);
     NavSpeed->setValue(1);
 
@@ -315,7 +313,7 @@ vvTui::~vvTui()
     delete speedLabel;
     delete NavSpeed;
     delete ScaleSlider;
-    delete coverTab;
+    delete viveTab;
     delete mainFolder;
     delete Quit;
     delete Freeze;
@@ -349,7 +347,7 @@ vvTui::~vvTui()
     delete topContainer;
     delete bottomContainer;
     delete rightContainer;
-    delete binList;
+    //delete binList;
     delete inputTUI;
 
     if (tui == vvTabletUI::instance())
@@ -415,7 +413,7 @@ coInputTUI::coInputTUI(vvTabletUI *tui): tui(tui)
     {
         devicesChoice->addEntry(Input::instance()->getDevice(i)->getName());
     }
-    devicesChoice->setSelectedEntry(Input::instance()->getActivePerson());
+    devicesChoice->setSelectedEntry((int)Input::instance()->getActivePerson());
 
     deviceTrans[0] = new vvTUIEditFloatField(tui, "xe", bodiesContainer->getID());
     deviceTransLabel[0] = new vvTUILabel(tui, "x", bodiesContainer->getID());
@@ -490,7 +488,7 @@ void coInputTUI::updateTUI()
             personsChoice->addEntry(Input::instance()->getPerson(i)->name());
         }
     }
-    int activePerson = Input::instance()->getActivePerson();
+    int activePerson = (int)Input::instance()->getActivePerson();
     if(activePerson != personsChoice->getSelectedEntry())
         personsChoice->setSelectedEntry(activePerson);
 
@@ -515,7 +513,7 @@ void coInputTUI::updateTUI()
     if(tb)
     {
         vsg::dmat4 m = tb->getOffsetMat();
-        vsg::vec3 v = m.getTrans();
+        vsg::dvec3 v = getTrans(m);
         coCoord coord = m;
         for (int i = 0; i < 3; i++)
         {
@@ -527,7 +525,7 @@ void coInputTUI::updateTUI()
     if(id)
     {
         vsg::dmat4 m = id->getOffsetMat();
-        vsg::vec3 v = m.getTrans();
+        vsg::dvec3 v = getTrans(m);
         coCoord coord = m;
         for (int i = 0; i < 3; i++)
         {
@@ -595,7 +593,7 @@ void coInputTUI::update()
 		}
 		if (vv->getPointerButton()->wasPressed())
 		{
-			calibrationPositions[calibrationStep] = vv->getPointerMat().getTrans();
+			calibrationPositions[calibrationStep] = getTrans(vv->getPointerMat());
 		}
 		if (calibrationStep == 3) // calibration done, we have all three points
 		{
@@ -607,18 +605,18 @@ void coInputTUI::update()
 			vsg::dmat4 m;
 			m= vsg::translate(id->getCalibrationPoint(0) - calibrationPositions[0]);
 
-			axisA.normalize();
-			axisAm.normalize();
-			axisB.normalize();
-			axisBm.normalize();
-			vsg::vec3 axisC = axisA^axisB;
-			vsg::vec3 axisCm = axisAm^axisBm;
-			axisC.normalize();
-			axisCm.normalize();
-			axisB = axisA^axisC;
-			axisBm = axisAm^axisCm;
-			axisB.normalize();
-			axisBm.normalize();
+            normalize(axisA);
+            normalize(axisAm);
+            normalize(axisB);
+            normalize(axisBm);
+			vsg::vec3 axisC = cross(axisA,axisB);
+			vsg::vec3 axisCm = cross(axisAm,axisBm);
+            normalize(axisC);
+            normalize(axisCm);
+			axisB = cross(axisA,axisC);
+			axisBm = cross(axisAm,axisCm);
+            normalize(axisB);
+            normalize(axisBm);
 
 			vsg::dmat4 calibCS;
 			vsg::dmat4 measuredCS;
@@ -631,7 +629,7 @@ void coInputTUI::update()
 			measuredCS(1, 0) = axisBm[0]; measuredCS(1, 1) = axisBm[1]; measuredCS(1, 2) = axisBm[2];
 			measuredCS(2, 0) = axisCm[0]; measuredCS(2, 1) = axisCm[1]; measuredCS(2, 2) = axisCm[2];
 			measuredCS(3, 0) = calibrationPositions[0][0]; measuredCS(3, 1) = calibrationPositions[0][1]; measuredCS(3, 2) = calibrationPositions[0][2];
-			measuredCSI.invert_4x4(measuredCS);
+			measuredCSI = inverse(measuredCS);
 			m = measuredCSI * calibCS;
 			id->setOffsetMat(m);
 			updateTUI();
@@ -644,11 +642,10 @@ void coInputTUI::update()
 	{
 		InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
 		vsg::dmat4 m;
-		m.makeIdentity();
 		id->setOffsetMat(m);
 		if (vv->getPointerButton()->wasPressed())
 		{
-			m.invert_4x4(vv->getPointerMat());
+			m = inverse(vv->getPointerMat());
 			//m = vv->getPointerMat();
 			id->setOffsetMat(m);
 			updateTUI();
@@ -660,7 +657,7 @@ void coInputTUI::tabletEvent(vvTUIElement *tUIItem)
 {
     if (tUIItem == eyeDistanceEdit)
     {
-        const int activePerson = Input::instance()->getActivePerson();
+        const int activePerson = (int)Input::instance()->getActivePerson();
         Input::instance()->getPerson(activePerson)->setEyeDistance(eyeDistanceEdit->getValue());
         vvViewer::instance()->setSeparation(Input::instance()->eyeDistance());
     }
@@ -676,8 +673,8 @@ void coInputTUI::tabletEvent(vvTUIElement *tUIItem)
 				deviceTrans[i]->setValue(0);
 				deviceRot[i]->setValue(0);
 			}
-
-			id->setOffsetMat(vsg::dmat4::identity());
+            vsg::dmat4 identity;
+			id->setOffsetMat(identity);
 
 			calibrationLabel->setLabel("Select device and press Calibrate Device button");
 		}
@@ -706,11 +703,11 @@ void coInputTUI::tabletEvent(vvTUIElement *tUIItem)
     {
         TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
         vsg::dmat4 m;
-        MAKE_EULER_MAT(m, bodyRot[0]->getValue(), bodyRot[1]->getValue(), bodyRot[2]->getValue());
+        m = makeEulerMat((double)bodyRot[0]->getValue(), (double)bodyRot[1]->getValue(), (double)bodyRot[2]->getValue());
         
         vsg::dmat4 translationMat;
         translationMat= vsg::translate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
-        m.postMult(translationMat);
+        translationMat * m;
         tb->setOffsetMat(m);
     }
     else if(tUIItem == deviceTrans[0] || tUIItem == deviceTrans[1] || tUIItem == deviceTrans[2] ||
@@ -718,11 +715,11 @@ void coInputTUI::tabletEvent(vvTUIElement *tUIItem)
     {
         InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
         vsg::dmat4 m;
-        MAKE_EULER_MAT(m, deviceRot[0]->getValue(), deviceRot[1]->getValue(), deviceRot[2]->getValue());
+        m = makeEulerMat((double)deviceRot[0]->getValue(), (double)deviceRot[1]->getValue(), (double)deviceRot[2]->getValue());
         
         vsg::dmat4 translationMat;
         translationMat= vsg::translate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
-        m.postMult(translationMat);
+        translationMat* m;
         id->setOffsetMat(m);
     }
     else if (tUIItem == debugMatrices || tUIItem == debugOther ||
@@ -893,11 +890,11 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
     {
         if (DebugBins->getState())
         {
-            binList->refresh();
+           // binList->refresh();
         }
         else
         {
-            binList->removeAll();
+           // binList->removeAll();
         }
     }
     else if (tUIItem == FlipStereo)
@@ -937,8 +934,7 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
         viewPos[0] = posX->getValue();
         vvViewer::instance()->setInitialViewerPos(viewPos);
         vsg::dmat4 viewMat;
-        viewMat.makeIdentity();
-        viewMat.setTrans(viewPos);
+        setTrans(viewMat,viewPos);
         vvViewer::instance()->setViewerMat(viewMat);
     }
     else if (tUIItem == posY)
@@ -946,8 +942,7 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
         viewPos[1] = posY->getValue();
         vvViewer::instance()->setInitialViewerPos(viewPos);
         vsg::dmat4 viewMat;
-        viewMat.makeIdentity();
-        viewMat.setTrans(viewPos);
+        setTrans(viewMat, viewPos);
         vvViewer::instance()->setViewerMat(viewMat);
     }
     else if (tUIItem == posZ)
@@ -955,8 +950,7 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
         viewPos[2] = posZ->getValue();
         vvViewer::instance()->setInitialViewerPos(viewPos);
         vsg::dmat4 viewMat;
-        viewMat.makeIdentity();
-        viewMat.setTrans(viewPos);
+        setTrans(viewMat, viewPos);
         vvViewer::instance()->setViewerMat(viewMat);
     }
     else if (tUIItem == fovH)
@@ -970,8 +964,7 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
         viewPos[2] = 0.0;
         vvViewer::instance()->setInitialViewerPos(viewPos);
         vsg::dmat4 viewMat;
-        viewMat.makeIdentity();
-        viewMat.setTrans(viewPos);
+        setTrans(viewMat,viewPos);
         vvViewer::instance()->setViewerMat(viewMat);
     }
     else if (tUIItem == stereoSep)
@@ -1039,7 +1032,8 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
 
         cerr << "File-Path: " << SaveFileFB->getSelectedPath().c_str() << endl;
         //Do what you want to do with the filename
-        if (osgDB::writeNodeFile(*vv->getObjectsRoot(), SaveFileFB->getFilename(SaveFileFB->getSelectedPath()).c_str()))
+
+        vsg::write(vv->getObjectsRoot(), SaveFileFB->getFilename(SaveFileFB->getSelectedPath()), vvPluginSupport::instance()->options);
         {
             if (vv->debugLevel(3))
                 std::cerr << "Data written to \"" << SaveFileFB->getFilename(SaveFileFB->getSelectedPath()) << "\"." << std::endl;
@@ -1050,8 +1044,8 @@ void vvTui::tabletEvent(vvTUIElement *tUIItem)
     else if (tUIItem == LODScaleEdit)
     {
         vvConfig::instance()->setLODScale(LODScaleEdit->getValue());
-        for (int i = 0; i < vvConfig::instance()->numChannels(); i++)
-            vvConfig::instance()->channels[i].camera->setLODScale(LODScaleEdit->getValue());
+        //for (int i = 0; i < vvConfig::instance()->numChannels(); i++)
+          //  vvConfig::instance()->channels[i].camera->setLODScale(LODScaleEdit->getValue());
     }
     vvVIVE::instance()->hud->hide();
 }
@@ -1132,7 +1126,7 @@ void vvTui::tabletReleaseEvent(vvTUIElement *tUIItem)
         my = panNav->y;
     }
 
-    if (tUIItem == coverTab)
+    if (tUIItem == viveTab)
     {
         //  cerr << "entry:" << cBox->getSelectedText() << endl;
     }
@@ -1182,21 +1176,21 @@ void vvTui::tabletReleaseEvent(vvTUIElement *tUIItem)
 
 void vvTui::doTabFly()
 {
-    vsg::vec3 velDir;
+    vsg::dvec3 velDir;
 
     vsg::dmat4 dcs_mat = vv->getObjectsXform()->matrix;
-    float heading = 0.0;
+    double heading = 0.0;
     if (driveNav->down)
         heading = (mx - x0) / -300;
-    float pitch = (my - y0) / -300;
-    float roll = (mx - x0) / -300;
+    double pitch = (my - y0) / -300;
+    double roll = (mx - x0) / -300;
     if (driveNav->down)
         roll = 0.;
 
     vsg::dmat4 rot;
     //rot.makeEuler(heading,pitch,roll);
-    MAKE_EULER_MAT(rot, heading, pitch, roll);
-    dcs_mat.postMult(rot);
+    rot = makeEulerMat(vsg::dvec3( heading, pitch, roll));
+    dcs_mat = rot * dcs_mat;
     // XXX
     //dcs_mat.getRow(1,velDir);                // velocity in direction of viewer
     velDir[0] = 0.0;
@@ -1205,8 +1199,7 @@ void vvTui::doTabFly()
     else
         velDir[1] = 0;
     velDir[2] = 0.0;
-    dcs_mat.postMult(vsg::dmat4::translate(velDir[0] * currentVelocity,
-                                            velDir[1] * currentVelocity, velDir[2] * currentVelocity));
+    dcs_mat = vsg::translate(velDir * (double)currentVelocity)* dcs_mat;
     vv->getObjectsXform()->matrix = (dcs_mat);
     //       navigating = true;
     vvCollaboration::instance()->SyncXform();
@@ -1256,7 +1249,7 @@ void vvTui::doTabXform()
         //die 1.1 sind geschaetzt, um die Ungenauigkeit des errechneten Faktors auszugleichen
         //es sieht aber nicht so aus, als wuerde man es auf diese
         //Weise perfekt hinbekommen
-        doTrans.mult(actTransState, trans);
+        doTrans = trans * actTransState;
         vv->getObjectsXform()->matrix = (doTrans);
         vvCollaboration::instance()->SyncXform();
     }
@@ -1282,7 +1275,7 @@ void vvTui::doTabScale()
 
 void vvTui::doTabWalk()
 {
-    vsg::vec3 velDir;
+    vsg::dvec3 velDir;
     vsg::dmat4 dcs_mat = vv->getObjectsXform()->matrix;
     if (driveNav->down)
     {
@@ -1294,18 +1287,16 @@ void vvTui::doTabWalk()
       angle =  -((mx - x0)*(mx - x0) / 4000);
       else
       angle =  (mx - x0)*(mx - x0) / 4000;*/
-        dcs_mat.postMult(vsg::dmat4::rotate(angle, 0.0, 0.0, 1.0));
+        dcs_mat = vsg::rotate((double)angle, 0.0, 0.0, 1.0) * dcs_mat;
         velDir[0] = 0.0;
         velDir[1] = 1.0;
         velDir[2] = 0.0;
         currentVelocity = (my - y0) * driveSpeed * vv->frameDuration();
-        dcs_mat.postMult(vsg::dmat4::translate(velDir[0] * currentVelocity,
-                                                velDir[1] * currentVelocity, velDir[2] * currentVelocity));
+        dcs_mat = vsg::translate(velDir * (double)currentVelocity) *dcs_mat;
     }
     else if (panNav->down)
     {
-        dcs_mat.postMult(vsg::dmat4::translate((mx - x0) * driveSpeed * 0.1 * -1,
-                                                0, (my - y0) * driveSpeed * 0.1 * 1));
+        dcs_mat = vsg::translate((mx - x0) * driveSpeed * 0.1 * -1.0, 0.0, (my - y0) * driveSpeed * 0.1 * 1) * dcs_mat;
     }
     vv->getObjectsXform()->matrix = (dcs_mat);
     vvCollaboration::instance()->SyncXform();
@@ -1379,8 +1370,8 @@ void vvTui::makeRot(float heading, float pitch, float roll, int headingBool, int
     vsg::dmat4 rot;
     vsg::dmat4 doRot;
     //rot.makeEuler(headingBool * heading, pitchBool * pitch, rollBool * roll);
-    MAKE_EULER_MAT(rot, headingBool * heading, pitchBool * pitch, rollBool * roll);
-    doRot.mult(actRotState, rot);
+    rot = makeEulerMat(headingBool * heading, pitchBool * pitch, rollBool * roll);
+    doRot = rot * actRotState;
     vv->getObjectsXform()->matrix = (doRot);
     vvCollaboration::instance()->SyncXform();
 }
@@ -1389,7 +1380,7 @@ vvTUIFileBrowserButton *vvTui::getExtFB()
 {
     return SaveFileFB;
 }
-
+/*
 BinListEntry::BinListEntry(vvTabletUI *tui, osgUtil::RenderBin *rb, int num)
 {
     binNumber = rb->getBinNum();
@@ -1461,14 +1452,7 @@ BinListEntry::~BinListEntry()
 void BinListEntry::tabletEvent(vvTUIElement *tUIItem)
 {
 
-    /*	if(tb->getState())
-	{
-		renderBin()->setDrawCallback(NULL);
-	}
-	else
-	{
-		renderBin()->setDrawCallback(new DontDrawBin);
-	}*/
+  
 }
 
 BinList::BinList(vvTabletUI *tui): tui(tui)
@@ -1531,3 +1515,4 @@ void BinList::removeAll()
     }
     clear();
 }
+*/

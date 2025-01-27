@@ -23,7 +23,7 @@ namespace vive
 class VVCORE_EXPORT vvVruiPartnerMenuItem : public vrui::coCheckboxMenuItem
 {
 protected:
-    vvVrui::coButton *viewpoint; ///< actual button which is used for interaction
+    vrui::coButton *viewpoint; ///< actual button which is used for interaction
 
 public:
     vvVruiPartnerMenuItem(const std::string &name, bool on, vrui::coCheckboxGroup * = NULL);

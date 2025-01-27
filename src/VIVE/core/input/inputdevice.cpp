@@ -21,8 +21,9 @@
 #include <cassert>
 #include <limits>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/transform.h>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include <OpenVRUI/vsg/mathUtils.h> //for MAKE_EULER_MAT
 
 
 
@@ -32,13 +33,12 @@ using namespace covise;
 namespace vive
 {
 
-vsg::dmat4 InputDevice::s_identity = vsg::dmat4::identity();
+vsg::dmat4 InputDevice::s_identity;
 
 InputDevice::InputDevice(const std::string &config)
     : loop_is_running(true)
     , m_config(config)
     , m_valid(false)
-    , m_offsetMatrix(vsg::dmat4::identity())
     , m_isVarying(true)
     , m_is6Dof(false)
     , m_validFrame(m_valid)
@@ -63,20 +63,19 @@ InputDevice::InputDevice(const std::string &config)
         std::stringstream str;
         str << "CallibrationPoint." << i;
 		std::string cPath = configPath(str.str());
-		m_calibrationPoints[i].x() = coCoviseConfig::getFloat("x", cPath, 0);
-		m_calibrationPoints[i].y() = coCoviseConfig::getFloat("y", cPath, 0);
-		m_calibrationPoints[i].z() = coCoviseConfig::getFloat("z", cPath, 0);
+        m_calibrationPoints[i][0] = coCoviseConfig::getFloat("x", cPath, 0);
+		m_calibrationPoints[i][1] = coCoviseConfig::getFloat("y", cPath, 0);
+		m_calibrationPoints[i][2] = coCoviseConfig::getFloat("z", cPath, 0);
 		m_calibrationPointNames[i] = coCoviseConfig::getEntry("info", cPath, "noName");
 	}
 
     //cout<<" Offset=("<<trans[0]<<" "<<trans[1]<<" "<<trans[2]<<") " <<" Orientation=("<<rot[0]<<" "<<rot[1]<<" "<<rot[2]<<") "<<endl;
 
-    MAKE_EULER_MAT(m_offsetMatrix, rot[0], rot[1], rot[2]);
+    m_offsetMatrix = makeEulerMat( (double)rot[0], (double)rot[1], (double)rot[2]);
     //fprintf(stderr, "offset from device('%d) %f %f %f\n", device_ID, deviceOffsets[device_ID].trans[0], deviceOffsets[device_ID].trans[1], deviceOffsets[device_ID].trans[2]);
 
-    vsg::dmat4 translationMat;
-    translationMat= vsg::translate(trans[0], trans[1], trans[2]);
-    m_offsetMatrix.postMult(translationMat);
+    vsg::dmat4 translationMat = vsg::translate((double)trans[0], (double)trans[1], (double)trans[2]);
+    m_offsetMatrix = m_offsetMatrix * translationMat;
 }
 
 void InputDevice::setOffsetMat(const vsg::dmat4 &m)
@@ -141,19 +140,27 @@ std::string InputDevice::configPath(const std::string &ent, int n) const
 //==========================main loop =================
 
 /**
+ * @brief InputDevice::starts the run method in a separate thread
+ */
+void InputDevice::start()
+{
+    if (m_thread == nullptr)
+        m_thread = new std::thread(&InputDevice::run,this);
+}
+/**
  * @brief InputDevice::stopLoop Stops the main loop
  */
 void InputDevice::stopLoop()
 {
-    m_mutex.lock();
-    loop_is_running = false; // stop the main loop
-    m_mutex.unlock();
-
-    while (isRunning())
+    if (m_thread)
     {
+        m_mutex.lock();
+        loop_is_running = false; // stop the main loop
+        m_mutex.unlock();
 
-        OpenThreads::Thread::microSleep(1000); //wait for the main loop stop
-        //cout<<"stopping....."<<endl;
+        m_thread->join();
+        delete m_thread;
+        m_thread = nullptr; // prevent a second stop attempt;
     }
 }
 
@@ -182,7 +189,7 @@ void InputDevice::run()
         if (!poll())
             again = false;
         else
-            OpenThreads::Thread::microSleep(5000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 }
 

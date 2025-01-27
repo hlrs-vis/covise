@@ -17,9 +17,8 @@
 
 #include <iostream>
 //#include <chrono>
-#include <osg/Matrix>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
 
 using namespace std;
 using namespace covise;

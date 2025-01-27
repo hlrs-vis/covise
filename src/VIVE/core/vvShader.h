@@ -5,41 +5,20 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_VR_SHADER_H
-#define CO_VR_SHADER_H
-
-/*! \file
- \brief  a class which manages all uniforms, programms and statesets for a GLSL shader
-
- \author Uwe Woessner <woessner@hlrs.de>
- \author (C) 2008
-         HLRS,
-         Nobelstrasse 19,
-         D-70550 Stuttgart,
-         Germany
-
- \date   May 2008
- */
-
+#pragma once
 #include <util/coExport.h>
 #include <list>
 #include <map>
 #include <string>
-#include <osg/Shader>
-#include <osg/Program>
-#include <osg/Texture>
-#include <osg/Drawable>
+#include <vsg/maths/vec3.h>
+#include <vsg/maths/mat4.h>
+#include <vsg/nodes/Node.h>
 
 namespace covise
 {
 class TokenBuffer;
 }
 
-namespace osg
-{
-class Node;
-class Geode;
-}
 namespace vive
 {
 class vvShader;
@@ -65,7 +44,7 @@ public:
     {
         return name;
     }
-    osg::Texture::WrapMode getWrapMode() const;
+    //VkSamplerAddressMode getWrapMode() const;
     const std::string &getType() const
     {
         return type;
@@ -107,8 +86,8 @@ public:
         unique = u;
     }
     void setValue(const char *value);
-    void setValue(vsg::dmat4d m);
-    void setValue(vsg::dmat4f m);
+    void setValue(vsg::dmat4 m);
+    void setValue(vsg::mat4 m);
     void setValue(bool b);
     void setValue(float f);
     void setValue(vsg::vec3 v);
@@ -123,8 +102,8 @@ public:
     {
         return unique;
     }
-    vsg::ref_ptr<osg::Uniform> uniform;
-    vsg::ref_ptr<osg::Texture> texture;
+    //vsg::ref_ptr<osg::Uniform> uniform;
+    //vsg::ref_ptr<osg::Texture> texture;
 
     coVRUniform(const vvShader *shader, const std::string &name, const std::string &type, const std::string &value);
     virtual ~coVRUniform();
@@ -159,18 +138,18 @@ class VVCORE_EXPORT vvShaderInstance
 {
 
 private:
-    std::list<vsg::ref_ptr<osg::Uniform> > uniforms;
+    //std::list<vsg::ref_ptr<osg::Uniform> > uniforms;
     vsg::Node *myDrawable;
 
 public:
     vvShaderInstance(vsg::Node *d);
     virtual ~vvShaderInstance();
-    void addUniform(const osg::Uniform &u);
+    /*void addUniform(const osg::Uniform& u);
     std::list<vsg::ref_ptr<osg::Uniform> > &getUniforms()
     {
         return uniforms;
     };
-    osg::Uniform *getUniform(const std::string &name);
+    osg::Uniform *getUniform(const std::string &name);*/
 };
 
 class VVCORE_EXPORT vvShader
@@ -188,12 +167,12 @@ private:
     std::list<coVRUniform *> uniforms;
     std::list<coVRAttribute *> attributes;
     std::list<vvShaderInstance *> instances;
-    vsg::ref_ptr<osg::Shader> fragmentShader;
+    /*vsg::ref_ptr<osg::Shader> fragmentShader;
     vsg::ref_ptr<osg::Shader> geometryShader;
     vsg::ref_ptr<osg::Shader> vertexShader;
     vsg::ref_ptr<osg::Shader> tessControlShader;
     vsg::ref_ptr<osg::Shader> tessEvalShader;
-    vsg::ref_ptr<osg::Program> program;
+    vsg::ref_ptr<osg::Program> program;*/
     bool transparent; // the shader is transparent regardless of the users wishes
     bool opaque; // the shader is opaque regardless of the users wishes
     int geomParams[3];
@@ -213,7 +192,7 @@ public:
     {
         return uniforms;
     };
-    vsg::ref_ptr<osg::Shader> &getFragmentShader()
+    /*vsg::ref_ptr<osg::Shader>& getFragmentShader()
     {
         return fragmentShader;
     };
@@ -236,7 +215,7 @@ public:
     vsg::ref_ptr<osg::Program> &getProgram()
     {
         return program;
-    };
+    };*/
     int getNumVertices()
     {
         return geomParams[0];
@@ -256,8 +235,8 @@ public:
     vvShader(const std::string &name, const std::string &d, const std::string &defines = "");
     vvShader(const vvShader &other);
     void setData(covise::TokenBuffer &tb);
-    void setMatrixUniform(const std::string &name, vsg::dmat4d m);
-    void setMatrixUniform(const std::string &name, vsg::dmat4f m);
+    void setMatrixUniform(const std::string &name, vsg::dmat4 m);
+    void setMatrixUniform(const std::string &name, vsg::mat4 m);
     void setBoolUniform(const std::string &name, bool b);
     void setFloatUniform(const std::string &name, float f);
     void setVec3Uniform(const std::string &name, vsg::vec3 v);
@@ -265,11 +244,9 @@ public:
     void setNumVertices(int);
     void setInputType(int);
     void setOutputType(int);
-    osg::Uniform *getUniform(const std::string &name);
+    //osg::Uniform *getUniform(const std::string &name);
     //	  void remove(vsg::Node *);
     vvShaderInstance *apply(vsg::Node *);
-    void apply(osg::StateSet *);
-    vvShaderInstance *apply(osg::Geode *geode, vsg::Node *drawable);
     void setUniformesFromAttribute(const char *uniformValues);
 
     void storeMaterial();
@@ -284,7 +261,7 @@ private:
     static vvShaderList *s_instance;
     vvShaderList();
     void loadMaterials();
-    std::vector<vsg::ref_ptr<osg::Uniform>> lightEnabled;
+    /*std::vector<vsg::ref_ptr<osg::Uniform>> lightEnabled;
     vsg::ref_ptr<osg::Uniform> timeUniform;
     vsg::ref_ptr<osg::Uniform> timeStepUniform;
     vsg::ref_ptr<osg::Uniform> lightMatrix;
@@ -293,9 +270,9 @@ private:
     vsg::ref_ptr<osg::Uniform> durationUniform;
     vsg::ref_ptr<osg::Uniform> viewportWidthUniform;
     vsg::ref_ptr<osg::Uniform> viewportHeightUniform;
-    vsg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT
+    vsg::ref_ptr<osg::Uniform> stereoUniform; // 0 = LEFT, 1 = RIGHT*/
     void applyParams(vvShader *shader, std::map<std::string, std::string> *params);
-    std::map<std::string,osg::Uniform*> globalUniforms;
+    //std::map<std::string,osg::Uniform*> globalUniforms;
     std::pair<int, int> glslVersionRange{-1, -1};
 
 public:
@@ -305,7 +282,7 @@ public:
     vvShader *add(const std::string &name, const std::string &dirName, const std::string &defines="");
     static vvShaderList *instance();
     void setData(covise::TokenBuffer &tb);
-    void addGlobalUniform(const std::string &, osg::Uniform *);
+    /*void addGlobalUniform(const std::string&, osg::Uniform*);
     void removeGlobalUniform(osg::Uniform*);
     osg::Uniform* getGlobalUniform(const std::string&);
     osg::Uniform* getLightEnabled(size_t lightnum);
@@ -317,10 +294,10 @@ public:
     osg::Uniform *getDuration();
     osg::Uniform *getViewportWidth();
     osg::Uniform *getViewportHeight();
-    osg::Uniform *getStereo();
+    osg::Uniform *getStereo();*/
     void update();
 
-    void init(osg::GLExtensions *glext = nullptr);
+    void init();
     void remove(vsg::Node *);
 
     std::pair<int, int> glslVersion() const;
@@ -338,14 +315,14 @@ public:
     ShaderNode(StereoView v);
     virtual ~ShaderNode();
     static ShaderNode *theNode;
-    virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
+    //virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
     /** Clone the type of an object, with Object* return type.
 	Must be defined by derived classes.*/
-    virtual osg::Object *cloneType() const;
+   // virtual osg::Object *cloneType() const;
 
     /** Clone the an object, with Object* return type.
 	Must be defined by derived classes.*/
-    virtual osg::Object *clone(const osg::CopyOp &) const;
+   // virtual osg::Object *clone(const osg::CopyOp &) const;
     StereoView view;
 
 private:
@@ -364,6 +341,7 @@ you want to process;
 then you can retrieve the TBN arrays by calling getTangentArray(), getNormalArray()
 and getBinormalArray() methods.
 */
+/*
 class  coTangentSpaceGenerator : public osg::Referenced {
 public:
 	coTangentSpaceGenerator();
@@ -400,7 +378,6 @@ protected:
 	vsg::ref_ptr<vsg::vec4Array> N_;
 	vsg::ref_ptr<osg::UIntArray> indices_;
 };
-
+*/
 
 }
-#endif

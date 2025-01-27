@@ -15,7 +15,7 @@
 *                            Germany					*
 *									*
 *									*
-*	File			coMousePointer.cpp (Performer 2.0)	*
+*	File			vvMousePointer.cpp (Performer 2.0)	*
 *									*
 *	Description		Mouse support for COVER
 *									*
@@ -28,13 +28,13 @@
 ************************************************************************/
 
 #include <math.h>
-#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/vsg/mathUtils.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
-#include <cover/vvViewer.h>
-#include <cover/vvPluginSupport.h>
-#include <cover/vvConfig.h>
+#include "vvViewer.h"
+#include "vvPluginSupport.h"
+#include "vvConfig.h"
 
-#include "coMousePointer.h"
+#include "vvMousePointer.h"
 #include "buttondevice.h"
 #include "trackingbody.h"
 #include "input.h"
@@ -42,10 +42,10 @@
 using namespace vive;
 
 /*______________________________________________________________________*/
-coMousePointer::coMousePointer()
+vvMousePointer::vvMousePointer()
 {
     if (vv->debugLevel(2))
-        fprintf(stderr, "new coMousePointer\n");
+        fprintf(stderr, "new vvMousePointer\n");
 
     buttons = Input::instance()->getButtons("Mouse");
     body = Input::instance()->getBody("Mouse");
@@ -97,41 +97,41 @@ coMousePointer::coMousePointer()
 }
 
 /*______________________________________________________________________*/
-coMousePointer::~coMousePointer()
+vvMousePointer::~vvMousePointer()
 {
 }
 
-double coMousePointer::eventTime() const
+double vvMousePointer::eventTime() const
 {
     return mouseTime;
 }
 
-void coMousePointer::queueEvent(int type, int state, int code)
+void vvMousePointer::queueEvent(int type, int state, int code)
 {
     MouseEvent me = { type, state, code };
     std::cerr << "queueEvent " << type << " " << state << " " << code << std::endl;
     eventQueue.push_back(me);
 }
 
-void coMousePointer::processEvents()
+void vvMousePointer::processEvents()
 {
     while (!eventQueue.empty())
     {
         MouseEvent me = eventQueue.front();
         eventQueue.pop_front();
         handleEvent(me.type, me.state, me.code, false);
-        if (me.type == osgGA::GUIEventAdapter::PUSH
+     /*   if (me.type == osgGA::GUIEventAdapter::PUSH
             || me.type == osgGA::GUIEventAdapter::RELEASE
             || me.type == osgGA::GUIEventAdapter::SCROLL)
-            break;
+            break;*/
     }
 }
 
-void coMousePointer::handleEvent(int type, int state, int code, bool queue)
+void vvMousePointer::handleEvent(int type, int state, int code, bool queue)
 {
     mouseTime = vv->frameRealTime();
 
-    if (queue && !eventQueue.empty())
+/*    if (queue && !eventQueue.empty())
     {
         queueEvent(type, state, code);
         return;
@@ -184,15 +184,15 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
         handleEvent(osgGA::GUIEventAdapter::PUSH, state, code, queue);
         handleEvent(osgGA::GUIEventAdapter::RELEASE, state, code, true);
         break;
-    }
+    }*/
 }
 
 /*______________________________________________________________________*/
 void
-coMousePointer::update()
+vvMousePointer::update()
 {
     if (vv->debugLevel(5))
-        fprintf(stderr, "coMousePointer::update\n");
+        fprintf(stderr, "vvMousePointer::update\n");
 
     if (vvConfig::instance()->numWindows() <= 0 || vvConfig::instance()->numScreens() <= 0)
         return;
@@ -209,7 +209,7 @@ coMousePointer::update()
 
     static int oldWidth = -1, oldHeight = -1;
     int currentW, currentH;
-    const osg::GraphicsContext::Traits *traits = NULL;
+ /*   const osg::GraphicsContext::Traits* traits = NULL;
     if (vvConfig::instance()->windows[0].window)
         traits = vvConfig::instance()->windows[0].window->getTraits();
     if (!traits)
@@ -309,57 +309,57 @@ coMousePointer::update()
 
     tmp= vsg::translate(viewerPos[0], viewerPos[1], viewerPos[2]);
     mat.postMult(tmp);
-    body->setMat(mat);
+    body->setMat(mat);*/
 
     //cerr << " VP:" << viewerPos[0] << " , "<< viewerPos[1] << " , "<< viewerPos[2] << " , "<< endl;
     //mouse3D /=10; // umrechnung in cm (scheisse!!!!!!)
     //matrix.makeTrans(mouse3D[0],mouse3D[1],mouse3D[2]);
 }
 
-float coMousePointer::x() const
+float vvMousePointer::x() const
 {
     return mouseX;
 }
 
-float coMousePointer::y() const
+float vvMousePointer::y() const
 {
     return mouseY;
 }
 
-float coMousePointer::winWidth() const
+float vvMousePointer::winWidth() const
 {
-    return xres;
+    return (float)xres;
 }
 
-float coMousePointer::winHeight() const
+float vvMousePointer::winHeight() const
 {
-    return yres;
+    return (float)yres;
 }
 
-float coMousePointer::screenWidth() const
+float vvMousePointer::screenWidth() const
 {
     return width;
 }
 
-float coMousePointer::screenHeight() const
+float vvMousePointer::screenHeight() const
 {
     return height;
 }
 
-const vsg::dmat4 &coMousePointer::getMatrix() const
+const vsg::dmat4 &vvMousePointer::getMatrix() const
 {
     return body->getMat();
 }
 
 #if 0
-void coMousePointer::setMatrix(const vsg::dmat4 &mat)
+void vvMousePointer::setMatrix(const vsg::dmat4 &mat)
 {
 
     matrix = mat;
 }
 #endif
 
-int coMousePointer::wheel(size_t num) const
+int vvMousePointer::wheel(size_t num) const
 {
 
     if (num >= 2)
@@ -368,7 +368,7 @@ int coMousePointer::wheel(size_t num) const
     return wheelCounter[num];
 }
 
-unsigned int coMousePointer::buttonState() const
+unsigned int vvMousePointer::buttonState() const
 {
 
     return buttons->getButtonState();

@@ -19,9 +19,8 @@
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <osg/Matrix>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
 #include <algorithm> // for min/max
 
 using namespace std;
@@ -42,7 +41,7 @@ void DTrackDriver::initArrays()
     m_buttonBase.push_back(0);
     for (size_t i = 0; i < m_numFlySticks; ++i)
     {
-        const DTrack_FlyStick_Type_d *f = dt->getFlyStick(i);
+        const DTrack_FlyStick_Type_d *f = dt->getFlyStick((int)i);
         m_valuatorBase.push_back(m_valuatorBase.back() + f->num_joystick);
         m_buttonBase.push_back(m_buttonBase.back() + f->num_button);
     }
@@ -61,7 +60,7 @@ void DTrackDriver::initArrays()
     m_numHands = dt->getNumHand();
     for (size_t i=0;i<m_numHands;++i)
     {
-    	const DTrack_Hand_Type_d *h = dt->getHand(i);
+    	const DTrack_Hand_Type_d *h = dt->getHand((int)i);
     	m_handButtonBase.push_back(m_handButtonBase.back()+2); //each hand will have 2 virtual "buttons"
     }
 
@@ -126,18 +125,18 @@ DTrackDriver::DTrackDriver(const std::string &config)
  */
 
 template <class Data>
-bool getDTrackMatrix(osg::Matrix &mat, const Data *d)
+bool getDTrackMatrix(vsg::dmat4 &mat, const Data *d)
 {
     if (!d)
         return false;
 
-    mat.set(d->rot[0], d->rot[1], d->rot[2], 0,
-            d->rot[3], d->rot[4], d->rot[5], 0,
-            d->rot[6], d->rot[7], d->rot[8], 0,
+    mat.set(d->rot[0], d->rot[3], d->rot[6], 0,
+            d->rot[1], d->rot[4], d->rot[7], 0,
+            d->rot[2], d->rot[5], d->rot[8], 0,
             0, 0, 0, 1);
 
-    osg::Vec3d pos(d->loc[0], d->loc[1], d->loc[2]);
-    mat.setTrans(pos);
+    vsg::dvec3 pos(d->loc[0], d->loc[1], d->loc[2]);
+    setTrans(mat,pos);
 
     return d->quality >= 0.;
 }
@@ -147,16 +146,16 @@ bool DTrackDriver::updateHand(size_t idx)
 	{
 		std::cout<<"!!! Hand id is out of range: "<<idx<<std::endl;
 	}
-	const DTrack_Hand_Type_d *h=dt->getHand(idx);
+	const DTrack_Hand_Type_d *h=dt->getHand((int)idx);
 
-	osg::Vec3d fingerpos[3]; //using 3 fingers now
+	vsg::dvec3 fingerpos[3]; //using 3 fingers now
 
 	for(int n=0;n<3;++n)
-		fingerpos[n]=osg::Vec3d(h->finger[n].loc[0],h->finger[n].loc[1],h->finger[n].loc[2]);
+		fingerpos[n]=vsg::dvec3(h->finger[n].loc[0],h->finger[n].loc[1],h->finger[n].loc[2]);
 
 	// grab with fingers no. 1&2 -> first button, with 1&3 -> second button
-	double dist12=(fingerpos[0]-fingerpos[1]).length();
-	double dist13=(fingerpos[0]-fingerpos[2]).length();
+    double dist12 = length(fingerpos[0] - fingerpos[1]);
+    double dist13 = length(fingerpos[0] - fingerpos[2]);
 
 
 	//std::cout<<"ft 1st:"  <<dist12<<" 2nd:"<< dist13<<endl;
@@ -184,7 +183,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
     * dt->getBody() will crash, and dt->getNumBody() won't return the right number.
     * DTrack API will think that this device doesn't exist until it's tracked.
     */
-    const DTrack_Body_Type_d *b = dt->getBody(idx);
+    const DTrack_Body_Type_d *b = dt->getBody((int)idx);
     return getDTrackMatrix(m_bodyMatrices[m_bodyBase + idx], b);
 }
 
@@ -201,7 +200,7 @@ bool DTrackDriver::updateFlyStick(size_t idx)
     * dt->getBody() will crash, and dt->getNumBody() won't return the right number.
     * DTrack API will think that this device doesn't exist until it's tracked.
     */
-    const DTrack_FlyStick_Type_d *f = dt->getFlyStick(idx);
+    const DTrack_FlyStick_Type_d *f = dt->getFlyStick((int)idx);
 
     for (int i = 0; i < f->num_button; ++i)
     {
@@ -274,9 +273,9 @@ bool DTrackDriver::poll()
         m_numHands = dt->getNumHand();
         m_handBase = m_bodyBase + m_numBodies;
 
-        m_bodyBase = coCoviseConfig::getInt("bodyBase", configPath(), m_bodyBase);
-        m_flystickBase = coCoviseConfig::getInt("flystickBase", configPath(), m_flystickBase);
-        m_handBase = coCoviseConfig::getInt("handBase", configPath(), m_handBase);
+        m_bodyBase = coCoviseConfig::getInt("bodyBase", configPath(), (int)m_bodyBase);
+        m_flystickBase = coCoviseConfig::getInt("flystickBase", configPath(), (int)m_flystickBase);
+        m_handBase = coCoviseConfig::getInt("handBase", configPath(), (int)m_handBase);
 
         if (m_bodyBase < 0)
         {

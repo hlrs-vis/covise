@@ -695,7 +695,7 @@ void vvCommunication::handleVRB(const Message &msg)
         std::cerr << "received COVISE_MESSAGE_VRBC_CHANGE_SESSION from covise" << std::endl;
         while (!vvVIVE::instance()->isVRBconnected())
         {
-            std::cerr << "OpenCOVER waiting for VRB connection" << std::endl;
+            std::cerr << "VIVE waiting for VRB connection" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         while (me()->ID() == 0)

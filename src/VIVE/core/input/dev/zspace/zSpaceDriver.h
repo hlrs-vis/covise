@@ -20,7 +20,9 @@
 #include <string>
 
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 /**
  * @brief The zSpaceDriver class interacts with input hardware
@@ -41,7 +43,7 @@
 
 
 
-class zSpaceDriver : public opencover::InputDevice
+class zSpaceDriver : public vive::InputDevice
 {
     //-------------------zSpace related stuff
 

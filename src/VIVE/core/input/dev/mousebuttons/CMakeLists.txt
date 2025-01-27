@@ -12,4 +12,4 @@ SET(SOURCES
    MouseButtonsDriver.cpp
 )
 
-cover_add_plugin(input_mousebuttons)
+vive_add_plugin(vvInput_mousebuttons)

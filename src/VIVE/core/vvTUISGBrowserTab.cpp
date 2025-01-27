@@ -1,7 +1,7 @@
 #include "vvTabletUI.h"
 #include "vvPluginSupport.h"
 
-#include <util/vvTabletUIMessages.h>
+#include <util/coTabletUIMessages.h>
 #include <util/threadname.h>
 #include <net/tokenbuffer.h>
 #include <net/covise_host.h>
@@ -23,17 +23,21 @@ using covise::ClientConnection;
 using covise::ServerConnection;
 
 
-class SGTextureThread : public OpenThreads::Thread
+class SGTextureThread 
 {
 
 public:
     SGTextureThread(vvTUISGBrowserTab *tab)
-        : OpenThreads::Thread()
     {
         this->tab = tab;
         running = true;
         textureListCount = 0;
         sentTextures = 0;
+        myThread = new std::thread(&SGTextureThread::run,this);
+    }
+    ~SGTextureThread()
+    {
+        myThread->join();
     }
     virtual void run();
     void setType(int type)
@@ -63,6 +67,7 @@ public:
     void msleep(int msec);
 
 private:
+    std::thread* myThread=nullptr;
     vvTUISGBrowserTab *tab;
     int type=0;
     int textureListCount=0;
@@ -91,7 +96,7 @@ vvTUISGBrowserTab::vvTUISGBrowserTab(vvTabletUI *tui, const char *n, int pID)
     thread->traversingFinished(false);
     thread->nodeFinished(false);
     thread->noTexturesFound(false);
-    thread->start();
+
 }
 
 vvTUISGBrowserTab::~vvTUISGBrowserTab()
@@ -100,10 +105,6 @@ vvTUISGBrowserTab::~vvTUISGBrowserTab()
     {
         thread->terminateTextureThread();
 
-        while (thread->isRunning())
-        {
-            usleep(10000);
-        }
         delete thread;
     }
 }
@@ -638,16 +639,11 @@ std::vector<std::string> vvTUISGBrowserTab::parsePathString(std::string path)
     return path_indices;
 }
 
-vsg::Node* vvTUISGBrowserTab::getNode(std::string path)
+vsg::ref_ptr<vsg::Node>  vvTUISGBrowserTab::getNode(std::string path)
 {
-    vsg::ref_ptr<vsg::Node> objectsRoot_node = vv->getObjectsRoot()->asNode();
-    vsg::ref_ptr<vsg::Node> vrmlRoot_node = objectsRoot_node->asGroup()->getChild(1);
+    vsg::ref_ptr<vsg::Node> objectsRoot_node = vv->getObjectsRoot();
+    vsg::ref_ptr<vsg::Node> vrmlRoot_node = dynamic_cast<vsg::Group*>(objectsRoot_node.get())->children[1];
 
-    // vsg::ref_ptr<vsg::Node> vrmlRoot_node = vv->getScene()->asNode();
-    // vsg::ref_ptr<vsg::Node> objectsRoot_node = vv->getScene()->asNode();
-    // vsg::ref_ptr<vsg::Node> vrmlRoot_node = objectsRoot_node->asGroup()->getChild(0);
-
-    // vsg::ref_ptr<vsg::Node> vrmlRoot_node = vv->getScene()->asNode();
 
     std::vector<std::string> path_str_vector = vvTUISGBrowserTab::parsePathString(path);
 
@@ -671,7 +667,7 @@ vsg::Node* vvTUISGBrowserTab::getNode(std::string path)
         
         if (path_index != -1)
         {
-            path_cursorNode = path_cursorNode->asGroup()->getChild(path_index);
+            path_cursorNode = dynamic_cast<vsg::Group*>(path_cursorNode.get())->children[path_index];
         }
         else if (!path_str_index.empty())
         {
@@ -692,13 +688,13 @@ vsg::Node* vvTUISGBrowserTab::getNode(std::string path)
 void vvTUISGBrowserTab::addNode(const char* nodePath, int nodeType)
 {
     std::string nodePath_str = std::string(nodePath);
-    vsg::ref_ptr<vsg::Node> currentNode = vvTUISGBrowserTab::getNode(nodePath_str)->asGroup()->getChild(0);
+    vsg::ref_ptr<vsg::Node> currentNode = dynamic_cast<vsg::Group*>(vvTUISGBrowserTab::getNode(nodePath_str).get())->children[0];
 
     switch (nodeType)
     {
         case SG_GROUP:
         {
-            currentNode->asGroup()->addChild(new vsg::Group);
+            dynamic_cast<vsg::Group*>(currentNode.get())->addChild(vsg::Group::create());
             
             std::cout << "Added new GROUP to: " << nodePath_str << std::endl;
 
@@ -707,7 +703,7 @@ void vvTUISGBrowserTab::addNode(const char* nodePath, int nodeType)
 
         case SG_MATRIX_TRANSFORM:
         {
-            currentNode->asGroup()->addChild(vsg::MatrixTransform::create());
+            dynamic_cast<vsg::Group*>(currentNode.get())->addChild(vsg::MatrixTransform::create());
 
             std::cout << "Added new MATRIX TRANSFORM to: " << nodePath_str << std::endl;
 
@@ -731,13 +727,6 @@ void vvTUISGBrowserTab::removeNode(const char* nodePath, const char* parent_node
 
     vv->removeNode(node_remove);
 
-    /*
-    if (parentNode->asGroup()->containsNode(node_remove))
-    {
-        parentNode->asGroup()->removeChild(node_remove);
-        // vv->removeNode(node_remove);
-    }
-    */
 }
 
 void vvTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, unsigned int dropIndex)
@@ -750,19 +739,19 @@ void vvTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nod
     vsg::ref_ptr<vsg::Node> oldParent_node = vvTUISGBrowserTab::getNode(oldParent_str);
     vsg::ref_ptr<vsg::Node> newParent_node = vvTUISGBrowserTab::getNode(newParent_str);
 
-    if (oldParent_node->asGroup()->containsNode(oldPath_node))
+    if (vvPluginSupport::removeChild(dynamic_cast<vsg::Group*>(oldParent_node.get()), oldPath_node))
     {
-        oldParent_node->asGroup()->removeChild(oldPath_node);
 
-        if ((dropIndex <= -1) || (dropIndex >= newParent_node->asGroup()->children.size()))
+        if ((dropIndex <= -1) || (dropIndex >= dynamic_cast<vsg::Group*>(newParent_node.get())->children.size()))
         {
             // oldParent_node->asGroup()->removeChild(oldPath_node);
-            newParent_node->asGroup()->addChild(oldPath_node);
+            dynamic_cast<vsg::Group*>(newParent_node.get())->addChild(oldPath_node);
         }
         else
         {
             // oldParent_node->asGroup()->removeChild(oldPath_node);
-            newParent_node->asGroup()->insertChild(dropIndex, oldPath_node);
+            auto& children = dynamic_cast<vsg::Group*>(newParent_node.get())->children;
+            children.insert(children.begin()+dropIndex, oldPath_node);
         }
     }
 }
@@ -775,13 +764,13 @@ void vvTUISGBrowserTab::renameNode(const char* nodePath, const char* nodeNewName
     std::cout << nodePath_str << std::endl;
 
     vsg::ref_ptr<vsg::Node> path_node = vvTUISGBrowserTab::getNode(nodePath_str);
-    vsg::ref_ptr<vsg::Node> outlinedObject_node = path_node->asGroup()->getChild(0);
+    vsg::ref_ptr<vsg::Node> outlinedObject_node = dynamic_cast<vsg::Group*>(path_node.get())->children[0];
 
     // vsg::ref_ptr<vsg::Group> parent_group = path_node->getParent(0);
     
     // path_node = parent_group->getChild(parent_group->getChildIndex(path_node));
 
-    outlinedObject_node->setName(nodeNewName);
+    outlinedObject_node->setValue("name",nodeNewName);
 }
 
 void vvTUISGBrowserTab::parseMessage(TokenBuffer &tb)
@@ -799,10 +788,6 @@ void vvTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             {
                 thread->terminateTextureThread();
 
-                while (thread->isRunning())
-                {
-                    sleep(1);
-                }
                 delete thread;
                 thread = NULL;
             }
@@ -812,7 +797,6 @@ void vvTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             thread->traversingFinished(false);
             thread->nodeFinished(false);
             thread->noTexturesFound(false);
-            thread->start();
 
             break;
         }
@@ -1138,7 +1122,7 @@ void SGTextureThread::msleep(int msec)
 
 void SGTextureThread::run()
 {
-    covise::setThreadName("cover:SG:tex");
+    covise::setThreadName("vive:SG:tex");
     while (running)
     {
         bool work = false;

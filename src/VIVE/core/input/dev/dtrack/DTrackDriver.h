@@ -15,13 +15,16 @@
 #ifndef DTRACK_DRIVER_H
 #define DTRACK_DRIVER_H
 
-#include <OpenThreads/Thread>
-#include <osg/Matrix>
+
+#include <vsg/maths/mat4.h>
+#include <vsg/maths/vec3.h>
 #include <string>
 
 #include "DTrackSDK.hpp"
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 /**
  * @brief The DTrackDriver class interacts with input hardware
@@ -32,7 +35,7 @@
  *
  * Main interaction loop runs in its own thread
  */
-class DTrackDriver : public opencover::InputDevice
+class DTrackDriver : public vive::InputDevice
 {
     //-------------------DTrack related stuff
     DTrackSDK *dt; ///ART DTrack SDK class

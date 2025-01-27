@@ -9,7 +9,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "VruiPartnerMenuItem.h"
+#include "vvVruiPartnerMenuItem.h"
 #include <OpenVRUI/coFlatButtonGeometry.h>
 #include <OpenVRUI/coMenuContainer.h>
 #include "vvPluginSupport.h"
@@ -21,7 +21,7 @@
 using namespace vrui;
 using namespace vive;
 
-VruiPartnerMenuItem::VruiPartnerMenuItem(const std::string &name, bool on, coCheckboxGroup *g)
+vvVruiPartnerMenuItem::vvVruiPartnerMenuItem(const std::string &name, bool on, coCheckboxGroup *g)
     : coCheckboxMenuItem(name, on, g)
 {
     //viewpoint = new
@@ -31,7 +31,7 @@ VruiPartnerMenuItem::VruiPartnerMenuItem(const std::string &name, bool on, coChe
 }
 
 /// Destructor.
-VruiPartnerMenuItem::~VruiPartnerMenuItem()
+vvVruiPartnerMenuItem::~vvVruiPartnerMenuItem()
 {
     delete viewpoint;
 }
@@ -40,7 +40,7 @@ VruiPartnerMenuItem::~VruiPartnerMenuItem()
   checkbox menu item.
   @return ACTION_CALL_ON_MISS
 */
-int VruiPartnerMenuItem::hit(vruiHit *hit)
+int vvVruiPartnerMenuItem::hit(vruiHit *hit)
 {
     container->setHighlighted(true);
     //return ACTION_CALL_ON_MISS;
@@ -48,12 +48,12 @@ int VruiPartnerMenuItem::hit(vruiHit *hit)
 }
 
 /// Called when input device leaves the element.
-void VruiPartnerMenuItem::miss()
+void vvVruiPartnerMenuItem::miss()
 {
     coCheckboxMenuItem::miss();
 }
 
-void VruiPartnerMenuItem::buttonEvent(coButton *button)
+void vvVruiPartnerMenuItem::buttonEvent(coButton *button)
 {
     if (button == viewpoint)
     {
@@ -82,12 +82,12 @@ void VruiPartnerMenuItem::buttonEvent(coButton *button)
     }
 }
 
-const char *VruiPartnerMenuItem::getClassName() const
+const char *vvVruiPartnerMenuItem::getClassName() const
 {
     return "coPartnerMenuItem";
 }
 
-bool VruiPartnerMenuItem::isOfClassName(const char *classname) const
+bool vvVruiPartnerMenuItem::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

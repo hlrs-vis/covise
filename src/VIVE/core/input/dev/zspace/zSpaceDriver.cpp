@@ -16,9 +16,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <osg/Matrix>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
 
 using namespace std;
 using namespace covise;
@@ -122,13 +121,13 @@ bool zSpaceDriver::poll()
 
 void zSpaceDriver::setMatrix(int num, const ZSTrackerPose* pose)
 {
-    osg::Matrix matrix;
+    vsg::dmat4 matrix;
     for(int n=0;n<4;n++)
         for(int m=0;m<4;m++)
-            matrix(n,m) = pose->matrix.f[m+ 4* n];
-    matrix(3,0)*=1000;
-    matrix(3,1)*=1000;
-    matrix(3,2)*=1000;
+            matrix(m,n) = pose->matrix.f[m+ 4* n];
+    matrix(0,3)*=1000;
+    matrix(1,3)*=1000;
+    matrix(2,3)*=1000;
     m_bodyMatricesValid[num]=true;
     m_bodyMatrices[num]=matrix;
 }

@@ -37,7 +37,7 @@ namespace vive
 
     class VVCORE_EXPORT deviceDiscovery 
     {
-        friend class OpenCOVER;
+        friend class vvVIVE;
 
     public:
         deviceDiscovery();

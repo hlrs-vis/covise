@@ -6,24 +6,24 @@
  * License: LGPL 2+ */
 
 #include "vvVruiButtons.h"
-#include <cover/vvPluginSupport.h>
+#include "vvPluginSupport.h"
 
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/util/vruiLog.h>
 
 using namespace vive;
-using namespace covise;
+using namespace vrui;
 
-vvVriuiButtons::vvVriuiButtons(ButtonsType type)
+vvVruiButtons::vvVruiButtons(ButtonsType type)
 : m_type(type)
 {
 }
 
-vvVriuiButtons::~vvVriuiButtons()
+vvVruiButtons::~vvVruiButtons()
 {
 }
 
-coPointerButton *vvVriuiButtons::button() const
+coPointerButton *vvVruiButtons::button() const
 {
     switch (m_type)
     {
@@ -41,7 +41,7 @@ coPointerButton *vvVriuiButtons::button() const
     return vv->getPointerButton();
 }
 
-unsigned int vvVriuiButtons::wasPressed(unsigned int buttons) const
+unsigned int vvVruiButtons::wasPressed(unsigned int buttons) const
 {
     if (!button())
         return 0;
@@ -49,7 +49,7 @@ unsigned int vvVriuiButtons::wasPressed(unsigned int buttons) const
     return button()->wasPressed(buttons);
 }
 
-unsigned int vvVriuiButtons::wasReleased(unsigned int buttons) const
+unsigned int vvVruiButtons::wasReleased(unsigned int buttons) const
 {
     if (!button())
         return 0;
@@ -57,7 +57,7 @@ unsigned int vvVriuiButtons::wasReleased(unsigned int buttons) const
     return button()->wasReleased(buttons);
 }
 
-unsigned int vvVriuiButtons::getStatus() const
+unsigned int vvVruiButtons::getStatus() const
 {
     if (!button())
         return 0;
@@ -65,7 +65,7 @@ unsigned int vvVriuiButtons::getStatus() const
     return button()->getState();
 }
 
-unsigned int vvVriuiButtons::getOldStatus() const
+unsigned int vvVruiButtons::getOldStatus() const
 {
     if (!button())
         return 0;
@@ -73,7 +73,7 @@ unsigned int vvVriuiButtons::getOldStatus() const
     return button()->oldState();
 }
 
-int vvVriuiButtons::getWheelCount(size_t idx) const
+int vvVruiButtons::getWheelCount(size_t idx) const
 {
     if (!button())
         return 0;

@@ -5,55 +5,32 @@
 
  * License: LGPL 2+ */
 
-/************************************************************************
- *                                                                      *
- *                                                                      *
- *                                                                      *
- *                            (C) 1996-2000                             *
- *              Computer Centre University of Stuttgart                 *
- *                         Allmandring 30                               *
- *                       D-70550 Stuttgart                              *
- *                            Germany                                   *
- *                                                                      *
- *                                                                      *
- *   File            vvSceneGraph.C (Performer 2.0)                     *
- *                                                                      *
- *   Description     scene graph class                                  *
- *                                                                      *
- *   Author          D. Rainer                                          *
- *                 F. Foehl                                             *
- *                 U. Woessner                                          *
- *                                                                      *
- *   Date            20.08.97                                           *
- *                 10.07.98 Performer C++ Interface                     *
- *                 20.11.00 Pinboard config through covise.config       *
- ************************************************************************/
 
 #include <util/common.h>
 #include <config/CoviseConfig.h>
 #include <net/tokenbuffer.h>
 
+#include "vvSceneGraph.h"
 #include "vvVIVE.h"
-/*#include "vvFileManager.h"
+#include "vvFileManager.h"
 #include "vvNavigationManager.h"
 #include "vvCollaboration.h"
-#include "vvLighting.h"*/
-#include "vvSceneGraph.h"
+#include "vvLighting.h"
 #include "vvPluginList.h"
 #include "vvRegisterSceneGraph.h"
 #include "vvPluginSupport.h"
 #include "vvMSController.h"
 #include "vvViewer.h"
-/*#include "vvSelectionManager.h"
-#include "vvLabel.h"*/
+#include "vvSelectionManager.h"
+#include "vvLabel.h"
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <input/VRKeys.h>
 #include <input/input.h>
 #include "vvConfig.h"
 #include <OpenVRUI/coJoystickManager.h>
-/*#include "vvIntersectionInteractorManager.h"
-#include "vvShadowManager.h"*/
+#include "vvIntersectionInteractorManager.h"
+/*#include "vvShadowManager.h"*/
 #include <vsg/all.h>
 
 #ifdef _OPENMP
@@ -61,12 +38,12 @@
 #endif
 
 #include <OpenVRUI/vsg/mathUtils.h>
-/*
+
 #include "ui/Menu.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/SelectionList.h"
-#include "ui/View.h"*/
+#include "ui/View.h"
 
 using namespace vsg;
 using namespace vive;
@@ -104,12 +81,10 @@ vvSceneGraph::vvSceneGraph()
 , m_transRestrictMaxY(0.0f)
 , m_transRestrictMaxZ(0.0f)
 , m_scalingAllObjects(false)
-, m_scaleTransform(NULL)
 , isScenegraphProtected_(false)
 , m_enableHighQualityOption(true)
 , m_switchToHighQuality(false)
 , m_highQuality(false)
-, m_interactionHQ(NULL)
 {
     assert(!s_instance);
 }
@@ -135,7 +110,7 @@ void vvSceneGraph::init()
 
     vvLighting::instance();
 
-    emptyProgram_ = new vsg::Program();
+    //emptyProgram_ = new vsg::Program();
 
     m_interactionHQ = new vrui::coCombinedButtonInteraction(vrui::coInteraction::AllButtons, "Anchor", vrui::coInteraction::Highest);
     m_interactionHQ->setNotifyOnly(true);
@@ -156,7 +131,7 @@ void vvSceneGraph::init()
     {
         if (!m_pointerVisible)
         {
-            m_scene->addChild(m_handTransform.get());
+            m_scene->addChild(m_handTransform);
             m_pointerVisible = true;
         }
     }
@@ -164,7 +139,7 @@ void vvSceneGraph::init()
     {
         if (m_pointerVisible)
         {
-            m_scene->removeChild(m_handTransform.get());
+            //m_scene->removeChild(m_handTransform);
             m_pointerVisible = false;
         }
     }
@@ -219,14 +194,14 @@ void vvSceneGraph::init()
     vv->viewOptionsMenu->add(m_useTextures);
     m_useTextures->setCallback([this](bool state){
         m_textured = state;
-        vsg::Texture *texture = new vsg::Texture2D;
+        /*vsg::Texture* texture = new vsg::Texture2D;
         for (int unit=0; unit<4; ++unit)
         {
             if (m_textured)
                 m_objectsStateSet->setTextureAttributeAndModes(unit, texture, vsg::StateAttribute::OFF);
             else
                 m_objectsStateSet->setTextureAttributeAndModes(unit, texture, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::OFF);
-        }
+        }*/
     });
 
     m_useShaders = new ui::Button(vv->viewOptionsMenu, "UseShaders");
@@ -237,7 +212,7 @@ void vvSceneGraph::init()
     vv->viewOptionsMenu->add(m_useShaders);
     m_useShaders->setCallback([this](bool state){
         m_shaders = state;
-        vsg::Program *program = new vsg::Program;
+        /*vsg::Program* program = new vsg::Program;
         if (m_shaders)
         {
             m_objectsStateSet->setAttributeAndModes(program, vsg::StateAttribute::OFF);
@@ -245,7 +220,7 @@ void vvSceneGraph::init()
         else
         {
             m_objectsStateSet->setAttributeAndModes(program, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::OFF);
-        }
+        }*/
     });
 
 
@@ -269,7 +244,7 @@ void vvSceneGraph::init()
     fc->setVisible(false);
     fc->addShortcut("Alt+Shift+C");
     fc->setCallback([this](){
-            vvViewer::instance()->forceCompile();
+            //vvViewer::instance()->forceCompile();
     });
 
     auto fs = new ui::Action(vv->viewOptionsMenu, "FlipStereo");
@@ -277,7 +252,7 @@ void vvSceneGraph::init()
     fs->setVisible(false);
     fs->addShortcut("Alt+e");
     fs->setCallback([this](){
-            vvViewer::instance()->flipStereo();
+            //vvViewer::instance()->flipStereo();
     });
 
     auto cw = new ui::Action(vv->viewOptionsMenu, "ClearWindow");
@@ -286,8 +261,8 @@ void vvSceneGraph::init()
     cw->addShortcut("Alt+c");
     cw->setCallback([this](){
             windowStruct *ws = &(vvConfig::instance()->windows[0]);
-            ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
-            ws->window->setWindowDecoration(false);
+           // ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
+           // ws->window->setWindowDecoration(false);
             vvViewer::instance()->clearWindow = true;
     });
 }
@@ -297,16 +272,16 @@ vvSceneGraph::~vvSceneGraph()
     if (vv->debugLevel(2))
         fprintf(stderr, "\ndelete vvSceneGraph\n");
 
-    m_specialBoundsNodeList.clear();
+    //m_specialBoundsNodeList.clear();
 
-    delete vvShadowManager::instance();
+    //delete vvShadowManager::instance();
 
     while (m_objectsRoot->children.size() > 0)
     {
-        int n = m_objectsRoot->children.size();
-        vsg::ref_ptr<vsg::Node> thisNode = m_objectsRoot->getChild(n-1);
+        size_t n = m_objectsRoot->children.size();
+        /*vsg::ref_ptr<vsg::Node> thisNode = m_objectsRoot->getChild(n - 1);
         while (thisNode && thisNode->getNumParents() > 0)
-            thisNode->getParent(0)->removeChild(thisNode.get());
+            thisNode->getParent(0)->removeChild(thisNode);*/
     }
 
     s_instance = NULL;
@@ -354,113 +329,99 @@ int vvSceneGraph::readConfigFile()
 
 void vvSceneGraph::initMatrices()
 {
-    m_invBaseMatrix.makeIdentity();
-    m_oldInvBaseMatrix.makeIdentity();
+    m_invBaseMatrix = vsg::dmat4();
+    m_oldInvBaseMatrix = vsg::dmat4();
 }
 
 void vvSceneGraph::initSceneGraph()
 {
     // create the scene node
-    m_scene = vvShadowManager::instance()->newScene();
-    m_scene->setName("VR_RENDERER_SCENE_NODE");
+    //m_scene = vvShadowManager::instance()->newScene();
+    //m_scene->setName("VR_RENDERER_SCENE_NODE");
+    m_scene = vsg::MatrixTransform::create();
     std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
-    vvShadowManager::instance()->setTechnique(shadowTechnique);
+    //vvShadowManager::instance()->setTechnique(shadowTechnique);
 
     m_objectsScene = new vsg::Group();
-    m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
+    //m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
 
-    // Create a lit scene vsg::StateSet for the scene
-    m_rootStateSet = loadGlobalGeostate();
-    m_objectsStateSet = loadGlobalGeostate();
-
-    int numClipPlanes = vv->getNumClipPlanes();
+   /* int numClipPlanes = vv->getNumClipPlanes();
     for (int i = 0; i < numClipPlanes; i++)
     {
         m_rootStateSet->setAttributeAndModes(vv->getClipPlane(i), vsg::StateAttribute::OFF);
         m_objectsStateSet->setAttributeAndModes(vv->getClipPlane(i), vsg::StateAttribute::OFF);
-    }
+    }*/
 
-    // attach the vsg::StateSet to the scene
-    m_scene->setStateSet(m_rootStateSet);
-    m_objectsScene->setStateSet(m_rootStateSet);
 
     // create the pointer (hand) DCS node
     // add it to the scene graph as the first child
     //                                  -----
-    m_handTransform = vsg::MatrixTransform::create()();
-    m_handTransform->setName("HandTransform");
-    m_handIconScaleTransform = vsg::MatrixTransform::create()();
-    m_handIconScaleTransform->setName("HandIconScaleTransform");
-    m_handAxisScaleTransform = vsg::MatrixTransform::create()();
-    m_handAxisScaleTransform->setName("HandAxisScaleTransform");
-    m_pointerDepthTransform = vsg::MatrixTransform::create()();
-    m_pointerDepthTransform->setName("PointerDepthTransform");
-    m_handTransform->addChild(m_pointerDepthTransform.get());
+    m_handTransform = vsg::MatrixTransform::create();
+    m_handIconScaleTransform = vsg::MatrixTransform::create();
+    m_handAxisScaleTransform = vsg::MatrixTransform::create();
+    m_pointerDepthTransform = vsg::MatrixTransform::create();
+    m_handTransform->addChild(m_pointerDepthTransform);
     m_handTransform->addChild(m_handAxisScaleTransform);
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
 
     // scale the axis to vv->getSceneSize()/2500.0;
-    const float scale = vv->getSceneSize() / 2500.0;
-    m_handAxisScaleTransform->matrix = (vsg::dmat4::scale(scale, scale, scale));
+    const double scale = vv->getSceneSize() / 2500.0;
+    m_handAxisScaleTransform->matrix = (vsg::scale(scale, scale, scale));
 
     // read icons size from covise.config, default is sceneSize/10
-    m_handIconSize = coCoviseConfig::getFloat("COVER.IconSize", vv->getSceneSize() / 25.0);
+    m_handIconSize = coCoviseConfig::getFloat("COVER.IconSize", vv->getSceneSize() / 25.0f);
     m_handIconOffset = coCoviseConfig::getFloat("COVER.IconOffset", 0.0);
 
     // read icon displacement
     m_pointerDepth = coCoviseConfig::getFloat("COVER.PointerDepth", m_pointerDepth);
-    m_pointerDepthTransform->matrix = (vsg::dmat4::translate(0, m_pointerDepth, 0));
+    m_pointerDepthTransform->matrix = vsg::translate(0.0, (double)m_pointerDepth, 0.0);
 
     // do not intersect with objects under handDCS
-    m_handTransform->setNodeMask(m_handTransform->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+    //m_handTransform->setNodeMask(m_handTransform->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
 
     // we: render Menu first
     m_menuGroupNode = new vsg::Group();
-    m_menuGroupNode->setNodeMask(m_menuGroupNode->getNodeMask()&~Isect::ReceiveShadow);
-    m_menuGroupNode->setName("MenuGroupNode");
+    //m_menuGroupNode->setNodeMask(m_menuGroupNode->getNodeMask()&~Isect::ReceiveShadow);
+    m_menuGroupNode->setValue("name","MenuGroupNode");
     if (m_showMenu)
-        m_scene->addChild(m_menuGroupNode.get());
+        m_scene->addChild(m_menuGroupNode);
 
     // dcs for translating/rotating all objects
-    m_objectsTransform = vsg::MatrixTransform::create()();
-    m_objectsTransform->setName("ObjectsTransform");
-    m_objectsTransform->setStateSet(m_objectsStateSet);
+    m_objectsTransform = vsg::MatrixTransform::create();
 
     // dcs for scaling all objects
-    m_scaleTransform = vsg::MatrixTransform::create()();
-    m_scaleTransform->setName("ScaleTransform");
+    m_scaleTransform = vsg::MatrixTransform::create();
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
 
     // root node for all objects
-    vsg::ClipNode *clipNode = new vsg::ClipNode();
-    m_objectsRoot = clipNode;
-    m_objectsRoot->setName("OBJECTS_ROOT");
+    m_objectsRoot = vsg::MatrixTransform::create();
+    m_objectsRoot->setValue("name", "OBJECTS_ROOT");
 
     m_scaleTransform->addChild(m_objectsRoot);
 
-    vsg::StateSet *ss = m_menuGroupNode->getOrCreateStateSet();
+   /* vsg::StateSet* ss = m_menuGroupNode->getOrCreateStateSet();
     for (int i = 0; i < vv->getNumClipPlanes(); i++)
     {
         ss->setAttributeAndModes(vv->getClipPlane(i), vsg::StateAttribute::OFF);
-    }
+    }*/
 
     m_alwaysVisibleGroupNode = new vsg::Group();
-    m_alwaysVisibleGroupNode->setNodeMask(m_alwaysVisibleGroupNode->getNodeMask()&~Isect::ReceiveShadow);
-    m_alwaysVisibleGroupNode->setName("AlwaysVisibleGroupNode");
-    m_scene->addChild(m_alwaysVisibleGroupNode.get());
-    vsg::StateSet *ssav = m_alwaysVisibleGroupNode->getOrCreateStateSet();
-    ssav->setMode(GL_DEPTH_TEST, vsg::StateAttribute::OFF|vsg::StateAttribute::PROTECTED|vsg::StateAttribute::OVERRIDE);
-    ssav->setRenderBinDetails(INT_MAX, "RenderBin");
+    /*m_alwaysVisibleGroupNode->setNodeMask(m_alwaysVisibleGroupNode->getNodeMask() & ~Isect::ReceiveShadow);
+    m_alwaysVisibleGroupNode->setName("AlwaysVisibleGroupNode");*/
+    m_scene->addChild(m_alwaysVisibleGroupNode);
+    //vsg::StateSet *ssav = m_alwaysVisibleGroupNode->getOrCreateStateSet();
+    //ssav->setMode(GL_DEPTH_TEST, vsg::StateAttribute::OFF|vsg::StateAttribute::PROTECTED|vsg::StateAttribute::OVERRIDE);
+    //ssav->setRenderBinDetails(INT_MAX, "RenderBin");
     //ssav->setRenderingHint(vsg::StateSet::TRANSPARENT_BIN);
-    ssav->setNestRenderBins(false);
+    /*ssav->setNestRenderBins(false);
     for (int i = 0; i < vv->getNumClipPlanes(); i++)
     {
         ssav->setAttributeAndModes(vv->getClipPlane(i), vsg::StateAttribute::OFF);
     }
 
-    m_lineHider = new osgFX::Scribe();
+    m_lineHider = new osgFX::Scribe();*/
 }
 
 void vvSceneGraph::initAxis()
@@ -470,64 +431,64 @@ void vvSceneGraph::initAxis()
     m_handAxis = loadAxisGeode(2);
     m_viewerAxis = loadAxisGeode(4);
     m_objectAxis = loadAxisGeode(0.01f);
-    m_viewerAxisTransform = vsg::MatrixTransform::create()();
-    m_viewerAxisTransform->setName("ViewerAxisTransform");
-    m_scene->addChild(m_viewerAxisTransform.get());
+    m_viewerAxisTransform = vsg::MatrixTransform::create();
+    //m_viewerAxisTransform->setName("ViewerAxisTransform");
+    m_scene->addChild(m_viewerAxisTransform);
 
     showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
     if (showSmallSceneAxis_)
     {
-        float sx = 0.1 * vv->getSceneSize();
+        float sx = 0.1f * vv->getSceneSize();
         sx = coCoviseConfig::getFloat("COVER.SmallSceneAxis.Size", sx);
         if (vv->debugLevel(3))
             fprintf(stderr, "COVER.SmallSceneAxis.Size=%f\n", sx);
         float xp = coCoviseConfig::getFloat("x", "COVER.SmallSceneAxis.Position", 500.0);
         float yp = coCoviseConfig::getFloat("y", "COVER.SmallSceneAxis.Position", 0.0);
         float zp = coCoviseConfig::getFloat("z", "COVER.SmallSceneAxis.Position", -500);
-        m_smallSceneAxis = loadAxisGeode(0.01 * sx);
-        m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
-        m_smallSceneAxisTransform = vsg::MatrixTransform::create()();
-        m_smallSceneAxisTransform->setName("SmallSceneAxisTransform");
-        m_smallSceneAxisTransform->matrix = (vsg::dmat4::translate(xp, yp, zp));
-        m_scene->addChild(m_smallSceneAxisTransform.get());
+        m_smallSceneAxis = loadAxisGeode(0.01f * sx);
+        //m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+        m_smallSceneAxisTransform = vsg::MatrixTransform::create();
+        //m_smallSceneAxisTransform->setName("SmallSceneAxisTransform");
+        m_smallSceneAxisTransform->matrix = (vsg::translate(xp, yp, zp));
+        m_scene->addChild(m_smallSceneAxisTransform);
 
         vvLabel *XLabel, *YLabel, *ZLabel;
         float fontSize = coCoviseConfig::getFloat("COVER.SmallSceneAxis.FontSize", 100);
         float lineLen = 0;
-        Vec4 red(1, 0, 0, 1);
-        Vec4 green(0, 1, 0, 1);
-        Vec4 blue(0, 0, 1, 1);
-        Vec4 bg(1, 1, 1, 0);
+        vsg::vec4 red(1, 0, 0, 1);
+        vsg::vec4 green(0, 1, 0, 1);
+        vsg::vec4 blue(0, 0, 1, 1);
+        vsg::vec4 bg(1, 1, 1, 0);
         XLabel = new vvLabel("X", fontSize, lineLen, red, bg);
-        XLabel->reAttachTo(m_smallSceneAxisTransform.get());
-        XLabel->setPosition(vsg::Vec3(1.1 * sx, 0, 0));
+        XLabel->reAttachTo(m_smallSceneAxisTransform);
+        XLabel->setPosition(vsg::dvec3(1.1 * sx, 0.0, 0.0));
         XLabel->hideLine();
 
         YLabel = new vvLabel("Y", fontSize, lineLen, green, bg);
-        YLabel->reAttachTo(m_smallSceneAxisTransform.get());
-        YLabel->setPosition(vsg::Vec3(0, 1.1 * sx, 0));
+        YLabel->reAttachTo(m_smallSceneAxisTransform);
+        YLabel->setPosition(vsg::dvec3(0.0, 1.1 * sx, 0.0));
         YLabel->hideLine();
 
         ZLabel = new vvLabel("Z", fontSize, lineLen, blue, bg);
-        ZLabel->reAttachTo(m_smallSceneAxisTransform.get());
-        ZLabel->setPosition(vsg::Vec3(0, 0, 1.1 * sx));
+        ZLabel->reAttachTo(m_smallSceneAxisTransform);
+        ZLabel->setPosition(vsg::dvec3(0.0, 0.0, 1.1 * sx));
         ZLabel->hideLine();
 
-        m_smallSceneAxisTransform->addChild(m_smallSceneAxis.get());
+        m_smallSceneAxisTransform->addChild(m_smallSceneAxis);
     }
 
     // no intersection with the axis
-    m_worldAxis->setNodeMask(m_worldAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+    /*m_worldAxis->setNodeMask(m_worldAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     m_handAxis->setNodeMask(m_handAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     m_viewerAxis->setNodeMask(m_viewerAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
-    m_objectAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+    m_objectAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));*/
 
     if (coCoviseConfig::isOn("COVER.CoordAxis", false))
     {
-        m_scene->addChild(m_worldAxis.get());
-        m_viewerAxisTransform->addChild(m_viewerAxis.get());
-        m_handAxisScaleTransform->addChild(m_handAxis.get());
-        m_scaleTransform->addChild(m_objectAxis.get());
+        m_scene->addChild(m_worldAxis);
+        m_viewerAxisTransform->addChild(m_viewerAxis);
+        m_handAxisScaleTransform->addChild(m_handAxis);
+        m_scaleTransform->addChild(m_objectAxis);
     }
 }
 
@@ -535,7 +496,7 @@ void vvSceneGraph::initHandDeviceGeometry()
 {
     m_handLine = loadHandLine();
     if (m_handLine)
-        m_handTransform->addChild(m_handLine.get());
+        m_handTransform->addChild(m_handLine);
 
     // add hand device geometry
     m_handSphere = loadHandIcon("HandSphere");
@@ -558,7 +519,7 @@ bool vvSceneGraph::keyEvent(int type, int keySym, int mod)
         fprintf(stderr, "vvSceneGraph::keyEvent\n");
 
     // Beschleunigung
-    if (type == osgGA::GUIEventAdapter::KEYUP)
+   /* if (type == osgGA::GUIEventAdapter::KEYUP)
     {
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
@@ -600,7 +561,8 @@ bool vvSceneGraph::keyEvent(int type, int keySym, int mod)
             }
 #endif
         } // unmodified keys
-    }
+        
+    }*/
     return handled;
 }
 
@@ -615,18 +577,18 @@ void vvSceneGraph::applyObjectVisibility()
 {
     if (m_showObjects && m_showMenu != MenuOnly)
     {
-        if (m_objectsTransform->getNumParents() == 1)
+        /*if (m_objectsTransform->getNumParents() == 1)
         {
             if (m_wireframe == HiddenLineWhite || m_wireframe == HiddenLineBlack)
-                m_scene->addChild(m_lineHider.get());
+                m_scene->addChild(m_lineHider);
             else
-                m_scene->addChild(m_objectsTransform.get());
-        }
+                m_scene->addChild(m_objectsTransform);
+        }*/
     }
     else
     {
-        m_scene->removeChild(m_objectsTransform.get());
-        m_lineHider->removeChild(m_objectsTransform.get());
+        vvPluginSupport::removeChild(m_scene, m_objectsTransform);
+        //vvPluginSupport::removeChild(m_lineHider,m_objectsTransform);
     }
 }
 
@@ -637,14 +599,11 @@ void vvSceneGraph::setMenu(MenuMode state)
 
     if (m_showMenu == MenuHidden)
     {
-        m_scene->removeChild(m_menuGroupNode.get());
+        vvPluginSupport::removeChild(m_scene,m_menuGroupNode);
     }
     else
     {
-        if (m_menuGroupNode->getNumParents() == 0)
-        {
-            m_scene->addChild(m_menuGroupNode.get());
-        }
+            m_scene->addChild(m_menuGroupNode);
     }
 
     applyObjectVisibility();
@@ -668,7 +627,7 @@ void vvSceneGraph::setMenuMode(bool state)
         vrui::coJoystickManager::instance()->setActive(true);
 
         // set scene and documents not intersectable
-        m_objectsTransform->setNodeMask(m_objectsTransform->getNodeMask() & (~Isect::Intersection));
+        /*m_objectsTransform->setNodeMask(m_objectsTransform->getNodeMask() & (~Isect::Intersection));
         // set color of scene to grey
         if (vvConfig::instance()->colorSceneInMenuMode())
         {
@@ -688,7 +647,7 @@ void vvSceneGraph::setMenuMode(bool state)
             m_rootStateSet->setMode(vsg::StateAttribute::VERTEXPROGRAM, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::OFF);
             m_rootStateSet->setMode(vsg::StateAttribute::FRAGMENTPROGRAM, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::OFF);
             m_rootStateSet->setMode(vsg::StateAttribute::TEXTURE, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::OFF);
-        }
+        }*/
     }
     else
     {
@@ -697,7 +656,7 @@ void vvSceneGraph::setMenuMode(bool state)
         // set color of scene
         if (vvConfig::instance()->colorSceneInMenuMode())
         {
-            vsg::Material *mat = new vsg::Material();
+           /* vsg::Material* mat = new vsg::Material();
             m_rootStateSet->setAttributeAndModes(mat, vsg::StateAttribute::ON);
             // disable shader override
             m_rootStateSet->removeAttribute(emptyProgram_);
@@ -707,16 +666,16 @@ void vvSceneGraph::setMenuMode(bool state)
             m_rootStateSet->setMode(vsg::StateAttribute::PROGRAM, vsg::StateAttribute::OFF);
             m_rootStateSet->setMode(vsg::StateAttribute::VERTEXPROGRAM, vsg::StateAttribute::OFF);
             m_rootStateSet->setMode(vsg::StateAttribute::FRAGMENTPROGRAM, vsg::StateAttribute::OFF);
-            m_rootStateSet->setMode(vsg::StateAttribute::TEXTURE, vsg::StateAttribute::OFF);
+            m_rootStateSet->setMode(vsg::StateAttribute::TEXTURE, vsg::StateAttribute::OFF);*/
         }
         // set scene intersectable
-        m_objectsTransform->setNodeMask(0xffffffff);
+        //m_objectsTransform->setNodeMask(0xffffffff);
 
 #if 0
         // hide quit menu
         for (unsigned int i = 0; i < m_menuGroupNode->children.size(); i++)
         {
-            if (m_menuGroupNode->getChild(i)->getName().find("Quit") != std::string::npos || m_menuGroupNode->getChild(i)->getName().find("beenden") != std::string::npos)
+            if (m_menuGroupNode->children[i]->getName().find("Quit") != std::string::npos || m_menuGroupNode->children[i]->getName().find("beenden") != std::string::npos)
             {
                 VRPinboard::instance()->hideQuitMenu();
                 break;
@@ -740,15 +699,15 @@ void vvSceneGraph::applyMenuModeToMenus()
 
     for (unsigned int i = 0; i < m_menuGroupNode->children.size(); i++)
     {
-        if ((m_menuGroupNode->getChild(i)->getName().find("Quit") == std::string::npos)
-            && (m_menuGroupNode->getChild(i)->getName().find("beenden") == std::string::npos)
-            && (m_menuGroupNode->getChild(i)->getName().find("Document") == std::string::npos))
+        /*if ((m_menuGroupNode->children[i]->getName().find("Quit") == std::string::npos)
+            && (m_menuGroupNode->children[i]->getName().find("beenden") == std::string::npos)
+            && (m_menuGroupNode->children[i]->getName().find("Document") == std::string::npos))
         {
             if (menusAreHidden)
-                m_menuGroupNode->getChild(i)->setNodeMask(0x0);
+                m_menuGroupNode->children[i]->setNodeMask(0x0);
             else
-                m_menuGroupNode->getChild(i)->setNodeMask(0xffffffff & ~Isect::ReceiveShadow);
-        }
+                m_menuGroupNode->children[i]->setNodeMask(0xffffffff & ~Isect::ReceiveShadow);
+        }*/
     }
 }
 
@@ -796,13 +755,13 @@ void vvSceneGraph::setScaleFactor(float s, bool sync)
     scale_mat= vsg::scale(m_scaleFactor, m_scaleFactor, m_scaleFactor);
     if (vvNavigationManager::instance()->getRotationPointActive())
     {
-        vsg::Vec3 tv = vvNavigationManager::instance()->getRotationPoint();
-        tv = tv * -1;
+        vsg::dvec3 tv = vvNavigationManager::instance()->getRotationPoint();
+        tv = tv * -1.0;
         vsg::dmat4 trans;
         trans= vsg::translate(tv);
         vsg::dmat4 temp = trans * scale_mat;
         trans= vsg::translate(vvNavigationManager::instance()->getRotationPoint());
-        scale_mat.mult(temp, trans);
+        scale_mat = trans * temp;
     }
     m_scaleTransform->matrix = (scale_mat);
     if (sync)
@@ -825,8 +784,8 @@ vvSceneGraph::update()
                 if (vvVIVE::instance()->parentWindow == NULL)
 #endif
                 {
-                    ws.window->setWindowRectangle(ws.ox, ws.oy, ws.sx, ws.sy);
-                    ws.window->setWindowDecoration(ws.decoration);
+                   // ws.window->setWindowRectangle(ws.ox, ws.oy, ws.sx, ws.sy);
+                   // ws.window->setWindowDecoration(ws.decoration);
                 }
             }
         }
@@ -839,7 +798,7 @@ vvSceneGraph::update()
     {
         if (!m_pointerVisible)
         {
-            m_scene->addChild(m_handTransform.get());
+            m_scene->addChild(m_handTransform);
             m_pointerVisible = true;
         }
     }
@@ -847,7 +806,7 @@ vvSceneGraph::update()
     {
         if (m_pointerVisible)
         {
-            m_scene->removeChild(m_handTransform.get());
+            vvPluginSupport::removeChild(m_scene,m_handTransform);
             m_pointerVisible = false;
         }
     }
@@ -865,14 +824,14 @@ vvSceneGraph::update()
     // transparency of handLine
     if (transparentPointer_ && m_handLine)
     {
-        vsg::Material *mat = dynamic_cast<vsg::Material *>(m_handLine->getOrCreateStateSet()->getAttribute(vsg::StateAttribute::MATERIAL));
+        /*vsg::Material* mat = dynamic_cast<vsg::Material*>(m_handLine->getOrCreateStateSet()->getAttribute(vsg::StateAttribute::MATERIAL));
         if (mat)
         {
             vsg::Vec3 forward(0.0f, 1.0f, 0.0f);
             vsg::Vec3 vector = forward * handMat;
             float alpha = min(max(1.0f + (vector * forward) * 1.5f, 0.0f), 1.0f);
             mat->setAlpha(vsg::Material::FRONT_AND_BACK, alpha);
-        }
+        }*/
     }
 
     if (vvConfig::instance()->useWiiNavigationVisenso())
@@ -883,9 +842,8 @@ vvSceneGraph::update()
         if (vvNavigationManager::instance()->getMode() == vvNavigationManager::TraverseInteractors && vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor())
         {
             vsg::dmat4 o_to_w = vv->getBaseMat();
-            vsg::Vec3 currentInterPos_w = vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->matrix.getTrans() * o_to_w;
-            handMat.setTrans(currentInterPos_w);
-            m_handTransform->matrix = (handMat);
+            vsg::dvec3 currentInterPos_w = getTrans(vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->getMatrix()) * o_to_w;
+            m_handTransform->matrix = translate(currentInterPos_w);
         }
         else
         {
@@ -896,19 +854,19 @@ vvSceneGraph::update()
             top = vvConfig::instance()->screens[0].vsize / 2;
             left = -vvConfig::instance()->screens[0].hsize / 2;
             right = vvConfig::instance()->screens[0].hsize / 2;
-            Vec3 trans = handMat.getTrans();
-            if (trans.x() < left)
+            vsg::dvec3 trans = getTrans(handMat);
+            if (trans.x < left)
                 trans[0] = left;
-            else if (trans.x() > right)
+            else if (trans.x > right)
                 trans[0] = right;
-            if (trans.z() < bottom)
+            if (trans.z < bottom)
                 trans[2] = bottom;
-            else if (trans.z() > top)
+            else if (trans.z > top)
                 trans[2] = top;
 
             trans[1] = wiiPos;
 
-            handMat.setTrans(trans);
+            setTrans(handMat,trans);
             m_handTransform->matrix = (handMat);
         }
     }
@@ -920,11 +878,11 @@ vvSceneGraph::update()
         {
             //fprintf(stderr,"vvNavigationManager::traverseInteractors && getCurrent\n");
             vsg::dmat4 o_to_w = vv->getBaseMat();
-            vsg::Vec3 currentInterPos_w = vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->matrix.getTrans() * o_to_w;
+            vsg::dvec3 currentInterPos_w = getTrans(vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->getMatrix() * o_to_w);
 
             //vsg::Vec3 diff = currentInterPos_w - handMat.getTrans();
             //handMat.setTrans(handMat.getTrans()+diff);
-            handMat.setTrans(currentInterPos_w);
+            setTrans(handMat,currentInterPos_w);
             //if (vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->isRunning())
             //   fprintf(stderr,"diff = [%f %f %f]\n", diff[0], diff[1], diff[2]);
         }
@@ -942,10 +900,10 @@ vvSceneGraph::update()
 
     if (showSmallSceneAxis_)
     {
-        Matrix sm;
+        dmat4 sm;
         sm = m_objectsTransform->matrix;
-        Vec3 t;
-        t = m_smallSceneAxisTransform->matrix.getTrans();
+        dvec3 t;
+        t = getTrans(m_smallSceneAxisTransform->matrix);
         sm(3, 0) = t[0];
         sm(3, 1) = t[1];
         sm(3, 2) = t[2];
@@ -997,7 +955,7 @@ vvSceneGraph::update()
             for (i = 0; i < n; i++)
             {
 
-                thisNode = objectsRoot->getChild(i);
+                thisNode = objectsRoot->children[i];
                 if (pfIsOfType(thisNode, vsg::MatrixTransform::getClassType()))
                 {
                     thisNode = ((vsg::MatrixTransform *)thisNode)->getChild(0);
@@ -1016,38 +974,38 @@ vvSceneGraph::update()
     // check if translation is restricted
     if ((m_transRestrictMinX != m_transRestrictMaxX) || (m_transRestrictMinY != m_transRestrictMaxY) || (m_transRestrictMinZ != m_transRestrictMaxZ))
     {
-        Vec3 trans = m_objectsTransform->matrix.getTrans();
+        dvec3 trans = getTrans(m_objectsTransform->matrix);
         if (m_transRestrictMinX != m_transRestrictMaxX)
         {
-            if (trans.x() < m_transRestrictMinX)
+            if (trans.x < m_transRestrictMinX)
                 trans[0] = m_transRestrictMinX;
-            else if (trans.x() > m_transRestrictMaxX)
+            else if (trans.x > m_transRestrictMaxX)
                 trans[0] = m_transRestrictMaxX;
         }
         if (m_transRestrictMinY != m_transRestrictMaxY)
         {
-            if (trans.y() < m_transRestrictMinY)
+            if (trans.y < m_transRestrictMinY)
                 trans[1] = m_transRestrictMinY;
-            else if (trans.y() > m_transRestrictMaxY)
+            else if (trans.y > m_transRestrictMaxY)
                 trans[1] = m_transRestrictMaxY;
         }
         if (m_transRestrictMinZ != m_transRestrictMaxZ)
         {
-            if (trans.z() < m_transRestrictMinZ)
+            if (trans.z < m_transRestrictMinZ)
                 trans[2] = m_transRestrictMinZ;
-            else if (trans.z() > m_transRestrictMaxZ)
+            else if (trans.z > m_transRestrictMaxZ)
                 trans[2] = m_transRestrictMaxZ;
         }
-        Matrix m = m_objectsTransform->matrix;
-        m.setTrans(trans);
+        dmat4 m = m_objectsTransform->matrix;
+        setTrans(m,trans);
         m_objectsTransform->matrix = (m);
     }
 
     if (m_enableHighQualityOption && !m_highQuality)
     {
         // HQ mode ON, if button is pressed while the mouse is higher then the head
-        Vec3 pointerPosWld = vv->getPointerMat().getTrans();
-        Vec3 viewerPosWld = vv->getViewerMat().getTrans();
+        dvec3 pointerPosWld = getTrans(vv->getPointerMat());
+        dvec3 viewerPosWld = getTrans(vv->getViewerMat());
         if (pointerPosWld[2] > viewerPosWld[2] && vv->getPointerButton()->wasPressed())
             m_switchToHighQuality = true;
     }
@@ -1078,9 +1036,9 @@ vvSceneGraph::setWireframe(WireframeMode wf)
     m_wireframe = wf;
     m_drawStyle->select(m_wireframe);
 
-    m_lineHider->removeChild(m_objectsTransform);
-    m_scene->removeChild(m_objectsTransform);
-    m_scene->removeChild(m_lineHider);
+    //vvPluginSupport::removeChild(m_lineHider,m_objectsTransform);
+    vvPluginSupport::removeChild(m_scene, m_objectsTransform);
+    //vvPluginSupport::removeChild(m_scene, m_lineHider);
 
     switch(m_wireframe)
     {
@@ -1088,7 +1046,7 @@ vvSceneGraph::setWireframe(WireframeMode wf)
         case Enabled:
         case Points:
         {
-            vsg::PolygonMode *polymode = new vsg::PolygonMode;
+            /*vsg::PolygonMode* polymode = new vsg::PolygonMode;
             if (m_wireframe == Disabled)
             {
                 m_objectsStateSet->setAttributeAndModes(polymode, vsg::StateAttribute::ON);
@@ -1102,25 +1060,25 @@ vvSceneGraph::setWireframe(WireframeMode wf)
             {
                 polymode->setMode(vsg::PolygonMode::FRONT_AND_BACK, vsg::PolygonMode::LINE);
                 m_objectsStateSet->setAttributeAndModes(polymode, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::ON);
-            }
+            }*/
             m_scene->addChild(m_objectsTransform);
             break;
         }
         case HiddenLineBlack:
         case HiddenLineWhite:
         {
-            if (m_wireframe == HiddenLineBlack) {
+            /*if (m_wireframe == HiddenLineBlack) {
                 m_lineHider->setWireframeColor(vsg::Vec4(0, 0, 0, 1));
             } else {
                 m_lineHider->setWireframeColor(vsg::Vec4(1, 1, 1, 1));
-            }
+            }*/
 
-            vsg::PolygonMode *polymode = new vsg::PolygonMode;
+            /*vsg::PolygonMode* polymode = new vsg::PolygonMode;
             m_objectsStateSet->setAttributeAndModes(polymode, vsg::StateAttribute::ON);
-
-            m_scene->addChild(m_lineHider);
-            m_lineHider->addChild(m_objectsTransform);
-            m_scene->removeChild(m_objectsTransform);
+            */
+            //m_scene->addChild(m_lineHider);
+            //m_lineHider->addChild(m_objectsTransform);
+            vvPluginSupport::removeChild(m_scene, m_objectsTransform);
             break;
         }
     }
@@ -1152,30 +1110,22 @@ vvSceneGraph::toggleAxis(bool state)
     m_showAxis->setState(m_coordAxis);
     if (m_coordAxis)
     {
-        if (m_worldAxis->getNumParents() == 0)
-            m_scene->addChild(m_worldAxis.get());
-        if (m_handAxis->getNumParents() == 0)
-            m_handAxisScaleTransform->addChild(m_handAxis.get());
-        if (m_objectAxis->getNumParents() == 0)
-            m_scaleTransform->addChild(m_objectAxis.get());
+        m_scene->addChild(m_worldAxis);
+        m_handAxisScaleTransform->addChild(m_handAxis);
+        m_scaleTransform->addChild(m_objectAxis);
         if (vvConfig::instance()->frozen()
             && Input::instance()->hasHead())
         {
             //show viewer axis only if headtracking is disabled
-            if (m_viewerAxis->getNumParents() == 0)
-                m_viewerAxisTransform->addChild(m_viewerAxis.get());
+            m_viewerAxisTransform->addChild(m_viewerAxis);
         }
     }
     else
     {
-        while (m_worldAxis->getNumParents() > 0)
-            m_worldAxis->getParent(0)->removeChild(m_worldAxis.get());
-        while (m_viewerAxis->getNumParents() > 0)
-            m_viewerAxis->getParent(0)->removeChild(m_viewerAxis.get());
-        while (m_handAxis->getNumParents() > 0)
-            m_handAxis->getParent(0)->removeChild(m_handAxis.get());
-        while (m_objectAxis->getNumParents())
-            m_objectAxis->getParent(0)->removeChild(m_objectAxis.get());
+            vvPluginSupport::removeChild(m_scene, m_worldAxis);
+            vvPluginSupport::removeChild(m_scene, m_viewerAxis);
+            vvPluginSupport::removeChild(m_scene, m_handAxis);
+            vvPluginSupport::removeChild(m_scene, m_objectAxis);
     }
 }
 
@@ -1186,8 +1136,7 @@ vvSceneGraph::setPointerType(int pointerType)
         fprintf(stderr, "vvSceneGraph::setHandType\n");
 
     m_pointerType = pointerType;
-    while (m_handIconScaleTransform->children.size())
-        m_handIconScaleTransform->removeChild(m_handIconScaleTransform->getChild(0));
+    vvPluginSupport::removeChild(m_handIconScaleTransform,m_handIconScaleTransform->children[0]);
 
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
 
@@ -1196,35 +1145,35 @@ vvSceneGraph::setPointerType(int pointerType)
     case HAND_LINE:
         break;
     case HAND_PLANE:
-        m_handIconScaleTransform->addChild(m_handPlane.get());
-        //m_handIconScaleTransform->addChild(m_handPlane.get());
+        m_handIconScaleTransform->addChild(m_handPlane);
+        //m_handIconScaleTransform->addChild(m_handPlane);
         break;
     case HAND_PROBE:
-        m_handIconScaleTransform->addChild(m_handPlane.get());
-        m_handIconScaleTransform->addChild(m_handNormal.get());
-        m_handIconScaleTransform->addChild(m_handProbe.get());
+        m_handIconScaleTransform->addChild(m_handPlane);
+        m_handIconScaleTransform->addChild(m_handNormal);
+        m_handIconScaleTransform->addChild(m_handProbe);
         break;
     case HAND_SPHERE:
-        m_handIconScaleTransform->addChild(m_handSphere.get());
+        m_handIconScaleTransform->addChild(m_handSphere);
         break;
     case HAND_CUBE:
-        m_handIconScaleTransform->addChild(m_handCube.get());
+        m_handIconScaleTransform->addChild(m_handCube);
         break;
     case HAND_PYRAMID:
-        m_handIconScaleTransform->addChild(m_handPyramid.get());
+        m_handIconScaleTransform->addChild(m_handPyramid);
         break;
     case HAND_DRIVE:
-        m_handIconScaleTransform->addChild(m_handDrive.get());
+        m_handIconScaleTransform->addChild(m_handDrive);
         break;
     case HAND_WALK:
-        m_handIconScaleTransform->addChild(m_handWalk.get());
+        m_handIconScaleTransform->addChild(m_handWalk);
         break;
     case HAND_FLY_LINE:
-        m_handIconScaleTransform->addChild(m_handFly.get());
+        m_handIconScaleTransform->addChild(m_handFly);
         break;
     }
 }
-
+/*
 class SetBoundingSphereCallback : public vsg::Node::ComputeBoundingSphereCallback
 {
     virtual vsg::BoundingSphere computeBound(const vsg::Node &node) const
@@ -1236,7 +1185,7 @@ class SetBoundingSphereCallback : public vsg::Node::ComputeBoundingSphereCallbac
             bs = node.computeBound();
         return bs;
     }
-};
+}
 
 void vvSceneGraph::setNodeBounds(vsg::Node *node, const vsg::BoundingSphere *bs)
 {
@@ -1250,7 +1199,7 @@ void vvSceneGraph::setNodeBounds(vsg::Node *node, const vsg::BoundingSphere *bs)
     {
         m_specialBoundsNodeList.erase(node);
     }
-}
+}*/
 
 void
 vvSceneGraph::adjustScale()
@@ -1291,9 +1240,9 @@ vvSceneGraph::loadAxisGeode(float s)
         fprintf(stderr, "vvSceneGraph::loadAxisGeode\n");
 
     vsg::MatrixTransform *mt = vsg::MatrixTransform::create();
-	mt->setName("AxisGeodeMatrixTransform");
+	//mt->setName("AxisGeodeMatrixTransform");
     mt->addChild(vvFileManager::instance()->loadIcon("Axis"));
-    mt->matrix = (vsg::dmat4::scale(s, s, s));
+    mt->matrix = (vsg::scale(s, s, s));
 
     return (mt);
 }
@@ -1320,26 +1269,28 @@ vvSceneGraph::loadHandLine()
 
     vsg::Node *result = nullptr;
 
-    vsg::Node *n = nullptr;
+    
     string iconName = coCoviseConfig::getEntry("COVER.PointerAppearance.IconName");
     if (!iconName.empty())
     {
-        n = vvFileManager::instance()->loadIcon(iconName.c_str());
-        if (n)
+        auto n = vvFileManager::instance()->loadIcon(iconName.c_str());
+        if (n.get())
         {
-            n->dirtyBound();
+           /* n->dirtyBound();
             vsg::ComputeBoundsVisitor cbv;
             vsg::BoundingBox &bb(cbv.getBoundingBox());
             n->accept(cbv);
             float sx = bb._max.x() - bb._min.x();
-            float sy = bb._max.y() - bb._min.y();
+            float sy = bb._max.y() - bb._min.y();*/
             // move icon in front of pointer (laser sword)
+            float sx = 1.0;
+            float sy = 1.0;
             float width = coCoviseConfig::getFloat("COVER.PointerAppearance.Width", sx);
             float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
 
             vsg::MatrixTransform *m = vsg::MatrixTransform::create();
-			m->setName("HandLineMatrixTransform");
-            m->matrix = (vsg::dmat4::scale(width / sx, length / sy, width / sx));
+			//m->setName("HandLineMatrixTransform");
+            m->matrix = (vsg::scale(width / sx, length / sy, width / sx));
             m->addChild(n);
             result = m;
         }
@@ -1356,28 +1307,28 @@ vvSceneGraph::loadHandLine()
     transparentPointer_ = (coCoviseConfig::isOn("COVER.PointerAppearance.Transparent", false));
     if (transparentPointer_)
     {
-        vsg::StateSet *sset = result->getOrCreateStateSet();
+        /*vsg::StateSet* sset = result->getOrCreateStateSet();
         sset->setRenderingHint(vsg::StateSet::TRANSPARENT_BIN);
         sset->setMode(GL_BLEND, vsg::StateAttribute::ON);
         vsg::Material *mat = new vsg::Material();
-        sset->setAttributeAndModes(mat, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::PROTECTED);
+        sset->setAttributeAndModes(mat, vsg::StateAttribute::OVERRIDE | vsg::StateAttribute::PROTECTED);*/
         //mat->setColorMode(vsg::Material::AMBIENT_AND_DIFFUSE);
     }
 
     return result;
 }
 
-vsg::Vec3
+vsg::dvec3
 vvSceneGraph::getWorldPointOfInterest() const
 {
-    vsg::Vec3 pointOfInterest(0, 0, 0);
-    pointOfInterest = m_pointerDepthTransform.get()->matrix.preMult(pointOfInterest);
-    pointOfInterest = m_handIconScaleTransform->matrix.preMult(pointOfInterest);
-    pointOfInterest = m_handTransform.get()->matrix.preMult(pointOfInterest);
+    vsg::dvec3 pointOfInterest(0.0, 0.0, 0.0);
+    pointOfInterest = m_pointerDepthTransform->matrix * pointOfInterest;
+    pointOfInterest = m_handIconScaleTransform->matrix *pointOfInterest;
+    pointOfInterest = m_handTransform->matrix *pointOfInterest;
 
     return pointOfInterest;
 }
-
+/*
 vsg::BoundingSphere
 vvSceneGraph::getBoundingSphere()
 {
@@ -1400,7 +1351,7 @@ vvSceneGraph::getBoundingSphere()
     vsg::Node *currentNode = NULL;
     for (unsigned int i = 0; i < scaleNode->children.size(); i++)
     {
-        currentNode = scaleNode->getChild(i);
+        currentNode = scaleNode->children[i];
         const vsg::Transform *transform = currentNode->asTransform();
         if ((!transform || transform->getReferenceFrame() == vsg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
         {
@@ -1427,7 +1378,7 @@ vvSceneGraph::getBoundingSphere()
         bsphere._radius = 0.0f;
         for (unsigned int i = 0; i < scaleNode->children.size(); i++)
         {
-            currentNode = scaleNode->getChild(i);
+            currentNode = scaleNode->children[i];
             const vsg::Transform *transform = currentNode->asTransform();
             if ((!transform || transform->getReferenceFrame() == vsg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
             {
@@ -1495,11 +1446,11 @@ vvSceneGraph::getBoundingSphere()
     }
 
     return bsphere;
-}
+}*/
 
 void vvSceneGraph::scaleAllObjects(bool resetView, bool simple)
 {
-    vsg::BoundingSphere bsphere = simple ? m_objectsRoot->computeBound() : getBoundingSphere();
+   /* vsg::BoundingSphere bsphere = simple ? m_objectsRoot->computeBound() : getBoundingSphere();
     if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
@@ -1543,9 +1494,9 @@ void vvSceneGraph::scaleAllObjects(bool resetView, bool simple)
     vv->setScale(scaleFactor);
     //fprintf(stderr, "bbox [x:%f %f\n      y:%f %f\n      z:%f %f]\n", bb.xMin(), bb.xMax(), bb.yMin(), bb.yMax(), bb.zMin(), bb.zMax());
     //fprintf(stderr, "vvSceneGraph::scaleAllObjects scalefactor: %f\n", scaleFactor);
-    m_objectsTransform->matrix = (matrix);
+    m_objectsTransform->matrix = (matrix);*/
 }
-
+/*
 void vvSceneGraph::dirtySpecialBounds()
 {
     for (NodeSet::iterator it = m_specialBoundsNodeList.begin();
@@ -1554,12 +1505,12 @@ void vvSceneGraph::dirtySpecialBounds()
     {
         (*it)->dirtyBound();
     }
-}
+}*/
 
 void vvSceneGraph::boundingBoxToMatrices(const vsg::dbox &boundingBox,
                                             bool resetView, vsg::dmat4 &currentMatrix, float &scaleFactor) const
 {
-    scaleFactor = std::abs(vv->getSceneSize() * (boundingMox.max-boundingBox.min));
+  /*  scaleFactor = std::abs(vv->getSceneSize() * (boundingMox.max - boundingBox.min));
     currentMatrix=translate(-((boundingMox.max + boundingBox.min)/2.0 * scaleFactor));
     if (!resetView)
     {
@@ -1567,7 +1518,7 @@ void vvSceneGraph::boundingBoxToMatrices(const vsg::dbox &boundingBox,
         vsg::dmat4 rotMat;
         rotMat=rotate(rotation);
         currentMatrix=currentMatrix*rotMat;
-    }
+    }*/
 }
 
 #if 0
@@ -1646,7 +1597,7 @@ vvSceneGraph::isHighQuality() const
 bool
 vvSceneGraph::saveScenegraph(bool storeWithMenu)
 {
-    std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osgb");
+    std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/VIVE.osgb");
     return saveScenegraph(filename, storeWithMenu);
 }
 
@@ -1673,13 +1624,16 @@ vvSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
         if (vv->debugLevel(1))
             std::cerr << "Writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
-
-    if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<vsg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
+    if(storeWithMenu)
+    vsg::write( m_scene , filename, vvPluginSupport::instance()->options);
+    else
+    vsg::write( m_objectsRoot, filename, vvPluginSupport::instance()->options);
+    /*if (osgDB::writeNodeFile(, filename.c_str()))
     {
         if (vv->debugLevel(3))
             std::cerr << "Data written to \"" << filename << "\"." << std::endl;
         return true;
-    }
+    }*/
 
     if (vv->debugLevel(1))
         std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
@@ -1689,7 +1643,7 @@ vvSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
 void
 vvSceneGraph::setScaleFromButton(double direction)
 {
-    vv->setScale(vv->getScale() * (1.0 + direction * m_scaleFactorButton));
+    vv->setScale(vv->getScale() * (1.0f + (float)direction * m_scaleFactorButton));
     setScaleFactor(vv->getScale());
 }
 
@@ -1715,19 +1669,19 @@ void vvSceneGraph::setRestrictBox(float minX, float maxX, float minY, float maxY
 }
 
 void
-vvSceneGraph::getHandWorldPosition(float *pos, float *direction, float *direction2)
+vvSceneGraph::getHandWorldPosition(double *pos, double *direction, double *direction2)
 {
     if (vv->debugLevel(3))
         fprintf(stderr, "vvSceneGraph::getHandWorldPosition\n");
 
     vsg::dmat4 mat = vv->getPointerMat();
-    vsg::Vec3 position = mat.getTrans();
-    vsg::Vec3 normal;
-    normal.set(mat(1, 0), mat(1, 1), mat(1, 2));
-    vsg::Vec3 normal2;
-    normal2.set(mat(0, 0), mat(0, 1), mat(0, 2));
+    vsg::dvec3 position = getTrans(mat);
+    vsg::dvec3 normal;
+    normal.set(mat(0, 1), mat(1, 1), mat(2, 1));
+    vsg::dvec3 normal2;
+    normal2.set(mat(0, 0), mat(1, 0), mat(2, 0));
     mat = vv->getInvBaseMat();
-    position = mat.preMult(position);
+    position = position * mat;
     vsg::dmat3 m3;
     for (int r = 0; r < 3; r++)
         for (int c = 0; c < 3; c++)
@@ -1745,21 +1699,21 @@ vvSceneGraph::getHandWorldPosition(float *pos, float *direction, float *directio
     }
     if (direction)
     {
-        normal.normalize();
+        normalize(normal);
         direction[0] = normal[0];
         direction[1] = normal[1];
         direction[2] = normal[2];
     }
     if (direction2)
     {
-        normal2.normalize();
+        normalize(normal2);
         direction2[0] = normal2[0];
         direction2[1] = normal2[1];
         direction2[2] = normal2[2];
     }
     return;
 }
-
+/*
 vsg::StateSet *
 vvSceneGraph::loadGlobalGeostate()
 {
@@ -1977,13 +1931,13 @@ vvSceneGraph::loadUnlightedGeostate(vsg::Material::ColorMode mode)
     stateSet->setAttributeAndModes(material, vsg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, vsg::StateAttribute::OFF);
     return stateSet;
-}
+}*/
 
-void vvSceneGraph::addPointerIcon(vsg::Node *node)
+void vvSceneGraph::addPointerIcon(vsg::ref_ptr<vsg::Node> node)
 {
     // recompute scale factor
-    node->dirtyBound();
-    vsg::ComputeBoundsVisitor cbv;
+    //node->dirtyBound();
+    /*vsg::ComputeBoundsVisitor cbv;
     cbv.setTraversalMask(Isect::Visible);
     vsg::BoundingBox &bb(cbv.getBoundingBox());
     node->accept(cbv);
@@ -1992,14 +1946,14 @@ void vvSceneGraph::addPointerIcon(vsg::Node *node)
     sy = bb._max.y() - bb._min.y();
     sz = bb._max.z() - bb._min.z();
     s = max(sx, sy);
-    s = max(s, sz);
-    float scale = m_handIconSize / s;
-    if (node->getName() == "sphere")
+    s = max(s, sz);*/
+    double scale = m_handIconSize;// / s;
+    /*if (node->getName() == "sphere")
     {
         scale = 1.;
-    }
-    vsg::dmat4 m = vsg::dmat4::scale(scale, scale, scale);
-    m.setTrans(0, m_handIconOffset, 0);
+    }*/
+    vsg::dmat4 m = vsg::scale(scale, scale, scale);
+    setTrans(m,dvec3(0.0, (double)m_handIconOffset, 0.0));
     m_handIconScaleTransform->matrix = (m);
 
     // add icon
@@ -2009,7 +1963,7 @@ void vvSceneGraph::addPointerIcon(vsg::Node *node)
 void vvSceneGraph::removePointerIcon(vsg::Node *node)
 {
     // remove icon
-    m_handIconScaleTransform->removeChild(node);
+    vvPluginSupport::removeChild(m_handIconScaleTransform,node);
 }
 
 //******************************************
@@ -2018,6 +1972,7 @@ void vvSceneGraph::removePointerIcon(vsg::Node *node)
 /*
  * sets the color of the node nodeName
  */
+/*
 void vvSceneGraph::setColor(const char *nodeName, int *color, float transparency)
 {
     if (vv->debugLevel(3))
@@ -2041,10 +1996,7 @@ void vvSceneGraph::setColor(vsg::Geode *geode, int *color, float transparency)
         {
             drawable = geode->getDrawable(i);
             //bool mtlOn = false;
-            /*if (geode->getStateSet())
-            mtlOn = (geode->getStateSet()->getMode(StateAttribute::MATERIAL) == StateAttribute::ON) || (geode->getStateSet()->getMode(StateAttribute::MATERIAL) == StateAttribute::INHERIT);
-         if (mtlOn)
-         {*/
+            
 
             storeMaterial(drawable);
 
@@ -2090,16 +2042,7 @@ void vvSceneGraph::setColor(vsg::Geode *geode, int *color, float transparency)
                 depth->setWriteMask(true);
                 drawable->getStateSet()->setAttributeAndModes(depth, vsg::StateAttribute::ON);
             }
-            /*}
-         else
-         {
-            fprintf(stderr, "material off\n");
-            if (drawable->asGeometry())
-            {
-               drawable->asGeometry()->setColorBinding(Geometry::BIND_OVERALL);
-               drawable->asGeometry()->setColorArray(colorArray.get());
-            }
-         }*/
+            
             drawable->dirtyBound();
         }
     }
@@ -2190,7 +2133,7 @@ void vvSceneGraph::setTransparency(vsg::Geode *geode, float transparency)
                         vsg::Vec4 *color = &oldColors->operator[](i);
                         newColors->push_back(Vec4(color->_v[0], color->_v[1], color->_v[2], transparency));
                     }
-                    drawable->asGeometry()->setColorArray(newColors.get());
+                    drawable->asGeometry()->setColorArray(newColors);
                 }
             }
             else if (mtl == NULL)
@@ -2238,7 +2181,7 @@ void vvSceneGraph::setTransparency(vsg::Geode *geode, float transparency)
                             vsg::Vec4 *color = &oldColors->operator[](i);
                             newColors->push_back(Vec4(color->_v[0], color->_v[1], color->_v[2], transparency));
                         }
-                        drawable->asGeometry()->setColorArray(newColors.get());
+                        drawable->asGeometry()->setColorArray(newColors);
                     }
                 }
 
@@ -2272,10 +2215,6 @@ void vvSceneGraph::setTransparency(vsg::Geode *geode, float transparency)
     }
 }
 
-/*
- * sets a shader
- * not implemented yet
- */
 void vvSceneGraph::setShader(const char *nodeName, const char *shaderName, const char *paraFloat, const char *paraVec2, const char *paraVec3, const char *paraVec4, const char *paraInt, const char *paraBool, const char *paraMat2, const char *paraMat3, const char *paraMat4)
 {
     (void)nodeName;
@@ -2368,7 +2307,7 @@ void vvSceneGraph::setMaterial(vsg::Geode *geode, const int *ambient, const int 
                 gstate->setAttributeAndModes(depth, vsg::StateAttribute::ON);
             }
 
-            geoset->setStateSet(gstate.get());
+            geoset->setStateSet(gstate);
         }
     }
 }
@@ -2392,7 +2331,7 @@ void vvSceneGraph::storeMaterial(vsg::Drawable *drawable)
     }
     storedMaterials.insert(std::pair<vsg::Drawable *, vsg::Material *>(drawable, mat));
 }
-
+*/
 void vvSceneGraph::protectScenegraph()
 {
     isScenegraphProtected_ = true;

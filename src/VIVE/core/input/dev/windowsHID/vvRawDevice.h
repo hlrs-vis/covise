@@ -24,10 +24,10 @@
 #include <util/common.h>
 #include <stdio.h>
 
-#include "coRawDevice.h"
+#include "vvRawDevice.h"
 #include <iostream>
 #include <sstream>
-namespace opencover
+namespace vive
 {
 
 //============================================================
@@ -87,15 +87,15 @@ typedef struct STRUCT_RAW_MOUSE
 //	LOCAL VARIABLES
 //============================================================
 
-class coRawDevice
+class vvRawDevice
 {
 private:
     int buttonNumber;
 
 public:
-    coRawDevice(int n);
-    coRawDevice(const char *);
-    ~coRawDevice();
+    vvRawDevice(int n);
+    vvRawDevice(const char *);
+    ~vvRawDevice();
 
     int getX();
     int getY();
@@ -104,11 +104,11 @@ public:
     bool getButton(int i);
 };
 
-class coRawDeviceManager
+class vvRawDeviceManager
 {
 private:
-    coRawDeviceManager();
-    static coRawDeviceManager *inst;
+    vvRawDeviceManager();
+    static vvRawDeviceManager *inst;
 
 
 
@@ -137,8 +137,8 @@ private:
     void escape(std::string &data);
 
 public:
-    ~coRawDeviceManager();
-    static coRawDeviceManager *instance();
+    ~vvRawDeviceManager();
+    static vvRawDeviceManager *instance();
     void update();
     int numDevices();
 

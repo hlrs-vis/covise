@@ -42,6 +42,7 @@ public:
 
     virtual bool needsThread() const; //< whether a thread should be spawned - reimplement if not necessary
     void stopLoop(); //< request run()/other thread to terminate
+    virtual void start(); //start thread
 
     bool isValid() const;
     bool isVarying() const;
@@ -74,6 +75,7 @@ protected:
     std::vector<vsg::dmat4> m_bodyMatrices;
     vsg::vec3 m_calibrationPoints[3];
     std::string m_calibrationPointNames[3];
+    std::thread* m_thread=nullptr;
 
     // these are called by Input
     size_t numButtons() const

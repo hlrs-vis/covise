@@ -67,17 +67,17 @@ public:
         return selectedParentList;
     };
 
-    void addSelection(vsg::Group *parent, vsg::Node *selectedNode, bool send = true);
+    void addSelection(const vsg::Group *parent, const vsg::Node *selectedNode, bool send = true);
     void receiveAdd(covise::TokenBuffer &messageData);
     void receiveClear();
     void clearSelection(bool send = true);
 
     static void insertHelperNode(vsg::Group *parent, vsg::Node *child, vsg::Group *insertNode, HelperNodeType type, bool show = true);
     static vsg::Group *getHelperNode(vsg::Group *parent, vsg::Node *child, HelperNodeType type);
-    static bool isHelperNode(vsg::Node *);
+    static bool isHelperNode(const vsg::Node *);
 
     static vsg::Node *validPath(std::string);
-    static std::string generatePath(vsg::Node *);
+    static std::string generatePath(const vsg::Node *);
     static std::string generateNames(vsg::Node *);
 
     void setSelectionColor(float R, float G, float B);

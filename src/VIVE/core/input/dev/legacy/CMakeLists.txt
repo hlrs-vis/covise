@@ -22,5 +22,5 @@ if(WIN32)
 endif(WIN32)
 
                
-cover_add_plugin(input_legacy)
-qt_use_modules(input_legacy Core)
+vive_add_plugin(vvInput_legacy)
+qt_use_modules(vvInput_legacy Core)

@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 
-#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/vsg/mathUtils.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -784,10 +784,10 @@ void MarkerTrackingMarker::init()
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     quadGeode = new osg::Geode();
     quadGeode->addDrawable(geom);
-    posSize = vsg::MatrixTransform::create()();
+    posSize = vsg::MatrixTransform::create();
     posSize->addChild(quadGeode);
     posSize->matrix = (mat);
-    markerQuad = vsg::MatrixTransform::create()();
+    markerQuad = vsg::MatrixTransform::create();
     markerQuad->addChild(posSize);
     numCalibSamples = 0;*/
 
@@ -800,7 +800,7 @@ void MarkerTrackingMarker::init()
 
 void MarkerTrackingMarker::createUiandConfigValues(const std::string &configName)
 {
-    int pos = MarkerTracking::instance()->markers.size() + 1;
+    int pos = (int)MarkerTracking::instance()->markers.size() + 1;
     
     m_toggleConfigOff = new vvTUIButton(configName,  MarkerTracking::instance()->artTab->getID());
     m_toggleConfigOff->setPos(0, pos);

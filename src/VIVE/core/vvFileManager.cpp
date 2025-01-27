@@ -7,6 +7,7 @@
 
 #include "vvFileManager.h"
 #include "vvHud.h"
+#include <vsg/all.h>
 
 #include <cassert>
 #include <chrono>
@@ -16,18 +17,19 @@
 #include <thread>
 
 #include "vvVIVE.h"
-#include "VRRegisterSceneGraph.h"
+#include "vvRegisterSceneGraph.h"
 #include "vvSceneGraph.h"
 #include "vvViewer.h"
 #include "vvTabletUI.h"
 #include "vvCommunication.h"
 #include "vvConfig.h"
-#include "coVRIOReader.h"
+#include "vvIOReader.h"
 #include "vvMSController.h"
 #include "vvPartner.h"
 #include "vvPluginList.h"
 #include "vvPluginSupport.h"
-#include "coVRRenderer.h"
+#include "PluginMessageTypes.h"
+//#include "vvRenderer.h"
 #include "vvSidecarConfigBridge.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -43,15 +45,14 @@
 #include <util/string_util.h>
 #include <util/unixcompat.h>
 #include <vrb/client/VRBClient.h>
+#include <vsg/core/observer_ptr.h>
+#include <vsgXchange/all.h>
 
 #include <boost/filesystem/exception.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/locale.hpp>
 #include <fcntl.h>
-#include <osg/Texture2D>
-#include <osgText/Font>
-#include <PluginUtil/PluginMessageTypes.h>
 
 #ifdef HAVE_LIBCURL
 #include <HTTPClient/CURL/request.h>
@@ -281,7 +282,7 @@ std::string shortenUrl(const Url &url, size_t length=20)
     return url.str();
 }
 
-struct LoadedFile: public osg::Observer
+struct LoadedFile
 {
     LoadedFile(const Url &url, ui::Button *button=nullptr, bool isRoot=false)
         : url(url)
@@ -313,13 +314,13 @@ struct LoadedFile: public osg::Observer
                 std::cerr << "vvFileManager: LoadedFile: destroy " << url.str() << ", NO NODE" << std::endl;
         }
     }
-
+    /*
     void objectDeleted(void *d) override
     {
         auto *deleted = static_cast<osg::Referenced *>(d);
         std::cerr << "vvFileManager: LoadedFile: parent of " << url.str() << " deleted" << std::endl;
         parents.erase(static_cast<vsg::Group *>(deleted));
-    }
+    }*/
 
     Url url;
     std::shared_ptr<ui::Button> button;
@@ -329,7 +330,7 @@ struct LoadedFile: public osg::Observer
     vsg::ref_ptr<vsg::Node> node;
     std::set<vsg::Group *> parents;
     const FileHandler *handler = nullptr;
-    coVRIOReader *reader = nullptr;
+    vvIOReader *reader = nullptr;
     vvTUIFileBrowserButton *filebrowser = nullptr;
     int loadCount = 0;
 
@@ -360,32 +361,32 @@ struct LoadedFile: public osg::Observer
             {
                 for (const auto &p : parents) {
                     p->addChild(node);
-                    p->removeObserver(this);
+                    //p->removeObserver(this);
                 }
             }
             parents.clear();
-        } else {
-            while (node && node->getNumParents() > 0) {
+        } /*else {
+          TODO, store parent  while (node && node->getNumParents() > 0) {
                 unsigned i = node->getNumParents() - 1;
                 auto p = node->getParent(i);
                 parents.emplace(p);
                 p->addObserver(this);
                 p->removeChild(node);
             }
-        }
+        }*/
     }
 
-    vsg::Node *load();
+    vsg::ref_ptr<vsg::Node>load();
 
     vsg::Node *reload()
     {
         std::vector<vsg::ref_ptr<vsg::Group>> parents;
-        while (node && node->getNumParents() > 0) {
+       /* while (node && node->getNumParents() > 0) {
             unsigned i = node->getNumParents() - 1;
             auto p = node->getParent(i);
             parents.emplace_back(p);
             p->removeChild(node);
-        }
+        }*/
 
         int lc = loadCount;
         while (loadCount > 0)
@@ -438,10 +439,10 @@ struct LoadedFile: public osg::Observer
 
       while (node)
       {
-          unsigned n = node->getNumParents();
+         /* unsigned n = node->getNumParents();
           if (n == 0)
               break;
-          node->getParent(n-1)->removeChild(node);
+          node->getParent(n-1)->removeChild(node);*/
       }
       if (vv->debugLevel(3)) {
           if (node)
@@ -456,7 +457,7 @@ struct LoadedFile: public osg::Observer
   }
 };
 
-vsg::Node *LoadedFile::load()
+vsg::ref_ptr<vsg::Node> LoadedFile::load()
 {
     if (node) {
         ++loadCount;
@@ -470,7 +471,7 @@ vsg::Node *LoadedFile::load()
     auto adjustedFileName = url.str();
     auto &fb = filebrowser;
 
-    vsg::ref_ptr<vsg::Group> fakeParent = new vsg::Group;
+    vsg::ref_ptr<vsg::Group> fakeParent = vsg::Group::create();
     if (handler)
     {
         if (vv->debugLevel(3))
@@ -543,13 +544,13 @@ vsg::Node *LoadedFile::load()
         {
             tmpFileName = fb->getFilename(adjustedFileName);
         }
-        node = osgDB::readNodeFile(tmpFileName.c_str(), vvFileManager::instance()->options.get());
+        node = vsg::read_cast<vsg::Node>(tmpFileName, vvPluginSupport::instance()->options);
         if (node)
         {
             // vvVIVE::instance()->databasePager->registerPagedLODs(node);
-            node->setNodeMask(node->getNodeMask() & (~Isect::Intersection));
-            if (vv->debugLevel(3))
-                fprintf(stderr, "vvFileManager::loadFile setting nodeMask of %s to %x\n", node->getName().c_str(), node->getNodeMask());
+            //node->setNodeMask(node->getNodeMask() & (~Isect::Intersection));
+            //if (vv->debugLevel(3))
+              //  fprintf(stderr, "vvFileManager::loadFile setting nodeMask of %s to %x\n", node->getName().c_str(), node->getNodeMask());
         }
         else
         {
@@ -565,7 +566,7 @@ vsg::Node *LoadedFile::load()
         auto n = fakeParent->children.size();
         if (n == 1)
         {
-            node = fakeParent->getChild(0);
+            node = fakeParent->children[0];
         }
         else if (n > 1)
         {
@@ -573,14 +574,14 @@ vsg::Node *LoadedFile::load()
             node = g;
             for (unsigned int i = 0; i < n; ++i)
             {
-                g->addChild(fakeParent->getChild(i));
+                g->addChild(fakeParent->children[i]);
             }
         } 
     }
-
-    if (node && node->getName() == "")
+    std::string n;
+    if (node && !node->getValue("name",n))
     {
-        node->setName(url.str());
+        node->setValue("name",url.str());
     }
 
     if (isRoot)
@@ -595,15 +596,16 @@ vsg::Node *LoadedFile::load()
     return node;
 }
 
-vsg::Node *getNodeIfExists(const std::string &name, const std::string &path)
+vsg::ref_ptr<vsg::Node> getNodeIfExists(const std::string &name, const std::string &path)
 {
     try
     {
         if (fs::exists(path))
         {
-            auto node = osgDB::readNodeFile(path);
+            //auto node = osgDB::readNodeFile(path);
+            auto node = vsg::read_cast<vsg::Node>(name, vvPluginSupport::instance()->options);
             if (node)
-                node->setName(name);
+                node->setValue("name",name);
             else
             {
                 std::cerr << "Error loading icon " << name << std::endl;
@@ -621,7 +623,7 @@ vsg::Node *getNodeIfExists(const std::string &name, const std::string &path)
 
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
-vsg::Node *vvFileManager::loadIcon(const char *filename)
+vsg::ref_ptr<vsg::Node> vvFileManager::loadIcon(const char *filename)
 {
     static std::array<const char *, 4> suffixes = {"", ".osg", ".iv", ".obj"};
 
@@ -654,7 +656,7 @@ vsg::Node *vvFileManager::loadIcon(const char *filename)
 
 // parmanently loads a texture, looks in covise/icons/$LookAndFeel or covise/icons for filename.rgb
 // returns NULL, if nothing found, reuses textures that have already been loaded
-osg::Texture2D *vvFileManager::loadTexture(const char *texture)
+vsg::ref_ptr<vsg::Image> &vvFileManager::loadTexture(const char *texture)
 {
     START("vvFileManager::loadTexture");
 
@@ -665,7 +667,7 @@ osg::Texture2D *vvFileManager::loadTexture(const char *texture)
         {
             if (vv->debugLevel(4))
                 std::cerr << "Reusing texture " << texture << std::endl;
-            return it->second.get();
+            return it->second;
         }
     }
     const char *name = buildFileName(texture);
@@ -673,7 +675,7 @@ osg::Texture2D *vvFileManager::loadTexture(const char *texture)
     {
         if (vv->debugLevel(2))
             std::cerr << "New texture " << texture << " - not found" << std::endl;
-        return NULL;
+        //return ;
     }
     else
     {
@@ -681,12 +683,10 @@ osg::Texture2D *vvFileManager::loadTexture(const char *texture)
             std::cerr << "New texture " << texture << std::endl;
     }
 
-    osg::Texture2D *tex = new osg::Texture2D();
-    osg::Image *image = osgDB::readImageFile(name);
-    tex->setImage(image);
-    textureList[texture] = tex;
+    auto image = vsg::read_cast<vsg::Image>(name, vvPluginSupport::instance()->options);
+    textureList[texture] = image;
 
-    return tex;
+    return textureList[texture];
 }
 
 const char *vvFileManager::buildFileName(const char *texture)
@@ -733,7 +733,7 @@ bool vvFileManager::fileExist(const std::string& fileName)
 	return fileExist(fileName.c_str());
 }
 
-vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton *fb, vsg::Group *parent, const char *covise_key)
+vsg::ref_ptr<vsg::Node> vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton *fb, vsg::Group *parent, const char *covise_key)
 {
     START("vvFileManager::loadFile");
     if (!fileName || strcmp(fileName, "") == 0)
@@ -751,7 +751,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
     {
         auto node = duplicate->second->load();
         duplicate->second->updateButton();
-        parent->addChild(node);
+        parent->children.push_back(node);
         return node;
     }
 
@@ -773,7 +773,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
         std::cerr << "Loading " << url.str() << std::endl;
 
     std::string adjustedFileName;
-    if (url.scheme() == "cover"|| url.scheme() == "opencover")
+    if (url.scheme() == "vive")
     {
         if (url.authority() == "plugin")
         {
@@ -785,7 +785,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
             if (plugin)
             {
                 std::string terrainFile = url.str();
-                plugin->message(vvPluginSupport::TO_ALL, PluginMessageTypes::LoadTerrain, terrainFile.size() + 1, terrainFile.c_str());
+                plugin->message(vvPluginSupport::TO_ALL, PluginMessageTypes::LoadTerrain, (int)terrainFile.size() + 1, terrainFile.c_str());
             }
             else
             {
@@ -798,7 +798,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
             if (plugin)
             {
                 std::string skyNumber = url.str();
-                plugin->message(vvPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyNumber.size() + 1, skyNumber.c_str());
+                plugin->message(vvPluginSupport::TO_ALL, PluginMessageTypes::setSky, (int)skyNumber.size() + 1, skyNumber.c_str());
             }
         }
         return nullptr;
@@ -817,7 +817,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
 
     bool isRoot = m_loadingFile==nullptr;
     ui::Button *button = nullptr;
-    if (cover && isRoot)
+    if (vv && isRoot)
     {
 		std::string relPath(adjustedFileName);
 		makeRelativeToSharedDataLink(relPath);
@@ -889,7 +889,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
     /// read the 1st line of file and try to guess the type
     std::string fileTypeString = findFileExt(url);
     const FileHandler *handler = findFileHandler(url.path().c_str());
-    coVRIOReader *reader = findIOHandler(adjustedFileName.c_str());
+    vvIOReader *reader = findIOHandler(adjustedFileName.c_str());
     if (!handler && !fileTypeString.empty())
         handler = findFileHandler(fileTypeString.c_str());
 	//vrml will remote fetch missing files itself
@@ -946,8 +946,8 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
 
             m_lastFile = fe;
 
-            VRRegisterSceneGraph::instance()->registerNode(node,
-                                                           parent->getName());
+           /* vvRegisterSceneGraph::instance()->registerNode(node,
+                                                           parent->getName());*/
         }
     }
 
@@ -970,7 +970,7 @@ vsg::Node *vvFileManager::loadFile(const char *fileName, vvTUIFileBrowserButton 
     return node;
 }
 
-vsg::Node *vvFileManager::replaceFile(const char *fileName, vvTUIFileBrowserButton *fb, vsg::Group *parent, const char *covise_key)
+vsg::ref_ptr<vsg::Node> vvFileManager::replaceFile(const char *fileName, vvTUIFileBrowserButton *fb, vsg::Group *parent, const char *covise_key)
 {
     return loadFile(fileName, fb, parent, covise_key);
 }
@@ -1206,7 +1206,7 @@ vvFileManager::vvFileManager()
 		}
 		m_sharedFiles = files;
     });
-    if (cover) {
+    if (vv) {
         m_owner.reset(new ui::Owner("FileManager", vv->ui));
 
         auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
@@ -1244,12 +1244,12 @@ vvFileManager::vvFileManager()
         }
     }
 
-    osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
-    osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");
+    /*osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
+    osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");*/
 
-    options = new osgDB::ReaderWriter::Options;
+    /*options = new osgDB::ReaderWriter::Options;
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
-    osgDB::Registry::instance()->setOptions(options);
+    osgDB::Registry::instance()->setOptions(options);*/
     remoteFetchHashPrefix = coCoviseConfig::isOn("hash", "System.VRB.RemoteFetch", true, nullptr);
     if (vvVIVE::instance() && vvVIVE::instance()->useVistle())
     {
@@ -1317,7 +1317,7 @@ const char *vvFileManager::getName(const char *file)
 {
     START("vvFileManager::getName");
     static char *buf = NULL;
-    static int buflen = 0;
+    static size_t buflen = 0;
 
     if (file == NULL)
         return NULL;
@@ -1614,15 +1614,17 @@ std::string vvFileManager::getFontFile(const char *fontname)
     return m_defaultFontFile;
 }
 
-vsg::ref_ptr<osgText::Font> vvFileManager::loadFont(const char *fontname)
+vsg::ref_ptr<vsg::Font> vvFileManager::loadFont(const char *fontname)
 {
-    vsg::ref_ptr<osgText::Font> font;
-    font = osgText::readRefFontFile(getFontFile(fontname));
-    if (font == NULL)
+    if (fontname == nullptr)
     {
-        font = osgText::readRefFontFile(getFontFile(NULL));
+        if (defaultFont.get()==nullptr)
+        {
+            defaultFont = vsg::read_cast<vsg::Font>(getFontFile("times.vsgb"), vvPluginSupport::instance()->options);
+        }
+        return defaultFont;
     }
-    return font;
+    return vsg::read_cast<vsg::Font>(getFontFile(fontname), vvPluginSupport::instance()->options);
 }
 
 int vvFileManager::coLoadFontDefaultStyle()
@@ -1720,7 +1722,7 @@ const FileHandler *vvFileManager::findFileHandler(const char *pathname)
                 return *it;
         }
 
-        int extlen = strlen(extension);
+        size_t extlen = strlen(extension);
         char *cEntry = new char[40 + extlen];
         char *lowerExt = new char[extlen + 1];
         for (size_t i = 0; i < extlen; i++)
@@ -1755,9 +1757,9 @@ const FileHandler *vvFileManager::findFileHandler(const char *pathname)
     return NULL;
 }
 
-coVRIOReader *vvFileManager::findIOHandler(const char *pathname)
+vvIOReader *vvFileManager::findIOHandler(const char *pathname)
 {
-    coVRIOReader *best = NULL;
+    vvIOReader *best = NULL;
     size_t maxmatch = 0;
     const std::string file(pathname);
 
@@ -1796,7 +1798,7 @@ int vvFileManager::registerFileHandler(const FileHandler *handler)
     return 0;
 }
 
-int vvFileManager::registerFileHandler(coVRIOReader *handler)
+int vvFileManager::registerFileHandler(vvIOReader *handler)
 {
     //if(getFileHandler(handler->extension))
     //   return -1;
@@ -1848,7 +1850,7 @@ int vvFileManager::unregisterFileHandler(const FileHandler *handler)
     return -1;
 }
 
-int vvFileManager::unregisterFileHandler(coVRIOReader *handler)
+int vvFileManager::unregisterFileHandler(vvIOReader *handler)
 {
     if (handler == 0)
         return -1;
@@ -1922,15 +1924,15 @@ bool vvFileManager::update()
 
         IOReadOperation readOperation = this->readOperations[reader].front();
 
-        coVRIOReader::IOStatus status = readOperation.reader->loadPart(readOperation.filename, readOperation.group);
+        vvIOReader::IOStatus status = readOperation.reader->loadPart(readOperation.filename, readOperation.group);
 
-        if (status == coVRIOReader::Finished)
+        if (status == vvIOReader::Finished)
         {
             if (vv->debugLevel(3))
                 std::cerr << "vvFileManager::update info: finished loading " << readOperation.filename << std::endl;
             readOperations[reader].pop_front();
         }
-        else if (status == coVRIOReader::Failed)
+        else if (status == vvIOReader::Failed)
         {
             if (vv->debugLevel(3))
                 std::cerr << "vvFileManager::update info: failed loading " << readOperation.filename << std::endl;
@@ -1994,7 +1996,7 @@ void vvFileManager::getSharedDataPath()
     for (auto path : p)
     {
 		convertBackslash(path);
-		int delimiter = path.rfind('/');
+		size_t delimiter = path.rfind('/');
 		std::string link = path.erase(delimiter, path.length()- delimiter) + "/sharedData";
         if (fileExist(link))
         {
@@ -2110,7 +2112,7 @@ std::string vvFileManager::httpFetch(const std::string &url)
   return "";
 }
 
-int vvFileManager::getFileId(const std::string &url)
+size_t vvFileManager::getFileId(const std::string &url)
 {
 	std::string p = url;
 	makeRelativeToSharedDataLink(p);

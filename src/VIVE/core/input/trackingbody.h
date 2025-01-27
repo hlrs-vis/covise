@@ -22,7 +22,7 @@ class InputDevice;
 class VVCORE_EXPORT TrackingBody: public InputSource
 {
     friend class Input;
-    friend class coMousePointer;
+    friend class vvMousePointer;
 
 public:
     const vsg::dmat4 &getMat() const;

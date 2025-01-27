@@ -42,7 +42,7 @@ vvPartnerList *vvPartnerList::s_instance = NULL;
 
 vvPartner::vvPartner()
     : ui::Owner("VRPartner-Me", vv->ui)
-    , vrb::RemoteClient(covise::Program::opencover)
+    , vrb::RemoteClient(covise::Program::vive)
 {
     m_avatar = new PartnerAvatar(this);
 }
@@ -135,7 +135,7 @@ void vvPartner::updateUi()
     }
     m_ui->setText(menuText);
     m_ui->setState(isMaster());
-    if (vvCollaboration::instance()->partnerGroup() && m_userInfo.userType == covise::Program::opencover &&
+    if (vvCollaboration::instance()->partnerGroup() && m_userInfo.userType == covise::Program::vive &&
         sessionID() == vvPartnerList::instance()->me()->sessionID())
     {
         vvCollaboration::instance()->partnerGroup()->add(m_ui);

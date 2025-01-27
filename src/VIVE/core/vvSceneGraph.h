@@ -11,27 +11,23 @@
 #include <vsg/maths/vec3.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/MatrixTransform.h>
 
-/*#include "ui/Owner.h"*/
-
-namespace vive {
-namespace ui {
-class Menu;
-class Action;
-class Button;
-class SelectionList;
-}
-}
+#include "ui/Owner.h"
+#include <../../OpenCOVER/OpenVRUI/coCombinedButtonInteraction.h>
 
 
-namespace vrui
-{
-class coCombinedButtonInteraction;
-}
+
 
 namespace vive
 {
-class VVCORE_EXPORT vvSceneGraph/* : public ui::Owner*/
+    namespace ui {
+        class Menu;
+        class Action;
+        class Button;
+        class SelectionList;
+    }
+class VVCORE_EXPORT vvSceneGraph: public ui::Owner
 {
 public:
     enum WireframeMode {
@@ -62,13 +58,13 @@ public:
     vsg::Node *loadHandLine();
 
     void addMenuItem(vsg::Group *itemGroup);
-    vsg::Group *getMenuGroup()
+    vsg::ref_ptr<vsg::Group> getMenuGroup()
     {
-        return m_menuGroupNode.get();
+        return m_menuGroupNode;
     }
-    vsg::Group *getAlwaysVisibleGroup()
+    vsg::ref_ptr<vsg::Group> getAlwaysVisibleGroup()
     {
-        return m_alwaysVisibleGroupNode.get();
+        return m_alwaysVisibleGroupNode;
     }
     bool menuVisible() const;
     void toggleMenu();
@@ -80,35 +76,35 @@ public:
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    vsg::Group *getScene()
+    vsg::ref_ptr<vsg::Group> getScene()
     {
-        return m_scene.get();
+        return m_scene;
     };
 
-    vsg::Group *getObjectsScene()
+    vsg::ref_ptr<vsg::Group>getObjectsScene()
     {
-        return m_objectsScene.get();
+        return m_objectsScene;
     }
 
     void config();
     void init();
     void update();
 
-    vsg::MatrixTransform *getTransform() const
+    vsg::ref_ptr<vsg::MatrixTransform> getTransform() const
     {
-        return m_objectsTransform.get();
+        return m_objectsTransform;
     }
-    vsg::MatrixTransform *getScaleTransform() const
+    vsg::ref_ptr<vsg::MatrixTransform> getScaleTransform() const
     {
-        return (m_scaleTransform);
+        return m_scaleTransform;
     }
-    vsg::MatrixTransform *getHandTransform() const
+    vsg::ref_ptr<vsg::MatrixTransform> getHandTransform() const
     {
-        return (m_handTransform.get());
+        return m_handTransform;
     }
-    vsg::vec3 getWorldPointOfInterest() const;
-    void getHandWorldPosition(float *, float *, float *);
-    void addPointerIcon(vsg::Node *node);
+    vsg::dvec3 getWorldPointOfInterest() const;
+    void getHandWorldPosition(double *, double*, double*);
+    void addPointerIcon(vsg::ref_ptr<vsg::Node> node);
     void removePointerIcon(vsg::Node *node);
 
     void setWireframe(WireframeMode mode);
@@ -192,7 +188,7 @@ public:
     {
         return m_floorHeight;
     }
-    vsg::MatrixTransform *objectsRoot()
+    vsg::ref_ptr<vsg::MatrixTransform>  objectsRoot()
     {
         return m_objectsRoot;
     }
@@ -256,7 +252,7 @@ private:
     bool showSmallSceneAxis_;
     bool transparentPointer_;
 
-    vsg::MatrixTransform *m_objectsRoot;
+    vsg::ref_ptr <vsg::MatrixTransform> m_objectsRoot;
 
     float m_floorHeight;
     WireframeMode m_wireframe;
@@ -286,7 +282,9 @@ private:
     float m_transRestrictMaxX, m_transRestrictMaxY, m_transRestrictMaxZ;
     bool m_scaleAllOn;
     bool m_scalingAllObjects;
-    vsg::MatrixTransform *m_scaleTransform, *m_handIconScaleTransform, *m_handAxisScaleTransform;
+    vsg::ref_ptr<vsg::MatrixTransform> m_scaleTransform;
+    vsg::ref_ptr<vsg::MatrixTransform> m_handIconScaleTransform;
+    vsg::ref_ptr<vsg::MatrixTransform> m_handAxisScaleTransform;
     float m_handIconSize;
     float m_handIconOffset;
 
@@ -300,7 +298,7 @@ private:
     bool isScenegraphProtected_;
 
     bool m_enableHighQualityOption, m_switchToHighQuality, m_highQuality;
-   /* vrui::coCombinedButtonInteraction* m_interactionHQ;
+    vrui::coCombinedButtonInteraction* m_interactionHQ;
 
     ui::Menu *m_miscMenu=nullptr;
     ui::SelectionList *m_drawStyle=nullptr;
@@ -309,6 +307,6 @@ private:
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
-    ui::Button *m_showMenuButton=nullptr;*/
+    ui::Button *m_showMenuButton=nullptr;
 };
 }

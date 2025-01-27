@@ -17,14 +17,15 @@
 #include "vvConfig.h"
 #include "vvVIVE.h"
 
- /*#include "ui/Action.h"
+ #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Menu.h"
-#include "ui/View.h"*/
+#include "ui/View.h"
 
 #include "vvPluginSupport.h"
 #include "vvPluginList.h"
 #include "vvMSController.h"
+#include "vvViewer.h"
 
 using namespace vive;
 
@@ -58,7 +59,7 @@ vvWindows::vvWindows()
     origVSize = NULL;
     origHSize = NULL;
 
-    /*
+    
     if (vv->viewOptionsMenu)
     {
         auto fs = new ui::Button(vv->viewOptionsMenu, "FullScreen");
@@ -79,14 +80,14 @@ vvWindows::vvWindows()
             vvWindows::instance()->makeFullScreen(false);
             });
         lfs->setVisible(false);
-    }*/
+    }
 }
 
 vvWindows::~vvWindows()
 { // don't use singletons in destructors
-  /*  destroy();
+    destroy();
     delete[] origVSize;
-    delete[] origHSize;*/
+    delete[] origHSize;
 
     s_instance = NULL;
 }
@@ -191,8 +192,8 @@ bool vvWindows::isFullScreen() const
 void vvWindows::makeFullScreen(bool state)
 {
     m_fullscreen = state;
-    /* if (m_fullScreenButton)
-        m_fullScreenButton->setState(state);*/
+     if (m_fullScreenButton)
+        m_fullScreenButton->setState(state);
 
     auto& conf = *vvConfig::instance();
     for (int i = 0; i < conf.numWindows(); ++i)
@@ -432,6 +433,9 @@ vvWindows::createWin(int i)
 
         ws.window = vsg::Window::create(traits);
         ws.window->clearColor().set(0, 0, 0, 1);
+
+
+        vvViewer::instance()->addWindow(ws.window);
     }
 
     if (!ws.window.get())

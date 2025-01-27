@@ -5,22 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_HUD_H
-#define CO_HUD_H
-
-/*! \file
- \brief  OpenCOVER startup splash
-
- \author Uwe Woessner <woessner@hlrs.de>
- \author (C) 2006
-         High Performance Computing Center Stuttgart,
-         Allmandring 30,
-         D-70550 Stuttgart,
-         Germany
-
- \date   2006
- */
-
+#pragma once
 #include <util/common.h>
 namespace vive
 {
@@ -58,4 +43,3 @@ private:
     static vvHud *instance_;
 };
 }
-#endif

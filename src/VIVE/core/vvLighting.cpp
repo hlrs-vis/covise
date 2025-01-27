@@ -33,14 +33,12 @@
 #include "vvLighting.h"
 #include "vvSceneGraph.h"
 #include "vvPluginSupport.h"
-#include "coVRShadowManager.h"
-#include <osg/LightSource>
-#include <osg/LightModel>
+//#include "coVRShadowManager.h"
 #include <vsg/nodes/Group.h>
-#include <osg/StateSet>
 #include <vsg/maths/mat4.h>
 #include <vsg/nodes/MatrixTransform.h>
-#include <osg/StateAttribute>
+#include <vsg/lighting/PointLight.h> 
+#include <vsg/lighting/SpotLight.h> 
 #include <iostream>
 
 #include <ui/Button.h>
@@ -48,13 +46,15 @@
 #include <ui/SelectionList.h>
 #include <ui/Slider.h>
 
+using namespace vsg;
 using namespace vive;
 using covise::coCoviseConfig;
 
-static void setSpecularLight(osg::Light *l, const vsg::vec4 &c, float f)
+static void setSpecularLight(vsg::Light *l, const vsg::vec4 &c, float f)
 {
-    if (l)
-        l->setSpecular(vsg::vec4(std::min(c[0]*f,1.f), std::min(c[1]*f,1.f), std::min(c[2]*f,1.f), 1.));
+    PointLight* pl= dynamic_cast<vsg::PointLight*>(l);
+    //if (pl)
+     //   pl->setSpecular(vsg::vec4(std::min(c[0]*f,1.f), std::min(c[1]*f,1.f), std::min(c[2]*f,1.f), 1.));
 }
 
 vvLighting *vvLighting::s_instance = NULL;
@@ -76,11 +76,6 @@ vvLighting::vvLighting()
     , specularlightStrength(0.f)
     , switchSpotlight_(NULL)
     , spotlightState(false)
-    , light1(NULL)
-    , light2(NULL)
-    , headlight(NULL)
-    , spotlight(NULL)
-    , shadowlight(NULL)
 {
     config();
     init();
@@ -150,9 +145,9 @@ void vvLighting::initSunLight()
     if (headlight)
     {
         // save values in case we switch off specular
-        headlightSpec = ((osg::Light *)headlight->getLight())->getSpecular();
+        //headlightSpec = ((osg::Light *)headlight->getLight())->getSpecular();
         const auto f = specularlightStrength;
-        setSpecularLight(headlight->getLight(), headlightSpec, f);
+        //setSpecularLight(headlight->getLight(), headlightSpec, f);
 
         addLight(headlight);
         headlightState = coCoviseConfig::isOn("COVER.Headlight", headlightState);
@@ -212,9 +207,9 @@ void vvLighting::initLampLight()
     spotlight = createLightSource("Lamp", spotlightDefault, true);
     if (spotlight)
     {
-        spotlightSpec = ((osg::Light *)spotlight->getLight())->getSpecular();
+        //spotlightSpec = ((osg::Light *)spotlight->getLight())->getSpecular();
         const auto f = specularlightStrength;
-        setSpecularLight(spotlight->getLight(), spotlightSpec, f);
+      //  setSpecularLight(spotlight->getLight(), spotlightSpec, f);
         addLight(spotlight, vvSceneGraph::instance()->getHandTransform());
         // turn on/off spotlight according to covise.config setting
         // COVERConfig.SPOTLIGHT
@@ -249,12 +244,12 @@ void vvLighting::initOtherLight()
     light1 = createLightSource("Light1", lightDefault, false);
     if (light1)
     {
-        light1Spec = ((osg::Light *)light1->getLight())->getSpecular();
+       /* light1Spec = ((osg::Light*)light1->getLight())->getSpecular();
         const auto f = specularlightStrength;
         setSpecularLight(light1->getLight(), light1Spec, f);
         addLight(light1);
         switchLight(light1, true);
-        otherlightsState = true;
+        otherlightsState = true;*/
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -262,19 +257,19 @@ void vvLighting::initOtherLight()
     light2 = createLightSource("Light2", lightDefault, false);
     if (light2)
     {
-        light2Spec = ((osg::Light *)light2->getLight())->getSpecular();
+       /* light2Spec = ((osg::Light*)light2->getLight())->getSpecular();
         const auto f = specularlightStrength;
         setSpecularLight(light2->getLight(), light2Spec, f);
         addLight(light2);
         switchLight(light2, true);
-        otherlightsState = true;
+        otherlightsState = true;*/
     }
 }
 
-osg::LightSource *
+vsg::Light *
 vvLighting::createLightSource(const char *configName, const LightDef &def, bool force)
 {
-    osg::LightSource *light = NULL;
+    vsg::Light *light = NULL;
 
     char *configEntry = new char[128]; // hope it won't ever be bigger
     strcpy(configEntry, "COVER.Lights.");
@@ -303,12 +298,12 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
         //fprintf(stderr, "creating light %s\n", configName);
         float x, y, z, w, r, g, b, expo, angle;
 
-        light = new osg::LightSource();
-        osg::Light *osgLight = new osg::Light();
+        light = new vsg::Light();
+       /* vsg::Light* vsgLight = new vsg::Light();
         light->setLight(osgLight);
 
         osgLight->setName(configName);
-        light->setName(configName);
+        light->setName(configName);*/
 
         // read all colors here - we'll save the values for the specular color
         // somewhere else if specular is off
@@ -320,10 +315,10 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
             r = coCoviseConfig::getFloat("r", configEntry, 0.0f);
             g = coCoviseConfig::getFloat("g", configEntry, 0.0f);
             b = coCoviseConfig::getFloat("b", configEntry, 0.0f);
-            ((osg::Light *)light->getLight())->setSpecular(vsg::vec4(r, g, b, 1));
+           // ((osg::Light *)light->getLight())->setSpecular(vsg::vec4(r, g, b, 1));
         }
-        else
-            ((osg::Light *)light->getLight())->setSpecular(vsg::vec4(def.spec.r, def.spec.g, def.spec.b, 1));
+       // else
+           // ((osg::Light *)light->getLight())->setSpecular(vsg::vec4(def.spec.r, def.spec.g, def.spec.b, 1));
 
         if (diffOn)
         {
@@ -331,10 +326,10 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
             r = coCoviseConfig::getFloat("r", configEntry, 0.0f);
             g = coCoviseConfig::getFloat("g", configEntry, 0.0f);
             b = coCoviseConfig::getFloat("b", configEntry, 0.0f);
-            ((osg::Light *)light->getLight())->setDiffuse(vsg::vec4(r, g, b, 1));
+           // ((osg::Light *)light->getLight())->setDiffuse(vsg::vec4(r, g, b, 1));
         }
-        else
-            ((osg::Light *)light->getLight())->setDiffuse(vsg::vec4(def.diff.r, def.diff.g, def.diff.b, 1));
+       // else
+          //  ((osg::Light *)light->getLight())->setDiffuse(vsg::vec4(def.diff.r, def.diff.g, def.diff.b, 1));
 
         if (ambiOn)
         {
@@ -342,10 +337,10 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
             r = coCoviseConfig::getFloat("r", configEntry, 0.0f);
             g = coCoviseConfig::getFloat("g", configEntry, 0.0f);
             b = coCoviseConfig::getFloat("b", configEntry, 0.0f);
-            ((osg::Light *)light->getLight())->setAmbient(vsg::vec4(r, g, b, 1));
+           // ((osg::Light *)light->getLight())->setAmbient(vsg::vec4(r, g, b, 1));
         }
-        else
-            ((osg::Light *)light->getLight())->setAmbient(vsg::vec4(def.amb.r, def.amb.g, def.amb.b, 1));
+       // else
+           // ((osg::Light *)light->getLight())->setAmbient(vsg::vec4(def.amb.r, def.amb.g, def.amb.b, 1));
 
         w = 1.0;
         if (posiOn)
@@ -355,11 +350,11 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
             y = coCoviseConfig::getFloat("y", configEntry, 0.0f);
             z = coCoviseConfig::getFloat("z", configEntry, 0.0f);
             w = coCoviseConfig::getFloat("w", configEntry, 1.0f);
-            ((osg::Light *)light->getLight())->setPosition(vsg::vec4(x, y, z, w));
+           // ((osg::Light *)light->getLight())->setPosition(vsg::vec4(x, y, z, w));
         }
         else
         {
-            ((osg::Light *)light->getLight())->setPosition(vsg::vec4(def.pos.x, def.pos.y, def.pos.z, def.pos.w));
+          //  ((osg::Light *)light->getLight())->setPosition(vsg::vec4(def.pos.x, def.pos.y, def.pos.z, def.pos.w));
         }
 
         if (spotOn)
@@ -370,15 +365,15 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
             z = coCoviseConfig::getFloat("z", configEntry, 0.0f);
             expo = coCoviseConfig::getFloat("expo", configEntry, 0.0f);
             angle = coCoviseConfig::getFloat("angle", configEntry, 0.0f);
-            ((osg::Light *)light->getLight())->setDirection(vsg::vec3(x, y, z));
+          /*  ((osg::Light*)light->getLight())->setDirection(vsg::vec3(x, y, z));
             ((osg::Light *)light->getLight())->setSpotExponent(expo);
-            ((osg::Light *)light->getLight())->setSpotCutoff(angle);
+            ((osg::Light *)light->getLight())->setSpotCutoff(angle);*/
         }
         else
         {
-            ((osg::Light *)light->getLight())->setDirection(vsg::vec3(def.spot.x, def.spot.y, def.spot.z));
+           /* ((osg::Light*)light->getLight())->setDirection(vsg::vec3(def.spot.x, def.spot.y, def.spot.z));
             ((osg::Light *)light->getLight())->setSpotExponent(def.spot.expo);
-            ((osg::Light *)light->getLight())->setSpotCutoff(def.spot.angle);
+            ((osg::Light *)light->getLight())->setSpotCutoff(def.spot.angle);*/
         }
     }
 
@@ -387,7 +382,7 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
     return light;
 }
 
-int vvLighting::addLight(osg::LightSource *ls, vsg::Group *parent, vsg::Node *root, const char *menuName)
+int vvLighting::addLight(vsg::Light *ls, vsg::Group *parent, vsg::Node *root, const char *menuName)
 {
     // fprintf(stderr, "add light: %p to %p lighting %p (num=%lu)\n",
     //      ls, parent, root, (unsigned long)lightList.size());
@@ -398,18 +393,18 @@ int vvLighting::addLight(osg::LightSource *ls, vsg::Group *parent, vsg::Node *ro
         root = vvSceneGraph::instance()->getScene();
     lightList.push_back(Light(ls, root));
 
-    osg::Light *light = ls->getLight();
+   /* osg::Light* light = ls->getLight();
     if (!light)
     {
         light = new osg::Light();
         ls->setLight(light);
-    }
+    }*/
 
     //create LightMenu Switch to disable Light/ group of Lights
     if (menuName != NULL)
     {
         // check if we already have this menuentry
-        multimap<string, osg::LightSource *>::iterator it;
+        multimap<string, vsg::Light *>::iterator it;
         it = m.find(menuName);
         if (it == m.end())
         {
@@ -418,9 +413,9 @@ int vvLighting::addLight(osg::LightSource *ls, vsg::Group *parent, vsg::Node *ro
             temp->setCallback([this, menuName](bool state){
                 // menuItem must be in map
                 // compare menuItem->getName with key in map and enable/disable linked lights
-                pair<multimap<string, osg::LightSource *>::iterator, multimap<string, osg::LightSource *>::iterator> ppp;
+                pair<multimap<string, vsg::Light *>::iterator, multimap<string, vsg::Light *>::iterator> ppp;
                 ppp = m.equal_range(menuName);
-                for (multimap<string, osg::LightSource *>::iterator it = ppp.first; it != ppp.second; ++it)
+                for (multimap<string, vsg::Light *>::iterator it = ppp.first; it != ppp.second; ++it)
                 {
                     switchLight(((*it).second), state);
                 }
@@ -428,7 +423,7 @@ int vvLighting::addLight(osg::LightSource *ls, vsg::Group *parent, vsg::Node *ro
         }
 
         // then add this light to the map
-        m.insert(pair<string, osg::LightSource *>(menuName, ls));
+        m.insert(pair<string, vsg::Light *>(menuName, ls));
     }
 
     if (lightList.size() > 8)
@@ -436,21 +431,21 @@ int vvLighting::addLight(osg::LightSource *ls, vsg::Group *parent, vsg::Node *ro
         cerr << "ERROR: ";
         cerr << "Too many lights " << (lightList.size()) << " only 8 are supported" << endl;
     }
-    light->setLightNum(lightList.size() - 1);
+   // light->setLightNum(lightList.size() - 1);
 
-    parent->addChild(ls);
+    //parent->addChild(ls);
 
     switchLight(ls, true);
 
-    return lightList.size();
+    return (int)lightList.size();
 }
 
-osg::LightSource *vvLighting::removeLight(osg::LightSource *ls)
+vsg::Light *vvLighting::removeLight(vsg::Light *ls)
 {
     fprintf(stderr, "remove light: %p\n", ls);
     for (unsigned int i = 0; i < lightList.size(); i++)
     {
-        if (lightList[i].source == ls)
+       /* if (lightList[i].source == ls)
         {
             switchLight(ls, false);
             if (ls->getNumParents())
@@ -475,7 +470,7 @@ osg::LightSource *vvLighting::removeLight(osg::LightSource *ls)
             }
 
             return ls;
-        }
+        }*/
     }
 
     return NULL;
@@ -508,7 +503,7 @@ void vvLighting::initMenu()
         case 6: t="LightSpacePerspectiveShadowMapDB"; break;
         case 7: t="ShadowMap"; break;
         }
-        coVRShadowManager::instance()->setTechnique(t);
+        //coVRShadowManager::instance()->setTechnique(t);
     });
 
     switchHeadlight_ = new ui::Button(lightingMenu_, "Headlight");
@@ -539,15 +534,15 @@ void vvLighting::initMenu()
     strengthSpecularlight_->setValue(specularlightStrength);
     strengthSpecularlight_->setBounds(0., 2.);
     strengthSpecularlight_->setCallback([this](double value, bool released){
-        specularlightStrength = value;
-        if (headlight)
+        specularlightStrength = (float)value;
+        /*if (headlight)
             setSpecularLight(headlight->getLight(), headlightSpec, value);
         if (spotlight)
             setSpecularLight(spotlight->getLight(), spotlightSpec, value);
         if (light1)
             setSpecularLight(light1->getLight(), light1Spec, value);
         if (light2)
-            setSpecularLight(light2->getLight(), light2Spec, value);
+            setSpecularLight(light2->getLight(), light2Spec, value);*/
     });
 
     switchSpotlight_ = new ui::Button(lightingMenu_, "Spotlight");
@@ -564,7 +559,7 @@ void vvLighting::switchOtherLights(bool on)
     {
         // if light has its own menuentry its in m
         bool in_m = false;
-        for (multimap<string, osg::LightSource *>::iterator it = m.begin(); it != m.end(); it++)
+        for (multimap<string, vsg::Light *>::iterator it = m.begin(); it != m.end(); it++)
         {
             if (((*it).second) == lightList[i].source)
                 in_m = true;
@@ -577,11 +572,11 @@ void vvLighting::switchOtherLights(bool on)
     }
 }
 
-osg::LightSource *vvLighting::switchLight(osg::LightSource *ls, bool on, vsg::Node *limitToBranch)
+vsg::Light *vvLighting::switchLight(vsg::Light *ls, bool on, vsg::Node *limitToBranch)
 {
     for (unsigned int i = 0; i < lightList.size(); i++)
     {
-        if (lightList[i].source == ls)
+        /*if (lightList[i].source == ls)
         {
             osg::StateAttribute::Values value = osg::StateAttribute::OFF;
             if (on)
@@ -609,7 +604,7 @@ osg::LightSource *vvLighting::switchLight(osg::LightSource *ls, bool on, vsg::No
             }
 
             return ls;
-        }
+        }*/
     }
     return NULL;
 }
@@ -622,8 +617,8 @@ bool vvLighting::isLightEnabled(size_t ln) const
     return lightList[ln].on;
 }
 
-void vvLighting::setShadowLight(osg::LightSource *ls)
+void vvLighting::setShadowLight(vsg::Light *ls)
 {
     shadowlight = ls; 
-    coVRShadowManager::instance()->setLight(ls);
+    //coVRShadowManager::instance()->setLight(ls);
 }

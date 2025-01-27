@@ -14,4 +14,4 @@ SET(SOURCES
    RIFTDriver.cpp
 )
 
-cover_add_plugin(input_rift)
+vive_add_plugin(vvInput_rift)

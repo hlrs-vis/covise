@@ -13,6 +13,7 @@
 #include <vsg/app/Camera.h>
 #include <vsg/app/Window.h>
 #include <vsg/app/Viewer.h>
+#include <vsg/app/View.h>
 #include <vsg/core/ref_ptr.h>
 #include <string>
 
@@ -64,6 +65,9 @@ struct channelStruct
     int screenNum; // screen index
 
     vsg::ref_ptr<vsg::Camera> camera;
+    vsg::ref_ptr<vsg::View> view;
+    vsg::ref_ptr<vsg::CommandGraph> commandGraph;
+    
     bool stereo;
     int stereoMode;
     bool fixedViewer;
@@ -333,7 +337,7 @@ public:
     // set debug level
     void setDebugLevel(int level);
 
-    // return true, if OpenCOVER is configured for stereo rendering
+    // return true, if VIVE is configured for stereo rendering
     bool stereoState() const;
 
     float stereoSeparation() const;

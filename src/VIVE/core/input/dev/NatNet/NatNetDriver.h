@@ -20,7 +20,9 @@
 #include <string>
 
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 /**
  * @brief The NatNetDriver class interacts with input hardware
@@ -37,7 +39,7 @@
 #include "NatNetClient.h"
 #include "NatNetCAPI.h"
 
-class NatNetDriver : public opencover::InputDevice
+class NatNetDriver : public vive::InputDevice
 {
     //-------------------NatNet related stuff
     

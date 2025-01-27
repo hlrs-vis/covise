@@ -13,7 +13,7 @@ namespace vive
 ConstInputDevice::ConstInputDevice(const std::string &name)
     : InputDevice(name)
 {
-    vsg::dmat4 mat = vsg::dmat4::identity();
+    vsg::dmat4 mat;
     m_bodyMatrices.push_back(mat);
     m_bodyMatrices.push_back(mat);
     m_bodyMatricesValid.push_back(true);

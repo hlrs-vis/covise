@@ -27,7 +27,7 @@ class InputDevice;
 class VVCORE_EXPORT ButtonDevice: public InputSource
 {
     friend class Input;
-    friend class coMousePointer;
+    friend class vvMousePointer;
 
 public:
     unsigned getButtonState() const; ///call this to get button state

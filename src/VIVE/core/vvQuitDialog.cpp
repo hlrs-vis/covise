@@ -34,7 +34,7 @@ void vvQuitDialog::init()
 {
     std::string qtext, yesText, noText;
 
-    qtext = "Really quit OpenCOVER?";
+    qtext = "Really quit VIVE?";
     yesText = "Quit";
     noText = "Continue";
 

@@ -139,9 +139,9 @@ void vvPluginMenu::scanPlugins()
         for (std::vector<std::string>::iterator it = p.begin(); it != p.end(); ++it)
         {
 #ifdef WIN32
-            sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
+            sprintf(buf, "%s\\%s\\lib\\VIVE\\plugins", it->c_str(), archsuffix);
 #else
-            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
+            sprintf(buf, "%s/%s/lib/VIVE/plugins", it->c_str(), archsuffix);
 #endif
             paths.push_back(buf);
         }
@@ -149,9 +149,9 @@ void vvPluginMenu::scanPlugins()
     else if ((coviseDir != NULL) && (archsuffix != NULL))
     {
 #ifdef WIN32
-        sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
+        sprintf(buf, "%s\\%s\\lib\\VIVE\\plugins", coviseDir, archsuffix);
 #else
-        sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
+        sprintf(buf, "%s/%s/lib/VIVE/plugins", coviseDir, archsuffix);
 #endif
         paths.push_back(buf);
     }

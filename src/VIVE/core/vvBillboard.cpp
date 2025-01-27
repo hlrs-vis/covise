@@ -128,9 +128,9 @@ void vvBillboard::checkAndAdjustNormal()
         std::cerr << "vvBillboard::checkAndAdjustNormal(): uups" << std::endl;
     }
 }
-/*
-void vvBillboard::accept(NodeVisitor &nv)
+void vvBillboard::accept(vsg::Visitor &nv)
 {
+    /*
     // if app traversal update the frame count.
     if (nv.getVisitorType() == NodeVisitor::UPDATE_VISITOR)
     {
@@ -169,7 +169,7 @@ void vvBillboard::accept(NodeVisitor &nv)
                 vsg::dmat4 tmpMat;
                 if(vvConfig::instance()->getEnvMapMode() == vvConfig::NONE)
                 {
-                    tmpMat = *cs->getModelViewMatrix() * vsg::dmat4::rotate(90,vsg::vec3(1,0,0));
+                    tmpMat = *cs->getModelViewMatrix() * vsg::rotate(90,vsg::vec3(1,0,0));
                 }
                 else
                     tmpMat = (*cs->getModelViewMatrix() * vv->envCorrectMat);
@@ -266,5 +266,5 @@ void vvBillboard::accept(NodeVisitor &nv)
     }
 
     // now do the proper accept
-    Transform::accept(nv);
-}*/
+    Transform::accept(nv);*/
+}

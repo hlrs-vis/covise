@@ -102,11 +102,11 @@ private:
     ui::Action *m_quit=nullptr;
     ui::Button *m_clusterStats=nullptr;
 
-    vsg::ref_ptr<vsg::Node> scenegraph;
-    vsg::ref_ptr<vsg::Viewer> viewer;
     
 
 public:
+
+vsg::ref_ptr<vsg::Node> scenegraph;
     vvVIVE();
 #ifdef HAS_MPI
     vvVIVE(const MPI_Comm *comm, pthread_barrier_t *shmBarrier);
@@ -150,13 +150,13 @@ public:
     vvPlugin *visPlugin() const;
     bool useVistle() const;
 
-  /*  size_t numTuis() const;
+    size_t numTuis() const;
     vvTabletUI *tui(size_t idx) const;
     vvTUITabFolder *tuiTab(size_t idx) const;
     vvTui *vrTui(size_t idx) const;
     void pushTui(vvTabletUI *tui, vvTui *vrTui);
     void popTui();
-    */
+    
 
     //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
     bool watchFileDescriptor(int fd);
@@ -175,8 +175,8 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-    //std::vector<std::unique_ptr<vvTabletUI>> tabletUIs;
-    //std::vector<std::unique_ptr<vvTui>> tabletVrTuis;
+    std::vector<std::unique_ptr<vvTabletUI>> tabletUIs;
+    std::vector<std::unique_ptr<vvTui>> tabletVrTuis;
     std::unique_ptr<vrb::VRBClient> m_vrbc;
 	std::string m_startSession;
 

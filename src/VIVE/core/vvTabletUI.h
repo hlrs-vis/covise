@@ -14,7 +14,7 @@
 #include <list>
 #include <string>
 
-#ifndef _M_CEE //no future in Managed OpenCOVER
+#ifndef _M_CEE //no future in Managed VIVE
 #include <future>
 #endif
 //#ifndef WIN32
@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QMetaType>
 
+#include <vsg/core/ref_ptr.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -191,7 +192,7 @@ protected:
 
     std::unique_ptr<covise::Connection> conn; // protected by lock/unlock
     covise::Host *connectingHost = nullptr; // protected by lock/unlock
-#ifndef _M_CEE //no future in Managed OpenCOVER
+#ifndef _M_CEE //no future in Managed VIVE
     std::atomic<bool> connecting = false;
     std::thread connThread;
     std::mutex sendMutex;
@@ -441,7 +442,7 @@ protected:
     // either as IP address or hostname
     std::string mLocation;
 
-    // Stores the IP address of the system the local OpenCOVER runs on
+    // Stores the IP address of the system the local VIVE runs on
     std::string mLocalIP;
 
     // Stores the currently selected directory as selected in the filebrowser
@@ -857,7 +858,7 @@ private:
     std::string showhideParentPath;
 
     std::vector<std::string> parsePathString(std::string path);
-    vsg::Node* getNode(std::string path);
+    vsg::ref_ptr<vsg::Node> getNode(std::string path);
 
 public:
     float diffuse[4];

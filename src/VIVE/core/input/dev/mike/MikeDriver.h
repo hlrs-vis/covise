@@ -12,15 +12,14 @@
  *      Author: svnvlad
  */
 
-#ifndef MIKEDRIVER_H
-#define MIKEDRIVER_H
+#pragma once
 
 #include <OpenThreads/Thread>
 #include <osg/Matrix>
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
 
-using namespace opencover;
+using namespace vive;
 
 /**
  * @brief The InputHdw class interacts with input hardware
@@ -45,4 +44,3 @@ public:
     bool poll();
 };
 
-#endif

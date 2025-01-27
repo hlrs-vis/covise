@@ -147,7 +147,7 @@ protected:
        * "Local/127.0.0.1" for search on the local machine of the requesting
        *				     FileBrowser
        * "<ip-address>"    for search on the file system of the given IP-address
-       *				     associated machine( either VRB server or OpenCover
+       *				     associated machine( either VRB server or VIVE
        *				     client)
        */
     std::string mIP;

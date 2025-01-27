@@ -7,19 +7,6 @@
 
 #pragma once
 
-/*! \file
- \brief  make OpenCOVER core functionality available via tablet user interface
-
- \author Uwe Woessner <woessner@hlrs.de>
- \author (C) 2004
-         High Performance Computing Center Stuttgart,
-         Allmandring 30,
-         D-70550 Stuttgart,
-         Germany
-
- \date   28.04.2004
- */
-
 #include "vvTabletUI.h"
 #include <util/DLinkList.h>
 #include "vvNavigationManager.h"
@@ -148,9 +135,9 @@ public:
     virtual void tabletReleaseEvent(vvTUIElement *tUIItem);
     vvTUITabFolder *mainFolder;
 
-    vvTUITab *getCOVERTab()
+    vvTUITab *getviveTab()
     {
-        return coverTab;
+        return viveTab;
     };
     vvTUIFrame *getTopContainer()
     {
@@ -168,7 +155,7 @@ private:
     static vvTui *vrtui;
     vvTabletUI *tui = nullptr;
 
-    vvTUITab *coverTab;
+    vvTUITab *viveTab;
     vvTUIFrame *topContainer;
     vvTUIFrame *bottomContainer;
     vvTUIFrame *rightContainer;
@@ -230,7 +217,7 @@ private:
     vvTUINav *driveNav;
     vvTUILabel *panLabel;
     vvTUINav *panNav;
-    vsg::vec3 viewPos;
+    vsg::dvec3 viewPos;
     void doTabWalk();
     void doTabFly();
     void doTabScale();

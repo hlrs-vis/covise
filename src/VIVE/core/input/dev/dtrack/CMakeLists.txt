@@ -15,4 +15,4 @@ SET(SOURCES
    DTrackDriver.cpp
 )
 
-cover_add_plugin(input_dtrack)
+vive_add_plugin(vvInput_dtrack)

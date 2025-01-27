@@ -13,16 +13,9 @@
 #include "vvPluginSupport.h"
 #include "vvIntersection.h"
 #include <config/CoviseConfig.h>
-#include <osg/Geode>
 #include <vsg/nodes/MatrixTransform.h>
-#include <osg/Material>
-#include <osg/PolygonMode>
-#include <osg/ComputeBoundsVisitor>
-#include <osg/ShapeDrawable>
 #include <vrb/client/SharedState.h>
 #include <OpenVRUI/sginterface/vruiHit.h>
-#include <OpenVRUI/osg/VSGVruiHit.h>
-#include <OpenVRUI/osg/VSGVruiNode.h>
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -56,51 +49,26 @@ vvIntersectionInteractor::vvIntersectionInteractor(float s, coInteraction::Inter
     _justHit = true;
     _standardHL = covise::coCoviseConfig::isOn("COVER.StandardInteractorHighlight", true);
 
-    moveTransform = vsg::MatrixTransform::create()();
-    char nodeName[256];
-    sprintf(nodeName, "vvIntersectionInteractor-moveTransform-%s)", interactorName);
-    moveTransform->setName(nodeName);
+    moveTransform = vsg::MatrixTransform::create();
 
-    scaleTransform = vsg::MatrixTransform::create()();
-    sprintf(nodeName, "vvIntersectionInteractor-scaleTransform-%s)", interactorName);
+    std::string nodeName = std::string("vvIntersectionInteractor-moveTransform-") + std::string(interactorName);
+    
+    moveTransform->setValue("name",nodeName);
+
+    scaleTransform = vsg::MatrixTransform::create();
+    nodeName = std::string("vvIntersectionInteractor-scaleTransform-") + std::string(interactorName);
     m= vsg::scale(interScale, interScale, interScale);
     _scale = interScale;
     scaleTransform->matrix = (m);
 
     parent = vv->getObjectsScale();
     //fprintf(stderr,"...parent=%s\n", parent->getName().c_str());
-    parent->addChild(moveTransform.get());
-    moveTransform->addChild(scaleTransform.get());
+    parent->addChild(moveTransform);
+    moveTransform->addChild(scaleTransform);
 
-    vNode = new VSGVruiNode(moveTransform.get());
+    vNode = new VSGVruiNode(moveTransform);
 
-    osg::PolygonMode *polymode = new osg::PolygonMode();
-    polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::FILL);
-    _selectedHl = new osg::StateSet();
-    _intersectedHl = new osg::StateSet();
-
-    if (_standardHL)
-    {
-        // set default materials
-        osg::Material *selMaterial = new osg::Material();
-        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, vsg::vec4f(1.0, 0.3, 0.0, 1.0f));
-        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, vsg::vec4f(1.0, 0.3, 0.0, 1.0f));
-        selMaterial->setEmission(osg::Material::FRONT_AND_BACK, vsg::vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-        selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-        selMaterial->setColorMode(osg::Material::OFF);
-        osg::Material *isectMaterial = new osg::Material();
-        isectMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, vsg::vec4f(0.6, 0.6, 0.0, 1.0f));
-        isectMaterial->setAmbient(osg::Material::FRONT_AND_BACK, vsg::vec4f(0.6, 0.6, 0.0, 1.0f));
-        isectMaterial->setEmission(osg::Material::FRONT_AND_BACK, vsg::vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-        isectMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-        isectMaterial->setColorMode(osg::Material::OFF);
-        _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
-        _intersectedHl->setAttribute(isectMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
-    }
-
-    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
-    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
-
+    /*
     _oldHl = NULL;
 
     label_ = NULL;
@@ -117,7 +85,7 @@ vvIntersectionInteractor::vvIntersectionInteractor(float s, coInteraction::Inter
     // constantInteractorSize_= On: Uwe Mode: scale icon to keep size indepened of interactor position and world scale
     // constantInteractorSize_= Off: Daniela Mode: scale icon to keep _interactorSize independed of world scale
     constantInteractorSize_ = covise::coCoviseConfig::isOn("COVER.ConstantInteractorSize", true);
-
+    */
     iconSize_ = 1;
     firstTime = true;
 
@@ -131,11 +99,11 @@ vvIntersectionInteractor::~vvIntersectionInteractor()
 
     disableIntersection();
 
-    if (moveTransform->getNumParents())
+    /*if (moveTransform->getNumParents())
     {
         vsg::Group *p = moveTransform->getParent(0);
-        p->removeChild(moveTransform.get());
-    }
+        p->removeChild(moveTransform);
+    }*/
     delete[] _interactorName;
 
     delete vNode;
@@ -149,11 +117,11 @@ void vvIntersectionInteractor::show()
 
     //fprintf(stderr,"vvIntersectionInteractor::show(%s)\n", _interactorName);
 
-    if (moveTransform->getNumParents() == 0)
+   /* if (moveTransform->getNumParents() == 0)
     {
-        parent->addChild(moveTransform.get());
+        parent->addChild(moveTransform);
         //fprintf(stderr,"parent name=%s\n", parent->getName().c_str());
-    }
+    }*/
     //pfPrint(vv->getObjectsRoot(),  PFTRAV_SELF|PFTRAV_DESCEND, PFPRINT_VB_NOTICE, NULL);
     //if (label_)
     //   label_->show();
@@ -163,11 +131,11 @@ void vvIntersectionInteractor::hide()
 {
     //fprintf(stderr,"vvIntersectionInteractor::hide(%s)\n", _interactorName);
 
-    if (moveTransform->getNumParents())
+   /* if (moveTransform->getNumParents())
     {
         vsg::Group *p = moveTransform->getParent(0);
-        p->removeChild(moveTransform.get());
-    }
+        p->removeChild(moveTransform);
+    }*/
 
     if (label_)
         label_->hide();
@@ -269,7 +237,7 @@ int vvIntersectionInteractor::hit(vruiHit *hit)
     if (hit)
     {
         coVector v = hit->getWorldIntersectionPoint();
-        vsg::vec3 wp(v[0], v[1], v[2]);
+        vsg::dvec3 wp(v[0], v[1], v[2]);
         _hitPos = wp * vv->getInvBaseMat();
         auto VSGVruinode = dynamic_cast<VSGVruiNode *>(hit->getNode());
         if (VSGVruinode)
@@ -279,13 +247,13 @@ int vvIntersectionInteractor::hit(vruiHit *hit)
                 vsg::Node* oldHitNode = _hitNode.get(); 
                 vsg::Node* newHitNode =  VSGVruinode->getNodePtr();
 
-                if(oldHitNode != nullptr && oldHitNode != newHitNode && _interactionHitNode == nullptr ) // reset color, if you move from one hit node directly to another hit node                                                                                                                                                                                                                                                                                                                           
-                    _hitNode->setStateSet(NULL);                
+               /* if (oldHitNode != nullptr && oldHitNode != newHitNode && _interactionHitNode == nullptr) // reset color, if you move from one hit node directly to another hit node                                                                                                                                                                                                                                                                                                                           
+                    _hitNode->setStateSet(NULL);     */           
                 
                 _hitNode = VSGVruinode->getNodePtr();
 
-                if(_interactionHitNode == nullptr && _hitNode->getStateSet() != _intersectedHl)
-                    _hitNode->setStateSet(_intersectedHl.get());
+               /* if (_interactionHitNode == nullptr && _hitNode->getStateSet() != _intersectedHl)
+                    _hitNode->setStateSet(_intersectedHl);*/
             }
             else
                 _hitNode = VSGVruinode->getNodePtr();
@@ -297,7 +265,7 @@ int vvIntersectionInteractor::hit(vruiHit *hit)
     }
     else
     {
-        _hitPos = getMatrix().getTrans();
+        _hitPos = getTrans(getMatrix());
         _hitNode = nullptr;
     }
 
@@ -323,17 +291,17 @@ void vvIntersectionInteractor::miss()
     }
 }
 
-osg::Geode *vvIntersectionInteractor::findGeode(vsg::Node *n)
+vsg::Node *vvIntersectionInteractor::findGeode(vsg::Node *n)
 {
-    osg::Geode *geode;
+    vsg::Node *geode;
     vsg::Group *group;
-    geode = dynamic_cast<osg::Geode *>(n);
+    geode = dynamic_cast<vsg::Node *>(n);
     if (geode != NULL)
         return geode;
     group = dynamic_cast<vsg::Group *>(n);
-    for (int i = group->children.size() - 1; i >= 0; i--)
+    for (size_t i = group->children.size() - 1; i >= 0; i--)
     {
-        geode = findGeode(group->getChild(i));
+        geode = findGeode(group->children[i]);
         if (geode != NULL)
             return geode;
     }
@@ -349,14 +317,14 @@ void vvIntersectionInteractor::addIcon()
 
     if (getState() == coInteraction::Idle)
     {
-        _oldHl = moveTransform->getStateSet();
+        /*_oldHl = moveTransform->getStateSet();
 
         if (!_standardHL)
         {
             osg::Material *selMaterial = new osg::Material();
             vsg::vec4 colDiff = vsg::vec4(0.5, 0.5, 0.5, 1.0);
             vsg::vec4 colAmb = vsg::vec4(0.5, 0.5, 0.5, 1.0);
-            osg::Geode *geode = findGeode(geometryNode.get());
+            vsg::Node *geode = findGeode(geometryNode.get());
 
             for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
             {
@@ -389,7 +357,7 @@ void vvIntersectionInteractor::addIcon()
             _intersectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
         }
         if(!_highliteHitNodeOnly)
-            moveTransform->setStateSet(_intersectedHl.get()); 
+            moveTransform->setStateSet(_intersectedHl.get()); */
     }
     // else it is still active and we want to keep the selected hlight
 }
@@ -402,7 +370,7 @@ void vvIntersectionInteractor::removeIcon()
 
 void vvIntersectionInteractor::resetState()
 {
-    _oldHl = NULL;
+    /*_oldHl = NULL;
     moveTransform->setStateSet(NULL);
     
     if(_hitNode)    
@@ -412,7 +380,7 @@ void vvIntersectionInteractor::resetState()
     {
         _interactionHitNode->setStateSet(NULL);
         _interactionHitNode = nullptr;
-    }
+    }*/
     
 }
 
@@ -421,14 +389,14 @@ void vvIntersectionInteractor::startInteraction()
 
     if (vv->debugLevel(4))
         fprintf(stderr, "\nvvIntersectionInteractor::startInteraction and set selected hl\n");
-    _oldHl = moveTransform->getStateSet();
+   /* _oldHl = moveTransform->getStateSet();
 
     if (!_standardHL)
     {
         osg::Material *selMaterial = new osg::Material();
         vsg::vec4 colDiff = vsg::vec4(0.5, 0.5, 0.5, 1.0);
         vsg::vec4 colAmb = vsg::vec4(0.5, 0.5, 0.5, 1.0);
-        osg::Geode *geode = findGeode(geometryNode.get());
+        vsg::Node *geode = findGeode(geometryNode.get());
 
         for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
         {
@@ -469,7 +437,7 @@ void vvIntersectionInteractor::startInteraction()
     else
         moveTransform->setStateSet(_selectedHl.get());
 
-    //Interactor 0-5 are of clipplane
+    //Interactor 0-5 are of clipplane*/
 }
 
 void vvIntersectionInteractor::stopInteraction()
@@ -479,8 +447,8 @@ void vvIntersectionInteractor::stopInteraction()
 
     // in case that miss was called before but interaction was ongoing
     // we have to unregister
-    if(!_highliteHitNodeOnly)
-        moveTransform->setStateSet(_oldHl.get());
+    /*if (!_highliteHitNodeOnly)
+        moveTransform->setStateSet(_oldHl.get());*/
    
     resetState();
 }
@@ -499,14 +467,14 @@ void vvIntersectionInteractor::keepSize()
     float interScale;
     if (constantInteractorSize_) // Uwe Mode: scale icon to keep size indepened of interactor position and world scale
     {
-        vsg::vec3 WorldPos = moveTransform->matrix.getTrans() * vv->getBaseMat();
+        vsg::dvec3 WorldPos = getTrans(moveTransform->matrix) * vv->getBaseMat();
         interScale = vv->getInteractorScale(WorldPos) * _interSize;
     }
     else // Daniela Mode: scale icon to keep COVER.IconSize independed of world scale
     {
         if (firstTime)
         {
-            geometryNode->dirtyBound();
+           /* geometryNode->dirtyBound();
             osg::ComputeBoundsVisitor cbv;
             osg::BoundingBox &bb(cbv.getBoundingBox());
             geometryNode->accept(cbv);
@@ -519,12 +487,12 @@ void vvIntersectionInteractor::keepSize()
                 iconSize_ = max(sx, sy);
                 iconSize_ = max(iconSize_, sz);
                 firstTime = false;
-            }
+            }*/
         }
         interScale = _interSize / (vv->getScale() * iconSize_);
     }
     _scale = interScale;
-    scaleTransform->matrix = (vsg::dmat4::scale(interScale, interScale, interScale));
+    scaleTransform->matrix = (vsg::scale(interScale, interScale, interScale));
 }
 
 float vvIntersectionInteractor::getScale() const
@@ -545,9 +513,9 @@ void vvIntersectionInteractor::preFrame()
         m = moveTransform->matrix;
         // update label position
         vsg::dmat4 o_to_w = vv->getBaseMat();
-        vsg::vec3 pos_w, pos_o;
-        pos_o = m.getTrans();
-        pos_w = pos_o * o_to_w;
+        vsg::dvec3 pos_w, pos_o;
+        pos_o = getTrans(m);
+        pos_w = o_to_w * pos_o;
         label_->setPosition(pos_w);
 
         char regStr[10];
@@ -703,7 +671,7 @@ vsg::vec3 vvIntersectionInteractor::restrictToVisibleScene(vsg::vec3 pos)
     vsg::vec3 rpos(0.0, 0.0, 0.0); //restricted position
     rpos = pos;
 
-    osg::BoundingBox box = vv->getBBox(vv->getObjectsRoot());
+    /*osg::BoundingBox box = vv->getBBox(vv->getObjectsRoot());
     if (box.valid())
     {
         if (pos[0] < box.xMin())
@@ -736,7 +704,7 @@ vsg::vec3 vvIntersectionInteractor::restrictToVisibleScene(vsg::vec3 pos)
             rpos[2] = box.zMax();
             //fprintf(stderr, "restricting posz=[%f] to box maxz=[%f]\n", pos[2], box.max[2]);
         }
-    }
+    }*/
     return rpos;
 }
 void vvIntersectionInteractor::setCaseTransform(vsg::MatrixTransform *m)
@@ -748,7 +716,7 @@ void vvIntersectionInteractor::setCaseTransform(vsg::MatrixTransform *m)
         parent = interactorCaseTransform;
         //fprintf(stderr,"...setting parent to interactorCaseTransform\n");
         // remove moveDCS from scaleDCS
-        if (moveTransform->getNumParents() > 0)
+        /*if (moveTransform->getNumParents() > 0)
         {
             if (moveTransform->getParent(0)->removeChild(moveTransform.get()))
             {
@@ -759,7 +727,7 @@ void vvIntersectionInteractor::setCaseTransform(vsg::MatrixTransform *m)
             }
         }
         else if (vv->debugLevel(5))
-            fprintf(stderr, "vvIntersectionInteractor(%s)::setCaseTransform moveDCS is actually not under scaleDCS\n", _interactorName);
+            fprintf(stderr, "vvIntersectionInteractor(%s)::setCaseTransform moveDCS is actually not under scaleDCS\n", _interactorName);*/
     }
     else
     {

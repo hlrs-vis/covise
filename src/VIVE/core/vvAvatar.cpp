@@ -116,7 +116,7 @@ void vvAvatar::hide()
 {
     if (!visible)
     {
-        vvPluginSupport::removeChild(vv->getObjectsRoot(),avatarNodes.get());
+        vvPluginSupport::removeChild(vv->getObjectsRoot(),avatarNodes);
         visible = false;
     }
 }
@@ -157,7 +157,7 @@ bool RecordedAvatar::init()
         static size_t num = 0;
         if(!vvAvatar::init("Recorded avatar num " + std::to_string(num++)))
             return false;
-        hostIconNode = vvFileManager::instance()->loadIcon(UserInfo(Program::opencover).icon.c_str());
+        hostIconNode = vvFileManager::instance()->loadIcon(UserInfo(Program::vive).icon.c_str());
         if (hostIconNode)
         {
             vsg::ref_ptr<vvBillboard> bb = vvBillboard::create();

@@ -17,9 +17,8 @@
 
 #include <iostream>
 //#include <chrono>
-#include <osg/Matrix>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
 
 using namespace std;
 using namespace covise;
@@ -28,7 +27,7 @@ using namespace covise;
 windowsHID::windowsHID(const std::string &configBase)
     : InputDevice(configBase)
 {
-    rawMouseManager = coRawDeviceManager::instance();
+    rawMouseManager = vvRawDeviceManager::instance();
     //mouse related stuff
     rawMouse = NULL;
     btnstatus = 0;
@@ -36,7 +35,7 @@ windowsHID::windowsHID(const std::string &configBase)
 
     string devstring = coCoviseConfig::getEntry("device", configPath(), "HID#VID_046D&amp;PID_C52D&amp;MI_00"); // Logitech Presenter R400
     cout << devstring << endl;
-    rawMouse = new coRawDevice(devstring.c_str());
+    rawMouse = new vvRawDevice(devstring.c_str());
 
     m_buttonStates.resize(8);
 }

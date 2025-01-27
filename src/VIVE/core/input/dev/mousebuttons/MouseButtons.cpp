@@ -28,8 +28,11 @@
  ************************************************************************/
 
 #include <util/common.h>
-#include <cover/coVRPluginSupport.h>
-#include <OpenVRUI/sginterface/vruiButtons.h>
+#include <core/vvPluginSupport.h>
+#include "../../../../../OpenCOVER/OpenVRUI/sginterface/vruiButtons.h"
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 #include "MouseButtons.h"
 #ifndef WIN32
@@ -56,7 +59,7 @@
 #include <sys/select.h>
 #endif
 
-using namespace opencover;
+using namespace vive;
 using vrui::vruiButtons;
 //#define VERBOSE
 
@@ -432,8 +435,8 @@ MouseButtons::getButtons(int /* station */, unsigned int *button)
     else
     {
         // just report mouse buttons
-        if (cover && cover->getMouseButton())
-            *button = cover->getMouseButton()->getState();
+        if (vv && vv->getMouseButton())
+            *button = vv->getMouseButton()->getState();
         else
             *button = 0;
     }

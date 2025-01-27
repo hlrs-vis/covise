@@ -23,9 +23,11 @@
 #include "vvCollaboration.h"
 #include "vvCommunication.h"
 #include "vvFileManager.h"
-//#include "vvTouchTable.h"
+#include "vvTouchTable.h"
 #include "vvConfig.h"
 #include "vvSceneGraph.h"
+#include "vvVIVE.h"
+#include "vvViewer.h"
 
 #undef START
 #undef STOP
@@ -80,7 +82,9 @@
 
 #include <OpenVRUI/util/vruiLog.h>
 
-#include <PluginUtil/PluginMessageTypes.h>
+#include "PluginMessageTypes.h"
+#include <vsg/nodes/Node.h>
+#include <vsg/nodes/Group.h>
 
 using namespace vsg;
 using namespace vive;
@@ -146,8 +150,7 @@ vruiNode *vvVruiRenderInterface::getAlwaysVisibleGroup()
 {
     if (!alwaysVisibleNode)
     {
-        Group *group = vvSceneGraph::instance()->getAlwaysVisibleGroup();
-        alwaysVisibleNode = new VSGVruiNode(group);
+        alwaysVisibleNode = new VSGVruiNode(vsg::ref_ptr<vsg::Node>(vvSceneGraph::instance()->getAlwaysVisibleGroup()));
     }
     return alwaysVisibleNode;
 
@@ -157,8 +160,8 @@ vruiNode *vvVruiRenderInterface::getMenuGroup()
 {
     if (!groupNode)
     {
-        Group *group = vv->getMenuGroup();
-        groupNode = new VSGVruiNode(group);
+        auto group = vv->getMenuGroup();
+        groupNode = new VSGVruiNode(vsg::ref_ptr<vsg::Node>(group));
     }
     return groupNode;
 }
@@ -167,8 +170,8 @@ vruiNode *vvVruiRenderInterface::getScene()
 {
     if (!sceneNode)
     {
-        Group *group = vv->getObjectsRoot();
-        sceneNode = new VSGVruiNode(group);
+        auto group = vv->getObjectsRoot();
+        sceneNode = new VSGVruiNode(vsg::ref_ptr<vsg::Node>(group));
     }
     return sceneNode;
 }
@@ -371,12 +374,22 @@ vruiPanelGeometryProvider *vvVruiRenderInterface::createPanelGeometryProvider(co
     return 0;
 }
 
+void vive::vvVruiRenderInterface::addToTransfer(vsg::BufferInfo *bi)
+{
+    // If the data variance is static then we have to manually
+                    // assign the buffer info we want to transfer on each frame.
+                    // This approach is most apporopriate for occassional updates
+                    // for updates every frame it's best to declare the dataVaraince as DYANMIC_DATA
+    for (auto& tasks : vvViewer::instance()->recordAndSubmitTasks)
+    {
+        auto transferTask = tasks->transferTask;
+            transferTask->assign(vsg::BufferInfoList{ vsg::ref_ptr<vsg::BufferInfo>(bi) });
+    }
+}
+
 vruiTransformNode *vvVruiRenderInterface::createTransformNode()
 {
-
-    MatrixTransform *transform = new MatrixTransform();
-
-    return new VSGVruiTransformNode(transform);
+    return new VSGVruiTransformNode(vsg::MatrixTransform::create());
 }
 
 vruiMatrix *vvVruiRenderInterface::createMatrix()
@@ -467,7 +480,7 @@ vruiUserData *vvVruiRenderInterface::createUserData()
 
 coUpdateManager *vvVruiRenderInterface::getUpdateManager()
 {
-    if (cover)
+    if (vv)
         return vv->getUpdateManager();
     else
         return 0;
@@ -492,7 +505,7 @@ void vvVruiRenderInterface::addPointerIcon(const string &name)
     VSGVruiNode *iconNode = dynamic_cast<VSGVruiNode *>(getIcon(name, true));
     if ((vvCollaboration::instance()->getCouplingMode() != vvCollaboration::MasterSlaveCoupling || vvCollaboration::instance()->isMaster()) && iconNode && iconNode->getNodePtr())
     {
-        vvSceneGraph::instance()->addPointerIcon(iconNode->getNodePtr());
+        vvSceneGraph::instance()->addPointerIcon(vsg::ref_ptr<vsg::Node>(iconNode->getNodePtr()));
     }
 }
 
@@ -502,7 +515,7 @@ void vvVruiRenderInterface::addPointerIcon(const string &name)
 vruiNode *vvVruiRenderInterface::getIcon(const string &iconName, bool shared)
 {
     VSGVruiNode *node = 0;
-    ref_ptr<Node> osgNode;
+    ref_ptr<Node> vsgNode;
     //static bool haveIvPlugin = true;
 
     if (shared)
@@ -524,11 +537,11 @@ vruiNode *vvVruiRenderInterface::getIcon(const string &iconName, bool shared)
         //   haveIvPlugin = false;
         //   cerr << "Error: OpenSceneGraph's iv plugin not found" << endl;
         //}
-        osgNode = vvFileManager::instance()->loadIcon(iconName.c_str());
+        vsgNode = vvFileManager::instance()->loadIcon(iconName.c_str());
 
-        if (osgNode.get())
+        if (vsgNode.get())
         {
-            node = new VSGVruiNode(osgNode.get());
+            node = new VSGVruiNode(vsgNode);
             node->setName(iconName);
             iconsList[iconName] = node;
         }
@@ -601,6 +614,15 @@ bool vvVruiRenderInterface::isRemoteBlockNececcary()
 		return false;
 	} 
 	return true;
+}
+
+bool vive::vvVruiRenderInterface::compileNode(vruiNode*n)
+{
+
+    VSGVruiNode* node = dynamic_cast<VSGVruiNode*>(n);
+    if (!node)
+        return false;
+    return vvViewer::instance()->compileNode(node->node);
 }
 
 double vvVruiRenderInterface::getFrameTime() const

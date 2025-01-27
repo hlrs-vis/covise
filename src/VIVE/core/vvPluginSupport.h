@@ -27,6 +27,7 @@
 #include <vsg/maths/vec3.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/Builder.h>
+#include <vsg/utils/Intersector.h>
 
 #include <list>
 #include <ostream>
@@ -40,6 +41,7 @@
 #include <net/message_types.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/io/Options.h>
+#include <vsg/maths/mat4.h>
 #include <array>
 #include "vvMathUtils.h"
 namespace vive {
@@ -172,11 +174,11 @@ private:
 
 /*! \class vvPluginSupport vvPluginSupport.h cover/vvPluginSupport.h
  * Provide a stable interface and a single entry point to the most import
- * OpenCOVER functions
+ * VIVE functions
  */
 class VVCORE_EXPORT vvPluginSupport
 {
-    friend class OpenCOVER;
+    friend class VIVE;
     friend class fasi;
     friend class fasi2;
     friend class mopla;
@@ -203,16 +205,33 @@ public:
    /* bool removeChild(vsg::Group* parent, const vsg::ref_ptr<vsg::Node>& child)
     {
 
-        return removeChild(parent, child.get());
+        return removeChild(parent, child);
     }*/
-    static bool removeChild(vsg::Group* parent, const vsg::Node *child)
+    static bool removeChild(vsg::Group* parent, const vsg::Node* child)
     {
-        for (auto it = parent->children.begin(); it != parent->children.end(); it++)
+        if (parent)
         {
-            if ((*it).get() == child)
+            for (auto it = parent->children.begin(); it != parent->children.end(); it++)
             {
-                parent->children.erase(it);
-                return true;
+                if ((*it).get() == child)
+                {
+                    parent->children.erase(it);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    static bool hasChild(vsg::Group* parent, const vsg::Node* child)
+    {
+        if (parent)
+        {
+            for (auto it = parent->children.begin(); it != parent->children.end(); it++)
+            {
+                if ((*it).get() == child)
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -230,7 +249,7 @@ public:
 
     vsg::ref_ptr<vsg::Builder> builder;
 
-    vsg::ref_ptr<const vsg::Options> options;
+    vsg::ref_ptr<vsg::Options> options;
 
     bool debugLevel(int level) const;
     void initUI();
@@ -249,10 +268,10 @@ public:
     // access to scene graph nodes and transformations
 
     //! get scene group node
-    vsg::Group *getScene() const;
+    vsg::ref_ptr<vsg::Group> getScene() const;
 
     //! get the group node for all COVISE and model geometry
-    vsg::Group *getObjectsRoot() const;
+    vsg::ref_ptr<vsg::MatrixTransform>  getObjectsRoot() const;
 
     //! get the MatrixTransform node of the hand
     // (in vvSceneGraph handTransform)
@@ -361,7 +380,7 @@ public:
 
     //! remove node from the scene graph,
     /*! use this method when removing nodes from the scene graph in order to update
-       * OpenCOVER's internal state */
+       * VIVE's internal state */
     //! @return if a node was removed
     bool removeNode(vsg::Node *node, bool isGroup = false);
 
@@ -424,13 +443,13 @@ public:
     //void setCurrentCursor(vsgViewer::GraphicsWindow::MouseCursor type);
 
     //! make the cursor visible or invisible
-    void setCursorVisible(bool visible);
+    void setCursorVisible(bool visible) {};
 
     //! get node currently intersected by pointer
     vsg::Node *getIntersectedNode() const;
 
     //! get path to node currently intersected by pointer
-   // const vsg::NodePath &getIntersectedNodePath() const;
+    const vsg::Intersector::NodePath &getIntersectedNodePath() const;
 
     //! get world coordinates of intersection hit point
     const vsg::vec3 &getIntersectionHitPointWorld() const;
@@ -553,12 +572,12 @@ private:
     int activeClippingPlane = 0;
 
     vsg::ref_ptr<vsg::Node> intersectedNode;
-    //vsg::NodePath intersectedNodePath;
+    vsg::Intersector::NodePath intersectedNodePath;
     vsg::vec3 intersectionHitPointWorld;
     vsg::vec3 intersectionHitPointWorldNormal;
     vsg::vec3 intersectionHitPointLocal;
     vsg::vec3 intersectionHitPointLocalNormal;
-    //vsg::ref_ptr<vsg::RefMatrix> intersectionMatrix;
+    vsg::dmat4 intersectionMatrix;
 
     mutable coPointerButton *pointerButton = nullptr;
     mutable coPointerButton *mouseButton = nullptr;

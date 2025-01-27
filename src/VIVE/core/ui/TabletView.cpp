@@ -15,7 +15,7 @@
 #include "EditField.h"
 #include "FileBrowser.h"
 
-#include <cover/vvPluginSupport.h>
+#include "vvPluginSupport.h"
 
 #include <config/CoviseConfig.h>
 

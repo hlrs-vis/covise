@@ -12,4 +12,4 @@ SET(SOURCES
    ../legacy/serialcom.cpp
 )
 
-cover_add_plugin(input_mike)
+vive_add_plugin(vvInput_mike)

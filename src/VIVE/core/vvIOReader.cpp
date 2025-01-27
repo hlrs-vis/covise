@@ -5,52 +5,52 @@
 
  * License: LGPL 2+ */
 
-#include "coVRIOReader.h"
+#include "vvIOReader.h"
 #include "vvFileManager.h"
 
 #include <cmath>
 #include <iostream>
 
 using namespace vive;
-coVRIOReader::coVRIOReader()
+vvIOReader::vvIOReader()
 {
     vive::vvFileManager::instance()->registerFileHandler(this);
 }
 
-coVRIOReader::~coVRIOReader()
+vvIOReader::~vvIOReader()
 {
     vive::vvFileManager::instance()->unregisterFileHandler(this);
 }
 
-coVRIOReader::IOStatus coVRIOReader::loadPart(const std::string &location, vsg::Group *group)
+vvIOReader::IOStatus vvIOReader::loadPart(const std::string &location, vsg::Group *group)
 {
     (void)location;
     (void)group;
 
     if (canLoadParts())
-        std::cerr << "coVRIOReader::loadPart err: handler '" << getIOHandlerName() << "' claims to support chunked reading but does not implement loadPart" << std::endl;
+        std::cerr << "vvIOReader::loadPart err: handler '" << getIOHandlerName() << "' claims to support chunked reading but does not implement loadPart" << std::endl;
     else
-        std::cerr << "coVRIOReader::loadPart err: internal error - loadPart called for handler not supporting chunked reads" << std::endl;
+        std::cerr << "vvIOReader::loadPart err: internal error - loadPart called for handler not supporting chunked reads" << std::endl;
 
     return Failed;
 }
 
-const std::list<std::string> &coVRIOReader::getSupportedReadMimeTypes() const
+const std::list<std::string> &vvIOReader::getSupportedReadMimeTypes() const
 {
     return this->supportedReadFileTypes;
 }
 
-const std::list<std::string> &coVRIOReader::getSupportedReadFileExtensions() const
+const std::list<std::string> &vvIOReader::getSupportedReadFileExtensions() const
 {
     return this->supportedReadFileExtensions;
 }
 
-vsg::Node *coVRIOReader::getLoaded()
+vsg::Node *vvIOReader::getLoaded()
 {
     return 0;
 }
 
-bool coVRIOReader::unload(vsg::Node *node)
+bool vvIOReader::unload(vsg::Node *node)
 {
     (void)node;
     return false;

@@ -21,7 +21,7 @@
 #include <net/tokenbuffer.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
-#include "coMousePointer.h"
+#include "vvMousePointer.h"
 #include "input.h"
 #include "inputdevice.h"
 #include "input_const.h"
@@ -90,7 +90,7 @@ bool Input::debug(DebugBits facility)
     return (Input::instance()->getDebug() & facility)!=0;
 }
 
-coMousePointer *Input::mouse() const
+vvMousePointer *Input::mouse() const
 {
     return m_mouse;
 }
@@ -305,7 +305,7 @@ bool Input::initHardware()
 {
     plugins["const"] = new DriverFactory<ConstInputDevice>("const");
 
-    m_mouse = new coMousePointer;
+    m_mouse = new vvMousePointer;
 
     return true;
 }
@@ -378,7 +378,7 @@ DriverFactoryBase *Input::getDriverPlugin(const std::string &type)
     DriverFactoryBase *fact = findInMap(plugins, type);
     if (!fact)
     {
-        CO_SHLIB_HANDLE handle = vvDynLib::dlopen(vvDynLib::libName(std::string("input_") + type));
+        CO_SHLIB_HANDLE handle = vvDynLib::dlopen(vvDynLib::libName(std::string("vvInput_") + type));
         if (!handle)
         {
             std::cerr << "failed to open device driver plugin: " << vvDynLib::dlerror() << std::endl;
@@ -625,9 +625,9 @@ size_t Input::getActivePerson() const
  */
 bool Input::update()
 {
-    unsigned activePerson = getActivePerson();
-    unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
-    unsigned int len = 0;
+    size_t activePerson = getActivePerson();
+    size_t nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
+    size_t len = 0;
 
     bool changed = false;
     dD->update();
@@ -648,9 +648,10 @@ bool Input::update()
             const int oxres = m_mouse->xres, oyres = m_mouse->yres;
             const float owidth = m_mouse->width, oheight = m_mouse->height;
             const int ow0 = m_mouse->wheel(0), ow1 = m_mouse->wheel(1);
-            const vsg::dmat4 omat = m_mouse->matrix;
+            vsg::dmat4 omat;
+            omat = m_mouse->getMatrix();
             m_mouse->update();
-            if (omat != m_mouse->matrix)
+            if (omat != m_mouse->getMatrix())
                 changed = true;
             if (oxres != m_mouse->xres || oyres != m_mouse->yres || owidth != m_mouse->width || oheight != m_mouse->height)
                 changed = true;
@@ -660,9 +661,9 @@ bool Input::update()
             {
                 if (debug(Input::Matrices))
                 {
-                    if (omat != m_mouse->matrix)
+                    if (omat != m_mouse->getMatrix())
                     {
-                        std::cerr << "Input: transformed Mouse: mat=" << m_mouse->matrix << std::endl;
+                        std::cerr << "Input: transformed Mouse: mat=" << m_mouse->getMatrix() << std::endl;
                     }
                 }
                 if (oxres != m_mouse->xres || oyres != m_mouse->yres || owidth != m_mouse->width || oheight != m_mouse->height)
@@ -739,13 +740,13 @@ bool Input::update()
 
         len = tb.getData().length();
         vvMSController::instance()->syncData(&len, sizeof(len));
-        vvMSController::instance()->syncData(const_cast<char *>(tb.getData().data()), len);
+        vvMSController::instance()->syncData(const_cast<char *>(tb.getData().data()), (int)len);
     }
     else
     {
         vvMSController::instance()->syncData(&len, sizeof(len));
         DataHandle data(len);
-        vvMSController::instance()->syncData(&data.accessData()[0], len);
+        vvMSController::instance()->syncData(&data.accessData()[0], (int)len);
         TokenBuffer tb(data);
         tb >> activePerson;
         tb >> nButtons >> nValuators >> nBodies;

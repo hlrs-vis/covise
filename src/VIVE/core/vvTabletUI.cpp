@@ -8,7 +8,7 @@
 #include <util/common.h>
 
 #include <util/unixcompat.h>
-#include <util/vvTabletUIMessages.h>
+#include <util/coTabletUIMessages.h>
 #include <util/threadname.h>
 #include "vvTabletUI.h"
 #include <net/covise_connect.h>
@@ -265,7 +265,7 @@ void vvTUIFileBrowserButton::parseMessage(TokenBuffer &tb)
     }
     else if (i == TABLET_FB_FILE_SEL)
     {
-        //File selected for opening in OpenCOVER
+        //File selected for opening in VIVE
         const char *cstrFile = NULL;
         const char *cstrDirectory = NULL;
 		bool bLoadAll=false;
@@ -877,7 +877,7 @@ void vvTUIFileBrowserButton::setMode(DialogMode mode)
 }
 
 // Method which is called from external of vvTabletUI to allow
-// OpenCOVER to initially set the range of available filter extensions
+// VIVE to initially set the range of available filter extensions
 // used in the file dialog in the TUI.
 void vvTUIFileBrowserButton::setFilterList(std::string filterList)
 {
@@ -1018,7 +1018,7 @@ void vvTUIFileBrowserButton::setMode(DialogMode mode)
 }
 
 // Method which is called from external of vvTabletUI to allow
-// OpenCOVER to initially set the range of available filter extensions
+// VIVE to initially set the range of available filter extensions
 // used in the file dialog in the TUI.
 void vvTUIFileBrowserButton::setFilterList(std::string filterList)
 {
@@ -3545,7 +3545,7 @@ void vvTUIComboBox::delEntry(const std::string &t)
 
 int vvTUIComboBox::getNumEntries()
 {
-    return elements.size();
+    return (int)elements.size();
 }
 
 void vvTUIComboBox::clear()
@@ -3594,7 +3594,7 @@ void vvTUIComboBox::setSelectedEntry(int e)
 {
     selection = e;
     if (e >= elements.size())
-        selection = elements.size() - 1;
+        selection = (int)elements.size() - 1;
     if (selection < 0)
         return;
 	std::string selectedEntry;
@@ -3754,7 +3754,7 @@ void vvTUIListBox::setSelectedEntry(int e)
 {
     selection = e;
     if (e >= elements.size())
-        selection = elements.size() - 1;
+        selection = (int)elements.size() - 1;
     if (selection < 0)
         return;
 	std::string selectedEntry;

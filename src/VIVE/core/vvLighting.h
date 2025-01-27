@@ -5,27 +5,14 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_VR_LIGHTING_H
-#define CO_VR_LIGHTING_H
-
-/*! \file
- \brief  manage light sources
-
- \author (C)
-         Computer Centre University of Stuttgart,
-         Allmandring 30,
-         D-70550 Stuttgart,
-         Germany
-
- \date
- */
+#pragma once
 
 #include <util/common.h>
 #include <map>
 
-#include <osg/Vec4>
-#include <osg/LightSource>
-#include <osg/ref_ptr>
+#include <vsg/maths/vec4.h>
+#include <vsg/lighting/Light.h>
+#include <vsg/core/ref_ptr.h>
 namespace vive {
 namespace ui {
 class Menu;
@@ -56,7 +43,7 @@ public:
     ui::Button *switchSpotlight_;
     bool spotlightState;
 
-    multimap<string, osg::LightSource *> m;
+    multimap<string, vsg::Light *> m;
 
 public:
 
@@ -81,8 +68,8 @@ public:
         SpotDef spot;
     } LightDef;
 
-    vsg::ref_ptr<osg::LightSource> light1;
-    vsg::ref_ptr<osg::LightSource> light2;
+    vsg::ref_ptr<vsg::Light> light1;
+    vsg::ref_ptr<vsg::Light> light2;
 
     // rescue values of specular lights
     vsg::vec4 headlightSpec, light1Spec, light2Spec, spotlightSpec;
@@ -94,7 +81,7 @@ public:
        *  @param   force        Create even when no values in covise.config
        *  @retun   NULL if section missing and no 'force', pointer to Light otherwise
        */
-    osg::LightSource *createLightSource(const char *configName,
+    vsg::Light *createLightSource(const char *configName,
                                         const LightDef &defValue,
                                         bool force);
 
@@ -107,12 +94,12 @@ public:
 
     struct Light
     {
-        Light(osg::LightSource *ls, vsg::Node *r)
+        Light(vsg::Light *ls, vsg::Node *r)
         {
             source = ls;
             root = r;
         }
-        vsg::ref_ptr<osg::LightSource> source;
+        vsg::ref_ptr<vsg::Light> source;
         vsg::ref_ptr<vsg::Node> root;
         bool on;
     };
@@ -122,9 +109,9 @@ public:
     void init();
 
 public:
-    vsg::ref_ptr<osg::LightSource> headlight;
-    vsg::ref_ptr<osg::LightSource> spotlight;
-    vsg::ref_ptr<osg::LightSource> shadowlight;
+    vsg::ref_ptr<vsg::Light> headlight;
+    vsg::ref_ptr<vsg::Light> spotlight;
+    vsg::ref_ptr<vsg::Light> shadowlight;
     static vvLighting *instance();
 
     virtual ~vvLighting();
@@ -132,22 +119,21 @@ public:
     void update();
 
     // add light to scene
-    int addLight(osg::LightSource *ls, vsg::Group *parent = NULL, vsg::Node *root = NULL, const char *menuName = NULL);
+    int addLight(vsg::Light*ls, vsg::Group *parent = NULL, vsg::Node *root = NULL, const char *menuName = NULL);
 
     // remove light from scene
-    osg::LightSource *removeLight(osg::LightSource *ls);
+    vsg::Light *removeLight(vsg::Light *ls);
 
     // switch light
     // if limitToBranch is set, switch inside it only
-    osg::LightSource *switchLight(osg::LightSource *ls, bool on, vsg::Node *limitToBranch = NULL);
+    vsg::Light *switchLight(vsg::Light *ls, bool on, vsg::Node *limitToBranch = NULL);
 
     // switch lights other than headlight and spot light
     void switchOtherLights(bool on);
     
-    osg::LightSource *getShadowLight(){return shadowlight;};
-    void setShadowLight(osg::LightSource *ls);
+    vsg::Light *getShadowLight(){return shadowlight;};
+    void setShadowLight(vsg::Light *ls);
 
     bool isLightEnabled(size_t ln) const;
 };
 }
-#endif

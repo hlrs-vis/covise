@@ -11,7 +11,7 @@
 
 #include <util/common.h>
 
-//#include "ui/Owner.h"
+#include "ui/Owner.h"
 
 namespace vv
 {
@@ -27,7 +27,7 @@ class angleStruct;
 class vvStatsDisplay;
 class InitGLOperation;
 
-class VVCORE_EXPORT vvViewer : public vsg::Inherit<vsg::Viewer, vvViewer> //, public ui::Owner
+class VVCORE_EXPORT vvViewer : public vsg::Inherit<vsg::Viewer, vvViewer>, public ui::Owner
 {
     friend class vvVIVE;
 public:
@@ -35,7 +35,7 @@ public:
     static bool mustDraw();
 
     /** Updated the scene.  Handle any queued up events, do an update traversal and set the CameraGroup's setViewByMatrix if any camera manipulators are active.*/
-    virtual void update();
+    virtual void vvUpdate();
 
 
 
@@ -81,6 +81,7 @@ public:
     vsg::dvec3 eyeOffset(Eye eye) const;
 
     static vvViewer *instance();
+    static void destroy();
     void setSeparation(float stereoSep);
     vvViewer();
 
@@ -132,9 +133,14 @@ public:
 
 
     bool m_fullscreen = false;
+    bool compileNode(vsg::ref_ptr<vsg::Node>& node);
+
+    void InitialCompile();
 
 private:
-    static vvViewer* s_singleton;
+    static vsg::ref_ptr<vvViewer> s_singleton;
+    vsg::CommandGraphs commandGraphs;
+    vsg::ref_ptr<vsg::MatrixTransform> loadedScene;
 
     // stereo parameters
     char stereoCommand[500];
@@ -169,6 +175,7 @@ private:
 
     std::list<vsg::ref_ptr<vsg::Camera> > myCameras;
     void setAffinity();
+    bool InitialCompileDone = false;
 
 };
 

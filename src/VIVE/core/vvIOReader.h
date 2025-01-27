@@ -5,23 +5,23 @@
 
  * License: LGPL 2+ */
 
-#ifndef COVRIOREADER_H
-#define COVRIOREADER_H
+#ifndef vvIOReader_H
+#define vvIOReader_H
 
 #include <vsg/nodes/Node.h>
 
 #include <list>
 #include <string>
 
-#include <cover/coVRIOBase.h>
+#include "vvIOBase.h"
 
 namespace vive
 {
-class VVCORE_EXPORT coVRIOReader : public virtual coVRIOBase
+class VVCORE_EXPORT vvIOReader : public virtual vvIOBase
 {
 public:
-    coVRIOReader();
-    virtual ~coVRIOReader();
+    vvIOReader();
+    virtual ~vvIOReader();
 
     enum IOStatus
     {
@@ -100,4 +100,4 @@ protected:
     std::list<std::string> supportedReadFileExtensions;
 };
 }
-#endif // COVRIOREADER_H
+#endif // vvIOReader_H

@@ -13,4 +13,4 @@ SET(SOURCES
    CAVELIBDriver.cpp
 )
 
-cover_add_plugin(input_cavelib)
+vive_add_plugin(vvInput_cavelib)

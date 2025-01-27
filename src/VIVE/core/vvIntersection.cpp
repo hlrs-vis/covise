@@ -27,6 +27,7 @@
 
 #include "vvNavigationManager.h"
 #include "vvIntersectionInteractorManager.h"
+#include "vvIntersectionInteractor.h"
 #include "vvMSController.h"
 
 #include <util/coWristWatch.h>
@@ -34,11 +35,10 @@
 #include <limits>
 
 using namespace vsg;
-using namespace osgUtil;
 using namespace vrui;
 using covise::coCoviseConfig;
 
-namespace  opencover {
+namespace  vive {
 
 vvIntersection *vvIntersection::intersector = 0;
 
@@ -46,25 +46,24 @@ int vvIntersection::myFrameIndex = -1;
 int vvIntersection::myFrame = 0;
 
 
-coIntersector::coIntersector(const Vec3 &start, const Vec3 &end)
-: osgUtil::LineSegmentIntersector(start, end)
-{}
-
-void coIntersector::addHandler(vsg::ref_ptr<IntersectionHandler> handler)
+void vive::vvIntersector::addHandler(vsg::ref_ptr<IntersectionHandler> handler)
 {
     _handlers.push_back(handler);
 }
 
-bool coIntersector::intersectAndClip(Vec3d &s, Vec3d &e, const BoundingBox &bb)
+vvIntersector::vvIntersector(const vsg::dvec3&start, const vsg::dvec3&end): Inherit<LineSegmentIntersector,vvIntersector>(start, end)
+{}
+/*
+bool vvIntersector::intersectAndClip(vsg::vec3d &s, vsg::vec3d &e, const BoundingBox &bb)
 {
     return LineSegmentIntersector::intersectAndClip(s, e, bb);
 }
 
-osgUtil::Intersector *coIntersector::clone(osgUtil::IntersectionVisitor &iv)
+osgUtil::Intersector *vvIntersector::clone(osgUtil::IntersectionVisitor &iv)
 {
     if ( _coordinateFrame==MODEL && iv.getModelMatrix()==0 )
     {
-        vsg::ref_ptr<coIntersector> cloned = new coIntersector(_start, _end);
+        vsg::ref_ptr<vvIntersector> cloned = new vvIntersector(_start, _end);
         cloned->_parent = this;
         cloned->_handlers = _handlers;
         return cloned.release();
@@ -94,13 +93,13 @@ osgUtil::Intersector *coIntersector::clone(osgUtil::IntersectionVisitor &iv)
     }
 
     vsg::dmat4 inverse = vsg::inverse(matrix);
-    vsg::ref_ptr<coIntersector> cloned = new coIntersector(_start*inverse, _end*inverse);
+    vsg::ref_ptr<vvIntersector> cloned = new vvIntersector(_start*inverse, _end*inverse);
     cloned->_parent = this;
     cloned->_handlers = _handlers;
     return cloned.release();
 }
 
-void coIntersector::intersect(osgUtil::IntersectionVisitor &iv, vsg::Node *drawable)
+void vvIntersector::intersect(osgUtil::IntersectionVisitor &iv, vsg::Node *drawable)
 {
     for (auto &h: _handlers)
     {
@@ -115,8 +114,12 @@ void coIntersector::intersect(osgUtil::IntersectionVisitor &iv, vsg::Node *drawa
 }
 
 
+*/
 
-
+bool vvIntersector::intersects(const vsg::dsphere& bs)
+{
+    return false;
+}
 
 vvIntersection::vvIntersection()
     : elapsedTimes(1)
@@ -127,7 +130,7 @@ vvIntersection::vvIntersection()
 
     if (myFrameIndex < 0)
     {
-        myFrameIndex = frames().size();
+        myFrameIndex = (int)frames().size();
         frameIndex = myFrameIndex;
         frames().push_back(&myFrame);
         intersectors().push_back(this);
@@ -151,9 +154,9 @@ vvIntersection::~vvIntersection()
     intersector = NULL;
 }
 
-coIntersector *vvIntersection::newIntersector(const dvec3 &start, const dvec3 &end)
+vvIntersector *vvIntersection::newIntersector(const vsg::dvec3 &start, const vsg::dvec3 &end)
 {
-    auto intersector = new coIntersector(start, end);
+    auto intersector = new vvIntersector(start, end);
     for (auto h: handlers)
         intersector->addHandler(h);
     return intersector;
@@ -176,7 +179,7 @@ vvIntersection *vvIntersection::instance()
 
 void vvIntersection::intersect()
 {
-    double beginTime = vvViewer::instance()->elapsedTime();
+   // double beginTime = vvViewer::instance()->elapsedTime();
 
     vv->intersectedNode = 0;
 
@@ -193,9 +196,9 @@ void vvIntersection::intersect()
             {
                 vsg::dmat4 handMat = vv->getPointerMat();
                 vsg::dmat4 o_to_w = vv->getBaseMat();
-                vsg::vec3 currentInterPos_w = vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->matrix.getTrans() * o_to_w;
+                vsg::dvec3 currentInterPos_w = getTrans(vvIntersectionInteractorManager::the()->getCurrentIntersectionInteractor()->getMatrix()) * o_to_w;
                 //fprintf(stderr, "--- vvIntersection::intersect currentInterPos_o(%f %f %f) \n", currentInterPos_w.x(),currentInterPos_w.y(),currentInterPos_w.z());
-                handMat.setTrans(currentInterPos_w);
+                setTrans(handMat,currentInterPos_w);
 
                 intersect(handMat, false);
             }
@@ -207,7 +210,7 @@ void vvIntersection::intersect()
       {
          //fprintf(stderr, "vvIntersection::intersect() wiiMode\n");
          Matrix m = vv->getPointerMat();
-         Vec3 trans = m.getTrans();
+         vsg::vec3 trans = m.getTrans();
          //fprintf(stderr, "trans %f %f %f\n", trans[0], trans[1], trans[2]);
          //trans[1] = -500;
          m.setTrans(trans);
@@ -224,7 +227,7 @@ void vvIntersection::intersect()
     // for debug only
     //vvMSController::instance()->agreeInt(2002);
     }
-
+    /*
     if (vvViewer::instance()->getViewerStats() && vvViewer::instance()->getViewerStats()->collectStats("isect"))
     {
         int fn = vvViewer::instance()->getFrameStamp()->getFrameNumber();
@@ -232,22 +235,22 @@ void vvIntersection::intersect()
         vvViewer::instance()->getViewerStats()->setAttribute(fn, "Isect begin time", beginTime);
         vvViewer::instance()->getViewerStats()->setAttribute(fn, "Isect end time", endTime);
         vvViewer::instance()->getViewerStats()->setAttribute(fn, "Isect time taken", endTime - beginTime);
-    }
+    }*/
 }
 
 void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
 {
     //VRUILOG("vvIntersection::intersect info: called");
-    Vec3 q0, q1;
+    vsg::dvec3 q0, q1;
 
-    q0.set(0.0f, 0.0f, 0.0f);
+    q0.set(0.0, 0.0, 0.0);
     q1.set(0.0f, intersectionDist, 0.0f);
 
     // xform the intersection line segment
-    q0 = handMat.preMult(q0);
-    q1 = handMat.preMult(q1);
+    q0 = handMat * q0;
+    q1 = handMat * q1;
 
-    if ((q1-q0).length2() < std::numeric_limits<float>::epsilon())
+    if (length2(q1-q0) < std::numeric_limits<float>::epsilon())
     {
         std::cerr << "vvIntersection: intersectionDist=" << intersectionDist << " too short" << std::endl;
         return;
@@ -259,12 +262,13 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
     std::cerr << "vvIntersection::intersect info: ray from " << q0 << " to " << q1 << std::endl;
 #endif
 
-    ref_ptr<LineSegment> ray = new LineSegment();
-    ray->set(q0, q1);
+    LineSegment ray;
+    ray.start = q0;
+    ray.end = q1;
 
     if (q0 != q1)
     {
-        IntersectionVisitor visitor;
+        /*IntersectionVisitor visitor;
         if (numIsectAllNodes > 0)
         {
             visitor.setTraversalMask(Isect::Pick);
@@ -273,7 +277,7 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
         {
             visitor.setTraversalMask(Isect::Intersection);
         }
-        vsg::ref_ptr<coIntersector> intersector = new coIntersector(ray->start(), ray->end());
+        vsg::ref_ptr<vvIntersector> intersector = new vvIntersector(ray->start(), ray->end());
         for (auto h: handlers)
             intersector->addHandler(h);
         visitor.setIntersector(intersector.get());
@@ -352,7 +356,7 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
                     vv->intersectedDrawable = isect.drawable;
                     vv->intersectedNode = nullptr;
                     if (isect.drawable->getNumParents() > 0)
-                        vv->intersectedNode = dynamic_cast<osg::Geode *>(isect.drawable->getParent(0));
+                        vv->intersectedNode = dynamic_cast<vsg::Node *>(isect.drawable->getParent(0));
 
                     //if( !vv->intersectedNode.get()->getName().empty())
                     //    fprintf(stderr,"vvIntersection::intersect hit node %s\n", vv->intersectedNode.get()->getName().c_str());
@@ -378,7 +382,7 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
             //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
             //   }
             //}
-        }
+        }*/
     }
    /* // for debug only
     vvMSController::instance()->agreeInt((int)(vv->intersectedNode!=NULL));

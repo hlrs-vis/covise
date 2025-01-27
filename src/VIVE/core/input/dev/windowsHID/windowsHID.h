@@ -18,10 +18,11 @@
 #include <OpenThreads/Thread>
 #include <osg/Matrix>
 
-#include <cover/input/inputdevice.h>
-#include "coRawDevice.h"
+#include "vvRawDevice.h"
 
-using namespace opencover;
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 /**
  * @brief The InputDevice class interacts with input hardware
@@ -34,8 +35,8 @@ using namespace opencover;
 class windowsHID : public InputDevice
 {
     //---------------------Mouse related stuff
-    coRawDeviceManager *rawMouseManager; /// Windows HID Devices class
-    coRawDevice *rawMouse; // the inputDevice
+    vvRawDeviceManager *rawMouseManager; /// Windows HID Devices class
+    vvRawDevice *rawMouse; // the inputDevice
 
     unsigned int btnstatus, oldbtnstatus; /// Mouse Button status bit masks
 

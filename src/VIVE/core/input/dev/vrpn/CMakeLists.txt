@@ -8,4 +8,4 @@ SET(SOURCES
    VRPNDriver.cpp
 )
 
-cover_add_plugin(input_vrpn)
+vive_add_plugin(vvInput_vrpn)

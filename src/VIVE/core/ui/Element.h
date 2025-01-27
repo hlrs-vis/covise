@@ -22,10 +22,10 @@ namespace vive {
 
 namespace ui {
 
-/** \mainpage COVER Abstract UI
+/** \mainpage VIVE Abstract UI
 
   The classes deriving from Element implement the policy and serve as a description language for
-  concrete implementations of the user interface for OpenCOVER.
+  concrete implementations of the user interface for VIVE.
 
   They are based on Owner and thus can manage the life time of child objects (i.e. delete them
   whenever they themselves are destroyed) and can be managed by parent Owner objects.
@@ -41,7 +41,7 @@ namespace ui {
   Changes from one view are automatically reflected in every other view.
   Concrete implementations of views have to derive from the abstract class View.
   Currently, there are implementations for the menu bar in a Qt window (QtView) and
-  for the OpenCOVER VR user interface (VruiView) as well as the TabletUI (TabletView).
+  for the VIVE VR user interface (VruiView) as well as the TabletUI (TabletView).
   State changes within \ref Element "elements" are communicated to the application by
   invoking appropriate callback function objects.
 

@@ -8,7 +8,7 @@
 
 #include "IData.h"
 #include <net/message.h>
-#include <cover/vvTabletUI.h>
+#include <vvTabletUI.h>
 #include <vrb/client/VRBClient.h>
 
 namespace vive

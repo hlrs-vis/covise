@@ -13,4 +13,4 @@ if (HIDAPI_FOUND)
     set(EXTRA_LIBS ${EXTRA_LIBS} ${HIDAPI_LIBRARIES})
 endif()
 
-cover_add_plugin(input_spacenavigator)
+vive_add_plugin(vvInput_spacenavigator)

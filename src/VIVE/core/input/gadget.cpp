@@ -16,7 +16,7 @@ using namespace covise;
 namespace vive
 {
 
-const vsg::dmat4 Gadget::s_identity = vsg::dmat4::identity();
+const vsg::dmat4 Gadget::s_identity;
 
 Gadget::Gadget(const std::string &name): m_name(name)
 {

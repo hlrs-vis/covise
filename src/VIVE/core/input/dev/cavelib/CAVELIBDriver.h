@@ -12,14 +12,14 @@
  *      Author: hpcwoess
  */
 
-#ifndef CAVELIB_DRIVER_H
-#define CAVELIB_DRIVER_H
+#pragma once
 
-#include <OpenThreads/Thread>
-#include <osg/Matrix>
+#include <vsg/maths/mat4.h>
 #include <string>
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 #include <util/coExport.h>
 
 
@@ -224,7 +224,7 @@ struct TRACKD_WAND
  *
  * Main interaction loop runs in its own thread
  */
-class CAVELIBDriver : public opencover::InputDevice
+class CAVELIBDriver : public vive::InputDevice
 {
    
 
@@ -248,4 +248,3 @@ public:
     
     virtual void update();
 };
-#endif

@@ -127,7 +127,7 @@ void vvMeasurement::update()
     vsg::dvec3 dir1 = hit - orthoHit;
     vsg::dvec3 dir2 = cross(dir1,orthoHit - startHit);
     dir2 *= (length(dir1) / length(dir2));
-    float delta = 2.0f * M_PI / 49.0f; // 50-1 because we need the first/last point twice
+    double delta = 2.0f * M_PI / 49.0f; // 50-1 because we need the first/last point twice
     int i(0);
     while (i < 50)
     {
@@ -142,10 +142,10 @@ void vvMeasurement::update()
 
     // label
 
-    vsg::vec3 label1Pos = (startHit + hit * 2.0) / 3.0f;
+    vsg::dvec3 label1Pos = (startHit + hit * 2.0) / 3.0;
     measureLabel_->setPositionInScene(label1Pos);
 
-    vsg::vec3 label2Pos = (startHit * 2.0 + orthoHit) / 3.0f;
+    vsg::dvec3 label2Pos = (startHit * 2.0 + orthoHit) / 3.0;
     measureOrthoLabel_->setPositionInScene(label2Pos);
 
     std::stringstream ss1;

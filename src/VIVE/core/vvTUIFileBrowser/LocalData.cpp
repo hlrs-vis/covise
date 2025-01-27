@@ -7,7 +7,7 @@
 
 #include "LocalData.h"
 #include "vvFileManager.h"
-#include <util/vvTabletUIMessages.h>
+#include <util/coTabletUIMessages.h>
 #include <net/tokenbuffer.h>
 #include <tui/coAbstractTabletUI.h>
 #include <QDir>

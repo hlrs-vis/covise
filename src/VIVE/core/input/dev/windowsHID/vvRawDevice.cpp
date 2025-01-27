@@ -5,17 +5,17 @@
 
  * License: LGPL 2+ */
 
-#include "coRawDevice.h"
+#include "vvRawDevice.h"
 #include <stdio.h>
 #include <util/unixcompat.h>
 
-using namespace opencover;
-coRawDevice::coRawDevice(int n)
+using namespace vive;
+vvRawDevice::vvRawDevice(int n)
 {
     buttonNumber = n;
 }
 
-coRawDevice::coRawDevice(const char *deviceName)
+vvRawDevice::vvRawDevice(const char *deviceName)
 {
     buttonNumber = 0;
     if (deviceName == NULL)
@@ -28,12 +28,12 @@ coRawDevice::coRawDevice(const char *deviceName)
             devName[i] = '#';
     }*/
     fprintf(stderr, "looking for:%s\n", deviceName);
-    for (int i = 0; i < coRawDeviceManager::instance()->numDevices(); i++)
+    for (int i = 0; i < vvRawDeviceManager::instance()->numDevices(); i++)
     {
-        if(strlen(coRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
+        if(strlen(vvRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
         {
-            fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
-            if ((coRawDeviceManager::instance()->rawDevices[i].type != RIM_TYPEHID) && strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
+            fprintf(stderr, "try        :%s\n", vvRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
+            if ((vvRawDeviceManager::instance()->rawDevices[i].type != RIM_TYPEHID) && strncasecmp(deviceName, vvRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
             {
                 // currently only one button device works TODO fix itbuttonNumber = i;
 
@@ -44,9 +44,9 @@ coRawDevice::coRawDevice(const char *deviceName)
         }
         else
         {
-            fprintf(stderr, "ignoring        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName);
+            fprintf(stderr, "ignoring        :%s\n", vvRawDeviceManager::instance()->rawDevices[i].deviceName);
         }
-        /*if (strncasecmp(devName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(devName)) == 0)
+        /*if (strncasecmp(devName, vvRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(devName)) == 0)
         {
             buttonNumber = i;
             break;
@@ -55,33 +55,33 @@ coRawDevice::coRawDevice(const char *deviceName)
     //delete[] devName;
 }
 
-coRawDevice::~coRawDevice()
+vvRawDevice::~vvRawDevice()
 {
 }
 
-int coRawDevice::getX()
+int vvRawDevice::getX()
 {
-    return coRawDeviceManager::instance()->rawDevices[buttonNumber].x;
+    return vvRawDeviceManager::instance()->rawDevices[buttonNumber].x;
 }
-int coRawDevice::getY()
+int vvRawDevice::getY()
 {
-    return coRawDeviceManager::instance()->rawDevices[buttonNumber].y;
+    return vvRawDeviceManager::instance()->rawDevices[buttonNumber].y;
 }
-int coRawDevice::getWheelCount()
+int vvRawDevice::getWheelCount()
 {
-    return coRawDeviceManager::instance()->rawDevices[buttonNumber].z;
+    return vvRawDeviceManager::instance()->rawDevices[buttonNumber].z;
 }
-bool coRawDevice::getButton(int i)
+bool vvRawDevice::getButton(int i)
 {
-    return coRawDeviceManager::instance()->is_raw_device_button_pressed(buttonNumber, i) != 0;
+    return vvRawDeviceManager::instance()->is_raw_device_button_pressed(buttonNumber, i) != 0;
 }
 
-unsigned int coRawDevice::getButtonBits()
+unsigned int vvRawDevice::getButtonBits()
 {
     unsigned int bits = 0;
     for (int i = 0; i < MAX_RAW_MOUSE_BUTTONS; i++)
     {
-        if (coRawDeviceManager::instance()->is_raw_device_button_pressed(buttonNumber, i))
+        if (vvRawDeviceManager::instance()->is_raw_device_button_pressed(buttonNumber, i))
         {
             if (i == 1)
                 bits |= (1 << 2);
@@ -98,7 +98,7 @@ unsigned int coRawDevice::getButtonBits()
 //	numDevices
 //============================================================
 
-int coRawDeviceManager::numDevices()
+int vvRawDeviceManager::numDevices()
 {
     return nInputDevices;
 }
@@ -107,7 +107,7 @@ int coRawDeviceManager::numDevices()
 //	is_rm_rdp_device
 //============================================================
 
-BOOL coRawDeviceManager::is_rm_rdp_device(char cDeviceString[])
+BOOL vvRawDeviceManager::is_rm_rdp_device(char cDeviceString[])
 {
     int i;
     char cRDPString[] = "\\??\\Root#RDP_MOU#0000#";
@@ -132,7 +132,7 @@ BOOL coRawDeviceManager::is_rm_rdp_device(char cDeviceString[])
 //	register_raw_device
 //============================================================
 
-BOOL coRawDeviceManager::register_raw_device(void)
+BOOL vvRawDeviceManager::register_raw_device(void)
 {
     // This function registers to receive the WM_INPUT messages
     RAWINPUTDEVICE Rid[10]; 
@@ -179,7 +179,7 @@ BOOL coRawDeviceManager::register_raw_device(void)
 //	read_raw_input
 //============================================================
 
-BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
+BOOL vvRawDeviceManager::read_raw_input(PRAWINPUT raw)
 {
     for (int i=0; i < nInputDevices; i++)
     {
@@ -306,7 +306,7 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
 //	is_raw_device_button_pressed
 //============================================================
 
-BOOL coRawDeviceManager::is_raw_device_button_pressed(int devicenum, int buttonnum)
+BOOL vvRawDeviceManager::is_raw_device_button_pressed(int devicenum, int buttonnum)
 {
 
     // It's ok to ask if buttons are pressed for unitialized mice - just tell 'em no button's pressed
@@ -319,7 +319,7 @@ BOOL coRawDeviceManager::is_raw_device_button_pressed(int devicenum, int buttonn
 //============================================================
 //	is_raw_device_absolute
 //============================================================
-BOOL coRawDeviceManager::is_raw_device_absolute(int devicenum)
+BOOL vvRawDeviceManager::is_raw_device_absolute(int devicenum)
 {
     return (rawDevices[devicenum].is_absolute);
 }
@@ -327,7 +327,7 @@ BOOL coRawDeviceManager::is_raw_device_absolute(int devicenum)
 //============================================================
 //	is_raw_device_virtual_desktop
 //============================================================
-BOOL coRawDeviceManager::is_raw_device_virtual_desktop(int devicenum)
+BOOL vvRawDeviceManager::is_raw_device_virtual_desktop(int devicenum)
 {
     return (rawDevices[devicenum].is_virtual_desktop);
 }
@@ -336,7 +336,7 @@ BOOL coRawDeviceManager::is_raw_device_virtual_desktop(int devicenum)
 //	get_raw_device_button_name
 //============================================================
 
-char *coRawDeviceManager::get_raw_device_button_name(int devicenum, int buttonnum)
+char *vvRawDeviceManager::get_raw_device_button_name(int devicenum, int buttonnum)
 {
     if (devicenum >= nInputDevices || buttonnum >= MAX_RAW_MOUSE_BUTTONS || rawDevices == NULL)
         return NULL;
@@ -347,7 +347,7 @@ char *coRawDeviceManager::get_raw_device_button_name(int devicenum, int buttonnu
 //	processData
 //============================================================
 
-BOOL coRawDeviceManager::processData(HANDLE in_device_handle)
+BOOL vvRawDeviceManager::processData(HANDLE in_device_handle)
 {
     // When the WM_INPUT message is received, the lparam must be passed to this function to keep a running tally of
     //     every device moves to maintain accurate results for get_raw_device_?_delta().
@@ -390,7 +390,7 @@ BOOL coRawDeviceManager::processData(HANDLE in_device_handle)
 //	get_raw_device_x_delta
 //============================================================
 
-ULONG coRawDeviceManager::get_raw_device_x_delta(int devicenum)
+ULONG vvRawDeviceManager::get_raw_device_x_delta(int devicenum)
 {
     ULONG nReturn = 0;
 
@@ -408,7 +408,7 @@ ULONG coRawDeviceManager::get_raw_device_x_delta(int devicenum)
 //	get_raw_device_y_delta
 //============================================================
 
-ULONG coRawDeviceManager::get_raw_device_y_delta(int devicenum)
+ULONG vvRawDeviceManager::get_raw_device_y_delta(int devicenum)
 {
     ULONG nReturn = 0;
 
@@ -426,7 +426,7 @@ ULONG coRawDeviceManager::get_raw_device_y_delta(int devicenum)
 //	get_raw_device_z_delta
 //============================================================
 
-ULONG coRawDeviceManager::get_raw_device_z_delta(int devicenum)
+ULONG vvRawDeviceManager::get_raw_device_z_delta(int devicenum)
 {
     ULONG nReturn = 0;
 
@@ -447,25 +447,25 @@ LRESULT CALLBACK
 
     case WM_INPUT:
     {
-        coRawDeviceManager::instance()->processData((HRAWINPUT)lParam);
+        vvRawDeviceManager::instance()->processData((HRAWINPUT)lParam);
     }
     break;
     }
     return DefWindowProc(hwnd, nMsg, wParam, lParam);
 }
 
-coRawDeviceManager *coRawDeviceManager::inst = NULL;
+vvRawDeviceManager *vvRawDeviceManager::inst = NULL;
 
-coRawDeviceManager *coRawDeviceManager::instance()
+vvRawDeviceManager *vvRawDeviceManager::instance()
 {
     if (inst == NULL)
     {
-        inst = new coRawDeviceManager();
+        inst = new vvRawDeviceManager();
     }
     return inst;
 }
 
-coRawDeviceManager::~coRawDeviceManager()
+vvRawDeviceManager::~vvRawDeviceManager()
 {
     int i, j;
     for (i = 0; i < nInputDevices; i++)
@@ -481,7 +481,7 @@ coRawDeviceManager::~coRawDeviceManager()
     delete[] rawDevices;
 }
 
-coRawDeviceManager::coRawDeviceManager()
+vvRawDeviceManager::vvRawDeviceManager()
 {
 
     oldSize = 0;
@@ -562,7 +562,7 @@ coRawDeviceManager::coRawDeviceManager()
     }
     bHasBeenInitialized = 1;
 }
-void coRawDeviceManager::escape(std::string &data)
+void vvRawDeviceManager::escape(std::string &data)
 {
     std::string::size_type pos = 0;
     for (;;)
@@ -582,7 +582,7 @@ void coRawDeviceManager::escape(std::string &data)
         pos += replacement.size();
     };
 }
-void coRawDeviceManager::setupDevices()
+void vvRawDeviceManager::setupDevices()
 {
     fprintf(stderr, "setup Devices for raw input\n");
     char buffer[80];
@@ -721,7 +721,7 @@ void coRawDeviceManager::setupDevices()
     }
 
 }
-void coRawDeviceManager::update() // read all pending messages if any and process them
+void vvRawDeviceManager::update() // read all pending messages if any and process them
 {
 
     MSG msg;

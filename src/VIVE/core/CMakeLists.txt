@@ -209,7 +209,7 @@ SET(DEVICE_SOURCES
    input/buttondevice.cpp
    input/valuator.cpp
 
-   input/coMousePointer.cpp
+   input/vvMousePointer.cpp
    input/deviceDiscovery.cpp
 )
 
@@ -225,7 +225,7 @@ SET(DEVICE_HEADERS
    input/valuator.h
 
    input/VRKeys.h
-   input/coMousePointer.h
+   input/vvMousePointer.h
    input/deviceDiscovery.h
 )
 
@@ -250,14 +250,14 @@ IF(HAVE_NORM) # or NORM_FOUND ... TODO
 ENDIF(HAVE_NORM)
 
 SET(VIVE_MOCS
-#  vvTabletUI.h
-#  vvVrbMenu.h
+  vvTabletUI.h
+  vvVrbMenu.h
 )
 
 if(COVISE_USE_QT)
 SET(TMP_VIVE_MOCS )
 FOREACH(tmp_src ${VIVE_MOCS})
-   LIST(APPEND TMP_VIVE_MOCS "${VIVEDIR}/VIVE/${tmp_src}")
+   LIST(APPEND TMP_VIVE_MOCS "${VIVEDIR}/core/${tmp_src}")
 ENDFOREACH(tmp_src)
 SET(VIVE_MOCS ${TMP_VIVE_MOCS})
 

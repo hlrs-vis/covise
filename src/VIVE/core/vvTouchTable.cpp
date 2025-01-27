@@ -26,7 +26,7 @@
  *	Status			in dev					*
  *
  */
-#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/vsg/mathUtils.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -37,39 +37,37 @@
 
 #include <sysdep/opengl.h>
 #include <config/CoviseConfig.h>
-#include "coVRTouchTable.h"
+#include "vvTouchTable.h"
 #include "vvViewer.h"
 #include "vvConfig.h"
 #include "vvPluginSupport.h"
 #include "vvPluginList.h"
 #include "vvTui.h"
-#include <osg/Geode>
-#include <osg/StateSet>
 
 using namespace vive;
 using namespace covise;
-coVRTouchTable *coVRTouchTable::tt = NULL;
-coVRTouchTable::coVRTouchTable()
+vvTouchTable *vvTouchTable::tt = NULL;
+vvTouchTable::vvTouchTable()
 {
     tt = this;
     ttInterface = new vvTouchTableInterface();
 }
 
-coVRTouchTable *coVRTouchTable::instance()
+vvTouchTable *vvTouchTable::instance()
 {
     if (tt == NULL)
-        tt = new coVRTouchTable();
+        tt = new vvTouchTable();
     return tt;
 }
 
-void coVRTouchTable::config()
+void vvTouchTable::config()
 {
 }
 
-coVRTouchTable::~coVRTouchTable()
+vvTouchTable::~vvTouchTable()
 {
 }
 
-void coVRTouchTable::update()
+void vvTouchTable::update()
 {
 }

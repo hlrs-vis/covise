@@ -29,7 +29,7 @@
 #include "vvSelectionManager.h"
 #include "vvIntersection.h"
 #include <input/input.h>
-#include <input/coMousePointer.h>
+#include <input/vvMousePointer.h>
 #include <OpenVRUI/coNavInteraction.h>
 #include <OpenVRUI/coMouseButtonInteraction.h>
 #include <OpenVRUI/coRelativeInputInteraction.h>

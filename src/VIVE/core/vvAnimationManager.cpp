@@ -488,14 +488,14 @@ vvAnimationManager::update()
       {
          // rotate world
          vsg::dmat4 mat = objectsXformDCS->matrix;
-         mat.preMult(vsg::dmat4::translate(-rotationPoint[0],
+         mat.preMult(vsg::translate(-rotationPoint[0],
                   -rotationPoint[1],
                   -rotationPoint[2]));
-         mat.preMult(vsg::dmat4::rotate(diffAngle,
+         mat.preMult(vsg::rotate(diffAngle,
                   rotationAxis[0],
                   rotationAxis[1],
                   rotationAxis[2]));
-         mat.preMult(vsg::dmat4::translate(rotationPoint[0],
+         mat.preMult(vsg::translate(rotationPoint[0],
                   rotationPoint[1],
                   rotationPoint[2]));
          objectsXformDCS->matrix = (mat);

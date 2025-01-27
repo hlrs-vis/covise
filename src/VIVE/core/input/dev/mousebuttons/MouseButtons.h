@@ -5,8 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef _CO_MOUSEBUTTONS_H_
-#define _CO_MOUSEBUTTONS_H_
+#pragma once
 /************************************************************************
  *									*
  *          								*
@@ -56,7 +55,7 @@
 
 #define EVENT_TYPE 1
 #define PS2_TYPE 0
-namespace opencover
+namespace vive
 {
 class MouseButtons
 {
@@ -105,4 +104,3 @@ public:
     int deviceType;
 };
 }
-#endif

@@ -64,7 +64,7 @@ private:
     bool firstTime = true;
     bool _highliteHitNodeOnly;
 
-    osg::Geode *findGeode(vsg::Node *n);
+    vsg::Node *findGeode(vsg::Node *n);
 
 protected:
     vsg::ref_ptr<vsg::Node> geometryNode; ///< Geometry node

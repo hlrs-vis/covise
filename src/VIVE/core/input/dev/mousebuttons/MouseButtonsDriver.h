@@ -18,10 +18,11 @@
 #include <OpenThreads/Thread>
 #include <osg/Matrix>
 
-#include <cover/input/inputdevice.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 #include "MouseButtons.h"
 
-using namespace opencover;
 
 /**
  * @brief The InputHdw class interacts with input hardware

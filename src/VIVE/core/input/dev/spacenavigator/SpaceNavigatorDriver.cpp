@@ -26,9 +26,10 @@
 
 #include "SpaceNavigatorDriver.h"
 #include <config/CoviseConfig.h>
-#include <OpenVRUI/osg/mathUtils.h>
-#include <cover/input/input.h>
-#include <cover/coVRPluginSupport.h>
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
+#include <core/input/input.h>
+#include <core/vvPluginSupport.h>
+#include <vsg/maths/transform.h>
 #include <algorithm>
 
 #ifdef USE_HIDAPI
@@ -65,7 +66,7 @@ const int MaxButtons = 32;
 const int NumValuators = 6;
 const int SpaceNavZero = 5;
 
-using namespace opencover;
+using namespace vive;
 using covise::coCoviseConfig;
 
 // see <linux/input.h>
@@ -358,8 +359,8 @@ void SpaceNavigatorDriver::spaceMouseEvent(double transX, double transY, double 
 	smd.ty = transY;
 	smd.tz = transZ;
 
-	osg::Matrix relMat;
-	relMat.makeRotate(angle / 500.0, rotX, rotY, rotZ);
+	vsg::dmat4 relMat;
+    relMat = vsg::rotate(angle / 500.0, rotX, rotY, rotZ);
 	coCoord coord = relMat;
 	smd.h = coord.hpr[0];
 	smd.p = coord.hpr[1];

@@ -26,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <vsg/core/ref_ptr.h>
+#include <vsg/text/Font.h>
 #include <vsg/state/Sampler.h>
 #include <vsgXchange/all.h>
 #include <string>
@@ -61,7 +62,7 @@ class FileBrowser;
 }
 
 class vvTUIFileBrowserButton;
-class coVRIOReader;
+class vvIOReader;
 
 struct LoadedFile;
 
@@ -145,10 +146,10 @@ public:
     
     std::string findOrGetFile(const std::string &fileName, int where = 0);
     // load a OSG or VRML97 or other (via plugin) file
-    vsg::Node *loadFile(const char *file, vvTUIFileBrowserButton *fb = NULL, vsg::Group *parent = NULL, const char *covise_key = "");
+    vsg::ref_ptr<vsg::Node> loadFile(const char *file, vvTUIFileBrowserButton *fb = NULL, vsg::Group *parent = NULL, const char *covise_key = "");
 
     // replace the last loaded Performer or VRML97 file
-    vsg::Node *replaceFile(const char *file, vvTUIFileBrowserButton *fb = NULL, vsg::Group *parent = NULL, const char *covise_key = "");
+    vsg::ref_ptr<vsg::Node> replaceFile(const char *file, vvTUIFileBrowserButton *fb = NULL, vsg::Group *parent = NULL, const char *covise_key = "");
 
     // reload the previously loaded /*VRML*/ file
     void reloadFile();
@@ -165,16 +166,16 @@ public:
 
     // load an icon file, looks in covise/icons/$LookAndFeel or covise/icons
     // returns NULL, if nothing found
-    vsg::Node *loadIcon(const char *filename);
+    vsg::ref_ptr<vsg::Node> loadIcon(const char *filename);
 
     // loads a font
     // fontname can be NULL, which loads the default specified in the config (DroidSansFallbackFull.ttf if not in config), or "myfont.ttf"
     std::string getFontFile(const char *fontname);
-    vsg::ref_ptr<osgText::Font> loadFont(const char *fontname);
+    vsg::ref_ptr<vsg::Font> loadFont(const char *fontname);
 
     // load an texture, looks in covise/icons/$LookAndFeel or covise/icons for filename.rgb
     // returns NULL, if nothing found
-    osg::Texture2D *loadTexture(const char *texture);
+    vsg::ref_ptr<vsg::Image>& loadTexture(const char *texture);
 
     // tries to fopen() fileName
     // returns true if exists otherwise false
@@ -185,11 +186,11 @@ public:
 
     // register a loader, ... for a file type
     int registerFileHandler(const FileHandler *handler);
-    int registerFileHandler(coVRIOReader *handler);
+    int registerFileHandler(vvIOReader *handler);
 
     // unregister a loader, ... for a file type
     int unregisterFileHandler(const FileHandler *handler);
-    int unregisterFileHandler(coVRIOReader *handler);
+    int unregisterFileHandler(vvIOReader *handler);
 
     // get list of extensions as required by a filebrowser
     std::string getFilterList();
@@ -199,7 +200,7 @@ public:
 
     // get a loader for a file type, if available
     const FileHandler *getFileHandler(const char *extension);
-    coVRIOReader *findIOHandler(const char *extension);
+    vvIOReader *findIOHandler(const char *extension);
 
     // find a loader, load plugin if no loader available
     const FileHandler *findFileHandler(const char *extension);
@@ -222,7 +223,7 @@ public:
     void fetchObjMaterials(const std::string & localPath, const std::string &remotePath, int fileOwner);
 
     ///compares the url with m_sharedFiles. If found returns its position in, else -1;
-	int getFileId(const std::string &url);
+	size_t getFileId(const std::string &url);
 
 	///get the filename + extension from a path: path/fileName -> fileName
 	std::string getFileName(const std::string& filePath);
@@ -244,14 +245,15 @@ private:
     std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
     int uniqueNumber = 0;
+    vsg::ref_ptr<vsg::Font> defaultFont;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
 
-    typedef std::list<coVRIOReader *> IOReaderList;
+    typedef std::list<vvIOReader *> IOReaderList;
     IOReaderList ioReaderList;
 
-    typedef std::map<std::string, vsg::ref_ptr<osg::Texture2D> > TextureMap;
+    typedef std::map<std::string, vsg::ref_ptr<vsg::Image> > TextureMap;
     TextureMap textureList;
     std::map<std::string, vvTUIFileBrowserButton *> fileFBMap;
     vvTUIFileBrowserButton *mDefaultFB = nullptr;
@@ -264,7 +266,7 @@ private:
             filename = "";
             group = 0;
         }
-        coVRIOReader *reader;
+        vvIOReader *reader;
         std::string filename;
         vsg::Group *group;
     };

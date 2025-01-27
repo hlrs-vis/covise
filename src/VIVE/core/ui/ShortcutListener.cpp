@@ -5,7 +5,7 @@
 #include <cctype>
 
 #include <OpenVRUI/sginterface/vruiButtons.h>
-#include <osgGA/GUIEventAdapter>
+//#include <osgGA/GUIEventAdapter>
 
 namespace vive {
 namespace ui {
@@ -96,8 +96,8 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         else if ((item.length() == 2 || item.length() == 3) && item[0] == 'f')
         {
             int fnum = atoi(item.substr(1).c_str());
-            if (fnum >= 1 && fnum <= 20)
-                sh.symbol = osgGA::GUIEventAdapter::KEY_F1 + fnum-1;
+           // if (fnum >= 1 && fnum <= 20)
+             //   sh.symbol = osgGA::GUIEventAdapter::KEY_F1 + fnum-1;
             key = "F" + std::to_string(fnum);
         }
         else
@@ -154,7 +154,7 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         if (button == "wheelright" || button == "scrollright")
             sh.button = vrui::vruiButtons::WHEEL_RIGHT;
     }
-    else if (key == "Escape")
+  /*  else if (key == "Escape")
     {
         sh.symbol = osgGA::GUIEventAdapter::KEY_Escape;
     }
@@ -180,7 +180,7 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         if (fnum >= 1 && fnum <= 20)
             sh.symbol = osgGA::GUIEventAdapter::KEY_F1 + fnum-1;
         key = "F" + std::to_string(fnum);
-    }
+    }*/
     else
     {
         if (key.length() > 1)

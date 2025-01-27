@@ -17,10 +17,12 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <config/CoviseConfig.h>
 
 #include <iostream>
-#include <osg/Matrix>
+#include <vsg/maths/mat4.h>
+#include <vsg/maths/vec3.h>
+#include <vsg/maths/transform.h>
 #include <util/unixcompat.h>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
+#include "../../../../../OpenCOVER/OpenVRUI/vsg/mathUtils.h"
 #include <stdio.h>
 
 using std::ios;
@@ -33,6 +35,7 @@ using std::flush;
 #endif
 using namespace std;
 using namespace covise;
+using namespace vsg;
 
 CAVELIBDriver::CAVELIBDriver(const std::string &config)
     : InputDevice(config)
@@ -188,31 +191,30 @@ void CAVELIBDriver::update()
             //fprintf(stderr, "R: %f\n",r);
             // you can't use this because hpr means something
             // different int Performer than OpenGL mat.makeEuler(h,p,r);
-            osg::Matrix H, P, R;
+            vsg::dmat4 H, P, R;
             if (Yup)
             {
-                H.makeRotate((h / 180.0f) * M_PI, 0, 1, 0); // H + rot y
-                P.makeRotate((p / 180.0f) * M_PI, 1, 0, 0); // P + rot x
-                R.makeRotate((r / 180.0f) * M_PI, 0, 0, 1); // R + rot z
+                H = rotate((h / 180.0) * M_PI,vsg::dvec3(0.0, 1.0, 0.0)); // H + rot y
+                P = rotate((p / 180.0) * M_PI, 1.0, 0.0, 0.0); // P + rot x
+                R = rotate((r / 180.0) * M_PI, 0.0, 0.0, 1.0); // R + rot z
             }
             else //Z-Up
             {
-                H.makeRotate((h / 180.0f) * M_PI, 0, 0, 1); // H + rot z
-                P.makeRotate((p / 180.0f) * M_PI, 1, 0, 0); // P + rot x
-                R.makeRotate((r / 180.0f) * M_PI, 0, 1, 0); // R + rot y
+                H = rotate((h / 180.0) * M_PI, 0.0, 0.0, 1.0); // H + rot z
+                P = rotate((p / 180.0) * M_PI, 1.0, 0.0, 0.0); // P + rot x
+                R = rotate((r / 180.0) * M_PI, 0.0, 1.0, 0.0); // R + rot y
             }
             // MAT = R*P*H
-            osg::Matrix mat = R;
-            mat.postMult(P);
-            mat.postMult(H);
+            vsg::dmat4 mat;
+            mat = H*P*R;
 
             x *= scaleFactor; //  POSITION in some unit, default feet
             y *= scaleFactor;
             z *= scaleFactor; // now in mm
 
-            mat(3,0)=x;
-            mat(3,1)=y;
-            mat(3,2)=z;
+            mat(0,3)=x;
+            mat(1,3)=y;
+            mat(2,3)=z;
             m_bodyMatricesValid[i]=true;
             m_bodyMatrices[i]=mat;
         }

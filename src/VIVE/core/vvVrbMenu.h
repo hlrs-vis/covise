@@ -5,9 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef vvVrbMenu_H
-#define vvVrbMenu_H
-
+#pragma once
 
 #include "ui/Owner.h"
 
@@ -70,4 +68,3 @@ public:
 
 
 }
-#endif

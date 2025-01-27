@@ -15,7 +15,7 @@
  *                            Germany					*
  *									*
  *									*
- *	File			coMousePointer.h (Performer 2.0)	*
+ *	File			vvMousePointer.h (Performer 2.0)	*
  *									*
  *	Description		Mouse support for COVER
  *									*
@@ -43,13 +43,13 @@ struct MouseEvent
     int type, state, code;
 };
 
-class VVCORE_EXPORT coMousePointer
+class VVCORE_EXPORT vvMousePointer
 {
     friend class Input;
 
 private:
-    coMousePointer();
-    ~coMousePointer();
+    vvMousePointer();
+    ~vvMousePointer();
 
     float width, height;
     int xres, yres, xori, yori;

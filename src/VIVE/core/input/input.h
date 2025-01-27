@@ -23,7 +23,7 @@ namespace vive
 class InputDevice;
 class deviceDiscovery;
 class DriverFactoryBase;
-class coMousePointer;
+class vvMousePointer;
 
 /**
  * @brief The Input class
@@ -104,7 +104,7 @@ public:
     ButtonDevice *getButtons(const std::string &name); //< state of a set of buttons (e.g. mouse)
     Valuator *getValuator(const std::string &name); //< a single analog value
 
-    coMousePointer *mouse() const;
+    vvMousePointer *mouse() const;
 
     deviceDiscovery *discovery() const;
 
@@ -113,7 +113,7 @@ private:
     static Input *s_singleton;
 
     int m_debug;
-    coMousePointer *m_mouse;
+    vvMousePointer *m_mouse;
 
     typedef std::map<std::string, Person *> PersonMap;
     PersonMap persons; //< configured persons

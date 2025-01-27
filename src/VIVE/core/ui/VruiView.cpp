@@ -4,8 +4,8 @@
 #include <map>
 #include <iostream>
 
-#include <OpenVRUI/osg/mathUtils.h>
-#include <OpenVRUI/osg/VSGVruiMatrix.h>
+#include <OpenVRUI/vsg/mathUtils.h>
+#include <OpenVRUI/vsg/VSGVruiMatrix.h>
 
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
@@ -39,9 +39,9 @@
 #include "SpecialElement.h"
 #include "Manager.h"
 
-#include <cover/vvPluginSupport.h>
-#include <cover/VRVruiRenderInterface.h>
-#include <cover/VruiPartnerMenuItem.h>
+#include "vvPluginSupport.h"
+#include "vvVruiRenderInterface.h"
+#include "vvVruiPartnerMenuItem.h"
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 
@@ -709,7 +709,7 @@ VruiViewElement *VruiView::elementFactoryImplementation(CollaborativePartner *cp
     vrui::coCheckboxGroup *vrg = nullptr;
     if (parent)
         vrg = parent->m_group;
-    ve->m_menuItem = new VruiPartnerMenuItem(cp->text(), cp->state(), vrg);
+    ve->m_menuItem = new vvVruiPartnerMenuItem(cp->text(), cp->state(), vrg);
 
     add(ve, cp);
     return ve;
@@ -921,8 +921,8 @@ void VruiViewElement::menuEvent(coMenuItem *menuItem)
                 root()->clearStackToTop();
             }
             addToStack();
-            if (vv->getToolBar())
-                vv->getToolBar()->add(m_toolboxItem);
+            if (vvPluginSupport::instance()->getToolBar())
+                vvPluginSupport::instance()->getToolBar()->add(m_toolboxItem);
         }
         else
         {
@@ -1110,7 +1110,7 @@ void VruiViewElement::clearStackToTop()
 
     while (!isTopOfStack())
     {
-        if (auto tb = vv->getToolBar())
+        if (auto tb = vvPluginSupport::instance()->getToolBar())
             tb->remove(vv->m_toolbarStack.back()->m_toolboxItem);
         popStack();
     }

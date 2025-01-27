@@ -99,11 +99,6 @@ void TemporaryWindow::create()
         return;
     }
 
-    if (!(context_ = wglCreateContext(dc_)))
-    {
-        kill();
-        return;
-    }
 }
 
 TemporaryWindow::~TemporaryWindow()
@@ -113,15 +108,6 @@ TemporaryWindow::~TemporaryWindow()
 
 void TemporaryWindow::kill()
 {
-    if (context_)
-    {
-        // mew 2005-05-09 commented out due to crashes.
-        // possible causes are unsafe destructor ordering, or context already
-        // deleted by window deletion; see:
-        // http://openscenegraph.org/pipermail/osg-users/2005-May/052753.html
-        //wglDeleteContext(context_);
-        context_ = 0;
-    }
 
     if (dc_)
     {
@@ -141,5 +127,5 @@ void TemporaryWindow::kill()
 
 bool TemporaryWindow::makeCurrent()
 {
-    return (wglMakeCurrent(dc_, context_)!=0);
+    return (false);
 }

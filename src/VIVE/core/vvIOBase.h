@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef COVRIOBASE_H
-#define COVRIOBASE_H
+#ifndef vvIOBase_H
+#define vvIOBase_H
 
 #include <string>
 
@@ -14,11 +14,11 @@
 
 namespace vive
 {
-class VVCORE_EXPORT coVRIOBase
+class VVCORE_EXPORT vvIOBase
 {
 public:
-    coVRIOBase();
-    virtual ~coVRIOBase();
+    vvIOBase();
+    virtual ~vvIOBase();
 
     float getIOProgress() const;
 
@@ -58,4 +58,4 @@ private:
     float progress;
 };
 }
-#endif // COVRIOBASE_H
+#endif // vvIOBase_H

@@ -5,21 +5,7 @@
 
  * License: LGPL 2+ */
 
-#ifndef VR_VRUI_BUTTONS_H
-#define VR_VRUI_BUTTONS_H
-
-/*! \file
- \brief  OpenVRUI interface to OpenCOVER button state
-
- \author Andreas Kopecki <kopecki@hlrs.de>
- \author (C) 2004
-         High Performance Computing Center Stuttgart,
-         Allmandring 30,
-         D-70550 Stuttgart,
-         Germany
-
- \date  2004
- */
+#pragma once
 
 #include <stdlib.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
@@ -53,4 +39,3 @@ private:
     coPointerButton *button() const;
 };
 }
-#endif

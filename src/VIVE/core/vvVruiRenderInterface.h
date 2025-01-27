@@ -35,7 +35,7 @@ public:
     virtual vrui::vruiUIElementProvider *createUIElementProvider(vrui::coUIElement *element) override;
     virtual vrui::vruiButtonProvider *createButtonProvider(vrui::coButtonGeometry *element) override;
     virtual vrui::vruiPanelGeometryProvider *createPanelGeometryProvider(vrui::coPanelGeometry *element) override;
-    virtual void addToTransfer(vsg::Data*) override;
+    virtual void addToTransfer(vsg::BufferInfo* bi) override;
 
     virtual vrui::vruiTransformNode *createTransformNode() override;
     virtual vrui::vruiMatrix *createMatrix() override;
@@ -77,6 +77,8 @@ public:
 
 	virtual int getClientId() override;
 	virtual bool isRemoteBlockNececcary() override;
+
+    virtual bool compileNode(vrui::vruiNode*) override;
 private:
     vrui::VSGVruiNode *alwaysVisibleNode = nullptr;
     vrui::VSGVruiNode *groupNode = nullptr;

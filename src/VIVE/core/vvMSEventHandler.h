@@ -1,19 +1,19 @@
 #ifndef MSEVENTHANDLER_H
 #define MSEVENTHANDLER_H
 
-#include <osgGA/GUIEventHandler>
 #include <vector>
+#include <string>
 
 namespace vive
 {
-class MSEventHandler : public osgGA::GUIEventHandler
+class MSEventHandler/* : public osgGA::GUIEventHandler*/
 {
 public:
     MSEventHandler();
     ~MSEventHandler();
 
     bool update();
-    virtual bool handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &);
+   // virtual bool handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &);
 
 protected:
     struct Event {

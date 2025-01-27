@@ -32,9 +32,10 @@ using namespace ATL;
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include <OpenThreads/Thread>
-#include <osg/Matrix>
-#include <cover/input/inputdevice.h>
+#include <vsg/maths/mat4.h>
+#include <core/input/inputdevice.h>
+
+using namespace vive;
 
 struct hid_device_;
 typedef struct hid_device_ hid_device;
@@ -53,7 +54,7 @@ typedef struct SMD
 
 class SpaceNavigator;
 
-class SpaceNavigatorDriver : public opencover::InputDevice
+class SpaceNavigatorDriver : public vive::InputDevice
 {
 public:
     virtual bool poll() override;

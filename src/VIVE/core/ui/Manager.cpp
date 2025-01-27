@@ -9,15 +9,15 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
-
+/*
 #include <osgGA/GUIActionAdapter>
-#include <osgGA/GUIEventAdapter>
+#include <osgGA/GUIEventAdapter>*/
 
 #include <OpenVRUI/coMouseButtonInteraction.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/coRelativeButtonInteraction.h>
-#include <cover/vvMSController.h>
-#include <cover/vvPluginSupport.h>
+#include "vvMSController.h"
+#include "vvPluginSupport.h"
 #include <net/tokenbuffer.h>
 #include <net/message.h>
 
@@ -384,7 +384,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;
 
-    if (type == osgGA::GUIEventAdapter::KEYDOWN
+ /*   if (type == osgGA::GUIEventAdapter::KEYDOWN
             || type == osgGA::GUIEventAdapter::KEYUP)
     {
         bool down = type==osgGA::GUIEventAdapter::KEYDOWN;
@@ -553,7 +553,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 }
             }
         }
-    }
+    }*/
 
     return !handled.empty();
 }

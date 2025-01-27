@@ -1,5 +1,5 @@
 
-#include "coTabletCovConfig.h"
+#include "vvTabletCovConfig.h"
 
 
 namespace vive{

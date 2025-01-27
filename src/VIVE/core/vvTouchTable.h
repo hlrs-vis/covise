@@ -39,16 +39,16 @@ public:
     };
 };
 
-class VVCORE_EXPORT coVRTouchTable
+class VVCORE_EXPORT vvTouchTable
 {
 private:
-    static coVRTouchTable *tt;
+    static vvTouchTable *tt;
 
 public:
     bool running;
-    coVRTouchTable();
-    virtual ~coVRTouchTable();
-    static coVRTouchTable *instance();
+    vvTouchTable();
+    virtual ~vvTouchTable();
+    static vvTouchTable *instance();
 
     vvTouchTableInterface *ttInterface;
     void update();

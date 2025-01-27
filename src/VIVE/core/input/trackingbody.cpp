@@ -10,8 +10,8 @@
 #include "inputdevice.h"
 #include <config/CoviseConfig.h>
 
-#include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
-#include <osg/io_utils>
+#include <OpenVRUI/vsg/mathUtils.h> //for MAKE_EULER_MAT
+#include <vsg/io/read.h>
 
 using namespace covise;
 
@@ -103,13 +103,12 @@ TrackingBody::TrackingBody(const std::string &name)
       <<" Orientation=("<<rot[0]<<" "<<rot[1]<<" "<<rot[2]<<") "<<std::endl;
 #endif
 
-    //Create rotation matrix (from OpenVRUI/osg/mathUtils.h)
-    MAKE_EULER_MAT(m_deviceOffsetMat, rot[0], rot[1], rot[2]);
+    //Create rotation matrix (from OpenVRUI/vsg/mathUtils.h)
+    m_deviceOffsetMat = makeEulerMat(rot[0], rot[1], rot[2]);
     //fprintf(stderr, "offset from device('%d) %f %f %f\n", device_ID, deviceOffsets[device_ID].trans[0], deviceOffsets[device_ID].trans[1], deviceOffsets[device_ID].trans[2]);
 
-    vsg::dmat4 translationMat;
-    translationMat= vsg::translate(trans[0], trans[1], trans[2]);
-    m_deviceOffsetMat.postMult(translationMat); //add translation
+    vsg::dmat4 translationMat = vsg::translate((double)trans[0], (double)trans[1], (double)trans[2]);
+    m_deviceOffsetMat = m_deviceOffsetMat * translationMat;
     m_mat = m_deviceOffsetMat;
     m_oldMat = m_mat;
 
@@ -127,7 +126,7 @@ void TrackingBody::update()
     {
         m_varying = false;
         m_valid = true;
-        m_mat.makeIdentity();
+        m_mat = vsg::dmat4();
 
         double value[9];
         bool is6dof = false;
@@ -155,15 +154,15 @@ void TrackingBody::update()
 
         if (m_assembleWithRotationAxis)
         {
-            vsg::vec3 rotaxis(value[7], value[8], value[6]);
-            m_mat = rotate(rotaxis.length()*0.01, rotaxis);
+            vsg::dvec3 rotaxis((double)value[7], (double)value[8], (double)value[6]);
+            m_mat = rotate(length(rotaxis)*0.01, rotaxis);
         }
         else
         {
             double hpr[3] = {value[3], value[4], value[5]};
-            MAKE_EULER_MAT(m_mat, hpr[0], hpr[1], hpr[2]);
+            m_mat = makeEulerMat(hpr[0], hpr[1], hpr[2]);
         }
-        m_mat.setTrans(value[0], value[1], value[2]);
+        setTrans(m_mat,vsg::dvec3((double)value[0], (double)value[1], (double)value[2]));
     }
     else if (device())
     {
@@ -218,7 +217,7 @@ void TrackingBody::update()
         m_oldMat = m_mat;
 
         //std::cerr << "TrackingBody::update: getting dev idx " << m_idx << ": " << m_mat << std::endl;
-        m_mat.preMult(m_deviceOffsetMat);
+        m_mat = m_deviceOffsetMat*m_mat;
     }
 }
 

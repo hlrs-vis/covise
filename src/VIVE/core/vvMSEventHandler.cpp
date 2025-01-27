@@ -442,7 +442,7 @@ bool MSEventHandler::update()
 #endif
     }
 
-    int numEventsToSync = eventQueue.size();
+    int numEventsToSync = (int) eventQueue.size();
     vvMSController::instance()->syncData(&numEventsToSync, sizeof(numEventsToSync));
     if (vvMSController::instance()->isSlave())
     {
@@ -549,6 +549,6 @@ bool MSEventHandler::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAd
     {
         return false;
     }
-    }*/
-}
+    }
+}*/
 

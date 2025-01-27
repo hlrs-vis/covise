@@ -7,5 +7,4 @@ SET(HEADERS
 SET(SOURCES
    NatNetDriver.cpp
 )
-
-cover_add_plugin(input_natnet)
+vive_add_plugin(vvInput_natnet)

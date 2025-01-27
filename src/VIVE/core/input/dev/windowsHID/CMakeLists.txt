@@ -4,12 +4,12 @@ INCLUDE_DIRECTORIES(
 
 SET(HEADERS
    windowsHID.h
-   coRawDevice.h
+   vvRawDevice.h
 )
 
 SET(SOURCES
    windowsHID.cpp
-   coRawDevice.cpp
+   vvRawDevice.cpp
 )
 
-cover_add_plugin(input_windowsHID)
+vive_add_plugin(vvInput_windowsHID)

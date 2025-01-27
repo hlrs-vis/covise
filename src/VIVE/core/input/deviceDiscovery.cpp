@@ -25,6 +25,7 @@
 #include <vvPluginSupport.h>
 #include <vvMSController.h>
 #include <util/unixcompat.h>
+#include <thread>
 
 namespace vive
 {
@@ -62,7 +63,7 @@ namespace vive
     }
     void deviceDiscovery::start()
     {
-        myThread = new std::thread(run, "deviceDiscovery");
+        myThread = new std::thread(&deviceDiscovery::run,this);
     }
     deviceDiscovery::~deviceDiscovery()
     {
@@ -82,14 +83,14 @@ namespace vive
     void deviceDiscovery::update()
     { 
         std::scoped_lock lock(mutex);
-        int numToAdd = toAdd.size();
+        int numToAdd = (int)toAdd.size();
 	if (vvMSController::instance()->isMaster())
 	{  
             vvMSController::instance()->sendSlaves(&numToAdd, sizeof(numToAdd));
 	    for(const auto &i:toAdd)
 	    {
             devices.push_back(i);
-            int len = i->pluginName.length();
+            int len = (int)i->pluginName.length();
             vvMSController::instance()->sendSlaves(&len, sizeof(len));
             vvMSController::instance()->sendSlaves(i->pluginName.c_str(), len + 1);
             vv->addPlugin(i->pluginName.c_str());
@@ -126,9 +127,10 @@ namespace vive
                 inet_ntop(AF_INET, &(sin.sin_addr), str, INET_ADDRSTRLEN);
                 if (strncmp(buffer, "devInfo", 7) == 0)
                 {
-                    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+                    mutex.lock();
                     deviceInfo *di = new deviceInfo(buffer, str);
                     toAdd.push_back(di);
+                    mutex.unlock();
                 }
                 fprintf(stderr, "message received %s from %s\n", buffer,str);
             }

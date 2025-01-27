@@ -97,7 +97,7 @@ vvOnscreenDebug::vvOnscreenDebug()
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     // set the view matrix
     camera->setReferenceFrame(vsg::MatrixTransform::ABSOLUTE_RF);
-    camera->setViewMatrix(vsg::dmat4::translate(vsg::vec3(0, 0, 100)));
+    camera->setViewMatrix(vsg::translate(vsg::vec3(0, 0, 100)));
     camera->setViewMatrix(vsg::dmat4::identity());
 
     // only clear the depth buffer
@@ -108,7 +108,7 @@ vvOnscreenDebug::vvOnscreenDebug()
 
     vsg::MatrixTransform *m = vsg::MatrixTransform::create();
     m->addChild(geode.get());
-    m->matrix = (vsg::dmat4::translate((1024 - 640) / 2.0, (768 - 480) / 2.0, 0));
+    m->matrix = (vsg::translate((1024 - 640) / 2.0, (768 - 480) / 2.0, 0));
     camera->addChild(m);
 
     vv->getScene()->addChild(camera.get());*/

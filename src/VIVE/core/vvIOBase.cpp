@@ -5,15 +5,15 @@
 
  * License: LGPL 2+ */
 
-#include "coVRIOBase.h"
+#include "vvIOBase.h"
 
 using namespace vive;
-coVRIOBase::coVRIOBase()
+vvIOBase::vvIOBase()
     : progress(-1.0f)
 {
 }
 
-coVRIOBase::~coVRIOBase()
+vvIOBase::~vvIOBase()
 {
 }
 
@@ -22,7 +22,7 @@ coVRIOBase::~coVRIOBase()
  * @returns The current file progress between 0 and 100, or -1 if progress cannot be determined.
  */
 
-float coVRIOBase::getIOProgress() const
+float vvIOBase::getIOProgress() const
 {
     return this->progress;
 }
@@ -32,7 +32,7 @@ float coVRIOBase::getIOProgress() const
  * @param progress The current file progress.
  */
 
-void coVRIOBase::setIOProgress(float progress)
+void vvIOBase::setIOProgress(float progress)
 {
     this->progress = progress;
 }

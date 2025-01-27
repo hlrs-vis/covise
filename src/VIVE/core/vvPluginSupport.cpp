@@ -33,7 +33,7 @@
 #include "vvVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
-#include "input/coMousePointer.h"
+#include "input/vvMousePointer.h"
 #include "vvViewer.h"
 #include "ui/Slider.h"
 #include <util/unixcompat.h>
@@ -71,6 +71,7 @@
 #include <grmsg/coGRSetTimestepMsg.h>
 #include <grmsg/coGRSetTrackingParamsMsg.h>
 #include <grmsg/coGRPluginMsg.h>
+#include <vsgXchange/all.h>
 
 
 using namespace vrui;
@@ -127,17 +128,16 @@ void vvPluginSupport::initUI()
 
 
 
-vsg::Group *vvPluginSupport::getObjectsRoot() const
+vsg::ref_ptr<vsg::MatrixTransform>  vvPluginSupport::getObjectsRoot() const
 {
     START("vvPluginSupport::getObjectsRoot");
     return (vvSceneGraph::instance()->objectsRoot());
 }
 
-vsg::Group *vvPluginSupport::getScene() const
+vsg::ref_ptr<vsg::Group> vvPluginSupport::getScene() const
 {
     //START("vvPluginSupport::getScene");
     return (vvSceneGraph::instance()->getScene());
-    return nullptr;
 }
 
 bool
@@ -784,6 +784,9 @@ vvPluginSupport::vvPluginSupport()
 
     START("vvPluginSupport::vvPluginSupport");
 
+    options = vsg::Options::create();
+    options->add(vsgXchange::all::create());
+
     new vvVruiRenderInterface();
 
     ui = new ui::Manager();
@@ -1120,7 +1123,7 @@ void vvPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg)  const
             std::string navmode(trackingMsg.getNavigationMode());
             auto nav = vvNavigationManager::instance();
             nav->setNavMode(navmode);
-            //enable tracking in opencover
+            //enable tracking in vive
 
             //vld: VRTracker use. Enable tracking. Add the method in input?
             //vvTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
@@ -1135,11 +1138,11 @@ vsg::Node *vvPluginSupport::getIntersectedNode() const
 {
     return intersectedNode.get();
 }
-/*
-const vsg::NodePath &vvPluginSupport::getIntersectedNodePath() const
+
+const vsg::Intersector::NodePath &vvPluginSupport::getIntersectedNodePath() const
 {
     return intersectedNodePath;
-}*/
+}
 
 const vsg::vec3 &vvPluginSupport::getIntersectionHitPointWorld() const
 {

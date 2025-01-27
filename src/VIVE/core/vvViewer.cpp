@@ -15,23 +15,29 @@
 #include "vvWindows.h"
 #include "vvVIVE.h"
 #include "vvMathUtils.h"
-//#include <OpenVRUI/vsg/mathUtils.h>
+#include <OpenVRUI/vsg/mathUtils.h>
 #include "vvPluginList.h"
 #include "vvPluginSupport.h"
 #include "vvConfig.h"
 /*#include "coCullVisitor.h"
-#include "MarkerTracking.h"
-#include "InitGLOperation.h"
+#include "InitGLOperation.h"*/
+#include "vvMarkerTracking.h"
 #include "input/input.h"
 #include "tridelity.h"
 
 #include "ui/Button.h"
 #include "ui/SelectionList.h"
-#include "ui/Menu.h"*/
+#include "ui/Menu.h"
 
 
 
 #include "vvMSController.h"
+#include <vsg/lighting/Light.h>
+#include <vsg/io/read.h>
+#include <vsg/app/RenderGraph.h>
+#include <vsg/app/Trackball.h>
+#include <vsg/app/CloseHandler.h>
+#include <vsg/utils/ComputeBounds.h>
 
 #ifndef _WIN32
 #include <termios.h>
@@ -116,7 +122,7 @@ struct PostSwapBuffersOp : public vsg::Inherit<vsg::Operation, PostSwapBuffersOp
 
 
 //OpenCOVER
-void vvViewer::update()
+void vvViewer::vvUpdate()
 {
     if (vv->debugLevel(5))
         fprintf(stderr, "vvViewer::update\n");
@@ -142,15 +148,15 @@ void vvViewer::update()
             }
         }
     }
-    /*
+    
     if (arTracking)
     {
         if (vpMarker && vpMarker->isVisible())
         {
             viewMat = vpMarker->getCameraTrans();
         }
-        again = true;
-    }*/
+        //again = true;
+    }
 
     // compute viewer position
 
@@ -167,6 +173,24 @@ void vvViewer::update()
     {
         setFrustumAndView(i);
     }
+
+
+    //viewer->compile();
+    if (advanceToNextFrame())
+    {
+        // pass any events into EventHandlers assigned to the Viewer
+        handleEvents();
+
+        update();
+
+        recordAndSubmit();
+
+        present();
+    }
+    else
+    {
+        vvVIVE::instance()->requestQuit();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,18 +198,23 @@ void vvViewer::update()
 // vvViewer::Viewer implemention
 //
 
-vvViewer *vvViewer::s_singleton = NULL;
+vsg::ref_ptr<vvViewer> vvViewer::s_singleton;
 vvViewer *vvViewer::instance()
 {
-    if (!s_singleton)
+    if (!s_singleton.get())
         s_singleton = new vvViewer;
     return s_singleton;
 }
 
+void vvViewer::destroy()
+{
+    s_singleton = nullptr;
+}
+
 //OpenCOVER
 vvViewer::vvViewer()
-: /*ui::Owner("vvViewer", vv->ui)
-, */animateSeparation(0)
+: ui::Owner("vvViewer", vv->ui)
+, animateSeparation(0)
 , stereoOn(true)
 {
     assert(!s_singleton);
@@ -230,7 +259,7 @@ vvViewer::vvViewer()
        // vpMarker = MarkerTracking::instance()->getMarker("ViewpointMarker");
     }
     overwritePAndV = false;
-    /*
+    
     auto stereosep = new ui::Button("StereoSep", this);
     vv->viewOptionsMenu->add(stereosep);
     stereosep->setText("Stereo separation");
@@ -246,10 +275,9 @@ vvViewer::vvViewer()
     ortho->setState(vvConfig::instance()->orthographic());
     ortho->setCallback([this](bool state){
         vvConfig::instance()->setOrthographic(state);
-        update();
-        requestRedraw();
+        //requestRedraw();
     });
-
+    /*
     auto threading = new ui::SelectionList("ThreadingModel", this);
     vv->viewOptionsMenu->add(threading);
     threading->setText("Threading model");
@@ -274,7 +302,7 @@ vvViewer::vvViewer()
         default: setThreadingModel(AutomaticSelection); break;
         }
         if (statsDisplay)
-            statsDisplay->updateThreadingModelText(getThreadingModel());
+           statsDisplay->updateThreadingModelText(getThreadingModel());
     });
     threading->setShortcut("Alt+h");
     threading->addShortcut("Ctrl+h");
@@ -295,7 +323,7 @@ vvViewer::vvViewer()
         statsDisplay->showStats(val, vvViewer::instance());
         //XXX setInstrumentationMode( vvConfig::instance()->drawStatistics );
     });
-
+    
     statsDisplay = new vvStatsDisplay();*/
 }
 
@@ -319,7 +347,7 @@ vvViewer::~vvViewer()
 #endif
 
 
-    s_singleton = NULL;
+    //s_singleton = NULL;
 }
 
 
@@ -378,10 +406,21 @@ vvViewer::config()
 {
     if (vv->debugLevel(3))
         fprintf(stderr, "vvViewer::config\n");
+
+
+    std::stringstream str;
+    loadedScene = vsg::MatrixTransform::create();
+    vsg::ref_ptr<vsg::Node> vpb = vsg::read_cast<vsg::Node>("c:\\QSync\\visnas\\Data\\Suedlink\\out\\vpb_DGM1m_FDOP20\\vpb_DGM1m_FDOP20.ive", vvPluginSupport::instance()->options);
+
+    loadedScene->addChild(vpb);
+    loadedScene->matrix = vsg::rotate(1.5, 1.0, 0.0, 0.0) * vsg::translate(-518740.0, -5966100.0, 0.0);
+
     for (int i = 0; i < vvConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
     }
+
+    assignRecordAndSubmitTaskAndPresentation(commandGraphs);
 
     float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
     float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
@@ -532,6 +571,8 @@ vvViewer::createChannels(int i)
         return;
     }
 #endif
+
+
     auto &conf = *vvConfig::instance();
     const int vp = vvConfig::instance()->channels[i].viewportNum;
     if (vp >= vvConfig::instance()->numViewports())
@@ -540,64 +581,71 @@ vvViewer::createChannels(int i)
         fprintf(stderr, "viewportNum %d is out of range (viewports are counted starting from 0)\n", vp);
         return;
     }
-    std::stringstream str;
-    /*
-    str << "Channel " << i;
-    if (i == 0)
-    {
-        vvConfig::instance()->channels[i].camera = _camera;
-        _camera->setName(str.str());
-    }
-    else
-    {
-        vvConfig::instance()->channels[i].camera = new vsg::Camera;
-        vvConfig::instance()->channels[i].camera->setView(this);
-        vvConfig::instance()->channels[i].camera->addChild(this->getScene()->getSceneData());
-    }
-    else
-    {
-        cerr << "window " << vvConfig::instance()->viewports[vvConfig::instance()->channels[i].viewportNum].window << " of channel " << i << " not defined" << endl;
-    }
+    // provide a custom RenderPass
+    // window->setRenderPass(createRenderPass(window->getOrCreateDevice()));
+    int windowNumber = vvConfig::instance()->viewports[vp].window;
+    auto& windowInfo = vvConfig::instance()->windows[windowNumber];
 
-    vsg::DisplaySettings *ds = NULL;
-    ds = _displaySettings.valid() ? _displaySettings.get() : vsg::DisplaySettings::instance().get();
-    if (i > 0) //we need different displaySettings for other channels
-    {
-        ds = new vsg::DisplaySettings(*(_displaySettings.valid() ? _displaySettings.get() : vsg::DisplaySettings::instance().get()));
-    }
-    if (!vvConfig::instance()->glVersion.empty())
-        ds->setGLContextVersion(vvConfig::instance()->glVersion);
-    if (!vvConfig::instance()->glProfileMask.empty())
-        ds->setGLContextProfileMask(std::stoi(vvConfig::instance()->glProfileMask));
-    if (!vvConfig::instance()->glContextFlags.empty())
-        ds->setGLContextFlags(std::stoi(vvConfig::instance()->glContextFlags));
+    auto& viewport = vvConfig::instance()->viewports[vvConfig::instance()->channels[i].viewportNum];
+    uint32_t width = (viewport.viewportXMax - viewport.viewportXMin)* windowInfo.sx;
+    uint32_t height = (viewport.viewportYMax - viewport.viewportYMin) * windowInfo.sy;
+    
+    double aspectRatio = (double)width / height;
+    
 
-    // set up the use of stereo by default.
-    ds->setStereo(conf.channels[i].stereo);
-    if (vvConfig::instance()->doMultisample())
-        ds->setNumMultiSamples(vvConfig::instance()->getMultisampleSamples());
-    ds->setStereoMode((vsg::DisplaySettings::StereoMode)vvConfig::instance()->channels[i].stereoMode);
-    ds->setMinimumNumStencilBits(vvConfig::instance()->numStencilBits());
-    vvConfig::instance()->channels[i].ds = ds;
-    vvConfig::instance()->channels[i].camera->setDisplaySettings(ds);
+    //vv->getScene()->addChild(loadedScene);
+    
+    // create view
+    // compute the bounds of the scene graph to help position camera
+    vsg::ComputeBounds computeBounds;
+    loadedScene->accept(computeBounds);
+    vsg::dvec3 centre = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
+    double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 0.6;
+    double nearFarRatio = 0.001;
 
-    vvConfig::instance()->channels[i].camera->setComputeNearFarMode(vvUtil::CullVisitor::DO_NOT_COMPUTE_NEAR_FAR);
-    //vvConfig::instance()->channels[i].camera->setCullingMode(vsg::CullSettings::VIEW_FRUSTUM_CULLING);
-    vvConfig::instance()->channels[i].camera->setCullingMode(vsg::CullSettings::ENABLE_ALL_CULLING);
 
-    vvViewer::Renderer *renderer = new vvRenderer(vvConfig::instance()->channels[i].camera.get(), i);
-    vvConfig::instance()->channels[i].camera->setRenderer(renderer);
-    if (i != 0)
-    {
-        addCamera(vvConfig::instance()->channels[i].camera.get());
-    }
 
-    //PHILIP add LOD scale from configuration to deal with LOD updating
-    float lodScale = coCoviseConfig::getFloat("COVER.LODScale", 0.0f);
-    if (lodScale != 0)
-    {
-        vvConfig::instance()->channels[i].camera->setLODScale(lodScale);
-    }*/
+    auto lookAt = vsg::LookAt::create(centre + vsg::dvec3(0.0, -radius * 3.5, 0.0),
+        centre, vsg::dvec3(0.0, 0.0, 1.0));
+
+    auto perspective = vsg::Perspective::create(30.0, static_cast<double>(width) / static_cast<double>(height),
+        nearFarRatio * radius, radius * 4.5);
+
+    auto viewportstate = vsg::ViewportState::create(viewport.viewportXMin * windowInfo.sx, viewport.viewportYMin * windowInfo.sy, width, height);
+
+
+
+
+
+    vvConfig::instance()->channels[i].camera = vsg::Camera::create(perspective, lookAt, viewportstate);
+    vvConfig::instance()->channels[i].view = vsg::View::create(vvConfig::instance()->channels[i].camera);
+
+    vvConfig::instance()->channels[i].view->addChild(vsg::createHeadlight());
+
+   
+
+    vvConfig::instance()->channels[i].view->addChild(loadedScene);
+    auto renderGraph = vsg::RenderGraph::create(vvConfig::instance()->windows[windowNumber].window, vvConfig::instance()->channels[i].view);
+    renderGraph->addChild(vvConfig::instance()->channels[i].view);
+
+
+
+    vvConfig::instance()->channels[i].commandGraph = vsg::CommandGraph::create(vvConfig::instance()->windows[windowNumber].window);
+
+    vvConfig::instance()->channels[i].commandGraph->addChild(renderGraph);
+    commandGraphs.push_back(vvConfig::instance()->channels[i].commandGraph);
+
+    addEventHandler(vsg::Trackball::create(vvConfig::instance()->channels[i].camera));
+
+
+
+    addEventHandler(EventHandler::create(vvVIVE::instance()));
+    addEventHandler(vsg::CloseHandler::create(this)); // needs to be the last event handler
+
+
+
+
+
 }
 
 void vvViewer::destroyChannels(int i)
@@ -936,6 +984,23 @@ vvViewer::FrustaAndViews vvViewer::computeFrustumAndView(int i)
     }
 
     return res;
+}
+
+bool vvViewer::compileNode(vsg::ref_ptr<vsg::Node>& node)
+{
+    if(InitialCompileDone)
+    {
+        auto result = compileManager->compile(node);
+        vsg::updateViewer(*this, result);
+        return (bool)result;
+    }
+    return false;
+}
+
+void vvViewer::InitialCompile()
+{
+    compile();
+    InitialCompileDone = true;
 }
 
 //OpenCOVER

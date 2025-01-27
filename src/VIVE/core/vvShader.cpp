@@ -44,7 +44,7 @@ coVRUniform::coVRUniform(const vvShader *s, const std::string &n, const std::str
     value = v;
     overwrite = false;
     unique = false;
-    uniform = vvShaderList::instance()->getGlobalUniform(name);
+    /*uniform = vvShaderList::instance()->getGlobalUniform(name);
     if (uniform == nullptr)
     {
         if (type == "bool")
@@ -147,17 +147,17 @@ coVRUniform::coVRUniform(const vvShader *s, const std::string &n, const std::str
                 uniform->set(vsg::dmat4f(values));
             }
         }
-    }
+    }*/
 }
-
-osg::Texture::WrapMode coVRUniform::getWrapMode() const
+/*
+VkSamplerAddressMode coVRUniform::getWrapMode() const
 {
     if (wrapMode.length() == 0)
-        return osg::Texture::REPEAT;
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
     if (wrapMode == "CLAMP")
-        return osg::Texture::CLAMP;
-    return osg::Texture::REPEAT;
-}
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+}*/
 
 void coVRUniform::setTexture(const char *tf, int i)
 {
@@ -165,7 +165,7 @@ void coVRUniform::setTexture(const char *tf, int i)
     if (!fn.empty())
     {
         textureFile = fn;
-        osg::Image *image;
+        /*osg::Image* image;
         image = osgDB::readImageFile(fn);
         if (image)
         {
@@ -210,23 +210,23 @@ void coVRUniform::setTexture(const char *tf, int i)
             texture->setImage(i, image);
             if (type == "samplerCube")
                 cubeMapFiles[i] = fn;
-        }
+        */
     }
 }
 
-void coVRUniform::setValue(vsg::dmat4d m)
+void coVRUniform::setValue(vsg::dmat4 m)
 {
     char ms[1600];
     sprintf(ms, "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
     value = ms;
-    uniform->set(m);
+    //uniform->set(m);
 }
-void coVRUniform::setValue(vsg::dmat4f m)
+void coVRUniform::setValue(vsg::mat4 m)
 {
     char ms[1600];
     sprintf(ms, "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
     value = ms;
-    uniform->set(m);
+    //uniform->set(m);
 }
 
 void coVRUniform::setValue(float f)
@@ -234,7 +234,7 @@ void coVRUniform::setValue(float f)
     char fs[100];
     sprintf(fs, "%f", f);
     value = fs;
-    uniform->set(f);
+    //uniform->set(f);
 }
 
 void coVRUniform::setValue(bool b)
@@ -242,7 +242,7 @@ void coVRUniform::setValue(bool b)
     char fs[100];
     sprintf(fs, "%s", b ? "true" : "false");
     value = fs;
-    uniform->set(b);
+    //uniform->set(b);
 }
 
 
@@ -251,7 +251,7 @@ void coVRUniform::setValue(vsg::vec3 v)
     char vs[300];
     sprintf(vs, "%f %f %f", v[0], v[1], v[2]);
     value = vs;
-    uniform->set(v);
+    //uniform->set(v);
 }
 
 void coVRUniform::setValue(vsg::vec4 v)
@@ -259,17 +259,17 @@ void coVRUniform::setValue(vsg::vec4 v)
     char vs[400];
     sprintf(vs, "%f %f %f %f", v[0], v[1], v[2], v[3]);
     value = vs;
-    uniform->set(v);
+    //uniform->set(v);
 }
 void coVRUniform::setWrapMode(std::string wm)
 {
     wrapMode = wm;
-    if (texture.valid())
+   /* if (texture.valid())
     {
         texture->setWrap(osg::Texture::WRAP_R, getWrapMode());
         texture->setWrap(osg::Texture::WRAP_S, getWrapMode());
         texture->setWrap(osg::Texture::WRAP_T, getWrapMode());
-    }
+    }*/
 }
 
 void coVRUniform::setValue(const char *val)
@@ -278,48 +278,48 @@ void coVRUniform::setValue(const char *val)
     if (type == "bool")
     {
         bool b = !(strcmp(val,"false")==0 || strtod(val, NULL)==0);
-        uniform = new osg::Uniform(name.c_str(), b);
+       // uniform = new osg::Uniform(name.c_str(), b);
     }
     else if (type == "float")
     {
 
         float f = (float)strtod(val, NULL);
-        uniform->set(f);
+       // uniform->set(f);
     }
     else if (type == "int")
     {
         int i = atoi(val);
-        uniform->set(i);
+       // uniform->set(i);
     }
     else if (type == "vec3")
     {
         float u = 0.0, v = 0.0, w = 0.0;
         sscanf(val, "%f %f %f", &u, &v, &w);
-        uniform->set(vsg::vec3(u, v, w));
+       // uniform->set(vsg::vec3(u, v, w));
     }
     else if (type == "vec2")
     {
         float u = 0.0, v = 0.0;
         sscanf(val, "%f %f", &u, &v);
-        uniform->set(osg::Vec2(u, v));
+      //  uniform->set(osg::Vec2(u, v));
     }
     else if (type == "vec4")
     {
         float u = 0.0, v = 0.0, w = 0.0, a = 0.0;
         sscanf(val, "%f %f %f %f", &u, &v, &w, &a);
-        uniform->set(vsg::vec4(u, v, w, a));
+      //  uniform->set(vsg::vec4(u, v, w, a));
     }
     else if (type == "dmat4")
     {
         double values[16];
         if (strcasecmp(val, "identity") == 0)
         {
-            uniform = new osg::Uniform(name.c_str(), vsg::dmat4d::identity());
+           // uniform = new osg::Uniform(name.c_str(), vsg::dmat4d::identity());
         }
         else
         {
             sscanf(val, "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
-            uniform = new osg::Uniform(name.c_str(), vsg::dmat4d(values));
+           // uniform = new osg::Uniform(name.c_str(), vsg::dmat4d(values));
         }
     }
     else if (type == "mat4")
@@ -327,18 +327,18 @@ void coVRUniform::setValue(const char *val)
         float values[16];
         if (strcasecmp(val, "identity") == 0)
         {
-            uniform = new osg::Uniform(name.c_str(), vsg::dmat4f::identity());
+           // uniform = new osg::Uniform(name.c_str(), vsg::dmat4f::identity());
         }
         else
         {
             sscanf(val, "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5], &values[6], &values[7], &values[8], &values[9], &values[10], &values[11], &values[12], &values[13], &values[14], &values[15]);
-            uniform = new osg::Uniform(name.c_str(), vsg::dmat4f(values));
+          //  uniform = new osg::Uniform(name.c_str(), vsg::dmat4f(values));
         }
     }
     else if (type == "sampler2D" || type == "sampler1D" || type == "sampler3D" || type == "samplerCube" || type == "sampler2DRect")
     {
         int i = atoi(val);
-        uniform->set(i);
+       // uniform->set(i);
     }
 }
 
@@ -363,8 +363,8 @@ vvShader::vvShader(const std::string &n, const std::string &d, const std::string
     name = n;
     dir = d;
     geomParams[0] = 3;
-    geomParams[1] = GL_POINTS;
-    geomParams[2] = GL_POINTS;
+    //geomParams[1] = GL_POINTS;
+   // geomParams[2] = GL_POINTS;
     transparent = false;
     cullFace = -1;
     opaque = false;
@@ -380,7 +380,7 @@ vvShader::vvShader(const vvShader &other)
 , dir(other.dir)
 , defines(other.defines)
 , wasCloned(true)
-, geometryShader(other.geometryShader)
+//, geometryShader(other.geometryShader)
 , transparent(other.transparent)
 , opaque(other.opaque)
 , cullFace(other.cullFace)
@@ -607,7 +607,7 @@ void vvShader::loadMaterial()
         opaque = op == "true";
         XmlAttribute cullString("cullFace", rootElement);
 
-        if (cullString == "true" || cullString == "on")
+       /* if (cullString == "true" || cullString == "on")
             cullFace = osg::CullFace::BACK;
         else if (cullString == "back")
             cullFace = osg::CullFace::BACK;
@@ -618,7 +618,7 @@ void vvShader::loadMaterial()
         else if (cullString == "none" || cullString == "off" || cullString == "false")
             cullFace = 0;
         else if (cullString)
-            cerr << "invalid cullFace value \"" << cullString << "\"" << std::endl;
+            cerr << "invalid cullFace value \"" << cullString << "\"" << std::endl;*/
 
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
         std::string preamble;
@@ -772,8 +772,8 @@ void vvShader::loadMaterial()
                     if (!code.empty())
                     {
                         code = prependPreamble(code, preamble);
-                        fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
-                        fragmentShader->setName(name);
+                        //fragmentShader = new osg::Shader(osg::Shader::FRAGMENT, code);
+                        //fragmentShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "geometryProgram") == 0)
@@ -786,7 +786,7 @@ void vvShader::loadMaterial()
                         geomParams[0] = 1024;
 
                     XmlAttribute inputType("inputType", node);
-                    if (inputType == "POINTS")
+                  /*  if (inputType == "POINTS")
                         geomParams[1] = GL_POINTS;
                     else if (inputType == "LINES")
                         geomParams[1] = GL_LINES;
@@ -805,15 +805,15 @@ void vvShader::loadMaterial()
                     else if (outputType == "LINE_STRIP")
                         geomParams[2] = GL_LINE_STRIP;
                     else
-                        geomParams[2] = GL_TRIANGLE_STRIP;
+                        geomParams[2] = GL_TRIANGLE_STRIP;*/
 
                     std::string code = parseProgram(
                         node, std::bind(&vvShader::findAsset, this, std::placeholders::_1), name, "geometry");
                     if (!code.empty())
                     {
                         code = prependPreamble(code, preamble);
-                        geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
-                        geometryShader->setName(name);
+                      //  geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
+                       // geometryShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "vertexProgram") == 0)
@@ -823,8 +823,8 @@ void vvShader::loadMaterial()
                     if (!code.empty())
                     {
                         code = prependPreamble(code, preamble);
-                        vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
-                        vertexShader->setName(name);
+                      //  vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
+                      //  vertexShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "tessControlProgram") == 0)
@@ -834,8 +834,8 @@ void vvShader::loadMaterial()
                     if (!code.empty())
                     {
                         code = prependPreamble(code, preamble);
-                        tessControlShader = new osg::Shader(osg::Shader::TESSCONTROL, code);
-                        tessControlShader->setName(name);
+                      //  tessControlShader = new osg::Shader(osg::Shader::TESSCONTROL, code);
+                      //  tessControlShader->setName(name);
                     }
                 }
                 else if (strcmp(tagName, "tessEvalProgram") == 0)
@@ -845,8 +845,8 @@ void vvShader::loadMaterial()
                     if (!code.empty())
                     {
                         code = prependPreamble(code, preamble);
-                        tessEvalShader = new osg::Shader(osg::Shader::TESSEVALUATION, code);
-                        tessEvalShader->setName(name);
+                      //  tessEvalShader = new osg::Shader(osg::Shader::TESSEVALUATION, code);
+                      //  tessEvalShader->setName(name);
                     }
                 }
             }
@@ -901,7 +901,7 @@ void vvShader::setUniformesFromAttribute(const char *uniformValues)
         }
     }
 }
-
+/*
 osg::Uniform *vvShader::getUniform(const std::string &name)
 {
     std::list<coVRUniform *>::iterator it;
@@ -973,7 +973,7 @@ void vvShader::setVec4Uniform(const std::string &name, vsg::vec4 v)
             (*it)->setValue(v);
         }
     }
-}
+}*/
 
 void vvShader::setData(TokenBuffer &tb)
 {
@@ -1003,14 +1003,14 @@ void vvShader::setData(TokenBuffer &tb)
     {
         std::string code;
         tb >> code;
-        fragmentShader->setShaderSource(code.c_str());
-        fragmentShader->dirtyShader();
+       // fragmentShader->setShaderSource(code.c_str());
+       // fragmentShader->dirtyShader();
     }
     else if (type == SHADER_GEOMETRY)
     {
         std::string code;
         tb >> code;
-        if (geometryShader == NULL)
+       /* if (geometryShader == NULL)
         {
             geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
             program->addShader(geometryShader.get());
@@ -1022,28 +1022,28 @@ void vvShader::setData(TokenBuffer &tb)
         program->setParameter(GL_GEOMETRY_VERTICES_OUT_EXT, geomParams[0]);
         program->setParameter(GL_GEOMETRY_INPUT_TYPE_EXT, geomParams[1]);
         program->setParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, geomParams[2]);
-        geometryShader->dirtyShader();
+        geometryShader->dirtyShader();*/
     }
     else if (type == SHADER_VERTEX)
     {
         std::string code;
         tb >> code;
-        vertexShader->setShaderSource(code.c_str());
-        vertexShader->dirtyShader();
+        /*vertexShader->setShaderSource(code.c_str());
+        vertexShader->dirtyShader();*/
     }
     else if (type == SHADER_TESSCONTROL)
     {
         std::string code;
         tb >> code;
-        tessControlShader->setShaderSource(code.c_str());
-        tessControlShader->dirtyShader();
+        /*tessControlShader->setShaderSource(code.c_str());
+        tessControlShader->dirtyShader();*/
     }
     else if (type == SHADER_TESSEVAL)
     {
         std::string code;
         tb >> code;
-        tessEvalShader->setShaderSource(code.c_str());
-        tessEvalShader->dirtyShader();
+        /*tessEvalShader->setShaderSource(code.c_str());
+        tessEvalShader->dirtyShader();*/
     }
 }
 
@@ -1090,7 +1090,7 @@ void vvShader::storeMaterial()
 		xercesc::XMLString::release(&t1);
 		xercesc::XMLString::release(&t2);
 	}
-    if (cullFace == osg::CullFace::BACK)
+    /*if (cullFace == osg::CullFace::BACK)
 	{
 		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("back"));
 		xercesc::XMLString::release(&t1);
@@ -1107,7 +1107,7 @@ void vvShader::storeMaterial()
 		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("front_and_back"));
 		xercesc::XMLString::release(&t1);
 		xercesc::XMLString::release(&t2);
-	}
+	}*/
     if (cullFace == 0)
 	{
 		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("off"));
@@ -1189,7 +1189,7 @@ void vvShader::storeMaterial()
 		xercesc::XMLString::release(&t2);
         rootElement->appendChild(attrib);
     }
-    if (vertexShader.get() != NULL)
+    /*if (vertexShader.get() != NULL)
     {
         xercesc::DOMElement *vertexProgram = document->createElement(t1 = xercesc::XMLString::transcode("vertexProgram"));
         vertexProgram->setTextContent(t2 = xercesc::XMLString::transcode(vertexShader->getShaderSource().c_str()));
@@ -1279,7 +1279,7 @@ void vvShader::storeMaterial()
 		xercesc::XMLString::release(&t1);
 		xercesc::XMLString::release(&t2);
         rootElement->appendChild(fragmentProgram);
-    }
+    }*/
 
 #if XERCES_VERSION_MAJOR < 3
     xercesc::DOMWriter *writer = impl->createDOMWriter();
@@ -1320,7 +1320,7 @@ vvShaderInstance *vvShader::apply(vsg::Node *node)
     vvShaderInstance *lastInstance = NULL;
 
     vvShaderList::instance()->remove(node); // remove all old shaders
-    osg::Geode *geode = dynamic_cast<osg::Geode *>(node);
+    /*osg::Geode* geode = dynamic_cast<osg::Geode*>(node);
     vsg::Group *group = dynamic_cast<vsg::Group *>(node);
     if (geode)
     {
@@ -1337,7 +1337,7 @@ vvShaderInstance *vvShader::apply(vsg::Node *node)
     {
         for (unsigned int i = 0; i < group->children.size(); i++)
         {
-            lastInstance = apply(group->getChild(i));
+            lastInstance = apply(group->children[i]);
         }
     }
     else
@@ -1347,13 +1347,13 @@ vvShaderInstance *vvShader::apply(vsg::Node *node)
         {
             apply(st);
         }
-    }
+    }*/
     return lastInstance;
 }
 
 void vvShaderList::remove(vsg::Node *node)
 {
-    osg::Geode *geode = dynamic_cast<osg::Geode *>(node);
+    /*osg::Geode* geode = dynamic_cast<osg::Geode*>(node);
     vsg::Group *group = dynamic_cast<vsg::Group *>(node);
     if (geode)
     {
@@ -1411,24 +1411,14 @@ void vvShaderList::remove(vsg::Node *node)
             while (stateset->getAttribute(osg::StateAttribute::PROGRAM) != NULL)
                 stateset->removeAttribute(stateset->getAttribute(osg::StateAttribute::PROGRAM));
 
-            /*        std::list<vvShaderInstance *>::iterator it;
-         for(it=instances.begin();it != instances.end(); it++)
-         {
-            if((*it)->drawable == drawable)
-            {
-               vvShaderInstance *si = *it;
-               instances.erase(it);
-               delete si;
-               break;
-            }
-         }*/
+            
         }
     }
     else if (group)
     {
         for (unsigned int i = 0; i < group->children.size(); i++)
         {
-            remove(group->getChild(i));
+            remove(group->children[i]);
         }
     }
     else
@@ -1440,9 +1430,9 @@ void vvShaderList::remove(vsg::Node *node)
             while (st->getAttribute(osg::StateAttribute::PROGRAM) != NULL)
                 st->removeAttribute(st->getAttribute(osg::StateAttribute::PROGRAM));
         }
-    }
+    }*/
 }
-
+/*
 void vvShader::apply(osg::StateSet *stateset)
 {
     if (!stateset)
@@ -1809,31 +1799,31 @@ vvShaderInstance *vvShader::apply(osg::Geode *geode, vsg::Node *drawable)
         }
     }
     return instance;
-}
+}*/
 
 void vvShader::setNumVertices(int nv)
 {
-    if (getProgram().valid())
+  /*  if (getProgram().valid())
     {
         getProgram()->setParameter(GL_GEOMETRY_VERTICES_OUT_EXT, nv);
         if (getGeometryShader())
             getGeometryShader()->dirtyShader();
     }
-    geomParams[0] = nv;
+    geomParams[0] = nv;*/
 }
 void vvShader::setInputType(int t)
 {
-    if (getProgram().valid())
+   /* if (getProgram().valid())
     {
         getProgram()->setParameter(GL_GEOMETRY_INPUT_TYPE_EXT, t);
         if (getGeometryShader())
             getGeometryShader()->dirtyShader();
     }
-    geomParams[1] = t;
+    geomParams[1] = t;*/
 }
 void vvShader::setOutputType(int t)
 {
-    if (getProgram().valid())
+   /* if (getProgram().valid())
     {
         getProgram()->setParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, t);
         if (getGeometryShader())
@@ -1841,7 +1831,7 @@ void vvShader::setOutputType(int t)
             getGeometryShader()->dirtyShader();
         }
     }
-    geomParams[2] = t;
+    geomParams[2] = t;*/
 }
 
 //vvShader::vvShader(TokenBuffer &tb)
@@ -1858,7 +1848,7 @@ vvShaderList::vvShaderList()
 {
     assert(!s_instance);
 
-    projectionMatrix = new osg::Uniform("Projection", vsg::dmat4f::translate(100, 0, 0));
+    /*projectionMatrix = new osg::Uniform("Projection", vsg::dmat4f::translate(100, 0, 0));
     lightMatrix = new osg::Uniform("Light", vsg::dmat4f::translate(100, 0, 0));
     lightEnabled.resize(4);
     if (cover)
@@ -1883,7 +1873,7 @@ vvShaderList::vvShaderList()
             lightEnabled[i] = new osg::Uniform(("Light" + std::to_string(i) + "Enabled").c_str(), i==0);
         }
     }
-    stereoUniform = new osg::Uniform("Stereo", 0);
+    stereoUniform = new osg::Uniform("Stereo", 0);*/
 }
 
 vvShaderList::~vvShaderList()
@@ -1918,55 +1908,13 @@ void vvShaderList::loadMaterials()
         }
     }
 }
-
-void vvShaderList::init(osg::GLExtensions *glext)
+void vvShaderList::init()
 {
-    int glslVersion = -1;
-    if (glext)
-    {
-        if (glext->isGlslSupported)
-        {
-            if (vv->debugLevel(1))
-                std::cerr << "GLSL supported: version " << glext->glslLanguageVersion << std::endl;
-            glslVersion = static_cast<int>(glext->glslLanguageVersion * 100.0 + 0.5);
-        }
-        else
-        {
-            std::cerr << "GLSL supported: NO" << std::endl;
-        }
-    }
-    else
-    {
-        std::cerr << "vvShaderList::init: no information on GL extensions available" << std::endl;
-    }
-
-    glslVersionRange.first = coCoviseConfig::getInt("versionMin", "COVER.GLSL", 110);
-    glslVersionRange.second = coCoviseConfig::getInt("versionMax", "COVER.GLSL", glslVersion);
-
+    
     loadMaterials();
 
-    osg::Geode *geodeShaderL = new osg::Geode;
-    geodeShaderL->setNodeMask(Isect::Left);
-    ShaderNode *shaderL;
-    shaderL = new ShaderNode(ShaderNode::Left);
-    shaderL->setUseDisplayList(false);
-    osg::StateSet *statesetBackgroundBin = new osg::StateSet();
-    statesetBackgroundBin->setRenderBinDetails(-2, "RenderBin");
-    statesetBackgroundBin->setNestRenderBins(false);
-    shaderL->setStateSet(statesetBackgroundBin);
-    geodeShaderL->addDrawable(shaderL);
-    vv->getScene()->addChild(geodeShaderL);
-
-    osg::Geode *geodeShaderR = new osg::Geode;
-    geodeShaderR->setNodeMask(Isect::Right);
-    ShaderNode *shaderR;
-    shaderR = new ShaderNode(ShaderNode::Right);
-    shaderR->setUseDisplayList(false);
-    shaderR->setStateSet(statesetBackgroundBin);
-    geodeShaderR->addDrawable(shaderR);
-    vv->getScene()->addChild(geodeShaderR);
+    
 }
-
 vvShader *vvShaderList::add(const std::string &name, const std::string &dirName, const std::string &defines)
 {
     return new vvShader(name, dirName, defines);
@@ -1976,7 +1924,7 @@ void vvShaderList::applyParams(vvShader *shader, std::map<std::string, std::stri
 {
     if (!params)
         return;
-
+    /*
     std::list<coVRUniform *> unilist = shader->getUniforms();
     std::map<std::string, std::string>::iterator itparam;
     for (itparam = params->begin(); itparam != params->end(); itparam++)
@@ -1994,7 +1942,7 @@ void vvShaderList::applyParams(vvShader *shader, std::map<std::string, std::stri
                 }
             }
         }
-    }
+    }*/
 }
 
 vvShader *vvShaderList::getUnique(const std::string &n, std::map<std::string, std::string> *params,
@@ -2050,7 +1998,7 @@ void vvShaderList::setData(TokenBuffer &tb)
         shader->setData(tb);
     }
 }
-
+/*
 osg::Uniform* vvShaderList::getGlobalUniform(const std::string& name)
 {
     if (name == "Light0Enabled")
@@ -2182,13 +2130,13 @@ osg::Uniform *vvShaderList::getStereo()
 {
     return stereoUniform.get();
 }
-
+*/
 void vvShaderList::update()
 {
     static double firstFrameTime = 0.0;
     if (firstFrameTime == 0.0)
         firstFrameTime = vv->frameTime();
-    timeUniform->set((int)((vv->frameTime() - firstFrameTime) * 1000.0));
+  /*  timeUniform->set((int)((vv->frameTime() - firstFrameTime) * 1000.0));
     timeStepUniform->set(vvAnimationManager::instance()->getAnimationFrame());
     durationUniform->set((int)(vv->frameDuration() * 1000.0));
 
@@ -2263,123 +2211,8 @@ void vvShaderList::update()
     else
         lightMatrix->set(vsg::dmat4f((BMat * WorldViewMat * InvRot) * vv->invEnvCorrectMat * Translig)); //korrekt bis auf skalierung - mit ProjMat oder InvnWorldViewMat mult bringt nur verschiebung mit kamera
 
-    /*vsg::dmat4 ProjMat;
-   ProjMat.makePerspective(160.0,(1024/768),1.0,10000.0);
-    //Drehung um -90� um x-Achse damit Frustum in y-Richtung zeigt
-   
-   vsg::dmat4 nWorldViewMat;
-   nWorldViewMat = BMat * ((WorldViewMat * InvRot) * vv->invEnvCorrectMat);
-    
-   vsg::dmat4 InvnWorldViewMat;
-   InvnWorldViewMat.invert(nWorldViewMat);  
-
-   projectionMatrix->set(InvnWorldViewMat * ProjMat * Rot);
-   lightMatrix->set(nWorldViewMat);*/
     //-------------------------------------------------------------------------------------------
-    /*Erzeugen einer neuen mat Matrix und initialisieren der light- und der projection matrix durch zuweisen der BaseMat.
-   Diese Matrizen liegen momentan im Ursprung.
-   Spaeter sollen die Positionen sich mit dem Fahrzeug mitbewegen - also andere Werte wie BaseMat zuweisen
-        
-   //vsg::dmat4 BMat;
-   //BMat = vv->getBaseMat();
-   //vsg::dmat4 InvBMat;
-   //InvBMat.invert(BMat);
-
-   vsg::dmat4d projmat;
-   projmat.makePerspective(160.0,2.0,1.0,500.0);
-   
-   vsg::dmat4d projmat(2,0,0,0,
-						-3,-3,3,1,
-						0,2,0,0,
-						0,0,-4,0);  frustum in y-richtung mit n=1, f=2
-	projectionMatrix->set(projmat);
-						mat(0.2,0,0,0,
-							-3,-3,1.00002,1,
-							0,0.2,0,0,
-							0,0, -0.200002,0); frustum in y-richtung mit n=0.1, f=10000
-   vsg::dmat4d mat;
-   mat = vv->getBaseMat();
-   lightMatrix->set(mat);
-   
-   vsg::dmat4d mat;
-   lightMatrix->set(vsg::dmat4::translate(0,0,100));
-
-   	cout<<"lighmat="<<ligmat<<std::endl;
-	cout<<"------"<<std::endl;
-	cout<<"projemat="<<projmat<<std::endl;
-	cout<<"------"<<std::endl;
-	lightMatrix,16;
-	*vvSceneView->*vv->invEnvCorrectMat
-	  vsg::dmat4 ligposmat(1,0,0,0,
-						0,1,0,0,
-						0,0,1,0,
-						0,0,-2000,1);
-
-   vsg::dmat4 Rotonly(1,0,0,0,
-						0,0,-1,0,
-						0,1,0,0,
-						0,0,0,1); 
-   vsg::dmat4 invRot(1,0,0,0,
-						0,0,1,0,
-						0,-1,0,0,
-						0,0,0,1);
-    vsg::dmat4 Transonly(1,0,0,0,
-						0,1,0,0,
-						0,0,1,0,
-						0,0,-2000,1);
-	
-	
-   vsg::dmat4 BMat = cover ->getBaseMat();
-  
-   vsg::dmat4 ViewMat= vv->getViewerMat();
-   
-   vsg::dmat4 WorldViewMat = BMat*ViewMat;   
-     
-   //zweiter Schritt: verschobene neue weltkoordinaten berechnen
-   vsg::dmat4 RotOnly = WorldViewMat;
-   RotOnly(3,0)=0;
-   RotOnly(3,1)=0;
-   RotOnly(3,2)=0;
-   RotOnly(3,3)=1;
-   
-   vsg::dmat4 InvRot;
-   InvRot.invert(RotOnly);
-
-   vsg::dmat4 nWorldViewMat;
-   nWorldViewMat = ((WorldViewMat*InvRot)*vv->invEnvCorrectMat);
-      lightMatrix->set(nWorldViewMat);
-   bis hier alt
-
-   vsg::dmat4 TransOnly = WorldViewMat;
-   TransOnly(0,0)=1;
-   TransOnly(0,1)=0;
-   TransOnly(0,2)=0;
-   TransOnly(0,3)=0;
-
-   TransOnly(1,0)=0;
-   TransOnly(1,1)=1;
-   TransOnly(1,2)=0;
-   TransOnly(1,3)=0;
-
-   TransOnly(2,0)=0;
-   TransOnly(2,1)=0;
-   TransOnly(2,2)=1;
-   TransOnly(2,3)=0;
-   
-   vsg::dmat4 npm;
-   
-   Moeglicherweise dies als ALternative, da in viewermat nur translation und nicht rotation beruecksichtigt wird...test entspricht hier der modelview
-   vsg::dmat4 test(1,0,0,0,
-						0,0,1,0,
-						0,-1,0,0,
-						0,2000,0,1);
-    lightMatrix->set(test*InvRot*vv->invEnvCorrectMat);
-   
-   
-   
-   npm=vv->envCorrectMat *rotonly * *(proj.get());
-   
-   neu---------------------------------------------------------------------------------------*/
+    
 
     if (vv->frontWindowHorizontalSize > 0)
     {
@@ -2390,7 +2223,7 @@ void vvShaderList::update()
    for (auto i=0; i<lightEnabled.size(); ++i)
    {
        lightEnabled[i]->set(vvLighting::instance()->isLightEnabled(i));
-   }
+   }*/
 }
 
 vvShaderInstance::vvShaderInstance(vsg::Node *d)
@@ -2400,6 +2233,7 @@ vvShaderInstance::vvShaderInstance(vsg::Node *d)
 vvShaderInstance::~vvShaderInstance()
 {
 }
+/*
 void vvShaderInstance::addUniform(const osg::Uniform &u)
 {
     uniforms.push_back(new osg::Uniform(u));
@@ -2413,7 +2247,7 @@ osg::Uniform *vvShaderInstance::getUniform(const std::string &name)
             return it->get();
     }
     return NULL;
-}
+}*/
 
 ShaderNode::ShaderNode(StereoView v)
 {
@@ -2428,15 +2262,12 @@ ShaderNode::~ShaderNode()
 
 ShaderNode *ShaderNode::theNode = NULL;
 
-/** Clone the type of an object, with Object* return type.
-Must be defined by derived classes.*/
+/*
 osg::Object *ShaderNode::cloneType() const
 {
     return new ShaderNode(view);
 }
 
-/** Clone the an object, with Object* return type.
-Must be defined by derived classes.*/
 osg::Object *ShaderNode::clone(const osg::CopyOp &) const
 {
     return new ShaderNode(view);
@@ -2459,8 +2290,8 @@ void ShaderNode::drawImplementation(osg::RenderInfo &renderInfo) const
     else
         vvShaderList::instance()->getStereo()->set(1);
 }
-
-
+*/
+/*
 coTangentSpaceGenerator::coTangentSpaceGenerator()
 	: osg::Referenced(),
 	T_(new vsg::vec4Array),
@@ -2629,8 +2460,6 @@ void coTangentSpaceGenerator::generate(vsg::Node *geo)
 
 		vT[3] = flipped ? -1.0f : 1.0f;
 	}
-	/* TO-DO: if indexed, compress the attributes to have only one
-	* version of each (different indices for each one?) */
 }
 
 void coTangentSpaceGenerator::compute(osg::PrimitiveSet *pset,
@@ -2803,7 +2632,7 @@ void coTangentSpaceGenerator::compute(osg::PrimitiveSet *pset,
 
 }
 
-
+*/
 void vive::vvShader::setBoolUniform(const std::string &name, bool b)
 {
     std::list<coVRUniform *>::iterator it;

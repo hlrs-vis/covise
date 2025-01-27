@@ -18,7 +18,7 @@ class IntersectionVisitor;
 namespace vive
 {
 
-class coIntersector;
+class vvIntersector;
 
 class VVCORE_EXPORT IntersectionHandler : public vsg::Inherit<vsg::Object, IntersectionHandler>
 {
@@ -26,16 +26,18 @@ public:
     virtual ~IntersectionHandler() {}
 
     virtual bool canHandleDrawable(vsg::Node *drawable) const = 0;
-    virtual void intersect(vsg::Visitor &iv, coIntersector &is, vsg::Node *drawable) = 0;
+    virtual void intersect(vsg::Visitor &iv, vvIntersector &is, vsg::Node *drawable) = 0;
 };
 
-class VVCORE_EXPORT coIntersector: public vsg::Inherit<vsg::LineSegmentIntersector, coIntersector>
+class VVCORE_EXPORT vvIntersector: public vsg::Inherit<vsg::LineSegmentIntersector, vvIntersector>
 {
 public:
-    coIntersector(const vsg::dvec3& start, const vsg::dvec3& end);
+    vvIntersector(const vsg::dvec3& start, const vsg::dvec3& end);
 
     /// check for intersection with sphere
     bool intersects(const vsg::dsphere& bs) override;
+
+    void addHandler(vsg::ref_ptr<IntersectionHandler> handler);
 
 protected:
     std::vector<vsg::ref_ptr<IntersectionHandler>> _handlers;
@@ -49,7 +51,7 @@ public:
     static vvIntersection *instance();
     virtual ~vvIntersection();
 
-    coIntersector *newIntersector(const vsg::dvec3 &start, const vsg::dvec3 &end);
+    vvIntersector *newIntersector(const vsg::dvec3 &start, const vsg::dvec3 &end);
 
     void addHandler(vsg::ref_ptr<IntersectionHandler> handler);
 
@@ -78,6 +80,6 @@ private:
     std::vector<vsg::ref_ptr<IntersectionHandler>> handlers;
 };
 }
-EVSG_type_name(vive::coIntersector);
+EVSG_type_name(vive::vvIntersector);
 EVSG_type_name(vive::IntersectionHandler);
 

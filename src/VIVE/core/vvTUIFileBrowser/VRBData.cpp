@@ -6,17 +6,15 @@
  * License: LGPL 2+ */
 
 #include "VRBData.h"
-#include <util/vvTabletUIMessages.h>
+#include <util/coTabletUIMessages.h>
 #include <util/coFileUtil.h>
 #include <net/tokenbuffer.h>
-#include <osgDB/fstream>
-//#include <fstream>
 #include <QDir>
 #include <qtutil/FileSysAccess.h>
-#include <cover/vvCommunication.h>
-#include <cover/vvMSController.h>
-#include <cover/OpenCOVER.h>
-#include <cover/vvPluginSupport.h>
+#include "vvCommunication.h"
+#include "vvMSController.h"
+#include "vvVive.h"
+#include "vvPluginSupport.h"
 #include <net/message.h>
 #include <net/message_types.h>
 
@@ -390,13 +388,13 @@ std::string VRBData::getTmpFilename(const std::string url, int id)
     tempDir = tempDir + filename;
 
     //Check for existance
-    osgDB::ifstream vrbFile(tempDir.c_str());
+   /* osgDB::ifstream vrbFile(tempDir.c_str());
     if (!(!vrbFile.bad()))
     {
         std::cerr << "VRB-File found in local cache!" << std::endl;
         vrbFile.close();
         return tempDir;
-    }
+    }*/
 
     TokenBuffer rt;
     rt << pId;

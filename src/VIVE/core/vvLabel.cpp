@@ -23,23 +23,23 @@ vvLabel::vvLabel(const char *name, float fontsize, float lineLen, vsg::vec4 fgc,
     //fprintf(stderr,"===== new vvLabel\n");
     moveToCam=false; // change default back to normal behavior (Uwe 2016)
     offset = lineLen;
-    vsg::ref_ptr<osgText::Font> font = vvFileManager::instance()->loadFont(NULL);
+    auto font = vvFileManager::instance()->loadFont(NULL);
 
     // unlighted geostate
-    osg::Material *mtl = new osg::Material;
+    /*osg::Material* mtl = new osg::Material;
     mtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     mtl->setAmbient(osg::Material::FRONT_AND_BACK, vsg::vec4(0.9f, 0.9f, 0.9f, 1.0));
     mtl->setDiffuse(osg::Material::FRONT_AND_BACK, vsg::vec4(0.9f, 0.9f, 0.9f, 1.0));
     mtl->setSpecular(osg::Material::FRONT_AND_BACK, vsg::vec4(0.9f, 0.9f, 0.9f, 1.0));
     mtl->setEmission(osg::Material::FRONT_AND_BACK, vsg::vec4(1.0f, 1.0f, 1.0f, 1.0));
-    mtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    mtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);*/
 
     // position dsc
     posTransform = vsg::MatrixTransform::create();
 
     // billboarding label
     billboard = new vvBillboard();
-    billboard->setNodeMask(billboard->getNodeMask() & ~Isect::Intersection & ~Isect::Pick);
+    //billboard->setNodeMask(billboard->getNodeMask() & ~Isect::Intersection & ~Isect::Pick);
     //   billboard->setMode(vvBillboard::AXIAL_ROT);
     billboard->setMode(vvBillboard::POINT_ROT_WORLD);
     //   billboard->setMode(vvBillboard::POINT_ROT_EYE);
@@ -49,7 +49,7 @@ vvLabel::vvLabel(const char *name, float fontsize, float lineLen, vsg::vec4 fgc,
     vsg::vec3 normal(0, 0, 1);
     billboard->setNormal(normal);
 
-    label = new osg::Geode();
+    /*label = new osg::Geode();
 
     //labelString->setMode(PFSTR_JUSTIFY, PFSTR_CENTER);
     //labelString->setColor(fgc[0], fgc[1], fgc[2], fgc[3]);
@@ -172,7 +172,7 @@ vvLabel::vvLabel(const char *name, float fontsize, float lineLen, vsg::vec4 fgc,
     billboard->addChild(geode);
     //billboard->addChild(vvSceneGraph::instance()->loadAxisGeode(1));
     geode->addDrawable(lineGeoset);
-    geode->addDrawable(quadGeoset);
+    geode->addDrawable(quadGeoset);*/
 }
 
 // lookForParent looks for the first parent
@@ -181,7 +181,7 @@ template <class T>
 static T *
 lookForParent(vsg::Group *child)
 {
-    int no_parents = child->getNumParents();
+    /*int no_parents = child->getNumParents();
     int index;
     for (index = 0; index < no_parents; ++index)
     {
@@ -190,7 +190,7 @@ lookForParent(vsg::Group *child)
         {
             return dynamic_cast<T *>(parent);
         }
-    }
+    }*/
     return NULL;
 }
 
@@ -212,7 +212,7 @@ vvLabel::reAttachTo(vsg::Group *anchor)
         return;
     }
 
-    vsg::dmat4 postMul;
+   /* vsg::dmat4 postMul;
     postMul.makeIdentity();
 
     vsg::MatrixTransform *parent = dynamic_cast<vsg::MatrixTransform *>(anchor);
@@ -236,14 +236,14 @@ vvLabel::reAttachTo(vsg::Group *anchor)
         anchor->addChild(posTransform);
         if (previousParent)
             previousParent->removeChild(posTransform);
-    }
+    }*/
 }
 
 vvLabel::~vvLabel()
 {
     //fprintf(stderr,"===== delete vvLabel\n");
 
-    if (label && label->getNumParents())
+    /*if (label && label->getNumParents())
     {
         vsg::Group *parent = dynamic_cast<vsg::Group *>(label->getParent(0));
         if (parent)
@@ -268,18 +268,18 @@ vvLabel::~vvLabel()
     {
         vsg::Group *parent = dynamic_cast<vsg::Group *>(posTransform->getParent(0));
         parent->removeChild(posTransform);
-    }
+    }*/
 }
 
 void
-vvLabel::setPosition(const vsg::vec3 &pos)
+vvLabel::setPosition(const vsg::dvec3 &pos)
 {
     position = pos;
     keepPositionInScene = false;
     update();
 }
 
-void vvLabel::setPositionInScene(const vsg::vec3 &pos)
+void vvLabel::setPositionInScene(const vsg::dvec3 &pos)
 {
     position = pos;
     keepPositionInScene = true;
@@ -302,12 +302,12 @@ vvLabel::update()
 
     //float depthFactor;
     //float viewerDist = -vv->getViewerMat().getTrans().y();
-    vsg::vec3 pos = position;
+    vsg::dvec3 pos = position;
 
     if (keepPositionInScene)
     {
         pos *= vvSceneGraph::instance()->scaleFactor();
-        pos = vv->getXformMat().preMult(pos);
+        pos = vv->getXformMat() * pos;
     }
 
     if (moveToCam)
@@ -322,11 +322,11 @@ vvLabel::update()
     //depthFactor = fabs((pos[1] + viewerDist)/viewerDist);
     if (!vvConfig::instance()->orthographic() && depthScale)
     {
-        vsg::vec3 viewerVec = vv->getViewerMat().getTrans();
-        vsg::vec3 viewerToPos = pos - viewerVec;
+        vsg::dvec3 viewerVec = getTrans(vv->getViewerMat());
+        vsg::dvec3 viewerToPos = pos - viewerVec;
 
-        float depthFactor = viewerToPos.length() / viewerVec.length();
-        m.preMult(vsg::dmat4::scale(depthFactor, depthFactor, depthFactor));
+        double depthFactor = length(viewerToPos) / length(viewerVec);
+        m = vsg::scale(depthFactor, depthFactor, depthFactor)*m;
     }
     posTransform->matrix = (m);
 }
@@ -347,7 +347,7 @@ vvLabel::setLineLen(float l)
 
     // line endpoint
     vsg::vec3 p1 = vsg::vec3(0.0, l, 0.0);
-    text->setPosition(vsg::vec3(0, l, 0));
+  /*  text->setPosition(vsg::vec3(0, l, 0));
 
     //cerr << bb.zMin() << "  " <<bb.zMax() << "  " << h << endl;
     (*lc)[0].set(p0);
@@ -355,7 +355,7 @@ vvLabel::setLineLen(float l)
 	lc->dirty();
     lineGeoset->setVertexArray(lc);
     lineGeoset->dirtyDisplayList();
-    geode->dirtyBound();
+    geode->dirtyBound();*/
 }
 
 void
@@ -363,7 +363,7 @@ vvLabel::setString(const char *name)
 {
     //fprintf(stderr,"===== vvLabel::setString\n");
 
-    text->setText(name, osgText::String::ENCODING_UTF8);
+   /* text->setText(name, osgText::String::ENCODING_UTF8);
 
     //const osg::BoundingBox bb=label->getBoundingBox();
     osg::BoundingBox bb = text->getBound();
@@ -385,18 +385,18 @@ vvLabel::setString(const char *name)
 
     quadGeoset->setVertexArray(qc);
     quadGeoset->dirtyDisplayList();
-    geode->dirtyBound();
+    geode->dirtyBound();*/
 }
 
 void
 vvLabel::setFGColor(vsg::vec4 fgc)
 {
     //text->setColor(vsg::vec4(fgc[0], fgc[1], fgc[2], fgc[3]));
-    text->setColor(fgc);
+   /* text->setColor(fgc);
 
     vsg::vec4Array *fgcolor = new vsg::vec4Array();
     fgcolor->push_back(vsg::vec4(fgc[0], fgc[1], fgc[2], fgc[3]));
-    lineGeoset->setColorArray(fgcolor);
+    lineGeoset->setColorArray(fgcolor);*/
 }
 
 void
@@ -407,10 +407,9 @@ vvLabel::show()
     //posTransform->setTravMask(PFTRAV_DRAW, 1, PFTRAV_SELF | PFTRAV_DESCEND, PF_SET);
     //posTransform->setTravMask(PFTRAV_ISECT, 1,PFTRAV_SELF | PFTRAV_DESCEND, PF_SET);
     //pfPrint(posTransform, PFTRAV_SELF|PFTRAV_DESCEND, PFPRINT_VB_DEBUG, NULL);
-    if (!posTransform->containsNode(billboard.get()))
+    //if (!posTransform->containsNode(billboard.get()))
     {
-        posTransform->addChild(billboard.get());
-        ;
+        posTransform->addChild(billboard);
     }
 }
 
@@ -421,26 +420,26 @@ vvLabel::hide()
     //posTransform->setTravMask(PFTRAV_DRAW, 0, PFTRAV_SELF | PFTRAV_DESCEND, PF_SET);
     //posTransform->setTravMask(PFTRAV_ISECT, 0,PFTRAV_SELF | PFTRAV_DESCEND, PF_SET);
     //pfPrint(posTransform, PFTRAV_SELF|PFTRAV_DESCEND, PFPRINT_VB_DEBUG, NULL);
-    if (posTransform && posTransform->containsNode(billboard.get()))
+    //if (posTransform && posTransform->children.find(billboard))
     {
-        posTransform->removeChild(billboard.get());
+        vv->removeChild(posTransform,billboard);
     }
 }
 
 void vvLabel::showLine()
 {
-    if (!geode->containsDrawable(lineGeoset))
+    /*if (!geode->containsDrawable(lineGeoset))
     {
         geode->addDrawable(lineGeoset);
-    }
+    }*/
 }
 
 void vvLabel::hideLine()
 {
-    if (geode->containsDrawable(lineGeoset))
+    /*if (geode->containsDrawable(lineGeoset))
     {
         geode->removeDrawable(lineGeoset);
-    }
+    }*/
 }
 void vvLabel::setRotMode(vvBillboard::RotationMode mode)
 {
@@ -448,9 +447,9 @@ void vvLabel::setRotMode(vvBillboard::RotationMode mode)
     billboard->setMode(mode);
 }
 
-vsg::vec3 vvLabel::moveToCamera(const vsg::vec3 &point, float dist)
+vsg::dvec3 vvLabel::moveToCamera(const vsg::dvec3 &point, float dist)
 {
-    vsg::vec3 newPos;
+    vsg::dvec3 newPos;
 
     if (vvConfig::instance()->orthographic())
     {
@@ -459,9 +458,9 @@ vsg::vec3 vvLabel::moveToCamera(const vsg::vec3 &point, float dist)
     }
     else
     {
-        vsg::vec3 newLabelMoveVec = point - vvViewer::instance()->getViewerPos();
-        newLabelMoveVec.normalize();
-        newPos = vvViewer::instance()->getViewerPos() + newLabelMoveVec * dist * vvSceneGraph::instance()->scaleFactor();
+        vsg::dvec3 newLabelMoveVec = point - vvViewer::instance()->getViewerPos();
+        normalize(newLabelMoveVec);
+        newPos = (vvViewer::instance()->getViewerPos() + newLabelMoveVec) * (double)dist * (double)vvSceneGraph::instance()->scaleFactor();
     }
     return newPos;
 }

@@ -32,7 +32,7 @@ class vvInteractor;
 class VVCORE_EXPORT vvPluginList
 {
     friend class vvPluginSupport;
-    friend class OpenCOVER;
+    friend class vvVIVE;
 
 public:
     enum PluginDomain
