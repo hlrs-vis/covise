@@ -1560,6 +1560,27 @@ void Renderer::initFrames()
 
     anariSetParameter(anari.device, anari.renderer, "background", ANARI_FLOAT32_VEC4,
                       bgcolor);
+
+    float ambientR = coCoviseConfig::getFloat("r", "COVER.Plugin.ANARI.AmbientColor", 1.0f);
+    float ambientG = coCoviseConfig::getFloat("g", "COVER.Plugin.ANARI.AmbientColor", 1.0f);
+    float ambientB = coCoviseConfig::getFloat("b", "COVER.Plugin.ANARI.AmbientColor", 1.0f);
+    float ambientColor[] = {ambientR,ambientG,ambientB};
+    float ambientRadiance = coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.AmbientRadiance", 0.15f);
+    float ambientRadius = coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.AmbientRadius", 0.04f);
+
+    anariSetParameter(anari.device, anari.renderer, "ambientColor", ANARI_FLOAT32_VEC3,
+                      ambientColor);
+                                                                                         
+    anariSetParameter(anari.device, anari.renderer, "ambientRadiance", ANARI_FLOAT32,
+                      &ambientRadiance);
+                                                                                         
+    anariSetParameter(anari.device, anari.renderer, "ambientOcclusionDistance", ANARI_FLOAT32,
+                      &ambientRadius);
+                                                                                     
+bool denoise=true;                                                                   
+anariSetParameter(anari.device, anari.renderer, "denoise", ANARI_BOOL,               
+                  &denoise);
+
     anariCommitParameters(anari.device, anari.renderer);
 
     anari.frames.resize(numChannels);
