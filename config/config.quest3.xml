@@ -75,12 +75,12 @@
                         <Orientation h="0" p="-90" r="0" />
                     </ViveHead>
 
-                    <ViveHand device="Vive" bodyIndex="4">
+                    <ViveHand device="Vive" bodyIndex="1">
                         <Offset x="-15" y="0" z="40" />
                         <Orientation h="0" p="-127" r="0" />
                     </ViveHand>
 
-                    <ViveHandLeft device="Vive" bodyIndex="3">
+                    <ViveHandLeft device="Vive" bodyIndex="2">
                         <Offset x="15" y="0" z="40" />
                         <Orientation h="0" p="-127" r="0" />
                     </ViveHandLeft>
@@ -237,11 +237,11 @@
             </PipeConfig>
 
             <WindowConfig>
-                <Window type="" width="1036" comment="FRONT" window="0" pipeIndex="0" height="1074" left="40" top="40" name="0" decoration="true" />
+                <Window type="" width="2064" comment="FRONT" window="0" pipeIndex="0" height="2208" left="40" top="40" name="0" decoration="true" />
             </WindowConfig>
 
             <ScreenConfig>
-                <Screen width="2072" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2148" p="0.0" r="0.0" name="0" screen="0" />
+                <Screen width="2064" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="2208" p="0.0" r="0.0" name="0" screen="0" />
             </ScreenConfig>
 
             <TestImage value="D:/data/enbw/bilder/Fotomontagen/neu/2010_11_05_RFW_033_3840_2160_4k.jpg" />
