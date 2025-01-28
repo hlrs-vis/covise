@@ -141,7 +141,7 @@ int ReadObj::compute(const char *)
         void *image = stbi_load(mapKdList[0], &w, &h, &n, 0);
         if (image) {
             Covise::sendInfo("Load texture map %s", mapKdList[0]);
-            coDoPixelImage *pix = new coDoPixelImage(textureOut->getNewObjectInfo(), w, h, n, n, (const char *)image);
+            coDoPixelImage *pix = new coDoPixelImage("kdPix", w, h, n, n, (const char *)image);
 
             std::vector<int> txIndex(tcList[0].size());
             float *texCoords[2];
