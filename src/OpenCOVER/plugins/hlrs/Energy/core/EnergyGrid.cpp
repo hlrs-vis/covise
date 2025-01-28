@@ -18,12 +18,12 @@
 #include "cover/VRViewer.h"
 
 namespace {
-  auto get_string = [](const auto &data) {
-    std::stringstream ss;
-    ss << data << "\n\n";
-    return ss.str();
-  };
-}
+auto get_string = [](const auto &data) {
+  std::stringstream ss;
+  ss << data << "\n\n";
+  return ss.str();
+};
+}  // namespace
 // #include "cover/coBillboard.h"
 
 // namespace {
@@ -97,26 +97,42 @@ EnergyGrid::EnergyGrid(EnergyGridConfig &&data) : m_config(std::move(data)) {
 
 void EnergyGrid::initConnections(const grid::Indices &indices, const float &radius,
                                  const grid::DataList &additionalConnectionData) {
-  assert(indices.size() == m_config.points.size());
-
   bool hasAdditionalData = !additionalConnectionData.empty();
 
   const auto &points = m_config.points;
   for (auto i = 0; i < indices.size(); ++i) {
     for (auto j = 0; j < indices[i].size(); ++j) {
       std::unique_ptr<grid::ConnectionData<grid::Point>> data;
+
+      const auto indice = indices[i][j];
+      if (i < 0 || i >= points.size()) {
+        std::cerr << "Invalid Index for points: " << i << "\n";
+        continue;
+      }
+      const auto &from = *points[i];
+
+      if (indice >= points.size() || indice < 0) {
+        std::cerr << "Invalid Index for points: " << indice << "\n";
+        continue;
+      }
+      const auto &to = *points[indice];
+
       if (hasAdditionalData) {
+        if (additionalConnectionData.size() <= i + j) {
+          std::cerr << "Invalid Index for additionalConnectionData: i = " << i
+                    << ", j = " << j << std::endl;
+          continue;
+        }
         auto &additionalData = additionalConnectionData[i + j];
         std::string name = "connection";
         if (additionalData.find("name") != additionalData.end()) {
           name = std::get<std::string>(additionalData.at("name"));
         }
         data = std::make_unique<grid::ConnectionData<grid::Point>>(
-            name, *points[i], *points[indices[i][j]], radius, nullptr,
-            additionalConnectionData[i]);
+            name, from, to, radius, nullptr, additionalConnectionData[i]);
       } else {
-        data = std::make_unique<grid::ConnectionData<grid::Point>>(
-            "connection", *points[i], *points[indices[i][j]], radius);
+        data = std::make_unique<grid::ConnectionData<grid::Point>>("connection",
+                                                                   from, to, radius);
       }
       m_connections.push_back(new grid::DirectedConnection(*data));
     }
@@ -143,7 +159,6 @@ void EnergyGrid::initDrawablePoints() {
     TxtInfoboard infoboard(m_config.infoboardAttributes);
     m_infoboards.push_back(std::make_unique<InfoboardSensor>(
         point, std::make_unique<TxtInfoboard>(infoboard), toPrint));
-
   }
   m_config.parent->addChild(points);
 }

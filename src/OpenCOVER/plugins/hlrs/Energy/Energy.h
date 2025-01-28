@@ -129,6 +129,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void updateColorMap(const covise::ColorMap &map);
   void initColorMap();
   std::pair<PJ *, PJ_COORD> initProj();
+  void projTransLatLon(float &lat, float &lon);
   CSVStreamMapPtr getCSVStreams(const boost::filesystem::path &dirPath);
   /* #endregion */
 
@@ -196,8 +197,11 @@ class EnergyPlugin : public opencover::coVRPlugin,
   /* #endregion */
 
   /* #region SIMULATION */
-  void initPowerGridStreams();
+  void initSimUI();
+  void initGrid();
 
+  /* #region POWERGRID */
+  void initPowerGridStreams();
   std::unique_ptr<FloatMap> getInlfuxDataFromCSV(utils::read::CSVStream &stream,
                                                  float &max, float &min, float &sum,
                                                  int &timesteps);
@@ -219,9 +223,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
       std::string &name, std::map<std::string, uint> &duplicateMap);
   std::unique_ptr<core::grid::DataList> getAdditionalPowerGridPointData(
       const std::size_t &numOfBus);
-
-  void initSimUI();
-  void initGrid();
   void applyStaticInfluxToCityGML(const std::string &filePath);
   void updatePowerGridSelection(bool on);
   void updatePowerGridConfig(const std::string &tableName, const std::string &name,
@@ -230,7 +231,19 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void initPowerGrid();
   void initPowerGridUI(const std::vector<std::string> &tablesToSkip = {});
   void buildPowerGrid();
+  /* #endregion*/
+
+  /* #region HEATINGGRID */
+  void initHeatingGridStreams();
+  void initHeatingGrid();
   void buildHeatingGrid();
+  void readHeatingGridStream(utils::read::CSVStream &heatingStream);
+  std::unique_ptr<std::vector<int>> createHeatingGridIndices(
+      const std::string &pointName,
+      const std::string &connectionsStrWithCommaDelimiter,
+      core::grid::DataList &additionalData);
+  /* #endregion*/
+
   void buildCoolingGrid();
 
   /* #endregion*/
@@ -308,7 +321,9 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   std::shared_ptr<core::utils::color::ColorMapExtended> m_colorMap;
   std::unique_ptr<core::interface::IEnergyGrid> m_powerGrid;
+  std::unique_ptr<core::interface::IEnergyGrid> m_heatingGrid;
   CSVStreamMapPtr m_powerGridStreams;
+  CSVStreamMapPtr m_heatingGridStreams;
 };
 
 #endif
