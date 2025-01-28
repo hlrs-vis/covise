@@ -104,7 +104,7 @@ public:
     static vvNavigationManager *instance();
 
     // process key events
-    bool keyEvent(int type, int keySym, int mod);
+    bool keyEvent(vsg::KeyPressEvent& keyPress);
 
     void doWalkMoveToFloor();
     void processHotKeys(int keymask);

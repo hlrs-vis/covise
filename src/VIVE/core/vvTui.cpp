@@ -1190,7 +1190,7 @@ void vvTui::doTabFly()
     vsg::dmat4 rot;
     //rot.makeEuler(heading,pitch,roll);
     rot = makeEulerMat(vsg::dvec3( heading, pitch, roll));
-    dcs_mat = rot * dcs_mat;
+    dcs_mat = dcs_mat * rot ;
     // XXX
     //dcs_mat.getRow(1,velDir);                // velocity in direction of viewer
     velDir[0] = 0.0;
@@ -1199,8 +1199,7 @@ void vvTui::doTabFly()
     else
         velDir[1] = 0;
     velDir[2] = 0.0;
-    dcs_mat = vsg::translate(velDir * (double)currentVelocity)* dcs_mat;
-    vv->getObjectsXform()->matrix = (dcs_mat);
+    vv->getObjectsXform()->matrix = dcs_mat * vsg::translate(velDir * (double)currentVelocity);
     //       navigating = true;
     vvCollaboration::instance()->SyncXform();
 }
@@ -1222,10 +1221,11 @@ void vvTui::doTabXform()
         heading = getPhi(newx - relx0, widthX);
         pitch = getPhi(newy - rely0, widthY);
         roll = getPhi(newy - rely0, widthY);
+        roll = 0;
 
         //makeRot(heading, pitch, roll, headingBool, pitchBool, rollBool);
 
-        makeRot(heading, pitch, roll, 1, 1, 1);
+        makeRot(-heading, -pitch, -roll, 1, 1, 1);
         relx0 = mx - originX;
         rely0 = my - originY;
     }
@@ -1249,7 +1249,7 @@ void vvTui::doTabXform()
         //die 1.1 sind geschaetzt, um die Ungenauigkeit des errechneten Faktors auszugleichen
         //es sieht aber nicht so aus, als wuerde man es auf diese
         //Weise perfekt hinbekommen
-        doTrans = trans * actTransState;
+        doTrans = actTransState * trans;
         vv->getObjectsXform()->matrix = (doTrans);
         vvCollaboration::instance()->SyncXform();
     }
@@ -1291,12 +1291,12 @@ void vvTui::doTabWalk()
         velDir[0] = 0.0;
         velDir[1] = 1.0;
         velDir[2] = 0.0;
-        currentVelocity = (my - y0) * driveSpeed * vv->frameDuration();
-        dcs_mat = vsg::translate(velDir * (double)currentVelocity) *dcs_mat;
+        currentVelocity = (my - y0 ) * driveSpeed * vv->frameDuration();
+        dcs_mat = vsg::translate(velDir * (double)currentVelocity) * dcs_mat;
     }
     else if (panNav->down)
     {
-        dcs_mat = vsg::translate((mx - x0) * driveSpeed * 0.1 * -1.0, 0.0, (my - y0) * driveSpeed * 0.1 * 1) * dcs_mat;
+        dcs_mat =  vsg::translate(( mx - x0) * driveSpeed * 0.1 * 1.0, 0.0, (my - y0) * driveSpeed * 0.1 * 1) * dcs_mat;
     }
     vv->getObjectsXform()->matrix = (dcs_mat);
     vvCollaboration::instance()->SyncXform();
@@ -1371,8 +1371,7 @@ void vvTui::makeRot(float heading, float pitch, float roll, int headingBool, int
     vsg::dmat4 doRot;
     //rot.makeEuler(headingBool * heading, pitchBool * pitch, rollBool * roll);
     rot = makeEulerMat(headingBool * heading, pitchBool * pitch, rollBool * roll);
-    doRot = rot * actRotState;
-    vv->getObjectsXform()->matrix = (doRot);
+    vv->getObjectsXform()->matrix = actRotState * rot;
     vvCollaboration::instance()->SyncXform();
 }
 

@@ -49,6 +49,7 @@
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/ComputeBounds.h>
 #include <vsg/state/material.h>
+#include <vsg/ui/KeyEvent.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -663,40 +664,36 @@ void vvNavigationManager::centerView(){
 }
 
 // process key events
-bool vvNavigationManager::keyEvent(int type, int keySym, int mod)
+bool vvNavigationManager::keyEvent(vsg::KeyPressEvent& keyPress)
 {
     bool handled = false;
 
     if (vv->debugLevel(3))
         fprintf(stderr, "vvNavigationManager::keyEvent\n");
 
-  /*  shiftEnabled = (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT) != 0;
-    // Beschleunigung
-    if (type == osgGA::GUIEventAdapter::KEYDOWN)
+    shiftEnabled = (keyPress.keyModifier & vsg::MODKEY_Shift);
+    if (keyPress.keyBase == vsg::KEY_Up)
     {
-        if (keySym == osgGA::GUIEventAdapter::KEY_Up)
-        {
-            currentVelocity += driveSpeed * 1.0;
-            handled = true;
-        }
-        else if (keySym == osgGA::GUIEventAdapter::KEY_Right)
-        {
-            currentVelocity += currentVelocity * driveSpeed / 10.0;
-            handled = true;
-        }
-        else if (keySym == osgGA::GUIEventAdapter::KEY_Down)
-        {
-            // Verzoegerung
-            currentVelocity -= driveSpeed * 1.0;
-            handled = true;
-        }
-        else if (keySym == osgGA::GUIEventAdapter::KEY_Left)
-        {
-            // halt
-            currentVelocity = 0;
-            handled = true;
-        }
-    }*/
+        currentVelocity += (float)driveSpeed * 1.0f;
+        handled = true;
+    }
+    else if (keyPress.keyBase == vsg::KEY_Right)
+    {
+        currentVelocity += (float)currentVelocity * driveSpeed / 10.0;
+        handled = true;
+    }
+    else if (keyPress.keyBase == vsg::KEY_Down)
+    {
+        // Verzoegerung
+        currentVelocity -= (float)driveSpeed * 1.0f;
+        handled = true;
+    }
+    else if (keyPress.keyBase == vsg::KEY_Left)
+    {
+        // halt
+        currentVelocity = 0.0f;
+        handled = true;
+    }
     return handled;
 }
 
@@ -1972,7 +1969,7 @@ void vvNavigationManager::doMouseFly()
     vsg::dmat4 dcs_mat;
     dcs_mat = vvSceneGraph::instance()->getTransform()->matrix;
     double heading = 0.0;
-    double pitch = (my - y0) / 300;
+    double pitch = (my - y0) / -300;
     double roll = (mx - x0) / -300;
     vsg::dmat4 rot;
     rot = makeEulerMat(heading, pitch, roll);
@@ -2179,7 +2176,7 @@ void vvNavigationManager::doMouseWalk()
 
     if (interactionMA->wasStarted())
     {
-        tmp= vsg::translate((double)(mx - x0) * driveSpeed * -1, 0.0, (double)(my - y0) * driveSpeed * -1);
+        tmp= vsg::translate((double)(mx - x0) * driveSpeed * -1, 0.0, (double)(my - y0) * driveSpeed);
         dcs_mat = tmp * dcs_mat;;
     }
     else if (interactionMA->isRunning())
@@ -2196,7 +2193,7 @@ void vvNavigationManager::doMouseWalk()
         velDir[0] = 0.0;
         velDir[1] = 1.0;
         velDir[2] = 0.0;
-        currentVelocity = (float)((my - y0) * driveSpeed * -0.5f);
+        currentVelocity = (float)((my - y0) * driveSpeed * 0.5f);
         tmp= vsg::translate(velDir[0] * currentVelocity, velDir[1] * currentVelocity, velDir[2] * currentVelocity);
         dcs_mat = tmp * dcs_mat;;
     }

@@ -301,7 +301,7 @@ public:
     vsg::MatrixTransform *getObjectsScale() const;
 
     //! set the scale matrix of the scale node
-    void setScale(float s);
+    void setScale(double s);
 
     //! get the scale factor of the scale node
     float getScale() const;

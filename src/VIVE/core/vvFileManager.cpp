@@ -437,13 +437,13 @@ struct LoadedFile
           ok = true;
       }
 
-      while (node)
+      /*while (node)
       {
-         /* unsigned n = node->getNumParents();
+          unsigned n = node->getNumParents();
           if (n == 0)
               break;
-          node->getParent(n-1)->removeChild(node);*/
-      }
+          node->getParent(n-1)->removeChild(node);
+      }*/
       if (vv->debugLevel(3)) {
           if (node)
               std::cerr << "unload: node removed from all parents, refcount="
@@ -603,7 +603,7 @@ vsg::ref_ptr<vsg::Node> getNodeIfExists(const std::string &name, const std::stri
         if (fs::exists(path))
         {
             //auto node = osgDB::readNodeFile(path);
-            auto node = vsg::read_cast<vsg::Node>(name, vvPluginSupport::instance()->options);
+            auto node = vsg::read_cast<vsg::Node>(path, vvPluginSupport::instance()->options);
             if (node)
                 node->setValue("name",name);
             else

@@ -3,17 +3,19 @@
 #include "Export.h"
 #include <string>
 #include <vector>
+#include <vsg/ui/KeyEvent.h>
 
 namespace vive {
 namespace ui {
 
-enum Modifiers {
+enum Modifiers { // same as vsg::MODKEY_
     ModNone=0,
-    ModAlt=1,
-    ModCtrl=2,
-    ModShift=4,
-    ModMeta=8
+    ModShift = 1,
+    ModCtrl=4,
+    ModAlt = 8,
+    ModMeta=128
 };
+
 
 enum MouseButton {
     Left = 1,

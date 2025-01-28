@@ -631,7 +631,7 @@ float vvPluginSupport::getSqrDistance(vsg::Node *n, vsg::vec3 &p,
     return 0;
 }
 
-void vvPluginSupport::setScale(float s)
+void vvPluginSupport::setScale(double s)
 {
     START("vvPluginSupport::setScale");
     vvSceneGraph::instance()->setScaleFactor(s);

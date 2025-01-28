@@ -53,7 +53,7 @@ public:
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
 
-    vsg::MatrixTransform *loadAxisGeode(float scale);
+    vsg::ref_ptr<vsg::MatrixTransform> loadAxisGeode(float scale);
     vsg::Node *loadHandIcon(const char *name);
     vsg::Node *loadHandLine();
 
@@ -75,7 +75,7 @@ public:
     void setObjects(bool state);
 
     // process key events
-    bool keyEvent(int type, int keySym, int mod);
+    bool keyEvent(vsg::KeyPressEvent& keyPress);
     vsg::ref_ptr<vsg::Group> getScene()
     {
         return m_scene;
@@ -171,14 +171,15 @@ public:
     {
         return m_scaleFactor;
     }
-    void setScaleFactor(float scaleFactor, bool sync = true);
+    void setScaleFactor(double scaleFactor, bool sync = true);
     void scaleAllObjects(bool resetView = false, bool simple = false);
     bool isScalingAllObjects() const
     {
         return m_scalingAllObjects;
     }
     void boundingBoxToMatrices(const vsg::dbox &boundingSphere,
-                                  bool resetView, vsg::dmat4 &currentMatrix, float &scaleFactor) const;
+                                  bool resetView, vsg::dmat4 &currentMatrix, double &scaleFactor) const;
+
     void adjustScale();
 
     void toggleAxis(bool state);
@@ -248,6 +249,7 @@ private:
     vsg::ref_ptr<vsg::Node> m_handProbe;
     vsg::ref_ptr<vsg::Node> m_handAnchor;
     vsg::ref_ptr<vsg::Node> m_handSphere;
+    vsg::ref_ptr<vsg::Node> m_AxisGeometry;
 
     bool showSmallSceneAxis_;
     bool transparentPointer_;
@@ -275,7 +277,7 @@ private:
     // SCALE keep                           : scaleMode=0.0
     // SCALE <pos number eg. 2.0 or 0.5>    : scaleMode=<number>
     // no SCALE attribute                   : scaleMode=-1.0
-    float m_scaleMode, m_scaleFactor;
+    double m_scaleMode, m_scaleFactor;
     float m_scaleFactorButton;
     float m_scaleRestrictFactorMin, m_scaleRestrictFactorMax;
     float m_transRestrictMinX, m_transRestrictMinY, m_transRestrictMinZ;

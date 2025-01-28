@@ -36,7 +36,7 @@ VectorEditField::ValueType VectorEditField::value() const
 {
     ValueType v;
     for (size_t i = 0; i < m_edits.size(); i++)
-        v [i] = m_edits[i]->number();
+        v [i] = (float)(m_edits[i]->number());
     return v;
 }
 

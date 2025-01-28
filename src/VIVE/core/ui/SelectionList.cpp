@@ -36,7 +36,7 @@ void SelectionList::triggerImplementation() const
 void SelectionList::save(covise::TokenBuffer &buf) const
 {
     Element::save(buf);
-    int sz = m_selection.size();
+    int sz = (int)m_selection.size();
     buf << sz;
     for (size_t i=0; i<m_selection.size(); ++i)
         buf << m_selection[i];

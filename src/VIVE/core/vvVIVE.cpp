@@ -597,9 +597,29 @@ bool vvVIVE::init()
     vvSceneGraph::instance()->init();
     vvShaderList::instance()->update();
 
+    auto pointLight = vsg::PointLight::create();
+    pointLight->name = "point";
+    pointLight->color.set(1.0f, 1.0f, 0.0);
+    pointLight->intensity = static_cast<float>(1.0);
+    pointLight->position.set(static_cast<float>(0.0), static_cast<float>(-100.0), static_cast<float>(0.0));
+    pointLight->radius = 5000;
+
+    //vv->getScene()->addChild(pointLight);
+
+
 	Input::instance()->update(); // requires scenegraph
     
     vv->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
+
+
+    /*std::stringstream str;
+    auto loadedScene = vsg::MatrixTransform::create();
+    vsg::ref_ptr<vsg::Node> vpb = vsg::read_cast<vsg::Node>("c:\\QSync\\visnas\\Data\\Suedlink\\out\\vpb_DGM1m_FDOP20\\vpb_DGM1m_FDOP20.ive", vvPluginSupport::instance()->options);
+
+    loadedScene->addChild(vpb);
+    loadedScene->matrix = vsg::rotate(1.5, 1.0, 0.0, 0.0) * vsg::translate(-518740.0, -5966100.0, 0.0);
+    vv->getObjectsRoot()->addChild(loadedScene);
+    vvPluginSupport::instance()->setScale(1000);*/
 
     bool haveWindows = vvWindows::instance()->config();
     haveWindows = vvMSController::instance()->allReduceOr(haveWindows);
@@ -1467,8 +1487,8 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
             case 'T':
             case 't':
                 cerr << "calling: vvTabletUI::instance()->close()" << endl;
-                //for (auto& tui : tabletUIs)
-                //    tui->close();
+                for (auto& tui : vvVIVE::instance()->tabletUIs)
+                    tui->close();
                 break;
             }
         }
@@ -1477,8 +1497,8 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
             switch (keyPress.keyBase)
             {
             case 'b':
-                // vvViewer::instance()->separation *= -1;
-                 //cerr << vvViewer::instance()->separation << endl;
+                 vvConfig::instance()->m_stereoSeparation *= -1;
+                 cerr << vvConfig::instance()->m_stereoSeparation << endl;
                 break;
 
             case 'd':
@@ -1493,62 +1513,66 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
             case 'n':
                 if (vvMSController::instance()->getID() == 1)
                 {
-                    //  vvViewer::instance()->separation *= -1;
+                    vvConfig::instance()->m_stereoSeparation *= -1;
                 }
-                //cerr << vvViewer::instance()->separation << endl;
+                cerr << vvConfig::instance()->m_stereoSeparation << endl;
                 break;
             case 'm':
                 if (vvMSController::instance()->getID() == 2)
                 {
-                    //vvViewer::instance()->separation *= -1;
+                    vvConfig::instance()->m_stereoSeparation *= -1;
                 }
-                //cerr << vvViewer::instance()->separation << endl;
+                cerr << vvConfig::instance()->m_stereoSeparation << endl;
                 break;
             case 'z':
-                //vvConfig::instance()->m_worldAngle += 1;
-                //cerr << vvConfig::instance()->worldAngle() << endl;
+                vvConfig::instance()->m_worldAngle += 1;
+                cerr << vvConfig::instance()->worldAngle() << endl;
                 break;
             case 't':
-                //cerr << "calling: vvTabletUI::instance()->tryConnect()" << endl;
-                //for (auto& tui : tabletUIs)
-                //    tui->tryConnect();
+                cerr << "calling: vvTabletUI::instance()->tryConnect()" << endl;
+                for (auto& tui : vvVIVE::instance()->tabletUIs)
+                    tui->tryConnect();
                 break;
             case 'x':
-                //vvConfig::instance()->m_worldAngle -= 1;
-                //cerr << vvConfig::instance()->worldAngle() << endl;
+                vvConfig::instance()->m_worldAngle -= 1;
+                cerr << vvConfig::instance()->worldAngle() << endl;
                 break;
             }
         }
 
-        //vv->ui->keyEvent(type, state, code);
-        //vvNavigationManager::instance()->keyEvent(type, code, state);
-        vvSceneGraph::instance()->keyEvent(type, code, state);
+        vv->ui->keyEvent(keyPress);
+        vvNavigationManager::instance()->keyEvent(keyPress);
+        vvSceneGraph::instance()->keyEvent(keyPress);
     }
     vvPluginList::instance()->key(type, code, state);
 }
 void EventHandler::apply(vsg::KeyReleaseEvent& keyRelease)
 {
-    int type = (int)KEYDOWN;
+    int type = (int)KEYUP;
     int code = (int)keyRelease.keyBase;
     int state = (int)keyRelease.keyModifier;
     if (!vv->isKeyboardGrabbed())
     {
         //vv->ui->keyEvent(type, state, code);
-        //vvNavigationManager::instance()->keyEvent(type, code, state);
-        vvSceneGraph::instance()->keyEvent(type, code, state);
     }
-    vvPluginList::instance()->key(KEYUP, code, state);
+    vvPluginList::instance()->key(type, code, state);
 }
 void EventHandler::apply(vsg::FocusInEvent& focusIn)
 {}
 void EventHandler::apply(vsg::FocusOutEvent& focusOut)
 {}
 void EventHandler::apply(vsg::ButtonPressEvent& buttonPress)
-{}
+{
+    Input::instance()->mouse()->handleEvent(buttonPress);
+}
 void EventHandler::apply(vsg::ButtonReleaseEvent& buttonRelease)
-{}
+{
+    Input::instance()->mouse()->handleEvent(buttonRelease);
+}
 void EventHandler::apply(vsg::MoveEvent& moveEvent)
-{}
+{
+    Input::instance()->mouse()->handleEvent(moveEvent);
+}
 void EventHandler::apply(vsg::ScrollWheelEvent& scrollWheel)
 {}
 

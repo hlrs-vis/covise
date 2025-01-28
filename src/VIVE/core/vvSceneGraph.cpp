@@ -339,6 +339,8 @@ void vvSceneGraph::initSceneGraph()
     //m_scene = vvShadowManager::instance()->newScene();
     //m_scene->setName("VR_RENDERER_SCENE_NODE");
     m_scene = vsg::MatrixTransform::create();
+
+
     std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
     //vvShadowManager::instance()->setTechnique(shadowTechnique);
 
@@ -511,7 +513,7 @@ void vvSceneGraph::initHandDeviceGeometry()
 }
 
 // process key events
-bool vvSceneGraph::keyEvent(int type, int keySym, int mod)
+bool vvSceneGraph::keyEvent(vsg::KeyPressEvent& keyPress)
 {
     bool handled = false;
 
@@ -522,37 +524,37 @@ bool vvSceneGraph::keyEvent(int type, int keySym, int mod)
    /* if (type == osgGA::GUIEventAdapter::KEYUP)
     {
     }
-    if (type == osgGA::GUIEventAdapter::KEYDOWN)
+    if (type == osgGA::GUIEventAdapter::KEYDOWN)*/
     {
-        if (keySym == '%')
+        if (keyPress.keyBase == '%')
         {
             //matrixCorrect->separateColor = !matrixCorrect->separateColor;
             //fprintf(stderr,"separateColor = %d\n",matrixCorrect->separateColor);
             //handled=true;
         }
 
-        if (mod & osgGA::GUIEventAdapter::MODKEY_ALT)
+        if (keyPress.keyModifier == vsg::MODKEY_Alt)
         {
             if (vv->debugLevel(3))
-                fprintf(stderr, "alt: sym=%d\n", keySym);
-            if (keySym == 'i' || keySym == 710) // i
+                fprintf(stderr, "alt: sym=%d\n", keyPress.keyBase);
+            if (keyPress.keyBase == 'i' || keyPress.keyBase == 710) // i
             {
                 saveScenegraph(false);
                 handled = true;
             }
-            else if (keySym == 'W' || keySym == 8722) // W
+            else if (keyPress.keyBase == 'W' || keyPress.keyBase == 8722) // W
             {
                 saveScenegraph(true);
                 handled = true;
             }
-            else if (keySym == 'm' || keySym == 181) //m
+            else if (keyPress.keyBase == 'm' || keyPress.keyBase == 181) //m
             {
             }
 #ifdef _OPENMP
-            else if (keySym >= '0' && keySym <= '9')
+            else if (keyPress.keyBase >= '0' && keyPress.keyBase <= '9')
             {
                 static int numInitialThreads = omp_get_max_threads();
-                int targetNumThreads = (keySym == '0' ? numInitialThreads : keySym - '0');
+                int targetNumThreads = (keyPress.keyBase == '0' ? numInitialThreads : keyPress.keyBase - '0');
                 if (std::cerr.bad())
                     std::cerr.clear();
                 std::cerr << "Setting maximum OpenMP threads to " << targetNumThreads << std::endl;
@@ -562,7 +564,7 @@ bool vvSceneGraph::keyEvent(int type, int keySym, int mod)
 #endif
         } // unmodified keys
         
-    }*/
+    }
     return handled;
 }
 
@@ -740,7 +742,7 @@ vvSceneGraph::toggleMenu()
     m_menuToggleTime = vv->frameTime();
 }
 
-void vvSceneGraph::setScaleFactor(float s, bool sync)
+void vvSceneGraph::setScaleFactor(double s, bool sync)
 {
     m_scaleFactor = s;
     vsg::dmat4 scale_mat;
@@ -1119,13 +1121,14 @@ vvSceneGraph::toggleAxis(bool state)
             //show viewer axis only if headtracking is disabled
             m_viewerAxisTransform->addChild(m_viewerAxis);
         }
+        vvViewer::instance()->compile();
     }
     else
     {
-            vvPluginSupport::removeChild(m_scene, m_worldAxis);
-            vvPluginSupport::removeChild(m_scene, m_viewerAxis);
-            vvPluginSupport::removeChild(m_scene, m_handAxis);
-            vvPluginSupport::removeChild(m_scene, m_objectAxis);
+        vvPluginSupport::removeChild(m_scene, m_worldAxis);
+        vvPluginSupport::removeChild(m_viewerAxisTransform, m_viewerAxis);
+        vvPluginSupport::removeChild(m_handAxisScaleTransform, m_handAxis);
+        vvPluginSupport::removeChild(m_scaleTransform, m_objectAxis);
     }
 }
 
@@ -1232,17 +1235,24 @@ vvSceneGraph::adjustScale()
     }
 }
 
-vsg::MatrixTransform *
+vsg::ref_ptr<vsg::MatrixTransform>
 vvSceneGraph::loadAxisGeode(float s)
 {
 
     if (vv->debugLevel(4))
         fprintf(stderr, "vvSceneGraph::loadAxisGeode\n");
 
-    vsg::MatrixTransform *mt = vsg::MatrixTransform::create();
+     auto mt = vsg::MatrixTransform::create();
 	//mt->setName("AxisGeodeMatrixTransform");
-    mt->addChild(vvFileManager::instance()->loadIcon("Axis"));
-    mt->matrix = (vsg::scale(s, s, s));
+    if (!m_AxisGeometry.get())
+    {
+        m_AxisGeometry = vvFileManager::instance()->loadIcon("Axis");
+    }
+    if (m_AxisGeometry.get())
+    {
+        mt->addChild(m_AxisGeometry);
+    }
+    mt->matrix = vsg::scale(s, s, s);
 
     return (mt);
 }
@@ -1450,14 +1460,22 @@ vvSceneGraph::getBoundingSphere()
 
 void vvSceneGraph::scaleAllObjects(bool resetView, bool simple)
 {
-   /* vsg::BoundingSphere bsphere = simple ? m_objectsRoot->computeBound() : getBoundingSphere();
-    if (bsphere.radius() <= 0.f)
-        bsphere.radius() = 1.f;
+
+
+    // create view
+    // compute the bounds of the scene graph to help position camera
+    vsg::ComputeBounds computeBounds;
+    m_objectsRoot->accept(computeBounds);
+    vsg::dvec3 centre = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
+    double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 0.5;
+
+    if (radius <= 0.f)
+        radius = 1.f;
 
     // scale and translate but keep current orientation
-    float scaleFactor = 1.f, masterScale = 1.f;
+    double scaleFactor = 1.f, masterScale = 1.f;
     vsg::dmat4 matrix, masterMatrix;
-    boundingSphereToMatrices(bsphere, resetView, &matrix, &scaleFactor);
+    boundingBoxToMatrices(computeBounds.bounds, resetView, matrix, scaleFactor);
 
     int len=0;
     if (vvMSController::instance()->isMaster())
@@ -1494,7 +1512,7 @@ void vvSceneGraph::scaleAllObjects(bool resetView, bool simple)
     vv->setScale(scaleFactor);
     //fprintf(stderr, "bbox [x:%f %f\n      y:%f %f\n      z:%f %f]\n", bb.xMin(), bb.xMax(), bb.yMin(), bb.yMax(), bb.zMin(), bb.zMax());
     //fprintf(stderr, "vvSceneGraph::scaleAllObjects scalefactor: %f\n", scaleFactor);
-    m_objectsTransform->matrix = (matrix);*/
+    m_objectsTransform->matrix = (matrix);
 }
 /*
 void vvSceneGraph::dirtySpecialBounds()
@@ -1508,17 +1526,23 @@ void vvSceneGraph::dirtySpecialBounds()
 }*/
 
 void vvSceneGraph::boundingBoxToMatrices(const vsg::dbox &boundingBox,
-                                            bool resetView, vsg::dmat4 &currentMatrix, float &scaleFactor) const
+                                            bool resetView, vsg::dmat4 &currentMatrix, double &scaleFactor) const
 {
-  /*  scaleFactor = std::abs(vv->getSceneSize() * (boundingMox.max - boundingBox.min));
-    currentMatrix=translate(-((boundingMox.max + boundingBox.min)/2.0 * scaleFactor));
+
+    vsg::dvec3 center = (boundingBox.min + boundingBox.max) * 0.5;
+    double radius = vsg::length(boundingBox.max - boundingBox.min) * 0.5;
+
+    scaleFactor = std::abs(vv->getSceneSize() * radius);
+    currentMatrix=translate(center * -scaleFactor);
     if (!resetView)
     {
-        vsg::Quat rotation = m_objectsTransform->matrix.getRotate();
+        vsg::dvec3 t,s;
+        vsg::dquat rotation;
+        vsg::decompose(m_objectsTransform->matrix, t, rotation, s);
         vsg::dmat4 rotMat;
         rotMat=rotate(rotation);
         currentMatrix=currentMatrix*rotMat;
-    }*/
+    }
 }
 
 #if 0

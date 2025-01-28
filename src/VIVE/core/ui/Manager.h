@@ -88,7 +88,7 @@ class VIVE_UI_EXPORT Manager: public Owner {
    /** return true if any change occurred */
    bool update();
    //! trigger keyboard short-cuts configured for user interface elements
-   bool keyEvent(int type, int mod, int keySym);
+   bool keyEvent(vsg::KeyPressEvent& keyPress);
    //! trigger short-cuts from input button presses
    bool buttonEvent(int buttons) const;
 

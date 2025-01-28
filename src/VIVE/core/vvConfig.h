@@ -446,6 +446,9 @@ public:
     std::string glContextFlags;
 	bool OpenVR_HMD;
 
+    float m_worldAngle;
+    float m_stereoSeparation;
+
 private:
     vvConfig();
     ~vvConfig();
@@ -463,11 +466,9 @@ private:
     float m_nearClip;
     float m_farClip;
     float m_LODScale;
-    float m_worldAngle;
 
     bool m_stereoState;
     int m_stereoMode;
-    float m_stereoSeparation;
     MonoViews m_monoView; // MONO_MIDDLE MONO_LEFT MONO_RIGHT
     int m_envMapMode;
     bool m_freeze;

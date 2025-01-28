@@ -11,11 +11,10 @@
 #include <config/coConfigConstants.h>
 #include <util/string_util.h>
 #include <util/unixcompat.h>
-//#include "vvNavigationManager.h"
 #include "vvVIVEConfig.h"
 #include "vvConfig.h"
 #include "vvMSController.h"
-//#include "input/input.h"
+#include "input/input.h"
 //#include "vvStatsDisplay.h"
 
 using std::cerr;
@@ -753,25 +752,26 @@ vvConfig::setDebugLevel(int level)
 
 bool vvConfig::mouseNav() const
 {
-    return false; // return Input::instance()->hasMouse();
+     return Input::instance()->hasMouse();
+     return Input::instance()->hasMouse();
 }
 
 bool vvConfig::has6DoFInput() const
 {
-   /* for (int i = 0; i<Input::instance()->getNumPersons(); ++i)
+    for (int i = 0; i<Input::instance()->getNumPersons(); ++i)
     {
         const Person *p = Input::instance()->getPerson(i);
         if (p->hasHand(0))
             return true;
         if (p->hasRelative() && p->getRelative()->is6Dof())
             return true;
-    }*/
+    }
     return false;
 }
 
 bool vvConfig::mouseTracking() const
 {
-    return false; //return !Input::instance()->isTrackingOn() && mouseNav();
+    return !Input::instance()->isTrackingOn() && mouseNav();
 }
 
 bool vvConfig::useWiiMote() const

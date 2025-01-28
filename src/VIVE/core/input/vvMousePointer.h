@@ -31,6 +31,7 @@
 
 #include <util/common.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/ui/PointerEvent.h>
 
 namespace vive
 {
@@ -58,10 +59,10 @@ private:
 
     int wheelCounter[2], newWheelCounter[2]; // vertical and horizontal
     float mouseX, mouseY;
-    typedef std::deque<MouseEvent> EventQueue;
+    typedef std::deque<vsg::PointerEvent> EventQueue;
     EventQueue eventQueue;
     double mouseTime, mouseButtonTime;
-    void queueEvent(int type, int state, int code);
+    void queueEvent(vsg::PointerEvent&me);
     void processEvents();
 
     ButtonDevice *buttons = nullptr;
@@ -73,7 +74,7 @@ public:
     double eventTime() const;
 
     // process mouse events
-    void handleEvent(int type, int state, int code, bool queue = true);
+    void handleEvent(vsg::PointerEvent& moveEvent, bool queue = true);
 
     void update();
 #if 0

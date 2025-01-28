@@ -28,7 +28,6 @@
 #include <vsg/core/ref_ptr.h>
 #include <vsg/text/Font.h>
 #include <vsg/state/Sampler.h>
-#include <vsgXchange/all.h>
 #include <string>
 #include <vector>
 #include <vrb/client/SharedState.h>

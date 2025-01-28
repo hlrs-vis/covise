@@ -38,6 +38,7 @@
 #include "buttondevice.h"
 #include "trackingbody.h"
 #include "input.h"
+#include <vsg/ui/KeyEvent.h>
 
 using namespace vive;
 
@@ -106,37 +107,69 @@ double vvMousePointer::eventTime() const
     return mouseTime;
 }
 
-void vvMousePointer::queueEvent(int type, int state, int code)
+void vvMousePointer::queueEvent(vsg::PointerEvent& moveEvent)
 {
-    MouseEvent me = { type, state, code };
-    std::cerr << "queueEvent " << type << " " << state << " " << code << std::endl;
-    eventQueue.push_back(me);
+    //MouseEvent me = { type, state, code };
+    std::cerr << "queueEvent " << std::endl;// type << " " << state << " " << code << std::endl;
+    eventQueue.push_back(moveEvent);
 }
 
 void vvMousePointer::processEvents()
 {
     while (!eventQueue.empty())
     {
-        MouseEvent me = eventQueue.front();
+        vsg::PointerEvent &me(eventQueue.front());
         eventQueue.pop_front();
-        handleEvent(me.type, me.state, me.code, false);
-     /*   if (me.type == osgGA::GUIEventAdapter::PUSH
-            || me.type == osgGA::GUIEventAdapter::RELEASE
-            || me.type == osgGA::GUIEventAdapter::SCROLL)
-            break;*/
+        handleEvent(me, false);
+        if (auto pe = dynamic_cast<vsg::ButtonPressEvent*>(&me))
+        {
+            break;
+        }
+        if (auto re = dynamic_cast<vsg::ButtonReleaseEvent*>(&me))
+        {
+            break;
+        }
     }
 }
 
-void vvMousePointer::handleEvent(int type, int state, int code, bool queue)
+void vvMousePointer::handleEvent(vsg::PointerEvent& pointerEvent, bool queue)
 {
     mouseTime = vv->frameRealTime();
 
-/*    if (queue && !eventQueue.empty())
+    if (queue && !eventQueue.empty())
     {
-        queueEvent(type, state, code);
+        queueEvent(pointerEvent);
         return;
     }
 
+    if (auto pe = dynamic_cast<vsg::ButtonPressEvent*>(&pointerEvent))
+    {
+        buttonPressed = true;
+        if (mouseTime == mouseButtonTime)
+            queueEvent(pointerEvent);
+        else
+        {
+            buttons->setButtonState(true, true);
+            mouseButtonTime = vv->frameRealTime();
+        }
+    }
+    if (auto re = dynamic_cast<vsg::ButtonReleaseEvent*>(&pointerEvent))
+    {
+        if (mouseTime == mouseButtonTime)
+            queueEvent(pointerEvent);
+        else
+        {
+            buttons->setButtonState(false, true);
+            mouseButtonTime = vv->frameRealTime();
+        }
+        buttonPressed = false;
+    }
+    if (auto me = dynamic_cast<vsg::MoveEvent*>(&pointerEvent))
+    {
+        mouseX = (float)me->x;
+        mouseY = (float)me->y;
+    }
+    /*
     switch(type)
     {
     case osgGA::GUIEventAdapter::DRAG:
@@ -161,24 +194,8 @@ void vvMousePointer::handleEvent(int type, int state, int code, bool queue)
         }
         break;
     case osgGA::GUIEventAdapter::PUSH:
-        buttonPressed = bool(state);
-        if (mouseTime == mouseButtonTime)
-            queueEvent(type, state, code);
-        else
-        {
-            buttons->setButtonState(state, true);
-            mouseButtonTime = vv->frameRealTime();
-        }
         break;
     case osgGA::GUIEventAdapter::RELEASE:
-        if (mouseTime == mouseButtonTime)
-            queueEvent(type, state, code);
-        else
-        {
-            buttons->setButtonState(state, true);
-            mouseButtonTime = vv->frameRealTime();
-        }
-        buttonPressed = bool(state);
         break;
     case osgGA::GUIEventAdapter::DOUBLECLICK:
         handleEvent(osgGA::GUIEventAdapter::PUSH, state, code, queue);

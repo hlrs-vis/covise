@@ -407,14 +407,6 @@ vvViewer::config()
     if (vv->debugLevel(3))
         fprintf(stderr, "vvViewer::config\n");
 
-
-    std::stringstream str;
-    loadedScene = vsg::MatrixTransform::create();
-    vsg::ref_ptr<vsg::Node> vpb = vsg::read_cast<vsg::Node>("c:\\QSync\\visnas\\Data\\Suedlink\\out\\vpb_DGM1m_FDOP20\\vpb_DGM1m_FDOP20.ive", vvPluginSupport::instance()->options);
-
-    loadedScene->addChild(vpb);
-    loadedScene->matrix = vsg::rotate(1.5, 1.0, 0.0, 0.0) * vsg::translate(-518740.0, -5966100.0, 0.0);
-
     for (int i = 0; i < vvConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
@@ -593,22 +585,25 @@ vvViewer::createChannels(int i)
     double aspectRatio = (double)width / height;
     
 
-    //vv->getScene()->addChild(loadedScene);
     
     // create view
     // compute the bounds of the scene graph to help position camera
     vsg::ComputeBounds computeBounds;
-    loadedScene->accept(computeBounds);
+    vv->getScene()->accept(computeBounds);
     vsg::dvec3 centre = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
     double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 0.6;
     double nearFarRatio = 0.001;
 
 
 
-    auto lookAt = vsg::LookAt::create(centre + vsg::dvec3(0.0, -radius * 3.5, 0.0),
-        centre, vsg::dvec3(0.0, 0.0, 1.0));
+    /*auto lookAt = vsg::LookAt::create(centre + vsg::dvec3(0.0, -radius * 3.5, 0.0),
+        centre, vsg::dvec3(0.0, 0.0, 1.0));*/
 
-    auto perspective = vsg::Perspective::create(30.0, static_cast<double>(width) / static_cast<double>(height),
+    vsg::dvec3 eye(0,-1500,0);
+    auto lookAt = vsg::LookAt::create(eye, eye + vsg::dvec3(0, 1, 0), vsg::dvec3(0, 0, 1));
+    auto perspective = OffAxis::create();
+    perspective->proj = vsg::perspective(
+        30.0, static_cast<double>(width) / static_cast<double>(height),
         nearFarRatio * radius, radius * 4.5);
 
     auto viewportstate = vsg::ViewportState::create(viewport.viewportXMin * windowInfo.sx, viewport.viewportYMin * windowInfo.sy, width, height);
@@ -624,7 +619,7 @@ vvViewer::createChannels(int i)
 
    
 
-    vvConfig::instance()->channels[i].view->addChild(loadedScene);
+    vvConfig::instance()->channels[i].view->addChild(vv->getScene());
     auto renderGraph = vsg::RenderGraph::create(vvConfig::instance()->windows[windowNumber].window, vvConfig::instance()->channels[i].view);
     renderGraph->addChild(vvConfig::instance()->channels[i].view);
 
@@ -635,7 +630,7 @@ vvViewer::createChannels(int i)
     vvConfig::instance()->channels[i].commandGraph->addChild(renderGraph);
     commandGraphs.push_back(vvConfig::instance()->channels[i].commandGraph);
 
-    addEventHandler(vsg::Trackball::create(vvConfig::instance()->channels[i].camera));
+    //addEventHandler(vsg::Trackball::create(vvConfig::instance()->channels[i].camera));
 
 
 
@@ -679,10 +674,10 @@ computeViewProjFixedScreen(const vsg::dmat4 &viewerMat, vsg::dvec3 eye, const vs
     vsg::dmat4 mat = euler*trans*(rotate(-worldAngle,vsg::dvec3(1,0,0)));
 
     // transform the left and right eye with the viewer matrix
-    eye = eye * viewerMat;
+    eye =  viewerMat * eye;
 
     // transform the left and right eye with the screen matrix so that they are in screen relative coordinates
-    eye = eye * mat;
+    eye = mat * eye;
 
     float dx = size[0], dz = size[1];
 
@@ -743,6 +738,11 @@ vvViewer::setFrustumAndView(int i)
     currentChannel->leftProj = res.left.proj;
     currentChannel->rightView = res.right.view;
     currentChannel->rightProj = res.right.proj;
+    auto viewMatrix = (dynamic_cast<vsg::LookAt*>(vvConfig::instance()->channels[i].camera->viewMatrix.get()));
+    viewMatrix->set(inverse(res.left.view));
+    auto projMatrix = (dynamic_cast<vive::OffAxis*>(vvConfig::instance()->channels[i].camera->projectionMatrix.get()));
+    projMatrix->proj = res.left.proj;
+    // 
     //currentChannel->camera->setViewMatrix(res.middle.view);
     //currentChannel->camera->setProjectionMatrix(res.middle.proj);
 }

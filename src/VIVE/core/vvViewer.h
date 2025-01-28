@@ -27,6 +27,30 @@ class angleStruct;
 class vvStatsDisplay;
 class InitGLOperation;
 
+
+/// Perspective is a ProjectionMatrix that implements the gluPerspective model for setting the projection matrix.
+class VVCORE_EXPORT OffAxis : public vsg::Inherit<vsg::ProjectionMatrix, OffAxis>
+{
+public:
+    OffAxis()
+    {
+    }
+
+    vsg::dmat4 proj;
+    explicit OffAxis(const OffAxis& p, const vsg::CopyOp& copyop = {}) :
+        Inherit(p, copyop),
+        proj(p.proj)
+    {
+    }
+
+
+    vsg::ref_ptr<Object> clone(const vsg::CopyOp& copyop = {}) const override { return OffAxis::create(*this, copyop); }
+
+    vsg::dmat4 transform() const override { return proj; }
+
+
+};
+
 class VVCORE_EXPORT vvViewer : public vsg::Inherit<vsg::Viewer, vvViewer>, public ui::Owner
 {
     friend class vvVIVE;
@@ -182,3 +206,4 @@ private:
 std::pair<vsg::dmat4, vsg::dmat4> VVCORE_EXPORT computeViewProjFixedScreen(const vsg::dmat4 &viewerMat, vsg::dvec3 eye, const vsg::dvec3 &xyz, const vsg::dvec3 &hpr, const vsg::vec2 &size, double near, double far, bool ortho=false, double worldAngle=0.f);
 }
 EVSG_type_name(vive::vvViewer);
+EVSG_type_name(vive::OffAxis);

@@ -167,6 +167,7 @@ vsg::ref_ptr<vsg::Node> scenegraph;
     void startVrbc();
     void restartVrbc();
     bool isVRBconnected() const;
+    std::vector<std::unique_ptr<vvTabletUI>> tabletUIs;
 
 private:
 #ifdef HAS_MPI
@@ -175,7 +176,6 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-    std::vector<std::unique_ptr<vvTabletUI>> tabletUIs;
     std::vector<std::unique_ptr<vvTui>> tabletVrTuis;
     std::unique_ptr<vrb::VRBClient> m_vrbc;
 	std::string m_startSession;

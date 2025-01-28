@@ -20,14 +20,14 @@
 #include <net/udpMessage.h>
 #include "vvSlave.h"
 #include "vvPluginSupport.h"
-//#include "vvCommunication.h"
-//#include "vvNavigationManager.h"
-//#include "vvFileManager.h"
+#include "vvCommunication.h"
+#include "vvNavigationManager.h"
+#include "vvFileManager.h"
 #include "vvViewer.h"
 #include "vvVIVE.h"
-//#include "vvHud.h"
+#include "vvHud.h"
 //#include "coClusterStat.h"
-//#include "vvConfig.h"
+#include "vvConfig.h"
 #include <vrb/client/VRBClient.h>
 
 #ifdef HAS_MPI
@@ -2628,14 +2628,14 @@ bool vvMSController::syncVRBMessages()
         for (int i = 0; i < numVrbMessages; i++)
         {
             sendSlaves(vrbMsgs[i]);
-			//vvCommunication::instance()->handleVRB(*vrbMsgs[i]);
+			vvCommunication::instance()->handleVRB(*vrbMsgs[i]);
 			delete vrbMsgs[i];
         }
         sendSlaves(&numUdpMessages, sizeof(int));
         for (int i = 0; i < numUdpMessages; i++)
         {
             sendSlaves(udpMsgs[i]);
-			//vvCommunication::instance()->handleUdp(udpMsgs[i]);
+			vvCommunication::instance()->handleUdp(udpMsgs[i]);
 			delete udpMsgs[i];
         }
     }
@@ -2654,7 +2654,7 @@ bool vvMSController::syncVRBMessages()
 				cerr << "sync_exit17 myID=" << myID << endl;
 				exit(0);
 			}
-			//vvCommunication::instance()->handleVRB(*vrbMsg);
+			vvCommunication::instance()->handleVRB(*vrbMsg);
         }
         if (readMaster(&numUdpMessages, sizeof(int)) < 0)
 		{
@@ -2668,7 +2668,7 @@ bool vvMSController::syncVRBMessages()
 				cerr << "sync_exit170 myID=" << myID << endl;
 				exit(0);
 			}
-			//vvCommunication::instance()->handleUdp(udpMsg);
+			vvCommunication::instance()->handleUdp(udpMsg);
         }
     }
     delete vrbMsg;
@@ -2688,7 +2688,7 @@ void vvMSController::loadFile(const char *filename)
     {
         if (filename != NULL)
         {
-            //vvFileManager::instance()->loadFile(filename);
+            vvFileManager::instance()->loadFile(filename);
         }
         return;
     }
@@ -2706,7 +2706,7 @@ void vvMSController::loadFile(const char *filename)
 
         if (filename != NULL)
         {
-            //vvFileManager::instance()->loadFile(filename);
+            vvFileManager::instance()->loadFile(filename);
         }
     }
     else
@@ -2724,7 +2724,7 @@ void vvMSController::loadFile(const char *filename)
             {
                 cerr << "ccould not read message from Master" << endl;
             }
-            //vvFileManager::instance()->loadFile(buf);
+            vvFileManager::instance()->loadFile(buf);
             delete[] buf;
         }
     }

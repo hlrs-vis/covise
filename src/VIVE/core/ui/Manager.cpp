@@ -380,116 +380,41 @@ void Manager::updateRelayout(const Group* gr) const
     }
 }
 
-bool Manager::keyEvent(int type, int mod, int keySym)
+bool Manager::keyEvent(vsg::KeyPressEvent& keyPress)
 {
     std::string handled;
+    m_modifiers = (int)keyPress.keyModifier;
 
- /*   if (type == osgGA::GUIEventAdapter::KEYDOWN
-            || type == osgGA::GUIEventAdapter::KEYUP)
-    {
-        bool down = type==osgGA::GUIEventAdapter::KEYDOWN;
-        if (keySym == osgGA::GUIEventAdapter::KEY_Shift_L
-                || keySym == osgGA::GUIEventAdapter::KEY_Shift_R)
+
+        bool alt = keyPress.keyModifier & vsg::MODKEY_Alt;
+        bool ctrl = keyPress.keyModifier & vsg::MODKEY_Control;
+        bool shift = keyPress.keyModifier & vsg::MODKEY_Shift;
+        bool meta = keyPress.keyModifier & vsg::MODKEY_Meta;
+        int keySym = keyPress.keyBase;
+
+        if (shift && keySym <= 255 && std::isupper(keySym))
         {
-            if (down)
-                m_modifiers |= ModShift;
-            else
-                m_modifiers &= ~ModShift;
-        }
-        if (keySym == osgGA::GUIEventAdapter::KEY_Control_L
-                || keySym == osgGA::GUIEventAdapter::KEY_Control_R)
-        {
-            if (down)
-                m_modifiers |= ModCtrl;
-            else
-                m_modifiers &= ~ModCtrl;
-        }
-        if (keySym == osgGA::GUIEventAdapter::KEY_Alt_L
-                || keySym == osgGA::GUIEventAdapter::KEY_Alt_R)
-        {
-            if (down)
-                m_modifiers |= ModAlt;
-            else
-                m_modifiers &= ~ModAlt;
-        }
-        if (keySym == osgGA::GUIEventAdapter::KEY_Meta_L
-                || keySym == osgGA::GUIEventAdapter::KEY_Meta_R)
-        {
-            if (down)
-                m_modifiers |= ModMeta;
-            else
-                m_modifiers &= ~ModMeta;
+            //std::cerr << "ui::Manager: mapping to lower" << std::endl;
+            keySym = std::tolower(keySym);
         }
 
-        bool show = false;
-        if (down)
+        for (auto& elemPair : m_elements)
         {
-            //show = true;
-        }
-        if (show)
-            std::cerr << "key " << (down ? "down" : "up") << ": ";
-
-        bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
-        bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
-        bool shift = mod & osgGA::GUIEventAdapter::MODKEY_SHIFT;
-        bool meta = mod & osgGA::GUIEventAdapter::MODKEY_META;
-
-        int modifiers = 0;
-        if (meta)
-        {
-            modifiers |= ModMeta;
-            if (show)
-                std::cerr << "meta+";
-        }
-        if (ctrl)
-        {
-            modifiers |= ModCtrl;
-            if (show)
-                std::cerr << "ctrl+";
-        }
-        if (alt)
-        {
-            modifiers |= ModAlt;
-            if (show)
-                std::cerr << "alt+";
-        }
-        if (shift)
-        {
-            modifiers |= ModShift;
-            if (show)
-                std::cerr << "shift+";
-        }
-
-        if (down)
-        {
-            if (shift && keySym <= 255 && std::isupper(keySym))
+            auto& elem = elemPair.second;
+            if (elem->enabled() && elem->matchShortcut(m_modifiers, keySym))
             {
-                //std::cerr << "ui::Manager: mapping to lower" << std::endl;
-                keySym = std::tolower(keySym);
-            }
-            if (show)
-                std::cerr << "'" << (char)keySym << "'" << std::endl;
-
-            for (auto &elemPair: m_elements)
-            {
-                auto &elem = elemPair.second;
-                if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
+                elem->shortcutTriggered();
+                if (!handled.empty())
                 {
-                    elem->shortcutTriggered();
-                    if (!handled.empty())
-                    {
-                        std::cerr << "ui::Manager: duplicate mapping for keyboard shortcut on " << elem->path() << " and " << handled << std::endl;
-                    }
-                    handled = elem->path();
-                    continue;
+                    std::cerr << "ui::Manager: duplicate mapping for keyboard shortcut on " << elem->path() << " and " << handled << std::endl;
                 }
+                handled = elem->path();
+                continue;
             }
         }
 
-        //std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
-        //m_modifiers = modifiers;
-    }
-    else if (type == osgGA::GUIEventAdapter::RELEASE
+        /*
+    if (type == osgGA::GUIEventAdapter::RELEASE
              || type == osgGA::GUIEventAdapter::SCROLL)
     {
         std::cerr << "mouse: ";
