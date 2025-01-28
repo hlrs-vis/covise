@@ -102,6 +102,12 @@ private:
         ss >> value;
     }
 
+    template<>
+    void convert(const std::string &value_str, std::string &value) const
+    {
+        value = value_str;
+    }
+
     template<typename... Ts>
     void convert(const std::string &value_str, std::variant<Ts...> &value) const
     {
@@ -125,7 +131,7 @@ private:
  *   std::cout << value << "\n";
  * }
 */
-inline constexpr AccessCSVRow access_CSVRow{};
+inline constexpr AccessCSVRow ACCESS_CSV_ROW{};
 } // namespace opencover::utils::read
 
 #endif
