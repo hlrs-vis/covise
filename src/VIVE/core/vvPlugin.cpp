@@ -9,7 +9,7 @@
 #include "vvPluginList.h"
 #include <cassert>
 #include <iostream>
-#include <OpenConfig/access.h>
+#include "../OpenConfig/access.h"
 
 // #ifndef COVER_PLUGIN_NAME
 // #define COVER_PLUGIN_NAME ""

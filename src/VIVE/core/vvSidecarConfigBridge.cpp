@@ -1,6 +1,6 @@
 #include "vvSidecarConfigBridge.h"
-#include <OpenConfig/array.h>
-#include <OpenConfig/value.h>
+#include "../OpenConfig/array.h"
+#include "../OpenConfig/value.h"
 #include <locale>
 #include <iostream>
 

@@ -14,9 +14,9 @@
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/maths/vec3.h>
 
-#include <OpenConfig/array.h>
-#include <OpenConfig/value.h>
-#include <OpenConfig/file.h>
+#include "../OpenConfig/array.h"
+#include "../OpenConfig/value.h"
+#include "../OpenConfig/file.h"
 
 #include "vvTabletUI.h"
 namespace vive

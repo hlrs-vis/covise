@@ -26,7 +26,7 @@ class Slider;
 #include <vector>
 #include <vsg/nodes/Switch.h>
 
-#include <OpenConfig/file.h>
+#include "../OpenConfig/file.h"
 namespace vive
 {
 class VVCORE_EXPORT vvAnimationManager

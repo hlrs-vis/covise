@@ -4,9 +4,9 @@
 #include <functional>
 #include <util/coExport.h>
 
-#include <OpenConfig/array.h>
-#include <OpenConfig/value.h>
-#include <OpenConfig/file.h>
+#include "../../OpenConfig/array.h"
+#include "../../OpenConfig/value.h"
+#include "../../OpenConfig/file.h"
 
 
 namespace vive

@@ -9,9 +9,9 @@
 #include <util/coExport.h>
 #include <core/vvDynLib.h>
 #include <cstdlib>
-#include <OpenConfig/array.h>
-#include <OpenConfig/value.h>
-#include <OpenConfig/file.h>
+#include "../OpenConfig/array.h"
+#include "../OpenConfig/value.h"
+#include "../OpenConfig/file.h"
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/nodes/Node.h>

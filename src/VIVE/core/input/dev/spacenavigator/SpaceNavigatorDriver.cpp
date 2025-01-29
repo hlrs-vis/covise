@@ -466,7 +466,7 @@ bool SpaceNavigatorDriver::poll()
     {
         if (m_evdevRel)
         {
-            double t = coVRPluginSupport::currentTime();
+            double t = vvPluginSupport::currentTime();
             // no update seems to sent for zeroing EV_REL - clear it after some time
             if (t - m_lastUpdate > 0.05)
             {
@@ -488,7 +488,7 @@ bool SpaceNavigatorDriver::poll()
         return false;
     }
 
-    m_lastUpdate = coVRPluginSupport::currentTime();
+    m_lastUpdate = vvPluginSupport::currentTime();
 
     int i = 0;
     while (i < numRead)

@@ -16,7 +16,7 @@
 #include "vvPlugin.h"
 #include "vvMSController.h"
 
-#include <OpenConfig/file.h>
+#include "../OpenConfig/file.h"
 #include "../../OpenCOVER/OpenVRUI/coUpdateManager.h"
 #include "../../OpenCOVER/OpenVRUI/coInteractionManager.h"
 #include "../../OpenCOVER/OpenVRUI/coToolboxMenu.h"

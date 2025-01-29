@@ -142,7 +142,7 @@ bool MSEventHandler::update()
     if (vvMSController::instance()->isMaster())
     {
 #ifdef CONSOLEINPUT
-        if (handleTerminal)
+/*        if (handleTerminal)
         {
             bool escape = false;
             bool withKey = false;
@@ -195,6 +195,7 @@ bool MSEventHandler::update()
                 eventQueue.push_back(Event(osgGA::GUIEventAdapter::KEYUP, 0, osgGA::GUIEventAdapter::KEY_Escape));
             }
         }
+*/
 #endif
 
 #ifdef __linux__
@@ -389,7 +390,7 @@ bool MSEventHandler::update()
 
                         case KEY_LEFTSHIFT:
                         case KEY_RIGHTSHIFT:
-                            modifierBit = osgGA::GUIEventAdapter::MODKEY_SHIFT;
+            /*                modifierBit = osgGA::GUIEventAdapter::MODKEY_SHIFT;
                             //handled = true;
                             break;
 
@@ -401,29 +402,29 @@ bool MSEventHandler::update()
 
                         case KEY_LEFTCTRL:
                         case KEY_RIGHTCTRL:
-                            modifierBit = osgGA::GUIEventAdapter::MODKEY_CTRL;
+                            modifierBit = osgGA::GUIEventAdapter::MODKEY_CTRL;*/
                             //handled = true;
                             break;
                     }
 
                     if (ev.value == 0)
                     {
-                        event.event = osgGA::GUIEventAdapter::KEYUP;
+                        //event.event = osgGA::GUIEventAdapter::KEYUP;
                         if (modifierBit)
                             modifierState &= ~modifierBit;
                     }
                     else if (ev.value == 1)
                     {
-                        event.event = osgGA::GUIEventAdapter::KEYDOWN;
+                        //event.event = osgGA::GUIEventAdapter::KEYDOWN;
                         if (modifierBit)
                             modifierState |= modifierBit;
                     }
 
-                    if (modifierState & osgGA::GUIEventAdapter::MODKEY_SHIFT)
+                   /* if (modifierState & osgGA::GUIEventAdapter::MODKEY_SHIFT)
                     {
                         if (event.key >= 'a' && event.key <= 'z')
                             event.key += 'A' - 'a';
-                    }
+                    }*/
 
                     event.mod = modifierState;
 

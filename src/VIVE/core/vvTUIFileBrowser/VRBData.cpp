@@ -13,7 +13,7 @@
 #include <qtutil/FileSysAccess.h>
 #include "vvCommunication.h"
 #include "vvMSController.h"
-#include "vvVive.h"
+#include "vvVIVE.h"
 #include "vvPluginSupport.h"
 #include <net/message.h>
 #include <net/message_types.h>

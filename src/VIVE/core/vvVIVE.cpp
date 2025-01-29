@@ -73,7 +73,7 @@
 #include "ui/Group.h"
 #include "ui/Manager.h"
 #include "vvSceneGraph.h"
-#include <OpenConfig/access.h>
+#include "../OpenConfig/access.h"
 #include "vvVIVE.h"
 
 

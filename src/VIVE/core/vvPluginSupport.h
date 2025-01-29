@@ -36,7 +36,7 @@
 
 #include "vvPlugin.h"
 #include "units.h"
-#include <OpenConfig/access.h>
+#include "../OpenConfig/access.h"
 
 #include <net/message_types.h>
 #include <vsg/nodes/Group.h>
