@@ -70,6 +70,7 @@ private:
 };
 
 const std::array<std::string, 2> INVALID_CELL_CONTENT = {"", "NULL"};
+constexpr const char* const INVALID_CELL_VALUE = "INVALID";
 
 /**
  * @brief A utility struct for accessing CSV rows.
@@ -83,7 +84,7 @@ struct CSVUTIL AccessCSVRow {
             if (value_str.empty() ||
                 std::any_of(INVALID_CELL_CONTENT.begin(), INVALID_CELL_CONTENT.end(),
                             [&value_str](const std::string &invalid) { return value_str == invalid; }))
-                value_str = "0";
+                value_str = INVALID_CELL_VALUE;
             convert(value_str, value);
         } catch (const std::out_of_range &ex) {
             throw CSVStream_Exception("Column " + colName + " not found in CSV file");
