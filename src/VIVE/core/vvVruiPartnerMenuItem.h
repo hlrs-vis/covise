@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <OpenVrui/coCheckboxMenuItem.h>
+#include <OpenVRUI/coCheckboxMenuItem.h>
 #include <vsg/maths/vec3.h>
 
 namespace osgUtil

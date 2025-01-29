@@ -28,7 +28,7 @@
 #include <net/message_types.h>
 #include <../../OpenCOVER/OpenVRUI/sginterface/vruiButtons.h>
 #include <../../OpenCOVER/OpenVRUI/vsg/mathUtils.h>
-#include <../../OpenCOVER/OpenVRUI/vsg/vsgVruiMatrix.h>
+#include <../../OpenCOVER/OpenVRUI/vsg/VSGVruiMatrix.h>
 #include <../../OpenCOVER/OpenVRUI/coRowMenu.h>
 #include "vvVruiRenderInterface.h"
 #include "input/VRKeys.h"
@@ -41,7 +41,9 @@
 #include <util/coTimer.h>
 #endif
 #include <assert.h>
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <vsg/all.h>
 
 #ifdef __DARWIN_OSX__
