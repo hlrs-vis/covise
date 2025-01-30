@@ -233,6 +233,13 @@ FILE[ \t]* {
 }
 
 
+[^\"\n\t #]* {
+    // accept anything except "#
+    strncpy( pToken->token.szValue, yytext, yyleng );
+    pToken->token.szValue[ yyleng ] = '\0';
+    return( CaseParser::FILENAME );
+}
+
 
 \"[^\"\n]*\" {
     // read a string value without the quotes
@@ -258,4 +265,3 @@ FILE[ \t]* {
 }
 
 %%
-
