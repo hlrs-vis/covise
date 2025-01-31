@@ -1,8 +1,8 @@
-#include <CityGMLDeviceSensor.h>
+#include "CityGMLDeviceSensor.h"
 #include <PluginUtil/coColorMap.h>
 #include <PluginUtil/coSensor.h>
 #include <PluginUtil/coShaderUtil.h>
-#include <core/CityGMLBuilding.h>
+#include <app/presentation/CityGMLBuilding.h>
 
 #include <memory>
 #include <osg/Geometry>

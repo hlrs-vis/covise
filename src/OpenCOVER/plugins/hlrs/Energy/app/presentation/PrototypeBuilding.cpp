@@ -1,6 +1,6 @@
-#include <PrototypeBuilding.h>
-#include <utils/color.h>
-#include <utils/osgUtils.h>
+#include "PrototypeBuilding.h"
+#include <lib/core/utils/color.h>
+#include <lib/core/utils/osgUtils.h>
 
 #include <memory>
 

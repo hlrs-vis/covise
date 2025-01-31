@@ -3,13 +3,13 @@
 #include "build_options.h"
 
 // core
-#include <core/interfaces/IInfoboard.h>
+#include <lib/core/interfaces/IInfoboard.h>
 
 // ennovatis
-#include <ennovatis/building.h>
-#include <ennovatis/channel.h>
-#include <ennovatis/json.h>
-#include <ennovatis/rest.h>
+#include <lib/ennovatis/building.h>
+#include <lib/ennovatis/channel.h>
+#include <lib/ennovatis/json.h>
+#include <lib/ennovatis/rest.h>
 
 // cover
 #include <cover/coVRAnimationManager.h>

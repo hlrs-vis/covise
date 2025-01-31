@@ -15,17 +15,20 @@
 #ifndef _Energy_PLUGIN_H
 #define _Energy_PLUGIN_H
 
-#include <CityGMLDeviceSensor.h>
-#include <Device.h>
-#include <DeviceSensor.h>
-#include <EnnovatisDeviceSensor.h>
+// ui
+#include "ui/citygml/CityGMLDeviceSensor.h"
+#include "ui/historic/Device.h"
+#include "ui/historic/DeviceSensor.h"
+#include "ui/ennovatis/EnnovatisDeviceSensor.h"
+
+// presentation
+#include "presentation/PrototypeBuilding.h"
 
 // core
-#include <core/PrototypeBuilding.h>
-#include <core/grid.h>
-#include <core/interfaces/IEnergyGrid.h>
-#include <core/utils/color.h>
-#include <core/utils/osgUtils.h>
+#include <lib/core/grid.h>
+#include <lib/core/interfaces/IEnergyGrid.h>
+#include <lib/core/utils/color.h>
+#include <lib/core/utils/osgUtils.h>
 
 // cover
 #include <OpenConfig/array.h>
@@ -45,8 +48,9 @@
 #include <cover/ui/SelectionList.h>
 
 // ennovatis
-#include <ennovatis/building.h>
-#include <ennovatis/rest.h>
+#include <lib/ennovatis/building.h>
+#include <lib/ennovatis/rest.h>
+
 #include <gdal_priv.h>
 #include <proj.h>
 #include <util/coTypes.h>

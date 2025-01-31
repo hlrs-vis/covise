@@ -8,7 +8,7 @@
 #include <osg/ref_ptr>
 
 #include "cover/coBillboard.h"
-#include "utils/osgUtils.h"
+#include <lib/core/utils/osgUtils.h>
 
 namespace core {
 

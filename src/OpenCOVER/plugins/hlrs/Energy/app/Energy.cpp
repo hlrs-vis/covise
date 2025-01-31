@@ -19,10 +19,10 @@
  **                                                                        **
 \****************************************************************************/
 
-#include <Device.h>
-#include <Energy.h>
-#include <EnnovatisDevice.h>
-#include <EnnovatisDeviceSensor.h>
+#include "Energy.h"
+#include "ui/historic/Device.h"
+#include "ui/ennovatis/EnnovatisDevice.h"
+#include "ui/ennovatis/EnnovatisDeviceSensor.h"
 #include <build_options.h>
 #include <config/CoviseConfig.h>
 
@@ -41,11 +41,11 @@
 #include <utils/string/LevenshteinDistane.h>
 
 // Ennovatis
-#include <ennovatis/building.h>
-#include <ennovatis/csv.h>
-#include <ennovatis/date.h>
-#include <ennovatis/rest.h>
-#include <ennovatis/sax.h>
+#include <lib/ennovatis/building.h>
+#include <lib/ennovatis/csv.h>
+#include <lib/ennovatis/date.h>
+#include <lib/ennovatis/rest.h>
+#include <lib/ennovatis/sax.h>
 
 // std
 #include <algorithm>
@@ -85,14 +85,16 @@
 
 #include "OpenConfig/covconfig/array.h"
 
+// presentation
+#include <app/presentation/CityGMLBuilding.h>
+#include <app/presentation/EnergyGrid.h>
+#include <app/presentation/PrototypeBuilding.h>
+#include <app/presentation/TxtInfoboard.h>
+
 // core
-#include <core/CityGMLBuilding.h>
-#include <core/EnergyGrid.h>
-#include <core/PrototypeBuilding.h>
-#include <core/TxtInfoboard.h>
-#include <core/grid.h>
-#include <core/utils/color.h>
-#include <core/utils/osgUtils.h>
+#include <lib/core/grid.h>
+#include <lib/core/utils/color.h>
+#include <lib/core/utils/osgUtils.h>
 
 using namespace opencover;
 using namespace opencover::utils::read;

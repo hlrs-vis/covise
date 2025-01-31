@@ -30,6 +30,16 @@ class Point : public osg::Group {
 
 template <typename CoordType>
 struct ConnectionData {
+  ConnectionData(const std::string &name, const CoordType &start,
+                 const CoordType &end, const float &radius,
+                 osg::ref_ptr<osg::TessellationHints> hints,
+                 const Data &additionalData = Data())
+      : name(name),
+        start(start),
+        end(end),
+        radius(radius),
+        hints(hints),
+        additionalData(additionalData){};
   std::string name;
   CoordType start;
   CoordType end;

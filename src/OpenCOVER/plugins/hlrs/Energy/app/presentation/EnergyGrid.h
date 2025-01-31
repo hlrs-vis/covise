@@ -11,9 +11,9 @@
 
 #include "PluginUtil/coSensor.h"
 #include "TxtInfoboard.h"
-#include "grid.h"
-#include "interfaces/IEnergyGrid.h"
-#include "interfaces/IInfoboard.h"
+#include <lib/core/interfaces/IEnergyGrid.h>
+#include <lib/core/interfaces/IInfoboard.h>
+#include <lib/core/grid.h>
 
 namespace core {
 

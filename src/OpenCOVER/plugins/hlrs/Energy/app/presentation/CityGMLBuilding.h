@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "interfaces/IBuilding.h"
-#include "utils/osgUtils.h"
+#include <lib/core/interfaces/IBuilding.h>
+#include <lib/core/utils/osgUtils.h>
 
 namespace core {
 

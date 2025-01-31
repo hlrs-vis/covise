@@ -22,8 +22,8 @@ set(HEADERS
 )
 
 set(Name "Ennovatis")
-ADD_COVISE_LIBRARY(${Name} STATIC ${SOURCES} ${HEADERS})
-ADD_COVISE_COMPILE_FLAGS(${Name} "-fPIC")
+add_library(${Name} OBJECT ${SOURCES} ${HEADERS})
+target_compile_options(${Name} PRIVATE -fPIC)
 add_dependencies(${Name} coCurlHTTPClient coThreadUtil)
 target_link_libraries(${Name} 
 	nlohmann_json::nlohmann_json
@@ -34,5 +34,3 @@ target_link_libraries(${Name}
 # Add generated header path to include paths.
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/include")
-	
-COVISE_INSTALL_TARGET(Ennovatis)

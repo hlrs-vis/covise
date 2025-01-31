@@ -5,8 +5,8 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 
-#include "interfaces/IBuilding.h"
-#include "utils/color.h"
+#include <lib/core/utils/color.h>
+#include <lib/core/interfaces/IBuilding.h>
 
 namespace core {
 

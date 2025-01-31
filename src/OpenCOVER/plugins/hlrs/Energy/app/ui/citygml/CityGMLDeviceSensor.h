@@ -1,10 +1,10 @@
 #ifndef _CITYGMLDEVICESENSOR_H
 #define _CITYGMLDEVICESENSOR_H
 
-#include <core/utils/color.h>
+#include <lib/core/utils/color.h>
+#include <lib/core/interfaces/IBuilding.h>
+#include <lib/core/interfaces/IInfoboard.h>
 #include <PluginUtil/coSensor.h>
-#include <core/interfaces/IBuilding.h>
-#include <core/interfaces/IInfoboard.h>
 
 #include <memory>
 #include <osg/Group>

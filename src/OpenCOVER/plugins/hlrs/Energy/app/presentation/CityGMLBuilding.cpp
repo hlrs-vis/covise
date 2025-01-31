@@ -3,7 +3,7 @@
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
-#include "utils/color.h"
+#include <lib/core/utils/color.h>
 
 namespace core {
 using namespace utils;

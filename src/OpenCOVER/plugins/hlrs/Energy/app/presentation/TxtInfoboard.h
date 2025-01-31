@@ -3,7 +3,7 @@
 
 #include <cover/coBillboard.h>
 #include <osg/ref_ptr>
-#include "interfaces/IInfoboard.h"
+#include <lib/core/interfaces/IInfoboard.h>
 
 namespace core {
 struct TxtBoxAttributes {

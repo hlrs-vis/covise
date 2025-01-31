@@ -1,7 +1,8 @@
 #include "EnergyGrid.h"
 
-#include <utils/color.h>
-#include <utils/osgUtils.h>
+#include <lib/core/grid.h>
+#include <lib/core/utils/color.h>
+#include <lib/core/utils/osgUtils.h>
 
 #include <cassert>
 // #include <osg/MatrixTransform>
@@ -131,8 +132,8 @@ void EnergyGrid::initConnections(const grid::Indices &indices, const float &radi
         data = std::make_unique<grid::ConnectionData<grid::Point>>(
             name, from, to, radius, nullptr, additionalConnectionData[i]);
       } else {
-        data = std::make_unique<grid::ConnectionData<grid::Point>>("connection",
-                                                                   from, to, radius);
+        data = std::make_unique<grid::ConnectionData<grid::Point>>(
+            "connection", from, to, radius, nullptr, core::grid::Data());
       }
       m_connections.push_back(new grid::DirectedConnection(*data));
     }

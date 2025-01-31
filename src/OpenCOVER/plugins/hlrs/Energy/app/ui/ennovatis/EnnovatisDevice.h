@@ -2,14 +2,14 @@
 #define _ENNOVATISDEVICE_H
 
 // core
-#include <core/interfaces/IBuilding.h>
-#include <core/interfaces/IInfoboard.h>
+#include <lib/core/interfaces/IBuilding.h>
+#include <lib/core/interfaces/IInfoboard.h>
 
 // ennovatis
-#include <ennovatis/channel.h>
-#include <ennovatis/building.h>
-#include <ennovatis/json.h>
-#include <ennovatis/rest.h>
+#include <lib/ennovatis/channel.h>
+#include <lib/ennovatis/building.h>
+#include <lib/ennovatis/json.h>
+#include <lib/ennovatis/rest.h>
 
 // cover
 #include <cover/coBillboard.h>
