@@ -22,13 +22,8 @@
 
 #include <util/coTypes.h>
 #include <string>
-#ifdef __hpux
-#include <dl.h>
-#endif
 
-#ifdef __hpux
-typedef shl_t CO_SHLIB_HANDLE;
-#elif _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #define RTLD_LAZY 1
 typedef HINSTANCE CO_SHLIB_HANDLE;
@@ -36,7 +31,6 @@ typedef HINSTANCE CO_SHLIB_HANDLE;
 typedef void *CO_SHLIB_HANDLE;
 #endif
 
-//#define SGIDLADD
 #ifndef _WIN32
 #define SVR4_DYNAMIC_LINKING
 #endif

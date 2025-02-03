@@ -25,18 +25,12 @@ using std::tr1::unordered_map;
 #define HASH_NAMESPACE std
 #define HASH_NAMESPACE2 tr1
 
-#elif((defined(__linux__) && !defined(CO_ia64icc) && !defined(CO_linux)) || defined(__APPLE__) || (defined(__linux__) && defined(CO_ia64icc) && (__GNUC__ >= 4)))
+#elif defined(__linux__) && !defined(CO_linux)
 #include <ext/hash_map>
 #include <ext/hash_set>
-#if (defined(CO_ia64_glibc22) || (defined(CO_ia64icc) && (__GNUC__ < 4)))
-#define unordered_map std::hash_map
-#define unordered_set std::hash_set
-#define HASH_NAMESPACE std
-#else
 #define unordered_map __gnu_cxx::hash_map
 #define unordered_set __gnu_cxx::hash_set
 #define HASH_NAMESPACE __gnu_cxx
-#endif
 #elif defined(_WIN32)
 #if _MSC_VER < 1900
 #include <hash_map>

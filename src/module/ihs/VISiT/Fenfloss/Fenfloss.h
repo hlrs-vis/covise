@@ -1,12 +1,8 @@
 #ifndef _FENFLOSS_H
 #define _FENFLOSS_H
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
 #include <api/coFeedback.h>
-#else
-#include <util/coviseCompat.h>
-#endif
 #include <api/coSimLibComm.h>
 #include <api/coSimLib.h>
 
@@ -41,18 +37,10 @@ class Fenfloss : public coSimLib
 
       //////////  member functions
 
-#ifdef YAC
-      virtual void paramChanged(coParam *param);
-#endif
-
       virtual int compute(const char *port);
       virtual void param(const char *, bool inMapLoading);
       virtual void postInst();
-#ifndef YAC
       virtual void quit();
-#else
-      virtual int quit();
-#endif
       virtual char *ConnectionString(void);
       virtual const char *SimBatchString(void);
       virtual void PrepareSimStart(int numProc);

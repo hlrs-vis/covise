@@ -79,10 +79,6 @@ static const char SLASH = '/';
 #define HAVE_JDK 0
 #define HAVE_HOOPS 0
 
-#if defined(__sgi) && !(_MIPS_SZLONG == 64)
-#define HAVE_AL
-#endif
-
 #ifdef HAVE_AUDIOFILE
 #if defined(__linux__) || defined(__APPLE__) || defined(_WIN32)
 #define HAVE_AFL

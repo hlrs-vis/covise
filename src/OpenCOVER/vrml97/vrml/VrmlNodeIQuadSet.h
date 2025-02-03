@@ -26,17 +26,12 @@ class VRMLEXPORT VrmlNodeIQuadSet : public VrmlNodeIPolygonsCommon
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+  static void initFields(VrmlNodeIQuadSet *node, VrmlNodeType *t);
+  static const char *typeName();
 
     VrmlNodeIQuadSet(VrmlScene *);
-    virtual ~VrmlNodeIQuadSet();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual Viewer::Object insertGeometry(Viewer *v);
-
-    virtual VrmlNodeIQuadSet *toIQuadSet() const;
 };
 }
 #endif // _VRMLNODEIQUADSET_

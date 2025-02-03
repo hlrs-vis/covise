@@ -210,15 +210,11 @@ int Sphere::compute(const char *)
         spheresBillboards->addAttribute("RENDER_METHOD", rm);
         if (obj3)
         {
-#ifndef YAC
             /* zu mappende Daten werden durchgeschleust für jeden der möglichen Datentypen*/
             coDistributedObject *mapOutput = obj3->clone(p_dataOut->getObjName());
             if (!mapOutput)
                 sendWarning("Data at input port '%s' is not supported", p_colorsIn->getName());
             p_dataOut->setCurrentObject(mapOutput);
-#else
-            p_dataOut->setCurrentObject(obj3);
-#endif
         }
 
         if (hasData)

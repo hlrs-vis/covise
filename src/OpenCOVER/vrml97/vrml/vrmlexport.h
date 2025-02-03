@@ -21,7 +21,7 @@
 #endif
 #endif
 
-#elif defined(__GNUC__) && __GNUC__ >= 4 && !defined(CO_ia64icc)
+#elif defined(__GNUC__) && __GNUC__ >= 4
 #define VRMLEXPORT __attribute__((visibility("default")))
 #define VRMLIMPORT VRMLEXPORT
 

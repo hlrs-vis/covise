@@ -5,10 +5,9 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_UICONTAINER_H
-#define CO_UICONTAINER_H
+#pragma once
 
-#include <OpenVRUI/coUIElement.h>
+#include "coUIElement.h"
 #include <list>
 
 /** Basic Container
@@ -80,4 +79,3 @@ protected:
     float prefWidth, prefHeight;
 };
 }
-#endif

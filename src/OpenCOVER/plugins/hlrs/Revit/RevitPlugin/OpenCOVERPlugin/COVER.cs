@@ -1783,17 +1783,17 @@ namespace OpenCOVERPlugin
             //bool hasStyle = false;
             bool hasIK = false;
             bool doWalk = false;
+            IList<Parameter> ps = elem.GetParameters("doWalk");
+            if ((ps.Count > 0) && (ps[0] != null))
+            {
+                doWalk = ps[0].AsInteger() != 0;
+            }
             if (fi != null)
             {
                 FamilySymbol family = fi.Symbol;
                 if (family != null)
                 {
 
-                    IList<Parameter> ps = family.GetParameters("doWalk");
-                    if ((ps.Count > 0) && (ps[0] != null))
-                    {
-                        doWalk = ps[0].AsInteger() != 0;
-                    }
                     bool hasGeometry = false;
                     IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
                     if (Objects.MoveNext())

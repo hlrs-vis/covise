@@ -92,10 +92,6 @@ public:
     {
         return system;
     }
-    coSensorList *getSensorList()
-    {
-        return sensorList;
-    }
 
     void activateTouchSensor(int id);
     ui::Element *getMenuButton(const std::string &buttonName);
@@ -117,7 +113,6 @@ private:
     ViewerOsg *viewer;
     VrmlScene *vrmlScene;
     Player *player;
-    coSensorList *sensorList;
 
     bool raw;
 

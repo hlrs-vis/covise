@@ -12,7 +12,6 @@
 #include "PlayerArts.h"
 #include "PlayerAServer.h"
 #include "PlayerEsd.h"
-#include "PlayerIrixAL.h"
 #include "PlayerOpenAL.h"
 #include "PlayerOSS.h"
 #include <cstring>
@@ -61,11 +60,6 @@ Player *PlayerFactory::createPlayer()
     {
         //CERR << "PlayerFactory::createPlayer() - going to use Esd!" << endl;
         return new PlayerEsd(listener, threaded, host);
-    }
-    else if (!strcasecmp(type.c_str(), "IrixAL"))
-    {
-        //CERR << "PlayerFactory::createPlayer() - going to use IrixAL!" << endl;
-        return new PlayerIrixAL(listener, threaded, channels, rate, bps);
     }
     else if (!strcasecmp(type.c_str(), "OpenAL"))
     {

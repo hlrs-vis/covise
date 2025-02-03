@@ -12,7 +12,6 @@
 //  %W% %G%
 //  VrmlNodeShape.cpp
 
-#include "VrmlNode.h"
 
 #include "VrmlNodeAppearance.h"
 #include "VrmlNodeGeometry.h"
@@ -29,41 +28,22 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeShape(s); }
 
 // Define the built in VrmlNodeType:: "Shape" fields
 
-VrmlNodeType *VrmlNodeShape::defineType(VrmlNodeType *t)
+void VrmlNodeShape::initFields(VrmlNodeShape *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("Shape", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("appearance", VrmlField::SFNODE);
-    t->addExposedField("geometry", VrmlField::SFNODE);
-    t->addExposedField("effect", VrmlField::SFNODE);
-
-    return t;
+    VrmlNodeChild::initFields(node, t); // Parent class
+    initFieldsHelper(node, t,
+                     exposedField("appearance", node->d_appearance),
+                     exposedField("geometry", node->d_geometry),
+                     exposedField("effect", node->d_effect));
 }
 
-VrmlNodeType *VrmlNodeShape::nodeType() const { return defineType(0); }
+const char *VrmlNodeShape::typeName() { return "Shape"; }
+
 
 VrmlNodeShape::VrmlNodeShape(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, typeName())
     , d_viewerObject(0)
 {
-}
-
-VrmlNodeShape::~VrmlNodeShape()
-{
-    // need viewer to free d_viewerObject ...
-}
-
-VrmlNode *VrmlNodeShape::cloneMe() const
-{
-    return new VrmlNodeShape(*this);
 }
 
 void VrmlNodeShape::cloneChildren(VrmlNamespace *ns)
@@ -125,23 +105,6 @@ void VrmlNodeShape::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeShape::printFields(std::ostream &os, int indent)
-{
-    if (d_appearance.get())
-        PRINT_FIELD(appearance);
-    if (d_geometry.get())
-        PRINT_FIELD(geometry);
-    if (d_effect.get())
-        PRINT_FIELD(effect);
-
-    return os;
-}
-
-VrmlNodeShape *VrmlNodeShape::toShape() const
-{
-    return (VrmlNodeShape *)this;
-}
-
 void VrmlNodeShape::render(Viewer *viewer)
 {
     if (d_viewerObject && isModified())
@@ -150,7 +113,7 @@ void VrmlNodeShape::render(Viewer *viewer)
         d_viewerObject = 0;
     }
 
-    VrmlNodeGeometry *g = d_geometry.get() ? d_geometry.get()->toGeometry() : 0;
+    VrmlNodeGeometry *g = d_geometry.get() ? d_geometry.get()->as<VrmlNodeGeometry>() : 0;
 
     if (d_viewerObject)
         viewer->insertReference(d_viewerObject);
@@ -165,13 +128,13 @@ void VrmlNodeShape::render(Viewer *viewer)
         {
             int nTexComponents = 0;
 
-            if (!picking && d_appearance.get() && d_appearance.get()->toAppearance())
+            if (!picking && d_appearance.get() && d_appearance.get()->as<VrmlNodeAppearance>())
             {
-                VrmlNodeAppearance *a = d_appearance.get()->toAppearance();
+                VrmlNodeAppearance *a = d_appearance.get()->as<VrmlNodeAppearance>();
                 a->render(viewer);
 
-                if (a->texture() && a->texture()->toTexture())
-                    nTexComponents = a->texture()->toTexture()->nComponents();
+                if (a->texture() && a->texture()->as<VrmlNodeTexture>())
+                    nTexComponents = a->texture()->as<VrmlNodeTexture>()->nComponents();
             }
             else
             {
@@ -203,34 +166,6 @@ void VrmlNodeShape::render(Viewer *viewer)
     }
 
     clearModified();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeShape::setField(const char *fieldName,
-                             const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD(appearance, Appearance)
-    else if
-        TRY_SFNODE_FIELD(geometry, Geometry)
-    //else if TRY_SFNODE_FIELD(effect, Wave)
-    else if
-        TRY_FIELD(effect, SFNode)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeShape::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "appearance") == 0)
-        return &d_appearance;
-    else if (strcmp(fieldName, "geometry") == 0)
-        return &d_geometry;
-    else if (strcmp(fieldName, "effect") == 0)
-        return &d_effect;
-
-    return VrmlNodeChild::getField(fieldName);
 }
 
 bool VrmlNodeShape::isOnlyGeometry() const

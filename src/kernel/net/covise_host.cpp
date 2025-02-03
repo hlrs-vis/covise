@@ -473,6 +473,15 @@ const char *Host::getAddress() const
     return m_address.c_str();
 }
 
+const char *Host::getPrintable() const
+{
+    if (m_nameValid)
+        return m_name.c_str();
+    if (m_addressValid)
+        return m_address.c_str();
+    return "(invalid)";
+}
+
 static bool isLoopbackAddress(const unsigned char address[4])
 {
     if (address[0] == 127)

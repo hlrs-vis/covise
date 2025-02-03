@@ -16,9 +16,10 @@
 #include <QTimer>
 
 #include <memory>
-#include <config/coConfigBool.h>
-#include <config/coConfigInt.h>
-#include <config/coConfigString.h>
+
+#include "config/access.h"
+#include "config/value.h"
+#include "config/file.h"
 
 namespace Ui
 {
@@ -71,15 +72,19 @@ private:
     QTimer m_progressBarTimer;
     ClientWidgetList *m_clientList;
     CoviseDaemon m_remoteLauncher;
-    covise::coConfigGroup *cdConfig;
-    covise::coConfigInt cfgTimeout;
-    covise::coConfigBool cfgAutostart;
-    covise::coConfigBool cfgAutoConnect;
-    covise::coConfigBool cfgBackground;
-    covise::coConfigBool cfgMinimized;
-    covise::coConfigString cfgArguments;
-    covise::coConfigString cfgOutputMode;
-    covise::coConfigString cfgOutputModeFile;
+    covise::config::Access m_access;
+    std::unique_ptr<covise::config::File> m_configFile;
+
+
+    // covise::coConfigGroup *cdConfig;
+    std::unique_ptr<covise::ConfigInt> cfgTimeout;
+    std::unique_ptr<covise::ConfigBool> cfgAutostart;
+    std::unique_ptr<covise::ConfigBool> cfgAutoConnect;
+    std::unique_ptr<covise::ConfigBool> cfgBackground;
+    std::unique_ptr<covise::ConfigBool> cfgMinimized;
+    std::unique_ptr<covise::ConfigString> cfgArguments;
+    std::unique_ptr<covise::ConfigString> cfgOutputMode;
+    std::unique_ptr<covise::ConfigString> cfgOutputModeFile;
     std::vector<ChildOutput> m_childOutputs;
     std::vector<std::pair<QString, std::unique_ptr<std::fstream>>> m_childOutputFiles;
     std::vector<std::unique_ptr<PermissionRequest>> m_permissionRequests;

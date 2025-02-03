@@ -31,21 +31,15 @@ class PLUGINEXPORT VrmlNodeJoystick : public vrml::VrmlNodeChild
 {
 public:
     // Define the fields of SteeringWheel nodes
-    static vrml::VrmlNodeType* defineType(vrml::VrmlNodeType* t = 0);
-    virtual vrml::VrmlNodeType* nodeType() const;
+    static void initFields(VrmlNodeJoystick* node, vrml::VrmlNodeType* t);
+    static const char *typeName(); 
 
     VrmlNodeJoystick(vrml::VrmlScene* scene = 0);
     VrmlNodeJoystick(const VrmlNodeJoystick& n);
-    virtual ~VrmlNodeJoystick();
-
-    virtual VrmlNode* cloneMe() const;
 
     virtual VrmlNodeJoystick* toSteeringWheel() const;
 
-    virtual ostream& printFields(ostream& os, int indent);
-
-    virtual void setField(const char* fieldName, const vrml::VrmlField& fieldValue);
-    const vrml::VrmlField* getField(const char* fieldName);
+    const vrml::VrmlField* getField(const char* fieldName) const override;
 
     void eventIn(double timeStamp, const char* eventName,
         const vrml::VrmlField* fieldValue);
@@ -61,12 +55,14 @@ private:
     // Fields
     vrml::VrmlSFBool d_enabled;
     vrml::VrmlSFInt d_joystickNumber;
+    vrml::VrmlSFString d_joystickName;
 
     // State
     vrml::VrmlMFFloat d_axes;
     vrml::VrmlMFFloat d_sliders;
     vrml::VrmlMFFloat d_POVs;
     vrml::VrmlMFInt d_buttons;
+    int joystickNumber = -1;
     
 };
 namespace vrui
@@ -114,5 +110,6 @@ public:
 	float *sliders[MAX_NUMBER_JOYSTICKS];
 	unsigned char number_POVs[MAX_NUMBER_JOYSTICKS];
 	float *POVs[MAX_NUMBER_JOYSTICKS];
+	std::string names[MAX_NUMBER_JOYSTICKS];
 };
 #endif

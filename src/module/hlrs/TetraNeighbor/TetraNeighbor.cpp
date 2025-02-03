@@ -75,9 +75,8 @@ coDistributedObject **TetraNeighbor::compute(const coDistributedObject **in, cha
         }
 
 // first create the neighbor-list for each timestep
-#if !defined(__sgi)
         int j;
-        for (j = 0; j < n; j++)
+        for (int j = 0; j < n; j++)
         {
             gridIn = (const coDoUnstructuredGrid *)setIn[j];
             setOut[j]->getAddress(&newNeighborList);
@@ -86,9 +85,6 @@ coDistributedObject **TetraNeighbor::compute(const coDistributedObject **in, cha
 
             fprintf(stderr, "TetraNeighbor::compute: localNeighbors(%d) done\n", j);
         }
-#else
-        goSMP(setIn, setOut, n, m_numNodes);
-#endif
         /*
       // now compute cross-timestep-neighbor-information
       for( i=0; i<n; i++ )

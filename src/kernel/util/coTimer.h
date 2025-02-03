@@ -20,12 +20,6 @@
 #include <cstring>
 
 // define different time measurement methods
-#if defined(__sgi)
-#define POSIX_TIME
-//#define CLOCK_ID      CLOCK_SGI_CYCLE
-#define CLOCK_ID CLOCK_REALTIME
-#endif
-
 namespace covise
 {
 

@@ -17,38 +17,10 @@
 #include <sys/time.h>
 #include <time.h>
 
-#ifdef __sgi
-#define BEST_TIMER CLOCK_SGI_CYCLE
-#else
 #define BEST_TIMER CLOCK_REALTIME
-#endif
 #endif
 
 using namespace covise;
-
-#if defined(__sgi)
-
-void scMultiProcCoviseAppModule(void *userdata, size_t)
-{
-    CoviseAppModuleInfo *appInf;
-    int k;
-
-    // get parameters
-    appInf = (CoviseAppModuleInfo *)userdata;
-
-    // call the module : round-robin distribution
-    for (k = appInf->first; k < appInf->max; k += appInf->step)
-    {
-
-        appInf->mod->handleObjects(appInf->obj_in[k],
-                                   appInf->obj_out_names[k],
-                                   appInf->obj_set_out, k);
-    }
-
-    // and don't forget the barrier
-    barrier(appInf->barrier, appInf->num);
-}
-#endif
 
 CoviseAppModule::CoviseAppModule()
 {
@@ -70,10 +42,6 @@ CoviseAppModule::CoviseAppModule()
     multiprocessing_flag = 0;
     pre_multiprocessing_flag = 0;
     current_level = 0;
-#if defined(__sgi)
-    thisGroupsBarrier = NULL;
-    thisGroupsMutex = NULL;
-#endif
 
     // by default we do everything for the programmer
     compute_timesteps = 1;
@@ -510,105 +478,13 @@ void CoviseAppModule::handleObjects(const coDistributedObject **obj_in, char **o
         }
 
 // check if this system supports multiprocessing at all
-#if defined(__sgi)
-// yes
-#else
         // no
-        multiprocessing_flag = 0;
-#endif
+        multiprocessing_flag = 0; // FIXME: should be available everywhere now
 
         // now compute the output (recursive)
         if ((multiprocessing_flag) && (num_proc > 1))
         {
 // here we go
-
-#if defined(__sgi)
-
-            char *arenaName = NULL;
-            usptr_t *myArena;
-            barrier_t *myBarrier;
-
-            myArena = NULL;
-            myBarrier = NULL;
-
-            // first we need an arena
-            arenaName = tempnam("", "LOCK");
-            usconfig(CONF_INITUSERS, num_proc + 1);
-            usconfig(CONF_ARENATYPE, US_SHAREDONLY);
-            myArena = usinit(arenaName);
-
-            // and a barrier
-            myBarrier = new_barrier(myArena);
-            init_barrier(myBarrier);
-            thisGroupsBarrier = myBarrier;
-
-            // and a mutex
-            // ?!?!?!?!
-            thisGroupsMutex = (ulock_t *)usnewlock(myArena);
-            if (thisGroupsMutex == NULL)
-            {
-                fprintf(stderr, "ARGH !!!\n");
-            }
-
-            // load the parameters
-            CoviseAppModuleInfo **info;
-            info = new CoviseAppModuleInfo *[num_proc];
-            j = num_set_elem / num_proc;
-            for (i = 0; i < num_proc; i++)
-            {
-                info[i] = new CoviseAppModuleInfo();
-
-                info[i]->barrier = myBarrier;
-                info[i]->num = num_proc;
-
-                /***********************************
-            //  old: distribute 1,2,3 + 4,5,6 + 7,8,9 + ...
-            if( i )
-               info[i]->f = info[i-1]->t;
-            else
-               info[i]->f = 0;
-            if( i==num_proc-1 )
-               info[i]->t = num_set_elem;
-            else
-               info[i]->t = (i+1)*j;
-            ************************************/
-
-                // Now:  distribute 1,5,9,13 + 2,6,10,14 + 3,7,11,15 + 4,8,12,16
-
-                info[i]->first = i;
-                info[i]->max = num_set_elem;
-                info[i]->step = num_proc;
-
-                info[i]->mod = this;
-                info[i]->obj_in = obj_sorted;
-                info[i]->obj_out_names = obj_set_out_names;
-                info[i]->obj_set_out = obj_new_set;
-
-                // and launch the process
-                if (i != num_proc - 1)
-                    sprocsp(scMultiProcCoviseAppModule, PR_SALL, (void *)info[i], NULL, 1000000);
-                //if( i!=num_proc-1 )
-                //   scMultiProcCoviseAppModule( info[i] );
-                //fprintf(stderr, "%d\n", i);
-            }
-
-            // do something, too
-            scMultiProcCoviseAppModule(info[num_proc - 1]);
-
-            // clean up the parameters
-            for (i = 0; i < num_proc; i++)
-                delete info[i];
-            delete[] info;
-
-            // clean up the mutex
-            usfreelock(thisGroupsMutex, myArena);
-
-            // clean up the barrier and arena
-            free_barrier(myBarrier);
-            if (myArena)
-                unlink(arenaName);
-#endif
-
             //for( i=0; i<num_set_elem; i++ )
             //   handleObjects( obj_sorted[i], obj_set_out_names[i], obj_new_set, i );
         }
@@ -837,28 +713,8 @@ void CoviseAppModule::preHandleObjects(const coDistributedObject **)
 
 void CoviseAppModule::lockNewObjects()
 {
-#if defined(__sgi)
-    if (thisGroupsMutex)
-    {
-        if (ussetlock(thisGroupsMutex) != 1)
-        {
-            fprintf(stderr, "couldn't lock\n");
-        }
-        //else fprintf(stderr, "LOCK\n");
-    }
-#endif
 }
 
 void CoviseAppModule::unlockNewObjects()
 {
-#if defined(__sgi)
-    if (thisGroupsMutex)
-    {
-        if (usunsetlock(thisGroupsMutex) != 0)
-        {
-            fprintf(stderr, "couldn't unlock\n");
-        }
-        //else fprintf(stderr, "UNLOCK\n");
-    }
-#endif
 }

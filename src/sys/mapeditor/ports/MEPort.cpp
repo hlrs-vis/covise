@@ -164,10 +164,6 @@ void MEPort::setShown(bool flag)
 {
     setVisible(flag);
     shown = flag;
-
-#ifdef YAC
-    node->layoutItem();
-#endif
 }
 
 //!

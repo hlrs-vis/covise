@@ -13,10 +13,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#ifdef __hpux
-#include <string.h>
-#include <strings.h>
-#endif
 
 const int SCALAR_DATA = 1;
 const int VECTOR_DATA = 3;
@@ -55,14 +51,10 @@ public:
                   float *u, float *v, float *w);
     int read_vectordata(int &len, float **x, float **y, float **z){};
     int read_scalardata(int &len, float **d){};
-    //#ifdef __hpux
     long set_fseek()
     {
         return ftell(hdl);
     };
-    //#else
-    //	long set_fseek() { return fseek(hdl, 0, SEEK_CUR); };
-    //#endif
     long goto_fseek(long ls)
     {
         return fseek(hdl, ls, SEEK_SET);

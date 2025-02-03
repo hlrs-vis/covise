@@ -34,28 +34,17 @@ class VRMLEXPORT VrmlNodeBumpMapping : public VrmlNodeChild
 
 public:
     // Define the built in VrmlNodeType:: "BumpMapping"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeBumpMapping *node, vrml::VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeBumpMapping(VrmlScene *);
-    virtual ~VrmlNodeBumpMapping();
-
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeBumpMapping *toBumpMapping() const;
 
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual void render(Viewer *);
 
-    virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue);
     const VrmlField *getField(const char *fieldName) const;
 
-protected:
 };
 }
 #endif //_VRMLNODEBumpMapping__

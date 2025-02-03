@@ -14,10 +14,6 @@
 #include <string>
 #include <sstream>
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 class SCAEXPORT ReadASCIIDyna
 {
 public:

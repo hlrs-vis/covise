@@ -133,11 +133,7 @@ public:
     // sequence number from ddn
     int number;
     int by_ids;
-#ifdef __hpux
-#define SIGNED
-#else
 #define SIGNED signed
-#endif
     // surface types are defined in project.h
     SIGNED char new_format;
     SIGNED char surface_type;

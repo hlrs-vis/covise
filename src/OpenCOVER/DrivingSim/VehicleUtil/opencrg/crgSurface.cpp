@@ -633,9 +633,9 @@ void Surface::computeConeStepMappingRatio()
             //  Red stays height
             //  Green becomes Step-Cone-Ratio
             //Data[y*ScanWidth + chans*x + OFF_CONERATIO] = static_cast<unsigned char>(255.0 * actual_ratio);
-            if (actual_ratio < (1.0 / 255.0))
+            if (actual_ratio < (1.0f / 255.0f))
             {
-                actual_ratio = 1.0 / 255.0;
+                actual_ratio = 1.0f / 255.0f;
             }
             surfaceConeRatioDataLineVector[y][x] = actual_ratio;
             // but make sure it is > 0.0, since I divide by it in the shader

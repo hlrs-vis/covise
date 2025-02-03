@@ -101,7 +101,6 @@ covise::WSMessageHandler::WSMessageHandler(int argc, char **argv)
         QObject::connect(sn, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
     }
 
-#ifndef YAC
     if (!isStandalone())
     {
         // send dummy message to tell the controller that it is safe now to send messages
@@ -110,7 +109,6 @@ covise::WSMessageHandler::WSMessageHandler(int argc, char **argv)
         // tell crb if we are ready for an embedded ViNCE renderer
         sendMessage(COVISE_MESSAGE_MSG_OK, "");
     }
-#endif
 }
 
 covise::WSMessageHandler *covise::WSMessageHandler::instance()

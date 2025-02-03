@@ -46,7 +46,7 @@ private:
     void AdjustHeapDownwards(int element);
     Edge **_edgeList;
 
-#if defined(WIN32) || defined(__hpux) || defined(CO_ia64icc)
+#if defined(WIN32)
     typedef unordered_map<Edge *, int> EdgePositionMap;
 #else
     typedef map<Edge *, int> EdgePositionMap;

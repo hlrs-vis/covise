@@ -1048,6 +1048,8 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
         sender->message(toWhom, type, len, buf);
     if (toWhom == coVRPluginSupport::TO_ALL)
         coVRPluginList::instance()->message(toWhom, type, len, buf);
+    if (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
+        coVRPluginList::instance()->message(toWhom, type, len, buf, sender);
 
     if ((toWhom == coVRPluginSupport::TO_SAME) || (toWhom == coVRPluginSupport::TO_SAME_OTHERS))
     {

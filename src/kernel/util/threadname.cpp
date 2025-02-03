@@ -13,6 +13,11 @@
 #include <pthread.h>
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#include <codecvt>
+#include <iostream>
+#endif
 namespace covise
 {
 
@@ -37,6 +42,13 @@ bool setThreadName(std::string name)
     pthread_setname_np(name.c_str());
     return true;
 #endif
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    HRESULT hr = SetThreadDescription(GetCurrentThread(), converter.from_bytes(name).c_str());
+    if(FAILED(hr)) {
+        std::cerr << "Failed to set thread name: " << hr << std::endl;
+    }
+#endif // _WIN32
     return false;
 }
 

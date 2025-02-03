@@ -31,17 +31,13 @@ class VRMLEXPORT VrmlNodeGroup : public VrmlNodeChild
 
 public:
     // Define the fields of all built in group nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const override;
-
-    VrmlNodeGroup(VrmlScene *s = 0);
+    static void initFields(VrmlNodeGroup *node, vrml::VrmlNodeType *t);
+    static const char *typeName() { return "Group"; }
+    VrmlNodeGroup(VrmlScene *s = 0, const std::string &name = "");
     virtual ~VrmlNodeGroup();
     void flushRemoveList();
 
-    virtual VrmlNode *cloneMe() const override;
     virtual void cloneChildren(VrmlNamespace *) override;
-
-    virtual VrmlNodeGroup *toGroup() const override;
 
     virtual bool isModified() const override;
     virtual void clearFlags() override;
@@ -49,8 +45,6 @@ public:
     virtual void addToScene(VrmlScene *s, const char *relativeUrl) override;
 
     virtual void copyRoutes(VrmlNamespace *ns) override;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
     virtual void render(Viewer *) override;
 
@@ -66,9 +60,9 @@ public:
                          const char *eventName,
                          const VrmlField *fieldValue) override;
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
-    virtual const VrmlField *getField(const char *fieldName) const override;
 
+    virtual const VrmlField *getField(const char *fieldName) const override;
+    void updateChildren();
     int size();
     VrmlNode *child(int index);
 
@@ -89,9 +83,10 @@ public:
 
 protected:
     void checkAndRemoveNodes(Viewer *viewer);
+    virtual void childrenChanged();
     VrmlSFVec3f d_bboxCenter;
     VrmlSFVec3f d_bboxSize;
-    VrmlMFNode d_children;
+    VrmlMFNode d_children, d_oldChildren;
 
     VrmlSFString d_relative;
     VrmlNode *d_parentTransform;

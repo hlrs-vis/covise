@@ -53,7 +53,7 @@
 
     void main( void )
     {
-        float time = (Time/1000.0)*fps;
+        float time = (float(Time)/1000.0)*fps;
         normal   = gl_NormalMatrix * gl_Normal;
         Binormal = gl_NormalMatrix * aBinormal;
         Tangent  = gl_NormalMatrix * aTangent; 
@@ -106,8 +106,8 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) +
       	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
 
-      vec3 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord2 ) - vec3(0.5,0.5,0.5);
-      bumpmap = mix(-bumpmap,2.0 * Bumpiness * texture2D( normalMap, Texcoord3 ) - vec3(0.5,0.5,0.5),0.5);
+      vec3 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord2 ).xyz - vec3(0.5,0.5,0.5);
+      bumpmap = mix(-bumpmap,2.0 * Bumpiness * texture2D( normalMap, Texcoord3 ).xyz - vec3(0.5,0.5,0.5),0.5);
 	  
       vec3 N = normalize(normal);
       vec3 Tn = normalize(Tangent);
@@ -115,11 +115,11 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       N += (bumpmap.x * Tn + bumpmap.y * Bn);
       N = normalize(N);
       
-      eyeVec = normalize(eyeVec);
+      vec3 eyeVecN = normalize(eyeVec);
       	
       vec3 L = normalize(lightDir);
 
-      vec3 reflVec   = reflect(-eyeVec, N);
+      vec3 reflVec   = reflect(-eyeVecN, N);
       vec4 reflColor = textureCube( cubeMap, reflVec );
       	
       float lambertTerm = abs(dot(N,L));
@@ -128,11 +128,11 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       
       	final_color += gl_LightSource[0].diffuse *
       	               WaterColor * lambertTerm*texture2D( diffuseMap, Texcoord);
-        float vdn = dot(eyeVec,N);
-	float fres = KrMin + (Kr-KrMin) * pow(1-abs(vdn),FresExp);
+        float vdn = dot(eyeVecN,N);
+	float fres = KrMin + (Kr-KrMin) * pow(1.0-abs(vdn),FresExp);
 	final_color = mix(final_color  ,reflColor,fres);
       //	final_color =	             reflColor;
-      	vec3 E = normalize(eyeVec);
+      	vec3 E = normalize(eyeVecN);
       	vec3 R = reflect(-L, N);
       	float specular = pow( max(dot(R, E), 0.0), 
       		                 gl_FrontMaterial.shininess );
@@ -140,7 +140,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       	               gl_FrontMaterial.specular * 
       				   specular;	
         final_color.a = max(WaterColor.a,fres)- Transparency;
-        final_color.rgb+=texture2D( diffuseMap, Texcoord);
+        final_color.rgb+=texture2D( diffuseMap, Texcoord).rgb;
       	}
 	gl_FragColor = final_color;	
           

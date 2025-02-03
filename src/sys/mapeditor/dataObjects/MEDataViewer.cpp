@@ -97,31 +97,6 @@ void MEDataViewer::reset()
     m_scrolling->hide();
 }
 
-#ifdef YAC
-
-//!
-//! create a new data information object
-//!
-void MEDataViewer::createObject(MEDataTreeItem *item, covise::coRecvBuffer &recb)
-{
-    MEDataObject *dobj = new MEDataObject(recb, item, m_infoView);
-    m_infoView->addWidget(dobj);
-    m_infoView->setCurrentWidget(dobj);
-    item->setDataObject(dobj);
-}
-
-//!
-//! create a new data array info
-//!
-void MEDataViewer::createArray(MEDataTreeItem *item, covise::coRecvBuffer &recb)
-{
-    MEDataArray *array = new MEDataArray(recb, item);
-    showArray(array);
-    item->setDataArray(array);
-}
-
-#else
-
 //!
 //! create a new data information object
 //!
@@ -142,7 +117,6 @@ MEDataArray *MEDataViewer::createArray(MEDataTreeItem *item)
     showArray(array);
     return array;
 }
-#endif
 
 //!
 //! show the selected data object content (which already exists), user has clicked a data object in the tree

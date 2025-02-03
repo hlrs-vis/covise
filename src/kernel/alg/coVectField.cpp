@@ -12,9 +12,7 @@
 #include <do/coDoTriangleStrips.h>
 #include <do/coDoSet.h>
 
-#ifndef YAC
 #include "coColors.h"
-#endif
 
 using namespace covise;
 
@@ -131,11 +129,7 @@ void coVectField::compute_vectorfields(float scale_, int length, int fasten_para
     length_param = length;
     num_sectors_ = num_sectors;
 
-#ifndef YAC
     if (objInfoLines && objInfoLines->getName())
-#else
-    if (objInfoLines)
-#endif
     {
         if (num_sectors_)
         {
@@ -203,11 +197,7 @@ void coVectField::compute_vectorfields(float scale_, int length, int fasten_para
     }
 
     num_scalar = numc * (2 + num_sectors_);
-#ifndef YAC
     if (objInfoFloat && objInfoFloat->getName())
-#else
-    if (objInfoFloat)
-#endif
     {
         u_scalar_data = new coDoFloat(*objInfoFloat, num_scalar);
 
@@ -920,7 +910,6 @@ void coVectField::vector_displacement()
     }
 }
 
-#ifndef YAC
 coDistrVectField::coDistrVectField(const coDistributedObject *geo,
                                    const coDistributedObject *vect,
                                    const coDoColormap *colorMap,
@@ -1268,4 +1257,3 @@ coDistrVectField::CreateLinesAndScalar(coDistributedObject **lines,
     scalar.CopyAllAttributes(vect);
     return true;
 }
-#endif // YAC

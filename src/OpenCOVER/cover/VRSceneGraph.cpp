@@ -831,6 +831,8 @@ void VRSceneGraph::setScaleFactor(float s, bool sync)
         scale_mat.mult(temp, trans);
     }
     m_scaleTransform->setMatrix(scale_mat);
+    if (sync)
+        coVRCollaboration::instance()->SyncXform();
 }
 
 void
@@ -1521,9 +1523,9 @@ VRSceneGraph::getBoundingSphere()
     return bsphere;
 }
 
-void VRSceneGraph::scaleAllObjects(bool resetView)
+void VRSceneGraph::scaleAllObjects(bool resetView, bool simple)
 {
-    osg::BoundingSphere bsphere = getBoundingSphere();
+    osg::BoundingSphere bsphere = simple ? m_objectsRoot->computeBound() : getBoundingSphere();
     if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
@@ -1652,11 +1654,11 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 #endif
 
 void
-VRSceneGraph::viewAll(bool resetView)
+VRSceneGraph::viewAll(bool resetView, bool simple)
 {
     coVRNavigationManager::instance()->enableViewerPosRotation(false);
 
-    scaleAllObjects(resetView);
+    scaleAllObjects(resetView, simple);
 
     coVRCollaboration::instance()->SyncXform();
 }

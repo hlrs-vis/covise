@@ -120,6 +120,7 @@ coVRCommunication::coVRCommunication()
 
     registry.reset(new VrbClientRegistry(-1));
 	sharedStateManager.reset(new SharedStateManager(registry.get()));
+    sharedStateManager->setFrameTime([]() { return cover->frameTime(); });
 }
 
 coVRCommunication::~coVRCommunication()

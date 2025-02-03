@@ -44,58 +44,34 @@
 #include "BillboardSwitch.h"
 #include <vrml97/vrml/MathUtils.h>
 #include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/System.h>
 #include <osg/Matrix>
 #include "../Vrml97/ViewerOsg.h"
 #include <math.h>
 
-static VrmlNode *creator(VrmlScene *s)
+void VrmlNodeBillboardSwitch::initFields(VrmlNodeBillboardSwitch *node, VrmlNodeType *t)
 {
-    return new VrmlNodeBillboardSwitch(s);
+    VrmlNodeBillboard::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("choice", node->d_choice),
+                     exposedField("alternative", node->d_alternative),
+                     exposedField("axisOfRotation", node->d_axisOfRotation),
+                     field("angle", node->d_angle),
+                     eventOutCallBack("activeChildChanged", node->d_activeChild));
 }
 
-// Define the built in VrmlNodeType:: "BillboardSwitch" fields
-
-VrmlNodeType *VrmlNodeBillboardSwitch::defineType(VrmlNodeType *t)
+const char *VrmlNodeBillboardSwitch::typeName() 
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("BillboardSwitch", creator);
-    }
-
-    VrmlNodeBillboard::defineType(t); // Parent class
-    t->addExposedField("choice", VrmlField::MFNODE);
-    t->addExposedField("alternative", VrmlField::MFNODE);
-    t->addExposedField("axisOfRotation", VrmlField::SFVEC3F);
-    t->addEventOut("activeChildChanged", VrmlField::MFINT32);
-    t->addField("angle", VrmlField::MFFLOAT);
-    return t;
-}
-
-VrmlNodeType *VrmlNodeBillboardSwitch::nodeType() const
-{
-    return defineType(0);
+    return "BillboardSwitch";
 }
 
 VrmlNodeBillboardSwitch::VrmlNodeBillboardSwitch(VrmlScene *scene)
-    : VrmlNodeBillboard(scene)
+    : VrmlNodeBillboard(scene, typeName())
     , d_axisOfRotation(0.0, 1.0, 0.0)
     , d_activeChild(0)
 {
     firstTime = true;
     setModified();
-}
-
-VrmlNodeBillboardSwitch::~VrmlNodeBillboardSwitch()
-{
-}
-
-VrmlNode *VrmlNodeBillboardSwitch::cloneMe() const
-{
-    return new VrmlNodeBillboardSwitch(*this);
 }
 
 VrmlNodeBillboardSwitch *VrmlNodeBillboardSwitch::toBillboardSwitch() const
@@ -137,21 +113,6 @@ void VrmlNodeBillboardSwitch::copyRoutes(VrmlNamespace *ns)
     for (int i = 0; i < n; ++i)
         d_choice[i]->copyRoutes(ns);
     nodeStack.pop_front();
-}
-
-ostream &VrmlNodeBillboardSwitch::printFields(ostream &os, int indent)
-{
-    if (!FPZERO(d_axisOfRotation.x()) || !FPZERO(d_axisOfRotation.y()) || !FPZERO(d_axisOfRotation.z()))
-        PRINT_FIELD(axisOfRotation);
-    if (d_choice.size() > 0)
-        PRINT_FIELD(choice);
-    if (d_alternative.size() > 0)
-        PRINT_FIELD(alternative);
-    PRINT_FIELD(activeChild);
-    if (d_angle.size() > 0)
-        PRINT_FIELD(angle);
-    VrmlNodeGroup::printFields(os, indent);
-    return os;
 }
 
 void VrmlNodeBillboardSwitch::render(Viewer *viewer)
@@ -256,32 +217,12 @@ VrmlNode *VrmlNodeBillboardSwitch::getParentTransform()
     return d_parentTransform;
 }
 
-// Set the value of one of the node fields.
-void VrmlNodeBillboardSwitch::setField(const char *fieldName,
-                                       const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(axisOfRotation, SFVec3f)
-    else if
-        TRY_FIELD(angle, MFFloat)
-    else if
-        TRY_FIELD(choice, MFNode)
-    else if
-        TRY_FIELD(alternative, MFNode)
-    else
-        VrmlNodeGroup::setField(fieldName, fieldValue);
-}
-
 const VrmlField *VrmlNodeBillboardSwitch::getField(const char *fieldName) const
 {
-    if (strcmp(fieldName, "axisOfRotation") == 0)
-        return &d_axisOfRotation;
-    else if (strcmp(fieldName, "activeChildChanged") == 0)
+
+    if (strcmp(fieldName, "activeChildChanged") == 0)
         return &d_activeChild;
-    else if (strcmp(fieldName, "choice") == 0)
-        return &d_choice;
-    else if (strcmp(fieldName, "alternative") == 0)
-        return &d_alternative;
+
     return VrmlNodeGroup::getField(fieldName);
 }
 
@@ -320,7 +261,7 @@ BillboardSwitchPlugin::~BillboardSwitchPlugin()
 bool
 BillboardSwitchPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeBillboardSwitch::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeBillboardSwitch>());
 
     return true;
 }

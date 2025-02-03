@@ -12,7 +12,7 @@
 
 #include "MEParameterPort.h"
 #include "METimer.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MENode.h"
 #include "modulePanel/MEModuleParameterLine.h"
@@ -124,11 +124,8 @@ void MEParameterPort::setHelpText()
 //!
 void MEParameterPort::setAppearance(int atype)
 {
-
-#ifndef YAC
     atype = qAbs(atype);
     atype = qMax(0, atype);
-#endif
 
     // clear old appearance if exist
 
@@ -150,10 +147,6 @@ void MEParameterPort::setShown(bool flag)
 
     if (moduleLine)
         moduleLine->changeLightPixmap(shown);
-
-#ifdef YAC
-    node->layoutItem();
-#endif
 }
 
 //!
@@ -248,17 +241,6 @@ QColor MEParameterPort::definePortColor()
     QColor col;
     col = Qt::black;
 
-#ifdef YAC
-
-    switch (porttype)
-    {
-    case PIN:
-    case POUT:
-        col = MEMainHandler::s_paramColor;
-        break;
-    }
-#endif
-
     setBrush(col);
     return (col);
 }
@@ -268,12 +250,6 @@ QColor MEParameterPort::definePortColor()
 //!
 void MEParameterPort::sendParamMessage(const QString &value)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-
-#else
-
     MEMainHandler::instance()->mapWasChanged("PARAM");
 
     QStringList buffer;
@@ -285,7 +261,6 @@ void MEParameterPort::sendParamMessage(const QString &value)
 
     buffer.clear();
     sendExecuteMessage();
-#endif
 }
 
 //!
@@ -293,13 +268,6 @@ void MEParameterPort::sendParamMessage(const QString &value)
 //!
 int MEParameterPort::getParamType()
 {
-
-#ifdef YAC
-
-    return partype;
-
-#else
-
     if (parameterType == "IntSlider")
         return T_INTSLIDER;
 
@@ -340,7 +308,6 @@ int MEParameterPort::getParamType()
         return T_COLOR;
 
     return 0;
-#endif
 }
 
 //!
@@ -348,40 +315,7 @@ int MEParameterPort::getParamType()
 //!
 QString MEParameterPort::getParamTypeString()
 {
-
-#ifdef YAC
-    switch (partype)
-    {
-    case T_INTSLIDER:
-        return QString("IntSlider");
-    case T_FLOATSLIDER:
-        return QString("FloatSlider");
-    case T_INT:
-        return QString("Integer");
-    case T_FLOAT:
-        return QString("Scalar");
-    case T_BROWSER:
-        return QString("Browser");
-    case T_FLOATVECTOR:
-        return QString("Vector");
-    case T_INTVECTOR:
-        return QString("Integer Vector");
-    case T_BOOLEAN:
-        return QString("Boolean");
-    case T_CHOICE:
-        return QString("Choice");
-    case T_STRING:
-        return QString("String");
-    case T_TIMER:
-        return QString("Timer");
-    }
-
-    return QString("Unknown");
-
-#else
-
     return parameterType;
-#endif
 }
 
 //!
@@ -389,13 +323,6 @@ QString MEParameterPort::getParamTypeString()
 //!
 void MEParameterPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     Q_UNUSED(value);
 
     // set appearanceType and map mode
@@ -416,19 +343,7 @@ void MEParameterPort::defineParam(QString value, int apptype)
         showControlLine();
 
     hide();
-#endif
 }
-
-#ifdef YAC
-
-//!
-//! set parameter values (YAC)
-//!
-void MEParameterPort::setValues(covise::coRecvBuffer &tb)
-{
-    setValues(tb);
-}
-#endif
 
 //!
 //! set some variables (YAC)
@@ -455,12 +370,6 @@ void MEParameterPort::sendExecuteMessage()
 //!
 void MEParameterPort::sendPanelMessage(const QString &key)
 {
-#ifdef YAC
-
-    Q_UNUSED(key);
-
-#else
-
     QStringList buff;
     buff << key;
     buff << node->getName() << node->getNumber() << node->getHostname();
@@ -484,7 +393,6 @@ void MEParameterPort::sendPanelMessage(const QString &key)
 
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buff.clear();
-#endif
 }
 
 //!
@@ -504,32 +412,6 @@ void MEParameterPort::setFocusCB(bool state)
 //!
 void MEParameterPort::appearanceCB(const QString &tmp)
 {
-
-#ifdef YAC
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-
-    // set new appearance type
-    if (QString::compare(tmp, "Integer") == 0 || QString::compare(tmp, "Float") == 0 || QString::compare(tmp, "String") == 0)
-        sb << A_STRING;
-
-    else if (QString::compare(tmp, "Slider") == 0)
-        sb << A_SLIDER;
-
-    else if (QString::compare(tmp, "Player") == 0)
-        sb << A_STEPPER;
-
-    else if (QString::compare(tmp, "Spinbox") == 0)
-        sb << A_SPINBOX;
-
-    else if (QString::compare(tmp, "Dial") == 0)
-        sb << A_DIAL;
-
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_CHANGE_APPEARANCE, sb);
-    MEMainHandler::instance()->mapWasChanged("cmapCB");
-
-#else
-
     // set new appearance type
     int appearanceType = 0;
     if (tmp == "Integer" || tmp == "Float")
@@ -554,7 +436,6 @@ void MEParameterPort::appearanceCB(const QString &tmp)
         MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
         list.clear();
     }
-#endif
 }
 
 // these are callbacks from player or stepper widgets

@@ -612,7 +612,7 @@ int CoviseBase::open(const char *file, int mode)
     return (-1);
 }
 
-#if !defined(_WIN32) && !defined(__alpha) && !defined(_AIX)
+#if !defined(_WIN32)
 //=====================================================================
 //
 //=====================================================================

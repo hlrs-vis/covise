@@ -94,9 +94,7 @@ void MERenameDialog::accepted()
     }
 
 // send message
-#ifndef YAC
     MEGraphicsView::instance()->renameNodes(newText);
-#endif
 
     hide();
     MEMainHandler::instance()->mapWasChanged("RENAME");

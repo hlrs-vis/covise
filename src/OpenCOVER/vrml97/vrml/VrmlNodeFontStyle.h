@@ -29,20 +29,10 @@ class VRMLEXPORT VrmlNodeFontStyle : public VrmlNode
 
 public:
     // Define the fields of FontStyle nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeFontStyle *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeFontStyle(VrmlScene *);
-    virtual ~VrmlNodeFontStyle();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeFontStyle *toFontStyle() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFString &justify()
     {

@@ -6,9 +6,6 @@
  * License: LGPL 2+ */
 
 #include "coTypes.h"
-#ifdef __alpha
-#include "externc_alpha.h"
-#endif
 
 #include "covise_socket.h"
 //#include <config/CoviseConfig.h>
@@ -23,15 +20,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/time.h>
-#endif
-
-#ifdef CRAY
-#include <sys/iosw.h>
-#include <sys/param.h>
-#endif
-
-#ifdef _WIN32
-#undef CRAY
 #endif
 
 #define DEBUG
@@ -85,25 +73,11 @@ Initial revision
  **                                                                     **
 \***********************************************************************/
 
-#ifdef __hpux
-#define MAX_SOCK_BUF 58254
-#include <netinet/in.h>
-#else
 #define MAX_SOCK_BUF 65536
-#endif
 
 #ifdef PROTOTYPES_FOR_FUNCTIONS_FROM_SYSTEM_HEADERS
-#ifndef CRAY
 extern "C" void herror(const char *string);
-#endif
 
-#if defined(CRAY)
-extern "C" int write(int fildes, const void *buf, unsigned nbyte);
-extern "C" int read(int fildes, void *buf, unsigned nbyte);
-extern "C" void (*signal(int sig, void (*func)(int)))(int);
-extern "C" int recalla(long mask[RECALL_SIZEOF]);
-extern "C" int writea(int fildes, char *buf, unsigned nbyte, struct iosw *status, int signo);
-#endif
 
 #ifndef _WIN32
 extern "C" int shutdown(int s, int how);
@@ -217,13 +191,8 @@ Socket::Socket(Host *h, int p, int retries, double timeout)
         FirewallConfig::the()->sourcePort++;
     }
 
-#if defined CRAY || defined __alpha || defined _AIX
-    //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-    host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
     //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
     host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
     s_addr_in.sin_port = htons(port);
     s_addr_in.sin_family = AF_INET;
@@ -343,13 +312,8 @@ Socket::Socket(Host *h, int p, int retries, double timeout)
 
         setTCPOptions();
 
-#if defined CRAY || defined __alpha || defined _AIX
-        //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-        host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
         //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
         host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
         s_addr_in.sin_port = htons(port);
         s_addr_in.sin_family = AF_INET;
@@ -493,11 +457,6 @@ Socket::Socket(const Socket &s)
 
 int Socket::setTCPOptions()
 {
-#ifdef CRAY
-    char *hostname;
-    int len, winshift;
-#endif
-
     int ret = 0;
     int on = 1;
     if (setsockopt(sock_id, IPPROTO_TCP, TCP_NODELAY,
@@ -519,18 +478,6 @@ int Socket::setTCPOptions()
 #endif
     int sendbuf = MAX_SOCK_BUF;
     int recvbuf = MAX_SOCK_BUF;
-#ifdef CRAY
-    winshift = 4;
-    if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                   &winshift, sizeof(winshift)) < 0)
-    {
-        //print_comment(__LINE__, __FILE__, "setsockopt error IPPROTO_TCP TCP_WINSHIFT");
-        ret |= -1;
-    }
-    sendbuf = 6 * 65536;
-    recvbuf = 6 * 65536;
-//print_comment(__LINE__, __FILE__, "HIPPI interface");
-#endif
     if (setsockopt(sock_id, SOL_SOCKET, SO_SNDBUF,
                    (char *)&sendbuf, sizeof(sendbuf)) < 0)
     {
@@ -762,42 +709,6 @@ int Socket::write(const void *buf, unsigned nbyte)
     return no_of_bytes;
 }
 
-#ifdef CRAY
-struct iosw wrstat;
-
-int Socket::writea(const void *buf, unsigned nbyte)
-{
-    long mask[RECALL_SIZEOF];
-    void wrhdlr(int signo);
-    static int first = 1;
-    int ret;
-
-    if (first)
-    {
-        signal(SIGUSR1, wrhdlr);
-        first = 0;
-    }
-
-    RECALL_SET(mask, sock_id); /* set bit for fd in mask */
-    //    covise_time->mark(__LINE__, "vor Socket::writea");
-    ::writea(sock_id, (char *)buf, nbyte, &wrstat, SIGUSR1);
-    //    covise_time->mark(__LINE__, "nach Socket::writea");
-    ret = recalla(mask);
-    //    covise_time->mark(__LINE__, "nach Socket::recalla");
-    if (ret == 0)
-        return nbyte;
-    else
-        return 0;
-}
-
-void wrhdlr(int signo)
-{
-    signal(signo, wrhdlr);
-    printf("writea wrote %d bytes\n", wrstat.sw_count);
-    wrstat.sw_flag = 0;
-}
-#endif
-
 int Socket::read(void *buf, unsigned nbyte)
 {
     int no_of_bytes;
@@ -825,10 +736,6 @@ int Socket::read(void *buf, unsigned nbyte)
         if ((errno != EAGAIN) && (errno != EINTR))
         {
 //print_comment(__LINE__, __FILE__, "read returns <= 0: close socket. Terminating process");
-#ifdef __hpux
-            if (errno == ENOENT)
-                return 0;
-#endif
 #ifndef _WIN32
             if (errno == EADDRINUSE)
 #else

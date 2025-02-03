@@ -40,12 +40,24 @@
 
 using namespace vrb;
 
+const std::string CoviseDaemonSection = "CoviseDaemon";
+
 MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::MainWindow), cfgTimeout("System.CoviseDaemon.Timeout"), cfgAutostart("System.CoviseDaemon.Autostart"), cfgAutoConnect("System.CoviseDaemon.AutoConnect"), cfgBackground("System.CoviseDaemon.Background"), cfgMinimized("System.CoviseDaemon.Minimized"), cfgArguments("System.CoviseDaemon.Arguments"), cfgOutputMode("System.CoviseDaemon.OutputMode"), cfgOutputModeFile("System.CoviseDaemon.OutputModeFile")
+	: QMainWindow(parent)
+	, ui(new Ui::MainWindow)
+	, m_configFile(m_access.file("coviseDaemon"))
+	, cfgTimeout(m_configFile->value<int64_t>(CoviseDaemonSection, "Timeout", 10))
+	, cfgAutostart(m_configFile->value(CoviseDaemonSection, "Autostart", false))
+	, cfgAutoConnect(m_configFile->value(CoviseDaemonSection, "AutoConnect", false))
+	, cfgBackground(m_configFile->value(CoviseDaemonSection, "Background", false))
+	, cfgMinimized(m_configFile->value(CoviseDaemonSection, "Minimized", false))
+	, cfgArguments(m_configFile->value<std::string>(CoviseDaemonSection, "Arguments", ""))
+	, cfgOutputMode(m_configFile->value<std::string>(CoviseDaemonSection, "OutputMode", "Terminal"))
+	, cfgOutputModeFile(m_configFile->value<std::string>(CoviseDaemonSection, "OutputModeFile", ""))
 {
 	qRegisterMetaType<covise::Program>();
 	qRegisterMetaType<std::vector<std::string>>();
-
+	m_configFile->setSaveOnExit(true);
 	initUi(credentials);
 	initConfigSettings();
 	setRemoteLauncherCallbacks();
@@ -58,13 +70,13 @@ MainWindow::MainWindow(const vrb::VrbCredentials &credentials, QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-	cdConfig->save();
+	m_configFile->save();
 	m_progressBarTimer.stop();
 	m_isConnecting = false;
 	delete ui;
 }
 
-//private slots
+// private slots
 //-----------------------------------------------------------------------
 void MainWindow::on_actionSideMenuAction_triggered()
 {
@@ -76,30 +88,30 @@ void MainWindow::on_actionSideMenuAction_triggered()
 
 void MainWindow::on_timeoutSlider_sliderMoved(int val)
 {
-	cfgTimeout = val;
+	*cfgTimeout = val;
 	Guard g(m_mutex);
 	ui->timeoutLabel->setText(QString("timeout: ") + QString::number(val) + QString("s"));
 }
 
 void MainWindow::on_autostartCheckBox_clicked()
 {
-	cfgAutostart = ui->autostartCheckBox->isChecked();
+	*cfgAutostart = ui->autostartCheckBox->isChecked();
 }
 void MainWindow::on_autoconnectCheckBox_clicked()
 {
-	cfgAutoConnect = ui->autoconnectCheckBox->isChecked();
+	*cfgAutoConnect = ui->autoconnectCheckBox->isChecked();
 }
 void MainWindow::on_backgroundCheckBox_clicked()
 {
-	cfgBackground = ui->backgroundCheckBox->isChecked();
+	*cfgBackground = ui->backgroundCheckBox->isChecked();
 }
 void MainWindow::on_minimizedCheckBox_clicked()
 {
-	cfgMinimized = ui->minimizedCheckBox->isChecked();
+	*cfgMinimized = ui->minimizedCheckBox->isChecked();
 }
 void MainWindow::on_cmdArgsInput_textChanged()
 {
-	cfgArguments = ui->cmdArgsInput->text().toStdString();
+	*cfgArguments = ui->cmdArgsInput->text().toStdString();
 }
 
 void MainWindow::onConnectBtnClicked()
@@ -130,7 +142,7 @@ void MainWindow::updateStatusBar()
 	if (m_isConnecting)
 	{
 		auto newVal = ui->progressBar->value() + 1;
-		if (ui->progressBar->maximum() > 0 && newVal >= ui->progressBar->maximum()) //timeout
+		if (ui->progressBar->maximum() > 0 && newVal >= ui->progressBar->maximum()) // timeout
 		{
 			setStateDisconnected();
 			m_progressBarTimer.stop();
@@ -198,7 +210,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 		event->accept();
 }
 
-//private functions
+// private functions
 //----------------------------------------------------------------------------------
 
 void MainWindow::initUi(const vrb::VrbCredentials &credentials)
@@ -235,46 +247,23 @@ void MainWindow::initOutputModes()
 					ui->outputFile->hide();
 					ui->outputFileLabel->hide();
 				}
-				cfgOutputMode = currentText.toStdString();
-				reconnectOutPut();
-			});
+				*cfgOutputMode = currentText.toStdString();
+				reconnectOutPut(); });
 	connect(ui->outputFile, &QLineEdit::textEdited, this, [this](const QString &s)
-			{ cfgOutputModeFile = s.toStdString(); });
+			{ *cfgOutputModeFile = s.toStdString(); });
 }
 #include <functional>
 void MainWindow::initConfigSettings()
 {
-	cdConfig = new covise::coConfigGroup("CoviseDaemon");
-	cdConfig->addConfig(covise::coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "coviseDaemon.xml", "local", true);
-	covise::coConfig::getInstance()->addConfig(cdConfig);
-
-	cfgTimeout.setAutoUpdate(true);
-	cfgAutostart.setAutoUpdate(true);
-	cfgAutoConnect.setAutoUpdate(true);
-	cfgBackground.setAutoUpdate(true);
-	cfgMinimized.setAutoUpdate(true);
-	cfgArguments.setAutoUpdate(true);
-	cfgOutputMode.setAutoUpdate(true);
-	cfgOutputModeFile.setAutoUpdate(true);
-
-	cfgTimeout.setSaveToGroup(cdConfig);
-	cfgAutostart.setSaveToGroup(cdConfig);
-	cfgAutoConnect.setSaveToGroup(cdConfig);
-	cfgBackground.setSaveToGroup(cdConfig);
-	cfgMinimized.setSaveToGroup(cdConfig);
-	cfgArguments.setSaveToGroup(cdConfig);
-	cfgOutputMode.setSaveToGroup(cdConfig);
-	cfgOutputModeFile.setSaveToGroup(cdConfig);
-
-	ui->timeoutSlider->setValue(cfgTimeout);
-	on_timeoutSlider_sliderMoved(cfgTimeout);
-	ui->autostartCheckBox->setChecked(cfgAutostart);
-	ui->autoconnectCheckBox->setChecked(cfgAutoConnect);
-	ui->backgroundCheckBox->setChecked(cfgBackground);
-	ui->minimizedCheckBox->setChecked(cfgMinimized);
-	ui->cmdArgsInput->setText(std::string(cfgArguments).c_str());
-	ui->OutputModesCB->setCurrentText(std::string(cfgOutputMode).c_str());
-	ui->outputFile->setText(std::string(cfgOutputModeFile).c_str());
+	ui->timeoutSlider->setValue(cfgTimeout->value());
+	on_timeoutSlider_sliderMoved(cfgTimeout->value());
+	ui->autostartCheckBox->setChecked(cfgAutostart->value());
+	ui->autoconnectCheckBox->setChecked(cfgAutoConnect->value());
+	ui->backgroundCheckBox->setChecked(cfgBackground->value());
+	ui->minimizedCheckBox->setChecked(cfgMinimized->value());
+	ui->cmdArgsInput->setText(std::string(cfgArguments->value()).c_str());
+	ui->OutputModesCB->setCurrentText(std::string(cfgOutputMode->value()).c_str());
+	ui->outputFile->setText(std::string(cfgOutputModeFile->value()).c_str());
 }
 
 void MainWindow::setRemoteLauncherCallbacks()
@@ -285,8 +274,7 @@ void MainWindow::setRemoteLauncherCallbacks()
 				m_clientList->clear();
 				setStateDisconnected();
 				if (ui->autoconnectCheckBox->isChecked())
-					onConnectBtnClicked();
-			});
+					onConnectBtnClicked(); });
 	connect(&m_remoteLauncher, &CoviseDaemon::updateClient, this, &MainWindow::updateClient);
 	connect(&m_remoteLauncher, &CoviseDaemon::removeClient, this, &MainWindow::removeClient);
 	reconnectOutPut();
@@ -295,7 +283,8 @@ void MainWindow::setRemoteLauncherCallbacks()
 	connect(&m_remoteLauncher, &CoviseDaemon::askForPermissionAbort, this, &MainWindow::removePermissionRequest);
 }
 
-void MainWindow::reconnectOutPut(){
+void MainWindow::reconnectOutPut()
+{
 
 	static QMetaObject::Connection outPutConn;
 	static QMetaObject::Connection terminateConn;
@@ -304,21 +293,20 @@ void MainWindow::reconnectOutPut(){
 	if (ui->OutputModesCB->currentText() == "Gui")
 	{
 		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
-				{
+							 {
 					auto childOutput = std::find(m_childOutputs.begin(), m_childOutputs.end(), childId);
 					if (childOutput == m_childOutputs.end())
 					{
 						childOutput = m_childOutputs.emplace(m_childOutputs.end(), childId, ui->childTabs);
 					}
-					childOutput->addText(txt);
-				});
+					childOutput->addText(txt); });
 		terminateConn = connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
-				{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
+								{ m_childOutputs.erase(std::remove(m_childOutputs.begin(), m_childOutputs.end(), childId), m_childOutputs.end()); });
 	}
 	else if (ui->OutputModesCB->currentText() == "File")
 	{
 		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
-				{
+							 {
 					auto childOutput = std::find_if(m_childOutputFiles.begin(), m_childOutputFiles.end(), [childId](const std::pair<QString, std::unique_ptr<std::fstream>> &file)
 													{ return file.first == childId; });
 					if (childOutput == m_childOutputFiles.end())
@@ -326,16 +314,16 @@ void MainWindow::reconnectOutPut(){
 						std::string dir = ui->outputFile->text().toStdString() + childId.toStdString() + ".log";
 						childOutput = m_childOutputFiles.emplace(m_childOutputFiles.end(), std::pair<QString, std::unique_ptr<std::fstream>>{childId, std::unique_ptr<std::fstream>(new std::fstream(dir, std::ios_base::out))});
 					}
-					(*childOutput->second) << txt.toStdString();
-				});
+					(*childOutput->second) << txt.toStdString(); });
 		terminateConn = connect(&m_remoteLauncher, &CoviseDaemon::childTerminated, this, [this](const QString &childId)
-				{ m_childOutputFiles.erase(std::remove_if(m_childOutputFiles.begin(), m_childOutputFiles.end(), [childId](const std::pair<QString, std::unique_ptr<std::fstream>> &file)
-													{ return file.first == childId; }), m_childOutputFiles.end()); });
+								{ m_childOutputFiles.erase(std::remove_if(m_childOutputFiles.begin(), m_childOutputFiles.end(), [childId](const std::pair<QString, std::unique_ptr<std::fstream>> &file)
+																		  { return file.first == childId; }),
+														   m_childOutputFiles.end()); });
 	}
 	else if (ui->OutputModesCB->currentText() == "Cmd")
 	{
 		outPutConn = connect(&m_remoteLauncher, &CoviseDaemon::childProgramOutput, this, [this](const QString &childId, const QString &txt)
-				{ std::cerr << txt.toStdString(); });
+							 { std::cerr << txt.toStdString(); });
 	}
 }
 
@@ -346,8 +334,7 @@ void MainWindow::initClientList()
 			{
 				std::cerr << "launching " << covise::programNames[programID] << " on client " << clientID << std::endl;
 
-				m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput());
-			});
+				m_remoteLauncher.sendLaunchRequest(programID, clientID, parseCmdArgsInput()); });
 }
 
 void MainWindow::setHotkeys()
@@ -360,8 +347,7 @@ void MainWindow::setHotkeys()
 				if (!m_isConnecting)
 				{
 					onConnectBtnClicked();
-				}
-			});
+				} });
 	connect(escape, &QShortcut::activated, this, [this]()
 			{
 				if (m_isConnecting)
@@ -371,8 +357,7 @@ void MainWindow::setHotkeys()
 				else
 				{
 					onDisconnectBtnClicked();
-				}
-			});
+				} });
 	connect(sideMenu, &QShortcut::activated, this, [this]()
 			{ on_actionSideMenuAction_triggered(); });
 }
@@ -396,12 +381,12 @@ void MainWindow::setStartupWindowStyle()
 		ui->backgroundCheckBox->setChecked(false);
 		ui->backgroundCheckBox->hide();
 	}
-        if (ui->backgroundCheckBox->isChecked())
-        {
-            if (!m_tray)
-                createTrayIcon();
-            m_tray->show();
-        }
+	if (ui->backgroundCheckBox->isChecked())
+	{
+		if (!m_tray)
+			createTrayIcon();
+		m_tray->show();
+	}
 	if (ui->minimizedCheckBox->isChecked())
 	{
 		if (!ui->backgroundCheckBox->isChecked())
@@ -421,31 +406,31 @@ void MainWindow::setStartupWindowStyle()
 
 void MainWindow::showThis()
 {
-        if (!ui->backgroundCheckBox->isChecked() && m_tray)
-        {
-            m_tray->hide();
-        }
+	if (!ui->backgroundCheckBox->isChecked() && m_tray)
+	{
+		m_tray->hide();
+	}
 	show();
 }
 
 void MainWindow::hideThis()
 {
-    bool created = false;
+	bool created = false;
 	if (!m_tray)
-        {
+	{
 		createTrayIcon();
-                created = true;
-        }
+		created = true;
+	}
 	m_tray->show();
-        if (created)
-            m_tray->showMessage("COVISE Daemon", " running in background");
+	if (created)
+		m_tray->showMessage("COVISE Daemon", " running in background");
 	hide();
 }
 
 void MainWindow::createTrayIcon()
 {
 	m_tray = new QSystemTrayIcon(QIcon(":/images/coviseDaemon.png"), this);
-	//tray->showMessage("coviseDaemon", "blablabla");
+	// tray->showMessage("coviseDaemon", "blablabla");
 	m_tray->setToolTip("COVISE Daemon");
 	auto trayMenu = new QMenu(this);
 	trayMenu->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -466,8 +451,7 @@ void MainWindow::createTrayIcon()
 					break;
 				default:
 					break;
-				}
-			});
+				} });
 }
 
 void MainWindow::showConnectionProgressBar(int seconds)
@@ -509,7 +493,7 @@ std::vector<std::string> MainWindow::parseCmdArgsInput()
 	return covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
 }
 
-//free functions
+// free functions
 
 void setStackedWidget(QStackedWidget *stack, int index)
 {

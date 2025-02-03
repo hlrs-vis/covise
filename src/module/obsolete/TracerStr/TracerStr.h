@@ -30,7 +30,7 @@
 using namespace covise;
 #include <util/coviseCompat.h>
 
-#if defined(__sgi) || defined(__linux__)
+#if defined(__linux__)
 #define _USE_EXCEPTIONS_
 #endif
 

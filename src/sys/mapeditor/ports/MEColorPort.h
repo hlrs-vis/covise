@@ -45,11 +45,6 @@ public:
     void storeParam();
     void colorMapClosed();
 
-#ifdef YAC
-    void addPorts(covise::coRecvBuffer &);
-    void setValues(covise::coRecvBuffer &);
-#endif
-
 public slots:
 
     void showColor(const QColor &);

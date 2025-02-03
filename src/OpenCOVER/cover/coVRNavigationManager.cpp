@@ -411,7 +411,16 @@ void coVRNavigationManager::initMenu()
     m_viewAll->setPriority(ui::Element::Toolbar);
     m_viewAll->setIcon("zoom-fit-best");
 
-
+    m_viewVisible = new ui::Action(navMenu_, "ViewVisible");
+    m_viewVisible->setText("View visible");
+    m_viewVisible->setShortcut("Shift+Alt+V");
+    m_viewVisible->setCallback([this, protectNav](){
+        protectNav([](){
+            VRSceneGraph::instance()->viewAll(false, true);
+        });
+    });
+    m_viewVisible->setPriority(ui::Element::Toolbar);
+    m_viewVisible->setIcon("zoom-to-visible");
 
 
     centerViewButton = new ui::Action(navMenu_, "centerView");
@@ -1190,7 +1199,7 @@ coVRNavigationManager::update()
 			break;
 		}
 	}
-    
+
 
     // was ist wenn mehrere Objekte geladen sind???
 
@@ -2142,7 +2151,7 @@ void coVRNavigationManager::doMouseScale(float newScaleFactor)
 
     VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
     VRSceneGraph::instance()->setScaleFactor(newScaleFactor);
-    coVRCollaboration::instance()->SyncXform();
+    
 }
 
 void coVRNavigationManager::doMouseScale()
@@ -2743,7 +2752,7 @@ void coVRNavigationManager::doWalkMoveToFloor()
 
     // do not sync with remote, they will do the same
     // on their side SyncXform();
-	
+
     // coVRCollaboration::instance()->SyncXform();
 }
 

@@ -23,9 +23,9 @@ void CSVStream::readLine(CSVStream::CSVRow &row)
     std::string value("");
     auto ss = getLine();
     size_t currentColNameIdx = 0;
-    while (std::getline(ss, value, m_delimiter) && currentColNameIdx < m_header.size()) {
-        row[m_header[currentColNameIdx]] = value;
-        ++currentColNameIdx;
+    for  (auto &header : m_header) {
+        std::getline(ss, value, m_delimiter);
+        row[header] = value;
     }
 }
 

@@ -421,6 +421,10 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         {
                             includeNode = loadFile(localPath);
                         }
+                        else if (boost::filesystem::exists(filename)) // could be an absolute filename
+                        {
+                            includeNode = loadFile(filename);
+                        }
                         else if (!node->getAttribute(stringToXexcesc("global").get()) || xercescToStdString(node->getAttribute(stringToXexcesc("global").get())) == "0")
                             includeNode = loadFile(findConfigFile(filename, false));
                         else

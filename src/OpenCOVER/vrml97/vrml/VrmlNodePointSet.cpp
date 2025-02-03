@@ -23,42 +23,21 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodePointSet(s); }
-
-// Define the built in VrmlNodeType:: "PointSet" fields
-
-VrmlNodeType *VrmlNodePointSet::defineType(VrmlNodeType *t)
+void VrmlNodePointSet::initFields(VrmlNodePointSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
+    VrmlNodeGeometry::initFields(node, t); 
+    initFieldsHelper(node, t,
+                        exposedField("color", node->d_color),
+                        exposedField("coord", node->d_coord));
 
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("PointSet", creator);
-    }
-
-    VrmlNodeGeometry::defineType(t); // Parent class
-    t->addExposedField("color", VrmlField::SFNODE);
-    t->addExposedField("coord", VrmlField::SFNODE);
-
-    return t;
 }
 
-VrmlNodeType *VrmlNodePointSet::nodeType() const { return defineType(0); }
+const char *VrmlNodePointSet::typeName() { return "PointSet"; }
+
 
 VrmlNodePointSet::VrmlNodePointSet(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+    : VrmlNodeGeometry(scene, typeName())
 {
-}
-
-VrmlNodePointSet::~VrmlNodePointSet()
-{
-}
-
-VrmlNode *VrmlNodePointSet::cloneMe() const
-{
-    return new VrmlNodePointSet(*this);
 }
 
 void VrmlNodePointSet::cloneChildren(VrmlNamespace *ns)
@@ -111,16 +90,6 @@ void VrmlNodePointSet::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodePointSet::printFields(std::ostream &os, int indent)
-{
-    if (d_color.get())
-        PRINT_FIELD(color);
-    if (d_coord.get())
-        PRINT_FIELD(coord);
-
-    return os;
-}
-
 Viewer::Object VrmlNodePointSet::insertGeometry(Viewer *viewer)
 {
     Viewer::Object obj = 0;
@@ -132,17 +101,17 @@ Viewer::Object VrmlNodePointSet::insertGeometry(Viewer *viewer)
         VrmlNode *colorNode = d_color.get();
         if (colorNode && (strcmp(colorNode->nodeType()->getName(), "ColorRGBA") == 0))
         {
-            VrmlMFColorRGBA &c = d_color.get()->toColorRGBA()->color();
+            VrmlMFColorRGBA &c = d_color.get()->as<VrmlNodeColorRGBA>()->color();
             color = &c[0][0];
             componentsPerColor = 4;
         }
         else if (d_color.get())
         {
-            VrmlMFColor &c = d_color.get()->toColor()->color();
+            VrmlMFColor &c = d_color.get()->as<VrmlNodeColor>()->color();
             color = &c[0][0];
         }
 
-        VrmlMFVec3f &coord = d_coord.get()->toCoordinate()->coordinate();
+        VrmlMFVec3f &coord = d_coord.get()->as<VrmlNodeCoordinate>()->coordinate();
 
         obj = viewer->insertPointSet(coord.size(), &coord[0][0], color,
                                      componentsPerColor);
@@ -154,27 +123,4 @@ Viewer::Object VrmlNodePointSet::insertGeometry(Viewer *viewer)
         d_coord.get()->clearModified();
 
     return obj;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodePointSet::setField(const char *fieldName,
-                                const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD2(color, Color, ColorRGBA)
-    else if
-        TRY_SFNODE_FIELD(coord, Coordinate)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodePointSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "coord") == 0)
-        return &d_coord;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }

@@ -27,10 +27,6 @@
  ** Last:                                                                  **
 \**************************************************************************/
 
-#ifdef _AIX
-#include <strings.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -60,7 +56,7 @@ bool coSignal::s_callSys[NSIG];
 
 // list all signal names here. For signals with multiple names
 // separate with blank
-#if defined(__hpux) || defined(__sun) || defined(_WIN32) || defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(_WIN32) || defined(__APPLE__) || defined(__FreeBSD__)
 #ifndef _WIN32
 #include <sys/signal.h>
 #endif

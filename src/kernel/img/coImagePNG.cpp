@@ -214,14 +214,11 @@ static int pngreadstr(FILE *fp,
     * set up your own error handlers in the png_create_read_struct() earlier.
     */
 
-#ifndef __hpux
-    // HP-UX will crash for failing reads
     if (setjmp(png_jmpbuf(png_ptr)))
     {
         /* If we get here, we had a problem reading the file */
         return 0;
     }
-#endif
 
     /* Set up the input control if you are using standard C streams */
     png_init_io(png_ptr, fp);

@@ -23,9 +23,6 @@
 #else
 #include <unistd.h>
 #endif
-#if defined(__sgi) || defined(__hpux) || defined(_SX)
-#include <fcntl.h>
-#endif
 // inserted to work with linux! awi
 #ifndef _POSIX_SOURCE
 #define _POSIX_SOURCE
@@ -33,12 +30,6 @@
 #include <fcntl.h>
 #undef _POSIX_SOURCE
 #include <sys/types.h>
-#if defined(_AIX)
-#include <sys/select.h>
-#endif
-#ifdef _SX
-#include <sys/select.h>
-#endif
 
 const int EC_SERVER = 0;
 const int EC_CLIENT = 1;

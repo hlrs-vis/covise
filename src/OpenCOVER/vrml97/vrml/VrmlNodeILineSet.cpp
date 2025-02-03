@@ -24,40 +24,17 @@
 
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeILineSet(s); }
-
-// Define the built in VrmlNodeType:: "IndexedLineSet" fields
-
-VrmlNodeType *VrmlNodeILineSet::defineType(VrmlNodeType *t)
+void VrmlNodeILineSet::initFields(VrmlNodeILineSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("IndexedLineSet", creator);
-    }
-
-    VrmlNodeIndexedSet::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeIndexedSet::initFields(node, t); // Parent class
 }
 
-VrmlNodeType *VrmlNodeILineSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeILineSet::typeName() { return "IndexedLineSet"; }
+
 
 VrmlNodeILineSet::VrmlNodeILineSet(VrmlScene *scene)
-    : VrmlNodeIndexedSet(scene)
+    : VrmlNodeIndexedSet(scene, typeName())
 {
-}
-
-VrmlNodeILineSet::~VrmlNodeILineSet()
-{
-}
-
-VrmlNode *VrmlNodeILineSet::cloneMe() const
-{
-    return new VrmlNodeILineSet(*this);
 }
 
 void VrmlNodeILineSet::cloneChildren(VrmlNamespace *ns)
@@ -81,7 +58,7 @@ Viewer::Object VrmlNodeILineSet::insertGeometry(Viewer *viewer)
     Viewer::Object obj = 0;
     if (d_coord.get())
     {
-        VrmlMFVec3f &coord = d_coord.get()->toCoordinate()->coordinate();
+        VrmlMFVec3f &coord = d_coord.get()->as<VrmlNodeCoordinate>()->coordinate();
         int nvert = coord.size();
         int ncoord = nvert;
         float *color = NULL;
@@ -110,14 +87,14 @@ Viewer::Object VrmlNodeILineSet::insertGeometry(Viewer *viewer)
         VrmlNode *colorNode = d_color.get();
         if (colorNode && (strcmp(colorNode->nodeType()->getName(), "ColorRGBA") == 0))
         {
-            VrmlMFColorRGBA &c = d_color.get()->toColorRGBA()->color();
+            VrmlMFColorRGBA &c = d_color.get()->as<VrmlNodeColorRGBA>()->color();
             color = &c[0][0];
             cSize = c.size();
             componentsPerColor = 4;
         }
         else if (d_color.get())
         {
-            VrmlMFColor &c = d_color.get()->toColor()->color();
+            VrmlMFColor &c = d_color.get()->as<VrmlNodeColor>()->color();
             color = &c[0][0];
             cSize = c.size();
         }

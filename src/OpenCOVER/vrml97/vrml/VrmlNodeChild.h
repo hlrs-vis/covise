@@ -25,14 +25,10 @@ class VRMLEXPORT VrmlNodeChild : public VrmlNode
 {
 
 public:
-    // Define the fields of all built in child nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
+    static void initFields(VrmlNodeChild *node, VrmlNodeType *t);
+    VrmlNodeChild(VrmlScene *scene, const std::string& name);
 
-    VrmlNodeChild(VrmlScene *);
-
-    virtual VrmlNodeChild *toChild() const;
-
-protected:
 };
+
 }
 #endif //_VRMLNODECHILD_

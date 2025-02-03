@@ -12,10 +12,6 @@
 #include <appl/ApplInterface.h>
 using namespace covise;
 
-#if defined(__sgi)
-#include <ulocks.h>
-#endif
-
 struct SMPInfo
 {
     TetraNeighbor *classPtr;
@@ -23,10 +19,6 @@ struct SMPInfo
     coDoFloat **setOut;
     int from, to;
     int numNodes;
-
-#if defined(__sgi)
-    barrier_t *b;
-#endif
 };
 
 void SMPTraceNoClass(void *p, size_t qwery = 0);

@@ -22,6 +22,7 @@
  */
 
 #include <util/coTypes.h>
+#include <net/tokenbuffer.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <queue>
@@ -133,19 +134,44 @@ public slots:
     int getID();
 
 public:
-    coTabletUI();
-    coTabletUI(const std::string &host, int port);
+    enum ConnectionMode
+    {
+        None,
+        Config,
+        Client,
+        ConnectedSocket,
+    };
+    struct ConfigData
+    {
+        ConfigData(const std::string &h, int p): mode(Client), host(h), port(p) {}
+        ConfigData(): mode(Config) {}
+        ConfigData(int fd, int fdSg): mode(ConnectedSocket), fd(fd), fdSg(fdSg) {}
+
+        ConnectionMode mode = None;
+        int fd = -1;
+        int fdSg = -1;
+        int port = 0;
+        std::string host;
+    };
+
+    coTabletUI(); // Config: read from config
+    coTabletUI(const std::string &host, int port); // Client: connect as client to host:port
+    coTabletUI(
+        int fd,
+        int fdS); // ConnectedSocket: (connected) file descriptors, e.g. from socketpair(2), also for Scenegraph browser connection
     virtual ~coTabletUI();
     static coTabletUI *instance();
 
     virtual bool update();
     void addElement(coTUIElement *);
     void removeElement(coTUIElement *e);
-    void send(covise::TokenBuffer &tb);
+    bool send(covise::TokenBuffer &tb);
     void tryConnect();
     void close();
     bool debugTUI();
     bool isConnected() const;
+    void init();
+    void reinit(const ConfigData &cd);
 
     void lock()
     {
@@ -158,26 +184,35 @@ public:
     covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
-    covise::Connection *sgConn = nullptr;
+    std::unique_ptr<covise::Connection> sgConn;
 
 protected:
-    void init();
+    ConnectionMode mode = None;
+    ConfigData connectionConfig;
+    void config();
+
     void resendAll();
     std::vector<coTUIElement *> elements;
     std::vector<coTUIElement *> newElements;
     covise::ServerConnection *serverConn = nullptr;
     covise::Host *serverHost = nullptr;
     covise::Host *localHost = nullptr;
-    int port = 31802;
+    int port = 0;
     int ID = 3;
     float timeout = 1.f;
     bool debugTUIState = false;
     double oldTime = 0.0;
     bool firstConnection = true;
 
-    std::unique_ptr<covise::Connection> conn;
+    std::unique_ptr<covise::Connection> conn; // protected by lock/unlock
+    covise::Host *connectingHost = nullptr; // protected by lock/unlock
 #ifndef _M_CEE //no future in Managed OpenCOVER
-    std::future<covise::Host *> connFuture;
+    std::atomic<bool> connecting = false;
+    std::thread connThread;
+    std::mutex sendMutex;
+    std::thread sendThread;
+    std::condition_variable sendCond;
+    std::deque<covise::DataHandle> sendQueue;
 #endif
 };
 
@@ -203,7 +238,7 @@ public:
     virtual void resend(bool create) override;
     virtual void setEventListener(coTUIListener *);
     virtual coTUIListener *getMenuListener() override;
-    void createSimple(int type);
+    bool createSimple(int type);
     coTabletUI *tui() const;
 
 public
@@ -532,6 +567,7 @@ class COVEREXPORT coTUIColorButton : public coTUIElement
 private:
 public:
     coTUIColorButton(const std::string &, int pID = 1);
+    coTUIColorButton(coTabletUI *tui, const std::string &, int pID = 1);
 #ifdef USE_QT
     coTUIColorButton(QObject *parent, const std::string &, int pID = 1);
 #endif
@@ -846,12 +882,10 @@ public:
     float matrix[16];
     bool loadFile;
 
-    coTUISGBrowserTab(const char *, int pID = 1);
     coTUISGBrowserTab(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUISGBrowserTab();
     virtual void resend(bool create) override;
 
-    int openServer();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     virtual void sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren = 0);
     virtual void sendEnd();
@@ -874,7 +908,7 @@ public:
 
     virtual void addNode(const char* nodePath, int nodeType);
     virtual void removeNode(const char* nodePath, const char* parent_nodePath);
-    virtual void moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex);
+    virtual void moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, unsigned int dropIndex);
     virtual void renameNode(const char* nodePath, const char* nodeNewName);
 
     virtual const std::string &getFindName() const
@@ -1017,7 +1051,6 @@ public:
     }
 
     void send(covise::TokenBuffer &tb);
-    void tryConnect();
     void parseTextureMessage();
 
 protected:
@@ -1085,7 +1118,7 @@ class COVEREXPORT coTUINav : public coTUIElement
 {
 private:
 public:
-    coTUINav(const char *, int pID = 1);
+    coTUINav(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUINav();
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     bool down;

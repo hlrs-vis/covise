@@ -30,16 +30,10 @@
 #endif
 
 #include <iostream>
-#ifdef __sgi
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#else
 #include <cstdlib>
 #include <cctype>
 #include <ctime>
 #include <cstdio>
-#endif
 
 #include "main.h"
 #include "fortran.h"
@@ -220,31 +214,16 @@ int strfind_entry(istringstream &sstr, const char *elist[])
 
     sstr >> ws;
 
-#ifdef __sgi // ugly workaround for broken sgi istrstream
-    sstr >> s;
-    int m, n = s.length();
-    for (m = 0; m < n; m++)
-        sstr.putback(s[n - m - 1]);
-
-#else
 	std::streampos ipos;
     ipos = sstr.tellg();
     sstr >> s;
     //sstr.clear();
     sstr.seekg(ipos, ios::beg);
-#endif
     while (elist[i][0] != '\0')
     {
         if (strnicmp(s.c_str(), elist[i], strlen(elist[i])) == 0)
         {
-#ifdef __sgi
-            int m, n = strlen(elist[i]);
-            char c;
-            for (m = 0; m < n; m++)
-                sstr >> c;
-#else
             sstr.seekg(ipos + (std::streampos)strlen(elist[i]));
-#endif
             break;
         }
         i++;

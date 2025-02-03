@@ -18,46 +18,6 @@ using namespace covise;
 
 #define TITLE_MAT 48
 
-#ifdef CO_hp1020
-#define dsyclo_ dsyclo
-#define dsyvar_ dsyvar
-#define dsysta_ dsysta
-#define dsybri_ dsybri
-#define dsytim_ dsytim
-#define dsybea_ dsybea
-#define dsylbr_ dsylbr
-#define dsylbe_ dsylbe
-#define dsyshe_ dsyshe
-#define dsytoo_ dsytoo
-#define dsylsh_ dsylsh
-#define dsylto_ dsylto
-#define dsylno_ dsylno
-#define dsynod_ dsynod
-#define dsywno_ dsywno
-#define dsyopn_ dsyopn
-#define dsytit_ dsytit
-#define dsyhal_ dsyhal
-#define dsyhva_ dsyhva
-#define dsywbr_ dsywbr
-#define dsywsh_ dsywsh
-#define dsywto_ dsywto
-#define dsywbe_ dsywbe
-#define dsyhgl_ dsyhgl
-#define dsynam_ dsynam
-#define dsyhma_ dsyhma
-#define dsyhse_ dsyhse
-#define dsyhct_ dsyhct
-#define dsyhrw_ dsyhrw
-#define dsyhba_ dsyhba
-#define dsyhch_ dsyhch
-#define dsyhwa_ dsyhwa
-#define dsyair_ dsyair
-#define dsyths_ dsyths
-#define dsyalt_ dsyalt
-#define dsysph_ dsysph
-#define dsywsp_ dsywsp
-#endif
-
 extern "C" {
 int dsyclo_();
 int dsyvar_(int *, int *, int *, int *, int *, int *);
@@ -307,12 +267,6 @@ public:
 
     ReadDSY(); //:unit(1),theSame_(0) {
     /*
-      #if defined(__sgi)
-           lrec=1024;
-      #endif
-      #if defined(__hpux) || defined(_AIX)
-           lrec=4096;
-      #endif
             isvel_= isacc_ = isadd_ = isdisp_ = 0;
             int i;
             for(i=0;i<noTypes;++i) node_entity_label_[i] = 0;

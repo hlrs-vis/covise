@@ -24,10 +24,6 @@
 #define socklen_t int
 #endif
 
-#if defined(__sgi) || defined(__hpux)
-#define socklen_t int
-#endif
-
 #endif /* _WIN32 */
 
 #endif

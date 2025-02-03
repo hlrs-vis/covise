@@ -4,14 +4,12 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+#pragma once
 
-#ifndef CO_TOOLBOX_MENU_H
-#define CO_TOOLBOX_MENU_H
-
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coButton.h>
-#include <OpenVRUI/coRowContainer.h>
-#include <OpenVRUI/coUIElement.h>
+#include "coMenu.h"
+#include "coButton.h"
+#include "coRowContainer.h"
+#include "coUIElement.h"
 
 #include <string>
 
@@ -109,4 +107,3 @@ private:
     virtual void menuEvent(coMenuItem *item);
 };
 }
-#endif

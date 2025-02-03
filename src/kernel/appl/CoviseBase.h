@@ -299,7 +299,7 @@ public:
     // define const char * functions as well...
     static FILE *fopen(const char *file, const char *mode, char **returnPath = NULL);
     static int open(const char *file, int mode);
-#if !defined(_WIN32) && !defined(__alpha) && !defined(_AIX)
+#if !defined(_WIN32)
     static DIR *opendir(const char *file);
 #endif
     static void getname(char *buf, const char *file, const char *addpath = NULL);

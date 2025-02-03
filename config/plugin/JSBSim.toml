@@ -1,6 +1,9 @@
 [JSBSim]
 aircrafts = ["paraglider", "J3Cub", "c172p", "Hansajet"]
 
+[Sound]
+server="192.168.0.240"
+
 [J3Cub]
 geometry="share/covise/jsbsim/geometry/A50.wrl"
 y = -1200
@@ -28,7 +31,7 @@ geometry="share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
 systemsDir = "Hansajet/Systems"
 aircraftDir = "aircraft"
 enginesDir = "Hansajet/Engines"
-resetFile = "Reset00.xml"
+resetFile = "reset00.xml"
 x = 0
 y = -6900
 z = -2500

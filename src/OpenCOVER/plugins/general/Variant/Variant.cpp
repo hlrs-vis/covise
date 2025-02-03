@@ -41,7 +41,7 @@ Variant::Variant(VariantPlugin *plugin, std::string var_Name, osg::Node *node, o
 
     origin_matrix = VarNode->getMatrix();
     createVRLabel();
-    ui = new VariantUI(var_Name, Variant_menu, VariantPluginTab);
+    ui = new VariantUI(var_Name, Variant_menu, VariantPluginTab, this);
     ui->setPosTUIItems(numVar);
 
 #ifdef USE_QT

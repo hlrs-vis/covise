@@ -65,7 +65,11 @@ vrml::VrmlNamespace::VrmlNamespace(int parentId)
 VrmlNamespace::~VrmlNamespace()
 {
     // Free nameList
-    for (auto &n: d_nameList)
+    // operate on a copy of the list to prevent iterator invalidation when nodes
+    // remote themselves from the list
+    auto nameList = d_nameList; 
+
+    for (auto &n: nameList)
         n.second->dereference();
 
     // Free typeList
@@ -126,13 +130,12 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 
 #include "VrmlNodeAnchor.h"
 #include "VrmlNodeAppearance.h"
-#include "VrmlNodeWave.h"
-#include "VrmlNodeBooleanSequencer.h"
-#include "VrmlNodeBumpMapping.h"
 #include "VrmlNodeAudioClip.h"
 #include "VrmlNodeBackground.h"
 #include "VrmlNodeBillboard.h"
+#include "VrmlNodeBooleanSequencer.h"
 #include "VrmlNodeBox.h"
+#include "VrmlNodeBumpMapping.h"
 #include "VrmlNodeCollision.h"
 #include "VrmlNodeColor.h"
 #include "VrmlNodeColorInt.h"
@@ -140,6 +143,8 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeCone.h"
 #include "VrmlNodeCoordinate.h"
 #include "VrmlNodeCoordinateInt.h"
+#include "VrmlNodeCOVER.h"
+#include "VrmlNodeCubeTexture.h"
 #include "VrmlNodeCylinder.h"
 #include "VrmlNodeCylinderSensor.h"
 #include "VrmlNodeDirLight.h"
@@ -150,42 +155,37 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeGroup.h"
 #include "VrmlNodeIFaceSet.h"
 #include "VrmlNodeILineSet.h"
+#include "VrmlNodeImageTexture.h"
+#include "VrmlNodeInline.h"
 #include "VrmlNodeIQuadSet.h"
 #include "VrmlNodeITriangleFanSet.h"
 #include "VrmlNodeITriangleSet.h"
 #include "VrmlNodeITriangleStripSet.h"
-#include "VrmlNodeImageTexture.h"
-#include "VrmlNodeCubeTexture.h"
-#include "VrmlNodeInline.h"
 #include "VrmlNodeLOD.h"
 #include "VrmlNodeMaterial.h"
-#include "VrmlNodeMetadataBoolean.h"
-#include "VrmlNodeMetadataDouble.h"
-#include "VrmlNodeMetadataFloat.h"
-#include "VrmlNodeMetadataInteger.h"
+#include "VrmlNodeMetadataNumeric.h"
 #include "VrmlNodeMetadataSet.h"
-#include "VrmlNodeMetadataString.h"
 #include "VrmlNodeMovieTexture.h"
 #include "VrmlNodeMultiTexture.h"
 #include "VrmlNodeMultiTextureCoordinate.h"
 #include "VrmlNodeMultiTextureTransform.h"
 #include "VrmlNodeNavigationInfo.h"
-#include "VrmlNodeCOVER.h"
 #include "VrmlNodeNormal.h"
 #include "VrmlNodeNormalInt.h"
 #include "VrmlNodeOrientationInt.h"
 #include "VrmlNodePixelTexture.h"
 #include "VrmlNodePlaneSensor.h"
-#include "VrmlNodeSpaceSensor.h"
 #include "VrmlNodePointLight.h"
 #include "VrmlNodePointSet.h"
 #include "VrmlNodePositionInt.h"
+#include "VrmlNodeProto.h"
 #include "VrmlNodeProximitySensor.h"
 #include "VrmlNodeQuadSet.h"
 #include "VrmlNodeScalarInt.h"
 #include "VrmlNodeScript.h"
 #include "VrmlNodeShape.h"
 #include "VrmlNodeSound.h"
+#include "VrmlNodeSpaceSensor.h"
 #include "VrmlNodeSphere.h"
 #include "VrmlNodeSphereSensor.h"
 #include "VrmlNodeSpotLight.h"
@@ -202,6 +202,7 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeTriangleStripSet.h"
 #include "VrmlNodeViewpoint.h"
 #include "VrmlNodeVisibilitySensor.h"
+#include "VrmlNodeWave.h"
 #include "VrmlNodeWorldInfo.h"
 
 
@@ -224,85 +225,86 @@ void vrml::VrmlNamespace::resetNamespaces(int parentId)
 
 void VrmlNamespace::defineBuiltIns()
 {
-    addBuiltIn(VrmlNodeAnchor::defineType());
-    addBuiltIn(VrmlNodeAppearance::defineType());
-    addBuiltIn(VrmlNodeAudioClip::defineType());
-    addBuiltIn(VrmlNodeBackground::defineType());
-    addBuiltIn(VrmlNodeBillboard::defineType());
-    addBuiltIn(VrmlNodeBooleanSequencer::defineType());
-    addBuiltIn(VrmlNodeBox::defineType());
-    addBuiltIn(VrmlNodeCollision::defineType());
-    addBuiltIn(VrmlNodeColor::defineType());
-    addBuiltIn(VrmlNodeColorInt::defineType());
-    addBuiltIn(VrmlNodeColorRGBA::defineType());
-    addBuiltIn(VrmlNodeCone::defineType());
-    addBuiltIn(VrmlNodeCoordinate::defineType());
-    addBuiltIn(VrmlNodeCoordinateInt::defineType());
-    addBuiltIn(VrmlNodeCylinder::defineType());
-    addBuiltIn(VrmlNodeCylinderSensor::defineType());
-    addBuiltIn(VrmlNodeDirLight::defineType());
-    addBuiltIn(VrmlNodeElevationGrid::defineType());
-    addBuiltIn(VrmlNodeExtrusion::defineType());
-    addBuiltIn(VrmlNodeFog::defineType());
-    addBuiltIn(VrmlNodeFontStyle::defineType());
-    addBuiltIn(VrmlNodeGroup::defineType());
-    addBuiltIn(VrmlNodeIFaceSet::defineType());
-    addBuiltIn(VrmlNodeILineSet::defineType());
-    addBuiltIn(VrmlNodeIQuadSet::defineType());
-    addBuiltIn(VrmlNodeITriangleFanSet::defineType());
-    addBuiltIn(VrmlNodeITriangleSet::defineType());
-    addBuiltIn(VrmlNodeITriangleStripSet::defineType());
-    addBuiltIn(VrmlNodeImageTexture::defineType());
-    addBuiltIn(VrmlNodeCubeTexture::defineType());
-    addBuiltIn(VrmlNodeInline::defineType());
-    addBuiltIn(VrmlNodeLOD::defineType());
-    addBuiltIn(VrmlNodeMaterial::defineType());
-    addBuiltIn(VrmlNodeMetadataBoolean::defineType());
-    addBuiltIn(VrmlNodeMetadataDouble::defineType());
-    addBuiltIn(VrmlNodeMetadataFloat::defineType());
-    addBuiltIn(VrmlNodeMetadataInteger::defineType());
-    addBuiltIn(VrmlNodeMetadataSet::defineType());
-    addBuiltIn(VrmlNodeMetadataString::defineType());
-    addBuiltIn(VrmlNodeMovieTexture::defineType());
-    addBuiltIn(VrmlNodeMultiTexture::defineType());
-    addBuiltIn(VrmlNodeMultiTextureCoordinate::defineType());
-    addBuiltIn(VrmlNodeMultiTextureTransform::defineType());
-    addBuiltIn(VrmlNodeNavigationInfo::defineType());
-    addBuiltIn(VrmlNodeCOVER::defineType());
-    addBuiltIn(VrmlNodeNormal::defineType());
-    addBuiltIn(VrmlNodeNormalInt::defineType());
-    addBuiltIn(VrmlNodeOrientationInt::defineType());
-    addBuiltIn(VrmlNodePixelTexture::defineType());
-    addBuiltIn(VrmlNodePlaneSensor::defineType());
-    addBuiltIn(VrmlNodeSpaceSensor::defineType());
-    addBuiltIn(VrmlNodePointLight::defineType());
-    addBuiltIn(VrmlNodePointSet::defineType());
-    addBuiltIn(VrmlNodePositionInt::defineType());
-    addBuiltIn(VrmlNodeProximitySensor::defineType());
-    addBuiltIn(VrmlNodeQuadSet::defineType());
-    addBuiltIn(VrmlNodeScalarInt::defineType());
-    addBuiltIn(VrmlNodeScript::defineType());
-    addBuiltIn(VrmlNodeShape::defineType());
-    addBuiltIn(VrmlNodeSound::defineType());
-    addBuiltIn(VrmlNodeSphere::defineType());
-    addBuiltIn(VrmlNodeSphereSensor::defineType());
-    addBuiltIn(VrmlNodeSpotLight::defineType());
-    addBuiltIn(VrmlNodeSwitch::defineType());
-    addBuiltIn(VrmlNodeText::defineType());
-    addBuiltIn(VrmlNodeTextureCoordinate::defineType());
-    addBuiltIn(VrmlNodeTextureCoordinateGenerator::defineType());
-    addBuiltIn(VrmlNodeTextureTransform::defineType());
-    addBuiltIn(VrmlNodeTimeSensor::defineType());
-    addBuiltIn(VrmlNodeTouchSensor::defineType());
-    addBuiltIn(VrmlNodeTransform::defineType());
-    addBuiltIn(VrmlNodeTriangleFanSet::defineType());
-    addBuiltIn(VrmlNodeTriangleSet::defineType());
-    addBuiltIn(VrmlNodeTriangleStripSet::defineType());
-    addBuiltIn(VrmlNodeViewpoint::defineType());
-    addBuiltIn(VrmlNodeVisibilitySensor::defineType());
-    addBuiltIn(VrmlNodeWave::defineType());
-    addBuiltIn(VrmlNodeBumpMapping::defineType());
-    addBuiltIn(VrmlNodeWorldInfo::defineType());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeAnchor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeAppearance>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeAudioClip>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeBackground>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeBillboard>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeBooleanSequencer>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeBox>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeBumpMapping>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCollision>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeColor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeColorInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeColorRGBA>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCone>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCoordinate>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCoordinateInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCOVER>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCubeTexture>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCylinder>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeCylinderSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeDirLight>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeElevationGrid>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeExtrusion>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeFog>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeFontStyle>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeGroup>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeIFaceSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeILineSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeImageTexture>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeInline>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeIQuadSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeITriangleFanSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeITriangleSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeITriangleStripSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeLOD>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMaterial>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataBoolean>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataDouble>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataFloat>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataInteger>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMetadataString>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMovieTexture>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMultiTexture>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMultiTextureCoordinate>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeMultiTextureTransform>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeNavigationInfo>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeNormal>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeNormalInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeOrientationInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodePixelTexture>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodePlaneSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodePointLight>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodePointSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodePositionInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeProto>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeProximitySensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeQuadSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeScalarInt>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeScript>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeShape>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSound>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSpaceSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSphere>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSphereSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSpotLight>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeSwitch>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeText>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTextureCoordinate>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTextureCoordinateGenerator>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTextureTransform>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTimeSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTouchSensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTransform>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTriangleFanSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTriangleSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeTriangleStripSet>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeViewpoint>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeVisibilitySensor>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeWave>());
+    addBuiltIn(VrmlNode::defineType<VrmlNodeWorldInfo>());
 }
 
 // A safer version for reading PROTOs from files.

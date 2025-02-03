@@ -30,10 +30,6 @@ class DomainDecomposition : public coSimpleModule
 	  coIntScalarParam *p_zerbuflen;
       coDoUnstructuredGrid *MemoGrid;
 
-#ifdef YAC
-      virtual void paramChanged(coParam *param);
-#endif
-
    public:
 
       DomainDecomposition(int argc, char *argv[]);

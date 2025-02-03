@@ -24,10 +24,6 @@ using namespace covise;
 #include <iostream>
 #include <vector>
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 class Design : public coModule
 {
 public:

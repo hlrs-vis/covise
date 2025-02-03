@@ -333,7 +333,7 @@ time_t coDirectory::getDate(int i) const
         }
     }
 
-#if defined(_WIN32) || defined(__APPLE__) || defined(__linux__) || defined(__hpux)
+#if defined(_WIN32) || defined(__APPLE__) || defined(__linux__)
     return (e.info_->st_mtime);
 #else
     return (e.info_->st_mtim.tv_sec);
@@ -893,16 +893,6 @@ const char *coDirectoryImpl::getwd()
 {
     static char cwd[path_buffer_size];
 #ifdef _WIN32
-    /* ganz tolle implementierung für getcwd... wer macht denn so nen sch... 
-#ifdef YAC
-   const char *cwd = getenv("YACDIR");
-#else
-   const char *cwd = getenv("COVISEDIR");
-#endif
-   if(cwd)
-   {
-      return cwd;
-   }*/
     if (_getcwd(cwd, path_buffer_size) != NULL)
     {
         return cwd;
@@ -1189,10 +1179,6 @@ int coDirectoryImpl::ifdir(const char *path)
 #endif
 }
 
-#ifdef __sgi
-#include <sys/mman.h>
-#endif
-
 // coFileInfo Stuff
 
 //==========================================================================
@@ -1206,7 +1192,6 @@ coFileInfo::coFileInfo(const char *s, int fd)
     fd_ = fd;
     pos_ = 0;
     limit_ = 0;
-    map_ = NULL;
     buf_ = NULL;
 }
 
@@ -1278,12 +1263,6 @@ void coFile::close()
     coFileInfo *i = rep_;
     if (i->fd_ >= 0)
     {
-        if (i->map_ != NULL)
-        {
-#ifdef __sgi
-            munmap(i->map_, int(i->info_.st_size));
-#endif
-        }
         if (i->buf_ != NULL)
         {
             delete i->buf_;
@@ -1356,31 +1335,8 @@ coInputFile* coInputFile::open(const char* name)
 //==========================================================================
 long coInputFile::read(const char*& start)
 {
-#ifdef __sgi
-   coFileInfo* i = rep();
-   long len = i->info_.st_size;
-   if (i->pos_ >= len)
-   {
-      return 0;
-   }
-   if (i->limit_ != 0 && ((unsigned int)len) > i->limit_)
-   {
-      len = i->limit_;
-   }
-   i->map_ = (char*)mmap(
-         0, (int)len, PROT_READ, MAP_PRIVATE, i->fd_, i->pos_
-         );
-   if (i->map_ == MAP_FAILED)
-   {
-      return -1;
-   }
-   start = i->map_;
-   i->pos_ += len;
-   return len;
-#else
    (void) start;
    return(-1);
-#endif
 }
 #endif
 

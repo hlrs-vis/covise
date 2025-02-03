@@ -5,13 +5,12 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_BUTTON_H
-#define CO_BUTTON_H
+#pragma once
 
-#include <OpenVRUI/coAction.h>
-#include <OpenVRUI/coButtonGeometry.h>
-#include <OpenVRUI/coUIElement.h>
-#include <OpenVRUI/coUpdateManager.h>
+#include "coAction.h"
+#include "coButtonGeometry.h"
+#include "coUIElement.h"
+#include "coUpdateManager.h"
 
 namespace vrui
 {
@@ -138,4 +137,3 @@ protected:
     bool wasReleased;
 };
 }
-#endif

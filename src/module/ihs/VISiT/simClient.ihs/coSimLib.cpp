@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <ctype.h>
 
-#if defined(__linux) || defined(__hpux) || defined(__sun)
+#if defined(__linux)
 #include <string.h>
 #else
 #include <bstring.h>
@@ -487,12 +487,6 @@ int coSimLib::serverMode()
 
 ///// Nameserver request
 
-#ifdef _CRAY
-#define CONV (char *)
-#else
-#define CONV
-#endif
-
 uint32_t coSimLib::nslookup(const char *name)
 {
    // try whether this is already ###.###.###.### IP adress
@@ -506,12 +500,7 @@ uint32_t coSimLib::nslookup(const char *name)
    hostinfo=gethostbyname( CONV name);            /* Hack for Cray */
    if (hostinfo)
    {
-#ifndef _CRAY
       return *(uint32_t *)*hostinfo->h_addr_list;
-#else
-      unsigned char *x = (unsigned char *) *hostinfo->h_addr_list;
-      return  ((*x)<<24) | (*(x+1)<<16) | (*(x+2)<<8) | *(x+3) ;
-#endif
    }
    else
       sendError("Could find IP adress for hostname '%s'",name);

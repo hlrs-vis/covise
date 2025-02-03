@@ -2,15 +2,16 @@
 #include <cassert>
 #include <cover/ui/Action.h>
 #include <cover/coVRPluginSupport.h>
-
 using namespace opencover;
 
 
 
-ToolModel::ToolModel(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
+Tool::Tool(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
 : m_toolHeadNode(toolHeadNode)
 , m_tableNode(tableNode)
 , m_group(group)
+, m_client(opcua::getClient(group->name()))
+, m_mathExpressionObserver(m_client)
 {
     auto clearBtn = new ui::Action(group, "clear");
     clearBtn->setCallback([this](){
@@ -48,7 +49,7 @@ ToolModel::ToolModel(ui::Group *group, config::File &file, osg::MatrixTransform 
     assert(m_client);
 }
 
-osg::Vec3 ToolModel::toolHeadInTableCoords()
+osg::Vec3 Tool::toolHeadInTableCoords()
 {
     osg::Matrix toolHeadToWorld = m_toolHeadNode->getWorldMatrices(cover->getObjectsRoot())[0];
     osg::Matrix tableToWorld = m_tableNode->getWorldMatrices(cover->getObjectsRoot())[0];
@@ -60,17 +61,25 @@ osg::Vec3 ToolModel::toolHeadInTableCoords()
 }
 
 
-void ToolModel::update(const opencover::opcua::MultiDimensionalArray<double> &data)
+void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
 {
     if(!m_tableNode || !m_toolHeadNode)
         return;
-
     updateAttributes();
-
     updateGeo(m_paused, data);
 }
 
-void ToolModel::updateAttributes(){
+void Tool::update()
+{
+    if(!m_tableNode || !m_toolHeadNode)
+        return;
+    updateAttributes();
+    m_mathExpressionObserver.update();
+    if(m_customAttributeHandle)
+        attributeChanged(m_customAttributeHandle->value());
+}
+
+void Tool::updateAttributes(){
     switch (m_client->statusChanged(this))
     {
     case opcua::Client::Connected:
@@ -90,17 +99,17 @@ void ToolModel::updateAttributes(){
     }
 }
 
-void ToolModel::pause(bool state)
+void Tool::pause(bool state)
 {
     m_paused = state;
 }
 
-const std::vector<UpdateValues> &ToolModel::getUpdateValues()
+const std::vector<UpdateValues> &Tool::getUpdateValues()
 {
     return m_updateValues;
 }
 
-SelfDeletingTool::SelfDeletingTool(std::unique_ptr<ToolModel> &&tool)
+SelfDeletingTool::SelfDeletingTool(std::unique_ptr<Tool> &&tool)
 : value(std::move(tool))
 {
     value->m_toolHeadNode->addObserver(this);
@@ -113,86 +122,18 @@ void SelfDeletingTool::objectDeleted(void* v){
     m_this->reset();
 }
 
-void SelfDeletingTool::create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<ToolModel> &&tool)
+void SelfDeletingTool::create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<Tool> &&tool)
 {
     selfDeletingToolPtr.reset(new SelfDeletingTool(std::move(tool)));
     selfDeletingToolPtr->m_this = &selfDeletingToolPtr;
 }
 
-
-bool istReserved(const std::string& symbol)
+void Tool::observeCustomAttributes()
 {
-   return exprtk::details::is_reserved_word(symbol) || exprtk::details::is_reserved_symbol(symbol);
+    m_customAttributeHandle = m_mathExpressionObserver.observe(m_customAttribute->ui()->value());
 }
 
-std::set<std::string> getSymbols(const std::string &expression_string)
-{
-   exprtk::lexer::parser_helper p;
-   p.init(expression_string);
-   std::set<std::string> symbols;
-   while(p.current_token().type != exprtk::lexer::token::token_type::e_eof)
-   {
-      if(p.current_token().type == exprtk::lexer::token::token_type::e_symbol && !istReserved(p.current_token().value))
-      {
-         symbols.insert(p.current_token().value);
-      }
-      p.next_token();
-   }
-   return symbols;
-}
-
-void ToolModel::observeCustomAttributes()
-{
-    auto symbols = getSymbols(m_customAttribute->ui()->text());
-    //check if all custom attributes are available
-    for(const auto &s : symbols)
-    {
-        const auto &items = m_attributeName->ui()->items();
-        if(std::find(items.begin(), items.end(), s) == items.end())
-        {
-            std::cerr << "ToolMachinePlugin: custom attribute " << s << " not available" << std::endl;
-            return;
-        }
-    }
-    //set update functions, only update the expression if the frame is over, triggered by updated values in the next frame
-    m_updateValues.clear();
-    m_symbolTable.clear();
-    for(const auto &s : symbols)
-    {
-        m_symbolTable.add_variable(s, m_customAttributeData[s].value);
-        m_updateValues.push_back({s, [this, s](double value){
-            if(m_frameOver)
-            {
-                attributeChanged(m_expression.value());
-                m_frameOver = false;
-            }
-            m_customAttributeData[s].value = value;
-        }});
-    }
-    m_expression = exprtk::expression<float>();
-    m_expression.register_symbol_table(m_symbolTable);
-    m_parser.compile(m_customAttribute->ui()->text(), m_expression);
-    
-    //unsubscribe attributes that are not needed anymore and ignore attribute that are already observed
-    for(auto it = m_opcuaAttribId.begin(); it != m_opcuaAttribId.end();)
-    {
-        if(symbols.find(it->first) == symbols.end())
-        {
-            it = m_opcuaAttribId.erase(it);
-        } else{
-            symbols.erase(it->first);
-            ++it;
-        }
-    }
-    //observe the rest
-    for(const auto &s : symbols)
-    {
-        m_opcuaAttribId[s] = m_client->observeNode(s);
-    }
-
-}
-
-void ToolModel::attributeChanged()
+void Tool::attributeChanged()
 {
     auto attr = m_attributeName->ui()->selectedItem();
     if(attr == "custom")
@@ -200,19 +141,8 @@ void ToolModel::attributeChanged()
         observeCustomAttributes();
         m_customAttribute->ui()->setVisible(true);
     } else{
-        m_opcuaAttribId.clear();
+        m_customAttributeHandle = m_mathExpressionObserver.observe(attr);
         m_customAttribute->ui()->setVisible(false);
-        m_opcuaAttribId[attr] = m_client->observeNode(attr);
 
-        m_updateValues.clear();
-        m_updateValues.push_back({attr, [this](double value){
-            attributeChanged(value);
-        }});       
     } 
-}
-
-void ToolModel::frameOver()
-{
-    m_frameOver = true;
-    updateAttributes();
 }

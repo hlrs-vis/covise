@@ -484,11 +484,7 @@ void RadialRunner::CreateMenuBladeData(void)
 void RadialRunner::CreateMenuGridData(void)
 {
 	const char *gridtypes[2] = {M_B2B_CLASSIC,M_B2B_MODIFIED};
-#ifndef YAC
 	long int init_val[] = {1,1};
-#else
-	int init_val[] = {1,1};
-#endif
 
 	// Grid will be created, when button is pushed ...
 	p_makeGrid = addBooleanParam("makeGrid","Make_a_grid_now");

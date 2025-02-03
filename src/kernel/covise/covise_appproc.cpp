@@ -16,10 +16,6 @@
 typedef int pid_t;
 #endif
 
-#ifdef _CRAYT3E
-#include <dmgr/dmgr.h>
-#endif
-
 using namespace covise;
 
 ApplicationProcess *ApplicationProcess::approc = NULL;
@@ -64,27 +60,18 @@ void *ApplicationProcess::get_shared_memory_address()
 
 void ApplicationProcess::send_data_msg(Message *msg)
 {
-#ifdef CRAY
-    datamgr->handle_msg(msg);
-#else
     if (!datamanager->sendMessage(msg))
         list_of_connections->remove(datamanager);
-#endif
 }
 
 void ApplicationProcess::recv_data_msg(Message *msg)
 {
-#ifndef CRAY
     datamanager->recv_msg(msg);
     msg->conn = datamanager;
-#endif
 }
 
 void ApplicationProcess::exch_data_msg(Message *msg, const std::vector<int> &messageTypes)
 {
-#ifdef CRAY
-    datamgr->handle_msg(msg);
-#else
     if (!datamanager->sendMessage(msg))
     {
         list_of_connections->remove(datamanager);
@@ -113,8 +100,6 @@ void ApplicationProcess::exch_data_msg(Message *msg, const std::vector<int> &mes
 #endif
         }
     }
-#endif
-
 }
 
 void ApplicationProcess::contact_datamanager(int p)
@@ -142,41 +127,6 @@ int ApplicationProcess::check_msg_queue()
 Message *ApplicationProcess::wait_for_ctl_msg()
 {
     char tmp_str[255];
-#ifdef CRAY
-    Connection *conn;
-    Message *msg = new Message;
-    int is_data_msg = 0;
-    do
-    {
-        conn = list_of_connections->wait_for_input();
-        conn->recv_msg(msg);
-        // this is a special case, if datamanager and applicationmodule
-        // are merged into one executable on a machine w/o shared memory
-        switch (msg->type)
-        {
-        case PREPARE_CONTACT_DM:
-            is_data_msg = datamgr->handle_msg(msg);
-            list_of_connections->add(datamgr->list_of_connections->get_last());
-            break;
-        case DM_CONTACT_DM:
-            is_data_msg = datamgr->handle_msg(msg);
-            list_of_connections->add(datamgr->list_of_connections->get_last());
-            break;
-        case NEW_SDS:
-            break;
-        case SOCKET_CLOSED:
-            list_of_connections->remove(conn);
-        //delete conn;
-        default:
-            is_data_msg = datamgr->handle_msg(msg);
-            break;
-        }
-        if (is_data_msg == 2)
-            if (msg->conn->send_msg(msg) == COVISE_SOCKET_INVALID)
-                list_of_connections->remove(msg->conn);
-    } while (is_data_msg);
-    return (msg);
-#else
     Message *msg;
     int end = 0;
 
@@ -198,48 +148,10 @@ Message *ApplicationProcess::wait_for_ctl_msg()
     }
     print_comment(__LINE__, __FILE__, "return(msg)");
     return (msg);
-#endif
 }
 
 Message *ApplicationProcess::check_for_ctl_msg(float time)
 {
-#ifdef CRAY
-    Connection *conn;
-    Message *msg = new Message;
-    int is_data_msg = 0;
-    conn = list_of_connections->check_for_input(time);
-    if (conn)
-    {
-        conn->recv_msg(msg);
-        // this is a special case, if datamanager and applicationmodule
-        // are merged into one executable on a machine w/o shared memory
-        switch (msg->type)
-        {
-        case PREPARE_CONTACT_DM:
-            is_data_msg = datamgr->handle_msg(msg);
-            list_of_connections->add(datamgr->list_of_connections->get_last());
-            break;
-        case DM_CONTACT_DM:
-            is_data_msg = datamgr->handle_msg(msg);
-            list_of_connections->add(datamgr->list_of_connections->get_last());
-            break;
-        case NEW_SDS:
-            break;
-        case SOCKET_CLOSED:
-            list_of_connections->remove(conn);
-        //delete conn;
-        default:
-            is_data_msg = datamgr->handle_msg(msg);
-            break;
-        }
-        if (is_data_msg == 2)
-            if (msg->conn->send_msg(msg) == COVISE_SOCKET_INVALID)
-                list_of_connections->remove(msg->conn);
-        return (msg);
-    }
-    else
-        return 0L;
-#else
     Message *msg;
 
     // print_comment(__LINE__, __FILE__, "in check_for_ctl_msg");
@@ -265,12 +177,10 @@ Message *ApplicationProcess::check_for_ctl_msg(float time)
         print_comment(__LINE__, __FILE__, "return NULL");
     }
     return msg;
-#endif
 }
 
 void ApplicationProcess::process_msg_from_dmgr(Message *msg)
 {
-#ifndef CRAY
     switch (msg->type)
     {
     case COVISE_MESSAGE_NEW_SDS:
@@ -279,7 +189,6 @@ void ApplicationProcess::process_msg_from_dmgr(Message *msg)
     default:
         break;
     }
-#endif
 }
 
 static ApplicationProcess *appl_process;
@@ -345,7 +254,6 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
         return;
     approc = appl_process = this;
 //part_obj_list = new List<coDistributedObject>;
-#ifndef CRAY
     Message *msg = wait_for_ctl_msg();
     if (msg->type == COVISE_MESSAGE_APP_CONTACT_DM)
     {
@@ -380,11 +288,6 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
         print_exit(__LINE__, __FILE__, 1);
     }
     delete msg;
-#else
-    int key = 1;
-    print_comment(__LINE__, __FILE__, "vor new DataManagerProcess");
-    datamgr = new DataManagerProcess("DataManager", id, &key);
-#endif
 #ifdef COVISE_Signals
     // Initialization of signal handlers
     sig_handler.addSignal(SIGBUS, (void *)appproc_signal_handler, NULL);

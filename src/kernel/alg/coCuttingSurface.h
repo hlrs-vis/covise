@@ -359,11 +359,6 @@ public:
     //virtual bool createPlane();
 };
 }
-#if 0
-#if (!defined(CO_ia64icc) || (__GNUC__ < 4))
-template class ALGEXPORT std::map< covise::border **,int>;
-#endif
-#endif
 
 namespace covise
 {

@@ -27,9 +27,7 @@
 #endif
 #include <sys/types.h>
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 #include "OpenFoam.h"
 
 //// Constructor : set up User Interface//
@@ -57,9 +55,7 @@ OpenFoam::OpenFoam(int argc, char *argv[])
     cerr << "#####   PID =  " << getpid() << endl;
     cerr << "##############################" << endl;
 #endif
-#ifndef YAC
     set_module_description("OpenFoam Simulation");
-#endif
 
     //dir = addStringParam("dir","Directory for run");
     //dir->setValue(coCoviseConfig::getEntry("value","Module.OpenFoam.StartUpScript", "$FOAM_RUN/gate/gate.sh").c_str());
@@ -167,9 +163,7 @@ int OpenFoam::compute(const char *) //port)
         }
     }
 
-#ifndef YAC
     executeCommands();
-#endif
 
     return SUCCESS;
 }
@@ -188,13 +182,6 @@ int OpenFoam::endIteration()
 {
     return 1;
 }
-
-#ifdef YAC
-void OpenFoam::paramChanged(coParam *param)
-{
-    (void)param;
-}
-#endif
 
 void OpenFoam::sendMesh()
 {

@@ -17,11 +17,7 @@ using namespace covise;
 #define RAD(x) (float((x) * M_PI/180.0))
 #define GRAD(x)   (float((x) * 180.0/M_PI))
 
-#ifndef YAC
 class RadialRunner : public coModule
-#else
-class RadialRunner : public coSimpleModule
-#endif
 {
    COMODULE
 
@@ -33,11 +29,7 @@ class RadialRunner : public coSimpleModule
       virtual int   compute(const char *port);
       virtual void  param(const char *, bool inMapLoading);
       virtual void  postInst(void);
-#ifndef YAC
       virtual void  quit();
-#else
-      virtual int  quit();
-#endif
       virtual void  CreateUserMenu();
       virtual void  CreatePlotPortMenu(int);
       virtual void  CreatePortMenu();

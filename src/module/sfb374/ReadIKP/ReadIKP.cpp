@@ -402,17 +402,10 @@ int Application::get_timestep()
             *y = *yn + d_y;
             *z = *zn + d_z;
 
-#ifdef __sgi
-            if (Forces_choice == 1)
-                *dat = fsqrt(powf(xf_x, 2) + powf(xf_y, 2) + powf(xf_z, 2));
-            else
-                *dat = fsqrt(powf(r_x, 2) + powf(r_y, 2) + powf(r_z, 2));
-#else
             if (Forces_choice == 1)
                 *dat = sqrt(powf(xf_x, 2) + powf(xf_y, 2) + powf(xf_z, 2));
             else
                 *dat = sqrt(powf(r_x, 2) + powf(r_y, 2) + powf(r_z, 2));
-#endif
             x++;
             xn++;
             y++;

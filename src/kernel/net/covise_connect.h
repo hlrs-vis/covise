@@ -74,12 +74,14 @@ class SSLSocket;
 class UDPSocket;
 class UdpMessage;
 
-#ifdef CRAY
-#define WRITE_BUFFER_SIZE 393216
-#else
 #define WRITE_BUFFER_SIZE 64000
-#endif
 #define READ_BUFFER_SIZE WRITE_BUFFER_SIZE
+
+enum DataFormat
+{
+    DF_NONE = 0,
+    DF_IEEE = 1
+};
 
 /***********************************************************************\ 
  **                                                                     **
@@ -124,26 +126,29 @@ protected:
     friend class ServerConnection;
     friend class ConnectionList;
     class Socket *sock = nullptr; // Socket for connection
-    int port; // port for connection
+    int port = 0; // port for connection
     int sender_id; // id of the sending process
-    int send_type; // type of module for messages
-    int peer_id_; // id of the peer process
-    int peer_type_; // type of peer
-    mutable int message_to_do; // if more than one message has been read
-    mutable int bytes_to_process;
+    int send_type = Message::UNDEFINED; // type of module for messages
+    int peer_id_ = 0; // id of the peer process
+    int peer_type_ = Message::UNDEFINED; // type of peer
+    mutable int message_to_do = 0; // if more than one message has been read
+    mutable int bytes_to_process = 0;
     unsigned long tru;
     char *read_buf = nullptr;
     Host *other_host = nullptr;
-    int hostid; //hostid of remote host
-    mutable void (*remove_socket)(int);
+    int hostid = -1; //hostid of remote host
+    mutable void (*remove_socket)(int) = nullptr;
     int get_id() const;
-    int *header_int;
+    int *header_int = nullptr;
     bool sendMessage(int senderId, int senderType, const Message *msg) const;
 
 public:
-    char convert_to; // to what format do we need to convert data?
+    char convert_to = DF_NONE; // to what format do we need to convert data?
     Connection();
     Connection(int sfd);
+    Connection(Connection &&c) = delete;
+    Connection(const Connection &c) = delete;
+    Connection &operator=(const Connection &c) = delete;
     virtual ~Connection(); // close connection (for subclasses)
 
     Socket *getSocket() const
@@ -171,23 +176,16 @@ public:
     int get_port() const // give port number
     {
         return port;
-    };
+    }
     void set_hostid(int id);
-    int get_hostid() const
-    {
-        return hostid;
-    };
-    int get_sendertype() const
-    {
-        return (send_type);
-    };
+    int get_hostid() const { return hostid; }
+    void set_sendertype(int type);
+    int get_sendertype() const { return (send_type); }
     int get_id(void (*remove_func)(int)) const; // give socket id
-    int get_sender_id() const
-    {
-        return sender_id;
-    };
+    int get_sender_id() const { return sender_id; }
     void close(); // send close msg for partner and delete socket
     void close_inform(); // close without msg for partner
+    void cancel(); // just close underlying socket, letting further operations fail
     int has_message() const
     {
         //	if(message_to_do)
@@ -195,11 +193,8 @@ public:
         //	else
         //	    LOGINFO( "message_to_do == 0");
         return message_to_do; // message is already read
-    };
-    void print() const
-    {
-        std::cerr << "port: " << port << std::endl;
-    };
+    }
+    void print() const { std::cerr << "port: " << port << std::endl; }
     Host *get_host();
     const Host *get_host() const;
     const char *get_hostname() const;

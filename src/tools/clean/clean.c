@@ -12,10 +12,8 @@
 #include <sys/ipc.h>
 #include <string.h>
 #include <limits.h>
-#ifndef CRAY
 #include <sys/shm.h>
 #include <sys/mman.h>
-#endif
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -30,7 +28,6 @@ int main(int argc, char *argv[])
     FILE *hdl;
     int ihdl;
 
-#ifndef CRAY
     fprintf(stderr, "checking remaining shm segments...\n");
     sprintf(tmp_fname, "/tmp/covise_shm_%d", getuid());
     hdl = fopen(tmp_fname, "r");
@@ -71,8 +68,6 @@ int main(int argc, char *argv[])
     ihdl = open(tmp_fname, O_TRUNC, 0644);
     if (ihdl)
         close(ihdl);
-
-#endif
 
     if (argc == 2 && !strcmp(argv[1], "-f"))
     {

@@ -93,84 +93,84 @@ private:
     osg::ref_ptr<osg::TessellationHints> hint; //? wozu?
 
     // menus
-    vrui::coSubMenuItem *multiBodyMenuButton_; // button in COVER main menu
-    vrui::coRowMenu *multiBodyMenu_; // the multibody menu
+    vrui::coSubMenuItem *multiBodyMenuButton_=nullptr; // button in COVER main menu
+    vrui::coRowMenu *multiBodyMenu_ = nullptr; // the multibody menu
 
-    vrui::coSubMenuItem *anim_shaderadio_Button_;
-    vrui::coRowMenu *anim_shaderadio_Menu_;
-    vrui::coCheckboxMenuItem *anim_shadewire_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeflexwire_Checkbox_;
+    vrui::coSubMenuItem *anim_shaderadio_Button_ = nullptr;
+    vrui::coRowMenu *anim_shaderadio_Menu_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadewire_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflexwire_Checkbox_ = nullptr;
 
-    vrui::coCheckboxGroup *anim_shade_Radio_Group_;
-    vrui::coCheckboxMenuItem *anim_shadeoff_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeunlighted_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeflat_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadegouraud_Checkbox_;
+    vrui::coCheckboxGroup *anim_shade_Radio_Group_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeoff_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeunlighted_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflat_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadegouraud_Checkbox_ = nullptr;
 
-    vrui::coCheckboxGroup *anim_shadeflex_Radio_Group_;
-    vrui::coCheckboxMenuItem *anim_shadeflexoff_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeflexunlighted_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeflexflat_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_shadeflexgouraud_Checkbox_;
+    vrui::coCheckboxGroup *anim_shadeflex_Radio_Group_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflexoff_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflexunlighted_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflexflat_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_shadeflexgouraud_Checkbox_ = nullptr;
 
-    vrui::coButtonMenuItem *anim_interval_Button_;
-    vrui::coButtonMenuItem *anim_calcstride_Button_;
+    vrui::coButtonMenuItem *anim_interval_Button_ = nullptr;
+    vrui::coButtonMenuItem *anim_calcstride_Button_ = nullptr;
 
-    vrui::coButtonMenuItem *anim_savetrafo_Button_;
-    vrui::coCheckboxMenuItem *anim_showcoordsystem_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_showsensors_Checkbox_;
-    vrui::coCheckboxMenuItem *anim_showplotters_Checkbox_;
+    vrui::coButtonMenuItem *anim_savetrafo_Button_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_showcoordsystem_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_showsensors_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_showplotters_Checkbox_ = nullptr;
 
-    vrui::coSubMenuItem *anim_hideradio_Button_;
-    vrui::coRowMenu *anim_hideradio_Menu_;
-    vrui::coCheckboxMenuItem *anim_nohide_Checkbox_;
-    vrui::coCheckboxMenuItem **anim_hide_Checkbox_;
+    vrui::coSubMenuItem *anim_hideradio_Button_ = nullptr;
+    vrui::coRowMenu *anim_hideradio_Menu_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_nohide_Checkbox_ = nullptr;
+    vrui::coCheckboxMenuItem **anim_hide_Checkbox_ = nullptr;
 
-    vrui::coSubMenuItem *anim_fixmotionradio_Button_;
-    vrui::coRowMenu *anim_fixmotionradio_Menu_;
-    vrui::coCheckboxMenuItem *anim_nofixmotion_Checkbox_;
-    vrui::coCheckboxGroup *anim_fixmotion_Radio_Group_;
-    vrui::coCheckboxMenuItem **anim_fixmotion_Checkbox_;
+    vrui::coSubMenuItem *anim_fixmotionradio_Button_ = nullptr;
+    vrui::coRowMenu *anim_fixmotionradio_Menu_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_nofixmotion_Checkbox_ = nullptr;
+    vrui::coCheckboxGroup *anim_fixmotion_Radio_Group_ = nullptr;
+    vrui::coCheckboxMenuItem **anim_fixmotion_Checkbox_ = nullptr;
 
-    vrui::coSubMenuItem *anim_fixtranslationradio_Button_;
-    vrui::coRowMenu *anim_fixtranslationradio_Menu_;
-    vrui::coCheckboxMenuItem *anim_nofixtranslation_Checkbox_;
-    vrui::coCheckboxGroup *anim_fixtranslation_Radio_Group_;
-    vrui::coCheckboxMenuItem **anim_fixtranslation_Checkbox_;
+    vrui::coSubMenuItem *anim_fixtranslationradio_Button_ = nullptr;
+    vrui::coRowMenu *anim_fixtranslationradio_Menu_ = nullptr;
+    vrui::coCheckboxMenuItem *anim_nofixtranslation_Checkbox_ = nullptr;
+    vrui::coCheckboxGroup *anim_fixtranslation_Radio_Group_ = nullptr;
+    vrui::coCheckboxMenuItem **anim_fixtranslation_Checkbox_ = nullptr;
 
     //tabletUI
-    coTUITab *vranimTab;
-    coTUILabel *infoLabel;
-    coTUIFrame *leftFrame;
-    coTUIFrame *rightFrame;
+    coTUITab *vranimTab = nullptr;
+    coTUILabel *infoLabel = nullptr;
+    coTUIFrame *leftFrame = nullptr;
+    coTUIFrame *rightFrame = nullptr;
 
-    coTUIFrame *bodiesFrame;
-    coTUILabel *hideLabel;
-    coTUILabel *fixMotionLabel;
-    coTUILabel *fixTranslationLabel;
-    coTUILabel *noBodyLabel;
-    coTUIToggleButton *doNotHideButton;
-    coTUIToggleButton *doNotFixRadioButton;
-    coTUILabel **bodyLabel;
-    coTUIToggleButton **hideBodyButton;
-    coTUIToggleButton **fixMotionButton;
-    coTUIToggleButton **fixTranslationButton;
+    coTUIFrame *bodiesFrame = nullptr;
+    coTUILabel *hideLabel = nullptr;
+    coTUILabel *fixMotionLabel = nullptr;
+    coTUILabel *fixTranslationLabel = nullptr;
+    coTUILabel *noBodyLabel = nullptr;
+    coTUIToggleButton *doNotHideButton = nullptr;
+    coTUIToggleButton *doNotFixRadioButton = nullptr;
+    coTUILabel **bodyLabel = nullptr;
+    coTUIToggleButton **hideBodyButton = nullptr;
+    coTUIToggleButton **fixMotionButton = nullptr;
+    coTUIToggleButton **fixTranslationButton = nullptr;
 
-    coTUIFrame *showFrame;
-    coTUILabel *showLabel;
-    coTUIToggleButton *showSensorsButton;
-    coTUIToggleButton *showPlottersButton;
-    coTUIToggleButton *showCoordSystemsButton;
+    coTUIFrame *showFrame = nullptr;
+    coTUILabel *showLabel = nullptr;
+    coTUIToggleButton *showSensorsButton = nullptr;
+    coTUIToggleButton *showPlottersButton = nullptr;
+    coTUIToggleButton *showCoordSystemsButton = nullptr;
 
-    coTUIFrame *shadingFrame;
-    coTUILabel *shadingLabel;
-    coTUIComboBox *rigidComboBox;
-    coTUIToggleButton *rigidBodiesAsWireButton;
-    coTUIComboBox *flexComboBox;
-    coTUIToggleButton *flexBodiesAsWireButton;
+    coTUIFrame *shadingFrame = nullptr;
+    coTUILabel *shadingLabel = nullptr;
+    coTUIComboBox *rigidComboBox = nullptr;
+    coTUIToggleButton *rigidBodiesAsWireButton = nullptr;
+    coTUIComboBox *flexComboBox = nullptr;
+    coTUIToggleButton *flexBodiesAsWireButton = nullptr;
 
-    coTUIFrame *trafoFrame;
-    coTUIButton *saveTrafoButton;
+    coTUIFrame *trafoFrame = nullptr;
+    coTUIButton *saveTrafoButton = nullptr;
 
     // misc
     osg::Geode *createBodyGeometry(int bodyId, int what);
@@ -179,7 +179,7 @@ private:
     osg::Geode *createBallGeometry(int ballId);
     osg::Geode *createlinstdGeometry(int linElId);
 
-    coSphere *sphere;
+    coSphere *sphere = nullptr;
 
     bool update(void);
     void updateRigidTransform(void);
@@ -198,8 +198,8 @@ private:
     void doNotFix(void);
 
 public:
-    coPopupHandle **plotHandle;
-    coPlotItem **plotItem;
+    coPopupHandle **plotHandle = nullptr;
+    coPlotItem **plotItem = nullptr;
 
     static MultiBodyPlugin *plugin_;
     static int debugLevel_;
@@ -257,8 +257,8 @@ public:
     osg::ref_ptr<osg::StateSet> unlightedStateSet;
     osg::ref_ptr<osg::StateSet> flatStateSet;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
-    osg::Vec3Array **global_vert;
-    osg::Vec4Array *colArr;
+    osg::Vec3Array **global_vert = nullptr;
+    osg::Vec4Array *colArr = nullptr;
 
     void reset_timestep(void);
     void ballcolor(float *color, float fcolor);

@@ -241,7 +241,7 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     TermPar.c_iflag = 0;
     TermPar.c_iflag &= ~IXOFF;
 
-#if defined(__linux__) || defined(__hpux)
+#if defined(__linux__)
     TermPar.c_line = 0;
 #elif defined(__FreeBSD__)
 #else

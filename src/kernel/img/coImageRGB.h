@@ -40,7 +40,7 @@ typedef struct
 extern IMAGE *iopen(const char *, const char *);
 extern void getrow(IMAGE *, short *, int, int);
 extern void iclose(IMAGE *);
-#if !defined(__hpux) && !defined(__linux__)
+#if !defined(__linux__)
 extern void i_seterror(void (*func)(char *));
 #endif
 };

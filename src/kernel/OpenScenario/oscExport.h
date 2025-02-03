@@ -8,7 +8,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #ifndef OSC_EXPORT_H
 #define OSC_EXPORT_H
 
-#if defined(__APPLE__) || defined(CO_rhel3) || (defined(CO_ia64icc) && (__GNUC__ >= 4))
+#if defined(__APPLE__)
 #define EXPORT_TEMPLATE(x)
 #define EXPORT_TEMPLATE2(x, y)
 #define EXPORT_TEMPLATE3(x, y, z)
@@ -28,7 +28,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #define COIMPORT __declspec(dllimport)
 #define COEXPORT __declspec(dllexport)
 
-#elif(defined(__GNUC__) && __GNUC__ >= 4 && !defined(CO_ia64icc)) || defined(__clang__)
+#elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
 #define COEXPORT __attribute__((visibility("default")))
 #define COIMPORT COEXPORT
 

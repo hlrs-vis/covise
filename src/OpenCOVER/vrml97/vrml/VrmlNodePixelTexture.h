@@ -29,28 +29,18 @@ class VRMLEXPORT VrmlNodePixelTexture : public VrmlNodeTexture
 
 public:
     // Define the fields of PixelTexture nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodePixelTexture *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodePixelTexture(VrmlScene *);
-    virtual ~VrmlNodePixelTexture();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual int nComponents();
     virtual int width();
     virtual int height();
     virtual int nFrames();
     virtual unsigned char *pixels();
-
-    virtual VrmlNodePixelTexture *toPixelTexture() const;
 
     virtual bool getRepeatS()
     {

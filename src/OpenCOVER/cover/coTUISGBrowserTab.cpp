@@ -33,7 +33,7 @@ public:
         this->tab = tab;
         running = true;
         textureListCount = 0;
-        sendedTextures = 0;
+        sentTextures = 0;
     }
     virtual void run();
     void setType(int type)
@@ -64,50 +64,14 @@ public:
 
 private:
     coTUISGBrowserTab *tab;
-    int type;
-    int textureListCount;
-    int sendedTextures;
-    bool running;
-    bool finishedTraversing;
-    bool finishedNode;
-    bool noTextures;
+    int type=0;
+    int textureListCount=0;
+    int sentTextures=0;
+    bool running=false;
+    bool finishedTraversing=false;
+    bool finishedNode=false;
+    bool noTextures=true;
 };
-
-//----------------------------------------------------------
-
-coTUISGBrowserTab::coTUISGBrowserTab(const char *n, int pID)
-    : coTUIElement(n, pID, TABLET_BROWSER_TAB)
-{
-    thread = NULL;
-
-    std::cerr << "new coTUISGBrowserTab: ";
-
-    if (getConnection())
-    {
-        std::cerr << "with connection" << std::endl;
-    }
-    else
-    {
-        std::cerr << "NO connection" << std::endl;
-    }
-
-    currentNode = 0;
-    changedNode = 0;
-    texturesToChange = 0;
-
-    texturePort = 0;
-    // next port is for Texture communication
-
-    currentPath = "";
-    loadFile = false; //gottlieb
-
-    thread = new SGTextureThread(this);
-    thread->setType(THREAD_NOTHING_TO_DO);
-    thread->traversingFinished(false);
-    thread->nodeFinished(false);
-    thread->noTexturesFound(false);
-    thread->start();
-}
 
 coTUISGBrowserTab::coTUISGBrowserTab(coTabletUI *tui, const char *n, int pID)
     : coTUIElement(tui, n, pID, TABLET_BROWSER_TAB)
@@ -128,52 +92,6 @@ coTUISGBrowserTab::coTUISGBrowserTab(coTabletUI *tui, const char *n, int pID)
     thread->nodeFinished(false);
     thread->noTexturesFound(false);
     thread->start();
-}
-
-int coTUISGBrowserTab::openServer()
-{
-    delete sConn;
-    sConn = nullptr;
-
-    sConn = new ServerConnection(&texturePort, 0, (covise::sender_type)0);
-    sConn->listen();
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX_PORT;
-    tb << ID;
-    tb << texturePort;
-
-    tui()->send(tb);
-
-    if (sConn->acceptOne(60) < 0)
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-    if (!sConn->getSocket())
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    if (!sConn->is_connected()) // could not open server port
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-
-    return 0;
 }
 
 coTUISGBrowserTab::~coTUISGBrowserTab()
@@ -248,7 +166,7 @@ char *coTUISGBrowserTab::getData()
 Connection *coTUISGBrowserTab::getConnection()
 {
     if (tui()->connectedHost)
-        return tui()->sgConn;
+        return tui()->sgConn.get();
 
     return nullptr;
 }
@@ -294,33 +212,6 @@ void coTUISGBrowserTab::send(TokenBuffer &tb)
     Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
     getConnection()->sendMessage(&m);
-}
-
-void coTUISGBrowserTab::tryConnect()
-{
-    std::cerr << "coTUISGBrowserTab::TRYCONNECT" << std::endl;
-    ClientConnection *cConn = NULL;
-    if (tui()->connectedHost)
-    {
-        std::cerr << "coTUISGBrowserTab::tryConnect to " << tui()->connectedHost->getName() << ":" << texturePort << std::endl;
-        //timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
-
-        cConn = new ClientConnection(tui()->connectedHost, texturePort, 0, (covise::sender_type)0, 10, 2.0);
-        if (!cConn->is_connected()) // could not open server port
-        {
-#ifndef _WIN32
-            if (errno != ECONNREFUSED)
-            {
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        tui()->connectedHost->getName(), texturePort, strerror(errno));
-            }
-#else
-            fprintf(stderr, "Could not connect to TextureThread %s; port %d\n", tui()->connectedHost->getName(), texturePort);
-#endif
-            delete cConn;
-            cConn = NULL;
-        }
-    }
 }
 
 void coTUISGBrowserTab::parseTextureMessage(TokenBuffer &tb)
@@ -771,7 +662,7 @@ osg::Node* coTUISGBrowserTab::getNode(std::string path)
         {
             path_index = std::stoi(path_str_vector[i]);
         }
-        catch(const std::exception& e)
+        catch(const std::exception& /*e*/)
         {
             // std::cerr << e.what() << '\n';
 
@@ -849,7 +740,7 @@ void coTUISGBrowserTab::removeNode(const char* nodePath, const char* parent_node
     */
 }
 
-void coTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, int dropIndex)
+void coTUISGBrowserTab::moveNode(const char* nodePath, const char* oldParent_nodePath, const char* newParent_nodePath, unsigned int dropIndex)
 {
     std::string oldPath_str = std::string(nodePath);
     std::string oldParent_str = std::string(oldParent_nodePath);
@@ -903,11 +794,6 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
         case TABLET_INIT_SECOND_CONNECTION:
         {
             std::cerr << "coTUISGBrowserTab: recreating 2nd connection" << std::endl;
-
-            if (tui()->serverMode)
-            {
-                openServer();
-            }
 
             if (thread)
             {
@@ -1144,9 +1030,9 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             tb >> newName;
 
             coTUISGBrowserTab::renameNode(path, newName);
+            break;
         }
 
-        // break;
         case TABLET_TEX_UPDATE:
         {
             thread->setType(TABLET_TEX_UPDATE);
@@ -1160,14 +1046,7 @@ void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
             
             break;
         }
-    
-        case TABLET_TEX_PORT:
-        {
-            tb >> texturePort;
-            tryConnect();
-            break;
-        }
-    
+
         case TABLET_TEX_CHANGE:
         {
             //cout << " currentNode : " << currentNode << "\n";
@@ -1266,26 +1145,26 @@ void SGTextureThread::run()
         if (!tab->queueIsEmpty())
         {
             tab->sendTexture();
-            sendedTextures++;
+            sentTextures++;
 
             //cout << " sended textures : " << sendedTextures << "\n";
-            if (finishedTraversing && textureListCount == sendedTextures)
+            if (finishedTraversing && textureListCount == sentTextures)
             {
                 //cout << " finished sending with: " << textureListCount << "  textures \n";
                 tab->sendTraversedTextures();
                 //type = THREAD_NOTHING_TO_DO;
                 finishedTraversing = false;
                 textureListCount = 0;
-                sendedTextures = 0;
+                sentTextures = 0;
             }
-            if (finishedNode && textureListCount == sendedTextures)
+            if (finishedNode && textureListCount == sentTextures)
             {
                 //cout << " finished sending with: " << textureListCount << "  textures \n";
                 tab->sendNodeTextures();
 
                 finishedNode = false;
                 textureListCount = 0;
-                sendedTextures = 0;
+                sentTextures = 0;
             }
 
             work = true;

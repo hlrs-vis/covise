@@ -160,14 +160,6 @@ ReadFamu::~ReadFamu()
  */
 int main(int argc, char *argv[])
 {
-#ifdef YAC
-    coDispatcher *dispatcher = coDispatcher::Instance();
-    ReadFamu *application = new ReadFamu(argc, argv);
-    dispatcher->add(application);
-    while (dispatcher->dispatch(1000))
-        ;
-    coDispatcher::deleteDispatcher();
-#else
     // create the module according to name in Compatibility modes
     ReadFamu *application = NULL;
 
@@ -178,7 +170,6 @@ int main(int argc, char *argv[])
     {
         application->start(argc, argv);
     }
-#endif
 
     return 0;
 }

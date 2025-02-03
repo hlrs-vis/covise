@@ -13,8 +13,8 @@
 #include "MEFileBrowserPort.h"
 #include "MELineEdit.h"
 #include "MEExtendedPart.h"
-#include "MEFileBrowser.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEFileBrowser.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "nodes/MENode.h"
 #include "controlPanel/MEControlParameter.h"
@@ -76,10 +76,6 @@ MEFileBrowserPort::~MEFileBrowserPort()
 //------------------------------------------------------------------------
 void MEFileBrowserPort::restoreParam()
 {
-#ifdef YAC
-    browser->setFullFilename(filenameold);
-    sendParamMessage();
-#endif
 }
 
 int MEFileBrowserPort::getCurrentFilterNum()
@@ -112,37 +108,6 @@ QStringList &MEFileBrowserPort::getBrowserFilter()
     return browser->getFilterList();
 }
 
-#ifdef YAC
-void MEFileBrowserPort::setPath(const QString &name)
-{
-    browser->setPath(name, false);
-}
-
-void MEFileBrowserPort::setPathname(const QString &name)
-{
-    browser->setPathname(name, false);
-}
-
-void MEFileBrowserPort::setFilename(const QString &name)
-{
-    browserFile = name;
-}
-
-QString MEFileBrowserPort::getPathname()
-{
-    return browser->getPathname();
-}
-
-QString MEFileBrowserPort::getFullFilename()
-{
-    return browser->getPathname();
-}
-
-QString MEFileBrowserPort::getPath()
-{
-    return browser->getPath();
-}
-#else
 QString MEFileBrowserPort::getFullFilename()
 {
     return browser->getPath();
@@ -157,7 +122,6 @@ QString MEFileBrowserPort::getPathname()
 {
     return browser->getPathname();
 }
-#endif
 
 //------------------------------------------------------------------------
 //save current value for further use
@@ -179,24 +143,7 @@ void MEFileBrowserPort::moduleParameterRequest()
 void MEFileBrowserPort::separatePath(QString all)
 //------------------------------------------------------------------------
 {
-#ifdef YAC
-    int i;
-    i = all.length();
-    browserPath = "";
-    browserFile = all;
-    while (i >= 0)
-    {
-        if (all[i] == '\\' || all[i] == '/')
-        {
-            browserPath = all.left(i);
-            browserFile = all.mid(i + 1);
-            break;
-        }
-        i--;
-    }
-#else
     Q_UNUSED(all);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -204,18 +151,10 @@ void MEFileBrowserPort::separatePath(QString all)
 //------------------------------------------------------------------------
 void MEFileBrowserPort::setFilter(QString value)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-
-#else
-
     // set filter if parameter is given
     QStringList filterList;
     filterList = value.split("/", SplitBehaviorFlags::SkipEmptyParts);
     browser->setFilterList(filterList);
-
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -223,13 +162,6 @@ void MEFileBrowserPort::setFilter(QString value)
 //------------------------------------------------------------------------
 void MEFileBrowserPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     browser = new MEFileBrowser(0, this);
 
     // check filename
@@ -239,7 +171,6 @@ void MEFileBrowserPort::defineParam(QString value, int apptype)
     fileOpen = false;
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -247,14 +178,6 @@ void MEFileBrowserPort::defineParam(QString value, int apptype)
 //------------------------------------------------------------------------
 void MEFileBrowserPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     // BROWSER
@@ -266,7 +189,6 @@ void MEFileBrowserPort::modifyParam(QStringList list, int noOfValues, int istart
 
     if (editLine[CONTROL])
         editLine[CONTROL]->setText(getFullFilename());
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -274,12 +196,6 @@ void MEFileBrowserPort::modifyParam(QStringList list, int noOfValues, int istart
 //------------------------------------------------------------------------
 void MEFileBrowserPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     browser->setFullFilename(lvalue);
 
     // modify module line content
@@ -288,7 +204,6 @@ void MEFileBrowserPort::modifyParameter(QString lvalue)
 
     if (editLine[CONTROL])
         editLine[CONTROL]->setText(getFullFilename());
-#endif
 }
 
 void MEFileBrowserPort::sendParamMessage()
@@ -493,17 +408,6 @@ void MEFileBrowserPort::applyCB(const QString &text)
 {
     QString tmp;
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << node->getHostID();
-    sb << text;
-    sb << getCurrentFilter();
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     browser->lookupFile("", text, MEFileBrowser::FB_APPLY2);
     if (editLine[MODULE])
     {
@@ -516,7 +420,6 @@ void MEFileBrowserPort::applyCB(const QString &text)
         if (text != editLine[CONTROL]->text())
             sendParamMessage();
     }
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -577,42 +480,3 @@ void MEFileBrowserPort::removeFromControlPanel()
         controlLine = NULL;
     }
 }
-
-#ifdef YAC
-
-//------------------------------------------------------------------------
-void MEFileBrowserPort::setValues(covise::coRecvBuffer &tb)
-//------------------------------------------------------------------------
-{
-    if (!browser)
-        browser = new MEFileBrowser(0, this);
-
-    browser->setCurrentFilter(0);
-
-    int hostid;
-    tb >> hostid;
-
-#ifdef YAC
-// Ruth, das fehlt noch, das sollte man bestimmt noch implementieren, kannst Du mal danach schauen? Gruss Uwe   browser->setHost(hostid);
-#endif
-
-    const char *name, *filter;
-    tb >> name;
-    browser->setPathname(name, true);
-
-    tb >> filter;
-    QString tmp = filter;
-    browserFilter = tmp.split(" ", SplitBehaviorFlags::SkipEmptyParts);
-    currentFilter = 0;
-    browser->setFilterList(browserFilter);
-
-    fileOpen = false;
-
-    // modify module line content
-    if (editLine[MODULE])
-        editLine[MODULE]->setText(getFullFilename());
-
-    if (editLine[CONTROL])
-        editLine[CONTROL]->setText(getFullFilename());
-}
-#endif

@@ -30,10 +30,9 @@ class VRMLEXPORT VrmlNodeColoredSet : public VrmlNodeGeometry
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
+    static void initFields(VrmlNodeColoredSet *node, VrmlNodeType *t);
 
-    VrmlNodeColoredSet(VrmlScene *);
-    virtual ~VrmlNodeColoredSet();
+    VrmlNodeColoredSet(VrmlScene *, const std::string &name);
 
     virtual bool isModified() const;
 
@@ -42,11 +41,6 @@ public:
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
     virtual void copyRoutes(VrmlNamespace *ns);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual VrmlNodeColor *color();
 

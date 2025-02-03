@@ -18,7 +18,7 @@
 #include "MEColorMapPort.h"
 #include "MELineEdit.h"
 #include "MEExtendedPart.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "color/MEColorMap.h"
 #include "widgets/MEUserInterface.h"
@@ -76,8 +76,6 @@ MEColorMapPort::MEColorMapPort(MENode *node, QGraphicsScene *scene,
 //!-------------------------------------------------------------------------
 MEColorMapPort::~MEColorMapPort()
 {
-
-#ifndef YAC
     if (m_dialog)
     {
         delete m_dialog;
@@ -89,7 +87,6 @@ MEColorMapPort::~MEColorMapPort()
         delete[] cmapRGBAX;
         cmapRGBAX = NULL;
     }
-#endif
 }
 
 void MEColorMapPort::restoreParam() {}
@@ -108,14 +105,6 @@ void MEColorMapPort::moduleParameterRequest()
 //!-------------------------------------------------------------------------
 void MEColorMapPort::defineParam(QString value, int apptype)
 {
-
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     // create a new colormap
     m_colorMap = new MEColorMap(this, 0);
 
@@ -146,7 +135,6 @@ void MEColorMapPort::defineParam(QString value, int apptype)
     m_fileOpen = false;
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //!-------------------------------------------------------------------------
@@ -154,14 +142,6 @@ void MEColorMapPort::defineParam(QString value, int apptype)
 //!-------------------------------------------------------------------------
 void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     // COLORMAP (0 = min, 1 = max, 2 = type, 3 = numSteps,
     //     4 = R G B A X  R G B A X  ...)
 
@@ -221,7 +201,6 @@ void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //!-------------------------------------------------------------------------
@@ -229,12 +208,6 @@ void MEColorMapPort::modifyParam(QStringList list, int noOfValues, int istart)
 //!-------------------------------------------------------------------------
 void MEColorMapPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     // COLORMAP (0 = min, 1 = max, 2 = type, 3 = numSteps,
     //     4 = R G B A X  R G B A X  ....
     // HISTO  np values
@@ -303,7 +276,6 @@ void MEColorMapPort::modifyParameter(QString lvalue)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 void MEColorMapPort::sendParamMessage()
@@ -596,9 +568,3 @@ void MEColorMapPort::removeFromControlPanel()
         controlLine = NULL;
     }
 }
-
-#ifdef YAC
-void MEColorMapPort::setValues(covise::coRecvBuffer &)
-{
-}
-#endif

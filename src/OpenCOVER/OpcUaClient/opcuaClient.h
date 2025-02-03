@@ -31,38 +31,39 @@ class UA_Client;
 namespace opencover{
 namespace opcua
 {
-extern const char *NoNodeName;
+extern OPCUACLIENTEXPORT const char *NoNodeName;
 
+struct OPCUACLIENTEXPORT ClientNode{
+    std::string name;
+    UA_NodeId id;
+    int type;
+    std::vector<size_t> dimensions = std::vector<size_t>{1};
+    std::map<size_t, Client**> subscribers;
+    size_t numUpdatesPerFrame = 0;
+    std::deque<UA_Variant_ptr> values;
+    UA_Variant_ptr lastValue;
+    std::set<size_t> updatedSubscribers;
+    bool operator==(const ClientNode &other) const{return other.name == name;}
+    bool operator==(const std::string &name) const{return name == this->name;}
+    bool isScalar() const{return (dimensions.size() == 1 && dimensions[0] == 1);}
+    size_t numEntries(){return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<size_t>());}
+};
 
 
 class OPCUACLIENTEXPORT Client
 {
+    friend class ObserverHandle;
 private:
-    struct Node{
-        std::string name;
-        UA_NodeId id;
-        int type;
-        std::vector<size_t> dimensions = std::vector<size_t>{1};
-        std::map<size_t, Client**> subscribers;
-        size_t numUpdatesPerFrame = 0;
-        std::deque<UA_Variant_ptr> values;
-        UA_Variant_ptr lastValue;
-        std::set<size_t> updatedSubscribers;
-        bool operator==(const Node &other) const{return other.name == name;}
-        bool operator==(const std::string &name) const{return name == this->name;}
-        bool isScalar() const{return (dimensions.size() == 1 && dimensions[0] == 1);}
-        size_t numEntries(){return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<size_t>());}
-    };
-    typedef  std::vector<Node> Nodes;
 
+    typedef  std::vector<ClientNode> Nodes;
 public:
-    Client(const std::string &name);
+
+    Client(const std::string &name, size_t queueSize = 0);
     ~Client();
 
     void connect();
     void disconnect();
     bool isConnected() const;
-
     enum StatusChange{ Unchanged, Connected, Disconnected};
     StatusChange statusChanged(void* caller);
     //get the available data nodes from the server
@@ -71,14 +72,14 @@ public:
     template<typename T>
     std::vector<std::string> availableScalars() const
     {
-        return getNodesWith([](const Node& n){return n.type == detail::getTypeId<T>() && n.isScalar();});
+        return getNodesWith([](const ClientNode& n){return n.type == detail::getTypeId<T>() && n.isScalar();});
     }
     std::vector<std::string> allAvailableArrays() const;
     std::vector<std::string> availableNumericalArrays() const;
     template<typename T>
     std::vector<std::string> availableArrays() const
     {
-        return getNodesWith([](const Node& n){return n.type == detail::getTypeId<T>() && !n.isScalar();});
+        return getNodesWith([](const ClientNode& n){return n.type == detail::getTypeId<T>() && !n.isScalar();});
     }
 
 
@@ -89,13 +90,27 @@ public:
     //get a list of values that the server sent since the last get
     
     double getNumericScalar(const std::string &nodeName, UA_DateTime *timestamp = nullptr);
+    double getNumericScalar(const ObserverHandle &handle, UA_DateTime *timestamp = nullptr);
+    double getNumericScalar(ClientNode *node, UA_DateTime *timestamp = nullptr);
     size_t numNodeUpdates(const std::string &nodeName);
 
     template<typename T>
     MultiDimensionalArray<T> getArray(const std::string &nodeName)
     {
+        return getArray<T>(findNode(nodeName));
+    }
+
+    template<typename T>
+    MultiDimensionalArray<T> getArray(const ObserverHandle &handle)
+    {
+        return getArray<T>(handle.m_node);
+    }
+
+    template<typename T>
+    MultiDimensionalArray<T> getArray(ClientNode *node)
+    {
         std::lock_guard<std::mutex> g(m_mutex);
-        auto variant = getValue(nodeName);
+        auto variant = getValue(node);
             
         MultiDimensionalArray<T> array(variant);
 
@@ -108,7 +123,19 @@ public:
     template<typename T>
     T getScalar(const std::string &nodeName, UA_DateTime *timestamp = nullptr)
     {
-        auto array = getArray<T>(nodeName);
+        return getScalar<T>(findNode(nodeName), timestamp);
+    }
+
+    template<typename T>
+    T getScalar(const ObserverHandle &handle, UA_DateTime *timestamp = nullptr)
+    {
+        return getScalar<T>(handle.m_node, timestamp);
+    }
+
+    template<typename T>
+    T getScalar(ClientNode* node, UA_DateTime *timestamp = nullptr)
+    {
+        auto array = getArray<T>(node);
         if(timestamp)
             *timestamp = array.timestamp;
         if(array.isScalar())
@@ -126,13 +153,13 @@ private:
     
     struct NodeRequest
     {
-        std::string nodeName;
+        ClientNode* node = nullptr;
         size_t requestId = 0;
         Client **clientReference= nullptr;
     };
 
-
-    std::vector<std::string> findAvailableNodesWith(const std::function<bool(const Client::Node &)> &compare) const;
+    size_t m_valueQueueSize = 0;
+    std::vector<std::string> findAvailableNodesWith(const std::function<bool(const ClientNode &)> &compare) const;
     //methods that are run in the communication thread on the master
     void runClient();
     void fetchAvailableNodes(UA_Client* client, UA_BrowseResponse &bResp);
@@ -143,8 +170,9 @@ private:
     void unregisterNode(size_t id);
 
     void statusChanged();
-    Node* findNode(const std::string &name);
+    ClientNode* findNode(const std::string &name);
     UA_Variant_ptr getValue(const std::string &name);
+    UA_Variant_ptr getValue(ClientNode *node);
     
     opencover::ui::Menu *m_menu;
     opencover::ui::Button *m_connect;
@@ -165,7 +193,7 @@ private:
     std::vector<size_t> m_nodesToUnregister;
     size_t m_requestId = 0;
     std::map<void*, bool> m_statusObservers; //stores which objects received a changed status
-
+    bool m_connected = false;
 };
 
 }

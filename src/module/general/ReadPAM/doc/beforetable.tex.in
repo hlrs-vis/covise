@@ -71,7 +71,6 @@ also change the appearance of the parameter to a combo box.
 % short information about versions 
 %
 ReadPAM is available for COVISE version 5.1 and higher.
-It has been tested on SGI systems (IRIX 6.5).
 
 {\bf SGI only, PAM license required - no LINUX support}
 

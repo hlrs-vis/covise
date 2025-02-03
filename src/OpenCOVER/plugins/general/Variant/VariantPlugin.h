@@ -107,6 +107,17 @@ public:
     void printMatrix(osg::Matrix ma);
     void HideAllVariants();
 
+    struct VariantGroup
+    {
+        std::string name;
+        std::set<Variant *> variants;
+        ui::ButtonGroup *group = nullptr;
+    };
+    VariantGroup *getVariantGroup(std::string groupName);
+    VariantGroup *addVariantToGroup(std::string groupName, Variant *var);
+    void removeVariantFromGroup(std::string groupName, Variant *var);
+    std::string getGroupFromName(const std::string &name);
+
 private:
     coSensorList sensorList;
     ui::Menu *variant_menu=nullptr;
@@ -129,6 +140,7 @@ private:
     std::map<std::string, bool> deletedVisibility;
     std::list<VariantMarker> variantMarkers;
     const VariantMarker *activatedMarker = nullptr;
+    std::map<std::string, VariantGroup> variantGroups;
 
     std::map<osg::Node *, Variant *> varmap;
 

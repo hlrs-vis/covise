@@ -28,18 +28,10 @@ class VRMLEXPORT VrmlNodeMetadata : public VrmlNode
 
 public:
     // Define the built in VrmlNodeType:: "Metadata"
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMetadata *node, VrmlNodeType *t);
+    static const char *typeName();
 
-    VrmlNodeMetadata(VrmlScene *);
-    virtual ~VrmlNodeMetadata();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    VrmlNodeMetadata(VrmlScene *, const std::string &n = typeName());
 
 private:
     VrmlSFString d_name;

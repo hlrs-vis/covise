@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <array>
+#include <variant>
 
 namespace opencover::utils::read {
 
@@ -53,6 +54,7 @@ public:
     explicit operator bool() const { return m_inputFileStream.good(); }
 
     const std::vector<std::string> &getHeader() { return m_header; }
+    const std::string &getFilename() const { return m_filename; }
 
 private:
     void readHeader();
@@ -68,6 +70,7 @@ private:
 };
 
 const std::array<std::string, 2> INVALID_CELL_CONTENT = {"", "NULL"};
+constexpr const char* const INVALID_CELL_VALUE = "INVALID_VALUE";
 
 /**
  * @brief A utility struct for accessing CSV rows.
@@ -81,10 +84,14 @@ struct CSVUTIL AccessCSVRow {
             if (value_str.empty() ||
                 std::any_of(INVALID_CELL_CONTENT.begin(), INVALID_CELL_CONTENT.end(),
                             [&value_str](const std::string &invalid) { return value_str == invalid; }))
-                value_str = "0";
+                value_str = INVALID_CELL_VALUE;
             convert(value_str, value);
         } catch (const std::out_of_range &ex) {
-            throw CSVStream_Exception("Column " + colName + " not found in CSV file");
+            auto err_msg =  "Column " + colName + " not found in row ";
+            for (auto &[key, val] : row) {
+                err_msg += key + ": " + val + ", ";
+            }
+            throw CSVStream_Exception(err_msg);
         } catch (const std::invalid_argument &ex) {
             throw CSVStream_Exception("Invalid argument for column " + colName);
         } catch (const std::exception &ex) {
@@ -99,12 +106,28 @@ private:
         std::istringstream ss(value_str);
         ss >> value;
     }
+
+    template<>
+    void convert(const std::string &value_str, std::string &value) const
+    {
+        value = value_str;
+    }
+
+    template<typename... Ts>
+    void convert(const std::string &value_str, std::variant<Ts...> &value) const
+    {
+        std::visit([&value_str](auto &val) {
+            std::istringstream ss(value_str);
+            ss >> val;
+        }, value);
+    }
+
 };
 
 /**
  * @brief A utility function for converting a string to a value of type T.
- * 
- * Usage: 
+ *
+ * Usage:
  * double value;
  * CSVStream::CSVRow row;
  *
@@ -113,7 +136,7 @@ private:
  *   std::cout << value << "\n";
  * }
 */
-inline constexpr AccessCSVRow access_CSVRow{};
+inline constexpr AccessCSVRow ACCESS_CSV_ROW{};
 } // namespace opencover::utils::read
 
 #endif

@@ -314,6 +314,7 @@ bool ClipPlanePlugin::init()
         plane[i].ClipEditField->setText(name);
         plane[i].ClipEditField->setShared(true);
         plane[i].ClipEditField->setVisible(false, ui::View::VR);
+        plane[i].ClipEditField->setVisible(false, ui::View::WindowMenu);
         plane[i].ClipEditField->setCallback([this, i] (std::string text){
             double a,b,c,d;
             sscanf(text.c_str(), "%lf %lf %lf %lf", &a, &b, &c, &d);

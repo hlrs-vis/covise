@@ -19,7 +19,7 @@ namespace OpenFOAMInterface.BIM {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class OpenFOAMInterfaceResource {
@@ -97,7 +97,7 @@ namespace OpenFOAMInterface.BIM {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Occur an IO error,the application will be terminated. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die IO error, the application will be terminated. ähnelt.
         /// </summary>
         public static string ERR_IO_EXCEPTION {
             get {
@@ -111,6 +111,15 @@ namespace OpenFOAMInterface.BIM {
         public static string ERR_NOSOLID {
             get {
                 return ResourceManager.GetString("ERR_NOSOLID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid format for OpenFOAM parameter. ähnelt.
+        /// </summary>
+        public static string ERR_OPENFOAM_PARAM_INVALID {
+            get {
+                return ResourceManager.GetString("ERR_OPENFOAM_PARAM_INVALID", resourceCulture);
             }
         }
         
@@ -133,6 +142,15 @@ namespace OpenFOAMInterface.BIM {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Simulation isn&apos;t running properly. Please check the simulation parameter or openfoam environment. If SSH is in use check the connection details. ähnelt.
+        /// </summary>
+        public static string ERR_SIM_RUN {
+            get {
+                return ResourceManager.GetString("ERR_SIM_RUN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The vector entries cannot be converted into double. ähnelt.
         /// </summary>
         public static string ERR_VECTOR_FORMAT {
@@ -142,7 +160,7 @@ namespace OpenFOAMInterface.BIM {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die STL Exporter ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die OpenFOAMInterface ähnelt.
         /// </summary>
         public static string MESSAGE_BOX_TITLE {
             get {
@@ -174,24 +192,6 @@ namespace OpenFOAMInterface.BIM {
         public static string WARN_PROJECT_POSITION {
             get {
                 return ResourceManager.GetString("WARN_PROJECT_POSITION", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid format for OpenFOAM parameter. ähnelt.
-        /// </summary>
-        public static string ERR_OPENFOAM_PARAM_INVALID {
-            get {
-                return ResourceManager.GetString("ERR_OPENFOAM_PARAM_INVALID", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Simulation isn't running properly. Please check the simulation parameter or openfoam environment. If SSH is in use check the connection details. ähnelt.
-        /// </summary>
-        public static string ERR_SIM_RUN {
-            get {
-                return ResourceManager.GetString("ERR_SIM_RUN", resourceCulture);
             }
         }
     }

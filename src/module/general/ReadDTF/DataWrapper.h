@@ -324,10 +324,6 @@
 #include "covise.h"
 #include "DTF/timesteps.h"
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 class ClassInfo_DataWrapper;
 
 class DataWrapper : public Tools::BaseObject

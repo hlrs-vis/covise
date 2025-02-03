@@ -225,7 +225,7 @@ char *RU_version(void);
 /* others */
 /**********/
 
-#if defined(__sgi) || defined(WIN32)
+#if defined(WIN32)
 int strncasecmp(const char *, const char *, size_t);
 int strcasecmp(const char *, const char *);
 #endif
@@ -234,10 +234,10 @@ int strcasecmp(const char *, const char *);
 }
 #endif
 
-#if defined(__hp9000s700) || defined(WIN32)
+#if defined(WIN32)
 char *dirname(char *path);
 char *basename(char *path);
-#elif !defined(__alpha)
+#else
 #include <libgen.h>
 #endif
 #endif /* _RUPROTO_H */

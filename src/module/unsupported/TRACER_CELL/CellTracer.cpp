@@ -77,9 +77,7 @@ inline float sqr(float val)
     return val;
 }
 
-#ifndef __sgi
 #define fabsf fabs
-#endif
 
 // global variables
 //static int actual_cell_type;
@@ -828,11 +826,7 @@ float stepsize(int cell_no)
     zd = fabsf(z_in[cl[el[cell_no]] + 2] - z_in[cl[el[cell_no]]]);
     vol = xd * yd * zd;
 
-#ifdef __sgi
-    dt = 1. / vq * powf(vol, 1. / 3.) / 10.;
-#else
     dt = 1. / vq * pow(vol, 1. / 3.) / 10.;
-#endif
 
     return dt;
 }

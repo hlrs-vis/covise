@@ -21,9 +21,7 @@
 #include <strings.h>
 #include <unistd.h>
 #endif
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 #include "ReadSim.h"
 
 //// Constructor : set up User Interface//
@@ -43,9 +41,7 @@ ReadSim::ReadSim(int argc, char *argv[])
     : coSimLib(argc, argv, argv[0], "Simulation coupling")
 {
 ////////// set up default parameters
-#ifndef YAC
     set_module_description("ReadSim Simulation");
-#endif
 
     p_ConnectionMethod = addChoiceParam("ConnectionMethod", "ConnectionMethod");
     s_ConnectionMethod[0] = strdup("local");
@@ -131,9 +127,7 @@ int ReadSim::compute(const char *port)
     // create mesh
     createMesh();
 
-#ifndef YAC
     executeCommands();
-#endif
 
     return SUCCESS;
 }
@@ -153,12 +147,6 @@ void ReadSim::createMesh()
 
     coDoUniformGrid *grid = new coDoUniformGrid(mesh->getObjName(), xDim, yDim, zDim, 0, xDim - 1.0f, 0, yDim - 1.0f, 0, zDim - 1.0f);
 
-#ifdef YAC
-    // set blockno/timestep
-    grid->getHdr()->setBlock(0, 1);
-    grid->getHdr()->setTime(-1, 0);
-    grid->getHdr()->setRealTime(1.0);
-#endif
     mesh->setCurrentObject(grid);
 }
 
@@ -284,13 +272,5 @@ int ReadSim::endIteration()
 
     return 1;
 }
-
-#ifdef YAC
-void ReadSim::paramChanged(coParam *param)
-{
-
-    (void)param;
-}
-#endif
 
 MODULE_MAIN(HLRS, ReadSim)

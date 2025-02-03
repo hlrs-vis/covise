@@ -17,9 +17,7 @@
 
 #define __MATERIAL_H_
 
-#ifndef __sgi
 #include <cstring>
-#endif
 
 #include "classext.h"
 

@@ -26,20 +26,10 @@ class VRMLEXPORT VrmlNodeNormal : public VrmlNode
 
 public:
     // Define the fields of Normal nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeNormal *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeNormal(VrmlScene *);
-    virtual ~VrmlNodeNormal();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeNormal *toNormal() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFVec3f &normal()
     {

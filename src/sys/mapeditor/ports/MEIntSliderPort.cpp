@@ -46,11 +46,7 @@ MEIntSliderPort::~MEIntSliderPort()
 void MEIntSliderPort::makeLayout(layoutType type, QWidget *w)
 {
 
-#ifdef YAC
-    if (appearanceType == A_STEPPER && type == CONTROL)
-#else
     if (appearanceType == STEPPER && type == CONTROL)
-#endif
         makePlayer(type, w, QString::number(m_value));
 
     else if (type == CONTROL)
@@ -119,13 +115,6 @@ void MEIntSliderPort::moduleParameterRequest()
 //!
 void MEIntSliderPort::defineParam(QString svalue, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(svalue);
-    Q_UNUSED(apptype);
-
-#else
-
     QStringList list = svalue.split(" ", SplitBehaviorFlags::SkipEmptyParts);
 
     m_min = list[0].toLong();
@@ -134,7 +123,6 @@ void MEIntSliderPort::defineParam(QString svalue, int apptype)
     m_step = 1;
 
     MEParameterPort::defineParam(svalue, apptype);
-#endif
 }
 
 //!
@@ -142,14 +130,6 @@ void MEIntSliderPort::defineParam(QString svalue, int apptype)
 //!
 void MEIntSliderPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     if (list.count() > istart + 2)
@@ -181,7 +161,6 @@ void MEIntSliderPort::modifyParam(QStringList list, int noOfValues, int istart)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //!
@@ -189,12 +168,6 @@ void MEIntSliderPort::modifyParam(QStringList list, int noOfValues, int istart)
 //!
 void MEIntSliderPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     QStringList list = QString(lvalue).split(" ");
 
     if (list.count() == 3)
@@ -226,7 +199,6 @@ void MEIntSliderPort::modifyParameter(QString lvalue)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //!
@@ -393,9 +365,3 @@ void MEIntSliderPort::slider1CB(int val)
 
     node->setModified(true);
 }
-
-#ifdef YAC
-void MEIntSliderPort::setValues(covise::coRecvBuffer &)
-{
-}
-#endif

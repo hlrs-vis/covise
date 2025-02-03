@@ -19,7 +19,11 @@ set(CMAKE_MACOSX_RPATH TRUE)
 macro(covise_cmake_policy)
 # policy settings
 IF(COMMAND cmake_policy)
-
+  
+    IF(POLICY CMP0077)
+       cmake_policy(SET CMP0077 NEW)
+    ENDIF()
+	
     IF(POLICY CMP0020)
        #qt policy Automatically link Qt executables to qtmain target on Windows.
        cmake_policy(SET CMP0020 NEW)

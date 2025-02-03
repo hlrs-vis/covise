@@ -11,8 +11,6 @@ ENDIF(WIN32)
 
 SET(CORE_SOURCES
   covise_appproc.cpp
-  covise_conv.cpp
-  covise_converter.cpp
   covise_process.cpp
   covise_signal.cpp
   covise_time.cpp
@@ -24,8 +22,6 @@ SET(CORE_HEADERS
   covise_appproc.h
   covise_objalg.h
   Covise_Util.h
-  covise_converter.h
-  covise_conv.h
   covise_process.h
   covise_signal.h
   covise_global.h

@@ -4,7 +4,10 @@
 #include <memory>
 
 namespace opencover{namespace opcua{
+
 class Client;
+class ClientNode;
+
 //automativally unobserves the node on deletion
 class ObserverHandle{
     public:
@@ -20,7 +23,8 @@ class ObserverHandle{
             size_t m_id = 0;
             Client *m_client = nullptr;
         };
-        std::shared_ptr<Deleter> m_deleter; 
+        std::shared_ptr<Deleter> m_deleter;
+        opencover::opcua::ClientNode *m_node = nullptr; 
     };
 
 }}

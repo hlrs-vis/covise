@@ -31,11 +31,9 @@ typedef struct ssl_st SSL;
 #define HAVEMULTICAST
 
 #ifndef _WIN32
-#ifndef _SX
 extern "C" {
 #include <netinet/in.h>
 }
-#endif
 #include <netdb.h>
 #endif
 
@@ -95,16 +93,12 @@ class Host;
  **                                                                     **
 \***********************************************************************/
 
-const char DF_NONE = 0;
-const char DF_IEEE = 1;
-const char DF_CRAY = 2;
-const int COVISE_SOCKET_INVALID = -2;
+enum
+{
+    COVISE_SOCKET_INVALID = -2
+};
 
-#if defined(CRAY) && !defined(_WIN32)
-const char df_local_machine = DF_CRAY;
-#else
 const char df_local_machine = DF_IEEE;
-#endif
 
 void NETEXPORT shutdownSocket(int socketDescriptor);
 
@@ -134,11 +128,11 @@ protected:
     static std::vector<Host *> host_alias_list;
     static bool bInitialised;
     struct sockaddr_in s_addr_in;
-    Host *host; // host on the other end of the socket
+    Host *host = nullptr; // host on the other end of the socket
     std::atomic<int> sock_id;
-    int port;
+    int port = 0;
     int setTCPOptions();
-    bool connected;
+    bool connected = false;
 
 public:
     // connect as client
@@ -154,6 +148,7 @@ public:
     Socket(const Socket &); // initiate as server and use free port
     Socket(int socket_id, sockaddr_in *sockaddr);
     virtual ~Socket(); // NIL
+    void cancel();
     static void initialize();
     static void uninitialize();
     static void set_start_port(int stp)
@@ -181,9 +176,6 @@ public:
     int setNonBlocking(bool on);
     //int read_non_blocking(void *buf, unsigned nbyte);
     virtual int write(const void *buf, unsigned nbyte);
-#ifdef CRAY
-    int writea(const void *buf, unsigned nbyte);
-#endif
     int get_id() const
     {
         return sock_id;

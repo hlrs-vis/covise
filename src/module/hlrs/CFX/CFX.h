@@ -8,10 +8,8 @@
 #ifndef _STAR_H
 #define _STAR_H
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
 using namespace covise;
-#endif
 #include <api/coSimLibComm.h>
 #include <api/coSimLib.h>
 #include <stdlib.h>
@@ -91,10 +89,6 @@ public:
     virtual ~CFX()
     {
     }
-
-#ifdef YAC
-    virtual void paramChanged(coParam *param);
-#endif
 };
 
 #endif

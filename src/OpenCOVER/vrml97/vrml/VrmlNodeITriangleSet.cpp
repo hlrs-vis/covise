@@ -27,40 +27,16 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeITriangleSet(s); }
-
-// Define the built in VrmlNodeType:: "IndexedTriangleSet" fields
-
-VrmlNodeType *VrmlNodeITriangleSet::defineType(VrmlNodeType *t)
+void VrmlNodeITriangleSet::initFields(VrmlNodeITriangleSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("IndexedTriangleSet", creator);
-    }
-
-    VrmlNodeIPolygonsCommon::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeIPolygonsCommon::initFields(node, t); // Parent class
 }
 
-VrmlNodeType *VrmlNodeITriangleSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeITriangleSet::typeName() { return "IndexedTriangleSet"; }
 
 VrmlNodeITriangleSet::VrmlNodeITriangleSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene)
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
-}
-
-VrmlNodeITriangleSet::~VrmlNodeITriangleSet()
-{
-}
-
-VrmlNode *VrmlNodeITriangleSet::cloneMe() const
-{
-    return new VrmlNodeITriangleSet(*this);
 }
 
 Viewer::Object VrmlNodeITriangleSet::insertGeometry(Viewer *viewer)
@@ -118,9 +94,4 @@ Viewer::Object VrmlNodeITriangleSet::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-VrmlNodeITriangleSet *VrmlNodeITriangleSet::toITriangleSet() const
-{
-    return (VrmlNodeITriangleSet *)this;
 }

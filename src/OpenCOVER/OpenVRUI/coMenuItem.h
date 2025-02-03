@@ -5,10 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef CO_MENUITEM_H
-#define CO_MENUITEM_H
-
-#include <OpenVRUI/coUIElement.h>
+#pragma once
+#include "coUIElement.h"
 #include <string>
 
 namespace vrui
@@ -106,4 +104,3 @@ public:
     virtual void doSecondActionRelease(); ///< second Action for Item
 };
 }
-#endif

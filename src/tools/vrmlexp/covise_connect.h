@@ -49,11 +49,7 @@
 const int EC_SERVER = 0;
 const int EC_CLIENT = 1;
 class SimpleServerConnection;
-#ifdef CRAY
-#define WRITE_BUFFER_SIZE 393216
-#else
 #define WRITE_BUFFER_SIZE 64000
-#endif
 #define READ_BUFFER_SIZE WRITE_BUFFER_SIZE
 
 /***********************************************************************\ 

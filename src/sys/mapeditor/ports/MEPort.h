@@ -11,10 +11,6 @@
 #include <QGraphicsRectItem>
 #include <QObject>
 
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
-
 class QMouseEvent;
 class QEvent;
 class QColor;

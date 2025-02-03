@@ -14,14 +14,11 @@
 #include <QVBoxLayout>
 
 #include <do/coDistributedObject.h>
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
 
 #include "MEDataArray.h"
 #include "MEDataViewer.h"
 #include "MEDataTree.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "widgets/MEUserInterface.h"
 
@@ -34,33 +31,6 @@ using covise::coDoInfo;
     Three arrays can be displayed at the same time <br>
     This class is part of the MEDataViewer
 */
-
-#ifdef YAC
-
-MEDataArray::MEDataArray(covise::coRecvBuffer &tb, MEDataTreeItem *it, QWidget *p2)
-    : QWidget(p2)
-    , m_table(NULL)
-    , m_item(it)
-{
-
-    // get values
-    m_current = m_item->getIndex();
-    tb >> m_min >> m_max;
-    const char *s;
-    int len = m_max - m_min + 1;
-    for (int i = 0; i < len; i++)
-    {
-        tb >> s;
-        m_values << s;
-    }
-
-    m_dataname = m_item->text(0);
-    m_parentname = (m_item->parent())->parent()->text(0);
-    makeLayout();
-    hide();
-}
-
-#else
 
 MEDataArray::MEDataArray(MEDataTreeItem *it, QWidget *p2)
     : QWidget(p2)
@@ -100,7 +70,6 @@ MEDataArray::MEDataArray(MEDataTreeItem *it, QWidget *p2)
 
     hide();
 }
-#endif
 
 #define addLine(pb, text, text2, callback, tip)                 \
     hbox->addWidget(new QLabel(text), 0);                       \
@@ -118,13 +87,8 @@ void MEDataArray::makeLayout()
 
 // init some variable
 
-#ifdef YAC
     m_start = m_min;
     m_nele = m_max - m_min + 1;
-#else
-    m_start = 0;
-    m_nele = qMin(200, m_dataPointer[1] - 1);
-#endif
     m_step = 1;
     m_ncol = 10;
 
@@ -286,12 +250,6 @@ void MEDataArray::updateArray()
 //!
 bool MEDataArray::getDistributedDataObjectInfo()
 {
-#ifdef YAC
-
-    return false;
-
-#else
-
     // check parent dataobject
 
     m_object = covise::coDistributedObject::createFromShm(covise::coObjInfo(m_parentname.toLatin1().data()));
@@ -315,7 +273,6 @@ bool MEDataArray::getDistributedDataObjectInfo()
         }
     }
     return false;
-#endif
 }
 
 //!
@@ -323,14 +280,6 @@ bool MEDataArray::getDistributedDataObjectInfo()
 //!
 int *MEDataArray::getDataObjectPointer(int i)
 {
-
-#ifdef YAC
-
-    Q_UNUSED(i)
-    return 0;
-
-#else
-
     int *pointer = NULL;
     switch (m_dataObjectInfo[i].type)
     {
@@ -347,7 +296,6 @@ int *MEDataArray::getDataObjectPointer(int i)
     }
 
     return pointer;
-#endif
 }
 
 //!
@@ -355,26 +303,7 @@ int *MEDataArray::getDataObjectPointer(int i)
 //!
 void MEDataArray::fillTable(int rows, int cols)
 {
-
 // loop over data
-
-#ifdef YAC
-
-    int curr = m_start;
-    int end = m_values.count();
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (curr >= end)
-                break;
-            m_table->setItem(i, j, new QTableWidgetItem(m_values[curr]));
-            curr += m_step;
-        }
-    }
-
-#else
-
     QString buffer;
     if (m_notation->isChecked()
         && m_dataObjectInfo[m_current].type != covise::CHARSHMARRAY
@@ -466,7 +395,6 @@ void MEDataArray::fillTable(int rows, int cols)
         }
         }
     }
-#endif
 
     m_table->resizeColumnsToContents();
     m_table->resizeRowsToContents();
@@ -506,31 +434,9 @@ void MEDataArray::startCB()
 
     int nmin = m_lmin->text().toInt();
 
-#ifdef YAC
-
-    if (nmin < m_start)
-    {
-        m_start = nmin;
-        covise::coSendBuffer sb;
-        int i1 = getItem()->parent()->text(1).toInt();
-        int i2 = getItem()->parent()->text(2).toInt();
-        int i3 = getItem()->parent()->text(3).toInt();
-        sb << i1 << i2 << i3 << getItem()->getIndex() << m_start << m_nele - m_start + 1;
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_GET_OBJ_ARRAY, sb);
-    }
-
-    else
-    {
-        m_start = nmin;
-        updateArray();
-    }
-
-#else
-
     m_start = qMin(nmin, m_dataPointer[1] - 1);
     m_nele = qMin(m_nele, m_start + m_dataPointer[1] - 1);
     updateArray();
-#endif
 }
 
 //!
@@ -541,29 +447,8 @@ void MEDataArray::lengthCB()
 
     int nmax = m_lmax->text().toInt();
 
-#ifdef YAC
-
-    if (nmax > m_nele)
-    {
-        m_nele = nmax;
-        covise::coSendBuffer sb;
-        int i1 = getItem()->parent()->text(1).toInt();
-        int i2 = getItem()->parent()->text(2).toInt();
-        int i3 = getItem()->parent()->text(3).toInt();
-        sb << i1 << i2 << i3 << getItem()->getIndex() << m_start << m_nele - m_start + 1;
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_GET_OBJ_ARRAY, sb);
-    }
-    else
-    {
-        m_nele = nmax;
-        updateArray();
-    }
-
-#else
-
     m_nele = qMin(nmax, m_start + m_dataPointer[1] - 1);
     updateArray();
-#endif
 }
 
 //!
@@ -623,12 +508,6 @@ void MEDataArray::indexCB()
     m_index = m_lindex->text().toInt();
     m_table->clearSelection();
 
-#ifdef YAC
-
-    m_lvalue->setText(m_values[m_index]);
-
-#else
-
     QString buf;
 
     if (m_notation->isChecked())
@@ -676,5 +555,4 @@ void MEDataArray::indexCB()
         it->setSelected(true);
         m_table->scrollToItem(it);
     }
-#endif
 }

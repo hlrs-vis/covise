@@ -21,7 +21,7 @@ opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const covise::Co
 }
 
 Currents::Currents(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: ToolModel(group, file, toolHeadNode, tableNode)
+: Tool(group, file, toolHeadNode, tableNode)
 {
     initGeo();
 }

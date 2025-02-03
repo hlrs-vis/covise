@@ -13,7 +13,7 @@
 
 #include "MEChoicePort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "widgets/MEUserInterface.h"
 #include "nodes/MENode.h"
 
@@ -77,13 +77,6 @@ void MEChoicePort::moduleParameterRequest()
 //!
 void MEChoicePort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     // choices - send only current index of list
     // choices - send the complete list
     QStringList list = value.split(" ", SplitBehaviorFlags::SkipEmptyParts);
@@ -110,7 +103,6 @@ void MEChoicePort::defineParam(QString value, int apptype)
     }
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //!
@@ -118,13 +110,6 @@ void MEChoicePort::defineParam(QString value, int apptype)
 //!
 void MEChoicePort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(istart);
-    Q_UNUSED(noOfValues);
-
-#else
     Q_UNUSED(noOfValues);
 
     // this is an old fashioned parameter message
@@ -179,7 +164,6 @@ void MEChoicePort::modifyParam(QStringList list, int noOfValues, int istart)
 
     if (m_comboBox[CONTROL])
         m_comboBox[CONTROL]->setCurrentIndex(m_currentChoice);
-#endif
 }
 
 //!
@@ -187,12 +171,6 @@ void MEChoicePort::modifyParam(QStringList list, int noOfValues, int istart)
 //!
 void MEChoicePort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     QString values = lvalue.trimmed();
     QStringList list = values.split(" ");
 
@@ -240,7 +218,6 @@ void MEChoicePort::modifyParameter(QString lvalue)
         if (m_comboBox[CONTROL])
             m_comboBox[CONTROL]->setCurrentIndex(m_currentChoice);
     }
-#endif
 }
 
 //!
@@ -303,50 +280,9 @@ void MEChoicePort::sendParamMessage()
 //!
 void MEChoicePort::choiceCB(int state)
 {
-
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << 0 << state;
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     m_currentChoice = state;
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
 }
-
-#ifdef YAC
-
-//!
-//! Set new values
-//!
-void MEChoicePort::setValues(covise::coRecvBuffer &tb)
-{
-    int flag;
-    const char *name;
-    tb >> flag;
-
-    // new values
-    if (flag)
-    {
-        tb >> m_noOfChoices;
-        if (!m_choiceValues.isEmpty())
-            m_choiceValues.clear();
-
-        for (int j = 0; j < m_noOfChoices; j++)
-        {
-            tb >> name;
-            m_choiceValues << name;
-        }
-    }
-
-    // new selection
-    tb >> m_currentChoice;
-}
-#endif

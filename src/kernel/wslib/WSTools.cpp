@@ -25,26 +25,18 @@
 
 QString covise::WSTools::fromCovise(const QString &from)
 {
-#ifndef YAC
     if (from.size() == 1 && from[0] == '\001')
         return "";
     QString newString = from;
     return newString.replace(QChar('\177'), ' ');
-#else
-    return from;
-#endif
 }
 
 QString covise::WSTools::toCovise(const QString &from)
 {
-#ifndef YAC
     if (from == "")
         return QChar('\001');
     QString newString = from;
     return newString.replace(' ', QChar('\177'));
-#else
-    return from;
-#endif
 }
 
 bool covise::WSTools::setParameterFromString(covise::WSParameter *parameter, const QString &value)

@@ -50,10 +50,8 @@ extern "C" void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int 
 
 static coDistributedObject **pboco;
 static coDistributedObject **pgrid;
-#ifndef YAC
 static const char* pbocobase;
 static const char* pgridbase;
-#endif
 static coOutputPort *p_distGrid;
 static coOutputPort *p_distBoco;
 
@@ -377,11 +375,7 @@ int DomainDecomposition::compute(const char *)
 	return SUCCESS;
 }
 
-#ifndef YAC
 coDistributedObject *floatDO(const char *name, const float *data, int numElem)
-#else
-coDistributedObject *floatDO(coObjInfo name, const float *data, int numElem)
-#endif
 {
 	coDoFloat *res = new coDoFloat(name,numElem);
 	float *shmData;
@@ -390,11 +384,7 @@ coDistributedObject *floatDO(coObjInfo name, const float *data, int numElem)
 	return res;
 }
 
-#ifndef YAC
 coDistributedObject *intDO(const char *name, const int *data, int numElem)
-#else
-coDistributedObject *intDO(coObjInfo name, const int *data, int numElem)
-#endif
 {
 	coDoIntArr *res = new coDoIntArr(name,1,&numElem);
 	int *shmData;
@@ -415,9 +405,7 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 		return;
 	else
 	{
-#ifndef YAC
 	char buf[256];
-#endif
 	fprintf(stderr, "Gebiet = %d\n", *igeb);
 	fprintf(stderr, "npoin_ges = %d, nelem_ges = %d, knmax_num = %d\n",
 			*npoin_ges, *nelem_ges, *knmax_num);
@@ -428,12 +416,8 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 
 	//global data per node
 	int i=9;
-#ifndef YAC
 	sprintf(buf,"%s_%d_global"     ,pgridbase,*igeb);
 	coDoIntArr *globalData = new coDoIntArr(buf,1,&i);
-#else
-	coDoIntArr *globalData = new coDoIntArr(p_distGrid->getNewObjectInfo(),1,&i);
-#endif
 	int *data=globalData->getAddress();
 	data[0]=*igeb;
 	data[1]=*npoin_ges;
@@ -445,7 +429,6 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 	data[7]=*ncd;
 	data[8]=*nkd;
 	geo[0] = globalData;
-#ifndef YAC
 	sprintf(buf,"%s_%d_cov_coord"     ,pgridbase,*igeb); geo[1]=floatDO(buf,cov_coord,*nkn * *ncd);
 	sprintf(buf,"%s_%d_cov_lnods"     ,pgridbase,*igeb); geo[2]=  intDO(buf,cov_lnods,*nel * *nkd);
 	sprintf(buf,"%s_%d_cov_lnods_num" ,pgridbase,*igeb); geo[3]=  intDO(buf,cov_lnods_num,*nel);
@@ -456,20 +439,7 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 	sprintf(buf,"%s_%d_cov_coord_mod" ,pgridbase,*igeb); geo[8]=  intDO(buf,cov_coord_mod,*nkn);
 	sprintf(buf,"%s_%d_cov_lnods_mod" ,pgridbase,*igeb); geo[9]=  intDO(buf,cov_lnods_mod,*nel);
 	sprintf(buf,"%s_%d_cov_coord_proz",pgridbase,*igeb); geo[10]= intDO(buf,cov_coord_proz,*nkn);
-#else
-        geo[1] = floatDO(p_distGrid->getNewObjectInfo(),cov_coord,*nkn * *ncd);
-        geo[2] = intDO(p_distGrid->getNewObjectInfo(),cov_lnods,*nel * *nkd);
-        geo[3] = intDO(p_distGrid->getNewObjectInfo(),cov_lnods_num,*nel);
-        geo[4] = intDO(p_distGrid->getNewObjectInfo(),cov_lnods_proz,*nel);
-        geo[5] = intDO(p_distGrid->getNewObjectInfo(),cov_coord_num,*nkn);
-        geo[6] = intDO(p_distGrid->getNewObjectInfo(),cov_coord_joi,*nkn);
-        geo[7] = intDO(p_distGrid->getNewObjectInfo(),cov_lnods_joi,*nel);
-        geo[8] = intDO(p_distGrid->getNewObjectInfo(),cov_coord_mod,*nkn);
-        geo[9] = intDO(p_distGrid->getNewObjectInfo(),cov_lnods_mod,*nel);
-        geo[10] = intDO(p_distGrid->getNewObjectInfo(),cov_coord_proz,*nkn);
-#endif
 	geo[11]=NULL;
-#ifndef YAC
 	for (i=0;i<GNUM-1;i++)
 	{
 		if(!geo[i]->checkObject())
@@ -479,9 +449,6 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 	}
 	sprintf(buf,"%s_%d"     ,pgridbase,*igeb);
 	pgrid[*igeb-1] = new coDoSet(buf,geo);
-#else
-        pgrid[*igeb-1] = new coDoSet(p_distGrid->getNewObjectInfo(), geo);
-#endif
 	// delete
 	for (i=0;i<GNUM;i++)
 		delete geo[i];
@@ -501,9 +468,7 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 		return;
 	else
 	{
-#ifndef YAC
 	char buf[256];
-#endif
 	coDistributedObject *boc[RNUM];
 
 	// all data for every CPU: igeb = 1 ... numParts
@@ -513,12 +478,8 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 
 	//global data per node
 	int i=6;
-#ifndef YAC
 	sprintf(buf,"%s_%d_global"     ,pbocobase,*igeb);
 	coDoIntArr *globalData = new coDoIntArr(buf,1,&i);
-#else
-	coDoIntArr *globalData = new coDoIntArr(p_distGrid->getNewObjectInfo(),1,&i);
-#endif
 	int *data=globalData->getAddress();
 	data[0]=*nrbpo_geb;
 	data[1]=*nwand_geb;
@@ -528,7 +489,6 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 	data[4]=*nconv_geb;
 	data[5]=*nrbknie;
 	boc[0] = globalData;
-#ifndef YAC
 	sprintf(buf,"%s_%d_cov_displ_kn"  ,pbocobase,*igeb); boc[1] =intDO  (buf,cov_displ_kn,*nrbpo_geb);
 	sprintf(buf,"%s_%d_cov_displ_ty"  ,pbocobase,*igeb); boc[2] =intDO  (buf,cov_displ_typ,*nrbpo_geb);
 	sprintf(buf,"%s_%d_cov_wand_el"   ,pbocobase,*igeb); boc[3] =intDO  (buf,cov_wand_el,*nwand_geb);
@@ -552,22 +512,6 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 
 	sprintf(buf,"%s_%d"     ,pbocobase,*igeb);
 	pboco[*igeb-1] = new coDoSet(buf,boc);
-#else
-        boc[1] = intDO(p_distGrid->getNewObjectInfo(),cov_displ_kn,*nrbpo_geb);
-        boc[2] = intDO(p_distGrid->getNewObjectInfo(),cov_displ_typ,*nrbpo_geb);
-        boc[3] = intDO(p_distGrid->getNewObjectInfo(),cov_wand_el,*nwand_geb);
-        boc[4] = intDO(p_distGrid->getNewObjectInfo(),cov_wand_kn,*nwand_geb * *nrbknie);
-        boc[5] = intDO(p_distGrid->getNewObjectInfo(),cov_wand_num,*nwand_geb);
-        boc[6] = intDO(p_distGrid->getNewObjectInfo(),cov_pres_el,*npres_geb);
-        boc[7] = intDO(p_distGrid->getNewObjectInfo(),cov_pres_kn,*npres_geb * *nrbknie);
-        boc[8] = intDO(p_distGrid->getNewObjectInfo(),cov_pres_num,*npres_geb);
-        boc[9] = intDO(p_distGrid->getNewObjectInfo(),cov_conv_el,*nconv_geb);
-        boc[10] = intDO(p_distGrid->getNewObjectInfo(),cov_conv_kn,*nconv_geb * *nrbknie);
-        boc[11] = intDO(p_distGrid->getNewObjectInfo(),cov_conv_num,*nconv_geb);
-        boc[12] = floatDO(p_distGrid->getNewObjectInfo(),cov_displ_wert,*nrbpo_geb);
-        boc[13] = NULL;
-        pboco[*igeb-1] = new coDoSet(p_distGrid->getNewObjectInfo(),boc);
-#endif
 	// delete
 	for (i=0;i<RNUM-1;i++)
 		delete boc[i];
@@ -589,13 +533,6 @@ void DumpIntArr(const char *s, int *a, int num, int col)
 		printf("\n");
 	}
 }
-
-#ifdef YAC
-void DomainDecomposition::paramChanged(coParam *param) {
-
-   (void) param;
-}
-#endif
 
 
 MODULE_MAIN(VISiT, DomainDecomposition)

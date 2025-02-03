@@ -5,10 +5,6 @@
 
  * License: LGPL 2+ */
 
-#ifdef __alpha
-#include "externc_alpha.h"
-#endif
-
 #include "web_socket.h"
 #include <covise/covise_global.h>
 #include <sys/types.h>
@@ -27,29 +23,12 @@
 #include <sys/time.h>
 #endif
 
-#ifdef CRAY
-#include <sys/iosw.h>
-#include <sys/param.h>
-#include <signal.h>
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 
-#ifdef PARAGON
-#include "externc.h"
-#endif
-#ifdef _AIX
-#include <sys/select.h>
-#include <strings.h>
-#include "externc_aix.h"
-#endif
 
-#ifdef _WIN32
-#undef CRAY
-#endif
 /*
  $Log:  $
 Revision 1.6  1994/03/23  18:07:06  zrf30125
@@ -99,22 +78,8 @@ Initial revision
  **                                                                     **
 \***********************************************************************/
 
-#ifdef __hpux
-#define MAX_SOCK_BUF 58254
-#else
 #define MAX_SOCK_BUF 65536
-#endif
-#ifndef CRAY
 extern "C" void herror(const char *string);
-#endif
-
-#if defined(CRAY)
-extern "C" int write(int fildes, const void *buf, unsigned nbyte);
-extern "C" int read(int fildes, void *buf, unsigned nbyte);
-extern "C" void (*signal(int sig, void (*func)(int)))(int);
-extern "C" int recalla(long mask[RECALL_SIZEOF]);
-extern "C" int writea(int fildes, char *buf, unsigned nbyte, struct iosw *status, int signo);
-#endif
 
 #ifndef _WIN32
 extern "C" int shutdown(int s, int how);
@@ -138,10 +103,6 @@ Socket::Socket(Host *h, int p, int retries)
     int on;
     struct linger linger;
     int sendbuf, recvbuf;
-#ifdef CRAY
-    char *hostname;
-    int len, winshift;
-#endif
     port = p;
     host = get_ip_alias(h);
     //    cerr << "connecting to host " << host->get_name() << " on port " << port << endl;
@@ -162,28 +123,8 @@ Socket::Socket(Host *h, int p, int retries)
     if (setsockopt(sock_id, SOL_SOCKET, SO_LINGER,
                    (char *)&linger, sizeof(linger)) < 0)
         print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET SO_LINGER");
-#ifdef CRAY
-    hostname = (unsigned char *)h->get_name();
-    len = strlen(hostname);
-    if (strncmp(&hostname[len - 3], "-hi", 3))
-    {
-        winshift = 4;
-        if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                       &winshift, sizeof(winshift)) < 0)
-            print_comment(__LINE__, __FILE__, "setsockopt TCP_RFC1323");
-        sendbuf = 6 * 65536;
-        recvbuf = 6 * 65536;
-        print_comment(__LINE__, __FILE__, "HIPPI interface");
-    }
-    else
-    {
-#endif
-        sendbuf = MAX_SOCK_BUF;
-        recvbuf = MAX_SOCK_BUF;
-#ifdef CRAY
-        print_comment(__LINE__, __FILE__, "no HIPPI interface");
-    }
-#endif
+    sendbuf = MAX_SOCK_BUF;
+    recvbuf = MAX_SOCK_BUF;
     if (setsockopt(sock_id, SOL_SOCKET, SO_SNDBUF,
                    (char *)&sendbuf, sizeof(sendbuf)) < 0)
         print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET SO_SNDBUF");
@@ -191,13 +132,8 @@ Socket::Socket(Host *h, int p, int retries)
                    (char *)&recvbuf, sizeof(recvbuf)) < 0)
         print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET, SO_RCVBUF");
 
-#if defined CRAY || defined PARAGON || defined __alpha || defined _AIX
-    //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-    host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
     //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
     host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
     s_addr_in.sin_port = htons(port);
     s_addr_in.sin_family = AF_INET;
@@ -238,28 +174,8 @@ Socket::Socket(Host *h, int p, int retries)
         if (setsockopt(sock_id, SOL_SOCKET, SO_LINGER,
                        (char *)&linger, sizeof(linger)) < 0)
             print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET, SO_LINGER");
-#ifdef CRAY
-        hostname = (unsigned char *)h->get_name();
-        len = strlen(hostname);
-        if (strncmp(&hostname[len - 3], "-hi", 3))
-        {
-            winshift = 4;
-            if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                           &winshift, sizeof(winshift)) < 0)
-                print_comment(__LINE__, __FILE__, "setsockopt IPPROTO_TCP TCP_WINSHIFT");
-            sendbuf = 6 * 65536;
-            recvbuf = 6 * 65536;
-            print_comment(__LINE__, __FILE__, "HIPPI interface");
-        }
-        else
-        {
-#endif
-            sendbuf = MAX_SOCK_BUF;
-            recvbuf = MAX_SOCK_BUF;
-#ifdef CRAY
-            print_comment(__LINE__, __FILE__, "no HIPPI interface");
-        }
-#endif
+        sendbuf = MAX_SOCK_BUF;
+        recvbuf = MAX_SOCK_BUF;
         if (setsockopt(sock_id, SOL_SOCKET, SO_SNDBUF,
                        (char *)&sendbuf, sizeof(sendbuf)) < 0)
             print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET SO_SNDBUF");
@@ -267,13 +183,8 @@ Socket::Socket(Host *h, int p, int retries)
                        (char *)&recvbuf, sizeof(recvbuf)) < 0)
             print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET SO_RCVBUF");
 
-#if defined CRAY || defined PARAGON || defined __alpha || defined _AIX
-        //        memcpy ((char *) &s_addr_in.sin_addr, hp->h_addr, hp->h_length);
-        host->get_char_address((unsigned char *)&s_addr_in.sin_addr);
-#else
         //        memcpy (&(s_addr_in.sin_addr.s_addr), hp->h_addr, hp->h_length);
         host->get_char_address((unsigned char *)&(s_addr_in.sin_addr.s_addr));
-#endif
 
         s_addr_in.sin_port = htons(port);
         s_addr_in.sin_family = AF_INET;
@@ -294,10 +205,6 @@ Socket::Socket(int p)
     struct linger linger;
     int sendbuf, recvbuf;
     port = p;
-#ifdef CRAY
-    char *hostname;
-    int len, winshift;
-#endif
     host = NULL;
     sock_id = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_id < 0)
@@ -314,18 +221,8 @@ Socket::Socket(int p)
         print_comment(__LINE__, __FILE__, "setsockopt error IPPROTO_TCP TCP_NODELAY");
     linger.l_onoff = 1;
     linger.l_linger = 60;
-#ifdef CRAY
-    winshift = 4;
-    if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                   &winshift, sizeof(winshift)) < 0)
-        print_comment(__LINE__, __FILE__, "setsockopt error IPPROTO_TCP TCP_WINSHIFT");
-    sendbuf = 6 * 65536;
-    recvbuf = 6 * 65536;
-    print_comment(__LINE__, __FILE__, "HIPPI interface");
-#else
     sendbuf = MAX_SOCK_BUF;
     recvbuf = MAX_SOCK_BUF;
-#endif
 
     if (setsockopt(sock_id, SOL_SOCKET, SO_LINGER,
                    (char *)&linger, sizeof(linger)) < 0)
@@ -366,10 +263,6 @@ Socket::Socket(int *p)
     int sendbuf, recvbuf;
     int on;
     host = NULL;
-#ifdef CRAY
-    char *hostname;
-    int len, winshift;
-#endif
 
     sock_id = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_id < 0)
@@ -388,18 +281,8 @@ Socket::Socket(int *p)
     if (setsockopt(sock_id, SOL_SOCKET, SO_LINGER,
                    (char *)&linger, sizeof(linger)) < 0)
         print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET SO_LINGER");
-#ifdef CRAY
-    winshift = 4;
-    if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                   &winshift, sizeof(winshift)) < 0)
-        print_comment(__LINE__, __FILE__, "setsockopt error IPPROTO_TCP TCP_WINSHIFT");
-    sendbuf = 6 * 65536;
-    recvbuf = 6 * 65536;
-    print_comment(__LINE__, __FILE__, "HIPPI interface");
-#else
     sendbuf = MAX_SOCK_BUF;
     recvbuf = MAX_SOCK_BUF;
-#endif
     if (setsockopt(sock_id, SOL_SOCKET, SO_SNDBUF,
                    (char *)&sendbuf, sizeof(sendbuf)) < 0)
         print_comment(__LINE__, __FILE__, "setsockopt error SOL_SOCKET, SO_SNDBUF");
@@ -457,9 +340,7 @@ void Socket::accept()
 #endif
     ::listen(sock_id, 20);
 
-#if defined(_AIX)
-    size_t length;
-#elif defined(__linux__)
+#if defined(__linux__)
     socklen_t length;
 #else
     int length;
@@ -496,9 +377,7 @@ Socket *Socket::copy_and_accept(void)
     Socket *tmp_sock;
     tmp_sock = new Socket(*this);
 
-#if defined(_AIX)
-    size_t length;
-#elif defined(__linux__)
+#if defined(__linux__)
     socklen_t length;
 #else
     int length;
@@ -535,19 +414,11 @@ int Socket::accept(int wait)
     FD_SET(sock_id, &fdread);
     if (wait > 0)
     {
-#ifdef __hpux9
-        i = select(sock_id + 1, (int *)&fdread, 0L, 0L, &timeout);
-#else
         i = select(sock_id + 1, &fdread, 0L, 0L, &timeout);
-#endif
     }
     else
     {
-#ifdef __hpux9
-        i = select(sock_id + 1, (int *)&fdread, 0L, 0L, NULL);
-#else
         i = select(sock_id + 1, &fdread, 0L, 0L, NULL);
-#endif
     }
     if (i == 0)
     {
@@ -630,42 +501,6 @@ int Socket::write(const void *buf, unsigned nbyte)
     return nbyte;
 }
 
-#ifdef CRAY
-struct iosw wrstat;
-
-int Socket::writea(const void *buf, unsigned nbyte)
-{
-    long mask[RECALL_SIZEOF];
-    void wrhdlr(int signo);
-    static int first = 1;
-    int ret;
-
-    if (first)
-    {
-        signal(SIGUSR1, wrhdlr);
-        first = 0;
-    }
-
-    RECALL_SET(mask, sock_id); /* set bit for fd in mask */
-    //    covise_time->mark(__LINE__, "vor Socket::writea");
-    ::writea(sock_id, (char *)buf, nbyte, &wrstat, SIGUSR1);
-    //    covise_time->mark(__LINE__, "nach Socket::writea");
-    ret = recalla(mask);
-    //    covise_time->mark(__LINE__, "nach Socket::recalla");
-    if (ret == 0)
-        return nbyte;
-    else
-        return 0;
-}
-
-void wrhdlr(int signo)
-{
-    signal(signo, wrhdlr);
-    printf("writea wrote %d bytes\n", wrstat.sw_count);
-    wrstat.sw_flag = 0;
-}
-#endif
-
 int Socket::read(void *buf, unsigned nbyte)
 {
     int no_of_bytes;
@@ -689,10 +524,6 @@ int Socket::read(void *buf, unsigned nbyte)
         if (errno != EAGAIN) // sollte spaeter nochmal ueberprueft werden
         {
             print_comment(__LINE__, __FILE__, "read returns <= 0: close socket. Terminating process");
-#ifdef __hpux
-            if (errno == ENOENT)
-                return 0;
-#endif
 #ifndef _WIN32
             if (errno == EADDRINUSE)
 #else

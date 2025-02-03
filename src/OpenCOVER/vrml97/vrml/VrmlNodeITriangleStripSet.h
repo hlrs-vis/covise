@@ -26,17 +26,12 @@ class VRMLEXPORT VrmlNodeITriangleStripSet : public VrmlNodeIPolygonsCommon
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+  static void initFields(VrmlNodeITriangleStripSet *node, VrmlNodeType *t);
+  static const char *typeName();
 
     VrmlNodeITriangleStripSet(VrmlScene *);
-    virtual ~VrmlNodeITriangleStripSet();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual Viewer::Object insertGeometry(Viewer *v);
-
-    virtual VrmlNodeITriangleStripSet *toITriangleStripSet() const;
 };
 }
 #endif // _VRMLNODEITRIANGLESTRIPSET_

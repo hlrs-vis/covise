@@ -500,6 +500,7 @@ bool OpenCOVER::init()
 #endif
 
 #ifndef _WIN32
+#ifdef USE_X11
     bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
     if (useVirtualGL)
     {
@@ -544,7 +545,11 @@ bool OpenCOVER::init()
             putenv(envDisplay);
         }
     }
+    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
+#endif
+
+#ifndef __APPLE__
     int fsaa = coCoviseConfig::getInt("COVER.FSAAMode", -1);
     if (fsaa >= 0)
     {
@@ -576,9 +581,6 @@ bool OpenCOVER::init()
         sprintf(envString, "__GL_SYNC_DISPLAY_DEVICE=%s", syncDevice.c_str());
         putenv(envString);
     }
-
-#ifndef _WIN32
-    coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
 
     const char *vistlePlugin = getenv("VISTLE_PLUGIN");
@@ -626,7 +628,12 @@ bool OpenCOVER::init()
 
 	Input::instance()->init();
 
-    coVRTui::instance();
+    auto mainTui = coTabletUI::instance();
+    auto vrtui = new coVRTui(nullptr);
+    vrtui->config();
+    pushTui(mainTui, vrtui);
+    auto tab = vrtui->mainFolder;
+    cover->ui->addView(new ui::TabletView("mainTui", tab));
 
     MarkerTracking::instance();
 
@@ -710,6 +717,13 @@ bool OpenCOVER::init()
                 fprintf(stderr, "failed to load COVISE plugin\n");
                 exit(1);
             }
+
+            auto mapeditorTui = new coTabletUI("localhost", 31803);
+            auto mapeditorVrTui = new coVRTui(mapeditorTui);
+            mapeditorVrTui->config();
+            pushTui(mapeditorTui, mapeditorVrTui);
+            tab = tuiTab(numTuis() - 1);
+            cover->ui->addView(new ui::TabletView("mapeditor", tab));
         }
     }
 
@@ -734,7 +748,6 @@ bool OpenCOVER::init()
     MarkerTracking::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
-    coVRTui::instance()->config();
 
     if (cover->debugLevel(5))
     {
@@ -780,28 +793,18 @@ bool OpenCOVER::init()
         m_quit->setVisible(false);
     }
 
-    auto tab = coVRTui::instance()->mainFolder;
-    cover->ui->addView(new ui::TabletView("mainTui", tab));
-    tabletUIs.push_back(coTabletUI::instance());
-    tabletTabs.push_back(tab);
-
-    auto mapeditorTui = new coTabletUI("localhost", 31803);
-    tab = new coTUITabFolder(mapeditorTui, "root");
-    cover->ui->addView(new ui::TabletView("mapeditor", tab));
-    tabletUIs.push_back(mapeditorTui);
-    tabletTabs.push_back(tab);
-    for (auto tui: tabletUIs)
-    {
-        tui->tryConnect();
-        tui->update();
-    }
-
     hud->setText2("initialising plugins");
     hud->redraw();
 
     coVRPluginList::instance()->init();
 
     hud->redraw();
+
+    for (auto &tui: tabletUIs)
+    {
+        tui->tryConnect();
+        tui->update();
+    }
 
     // Connect to VRBroker, if available
     if (coVRMSController::instance()->isMaster())
@@ -1026,7 +1029,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 case 'T':
                 case 't':
                     cerr << "calling: coTabletUI::instance()->close()" << endl;
-                    for (auto tui: tabletUIs)
+                    for (auto &tui: tabletUIs)
                         tui->close();
                     break;
                 }
@@ -1069,7 +1072,7 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                     break;
                 case 't':
                     cerr << "calling: coTabletUI::instance()->tryConnect()" << endl;
-                    for (auto tui: tabletUIs)
+                    for (auto &tui: tabletUIs)
                         tui->tryConnect();
                     break;
                 case 'x':
@@ -1166,7 +1169,11 @@ bool OpenCOVER::frame()
 
     // wait for all cull and draw threads to complete.
     //
-    coVRTui::instance()->update();
+    for (int i = 0; i < numTuis(); i++)
+    {
+        vrTui(i)->update();
+        tui(i)->update();
+    }
 
     if (coVRAnimationManager::instance()->update())
     {
@@ -1219,7 +1226,7 @@ bool OpenCOVER::frame()
     // pointer ray intersection test
     // update update manager =:-|
     cover->update();
-    for (auto tui: tabletUIs)
+    for (auto &tui: tabletUIs)
     {
         if (tui->update())
         {
@@ -1448,7 +1455,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRCommunication::instance();
     delete coVRPartnerList::instance();
     delete MarkerTracking::instance();
-    delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
     VRViewer::instance()->unconfig();
@@ -1463,9 +1469,10 @@ OpenCOVER::~OpenCOVER()
     coShutDownHandlerList::instance()->shutAllDown();
     delete coShutDownHandlerList::instance();
 
-    for (auto tui: tabletUIs)
-        delete tui;
-    tabletUIs.clear();
+    while (numTuis() > 0)
+    {
+        popTui();
+    }
 
     if (cover->debugLevel(2))
     {
@@ -1544,19 +1551,42 @@ size_t OpenCOVER::numTuis() const
 
 coTabletUI *OpenCOVER::tui(size_t idx) const
 {
-    assert(tabletTabs.size() == tabletUIs.size());
+    assert(tabletVrTuis.size() == tabletUIs.size());
     if (idx >= tabletUIs.size())
         return nullptr;
-    return tabletUIs[idx];
+    return tabletUIs[idx].get();
+}
+
+coVRTui *OpenCOVER::vrTui(size_t idx) const
+{
+    assert(tabletVrTuis.size() == tabletUIs.size());
+    if (idx >= tabletVrTuis.size())
+        return nullptr;
+    return tabletVrTuis[idx].get();
 }
 
 coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
 {
-    assert(tabletTabs.size() == tabletUIs.size());
-    if (idx >= tabletTabs.size())
+    auto vrtui = vrTui(idx);
+    if (!vrtui)
         return nullptr;
+    return vrtui->mainFolder;
+}
 
-    return tabletTabs[idx];
+void OpenCOVER::pushTui(coTabletUI *tui, coVRTui *vrTui)
+{
+    assert(tabletVrTuis.size() == tabletUIs.size());
+    tabletUIs.emplace_back(tui);
+    tabletVrTuis.emplace_back(vrTui);
+}
+
+void OpenCOVER::popTui()
+{
+    assert(tabletVrTuis.size() == tabletUIs.size());
+    if (tabletUIs.empty())
+        return;
+    tabletVrTuis.pop_back();
+    tabletUIs.pop_back();
 }
 
 bool OpenCOVER::watchFileDescriptor(int fd)

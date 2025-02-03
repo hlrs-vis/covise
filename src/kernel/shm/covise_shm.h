@@ -14,10 +14,6 @@
 #define SHARED_MEMORY
 #endif
 
-#ifdef _CRAYT3E
-#define HANDLE unsigned int
-#endif
-
 #include <util/coTypes.h>
 #include <util/coLog.h>
 
@@ -90,7 +86,6 @@ enum access_type
 };
 
 // IDs for the data type encoding (for IPC)
-#ifndef YAC
 const int NONE = 0;
 //const int CHAR            =  1;
 //const int SHORT           =  2;
@@ -165,8 +160,6 @@ const int COLOR_MSG = 62;
 const int COLORMAPCHOICE_MSG = 63;
 const int MATERIAL_MSG = 64;
 
-#endif
-
 const int START_EVEN = 0;
 const int START_ODD = 4;
 
@@ -240,9 +233,6 @@ public:
     SharedMemory(int *shm_key, shmSizeType shm_size);
     ~SharedMemory();
     static shmCallback *shmC;
-#if defined(__hpux) || defined(_SX)
-    void *get_pointer(int no);
-#else
     void *get_pointer(int no)
     {
         if (SharedMemory::shmlist)
@@ -252,7 +242,6 @@ public:
         print_comment(__LINE__, __FILE__, "getting pointer: 0x0");
         return NULL;
     };
-#endif
     void *get_pointer()
     {
         return &(data[2 * sizeof(int)]);
@@ -342,7 +331,6 @@ class SHMEXPORT coShmItem
     friend int covise_decode_list(List<PackElement> *, char *, DataManagerProcess *, char);
     friend coShmPtr *covise_extract_list(List<PackElement> *pack_list, char);
     friend class coShmPtrArray;
-    friend class coDistributedObject; //__alpha
 protected:
     int shm_seq_no;
     shmSizeType offset;

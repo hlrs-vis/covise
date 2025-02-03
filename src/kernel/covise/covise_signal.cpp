@@ -158,25 +158,13 @@ void (*my_signal(int signo, void (*func)(int)))(int)
 {
     struct sigaction act, old_act;
 
-#ifdef _SX
-    act.sa_handler = (void (*)())func;
-#else
     act.sa_handler = func;
-#endif
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
-#if !defined(__hpux) && !defined(_SX)
     act.sa_flags |= SA_RESTART;
-#endif
-#if defined(_SX) || defined(__hpux)
-    if (sigaction(signo, &act, &old_act) < 0)
-        return (void (*)(int))SIG_ERR;
-    return (void (*)(int))(old_act.sa_handler);
-#else
     if (sigaction(signo, &act, &old_act) < 0)
         return SIG_ERR;
     return (old_act.sa_handler);
-#endif
 }
 }
 #endif

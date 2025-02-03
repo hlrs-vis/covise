@@ -51,7 +51,7 @@ CoordinateSystemType vpb::getCoordinateSystemType(const osg::CoordinateSystemNod
 
     //if (strcmp(lhsSR.GetRoot()->GetValue(),"GEOCCS")==0) log(osg::INFO,"    lhsSR. is GEOCENTRIC ");
 
-    if (strcmp(lhsSR.GetRoot()->GetValue(), "GEOCCS") == 0)
+    if (lhsSR.GetRoot() != nullptr && strcmp(lhsSR.GetRoot()->GetValue(), "GEOCCS") == 0)
         return GEOCENTRIC;
     if (lhsSR.IsGeographic())
         return GEOGRAPHIC;

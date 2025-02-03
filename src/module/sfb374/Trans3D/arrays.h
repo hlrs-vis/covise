@@ -19,10 +19,8 @@
 
 #include <vector>
 #include <new>
-#ifndef __sgi
 #include <cstdlib>
 #include <cmath>
-#endif
 #include <complex>
 #include <algorithm>
 

@@ -31,13 +31,11 @@ class VRMLEXPORT VrmlNodeElevationGrid : public VrmlNodeGeometry
 
 public:
     // Define the fields of elevationGrid nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeElevationGrid *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeElevationGrid(VrmlScene *);
-    virtual ~VrmlNodeElevationGrid();
 
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
 
     virtual bool isModified() const;
@@ -47,17 +45,9 @@ public:
 
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
-
     virtual VrmlNodeColor *color();
-
-    //LarryD Mar 09/99
-    virtual VrmlNodeElevationGrid *toElevationGrid() const;
 
     virtual VrmlNode *getNormal(); //LarryD Mar 09/99
     virtual VrmlNode *getTexCoord(); //LarryD Mar 09/99

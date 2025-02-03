@@ -141,7 +141,7 @@ public:
     osg::StateSet *loadGlobalGeostate();
     osg::StateSet *loadUnlightedGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
     osg::StateSet *loadTransparentGeostate(osg::Material::ColorMode mode = osg::Material::OFF);
-    osg::StateSet *loadDefaultPointstate(float pointSize = 4, osg::Material::ColorMode mode = osg::Material::OFF); 
+    osg::StateSet *loadDefaultPointstate(float pointSize = 4, osg::Material::ColorMode mode = osg::Material::OFF);
     void setWireframe(WireframeMode mode);
     void setPointerType(int pointerType);
     int getPointerType()
@@ -206,7 +206,7 @@ public:
         return m_scaleFactor;
     }
     void setScaleFactor(float scaleFactor, bool sync = true);
-    void scaleAllObjects(bool resetView = false);
+    void scaleAllObjects(bool resetView = false, bool simple = false);
     bool isScalingAllObjects() const
     {
         return m_scalingAllObjects;
@@ -217,7 +217,7 @@ public:
 
     void toggleAxis(bool state);
     void toggleHighQuality(bool state);
-    void viewAll(bool resetView = false);
+    void viewAll(bool resetView = false, bool simple = false);
     float floorHeight()
     {
         return m_floorHeight;

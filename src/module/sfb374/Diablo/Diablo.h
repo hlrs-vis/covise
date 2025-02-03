@@ -7,8 +7,6 @@
 
 #ifndef _READDIABLO_H
 #define _READDIABLO_H
-// _SGI oder _CRAY
-#define _SGI
 /**************************************************************************\ 
  **                                                           (C)1995 RUS  **
  **                                                                        **

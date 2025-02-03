@@ -44,15 +44,6 @@ class ReadIhs : public coSimpleModule
       const char* grid_Path;
       const char* data_Path;
 	  
-#ifdef YAC
-      coObjInfo Mesh;
-      coObjInfo Veloc;
-      coObjInfo Press;
-      coObjInfo K_name;
-      coObjInfo EPS_name;
-      coObjInfo RHO_name;
-      coObjInfo STR_name;
-#else
       const char* Mesh;
       const char* Veloc;
       const char* Press;
@@ -60,7 +51,6 @@ class ReadIhs : public coSimpleModule
       const char* EPS_name;
       const char* RHO_name;
 	  const char* STR_name;
-#endif 
 
       //  Local data
       int n_coord,n_elem;

@@ -20,7 +20,7 @@
 #include <atomic>
 #include <messages/NEW_UI.h>
 
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "widgets/MEUserInterface.h"
 #include "widgets/MEHelpViewer.h"
 class QListWidget;

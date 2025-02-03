@@ -12,13 +12,7 @@
 #include "Transform.h"
 #include <vector>
 
-#ifdef __hpux
-double drem(double x, double y)
-{
-    return remainder(x, y);
-}
-
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 double remainder(double x, double y)
 {
     double tmp = x / y;

@@ -12,7 +12,7 @@
 
 #include "MEScalarPort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 
 /*!

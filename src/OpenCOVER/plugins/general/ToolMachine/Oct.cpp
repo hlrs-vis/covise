@@ -14,7 +14,7 @@ constexpr unsigned int allPointsPrimitiveIndex = 0;
 constexpr unsigned int reducedPointsPrimitiveIndex = 1;
 
 Oct::Oct(opencover::ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: ToolModel(group, file, toolHeadNode, tableNode)
+: Tool(group, file, toolHeadNode, tableNode)
 , m_pointSizeSlider(new ui::Slider(group, "pointSize"))
 , m_showSurfaceBtn(new ui::Button(group, "showSurface"))
 , m_switchVecScalar(new ui::Button(group, "toggleData"))

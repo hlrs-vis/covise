@@ -723,11 +723,7 @@ float Surface::compute_inner_angle(int v1, int v, int v2)
     }
 
     cosi = n[0] * m[0] + n[1] * m[1] + n[2] * m[2];
-#ifdef __sgi
-    gamma = acosf(cosi);
-#else
     gamma = acos(cosi);
-#endif
 
     return (gamma);
 }

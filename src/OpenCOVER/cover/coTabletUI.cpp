@@ -12,6 +12,7 @@
 #include <util/threadname.h>
 #include "coTabletUI.h"
 #include <net/covise_connect.h>
+#include <net/covise_socket.h>
 #include <net/covise_host.h>
 #include <net/message.h>
 #include <net/message_types.h>
@@ -1115,8 +1116,16 @@ void coTUIColorTriangle::resend(bool create)
     setVal(TABLET_BLUE, blue);
 }
 
-coTUIColorButton::coTUIColorButton(const std::string &n, int pID)
-    : coTUIElement(n, pID, TABLET_COLOR_BUTTON)
+coTUIColorButton::coTUIColorButton(const std::string &n, int pID): coTUIElement(n, pID, TABLET_COLOR_BUTTON)
+{
+    red = 1.0;
+    green = 1.0;
+    blue = 1.0;
+    alpha = 1.0;
+}
+
+coTUIColorButton::coTUIColorButton(coTabletUI *tui, const std::string &n, int pID)
+: coTUIElement(tui, n, pID, TABLET_COLOR_BUTTON)
 {
     red = 1.0;
     green = 1.0;
@@ -1284,8 +1293,7 @@ void coTUIColorTab::resend(bool create)
 //----------------------------------------------------------
 //---------------------------------------------------------
 
-coTUINav::coTUINav(const char *n, int pID)
-    : coTUIElement(n, pID, TABLET_NAV_ELEMENT)
+coTUINav::coTUINav(coTabletUI *tui, const char *n, int pID): coTUIElement(tui, n, pID, TABLET_NAV_ELEMENT)
 {
     down = false;
     x = 0;
@@ -4126,7 +4134,7 @@ coTUIElement::~coTUIElement()
     tui()->removeElement(this);
 }
 
-void coTUIElement::createSimple(int type)
+bool coTUIElement::createSimple(int type)
 {
     TokenBuffer tb;
     tb << TABLET_CREATE;
@@ -4134,7 +4142,7 @@ void coTUIElement::createSimple(int type)
     tb << type;
     tb << parentID;
     tb << name.c_str();
-    tui()->send(tb);
+    return tui()->send(tb);
 }
 
 coTabletUI *coTUIElement::tui() const
@@ -4306,7 +4314,13 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath, cons
 void coTUIElement::resend(bool create)
 {
     if (create)
-        createSimple(type);
+    {
+        if (!createSimple(type))
+        {
+            std::cerr << "coTUIElement::resend(create=true): createSimple failed for ID=" << ID
+                      << ", parent=" << parentID << std::endl;
+        }
+    }
 
     TokenBuffer tb;
 
@@ -4438,61 +4452,153 @@ coTabletUI::coTabletUI()
     assert(!tUI);
     tUI = this;
 
+    config();
     init();
-
-    std::string line;
-    if (getenv("COVER_TABLETUI"))
-    {
-        std::string env(getenv("COVER_TABLETUI"));
-        std::string::size_type p = env.find(':');
-        if (p != std::string::npos)
-        {
-            port = atoi(env.substr(p + 1).c_str());
-            env = env.substr(0, p);
-        }
-        line = env;
-        std::cerr << "getting TabletPC configuration from $COVER_TABLETUI: " << line << ":" << port << std::endl;
-        serverMode = false;
-    }
-    else
-    {
-        port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
-        line = coCoviseConfig::getEntry("host","COVER.TabletUI");
-        serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
-    }
-
-    if (!line.empty())
-    {
-        if (strcasecmp(line.c_str(), "NONE") != 0)
-        {
-            serverHost = new Host(line.c_str());
-            localHost = new Host("localhost");
-        }
-    }
-    else
-    {
-        localHost = new Host("localhost");
-    }
-
-    tryConnect();
 }
 
-coTabletUI::coTabletUI(const std::string &host, int port)
-: port(port)
+coTabletUI::coTabletUI(const std::string &host, int port): connectionConfig(host, port)
 {
+    config();
     init();
+}
 
-    serverMode = false;
-    serverHost = new Host(host.c_str());
+coTabletUI::coTabletUI(int fd, int fdSg): connectionConfig(fd, fdSg)
+{
+    config();
+    init();
+}
 
-    tryConnect();
+void coTabletUI::config()
+{
+    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
+    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
 }
 
 void coTabletUI::init()
 {
-    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
+    reinit(connectionConfig);
+}
 
-    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
+void coTabletUI::reinit(const ConfigData &cd)
+{
+    assert(cd.mode != None);
+
+    lock();
+
+    if (mode != None)
+    {
+        close();
+    }
+
+    switch (cd.mode)
+    {
+    case None:
+        // just to get warnings about missing other cases
+        break;
+    case Config:
+    {
+        port = 31802;
+        std::string line;
+        if (getenv("COVER_TABLETUI"))
+        {
+            std::string env(getenv("COVER_TABLETUI"));
+            std::string::size_type p = env.find(':');
+            if (p != std::string::npos)
+            {
+                port = atoi(env.substr(p + 1).c_str());
+                env = env.substr(0, p);
+            }
+            line = env;
+            std::cerr << "getting TabletPC configuration from $COVER_TABLETUI: " << line << ":" << port << std::endl;
+            serverMode = false;
+        }
+        else
+        {
+            port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
+            line = coCoviseConfig::getEntry("host", "COVER.TabletUI");
+            serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
+        }
+
+        if (!line.empty())
+        {
+            if (strcasecmp(line.c_str(), "NONE") != 0)
+            {
+                serverHost = new Host(line.c_str());
+                localHost = new Host("localhost");
+            }
+        }
+        else
+        {
+            localHost = new Host("localhost");
+        }
+        break;
+    }
+    case Client:
+    {
+        serverMode = false;
+        serverHost = new Host(cd.host.c_str());
+        port = cd.port;
+
+        break;
+    }
+    case ConnectedSocket:
+    {
+        serverMode = false;
+
+        tryConnect();
+
+        localHost = new Host("localhost");
+        connectedHost = localHost;
+        port = 0;
+
+        conn = std::make_unique<Connection>(cd.fd);
+        conn->set_sendertype(0);
+        conn->getSocket()->setNonBlocking(false);
+        sgConn = std::make_unique<Connection>(cd.fdSg);
+        sgConn->set_sendertype(0);
+        sgConn->getSocket()->setNonBlocking(false);
+
+        sendThread = std::thread(
+            [this]()
+            {
+                setThreadName("coTabletIU:send");
+                //std::cerr << "coTabletUI: sendThread: entering loop" << std::endl;
+                for (;;)
+                {
+                    std::unique_lock<std::mutex> lock(sendMutex);
+                    if (sendQueue.empty())
+                    {
+                        sendCond.wait(lock);
+                    }
+                    if (sendQueue.empty())
+                    {
+                        continue;
+                    }
+                    DataHandle data = std::move(sendQueue.front());
+                    sendQueue.pop_front();
+                    lock.unlock();
+                    if (data.length() == 0)
+                    {
+                        std::cerr << "coTabletUI: sendThread: zero-length message, terminating" << std::endl;
+                        break;
+                    }
+                    Message msg(COVISE_MESSAGE_TABLET_UI, data);
+                    if (!conn->sendMessage(&msg))
+                    {
+                        std::cerr << "coTabletUI: sendThread: connection failed" << std::endl;
+                        break;
+                    }
+                }
+            });
+
+        resendAll();
+        break;
+    }
+    }
+
+    mode = cd.mode;
+
+    unlock();
 }
 
 // resend all ui Elements to the TabletPC
@@ -4502,6 +4608,7 @@ void coTabletUI::resendAll()
     {
         el->resend(true);
     }
+    newElements.clear();
 }
 
 bool coTabletUI::isConnected() const
@@ -4511,16 +4618,70 @@ bool coTabletUI::isConnected() const
 
 void coTabletUI::close()
 {
-    connectedHost = NULL;
-    conn.reset(nullptr);
+    if (connThread.joinable())
+    {
+        lock();
+        if (conn)
+            conn->cancel();
+        unlock();
+        connThread.join();
+    }
 
-    delete sgConn;
-    sgConn = NULL;
+    {
+        std::unique_lock<std::mutex> guard(sendMutex);
+        sendQueue.clear();
+        if (sendThread.joinable())
+        {
+            // send zero-length message to terminate sendThread
+            sendQueue.emplace_back();
+            sendCond.notify_one();
+            guard.unlock();
+            sendThread.join();
+        }
+    }
+
+    connectedHost = NULL;
+    conn.reset();
+    sgConn.reset();
 
     delete serverConn;
     serverConn = NULL;
 
-    tryConnect();
+    delete serverHost;
+    serverHost = NULL;
+
+    delete localHost;
+    localHost = NULL;
+}
+
+void coTabletUI::tryConnect()
+{
+    lock();
+    if (connThread.joinable())
+    {
+        if (conn)
+            conn->cancel();
+        connThread.join();
+    }
+
+    {
+        std::unique_lock<std::mutex> guard(sendMutex);
+        sendQueue.clear();
+        if (sendThread.joinable())
+        {
+            // send zero-length message to terminate sendThread
+            sendQueue.emplace_back();
+            sendCond.notify_one();
+            guard.unlock();
+            sendThread.join();
+        }
+    }
+
+    connectedHost = NULL;
+
+    delete serverConn;
+    serverConn = NULL;
+    unlock();
 }
 
 bool coTabletUI::debugTUI()
@@ -4528,24 +4689,22 @@ bool coTabletUI::debugTUI()
     return debugTUIState;
 }
 
-void coTabletUI::tryConnect()
-{
-    delete serverConn;
-    serverConn = NULL;
-}
-
 coTabletUI::~coTabletUI()
 {
+    close();
+
     if (tUI == this)
         tUI = nullptr;
 
-    if (connFuture.valid())
+    if (connThread.joinable())
     {
         lock();
-        connFuture.wait();
-        (void)connFuture.get();
+        if (conn)
+            conn->cancel();
+        connThread.join();
         unlock();
     }
+
     connectedHost = nullptr;
     conn.reset();
 
@@ -4558,22 +4717,68 @@ int coTabletUI::getID()
     return ID++;
 }
 
-void coTabletUI::send(TokenBuffer &tb)
+bool coTabletUI::send(TokenBuffer &tb)
 {
     if (!connectedHost)
     {
-        return;
+        return false;
     }
     assert(conn);
+    if (sendThread.joinable())
+    {
+        std::unique_lock<std::mutex> lock(sendMutex);
+        sendQueue.emplace_back(tb.getData());
+        sendCond.notify_one();
+        return true;
+    }
+
     Message m(tb);
     m.type = COVISE_MESSAGE_TABLET_UI;
-    conn->sendMessage(&m);
+    if (!conn->sendMessage(&m))
+    {
+        std::cerr << "coTabletUI::send: connection failed" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 bool coTabletUI::update()
 {
     if (coVRMSController::instance() == NULL)
         return false;
+
+    if (connThread.joinable())
+    {
+        lock();
+        if (!connecting)
+        {
+            connThread.join();
+            if (connectingHost)
+            {
+                assert(conn);
+                assert(sgConn);
+            }
+            else
+            {
+                conn.reset();
+                sgConn.reset();
+            }
+        }
+        unlock();
+    }
+
+    bool hasConnected = false;
+    lock();
+    if (connectingHost)
+    {
+        assert(conn);
+        assert(sgConn);
+        assert(!connectedHost);
+        std::swap(connectedHost, connectingHost);
+        assert(!connectingHost);
+        hasConnected = true;
+    }
+    unlock();
 
     if (connectedHost)
     {
@@ -4591,164 +4796,137 @@ bool coTabletUI::update()
         if (abs(cover->frameRealTime() - oldTime) > 2.)
         {
             oldTime = cover->frameRealTime();
-
             {
                 Message msg(Message::UI, "WANT_TABLETUI");
                 coVRPluginList::instance()->sendVisMessage(&msg);
             }
 
             lock();
-            if (!connFuture.valid())
+            if (!connThread.joinable())
             {
-                connectedHost = NULL;
-                connFuture = std::async(std::launch::async, [this]() -> covise::Host *
-                {
-                    setThreadName("tabletUI:conn");
+                connectingHost = nullptr;
+                connecting = true;
+                connThread = std::thread(
+                    [this]()
+                    {
+                        setThreadName("coTabletUI:conn");
 
-                    ClientConnection *nconn = nullptr;
-                    Host *host = nullptr;
-                    if (serverHost)
-                    {
-                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                        std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
-                        nconn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
-                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
-                        firstConnection = false;
-                    }
-                    if (nconn && nconn->is_connected())
-                    {
-                        conn.reset(nconn);
-                        host = serverHost;
-                    }
-                    else if (nconn) // could not open server port
-                    {
-                        delete nconn;
-                        nconn = NULL;
-                    }
-
-                    if (!conn && localHost)
-                    {
-                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                        std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
-                        nconn = new ClientConnection(localHost, port, 0, (sender_type)0, 0, timeout);
-                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
-                        firstConnection = false;
-
-                        if (nconn->is_connected())
+                        ClientConnection *nconn = nullptr;
+                        Host *host = nullptr;
+                        for (auto h: {serverHost, localHost})
                         {
-                            conn.reset(nconn);
-                            host = localHost;
+                            if (!h)
+                                continue;
+                            if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                                std::cerr << "Trying tablet UI connection to " << h->getPrintable() << ":" << port
+                                          << "... " << std::flush;
+                            nconn = new ClientConnection(h, port, 0, (sender_type)0, 0, timeout);
+                            if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                                std::cerr << (nconn->is_connected() ? "success" : "failed") << "." << std::endl;
+                            firstConnection = false;
+                            if (nconn && nconn->is_connected())
+                            {
+                                lock();
+                                conn.reset(nconn);
+                                unlock();
+                                host = h;
+                                break;
+                            }
+                            else if (nconn) // could not open server port
+                            {
+                                delete nconn;
+                                nconn = NULL;
+                            }
+                        }
+
+                        if (!conn || !host)
+                        {
+                            connecting = false;
+                            return;
+                        }
+
+                        // create Texture and SGBrowser Connections
+                        Message msg;
+                        conn->recv_msg(&msg);
+                        if (msg.type == COVISE_MESSAGE_SOCKET_CLOSED)
+                        {
+                            lock();
+                            conn.reset();
+                            unlock();
+                            sgConn.reset();
+                            connecting = false;
+                            return;
+                        }
+                        if (msg.type == covise::COVISE_MESSAGE_TABLET_UI)
+                        {
+                            TokenBuffer stb(&msg);
+                            int sgPort = 0;
+                            stb >> sgPort;
+
+                            ClientConnection *cconn = new ClientConnection(host, sgPort, 0, (sender_type)0, 2, 1);
+                            if (!cconn->is_connected()) // could not open server port
+                            {
+#ifndef _WIN32
+                                if (errno != ECONNREFUSED)
+                                {
+                                    fprintf(stderr, "Could not connect to TabletPC SGBrowser %s; port %d: %s\n",
+                                            host->getPrintable(), sgPort, strerror(errno));
+                                }
+#else
+                                fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", host->getPrintable(),
+                                        sgPort);
+#endif
+                                lock();
+                                conn.reset();
+                                unlock();
+                                delete cconn;
+                                cconn = NULL;
+                                connecting = false;
+                                return;
+                            }
+                            sgConn.reset(cconn);
                         }
                         else
                         {
-                            // could not open server port
-                            delete nconn;
-                            nconn = NULL;
-
+                            lock();
+                            conn.reset();
+                            unlock();
+                            sgConn.reset();
+                            connecting = false;
+                            return;
                         }
-                    }
 
-
-                    if (!conn || !host)
-                    {
-                        return nullptr;
-                    }
-
-                    // create Texture and SGBrowser Connections
-                    Message *msg = new covise::Message();
-                    conn->recv_msg(msg);
-                    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-                    {
-                        delete msg;
-                        conn.reset(nullptr);
-
-                        delete sgConn;
-                        sgConn = NULL;
-
-                        return nullptr;
-                    }
-                    if(msg->type == covise::COVISE_MESSAGE_TABLET_UI)
-                    {
-                        TokenBuffer stb(msg);
-                        int sgPort = 0;
-                        stb >> sgPort;
-                        delete msg;
-
-                        ClientConnection *cconn = new ClientConnection(host, sgPort, 0, (sender_type)0, 2, 1);
-                        if (!cconn->is_connected()) // could not open server port
-                        {
-#ifndef _WIN32
-                            if (errno != ECONNREFUSED)
-                            {
-                                fprintf(stderr, "Could not connect to TabletPC SGBrowser %s; port %d: %s\n",
-                                        host->getName(), sgPort, strerror(errno));
-                            }
-#else
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), sgPort);
-#endif
-                            conn.reset(nullptr);
-
-                            delete cconn;
-                            cconn = NULL;
-
-                            return nullptr;
-                        }
-                        sgConn = cconn;
-                    }
-                    else
-                    {
-                    delete msg;
-                    conn.reset(nullptr);
-
-                    delete sgConn;
-                    sgConn = NULL;
-                    return nullptr;
-                    }
-
-                    return host;
-                });
-            }
-            unlock();
-        }
-
-        if (connFuture.valid())
-        {
-            lock();
-            auto status = connFuture.wait_for(std::chrono::seconds(0));
-            if (status == std::future_status::ready)
-            {
-                connectedHost = connFuture.get();
-
-                if (!connectedHost)
-                {
-                    conn.reset(nullptr);
-
-                    delete sgConn;
-                    sgConn = NULL;
-                }
-                else
-                {
-                    assert(conn);
-                    assert(sgConn);
-
-                    // resend all ui Elements to the TabletPC
-                    resendAll();
-                }
+                        lock();
+                        connectingHost = host;
+                        connecting = false;
+                        unlock();
+                        return;
+                    });
             }
             unlock();
         }
     }
 
-    if (serverConn && serverConn->check_for_input())
+    if (connectedHost && conn && serverMode)
+    {
+        if (conn->is_connected() && !serverHost)
+        {
+            Message m;
+            conn->recv_msg(&m);
+            TokenBuffer tb(&m);
+            const char *hostName;
+            tb >> hostName;
+            serverHost = new Host(hostName);
+
+            hasConnected = true;
+        }
+    }
+    else if (serverConn && serverConn->check_for_input())
     {
         if (conn)
         {
             connectedHost = nullptr;
-
-            delete sgConn;
-            sgConn = NULL;
+            sgConn.reset();
         }
         conn = serverConn->spawn_connection();
         if (conn && conn->is_connected())
@@ -4760,8 +4938,14 @@ bool coTabletUI::update()
             tb >> hostName;
             serverHost = new Host(hostName);
 
-            resendAll();
+            hasConnected = true;
         }
+    }
+
+    if (hasConnected)
+    {
+        std::cerr << "coTabletUI: new connection - sending all elements" << std::endl;
+        resendAll();
     }
 
     for (auto el: newElements)
@@ -4778,7 +4962,7 @@ bool coTabletUI::update()
         Message m;
         if (coVRMSController::instance()->isMaster())
         {
-            if (conn)
+            if (conn && connectedHost)
             {
                 if (conn->check_for_input())
                 {
@@ -4813,10 +4997,8 @@ bool coTabletUI::update()
             case COVISE_MESSAGE_CLOSE_SOCKET:
             {
                 connectedHost = nullptr;
-                conn.reset(nullptr);
-
-                delete sgConn;
-                sgConn = NULL;
+                conn.reset();
+                sgConn.reset();
             }
             break;
             case COVISE_MESSAGE_TABLET_UI:

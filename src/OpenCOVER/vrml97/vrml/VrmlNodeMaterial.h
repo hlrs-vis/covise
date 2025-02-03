@@ -27,22 +27,12 @@ class VRMLEXPORT VrmlNodeMaterial : public VrmlNode
 
 public:
     // Define the fields of Material nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeMaterial *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeMaterial(VrmlScene *);
-    virtual ~VrmlNodeMaterial();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeMaterial *toMaterial() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
 
     float ambientIntensity()
     {

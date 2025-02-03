@@ -96,7 +96,8 @@ public:
         MFVEC3F,
         SFNODE,
         MFNODE,
-        SFMATRIX
+        SFMATRIX,
+        SFFIELD
     } VrmlFieldType;
 
     // Constructors/destructor

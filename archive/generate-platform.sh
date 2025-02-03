@@ -4,12 +4,6 @@ PLATFORM=${COVISEDIR}/DIST/DIST.$ARCHSUFFIX/Platform
 BASEARCH=`basename $ARCHSUFFIX opt`
 
 case $BASEARCH in
-    sgin32)
-        printf "DESC SGI IRIX 6.5.6 or later, 32 bit" > $PLATFORM
-        ;;
-    sgi64)
-        printf "DESC SGI IRIX 6.5.6 or later, 64 bit" > $PLATFORM
-        ;;
     linux)
         printf "DESC SuSE Linux 7.3 on IA32, gcc 2.95" > $PLATFORM
         ;;

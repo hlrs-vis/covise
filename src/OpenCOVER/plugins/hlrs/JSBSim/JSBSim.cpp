@@ -35,6 +35,8 @@
 
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
+#include <vrml97/vrml/Viewer.h>
+
 #include <cover/coVRFileManager.h>
 #include <osg/Vec3>
 
@@ -56,6 +58,10 @@ JSBSimPlugin::JSBSimPlugin()
         remoteSoundServer = configString("Sound", "server", "localhost")->value();
         remoteSoundPort = configInt("Sound", "port", 31805)->value();
 
+        const char* ES = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/engine.wav");
+        if (ES == nullptr)
+            ES = "";
+        EngineSound = configString("Sound", "engine", ES)->value();
         const char* VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
         if (VS == nullptr)
             VS = "";
@@ -73,10 +79,15 @@ JSBSimPlugin::JSBSimPlugin()
 #endif
 
         rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
+        engineSound = rsClient->getSound(EngineSound);
         varioSound = rsClient->getSound(VarioSound);
         windSound = rsClient->getSound(WindSound);
+        engineSound->setLoop(true, -1);
         varioSound->setLoop(true, -1);
         windSound->setLoop(true, -1);
+        varioSound->play();
+        engineSound->play();
+        windSound->play();
     }
     plugin = this;
     udp = 0;
@@ -383,7 +394,9 @@ bool JSBSimPlugin::init()
     host = configString("Glider", "host", "141.58.8.212")->value();
     serverPort = configInt("Glider", "serverPort", 31319)->value();
     localPort = configInt("Glider", "localPort", 1234)->value();
-
+    jsName = configString("JSBSim", "joystick", "Logitech X52 Professional H.O.T.A.S.")->value();
+    rudderName = configString("JSBSim", "rudder", "Thrustmaster T-Pendular-Rudder")->value();
+    
     const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
    
     if(rd==nullptr)
@@ -601,7 +614,7 @@ bool JSBSimPlugin::init()
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeThermal::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
 
     initAircraft();
     return true;
@@ -658,20 +671,41 @@ if (coVRMSController::instance()->isMaster())
 bool
 JSBSimPlugin::update()
 {
+
+if (coVRMSController::instance()->isMaster())
+{
     joystickDev = (Joystick*)(Input::instance()->getDevice("joystick"));
     if (joystickDev->numLocalJoysticks > 0)
     {
+        if(Joysticknumber <0) // did not find a joystick yet
+	{
+	fprintf(stderr, "looking for joystick %s %s\n", jsName.c_str(), rudderName.c_str()); 
         for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
         {
-            if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1)
+            fprintf(stderr, "joysticks: %d %d %d %s \n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i],joystickDev->names[i].c_str());
+	    if(joystickDev->names[i] == jsName)
+	    {
+                Joysticknumber = i;
+	    }
+            else if(joystickDev->names[i] == rudderName)
+	    {
+                Ruddernumber = i;
+	    }
+            else if (joystickDev->number_axes[i] == 11 && joystickDev->number_sliders[i] == 0) // linux
             {
                 Joysticknumber = i;
             }
-            if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
+            else if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1) // windows
+            {
+                Joysticknumber = i;
+            }
+            else if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
             {
                 Ruddernumber = i;
+                //fprintf(stderr, "FoundRudder\n");
             }
         }
+	}
 
     }
     else
@@ -696,7 +730,7 @@ JSBSimPlugin::update()
             //", axes[1]:" << joystickDev->axes[0][1] << std::endl;
     }
 
-    if (joystickDev) {
+    if (joystickDev && Joysticknumber >= 0) {
 
         // Read joystick axis values
         float joystickX = joystickDev->axes[Joysticknumber][0];
@@ -716,8 +750,6 @@ JSBSimPlugin::update()
     //gliderValues.speed = throttle;
 
 
-if (coVRMSController::instance()->isMaster())
-        {
     updateUdp();
     //std::cout << "Entered coVRMSController::instance()_>isMAster()" << std::endl;
     rsClient->update();
@@ -726,6 +758,7 @@ if (coVRMSController::instance()->isMaster())
     if (isEnabled())
     {
 
+	bool stopNav = false;
 if (coVRMSController::instance()->isMaster())
         {
             bool result = true;
@@ -742,17 +775,30 @@ if (coVRMSController::instance()->isMaster())
             std::cout << "fgcontrol.elevator:" << fgcontrol.elevator << std::endl;
             if (joystickDev)
             {
-                if(Ruddernumber>=0)
+                if (Ruddernumber >= 0)
+                {
+                    std::cout << "Rudder" << joystickDev->axes[Ruddernumber][2] << std::endl;
                     FCS->SetDrCmd(joystickDev->axes[Ruddernumber][2]);
-                else if(Joysticknumber>=0)
+                }
+                else if (Joysticknumber >= 0)
+                {
+
                     FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
+                }
             }
 
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
-                if (joystickDev)
+                if (joystickDev && Joysticknumber >=0)
                 {
                     FCS->SetThrottleCmd(i,1.0-((1+joystickDev->axes[Joysticknumber][2])/2.0));
-                    FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+		    if(joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
+		    {
+                        FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+		    }
+		    else if(joystickDev->number_axes[Joysticknumber] == 11)
+		    {
+                        FCS->SetMixtureCmd(i, joystickDev->axes[Joysticknumber][10]);
+		    }
                 }
                 else
                 {
@@ -784,19 +830,19 @@ if (coVRMSController::instance()->isMaster())
                     result = FDMExec->Run();
                     if (!result)
                     {
-                        coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	                stopNav = true;
                         break;
                     }
                 }
                 catch (std::string s)
                 {
                     fprintf(stderr, "oops, exception %s\n", s.c_str());
-                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	            stopNav = true;
                 }
                 catch (...)
                 {
                     fprintf(stderr, "oops, exception\n");
-                    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	            stopNav = true;
                 }
             }
             if (result)
@@ -865,6 +911,9 @@ if (coVRMSController::instance()->isMaster())
                         pitch = 1;
                     pitch = 0.8 + (pitch + 1.0) * 0.3;
                     varioSound->setPitch(pitch);
+                    windSound->setVolume(1.0);
+                    engineSound->setVolume(1.0);
+                    engineSound->setPitch(1.0);
 
                     float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
                     if (vol > 1.0)
@@ -885,18 +934,29 @@ if (coVRMSController::instance()->isMaster())
             }
 
         }
-
+        coVRMSController::instance()->sendSlaves((char *)&stopNav, sizeof(stopNav));
+	if(!stopNav)
+	{
             coVRMSController::instance()->sendSlaves((char *)lastPos.ptr(), sizeof(lastPos));
                     VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
                     coVRCollaboration::instance()->SyncXform();
-            return result;
+        }
 }
 else
 {
+        coVRMSController::instance()->readMaster((char *)&stopNav, sizeof(stopNav));
+	if(!stopNav)
+	{
             coVRMSController::instance()->readMaster((char *)lastPos.ptr(), sizeof(lastPos));
                     VRSceneGraph::instance()->getTransform()->setMatrix(lastPos);
                     coVRCollaboration::instance()->SyncXform();
+        }
 }
+	if(stopNav)
+	{
+	    coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
+	    return false;
+	}
         return true;
     }
     return false;
@@ -919,10 +979,14 @@ if (coVRMSController::instance()->isMaster())
     {
         reset();
         varioSound->play();
+        windSound->play();
+        engineSound->play();
     }
     else
     {
         varioSound->stop();
+        windSound->stop();
+        engineSound->stop();
     }
     if (udp)
     {
@@ -1033,49 +1097,27 @@ void JSBSimPlugin::addThermal(const osg::Vec3& velocity, float turbulence)
 COVERPLUGIN(JSBSimPlugin)
 
 
-static VrmlNode* creator(VrmlScene* scene)
+void VrmlNodeThermal::initFields(VrmlNodeThermal* node, VrmlNodeType* t)
 {
-    return new VrmlNodeThermal(scene);
+    initFieldsHelper(node, t,
+    exposedField("direction", node->d_direction),
+    exposedField("location", node->d_location),
+    exposedField("maxBack", node->d_maxBack),
+    exposedField("maxFront", node->d_maxFront),
+    exposedField("minBack", node->d_minBack),
+    exposedField("minFront", node->d_minFront),
+    exposedField("height", node->d_height),
+    exposedField("velocity", node->d_velocity),
+    exposedField("turbulence", node->d_turbulence));
 }
 
-// Define the built in VrmlNodeType:: "Thermal" fields
-
-VrmlNodeType* VrmlNodeThermal::defineType(VrmlNodeType* t)
+const char* VrmlNodeThermal::typeName()
 {
-    static VrmlNodeType* st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Thermal", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-
-
-
-    t->addExposedField("direction", VrmlField::SFVEC3F);
-    t->addExposedField("intensity", VrmlField::SFFLOAT);
-    t->addExposedField("location", VrmlField::SFVEC3F);
-    t->addExposedField("maxBack", VrmlField::SFFLOAT);
-    t->addExposedField("maxFront", VrmlField::SFFLOAT);
-    t->addExposedField("minBack", VrmlField::SFFLOAT);
-    t->addExposedField("minFront", VrmlField::SFFLOAT);
-    t->addExposedField("height", VrmlField::SFFLOAT);
-    t->addExposedField("velocity", VrmlField::SFVEC3F);
-    t->addExposedField("turbulence", VrmlField::SFFLOAT);
-
-    return t;
-}
-
-VrmlNodeType* VrmlNodeThermal::nodeType() const
-{
-    return defineType(0);
+    return "Thermal";
 }
 
 VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, typeName())
     , d_direction(0, 0, 1)
     , d_location(0, 0, 0)
     , d_maxBack(10)
@@ -1091,7 +1133,7 @@ VrmlNodeThermal::VrmlNodeThermal(VrmlScene* scene)
 int VrmlNodeThermal::numThermalNodes = 0;
 
 VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
 {
     d_direction = n.d_direction;
     d_location = n.d_location;
@@ -1108,69 +1150,6 @@ VrmlNodeThermal::VrmlNodeThermal(const VrmlNodeThermal& n)
 VrmlNodeThermal::~VrmlNodeThermal()
 {
     numThermalNodes--;
-}
-
-VrmlNode* VrmlNodeThermal::cloneMe() const
-{
-    return new VrmlNodeThermal(*this);
-}
-
-ostream& VrmlNodeThermal::printFields(ostream& os, int indent)
-{
-    return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeThermal::setField(const char* fieldName,
-    const VrmlField& fieldValue)
-{
-
-    if
-        TRY_FIELD(direction, SFVec3f)
-    else if
-        TRY_FIELD(location, SFVec3f)
-    else if
-        TRY_FIELD(maxBack, SFFloat)
-    else if
-        TRY_FIELD(maxFront, SFFloat)
-    else if
-        TRY_FIELD(minBack, SFFloat)
-    else if
-        TRY_FIELD(minFront, SFFloat)
-    else if
-        TRY_FIELD(height, SFFloat)
-    else if
-        TRY_FIELD(velocity, SFVec3f)
-    else if
-        TRY_FIELD(turbulence, SFFloat)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField* VrmlNodeThermal::getField(const char* fieldName)
-{
-    if (strcmp(fieldName, "direction") == 0)
-        return &d_direction;
-    else if (strcmp(fieldName, "location") == 0)
-        return &d_location;
-    else if (strcmp(fieldName, "maxBack") == 0)
-        return &d_maxBack;
-    else if (strcmp(fieldName, "maxFront") == 0)
-        return &d_maxFront;
-    else if (strcmp(fieldName, "minBack") == 0)
-        return &d_minBack;
-    else if (strcmp(fieldName, "minFront") == 0)
-        return &d_minFront;
-    else if (strcmp(fieldName, "height") == 0)
-        return &d_height;
-    else if (strcmp(fieldName, "velocity") == 0)
-        return &d_velocity;
-    else if (strcmp(fieldName, "turbulence") == 0)
-        return &d_turbulence;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeThermal::eventIn(double timeStamp,

@@ -23,23 +23,12 @@ MEParameterAppearance::MEParameterAppearance(QWidget *parent, MEParameterPort *p
     , port(p)
 {
 
-#ifdef YAC
-    il_scalar << "Integer"
-              << "Slider"
-              << "Player"
-              << "Spinbox";
-    fl_scalar << "Float"
-              << "Slider"
-              << "Player"
-              << "Spinbox";
-#else
     il_scalar << "Integer"
               << "Stepper";
     fl_scalar << "Float"
               << "Stepper";
     ll_slider << "Slider"
               << "Player";
-#endif
 
     setFont(MEMainHandler::s_boldFont);
 

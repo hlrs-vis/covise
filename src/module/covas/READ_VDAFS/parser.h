@@ -10,9 +10,7 @@
 
 #include <fstream.h>
 #include <iostream.h>
-#ifndef CO_hp
 #include <libc.h>
-#endif
 #include <ctype.h>
 #include <LEDA/basic.h>
 #include <LEDA/string.h>

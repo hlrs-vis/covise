@@ -1,4 +1,5 @@
 USING(GDAL)
+USING(CURL)
 
 SET(HEADERS
   UrbanTempo.h

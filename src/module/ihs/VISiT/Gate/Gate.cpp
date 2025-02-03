@@ -17,9 +17,7 @@
 #include <General/include/log.h>
 #include <General/include/flist.h>
 
-#ifndef YAC
 #include <api/coFeedback.h>
-#endif
 
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>
@@ -102,11 +100,7 @@ void Gate::param(const char *portname, bool inMapLoading)
          sendError("We Had an input file before...");
          return;
       }
-#ifndef YAC
       Covise::getname(buf, startFile->getValue());
-#else
-      coFileHandler::getName(buf, startFile->getValue());
-#endif
       if(strlen(buf)==0)
       {
          sendError("startFile parameter incorrect");
@@ -141,18 +135,10 @@ void Gate::param(const char *portname, bool inMapLoading)
    //selfExec();
 }
 
-#ifndef YAC
 void Gate::quit()
 {
    // :-)
 }
-#else
-int Gate::quit()
-{
-   // }:->
-   return 0;
-}
-#endif
 
 int Gate::compute(const char *)
 {
@@ -181,11 +167,7 @@ int Gate::compute(const char *)
    }
 
    CtrlPanel2Struct();
-#ifndef YAC
    Covise::getname(name,startFile->getValue());
-#else
-   coFileHandler::getName(name,startFile->getValue());
-#endif
    strcat(name, ".new");
    res = WriteGeometry(geo, name);
    fprintf(stderr, "WriteGeometry sends: %d\n", res);
@@ -195,7 +177,6 @@ int Gate::compute(const char *)
    if ( (ci = CreateGeometry4Covise(geo)) )
    {
       fprintf(stderr, "Gate::compute(const char *): Geometry created\n");
-#ifndef YAC
       coFeedback feedback("Gate");
 
       feedback.addString("Blade");
@@ -207,7 +188,6 @@ int Gate::compute(const char *)
       feedback.addPara(p_Q_opt);
       feedback.addPara(p_n_opt);
       feedback.addPara(p_NumberOfBlades);
-#endif
       poly = new coDoPolygons(hub->getObjName(),
          ci->p->nump,
          ci->p->x, ci->p->y, ci->p->z,
@@ -236,12 +216,9 @@ int Gate::compute(const char *)
          ci->pol->num, ci->pol->list);
       poly->addAttribute("MATERIAL","metal metal.14");
       poly->addAttribute("vertexOrder","1");
-#ifndef YAC
       feedback.apply(poly);
-#endif
       // TUI%d %cmodule \n instance \n host \n parameterName \n parent\n text \n xPos \n yPos \n floatSlider \n parameterName \n min \n max \n value)
       // ... TUI-VR-Slider fuer Parameter Q ...
-#ifndef YAC
       sprintf(buf,"M%s\n%s\n%s\n" M_Q "\nNenndaten\n" M_Q "\n0\n0\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,200.,geo->ga->Q);
       poly->addAttribute("TUI0",buf);
       sprintf(buf,"M%s\n%s\n%s\n" M_H "\nNenndaten\n" M_H "\n0\n1\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,50.,geo->ga->H);
@@ -295,7 +272,6 @@ int Gate::compute(const char *)
          sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_BLADE_ANGLE "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),-20.,10.,geo->ga->bangle*180./M_PI);
       }
       poly->addAttribute("SLIDER6",buf);
-#endif
       GenerateNormals(BLADE,poly,bladenormals->getObjName());
       blade->setCurrentObject(poly);
    }
@@ -332,11 +308,6 @@ int Gate::compute(const char *)
          8*gg->e->nume,                           // number of connectivities
          gg->p->nump,                             // number of coordinates
          1);                                      // does type list exist?
-
-#ifdef YAC
-      unsGrd->getHdr()->setTime( -1, 0 );
-      unsGrd->getHdr()->setRealTime( 1.0 );
-#endif
 
       int *elem,*conn,*type;
       float *xc,*yc,*zc;
@@ -375,22 +346,14 @@ int Gate::compute(const char *)
       // set out port
       grid->setCurrentObject(unsGrd);
       char para[256];
-#ifndef YAC
       snprintf(para, 256, "%ld", p_NumberOfBlades->getValue());
-#else
-      snprintf(para, 256, "%d", p_NumberOfBlades->getValue());
-#endif
       unsGrd->addAttribute("number_of_blades", para);
       unsGrd->addAttribute("periodic", "1");
       unsGrd->addAttribute("rotating", "0");
       unsGrd->addAttribute("revolutions", "0");
       unsGrd->addAttribute("walltext", "");
 
-#ifndef YAC
       snprintf(para, 256, "111,passend,120,130,perio_rota,%ld,3", p_NumberOfBlades->getValue());
-#else
-      snprintf(para, 256, "111,passend,120,130,perio_rota,%d,3", p_NumberOfBlades->getValue());
-#endif
       unsGrd->addAttribute("periotext", para);
 
       snprintf(para, 256, "angle_of_multi_rotation %f\nnumber_of_rotations %d", 360.0 / p_NumberOfBlades->getValue(), (int) p_NumberOfBlades->getValue());
@@ -452,13 +415,9 @@ int Gate::compute(const char *)
       coDistributedObject *partObj[10];
       int *data;
       float *bPtr;
-#ifndef YAC
       const char *basename = boco->getObjName();
       //   0. number of columns per info
       sprintf(name,"%s_colinfo",basename);
-#else
-      coObjInfo name = boco->getNewObjectInfo();
-#endif
       size[0] = 6;
       size[1] = 0;
       coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -472,11 +431,7 @@ int Gate::compute(const char *)
       partObj[0]=colInfo;
 
       //   1. type of node
-#ifndef YAC
       sprintf(name,"%s_nodeinfo",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size[0] = GG_COL_NODE;
       size[1] = gg->p->nump;
       coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -489,11 +444,7 @@ int Gate::compute(const char *)
       partObj[1]=nodeInfo;
 
       //   2. type of element
-#ifndef YAC
       sprintf(name,"%s_eleminfo",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size[0] = GG_COL_ELEM;
       size[1] = gg->e->nume;
       coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -507,22 +458,14 @@ int Gate::compute(const char *)
 
       //   3. list of nodes with bc (a node may appear more than one time)
       //      and its types
-#ifndef YAC
       sprintf(name,"%s_diricletNodes",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size [0] = GG_COL_DIRICLET;
       size [1] = 5*gg->bcin->num;
       coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
       data = diricletNodes->getAddress();
 
       //   4. corresponding value to 3.
-#ifndef YAC
       sprintf(name,"%s_diricletValue",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       coDoFloat *diricletValues
          = new coDoFloat(name, 5*gg->bcin->num);
       diricletValues->getAddress(&bPtr);
@@ -564,20 +507,12 @@ int Gate::compute(const char *)
       partObj[4] = diricletValues;
 
       //   5. wall
-#ifndef YAC
       sprintf(name,"%s_wallValue",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       coDoFloat *wallValues
          = new coDoFloat(name, gg->bcwallvol->num);
       wallValues->getAddress(&bPtr);
 
-#ifndef YAC
       sprintf(name,"%s_wall",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size[0] = GG_COL_WALL;
       size[1] = gg->bcwallvol->num;
       coDoIntArr *faces = new coDoIntArr(name, 2, size );
@@ -595,11 +530,7 @@ int Gate::compute(const char *)
       partObj[5]=faces;
 
       //   6. balance
-#ifndef YAC
       sprintf(name,"%s_balance",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size[0] = GG_COL_BALANCE;
       size[1] = gg->bcinvol->num + gg->bcoutvol->num + gg->bcperiodicval->num;
 
@@ -640,11 +571,7 @@ int Gate::compute(const char *)
       partObj[6] = balance;
 
       //  7. pressure bc: outlet elements
-#ifndef YAC
       sprintf(name,"%s_pressElems",basename);
-#else
-      name = boco->getNewObjectInfo();
-#endif
       size[0] = GG_COL_PRESS;
       size[1] = gg->bcoutvol->num;
       coDoIntArr *pressElems = new coDoIntArr(name, 2, size );
@@ -1277,11 +1204,7 @@ int Gate::CheckUserInput(const char *portname, struct geometry *geo)
 
 }
 
-#ifndef YAC
 coDistributedObject *Gate::GenerateNormals(int part, coDoPolygons *poly, const char *out_name)
-#else
-coDistributedObject *Gate::GenerateNormals(int part, coDoPolygons *poly, coObjInfo out_name)
-#endif
 {
    coDoVec3 *normals;
 
@@ -1391,12 +1314,5 @@ coDistributedObject *Gate::GenerateNormals(int part, coDoPolygons *poly, coObjIn
 
    return(0);
 }
-
-#ifdef YAC
-void Gate::paramChanged(coParam *param) {
-
-   this->param(param->getName(), false);
-}
-#endif
 
 MODULE_MAIN(VISiT, Gate)

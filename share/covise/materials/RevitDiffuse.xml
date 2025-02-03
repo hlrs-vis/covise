@@ -1,6 +1,4 @@
-<_RevitDiffuse><uniform max="1.0" min="0.0" name="Brightness" type="float" value="0.3"/><uniform max="4.0" min="0.5" name="Contrast" type="float" value="1.8"/><uniform name="diffuseMap" type="sampler2D" value="0"/><vertexProgram>
-  
-uniform vec4 color;
+<_RevitDiffuse><uniform max="1.0" min="0.0" name="Brightness" type="float" value="0.3"/><uniform max="4.0" min="0.5" name="Contrast" type="float" value="1.8"/><uniform name="diffuseMap" type="sampler2D" value="0"/><vertexProgram>uniform vec4 color;
 vec4 Ambient;
 vec4 Diffuse;
 vec4 Specular;
@@ -144,9 +142,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif
 }
 
-  </vertexProgram><fragmentProgram>
-   
-    varying vec2 Texcoord;
+  </vertexProgram><fragmentProgram>varying vec2 Texcoord;
     varying vec4 Color;
    
     uniform float Brightness;
@@ -168,6 +164,6 @@ if(Color.b &gt; 1)
    Color.b=1;*/
 DiffuseColor[3]=1;
 //Color[3]=1;
-      gl_FragColor =  DiffuseColor *Color;
+     //gl_FragColor =  DiffuseColor *Color;
 //gl_FragColor = vec4(1,0,0,1);
     }</fragmentProgram></_RevitDiffuse>

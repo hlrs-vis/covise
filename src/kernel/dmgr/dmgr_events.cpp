@@ -15,10 +15,6 @@
 #include <sys/ipc.h>
 #endif
 
-#ifdef _WIN32
-#undef CRAY
-#endif
-
 #undef DEBUG
 //extern CoviseTime *covise_time;
 
@@ -47,17 +43,16 @@ int DataManagerProcess::handle_msg(Message *msg)
     int ok;
     coShmPtr *shmptr = NULL;
     unsigned int port;
-    int len, i, number;
+    int i, number;
     int retval = 2;
 #ifdef DEBUG
     int bytes_sent;
 #endif
     int *idata;
     pid_t *tmp_pid;
-    char dmsg_data[80];
     char remote_name[256];
     char new_interface_name[256];
-    char *tmp_ptr, *data;
+    char *tmp_ptr;
     ObjectEntry *oe;
     static int first = 1;
 
@@ -309,7 +304,6 @@ int DataManagerProcess::handle_msg(Message *msg)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_GET_SHM_KEY:
         //-------------------------------------------------------------------------
-        // this should not happen on a Cray, therefore no #ifdef CRAY
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "GET_SHM_KEY");
 #endif
@@ -350,9 +344,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         exch_trf_msg(&portmsg);
         if (portmsg.type == COVISE_MESSAGE_TRANSFER_PORT)
         {
-#ifndef CRAY
             msg->conn->sendMessage(&portmsg);
-#endif
         }
         //	    } else {
         //		tport = -1;
@@ -589,12 +581,8 @@ int DataManagerProcess::handle_msg(Message *msg)
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "QUIT");
 #endif
-#ifdef CRAY
-        retval = 0;
-#else
         //msg->conn->send_msg(msg);
         retval = 3;
-#endif
 
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "Data Manager correctly finished");

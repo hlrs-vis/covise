@@ -26,9 +26,6 @@
 #include <covise/covise.h>
 #include <map>
 
-#ifdef __sgi
-using namespace std;
-#endif
 #include <api/coChoiceParam.h>
 #include <api/coFileBrowserParam.h>
 #include <api/coOutputPort.h>

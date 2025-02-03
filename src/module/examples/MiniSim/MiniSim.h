@@ -26,9 +26,7 @@
  ** Date:  05.01.97  V0.1                                                  **
 \**************************************************************************/
 
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 
 using namespace covise;
 
@@ -61,11 +59,7 @@ private:
 
     coBooleanParam *boolPara;
     coChoiceParam *choicePara;
-#ifndef YAC
     coFloatSliderParam *val111, *val117, *val777;
-#else
-    coFloatParam *val111, *val117, *val777;
-#endif
     coFloatParam *relax;
     coIntScalarParam *steps;
     coStringParam *dir;
@@ -79,8 +73,5 @@ public:
     {
     }
 
-#ifdef YAC
-    virtual void paramChanged(coParam *param);
-#endif
 };
 #endif // _READSTAR_H

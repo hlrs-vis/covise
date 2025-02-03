@@ -238,7 +238,6 @@ SGBrowser::SGBrowser()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , idata(NULL)
 , myMes(false)
-, reconnect(false)
 , selectionManager(NULL)
 , restraint(NULL)
 , shaderList(NULL)
@@ -272,7 +271,6 @@ bool SGBrowser::init()
     shaderList = coVRShaderList::instance();
 
     myMes = false;
-    reconnect = false;
 
     return true;
 }

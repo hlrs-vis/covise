@@ -41,19 +41,23 @@ using namespace covise;
 typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
 
 // do something for all plugins
-#define DOALL(something)                                                                                   \
-    {                                                                                                      \
+#define DOALL(something) \
+    { \
+        m_stopIteration = false; \
         for (PluginMap::const_iterator plugin_it = m_plugins.begin(); plugin_it != m_plugins.end(); ++plugin_it) \
-        {                                                                                                  \
-            coVRPlugin *plugin = plugin_it->second;                                                        \
-            {                                                                                              \
-                something;                                                                                 \
-            }                                                                                              \
-        }                                                                                                  \
+        { \
+            coVRPlugin *plugin = plugin_it->second; \
+            { \
+                something; \
+            } \
+            if (m_stopIteration) \
+                break; \
+        } \
     }
 
 coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
 {
+    m_stopIteration = true;
     if (cover->debugLevel(3))
     {
         if (name)
@@ -355,6 +359,8 @@ void coVRPluginList::unmanage(coVRPlugin *plugin)
     if (!plugin)
         return;
 
+    m_stopIteration = true;
+
     if (plugin == viewerPlugin)
     {
         std::cerr << "Plugin " << plugin->getName() << " did not release viewer grab before unloading" << std::endl;
@@ -374,6 +380,7 @@ void coVRPluginList::unmanage(coVRPlugin *plugin)
     else
     {
         m_plugins.erase(it);
+        m_stopIteration = true;
     }
 
     for (int d=0; d<NumPluginDomains; ++d)
@@ -575,6 +582,8 @@ bool coVRPluginList::userEvent(int mod) const
 
 void coVRPluginList::init()
 {
+    std::vector<coVRPlugin *> failed;
+
     PluginMenu::instance()->init();
     for (PluginMap::iterator it = m_plugins.begin();
          it != m_plugins.end();)
@@ -587,13 +596,19 @@ void coVRPluginList::init()
         if (!plug->m_initDone && !plug->init())
         {
             cerr << "plugin " << plug->getName() << " failed to initialise" << endl;
-            unmanage(plug);
+            failed.push_back(plug);
         }
         else
         {
             plug->m_initDone = true;
         }
     }
+
+    for (auto &plug: failed)
+    {
+        unmanage(plug);
+    }
+
     updateState();
 }
 void coVRPluginList::init2()
@@ -602,9 +617,9 @@ void coVRPluginList::init2()
     DOALL(plugin->setTimestep(m_currentTimestep));
 }
 
-void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b, const coVRPlugin *exclude) const
 {
-    DOALL(plugin->message(toWhom, t, l, b));
+    DOALL(if (plugin != exclude) plugin->message(toWhom, t, l, b));
 }
 
 void coVRPluginList::UDPmessage(covise::UdpMessage* msg) const

@@ -96,13 +96,6 @@ void MEVectorPort::moduleParameterRequest()
 //------------------------------------------------------------------------
 void MEVectorPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     QStringList list = value.split(" ", SplitBehaviorFlags::SkipEmptyParts);
     m_nVect = list.count();
 
@@ -113,7 +106,6 @@ void MEVectorPort::defineParam(QString value, int apptype)
     }
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -121,13 +113,6 @@ void MEVectorPort::defineParam(QString value, int apptype)
 //------------------------------------------------------------------------
 void MEVectorPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
     Q_UNUSED(noOfValues);
 
     if (list.count() > istart + m_nVect - 1)
@@ -157,7 +142,6 @@ void MEVectorPort::modifyParam(QStringList list, int noOfValues, int istart)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -165,12 +149,6 @@ void MEVectorPort::modifyParam(QStringList list, int noOfValues, int istart)
 //------------------------------------------------------------------------
 void MEVectorPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     lvalue = lvalue.trimmed();
 
     QStringList list = QString(lvalue).split(" ");
@@ -204,7 +182,6 @@ void MEVectorPort::modifyParameter(QString lvalue)
         QString msg = "MEParameterPort::modifyParam: " + node->getNodeTitle() + ": Parameter type " + parameterType + " has wrong number of values";
         MEUserInterface::instance()->printMessage(msg);
     }
-#endif
 }
 
 //------------------------------------------------------------------------

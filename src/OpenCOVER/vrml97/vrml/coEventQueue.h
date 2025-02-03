@@ -16,6 +16,8 @@
 #define AR_EVENTS 3
 #define MULTI_TOUCH_EVENTS 4
 #include "config.h"
+#include <list>
+#include <utility>
 // maximum number of events queued
 
 namespace vrml

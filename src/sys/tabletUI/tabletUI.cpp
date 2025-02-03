@@ -19,11 +19,9 @@
 #else
 #include <winsock2.h>
 #endif
-#include "TUIApplication.h"
+#include <tui/TUIMainWindow.h>
 
 
-
-TUIMainWindow *qaw = NULL;
 
 int main(int argc, char **argv)
 {
@@ -63,7 +61,8 @@ int main(int argc, char **argv)
 
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
-    qaw = TUIMainWindow::getInstance();
+    a.setWindowIcon(QIcon(":/icons/tabletui.png"));
+    auto qaw = new TUIMainWindow();
     qaw->show();
     int overridePort = 0;
     for (int i = 1; i < argc; ++i)

@@ -51,11 +51,6 @@ public:
     void restoreParam();
     void storeParam();
 
-#ifdef YAC
-    void addPorts(covise::coRecvBuffer &);
-    void setValues(covise::coRecvBuffer &);
-#endif
-
     MEColorMap *getColorMap()
     {
         return m_colorMap;

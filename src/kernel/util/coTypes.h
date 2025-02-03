@@ -52,34 +52,9 @@ typedef long long int64_t;
 
 /* +++++++++++ System Thread support */
 
-#if defined(CO_sgi) || defined(CO_sgin32) || defined(CO_sgi64)
-
-/* coThreads library using SGI native threads instead of posix */
-#define SGI_NATIVE_THREADS
-/* #define POSIX_THREADS */
-
-/* comment this out for engine lib when using normal coThreads lib */
-/* #define SGI_THREADS_LIBRARY */
-
-/*
-#ifndef CERR
-#define CERR cerr
-#include <fstream.h>
-ofstream myout("/dev/null");
-#define CERR myout
-#endif
-*/
-#define SGIDLADD
-#define SVR4_DYNAMIC_LINKING
-#endif
-
 #ifdef __linux__
 #define POSIX_THREADS
 #define SVR4_DYNAMIC_LINKING
-#endif
-
-#ifdef CO_hp
-#define DCE_THREADS
 #endif
 
 /* +++++++++++ Alignment: currently constant */
@@ -141,13 +116,6 @@ typedef int32_t coInt32;
 typedef uint32_t coUInt32;
 typedef int64_t coInt64;
 typedef uint64_t coUInt64;
-
-/* +++++++++++ Cray-T3E type definitions */
-
-#ifdef CO_t3e
-
-#define PARALLEL
-#endif /* CO_t3e */
 
 /* ++++++++++ Mac OS X type definitions */
 #ifdef __APPLE__

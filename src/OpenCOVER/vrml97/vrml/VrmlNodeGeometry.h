@@ -17,7 +17,7 @@
 
 #include "VrmlNode.h"
 #include "Viewer.h"
-
+#include <string>
 namespace vrml
 {
 
@@ -28,12 +28,9 @@ class VRMLEXPORT VrmlNodeGeometry : public VrmlNode
 
 public:
     // Define the fields of all built in geometry nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t);
+    static void initFields(VrmlNodeGeometry *node, VrmlNodeType *t);
 
-    VrmlNodeGeometry(VrmlScene *);
-    ~VrmlNodeGeometry();
-
-    virtual VrmlNodeGeometry *toGeometry() const override;
+    VrmlNodeGeometry(VrmlScene *, const std::string &name);
 
     // Geometry nodes need only define insertGeometry(), not render().
     virtual void render(Viewer *) override;

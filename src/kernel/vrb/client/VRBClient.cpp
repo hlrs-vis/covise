@@ -56,8 +56,7 @@ VRBClientBase::VRBClientBase(covise::Program p, covise::MessageSenderInterface *
 
 VRBClientBase::~VRBClientBase()
 {
-    if (!m_sender)
-        shutdown();
+    shutdown();
 }
 
 bool VRBClient::poll(Message *m)
@@ -356,10 +355,11 @@ void VRBClientBase::shutdown(){
     if (m_sender)
         return;
 
-    if(isConnected())
+    if (!sConn)
+        completeConnection();
+    if (sConn)
     {
-        if (sConn && sConn->getSocket())
-            shutdownSocket(sConn->getSocket()->get_id());
+        sConn->cancel();
     }
 }
 

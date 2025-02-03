@@ -90,7 +90,7 @@ VariantPlugin::VariantPlugin()
     }
 
     
-    VrmlNamespace::addBuiltIn(VrmlNodeVariant::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeVariant>());
 }
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -578,7 +578,45 @@ void VariantPlugin::setVariant(std::string var)
             cover->sendMessage(this, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
         }
 }
+
+std::string VariantPlugin::getGroupFromName(const std::string &name)
+{
+    auto colon = name.find_first_of(":");
+    if (colon != std::string::npos)
+    {
+        std::string group = name.substr(0, colon);
+        return group;
+    }
+    return "";
+}
+
 //------------------------------------------------------------------------------------------------------------------------------
+VariantPlugin::VariantGroup *VariantPlugin::getVariantGroup(std::string groupName)
+{
+    auto it = variantGroups.find(groupName);
+    if (it == variantGroups.end())
+        return nullptr;
+    return &it->second;
+}
+
+VariantPlugin::VariantGroup *VariantPlugin::addVariantToGroup(std::string groupName, Variant *var)
+{
+    auto &group = variantGroups[groupName];
+    group.variants.insert(var);
+    return &group;
+}
+
+void VariantPlugin::removeVariantFromGroup(std::string groupName, Variant *var)
+{
+    auto *g = getVariantGroup(groupName);
+    if (!g)
+        return;
+    g->variants.erase(var);
+    if (g->variants.empty())
+    {
+        variantGroups.erase(groupName);
+    }
+}
 
 Variant *VariantPlugin::getVariantbyAttachedNode(osg::Node *node)
 {
@@ -670,7 +708,7 @@ void VariantPlugin::message(int toWhom, int type, int len, const void *buf)
 
 void VariantPlugin::setMenuItem(Variant *var, bool state)
 {
-    var->ui->getVRUI_Item()->setState(state);
+    var->ui->getVRUI_Item()->setState(state, false);
     var->ui->getTUI_Item()->setState(state);
 }
 //------------------------------------------------------------------------------------------------------------------------------

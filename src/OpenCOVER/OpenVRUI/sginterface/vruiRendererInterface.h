@@ -21,6 +21,11 @@
 #include <map>
 
 EXPORT_TEMPLATE2(template class OPENVRUIEXPORT std::map<std::string, vrui::vruiNode *>)
+namespace vsg
+{
+    class Data;
+    class BufferInfo;
+}
 
 namespace vrui
 {
@@ -62,6 +67,7 @@ public:
     virtual vruiUIElementProvider *createUIElementProvider(coUIElement *element) = 0;
     virtual vruiButtonProvider *createButtonProvider(coButtonGeometry *button) = 0;
     virtual vruiPanelGeometryProvider *createPanelGeometryProvider(coPanelGeometry *panel) = 0;
+    virtual void addToTransfer(vsg::BufferInfo* bi) {};
 
     virtual vruiTransformNode *createTransformNode() = 0;
     virtual void deleteNode(vruiNode *node)
@@ -169,6 +175,7 @@ public:
     {
         return upVector;
     }
+    virtual bool compileNode(vruiNode*) { return false; };
 
     /* needed for RTT   
       virtual vruiMatrix *doBillboarding(vruiMatrix *invStartHandTrans, coVector pickPosition, coVector localPickPosition, float myScale) = 0;*/

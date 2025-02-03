@@ -62,10 +62,6 @@ is performed, i.e. data is written as is. If Crays send to none-Crays
 always IEEE is enforced. This leads to the ugly #ifdef constructs.
 */
 
-#ifdef _WIN32
-#undef CRAY
-#endif
-
 #define SET_CHUNK 20
 
 using namespace covise;
@@ -95,9 +91,6 @@ void PackBuffer::receive()
         print_error(__LINE__, __FILE__, "wrong message received");
 }
 
-#ifndef CRAY
-inline
-#endif
     void
     PackBuffer::read_int(int &rd)
 {
@@ -109,25 +102,12 @@ inline
 #endif
     if (intbuffer_ptr >= intbuffer_size()) // if end of buffer (all read)
         receive();
-#ifdef CRAY
-    if (convert) // at the moment cv == IEEE <=> !cv
-#ifdef _CRAYT3E
-        converter.exch_to_int((char *)&intbuffer()[intbuffer_ptr], &rd);
-#else
-        conv_single_int_i4c8(intbuffer()[intbuffer_ptr], &rd);
-#endif
-    else
-        rd = intbuffer[intbuffer_ptr];
-    intbuffer_ptr += 1;
-    return;
-#else
     rd = intbuffer()[intbuffer_ptr];
 #ifdef BYTESWAP
     urd = (unsigned int *)&rd;
     swap_byte(*urd);
 #endif
     intbuffer_ptr += 2;
-#endif
 #ifdef DEBUG
     sprintf(tmp_str, "PackBuffer::read_int %d", rd);
     print_comment(__LINE__, __FILE__, tmp_str);
@@ -139,11 +119,7 @@ inline void PackBuffer::put_back_int()
     // only allowed iummediately after read_int()
 
     if (intbuffer_ptr > 0)
-#ifdef CRAY
-        intbuffer_ptr--;
-#else
         intbuffer_ptr -= 2;
-#endif
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "PackBuffer::put_back_int");
 #endif
@@ -185,11 +161,9 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
     {
         tmp_intbuffer_ptr = intbuffer_ptr;
         intbuffer_ptr += n / sizeof(int) + (n % sizeof(int) ? 1 : 0);
-        //#ifndef CRAY         muesste so allgemeingueltig sein:
         // assure alignment to SIZEOF_ALIGNMENT (already guaranteed on Cray)
         if (intbuffer_ptr % (SIZEOF_ALIGNMENT / sizeof(int)))
             intbuffer_ptr++;
-//#endif
 #ifdef DEBUG
         sprintf(tmp_str, "returning complete data: %d bytes", n);
         print_comment(__LINE__, __FILE__, tmp_str);
@@ -417,31 +391,13 @@ int Packer::read_long()
 // type is already read and routine is only called when appropriate!!!
 // (must be guaranteed by programmer!!!!
 
-#ifdef CRAY
-    //  int == long on Cray!!
-    if (convert) // at the moment cv == IEEE <=> !cv
-    {
-        bytes_needed = SIZEOF_IEEE_LONG;
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        if (bytes_needed != SIZEOF_IEEE_LONG)
-            print_error(__LINE__, __FILE__, "No Buffer Space available for receiving long");
-#ifdef _CRAYT3E
-        converter.exch_to_long(tmp_char_ptr, (long *)shm_obj_ptr);
-#else
-        conv_single_int_i4c8(*(int *)tmp_char_ptr, shm_obj_ptr);
-#endif
-    }
-    else
-#endif
-    {
-        bytes_needed = sizeof(long);
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        if (bytes_needed != sizeof(long))
-            print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
-        int no_of_ints = sizeof(long) / sizeof(int);
-        swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
-        *(long *)shm_obj_ptr = *(long *)tmp_char_ptr;
-    }
+    bytes_needed = sizeof(long);
+    tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
+    if (bytes_needed != sizeof(long))
+        print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
+    int no_of_ints = sizeof(long) / sizeof(int);
+    swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
+    *(long *)shm_obj_ptr = *(long *)tmp_char_ptr;
     shm_obj_ptr++; // proceed to next
     return 1;
 }
@@ -458,30 +414,13 @@ int Packer::read_float()
 // type is already read and routine is only called when appropriate!!!
 // (must be guaranteed by programmer!!!!
 
-#ifdef CRAY
-    if (convert) // at the moment cv == IEEE <=> !cv
-    {
-        bytes_needed = SIZEOF_IEEE_FLOAT;
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        if (bytes_needed != SIZEOF_IEEE_FLOAT)
-            print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
-#ifdef _CRAYT3E
-        converter.exch_to_float(tmp_char_ptr, (float *)shm_obj_ptr);
-#else
-        conv_single_float_i4c8(*(int *)tmp_char_ptr, shm_obj_ptr);
-#endif
-    }
-    else
-#endif
-    {
-        bytes_needed = sizeof(float);
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        if (bytes_needed != sizeof(float))
-            print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
-        int no_of_ints = sizeof(float) / sizeof(int);
-        swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
-        *(float *)shm_obj_ptr = *(float *)tmp_char_ptr;
-    }
+    bytes_needed = sizeof(float);
+    tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
+    if (bytes_needed != sizeof(float))
+        print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
+    int no_of_ints = sizeof(float) / sizeof(int);
+    swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
+    *(float *)shm_obj_ptr = *(float *)tmp_char_ptr;
     shm_obj_ptr++; // proceed to next
     return 1;
 }
@@ -490,9 +429,6 @@ int Packer::read_double()
 {
     int bytes_needed;
     char *tmp_char_ptr;
-#ifdef CRAY
-    double tmp_double;
-#endif
 
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "Packer::read_double");
@@ -501,31 +437,13 @@ int Packer::read_double()
 // type is already read and routine is only called when appropriate!!!
 // (must be guaranteed by programmer!!!!
 
-#ifdef CRAY
-    if (convert) // at the moment cv == IEEE <=> !cv
-    {
-        bytes_needed = SIZEOF_IEEE_DOUBLE;
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        tmp_double = *(double *)tmp_char_ptr;
-        if (bytes_needed != SIZEOF_IEEE_DOUBLE)
-            print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
-#ifdef _CRAYT3E
-        converter.exch_to_double(tmp_char_ptr, (double *)shm_obj_ptr);
-#else
-        conv_single_float_i8c8((int)tmp_double, shm_obj_ptr);
-#endif
-    }
-    else
-#endif
-    {
-        bytes_needed = sizeof(double);
-        tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-        if (bytes_needed != sizeof(double))
-            print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
-        int no_of_ints = sizeof(double) / sizeof(int);
-        swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
-        *(double *)shm_obj_ptr = *(double *)tmp_char_ptr;
-    }
+    bytes_needed = sizeof(double);
+    tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
+    if (bytes_needed != sizeof(double))
+        print_error(__LINE__, __FILE__, "No Buffer Space available for sending long");
+    int no_of_ints = sizeof(double) / sizeof(int);
+    swap_bytes((unsigned int *)tmp_char_ptr, no_of_ints);
+    *(double *)shm_obj_ptr = *(double *)tmp_char_ptr;
     shm_obj_ptr++; // proceed to next
     return 1;
 }
@@ -601,29 +519,12 @@ int Packer::read_short_array()
     *shm_obj_ptr++ = shm_ptr->get_shm_seq_no();
     *shm_obj_ptr++ = shm_ptr->get_offset();
     tmp_shm_obj_ptr = (char *)((coShmArray *)(void *)shm_ptr)->getDataPtr();
-#ifdef CRAY
-    if (!convert)
-        rest = length * sizeof(short);
-    else
-#endif
         rest = length * SIZEOF_IEEE_SHORT;
     while (rest > 0) // there is still something to receive
     {
         bytes_needed = rest;
         tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-#ifdef CRAY
-        if (convert)
-#ifdef _CRAYT3E
-            converter.exch_to_short_array(tmp_char_ptr,
-                                          (short *)tmp_shm_obj_ptr,
-                                          bytes_needed / SIZEOF_IEEE_SHORT);
-#else
-            conv_array_int_i2c8((int *)tmp_char_ptr, (int *)tmp_shm_obj_ptr,
-                                bytes_needed / SIZEOF_IEEE_SHORT, START_EVEN);
-#endif
-        else
-#endif
-            memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
+        memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
         swap_short_bytes((short unsigned int *)tmp_char_ptr, bytes_needed / sizeof(short));
         rest -= bytes_needed;
         tmp_shm_obj_ptr += bytes_needed;
@@ -657,29 +558,12 @@ int Packer::read_int_array()
     *shm_obj_ptr++ = shm_ptr->get_shm_seq_no();
     *shm_obj_ptr++ = shm_ptr->get_offset();
     tmp_shm_obj_ptr = (char *)((coShmArray *)(void *)shm_ptr)->getDataPtr();
-#ifdef CRAY
-    if (!convert)
-        rest = length * sizeof(int);
-    else
-#endif
         rest = length * SIZEOF_IEEE_INT;
     while (rest > 0) // there is still something to receive
     {
         bytes_needed = rest;
         tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-#ifdef CRAY
-        if (convert)
-#ifdef _CRAYT3E
-            converter.exch_to_int_array(tmp_char_ptr,
-                                        (int *)tmp_shm_obj_ptr,
-                                        bytes_needed / SIZEOF_IEEE_INT);
-#else
-            conv_array_int_i4c8((int *)tmp_char_ptr, (int *)tmp_shm_obj_ptr,
-                                bytes_needed / SIZEOF_IEEE_INT, START_EVEN);
-#endif
-        else
-#endif
-            memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
+        memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
         swap_bytes((unsigned int *)tmp_shm_obj_ptr, bytes_needed / sizeof(int));
         rest -= bytes_needed;
         tmp_shm_obj_ptr += bytes_needed;
@@ -713,29 +597,12 @@ int Packer::read_long_array()
     *shm_obj_ptr++ = shm_ptr->get_shm_seq_no();
     *shm_obj_ptr++ = shm_ptr->get_offset();
     tmp_shm_obj_ptr = (char *)((coShmArray *)(void *)shm_ptr)->getDataPtr();
-#ifdef CRAY
-    if (!convert)
-        rest = length * sizeof(long);
-    else
-#endif
-        rest = length * SIZEOF_IEEE_LONG;
+    rest = length * SIZEOF_IEEE_LONG;
     while (rest > 0) // there is still something to receive
     {
         bytes_needed = rest;
         tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-#ifdef CRAY
-        if (convert)
-#ifdef _CRAYT3E
-            converter.exch_to_long_array(tmp_char_ptr,
-                                         (long *)tmp_shm_obj_ptr,
-                                         bytes_needed / SIZEOF_IEEE_LONG);
-#else
-            conv_array_int_i4c8((int *)tmp_char_ptr, (int *)tmp_shm_obj_ptr,
-                                bytes_needed / SIZEOF_IEEE_LONG, START_EVEN);
-#endif
-        else
-#endif
-            memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
+        memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
         swap_bytes((unsigned int *)tmp_shm_obj_ptr, bytes_needed / sizeof(int));
         rest -= bytes_needed;
         tmp_shm_obj_ptr += bytes_needed;
@@ -769,29 +636,12 @@ int Packer::read_float_array()
     *shm_obj_ptr++ = shm_ptr->get_shm_seq_no();
     *shm_obj_ptr++ = shm_ptr->get_offset();
     tmp_shm_obj_ptr = (char *)((coShmArray *)(void *)shm_ptr)->getDataPtr();
-#ifdef CRAY
-    if (!convert)
-        rest = length * sizeof(float);
-    else
-#endif
-        rest = length * SIZEOF_IEEE_FLOAT;
+    rest = length * SIZEOF_IEEE_FLOAT;
     while (rest > 0) // there is still something to receive
     {
         bytes_needed = rest;
         tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-#ifdef CRAY
-        if (convert)
-#ifdef _CRAYT3E
-            converter.exch_to_float_array(tmp_char_ptr,
-                                          (float *)tmp_shm_obj_ptr,
-                                          bytes_needed / SIZEOF_IEEE_FLOAT);
-#else
-            conv_array_float_i4c8((int *)tmp_char_ptr, (int *)tmp_shm_obj_ptr,
-                                  bytes_needed / SIZEOF_IEEE_FLOAT, START_EVEN);
-#endif
-        else
-#endif
-            memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
+        memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
         swap_bytes((unsigned int *)tmp_shm_obj_ptr, bytes_needed / sizeof(int));
         rest -= bytes_needed;
         tmp_shm_obj_ptr += bytes_needed;
@@ -825,29 +675,12 @@ int Packer::read_double_array()
     *shm_obj_ptr++ = shm_ptr->get_shm_seq_no();
     *shm_obj_ptr++ = shm_ptr->get_offset();
     tmp_shm_obj_ptr = (char *)((coShmArray *)(void *)shm_ptr)->getDataPtr();
-#ifdef CRAY
-    if (!convert)
-        rest = length * sizeof(double);
-    else
-#endif
-        rest = length * SIZEOF_IEEE_DOUBLE;
+    rest = length * SIZEOF_IEEE_DOUBLE;
     while (rest > 0) // there is still something to receive
     {
         bytes_needed = rest;
         tmp_char_ptr = buffer->get_current_pointer_for_n_bytes(bytes_needed);
-#ifdef CRAY
-        if (convert)
-#ifdef _CRAYT3E
-            converter.exch_to_double_array(tmp_char_ptr,
-                                           (double *)tmp_shm_obj_ptr,
-                                           bytes_needed / SIZEOF_IEEE_DOUBLE);
-#else
-            conv_array_float_c8i8((int *)tmp_char_ptr, (int *)tmp_shm_obj_ptr,
-                                  bytes_needed / SIZEOF_IEEE_DOUBLE);
-#endif
-        else
-#endif
-            memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
+        memcpy(tmp_shm_obj_ptr, tmp_char_ptr, bytes_needed);
         swap_bytes((unsigned int *)tmp_shm_obj_ptr, bytes_needed / sizeof(int));
         rest -= bytes_needed;
         tmp_shm_obj_ptr += bytes_needed;
@@ -872,28 +705,11 @@ print_error(__LINE__, __FILE__, "No DOUBLESHMARRAY found");
 return 0;
 }
 buffer->read_int(*shm_obj_ptr);  // *shm_obj_ptr == length
-#ifdef CRAY
-if(!convert)
-rest = *shm_obj_ptr * sizeof(double);
-else
-#endif
 rest = *shm_obj_ptr * SIZEOF_IEEE_DOUBLE;
 shm_obj_ptr++; // skip number of ints
 while(rest > 0) { // there is still something to send
 bytes_needed = rest;
 tmp_char_ptr = buffer->get_ptr_for_n_bytes(bytes_needed);
-#ifdef CRAY
-if(convert)
-#ifdef _CRAYT3E
-converter.exch_to_double_array(tmp_char_ptr,
-(double*)shm_obj_ptr,
-bytes_needed/SIZEOF_IEEE_DOUBLE);
-#else
-conv_array_float_c8i8(tmp_char_ptr, shm_obj_ptr,
-bytes_needed/SIZEOF_IEEE_DOUBLE, START_EVEN);
-#endif
-else
-#endif
 memcpy(tmp_char_ptr, shm_obj_ptr, bytes_needed);
 rest -= bytes_needed;
 shm_obj_ptr += (bytes_needed/sizeof(int) + (bytes_needed % sizeof(int) ? 1 : 0));

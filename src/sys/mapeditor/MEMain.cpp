@@ -13,11 +13,8 @@
 #include <QLoggingCategory>
 
 #include <config/CoviseConfig.h>
-#ifndef YAC
 #include <net/covise_socket.h>
-#else
 #include <iostream>
-#endif
 
 #include "nodes/MECategory.h"
 #include "hosts/MEHost.h"

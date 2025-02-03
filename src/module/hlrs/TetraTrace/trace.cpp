@@ -521,22 +521,7 @@ coDistributedObject **trace::run(char **names)
     else
     {
         ww->start();
-#if defined(__sgi)
-        switch (multiProcMode)
-        {
-        case 2: // SMP
-            traceSMP();
-            break;
-        case 3: // MMP
-            traceMMP();
-            break;
-        default: // none or invalid
-            traceWorkstation();
-            break;
-        }
-#else
         traceWorkstation();
-#endif
 
 #if PRECOMP_TN
         TetraGrid *fromGrid, *toGrid;

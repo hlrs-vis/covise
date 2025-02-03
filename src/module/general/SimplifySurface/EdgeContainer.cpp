@@ -28,7 +28,7 @@ EdgeContainer::~EdgeContainer()
 
 EdgeHashedSet::EdgeHashedSet(size_t no_tr)
 {
-#if !defined(_WIN32) && !defined(__hpux) && !defined(CO_ia64icc) && !defined(__GNUC__)
+#if !defined(_WIN32) && !defined(__GNUC__)
     _edgeSet.resize(no_tr * SIZE_FACTOR);
 #else
     (void)no_tr;

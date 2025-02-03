@@ -28,20 +28,10 @@ class VRMLEXPORT VrmlNodeColorRGBA : public VrmlNode
 
 public:
     // Define the fields of Color nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeColorRGBA *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeColorRGBA(VrmlScene *);
-    virtual ~VrmlNodeColorRGBA();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeColorRGBA *toColorRGBA() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFColorRGBA &color()
     {

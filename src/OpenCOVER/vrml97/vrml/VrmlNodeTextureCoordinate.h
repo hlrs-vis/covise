@@ -26,20 +26,10 @@ class VRMLEXPORT VrmlNodeTextureCoordinate : public VrmlNode
 
 public:
     // Define the fields of TextureCoordinate nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeTextureCoordinate *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeTextureCoordinate(VrmlScene *);
-    virtual ~VrmlNodeTextureCoordinate();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual VrmlNodeTextureCoordinate *toTextureCoordinate() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     VrmlMFVec2f &coordinate()
     {

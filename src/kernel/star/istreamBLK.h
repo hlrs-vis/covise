@@ -15,7 +15,7 @@
 #include <io.h>
 #include <fcntl.h>
 #endif
-#if defined(__linux__) || defined(CO_hp) || defined(_WIN32) || defined(__APPLE__) || defined(__hpux)
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
 #define lseek64 lseek
 #define off64_t off_t
 #endif

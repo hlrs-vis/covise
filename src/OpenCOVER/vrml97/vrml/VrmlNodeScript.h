@@ -39,29 +39,22 @@ class VRMLEXPORT VrmlNodeScript : public VrmlNodeChild
 
 public:
     // Define the fields of Script nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeScript *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeScript(VrmlScene *scene = 0);
     VrmlNodeScript(const VrmlNodeScript &);
     virtual ~VrmlNodeScript();
 
-    virtual VrmlNode *cloneMe() const;
     virtual void cloneChildren(VrmlNamespace *);
     // Copy the ROUTEs
     virtual void copyRoutes(VrmlNamespace *ns);
 
-    virtual VrmlNodeScript *toScript() const;
-
     virtual void addToScene(VrmlScene *s, const char *relUrl);
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
                          const VrmlField *fieldValue);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
 
     // Script processing methods
     void initialize(double timeStamp);
@@ -95,12 +88,10 @@ public:
     VrmlField::VrmlFieldType hasField(const char *name) const;
     VrmlField::VrmlFieldType hasExposedField(const char *name) const;
 
-    VrmlField *getField(const char *fname) const;
     // Set field/event values
     void setEventIn(const char *, const VrmlField *);
     void setEventOut(const char*, const VrmlField*);
     void setExposedField(const char*, const VrmlField*);
-    // setField declared above as virtual
 
     // Fields and events defined for this Script
     FieldList &eventIns()
@@ -140,10 +131,11 @@ private:
     FieldList d_fields;
 
     // Generic field/event add/test/value methods
-    void add(FieldList&, const char*, VrmlField::VrmlFieldType, bool exposed = false);
+    FieldList::iterator add(FieldList&, const char*, VrmlField::VrmlFieldType, bool exposed = false);
     VrmlField::VrmlFieldType has(const FieldList &, const char *) const;
     VrmlField *get(const FieldList &, const char *) const;
     void set(const FieldList &, const char *, const VrmlField *);
+    void setField(const char *fieldName, const VrmlField &fieldValue) override;
 
     int d_eventsReceived;
 };

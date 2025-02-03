@@ -23,9 +23,6 @@ using namespace covise;
 
 #include <vector>
 #include <string>
-#ifdef __sgi
-using namespace std;
-#endif
 
 #include <iostream>
 

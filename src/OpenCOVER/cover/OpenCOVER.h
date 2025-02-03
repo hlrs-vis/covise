@@ -56,6 +56,7 @@ class buttonSpecCell;
 class coVRPlugin;
 class coTabletUI;
 class coTUITabFolder;
+class coVRTui;
 
 class COVEREXPORT OpenCOVER
 {
@@ -130,6 +131,9 @@ public:
     size_t numTuis() const;
     coTabletUI *tui(size_t idx) const;
     coTUITabFolder *tuiTab(size_t idx) const;
+    coVRTui *vrTui(size_t idx) const;
+    void pushTui(coTabletUI *tui, coVRTui *vrTui);
+    void popTui();
 
     //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
     bool watchFileDescriptor(int fd);
@@ -148,8 +152,8 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-    std::vector<coTabletUI *> tabletUIs;
-    std::vector<coTUITabFolder *> tabletTabs;
+    std::vector<std::unique_ptr<coTabletUI>> tabletUIs;
+    std::vector<std::unique_ptr<coVRTui>> tabletVrTuis;
     std::unique_ptr<vrb::VRBClient> m_vrbc;
 	std::string m_startSession;
 

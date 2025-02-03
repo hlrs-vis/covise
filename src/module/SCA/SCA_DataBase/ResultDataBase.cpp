@@ -21,11 +21,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#ifdef __sgi
-#include <sys/dir.h>
-#else
 #include <dirent.h>
-#endif
 
 ResultDataBase::ResultDataBase(const char *path)
 {
@@ -204,11 +200,7 @@ ResultDataBase::searchInLevel(int level,
                               int limit_level)
 {
     DIR *dirp;
-#ifdef __sgi
-    struct direct *entry;
-#else
     struct dirent *entry;
-#endif
 
     std::vector<Candidate *> newCandidates; // candidates for the next level
 
@@ -344,11 +336,7 @@ char **entries = new char *[1024];
 int num_entries;
 
 DIR *dirp;
-#ifdef __sgi
-struct direct *entry;
-#else
 struct dirent *entry;
-#endif
 
 for( i=0; i<num; i++ ) {
 

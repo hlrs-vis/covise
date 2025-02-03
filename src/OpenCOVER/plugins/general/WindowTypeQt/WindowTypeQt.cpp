@@ -28,6 +28,7 @@
 #include <cover/coCommandLine.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRFileManager.h>
 #include <cover/OpenCOVER.h>
 #include <cover/VRWindow.h>
 #include <cover/ui/Manager.h>
@@ -170,7 +171,7 @@ bool WindowTypeQtPlugin::update()
 {
     bool checked = VRSceneGraph::instance()->menuVisible();
     checked = coVRMSController::instance()->syncBool(checked);
-    for (auto w: m_windows)
+    for (auto &w: m_windows)
     {
         w.second.toggleMenu->setChecked(checked);
     }
@@ -180,9 +181,18 @@ bool WindowTypeQtPlugin::update()
     if (m_initializing) {
         m_initializing = false;
 
-        for (auto w: m_windows)
+        for (auto &w: m_windows)
         {
             w.second.widget->setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        }
+    }
+
+    if (m_file != coVRFileManager::instance()->getMainFile())
+    {
+        m_file = coVRFileManager::instance()->getMainFile();
+        for (auto &w: m_windows)
+        {
+            w.second.window->setWindowFilePath(m_file.c_str());
         }
     }
 
@@ -446,7 +456,7 @@ void WindowTypeQtPlugin::aboutCover() const
         .arg(CoviseVersion::hash())
         .arg(CoviseVersion::compileDate())
         .arg(CoviseVersion::arch());
-    text.append("<br>Follow COVER and COVISE developement on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
+    text.append("<br>Follow COVER and COVISE development on <a href='https://github.com/hlrs-vis/covise'>GitHub</a>!");
 
     ui->label->setText(text);
     ui->label->setTextInteractionFlags(Qt::TextBrowserInteraction | Qt::LinksAccessibleByMouse);

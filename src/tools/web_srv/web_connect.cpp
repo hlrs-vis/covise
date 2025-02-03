@@ -5,9 +5,6 @@
 
  * License: LGPL 2+ */
 
-#ifdef __hpux
-#include <stdlib.h>
-#endif
 #include "web_connect.h"
 #include "web_srv.h"
 #include <sys/types.h>
@@ -57,11 +54,6 @@
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-
-#if defined __sgi || defined __hpux || defined _AIX
-//extern "C" bzero(void *b, int length);
-#include <strings.h>
-#endif
 
 #undef SHOWMSG
 #undef DEBUG
@@ -153,11 +145,7 @@ int Connection::check_for_input(float time)
     FD_ZERO(&fdread);
     FD_SET(sock->get_id(), &fdread);
 
-#ifdef __hpux9
-    i = select(sock->get_id() + 1, (int *)&fdread, NULL, NULL, &timeout);
-#else
     i = select(sock->get_id() + 1, &fdread, NULL, NULL, &timeout);
-#endif
 
     // find the connection that has the read attempt
 
@@ -1074,11 +1062,7 @@ ConnectionList::check_for_input(float time)
 
 // wait for the next read attempt on one of the sockets
 
-#ifdef __hpux9
-    i = select(m_maxfd + 1, (int *)&fdread, NULL, NULL, &timeout);
-#else
     i = select(m_maxfd + 1, &fdread, NULL, NULL, &timeout);
-#endif
 
     //	print_comment(__LINE__, __FILE__, "something happened");
 

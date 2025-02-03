@@ -27,40 +27,17 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeITriangleStripSet(s); }
-
-// Define the built in VrmlNodeType:: "IndexedTriangleStripSet" fields
-
-VrmlNodeType *VrmlNodeITriangleStripSet::defineType(VrmlNodeType *t)
+void VrmlNodeITriangleStripSet::initFields(VrmlNodeITriangleStripSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("IndexedTriangleStripSet", creator);
-    }
-
-    VrmlNodeIPolygonsCommon::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeIPolygonsCommon::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeITriangleStripSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeITriangleStripSet::typeName() { return "IndexedTriangleStripSet"; }
+
 
 VrmlNodeITriangleStripSet::VrmlNodeITriangleStripSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene)
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
-}
-
-VrmlNodeITriangleStripSet::~VrmlNodeITriangleStripSet()
-{
-}
-
-VrmlNode *VrmlNodeITriangleStripSet::cloneMe() const
-{
-    return new VrmlNodeITriangleStripSet(*this);
 }
 
 Viewer::Object VrmlNodeITriangleStripSet::insertGeometry(Viewer *viewer)
@@ -188,9 +165,4 @@ Viewer::Object VrmlNodeITriangleStripSet::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-VrmlNodeITriangleStripSet *VrmlNodeITriangleStripSet::toITriangleStripSet() const
-{
-    return (VrmlNodeITriangleStripSet *)this;
 }

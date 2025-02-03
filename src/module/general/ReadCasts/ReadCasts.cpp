@@ -19,13 +19,8 @@
 #include "ReadCasts.h"
 
 ReadCasts::ReadCasts(int argc, char *argv[])
-#ifndef YAC
     : coSimpleModule(argc, argv, "Read Casts")
 {
-#else
-    : coFunctionModule(argc, argv, "Read Casts")
-{
-#endif
 
     // file browser parameter
     p_gridFile = addFileBrowserParam("grid_path", "Grid file path");
@@ -138,12 +133,8 @@ bool ReadCasts::readGrid(const char *fileName, int numTimeSteps)
                 if (numElements != -1 && numCorners != -1 && numPoints != -1)
                 {
                     state = MAT;
-#ifndef YAC
                     char buf[256];
                     snprintf(buf, 256, "%s_%d", gridInfo.getName(), 0);
-#else
-                    coObjInfo buf = gridInfo;
-#endif
                     grid = new coDoUnstructuredGrid(buf, numElements,
                                                     numCorners, numPoints, 1);
 
@@ -337,7 +328,6 @@ bool ReadCasts::readGrid(const char *fileName, int numTimeSteps)
 
     grid->setSizes(numElements, numCorners, numPoints);
 
-#ifndef YAC
     int index;
     coDoUnstructuredGrid **grids = new coDoUnstructuredGrid *[numTimeSteps + 1];
     for (index = 0; index < numTimeSteps; index++)
@@ -353,15 +343,6 @@ bool ReadCasts::readGrid(const char *fileName, int numTimeSteps)
     gridSet->addAttribute("TIMESTEP", line);
 
     p_gridOut->setCurrentObject(gridSet);
-#else
-    (void)numTimeSteps;
-    p_gridOut->setCurrentObject(grid);
-    coOutputPort **out = new coOutputPort *[1];
-    out[0] = p_gridOut;
-    waitForOutportAvailability(1, out, 999.0);
-    createdObjects(1, out);
-    delete[] out;
-#endif
 
     return true;
 }
@@ -457,9 +438,7 @@ bool ReadCasts::readData(const char *fileName, int &numTimeSteps)
     vector<coDoFloat *> timeSteps;
     bool done = false;
     int nread;
-#ifndef YAC
     char buf[256];
-#endif
 
     int swap = swapData(fileName);
     if (swap == -1)
@@ -497,12 +476,8 @@ bool ReadCasts::readData(const char *fileName, int &numTimeSteps)
             byteSwap(header.nodes);
         }
 
-#ifndef YAC
         snprintf(buf, 256, "%s_%d", dataInfo.getName(), numTimeSteps);
         coDoFloat *step = new coDoFloat(buf, header.nodes);
-#else
-        coDoFloat *step = new coDoFloat(dataInfo, header.nodes);
-#endif
 
         timeSteps.push_back(step);
 
@@ -516,23 +491,9 @@ bool ReadCasts::readData(const char *fileName, int &numTimeSteps)
         if (nread != 1)
             break;
 
-#ifdef YAC
-        char time[256];
-        snprintf(time, 256, "%d %d", numTimeSteps, 62);
-        step->addAttribute("TIMESTEP", time);
-        step->setInfo(0, 1, numTimeSteps, 62, (float)numTimeSteps);
-
-        p_dataOut->setCurrentObject(step);
-        coOutputPort **out = new coOutputPort *[1];
-        out[0] = p_dataOut;
-        waitForOutportAvailability(1, out, 999.0);
-        createdObjects(1, out);
-        delete[] out;
-#endif
         numTimeSteps++;
     }
 
-#ifndef YAC
     int index;
     coDoFloat **steps = new coDoFloat *[timeSteps.size()];
     for (index = 0; index < timeSteps.size(); index++)
@@ -543,7 +504,6 @@ bool ReadCasts::readData(const char *fileName, int &numTimeSteps)
     snprintf(buf, 256, "1 %d", numTimeSteps);
     dataSet->addAttribute("TIMESTEP", buf);
     p_dataOut->setCurrentObject(dataSet);
-#endif
 
     return true;
 }

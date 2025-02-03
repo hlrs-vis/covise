@@ -32,9 +32,7 @@ using namespace covise;
 #include <stdio.h>
 #include <unistd.h>
 #include <fstream.h>
-#ifndef CO_hp
 #include <libc.h>
-#endif
 #include <ctype.h>
 #include "parser.h"
 

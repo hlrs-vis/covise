@@ -357,9 +357,9 @@ void coEventQueue::postEvent(VrmlNode *node, coEventData &event)
     //cerr << "post " << event.point[0] << "|"  << event.point[1] << "|" << event.point[2] << endl;
     if (vrmlScene && node)
     {
-        if (node->toProximitySensor())
+        if (node->as<VrmlNodeProximitySensor>())
         {
-            VrmlNodeProximitySensor *proxi = node->toProximitySensor();
+            VrmlNodeProximitySensor *proxi = node->as<VrmlNodeProximitySensor>();
             proxi->remoteEvent(currentTime + event.timeStamp, event.isOver, event.isActive, event.point);
         }
         else
@@ -398,7 +398,7 @@ void coEventQueue::addEventSource(VrmlNode *node)
     }
     else
     {
-        VrmlNodeAnchor *a = node->toAnchor();
+        VrmlNodeAnchor *a = node->as<VrmlNodeAnchor>();
         if (a && a->url())
         {
             int len = (int)strlen(a->url());

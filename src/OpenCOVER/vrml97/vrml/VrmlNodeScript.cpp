@@ -22,6 +22,8 @@
 #include "ScriptObject.h"
 
 #include "VrmlScene.h"
+#include "System.h"
+
 #include <stdio.h>
 
 using namespace vrml;
@@ -31,41 +33,21 @@ using namespace vrml;
 #pragma warning(disable : 4800)
 #endif
 
-// Script factory. Add each Script to the scene for fast access.
-
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeScript::initFields(VrmlNodeScript *node, VrmlNodeType *t)
 {
-    return new VrmlNodeScript(scene);
+    VrmlNodeChild::initFields(node, t);
+    initFieldsHelper(node, t,
+                     exposedField("url", node->d_url),
+                     field("directOutput", node->d_directOutput),
+                     field("mustEvaluate", node->d_mustEvaluate),
+                     field("myself", node->d_myself));
 }
 
-// Define the built in VrmlNodeType:: "Script" fields
+const char *VrmlNodeScript::typeName() { return "Script"; }
 
-VrmlNodeType *VrmlNodeScript::defineType(VrmlNodeType *t)
-{
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Script", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    t->addExposedField("url", VrmlField::MFSTRING);
-    t->addField("directOutput", VrmlField::SFBOOL);
-    t->addField("mustEvaluate", VrmlField::SFBOOL);
-    t->addField("myself", VrmlField::SFNODE);
-
-    return t;
-}
-
-// Should subclass NodeType and have each Script maintain its own type...
-
-VrmlNodeType *VrmlNodeScript::nodeType() const { return defineType(0); }
 
 VrmlNodeScript::VrmlNodeScript(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, typeName())
     , d_directOutput(false)
     , d_mustEvaluate(false)
     , d_script(0)
@@ -77,7 +59,7 @@ VrmlNodeScript::VrmlNodeScript(VrmlScene *scene)
 }
 
 VrmlNodeScript::VrmlNodeScript(const VrmlNodeScript &n)
-    : VrmlNodeChild(0)
+    : VrmlNodeChild(n)
     , d_directOutput(n.d_directOutput)
     , d_mustEvaluate(n.d_mustEvaluate)
     , d_url(n.d_url)
@@ -135,12 +117,6 @@ VrmlNodeScript::~VrmlNodeScript()
     }
 }
 
-VrmlNode *VrmlNodeScript::cloneMe() const
-{
-    return new VrmlNodeScript(*this);
-}
-
-//
 // Any SFNode or MFNode fields need to be cloned as well.
 //
 
@@ -223,11 +199,6 @@ void VrmlNodeScript::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-VrmlNodeScript *VrmlNodeScript::toScript() const
-{
-    return (VrmlNodeScript *)this;
-}
-
 void VrmlNodeScript::addToScene(VrmlScene *s, const char *relUrl)
 {
     System::the->debug("VrmlNodeScript::%s 0x%llx addToScene 0x%llx\n",
@@ -271,18 +242,6 @@ void VrmlNodeScript::addToScene(VrmlScene *s, const char *relUrl)
     initialize(System::the->time());
     if (d_scene != 0)
         d_scene->addScript(this);
-}
-
-std::ostream &VrmlNodeScript::printFields(std::ostream &os, int indent)
-{
-    if (d_url.size() > 0)
-        PRINT_FIELD(url);
-    if (d_directOutput.get())
-        PRINT_FIELD(directOutput);
-    if (d_mustEvaluate.get())
-        PRINT_FIELD(mustEvaluate);
-
-    return os;
 }
 
 void VrmlNodeScript::initialize(double ts)
@@ -412,9 +371,15 @@ void VrmlNodeScript::addEventOut(const char *ename, VrmlField::VrmlFieldType t)
 void VrmlNodeScript::addField(const char *ename, VrmlField::VrmlFieldType t,
                               VrmlField *val, bool exposed)
 {
-    add(d_fields, ename, t, exposed);
+    auto fieldIter = add(d_fields, ename, t, exposed);
     if (val)
+    {
         set(d_fields, ename, val);
+        auto f = field(ename, *(*fieldIter)->value);
+        // initFieldsHelper(this, nullptr, field(ename, *(*fieldIter)->value), [this, fieldIter](){
+        //     set(d_fields, (*fieldIter)->name, (*fieldIter)->value);
+        // });
+    }
 }
 
 void
@@ -423,7 +388,7 @@ VrmlNodeScript::addExposedField(const char *ename,
                                 VrmlField *defaultValue)
 {
     char tmp[1000];
-    add(d_fields, ename, type,true);
+    auto fieldIter = add(d_fields, ename, type,true);
     if (defaultValue)
         set(d_fields, ename, defaultValue);
 
@@ -431,9 +396,12 @@ VrmlNodeScript::addExposedField(const char *ename,
     add(d_eventIns, tmp, type);
     sprintf(tmp, "%s_changed", ename);
     add(d_eventOuts, tmp, type);
+    // initFieldsHelper(this, 0, exposedField(ename, *(*fieldIter)->value), [this, fieldIter](){
+    //     set(d_fields, (*fieldIter)->name, (*fieldIter)->value);
+    // });
 }
 
-void VrmlNodeScript::add(FieldList &recs,
+VrmlNodeScript::FieldList::iterator VrmlNodeScript::add(FieldList &recs,
                          const char *ename,
                          VrmlField::VrmlFieldType type,
                          bool exposed)
@@ -444,6 +412,7 @@ void VrmlNodeScript::add(FieldList &recs,
     r->value = 0;
     r->exposed = exposed;
     recs.push_front(r);
+    return recs.begin();
 }
 
 // get event/field values
@@ -461,19 +430,6 @@ VrmlNodeScript::getEventOut(const char *fname) const
    return get(d_eventOuts, fname);
 }
 #endif
-VrmlField *
-VrmlNodeScript::getField(const char *fname) const
-{
-    VrmlField *f;
-    if ((f = get(d_fields, fname)))
-        return f;
-    if ((f = get(d_eventOuts, fname)))
-        return f;
-    if ((f = get(d_eventIns, fname)))
-        return f;
-
-    return const_cast<VrmlField *>(VrmlNode::getField(fname)); // print error message
-}
 
 VrmlField *
 VrmlNodeScript::get(const FieldList &recs, const char *fname) const
@@ -541,34 +497,6 @@ VrmlNodeScript::has(const FieldList &recs, const char *ename) const
     return VrmlField::NO_FIELD;
 }
 
-// Set the value of one of the node fields/events.
-// setField is public so the parser can access it.
-
-void VrmlNodeScript::setField(const char *fieldName,
-                              const VrmlField &fieldValue)
-{
-    VrmlField::VrmlFieldType ft;
-
-    if
-        TRY_FIELD(url, MFString) // need to re-initialize() if url changes...
-    else if
-        TRY_FIELD(directOutput, SFBool)
-    else if
-        TRY_FIELD(mustEvaluate, SFBool)
-    else if
-        TRY_FIELD(myself, SFNode)
-    else if ((ft = hasField(fieldName)) != 0)
-    {
-        if (ft == VrmlField::fieldType(fieldValue.fieldTypeName()))
-            set(d_fields, fieldName, &fieldValue);
-        else
-            System::the->error("Invalid type (%s) for %s field of Script node.\n",
-                               fieldValue.fieldTypeName(), fieldName);
-    }
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
 void
 VrmlNodeScript::setEventIn(const char *fname, const VrmlField *value)
 {
@@ -604,4 +532,20 @@ VrmlNodeScript::set(const FieldList &recs,
             return;
         }
     }
+}
+
+void VrmlNodeScript::setField(const char *fieldName,
+                              const VrmlField &fieldValue)
+{
+    VrmlField::VrmlFieldType ft;
+    if ((ft = hasField(fieldName)) != 0)
+    {
+        if (ft == VrmlField::fieldType(fieldValue.fieldTypeName()))
+            set(d_fields, fieldName, &fieldValue);
+        else
+            System::the->error("Invalid type (%s) for %s field of Script node.\n",
+                               fieldValue.fieldTypeName(), fieldName);
+    }
+    else
+        VrmlNodeChild::setField(fieldName, fieldValue);
 }

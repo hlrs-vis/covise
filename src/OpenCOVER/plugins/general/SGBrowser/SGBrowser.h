@@ -152,7 +152,6 @@ public:
 private:
     char *idata;
     bool myMes;
-    bool reconnect;
     //_____________________________the plugin tab__________________________________________________________
 
     coVRSelectionManager *selectionManager;

@@ -4,16 +4,6 @@
 %header{
 
 // #define YYSTYPE double
-#ifdef __hpux
-#include <alloca.h>
-#include <fstream.h>
-#include <iostream.h>
-#include <iomanip.h>
-#include <string.h>
-#else
-#ifdef __sgi
-#include <alloca.h>
-#endif
 #include <fstream>
 #include <iostream>
 #include <iomanip>

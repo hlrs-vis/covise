@@ -36,9 +36,6 @@ class coDoPoints;
 class coDoGeometry;
 }
 
-// Do not use Pthreads on hp1020
-// #define CO_hp1020
-
 class Tracer : public coFunctionModule
 {
     COMODULE
@@ -48,9 +45,7 @@ public:
     Tracer(int argc, char **argv);
     virtual ~Tracer()
     {
-#ifndef CO_hp1020
         delete[] read_task_;
-#endif
     }
     enum HTaskTyp
     {
@@ -136,7 +131,6 @@ private:
     ///////////////////////////////////////
     int crewSize_;
     int findCrewSize();
-#ifndef CO_hp1020
     PTask **read_task_; // list of pointers to PTask objects.
     // used for task assignation
     Fifo<int> lazyThreads_;
@@ -145,7 +139,6 @@ private:
     void terminateThreads();
     void startThreads();
     void lockMMutex();
-#endif
     BBoxAdmin BBoxAdmin_;
     bool GoodOctTrees();
     bool GoodOctTrees(const coDistributedObject *grid, const coDistributedObject *otree);

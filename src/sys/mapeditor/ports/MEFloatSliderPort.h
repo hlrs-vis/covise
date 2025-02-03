@@ -25,10 +25,6 @@ public:
 
     ~MEFloatSliderPort();
 
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &);
-#endif
-
     void restoreParam();
     void storeParam();
     void sendParamMessage();

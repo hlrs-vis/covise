@@ -13,15 +13,13 @@
 #undef setprecision
 #undef setw
 #include "VRBServer.h"
-#ifndef YAC
-#include <covise/covise.h>
-#endif
 #include <config/CoviseConfig.h>
 #include <util/environment.h>
 
 #include "VRBapplication.h"
 
 #include "listVRBs.h"
+#include <iostream>
 
 ApplicationWindow *mw;
 
@@ -104,7 +102,7 @@ int main(int argc, char **argv)
         }
         if (!printport && !server.startUdpServer())
         {
-            cerr << "failed to open udp socket" << endl;
+            std::cerr << "failed to open udp socket" << std::endl;
         }
         mw->setPort("Tcp", server.getPort());
         mw->setPort("Udp", server.getUdpPort());
@@ -126,7 +124,7 @@ int main(int argc, char **argv)
         }
         if (!printport && !server.startUdpServer())
         {
-            cerr << "failed to open udp socket" << endl;
+            std::cerr << "failed to open udp socket" << std::endl;
         }
         auto remover = placeSharedProcessInfo(server.getPort());
         if (printport)

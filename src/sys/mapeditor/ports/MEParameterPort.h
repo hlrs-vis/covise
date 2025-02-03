@@ -63,23 +63,6 @@ public:
         T_FLOATSLIDER // only used for covise
     };
 
-#ifdef YAC
-    enum appearanceTypes
-    {
-        NOTMAPPED = -1,
-        A_STRING,
-        A_BOOLEAN,
-        A_VECTOR,
-        A_LIST,
-        A_CHOICE,
-        A_BROWSER,
-        A_TABLE,
-        A_STEPPER,
-        A_SLIDER,
-        A_SPINBOX,
-        A_DIAL
-    };
-#else
     enum appearanceTypes
     {
         NOTMAPPED = -1,
@@ -87,7 +70,6 @@ public:
         STEPPER,
         SLIDER
     };
-#endif
 
     enum layoutType
     {
@@ -137,10 +119,6 @@ public:
     };
 
     MEControlParameter *getControlInfo();
-
-#ifdef YAC
-    virtual void setValues(covise::coRecvBuffer &) = 0;
-#endif
 
 public slots:
 

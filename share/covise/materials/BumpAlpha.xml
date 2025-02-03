@@ -1,0 +1,76 @@
+<_BumpAlpha><uniform name="Bumpiness" type="float" value="0.3"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="normalMap" type="sampler2D" value="1"/><uniform name="alphaMap" type="sampler2D" value="2"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+  
+    attribute vec3 aBinormal;
+    attribute vec3 aTangent;
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Binormal = gl_NormalMatrix * aBinormal;
+        Tangent  = gl_NormalMatrix * aTangent; 
+        Texcoord = gl_MultiTexCoord0.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+	gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>varying vec3 normal, lightDir, eyeVec;
+    varying vec3 Binormal;
+    varying vec3 Tangent;
+    varying vec2 Texcoord;
+   
+    uniform float Bumpiness;
+    uniform sampler2D diffuseMap;
+    uniform sampler2D normalMap;
+    uniform sampler2D alphaMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      vec4 bumpmap = 2.0 * Bumpiness * texture2D( normalMap, Texcoord ) - vec4(0.5,0.5,0.5,0.0);
+      	
+      							
+      vec4 alphaColor = texture2D(alphaMap,Texcoord);
+	  if(alphaColor.r &lt; 0.5)
+	  {
+	     discard;
+	  }
+      
+      vec3 N = normalize(normal);
+      vec3 Tn = normalize(Tangent);
+      vec3 Bn = normalize(Binormal);
+      N += (bumpmap.x * Tn + bumpmap.y * Bn);
+      N = normalize(N);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm &gt; 0.0)
+      {
+      	final_color += gl_LightSource[0].diffuse * 
+      	               texture2D( diffuseMap, Texcoord ) * 
+      				   lambertTerm;	
+      		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+      final_color.a = alphaColor.r;
+	gl_FragColor = final_color;
+          
+    }</fragmentProgram></_BumpAlpha>

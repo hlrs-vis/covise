@@ -17,26 +17,7 @@
 #include "Doc.h"
 #include "System.h"
 
-#ifdef __sgi
-#include <ifl/iflFile.h>
-#include <ifl/iflError.h>
-
-void myErrorHandler(void *arg, /* closure arg */
-                    int flags, /* includes severity, see pfmt(3)*/
-                    const char *msg, va_list args)
-{
-    //fprintf(stderr,"testit\n");
-    if (flags & (MM_WARNING | MM_INFO))
-    {
-        return;
-    }
-    else
-        iflRobustErrorHandler(arg, flags, msg, args);
-}
-
-#else
 #define HAVE_LIBTIF 1
-#endif
 
 #include <stdlib.h> // free()
 #include <string.h>
@@ -163,42 +144,10 @@ bool Image::setURL(const char *url, Doc *relative)
 #endif
 
         default:
-#ifdef __sgi
-        {
-            iflSetLocalErrorHandler localE(myErrorHandler, NULL);
-            iflStatus sts;
-            iflSize dims;
-            iflFile *file = iflFile::open((int)fp->_file, url);
-            if (!file)
-            {
-                fprintf(stderr, "Error: could not open (%s).\n", url);
-            }
-            else
-            {
-                file->getDimensions(dims);
-                d_w = dims.x;
-                d_h = dims.y;
-                d_nc = dims.c;
-                d_pixels = (unsigned char *)malloc(dims.x * dims.y * dims.c);
-                iflConfig cfg(iflUChar, iflInterleaved, 0, NULL, 0, iflUpperLeftOrigin);
-                sts = file->getTile(0, 0, 0, dims.x, dims.y, 1, d_pixels, &cfg);
-                if (sts != iflOKAY)
-                {
-                    fprintf(stderr, "Error: could not read (%s).\n", url);
-                    free(d_pixels);
-                    d_pixels = NULL;
-                }
-
-                // close the file
-                file->close();
-            }
-        }
-#else
             d_pixels = (unsigned char *)malloc(fileName.length() + 1);
             strcpy((char *)d_pixels, fileName.c_str());
             d_w = d_h = d_nc = 0;
 //fprintf(stderr,"Error: could not open (%s).\n", url);
-#endif
         break;
         }
 

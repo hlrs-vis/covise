@@ -15,9 +15,6 @@ using namespace std;
 #include <stdio.h>
 
 #include <string>
-#ifdef __sgi
-using namespace std;
-#endif
 
 template <class Lexer, class Service>
 class useLexers

@@ -35,15 +35,6 @@
 #include <sys/ioctl.h>
 #endif
 
-#ifdef CRAY
-#include <sys/iosw.h>
-#include <sys/param.h>
-#endif
-
-#ifdef _WIN32
-#undef CRAY
-#endif
-
 #include <util/coErr.h>
 #include "covise_socket.h"
 #include "covise_host.h"
@@ -99,12 +90,7 @@ Initial revision
  **                                                                     **
 \***********************************************************************/
 
-#ifdef __hpux
-#define MAX_SOCK_BUF 58254
-#include <netinet/in.h>
-#else
 #define MAX_SOCK_BUF 65536
-#endif
 
 using namespace covise;
 
@@ -114,25 +100,6 @@ int Socket::stport = 31000;
 bool Socket::bInitialised = false;
 std::vector<std::string> Socket::ip_alias_list;
 std::vector<Host *> Socket::host_alias_list;
-#ifdef PROTOTYPES_FOR_FUNCTIONS_FROM_SYSTEM_HEADERS
-#ifndef CRAY
-extern "C" void herror(const char *string);
-#endif
-
-#if defined(CRAY)
-extern "C" int write(int fildes, const void *buf, unsigned nbyte);
-extern "C" int read(int fildes, void *buf, unsigned nbyte);
-extern "C" void (*signal(int sig, void (*func)(int)))(int);
-extern "C" int recalla(long mask[RECALL_SIZEOF]);
-extern "C" int writea(int fildes, char *buf, unsigned nbyte, struct iosw *status, int signo);
-#endif
-
-#ifndef _WIN32
-extern "C" int shutdown(int s, int how);
-extern "C" char *inet_ntoa(struct in_addr in);
-#endif
-extern "C" int close(int fildes);
-#endif
 
 #ifndef _WIN32
 #define closesocket close
@@ -140,7 +107,11 @@ extern "C" int close(int fildes);
 
 void covise::shutdownSocket(int socketDescriptor)
 {
-    ::shutdown(socketDescriptor, 2); //2 for read and write
+#ifdef _WIN32
+    ::shutdown(socketDescriptor, SD_BOTH);
+#else
+    ::shutdown(socketDescriptor, SHUT_RDWR);
+#endif
 }
 
 
@@ -200,7 +171,6 @@ Socket::Socket(int, int sfd)
 {
     sock_id = sfd;
     host = NULL;
-    port = 0;
     this->connected = true;
 }
 
@@ -320,7 +290,8 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
                     }
                     else
                     {
-                        fprintf(stderr, "select after socket connect to %s:%d failed: %s\n", host->getAddress(), p, coStrerror(errno));
+                        fprintf(stderr, "select after socket connect to %s:%d failed: %s\n", host->getAddress(), p,
+                                coStrerror(getErrno()));
                         remain = timeout + 1.0;
                         break;
                     }
@@ -344,7 +315,8 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
                 errno = 0;
                 if (getsockopt(sock_id, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
                 {
-                    fprintf(stderr, "getsockopt after select on socket to %s:%d: %s\n", host->getAddress(), p, coStrerror(errno));
+                    fprintf(stderr, "getsockopt after select on socket to %s:%d: %s\n", host->getAddress(), p,
+                            coStrerror(getErrno()));
                 }
                 else
                 {
@@ -420,9 +392,9 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
 #endif
 
         closesocket(sock_id);
+        sock_id = -1;
         if (numconn >= retries)
         {
-            sock_id = -1;
             return;
         }
 
@@ -532,10 +504,12 @@ Socket::Socket(int *p)
     setTCPOptions();
 
     std::unique_lock<std::mutex> guard(mutex);
+    int listenPort = stport++;
+    guard.unlock();
     memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
     s_addr_in.sin_family = AF_INET;
     s_addr_in.sin_addr.s_addr = INADDR_ANY;
-    s_addr_in.sin_port = htons(stport);
+    s_addr_in.sin_port = htons(listenPort);
 
     /* Assign an address to this socket and finds an unused port */
 
@@ -543,7 +517,7 @@ Socket::Socket(int *p)
     while (::bind(sock_id, (sockaddr *)(void *)&s_addr_in, sizeof(s_addr_in)) < 0)
     {
 #ifdef DEBUG
-        fprintf(stderr, "bind to port %d failed: %s\n", stport, coStrerror(getErrno()));
+        fprintf(stderr, "bind to port %d failed: %s\n", listenPort, coStrerror(getErrno()));
 #endif
 #ifndef _WIN32
         if (errno == EADDRINUSE)
@@ -551,11 +525,12 @@ Socket::Socket(int *p)
         if (WSAGetLastError() == WSAEADDRINUSE)
 #endif
         {
-            stport++;
-            s_addr_in.sin_port = htons(stport);
-//	    cerr << "neuer port: " << stport << "\n";
+            guard.lock();
+            listenPort = stport++;
+            guard.unlock();
+//	    cerr << "neuer port: " << listenPort << "\n";
 #ifdef _WIN32
-            /* after an unsuccessfull bind we need to close the socket and reopen it on windows, or at least this was the case here on vista on a surface box */
+            /* after an unsuccessful bind we need to close the socket and reopen it on windows, or at least this was the case here on vista on a surface box */
             closesocket(sock_id);
             sock_id = (int)socket(AF_INET, SOCK_STREAM, 0);
             if (sock_id < 0)
@@ -569,8 +544,8 @@ Socket::Socket(int *p)
             memset((char *)&s_addr_in, 0, sizeof(s_addr_in));
             s_addr_in.sin_family = AF_INET;
             s_addr_in.sin_addr.s_addr = INADDR_ANY;
-            s_addr_in.sin_port = htons(stport);
 #endif
+            s_addr_in.sin_port = htons(listenPort);
         }
         else
         {
@@ -582,8 +557,6 @@ Socket::Socket(int *p)
         errno = 0;
     }
     *p = port = ntohs(s_addr_in.sin_port);
-    stport++;
-    guard.unlock();
 #ifdef DEBUG
     fprintf(stderr, "bind succeeded: port=%d, addr=0x%08x\n", *p, s_addr_in.sin_addr.s_addr);
 #endif
@@ -606,11 +579,6 @@ Socket::Socket(const Socket &s)
 
 int Socket::setTCPOptions()
 {
-#ifdef CRAY
-    char *hostname;
-    int len, winshift;
-#endif
-
     int ret = 0;
     int on = 1;
     if (setsockopt(sock_id, IPPROTO_TCP, TCP_NODELAY,
@@ -632,18 +600,6 @@ int Socket::setTCPOptions()
 #endif
     int sendbuf = MAX_SOCK_BUF;
     int recvbuf = MAX_SOCK_BUF;
-#ifdef CRAY
-    winshift = 4;
-    if (setsockopt(sock_id, IPPROTO_TCP, TCP_WINSHIFT,
-                   &winshift, sizeof(winshift)) < 0)
-    {
-        LOGINFO("setsockopt error IPPROTO_TCP TCP_WINSHIFT");
-        ret |= -1;
-    }
-    sendbuf = 6 * 65536;
-    recvbuf = 6 * 65536;
-    LOGINFO("HIPPI interface");
-#endif
     if (setsockopt(sock_id, SOL_SOCKET, SO_SNDBUF,
                    (char *)&sendbuf, sizeof(sendbuf)) < 0)
     {
@@ -680,51 +636,12 @@ int Socket::setTCPOptions()
 
 int Socket::accept()
 {
-    errno = 0;
-    int err = ::listen(sock_id, 20);
-    if (err == -1)
-    {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
-    return acceptOnly();
+    return accept(-1.0);
 }
+
 int Socket::acceptOnly()
 {
-    int tmp_sock_id;
-#ifdef DEBUG
-    printf("Listening for connect requests on port %d\n", port);
-#endif
-    errno = 0;
-
-    socklen_t length = sizeof(s_addr_in);
-    tmp_sock_id = (int)::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
-
-    port = ntohs(s_addr_in.sin_port);
-
-    if (tmp_sock_id < 0)
-    {
-        fprintf(stderr, "error with accept (socket to %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
-
-#ifdef DEBUG
-    printf("Connection from host %s, port %u\n",
-           inet_ntoa(s_addr_in.sin_addr), ntohs(s_addr_in.sin_port));
-    fflush(stdout);
-#endif
-
-    //    shutdown(s, 2);
-    closesocket(sock_id);
-    sock_id = tmp_sock_id;
-    host = new Host(s_addr_in.sin_addr.s_addr);
-#ifdef DEBUG
-    print();
-#endif
-    this->connected = true;
-
-    return 0;
+    return acceptOnly(-1.0);
 }
 
 int Socket::listen()
@@ -736,8 +653,7 @@ int Socket::listen()
     int err = ::listen(sock_id, 20);
     if (err == -1)
     {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
+        fprintf(stderr, "error with listen (socket on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
         return -1;
     }
 
@@ -746,31 +662,29 @@ int Socket::listen()
 
 int Socket::accept(float wait)
 {
-    errno = 0;
-    int err = ::listen(sock_id, 20);
+    int err = listen();
     if (err == -1)
-    {
-        fprintf(stderr, "error with listen (socket on %s:%d): %s\n",
-                host->getAddress(), port, coStrerror(getErrno()));
-        return -1;
-    }
+        return err;
    return acceptOnly(wait);
-   }
+}
+
 int Socket::acceptOnly(float wait)
 {
-    int tmp_sock_id;
-    struct timeval timeout;
-    fd_set fdread;
-    int i;
 #ifdef DEBUG
     printf("Listening for connect requests on port %d\n", port);
 #endif
-    errno = 0;
 
-    do
+    int i = 0;
+    if (wait >= 0)
     {
-        timeout.tv_sec = (int)wait;
-        timeout.tv_usec = (int)((wait - timeout.tv_sec) * 1000000);
+        i = -1;
+    }
+    while (i < 0)
+    {
+        struct timeval timeout;
+        timeout.tv_sec = wait;
+        timeout.tv_usec = ((wait - timeout.tv_sec) * 1e6);
+        fd_set fdread;
         FD_ZERO(&fdread);
         FD_SET(sock_id, &fdread);
         errno = 0;
@@ -784,6 +698,8 @@ int Socket::acceptOnly(float wait)
         }
         if (i == 0)
         {
+            fprintf(stderr, "timeout with select (socket listening on %s:%d, wait=%f)\n", host->getAddress(), port,
+                    wait);
             return -1;
         }
         else if (i < 0)
@@ -794,29 +710,32 @@ int Socket::acceptOnly(float wait)
             if (getErrno() != EINTR)
 #endif
             {
-                fprintf(stderr, "error with select (socket listening on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
+                fprintf(stderr, "error with select (socket listening on %s:%d): %s\n", host->getAddress(), port,
+                        coStrerror(getErrno()));
                 return -1;
             }
         }
         //fprintf(stderr, "retrying select, listening on %s:%d, timeout was %ds, pid=%d\n", host->getAddress(), port, wait, getpid());
-    } while (i < 0);
-
-    socklen_t length = sizeof(s_addr_in);
-    errno = 0;
-    tmp_sock_id = (int)::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
-
-    port = ntohs(s_addr_in.sin_port);
-
-    if (tmp_sock_id < 0)
-    {
-        fprintf(stderr, "error with accept (socket listening on %s:%d): %s\n", host->getAddress(), port, coStrerror(getErrno()));
     }
 
+#ifdef DEBUG
+    printf("Listening for connect requests on port %d\n", port);
+#endif
+    socklen_t length = sizeof(s_addr_in);
+    errno = 0;
+    int tmp_sock_id = ::accept(sock_id, (sockaddr *)(void *)&s_addr_in, &length);
+    if (tmp_sock_id < 0)
+    {
+        fprintf(stderr, "error with accept (socket listening on %s:%d): %s\n", host->getAddress(), port,
+                coStrerror(getErrno()));
+        return -1;
+    }
 #ifdef DEBUG
     printf("Connection from host %s, port %u\n",
            inet_ntoa(s_addr_in.sin_addr), ntohs(s_addr_in.sin_port));
     fflush(stdout);
 #endif
+    port = ntohs(s_addr_in.sin_port);
 
     //    shutdown(s, 2);
     closesocket(sock_id);
@@ -828,6 +747,20 @@ int Socket::acceptOnly(float wait)
     this->connected = true;
 
     return 0;
+}
+
+void Socket::cancel()
+{
+    if (sock_id != -1)
+    {
+#ifdef _WIN32
+        shutdown(sock_id, SD_BOTH);
+#else
+        shutdown(sock_id, SHUT_RDWR);
+#endif
+        closesocket(sock_id);
+        sock_id = -1;
+    }
 }
 
 
@@ -886,45 +819,14 @@ int Socket::write(const void *buf, unsigned nbyte)
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;
     }
+    else if (no_of_bytes == 0)
+    {
+        LOGERROR("write returns 0: close socket.");
+        return COVISE_SOCKET_INVALID;
+    }
 
     return no_of_bytes;
 }
-
-#ifdef CRAY
-struct iosw wrstat;
-
-int Socket::writea(const void *buf, unsigned nbyte)
-{
-    long mask[RECALL_SIZEOF];
-    void wrhdlr(int signo);
-    static int first = 1;
-    int ret;
-
-    if (first)
-    {
-        signal(SIGUSR1, wrhdlr);
-        first = 0;
-    }
-
-    RECALL_SET(mask, sock_id); /* set bit for fd in mask */
-    //    covise_time->mark(__LINE__, "vor Socket::writea");
-    ::write::writea(sock_id, (char *)buf, nbyte, &wrstat, SIGUSR1);
-    //    covise_time->mark(__LINE__, "nach Socket::writea");
-    ret = recalla(mask);
-    //    covise_time->mark(__LINE__, "nach Socket::recalla");
-    if (ret == 0)
-        return nbyte;
-    else
-        return 0;
-}
-
-void wrhdlr(int signo)
-{
-    signal(signo, wrhdlr);
-    printf("writea wrote %d bytes\n", wrstat.sw_count);
-    wrstat.sw_flag = 0;
-}
-#endif
 
 int Socket::read(void *buf, unsigned nbyte)
 {
@@ -946,14 +848,10 @@ int Socket::read(void *buf, unsigned nbyte)
 #endif
     if (no_of_bytes < 0)
     {
-        sprintf(tmp_str, "Socket read error = %d", getErrno());
+        sprintf(tmp_str, "Socket::read error: %s", coStrerror(getErrno()));
         LOGINFO(tmp_str);
         //    perror("Socket read error");
         LOGINFO("read returns <= 0: close socket.");
-#ifdef __hpux
-        if (errno == ENOENT)
-            return 0;
-#endif
 #ifndef _WIN32
         if (errno == EADDRINUSE)
             return 0;
@@ -1015,7 +913,8 @@ int Socket::setNonBlocking(bool on)
     int flags = fcntl(sock_id, F_GETFL, 0);
     if (flags < 0)
     {
-        fprintf(stderr, "getting flags on socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+        fprintf(stderr, "getting flags on socket to %s:%d failed: %s\n", host->getAddress(), port,
+                coStrerror(getErrno()));
         return -1;
     }
 #endif
@@ -1028,7 +927,8 @@ int Socket::setNonBlocking(bool on)
         errno = 0;
         if (fcntl(sock_id, F_SETFL, flags | O_NONBLOCK))
         {
-            fprintf(stderr, "setting O_NONBLOCK on socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+            fprintf(stderr, "setting O_NONBLOCK on socket to %s:%d failed: %s\n", host->getAddress(), port,
+                    coStrerror(getErrno()));
             return -1;
         }
 #endif
@@ -1042,7 +942,8 @@ int Socket::setNonBlocking(bool on)
         errno = 0;
         if (fcntl(sock_id, F_SETFL, flags & (~O_NONBLOCK)))
         {
-            fprintf(stderr, "removing O_NONBLOCK from socket to %s:%d failed: %s\n", host->getAddress(), port, coStrerror(getErrno()));
+            fprintf(stderr, "removing O_NONBLOCK from socket to %s:%d failed: %s\n", host->getAddress(), port,
+                    coStrerror(getErrno()));
             return -1;
         }
 #endif
@@ -1108,7 +1009,7 @@ void Socket::print()
 
 UDPSocket::UDPSocket(int p,const char *address)
 {
-	port = p;
+    port = p;
     this->connected = false;	
     sock_id = (int)socket(AF_INET, SOCK_DGRAM, 0);	
     if (sock_id < 0)
@@ -1119,17 +1020,17 @@ UDPSocket::UDPSocket(int p,const char *address)
 	memset((char*)& s_addr_in, 0, sizeof(s_addr_in));
 	s_addr_in.sin_family = AF_INET;
 	s_addr_in.sin_addr.s_addr = INADDR_ANY;
-	s_addr_in.sin_port = htons(port);
-	sockaddr_in c_addr_in = s_addr_in; //save adress in s_addr_in for sending, but bind without it
-	if (address)
-	{
-		int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);
+    s_addr_in.sin_port = htons(port);
+    sockaddr_in c_addr_in = s_addr_in; //save address in s_addr_in for sending, but bind without it
+    if (address)
+    {
+        int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);
 		if (err != 1)
 		{
 			sock_id = -1;
 			return;
 		}
-	}
+    }
 
 
 #ifndef _WIN32
@@ -1421,7 +1322,8 @@ SSLSocket::SSLSocket()
         }
         else
         {
-            fprintf(stderr, "error with bind (socket to %s:%d): %s\n", host->getAddress(), s_addr_in.sin_port, strerror(errno));
+            fprintf(stderr, "error with bind (socket to %s:%d): %s\n", host->getAddress(), s_addr_in.sin_port,
+                    coStrerror(errno));
             closesocket(sock_id);
             sock_id = -1;
             return;
@@ -1528,11 +1430,11 @@ int SSLSocket::write(const void *buf, unsigned int nbyte)
             return COVISE_SOCKET_INVALID;
         if (errno == ECONNRESET)
             return COVISE_SOCKET_INVALID;
-        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
+        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
 #ifdef _DEBUG
-        fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, strerror(errno));
+        fprintf(stderr, "error writing on socket to %s:%d: %s\n", host->getAddress(), port, coStrerror(errno));
 #endif
         LOGERROR("write returns <= 0: close socket.");
         return COVISE_SOCKET_INVALID;

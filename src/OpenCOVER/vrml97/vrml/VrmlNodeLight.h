@@ -20,6 +20,8 @@
 #include "VrmlSFColor.h"
 #include "VrmlSFFloat.h"
 
+#include "Viewer.h"
+
 #include "VrmlNodeChild.h"
 
 namespace vrml
@@ -29,22 +31,11 @@ class VRMLEXPORT VrmlNodeLight : public VrmlNodeChild
 {
 
 public:
-    // Define the fields of light nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
-
-    VrmlNodeLight(VrmlScene *);
-    virtual ~VrmlNodeLight();
-
-    virtual VrmlNodeLight *toLight() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    static void initFields(VrmlNodeLight *node, VrmlNodeType *t);
+    
+    VrmlNodeLight(VrmlScene *, const std::string &name);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
 
     virtual float getAmbientIntensity() //LarryD Mar 04/99
     {

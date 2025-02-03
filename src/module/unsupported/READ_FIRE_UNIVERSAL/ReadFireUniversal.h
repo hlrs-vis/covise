@@ -30,10 +30,6 @@
 using namespace covise;
 #include "FireUniversalFile.h"
 #include "ChoiceList.h"
-#ifdef __hpux
-#include <string.h>
-#include <strings.h>
-#endif
 const int READ_DATA = 0;
 const int DETERMINE_SIZE = 1;
 const int MAX_NO_OF_DATA_SETS = 50;

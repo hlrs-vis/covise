@@ -72,5 +72,6 @@ private:
     bool m_initializing = true;
     opencover::ui::Button *m_toggleToolbar = nullptr;
     void showKeyboardCommands();
+    std::string m_file;
 };
 #endif

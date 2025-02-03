@@ -33,10 +33,6 @@ public:
 
     ~MEStringPort();
 
-#ifdef YAC
-    void setValues(covise::coRecvBuffer &);
-#endif
-
     void restoreParam();
     void storeParam();
     void defineParam(QString value, int apptype);

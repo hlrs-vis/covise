@@ -21,22 +21,16 @@ namespace vrml
 {
 
 class VRMLEXPORT VrmlNodeTriangleSet : public VrmlNodePolygonsCommon
-
 {
 
 public:
     // Define the fields of indexed face set nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+  static void initFields(VrmlNodeTriangleSet *node, VrmlNodeType *t);
+  static const char *typeName();
 
     VrmlNodeTriangleSet(VrmlScene *);
-    virtual ~VrmlNodeTriangleSet();
-
-    virtual VrmlNode *cloneMe() const;
 
     virtual Viewer::Object insertGeometry(Viewer *v);
-
-    virtual VrmlNodeTriangleSet *toTriangleSet() const;
 };
 }
 #endif // _VRMLNODETRIANGLESET_

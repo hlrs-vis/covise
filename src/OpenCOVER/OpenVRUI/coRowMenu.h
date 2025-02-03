@@ -6,13 +6,12 @@
  * License: LGPL 2+ */
 
 //-*-c++-*-
-#ifndef CO_ROW_MENU_H
-#define CO_ROW_MENU_H
+#pragma once
 
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coButton.h>
+#include "coMenu.h"
+#include "coButton.h"
 
-#include <OpenVRUI/sginterface/vruiMatrix.h>
+#include "sginterface/vruiMatrix.h"
 
 namespace vrui
 {
@@ -111,4 +110,3 @@ private:
     virtual void menuEvent(coMenuItem *item);
 };
 }
-#endif

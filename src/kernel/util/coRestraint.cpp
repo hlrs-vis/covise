@@ -104,7 +104,7 @@ void coRestraint::add(const std::string &selection)
       ssize_t dumStep=1;
       ssize_t numNumbers = sscanf(c,"all/%zd",&dumStep);
       if (numNumbers == 1)
-          globalStep = dumStep;
+          globalStep = (int)dumStep;
       if (globalStep <= 0)
           globalStep = 1;
       return;

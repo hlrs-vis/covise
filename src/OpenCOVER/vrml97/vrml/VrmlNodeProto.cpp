@@ -43,14 +43,25 @@
 #include "VrmlNamespace.h"
 #include "VrmlMFNode.h"
 #include "VrmlScene.h"
+#include "System.h"
 #include "Doc.h"
 using std::list;
 using namespace vrml;
 
 VrmlNodeType *VrmlNodeProto::nodeType() const { return d_nodeType; }
 
+void VrmlNodeProto::initFields(VrmlNodeProto *node, VrmlNodeType *t)
+{
+
+}
+
+const char *VrmlNodeProto::typeName() 
+{
+    return "PROTO";
+}
+
 VrmlNodeProto::VrmlNodeProto(VrmlNodeType *nodeDef, VrmlScene *scene)
-    : VrmlNode(scene)
+    : VrmlNode(scene, typeName())
     , d_nodeType(nodeDef->reference())
     , d_instantiated(false)
     , d_scope(0)
@@ -60,7 +71,7 @@ VrmlNodeProto::VrmlNodeProto(VrmlNodeType *nodeDef, VrmlScene *scene)
 }
 
 VrmlNodeProto::VrmlNodeProto(const VrmlNodeProto &n)
-    : VrmlNode(0)
+    : VrmlNode(n)
     , d_nodeType(n.nodeType()->reference())
     , d_instantiated(false)
     , d_scope(0)
@@ -107,19 +118,6 @@ VrmlNodeProto::~VrmlNodeProto()
     delete d_nodes;
     delete d_scope;
     d_nodeType->dereference();
-}
-
-// Note that the copy constructor doesn't copy the implementation
-// nodes, so they will need to be instantiated.
-
-VrmlNode *VrmlNodeProto::cloneMe() const
-{
-    return new VrmlNodeProto(*this);
-}
-
-VrmlNodeProto *VrmlNodeProto::toProto() const
-{
-    return (VrmlNodeProto *)this;
 }
 
 // Instantiate a local copy of the implementation nodes.
@@ -217,12 +215,12 @@ void VrmlNodeProto::instantiate(const char* relUrl, int parentId)
         {
             VrmlField *value = (*ifld)->value;
 #ifdef DEBUG
-            cerr << d_nodeType->getName() << "::" << name()
+            std::cerr << d_nodeType->getName() << "::" << name()
                  << " setting IS field " << (*ifld)->name;
             if (value)
-                cerr << " to " << *value << endl;
+                std::cerr << " to " << *value << std::endl;
             else
-                cerr << " to null\n";
+                std::cerr << " to null\n";
 #endif
             if (!value)
                 continue;
@@ -233,7 +231,7 @@ void VrmlNodeProto::instantiate(const char* relUrl, int parentId)
                     //    cerr << (*j)->node->name() << endl;
                     VrmlNode *n = d_scope->findNode((*j)->node->name());
 #ifdef DEBUG
-                    cerr << " on " << n->name() << "::" << (*j)->fieldName << endl;
+                    std::cerr << " on " << n->name() << "::" << (*j)->fieldName << std::endl;
 #endif
                     if (n)
                         n->setField((*j)->fieldName, *value);
@@ -303,7 +301,7 @@ VrmlNode *VrmlNodeProto::child(int index)
 
 // Print the node type, instance vars
 
-std::ostream &VrmlNodeProto::printFields(std::ostream &os, int)
+std::ostream &VrmlNodeProto::printFields(std::ostream &os, int) const
 {
     os << "#VrmlNodeProto::printFields not implemented yet...\n";
     return os;
@@ -318,243 +316,16 @@ VrmlNode *VrmlNodeProto::firstNode() const
                 : d_nodeType->firstNode());
 }
 
-// These are passed along to the first implementation node of the proto.
-// If the first node is not present (EXTERNPROTO prior to retrieving the
-// the implementation), all tests fail.
-
-VrmlNodeAnchor *VrmlNodeProto::toAnchor() const
+VrmlNode *VrmlNodeProto::getThisProto()
 {
-    return firstNode() ? firstNode()->toAnchor() : 0;
+    return firstNode();
 }
 
-VrmlNodeAppearance *VrmlNodeProto::toAppearance() const
+const VrmlNode *VrmlNodeProto::getThisProto() const 
 {
-    return firstNode() ? firstNode()->toAppearance() : 0;
+    return firstNode();
 }
 
-VrmlNodeWave *VrmlNodeProto::toWave() const
-{
-    return firstNode() ? firstNode()->toWave() : 0;
-}
-
-VrmlNodeBumpMapping *VrmlNodeProto::toBumpMapping() const
-{
-    return firstNode() ? firstNode()->toBumpMapping() : 0;
-}
-
-VrmlNodeAudioClip *VrmlNodeProto::toAudioClip() const
-{
-    return firstNode() ? firstNode()->toAudioClip() : 0;
-}
-
-VrmlNodeChild *VrmlNodeProto::toChild() const
-{
-    return firstNode() ? firstNode()->toChild() : 0;
-}
-
-VrmlNodeBackground *VrmlNodeProto::toBackground() const
-{
-    return firstNode() ? firstNode()->toBackground() : 0;
-}
-
-VrmlNodeColor *VrmlNodeProto::toColor() const
-{
-    return firstNode() ? firstNode()->toColor() : 0;
-}
-
-VrmlNodeCoordinate *VrmlNodeProto::toCoordinate() const
-{
-    return firstNode() ? firstNode()->toCoordinate() : 0;
-}
-
-VrmlNodeFog *VrmlNodeProto::toFog() const
-{
-    return firstNode() ? firstNode()->toFog() : 0;
-}
-
-VrmlNodeFontStyle *VrmlNodeProto::toFontStyle() const
-{
-    return firstNode() ? firstNode()->toFontStyle() : 0;
-}
-
-VrmlNodeGeometry *VrmlNodeProto::toGeometry() const
-{
-    return firstNode() ? firstNode()->toGeometry() : 0;
-}
-
-VrmlNodeGroup *VrmlNodeProto::toGroup() const
-{
-    return firstNode() ? firstNode()->toGroup() : 0;
-}
-
-VrmlNodeInline *VrmlNodeProto::toInline() const
-{
-    return firstNode() ? firstNode()->toInline() : 0;
-}
-
-VrmlNodeLight *VrmlNodeProto::toLight() const
-{
-    return firstNode() ? firstNode()->toLight() : 0;
-}
-
-VrmlNodeMaterial *VrmlNodeProto::toMaterial() const
-{
-    return firstNode() ? firstNode()->toMaterial() : 0;
-}
-
-VrmlNodeMovieTexture *VrmlNodeProto::toMovieTexture() const
-{
-    return firstNode() ? firstNode()->toMovieTexture() : 0;
-}
-
-VrmlNodeNavigationInfo *VrmlNodeProto::toNavigationInfo() const
-{
-    return firstNode() ? firstNode()->toNavigationInfo() : 0;
-}
-
-VrmlNodeCOVER *VrmlNodeProto::toCOVER() const
-{
-    return firstNode() ? firstNode()->toCOVER() : 0;
-}
-
-VrmlNodeNormal *VrmlNodeProto::toNormal() const
-{
-    return firstNode() ? firstNode()->toNormal() : 0;
-}
-
-VrmlNodePlaneSensor *VrmlNodeProto::toPlaneSensor() const
-{
-    return firstNode() ? firstNode()->toPlaneSensor() : 0;
-}
-
-VrmlNodeSpaceSensor *VrmlNodeProto::toSpaceSensor() const
-{
-    return firstNode() ? firstNode()->toSpaceSensor() : 0;
-}
-
-VrmlNodeARSensor *VrmlNodeProto::toARSensor() const
-{
-    return firstNode() ? firstNode()->toARSensor() : 0;
-}
-
-VrmlNodePointLight *VrmlNodeProto::toPointLight() const
-{
-    return firstNode() ? firstNode()->toPointLight() : 0;
-}
-
-VrmlNodeScript *VrmlNodeProto::toScript() const
-{
-    return firstNode() ? firstNode()->toScript() : 0;
-}
-
-VrmlNodeSound *VrmlNodeProto::toSound() const
-{
-    return firstNode() ? firstNode()->toSound() : 0;
-}
-
-VrmlNodeSpotLight *VrmlNodeProto::toSpotLight() const
-{
-    return firstNode() ? firstNode()->toSpotLight() : 0;
-}
-
-VrmlNodeTexture *VrmlNodeProto::toTexture() const
-{
-    return firstNode() ? firstNode()->toTexture() : 0;
-}
-
-VrmlNodeTextureCoordinate *VrmlNodeProto::toTextureCoordinate() const
-{
-    return firstNode() ? firstNode()->toTextureCoordinate() : 0;
-}
-
-VrmlNodeTextureTransform *VrmlNodeProto::toTextureTransform() const
-{
-    return firstNode() ? firstNode()->toTextureTransform() : 0;
-}
-
-VrmlNodeTimeSensor *VrmlNodeProto::toTimeSensor() const
-{
-    return firstNode() ? firstNode()->toTimeSensor() : 0;
-}
-
-VrmlNodeTouchSensor *VrmlNodeProto::toTouchSensor() const
-{
-    return firstNode() ? firstNode()->toTouchSensor() : 0;
-}
-
-VrmlNodeViewpoint *VrmlNodeProto::toViewpoint() const
-{
-    return firstNode() ? firstNode()->toViewpoint() : 0;
-}
-
-// Larry
-VrmlNodeBox *VrmlNodeProto::toBox() const
-{
-    return firstNode() ? firstNode()->toBox() : 0;
-}
-
-VrmlNodeCone *VrmlNodeProto::toCone() const
-{
-    return firstNode() ? firstNode()->toCone() : 0;
-}
-
-VrmlNodeCylinder *VrmlNodeProto::toCylinder() const
-{
-    return firstNode() ? firstNode()->toCylinder() : 0;
-}
-
-VrmlNodeDirLight *VrmlNodeProto::toDirLight() const
-{
-    return firstNode() ? firstNode()->toDirLight() : 0;
-}
-
-VrmlNodeElevationGrid *VrmlNodeProto::toElevationGrid() const
-{
-    return firstNode() ? firstNode()->toElevationGrid() : 0;
-}
-VrmlNodeExtrusion *VrmlNodeProto::toExtrusion() const
-{
-    return firstNode() ? firstNode()->toExtrusion() : 0;
-}
-
-VrmlNodeIFaceSet *VrmlNodeProto::toIFaceSet() const
-{
-    return firstNode() ? firstNode()->toIFaceSet() : 0;
-}
-VrmlNodeShape *VrmlNodeProto::toShape() const
-{
-    return firstNode() ? firstNode()->toShape() : 0;
-}
-
-VrmlNodeSphere *VrmlNodeProto::toSphere() const
-{
-    return firstNode() ? firstNode()->toSphere() : 0;
-}
-
-VrmlNodeSwitch *VrmlNodeProto::toSwitch() const
-{
-    return firstNode() ? firstNode()->toSwitch() : 0;
-}
-
-VrmlNodeTransform *VrmlNodeProto::toTransform() const
-{
-    return firstNode() ? firstNode()->toTransform() : 0;
-}
-
-VrmlNodeImageTexture *VrmlNodeProto::toImageTexture() const
-{
-    return firstNode() ? firstNode()->toImageTexture() : 0;
-}
-VrmlNodeCubeTexture *VrmlNodeProto::toCubeTexture() const
-{
-    return firstNode() ? firstNode()->toCubeTexture() : 0;
-}
-VrmlNodePixelTexture *VrmlNodeProto::toPixelTexture() const
-{
-    return firstNode() ? firstNode()->toPixelTexture() : 0;
-}
-
-//
 
 bool VrmlNodeProto::isModified() const
 {
@@ -700,24 +471,4 @@ const VrmlField *VrmlNodeProto::getField(const char *fieldName) const
         return nv->value;
 
     return VrmlNode::getField(fieldName); // no other fields
-}
-
-VrmlNodeLOD *VrmlNodeProto::toLOD() const
-{
-    return firstNode() ? firstNode()->toLOD() : 0;
-}
-
-VrmlNodeOrientationInt *VrmlNodeProto::toOrientationInt() const
-{
-    return firstNode() ? firstNode()->toOrientationInt() : 0;
-}
-
-VrmlNodePositionInt *VrmlNodeProto::toPositionInt() const
-{
-    return firstNode() ? firstNode()->toPositionInt() : 0;
-}
-
-VrmlNodeScalarInt *VrmlNodeProto::toScalarInt() const
-{
-    return firstNode() ? firstNode()->toScalarInt() : 0;
 }

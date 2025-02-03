@@ -28,10 +28,6 @@
 #include "CaseFile.h"
 #include "EnFile.h"
 
-#ifdef __sgi
-using namespace std;
-#endif
-
 const int Success(0);
 const int Failure(1);
 

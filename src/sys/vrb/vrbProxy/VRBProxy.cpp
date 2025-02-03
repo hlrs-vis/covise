@@ -60,11 +60,7 @@ VRBProxy::VRBProxy(int argc, char **argv)
             default:
             {
                 cerr << "Unrecognized Option -" << argv[i][1] << " \n";
-#ifndef YAC
                 cerr << "usage: vrbProxy [port] [-v] [-V] [-d]\n   port = TCP port to listen for incomping VRB connections,\n     default: 31900, or VRB.ProxyPort\n   -v : Version\n    -V : Version Long\n    -d : debug Output\n";
-#else
-                cerr << "usage: vrbProxy [port] [-d]\n   port = TCP port to listen for incomping VRB connections,\n     default: 31900, or VRB.ProxyPort\n    -d : debug Output\n";
-#endif
                 exit(-1);
                 break;
             }

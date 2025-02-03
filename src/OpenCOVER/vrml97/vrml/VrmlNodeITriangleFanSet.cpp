@@ -27,40 +27,16 @@
 #include "Viewer.h"
 using namespace vrml;
 
-static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeITriangleFanSet(s); }
-
-// Define the built in VrmlNodeType:: "IndexedTriangleFanSet" fields
-
-VrmlNodeType *VrmlNodeITriangleFanSet::defineType(VrmlNodeType *t)
+void VrmlNodeITriangleFanSet::initFields(VrmlNodeITriangleFanSet *node, VrmlNodeType *t)
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st;
-        t = st = new VrmlNodeType("IndexedTriangleFanSet", creator);
-    }
-
-    VrmlNodeIPolygonsCommon::defineType(t); // Parent class
-
-    return t;
+    VrmlNodeIPolygonsCommon::initFields(node, t);
 }
 
-VrmlNodeType *VrmlNodeITriangleFanSet::nodeType() const { return defineType(0); }
+const char *VrmlNodeITriangleFanSet::typeName() { return "IndexedTriangleFanSet"; }
 
 VrmlNodeITriangleFanSet::VrmlNodeITriangleFanSet(VrmlScene *scene)
-    : VrmlNodeIPolygonsCommon(scene)
+    : VrmlNodeIPolygonsCommon(scene, typeName())
 {
-}
-
-VrmlNodeITriangleFanSet::~VrmlNodeITriangleFanSet()
-{
-}
-
-VrmlNode *VrmlNodeITriangleFanSet::cloneMe() const
-{
-    return new VrmlNodeITriangleFanSet(*this);
 }
 
 Viewer::Object VrmlNodeITriangleFanSet::insertGeometry(Viewer *viewer)
@@ -176,9 +152,4 @@ Viewer::Object VrmlNodeITriangleFanSet::insertGeometry(Viewer *viewer)
         d_texCoord.get()->clearModified();
 
     return obj;
-}
-
-VrmlNodeITriangleFanSet *VrmlNodeITriangleFanSet::toITriangleFanSet() const
-{
-    return (VrmlNodeITriangleFanSet *)this;
 }

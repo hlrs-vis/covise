@@ -13,14 +13,11 @@
 #include "MEDataViewer.h"
 #include "MEDataObject.h"
 #include "MEDataArray.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "handler/MEMainHandler.h"
 #include "widgets/MEUserInterface.h"
 
 #include <covise/covise_msg.h>
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
 
 /*!
     \class MEDataTreeItem
@@ -34,7 +31,6 @@ MEDataTreeItem::MEDataTreeItem(MEDataTree *item, const QString &text, const QCol
     , m_dataObject(NULL)
     , m_dataArray(NULL)
     , m_dataObjectType(0)
-    , m_index(-1)
     , m_color(color)
 {
     setText(0, text);
@@ -49,7 +45,6 @@ MEDataTreeItem::MEDataTreeItem(MEDataTreeItem *item, const QString &text)
     , m_dataObject(NULL)
     , m_dataArray(NULL)
     , m_dataObjectType(0)
-    , m_index(-1)
 {
     setText(0, text);
     m_color = item->getColor();
@@ -63,7 +58,6 @@ MEDataTreeItem::MEDataTreeItem(MEDataTreeItem *item, const QString &text, MEData
     , m_dataObject(NULL)
     , m_dataArray(NULL)
     , m_dataObjectType(0)
-    , m_index(-1)
 {
     setText(0, text);
     setFlags(Qt::ItemIsEnabled);
@@ -71,22 +65,6 @@ MEDataTreeItem::MEDataTreeItem(MEDataTreeItem *item, const QString &text, MEData
     m_port = port;
     item->setIcon(0, MEMainHandler::instance()->pm_folderclosed);
     setIcon(0, MEMainHandler::instance()->pm_folderclosed);
-}
-
-// root item for a yac port
-MEDataTreeItem::MEDataTreeItem(MEDataTreeItem *item, const QString &text, int id)
-    : QTreeWidgetItem(item)
-    , m_dataObject(NULL)
-    , m_dataArray(NULL)
-    , m_dataObjectType(0)
-{
-    m_index = id; // index inside data object, only used under YAC
-    setText(0, text);
-    setFlags(Qt::ItemIsEnabled);
-    m_color = item->getColor();
-    m_port = item->getPort();
-    setIcon(0, MEMainHandler::instance()->pm_folderclosed);
-    item->setIcon(0, MEMainHandler::instance()->pm_folderclosed);
 }
 
 //!
@@ -107,19 +85,12 @@ MEDataTreeItem::~MEDataTreeItem()
 void MEDataTreeItem::updateItem()
 {
 // set the new data name
-#ifdef YAC
-
-    QString tmp = parent()->text(0) + " (" + text(1) + "," + text(2) + "," + text(3) + ")";
-
-#else
-
     QString tmp = text(0);
     if (tmp.contains(":: "))
     {
         tmp = tmp.section(':', -1);
         tmp = tmp.remove(0, 1);
     }
-#endif
 
     // update content of windows data object
     if (m_dataObject)
@@ -142,36 +113,11 @@ void MEDataTreeItem::showItemContent()
     else if (m_dataObject)
         MEDataViewer::instance()->showObject(m_dataObject);
 
-#ifdef YAC
-
-    // request data object information
-    covise::coSendBuffer sb;
-    if (m_index == -1)
-    {
-        int i1 = text(1).toInt();
-        int i2 = text(2).toInt();
-        int i3 = text(3).toInt();
-        sb << i1 << i2 << i3;
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_GET_OBJ_INFO, sb);
-    }
-
-    else
-    {
-        int i1 = parent()->text(1).toInt();
-        int i2 = parent()->text(2).toInt();
-        int i3 = parent()->text(3).toInt();
-        sb << i1 << i2 << i3 << m_index << 0 << 199;
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_GET_OBJ_ARRAY, sb);
-    }
-
-#else
-
     else if (m_dataObjectType == MEDataObject::POINTER)
         m_dataObject = MEDataViewer::instance()->createObject(this);
 
     else if (m_dataObjectType == MEDataObject::ARRAY)
         m_dataArray = MEDataViewer::instance()->createArray(this);
-#endif
 
     MEDataTree::instance()->clearSelection();
     setSelected(true);
@@ -208,27 +154,8 @@ void MEDataTree::init()
     sortByColumn(0, Qt::AscendingOrder);
     setSortingEnabled(true);
 
-#ifdef YAC
-
-    setColumnCount(6);
-    QStringList headers;
-    headers << "Data Objects"
-            << "PortID"
-            << "ModID"
-            << "SeqNo"
-            << "Block"
-            << "Timestep";
-    setHeaderLabels(headers);
-    header()->setResizeMode(QHeaderView::ResizeToContents);
-
-    // add the always existing item for lost&found
-    lostfound = new MEDataTreeItem(this, "Lost&Found", QColor(100, 200, 100));
-
-#else
-
     setColumnCount(1);
     setHeaderLabel("Data Object List");
-#endif
 
     connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(doubleClicked(QTreeWidgetItem *, int)));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(activated(QTreeWidgetItem *, int)));
@@ -357,87 +284,4 @@ int MEDataTree::getDepth(QTreeWidgetItem *item)
     }
 
     return depth;
-}
-
-//!
-//! get a tree item for a given object ID (used by YAC)
-//!
-MEDataTreeItem *MEDataTree::findObject(int i1, int i2, int i3)
-{
-    // store object ids for search process
-    m_id1 = i1;
-    m_id2 = i2;
-    m_id3 = i3;
-
-    // find item (recursive loop)
-    MEDataTreeItem *it = NULL;
-
-    for (int i = 0; i < topLevelItemCount(); i++)
-    {
-        QTreeWidgetItem *top = topLevelItem(i);
-        it = search(top);
-        if (it != NULL)
-            return it;
-    }
-
-    if (it == NULL)
-    {
-        QString text = "UI_OBJ_ARRAY : Can't find requested array for object " + QString::number(m_id1) + " " + QString::number(m_id2) + " " + QString::number(m_id3);
-        MEUserInterface::instance()->printMessage(text);
-    }
-    return NULL;
-}
-
-//!
-//! get an array item for a given object ID and index
-//!
-MEDataTreeItem *MEDataTree::findArray(MEDataTreeItem *item, int index)
-{
-
-    // find tree item
-    // start point is this tree item
-    MEDataTreeItem *child = NULL;
-
-    for (int i = 0; i < item->childCount(); i++)
-    {
-        child = static_cast<MEDataTreeItem *>(item->child(i));
-
-        if (child->getObjType() == MEDataObject::ARRAY && child->getIndex() == index)
-            return child;
-    }
-
-    if (child == NULL)
-    {
-        QString text = "UI_OBJ_ARRAY : Can't find requested array for object " + item->text(1) + " " + item->text(2) + " " + item->text(3);
-        MEUserInterface::instance()->printMessage(text);
-    }
-    return NULL;
-}
-
-//!
-//! search tree items for a certain object id (used by YAC)
-//!
-MEDataTreeItem *MEDataTree::search(QTreeWidgetItem *item)
-{
-
-    QTreeWidgetItem *child = NULL;
-    for (int i = 0; i < item->childCount(); i++)
-    {
-        child = item->child(i);
-        int i1 = child->text(1).toInt();
-        int i2 = child->text(2).toInt();
-        int i3 = child->text(3).toInt();
-
-        if (i1 == m_id1 && i2 == m_id2 && i3 == m_id3)
-            return static_cast<MEDataTreeItem *>(child);
-
-        else
-        {
-            MEDataTreeItem *it = search(child);
-            if (it != NULL)
-                return it;
-        }
-    }
-
-    return NULL;
 }

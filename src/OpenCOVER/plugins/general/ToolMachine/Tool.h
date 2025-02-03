@@ -1,6 +1,8 @@
 #ifndef COVER_TOOLMACHINE_TOOL_H
 #define COVER_TOOLMACHINE_TOOL_H
 
+#include "MathExpressions.h"
+
 #include <string>
 #include <memory>
 #include <map>
@@ -27,12 +29,13 @@ struct UpdateValues{
 
 class SelfDeletingTool;
 
-class ToolModel{
+class Tool{
 public:
     friend SelfDeletingTool;
-    ToolModel(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
-    virtual ~ToolModel() = default;
+    Tool(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    virtual ~Tool() = default;
     void update(const opencover::opcua::MultiDimensionalArray<double> &data);
+    void update();
     void pause(bool state);
     const std::vector<UpdateValues> &getUpdateValues();
     void frameOver();
@@ -52,13 +55,12 @@ protected:
     covise::ColorMapSelector *m_colorMapSelector;
 
     opencover::opcua::Client *m_client;
-    std::map<std::string, opencover::opcua::ObserverHandle> m_opcuaAttribId;
     bool m_paused = false;
 private:
     void observeCustomAttributes();
     void attributeChanged();
     void updateAttributes();
-
+    MathExpressionObserver m_mathExpressionObserver;
     std::vector<UpdateValues> m_updateValues;
     std::unique_ptr<opencover::ui::SelectionListConfigValue> m_attributeName;
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_minAttribute, m_maxAttribute, m_customAttribute;
@@ -67,12 +69,7 @@ private:
         bool updated = false;
         
     };
-    std::map<std::string, CustomAttributeVariable> m_customAttributeData;
-    exprtk::symbol_table<float> m_symbolTable;
-    exprtk::expression<float> m_expression;
-    exprtk::parser<float> m_parser;
-    bool m_frameOver = false;
-
+    MathExpressionObserver::ObserverHandle::ptr m_customAttributeHandle;
 
 };
 
@@ -80,11 +77,11 @@ private:
 class SelfDeletingTool : public osg::Observer
 {
 public:
-    static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<ToolModel> &&tool);
+    static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<Tool> &&tool);
     void objectDeleted(void*) override;
-    std::unique_ptr<ToolModel> value;
+    std::unique_ptr<Tool> value;
 private:
-    SelfDeletingTool(std::unique_ptr<ToolModel> &&tool);
+    SelfDeletingTool(std::unique_ptr<Tool> &&tool);
     std::unique_ptr<SelfDeletingTool>* m_this;
 };
 

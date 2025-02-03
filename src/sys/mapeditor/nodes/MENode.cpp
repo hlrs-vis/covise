@@ -16,7 +16,7 @@
 #include <covise/covise_msg.h>
 
 #include "MENode.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "widgets/MEGraphicsView.h"
 #include "widgets/MEUserInterface.h"
 #include "modulePanel/MEModulePanel.h"

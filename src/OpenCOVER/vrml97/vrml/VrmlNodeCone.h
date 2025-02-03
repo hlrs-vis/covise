@@ -29,22 +29,13 @@ class VRMLEXPORT VrmlNodeCone : public VrmlNodeGeometry
 
 public:
     // Define the fields of cone nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeCone *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeCone(VrmlScene *);
-    virtual ~VrmlNodeCone();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual Viewer::Object insertGeometry(Viewer *);
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
-
-    virtual VrmlNodeCone *toCone() const; //LarryD Mar 08/99
     virtual bool getBottom() //LarryD Mar 08/99
     {
         return d_bottom.get();

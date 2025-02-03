@@ -21,74 +21,50 @@ using namespace covise;
 
 ThyssenPlugin *ThyssenPlugin::plugin = NULL;
 
-static VrmlNode *creator(VrmlScene *scene)
+void VrmlNodeThyssen::initFields(VrmlNodeThyssen *node, vrml::VrmlNodeType *t)
 {
-    return new VrmlNodeThyssen(scene);
+    VrmlNodeChild::initFields(node, t);
+
+    if (t)
+    {
+        char nameBuf[200];
+        for(int i=0;i<4;i++)
+        {
+            sprintf(nameBuf,"carPos%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFVEC3F);
+            sprintf(nameBuf,"carDoorClose%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFTIME);
+            sprintf(nameBuf,"carDoorOpen%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFTIME);
+            sprintf(nameBuf,"landingDoorClose%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFTIME);
+            sprintf(nameBuf,"landingDoorOpen%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFTIME);
+            sprintf(nameBuf,"carAngle%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFFLOAT);
+            sprintf(nameBuf,"exchangerAngle%d",i);
+            t->addEventOut(nameBuf, VrmlField::SFFLOAT);
+        }
+    }
 }
 
-// Define the built in VrmlNodeType:: "Thyssen" fields
-
-VrmlNodeType *VrmlNodeThyssen::defineType(VrmlNodeType *t)
+const char *VrmlNodeThyssen::typeName() 
 {
-    static VrmlNodeType *st = 0;
-
-    if (!t)
-    {
-        if (st)
-            return st; // Only define the type once.
-        t = st = new VrmlNodeType("Thyssen", creator);
-    }
-
-    VrmlNodeChild::defineType(t); // Parent class
-    char nameBuf[200];
-    for(int i=0;i<4;i++)
-    {
-        sprintf(nameBuf,"carPos%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFVEC3F);
-        sprintf(nameBuf,"carDoorClose%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFTIME);
-        sprintf(nameBuf,"carDoorOpen%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFTIME);
-        sprintf(nameBuf,"landingDoorClose%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFTIME);
-        sprintf(nameBuf,"landingDoorOpen%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFTIME);
-        sprintf(nameBuf,"carAngle%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFFLOAT);
-        sprintf(nameBuf,"exchangerAngle%d",i);
-        t->addEventOut(nameBuf, VrmlField::SFFLOAT);
-    }
-    
-
-    return t;
-}
-
-VrmlNodeType *VrmlNodeThyssen::nodeType() const
-{
-    return defineType(0);
+    return "Thyssen";
 }
 
 VrmlNodeThyssen::VrmlNodeThyssen(VrmlScene *scene)
-    : VrmlNodeChild(scene)
+    : VrmlNodeChild(scene, typeName())
     , d_enabled(true)
 {
     setModified();
 }
 
 VrmlNodeThyssen::VrmlNodeThyssen(const VrmlNodeThyssen &n)
-    : VrmlNodeChild(n.d_scene)
+    : VrmlNodeChild(n)
     , d_enabled(n.d_enabled)
 {
     setModified();
-}
-
-VrmlNodeThyssen::~VrmlNodeThyssen()
-{
-}
-
-VrmlNode *VrmlNodeThyssen::cloneMe() const
-{
-    return new VrmlNodeThyssen(*this);
 }
 
 VrmlNodeThyssen *VrmlNodeThyssen::toThyssen() const
@@ -96,36 +72,12 @@ VrmlNodeThyssen *VrmlNodeThyssen::toThyssen() const
     return (VrmlNodeThyssen *)this;
 }
 
-ostream &VrmlNodeThyssen::printFields(ostream &os, int indent)
+ostream &VrmlNodeThyssen::printFields(ostream &os, int indent) const
 {
     if (!d_enabled.get())
-        PRINT_FIELD(enabled);
-
+        printField(os, indent + INDENT_INCREMENT, "enabledd", d_enabled);
+    VrmlNodeChild::printFields(os, indent);
     return os;
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeThyssen::setField(const char *fieldName,
-                               const VrmlField &fieldValue)
-{
-    if
-        TRY_FIELD(enabled, SFBool)
-    else
-        VrmlNodeChild::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeThyssen::getField(const char *fieldName)
-{
-    if (strcmp(fieldName, "enabled") == 0)
-        return &d_enabled;
-    else if (strcmp(fieldName, "floats_changed") == 0)
-        return &d_floats;
-    else if (strcmp(fieldName, "ints_changed") == 0)
-        return &d_ints;
-    else
-        cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
-    return 0;
 }
 
 void VrmlNodeThyssen::eventIn(double timeStamp,
@@ -259,11 +211,11 @@ ThyssenPlugin::~ThyssenPlugin()
 
 bool ThyssenPlugin::init()
 {
-    VrmlNamespace::addBuiltIn(VrmlNodeThyssen::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeElevator::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeCar::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeExchanger::defineType());
-    VrmlNamespace::addBuiltIn(VrmlNodeLanding::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThyssen>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeElevator>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeCar>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeExchanger>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeLanding>());
 
     return true;
 }

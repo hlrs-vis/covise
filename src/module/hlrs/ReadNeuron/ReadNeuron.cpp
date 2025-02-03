@@ -360,9 +360,7 @@ int ReadNeuron::compute(const char *)
     float sdata;
     int k, numline = 0, getline = whichlines;
 
-#ifndef YAC
     char name[256];
-#endif
 
     if (isSomaFile)
     {
@@ -417,11 +415,7 @@ int ReadNeuron::compute(const char *)
                         }
                     }
                 }
-#ifndef YAC
                 sprintf(name, "%s_%5d", m_portSoData->getObjName(), timesteps);
-#else
-                coObjInfo name = m_portSoData->getNewObjectInfo();
-#endif
                 coDoFloat *data = new coDoFloat(name, numSomas, &somaData[0]);
                 somaDataList.push_back(data);
                 somaData.clear();
@@ -467,42 +461,26 @@ int ReadNeuron::compute(const char *)
 
         if (isSomaFile)
         {
-#ifndef YAC
             char name[256];
             snprintf(name, 256, "%s_%5d", m_portSoLines->getObjName(), timesteps);
-#else
-            coObjInfo name = m_portSoLines->getNewObjectInfo();
-            name.timeStep = -1;
-            name.numTimeSteps = 0;
-#endif
             coDoLines *somaLinesObj = new coDoLines(name, numSomaPoints, &xSomaP[0], &ySomaP[0], &zSomaP[0], numSomaPoints, vls, numSomaLines, &somalineList[0]);
 
-#ifndef YAC
             snprintf(name, 256, "%s_%5d", m_portSoRad->getObjName(), timesteps);
-#else
-            name = m_portSoRad->getNewObjectInfo();
-            name.timeStep = -1;
-            name.numTimeSteps = 0;
-#endif
             coDoFloat *somaRadObj = new coDoFloat(name, numSomaPoints, &somaRad[0]);
 
             coDistributedObject **somaLineObjects = new coDistributedObject *[timesteps + 1];
             for (i = 0; i < timesteps; i++)
             {
                 somaLineObjects[i] = somaLinesObj;
-#ifndef YAC
                 if (i > 0)
                     somaLinesObj->incRefCount();
-#endif
             }
             somaLineObjects[timesteps] = NULL;
             coDistributedObject **somaRadObjects = new coDistributedObject *[timesteps + 1];
             for (i = 0; i < timesteps; i++)
             {
-#ifndef YAC
                 if (i > 0)
                     somaRadObj->incRefCount();
-#endif
                 somaRadObjects[i] = somaRadObj;
             }
             somaRadObjects[timesteps] = NULL;
@@ -513,14 +491,6 @@ int ReadNeuron::compute(const char *)
             {
                 coDoFloat *o = *somaData_Iter;
                 somaDataObjects[i] = o;
-#ifdef YAC
-
-                o->getHdr()->setBlock(0, 1);
-                o->getHdr()->setTime(i, timesteps);
-                o->getHdr()->setRealTime((float)i);
-                float *data;
-                o->getAddress(&data);
-#endif
                 somaData_Iter++;
             }
             somaDataObjects[timesteps] = NULL;

@@ -1,0 +1,47 @@
+USING(MPI) # we don't really need mpi here but we have to compile it with MPI if VIVE core is also compiled with MPI otherwise classes have different sizes (especially vvVIVE)
+USING(vsg)
+USING(Pthread)
+
+PROJECT(VIVE CXX C)
+
+
+SET(HEADERS
+  
+)
+
+SET(SOURCES
+  VIVEMain.cpp
+)
+
+IF (MSVC)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.4)
+SET(SOURCES
+  ${SOURCES} dpiaware.manifest
+)
+ENDIF(MSVC) 
+SET(EXTRASOURCES
+  
+)
+
+add_covise_module(Renderer VIVE )
+
+TARGET_LINK_LIBRARIES(VIVE  vvCore ${COVISE_VRBCLIENT_LIBRARY}
+   ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${EXTRA_LIBS}
+   ${CMAKE_THREAD_LIBS_INIT} ${COVISE_NET_LIBRARY})
+IF(COVISE_USE_QT)
+  qt_use_modules(VIVE Core)
+ENDIF(COVISE_USE_QT)
+
+
+
+COVISE_INSTALL_TARGET(VIVE)
+IF(UNIX)
+  ADD_CUSTOM_COMMAND(TARGET VIVE 
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove -f ${COVISE_DESTDIR}/${COVISE_ARCHSUFFIX}/bin/vive
+    COMMAND ${CMAKE_COMMAND} -E create_symlink Renderer/VIVE ${COVISE_DESTDIR}/${COVISE_ARCHSUFFIX}/bin/vive)
+
+  INSTALL(FILES ${COVISE_DESTDIR}/${COVISE_ARCHSUFFIX}/bin/vive DESTINATION ${COVISE_ARCHSUFFIX}/bin)
+ENDIF()
+
+

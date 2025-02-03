@@ -25,29 +25,24 @@
 #include "VrmlNodeMultiTextureCoordinate.h"
 #include "VrmlNodeTextureCoordinateGenerator.h"
 
+#include "System.h"
 #include "Viewer.h"
+
 using namespace vrml;
 
-// Define the built in VrmlNodeType:: "Colored*Set" fields
-
-VrmlNodeType *VrmlNodeColoredSet::defineType(VrmlNodeType *t)
+void VrmlNodeColoredSet::initFields(VrmlNodeColoredSet *node, VrmlNodeType *t)
 {
-    VrmlNodeGeometry::defineType(t); // Parent class
+    VrmlNodeGeometry::initFields(node, t); // Parent class
 
-    t->addExposedField("color", VrmlField::SFNODE);
-    t->addExposedField("coord", VrmlField::SFNODE);
-    t->addField("colorPerVertex", VrmlField::SFBOOL);
-
-    return t;
+    initFieldsHelper(node, t,
+                     exposedField("color", node->d_color),
+                     field("colorPerVertex", node->d_colorPerVertex),
+                     exposedField("coord", node->d_coord));
 }
 
-VrmlNodeColoredSet::VrmlNodeColoredSet(VrmlScene *scene)
-    : VrmlNodeGeometry(scene)
+VrmlNodeColoredSet::VrmlNodeColoredSet(VrmlScene *scene, const std::string &name)
+    : VrmlNodeGeometry(scene, name)
     , d_colorPerVertex(true)
-{
-}
-
-VrmlNodeColoredSet::~VrmlNodeColoredSet()
 {
 }
 
@@ -87,52 +82,14 @@ void VrmlNodeColoredSet::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
-std::ostream &VrmlNodeColoredSet::printFields(std::ostream &os, int indent)
-{
-    if (d_color.get())
-        PRINT_FIELD(color);
-    if (!d_colorPerVertex.get())
-        PRINT_FIELD(colorPerVertex);
-    if (d_coord.get())
-        PRINT_FIELD(coord);
-    return os;
-}
-
 VrmlNodeColor *VrmlNodeColoredSet::color()
 {
-    return d_color.get() ? d_color.get()->toColor() : 0;
+    return d_color.get() ? d_color.get()->as<VrmlNodeColor>() : 0;
 }
 
 VrmlNode *VrmlNodeColoredSet::getCoordinate()
 {
     return d_coord.get();
-}
-
-// Set the value of one of the node fields.
-
-void VrmlNodeColoredSet::setField(const char *fieldName,
-                                  const VrmlField &fieldValue)
-{
-    if
-        TRY_SFNODE_FIELD2(color, Color, ColorRGBA)
-    else if
-        TRY_FIELD(colorPerVertex, SFBool)
-    else if
-        TRY_SFNODE_FIELD(coord, Coordinate)
-    else
-        VrmlNodeGeometry::setField(fieldName, fieldValue);
-}
-
-const VrmlField *VrmlNodeColoredSet::getField(const char *fieldName) const
-{
-    if (strcmp(fieldName, "color") == 0)
-        return &d_color;
-    else if (strcmp(fieldName, "colorPerVertex") == 0)
-        return &d_colorPerVertex;
-    else if (strcmp(fieldName, "coord") == 0)
-        return &d_coord;
-
-    return VrmlNodeGeometry::getField(fieldName);
 }
 
 static void generateDefaultTextureCoordinates(float **tc, int numberTexture,
@@ -230,7 +187,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
 
     if (d_coord.get() && coordIndex.size() > 0)
     {
-        VrmlMFVec3f &coord = d_coord.get()->toCoordinate()->coordinate();
+        VrmlMFVec3f &coord = d_coord.get()->as<VrmlNodeCoordinate>()->coordinate();
         int nvert = coord.size();
         float *tc[Viewer::NUM_TEXUNITS], *color = 0, *norm = 0;
         int ntc[Viewer::NUM_TEXUNITS];
@@ -292,7 +249,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         VrmlNode *stdTexCoord = texCoord.get();
         if (stdTexCoord && (strcmp(stdTexCoord->nodeType()->getName(), "MultiTextureCoordinate") == 0))
         {
-            VrmlNodeMultiTextureCoordinate *multiTexCoord = stdTexCoord->toMultiTextureCoordinate();
+            VrmlNodeMultiTextureCoordinate *multiTexCoord = stdTexCoord->as<VrmlNodeMultiTextureCoordinate>();
             if (multiTexCoord)
             {
                 VrmlMFNode mTextureCoordinate = multiTexCoord->texCoord();
@@ -313,7 +270,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
                     if (node && (strcmp(node->nodeType()->getName(),
                                         "TextureCoordinateGenerator") == 0))
                     {
-                        VrmlNodeTextureCoordinateGenerator *generator = node->toTextureCoordinateGenerator();
+                        VrmlNodeTextureCoordinateGenerator *generator = node->as<VrmlNodeTextureCoordinateGenerator>();
                         texCoordGeneratorNames[i] = getTexCoordGeneratorName(generator);
                         if (texCoordGeneratorNames[i] != 0)
                         {
@@ -329,8 +286,8 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
                     else if (node && (strcmp(node->nodeType()->getName(),
                                              "TextureCoordinate") == 0))
                     {
-                        VrmlNodeTextureCoordinate *texCoordN = node->toTextureCoordinate();
-                        VrmlMFVec2f &texcoord = texCoordN->toTextureCoordinate()->coordinate();
+                        VrmlNodeTextureCoordinate *texCoordN = node->as<VrmlNodeTextureCoordinate>();
+                        VrmlMFVec2f &texcoord = texCoordN->as<VrmlNodeTextureCoordinate>()->coordinate();
                         if (texcoord.get())
                         {
                             multi_tc[i] = &texcoord[0][0];
@@ -355,7 +312,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         else if (stdTexCoord && (strcmp(stdTexCoord->nodeType()->getName(),
                                         "TextureCoordinateGenerator") == 0))
         {
-            VrmlNodeTextureCoordinateGenerator *generator = stdTexCoord->toTextureCoordinateGenerator();
+            VrmlNodeTextureCoordinateGenerator *generator = stdTexCoord->as<VrmlNodeTextureCoordinateGenerator>();
             texCoordGeneratorNames[0] = getTexCoordGeneratorName(generator);
             if (texCoordGeneratorNames[0] != 0)
             {
@@ -371,7 +328,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         {
             // Get texture coordinates for texture 1
             hasTextureCoordinate = true;
-            VrmlMFVec2f &texcoord = texCoord.get()->toTextureCoordinate()->coordinate();
+            VrmlMFVec2f &texcoord = texCoord.get()->as<VrmlNodeTextureCoordinate>()->coordinate();
             tc[0] = &texcoord[0][0];
             ntc[0] = texcoord.size();
         }
@@ -384,21 +341,21 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         // Get texture coordinates for texture 2
         if (texCoord2.get())
         {
-            VrmlMFVec2f &texcoord2 = texCoord2.get()->toTextureCoordinate()->coordinate();
+            VrmlMFVec2f &texcoord2 = texCoord2.get()->as<VrmlNodeTextureCoordinate>()->coordinate();
             tc[1] = &texcoord2[0][0];
             ntc[1] = texcoord2.size();
         }
         // Get texture coordinates for texture 3
         if (texCoord3.get())
         {
-            VrmlMFVec2f &texcoord3 = texCoord3.get()->toTextureCoordinate()->coordinate();
+            VrmlMFVec2f &texcoord3 = texCoord3.get()->as<VrmlNodeTextureCoordinate>()->coordinate();
             tc[2] = &texcoord3[0][0];
             ntc[2] = texcoord3.size();
         }
         // Get texture coordinates for texture 4
         if (texCoord4.get())
         {
-            VrmlMFVec2f &texcoord4 = texCoord4.get()->toTextureCoordinate()->coordinate();
+            VrmlMFVec2f &texcoord4 = texCoord4.get()->as<VrmlNodeTextureCoordinate>()->coordinate();
             tc[3] = &texcoord4[0][0];
             ntc[3] = texcoord4.size();
         }
@@ -431,14 +388,14 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         VrmlNode *colorNode = d_color.get();
         if (colorNode && (strcmp(colorNode->nodeType()->getName(), "ColorRGBA") == 0))
         {
-            VrmlMFColorRGBA &c = d_color.get()->toColorRGBA()->color();
+            VrmlMFColorRGBA &c = d_color.get()->as<VrmlNodeColorRGBA>()->color();
             color = &c[0][0];
             cSize = c.size();
             optMask |= Viewer::MASK_COLOR_RGBA;
         }
         else if (colorNode)
         {
-            VrmlMFColor &c = d_color.get()->toColor()->color();
+            VrmlMFColor &c = d_color.get()->as<VrmlNodeColor>()->color();
             color = &c[0][0];
             cSize = c.size();
         }
@@ -471,7 +428,7 @@ Viewer::Object VrmlNodeColoredSet::insertGeometry(Viewer *viewer,
         // check #normals is consistent with normalPerVtx, normalIndex...
         if (normal.get())
         {
-            VrmlMFVec3f &n = normal.get()->toNormal()->normal();
+            VrmlMFVec3f &n = normal.get()->as<VrmlNodeNormal>()->normal();
             norm = &n[0][0];
             nni = normalIndex.size();
             if (nni)

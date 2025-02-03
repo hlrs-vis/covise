@@ -15,6 +15,10 @@
 */
 
 %{
+#ifdef _WIN32
+#define YY_NO_UNISTD_H
+#endif
+
 #include "CaseLexer.h"
 
 // define new name for yylex method
@@ -229,6 +233,13 @@ FILE[ \t]* {
 }
 
 
+[^\"\n\t #]* {
+    // accept anything except "#
+    strncpy( pToken->token.szValue, yytext, yyleng );
+    pToken->token.szValue[ yyleng ] = '\0';
+    return( CaseParser::FILENAME );
+}
+
 
 \"[^\"\n]*\" {
     // read a string value without the quotes
@@ -254,4 +265,3 @@ FILE[ \t]* {
 }
 
 %%
-

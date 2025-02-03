@@ -11,7 +11,7 @@
 #include <QStatusBar>
 
 #include "MEDataPort.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "widgets/MEUserInterface.h"
 #include "widgets/MEGraphicsView.h"
 #include "handler/MEMainHandler.h"

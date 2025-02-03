@@ -35,27 +35,17 @@ class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
 
 public:
     // Define the fields of AudioClip nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeAudioClip *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeAudioClip(VrmlScene *);
     VrmlNodeAudioClip(const VrmlNodeAudioClip &);
     virtual ~VrmlNodeAudioClip();
 
-    // Copy the node.
-    virtual VrmlNode *cloneMe() const;
-
     virtual void addToScene(VrmlScene *s, const char *relativeUrl);
 
     // an update. Renderable nodes need to redefine this.
     virtual void update(VrmlSFTime &now);
-
-    virtual VrmlNodeAudioClip *toAudioClip() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     const Audio *getAudio() const;
 

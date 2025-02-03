@@ -26,10 +26,6 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #endif
 #endif
 
-#ifdef __alpha
-#include "externc_alpha.h"
-#endif
-
 #include <sys/types.h>
 #include <util/unixcompat.h>
 #ifdef _WIN32
@@ -98,10 +94,6 @@ static const int SIZEOF_IEEE_INT = 4;
  **                                                                     **
 \***********************************************************************/
 
-#if defined __sgi || defined __hpux || defined _AIX
-#include <strings.h>
-#endif
-
 #undef SHOWMSG
 #undef DEBUG
 
@@ -118,36 +110,18 @@ int Connection::get_id() const
 
 Connection::Connection()
 {
-    sock = NULL;
-    convert_to = DF_NONE;
-    message_to_do = 0;
     //		   LOGINFO( "message_to_do == 0");
     read_buf = new char[READ_BUFFER_SIZE];
-    bytes_to_process = 0;
-    remove_socket = 0L;
-    hostid = -1;
-    peer_id_ = 0;
-    peer_type_ = Message::UNDEFINED; // prepare connection (for subclasses)
     header_int = new int[4 * SIZEOF_IEEE_INT];
 };
 
 Connection::Connection(int sfd)
 {
     send_type = Message::STDINOUT;
-    message_to_do = 0;
-    remove_socket = 0L;
     read_buf = new char[READ_BUFFER_SIZE];
     sock = new Socket(sfd, sfd);
     //		   fprintf(stderr, "new Socket: %x\n", sock);
-    hostid = -1;
-#if defined _WIN32
-    tru = 1;
-    ioctlsocket(sfd, FIONBIO, &tru);
-#else
-    fcntl(sfd, F_SETFL, O_NDELAY); // this is non-blocking, since we do not know, what will arrive
-#endif
-    peer_id_ = 0;
-    peer_type_ = Message::UNDEFINED; // initialiaze connection with existing socket
+    sock->setNonBlocking(true); // this is non-blocking, since we do not know, what will arrive
     header_int = new int[4 * SIZEOF_IEEE_INT];
 };
 
@@ -166,6 +140,11 @@ int Connection::get_id(void (*remove_func)(int)) const
         return -1;
     }
     return sock->get_id();
+}
+
+void Connection::set_sendertype(int type)
+{
+    send_type = type;
 }
 
 const Host *Connection::get_host() const
@@ -201,9 +180,6 @@ bool covise::UDPConnection::recv_udp_msg(UdpMessage* msg) const
 
 #ifdef SHOWMSG
 	char tmp_str[255];
-#endif
-#ifdef CRAY
-	int tmp_buf[4];
 #endif
 
 	msg->sender = -1;
@@ -389,6 +365,18 @@ ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
 
     if (get_id() == -1)
         return; // connection not established
+    double wait = timeout;
+    while (wait > 0. && sock->available() == 0)
+    {
+        wait -= 1.0;
+        sleep(1);
+    }
+    if (timeout > 0. && sock->available() == 0)
+    {
+        delete sock;
+        sock = NULL;
+        return; // connection not established
+    }
     if (sock->Read(&dataformat, 1) != 1)
     {
         delete sock;
@@ -620,6 +608,14 @@ void Connection::close()
     }
 }
 
+void Connection::cancel()
+{
+    if (sock)
+    {
+        sock->cancel();
+    }
+}
+
 void Connection::set_hostid(int id)
 {
     TokenBuffer tb;
@@ -751,18 +747,6 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 #ifdef SHOWMSG
 	LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], msg->data.length());
 #endif
-#ifdef CRAY
-	int tmp_buf[4];
-	tmp_buf[0] = sender_id;
-	tmp_buf[1] = send_type;
-	tmp_buf[2] = msg->type;
-	tmp_buf[3] = msg->data.length();
-#ifdef _CRAYT3E
-	converter.int_array_to_exch(tmp_buf, write_buf, 4);
-#else
-	conv_array_int_c8i4(tmp_buf, (int*)write_buf, 4, START_EVEN);
-#endif
-#else
 	//Compose COVISE header
 	write_buf_int = (int*)write_buf;
 	write_buf_int[0] = sender_id;
@@ -770,7 +754,6 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 	write_buf_int[2] = msg->type;
 	write_buf_int[3] = msg->data.length();
 	swap_bytes((unsigned int*)write_buf_int, 4);
-#endif
 
 	if (msg->data.length() == 0)
 		retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT, address);
@@ -801,15 +784,10 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 #endif
 			//Send first packet of size WRITE_BUFFER_SIZE
 			retval = s->writeTo(write_buf, WRITE_BUFFER_SIZE, address);
-#ifdef CRAY
-			tmp_bytes_written = (UDPSocket*)sock->writeTo(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
-#else
 			// Send next packet with remaining data. Thnis code assumes that an overall
 			// message size does never exceed 2x WRITE_BUFFER_SIZE.
 			tmp_bytes_written = s->writeTo(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
 				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT), address);
-#endif
 			// Check if the socket was invalidated while transmitting multiple packets.
 			// Otherwise returned the summed-up amount of bytes as return value
 			if (tmp_bytes_written == COVISE_SOCKET_INVALID)
@@ -943,6 +921,10 @@ bool Connection::sendMessage(int senderId, int senderType, const Message* msg) c
 {
     if (!sock)
         return false;
+    if (!is_connected())
+    {
+        return false;
+    }
     std::array<int, 4> header{senderId, senderType, msg->type, msg->data.length()};
         
     swap_bytes((unsigned int *)header.data(), 4);
@@ -1026,16 +1008,8 @@ int Connection::recv_msg_fast(Message *msg) const
 
 int Connection::recv_msg(Message *msg, char* ip) const
 {
-    int bytes_read, bytes_to_read, tmp_read;
-    char *read_buf_ptr;
-    int *int_read_buf;
-    int data_length;
-    char *read_data;
 #ifdef SHOWMSG
     char tmp_str[255];
-#endif
-#ifdef CRAY
-    int tmp_buf[4];
 #endif
 
     msg->sender = 0;
@@ -1052,14 +1026,10 @@ int Connection::recv_msg(Message *msg, char* ip) const
     if (send_type == Message::STDINOUT)
     {
         //	LOGINFO( "in send_type == STDINOUT");
+        int bytes_read = 0;
         do
         {
-#ifdef _WIN32
-            unsigned long tru = 1;
-            ioctlsocket(sock->get_id(), FIONBIO, &tru);
-#else
-            fcntl(sock->get_id(), F_SETFL, O_NDELAY); // this is non-blocking
-#endif
+            sock->setNonBlocking(true); // this is non-blocking
             bytes_read = sock->read(read_buf, READ_BUFFER_SIZE);
             if (bytes_read < 0)
             {
@@ -1089,7 +1059,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 
     while (bytes_to_process < 16)
     {
-        tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process, ip);
+        int tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process, ip);
         if (tmp_read == 0)
             return (0);
         if (tmp_read < 0)
@@ -1101,28 +1071,16 @@ int Connection::recv_msg(Message *msg, char* ip) const
         bytes_to_process += tmp_read;
     }
 
-    read_buf_ptr = read_buf;
+    char *read_buf_ptr = read_buf;
 
     while (1)
     {
-        int_read_buf = (int *)read_buf_ptr;
+        auto int_read_buf = (int *)read_buf_ptr;
 
 #ifdef SHOWMSG
         LOGINFO("read_buf: %d %d %d %d", int_read_buf[0], int_read_buf[1], int_read_buf[2], int_read_buf[3]);
 #endif
 
-#ifdef CRAY
-#ifdef _CRAYT3E
-        converter.exch_to_int_array(read_buf_ptr, tmp_buf, 4);
-//	conv_array_int_i4t8(int_read_buf, tmp_buf, 4, START_EVEN);
-#else
-        conv_array_int_i4c8(int_read_buf, tmp_buf, 4, START_EVEN);
-#endif
-        msg->sender = tmp_buf[0];
-        msg->send_type = int(tmp_buf[1]);
-        msg->type = covise_msg_type(tmp_buf[2]);
-        msg->data.setLength(tmp_buf[3]);
-#else
 #ifdef BYTESWAP
         swap_bytes((unsigned int *)int_read_buf, 4);
 #endif
@@ -1133,7 +1091,6 @@ int Connection::recv_msg(Message *msg, char* ip) const
 //	sprintf(retstr, "msg header: sender %d, sender_type %d, covise_msg_type %d, length %d",
 //	        msg->sender, msg->send_type, msg->type, msg->data.length());
 //	        LOGINFO( retstr);
-#endif
 
 #ifdef SHOWMSG
         sprintf(tmp_str, "recv: s: %d st: %d mt: %s l: %d",
@@ -1151,19 +1108,19 @@ int Connection::recv_msg(Message *msg, char* ip) const
         if (msg->data.length() > 0) // if msg->data.length() == 0, no data will be received
         {
             // bring message data space to 16 byte alignment
-            data_length = msg->data.length() + ((msg->data.length() % 16 != 0) * (16 - msg->data.length() % 16));
+            int data_length = msg->data.length() + ((msg->data.length() % 16 != 0) * (16 - msg->data.length() % 16));
             msg->data = DataHandle(new char[data_length], msg->data.length());
             if (msg->data.length() > bytes_to_process)
             {
-                bytes_read = bytes_to_process;
+                int bytes_read = bytes_to_process;
 #ifdef SHOWMSG
                 LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
                 if (bytes_read != 0)
                     memcpy(msg->data.accessData(), read_buf_ptr, bytes_read);
                 bytes_to_process = 0;
-                bytes_to_read = msg->data.length() - bytes_read;
-                read_data = &msg->data.accessData()[bytes_read];
+                int bytes_to_read = msg->data.length() - bytes_read;
+                auto *read_data = &msg->data.accessData()[bytes_read];
                 while (bytes_read < msg->data.length())
                 {
 
@@ -1172,7 +1129,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
                     LOGINFO("bytes_to_read    %d bytes", bytes_to_read);
                     LOGINFO("bytes_read       %d bytes", bytes_read);
 #endif
-                    tmp_read = sock->Read(read_data, bytes_to_read);
+                    int tmp_read = sock->Read(read_data, bytes_to_read);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle();
@@ -1207,8 +1164,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 #ifdef SHOWMSG
                     LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
-                    tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
-                                          READ_BUFFER_SIZE - bytes_to_process);
+                    int tmp_read = sock->Read(&read_buf_ptr[bytes_to_process], READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle();
@@ -1250,8 +1206,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 #ifdef SHOWMSG
                     LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
 #endif
-                    tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
-                                          READ_BUFFER_SIZE - bytes_to_process);
+                    int tmp_read = sock->Read(&read_buf_ptr[bytes_to_process], READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
                         msg->data = DataHandle(nullptr, msg->data.length());
@@ -1279,8 +1234,8 @@ int Connection::check_for_input(float time) const
     do
     {
         struct timeval timeout;
-        timeout.tv_sec = (int)time;
-        timeout.tv_usec = (int)((time - timeout.tv_sec) * 1000000);
+        timeout.tv_sec = time;
+        timeout.tv_usec = ((time - timeout.tv_sec) * 1000000);
 
         // initialize the bit fields according to the existing sockets
         // so far only reads are of interest
@@ -1289,11 +1244,11 @@ int Connection::check_for_input(float time) const
         FD_ZERO(&fdread);
         FD_SET(sock->get_id(), &fdread);
 
-        i = select(sock->get_id() + 1, &fdread, NULL, NULL, &timeout);
+        i = select(sock->get_id() + 1, &fdread, NULL, NULL, time >= 0 ? &timeout : nullptr);
 #ifdef WIN32
-    } while (i == -1 && (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEINPROGRESS));
+    } while (time != 0 && i == -1 && (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEINPROGRESS));
 #else
-    } while (i == -1 && errno == EINTR);
+    } while (time != 0 && i == -1 && errno == EINTR);
 #endif
 
     // find the connection that has the read attempt
@@ -1403,9 +1358,8 @@ void ConnectionList::remove(const Connection *c) // remove a connection and upda
 {
     if (!c)
         return;
-    auto it = std::find_if(connlist.begin(), connlist.end(), [c](const std::unique_ptr<Connection> &conn) {
-        return &*conn == c;
-    });
+    auto it = std::find_if(connlist.begin(), connlist.end(),
+                           [c](const std::unique_ptr<Connection> &conn) { return conn.get() == c; });
     // the field for the select call
     FD_CLR(c->get_id(), &fdvar);
     if (it != connlist.end())
@@ -1682,12 +1636,7 @@ int SSLConnection::recv_msg(Message *msg, char *ip) const
     {
         do
         {
-#ifdef _WIN32
-            unsigned long tru = 1;
-            ioctlsocket(sock->get_id(), FIONBIO, &tru);
-#else
-            fcntl(sock->get_id(), F_SETFL, O_NDELAY);
-#endif
+            sock->setNonBlocking(true);
 
             bytes_read = locSocket->read(read_buf, READ_BUFFER_SIZE);
             if (bytes_read < 0)

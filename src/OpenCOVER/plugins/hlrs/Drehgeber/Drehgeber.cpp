@@ -9,6 +9,7 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
+#include <vrml97/vrml/System.h>
 
 #include <util/coExport.h>
 #include <vector>
@@ -21,44 +22,27 @@ std::vector<VrmlNodeDrehgeber*> drehgebers;
 class PLUGINEXPORT VrmlNodeDrehgeber : public vrml::VrmlNodeChild
 {
 public:
-    static VrmlNode* creator(VrmlScene* scene)
+    static void initFields(VrmlNodeDrehgeber *node, vrml::VrmlNodeType *t)
     {
-        return new VrmlNodeDrehgeber(scene);
+        VrmlNodeChild::initFields(node, t);
+        if(t)
+            t->addEventOut("angle", VrmlField::SFFLOAT);
     }
-    VrmlNodeDrehgeber(VrmlScene* scene) : VrmlNodeChild(scene), m_index(drehgebers.size())
+    
+    static const char* typeName() { return "Drehgeber"; }
+
+    VrmlNodeDrehgeber(VrmlScene* scene) : VrmlNodeChild(scene, typeName()), m_index(drehgebers.size())
     {
 
         std::cerr << "vrml Machine node created" << std::endl;
         drehgebers.push_back(this);
     }
+
     ~VrmlNodeDrehgeber()
     {
         drehgebers.erase(drehgebers.begin() + m_index);
     }
 
-    // Define the fields of XCar nodes
-    static VrmlNodeType* defineType(VrmlNodeType* t = 0)
-    {
-        static VrmlNodeType* st = 0;
-
-        if (!t)
-        {
-            if (st)
-                return st; // Only define the type once.
-            t = st = new VrmlNodeType("Drehgeber", creator);
-        }
-
-        VrmlNodeChild::defineType(t); // Parent class
-
-        t->addEventOut("angle", VrmlField::SFFLOAT);
-
-        return t;
-    }
-    virtual VrmlNodeType* nodeType() const { return defineType(); };
-    VrmlNode* cloneMe() const
-    {
-        return new VrmlNodeDrehgeber(*this);
-    }
     void setAngle(VrmlSFFloat position)
     {
         auto t = System::the->time();
@@ -85,7 +69,7 @@ Drehgeber::Drehgeber()
 {
     m_rotator->setBounds(0, 360);
 
-    VrmlNamespace::addBuiltIn(VrmlNodeDrehgeber::defineType());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeDrehgeber>());
 
     m_rotator->setCallback([this](float angle, bool) {
         for (auto drehgeber : drehgebers)

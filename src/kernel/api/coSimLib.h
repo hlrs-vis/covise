@@ -14,12 +14,8 @@
 #include <set>
 #include <list>
 #include <util/coviseCompat.h>
-#ifndef YAC
 #include <api/coModule.h>
 #include <covise/covise.h>
-#else
-#include <comm/logic/coSocketListener.h>
-#endif
 #include <net/covise_connect.h>
 
 /**
@@ -60,21 +56,13 @@ public:
     int _length, _numComp, _actNode;
 };
 
-#ifndef YAC
 class APIEXPORT coSimLib : public coModule
-#else
-class APIEXPORT coSimLib : public coSimpleModule, public coSocketListener
-#endif
 {
 public:
     typedef int int32;
 
 // execute commands received from the simulation in sockData()
-#ifndef YAC
     void executeCommands();
-#else
-    void executeCommands(std::set<coOutputPort *> *);
-#endif
 
     // overload coModule sockData routine and make it private
     virtual void sockData(int sockNo);
@@ -166,10 +154,6 @@ private:
 
     void closeSocket(int socket);
 
-#ifdef YAC
-    coCommunicator *comm;
-    std::set<coOutputPort *> portList;
-#endif
 protected:
 #include "coSimLibComm.h"
 

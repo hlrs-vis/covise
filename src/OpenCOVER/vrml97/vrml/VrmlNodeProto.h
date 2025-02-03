@@ -33,87 +33,30 @@ class VRMLEXPORT VrmlNodeProto : public VrmlNode
 {
 
 public:
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeProto *node, VrmlNodeType *t);
+    static const char *typeName();
+    VrmlNodeType *nodeType() const override;
 
     VrmlNodeProto(VrmlNodeType *nodeDef, VrmlScene *scene);
     VrmlNodeProto(const VrmlNodeProto &);
-    virtual ~VrmlNodeProto();
+    ~VrmlNodeProto();
 
-    virtual VrmlNode *cloneMe() const;
+    void addToScene(VrmlScene *, const char *relUrl) override;
+    std::ostream &printFields(std::ostream &os, int indent) const override;
 
-    virtual void addToScene(VrmlScene *, const char *relUrl);
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    void render(Viewer *) override;
 
-    virtual VrmlNodeProto *toProto() const;
-
-    // These are passed along to the first implementation node of the proto.
-    virtual VrmlNodeAnchor *toAnchor() const;
-    virtual VrmlNodeAppearance *toAppearance() const;
-    virtual VrmlNodeWave *toWave() const;
-    virtual VrmlNodeBumpMapping *toBumpMapping() const;
-    virtual VrmlNodeAudioClip *toAudioClip() const;
-    virtual VrmlNodeBackground *toBackground() const;
-    virtual VrmlNodeChild *toChild() const;
-    virtual VrmlNodeColor *toColor() const;
-    virtual VrmlNodeCoordinate *toCoordinate() const;
-    virtual VrmlNodeFog *toFog() const;
-    virtual VrmlNodeFontStyle *toFontStyle() const;
-    virtual VrmlNodeGeometry *toGeometry() const;
-    virtual VrmlNodeGroup *toGroup() const;
-    virtual VrmlNodeInline *toInline() const;
-    virtual VrmlNodeLight *toLight() const;
-    virtual VrmlNodeMaterial *toMaterial() const;
-    virtual VrmlNodeMovieTexture *toMovieTexture() const;
-    virtual VrmlNodeNavigationInfo *toNavigationInfo() const;
-    virtual VrmlNodeCOVER *toCOVER() const;
-    virtual VrmlNodeNormal *toNormal() const;
-    virtual VrmlNodePlaneSensor *toPlaneSensor() const;
-    virtual VrmlNodeSpaceSensor *toSpaceSensor() const;
-    virtual VrmlNodeARSensor *toARSensor() const;
-    virtual VrmlNodePointLight *toPointLight() const;
-    virtual VrmlNodeScript *toScript() const;
-    virtual VrmlNodeSound *toSound() const;
-    virtual VrmlNodeSpotLight *toSpotLight() const;
-    virtual VrmlNodeTexture *toTexture() const;
-    virtual VrmlNodeTextureCoordinate *toTextureCoordinate() const;
-    virtual VrmlNodeTextureTransform *toTextureTransform() const;
-    virtual VrmlNodeTimeSensor *toTimeSensor() const;
-    virtual VrmlNodeTouchSensor *toTouchSensor() const;
-    virtual VrmlNodeViewpoint *toViewpoint() const;
-
-    // Larry
-    virtual VrmlNodeBox *toBox() const;
-    virtual VrmlNodeCone *toCone() const;
-    virtual VrmlNodeCylinder *toCylinder() const;
-    virtual VrmlNodeDirLight *toDirLight() const;
-    virtual VrmlNodeElevationGrid *toElevationGrid() const;
-    virtual VrmlNodeExtrusion *toExtrusion() const;
-    virtual VrmlNodeIFaceSet *toIFaceSet() const;
-    virtual VrmlNodeShape *toShape() const;
-    virtual VrmlNodeSphere *toSphere() const;
-    virtual VrmlNodeSwitch *toSwitch() const;
-    virtual VrmlNodeTransform *toTransform() const;
-    virtual VrmlNodeImageTexture *toImageTexture() const;
-    virtual VrmlNodeCubeTexture *toCubeTexture() const;
-    virtual VrmlNodePixelTexture *toPixelTexture() const;
-    virtual VrmlNodeLOD *toLOD() const;
-    virtual VrmlNodeScalarInt *toScalarInt() const;
-    virtual VrmlNodeOrientationInt *toOrientationInt() const;
-    virtual VrmlNodePositionInt *toPositionInt() const;
-
-    virtual void render(Viewer *);
-
-    virtual void eventIn(double timeStamp,
+    void eventIn(double timeStamp,
                          const char *eventName,
-                         const VrmlField *fieldValue);
+                         const VrmlField *fieldValue) override;
 
-    virtual bool isModified() const;
+    bool isModified() const override;
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
+    void setField(const char *fieldName, const VrmlField &fieldValue) override;
 
-    virtual const VrmlField *getField(const char *fieldName) const;
+    const VrmlField *getField(const char *fieldName) const override;
 
-    virtual void accumulateTransform(VrmlNode *);
+    void accumulateTransform(VrmlNode *) override;
 
     // LarryD  Feb 11/99
     int size();
@@ -140,7 +83,8 @@ public:
 
 private:
     VrmlNode *firstNode() const;
-
+    VrmlNode *getThisProto() override;
+    const VrmlNode *getThisProto() const override;
     // Instantiate the proto by cloning the node type implementation nodes.
     void instantiate(const char* relUrl = nullptr, int parentId = -1);
 
@@ -169,5 +113,13 @@ private:
 
     Viewer::Object d_viewerObject; // move to VrmlNode.h ? ...
 };
+
+template<>
+inline VrmlNode *VrmlNode::creator<VrmlNodeProto>(vrml::VrmlScene *scene){
+    (void)scene;
+    assert(true);
+    return nullptr;
+}
+
 }
 #endif //_VRMLNODEPROTO_

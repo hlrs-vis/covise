@@ -38,6 +38,7 @@
 #include "VrmlNodeProto.h"
 #include "VrmlMFString.h"
 #include "VrmlScene.h"
+#include "System.h"
 
 using namespace vrml;
 

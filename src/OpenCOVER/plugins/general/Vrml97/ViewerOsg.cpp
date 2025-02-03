@@ -619,9 +619,9 @@ void ViewerOsg::setRootNode(osg::Group *group)
     {
         d_root->pNode = VRMLRoot;
         d_currentObject = d_root;
-        if (d_scene->getRoot()->toGroup()->getViewerObject() != 0)
+        if (d_scene->getRoot()->as<VrmlNodeGroup>()->getViewerObject() != 0)
         {
-            ((osgViewerObject *)(d_scene->getRoot()->toGroup()->getViewerObject()))->pNode = VRMLRoot;
+            ((osgViewerObject *)(d_scene->getRoot()->as<VrmlNodeGroup>()->getViewerObject()))->pNode = VRMLRoot;
         }
     }
     if (cover->debugLevel(5))
@@ -894,10 +894,9 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
         {
             cerr << "Transparency mode: default" << endl;
         }
-#ifndef __sgi
         Sorted = 1;
         Blended = 1;
-#endif
+        AlphaTest = 1;
     }
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);

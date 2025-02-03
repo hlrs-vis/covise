@@ -117,7 +117,6 @@ class coFileInfo
 public:
     char *name_;
     int fd_;
-    char *map_;
 #ifdef _WIN32
     struct _stat info_;
 #else

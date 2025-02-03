@@ -35,7 +35,7 @@ namespace opencover
 class coInputTUI: public coTUIListener
 {
 public:
-    coInputTUI();
+    coInputTUI(coTabletUI *tui);
     virtual ~coInputTUI();
     void updateTUI(); // this is called only if anything has changed
 	void update(); // this is called once per frame
@@ -44,7 +44,9 @@ private:
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-    
+
+    coTabletUI *tui = nullptr;
+
     coTUITab *inputTab;
     coTUIFrame *personContainer;
     coTUILabel * personsLabel;
@@ -91,7 +93,7 @@ class DontDrawBin : public osgUtil::RenderBin::DrawCallback
 class BinListEntry : public coTUIListener
 {
 public:
-    BinListEntry(osgUtil::RenderBin *rb, int num);
+    BinListEntry(coTabletUI *tui, osgUtil::RenderBin *rb, int num);
     virtual ~BinListEntry();
     virtual void tabletEvent(coTUIElement *tUIItem);
     void updateBin();
@@ -106,11 +108,14 @@ class BinList : public std::list<BinListEntry *>
 {
 
 public:
-    BinList();
+    BinList(coTabletUI *tui);
     virtual ~BinList();
     void refresh();
     void removeAll();
     void updateBins();
+
+private:
+    coTabletUI *tui = nullptr;
 };
 class BinRenderStage : public osgUtil::RenderStage
 {
@@ -136,7 +141,7 @@ public:
 class COVEREXPORT coVRTui : public coTUIListener
 {
 public:
-    coVRTui();
+    coVRTui(coTabletUI *tui);
     virtual ~coVRTui();
     void update();
     void config();
@@ -163,7 +168,8 @@ public:
     BinList *binList;
 
 private:
-    static coVRTui *tui;
+    static coVRTui *vrtui;
+    coTabletUI *tui = nullptr;
 
     coTUITab *coverTab;
     coTUIFrame *topContainer;

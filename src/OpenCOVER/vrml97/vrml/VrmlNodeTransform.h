@@ -27,27 +27,17 @@ class VRMLEXPORT VrmlNodeTransform : public VrmlNodeGroup
 
 public:
     // Define the fields of Transform nodes
-    static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    static void initFields(VrmlNodeTransform *node, VrmlNodeType *t);
+    static const char *typeName();
 
     VrmlNodeTransform(VrmlScene *);
-    virtual ~VrmlNodeTransform();
-
-    virtual VrmlNode *cloneMe() const;
-
-    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void render(Viewer *);
-
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
 
     virtual void accumulateTransform(VrmlNode *);
     virtual void inverseTransform(Viewer *);
     virtual void inverseTransform(double *mat);
 
-    //LarryD Feb 24/99
-    virtual VrmlNodeTransform *toTransform() const;
     //LarryD Feb 24/99
     virtual const VrmlSFVec3f &getCenter() const;
     //LarryD Feb 24/99

@@ -5,7 +5,6 @@
 #include <future>
 #include <vector>
 #include <iostream>
-#include "export.h"
 
 namespace opencover {
 namespace utils {
@@ -20,7 +19,7 @@ namespace utils {
  * @tparam T The type of the result returned by the threads.
  */
 template<typename T>
-struct THREADUTIL ThreadWorker {
+struct ThreadWorker {
     typedef std::unique_ptr<std::vector<T>> Result;
     ThreadWorker() = default;
     ~ThreadWorker() { stop(); }

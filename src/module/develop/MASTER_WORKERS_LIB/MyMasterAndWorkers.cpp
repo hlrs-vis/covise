@@ -51,8 +51,5 @@ MyMasterAndWorkers::CreateMutexAndConditions(int number)
 int
 MyMasterAndWorkers::SetConcurrency() const
 {
-#if defined(__sgi)
-    pthread_setconcurrency(CrewSize());
-#endif
     return 0;
 }

@@ -2984,11 +2984,7 @@ static float snrm2(int n, float *sx, int incx)
                     }
                     sum += pow((double)sx[j], 2.);
                 }
-#ifdef __sgi
-                return (fsqrt(sum));
-#else
                 return (sqrt(sum));
-#endif
             }
             next = 50;
             xmax = zero;

@@ -16,12 +16,8 @@ void RadialRunner::CreatePlot(void)
 	for(i = 0; i < NUM_PLOT_PORTS; i++) {
 		dprintf(2,"i = %d:\n",i);
 		sprintf(buf,"XMGR%s_%d",M_2DPLOT,i+1);
-#ifndef YAC
 		char *PLOT_Name = Covise::get_object_name(buf);
 		dprintf(2,"PLOT_Name: %s\n",PLOT_Name);
-#else
-                coObjInfo PLOT_Name = plot2d[i]->getNewObjectInfo(); // is this correct? ...
-#endif
 		dprintf(1,"plot port %2d: ",i+1);
 		switch(m_2DplotChoice[i]->getValue()) {
 			case 0:

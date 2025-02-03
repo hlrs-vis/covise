@@ -48,13 +48,6 @@
 #include <sys/ioctl.h>
 #endif
 
-#ifdef _SX
-#include <unistd.h>
-extern "C" {
-extern int lockf(int, int, long);
-}
-#endif
-
 #ifdef _WIN32
 #include <dmgr/dmgr.h>
 #endif
@@ -108,12 +101,6 @@ Initial revision
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-
-#ifdef __alpha
-extern "C" {
-gethostname(char *, int);
-}
-#endif
 
 namespace covise
 {

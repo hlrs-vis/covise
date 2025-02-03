@@ -50,7 +50,7 @@ int covWriteSetBegin(FILE *fi, int numSteps)
 {
     fwrite("SETELE", 6, 1, fi);
 
-    return fwrite(&numSteps, sizeof(int), 1, fi);
+    return fwrite(&numSteps, (int)sizeof(int), 1, fi);
 }
 
 /////////////////////////////////////////////////////

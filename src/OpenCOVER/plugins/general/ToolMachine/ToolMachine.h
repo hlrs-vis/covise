@@ -1,56 +1,39 @@
 
+#include "MathExpressions.h"
 #include "Tool.h"
 #include "ToolChanger/ToolChanger.h"
-#include "VrmlNode.h"
+#include "VrmlMachine.h"
 
-#include <vrml97/vrml/VrmlNode.h>
-#include <vrml97/vrml/VrmlNodeTransform.h>
-#include <vrml97/vrml/VrmlNodeType.h>
-#include <vrml97/vrml/VrmlNamespace.h>
-#include <vrml97/vrml/VrmlSFVec3f.h>
-#include <vrml97/vrml/VrmlSFFloat.h>
-#include <vrml97/vrml/VrmlMFString.h>
-#include <vrml97/vrml/VrmlMFFloat.h>
-#include <vrml97/vrml/VrmlMFVec3f.h>
-#include <vrml97/vrml/VrmlSFInt.h>
-#include <vrml97/vrml/VrmlMFInt.h>
-#include <vrml97/vrml/VrmlNodeChildTemplate.h>
-#include <plugins/general/Vrml97/ViewerObject.h>
 #include <OpcUaClient/opcua.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
 
-enum UpdateMode
-{
-    All,
-    AllOncePerFrame,
-    UpdatedOncePerFrame
-};
 
-class Machine 
+class Machine : public LogicInterface
 {
 public:
-    Machine(MachineNodeBase *node);
-
-
-    void move(int axis, float value);
-    bool arrayMode() const;
-    void update(UpdateMode updateMode);
-    void setUi(opencover::ui::Menu *menu, opencover::config::File *file);
-    void pause(bool state);
-    osg::MatrixTransform *getToolHead() const;
+    Machine(opencover::ui::Menu *menu, opencover::config::File *file, MachineNodeBase *node);
+    void update() override;
 
 private:
     bool m_rdy = false;
-    MachineNodeBase *m_machineNode;
-    opcua::Client *m_client;
+    MachineNodeBase *m_machineNode = nullptr;
+    opencover::opcua::Client *m_client = nullptr;
     std::vector<opencover::opcua::ObserverHandle> m_valueIds;
     size_t m_index = 0;
     std::unique_ptr<SelfDeletingTool> m_tool;
-    opencover::ui::Menu *m_menu;
-    opencover::config::File *m_configFile;
+    opencover::ui::Menu *m_menu = nullptr;
+    opencover::ui::Button *m_pauseBtn = nullptr;
+    opencover::config::File *m_configFile = nullptr;
+    std::unique_ptr<MathExpressionObserver> m_mathExpressionObserver;
+    std::vector<MathExpressionObserver::ObserverHandle::ptr> m_axisValueHandles;
+    bool m_pauseMove = false;
 
+    void move(int axis, float value);
+    bool arrayMode() const;
+    void pause(bool state);
     bool addTool();
     void connectOpcua();
-    bool updateMachine(bool haveTool, UpdateMode updateMode);
+    bool updateMachine(bool haveTool);
 
 };

@@ -118,11 +118,7 @@ void RadialRunner::CreateGrid(void)
 		char numberofblades[80];
 		int  rotdir=1;
 		if(p_Pump->getValue()) rotdir=-1;
-#ifndef YAC
 		snprintf(paramtext, 80, "%ld", p_NumberOfBlades->getValue());
-#else
-		snprintf(paramtext, 80, "%d", p_NumberOfBlades->getValue());
-#endif
 		unsGrd->addAttribute(M_NUMBER_OF_BLADES, paramtext);
 
 		snprintf(paramtext, 80, "%16.6f", rotdir*p_DRevolut->getValue());
@@ -138,13 +134,8 @@ void RadialRunner::CreateGrid(void)
 				rotdir*p_DRevolut->getValue()*M_PI/30.);
 		unsGrd->addAttribute("walltext",paramtext);
 
-#ifndef YAC
 		sprintf(paramtext,"111,nomatch,110,120,perio_rota,%ld,3", p_NumberOfBlades->getValue());
 		sprintf(numberofblades,"%ld", p_NumberOfBlades->getValue());
-#else
-		sprintf(paramtext,"111,nomatch,110,120,perio_rota,%d,3", p_NumberOfBlades->getValue());
-		sprintf(numberofblades,"%d", p_NumberOfBlades->getValue());
-#endif
 
 		unsGrd->addAttribute("periotext",paramtext);
 		unsGrd->addAttribute("numblades",numberofblades);
@@ -310,14 +301,9 @@ void RadialRunner::CreateGrid(void)
 		float *bPtr;
 
 		//   0. number of columns per info
-#ifndef YAC
 		char name[256];
 		const char *basename = boco->getObjName();
 		sprintf(name,"%s_colinfo",basename);
-#else
-                coObjInfo basename = boco->getNewObjectInfo();
-                coObjInfo name = boco->getNewObjectInfo();
-#endif
 		size[0] = 6;
 		size[1] = 0;
 		coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -333,11 +319,7 @@ void RadialRunner::CreateGrid(void)
 		//   1. type of node
 		//   this is the model number of the part!
 		//   it has to be introduced as a parametre to be set != 0
-#ifndef YAC
 		sprintf(name,"%s_nodeinfo",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		size[0] = RG_COL_NODE;
 		size[1] = rrg->n->num;
 		coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -351,11 +333,7 @@ void RadialRunner::CreateGrid(void)
 		//   2. type of element
 		//   elements are supposed to be numbered according to their
 		//   generation index (id = index+1)!
-#ifndef YAC
 		sprintf(name,"%s_eleminfo",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		size[0] = RG_COL_ELEM;
 		size[1] = rrg->e->nume;
 		coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -367,11 +345,7 @@ void RadialRunner::CreateGrid(void)
 		partObj[2]=elemInfo;
 
 		// maybe there are no inlet bcs
-#ifndef YAC
 		sprintf(name,"%s_diricletNodes",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		if(rrg->bcval) {
 			//   3. list of nodes with bc
 			//      and its types
@@ -381,11 +355,7 @@ void RadialRunner::CreateGrid(void)
 			data = diricletNodes->getAddress();
 
 			//   4. corresponding value to 3.
-#ifndef YAC
 			sprintf(name,"%s_diricletValue",basename);
-#else
-                        name = boco->getNewObjectInfo();
-#endif
 			coDoFloat *diricletValues
 				= new coDoFloat(name, 5*rrg->inlet->num);
 			diricletValues->getAddress(&bPtr);
@@ -406,11 +376,7 @@ void RadialRunner::CreateGrid(void)
 			size [1] = 0;
 			coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
 			data = diricletNodes->getAddress();
-#ifndef YAC
 			sprintf(name,"%s_diricletValue",basename);
-#else
-                        name = boco->getNewObjectInfo();
-#endif
 			coDoFloat *diricletValues
 				= new coDoFloat(name, 1);
 			diricletValues->getAddress(&bPtr);
@@ -427,11 +393,7 @@ void RadialRunner::CreateGrid(void)
 		num =  rrg->shroudext->nume + rrg->wall->nume +
 			   rrg->frictless->nume + rrg->shroud->nume;
 	
-#ifndef YAC
 		sprintf(name,"%s_wall",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		size[0] = RG_COL_WALL;
 		size[1] = num;
 		coDoIntArr *faces = new coDoIntArr(name, 2, size);
@@ -453,11 +415,7 @@ void RadialRunner::CreateGrid(void)
 		partObj[5]=faces;
 
 		//   6. balance
-#ifndef YAC
 		sprintf(name,"%s_balance",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		num = rrg->einlet->nume + rrg->eoutlet->nume +
 			  rrg->psleperiodic->nume + rrg->ssleperiodic->nume +
 			  rrg->psteperiodic->nume + rrg->ssteperiodic->nume +
@@ -489,11 +447,7 @@ void RadialRunner::CreateGrid(void)
 		partObj[6] = balance;
 
       //  7. pressure bc: outlet elements
-#ifndef YAC
 		sprintf(name,"%s_pressElems",basename);
-#else
-                name = boco->getNewObjectInfo();
-#endif
 		size[0] = RG_COL_PRESS;
 		size[1] = rrg->eoutlet->nume;
 		coDoIntArr *pressElems = new coDoIntArr(name, 2, size );

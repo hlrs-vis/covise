@@ -36,11 +36,7 @@ typedef unsigned long in_addr_t;
 #include <errno.h>
 #include <sys/stat.h>
 #endif
-#ifdef __sgi
-#include <strings.h>
-#else
 #include <string.h>
-#endif
 #ifndef _WIN32
 #define closesocket close
 #endif

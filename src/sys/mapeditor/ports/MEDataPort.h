@@ -110,9 +110,6 @@ public:
 
     QVector<MEDataPort *> connectedPorts;
 
-#ifdef YAC
-    void addPortItems(covise::coRecvBuffer &);
-#endif
     static QString getDataObjectString(const covise::coDistributedObject *obj, bool recurse = true, bool onlyLeaf = false);
     static bool arePortsCompatible(MEDataPort *pout, MEDataPort *pin, bool ignorePossibleTypes = true);
 

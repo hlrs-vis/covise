@@ -11,7 +11,7 @@
 
 #include "MEBooleanPort.h"
 #include "MELineEdit.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 
 /*!
@@ -72,13 +72,6 @@ void MEBooleanPort::moduleParameterRequest()
 //!
 void MEBooleanPort::defineParam(QString value, int apptype)
 {
-#ifdef YAC
-
-    Q_UNUSED(value);
-    Q_UNUSED(apptype);
-
-#else
-
     QString myVal = value.toUpper();
     if (myVal == "TRUE")
         m_value = true;
@@ -86,7 +79,6 @@ void MEBooleanPort::defineParam(QString value, int apptype)
         m_value = false;
 
     MEParameterPort::defineParam(value, apptype);
-#endif
 }
 
 //!
@@ -94,14 +86,6 @@ void MEBooleanPort::defineParam(QString value, int apptype)
 //!
 void MEBooleanPort::modifyParam(QStringList list, int noOfValues, int istart)
 {
-#ifdef YAC
-
-    Q_UNUSED(list);
-    Q_UNUSED(noOfValues);
-    Q_UNUSED(istart);
-
-#else
-
     Q_UNUSED(noOfValues);
 
     QString myVal = list[istart].toUpper();
@@ -116,7 +100,6 @@ void MEBooleanPort::modifyParam(QStringList list, int noOfValues, int istart)
 
     if (m_checkBox[CONTROL])
         m_checkBox[CONTROL]->setChecked(m_value);
-#endif
 }
 
 //!
@@ -124,12 +107,6 @@ void MEBooleanPort::modifyParam(QStringList list, int noOfValues, int istart)
 //!
 void MEBooleanPort::modifyParameter(QString lvalue)
 {
-#ifdef YAC
-
-    Q_UNUSED(lvalue);
-
-#else
-
     QString myVal = lvalue.toUpper();
     if (myVal == "TRUE")
         m_value = true;
@@ -142,7 +119,6 @@ void MEBooleanPort::modifyParameter(QString lvalue)
 
     if (m_checkBox[CONTROL])
         m_checkBox[CONTROL]->setChecked(m_value);
-#endif
 }
 
 //!
@@ -203,39 +179,8 @@ void MEBooleanPort::booleanCB()
     else
         m_value = m_checkBox[CONTROL]->isChecked();
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << node->getNodeID() << portname;
-    sb << m_value;
-
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_SET_PARAMETER, sb);
-
-#else
-
     sendParamMessage();
-#endif
 
     // inform parent widget that value has been changed
     node->setModified(true);
 }
-
-#ifdef YAC
-
-//!
-//! Set new values, only used by YAC
-void MEBooleanPort::setValues(covise::coRecvBuffer &tb)
-{
-    bool flag;
-
-    tb >> flag;
-    m_value = flag;
-
-    // modify module & control line content
-    if (m_checkBox[MODULE])
-        m_checkBox[MODULE]->setChecked(m_value);
-
-    if (m_checkBox[CONTROL])
-        m_checkBox[CONTROL]->setChecked(m_value);
-}
-#endif

@@ -22,7 +22,7 @@
 // Author: Uwe Woessner, Ruth Lang                                        //
 // Date:  30.10.03  V1.0                                                  */
 
-#if defined(__arm__) || defined(__APPLE__) || defined(CO_rhel3) || (defined(CO_ia64icc) && (__GNUC__ >= 4))
+#if defined(__arm__) || defined(__APPLE__)
 #define EXPORT_TEMPLATE(x)
 #define EXPORT_TEMPLATE2(x, y)
 #define EXPORT_TEMPLATE3(x, y, z)
@@ -42,7 +42,7 @@
 #define COIMPORT __declspec(dllimport)
 #define COEXPORT __declspec(dllexport)
 
-#elif(defined(__GNUC__) && __GNUC__ >= 4 && !defined(CO_ia64icc)) || defined(__clang__)
+#elif (defined(__GNUC__) && __GNUC__ >= 4) || defined(__clang__)
 #define COEXPORT __attribute__((visibility("default")))
 #define COIMPORT COEXPORT
 
@@ -68,6 +68,13 @@
 #else
 #define OSGVRUIEXPORT COIMPORT
 #endif
+
+#if defined(COVISE_VSGVRUI)
+#define VSGVRUIEXPORT COEXPORT
+#else
+#define VSGVRUIEXPORT COIMPORT
+#endif
+
 
 #if defined(SG_VRUI)
 #define SGVRUIEXPORT COEXPORT
@@ -182,6 +189,12 @@
 #define COVEREXPORT COIMPORT
 #endif
 
+#if defined(vvCore_EXPORTS)
+#define VVCORE_EXPORT COEXPORT
+#else
+#define VVCORE_EXPORT COIMPORT
+#endif
+
 #if defined(COVISE_PFIV)
 #define PFIVEXPORT COEXPORT
 #else
@@ -269,7 +282,7 @@
 #define VINCEEXPORT COIMPORT
 #endif
 
-#if defined(COVISE_API) || defined(YAC_API)
+#if defined(COVISE_API)
 #define APIEXPORT COEXPORT
 #else
 #define APIEXPORT COIMPORT
@@ -293,12 +306,6 @@
 #define PLUGINEXPORT COEXPORT
 #else
 #define PLUGINEXPORT COIMPORT
-#endif
-
-#if defined(YAC_JAVA_API)
-#define JAVAAPIEXPORT COEXPORT
-#else
-#define JAVAAPIEXPORT COIMPORT
 #endif
 
 #if defined(RENDERER_EXPORTS)

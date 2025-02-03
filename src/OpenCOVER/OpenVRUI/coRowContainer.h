@@ -7,7 +7,7 @@
 
 #ifndef CO_ROW_CONTAINER_H
 #define CO_ROW_CONTAINER_H
-#include <OpenVRUI/coUIContainer.h>
+#include "coUIContainer.h"
 
 namespace vrui
 {

@@ -133,6 +133,8 @@ private:
 
     JSBSim::FGFDMExec* FDMExec = nullptr;
     JSBSim::FGTrim* trimmer = nullptr;
+    std::string jsName;
+    std::string rudderName;
 
     std::shared_ptr <JSBSim::FGAtmosphere>      Atmosphere;
     std::shared_ptr <JSBSim::FGWinds>           Winds;
@@ -199,10 +201,12 @@ private:
     float currentTurbulence;
     osg::Vec3 targetVelocity;
     float targetTurbulence;
+    remoteSound::Sound* engineSound;
     remoteSound::Sound* varioSound;
     remoteSound::Sound* windSound;
     std::string remoteSoundServer;
     int remoteSoundPort;
+    std::string EngineSound;
     std::string VarioSound;
     std::string WindSound;
     std::string host;
@@ -215,20 +219,13 @@ private:
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
 {
 public:
-    // Define the fields of Car nodes
-    static VrmlNodeType* defineType(VrmlNodeType* t = 0);
-    virtual VrmlNodeType* nodeType() const;
+
+    static void initFields(VrmlNodeThermal* node, VrmlNodeType* t);
+    static const char *typeName();
 
     VrmlNodeThermal(VrmlScene* scene = 0);
     VrmlNodeThermal(const VrmlNodeThermal& n);
     virtual ~VrmlNodeThermal();
-
-    virtual VrmlNode* cloneMe() const;
-
-    virtual ostream& printFields(ostream& os, int indent);
-
-    virtual void setField(const char* fieldName, const VrmlField& fieldValue);
-    const VrmlField* getField(const char* fieldName);
 
     void eventIn(double timeStamp, const char* eventName,
         const VrmlField* fieldValue);

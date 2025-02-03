@@ -23,14 +23,10 @@
 #include <QInputDialog>
 #include <QDir>
 
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-#endif
-
 #include "MEColorMap.h"
-#include "MEColorChooser.h"
+#include <qtutil/MEColorChooser.h>
 #include "MEColorSelector.h"
-#include "MEMessageHandler.h"
+#include "../covise/MEMessageHandler.h"
 #include "nodes/MENode.h"
 #include "ports/MEColorMapPort.h"
 #include "ports/MEColormapChoicePort.h"
@@ -76,19 +72,15 @@ MEColorMap::MEColorMap(MEParameterPort *p, QWidget *parent)
     setLineWidth(2);
     setFrameStyle(Panel | Plain);
 
-#ifndef YAC
     // read colormaps from standard color XML file & from local user (.covise/colormaps)
     readConfigFile();
-#endif
 
     // make main layout
     makeEditor();
 
-#ifndef YAC
     // set default tables
     initFlag = true;
     setFocusPolicy(Qt::StrongFocus);
-#endif
 }
 
 MEColorMap::~MEColorMap()
@@ -1009,63 +1001,6 @@ void MEColorMap::applyCB()
         dp->sendParamMessage();
         dp->getNode()->sendExec();
     }
-}
-
-//!
-//! init or modify the values of a colormap (only used by YAC)
-//!
-void MEColorMap::updateColorMap(const QString &name, const QString &value)
-{
-    if (!mapNames.contains(name))
-    {
-        mapNames.append(name);
-        namebox->insertItem(-1, name);
-    }
-
-    else
-    {
-        float *mval = mapValues.value(name);
-        mapSize.remove(name);
-        mapValues.remove(name);
-        delete[] mval;
-    }
-
-    // parse value string from yac
-    QStringList token = value.split(" ");
-
-    // store length
-    int it = 0;
-    int numSteps = token[it].toInt();
-    it++;
-    mapSize.insert(name, numSteps);
-
-    // unused token linear/sline
-    it++;
-
-    // store values (XRGBA -> RGBAX)
-    float *cval = new float[numSteps * 5];
-    for (int l = 0; l < numSteps * 5; l = l + 5)
-    {
-        cval[l] = token[it].toFloat();
-        it++;
-        cval[l + 1] = token[it].toFloat();
-        it++;
-        cval[l + 2] = token[it].toFloat();
-        it++;
-        cval[l + 3] = token[it].toFloat();
-        it++;
-        cval[l + 4] = token[it].toFloat();
-        it++;
-    }
-    mapValues.insert(name, cval);
-
-    initFlag = true;
-
-    // repaint, if colormap was modified
-    setPredefinedMap(name);
-
-    // mark a point in the middle as active
-    setCurrentMarker();
 }
 
 //!
