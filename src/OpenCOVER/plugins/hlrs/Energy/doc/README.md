@@ -87,6 +87,13 @@ Further adjustments to the period of time fetched from ennovatis can be made by 
 - all active ***EnnovatisDeviceSensors*** which are showing information will be updated if there are changes to the period of time or the channeltype
 - ***EnnovatisDeviceSensors*** will change the color of the drawable for each timestep in the color range specified in the config file
 
+## Source Code Organization
+
+- **app**: presentation and ui logic (what happens when clicking a building for example)
+- **lib**: buisness logic
+- **test**: some tests (at the moment only for Ennovatis)
+- **doc**: README
+
 ## TODO's
 
 - fetch latitude and longitude data from tile-server like googlemaps or openstreetmap
