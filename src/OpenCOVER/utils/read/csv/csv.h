@@ -107,7 +107,6 @@ private:
         ss >> value;
     }
 
-    template<>
     void convert(const std::string &value_str, std::string &value) const
     {
         value = value_str;
