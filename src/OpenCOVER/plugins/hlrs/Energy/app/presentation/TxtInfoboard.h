@@ -2,10 +2,10 @@
 #define _CORE_TXTINFOBOARD_H
 
 #include <cover/coBillboard.h>
-#include <osg/ref_ptr>
 #include <lib/core/interfaces/IInfoboard.h>
 
-namespace core {
+#include <osg/ref_ptr>
+
 struct TxtBoxAttributes {
   TxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
                    const std::string &font, const float &width, const float &height,
@@ -29,15 +29,15 @@ struct TxtBoxAttributes {
   int charSize;
 };
 
-class TxtInfoboard : public interface::IInfoboard<std::string> {
+class TxtInfoboard : public core::interface::IInfoboard<std::string> {
  public:
-  TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes){};
+  TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes) {};
   TxtInfoboard(const osg::Vec3 &position, const std::string &title,
                const std::string &font, const float &maxWidth, const float &height,
                const float &margin, const float &titleHeightPercentage,
                int charSize = 2)
       : m_attributes(TxtBoxAttributes(position, title, font, maxWidth, height,
-                                      margin, titleHeightPercentage, charSize)){};
+                                      margin, titleHeightPercentage, charSize)) {};
 
   // IInfoboard interface
   void updateTime(int timestep) override;
@@ -76,6 +76,5 @@ class TxtInfoboard : public interface::IInfoboard<std::string> {
   // txtbox attributes
   TxtBoxAttributes m_attributes;
 };
-}  // namespace core
 
 #endif

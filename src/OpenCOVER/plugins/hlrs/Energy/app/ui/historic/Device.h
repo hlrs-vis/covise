@@ -52,7 +52,7 @@ struct DeviceInfo {
 class Device {
  public:
   typedef std::shared_ptr<Device> ptr;
-  Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent);
+  Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent, const std::string &font);
   ~Device();
   Device(const Device &other) = delete;
   Device &operator=(const Device &) = delete;
@@ -67,6 +67,7 @@ class Device {
   const DeviceInfo::ptr getInfo() { return devInfo; }
 
  private:
+  std::string m_font;
   DeviceInfo::ptr devInfo;
   osg::ref_ptr<osg::Group> myParent;
   osg::ref_ptr<osg::Group> TextGeode;

@@ -15,8 +15,11 @@ class EnnovatisDeviceSensor : public coPickSensor {
       : coPickSensor(n), m_dev(std::move(d)), m_enabledDevices(selList) {}
 
   ~EnnovatisDeviceSensor() {
-    if (active) disactivate();
+    if (m_activated) disactivate();
   }
+
+  EnnovatisDeviceSensor(const EnnovatisDeviceSensor &) = delete;
+  EnnovatisDeviceSensor &operator=(const EnnovatisDeviceSensor &) = delete;
 
   [[nodiscard]] auto getDevice() const { return m_dev.get(); }
 

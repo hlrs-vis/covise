@@ -6,9 +6,9 @@
 #include <osg/ShapeDrawable>
 #include <variant>
 
-namespace core {
-namespace grid {
+#include "../utils/color.h"
 
+namespace core::simulation::grid {
 // grid::Data is a vector of variants that can hold int, float, or string
 typedef std::map<std::string, std::variant<float, int, std::string>> Data;
 class Point : public osg::Group {
@@ -22,6 +22,10 @@ class Point : public osg::Group {
     return dynamic_cast<osg::Geode *>(osg::Group::getChild(0));
   }
 
+  void updateColor(const osg::Vec4 &color) {
+    core::utils::color::overrideGeodeColor(getGeode(), color);
+  }
+
  private:
   osg::ref_ptr<osg::ShapeDrawable> m_shape;
   osg::ref_ptr<osg::Sphere> m_point;
@@ -32,14 +36,14 @@ template <typename CoordType>
 struct ConnectionData {
   ConnectionData(const std::string &name, const CoordType &start,
                  const CoordType &end, const float &radius,
-                 osg::ref_ptr<osg::TessellationHints> hints,
+                 osg::ref_ptr<osg::TessellationHints> hints = nullptr,
                  const Data &additionalData = Data())
       : name(name),
         start(start),
         end(end),
         radius(radius),
         hints(hints),
-        additionalData(additionalData){};
+        additionalData(additionalData) {};
   std::string name;
   CoordType start;
   CoordType end;
@@ -57,17 +61,20 @@ class DirectedConnection : public osg::Group {
  public:
   DirectedConnection(const ConnectionData<osg::Vec3> &data)
       : DirectedConnection(data.name, data.start, data.end, data.radius, data.hints,
-                           data.additionalData){};
+                           data.additionalData) {};
 
   DirectedConnection(const ConnectionData<Point> &data)
       : DirectedConnection(data.name, data.start.getPosition(),
                            data.end.getPosition(), data.radius, data.hints,
-                           data.additionalData){};
+                           data.additionalData) {};
 
   osg::Vec3 getDirection() const { return *m_end - *m_start; }
   osg::Vec3 getCenter() const { return (*m_start + *m_end) / 2; }
   osg::ref_ptr<osg::Geode> getGeode() const { return m_geode; }
   const Data &getAdditionalData() const { return m_additionalData; }
+  void updateColor(const osg::Vec4 &color) {
+    core::utils::color::overrideGeodeColor(m_geode, color);
+  }
 
  private:
   osg::ref_ptr<osg::Geode> m_geode;
@@ -84,7 +91,6 @@ typedef std::vector<osg::ref_ptr<DirectedConnection>> Connections;
 // using ConnectivityList = std::vector<ConnectionData<PointType>>;
 typedef std::vector<std::vector<int>> Indices;
 typedef std::vector<Data> DataList;
-}  // namespace grid
-}  // namespace core
+}  // namespace core::simulation::grid
 
 #endif

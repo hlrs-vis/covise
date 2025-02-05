@@ -8,6 +8,7 @@
 #include "Device.h"
 
 #include <cover/coVRFileManager.h>
+#include <lib/core/constants.h>
 
 #include <cstdio>
 #include <osg/Material>
@@ -15,7 +16,9 @@
 using namespace opencover;
 
 namespace energy {
-Device::Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent) {
+Device::Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent,
+               const std::string &font)
+    : m_font(font) {
   myParent = parent;
   devInfo = d;
 
@@ -136,8 +139,7 @@ void Device::showInfo() {
   textBoxTitle->setColor(osg::Vec4(1, 1, 1, 1));
   textBoxTitle->setText(devInfo->name, osgText::String::ENCODING_UTF8);
   textBoxTitle->setCharacterSize(charSize);
-  textBoxTitle->setFont(
-      coVRFileManager::instance()->getFontFile("DroidSans-Bold.ttf"));
+  textBoxTitle->setFont(coVRFileManager::instance()->getFontFile(m_font.c_str()));
   textBoxTitle->setMaximumWidth(w);
   textBoxTitle->setPosition(osg::Vec3(rad - w / 2., 0, h * 0.9));
 
@@ -146,9 +148,12 @@ void Device::showInfo() {
   textBoxContent->setAxisAlignment(osgText::Text::XZ_PLANE);
   textBoxContent->setColor(osg::Vec4(1.f, 1.f, 1.f, 1.f));
   textBoxContent->setLineSpacing(1.25);
-  textBoxContent->setText(
-      " > Baujahr:\n > Grundfläche:\n > Strom:\n > Wärme:\n > Kälte:",
-      osgText::String::ENCODING_UTF8);
+  std::array<std::string, 5> labels = {"Baujahr", "Grundfläche", "Strom", "Wärme",
+                                       "Kälte"};
+  std::string description("");
+  for (const auto &label : labels)
+    description += UIConstants::TAB_SPACES + label + ": \n";
+  textBoxContent->setText(description, osgText::String::ENCODING_UTF8);
   textBoxContent->setCharacterSize(charSize);
   textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
   textBoxContent->setMaximumWidth(w * 2. / 3.);

@@ -2,8 +2,7 @@
 
 #include <utils/osgUtils.h>
 
-namespace core {
-namespace grid {
+namespace core::simulation::grid {
 Point::Point(const std::string &name, const float &x, const float &y, const float &z,
              const float &radius, const Data &additionalData)
     : osg::Group(),
@@ -32,5 +31,4 @@ DirectedConnection::DirectedConnection(const std::string &name,
   addChild(m_geode);
   setName(name);
 }
-}  // namespace grid
-}  // namespace core
+}  // namespace core::simulation::grid

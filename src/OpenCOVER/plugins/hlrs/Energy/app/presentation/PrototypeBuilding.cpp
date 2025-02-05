@@ -1,12 +1,12 @@
 #include "PrototypeBuilding.h"
+
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
 
 #include <memory>
+#include <osg/ref_ptr>
 
-#include "osg/ref_ptr"
-
-namespace core {
+using namespace core;
 
 void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
   for (auto drawable : m_drawables)
@@ -34,5 +34,3 @@ void PrototypeBuilding::updateTime(int timestep) {
   // TODO: update for example the height of the cylinder with each
   // timestep
 }
-
-}  // namespace core

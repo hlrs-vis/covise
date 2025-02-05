@@ -14,9 +14,9 @@ void EnnovatisDeviceSensor::activate() {
 void EnnovatisDeviceSensor::disactivate() {
   if (m_activated) return;
 
-  m_dev->disactivate();
   auto selList = m_enabledDevices->items();
   auto name = m_dev->getBuildingInfo().building->getName();
   selList.erase(std::find(selList.begin(), selList.end(), name));
   m_enabledDevices->setList(selList);
+  m_dev->disactivate();
 }

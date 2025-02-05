@@ -1,12 +1,11 @@
 #include "CityGMLBuilding.h"
 
+#include <lib/core/utils/color.h>
+
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
-#include <lib/core/utils/color.h>
-
-namespace core {
-using namespace utils;
+using namespace core::utils;
 
 CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes) {
   m_drawables.reserve(geodes.size());
@@ -28,4 +27,3 @@ std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
                                                             float maxValue) {
   return nullptr;
 }
-}  // namespace core

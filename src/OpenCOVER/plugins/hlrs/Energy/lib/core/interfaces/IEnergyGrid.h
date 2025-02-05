@@ -3,9 +3,10 @@
 
 #include "IColorable.h"
 #include "IDrawables.h"
+#include "ITimedependable.h"
 
 namespace core::interface {
-class IEnergyGrid : public IDrawables, public IColorable {
+class IEnergyGrid : public IDrawables, public IColorable, public ITimedependable {
  public:
   virtual ~IEnergyGrid() = default;
 };

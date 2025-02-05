@@ -7,7 +7,7 @@ projFrom = "+proj=latlong +datum=WGS84 +no_defs"
 projTo = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs"
 
 [Billboard]
-fontFilePath = "DroidSans-Bold.ttf"
+font = "DejaVuSans-Bold.ttf"
 charSize = 2
 width = 60.0
 height = 63.0

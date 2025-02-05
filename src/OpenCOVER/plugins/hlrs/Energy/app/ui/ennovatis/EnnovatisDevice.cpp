@@ -107,7 +107,7 @@ auto EnnovatisDevice::createBillboardTxt(
   } else {
     // it seems that the first value at 0 is always the same as the second value
     auto sum = std::accumulate(values.begin() + 1, values.end(), 0.0f);
-    auto max  = *std::max_element(values.begin(), values.end());
+    auto max = *std::max_element(values.begin(), values.end());
     m_consumptionPerArea = sum / m_buildingInfo.building->getArea();
     auto mean = sum / (values.size() - 1);
     billboardTxt += "> Average Consumption per day: " + roundToString(mean) + " " +
@@ -121,8 +121,7 @@ auto EnnovatisDevice::createBillboardTxt(
         channel.unit + "/m²" + ENDLINE;
 
     billboardTxt +=
-        "> Peak load: " + roundToString(max) + " " +
-        channel.unit + ENDLINE;
+        "> Peak load: " + roundToString(max) + " " + channel.unit + ENDLINE;
   }
   return billboardTxt;
 }
@@ -176,8 +175,45 @@ void EnnovatisDevice::init() {
 
   // cylinder / building representation
   m_drawableBuilding->initDrawables();
-  for (auto drawable : m_drawableBuilding->getDrawables())
+  auto drawables = m_drawableBuilding->getDrawables();
+  for (auto drawable : drawables) {
     m_deviceGroup->addChild(drawable);
+    if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
+      //   m_defaultStateSets.push_back(
+      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES));
+      m_defaultStateSets.push_back(
+          new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_STATESETS));
+
+      //   osg::ref_ptr<osg::Geode> clonedGeode =
+      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES);
+      //   for (auto i = 0; i < clonedGeode->getNumParents(); ++i) {
+      //     auto parent = clonedGeode->getParent(i);
+      //     parent->removeChild(clonedGeode);
+      //   }
+
+      //   for (auto i = 0; i < clonedGeode->getNumChildren(); ++i) {
+      //     auto child = clonedGeode->getChild(i);
+      //     for (auto j = 0; j < child->getNumParents(); ++j) {
+      //       auto parent = child->getParent(j);
+      //     //   if (parent == clonedGeode) continue;
+      //     //   parent->removeChild(child);
+      //     }
+      //   }
+
+      //   m_defaultStateSets.push_back(clonedGeode);
+      //   clonedGeode->removeDrawables(0, clonedGeode->getNumDrawables());
+      //   for (auto i = 0; i < clonedGeode->getNumDrawables(); ++i) {
+      //     auto drawable = clonedGeode->getDrawable(i);
+      //     d
+      //   }
+
+      //   m_defaultStateSets.emplace_back(
+      //     //   new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_STATESETS));
+      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES));
+      //   osg::clone(geode.get(), osg::CopyOp::DEEP_COPY_NODES));
+      //   *geode, osg::CopyOp::DEEP_COPY_NODES);
+    }
+  }
 }
 
 void EnnovatisDevice::updateColorByTime(int timestep) {
@@ -265,11 +301,14 @@ void EnnovatisDevice::updateHeightByTime(int timestep) {
         break;
     }
     auto old_height = cylinder->getHeight();
-    if (old_height == height) return;
+    if (old_height == height)
+      return;
     else {
-        auto tmp_height = osg::Vec3(0, 0, std::abs(height - old_height) / 2);
-        if (old_height < height) cylinder->setCenter(cylinder->getCenter() + tmp_height);
-        else cylinder->setCenter(cylinder->getCenter() - tmp_height);
+      auto tmp_height = osg::Vec3(0, 0, std::abs(height - old_height) / 2);
+      if (old_height < height)
+        cylinder->setCenter(cylinder->getCenter() + tmp_height);
+      else
+        cylinder->setCenter(cylinder->getCenter() - tmp_height);
     }
     cylinder->setHeight(height);
     // TODO: Shader implementation later?!
@@ -300,8 +339,44 @@ void EnnovatisDevice::disactivate() {
     for (auto drawable : m_drawableBuilding->getDrawables())
       m_deviceGroup->removeChild(drawable);
 
-    m_drawableBuilding->initDrawables();
+    for (auto i = 0; i < m_defaultStateSets.size(); ++i) {
+      auto drawable = m_drawableBuilding->getDrawable(i);
+      //   m_deviceGroup->removeChild(drawable);
+      //   osg::ref_ptr<osg::Geode> geode =
+      //       osg::clone(m_defaultStateSets[i].get(), osg::CopyOp::DEEP_COPY_NODES);
+
+      if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
+        geode->setStateSet(m_defaultStateSets[i]->getStateSet());
+        m_deviceGroup->addChild(geode);
+      }
+
+      //   drawable->setStateSet(m_defaultStateSets[i]->getStateSet());
+      //   m_deviceGroup->addChild(geode);
+      //   if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
+      //     // osg::ref_ptr<osg::Geode> default_geode = new
+      //     // osg::Geode(*m_defaultStateSets[i]->asGeode(),
+      //     // osg::CopyOp::DEEP_COPY_NODES); geode = default_geode;
+      //     m_deviceGroup->removeChild(drawable);
+      //     geode = dynamic_cast<osg::Geode *>(
+      //         osg::clone(m_defaultStateSets[i].get(),
+      //         osg::CopyOp::DEEP_COPY_NODES));
+      //     m_deviceGroup->addChild(geode);
+      //     // geode->setStateSet(default_geode->getStateSet());
+      //     // osg::ref_ptr<osg::Geode> default_geode =
+      //     m_defaultStateSets[i]->asGeode();
+      //     // geode->setStateSet(default_geode->getStateSet());
+
+      //     // osg::ref_ptr<osg::ShapeDrawable> shape =
+      //     //     dynamic_cast<osg::ShapeDrawable *>(geode->getDrawable(0));
+      //     // if (!shape) continue;
+      //     // shape->build();
+      //   }
+    }
+    // m_drawableBuilding->initDrawables();
+    // for (auto drawable : m_drawableBuilding->getDrawables())
+    //   m_deviceGroup->addChild(drawable);
     m_timestepColors.clear();
+    m_sensorData.clear();
   }
 }
 

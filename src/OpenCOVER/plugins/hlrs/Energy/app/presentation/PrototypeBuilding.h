@@ -1,17 +1,15 @@
 #ifndef _CORE_PROTOTYPEBUILDING_H
 #define _CORE_PROTOTYPEBUILDING_H
 
+#include <lib/core/interfaces/IBuilding.h>
+#include <lib/core/utils/color.h>
+
 #include <memory>
 #include <osg/Vec3>
 #include <osg/Vec4>
 
-#include <lib/core/utils/color.h>
-#include <lib/core/interfaces/IBuilding.h>
-
-namespace core {
-
 struct CylinderAttributes {
-  using ColorMap = utils::color::ColorMap;
+  typedef core::utils::color::ColorMap ColorMap;
   CylinderAttributes(const float &rad, const float &height, const osg::Vec3 &pos,
                      const ColorMap &colorMap)
       : radius(rad), height(height), position(pos), colorMap(colorMap) {}
@@ -29,10 +27,10 @@ struct CylinderAttributes {
   ColorMap colorMap;
 };
 
-class PrototypeBuilding : public interface::IBuilding {
+class PrototypeBuilding : public core::interface::IBuilding {
  public:
   PrototypeBuilding(const CylinderAttributes &cylinderAttributes)
-      : m_attributes(cylinderAttributes){};
+      : m_attributes(cylinderAttributes) {};
   void initDrawables() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;
@@ -40,9 +38,7 @@ class PrototypeBuilding : public interface::IBuilding {
   std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue) override;
 
  private:
-
   CylinderAttributes m_attributes;
 };
-}  // namespace core
 
 #endif

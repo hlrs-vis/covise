@@ -1,6 +1,10 @@
 #ifndef _CORE_ENERGYGRIND_H
 #define _CORE_ENERGYGRIND_H
 
+#include <lib/core/interfaces/IEnergyGrid.h>
+#include <lib/core/interfaces/IInfoboard.h>
+#include <lib/core/simulation/grid.h>
+
 #include <memory>
 #include <osg/Geode>
 #include <osg/Group>
@@ -11,11 +15,9 @@
 
 #include "PluginUtil/coSensor.h"
 #include "TxtInfoboard.h"
-#include <lib/core/interfaces/IEnergyGrid.h>
-#include <lib/core/interfaces/IInfoboard.h>
-#include <lib/core/grid.h>
 
-namespace core {
+using namespace core;
+using namespace core::simulation;
 
 /**
  * @struct EnergyGridConfig
@@ -40,7 +42,7 @@ struct EnergyGridConfig {
   float connectionRadius = 1.0f;
   grid::DataList additionalConnectionData = grid::DataList();
   TxtBoxAttributes infoboardAttributes =
-      TxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText", "DroidSans-Bold.ttf",
+      TxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText", "DejaVuSans-Bold.ttf",
                        50, 50, 2.0f, 0.1, 2);
 };
 
@@ -58,6 +60,19 @@ class EnergyGrid : public interface::IEnergyGrid {
   void initDrawables() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateDrawables() override;
+  void updateTime(int timestep) override {}
+
+  osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
+      const std::string &name);
+  osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {
+    if (idx < 0 || idx >= m_connections.size()) return nullptr;
+    return m_connections[idx];
+  }
+  osg::ref_ptr<grid::Point> getPointByName(const std::string &name);
+  osg::ref_ptr<grid::Point> getPointByIdx(int idx) {
+    if (idx < 0 || idx >= m_config.points.size()) return nullptr;
+    return m_config.points[idx];
+  }
 
  private:
   class InfoboardSensor : public coPickSensor {
@@ -84,9 +99,9 @@ class EnergyGrid : public interface::IEnergyGrid {
                        const grid::DataList &additionalConnectionData);
   void initDrawableConnections();
   void initDrawablePoints();
+
   EnergyGridConfig m_config;
   grid::Connections m_connections;
   std::vector<std::unique_ptr<InfoboardSensor>> m_infoboards;
 };
-}  // namespace core
 #endif

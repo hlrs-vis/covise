@@ -1,6 +1,7 @@
 #include "TxtInfoboard.h"
 
 #include <cover/coVRFileManager.h>
+#include <lib/core/utils/osgUtils.h>
 
 #include <osg/Geode>
 #include <osg/MatrixTransform>
@@ -8,9 +9,8 @@
 #include <osg/ref_ptr>
 
 #include "cover/coBillboard.h"
-#include <lib/core/utils/osgUtils.h>
 
-namespace core {
+using namespace core;
 
 void TxtInfoboard::updateTime(int timestep) {
   // TODO: implement later when needed
@@ -41,12 +41,12 @@ void TxtInfoboard::updateInfo(const std::string &info) {
   auto contentPos = pos;
   contentPos.z() -= m_attributes.height * m_attributes.titleHeightPercentage;
 
-  auto textBoxTitle = utils::osgUtils::createTextBox(m_attributes.title, pos, m_attributes.charSize,
-                                    m_attributes.fontFile.c_str(),
-                                    m_attributes.maxWidth, m_attributes.margin);
-  auto textBoxContent = utils::osgUtils::createTextBox("", contentPos, m_attributes.charSize,
-                                      m_attributes.fontFile.c_str(),
-                                      m_attributes.maxWidth, m_attributes.margin);
+  auto textBoxTitle = utils::osgUtils::createTextBox(
+      m_attributes.title, pos, m_attributes.charSize, m_attributes.fontFile.c_str(),
+      m_attributes.maxWidth, m_attributes.margin);
+  auto textBoxContent = utils::osgUtils::createTextBox(
+      "", contentPos, m_attributes.charSize, m_attributes.fontFile.c_str(),
+      m_attributes.maxWidth, m_attributes.margin);
   textBoxContent->setText(info, osgText::String::ENCODING_UTF8);
 
   osg::ref_ptr<osg::Geode> geo = new osg::Geode();
@@ -74,4 +74,3 @@ void TxtInfoboard::hideInfo() {
   m_BBoard->removeChild(m_TextGeode);
   m_enabled = false;
 }
-}  // namespace core
