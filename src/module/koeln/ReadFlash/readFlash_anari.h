@@ -310,6 +310,7 @@ inline void read_sinks(particle_t &part, H5::H5File const &file)
     // Read data from dataset and store in dest as sinkList
     dataset.read(part.data.data(), H5::PredType::NATIVE_DOUBLE, dataspace, dataspace);
 
+    // Set indices of datasets (position, velocity, mass)
     part.ind_posx = 0;
     part.ind_posy = 1;
     part.ind_posz = 2;
@@ -318,16 +319,28 @@ inline void read_sinks(particle_t &part, H5::H5File const &file)
     part.ind_velz = 5;
     part.ind_mass = 59;
 
+    // Loop over all possible number of particles
+    // Particles are always allocated in chucks of 100
     for (size_t i=1; i < 100; ++i)
     {
+      // Determine number of particles in current iteration step
       part.npart = 100 * i;
-      if (tot_entries / (100 * i) < 200)
+      // Check if we found the correct size
+      // Fraction of total number of entries to number of particles
+      // should result in number of properties
+      // First condition checks that we are in the right ball park
+      // second condition check that the fraction is round.
+      if ((tot_entries / (100 * i) < 150) && (tot_entries % (100 * i) == 0))
       {
+        // Determine number of properties
+        // and exit loop
         part.nprop = tot_entries / (100 * i);
         break;
       }
     }
   }
+  std::cout << "Number of particles: " << part.npart << "\n";
+  std::cout << "Number of properties: " << part.nprop << "\n";
 }
 
 // Read variable field
