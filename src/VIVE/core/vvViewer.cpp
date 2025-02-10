@@ -240,9 +240,9 @@ vvViewer::vvViewer()
     viewDir.set(0.0f, 0.0f, 0.0f);
 
     //initial view position
-    float xp = coCoviseConfig::getFloat("x", "COVER.ViewerPosition", 0.0f);
-    float yp = coCoviseConfig::getFloat("y", "COVER.ViewerPosition", -2000.0f);
-    float zp = coCoviseConfig::getFloat("z", "COVER.ViewerPosition", 30.0f);
+    float xp = coCoviseConfig::getFloat("x", "VIVE.ViewerPosition", 0.0f);
+    float yp = coCoviseConfig::getFloat("y", "VIVE.ViewerPosition", -2000.0f);
+    float zp = coCoviseConfig::getFloat("z", "VIVE.ViewerPosition", 30.0f);
     viewPos.set(xp, yp, zp);
 
     initialViewPos = viewPos;
@@ -253,7 +253,7 @@ vvViewer::vvViewer()
 
     //separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
     arTracking = false;
-    if (coCoviseConfig::isOn("COVER.MarkerTracking.TrackViewpoint", false))
+    if (coCoviseConfig::isOn("VIVE.MarkerTracking.TrackViewpoint", false))
     {
         arTracking = true;
        // vpMarker = MarkerTracking::instance()->getMarker("ViewpointMarker");
@@ -414,21 +414,21 @@ vvViewer::config()
 
     assignRecordAndSubmitTaskAndPresentation(commandGraphs);
 
-    float r = coCoviseConfig::getFloat("r", "COVER.Background", 0.0f);
-    float g = coCoviseConfig::getFloat("g", "COVER.Background", 0.0f);
-    float b = coCoviseConfig::getFloat("b", "COVER.Background", 0.0f);
+    float r = coCoviseConfig::getFloat("r", "VIVE.Background", 0.0f);
+    float g = coCoviseConfig::getFloat("g", "VIVE.Background", 0.0f);
+    float b = coCoviseConfig::getFloat("b", "VIVE.Background", 0.0f);
     backgroundColor = vsg::vec4(r, g, b, 1.0f);
 
     setClearColor(backgroundColor);
 
     // create the windows and run the threads.
-    if (coCoviseConfig::isOn("COVER.MultiThreaded", false))
+    if (coCoviseConfig::isOn("VIVE.MultiThreaded", false))
     {
         cerr << "vvViewer: using one thread per camera" << endl;
     }
     else
     {
-        std::string threadingMode = coCoviseConfig::getEntry("COVER.MultiThreaded");
+        std::string threadingMode = coCoviseConfig::getEntry("VIVE.MultiThreaded");
         /*if (threadingMode == "CullDrawThreadPerContext")
         {
             setThreadingModel(CullDrawThreadPerContext);
@@ -470,7 +470,7 @@ vvViewer::config()
 
 
     bool syncToVBlankConfigured = false;
-    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", false, &syncToVBlankConfigured);
+    bool syncToVBlank = covise::coCoviseConfig::isOn("VIVE.SyncToVBlank", false, &syncToVBlankConfigured);
     for (size_t i=0; i<vvConfig::instance()->numWindows(); ++i)
     {
         if (syncToVBlankConfigured)
@@ -1017,7 +1017,7 @@ vvViewer::readConfigFile()
     static float init_cereal_analog_value = 0.0;
 
     screen_angle = NULL;
-    string line = coCoviseConfig::getEntry("analogInput", "COVER.Input.CerealConfig.ScreenAngle");
+    string line = coCoviseConfig::getEntry("analogInput", "VIVE.Input.CerealConfig.ScreenAngle");
     if (!line.empty())
     {
         char hpr;
@@ -1028,7 +1028,7 @@ vvViewer::readConfigFile()
         // parameters:  Analog Input, min, max, minangle, maxangle, screen, HPR
         //if(sscanf(line,   "%d %f %f %f %f %d %c",
 
-        const char *configEntry = "COVER.Input.CerealConfig.ScreenAngle";
+        const char *configEntry = "VIVE.Input.CerealConfig.ScreenAngle";
 
         screen_angle->analogInput = coCoviseConfig::getInt("analogInput", configEntry, 0);
         screen_angle->cmin = coCoviseConfig::getFloat("cmin", configEntry, 0.0f);
@@ -1067,12 +1067,12 @@ vvViewer::readConfigFile()
 
     strcpy(stereoCommand, "");
     strcpy(monoCommand, "");
-    line = coCoviseConfig::getEntry("command", "COVER.Stereo");
+    line = coCoviseConfig::getEntry("command", "VIVE.Stereo");
     if (!line.empty())
     {
         strcpy(stereoCommand, line.c_str());
     }
-    line = coCoviseConfig::getEntry("command", "COVER.Mono");
+    line = coCoviseConfig::getEntry("command", "VIVE.Mono");
     if (!line.empty())
     {
         strcpy(monoCommand, line.c_str());

@@ -315,15 +315,15 @@ coMenu *vvPluginSupport::getMenu()
         double h = 0, p = 0, r = 0;
         float size = 1;
         m_vruiMenu = new coRowMenu("COVER");
-        m_vruiMenu->setVisible(coCoviseConfig::isOn("COVER.Menu.Visible", true));
+        m_vruiMenu->setVisible(coCoviseConfig::isOn("VIVE.Menu.Visible", true));
 
-        xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
-        yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);
-        zp = coCoviseConfig::getFloat("z", "COVER.Menu.Position", 0.0);
-        h = coCoviseConfig::getFloat("h", "COVER.Menu.Orientation", 0.0);
-        p = coCoviseConfig::getFloat("p", "COVER.Menu.Orientation", 0.0);
-        r = coCoviseConfig::getFloat("r", "COVER.Menu.Orientation", 0.0);
-        size = coCoviseConfig::getFloat("COVER.Menu.Size", 0.0);
+        xp = coCoviseConfig::getFloat("x", "VIVE.Menu.Position", 0.0);
+        yp = coCoviseConfig::getFloat("y", "VIVE.Menu.Position", 0.0);
+        zp = coCoviseConfig::getFloat("z", "VIVE.Menu.Position", 0.0);
+        h = coCoviseConfig::getFloat("h", "VIVE.Menu.Orientation", 0.0);
+        p = coCoviseConfig::getFloat("p", "VIVE.Menu.Orientation", 0.0);
+        r = coCoviseConfig::getFloat("r", "VIVE.Menu.Orientation", 0.0);
+        size = coCoviseConfig::getFloat("VIVE.Menu.Size", 0.0);
 
         if (size <= 0)
             size = 1;
@@ -707,18 +707,18 @@ coToolboxMenu *vvPluginSupport::getToolBar(bool create)
 
         //////////////////////////////////////////////////////////
         // position AK-Toolbar and make it visible
-        float x = coCoviseConfig::getFloat("x", "COVER.Plugin.AKToolbar.Position", -400);
-        float y = coCoviseConfig::getFloat("y", "COVER.Plugin.AKToolbar.Position", -200);
-        float z = coCoviseConfig::getFloat("z", "COVER.Plugin.AKToolbar.Position", 0);
+        float x = coCoviseConfig::getFloat("x", "VIVE.Plugin.AKToolbar.Position", -400);
+        float y = coCoviseConfig::getFloat("y", "VIVE.Plugin.AKToolbar.Position", -200);
+        float z = coCoviseConfig::getFloat("z", "VIVE.Plugin.AKToolbar.Position", 0);
 
-        float h = coCoviseConfig::getFloat("h", "COVER.Plugin.AKToolbar.Orientation", 0);
-        float p = coCoviseConfig::getFloat("p", "COVER.Plugin.AKToolbar.Orientation", 0);
-        float r = coCoviseConfig::getFloat("r", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float h = coCoviseConfig::getFloat("h", "VIVE.Plugin.AKToolbar.Orientation", 0);
+        float p = coCoviseConfig::getFloat("p", "VIVE.Plugin.AKToolbar.Orientation", 0);
+        float r = coCoviseConfig::getFloat("r", "VIVE.Plugin.AKToolbar.Orientation", 0);
 
-        float scale = coCoviseConfig::getFloat("COVER.Plugin.AKToolbar.Scale", 0.2f);
+        float scale = coCoviseConfig::getFloat("VIVE.Plugin.AKToolbar.Scale", 0.2f);
 
         int attachment = coUIElement::TOP;
-        std::string att = coCoviseConfig::getEntry("COVER.Plugin.AKToolbar.Attachment");
+        std::string att = coCoviseConfig::getEntry("VIVE.Plugin.AKToolbar.Attachment");
         if (att != "")
         {
             if (!strcasecmp(att.c_str(), "BOTTOM"))
@@ -1093,7 +1093,7 @@ void vvPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg)  const
                     trackingMsg.getRotationPointSize());
             else
                 vvNavigationManager::instance()->disableRotationPoint();
-            if (coCoviseConfig::isOn("COVER.showRotationPoint", true))
+            if (coCoviseConfig::isOn("VIVE.showRotationPoint", true))
                 vvNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
             else
                 vvNavigationManager::instance()->setRotationPointVisible(false);

@@ -47,10 +47,10 @@ void vvQuitDialog::init()
     quitMenu_->setAttachment(coUIElement::RIGHT);
     VSGVruiMatrix transMatrix, scaleMatrix, rotateMatrix, matrix;
 
-    double px = coCoviseConfig::getFloat("x", "COVER.QuitMenu.Position", 0.0);
-    double py = coCoviseConfig::getFloat("y", "COVER.QuitMenu.Position", 0.0);
-    double pz = coCoviseConfig::getFloat("z", "COVER.QuitMenu.Position", 0.0);
-    double s = coCoviseConfig::getFloat("value", "COVER.QuitMenu.Size", 1.0f);
+    double px = coCoviseConfig::getFloat("x", "VIVE.QuitMenu.Position", 0.0);
+    double py = coCoviseConfig::getFloat("y", "VIVE.QuitMenu.Position", 0.0);
+    double pz = coCoviseConfig::getFloat("z", "VIVE.QuitMenu.Position", 0.0);
+    double s = coCoviseConfig::getFloat("value", "VIVE.QuitMenu.Size", 1.0f);
 
     matrix.makeIdentity();
     transMatrix.setMatrix(vsg::translate(px, py, pz));

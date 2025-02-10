@@ -125,7 +125,7 @@ vvConfig::vvConfig()
     }
     else
     {
-        m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+        m_dLevel = coCoviseConfig::getInt("VIVE.DebugLevel", 0);
     }
     
     int hsize, vsize, x, y, z;
@@ -133,92 +133,92 @@ vvConfig::vvConfig()
 
     constFrameTime = 0.1f;
     constantFrameRate = false;
-    float frameRate = (float)coCoviseConfig::getInt("COVER.ConstantFrameRate", 0);
+    float frameRate = (float)coCoviseConfig::getInt("VIVE.ConstantFrameRate", 0);
     if (frameRate > 0)
     {
         constantFrameRate = true;
         constFrameTime = 1.0f / frameRate;
     }
-    m_continuousRendering = coCoviseConfig::isOn("COVER.ContinuousRendering", m_continuousRendering);
-    m_lockToCPU = coCoviseConfig::getInt("COVER.LockToCPU", -1);
-    m_freeze = coCoviseConfig::isOn("COVER.Freeze", false); // don't freeze by default
-    m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
-    m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
-    m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
+    m_continuousRendering = coCoviseConfig::isOn("VIVE.ContinuousRendering", m_continuousRendering);
+    m_lockToCPU = coCoviseConfig::getInt("VIVE.LockToCPU", -1);
+    m_freeze = coCoviseConfig::isOn("VIVE.Freeze", false); // don't freeze by default
+    m_sceneSize = coCoviseConfig::getFloat("VIVE.SceneSize", 2000.0);
+    m_farClip = coCoviseConfig::getFloat("VIVE.Far", 10000000);
+    m_nearClip = coCoviseConfig::getFloat("VIVE.Near", 10.0f);
     int numScreens = coConfigConstants::getShmGroupRootRank()<0 || coConfigConstants::getRank()==coConfigConstants::getShmGroupRootRank() ? 1 : 0;
-    numScreens = coCoviseConfig::getInt("COVER.NumScreens", numScreens);
+    numScreens = coCoviseConfig::getInt("VIVE.NumScreens", numScreens);
     if (numScreens < 0)
     {
-        std::cerr << "COVER.NumScreens cannot be < 0" << std::endl;
+        std::cerr << "VIVE.NumScreens cannot be < 0" << std::endl;
         exit(1);
     }
     if (numScreens > 50)
     {
-	std::cerr << "COVER.NumScreens cannot be > 50" << std::endl;
+	std::cerr << "VIVE.NumScreens cannot be > 50" << std::endl;
 	exit(1);
     }
     screens.resize(numScreens);
 
-    const int numChannels = coCoviseConfig::getInt("COVER.NumChannels", numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
+    const int numChannels = coCoviseConfig::getInt("VIVE.NumChannels", numScreens); // normally numChannels == numScreens, only if we use PBOs, it might be equal to the number of PBOs
     channels.resize(numChannels);
     
-    const int numWindows = coCoviseConfig::getInt("COVER.NumWindows", numScreens);
+    const int numWindows = coCoviseConfig::getInt("VIVE.NumWindows", numScreens);
     if (numWindows < 0)
     {
-	std::cerr << "COVER.NumWindows cannot be < 0" << std::endl;
+	std::cerr << "VIVE.NumWindows cannot be < 0" << std::endl;
 	exit(1);
     }
     if (numWindows > 50)
     {
-	std::cerr << "COVER.NumWindows cannot be > 50" << std::endl;
+	std::cerr << "VIVE.NumWindows cannot be > 50" << std::endl;
 	exit(1);
     }
     windows.resize(numWindows);
 
-    const int numViewports = coCoviseConfig::getInt("COVER.NumViewports", numChannels); // normally this is equal to the number of Channels
+    const int numViewports = coCoviseConfig::getInt("VIVE.NumViewports", numChannels); // normally this is equal to the number of Channels
     if (numViewports < 0)
     {
-	std::cerr << "COVER.NumViewports cannot be negative" << std::endl;
+	std::cerr << "VIVE.NumViewports cannot be negative" << std::endl;
 	exit(1);
     }
     viewports.resize(numViewports);
 
-    const int numBlendingTextures = coCoviseConfig::getInt("COVER.NumBlendingTextures", 0); 
+    const int numBlendingTextures = coCoviseConfig::getInt("VIVE.NumBlendingTextures", 0); 
     if (numBlendingTextures < 0)
     {
-	std::cerr << "COVER.NumBlendingTextures cannot be negative" << std::endl;
+	std::cerr << "VIVE.NumBlendingTextures cannot be negative" << std::endl;
 	exit(1);
     }
     blendingTextures.resize(numBlendingTextures);
 
-    const int numPBOs = coCoviseConfig::getInt("COVER.NumPBOs", 0);
+    const int numPBOs = coCoviseConfig::getInt("VIVE.NumPBOs", 0);
     if (numPBOs < 0)
     {
-	std::cerr << "COVER.NumPBOs cannot be negative" << std::endl;
+	std::cerr << "VIVE.NumPBOs cannot be negative" << std::endl;
 	exit(1);
     }
     PBOs.resize(numPBOs);
 
-    const int numPipes = coCoviseConfig::getInt("COVER.NumPipes", 1);
+    const int numPipes = coCoviseConfig::getInt("VIVE.NumPipes", 1);
     if (numPipes < 1)
     {
-	std::cerr << "COVER.NumPipes cannot be < 1" << std::endl;
+	std::cerr << "VIVE.NumPipes cannot be < 1" << std::endl;
 	exit(1);
     }
     if (numPipes > 50)
     {
-	std::cerr << "COVER.NumPipes cannot be > 50" << std::endl;
+	std::cerr << "VIVE.NumPipes cannot be > 50" << std::endl;
 	exit(1);
     }
     pipes.resize(numPipes);
 
-    glVersion = coCoviseConfig::getEntry("COVER.GLVersion");
-    glProfileMask = coCoviseConfig::getEntry("COVER.GLProfileMast");
-    glContextFlags = coCoviseConfig::getEntry("COVER.GLContextFlags");
-    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
-    m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
+    glVersion = coCoviseConfig::getEntry("VIVE.GLVersion");
+    glProfileMask = coCoviseConfig::getEntry("VIVE.GLProfileMast");
+    glContextFlags = coCoviseConfig::getEntry("VIVE.GLContextFlags");
+    m_stencil = coCoviseConfig::isOn("VIVE.Stencil", true);
+    m_stencilBits = coCoviseConfig::getInt("VIVE.StencilBits", 1);
     m_stereoSeparation = 64.0f;
-    std::string line = coCoviseConfig::getEntry("separation", "COVER.Stereo");
+    std::string line = coCoviseConfig::getEntry("separation", "VIVE.Stereo");
     if (!line.empty())
     {
         if (strncmp(line.c_str(), "AUTO", 4) == 0)
@@ -236,24 +236,24 @@ vvConfig::vvConfig()
 
     m_monoView = MONO_MIDDLE;
 
-    m_useDisplayLists = coCoviseConfig::isOn("COVER.UseDisplayLists", false);
-    m_useVBOs = coCoviseConfig::isOn("COVER.UseVertexBufferObjects", !m_useDisplayLists);
+    m_useDisplayLists = coCoviseConfig::isOn("VIVE.UseDisplayLists", false);
+    m_useVBOs = coCoviseConfig::isOn("VIVE.UseVertexBufferObjects", !m_useDisplayLists);
 
-    multisample = coCoviseConfig::isOn("COVER.Multisample", false);
-    multisampleInvert = coCoviseConfig::isOn(std::string("invert"), std::string("COVER.Multisample"), false);
-    multisampleSamples = coCoviseConfig::getInt("numSamples", "COVER.Multisample", 2);
-    multisampleSampleBuffers = coCoviseConfig::getInt("numBuffers", "COVER.Multisample", 2);
-    multisampleCoverage = coCoviseConfig::getFloat("sampleCoverage", "COVER.Multisample", 1.0);
+    multisample = coCoviseConfig::isOn("VIVE.Multisample", false);
+    multisampleInvert = coCoviseConfig::isOn(std::string("invert"), std::string("VIVE.Multisample"), false);
+    multisampleSamples = coCoviseConfig::getInt("numSamples", "VIVE.Multisample", 2);
+    multisampleSampleBuffers = coCoviseConfig::getInt("numBuffers", "VIVE.Multisample", 2);
+    multisampleCoverage = coCoviseConfig::getFloat("sampleCoverage", "VIVE.Multisample", 1.0);
 
-    std::string msMode = coCoviseConfig::getEntry("mode", "COVER.Multisample", "FASTEST");
+    std::string msMode = coCoviseConfig::getEntry("mode", "VIVE.Multisample", "FASTEST");
 
 
-    m_useWiiMote = coCoviseConfig::isOn("COVER.Input.WiiMote", false);
-    m_useWiiNavVisenso = coCoviseConfig::isOn("COVER.Input.WiiNavigationVisenso", false);
-    m_menuModeOn = coCoviseConfig::isOn("COVER.MenuMode", false);
-    m_coloringSceneInMenuMode = coCoviseConfig::isOn("COVER.MenuMode.Coloring", true);
+    m_useWiiMote = coCoviseConfig::isOn("VIVE.Input.WiiMote", false);
+    m_useWiiNavVisenso = coCoviseConfig::isOn("VIVE.Input.WiiNavigationVisenso", false);
+    m_menuModeOn = coCoviseConfig::isOn("VIVE.MenuMode", false);
+    m_coloringSceneInMenuMode = coCoviseConfig::isOn("VIVE.MenuMode.Coloring", true);
 
-    std::string entry = coCoviseConfig::getEntry("COVER.MonoView");
+    std::string entry = coCoviseConfig::getEntry("VIVE.MonoView");
     if (!entry.empty())
     {
         if (strcasecmp(entry.c_str(), "LEFT") == 0)
@@ -263,11 +263,11 @@ vvConfig::vvConfig()
         if (strcasecmp(entry.c_str(), "NONE") == 0)
             m_monoView = MONO_NONE;
     }
-    entry = coCoviseConfig::getEntry("COVER.StereoMode");
+    entry = coCoviseConfig::getEntry("VIVE.StereoMode");
     m_stereoMode = parseStereoMode(entry.c_str());
 
     m_envMapMode = FIXED_TO_VIEWER;
-    entry = coCoviseConfig::getEntry("COVER.EnvMapMode");
+    entry = coCoviseConfig::getEntry("VIVE.EnvMapMode");
     if (!entry.empty())
     {
         if (strcasecmp(entry.c_str(), "fixedToViewer") == 0)
@@ -282,15 +282,15 @@ vvConfig::vvConfig()
             m_envMapMode = NONE;
     }
 
-    m_LODScale = coCoviseConfig::getFloat("COVER.LODScale", 1.0);
-    m_worldAngle = coCoviseConfig::getFloat("COVER.WorldAngle", 0.);
+    m_LODScale = coCoviseConfig::getFloat("VIVE.LODScale", 1.0);
+    m_worldAngle = coCoviseConfig::getFloat("VIVE.WorldAngle", 0.);
 
-    //drawStatistics = coCoviseConfig::isOn("COVER.Statistics", false) ? vvStatsDisplay::VIEWER_STATS : vvStatsDisplay::NO_STATS;
-    HMDMode = coCoviseConfig::isOn("mode", std::string("COVER.HMD"), false);
-    HMDViewingAngle = coCoviseConfig::getFloat("angle", "COVER.HMD", 60.0f);
+    //drawStatistics = coCoviseConfig::isOn("VIVE.Statistics", false) ? vvStatsDisplay::VIEWER_STATS : vvStatsDisplay::NO_STATS;
+    HMDMode = coCoviseConfig::isOn("mode", std::string("VIVE.HMD"), false);
+    HMDViewingAngle = coCoviseConfig::getFloat("angle", "VIVE.HMD", 60.0f);
 
     // tracked HMD
-    trackedHMD = coCoviseConfig::isOn("tracked", std::string("COVER.HMD"), false);
+    trackedHMD = coCoviseConfig::isOn("tracked", std::string("VIVE.HMD"), false);
 
     if (debugLevel(2))
         fprintf(stderr, "\nnew vvConfig\n");
@@ -303,7 +303,7 @@ vvConfig::vvConfig()
         float h, p, r;
         
         char str[200];
-        sprintf(str, "COVER.ScreenConfig.Screen:%d", (int)i);
+        sprintf(str, "VIVE.ScreenConfig.Screen:%d", (int)i);
         bool state = vvVIVEConfig::getScreenConfigEntry((int)i, screens[i].name, &hsize, &vsize, &x, &y, &z, &h, &p, &r);
         if (!state)
         {
@@ -340,7 +340,7 @@ vvConfig::vvConfig()
     for (size_t i = 0; i < pipes.size(); i++)
     {
         char str[200];
-        sprintf(str, "COVER.PipeConfig.Pipe:%d", (int)i);
+        sprintf(str, "VIVE.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
         pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
@@ -354,7 +354,7 @@ vvConfig::vvConfig()
         w.window = NULL;
 
         char str[200];
-        sprintf(str, "COVER.WindowConfig.Window:%d", (int)i);
+        sprintf(str, "VIVE.WindowConfig.Window:%d", (int)i);
 
         w.name = coCoviseConfig::getEntry("comment", str, "COVER");
         w.pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
@@ -388,7 +388,7 @@ vvConfig::vvConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.ChannelConfig.Channel:%d", (int)i);
+        sprintf(str, "VIVE.ChannelConfig.Channel:%d", (int)i);
         std::string s = coCoviseConfig::getEntry("comment", str, "NoNameChannel");
         channels[i].name = s;
         stereoM = coCoviseConfig::getEntry("stereoMode", str);
@@ -444,14 +444,14 @@ vvConfig::vvConfig()
             exit(1);
         }
     }
-    m_stereoState = coCoviseConfig::isOn("COVER.Stereo", m_stereoState);
+    m_stereoState = coCoviseConfig::isOn("VIVE.Stereo", m_stereoState);
 
     for (size_t i = 0; i < PBOs.size(); i++)
     {
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.PBOConfig.PBO:%d", (int)i);
+        sprintf(str, "VIVE.PBOConfig.PBO:%d", (int)i);
         
         PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
         PBOs[i].PBOsx = coCoviseConfig::getInt("width", str, PBOs[i].PBOsx);
@@ -465,7 +465,7 @@ vvConfig::vvConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "COVER.ViewportConfig.Viewport:%d", (int)i);
+        sprintf(str, "VIVE.ViewportConfig.Viewport:%d", (int)i);
         viewportStruct &vp = viewports[i];
         std::string mode = coCoviseConfig::getEntry("mode", str, "");
         mode = toLower(mode);
@@ -496,7 +496,7 @@ vvConfig::vvConfig()
         {
             // no viewport config, check for values in channelConfig for backward compatibility
 
-            sprintf(str, "COVER.ChannelConfig.Channel:%d", (int)i);
+            sprintf(str, "VIVE.ChannelConfig.Channel:%d", (int)i);
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
             if (!exists)
             {
@@ -649,7 +649,7 @@ vvConfig::vvConfig()
     for (size_t i = 0; i < blendingTextures.size(); i++)
     {
         char str[200];
-        sprintf(str, "COVER.BlendingTextureConfig.BlendingTexture:%d", (int)i);
+        sprintf(str, "VIVE.BlendingTextureConfig.BlendingTexture:%d", (int)i);
         blendingTextureStruct &bt = blendingTextures[i];
         bool exists=false;
         bt.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
@@ -694,7 +694,7 @@ vvConfig::vvConfig()
 
     }
 
-    std::string lang = coCoviseConfig::getEntry("value", "COVER.Menu.Language", "ENGLISH");
+    std::string lang = coCoviseConfig::getEntry("value", "VIVE.Menu.Language", "ENGLISH");
     if (lang == "GERMAN")
         m_language = GERMAN;
     else

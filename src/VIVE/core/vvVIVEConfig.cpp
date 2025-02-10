@@ -22,7 +22,7 @@ vvVIVEConfig::~vvVIVEConfig()
 bool vvVIVEConfig::getScreenConfigEntry(int pos, std::string &name, int *hsize, int *vsize, int *x, int *y, int *z, float *h, float *p, float *r)
 {
     char str[200];
-    sprintf(str, "COVER.ScreenConfig.Screen:%d", pos);
+    sprintf(str, "VIVE.ScreenConfig.Screen:%d", pos);
     name = coCoviseConfig::getEntry("comment", str, "NoNameWindow");
     std::string frustum = coCoviseConfig::getEntry("frustum", str, "");
     if (frustum.length() == 0)

@@ -47,7 +47,7 @@ vvIntersectionInteractor::vvIntersectionInteractor(float s, coInteraction::Inter
     _hit = false;
     _intersectionEnabled = false;
     _justHit = true;
-    _standardHL = covise::coCoviseConfig::isOn("COVER.StandardInteractorHighlight", true);
+    _standardHL = covise::coCoviseConfig::isOn("VIVE.StandardInteractorHighlight", true);
 
     moveTransform = vsg::MatrixTransform::create();
 
@@ -84,7 +84,7 @@ vvIntersectionInteractor::vvIntersectionInteractor(float s, coInteraction::Inter
 
     // constantInteractorSize_= On: Uwe Mode: scale icon to keep size indepened of interactor position and world scale
     // constantInteractorSize_= Off: Daniela Mode: scale icon to keep _interactorSize independed of world scale
-    constantInteractorSize_ = covise::coCoviseConfig::isOn("COVER.ConstantInteractorSize", true);
+    constantInteractorSize_ = covise::coCoviseConfig::isOn("VIVE.ConstantInteractorSize", true);
     */
     iconSize_ = 1;
     firstTime = true;

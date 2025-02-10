@@ -443,7 +443,7 @@ vvWindows::createWin(int i)
         return false;
     }
     bool syncToVBlankConfigured = false;
-    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", false, &syncToVBlankConfigured);
+    bool syncToVBlank = covise::coCoviseConfig::isOn("VIVE.SyncToVBlank", false, &syncToVBlankConfigured);
     if (syncToVBlankConfigured)
     {
         if (auto win = ws.window)

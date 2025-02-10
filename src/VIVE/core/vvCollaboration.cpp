@@ -124,10 +124,10 @@ int vvCollaboration::readConfigFile()
     if (vv->debugLevel(3))
         fprintf(stderr, "vvCollaboration::readConfigFile\n");
 
-    syncInterval = covise::coCoviseConfig::getFloat("interval", "COVER.Collaborative.Sync", 0.05f);
+    syncInterval = covise::coCoviseConfig::getFloat("interval", "VIVE.Collaborative.Sync", 0.05f);
     setSyncInterval();
     setSyncMode("LOOSE");
-    std::string sMode = covise::coCoviseConfig::getEntry("mode", "COVER.Collaborative.Sync");
+    std::string sMode = covise::coCoviseConfig::getEntry("mode", "VIVE.Collaborative.Sync");
     if (!sMode.empty())
         setSyncMode(sMode.c_str());
 

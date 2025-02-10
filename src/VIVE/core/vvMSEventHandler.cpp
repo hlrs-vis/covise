@@ -80,11 +80,11 @@ MSEventHandler::MSEventHandler()
 {
     if (vvMSController::instance()->isMaster())
     {
-        handleTerminal = covise::coCoviseConfig::isOn("terminal", "COVER.Input.Keyboard", true);
+        handleTerminal = covise::coCoviseConfig::isOn("terminal", "VIVE.Input.Keyboard", true);
 
         bool useEvent = false;
 #ifdef __linux__
-        devicePathname = covise::coCoviseConfig::getEntry("evdev", "COVER.Input.Keyboard", &useEvent);
+        devicePathname = covise::coCoviseConfig::getEntry("evdev", "VIVE.Input.Keyboard", &useEvent);
         if (useEvent && openEvdev())
         {
             notifyFd = inotify_init();                                                                                             

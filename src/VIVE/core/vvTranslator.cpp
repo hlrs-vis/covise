@@ -40,18 +40,18 @@ std::string vvTranslator::coTranslate(const std::string &msg)
     {
         std::string coviseDir(covisedir);
         //yes, there could be a semicolon in it!
-        retMsg = vtrans::VTrans::translate(covise::coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                           coviseDir + std::string("/") + covise::coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
-                                           covise::coCoviseConfig::getEntry("value", "COVER.Localization.ModuleDomain", ""),
-                                           covise::coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
+        retMsg = vtrans::VTrans::translate(covise::coCoviseConfig::getEntry("value", "VIVE.Localization.TranslatorType", ""),
+                                           coviseDir + std::string("/") + covise::coCoviseConfig::getEntry("value", "VIVE.Localization.LocalePath", ""),
+                                           covise::coCoviseConfig::getEntry("value", "VIVE.Localization.ModuleDomain", ""),
+                                           covise::coCoviseConfig::getEntry("value", "VIVE.Localization.LanguageLocale", ""),
                                            retMsg);
     }
     else
     {
-        retMsg = vtrans::VTrans::translate(covise::coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                                           covise::coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
-                                           covise::coCoviseConfig::getEntry("value", "COVER.Localization.ModuleDomain", ""),
-                                           covise::coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
+        retMsg = vtrans::VTrans::translate(covise::coCoviseConfig::getEntry("value", "VIVE.Localization.TranslatorType", ""),
+                                           covise::coCoviseConfig::getEntry("value", "VIVE.Localization.LocalePath", ""),
+                                           covise::coCoviseConfig::getEntry("value", "VIVE.Localization.ModuleDomain", ""),
+                                           covise::coCoviseConfig::getEntry("value", "VIVE.Localization.LanguageLocale", ""),
                                            retMsg);
     }
 #endif
@@ -64,8 +64,8 @@ std::string vvTranslator::translatePath(const std::string &path)
     std::string localizedPath = path;
 #if 0
     localizedPath = vtrans::PathTranslator::TranslatePath(
-        coCoviseConfig::getEntry("value", "COVER.Localization.LocalePrefix", ".") + "\\"
-        + coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
+        coCoviseConfig::getEntry("value", "VIVE.Localization.LocalePrefix", ".") + "\\"
+        + coCoviseConfig::getEntry("value", "VIVE.Localization.LanguageLocale", ""),
         path);
 #endif
     return localizedPath;

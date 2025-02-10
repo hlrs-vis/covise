@@ -23,8 +23,8 @@ namespace vive
 vvMeasurement::vvMeasurement()
 {
     // settings
-    measureScale_ = covise::coCoviseConfig::getFloat("scale", "COVER.Measure", 1.0f);
-    measureUnit_ = covise::coCoviseConfig::getEntry("unit", "COVER.Measure", "");
+    measureScale_ = covise::coCoviseConfig::getFloat("scale", "VIVE.Measure", 1.0f);
+    measureUnit_ = covise::coCoviseConfig::getEntry("unit", "VIVE.Measure", "");
 
     measureGroup_ = vsg::Group::create();
     vvSceneGraph::instance()->objectsRoot()->addChild(measureGroup_);

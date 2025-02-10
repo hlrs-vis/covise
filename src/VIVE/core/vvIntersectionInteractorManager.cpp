@@ -15,7 +15,7 @@ vvIntersectionInteractorManager::vvIntersectionInteractorManager()
     allIntersectionInteractorsIt = allIntersectionInteractors.begin();
     currentIntersectionInteractor = NULL;
 
-    if (!coCoviseConfig::isOn("COVER.Input.VisensoJoystick", false))
+    if (!coCoviseConfig::isOn("VIVE.Input.VisensoJoystick", false))
         wait_ = true; // wait heisst am ende der Interktorliste einmal warten, damit man bei nicht wii den zeigestrahl auch mal wieder aus den interaktoren raus bekommt
     else
         wait_ = false;
@@ -73,7 +73,7 @@ void vvIntersectionInteractorManager::cycleThroughInteractors(bool forward)
             if (!wait_)
             {
                 allIntersectionInteractorsIt = allIntersectionInteractors.begin();
-                if (!coCoviseConfig::isOn("COVER.Input.VisensoJoystick", false))
+                if (!coCoviseConfig::isOn("VIVE.Input.VisensoJoystick", false))
                     wait_ = true;
                 else
                     wait_ = false;
@@ -85,7 +85,7 @@ void vvIntersectionInteractorManager::cycleThroughInteractors(bool forward)
         }
         else
         {
-            if (!coCoviseConfig::isOn("COVER.Input.VisensoJoystick", false))
+            if (!coCoviseConfig::isOn("VIVE.Input.VisensoJoystick", false))
                 wait_ = true;
             else
                 wait_ = false;

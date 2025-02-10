@@ -136,7 +136,7 @@ vvIntersection::vvIntersection()
         intersectors().push_back(this);
     }
 
-    intersectionDist = coCoviseConfig::getFloat("COVER.PointerAppearance.Intersection", 1000000.0f);
+    intersectionDist = coCoviseConfig::getFloat("VIVE.PointerAppearance.Intersection", 1000000.0f);
 
     intersector = this;
     numIsectAllNodes = 0;
@@ -144,7 +144,7 @@ vvIntersection::vvIntersection()
 
 bool vvIntersection::isVerboseIntersection()
 {
-    static bool verboseIntersection = coCoviseConfig::isOn(std::string("intersect"), std::string("COVER.DebugLevel"), false);
+    static bool verboseIntersection = coCoviseConfig::isOn(std::string("intersect"), std::string("VIVE.DebugLevel"), false);
     return verboseIntersection;
 }
 

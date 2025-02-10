@@ -255,7 +255,7 @@ bool vvVIVE::run()
 {
 	// always parse floats with . as separator
     setlocale(LC_NUMERIC, "C");
-    int dl = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+    int dl = coCoviseConfig::getInt("VIVE.DebugLevel", 0);
 
     if (init())
     {
@@ -300,7 +300,7 @@ bool vvVIVE::init()
 	}
 #endif
 
-    std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
+    std::string startCommand = coCoviseConfig::getEntry("VIVE.StartCommand");
     if (!startCommand.empty())
     {
         std::cerr << "Running COVER.StartCommand " << startCommand << std::flush;
@@ -447,7 +447,7 @@ bool vvVIVE::init()
     //vvConfig::instance()->m_stereoState = vvMSController::instance()->allReduceOr(vvConfig::instance()->m_stereoState);
 
 #ifdef _OPENMP
-    std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
+    std::string openmpThreads = coCoviseConfig::getEntry("value", "VIVE.OMPThreads", "default");
     if (openmpThreads == "default")
     {
     }
@@ -473,7 +473,7 @@ bool vvVIVE::init()
     }
     else
     {
-        omp_set_num_threads(coCoviseConfig::getInt("COVER.OMPThreads", 1));
+        omp_set_num_threads(coCoviseConfig::getInt("VIVE.OMPThreads", 1));
     }
     std::cerr << "Compiled with OpenMP support, using a maximum of " << omp_get_max_threads() << " threads" << std::endl;
     omp_set_nested(true);
@@ -481,9 +481,9 @@ bool vvVIVE::init()
 
 #ifndef _WIN32
 #ifdef USE_X11
-    bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
+    bool useDISPLAY = coCoviseConfig::isOn("VIVE.HonourDisplay", false);
 
-    int debugLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
+    int debugLevel = coCoviseConfig::getInt("VIVE.DebugLevel", 0);
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
@@ -497,9 +497,9 @@ bool vvVIVE::init()
     if (!useDISPLAY)
     {
         bool present = false;
-        if (!coCoviseConfig::isOn("useDISPLAY", "COVER.PipeConfig.Pipe:0", false, &present))
+        if (!coCoviseConfig::isOn("useDISPLAY", "VIVE.PipeConfig.Pipe:0", false, &present))
         {
-            std::string firstPipe = coCoviseConfig::getEntry("server", "COVER.PipeConfig.Pipe:0");
+            std::string firstPipe = coCoviseConfig::getEntry("server", "VIVE.PipeConfig.Pipe:0");
             strcpy(envDisplay, "DISPLAY=:");
             strcat(envDisplay, firstPipe.empty() ? "0" : firstPipe.c_str());
             if (firstPipe.empty())
@@ -609,7 +609,7 @@ bool vvVIVE::init()
 
 	Input::instance()->update(); // requires scenegraph
     
-    vv->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
+    vv->setScale(coCoviseConfig::getFloat("VIVE.DefaultScaleFactor", 1.f));
 
 
     /*std::stringstream str;
@@ -693,7 +693,7 @@ bool vvVIVE::init()
     }
     vvPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
-    string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to vvVIVE at HLRS");
+    string welcomeMessage = coCoviseConfig::getEntry("value", "VIVE.WelcomeMessage", "Welcome to vvVIVE at HLRS");
     
     hud->setText1(welcomeMessage.c_str());
 
@@ -701,7 +701,7 @@ bool vvVIVE::init()
     // initialize movable screen if there (IWR)
     hud->setText3("Tracking");
 
-    bool showHud = coCoviseConfig::isOn("COVER.SplashScreen", true);
+    bool showHud = coCoviseConfig::isOn("VIVE.SplashScreen", true);
     if (showHud)
     {
         hud->show();
@@ -728,7 +728,7 @@ bool vvVIVE::init()
 
     old_fl_time = vv->frameRealTime();
 
-    printFPS = coCoviseConfig::isOn("COVER.FPS", false);
+    printFPS = coCoviseConfig::isOn("VIVE.FPS", false);
 
 #if 0
    sleep(vvMSController::instance()->getID());
@@ -954,17 +954,17 @@ void vvVIVE::loop()
     vvViewer::instance()->disableSync();
     
 
-    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    std::string exitCommand = coCoviseConfig::getEntry("VIVE.ExitCommand");
     if (!exitCommand.empty())
     {
         int ret = system(exitCommand.c_str());
         if (ret == -1)
         {
-            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
+            std::cerr << "VIVE.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
         }
         else if (ret > 0)
         {
-            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
+            std::cerr << "VIVE.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
         }
     }
 
@@ -1318,7 +1318,7 @@ void
 vvVIVE::requestQuit()
 {
     setExitFlag(true);
-     bool terminateOnCoverQuit = coCoviseConfig::isOn("COVER.TerminateCoviseOnQuit", false);
+     bool terminateOnCoverQuit = coCoviseConfig::isOn("VIVE.TerminateCoviseOnQuit", false);
     if (getenv("COVISE_TERMINATE_ON_QUIT"))
     {
         terminateOnCoverQuit = true;

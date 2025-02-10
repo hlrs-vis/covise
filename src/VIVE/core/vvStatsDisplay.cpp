@@ -1419,10 +1419,10 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     bool acquireGPUStats = numCamerasWithTimerQuerySupport == cameras.size();
     acquireGPUStats = true;
 
-    float leftPos = covise::coCoviseConfig::getFloat("leftPos", "COVER.Stats", 10.0f);
+    float leftPos = covise::coCoviseConfig::getFloat("leftPos", "VIVE.Stats", 10.0f);
     float startBlocks = 150.0f;
     float characterSize = 20.0f;
-    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*0.3f);
+    float space = covise::coCoviseConfig::getFloat("space", "VIVE.Stats", characterSize*0.3f);
 
     osg::Vec3 pos(leftPos, _statsHeight - 24.0f, 0.0f);
 

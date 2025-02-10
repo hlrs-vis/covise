@@ -106,7 +106,7 @@ vvCommunication::vvCommunication()
     assert(!s_instance);
 
     srand((unsigned)time(NULL)); // Initialize the random timer
-    ignoreRemoteTransform = coCoviseConfig::isOn("COVER.IgnoreRemoteTransform", false);
+    ignoreRemoteTransform = coCoviseConfig::isOn("VIVE.IgnoreRemoteTransform", false);
 
     subscribeNotification(Notification::Connected, [this]() {
     	registry->setID(me()->ID(), me()->sessionID());

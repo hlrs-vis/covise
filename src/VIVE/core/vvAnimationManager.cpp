@@ -79,9 +79,9 @@ void vvAnimationManager::initAnimMenu()
 
     // Achtung nach diesem Fehler kann man lange suchen (dr):
     // wenn im config.xml dieser Abschnitt fehlt, dann werden nicht die oben definierten default werte genommen sondern die vom vvTui
-    float min = coCoviseConfig::getFloat("min", "COVER.AnimationSpeed", m_animSliderMin);
-    float max = coCoviseConfig::getFloat("max", "COVER.AnimationSpeed", m_animSliderMax);
-    animSpeedStartValue = coCoviseConfig::getFloat("default", "COVER.AnimationSpeed", animSpeedStartValue);
+    float min = coCoviseConfig::getFloat("min", "VIVE.AnimationSpeed", m_animSliderMin);
+    float max = coCoviseConfig::getFloat("max", "VIVE.AnimationSpeed", m_animSliderMax);
+    animSpeedStartValue = coCoviseConfig::getFloat("default", "VIVE.AnimationSpeed", animSpeedStartValue);
 
     if (min > max)
         std::swap(min, max);

@@ -95,7 +95,7 @@ protected:
 coCullVisitor::coCullVisitor()
     : CullVisitor()
 {
-    float cullSize = covise::coCoviseConfig::getFloat("value", "COVER.SmallFeatureCulling", 2.0f);
+    float cullSize = covise::coCoviseConfig::getFloat("value", "VIVE.SmallFeatureCulling", 2.0f);
     setSmallFeatureCullingPixelSize(cullSize);
 }
 

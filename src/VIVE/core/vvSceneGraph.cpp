@@ -301,13 +301,13 @@ int vvSceneGraph::readConfigFile()
     if (vv->debugLevel(3))
         fprintf(stderr, "vvSceneGraph::readConfigFile\n");
 
-    m_scaleFactor = coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.0f);
+    m_scaleFactor = coCoviseConfig::getFloat("VIVE.DefaultScaleFactor", 1.0f);
 
-    m_floorHeight = coCoviseConfig::getFloat("COVER.FloorHeight", -1250.0f);
+    m_floorHeight = coCoviseConfig::getFloat("VIVE.FloorHeight", -1250.0f);
 
-    m_scaleAllOn = coCoviseConfig::isOn("COVER.ScaleAll", false);
+    m_scaleAllOn = coCoviseConfig::isOn("VIVE.ScaleAll", false);
 
-    std::string line = coCoviseConfig::getEntry("COVER.ModelFile");
+    std::string line = coCoviseConfig::getEntry("VIVE.ModelFile");
     if (!line.empty())
     {
         if (vv->debugLevel(3))
@@ -315,12 +315,12 @@ int vvSceneGraph::readConfigFile()
         vvFileManager::instance()->loadFile(line.c_str());
     }
 
-    m_coordAxis = coCoviseConfig::isOn("COVER.CoordAxis", false);
+    m_coordAxis = coCoviseConfig::isOn("VIVE.CoordAxis", false);
 
-    wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
+    wiiPos = coCoviseConfig::getFloat("VIVE.WiiPointerPos", -250.0);
 
     bool configured = false;
-    m_showMenu = coCoviseConfig::isOn("visible", "COVER.UI.VRUI", m_showMenu == MenuAndObjects, &configured)
+    m_showMenu = coCoviseConfig::isOn("visible", "VIVE.UI.VRUI", m_showMenu == MenuAndObjects, &configured)
                      ? MenuAndObjects
                      : MenuHidden;
 
@@ -341,7 +341,7 @@ void vvSceneGraph::initSceneGraph()
     m_scene = vsg::MatrixTransform::create();
 
 
-    std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
+    std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","VIVE.ShadowTechnique","none");
     //vvShadowManager::instance()->setTechnique(shadowTechnique);
 
     m_objectsScene = new vsg::Group();
@@ -371,11 +371,11 @@ void vvSceneGraph::initSceneGraph()
     m_handAxisScaleTransform->matrix = (vsg::scale(scale, scale, scale));
 
     // read icons size from covise.config, default is sceneSize/10
-    m_handIconSize = coCoviseConfig::getFloat("COVER.IconSize", vv->getSceneSize() / 25.0f);
-    m_handIconOffset = coCoviseConfig::getFloat("COVER.IconOffset", 0.0);
+    m_handIconSize = coCoviseConfig::getFloat("VIVE.IconSize", vv->getSceneSize() / 25.0f);
+    m_handIconOffset = coCoviseConfig::getFloat("VIVE.IconOffset", 0.0);
 
     // read icon displacement
-    m_pointerDepth = coCoviseConfig::getFloat("COVER.PointerDepth", m_pointerDepth);
+    m_pointerDepth = coCoviseConfig::getFloat("VIVE.PointerDepth", m_pointerDepth);
     m_pointerDepthTransform->matrix = vsg::translate(0.0, (double)m_pointerDepth, 0.0);
 
     // do not intersect with objects under handDCS
@@ -437,16 +437,16 @@ void vvSceneGraph::initAxis()
     //m_viewerAxisTransform->setName("ViewerAxisTransform");
     m_scene->addChild(m_viewerAxisTransform);
 
-    showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
+    showSmallSceneAxis_ = coCoviseConfig::isOn("VIVE.SmallSceneAxis", false);
     if (showSmallSceneAxis_)
     {
         float sx = 0.1f * vv->getSceneSize();
-        sx = coCoviseConfig::getFloat("COVER.SmallSceneAxis.Size", sx);
+        sx = coCoviseConfig::getFloat("VIVE.SmallSceneAxis.Size", sx);
         if (vv->debugLevel(3))
-            fprintf(stderr, "COVER.SmallSceneAxis.Size=%f\n", sx);
-        float xp = coCoviseConfig::getFloat("x", "COVER.SmallSceneAxis.Position", 500.0);
-        float yp = coCoviseConfig::getFloat("y", "COVER.SmallSceneAxis.Position", 0.0);
-        float zp = coCoviseConfig::getFloat("z", "COVER.SmallSceneAxis.Position", -500);
+            fprintf(stderr, "VIVE.SmallSceneAxis.Size=%f\n", sx);
+        float xp = coCoviseConfig::getFloat("x", "VIVE.SmallSceneAxis.Position", 500.0);
+        float yp = coCoviseConfig::getFloat("y", "VIVE.SmallSceneAxis.Position", 0.0);
+        float zp = coCoviseConfig::getFloat("z", "VIVE.SmallSceneAxis.Position", -500);
         m_smallSceneAxis = loadAxisGeode(0.01f * sx);
         //m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
         m_smallSceneAxisTransform = vsg::MatrixTransform::create();
@@ -455,7 +455,7 @@ void vvSceneGraph::initAxis()
         m_scene->addChild(m_smallSceneAxisTransform);
 
         vvLabel *XLabel, *YLabel, *ZLabel;
-        float fontSize = coCoviseConfig::getFloat("COVER.SmallSceneAxis.FontSize", 100);
+        float fontSize = coCoviseConfig::getFloat("VIVE.SmallSceneAxis.FontSize", 100);
         float lineLen = 0;
         vsg::vec4 red(1, 0, 0, 1);
         vsg::vec4 green(0, 1, 0, 1);
@@ -485,7 +485,7 @@ void vvSceneGraph::initAxis()
     m_viewerAxis->setNodeMask(m_viewerAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     m_objectAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));*/
 
-    if (coCoviseConfig::isOn("COVER.CoordAxis", false))
+    if (coCoviseConfig::isOn("VIVE.CoordAxis", false))
     {
         m_scene->addChild(m_worldAxis);
         m_viewerAxisTransform->addChild(m_viewerAxis);
@@ -1274,13 +1274,13 @@ vvSceneGraph::loadHandIcon(const char *name)
 vsg::Node *
 vvSceneGraph::loadHandLine()
 {
-    if (!coCoviseConfig::isOn("visible", "COVER.PointerAppearance.IconName", true))
+    if (!coCoviseConfig::isOn("visible", "VIVE.PointerAppearance.IconName", true))
         return nullptr;
 
     vsg::Node *result = nullptr;
 
     
-    string iconName = coCoviseConfig::getEntry("COVER.PointerAppearance.IconName");
+    string iconName = coCoviseConfig::getEntry("VIVE.PointerAppearance.IconName");
     if (!iconName.empty())
     {
         auto n = vvFileManager::instance()->loadIcon(iconName.c_str());
@@ -1295,8 +1295,8 @@ vvSceneGraph::loadHandLine()
             // move icon in front of pointer (laser sword)
             float sx = 1.0;
             float sy = 1.0;
-            float width = coCoviseConfig::getFloat("COVER.PointerAppearance.Width", sx);
-            float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
+            float width = coCoviseConfig::getFloat("VIVE.PointerAppearance.Width", sx);
+            float length = coCoviseConfig::getFloat("VIVE.PointerAppearance.Length", sy);
 
             vsg::MatrixTransform *m = vsg::MatrixTransform::create();
 			//m->setName("HandLineMatrixTransform");
@@ -1314,7 +1314,7 @@ vvSceneGraph::loadHandLine()
         result = loadHandIcon("HandLine");
     }
 
-    transparentPointer_ = (coCoviseConfig::isOn("COVER.PointerAppearance.Transparent", false));
+    transparentPointer_ = (coCoviseConfig::isOn("VIVE.PointerAppearance.Transparent", false));
     if (transparentPointer_)
     {
         /*vsg::StateSet* sset = result->getOrCreateStateSet();
@@ -1346,7 +1346,7 @@ vvSceneGraph::getBoundingSphere()
     dirtySpecialBounds();
 
     vsg::Group *scaleNode;
-    if (coCoviseConfig::isOn("COVER.ScaleWithInteractors", false))
+    if (coCoviseConfig::isOn("VIVE.ScaleWithInteractors", false))
         scaleNode = m_scaleTransform;
     else
         scaleNode = m_objectsRoot;
@@ -1621,7 +1621,7 @@ vvSceneGraph::isHighQuality() const
 bool
 vvSceneGraph::saveScenegraph(bool storeWithMenu)
 {
-    std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/VIVE.osgb");
+    std::string filename = coCoviseConfig::getEntry("value", "VIVE.SaveFile", "/var/tmp/VIVE.osgb");
     return saveScenegraph(filename, storeWithMenu);
 }
 
@@ -1748,11 +1748,11 @@ vvSceneGraph::loadGlobalGeostate()
 
     defaultLm = new vsg::LightModel();
 
-    defaultLm->setTwoSided(coCoviseConfig::isOn("COVER.TwoSide", true));
+    defaultLm->setTwoSided(coCoviseConfig::isOn("VIVE.TwoSide", true));
 
     defaultLm->setLocalViewer(true);
     //defaultLm->setTwoSided(true);
-    if (coCoviseConfig::isOn("COVER.SeparateSpecular", true))
+    if (coCoviseConfig::isOn("VIVE.SeparateSpecular", true))
         defaultLm->setColorControl(vsg::LightModel::SEPARATE_SPECULAR_COLOR);
     else
         defaultLm->setColorControl(vsg::LightModel::SINGLE_COLOR);

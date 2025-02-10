@@ -4470,8 +4470,8 @@ vvTabletUI::vvTabletUI(int fd, int fdSg): connectionConfig(fd, fdSg)
 
 void vvTabletUI::config()
 {
-    debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
-    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
+    debugTUIState = coCoviseConfig::isOn("VIVE.DebugTUI", debugTUIState);
+    timeout = coCoviseConfig::getFloat("VIVE.TabletPC.Timeout", timeout);
 }
 
 void vvTabletUI::init()
@@ -4514,9 +4514,9 @@ void vvTabletUI::reinit(const ConfigData &cd)
         }
         else
         {
-            port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
-            line = coCoviseConfig::getEntry("host", "COVER.TabletUI");
-            serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
+            port = coCoviseConfig::getInt("port", "VIVE.TabletUI", port);
+            line = coCoviseConfig::getEntry("host", "VIVE.TabletUI");
+            serverMode = coCoviseConfig::isOn("VIVE.TabletUI.ServerMode", false);
         }
 
         if (!line.empty())

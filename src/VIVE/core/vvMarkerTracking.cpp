@@ -78,7 +78,7 @@ void MarkerTracking::tabletPressEvent(vvTUIElement *tUIItem)
 MarkerTrackingNode::MarkerTrackingNode(std::string MarkerTrackingVariant)
 {
     theNode = this;
-    std::string configPath = "COVER.Plugin.";
+    std::string configPath = "VIVE.Plugin.";
     configPath += MarkerTrackingVariant;
     std::string entry = configPath + "DisplayVideo";
     displayVideo = coCoviseConfig::isOn(entry, true);
@@ -171,7 +171,7 @@ void MarkerTrackingNode::drawImplementation(osg::RenderInfo &renderInfo) const
                 {
                     osgDB::ReaderWriter::Options *options = 0;
 
-                    std::string testimage = coCoviseConfig::getEntry("COVER.TestImage");
+                    std::string testimage = coCoviseConfig::getEntry("VIVE.TestImage");
                     image = osgDB::readImageFile(testimage.c_str(), options);
                 }
 

@@ -2111,7 +2111,7 @@ osg::Uniform *vvShaderList::getDuration()
 osg::Uniform *vvShaderList::getViewportWidth()
 {
     char str[200];
-    sprintf(str, "COVER.WindowConfig.Window:%d", 0);
+    sprintf(str, "VIVE.WindowConfig.Window:%d", 0);
 
     viewportWidthUniform->set(coCoviseConfig::getInt("width", str, 1024));
     return viewportWidthUniform.get();
@@ -2120,7 +2120,7 @@ osg::Uniform *vvShaderList::getViewportWidth()
 osg::Uniform *vvShaderList::getViewportHeight()
 {
     char str[200];
-    sprintf(str, "COVER.WindowConfig.Window:%d", 0);
+    sprintf(str, "VIVE.WindowConfig.Window:%d", 0);
 
     viewportHeightUniform->set(coCoviseConfig::getInt("height", str, 768));
     return viewportHeightUniform.get();

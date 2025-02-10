@@ -118,8 +118,8 @@ void vvLighting::config()
     if (vv->debugLevel(3))
         fprintf(stderr, "vvLighting::readConfigFile\n");
 
-    spotlightState = coCoviseConfig::isOn("COVER.Spotlight", spotlightState);
-    specularlightStrength = coCoviseConfig::isOn("COVER.Specular", specularlightStrength>0.) ? 1.f : 0.f;
+    spotlightState = coCoviseConfig::isOn("VIVE.Spotlight", spotlightState);
+    specularlightStrength = coCoviseConfig::isOn("VIVE.Specular", specularlightStrength>0.) ? 1.f : 0.f;
 }
 
 void vvLighting::initSunLight()
@@ -150,7 +150,7 @@ void vvLighting::initSunLight()
         //setSpecularLight(headlight->getLight(), headlightSpec, f);
 
         addLight(headlight);
-        headlightState = coCoviseConfig::isOn("COVER.Headlight", headlightState);
+        headlightState = coCoviseConfig::isOn("VIVE.Headlight", headlightState);
         switchLight(headlight, headlightState);
     }
     shadowlight = headlight;
@@ -272,7 +272,7 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
     vsg::Light *light = NULL;
 
     char *configEntry = new char[128]; // hope it won't ever be bigger
-    strcpy(configEntry, "COVER.Lights.");
+    strcpy(configEntry, "VIVE.Lights.");
     strcat(configEntry, configName);
     strcat(configEntry, ".");
     char *configBase = configEntry + strlen(configEntry);

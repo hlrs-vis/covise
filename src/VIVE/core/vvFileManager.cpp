@@ -635,7 +635,7 @@ vsg::ref_ptr<vsg::Node> vvFileManager::loadIcon(const char *filename)
     static bool init = false;
     if(!init)
     {
-        std::string look = coCoviseConfig::getEntry("COVER.LookAndFeel");
+        std::string look = coCoviseConfig::getEntry("VIVE.LookAndFeel");
         for (size_t i = 0; i < rawPrefixes.size(); i++)
         {
             auto s = rawPrefixes[i] + (look.empty() ? look : look + "/");
@@ -695,7 +695,7 @@ const char *vvFileManager::buildFileName(const char *texture)
     std::string look;
     if (name == NULL)
     {
-        look = coCoviseConfig::getEntry("COVER.LookAndFeel");
+        look = coCoviseConfig::getEntry("VIVE.LookAndFeel");
         if (!look.empty())
         {
             char *fn = new char[strlen(texture) + strlen(look.c_str()) + 50];
@@ -1248,7 +1248,7 @@ vvFileManager::vvFileManager()
     osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");*/
 
     /*options = new osgDB::ReaderWriter::Options;
-    options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
+    options->setOptionString(coCoviseConfig::getEntry("options", "VIVE.File"));
     osgDB::Registry::instance()->setOptions(options);*/
     remoteFetchHashPrefix = coCoviseConfig::isOn("hash", "System.VRB.RemoteFetch", true, nullptr);
     if (vvVIVE::instance() && vvVIVE::instance()->useVistle())
@@ -1603,7 +1603,7 @@ std::string vvFileManager::getFontFile(const char *fontname)
     }
 
     if (m_defaultFontFile.empty()) {
-        std::string fontFile = coCoviseConfig::getEntry("value", "COVER.Font", fontpath + fallback);
+        std::string fontFile = coCoviseConfig::getEntry("value", "VIVE.Font", fontpath + fallback);
         if (const char *name = getName(fontFile.c_str())) {
             m_defaultFontFile = name;
         } else if (const char *name = getName((fontpath + fallback).c_str())) {
@@ -1733,7 +1733,7 @@ const FileHandler *vvFileManager::findFileHandler(const char *pathname)
         }
         lowerExt[extlen] = '\0';
 
-        sprintf(cEntry, "COVER.FileManager.FileType:%s", lowerExt);
+        sprintf(cEntry, "VIVE.FileManager.FileType:%s", lowerExt);
         string plugin = coCoviseConfig::getEntry("plugin", cEntry);
         delete[] cEntry;
         delete[] lowerExt;

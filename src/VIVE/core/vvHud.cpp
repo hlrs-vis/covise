@@ -45,16 +45,16 @@ vvHud::vvHud()
     osg::StateSet *stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 
-    int width = coCoviseConfig::getInt("width", "COVER.SplashScreen", 640);
-    int height = coCoviseConfig::getInt("height", "COVER.SplashScreen", 480);
-    float pr = coCoviseConfig::getFloat("r", "COVER.SplashScreen.PanelColor", 1.0);
-    float pg = coCoviseConfig::getFloat("g", "COVER.SplashScreen.PanelColor", 1.0);
-    float pb = coCoviseConfig::getFloat("b", "COVER.SplashScreen.PanelColor", 1.0);
-    float pa = coCoviseConfig::getFloat("a", "COVER.SplashScreen.PanelColor", 0.8);
-    float tr = coCoviseConfig::getFloat("r", "COVER.SplashScreen.TextColor", 1.0);
-    float tg = coCoviseConfig::getFloat("g", "COVER.SplashScreen.TextColor", 1.0);
-    float tb = coCoviseConfig::getFloat("b", "COVER.SplashScreen.TextColor", 1.0);
-    float ta = coCoviseConfig::getFloat("a", "COVER.SplashScreen.TextColor", 0.8);
+    int width = coCoviseConfig::getInt("width", "VIVE.SplashScreen", 640);
+    int height = coCoviseConfig::getInt("height", "VIVE.SplashScreen", 480);
+    float pr = coCoviseConfig::getFloat("r", "VIVE.SplashScreen.PanelColor", 1.0);
+    float pg = coCoviseConfig::getFloat("g", "VIVE.SplashScreen.PanelColor", 1.0);
+    float pb = coCoviseConfig::getFloat("b", "VIVE.SplashScreen.PanelColor", 1.0);
+    float pa = coCoviseConfig::getFloat("a", "VIVE.SplashScreen.PanelColor", 0.8);
+    float tr = coCoviseConfig::getFloat("r", "VIVE.SplashScreen.TextColor", 1.0);
+    float tg = coCoviseConfig::getFloat("g", "VIVE.SplashScreen.TextColor", 1.0);
+    float tb = coCoviseConfig::getFloat("b", "VIVE.SplashScreen.TextColor", 1.0);
+    float ta = coCoviseConfig::getFloat("a", "VIVE.SplashScreen.TextColor", 0.8);
 
     //vsg::vec3 position(320.0f,200.0f,0.2f);
     vsg::vec3 position(width / 2., height / 2 - 40, 0.2f);
@@ -138,7 +138,7 @@ vvHud::vvHud()
 
         osg::StateSet *stateset = geom->getOrCreateStateSet();
 
-        string logoFile = coCoviseConfig::getEntry("value", "COVER.SplashScreen", "share/covise/icons/OpenCOVERLogo.tif");
+        string logoFile = coCoviseConfig::getEntry("value", "VIVE.SplashScreen", "share/covise/icons/OpenCOVERLogo.tif");
         const char *logoName = vvFileManager::instance()->getName(logoFile.c_str());
         osg::Image *image = NULL;
         if (logoName && (image = osgDB::readImageFile(logoName)) != NULL)
@@ -251,7 +251,7 @@ void vvHud::hideLater(float time)
         doHide = true;
         hudTime = vv->frameTime();
         if (time < 0.)
-            logoTime = coCoviseConfig::getFloat("COVER.LogoTime", 1.0);
+            logoTime = coCoviseConfig::getFloat("VIVE.LogoTime", 1.0);
         else
             logoTime = time;
     }

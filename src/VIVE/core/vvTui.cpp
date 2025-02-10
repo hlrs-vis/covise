@@ -255,9 +255,9 @@ vvTui::vvTui(vvTabletUI *tui)
 
     //TODO coConfig
     float xp, yp, zp;
-    xp = coCoviseConfig::getFloat("x", "COVER.ViewerPosition", 0.0f);
-    yp = coCoviseConfig::getFloat("y", "COVER.ViewerPosition", -2000.0f);
-    zp = coCoviseConfig::getFloat("z", "COVER.ViewerPosition", 30.0f);
+    xp = coCoviseConfig::getFloat("x", "VIVE.ViewerPosition", 0.0f);
+    yp = coCoviseConfig::getFloat("y", "VIVE.ViewerPosition", -2000.0f);
+    zp = coCoviseConfig::getFloat("z", "VIVE.ViewerPosition", 30.0f);
     viewPos.set(xp, yp, zp);
     posX->setValue(viewPos[0]);
     posY->setValue(viewPos[1]);

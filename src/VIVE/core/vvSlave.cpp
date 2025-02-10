@@ -231,12 +231,12 @@ void vvTcpSlave::start()
     }
     std::string hn(hostname);
 
-    std::string mi = coCoviseConfig::getEntry("COVER.MultiPC.MasterInterface");
+    std::string mi = coCoviseConfig::getEntry("VIVE.MultiPC.MasterInterface");
     if (mi.empty())
     {
         mi = hn;
     }
-    sprintf(cEntry, "COVER.MultiPC.Startup:%d", myID - 1);
+    sprintf(cEntry, "VIVE.MultiPC.Startup:%d", myID - 1);
     string command = coCoviseConfig::getEntry(cEntry);
     if (command.empty())
     {
@@ -246,7 +246,7 @@ void vvTcpSlave::start()
     if (strstr(command.c_str(), "startOpenCover"))
     {
         //connect to remote deamon and trigger startup of cover
-        int defaultPort = coCoviseConfig::getInt("port", "COVER.Daemon", 31090);
+        int defaultPort = coCoviseConfig::getInt("port", "VIVE.Daemon", 31090);
         auto strHost = coCoviseConfig::getEntry("host", cEntry, "");
         auto remPort = coCoviseConfig::getInt("port", cEntry, defaultPort);
 

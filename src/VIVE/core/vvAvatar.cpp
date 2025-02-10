@@ -143,7 +143,7 @@ void PartnerAvatar::loadPartnerIcon()
 }
 
 
-RecordedAvatar::RecordedAvatar() : m_icon(covise::coCoviseConfig::getEntry("value", "COVER.Collaborative.Icon", "$COVISE_PATH/share/covise/icons/hosts/localhost.obj"))
+RecordedAvatar::RecordedAvatar() : m_icon(covise::coCoviseConfig::getEntry("value", "VIVE.Collaborative.Icon", "$COVISE_PATH/share/covise/icons/hosts/localhost.obj"))
 {
     m_head.push_back(headTransform->matrix);
     m_hand.push_back(handTransform->matrix);

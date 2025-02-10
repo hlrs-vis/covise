@@ -116,7 +116,7 @@ vvVruiRenderInterface::vvVruiRenderInterface()
     vruiRendererInterface::theInterface = this;
     vvIntersection::instance();
 
-    look = coCoviseConfig::getEntry("COVER.LookAndFeel");
+    look = coCoviseConfig::getEntry("VIVE.LookAndFeel");
 }
 
 vvVruiRenderInterface::~vvVruiRenderInterface()

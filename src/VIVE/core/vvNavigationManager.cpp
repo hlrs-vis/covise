@@ -166,7 +166,7 @@ void vvNavigationManager::init()
 
     oldHandPos = vsg::dvec3(0, 0, 0);
 
-    float radius = coCoviseConfig::getFloat("COVER.rotationPointSize", 0.5); // obsolete config-rotationPointSize
+    float radius = coCoviseConfig::getFloat("VIVE.rotationPointSize", 0.5); // obsolete config-rotationPointSize
 
 
 
@@ -260,9 +260,9 @@ void vvNavigationManager::initInteractionDevice()
     interactionMenu = new coNavInteraction(coInteraction::ButtonA, "MenuMode", coInteraction::Menu);
     interactionShortcut = new coNavInteraction(coInteraction::NoButton, "Keyboard", coInteraction::Low);
 
-    mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "COVER.Input.MouseNav", 0);
-    mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
-    mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "COVER.Input.MouseNav", 2);
+    mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "VIVE.Input.MouseNav", 0);
+    mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "VIVE.Input.MouseNav", 1);
+    mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "VIVE.Input.MouseNav", 2);
     interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
     interactionMA->setGroup(coInteraction::GroupNavigation);
     interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
@@ -320,31 +320,31 @@ int vvNavigationManager::readConfigFile()
     if (vv->debugLevel(3))
         fprintf(stderr, "vvNavigationManager::readConfigFile\n");
 
-    navExp = coCoviseConfig::getFloat("COVER.NavExpBase", (float)navExp);
+    navExp = coCoviseConfig::getFloat("VIVE.NavExpBase", (float)navExp);
 
-    collisionDist = coCoviseConfig::getFloat("COVER.CollisionDist", 80.0f);
+    collisionDist = coCoviseConfig::getFloat("VIVE.CollisionDist", 80.0f);
 
-    stepSize = coCoviseConfig::getFloat("COVER.StepSize", 400.0f);
+    stepSize = coCoviseConfig::getFloat("VIVE.StepSize", 400.0f);
 
-    jsXmax = coCoviseConfig::getInt("xmax", "COVER.Input.Joystick", 1000);
-    jsYmax = coCoviseConfig::getInt("ymax", "COVER.Input.Joystick", 1000);
-    jsXmin = coCoviseConfig::getInt("xmin", "COVER.Input.Joystick", 0);
-    jsYmin = coCoviseConfig::getInt("ymin", "COVER.Input.Joystick", 0);
-    jsZeroPosX = coCoviseConfig::getInt("zerox", "COVER.Input.Joystick", 500);
-    jsZeroPosY = coCoviseConfig::getInt("zeroy", "COVER.Input.Joystick", 500);
+    jsXmax = coCoviseConfig::getInt("xmax", "VIVE.Input.Joystick", 1000);
+    jsYmax = coCoviseConfig::getInt("ymax", "VIVE.Input.Joystick", 1000);
+    jsXmin = coCoviseConfig::getInt("xmin", "VIVE.Input.Joystick", 0);
+    jsYmin = coCoviseConfig::getInt("ymin", "VIVE.Input.Joystick", 0);
+    jsZeroPosX = coCoviseConfig::getInt("zerox", "VIVE.Input.Joystick", 500);
+    jsZeroPosY = coCoviseConfig::getInt("zeroy", "VIVE.Input.Joystick", 500);
 
-    jsOffsetX = coCoviseConfig::getInt("x", "COVER.Input.Offset", 20);
-    jsOffsetY = coCoviseConfig::getInt("y", "COVER.Input.Offset", 20);
+    jsOffsetX = coCoviseConfig::getInt("x", "VIVE.Input.Offset", 20);
+    jsOffsetY = coCoviseConfig::getInt("y", "VIVE.Input.Offset", 20);
 
-    jsEnabled = coCoviseConfig::isOn("COVER.Input.Joystick", false);
-    visensoJoystick = coCoviseConfig::isOn("COVER.Input.VisensoJoystick", false);
+    jsEnabled = coCoviseConfig::isOn("VIVE.Input.Joystick", false);
+    visensoJoystick = coCoviseConfig::isOn("VIVE.Input.VisensoJoystick", false);
 
-    menuButtonQuitInterval = coCoviseConfig::getFloat("value", "COVER.MenuButtonQuitInterval", -1.0f);
+    menuButtonQuitInterval = coCoviseConfig::getFloat("value", "VIVE.MenuButtonQuitInterval", -1.0f);
 
     // parse snapping and tell NavigationManager
-    snapping = coCoviseConfig::isOn("COVER.Snap", snapping);
-    snapDegrees = coCoviseConfig::getFloat("COVER.SnapDegrees", (float)snapDegrees);
-    rotationSpeed = coCoviseConfig::getFloat("COVER.RotationSpeed", (float)rotationSpeed);
+    snapping = coCoviseConfig::isOn("VIVE.Snap", snapping);
+    snapDegrees = coCoviseConfig::getFloat("VIVE.SnapDegrees", (float)snapDegrees);
+    rotationSpeed = coCoviseConfig::getFloat("VIVE.RotationSpeed", (float)rotationSpeed);
     if (snapDegrees > 0)
     {
         snappingD = true;
@@ -354,9 +354,9 @@ int vvNavigationManager::readConfigFile()
     {
         snappingD = false;
     }
-    turntable = coCoviseConfig::isOn("COVER.Turntable", turntable);
+    turntable = coCoviseConfig::isOn("VIVE.Turntable", turntable);
 
-    m_restrict = coCoviseConfig::isOn("COVER.Restrict", m_restrict);
+    m_restrict = coCoviseConfig::isOn("VIVE.Restrict", m_restrict);
 
     return 0;
 }
@@ -550,17 +550,17 @@ void vvNavigationManager::initShowName()
     nameLabel_ = new vvLabel("test", fontSize, lineLen, fgcolor, bgcolor);
     nameLabel_->hide();
 
-    showGeodeName_ = coCoviseConfig::isOn("COVER.ShowGeodeName", true);
+    showGeodeName_ = coCoviseConfig::isOn("VIVE.ShowGeodeName", true);
 
     nameMenu_ = new vrui::coRowMenu("Object Name");
     nameMenu_->setVisible(false);
     vrui::VSGVruiMatrix  t, r, m;
-    double px = coCoviseConfig::getFloat("x", "COVER.NameMenuPosition", -0.5f * vv->getSceneSize());
-    double py = coCoviseConfig::getFloat("y", "COVER.NameMenuPosition", 0.0f);
-    double pz = coCoviseConfig::getFloat("z", "COVER.NameMenuPosition", 0.3f * vv->getSceneSize());
+    double px = coCoviseConfig::getFloat("x", "VIVE.NameMenuPosition", -0.5f * vv->getSceneSize());
+    double py = coCoviseConfig::getFloat("y", "VIVE.NameMenuPosition", 0.0f);
+    double pz = coCoviseConfig::getFloat("z", "VIVE.NameMenuPosition", 0.3f * vv->getSceneSize());
     float scale;
-    scale = coCoviseConfig::getFloat("COVER.Menu.Size", 1.0);
-    scale = coCoviseConfig::getFloat("COVER.NameMenuScale", scale);
+    scale = coCoviseConfig::getFloat("VIVE.Menu.Size", 1.0);
+    scale = coCoviseConfig::getFloat("VIVE.NameMenuScale", scale);
 
     t.setMatrix(vsg::translate(px, py, pz));
     r.makeEuler(0, 90, 0);
@@ -2270,7 +2270,7 @@ void vvNavigationManager::startXform()
     if (!rotationPoint)
     {
       /*  transformVec = vv->getBBox(vvSceneGraph::instance()->getTransform()).center();
-        if (coCoviseConfig::isOn("COVER.ScaleWithInteractors", false))
+        if (coCoviseConfig::isOn("VIVE.ScaleWithInteractors", false))
             transformVec = vv->getBBox(vvSceneGraph::instance()->getScaleTransform()).center();
         //fprintf(stderr, "****set TransformVec to BBOx-Center %f %f %f\n",transformVec[0], transformVec[1], transformVec[2]);*/
     }
@@ -3157,7 +3157,7 @@ void vvNavigationManager::doGuiRotate(float x, float y, float z)
     if (!rotationPoint && !rotationAxis)
     {
         /*transformVec = vv->getBBox(vvSceneGraph::instance()->getTransform()).center();
-        if (coCoviseConfig::isOn("COVER.ScaleWithInteractors", false))
+        if (coCoviseConfig::isOn("VIVE.ScaleWithInteractors", false))
             transformVec = vv->getBBox(vvSceneGraph::instance()->getScaleTransform()).center();*/
     }
     else
