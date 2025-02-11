@@ -4646,12 +4646,6 @@ void coTabletUI::close()
 
     delete serverConn;
     serverConn = NULL;
-
-    delete serverHost;
-    serverHost = NULL;
-
-    delete localHost;
-    localHost = NULL;
 }
 
 void coTabletUI::tryConnect()
