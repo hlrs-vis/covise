@@ -432,6 +432,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
 
     unsigned int numElements;
     unsigned int nc;
+    unsigned int ncc;
     unsigned int covType;
     unsigned int numDistCorn(0);
 
@@ -476,6 +477,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
             numElements = atoi(buf);
             //cerr << className_ << "::readPartConn() " << elementType << "  " <<  numElements <<  endl;
             nc = elem.getNumberOfCorners();
+            ncc = elem.getNumberOfCoviseCorners();
             covType = elem.getCovType();
 
             unsigned int i;
@@ -525,18 +527,18 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
                     if (elem.getDim() == EnElement::D2)
                     {
                         eleLst2d.push_back(currElePtr2d);
-                        for (j = 0; j < nc; ++j)
+                        for (j = 0; j < ncc; ++j)
                             cornLst2d.push_back(cornOut[j]);
                         typeLst2d.push_back(covType);
-                        currElePtr2d += nc;
+                        currElePtr2d += ncc;
                     }
                     else if (elem.getDim() == EnElement::D3)
                     {
                         eleLst3d.push_back(currElePtr3d);
-                        for (j = 0; j < nc; ++j)
+                        for (j = 0; j < ncc; ++j)
                             cornLst3d.push_back(cornOut[j]);
                         typeLst3d.push_back(covType);
-                        currElePtr3d += nc;
+                        currElePtr3d += ncc;
                     }
                     currElementIdx_++;
                     blacklist.push_back(1);
@@ -547,7 +549,7 @@ EnGoldGeoASC::readPartConn(EnPart &actPart)
                     degCells++;
                 }
             }
-            lastNc_ = nc;
+            lastNc_ = ncc;
             elem.setBlacklist(blacklist);
             actPart.addElement(elem, numElements);
         }

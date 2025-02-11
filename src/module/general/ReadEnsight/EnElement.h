@@ -95,6 +95,9 @@ public:
     // return the number of corners
     unsigned int getNumberOfCorners() const;
 
+    // return the number of corners of the covise element (if it has less)
+    unsigned int getNumberOfCoviseCorners() const;
+
     // return COVISE type
     int getCovType() const;
 
@@ -117,6 +120,7 @@ private:
     bool valid_;
     bool empty_;
     unsigned int numCorn_;
+    unsigned int numCovCorn_;
     unsigned int dim_;
     unsigned int covType_;
     unsigned int enType_;

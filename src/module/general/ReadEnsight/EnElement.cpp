@@ -40,6 +40,7 @@ EnElement::EnElement(const string &name)
     {
         valid_ = true;
         numCorn_ = 1;
+        numCovCorn_ = 1;
         dim_ = D0;
         covType_ = TYPE_POINT;
         enType_ = point;
@@ -50,16 +51,19 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) bar2 found" << endl;
         numCorn_ = 2;
+        numCovCorn_ = 2;
         dim_ = D1;
         covType_ = TYPE_BAR;
         enType_ = bar2;
     }
     else if (name.find("bar3") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) bar3 found" << endl;
         numCorn_ = 3;
+        numCovCorn_ = 2;
         dim_ = D1;
+        covType_ = TYPE_BAR;
         enType_ = bar3;
     }
     else if (name.find("tria3") != string::npos)
@@ -67,15 +71,18 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) tria3 found" << endl;
         numCorn_ = 3;
+        numCovCorn_ = 3;
         dim_ = D2;
         covType_ = TYPE_TRIANGLE;
         enType_ = tria3;
     }
     else if (name.find("tria6") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) tria6 found" << endl;
         numCorn_ = 6;
+        numCovCorn_ = 3;
+        covType_ = TYPE_TRIANGLE;
         dim_ = D2;
         enType_ = tria6;
     }
@@ -84,17 +91,19 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) quad4 found" << endl;
         numCorn_ = 4;
+        numCovCorn_ = 4;
         dim_ = D2;
         covType_ = TYPE_QUAD;
         enType_ = quad4;
     }
     else if (name.find("quad8") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) quad8 found" << endl;
         numCorn_ = 8;
+        numCovCorn_ = 4;
         dim_ = D2;
-        covType_ = TYPE_POINT;
+        covType_ = TYPE_QUAD;
         enType_ = quad8;
     }
     else if (name.find("tetra4") != string::npos)
@@ -102,16 +111,19 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) tetra4 found" << endl;
         numCorn_ = 4;
+        numCovCorn_ = 4;
         dim_ = D3;
         covType_ = TYPE_TETRAHEDER;
         enType_ = tetra4;
     }
     else if (name.find("tetra10") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) tetra10 found" << endl;
         numCorn_ = 10;
+        numCovCorn_ = 4;
         dim_ = D3;
+        covType_ = TYPE_TETRAHEDER;
         enType_ = tetra10;
     }
     else if (name.find("pyramid5") != string::npos)
@@ -125,11 +137,12 @@ EnElement::EnElement(const string &name)
     }
     else if (name.find("pyramid13") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) pyramid13 found" << endl;
         numCorn_ = 13;
+        numCovCorn_ = 5;
         dim_ = D3;
-        covType_ = TYPE_POINT;
+        covType_ = TYPE_PYRAMID;
         enType_ = pyramid13;
     }
     else if (name.find("hexa8") != string::npos)
@@ -137,17 +150,19 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) hexa8  found" << endl;
         numCorn_ = 8;
+        numCovCorn_ = 8;
         dim_ = D3;
         covType_ = TYPE_HEXAEDER;
         enType_ = hexa8;
     }
     else if (name.find("hexa20") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) hexa20 found" << endl;
         numCorn_ = 20;
+        numCovCorn_ = 8;
         dim_ = D3;
-        covType_ = TYPE_POINT;
+        covType_ = TYPE_HEXAEDER;
         enType_ = hexa20;
     }
     else if (name.find("penta6") != string::npos)
@@ -155,17 +170,19 @@ EnElement::EnElement(const string &name)
         valid_ = true;
         //cerr << "EnElement::EnElement(..) penta6  found" << endl;
         numCorn_ = 6;
+        numCovCorn_ = 6;
         dim_ = D3;
         covType_ = TYPE_PRISM;
         enType_ = penta6;
     }
     else if (name.find("penta15") != string::npos)
     {
-        valid_ = false;
+        valid_ = true;
         cerr << "EnElement::EnElement(..) pyramid15 found" << endl;
         numCorn_ = 15;
+        numCovCorn_ = 6;
         dim_ = D3;
-        covType_ = TYPE_POINT;
+        covType_ = TYPE_PRISM;
         enType_ = penta15;
     }
     else if (name.find("nsided") != string::npos)
@@ -275,6 +292,13 @@ EnElement::getNumberOfCorners() const
 {
     return numCorn_;
 }
+
+unsigned int
+EnElement::getNumberOfCoviseCorners() const
+{
+    return numCovCorn_;
+}
+
 
 unsigned int
 EnElement::getDim() const
