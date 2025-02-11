@@ -394,7 +394,8 @@ bool JSBSimPlugin::init()
     host = configString("Glider", "host", "141.58.8.212")->value();
     serverPort = configInt("Glider", "serverPort", 31319)->value();
     localPort = configInt("Glider", "localPort", 1234)->value();
-    jsName = configString("JSBSim", "joystick", "Logitech X52 Professional H.O.T.A.S.")->value();
+    jsName = configString("JSBSim", "joystick", "Logitech X52 Professional H.O.T.A.S.")->value(); //SAITEK X-56 Joystick
+    jsThrottleName = configString("JSBSim", "throttle", "SAITEK X-56 Throttle")->value();
     rudderName = configString("JSBSim", "rudder", "Thrustmaster T-Pendular-Rudder")->value();
     
     const char* rd = coVRFileManager::instance()->getName("share/covise/jsbsim");
@@ -691,6 +692,10 @@ if (coVRMSController::instance()->isMaster())
 	    {
                 Ruddernumber = i;
 	    }
+            else if (joystickDev->names[i] == jsThrottleName)
+        {
+            ThrottleNumber = i;
+        }
             else if (joystickDev->number_axes[i] == 11 && joystickDev->number_sliders[i] == 0) // linux
             {
                 Joysticknumber = i;
@@ -782,7 +787,13 @@ if (coVRMSController::instance()->isMaster())
                 }
                 else if (Joysticknumber >= 0)
                 {
+                    FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
+                }
 
+                if (ThrottleNumber)
+                {
+                    FCS->SetDaCmd(joystickDev->axes[Joysticknumber][0]);
+                    FCS->SetDeCmd(-joystickDev->axes[Joysticknumber][1]);
                     FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
                 }
             }
@@ -790,15 +801,24 @@ if (coVRMSController::instance()->isMaster())
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
                 if (joystickDev && Joysticknumber >=0)
                 {
-                    FCS->SetThrottleCmd(i,1.0-((1+joystickDev->axes[Joysticknumber][2])/2.0));
-		    if(joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
-		    {
-                        FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
-		    }
-		    else if(joystickDev->number_axes[Joysticknumber] == 11)
-		    {
-                        FCS->SetMixtureCmd(i, joystickDev->axes[Joysticknumber][10]);
-		    }
+                    if (ThrottleNumber)
+                    {
+                        std::cout << "Throttle " << i <<" : " << 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0) << std::endl;
+                        FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0));
+                        FCS->SetMixtureCmd(i, 1.0);
+                    }
+                    else
+                    {
+                        FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0));
+                        if (joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
+                        {
+                            FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
+                        }
+                        else if (joystickDev->number_axes[Joysticknumber] == 11)
+                        {
+                            FCS->SetMixtureCmd(i, joystickDev->axes[Joysticknumber][10]);
+                        }
+                    }
                 }
                 else
                 {

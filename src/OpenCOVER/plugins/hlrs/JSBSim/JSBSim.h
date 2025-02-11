@@ -134,6 +134,7 @@ private:
     JSBSim::FGFDMExec* FDMExec = nullptr;
     JSBSim::FGTrim* trimmer = nullptr;
     std::string jsName;
+    std::string jsThrottleName;
     std::string rudderName;
 
     std::shared_ptr <JSBSim::FGAtmosphere>      Atmosphere;
@@ -212,6 +213,7 @@ private:
     std::string host;
     unsigned short serverPort;
     unsigned short localPort;
+    int ThrottleNumber = -1;
     int Joysticknumber = -1;
     int Ruddernumber = -1;
 };

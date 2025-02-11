@@ -244,6 +244,7 @@ BOOL Joystick::EnumJoysticks(const DIDEVICEINSTANCE *pdidInstance)
 	if ((number_axes[numLocalJoysticks] > 0) || (number_buttons[numLocalJoysticks] > 0))
 	{
 		fprintf(stderr, "Joystick %zd %s:%s\n", numLocalJoysticks, pdidInstance->tszProductName, pdidInstance->tszInstanceName);
+        names[numLocalJoysticks] = pdidInstance->tszInstanceName;
 		numLocalJoysticks++;
 	}
 	return DIENUM_CONTINUE;
