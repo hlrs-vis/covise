@@ -762,7 +762,15 @@ bool OpenCOVER::init()
 
     old_fl_time = cover->frameRealTime();
 
-    printFPS = coCoviseConfig::isOn("COVER.FPS", false);
+    if (m_loadVistlePlugin)
+    {
+        // do not spam logfile with continuous FPS output
+        printFPS = false;
+    }
+    else
+    {
+        printFPS = coCoviseConfig::isOn("COVER.FPS", false);
+    }
 
 #if 0
    sleep(coVRMSController::instance()->getID());
