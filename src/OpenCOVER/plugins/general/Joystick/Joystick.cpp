@@ -210,15 +210,26 @@ bool JoystickPlugin::init()
    
     JoystickPlugin::plugin = this;
     dev = (Joystick *)(Input::instance()->getDevice("joystick"));
+    cerr << dev->getName() << endl;
+    if(!dev->needsThread()) // ugly fix to make sure it ist not const
+        dev = nullptr;
     if(coVRMSController::instance()->isMaster())
     {
+    if(dev)
+    {
     numLocalJoysticks = dev->numLocalJoysticks;
+    }
+    else
+    {
+        numLocalJoysticks = 0;
+    }
     for(int i=0;i<numLocalJoysticks;i++)
     {
         number_buttons[i] = dev->number_buttons[i];
         number_axes[i] = dev->number_axes[i];
         number_sliders[i] = dev->number_sliders[i];
         number_POVs[i] = dev->number_POVs[i];
+        if(dev->names[i].length()>i)
         names[i] = dev->names[i];
     }
        coVRMSController::instance()->sendSlaves(&numLocalJoysticks, sizeof(int));
