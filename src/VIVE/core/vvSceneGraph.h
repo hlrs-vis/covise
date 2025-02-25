@@ -12,6 +12,7 @@
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/Switch.h>
 
 #include "ui/Owner.h"
 #include <../../OpenCOVER/OpenVRUI/coCombinedButtonInteraction.h>
@@ -54,7 +55,7 @@ public:
 #endif
 
     vsg::ref_ptr<vsg::MatrixTransform> loadAxisGeode(float scale);
-    vsg::Node *loadHandIcon(const char *name);
+    vsg::Node *loadHandIcon(const std::string& name);
     vsg::Node *loadHandLine();
 
     void addMenuItem(vsg::Group *itemGroup);
@@ -194,10 +195,6 @@ public:
         return m_objectsRoot;
     }
 
-    vsg::ref_ptr<vsg::Node> getHandSphere()
-    {
-        return m_handSphere;
-    }
 
    // void setMultisampling(vsg::Multisample::Mode);
 
@@ -232,24 +229,17 @@ private:
 
     vsg::ref_ptr<vsg::Group> m_scene, m_objectsScene;
     vsg::ref_ptr<vsg::MatrixTransform> m_handTransform;
+    vsg::ref_ptr<vsg::Switch> m_handSwitch;
+    vsg::ref_ptr<vsg::Switch> m_handIconSwitch;
     vsg::ref_ptr<vsg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
     vsg::ref_ptr<vsg::MatrixTransform> m_worldAxis, m_handAxis, m_viewerAxis, m_objectAxis, m_smallSceneAxis;
     vsg::ref_ptr<vsg::Group> m_menuGroupNode;
     vsg::ref_ptr<vsg::Group> m_alwaysVisibleGroupNode;
     vsg::ref_ptr<vsg::MatrixTransform> m_pointerDepthTransform;
     float m_pointerDepth;
-    vsg::ref_ptr<vsg::Node> m_handPlane;
     vsg::ref_ptr<vsg::Node> m_handLine;
-    vsg::ref_ptr<vsg::Node> m_handNormal;
-    vsg::ref_ptr<vsg::Node> m_handCube;
-    vsg::ref_ptr<vsg::Node> m_handFly;
-    vsg::ref_ptr<vsg::Node> m_handDrive;
-    vsg::ref_ptr<vsg::Node> m_handWalk;
-    vsg::ref_ptr<vsg::Node> m_handPyramid;
-    vsg::ref_ptr<vsg::Node> m_handProbe;
-    vsg::ref_ptr<vsg::Node> m_handAnchor;
-    vsg::ref_ptr<vsg::Node> m_handSphere;
     vsg::ref_ptr<vsg::Node> m_AxisGeometry;
+    
 
     bool showSmallSceneAxis_;
     bool transparentPointer_;

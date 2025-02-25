@@ -358,8 +358,14 @@ void vvSceneGraph::initSceneGraph()
     // create the pointer (hand) DCS node
     // add it to the scene graph as the first child
     //                                  -----
+    m_handSwitch = vsg::Switch::create();
+    m_scene->addChild(m_handSwitch);
     m_handTransform = vsg::MatrixTransform::create();
+    m_handSwitch->addChild(false,m_handTransform);
+
     m_handIconScaleTransform = vsg::MatrixTransform::create();
+    m_handIconSwitch = vsg::Switch::create();
+    m_handIconScaleTransform->addChild(m_handIconSwitch);
     m_handAxisScaleTransform = vsg::MatrixTransform::create();
     m_pointerDepthTransform = vsg::MatrixTransform::create();
     m_handTransform->addChild(m_pointerDepthTransform);
@@ -497,19 +503,21 @@ void vvSceneGraph::initAxis()
 void vvSceneGraph::initHandDeviceGeometry()
 {
     m_handLine = loadHandLine();
-    if (m_handLine)
-        m_handTransform->addChild(m_handLine);
 
-    // add hand device geometry
-    m_handSphere = loadHandIcon("HandSphere");
-    m_handPlane = loadHandIcon("Plane");
-    m_handCube = loadHandIcon("XForm");
-    m_handFly = loadHandIcon("Fly");
-    m_handDrive = loadHandIcon("Drive");
-    m_handWalk = loadHandIcon("Walk");
-    m_handPyramid = loadHandIcon("Scale");
-    m_handProbe = loadHandIcon("Probe");
-    m_handNormal = loadHandIcon("HandNormal");
+    if (m_handLine)
+        m_handIconSwitch->addChild(true, m_handLine);
+    else
+        fprintf(stderr, "vvSceneGraph::initHandDeviceGeometry: could not load hand line (at least a hand line object is required)\n");
+
+    vsg::ref_ptr<vsg::Node> m_handIcon;
+    for (int i = 1; i < NUM_HAND_TYPES; i++)
+    {
+        m_handIcon = loadHandIcon(handIconNames[i]);
+        if (m_handIcon)
+            m_handIconSwitch->addChild(false, m_handIcon);
+        else
+            m_handIconSwitch->addChild(false, m_handLine);
+    }
 }
 
 // process key events
@@ -1139,70 +1147,10 @@ vvSceneGraph::setPointerType(int pointerType)
         fprintf(stderr, "vvSceneGraph::setHandType\n");
 
     m_pointerType = pointerType;
-    vvPluginSupport::removeChild(m_handIconScaleTransform,m_handIconScaleTransform->children[0]);
+    m_handIconSwitch->setAllChildren(false);
+    m_handIconSwitch->setSingleChildOn(m_pointerType);
 
-    m_pointerDepthTransform->addChild(m_handIconScaleTransform);
-
-    switch (m_pointerType)
-    {
-    case HAND_LINE:
-        break;
-    case HAND_PLANE:
-        m_handIconScaleTransform->addChild(m_handPlane);
-        //m_handIconScaleTransform->addChild(m_handPlane);
-        break;
-    case HAND_PROBE:
-        m_handIconScaleTransform->addChild(m_handPlane);
-        m_handIconScaleTransform->addChild(m_handNormal);
-        m_handIconScaleTransform->addChild(m_handProbe);
-        break;
-    case HAND_SPHERE:
-        m_handIconScaleTransform->addChild(m_handSphere);
-        break;
-    case HAND_CUBE:
-        m_handIconScaleTransform->addChild(m_handCube);
-        break;
-    case HAND_PYRAMID:
-        m_handIconScaleTransform->addChild(m_handPyramid);
-        break;
-    case HAND_DRIVE:
-        m_handIconScaleTransform->addChild(m_handDrive);
-        break;
-    case HAND_WALK:
-        m_handIconScaleTransform->addChild(m_handWalk);
-        break;
-    case HAND_FLY_LINE:
-        m_handIconScaleTransform->addChild(m_handFly);
-        break;
-    }
 }
-/*
-class SetBoundingSphereCallback : public vsg::Node::ComputeBoundingSphereCallback
-{
-    virtual vsg::BoundingSphere computeBound(const vsg::Node &node) const
-    {
-        vsg::BoundingSphere bs;
-        if (vvSceneGraph::instance()->isScalingAllObjects())
-            bs = node.getInitialBound();
-        else
-            bs = node.computeBound();
-        return bs;
-    }
-}
-
-void vvSceneGraph::setNodeBounds(vsg::Node *node, const vsg::BoundingSphere *bs)
-{
-    if (bs)
-    {
-        node->setInitialBound(*bs);
-        m_specialBoundsNodeList.insert(node);
-        node->setComputeBoundingSphereCallback(new SetBoundingSphereCallback);
-    }
-    else
-    {
-        m_specialBoundsNodeList.erase(node);
-    }
-}*/
 
 void
 vvSceneGraph::adjustScale()
@@ -1258,14 +1206,14 @@ vvSceneGraph::loadAxisGeode(float s)
 }
 
 vsg::Node *
-vvSceneGraph::loadHandIcon(const char *name)
+vvSceneGraph::loadHandIcon(const std::string &name)
 {
     vsg::Node *n;
     n = vvFileManager::instance()->loadIcon(name);
     if (n == NULL)
     {
         if (vv->debugLevel(3))
-            fprintf(stderr, "failed to load hand icon: %s\n", name);
+            fprintf(stderr, "failed to load hand icon: %s\n", name.c_str());
         n = vvFileManager::instance()->loadIcon("hlrsIcon");
     }
     return (n);
@@ -1286,13 +1234,6 @@ vvSceneGraph::loadHandLine()
         auto n = vvFileManager::instance()->loadIcon(iconName.c_str());
         if (n.get())
         {
-           /* n->dirtyBound();
-            vsg::ComputeBoundsVisitor cbv;
-            vsg::BoundingBox &bb(cbv.getBoundingBox());
-            n->accept(cbv);
-            float sx = bb._max.x() - bb._min.x();
-            float sy = bb._max.y() - bb._min.y();*/
-            // move icon in front of pointer (laser sword)
             float sx = 1.0;
             float sy = 1.0;
             float width = coCoviseConfig::getFloat("VIVE.PointerAppearance.Width", sx);
@@ -1712,9 +1653,6 @@ vvSceneGraph::getHandWorldPosition(double *pos, double *direction, double *direc
             m3[r][c] = mat[r][c];
     normal = m3 * normal;
     normal2 = m3 * normal2;
-    //normal = mat.transform3x3(normal, mat);
-    //normal2 = mat.transform3x3(normal2, mat);
-    // was normal2.xformVec(normal2,mat);
     if (pos)
     {
         pos[0] = position[0];
@@ -1737,245 +1675,11 @@ vvSceneGraph::getHandWorldPosition(double *pos, double *direction, double *direc
     }
     return;
 }
-/*
-vsg::StateSet *
-vvSceneGraph::loadGlobalGeostate()
-{
-    if (vv->debugLevel(4))
-        fprintf(stderr, "vvSceneGraph::loadGlobalGeostate\n");
-
-    vsg::LightModel *defaultLm;
-
-    defaultLm = new vsg::LightModel();
-
-    defaultLm->setTwoSided(coCoviseConfig::isOn("VIVE.TwoSide", true));
-
-    defaultLm->setLocalViewer(true);
-    //defaultLm->setTwoSided(true);
-    if (coCoviseConfig::isOn("VIVE.SeparateSpecular", true))
-        defaultLm->setColorControl(vsg::LightModel::SEPARATE_SPECULAR_COLOR);
-    else
-        defaultLm->setColorControl(vsg::LightModel::SINGLE_COLOR);
-
-    vsg::Vec4 globalAmbient(0,0,0,1);
-    defaultLm->setAmbientIntensity(globalAmbient);
-
-    vsg::Material *material = new vsg::Material();
-
-    material->setColorMode(vsg::Material::OFF);
-    material->setAmbient(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-    material->setDiffuse(vsg::Material::FRONT_AND_BACK, vsg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    material->setSpecular(vsg::Material::FRONT_AND_BACK, vsg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    material->setEmission(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    material->setShininess(vsg::Material::FRONT_AND_BACK, 16.0f);
-    material->setAlpha(vsg::Material::FRONT_AND_BACK, 1.0f);
-
-    // make sure that the global color mask exists.
-    vsg::ColorMask *rootColorMask = new vsg::ColorMask;
-    rootColorMask->setMask(true, true, true, true);
-
-    // set up depth to be inherited by the rest of the scene unless
-    // overrideen. this is overridden in bin 3.
-    vsg::Depth *rootDepth = new vsg::Depth;
-    rootDepth->setFunction(vsg::Depth::LESS);
-    rootDepth->setRange(0.0, 1.0);
-
-    vsg::StateSet *stateSet = new vsg::StateSet();
-    stateSet->setRenderingHint(vsg::StateSet::OPAQUE_BIN);
-    if (vvConfig::instance()->numChannels()==0
-            || vvConfig::instance()->channels[0].stereoMode != vsg::DisplaySettings::ANAGLYPHIC)
-    {
-        stateSet->setAttribute(rootColorMask);
-    }
-    stateSet->setAttribute(rootDepth);
-
-	vsg::PointSprite *sprite = new vsg::PointSprite();
-	stateSet->setTextureAttributeAndModes(0, sprite, vsg::StateAttribute::OFF);
-
-    vsg::TexEnv* texEnv = new vsg::TexEnv;
-    texEnv->setMode(vsg::TexEnv::MODULATE);
-    stateSet->setTextureAttributeAndModes(0, texEnv, vsg::StateAttribute::ON);
-
-    vsg::ref_ptr<vsg::TexGen> texGen = new vsg::TexGen();
-    stateSet->setTextureAttributeAndModes(0, texGen.get(), vsg::StateAttribute::OFF);
-
-    stateSet->setAttributeAndModes(material, vsg::StateAttribute::ON);
-    stateSet->setAttributeAndModes(defaultLm, vsg::StateAttribute::ON);
-    stateSet->setMode(GL_LIGHTING, vsg::StateAttribute::ON);
-    stateSet->setMode(GL_NORMALIZE, vsg::StateAttribute::ON);
-    vsg::AlphaFunc *alphaFunc = new vsg::AlphaFunc(vsg::AlphaFunc::GREATER, 0.0);
-    stateSet->setAttributeAndModes(alphaFunc, StateAttribute::OFF);
-    m_Multisample = new Multisample;
-    if (vvConfig::instance()->doMultisample())
-    {
-        stateSet->setAttributeAndModes(m_Multisample.get(), StateAttribute::ON);
-        m_Multisample->setHint(vvConfig::instance()->getMultisampleMode());
-        m_Multisample->setSampleCoverage(vvConfig::instance()->getMultisampleCoverage(), vvConfig::instance()->getMultisampleInvert());
-    }
-
-    return (stateSet);
-}
-
-void vvSceneGraph::setMultisampling(vsg::Multisample::Mode mode)
-{
-    m_Multisample->setHint(mode);
-}
-
-static const float Bright = 0.8f;
-
-vsg::StateSet *
-vvSceneGraph::loadDefaultGeostate(vsg::Material::ColorMode mode)
-{
-    if (vv->debugLevel(4))
-        fprintf(stderr, "vvSceneGraph::loadDefaultGeostate\n");
-
-    vsg::Material *material = new vsg::Material();
-
-    material->setColorMode(mode);
-    material->setAmbient(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-    material->setDiffuse(vsg::Material::FRONT_AND_BACK, vsg::Vec4(Bright, Bright, Bright, 1.0f));
-    material->setSpecular(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.4f, 0.4f, 0.4f, 1.0f));
-    material->setEmission(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    material->setShininess(vsg::Material::FRONT_AND_BACK, 16.0f);
-    material->setAlpha(vsg::Material::FRONT_AND_BACK, 1.0f);
-
-    vsg::AlphaFunc *alphaFunc = new vsg::AlphaFunc();
-    alphaFunc->setFunction(vsg::AlphaFunc::GREATER, 0.0);
-
-    vsg::BlendFunc *blendFunc = new vsg::BlendFunc();
-    blendFunc->setFunction(vsg::BlendFunc::SRC_ALPHA, vsg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-
-    vsg::LightModel *defaultLm = new vsg::LightModel();
-    defaultLm->setLocalViewer(true);
-    defaultLm->setTwoSided(true);
-    //defaultLm->setColorControl(vsg::LightModel::SINGLE_COLOR);
-
-    vsg::StateSet *stateSet = new vsg::StateSet();
-    stateSet->setRenderingHint(vsg::StateSet::OPAQUE_BIN);
-    stateSet->setAttributeAndModes(material, vsg::StateAttribute::ON);
-    stateSet->setMode(GL_LIGHTING, vsg::StateAttribute::ON);
-    stateSet->setAttributeAndModes(alphaFunc, vsg::StateAttribute::ON);
-    stateSet->setAttributeAndModes(blendFunc, vsg::StateAttribute::ON);
-    stateSet->setAttributeAndModes(defaultLm, vsg::StateAttribute::ON);
-    return stateSet;
-}
-
-vsg::StateSet *
-vvSceneGraph::loadDefaultPointstate(float pointSize, vsg::Material::ColorMode mode)
-{
-    auto stateset = loadDefaultGeostate();
-    AlphaFunc *alphaFunc = new AlphaFunc(AlphaFunc::GREATER, 0.5);
-    stateset->setAttributeAndModes(alphaFunc, StateAttribute::ON);
-
-    vsg::ref_ptr<vsg::Point> pointstate = new vsg::Point();
-    pointstate->setSize(pointSize);
-    stateset->setAttributeAndModes(pointstate, StateAttribute::ON);
-
-    PointSprite *sprite = new PointSprite();
-    stateset->setTextureAttributeAndModes(0, sprite, StateAttribute::ON);
-    stateset->setMode(GL_POINT_SMOOTH, vsg::StateAttribute::ON);
-    const char *mapName = vive::vvFileManager::instance()->getName("share/covise/icons/particle.png");
-    if (mapName != NULL)
-    {
-        Image *image = osgDB::readImageFile(mapName);
-        Texture2D *tex = new Texture2D(image);
-
-        tex->setTextureSize(image->s(), image->t());
-        tex->setInternalFormat(GL_RGBA);
-        tex->setFilter(Texture2D::MIN_FILTER, Texture2D::LINEAR);
-        tex->setFilter(Texture2D::MAG_FILTER, Texture2D::LINEAR);
-        stateset->setTextureAttributeAndModes(0, tex, StateAttribute::ON);
-        TexEnv *texEnv = new TexEnv;
-        texEnv->setMode(TexEnv::MODULATE);
-        stateset->setTextureAttributeAndModes(0, texEnv, StateAttribute::ON);
-
-        ref_ptr<TexGen> texGen = new TexGen();
-        stateset->setTextureAttributeAndModes(0, texGen.get(), StateAttribute::OFF);
-    }
-    return stateset;
-}
-
-
-vsg::StateSet *
-vvSceneGraph::loadTransparentGeostate(vsg::Material::ColorMode mode)
-{
-    if (vv->debugLevel(3))
-        fprintf(stderr, "vvSceneGraph::loadDefaultGeostate\n");
-
-    vsg::Material *material = new vsg::Material();
-    material->setColorMode(mode);
-    material->setAmbient(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.2f, 0.2f, 0.2f, 0.5f));
-    material->setDiffuse(vsg::Material::FRONT_AND_BACK, vsg::Vec4(Bright, Bright, Bright, 0.5f));
-    material->setSpecular(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.4f, 0.4f, 0.4f, 0.5f));
-    material->setEmission(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.0f, 0.0f, 0.0f, 0.5f));
-    material->setShininess(vsg::Material::FRONT_AND_BACK, 16.0f);
-    material->setAlpha(vsg::Material::FRONT_AND_BACK, 0.5f);
-
-    vsg::AlphaFunc *alphaFunc = new vsg::AlphaFunc();
-    alphaFunc->setFunction(vsg::AlphaFunc::GREATER, 0.0);
-
-    vsg::BlendFunc *blendFunc = new vsg::BlendFunc();
-    blendFunc->setFunction(vsg::BlendFunc::SRC_ALPHA, vsg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-
-    vsg::LightModel *defaultLm = new vsg::LightModel();
-    defaultLm->setLocalViewer(true);
-    defaultLm->setTwoSided(true);
-    defaultLm->setColorControl(vsg::LightModel::SINGLE_COLOR);
-
-    vsg::StateSet *stateTransp = new vsg::StateSet();
-    stateTransp->setRenderingHint(vsg::StateSet::TRANSPARENT_BIN);
-    stateTransp->setNestRenderBins(false);
-    stateTransp->setAttributeAndModes(material, vsg::StateAttribute::ON);
-    stateTransp->setMode(GL_LIGHTING, vsg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(alphaFunc, vsg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(blendFunc, vsg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(defaultLm, vsg::StateAttribute::ON);
-
-    return stateTransp;
-}
-
-vsg::StateSet *
-vvSceneGraph::loadUnlightedGeostate(vsg::Material::ColorMode mode)
-{
-    if (vv->debugLevel(3))
-        fprintf(stderr, "vvSceneGraph::loadUnlightedGeostate\n");
-
-    vsg::Material *material = new vsg::Material();
-
-    material->setColorMode(mode);
-    material->setAmbient(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-    material->setDiffuse(vsg::Material::FRONT_AND_BACK, vsg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    material->setSpecular(vsg::Material::FRONT_AND_BACK, vsg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    material->setEmission(vsg::Material::FRONT_AND_BACK, vsg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    material->setShininess(vsg::Material::FRONT_AND_BACK, 16.0f);
-    material->setAlpha(vsg::Material::FRONT_AND_BACK, 1.0f);
-
-    vsg::StateSet *stateSet = new vsg::StateSet();
-    stateSet->setRenderingHint(vsg::StateSet::OPAQUE_BIN);
-    stateSet->setAttributeAndModes(material, vsg::StateAttribute::ON);
-    stateSet->setMode(GL_LIGHTING, vsg::StateAttribute::OFF);
-    return stateSet;
-}*/
 
 void vvSceneGraph::addPointerIcon(vsg::ref_ptr<vsg::Node> node)
 {
     // recompute scale factor
-    //node->dirtyBound();
-    /*vsg::ComputeBoundsVisitor cbv;
-    cbv.setTraversalMask(Isect::Visible);
-    vsg::BoundingBox &bb(cbv.getBoundingBox());
-    node->accept(cbv);
-    float sx, sy, sz, s;
-    sx = bb._max.x() - bb._min.x();
-    sy = bb._max.y() - bb._min.y();
-    sz = bb._max.z() - bb._min.z();
-    s = max(sx, sy);
-    s = max(s, sz);*/
     double scale = m_handIconSize;// / s;
-    /*if (node->getName() == "sphere")
-    {
-        scale = 1.;
-    }*/
     vsg::dmat4 m = vsg::scale(scale, scale, scale);
     setTrans(m,dvec3(0.0, (double)m_handIconOffset, 0.0));
     m_handIconScaleTransform->matrix = (m);

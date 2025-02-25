@@ -98,16 +98,9 @@
 #define MONO 0
 #define STEREO 1
 
-#define HAND_LINE 0
-#define HAND_SPHERE 1
-#define HAND_PLANE 2
-#define HAND_CUBE 3
-#define HAND_PYRAMID 4
-#define HAND_PROBE 7
-#define HAND_ANCHOR 8
-#define HAND_FLY_LINE 9
-#define HAND_DRIVE 11
-#define HAND_WALK 12
+static std::string handIconNames[] = { "Line", "HandSphere", "Plane", "XForm", "Fly", "Drive", "Walk", "Scale", "Anchor", "HandNormal"};
+enum HandIconType { HAND_LINE=0, HAND_SPHERE, HAND_PLANE, HAND_CUBE, HAND_FLY, HAND_DRIVE, HAND_WALK, HAND_PYRAMID, HAND_ANCHOR, HAND_NORMAL, NUM_HAND_TYPES };
+
 
 #define MY_NONE 0
 

@@ -623,7 +623,7 @@ vsg::ref_ptr<vsg::Node> getNodeIfExists(const std::string &name, const std::stri
 
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
-vsg::ref_ptr<vsg::Node> vvFileManager::loadIcon(const char *filename)
+vsg::ref_ptr<vsg::Node> vvFileManager::loadIcon(const std::string& filename)
 {
     static std::array<const char *, 4> suffixes = {"", ".osg", ".iv", ".obj"};
 

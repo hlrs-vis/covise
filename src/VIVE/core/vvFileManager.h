@@ -165,7 +165,7 @@ public:
 
     // load an icon file, looks in covise/icons/$LookAndFeel or covise/icons
     // returns NULL, if nothing found
-    vsg::ref_ptr<vsg::Node> loadIcon(const char *filename);
+    vsg::ref_ptr<vsg::Node> loadIcon(const std::string& filename);
 
     // loads a font
     // fontname can be NULL, which loads the default specified in the config (DroidSansFallbackFull.ttf if not in config), or "myfont.ttf"

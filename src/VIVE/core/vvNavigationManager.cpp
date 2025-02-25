@@ -679,7 +679,7 @@ bool vvNavigationManager::keyEvent(vsg::KeyPressEvent& keyPress)
     }
     else if (keyPress.keyBase == vsg::KEY_Right)
     {
-        currentVelocity += (float)currentVelocity * driveSpeed / 10.0;
+        currentVelocity += (float)(currentVelocity * driveSpeed / 10.0);
         handled = true;
     }
     else if (keyPress.keyBase == vsg::KEY_Down)
