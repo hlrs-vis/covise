@@ -1205,12 +1205,12 @@ vvSceneGraph::loadAxisGeode(float s)
     return (mt);
 }
 
-vsg::Node *
+vsg::ref_ptr<vsg::Node>
 vvSceneGraph::loadHandIcon(const std::string &name)
 {
-    vsg::Node *n;
+    vsg::ref_ptr<vsg::Node> n;
     n = vvFileManager::instance()->loadIcon(name);
-    if (n == NULL)
+    if (n)
     {
         if (vv->debugLevel(3))
             fprintf(stderr, "failed to load hand icon: %s\n", name.c_str());
@@ -1219,13 +1219,13 @@ vvSceneGraph::loadHandIcon(const std::string &name)
     return (n);
 }
 
-vsg::Node *
+vsg::ref_ptr<vsg::Node>
 vvSceneGraph::loadHandLine()
 {
     if (!coCoviseConfig::isOn("visible", "VIVE.PointerAppearance.IconName", true))
         return nullptr;
 
-    vsg::Node *result = nullptr;
+    vsg::ref_ptr<vsg::Node> result;
 
     
     string iconName = coCoviseConfig::getEntry("VIVE.PointerAppearance.IconName");

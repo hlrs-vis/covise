@@ -55,8 +55,8 @@ public:
 #endif
 
     vsg::ref_ptr<vsg::MatrixTransform> loadAxisGeode(float scale);
-    vsg::Node *loadHandIcon(const std::string& name);
-    vsg::Node *loadHandLine();
+    vsg::ref_ptr<vsg::Node> loadHandIcon(const std::string& name);
+    vsg::ref_ptr<vsg::Node> loadHandLine();
 
     void addMenuItem(vsg::Group *itemGroup);
     vsg::ref_ptr<vsg::Group> getMenuGroup()
