@@ -10,7 +10,7 @@
  <!-- INCLUDE global="1" configname="private" ARCH="windows" >c:/data/hlrs/config-hlrs-private.xml</INCLUDE -->
 
  <INCLUDE global="1" MASTER="viscluster50" configname="CAVE" >config.cave.xml</INCLUDE>
- <INCLUDE global="1" MASTER="viscluster50" configname="CAVEVive" >config.cavevive.xml</INCLUDE>
+ <TRYINCLUDE global="1" MASTER="viscluster50" configname="CAVEVive" >config.cavevive.xml</TRYINCLUDE>
  <INCLUDE global="1" MASTER="viscluster70" configname="TiledDisplay" >config.pw3d.xml</INCLUDE>
 
  <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
