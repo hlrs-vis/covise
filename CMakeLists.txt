@@ -300,6 +300,9 @@ if(WIN32)
 endif()
 COVISE_FIND_BOOST()
 
+set(Python_FIND_FRAMEWORK LAST)
+COVISE_FIND_PACKAGE(Python COMPONENTS Interpreter Development)
+
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
     IF(APPLE)
@@ -309,7 +312,6 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     IF(COVISE_BUILD_WEBSERVICE)
       COVISE_FIND_PACKAGE(GSOAP)
     ENDIF(COVISE_BUILD_WEBSERVICE)
-    COVISE_FIND_PACKAGE(PythonInterp) # required by open62541, also find in non-standard locations
     COVISE_FIND_PACKAGE(open62541)
     IF(COVISE_USE_QT)
       find_qt()
@@ -356,7 +358,6 @@ if (NOT COVISE_BUILD_ONLY_FILE)
 
         covise_find_cuda()
 
-        COVISE_FIND_PACKAGE(PythonLibs)
         covise_find_package(OpenCV)
     endif(NOT COVISE_BUILD_ONLY_ODDLOT)
     covise_find_package(OPENCRG)
