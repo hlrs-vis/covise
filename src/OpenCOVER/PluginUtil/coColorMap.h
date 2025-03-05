@@ -14,14 +14,14 @@
 #include <map>
 #include <memory>
 #include <osg/Geode>
+#include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
+#include <osg/Vec3d>
 #include <osg/Vec4>
 #include <string>
 #include <vector>
 
-#include "osg/Math"
-#include "osg/Vec3d"
 #include "util/coExport.h"
 
 namespace covise {
@@ -47,24 +47,51 @@ struct ColorMap {
 struct ColorMapLabelConfig {
   std::string font = "DejaVuSans-Bold.ttf";
   osg::Vec4 color = osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  float charSize = 0.01f;
+  float charSize = 0.04f;
+};
+
+typedef std::map<std::string, ColorMap> ColorMaps;
+PLUGIN_UTILEXPORT ColorMaps readColorMaps();
+osg::Vec4 PLUGIN_UTILEXPORT getColor(float val, const ColorMap &colorMap,
+                                     float min = 0, float max = 1);
+// same logic as colors module, but sets linear sampling points
+ColorMap PLUGIN_UTILEXPORT interpolateColorMap(const ColorMap &cm, int numSteps);
+ColorMap PLUGIN_UTILEXPORT upscale(const ColorMap &baseMap, size_t numSteps);
+osg::Quat PLUGIN_UTILEXPORT createRotationMatrixQuat(double headingDegrees,
+                                                     double pitchDegrees,
+                                                     double rollDegrees);
+osg::Matrix PLUGIN_UTILEXPORT createRotationMatrix(double headingDegrees,
+                                                   double pitchDegrees,
+                                                   double rollDegrees);
+
+class PLUGIN_UTILEXPORT ColorMapSelector {
+ public:
+  ColorMapSelector(opencover::ui::Menu &menu);
+  ColorMapSelector(opencover::ui::Group &menu);
+
+  bool setValue(const std::string &colorMapName);
+  osg::Vec4 getColor(float val, float min = 0, float max = 1);
+  const ColorMap &selectedMap() const;
+  void setCallback(const std::function<void(const ColorMap &)> &f);
+
+ private:
+  opencover::ui::SelectionList *m_selector;
+  const ColorMaps m_colors;
+  ColorMaps::const_iterator m_selectedMap;
+  void updateSelectedMap();
+  void init();
 };
 
 class ColorMapRenderConfig {
-  auto computeColorMapRotation() const {
-    return osg::Quat(osg::DegreesToRadians(rotationAngleX), osg::Vec3(1, 0, 0)) *
-           osg::Quat(osg::DegreesToRadians(rotationAngleY), osg::Vec3(0, 1, 0)) *
-           osg::Quat(osg::DegreesToRadians(rotationAngleZ), osg::Vec3(0, 0, 1));
-  }
-
  public:
   ColorMapRenderConfig()
       : multisample(true),
-        rotationAngleX(90.0f),
-        rotationAngleY(0.0f),
-        rotationAngleZ(25.0f),
+        rotationAngleX(45.0f),
+        rotationAngleY(90.0f),
+        rotationAngleZ(90.0f),
         objectPositionInBase(-0.6f, 1.6f, -0.4f),
-        colorMapRotation(computeColorMapRotation()) {}
+        colorMapRotation(createRotationMatrixQuat(rotationAngleY, rotationAngleX,
+                                                  rotationAngleZ)) {}
   void setRotationAngleX(float rotationX) {
     this->rotationAngleX = rotationX;
     recomputeColorMapRotation();
@@ -90,43 +117,18 @@ class ColorMapRenderConfig {
   const auto &ObjectPositionInBase() const { return objectPositionInBase; }
 
  private:
-  void recomputeColorMapRotation() { colorMapRotation = computeColorMapRotation(); }
+  void recomputeColorMapRotation() {
+    colorMapRotation =
+        createRotationMatrixQuat(rotationAngleY, rotationAngleX, rotationAngleZ);
+  }
 
   bool multisample;
   float rotationAngleX, rotationAngleY, rotationAngleZ;
   ColorMapLabelConfig labelConfig;
 
-  // object position in plugins base coordinates => -z is forward => normally; in
-  // COVER y is forward
   osg::Vec3d objectPositionInBase;
   osg::Vec3d objectUp;
   osg::Quat colorMapRotation;
-};
-
-typedef std::map<std::string, ColorMap> ColorMaps;
-PLUGIN_UTILEXPORT ColorMaps readColorMaps();
-osg::Vec4 PLUGIN_UTILEXPORT getColor(float val, const ColorMap &colorMap,
-                                     float min = 0, float max = 1);
-// same logic as colors module, but sets linear sampling points
-ColorMap PLUGIN_UTILEXPORT interpolateColorMap(const ColorMap &cm, int numSteps);
-ColorMap PLUGIN_UTILEXPORT upscale(const ColorMap &baseMap, size_t numSteps);
-
-class PLUGIN_UTILEXPORT ColorMapSelector {
- public:
-  ColorMapSelector(opencover::ui::Menu &menu);
-  ColorMapSelector(opencover::ui::Group &menu);
-
-  bool setValue(const std::string &colorMapName);
-  osg::Vec4 getColor(float val, float min = 0, float max = 1);
-  const ColorMap &selectedMap() const;
-  void setCallback(const std::function<void(const ColorMap &)> &f);
-
- private:
-  opencover::ui::SelectionList *m_selector;
-  const ColorMaps m_colors;
-  ColorMaps::const_iterator m_selectedMap;
-  void updateSelectedMap();
-  void init();
 };
 
 class PLUGIN_UTILEXPORT ColorMapRenderObject : public vrui::coUpdateable {

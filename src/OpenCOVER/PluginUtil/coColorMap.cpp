@@ -26,6 +26,28 @@
 using namespace std;
 using namespace opencover;
 
+osg::Quat covise::createRotationMatrixQuat(double headingDegrees,
+                                           double pitchDegrees, double rollDegrees) {
+  // Convert degrees to radians
+  double headingRadians = osg::DegreesToRadians(headingDegrees);
+  double pitchRadians = osg::DegreesToRadians(pitchDegrees);
+  double rollRadians = osg::DegreesToRadians(rollDegrees);
+
+  // Create quaternions for each rotation
+  osg::Quat pitchQuat(pitchRadians, osg::Vec3(1, 0, 0));  // Pitch (around X-axis)
+  osg::Quat headingQuat(headingRadians, osg::Vec3(0, 1, 0));  // Yaw (around Y-axis)
+  osg::Quat rollQuat(rollRadians, osg::Vec3(0, 0, 1));        // Roll (around Z-axis)
+
+  // Combine the quaternions (order matters!)
+  return rollQuat * pitchQuat * headingQuat;
+}
+
+osg::Matrix covise::createRotationMatrix(double headingDegrees, double pitchDegrees,
+                                         double rollDegrees) {
+  return osg::Matrix(
+      covise::createRotationMatrixQuat(headingDegrees, pitchDegrees, rollDegrees));
+}
+
 covise::ColorMaps covise::readColorMaps() {
   // read the name of all colormaps in file
 
@@ -359,6 +381,34 @@ void covise::ColorMapRenderObject::show(bool on) {
   }
 }
 
+// vruiMatrix *coUIElement::getMatrixFromPositionHprScale(float x, float y, float z,
+// float h, float p, float r, float scale)
+// {
+//     vruiMatrix *transMatrix = vruiRendererInterface::the()->createMatrix();
+//     vruiMatrix *rotateMatrix = vruiRendererInterface::the()->createMatrix();
+//     vruiMatrix *scaleMatrix = vruiRendererInterface::the()->createMatrix();
+//     vruiMatrix *matrix = vruiRendererInterface::the()->createMatrix();
+//     vruiMatrix *rxMatrix = vruiRendererInterface::the()->createMatrix();
+
+//     transMatrix->makeTranslate(x, y, z);
+//     rotateMatrix->makeEuler(h, p, r);
+//     scaleMatrix->makeScale(scale, scale, scale);
+//     rxMatrix->makeEuler(0.0, 90.0, 0.0);
+
+//     matrix->makeIdentity();
+//     matrix->mult(rxMatrix);
+//     matrix->mult(scaleMatrix);
+//     matrix->mult(rotateMatrix);
+//     matrix->mult(transMatrix);
+
+//     vruiRendererInterface::the()->deleteMatrix(transMatrix);
+//     vruiRendererInterface::the()->deleteMatrix(rotateMatrix);
+//     vruiRendererInterface::the()->deleteMatrix(scaleMatrix);
+//     vruiRendererInterface::the()->deleteMatrix(rxMatrix);
+
+//     return matrix;
+// }
+
 void covise::ColorMapRenderObject::render() {
   if (m_colormapTransform) {
     // First, cover->getInvBaseMat() transforms world coordinates into the plugin's
@@ -384,7 +434,6 @@ void covise::ColorMapRenderObject::render() {
 
     // apply transformation to object
     osg::Matrixd matrix;
-    // matrix.makeRotate(colorMapRotation * rotationNoScale);
     matrix.makeRotate(m_config.ColorMapRotation() * rotationNoScale);
     matrix.setTrans(objectPositionInViewer);
     m_colormapTransform->setMatrix(matrix);
