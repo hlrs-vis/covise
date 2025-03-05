@@ -11,7 +11,7 @@ IF(NOT SWIG_FOUND)
 ENDIF()
 INCLUDE(${SWIG_USE_FILE})
 
-IF(NOT PYTHONLIBS_FOUND)
+IF(NOT PYTHON_FOUND)
   #MESSAGE("PythonLibs not found! Skipping GuiRenderMessage (_coGRMsg)")
   RETURN()
 ENDIF()
@@ -21,15 +21,8 @@ IF(WIN32)
 ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(
-  ${PYTHON_INCLUDE_DIRS}
   "${COVISEDIR}/src/kernel/grmsg"
 )
-
-IF(MSVC)
-  # arrrgh pyconfig.h contains a #pragma comment(lib,"python27_d.lib")
-  GET_FILENAME_COMPONENT(PYTHON_LIB_DIR "${PYTHON_DEBUG_LIBRARY}" PATH)
-  LINK_DIRECTORIES(${PYTHON_LIB_DIR})
-ENDIF(MSVC)
 
 SET(CMAKE_SWIG_FLAGS "")
 #SET(CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}")
@@ -48,7 +41,7 @@ else()
 endif()
 # ${SWIG_MODULE_coGRMsg_REAL_NAME} contains actual targetname
 COVISE_ADJUST_OUTPUT_DIR(${SWIG_MODULE_coGRMsg_REAL_NAME})
-SWIG_LINK_LIBRARIES(coGRMsg coGRMsg ${PYTHON_LIBRARIES})
+SWIG_LINK_LIBRARIES(coGRMsg coGRMsg Python::Python)
 
 # for VisualStudio it seems we have to rename debug versions to *_d.pyd
 IF(MSVC)

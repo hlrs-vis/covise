@@ -12,18 +12,14 @@ IF(NOT SWIG_FOUND)
 ENDIF()
 INCLUDE(${SWIG_USE_FILE})
 
-IF(NOT PYTHONLIBS_FOUND)
-  MESSAGE("PYTHONLIBS not found! Skipping ScriptingInterface (_covise)")
+IF(NOT PYTHON_FOUND)
+  MESSAGE("Python not found! Skipping ScriptingInterface (_covise)")
   RETURN()
 ENDIF()
 
 IF(WIN32)
   REMOVE_DEFINITIONS(-DDEBUG)
 ENDIF(WIN32)
-
-INCLUDE_DIRECTORIES(
-  ${PYTHON_INCLUDE_DIRS}
-)
 
 IF(MSVC)
   # arrrgh pyconfig.h contains a #pragma comment(lib,"python27_d.lib")
@@ -45,7 +41,7 @@ else()
 endif()
 # ${SWIG_MODULE_covise_REAL_NAME} contains actual targetname
 COVISE_ADJUST_OUTPUT_DIR(${SWIG_MODULE_covise_REAL_NAME})
-SWIG_LINK_LIBRARIES(covise coAppl ${PYTHON_LIBRARIES})
+SWIG_LINK_LIBRARIES(covise coAppl Python::Python)
 
 # for VisualStudio it seems we have to rename debug versions to *_d.pyd
 IF(MSVC)
