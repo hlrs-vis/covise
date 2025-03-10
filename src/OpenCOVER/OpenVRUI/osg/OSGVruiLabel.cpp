@@ -32,18 +32,42 @@ using covise::coCoviseConfig;
 
 #define BORDERWIDTH 5.0
 
+osg::Vec4 TextColorDefault()
+{
+    static bool first = true;
+    static osg::Vec4 textColor;
+    if(first)
+    {
+        first = false;
+        textColor = osg::Vec4(coCoviseConfig::getFloat("r", "COVER.VRUI.TextColorDefault", 0.9f),
+                         coCoviseConfig::getFloat("g", "COVER.VRUI.TextColorDefault", 0.9f),
+                         coCoviseConfig::getFloat("b", "COVER.VRUI.TextColorDefault", 0.9f), 1.0f);
+    }
+    return textColor;
+}
+
+osg::Vec4 TextColorHighlighted()
+{
+    static bool first = true;
+    static osg::Vec4 textColorHL;
+    if(first)
+    {
+        first = false;
+        textColorHL =  osg::Vec4(coCoviseConfig::getFloat("r", "COVER.VRUI.TextColorHighlighted", 0.9f),
+                         coCoviseConfig::getFloat("g", "COVER.VRUI.TextColorHighlighted", 0.9f),
+                         coCoviseConfig::getFloat("b", "COVER.VRUI.TextColorHighlighted", 0.9f), 1.0f);
+    }
+    return textColorHL;
+}
+
 /// Constructor.
 OSGVruiLabel::OSGVruiLabel(coLabel *label)
     : OSGVruiUIElement(label)
 {
     this->label = label;
 
-    textColor = osg::Vec4(coCoviseConfig::getFloat("r", "COVER.VRUI.TextColorDefault", 0.9f),
-                          coCoviseConfig::getFloat("g", "COVER.VRUI.TextColorDefault", 0.9f),
-                          coCoviseConfig::getFloat("b", "COVER.VRUI.TextColorDefault", 0.9f), 1.0f);
-    textColorHL = osg::Vec4(coCoviseConfig::getFloat("r", "COVER.VRUI.TextColorHighlighted", 0.0f),
-                            coCoviseConfig::getFloat("g", "COVER.VRUI.TextColorHighlighted", 1.0f),
-                            coCoviseConfig::getFloat("b", "COVER.VRUI.TextColorHighlighted", 0.0f), 1.0f);
+    textColor = TextColorDefault();
+    textColorHL = TextColorHighlighted();
 
     labelText = 0;
     backgroundTextureState = 0;

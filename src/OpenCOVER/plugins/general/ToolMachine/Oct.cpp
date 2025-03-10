@@ -84,10 +84,10 @@ void Oct::clear()
     m_sections.clear();
 }
 
-void Oct::applyShader(const covise::ColorMap& map, float min, float max)
+void Oct::applyShader(const opencover::ColorMap& map)
 {
     for(auto &section : m_sections)
-        opencover::applyShader(section.points, map, min, max, "OctPoints");
+        opencover::applyShader(section.points, map, "OctPoints");
 }
 
 // constexpr auto phaseOffset = 4.01426;
@@ -174,7 +174,7 @@ void Oct::correctLastUpdate(const osg::Vec3 &toolHeadPos)
 
 }
 
-Oct::Section::Section(size_t vertsPerCircle, double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent)
+Oct::Section::Section(size_t vertsPerCircle, double pointSize, const opencover::ColorMap& map, osg::MatrixTransform* parent)
 : m_parent(parent)
 , points(new osg::Geometry)
 , surface(new osg::Geometry)
@@ -197,7 +197,7 @@ Oct::Section::Section(size_t vertsPerCircle, double pointSize, const covise::Col
     points->insertPrimitiveSet(reducedPointsPrimitiveIndex, reducedPointPrimitiveSet);
     parent->addChild(points);
     points->setName("OctPoints");
-    opencover::applyShader(points, map, min, max, "OctPoints");
+    opencover::applyShader(points, map, "OctPoints");
 
     stateSet = VRSceneGraph::instance()->loadDefaultGeostate();
     surface->setVertexArray(vertices);
@@ -208,7 +208,7 @@ Oct::Section::Section(size_t vertsPerCircle, double pointSize, const covise::Col
     surface->setStateSet(stateSet);
     parent->addChild(surface);
     surface->setName("OctSurface");
-    opencover::applyShader(surface, map, min, max, "MapColorsAttrib");
+    opencover::applyShader(surface, map, "MapColorsAttrib");
 }
 
 Oct::Section::~Section()
@@ -298,7 +298,7 @@ void Oct::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<d
 
 Oct::Section &Oct::addSection(size_t numVerts)
 {
-    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->selectedMap(), getMinAttribute(), getMaxAttribute(), m_tableNode);
+    auto &section = m_sections.emplace_back(numVerts, m_pointSizeSlider->value(), m_colorMapSelector->colorMap(), m_tableNode);
     if(m_sections.size() > numSections)
         m_sections.pop_front();
     if(m_numSectionsSlider->getValue() > 0 && m_sections.size() > m_numSectionsSlider->getValue())

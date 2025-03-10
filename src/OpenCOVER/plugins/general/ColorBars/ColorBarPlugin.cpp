@@ -17,7 +17,7 @@
 
 #include "ColorBarPlugin.h"
 #include <OpenVRUI/osg/mathUtils.h>
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
 #include <cover/RenderObject.h>
@@ -95,30 +95,13 @@ void ColorBarPlugin::preFrame()
             visibleHuds.emplace_back(&mod);
     }
 
-    osg::Vec3 bottomLeft, hpr, offset;
-    if (coVRMSController::instance()->isMaster() && coVRConfig::instance()->numScreens() > 0) {
-        const auto &s0 = coVRConfig::instance()->screens[0];
-        hpr = s0.hpr;
-        auto sz = osg::Vec3(s0.hsize, 0., s0.vsize);
-        osg::Matrix mat;
-        MAKE_EULER_MAT_VEC(mat, hpr);
-        bottomLeft = s0.xyz - sz * mat * 0.5;
-        auto minsize = std::min(s0.hsize, s0.vsize);
-        bottomLeft += osg::Vec3(minsize, 0., minsize) * mat * 0.02;
-        offset = osg::Vec3(s0.vsize/2.5, 0 , 0) * mat * hudScale;
-    }
-    for (int i=0; i<3; ++i)
-    {
-        coVRMSController::instance()->syncData(&bottomLeft[i], sizeof(bottomLeft[i]));
-        coVRMSController::instance()->syncData(&hpr[i], sizeof(hpr[i]));
-        coVRMSController::instance()->syncData(&offset[i], sizeof(offset[i]));
-    }
+    ColorBar::HudPosition hudPos(hudScale);
 
     for (size_t i=0; i<visibleHuds.size(); ++i)
     {
+        hudPos.setNumHuds(i);
         auto mod = visibleHuds[i];
-        mod->colorbar->setHudPosition(bottomLeft, hpr, offset[0]/480);
-        bottomLeft += offset;
+        mod->colorbar->setHudPosition(hudPos);
     }
 }
 
@@ -251,7 +234,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         mod.menu = new ui::Menu(menuName, &mod);
         colorSubmenu->add(mod.menu);
 
-        mod.colorbar = new ColorBar(mod.menu);
+        mod.colorbar = std::make_unique<CoviseColorBar>(mod.menu);
     }
     ColorsModule &mod = it->second;
     ++mod.useCount;
@@ -261,7 +244,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         mod.colorbar->addInter(inter);
         mod.colorbar->setName(menuName.c_str());
         if (colormapString)
-            mod.colorbar->parseAttrib(colormapString);
+            mod.colorbar->updateFromAttribute(colormapString);
     }
 }
 

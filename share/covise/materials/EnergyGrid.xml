@@ -1,0 +1,47 @@
+<EnergyGrid_Line>
+<!--mapps vertex to node -->
+<attribute name="indexAttrib" type="int" value="5"/>
+
+<uniform name="dataValid" type="bool" value="true"/>
+<uniform name="rangeMin" type="float" value="0."/>
+<uniform name="rangeMax" type="float" value="1."/>
+<uniform name="blendWithMaterial" type="bool" value="false"/>
+<uniform name="Light0Enabled" type="bool" value="true"/>
+<uniform name="Light1Enabled" type="bool" value="false"/>
+<uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="timestep" type="int" value="0"/>
+<uniform name="numTimesteps" type="int" value="0"/>
+<uniform name="numNodes" type="int" value="2"/>
+<uniform name="timestepToData" type="sampler2D" value="0"/>
+
+<vertexProgram>
+attribute float indexAttrib;
+
+uniform int timestep;
+uniform int numTimesteps;
+uniform int numNodes;
+uniform sampler2D timestepToData;
+
+varying float data;
+
+varying vec3 V;
+varying vec3 N;
+
+void main (void) {
+    float index = (numNodes > 1) ? (float)indexAttrib / float(numNodes - 1) : 0.0;   
+    float timestepIndex = float(timestep) / float(numTimesteps - 1); 
+    data = texture2D(timestepToData, vec2(timestepIndex, index)).r;
+
+    // Eye-coordinate position of vertex, needed in various calculations
+    V = vec3(gl_ModelViewMatrix * gl_Vertex);
+    N = normalize(gl_NormalMatrix * gl_Normal);
+
+    // Do fixed functionality vertex transform
+    gl_Position = ftransform();
+    gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+}
+</vertexProgram>
+
+<fragmentProgram value="MapColorsFragment.glsl">
+</fragmentProgram>
+</EnergyGrid_Line>

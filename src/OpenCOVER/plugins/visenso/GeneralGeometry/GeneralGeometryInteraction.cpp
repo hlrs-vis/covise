@@ -12,7 +12,8 @@
 #include <net/message_types.h>
 #include <net/message.h>
 
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
+
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coPotiMenuItem.h>
 

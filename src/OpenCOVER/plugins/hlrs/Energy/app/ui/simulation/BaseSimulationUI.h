@@ -1,5 +1,7 @@
 #pragma once
 
+#include <PluginUtil/colors/coColorBar.h>
+#include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IColorable.h>
 #include <lib/core/interfaces/IDrawables.h>
 #include <lib/core/interfaces/ITimedependable.h>
@@ -15,8 +17,6 @@
 
 using namespace core::simulation;
 
-typedef covise::ColorMap ColorMap;
-
 template <typename T>
 class BaseSimulationUI {
   static_assert(std::is_base_of_v<core::interface::IDrawables, T>,
@@ -27,9 +27,8 @@ class BaseSimulationUI {
                 "T must be derived from ITimeDependable");
 
  public:
-  BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent,
-                   std::shared_ptr<ColorMap> colorMap)
-      : m_simulation(sim), m_parent(parent), m_colorMapRef(colorMap) {
+  BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent)
+      : m_simulation(sim), m_parent(parent) {
     if (auto simulation = m_simulation.lock()) simulation->computeParameters();
   }
 
@@ -38,8 +37,10 @@ class BaseSimulationUI {
   BaseSimulationUI &operator=(const BaseSimulationUI &) = delete;
 
   virtual void updateTime(int timestep) = 0;
-  virtual void updateTimestepColors(const std::string &key, float min = 0.0f,
-                                    float max = 1.0f, bool resetMinMax = false) = 0;
+  // TODO: make these const
+  virtual float min(const std::string &species) = 0;
+  virtual float max(const std::string &species) = 0;
+  virtual void updateTimestepColors(const opencover::ColorMap &map) = 0;
 
  protected:
   template <typename simulationObject>
@@ -61,12 +62,14 @@ class BaseSimulationUI {
     }
   }
 
+  const opencover::ColorMap *m_colorMap = nullptr;
   template <typename simulationObject>
   void computeColors(
-      std::shared_ptr<ColorMap> color_map, const std::string &key, float min,
-      float max, const std::map<std::string, simulationObject> &objectContainer) {
+      const opencover::ColorMap &color_map,
+      const std::map<std::string, simulationObject> &objectContainer) {
+    m_colorMap = &color_map;
     isDerivedFromObject<simulationObject>();
-    double minKeyVal = 0.0, maxKeyVal = 1.0;
+    double minKeyVal = 1000.0, maxKeyVal = 1.0;
 
     try {
       auto simulation = m_simulation.lock();
@@ -76,17 +79,22 @@ class BaseSimulationUI {
         return;
       }
 
-      auto &[min_val, max_val] = simulation->getMinMax(key);
-      minKeyVal = min_val;
-      maxKeyVal = max_val;
+      minKeyVal = simulation->getMin(color_map.species());
+      maxKeyVal = simulation->getMax(color_map.species());
     } catch (const std::out_of_range &e) {
-      std::cerr << "Key not found in minMaxValues: " << key << std::endl;
+      std::cerr << "Key not found in minMaxValues: " << color_map.species()
+                << std::endl;
       return;
     }
 
     for (auto &[name, object] : objectContainer) {
       const auto &data = object.getData();
-      const auto &values = data.at(key);
+      auto it = data.find(color_map.species());
+      if (it == data.end()) {
+        std::cerr << "Key not found in data: " << color_map.species() << std::endl;
+        continue;
+      }
+      const auto &values = data.at(color_map.species());
       if (auto color_it = m_colors.find(name); color_it == m_colors.end()) {
         m_colors.insert({name, std::vector<osg::Vec4>(values.size())});
       }
@@ -95,9 +103,8 @@ class BaseSimulationUI {
       // color_map
       for (auto i = 0; i < values.size(); ++i) {
         auto interpolated_value = core::utils::math::interpolate(
-            values[i], minKeyVal, maxKeyVal, min, max);
-        auto color = covise::getColor(interpolated_value, *color_map, min, max);
-        colors[i] = color;
+            values[i], minKeyVal, maxKeyVal, color_map.min(), color_map.max());
+        colors[i] = color_map.getColor(interpolated_value);
       }
     }
   }
@@ -108,9 +115,9 @@ class BaseSimulationUI {
         std::is_base_of_v<Object, simulationObject>,
         "simulationObject must be derived from core::simulation::heating::Object");
   }
-
   std::weak_ptr<T> m_parent;  // parent which manages drawable
-  std::weak_ptr<ColorMap> m_colorMapRef;
   std::weak_ptr<Simulation> m_simulation;
+
+ private:
   std::map<std::string, std::vector<osg::Vec4>> m_colors;
 };
