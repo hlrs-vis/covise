@@ -8,10 +8,6 @@ if [ -z "$COVISEDIR" ]; then
 fi
 
 if [ -z "$COENVERROR" ]; then
-   # the Inventor renderer does not show any labels and crashes without
-   export FL_FONT_PATH="${COVISEDIR}/share/covise/fonts"
-   # Coin only has a default font without
-   export COIN_FONT_PATH="${COVISEDIR}/share/covise/fonts"
 
    # fonts for OpenSceneGraph
    if [ -z "$OSGFILEPATH" ]; then
