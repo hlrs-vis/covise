@@ -649,19 +649,19 @@ MACRO(COVISE_INSTALL_TARGET targetname)
     SET(_category_path "/${category}")
   ENDIF(category)
   
-  # @Florian: What are you trying to do? The following will create a subdirectory "/${ARCHSUFFIX}/..."
+    # @Florian: What are you trying to do? The following will create a subdirectory "/${COVISE_ARCHSUFFIX}/..."
   # in each and every in-source subdirectory where you issue a COVISE_INSTALL_TARGET() !!!
   # cmake's INSTALL() will create the given subdirectories in ${CMAKE_INSTALL_PREFIX} at install time.
   #
-#  IF (NOT EXISTS covise/${ARCHSUFFIX}/bin)
-#    FILE(MAKE_DIRECTORY covise/${ARCHSUFFIX}/bin)
-#  ENDIF(NOT EXISTS covise/${ARCHSUFFIX}/bin)
-#  IF (NOT EXISTS covise/${ARCHSUFFIX}/bin${_category_path})
-#    FILE(MAKE_DIRECTORY covise/${ARCHSUFFIX}/bin${_category_path})
-#  ENDIF(NOT EXISTS covise/${ARCHSUFFIX}/bin${_category_path})
-#  IF (NOT EXISTS covise/${ARCHSUFFIX}/lib)
-#    FILE(MAKE_DIRECTORY covise/${ARCHSUFFIX}/lib)
-#  ENDIF(NOT EXISTS covise/${ARCHSUFFIX}/lib)
+    #  IF (NOT EXISTS covise/${COVISE_ARCHSUFFIX}/bin)
+    #    FILE(MAKE_DIRECTORY covise/${COVISE_ARCHSUFFIX}/bin)
+    #  ENDIF(NOT EXISTS covise/${COVISE_ARCHSUFFIX}/bin)
+    #  IF (NOT EXISTS covise/${COVISE_ARCHSUFFIX}/bin${_category_path})
+    #    FILE(MAKE_DIRECTORY covise/${COVISE_ARCHSUFFIX}/bin${_category_path})
+    #  ENDIF(NOT EXISTS covise/${COVISE_ARCHSUFFIX}/bin${_category_path})
+    #  IF (NOT EXISTS covise/${COVISE_ARCHSUFFIX}/lib)
+    #    FILE(MAKE_DIRECTORY covise/${COVISE_ARCHSUFFIX}/lib)
+    #  ENDIF(NOT EXISTS covise/${COVISE_ARCHSUFFIX}/lib)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
       RUNTIME DESTINATION ${COVISE_ARCHSUFFIX}/bin${_category_path}

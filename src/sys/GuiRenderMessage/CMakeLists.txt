@@ -45,7 +45,7 @@ SWIG_LINK_LIBRARIES(coGRMsg coGRMsg Python::Python)
 
 # for VisualStudio it seems we have to rename debug versions to *_d.pyd
 IF(MSVC)
-  IF("${ARCHSUFFIX}" STREQUAL "${BASEARCHSUFFIX}")
+    IF("${COVISE_ARCHSUFFIX}" STREQUAL "${BASEARCHSUFFIX}")
     SET_TARGET_PROPERTIES(${SWIG_MODULE_coGRMsg_REAL_NAME} PROPERTIES OUTPUT_NAME_DEBUG "_coGRMsg_d")
   ENDIF()
 ENDIF(MSVC)

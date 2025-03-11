@@ -45,7 +45,7 @@ SWIG_LINK_LIBRARIES(covise coAppl Python::Python)
 
 # for VisualStudio it seems we have to rename debug versions to *_d.pyd
 IF(MSVC)
-  IF("${ARCHSUFFIX}" STREQUAL "${BASEARCHSUFFIX}")
+    IF("${COVISE_ARCHSUFFIX}" STREQUAL "${BASEARCHSUFFIX}")
     SET_TARGET_PROPERTIES(${SWIG_MODULE_covise_REAL_NAME} PROPERTIES OUTPUT_NAME_DEBUG "_covise_d")
   ENDIF()
 ENDIF(MSVC)
@@ -63,7 +63,7 @@ IF(MSVC)
   ENDIF()
 ELSE(MSVC)
   ADD_CUSTOM_COMMAND(TARGET ${SWIG_MODULE_covise_REAL_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISEDIR}/${ARCHSUFFIX}/lib/covise.py
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/covise.py ${COVISEDIR}/${COVISE_ARCHSUFFIX}/lib/covise.py
   )
 ENDIF(MSVC)
 # place scriptingInterface.py in the output directory

@@ -10,7 +10,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 if ("${COVISE_ARCHSUFFIX}" MATCHES "^spack")
     set(COVISE_INSTALL_LIBDIR lib)
 else()
-    set(COVISE_INSTALL_LIBDIR ${ARCHSUFFIX}/lib)
+    set(COVISE_INSTALL_LIBDIR ${COVISE_ARCHSUFFIX}/lib)
 endif()
 # in order to allow linking to libraries installed with spack
 set(CMAKE_SKIP_RPATH FALSE)

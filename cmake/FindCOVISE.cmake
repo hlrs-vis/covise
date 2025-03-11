@@ -404,7 +404,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
   #FOREACH(tgt ${ARGV})
   #   COVISE_COPY_TARGET_PDB(${tgt} ${COVISE_ARCHSUFFIX} ${_category_path})
   #ENDFOREACH(tgt)
-  #install(FILES $<TARGET_PDB_FILE:${ARGV}> DESTINATION ${ARCHSUFFIX}/bin${_category_path}) # let CMAKE do the copy
+    #install(FILES $<TARGET_PDB_FILE:${ARGV}> DESTINATION ${COVISE_ARCHSUFFIX}/bin${_category_path}) # let CMAKE do the copy
   COVISE_INSTALL_DEPENDENCIES(${targetname})
 ENDMACRO(COVISE_INSTALL_TARGET)
 
