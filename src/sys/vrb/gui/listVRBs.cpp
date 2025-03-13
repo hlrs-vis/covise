@@ -112,9 +112,9 @@ shm_remove &shm_remove::operator=(shm_remove &&other)
     return *this;
 }
 
-shm_remove placeSharedProcessInfo(int tcpPort)
+std::unique_ptr<shm_remove> placeSharedProcessInfo(int tcpPort)
 {
-    shm_remove remover(tcpPort);
+    auto remover = std::make_unique<shm_remove>(tcpPort);
     try
     {
         const size_t size = 10000;
@@ -139,7 +139,7 @@ shm_remove placeSharedProcessInfo(int tcpPort)
     {
         std::cerr << "could not register VRB in SHM: " << e.what() << std::endl;
     }
-    return std::move(remover);
+    return remover;
 }
 
 void cleanShm()

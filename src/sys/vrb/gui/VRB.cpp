@@ -83,60 +83,49 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    std::unique_ptr<QApplication> app;
     if (gui)
     {
-        QApplication a(argc, argv);
+        app = std::make_unique<QApplication>(argc, argv);
 #ifdef __APPLE__
-        a.setAttribute(Qt::AA_DontShowIconsInMenus);
+        app->setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-        a.setWindowIcon(QIcon(":/icons/vrbIcon.png"));
+        app->setWindowIcon(QIcon(":/icons/vrbIcon.png"));
 
         mw = new ApplicationWindow();
         mw->setWindowTitle("VRB");
         mw->show();
-        a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
-        VRBServer server(gui);
-        if (!server.openServer(printport))
-        {
-            return -1;
-        }
-        if (!printport && !server.startUdpServer())
-        {
-            std::cerr << "failed to open udp socket" << std::endl;
-        }
+        app->connect(app.get(), SIGNAL(lastWindowClosed()), app.get(), SLOT(quit()));
+    }
+
+    VRBServer server(gui);
+    if (!server.openServer(printport))
+    {
+        return -1;
+    }
+    if (!printport && !server.startUdpServer())
+    {
+        std::cerr << "failed to open udp socket" << std::endl;
+    }
+
+    if (mw)
+    {
         mw->setPort("Tcp", server.getPort());
         mw->setPort("Udp", server.getUdpPort());
-        auto remover = placeSharedProcessInfo(server.getPort());
-        if (printport)
-        {
-            printPort(server.getPort());
-        }
-        int exitcode = a.exec();
-
-        return exitcode;
+    }
+    std::unique_ptr<shm_remove> remover;
+    if (printport)
+    {
+        printPort(server.getPort());
     }
     else
     {
-        VRBServer server(gui);
-        if (!server.openServer(printport))
-        {
-            return -1;
-        }
-        if (!printport && !server.startUdpServer())
-        {
-            std::cerr << "failed to open udp socket" << std::endl;
-        }
-        auto remover = placeSharedProcessInfo(server.getPort());
-        if (printport)
-        {
-            printPort(server.getPort());
-        }
-        if (!gui)
-        {
-            server.loop();
-        }
-        int exitcode = 0;
-
-        return exitcode;
+        remover = placeSharedProcessInfo(server.getPort());
+    }
+    if(app) {
+        return app->exec();
+    } else {
+        server.loop();
+        return 0;
     }
 }

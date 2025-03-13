@@ -4,6 +4,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
+#include <memory>
 
 
 // Typedefs
@@ -34,7 +35,7 @@ private:
     int m_port = 0;
 };
 
-shm_remove placeSharedProcessInfo(int tcpPort);
+std::unique_ptr<shm_remove> placeSharedProcessInfo(int tcpPort);
 void cleanShm();
 void listShm();
 
