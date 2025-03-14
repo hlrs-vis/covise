@@ -403,6 +403,8 @@ public:
     float frameRate() const;
 
     bool continuousRendering() const;
+
+    void setContinuousRendering(bool cr) { m_continuousRendering = cr; };
     
     std::vector<screenStruct> screens; // list of physical screens
     std::vector<channelStruct> channels; // list of physical screens

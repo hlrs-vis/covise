@@ -32,12 +32,12 @@
 
 #include "../Settings.h"
 
-#ifdef _WINDOWS
+/*#ifdef _WINDOWS
 double round(double r)
 {
     return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
 }
-#endif
+#endif*/
 
 TransformBehavior::TransformBehavior()
 {

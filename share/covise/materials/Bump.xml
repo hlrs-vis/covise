@@ -1,4 +1,4 @@
-<_Bump><uniform name="Bumpiness" type="float" value="0.3"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="normalMap" type="sampler2D" value="1"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>varying vec3 normal, lightDir, eyeVec;
+<_Bump><uniform name="Bumpiness" type="float" value="1"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="normalMap" type="sampler2D" value="1"/><attribute name="aBinormal" type="binormal" value="6"/><attribute name="aTangent" type="tangent" value="7"/><vertexProgram>varying vec3 normal, lightDir, eyeVec;
     varying vec3 Binormal;
     varying vec3 Tangent;
     varying vec2 Texcoord;
@@ -6,21 +6,24 @@
     attribute vec3 aBinormal;
     attribute vec3 aTangent;
      
+    uniform float Bumpiness;
+    uniform int Time;
+
     void main( void )
     {
         normal   = gl_NormalMatrix * gl_Normal;
         Binormal = gl_NormalMatrix * aBinormal;
         Tangent  = gl_NormalMatrix * aTangent; 
         Texcoord = gl_MultiTexCoord0.xy;
-     
-     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
-     
-     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
-     	eyeVec = -vVertex;
-gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
-	gl_Position = ftransform();	
+        vec4 Vertex = gl_Vertex;
+        Vertex[1] +=10* sin(float(Time)/1000.0 + Vertex[0]*10);
+     	vec4 vVertex = gl_ModelViewMatrix *Vertex ;
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vec3(vVertex));
+     	eyeVec = -vec3(vVertex);
+                         gl_ClipVertex = vVertex;
+	gl_Position =gl_ProjectionMatrix * vVertex;	
     }
-  </vertexProgram><fragmentProgram>varying vec3 normal, lightDir, eyeVec;
+  </vertexProgram><fragmentProgram>    varying vec3 normal, lightDir, eyeVec;
     varying vec3 Binormal;
     varying vec3 Tangent;
     varying vec2 Texcoord;
@@ -32,53 +35,29 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
    
     void main( void )
     {
-vec4 diffuseColor = texture2D( diffuseMap, Texcoord ) ;
-      vec4 final_color = 
-      	(gl_FrontLightModelProduct.sceneColor* 0.1*gl_FrontMaterial.ambient ) ;//+ 
-      	//(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
-      vec4 bumpmap =  2.0 * Bumpiness * texture2D( normalMap, Texcoord ) - vec4(0.5,0.5,0.5,0);
-      	
-      							
-      
+       float n = 10;
+       vec4 Il = vec4(1,1,1,1);
+       vec4 Ka = vec4(0.2,0.2,0.2,1);
+       vec4 Kd = vec4(1,0.2,0.3,1);
+       vec4 Ks = vec4(1,1,1,1);
+       vec4 I;
+       vec4 Id;
+       vec4 Ia = vec4(0,0,0,1);
+       vec4 Is = vec4(0,0,0,1);
       vec3 N = normalize(normal);
-      vec3 Tn = normalize(Tangent);
-      vec3 Bn = normalize(Binormal);
-      N += (bumpmap.x * Tn + bumpmap.y * Bn);
-      N = normalize(N);
-      
-      vec3 nEyeVec = normalize(eyeVec);
-      	
       vec3 L = normalize(lightDir);
-      	
-      float lambertTerm = dot(N,L);
-      	
-      if(lambertTerm &gt; 0.0)
-      {
-if(N[2]&gt; 2.5)
-{
-final_color = vec4(1,1,1,1);
-}
-else
-{
-      	final_color += gl_LightSource[0].diffuse * 
-      	               diffuseColor * 
-				   lambertTerm;	
-  }          		
-      	vec3 E = normalize(nEyeVec);
-      	vec3 R = reflect(-L, N);
-      	float specular = pow( max(dot(R, E), 0.0), 
-      		                 gl_FrontMaterial.shininess );
-      	final_color += gl_LightSource[0].specular * 
-      	               gl_FrontMaterial.specular * 
-      				   specular;	
-      	}
-      if(diffuseColor.a &lt; 0.5)
-	  {
-	      discard;
-	  }
-final_color.a = diffuseColor.a;
-	gl_FragColor = final_color;	
-	//gl_FragColor =  2.0 * Bumpiness *texture2D( normalMap, Texcoord ) - vec4(0.5,0.5,0.5,0);	
-          
+      vec3 H;
+      vec3 R;
+      vec3 B;
+      B = normalize(eyeVec);
+      H = normalize(B + L);
+      R = reflect(-L,N);
+      float sp = dot(R,B);
+      sp = max(sp,0.0);
+      Is = Ks *Il * pow(sp,n);
+      Id = Kd *Il* max(dot(N,L),0) ;
+      Ia = Ka *Il;
+       I = Id + Ia + Is;
+         gl_FragColor = I;
     }
   </fragmentProgram></_Bump>

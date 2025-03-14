@@ -193,7 +193,7 @@ private:
     bool overwritePAndV;
     bool reEnableCulling;
 
-    float requestedSeparation, separation;
+    float requestedSeparation=60.0, separation=60.0;
     int animateSeparation;
     bool stereoOn;
 

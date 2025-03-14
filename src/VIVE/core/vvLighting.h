@@ -81,7 +81,7 @@ public:
        *  @param   force        Create even when no values in covise.config
        *  @retun   NULL if section missing and no 'force', pointer to Light otherwise
        */
-    vsg::Light *createLightSource(const char *configName,
+    vsg::ref_ptr<vsg::Light> createLightSource(const char *configName,
                                         const LightDef &defValue,
                                         bool force);
 
@@ -119,7 +119,7 @@ public:
     void update();
 
     // add light to scene
-    int addLight(vsg::Light*ls, vsg::Group *parent = NULL, vsg::Node *root = NULL, const char *menuName = NULL);
+    int addLight(vsg::ref_ptr<vsg::Light> &ls, vsg::Group *parent = NULL, vsg::Node *root = NULL, const char *menuName = NULL);
 
     // remove light from scene
     vsg::Light *removeLight(vsg::Light *ls);

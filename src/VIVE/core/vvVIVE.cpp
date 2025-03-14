@@ -596,13 +596,13 @@ bool vvVIVE::init()
     
     vvSceneGraph::instance()->init();
     vvShaderList::instance()->update();
-
+    /*
     auto pointLight = vsg::PointLight::create();
     pointLight->name = "point";
     pointLight->color.set(1.0f, 1.0f, 0.0);
     pointLight->intensity = static_cast<float>(1.0);
     pointLight->position.set(static_cast<float>(0.0), static_cast<float>(-100.0), static_cast<float>(0.0));
-    pointLight->radius = 5000;
+    pointLight->radius = 5000;*/
 
     //vv->getScene()->addChild(pointLight);
 
@@ -861,10 +861,7 @@ bool vvVIVE::init()
         cr->setText("Continuous rendering");
         cr->setState(vvConfig::instance()->continuousRendering());
         cr->setCallback([this](bool state){
-          /* if (state)
-               vvViewer::instance()->setRunFrameScheme(osgViewer::Viewer::CONTINUOUS);
-           else
-               vvViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);*/
+            vvConfig::instance()->setContinuousRendering(state);
         });
     }
 

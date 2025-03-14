@@ -2008,7 +2008,7 @@ void vvNavigationManager::doMouseXform()
 
             //getPhi kann man noch aendern, wenn xy-Rotation nicht gewichtet werden soll
             heading = getPhi(newx - relx0, widthX);
-            pitch = -getPhi(newy - rely0, widthY);
+            pitch = getPhi(newy - rely0, widthY);
 
             rollVerti = getPhiZVerti(newy, rely0, newx, widthX, widthY);
             rollHori = getPhiZHori(newx, relx0, newy, widthY, widthX);
@@ -2039,7 +2039,7 @@ void vvNavigationManager::doMouseXform()
 
             //getPhi kann man noch aendern, wenn xy-Rotation nicht gewichtet werden soll
             heading = getPhi(newx - relx0, widthX);
-            pitch = -getPhi(newy - rely0, widthY);
+            pitch = getPhi(newy - rely0, widthY);
 
             rollVerti = getPhiZVerti(newy, rely0, newx, widthX, widthY);
             rollHori = getPhiZHori(newx, relx0, newy, widthY, widthX);
@@ -2162,7 +2162,7 @@ void vvNavigationManager::doMouseScale()
     float newScaleY = mouseY() - originY;
 
     //calculate the new scale factor
-    float newScaleFactor = actScaleFactor * exp(((rely0 - newScaleY) / ampl));
+    float newScaleFactor = actScaleFactor * exp(((rely0 - newScaleY) / -ampl));
     doMouseScale(newScaleFactor);
 }
 

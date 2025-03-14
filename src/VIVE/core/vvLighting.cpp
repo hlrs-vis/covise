@@ -266,10 +266,10 @@ void vvLighting::initOtherLight()
     }
 }
 
-vsg::Light *
+vsg::ref_ptr<vsg::Light>
 vvLighting::createLightSource(const char *configName, const LightDef &def, bool force)
 {
-    vsg::Light *light = NULL;
+    vsg::ref_ptr<vsg::Light> light = NULL;
 
     char *configEntry = new char[128]; // hope it won't ever be bigger
     strcpy(configEntry, "VIVE.Lights.");
@@ -298,7 +298,14 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
         //fprintf(stderr, "creating light %s\n", configName);
         float x, y, z, w, r, g, b, expo, angle;
 
-        light = new vsg::Light();
+        auto pointLight = vsg::PointLight::create();
+
+        pointLight->name = configName;
+        pointLight->color.set(1.0f, 1.0f, 0.0);
+        pointLight->intensity = static_cast<float>(1.0);
+        pointLight->position.set(static_cast<float>(def.pos.x), static_cast<float>(def.pos.y), static_cast<float>(def.pos.z));
+        pointLight->radius = 1E20;
+        light = pointLight;
        /* vsg::Light* vsgLight = new vsg::Light();
         light->setLight(osgLight);
 
@@ -382,7 +389,7 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
     return light;
 }
 
-int vvLighting::addLight(vsg::Light *ls, vsg::Group *parent, vsg::Node *root, const char *menuName)
+int vvLighting::addLight(vsg::ref_ptr<vsg::Light>& ls, vsg::Group *parent, vsg::Node *root, const char *menuName)
 {
     // fprintf(stderr, "add light: %p to %p lighting %p (num=%lu)\n",
     //      ls, parent, root, (unsigned long)lightList.size());
@@ -433,7 +440,7 @@ int vvLighting::addLight(vsg::Light *ls, vsg::Group *parent, vsg::Node *root, co
     }
    // light->setLightNum(lightList.size() - 1);
 
-    //parent->addChild(ls);
+    parent->addChild(ls);
 
     switchLight(ls, true);
 

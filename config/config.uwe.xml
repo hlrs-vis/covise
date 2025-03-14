@@ -293,9 +293,49 @@
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="100" top="100" name="0" embedded="false" decoration="true" />
+    <Window type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="200" top="100" name="0" embedded="false" decoration="true" />
    </WindowConfig>
+   <NumScreens vaule="2" />
+   <NumWindows vaule="2" />
+   <NumChannels vaule="2" />
   </COVER>
+  
+  <VIVE>
+   <PipeConfig>
+       <Pipe name="0" useDISPLAY="true" />
+   </PipeConfig>
+
+   <WindowConfig>
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
+    <Window width="2048" comment="FRONT" window="0" pipeIndex="0" height="576" left="200" top="100" name="0" embedded="false" decoration="true" />
+    <Window width="1024" comment="FRONT" window="1" pipeIndex="0" height="576" left="1400" top="100" name="1" embedded="false" decoration="true" />
+   </WindowConfig>
+   
+   <ChannelConfig>
+    <Channel comment="MAIN1" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
+    <Channel comment="MAIN2" channel="1" stereoMode="LEFT" windowIndex="0" viewportIndex="1" name="1"/>
+   </ChannelConfig>
+   <NumScreens value="2" />
+   <NumWindows value="1" />
+   <NumChannels value="2" />
+   <NumViewports value="2" />
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="1000" originZ="0" height="1000" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen width="2000" comment="FRONT" h="-90.0" originX="1000" originY="0" originZ="0" height="1000" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+
+
+   <ViewportConfig>
+      <!-- each channel needs at least one Viewport -->
+    <Viewport width="0.5" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+    <Viewport width="0.5" height="1" left="0.5" bottom="0" windowIndex="0" channelIndex="1" name="1"  />
+   </ViewportConfig>
+   <!--Background r="1.0" g="1.0" b="1.0"/-->
+  </VIVE>
 
 </GLOBAL>
 
