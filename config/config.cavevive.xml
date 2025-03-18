@@ -1,0 +1,629 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <GLOBAL>
+ 
+  <VIVE>
+   <NumScreens value="0" />
+   <NumWindows value="0" />
+   <StartCommand value="PATH=/usr/bin LD_LIBRARY_PATH= sudo nvidia-smi -ac 4513,1657" />
+   <ExitCommand value="PATH=/usr/bin LD_LIBRARY_PATH= sudo nvidia-smi -rac" />
+  </VIVE>
+ </GLOBAL>
+
+ <CLUSTER MASTER="viscluster50">
+
+   <VIVE>
+     <Stats leftPos="135.0" />
+     
+     <DebugTUI value="true" />
+     <!--Background r="1" g="1" b="1" /-->
+     <Console ARCH="windows" value="true" file="c:\OpenCOVER" />
+     <MenuMode value="false" />
+     <Specular value="false" />
+     <Input>
+        <MouseNav value="true" />
+        <Device>
+
+           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
+              <!--Offset x="-86" y="-3080" z="-1260" /-->
+              <Offset x="0" y="-4075" z="-1260" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCaveOutside>
+
+           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.78">
+              <Offset x="0" y="-0" z="-1327" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCave>
+
+           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+           <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
+
+        </Device>
+
+        <Body>
+           <ConstHead>
+              <Offset x="0" y="-2000" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </ConstHead>
+
+           <CaveHead device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="1">
+              <Offset x="105" y="-50" z="-60" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead>
+
+           <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
+              <Offset x="10" y="-110" z="0" />
+              <Orientation h="-2" p="-2" r="14" />
+           </CaveHand>
+
+           <CaveCamera device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="2">
+              <Offset x="0" y="120" z="-100" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveCamera>
+
+           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="2">
+              <Offset x="0" y="120" z="-200" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveCameraOutside>
+	   
+           <CaveGloves device="DTrackCave" bodyIndex="3">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveGloves>
+	   
+<!--
+           <CaveHead2 device="DTrackCave" bodyIndex="3">
+              <Offset x="-105" y="-40" z="-50" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead2>
+
+           <CaveHand2 device="DTrackCave" bodyIndex="2">
+              <Offset x="0" y="-170" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHand2>
+-->
+           <TripodHead>
+              <Offset x="0" y="-3000" z="0" />
+           </TripodHead>
+
+
+        </Body>
+
+        <Buttons>
+           <CaveMouse device="CaveButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+           <CyberstickMouse device="CyberstickButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CyberstickMouse>
+        </Buttons>
+
+        <Valuator>
+           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
+           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
+        </Valuator>
+	
+	<Device>
+           <joystick driver="joystick" device="/dev/input/js"/>
+	</Device>
+
+        <Persons>
+           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
+           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="CameraOutside" eyeDistance="0.0" head="CaveCameraOutside" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
+        </Persons>
+     </Input>
+   </VIVE>
+ </CLUSTER>
+
+ <LOCAL HOST="viscluster50,visent,visent.hlrs.de">
+
+  <VIVE>
+
+   <!--Background r="1" g="1" b="1" /-->
+    <!--LODScale value="0.000000000001" /-->
+
+  </VIVE>
+
+  <Module>
+   <Fenfloss>
+     <Local value="141.58.8.5"/>
+     <!--Local value="192.168.2.150"/-->
+   </Fenfloss>
+
+   <ReadSim>
+     <Local value="visent.hlrs.de"/>
+   </ReadSim>
+
+   <CFX>
+     <Local value="192.168.0.150"/>
+   </CFX>
+
+  </Module>
+
+ </LOCAL>
+
+
+ <CLUSTER MASTER="viscluster50">
+
+  <System>
+
+   <HostConfig>
+    <Host timeout="300" memory="shm" method="ssh" name="visent.hlrs.de" hostname="visent.hlrs.de" />
+    <Host timeout="300" memory="shm" method="ssh" name="visent" hostname="visent" />  
+    <Host timeout="300" memory="shm" method="ssh" name="viscluster51" hostname="viscluster51" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster52" hostname="viscluster52" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster53" hostname="viscluster53" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster54" hostname="viscluster54" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster55" hostname="viscluster55" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster56" hostname="viscluster56" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster57" hostname="viscluster57" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster58" hostname="viscluster58" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster59" hostname="viscluster59" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster60" hostname="viscluster60" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster11" hostname="viscluster11" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster12" hostname="viscluster12" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster13" hostname="viscluster13" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster14" hostname="viscluster14" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster15" hostname="viscluster15" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster16" hostname="viscluster16" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster17" hostname="viscluster17" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster18" hostname="viscluster18" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster19" hostname="viscluster19" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster20" hostname="viscluster20" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster21" hostname="viscluster21" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster22" hostname="viscluster22" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster23" hostname="viscluster23" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster24" hostname="viscluster24" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster25" hostname="viscluster25" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster26" hostname="viscluster26" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster27" hostname="viscluster27" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster28" hostname="viscluster28" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster29" hostname="viscluster29" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster30" hostname="viscluster30" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster31" hostname="viscluster31" />
+    <Host timeout="30" memory="shm" method="ssh" name="viscluster32" hostname="viscluster32" />
+   </HostConfig>
+
+   <covRemote>
+    <Host value="visbat" />
+    <Server port="31809" />
+   </covRemote>
+
+   <VRB>
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
+   </VRB>
+  </System>
+
+
+  <VIVE>
+
+   <Stereo value="true" />
+   <Spheres><UseVertexArrays value="on"/></Spheres>
+   <OMPThreads value="off"/>
+   <!--IconSize value="20"/-->
+
+   <!--FSAAMode value="0" /-->
+    <Multisample value="OFF" numSamples="4" numBuffers="2" mode="FASTEST" />
+   <AnisotropicFiltering value="0" />
+   <Plugin>
+    <Skateboard>
+        <Position x="0" y="0" />
+    </Skateboard>
+    <VIVEScript value="off"/>
+    <Variant value="true"/>
+    <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    </Revit>
+    <TrackObjects menu="on" value="off" >
+	    <Objects>
+           <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
+           <Object name="Pumpe" x="400" y="960" z="-940"  h="0" p="0" r="0"/>
+           <Object name="Fuellstation" x="800" y="308" z="-940"  h="180" p="0" r="0"/>
+           <Object name="anotherPosition" x="3000" y="0" z="0"  h="90" p="0" r="0"/>
+        </Objects>
+        
+	</TrackObjects>
+    <ViewPoint value="on"/>
+    <Joystick>
+      <Device value="/dev/input/porschepedal" />
+    </Joystick>
+    <Vrml97 value="on">
+
+     <Lights value="ON" />
+     <Audio value="AServer" >
+        <Host value="192.168.0.240"/> 
+     </Audio>
+
+
+    <ViewpointType value = "free"/>
+
+    <NewMovieSupport value="true"/>
+
+
+    </Vrml97>
+    
+    <StereoVideoPlayer>
+       <Audio value="off"/>
+    </StereoVideoPlayer>
+
+    <ACInterface value="off"/>
+    <WSInterface value="off"/>
+    <PolyLineData value="off"/>
+    <RemoteDT value="off"/>
+
+   </Plugin>
+
+   <!--TabletUI host="141.58.8.221" /-->
+   <TabletUI host="141.58.8.187" />
+
+   <MultiPC>
+    <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>
+    <NumSlaves value="10" />
+    <MasterInterface value="192.168.2.150" />
+
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster51 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster52 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="1"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster53 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="2"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster54 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="3"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster55 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="4"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster56 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="5"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster57 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="6"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster58 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="7"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster59 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="8"/>
+    <Startup ARCH="x11" value="ssh ${USER}@viscluster60 ${COVISEDIR}/bin/startVIVE `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="9"/>
+
+    <Multicast>
+     <debugLevel value="2" />
+     <mcastAddr value="224.223.222.221" />
+     <mcastPort value="23232" />
+     <mtu value="1500" />
+     <ttl value="1" />
+     <lback value="off" />
+     <sndBufferSpace value="1000000" />
+     <rcvBufferSpace value="1000000" />
+     <blockSize value="4" />
+     <numParity value="0" />
+     <txCacheSize value="100000000" />
+     <txCacheMin value="1" />
+     <txCacheMax value="128" />
+     <txRate value="1000" />
+     <backoffFactor value="0.0" />
+     <sockBufferSize value="512000" />
+     <readTimeoutSec value="30" />
+     <writeTimeoutMsec value="500" />
+     <retryTimeout value="100" />
+     <maxLength value="1000000" />
+    </Multicast>
+    
+   </MultiPC>
+
+  </VIVE>
+ </CLUSTER>
+
+ <LOCAL HOST="viscluster50" >
+  <VIVE>
+   <ScreenConfig>
+    <Screen width="4320" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+
+ <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster52" >
+  <VIVE>
+   <SplashScreen value="/mnt/raid/media/images/splash/Front.tif" width="1176" height="1050" />
+   
+   <ScreenConfig>
+    <Screen width="2700" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+
+
+ <LOCAL HOST="viscluster53,viscluster54" >
+  <VIVE>
+   <SplashScreen value="/mnt/raid/media/images/splash/Left.tif" width="1176" height="1050" />
+   
+   <ScreenConfig>
+    <Screen width="2700" comment="LEFT" h="90.0" originX="-1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="LEFT" h="90.0" originX="-1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+
+
+ <LOCAL HOST="viscluster55,viscluster56" >
+  <VIVE>
+   <SplashScreen value="/mnt/raid/media/images/splash/Right.tif" width="1176" height="1050" />
+  
+   <ScreenConfig>
+    <Screen width="2700" comment="RIGHT" h="-90.0" originX="1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="RIGHT" h="-90.0" originX="1350" originY="0" originZ="0" height="2700" p="0.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+
+
+ <LOCAL HOST="viscluster57,viscluster58" >
+  <VIVE>
+   <SplashScreen value="/mnt/raid/media/images/splash/Floor.tif" width="1176" height="1050" />
+   
+   <ScreenConfig>
+    <Screen width="2700" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1350" height="2700" p="-90.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="BOTTOM" h="0.0" originX="0" originY="0" originZ="-1350" height="2700" p="-90.0" r="0.0" name="1" screen="1" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+ 
+ <LOCAL HOST="viscluster59,viscluster60" >
+  <VIVE>
+   <SplashScreen value="/mnt/raid/media/images/splash/Floor.tif" width="1176" height="1050" />
+   
+   <ScreenConfig>
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="180.0" name="0" screen="0" />
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="180.0" name="1" screen="1" />
+   </ScreenConfig>
+  </VIVE>
+ </LOCAL>
+
+
+
+ <LOCAL HOST="viscluster52,viscluster53,viscluster55,viscluster56,viscluster57,viscluster59" >
+  <VIVE>
+   <WindowConfig>
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" swapGroup="1" swapBarrier="1" />
+   </WindowConfig>
+  </VIVE>
+ </LOCAL>
+
+ <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster54,viscluster55,viscluster56,viscluster58,viscluster60" >
+  <VIVE>
+   <WindowConfig>
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" swapGroup="1" swapBarrier="1" />
+   </WindowConfig>
+  </VIVE>
+ </LOCAL>
+
+
+ <LOCAL HOST="viscluster50," >
+  <VIVE>
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
+   </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+   </ViewportConfig>
+   <WindowConfig>
+   <Window ARCH="x11" type="" width="1600" comment="MAIN" window="0" pipeIndex="0" height="1000" left="100" top="50" name="0" decoration="true" />
+   </WindowConfig>
+  </VIVE>
+ </LOCAL>
+
+
+<LOCAL HOST="viscluster52,viscluster54,viscluster56" >
+  <VIVE>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuR.png" />
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
+   </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
+   </ViewportConfig>
+
+  </VIVE>
+ </LOCAL>
+
+<LOCAL HOST="viscluster58,viscluster60" >
+  <VIVE>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuR.png" />
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
+   </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
+   </ViewportConfig>
+  </VIVE>
+ </LOCAL>
+
+
+ <LOCAL HOST="viscluster51,viscluster53,viscluster55,visent,visent.hlrs.de" >
+  <VIVE>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuL.png" />
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
+   </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
+   </ViewportConfig>
+  </VIVE>
+ </LOCAL>
+
+ <LOCAL HOST="viscluster57,viscluster59" >
+  <VIVE>
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuL.png" />
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
+   </ChannelConfig>
+   <ViewportConfig>
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
+   </ViewportConfig>
+  </VIVE>
+ </LOCAL>
+
+ <LOCAL HOST="viscluster50" >
+  <VIVE>
+   <SyncToVBlank value="Off" device="DP-0"/>
+  </VIVE>
+ </LOCAL>
+
+
+ <CLUSTER MASTER="viscluster50">
+  <VIVE>
+   <Snap value="ON" />
+   <WelcomeMessage value="Welcome to VIVE at HLRS CAVE" />
+   <SyncToVBlank value="ON" device="DP-0"/>
+   <WriteVrmlViewpoint value="ON" />
+   <Crease value="OFF" />
+   <TwoSide value="ON" />
+   <Near value="100" />
+   <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
+   <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->
+   <ViewerPosition x="0" y="-3000" z="200" />
+   <FloorHeight value="-1250" />
+   <StepSize value="400" />
+
+   <VRUI>
+     <VNC>
+       <Menu>
+         <Orientation h="0" p="0" r="0" />
+         <Position x="0" y="0" z="0" />
+         <Size value="1" />
+       </Menu>
+     </VNC>
+   </VRUI>
+      
+
+   <SceneSize value="2500" />
+   <Freeze value="OFF" />
+   <MultiProcess value="OFF" />
+   <MultiThreaded value="OFF" />
+   <ScaleAll value="OFF" />
+   <NavigationMode value="OFF" />
+
+   <Collaborative>
+    <Sync mode="LOOSE_COUPLING" />
+    <Icon value="/data/KoLabBW/KolabBWLogo.3ds"/>
+   </Collaborative>
+
+   <Spotlight value="OFF" />
+   <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+
+   <Menu>
+    <Orientation h="-90" p="0" r="0" />
+    <Position x="1300" y="-300" z="500" />
+   </Menu>
+
+   <DebugLevel value="1" />
+   <!--Module value="CuttingSurface" name="CuttingSurface" /-->
+   <!--Module value="Vic" name="Vic" /-->
+   <!--Module value="vranim" name="vranim" /-->
+   <!--Module value="SteeringWheel" name="SteeringWheel" /-->
+   <Plugin>
+   <Tacx menu="on" />
+   <PointCloud>
+   <PointSize value="4" />
+   </PointCloud>
+   <JSBSim menu="on" >
+   <Geometry y="-800" z="200" />
+   <Glider serverPort="31319" localPort="1234" />
+   <Sound server="192.168.0.240" />
+   <!--Sound server="141.58.8.223" /-->
+
+   <!--ScriptName value="C:/src/gitbase/jsbsim/scripts/c172_cruise.xml" /-->
+   <!--Model aircraft="c172x" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/c172x/reset01.xml"-->
+   <!--/Model-->
+   <!--Model aircraft="paraglider" enginesDir="C:/src/gitbase/jsbsim/engine" systemsDir="C:/src/gitbase/jsbsim/systems" resetFile="C:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml">
+   </Model-->
+   <!--Model aircraft="lcaro" enginesDir="engine" systemsDir="aircraft/lcaro/Systems" resetFile="reset00.xml">
+   </Model-->
+   </JSBSim>
+        <MarkerTracking value="Off">
+		   <Capture value="Off" />
+		   <Stereo value="OFF" />
+		   <AdjustCameraParameter value="ON" />
+		   <TrackViewpoint value="OFF" />
+		   <TrackObjects value="On" />
+		   <Threshold value="143" />
+		   <!-- SLK -->
+		   <Marker name="ObjectMarker" >
+			   <Pattern value="56" />
+			   <Size value="50" />
+			   <Offset x="0" y="0" h="0" z="38" p="0" r="-6" />
+			   <VrmlToPf value="TRUE" />
+		   </Marker>
+		   <RemoteAR>
+			   <Transmit value="Off" />
+			   <EncodingStyle value="0" />
+			   <EncodingQuant value="1" />
+			   <UseIRMOS value="1" />
+			   <irmosReceiver value="1" />
+			   <irmosReceiverPort value="31666" />
+			   <irmosReceiverServer value="192.108.38.44" />
+		   </RemoteAR>
+        </MarkerTracking>	   
+	   
+   <Bicycle>
+   <LenkMaus value="/dev/input/mouse3"/>
+   <PedalMaus value="/dev/input/mouse4"/>
+   <isBike value="false"/>
+   <FlightGear value="true"/>
+   <isParaglider value="true"/>
+   <isSkateboard value="false"/>
+   </Bicycle>
+   <SteeringWheel>
+
+   <PorscheMouse value="/dev/input/porschemouse" />
+   <PorscheHupe value="/dev/input/porschehupe" />
+   <PorscheHupe value="/dev/input/porschehupe" />
+   <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />
+   <CAN value="OFF" port="1" speed="1000" nodeID="1" origin="0.0" />
+   <CarSound host="192.168.0.240" port="31804"/>
+   <!--CarSound host="192.168.0.88" port="31804"/-->
+   <!--CarSound host="141.58.8.110" port="31804"/-->
+   <!--CarSound host="141.58.8.32" port="31804"/-->
+   <!--InputDevice value="PORSCHE_SIM"/-->
+   <!--InputDevice value="AUTO"/-->
+   <InputDevice value="HLRS_REALTIME_SIM" automaticShift="false"/>
+   <!--InputDevice value="KEYBOARD"/-->
+   <!--Dynamics value="ITMDynamics"-->
+   <!--Dynamics value="FKFSDynamics"-->
+   <!--Dynamics value="EinspurDynamik"-->
+   <!--Dynamics value="EinspurDynamikRealtime"-->
+   <Dynamics value="HLRSRealtimeDynamics" host="192.168.0.74" port="31880">
+   </Dynamics>
+   <!--Dynamics value="FourWheelDynamicsRealtime">
+      <inertia mass="1500" moiYaw="2700" moiRoll="600" moiPitch="2800" heightcenter="0.5" />
+      <measures lengthfront="2.5" lengthrear="2.3" width="1.74" height="1.3" wheelradius="0.325" />
+      <aerodynamics Aw="2.3" cw="0.3" />
+      <roll kr="500000" dr="20000" />
+      <pitch kp="200000" dp="50000" />
+      <transmission axle="3.5" first="3.6" second="2.19" third="1.41" fourth="1.0" fifth="0.83" reverse="-3.6" />
+   </Dynamics-->
+   <!--Server value="192.168.1.24" /-->
+
+  </SteeringWheel>
+
+    <Volume value="off" menu="true" />
+    <CUDAIsoSurface value="off" />
+
+   </Plugin>
+
+   <VehicleUtil>
+         <Beckhoff nodeID="22"/>
+      <CANProvider>
+         <CANKomfort channel="can2"/>
+         <CANDisplay channel="can3"/>
+      </CANProvider>
+   </VehicleUtil>
+  </VIVE>
+ </CLUSTER>
+
+ <LOCAL HOST="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60">
+  <VIVE>
+   <NumWindows value="1" />
+   <NumScreens value="1" />
+  </VIVE>
+ </LOCAL>
+
+</COCONFIG>
