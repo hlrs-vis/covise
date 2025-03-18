@@ -130,9 +130,9 @@ bool getDTrackMatrix(vsg::dmat4 &mat, const Data *d)
     if (!d)
         return false;
 
-    mat.set(d->rot[0], d->rot[3], d->rot[6], 0,
-            d->rot[1], d->rot[4], d->rot[7], 0,
-            d->rot[2], d->rot[5], d->rot[8], 0,
+    mat.set(d->rot[0], d->rot[1], d->rot[2], 0,
+            d->rot[3], d->rot[4], d->rot[5], 0,
+            d->rot[6], d->rot[7], d->rot[8], 0,
             0, 0, 0, 1);
 
     vsg::dvec3 pos(d->loc[0], d->loc[1], d->loc[2]);

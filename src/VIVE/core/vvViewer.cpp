@@ -739,9 +739,17 @@ vvViewer::setFrustumAndView(int i)
     currentChannel->rightView = res.right.view;
     currentChannel->rightProj = res.right.proj;
     auto viewMatrix = (dynamic_cast<vsg::LookAt*>(vvConfig::instance()->channels[i].camera->viewMatrix.get()));
-    viewMatrix->set(inverse(res.left.view));
     auto projMatrix = (dynamic_cast<vive::OffAxis*>(vvConfig::instance()->channels[i].camera->projectionMatrix.get()));
+    if(vvConfig::instance()->channels[i].stereoMode == vvConfig::LEFT_EYE)
+    {
+    viewMatrix->set(inverse(res.left.view));
     projMatrix->proj = res.left.proj;
+    }
+    else
+    {
+    viewMatrix->set(inverse(res.right.view));
+    projMatrix->proj = res.right.proj;
+    }
     // 
     //currentChannel->camera->setViewMatrix(res.middle.view);
     //currentChannel->camera->setProjectionMatrix(res.middle.proj);

@@ -808,7 +808,8 @@ vvSceneGraph::update()
     {
         if (!m_pointerVisible)
         {
-            m_scene->addChild(m_handTransform);
+	    cerr << "SwitchSize" << m_handSwitch->children.size() << endl;
+            m_handSwitch->setValue(0,true);
             m_pointerVisible = true;
         }
     }
@@ -816,7 +817,7 @@ vvSceneGraph::update()
     {
         if (m_pointerVisible)
         {
-            vvPluginSupport::removeChild(m_scene,m_handTransform);
+            m_handSwitch->setValue(0,false);
             m_pointerVisible = false;
         }
     }
@@ -824,6 +825,7 @@ vvSceneGraph::update()
 
     coPointerButton *button = vv->getPointerButton();
     vsg::dmat4 handMat = vv->getPointerMat();
+    cerr << "HandMat:" << handMat << endl;
 
     if (!vvConfig::instance()->isMenuModeOn())
     {
@@ -1147,6 +1149,7 @@ vvSceneGraph::setPointerType(int pointerType)
         fprintf(stderr, "vvSceneGraph::setHandType\n");
 
     m_pointerType = pointerType;
+   fprintf(stderr, "vvSceneGraph::setHandType %d\n",pointerType);
     m_handIconSwitch->setAllChildren(false);
     m_handIconSwitch->setSingleChildOn(m_pointerType);
 
