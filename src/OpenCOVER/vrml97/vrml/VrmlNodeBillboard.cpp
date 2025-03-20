@@ -32,7 +32,7 @@ void VrmlNodeBillboard::initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *
 const char *VrmlNodeBillboard::typeName() { return "Billboard"; }
 
 VrmlNodeBillboard::VrmlNodeBillboard(VrmlScene *scene, const std::string &name)
-    : VrmlNodeGroup(scene, name == ""? this->name() : name)
+    : VrmlNodeGroup(scene, name == ""? this->typeName() : name)
     , d_axisOfRotation(0.0, 1.0, 0.0)
     , d_xformObject(0)
 {
