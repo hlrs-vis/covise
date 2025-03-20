@@ -808,8 +808,7 @@ vvSceneGraph::update()
     {
         if (!m_pointerVisible)
         {
-	    cerr << "SwitchSize" << m_handSwitch->children.size() << endl;
-            m_handSwitch->setValue(0,true);
+            m_handSwitch->children[0].mask = boolToMask(true);
             m_pointerVisible = true;
         }
     }
@@ -817,7 +816,7 @@ vvSceneGraph::update()
     {
         if (m_pointerVisible)
         {
-            m_handSwitch->setValue(0,false);
+            m_handSwitch->children[0].mask = boolToMask(false);
             m_pointerVisible = false;
         }
     }

@@ -23,8 +23,6 @@ using namespace std;
 namespace vrui
 {
 
-ref_ptr<vsg::vec3Value> VSGVruiColoredBackground::normal = nullptr;
-
 /** Constructor
   @param backgroundMaterial normal color
   @param highlightMaterial highlighted color

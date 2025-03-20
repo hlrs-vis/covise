@@ -48,7 +48,7 @@ private:
     vsg::DataList vertexArrays;
     //shared coord and color list
     vsg::ref_ptr<vsg::vec3Array> coord; ///< Coordinates of background geometry
-    static vsg::ref_ptr<vsg::vec3Value> normal; ///< Normal of background geometry
+    vsg::ref_ptr<vsg::vec3Value> normal; ///< Normal of background geometry
 
     vsg::ref_ptr<vsg::StateGroup> stateGroup; ///< Normal geometry color
 
