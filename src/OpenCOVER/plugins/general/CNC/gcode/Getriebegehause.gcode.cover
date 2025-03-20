@@ -1,0 +1,8 @@
+['animationmanager:']
+Speed = 7.0438990592956543
+
+['plugin-CNC:workpiece']
+enabled = true
+
+['plugin-ClipPlane:plane0']
+equation = [ 0.70710670948028564, 0.7071068286895752, -3.8009925873438988e-08, -35.348487854003906 ]

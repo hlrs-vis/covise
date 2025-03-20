@@ -1,0 +1,391 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+ <INCLUDE global="1" configname="fasi" >config-drivingsim.xml</INCLUDE>
+ <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
+
+ <TRYINCLUDE global="1" configname="private" ARCH="unix" >/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
+ <!-- INCLUDE global="1" configname="private" ARCH="windows" >c:/data/hlrs/config-hlrs-private.xml</INCLUDE -->
+
+ <INCLUDE global="1" MASTER="viscluster50" configname="CAVE" >config.cave-film.xml</INCLUDE>
+ <INCLUDE global="1" MASTER="viscluster70" configname="TiledDisplay" >config.pw3d.xml</INCLUDE>
+
+ <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
+
+ <INCLUDE global="1" HOST="visavis" configname="visd800" >config.uwe.xml</INCLUDE>
+ <!--INCLUDE global="1" HOST="visard" configname="zspace" >config-zspace.xml</INCLUDE-->
+ 
+ <GLOBAL>
+
+
+
+  <COVER>
+
+   <!--Background r="1" g="1" b="1" /-->
+   <Plugin>
+       <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    </Revit>
+
+       <NvTop ARCH="linux" value="true" />
+       <NvTop ARCH="windows" value="true" />
+       <Visionaray value="off" menu="true">
+         <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
+         <Algorithm    value="simple"  />                 <!-- "simple" | "whitted" -->
+         <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
+         <NumBounces   value="4" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
+         <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
+         <CPUScheduler numThreads="7" />                 <!-- numThreads:Integer   -->
+       </Visionaray>
+       <CompositorIceT value="off" menu="true" />
+ <PointCloud>
+   <PointSize value="5" />
+   </PointCloud>
+
+    <Annotation value="false" />
+    <JTOpen value="false" />
+    <PLMXML value="true" />
+    <CADCv3D value="off" />
+    <VRAnim value="off" />
+    <Variant value="off"/>
+    <CuttingSurface value="off"/> 
+    <cuCuttingSurface value="off"/> 
+    <cuIsoSurface value="off"/> 
+    <cuTracer value="off"/> 
+
+    <WSInterface value="off"/>
+    <ACInterface value="off"/>
+
+    <Point value="false">
+        <DataDir value="\data\calit\earthquakes-test.xyz" />
+    </Point>
+     <Construct4D>
+          <DataPath value="/data/calit2/construct4d/" />
+        </Construct4D>
+
+    <VncServer value="false" rfbPort="5901" benchmark="true" />
+    <Volume value="false" menu="true">
+
+     <Files>
+        <Knee value="/data/VolData/vhd/female-knee-marked3.xvf" />
+        <Skull value="/data/VolData/vhd/fctskull.xvf" />
+        <abs value="/data/ihf/abs-small2.xvf" />
+        <zj value="/data/ihf/zj_small.xvf" />
+        <Lung value="/data/VolData/vhd/lunge.xvf" />
+        <Lambda value="/data/VolData/virvo/lambda.rvf" />
+        <Engine value="/data/VolData/klaus/engine256x256x110.rvf" />
+        <Pyramid value="/data/VolData/virvo/softpyramid.rvf" />
+        <avm-512-32-stretched value="/data/VolData/vhd/avm-512-32-stretched.xvf" />
+        <Pressure value="/data/VolData/hilfer/pressure.rvf" />
+        <kopf-rgb value="/data/VolData/vhd/kopf-rgb.xvf" />
+        <rgbcube24 value="/data/VolData/virvo/rgbcube24.xvf" />
+        <Baumgartner value="/data/Baumgartner/kurbelgeh_small.rvf" />
+        <earth3_ value="/data/VolData/marc/earth3_.xvf" />
+     </Files>
+
+
+    </Volume>
+
+    <StarCD value="off" />
+
+    <VRViewpoints>
+     <WriteVrmlViewpoint value="true" />
+    </VRViewpoints>
+
+    <Molecules menu="true">
+     <DataDir value="/data/itt" />
+    </Molecules>
+
+    <AKToolbar value="false" >
+     <Scale value="2" />
+     <ShortCut value="viewall" name="viewall" />
+     <ShortCut value="xform" name="xform" />
+     <ShortCut value="scale" name="scale" />
+     <ShortCut value="drive" name="drive" />
+     <ShortCut value="fly" name="fly" />
+     <ShortCut value="walk" name="walk" />
+    </AKToolbar>
+
+    <CCDBVR>
+      <Scale value="1" />
+      <ViewerDistance value="2" />
+      <Mitochondria>
+         <mito_inner value="inner_2.wrl" />
+         <mito_outer value="outer_2.wrl" />
+         <mito_crista_1 value="crista1_2.wrl" />
+         <mito_crista14 value="crista14.wrl" />
+         <mito_crista15 value="crista15.wrl" />
+      </Mitochondria>
+
+      <HPFNode>
+         <axon value="axon.synu.iv" />
+         <loop1 value="loop1_lower_best.synu.iv" />
+         <loop2L value="loop2_lower.synu.iv" />
+         <loop2U value="loop2_upper.synu.iv" />
+         <loop3L value="loop3_lower.synu.iv" />
+         <loop3U value="loop3_upper.synu.iv" />
+         <lysosome value="Lysosome_1.synu.iv" />
+         <paranode value="paranode.iv" />
+      </HPFNode>
+
+      <Complete>
+         <Mitochondria value="MITO" />
+         <HPFNode value="HPF" />
+         <CONNode value="CON" />
+         <Take value="TAKE" />
+         <Test value="TEST" />
+      </Complete>
+    </CCDBVR>
+
+    <DNA>
+     <DataDir value="/mnt/raid/cod/sandia/igrid/DNA Drawer/Data" />
+    </DNA>
+
+    <PDB menu="true" >
+     <BrowserDirectory value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/thumbnails" />
+     <PDBPluginMolDir value="/mnt/raid/svn/wcs/trunk/covise/src/renderer/OpenCOVER/plugins/calit2/PDB/" />
+     <PDBPluginTempDir value="/mnt/raid/tmp/pdb/" />
+     <PDBPluginPymolDir value="/mnt/raid/data/extern_libs/src/pymol/pymol/pymol" />
+     <PDBUrl value="www.pdb.org/pdb/files" />
+     <PDBAnimationUrl value="www.molmovdb.org/uploads" />
+    </PDB>
+
+    <Image>
+       <ImageDir value="/mnt/raid/data/calit2/images" />
+       <ImageFadeLowDist value="1000.0" />   <!-- 1000.0 is 1 meter -->
+       <ImageFadeHighDist value="1500.0" />
+       <ImageWandTracked value="0" />  <!-- 1= true, means it is enabled -->
+       <ImageDist value="0.3" />
+       <MarkerSize value="10.0" />
+          <Files>
+             <Mouse_brain value="mouse_brain" />
+             <Campus value="campus" />
+             <Monkey_Brain value="test4" />
+             <Cerebellum value="test10" />
+             <Golden_Gate value="golden" />
+             <Da_Vinci value="magi.ipp" />
+             <South_wall value="south.ipp"/>
+             <Annunica value="annun.ipp" />
+             <Cloud value="cloud.ipp" />
+          </Files>
+    </Image>
+    
+    <VideoLOD value="off" >
+      <Files>
+        <GalaxyHD path="/data/calit2/videos/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="9" h="1080" w="1920" />
+        <GalaxyHDdxt path="/tmp/osgacom/" prefix="hdgc8-17_4k.10" suffix="" vnums="2" framestart="0" frameend="99" h="1080" w="1920" />
+      </Files>
+    </VideoLOD>
+
+    <CAMERAVis>
+       <GOSFile value="/mnt/raid/home/hpcwoess/covise/src/renderer/OpenCOVER/plugins/CAMERAVis/GOS_Metadata.txt" />
+       <GOSFile2 value="/mnt/raid/home/hpcwoess/covise/src/renderer/OpenCOVER/plugins/CAMERAVis/GOS2.txt" />
+       <DataDir value="/data/calit2" />
+       <_scaleSize value="0.03" />
+       <MINSIZE value="25" />
+       <MAXSIZE value="125" />
+       <windowHeight value="1200"/>
+       <windowWidth value="1920"/>
+       <shapeScale value="5" />
+       <recenter value="true" />
+       <hudScale value="0.5" />
+       <screenHeight value="500" />
+       <screenWidth value="810" />
+    </CAMERAVis>
+    
+    <PDBSequenceDisplay>
+     <Scale value="1" />
+    </PDBSequenceDisplay>
+
+
+    <!--SteeringWheel>
+
+      <PorscheMouse value="/dev/input/porschemouse" />
+      <PorscheHupe value="/dev/input/porschehupe" />
+      <PorscheHupe value="/dev/input/porschehupe" />
+      <FKFS value="OFF" host="192.168.0.95" origin="-1.80877" />
+      <CAN value="OFF" port="1" speed="1000" nodeID="1" origin="0.0" />
+   
+      <InputDevice value="KEYBOARD"/>
+      <Dynamics value="EinspurDynamik">
+	<inertia mass="1500" moiYaw="2700" moiRoll="600" moiPitch="2800" heightcenter="0.5" />
+	<measures lengthfront="2.5" lengthrear="2.3" width="1.8" height="1.3" wheelradius="0.3" />
+	<aerodynamics Aw="2.3" cw="0.3" />
+	<roll kr="500000" dr="20000" />
+	<pitch kp="200000" dp="50000" />
+	<transmission axle="3.5" first="3.6" second="2.19" third="1.41" fourth="1.0" fifth="0.83" reverse="-3.6" />
+	<ITMServer host="141.58.8.212" />
+      </Dynamics>
+
+    </SteeringWheel-->
+   </Plugin>
+
+   <!--TabletUI host="localhost" /-->
+
+   <Input>
+    <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
+   </Input>
+
+  </COVER>
+
+
+  <System>
+
+    <CRB>
+
+    <Proxy>
+     <ProxyCommand value="ssh uw_te@visit crb" />
+    </Proxy>
+
+   </CRB>
+
+   <HostConfig>
+    <Host timeout="60" memory="shm" method="ssh" name="visent" hostname="visent" />
+    <Host timeout="60" memory="shm" method="ssh" name="vistidy" hostname="vistidy" />
+    <Host timeout="60" memory="shm" method="RemoteDaemon" name="vissurface" hostname="vissurface" />
+    <Host timeout="60" memory="shm" method="RemoteDaemon" name="vissurface2" hostname="vissurface2" />
+   </HostConfig>
+
+   <IpTable>
+    <IP symbolic="visper" value="141.58.8.11" name="visper" />
+    <IP symbolic="visent" value="141.58.8.5" name="visent" />
+    <IP symbolic="vispw1" value="141.58.8.3" name="visper" />
+   </IpTable>
+  <!-- this requires a name lookup and slows down startup if not connected to a network
+       you only need it if you are using NAT such as I do at home to translate the internal IP to the external IP of the router
+       I leave it here as an example but commented out 
+   <Network>
+    <IpAlias value="141.58.8.5 visent.hlrs.de" name="visent" />
+   </Network>
+-->
+
+   <VRB>
+    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
+    <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
+   </VRB>
+   
+   <RemoteDaemon>
+    <Server port="31090" />
+    <Debug value="true"/>
+    <EnableFileDebug value="false"/>
+   </RemoteDaemon>
+
+  </System>
+
+
+  <Module>
+   
+   <WebGL port="32080"/>
+
+   <IHS>
+    <DataPath value="/data/IHS/" />
+    <GateBladeMin value="-20" />
+    <GateBladeMax value="8" />
+   </IHS>
+
+   <TetraTrace>
+    <BoxIncreaseFactor value="2" />
+   </TetraTrace>
+
+   <Globus>
+   <GlobusRun value="/data/extern_libs/x64/gt4/bin/globusrun-ws" />
+   <JobFactory value="/wsrf/services/ManagedJobFactoryService" />
+   </Globus>
+ 
+   <Fenfloss>
+    <Verbose value="1" />
+    <Timeout value="20" />
+    <Startup value="gate %0 %1 %e" name="v3" />
+    <Startup value="tube %0 %1 %e" name="v4" />
+    <Startup value="axial %0 %1 %e" name="v5" />
+    <Startup value="radial %0 %1 %e" name="v6" />
+    <Startup value="sc2004booth %0 %1 %e" name="v7" />
+    <Startup value="archflow %0 %1 %e" name="v8" />
+    <Startup value="other %0 %1 %e" name="v9" />
+
+    <Application value="p_covise_fen6.3.0.0" name="v1"/>
+    <Application value="p_fen6.3.0.0" name="v2"/>
+    <Application value="p_fen7.0" name="v3"/>
+   </Fenfloss>
+   
+   <CuttingSurface>
+        <SupportPolyhedra value="true" />
+   </CuttingSurface>
+   <IsoSurface>
+        <SupportPolyhedra value="true" />
+   </IsoSurface>
+
+  <MiniSim>
+
+   <Verbose value="1" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="ssh hpcdemo@asama.hww.de rsh node0 /gdata0/HLRS/hlrs/hpcdemo/MiniSim/miniSim.sh" />
+
+  </MiniSim>
+
+
+  <CFX>
+   <Verbose value="4" />
+   <Server value="m" />
+   <Startup value="blubb %0 %e" name="v1" />
+   <StartUpScript value="/mnt/raid/svn/wcs/trunk/covise/src/application/hlrs/CFX/cfx.sh" />
+   <Timeout value="300000" />
+  </CFX>
+
+   <StarCD>
+    <VERBOSE value="1" />
+    <TIMEOUT value="300" />
+    <SERVER value="m" />
+    <STARTUP value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=1:00:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v1" />
+    <STARTUP value="dummy d" name="v2" />
+    <STARTUP value="manual echo 'export CO_SIMLIB_CONN=%e ; /schrotti/HLRS/HLRS/%2/cabin.sh'" name="v3" />
+    <!--'setenv CO_SIMLIB_CONN %e; cd %0 ; /bin/rm -f ABORT */ABORT ; echo y | runstar'" name="v1"/>-->
+    </StarCD>
+    
+   <ReadSim>
+    <Verbose value="1" />
+    <Timeout value="300" />
+    <Startup value="gate %0 %1 %e" name="v1" />
+   </ReadSim>
+
+   <Material>
+      <UserDefined>
+         <bronze value="0.0787879 0.0186424 0  0.315152 0.0745695 0  0.508861 0.684007 0.326263  0 0 0  0.0363636  0"/>
+      </UserDefined>
+   </Material>
+
+  </Module>
+  <IHS>
+   <DataPath value="/data/ihs" />
+  </IHS>
+
+
+  <CONFIGEDITOR>
+
+   <COLOR name="global_scope" color="blue" />
+   <COLOR name="global_variable" color="darkslateblue" />
+   <COLOR name="host_scope" color="red" />
+   <COLOR name="host_variable" color="indianred" />
+   <COLOR name="user_scope" color="darkgreen" />
+   <COLOR name="user_variable" color="darkseagreen" />
+   <COLOR name="userhost_scope" color="darkorange" />
+   <COLOR name="userhost_variable" color="goldenrod" />
+  </CONFIGEDITOR>
+
+  <WebBrowser>
+     <BookMarks value="3" />
+     <BookMark0Name value="Magpie" />
+     <BookMark0URL value="http://magpie.ucsd.edu/magpie/sp_test2/ost_01_008/ost_01_008_home.html" />
+     <BookMark1Name value="Google" />
+     <BookMark1URL value="http://www.google.com" />
+     <BookMark2Name value="Local" />
+     <BookMark2URL value="file:///home/iGrid2005/jschulze/svn/trunk/covise/src/renderer/OpenCOVER/plugins/WebBrowser/sites/si859a1_01_home.html" />
+  </WebBrowser>
+
+ </GLOBAL>
+
+
+</COCONFIG>

@@ -70,7 +70,7 @@ IO/ReadAccretion:  Read XYZ files containing lists of atom positions and their e
 IO/ReadANSYS:  Read ANSYS data
 IO/ReadASCII:  Read files to create points (w or w/o scalar or vector values) or a grid.
 IO/ReadAstroOld:  Read files to create a list of points (stars) and scalar parameters.
-IO/ReadAstroPh1:  
+IO/ReadAstroPh1:  Read Astro files containing lists of atom positions and their element types for several time steps.
 IO/ReadAtomProbe:  Read atom Probbe point clouds.
 IO/ReadBinary:  Annas first Reader
 IO/ReadCadmould:  Read Cadmould
@@ -90,7 +90,7 @@ IO/ReadDasim:  Dasim Reader
 IO/ReadDepthmapXMIF:  Read MIF or CSV data
 IO/ReadDyna3D:  Read LS-DYNA3D ptf files
 IO/ReadEAS:  Read iag EAS mesh and data
-IO/ReadECMWF:  
+IO/ReadECMWF:  ECMWF Reader
 IO/ReadElmer:  Read Elmer Data
 IO/ReadEnsight:  Reader for ENSIGHT 6 - type formats - Version 1.0
 IO/ReadFamu:  Read ITE FAMU
@@ -120,8 +120,8 @@ IO/ReadLaerm:  Read iag Laerm mesh and data
 IO/ReadLat:  read IRIS-Explorer Latice file
 IO/ReadMap:  Map Reader
 IO/ReadMeteo:  Read files to create a list of points (stars) and scalar parameters.
-IO/ReadMeteoCosmo:  
-IO/ReadModel:  
+IO/ReadMeteoCosmo:  Read Meteo Cosmo Data.
+IO/ReadModel:  Read polygon meshes in all formats supported by Assimp library
 IO/ReadMovieBYU:  Read file MovieBYU  v1.42
 IO/ReadMPAPDB:  Reader for MPA PDB files
 IO/ReadN3s:  Generic ASCII-File Reader for N3S 3.2
@@ -129,7 +129,7 @@ IO/ReadNas:  Read NAS
 IO/ReadNasASC:  Read TECPLOT data
 IO/ReadNastran:  Read NASTRAN output2 files
 IO/ReadNek5000:  ReadNek5000
-IO/ReadNetCDF:  
+IO/ReadNetCDF:  NetCDF Reader
 IO/ReadNeuron:  Read IWRs Neurons
 IO/ReadObj:  Wavefront OBJ Reader
 IO/ReadPandora:  simple reader for Pandora HDF5 data
@@ -147,16 +147,16 @@ IO/ReadSoundVol:  SoundVol Reader
 IO/ReadStar:  Read grid from Star-CD File09
 IO/ReadStarDrop:  Star Droplet file reader
 IO/ReadStl:  Read STL
-IO/ReadTecplot:  Tecplot file reader V 1.0b
 IO/ReadTree:  Read Cassified Volumes data
-IO/ReadTsunami:  
+IO/ReadTRK:  Read StarCCM TRK file
+IO/ReadTsunami:  NetCDF Reader
 IO/ReadUFF:  Reader for universal files
 IO/ReadUFFData:  Reader for universal files from TU-Wien
 IO/ReadVois:  Simple VOI Reader
 IO/ReadVolume:  Read volume files or create a volume from 2D slice images.
 IO/ReadVTF:  Read VTF format
 IO/ReadVTK:  Read Visualization Toolkit (VTK) data files
-IO/ReadWRFChem:  
+IO/ReadWRFChem:  WRFChem Reader
 IO/ReadXYZ:  Read XYZ files containing lists of atom positions and their element types for several time steps.
 IO/ReadZPR:  Read ZPR/CRD files containing lists of atom positions and their element types for several time steps.
 IO/r_ivdflex:  IVD Import Routine
@@ -174,7 +174,7 @@ IO/WritePolygon:  Write Stl or VRML97 files
 IO/writeToCgns:  writeToCgns
 IO/WriteVolume:  Write volume files or create 2D slice images.
 IO/WriteVTK:  Write any type of vtk dataset to file
-IO/WriteWRFChem:  
+IO/WriteWRFChem:   Write data to NetCDF file
 Mapper/AtomColors:  Map colors to atoms
 Mapper/Colors:  Map scalars to colors
 Mapper/CuttingSurface:  Extract a plane from a data set
@@ -196,8 +196,11 @@ Obsolete/TetraNeighbor:  compute special neighborlist for tetrahedra-grids
 Obsolete/TetraTrace:  perform particle-trace on tetrahedra-grids
 Obsolete/TetraVolume:  compute volumes of tetrahedrons
 Obsolete/TracerUsg:  Generate streamlines from an unstr. data set
+ReadTrajectory/ReadTrajectory.cpp:  Simple Trajectory Reader
+ReadTrajectorySimple/ReadTrajectorySimple.cpp:  Simple Trajectory Reader
 Renderer/OpenCOVER:  VR-Renderer
 Renderer/Plot:  XMGR Plot Module
+Renderer/VIVE:  VR-Renderer
 Renderer/VRMLRenderer:  VRML Renderer
 Simulation/CFX:  CFX Simulation
 Simulation/CoolEmAllServerRoom:  rechenraum
@@ -208,6 +211,7 @@ Simulation/Trans3d:  Read Trans3D(IFSW) Grid and Data in ASCII Format
 Simulation/weather:  Rainer Kellers Klimate Simulation Interface
 Test/ReadVTU:  Reads (a set) of VTK-files
 Test/TxtReader:  No description given
+Tools/AddAttribute:  Attach an attribute to an object
 Tools/Animate:  Rotate timedependent grid and velocities
 Tools/AtomRadii:  Map colors to atoms
 Tools/BlockCollect:  create one big set out of many many little ones
@@ -227,7 +231,6 @@ Tools/ImageToTexture:  Texturize polygons
 Tools/MakeOctTree:  Create Octrees for UNSGRDs
 Tools/MakePlots:  Collect scalar objects in objects for Plot
 Tools/MakeTransient:  Make a dynamic set out of a static object
-Tools/MapDrape:  map coordinates and drape to height field
 Tools/Material:  Combine grid, normals, colors, textures and vertex attributes in one data object for rendering
 Tools/MeanValues:  Calculate Mean Values of scalor or vector data data
 Tools/MergeSets:  merge polygons from set into one object
