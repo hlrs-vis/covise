@@ -108,7 +108,7 @@ TrackingBody::TrackingBody(const std::string &name)
     //fprintf(stderr, "offset from device('%d) %f %f %f\n", device_ID, deviceOffsets[device_ID].trans[0], deviceOffsets[device_ID].trans[1], deviceOffsets[device_ID].trans[2]);
 
     vsg::dmat4 translationMat = vsg::translate((double)trans[0], (double)trans[1], (double)trans[2]);
-    m_deviceOffsetMat = m_deviceOffsetMat * translationMat;
+    m_deviceOffsetMat = translationMat * m_deviceOffsetMat;
     m_mat = m_deviceOffsetMat;
     m_oldMat = m_mat;
 
@@ -217,7 +217,7 @@ void TrackingBody::update()
         m_oldMat = m_mat;
 
         //std::cerr << "TrackingBody::update: getting dev idx " << m_idx << ": " << m_mat << std::endl;
-        m_mat = m_deviceOffsetMat*m_mat;
+        m_mat = m_mat * m_deviceOffsetMat;
     }
 }
 
