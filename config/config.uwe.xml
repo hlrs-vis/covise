@@ -32,22 +32,107 @@
     <UseDisplayLists value="false" />
     <UseVertexBufferObjects value="false" />
    <Input>
-    <DeviceDiscovery broadcastAddress="192.168.0.255" port="31319" />
-    <MouseNav value="ON" />
-	<Device>
-           <joystick driver="Joystick" device="/dev/input/cyberstick"/>
-	</Device>
+        <MouseNav value="true" />
+        <Device>
+
+           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
+              <!--Offset x="-86" y="-3080" z="-1260" /-->
+              <Offset x="0" y="-4075" z="-1260" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCaveOutside>
+
+           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.78">
+              <Offset x="0" y="-0" z="-1327" />
+              <Orientation h="0" p="0" r="0" />
+           </DTrackCave>
+
+           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+           <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
+
+        </Device>
+
+        <Body>
+           <ConstHead>
+              <Offset x="0" y="-2000" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </ConstHead>
+
+           <CaveHead device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="1">
+              <Offset x="105" y="-50" z="-60" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead>
+
+           <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
+              <Offset x="10" y="-110" z="0" />
+              <Orientation h="-2" p="-2" r="14" />
+           </CaveHand>
+
+           <CaveCamera device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="2">
+              <Offset x="0" y="120" z="-100" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveCamera>
+
+           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="2">
+              <Offset x="0" y="120" z="-200" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveCameraOutside>
+	   
+           <CaveGloves device="DTrackCave" bodyIndex="3">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveGloves>
+	   
+<!--
+           <CaveHead2 device="DTrackCave" bodyIndex="3">
+              <Offset x="-105" y="-40" z="-50" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead2>
+
+           <CaveHand2 device="DTrackCave" bodyIndex="2">
+              <Offset x="0" y="-170" z="0" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHand2>
+-->
+           <TripodHead>
+              <Offset x="0" y="-3000" z="0" />
+           </TripodHead>
+
+
+        </Body>
+
+        <Buttons>
+           <CaveMouse device="CaveButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+           <CyberstickMouse device="CyberstickButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CyberstickMouse>
+        </Buttons>
+
         <Valuator>
-           <CaveJoyX device="joystick" valuatorIndex="0" />
-           <CaveJoyY device="joystick" valuatorIndex="1" />
+           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
+           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
         </Valuator>
+	
+	<Device>
+           <joystick driver="joystick" device="/dev/input/js"/>
+	</Device>
 
         <Persons>
-           <Person name="Dummy"  valuator0="CaveJoyX" />
-           <Person name="Dummy"  valuator0="CaveJoyY" />
+           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
+           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="CameraOutside" eyeDistance="0.0" head="CaveCameraOutside" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
-
-   </Input>
+     </Input>
   <Plugin>
    <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
                 <OddlotLink value="off"  /><!-- kills cull performance and sets LODScale to 0 bad for osgEarth-->

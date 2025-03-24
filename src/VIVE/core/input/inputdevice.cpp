@@ -216,7 +216,7 @@ void InputDevice::update()
         m_bodyMatricesFrame.resize(m_bodyMatrices.size());
     for (size_t i = 0; i < m_bodyMatrices.size(); ++i)
     {
-        m_bodyMatricesFrame[i] = m_bodyMatrices[i] * m_offsetMatrix;
+        m_bodyMatricesFrame[i] = m_offsetMatrix * m_bodyMatrices[i] ;
     }
 
     if (m_buttonStatesFrame.size() != m_buttonStates.size())

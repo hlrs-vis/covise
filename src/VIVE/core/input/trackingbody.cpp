@@ -225,7 +225,7 @@ void TrackingBody::updateRelative()
 {
     if (m_baseBody)
     {
-        m_mat = m_mat * m_baseBody->getMat();
+        m_mat = m_baseBody->getMat() * m_mat;
     }
 }
 

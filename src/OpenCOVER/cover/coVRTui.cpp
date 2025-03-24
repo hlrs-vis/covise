@@ -508,7 +508,8 @@ void coInputTUI::updateTUI()
             bodiesChoice->addEntry(Input::instance()->getBody(i)->name());
         }
         bodiesChoice->setSelectedEntry(0);
-        bodiesChoice->setSelectedText(body);
+        if (body != "")
+            bodiesChoice->setSelectedText(body);
     }
 
     TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
@@ -705,25 +706,31 @@ void coInputTUI::tabletEvent(coTUIElement *tUIItem)
             tUIItem == bodyRot[0] || tUIItem == bodyRot[1] || tUIItem == bodyRot[2])
     {
         TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
-        osg::Matrix m;
-        MAKE_EULER_MAT(m, bodyRot[0]->getValue(), bodyRot[1]->getValue(), bodyRot[2]->getValue());
-        
-        osg::Matrix translationMat;
-        translationMat.makeTranslate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
-        m.postMult(translationMat);
-        tb->setOffsetMat(m);
+        if (tb)
+        {
+            osg::Matrix m;
+            MAKE_EULER_MAT(m, bodyRot[0]->getValue(), bodyRot[1]->getValue(), bodyRot[2]->getValue());
+
+            osg::Matrix translationMat;
+            translationMat.makeTranslate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
+            m.postMult(translationMat);
+            tb->setOffsetMat(m);
+        }
     }
     else if(tUIItem == deviceTrans[0] || tUIItem == deviceTrans[1] || tUIItem == deviceTrans[2] ||
             tUIItem == deviceRot[0] || tUIItem == deviceRot[1] || tUIItem == deviceRot[2])
     {
         InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
-        osg::Matrix m;
-        MAKE_EULER_MAT(m, deviceRot[0]->getValue(), deviceRot[1]->getValue(), deviceRot[2]->getValue());
-        
-        osg::Matrix translationMat;
-        translationMat.makeTranslate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
-        m.postMult(translationMat);
-        id->setOffsetMat(m);
+        if (id)
+        {
+            osg::Matrix m;
+            MAKE_EULER_MAT(m, deviceRot[0]->getValue(), deviceRot[1]->getValue(), deviceRot[2]->getValue());
+
+            osg::Matrix translationMat;
+            translationMat.makeTranslate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
+            m.postMult(translationMat);
+            id->setOffsetMat(m);
+        }
     }
     else if (tUIItem == debugMatrices || tUIItem == debugOther ||
             tUIItem == debugRawButton || tUIItem == debugMouseButton || tUIItem == debugDriverButton || tUIItem == debugTransformedButton)

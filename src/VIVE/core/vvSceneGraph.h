@@ -106,7 +106,7 @@ public:
     vsg::dvec3 getWorldPointOfInterest() const;
     void getHandWorldPosition(double *, double*, double*);
     void addPointerIcon(vsg::ref_ptr<vsg::Node> node);
-    void removePointerIcon(vsg::Node *node);
+    void removePointerIcon(const vsg::Node *node);
 
     void setWireframe(WireframeMode mode);
     void setPointerType(int pointerType);

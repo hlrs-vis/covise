@@ -824,7 +824,7 @@ vvSceneGraph::update()
 
     coPointerButton *button = vv->getPointerButton();
     vsg::dmat4 handMat = vv->getPointerMat();
-    cerr << "HandMat:" << handMat << endl;
+    //cerr << "HandMat:" << handMat << endl;
 
     if (!vvConfig::instance()->isMenuModeOn())
     {
@@ -1212,7 +1212,7 @@ vvSceneGraph::loadHandIcon(const std::string &name)
 {
     vsg::ref_ptr<vsg::Node> n;
     n = vvFileManager::instance()->loadIcon(name);
-    if (n)
+    if (!n)
     {
         if (vv->debugLevel(3))
             fprintf(stderr, "failed to load hand icon: %s\n", name.c_str());
@@ -1687,13 +1687,23 @@ void vvSceneGraph::addPointerIcon(vsg::ref_ptr<vsg::Node> node)
     m_handIconScaleTransform->matrix = (m);
 
     // add icon
-    m_handIconScaleTransform->addChild(node);
+    //m_handIconScaleTransform->addChild(node);
+    for (auto& child : m_handSwitch->children)
+    {
+        if (child.node.get() == node.get())
+            child.mask = boolToMask(true);
+    }
 }
 
-void vvSceneGraph::removePointerIcon(vsg::Node *node)
+void vvSceneGraph::removePointerIcon(const vsg::Node *node)
 {
     // remove icon
-    vvPluginSupport::removeChild(m_handIconScaleTransform,node);
+    for (auto &child : m_handSwitch->children)
+    {
+        if(child.node.get() == node)
+            child.mask = boolToMask(false);
+    }
+    //vvPluginSupport::removeChild(m_handIconScaleTransform,node);
 }
 
 //******************************************

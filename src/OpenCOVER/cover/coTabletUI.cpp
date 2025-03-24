@@ -3516,6 +3516,8 @@ void coTUIComboBox::parseMessage(TokenBuffer &tb)
 
 void coTUIComboBox::addEntry(const std::string &t)
 {
+    if (selection == -1 && elements.size() == 0)
+        selection = 0;
 	elements.push_back(t);
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;

@@ -506,6 +506,7 @@ void coInputTUI::updateTUI()
             bodiesChoice->addEntry(Input::instance()->getBody(i)->name());
         }
         bodiesChoice->setSelectedEntry(0);
+        if(body !="")
         bodiesChoice->setSelectedText(body);
     }
 
@@ -702,25 +703,31 @@ void coInputTUI::tabletEvent(vvTUIElement *tUIItem)
             tUIItem == bodyRot[0] || tUIItem == bodyRot[1] || tUIItem == bodyRot[2])
     {
         TrackingBody * tb = Input::instance()->getBody(bodiesChoice->getSelectedEntry());
-        vsg::dmat4 m;
-        m = makeEulerMat((double)bodyRot[0]->getValue(), (double)bodyRot[1]->getValue(), (double)bodyRot[2]->getValue());
-        
-        vsg::dmat4 translationMat;
-        translationMat= vsg::translate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
-        translationMat * m;
-        tb->setOffsetMat(m);
+        if (tb)
+        {
+            vsg::dmat4 m;
+            m = makeEulerMat((double)bodyRot[0]->getValue(), (double)bodyRot[1]->getValue(), (double)bodyRot[2]->getValue());
+
+            vsg::dmat4 translationMat;
+            translationMat = vsg::translate(bodyTrans[0]->getValue(), bodyTrans[1]->getValue(), bodyTrans[2]->getValue());
+            m = translationMat * m;
+            tb->setOffsetMat(m);
+        }
     }
     else if(tUIItem == deviceTrans[0] || tUIItem == deviceTrans[1] || tUIItem == deviceTrans[2] ||
             tUIItem == deviceRot[0] || tUIItem == deviceRot[1] || tUIItem == deviceRot[2])
     {
         InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
-        vsg::dmat4 m;
-        m = makeEulerMat((double)deviceRot[0]->getValue(), (double)deviceRot[1]->getValue(), (double)deviceRot[2]->getValue());
-        
-        vsg::dmat4 translationMat;
-        translationMat= vsg::translate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
-        translationMat* m;
-        id->setOffsetMat(m);
+        if (id)
+        {
+            vsg::dmat4 m;
+            m = makeEulerMat((double)deviceRot[0]->getValue(), (double)deviceRot[1]->getValue(), (double)deviceRot[2]->getValue());
+
+            vsg::dmat4 translationMat;
+            translationMat = vsg::translate(deviceTrans[0]->getValue(), deviceTrans[1]->getValue(), deviceTrans[2]->getValue());
+            m = translationMat * m;
+            id->setOffsetMat(m);
+        }
     }
     else if (tUIItem == debugMatrices || tUIItem == debugOther ||
             tUIItem == debugRawButton || tUIItem == debugMouseButton || tUIItem == debugDriverButton || tUIItem == debugTransformedButton)

@@ -1004,6 +1004,11 @@ bool vvVIVE::frame()
             std::cerr << "vvVIVE::frame: rendering because of input" << std::endl;
         render = true;
     }
+    // copy matrices to plugin support class
+    // This must be done right after reading input devices before any use of Head and Hand matrices
+    // pointer ray intersection test
+    // update update manager =:-|
+    vv->update();
     if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
     {
         const auto &mat = Input::instance()->getRelativeMat();
@@ -1014,6 +1019,28 @@ bool vvVIVE::frame()
             render = true;
         }*/
     }
+
+    // update viewer position and channels
+    if (vv->isViewerGrabbed())
+    {
+        if (vvPluginList::instance()->viewerGrabber()->updateViewer())
+        {
+            if (vv->debugLevel(4))
+                std::cerr << "vvVIVE::frame: rendering because of plugin updated viewer" << std::endl;
+            render = true;
+        }
+    }
+    else
+    {
+        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+        {
+            if (vv->debugLevel(4))
+                std::cerr << "vvVIVE::frame: rendering because of head tracking" << std::endl;
+            render = true;
+            vvViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        }
+    }
+    vvViewer::instance()->vvUpdate();
 
     // wait for all cull and draw threads to complete.
     //
@@ -1046,32 +1073,6 @@ bool vvVIVE::frame()
     {
         vrb::SharedStateManager::instance()->frame(vv->frameTime());
     }
-    // update viewer position and channels
-    if (vv->isViewerGrabbed())
-    {
-        if (vvPluginList::instance()->viewerGrabber()->updateViewer())
-        {
-            if (vv->debugLevel(4))
-                std::cerr << "vvVIVE::frame: rendering because of plugin updated viewer" << std::endl;
-            render = true;
-        }
-    }
-    else
-    {
-        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
-        {
-            if (vv->debugLevel(4))
-                std::cerr << "vvVIVE::frame: rendering because of head tracking" << std::endl;
-            render = true;
-            vvViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
-        }
-    }
-    vvViewer::instance()->vvUpdate();
-
-    // copy matrices to plugin support class
-    // pointer ray intersection test
-    // update update manager =:-|
-    vv->update();
     for (auto& tui : tabletUIs)
     {
         if (tui->update())
