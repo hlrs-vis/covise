@@ -1,7 +1,4 @@
-cmake_minimum_required (VERSION 2.6...3.1)
-#if(NOT COVISE_USE_QT5)
-#    return()
-#endif()
+cmake_minimum_required (VERSION 3.5)
 project (oddlot)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmake;${CMAKE_MODULE_PATH}")

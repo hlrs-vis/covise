@@ -63,14 +63,10 @@ SET(JS_HEADERS
 
 IF(UNIX)
   ADD_EXECUTABLE(jsautocfg jscpucfg.c)
-  if(${CMAKE_VERSION} VERSION_GREATER "2.10")
-     cmake_policy(SET CMP0026 OLD) # allow reading of LOCATION w/o warning
-  endif()
-  GET_TARGET_PROPERTY(JSAUTOCFG_EXE jsautocfg LOCATION)
   # add the custom command to generate jsautocfg.h
   ADD_CUSTOM_COMMAND(
     OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/jsautocfg.h"
-    COMMAND ${JSAUTOCFG_EXE} > ${CMAKE_CURRENT_BINARY_DIR}/jsautocfg.h
+    COMMAND jsautocfg > ${CMAKE_CURRENT_BINARY_DIR}/jsautocfg.h
     DEPENDS jsautocfg
   )
   LIST(APPEND JS_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/jsautocfg.h")
