@@ -45,6 +45,8 @@ compile_commands.json
 /rhel9opt
 /jammy
 /jammyopt
+/noble
+/nobleopt
 /darwin
 /darwinopt
 /macos

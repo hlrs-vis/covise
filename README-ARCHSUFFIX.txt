@@ -39,6 +39,7 @@ linuxarm        Generic aarch64 Linux
 rhel8           Red Hat Enterprise Linux/CentOS 8 with updates on x86_64 (64 bit mode)
 rhel9           Red Hat Enterprise Linux/CentOS/Rocky 9 with updates on x86_64 (64 bit mode)
 jammy           Ubuntu 22.04 Jammy Jellyfish on x86_64 (64 bit mode)
+noble		Ubuntu 24.04 Noble Numbat on x86_64 (64 bit mode)
 
 darwin          Generic macOS
 macos           macOS, x86_64 or arm64 with libc++

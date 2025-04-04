@@ -30,7 +30,7 @@ case "${ARCHSUFFIX%opt}" in
             zlib-devel glew-devel libtiff-devel libpng-devel libjpeg-turbo-devel \
             xerces-c-devel
         ;;
-    xerus|xenial|bionic|focal|jammy)
+    xerus|xenial|bionic|focal|jammy|noble)
         $ROOT apt update && \
         $ROOT apt install \
             cmake ninja-build make git swig flex bison g++ \
