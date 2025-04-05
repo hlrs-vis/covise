@@ -256,6 +256,8 @@ guess_archsuffix() {
                    export ARCHSUFFIX=etch
                elif grep -i -q -s 'debian.*5\.0' /etc/issue; then
                    export ARCHSUFFIX=lenny
+               elif grep -i -q -s 'debian.*10 ' /etc/issue; then
+                   export ARCHSUFFIX=buster
                elif grep -i -q -s 'squeeze' /etc/issue; then
                    export ARCHSUFFIX=squeeze
                elif grep -i -q -s 'ubuntu.*7\.10' /etc/issue; then

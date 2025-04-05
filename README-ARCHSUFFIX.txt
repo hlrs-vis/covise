@@ -139,6 +139,7 @@ etch            Debian Linux 4.0 (Etch) with updates on x86_64
 lenny32         Debian Linux 5.0 (Lenny) with updates on ia32
 lenny           Debian Linux 5.0 (Lenny) with updates on x86_64
 squeeze         Debian Linux 6.0 (Squeeze) with updates on x86_64
+buster          Debian Linux 10 (Buster) with updates on x86_64
 
 dapper          Ubuntu 6.06 Dapper Drake on ia32
 edgy            Ubuntu 6.10 Edgy Eft on ia32
