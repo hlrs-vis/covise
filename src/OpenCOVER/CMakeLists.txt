@@ -83,13 +83,7 @@ COVISE_FIND_CUDA()
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
    osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow REQUIRED)
 
-COVISE_FIND_PACKAGE(CURL QUIET)
-IF(CURL_FOUND)
-  ADD_DEFINITIONS(-DHAVE_LIBCURL)
-  IF(WIN32)
-    ADD_DEFINITIONS(-DCURL_STATICLIB)
-  ENDIF(WIN32)
-ENDIF()
+COVISE_FIND_PACKAGE(CURL)
 
 if(COVISE_USE_QT)
     add_definitions(-DUSE_QT)
@@ -126,7 +120,7 @@ ADD_SUBDIRECTORY(DrivingSim)
 USING(MPI optional)
 USING(Pthreads optional)
 using(Boost)
-using(CURL)
+using(CURL optional)
 
 if (COVISE_USE_VIRVO)
    ADD_SUBDIRECTORY(osgcaveui)

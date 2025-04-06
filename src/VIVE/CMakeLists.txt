@@ -57,6 +57,8 @@ endif()
 # find dependencies for vvVRML library
 using(FLEX optional)
 covise_find_package(BISON)
+COVISE_FIND_PACKAGE(CURL)
+using(CURL optional)
 
 include_directories(${COVISE_INCLUDE_DIRS})
 include_directories(.)
