@@ -76,6 +76,12 @@ if [ -z "$EXTERNLIBS" ]; then
   fi
 
   if [ ! -d "$extlibs" ]; then
+     extlibs="${COVISEDIR}/../extern_libs/${ARCHSUFFIX}"
+     if [ ! -d "$extlibs" ]; then
+        extlibs="${COVISEDIR}/../extern_libs/${BASEARCH}"
+     fi
+  fi
+  if [ ! -d "$extlibs" ]; then
      extlibs="/data/extern_libs/$ARCHSUFFIX"
      if [ ! -d "$extlibs" ]; then
         extlibs="/data/extern_libs/$BASEARCH"
