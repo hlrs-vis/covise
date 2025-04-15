@@ -26,13 +26,13 @@
         <MouseNav value="true" />
         <Device>
 
-           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
+           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="141.58.8.78">
               <!--Offset x="-86" y="-3080" z="-1260" /-->
-              <Offset x="0" y="-4075" z="-1260" />
+              <Offset x="0" y="-3400" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCaveOutside>
 
-           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.78">
+           <DTrackCave driver="dtrack" port="5000" serverHost="visir.hlrs.de">
               <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
