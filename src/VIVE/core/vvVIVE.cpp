@@ -537,7 +537,7 @@ bool vvVIVE::init()
     vv = vvPluginSupport::instance();
     
     vvCommunication::instance()->init();
-    vv->initUI();
+    vvFileManager::instance()->initUI();
     if (vv->debugLevel(2))
     {
         fprintf(stderr, "\nnew vvVIVE\n");

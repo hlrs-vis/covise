@@ -1206,43 +1206,6 @@ vvFileManager::vvFileManager()
 		}
 		m_sharedFiles = files;
     });
-    if (vv) {
-        m_owner.reset(new ui::Owner("FileManager", vv->ui));
-
-        auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
-        fileOpen->setText("Open");
-        fileOpen->setFilter(getFilterList());
-        if(vv->fileMenu)
-        {
-          vv->fileMenu->add(fileOpen);
-          fileOpen->setCallback([this](const std::string &file){
-                  loadFile(file.c_str());
-          });
-          m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
-          m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
-          m_fileGroup->setText("Files");
-          vv->fileMenu->add(m_fileGroup);
-  
-          auto fileReload = new ui::Action("ReloadFile", m_owner.get());
-          vv->fileMenu->add(fileReload);
-          fileReload->setText("Reload file");
-          fileReload->setCallback([this](){
-                  reloadFile();
-          });
-
-          auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
-          fileSave->setText("Save");
-          fileSave->setFilter(getWriteFilterList());
-          vv->fileMenu->add(fileSave);
-          fileSave->setCallback([this](const std::string &file){
-                  if (vvMSController::instance()->isMaster())
-                  vvSceneGraph::instance()->saveScenegraph(file);
-          });
-
-          vv->getUpdateManager()->add(this);
-		  vvCommunication::instance()->initVrbFileMenu();
-        }
-    }
 
     /*osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
     osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");*/
@@ -1272,6 +1235,49 @@ vvFileManager::vvFileManager()
     //clear tmp dir to ensure same state on all slaves
     if(fs::exists(remoteFetchPathTmp)) 
         fs::remove_all(remoteFetchPathTmp);
+}
+void vvFileManager::initUI()
+{
+
+    if (vv) {
+        m_owner.reset(new ui::Owner("FileManager", vv->ui));
+
+        auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
+        fileOpen->setText("Open");
+        fileOpen->setFilter(getFilterList());
+        if (!vv->fileMenu)
+            vv->initUI();
+        if (vv->fileMenu)
+        {
+            vv->fileMenu->add(fileOpen);
+            fileOpen->setCallback([this](const std::string& file) {
+                loadFile(file.c_str());
+                });
+            m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
+            m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
+            m_fileGroup->setText("Files");
+            vv->fileMenu->add(m_fileGroup);
+
+            auto fileReload = new ui::Action("ReloadFile", m_owner.get());
+            vv->fileMenu->add(fileReload);
+            fileReload->setText("Reload file");
+            fileReload->setCallback([this]() {
+                reloadFile();
+                });
+
+            auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
+            fileSave->setText("Save");
+            fileSave->setFilter(getWriteFilterList());
+            vv->fileMenu->add(fileSave);
+            fileSave->setCallback([this](const std::string& file) {
+                if (vvMSController::instance()->isMaster())
+                    vvSceneGraph::instance()->saveScenegraph(file);
+                });
+
+            vv->getUpdateManager()->add(this);
+            vvCommunication::instance()->initVrbFileMenu();
+        }
+    }
 }
 
 void vvFileManager::createRemoteFetchDir()

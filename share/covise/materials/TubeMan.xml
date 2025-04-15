@@ -1,0 +1,193 @@
+<_TubeMan>
+<uniform name="Time" type="int" value="0"/>
+<uniform name="Shader0" type="float" value="1"/>
+<uniform name="Shader1" type="float" value="1"/>
+<uniform name="Shader2" type="float" value="1"/>
+<uniform max="1.0" min="0.0" name="Brightness" type="float" value="0.3"/>
+<uniform max="4.0" min="0.5" name="Contrast" type="float" value="1.8"/>
+<uniform name="diffuseMap" type="sampler2D" value="0"/>
+<vertexProgram>
+uniform vec4 color;
+vec4 Ambient;
+vec4 Diffuse;
+vec4 Specular;
+
+uniform float revitSX;
+uniform float revitSY;
+uniform float revitOX;
+uniform float revitOY;
+    uniform sampler2D diffuseMap;
+
+varying vec2 Texcoord;
+varying vec2 Texcoord2;
+varying vec4 Color;
+    uniform int Time;
+uniform float Shader0;
+uniform float Shader1;
+uniform float Shader2;
+
+void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
+{
+   float nDotVP;       // normal . light direction
+   float nDotHV;       // normal . light half vector
+   float pf;           // power factor
+   float attenuation;  // computed attenuation factor
+   float d;            // distance from surface to light source
+   vec3  VP;           // direction from surface to light position
+   vec3  halfVector;   // direction of maximum highlights
+
+   // Compute vector from surface to light position
+   VP = vec3 (gl_LightSource[i].position) - ecPosition3;
+
+   // Compute distance between surface and light position
+   d = length(VP);
+
+   // Normalize the vector from surface to light position
+   VP = normalize(VP);
+
+   // Compute attenuation
+   attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +
+       gl_LightSource[i].linearAttenuation * d +
+       gl_LightSource[i].quadraticAttenuation * d * d);
+
+   halfVector = normalize(VP + eye);
+
+   nDotVP = max(0.0, dot(normal, VP));
+   nDotHV = max(0.0, dot(normal, halfVector));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient * attenuation;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
+   Specular += gl_LightSource[i].specular * pf * attenuation;
+}
+
+void directionalLight(in int i, in vec3 normal)
+{
+   float nDotVP;         // normal . light direction
+   float nDotHV;         // normal . light half vector
+   float pf;             // power factor
+
+   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
+   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+
+   }
+   Ambient  += gl_LightSource[i].ambient;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP;
+   Specular += gl_LightSource[i].specular * pf;
+}
+
+vec3 fnormal(void)
+{
+    //Compute the normal 
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    normal = normalize(normal);
+    return normal;
+}
+
+void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
+{
+    vec3 ecPosition3;
+    vec3 eye;
+
+    ecPosition3 = (vec3 (ecPosition)) / ecPosition.w;
+    eye = vec3 (0.0, 0.0, 1.0);
+
+    // Clear the light intensity accumulators
+    Ambient  = vec4 (0.0);
+    Diffuse  = vec4 (0.0);
+    Specular = vec4 (0.0);
+
+    pointLight(0, normal, eye, ecPosition3);
+
+    pointLight(1, normal, eye, ecPosition3);
+
+    //directionalLight(2, normal);
+
+    //color =  color * Diffuse;
+    //color = clamp( color, 0.0, 1.0 );
+    gl_FrontColor = gl_FrontMaterial.diffuse * Diffuse + Specular;
+    normal   = gl_NormalMatrix * gl_Normal;
+
+    gl_FrontColor.a *= alphaFade;
+Color = Diffuse;// + Specular:
+    Color.a *= alphaFade;
+}
+
+
+void main (void)
+{
+    vec3  transformedNormal;
+    float alphaFade = 1.0;
+
+    // Eye-coordinate position of vertex, needed in various calculations
+
+        float time = (Time/100.0);
+   vec4 pos = gl_Vertex;
+
+if(pos[1]&gt;0.1)
+{
+pos[0]+=((pos[1]-0.1)*sin((pos[1]-0.1)*10+time*0.2))*0.2;
+}
+if(pos[1]&lt;-0.1)
+{
+pos[0]+=((pos[1]+0.1)*sin((pos[1]+0.1)*10+time*0.2))*0.2;
+}
+if(pos[0]&lt;-0.75)
+{
+pos[1]+=((pos[0]+0.75)*sin((pos[0]+0.75)*15+time*0.2))*0.8;
+}
+    pos[0] = pos[0];
+    pos[1] = pos[1]+pos[0]*0.1*(sin(pos[0]+time*0.2));
+    pos[2] = pos[2];
+if(gl_Normal.x &gt; 0.5|| gl_Normal.x &lt; -0.5)
+Texcoord = gl_Vertex.yz;
+if(gl_Normal.y &gt; 0.5|| gl_Normal.y &lt; -0.5)
+Texcoord = gl_Vertex.xz;
+        Texcoord.x = gl_MultiTexCoord0.x ;
+        Texcoord.y = gl_MultiTexCoord0.y ;
+
+    vec4 ecPosition = gl_ModelViewMatrix * pos;
+
+gl_ClipVertex = ecPosition;
+    // Do fixed functionality vertex transform
+    gl_Position = gl_ModelViewProjectionMatrix*pos;
+    transformedNormal = fnormal();
+    flight(transformedNormal, ecPosition, alphaFade);
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*pos;
+#endif
+}
+
+  </vertexProgram><fragmentProgram>varying vec2 Texcoord;
+    varying vec4 Color;
+   
+    uniform float Brightness;
+    uniform float Contrast;
+    uniform sampler2D diffuseMap;
+    uniform int Time;
+uniform float Shader0;
+uniform float Shader1;
+   
+    void main( void )
+    {
+      vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
+      DiffuseColor.rgb  =((DiffuseColor.rgb - 0.5f) * Contrast) + 0.5f;
+      DiffuseColor.rgb += vec3(Brightness,Brightness,Brightness);
+      
+      gl_FragColor = DiffuseColor * Color ;
+    }</fragmentProgram></_TubeMan>

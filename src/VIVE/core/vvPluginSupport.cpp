@@ -15,6 +15,7 @@
 #include "vvPluginList.h"
 #include "vvPlugin.h"
 #include "vvMSController.h"
+#include "vvFileManager.h"
 
 #include "../OpenConfig/file.h"
 #include "../../OpenCOVER/OpenVRUI/coUpdateManager.h"
@@ -52,6 +53,7 @@
 
 #include "ui/Menu.h"
 #include "ui/Manager.h"
+#include "phongShader.cpp"
 
 // undef this to get no START/END messaged
 #undef VERBOSE
@@ -786,12 +788,23 @@ vvPluginSupport::vvPluginSupport()
 
     START("vvPluginSupport::vvPluginSupport");
 
-    options = vsg::Options::create();
-    options->add(vsgXchange::all::create());
 
     new vvVruiRenderInterface();
 
     ui = new ui::Manager();
+
+    options = vsg::Options::create();
+    options->add(vsgXchange::all::create());
+    options->shaderSets["phong"] = phongShader();
+    auto OptionsFile = vvFileManager::instance()->getName("share/covise/shaders/BuildOptions.vsgt");
+    if(OptionsFile)
+        options->setValue("read_build_options", OptionsFile);
+
+
+
+    char* covisedir = getenv("COVISEDIR");
+
+    options->paths.push_back((std::string(covisedir) + "\\share\\covise").c_str());
     builder = vsg::Builder::create();
 
 

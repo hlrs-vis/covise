@@ -301,10 +301,11 @@ vvLighting::createLightSource(const char *configName, const LightDef &def, bool 
         auto pointLight = vsg::PointLight::create();
 
         pointLight->name = configName;
-        pointLight->color.set(1.0f, 1.0f, 0.0);
+        pointLight->color.set(1.0f, 1.0f, 1.0f);
         pointLight->intensity = static_cast<float>(1.0);
         pointLight->position.set(static_cast<float>(def.pos.x), static_cast<float>(def.pos.y), static_cast<float>(def.pos.z));
         pointLight->radius = 1E20;
+        //pointLight->intensity *= pointLight->radius;
         light = pointLight;
        /* vsg::Light* vsgLight = new vsg::Light();
         light->setLight(osgLight);

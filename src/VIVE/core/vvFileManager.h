@@ -229,6 +229,8 @@ public:
 
     const std::string &getMainFile() const;
 
+    void initUI();
+
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();

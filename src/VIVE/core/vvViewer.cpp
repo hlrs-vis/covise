@@ -615,7 +615,7 @@ vvViewer::createChannels(int i)
     vvConfig::instance()->channels[i].camera = vsg::Camera::create(perspective, lookAt, viewportstate);
     vvConfig::instance()->channels[i].view = vsg::View::create(vvConfig::instance()->channels[i].camera);
 
-    vvConfig::instance()->channels[i].view->addChild(vsg::createHeadlight());
+   // vvConfig::instance()->channels[i].view->addChild(vsg::createHeadlight());
 
    
 

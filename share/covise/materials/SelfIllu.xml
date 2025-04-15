@@ -1,0 +1,64 @@
+<_SelfIllu><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="selfIlluMap" type="sampler2D" value="1"/><vertexProgram>varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+  
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Texcoord = gl_MultiTexCoord0.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+	gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+   
+    uniform sampler2D diffuseMap;
+    uniform sampler2D selfIlluMap;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
+      	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+      	
+      							
+      vec4 selfIlluColor = texture2D(selfIlluMap,Texcoord);
+	  vec4 diffuseColor = texture2D( diffuseMap, Texcoord );
+      
+      vec3 N = normalize(normal);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm &gt; 0.0)
+      {
+      	final_color = gl_LightSource[0].diffuse * 
+      	               diffuseColor * 
+      	  lambertTerm + diffuseColor *selfIlluColor;	
+      		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                 gl_FrontMaterial.shininess );
+      	final_color += gl_LightSource[0].specular * 
+      	               gl_FrontMaterial.specular * 
+      				   specular;	
+      	}
+      
+else
+{
+      	final_color +=  diffuseColor *selfIlluColor;	
+      		
+}	
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram></_SelfIllu>

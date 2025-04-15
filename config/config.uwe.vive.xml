@@ -94,7 +94,7 @@
    </VRUI>
 
     <FloorHeight value="-1500" />
-   <Input>
+   <!--Input>
     <MouseNav value="ON" />
         <Device>
            <Vive driver="Vive">
@@ -176,7 +176,7 @@
            <Person name="ViveLeft" head="ViveHead" hand="ViveHandLeft" buttons="ViveLeft" />
            <Person name="Const" head="ConstHead" hand="ViveHand" buttons="ViveRight" />
         </Persons>
-   </Input>
+   </Input-->
    <HMD distance="1000" tracked="true" />
 
 	<!--Console value="on" file="/tmp/coverlog"/-->

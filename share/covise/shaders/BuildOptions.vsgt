@@ -1,0 +1,19 @@
+#vsga 0.2.0
+Root id=1 osg2vsg::BuildOptions
+{
+  insertCullGroups 1
+  insertCullNodes 1
+  useBindDescriptorSet 1
+  billboardTransform 0
+  geometryTarget 1
+  supportedGeometryAttributes 4095
+  supportedShaderModeMask 1023
+  overrideGeomAttributes 0
+  overrideShaderModeMask 1
+  useDepthSorted 1
+  mapRGBtoRGBAHint 1
+  copyNames 1
+  vertexShaderPath "shaders/fbxshader.vert"
+  fragmentShaderPath "shaders/fbxshader.frag"
+  extension "vsgb"
+}

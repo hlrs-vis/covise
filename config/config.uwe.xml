@@ -31,12 +31,11 @@
     <EnvMapMode value="NONE" />
     <UseDisplayLists value="false" />
     <UseVertexBufferObjects value="false" />
-   <Input>
+   <!--Input>
         <MouseNav value="true" />
         <Device>
 
            <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
-              <!--Offset x="-86" y="-3080" z="-1260" /-->
               <Offset x="0" y="-4075" z="-1260" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCaveOutside>
@@ -82,17 +81,6 @@
               <Orientation h="0" p="0" r="0" />
            </CaveGloves>
 	   
-<!--
-           <CaveHead2 device="DTrackCave" bodyIndex="3">
-              <Offset x="-105" y="-40" z="-50" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHead2>
-
-           <CaveHand2 device="DTrackCave" bodyIndex="2">
-              <Offset x="0" y="-170" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHand2>
--->
            <TripodHead>
               <Offset x="0" y="-3000" z="0" />
            </TripodHead>
@@ -132,7 +120,7 @@
            <Person name="CameraOutside" eyeDistance="0.0" head="CaveCameraOutside" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
-     </Input>
+     </Input-->
   <Plugin>
    <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
                 <OddlotLink value="off"  /><!-- kills cull performance and sets LODScale to 0 bad for osgEarth-->
