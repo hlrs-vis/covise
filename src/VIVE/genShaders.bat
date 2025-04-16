@@ -1,0 +1,2 @@
+set VSG_FILE_PATH=c:\src\covise\share\covise
+c:\src\gitbase\VsgExamples\build\bin\Debug\vsgshaderset.exe -o core/phongShader.cpp -v "" -v  "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" --phong   --binary
