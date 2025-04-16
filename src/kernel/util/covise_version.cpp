@@ -28,7 +28,7 @@ const char *CoviseVersion::shortVersion()
 const char *CoviseVersion::longVersion()
 {
     snprintf(longVersionString, sizeof(longVersionString), "%d.%d-%s (from %s on %s)", COVISE_VERSION_YEAR,
-             COVISE_VERSION_MONTH, COVISE_VERSION_HASH, COVISE_VERSION_DATE, COVISE_VERSION_ARCH);
+             COVISE_VERSION_MONTH, COVISE_VERSION_HASH, COVISE_VERSION_DATE, ARCHSUFFIX);
     return longVersionString;
 }
 
@@ -44,7 +44,7 @@ const char *CoviseVersion::compileDate()
 
 const char *CoviseVersion::arch()
 {
-    return COVISE_VERSION_ARCH;
+    return ARCHSUFFIX;
 }
 
 int CoviseVersion::year()

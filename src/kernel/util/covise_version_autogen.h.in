@@ -11,7 +11,4 @@
 #define COVISE_VERSION_MONTH @COVISE_VERSION_MONTH@
 #define COVISE_VERSION_HASH "@COVISE_VERSION_HASH@"
 
-/* TODO maybe better BASEARCHSUFFIX but leave it for now */
-#define COVISE_VERSION_ARCH "@ARCHSUFFIX@" 
-
 #endif 
