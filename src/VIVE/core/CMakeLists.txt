@@ -1,6 +1,7 @@
 # VIVE core (coOpenVIVE)
 
 USING(MPI optional)
+USING(CURL optional)
 set(VIVECORE_TARGET vvCore)
 set(VIVEDIR "${COVISEDIR}/src/VIVE")
 

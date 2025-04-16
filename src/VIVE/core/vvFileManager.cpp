@@ -2103,8 +2103,8 @@ std::string vvFileManager::httpFetch(const std::string &url)
 #if defined(HAVE_LIBCURL)
   std::string readBuffer;
 
-  httpclient::curl::GET get(url);
-  if (httpclient::curl::Request().httpRequest(get, readBuffer))
+  opencover::httpclient::curl::GET get(url);
+  if (opencover::httpclient::curl::Request().httpRequest(get, readBuffer))
   {
     return writeRemoteFetchedFile(url, readBuffer.data(), readBuffer.size());
   }
