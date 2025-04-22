@@ -241,15 +241,12 @@ bool coRestraint::get(ssize_t val, ssize_t &group) const
       return (val % globalStep) == 0;
    }
 
-   group=0;
-    while (size_t(group) < min.size())
+   for (group=0; size_t(group) < min.size(); ++group)
    {
       if ( (val>=min[group]) && (val<=max[group]) )
       {
-         if ((val - (min[group]-1)) % step[group] == 0)
-             return true;
+         return (val - (min[group]-1)) % step[group] == 0;
       }
-      group++;
    }
    return false;
 }
