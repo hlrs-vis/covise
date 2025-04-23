@@ -15,8 +15,6 @@
 
 #include <OpenVRUI/coTextureRectBackground.h>
 
-#include <osg/Image>
-#include <osg/Material>
 
 #include <OpenVRUI/util/vruiLog.h>
 

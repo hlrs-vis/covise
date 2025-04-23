@@ -16,7 +16,6 @@
 
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
 
-#include <osgDB/ReadFile>
 #include <vsg/all.h>
 #include <vsgXchange/all.h>
 

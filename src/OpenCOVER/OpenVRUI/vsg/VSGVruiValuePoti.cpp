@@ -16,7 +16,6 @@
 #include <OpenVRUI/vsg/VSGVruiTexture.h>
 
 #include <OpenVRUI/util/vruiLog.h>
-#include <OpenVRUI/osg/NodeDumpVisitor.h>
 
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Switch.h>

@@ -13,14 +13,12 @@
 
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
 
-#include <osgDB/ReadFile>
 
 #include <OpenVRUI/util/vruiLog.h>
 
 #define STYLE_IN 1
 #define STYLE_OUT 2
 
-using namespace osg;
 using std::string;
 
 namespace vrui
