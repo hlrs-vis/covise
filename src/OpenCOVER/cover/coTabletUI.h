@@ -29,6 +29,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include <mutex>
 
 #ifndef _M_CEE //no future in Managed OpenCOVER
 #include <future>
@@ -128,7 +129,7 @@ class COVEREXPORT coTabletUI: QT(public QObject D_COMMA) public covise::coAbstra
 
 private:
     static coTabletUI *tUI;
-    OpenThreads::Mutex connectionMutex;
+    std::recursive_mutex connectionMutex;
 
 public slots:
     int getID();
@@ -173,20 +174,15 @@ public:
     void init();
     void reinit(const ConfigData &cd);
 
-    void lock()
-    {
-        connectionMutex.lock();
-    }
-    void unlock()
-    {
-        connectionMutex.unlock();
-    }
     covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
     std::unique_ptr<covise::Connection> sgConn;
 
 protected:
+    void lock() { connectionMutex.lock(); }
+    void unlock() { connectionMutex.unlock(); }
+
     ConnectionMode mode = None;
     ConfigData connectionConfig;
     void config();
