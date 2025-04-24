@@ -86,8 +86,8 @@ bool SpatialLabsDriver::poll()
 		},
 		FocalLengthPlayerCamera,
 		{
-			width / 2.0,
-			height / 2.0
+			width / 2.0f,
+			height / 2.0f
 		}
 	};
 
@@ -98,8 +98,9 @@ bool SpatialLabsDriver::poll()
 
 	float outViewPose[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	float outRawEyePos[] = { 0.0, 0.0, 0.0 };
-
+#ifndef _DEBUG
 	spatialLabsAPI->GetViewPose(inViewData, outViewPose, outRawEyePos);
+#endif // !_DEBUG
 
 	float outViewPose0 = outViewPose[0];
 	float outViewPose1 = outViewPose[1];

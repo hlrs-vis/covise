@@ -2195,7 +2195,7 @@ std::string vvFileManager::reduceToAlphanumeric(const std::string &str)
     return red;
 }
 
-std::string vvFileManager::writeRemoteFetchedFile(const std::string& filePath, const char* content, int size)
+std::string vvFileManager::writeRemoteFetchedFile(const std::string& filePath, const char* content, size_t size)
 {
     createRemoteFetchDir();
     fs::path path{filePath};
@@ -2225,7 +2225,7 @@ std::string vvFileManager::writeRemoteFetchedFile(const std::string& filePath, c
 #endif
         if (fd != -1)
         {
-            if (int wroteBytes = write(fd, content, size) != size)
+            if (size_t wroteBytes = write(fd, content, (unsigned int)size) != size)
             {
                 //warn("remoteFetch: temp file write error\n");
                 cerr << fileName << " writing file error: " << "wrote bytes = " << wroteBytes << " received bytes = " << size << endl;

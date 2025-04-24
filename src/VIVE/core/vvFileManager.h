@@ -301,7 +301,7 @@ private:
     std::string reduceToAlphanumeric(const std::string & str);
 
 	///writes content into a file unter remotefetchPath/hash/filename . Returns the path to the file or "" on failure
-	std::string writeRemoteFetchedFile(const std::string& filePath, const char* content, int size);
+	std::string writeRemoteFetchedFile(const std::string& filePath, const char* content, size_t size);
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
 	int guessFileOwner(const std::string& filePath);
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
