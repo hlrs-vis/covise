@@ -1423,26 +1423,27 @@ VRSceneGraph::getBoundingSphere()
     // determine center of bounding sphere
     BoundingBox bb;
     bb.init();
-    osg::Node *currentNode = NULL;
     for (unsigned int i = 0; i < scaleNode->getNumChildren(); i++)
     {
-        currentNode = scaleNode->getChild(i);
+        auto currentNode = scaleNode->getChild(i);
         const osg::Transform *transform = currentNode->asTransform();
-        if ((!transform || transform->getReferenceFrame() == osg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
+        if (transform && transform->getReferenceFrame() != osg::Transform::RELATIVE_RF)
+            continue;
+        if (strncmp(currentNode->getName().c_str(), "Avatar ", 7) == 0)
+            continue;
+
+        // Using the Visitor from scaleNode doesn't work if it's m_scaleTransform (ScaleWithInteractors==true) -> therefore the loop)
+        NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
+        if (it == m_specialBoundsNodeList.end())
         {
-            // Using the Visitor from scaleNode doesn't work if it's m_scaleTransform (ScaleWithInteractors==true) -> therefore the loop)
-            NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
-            if (it == m_specialBoundsNodeList.end())
-            {
-                osg::ComputeBoundsVisitor cbv;
-                cbv.setTraversalMask(Isect::Visible);
-                currentNode->accept(cbv);
-                bb.expandBy(cbv.getBoundingBox());
-            }
-            else
-            {
-                bb.expandBy(currentNode->getBound());
-            }
+            osg::ComputeBoundsVisitor cbv(osg::NodeVisitor::TRAVERSE_ACTIVE_CHILDREN);
+            cbv.setTraversalMask(Isect::Visible);
+            currentNode->accept(cbv);
+            bb.expandBy(cbv.getBoundingBox());
+        }
+        else
+        {
+            bb.expandBy(currentNode->getBound());
         }
     }
 
@@ -1453,22 +1454,23 @@ VRSceneGraph::getBoundingSphere()
         bsphere._radius = 0.0f;
         for (unsigned int i = 0; i < scaleNode->getNumChildren(); i++)
         {
-            currentNode = scaleNode->getChild(i);
+            auto currentNode = scaleNode->getChild(i);
             const osg::Transform *transform = currentNode->asTransform();
-            if ((!transform || transform->getReferenceFrame() == osg::Transform::RELATIVE_RF) && strncmp(currentNode->getName().c_str(), "Avatar ", 7) != 0)
+            if (transform && transform->getReferenceFrame() != osg::Transform::RELATIVE_RF)
+                continue;
+            if (strncmp(currentNode->getName().c_str(), "Avatar ", 7) == 0)
+                continue;
+            NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
+            if (it == m_specialBoundsNodeList.end())
             {
-                NodeSet::iterator it = m_specialBoundsNodeList.find(currentNode);
-                if (it == m_specialBoundsNodeList.end())
-                {
-                    osg::ComputeBoundsVisitor cbv;
-                    cbv.setTraversalMask(Isect::Visible);
-                    currentNode->accept(cbv);
-                    bsphere.expandRadiusBy(cbv.getBoundingBox());
-                }
-                else
-                {
-                    bsphere.expandRadiusBy(currentNode->getBound());
-                }
+                osg::ComputeBoundsVisitor cbv(osg::NodeVisitor::TRAVERSE_ACTIVE_CHILDREN);
+                cbv.setTraversalMask(Isect::Visible);
+                currentNode->accept(cbv);
+                bsphere.expandRadiusBy(cbv.getBoundingBox());
+            }
+            else
+            {
+                bsphere.expandRadiusBy(currentNode->getBound());
             }
         }
     }
