@@ -156,6 +156,12 @@ FFmpegEncoder::FFmpegEncoder(const VideoFormat &input, const VideoFormat &output
     m_outPicture = alloc_picture(m_outCodecContext->pix_fmt, output.resolution);
 
     m_oc = openOutputStream(output, outputFile, m_outCodecContext);
+    if (!m_oc)
+    {
+        std::cerr << "could not open output stream" << std::endl;
+        m_error = true;
+        return;
+    }
 
     if (avcodec_open2(m_outCodecContext, outCodec, nullptr) < 0)
     {
@@ -180,6 +186,8 @@ void FFmpegEncoder::writeVideo(size_t frameNum, uint8_t *pixels, bool mirror)
         return;
     auto encodeAndWrite = [this](int frameNum, uint8_t *pixels, bool mirror) -> bool
     {
+        if (m_error)
+            return false;
         /* encode the image */
         SwConvertScale(pixels, mirror);
         m_inPicture->pts = m_outPicture->pts = av_rescale_q(frameNum, m_outCodecContext->time_base, m_oc->streams[0]->time_base);
