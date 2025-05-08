@@ -78,7 +78,16 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
     input.resolution.w = myPlugin->inWidth;
     input.resolution.h = myPlugin->inHeight;
     std::cerr << "input res " << input.resolution.w << " x " << input.resolution.h << std::endl;
-    output.codecName = getSelectedCodec()->name;
+    if (auto codec = getSelectedCodec())
+    {
+        output.codecName = codec->name;
+    }
+    else
+    {
+        myPlugin->errorLabel->setLabel("Codec not found");
+        output.codecName = "";
+        return false;
+    }
     output.resolution.w = myPlugin->outWidth;
     output.resolution.h = myPlugin->outHeight;
     output.colorFormat = AV_PIX_FMT_NONE;
