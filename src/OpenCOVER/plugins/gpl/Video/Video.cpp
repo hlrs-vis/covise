@@ -115,8 +115,7 @@ void VideoPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
             if (!recordFromGui_)
             {
                 recordFromGui_ = true;
-                // set format to WMV
-                selectFormat->setSelectedEntry(1);
+                selectFormat->setSelectedEntry(1); // 0 = ASF, 1 = AVI - seems to provide best compatibility
                 tabletEvent(selectFormat);
 
                 // set compression codex to Windows Media Video 9
@@ -507,7 +506,9 @@ bool VideoPlugin::init()
 
     sysPlug->Menu(++rowcount);
     fillFilenameField("", false);
-    selectFormat->setSelectedEntry(0);
+    selectFormat->setSelectedEntry(1); // 0 = ASF, 1 = AVI - seems to provide best compatibility
+    sysPlug->selectCodec->setSelectedText("libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10");
+    tabletEvent(sysPlug->selectCodec);
 
     showFrameLabel = new coTUILabel("Frames captured:", VideoTab->getID());
     showFrameLabel->setPos(0, rowcount + 10);
