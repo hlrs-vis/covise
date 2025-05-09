@@ -27,6 +27,8 @@ void PluginMenu::Plugin::add(ui::Menu *menu, bool onlyTui)
     button = new ui::Button(menu, name);
     if (!configured)
         button->setPriority(ui::Element::Low);
+    else
+        menu->setVisible(true);
     button->setState(plugin != nullptr);
 	button->setShared(false);
     button->setCallback([this](bool load){
@@ -71,6 +73,7 @@ void PluginMenu::init()
     menu = new ui::Menu("Plugins", this);
     menu->setText("Plug-Ins");
     menu->allowRelayout(true);
+    menu->setVisible(false);
 
     scanPlugins();
 
