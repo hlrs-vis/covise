@@ -375,7 +375,7 @@ coVRConfig::coVRConfig()
         coCoviseConfig::getInt("bottom", str, 0, &have_bottom);
         if (have_bottom)
             printf("bottom is ignored in %s, please use top\n", str);
-        w.decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
+        w.decoration = coCoviseConfig::isOn("decoration", std::string(str), true);
         w.resize = coCoviseConfig::isOn("resize", str, true);
         w.stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
         w.embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
@@ -383,7 +383,7 @@ coVRConfig::coVRConfig()
 #if USE_OSMESA
         w.type = coCoviseConfig::getEntry("type", std::string(str), "Mesa");
 #else
-        w.type = coCoviseConfig::getEntry("type", std::string(str), "");
+        w.type = coCoviseConfig::getEntry("type", std::string(str), w.decoration ? "Qt" : "");
 #endif
         std::transform(w.type.begin(), w.type.end(), w.type.begin(), ::tolower);
         w.swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
