@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COCONFIG version="1">
+  <GLOBAL>
+    <Module>
+      <CuttingSurface>
+        <SupportPolyhedra value="true"/>
+      </CuttingSurface>
+      <IsoSurface>
+        <SupportPolyhedra value="true"/>
+      </IsoSurface>
+    </Module>
+    <COVER>
+      <NumScreens value="0"/>
+      <NumWindows value="0"/>
+    </COVER>
+  </GLOBAL>
+  <CLUSTER MASTER="visaurora">
+    <System>
+      <!--VRB>
+                <Server value="141.58.8.5" port="31200" />
+                <Server value="lava.ucsd.edu" port="10001" />                
+      </VRB-->
+      <HostConfig>
+        <Host timeout="30" memory="shm" method="ssh" name="visbarney" hostname="visbarney"/>
+        <Host timeout="30" memory="shm" method="ssh" name="viscarl" hostname="viscarl"/>
+      </HostConfig>
+      <covRemote>
+        <Host value="visaurora"/>
+        <Server port="31809"/>
+      </covRemote>
+    </System>
+    <COVER>
+    
+      <!--StartCommand value="nvidia-smi -ac 7001,2100" />
+            <ExitCommand value="nvidia-smi -rac" /-->
+      <TestImage value="/data/testbild_1600x1600_neuR.png"/>
+      
+      <FileManager>
+        <FileType name="bpadxf" plugin="BPA"/>
+        <FileType name="nfi" plugin="BPA"/>
+        <FileType name="nfix" plugin="BPA"/>
+        <FileType name="dani" plugin="DEMOA"/>
+        <FileType name="dsim" plugin="DEMOA"/>
+        <FileType name="xosc" plugin="OpenScenarioPlugin"/>
+        <FileType name="ifc" plugin="IFC"/>
+        <FileType name="stp" plugin="IFC"/>
+        <FileType name="step" plugin="IFC"/>
+        <FileType name="pts" plugin="PointCloud"/>
+        <FileType name="ptsb" plugin="PointCloud"/>
+        <FileType name="ptx" plugin="PointCloud"/>
+        <FileType name="xyz" plugin="PointCloud"/>
+        <FileType name="c2m" plugin="PointCloud"/>
+        <!--FileType name="ply" plugin="PointCloud" /-->
+        <FileType name="pts" plugin="PointRayTracer"/>
+        <!--FileType name="xyz" plugin="PointRayTracer" />
+		<FileType name="ptsb" plugin="PointRayTracer" /-->
+        <FileType name="ply" plugin="PointRayTracer"/>
+        <!--FileType name="e57" plugin="PointRayTracer" /-->
+        <FileType name="x3dv" plugin="Vrml97"/>
+        <FileType name="wrl" plugin="Vrml97"/>
+        <FileType name="wrl.gz" plugin="Vrml97"/>
+        <FileType name="wrz" plugin="Vrml97"/>
+        <FileType name="avi" plugin="StereoVideoPlayer"/>
+        <FileType name="wmv" plugin="StereoVideoPlayer"/>
+        <FileType name="mov" plugin="StereoVideoPlayer"/>
+        <FileType name="mp4" plugin="StereoVideoPlayer"/>
+        <FileType name="xvf" plugin="Volume"/>
+        <FileType name="mid" plugin="Midi"/>
+        <FileType name="tif" plugin="Volume"/>
+        <FileType name="tiff" plugin="Volume"/>
+        <FileType name="rvf" plugin="Volume"/>
+        <FileType name="avf" plugin="Volume"/>
+        <FileType name="js" plugin="Script"/>
+        <FileType name="qs" plugin="Script"/>
+        <FileType name="plmxml" plugin="PLMXML"/>
+        <FileType name="xml" plugin="PLMXML"/>
+        <FileType name="jt" plugin="JTOpen"/>
+        <FileType name="gcode" plugin="CNC"/>
+        <FileType name="bullet" plugin="Bullet"/>
+        <FileType name="top" plugin="Amber"/>
+        <FileType name="trj" plugin="Amber"/>
+        <FileType name="cgl" plugin="CADCv3D"/>
+        <FileType name="via" plugin="Molecules"/>
+        <FileType name="vim" plugin="Molecules"/>
+        <FileType name="vis" plugin="Molecules"/>
+        <FileType name="dyn" plugin="VRAnim"/>
+        <FileType name="geoall" plugin="VRAnim"/>
+        <FileType name="str" plugin="VRAnim"/>
+        <FileType name="sensor" plugin="VRAnim"/>
+        <FileType name="particle" plugin="Particles"/>
+        <FileType name="indent" plugin="Particles"/>
+        <FileType name="coord" plugin="Particles"/>
+        <FileType name="crist" plugin="Particles"/>
+        <FileType name="chkpt" plugin="Particles"/>
+        <FileType name="earth" plugin="Earth"/>
+        <FileType name="xodr" plugin="TrafficSimulation"/>
+        <FileType name="avi" plugin="StereoVideoPlayer"/>
+        <FileType name="wmv" plugin="StereoVideoPlayer"/>
+        <FileType name="earth" plugin="Earth"/>
+        <FileType name="stardust" plugin="starDust"/>
+        <FileType name="starDust" plugin="starDust"/>
+        <FileType name="oct" plugin="ThreeDTK"/>
+        <FileType name="pcd" plugin="PCL"/>
+      </FileManager>
+      
+      <!--SplashScreen value="share/covise/icons/OpenCOVERLogoRRZK.tif" width="512" height="512" /-->
+      <WelcomeMessage value="Welcome to OpenCOVER at ITCC-PowerWall"/>
+      <DebugLevel value="0"/>
+      <AllowMenuOnlyState value="OFF"/>
+      <!--Background r="0.66" g="0.66" b="0.56" /-->
+      <Snap value="OFF"/>
+      <CollisionDist value="20"/>
+      <DebugTUI value="OFF"/>
+      <DepthPeeling value="false"/>
+      <LODScale value="1"/>
+      <!--SyncToVBlank value="OFF" device="DFP-0" /-->
+      <CudaNumThreads value="128"/>
+      <CheckForOpenGLErrors value="false"/>
+      <UseVertexBufferObjects value="true"/>
+      <UseDisplayLists value="false"/>
+      <NavigationMode value="drive"/>
+      <MultiThreaded value="off"/>
+      <StencilBits value="8"/>
+      <Stencil value="true"/>
+      <TwoSide value="ON"/>
+      <FloorHeight value="-1500"/>
+      <Menu>
+        <Orientation h="-24" p="0" r="0"/>
+        <Position x="1300" y="0" z="0"/>
+      </Menu>
+      <Sound server="134.95.115.250"/>
+      <!-- 
+        <Menu>
+          <Orientation h="-20" p="0" r="0" />
+          <Position x="1200" y="0" z="1150" />
+        </Menu-->
+            
+      <DebugTUI value="false"/>
+      <MenuMode value="false"/>
+      <OMPThreads value="off"/>
+      <Multisample value="OFF" numSamples="4" numBuffers="2" mode="DONT_CARE"/>
+      <AnisotropicFiltering value="0"/>
+      <Specular value="OFF"/>      
+      <!--SyncToVBlank value="OFF" device="DFP-3" /-->
+      <TwoSide value="OFF"/>
+      <Stereo enable="ON" separation="60" value="ON"/>
+      
+      <!---
+            <Near value="100" />
+            <Far value ="100000"/>
+            -->
+            
+      <GenStrips value="OFF"/>
+      <Spheres>
+        <UseVertexArrays value="on"/>
+      </Spheres>
+      <MultiProcess value="ON"/>
+      <MultiThreaded value="ON"/>
+      <Collaborative>
+        <Sync mode="LOOSE_COUPLING"/>
+      </Collaborative>
+      <AnimationSpeed min="0.0" max="25.0" default="12.0"/>
+      <Input>
+        <MouseNav value="true"/>
+        
+        <Device>
+          <DTrackPW driver="dtrack" port="5000">
+            <Offset x="0" y="-1730" z="-1241"/>
+            <Orientation h="0" p="90" r="0"/>
+          </DTrackPW>
+        </Device>
+        
+        <Body>                
+          <!-- Das normale Brillentarget -->
+          <Head device="DTrackPW" bodyIndex="1">
+            <Offset x="0" y="0" z="0"/>
+            <Orientation h="0" p="-90" r="0"/>
+          </Head>
+          
+          <!-- Das Kameratarget -->
+          <!--Head device="DTrackPW" bodyIndex="2">
+            <Offset x="100" y="0" z="0" />
+            <Orientation h="180" p="-75" r="180" />
+          </Head-->
+          
+          <Hand device="DTrackPW" bodyIndex="F1">
+            <Offset x="0" y="0" z="0"/>
+            <Orientation h="0" p="-90" r="0"/>
+          </Hand>          
+        </Body>
+        
+        <Buttons>
+          <CaveMouse device="DTrackPW">
+            <Map name="0" value="ACTION_BUTTON"/>
+            <Map name="1" value="XFORM_BUTTON"/>
+            <Map name="2" value="MENU_BUTTON"/>
+            <Map name="3" value="DRIVE_BUTTON"/>
+          </CaveMouse>
+        </Buttons>
+        
+        <!--Valuator>
+          <CaveJoyX device="DTrackPW" valuatorIndex="0" />
+          <CaveJoyY device="DTrackPW" valuatorIndex="1" />
+        </Valuator-->
+        
+        <Persons>
+          <Person name="User" head="Head" hand="Hand" buttons="CaveMouse"/>
+        </Persons>
+      </Input>
+      
+      <TabletUI host="134.95.95.253"/>
+      
+      <Plugin>
+        <Revit value="off" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures"/>
+        <Neuro value="off" menu="on"/>
+        <PointRayTracer value="off">
+          <!--PointSize value="0.504" /-->
+          <PointSize value="0.04"/>
+          <CacheBinaryFile value="on"/>
+          <CutUTMData value="off"/>
+        </PointRayTracer>
+        <PointCloud value="off">
+          <PointSize value="4"/>
+        </PointCloud>
+        <Visionaray value="off" menu="on">
+          <DataVariance value="static"/>
+          <!-- "static" | "dynamic" -->
+          <Algorithm value="simple"/>
+          <!-- "simple" | "whitted" -->
+          <Framebuffer colorSpace="sRGB"/>
+          <!-- colorSpace: "sRGB" | "RGB" -->
+          <NumBounces value="2" min="1" max="10"/>
+          <!-- value:Integer | [min:Integer|max:Integer]  -->
+          <Device value="GPU"/>
+          <!-- "CPU"    | "GPU"     -->
+          <CPUScheduler numThreads="16"/>
+          <!-- numThreads:Integer   -->
+        </Visionaray>
+        <Volume value="on">
+          <Renderer value="rayrendcuda"/>
+          <!--Renderer value="texrend" /-->
+          <!--Renderer value="rayrendcuda" /-->
+          <Lighting value="off"/>
+          <PreIntegration value="off"/>
+          <ShowTFE value="on"/>
+          <UseHistogram value="off"/>
+        </Volume>
+        <ClipPlane value="off"/>
+        <COVERScript value="off"/>
+        <ViewPoint value="on" FlightTime="8"/>
+        <Vrml97 value="on">
+          <Lights value="ON"/>
+          <Audio value="OpenAL">
+            <!--Host value="localhost" /-->
+            <!--Host value="134.95.85.134" /-->
+            <!--Device value="plughw:1,0" /-->
+          </Audio>
+          <ViewpointType value="free"/>
+          <NewMovieSupport value="true"/>
+          <UseTextureRectangle value="true"/>
+          <GenerateTriangleStrips value="false"/>
+          <ReTesselate value="false"/>
+        </Vrml97>
+        <!--StereoVideoPlayer>
+                    <Audio value="off"/>
+                </StereoVideoPlayer-->
+        <!--Video value="on">
+                  <Framerate value="25"/>
+                  <VideoSizeX value="1920"/>
+                  <VideoSizeY value="1080"/>
+                  <Filename value="/localData/AstroVideo.mpeg"/>
+                  <Bitrate value="10000"/>                  
+                </Video-->
+        <ClipPlane value="on"/>
+      </Plugin>
+      
+      <FileManager>
+        <FileType name="3d" plugin="PointRayTracer"/>
+      </FileManager>
+      
+      <MultiPC>
+        <SyncMode value="TCP" hosts="visbarney,viscarl"/>
+        <NumSlaves value="2"/>
+        <Multicast>
+          <debugLevel value="2"/>
+          <mcastAddr value="224.223.222.221"/>
+          <mcastPort value="23232"/>
+          <mtu value="1500"/>
+          <ttl value="1"/>
+          <lback value="off"/>
+          <sndBufferSpace value="1000000"/>
+          <rcvBufferSpace value="1000000"/>
+          <blockSize value="4"/>
+          <numParity value="0"/>
+          <txCacheSize value="100000000"/>
+          <txCacheMin value="1"/>
+          <txCacheMax value="128"/>
+          <txRate value="1000"/>
+          <backoffFactor value="0.0"/>
+          <sockBufferSize value="512000"/>
+          <readTimeoutSec value="30"/>
+          <writeTimeoutMsec value="500"/>
+          <retryTimeout value="100"/>
+          <maxLength value="1000000"/>
+        </Multicast>
+        
+        <MasterInterface value="134.95.115.250"/>
+        
+        <Startup ARCH="x11" value="ssh ${USER}@visbarney ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
+        <Startup ARCH="x11" value="ssh ${USER}@viscarl ${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="1"/>
+      </MultiPC>
+    </COVER>
+    
+    <TFE>
+      <MenuPosition value="0.0 0.0 0.0"/>
+      <MenuOrientation value="0.0 0.0 0.0"/>
+      <MenuSize value="1.0"/>
+    </TFE>
+    
+  </CLUSTER>
+  <LOCAL HOST="visaurora">
+    <COVER>
+      <ScreenConfig>
+        <Screen width="520" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="316" p="0.0" r="0.0" name="0" screen="0"/>
+      </ScreenConfig>
+      
+      <PipeConfig>
+        <Pipe name="0" useDISPLAY="true"/>
+      </PipeConfig>
+      
+      <ChannelConfig>
+        <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
+      </ChannelConfig>
+      
+      <ViewportConfig>
+        <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1200"/>
+      </ViewportConfig>
+      
+      <WindowConfig>
+        <Window ARCH="x11" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="true"/>
+      </WindowConfig>      
+    </COVER>
+  </LOCAL>
+  
+  <!-- FRONT  -->
+  <LOCAL HOST="visbarney,viscarl">
+    <COVER>
+      <!--SplashScreen value="/mnt/raid/media/images/splash/Front.tif" width="1176" height="1050" /-->
+      <ScreenConfig>
+        <Screen width="3828" height="2402" originX="0" originY="0" originZ="0" h="0.0" p="0.0" r="0.0" comment="FRONT" name="0" screen="0"/>
+      </ScreenConfig>
+      
+      <PipeConfig>
+        <Pipe name="0" server="1" screen="0"/>
+      </PipeConfig>
+      
+      <WindowConfig>
+        <!--OpenGL3 value="false" /-->
+        <Window ARCH="x11" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" swapGroup="0" swapBarrier="0"/>
+      </WindowConfig>
+      
+      <ViewportConfig>
+        <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1200"/>
+      </ViewportConfig>      
+    </COVER>
+  </LOCAL>
+  
+  <LOCAL HOST="visbarney">
+    <COVER>
+      <!--TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" /-->
+      <ChannelConfig>
+        <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0"/>
+      </ChannelConfig>
+      <SyncToVBlank value="On" device="DP-5"/>
+    </COVER>
+  </LOCAL>
+  
+  <LOCAL HOST="viscarl">
+    <COVER>
+      <!--TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" /-->
+      <ChannelConfig>
+        <Channel comment="MAIN" channel="0" stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0"/>
+      </ChannelConfig>
+      <SyncToVBlank value="On" device="DP-5"/>
+    </COVER>
+  </LOCAL>
+
+  <LOCAL HOST="visaurora">
+    <COVER>
+      <!--SyncToVBlank value="Off" device="DFP-0" /-->
+    </COVER>
+  </LOCAL>
+  
+  <LOCAL HOST="visaurora,visbarney,viscarl">
+    <COVER>
+      <NumWindows value="1"/>
+      <NumScreens value="1"/>
+      <NumPipes value="1"/>
+    </COVER>
+  </LOCAL>
+  
+  <!--INCLUDE global="1" configname="general" >config.xml</INCLUDE-->
+  <INCLUDE global="1" configname="colormap">config-colormaps.xml </INCLUDE>
+</COCONFIG>
