@@ -4,6 +4,7 @@
 #include <string>
 #include <set>
 #include <memory>
+#include <cstdint>
 #include "Owner.h"
 #include "ShortcutListener.h"
 
