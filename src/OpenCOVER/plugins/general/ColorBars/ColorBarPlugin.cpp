@@ -178,12 +178,12 @@ void ColorBarPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
 {
     if(msg.getType() == grmsg::coGRMsg::COLOR_BAR_PLUGIN)
     {
+        static bool state = true;
         for(auto &c : colorsModuleMap)
         {
-            static bool state = true;
             c.second.colorbar->show(state);
-            state = !state;
         }
+        state = !state;
     }
 };
 
