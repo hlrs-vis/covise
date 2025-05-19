@@ -436,7 +436,8 @@ void ColorBar::show(bool state)
         auto vtr = hudbar_->getUIElement()->getDCS();
         VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
     }
-    hudbar_->setVisible(state);
+    if (hudbar_)
+        hudbar_->setVisible(state);
     show_->setState(state);
 }
 
