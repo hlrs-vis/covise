@@ -2,7 +2,7 @@
 aircrafts = ["paraglider", "J3Cub", "c172p", "Hansajet"]
 
 [Sound]
-server="192.168.0.240"
+xserver="192.168.0.240"
 
 [J3Cub]
 geometry="share/covise/jsbsim/geometry/A50.wrl"
@@ -39,3 +39,4 @@ h = 90
 p = 180
 r = 90
 scale = 1000
+
