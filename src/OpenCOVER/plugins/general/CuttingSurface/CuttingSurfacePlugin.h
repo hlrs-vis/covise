@@ -19,14 +19,15 @@ public:
     CuttingSurfacePlugin();
     virtual ~CuttingSurfacePlugin();
 
-    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
-    virtual void preFrame();
-    void newInteractor(const RenderObject *container, coInteractor *i);
-    void removeObject(const char *objName, bool r);
-    virtual void addNode(osg::Node *, const RenderObject * = NULL);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) override;
+    void preFrame() override;
+    void newInteractor(const RenderObject *container, coInteractor *i) override;
+    void removeObject(const char *objName, bool r) override;
+    virtual void addNode(osg::Node *, const RenderObject * = NULL) override;
 
 protected:
-    virtual ModuleFeedbackManager *NewModuleFeedbackManager(const RenderObject *, coInteractor *, const RenderObject *, const char *);
+    virtual ModuleFeedbackManager *NewModuleFeedbackManager(const RenderObject *, coInteractor *, const RenderObject *,
+                                                            const char *) override;
 
     // called if msg from gui arrives
     void handleInteractorVisibleMsg(const char *objectName, bool show);

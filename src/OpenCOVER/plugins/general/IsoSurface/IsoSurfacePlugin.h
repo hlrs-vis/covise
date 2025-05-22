@@ -18,15 +18,18 @@ public:
     IsoSurfacePlugin();
     virtual ~IsoSurfacePlugin();
 
-    void guiToRenderMsg(const grmsg::coGRMsg &msg) ;
-    virtual void preFrame();
-    void newInteractor(const opencover::RenderObject *container, opencover::coInteractor *i);
-    void removeObject(const char *objName, bool replace);
-    virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL);
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) override;
+    void preFrame() override;
+    void newInteractor(const opencover::RenderObject *container, opencover::coInteractor *i) override;
+    void removeObject(const char *objName, bool replace) override;
+    virtual void addNode(osg::Node *, const opencover::RenderObject * = NULL) override;
 
 protected:
     // this returns in fact an IsoSurfaceInteraction pointer
-    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *, opencover::coInteractor *, const opencover::RenderObject *, const char *);
+    virtual opencover::ModuleFeedbackManager *NewModuleFeedbackManager(const opencover::RenderObject *,
+                                                                       opencover::coInteractor *,
+                                                                       const opencover::RenderObject *,
+                                                                       const char *) override;
 
 private:
 };
