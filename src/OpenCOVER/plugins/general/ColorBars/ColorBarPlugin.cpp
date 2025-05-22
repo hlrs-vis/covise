@@ -228,6 +228,10 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
     if (container && container->getAttribute("OBJECTNAME"))
         menuName = container->getAttribute("OBJECTNAME");
 
+    std::string displayName = inter->getModuleDisplayName();
+    if (!displayName.empty())
+        menuName = displayName;
+
     bool found = false;
     ColorsModuleMap::iterator it = colorsModuleMap.begin();
     for (; it != colorsModuleMap.end(); ++it)

@@ -45,4 +45,9 @@ int coInteractor::refCount() const
     return d_refCount;
 }
 
+const char *coInteractor::getModuleDisplayName() const
+{
+    static const char empty[] = "";
+    return empty;
+}
 }

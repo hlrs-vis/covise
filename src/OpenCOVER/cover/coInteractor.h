@@ -129,6 +129,9 @@ public:
     // get the name of the module which created the data object
     virtual const char *getModuleName() = 0;
 
+    // get the name of the module as it should be shown to the user which created the data object
+    virtual const char *getModuleDisplayName() const;
+
     // get the instance number of the module which created the data object
     virtual int getModuleInstance() = 0;
 

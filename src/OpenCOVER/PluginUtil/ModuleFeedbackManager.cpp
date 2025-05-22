@@ -229,6 +229,7 @@ void ModuleFeedbackManager::createMenu()
         triggerHide(state);
     });
     hideCheckbox_->setShared(true);
+    hideCheckbox_->setVisible(covise);
     syncCheckbox_ = new ui::Button(menu_, "Sync");
     syncCheckbox_->setVisible(covise);
     syncCheckbox_->setState(covise);
@@ -261,7 +262,7 @@ void ModuleFeedbackManager::createMenu()
         });
     }
 #endif
-    if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
+    if (!covise || !covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){
@@ -332,7 +333,7 @@ bool ModuleFeedbackManager::compare(const char *objectName) const
         || (ModuleName(objectName) == ModuleName(attrObjectName_.c_str())) //naja knnte man auch gleich strcmp nehmen
         )
     {
-        //fprintf(stderr,"compare sucessful\n\n");
+        //fprintf(stderr,"compare successful\n\n");
         return true;
     }
     else
@@ -374,7 +375,13 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor 
             inter_->incRefCount();
     }
 
-    if (containerObject)
+    bool covise = cover->visMenu && cover->visMenu->text() == "COVISE";
+    if (!covise)
+    {
+        moduleName_ = inter->getModuleName();
+        containerObjectName_ = "";
+    }
+    else if (containerObject)
     {
         moduleName_ = ModuleName(containerObject->getName());
         containerObjectName_ = containerObject->getName();
@@ -451,9 +458,15 @@ void
 ModuleFeedbackManager::updateMenuNames()
 {
     // if the user changed the module title
-    // we have to update the submenu kitem and the menu title
+    // we have to update the submenu item and the menu title
 
-    if (attrObjectName_ != "")
+
+    std::string modDisplayName;
+    if (inter_)
+        modDisplayName = inter_->getModuleDisplayName();
+    if (modDisplayName != "")
+        visMenuName_ = modDisplayName;
+    else if (attrObjectName_ != "")
         visMenuName_ = attrObjectName_;
     else if (attrPartName_ != "")
         visMenuName_ = attrPartName_;
