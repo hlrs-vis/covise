@@ -344,6 +344,9 @@ demo 28 "LEGO Porsche vs. Bugatti (Remote)" run_lego
 #ChEESE
 demo 29 "Tsunami (Cádiz)" vistle /data/ChEESE/tsunami/cadiz/vistle_files/cadiz_tsunami_video.vsl
 
+#Combustion
+demo 30 "Combustion (Automative25 / RWTH)" vistle -e /data/rwth_aia/verbrennungsmotor/presentation_automotive.vsl /data/rwth_aia/verbrennungsmotor/presentation_automotive.vsl
+
 category="Videos"
 demo 150 "Play Videos" playvideo.sh
 
