@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 /**************************************************************************\ 
- **                                                           (C)2002 RUS  **
+ **                                                           (C)2025 GER  **
  **                                                                        **
  ** Description: Read volume files in formats supported by Virvo.          **
  **                                                                        **
@@ -16,12 +16,12 @@
  **                                                                        **
  ** Author:                                                                **
  **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
+ **                     Pierre Colin Nürnberger                            **
+ **           University of Cologne - Institute of Physics I               **
+ **                        Zülpicher Straße 77                             **
+ **                            50937 Köln                                  **
  **                                                                        **
- ** Cration Date: 28.10.2000                                               **
+ ** Cration Date: 28.05.2025                                               **
 \**************************************************************************/
 
 #include <sstream>
@@ -347,7 +347,7 @@ coReadFlash::coReadFlash(int argc, char *argv[])
 
   pfLevels = addInt32VectorParam("ref_lvls", "Common lower and upper refinement level", 2);
   pfLevels->setValue(0, -1);
-  pfLevels->setValue(1, 20);
+  pfLevels->setValue(1, 8);
 
   // Variables
   for (int i = 0; i < MAX_CHANNELS; ++i)
@@ -454,7 +454,7 @@ int coReadFlash::compute(const char *)
     flashReader.setMinLevel(pfLevels->getValue(0));}
     flashReader.setMaxLevel(pfLevels->getValue(1));
 
-    // Check if fields are active by string length
+    // Check if fields are active by checking string length
     for (int i = 0; i < MAX_CHANNELS; ++i)
     {
       if (strlen(var_names[i]->getValue()) > 0)
@@ -470,8 +470,9 @@ int coReadFlash::compute(const char *)
         // Store the data
         dataOut.push_back(data);
       
-        // Check if last channel is 
-        if (i+1 == MAX_CHANNELS && retPart)
+        // Check if last channel is already used
+	// when particle data is requested
+        if (i + 1 == MAX_CHANNELS && retPart)
         {
           std::cout << "Last channel already occupied for a different field\n";
           retPart = false;
