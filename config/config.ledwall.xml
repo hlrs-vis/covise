@@ -83,22 +83,23 @@
               <Orientation h="0" p="0" r="0" />
            </ConstHead>
 
-           <CaveHead device="DTrackCave" bodyIndex="0">
-              <Offset x="100" y="40" z="-100" />
+           <CaveHead device="DTrackCave" bodyIndex="3">
+              <!--Offset x="100" y="40" z="-100" /-->
+              <Offset x="60" y="0" z="-50" />
               <Orientation h="0" p="0" r="-10" />
            </CaveHead>
 
-           <CaveHead2 device="DTrackCave" bodyIndex="2">
+           <CaveHead2 device="DTrackCave" bodyIndex="1">
               <Offset x="-10" y="0" z="-60" />
               <Orientation h="0" p="0" r="-10" />
            </CaveHead2>
 
-           <CaveHead3 device="DTrackCave" bodyIndex="3">
+           <CaveHead3 device="DTrackCave" bodyIndex="4">
               <Offset x="-10" y="0" z="-60" />
               <Orientation h="0" p="0" r="0" />
            </CaveHead3>
 
-           <CaveHand device="DTrackCave" bodyIndex="1">
+           <CaveHand device="DTrackCave" bodyIndex="2">
               <Offset x="-50" y="-60" z="10" />
               <Orientation h="1" p="0" r="0" />
            </CaveHand>
