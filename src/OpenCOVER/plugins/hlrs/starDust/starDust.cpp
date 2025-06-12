@@ -98,7 +98,7 @@ int starDust::loadData(std::string particlepath, osg::Group *parent)
             dD->particleVelos[i * 3 + 2] = dD->particles[i].vz;
         }
         osg::Geode *g = new osg::Geode;
-        g->setName("startDustGeo");
+        g->setName("starDustGeo");
         geode[particlepath] = g;
 
         g->addDrawable(dD.get());

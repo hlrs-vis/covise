@@ -1,7 +1,7 @@
 using(VRML)
 USING(CUDA GLEW)
 IF(COVISE_BUILD_ONLY_COVER OR NOT CUDA_FOUND OR NOT COVISE_USE_CUDA)
-  MESSAGE("Skipping OpenCOVER - startDust plugin since CUDA was not found")
+  MESSAGE("Skipping OpenCOVER - starDust plugin since CUDA was not found")
   RETURN()
 ENDIF()
 
