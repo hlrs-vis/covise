@@ -9,7 +9,7 @@ PROJECT(WebGL CXX)
 USING(PNG)
 USING(FREETYPE)
 USING(OPENTHREADS)
-USING(QT)
+#USING(QT)
 USING(MICROHTTPD)
 
 # look for png12/png.h, has to be in PNG_INCLUDE_DIR, otherwise USING(PNG) won't work correctly

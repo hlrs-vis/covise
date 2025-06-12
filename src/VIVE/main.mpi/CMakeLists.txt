@@ -1,6 +1,5 @@
 USING(MPI)
 USING(vsg)
-USING(Pthread)
 
 
 PROJECT(VIVE.mpi CXX C)

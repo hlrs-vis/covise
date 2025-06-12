@@ -1,7 +1,6 @@
 # OpenCOVER kernel (coOpenCOVER)
 
 USING(MPI optional)
-USING(PTHREAD)
 set(COVERKERNEL_TARGET coOpenCOVER)
 set(COVERDIR "${COVISEDIR}/src/OpenCOVER")
 
