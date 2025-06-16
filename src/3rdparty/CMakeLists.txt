@@ -80,3 +80,9 @@ install(EXPORT exprtkTargets
 )
 
 covise_export_target(exprtk)
+
+# nlohmann_json
+ADD_SUBDIRECTORY(nlohmann_json)
+install(TARGETS nlohmann_json EXPORT covise-targets)
+COVISE_EXPORT_TARGET(nlohmann_json)
+
