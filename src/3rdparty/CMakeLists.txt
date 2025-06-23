@@ -86,3 +86,5 @@ ADD_SUBDIRECTORY(nlohmann_json)
 install(TARGETS nlohmann_json EXPORT covise-targets)
 COVISE_EXPORT_TARGET(nlohmann_json)
 
+set(CROW_USE_BOOST ON CACHE BOOL "Use Boost.Asio for Crow" FORCE)
+add_subdirectory(crow)
