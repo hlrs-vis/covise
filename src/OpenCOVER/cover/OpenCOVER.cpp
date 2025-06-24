@@ -637,9 +637,6 @@ bool OpenCOVER::init()
 
     MarkerTracking::instance();
 
-    if (cover->debugLevel(4))
-        fprintf(stderr, "Calling pfConfig\n");
-
     osgUtil::RenderBin::setDefaultRenderBinSortMode(osgUtil::RenderBin::SORT_BY_STATE_THEN_FRONT_TO_BACK);
 
     VRWindow::instance();
