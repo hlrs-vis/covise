@@ -5,10 +5,11 @@
 
  * License: LGPL 2+ */
 
+#include "demoserver.h" // must be before qt includes to avoid conflicts with Qt's signal macro
+#include <demo.h>
 #include "coverDaemon.h"
 #include "mainWindow.h"
 #include "tui.h"
-
 #include <QApplication>
 #include <QThread>
 #include <boost/program_options.hpp>
@@ -68,6 +69,8 @@ int main(int argc, char **argv)
 #else
         setenv("COVISEDEAMONSTART", "true", true); //tells the started programms that they are started by this daemon
 #endif
+        
+
         po::variables_map vm;
         try
         {
@@ -88,6 +91,16 @@ int main(int argc, char **argv)
                 std::cerr << desc << std::endl;
                 return 0;
         }
+        
+        std::unique_ptr<DemoServer> demoServer;
+        std::unique_ptr<std::thread> demoThread;
+        if(!demo::root.empty())
+        {
+                demoServer = std::make_unique<DemoServer>();
+                demoThread = std::make_unique<std::thread> ([&demoServer]() {
+                        demoServer->run();
+                });
+        };
 
         if (vm.count("tui"))
         {
@@ -97,4 +110,7 @@ int main(int argc, char **argv)
         {
                 runGuiDaemon(argc, argv, vm);
         }
+        demoServer->stop();
+        demoThread->join();
+        return 0;
 }
