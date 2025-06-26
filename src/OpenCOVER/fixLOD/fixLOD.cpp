@@ -16,7 +16,7 @@
 #include <filesystem>
 
 
-int fixLOD(const std::string& filename)
+int fixLOD(float factor, const std::string& filename)
 {
 
     osgDB::Options *options= new osgDB::Options;
@@ -39,10 +39,10 @@ int fixLOD(const std::string& filename)
         {
             nrl.push_back(ranges[i]);
         }
-        nrl[0].first = 4*plod->getRadius();
+        nrl[0].first = factor*plod->getRadius();
         nrl[0].second = 1.0E10;
         nrl[1].first = 0.0;
-        nrl[1].second = 4*plod->getRadius();
+        nrl[1].second = factor*plod->getRadius();
         plod->setRangeList(nrl);
         osgDB::writeNodeFile(*root, fn.c_str(), options);
     }
@@ -65,10 +65,10 @@ int fixLOD(const std::string& filename)
                     {
                         nrl.push_back(ranges[i]);
                     }
-                    nrl[0].first = plod->getRadius();
+                    nrl[0].first = factor*plod->getRadius();
                     nrl[0].second = 1.0E10;
                     nrl[1].first = 0.0;
-                    nrl[1].second = plod->getRadius();
+                    nrl[1].second = factor * plod->getRadius();
                     plod->setRangeList(nrl);
                     found = true;
                 }
@@ -95,11 +95,16 @@ int main(int argc, char **argv) {
     if (argc == 2)
     {
         std::string filename = argv[1];
-        return fixLOD(filename);
+        return fixLOD(5.0, filename);
+    }
+    else if (argc == 3)
+    {
+        std::string filename = argv[2];
+        return fixLOD(atof(argv[1]), filename);
     }
     else
     {
-        std::cerr << "Usage: fixlod [file.osgb]" << std::endl;
+        std::cerr << "Usage: fixLOD [scaleFactor] [file.osgb]" << std::endl;
     }
 
     return 0;
