@@ -707,7 +707,7 @@ if (coVRMSController::instance()->isMaster())
             else if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
             {
                 Ruddernumber = i;
-                //fprintf(stderr, "FoundRudder\n");
+                fprintf(stderr, "FoundRudder\n");
             }
         }
 	}
@@ -801,7 +801,7 @@ if (coVRMSController::instance()->isMaster())
             for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
                 if (joystickDev && Joysticknumber >=0)
                 {
-                    if (ThrottleNumber)
+                    if (ThrottleNumber>=0)
                     {
                         std::cout << "Throttle " << i <<" : " << 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0) << std::endl;
                         FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0));
@@ -810,6 +810,7 @@ if (coVRMSController::instance()->isMaster())
                     else
                     {
                         FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0));
+                        std::cout << "Throttle " << i <<" : " << 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0) << std::endl;
                         if (joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
                         {
                             FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
