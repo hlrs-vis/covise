@@ -10,8 +10,8 @@
     <Viewport width="3840" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
     <Viewport width="3840" height="1" left="3840" bottom="0" windowIndex="0" channelIndex="1" name="1"  /> </ViewportConfig>
    <ChannelConfig>
-    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
-    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
    </ChannelConfig>
 
    <WindowConfig>
@@ -233,6 +233,8 @@
    
    
    <SceneSize value="1500" />
+   <Near value="100" />
+   <Far value="100000000" />
    <FloorHeight value="-1361" />
    <Menu>
     <Orientation h="0" p="0" r="0" />

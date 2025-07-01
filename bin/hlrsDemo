@@ -325,7 +325,9 @@ demo 142 "EuropaPark" run_EP
 
 # COVISE BACKUP
 category="COVISE_BACKUP"
-demo 25 "Audi" vistle /data/vistle/audi.vsl
+# demo 25 "Audi" vistle /data/vistle/audi.vsl
+demo 25 "Audi" covise /data/covise_net/2009/Audi_Bilder.net
+
 
 # Vistle
 category="Vistle"
