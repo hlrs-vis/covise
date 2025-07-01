@@ -60,6 +60,7 @@ public:
         else
         {
             std::cerr << "No AnimationManager found" << std::endl;
+            return;
         }
         for(const auto & anim : m_amFinder.m_am->getAnimationList())
         {
@@ -88,6 +89,16 @@ public:
         loadAnimations();
     }
 
+    bool update() override{
+
+        static bool first = true;
+        if (first)
+        {
+            first = false;
+            loadAnimations();
+        }
+        return true;
+    }
 
 private:
 
