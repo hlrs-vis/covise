@@ -1,6 +1,7 @@
 USING(PROJ)
 USING(GDAL)
 USING(CURL)
+USING(PTHREADS)
 covise_find_package(nlohmann_json 3.10.0)
 
 if (NOT nlohmann_json_FOUND)
@@ -44,7 +45,9 @@ add_subdirectory(lib)
 cover_add_plugin(${Name} nlohmann_json::nlohmann_json EnergyLib coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
+#ifndef WIN32
 target_compile_options(${Name} PRIVATE -fPIC)
+#endif
 # if u want to use c++20 for ui/SensorManager.h
 # target_compile_features(${Name} PRIVATE cxx_std_20)
 add_subdirectory(test)
