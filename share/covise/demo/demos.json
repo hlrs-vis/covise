@@ -1,0 +1,1085 @@
+{
+  "Archaeology": [
+    {
+      "description": "3D reconstruction of ancient greek octagon temple.",
+      "headline": "Octagon",
+      "id": 21,
+      "image": "octagon.png",
+      "launch": [
+        {
+          "args": [
+            "/data/wien/srl/Kurs/rk/octagon/praesentation_04.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "archeology",
+        "pointcloud",
+        "greek",
+        "architecture"
+      ]
+    },
+    {
+      "description": "3D scan of  Paulus grotto in Ephesos",
+      "headline": "Paulusgrotte",
+      "id": 22,
+      "image": "Paulusgrotte.png",
+      "launch": [
+        {
+          "args": [
+            "/data/wien/efes.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "archeology",
+        "3d scan",
+        "greek",
+        "architecture"
+      ]
+    },
+    {
+      "description": "Gasse irgendwo in Wien!",
+      "headline": "Pazmanitengasse",
+      "id": 23,
+      "image": "Pazmanitengasse.png",
+      "launch": [
+        {
+          "args": [
+            "/data/wien/srl/Kurs/bob/PAZmanitengasse.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture"
+      ]
+    }
+  ],
+  "Architecture": [
+    {
+      "description": "Daimler car dealership next to the Mercedes Benz museum. The cars are way to big.",
+      "headline": "Stuttgarter Autohaus",
+      "id": 31,
+      "image": "./StuttgarterAutohaus.png",
+      "launch": [
+        {
+          "args": [
+            "/data/architekten/Stuttgart/Arbeitsstand_20050816/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture",
+        "broken"
+      ]
+    },
+    {
+      "description": "Model for the extention building of HLRS",
+      "headline": "HLRS & Campus",
+      "id": 32,
+      "image": "./HLRSCampus.png",
+      "launch": [
+        {
+          "args": [
+            "/data/NeubauII/HLRS_Alles0303.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture"
+      ]
+    },
+    {
+      "description": "Model of a Daimler car dealership. umgebung_menschen is too big",
+      "headline": "DC Filiale",
+      "id": 33,
+      "image": "./DCFiliale.png",
+      "launch": [
+        {
+          "args": [
+            "/data/dc/desire/arbeitsstand_20050301/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture",
+        "automotive",
+        "broken"
+      ]
+    },
+    {
+      "description": "adidas World of Sports arena in Herzogenaurach. The office and reception building with around 2000 workplaces will serve as main entrance for visitors and guests of the adidas World of Sports. ",
+      "headline": "Adidas WOS",
+      "id": 34,
+      "image": "./AdidasWOS.png",
+      "launch": [
+        {
+          "args": [
+            "/data/strabag/Adidas/04-vrml/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Hildesheim",
+      "id": 35,
+      "image": "./Hildesheim.png",
+      "launch": [
+        {
+          "args": [
+            "/data/hildesheim/33-VR/out/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "architecture"
+      ]
+    }
+  ],
+  "Art": [
+    {
+      "description": "Live visualization of MIDI input from drums, guitar, teremin, microphone and violin. https://www.jjham.com",
+      "headline": "Jeremy",
+      "id": 65,
+      "image": "DrummingHLRS.png",
+      "launch": [
+        {
+          "args": [
+            "cover://plugin/Midi",
+            "/data/Jeremy/spaceGridWithoutSpiral.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art",
+        "midi"
+      ]
+    },
+    {
+      "description": "Whetever this is Ja hallo hallo hallo",
+      "headline": "Infinities",
+      "id": 66,
+      "image": "Infinities.png",
+      "launch": [
+        {
+          "args": [
+            "/data/Labyrinth/labSoundNew.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art"
+      ]
+    },
+    {
+      "description": "Blocco di marmo e albero (Block of Marble and Tree) by Giuseppe Penone installed in Rome, sponsored by fashion label Fendi. The piece consists of a large block of white Carrara marble with a bronze tree embedded within it. Rumors say that Fendy wanted to get rid of the kiosk in front of their store, so they sponsored the installation of this piece of art. The statics of the installation had to be simulated and proven before the installation.",
+      "headline": "Fendi",
+      "id": 67,
+      "image": "Fendi.png",
+      "launch": [
+        {
+          "args": [
+            "/data/FENDI/wrl/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art",
+        "pointcloud"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Gyjho Frank virtual museum",
+      "id": 69,
+      "image": "GyjhoFrank.png",
+      "launch": [
+        {
+          "args": [
+            "/data/visenso/Some_Demos_2014/museum_neu/plattform_k.WRL"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Gabi Bingula",
+      "id": 70,
+      "image": "GabiBingula.png",
+      "launch": [
+        {
+          "args": [
+            "/data/architekten/architekten/GABI/dist/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art"
+      ]
+    }
+  ],
+  "CFD": [
+    {
+      "description": "Airflow around an old Audi, perfect to showcase interaction with simulation data in covise",
+      "headline": "Audi",
+      "id": 11,
+      "image": "AudiCovise.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2009/Audi_Bilder.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "automotive",
+        "cfd"
+      ]
+    },
+    {
+      "description": "With the topographical conditions of the traditional power plant and the strong support of the local community, Forbach offers ideal framework conditions for expanding the site. The project is intended to exemplify sustainable action in every respect. The underground construction method minimizes the impact on nature and the population during the construction phase. To compensate for the few remaining effects, extensive measures have already been implemented, such as relocating native lizards for species conservation. From planning to operation, the project is accompanied by environmental planning offices and nature conservation experts. The project includes the realization of an underground cavern storage facility and a cavern power plant. The existing machinery, some of which is up to 100 years old, will be decommissioned and replaced with new, more efficient units. Together with the existing equalization basin, these components will form the new lower stage. The Schwarzenbach Dam serves as the upper reservoir.",
+      "headline": "Forbach",
+      "id": 12,
+      "image": "Forbach.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/enbw/2015/out/LaermFinal.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "urban planning",
+        "noise",
+        "cfd",
+        "machinery",
+        "boreholes"
+      ]
+    },
+    {
+      "description": "Variant of Forbach including a dam break scenario",
+      "headline": "Forbach Dammbruch",
+      "id": 13,
+      "image": "ForbachDambruch.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/enbw/2015/out/LaermFinalDambreak.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "urban planning",
+        "noise",
+        "cfd",
+        "machinery",
+        "boreholes",
+        "flooding"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Axialzyklon",
+      "id": 14,
+      "image": "Axialzyklon.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/IET/AXIALZYKLON/130424_ML_Axialcyclone_Steady.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "machinery"
+      ]
+    },
+    {
+      "description": "Airflow around a cyclist",
+      "headline": "Cyclist",
+      "id": 18,
+      "image": "biker.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2016/Radfahrer.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "bike"
+      ]
+    },
+    {
+      "description": "Airflow around a water aircraft",
+      "headline": "Wasserflugzeug",
+      "id": 20,
+      "image": "Wasserflugzeug.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2017/cowling_evaluate_05k4.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "airplain",
+        "aero"
+      ]
+    }
+  ],
+  "LKA": [
+    {
+      "description": "",
+      "headline": "Gasthaus",
+      "id": 43,
+      "image": "Gasthaus.png",
+      "launch": [
+        {
+          "args": [
+            "/data/LKA/Gasthaus/Gasthaus2.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "lka"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Blutspuranalyse - UTM: CrimeHouse",
+      "id": 45,
+      "image": "CrimeHouse.png",
+      "launch": [
+        {
+          "args": [
+            "/data/UTM/testroom.wrl",
+            "/data/UTM/Trajectories.bpadxf"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "lka"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Blutspuranalyse - UTM: Cardoor",
+      "id": 46,
+      "image": "Cardoor.png",
+      "launch": [
+        {
+          "args": [
+            "/data/UTM/BloodstainTests/Trial10/Trial10PointCloudSorted.ptsb",
+            "/data/UTM/BloodstainTests/Trial10/Trajectories-Calculated\\ Origin.bpadxf"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "lka"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Car Crash",
+      "id": 47,
+      "image": "./CarCrash.png",
+      "launch": [
+        {
+          "args": [
+            "/data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "lka"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Rollercrash",
+      "id": 48,
+      "image": "./RollerCrash.png",
+      "launch": [
+        {
+          "args": [
+            "/data/visdral/rollercrash/ptsb/RollerLiegendSorted.ptsb"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "lka"
+      ]
+    }
+  ],
+  "Misc": [
+    {
+      "description": "",
+      "headline": "Draeger OP",
+      "id": 71,
+      "image": "DraegerOP.png",
+      "launch": [
+        {
+          "args": [
+            "/data/draeger/out/op2.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "medical",
+        "digital twins"
+      ]
+    },
+    {
+      "description": "International Space Station",
+      "headline": "ISS",
+      "id": 72,
+      "image": "ISS.png",
+      "launch": [
+        {
+          "args": [
+            "/data/cite/ISS/demo/issNeu.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "kids",
+        "aero"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Haemoglobin",
+      "id": 73,
+      "image": "Haemoglobin.png",
+      "launch": [
+        {
+          "args": [
+            "/data/pdb/4HHBhel.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Magnetgetriebe",
+      "id": 74,
+      "image": "",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2007/ITE_streufeld_VR2_new.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "broken"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "starDust",
+      "id": 75,
+      "image": "StarDust.png",
+      "launch": [
+        {
+          "args": [
+            "/data/irs/sun.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "astro physics"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Floops",
+      "id": 76,
+      "image": "Floops.png",
+      "launch": [
+        {
+          "args": [
+            "/data/vrml/floops/index/index.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "kids"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "OptimaPharma",
+      "id": 77,
+      "image": "OptimaPharma.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2013/BaxterPraesentation.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "misc"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Buran",
+      "id": 79,
+      "image": "Buran.png",
+      "launch": [
+        {
+          "args": [
+            "/data/shabrov/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "aero"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Maschinenhalle",
+      "id": 80,
+      "image": "Maschinenhalle.png",
+      "launch": [
+        {
+          "args": [
+            "/data/Lionel/Labor.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "digital twins",
+        "machinery"
+      ]
+    },
+    {
+      "description": "Showcase of different biomechanical simulations of a human body. CFD of blood flow, FEM of femur bone",
+      "headline": "Biomechanik",
+      "id": 53,
+      "image": "happy_pr_man.png",
+      "launch": [
+        {
+          "args": [
+            "/data/schneider/happy_pr_man/Happy_PR_Man_4_reduced.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "medical",
+        "biomechanics",
+        "digital twins",
+        "cfd",
+        "fem"
+      ]
+    },
+    {
+      "description": "Elevator test tower of ThyssenKrupp in Rottweil, Germany. The tower is 246 meters high and has a diameter of 21 meters. Full machine controll for their multi elevator system is implemented. The Thyssen Multi is a new type of elevator system that does not use cables, but magnetic levitation technology to move the elevators up, down and sideways.",
+      "headline": "Thyssen Testturm Multi",
+      "id": 81,
+      "image": "Thyssen.png",
+      "launch": [
+        {
+          "args": [
+            "/data/Thyssen/Turm/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "machinery",
+        "digital twins"
+      ]
+    },
+    {
+      "description": "Thyssen tower with CFD simulation around the cabins of the Multi elevator system.",
+      "headline": "Thyssen Turm mit Simulation",
+      "id": 82,
+      "image": "ThyssenSim.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2015/PassingMulti01u02_demo.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "machinery",
+        "digital twins",
+        "cfd"
+      ]
+    }
+  ],
+  "Molecular Dynamics": [
+    {
+      "description": "",
+      "headline": "IMWF",
+      "id": 51,
+      "image": "IMWF.png",
+      "launch": [
+        {
+          "args": [
+            "/data/imwf/nptdef.00003.coord"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "molecular dynamics"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "IMWF: Aluminum with Berkovich Indenter",
+      "id": 52,
+      "image": "IMWFAluminium.png",
+      "launch": [
+        {
+          "args": [
+            "/data/imwf/indenter/indenter.0.indent"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "molecular dynamics"
+      ]
+    }
+  ],
+  "Pointclouds": [
+    {
+      "description": "The Institute for Laser Technology (IFSW) at the University of Stuttgart is researching process optimizations for laser material deposition (LMD) as part of the Innovation Campus \\\"Future Mobility\\\" (ICM).\n\nUsing a precise measurement system based on Optical Coherence Tomography (OCT), both the existing layer thickness and the newly deposited layer can be measured in real time during the process. The OCT measurement laser rotates around the processing laser, providing measurement points on the solidified underlying layer in the forward path and the melt pool height of the new layer in the return path. These measurements can serve as the basis for controlling various process parameters to achieve the most uniform layer thickness possible. As a test case, the suspension system of the ICM demonstrator vehicle was already manufactured using this controlled process.\n\nTo gain a better understanding of the measured data, the values were visualized in 3D using OpenCOVER as part of KoLabBW. The measurement points, recorded at a frequency of 20 kHz, are displayed as an animated point cloud. An additional measured variable is used to color the points, which could, for example, be a control parameter like laser power or the signal quality of the OCT device. For better spatial orientation, the machine tool can also be displayed.\n\nFurthermore, via an OPC UA interface, it is possible to visualize and monitor the process live.\n\nThe workpiece shown here is a test object without any functional relevance. It shows how the process steering handles the crossing parts. Default coloring is laser power in KW.",
+      "headline": "Laser cladding \"crossing\"",
+      "id": 54,
+      "image": "LaserCladdingCrossing.png",
+      "launch": [
+        {
+          "args": [
+            "/data/KoLabBW/IFSW/Laserauftragsschweissen/Kreuzung/Kreuzung.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "pointcloud",
+        "digital twins",
+        "manufacturing",
+        "laser"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Venice",
+      "id": 56,
+      "image": "Venice.png",
+      "launch": [
+        {
+          "args": [
+            "/data/pointclouds/riegl/RIEGL_MLS_VMX-450_VeniceSorted.ptsb"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "pointcloud"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "City (passing through)",
+      "id": 57,
+      "image": "CityPassingThrough.png",
+      "launch": [
+        {
+          "args": [
+            "/data/pointclouds/riegl/RIEGL_MLS_VMX-450_CitySorted.ptsb"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "pointcloud"
+      ]
+    },
+    {
+      "description": "3D scan of Europapark in Rust from 2025 (with DJI Mavic 3). Scann of the park took around half a day, with another half day spent to scan Vodan Timbur Coaster. Voltron shows overlapp of scann and CAD model and features ride animation. Point cloud is in one of the cafes.",
+      "headline": "Europapark",
+      "id": 58,
+      "image": "Europapark.png",
+      "launch": [
+        {
+          "args": [
+            "/data/mack-research/Europa-Park-Twin/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "pointcloud",
+        "photogrammetry",
+        "digital twins"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Mountain",
+      "id": 59,
+      "image": "Moutain.png",
+      "launch": [
+        {
+          "args": [
+            "/data/pointclouds/riegl/RIEGL_ALS_LMS-Q1560_MountainSorted.ptsb"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "pointcloud"
+      ]
+    }
+  ],
+  "RECOM": [
+    {
+      "description": "Combustion chamber in a cole power plant",
+      "headline": "HKW2 Altbach",
+      "id": 1,
+      "image": "HKW2Altbach.png",
+      "launch": [
+        {
+          "args": [
+            "data/recom/SWB/Praesentation/Cavepraesentation-SWBremen.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "noise",
+        "machinery",
+        "RECOM"
+      ]
+    },
+    {
+      "description": "Combustion chamber in a cole power plant",
+      "headline": "Bremer Kessel",
+      "id": 2,
+      "image": "BremerKessel.png",
+      "launch": [
+        {
+          "args": [
+            "/mnt/raid/home/recberr/StadtwerkeAugsburg/2017/Praesentation/Cavepraesentation-SWA.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "noise",
+        "machinery",
+        "RECOM"
+      ]
+    },
+    {
+      "description": "Combustion chamber in a cole power plant",
+      "headline": "SWA Augsburg",
+      "id": 3,
+      "image": "SWAAugsburg.png",
+      "launch": [
+        {
+          "args": [
+            "/mnt/raid/home/recberr/StadtwerkeAugsburg/2017/CaveBilderMessestand/Cavepraesentation-SWA.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "cfd",
+        "noise",
+        "machinery",
+        "RECOM"
+      ]
+    },
+    {
+      "description": "toDO",
+      "headline": "SWA Augsburg (Variante)",
+      "id": 4,
+      "image": "toDO",
+      "launch": [
+        {
+          "args": [],
+          "program": "run_swa_var"
+        }
+      ],
+      "note": "shell function, see hlrsDemo",
+      "tags": [
+        "cfd",
+        "noise",
+        "machinery",
+        "RECOM"
+      ]
+    }
+  ],
+  "Urban Planning": [
+    {
+      "description": "",
+      "headline": "Stuttgart with Sumo",
+      "id": 37,
+      "image": "./StuttgartwithSumo.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl"
+          ],
+          "program": "Vistle"
+        },
+        {
+          "args": [
+            "-c",
+            "/data/campus/Sumo/CampusReduced/osm.sumocfg",
+            "--remote-port",
+            "1337"
+          ],
+          "program": "sumo"
+        }
+      ],
+      "tags": [
+        "urban planning",
+        "cfd",
+        "weather",
+        "traffic",
+        "sumo",
+        "air pollution"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Spielplatz Stuttgart West",
+      "id": 38,
+      "image": "./SpielplatzStuttgartWest.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/covise_net/2017/Spielplatz.net"
+          ],
+          "program": "covise"
+        }
+      ],
+      "tags": [
+        "urban planning"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Herrenberg",
+      "id": 39,
+      "image": "Herrenberg.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseRNewFinal.net"
+          ],
+          "program": "covise"
+        },
+        {
+          "args": [
+            "-c",
+            "/data/reallabor/herrenberg/sumo/simulierteWelten/herrenberg.sumocfg",
+            "--remote-port",
+            "1337"
+          ],
+          "program": "sumo"
+        }
+      ],
+      "tags": [
+        "urban planning"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Campus with Sumo",
+      "id": 40,
+      "image": "CampusWithSumo.png",
+      "launch": [
+        {
+          "args": [
+            "/data/campus/out/praesentation_campusOnly.wrl",
+            "opencover://plugin/SumoTraCI"
+          ],
+          "program": "opencover"
+        },
+        {
+          "args": [
+            "-c",
+            "/mnt/raid/data/campus/Sumo/CampusReduced/osm.sumocfg",
+            "--remote-port",
+            "1337"
+          ],
+          "program": "sumo"
+        }
+      ],
+      "tags": [
+        "urban planning, traffic simulation"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Stuttgart with Marienplatz Sumo",
+      "id": 42,
+      "image": "CampusWithMarienplatzSumo.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl"
+          ],
+          "program": "vistle"
+        },
+        {
+          "args": [
+            "-c",
+            "/data/CapeReviso/SumoMarienplatz/250x250m/osm.sumocfg",
+            "--remote-port",
+            "1337"
+          ],
+          "program": "sumo"
+        }
+      ],
+      "tags": [
+        "urban planning"
+      ]
+    }
+  ],
+  "Volume Rendering": [
+    {
+      "description": "CT scann of human skull",
+      "headline": "skull",
+      "id": 61,
+      "image": "Skull.png",
+      "launch": [
+        {
+          "args": [
+            "/data/VolData/vhd/fctskull.xvf"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "medical"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Ant Head",
+      "id": 62,
+      "image": "AntHead.png",
+      "launch": [
+        {
+          "args": [
+            "/data/UCD/VisionAIr/antfusedhead.tif"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "volume rendering"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Ruderfusskrebs",
+      "id": 63,
+      "image": "Ruderfusskrebs.png",
+      "launch": [
+        {
+          "args": [
+            "/data/UCD/VisionAIr/Z1copepod_transf.xvf"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "volume rendering"
+      ]
+    },
+    {
+      "description": "",
+      "headline": "Coral",
+      "id": 64,
+      "image": "Coral.png",
+      "launch": [
+        {
+          "args": [
+            "/data/UCD/VisionAIr/Coral/Coral\\ fluorescence\\ 1\\ MAX.obj"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "volume rendering"
+      ]
+    }
+  ]
+}
