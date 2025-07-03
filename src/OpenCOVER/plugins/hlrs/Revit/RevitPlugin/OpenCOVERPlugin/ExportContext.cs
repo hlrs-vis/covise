@@ -66,7 +66,7 @@ namespace OpenCOVERPlugin
             if (view != null)
             {
                 MessageBuffer mb = new MessageBuffer();
-                mb.add(view.Id.IntegerValue);
+                mb.add(view.Id.Value);
                 mb.add(view.Name);
                 mb.add(view.Origin);
                 mb.add(view.ViewDirection);
@@ -94,7 +94,7 @@ namespace OpenCOVERPlugin
 
             // if we proceed, we get everything that belongs to the element
             /*MessageBuffer mb = new MessageBuffer();
-            mb.add(elementId.IntegerValue);
+            mb.add(elementId.Value);
 
             Element elem = m_doc.GetElement(elementId) as Element;
             mb.add(elem.Name + "_m_" + num.ToString());
@@ -110,7 +110,7 @@ namespace OpenCOVERPlugin
             {
                 mb.add(materialElement.Color);
                 mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
-                mb.add(materialID.IntegerValue); // material ID
+                mb.add(materialId.Value); // material ID
             }
             else
             {
@@ -134,7 +134,7 @@ namespace OpenCOVERPlugin
             Transform t = node.GetTransform();
             MessageBuffer mb = new MessageBuffer();
 
-            mb.add(node.GetSymbolGeometryId().SymbolId.IntegerValue);// was GetSymbolId
+            mb.add(node.GetSymbolGeometryId().SymbolId.Value);// was GetSymbolId
             mb.add(node.NodeName);
             mb.add(t.BasisX.Multiply(t.Scale));
             mb.add(t.BasisY.Multiply(t.Scale));
@@ -208,7 +208,7 @@ namespace OpenCOVERPlugin
             materialNode = node;
             MessageBuffer mb = new MessageBuffer();
 
-            mb.add(node.MaterialId.IntegerValue);
+            mb.add(node.MaterialId.Value);
             mb.add(node.NodeName);
             mb.add(node.Color);
             mb.add((byte)(((100 - (node.Transparency)) / 100.0) * 255));

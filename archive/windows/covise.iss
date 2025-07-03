@@ -727,7 +727,7 @@ begin
   CheckInstallForAll.Checked := True;
   CheckInstallForAll.Parent := Page.Surface;
                                                   
-    if RegValueExists(HKLM, 'Software\Autodesk\Revit\2025\Add-Ons', '(Standard)') then
+    if RegValueExists(HKLM, 'Software\Autodesk\Revit\2026\Add-Ons', '(Standard)') then
     begin
      CheckInstallRevitPlugin := TCheckBox.Create(Page);
      CheckInstallRevitPlugin.Top := Lbl11.Top + Lbl11.Height + ScaleY(8);
@@ -871,7 +871,7 @@ if CurStep = ssPostInstall then begin
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2025\OpenCOVER.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2026\OpenCOVER.addin');
   SaveStringToFile(filename, filecontent, False);  
   filecontent :=  '<?xml version="1.0" encoding="utf-8"?>'+ #13#10 +
 '<RevitAddIns>'+ #13#10 +
@@ -884,7 +884,7 @@ if CurStep = ssPostInstall then begin
 '    <VendorDescription>www.hlrs.de</VendorDescription>'+ #13#10 +
 '  </AddIn>'+ #13#10 +
 '</RevitAddIns>'+ #13#10
-  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2025\OpenFOAMInterface.addin');
+  filename := ExpandConstant('{commonappdata}\Autodesk\Revit\Addins\2026\OpenFOAMInterface.addin');
   SaveStringToFile(filename, filecontent, False);
   end;
 end;
