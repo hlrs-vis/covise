@@ -8,10 +8,10 @@
 #define ARCHSUFFIX GetEnv("COVISE_ARCHSUFFIX")
 #define BUILDDIR "build"
 #define BUILDTYPE "Release"
-#define MAXVERSION "2025"
-#define MAXVERSIONNUMBER "27"
+#define MAXVERSION "2026"
+#define MAXVERSIONNUMBER "28"
 ; change Max Version in registry section from 25 to next
-#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2025"
+#define MAXDIR "c:/Program Files/Autodesk/3ds Max 2026"
 
 #if ARCHSUFFIX == ""
   #define ARCHSUFFIX GetEnv("ARCHSUFFIX")

@@ -1532,15 +1532,12 @@ void CheckFileNames::RecordAsset(const MaxSDK::AssetManagement::AssetUser &asset
 {
 
     MSTR name = asset.GetFullFilePath();
-    if (name)
+    if (!name.isNull())
     {
-        if (name[0] != 0)
-        {
             if (missingMaps->FindName(name) < 0)
             {
                 missingMaps->AddName(name);
             }
-        }
     }
 }
 #else
