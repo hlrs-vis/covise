@@ -252,10 +252,10 @@ coPointerButton *coVRPluginSupport::getRelativeButton() const
     return relativeButton;
 }
 
-const osg::Matrix &coVRPluginSupport::getViewerMat() const
+const osg::Matrix& coVRPluginSupport::getViewerMat(int i) const
 {
     START("coVRPluginSupport::getViewerMat");
-    return (VRViewer::instance()->getViewerMat());
+    return (VRViewer::instance()->getViewerMat(i));
 }
 
 const osg::Matrix &coVRPluginSupport::getXformMat() const

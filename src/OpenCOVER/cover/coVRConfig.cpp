@@ -92,10 +92,8 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
 bool coVRConfig::requiresTwoViewpoints(int stereomode)
 {
     using osg::DisplaySettings;
-
-    switch (stereomode) {
-    case DisplaySettings::LEFT_EYE:
-    case DisplaySettings::RIGHT_EYE:
+    if(stereomode >= DisplaySettings::LEFT_EYE && stereomode <= DisplaySettings::RIGHT_EYE)
+    {
         return false;
     }
 
@@ -142,6 +140,18 @@ coVRConfig::coVRConfig()
     m_sceneSize = coCoviseConfig::getFloat("COVER.SceneSize", 2000.0);
     m_farClip = coCoviseConfig::getFloat("COVER.Far", 10000000);
     m_nearClip = coCoviseConfig::getFloat("COVER.Near", 10.0f);
+
+    numViews = coCoviseConfig::getInt("COVER.NumViews", numViews);
+    if (numViews < 0)
+    {
+        std::cerr << "COVER.numViews cannot be < 0" << std::endl;
+        exit(1);
+    }
+    if (numViews > 10)
+    {
+        std::cerr << "COVER.numViews cannot be > 50" << std::endl;
+        exit(1);
+    }
     int numScreens = coConfigConstants::getShmGroupRootRank()<0 || coConfigConstants::getRank()==coConfigConstants::getShmGroupRootRank() ? 1 : 0;
     numScreens = coCoviseConfig::getInt("COVER.NumScreens", numScreens);
     if (numScreens < 0)
@@ -436,6 +446,7 @@ coVRConfig::coVRConfig()
         bool exists = false;
         channels[i].fixedViewer = coCoviseConfig::isOn("fixedViewer", str, false, &exists);
         channels[i].stereoOffset = coCoviseConfig::getFloat("stereoOffset", str, 0.f);
+        channels[i].view = coCoviseConfig::getInt("view", str, 0);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
         if(channels[i].PBONum == -1)

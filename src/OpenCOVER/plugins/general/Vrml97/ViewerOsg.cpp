@@ -5654,17 +5654,17 @@ void ViewerOsg::preFrame()
 			//   wcCoords[j]=geoToWC.preMult(mirrors[i].coords[j]);
 			osg::Vec3 viewerPosMirror, mirrorViewerInMirrorCS;
 
-			if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::RIGHT_EYE)
+            if (coVRConfig::instance()->stereoMode() == DisplaySettings::RIGHT_EYE)
 				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-			else if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::LEFT_EYE)
+			else if (coVRConfig::instance()->stereoMode() == DisplaySettings::LEFT_EYE)
 				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
 			else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
 				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
 			else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
 				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
-			else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
+            else if (coVRConfig::instance()->channels[0].stereoMode == DisplaySettings::RIGHT_EYE)
 				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-			else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
+            else if (coVRConfig::instance()->channels[0].stereoMode == DisplaySettings::LEFT_EYE)
 				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
 
 			else

@@ -323,8 +323,8 @@ public:
 
     // tracker data
 
-    //! get the position and orientation of the user in world coordinates
-    const osg::Matrix &getViewerMat() const;
+    //! get the position and orientation of the user i in world coordinates
+    const osg::Matrix& getViewerMat(int view=0) const;
 
     //! search geodes under node and set Visible bit in node mask
     void setNodesIsectable(osg::Node *n, bool isect);
