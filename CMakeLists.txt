@@ -305,6 +305,8 @@ COVISE_FIND_PACKAGE(Python COMPONENTS Interpreter Development)
 
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
+    COVISE_FIND_PACKAGE(nlohmann_json 3.10.0 QUIET)
+
     IF(APPLE)
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices)
         MARK_AS_ADVANCED(APP_SERVICES_LIBRARY)
