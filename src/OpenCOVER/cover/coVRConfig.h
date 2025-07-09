@@ -85,6 +85,7 @@ struct channelStruct
     int PBONum; // destination PBO or -1 if rendering to a viewport directly
     int viewportNum; // destination viewport or -1 if rendering to a PBO
     int screenNum; // screen index
+    int view = 0;
 
     osg::ref_ptr<osg::Camera> camera;
     osg::DisplaySettings *ds;
@@ -487,6 +488,7 @@ private:
     bool m_orthographic;
     bool m_stencil; //< user stencil buffers
     bool HMDMode;
+    int numViews = 1;
 
     bool trackedHMD;
 

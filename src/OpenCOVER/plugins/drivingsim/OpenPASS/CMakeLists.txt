@@ -1,4 +1,5 @@
-USING(TrafficSimulation OpenPASS)
+USING(TrafficSimulation)
+USING(OpenPASS)
 USING(XERCESC)
 USING(OsgCal)
 using(VRML)

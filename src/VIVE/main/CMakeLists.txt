@@ -1,6 +1,5 @@
 USING(MPI) # we don't really need mpi here but we have to compile it with MPI if VIVE core is also compiled with MPI otherwise classes have different sizes (especially vvVIVE)
 USING(vsg)
-USING(Pthread)
 
 PROJECT(VIVE CXX C)
 

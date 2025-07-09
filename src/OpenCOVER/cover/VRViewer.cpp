@@ -306,14 +306,14 @@ bool VRViewer::update()
 
             //vm.getTrans( viewPos);
             //viewMat.setTrans( viewPos);
-            viewMat = vpMarker->getCameraTrans();
+            viewMat[0] = vpMarker->getCameraTrans();
         }
         again = true;
     }
 
     // compute viewer position
 
-    viewPos = viewMat.getTrans();
+    viewPos = viewMat[0].getTrans();
 
 
     if (cover->debugLevel(5))
@@ -387,7 +387,10 @@ VRViewer::VRViewer()
 
     initialViewPos = viewPos;
     // set initial view
-    viewMat.makeTranslate(viewPos);
+    for (int i = 0; i < coVRConfig::instance()->numViews; i++)
+    {
+        viewMat[i].makeTranslate(viewPos);
+    }
 
     stereoOn = coVRConfig::instance()->stereoState();
 
@@ -1124,7 +1127,7 @@ VRViewer::config()
 }
 
 //OpenCOVER
-void VRViewer::updateViewerMat(const osg::Matrix &mat)
+void VRViewer::updateViewerMat(const osg::Matrix &mat,int i)
 {
 
     if (cover->debugLevel(5))
@@ -1137,7 +1140,7 @@ void VRViewer::updateViewerMat(const osg::Matrix &mat)
 
     if (!coVRConfig::instance()->frozen())
     {
-        viewMat = mat;
+        viewMat[i] = mat;
     }
 }
 
@@ -1645,7 +1648,14 @@ VRViewer::FrustaAndViews VRViewer::computeFrustumAndView(int i)
         if (currentChannel->fixedViewer)
             vm.makeTranslate(initialViewPos);
         else
-            vm = viewMat;
+        {
+            vm = viewMat[currentChannel->view];
+            /*
+            if( currentChannel->view == 0)
+            vm = viewMat[0];
+            else
+                vm = cover->getViewerMat(currentChannel->view);*/
+        }
         auto l = computeViewProjFixedScreen(vm, leftEye, xyz, hpr, osg::Vec2(dx,dz), coco->nearClip(), coco->farClip(), coco->orthographic(), coco->worldAngle());
         auto r = computeViewProjFixedScreen(vm, rightEye, xyz, hpr, osg::Vec2(dx,dz), coco->nearClip(), coco->farClip(), coco->orthographic(), coco->worldAngle());
         auto m = computeViewProjFixedScreen(vm, middleEye, xyz, hpr, osg::Vec2(dx,dz), coco->nearClip(), coco->farClip(), coco->orthographic(), coco->worldAngle());
@@ -1665,9 +1675,9 @@ VRViewer::FrustaAndViews VRViewer::computeFrustumAndView(int i)
     {
         // moving hmd: frustum ist fixed and only a little bit assymetric through stereo
         // transform the left and right eye with the viewer matrix
-        rightEye = viewMat.preMult(rightEye);
-        leftEye = viewMat.preMult(leftEye);
-        middleEye = viewMat.preMult(middleEye);
+        rightEye = viewMat[0].preMult(rightEye);
+        leftEye = viewMat[0].preMult(leftEye);
+        middleEye = viewMat[0].preMult(middleEye);
     }
 
     else if (coco->HMDMode) // weiss nicht was das fuer ein code ist
@@ -1693,14 +1703,14 @@ VRViewer::FrustaAndViews VRViewer::computeFrustumAndView(int i)
         middleEye += initialViewPos;
 
         // transform the left and right eye with this matrix
-        rightEye = viewMat.preMult(rightEye);
-        leftEye = viewMat.preMult(leftEye);
-        middleEye = viewMat.preMult(middleEye);
+        rightEye = viewMat[0].preMult(rightEye);
+        leftEye = viewMat[0].preMult(leftEye);
+        middleEye = viewMat[0].preMult(middleEye);
 
         // add world angle
         osg::Matrixf rotAll, newDir;
         rotAll.makeRotate(-coco->worldAngle(), osg::X_AXIS);
-        newDir.mult(viewMat, rotAll);
+        newDir.mult(viewMat[0], rotAll);
 
         // first set it if both channels were at the position of a mono channel
         // currentScreen->camera->setOffset(newDir.ptr(),0,0);
@@ -1782,10 +1792,10 @@ VRViewer::FrustaAndViews VRViewer::computeFrustumAndView(int i)
     {
         // set the view mat from tracker, translated by separation/2
         osg::Vec3 viewDir(0, 1, 0), viewUp(0, 0, 1);
-        viewDir = viewMat.transform3x3(viewDir, viewMat);
+        viewDir = viewMat[0].transform3x3(viewDir, viewMat[0]);
         viewDir.normalize();
         //fprintf(stderr,"viewDir=[%f %f %f]\n", viewDir[0], viewDir[1], viewDir[2]);
-        viewUp = viewMat.transform3x3(viewUp, viewMat);
+        viewUp = viewMat[0].transform3x3(viewUp, viewMat[0]);
         viewUp.normalize();
         res.right.view.makeLookAt(rightEye, rightEye + viewDir, viewUp);
         ///currentScreen->rightView=viewMat;

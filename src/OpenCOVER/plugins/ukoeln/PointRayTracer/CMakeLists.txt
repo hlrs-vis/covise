@@ -50,7 +50,14 @@ SET(SOURCES
 )
 
 if(COVISE_USE_CUDA AND CUDA_FOUND)
-    do_cuda_compile(CUDA_SOURCES PointRayTracerDrawable.cu)
+    if (CMAKE_CUDA_COMPILER)
+        set(SOURCES
+            ${SOURCES}
+            PointRayTracerDrawable.cu
+            )
+    else()
+        do_cuda_compile(CUDA_SOURCES PointRayTracerDrawable.cu)
+    endif()
 else()
     set(SOURCES
         ${SOURCES}

@@ -416,7 +416,7 @@ namespace OpenCOVERPlugin
 
             // document might have changed so set it again.
             document = doc;
-            if (uidoc != null) // this is a child document don't clear
+                if (uidoc != null) // this is a child document don't clear
             {
                 designOptionSets.Clear();
                 MessageBuffer mbc = new();
@@ -478,12 +478,12 @@ namespace OpenCOVERPlugin
             mb.add(designOptionSets.Count);
             foreach (cDesignOptionSet os in designOptionSets)
             {
-                mb.add(os.ID.IntegerValue);
+                mb.add(os.ID.Value);
                 mb.add(os.name);
                 mb.add(os.designOptions.Count);
                 foreach (cDesignOption des in os.designOptions)
                 {
-                    mb.add(des.des.Id.IntegerValue);
+                    mb.add(des.des.Id.Value);
                     mb.add(des.des.Name);
                     mb.add(des.visible);
                 }
@@ -683,7 +683,7 @@ namespace OpenCOVERPlugin
         public void deleteElement(ElementId ID)
         {
             MessageBuffer mb = new();
-            mb.add(ID.IntegerValue);
+            mb.add(ID.Value);
             mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
@@ -751,7 +751,7 @@ namespace OpenCOVERPlugin
                 elem = iter.Current as Element;
                 foreach (int ID in IDs)   // get the wall type by the name
                 {
-                    if (ID == elem.Id.IntegerValue)
+                    if (ID == elem.Id.Value)
                     {
                         MessageBuffer mb = new();
                         mb.add(ID);
@@ -782,7 +782,7 @@ namespace OpenCOVERPlugin
             if (vrps.Size > 0)
             {
                 MessageBuffer mb = new();
-                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(elem.Name + "_FamilySymbol");
                 mb.add((int)ObjectTypes.Mesh);
@@ -802,12 +802,12 @@ namespace OpenCOVERPlugin
                 sendMessage(mb.buf, MessageTypes.NewObject);
 
                 mb = new MessageBuffer();
-                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Parameter para in vrps)
                 {
-                    mb.add(para.Id.IntegerValue);
+                    mb.add(para.Id.Value);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
 #if REVIT2019 || REVIT2020 || REVIT2021
@@ -823,7 +823,7 @@ namespace OpenCOVERPlugin
                         case Autodesk.Revit.DB.StorageType.ElementId:
                             //find out the name of the element
                             ElementId id = para.AsElementId();
-                            mb.add(id.IntegerValue);
+                            mb.add(id.Value);
                             mb.add(DocumentID);
                             break;
                         case Autodesk.Revit.DB.StorageType.Integer:
@@ -862,12 +862,12 @@ namespace OpenCOVERPlugin
             {
 
                 MessageBuffer mb = new();
-                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(vrps.Size);
                 foreach (Parameter para in vrps)
                 {
-                    mb.add(para.Id.IntegerValue);
+                    mb.add(para.Id.Value);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
 #if REVIT2019 || REVIT2020 || REVIT2021
@@ -883,7 +883,7 @@ namespace OpenCOVERPlugin
                         case Autodesk.Revit.DB.StorageType.ElementId:
                             //find out the name of the element
                             ElementId id = para.AsElementId();
-                            mb.add(id.IntegerValue);
+                            mb.add(id.Value);
                             break;
                         case Autodesk.Revit.DB.StorageType.Integer:
                             mb.add(para.AsInteger());
@@ -1087,7 +1087,7 @@ namespace OpenCOVERPlugin
 
 
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name + "__" + elem.UniqueId.ToString());
                     try
@@ -1136,7 +1136,7 @@ namespace OpenCOVERPlugin
 
 
                    MessageBuffer mb = new MessageBuffer();
-                   mb.add(elem.Id.IntegerValue);
+                   mb.add(elem.Id.Value);
             mb.add(DocumentID);
                    mb.add(elem.Name);
                    sendMessage(mb.buf, MessageTypes.NewGroup);
@@ -1189,7 +1189,7 @@ namespace OpenCOVERPlugin
             MaterialInfos[materialElement.Id] = true;
 
             MessageBuffer mb = new();
-            mb.add(materialElement.Id.IntegerValue);
+            mb.add(materialElement.Id.Value);
             mb.add(DocumentID);
             TextureInfo ti = getTexture(materialElement, elem, TextureTypes.Diffuse);
             if (ti != null)
@@ -1509,7 +1509,7 @@ namespace OpenCOVERPlugin
                         prefix = graphicsStyle.Name + '.';
                     }
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name + "_m_" + num.ToString());
                     mb.add((int)ObjectTypes.Mesh);
@@ -1527,7 +1527,7 @@ namespace OpenCOVERPlugin
                         sendMaterial(materialElement, elem);
                         mb.add(materialElement.Color);
                         mb.add((byte)(getTransparency(materialElement, elem)));
-                        mb.add(materialElement.Id.IntegerValue); // material ID
+                        mb.add(materialElement.Id.Value); // material ID
 
                     }
                     else
@@ -1562,7 +1562,7 @@ namespace OpenCOVERPlugin
                         prefix = graphicsStyle.Name + '.';
                     }
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name + "_s_" + num.ToString());
                     FaceArray faces = ((Solid)geomObject).Faces;
@@ -1628,7 +1628,7 @@ namespace OpenCOVERPlugin
                 if (p != null)
                 {
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name);
                     mb.add((int)ObjectTypes.Inline);
@@ -1718,7 +1718,7 @@ namespace OpenCOVERPlugin
 
 
 
-            if (elementGeom == null /*|| elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1*/)
+            if (elementGeom == null /*|| elem.CreatedPhaseId != null && elem.CreatedPhaseId.Value==-1*/)
             {
                 return;
             }
@@ -1746,9 +1746,9 @@ namespace OpenCOVERPlugin
                     XYZ pos = GetElementLocation(elem);
                     XYZ hostPos = GetElementLocation(fi.Host);
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
-                    mb.add(elem.Name + "_" + elem.Id.IntegerValue.ToString());
+                    mb.add(elem.Name + "_" + elem.Id.Value.ToString());
                     mb.add(t.Origin);
                     mb.add(t.BasisX);
                     mb.add(t.BasisY);
@@ -1763,7 +1763,7 @@ namespace OpenCOVERPlugin
                     if (fi.Host == null)
                         mb.add(0);
                     else
-                        mb.add(fi.Host.Id.IntegerValue);
+                        mb.add(fi.Host.Id.Value);
                     mb.add(Size);
                     mb.add(MarkerType);
                     sendMessage(mb.buf, MessageTypes.NewARMarker);
@@ -1873,7 +1873,7 @@ namespace OpenCOVERPlugin
                         if (rotationAxis.Count > 0)
                         {
                             MessageBuffer mb = new();
-                            mb.add(elem.Id.IntegerValue);
+                            mb.add(elem.Id.Value);
                             mb.add(DocumentID);
                             mb.add(rotationAxis.Count);
 
@@ -1898,36 +1898,36 @@ namespace OpenCOVERPlugin
                     return;
                 if (elem.Category.Name == "Legend Components")
                     return;
-                if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
+                if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Stairs)
                 {
                     //hasStyle = false;
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Topography)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Topography)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsRuns)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsRuns)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsLandings)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsLandings)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StairsTrisers)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsTrisers)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Ramps)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Ramps)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Floors)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Floors)
                 {
                     doWalk = true;
                 }
-                else if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors)
+                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors)
                 {
                     GeometryObject geomObject = elementGeom.ElementAt(0);
                     
@@ -1952,7 +1952,7 @@ namespace OpenCOVERPlugin
             }
 
 
-            if ((fi != null) && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
+            if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
             {
                 bool hasLeft = false;
                 bool hasRight = false;
@@ -2128,7 +2128,7 @@ namespace OpenCOVERPlugin
                 if (hasIK)
                 {
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name);
                     sendMessage(mb.buf, MessageTypes.NewGroup);
@@ -2145,7 +2145,7 @@ namespace OpenCOVERPlugin
                 if (hasIK)
                 {
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name);
                     sendMessage(mb.buf, MessageTypes.EndGroup);
@@ -2163,7 +2163,7 @@ namespace OpenCOVERPlugin
                 if (v3d.CanResetCameraTarget())
                 {
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     if (LinkedFileName != "")
                         mb.add(LinkedFileName + ":" + elem.Name);
@@ -2198,7 +2198,7 @@ namespace OpenCOVERPlugin
                 if (ElementPosPoint != null)
                 {
                     MessageBuffer mb = new();
-                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(room.Name);
                     mb.add(room.Area);
@@ -2214,7 +2214,7 @@ namespace OpenCOVERPlugin
             if (tn is TextNote)
             {
                 MessageBuffer mb = new();
-                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(tn.Coord);
                 mb.add(tn.Text);
@@ -2231,7 +2231,7 @@ namespace OpenCOVERPlugin
             double travel = 0.0;
             double travelPercent = 0.0;
             MessageBuffer mb = new();
-            mb.add(elem.Id.IntegerValue);
+            mb.add(elem.Id.Value);
             mb.add(DocumentID);
             mb.add("DoorMovingParts" + name + "_" + elem.Name);
             mb.add(fi.HandFlipped);
@@ -2323,7 +2323,7 @@ namespace OpenCOVERPlugin
         {
 
             MessageBuffer mb = new();
-            mb.add(elem.Id.IntegerValue);
+            mb.add(elem.Id.Value);
             mb.add(DocumentID);
             mb.add(elem.Name + "__" + elem.UniqueId.ToString());
             try
@@ -2369,7 +2369,7 @@ namespace OpenCOVERPlugin
                     PointCloudInstance pointcloud = (PointCloudInstance)elem;
                     String n = pointcloud.Name;
                     /*MessageBuffer mb = new MessageBuffer();
-                     * mb.add(elem.Id.IntegerValue);
+                     * mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                     mb.add(elem.Name + "__" + elem.UniqueId.ToString());
                     mb.add(n);
@@ -2377,7 +2377,7 @@ namespace OpenCOVERPlugin
 
 
                     MessageBuffer mbpc = new();
-                    mbpc.add(elem.Id.IntegerValue);
+                    mbpc.add(elem.Id.Value);
                     mbpc.add(DocumentID);
                     mbpc.add(elem.Name);
                     mbpc.add((int)ObjectTypes.Inline);
@@ -2404,7 +2404,7 @@ namespace OpenCOVERPlugin
             }
             if (m1 != null && m2 != null)
             {
-                if (m1.Id.IntegerValue == m2.Id.IntegerValue)
+                if (m1.Id.Value == m2.Id.Value)
                 {
                     return true;
                 }
@@ -2420,7 +2420,7 @@ namespace OpenCOVERPlugin
             {
                 if (elem.Category.CategoryType == Autodesk.Revit.DB.CategoryType.AnalyticalModel)
                     return;
-                if (elem.CreatedPhaseId.IntegerValue == -1)
+                if (elem.CreatedPhaseId.Value == -1)
                     return;
                 if (elem.Category.Name == "Legendenkomponenten")
                     return;
@@ -2534,7 +2534,7 @@ namespace OpenCOVERPlugin
             if (sameMaterial)
             {
                 MessageBuffer mb = new();
-                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(prefix + elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
@@ -2583,7 +2583,7 @@ namespace OpenCOVERPlugin
                     sendMaterial(m, elem);
                     mb.add(m.Color);
                     mb.add((byte)(getTransparency(m, elem)));
-                    mb.add(m.Id.IntegerValue);
+                    mb.add(m.Id.Value);
                     mb.add(DocumentID);
                 }
                 sendMessage(mb.buf, MessageTypes.NewObject);
@@ -2608,7 +2608,7 @@ namespace OpenCOVERPlugin
                                 if (geomMesh != null)
                                 {
                                     MessageBuffer mb = new();
-                                    mb.add(elem.Id.IntegerValue);
+                                    mb.add(elem.Id.Value);
                                     mb.add(DocumentID);
                                     mb.add(prefix + elem.Name + "_f_" + num.ToString());
                                     mb.add((int)ObjectTypes.Mesh);
@@ -2633,7 +2633,7 @@ namespace OpenCOVERPlugin
                                         sendMaterial(materialElement, elem);
                                         mb.add(materialElement.Color);
                                         mb.add((byte)(getTransparency(materialElement, elem)));
-                                        mb.add(materialElement.Id.IntegerValue);
+                                        mb.add(materialElement.Id.Value);
                                         mb.add(DocumentID);
                                     }
                                     sendMessage(mb.buf, MessageTypes.NewObject);
@@ -2648,7 +2648,7 @@ namespace OpenCOVERPlugin
                         if (geomMesh != null)
                         {
                             MessageBuffer mb = new();
-                            mb.add(elem.Id.IntegerValue);
+                            mb.add(elem.Id.Value);
                             mb.add(DocumentID);
                             mb.add(prefix + elem.Name + "_f_" + num.ToString());
                             mb.add((int)ObjectTypes.Mesh);
@@ -2668,7 +2668,7 @@ namespace OpenCOVERPlugin
                                 sendMaterial(materialElement, elem);
                                 mb.add(materialElement.Color);
                                 mb.add((byte)(getTransparency(materialElement, elem)));
-                                mb.add(materialElement.Id.IntegerValue);
+                                mb.add(materialElement.Id.Value);
                                 mb.add(DocumentID);
                             }
                             else
@@ -3071,7 +3071,7 @@ namespace OpenCOVERPlugin
 
                         foreach (Parameter para in elem.Parameters)
                         {
-                            if (para.Id.IntegerValue == paramID)
+                            if (para.Id.Value == paramID)
                             {
 
                                 switch (para.StorageType)
@@ -3175,7 +3175,7 @@ namespace OpenCOVERPlugin
                         mb.add(elemID);
                         mb.add(docID);
                         mb.add(elem.GetType().Name);
-                        mb.add(elem.GetTypeId().IntegerValue);
+                        mb.add(elem.GetTypeId().Value);
                         mb.add(typeElem.Name);
                         int flip = 0;
                         if (fi != null)
@@ -3217,13 +3217,13 @@ namespace OpenCOVERPlugin
                                 FamilyName = ft.FamilyName;
                             }
                             mb.add(typeName);
-                            mb.add(elemTypeID.IntegerValue);
+                            mb.add(elemTypeID.Value);
                             mb.add(FamilyName);
                         }
                         mb.add(elem.Parameters.Size);
                         foreach (Parameter param in elem.Parameters)
                         {
-                            mb.add(param.Id.IntegerValue);
+                            mb.add(param.Id.Value);
                             mb.add(param.Definition.Name);
                             mb.add((int)param.StorageType);
 #if REVIT2019 || REVIT2020 || REVIT2021
@@ -3241,7 +3241,7 @@ namespace OpenCOVERPlugin
                                 case Autodesk.Revit.DB.StorageType.ElementId:
                                     //find out the name of the element
                                     ElementId eid = param.AsElementId();
-                                    mb.add(eid.IntegerValue);
+                                    mb.add(eid.Value);
                                     Element ele = selectedDoc.GetElement(eid);
                                     if (ele != null)
                                         mb.add(ele.Name);
@@ -3336,7 +3336,7 @@ namespace OpenCOVERPlugin
                         // the mapping of annotationIDs to Revit element IDs is done in OpenCOVER
                         MessageBuffer mb = new();
                         mb.add(labelNumber);
-                        mb.add(tn.Id.IntegerValue);
+                        mb.add(tn.Id.Value);
                         sendMessage(mb.buf, MessageTypes.NewAnnotationID);
 
                     }

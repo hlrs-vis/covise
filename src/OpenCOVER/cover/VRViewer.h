@@ -98,7 +98,7 @@ private:
     // view
     osg::Vec3 viewPos, viewDir; //, viewYDir;
     osg::Vec3 initialViewPos;
-    osg::Matrix viewMat;
+    osg::Matrix viewMat[10];
     osgViewer::StatsHandler *statsHandler = nullptr;
 
     angleStruct *screen_angle; // Screen angle: IWR movable screen
@@ -169,14 +169,14 @@ public:
     void getContexts(Contexts &contexts, bool onlyValid = true) override;
     void getScenes(Scenes &scenes, bool onlyValid = true) override;
 
-    void updateViewerMat(const osg::Matrix &mat);
-    void setViewerMat(osg::Matrix &mat)
+    void updateViewerMat(const osg::Matrix &mat,int i=0);
+    void setViewerMat(osg::Matrix& mat, int i = 0)
     {
-        viewMat = mat;
+        viewMat[i] = mat;
     };
-    osg::Matrix &getViewerMat()
+    osg::Matrix &getViewerMat(int i=0)
     {
-        return (viewMat);
+        return (viewMat[i]);
     };
     osg::Vec3 &getViewerPos()
     {

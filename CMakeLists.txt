@@ -305,6 +305,8 @@ COVISE_FIND_PACKAGE(Python COMPONENTS Interpreter Development)
 
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
+    COVISE_FIND_PACKAGE(nlohmann_json 3.10.0 QUIET)
+
     IF(APPLE)
         FIND_LIBRARY(APP_SERVICES_LIBRARY ApplicationServices)
         MARK_AS_ADVANCED(APP_SERVICES_LIBRARY)
@@ -374,8 +376,6 @@ endif()
 if(MSVC)
     add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
 endif()
-# descend to sources
-ADD_SUBDIRECTORY(src)
 
 OPTION(COVISE_BUILD_TESTS "compile the tests" OFF)
 if(COVISE_BUILD_TESTS)
@@ -449,6 +449,9 @@ install(FILES
 INSTALL(FILES ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
 
 ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+# descend to sources
+ADD_SUBDIRECTORY(src)
 
 INCLUDE(FeatureSummary)
 FEATURE_SUMMARY(WHAT ALL)

@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HLRS Demo Launcher</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f8f8;
+        }
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #222;
+        }
+
+        .toolbar-current {
+            background: #00B2E8;
+            color: #222;
+            border-radius: 20px;
+            font-weight: bold;
+            padding: 0.5em 1em;
+            min-width: 120px;
+            margin-right: 0.5em;
+        }
+
+        .toolbar-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 0.5em;
+        }
+
+        .toolbar-scroll .category {
+            color: #fff;
+            background: #444;
+            border-radius: 20px;
+            padding: 0.5em 1em;
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+            margin-right: 0.5em;
+        }
+
+        .toolbar-burger {
+            font-size: 1.3em;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .demos-outer {
+            width: 100vw;
+            touch-action: pan-x;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        .demos-inner {
+            display: flex;
+            transition: transform 0.3s cubic-bezier(.4, 2, .6, 1);
+            will-change: transform;
+            height: 100%;
+        }
+
+        .demo.running {
+            border: 2px solid #00B2E8;
+            box-shadow: 0 0 10px #00B2E8aa;
+            background: #fffbe6;
+        }
+
+        .demos-page {
+            min-width: 100vw;
+            box-sizing: border-box;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+        }
+
+        .demo {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #0001;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            padding: 1em;
+            /* max-height: 100px; */
+        }
+
+        .demo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #eee;
+        }
+
+        .demo-info {
+            flex: 1;
+        }
+
+        .demo-headline {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .demo-description {
+            color: #555;
+        }
+
+        @media (max-width: 4000px) {
+            .demos-page {
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                gap: 0;
+                padding: 0;
+            }
+
+            .demo {
+                flex: 0 0 var(--demo-card-width, 330px);
+                max-width: var(--demo-card-width, 330px);
+                box-sizing: border-box;
+                margin: 0;
+                border-radius: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.2em 0.2em 0.1em 0.2em;
+                min-height: 0px;
+            }
+
+            .demo img {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<div id="demo-fullscreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#222;color:#fff;">
+    <nav class="toolbar d-flex align-items-center px-2 py-2">
+        <div class="toolbar-current me-2" id="fullscreen-headline"></div>
+        <button class="toolbar-burger ms-auto" id="fullscreen-exit">&#8592; Return to demos</button>
+    </nav>
+    <div id="fullscreen-content" style="height:calc(100vh - 60px);overflow:auto;"></div>
+</div>
+
+<body>
+    <!-- Toolbar -->
+    <nav class="toolbar d-flex align-items-center px-2 py-2">
+        <div class="toolbar-current me-2" id="toolbar-current"></div>
+        <div class="toolbar-scroll flex-grow-1 d-none d-md-flex align-items-center" id="toolbar-scroll"></div>
+        <button class="toolbar-burger ms-auto" id="toolbar-burger" data-bs-toggle="offcanvas"
+            data-bs-target="#categoryMenu">&#9776;</button>
+    </nav>
+    <!-- Burger menu offcanvas for mobile -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="categoryMenu" aria-labelledby="categoryMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="categoryMenuLabel">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="form-check form-switch" style="padding: 1em 1.5em 1em 1.5em; width: 100%;">
+                <input class="form-check-input" type="checkbox" id="toggle-demo-headlines" style="margin-left:0;">
+                <label class="form-check-label" for="toggle-demo-headlines" style="margin-left: 0.75em;">Show demo
+                    names</label>
+            </div>
+            <div class="form-check form-switch" style="padding: 1em 1.5em 1em 1.5em; width: 100%;">
+                <input class="form-check-input" type="checkbox" id="toggle-demo-descriptions" style="margin-left:0;">
+                <label class="form-check-label" for="toggle-demo-descriptions" style="margin-left: 0.75em;">Show
+                    descriptions</label>
+            </div>
+            <!-- Selection Tabs -->
+            <ul class="nav nav-tabs nav-justified" id="menuTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-categories" data-bs-toggle="tab"
+                        data-bs-target="#tabpane-categories" type="button" role="tab">Categories</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-tags" data-bs-toggle="tab" data-bs-target="#tabpane-tags"
+                        type="button" role="tab">Tags</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-search" data-bs-toggle="tab" data-bs-target="#tabpane-search"
+                        type="button" role="tab">Search</button>
+                </li>
+            </ul>
+            <div class="tab-content p-3">
+                <div class="tab-pane fade show active" id="tabpane-categories" role="tabpanel">
+                    <div id="offcanvas-categories"></div>
+                </div>
+                <div class="tab-pane fade" id="tabpane-tags" role="tabpanel">
+                    <div id="offcanvas-tags"></div>
+                </div>
+                <div class="tab-pane fade" id="tabpane-search" role="tabpanel">
+                    <div id="offcanvas-search-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Demos -->
+    <div class="demos-outer">
+        <div class="demos-inner" id="demos-inner"></div>
+    </div>
+    <!-- Bootstrap JS (optional, for dropdowns etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let demos = [];
+        let categories = [];
+        let tags = [];
+        let activeCategory = null;
+        let activeTag = null;
+        let mode = 'category'; // 'category' or 'tag'
+        let startX = null, currentX = null, dragging = false, startTranslate = 0;
+        let startY = null, currentY = null, isHorizontal = null;
+        let hotDemos = null;
+
+        function getShowDemoNames() {
+            return localStorage.getItem('showDemoNames') !== 'false';
+        }
+
+        function setShowDemoNames(val) {
+            localStorage.setItem('showDemoNames', val ? 'true' : 'false');
+        }
+
+        function getShowDemoDescriptions() {
+            return localStorage.getItem('showDemoDescriptions') !== 'false';
+        }
+
+        function setShowDemoDescriptions(val) {
+            localStorage.setItem('showDemoDescriptions', val ? 'true' : 'false');
+        }
+
+        function demoInnerHtml(demo, alwaysShowDescription = false) {
+            const showNames = getShowDemoNames();
+            const showDescriptions = alwaysShowDescription ? true : getShowDemoDescriptions();
+            let descHtml = '';
+            if (showDescriptions) {
+                descHtml = `
+            <div class="demo-description" style="
+                display: block;
+                max-height: 16.8em; /* 12 lines × 1.4em line-height */
+                overflow-y: auto;
+                line-height: 1.4em;
+                ">
+                ${linkify(demo.description || '')}
+            </div>
+        `;
+            }
+            return `
+        <img src="/static/screenshots/${demo.image}" alt="${demo.headline}">
+        <div class="demo-info">
+            ${showNames ? `<div class="demo-headline">${demo.headline}</div>` : ''}
+            ${descHtml}
+        </div>
+    `;
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            localStorage.setItem('hlrsDemoMode', mode);
+        }
+
+        function getTags() {
+            const tagSet = new Set();
+            demos.forEach(d => (d.tags || []).forEach(t => tagSet.add(t)));
+            return Array.from(tagSet).sort();
+        }
+
+        let tagToDemos = {};
+
+        fetch('/demos')
+            .then(r => r.json())
+            .then(data => {
+                demos = data.demos;
+                categories = data.categories;
+                categories = ["Hot", ...data.categories];
+                tags = getTags();
+                // Precompute tag-to-demos mapping (references only)
+                tagToDemos = {};
+                tags.forEach(tag => {
+                    tagToDemos[tag] = demos.filter(d => (d.tags || []).includes(tag));
+                });
+                renderToolbar();
+                renderDemosPages();
+                setCategory(0, false);
+            });
+
+        fetch('/hot_demos')
+            .then(r => r.json())
+            .then(data => {
+                hotDemos = data.hot;
+                // Optionally, fetch categories and other data here if needed
+                fetch('/demos')
+                    .then(r => r.json())
+                    .then(data => {
+                        demos = data.demos;
+                        categories = data.categories;
+                        categories = ["Hot", ...data.categories];
+                        tags = getTags();
+                        // Precompute tag-to-demos mapping (references only)
+                        tagToDemos = {};
+                        tags.forEach(tag => {
+                            tagToDemos[tag] = demos.filter(d => (d.tags || []).includes(tag));
+                        });
+                        renderToolbar();
+                        renderDemosPages();
+                        setCategory(0, false);
+                    });
+            });
+        // --- Tab switching logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('hlrsDemoMode');
+            if (savedMode) {
+                mode = savedMode;
+            }
+            document.getElementById('tab-categories').addEventListener('click', () => {
+                setMode('category');
+                setCategory(0, false);
+                renderToolbar();
+                renderDemosPages();
+            });
+            document.getElementById('tab-tags').addEventListener('click', () => {
+                setMode('tag');
+                setTag(0, false);
+                renderToolbar();
+                renderDemosPages();
+            });
+            document.getElementById('tab-search').addEventListener('click', () => {
+                setMode('search');
+                activeCategory = null;
+                activeTag = null;
+                renderToolbar();
+                renderDemosPages();
+                // Close the burger menu if open
+                const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('categoryMenu'));
+                offcanvas.hide();
+            });
+        });
+
+        function getTags() {
+            const tagSet = new Set();
+            demos.forEach(d => (d.tags || []).forEach(t => tagSet.add(t)));
+            return Array.from(tagSet).sort();
+        }
+        function getDemoMatchScore(demo, keyword) {
+            if (!keyword) return 0;
+            keyword = keyword.toLowerCase();
+            let score = 0;
+
+            // id as string
+            if (String(demo.id).includes(keyword)) score += 1000;
+
+            // headline (name)
+            if ((demo.headline || '').toLowerCase().includes(keyword)) score += 100;
+
+            // category
+            if ((demo.category || '').toLowerCase().includes(keyword)) score += 50;
+
+            // tags
+            if ((demo.tags || []).some(tag => tag.toLowerCase().includes(keyword))) score += 30;
+
+            // description
+            if ((demo.description || '').toLowerCase().includes(keyword)) score += 10;
+
+            return score;
+        }
+
+        function showDemoFullscreen(demo) {
+            const fullscreen = document.getElementById('demo-fullscreen');
+            const headline = document.getElementById('fullscreen-headline');
+            const content = document.getElementById('fullscreen-content');
+            fullscreen.style.display = 'block';
+            headline.textContent = demo.headline || '';
+
+            if (!demo._editing) {
+                // Always show description in fullscreen
+                content.innerHTML = `
+            <div style="text-align:center;">
+                <img src="/static/screenshots/${demo.image}" 
+                     alt="${demo.headline}" 
+                     style="max-width:90vw;max-height:40vh;display:block;margin:2em auto;">
+                <div class="demo-info" style="margin-bottom:2em;">
+                    <div class="demo-description" style="margin-top:1em;">${linkify(demo.description || '')}</div>
+                </div>
+                <div style="margin-top:2em;">
+                    <button class="btn btn-warning me-2" id="fullscreen-edit-btn">Edit</button>
+                    <button class="btn btn-danger" id="fullscreen-terminate-btn">Terminate</button>
+                </div>
+            </div>
+        `;
+                document.getElementById('fullscreen-edit-btn').onclick = function () {
+                    demo._editing = true;
+                    showDemoFullscreen(demo);
+                };
+                document.getElementById('fullscreen-terminate-btn').onclick = function () {
+                    terminateDemo();
+                };
+            } else {
+                // Editing: show input and Save/Dismiss
+                content.innerHTML = `
+            <div style="padding:2em;text-align:center;">
+                <img src="/static/screenshots/${demo.image}" alt="${demo.headline}" style="max-width:90vw;max-height:40vh;display:block;margin:0 auto 2em;">
+                <div>
+                    <textarea id="edit-desc-input" class="form-control mb-2" style="max-width:400px;min-height:100px;resize:vertical;overflow:auto;">${(demo.description || '').replace(/</g, '&lt;')}</textarea>
+                </div>
+                <div style="margin-top:2em;">
+                    <button class="btn btn-success me-2" id="save-desc-btn">Save</button>
+                    <button class="btn btn-secondary" id="dismiss-desc-btn">Dismiss</button>
+                </div>
+            </div>
+        `;
+                document.getElementById('save-desc-btn').onclick = function (event) {
+                    const newDesc = document.getElementById('edit-desc-input').value;
+                    demo.description = newDesc;
+                    fetch('/update_description', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: demo.id, description: newDesc })
+                    }).then(r => r.json()).then(resp => {
+                        demo._editing = false;
+                        showDemoFullscreen(demo);
+                    });
+                };
+                document.getElementById('dismiss-desc-btn').onclick = function (event) {
+                    demo._editing = false;
+                    showDemoFullscreen(demo);
+                };
+            }
+        }
+
+        // Attach exit logic
+        document.getElementById('fullscreen-exit').onclick = function () {
+            document.getElementById('demo-fullscreen').style.display = 'none';
+            highlightRunningDemo();
+        };
+
+        function linkify(text) {
+            return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        }
+        // --- Rendering demos by category or tag ---
+        function renderDemosPages() {
+            console.log(`Rendering demos in ${mode} mode`);
+            const inner = document.getElementById('demos-inner');
+            if (mode === 'search') {
+                inner.style.transition = 'none';
+                inner.style.transform = 'translateX(0)';
+            }
+            inner.innerHTML = '';
+            let list, filtered = [];
+            if (mode === 'category') {
+                list = categories;
+            } else if (mode === 'tag') {
+                list = tags;
+            } else if (mode === 'search') {
+                // Get the current search keyword from the toolbar input
+                const input = document.getElementById('toolbar-search-input');
+                const keyword = input ? input.value.trim().toLowerCase() : '';
+                // Score and sort demos by match
+                filtered = demos
+                    .map(d => ({ demo: d, score: getDemoMatchScore(d, keyword) }))
+                    .filter(obj => keyword === '' || obj.score > 0) // Show all if no keyword, or only matches
+                    .sort((a, b) => {
+                        if (b.score !== a.score) return b.score - a.score;
+                        // Fallback: id, name, tags, description
+                        if (a.demo.id !== b.demo.id) return a.demo.id - b.demo.id;
+                        if ((a.demo.headline || '') !== (b.demo.headline || '')) return (a.demo.headline || '').localeCompare(b.demo.headline || '');
+                        const aTags = (a.demo.tags || []).join(',');
+                        const bTags = (b.demo.tags || []).join(',');
+                        if (aTags !== bTags) return aTags.localeCompare(bTags);
+                        return (a.demo.description || '').localeCompare(b.demo.description || '');
+                    })
+                    .map(obj => obj.demo);
+
+                // print filtered demos for debugging
+                console.log(`Filtered demos: ${filtered.length} matches for keyword "${keyword}"`);
+
+                // Render all in a single page
+                const page = document.createElement('div');
+                page.className = 'demos-page';
+                filtered.forEach(d => {
+                    const el = document.createElement('div');
+                    el.className = 'demo';
+                    el.dataset.id = d.id;
+                    const showNames = getShowDemoNames();
+                    el.innerHTML = demoInnerHtml(d);
+                    el.onclick = () => {
+                        launchDemoWithCheck(d);
+                    };
+
+                    page.appendChild(el);
+                });
+                inner.appendChild(page);
+                return;
+            }
+
+            // Category or tag mode
+            list.forEach((item, i) => {
+                const page = document.createElement('div');
+                page.className = 'demos-page';
+                let filtered;
+                if (mode === 'category') {
+                    if (item === "Hot") {
+                        // Use cached hot demos
+                        filtered = hotDemos || [];
+                        renderDemoCards(filtered, page);
+                        inner.appendChild(page);
+                        return; // skip rest of loop for "Hot"
+                    } else {
+                        filtered = demos.filter(d => d.category === item);
+                        renderDemoCards(filtered, page);
+                        inner.appendChild(page);
+                    }
+                } else if (mode === 'tag') {
+                    filtered = tagToDemos[item] || [];
+                    renderDemoCards(filtered, page);
+                    inner.appendChild(page);
+                }
+            });
+        }
+
+        function renderDemoCards(filtered, page) {
+            filtered.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'demo';
+                el.dataset.id = d.id;
+                el.dataset.running = (window.runningDemoId && Number(window.runningDemoId) === d.id) ? "true" : "false";
+                el.innerHTML = demoInnerHtml(d);
+                el.onclick = () => {
+                    if (el.dataset.running === "true") {
+                        showDemoFullscreen(d);
+                    } else {
+                        launchDemoWithCheck(d);
+                    }
+                };
+                el.querySelector('img').onclick = (e) => {
+                    e.stopPropagation();
+                    if (el.dataset.running === "true") {
+                        showDemoFullscreen(d);
+                    } else {
+                        launchDemoWithCheck(d);
+                    }
+                };
+                page.appendChild(el);
+            });
+        }
+
+        // --- Setters for category and tag ---
+        function setCategory(idx, animate = true) {
+            idx = Math.max(0, Math.min(categories.length - 1, idx));
+            activeCategory = idx;
+            activeTag = null;
+            const inner = document.getElementById('demos-inner');
+            if (animate) {
+                inner.style.transition = 'transform 0.3s cubic-bezier(.4,2,.6,1)';
+            } else {
+                inner.style.transition = 'none';
+            }
+            inner.style.transform = `translateX(${-activeCategory * 100}vw)`;
+            if (mode !== 'search') {
+                renderToolbar();
+            }
+        }
+
+        function setTag(idx, animate = true) {
+            idx = Math.max(0, Math.min(tags.length - 1, idx));
+            activeTag = idx;
+            activeCategory = null;
+            const inner = document.getElementById('demos-inner');
+            if (animate) {
+                inner.style.transition = 'transform 0.3s cubic-bezier(.4,2,.6,1)';
+            } else {
+                inner.style.transition = 'none';
+            }
+            inner.style.transform = `translateX(${-activeTag * 100}vw)`;
+            if (mode !== 'search') {
+                renderToolbar();
+            }
+        }
+
+        function renderToolbar() {
+            const toolbarCurrent = document.getElementById('toolbar-current');
+            // Show search input if in search mode
+            if (mode === 'search') {
+                toolbarCurrent.innerHTML = `
+            <input type="text" class="form-control form-control-sm" id="toolbar-search-input" placeholder="Search demos...">
+        `;
+                const input = document.getElementById('toolbar-search-input');
+                input.addEventListener('input', function () {
+                    renderDemosPages(); // Only update the demo list!
+                    // DO NOT call renderToolbar() here!
+                });
+                setTimeout(() => {
+                    const input = document.getElementById('toolbar-search-input');
+                    if (input) input.focus();
+                }, 0);
+            } else {
+                toolbarCurrent.textContent =
+                    mode === 'category'
+                        ? categories[activeCategory] || ''
+                        : tags[activeTag] || '';
+            }
+
+            // Middle: other categories or tags
+            const scrollDiv = document.getElementById('toolbar-scroll');
+            scrollDiv.innerHTML = '';
+            if (mode === 'category') {
+                categories.forEach((cat, i) => {
+                    if (i !== activeCategory) {
+                        const el = document.createElement('div');
+                        el.className = 'category';
+                        el.textContent = cat;
+                        el.onclick = () => setCategory(i, true);
+                        scrollDiv.appendChild(el);
+                    }
+                });
+            } else if (mode === 'tag') {
+                tags.forEach((tag, i) => {
+                    if (i !== activeTag) {
+                        const el = document.createElement('div');
+                        el.className = 'category';
+                        el.textContent = tag;
+                        el.onclick = () => setTag(i, true);
+                        scrollDiv.appendChild(el);
+                    }
+                });
+            }
+
+            // --- Render categories in burger menu ---
+            const offcanvasCategories = document.getElementById('offcanvas-categories');
+            if (offcanvasCategories) {
+                offcanvasCategories.innerHTML = '';
+                categories.forEach((cat, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-outline-secondary w-100 mb-2';
+                    btn.textContent = cat;
+                    btn.onclick = () => {
+                        setMode('category');
+                        setCategory(i, true);
+                        renderDemosPages();
+                        renderToolbar();
+                        // Optionally close the offcanvas
+                        const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('categoryMenu'));
+                        offcanvas.hide();
+                    };
+                    offcanvasCategories.appendChild(btn);
+                });
+            }
+
+            // --- Render tags in burger menu ---
+            const offcanvasTags = document.getElementById('offcanvas-tags');
+            if (offcanvasTags) {
+                offcanvasTags.innerHTML = '';
+                tags.forEach((tag, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-outline-secondary w-100 mb-2';
+                    btn.textContent = tag;
+                    btn.onclick = () => {
+                        setMode('tag');
+                        setTag(i, true);
+                        renderDemosPages();
+                        renderToolbar();
+                        // Optionally close the offcanvas
+                        const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('categoryMenu'));
+                        offcanvas.hide();
+                    };
+                    offcanvasTags.appendChild(btn);
+                });
+            }
+            highlightRunningDemo();
+        }
+
+        const toggle = document.getElementById('toggle-demo-headlines');
+        if (toggle) {
+            toggle.checked = getShowDemoNames();
+            toggle.onchange = function () {
+                setShowDemoNames(toggle.checked);
+                console.log(`Show demo names: ${toggle.checked}`);
+                renderDemosPages();
+            };
+        }
+
+        const toggleDesc = document.getElementById('toggle-demo-descriptions');
+        if (toggleDesc) {
+            toggleDesc.checked = getShowDemoDescriptions();
+            toggleDesc.onchange = function () {
+                setShowDemoDescriptions(toggleDesc.checked);
+                renderDemosPages();
+            };
+        }
+
+        // --- Swipe logic: switch by category or tag ---
+        const demosOuter = document.querySelector('.demos-outer');
+        const demosInner = document.getElementById('demos-inner');
+
+        demosOuter.addEventListener('touchstart', e => {
+            if (mode === 'search') return; // Prevent swipe in search mode
+            if (e.touches.length !== 1) return;
+            dragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            currentX = startX;
+            currentY = startY;
+            // Use the correct index for the current mode
+            startTranslate = -(mode === 'category' ? activeCategory : activeTag) * window.innerWidth;
+            demosInner.style.transition = 'none';
+            isHorizontal = null;
+        });
+
+        demosOuter.addEventListener('touchmove', e => {
+            if (mode === 'search') return; // Prevent swipe in search mode
+            if (!dragging) return;
+            currentX = e.touches[0].clientX;
+            currentY = e.touches[0].clientY;
+            let dx = currentX - startX;
+            let dy = currentY - startY;
+            if (isHorizontal === null) {
+                if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        isHorizontal = true;
+                    } else {
+                        isHorizontal = false;
+                    }
+                } else {
+                    return;
+                }
+            }
+            if (isHorizontal) {
+                e.preventDefault();
+                let translate = startTranslate + dx;
+                demosInner.style.transform = `translateX(${translate}px)`;
+            } else {
+                dragging = false;
+                isHorizontal = null;
+            }
+        }, { passive: false });
+
+        demosOuter.addEventListener('touchend', e => {
+            if (mode === 'search') return; // Prevent swipe in search mode
+            if (!dragging) return;
+            dragging = false;
+            let dx = currentX - startX;
+            let threshold = window.innerWidth / 4;
+            let idx = mode === 'category' ? activeCategory : activeTag;
+            let maxIdx = mode === 'category' ? categories.length - 1 : tags.length - 1;
+            if (dx < -threshold && idx < maxIdx) idx++;
+            if (dx > threshold && idx > 0) idx--;
+            if (mode === 'category') {
+                setCategory(idx, true);
+            } else {
+                setTag(idx, true);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (mode === 'category') {
+                setCategory(activeCategory, false);
+            } else {
+                setTag(activeTag, false);
+            }
+        });
+
+        function launchDemoWithCheck(demo) {
+            if (demo._editing) return;
+
+            fetch('/running_process')
+                .then(r => r.json())
+                .then(status => {
+                    if (status.running) {
+                        if (confirm(`Another program (${status.program}) is running. Terminate it and start the new one?`)) {
+                            fetch('/terminate_process', { method: 'POST' })
+                                .then(() => launchDemo(demo));
+                        }
+                    } else {
+                        launchDemo(demo);
+                    }
+                });
+        }
+
+        function launchDemo(demo) {
+            fetch('/launch_demo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: demo.id })
+            })
+                .then(r => r.json())
+                .then(() => {
+                    highlightRunningDemo();
+                    showDemoFullscreen(demo);
+                })
+                .catch(console.error);
+        }
+
+        function updateBurgerMenuLink(running, demoId) {
+            // only if running, only if not already in fullscreen
+            // Use the main offcanvas-body as the container for the button
+            const offcanvasBody = document.querySelector('#categoryMenu .offcanvas-body');
+            if (!offcanvasBody) {
+                console.log('No offcanvas body found for return button');
+                return;
+            }
+            let link = document.getElementById('return-to-running-demo');
+            if (running &&
+                document.getElementById('demo-fullscreen').style.display === 'none'
+            ) {
+                if (!link) {
+                    link = document.createElement('button');
+                    link.id = 'return-to-running-demo';
+                    link.className = 'btn btn-primary w-100 mb-2';
+                    link.textContent = 'Return to running demo';
+                    link.onclick = () => {
+                        const demo = demos.find(d => d.id === demoId);
+                        if (demo) showDemoFullscreen(demo);
+                        // Optionally close the burger menu
+                        const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('categoryMenu'));
+                        offcanvas.hide();
+                    };
+                    // Insert at the top of the offcanvas body
+                    offcanvasBody.insertBefore(link, offcanvasBody.firstChild);
+                }
+            } else if (link) {
+                link.remove();
+            }
+        }
+
+        function highlightRunningDemo() {
+            fetch('/running_process')
+                .then(r => r.json())
+                .then(status => {
+                    window.runningDemoId = status.running ? status.id : null;
+                    document.querySelectorAll('.demo').forEach(card => {
+                        if (status.running && Number(card.dataset.id) === status.id) {
+                            card.classList.add('running');
+                            card.dataset.running = "true";
+                            card.style.background = '#fffbe6'; // Highlight color
+                            card.style.borderColor = '#00B2E8';
+                            card.style.boxShadow = '0 0 10px #00B2E8aa';
+                        } else {
+                            card.classList.remove('running');
+                            card.dataset.running = "false";
+                            card.style.background = '#fff'; // Reset to default background
+                            card.style.borderColor = '';
+                            card.style.boxShadow = '';
+                        }
+                    });
+
+                    updateBurgerMenuLink(status.running, status.id);
+                });
+        }
+
+        // --- Pinch-to-resize for demo cards (sets --demo-card-width) ---
+        let pinchStartDist = null;
+        let pinchStartWidth = null;
+        let demoCardWidth = Number(localStorage.getItem('demoCardWidth')) || 330; // default 330px
+
+        function setDemoCardWidth(width, snap) {
+            // Snap to 1, 1/2, 1/3, 1/4, 1/5 of window width (but clamp between 110 and 630)
+            let w = width;
+            if (snap) {
+                const winW = window.innerWidth;
+                const breakpoints = [1, 2, 3, 4, 5].map(div => Math.round(winW / div));
+                // Find the closest breakpoint to the requested width
+                let snapped = breakpoints.reduce((prev, curr) =>
+                    Math.abs(curr - width) < Math.abs(prev - width) ? curr : prev
+                );
+                w = snapped
+            }
+            w = Math.max(110, Math.min(630, w));
+            demoCardWidth = w;
+            localStorage.setItem('demoCardWidth', demoCardWidth);
+            document.documentElement.style.setProperty('--demo-card-width', demoCardWidth + 'px');
+        }
+
+        // Set initial width CSS variable on load
+        document.documentElement.style.setProperty('--demo-card-width', demoCardWidth + 'px');
+
+        // Pinch gesture to resize demo cards
+        document.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 2) {
+                pinchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                pinchStartWidth = demoCardWidth;
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function (e) {
+            if (pinchStartDist && e.touches.length === 2) {
+                e.preventDefault();
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                console.log(`Pinch distance: ${dist}, start: ${pinchStartDist}`);
+                const scale = dist / pinchStartDist;
+                setDemoCardWidth(Math.round(pinchStartWidth * scale), false);
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', function (e) {
+            pinchStartDist = null;
+            pinchStartWidth = null;
+            setDemoCardWidth(demoCardWidth, true); // Snap to closest breakpoint
+
+        });
+
+        function editDemo(id) {
+            // Find the demo element (works for both desktop and fullscreen)
+            let demoEl = document.querySelector(`.demo[data-id="${id}"]`);
+            let isFullscreen = false;
+            if (!demoEl && document.getElementById('demo-fullscreen').style.display === 'block') {
+                // Fullscreen mode
+                isFullscreen = true;
+                demoEl = document.getElementById('fullscreen-content');
+            }
+            if (!demoEl) return;
+
+            // Get the demo object
+            const demo = demos.find(d => d.id === id);
+            if (!demo) return;
+
+            // Get current description
+            const currentDesc = demo.description || '';
+
+            // Replace description with input and show Save/Dismiss
+            if (isFullscreen) {
+                demoEl.innerHTML = `
+        <div style="padding:2em;text-align:center;">
+            <img src="/static/screenshots/${demo.image}" alt="${demo.headline}" style="max-width:90vw;max-height:60vh;display:block;margin:0 auto 2em;">
+            <div>
+                <textarea id="edit-desc-input" class="form-control mb-2" style="max-width:400px;min-height:100px;resize:vertical;overflow:auto;">${currentDesc.replace(/</g, '&lt;')}</textarea>
+            </div>
+            <div style="margin-top:2em;">
+                <button class="btn btn-success me-2" id="save-desc-btn">Save</button>
+                <button class="btn btn-secondary" id="dismiss-desc-btn">Dismiss</button>
+            </div>
+        </div>
+    `;
+            } else {
+                // Desktop: find the description div
+                const descDiv = demoEl.querySelector('.demo-description');
+                if (!descDiv) return;
+                descDiv.innerHTML = `
+        <textarea id="edit-desc-input" class="form-control form-control-sm mb-2" style="min-height:60px;resize:vertical;overflow:auto;">${currentDesc.replace(/</g, '&lt;')}</textarea>
+        <button class="btn btn-success btn-sm me-2" id="save-desc-btn">Save</button>
+        <button class="btn btn-secondary btn-sm" id="dismiss-desc-btn">Dismiss</button>
+    `;
+            }
+
+            // Save handler
+            document.getElementById('save-desc-btn').onclick = function (event) {
+                event.stopPropagation();
+                const newDesc = document.getElementById('edit-desc-input').value;
+                demo.description = newDesc;
+
+                // Send to backend
+                fetch('/update_description', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: demo.id, description: newDesc })
+                }).then(r => r.json()).then(resp => {
+                    // Optionally handle response
+                    if (isFullscreen) {
+                        showDemoFullscreen(demo);
+                    } else {
+                        const descDiv = demoEl.querySelector('.demo-description');
+                        descDiv.textContent = newDesc;
+                    }
+                    demo._editing = false;
+                });
+            };
+
+            // Dismiss handler
+            document.getElementById('dismiss-desc-btn').onclick = function () {
+                event.stopPropagation();
+                if (isFullscreen) {
+                    showDemoFullscreen(demo);
+                } else {
+                    // Restore original description
+                    const descDiv = demoEl.querySelector('.demo-description');
+                    descDiv.textContent = currentDesc;
+                }
+                demo._editing = false;
+            };
+        }
+
+        function terminateDemo() {
+            fetch('/terminate_process', { method: 'POST' })
+                .then(() => {
+                    highlightRunningDemo();
+                    // exit fullscreen if open
+                    if (document.getElementById('demo-fullscreen').style.display === 'block') {
+                        document.getElementById('demo-fullscreen').style.display = 'none';
+                    }
+                });
+        }
+    </script>
+</body>
+
+</html>

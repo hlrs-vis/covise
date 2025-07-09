@@ -98,7 +98,21 @@ fn compareMaterials mat1 mat2 =
     )
     else
     (
+		print mat1.classID
+		print mat2.classID
+		
+        print "xThis is a Standard Material"
+	    if mat1.diffuse == mat2.diffuse then ( 
+		    format "same % %\n" mat1.name mat2.name
+		    return 1
+	    )
+		else(
+		    format "different % %\n" mat1.name mat2.name
+		    return 0
+		)
+		
         print "This is not a Standard Material"
+		-- break()
 	    if mat1.base_color == mat2.base_color then ( 
 		    format "same % %\n" mat1.name mat2.name
 		    return 1

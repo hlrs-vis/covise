@@ -18,6 +18,7 @@ SET(REMOTE_LAUNCHER_SOURCES
   clientWidget.cpp
   coverDaemon.cpp
   coviseDaemon.cpp
+  demoserver.cpp
   main.cpp
   mainWindow.cpp
   permissionRequest.cpp
@@ -31,6 +32,7 @@ SET(REMOTE_LAUNCHER_HEADER
   clientWidget.h
   coverDaemon.h
   coviseDaemon.h
+  demoserver.h
   mainWindow.h
   metaTypes.h
   permissionRequest.h
@@ -52,6 +54,9 @@ target_link_libraries(coviseDaemon
                        coUtil
                        coVRBClient
                        coConfigNew
+                       nlohmann_json::nlohmann_json
+                       Crow
+                       hlrsDemoCommon
                        ) 
 qt_use_modules(coviseDaemon Core Gui Widgets)
 

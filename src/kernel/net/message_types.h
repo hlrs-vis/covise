@@ -213,7 +213,7 @@ enum covise_msg_type
 
 #ifdef DEFINE_MSG_TYPES
 NETEXPORT const char *covise_msg_types_array[COVISE_MESSAGE_LAST_DUMMY_MESSAGE + 2] = {
-    "COVISE_MESSAGE_EMPTY",                             // -1
+    //"COVISE_MESSAGE_EMPTY",                             // -1 - the types are used as index into this array
     "COVISE_MESSAGE_MSG_FAILED",                        //  0
     "COVISE_MESSAGE_MSG_OK",                            //  1
     "COVISE_MESSAGE_INIT",                              //  2

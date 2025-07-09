@@ -4469,7 +4469,7 @@ bool NodeTable::findName(const TCHAR *name)
 
     for (nList = mNames[hashVal]; nList; nList = nList->next)
     {
-        if (nList->name && !_tcscmp(name, nList->name))
+        if (!nList->name.isNull() && !_tcscmp(name, nList->name))
         { // found a match
             return true;
         }
@@ -4484,7 +4484,7 @@ NameList *NodeTable::findNodeByName(const TCHAR *name)
 
     for (nList = mNames[hashVal]; nList; nList = nList->next)
     {
-        if (nList->name && !_tcscmp(name, nList->name))
+        if (!nList->name.isNull() && !_tcscmp(name, nList->name))
         { // found a match
             return nList;
         }

@@ -78,9 +78,9 @@ namespace opencover
     {
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
         int numToAdd = toAdd.size();
+        coVRMSController::instance()->syncData(&numToAdd, sizeof(numToAdd));
 	if (coVRMSController::instance()->isMaster())
 	{  
-            coVRMSController::instance()->sendSlaves(&numToAdd, sizeof(numToAdd));
 	    for(const auto &i:toAdd)
 	    {
             devices.push_back(i);
@@ -92,7 +92,6 @@ namespace opencover
 	}
 	else
 	{
-            coVRMSController::instance()->readMaster(&numToAdd, sizeof(numToAdd));
 	    for(int i=0;i<numToAdd;i++)
 	    {
 		std::string pluginName;

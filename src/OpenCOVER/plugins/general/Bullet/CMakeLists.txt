@@ -1,7 +1,7 @@
 #OpenCOVER plugins general Bullet
 
 USING(XERCESC)
-USING(coVRML)
+USING(VRML)
 
 SET(HEADERS
   Bullet.h

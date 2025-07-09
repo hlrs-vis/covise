@@ -210,6 +210,15 @@ namespace OpenCOVERPlugin
             BitConverter.GetBytes(num).CopyTo(buf, currentPos);
             currentPos += 4;
         }
+        public void add(long num)
+        {
+            addTypeInfo(Types.TbInt32);
+            incsize(4);
+            int n = (int)num;
+
+            BitConverter.GetBytes(n).CopyTo(buf, currentPos);
+            currentPos += 4;
+        }
         public void add(float num)
         {
             addTypeInfo(Types.TbFloat);

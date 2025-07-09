@@ -26,3 +26,9 @@
 	path = src/3rdparty/exprtk
 	url = https://github.com/ArashPartow/exprtk.git
 	branch = release
+[submodule "src/3rdparty/nlohmann_json"]
+	path = src/3rdparty/nlohmann_json
+	url = https://github.com/nlohmann/json.git
+[submodule "src/3rdparty/crow"]
+	path = src/3rdparty/crow
+	url = https://github.com/CrowCpp/Crow.git

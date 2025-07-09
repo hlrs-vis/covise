@@ -680,10 +680,10 @@ if (coVRMSController::instance()->isMaster())
     {
         if(Joysticknumber <0) // did not find a joystick yet
 	{
-	fprintf(stderr, "looking for joystick %s %s\n", jsName.c_str(), rudderName.c_str()); 
+	//fprintf(stderr, "looking for joystick %s %s\n", jsName.c_str(), rudderName.c_str()); 
         for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
         {
-            fprintf(stderr, "joysticks: %d %d %d %s \n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i],joystickDev->names[i].c_str());
+            //fprintf(stderr, "joysticks: %d %d %d %s \n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i],joystickDev->names[i].c_str());
 	    if(joystickDev->names[i] == jsName)
 	    {
                 Joysticknumber = i;
@@ -790,7 +790,7 @@ if (coVRMSController::instance()->isMaster())
                     FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
                 }
 
-                if (ThrottleNumber)
+                if (ThrottleNumber>=0)
                 {
                     FCS->SetDaCmd(joystickDev->axes[Joysticknumber][0]);
                     FCS->SetDeCmd(-joystickDev->axes[Joysticknumber][1]);
@@ -1028,7 +1028,7 @@ JSBSimPlugin::updateUdp()
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
     if (udp)
     {
-        std::cout << "udp = true" << endl;
+        //std::cout << "udp = true" << endl;
         static bool firstTime = true;
 	
         int status = 0;
@@ -1037,20 +1037,34 @@ JSBSimPlugin::updateUdp()
 	{
 	    status = udp->receive(&gliderValues, sizeof(gliderValues), 0.0);
 	//fprintf(stderr,"sizeof(gliderValues):%d status %d\n",(int)sizeof(gliderValues),status);
+        if (status == 16)
+        {
+	memcpy(&fgcontrol,&gliderValues,16);
+	}
+	    
 	}
 	else
 	{
 	    status = udp->receive(&fgcontrol, sizeof(FGControl), 0.0);
 	}
 
-        if (status == sizeof(FGControl))
+        if (status == 16)
+        {
+            //std::cout << "status == sizeof(FGControl)" << endl;
+            byteSwap(fgcontrol.aileron);
+            byteSwap(fgcontrol.elevator);
+	    fgcontrol.throttle=0.0;
+            //std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
+        }
+        else if (status == sizeof(FGControl))
         {
             std::cout << "status == sizeof(FGControl)" << endl;
             byteSwap(fgcontrol.aileron);
             byteSwap(fgcontrol.elevator);
+            byteSwap(fgcontrol.throttle);
             std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
         }
-        if (status == sizeof(gliderValues))
+        else if (status == sizeof(gliderValues))
         {
 	
             /*byteSwap(gliderValues.left);
@@ -1101,7 +1115,7 @@ JSBSimPlugin::updateUdp()
 
 void JSBSimPlugin::initUDP()
 {
-    /*delete udp;
+  /*  delete udp;
 
     std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
     udp = new UDPComm(host.c_str(), serverPort, localPort);*/

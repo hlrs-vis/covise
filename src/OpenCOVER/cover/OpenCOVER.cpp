@@ -637,9 +637,6 @@ bool OpenCOVER::init()
 
     MarkerTracking::instance();
 
-    if (cover->debugLevel(4))
-        fprintf(stderr, "Calling pfConfig\n");
-
     osgUtil::RenderBin::setDefaultRenderBinSortMode(osgUtil::RenderBin::SORT_BY_STATE_THEN_FRONT_TO_BACK);
 
     VRWindow::instance();
@@ -1220,7 +1217,12 @@ bool OpenCOVER::frame()
             if (cover->debugLevel(4))
                 std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
             render = true;
-            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat()); // view 0 is the active person, all the others are always the same
+            for (int i = 1; i < coVRConfig::instance()->numViews; i++)
+            {
+                VRViewer::instance()->updateViewerMat(Input::instance()->getPerson(i)->getHeadMat(), i);
+            }
+
         }
     }
     if (VRViewer::instance()->update())
