@@ -329,8 +329,12 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   piSequence = addInt32VectorParam("Sequence", "First, last and increment in file number", 3);
   piSequence->setValue(0, 0, 1);
 
+  // Particles
   pfGetParticles = addBooleanParam("Particles", "Return particle positions at the last output port");
   pfGetParticles->setValue(false);
+
+  pfPartProperties = addInt32Param("NumPartProp", "Number of particle properties (-1 = guessing)");
+  pfPartProperties->setValue(-1);
 
   // Region selection
   pfSelectRegion = addBooleanParam("useRegion", "Enable a region selection with xmin, xmax...");
@@ -483,7 +487,7 @@ int coReadFlash::compute(const char *)
     // Store particle if flag is still active
     if (retPart)
     {
-      particles = flashReader.getSinkList();
+      particles = flashReader.getSinkList(pfPartProperties->getValue());
       particleOut.push_back(particles);
     }
 
@@ -833,7 +837,7 @@ int coReadFlash::compute(const char *)
 
         for (size_t pid = 0; pid < npart; ++pid)
         {
-          std::cout << "Partcile position\n";
+          std::cout << "Particle position\n";
           std::cout << dat.particlePosition[pid].x / pc2cm;
           std::cout << " " << dat.particlePosition[pid].y / pc2cm;
           std::cout << " " << dat.particlePosition[pid].z / pc2cm << "\n";

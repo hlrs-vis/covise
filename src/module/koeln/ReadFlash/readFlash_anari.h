@@ -295,7 +295,7 @@ inline void read_grid(grid_t &dest, H5::H5File const &file)
 }
 
 // Read particle data
-inline void read_sinks(particle_t &part, H5::H5File const &file)
+inline void read_sinks(particle_t &part, H5::H5File const &file, int nprop=-1)
 {
   // Initialize the dataset and dataspace
   H5::DataSet dataset;
@@ -326,24 +326,32 @@ inline void read_sinks(particle_t &part, H5::H5File const &file)
 
     // Loop over all possible number of particles
     // Particles are always allocated in chucks of 100
-    for (size_t i=1; i < 100; ++i)
+    if (nprop <= 0)
     {
-      // Determine number of particles in current iteration step
-      part.npart = 100 * i;
-      // Check if we found the correct size
-      // Fraction of total number of entries to number of particles
-      // should result in number of properties
-      // First condition checks that we are in the right ball park
-      // second condition check that the fraction is round.
-      if ((tot_entries / (100 * i) < 150) && (tot_entries % (100 * i) == 0))
+      for (size_t i=1; i < 100; ++i)
       {
-        // Determine number of properties
-        // and exit loop
-        part.nprop = tot_entries / (100 * i);
-        break;
+        // Determine number of particles in current iteration step
+        part.npart = 100 * i;
+        // Check if we found the correct size
+        // Fraction of total number of entries to number of particles
+        // should result in number of properties
+        // First condition checks that we are in the right ball park
+        // second condition check that the fraction is round.
+        if ((tot_entries / (100 * i) < 150) && (tot_entries % (100 * i) == 0))
+        {
+          // Determine number of properties
+          // and exit loop
+          part.nprop = tot_entries / (100 * i);
+          break;
+        }
       }
+    } else
+    {
+      part.nprop = nprop;
+      part.npart = tot_entries / part.nprop;
     }
   }
+
   std::cout << "Number of particles: " << part.npart << "\n";
   std::cout << "Number of properties: " << part.nprop << "\n";
 }
@@ -389,7 +397,7 @@ inline ParticleField toParticleField(particle_t particles)
   {
     // Check if a particle "exist" which means that it has a tag
     bool particle_exist = false;
-    if (particles.data[part_ind * particles.nprop + particles.ind_tag] != 0.0)
+    if (particles.data[part_ind * particles.nprop + particles.ind_tag] > 0.5)
     {
       particle_exist = true;
     }
@@ -797,10 +805,10 @@ struct FlashReader
     return {};
   }
 
-  ParticleField getSinkList()
+  ParticleField getSinkList(int nprop=-1)
   {
     try {
-      read_sinks(particle, file);
+      read_sinks(particle, file, nprop);
       return toParticleField(particle);
 
     } catch (H5::DataSpaceIException error) {
