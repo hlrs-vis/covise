@@ -41,6 +41,7 @@ struct sim_info_t
 #ifdef _MSC_VER
 #define PACK(...) __pragma( pack(push, 1) ) __VA_ARGS__  __pragma( pack(pop))
 #endif
+
 // Data structure of grid
 struct grid_t
 {
@@ -98,6 +99,8 @@ struct particle_t
   int ind_velz;
   
   int ind_mass;
+
+  int ind_tag;
 
   // Number of particles and properties
   int npart;
@@ -291,7 +294,8 @@ inline void read_grid(grid_t &dest, H5::H5File const &file)
   }
 }
 
-inline void read_sinks(particle_t &part, H5::H5File const &file)
+// Read particle data
+inline void read_sinks(particle_t &part, H5::H5File const &file, int nprop=-1)
 {
   // Initialize the dataset and dataspace
   H5::DataSet dataset;
@@ -318,27 +322,36 @@ inline void read_sinks(particle_t &part, H5::H5File const &file)
     part.ind_vely = 4;
     part.ind_velz = 5;
     part.ind_mass = 59;
+    part.ind_tag = 84;
 
     // Loop over all possible number of particles
     // Particles are always allocated in chucks of 100
-    for (size_t i=1; i < 100; ++i)
+    if (nprop <= 0)
     {
-      // Determine number of particles in current iteration step
-      part.npart = 100 * i;
-      // Check if we found the correct size
-      // Fraction of total number of entries to number of particles
-      // should result in number of properties
-      // First condition checks that we are in the right ball park
-      // second condition check that the fraction is round.
-      if ((tot_entries / (100 * i) < 150) && (tot_entries % (100 * i) == 0))
+      for (size_t i=1; i < 100; ++i)
       {
-        // Determine number of properties
-        // and exit loop
-        part.nprop = tot_entries / (100 * i);
-        break;
+        // Determine number of particles in current iteration step
+        part.npart = 100 * i;
+        // Check if we found the correct size
+        // Fraction of total number of entries to number of particles
+        // should result in number of properties
+        // First condition checks that we are in the right ball park
+        // second condition check that the fraction is round.
+        if ((tot_entries / (100 * i) < 150) && (tot_entries % (100 * i) == 0))
+        {
+          // Determine number of properties
+          // and exit loop
+          part.nprop = tot_entries / (100 * i);
+          break;
+        }
       }
+    } else
+    {
+      part.nprop = nprop;
+      part.npart = tot_entries / part.nprop;
     }
   }
+
   std::cout << "Number of particles: " << part.npart << "\n";
   std::cout << "Number of properties: " << part.nprop << "\n";
 }
@@ -379,17 +392,17 @@ inline ParticleField toParticleField(particle_t particles)
   // Count all particles that exist
   int cnt_part = 0;
 
+  // Loop over all particles
   for (size_t part_ind=0; part_ind < particles.npart; ++part_ind)
   {
+    // Check if a particle "exist" which means that it has a tag
     bool particle_exist = false;
-    for (size_t prop_ind=0; prop_ind < particles.nprop; ++prop_ind)
+    if (particles.data[part_ind * particles.nprop + particles.ind_tag] > 0.5)
     {
-      if (particles.data[part_ind * particles.nprop + prop_ind] != 0.0)
-      {
-        particle_exist = true;
-        break;
-      }
+      particle_exist = true;
     }
+
+    // Retrieve particle properties and store in partiles.data
     if (particle_exist)
     {
       partVec position;
@@ -407,16 +420,19 @@ inline ParticleField toParticleField(particle_t particles)
 
       // Store data of current particle
       result.particlePosition.push_back(position);
-      result.particlePosition.push_back(position);
+      result.particleVelocity.push_back(velocity);
       result.particleMass.push_back(particles.data[part_ind * particles.nprop + particles.ind_mass]);
 
       // Increase counter of active particles
       cnt_part++;
     }
-
-    // Store total number of particles
-    result.nrpart = cnt_part;
   }
+
+  // Store total number of particles
+  result.nrpart = cnt_part;
+  
+  std::cout << "Active nr. of particles: " << cnt_part << "\n";
+
   return result;
 }
 
@@ -434,11 +450,14 @@ inline AMRField toAMRField(
   int common_ref = 1000;
   int max_ref = 0;
 
+  // Loop over all blocks
   for (size_t i = 0; i < var.global_num_blocks; ++i) {
+    // Check if we are at a leaf node
     if (grid.node_type[i] != 1) {
       in_reg[i] = false;
       continue;
     }
+    // Check if we are in region of interest
     if (grid.bnd_box[i].max.x < reg_roi[0] || grid.bnd_box[i].min.x > reg_roi[1]) {
       in_reg[i] = false;
       continue;
@@ -501,7 +520,7 @@ inline AMRField toAMRField(
     max_ref = usr_max_level;
   }
 
-  // Replacement parent blocks by children
+  // "Replace" parent blocks by children
   for (size_t ri = 0; ri < max_ref - common_ref; ++ri) {
     for (size_t i = 0; i < var.global_num_blocks; ++i) {
       if (!in_reg[i]) continue;
@@ -537,10 +556,10 @@ inline AMRField toAMRField(
 
   // Length of the sides of the bounding box
   double len_total[3] = {
-    // var.global_num_blocks-1
     grid.bnd_box[bid_last].max.x - grid.bnd_box[bid_first].min.x,
     grid.bnd_box[bid_last].max.y - grid.bnd_box[bid_first].min.y,
-    grid.bnd_box[bid_last].max.z - grid.bnd_box[bid_first].min.z};
+    grid.bnd_box[bid_last].max.z - grid.bnd_box[bid_first].min.z
+  };
 
   std::cout << "Size of simulation domain:\n";
   std::cout << "x\t\ty\t\tz\n";
@@ -585,6 +604,8 @@ inline AMRField toAMRField(
   vox[1] = static_cast<int>(round(len_total[1] / len[1]));
   vox[2] = static_cast<int>(round(len_total[2] / len[2]));
 
+  // Determine the pre-factor to get the correct smallest cell size
+  // when higher refinement is requested than is available in region
   int corr_fac = 1;
   if (max_level < max_ref)
   {
@@ -602,9 +623,6 @@ inline AMRField toAMRField(
   result.domainSize[1] = vox[1] * corr_fac;
   result.domainSize[2] = vox[2] * corr_fac;
 
-
-
-
   std::cout << vox[0]*corr_fac << ' ' << vox[1]*corr_fac << ' ' << vox[2]*corr_fac << '\n';
 
   // Set initial limits of dataset
@@ -612,6 +630,7 @@ inline AMRField toAMRField(
   float min_scalar = FLT_MAX;
 
   // Count the number of leaf blocks
+  // Currently not used
   size_t numLeaves = 0;
   for (size_t i = 0; i < var.global_num_blocks; ++i) {
     if (!in_reg[i]) continue;
@@ -620,8 +639,11 @@ inline AMRField toAMRField(
   }
   
   // This is the slowest part
+  // Map all blocks which are in the region of interest
+  // onto a uniform grid
   for (size_t i = 0; i < var.global_num_blocks; ++i) {
-    // if (grid.node_type[i] == 1) // leaf!
+    // Only perform mapping if block is included
+    // Pre selection takes places above
     if (!in_reg[i]) continue;
     {
       // Project min on vox grid
@@ -636,7 +658,8 @@ inline AMRField toAMRField(
         static_cast<int>(
           round((grid.bnd_box[i].min.y - grid.bnd_box[bid_first].min.y) / len[1] * corr_fac)),
         static_cast<int>(
-          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2] * corr_fac))};
+          round((grid.bnd_box[i].min.z - grid.bnd_box[bid_first].min.z) / len[2] * corr_fac))
+      };
 
       // Bounding box in index reference frame assuming
       // uniform grid at lowest refinement
@@ -648,7 +671,9 @@ inline AMRField toAMRField(
           lower[0], lower[1], lower[2],
           lower[0] + (int)var.nxb * cellsize - 1,
           lower[1] + (int)var.nyb * cellsize - 1,
-          lower[2] + (int)var.nzb * cellsize - 1}};
+          lower[2] + (int)var.nzb * cellsize - 1
+        }
+      };
       
       // Initialise data object 
       BlockData data;
@@ -702,8 +727,7 @@ inline AMRField toAMRField(
 
 struct FlashReader
 {
-  bool open(const char *fileName)
-  {
+  bool open(const char *fileName) {
     if (!H5::H5File::isHdf5(fileName))
       return false;
 
@@ -781,10 +805,10 @@ struct FlashReader
     return {};
   }
 
-  ParticleField getSinkList()
+  ParticleField getSinkList(int nprop=-1)
   {
     try {
-      read_sinks(particle, file);
+      read_sinks(particle, file, nprop);
       return toParticleField(particle);
 
     } catch (H5::DataSpaceIException error) {

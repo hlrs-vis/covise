@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-  const char *pathtemplate = "/home/nuernberger/code/FlashISM/objTest/DwarfGalaxy_hdf5_plt_cnt_0000";
+  const char *pathtemplate = "/home/nuernberger/sims/5e8/DwarfGal_hdf5_plt_cnt_0029";
   char path_fname[1024];
 
   sprintf(path_fname, "%s", pathtemplate);
@@ -34,10 +34,10 @@ int main() {
   auto &dat = data;
   particles = flashReader.getSinkList();
   auto &part = particles;
-  for (size_t i=0; i < 1; ++i)
+  for (size_t i=0; i < 10; ++i)
   {
-    std::cout << dat.domainBounds[i] << "\n";
     std::cout << part.particleMass[i] << "\n";
+    //std::cout << dat.domainBounds[i] << "\n";
   }
 }
 
