@@ -70,7 +70,8 @@ private:
 
     // Particles
     coBooleanParam *pfGetParticles;
-    coIntScalarParam *pfPartProperties;
+    // Removed for now
+    //coIntScalarParam *pfPartProperties;
 
     // Methods:
     virtual int compute(const char *port);

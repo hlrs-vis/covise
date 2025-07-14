@@ -333,8 +333,9 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   pfGetParticles = addBooleanParam("Particles", "Return particle positions at the last output port");
   pfGetParticles->setValue(false);
 
-  pfPartProperties = addInt32Param("NumPartProp", "Number of particle properties (-1 = guessing)");
-  pfPartProperties->setValue(-1);
+  // Removed, now determined using data from the stored scalars
+  //pfPartProperties = addInt32Param("NumPartProp", "Number of particle properties (-1 = guessing)");
+  //pfPartProperties->setValue(-1);
 
   // Region selection
   pfSelectRegion = addBooleanParam("useRegion", "Enable a region selection with xmin, xmax...");
@@ -475,7 +476,7 @@ int coReadFlash::compute(const char *)
         dataOut.push_back(data);
       
         // Check if last channel is already used
-	// when particle data is requested
+        // when particle data is requested
         if (i + 1 == MAX_CHANNELS && retPart)
         {
           std::cout << "Last channel already occupied for a different field\n";
@@ -487,7 +488,21 @@ int coReadFlash::compute(const char *)
     // Store particle if flag is still active
     if (retPart)
     {
-      particles = flashReader.getSinkList(pfPartProperties->getValue());
+      // Read number of particles in list from "integer scalar" field
+      int nr_sink_part = -1;
+      // Loop over all entries within the field
+      for (int i = 0; i < flashReader.scalar_parameters.nr_integers; ++i)
+      {
+        // Convert string for comparison
+        std::string str(flashReader.scalar_parameters.dset_ints[i].name);
+        // Check if keyword exist in current string
+        if (str.find("hs_slcs") != std::string::npos)
+        {
+          // Get number of sink entires
+          nr_sink_part = flashReader.scalar_parameters.dset_ints[i].value;
+        }
+      }
+      particles = flashReader.getSinkList(nr_sink_part);
       particleOut.push_back(particles);
     }
 

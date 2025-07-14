@@ -144,6 +144,131 @@ inline void read_sim_info(sim_info_t &dest, H5::H5File const &file)
   dataset.read(&dest, ct);
 }
 
+
+struct sim_real_t
+{
+  char name[MAX_STRING_LENGTH];
+  double value;
+};
+
+struct sim_bool_t
+{
+  char name[MAX_STRING_LENGTH];
+  int value;
+};
+
+struct sim_ints_t
+{
+  char name[MAX_STRING_LENGTH];
+  int value;
+};
+
+struct set_params_t
+{
+  int nr_integers = 0;
+  int nr_reals = 0;
+  int nr_booleans = 0;
+  const char* name_real;
+  const char* name_bool;
+  const char* name_ints;
+  std::vector<sim_real_t> dset_real;
+  std::vector<sim_ints_t> dset_ints;
+  std::vector<sim_bool_t> dset_bool;
+};
+
+// Read Runtime Parameters and Scalars
+inline void read_params(
+  set_params_t &parameters,
+  H5::H5File const &file
+)
+{
+  // Initialize the dataset and dataspace
+  H5::DataSet dataset;
+  H5::DataSpace dataspace;
+  H5::StrType str80(H5::PredType::C_S1, 79);
+
+  // Reals
+  // Open dataset
+  dataset = file.openDataSet(parameters.name_real);
+  // Get dataspace
+  dataspace = dataset.getSpace();
+  // Get number of entries
+  int npoints_r = dataspace.getSimpleExtentNpoints();
+  // Create compound type of
+  // name and value
+  H5::CompType ct_r(sizeof(sim_real_t));
+  ct_r.insertMember("name", 0, str80);
+  ct_r.insertMember("value", 80, H5::PredType::NATIVE_DOUBLE);
+  // Reshape vector to confrom to number of entries
+  parameters.dset_real.resize(npoints_r);
+  parameters.nr_reals = npoints_r;
+  // Read dataset into data array
+  dataset.read(parameters.dset_real.data(), ct_r, dataspace, dataspace);
+
+  /*
+  std::cout << npoints_r << "\n\n";
+  for (int i=0; i < npoints_r; ++i)
+  {
+    std::cout << i << "\t\t|" << parameters.dset_real[i].name << "|" << parameters.dset_real[i].value << "\n";
+  }
+  */
+
+  // Integers
+  // Create compound type of
+  // name and value
+  H5::CompType ct_i(sizeof(sim_ints_t));
+  ct_i.insertMember("name", 0, str80);
+  ct_i.insertMember("value", 80, H5::PredType::NATIVE_INT32);
+
+  // Open dataset
+  dataset = file.openDataSet(parameters.name_ints);
+  // Get dataspace
+  dataspace = dataset.getSpace();
+  // Get number of entries
+  int npoints_i = dataspace.getSimpleExtentNpoints();
+  // Reshape vector to confrom to number of entries
+  parameters.dset_ints.resize(npoints_i);
+  parameters.nr_integers = npoints_i;
+  // Read dataset into data array
+  dataset.read(parameters.dset_ints.data(), ct_i);
+
+  /*
+  std::cout << npoints_i << "\n\n";
+  for (int i=0; i < npoints_i; ++i)
+  {
+    std::cout << i << "\t\t|" << parameters.dset_ints[i].name << "|" << parameters.dset_ints[i].value << "\n";
+  }
+  */
+
+  // Booleans
+  // Create compound type of
+  // name and value
+  H5::CompType ct_b(sizeof(sim_bool_t));
+  ct_b.insertMember("name", 0, str80);
+  ct_b.insertMember("value", 80, H5::PredType::NATIVE_INT32);
+
+  // Open dataset
+  dataset = file.openDataSet(parameters.name_bool);
+  // Get dataspace
+  dataspace = dataset.getSpace();
+  // Get number of entries
+  int npoints_b = dataspace.getSimpleExtentNpoints();
+  // Reshape vector to confrom to number of entries
+  parameters.dset_bool.resize(npoints_b);
+  parameters.nr_booleans = npoints_b;
+  // Read dataset into data array
+  dataset.read(parameters.dset_bool.data(), ct_b);
+
+  /*
+  std::cout << npoints_b << "\n\n";
+  for (int i=0; i < npoints_b; ++i)
+  {
+    std::cout << i << "\t\t|" << parameters.dset_bool[i].name << "|" << parameters.dset_bool[i].value << "\n";
+  }
+  */
+  
+}
+
 // Read grid data
 inline void read_grid(grid_t &dest, H5::H5File const &file)
 {
@@ -737,6 +862,25 @@ struct FlashReader
       sim_info_t sim_info;
       read_sim_info(sim_info, file);
 
+      // Read runtime parameter and scalar information
+      std::cout << "Reading runtime parameters\n";
+      rp_parameters.name_bool = "logical runtime parameters";
+      rp_parameters.name_real = "real runtime parameters";
+      rp_parameters.name_ints = "integer runtime parameters";
+      read_params(rp_parameters, file);
+      std::cout << "Found " << rp_parameters.nr_integers << " integer runtime parameters\n";
+      std::cout << "Found " << rp_parameters.nr_reals << " real runtime parameters\n";
+      std::cout << "Found " << rp_parameters.nr_booleans << " logical runtime parameters\n";
+
+      std::cout << "Reading scalars\n";
+      scalar_parameters.name_bool = "logical scalars";
+      scalar_parameters.name_real = "real scalars";
+      scalar_parameters.name_ints = "integer scalars";
+      read_params(scalar_parameters, file);
+      std::cout << "Found " << scalar_parameters.nr_integers << " integer scalars\n";
+      std::cout << "Found " << scalar_parameters.nr_reals << " real scalars\n";
+      std::cout << "Found " << scalar_parameters.nr_booleans << " logical scalars\n";
+
       // Read grid data
       read_grid(grid, file);
 
@@ -852,6 +996,11 @@ struct FlashReader
   H5::H5File file;
   // Derived field names
   std::vector<std::string> fieldNames;
+
+  // Scalar values
+  set_params_t rp_parameters;
+  set_params_t scalar_parameters;
+ 
   // Grid structure
   grid_t grid;
   // Particle structure
