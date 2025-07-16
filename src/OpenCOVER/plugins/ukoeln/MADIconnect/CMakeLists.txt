@@ -1,6 +1,3 @@
-USING(Qt)
-
-find_package(Qt5 COMPONENTS Network REQUIRED)
 
 SET(HEADERS
    MADIconnect.h
