@@ -156,7 +156,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
   typedef std::vector<building_const_ptr> const_buildings;
   typedef std::map<energy::Device::ptr, building_const_ptr> DeviceBuildingMap;
 
-  typedef NameMapVector<float> FloatMap;
+//   typedef NameMapVector<float> FloatMap;
   typedef NameMapVector<energy::DeviceSensor::ptr> DeviceList;
 
   /* #endregion */
@@ -285,23 +285,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   /* #region POWERGRID */
   void initPowerGridStreams();
-  std::unique_ptr<FloatMap> getInlfuxDataFromCSV(CSVStream &stream, float &max,
-                                                 float &min, float &sum,
-                                                 int &timesteps);
-
-  struct StaticPowerData {
-    std::string name;
-    int id;
-    float val2019;
-    float val2023;
-    float average;
-    std::string citygml_id;
-  };
-
-  struct StaticPowerCampusData {
-    std::string citygml_id;
-    float yearlyConsumption;
-  };
 
   std::vector<grid::PointsMap> createPowerGridPoints(
       CSVStream &stream, size_t &numPoints, const float &sphereRadius,
