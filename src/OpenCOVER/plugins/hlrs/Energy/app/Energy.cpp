@@ -239,7 +239,6 @@ EnergyPlugin::EnergyPlugin()
       m_grid(new osg::Switch()),
       m_sequenceList(new osg::Sequence()),
       m_Energy(new osg::MatrixTransform()),
-      //   m_cityGML(new osg::Group()),
       m_energyGrids({EnergySimulation{"PowerGrid", EnergyGridType::PowerGrid},
                      EnergySimulation{"HeatingGrid", EnergyGridType::HeatingGrid}}) {
   // need to save the config on exit => will only be saved when COVER is closed
@@ -298,15 +297,6 @@ std::string EnergyPlugin::getScenarioName(Scenario scenario) {
 EnergyPlugin::~EnergyPlugin() {
   auto root = cover->getObjectsRoot();
 
-  //   if (m_cityGML) {
-  //     restoreCityGMLDefaultStatesets();
-  //     for (unsigned int i = 0; i < m_cityGML->getNumChildren(); ++i) {
-  //       auto child = m_cityGML->getChild(i);
-  //       root->addChild(child);
-  //     }
-  //     CoreUtils::osgUtils::deleteChildrenFromOtherGroup(m_cityGML, root);
-  //   }
-
   if (m_Energy) {
     root->removeChild(m_Energy.get());
   }
@@ -322,7 +312,6 @@ void EnergyPlugin::initUI() {
   initOverview();
   initHistoricUI();
   initEnnovatisUI();
-  //   initCityGMLUI();
   initSimUI();
 }
 
@@ -365,11 +354,6 @@ void EnergyPlugin::preFrame() {
       hudPos.setNumHuds(numHuds++);
       colorMapMenu.selector->setHudPosition(hudPos);
     }
-    // auto &colorMapSelector = energyGrid.colorMapRegistry[selectedScalar];
-    // if (colorMapSelector && colorMapSelector->hudVisible()) {
-    //   hudPos.setNumHuds(numHuds++);
-    //   colorMapSelector->setHudPosition(hudPos);
-    // }
   }
 }
 
@@ -1485,7 +1469,6 @@ std::vector<EnergyPlugin::IDLookupTable> EnergyPlugin::retrieveBusNameIdMapping(
   CSVStream::CSVRow bus;
   std::string busName(""), type("");
   int id = 0;
-  //   while (stream >> bus) {
   while (stream.readNextRow(bus)) {
     ACCESS_CSV_ROW(bus, "name", busName);
     ACCESS_CSV_ROW(bus, "id", id);
@@ -1539,7 +1522,6 @@ std::unique_ptr<grid::PointDataList> EnergyPlugin::getAdditionalPowerGridPointDa
     std::map<std::string, uint> duplicate{};
     CSVStream::CSVRow row;
     // row
-    // while (tableStream >> row) {
     while (tableStream.readNextRow(row)) {
       grid::Data data;
       // column
@@ -1580,7 +1562,6 @@ std::vector<grid::PointsMap> EnergyPlugin::createPowerGridPoints(
   // TODO: need to be adjusted
   auto additionalData = getAdditionalPowerGridPointData(numPoints);
 
-  //   while (stream >> point) {
   while (stream.readNextRow(point)) {
     ACCESS_CSV_ROW(point, "x", lon);
     ACCESS_CSV_ROW(point, "y", lat);
@@ -1795,8 +1776,6 @@ void EnergyPlugin::buildPowerGrid() {
   using grid::Point;
   if (m_powerGridStreams.empty()) return;
 
-  // constexpr float connectionsRadius(0.5f);
-  // constexpr float sphereRadius(1.0f);
   constexpr float connectionsRadius(1.0f);
   constexpr float sphereRadius(2.0f);
   size_t numPoints(0);
