@@ -15,6 +15,7 @@ endif()
 
 SET(HEADERS
     app/Energy.h
+    app/CityGMLSystem.h
     app/ui/historic/Device.h
     app/ui/historic/DeviceSensor.h
     app/ui/ennovatis/EnnovatisDevice.h
@@ -33,6 +34,7 @@ SET(HEADERS
 )
 SET(SOURCES
     app/Energy.cpp
+    app/CityGMLSystem.cpp
     app/ui/historic/Device.cpp
     app/ui/historic/DeviceSensor.cpp
     app/ui/ennovatis/EnnovatisDevice.cpp

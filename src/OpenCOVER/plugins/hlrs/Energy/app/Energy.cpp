@@ -1,23 +1,23 @@
 /****************************************************************************\
- **                                                          (C)2024 HLRS  **
- **                                                                        **
- ** Description: OpenCOVER Plug-In for reading building energy data        **
- **                                                                        **
- **                                                                        **
- ** Author: Leyla Kern, Marko Djuric                                       **
- **                                                                        **
- ** TODO:                                                                  **
- **  [ ] fetch lat lon from googlemaps                                     **
- **  [x] make REST lib independent from ennovatis general use              **
- **  [x] update via REST in background                                     **
- **                                                                        **
- ** History:                                                               **
- **  2024  v1                                                              **
- **  Marko Djuric 02.2024: add ennovatis client                            **
- **  Marko Djuric 10.2024: add citygml interface                           **
- **                                                                        **
- **  TODO: mapdrap for z coord of EnergyGrids                              **
- **                                                                        **
+**                                                          (C)2024 HLRS  **
+**                                                                        **
+** Description: OpenCOVER Plug-In for reading building energy data        **
+**                                                                        **
+**                                                                        **
+** Author: Leyla Kern, Marko Djuric                                       **
+**                                                                        **
+** TODO:                                                                  **
+**  [ ] fetch lat lon from googlemaps                                     **
+**  [x] make REST lib independent from ennovatis general use              **
+**  [x] update via REST in background                                     **
+**                                                                        **
+** History:                                                               **
+**  2024  v1                                                              **
+**  Marko Djuric 02.2024: add ennovatis client                            **
+**  Marko Djuric 10.2024: add citygml interface                           **
+**                                                                        **
+**  TODO: mapdrap for z coord of EnergyGrids                              **
+**                                                                        **
 \****************************************************************************/
 
 // NEEDS TO BE INCLUDED FIRST
@@ -29,13 +29,14 @@
 // includes. In our case before everything we can resolve the issue.
 #include <lib/apache/arrow.h>
 #include "Energy.h"
-#include "lib/core/simulation/simulation.h"
+#include "CityGMLSystem.h"
 #include "ui/historic/Device.h"
 #include "ui/ennovatis/EnnovatisDevice.h"
 #include "ui/ennovatis/EnnovatisDeviceSensor.h"
 #include <build_options.h>
 #include <config/CoviseConfig.h>
 #include <util/string_util.h>
+
 // COVER
 #include <PluginUtil/colors/coColorMap.h>
 
@@ -102,13 +103,13 @@
 #include <app/presentation/TxtInfoboard.h>
 
 // core
-// #include <lib/core/simulation/grid.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/simulation/heating.h>
 #include <lib/core/utils/osgUtils.h>
 #include <lib/core/constants.h>
 #include <lib/core/simulation/object.h>
 #include <lib/core/simulation/power.h>
+#include <lib/core/simulation/simulation.h>
 
 // Ennovatis
 #include <lib/ennovatis/building.h>
@@ -238,23 +239,9 @@ EnergyPlugin::EnergyPlugin()
       m_grid(new osg::Switch()),
       m_sequenceList(new osg::Sequence()),
       m_Energy(new osg::MatrixTransform()),
-      m_cityGML(new osg::Group()),
-      m_energyGrids({
-          //   EnergySimulation{"PowerGrid", "vm_pu", "V",
-          //   EnergyGridType::PowerGrid},
-          //   EnergySimulation{"HeatingGrid", "mass_flow", "kg/s",
-          //                    EnergyGridType::HeatingGrid},
-          //   EnergySimulation{"PowerGridSonder", "Leistung", "kWh",
-          //                    EnergyGridType::PowerGridSonder},
-          EnergySimulation{"PowerGrid", EnergyGridType::PowerGrid},
-          //   EnergySimulation{"status_quo", EnergyGridType::PowerGrid},
-          //   EnergySimulation{"future_ev", EnergyGridType::PowerGrid},
-          //   EnergySimulation{"future_ev_pv", EnergyGridType::PowerGrid},
-          EnergySimulation{"HeatingGrid", EnergyGridType::HeatingGrid}
-          //   EnergySimulation{"PowerGridSonder", EnergyGridType::PowerGridSonder},
-          // EnergyGrid{"CoolingGrid", "mass_flow", "kg/s", EnergyGrids::CoolingGrid,
-          // Components::Kaelte},
-      }) {
+      //   m_cityGML(new osg::Group()),
+      m_energyGrids({EnergySimulation{"PowerGrid", EnergyGridType::PowerGrid},
+                     EnergySimulation{"HeatingGrid", EnergyGridType::HeatingGrid}}) {
   // need to save the config on exit => will only be saved when COVER is closed
   // correctly via q or closing the window
 
@@ -267,7 +254,7 @@ EnergyPlugin::EnergyPlugin()
 
   m_sequenceList->setName("DB");
   m_ennovatis->setName("Ennovatis");
-  m_cityGML->setName("CityGML");
+  //   m_cityGML->setName("CityGML");
 
   m_Energy->setName("Energy");
   cover->getObjectsRoot()->addChild(m_Energy);
@@ -275,7 +262,7 @@ EnergyPlugin::EnergyPlugin()
   m_switch->setName("Switch");
   m_switch->addChild(m_sequenceList);
   m_switch->addChild(m_ennovatis);
-  m_switch->addChild(m_cityGML);
+  //   m_switch->addChild(m_cityGML);
 
   m_grid->setName("EnergyGrids");
 
@@ -311,14 +298,14 @@ std::string EnergyPlugin::getScenarioName(Scenario scenario) {
 EnergyPlugin::~EnergyPlugin() {
   auto root = cover->getObjectsRoot();
 
-  if (m_cityGML) {
-    restoreCityGMLDefaultStatesets();
-    for (unsigned int i = 0; i < m_cityGML->getNumChildren(); ++i) {
-      auto child = m_cityGML->getChild(i);
-      root->addChild(child);
-    }
-    CoreUtils::osgUtils::deleteChildrenFromOtherGroup(m_cityGML, root);
-  }
+  //   if (m_cityGML) {
+  //     restoreCityGMLDefaultStatesets();
+  //     for (unsigned int i = 0; i < m_cityGML->getNumChildren(); ++i) {
+  //       auto child = m_cityGML->getChild(i);
+  //       root->addChild(child);
+  //     }
+  //     CoreUtils::osgUtils::deleteChildrenFromOtherGroup(m_cityGML, root);
+  //   }
 
   if (m_Energy) {
     root->removeChild(m_Energy.get());
@@ -335,7 +322,7 @@ void EnergyPlugin::initUI() {
   initOverview();
   initHistoricUI();
   initEnnovatisUI();
-  initCityGMLUI();
+  //   initCityGMLUI();
   initSimUI();
 }
 
@@ -442,20 +429,23 @@ bool EnergyPlugin::update() {
 
   for (auto &sensor : m_ennovatisDevicesSensors) sensor->update();
 
-  for (auto &[name, sensor] : m_cityGMLObjs) sensor->update();
-
   for (auto &energyGrid : m_energyGrids) {
     if (!energyGrid.grid) continue;
     energyGrid.grid->update();
   }
+
+  for (auto &system : m_systems)
+    if (system) system->update();
 
   return false;
 }
 
 void EnergyPlugin::setTimestep(int t) {
   m_sequenceList->setValue(t);
+  for (auto &system : m_systems)
+    if (system) system->updateTime(t);
+
   for (auto &sensor : m_ennovatisDevicesSensors) sensor->setTimestep(t);
-  for (auto &[_, sensor] : m_cityGMLObjs) sensor->updateTime(t);
 
   // this is a workaround for the fact that the energy grids are added in the same
   // order as they appear in the the constructor
@@ -511,619 +501,24 @@ bool EnergyPlugin::init() {
   initEnnovatisDevices();
   switchTo(m_sequenceList, m_switch);
   initGrid();
+
+  initSystems();
   return true;
 }
 
-EnergyPlugin::CSVStreamMap EnergyPlugin::getCSVStreams(
-    const boost::filesystem::path &dirPath) {
-  auto csv_files = CSVStreamMap();
-  for (auto &entry : fs::directory_iterator(dirPath)) {
-    if (fs::is_regular_file(entry)) {
-      if (entry.path().extension() == ".csv") {
-        auto path = entry.path();
-        csv_files.emplace(path.stem().string(), path.string());
-      }
-    }
+void EnergyPlugin::initSystems() {
+  m_systems[getSystemIndex(System::CityGML)] = std::make_unique<CityGMLSystem>(
+      this, m_EnergyTab, cover->getObjectsRoot(), m_switch);
+
+  for (auto &system : m_systems) {
+    system->init();
+    system->enable(true);
   }
-  return csv_files;
 }
 
 void EnergyPlugin::setAnimationTimesteps(size_t maxTimesteps, const void *who) {
   if (maxTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
     opencover::coVRAnimationManager::instance()->setNumTimesteps(maxTimesteps, who);
-}
-/* #endregion */
-
-/* #region CITYGML */
-void EnergyPlugin::initCityGMLUI() {
-  checkEnergyTab();
-  m_cityGMLMenu = new ui::Menu(m_EnergyTab, "CityGML");
-  m_cityGMLEnableInfluxCSV = new ui::Button(m_cityGMLMenu, "InfluxCSV");
-  m_cityGMLEnableInfluxCSV->setCallback([this](bool on) {
-    if (on) {
-      m_staticPower->setState(false);
-      m_staticCampusPower->setState(false);
-      m_cityGMLEnableInfluxArrow->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_cityGMLEnableInfluxArrow = new ui::Button(m_cityGMLMenu, "InfluxArrow");
-  m_cityGMLEnableInfluxArrow->setCallback([this](bool on) {
-    if (on) {
-      m_staticPower->setState(false);
-      m_staticCampusPower->setState(false);
-      m_cityGMLEnableInfluxCSV->setState(false);
-    }
-    enableCityGML(on);
-  });
-  m_PVEnable = new ui::Button(m_cityGMLMenu, "PV");
-  m_PVEnable->setText("PV");
-  m_PVEnable->setState(true);
-  m_PVEnable->setCallback([this](bool on) {
-    if (m_pvGroup == nullptr) {
-      std::cerr << "Error: No PV group found. Please enable GML first." << std::endl;
-      return;
-    }
-    // TODO: add a check if the group is already added and make sure its safe to
-    // remove it
-    osg::ref_ptr<osg::MatrixTransform> gmlRoot =
-        dynamic_cast<osg::MatrixTransform *>(m_cityGML->getChild(0));
-    if (gmlRoot->containsNode(m_pvGroup)) {
-      gmlRoot->removeChild(m_pvGroup);
-    } else {
-      gmlRoot->addChild(m_pvGroup);
-    }
-  });
-
-  m_staticPower = new ui::Button(m_cityGMLMenu, "Static");
-  m_staticPower->setText("StaticPower");
-  m_staticPower->setState(false);
-  m_staticPower->setCallback([&](bool on) {
-    if (on) {
-      m_cityGMLEnableInfluxCSV->setState(false);
-      m_cityGMLEnableInfluxArrow->setState(false);
-      m_staticCampusPower->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_staticCampusPower = new ui::Button(m_cityGMLMenu, "StaticCampus");
-  m_staticCampusPower->setText("StaticPowerCampus");
-  m_staticCampusPower->setState(false);
-  m_staticCampusPower->setCallback([&](bool on) {
-    if (on) {
-      m_cityGMLEnableInfluxCSV->setState(false);
-      m_cityGMLEnableInfluxArrow->setState(false);
-      m_staticPower->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_cityGMLX = new ui::EditField(m_cityGMLMenu, "X");
-  m_cityGMLY = new ui::EditField(m_cityGMLMenu, "Y");
-  m_cityGMLZ = new ui::EditField(m_cityGMLMenu, "Z");
-  auto x = configFloat("CityGML", "X", 0.0);
-  auto y = configFloat("CityGML", "Y", 0.0);
-  auto Z = configFloat("CityGML", "Z", 0.0);
-  m_cityGMLX->setValue(x->value());
-  m_cityGMLY->setValue(y->value());
-  m_cityGMLZ->setValue(Z->value());
-  auto updateFunction = [this](auto &value) {
-    if (!isActiv(m_switch, m_cityGML)) return;
-    auto translation = getCityGMLTranslation();
-    transformCityGML(translation, {});
-  };
-  m_cityGMLX->setCallback(updateFunction);
-  m_cityGMLY->setCallback(updateFunction);
-  m_cityGMLZ->setCallback(updateFunction);
-}
-
-void EnergyPlugin::initCityGMLColorMap() {
-  auto menu = new ui::Menu(m_simulationMenu, "CityGml_grid");
-
-  m_cityGmlColorMap = std::make_unique<opencover::CoverColorBar>(menu);
-  m_cityGmlColorMap->setSpecies("Leistung");
-  m_cityGmlColorMap->setUnit("kWh");
-  m_cityGmlColorMap->setCallback([this](const opencover::ColorMap &cm) {
-    if (isActiv(m_switch, m_cityGML)) {
-      enableCityGML(false, false);
-      enableCityGML(true, false);
-    }
-  });
-  m_cityGmlColorMap->setName("CityGML");
-}
-
-void EnergyPlugin::processPVRow(const CSVStream::CSVRow &row,
-                                std::map<std::string, PVData> &pvDataMap,
-                                float &maxPVIntensity) {
-  PVData pvData;
-  ACCESS_CSV_ROW(row, "gml_id", pvData.cityGMLID);
-
-  if (m_cityGMLObjs.find(pvData.cityGMLID) == m_cityGMLObjs.end()) {
-    std::cerr << "Error: Could not find cityGML object with ID " << pvData.cityGMLID
-              << std::endl;
-    return;
-  }
-
-  ACCESS_CSV_ROW(row, "energy_yearly_kwh_max", pvData.energyYearlyKWhMax);
-  ACCESS_CSV_ROW(row, "pv_area_qm", pvData.pvAreaQm);
-  ACCESS_CSV_ROW(row, "area_qm", pvData.area);
-  //   ACCESS_CSV_ROW(row, "co2savings", pvData.co2savings);
-  ACCESS_CSV_ROW(row, "n_modules_max", pvData.numPanelsMax);
-
-  if (pvData.pvAreaQm == 0) {
-    std::cerr << "Error: pvAreaQm is 0 for cityGML object with ID "
-              << pvData.cityGMLID << std::endl;
-    return;
-  }
-
-  maxPVIntensity =
-      //   std::max(pvData.energyYearlyKWhMax / pvData.pvAreaQm, maxPVIntensity);
-      std::max(pvData.energyYearlyKWhMax / pvData.area, maxPVIntensity);
-  pvDataMap.insert({pvData.cityGMLID, pvData});
-}
-
-std::pair<std::map<std::string, PVData>, float> EnergyPlugin::loadPVData(
-    CSVStream &pvStream) {
-  CSVStream::CSVRow row;
-  std::map<std::string, PVData> pvDataMap;
-  float maxPVIntensity = 0;
-
-  //   while (pvStream >> row) {
-  while (pvStream.readNextRow(row)) {
-    processPVRow(row, pvDataMap, maxPVIntensity);
-  }
-
-  return {pvDataMap, maxPVIntensity};
-}
-
-osg::ref_ptr<osg::Node> EnergyPlugin::readPVModel(
-    const fs::path &modelDir, const std::string &nameInModelDir) {
-  osg::ref_ptr<osg::Node> masterPanel;
-  for (auto &file : fs::directory_iterator(modelDir)) {
-    if (fs::is_regular_file(file) && file.path().extension() == ".obj") {
-      auto path = file.path();
-      auto name = path.stem().string();
-      if (name.find(nameInModelDir) == std::string::npos) continue;
-      osg::ref_ptr<osgDB::Options> options = new osgDB::Options;
-      options->setOptionString("DIFFUSE=0 SPECULAR=1 SPECULAR_EXPONENT=2 OPACITY=3");
-
-      masterPanel = CoreUtils::osgUtils::readFileViaOSGDB(path.string(), options);
-      if (!masterPanel) {
-        std::cerr << "Error: Could not load solar panel model from " << path
-                  << std::endl;
-        continue;
-      }
-      break;
-    }
-  }
-  return masterPanel;
-}
-
-SolarPanel EnergyPlugin::createSolarPanel(
-    const std::string &name, osg::ref_ptr<osg::Group> parent,
-    const std::vector<CoreUtils::osgUtils::instancing::GeometryData>
-        &masterGeometryData,
-    const osg::Matrix &matrix, const osg::Vec4 &colorIntensity) {
-  using namespace CoreUtils::osgUtils;
-  auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
-  solarPanelInstance->setName(name);
-
-  SolarPanel solarPanel(solarPanelInstance);
-  solarPanel.updateColor(colorIntensity);
-  parent->addChild(solarPanelInstance);
-  return solarPanel;
-}
-
-void EnergyPlugin::processSolarPanelDrawable(SolarPanelList &solarPanels,
-                                             const SolarPanelConfig &config) {
-  if (!config.valid()) {
-    std::cerr << "Error: Invalid SolarPanelConfig." << std::endl;
-    return;
-  }
-  auto bb = config.geode->getBoundingBox();
-  auto minBB = bb._min;
-  auto maxBB = bb._max;
-  auto roofWidth = maxBB.x() - minBB.x();
-  auto roofHeight = maxBB.y() - minBB.y();
-  auto roofCenter = bb.center();
-  auto z = maxBB.z() + config.zOffset;
-
-  osg::ref_ptr<osg::Group> pvPanelsTransform = new osg::Group();
-  pvPanelsTransform->setName("PVPanels");
-
-  int dividedBy = 10;
-  int maxPanels = config.numMaxPanels / dividedBy;
-  if (maxPanels == 0) maxPanels = 1;
-
-  int numPanelsPerRow = static_cast<int>(std::sqrt(maxPanels));
-  int numPanelRows = (maxPanels + numPanelsPerRow - 1) / numPanelsPerRow;
-
-  float availableWidthForSpacingX =
-      roofWidth - (numPanelsPerRow * config.panelWidth);
-  float availableHeightForSpacingY =
-      roofHeight - (numPanelRows * config.panelHeight);
-
-  float spacingX =
-      (numPanelsPerRow > 1)
-          ? std::min(0.5f, availableWidthForSpacingX / (numPanelsPerRow - 1))
-          : 0.0f;
-  float spacingY =
-      (numPanelRows > 1)
-          ? std::min(0.5f, availableHeightForSpacingY / (numPanelRows - 1))
-          : 0.0f;
-
-  float totalWidthOfPanelsX =
-      (numPanelsPerRow * config.panelWidth) + ((numPanelsPerRow - 1) * spacingX);
-  float totalHeightOfPanelsY =
-      (numPanelRows * config.panelHeight) + ((numPanelRows - 1) * spacingY);
-
-  auto startX =
-      roofCenter.x() - (totalWidthOfPanelsX / 2.0f) + (config.panelWidth / 2.0f);
-  auto startY =
-      roofCenter.y() - (totalHeightOfPanelsY / 2.0f) + (config.panelHeight / 2.0f);
-
-  for (int i = 0; i < maxPanels; ++i) {
-    int row = i / numPanelsPerRow;
-    int col = i % numPanelsPerRow;
-
-    auto x = startX + (col * (config.panelWidth + spacingX));
-    auto y = startY + (row * (config.panelHeight + spacingY));
-
-    auto position = osg::Vec3(x, y, z);
-    osg::Matrix matrix = config.rotation * osg::Matrix::translate(position);
-    auto solarPanel =
-        createSolarPanel("SolarPanel_" + std::to_string(i), pvPanelsTransform,
-                         config.masterGeometryData, matrix, config.colorIntensity);
-    solarPanels.push_back(std::make_unique<SolarPanel>(solarPanel));
-  }
-
-  config.parent->addChild(pvPanelsTransform);
-}
-
-void EnergyPlugin::processSolarPanelDrawables(
-    const PVData &data, const std::vector<osg::ref_ptr<osg::Node>> drawables,
-    SolarPanelList &solarPanels, SolarPanelConfig &config) {
-  for (auto drawable : drawables) {
-    const auto &name = drawable->getName();
-    if (name.find("RoofSurface") == std::string::npos) {
-      continue;
-    }
-
-    // osg::ref_ptr<osg::Geode> geode = drawable->asGeode();
-    // core::utils::color::overrideGeodeColor(geode, config.colorIntensity);
-
-    if (data.numPanelsMax == 0) continue;
-    config.numMaxPanels = data.numPanelsMax;
-    config.geode = drawable->asGeode();
-    if (!config.geode) {
-      std::cerr << "Error: Drawable is not a Geode." << std::endl;
-      continue;
-    }
-    processSolarPanelDrawable(m_solarPanels, config);
-  }
-}
-
-void EnergyPlugin::processPVDataMap(
-    const std::vector<CoreUtils::osgUtils::instancing::GeometryData>
-        &masterGeometryData,
-    const std::map<std::string, PVData> &pvDataMap, float maxPVIntensity) {
-  using namespace CoreUtils::osgUtils;
-
-  if (m_cityGMLObjs.empty()) {
-    std::cerr << "Error: No cityGML objects found." << std::endl;
-    return;
-  }
-
-  m_pvGroup = new osg::Group();
-  m_pvGroup->setName("PVPanels");
-
-  osg::ref_ptr<osg::Group> gmlRoot = m_cityGML->getChild(0)->asGroup();
-  if (gmlRoot) {
-    gmlRoot->addChild(m_pvGroup);
-  } else {
-    std::cerr << "Error: m_cityGML->getChild(0) is not a valid group." << std::endl;
-    return;
-  }
-
-  m_solarPanels = SolarPanelList();
-  // Rotate the solar panel by 90 degrees around the Z-axis to align it with the
-  // desired orientation.
-  auto rotationZ = osg::Matrix::rotate(osg::DegreesToRadians(90.0f), 0, 0, 1);
-  auto rotationX = osg::Matrix::rotate(osg::DegreesToRadians(45.0f), 1, 0, 0);
-  SolarPanelConfig config;
-  config.masterGeometryData = masterGeometryData;
-  config.rotation = rotationZ * rotationX;
-  config.parent = m_pvGroup;
-  // panel is 1.7m x 1.0m x 0.4m
-  config.panelWidth = 1.0f;
-  config.panelHeight = 1.7f;
-  config.zOffset = sin(osg::PI / 4) * config.panelHeight;
-
-  for (const auto &[id, data] : pvDataMap) {
-    try {
-      auto &cityGMLObj = m_cityGMLObjs.at(id);
-      config.colorIntensity = CoreUtils::color::getTrafficLightColor(
-          data.energyYearlyKWhMax / data.area, maxPVIntensity);
-      processSolarPanelDrawables(data, cityGMLObj->getDrawables(), m_solarPanels,
-                                 config);
-
-    } catch (const std::out_of_range &) {
-      std::cerr << "Error: Could not find cityGML object with ID " << id
-                << " in m_cityGMLObjs." << std::endl;
-      continue;
-    }
-  }
-}
-
-void EnergyPlugin::initPV(osg::ref_ptr<osg::Node> masterPanel,
-                          const std::map<std::string, PVData> &pvDataMap,
-                          float maxPVIntensity) {
-  using namespace CoreUtils::osgUtils;
-
-  // for only textured geometry data
-  auto masterGeometryData = instancing::extractAllGeometryData(masterPanel);
-  if (masterGeometryData.empty()) {
-    std::cerr << "Error: No geometry data found in the solar panel model."
-              << std::endl;
-    return;
-  }
-
-  processPVDataMap(masterGeometryData, pvDataMap, maxPVIntensity);
-}
-
-void EnergyPlugin::addSolarPanelsToCityGML(const fs::path &dirPath) {
-  if (!fs::exists(dirPath)) return;
-
-  auto pvDir = configString("Simulation", "pvDir", "default")->value();
-  fs::path pvDirPath(pvDir);
-  if (!fs::exists(pvDirPath)) {
-    std::cerr << "Error: PV directory does not exist: " << pvDir << std::endl;
-    return;
-  }
-
-  auto pvStreams = getCSVStreams(pvDirPath);
-  auto it = pvStreams.find("pv");
-  if (it == pvStreams.end()) {
-    std::cerr << "Error: Could not find PV data in " << pvDir << std::endl;
-    return;
-  }
-
-  CSVStream &pvStream = it->second;
-  if (!pvStream) {
-    std::cerr << "Error: Could not load solar panel data from PV stream."
-              << std::endl;
-    return;
-  }
-
-  auto [pvDataMap, maxPVIntensity] = loadPVData(pvStream);
-
-  auto masterPanel = readPVModel(dirPath, "solarpanel_1k_resized");
-
-  if (!masterPanel) {
-    std::cerr << "Error: Could not load solar panel model. Make sure to define the "
-                 "correct 3DModelDir in EnergyCampus.toml."
-              << std::endl;
-    return;
-  }
-  initPV(masterPanel, pvDataMap, maxPVIntensity);
-}
-
-void EnergyPlugin::transformCityGML(const osg::Vec3 &translation,
-                                    const osg::Quat &rotation,
-                                    const osg::Vec3 &scale) {
-  assert(m_cityGML && "CityGML group is not initialized.");
-  if (m_cityGML->getNumChildren() == 0) {
-    std::cout << "No CityGML objects to transform." << std::endl;
-    return;
-  }
-  for (unsigned int i = 0; i < m_cityGML->getNumChildren(); ++i) {
-    osg::ref_ptr<osg::Node> child = m_cityGML->getChild(i);
-    if (auto mt = dynamic_cast<osg::MatrixTransform *>(child.get())) {
-      osg::Matrix matrix = osg::Matrix::translate(translation) *
-                           osg::Matrix::rotate(rotation) * osg::Matrix::scale(scale);
-      mt->setMatrix(matrix);
-    } else {
-      std::cerr << "Child is not a MatrixTransform." << std::endl;
-    }
-  }
-}
-
-osg::Vec3 EnergyPlugin::getCityGMLTranslation() const {
-  return osg::Vec3(m_cityGMLX->number(), m_cityGMLY->number(), m_cityGMLZ->number());
-}
-
-auto EnergyPlugin::readStaticCampusData(CSVStream &stream, float &max, float &min,
-                                        float &sum) {
-  std::vector<StaticPowerCampusData> yearlyValues;
-  if (!stream || stream.getHeader().size() < 1) return yearlyValues;
-  CSVStream::CSVRow row;
-  while (stream.readNextRow(row)) {
-    StaticPowerCampusData data;
-    ACCESS_CSV_ROW(row, "gml_id", data.citygml_id);
-    ACCESS_CSV_ROW(row, "energy_mwh", data.yearlyConsumption);
-
-    max = std::max(max, data.yearlyConsumption);
-
-    if (min == -1) {
-      min = data.yearlyConsumption;
-    }
-    min = std::min(min, data.yearlyConsumption);
-
-    yearlyValues.push_back(data);
-  }
-  return yearlyValues;
-}
-
-void EnergyPlugin::applyStaticDataCampusToCityGML(const std::string &filePath,
-                                                  bool updateColorMap) {
-  if (m_cityGMLObjs.empty()) return;
-  if (!fs::exists(filePath)) return;
-  auto csvStream = CSVStream(filePath);
-  float max = 0, min = -1;
-  float sum = 0;
-
-  auto values = readStaticCampusData(csvStream, max, min, sum);
-
-  //   max = 400.00f;
-  if (updateColorMap) {
-    m_cityGmlColorMap->setMinMax(min, max);
-    m_cityGmlColorMap->setSpecies("Yearly Consumption");
-    m_cityGmlColorMap->setUnit("MWh");
-    auto halfSpan = (max - min) / 2;
-    m_cityGmlColorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_cityGmlColorMap->setMaxBounds(max - halfSpan, max + halfSpan);
-  }
-
-  for (const auto &v : values) {
-    if (auto it = m_cityGMLObjs.find(v.citygml_id); it != m_cityGMLObjs.end()) {
-      auto &gmlObj = it->second;
-      gmlObj->updateTimestepColors({v.yearlyConsumption},
-                                   m_cityGmlColorMap->colorMap());
-      gmlObj->updateTxtBoxTexts(
-          {"Yearly Consumption: " + std::to_string(v.yearlyConsumption) + " MWh"});
-    }
-  }
-  setAnimationTimesteps(1, m_cityGML);
-}
-
-// void EnergyPlugin::enableCityGML(bool on) {
-void EnergyPlugin::enableCityGML(bool on, bool updateColorMap) {
-  if (on) {
-    if (m_cityGMLObjs.empty()) {
-      auto root = cover->getObjectsRoot();
-      for (unsigned int i = 0; i < root->getNumChildren(); ++i) {
-        osg::ref_ptr<osg::MatrixTransform> child =
-            dynamic_cast<osg::MatrixTransform *>(root->getChild(i));
-        if (child) {
-          auto name = child->getName();
-          if (name.find(".gml") != std::string::npos) {
-            addCityGMLObjects(child);
-            m_cityGML->addChild(child);
-            auto translation = getCityGMLTranslation();
-            child->setMatrix(osg::Matrix::translate(translation));
-            transformCityGML(translation, {});
-          }
-        }
-      }
-      CoreUtils::osgUtils::deleteChildrenFromOtherGroup(root, m_cityGML);
-    }
-    if (!m_cityGmlColorMap) initCityGMLColorMap();
-    switchTo(m_cityGML, m_switch);
-
-    // TODO: add a check if the group is already added and make sure its safe to
-    if (m_cityGMLEnableInfluxCSV->state()) {
-      auto influxCSVPath =
-          configString("Simulation", "staticInfluxCSV", "default")->value();
-      applyInfluxCSVToCityGML(influxCSVPath, updateColorMap);
-    }
-
-    if (m_cityGMLEnableInfluxArrow->state()) {
-    }
-
-    if (m_staticCampusPower->state()) {
-      auto campusPath = configString("Simulation", "campusPath", "default")->value();
-      applyStaticDataCampusToCityGML(campusPath, updateColorMap);
-    }
-
-    if (m_staticPower->state()) {
-      auto staticPower =
-          configString("Simulation", "staticPower", "default")->value();
-      applyStaticDataToCityGML(staticPower, updateColorMap);
-    }
-
-    if (m_solarPanels.empty()) {
-      auto modelDirPath =
-          configString("Simulation", "3dModelDir", "default")->value();
-      auto solarPanelsDir = fs::path(modelDirPath + "/power/SolarPanel");
-
-      addSolarPanelsToCityGML(solarPanelsDir);
-    }
-
-  } else {
-    switchTo(m_sequenceList, m_switch);
-  }
-}
-
-void EnergyPlugin::addCityGMLObject(const std::string &name,
-                                    osg::ref_ptr<osg::Group> citygmlObjGroup) {
-  if (!citygmlObjGroup->getNumChildren()) return;
-
-  if (m_cityGMLObjs.find(name) != m_cityGMLObjs.end()) return;
-
-  auto geodes = CoreUtils::osgUtils::getGeodes(citygmlObjGroup);
-  if (geodes->empty()) return;
-
-  // store default stateset
-  saveCityGMLObjectDefaultStateSet(name, *geodes);
-
-  auto boundingbox = CoreUtils::osgUtils::getBoundingBox(*geodes);
-  auto infoboardPos = boundingbox.center();
-  infoboardPos.z() +=
-      (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
-  auto infoboard = std::make_unique<TxtInfoboard>(
-      infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
-  auto building = std::make_unique<CityGMLBuilding>(*geodes);
-  auto sensor = std::make_unique<CityGMLDeviceSensor>(
-      citygmlObjGroup, std::move(infoboard), std::move(building));
-  m_cityGMLObjs.insert({name, std::move(sensor)});
-}
-
-void EnergyPlugin::addCityGMLObjects(osg::ref_ptr<osg::Group> citygmlGroup) {
-  for (unsigned int i = 0; i < citygmlGroup->getNumChildren(); ++i) {
-    osg::ref_ptr<osg::Group> child =
-        dynamic_cast<osg::Group *>(citygmlGroup->getChild(i));
-    if (child) {
-      const auto &name = child->getName();
-
-      // handle quad tree optimized scenegraph
-      if (name == "GROUP" || name == "") {
-        addCityGMLObjects(child);
-        continue;
-      }
-
-      addCityGMLObject(name, child);
-    }
-  }
-}
-
-void EnergyPlugin::saveCityGMLObjectDefaultStateSet(const std::string &name,
-                                                    const Geodes &citygmlGeodes) {
-  Geodes geodesCopy(citygmlGeodes.size());
-  for (auto i = 0; i < citygmlGeodes.size(); ++i) {
-    auto geode = citygmlGeodes[i];
-    geodesCopy[i] =
-        dynamic_cast<osg::Geode *>(geode->clone(osg::CopyOp::DEEP_COPY_STATESETS));
-  }
-  m_cityGMLDefaultStatesets.insert({name, std::move(geodesCopy)});
-}
-
-void EnergyPlugin::restoreGeodesStatesets(CityGMLDeviceSensor &sensor,
-                                          const std::string &name,
-                                          const Geodes &citygmlGeodes) {
-  if (m_cityGMLDefaultStatesets.find(name) == m_cityGMLDefaultStatesets.end())
-    return;
-
-  if (citygmlGeodes.empty()) return;
-
-  for (auto i = 0; i < citygmlGeodes.size(); ++i) {
-    auto gmlDefault = citygmlGeodes[i];
-    osg::ref_ptr<osg::Geode> toRestore = sensor.getDrawable(i)->asGeode();
-    if (toRestore) {
-      toRestore->setStateSet(gmlDefault->getStateSet());
-    }
-  }
-}
-
-void EnergyPlugin::restoreCityGMLDefaultStatesets() {
-  for (auto &[name, sensor] : m_cityGMLObjs) {
-    osg::ref_ptr<osg::Group> sensorParent = sensor->getParent();
-    if (!sensorParent) continue;
-
-    restoreGeodesStatesets(*sensor, name, m_cityGMLDefaultStatesets[name]);
-  }
-  m_cityGMLDefaultStatesets.clear();
 }
 /* #endregion */
 
@@ -1720,133 +1115,6 @@ void EnergyPlugin::initPowerGridStreams() {
   }
 }
 
-// [X] - add a button to enable/disable the simulation data
-// [ ] - plan uniform grid structure file => csv file in specific format
-std::unique_ptr<EnergyPlugin::FloatMap> EnergyPlugin::getInlfuxDataFromCSV(
-    COVERUtils::read::CSVStream &stream, float &max, float &min, float &sum,
-    int &timesteps) {
-  const auto &headers = stream.getHeader();
-  FloatMap values;
-  if (stream && headers.size() > 1) {
-    CSVStream::CSVRow row;
-    // while (stream >> row) {
-    while (stream.readNextRow(row)) {
-      for (auto cityGMLBuildingName : headers) {
-        auto sensor = m_cityGMLObjs.find(cityGMLBuildingName);
-        if (sensor == m_cityGMLObjs.end()) continue;
-        float value = 0;
-        ACCESS_CSV_ROW(row, cityGMLBuildingName, value);
-        if (value > max)
-          max = value;
-        else if (value < min || min == -1)
-          min = value;
-        sum += value;
-        if (values.find(cityGMLBuildingName) == values.end())
-          values.insert({cityGMLBuildingName, {value}});
-        else
-          values[cityGMLBuildingName].push_back(value);
-      }
-      ++timesteps;
-    }
-  }
-  return std::make_unique<FloatMap>(values);
-}
-
-auto EnergyPlugin::readStaticPowerData(CSVStream &stream, float &max, float &min,
-                                       float &sum) {
-  std::vector<StaticPowerData> powerData;
-  if (!stream || stream.getHeader().size() < 1) return powerData;
-  CSVStream::CSVRow row;
-  //   while (stream >> row) {
-  while (stream.readNextRow(row)) {
-    StaticPowerData data;
-    ACCESS_CSV_ROW(row, "name", data.name);
-    ACCESS_CSV_ROW(row, "2019", data.val2019);
-    ACCESS_CSV_ROW(row, "2023", data.val2023);
-    ACCESS_CSV_ROW(row, "average", data.average);
-    ACCESS_CSV_ROW(row, "building_id", data.id);
-    ACCESS_CSV_ROW(row, "citygml_id", data.citygml_id);
-
-    max = std::max(max, data.val2019);
-    max = std::max(max, data.val2023);
-    max = std::max(max, data.average);
-
-    if (min == -1) {
-      min = data.val2019;
-      min = data.val2023;
-    }
-    min = std::min(min, data.val2019);
-    min = std::min(min, data.val2023);
-    min = std::min(min, data.average);
-
-    powerData.push_back(data);
-  }
-  return powerData;
-}
-
-void EnergyPlugin::applyInfluxCSVToCityGML(const std::string &filePathToInfluxCSV,
-                                           bool updateColorMap) {
-  if (m_cityGMLObjs.empty()) return;
-  if (!fs::exists(filePathToInfluxCSV)) return;
-  auto csvStream = CSVStream(filePathToInfluxCSV);
-  float max = 0, min = -1;
-  float sum = 0;
-  int timesteps = 0;
-  auto values = getInlfuxDataFromCSV(csvStream, max, min, sum, timesteps);
-
-  if (updateColorMap) {
-    auto distributionCenter = sum / (timesteps * values->size());
-    m_cityGmlColorMap->setMinMax(min, max);
-    m_cityGmlColorMap->setMinBounds(0, distributionCenter);
-    m_cityGmlColorMap->setMaxBounds(distributionCenter, max);
-  }
-
-  for (auto &[name, values] : *values) {
-    auto sensorIt = m_cityGMLObjs.find(name);
-    if (sensorIt != m_cityGMLObjs.end()) {
-      sensorIt->second->updateTimestepColors(values, m_cityGmlColorMap->colorMap());
-      sensorIt->second->updateTxtBoxTexts({"NOT IMPLEMENTED YET"});
-    }
-  }
-  setAnimationTimesteps(timesteps, m_cityGML);
-}
-
-void EnergyPlugin::applyInfluxArrowToCityGML() {
-  if (m_cityGMLObjs.empty()) return;
-}
-
-void EnergyPlugin::applyStaticDataToCityGML(const std::string &filePathToInfluxCSV,
-                                            bool updateColorMap) {
-  if (m_cityGMLObjs.empty()) return;
-  if (!fs::exists(filePathToInfluxCSV)) return;
-  auto csvStream = CSVStream(filePathToInfluxCSV);
-  float max = 0, min = -1;
-  float sum = 0;
-
-  auto values = readStaticPowerData(csvStream, max, min, sum);
-  //   max = 7000.0f;
-  if (updateColorMap) {
-    m_cityGmlColorMap->setMinMax(min, max);
-    m_cityGmlColorMap->setSpecies("Yearly Consumption");
-    m_cityGmlColorMap->setUnit("kWh");
-    auto halfSpan = (max - min) / 2;
-    m_cityGmlColorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_cityGmlColorMap->setMaxBounds(max - halfSpan, max + halfSpan);
-  }
-  for (const auto &v : values) {
-    if (auto it = m_cityGMLObjs.find(v.citygml_id); it != m_cityGMLObjs.end()) {
-      auto &gmlObj = it->second;
-      gmlObj->updateTimestepColors({v.val2019, v.val2023, v.average},
-                                   m_cityGmlColorMap->colorMap());
-      gmlObj->updateTxtBoxTexts({"2019: " + std::to_string(v.val2019) + " kWh",
-                                 "2023: " + std::to_string(v.val2023) + " kWh",
-                                 "Average: " + std::to_string(v.average) + " kWh"});
-      gmlObj->updateTitleOfInfoboard(v.name);
-    }
-  }
-  setAnimationTimesteps(3, m_cityGML);
-}
-
 bool EnergyPlugin::checkBoxSelection_powergrid(const std::string &tableName,
                                                const std::string &paramName) {
   using namespace std::placeholders;
@@ -2046,39 +1314,11 @@ void EnergyPlugin::applySimulationDataToPowerGrid(const std::string &simPath) {
   powerGrid.simUI = std::make_unique<PowerSimUI>(sim, powerGrid.grid);
   powerGrid.sim = std::move(sim);
 
-  if (m_cityGMLEnableInfluxArrow->state()) {
+  if (auto cityGMLSystem = CityGML()) {
     const auto &[min, max] = powerGrid.sim->getMinMax("res_mw");
-    m_cityGmlColorMap->setMinMax(min, max);
-    m_cityGmlColorMap->setSpecies("Residuallast");
-    m_cityGmlColorMap->setUnit("MW");
-    auto halfSpan = (max - min) / 2;
-    m_cityGmlColorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_cityGmlColorMap->setMaxBounds(max - halfSpan, max + halfSpan);
-    printLoadingPercentDistribution(buildings, min, max);
-
-    for (auto &[name, sensor] : m_cityGMLObjs) {
-      std::string sensorName = name;
-      auto values = powerGrid.sim->getTimedependentScalar("res_mw", sensorName);
-      if (!values) {
-        std::cerr << "No res_mw data found for sensor: " << sensorName << std::endl;
-        continue;
-      }
-
-      auto steps = m_cityGmlColorMap->colorMap().steps();
-      auto colorMapName = powerGrid.sim->getPreferredColorMap("res_mw");
-      if (colorMapName == core::simulation::INVALID_UNIT) {
-        colorMapName = m_cityGmlColorMap->colorMap().name();
-      }
-      m_cityGmlColorMap->setColorMap(colorMapName);
-      m_cityGmlColorMap->setSteps(steps);
-      sensor->setColorMapInShader(m_cityGmlColorMap->colorMap());
-      sensor->setDataInShader(*values, min, max);
-
-      std::vector<std::string> texts;
-      std::transform(values->begin(), values->end(), std::back_inserter(texts),
-                     [](const auto &v) { return std::to_string(v) + " MW"; });
-      sensor->updateTxtBoxTexts(texts);
-    }
+    const auto &preferredColorMap = powerGrid.sim->getPreferredColorMap("res_mw");
+    cityGMLSystem->updateInfluxColorMaps(min, max, powerGrid.sim, preferredColorMap,
+                                         "res_mw", "MW");
   }
 
   // TODO: remove this later
@@ -2555,10 +1795,11 @@ void EnergyPlugin::buildPowerGrid() {
   using grid::Point;
   if (m_powerGridStreams.empty()) return;
 
-  constexpr float connectionsRadius(0.5f);
-  constexpr float sphereRadius(1.0f);
+  // constexpr float connectionsRadius(0.5f);
+  // constexpr float sphereRadius(1.0f);
+  constexpr float connectionsRadius(1.0f);
+  constexpr float sphereRadius(2.0f);
   size_t numPoints(0);
-
   // fetch bus names
   auto busData = m_powerGridStreams.find("bus");
   std::vector<IDLookupTable> busNames;
@@ -2691,27 +1932,6 @@ osg::ref_ptr<grid::Point> EnergyPlugin::searchHeatingGridPointById(
   }
   return *pointIt;  // returns nullptr if not found
 }
-
-// int getId(const std::string &connectionsStrWithCommaDelimiter,
-//     grid::ConnectionDataList &additionalData)
-// {
-//   std::stringstream ss(connectionsStrWithCommaDelimiter);
-//   std::string connection("");
-//   grid::Connections connections;
-//   auto pointName = from->getName();
-//   std::string lineName{pointName};
-//   while (std::getline(ss, connection, ' ')) {
-//     if (connection.empty() || connection == INVALID_CELL_VALUE) continue;
-//     grid::Data connectionData{{"name", pointName + "_" + connection}};
-//     additionalData.emplace_back(std::vector{connectionData});
-//     int toID(-1);
-//     try {
-//       toID = std::stoi(connection);
-//     } catch (...) {
-//       continue;
-//     }
-//   }
-// }
 
 osg::ref_ptr<grid::Line> EnergyPlugin::createHeatingGridLine(
     const grid::Points &points, osg::ref_ptr<grid::Point> from,
