@@ -31,7 +31,7 @@ class HeatingSimulation : public Simulation {
       const std::string &species, const std::string &node) const override;
 
  private:
-  ObjectContainer<Producer> m_consumers;
-  ObjectContainer<Consumer> m_producers;
+  ObjectContainer<Object> m_consumers;
+  ObjectContainer<Object> m_producers;
 };
 }  // namespace core::simulation::heating

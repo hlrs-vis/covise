@@ -59,11 +59,11 @@ class PowerSimulation : public Simulation {
       const std::string &species, const std::string &node) const override;
 
  private:
-  ObjectContainer<Bus> m_buses;
-  ObjectContainer<Generator> m_generators;
-  ObjectContainer<Transformator> m_transformators;
-  ObjectContainer<Cable> m_cables;
-  ObjectContainer<Building> m_buildings;
+  ObjectContainer<Object> m_buses;
+  ObjectContainer<Object> m_generators;
+  ObjectContainer<Object> m_transformators;
+  ObjectContainer<Object> m_cables;
+  ObjectContainer<Object> m_buildings;
 };
 
 }  // namespace core::simulation::power
