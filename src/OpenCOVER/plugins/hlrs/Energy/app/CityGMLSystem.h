@@ -51,7 +51,7 @@ class CityGMLSystem final : public core::interface::ISystem {
       osg::ref_ptr<osg::Node> masterPanel,
       const std::map<std::string, core::simulation::power::PVData> &pvDataMap,
       float maxPVIntensity);
-  void initCityGMLUI();
+  void initCityGMLUI(opencover::ui::Menu *parentMenu);
   void initCityGMLColorMap();
 
   std::pair<std::map<std::string, core::simulation::power::PVData>, float>
@@ -129,7 +129,6 @@ class CityGMLSystem final : public core::interface::ISystem {
 
   // will be deleted by opencover::ui
   opencover::coVRPlugin *m_plugin;
-  opencover::ui::Menu *m_parentMenu;
   opencover::ui::Menu *m_menu;
   opencover::ui::EditField *m_X;
   opencover::ui::EditField *m_Y;

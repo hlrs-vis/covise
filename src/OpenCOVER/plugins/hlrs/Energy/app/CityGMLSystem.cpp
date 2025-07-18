@@ -42,7 +42,6 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
       m_cityGMLGroup(new osg::Group()),
       m_pvGroup(new osg::Group()),
       m_plugin(plugin),
-      m_parentMenu(parentMenu),
       m_menu(nullptr),
       m_enableInfluxCSV(nullptr),
       m_PVEnable(nullptr),
@@ -51,7 +50,7 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
       m_staticPower(nullptr),
       m_enabled(false) {
   parent->addChild(m_cityGMLGroup);
-  m_cityGMLGroup->setName("CityGML");
+  initCityGMLUI(parentMenu);
 }
 
 CityGMLSystem::~CityGMLSystem() {
@@ -67,7 +66,7 @@ CityGMLSystem::~CityGMLSystem() {
 }
 
 void CityGMLSystem::init() {
-  initCityGMLUI();
+  m_cityGMLGroup->setName("CityGML");
   initCityGMLColorMap();
 }
 
@@ -88,10 +87,8 @@ void CityGMLSystem::updateTime(int timestep) {
   }
 }
 
-void CityGMLSystem::initCityGMLUI() {
-  //   checkEnergyTab();
-
-  m_menu = new ui::Menu(m_parentMenu, "CityGML");
+void CityGMLSystem::initCityGMLUI(opencover::ui::Menu *parentMenu) {
+  m_menu = new ui::Menu(parentMenu, "CityGML");
   m_enableInfluxCSV = new ui::Button(m_menu, "InfluxCSV");
   m_enableInfluxCSV->setCallback([this](bool on) {
     if (on) {
