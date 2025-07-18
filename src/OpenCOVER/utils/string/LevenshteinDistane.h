@@ -7,7 +7,7 @@
 namespace opencover::utils::string {
 
 /**
- * Computes the Levenshtein distance between two strings. 0 means the strings are equal. 
+ * Computes the Levenshtein distance between two strings. 0 means the strings are equal.
  * The higher the number, the more different chars are in the strings.
  * e.g. "kitten" and "sitting" have a Levenshtein distance of 3.
  * Source: http://www.blackbeltcoder.com/Articles/algorithms/approximate-string-comparisons-using-levenshtein-distance
@@ -17,8 +17,6 @@ namespace opencover::utils::string {
  * @param ignoreCase Flag indicating whether to ignore case sensitivity (default: false).
  * @return The Levenshtein distance between the two strings.
  */
-
-
 size_t STRING_EXPORT computeLevensteinDistance(const std::string &s1, const std::string &s2, bool ignoreCase = false);
 
 } //opencover::utils::string

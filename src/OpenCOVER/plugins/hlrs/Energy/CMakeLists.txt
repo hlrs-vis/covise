@@ -30,7 +30,6 @@ SET(HEADERS
     app/presentation/EnergyGrid.h
     app/presentation/SolarPanel.h
     app/presentation/grid.h
-    # app/ui/SensorManager.h
 )
 SET(SOURCES
     app/Energy.cpp
