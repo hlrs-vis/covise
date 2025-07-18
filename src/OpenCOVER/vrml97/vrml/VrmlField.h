@@ -187,6 +187,8 @@ public:
     virtual VrmlMFVec2f *toMFVec2f();
     virtual VrmlMFVec3f *toMFVec3f();
 };
+
+std::ostream &VRMLEXPORT operator<<(std::ostream &os, const VrmlField &f);
 }
 
 // Abstract base classes for single-valued & multi-valued fields
