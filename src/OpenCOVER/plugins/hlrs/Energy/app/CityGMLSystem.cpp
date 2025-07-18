@@ -49,6 +49,8 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
       m_staticCampusPower(nullptr),
       m_staticPower(nullptr),
       m_enabled(false) {
+  assert(parent && "CityGMLSystem: parent must not be null");
+  assert(plugin && "CityGMLSystem: plugin must not be null");
   parent->addChild(m_cityGMLGroup);
   initCityGMLUI(parentMenu);
 }
