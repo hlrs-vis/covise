@@ -16,8 +16,7 @@ endif()
 SET(HEADERS
     app/Energy.h
     app/CityGMLSystem.h
-    app/ui/historic/Device.h
-    app/ui/historic/DeviceSensor.h
+    app/EnnovatisSystem.h
     app/ui/ennovatis/EnnovatisDevice.h
     app/ui/ennovatis/EnnovatisDeviceSensor.h
     app/ui/citygml/CityGMLDeviceSensor.h
@@ -34,8 +33,7 @@ SET(HEADERS
 SET(SOURCES
     app/Energy.cpp
     app/CityGMLSystem.cpp
-    app/ui/historic/Device.cpp
-    app/ui/historic/DeviceSensor.cpp
+    app/EnnovatisSystem.cpp
     app/ui/ennovatis/EnnovatisDevice.cpp
     app/ui/ennovatis/EnnovatisDeviceSensor.cpp
     app/ui/citygml/CityGMLDeviceSensor.cpp
@@ -45,7 +43,6 @@ SET(SOURCES
     app/presentation/EnergyGrid.cpp
     app/presentation/SolarPanel.cpp
     app/presentation/grid.cpp
-    # app/ui/simulation/HeatingSimulationUI.cpp
 )
 
 set(Name "EnergyCampus")

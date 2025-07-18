@@ -1,12 +1,10 @@
-#ifndef _ENNOVATISDEVICESENSOR_H
-#define _ENNOVATISDEVICESENSOR_H
-
+#pragma once
 #include <PluginUtil/coSensor.h>
+#include <cover/ui/SelectionList.h>
 
 #include <memory>
 
 #include "EnnovatisDevice.h"
-#include "cover/ui/SelectionList.h"
 
 class EnnovatisDeviceSensor : public coPickSensor {
  public:
@@ -37,5 +35,3 @@ class EnnovatisDeviceSensor : public coPickSensor {
   std::unique_ptr<EnnovatisDevice> m_dev;
   bool m_activated = false;
 };
-
-#endif

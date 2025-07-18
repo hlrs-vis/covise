@@ -9,7 +9,7 @@ namespace ennovatis {
 struct sax_channelid_parser : public nlohmann::json::json_sax_t {
  public:
   sax_channelid_parser() = default;
-  sax_channelid_parser(BuildingsPtr buildings) : m_buildings(buildings){};
+  sax_channelid_parser(Buildings *buildings) : m_buildings(buildings){};
 
   bool string(string_t &val) override;
   bool key(string_t &val) override;
@@ -40,7 +40,7 @@ struct sax_channelid_parser : public nlohmann::json::json_sax_t {
   // current attr key in channel iteration
   std::string m_curChannelAttrKey;
   std::vector<std::string> m_debugLogs;
-  BuildingsPtr m_buildings;
+  Buildings* m_buildings;
 };
 }  // namespace ennovatis
 

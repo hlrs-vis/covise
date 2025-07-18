@@ -26,7 +26,7 @@ void channelgroup_switch(ennovatis::Channel &channel, const std::string &val) {
 namespace ennovatis {
 
 bool csv_channelid_parser::update_buildings_by_buildingid(
-    const std::string &filename, BuildingsPtr buildings) {
+    const std::string &filename, Buildings &buildings) {
   using namespace opencover::utils::read;
   CSVStream::CSVRow row;
   try {
@@ -41,11 +41,11 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
         const auto name =
             name_channel_dir.substr(0, name_channel_dir.find_last_of('-'));
         buildingIt = std::find_if(
-            buildings->begin(), buildings->end(),
+            buildings.begin(), buildings.end(),
             [&name](const Building &b) { return b.getId().compare(name) >= 0; });
-        if (buildingIt == buildings->end()) {
-          buildings->push_back(Building(name, building_id));
-          buildingIt = buildings->end() - 1;
+        if (buildingIt == buildings.end()) {
+          buildings.push_back(Building(name, building_id));
+          buildingIt = buildings.end() - 1;
         }
       }
       lastBuildingId = building_id;
@@ -71,7 +71,7 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
 }
 
 bool csv_channelid_parser::update_buildings_by_buildingid(
-    std::basic_istream<char> &file, BuildingsPtr buildings) {
+    std::basic_istream<char> &file, Buildings &buildings) {
   std::string row("");
   std::string lastBuildingId("");
   std::getline(file, row);  // skip header
@@ -93,11 +93,11 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
           name_channel_dir.substr(0, name_channel_dir.find_last_of('-'));
 
       buildingIt = std::find_if(
-          buildings->begin(), buildings->end(),
+          buildings.begin(), buildings.end(),
           [&name](const Building &b) { return b.getId().compare(name) >= 0; });
-      if (buildingIt == buildings->end()) {
-        buildings->push_back(Building(name, building_id));
-        buildingIt = buildings->end() - 1;
+      if (buildingIt == buildings.end()) {
+        buildings.push_back(Building(name, building_id));
+        buildingIt = buildings.end() - 1;
       }
     }
     lastBuildingId = building_id;
