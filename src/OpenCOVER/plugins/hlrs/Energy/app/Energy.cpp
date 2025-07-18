@@ -30,9 +30,7 @@
 #include <lib/apache/arrow.h>
 #include "Energy.h"
 #include "CityGMLSystem.h"
-#include "ui/historic/Device.h"
-#include "ui/ennovatis/EnnovatisDevice.h"
-#include "ui/ennovatis/EnnovatisDeviceSensor.h"
+#include "EnnovatisSystem.h"
 #include <build_options.h>
 #include <config/CoviseConfig.h>
 #include <util/string_util.h>
@@ -55,11 +53,9 @@
 
 // std
 #include <algorithm>
-#include <chrono>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <osg/Vec4>
@@ -93,8 +89,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/tokenizer.hpp>
 
-#include "OpenConfig/covconfig/array.h"
-
 // presentation
 #include <app/presentation/SolarPanel.h>
 #include <app/presentation/CityGMLBuilding.h>
@@ -123,7 +117,7 @@
 using namespace opencover;
 using namespace COVERUtils::read;
 using namespace COVERUtils::string;
-using namespace energy;
+// using namespace energy;
 
 namespace fs = boost::filesystem;
 
@@ -237,7 +231,6 @@ EnergyPlugin::EnergyPlugin()
       m_ennovatis(new osg::Group()),
       m_switch(new osg::Switch()),
       m_grid(new osg::Switch()),
-      m_sequenceList(new osg::Sequence()),
       m_Energy(new osg::MatrixTransform()),
       m_energyGrids({EnergySimulation{"PowerGrid", EnergyGridType::PowerGrid},
                      EnergySimulation{"HeatingGrid", EnergyGridType::HeatingGrid}}) {
@@ -251,16 +244,14 @@ EnergyPlugin::EnergyPlugin()
 
   m_buildings = std::make_unique<ennovatis::Buildings>();
 
-  m_sequenceList->setName("DB");
-  m_ennovatis->setName("Ennovatis");
+  //   m_ennovatis->setName("Ennovatis");
   //   m_cityGML->setName("CityGML");
 
   m_Energy->setName("Energy");
   cover->getObjectsRoot()->addChild(m_Energy);
 
   m_switch->setName("Switch");
-  m_switch->addChild(m_sequenceList);
-  m_switch->addChild(m_ennovatis);
+  //   m_switch->addChild(m_ennovatis);
   //   m_switch->addChild(m_cityGML);
 
   m_grid->setName("EnergyGrids");
@@ -269,8 +260,6 @@ EnergyPlugin::EnergyPlugin()
   m_Energy->addChild(m_grid);
 
   GDALAllRegister();
-
-  m_SDlist.clear();
 
   initUI();
   m_offset =
@@ -310,8 +299,7 @@ void EnergyPlugin::initUI() {
   m_EnergyTab->setText("Energy Campus");
 
   initOverview();
-  initHistoricUI();
-  initEnnovatisUI();
+  //   initEnnovatisUI();
   initSimUI();
 }
 
@@ -398,13 +386,6 @@ void EnergyPlugin::projTransLatLon(float &lat, float &lon) {
 }
 
 bool EnergyPlugin::update() {
-  for (auto s = m_SDlist.begin(); s != m_SDlist.end(); s++) {
-    if (s->second.empty()) continue;
-    for (auto timeElem : s->second) {
-      if (timeElem) timeElem->update();
-    }
-  }
-
   if constexpr (debug) {
     auto result = m_debug_worker.getResult();
     if (result)
@@ -460,24 +441,13 @@ bool EnergyPlugin::init() {
     std::cout << "Load channelIDs: " << channelIdJSONPath << std::endl;
   }
 
-  if (loadDB(dbPath, pjTrans))
-    std::cout << "Database loaded in cache" << std::endl;
-  else
-    std::cout << "Database not loaded" << std::endl;
-
-  if (loadChannelIDs(channelIdJSONPath, channelIdCSVPath))
-    std::cout << "Ennovatis channelIDs loaded in cache" << std::endl;
-  else
-    std::cout << "Ennovatis channelIDs not loaded" << std::endl;
-
-  auto noMatches = updateEnnovatisBuildings(m_SDlist);
-
-  if constexpr (debug) {
-    int i = 0;
-    std::cout << "Matches between devices and buildings:" << std::endl;
-    for (auto &[device, building] : m_devBuildMap)
-      std::cout << ++i << ": Device: " << device->getInfo()->strasse
-                << " -> Building: " << building->getName() << std::endl;
+  // NOTE: maybe needed later
+  //   if constexpr (debug) {
+  //     int i = 0;
+  //     std::cout << "Matches between devices and buildings:" << std::endl;
+  //     for (auto &[device, building] : m_devBuildMap)
+  //       std::cout << ++i << ": Device: " << device->getInfo()->strasse
+  //                 << " -> Building: " << building->getName() << std::endl;
 
     std::cout << "No matches for the following buildings:" << std::endl;
     for (auto &building : *noMatches) std::cout << building->getName() << std::endl;
@@ -763,197 +733,7 @@ EnergyPlugin::updateEnnovatisBuildings(const DeviceList &deviceList) {
     }
   }
   return std::make_unique<const_buildings>(noDeviceMatches);
-}
-
-/* #endregion */
-
-/* #region HISTORIC */
-
-void EnergyPlugin::initHistoricUI() {
-  checkEnergyTab();
-  componentGroup = new ui::ButtonGroup(m_EnergyTab, "ComponentGroup");
-  componentGroup->setDefaultValue(Strom);
-  componentList = new ui::Menu(m_EnergyTab, "Component");
-  componentList->setText("Messwerte (jährlich)");
-  StromBt = new ui::Button(componentList, "Strom", componentGroup, Strom);
-  WaermeBt = new ui::Button(componentList, "Waerme", componentGroup, Waerme);
-  KaelteBt = new ui::Button(componentList, "Kaelte", componentGroup, Kaelte);
-
-  componentGroup->setCallback(
-      [this](int value) { setComponent(Components(value)); });
-}
-
-void EnergyPlugin::reinitDevices(int comp) {
-  for (auto s : m_SDlist) {
-    if (s.second.empty()) continue;
-    for (auto devSens : s.second) {
-      auto t = devSens->getDevice();
-      t->init(rad, scaleH, comp);
-    }
-  }
-}
-
-void EnergyPlugin::setComponent(Components c) {
-  switchTo(m_sequenceList, m_switch);
-  switch (c) {
-    case Strom:
-      StromBt->setState(true, false);
-      break;
-    case Waerme:
-      WaermeBt->setState(true, false);
-      break;
-    case Kaelte:
-      KaelteBt->setState(true, false);
-      break;
-    default:
-      break;
-  }
-
-  m_selectedComp = c;
-  reinitDevices(c);
-}
-
-bool EnergyPlugin::loadDB(const std::string &path, const ProjTrans &projTrans) {
-  if (!loadDBFile(path, projTrans)) {
-    return false;
-  }
-
-  setAnimationTimesteps(m_sequenceList->getNumChildren(), m_sequenceList);
-
-  rad = 3.;
-  scaleH = 0.1;
-
-  reinitDevices(m_selectedComp);
-  return true;
-}
-
-void EnergyPlugin::helper_initTimestepGrp(size_t maxTimesteps,
-                                          osg::ref_ptr<osg::Group> &timestepGroup) {
-  for (int t = 0; t < maxTimesteps; ++t) {
-    timestepGroup = new osg::Group();
-    std::string groupName = "timestep" + std::to_string(t);
-    timestepGroup->setName(groupName);
-    m_sequenceList->addChild(timestepGroup);
-    m_sequenceList->setValue(t);
-  }
-}
-
-void EnergyPlugin::helper_initTimestepsAndMinYear(
-    size_t &maxTimesteps, int &minYear, const std::vector<std::string> &header) {
-  for (const auto &h : header) {
-    if (h.find("Strom") != std::string::npos) {
-      auto minYearStr =
-          std::regex_replace(h, std::regex("[^0-9]*"), std::string("$1"));
-      int min_year_tmp = std::stoi(minYearStr);
-      if (min_year_tmp < minYear) minYear = min_year_tmp;
-      ++maxTimesteps;
-    }
-  }
-}
-
-void EnergyPlugin::helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord,
-                                             DeviceInfo &deviceInfoPtr,
-                                             const double &lat, const double &lon) {
-  if (!mapdrape) {
-    deviceInfoPtr.lon = lon;
-    deviceInfoPtr.lat = lat;
-    deviceInfoPtr.height = 0.f;
-    return;
-  }
-
-  // x = lon, y = lat
-  coord.lpzt.lam = lon;
-  coord.lpzt.phi = lat;
-  float alt = 0.;
-
-  coord = proj_trans(P, PJ_FWD, coord);
-
-  deviceInfoPtr.lon = coord.xy.x + m_offset[0];
-  deviceInfoPtr.lat = coord.xy.y + m_offset[1];
-  deviceInfoPtr.height = alt + m_offset[2];
-}
-
-void EnergyPlugin::helper_handleEnergyInfo(size_t maxTimesteps, int minYear,
-                                           const CSVStream::CSVRow &row,
-                                           DeviceInfo &deviceInfo) {
-  auto font = configString("Billboard", "font", "default")->value();
-  for (size_t year = minYear; year < minYear + maxTimesteps; ++year) {
-    auto str_yr = std::to_string(year);
-    auto strom = "Strom " + str_yr;
-    auto waerme = "Wärme " + str_yr;
-    auto kaelte = "Kälte " + str_yr;
-    auto deviceInfoTimestep = std::make_shared<energy::DeviceInfo>(deviceInfo);
-    float strom_val = 0.f;
-    ACCESS_CSV_ROW(row, strom, strom_val);
-    ACCESS_CSV_ROW(row, waerme, deviceInfoTimestep->waerme);
-    ACCESS_CSV_ROW(row, kaelte, deviceInfoTimestep->kaelte);
-    deviceInfoTimestep->strom = strom_val / 1000.;  // kW -> MW
-    auto timestep = year - 2000;
-    deviceInfoTimestep->timestep = timestep;
-    auto device = std::make_shared<energy::Device>(
-        deviceInfoTimestep, m_sequenceList->getChild(timestep)->asGroup(), font);
-
-    m_SDlist[deviceInfo.ID].push_back(
-        std::make_shared<energy::DeviceSensor>(device, device->getGroup()));
-  }
-}
-
-bool EnergyPlugin::loadDBFile(const std::string &fileName,
-                              const ProjTrans &projTrans) {
-  try {
-    auto csvStream = CSVStream(fileName);
-    size_t maxTimesteps = 0;
-    int minYear = 2000;
-    const auto &header = csvStream.getHeader();
-    helper_initTimestepsAndMinYear(maxTimesteps, minYear, header);
-
-    CSVStream::CSVRow row;
-
-    std::string sensorType;
-    osg::ref_ptr<osg::Group> timestepGroup;
-    bool mapdrape = true;
-
-    auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projTrans.projFrom.c_str(),
-                                    projTrans.projTo.c_str(), NULL);
-    PJ_COORD coord;
-    coord.lpzt.z = 0.0;
-    coord.lpzt.t = HUGE_VAL;
-
-    if (!P) {
-      fprintf(stderr,
-              "Energy Plugin: Ignore mapping. No valid projection was "
-              "found between given proj string in "
-              "config EnergyCampus.toml\n");
-      mapdrape = false;
-    }
-
-    helper_initTimestepGrp(maxTimesteps, timestepGroup);
-
-    // while (csvStream >> row) {
-    while (csvStream.readNextRow(row)) {
-      DeviceInfo deviceInfo;
-      auto lat = std::stod(row["lat"]);
-      auto lon = std::stod(row["lon"]);
-
-      // location
-      helper_projTransformation(mapdrape, P, coord, deviceInfo, lat, lon);
-
-      deviceInfo.ID = row["GebäudeID"];
-      deviceInfo.strasse = row["Straße"] + " " + row["Nr"];
-      deviceInfo.name = row["Details"];
-      ACCESS_CSV_ROW(row, "Baujahr", deviceInfo.baujahr);
-      ACCESS_CSV_ROW(row, "Grundfläche (GIS)", deviceInfo.flaeche);
-
-      // electricity, heat, cold
-      helper_handleEnergyInfo(maxTimesteps, minYear, row, deviceInfo);
-    }
-    proj_destroy(P);
-  } catch (const CSVStream_Exception &ex) {
-    std::cout << ex.what() << std::endl;
-    return false;
-  }
-  return true;
-}
+} */
 
 /* #endregion */
 

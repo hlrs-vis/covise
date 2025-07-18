@@ -21,9 +21,6 @@
 
 // ui
 #include "lib/core/simulation/simulation.h"
-#include "ui/historic/Device.h"
-#include "ui/historic/DeviceSensor.h"
-#include "ui/ennovatis/EnnovatisDeviceSensor.h"
 #include "ui/simulation/HeatingSimulationUI.h"
 #include "ui/simulation/PowerSimulationUI.h"
 
@@ -58,6 +55,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
+#include <OpenConfig/covconfig/array.h>
 
 // ennovatis
 #include <lib/ennovatis/building.h>
@@ -99,7 +97,6 @@ namespace CoreUtils = core::utils;
 class EnergyPlugin : public opencover::coVRPlugin,
                      public opencover::ui::Owner,
                      public opencover::coTUIListener {
-  enum Components { Strom, Waerme, Kaelte };
   enum class Scenario {
     status_quo,
     future_ev,
@@ -124,11 +121,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   bool init() override;
   bool update() override;
   void setTimestep(int t) override;
-  void setComponent(Components c);
-  static EnergyPlugin *instance() {
-    if (!m_plugin) m_plugin = new EnergyPlugin;
-    return m_plugin;
-  };
 
  private:
   /* #region using */
@@ -203,23 +195,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void initSystems();
   /* #endregion */
 
-  /* #region HISTORIC */
-  void helper_initTimestepGrp(size_t maxTimesteps,
-                              osg::ref_ptr<osg::Group> &timestepGroup);
-  void helper_initTimestepsAndMinYear(size_t &maxTimesteps, int &minYear,
-                                      const std::vector<std::string> &header);
-  void helper_projTransformation(bool mapdrape, PJ *P, PJ_COORD &coord,
-                                 energy::DeviceInfo &deviceInfoPtr,
-                                 const double &lat, const double &lon);
-  void helper_handleEnergyInfo(size_t maxTimesteps, int minYear,
-                               const CSVStream::CSVRow &row,
-                               energy::DeviceInfo &deviceInfoPtr);
-  bool loadDBFile(const std::string &fileName, const ProjTrans &projTrans);
-  bool loadDB(const std::string &path, const ProjTrans &projTrans);
-  void reinitDevices(int comp);
-  void initHistoricUI();
-  /* #endregion */
-
   /* #region ENNOVATIS */
   void initRESTRequest();
   void initEnnovatisUI();
@@ -232,28 +207,29 @@ class EnergyPlugin : public opencover::coVRPlugin,
   bool updateChannelIDsFromCSV(const std::string &pathToCSV);
   CylinderAttributes getCylinderAttributes();
 
-  /**
-   * Initializes the Ennovatis buildings.
-   *
-   * This function takes a `DeviceList` object as a parameter and returns a
-   * `std::unique_ptr` to a `const_buildings` object. The `const_buildings`
-   * object represents the initialized Ennovatis buildings.
-   *
-   * TODO: apply this while parsing the JSON file
-   * @param deviceList The list of devices. Make sure map is sorted.
-   * @return A unique pointer to buildings which have ne matching device.
-   */
-  std::unique_ptr<const_buildings> updateEnnovatisBuildings(
-      const DeviceList &deviceList);
+  //   /**
+  //    * Initializes the Ennovatis buildings.
+  //    *
+  //    * This function takes a `DeviceList` object as a parameter and returns a
+  //    * `std::unique_ptr` to a `const_buildings` object. The `const_buildings`
+  //    * object represents the initialized Ennovatis buildings.
+  //    *
+  //    * TODO: apply this while parsing the JSON file
+  //    * @param deviceList The list of devices. Make sure map is sorted.
+  //    * @return A unique pointer to buildings which have ne matching device.
+  //    */
+  //   std::unique_ptr<const_buildings> updateEnnovatisBuildings(
+  //       const DeviceList &deviceList);
 
-  /**
-   * Loads Ennovatis channelids from the specified JSON file into cache.
-   *
-   * @param pathToJSON The path to the JSON file which contains the channelids
-   * for REST-calls.
-   * @return True if the data was successfully loaded, false otherwise.
-   */
-  bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
+  //   /**
+  //    * Loads Ennovatis channelids from the specified JSON file into cache.
+  //    *
+  //    * @param pathToJSON The path to the JSON file which contains the channelids
+  //    * for REST-calls.
+  //    * @return True if the data was successfully loaded, false otherwise.
+  //    */
+  //   bool loadChannelIDs(const std::string &pathToJSON, const std::string
+  //   &pathToCSV);
   /* #endregion */
 
   /* #region SIMULATION */
@@ -369,23 +345,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   // TODO: remove this later
   std::unique_ptr<opencover::CoverColorBar> m_vmPuColorMap;
 
-  // historical
-  opencover::ui::Button *ShowGraph = nullptr;
-  opencover::ui::ButtonGroup *componentGroup = nullptr;
-  opencover::ui::Menu *componentList = nullptr;
-  opencover::ui::Button *StromBt = nullptr;
-  opencover::ui::Button *WaermeBt = nullptr;
-  opencover::ui::Button *KaelteBt = nullptr;
-
-  // ennovatis UI
-  opencover::ui::SelectionList *m_ennovatisSelectionsList = nullptr;
-  opencover::ui::Menu *m_ennovatisMenu = nullptr;
-  opencover::ui::EditField *m_ennovatisFrom = nullptr;
-  opencover::ui::EditField *m_ennovatisTo = nullptr;
-  opencover::ui::Button *m_ennovatisUpdate = nullptr;
-  opencover::ui::SelectionList *m_ennovatisChannelList = nullptr;
-  opencover::ui::SelectionList *m_enabledEnnovatisDevices = nullptr;
-
   // Simulation UI
   opencover::ui::Menu *m_simulationMenu = nullptr;
   opencover::ui::Group *m_energygridGroup = nullptr;
@@ -405,7 +364,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
   opencover::ui::Button *m_updatePowerGridSelection = nullptr;
   std::map<opencover::ui::Menu *, std::vector<opencover::ui::Button *>>
       m_powerGridCheckboxes;
-  std::unique_ptr<config::Array<bool>> m_powerGridSelectionPtr = nullptr;
+  std::unique_ptr<opencover::config::Array<bool>> m_powerGridSelectionPtr = nullptr;
 
   // Heatgrid UI
   // opencover::ui::Menu *m_heatGridMenu = nullptr;
@@ -428,7 +387,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   // switch used to toggle between ennovatis, db and citygml data
   osg::ref_ptr<osg::Switch> m_switch;
   osg::ref_ptr<osg::Switch> m_grid;
-  osg::ref_ptr<osg::Sequence> m_sequenceList;
   osg::ref_ptr<osg::MatrixTransform> m_Energy;
 
   opencover::utils::read::StreamMap m_powerGridStreams;
