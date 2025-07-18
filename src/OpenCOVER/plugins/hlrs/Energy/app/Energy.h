@@ -11,21 +11,16 @@
  **  Marko Djuric 02.2024: add ennovatis client                            **
  **                                                                        **
 \****************************************************************************/
-
-#ifndef _Energy_PLUGIN_H
-#define _Energy_PLUGIN_H
-
+#pragma once
 // presentation
 #include "app/CityGMLSystem.h"
+#include "app/EnnovatisSystem.h"
 #include "presentation/grid.h"
 
 // ui
 #include "lib/core/simulation/simulation.h"
 #include "ui/simulation/HeatingSimulationUI.h"
 #include "ui/simulation/PowerSimulationUI.h"
-
-// presentation
-#include "presentation/PrototypeBuilding.h"
 
 // core
 #include <cover/coTUIListener.h>
@@ -56,10 +51,6 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
 #include <OpenConfig/covconfig/array.h>
-
-// ennovatis
-#include <lib/ennovatis/building.h>
-#include <lib/ennovatis/rest.h>
 
 #include <gdal_priv.h>
 #include <proj.h>
@@ -106,7 +97,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
     NUM_SCENARIOS
   };
   enum class EnergyGridType { PowerGrid, HeatingGrid, NUM_ENERGY_TYPES };
-  enum class System { CityGML, NUM_SYSTEMS };
+  enum class System { CityGML, Ennovatis, NUM_SYSTEMS };
   struct ProjTrans {
     std::string projFrom;
     std::string projTo;
@@ -126,16 +117,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   /* #region using */
   using Geodes = CoreUtils::osgUtils::Geodes;
   using CSVStream = COVERUtils::read::CSVStream;
-
-  template <typename T>
-  using NameMap = std::map<std::string, T>;
-  template <typename T>
-  using NameMapPtr = NameMap<std::unique_ptr<T>>;
-  template <typename T>
-  using NameMapVector = NameMap<std::vector<T>>;
-  template <typename T>
-  using NameMapVectorPtr = NameMapPtr<std::vector<T>>;
-
   /* #endregion */
 
   /* #region typedef */
@@ -143,14 +124,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   typedef BaseSimulationUI<core::interface::IEnergyGrid> BaseSimUI;
   typedef HeatingSimulationUI<core::interface::IEnergyGrid> HeatingSimUI;
   typedef PowerSimulationUI<core::interface::IEnergyGrid> PowerSimUI;
-  typedef const ennovatis::Building *building_const_ptr;
-  typedef const ennovatis::Buildings *buildings_const_Ptr;
-  typedef std::vector<building_const_ptr> const_buildings;
-  typedef std::map<energy::Device::ptr, building_const_ptr> DeviceBuildingMap;
-
-//   typedef NameMapVector<float> FloatMap;
-  typedef NameMapVector<energy::DeviceSensor::ptr> DeviceList;
-
   /* #endregion */
 
   struct ColorMapMenu {
@@ -168,12 +141,18 @@ class EnergyPlugin : public opencover::coVRPlugin,
     return static_cast<int>(system);
   }
 
-  CityGMLSystem *CityGML() {
-    if (m_systems[getSystemIndex(System::CityGML)]) {
-      return dynamic_cast<CityGMLSystem *>(
-          m_systems[getSystemIndex(System::CityGML)].get());
-    }
-    return nullptr;
+  template <typename T>
+  T *getSystem(System system) {
+    auto &ptr = m_systems[getSystemIndex(system)];
+    return dynamic_cast<T *>(ptr.get());
+  }
+
+  CityGMLSystem *getCityGMLSystem() {
+    return getSystem<CityGMLSystem>(System::CityGML);
+  }
+
+  EnnovatisSystem *getEnnovatisSystem() {
+    return getSystem<EnnovatisSystem>(System::Ennovatis);
   }
 
   std::string getScenarioName(Scenario scenario);
@@ -195,50 +174,12 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void initSystems();
   /* #endregion */
 
-  /* #region ENNOVATIS */
-  void initRESTRequest();
-  void initEnnovatisUI();
-  void selectEnabledDevice();
-  void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
-  void setRESTDate(const std::string &toSet, bool isFrom);
-  void updateEnnovatis();
-  void updateEnnovatisChannelGrp();
-  void initEnnovatisDevices();
-  bool updateChannelIDsFromCSV(const std::string &pathToCSV);
-  CylinderAttributes getCylinderAttributes();
-
-  //   /**
-  //    * Initializes the Ennovatis buildings.
-  //    *
-  //    * This function takes a `DeviceList` object as a parameter and returns a
-  //    * `std::unique_ptr` to a `const_buildings` object. The `const_buildings`
-  //    * object represents the initialized Ennovatis buildings.
-  //    *
-  //    * TODO: apply this while parsing the JSON file
-  //    * @param deviceList The list of devices. Make sure map is sorted.
-  //    * @return A unique pointer to buildings which have ne matching device.
-  //    */
-  //   std::unique_ptr<const_buildings> updateEnnovatisBuildings(
-  //       const DeviceList &deviceList);
-
-  //   /**
-  //    * Loads Ennovatis channelids from the specified JSON file into cache.
-  //    *
-  //    * @param pathToJSON The path to the JSON file which contains the channelids
-  //    * for REST-calls.
-  //    * @return True if the data was successfully loaded, false otherwise.
-  //    */
-  //   bool loadChannelIDs(const std::string &pathToJSON, const std::string
-  //   &pathToCSV);
-  /* #endregion */
-
   /* #region SIMULATION */
 
   struct EnergySimulation {
     const std::string name;
     const EnergyGridType type;
     opencover::ui::Button *simulationUIBtn = nullptr;
-    // opencover::ui::Menu *menu = nullptr;
     opencover::ui::SelectionList *scalarSelector = nullptr;
     osg::ref_ptr<osg::MatrixTransform> group = nullptr;
     std::shared_ptr<core::interface::IEnergyGrid> grid;
@@ -333,9 +274,9 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   // general
   static EnergyPlugin *m_plugin;
-  opencover::coTUITab *m_coEnergyTabPanel = nullptr;
   opencover::ui::Menu *m_EnergyTab = nullptr;
   opencover::ui::Menu *m_controlPanel = nullptr;
+  opencover::coTUITab *m_coEnergyTabPanel = nullptr;
   opencover::ui::Button *m_gridControlButton = nullptr;
   opencover::ui::Button *m_energySwitchControlButton = nullptr;
 
@@ -372,17 +313,8 @@ class EnergyPlugin : public opencover::coVRPlugin,
   // // Coolinggrid UI
   // opencover::ui::Menu *m_coolingGridMenu = nullptr;
 
-  ennovatis::BuildingsPtr m_buildings;
-  DeviceList m_SDlist;
-  std::shared_ptr<ennovatis::rest_request> m_req;
-
   // current selected channel group
-  std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
-
-  // not necessary but better for debugging
-  DeviceBuildingMap m_devBuildMap;
-  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
-  osg::ref_ptr<osg::Group> m_ennovatis;
+  //   std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
 
   // switch used to toggle between ennovatis, db and citygml data
   osg::ref_ptr<osg::Switch> m_switch;
@@ -400,5 +332,3 @@ class EnergyPlugin : public opencover::coVRPlugin,
   float rad, scaleH;
   int m_selectedComp = 0;
 };
-
-#endif
