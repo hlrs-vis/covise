@@ -15,35 +15,8 @@
 
 using namespace opencover;
 
-namespace energy {
-Device::Device(DeviceInfo::ptr d, osg::ref_ptr<osg::Group> parent,
-               const std::string &font)
-    : m_font(font) {
-  myParent = parent;
-  devInfo = d;
-
-  deviceGroup = new osg::Group();
-  deviceGroup->setName(devInfo->ID + ".");
-  myParent->addChild(deviceGroup);
-
-  osg::MatrixTransform *matTrans = new osg::MatrixTransform();
-  osg::Matrix m;
-  m.makeTranslate(osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + h));
-  matTrans->setMatrix(m);
-
-  BBoard = new opencover::coBillboard();
-  BBoard->setNormal(osg::Vec3(0, -1, 0));
-  BBoard->setAxis(osg::Vec3(0, 0, 1));
-  BBoard->setMode(opencover::coBillboard::AXIAL_ROT);
-
-  matTrans->addChild(BBoard);
-  deviceGroup->addChild(matTrans);
-  TextGeode = nullptr;
-}
-
-Device::~Device() {}
-
-osg::Vec4 Device::getColor(float val, float max) {
+namespace {
+osg::Vec4 getColor(float val, float max) {
   osg::Vec4 colHigh = osg::Vec4(1, 0.1, 0, 1.0);
   osg::Vec4 colLow = osg::Vec4(0, 1, 0.5, 1.0);
   float valN = val / max;
@@ -53,39 +26,60 @@ osg::Vec4 Device::getColor(float val, float max) {
                 colHigh.a() * valN + colLow.a() * (1 - valN));
   return col;
 }
+}  // namespace
+
+namespace energy {
+Device::Device(osg::ref_ptr<osg::MatrixTransform> node, const DeviceInfo &deviceInfo,
+               const std::string &font)
+    : m_devInfo(deviceInfo),
+      m_font(font),
+      m_height(1.0f),
+      m_width(2.0f),
+      m_node(new osg::MatrixTransform()),
+      m_BBoard(new opencover::coBillboard()),
+      m_infoVisible(false) {
+  m_BBoard->setNormal(osg::Vec3(0, -1, 0));
+  m_BBoard->setAxis(osg::Vec3(0, 0, 1));
+  m_BBoard->setMode(opencover::coBillboard::AXIAL_ROT);
+
+  m_node->addChild(m_BBoard);
+  m_txtGroup = nullptr;
+}
+
+Device::~Device() {}
 
 void Device::init(float r, float sH, int c) {
-  if (geoBars) {
-    deviceGroup->removeChild(geoBars);
-    geoBars = nullptr;
+  if (m_geoBars) {
+    m_node->removeChild(m_geoBars);
+    m_geoBars = nullptr;
   }
 
-  rad = r;
-  w = rad * 10;
-  h = rad * 11;
+  m_rad = r;
+  m_width = m_rad * 10;
+  m_height = m_rad * 11;
 
   osg::Cylinder *cyl = new osg::Cylinder(
-      osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height), rad, 0.);
+      osg::Vec3(m_devInfo.lon, m_devInfo.lat, m_devInfo.height), m_rad, 0.);
   osg::Vec4 colVec(0.1, 0.1, 0.1, 1.f);
   osg::Cylinder *cylLimit;
   osg::Vec4 colVecLimit(1.f, 1.f, 1.f, 1.f);
 
   auto setCyclAndColor = [&](const float &compVal) {
     cyl->set(
-        osg::Vec3(devInfo->lon, devInfo->lat, devInfo->height + compVal * sH / 2),
-        rad, -compVal * sH);
+        osg::Vec3(m_devInfo.lon, m_devInfo.lat, m_devInfo.height + compVal * sH / 2),
+        m_rad, -compVal * sH);
     colVec = getColor(compVal, 1000.);
   };
 
   switch (c) {
     case 0:
-      if (devInfo->strom > 0.) setCyclAndColor(devInfo->strom);
+      if (m_devInfo.strom > 0.) setCyclAndColor(m_devInfo.strom);
       break;
     case 1:
-      if (devInfo->waerme > 0.) setCyclAndColor(devInfo->waerme);
+      if (m_devInfo.waerme > 0.) setCyclAndColor(m_devInfo.waerme);
       break;
     case 2:
-      if (devInfo->kaelte > 0.) setCyclAndColor(devInfo->kaelte);
+      if (m_devInfo.kaelte > 0.) setCyclAndColor(m_devInfo.kaelte);
       break;
   }
   osg::ShapeDrawable *shapeD = new osg::ShapeDrawable(cyl);
@@ -105,23 +99,23 @@ void Device::init(float r, float sH, int c) {
   shapeD->setUseDisplayList(false);
   shapeD->setColor(colVec);
 
-  geoBars = new osg::Geode();
-  geoBars->setName(devInfo->ID);
-  geoBars->addDrawable(shapeD);
+  m_geoBars = new osg::Geode();
+  m_geoBars->setName(m_devInfo.ID);
+  m_geoBars->addDrawable(shapeD);
 
-  deviceGroup->addChild(geoBars.get());
+  m_node->addChild(m_geoBars.get());
 }
 
-void Device::update() { InfoVisible = false; }
+void Device::update() { m_infoVisible = false; }
 
 void Device::activate() {
-  if (TextGeode) {
-    BBoard->removeChild(TextGeode);
-    TextGeode = nullptr;
-    InfoVisible = false;
+  if (m_txtGroup) {
+    m_BBoard->removeChild(m_txtGroup);
+    m_txtGroup = nullptr;
+    m_infoVisible = false;
   } else {
     showInfo();
-    InfoVisible = true;
+    m_infoVisible = true;
   }
 }
 
@@ -131,17 +125,17 @@ void Device::showInfo() {
   osg::ref_ptr<osg::MatrixTransform> matShift = new osg::MatrixTransform();
   osg::Matrix ms;
   int charSize = 2;
-  ms.makeTranslate(osg::Vec3(w / 2, 0, h));
+  ms.makeTranslate(osg::Vec3(m_width / 2, 0, m_height));
   matShift->setMatrix(ms);
   osg::ref_ptr<osgText::Text> textBoxTitle = new osgText::Text();
   textBoxTitle->setAlignment(osgText::Text::LEFT_TOP);
   textBoxTitle->setAxisAlignment(osgText::Text::XZ_PLANE);
   textBoxTitle->setColor(osg::Vec4(1, 1, 1, 1));
-  textBoxTitle->setText(devInfo->name, osgText::String::ENCODING_UTF8);
+  textBoxTitle->setText(m_devInfo.name, osgText::String::ENCODING_UTF8);
   textBoxTitle->setCharacterSize(charSize);
   textBoxTitle->setFont(coVRFileManager::instance()->getFontFile(m_font.c_str()));
-  textBoxTitle->setMaximumWidth(w);
-  textBoxTitle->setPosition(osg::Vec3(rad - w / 2., 0, h * 0.9));
+  textBoxTitle->setMaximumWidth(m_width);
+  textBoxTitle->setPosition(osg::Vec3(m_rad - m_width / 2., 0, m_height * 0.9));
 
   osg::ref_ptr<osgText::Text> textBoxContent = new osgText::Text();
   textBoxContent->setAlignment(osgText::Text::LEFT_TOP);
@@ -156,8 +150,8 @@ void Device::showInfo() {
   textBoxContent->setText(description, osgText::String::ENCODING_UTF8);
   textBoxContent->setCharacterSize(charSize);
   textBoxContent->setFont(coVRFileManager::instance()->getFontFile(NULL));
-  textBoxContent->setMaximumWidth(w * 2. / 3.);
-  textBoxContent->setPosition(osg::Vec3(rad - w / 2.f, 0, h * 0.75));
+  textBoxContent->setMaximumWidth(m_width * 2. / 3.);
+  textBoxContent->setPosition(osg::Vec3(m_rad - m_width / 2.f, 0, m_height * 0.75));
 
   osg::ref_ptr<osgText::Text> textBoxValues = new osgText::Text();
   textBoxValues->setAlignment(osgText::Text::LEFT_TOP);
@@ -166,34 +160,34 @@ void Device::showInfo() {
   textBoxValues->setLineSpacing(1.25);
 
   std::string textvalues =
-      (devInfo->baujahr > 0.f ? (std::to_string((int)devInfo->baujahr) + " \n")
-                              : "- \n");
+      (m_devInfo.baujahr > 0.f ? (std::to_string((int)m_devInfo.baujahr) + " \n")
+                               : "- \n");
   textvalues +=
-      (devInfo->flaeche > 0.f ? (std::to_string((int)devInfo->flaeche) + " m2 \n")
-                              : "- \n");
+      (m_devInfo.flaeche > 0.f ? (std::to_string((int)m_devInfo.flaeche) + " m2 \n")
+                               : "- \n");
   textvalues +=
-      (devInfo->strom < 0.f ? "- \n"
-                            : (std::to_string((int)devInfo->strom) + " MW\n"));
+      (m_devInfo.strom < 0.f ? "- \n"
+                             : (std::to_string((int)m_devInfo.strom) + " MW\n"));
   textvalues +=
-      (devInfo->waerme < 0.f ? "- \n"
-                             : (std::to_string((int)devInfo->waerme) + " kW\n"));
+      (m_devInfo.waerme < 0.f ? "- \n"
+                              : (std::to_string((int)m_devInfo.waerme) + " kW\n"));
   textvalues +=
-      (devInfo->kaelte < 0.f ? "- \n"
-                             : (std::to_string((int)devInfo->kaelte) + " kW\n"));
+      (m_devInfo.kaelte < 0.f ? "- \n"
+                              : (std::to_string((int)m_devInfo.kaelte) + " kW\n"));
 
   textBoxValues->setText(textvalues);
   textBoxValues->setCharacterSize(charSize);
   textBoxValues->setFont(coVRFileManager::instance()->getFontFile(NULL));
-  textBoxValues->setMaximumWidth(w / 3.);
-  textBoxValues->setPosition(osg::Vec3(rad + w / 6., 0, h * 0.75));
+  textBoxValues->setMaximumWidth(m_width / 3.);
+  textBoxValues->setPosition(osg::Vec3(m_rad + m_width / 6., 0, m_height * 0.75));
 
   osg::Vec4 colVec(0., 0., 0., 0.2);
   osg::ref_ptr<osg::Material> mat = new osg::Material();
   mat->setDiffuse(osg::Material::FRONT_AND_BACK, colVec);
   mat->setAmbient(osg::Material::FRONT_AND_BACK, colVec);
 
-  osg::ref_ptr<osg::Box> box =
-      new osg::Box(osg::Vec3(rad, 0.04 * rad, h / 2.f), w, 0, h);
+  osg::ref_ptr<osg::Box> box = new osg::Box(
+      osg::Vec3(m_rad, 0.04 * m_rad, m_height / 2.f), m_width, 0, m_height);
   osg::ShapeDrawable *sdBox = new osg::ShapeDrawable(box);
   sdBox->setColor(colVec);
   osg::ref_ptr<osg::StateSet> boxState = sdBox->getOrCreateStateSet();
@@ -215,9 +209,9 @@ void Device::showInfo() {
   geo->addDrawable(sdBox);
 
   matShift->addChild(geo);
-  TextGeode = new osg::Group();
-  TextGeode->setName("TextGroup");
-  TextGeode->addChild(matShift);
-  BBoard->addChild(TextGeode);
+  m_txtGroup = new osg::Group();
+  m_txtGroup->setName("TextGroup");
+  m_txtGroup->addChild(matShift);
+  m_BBoard->addChild(m_txtGroup);
 }
 }  // namespace energy
