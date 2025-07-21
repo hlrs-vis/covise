@@ -142,7 +142,9 @@ void EnnovatisDevice::setChannelGroup(
 }
 
 void EnnovatisDevice::updateChannelSelectionList() {
-  auto channels = m_buildingInfo.building->getChannels(*m_channelGroup.lock());
+  auto channelGroup = m_channelGroup.lock();
+  if (!channelGroup) return;
+  auto channels = m_buildingInfo.building->getChannels(*channelGroup);
   std::vector<std::string> channelNames(channels.size());
   auto channelsIt = channels.begin();
   std::generate(channelNames.begin(), channelNames.end(), [&channelsIt]() mutable {
@@ -160,9 +162,13 @@ void EnnovatisDevice::fetchData() {
 
   // make sure only master node fetches data from Ennovatis => sync with slave
   // in update()
-  if (m_opncvrCtrl->isMaster())
-    m_restWorker.fetchChannels(*m_channelGroup.lock(), *m_buildingInfo.building,
-                               *m_request.lock());
+  if (m_opncvrCtrl->isMaster()) {
+    auto channelGroup = m_channelGroup.lock();
+    if (!channelGroup) return;
+    auto request = m_request.lock();
+    if (!request) return;
+    m_restWorker.fetchChannels(*channelGroup, *m_buildingInfo.building, *request);
+  }
 }
 
 void EnnovatisDevice::init() {
@@ -178,41 +184,9 @@ void EnnovatisDevice::init() {
   auto drawables = m_drawableBuilding->getDrawables();
   for (auto drawable : drawables) {
     m_deviceGroup->addChild(drawable);
-    if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
-      //   m_defaultStateSets.push_back(
-      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES));
+    if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode())
       m_defaultStateSets.push_back(
           new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_STATESETS));
-
-      //   osg::ref_ptr<osg::Geode> clonedGeode =
-      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES);
-      //   for (auto i = 0; i < clonedGeode->getNumParents(); ++i) {
-      //     auto parent = clonedGeode->getParent(i);
-      //     parent->removeChild(clonedGeode);
-      //   }
-
-      //   for (auto i = 0; i < clonedGeode->getNumChildren(); ++i) {
-      //     auto child = clonedGeode->getChild(i);
-      //     for (auto j = 0; j < child->getNumParents(); ++j) {
-      //       auto parent = child->getParent(j);
-      //     //   if (parent == clonedGeode) continue;
-      //     //   parent->removeChild(child);
-      //     }
-      //   }
-
-      //   m_defaultStateSets.push_back(clonedGeode);
-      //   clonedGeode->removeDrawables(0, clonedGeode->getNumDrawables());
-      //   for (auto i = 0; i < clonedGeode->getNumDrawables(); ++i) {
-      //     auto drawable = clonedGeode->getDrawable(i);
-      //     d
-      //   }
-
-      //   m_defaultStateSets.emplace_back(
-      //     //   new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_STATESETS));
-      //       new osg::Geode(*geode, osg::CopyOp::DEEP_COPY_NODES));
-      //   osg::clone(geode.get(), osg::CopyOp::DEEP_COPY_NODES));
-      //   *geode, osg::CopyOp::DEEP_COPY_NODES);
-    }
   }
 }
 
@@ -342,40 +316,12 @@ void EnnovatisDevice::disactivate() {
 
     for (auto i = 0; i < m_defaultStateSets.size(); ++i) {
       auto drawable = m_drawableBuilding->getDrawable(i);
-      //   m_deviceGroup->removeChild(drawable);
-      //   osg::ref_ptr<osg::Geode> geode =
-      //       osg::clone(m_defaultStateSets[i].get(), osg::CopyOp::DEEP_COPY_NODES);
 
       if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
         geode->setStateSet(m_defaultStateSets[i]->getStateSet());
         m_deviceGroup->addChild(geode);
       }
-
-      //   drawable->setStateSet(m_defaultStateSets[i]->getStateSet());
-      //   m_deviceGroup->addChild(geode);
-      //   if (osg::ref_ptr<osg::Geode> geode = drawable->asGeode()) {
-      //     // osg::ref_ptr<osg::Geode> default_geode = new
-      //     // osg::Geode(*m_defaultStateSets[i]->asGeode(),
-      //     // osg::CopyOp::DEEP_COPY_NODES); geode = default_geode;
-      //     m_deviceGroup->removeChild(drawable);
-      //     geode = dynamic_cast<osg::Geode *>(
-      //         osg::clone(m_defaultStateSets[i].get(),
-      //         osg::CopyOp::DEEP_COPY_NODES));
-      //     m_deviceGroup->addChild(geode);
-      //     // geode->setStateSet(default_geode->getStateSet());
-      //     // osg::ref_ptr<osg::Geode> default_geode =
-      //     m_defaultStateSets[i]->asGeode();
-      //     // geode->setStateSet(default_geode->getStateSet());
-
-      //     // osg::ref_ptr<osg::ShapeDrawable> shape =
-      //     //     dynamic_cast<osg::ShapeDrawable *>(geode->getDrawable(0));
-      //     // if (!shape) continue;
-      //     // shape->build();
-      //   }
     }
-    // m_drawableBuilding->initDrawables();
-    // for (auto drawable : m_drawableBuilding->getDrawables())
-    //   m_deviceGroup->addChild(drawable);
     m_timestepColors.clear();
     m_sensorData.clear();
   }
