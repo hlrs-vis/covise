@@ -1,3 +1,6 @@
+if(NOT COVISE_USE_QT)
+    return()
+endif()
 
 SET(HEADERS
    MADIconnect.h

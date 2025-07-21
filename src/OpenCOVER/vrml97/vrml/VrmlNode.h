@@ -354,6 +354,8 @@ private:
 
 };
 
+std::ostream &VRMLEXPORT operator<<(std::ostream &os, const VrmlNode &f);
+
 template<typename VrmlType>
 VrmlField::VrmlFieldType toEnumType(const VrmlType *t = nullptr);
 
