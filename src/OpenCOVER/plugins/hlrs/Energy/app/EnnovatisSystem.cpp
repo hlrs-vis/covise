@@ -94,8 +94,8 @@ void EnnovatisSystem::init() {
   initRESTRequest();
 
   if (!loadChannelIDs(
-          m_plugin->configString("Ennovatis", "channelIdPath", "default")->value(),
-          m_plugin->configString("Ennovatis", "channelIdCSVPath", "default")
+          m_plugin->configString("Ennovatis", "jsonPath", "default")->value(),
+          m_plugin->configString("Ennovatis", "csvPath", "default")
               ->value())) {
     std::cerr << "Failed to load channel IDs" << std::endl;
     return;
@@ -267,7 +267,7 @@ void EnnovatisSystem::updateEnnovatisChannelGrp() {
 }
 
 void EnnovatisSystem::setEnnovatisChannelGrp(ennovatis::ChannelGroup group) {
-  //   switchTo(m_ennovatis, m_switch);
+  //   switchTo(m_ennoatis, m_switch);
   m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
 
   if constexpr (debug) {
