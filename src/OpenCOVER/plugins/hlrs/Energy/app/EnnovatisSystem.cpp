@@ -7,6 +7,8 @@
 #include <lib/ennovatis/date.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
+#include <proj.h>
+#include <utils/read/csv/csv.h>
 #include <utils/string/LevenshteinDistane.h>
 
 #include <fstream>
@@ -94,8 +96,9 @@ void EnnovatisSystem::init() {
   initRESTRequest();
 
   if (!loadChannelIDs(
-          m_plugin->configString("Ennovatis", "jsonPath", "default")->value(),
-          m_plugin->configString("Ennovatis", "csvPath", "default")
+          m_plugin->configString("Ennovatis", "jsonChannelIdPath", "default")
+              ->value(),
+          m_plugin->configString("Ennovatis", "csvChannelIdPath", "default")
               ->value())) {
     std::cerr << "Failed to load channel IDs" << std::endl;
     return;
@@ -239,10 +242,42 @@ CylinderAttributes EnnovatisSystem::getCylinderAttributes() {
 }
 
 void EnnovatisSystem::initEnnovatisDevices() {
+  const auto projFrom =
+      m_plugin->configString("General", "projFrom", "default")->value();
+  const auto projTo =
+      m_plugin->configString("General", "projTo", "default")->value();
+  const auto offset =
+      m_plugin->configFloatArray("General", "offset", std::vector<double>{0, 0, 0})
+          ->value();
+  auto P =
+      proj_create_crs_to_crs(PJ_DEFAULT_CTX, projFrom.c_str(), projTo.c_str(), NULL);
+  bool mapdrape = true;
+  PJ_COORD coord;
+  coord.lpzt.z = 0.0;
+  coord.lpzt.t = HUGE_VAL;
+
+  if (!P) {
+    fprintf(stderr,
+            "Energy Plugin: Ignore mapping. No valid projection was "
+            "found between given proj string in "
+            "config EnergyCampus.toml\n");
+    mapdrape = false;
+  }
+
   m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
   m_ennovatisDevicesSensors.clear();
   auto cylinderAttributes = getCylinderAttributes();
   for (auto &b : m_buildings) {
+    auto &lat = b.getY();
+    auto &lon = b.getX();
+    coord.lpzt.lam = lon;
+    coord.lpzt.phi = lat;
+
+    coord = proj_trans(P, PJ_FWD, coord);
+
+    b.setX(coord.xy.x + offset[0]);  // x
+    b.setY(coord.xy.y + offset[1]);  // y
+    b.setHeight(offset[2]);
     cylinderAttributes.position = osg::Vec3(b.getX(), b.getY(), b.getHeight());
     auto drawableBuilding = std::make_unique<PrototypeBuilding>(cylinderAttributes);
     auto infoboardPos = osg::Vec3(b.getX() + cylinderAttributes.radius + 5,
@@ -259,6 +294,7 @@ void EnnovatisSystem::initEnnovatisDevices() {
     m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
         std::move(enDev), enDev->getDeviceGroup(), m_enabledDeviceList));
   }
+  proj_destroy(P);
 }
 
 void EnnovatisSystem::updateEnnovatisChannelGrp() {

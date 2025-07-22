@@ -35,6 +35,8 @@ struct sax_channelid_parser : public nlohmann::json::json_sax_t {
   bool m_isChannel = false;
   bool m_isBuildingID = false;
   bool m_isObj = false;
+  bool m_isLat = false;
+  bool m_isLon = false;
   // current channel in iteration
   Channel m_channel;
   // current attr key in channel iteration
