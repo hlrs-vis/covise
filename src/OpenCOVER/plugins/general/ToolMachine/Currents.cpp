@@ -7,17 +7,17 @@
 #include <iostream>
 #include <osg/StateSet>
 #include <osgDB/StreamOperator>
-#include <PluginUtil/ColorMaterials.h>
+#include <PluginUtil/colors/ColorMaterials.h>
+
 
 #include <PluginUtil/coShaderUtil.h>
 #include <OpcUaClient/opcua.h>
 using namespace opencover;
 
 
-opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const opencover::ColorMap &colorMap)
 {
-    // return applyShader(drawable, colorMap, min, max, "MapColorsAttrib");
-    return applyShader(drawable, colorMap, min, max, "MapColorsAttribUnlit");
+    return applyShader(drawable, colorMap, "MapColorsAttribUnlit");
 }
 
 Currents::Currents(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
@@ -32,9 +32,9 @@ void Currents::clear()
     m_values->clear();
 }
 
-void Currents::applyShader(const covise::ColorMap& map, float min, float max)
+void Currents::applyShader(const opencover::ColorMap& map)
 {
-    applyLineShader(m_traceLine, map, min, max);
+    applyLineShader(m_traceLine, map);
 }
 
 std::vector<std::string> Currents::getAttributes()
@@ -64,7 +64,8 @@ void Currents::initGeo()
     linewidth->setWidth(10.0f);
     stateSet->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
     m_tableNode->addChild(m_traceLine);
-    applyLineShader(m_traceLine, m_colorMapSelector->selectedMap(), getMinAttribute(), getMaxAttribute());
+    m_colorMapSelector->setMinMax(getMinAttribute(), getMaxAttribute());
+    applyLineShader(m_traceLine, m_colorMapSelector->colorMap());
 
 }
 

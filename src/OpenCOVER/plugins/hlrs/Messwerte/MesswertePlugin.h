@@ -71,7 +71,8 @@ using namespace opencover;
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
+
 
 class MesswertePlugin : public coVRPlugin, public coTUIListener
 {

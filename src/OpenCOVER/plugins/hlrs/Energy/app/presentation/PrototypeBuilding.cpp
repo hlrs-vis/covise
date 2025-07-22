@@ -18,7 +18,7 @@ void PrototypeBuilding::initDrawables() {
   const osg::Vec3f bottom(m_attributes.position);
   osg::Vec3f top(bottom);
   top.z() += m_attributes.height;
-  osg::ref_ptr<osg::Geode> drawable = utils::osgUtils::createCylinderBetweenPoints(
+  osg::ref_ptr<osg::Geode> drawable = utils::osgUtils::createOsgCylinderBetweenPoints(
       bottom, top, m_attributes.radius, m_attributes.colorMap.defaultColor);
   m_drawables.push_back(drawable);
 }

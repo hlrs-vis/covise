@@ -129,26 +129,19 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
     maxIO = (float)max;
 }
 
-coColorBar::coColorBar(const std::string &name, const std::string &species, float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a, bool inMenu)
+coColorBar::coColorBar(const std::string &name, const ColorMap &map, bool inMenu)
     : coMenuItem(name.c_str())
     , name_(name)
-    , species_(species)
 {
-    int i;
 
-    numColors_ = nc;
-    min_ = mi;
-    max_ = ma;
-
-    //fprintf(stderr,"new coColorBar [%s] with %d colors\n", name_.c_str(), numColors_);
     image_.clear();
 
     auto bg = inMenu ? vrui::coUIElement::ITEM_BACKGROUND_NORMAL : vrui::coUIElement::BLACK;
 
     // create the
-    makeLabelValues();
+    makeLabelValues(map);
     makeTickImage();
-    for (i = 0; i < MAX_LABELS; i++)
+    for (int i = 0; i < MAX_LABELS; i++)
     {
         labels_[i] = new vrui::coLabel();
         labels_[i]->setUniqueName("label" + std::to_string(i));
@@ -180,16 +173,16 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     {
         sprintf(format_str_, "%%.%sf", precision.c_str());
     }
-    else if ((fabs(ma) > 1e-4 || fabs(mi) > 1e-4) && fabs(mi) < 1e+6 && fabs(ma) < 1e+6)
+    else if ((fabs(map.max()) > 1e-4 || fabs(map.min()) > 1e-4) && fabs(map.min()) < 1e+6 && fabs(map.max()) < 1e+6)
     {
         int ndig = 5;
-        int prec = std::max(0, ndig-(int)std::log10(std::max(fabs(mi), fabs(ma))));
+        int prec = std::max(0, ndig-(int)std::log10(std::max(fabs(map.min()), fabs(map.max()))));
         std::string sign = "";
-        if (mi < 0 || ma < 0)
+        if (map.min() < 0 || map.max() < 0)
             sign = "+";
         sprintf(format_str_, "%%%s%d.%df", sign.c_str(), ndig-prec, prec);
     }
-    else if (mi < 0)
+    else if (map.min() < 0)
     {
         sprintf(format_str_, "%%+g");
     }
@@ -200,7 +193,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     // create texture
     image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
-    makeImage(numColors_, r, g, b, a, min_ > max_);
+    makeImage(map, map.min() > map.max());
     texture_ = new vrui::coTexturedBackground((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setUniqueName("texture");
     texture_->setMinHeight(LabelHeight); // entspricht einer color
@@ -241,14 +234,12 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
         everything_->setUniqueName("everything");
         everything_->setVgap(10.0);
         everything_->setHgap(10.0);
-
-        speciesLabel_->setString(species_);
         everything_->addElement(textureAndLabels_);
         everything_->addElement(speciesLabel_);
         background_->addElement(everything_);
     }
 
-    update(min_, max_, numColors_, r, g, b, a);
+    update(map);
 }
 
 /// return the actual UI Element that represents this menu.
@@ -280,7 +271,7 @@ coColorBar::~coColorBar()
 }
 
 void
-coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a)
+coColorBar::update(const ColorMap &map)
 {
     char str[100];
     // use - and + symbyls with same width
@@ -293,10 +284,6 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     const char space[] = " ";
     const size_t off = std::max(sizeof space, std::max(sizeof minus,sizeof plus)-2); // reuse one char, don't count terminating 0
 
-    numColors_ = nc;
-    min_ = mi;
-    max_ = ma;
-
     // remove old labels
     for (size_t i = 0; i < MAX_LABELS; i++)
     {
@@ -306,7 +293,7 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     assert(allLabels_->getSize() == 0);
 
     // update labels
-    makeLabelValues();
+    makeLabelValues(map);
     float vgap = (Height - (numLabels_-1)*LabelHeight)/(numLabels_-1);
 
     for (size_t i = 0; i < numLabels_; i++)
@@ -343,9 +330,13 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     }
 
     // update image
-    makeImage(numColors_, r, g, b, a, min_ > max_);
+    makeImage(map, map.min() > map.max());
     texture_->setImage((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setHeight(Height);
+    auto species = map.species();
+    if(!map.unit().empty())
+        species += " (" + map.unit() + ")";
+    speciesLabel_->setString(species);
 }
 
 const char *coColorBar::getName() const
@@ -354,7 +345,7 @@ const char *coColorBar::getName() const
 }
 
 void
-coColorBar::makeImage(int numColors, const float *r, const float *g, const float *b, const float *a, bool swapped)
+coColorBar::makeImage(const ColorMap &m, bool swapped)
 {
     unsigned char *cur;
     int x, y, idx;
@@ -364,20 +355,15 @@ coColorBar::makeImage(int numColors, const float *r, const float *g, const float
     {
         for (x = 0; x < 2; x++)
         {
-            idx = (int)(((float)y / 256.0) * numColors);
+            idx = (int)(((float)y / 256.0) * m.steps());
             if (swapped)
-                idx = numColors - idx - 1;
-            *cur = (unsigned char)(255.0 * r[idx]);
-            cur++;
-
-            *cur = (unsigned char)(255.0 * g[idx]);
-            cur++;
-
-            *cur = (unsigned char)(255.0 * b[idx]);
-            cur++;
-
-            *cur = (unsigned char)(255.0 * a[idx]);
-            cur++;
+                idx = m.steps() - idx - 1;
+            auto c = m.getColorPerStep(idx);
+            for (size_t i = 0; i < 4; i++)
+            {
+                *cur = (unsigned char)(255.0 * c[i]);
+                cur++;
+            }
         }
     }
 }
@@ -423,60 +409,61 @@ coColorBar::makeTickImage()
 }
 
 void
-coColorBar::makeLabelValues()
+coColorBar::makeLabelValues(const ColorMap &map)
 {
     // create labels
-    numLabels_ = numColors_ + 1;
-    if (numColors_ < 256)
+    numLabels_ = map.steps() + 1;
+    if (map.steps() < 256)
     {
         // label every n-th step
         for (int i=1; i<(256/MAX_LABELS)+1; ++i)
         {
-            if (numColors_ % i != 0)
+            if (map.steps() % i != 0)
                 continue;
-            if (numColors_/i+1 > MAX_LABELS)
+            if (map.steps()/i+1 > MAX_LABELS)
                 continue;
-            numLabels_ = numColors_/i + 1;
+            numLabels_ = map.steps()/i + 1;
             break;
         }
     }
-
+    auto min = map.min();
+    auto max = map.max();
     // adapt the min/max values to more readible values
     if (numLabels_ >= MAX_LABELS)
     {
-        calcFormat(min_, max_, format_str_, numLabels_);
+        calcFormat(min, max, format_str_, numLabels_);
         //strcpy(format_str_,"%f");
         //numLabels_=MAX_LABELS;
     }
     else
     {
-        float dummyMin = min_; // if we have a stepped map, we only use the formats
-        float dummyMax = max_;
+        float dummyMin = min; // if we have a stepped map, we only use the formats
+        float dummyMax = max;
         int dummyNum = numLabels_;
         calcFormat(dummyMin, dummyMax, format_str_, dummyNum);
     }
     assert(numLabels_ <= MAX_LABELS);
 
-    float step = (max_ - min_) / (numLabels_ - 1);
+    float step = (max - min) / (numLabels_ - 1);
 
     if (step < 0)
     {
-        labelValues_[0] = min_;
+        labelValues_[0] = min;
         for (int i = 1; i < numLabels_ - 1; i++) {
-            labelValues_[i] = min_ + i * step;
+            labelValues_[i] = min + i * step;
         }
         for (int i = numLabels_ > 0 ? numLabels_ - 1 : 0; i < MAX_LABELS; i++) {
-            labelValues_[i] = max_;
+            labelValues_[i] = max;
         }
     }
     else
     {
-        labelValues_[0] = max_;
+        labelValues_[0] = max;
         for (int i = 1; i < numLabels_ - 1; i++) {
-            labelValues_[i] = max_ - i * step;
+            labelValues_[i] = max - i * step;
         }
         for (int i = numLabels_ > 0 ? numLabels_ - 1 : 0; i < MAX_LABELS; i++) {
-            labelValues_[i] = min_;
+            labelValues_[i] = min;
         }
     }
 }

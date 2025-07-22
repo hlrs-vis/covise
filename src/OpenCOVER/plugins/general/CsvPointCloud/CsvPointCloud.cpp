@@ -119,7 +119,7 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_pointSizeSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "PointSize", 2, *m_config, "main", config::Flag::PerModel))
     , m_numPointsSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "NumPoints", 1000, *m_config, "main", config::Flag::PerModel))
     , m_speedSlider(std::make_unique<ui::SliderConfigValue>(m_CsvPointCloudMenu, "AnimationSpeed", 1, *m_config, "main", config::Flag::PerModel))
-    , m_colorMapSelector(*m_CsvPointCloudMenu)
+    , m_colorMapSelector(m_CsvPointCloudMenu)
     , m_dataSelector(std::make_unique<ui::SelectionListConfigValue>(m_CsvPointCloudMenu, "ScalarData", 0, *m_config, "main", config::Flag::PerModel))
     , m_moveMachineBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "MoveMachine", true, *m_config, "main", config::Flag::PerModel))
     , m_showSurfaceBtn(std::make_unique<ui::ButtonConfigValue>(m_CsvPointCloudMenu, "ShowSurface", false, *m_config, "main", config::Flag::PerModel))
@@ -140,7 +140,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     , m_offset(std::make_unique<ui::EditFieldConfigValue>(m_advancedGroup, "HeaderOffset", "", *m_config, "advanced", config::Flag::PerModel))
     , m_editFields{m_dataScale->ui(), m_coordTerms[0]->ui(), m_coordTerms[1]->ui(), m_coordTerms[2]->ui(), m_machinePositionsTerms[0]->ui(), m_machinePositionsTerms[1]->ui(), m_machinePositionsTerms[2]->ui(), m_colorTerm->ui(), m_timeScaleIndicator->ui(), m_delimiter->ui(), m_offset->ui(), m_pointReductionCriteria->ui(), m_numPontesPerCycle->ui()}
     , m_applyBtn(new ui::Button(m_advancedGroup, "Apply"))
-    , m_colorInteractor(new CsvInteractor())
 {
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<MachineNode>());
     std::cerr << "getName: " << getName() << std::endl;
@@ -150,7 +149,6 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
     m_showSurfaceBtn->setUpdater([this]()
                                   { setTimestep(m_lastTimestep); });
     m_moveMachineBtn->ui()->setShared(true);
-    m_colorInteractor->incRefCount();
     coVRAnimationManager::instance()->setAnimationSkipMax(5000);
     for (auto ef : m_editFields)
         ef->setShared(true);
@@ -192,12 +190,9 @@ CsvPointCloudPlugin::CsvPointCloudPlugin()
 
     m_colorMapSelector.setCallback([this](const ColorMap &map)
                                    {
-            m_colorInteractor->setColorMap(map);
-            updateColorMap();
+            updateColorMap(map);
         });
-    m_colorMapSelector.setValue("OCT-6000W");
-
-    m_colorInteractor->setColorMap(m_colorMapSelector.selectedMap());
+    m_colorMapSelector.setColorMap("OCT-6000W");
 
     if(!cover->visMenu)
     {
@@ -247,7 +242,6 @@ void CsvPointCloudPlugin::loadData(const std::string& term)
 {
     if (m_dataTable)
     {
-        m_colorInteractor->setName(term);
         auto colors = getScalarData(*m_dataTable, term);
 
         if (m_points)
@@ -255,7 +249,7 @@ void CsvPointCloudPlugin::loadData(const std::string& term)
         if (m_surface)
             m_surface->setVertexAttribArray(DataAttrib, colors.data);
 
-        updateColorMap();
+        updateColorMap(m_colorMapSelector.colorMap());
     }
 }
 
@@ -368,16 +362,12 @@ float parseScale(const std::string &scale)
     return expression.value();
 }
 
-void CsvPointCloudPlugin::updateColorMap()
+void CsvPointCloudPlugin::updateColorMap(const ColorMap & cm)
 {
-    auto cm = m_colorInteractor->getColorMap();
     if (m_points)
-        applyPointShader(m_points, cm, m_minColor, m_maxColor);
+        applyPointShader(m_points, cm);
     if (m_surface)
-        applySurfaceShader(m_surface, cm, m_minColor, m_maxColor);
-
-    opencover::coVRPluginList::instance()->removeObject("CsvPointCloud4", false);
-    opencover::coVRPluginList::instance()->newInteractor(&renderObject, m_colorInteractor);
+        applySurfaceShader(m_surface, cm);
 }
 
 CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &symbols, const std::string& term)
@@ -429,10 +419,8 @@ CsvPointCloudPlugin::ScalarData CsvPointCloudPlugin::getScalarData(DataTable &sy
         i == 0 ? data.max = dataFragment.max : data.max = std::max(data.max, dataFragment.max);
     }
 
-    m_colorInteractor->setMinMax(data.min, data.max);
-    m_minColor = data.min;
-    m_maxColor = data.max;
-
+    m_colorMapSelector.setMinBounds(data.min, data.max);
+    m_colorMapSelector.setMinMax(data.min, data.max);
     return data;
 }
 
@@ -634,7 +622,7 @@ void CsvPointCloudPlugin::createGeodes(Group *parent, const std::string &filenam
         m_currentGeode->addDrawable(m_points.get());
     if (m_surface)
         m_currentGeode->addDrawable(m_surface.get());
-    updateColorMap();
+    updateColorMap(m_colorMapSelector.colorMap());
 
     coVRAnimationManager::instance()->setNumTimesteps(size, this);
 }
@@ -733,22 +721,4 @@ void CsvPointCloudPlugin::advanceMachineSpeed(std::array<float, 3> &machineSpeed
         machineSpeed[1] = speed.y();
         machineSpeed[2] = speed.z();
     }
-}
-
-bool CsvPointCloudPlugin::update()
-{
-    float min, max;
-    int steps;
-    m_colorInteractor->getFloatScalarParam("min", min);
-    m_colorInteractor->getFloatScalarParam("max", max);
-    m_colorInteractor->getIntScalarParam("steps", steps);
-    if (min != m_minColor || max != m_maxColor || steps != m_numColorSteps)
-    {
-        m_minColor = min;
-        m_maxColor = max;
-        m_numColorSteps = steps;
-        updateColorMap();
-        return true;
-    }
-    return false;
 }

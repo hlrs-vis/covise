@@ -1,150 +1,157 @@
 <?xml version="1.0"?>
-
-<COCONFIG version="1" >
-
- <GLOBAL>
-  
+<COCONFIG version="1">
+<GLOBAL>
   <Colormaps>
-     <Star> 
-        <Point r="0.10" g="0.00" b="0.90" a="1.0" index="0" /> 
-        <Point r="0.00" g="0.00" b="1.00" a="1.0" index="1" /> 
-        <Point r="0.63" g="0.63" b="1.00" a="1.0" index="2" /> 
-        <Point r="0.00" g="0.75" b="1.00" a="1.0" index="3" /> 
-        <Point r="0.00" g="1.00" b="1.00" a="1.0" index="4" /> 
-        <Point r="0.10" g="0.80" b="0.70" a="1.0" index="5" /> 
-        <Point r="0.10" g="0.90" b="0.00" a="1.0" index="6" /> 
-        <Point r="0.50" g="1.00" b="0.63" a="1.0" index="7" /> 
-        <Point r="0.75" g="1.00" b="0.25" a="1.0" index="8" /> 
-        <Point r="1.00" g="1.00" b="0.00" a="1.0" index="9" /> 
-        <Point r="1.00" g="0.80" b="0.10" a="1.0" index="10" /> 
-        <Point r="1.00" g="0.60" b="0.30" a="1.0" index="11" /> 
-        <Point r="1.00" g="0.67" b="0.95" a="1.0" index="12" /> 
-        <Point r="1.00" g="0.00" b="0.50" a="1.0" index="13" /> 
-        <Point r="1.00" g="0.00" b="0.00" a="1.0" index="14" /> 
-     </Star>
-     <ITSM> 
-        <Point r="0.00" g="0.00" b="0.35" a="1.00" x="0.00" index="0"/> 
-        <Point r="0.00" g="0.00" b="1.00" a="1.00" x="0.05" index="1"/> 
-        <Point r="0.00" g="1.00" b="1.00" a="1.00" x="0.26" index="2"/> 
-        <Point r="0.00" g="1.00" b="0.00" a="1.00" x="0.5"  index="3"/> 
-        <Point r="1.00" g="1.00" b="0.00" a="1.00" x="0.74" index="4"/> 
-        <Point r="1.00" g="0.00" b="0.00" a="1.00" x="0.95" index="5"/> 
-        <Point r="0.40" g="0.00" b="0.00" a="1.00" x="1.00" index="6"/>  
-     </ITSM>      
-	 
-     <Leistung> 
-        <Point r="0.40" g="0.00" b="0.40" a="1.00" index="0" /> 
-        <Point r="0.00" g="0.00" b="1.00" a="1.00" index="1" /> 
-        <Point r="0.00" g="1.00" b="1.00" a="1.00" index="2" /> 
-        <Point r="0.00" g="1.00" b="0.00" a="1.00" index="3" /> 
-        <Point r="1.00" g="1.00" b="0.00" a="1.00" index="4" /> 
-        <Point r="1.00" g="0.00" b="0.00" a="1.00" index="5" />  
-     </Leistung>      
-
-     <Rainbow> 
-        <Point r="0.40" g="0.00" b="0.40" a="1.00" index="0" /> 
-        <Point r="0.00" g="0.00" b="1.00" a="1.00" index="1" /> 
-        <Point r="0.00" g="1.00" b="1.00" a="1.00" index="2" /> 
-        <Point r="0.00" g="1.00" b="0.00" a="1.00" index="3" /> 
-        <Point r="1.00" g="1.00" b="0.00" a="1.00" index="4" /> 
-        <Point r="1.00" g="0.00" b="0.00" a="1.00" index="5" /> 
-     </Rainbow> 
-
-     <IAG> 
-        <Point r="0" g="0" b="0.345" a="1"     x="0"        index="0"/> 
-        <Point r="0" g="0" b="1"     a="1"     x="0.113169" index="1"/> 
-        <Point r="0" g="1" b="1"     a="1"     x="0.26"     index="2"/> 
-        <Point r="0" g="1" b="0"     a="1"     x="0.5"      index="3"/>  
-        <Point r="1" g="1" b="0"     a="1"     x="0.74"     index="4"/> 
-        <Point r="1" g="0" b="0"     a="0.377" x="1"        index="5"/> 
-     </IAG>
-
-     <Blue> 
-        <Point r="0" g="0" b="0" a="0.0" index="0" /> 
-        <Point r="0" g="0" b="1" a="1.0" index="1" /> 
-     </Blue>
-
-     <Blue-Light> 
-        <Point r="1" g="1" b="1" index="0" /> 
-        <Point r="0" g="0" b="1" index="1" />  
-     </Blue-Light> 
-
-     <MTransparent>  
-        <Point r="0"   g="0" b="0.345" a="0.025" x="0"        index="0"/> 
-        <Point r="0"   g="0" b="1"     a="0.049" x="0.193416" index="1"/> 
-        <Point r="0"   g="1" b="1"     a="0.111" x="0.403292" index="2"/> 
-        <Point r="0"   g="1" b="0"     a="0.16"  x="0.596708" index="3"/> 
-        <Point r="1"   g="1" b="0"     a="0.21"  x="0.748971" index="4"/> 
-        <Point r="1"   g="0" b="0"     a="0.278" x="0.90535"  index="5"/> 
-        <Point r="0.4" g="0" b="0"     a="0.346" x="1"        index="6"/> 
-     </MTransparent>       
-     <ANSYS>
-         <Point r="0.0" g="0.0" b="1.0" a="1.0" index="0" />
-         <Point r="0.0" g="1.0" b="1.0" a="1.0" index="1" />
-         <Point r="0.0" g="1.0" b="0.0" a="1.0" index="2" />
-         <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3" />
-         <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4" />
-     </ANSYS>
-     <ANSA>
-         <Point r="0.0" g="0.0" b="1.0" a="1.0" index="0" />
-         <Point r="0.0" g="1.0" b="1.0" a="1.0" index="1" />
-         <Point r="0.0" g="1.0" b="0.0" a="1.0" index="2" />
-         <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3" />
-         <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4" />
-     </ANSA>
-
-     <CoolWarm>
-         <Point r="0.231" g="0.298" b="0.752" index="0" />
-         <Point r="0.552" g="0.690" b="0.996" index="1" />
-         <Point r="0.866" g="0.866" b="0.866" index="2" />
-         <Point r="0.956" g="0.603" b="0.486" index="3" />
-         <Point r="0.705" g="0.015" b="0.149" index="4" />
-     </CoolWarm>
-
-     <CoolWarmBrewer>
-         <Point r="0.172" g="0.482" b="0.714" a="1.000" x="0.00" index="0"/>
-         <Point r="0.671" g="0.851" b="0.914" a="1.000" x="0.25" index="1"/>
-         <Point r="1.000" g="1.000" b="0.749" a="1.000" x="0.5"  index="2"/>
-         <Point r="0.992" g="0.682" b="0.38"  a="1.000" x="0.75" index="3"/>
-         <Point r="0.843" g="0.098" b="0.11"  a="1.000" x="1.00" index="4"/>
-     </CoolWarmBrewer>
-
-     <StarRGBRedBlue>
+    <Voltage>
+      <Point r="0.859" g="0.169" b="0.153" a="1" x="0" index="0"/>
+      <Point r="0.992" g="0.749" b="0.067" a="1" x="0.25" index="1"/>
+      <Point r="0.333" g="0.718" b="0.282" a="1" x="0.5" index="2"/>
+      <Point r="0.000" g="1.000" b="1.000" a="1" x="0.75" index="3"/>
+      <Point r="0.086" g="0.588" b="0.824" a="1" x="1.0" index="4"/>
+    </Voltage>
+    <Utilization>
+      <Point r="0.333" g="0.718" b="0.282" a="1" x="0" index="0"/>
+      <Point r="0.992" g="0.749" b="0.067" a="1" x="0.5" index="1"/>
+      <Point r="0.859" g="0.169" b="0.153" a="1" x="1" index="2"/>
+    </Utilization>
+    <Power_Grey>
+      <Point r="0.086" g="0.588" b="0.824" a="1" x="0" index="0"/>
+      <Point r="0.753" g="0.753" b="0.753" a="1" x="0.5" index="1"/>
+      <Point r="0.859" g="0.169" b="0.153" a="1" x="1" index="2"/>
+    </Power_Grey>
+    <Power>
+      <Point r="0.086" g="0.588" b="0.824" a="1" x="0" index="0"/>
+      <Point r="1.000" g="1.000" b="1.000" a="1" x="0.5" index="1"/>
+      <Point r="0.859" g="0.169" b="0.153" a="1" x="1" index="2"/>
+    </Power>
+    <Star>
+      <Point r="0.10" g="0.00" b="0.90" a="1.0" index="0"/>
+      <Point r="0.00" g="0.00" b="1.00" a="1.0" index="1"/>
+      <Point r="0.63" g="0.63" b="1.00" a="1.0" index="2"/>
+      <Point r="0.00" g="0.75" b="1.00" a="1.0" index="3"/>
+      <Point r="0.00" g="1.00" b="1.00" a="1.0" index="4"/>
+      <Point r="0.10" g="0.80" b="0.70" a="1.0" index="5"/>
+      <Point r="0.10" g="0.90" b="0.00" a="1.0" index="6"/>
+      <Point r="0.50" g="1.00" b="0.63" a="1.0" index="7"/>
+      <Point r="0.75" g="1.00" b="0.25" a="1.0" index="8"/>
+      <Point r="1.00" g="1.00" b="0.00" a="1.0" index="9"/>
+      <Point r="1.00" g="0.80" b="0.10" a="1.0" index="10"/>
+      <Point r="1.00" g="0.60" b="0.30" a="1.0" index="11"/>
+      <Point r="1.00" g="0.67" b="0.95" a="1.0" index="12"/>
+      <Point r="1.00" g="0.00" b="0.50" a="1.0" index="13"/>
+      <Point r="1.00" g="0.00" b="0.00" a="1.0" index="14"/>
+    </Star>
+    <ITSM>
+      <Point r="0.00" g="0.00" b="0.35" a="1.00" x="0.00" index="0"/>
+      <Point r="0.00" g="0.00" b="1.00" a="1.00" x="0.05" index="1"/>
+      <Point r="0.00" g="1.00" b="1.00" a="1.00" x="0.26" index="2"/>
+      <Point r="0.00" g="1.00" b="0.00" a="1.00" x="0.5" index="3"/>
+      <Point r="1.00" g="1.00" b="0.00" a="1.00" x="0.74" index="4"/>
+      <Point r="1.00" g="0.00" b="0.00" a="1.00" x="0.95" index="5"/>
+      <Point r="0.40" g="0.00" b="0.00" a="1.00" x="1.00" index="6"/>
+    </ITSM>
+    <Leistung>
+      <Point r="0.40" g="0.00" b="0.40" a="1.00" index="0"/>
+      <Point r="0.00" g="0.00" b="1.00" a="1.00" index="1"/>
+      <Point r="0.00" g="1.00" b="1.00" a="1.00" index="2"/>
+      <Point r="0.00" g="1.00" b="0.00" a="1.00" index="3"/>
+      <Point r="1.00" g="1.00" b="0.00" a="1.00" index="4"/>
+      <Point r="1.00" g="0.00" b="0.00" a="1.00" index="5"/>
+    </Leistung>
+    <Rainbow>
+      <Point r="0.40" g="0.00" b="0.40" a="1.00" index="0"/>
+      <Point r="0.00" g="0.00" b="1.00" a="1.00" index="1"/>
+      <Point r="0.00" g="1.00" b="1.00" a="1.00" index="2"/>
+      <Point r="0.00" g="1.00" b="0.00" a="1.00" index="3"/>
+      <Point r="1.00" g="1.00" b="0.00" a="1.00" index="4"/>
+      <Point r="1.00" g="0.00" b="0.00" a="1.00" index="5"/>
+    </Rainbow>
+    <IAG>
+      <Point r="0" g="0" b="0.345" a="1" x="0" index="0"/>
+      <Point r="0" g="0" b="1" a="1" x="0.113169" index="1"/>
+      <Point r="0" g="1" b="1" a="1" x="0.26" index="2"/>
+      <Point r="0" g="1" b="0" a="1" x="0.5" index="3"/>
+      <Point r="1" g="1" b="0" a="1" x="0.74" index="4"/>
+      <Point r="1" g="0" b="0" a="0.377" x="1" index="5"/>
+    </IAG>
+    <Blue>
+      <Point r="0" g="0" b="0" a="0.0" index="0"/>
+      <Point r="0" g="0" b="1" a="1.0" index="1"/>
+    </Blue>
+    <Blue-Light>
+      <Point r="1" g="1" b="1" index="0"/>
+      <Point r="0" g="0" b="1" index="1"/>
+    </Blue-Light>
+    <MTransparent>
+      <Point r="0" g="0" b="0.345" a="0.025" x="0" index="0"/>
+      <Point r="0" g="0" b="1" a="0.049" x="0.193416" index="1"/>
+      <Point r="0" g="1" b="1" a="0.111" x="0.403292" index="2"/>
+      <Point r="0" g="1" b="0" a="0.16" x="0.596708" index="3"/>
+      <Point r="1" g="1" b="0" a="0.21" x="0.748971" index="4"/>
+      <Point r="1" g="0" b="0" a="0.278" x="0.90535" index="5"/>
+      <Point r="0.4" g="0" b="0" a="0.346" x="1" index="6"/>
+    </MTransparent>
+    <ANSYS>
+      <Point r="0.0" g="0.0" b="1.0" a="1.0" index="0"/>
+      <Point r="0.0" g="1.0" b="1.0" a="1.0" index="1"/>
+      <Point r="0.0" g="1.0" b="0.0" a="1.0" index="2"/>
+      <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3"/>
+      <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4"/>
+    </ANSYS>
+    <ANSA>
+      <Point r="0.0" g="0.0" b="1.0" a="1.0" index="0"/>
+      <Point r="0.0" g="1.0" b="1.0" a="1.0" index="1"/>
+      <Point r="0.0" g="1.0" b="0.0" a="1.0" index="2"/>
+      <Point r="1.0" g="1.0" b="0.0" a="1.0" index="3"/>
+      <Point r="1.0" g="0.0" b="0.0" a="1.0" index="4"/>
+    </ANSA>
+    <CoolWarm>
+      <Point r="0.231" g="0.298" b="0.752" index="0"/>
+      <Point r="0.552" g="0.690" b="0.996" index="1"/>
+      <Point r="0.866" g="0.866" b="0.866" index="2"/>
+      <Point r="0.956" g="0.603" b="0.486" index="3"/>
+      <Point r="0.705" g="0.015" b="0.149" index="4"/>
+    </CoolWarm>
+    <CoolWarmBrewer>
+      <Point r="0.172" g="0.482" b="0.714" a="1.000" x="0.00" index="0"/>
+      <Point r="0.671" g="0.851" b="0.914" a="1.000" x="0.25" index="1"/>
+      <Point r="1.000" g="1.000" b="0.749" a="1.000" x="0.5" index="2"/>
+      <Point r="0.992" g="0.682" b="0.38" a="1.000" x="0.75" index="3"/>
+      <Point r="0.843" g="0.098" b="0.11" a="1.000" x="1.00" index="4"/>
+    </CoolWarmBrewer>
+    <StarRGBRedBlue>
       <Point a="1" b="1" g="0" name="0" r="0" x="0">
-      </Point>
+</Point>
       <Point a="1" b="1" g="0.4" name="1" r="0" x="0.1">
-      </Point>
+</Point>
       <Point a="1" b="1" g="0.8" name="2" r="0" x="0.2">
-      </Point>
+</Point>
       <Point a="1" b="0.8" g="1" name="3" r="0" x="0.3">
-      </Point>
+</Point>
       <Point a="1" b="0.4" g="1" name="4" r="0" x="0.4">
-      </Point>
+</Point>
       <Point a="1" b="0" g="1" name="5" r="0" x="0.5">
-      </Point>
+</Point>
       <Point a="1" b="0" g="1" name="6" r="0.4" x="0.6">
-      </Point>
+</Point>
       <Point a="1" b="0" g="1" name="7" r="0.8" x="0.7">
-      </Point>
+</Point>
       <Point a="1" b="0" g="0.8" name="8" r="1" x="0.8">
-      </Point>
+</Point>
       <Point a="1" b="0" g="0.4" name="9" r="1" x="0.9">
-      </Point>
+</Point>
       <Point a="1" b="0" g="0" name="10" r="1" x="1">
-      </Point>
+</Point>
     </StarRGBRedBlue>
-
-   <OCT-6000W>
-      <Point r="0"   g="0" b="0.345" a="0" x="0"        index="0"/>
-      <Point r="0"   g="0" b="1"     a="0.1" x="0.26" index="1"/>
-      <Point r="0"   g="1" b="1"     a="0.9" x="0.4" index="2"/>
-      <Point r="0"   g="1" b="0"     a="1"  x="0.6" index="3"/>
-      <Point r="1"   g="1" b="0"     a="1"  x="0.75" index="4"/>
-      <Point r="1"   g="0" b="0"     a="1" x="0.9"  index="5"/>
-      <Point r="0.4" g="0" b="0"     a="1" x="1"        index="6"/>
-   </OCT-6000W>
+    <OCT-6000W>
+      <Point r="0" g="0" b="0.345" a="0" x="0" index="0"/>
+      <Point r="0" g="0" b="1" a="0.1" x="0.26" index="1"/>
+      <Point r="0" g="1" b="1" a="0.9" x="0.4" index="2"/>
+      <Point r="0" g="1" b="0" a="1" x="0.6" index="3"/>
+      <Point r="1" g="1" b="0" a="1" x="0.75" index="4"/>
+      <Point r="1" g="0" b="0" a="1" x="0.9" index="5"/>
+      <Point r="0.4" g="0" b="0" a="1" x="1" index="6"/>
+    </OCT-6000W>
   </Colormaps>
-
- </GLOBAL>
-
+</GLOBAL>
 </COCONFIG>

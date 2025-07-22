@@ -1,4 +1,4 @@
-ADD_LIBRARY(coThreadUtil INTERFACE threadworker.h)
+ADD_LIBRARY(coThreadUtil INTERFACE threadworker.h ConcurrentQueue.h)
 #additional stuff from covise_add_library which we can't use to build an interface library
 SET_TARGET_PROPERTIES(coThreadUtil PROPERTIES OUTPUT_NAME "coThreadUtil")
 
@@ -16,5 +16,5 @@ SET_TARGET_PROPERTIES(coThreadUtil PROPERTIES LINK_FLAGS "${COVISE_LINK_FLAGS}")
 
 
 COVISE_INSTALL_TARGET(coThreadUtil)
-COVISE_INSTALL_HEADERS(coThreadUtil threadworker.h)
+COVISE_INSTALL_HEADERS(coThreadUtil threadworker.h ConcurrentQueue.h)
 COVISE_WNOERROR(coThreadUtil BASEARCH zebu)

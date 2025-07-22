@@ -26,7 +26,7 @@
 #include <chrono>
 #include <thread>
 
-#include <PluginUtil/coColorMap.h>
+#include <PluginUtil/colors/coColorMap.h>
 
 using namespace opencover;
 

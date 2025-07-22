@@ -16,11 +16,11 @@ template <typename T>
 class HeatingSimulationUI : public BaseSimulationUI<T> {
  public:
   HeatingSimulationUI(std::shared_ptr<HeatingSimulation> sim,
-                      std::shared_ptr<T> parent, std::shared_ptr<ColorMap> colorMap)
-      : BaseSimulationUI<T>(sim, parent, colorMap) {}
+                      std::shared_ptr<T> parent)
+      : BaseSimulationUI<T>(sim, parent) {}
   ~HeatingSimulationUI() = default;
-  HeatingSimulationUI(const HeatingSimulationUI &) = delete;
-  HeatingSimulationUI &operator=(const HeatingSimulationUI &) = delete;
+  HeatingSimulationUI(const HeatingSimulationUI&) = delete;
+  HeatingSimulationUI& operator=(const HeatingSimulationUI&) = delete;
 
   void updateTime(int timestep) override {
     auto parent = this->m_parent.lock();
@@ -39,29 +39,20 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
     }
   }
 
-  void updateTimestepColors(const std::string &key, float min = 0.0f,
-                            float max = 1.0f, bool resetMinMax = false) override {
-    auto color_map = this->m_colorMapRef.lock();
-    if (!color_map) {
-      std::cerr << "ColorMap is not available for update of colors." << std::endl;
-      return;
-    }
+  float min(const std::string& species) override {
+    return this->heatingSimulationPtr()->getMin(species);
+  }
 
-    if (min > max) min = max;
-    color_map->max = max;
-    color_map->min = min;
+  float max(const std::string& species) override {
+    return this->heatingSimulationPtr()->getMax(species);
+  }
 
-    if (resetMinMax) {
-      auto &[res_min, res_max] = heatingSimulationPtr()->getMinMax(key);
-      color_map->max = res_max;
-      color_map->min = res_min;
-    }
-
+  void updateTimestepColors(const opencover::ColorMap& map) override {
     // compute colors
     auto heatingSim = this->heatingSimulationPtr();
     if (!heatingSim) return;
     auto computeColorsForContainer = [&](auto entities) {
-      this->computeColors(color_map, key, min, max, entities);
+      this->computeColors(map, entities);
     };
 
     computeColorsForContainer(heatingSim->Consumers().get());

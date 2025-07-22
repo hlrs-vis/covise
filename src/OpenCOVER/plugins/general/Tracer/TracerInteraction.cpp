@@ -29,7 +29,7 @@
 #include <cover/coInteractor.h>
 #include <cover/VRSceneGraph.h>
 
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
 
 #include <config/CoviseConfig.h>
 

@@ -22,7 +22,7 @@
 
 #include <util/coExport.h>
 
-#include "ColorBar.h"
+#include "colors/ColorBar.h"
 
 #include <osgDB/WriteFile>
 

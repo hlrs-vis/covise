@@ -13,7 +13,7 @@ public:
     Currents(opencover::ui::Group *group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
 private:
     void clear() override;
-    void applyShader(const covise::ColorMap& map, float min, float max) override;
+    void applyShader(const opencover::ColorMap& map) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
     void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;

@@ -23,13 +23,14 @@ SET(PLUGINUTIL_HEADERS
   BoxSelection.h
   BoxSelectionInteractor.h
   coArrow.h
-  coColorBar.h
-  coColorMap.h
   coInstanceRenderer.h
   coLine.h
   coLOD.h
-  ColorBar.h
-  ColorMaterials.h
+  colors/coColorBar.h
+  colors/coColorHUD.h
+  colors/coColorMap.h
+  colors/ColorBar.h
+  colors/ColorMaterials.h
   coPlane.h
   coSensor.h
   coShaderUtil.h
@@ -64,13 +65,14 @@ SET(SOURCES
   BoxSelection.cpp
   BoxSelectionInteractor.cpp
   coArrow.cpp
-  coColorBar.cpp
-  coColorMap.cpp
+  colors/coColorBar.cpp
+  colors/coColorHUD.cpp
+  colors/coColorMap.cpp
+  colors/ColorBar.cpp
+  colors/ColorMaterials.cpp
   coInstanceRenderer.cpp
   coLine.cpp
   coLOD.cpp
-  ColorBar.cpp
-  ColorMaterials.cpp
   coPlane.cpp
   coSensor.cpp
   coShaderUtil.cpp
@@ -108,6 +110,7 @@ TARGET_LINK_LIBRARIES(coOpenPluginUtil coOpenCOVER coOpenVRUI coOSGVRUI
 
 COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)
 TARGET_INCLUDE_DIRECTORIES(coOpenPluginUtil PUBLIC ${OPENSCENEGRAPH_INCLUDE_DIRS})
+
 
 
 

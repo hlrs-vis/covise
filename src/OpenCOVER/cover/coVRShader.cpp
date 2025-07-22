@@ -261,6 +261,13 @@ void coVRUniform::setValue(bool b)
     uniform->set(b);
 }
 
+void coVRUniform::setValue(int i)
+{
+    char fs[100];
+    sprintf(fs, "%d", i);
+    value = fs;
+    uniform->set(i);
+}
 
 void coVRUniform::setValue(osg::Vec3 v)
 {
@@ -920,16 +927,22 @@ void coVRShader::setUniformesFromAttribute(const char *uniformValues)
 
 osg::Uniform *coVRShader::getUniform(const std::string &name)
 {
-    std::list<coVRUniform *>::iterator it;
-    for (it = uniforms.begin(); it != uniforms.end(); it++)
-    {
-        if ((*it)->getName() == name)
-        {
-            return (*it)->uniform.get();
-        }
-    }
-    return NULL;
+    auto u = getcoVRUniform(name);
+    if (u)
+        return u ? u->uniform.get() : nullptr;
 }
+
+coVRUniform *coVRShader::getcoVRUniform(const std::string &name)
+{
+    auto it = std::find_if(uniforms.begin(), uniforms.end(),
+                         [&name](const coVRUniform *u) { return u->getName() == name; });
+    if (it != uniforms.end())
+    {
+        return *it;
+    }
+    return nullptr;
+}
+
 
 void coVRShader::setMatrixUniform(const std::string &name, osg::Matrixd m)
 {
@@ -1994,21 +2007,12 @@ void coVRShaderList::applyParams(coVRShader *shader, std::map<std::string, std::
         return;
 
     std::list<coVRUniform *> unilist = shader->getUniforms();
-    std::map<std::string, std::string>::iterator itparam;
-    for (itparam = params->begin(); itparam != params->end(); itparam++)
+    for(const auto &param : *params)
     {
-        osg::Uniform *paramUniform = shader->getUniform((*itparam).first);
-        if (paramUniform)
+        auto uniform = shader->getcoVRUniform(param.first);
+        if(uniform)
         {
-            std::list<coVRUniform *>::iterator itcoUniform;
-            for (itcoUniform = unilist.begin(); itcoUniform != unilist.end(); itcoUniform++)
-            {
-                if ((*itcoUniform)->uniform == paramUniform)
-                {
-                    (*itcoUniform)->setValue((*itparam).second.c_str());
-                    break;
-                }
-            }
+            uniform->setValue(param.second.c_str());
         }
     }
 }
@@ -2828,6 +2832,17 @@ void opencover::coVRShader::setBoolUniform(const std::string &name, bool b)
         if ((*it)->getName() == name)
         {
             (*it)->setValue(b);
+        }
+    }
+}
+void opencover::coVRShader::setIntUniform(const std::string &name, int i)
+{
+    std::list<coVRUniform *>::iterator it;
+    for (it = uniforms.begin(); it != uniforms.end(); it++)
+    {
+        if ((*it)->getName() == name)
+        {
+            (*it)->setValue(i);
         }
     }
 }
