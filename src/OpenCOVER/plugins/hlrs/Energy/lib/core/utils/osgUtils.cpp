@@ -1,7 +1,6 @@
 #include "osgUtils.h"
 
 #include <GL/gl.h>
-#include <GL/glext.h>
 #include <utils/color.h>
 
 #include <iostream>
