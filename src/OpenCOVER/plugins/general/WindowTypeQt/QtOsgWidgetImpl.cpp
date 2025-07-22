@@ -31,13 +31,6 @@
 void QtGraphicsWindow::setSyncToVBlank(bool flag)
 {
 #if defined(USE_X11)
-#ifdef glxewInit
-    if (glxewInit() != GLEW_OK)
-    {
-        std::cerr << "setSyncToVBlank: failed to initialize GLXEW" << std::endl;
-    }
-    else
-#endif
     GLenum err = glewInit();
     if (err != GLEW_OK)
     {
@@ -53,13 +46,34 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
 
     Display *dpy = nullptr;
 
-    #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
-        dpy = qGuiApp->nativeInterface<QNativeInterface::QX11Application>()->display();
-    #else
-        #ifdef HAVE_QTX11EXTRAS
-            dpy = QX11Info::display();
-        #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    if (!qGuiApp) {
+        std::cerr << "setSyncToVBlank: qGuiApp is nullptr" << std::endl;
+        return;
+    }
+
+    // Detect session type
+    QByteArray sessionType = qgetenv("XDG_SESSION_TYPE");
+    if (sessionType == "x11") {
+        auto x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+        if (!x11App) {
+            std::cerr << "setSyncToVBlank: QX11Application native interface is nullptr" << std::endl;
+            return;
+        }
+        dpy = x11App->display();
+    } else if (sessionType == "wayland") {
+        std::cerr << "setSyncToVBlank: Wayland detected, VSync via GLX is not supported." << std::endl;
+        return;
+    } else {
+        std::cerr << "setSyncToVBlank: Unknown session type: " << sessionType.constData() << std::endl;
+        return;
+    }
+#else
+    #ifdef HAVE_QTX11EXTRAS
+        dpy = QX11Info::display();
     #endif
+#endif
+
     if (!dpy)
     {
         std::cerr << "setSyncToVBlank: did not find Display for application" << std::endl;
@@ -67,15 +81,14 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     }
 
     int screenNumber = XScreenNumberOfScreen(XDefaultScreenOfDisplay(dpy));
-    //  const char *s = glXQueryExtensionsString(dpy, wid);
-     const char *s = glXQueryExtensionsString(dpy, screenNumber);
-     if(s==nullptr)
-     {
-         std::cerr << "no extensions, probably running MESA" << std::endl;
-         return;
-     }
+    const char *s = glXQueryExtensionsString(dpy, screenNumber);
+    if(s==nullptr)
+    {
+        std::cerr << "no extensions, probably running MESA" << std::endl;
+        return;
+    }
 
-     if (!glXSwapIntervalEXT)
+    if (!glXSwapIntervalEXT)
     {
         std::cerr << "setSyncToVBlank: no glXSwapIntervalEXT" << std::endl;
         return;
