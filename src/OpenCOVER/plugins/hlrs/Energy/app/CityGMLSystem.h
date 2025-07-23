@@ -16,6 +16,7 @@
 #include <memory>
 #include <osg/ClipNode>
 #include <osg/Group>
+#include <osg/Switch>
 #include <string>
 #include <vector>
 
@@ -27,7 +28,7 @@ typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelLis
 class CityGMLSystem final : public core::interface::ISystem {
  public:
   CityGMLSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
-                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Group> parent);
+                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent);
   virtual ~CityGMLSystem();
   CityGMLSystem(const CityGMLSystem &) = delete;
   CityGMLSystem &operator=(const CityGMLSystem &) = delete;
@@ -121,6 +122,7 @@ class CityGMLSystem final : public core::interface::ISystem {
   std::map<std::string, core::utils::osgUtils::Geodes> m_defaultStatesets;
   SolarPanelList m_panels;
 
+  osg::ref_ptr<osg::Switch> m_parent;
   osg::ref_ptr<osg::Group> m_cityGMLGroup;
   osg::ref_ptr<osg::Group> m_pvGroup;
   osg::ref_ptr<osg::ClipNode> m_coverRootGroup;
