@@ -77,16 +77,16 @@ EnnovatisSystem::EnnovatisSystem(opencover::coVRPlugin *plugin,
       m_to(nullptr),
       m_update(nullptr),
       m_ennovatis(new osg::Group()),
+      m_parent(parent),
       m_enabled(false) {
   assert(parentMenu && "EnnovatisSystem: parent must not be null");
   assert(plugin && "EnnovatisSystem: plugin must not be null");
   initEnnovatisUI(parentMenu);
-  parent->addChild(m_ennovatis);
+  m_parent->addChild(m_ennovatis);
 }
 
 EnnovatisSystem::~EnnovatisSystem() {
-  osg::ref_ptr<osg::Group> parent = m_ennovatis->getParent(0);
-  if (parent) parent->removeChild(m_ennovatis);
+  if (m_parent) m_parent->removeChild(m_ennovatis);
 }
 
 void EnnovatisSystem::init() {
@@ -300,7 +300,7 @@ void EnnovatisSystem::updateEnnovatisChannelGrp() {
 }
 
 void EnnovatisSystem::setEnnovatisChannelGrp(ennovatis::ChannelGroup group) {
-  //   switchTo(m_ennoatis, m_switch);
+  core::utils::osgUtils::switchTo(m_ennovatis, m_parent);
   m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
 
   if constexpr (debug) {
@@ -336,6 +336,7 @@ bool EnnovatisSystem::loadChannelIDs(const std::string &pathToJSON,
   }
   auto jsonPath = std::filesystem::path(pathToJSON);
   if (jsonPath.extension() == ".json") {
+    // init buildings
     ennovatis::sax_channelid_parser sax(&m_buildings);
     if (!sax.parse_filestream(inputFilestream)) return false;
 

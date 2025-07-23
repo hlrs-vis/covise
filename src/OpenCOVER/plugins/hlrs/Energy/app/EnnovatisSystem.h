@@ -15,7 +15,6 @@
 
 #include "presentation/PrototypeBuilding.h"
 #include "ui/ennovatis/EnnovatisDeviceSensor.h"
-// #include "ui/legacy/DeviceSensor.h"
 
 class EnnovatisSystem final : public core::interface::ISystem {
  public:
@@ -60,7 +59,7 @@ class EnnovatisSystem final : public core::interface::ISystem {
   opencover::ui::Button *m_update;
 
   osg::ref_ptr<osg::Group> m_ennovatis;
-  osg::ref_ptr<osg::Switch> m_switch;
+  osg::ref_ptr<osg::Switch> m_parent;
 
   std::shared_ptr<ennovatis::rest_request> m_req;
   std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
