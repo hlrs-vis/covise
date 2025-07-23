@@ -339,6 +339,7 @@ bool EnnovatisSystem::loadChannelIDs(const std::string &pathToJSON,
     ennovatis::sax_channelid_parser sax(&m_buildings);
     if (!sax.parse_filestream(inputFilestream)) return false;
 
+    // update new channelids
     if (!updateChannelIDsFromCSV(pathToCSV)) return false;
 
     if constexpr (debug)
