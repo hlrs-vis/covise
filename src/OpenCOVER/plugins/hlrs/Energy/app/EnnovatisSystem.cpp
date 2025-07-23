@@ -16,7 +16,6 @@
 #include <regex>
 
 #include "presentation/TxtInfoboard.h"
-// #include "ui/legacy/Device.h"
 
 namespace {
 constexpr bool debug = build_options.debug_ennovatis;
@@ -110,18 +109,16 @@ void EnnovatisSystem::init() {
 void EnnovatisSystem::enable(bool on) {
   m_enabled = on;
   if (on)
-    for (auto &sensor : m_ennovatisDevicesSensors) sensor->activate();
+    for (auto &sensor : m_ennovatisDeviceSensors) sensor->activate();
   else
-    for (auto &sensor : m_ennovatisDevicesSensors) sensor->disactivate();
+    for (auto &sensor : m_ennovatisDeviceSensors) sensor->disactivate();
 }
 
 void EnnovatisSystem::update() {
-  if (m_ennovatisDevicesSensors.empty()) return;
+  if (m_ennovatisDeviceSensors.empty()) return;
 
   // update the sensors
-  for (auto &sensor : m_ennovatisDevicesSensors) {
-    sensor->update();
-  }
+  for (auto &sensor : m_ennovatisDeviceSensors) sensor->update();
 
   // update the enabled device list
   //   m_enabledDeviceList->setList(
@@ -131,7 +128,7 @@ void EnnovatisSystem::update() {
 }
 
 void EnnovatisSystem::updateTime(int timestep) {
-  for (auto &sensor : m_ennovatisDevicesSensors) sensor->setTimestep(timestep);
+  for (auto &sensor : m_ennovatisDeviceSensors) sensor->setTimestep(timestep);
 }
 
 void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
@@ -170,7 +167,7 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
 
 void EnnovatisSystem::selectEnabledDevice() {
   auto selected = m_enabledDeviceList->selectedItem();
-  for (auto &sensor : m_ennovatisDevicesSensors) {
+  for (auto &sensor : m_ennovatisDeviceSensors) {
     auto building = sensor->getDevice()->getBuildingInfo().building;
     if (building->getName() == selected) {
       sensor->disactivate();
@@ -265,7 +262,7 @@ void EnnovatisSystem::initEnnovatisDevices() {
   }
 
   m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
-  m_ennovatisDevicesSensors.clear();
+  m_ennovatisDeviceSensors.clear();
   auto cylinderAttributes = getCylinderAttributes();
   for (auto &b : m_buildings) {
     auto &lat = b.getY();
@@ -291,14 +288,14 @@ void EnnovatisSystem::initEnnovatisDevices() {
         b, m_channelList, m_req, m_channelGrp, std::move(infoboard),
         std::move(drawableBuilding));
     m_ennovatis->addChild(enDev->getDeviceGroup());
-    m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
+    m_ennovatisDeviceSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
         std::move(enDev), enDev->getDeviceGroup(), m_enabledDeviceList));
   }
   proj_destroy(P);
 }
 
 void EnnovatisSystem::updateEnnovatisChannelGrp() {
-  for (auto &sensor : m_ennovatisDevicesSensors)
+  for (auto &sensor : m_ennovatisDeviceSensors)
     sensor->getDevice()->setChannelGroup(m_channelGrp);
 }
 

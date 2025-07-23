@@ -48,7 +48,7 @@ class EnnovatisSystem final : public core::interface::ISystem {
   void updateEnnovatis();
   void setRESTDate(const std::string &toSet, bool isFrom = false);
 
-  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
+  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDeviceSensors;
 
   opencover::coVRPlugin *m_plugin;
   opencover::ui::Menu *m_menu;
