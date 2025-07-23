@@ -293,14 +293,6 @@ void EnergyPlugin::preFrame() {
   }
 }
 
-bool EnergyPlugin::isActiv(osg::ref_ptr<osg::Switch> switchToCheck,
-                           osg::ref_ptr<osg::Group> group) {
-  if (!switchToCheck || !group) return false;
-  const auto valueList = switchToCheck->getValueList();
-  const auto idx = switchToCheck->getChildIndex(group);
-  return valueList[idx];
-}
-
 std::pair<PJ *, PJ_COORD> EnergyPlugin::initProj() {
   ProjTrans pjTrans;
   pjTrans.projFrom = configString("General", "projFrom", "default")->value();
@@ -360,12 +352,6 @@ void EnergyPlugin::setTimestep(int t) {
 
   auto &energyGrid = m_energyGrids[m_energygridBtnGroup->value()];
   if (energyGrid.grid) energyGrid.grid->updateTime(t);
-}
-
-void EnergyPlugin::switchTo(const osg::ref_ptr<osg::Node> child,
-                            osg::ref_ptr<osg::Switch> parent) {
-  parent->setAllChildrenOff();
-  parent->setChildValue(child, true);
 }
 
 bool EnergyPlugin::init() {

@@ -43,6 +43,9 @@ osg::ref_ptr<osg::Node> createInstance(
    //
 typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
 
+void switchTo(const osg::ref_ptr<osg::Node> child, osg::ref_ptr<osg::Switch> parent);
+bool isActive(osg::ref_ptr<osg::Switch> switchToCheck,
+               osg::ref_ptr<osg::Group> group);
 std::unique_ptr<Geodes> getGeodes(osg::Group *grp);
 osg::BoundingBox getBoundingBox(const Geodes &geodes);
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *anotherGrp);
@@ -83,8 +86,9 @@ osg::ref_ptr<osg::Geode> createBezierTube(
 
 osg::ref_ptr<osg::Texture1D> createPointDataTexture(const std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValue1DTexture(const std::vector<double> &data);
-// osg::ref_ptr<osg::TextureRectangle> createValue1DTexture(const std::vector<double> &data);
-// osg::ref_ptr<osg::Texture1D> createValue1DTexture(const std::vector<double> &data);
+// osg::ref_ptr<osg::TextureRectangle> createValue1DTexture(const std::vector<double>
+// &data); osg::ref_ptr<osg::Texture1D> createValue1DTexture(const
+// std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValueTexture(const std::vector<double> &fromData,
                                                 const std::vector<double> &toData);
 osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,

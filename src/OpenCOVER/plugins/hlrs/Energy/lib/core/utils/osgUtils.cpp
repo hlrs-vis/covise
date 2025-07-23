@@ -119,6 +119,30 @@ std::vector<GeometryData> extractTexturedGeometryData(osg::Node *node) {
   return texturedGeometryDataList;
 }
 
+bool isActive(osg::ref_ptr<osg::Switch> switchToCheck,
+              osg::ref_ptr<osg::Group> group) {
+  if (!switchToCheck || !group) return false;
+  const auto valueList = switchToCheck->getValueList();
+  const auto idx = switchToCheck->getChildIndex(group);
+  return valueList[idx];
+}
+
+void switchTo(const osg::ref_ptr<osg::Node> child,
+              osg::ref_ptr<osg::Switch> parent) {
+  if (!parent || !child) {
+    std::cerr << "Error: Parent switch or child is null." << std::endl;
+    return;
+  }
+  if (!parent->containsNode(child)) {
+    std::cerr << "Error: Child node is not a child of the parent switch."
+              << std::endl;
+    return;
+  }
+
+  parent->setAllChildrenOff();
+  parent->setChildValue(child, true);
+}
+
 osg::ref_ptr<osg::Node> createInstance(
     const std::vector<GeometryData> &masterGeometryData, const osg::Matrix &matrix) {
   osg::ref_ptr<osg::Group> instanceRoot = new osg::Group;
