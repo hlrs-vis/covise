@@ -397,7 +397,8 @@ void EnergyPlugin::updateEnergyGridColorMapInShader(const opencover::ColorMap &m
                                                     EnergyGridType type) {
   auto gridTypeIndex = getEnergyGridTypeIndex(type);
   auto &grid = m_energyGrids[gridTypeIndex];
-  if (grid.group && isActiv(m_grid, grid.group) && grid.simUI) {
+  if (grid.group && core::utils::osgUtils::isActive(m_grid, grid.group) &&
+      grid.simUI) {
     // grid.simUI->updateTimestepColors(map);
     // grid.grid->setColorMap(map);
     // TODO: remove this later
@@ -439,8 +440,9 @@ void EnergyPlugin::initSimMenu() {
                      getScenarioIndex(Scenario::optimized_bigger_awz));
 
   m_scenarios->setCallback([this](int value) {
-    switchTo(m_energyGrids[getEnergyGridTypeIndex(EnergyGridType::PowerGrid)].group,
-             m_grid);
+    core::utils::osgUtils::switchTo(
+        m_energyGrids[getEnergyGridTypeIndex(EnergyGridType::PowerGrid)].group,
+        m_grid);
     // auto scenarioIndex = getScenarioIndex(Scenario(value));
     std::string scenarioName = getScenarioName(Scenario(value));
     auto simPath = configString("Simulation", "powerSimDir", "default")->value();
@@ -495,7 +497,7 @@ void EnergyPlugin::switchEnergyGrid(EnergyGridType grid) {
     auto &colorMapMenu = defaultGrid.colorMapRegistry[selected];
     colorMapMenu.selector->show(showHud);
   }
-  switchTo(switch_to, m_grid);
+  core::utils::osgUtils::switchTo(switch_to, m_grid);
 }
 
 void EnergyPlugin::initEnergyGridUI() {
@@ -599,7 +601,7 @@ void EnergyPlugin::initPowerGridUI(const std::vector<std::string> &tablesToSkip)
   m_updatePowerGridSelection->setCallback([this](bool enable) {
     updatePowerGridSelection(enable);
     auto idx = getEnergyGridTypeIndex(EnergyGridType::PowerGrid);
-    switchTo(m_energyGrids[idx].group, m_grid);
+    core::utils::osgUtils::switchTo(m_energyGrids[idx].group, m_grid);
   });
 
   m_powerGridSelectionPtr =
@@ -1556,7 +1558,7 @@ void EnergyPlugin::addEnergyGridToGridSwitch(
     osg::ref_ptr<osg::Group> energyGridGroup) {
   assert(energyGridGroup && "EnergyGridGroup is nullptr");
   m_grid->addChild(energyGridGroup);
-  switchTo(energyGridGroup, m_grid);
+  core::utils::osgUtils::switchTo(energyGridGroup, m_grid);
 }
 
 void EnergyPlugin::buildHeatingGrid() {
