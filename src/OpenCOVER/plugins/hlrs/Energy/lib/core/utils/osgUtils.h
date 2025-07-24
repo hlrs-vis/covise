@@ -15,6 +15,8 @@
 #include <vector>
 
 namespace core::utils::osgUtils {
+typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
+
 namespace visitors {
 class NodeNameToggler : public osg::NodeVisitor {
  public:
@@ -40,8 +42,6 @@ std::vector<GeometryData> extractTexturedGeometryData(osg::Node *node);
 osg::ref_ptr<osg::Node> createInstance(
     const std::vector<GeometryData> &masterGeometryData, const osg::Matrix &matrix);
 }  // namespace instancing
-   //
-typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
 
 void switchTo(const osg::ref_ptr<osg::Node> child, osg::ref_ptr<osg::Switch> parent);
 bool isActive(osg::ref_ptr<osg::Switch> switchToCheck,
