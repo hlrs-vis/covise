@@ -248,18 +248,15 @@ void EnnovatisSystem::initEnnovatisDevices() {
           ->value();
   auto P =
       proj_create_crs_to_crs(PJ_DEFAULT_CTX, projFrom.c_str(), projTo.c_str(), NULL);
-  bool mapdrape = true;
   PJ_COORD coord;
   coord.lpzt.z = 0.0;
   coord.lpzt.t = HUGE_VAL;
 
-  if (!P) {
+  if (!P)
     fprintf(stderr,
-            "Energy Plugin: Ignore mapping. No valid projection was "
+            "EnnovatisSystem: Ignore mapping. No valid projection was "
             "found between given proj string in "
             "config EnergyCampus.toml\n");
-    mapdrape = false;
-  }
 
   m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
   m_ennovatisDeviceSensors.clear();

@@ -36,16 +36,15 @@ class EnnovatisSystem final : public core::interface::ISystem {
  private:
   void initEnnovatisUI(opencover::ui::Menu *parentMenu);
   void initEnnovatisDevices();
-  void updateEnnovatisChannelGrp();
+  void initRESTRequest();
+  void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
+  void setRESTDate(const std::string &toSet, bool isFrom = false);
+  void updateEnnovatis();
+  void updateEnnovatisChannelGrp();
   bool updateChannelIDsFromCSV(const std::string &pathToCSV);
   bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
-  void initRESTRequest();
   CylinderAttributes getCylinderAttributes();
-
-  void selectEnabledDevice();
-  void updateEnnovatis();
-  void setRESTDate(const std::string &toSet, bool isFrom = false);
 
   std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDeviceSensors;
 
