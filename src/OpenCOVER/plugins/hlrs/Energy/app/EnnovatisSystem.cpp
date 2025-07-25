@@ -70,7 +70,7 @@ EnnovatisSystem::EnnovatisSystem(opencover::coVRPlugin *plugin,
                                  osg::ref_ptr<osg::Switch> parent)
     : m_plugin(plugin),
       m_menu(nullptr),
-      m_ennovatisSelectionsList(nullptr),
+      m_selectionsList(nullptr),
       m_enabledDeviceList(nullptr),
       m_channelList(nullptr),
       m_from(nullptr),
@@ -109,16 +109,16 @@ void EnnovatisSystem::init() {
 void EnnovatisSystem::enable(bool on) {
   m_enabled = on;
   if (on)
-    for (auto &sensor : m_ennovatisDeviceSensors) sensor->activate();
+    for (auto &sensor : m_deviceSensors) sensor->activate();
   else
-    for (auto &sensor : m_ennovatisDeviceSensors) sensor->disactivate();
+    for (auto &sensor : m_deviceSensors) sensor->disactivate();
 }
 
 void EnnovatisSystem::update() {
-  if (m_ennovatisDeviceSensors.empty()) return;
+  if (m_deviceSensors.empty()) return;
 
   // update the sensors
-  for (auto &sensor : m_ennovatisDeviceSensors) sensor->update();
+  for (auto &sensor : m_deviceSensors) sensor->update();
 
   // update the enabled device list
   //   m_enabledDeviceList->setList(
@@ -128,7 +128,7 @@ void EnnovatisSystem::update() {
 }
 
 void EnnovatisSystem::updateTime(int timestep) {
-  for (auto &sensor : m_ennovatisDeviceSensors) sensor->setTimestep(timestep);
+  for (auto &sensor : m_deviceSensors) sensor->setTimestep(timestep);
 }
 
 void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
@@ -136,15 +136,15 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
   m_menu = new opencover::ui::Menu(parentMenu, "Ennovatis");
   m_menu->setText("Ennovatis");
 
-  m_ennovatisSelectionsList =
+  m_selectionsList =
       new opencover::ui::SelectionList(m_menu, "Ennovatis_ChannelType");
-  m_ennovatisSelectionsList->setText("Channel Type: ");
+  m_selectionsList->setText("Channel Type: ");
   std::vector<std::string> ennovatisSelections;
   for (int i = 0; i < static_cast<int>(ChannelGroup::None); ++i)
     ennovatisSelections.push_back(
         ChannelGroupToString(static_cast<ChannelGroup>(i)));
 
-  m_ennovatisSelectionsList->setList(ennovatisSelections);
+  m_selectionsList->setList(ennovatisSelections);
   m_enabledDeviceList = new opencover::ui::SelectionList(m_menu, "Enabled_Devices");
   m_enabledDeviceList->setText("Enabled Devices: ");
   m_enabledDeviceList->setCallback([this](int value) { selectEnabledDevice(); });
@@ -158,7 +158,7 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
   m_update = new opencover::ui::Button(m_menu, "Update");
   m_update->setCallback([this](bool on) { updateEnnovatis(); });
 
-  m_ennovatisSelectionsList->setCallback(
+  m_selectionsList->setCallback(
       [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
   m_from->setCallback(
       [this](const std::string &toSet) { setRESTDate(toSet, true); });
@@ -167,7 +167,7 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
 
 void EnnovatisSystem::selectEnabledDevice() {
   auto selected = m_enabledDeviceList->selectedItem();
-  for (auto &sensor : m_ennovatisDeviceSensors) {
+  for (auto &sensor : m_deviceSensors) {
     auto building = sensor->getDevice()->getBuildingInfo().building;
     if (building->getName() == selected) {
       sensor->disactivate();
@@ -259,7 +259,7 @@ void EnnovatisSystem::initEnnovatisDevices() {
             "config EnergyCampus.toml\n");
 
   m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
-  m_ennovatisDeviceSensors.clear();
+  m_deviceSensors.clear();
   auto cylinderAttributes = getCylinderAttributes();
   for (auto &b : m_buildings) {
     auto &lat = b.getY();
@@ -285,14 +285,14 @@ void EnnovatisSystem::initEnnovatisDevices() {
         b, m_channelList, m_req, m_channelGrp, std::move(infoboard),
         std::move(drawableBuilding));
     m_ennovatis->addChild(enDev->getDeviceGroup());
-    m_ennovatisDeviceSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
+    m_deviceSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
         std::move(enDev), enDev->getDeviceGroup(), m_enabledDeviceList));
   }
   proj_destroy(P);
 }
 
 void EnnovatisSystem::updateEnnovatisChannelGrp() {
-  for (auto &sensor : m_ennovatisDeviceSensors)
+  for (auto &sensor : m_deviceSensors)
     sensor->getDevice()->setChannelGroup(m_channelGrp);
 }
 

@@ -46,11 +46,11 @@ class EnnovatisSystem final : public core::interface::ISystem {
   bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
   CylinderAttributes getCylinderAttributes();
 
-  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDeviceSensors;
+  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_deviceSensors;
 
   opencover::coVRPlugin *m_plugin;
   opencover::ui::Menu *m_menu;
-  opencover::ui::SelectionList *m_ennovatisSelectionsList;
+  opencover::ui::SelectionList *m_selectionsList;
   opencover::ui::SelectionList *m_enabledDeviceList;
   opencover::ui::SelectionList *m_channelList;
   opencover::ui::EditField *m_from;
