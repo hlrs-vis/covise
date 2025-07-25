@@ -47,6 +47,8 @@ compile_commands.json
 /jammyopt
 /noble
 /nobleopt
+/manjaro
+/manjaroopt
 /darwin
 /darwinopt
 /macos
@@ -209,6 +211,8 @@ compile_commands.json
 /lennyopt
 /squeeze
 /squeezeopt
+/buster
+/busteropt
 /dapper
 /dapperopt
 /edgy
