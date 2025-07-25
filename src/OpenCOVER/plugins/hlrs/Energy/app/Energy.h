@@ -312,9 +312,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   // // Coolinggrid UI
   // opencover::ui::Menu *m_coolingGridMenu = nullptr;
 
-  // current selected channel group
-  //   std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;
-
   // switch used to toggle between ennovatis, db and citygml data
   osg::ref_ptr<osg::Switch> m_switch;
   osg::ref_ptr<osg::Switch> m_grid;

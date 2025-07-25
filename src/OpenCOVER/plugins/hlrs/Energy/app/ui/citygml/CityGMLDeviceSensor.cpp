@@ -40,7 +40,6 @@ void CityGMLDeviceSensor::update() {
 
 void CityGMLDeviceSensor::activate() {
   if (!m_active) {
-    // m_infoBoard->updateInfo("DAS IST EIN TEST");
     m_infoBoard->showInfo();
   }
   m_active = !m_active;
@@ -73,17 +72,9 @@ void CityGMLDeviceSensor::updateTitleOfInfoboard(const std::string &title) {
 }
 
 void CityGMLDeviceSensor::updateTime(int timestep) {
-//   if (timestep < m_colors.size()) {
-    // m_cityGMLBuilding->updateColor(m_colors[timestep]);
-    auto gmlBuilding = dynamic_cast<CityGMLBuilding *>(m_cityGMLBuilding.get());
-    if (gmlBuilding)
-      if (gmlBuilding->hasShader()) gmlBuilding->updateTime(timestep);
-    // m_cityGMLBuilding->updateTime(timestep);
-//   }
-  //   if (timestep < m_textBoxTxt.size()) {
-  //     m_infoBoard->updateInfo(m_textBoxTxt[timestep]);
-  //     m_infoBoard->updateTime(timestep);
-  //   }
+  auto gmlBuilding = dynamic_cast<CityGMLBuilding *>(m_cityGMLBuilding.get());
+  if (gmlBuilding)
+    if (gmlBuilding->hasShader()) gmlBuilding->updateTime(timestep);
 }
 
 void CityGMLDeviceSensor::setColorMapInShader(const opencover::ColorMap &colorMap) {

@@ -1255,18 +1255,13 @@ void EnergyPlugin::buildPowerGrid() {
   mergedOptData.insert(mergedOptData.end(), optData[1].begin(), optData[1].end());
 
   auto idx = getEnergyGridTypeIndex(EnergyGridType::PowerGrid);
-  //   auto idxSonder = getEnergyGridTypeIndex(EnergyGridType::PowerGridSonder);
   auto &egrid = m_energyGrids[idx];
-  //   auto &egridSonder = m_energyGrids[idxSonder];
   auto &powerGroup = egrid.group;
-  //   auto &powerGroupSonder = egridSonder.group;
   powerGroup = new osg::MatrixTransform;
-  //   powerGroupSonder = new osg::MatrixTransform;
   auto font = configString("Billboard", "font", "default")->value();
   TxtBoxAttributes infoboardAttributes = TxtBoxAttributes(
       osg::Vec3(0, 0, 0), "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
   powerGroup->setName("PowerGrid");
-  //   powerGroupSonder->setName("PowerGridSonder");
 
   EnergyGridConfig econfig("POWER", {}, grid::Indices(), mergedPoints, powerGroup,
                            connectionsRadius, mergedOptData, infoboardAttributes,

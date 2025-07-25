@@ -119,12 +119,6 @@ void EnnovatisSystem::update() {
 
   // update the sensors
   for (auto &sensor : m_deviceSensors) sensor->update();
-
-  // update the enabled device list
-  //   m_enabledDeviceList->setList(
-  //       ennovatis::getEnabledDeviceNames(m_ennovatisDevicesSensors));
-  //   m_enabledDeviceList->setSelectedItem(
-  //       m_enabledDeviceList->selectedItem());  // refresh selection
 }
 
 void EnnovatisSystem::updateTime(int timestep) {
