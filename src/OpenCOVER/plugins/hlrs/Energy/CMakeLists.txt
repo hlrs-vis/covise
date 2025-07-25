@@ -17,6 +17,7 @@ SET(HEADERS
     app/Energy.h
     app/CityGMLSystem.h
     app/EnnovatisSystem.h
+    app/SimulationSystem.h
     app/ui/ennovatis/EnnovatisDevice.h
     app/ui/ennovatis/EnnovatisDeviceSensor.h
     app/ui/citygml/CityGMLDeviceSensor.h
@@ -34,6 +35,7 @@ SET(SOURCES
     app/Energy.cpp
     app/CityGMLSystem.cpp
     app/EnnovatisSystem.cpp
+    app/SimulationSystem.cpp
     app/ui/ennovatis/EnnovatisDevice.cpp
     app/ui/ennovatis/EnnovatisDeviceSensor.cpp
     app/ui/citygml/CityGMLDeviceSensor.cpp
