@@ -337,14 +337,14 @@ bool EnergyPlugin::update() {
     energyGrid.grid->update();
   }
 
-  for (auto &system : m_systems)
+  for (auto &[type, system] : m_systems)
     if (system) system->update();
 
   return false;
 }
 
 void EnergyPlugin::setTimestep(int t) {
-  for (auto &system : m_systems)
+  for (auto &[type, system] : m_systems)
     if (system) system->updateTime(t);
 
   // this is a workaround for the fact that the energy grids are added in the same
@@ -374,12 +374,12 @@ bool EnergyPlugin::init() {
 }
 
 void EnergyPlugin::initSystems() {
-  m_systems[getSystemIndex(System::Ennovatis)] =
+  m_systems[System::Ennovatis] =
       std::make_unique<EnnovatisSystem>(this, m_EnergyTab, m_switch);
-  m_systems[getSystemIndex(System::CityGML)] = std::make_unique<CityGMLSystem>(
+  m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
       this, m_EnergyTab, cover->getObjectsRoot(), m_switch);
 
-  for (auto &system : m_systems) {
+  for (auto &[type, system] : m_systems) {
     system->init();
     system->enable(true);
   }
@@ -1271,27 +1271,11 @@ void EnergyPlugin::buildPowerGrid() {
   EnergyGridConfig econfig("POWER", {}, grid::Indices(), mergedPoints, powerGroup,
                            connectionsRadius, mergedOptData, infoboardAttributes,
                            EnergyGridConnectionType::Line, mergedLines);
-  //   EnergyGridConfig econfig("POWER", {}, grid::Indices(), points[0], powerGroup,
-  //                            connectionsRadius, optData[0], infoboardAttributes,
-  //                            EnergyGridConnectionType::Line, lines[0]);
-  //   EnergyGridConfig econfigSonder("POWERSonder", {}, grid::Indices(), points[1],
-  //                                  powerGroupSonder, connectionsRadius,
-  //                                  optData[1], infoboardAttributes,
-  //                                  EnergyGridConnectionType::Line, lines[1]);
 
   auto powerGrid = std::make_unique<EnergyGrid>(econfig, false);
   powerGrid->initDrawables();
-  //   powerGrid->updateColor(
-  //       osg::Vec4(255.0f / 255.0f, 222.0f / 255.0f, 33.0f / 255.0f, 1.0f));
   egrid.grid = std::move(powerGrid);
   addEnergyGridToGridSwitch(egrid.group);
-
-  //   auto powerGridSonder = std::make_unique<EnergyGrid>(econfigSonder, false);
-  //   powerGridSonder->initDrawables();
-  //   //   powerGridSonder->updateColor(
-  //   //       osg::Vec4(0.0f / 255.0f, 200.0f / 255.0f, 33.0f / 255.0f, 1.0f));
-  //   egridSonder.grid = std::move(powerGridSonder);
-  //   addEnergyGridToGridSwitch(egridSonder.group);
 
   // TODO:
   //  [ ] set trafo as 3d model or block
@@ -1485,7 +1469,6 @@ std::pair<grid::Points, grid::Data> EnergyPlugin::createHeatingGridPointsAndData
                                                 const std::string &value) {
     if (!checkForInvalidValue(value)) pointData[key] = value;
   };
-  //   while (heatingStream >> row) {
   while (heatingStream.readNextRow(row)) {
     ACCESS_CSV_ROW(row, "connections", connections);
     ACCESS_CSV_ROW(row, "id", name);

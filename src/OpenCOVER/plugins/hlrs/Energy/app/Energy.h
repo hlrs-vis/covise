@@ -143,8 +143,11 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   template <typename T>
   T *getSystem(System system) {
-    auto &ptr = m_systems[getSystemIndex(system)];
-    return dynamic_cast<T *>(ptr.get());
+    auto it = m_systems.find(system);
+    if (it != m_systems.end()) {
+      return dynamic_cast<T *>(it->second.get());
+    }
+    return nullptr;
   }
 
   CityGMLSystem *getCityGMLSystem() {
@@ -320,9 +323,7 @@ class EnergyPlugin : public opencover::coVRPlugin,
   opencover::utils::read::StreamMap m_powerGridStreams;
   opencover::utils::read::StreamMap m_heatingGridStreams;
 
-  static constexpr std::size_t NUM_SYSTEMS =
-      static_cast<std::size_t>(System::NUM_SYSTEMS);
-  std::array<std::unique_ptr<core::interface::ISystem>, NUM_SYSTEMS> m_systems;
+  std::map<System, std::unique_ptr<core::interface::ISystem>> m_systems;
   std::vector<double> m_offset;
   std::string m_powerGridDir;
   float rad, scaleH;
