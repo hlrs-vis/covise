@@ -8,15 +8,14 @@
 **                                                                        **
 ** TODO:                                                                  **
 **  [ ] fetch lat lon from googlemaps                                     **
-**  [x] make REST lib independent from ennovatis general use              **
-**  [x] update via REST in background                                     **
 **                                                                        **
 ** History:                                                               **
 **  2024  v1                                                              **
 **  Marko Djuric 02.2024: add ennovatis client                            **
 **  Marko Djuric 10.2024: add citygml interface                           **
+**  2025  v1.1                                                            **
+**  Marko Djuric 07.2025: refactor EnergyPlugin                           **
 **                                                                        **
-**  TODO: mapdrap for z coord of EnergyGrids                              **
 **                                                                        **
 \****************************************************************************/
 

@@ -9,6 +9,8 @@
  ** History:                                                               **
  **  2024  v1                                                              **
  **  Marko Djuric 02.2024: add ennovatis client                            **
+ **  2025  v1.1                                                            **
+ **  Marko Djuric 07.2025: refactor EnergyPlugin                           **
  **                                                                        **
 \****************************************************************************/
 #pragma once
