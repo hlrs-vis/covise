@@ -7,6 +7,32 @@
 
 using namespace core::simulation::power;
 
+/**
+ * @brief UI class for managing and visualizing power simulation data.
+ *
+ * PowerSimulationUI is a template class derived from BaseSimulationUI<T> that provides
+ * specialized functionality for handling PowerSimulation objects within an energy grid context.
+ * It manages updates to simulation time, color mapping, and provides access to minimum and
+ * maximum values for specific species in the simulation.
+ *
+ * @tparam T The parent UI type, typically representing an energy grid or container.
+ *
+ * @note Copy construction and assignment are disabled for this class.
+ *
+ * @param sim Shared pointer to the PowerSimulation instance.
+ * @param parent Shared pointer to the parent UI object.
+ *
+ * Public Methods:
+ * - updateTime(int timestep): Updates the UI based on the current simulation timestep,
+ *   propagating color changes to relevant energy grid entities (Buses, Cables, Generators, Transformators).
+ * - min(const std::string& species): Returns the minimum value for a given species from the simulation.
+ * - max(const std::string& species): Returns the maximum value for a given species from the simulation.
+ * - updateTimestepColors(const opencover::ColorMap& map): Computes and applies color mapping for all entities
+ *   in the simulation for the current timestep.
+ *
+ * Private Methods:
+ * - powerSimulationPtr(): Returns a shared pointer to the underlying PowerSimulation instance.
+ */
 template <typename T>
 class PowerSimulationUI : public BaseSimulationUI<T> {
  public:

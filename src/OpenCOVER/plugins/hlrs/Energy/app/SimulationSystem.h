@@ -30,6 +30,31 @@
 
 using namespace opencover::utils::read;
 
+/**
+ * @class SimulationSystem
+ * @brief Manages the simulation system for energy grids within the OpenCOVER plugin.
+ *
+ * This class implements the core::interface::ISystem interface and provides functionality
+ * for initializing, enabling, updating, and managing different energy grid simulations,
+ * including power grid, heating grid, and cooling grid. It handles UI integration,
+ * color map management, scenario selection, and data processing for simulation visualization.
+ *
+ * Key Features:
+ * - Supports multiple energy grid types (PowerGrid, HeatingGrid, CoolingGrid).
+ * - Manages simulation scenarios (status quo, future EV, optimized, etc.).
+ * - Integrates with OpenCOVER UI components for user interaction.
+ * - Handles color map selection and updates for grid visualization.
+ * - Processes CSV data streams for grid configuration and simulation data.
+ * - Provides methods for building and updating grid representations.
+ *
+ * Usage:
+ * - Instantiate with references to the plugin, parent menu, and parent OSG switch.
+ * - Call init() to set up the simulation system.
+ * - Use enable(), update(), and updateTime() to control simulation lifecycle.
+ * - Interact with UI elements to switch scenarios and grid types.
+ *
+ * @note This class is final and cannot be inherited.
+ */
 class SimulationSystem final : public core::interface::ISystem {
  public:
   SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,

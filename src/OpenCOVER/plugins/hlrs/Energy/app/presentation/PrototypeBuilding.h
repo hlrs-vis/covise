@@ -1,6 +1,4 @@
-#ifndef _CORE_PROTOTYPEBUILDING_H
-#define _CORE_PROTOTYPEBUILDING_H
-
+#pragma once
 #include <lib/core/interfaces/IBuilding.h>
 #include <lib/core/utils/color.h>
 
@@ -27,6 +25,12 @@ struct CylinderAttributes {
   ColorMap colorMap;
 };
 
+/**
+ * @class PrototypeBuilding
+ * @brief Building prototype using cylinder attributes.
+ *
+ * Inherits IBuilding. Manages drawables and colors based on simulation state.
+ */
 class PrototypeBuilding : public core::interface::IBuilding {
  public:
   PrototypeBuilding(const CylinderAttributes &cylinderAttributes)
@@ -40,5 +44,3 @@ class PrototypeBuilding : public core::interface::IBuilding {
  private:
   CylinderAttributes m_attributes;
 };
-
-#endif

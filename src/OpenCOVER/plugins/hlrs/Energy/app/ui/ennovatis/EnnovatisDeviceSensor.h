@@ -6,6 +6,20 @@
 
 #include "EnnovatisDevice.h"
 
+/**
+ * @class EnnovatisDeviceSensor
+ * @brief Sensor class for handling EnnovatisDevice objects within an OpenCOVER plugin.
+ *
+ * This class extends coPickSensor to provide interaction and update mechanisms
+ * for EnnovatisDevice instances. It manages device activation, deactivation,
+ * and updates, and integrates with a SelectionList UI element to track enabled devices.
+ *
+ * - Construction requires ownership of an EnnovatisDevice, a scene graph node, and a SelectionList pointer.
+ * - Disallows copy construction and assignment.
+ * - Provides device access, update, timestep setting, activation, and deactivation.
+ *
+ * @note The class assumes ownership of the EnnovatisDevice via std::unique_ptr.
+ */
 class EnnovatisDeviceSensor : public coPickSensor {
  public:
   EnnovatisDeviceSensor(std::unique_ptr<EnnovatisDevice> d, osg::Group *n,

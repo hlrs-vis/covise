@@ -1,3 +1,36 @@
+/**
+ * @class EnnovatisSystem
+ * @brief Manages the integration of Ennovatis energy system within the OpenCOVER plugin framework.
+ *
+ * This class implements the core::interface::ISystem interface to provide functionality for
+ * initializing, enabling, updating, and managing Ennovatis devices and channels in a 3D visualization environment.
+ * It handles UI components, REST requests, device sensors, and data loading from CSV/JSON files.
+ *
+ * @note Copy and move operations are deleted to ensure unique ownership and prevent unintended duplication.
+ *
+ * @param plugin Pointer to the OpenCOVER plugin instance.
+ * @param parentMenu Pointer to the parent UI menu for integration.
+ * @param parent OSG Switch node for scene graph management.
+ *
+ * @section Responsibilities
+ * - Initialize Ennovatis UI and devices.
+ * - Handle REST requests and channel group selection.
+ * - Manage device sensors and their attributes.
+ * - Load and update channel IDs from external files.
+ * - Provide time-based updates and enable/disable functionality.
+ *
+ * @section Member Variables
+ * - m_deviceSensors: List of managed device sensors.
+ * - m_plugin, m_menu: References to plugin and UI menu.
+ * - m_selectionsList, m_enabledDeviceList, m_channelList: UI selection lists.
+ * - m_from, m_to: UI edit fields for date selection.
+ * - m_update: UI button for triggering updates.
+ * - m_ennovatis, m_parent: OSG nodes for scene management.
+ * - m_req: REST request handler.
+ * - m_channelGrp: Current channel group.
+ * - m_buildings: Building data.
+ * - m_enabled: System enabled state.
+ */
 #pragma once
 
 #include <cover/coVRPlugin.h>

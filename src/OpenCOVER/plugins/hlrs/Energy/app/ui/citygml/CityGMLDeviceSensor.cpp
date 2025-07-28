@@ -4,6 +4,7 @@
 #include <PluginUtil/coShaderUtil.h>
 #include <PluginUtil/colors/coColorMap.h>
 #include <app/presentation/CityGMLBuilding.h>
+#include <app/presentation/TxtInfoboard.h>
 
 #include <algorithm>
 #include <memory>

@@ -17,6 +17,40 @@
 
 using namespace core::simulation;
 
+/**
+ * @brief BaseSimulationUI is a template class providing a UI interface for simulation objects.
+ *
+ * This class is designed to work with simulation objects that are derived from core::interface::IDrawables,
+ * core::interface::IColorable, and core::interface::ITimedependable. It manages color mapping and time-dependent
+ * updates for simulation visualization.
+ *
+ * @tparam T Simulation object type, must inherit from IDrawables, IColorable, and ITimedependable.
+ *
+ * @note Copy construction and assignment are disabled.
+ *
+ * @param sim Shared pointer to the Simulation instance.
+ * @param parent Shared pointer to the parent simulation object.
+ *
+ * @section Responsibilities
+ * - Enforces type constraints on T.
+ * - Manages color mapping for simulation objects.
+ * - Provides virtual interface for time and color updates.
+ * - Computes and updates colors for simulation objects based on simulation data.
+ *
+ * @section Methods
+ * - updateTime(int timestep): Pure virtual, updates simulation state for a given timestep.
+ * - min(const std::string &species): Pure virtual, returns minimum value for a species.
+ * - max(const std::string &species): Pure virtual, returns maximum value for a species.
+ * - updateTimestepColors(const opencover::ColorMap &map): Pure virtual, updates colors for a timestep.
+ * - updateEnergyGridColors: Updates colors in an energy grid for a given timestep.
+ * - computeColors: Computes color mapping for simulation objects.
+ *
+ * @section Members
+ * - m_colorMap: Pointer to the current color map.
+ * - m_parent: Weak pointer to the parent simulation object.
+ * - m_simulation: Weak pointer to the simulation instance.
+ * - m_colors: Map of object names to their color vectors.
+ */
 template <typename T>
 class BaseSimulationUI {
   static_assert(std::is_base_of_v<core::interface::IDrawables, T>,

@@ -12,6 +12,16 @@
 
 using namespace core::simulation::heating;
 
+/**
+ * @brief UI class for managing and visualizing a HeatingSimulation.
+ *
+ * This template class extends BaseSimulationUI and provides specialized
+ * functionality for updating the UI based on the state of a HeatingSimulation.
+ * It handles updating energy grid colors for consumers and producers,
+ * retrieving minimum and maximum values for species, and updating timestep colors.
+ *
+ * @tparam T The parent UI type.
+ */
 template <typename T>
 class HeatingSimulationUI : public BaseSimulationUI<T> {
  public:

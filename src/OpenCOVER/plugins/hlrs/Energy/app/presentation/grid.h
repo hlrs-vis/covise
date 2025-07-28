@@ -12,13 +12,23 @@
 #include <osg/ref_ptr>
 #include <variant>
 
-// #include "../utils/color.h"
 
 namespace grid {
-// namespace core::simulation::grid {
-// grid::Data is a map of std::string and variants that can hold int, float, or
-// string
 typedef std::map<std::string, std::variant<float, int, std::string>> Data;
+/**
+ * @class Point
+ * @brief 3D point with visual representation and associated data.
+ *
+ * Inherits osg::MatrixTransform for spatial transforms.
+ * Encapsulates sphere geometry, data, and shader support.
+ *
+ * Main methods:
+ * - move(offset): Move point.
+ * - getRadius(), getCenter(), getPosition(): Access geometry.
+ * - getAdditionalData(): Access extra data.
+ * - getGeode(): Get visual node.
+ * - updateColor(), updateColorMapInShader(), updateTimestepInShader(), updateDataInShader(): Visualization updates.
+ */
 class Point : public osg::MatrixTransform {
  public:
   Point(const std::string &name, const float &x, const float &y, const float &z,
@@ -72,6 +82,28 @@ enum class ConnectionType {
   Arrow
 };
 
+/**
+ * @class DirectedConnection
+ * @brief Directed connection between two grid points, visualized with OSG.
+ *
+ * Inherits osg::MatrixTransform for spatial transforms.
+ * Supports color interpolation, shader updates, and geometric queries.
+ *
+ * Main methods:
+ * - move(offset): Move connection and endpoints.
+ * - getDirection(), getCenter(): Geometry access.
+ * - getStart(), getEnd(), getGeode(): Node access.
+ * - updateColor(), updateColorMapInShader(), updateTimestepInShader(), setDataInShader(): Visualization updates.
+ *
+ * Members:
+ * - m_geode: Geometry node.
+ * - m_start, m_end: Endpoints.
+ * - m_additionalData: Extra data.
+ * - m_type: Connection type.
+ * - m_shader: Shader pointer.
+ * - m_colorInterpolation: Color interpolation flag.
+ * - m_numNodes: Number of nodes.
+ */
 class DirectedConnection : public osg::MatrixTransform {
   DirectedConnection(const std::string &name, osg::ref_ptr<Point> start,
                      osg::ref_ptr<Point> end, const float &radius,
@@ -130,6 +162,12 @@ class DirectedConnection : public osg::MatrixTransform {
 // list of directed connections between points
 typedef std::vector<osg::ref_ptr<DirectedConnection>> Connections;
 
+/**
+ * @class Line
+ * @brief Represents a line made of DirectedConnections in an OSG scene.
+ *
+ * Inherits osg::MatrixTransform. Manages connections, movement, bounding box, and overlap checks.
+ */
 class Line : public osg::MatrixTransform {
  public:
   Line(std::string name, const Connections &connections);
@@ -166,6 +204,4 @@ typedef std::vector<osg::ref_ptr<Line>> Lines;
 typedef std::vector<std::vector<int>> Indices;
 typedef std::map<int, Data> PointDataList;
 typedef std::vector<std::vector<Data>> ConnectionDataList;
-
-// }  // namespace core::simulation::grid
 }  // namespace grid
