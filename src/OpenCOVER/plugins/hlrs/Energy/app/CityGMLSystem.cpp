@@ -1,11 +1,12 @@
 #include "CityGMLSystem.h"
+#include "app/presentation/CityGMLBuilding.h"
+#include "app/presentation/TxtInfoboard.h"
 
 #include <cover/coVRAnimationManager.h>
 
 #include <osg/ClipNode>
 #include <osg/MatrixTransform>
 
-#include "app/presentation/CityGMLBuilding.h"
 
 namespace fs = boost::filesystem;
 using namespace opencover;
