@@ -86,26 +86,32 @@ For more details, see the code in `app/CityGMLSystem.cpp/.h`, `app/EnnovatisSyst
 
 ## Usage
 
-- setup vpn tunnel to the network of the university of stuttgart
-- make sure the correct paths to the channel id json and historical data files are set in the config file ***config/plugin/EnergyCampus.toml***
-- launch opencover via console
+1. **Setup prerequisites:**
+   - Ensure you have a VPN tunnel to the University of Stuttgart network.
+   - Set the correct paths to the channel ID JSON and historical data files in `config/plugin/EnergyCampus.toml`.
 
-```bash
-opencover opencover://plugin/EnergyCampus
-```
+2. **Build and launch:**
+   - Compile OpenCOVER and this plugin as described in the root README.
+   - Launch OpenCOVER with the plugin:
+     ```bash
+     opencover opencover://plugin/EnergyCampus
+     ```
+   - Alternatively, start OpenCOVER and the TabletUI separately:
+     ```bash
+     opencover
+     tabletUI
+     ```
+   - In the TabletUI, navigate to the **Plugin** tab and enable **EnergyCampus**. A new tab will appear for plugin controls.
 
-or 
+3. **Interact:**
+   - Switch to Ennovatis mode by selecting a channel type in the VR menu or TabletUI.
+   - Click on buildings in the scene to fetch and display Ennovatis data.
+   - Adjust the time period and channels using the input fields and selection lists in the TabletUI tab.
+   - Use the **Update** button to fetch new data for the selected period.
 
-open opencover in your prefered way along with a tabletUI e.g.
+## Advanced Usage
 
-```bash
-opencover
-tabletUI
-```
-
-and navigate in the tabletUI to the ***Plugin***-tab and enable the plugin manually by clicking on the button ***EnergyCampus***. If done correct the plugin will add a new tab called ***EnergyCampus*** to the tabletUI and visualizing the historical data first.
-
-### Ennovatis (Advanced)
+### Ennovatis
 If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture.
 
 ![channeltype](images/channeltype.svg)
