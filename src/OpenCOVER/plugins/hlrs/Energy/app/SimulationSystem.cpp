@@ -6,7 +6,6 @@
 // By simply put the includes for arrow before qt
 // includes. In our case before everything we can resolve the issue.
 #include <lib/apache/arrow.h>
-
 #include "SimulationSystem.h"
 
 // cover
@@ -104,6 +103,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
                                    osg::ref_ptr<osg::Switch> parent)
     : m_plugin(plugin),
       m_gridSwitch(parent),
+      m_offset(3),
       m_enabled(false),
       m_simulationMenu(nullptr),
       m_energygridGroup(nullptr),
@@ -711,7 +711,7 @@ void SimulationSystem::updateEnergyGridShaderData(EnergySimulation &energyGrid) 
 void SimulationSystem::initGrid() {
   initPowerGrid();
   initHeatingGrid();
-  buildCoolingGrid();
+  //   buildCoolingGrid();
   initEnergyGridColorMaps();
 }
 
