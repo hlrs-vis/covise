@@ -27,6 +27,8 @@ class HeatingSimulation : public Simulation {
   const auto &Producers() const { return m_producers; }
 
   void computeParameters() override;
+  const std::vector<double> *getTimedependentScalar(
+      const std::string &species, const std::string &node) const override;
 
  private:
   ObjectContainer<Producer> m_consumers;

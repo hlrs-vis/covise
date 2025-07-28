@@ -1,35 +1,40 @@
-[General]
-offset = [-507048.0, -5398554.0, 0.0]
-# offset = [0.0, 0.0, 0.0]
-# google coordinates
-# projFrom = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs"
-projFrom = "+proj=latlong +datum=WGS84 +no_defs"
-projTo = "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs"
-
 [Billboard]
-font = "DejaVuSans-Bold.ttf"
-charSize = 2
-width = 60.0
-height = 63.0
-boundingBoxColor = [0.0, 0.0, 0.0, 0.5]
+boundingBoxColor = [ 0.0, 0.0, 0.0, 0.5 ]
 boundingBoxMargin = 2.0
+charSize = 2
+font = 'DejaVuSans-Bold.ttf'
+height = 63.0
+width = 60.0
 
 [CSV]
 filename = '/data/DiTEnS/campus/db_building_measurements.csv'
 
+[CityGML]
+X = -1650.0
+Y = -550.0
+Z = -50.0
+
 [Ennovatis]
-jsonPath = '/data/DiTEnS/ennovatis/channelids.json'
 csvPath = '/data/DiTEnS/ennovatis/channelids.csv'
+defaultColorCylinder = [ 0.753, 0.443, 0.81599999999999995, 1.0 ]
+jsonPath = '/data/DiTEnS/ennovatis/channelids.json'
+maxColorCylinder = [ 1.0, 0.10000000000000001, 0.0, 1.0 ]
+minColorCylinder = [ 0.0, 1.0, 0.5, 1.0 ]
 projEid = '00-2914207990135212101590650999999998_1'
 restUrl = 'http://129.69.40.93:4029/ControllingService/DataManagement/ReadData'
-defaultColorCylinder = [0.753, 0.443, 0.816, 1.0]
-maxColorCylinder = [1.0, 0.1, 0.0, 1.0]
-minColorCylinder = [0.0, 1.0, 0.5, 1.0]
-defaultHeightCylinder = 100.0
-radiusCylinder = 3.0
+
+[General]
+offset = [ -507048.0, -5398554.0, 50.0 ]
+projFrom = '+proj=latlong +datum=WGS84 +no_defs'
+projTo = '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs'
 
 [Simulation]
-staticInfluxCSV = "/data/DiTEnS/campus/johannes.csv"
-powerGridDir = "/data/DiTEnS/campus/input/IEH/uni_grid"
-heatingGridDir = "/data/DiTEnS/campus/input/IER/uni_heat"
+3dModelDir = '/data/DiTEnS/3Dmodel'
+heatingGridDir = '/data/DiTEnS/campus/input/IER/uni_heat'
 powerGridDataSelection = []
+powerGridDir = '/data/DiTEnS/campus/input/IEH/uni_grid'
+powerSim = ''
+pvDir = '/data/DiTEnS/campus/input/PV/uni_pv'
+staticInfluxCSV = '/data/DiTEnS/campus/johannes.csv'
+staticPower = '/data/DiTEnS/campus/input/IEH/consumption-intern.csv'
+campusPath = '/data/DiTEnS/campus/input/IEH/yearly_energy_gml_id.csv'

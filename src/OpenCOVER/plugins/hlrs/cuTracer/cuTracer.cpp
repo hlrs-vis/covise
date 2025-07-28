@@ -13,7 +13,8 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
+
 
 #include <OpenVRUI/coMenuItem.h>
 #include <cover/OpenCOVER.h>

@@ -3,13 +3,13 @@
 
 using namespace opencover;
 
-coVRShader *applyPointShader(osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+coVRShader *applyPointShader(osg::Drawable *drawable, const ColorMap &colorMap)
 {
-    return applyShader(drawable, colorMap, min, max, "OctPoints");
+    return applyShader(drawable, colorMap, "OctPoints");
 
 }
 
-coVRShader *applySurfaceShader(osg::Drawable *drawable, const covise::ColorMap &colorMap, float min, float max)
+coVRShader *applySurfaceShader(osg::Drawable *drawable, const ColorMap &colorMap)
 {
-    return applyShader(drawable, colorMap, min, max, "MapColorsAttrib");
+    return applyShader(drawable, colorMap, "MapColorsAttrib");
 }

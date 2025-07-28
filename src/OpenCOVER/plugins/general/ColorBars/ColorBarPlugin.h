@@ -20,8 +20,8 @@
 #include <cover/coVRPlugin.h>
 #include <map>
 
-#include <PluginUtil/ColorBar.h>
-
+#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/colors/coColorHUD.h>
 #include <cover/ui/Owner.h>
 
 namespace opencover
@@ -55,29 +55,8 @@ private:
     opencover::ui::Menu *_menu = nullptr;
     typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
     InteractorMap interactorMap; // from container to interactor
-    struct ColorsModule: public opencover::ui::Owner
-    {
-        ColorsModule(const std::string &name, opencover::ui::Owner *owner)
-            : opencover::ui::Owner(name, owner)
-            , useCount(0)
-            , colorbar(NULL)
-            , menu(NULL)
-        {}
-        ~ColorsModule()
-        {
-            delete colorbar;
-        }
-
-        bool hudVisible() const
-        {
-            return colorbar && colorbar->hudVisible();
-        }
-
-        int useCount;
-        opencover::ColorBar *colorbar;
-        opencover::ui::Menu *menu;
-    };
     typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
+    
     ColorsModuleMap colorsModuleMap;
     std::vector<const ColorsModule *> visibleHuds;
     float hudScale = 1.f;

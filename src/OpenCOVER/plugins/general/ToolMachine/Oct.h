@@ -22,7 +22,7 @@ private:
             SurfaceOnly = (1u << 1),
             Visible = PointsOnly | SurfaceOnly};
 
-        Section(size_t vertsPerCircle, double pointSize, const covise::ColorMap& map, float min, float max, osg::MatrixTransform* parent);
+        Section(size_t vertsPerCircle, double pointSize, const opencover::ColorMap& map, osg::MatrixTransform* parent);
         ~Section();
         bool append(const osg::Vec3 &pos, float species);
         void createSurface();
@@ -43,7 +43,7 @@ private:
 
     };
     void clear() override;
-    void applyShader(const covise::ColorMap& map, float min, float max) override;
+    void applyShader(const opencover::ColorMap& map) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
     void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;

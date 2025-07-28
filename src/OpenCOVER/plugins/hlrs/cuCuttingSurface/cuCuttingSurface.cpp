@@ -11,7 +11,8 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 
-#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/colors/ColorBar.h>
+
 
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
@@ -138,13 +139,8 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
         const char *attr = tex->getAttribute("COLORMAP");
         if (attr)
         {
-            std::string species;
-            std::vector<float> r,g,b,a;
-            int numColors;
-            float min, max;
-            ColorBar::parseAttrib(attr, species, min, max,
-                                  numColors, r, g, b, a);
-            struct minmax m = { min, max };
+            auto cm = CoviseColorBar::parseAttribute(attr);
+            struct minmax m = { cm.min(), cm.max() };
             minMax[container->getName()] = m;
 
             //ColorBar *bar = new ColorBar(name, species, min, max, numColors, r, g, b, a);

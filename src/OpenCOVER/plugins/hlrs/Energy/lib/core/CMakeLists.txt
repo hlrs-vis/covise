@@ -3,7 +3,6 @@ set(SOURCES
     utils/color.cpp
     utils/osgUtils.cpp
     utils/math.cpp
-    simulation/grid.cpp
     simulation/heating.cpp
     simulation/power.cpp
     simulation/simulation.cpp
@@ -20,11 +19,11 @@ set(HEADERS
     interfaces/IMovable.h
     interfaces/ISeparable.h
     interfaces/ITimedependable.h
+    interfaces/ISolarPanel.h
     utils/color.h
     utils/osgUtils.h
     utils/math.h
     simulation/heating.h
-    simulation/grid.h
     simulation/simulation.h
     simulation/power.h
     simulation/object.h
@@ -35,5 +34,5 @@ set(Name "EnergyCore")
 add_library(${Name} OBJECT ${SOURCES} ${HEADERS})
 target_link_libraries(${Name} ${EXTRA_LIBS})
 target_include_directories(${Name} PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS})
-target_compile_options(${Name} PRIVATE -fPIC)
+set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(${Name} PROPERTIES LINKER_LANGUAGE CXX POSITION_INDEPENDENT_CODE ON)

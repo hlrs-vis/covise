@@ -2,20 +2,19 @@
 
 #include <lib/core/simulation/power.h>
 
-#include "app/ui/simulation/BaseSimulationUI.h"
 #include "app/presentation/EnergyGrid.h"
+#include "app/ui/simulation/BaseSimulationUI.h"
 
 using namespace core::simulation::power;
 
 template <typename T>
 class PowerSimulationUI : public BaseSimulationUI<T> {
  public:
-  PowerSimulationUI(std::shared_ptr<PowerSimulation> sim,
-                      std::shared_ptr<T> parent, std::shared_ptr<ColorMap> colorMap)
-      : BaseSimulationUI<T>(sim, parent, colorMap) {}
+  PowerSimulationUI(std::shared_ptr<PowerSimulation> sim, std::shared_ptr<T> parent)
+      : BaseSimulationUI<T>(sim, parent) {}
   ~PowerSimulationUI() = default;
-  PowerSimulationUI(const PowerSimulationUI &) = delete;
-  PowerSimulationUI &operator=(const PowerSimulationUI &) = delete;
+  PowerSimulationUI(const PowerSimulationUI&) = delete;
+  PowerSimulationUI& operator=(const PowerSimulationUI&) = delete;
 
   void updateTime(int timestep) override {
     auto parent = this->m_parent.lock();
@@ -30,37 +29,30 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
         this->updateEnergyGridColors(timestep, energyGrid, entities);
       };
       updateEnergyGridColorsForContainer(powerSim->Buses());
+      updateEnergyGridColorsForContainer(powerSim->Cables());
       updateEnergyGridColorsForContainer(powerSim->Generators());
       updateEnergyGridColorsForContainer(powerSim->Transformators());
     }
   }
 
-  void updateTimestepColors(const std::string &key, float min = 0.0f,
-                            float max = 1.0f, bool resetMinMax = false) override {
-    auto color_map = this->m_colorMapRef.lock();
-    if (!color_map) {
-      std::cerr << "ColorMap is not available for update of colors." << std::endl;
-      return;
-    }
+  float min(const std::string& species) override {
+    return powerSimulationPtr()->getMin(species);
+  }
 
-    if (min > max) min = max;
-    color_map->max = max;
-    color_map->min = min;
+  float max(const std::string& species) override {
+    return powerSimulationPtr()->getMax(species);
+  }
 
-    if (resetMinMax) {
-      auto &[res_min, res_max] = powerSimulationPtr()->getMinMax(key);
-      color_map->max = res_max;
-      color_map->min = res_min;
-    }
-
+  void updateTimestepColors(const opencover::ColorMap& map) override {
     // compute colors
     auto powerSim = this->powerSimulationPtr();
     if (!powerSim) return;
     auto computeColorsForContainer = [&](auto container) {
-      this->computeColors(color_map, key, min, max, container);
+      this->computeColors(map, container);
     };
 
     computeColorsForContainer(powerSim->Buses().get());
+    computeColorsForContainer(powerSim->Cables().get());
     computeColorsForContainer(powerSim->Generators().get());
     computeColorsForContainer(powerSim->Transformators().get());
   }

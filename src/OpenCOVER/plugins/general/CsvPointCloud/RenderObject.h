@@ -2,7 +2,7 @@
 #define COVISE_CSV_POINT_CLOUD_RENDER_OBJ
 
 #include <cover/RenderObject.h>
-#include <PluginUtil/coColorMap.h>
+#include <PluginUtil/colors/coColorMap.h>
 
 class CsvRenderObject : public opencover::RenderObject
 {

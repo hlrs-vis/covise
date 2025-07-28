@@ -1,10 +1,11 @@
 #include "CityGMLDeviceSensor.h"
 
-#include <PluginUtil/coColorMap.h>
 #include <PluginUtil/coSensor.h>
 #include <PluginUtil/coShaderUtil.h>
+#include <PluginUtil/colors/coColorMap.h>
 #include <app/presentation/CityGMLBuilding.h>
 
+#include <algorithm>
 #include <memory>
 #include <osg/Geometry>
 
@@ -12,11 +13,12 @@ CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> parent,
     std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
-    std::shared_ptr<ColorMap> colorMap)
+    const std::vector<std::string> &textBoxTxt)
     : coPickSensor(parent),
       m_cityGMLBuilding(std::move(drawableBuilding)),
       m_infoBoard(std::move(infoBoard)),
-      m_colorMapRef(colorMap) {
+      m_textBoxTxt(textBoxTxt),
+      m_colors({}) {
   m_cityGMLBuilding->initDrawables();
 
   // infoboard
@@ -38,7 +40,7 @@ void CityGMLDeviceSensor::update() {
 
 void CityGMLDeviceSensor::activate() {
   if (!m_active) {
-    m_infoBoard->updateInfo("DAS IST EIN TEST");
+    // m_infoBoard->updateInfo("DAS IST EIN TEST");
     m_infoBoard->showInfo();
   }
   m_active = !m_active;
@@ -49,22 +51,53 @@ void CityGMLDeviceSensor::disactivate() {
   m_infoBoard->hideInfo();
 }
 
-void CityGMLDeviceSensor::updateTimestepColors(const std::vector<float> &values) {
-  auto color_map = m_colorMapRef.lock();
+void CityGMLDeviceSensor::updateTimestepColors(const std::vector<float> &values,
+                                               const opencover::ColorMap &map) {
   m_colors.clear();
   m_colors.resize(values.size());
-  const auto &max = m_colorMapRef;
-  for (auto i = 0; i < m_colors.size(); ++i) {
-    auto value = values[i];
-    auto color =
-        covise::getColor(value, *color_map, color_map->min, color_map->max);
-    m_colors[i] = color;
+  std::transform(values.begin(), values.end(), m_colors.begin(),
+                 [&map](const auto &v) {
+                   return map.getColor(v);  // Initialize with the first value
+                 });
+}
+
+void CityGMLDeviceSensor::updateTxtBoxTexts(const std::vector<std::string> &texts) {
+  m_textBoxTxt = texts;
+}
+
+void CityGMLDeviceSensor::updateTitleOfInfoboard(const std::string &title) {
+  auto txtInfoboard = dynamic_cast<TxtInfoboard *>(m_infoBoard.get());
+  if (txtInfoboard) {
+    txtInfoboard->setTitle(title);
   }
 }
 
 void CityGMLDeviceSensor::updateTime(int timestep) {
-  if (timestep >= m_colors.size()) return;
-  m_cityGMLBuilding->updateColor(m_colors[timestep]);
-  m_cityGMLBuilding->updateTime(timestep);
-  m_infoBoard->updateTime(timestep);
+//   if (timestep < m_colors.size()) {
+    // m_cityGMLBuilding->updateColor(m_colors[timestep]);
+    auto gmlBuilding = dynamic_cast<CityGMLBuilding *>(m_cityGMLBuilding.get());
+    if (gmlBuilding)
+      if (gmlBuilding->hasShader()) gmlBuilding->updateTime(timestep);
+    // m_cityGMLBuilding->updateTime(timestep);
+//   }
+  //   if (timestep < m_textBoxTxt.size()) {
+  //     m_infoBoard->updateInfo(m_textBoxTxt[timestep]);
+  //     m_infoBoard->updateTime(timestep);
+  //   }
+}
+
+void CityGMLDeviceSensor::setColorMapInShader(const opencover::ColorMap &colorMap) {
+  auto gmlBuilding = dynamic_cast<CityGMLBuilding *>(m_cityGMLBuilding.get());
+  if (gmlBuilding) {
+    gmlBuilding->setColorMapInShader(colorMap);
+    return;
+  }
+}
+void CityGMLDeviceSensor::setDataInShader(const std::vector<double> &data, float min,
+                                          float max) {
+  auto gmlBuilding = dynamic_cast<CityGMLBuilding *>(m_cityGMLBuilding.get());
+  if (gmlBuilding) {
+    gmlBuilding->setDataInShader(data, min, max);
+    return;
+  }
 }

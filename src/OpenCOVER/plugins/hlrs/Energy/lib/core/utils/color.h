@@ -1,8 +1,6 @@
 #ifndef _CORE_UTILS_COLOR_H
 #define _CORE_UTILS_COLOR_H
 
-#include <PluginUtil/coColorMap.h>
-
 #include <memory>
 #include <osg/Geode>
 #include <osg/Material>
@@ -18,6 +16,7 @@ struct ColorMap {
   std::unique_ptr<osg::Vec4> getColor(float value, float maxValue) const;
 };
 
+osg::Vec4 getTrafficLightColor(float val, float max);
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);
 void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color,
                         osg::Material::Face faceMask = osg::Material::FRONT);
