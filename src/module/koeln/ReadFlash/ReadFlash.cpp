@@ -502,6 +502,7 @@ int coReadFlash::compute(const char *)
           nr_sink_part = flashReader.scalar_parameters.dset_ints[i].value;
         }
       }
+      std::cout << "Found number of particles in integer scalars: " << nr_sink_part << "\n";
       particles = flashReader.getSinkList(nr_sink_part);
       particleOut.push_back(particles);
     }

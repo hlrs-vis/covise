@@ -420,7 +420,7 @@ inline void read_grid(grid_t &dest, H5::H5File const &file)
 }
 
 // Read particle data
-inline void read_sinks(particle_t &part, H5::H5File const &file, int nprop=-1)
+inline void read_sinks(particle_t &part, H5::H5File const &file, int npart=-1)
 {
   // Initialize the dataset and dataspace
   H5::DataSet dataset;
@@ -451,7 +451,7 @@ inline void read_sinks(particle_t &part, H5::H5File const &file, int nprop=-1)
 
     // Loop over all possible number of particles
     // Particles are always allocated in chucks of 100
-    if (nprop <= 0)
+    if (npart <= 0)
     {
       for (size_t i=1; i < 100; ++i)
       {
@@ -472,8 +472,8 @@ inline void read_sinks(particle_t &part, H5::H5File const &file, int nprop=-1)
       }
     } else
     {
-      part.nprop = nprop;
-      part.npart = tot_entries / part.nprop;
+      part.npart = npart;
+      part.nprop = tot_entries / part.npart;
     }
   }
 
@@ -949,10 +949,10 @@ struct FlashReader
     return {};
   }
 
-  ParticleField getSinkList(int nprop=-1)
+  ParticleField getSinkList(int npart=-1)
   {
     try {
-      read_sinks(particle, file, nprop);
+      read_sinks(particle, file, npart);
       return toParticleField(particle);
 
     } catch (H5::DataSpaceIException error) {
