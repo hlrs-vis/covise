@@ -36,6 +36,7 @@
 #include "generateRandomSpheres.h"
 #include "readPTS.h"
 #include "readPLY.h"
+#include "readCTF.h"
 #include "Projection.h"
 #include "Renderer.h"
 #include "hdri.h"
@@ -1671,7 +1672,11 @@ void Renderer::initPointClouds()
             auto surface = readPLY(anari.device, fn, radius);
             s[i] = surface;
 	        anariRelease(anari.device, surface);
-	    }
+	    } else if (getExt(fn)==".ctf") {
+            auto surface = readCTF(anari.device, fn, radius);
+            s[i] = surface;
+	        anariRelease(anari.device, surface);
+        }
     }
     anari::unmap(anari.device, surfaceArray);
     anari::setAndReleaseParameter(anari.device, anari.world, "surface", surfaceArray);
