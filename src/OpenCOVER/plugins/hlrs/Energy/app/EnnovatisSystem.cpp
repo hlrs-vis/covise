@@ -108,10 +108,10 @@ void EnnovatisSystem::init() {
 
 void EnnovatisSystem::enable(bool on) {
   m_enabled = on;
-  if (on)
-    for (auto &sensor : m_deviceSensors) sensor->activate();
-  else
-    for (auto &sensor : m_deviceSensors) sensor->disactivate();
+//   if (on)
+//     for (auto &sensor : m_deviceSensors) sensor->activate();
+//   else
+//     for (auto &sensor : m_deviceSensors) sensor->disactivate();
 }
 
 void EnnovatisSystem::update() {
