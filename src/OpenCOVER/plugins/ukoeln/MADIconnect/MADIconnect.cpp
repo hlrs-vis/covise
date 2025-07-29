@@ -30,6 +30,8 @@
 
 #include <config/CoviseConfig.h>
 
+#include <PluginUtil/PluginMessageTypes.h>
+
 #include <osg/ShapeDrawable>
 #include <osg/Material>
 #include <osg/Vec4>
@@ -39,13 +41,31 @@ using namespace std;
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
+MADIconnect *MADIconnect::plugin = nullptr;
+
 MADIconnect::MADIconnect()
 : coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("MADIconnect", cover->ui)
 {
     fprintf(stderr, "MADIconnect\n");
 
-    int port = coCoviseConfig::getInt("port", "COVER.Plugin.MADIconnect", 33333);    
+    plugin = this;
 
+    dataPath = coCoviseConfig::getEntry("value", "COVER.Plugin.MADIconnect.DataPath", "");
+    if (dataPath.empty())
+    {
+#ifdef _WIN32
+        homePath = std::getenv("USERPROFILE");
+        homePath += "\\data";
+#else
+        homePath = std::getenv("HOME");
+        homePath += "/data";
+#endif
+    }
+    cout << "MADIconnect::DataPath: " << dataPath << endl;
+
+    int port = coCoviseConfig::getInt("port", "COVER.Plugin.MADIconnect", 33333);
+    toMADI = NULL;
     serverConn = NULL;
     if (coVRMSController::instance()->isMaster())
     {
@@ -83,6 +103,15 @@ MADIconnect::MADIconnect()
 			serverConn = NULL;
 		}
 	}
+    msg = new Message;
+
+
+    madiMenu = new ui::Menu("MADIconnect", this);
+    madiMenu->setText("MADIconnect");
+
+    testAction = new ui::Action(madiMenu, "TestMADI");
+    testAction->setText("Test MADI Connection");
+    testAction->setCallback([this]() { sendTestMessage(); });
 
     // Create a unit cube to visualize the plugin    
     osg::Box *unitCube = new osg::Box(osg::Vec3(0, 0, 0), 1000.0f);
@@ -105,18 +134,210 @@ MADIconnect::MADIconnect()
 
 bool MADIconnect::destroy()
 {
+    std::cout << "MADIconnect::destroy called" << std::endl;
     cover->getObjectsRoot()->removeChild(basicShapesGeode.get());
     return true;
+}
+
+bool MADIconnect::update()
+{
+    //std::cout << "MADIconnect::update called" << std::endl;
+    return true;
+}
+
+void MADIconnect::sendTestMessage()
+{
+    std::cout << "MADIconnect::sendTestMessage called" << std::endl;
+    static int data = 42;
+
+    TokenBuffer tb;
+    cout << "MADIconnect::Test 1: " << tb.getData().getLength() << endl;
+    tb << data++;
+    cout << "MADIconnect::Test 2: " << tb.getData().getLength() << endl;
+    tb << data++;
+    cout << "MADIconnect::Test 3: " << tb.getData().getLength() << endl;
+    tb << data;
+    cout << "MADIconnect::Test 4: " << tb.getData().getLength() << endl;
+
+    Message m(tb);
+    m.type = (int)MADIconnect::MSG_VIEW_ALL;
+    MADIconnect::instance()->sendMessage(m);
+    data++;
+}
+
+
+#include <iostream>
+#include <iomanip>
+
+#define PRINT_BYTES_HEX(data, len)                                      \
+    do {                                                                \
+        for (size_t i = 0; i < (len); ++i) {                            \
+            std::cout << std::hex << std::setw(2) << std::setfill('0') \
+                      << (static_cast<unsigned>(                      \
+                              static_cast<unsigned char>((data)[i])))  \
+                      << " ";                                           \
+        }                                                               \
+        std::cout << std::dec << std::endl;                             \
+    } while (0)
+
+
+
+void MADIconnect::preFrame()
+{
+    if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
+	{
+		//   std::cout << "Trying serverConn..." << std::endl;
+		toMADI = serverConn->spawn_connection();
+		if (toMADI && toMADI->is_connected())
+		{
+			fprintf(stderr, "Connected to MADI\n");
+            cover->watchFileDescriptor(toMADI->getSocket()->get_id());
+		}
+	}
+
+    /*
+    if (coVRMSController::instance()->isMaster())
+	{
+		double startTime = cover->currentTime();
+		while (toMADI && toMADI->check_for_input())
+		{
+			if (cover->currentTime() > startTime + 1)
+				break;
+			toMADI->recv_msg(msg);
+			if (msg)
+			{   
+                cout << "MADIconnect:: : " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+			}
+			else
+			{
+				cerr << "could not read message" << endl;
+				break;
+			}
+		}		
+	}
+    */
+    
+    //Distribute messages to slaves
+    char gotMsg = '\0';
+    if (coVRMSController::instance()->isMaster())
+	{
+		double startTime = cover->currentTime();
+		while (toMADI && toMADI->check_for_input())
+		{
+			if (cover->currentTime() > startTime + 1)
+				break;
+			toMADI->recv_msg(msg);
+			if (msg)
+			{
+
+                cout << "MADIconnect:: A: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+
+				gotMsg = '\1';
+				coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+				coVRMSController::instance()->sendSlaves(msg);                
+
+				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::RRZK_MADI_Message + msg->type, msg->data.length(), msg->data.data());
+				handleMessage(msg);
+			}
+			else
+			{
+				gotMsg = '\0';
+				cerr << "could not read message" << endl;
+				break;
+			}
+		}
+		gotMsg = '\0';
+		coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+	}
+	else
+	{
+		do
+		{
+			coVRMSController::instance()->readMaster(&gotMsg, sizeof(char));
+			if (gotMsg != '\0')
+			{
+				coVRMSController::instance()->readMaster(msg);
+
+                cout << "MADIconnect:: B: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+
+				handleMessage(msg);
+			}
+		} while (gotMsg != '\0');
+	}    
+}
+
+
+bool MADIconnect::sendMessage(Message &m)
+{
+	if (toMADI) // false on slaves
+	{
+		return toMADI->sendMessage(&m);
+	}
+    return false;
+}
+
+void MADIconnect::handleMessage(Message *m)
+{
+    if (!m)
+    {
+        cerr << "MADIconnect::handleMessage: received NULL message" << endl;
+        return;
+    }
+
+    cout << "MADIconnect:: C: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+    PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+
+    enum MessageTypes type = (enum MessageTypes)m->type;
+
+    switch (type)
+    {
+        case MSG_VIEW_ALL:
+        {
+            TokenBuffer tb(m);
+
+            tb.rewind();
+
+            cout << "MADIconnect::TB: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+            PRINT_BYTES_HEX(tb.getData().data(), tb.getData().length());
+                        
+            int test;
+            tb >> test;            
+            cout << "MADI::Received test value: " << test << endl;
+        }
+        break;
+    }   
 }
 
 // this is called if the plugin is removed at runtime
 MADIconnect::~MADIconnect()
 {
     fprintf(stderr, "Goodbye MADI\n");
+
     if (serverConn && serverConn->getSocket())
         cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
 	delete serverConn;
 	serverConn = NULL;
+
+    if (toMADI && toMADI->getSocket())
+        cover->unwatchFileDescriptor(toMADI->getSocket()->get_id());
+
+    delete msg;
+    toMADI = NULL;
+
+    // Remove the geode from the scene graph
+    if (basicShapesGeode.valid())
+    {
+        cover->getObjectsRoot()->removeChild(basicShapesGeode.get());
+        basicShapesGeode = nullptr;
+    }
+
+    if (plugin == this)
+        plugin = nullptr;
 }
 
 COVERPLUGIN(MADIconnect)
+
+
