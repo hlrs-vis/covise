@@ -32,7 +32,9 @@
     <WelcomeMessage value="Welcome to Daniel" />
 
     <Plugin>
-      <MADIconnect value="on" />
+      <MADIconnect value="on">
+        <DataPath value="/home/daniel/data/KeiIto/3neurons" />
+      </MADIconnect>
 
       <ANARI>
         <PointCloud radius="0.025" />        

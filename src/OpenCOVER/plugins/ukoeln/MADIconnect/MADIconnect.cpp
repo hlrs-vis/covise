@@ -55,11 +55,11 @@ MADIconnect::MADIconnect()
     if (dataPath.empty())
     {
 #ifdef _WIN32
-        homePath = std::getenv("USERPROFILE");
-        homePath += "\\data";
+        dataPath = std::getenv("USERPROFILE");
+        dataPath += "\\data";
 #else
-        homePath = std::getenv("HOME");
-        homePath += "/data";
+        dataPath = std::getenv("HOME");
+        dataPath += "/data";
 #endif
     }
     cout << "MADIconnect::DataPath: " << dataPath << endl;
@@ -238,7 +238,7 @@ void MADIconnect::preFrame()
 				coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
 				coVRMSController::instance()->sendSlaves(msg);                
 
-				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::RRZK_MADI_Message + msg->type, msg->data.length(), msg->data.data());
+				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::RRZK_rrxevent + msg->type, msg->data.length(), msg->data.data());
 				handleMessage(msg);
 			}
 			else
