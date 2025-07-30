@@ -17,7 +17,6 @@ set(HEADERS
     interfaces/IInfoboard.h
     interfaces/IInformable.h
     interfaces/IMovable.h
-    interfaces/ISeparable.h
     interfaces/ITimedependable.h
     interfaces/ISolarPanel.h
     interfaces/ISystem.h
