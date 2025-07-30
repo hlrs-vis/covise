@@ -1,6 +1,4 @@
-#ifndef _SAX_H
-#define _SAX_H
-
+#pragma once
 #include <nlohmann/json.hpp>
 
 #include "building.h"
@@ -45,5 +43,3 @@ struct sax_channelid_parser : public nlohmann::json::json_sax_t {
   Buildings* m_buildings;
 };
 }  // namespace ennovatis
-
-#endif

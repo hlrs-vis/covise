@@ -1,12 +1,9 @@
-#ifndef _CORE_INTERFACES_IINFOBOARD_H
-#define _CORE_INTERFACES_IINFOBOARD_H
-
+#pragma once
 #include "IInformable.h"
 #include "IMovable.h"
 #include "ITimedependable.h"
 
-namespace core {
-namespace interface {
+namespace core::interface {
 template <typename Info>
 class IInfoboard : public IInformable<Info>,
                    public ITimedependable,
@@ -19,7 +16,4 @@ class IInfoboard : public IInformable<Info>,
  protected:
   bool m_enabled = false;
 };
-}  // namespace interface
-}  // namespace core
-
-#endif
+}  // namespace core::interface

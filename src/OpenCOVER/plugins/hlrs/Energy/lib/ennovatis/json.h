@@ -1,6 +1,4 @@
-#ifndef _ENERGY_ENNOVATIS_JSON_H
-#define _ENERGY_ENNOVATIS_JSON_H
-
+#pragma once
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -37,4 +35,3 @@ struct json_parser {
   std::unique_ptr<json_response_object> operator()(const std::string &s) const;
 };
 }  // namespace ennovatis
-#endif

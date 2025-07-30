@@ -1,6 +1,4 @@
-#ifndef _CORE_INTERFACES_IBUILDING_H
-#define _CORE_INTERFACES_IBUILDING_H
-
+#pragma once
 #include <memory>
 #include <osg/Vec4>
 
@@ -11,7 +9,7 @@
 namespace core::interface {
 class IBuilding : public IDrawables, public IColorable, public ITimedependable {
  public:
-   virtual ~IBuilding() = default;
+  virtual ~IBuilding() = default;
   /**
    * Returns the color in the range [0, maxValue] based on the given value based
    * on colorRange of building instance.
@@ -24,5 +22,3 @@ class IBuilding : public IDrawables, public IColorable, public ITimedependable {
                                                      float maxValue) = 0;
 };
 }  // namespace core::interface
-
-#endif

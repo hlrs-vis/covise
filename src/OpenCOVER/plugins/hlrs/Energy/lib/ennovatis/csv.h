@@ -1,6 +1,4 @@
-#ifndef _CSV_H
-#define _CSV_H
-
+#pragma once
 #include <iostream>
 
 #include "building.h"
@@ -35,4 +33,3 @@ struct csv_channelid_parser {
 };
 
 }  // namespace ennovatis
-#endif

@@ -1,6 +1,4 @@
-#ifndef _CORE_UTILS_OSGUTILS_H
-#define _CORE_UTILS_OSGUTILS_H
-
+#pragma once
 #include <memory>
 #include <osg/BoundingBox>
 #include <osg/Geode>
@@ -127,4 +125,3 @@ osg::ref_ptr<osg::Geometry> createNormalVisualization(
 void printNodeInfo(osg::Node *node, int indent = 0);
 
 }  // namespace core::utils::osgUtils
-#endif
