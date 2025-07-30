@@ -17,6 +17,7 @@
 #include <regex>
 
 // ui
+#include "app/CityGMLSystem.h"
 #include "ui/simulation/HeatingSimulationUI.h"
 #include "ui/simulation/PowerSimulationUI.h"
 
@@ -100,9 +101,11 @@ float computeDistributionCenter(const std::vector<float> &values) {
 
 SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
                                    opencover::ui::Menu *parentMenu,
+                                   CityGMLSystem *cityGMLSystem,
                                    osg::ref_ptr<osg::Switch> parent)
     : m_plugin(plugin),
       m_gridSwitch(parent),
+      m_cityGMLSystem(cityGMLSystem),
       m_offset(3),
       m_enabled(false),
       m_simulationMenu(nullptr),
@@ -543,15 +546,12 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
       std::make_unique<PowerSimulationUI<IEnergyGrid>>(sim, powerGrid.grid);
   powerGrid.sim = std::move(sim);
 
-  // TODO: add cityGMLSystem stuff
-  //   if (auto cityGMLSystem = getCityGMLSystem()) {
-  //     const auto &[min, max] = powerGrid.sim->getMinMax("res_mw");
-  //     const auto &preferredColorMap =
-  //     powerGrid.sim->getPreferredColorMap("res_mw");
-  //     cityGMLSystem->updateInfluxColorMaps(min, max, powerGrid.sim,
-  //     preferredColorMap,
-  //                                          "res_mw", "MW");
-  //   }
+  if (m_cityGMLSystem) {
+    const auto &[min, max] = powerGrid.sim->getMinMax("res_mw");
+    const auto &preferredColorMap = powerGrid.sim->getPreferredColorMap("res_mw");
+    m_cityGMLSystem->updateInfluxColorMaps(min, max, powerGrid.sim,
+                                           preferredColorMap, "res_mw", "MW");
+  }
 
   // TODO: remove this later
   // HACK: this is a workaround
@@ -579,9 +579,6 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
 
 void SimulationSystem::initPowerGrid() {
   initPowerGridStreams();
-  //   initPowerGridUI({"trafo3w_stdtypes", "trafo_std_types", "trafo", "parameters",
-  //                    "dtypes", "bus_geodata", "fuse_std_types",
-  //                    "line_std_types"});
   buildPowerGrid();
   m_powerGridStreams.clear();
   auto simPath =

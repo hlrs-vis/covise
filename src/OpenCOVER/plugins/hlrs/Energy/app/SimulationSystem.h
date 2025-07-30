@@ -26,6 +26,7 @@
 #include <osg/Switch>
 
 // ui
+#include "CityGMLSystem.h"
 #include "ui/simulation/BaseSimulationUI.h"
 
 using namespace opencover::utils::read;
@@ -59,7 +60,7 @@ using namespace opencover::utils::read;
 class SimulationSystem final : public core::interface::ISystem {
  public:
   SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
-                   osg::ref_ptr<osg::Switch> parent);
+                   CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent);
   ~SimulationSystem() override;
 
   void init() override;
@@ -195,7 +196,6 @@ class SimulationSystem final : public core::interface::ISystem {
   /* #endregion */
   /* #endregion*/
 
-  std::unique_ptr<opencover::CoverColorBar> m_vmPuColorMap;
 
   // Simulation UI
   opencover::coVRPlugin *m_plugin;
@@ -215,9 +215,10 @@ class SimulationSystem final : public core::interface::ISystem {
   // Powergrid UI
   opencover::ui::Menu *m_powerGridMenu;
   opencover::ui::Button *m_updatePowerGridSelection;
-  std::map<opencover::ui::Menu *, std::vector<opencover::ui::Button *>>
-      m_powerGridCheckboxes;
+  
+  CityGMLSystem* m_cityGMLSystem;
   std::unique_ptr<opencover::config::Array<bool>> m_powerGridSelectionPtr;
+  std::unique_ptr<opencover::CoverColorBar> m_vmPuColorMap;
 
   // Heatgrid UI
   // opencover::ui::Menu *m_heatGridMenu = nullptr;
@@ -228,6 +229,8 @@ class SimulationSystem final : public core::interface::ISystem {
   //
   osg::ref_ptr<osg::Switch> m_gridSwitch;
 
+  std::map<opencover::ui::Menu *, std::vector<opencover::ui::Button *>>
+      m_powerGridCheckboxes;
   std::array<EnergySimulation,
              static_cast<std::size_t>(EnergyGridType::NUM_ENERGY_TYPES)>
       m_energyGrids;
