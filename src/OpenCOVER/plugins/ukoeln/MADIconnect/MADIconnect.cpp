@@ -39,6 +39,14 @@
 #include <osg/Material>
 #include <osg/Vec4>
 
+#include <osg/Node>
+#include <osg/NodeVisitor>
+#include <osg/Group>
+#include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/Material>
+#include <iostream>
+
 using namespace opencover;
 using namespace std;
 using covise::TokenBuffer;
@@ -55,7 +63,13 @@ MADIconnect::MADIconnect()
     plugin = this;
 
     dataPath = coCoviseConfig::getEntry("value", "COVER.Plugin.MADIconnect.DataPath", "");
-    if (dataPath.empty())
+    if (!dataPath.empty())
+    {
+        char last = dataPath.back();
+        if (last == '/' || last == '\\')
+            dataPath.pop_back(); // remove trailing slash
+    } 
+    else
     {
 #ifdef _WIN32
         dataPath = std::getenv("USERPROFILE");
@@ -108,7 +122,6 @@ MADIconnect::MADIconnect()
 	}
     msg = new Message;
 
-
     madiMenu = new ui::Menu("MADIconnect", this);
     madiMenu->setText("MADIconnect");
 
@@ -154,9 +167,9 @@ void MADIconnect::sendTestMessage()
 #define PRINT_BYTES_HEX(data, len)                                      \
     do {                                                                \
         for (size_t i = 0; i < (len); ++i) {                            \
-            std::cout << std::hex << std::setw(2) << std::setfill('0') \
-                      << (static_cast<unsigned>(                      \
-                              static_cast<unsigned char>((data)[i])))  \
+            std::cout << std::hex << std::setw(2) << std::setfill('0')  \
+                      << (static_cast<unsigned>(                        \
+                              static_cast<unsigned char>((data)[i])))   \
                       << " ";                                           \
         }                                                               \
         std::cout << std::dec << std::endl;                             \
@@ -234,6 +247,40 @@ bool MADIconnect::sendMessage(Message &m)
     return false;
 }
 
+class ColorChangerVisitor : public osg::NodeVisitor {
+public:
+    ColorChangerVisitor(const std::string& targetName, const osg::Vec4& color)
+        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN), _targetName(targetName), _color(color) {}
+
+    virtual void apply(osg::Group& node) override {
+        if (node.getName() == _targetName && node.getNumChildren() > 0) {
+            osg::ref_ptr<osg::Node> child = node.getChild(0);
+            osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
+            if (geode) {
+                std::cout << "Found geode under node: " << _targetName << std::endl;
+                setColor(geode);
+            }
+        }
+        traverse(node);
+    }
+
+private:
+    void setColor(osg::Geode* geode) {
+        for (unsigned int i = 0; i < geode->getNumDrawables(); ++i) {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+            if (geometry) {
+                osg::ref_ptr<osg::Material> material = new osg::Material;
+                material->setDiffuse(osg::Material::FRONT_AND_BACK, _color);
+                geode->getOrCreateStateSet()->setAttributeAndModes(material, osg::StateAttribute::ON);
+            }
+        }
+    }
+
+    std::string _targetName;
+    osg::Vec4 _color;
+};
+
+
 void MADIconnect::handleMessage(Message *m)
 {
     if (!m)
@@ -248,13 +295,125 @@ void MADIconnect::handleMessage(Message *m)
     {
         case MSG_LOAD_NEURONS:
         {
-            std::string filename = "/home/daniel/data/KeiIto/3neurons/2406140800-_18U.obj";
-            coVRFileManager::instance()->loadFile(filename.c_str(), NULL, cover->getObjectsRoot(), "MADI");
+            TokenBuffer tb(m);
+            int numNeurons = 0;
+            tb >> numNeurons;
+
+            for(int i = 0; i < numNeurons; ++i){
+                string filename;
+                tb >> filename;
+                string fullPath = dataPath + "/" + filename;
+                coVRFileManager::instance()->loadFile(fullPath.c_str(), NULL, cover->getObjectsRoot(), "MADI");
+            }            
             break;
         }
+
         case MSG_SHOW_NEURONS:
+        {
+            TokenBuffer tb(m);
+            int numNeurons = 0;
+            tb >> numNeurons;
+            for(int i = 0; i < numNeurons; ++i){
+                string neuronName;
+                tb >> neuronName;
+                string fullPath = dataPath + "/" + neuronName;
+                osg::Node *node;
+                node = VRSceneGraph::instance()->findFirstNode<osg::Node>(fullPath.c_str());
+                node->setNodeMask(node->getNodeMask() | (Isect::Visible));
+
+                osg::Group *group = dynamic_cast<osg::Group*>(node);
+                if (!group)
+                {
+                    cerr << "MADIconnect::hideNeurons: Node is not a group: " << fullPath << endl;
+                    continue;
+                }
+
+                if (group)
+                {
+
+                    osg::ref_ptr<osg::Node> child = group->getChild(0);
+                    osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
+                    if (geode) {
+                        std::cout << "Found geode under node: " << fullPath << std::endl;
+                        geode->setNodeMask(geode->getNodeMask() | (Isect::Visible));
+                    }
+                    else {
+                        std::cout << "No geode found under node: " << fullPath << std::endl;
+                    }                    
+                }
+            }
+            break;
+        }
+
         case MSG_HIDE_NEURONS:
+        {
+            TokenBuffer tb(m);
+            int numNeurons = 0;
+            tb >> numNeurons;
+            for(int i = 0; i < numNeurons; ++i){
+                string neuronName;
+                tb >> neuronName;
+                string fullPath = dataPath + "/" + neuronName;
+                osg::Node *node;
+                node = VRSceneGraph::instance()->findFirstNode<osg::Node>(fullPath.c_str());
+                node->setNodeMask(node->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
+                
+                osg::Group *group = dynamic_cast<osg::Group*>(node);
+                if (!group)
+                {
+                    cerr << "MADIconnect::hideNeurons: Node is not a group: " << fullPath << endl;
+                    continue;
+                }
+                
+                if (group)
+                {
+
+                    osg::ref_ptr<osg::Node> child = group->getChild(0);
+                    osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
+                    if (geode) {
+                        std::cout << "Found geode under node: " << fullPath << std::endl;
+                        geode->setNodeMask(geode->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
+                    }
+                    else {
+                        std::cout << "No geode found under node: " << fullPath << std::endl;
+                    }                    
+                }
+            }
+            break;
+        }
+
         case MSG_COLOR_NEURONS:
+        {
+            std::cout << "MADIconnect::MSG_COLOR_NEURONS" << std::endl;
+            TokenBuffer tb(m);
+
+            int intColor = 0;
+            tb >> intColor;
+            std::cout << "MADIconnect::Color: " << intColor << std::endl;
+
+            //TODO: Use VRSceneGraph::instance()->setColor(geode, color, 1.0f);
+            //VRSceneGraph::instance()->setColor(geode, color, 1.0);
+
+            float r = ((intColor >> 16) & 0xFF) / 255.0f;
+            float g = ((intColor >> 8)  & 0xFF) / 255.0f;
+            float b = ( intColor        & 0xFF) / 255.0f;
+            
+            osg::Vec4 color(r,g,b,1.0f);            
+            std::cout << "MADIconnect::Color RGBA: " << color.r() << ", " << color.g() << ", " << color.b() << ", " << color.a() << std::endl;
+                
+            // Apply color to all neurons
+            int numNeurons = 0;
+            tb >> numNeurons;
+            for(int i = 0; i < numNeurons; ++i){
+                string neuronName;
+                tb >> neuronName;
+                string fullPath = dataPath + "/" + neuronName;                
+                ColorChangerVisitor colorChanger(fullPath, color);
+                cover->getObjectsRoot()->accept(colorChanger);
+            }
+            break;
+        }
+
         case MSG_LOAD_VOLUME:
         case MSG_SHOW_VOLUME:
         case MSG_HIDE_VOLUME:
