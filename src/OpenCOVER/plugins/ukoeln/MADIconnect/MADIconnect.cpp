@@ -23,6 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
+#include <cover/VRSceneGraph.h>
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -165,10 +166,8 @@ void MADIconnect::sendTestMessage()
     data++;
 }
 
-
 #include <iostream>
 #include <iomanip>
-
 #define PRINT_BYTES_HEX(data, len)                                      \
     do {                                                                \
         for (size_t i = 0; i < (len); ++i) {                            \
@@ -179,8 +178,6 @@ void MADIconnect::sendTestMessage()
         }                                                               \
         std::cout << std::dec << std::endl;                             \
     } while (0)
-
-
 
 void MADIconnect::preFrame()
 {
@@ -194,30 +191,7 @@ void MADIconnect::preFrame()
             cover->watchFileDescriptor(toMADI->getSocket()->get_id());
 		}
 	}
-
-    /*
-    if (coVRMSController::instance()->isMaster())
-	{
-		double startTime = cover->currentTime();
-		while (toMADI && toMADI->check_for_input())
-		{
-			if (cover->currentTime() > startTime + 1)
-				break;
-			toMADI->recv_msg(msg);
-			if (msg)
-			{   
-                cout << "MADIconnect:: : " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
-                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
-			}
-			else
-			{
-				cerr << "could not read message" << endl;
-				break;
-			}
-		}		
-	}
-    */
-    
+       
     //Distribute messages to slaves
     char gotMsg = '\0';
     if (coVRMSController::instance()->isMaster())
@@ -230,8 +204,7 @@ void MADIconnect::preFrame()
 			toMADI->recv_msg(msg);
 			if (msg)
 			{
-
-                cout << "MADIconnect:: A: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                cout << "MADIconnect::Master Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
                 PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
 
 				gotMsg = '\1';
@@ -260,7 +233,7 @@ void MADIconnect::preFrame()
 			{
 				coVRMSController::instance()->readMaster(msg);
 
-                cout << "MADIconnect:: B: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                cout << "MADIconnect::Client Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
                 PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
 
 				handleMessage(msg);
@@ -268,7 +241,6 @@ void MADIconnect::preFrame()
 		} while (gotMsg != '\0');
 	}    
 }
-
 
 bool MADIconnect::sendMessage(Message &m)
 {
@@ -287,28 +259,46 @@ void MADIconnect::handleMessage(Message *m)
         return;
     }
 
-    cout << "MADIconnect:: C: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
-    PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
-
     enum MessageTypes type = (enum MessageTypes)m->type;
 
     switch (type)
     {
+        case MSG_LOAD_NEURONS:
+        case MSG_SHOW_NEURONS:
+        case MSG_HIDE_NEURONS:
+        case MSG_COLOR_NEURONS:
+        case MSG_LOAD_VOLUME:
+        case MSG_SHOW_VOLUME:
+        case MSG_HIDE_VOLUME:
+            // Handle other message types as needed
+            cout << "MADIconnect::Received message type: " << type << endl;
+            break;
+
         case MSG_VIEW_ALL:
         {
-            TokenBuffer tb(m);
-
-            tb.rewind();
-
-            cout << "MADIconnect::TB: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
-            PRINT_BYTES_HEX(tb.getData().data(), tb.getData().length());
-                        
-            int test;
-            tb >> test;            
-            cout << "MADI::Received test value: " << test << endl;
+            VRSceneGraph::instance()->viewAll();
+            break;
         }
+
+        case MSG_TEST:
+        {
+            cout << "MADIconnect::Received MSG_TEST" << endl;
+            TokenBuffer tb(m);
+            cout << "MADIconnect::TB: " << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+            PRINT_BYTES_HEX(tb.getData().data(), tb.getData().length());                        
+            int test;
+            tb >> test;
+            cout << "MADI::Received test value: " << test << endl;
+            break;
+        }       
+        
+        default:
+            cerr << "MADIconnect::Unknown message type: " << type << endl;
+            // Handle unknown message type
+            // You can add your own logic here
+            // For now, we just log it
         break;
-    }   
+    }         
 }
 
 // this is called if the plugin is removed at runtime
@@ -339,5 +329,3 @@ MADIconnect::~MADIconnect()
 }
 
 COVERPLUGIN(MADIconnect)
-
-
