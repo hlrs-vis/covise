@@ -43,12 +43,15 @@ class MADIconnect : public opencover::coVRPlugin, public opencover::ui::Owner
 public:
     enum MessageTypes
 	{
-		MSG_SHOW_NEURONS = 4700,
-        MSG_HIDE_NEURONS = 4701,
-        MSG_NEURON_COLOR = 4702,
-        MSG_SHOW_VOLUME = 4703,
-        MSG_HIDE_VOLUME = 4704,
-        MSG_VIEW_ALL = 4705,
+		MSG_LOAD_NEURONS = 4700,
+        MSG_SHOW_NEURONS = 4701,
+        MSG_HIDE_NEURONS = 4702,
+        MSG_COLOR_NEURONS = 4703,
+        MSG_LOAD_VOLUME = 4704,
+        MSG_SHOW_VOLUME = 4705,
+        MSG_HIDE_VOLUME = 4706,
+        MSG_VIEW_ALL = 4707,
+        MSG_TEST = 4708,
     };
 
     MADIconnect();
@@ -67,11 +70,8 @@ public:
     ui::Menu *madiMenu = nullptr;
     ui::Action *testAction = nullptr;
 
-private:
-    osg::ref_ptr<osg::Geode> basicShapesGeode;
+private:    
     std::string dataPath;
-
-
     void sendTestMessage();
 
 protected:

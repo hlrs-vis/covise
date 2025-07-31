@@ -20,9 +20,11 @@
 \****************************************************************************/
 
 #include "MADIconnect.h"
-#include <cover/coVRPluginSupport.h>
-#include <cover/coVRMSController.h>
+
 #include <cover/coVRConfig.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 
 #include <net/covise_host.h>
@@ -113,30 +115,11 @@ MADIconnect::MADIconnect()
     testAction = new ui::Action(madiMenu, "TestMADI");
     testAction->setText("Test MADI Connection");
     testAction->setCallback([this]() { sendTestMessage(); });
-
-    // Create a unit cube to visualize the plugin    
-    osg::Box *unitCube = new osg::Box(osg::Vec3(0, 0, 0), 1000.0f);
-    osg::ShapeDrawable *unitCubeDrawable = new osg::ShapeDrawable(unitCube);
-
-    // Declare a instance of the geode class:
-    basicShapesGeode = new osg::Geode();
-    basicShapesGeode->setName("MADIconnect");
-
-    osg::Vec4 _color;
-    _color.set(0.0, 0.0, 1.0, 1.0);
-    unitCubeDrawable->setColor(_color);
-    unitCubeDrawable->setUseDisplayList(false);
-
-    // Add the unit cube drawable to the geode:
-    basicShapesGeode->addDrawable(unitCubeDrawable);
-
-    cover->getObjectsRoot()->addChild(basicShapesGeode.get());
 }
 
 bool MADIconnect::destroy()
 {
-    std::cout << "MADIconnect::destroy called" << std::endl;
-    cover->getObjectsRoot()->removeChild(basicShapesGeode.get());
+    std::cout << "MADIconnect::destroy called" << std::endl;    
     return true;
 }
 
@@ -264,6 +247,11 @@ void MADIconnect::handleMessage(Message *m)
     switch (type)
     {
         case MSG_LOAD_NEURONS:
+        {
+            std::string filename = "/home/daniel/data/KeiIto/3neurons/2406140800-_18U.obj";
+            coVRFileManager::instance()->loadFile(filename.c_str(), NULL, cover->getObjectsRoot(), "MADI");
+            break;
+        }
         case MSG_SHOW_NEURONS:
         case MSG_HIDE_NEURONS:
         case MSG_COLOR_NEURONS:
@@ -316,13 +304,6 @@ MADIconnect::~MADIconnect()
 
     delete msg;
     toMADI = NULL;
-
-    // Remove the geode from the scene graph
-    if (basicShapesGeode.valid())
-    {
-        cover->getObjectsRoot()->removeChild(basicShapesGeode.get());
-        basicShapesGeode = nullptr;
-    }
 
     if (plugin == this)
         plugin = nullptr;
