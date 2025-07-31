@@ -16,8 +16,9 @@ namespace apache {
  * @class ArrowReader
  * @brief Utility class for reading Apache Arrow files.
  *
- * ArrowReader provides an interface to read Arrow files using either memory-mapped or readable file IO.
- * It allows access to the file's schema, table, and individual columns.
+ * ArrowReader provides an interface to read Arrow files using either memory-mapped
+ * or readable file IO. It allows access to the file's schema, table, and individual
+ * columns.
  *
  * @note Requires Apache Arrow C++ library.
  *
@@ -27,7 +28,8 @@ namespace apache {
  * @method getReader() Returns the underlying Arrow RecordBatchFileReader.
  * @method getSchema() Returns the schema of the Arrow file.
  * @method getTable() Returns the entire Arrow table.
- * @method readColumnFromTable() Reads a specific column from the Arrow table by name.
+ * @method readColumnFromTable() Reads a specific column from the Arrow table by
+ * name.
  *
  * @private
  * @method init() Initializes the reader with the specified file and IO mode.
@@ -42,7 +44,7 @@ class ArrowReader {
   std::shared_ptr<arrow::ipc::RecordBatchFileReader> getReader() const {
     return m_reader;
   }
-  std::shared_ptr<arrow::Schema> getSchema() const { return m_reader->schema(); }
+  auto getSchema() const { return m_reader->schema(); }
   std::shared_ptr<arrow::Table> getTable() const;
   std::shared_ptr<arrow::ChunkedArray> readColumnFromTable(
       const std::string &columnName,

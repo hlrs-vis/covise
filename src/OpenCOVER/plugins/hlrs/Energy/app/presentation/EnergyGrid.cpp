@@ -22,7 +22,6 @@
 #include <variant>
 
 #include "cover/VRViewer.h"
-#include "lib/core/simulation/power.h"
 
 namespace {
 

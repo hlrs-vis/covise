@@ -117,12 +117,6 @@ bool EnergyPlugin::update() {
 void EnergyPlugin::setTimestep(int t) {
   for (auto &[type, system] : m_systems)
     if (system) system->updateTime(t);
-
-  // this is a workaround for the fact that the energy grids are added in the same
-  // order as they appear in the the constructor
-
-  //   auto &energyGrid = m_energyGrids[m_energygridBtnGroup->value()];
-  //   if (energyGrid.grid) energyGrid.grid->updateTime(t);
 }
 
 bool EnergyPlugin::init() {

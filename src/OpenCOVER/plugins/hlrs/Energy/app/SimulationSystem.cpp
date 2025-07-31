@@ -4,7 +4,7 @@
 // signals with QT_SIGNALS which expands to public
 // QT_ANNOTATE_ACCESS_SPECIFIER(qt_signal)
 // By simply put the includes for arrow before qt
-// includes. In our case before everything we can resolve the issue.
+// includes. In our case before everything else we can resolve the issue.
 #include <lib/apache/arrow.h>
 #include "SimulationSystem.h"
 
@@ -17,7 +17,6 @@
 #include <regex>
 
 // ui
-#include "app/CityGMLSystem.h"
 #include "ui/simulation/HeatingSimulationUI.h"
 #include "ui/simulation/PowerSimulationUI.h"
 
@@ -33,11 +32,18 @@
 #include <lib/core/constants.h>
 #include <lib/core/simulation/heating.h>
 #include <lib/core/simulation/object.h>
+#include <lib/core/simulation/object_factory.h>
+#include <lib/core/simulation/object_type.h>
 #include <lib/core/simulation/power.h>
 #include <lib/core/simulation/simulation.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
+
+// other
 #include <proj.h>
+
+// app
+#include "CityGMLSystem.h"
 
 using namespace opencover;
 using namespace core::interface;
@@ -59,16 +65,16 @@ auto isSkippedInfluxTable(const std::string &name) {
 
 template <typename T>
 void printObjectContainerDistribution(
-    const ObjectContainer<T> &container, float min, float max, int numBins = 20,
+    const ObjectMap &map, float min, float max, int numBins = 20,
     const std::string &species = "loading_percent") {
   static_assert(std::is_base_of_v<Object, T>,
                 "T must be derived from core::simulation::Object");
   std::vector<int> histogram(numBins, 0);
   int total = 0;
 
-  for (const auto &object : container) {
-    auto it = object.second.getData().find(species);
-    if (it == object.second.getData().end()) continue;
+  for (const auto &object : map) {
+    auto it = object.second->getData().find(species);
+    if (it == object.second->getData().end()) continue;
     const auto &data = it->second;
     for (double value : data) {
       int bin = static_cast<int>(numBins * (value - min) / (max - min + 1e-8));
@@ -173,8 +179,6 @@ void SimulationSystem::updateEnergyGridColorMapInShader(
   auto &grid = m_energyGrids[gridTypeIndex];
   if (grid.group && core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
       grid.simUI) {
-    // grid.simUI->updateTimestepColors(map);
-    // grid.grid->setColorMap(map);
     // TODO: remove this later
     // HACK: this is a workaround
     grid.grid->setColorMap(map, m_vmPuColorMap->colorMap());
@@ -498,8 +502,8 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
   auto &buildings = sim->Buildings();
 
   // Helper to process columns
-  auto processColumns = [&](const std::shared_ptr<arrow::Table> &tbl,
-                            auto &container, const std::string &dataKey) {
+  auto processColumns = [&](const std::shared_ptr<arrow::Table> &tbl, ObjectMap &map,
+                            const std::string &dataKey) {
     auto columnNames = tbl->schema()->fields();
     for (int j = 0; j < tbl->num_columns(); ++j) {
       auto columnName = columnNames[j]->name();
@@ -513,13 +517,13 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
         if (chunk->type_id() == arrow::Type::DOUBLE) {
           auto darr = std::static_pointer_cast<arrow::DoubleArray>(chunk);
           auto rawValues = darr->raw_values();
-          if (container.find(columnName) == container.end()) {
-            container.add(columnName);
-            auto &data = container[columnName].getData();
-            data[dataKey] = {};
-            data[dataKey].resize(column->length());
+          // create entry if it doesn't exist
+          if (map.find(columnName) == map.end()) {
+            Data data = {{dataKey, std::vector<double>(column->length())}};
+            auto object = std::make_unique<Object>(columnName, std::move(data));
+            map.emplace(columnName, std::move(object));
           }
-          auto &vec = container[columnName].getData()[dataKey];
+          auto &vec = map[columnName]->getData()[dataKey];
           std::copy(rawValues, rawValues + darr->length(),
                     vec.begin() + chunk_offset);
           chunk_offset += darr->length();
@@ -685,7 +689,6 @@ void SimulationSystem::initEnergyGridColorMaps() {
 void SimulationSystem::updateEnergyGridShaderData(EnergySimulation &energyGrid) {
   switch (energyGrid.type) {
     case EnergyGridType::PowerGrid: {
-      // case EnergyGridType::PowerGridSonder: {
       if (energyGrid.grid && energyGrid.scalarSelector) {
         energyGrid.grid->setData(*energyGrid.sim,
                                  energyGrid.scalarSelector->selectedItem(), false);
@@ -1191,23 +1194,51 @@ void SimulationSystem::readSimulationDataStream(CSVStream &heatingSimStream) {
   CSVStream::CSVRow row;
   auto sim = std::make_shared<heating::HeatingSimulation>();
   const auto &header = heatingSimStream.getHeader();
-  auto &consumers = sim->Consumers();
-  auto &producers = sim->Producers();
   double val = 0.0f;
   std::string name(""), valName("");
+
+  auto getObjMapByType = [&](core::simulation::ObjectType type) -> ObjectMap * {
+    if (type == core::simulation::ObjectType::Consumer)
+      return &sim->Consumers();
+    else if (type == core::simulation::ObjectType::Producer)
+      return &sim->Producers();
+    return nullptr;
+  };
+
+  auto createObjAndAddToMap = [&](core::simulation::ObjectType type,
+                                  const std::string &name) {
+    auto obj =
+        core::simulation::createObject(type, name, {{std::string("value"), {}}});
+    auto map = getObjMapByType(type);
+    if (map == nullptr) return;
+    map->emplace(name, std::move(obj));
+  };
+
+  auto getObjPtr = [&](core::simulation::ObjectType type, const std::string &name) {
+    auto map = getObjMapByType(type);
+    auto it = map->find(name);
+    if (it != map->end()) return it->second.get();
+    createObjAndAddToMap(type, name);
+    return map->at(name).get();
+  };
+
+  auto addDataToMap = [&](core::simulation::ObjectType type, const std::string &name,
+                          const std::string &valName, double value) {
+    auto objPtr = getObjPtr(type, name);
+    objPtr->addData(valName, value);
+  };
+
   while (heatingSimStream.readNextRow(row)) {
     for (const auto &col : header) {
       ACCESS_CSV_ROW(row, col, val);
       if (std::regex_search(col, match, consumer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        consumers.add(name);
-        consumers.addDataToContainerObject(name, valName, val);
+        addDataToMap(core::simulation::ObjectType::Consumer, name, valName, val);
       } else if (std::regex_search(col, match, producer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        producers.add(name);
-        producers.addDataToContainerObject(name, valName, val);
+        addDataToMap(core::simulation::ObjectType::Producer, name, valName, val);
       } else {
         if (val == 0) continue;
         sim->addData(col, val);

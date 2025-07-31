@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -9,6 +10,8 @@
 #include "object.h"
 
 namespace core::simulation {
+
+using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
 
 constexpr auto INVALID_UNIT = "unknown";
 struct UnitPair {
@@ -89,18 +92,15 @@ class Simulation {
   const auto &getScalarProperties() const { return m_scalarProperties; }
   auto &getScalarProperties() { return m_scalarProperties; }
 
-  virtual void computeParameters() {};
   virtual const std::vector<double> *getTimedependentScalar(
       const std::string &species, const std::string &node) const = 0;
+  virtual void computeParameters() = 0;
 
  protected:
-  template <typename T>
-  void computeParameter(const ObjectContainer<T> &container, float trim = 0.01) {
-    static_assert(std::is_base_of_v<Object, T>,
-                  "T must be derived from core::simulation::Object");
+  void computeParameter(const ObjectMap &map, float trim = 0.01) {
     std::map<std::string, std::vector<double>> allValues{};
-    for (const auto &[_, object] : container.get()) {
-      const auto &data = object.getData();
+    for (const auto &[_, object] : map) {
+      const auto &data = object->getData();
       for (const auto &[key, values] : data)
         allValues[key].insert(allValues[key].end(), values.begin(), values.end());
     }
@@ -114,15 +114,12 @@ class Simulation {
     }
   }
 
-  template <typename T>
-  const std::vector<double> *getTimedependentScalar(
-      const ObjectContainer<T> &container, const std::string &species,
-      const std::string &node) const {
-    static_assert(std::is_base_of_v<Object, T>,
-                  "T must be derived from core::simulation::Object");
-    auto it = container.find(node);
-    if (it != container.end()) {
-      const auto &data = it->second.getData();
+  const std::vector<double> *getTimedependentScalar(const ObjectMap &map,
+                                                    const std::string &species,
+                                                    const std::string &node) const {
+    auto it = map.find(node);
+    if (it != map.end()) {
+      const auto &data = it->second->getData();
       auto dataIt = data.find(species);
       if (dataIt != data.end()) {
         return &dataIt->second;

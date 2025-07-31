@@ -51,7 +51,7 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
     if (energyGrid) {
       auto powerSim = this->powerSimulationPtr();
       if (!powerSim) return;
-      auto updateEnergyGridColorsForContainer = [&](auto entities) {
+      auto updateEnergyGridColorsForContainer = [&](const ObjectMap &entities) {
         this->updateEnergyGridColors(timestep, energyGrid, entities);
       };
       updateEnergyGridColorsForContainer(powerSim->Buses());
@@ -69,18 +69,18 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
     return powerSimulationPtr()->getMax(species);
   }
 
-  void updateTimestepColors(const opencover::ColorMap& map) override {
+  void updateTimestepColors(const opencover::ColorMap& colorMap) override {
     // compute colors
     auto powerSim = this->powerSimulationPtr();
     if (!powerSim) return;
-    auto computeColorsForContainer = [&](auto container) {
-      this->computeColors(map, container);
+    auto computeColorsForContainer = [&](const ObjectMap &objectMap) {
+      this->computeColors(colorMap, objectMap);
     };
 
-    computeColorsForContainer(powerSim->Buses().get());
-    computeColorsForContainer(powerSim->Cables().get());
-    computeColorsForContainer(powerSim->Generators().get());
-    computeColorsForContainer(powerSim->Transformators().get());
+    computeColorsForContainer(powerSim->Buses());
+    computeColorsForContainer(powerSim->Cables());
+    computeColorsForContainer(powerSim->Generators());
+    computeColorsForContainer(powerSim->Transformators());
   }
 
  private:
