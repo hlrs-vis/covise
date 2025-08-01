@@ -12,6 +12,7 @@
 namespace core::simulation {
 
 using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
+using ObjectMapView = std::vector<std::reference_wrapper<ObjectMap>>;
 
 constexpr auto INVALID_UNIT = "unknown";
 struct UnitPair {
@@ -97,12 +98,15 @@ class Simulation {
   virtual void computeParameters() = 0;
 
  protected:
-  void computeParameter(const ObjectMap &map, float trim = 0.01) {
+  void computeParameter(const ObjectMapView &mapView, float trim = 0.01) {
     std::map<std::string, std::vector<double>> allValues{};
-    for (const auto &[_, object] : map) {
-      const auto &data = object->getData();
-      for (const auto &[key, values] : data)
-        allValues[key].insert(allValues[key].end(), values.begin(), values.end());
+
+    for (const auto &map : mapView) {
+      for (const auto &[_, object] : map.get()) {
+        const auto &data = object->getData();
+        for (const auto &[key, values] : data)
+          allValues[key].insert(allValues[key].end(), values.begin(), values.end());
+      }
     }
 
     for (const auto &[key, values] : allValues) {
