@@ -1,10 +1,7 @@
-#ifndef _CORE_INTERFACES_IINFORMABLE_H
-#define _CORE_INTERFACES_IINFORMABLE_H
-
+#pragma once
 #include "IDrawable.h"
 
-namespace core {
-namespace interface {
+namespace core::interface {
 template <typename Info>
 class IInformable : public IDrawable {
  public:
@@ -16,7 +13,4 @@ class IInformable : public IDrawable {
  protected:
   Info m_info;
 };
-}  // namespace interface
-}  // namespace core
-
-#endif
+}  // namespace core::interface

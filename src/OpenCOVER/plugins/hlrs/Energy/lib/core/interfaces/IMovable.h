@@ -1,16 +1,10 @@
-#ifndef _CORE_INTERFACES_IMOVEABLE_H
-#define _CORE_INTERFACES_IMOVEABLE_H
-
+#pragma once
 #include <osg/Vec3>
 
-namespace core {
-namespace interface {
+namespace core::interface {
 class IMoveable {
  public:
   virtual ~IMoveable() = default;
   virtual void move(const osg::Vec3 &pos) = 0;
 };
-}  // namespace interface
-}  // namespace core
-
-#endif
+}  // namespace core::interface

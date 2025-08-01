@@ -1,6 +1,4 @@
-#ifndef _CHANNEL_H
-#define _CHANNEL_H
-
+#pragma once
 #include <array>
 #include <set>
 #include <string>
@@ -68,4 +66,3 @@ struct ChannelCmp {
 typedef std::set<Channel, ChannelCmp> ChannelList;
 typedef std::array<ChannelList, static_cast<int>(ChannelGroup::None)> ChannelGroups;
 }  // namespace ennovatis
-#endif

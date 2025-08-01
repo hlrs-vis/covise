@@ -16,18 +16,39 @@
 #include <memory>
 #include <osg/ClipNode>
 #include <osg/Group>
+#include <osg/Switch>
 #include <string>
 #include <vector>
 
 #include "presentation/SolarPanel.h"
 #include "ui/citygml/CityGMLDeviceSensor.h"
 
+/**
+ * @brief A list of unique pointers to ISolarPanel interfaces.
+ *
+ * This typedef defines a container for managing multiple solar panel objects,
+ * ensuring unique ownership semantics for each ISolarPanel instance.
+ */
 typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelList;
 
+/**
+ * @class CityGMLSystem
+ * @brief Manages the CityGML system integration, visualization, and simulation within OpenCOVER.
+ *
+ * This class provides functionality to initialize, enable, update, and manage CityGML objects,
+ * solar panels, and related UI components. It handles loading and processing of PV (photovoltaic)
+ * data, influx data from CSV files, and static power data for campus and city objects.
+ * The class also manages color maps for visualization, transformation of objects, and state sets
+ * for CityGML devices and sensors.
+ *
+ * @note Instances of this class are non-copyable and non-movable.
+ *
+ * @see core::interface::ISystem
+ */
 class CityGMLSystem final : public core::interface::ISystem {
  public:
   CityGMLSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
-                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Group> parent);
+                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent);
   virtual ~CityGMLSystem();
   CityGMLSystem(const CityGMLSystem &) = delete;
   CityGMLSystem &operator=(const CityGMLSystem &) = delete;
@@ -121,6 +142,7 @@ class CityGMLSystem final : public core::interface::ISystem {
   std::map<std::string, core::utils::osgUtils::Geodes> m_defaultStatesets;
   SolarPanelList m_panels;
 
+  osg::ref_ptr<osg::Switch> m_parent;
   osg::ref_ptr<osg::Group> m_cityGMLGroup;
   osg::ref_ptr<osg::Group> m_pvGroup;
   osg::ref_ptr<osg::ClipNode> m_coverRootGroup;

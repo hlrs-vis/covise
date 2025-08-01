@@ -1,6 +1,4 @@
-#ifndef _CORE_TXTINFOBOARD_H
-#define _CORE_TXTINFOBOARD_H
-
+#pragma once
 #include <cover/coBillboard.h>
 #include <lib/core/interfaces/IInfoboard.h>
 
@@ -29,6 +27,19 @@ struct TxtBoxAttributes {
   int charSize;
 };
 
+/**
+ * @class TxtInfoboard
+ * @brief A text-based infoboard for displaying information in an OpenCOVER scene.
+ *
+ * TxtInfoboard provides an interface for showing, hiding, and updating textual information
+ * on a 3D infoboard. It supports customization of appearance via attributes such as position,
+ * title, font, size, and margins. The class inherits from core::interface::IInfoboard and
+ * implements its required methods for managing the infoboard's lifecycle and content.
+ *
+ * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and positioning.
+ *
+ * @see core::interface::IInfoboard
+ */
 class TxtInfoboard : public core::interface::IInfoboard<std::string> {
  public:
   TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes) {};
@@ -76,5 +87,3 @@ class TxtInfoboard : public core::interface::IInfoboard<std::string> {
   // txtbox attributes
   TxtBoxAttributes m_attributes;
 };
-
-#endif

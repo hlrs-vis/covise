@@ -1,6 +1,4 @@
-#ifndef _CORE_INTERFACES_IDRAWABLES_H
-#define _CORE_INTERFACES_IDRAWABLES_H
-
+#pragma once
 #include <osg/Node>
 
 namespace core::interface {
@@ -16,5 +14,3 @@ class IDrawables {
   std::vector<osg::ref_ptr<osg::Node>> m_drawables;
 };
 }  // namespace core::interface
-
-#endif

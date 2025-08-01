@@ -1,6 +1,4 @@
-#ifndef _ENERGY_ENNOVATIS_REST_H
-#define _ENERGY_ENNOVATIS_REST_H
-
+#pragma once
 #include <string>
 
 #include "building.h"
@@ -88,5 +86,3 @@ struct rest {
 };
 
 }  // namespace ennovatis
-
-#endif

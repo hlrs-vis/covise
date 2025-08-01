@@ -7,6 +7,7 @@ The main purpose of this plugin is to visualize geo data in VR from different so
 ## Requirements
 
 - [nlohman::json](https://github.com/nlohmann/json)
+- [arrow](https://github.com/apache/arrow)
 - [GDAL](https://github.com/OSGeo/gdal)
 - [PROJ](https://github.com/OSGeo/PROJ) 
 - CURL standard shipped in unix systems are enough
@@ -18,57 +19,99 @@ The plugin will be automatically compiled and installed if all requirements are 
 
 ## Software Design
 
-The main plugin is a singleton instance of the class EnergyPlugin in energy.cpp/.h and contains the buisnesslogic to access databases and to initialise all different objects of the scene by fetching general information from the config file ***<root-repo>/config/plugin/EnergyCampus.toml***.
+The main plugin is a singleton instance of the class `EnergyPlugin` in `Energy.cpp/.h`. It contains the business logic to access databases and to initialize all different objects of the scene by fetching general information from the config file `<root-repo>/config/plugin/EnergyCampus.toml`.
 
-The current core of the plugin is using the interface pattern to simplify the process of exchanging different visualisiation objects more easy without the need of adjustment in the client code itself. Additionaly it is used to classify these objects for later interactions in the VR scene. For example for filtering all moveable objects in the scene you could use a function which accepts only objects from classes which implemented the interface IMoveable. A superior function can iterate through the objects in the scene and could call a function like:
+### System Architecture
+
+The plugin uses a **modular system management approach**. All major subsystems (such as CityGML, Ennovatis, and Simulation) are implemented as classes inheriting from a common interface `ISystem`. These systems are managed in a map:
 
 ```c++
-void move(const IMoveable &moveable)
-{
-    // move this object
+std::map<System, std::unique_ptr<ISystem>> m_systems;
+```
+
+This allows flexible, type-safe access to each system:
+
+```c++
+template <typename T>
+T *getSystem(System system) {
+    auto it = m_systems.find(system);
+    if (it != m_systems.end())
+        return dynamic_cast<T *>(it->second.get());
+    return nullptr;
 }
 ```
-Example usage for using the interfaces can be seen in the code ***<root-of-this-plugin>/core/PrototypeBuilding.cpp*** and ***<root-of-this-plugin>/core/TxtInfoboard.cpp*** representing buildings and a billboard. For a general overview of available interfaces look at the next figure.
 
-![UML for interfaces](images/interface.svg)
+For example:
+```c++
+CityGMLSystem *cityGML = getSystem<CityGMLSystem>(System::CityGML);
+EnnovatisSystem *ennovatis = getSystem<EnnovatisSystem>(System::Ennovatis);
+SimulationSystem *simulation = getSystem<SimulationSystem>(System::Simulation);
+```
 
-At the current state the plugin is using a REST based API from a software called Ennovatis to access the energy consumption of different buildings for different periods of time. The main logic for that is located in ***<root-of-this-plugin>/ennovatis***. Data from ennovatis is only accessible through a valid university account and a vpn tunnel to the university network.
+All systems are **non-copyable and non-movable** to ensure unique ownership and prevent accidental duplication. Each system encapsulates its own UI, device sensors, and update logic.
 
-To visualize historical energy data a simple interface is provided in the main class ***EnergyPlugin*** to access .csv files.
+### Interface Pattern
+
+The core of the plugin uses the interface pattern to simplify the process of exchanging different visualization objects without needing to adjust client code. This also allows for easy filtering and interaction with objects in the VR scene based on their capabilities (e.g., moveable, clickable, etc.).
+
+Example usage for interfaces can be seen in `core/PrototypeBuilding.cpp` and `core/TxtInfoboard.cpp`, representing buildings and billboards.
 
 ### Ennovatis
 
-The code for the Ennovatis access is gatherd in the object library ***Ennovatis***. This library contains a json interface which uses the nlohmann::json::json_sax_t interface to parse json files (***ennovatis/sax.cpp/.h***). In this plugin it is used to parse the necessary channel id's for the Ennovatis devices located in a local json file to an internal vector for requesting ennovatis data via REST. Afterwards this vector is used in the Energyplugin to create ***EnnovatisDeviceSensor***-objects which holding ***EnnovatisDevice***-objects representing devices for each building setup in the Ennovatis database itself. This ***EnnovatisDeviceSensors*** are simple ***coPickSensors*** which represents clickable objects in the VR Scene. All necessary attributes for requesting data like name of each building instance, channel id's and so on are stored in a building object (***ennovatis/building.cpp/.h***) representing a building and more specific in an attached vector of channel objects (***ennovatis/channel.h***) symbolizing the channels of the building. So after clicking on an object in the scene an event will be triggered which uses the REST interface of the object library to fetch data from the Ennovatis servers (***ennovatis/rest.cpp/.h***) via threads in the background (***utils/ThreadWorker.h***). After getting the json response from the server the plugin uses the json interface (***ennovatis/json.cpp/.h***) of the object library ***Ennovatis*** to parse the result into a internal struct object called ***json_response_object*** for easy access of the data internally. The plugin will then update each drawable object representing the building itself by updating an ***IBuilding***-object. The drawable to show more detailed information from the Ennovatis response will be updated via the interface ***IInfoboard*** as well.
+The Ennovatis subsystem is managed by the `EnnovatisSystem` class, which handles REST API access, device management, and UI integration. Device sensors are managed as `std::vector<std::unique_ptr<EnnovatisDeviceSensor>>` for safe ownership and automatic cleanup.
 
-Current representation of buildings: cylinders (***core/PrototypeBuilding.cpp/.h***)
+### CityGML
 
-Current info representation: billboards (***core/TxtInfoboard.cpp/.h***)
+The CityGML subsystem is managed by the `CityGMLSystem` class, which handles loading and visualization of CityGML data, PV data, and influx data. Device sensors and color maps are managed internally, and the system provides time-based updates for visualization.
 
-### Database
+### Simulation
 
-tbd
+The Simulation subsystem is managed by the `SimulationSystem` class, which handles energy grid simulations and their visualization.
+
+### UI and Scene Management
+
+Each system manages its own UI components and scene graph nodes. The main plugin coordinates system initialization, switching, and updates.
+
+---
+
+**Summary**
+- Systems are managed via a map of unique pointers for flexibility and type safety.
+- Each system is encapsulated, non-copyable, and non-movable.
+- Device sensors are managed with smart pointers.
+- The plugin is modular, extensible, and easier to maintain.
+
+---
+
+For more details, see the code in `app/CityGMLSystem.cpp/.h`, `app/EnnovatisSystem.cpp/.h`, and `app/SimulationSystem.cpp/.h`.
 
 ## Usage
 
-- setup vpn tunnel to the network of the university of stuttgart
-- make sure the correct paths to the channel id json and historical data files are set in the config file ***config/plugin/EnergyCampus.toml***
-- launch opencover via console
+1. **Setup prerequisites:**
+   - Ensure you have a VPN tunnel to the University of Stuttgart network.
+   - Set the correct paths to the channel ID JSON and historical data files in `config/plugin/EnergyCampus.toml`.
 
-```bash
-opencover opencover://plugin/EnergyCampus
-```
+2. **Build and launch:**
+   - Compile OpenCOVER and this plugin as described in the root README.
+   - Launch OpenCOVER with the plugin:
+     ```bash
+     opencover opencover://plugin/EnergyCampus
+     ```
+   - Alternatively, start OpenCOVER and the TabletUI separately:
+     ```bash
+     opencover
+     tabletUI
+     ```
+   - In the TabletUI, navigate to the **Plugin** tab and enable **EnergyCampus**. A new tab will appear for plugin controls.
 
-or 
+3. **Interact:**
+   - Switch to Ennovatis mode by selecting a channel type in the VR menu or TabletUI.
+   - Click on buildings in the scene to fetch and display Ennovatis data.
+   - Adjust the time period and channels using the input fields and selection lists in the TabletUI tab.
+   - Use the **Update** button to fetch new data for the selected period.
 
-open opencover in your prefered way along with a tabletUI e.g.
+## Advanced Usage
 
-```bash
-opencover
-tabletUI
-```
-
-and navigate in the tabletUI to the ***Plugin***-tab and enable the plugin manually by clicking on the button ***EnergyCampus***. If done correct the plugin will add a new tab called ***EnergyCampus*** to the tabletUI and visualizing the historical data first.
-
+### Ennovatis
 If you want to switch to the Ennovatis implementation simply click in the VR menu on ***EnergyCampus*** and select a channel type by selecting an ***Ennovatis Channeltype*** like shown in the next picture.
 
 ![channeltype](images/channeltype.svg)
@@ -81,7 +124,7 @@ Further adjustments to the period of time fetched from ennovatis can be made by 
 
 ![tabletUI](images/tabletUI.svg)
 
-## Notes
+#### Notes
 
 - only active ***EnnovatisDevicesSensors*** will be updated, because at the time of implementation it wasn't possible to update all buildings at once (by changing the period of time or channeltype for example)
 - all active ***EnnovatisDeviceSensors*** which are showing information will be updated if there are changes to the period of time or the channeltype

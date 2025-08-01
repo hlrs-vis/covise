@@ -33,7 +33,6 @@ bool csv_channelid_parser::update_buildings_by_buildingid(
     auto csvStream = CSVStream(filename);
     std::vector<Building>::iterator buildingIt;
     std::string lastBuildingId("");
-    // while (csvStream >> row) {
     while (csvStream.readNextRow(row)) {
       const auto &building_id = row["BuildingId"];
       if (building_id != lastBuildingId) {

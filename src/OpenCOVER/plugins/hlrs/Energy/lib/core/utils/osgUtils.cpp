@@ -1,12 +1,11 @@
 #include "osgUtils.h"
 
 #include <GL/gl.h>
-#include <GL/glext.h>
 #include <utils/color.h>
 
+#include <cassert>
 #include <iostream>
 #include <memory>
-#include <cassert>
 #include <osg/Array>
 #include <osg/BlendFunc>
 #include <osg/BoundingBox>
@@ -15,8 +14,6 @@
 #include <osg/Drawable>
 #include <osg/FrameBufferObject>
 #include <osg/Geode>
-#include <osg/Texture2D>
-#include <osg/TextureRectangle>
 #include <osg/Geometry>
 #include <osg/LineWidth>
 #include <osg/Material>
@@ -29,11 +26,14 @@
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
+#include <osg/Switch>
+#include <osg/Texture1D>
+#include <osg/Texture2D>
 #include <osg/Texture>
+#include <osg/TextureRectangle>
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/ref_ptr>
-#include <osg/Texture1D>
 #include <osgDB/ReadFile>
 #include <osgFX/Outline>
 #include <osgText/Text>
@@ -155,6 +155,30 @@ osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,
   textBox->setBoundingBoxMargin(margin);
   textBox->setDrawMode(osgText::Text::TEXT);
   return textBox;
+}
+
+bool isActive(osg::ref_ptr<osg::Switch> switchToCheck,
+              osg::ref_ptr<osg::Group> group) {
+  if (!switchToCheck || !group) return false;
+  const auto valueList = switchToCheck->getValueList();
+  const auto idx = switchToCheck->getChildIndex(group);
+  return valueList[idx];
+}
+
+void switchTo(const osg::ref_ptr<osg::Node> child,
+              osg::ref_ptr<osg::Switch> parent) {
+  if (!parent || !child) {
+    std::cerr << "Error: Parent switch or child is null." << std::endl;
+    return;
+  }
+  if (!parent->containsNode(child)) {
+    std::cerr << "Error: Child node is not a child of the parent switch."
+              << std::endl;
+    return;
+  }
+
+  parent->setAllChildrenOff();
+  parent->setChildValue(child, true);
 }
 
 void enableLighting(osg::ref_ptr<osg::Geode> geode, bool enable) {
@@ -416,7 +440,8 @@ constexpr int SHADER_INDEX_ATTRIB = 5;
 
 osg::ref_ptr<osg::Geometry> createCylinderBetweenPoints(
     osg::Vec3 start, osg::Vec3 end, float radius, int circleSegments,
-    int lengthSegments, osg::ref_ptr<osg::TessellationHints> hints, bool colorInterpolation) {
+    int lengthSegments, osg::ref_ptr<osg::TessellationHints> hints,
+    bool colorInterpolation) {
   osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
   osg::Vec3 direction = start - end;
   direction.normalize();
@@ -438,11 +463,11 @@ osg::ref_ptr<osg::Geometry> createCylinderBetweenPoints(
   osg::IntArray *intArray = new osg::IntArray;
   for (size_t i = 0; i < lengthSegments + 1; i++) {
     for (size_t j = 0; j < circleSegments; j++) {
-    //   intArray->push_back(i);
-    //   intArray->push_back(colorInterpolation ? i : 0);
+      //   intArray->push_back(i);
+      //   intArray->push_back(colorInterpolation ? i : 0);
       int val = (colorInterpolation ? i : 0);
-    //   std::cout << "[DEBUG] indexAttrib[" << (i * circleSegments + j)
-    //             << "] = " << val << std::endl;
+      //   std::cout << "[DEBUG] indexAttrib[" << (i * circleSegments + j)
+      //             << "] = " << val << std::endl;
       intArray->push_back(val);
     }
   }
@@ -467,39 +492,39 @@ createColorArrayForTubeColorInterpolationBetweenStartAndEnd(
   return colors;
 }
 
-osg::ref_ptr<osg::Texture2D> createValue1DTexture(const std::vector<double> &data)  {
-    osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-    texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
-    texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
-    texture->setBorderWidth(0);
-    texture->setResizeNonPowerOfTwoHint(false);
-    texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+osg::ref_ptr<osg::Texture2D> createValue1DTexture(const std::vector<double> &data) {
+  osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
+  texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+  texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
+  texture->setBorderWidth(0);
+  texture->setResizeNonPowerOfTwoHint(false);
+  texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
 
-    // Create the image
-    osg::ref_ptr<osg::Image> image = new osg::Image();
-    image->setInternalTextureFormat(GL_R32F);
-    image->allocateImage(data.size(), 1, 1, GL_RED, GL_FLOAT);
-    float* values = reinterpret_cast<float*>(image->data());
-    for (size_t i = 0; i < data.size(); ++i)
-      values[i] = data[i];
+  // Create the image
+  osg::ref_ptr<osg::Image> image = new osg::Image();
+  image->setInternalTextureFormat(GL_R32F);
+  image->allocateImage(data.size(), 1, 1, GL_RED, GL_FLOAT);
+  float *values = reinterpret_cast<float *>(image->data());
+  for (size_t i = 0; i < data.size(); ++i) values[i] = data[i];
 
-    image->dirty();
-    texture->setImage(image);
-    return texture;
+  image->dirty();
+  texture->setImage(image);
+  return texture;
 }
 
-osg::ref_ptr<osg::Texture1D> createPointDataTexture(const std::vector<double>& data) {
-    osg::ref_ptr<osg::Texture1D> tex = new osg::Texture1D();
-    // tex->setInternalFormat(GL_R32F);
-    tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
-    tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
-    osg::ref_ptr<osg::Image> img = new osg::Image();
-    img->setInternalTextureFormat(GL_R32F);
-    img->allocateImage(data.size(), 1, 1, GL_RED, GL_FLOAT);
-    memcpy(img->data(), data.data(), data.size() * sizeof(float));
-    img->dirty();
-    tex->setImage(img);
-    return tex;
+osg::ref_ptr<osg::Texture1D> createPointDataTexture(
+    const std::vector<double> &data) {
+  osg::ref_ptr<osg::Texture1D> tex = new osg::Texture1D();
+  // tex->setInternalFormat(GL_R32F);
+  tex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+  tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
+  osg::ref_ptr<osg::Image> img = new osg::Image();
+  img->setInternalTextureFormat(GL_R32F);
+  img->allocateImage(data.size(), 1, 1, GL_RED, GL_FLOAT);
+  memcpy(img->data(), data.data(), data.size() * sizeof(float));
+  img->dirty();
+  tex->setImage(img);
+  return tex;
 }
 
 osg::ref_ptr<osg::Texture2D> createValueTexture(const std::vector<double> &fromData,
@@ -507,7 +532,7 @@ osg::ref_ptr<osg::Texture2D> createValueTexture(const std::vector<double> &fromD
   assert(fromData.size() == toData.size() &&
          "fromData and toData must have the same size");
   osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D();
-//   texture->setInternalFormat(GL_R32F);  // 1 channel, 32-bit float
+  //   texture->setInternalFormat(GL_R32F);  // 1 channel, 32-bit float
   texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
   texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
   texture->setBorderWidth(0);

@@ -1,6 +1,4 @@
-#ifndef _CORE_UTILS_OSGUTILS_H
-#define _CORE_UTILS_OSGUTILS_H
-
+#pragma once
 #include <memory>
 #include <osg/BoundingBox>
 #include <osg/Geode>
@@ -15,6 +13,8 @@
 #include <vector>
 
 namespace core::utils::osgUtils {
+typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
+
 namespace visitors {
 class NodeNameToggler : public osg::NodeVisitor {
  public:
@@ -40,9 +40,10 @@ std::vector<GeometryData> extractTexturedGeometryData(osg::Node *node);
 osg::ref_ptr<osg::Node> createInstance(
     const std::vector<GeometryData> &masterGeometryData, const osg::Matrix &matrix);
 }  // namespace instancing
-   //
-typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
 
+void switchTo(const osg::ref_ptr<osg::Node> child, osg::ref_ptr<osg::Switch> parent);
+bool isActive(osg::ref_ptr<osg::Switch> switchToCheck,
+               osg::ref_ptr<osg::Group> group);
 std::unique_ptr<Geodes> getGeodes(osg::Group *grp);
 osg::BoundingBox getBoundingBox(const Geodes &geodes);
 void deleteChildrenFromOtherGroup(osg::Group *grp, osg::Group *anotherGrp);
@@ -83,8 +84,9 @@ osg::ref_ptr<osg::Geode> createBezierTube(
 
 osg::ref_ptr<osg::Texture1D> createPointDataTexture(const std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValue1DTexture(const std::vector<double> &data);
-// osg::ref_ptr<osg::TextureRectangle> createValue1DTexture(const std::vector<double> &data);
-// osg::ref_ptr<osg::Texture1D> createValue1DTexture(const std::vector<double> &data);
+// osg::ref_ptr<osg::TextureRectangle> createValue1DTexture(const std::vector<double>
+// &data); osg::ref_ptr<osg::Texture1D> createValue1DTexture(const
+// std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValueTexture(const std::vector<double> &fromData,
                                                 const std::vector<double> &toData);
 osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,
@@ -123,4 +125,3 @@ osg::ref_ptr<osg::Geometry> createNormalVisualization(
 void printNodeInfo(osg::Node *node, int indent = 0);
 
 }  // namespace core::utils::osgUtils
-#endif

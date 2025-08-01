@@ -7,6 +7,8 @@
 #include <lib/ennovatis/date.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
+#include <proj.h>
+#include <utils/read/csv/csv.h>
 #include <utils/string/LevenshteinDistane.h>
 
 #include <fstream>
@@ -14,7 +16,6 @@
 #include <regex>
 
 #include "presentation/TxtInfoboard.h"
-// #include "ui/legacy/Device.h"
 
 namespace {
 constexpr bool debug = build_options.debug_ennovatis;
@@ -69,23 +70,23 @@ EnnovatisSystem::EnnovatisSystem(opencover::coVRPlugin *plugin,
                                  osg::ref_ptr<osg::Switch> parent)
     : m_plugin(plugin),
       m_menu(nullptr),
-      m_ennovatisSelectionsList(nullptr),
+      m_selectionsList(nullptr),
       m_enabledDeviceList(nullptr),
       m_channelList(nullptr),
       m_from(nullptr),
       m_to(nullptr),
       m_update(nullptr),
       m_ennovatis(new osg::Group()),
+      m_parent(parent),
       m_enabled(false) {
   assert(parentMenu && "EnnovatisSystem: parent must not be null");
   assert(plugin && "EnnovatisSystem: plugin must not be null");
   initEnnovatisUI(parentMenu);
-  parent->addChild(m_ennovatis);
+  m_parent->addChild(m_ennovatis);
 }
 
 EnnovatisSystem::~EnnovatisSystem() {
-  osg::ref_ptr<osg::Group> parent = m_ennovatis->getParent(0);
-  if (parent) parent->removeChild(m_ennovatis);
+  if (m_parent) m_parent->removeChild(m_ennovatis);
 }
 
 void EnnovatisSystem::init() {
@@ -94,8 +95,9 @@ void EnnovatisSystem::init() {
   initRESTRequest();
 
   if (!loadChannelIDs(
-          m_plugin->configString("Ennovatis", "channelIdPath", "default")->value(),
-          m_plugin->configString("Ennovatis", "channelIdCSVPath", "default")
+          m_plugin->configString("Ennovatis", "jsonChannelIdPath", "default")
+              ->value(),
+          m_plugin->configString("Ennovatis", "csvChannelIdPath", "default")
               ->value())) {
     std::cerr << "Failed to load channel IDs" << std::endl;
     return;
@@ -106,29 +108,21 @@ void EnnovatisSystem::init() {
 
 void EnnovatisSystem::enable(bool on) {
   m_enabled = on;
-  if (on)
-    for (auto &sensor : m_ennovatisDevicesSensors) sensor->activate();
-  else
-    for (auto &sensor : m_ennovatisDevicesSensors) sensor->disactivate();
+//   if (on)
+//     for (auto &sensor : m_deviceSensors) sensor->activate();
+//   else
+//     for (auto &sensor : m_deviceSensors) sensor->disactivate();
 }
 
 void EnnovatisSystem::update() {
-  if (m_ennovatisDevicesSensors.empty()) return;
+  if (m_deviceSensors.empty()) return;
 
   // update the sensors
-  for (auto &sensor : m_ennovatisDevicesSensors) {
-    sensor->update();
-  }
-
-  // update the enabled device list
-  //   m_enabledDeviceList->setList(
-  //       ennovatis::getEnabledDeviceNames(m_ennovatisDevicesSensors));
-  //   m_enabledDeviceList->setSelectedItem(
-  //       m_enabledDeviceList->selectedItem());  // refresh selection
+  for (auto &sensor : m_deviceSensors) sensor->update();
 }
 
 void EnnovatisSystem::updateTime(int timestep) {
-  for (auto &sensor : m_ennovatisDevicesSensors) sensor->setTimestep(timestep);
+  for (auto &sensor : m_deviceSensors) sensor->setTimestep(timestep);
 }
 
 void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
@@ -136,15 +130,15 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
   m_menu = new opencover::ui::Menu(parentMenu, "Ennovatis");
   m_menu->setText("Ennovatis");
 
-  m_ennovatisSelectionsList =
+  m_selectionsList =
       new opencover::ui::SelectionList(m_menu, "Ennovatis_ChannelType");
-  m_ennovatisSelectionsList->setText("Channel Type: ");
+  m_selectionsList->setText("Channel Type: ");
   std::vector<std::string> ennovatisSelections;
   for (int i = 0; i < static_cast<int>(ChannelGroup::None); ++i)
     ennovatisSelections.push_back(
         ChannelGroupToString(static_cast<ChannelGroup>(i)));
 
-  m_ennovatisSelectionsList->setList(ennovatisSelections);
+  m_selectionsList->setList(ennovatisSelections);
   m_enabledDeviceList = new opencover::ui::SelectionList(m_menu, "Enabled_Devices");
   m_enabledDeviceList->setText("Enabled Devices: ");
   m_enabledDeviceList->setCallback([this](int value) { selectEnabledDevice(); });
@@ -158,7 +152,7 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
   m_update = new opencover::ui::Button(m_menu, "Update");
   m_update->setCallback([this](bool on) { updateEnnovatis(); });
 
-  m_ennovatisSelectionsList->setCallback(
+  m_selectionsList->setCallback(
       [this](int value) { setEnnovatisChannelGrp(ennovatis::ChannelGroup(value)); });
   m_from->setCallback(
       [this](const std::string &toSet) { setRESTDate(toSet, true); });
@@ -167,7 +161,7 @@ void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
 
 void EnnovatisSystem::selectEnabledDevice() {
   auto selected = m_enabledDeviceList->selectedItem();
-  for (auto &sensor : m_ennovatisDevicesSensors) {
+  for (auto &sensor : m_deviceSensors) {
     auto building = sensor->getDevice()->getBuildingInfo().building;
     if (building->getName() == selected) {
       sensor->disactivate();
@@ -239,10 +233,39 @@ CylinderAttributes EnnovatisSystem::getCylinderAttributes() {
 }
 
 void EnnovatisSystem::initEnnovatisDevices() {
+  const auto projFrom =
+      m_plugin->configString("General", "projFrom", "default")->value();
+  const auto projTo =
+      m_plugin->configString("General", "projTo", "default")->value();
+  const auto offset =
+      m_plugin->configFloatArray("General", "offset", std::vector<double>{0, 0, 0})
+          ->value();
+  auto P =
+      proj_create_crs_to_crs(PJ_DEFAULT_CTX, projFrom.c_str(), projTo.c_str(), NULL);
+  PJ_COORD coord;
+  coord.lpzt.z = 0.0;
+  coord.lpzt.t = HUGE_VAL;
+
+  if (!P)
+    fprintf(stderr,
+            "EnnovatisSystem: Ignore mapping. No valid projection was "
+            "found between given proj string in "
+            "config EnergyCampus.toml\n");
+
   m_ennovatis->removeChildren(0, m_ennovatis->getNumChildren());
-  m_ennovatisDevicesSensors.clear();
+  m_deviceSensors.clear();
   auto cylinderAttributes = getCylinderAttributes();
   for (auto &b : m_buildings) {
+    auto &lat = b.getY();
+    auto &lon = b.getX();
+    coord.lpzt.lam = lon;
+    coord.lpzt.phi = lat;
+
+    coord = proj_trans(P, PJ_FWD, coord);
+
+    b.setX(coord.xy.x + offset[0]);  // x
+    b.setY(coord.xy.y + offset[1]);  // y
+    b.setHeight(offset[2]);
     cylinderAttributes.position = osg::Vec3(b.getX(), b.getY(), b.getHeight());
     auto drawableBuilding = std::make_unique<PrototypeBuilding>(cylinderAttributes);
     auto infoboardPos = osg::Vec3(b.getX() + cylinderAttributes.radius + 5,
@@ -256,18 +279,19 @@ void EnnovatisSystem::initEnnovatisDevices() {
         b, m_channelList, m_req, m_channelGrp, std::move(infoboard),
         std::move(drawableBuilding));
     m_ennovatis->addChild(enDev->getDeviceGroup());
-    m_ennovatisDevicesSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
+    m_deviceSensors.push_back(std::make_unique<EnnovatisDeviceSensor>(
         std::move(enDev), enDev->getDeviceGroup(), m_enabledDeviceList));
   }
+  proj_destroy(P);
 }
 
 void EnnovatisSystem::updateEnnovatisChannelGrp() {
-  for (auto &sensor : m_ennovatisDevicesSensors)
+  for (auto &sensor : m_deviceSensors)
     sensor->getDevice()->setChannelGroup(m_channelGrp);
 }
 
 void EnnovatisSystem::setEnnovatisChannelGrp(ennovatis::ChannelGroup group) {
-  //   switchTo(m_ennovatis, m_switch);
+  core::utils::osgUtils::switchTo(m_ennovatis, m_parent);
   m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
 
   if constexpr (debug) {
@@ -303,9 +327,11 @@ bool EnnovatisSystem::loadChannelIDs(const std::string &pathToJSON,
   }
   auto jsonPath = std::filesystem::path(pathToJSON);
   if (jsonPath.extension() == ".json") {
+    // init buildings
     ennovatis::sax_channelid_parser sax(&m_buildings);
     if (!sax.parse_filestream(inputFilestream)) return false;
 
+    // update new channelids
     if (!updateChannelIDsFromCSV(pathToCSV)) return false;
 
     if constexpr (debug)

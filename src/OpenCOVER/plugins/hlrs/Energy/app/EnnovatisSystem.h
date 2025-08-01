@@ -1,3 +1,36 @@
+/**
+ * @class EnnovatisSystem
+ * @brief Manages the integration of Ennovatis energy system within the OpenCOVER plugin framework.
+ *
+ * This class implements the core::interface::ISystem interface to provide functionality for
+ * initializing, enabling, updating, and managing Ennovatis devices and channels in a 3D visualization environment.
+ * It handles UI components, REST requests, device sensors, and data loading from CSV/JSON files.
+ *
+ * @note Copy and move operations are deleted to ensure unique ownership and prevent unintended duplication.
+ *
+ * @param plugin Pointer to the OpenCOVER plugin instance.
+ * @param parentMenu Pointer to the parent UI menu for integration.
+ * @param parent OSG Switch node for scene graph management.
+ *
+ * @section Responsibilities
+ * - Initialize Ennovatis UI and devices.
+ * - Handle REST requests and channel group selection.
+ * - Manage device sensors and their attributes.
+ * - Load and update channel IDs from external files.
+ * - Provide time-based updates and enable/disable functionality.
+ *
+ * @section Member Variables
+ * - m_deviceSensors: List of managed device sensors.
+ * - m_plugin, m_menu: References to plugin and UI menu.
+ * - m_selectionsList, m_enabledDeviceList, m_channelList: UI selection lists.
+ * - m_from, m_to: UI edit fields for date selection.
+ * - m_update: UI button for triggering updates.
+ * - m_ennovatis, m_parent: OSG nodes for scene management.
+ * - m_req: REST request handler.
+ * - m_channelGrp: Current channel group.
+ * - m_buildings: Building data.
+ * - m_enabled: System enabled state.
+ */
 #pragma once
 
 #include <cover/coVRPlugin.h>
@@ -15,7 +48,6 @@
 
 #include "presentation/PrototypeBuilding.h"
 #include "ui/ennovatis/EnnovatisDeviceSensor.h"
-// #include "ui/legacy/DeviceSensor.h"
 
 class EnnovatisSystem final : public core::interface::ISystem {
  public:
@@ -37,22 +69,21 @@ class EnnovatisSystem final : public core::interface::ISystem {
  private:
   void initEnnovatisUI(opencover::ui::Menu *parentMenu);
   void initEnnovatisDevices();
-  void updateEnnovatisChannelGrp();
+  void initRESTRequest();
+  void selectEnabledDevice();
   void setEnnovatisChannelGrp(ennovatis::ChannelGroup group);
+  void setRESTDate(const std::string &toSet, bool isFrom = false);
+  void updateEnnovatis();
+  void updateEnnovatisChannelGrp();
   bool updateChannelIDsFromCSV(const std::string &pathToCSV);
   bool loadChannelIDs(const std::string &pathToJSON, const std::string &pathToCSV);
-  void initRESTRequest();
   CylinderAttributes getCylinderAttributes();
 
-  void selectEnabledDevice();
-  void updateEnnovatis();
-  void setRESTDate(const std::string &toSet, bool isFrom = false);
-
-  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_ennovatisDevicesSensors;
+  std::vector<std::unique_ptr<EnnovatisDeviceSensor>> m_deviceSensors;
 
   opencover::coVRPlugin *m_plugin;
   opencover::ui::Menu *m_menu;
-  opencover::ui::SelectionList *m_ennovatisSelectionsList;
+  opencover::ui::SelectionList *m_selectionsList;
   opencover::ui::SelectionList *m_enabledDeviceList;
   opencover::ui::SelectionList *m_channelList;
   opencover::ui::EditField *m_from;
@@ -60,7 +91,7 @@ class EnnovatisSystem final : public core::interface::ISystem {
   opencover::ui::Button *m_update;
 
   osg::ref_ptr<osg::Group> m_ennovatis;
-  osg::ref_ptr<osg::Switch> m_switch;
+  osg::ref_ptr<osg::Switch> m_parent;
 
   std::shared_ptr<ennovatis::rest_request> m_req;
   std::shared_ptr<ennovatis::ChannelGroup> m_channelGrp;

@@ -1,11 +1,12 @@
 #include "CityGMLSystem.h"
+#include "app/presentation/CityGMLBuilding.h"
+#include "app/presentation/TxtInfoboard.h"
 
 #include <cover/coVRAnimationManager.h>
 
 #include <osg/ClipNode>
 #include <osg/MatrixTransform>
 
-#include "app/presentation/CityGMLBuilding.h"
 
 namespace fs = boost::filesystem;
 using namespace opencover;
@@ -37,8 +38,9 @@ void setAnimationTimesteps(size_t maxTimesteps, const void *who) {
 CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
                              opencover::ui::Menu *parentMenu,
                              osg::ref_ptr<osg::ClipNode> rootGroup,
-                             osg::ref_ptr<osg::Group> parent)
+                             osg::ref_ptr<osg::Switch> parent)
     : m_coverRootGroup(rootGroup),
+      m_parent(parent),
       m_cityGMLGroup(new osg::Group()),
       m_pvGroup(new osg::Group()),
       m_plugin(plugin),
@@ -51,7 +53,7 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
       m_enabled(false) {
   assert(parent && "CityGMLSystem: parent must not be null");
   assert(plugin && "CityGMLSystem: plugin must not be null");
-  parent->addChild(m_cityGMLGroup);
+  m_parent->addChild(m_cityGMLGroup);
   initCityGMLUI(parentMenu);
 }
 
@@ -165,7 +167,7 @@ void CityGMLSystem::initCityGMLUI(opencover::ui::Menu *parentMenu) {
   m_Y->setValue(y->value());
   m_Z->setValue(z->value());
   auto updateFunction = [this](auto &value) {
-    // if (!isActiv(m_switch, m_cityGMLGroup)) return;
+    if (!isActive(m_parent, m_cityGMLGroup)) return;
     auto translation = getTranslation();
     transform(translation, {});
   };
@@ -181,10 +183,10 @@ void CityGMLSystem::initCityGMLColorMap() {
   m_colorMap->setSpecies("Leistung");
   m_colorMap->setUnit("kWh");
   m_colorMap->setCallback([this](const opencover::ColorMap &cm) {
-    // if (isActiv(m_switch, m_cityGMLGroup)) {
-    enableCityGML(false, false);
-    enableCityGML(true, false);
-    // }
+    if (isActive(m_parent, m_cityGMLGroup)) {
+      enableCityGML(false, false);
+      enableCityGML(true, false);
+    }
   });
   m_colorMap->setName("CityGML");
 }
@@ -219,7 +221,6 @@ void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
 void CityGMLSystem::updateInfluxColorMaps(
     float min, float max,
     std::shared_ptr<core::simulation::Simulation> powerSimulation,
-    // const core::simulation::power::PowerSimulation &powerSimulation,
     const std::string &colormapName, const std::string &species,
     const std::string &unit) {
   if (m_enableInfluxArrow->state()) {
@@ -594,7 +595,7 @@ void CityGMLSystem::enableCityGML(bool on, bool updateColorMap) {
     if (!m_colorMap) initCityGMLColorMap();
 
     // TODO: this needs to be set in the root of system
-    // switchTo(m_cityGMLGroup, m_switch);
+    switchTo(m_cityGMLGroup, m_parent);
 
     // TODO: add a check if the group is already added and make sure its safe to
     if (m_enableInfluxCSV->state()) {
@@ -627,10 +628,6 @@ void CityGMLSystem::enableCityGML(bool on, bool updateColorMap) {
       addSolarPanels(solarPanelsDir);
     }
   }
-  // TODO: this needs to be set in the root of system
-  /*  else {
-    switchTo(m_sequenceList, m_switch);
-  } */
 }
 
 auto CityGMLSystem::readStaticPowerData(CSVStream &stream, float &max, float &min,
@@ -638,7 +635,6 @@ auto CityGMLSystem::readStaticPowerData(CSVStream &stream, float &max, float &mi
   std::vector<StaticPowerData> powerData;
   if (!stream || stream.getHeader().size() < 1) return powerData;
   CSVStream::CSVRow row;
-  //   while (stream >> row) {
   while (stream.readNextRow(row)) {
     StaticPowerData data;
     ACCESS_CSV_ROW(row, "name", data.name);

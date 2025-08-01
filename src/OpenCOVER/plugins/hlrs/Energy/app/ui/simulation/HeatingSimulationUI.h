@@ -3,15 +3,25 @@
 #include <lib/core/simulation/heating.h>
 #include <lib/core/utils/color.h>
 
-#include <iostream>
 #include <memory>
 #include <osg/Vec4>
 
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
+#include "lib/core/simulation/simulation.h"
 
 using namespace core::simulation::heating;
 
+/**
+ * @brief UI class for managing and visualizing a HeatingSimulation.
+ *
+ * This template class extends BaseSimulationUI and provides specialized
+ * functionality for updating the UI based on the state of a HeatingSimulation.
+ * It handles updating energy grid colors for consumers and producers,
+ * retrieving minimum and maximum values for species, and updating timestep colors.
+ *
+ * @tparam T The parent UI type.
+ */
 template <typename T>
 class HeatingSimulationUI : public BaseSimulationUI<T> {
  public:
@@ -31,8 +41,8 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
     if (energyGrid) {
       auto heatingSim = this->heatingSimulationPtr();
       if (!heatingSim) return;
-      auto updateEnergyGridColorsForContainer = [&](auto entities) {
-        this->updateEnergyGridColors(timestep, energyGrid, entities);
+      auto updateEnergyGridColorsForContainer = [&](const ObjectMap &objectMap) {
+        this->updateEnergyGridColors(timestep, energyGrid, objectMap);
       };
       updateEnergyGridColorsForContainer(heatingSim->Consumers());
       updateEnergyGridColorsForContainer(heatingSim->Producers());
@@ -47,16 +57,16 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
     return this->heatingSimulationPtr()->getMax(species);
   }
 
-  void updateTimestepColors(const opencover::ColorMap& map) override {
+  void updateTimestepColors(const opencover::ColorMap& colorMap) override {
     // compute colors
     auto heatingSim = this->heatingSimulationPtr();
     if (!heatingSim) return;
-    auto computeColorsForContainer = [&](auto entities) {
-      this->computeColors(map, entities);
+    auto computeColorsForContainer = [&](const ObjectMap &objectMap) {
+      this->computeColors(colorMap, objectMap);
     };
 
-    computeColorsForContainer(heatingSim->Consumers().get());
-    computeColorsForContainer(heatingSim->Producers().get());
+    computeColorsForContainer(heatingSim->Consumers());
+    computeColorsForContainer(heatingSim->Producers());
   }
 
  private:

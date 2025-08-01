@@ -21,6 +21,17 @@ struct SolarPanelConfig {
   bool valid() const { return parent && geode && !masterGeometryData.empty(); }
 };
 
+/**
+ * @class SolarPanel
+ * @brief Represents a solar panel and provides functionality to manage its graphical representation.
+ *
+ * Inherits from core::interface::ISolarPanel and encapsulates an OSG node representing the solar panel.
+ * Provides methods to initialize, update, and modify the appearance of the solar panel's drawables.
+ *
+ * @note The class is intended for use within the OpenCOVER Energy plugin presentation layer.
+ *
+ * @see core::interface::ISolarPanel
+ */
 class SolarPanel : public core::interface::ISolarPanel {
  public:
   SolarPanel(osg::ref_ptr<osg::Node> node) : m_node(node) { init(); }

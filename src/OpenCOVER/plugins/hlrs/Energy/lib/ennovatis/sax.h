@@ -1,6 +1,4 @@
-#ifndef _SAX_H
-#define _SAX_H
-
+#pragma once
 #include <nlohmann/json.hpp>
 
 #include "building.h"
@@ -35,6 +33,8 @@ struct sax_channelid_parser : public nlohmann::json::json_sax_t {
   bool m_isChannel = false;
   bool m_isBuildingID = false;
   bool m_isObj = false;
+  bool m_isLat = false;
+  bool m_isLon = false;
   // current channel in iteration
   Channel m_channel;
   // current attr key in channel iteration
@@ -43,5 +43,3 @@ struct sax_channelid_parser : public nlohmann::json::json_sax_t {
   Buildings* m_buildings;
 };
 }  // namespace ennovatis
-
-#endif
