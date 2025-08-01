@@ -48,12 +48,9 @@ SET(SOURCES
 )
 
 set(Name "EnergyCampus")
-SET(EnergyLib_INSTALL TRUE)
 add_subdirectory(lib)
-cover_add_plugin(${Name} nlohmann_json::nlohmann_json Arrow::arrow_shared libEnergy coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
+cover_add_plugin(${Name} nlohmann_json::nlohmann_json Arrow::arrow_shared EnergyLib coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-# if u want to use c++20 for ui/SensorManager.h
-# target_compile_features(${Name} PRIVATE cxx_std_20)
 add_subdirectory(test)
