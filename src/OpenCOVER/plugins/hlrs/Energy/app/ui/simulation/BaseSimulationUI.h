@@ -85,25 +85,27 @@ class BaseSimulationUI {
 
  protected:
   void updateEnergyGridColors(int timestep, std::shared_ptr<EnergyGrid> energyGrid,
-                              const ObjectMap &objectMap) {
-    for (const auto &[nameOfConsumer, consumer] : objectMap) {
-      const auto &name = consumer->getName();
-      auto colorIt = this->m_colors.find(name);
-      if (colorIt == this->m_colors.end()) continue;
+                              const ObjectMapView &objectMapView) {
+    for (const auto &objectMap : objectMapView) {
+      for (const auto &[nameOfConsumer, consumer] : objectMap.get()) {
+        const auto &name = consumer->getName();
+        auto colorIt = this->m_colors.find(name);
+        if (colorIt == this->m_colors.end()) continue;
 
-      const auto &colors = colorIt->second;
-      if (timestep >= colors.size()) continue;
+        const auto &colors = colorIt->second;
+        if (timestep >= colors.size()) continue;
 
-      const auto &color = colors[timestep];
-      if (auto point = energyGrid->getPointByName(name)) {
-        point->updateColor(color);
+        const auto &color = colors[timestep];
+        if (auto point = energyGrid->getPointByName(name)) {
+          point->updateColor(color);
+        }
       }
     }
   }
 
   const opencover::ColorMap *m_colorMap = nullptr;
   void computeColors(const opencover::ColorMap &colorMap,
-                     const ObjectMap &objectMap) {
+                     const ObjectMapView &objectMapView) {
     m_colorMap = &colorMap;
     double minKeyVal = 1000.0, maxKeyVal = 1.0;
 
@@ -123,24 +125,27 @@ class BaseSimulationUI {
       return;
     }
 
-    for (auto &[name, object] : objectMap) {
-      const auto &data = object->getData();
-      auto it = data.find(colorMap.species());
-      if (it == data.end()) {
-        std::cerr << "Key not found in data: " << colorMap.species() << std::endl;
-        continue;
-      }
-      const auto &values = data.at(colorMap.species());
-      if (auto color_it = m_colors.find(name); color_it == m_colors.end()) {
-        m_colors.insert({name, std::vector<osg::Vec4>(values.size())});
-      }
-      auto &colors = m_colors[name];
+    for (const auto &objectMap : objectMapView) {
+      // Iterate over each object in the map
+      for (auto &[name, object] : objectMap.get()) {
+        const auto &data = object->getData();
+        auto it = data.find(colorMap.species());
+        if (it == data.end()) {
+          std::cerr << "Key not found in data: " << colorMap.species() << std::endl;
+          continue;
+        }
+        const auto &values = data.at(colorMap.species());
+        if (auto color_it = m_colors.find(name); color_it == m_colors.end()) {
+          m_colors.insert({name, std::vector<osg::Vec4>(values.size())});
+        }
+        auto &colors = m_colors[name];
 
-      // color_map
-      for (auto i = 0; i < values.size(); ++i) {
-        auto interpolated_value = core::utils::math::interpolate(
-            values[i], minKeyVal, maxKeyVal, colorMap.min(), colorMap.max());
-        colors[i] = colorMap.getColor(interpolated_value);
+        // color_map
+        for (auto i = 0; i < values.size(); ++i) {
+          auto interpolated_value = core::utils::math::interpolate(
+              values[i], minKeyVal, maxKeyVal, colorMap.min(), colorMap.max());
+          colors[i] = colorMap.getColor(interpolated_value);
+        }
       }
     }
   }
