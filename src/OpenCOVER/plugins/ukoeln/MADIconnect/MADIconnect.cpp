@@ -202,8 +202,8 @@ void MADIconnect::preFrame()
 			toMADI->recv_msg(msg);
 			if (msg)
 			{
-                cout << "MADIconnect::Master Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
-                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+                //cout << "MADIconnect::Master Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                //PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
 
 				gotMsg = '\1';
 				coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
@@ -231,8 +231,8 @@ void MADIconnect::preFrame()
 			{
 				coVRMSController::instance()->readMaster(msg);
 
-                cout << "MADIconnect::Client Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
-                PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
+                //cout << "MADIconnect::Client Received Msg:\n" << msg->sender << " " << msg->type << " " << msg->send_type << " " << msg->data.length() << endl;
+                //PRINT_BYTES_HEX(msg->data.data(), msg->data.length());
 
 				handleMessage(msg);
 			}
@@ -375,7 +375,34 @@ private:
     }
 };
 
-
+bool MADIconnect::showNeuron(const std::string &neuronName, bool show)
+{
+    auto it = loadedNeurons.find(neuronName);
+    if (it != loadedNeurons.end())
+    {
+        //cout << "MADIconnect:: Found neuron: " << neuronName << endl;
+        osg::Switch* sw = it->second.get();
+        if (sw)
+        {
+            sw->setAllChildrenOff();
+            if (show)
+            {
+                for (unsigned int i = 0; i < sw->getNumChildren(); ++i)
+                {
+                    sw->setChildValue(sw->getChild(i), true);
+                }
+            }
+        }
+    }
+    else
+    {
+        // Fallback to NodeVisitor if not found
+        string switchName = "Switch_" + neuronName;
+        SwitchNodeToggler toggler(switchName, show);
+        cover->getObjectsRoot()->accept(toggler);
+    }
+    return true;
+}
 
 void MADIconnect::handleMessage(Message *m)
 {
@@ -433,11 +460,12 @@ void MADIconnect::handleMessage(Message *m)
                 }
                 else
                 {
-                    std::cout << "Success: File loaded into switch node.\n";
-
-                    // Optional: Enable the loaded child
+                    //Enable the loaded child
                     switchNode->setAllChildrenOff();  // Turn off all children first
                     switchNode->setChildValue(loadedNode, true);  // Show only this loaded child
+
+                    loadedNeurons[filename] = switchNode; // Store the switch node for later reference
+                    std::cout << "MADIconnect::Loaded neuron: " << filename << " into switch: " << switchName << std::endl;
                 }                
             }            
             break;
@@ -451,16 +479,7 @@ void MADIconnect::handleMessage(Message *m)
             for(int i = 0; i < numNeurons; ++i){
                 string neuronName;
                 tb >> neuronName;
-
-                string switchName = "Switch_" + neuronName;
-                SwitchNodeToggler toggler(switchName, true);
-                cover->getObjectsRoot()->accept(toggler);
-
-                if (!toggler.wasFound())
-                {
-                    cerr << "MADIconnect::showNeurons: Switch node not found: " << switchName << endl;
-                    continue;
-                }
+                showNeuron(neuronName, true);
             }
             break;
         }
@@ -473,16 +492,7 @@ void MADIconnect::handleMessage(Message *m)
             for(int i = 0; i < numNeurons; ++i){
                 string neuronName;
                 tb >> neuronName;
-
-                string switchName = "Switch_" + neuronName;
-                SwitchNodeToggler toggler(switchName, false);
-                cover->getObjectsRoot()->accept(toggler);
-
-                if (!toggler.wasFound())
-                {
-                    cerr << "MADIconnect::hideNeurons: Switch node not found: " << switchName << endl;
-                    continue;
-                }
+                showNeuron(neuronName, false);
             }
             break;
         }
@@ -508,12 +518,41 @@ void MADIconnect::handleMessage(Message *m)
             // Apply color to all neurons
             int numNeurons = 0;
             tb >> numNeurons;
-            for(int i = 0; i < numNeurons; ++i){
-                string neuronName;
+            for (int i = 0; i < numNeurons; ++i)
+            {
+                std::string neuronName;
                 tb >> neuronName;
-                string fullPath = dataPath + "/" + neuronName;                
-                ColorChangerVisitor colorChanger(fullPath, color);
-                cover->getObjectsRoot()->accept(colorChanger);
+
+                auto it = loadedNeurons.find(neuronName);
+                if (it != loadedNeurons.end())
+                {
+                    //cout << "MADIconnect:: Found neuron: " << neuronName << endl;
+                    osg::Switch* sw = it->second.get();
+                    if (sw && sw->getNumChildren() > 0)
+                    {
+                        osg::Geode* geode = dynamic_cast<osg::Geode*>(sw->getChild(0));
+                        if (geode)
+                        {
+                            for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+                            {
+                                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                                if (geometry)
+                                {
+                                    osg::ref_ptr<osg::Material> material = new osg::Material;
+                                    material->setDiffuse(osg::Material::FRONT_AND_BACK, color);
+                                    geode->getOrCreateStateSet()->setAttributeAndModes(material, osg::StateAttribute::ON);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Fallback to node visitor
+                    string fullPath = dataPath + "/" + neuronName;
+                    ColorChangerVisitor colorChanger(fullPath, color);
+                    cover->getObjectsRoot()->accept(colorChanger);
+                }
             }
             break;
         }
@@ -548,9 +587,6 @@ void MADIconnect::handleMessage(Message *m)
         
         default:
             cerr << "MADIconnect::Unknown message type: " << type << endl;
-            // Handle unknown message type
-            // You can add your own logic here
-            // For now, we just log it
         break;
     }         
 }

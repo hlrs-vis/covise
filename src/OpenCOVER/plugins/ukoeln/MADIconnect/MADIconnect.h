@@ -72,7 +72,9 @@ public:
 
 private:    
     std::string dataPath;
+    std::map<std::string, osg::ref_ptr<osg::Switch>> loadedNeurons;
     void sendTestMessage();
+    bool showNeuron(const std::string &neuronName, bool show);
 
 protected:
     static MADIconnect *plugin;
