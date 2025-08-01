@@ -8,7 +8,6 @@
 
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
-#include "lib/core/simulation/simulation.h"
 
 using namespace core::simulation::heating;
 
@@ -41,11 +40,11 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
     if (energyGrid) {
       auto heatingSim = this->heatingSimulationPtr();
       if (!heatingSim) return;
-      auto updateEnergyGridColorsForContainer = [&](const ObjectMap &objectMap) {
-        this->updateEnergyGridColors(timestep, energyGrid, objectMap);
-      };
-      updateEnergyGridColorsForContainer(heatingSim->Consumers());
-      updateEnergyGridColorsForContainer(heatingSim->Producers());
+      this->updateEnergyGridColors(
+          timestep, energyGrid,
+          {std::ref(heatingSim->Consumers()), std::ref(heatingSim->Producers())});
+    } else {
+      std::cerr << "Parent is not an EnergyGrid." << std::endl;
     }
   }
 
@@ -61,12 +60,8 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
     // compute colors
     auto heatingSim = this->heatingSimulationPtr();
     if (!heatingSim) return;
-    auto computeColorsForContainer = [&](const ObjectMap &objectMap) {
-      this->computeColors(colorMap, objectMap);
-    };
-
-    computeColorsForContainer(heatingSim->Consumers());
-    computeColorsForContainer(heatingSim->Producers());
+    this->computeColors(colorMap, {std::ref(heatingSim->Consumers()),
+                                   std::ref(heatingSim->Producers())});
   }
 
  private:

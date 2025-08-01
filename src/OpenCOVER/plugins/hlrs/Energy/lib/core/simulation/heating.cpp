@@ -4,9 +4,7 @@
 namespace core::simulation::heating {
 
 void HeatingSimulation::computeParameters() {
-  // TODO: rewrite to use factory pattern
-  computeParameter(m_consumers);
-  computeParameter(m_producers);
+  computeParameter({std::ref(m_consumers), std::ref(m_producers)});
 }
 
 const std::vector<double> *HeatingSimulation::getTimedependentScalar(
