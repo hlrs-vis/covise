@@ -51,7 +51,7 @@ std::string pokemonJSON = pathToJSON + "/pokemon.json";
 //     // Add additional assertions to validate the cleanup
 // }
 
-TEST(EnnovatisREST, ValidDateTimeStrConversion)
+TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
     auto tp = ennovatis::date::str_to_time_point(ref_string, ennovatis::date::dateformat);
@@ -59,7 +59,7 @@ TEST(EnnovatisREST, ValidDateTimeStrConversion)
     EXPECT_EQ(ref_string, result);
 }
 
-TEST(EnnovatisREST, ValidRequestStr)
+TEST(Ennovatis, ValidRequestStr)
 {
     rest_request req;
     req.url = "https://wurstbrot.com/v0/item";
@@ -79,7 +79,7 @@ TEST(EnnovatisREST, ValidRequestStr)
 }
 
 /**************** SAX tests ****************/
-TEST(EnnovatisSAXTest, ValidJSONSAXParsing)
+TEST(Ennovatis, ValidJSONSAXParsing)
 {
     std::ifstream pokemonFilestream(pokemonJSON);
     sax_channelid_parser slp;
@@ -88,7 +88,7 @@ TEST(EnnovatisSAXTest, ValidJSONSAXParsing)
     pokemonFilestream.close();
 }
 
-TEST(EnnovatisSAXTest, ValidLogging)
+TEST(Ennovatis, ValidLogging)
 {
     std::ifstream pokemonFilestream(pokemonJSON);
     std::ifstream resultFilestream(pathToJSON + "/test_pokemon_logging.txt");
