@@ -111,9 +111,6 @@ bool EnergyPlugin::update() {
   for (auto &[type, system] : m_systems)
     if (system) system->update();
 
-  for (auto &system : m_systems)
-    if (system) system->update();
-
   return false;
 }
 
