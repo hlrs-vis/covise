@@ -45,6 +45,8 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Material>
+#include <osg/Switch>
+
 #include <iostream>
 
 using namespace opencover;
@@ -281,6 +283,100 @@ private:
 };
 
 
+class SceneGraphPrinter : public osg::NodeVisitor
+{
+public:
+    SceneGraphPrinter()
+        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN), _indentLevel(0)
+    {
+    }
+
+    virtual void apply(osg::Node& node) override
+    {
+        printNodeInfo(node);
+        _indentLevel++;
+        traverse(node);
+        _indentLevel--;
+    }
+
+    virtual void apply(osg::Group& group) override
+    {
+        printNodeInfo(group);
+        _indentLevel++;
+        traverse(group);
+        _indentLevel--;
+    }
+
+private:
+    int _indentLevel;
+
+    void printNodeInfo(osg::Node& node)
+    {
+        std::string indent(_indentLevel * 2, ' ');
+        std::string name = node.getName().empty() ? "<unnamed>" : node.getName();
+        std::cout << indent << "- " << name
+                  << " [Type: " << node.className()
+                  << ", Children: " << (node.asGroup() ? node.asGroup()->getNumChildren() : 0)
+                  << "]" << std::endl;
+    }
+};
+
+class SwitchNodeToggler : public osg::NodeVisitor
+{
+public:
+    SwitchNodeToggler(const std::string& targetName, bool show)
+        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN),
+          _targetName(targetName),
+          _show(show),
+          _found(false)
+    {
+    }
+
+    virtual void apply(osg::Node& node) override
+    {
+        if (!_found && node.getName() == _targetName)
+        {
+            osg::Switch* sw = dynamic_cast<osg::Switch*>(&node);
+            if (sw)
+            {
+                std::cout << "Found switch node: " << _targetName << std::endl;
+                toggleSwitch(sw);
+                _found = true;
+                return; // Stop traversing if found
+            }
+        }
+
+        traverse(node);
+    }
+
+    bool wasFound() const { return _found; }
+
+private:
+    std::string _targetName;
+    bool _show;
+    bool _found;
+
+    void toggleSwitch(osg::Switch* sw)
+    {
+        if (_show)
+        {
+            sw->setAllChildrenOff();
+            for (unsigned int i = 0; i < sw->getNumChildren(); ++i)
+            {
+                // Show the first child (or all, if you prefer)
+                sw->setChildValue(sw->getChild(i), true);
+                break;
+            }
+        }
+        else
+        {
+            sw->setAllChildrenOff(); // Hide all children
+        }
+    }
+};
+
+
+
 void MADIconnect::handleMessage(Message *m)
 {
     if (!m)
@@ -300,10 +396,49 @@ void MADIconnect::handleMessage(Message *m)
             tb >> numNeurons;
 
             for(int i = 0; i < numNeurons; ++i){
+
+                //1. Get the filename from the message
                 string filename;
                 tb >> filename;
                 string fullPath = dataPath + "/" + filename;
-                coVRFileManager::instance()->loadFile(fullPath.c_str(), NULL, cover->getObjectsRoot(), "MADI");
+
+                // 2. Create the osg::Switch node
+                osg::ref_ptr<osg::Switch> switchNode = new osg::Switch();
+                string switchName = "Switch_" + filename;
+                switchNode->setName(switchName);
+
+                // 3. Add it to the root of the scene graph
+                osg::Group* root = cover->getObjectsRoot();  // or cover->getScene() depending on your context
+                if (root)
+                {
+                    root->addChild(switchNode.get());
+                }
+                else
+                {
+                    std::cerr << "Error: Could not access root scene graph node.\n";
+                    return;
+                }
+
+                // 3. Load the file into the switch node               
+                osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
+                    fullPath.c_str(),  // fileName
+                    nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+                    switchNode.get(),  // parent
+                    nullptr            // covise_key (can be nullptr)
+                );
+
+                if (!loadedNode)
+                {
+                    std::cerr << "Error: Failed to load file into switch node.\n";
+                }
+                else
+                {
+                    std::cout << "Success: File loaded into switch node.\n";
+
+                    // Optional: Enable the loaded child
+                    switchNode->setAllChildrenOff();  // Turn off all children first
+                    switchNode->setChildValue(loadedNode, true);  // Show only this loaded child
+                }                
             }            
             break;
         }
@@ -316,30 +451,15 @@ void MADIconnect::handleMessage(Message *m)
             for(int i = 0; i < numNeurons; ++i){
                 string neuronName;
                 tb >> neuronName;
-                string fullPath = dataPath + "/" + neuronName;
-                osg::Node *node;
-                node = VRSceneGraph::instance()->findFirstNode<osg::Node>(fullPath.c_str());
-                node->setNodeMask(node->getNodeMask() | (Isect::Visible));
 
-                osg::Group *group = dynamic_cast<osg::Group*>(node);
-                if (!group)
+                string switchName = "Switch_" + neuronName;
+                SwitchNodeToggler toggler(switchName, true);
+                cover->getObjectsRoot()->accept(toggler);
+
+                if (!toggler.wasFound())
                 {
-                    cerr << "MADIconnect::hideNeurons: Node is not a group: " << fullPath << endl;
+                    cerr << "MADIconnect::showNeurons: Switch node not found: " << switchName << endl;
                     continue;
-                }
-
-                if (group)
-                {
-
-                    osg::ref_ptr<osg::Node> child = group->getChild(0);
-                    osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
-                    if (geode) {
-                        std::cout << "Found geode under node: " << fullPath << std::endl;
-                        geode->setNodeMask(geode->getNodeMask() | (Isect::Visible));
-                    }
-                    else {
-                        std::cout << "No geode found under node: " << fullPath << std::endl;
-                    }                    
                 }
             }
             break;
@@ -353,30 +473,15 @@ void MADIconnect::handleMessage(Message *m)
             for(int i = 0; i < numNeurons; ++i){
                 string neuronName;
                 tb >> neuronName;
-                string fullPath = dataPath + "/" + neuronName;
-                osg::Node *node;
-                node = VRSceneGraph::instance()->findFirstNode<osg::Node>(fullPath.c_str());
-                node->setNodeMask(node->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
-                
-                osg::Group *group = dynamic_cast<osg::Group*>(node);
-                if (!group)
-                {
-                    cerr << "MADIconnect::hideNeurons: Node is not a group: " << fullPath << endl;
-                    continue;
-                }
-                
-                if (group)
-                {
 
-                    osg::ref_ptr<osg::Node> child = group->getChild(0);
-                    osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
-                    if (geode) {
-                        std::cout << "Found geode under node: " << fullPath << std::endl;
-                        geode->setNodeMask(geode->getNodeMask() & (~(Isect::Visible | Isect::OsgEarthSecondary)));
-                    }
-                    else {
-                        std::cout << "No geode found under node: " << fullPath << std::endl;
-                    }                    
+                string switchName = "Switch_" + neuronName;
+                SwitchNodeToggler toggler(switchName, false);
+                cover->getObjectsRoot()->accept(toggler);
+
+                if (!toggler.wasFound())
+                {
+                    cerr << "MADIconnect::hideNeurons: Switch node not found: " << switchName << endl;
+                    continue;
                 }
             }
             break;
@@ -392,8 +497,7 @@ void MADIconnect::handleMessage(Message *m)
             std::cout << "MADIconnect::Color: " << intColor << std::endl;
 
             //TODO: Use VRSceneGraph::instance()->setColor(geode, color, 1.0f);
-            //VRSceneGraph::instance()->setColor(geode, color, 1.0);
-
+    
             float r = ((intColor >> 16) & 0xFF) / 255.0f;
             float g = ((intColor >> 8)  & 0xFF) / 255.0f;
             float b = ( intColor        & 0xFF) / 255.0f;
@@ -436,6 +540,9 @@ void MADIconnect::handleMessage(Message *m)
             int test;
             tb >> test;
             cout << "MADI::Received test value: " << test << endl;
+
+            SceneGraphPrinter sceneGraphPrinter;
+            cover->getObjectsRoot()->accept(sceneGraphPrinter);
             break;
         }       
         
