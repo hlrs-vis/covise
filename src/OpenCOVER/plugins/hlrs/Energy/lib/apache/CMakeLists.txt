@@ -13,7 +13,9 @@ set(HEADERS
 	enums.h
 )
 
-set(Name "Apache_Arrow")
-add_library(${Name} OBJECT ${SOURCES} ${HEADERS})
+set(Name "ApacheArrow")
+add_library(${Name} STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(${Name} PRIVATE Arrow::arrow_shared)
+target_include_directories(${Name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+COVISE_INSTALL_TARGET(${Name})

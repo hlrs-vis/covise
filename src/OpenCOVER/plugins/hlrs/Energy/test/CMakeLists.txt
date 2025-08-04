@@ -10,6 +10,7 @@ project(EnergyTest)
 # GoogleTest requires at least C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -28,12 +29,27 @@ enable_testing()
 
 add_executable(
     Test ${TEST_SOURCES} 
-    $<TARGET_OBJECTS:Ennovatis>
-    $<TARGET_OBJECTS:Apache_Arrow>)
-target_include_directories(Test PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/OpenCOVER/plugins/hlrs/Energy
 )
-target_link_libraries(Test Arrow::arrow_shared coCurlHTTPClient nlohmann_json::nlohmann_json coThreadUtil coStringUtil coReadCSVUtil GTest::gtest_main)
+
+target_include_directories(Test 
+    PRIVATE ${CMAKE_SOURCE_DIR}/src/OpenCOVER/plugins/hlrs/Energy 
+    PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS}
+)
+target_link_libraries(
+    Test 
+    PRIVATE ApacheArrow 
+    PRIVATE Ennovatis 
+    PRIVATE coCurlHTTPClient 
+    PRIVATE coThreadUtil 
+    PRIVATE coStringUtil 
+    PRIVATE coReadCSVUtil 
+    PRIVATE core::simulation 
+    PRIVATE Arrow::arrow_shared 
+    PRIVATE nlohmann_json::nlohmann_json 
+    PRIVATE GTest::gtest_main 
+    ${EXTRA_LIBS}
+)
+
 add_definitions(-DENERGYCAMPUS_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 include(GoogleTest)
