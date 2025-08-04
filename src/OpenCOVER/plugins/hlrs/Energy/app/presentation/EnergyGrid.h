@@ -3,6 +3,7 @@
 #include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
+#include <lib/core/simulation/simulation.h>
 
 #include <memory>
 #include <osg/Geode>
@@ -127,7 +128,6 @@ class InfoboardSensor : public coPickSensor {
  */
 class EnergyGrid : public interface::IEnergyGrid {
  public:
-  //   EnergyGrid(EnergyGridConfig &&data);
   EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap = true);
   void initDrawables() override;
   void update() override {
@@ -137,11 +137,8 @@ class EnergyGrid : public interface::IEnergyGrid {
   void updateDrawables() override;
   void updateTime(int timestep) override;
 
-//   void setColorMap(const opencover::ColorMap &colorMap) override;
-//   TODO: remove this later => what a fucking mess
-//   HACK: bullshit code
-  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap) override;
-  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false) override;
+  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
+  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {

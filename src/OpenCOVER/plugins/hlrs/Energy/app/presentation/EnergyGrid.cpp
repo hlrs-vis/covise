@@ -256,9 +256,6 @@ void EnergyGrid::updateColor(const osg::Vec4 &color) {
     utils::color::overrideGeodeColor(point->getGeode(), color);
   for (auto &[_, point] : m_config.pointsMap)
     utils::color::overrideGeodeColor(point->getGeode(), color);
-  //   for (auto &line : m_config.lines)
-  //     for (auto &[name, connection] : line->getConnections())
-  //       utils::color::overrideGeodeColor(connection->getGeode(), color);
 }
 
 void EnergyGrid::updateDrawables() {
