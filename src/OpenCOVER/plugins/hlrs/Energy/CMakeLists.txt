@@ -49,7 +49,14 @@ SET(SOURCES
 
 set(Name "EnergyCampus")
 add_subdirectory(lib)
-cover_add_plugin(${Name} nlohmann_json::nlohmann_json Arrow::arrow_shared EnergyLib coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
+cover_add_plugin(
+    ${Name} 
+    ApacheArrow 
+    Ennovatis 
+    EnergyCore
+    ${HEADERS} ${SOURCES})
+
+
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
