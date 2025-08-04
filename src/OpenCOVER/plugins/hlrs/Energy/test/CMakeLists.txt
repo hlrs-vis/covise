@@ -27,16 +27,17 @@ file(GLOB_RECURSE TEST_SOURCES "src/*.cpp")
 
 enable_testing()
 
+set(Name "EnergyTest")
 add_executable(
-    Test ${TEST_SOURCES} 
+    ${Name} ${TEST_SOURCES} 
 )
 
-target_include_directories(Test 
+target_include_directories(${Name} 
     PRIVATE ${CMAKE_SOURCE_DIR}/src/OpenCOVER/plugins/hlrs/Energy 
     PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS}
 )
 target_link_libraries(
-    Test 
+    ${Name} 
     PRIVATE ApacheArrow 
     PRIVATE Ennovatis 
     PRIVATE coCurlHTTPClient 
@@ -53,4 +54,4 @@ target_link_libraries(
 add_definitions(-DENERGYCAMPUS_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 include(GoogleTest)
-gtest_discover_tests(Test)
+gtest_discover_tests(${Name})
