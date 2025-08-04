@@ -10,9 +10,6 @@ project(EnergyTest)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-<<<<<<< HEAD
-find_package(GTest REQUIRED)
-=======
 
 include(FetchContent)
 FetchContent_Declare(
@@ -26,7 +23,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
->>>>>>> 474ad4a9a (rework CMake workflow of lib:)
 file(GLOB_RECURSE TEST_SOURCES "src/*.cpp")
 
 enable_testing()
