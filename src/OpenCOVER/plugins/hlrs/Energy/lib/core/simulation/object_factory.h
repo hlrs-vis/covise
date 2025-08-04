@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <stdexcept>
 #include "object.h"
 #include "object_type.h"
 
@@ -19,8 +20,9 @@ inline std::unique_ptr<Object> createObject(ObjectType type, const std::string& 
     case ObjectType::Transformator:
     case ObjectType::Consumer:
     case ObjectType::Producer:
-    default:
       return std::make_unique<Object>(name, data);
+    default:
+      throw std::runtime_error("Unknown ObjectType: " + std::to_string(static_cast<int>(type)));
   }
 }
 }  // namespace core::simulation
