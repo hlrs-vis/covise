@@ -179,9 +179,9 @@ void SimulationSystem::updateEnergyGridColorMapInShader(
   auto &grid = m_energyGrids[gridTypeIndex];
   if (grid.group && core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
       grid.simUI) {
-    // TODO: remove this later
-    // HACK: this is a workaround
-    grid.grid->setColorMap(map, m_vmPuColorMap->colorMap());
+    auto gridPtr = dynamic_cast<EnergyGrid *>(grid.grid.get());
+    if (!gridPtr) return;
+    gridPtr->setColorMap(map, m_vmPuColorMap->colorMap());
   }
 }
 
@@ -687,19 +687,18 @@ void SimulationSystem::initEnergyGridColorMaps() {
 }
 
 void SimulationSystem::updateEnergyGridShaderData(EnergySimulation &energyGrid) {
+  if (!energyGrid.grid || !energyGrid.sim || !energyGrid.scalarSelector) return;
+  auto ptr = dynamic_cast<EnergyGrid *>(energyGrid.grid.get());
+  if (!ptr) return;  // Ensure grid is of type EnergyGrid
+
   switch (energyGrid.type) {
     case EnergyGridType::PowerGrid: {
-      if (energyGrid.grid && energyGrid.scalarSelector) {
-        energyGrid.grid->setData(*energyGrid.sim,
-                                 energyGrid.scalarSelector->selectedItem(), false);
-      }
+      ptr->setData(*energyGrid.sim, energyGrid.scalarSelector->selectedItem(),
+                   false);
       break;
     }
     case EnergyGridType::HeatingGrid: {
-      if (energyGrid.grid && energyGrid.scalarSelector) {
-        energyGrid.grid->setData(*energyGrid.sim,
-                                 energyGrid.scalarSelector->selectedItem(), true);
-      }
+      ptr->setData(*energyGrid.sim, energyGrid.scalarSelector->selectedItem(), true);
       break;
     }
     case EnergyGridType::NUM_ENERGY_TYPES:
