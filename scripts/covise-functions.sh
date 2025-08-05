@@ -270,8 +270,6 @@ guess_archsuffix() {
                    export ARCHSUFFIX=jackalope
                elif grep -i -q -s 'ubuntu.*9\.10' /etc/issue; then
                    export ARCHSUFFIX=koala
-               elif grep -i -q -s 'Zetar' /etc/lsb-release; then
-                   export ARCHSUFFIX=manjaro
                fi
                ;;
             
