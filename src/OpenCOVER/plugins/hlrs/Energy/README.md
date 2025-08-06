@@ -8,7 +8,6 @@ The main purpose of this plugin is to visualize geo data in VR from different so
 
 - [nlohman::json](https://github.com/nlohmann/json)
 - [arrow](https://github.com/apache/arrow)
-- [GDAL](https://github.com/OSGeo/gdal)
 - [PROJ](https://github.com/OSGeo/PROJ) 
 - CURL standard shipped in unix systems are enough
 - Compiler supporting std c++17
