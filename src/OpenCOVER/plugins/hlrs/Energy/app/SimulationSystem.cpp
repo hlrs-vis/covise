@@ -375,9 +375,7 @@ bool SimulationSystem::checkBoxSelection_powergrid(const std::string &tableName,
 
 void SimulationSystem::rebuildPowerGrid() {
   auto idx = getEnergyGridTypeIndex(EnergyGridType::PowerGrid);
-  //   auto idxSonder = getEnergyGridTypeIndex(EnergyGridType::PowerGridSonder);
   m_gridSwitch->removeChild(m_energyGrids[idx].group);
-  //   m_grid->removeChild(m_energyGrids[idxSonder].group);
   initPowerGridStreams();
   buildPowerGrid();
 }
@@ -557,8 +555,6 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
                                            preferredColorMap, "res_mw", "MW");
   }
 
-  // TODO: remove this later
-  // HACK: this is a workaround
   if (!m_vmPuColorMap && m_simulationMenu) {
     auto menu = new opencover::ui::Menu(m_simulationMenu, "VmPuColorMap");
     m_vmPuColorMap = std::make_unique<opencover::CoverColorBar>(menu);

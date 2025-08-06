@@ -108,10 +108,6 @@ void EnnovatisSystem::init() {
 
 void EnnovatisSystem::enable(bool on) {
   m_enabled = on;
-//   if (on)
-//     for (auto &sensor : m_deviceSensors) sensor->activate();
-//   else
-//     for (auto &sensor : m_deviceSensors) sensor->disactivate();
 }
 
 void EnnovatisSystem::update() {
@@ -126,7 +122,6 @@ void EnnovatisSystem::updateTime(int timestep) {
 }
 
 void EnnovatisSystem::initEnnovatisUI(opencover::ui::Menu *parentMenu) {
-  //   checkEnergyTab();
   m_menu = new opencover::ui::Menu(parentMenu, "Ennovatis");
   m_menu->setText("Ennovatis");
 
