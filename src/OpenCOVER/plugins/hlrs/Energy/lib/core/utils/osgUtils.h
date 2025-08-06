@@ -84,9 +84,6 @@ osg::ref_ptr<osg::Geode> createBezierTube(
 
 osg::ref_ptr<osg::Texture1D> createPointDataTexture(const std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValue1DTexture(const std::vector<double> &data);
-// osg::ref_ptr<osg::TextureRectangle> createValue1DTexture(const std::vector<double>
-// &data); osg::ref_ptr<osg::Texture1D> createValue1DTexture(const
-// std::vector<double> &data);
 osg::ref_ptr<osg::Texture2D> createValueTexture(const std::vector<double> &fromData,
                                                 const std::vector<double> &toData);
 osg::ref_ptr<osgText::Text> createTextBox(const std::string &text,

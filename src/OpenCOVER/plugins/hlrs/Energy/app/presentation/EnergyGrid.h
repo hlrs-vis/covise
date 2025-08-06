@@ -72,8 +72,6 @@ struct EnergyGridConfig {
   grid::Lines lines;
 
   bool valid() const {
-    // bool isMandatoryValid = !name.empty() || (!points.empty() &&
-    // pointsMap.empty()) || !indices.empty();
     bool isMandatoryValid = !name.empty() ||
                             ((points.empty() || pointsMap.empty()) &&
                              (points.empty() && pointsMap.empty())) ||
