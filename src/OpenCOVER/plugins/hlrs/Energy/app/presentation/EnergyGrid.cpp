@@ -4,7 +4,6 @@
 #include <PluginUtil/colors/coColorMap.h>
 #include <cover/coVRSelectionManager.h>
 #include <lib/core/constants.h>
-// #include <lib/core/simulation/grid.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
 
@@ -82,7 +81,6 @@ void InfoboardSensor::update() {
   coPickSensor::update();
 }
 
-// EnergyGrid::EnergyGrid(EnergyGridConfig &&data) : m_config(std::move(data)) {
 EnergyGrid::EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap)
     : m_config(data), m_ignoreOverlap(ignoreOverlap) {
   if (!m_config.parent.valid()) {
@@ -368,7 +366,6 @@ void EnergyGrid::setData(const core::simulation::Simulation &sim,
         continue;
       }
       for (auto &[_, conn] : line->getConnections())
-        // conn->setDataInShader(*data, *data);
         conn->setData1DInShader(*data, min, max);
     }
   }

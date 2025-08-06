@@ -1,5 +1,4 @@
 USING(PROJ)
-USING(GDAL)
 USING(CURL)
 covise_find_package(Arrow)
 

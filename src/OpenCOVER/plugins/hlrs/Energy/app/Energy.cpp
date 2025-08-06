@@ -52,8 +52,6 @@ EnergyPlugin::EnergyPlugin()
   m_Energy->addChild(m_switch);
   m_Energy->addChild(m_grid);
 
-  GDALAllRegister();
-
   initUI();
 }
 
