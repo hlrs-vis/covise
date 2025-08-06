@@ -12,7 +12,7 @@
 #include <OpenVRUI/coAction.h>
 #include <OpenVRUI/coBackground.h>
 
-#ifdef _WIN32
+#ifndef __linux__
 typedef unsigned char uchar; ///< abbreviation for unsigned char
 typedef unsigned short ushort; ///< abbreviation for unsigned short
 typedef unsigned int uint; ///< abbreviation for unsigned int
