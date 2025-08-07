@@ -129,7 +129,7 @@ jobs:
         swap-storage: true
 
     - name: Sync and update submodules recursive
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         submodules: 'recursive'
 
