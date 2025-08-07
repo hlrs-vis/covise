@@ -16,19 +16,8 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-DemoServer::DemoServer()
-{
-    m_apps = {
-        {"covise", "covise"},
-        {"OpenCOVER", "OpenCOVER"},
-        {"opencover", "OpenCOVER"},
-        {"Vistle", "vistle"},
-        {"vistle", "vistle"},
-        {"sumo", "sumo"},
-        {"notepad", "notepad"}};
-}
 
-json DemoServer::loadDemos()
+json loadDemos()
 {
     std::ifstream f(demo::collection);
     if (!f)
@@ -129,6 +118,16 @@ void DemoServer::monitorProcess(int pid, const std::string &appName)
     m_runningProcess.id = -1;
 }
 
+void clean()
+{
+    const std::array<const char*, 4> apps{"opencover", "covise", "vistle", "sumo"};
+    
+    for (const auto& app : apps) {
+        std::string command = "killall " + std::string(app);
+        std::system(command.c_str());
+    }
+}
+
 void DemoServer::setupRoutes(crow::SimpleApp &app)
 {
     // GET /demos
@@ -157,6 +156,7 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     // POST /launch_demo
     CROW_ROUTE(app, "/launch_demo").methods("POST"_method)([this](const crow::request &req)
                                                            {
+        clean();
         auto data = json::parse(req.body, nullptr, false);
         if (!data.is_object() || !data.contains("id"))
             return crow::response(400, R"({"status":"error","message":"Missing id"})");
@@ -223,13 +223,6 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
         }
         return crow::response(R"({"status":"no_process"})"); });
 
-    // GET /apps
-    CROW_ROUTE(app, "/apps").methods("GET"_method)([this]()
-                                                   {
-        json apps;
-        for (const auto& [k, _] : m_apps)
-            apps["apps"].push_back(k);
-        return crow::response(apps.dump()); });
 
     // POST /update_description
     CROW_ROUTE(app, "/update_description").methods("POST"_method)([this](const crow::request &req)
@@ -324,7 +317,56 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     return crow::response(contents.str()); });
 }
 
+void updateDemoIds(){
+    auto demos = loadDemos();
+
+    // Collect all existing IDs
+    std::set<int> existingIds;
+    bool needsUpdate = false;
+    
+    // First pass: collect all existing IDs
+    for (auto& [category, demo_list] : demos.items()) {
+        for (auto& demo : demo_list) {
+            if (demo.contains("id") && demo["id"].is_number_integer()) {
+                existingIds.insert(demo["id"].get<int>());
+            }
+        }
+    }
+    
+    // Find the next available ID
+    int nextId = 1;
+    while (existingIds.count(nextId)) {
+        nextId++;
+    }
+    
+    // Second pass: assign IDs to demos that don't have them
+    for (auto& [category, demo_list] : demos.items()) {
+        for (auto& demo : demo_list) {
+            if (!demo.contains("id") || !demo["id"].is_number_integer()) {
+                demo["id"] = nextId;
+                existingIds.insert(nextId);
+                std::cerr << "Assigned ID " << nextId << " to demo: " << demo["headline"] << std::endl;
+                needsUpdate = true;
+                
+                // Find next available ID
+                do {
+                    nextId++;
+                } while (existingIds.count(nextId));
+            }
+        }
+    }
+    
+    // Write back to file if any changes were made
+    if (needsUpdate) {
+        std::ofstream f(demo::collection);
+        if (f) {
+            f << demos.dump(2);
+        }
+    }
+}
+
 void DemoServer::run() {
+    updateDemoIds();
     crow::SimpleApp app;
     setupRoutes(app);
     // Run the server in a way that allows stopping
@@ -334,6 +376,7 @@ void DemoServer::run() {
     while (m_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    std::cerr << "Stopping server..." << std::endl;
     app.stop(); // Stop Crow server
 }
 

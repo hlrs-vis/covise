@@ -13,7 +13,6 @@
 class DemoServer
 {
 public:
-    DemoServer();
     void run();
     void stop();
 
@@ -27,9 +26,6 @@ private:
         int id = -1;
     } m_runningProcess;
 
-    std::map<std::string, std::string> m_apps;
-
-    nlohmann::json loadDemos();
     nlohmann::json findDemoById(int id);
     int launchProcess(const std::string& program, const std::vector<std::string>& args);
     bool isPidRunning(int pid);
