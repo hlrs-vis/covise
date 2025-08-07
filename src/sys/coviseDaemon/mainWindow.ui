@@ -355,6 +355,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSideMenuAction"/>
+   <addaction name="actionDemoClient"/>
   </widget>
   <action name="actionSideMenuAction">
    <property name="icon">
@@ -365,6 +366,14 @@
     <string>Options</string>
    </property>
   </action>
+  <action name="actionDemoClient">
+  <property name="text">
+   <string>🌐 Demo</string>
+  </property>
+  <property name="toolTip">
+   <string>Open Demo Client (Right-click to copy link)</string>
+  </property>
+</action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

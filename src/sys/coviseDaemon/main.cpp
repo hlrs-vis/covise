@@ -15,6 +15,7 @@
 #include <boost/program_options.hpp>
 #include <future>
 #include <iostream>
+#include <net/covise_host.h>
 
 namespace po = boost::program_options;
 
@@ -53,6 +54,8 @@ int runGuiDaemon(int argc, char **argv, const po::variables_map &vars)
 
 int runCommandlineDaemon(int argc, char **argv, const po::variables_map &vars)
 {
+        std::cerr << "Starting demo server: http://" << covise::Host::getHostaddress() << ":" << demo::port << std::endl;
+        
         QCoreApplication a(argc, argv);
         CoverDaemon d;
         CommandLineUi tui{ readCredentials(vars), vars.count("autostart") != 0 };
@@ -101,7 +104,6 @@ int main(int argc, char **argv)
                         demoServer->run();
                 });
         };
-
         if (vm.count("tui"))
         {
                 runCommandlineDaemon(argc, argv, vm);

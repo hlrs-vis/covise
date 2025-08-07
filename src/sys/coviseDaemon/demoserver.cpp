@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #endif
 
+
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
@@ -367,19 +368,28 @@ void updateDemoIds(){
 
 void DemoServer::run() {
     updateDemoIds();
-    crow::SimpleApp app;
+    m_app = std::make_unique<crow::SimpleApp>();
+    crow::SimpleApp &app = *m_app;
+    
+    // Disable Crow's logging completely
+    app.loglevel(crow::LogLevel::Critical);
+    
     setupRoutes(app);
-    // Run the server in a way that allows stopping
+    
     auto server_future = std::async(std::launch::async, [&](){
         app.port(demo::port).multithreaded().run();
     });
+    
     while (m_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    
     std::cerr << "Stopping server..." << std::endl;
-    app.stop(); // Stop Crow server
+    app.stop();
+    server_future.wait();
 }
 
 void DemoServer::stop() {
     m_running = false;
+    m_app->stop(); // Stop Crow server
 }

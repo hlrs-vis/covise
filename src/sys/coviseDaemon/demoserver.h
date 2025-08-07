@@ -33,6 +33,7 @@ private:
     void monitorProcess(int pid, const std::string& appName);
 
     void setupRoutes(crow::SimpleApp& app);
+    std::unique_ptr<crow::SimpleApp> m_app;
 };
 
 #endif // COVISE_DAEMON_DEMO_H
