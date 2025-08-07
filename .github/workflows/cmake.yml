@@ -1,0 +1,178 @@
+name: CMake Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ${{ matrix.os }}
+    name: ${{matrix.build_type}} on ${{matrix.os}}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest]
+        variant: [All]
+        build_type: [Release]
+        c_compiler: [gcc, clang]
+        use_cuda: [OFF]
+        use_qt5: [OFF]
+        use_deskvox: [OFF]
+        drivingsim: [OFF]
+        include:
+          - os: 'ubuntu-latest'
+            c_compiler: gcc
+            cxx_compiler: g++
+          - os: 'ubuntu-latest'
+            c_compiler: clang
+            cxx_compiler: clang++
+
+
+    steps:
+    - name: Show info
+      if: runner.os == 'Linux'
+      run: |
+        cat /etc/apt/apt.conf || true
+        cat /etc/apt/apt.conf.d/* || true
+        ls -l /etc/apt/sources.list && cat /etc/apt/sources.list || true
+        ls -l /etc/apt/sources.list.d/* && cat /etc/apt/sources.list.d/* || true
+
+    - name: Clean apt
+      if: runner.os == 'Linux'
+      run: >
+        sudo apt-get clean && sudo rm -rf /etc/apt/sources.list.d/microsoft-prod.list && sudo rm -rf /var/lib/apt/lists/* && sudo rm -f /etc/apt/sources.list.d/archive_uri-* && sudo apt-get clean
+
+    - name: Clean apt
+      if: runner.os == 'Linux'
+      run: >
+        sudo apt-get clean && sudo rm -rf /etc/apt/sources.list.d/microsoft-prod.list && sudo rm -rf /var/lib/apt/lists/* && sudo rm -f /etc/apt/sources.list.d/archive_uri-* && sudo apt-get clean
+
+    - name: Install Linux Dependencies
+      if: runner.os == 'Linux'
+      run: >
+        sudo apt-get update && sudo apt-get install
+        ninja-build
+        libglew-dev
+        libxerces-c-dev
+        libpng-dev
+        swig
+        python3-swig
+        libopenscenegraph-dev
+        libtbb-dev
+        libjpeg-dev
+        libtiff-dev
+        libopenmpi-dev
+        libassimp-dev
+        libboost-all-dev
+        libcgal-dev
+        libtinyxml2-dev
+        libturbojpeg0-dev
+        libfftw3-dev
+        libarchive-dev
+        libbotan-2-dev
+        libavcodec-dev
+        libcfitsio-dev
+        libsnappy-dev
+        libproj-dev
+        libgdal-dev
+        libeigen3-dev
+        libsdl2-dev
+        libblas-dev
+        libvncserver-dev
+        libaudiofile-dev
+        libavformat-dev
+        libavutil-dev
+        libswscale-dev
+        libhdf5-openmpi-dev
+        libnetcdf-mpi-dev
+        libnetcdf-c++4-dev
+        libcgns-dev
+        libalut-dev
+        libfreetype-dev
+        libomp-dev
+        nlohmann-json3-dev
+        qt6-base-dev
+        qt6-tools-dev
+        qt6-connectivity-dev
+        qt6-datavis3d-dev
+        qt6-declarative-dev
+        qt6-location-dev
+        qt6-multimedia-dev
+        qt6-networkauth-dev
+        qt6-quick3d-dev
+        qt6-sensors-dev
+        qt6-serialbus-dev
+        qt6-serialport-dev
+        qt6-speech-dev
+        qt6-svg-dev
+        qt6-virtualkeyboard-dev
+        qt6-wayland-dev
+        qt6-webengine-dev
+        qt6-websockets-dev
+        qt6-webview-dev
+
+    - name: Free disk space
+      if: runner.os == 'Linux'
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed, but frees about 6 GB
+        tool-cache: false
+        # all of these default to true, but feel free to set to "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: false
+        docker-images: true
+        swap-storage: true
+
+    - name: Sync and update submodules recursive
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: ${{ runner.os }}-${{ matrix.build_type }}
+        max-size: "1000M"
+
+    - name: Create Build Environment
+      # Some projects don't allow in-source building, so create a separate build directory
+      # We'll use this as our working directory for all subsequent commands
+      run: cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake
+      # Use a bash shell so we can use the same syntax for environment variable
+      # access regardless of the host operating system
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      # Note the current convention is to use the -S and -B options here to specify source 
+      # and build directories, but this is only available with CMake 3.13 and higher.  
+      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+      run: >
+        cmake -G Ninja
+        $GITHUB_WORKSPACE
+        -DCMAKE_CXX_COMPILER=${{matrix.cxx_compiler}}
+        -DCMAKE_C_COMPILER=${{matrix.c_compiler}}
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache 
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+        -DCMAKE_BUILD_DRIVINGSIM=${{matrix.drivingsim}}
+        -DCOVISE_USE_QT5=${{matrix.use_qt5}}
+        -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
+        -DCOVISE_USE_DESKVOX=${{matrix.use_deskvox}}
+        -Wno-dev
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: cmake --build . --config ${{matrix.build_type}}
