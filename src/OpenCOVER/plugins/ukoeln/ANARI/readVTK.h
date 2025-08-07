@@ -4,21 +4,26 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+// vtk
+#ifdef HAVE_VTK
+#include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridReader.h>
+#include <vtkXMLUnstructuredGridReader.h>
+#endif
 // ours
 #include "FieldTypes.h"
 
 #ifdef HAVE_VTK
-class vtkUnstructuredGrid;
-class vtkUnstructuredGridReader;
 struct VTKReader {
  ~VTKReader();
 
   bool open(const char *fileName);
-  UnstructuredField getField(int index, bool indexPrefixed = false);
+  UnstructuredField getField();
 
-  std::vector<std::string> fieldNames;
-  std::vector<UnstructuredField> fields;
+  UnstructuredField field;
+
+  vtkSmartPointer<vtkUnstructuredGridReader> reader;
+  vtkSmartPointer<vtkXMLUnstructuredGridReader> readerXML;
   vtkUnstructuredGrid *ugrid{nullptr};
-  vtkUnstructuredGridReader *reader{nullptr};
 };
 #endif

@@ -1,9 +1,11 @@
 #include <cassert>
 #include <vtkCellIterator.h>
 #include <vtkDoubleArray.h>
+#include <vtkCellData.h>
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridReader.h>
+#include <vtkXMLUnstructuredGridReader.h>
 #include "readVTK.h"
 
 // uint8_t VKL_TETRAHEDRON = 10;
@@ -23,96 +25,121 @@ inline uint8_t toTypeEnum(vtkIdType id) { // for the moment, as in ospray..
     return uint8_t(-1);
 }
 
-VTKReader::~VTKReader()
+template <typename Reader>
+void initFields(const Reader &reader,
+                std::vector<std::string> &fieldNames,
+                std::vector<UnstructuredField> &fields)
 {
-  if (reader)
-    reader->Delete();
 }
 
-bool VTKReader::open(const char *fileName)
+VTKReader::~VTKReader()
 {
-  reader = vtkUnstructuredGridReader::New();
-  reader->SetFileName(fileName);
+}
 
-  if (!reader->IsFileUnstructuredGrid())
-    return false;
-
-  reader->Update();
-
-  ugrid = reader->GetOutput();
-  //ugrid->Print(cout);
-
-  int numFields = reader->GetNumberOfScalarsInFile();
-  fieldNames.resize(numFields);
-  fields.resize(numFields);
-
-  std::cout << "Variables found:\n";
-  for (int i=0;i<numFields;++i) {
-    fieldNames[i] = std::string(reader->GetScalarsNameInFile(i));
-    std::cout << reader->GetScalarsNameInFile(i) << '\n';
+bool VTKReader::open(const char *fn)
+{
+  std::string fileName(fn);
+  std::string extension = "";
+  if (fileName.find_last_of(".") != std::string::npos)
+  {
+    extension = fileName.substr(fileName.find_last_of("."));
   }
+
+  if (extension == ".vtu") {
+    readerXML = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    readerXML->SetFileName(fn);
+    readerXML->Update();
+    ugrid = readerXML->GetOutput();
+  } else if (extension == ".vtk") {
+    reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
+    reader->SetFileName(fn);
+    reader->Update();
+    ugrid = reader->GetOutput();
+  }
+  // ugrid->Print(cout);
 
   return ugrid != nullptr;
 }
 
-UnstructuredField VTKReader::getField(int index, bool indexPrefixed)
+UnstructuredField VTKReader::getField()
 {
-  int numFields = fields.size();
+  vtkIdType numPoints = ugrid->GetNumberOfPoints();
+  vtkIdType numCells = ugrid->GetNumberOfCells();
 
-  for (int f=0;f<numFields;++f) {
-    std::cout << "Reading field \"" << fieldNames[0] << "\"\n";
-
-    fields[f].indexPrefixed = indexPrefixed;
-
-    vtkIdType numPoints = ugrid->GetNumberOfPoints();
-
-    // vertex.position
-    vtkPoints *points = ugrid->GetPoints();
-
-    for (vtkIdType i=0;i<numPoints;++i) {
-      double pt[3];
-      points->GetPoint(i, pt);
-      fields[f].vertexPosition.push_back({(float)pt[0],(float)pt[1],(float)pt[2]});
-    }
-
-    // vertex.data
-    vtkDataArray *data = ugrid->GetPointData()->GetArray("data");
-
-    fields[f].dataRange.x = FLT_MAX;
-    fields[f].dataRange.y = -FLT_MAX;
-
-    for (vtkIdType i=0;i<numPoints;++i) {
-      float value = data->GetTuple1(i);
-      fields[f].vertexData.push_back(value);
-      fields[f].dataRange.x = std::min(fields[f].dataRange.x, value);
-      fields[f].dataRange.y = std::max(fields[f].dataRange.y, value);
-    }
-
-    // cells
-    vtkCellIterator *iter = ugrid->NewCellIterator();
-
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextCell()) {
-      vtkIdList *pointIDs = iter->GetPointIds();
-      vtkIdType type = pointIDs->GetNumberOfIds();
-      assert(type >= 4 && type <= 8);
-
-      fields[f].cellIndex.push_back(fields[f].index.size());
-      if (indexPrefixed) {
-        fields[f].index.push_back((uint64_t)type);
-        for (vtkIdType id=0;id<type;++id) {
-          fields[f].index.push_back((uint64_t)pointIDs->GetId(id));
-        }
-      } else {
-        fields[f].cellType.push_back(toTypeEnum(type));
-        for (vtkIdType id=0;id<type;++id) {
-          fields[f].index.push_back((uint64_t)pointIDs->GetId(id));
-        }
-      }
-    }
-
-    iter->Delete();
+  // vertex.position
+  for (vtkIdType i=0;i<numPoints; ++i) {
+    double *pt = ugrid->GetPoint(i);
+    field.vertexPosition.push_back({(float)pt[0],(float)pt[1],(float)pt[2]});
   }
 
-  assert(index < numFields);
-  return fields[index];
+  // connectivity
+  for (vtkIdType i=0; i<numCells; ++i) {
+    vtkCell *cell = ugrid->GetCell(i);
+    int n = cell->GetNumberOfPoints();
+    if (n < 4 || n > 8) {
+      std::cerr << "Unsupported cell type with " << n << " points\n";
+      continue;
+    }
+
+    field.cellIndex.push_back((uint32_t)field.index.size());
+    field.cellType.push_back(toTypeEnum(n));
+    for (vtkIdType j=0;j<n;++j) {
+      field.index.push_back((uint32_t)cell->GetPointId(j));
+    }
+  }
+
+  auto copyFloatArray = [](std::vector<float> &dest,
+                           float &minValue, float &maxValue,
+                           vtkDataArray *array, vtkIdType count) {
+    int numComponents = array->GetNumberOfComponents();
+    if (numComponents > 1) {
+      std::cerr << "readVTK: only single-component arrays supported"
+                << " using only first one!\n";
+    }
+    dest.resize(count);
+    for (vtkIdType i=0; i<count; ++i) {
+      float f = static_cast<float>(array->GetComponent(i, 0));
+      dest[i] = f;
+      minValue = std::min(minValue, f);
+      maxValue = std::max(maxValue, f);
+    }
+  };
+
+  // vertex.data
+  vtkPointData *pointData = ugrid->GetPointData();
+  uint32_t numPointArrays = pointData->GetNumberOfArrays();
+
+  field.vertexData.resize(std::min(1u, numPointArrays));
+
+  for (uint32_t i=0; i<std::min(1u, numPointArrays); ++i) {
+    field.vertexData[i].range.x = FLT_MAX;
+    field.vertexData[i].range.y = -FLT_MAX;
+
+    vtkDataArray *array = pointData->GetArray(i);
+    copyFloatArray(field.vertexData[i].array,
+                   field.vertexData[i].range.x,
+                   field.vertexData[i].range.y,
+                   array,
+                   numPoints);
+  }
+
+  // cell.data
+  vtkCellData *cellData = ugrid->GetCellData();
+  uint32_t numCellArrays = cellData->GetNumberOfArrays();
+
+  field.cellData.resize(std::min(1u, numCellArrays));
+
+  for (uint32_t i=0; i<std::min(1u, numCellArrays); ++i) {
+    field.cellData[i].range.x = FLT_MAX;
+    field.cellData[i].range.y = -FLT_MAX;
+
+    vtkDataArray *array = cellData->GetArray(i);
+    copyFloatArray(field.cellData[i].array,
+                   field.cellData[i].range.x,
+                   field.cellData[i].range.y,
+                   array,
+                   numCells);
+  }
+
+  return field;
 }
