@@ -28,6 +28,18 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
 
+template <typename T>
+constexpr bool IsValidSystem = false;
+
+template <>
+constexpr bool IsValidSystem<CityGMLSystem> = true;
+
+template <>
+constexpr bool IsValidSystem<EnnovatisSystem> = true;
+
+template <>
+constexpr bool IsValidSystem<SimulationSystem> = true;
+
 class EnergyPlugin : public opencover::coVRPlugin,
                      public opencover::ui::Owner,
                      public opencover::coTUIListener {
@@ -52,9 +64,11 @@ class EnergyPlugin : public opencover::coVRPlugin,
 
   template <typename T>
   T *getSystem(System system) {
-    auto it = m_systems.find(system);
-    if (it != m_systems.end()) {
-      return dynamic_cast<T *>(it->second.get());
+    if constexpr (IsValidSystem<T>) {
+      auto it = m_systems.find(system);
+      if (it != m_systems.end()) {
+        return dynamic_cast<T *>(it->second.get());
+      }
     }
     return nullptr;
   }
