@@ -249,39 +249,65 @@ bool MADIconnect::sendMessage(Message &m)
     return false;
 }
 
-class ColorChangerVisitor : public osg::NodeVisitor {
+class FindNodeAndFirstGeodeVisitor : public osg::NodeVisitor
+{
 public:
-    ColorChangerVisitor(const std::string& targetName, const osg::Vec4& color)
-        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN), _targetName(targetName), _color(color) {}
-
-    virtual void apply(osg::Group& node) override {
-        if (node.getName() == _targetName && node.getNumChildren() > 0) {
-            osg::ref_ptr<osg::Node> child = node.getChild(0);
-            osg::Geode* geode = dynamic_cast<osg::Geode*>(child.get());
-            if (geode) {
-                std::cout << "Found geode under node: " << _targetName << std::endl;
-                setColor(geode);
-            }
-        }
-        traverse(node);
+    explicit FindNodeAndFirstGeodeVisitor(const std::string& targetNameSubstring)
+        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN),
+          _targetNameSubstring(targetNameSubstring),
+          _foundTargetNode(nullptr), _foundGeode(nullptr)
+    {
     }
+
+    void apply(osg::Node& node) override
+    {
+        if (!_foundTargetNode && node.getName().find(_targetNameSubstring) != std::string::npos)
+        {
+            _foundTargetNode = &node;
+
+            // Start second search from this node
+            GeodeFinder geodeFinder;
+            node.accept(geodeFinder);
+            _foundGeode = geodeFinder.getFoundGeode();
+
+            return; // Stop after finding the first match
+        }
+
+        if (!_foundTargetNode)
+            traverse(node);
+    }
+
+    osg::Node* getFoundNode() const { return _foundTargetNode.get(); }
+    osg::Geode* getFoundGeode() const { return _foundGeode.get(); }
 
 private:
-    void setColor(osg::Geode* geode) {
-        for (unsigned int i = 0; i < geode->getNumDrawables(); ++i) {
-            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-            if (geometry) {
-                osg::ref_ptr<osg::Material> material = new osg::Material;
-                material->setDiffuse(osg::Material::FRONT_AND_BACK, _color);
-                geode->getOrCreateStateSet()->setAttributeAndModes(material, osg::StateAttribute::ON);
-            }
+    class GeodeFinder : public osg::NodeVisitor
+    {
+    public:
+        GeodeFinder() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN), _foundGeode(nullptr) {}
+
+        void apply(osg::Geode& geode) override
+        {
+            if (!_foundGeode)
+                _foundGeode = &geode;
         }
-    }
 
-    std::string _targetName;
-    osg::Vec4 _color;
+        void apply(osg::Node& node) override
+        {
+            if (!_foundGeode)
+                traverse(node);
+        }
+
+        osg::Geode* getFoundGeode() const { return _foundGeode.get(); }
+
+    private:
+        osg::ref_ptr<osg::Geode> _foundGeode;
+    };
+
+    std::string _targetNameSubstring;
+    osg::ref_ptr<osg::Node> _foundTargetNode;
+    osg::ref_ptr<osg::Geode> _foundGeode;
 };
-
 
 class SceneGraphPrinter : public osg::NodeVisitor
 {
@@ -502,19 +528,14 @@ void MADIconnect::handleMessage(Message *m)
             std::cout << "MADIconnect::MSG_COLOR_NEURONS" << std::endl;
             TokenBuffer tb(m);
 
-            int intColor = 0;
-            tb >> intColor;
-            std::cout << "MADIconnect::Color: " << intColor << std::endl;
-
-            //TODO: Use VRSceneGraph::instance()->setColor(geode, color, 1.0f);
-    
-            float r = ((intColor >> 16) & 0xFF) / 255.0f;
-            float g = ((intColor >> 8)  & 0xFF) / 255.0f;
-            float b = ( intColor        & 0xFF) / 255.0f;
+            int rgb[3];
+            tb >> rgb[0] >> rgb[1] >> rgb[2];
             
-            osg::Vec4 color(r,g,b,1.0f);            
-            std::cout << "MADIconnect::Color RGBA: " << color.r() << ", " << color.g() << ", " << color.b() << ", " << color.a() << std::endl;
-                
+            float transparency;
+            tb >> transparency;
+
+            std::cout << "MADIconnect::Color RGBA: " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << ", " << transparency << std::endl;
+
             // Apply color to all neurons
             int numNeurons = 0;
             tb >> numNeurons;
@@ -524,34 +545,57 @@ void MADIconnect::handleMessage(Message *m)
                 tb >> neuronName;
 
                 auto it = loadedNeurons.find(neuronName);
+                bool found = false;
+                
                 if (it != loadedNeurons.end())
                 {
-                    //cout << "MADIconnect:: Found neuron: " << neuronName << endl;
+                    cout << "MADIconnect:: Found neuron: " << neuronName << endl;
                     osg::Switch* sw = it->second.get();
                     if (sw && sw->getNumChildren() > 0)
                     {
-                        osg::Geode* geode = dynamic_cast<osg::Geode*>(sw->getChild(0));
-                        if (geode)
+                        cout << "MADIconnect:: Found children in switch: " << neuronName << endl;
+                        osg::Group* group = dynamic_cast<osg::Group*>(sw->getChild(0));
+                        if (group)
                         {
-                            for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+                            cout << "MADIconnect:: Found group." << endl;
+                            osg::Geode* geode = dynamic_cast<osg::Geode*>(group->getChild(0));
+                            if (geode)
                             {
-                                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-                                if (geometry)
-                                {
-                                    osg::ref_ptr<osg::Material> material = new osg::Material;
-                                    material->setDiffuse(osg::Material::FRONT_AND_BACK, color);
-                                    geode->getOrCreateStateSet()->setAttributeAndModes(material, osg::StateAttribute::ON);
-                                }
+                                cout << "MADIconnect:: Found geode." << endl;
+                                VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                                found = true;
+                            }
+                            else
+                            {
+                                cout << "MADIconnect:: No geode found in group: " << neuronName << endl;
                             }
                         }
+                        else
+                        {
+                            cout << "MADIconnect:: No group found in switch: " << neuronName << endl;
+                        }
+                    }
+                    else
+                    {
+                        cout << "MADIconnect:: No children found in switch: " << neuronName << endl;
                     }
                 }
-                else
+
+                if (!found)
                 {
                     // Fallback to node visitor
-                    string fullPath = dataPath + "/" + neuronName;
-                    ColorChangerVisitor colorChanger(fullPath, color);
-                    cover->getObjectsRoot()->accept(colorChanger);
+                    FindNodeAndFirstGeodeVisitor finder(neuronName);
+                    cover->getObjectsRoot()->accept(finder);
+                    osg::Geode* geode = finder.getFoundGeode();
+                    if (geode)
+                    {
+                        std::cout << "MADIconnect:: Found geode for neuron: " << neuronName << std::endl;
+                        VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                    }
+                    else
+                    {
+                        std::cout << "MADIconnect:: No geode found for neuron: " << neuronName << std::endl;
+                    }
                 }
             }
             break;
