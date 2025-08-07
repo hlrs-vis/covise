@@ -169,6 +169,26 @@
       ]
     },
     {
+      "description": "Fully functional stage and set design for the Staatstheater Stuttgart.",
+      "headline": "Staatstheater Stuttgart",
+      "id": 5,
+      "image": "Staatstheater.png",
+      "launch": [
+        {
+          "args": [
+            "/data/Staatstheater_Stuttgart_local/out/praesentation.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art",
+        "theater",
+        "machinery",
+        "digital twins"
+      ]
+    },
+    {
       "description": "Whetever this is Ja hallo hallo hallo",
       "headline": "Infinities",
       "id": 66,
