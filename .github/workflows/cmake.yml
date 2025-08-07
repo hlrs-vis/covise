@@ -50,11 +50,6 @@ jobs:
       run: >
         sudo apt-get clean && sudo rm -rf /etc/apt/sources.list.d/microsoft-prod.list && sudo rm -rf /var/lib/apt/lists/* && sudo rm -f /etc/apt/sources.list.d/archive_uri-* && sudo apt-get clean
 
-    - name: Clean apt
-      if: runner.os == 'Linux'
-      run: >
-        sudo apt-get clean && sudo rm -rf /etc/apt/sources.list.d/microsoft-prod.list && sudo rm -rf /var/lib/apt/lists/* && sudo rm -f /etc/apt/sources.list.d/archive_uri-* && sudo apt-get clean
-
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
       run: >
