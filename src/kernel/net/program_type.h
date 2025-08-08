@@ -26,7 +26,8 @@ namespace detail{
         "opencover",
         "coviseDaemon",
         "crb",
-        "external"
+        "external",
+        "vive"
         };
 }
 
