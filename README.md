@@ -1,3 +1,5 @@
+https://github.com/MDjur/covise/actions/workflows/cmake.yml/badge.svg
+
 Table of Contents
 =================
 
