@@ -1,4 +1,4 @@
-https://github.com/MDjur/covise/actions/workflows/cmake.yml/badge.svg
+[![Build Status](https://github.com/octocat/MDjur/actions/workflows/cmake.yml/badge.svg)](https://github.com/octocat/MDjur/actions/workflows/cmake.yml)
 
 Table of Contents
 =================
