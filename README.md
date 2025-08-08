@@ -1,4 +1,4 @@
-![CMake Build Status](https://img.shields.io/github/workflow/status/MDjur/covise/CI?label=build)
+![CMake Build Status](https://img.shields.io/github/actions/workflow/status/MDjur/covise/cmake.yml?branch=CI/CD)
 
 Table of Contents
 =================
