@@ -26,7 +26,7 @@ jobs:
         use_cuda: [OFF]
         use_qt5: [OFF]
         use_deskvox: [OFF]
-        enable_energy: [ON]
+        BUILD_energy: [ON]
         build_arrow: [ON]
         drivingsim: [OFF]
         include:
@@ -163,7 +163,7 @@ jobs:
         -DCOVISE_USE_QT5=${{matrix.use_qt5}}
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
         -DCOVISE_USE_DESKVOX=${{matrix.use_deskvox}}
-        -DENABLE_ENERGY=${{matrix.enable_energy}}
+        -DBUILD_ENERGY=${{matrix.build_energy}}
         -DBUILD_ARROW=${{matrix.build_arrow}}
         -Wno-dev
 
