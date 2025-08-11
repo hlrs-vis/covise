@@ -56,7 +56,7 @@ std::string pokemonJSON = pathToJSON + "/pokemon.json";
 
 TEST(Ennovatis, ValidBuildingConstructor)
 {
-    Building b = Building("Hoechstleistungsrechenzentrum", "000", "");
+    Building b = Building("Hoechstleistungsrechenzentrum", "000");
 
     EXPECT_EQ(b.getId(), "000");
     EXPECT_EQ(b.getName(), "Hoechstleistungsrechenzentrum");
