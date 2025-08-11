@@ -36,16 +36,15 @@ target_include_directories(${Name}
     PRIVATE ${CMAKE_SOURCE_DIR}/src/OpenCOVER/plugins/hlrs/Energy 
     PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS}
 )
+
 target_link_libraries(
-    ${Name} 
-    PRIVATE ApacheArrow 
+    ${Name}
     PRIVATE Ennovatis 
     PRIVATE coCurlHTTPClient 
     PRIVATE coThreadUtil 
     PRIVATE coStringUtil 
     PRIVATE coReadCSVUtil 
     PRIVATE core::simulation 
-    PRIVATE Arrow::arrow_shared 
     PRIVATE nlohmann_json::nlohmann_json 
     PRIVATE GTest::gtest_main 
     ${EXTRA_LIBS}

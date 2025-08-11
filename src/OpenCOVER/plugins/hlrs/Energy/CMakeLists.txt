@@ -1,14 +1,14 @@
+option(BUILD_ENERGY "Build Energy Campus plugin" OFF)
+if (NOT BUILD_ENERGY)
+    return()
+else()
+    set(BUILD_ARROW ON CACHE BOOL "Build Apache Arrow for Energy Campus plugin" FORCE)
+endif()
 USING(PROJ)
 USING(CURL)
-covise_find_package(Arrow)
 
 if (NOT TARGET nlohmann_json::nlohmann_json)
-    #message("nlohmann_json not found")
-    return()
-endif()
-
-if (NOT Arrow_FOUND)
-    message("Arrow library not found. Please install it or set the Arrow_DIR variable.")
+    message("nlohmann_json not found")
     return()
 endif()
 
@@ -50,11 +50,11 @@ set(Name "EnergyCampus")
 add_subdirectory(lib)
 cover_add_plugin(
     ${Name} 
-    ApacheArrow 
     Ennovatis 
     EnergyCore
+    coApacheArrow
     ${HEADERS} ${SOURCES})
-
+# add_dependencies(${Name} coApacheArrow)
 
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
