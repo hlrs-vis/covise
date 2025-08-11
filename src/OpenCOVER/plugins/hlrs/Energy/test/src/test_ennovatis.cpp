@@ -87,6 +87,28 @@ TEST(Ennovatis, ValidBuildingGetterSetter)
     EXPECT_EQ(b.getArea(), 4);
 }
 
+/************** channel tests **************/
+
+TEST(Ennovatis, ValidChannelEmpty)
+{
+    Channel c;
+    EXPECT_TRUE(c.empty());
+
+    auto test_property = [&](auto setter, auto resetter) {
+        setter();
+        EXPECT_FALSE(c.empty());
+        resetter();
+        EXPECT_TRUE(c.empty());
+    };
+
+    test_property([&]() { c.name = "channel"; }, [&]() { c.name = ""; });
+    test_property([&]() { c.id = "001"; }, [&]() { c.id = ""; });
+    test_property([&]() { c.description = "description"; }, [&]() { c.description = ""; });
+    test_property([&]() { c.type = "HLRS"; }, [&]() { c.type = ""; });
+    test_property([&]() { c.unit = "HLRS"; }, [&]() { c.unit = ""; });
+    test_property([&]() { c.name = ChannelGroup::Strom; }, [&]() { c.group = ChannelGroup::None; });
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
