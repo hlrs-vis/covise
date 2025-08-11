@@ -23,7 +23,6 @@
 
 // COVER
 #include <cover/coVRPluginSupport.h>
-#include <gdal_priv.h>
 
 using namespace opencover;
 
