@@ -67,6 +67,26 @@ TEST(Ennovatis, ValidBuildingConstructor)
     EXPECT_EQ(b.getArea(), 0);
 }
 
+TEST(Ennovatis, ValidBuildingGetterSetter)
+{
+    Building b = Building("Hoechstleistungsrechenzentrum");
+    b.setId("001");
+    b.setName("HLRS");
+    b.setStreet("Nobelstrasse");
+    b.setX(1);
+    b.setY(2);
+    b.setHeight(3);
+    b.setArea(4);
+
+    EXPECT_EQ(b.getId(), "001");
+    EXPECT_EQ(b.getName(), "HLRS");
+    EXPECT_EQ(b.getStreet(), "Nobelstrasse");
+    EXPECT_EQ(b.getX(), 1);
+    EXPECT_EQ(b.getY(), 2);
+    EXPECT_EQ(b.getHeight(), 3);
+    EXPECT_EQ(b.getArea(), 4);
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
