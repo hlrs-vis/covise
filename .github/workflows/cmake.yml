@@ -159,7 +159,7 @@ jobs:
         -DCMAKE_C_COMPILER_LAUNCHER=ccache 
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
-        -DCMAKE_BUILD_DRIVINGSIM=${{matrix.drivingsim}}
+        -DCOVISE_BUILD_DRIVINGSIM=${{matrix.drivingsim}}
         -DCOVISE_USE_QT5=${{matrix.use_qt5}}
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
         -DBUILD_ENERGY=${{matrix.build_energy}}
