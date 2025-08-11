@@ -1,3 +1,4 @@
+#include <lib/ennovatis/building.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
 #include <lib/ennovatis/date.h>
@@ -50,6 +51,21 @@ std::string pokemonJSON = pathToJSON + "/pokemon.json";
 //     utils::rest::cleanupcurl();
 //     // Add additional assertions to validate the cleanup
 // }
+
+/************* building tests **************/
+
+TEST(Ennovatis, ValidBuildingConstructor)
+{
+    Building b = Building("Hoechstleistungsrechenzentrum", "000", "");
+
+    EXPECT_EQ(b.getId(), "000");
+    EXPECT_EQ(b.getName(), "Hoechstleistungsrechenzentrum");
+    EXPECT_EQ(b.getStreet(), "");
+    EXPECT_EQ(b.getX(), 0);
+    EXPECT_EQ(b.getY(), 0);
+    EXPECT_EQ(b.getHeight(), 0);
+    EXPECT_EQ(b.getArea(), 0);
+}
 
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
