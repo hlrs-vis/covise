@@ -27,6 +27,7 @@ jobs:
         use_qt5: [OFF]
         use_deskvox: [OFF]
         enable_energy: [ON]
+        build_arrow: [ON]
         drivingsim: [OFF]
         include:
           - os: 'ubuntu-latest'
@@ -163,6 +164,7 @@ jobs:
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
         -DCOVISE_USE_DESKVOX=${{matrix.use_deskvox}}
         -DENABLE_ENERGY=${{matrix.enable_energy}}
+        -DBUILD_ARROW=${{matrix.build_arrow}}
         -Wno-dev
 
     - name: Build
