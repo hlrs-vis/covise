@@ -162,7 +162,6 @@ jobs:
         -DCMAKE_BUILD_DRIVINGSIM=${{matrix.drivingsim}}
         -DCOVISE_USE_QT5=${{matrix.use_qt5}}
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
-        -DCOVISE_USE_DESKVOX=${{matrix.use_deskvox}}
         -DBUILD_ENERGY=${{matrix.build_energy}}
         -DBUILD_ARROW=${{matrix.build_arrow}}
         -Wno-dev
