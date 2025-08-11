@@ -74,7 +74,7 @@ int DemoServer::launchProcess(const std::string &program, const std::vector<std:
 #endif
 }
 
-bool DemoServer::isPidRunning(int pid)
+bool isPidRunning(int pid)
 {
 #ifdef _WIN32
     HANDLE process = OpenProcess(SYNCHRONIZE, FALSE, pid);
@@ -86,37 +86,39 @@ bool DemoServer::isPidRunning(int pid)
 #endif
 }
 
-bool DemoServer::terminateProcess(int pid)
+bool arePidsRunning(const std::vector<int> &pids)  // Changed parameter type
 {
-#ifdef _WIN32
+    for (const auto &pid : pids)
+    {
+        if (!isPidRunning(pid))  // No need for .load() anymore
+            return false;
+    }
+    return true;
+}
+
+bool terminateProcess(int pid)
+{
+    #ifdef _WIN32
     HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
     if (!h)
-        return false;
+    return false;
     BOOL ok = TerminateProcess(h, 0);
     CloseHandle(h);
     return ok;
-#else
+    #else
     return kill(pid, SIGTERM) == 0;
-#endif
+    #endif
 }
 
-void DemoServer::monitorProcess(int pid, const std::string &appName)
+bool terminateProcesses(const std::vector<int> &pids)  // Changed parameter type
 {
-#ifdef _WIN32
-    HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, pid);
-    if (h)
+    bool retval = true;
+    for (const auto &pid : pids)
     {
-        WaitForSingleObject(h, INFINITE);
-        CloseHandle(h);
+        if (!terminateProcess(pid))  // No need for .load() anymore
+            retval = false;
     }
-#else
-    int status;
-    waitpid(pid, &status, 0);
-#endif
-    m_runningProcess.pid = -1;
-    m_runningProcess.program.clear();
-    m_runningProcess.headline.clear();
-    m_runningProcess.id = -1;
+    return retval;
 }
 
 void clean()
@@ -127,6 +129,52 @@ void clean()
         std::string command = "killall " + std::string(app);
         std::system(command.c_str());
     }
+}
+
+void DemoServer::monitorAllProcesses()
+{
+    // Wait for any process to exit
+    while (true) {
+        bool any_running = false;
+        
+        // Use mutex to protect access to pids vector
+        {
+            std::lock_guard<std::mutex> lock(m_runningDemo.pids_mutex);
+            
+            if (m_runningDemo.pids.empty()) {
+                break;
+            }
+            
+            // Check if any processes are still running
+            for (auto it = m_runningDemo.pids.begin(); it != m_runningDemo.pids.end();) {
+                int pid = *it;  // No need for .load() anymore
+                if (!isPidRunning(pid)) {
+                    std::cerr << "Process " << pid << " has terminated" << std::endl;
+                    it = m_runningDemo.pids.erase(it);  // This now works!
+                } else {
+                    any_running = true;
+                    ++it;
+                }
+            }
+        }
+        
+        if (!any_running) {
+            break;
+        }
+        
+        // Sleep for a short time before checking again
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    
+    // All processes have terminated
+    std::cerr << "All demo processes have terminated" << std::endl;
+    {
+        std::lock_guard<std::mutex> lock(m_runningDemo.pids_mutex);
+        m_runningDemo.pids.clear();
+    }
+    m_runningDemo.program.clear();
+    m_runningDemo.headline.clear();
+    m_runningDemo.id = -1;
 }
 
 void DemoServer::setupRoutes(crow::SimpleApp &app)
@@ -156,53 +204,90 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
 
     // POST /launch_demo
     CROW_ROUTE(app, "/launch_demo").methods("POST"_method)([this](const crow::request &req)
-                                                           {
-        clean();
-        auto data = json::parse(req.body, nullptr, false);
-        if (!data.is_object() || !data.contains("id"))
-            return crow::response(400, R"({"status":"error","message":"Missing id"})");
+                                                       {
+    clean();
+    auto data = json::parse(req.body, nullptr, false);
+    if (!data.is_object() || !data.contains("id"))
+        return crow::response(400, R"({"status":"error","message":"Missing id"})");
 
-        int demo_id = data["id"].get<int>();
-        json demo = findDemoById(demo_id);
-        if (demo.is_null())
-            return crow::response(404, R"({"status":"error","message":"Demo not found"})");
+    int demo_id = data["id"].get<int>();
+    json demo = findDemoById(demo_id);
+    if (demo.is_null())
+        return crow::response(404, R"({"status":"error","message":"Demo not found"})");
 
-        // Log launch event
-        std::ofstream logf(demo::logFile, std::ios::app);
-        json log_entry = { {"timestamp", std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())}, {"demo_id", demo_id} };
-        logf << log_entry.dump() << "\n";
+    // Log launch event
+    std::ofstream logf(demo::logFile, std::ios::app);
+    json log_entry = { {"timestamp", std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())}, {"demo_id", demo_id} };
+    logf << log_entry.dump() << "\n";
 
-        // Use first launch entry
-        if (!demo.contains("launch") || !demo["launch"].is_array() || demo["launch"].empty())
-            return crow::response(400, R"({"status":"error","message":"No launch entry"})");
-        auto entry = demo["launch"][0];
+    // Check if launch entries exist
+    if (!demo.contains("launch") || !demo["launch"].is_array() || demo["launch"].empty())
+        return crow::response(400, R"({"status":"error","message":"No launch entry"})");
+
+    // Clear previous running demo info
+    m_runningDemo.pids.clear();
+    m_runningDemo.program.clear();
+    m_runningDemo.headline = demo.value("headline", "");
+    m_runningDemo.id = demo_id;
+
+    // Launch ALL entries in the launch array
+    std::vector<std::string> launched_programs;
+    bool any_failed = false;
+    
+    for (const auto& entry : demo["launch"]) {
+        if (!entry.contains("program")) {
+            std::cerr << "Warning: Launch entry missing 'program' field" << std::endl;
+            continue;
+        }
+        
         std::string program = entry["program"];
         std::vector<std::string> args;
-        if (entry.contains("args"))
-            for (auto& a : entry["args"]) args.push_back(a);
-
+        
+        if (entry.contains("args")) {
+            for (const auto& a : entry["args"]) {
+                args.push_back(a);
+            }
+        }
+        
         int pid = launchProcess(program, args);
-        if (pid < 0)
-            return crow::response(500, R"({"status":"error","message":"Failed to launch"})");
+        if (pid < 0) {
+            std::cerr << "Failed to launch: " << program << std::endl;
+            any_failed = true;
+        } else {
+            m_runningDemo.pids.emplace_back(pid);
+            launched_programs.push_back(program);
+            std::cerr << "Launched " << program << " with PID " << pid << std::endl;
+        }
+    }
+    
+    if (m_runningDemo.pids.empty()) {
+        return crow::response(500, R"({"status":"error","message":"Failed to launch any process"})");
+    }
+    
+    // Set the program name to a combination of all launched programs
+    m_runningDemo.program = launched_programs.empty() ? "Unknown" : 
+                           (launched_programs.size() == 1 ? launched_programs[0] : 
+                            "Multiple (" + std::to_string(launched_programs.size()) + " processes)");
 
-        m_runningProcess.pid = pid;
-        m_runningProcess.program = program;
-        m_runningProcess.headline = demo.value("headline", "");
-        m_runningProcess.id = demo_id;
+    // Start monitoring thread for all processes
+    std::thread([this, demo_id]() { monitorAllProcesses(); }).detach();
 
-        std::thread([this, pid, program]() { monitorProcess(pid, program); }).detach();
-
-        return crow::response(R"({"status":"success"})"); });
+    if (any_failed) {
+        return crow::response(200, R"({"status":"partial_success","message":"Some processes failed to launch"})");
+    } else {
+        return crow::response(R"({"status":"success"})");
+    }
+});
 
     // GET /running_process
     CROW_ROUTE(app, "/running_process").methods("GET"_method)([this]()
                                                               {
         json resp;
-        if (m_runningProcess.pid > 0 && isPidRunning(m_runningProcess.pid)) {
+        if (!m_runningDemo.pids.empty() && arePidsRunning(m_runningDemo.pids)) {
             resp["running"] = true;
-            resp["program"] = m_runningProcess.program;
-            resp["headline"] = m_runningProcess.headline;
-            resp["id"] = m_runningProcess.id;
+            resp["program"] = m_runningDemo.program;
+            resp["headline"] = m_runningDemo.headline;
+            resp["id"] = m_runningDemo.id;
         } else {
             resp["running"] = false;
         }
@@ -211,12 +296,12 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     // POST /terminate_process
     CROW_ROUTE(app, "/terminate_process").methods("POST"_method)([this](const crow::request &)
                                                                  {
-        if (m_runningProcess.pid > 0 && isPidRunning(m_runningProcess.pid)) {
-            if (terminateProcess(m_runningProcess.pid)) {
-                m_runningProcess.pid = -1;
-                m_runningProcess.program.clear();
-                m_runningProcess.headline.clear();
-                m_runningProcess.id = -1;
+        if (!m_runningDemo.pids.empty() && arePidsRunning(m_runningDemo.pids)) {
+            if (terminateProcesses(m_runningDemo.pids)) {
+                m_runningDemo.pids.clear();
+                m_runningDemo.program.clear();
+                m_runningDemo.headline.clear();
+                m_runningDemo.id = -1;
                 return crow::response(R"({"status":"terminated"})");
             } else {
                 return crow::response(500, R"({"status":"error","message":"Failed to terminate"})");

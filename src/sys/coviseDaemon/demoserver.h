@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include <atomic>
+#include <mutex>
 
 #include <crow.h>
 
@@ -19,19 +20,17 @@ public:
 private:
     std::atomic<bool> m_running{true};
 
-    struct RunningProcess {
-        std::atomic<int> pid{-1};
+    struct RunningDemo {
+        std::vector<int> pids;  // Changed from std::vector<std::atomic<int>>
+        std::mutex pids_mutex;  // Add mutex for thread safety
         std::string program;
         std::string headline;
         int id = -1;
-    } m_runningProcess;
+    } m_runningDemo;
 
     nlohmann::json findDemoById(int id);
     int launchProcess(const std::string& program, const std::vector<std::string>& args);
-    bool isPidRunning(int pid);
-    bool terminateProcess(int pid);
-    void monitorProcess(int pid, const std::string& appName);
-
+    void monitorAllProcesses();
     void setupRoutes(crow::SimpleApp& app);
     std::unique_ptr<crow::SimpleApp> m_app;
 };
