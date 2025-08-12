@@ -396,11 +396,12 @@ void Renderer::loadUMesh(const float *vertexPosition, const uint64_t *cellIndex,
     unstructuredVolumeData.dataSource.cellType.resize(numCells);
     memcpy(unstructuredVolumeData.dataSource.cellType.data(),cellType,numCells*sizeof(uint64_t));
 
-    unstructuredVolumeData.dataSource.vertexData.resize(numVerts);
-    memcpy(unstructuredVolumeData.dataSource.vertexData.data(),vertexData,numVerts*sizeof(float));
+    unstructuredVolumeData.dataSource.vertexData.resize(1);
+    unstructuredVolumeData.dataSource.vertexData[0].array.resize(numVerts);
+    memcpy(unstructuredVolumeData.dataSource.vertexData[0].array.data(),vertexData,numVerts*sizeof(float));
 
-    unstructuredVolumeData.dataSource.dataRange.x = minValue;
-    unstructuredVolumeData.dataSource.dataRange.y = maxValue;
+    unstructuredVolumeData.dataSource.vertexData[0].range.x = minValue;
+    unstructuredVolumeData.dataSource.vertexData[0].range.y = maxValue;
     unstructuredVolumeData.updated = true;
 }
 
@@ -1566,7 +1567,7 @@ void Renderer::initFrames()
     float ambientG = coCoviseConfig::getFloat("g", "COVER.Plugin.ANARI.AmbientColor", 1.0f);
     float ambientB = coCoviseConfig::getFloat("b", "COVER.Plugin.ANARI.AmbientColor", 1.0f);
     float ambientColor[] = {ambientR,ambientG,ambientB};
-    float ambientRadiance = coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.AmbientRadiance", 0.15f);
+    float ambientRadiance = coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.AmbientRadiance", 0.95f);
     float ambientRadius = coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.AmbientRadius", 0.04f);
 
     anariSetParameter(anari.device, anari.renderer, "ambientColor", ANARI_FLOAT32_VEC3,
@@ -1850,7 +1851,7 @@ void Renderer::initUnstructuredVolume()
 #ifdef HAVE_VTK
         if (unstructuredVolumeData.readerType == VTK) {
             assert(timeStep == 0);
-            data = unstructuredVolumeData.vtkReader.getField(0);
+            data = unstructuredVolumeData.vtkReader.getField();
         }
 #endif
 
@@ -1864,33 +1865,49 @@ void Renderer::initUnstructuredVolume()
             continue;
         }
 
-        // TODO: "unstructured" field is an extension - check if it is supported!
+        unsigned fieldID = 0;
+
         auto field = anari::newObject<anari::SpatialField>(anari.device, "unstructured");
         printf("Array sizes:\n");
         printf("    'vertexPosition': %zu\n", data.vertexPosition.size());
         printf("    'vertexData'    : %zu\n", data.vertexData.size());
+        printf("    'cellData'      : %zu\n", data.vertexData.size());
         printf("    'index'         : %zu\n", data.index.size());
         printf("    'cellIndex'     : %zu\n", data.cellIndex.size());
 
         anari::setParameterArray1D(anari.device, field, "vertex.position",
                 ANARI_FLOAT32_VEC3, data.vertexPosition.data(), data.vertexPosition.size());
-        anari::setParameterArray1D(anari.device, field, "vertex.data",
-                ANARI_FLOAT32, data.vertexData.data(), data.vertexData.size());
+
         anari::setParameterArray1D(anari.device, field, "index",
-                ANARI_UINT64, data.index.data(), data.index.size());
-        anari::setParameter(anari.device, field, "indexPrefixed",
-                            ANARI_BOOL, &data.indexPrefixed);
+                ANARI_UINT32, data.index.data(), data.index.size());
         anari::setParameterArray1D(anari.device, field, "cell.index",
-                ANARI_UINT64, data.cellIndex.data(), data.cellIndex.size());
+                ANARI_UINT32, data.cellIndex.data(), data.cellIndex.size());
         anari::setParameterArray1D(anari.device, field, "cell.type",
                                    ANARI_UINT8, data.cellType.data(), data.cellType.size());
+
+        if (data.vertexData.size() > fieldID) {
+          anari::setParameterArray1D(anari.device, field, "vertex.data",
+                  ANARI_FLOAT32, data.vertexData[fieldID].array.data(), data.vertexData[fieldID].array.size());
+        }
+
+        if (data.cellData.size() > fieldID) {
+          anari::setParameterArray1D(anari.device, field, "cell.data",
+                  ANARI_FLOAT32, data.cellData[fieldID].array.data(), data.cellData[fieldID].array.size());
+        }
 
         anari::commitParameters(anari.device, field);
 
         anari.unstructuredVolume.fields.push_back(field);
 
-        dataRange[0] = fminf(dataRange[0],data.dataRange.x);
-        dataRange[1] = fmaxf(dataRange[1],data.dataRange.y);
+        if (data.vertexData.size() > fieldID) {
+          dataRange[0] = fminf(dataRange[0],data.vertexData[fieldID].range.x);
+          dataRange[1] = fmaxf(dataRange[1],data.vertexData[fieldID].range.y);
+        }
+
+        if (data.cellData.size() > fieldID) {
+          dataRange[0] = fminf(dataRange[0],data.cellData[fieldID].range.x);
+          dataRange[1] = fmaxf(dataRange[1],data.cellData[fieldID].range.y);
+        }
     }
 
     if (!anari.unstructuredVolume.volume && !anari.unstructuredVolume.fields.empty()) {
