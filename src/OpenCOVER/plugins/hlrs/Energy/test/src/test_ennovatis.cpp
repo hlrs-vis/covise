@@ -144,6 +144,15 @@ TEST(Ennovatis, ValidChannelChannelGroupToStringConstExpr)
     EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::None), "None");
 }
 
+TEST(Ennovatis, ValidChannelChannelGroupToString)
+{
+    EXPECT_EQ(ChannelGroupToString(ChannelGroup::Strom), "Strom");
+    EXPECT_EQ(ChannelGroupToString(ChannelGroup::Wasser), "Wasser");
+    EXPECT_EQ(ChannelGroupToString(ChannelGroup::Waerme), "Waerme");
+    EXPECT_EQ(ChannelGroupToString(ChannelGroup::Kaelte), "Kaelte");
+    EXPECT_EQ(ChannelGroupToString(ChannelGroup::None), "None");
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
