@@ -171,12 +171,22 @@ TEST(Ennovatis, ValidCSVUpdateBuildingsByBuildingID)
     EXPECT_EQ(buildings.size(), 1);
 }
 
+/*************** date tests ****************/
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
     auto tp = ennovatis::date::str_to_time_point(ref_string, ennovatis::date::dateformat);
     auto result = ennovatis::date::time_point_to_str(tp, ennovatis::date::dateformat);
     EXPECT_EQ(ref_string, result);
+}
+
+TEST(Ennovatis, ValidDateTimeStrConversionInvalidDate)
+{
+    std::string invalidDate = "invalid-date";
+    auto tp = date::str_to_time_point(invalidDate, date::dateformat);
+    std::string result = date::time_point_to_str(tp, date::dateformat);
+    EXPECT_NE(result, invalidDate);
 }
 
 TEST(Ennovatis, ValidRequestStr)
