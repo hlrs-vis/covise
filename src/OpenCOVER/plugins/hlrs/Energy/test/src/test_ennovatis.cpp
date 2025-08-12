@@ -106,7 +106,7 @@ TEST(Ennovatis, ValidChannelEmpty)
     test_property([&]() { c.description = "description"; }, [&]() { c.description = ""; });
     test_property([&]() { c.type = "HLRS"; }, [&]() { c.type = ""; });
     test_property([&]() { c.unit = "HLRS"; }, [&]() { c.unit = ""; });
-    test_property([&]() { c.name = ChannelGroup::Strom; }, [&]() { c.group = ChannelGroup::None; });
+    test_property([&]() { c.group = ChannelGroup::Strom; }, [&]() { c.group = ChannelGroup::None; });
 }
 
 TEST(Ennovatis, ValidDateTimeStrConversion)
