@@ -189,6 +189,15 @@ TEST(Ennovatis, ValidDateTimeStrConversionInvalidDate)
     EXPECT_NE(result, invalidDate);
 }
 
+TEST(Ennovatis, ValidDateTimeStrConversionDifferentFormat)
+{
+    std::string dateStr = "2025-08-12";
+    const char* format = "%Y-%m-%d";
+    auto tp = date::str_to_time_point(dateStr, format);
+    std::string result = date::time_point_to_str(tp, format);
+    EXPECT_EQ(result, dateStr);
+}
+
 TEST(Ennovatis, ValidRequestStr)
 {
     rest_request req;
