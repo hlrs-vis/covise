@@ -90,7 +90,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     }
     // configure the serial port
     // first get current configuration
-    if (tcgetattr(serialChannel, &termPar) == -1) {
+    if (tcgetattr(serialChannel, &termPar) < 0) {
         perror("tcgetattr failed");
     }
 
@@ -149,7 +149,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     termPar.c_cflag = (serialSpeed | CS8 | CREAD | CLOCAL) & (~CSTOPB) & (~PARENB);
 #endif
 
-    if (tcsetattr(serialChannel, TCSANOW, &termPar) == -1) {
+    if (tcsetattr(serialChannel, TCSANOW, &termPar) < 0) {
         perror("tcsetattr failed");
     }
     ioctl(serialChannel, FIONREAD, &n);
