@@ -1,5 +1,6 @@
 #include <lib/ennovatis/building.h>
 #include <lib/ennovatis/channel.h>
+#include <lib/ennovatis/csv.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
 #include <lib/ennovatis/date.h>
@@ -152,6 +153,17 @@ TEST(Ennovatis, ValidChannelChannelGroupToString)
     EXPECT_EQ(ChannelGroupToString(ChannelGroup::Waerme), "Waerme");
     EXPECT_EQ(ChannelGroupToString(ChannelGroup::Kaelte), "Kaelte");
     EXPECT_EQ(ChannelGroupToString(ChannelGroup::None), "None");
+}
+
+/**************** csv tests ****************/
+
+TEST(Ennovatis, ValidCSVUpdateBuildingsByBuildingID)
+{
+    Buildings buildings;
+    std::istringstream empty_csv("");
+    bool result = csv_channelid_parser::update_buildings_by_buildingid(empty_csv, buildings);
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(buildings.empty());
 }
 
 TEST(Ennovatis, ValidDateTimeStrConversion)
