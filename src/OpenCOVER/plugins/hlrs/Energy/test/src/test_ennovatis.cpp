@@ -1,4 +1,5 @@
 #include <lib/ennovatis/building.h>
+#include <lib/ennovatis/channel.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
 #include <lib/ennovatis/date.h>
