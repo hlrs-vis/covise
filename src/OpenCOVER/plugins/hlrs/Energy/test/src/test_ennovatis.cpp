@@ -160,10 +160,15 @@ TEST(Ennovatis, ValidChannelChannelGroupToString)
 TEST(Ennovatis, ValidCSVUpdateBuildingsByBuildingID)
 {
     Buildings buildings;
-    std::istringstream empty_csv("");
-    bool result = csv_channelid_parser::update_buildings_by_buildingid(empty_csv, buildings);
-    EXPECT_TRUE(result);
     EXPECT_TRUE(buildings.empty());
+
+    std::istringstream csv(
+        "PROJECT,PROJECT_ID,BUILDING_CHANNEL_DIR,BUILDING_ID,DATASOURCE_SUBCHANNEL_DIR,DATASOURCE_ID,CHANNEL,CHANNEL_ID,GLOBAL_ID,DESCRIPTION,TYPE,MAIN_SUB_TYPE,BASELINE,PREDICTION,ACRONYM,FUNCTION\n"
+        "Project,P001,BuildingA-Dir,B001,SubDir,DS001,channel,CH001,GID001,description,POWER,SubType,0,0,ACR,Func\n"
+    );
+    bool result = csv_channelid_parser::update_buildings_by_buildingid(csv, buildings);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(buildings.size(), 1);
 }
 
 TEST(Ennovatis, ValidDateTimeStrConversion)
