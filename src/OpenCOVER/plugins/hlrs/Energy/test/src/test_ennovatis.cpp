@@ -124,6 +124,17 @@ TEST(Ennovatis, ValidChannelClear)
     EXPECT_TRUE(c.empty());
 }
 
+TEST(Ennovatis, ValidChannelCompare)
+{
+    Channel c1, c2;
+    c1.id = "001";
+    c2.id = "002";
+    ChannelCmp cmp;
+    EXPECT_TRUE(cmp(c1, c2));
+    EXPECT_FALSE(cmp(c2, c1));
+    EXPECT_FALSE(cmp(c1, c1));
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
