@@ -1,6 +1,7 @@
 #include <lib/ennovatis/building.h>
 #include <lib/ennovatis/channel.h>
 #include <lib/ennovatis/csv.h>
+#include <lib/ennovatis/json.h>
 #include <lib/ennovatis/rest.h>
 #include <lib/ennovatis/sax.h>
 #include <lib/ennovatis/date.h>
@@ -196,6 +197,37 @@ TEST(Ennovatis, ValidDateTimeStrConversionDifferentFormat)
     auto tp = date::str_to_time_point(dateStr, format);
     std::string result = date::time_point_to_str(tp, format);
     EXPECT_EQ(result, dateStr);
+}
+
+/**************** json test ****************/
+
+TEST(Ennovatis, ValidJsonFromJson)
+{
+    nlohmann::json j = {
+        {"Average", 42},
+        {"MaxTime", "2025-08-12T12:00:00"},
+        {"MaxValue", 100},
+        {"MinTime", "2025-08-12T00:00:00"},
+        {"MinValue", 1},
+        {"StandardDeviation", 5},
+        {"Times", {"2025-08-12T00:00:00", "2025-08-12T12:00:00"}},
+        {"Values", {1.0, 100.0}}
+    };
+    json_response_object obj;
+    from_json(j, obj);
+
+    EXPECT_EQ(obj.Average, 42);
+    EXPECT_EQ(obj.MaxTime, "2025-08-12T12:00:00");
+    EXPECT_EQ(obj.MaxValue, 100);
+    EXPECT_EQ(obj.MinTime, "2025-08-12T00:00:00");
+    EXPECT_EQ(obj.MinValue, 1);
+    EXPECT_EQ(obj.StandardDeviation, 5);
+    EXPECT_EQ(obj.Times.size(), 2);
+    EXPECT_EQ(obj.Times[0], "2025-08-12T00:00:00");
+    EXPECT_EQ(obj.Times[1], "2025-08-12T12:00:00");
+    EXPECT_EQ(obj.Values.size(), 2);
+    EXPECT_EQ(obj.Values[0], 1.0f);
+    EXPECT_EQ(obj.Values[1], 100.0f);
 }
 
 TEST(Ennovatis, ValidRequestStr)
