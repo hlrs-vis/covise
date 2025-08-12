@@ -109,6 +109,21 @@ TEST(Ennovatis, ValidChannelEmpty)
     test_property([&]() { c.group = ChannelGroup::Strom; }, [&]() { c.group = ChannelGroup::None; });
 }
 
+TEST(Ennovatis, ValidChannelClear)
+{
+    Channel c;
+    c.name = "channel";
+    c.id = "001";
+    c.description = "description";
+    c.type = "type";
+    c.unit = "unit";
+    // c.group = ChannelGroup::Strom; // TODO: clear function does not yet reset group of channel
+
+    EXPECT_FALSE(c.empty());
+    c.clear();
+    EXPECT_TRUE(c.empty());
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
