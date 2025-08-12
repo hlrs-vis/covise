@@ -1,6 +1,4 @@
-#ifndef _CSV_H
-#define _CSV_H
-
+#pragma once
 #include <iostream>
 
 #include "building.h"
@@ -9,9 +7,9 @@ namespace ennovatis {
 
 struct csv_channelid_parser {
   [[nodiscard]] static bool update_buildings_by_buildingid(
-      std::basic_istream<char> &file, BuildingsPtr buildings);
+      std::basic_istream<char> &file, Buildings &buildings);
   [[nodiscard]] static bool update_buildings_by_buildingid(
-      const std::string &filename, BuildingsPtr buildings);
+      const std::string &filename, Buildings &buildings);
 
  private:
   enum class CSV_ChannelID_Column {
@@ -35,4 +33,3 @@ struct csv_channelid_parser {
 };
 
 }  // namespace ennovatis
-#endif

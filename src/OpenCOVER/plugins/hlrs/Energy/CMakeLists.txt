@@ -1,22 +1,22 @@
+option(BUILD_ENERGY "Build Energy Campus plugin" OFF)
+if (NOT BUILD_ENERGY)
+    return()
+else()
+    set(BUILD_ARROW ON CACHE BOOL "Build Apache Arrow for Energy Campus plugin" FORCE)
+endif()
 USING(PROJ)
-USING(GDAL)
 USING(CURL)
-covise_find_package(Arrow)
 
 if (NOT TARGET nlohmann_json::nlohmann_json)
-    #message("nlohmann_json not found")
-    return()
-endif()
-
-if (NOT Arrow_FOUND)
-    message("Arrow library not found. Please install it or set the Arrow_DIR variable.")
+    message("nlohmann_json not found")
     return()
 endif()
 
 SET(HEADERS
     app/Energy.h
-    app/ui/historic/Device.h
-    app/ui/historic/DeviceSensor.h
+    app/CityGMLSystem.h
+    app/EnnovatisSystem.h
+    app/SimulationSystem.h
     app/ui/ennovatis/EnnovatisDevice.h
     app/ui/ennovatis/EnnovatisDeviceSensor.h
     app/ui/citygml/CityGMLDeviceSensor.h
@@ -29,12 +29,12 @@ SET(HEADERS
     app/presentation/EnergyGrid.h
     app/presentation/SolarPanel.h
     app/presentation/grid.h
-    # app/ui/SensorManager.h
 )
 SET(SOURCES
     app/Energy.cpp
-    app/ui/historic/Device.cpp
-    app/ui/historic/DeviceSensor.cpp
+    app/CityGMLSystem.cpp
+    app/EnnovatisSystem.cpp
+    app/SimulationSystem.cpp
     app/ui/ennovatis/EnnovatisDevice.cpp
     app/ui/ennovatis/EnnovatisDeviceSensor.cpp
     app/ui/citygml/CityGMLDeviceSensor.cpp
@@ -44,16 +44,19 @@ SET(SOURCES
     app/presentation/EnergyGrid.cpp
     app/presentation/SolarPanel.cpp
     app/presentation/grid.cpp
-    # app/ui/simulation/HeatingSimulationUI.cpp
 )
 
 set(Name "EnergyCampus")
-SET(EnergyLib_INSTALL TRUE)
 add_subdirectory(lib)
-cover_add_plugin(${Name} nlohmann_json::nlohmann_json Arrow::arrow_shared libEnergy coCurlHTTPClient coThreadUtil coStringUtil coReadCSVUtil ${HEADERS} ${SOURCES})
+cover_add_plugin(
+    ${Name} 
+    Ennovatis 
+    EnergyCore
+    coApacheArrow
+    ${HEADERS} ${SOURCES})
+# add_dependencies(${Name} coApacheArrow)
+
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-# if u want to use c++20 for ui/SensorManager.h
-# target_compile_features(${Name} PRIVATE cxx_std_20)
 add_subdirectory(test)

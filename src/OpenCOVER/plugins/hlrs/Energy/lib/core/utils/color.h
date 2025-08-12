@@ -1,6 +1,4 @@
-#ifndef _CORE_UTILS_COLOR_H
-#define _CORE_UTILS_COLOR_H
-
+#pragma once
 #include <memory>
 #include <osg/Geode>
 #include <osg/Material>
@@ -22,4 +20,3 @@ void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color,
                         osg::Material::Face faceMask = osg::Material::FRONT);
 void overrideGeodeMaterial(osg::Geode *geode, osg::Material *material);
 }  // namespace core::utils::color
-#endif

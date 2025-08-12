@@ -1,7 +1,5 @@
-#ifndef _BUILDING_H
-#define _BUILDING_H
+#pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -20,10 +18,16 @@ class Building {
  public:
   // typedef std::shared_ptr<Building> ptr;
   Building(const std::string &name, const std::string &id, const std::string &street)
-      : m_name(name), m_id(id), m_street(street), m_y(0), m_x(0), m_height(0), m_area(0){};
+      : m_name(name),
+        m_id(id),
+        m_street(street),
+        m_y(0),
+        m_x(0),
+        m_height(0),
+        m_area(0) {};
   Building(const std::string &name, const std::string &id)
-      : Building(name, id, ""){};
-  Building(const std::string &name) : Building(name, "", ""){};
+      : Building(name, id, "") {};
+  Building(const std::string &name) : Building(name, "", "") {};
   ~Building() = default;
   Building(const Building &other) = default;
   Building &operator=(const Building &other) = default;
@@ -77,6 +81,4 @@ class Building {
 };
 
 typedef std::vector<Building> Buildings;
-typedef std::shared_ptr<Buildings> BuildingsPtr;
 }  // namespace ennovatis
-#endif

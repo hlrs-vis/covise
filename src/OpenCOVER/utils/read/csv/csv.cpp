@@ -138,9 +138,9 @@ void CSVStream::parseLine(const std::string &rawLine, CSVRow &row,
           std::streamoff pos = ss.tellg();
           std::streamoff len = static_cast<std::streamoff>(ss.str().length());
           std::streamoff diff = pos != -1 ? pos : 0;  // handle tellg() == -1
-          next = ss.str().substr(
-              static_cast<std::size_t>(diff));  // Use the current position as
-                                                // start
+          next =
+              ss.str().substr(static_cast<std::size_t>(diff));  // Use the current
+                                                                // position as start
           value += "," + next;
           break;
         }
@@ -160,62 +160,17 @@ void CSVStream::parseLine(const std::string &rawLine, CSVRow &row,
   }
 }
 
+StreamMap getCSVStreams(const boost::filesystem::path &dirPath) {
+  auto csv_files = StreamMap();
+  for (auto &entry : boost::filesystem::directory_iterator(dirPath)) {
+    if (boost::filesystem::is_regular_file(entry)) {
+      if (entry.path().extension() == ".csv") {
+        auto path = entry.path();
+        csv_files.emplace(path.stem().string(), path.string());
+      }
+    }
+  }
+  return csv_files;
+}
+
 }  // namespace opencover::utils::read
-// #include "csv.h"
-
-// #include <mutex>
-// #include <string>
-
-// namespace opencover::utils::read {
-
-// CSVStream::CSVStream(const std::string &filename, char delimiter, bool parallel)
-//     : m_filename(filename), m_delimiter(delimiter), m_parallel(parallel) {
-//   m_inputFileStream.open(filename.c_str());
-//   if (!m_inputFileStream.is_open())
-//     throw CSVStream_Exception("Could not open file " + filename);
-//   readHeader();
-// }
-
-// void CSVStream::readHeader() {
-//   std::string colName("");
-//   auto ss = getLine();
-//   while (std::getline(ss, colName, m_delimiter)) m_header.push_back(colName);
-// }
-
-// void CSVStream::readLine(CSVStream::CSVRow &row) {
-//   std::string value("");
-//   auto ss = getLine();
-//   size_t currentColNameIdx = 0;
-//   for (auto &header : m_header) {
-//     std::getline(ss, value, m_delimiter);
-//     // if there is a comma in the value the string will contain \" at the
-//     beginning
-//     // and end of the cell
-//     if (auto it = value.find('\"'); it != std::string::npos) {
-//       std::string next = value.substr(it + 1);
-//       value = next;
-//       while (next.find('\"') == std::string::npos) {
-//         std::getline(ss, next, m_delimiter);
-//         value += "," + next;
-//       }
-//       value = value.substr(0, value.size() - 1);
-//     }
-
-//     row[header] = value;
-//   }
-// }
-
-// std::stringstream CSVStream::getLine() {
-//   if (m_parallel) std::lock_guard<std::mutex> lock(m_mutex);
-//   std::getline(m_inputFileStream, m_currentline);
-//   // skip comments
-//   while (!m_currentline.empty() && m_currentline[0] == '#')
-//     std::getline(m_inputFileStream, m_currentline);
-
-//   // remove carriage return characters
-//   if (m_currentline.find('\r') != std::string::npos)
-//     m_currentline.erase(m_currentline.find('\r'), 1);
-//   std::stringstream ss(m_currentline);
-//   return ss;
-// }
-// }  // namespace opencover::utils::read

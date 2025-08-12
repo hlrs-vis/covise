@@ -14,32 +14,6 @@ struct PVData {
   int numPanelsMax{0};
 };
 
-class Bus : public Object {
- public:
-  Bus(const std::string &name, const Data &data = {}) : Object(name, data) {}
-};
-
-class Generator : public Object {
- public:
-  Generator(const std::string &name, const Data &data = {}) : Object(name, data) {}
-};
-
-class Transformator : public Object {
- public:
-  Transformator(const std::string &name, const Data &data = {})
-      : Object(name, data) {}
-};
-
-class Cable : public Object {
- public:
-  Cable(const std::string &name, const Data &data = {}) : Object(name, data) {}
-};
-
-class Building : public Object {
- public:
-  Building(const std::string &name, const Data &data = {}) : Object(name, data) {}
-};
-
 class PowerSimulation : public Simulation {
  public:
   PowerSimulation() = default;
@@ -59,11 +33,11 @@ class PowerSimulation : public Simulation {
       const std::string &species, const std::string &node) const override;
 
  private:
-  ObjectContainer<Bus> m_buses;
-  ObjectContainer<Generator> m_generators;
-  ObjectContainer<Transformator> m_transformators;
-  ObjectContainer<Cable> m_cables;
-  ObjectContainer<Building> m_buildings;
+  ObjectMap m_buses;
+  ObjectMap m_generators;
+  ObjectMap m_transformators;
+  ObjectMap m_cables;
+  ObjectMap m_buildings;
 };
 
 }  // namespace core::simulation::power

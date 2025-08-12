@@ -1,12 +1,9 @@
-#ifndef _CORE_ENERGYGRIND_H
-#define _CORE_ENERGYGRIND_H
-
+#pragma once
 #include "grid.h"
 #include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
-// #include <lib/core/simulation/grid.h>
-
+#include <lib/core/simulation/simulation.h>
 
 #include <memory>
 #include <osg/Geode>
@@ -20,7 +17,6 @@
 #include "TxtInfoboard.h"
 
 using namespace core;
-// using namespace core::simulation;
 
 enum class EnergyGridConnectionType { Index, Line };
 
@@ -38,7 +34,6 @@ enum class EnergyGridConnectionType { Index, Line };
  * @param additionalConData Additional connection data (default is an empty list).
  */
 struct EnergyGridConfig {
-  //   EnergyGridConfig(const std::string &gridName, const grid::Points &gridPoints,
   EnergyGridConfig(const std::string &gridName, const grid::Points &gridPoints,
                    const grid::Indices &gridIndices,
                    const grid::PointsMap &gridPointsMap = {},
@@ -77,8 +72,6 @@ struct EnergyGridConfig {
   grid::Lines lines;
 
   bool valid() const {
-    // bool isMandatoryValid = !name.empty() || (!points.empty() &&
-    // pointsMap.empty()) || !indices.empty();
     bool isMandatoryValid = !name.empty() ||
                             ((points.empty() || pointsMap.empty()) &&
                              (points.empty() && pointsMap.empty())) ||
@@ -88,6 +81,26 @@ struct EnergyGridConfig {
   }
 };
 
+/**
+ * @class InfoboardSensor
+ * @brief A sensor class that interacts with an infoboard and responds to pick events.
+ *
+ * Inherits from coPickSensor and manages an infoboard displaying string content.
+ * Provides methods to activate the sensor, update its state, and refresh the infoboard's drawable.
+ *
+ * @constructor
+ * @param parent The parent osg::Group node to attach the sensor to.
+ * @param infoboard A unique pointer to an IInfoboard instance for displaying information.
+ * @param content Optional initial content to display on the infoboard.
+ *
+ * @method updateDrawable Updates the drawable representation of the infoboard.
+ * @method activate Activates the sensor (overrides coPickSensor::activate).
+ * @method update Updates the sensor state (overrides coPickSensor::update).
+ *
+ * @private
+ * @var m_enabled Indicates whether the sensor is enabled.
+ * @var m_infoBoard Unique pointer to the managed infoboard instance.
+ */
 class InfoboardSensor : public coPickSensor {
  public:
   InfoboardSensor(osg::ref_ptr<osg::Group> parent,
@@ -113,7 +126,6 @@ class InfoboardSensor : public coPickSensor {
  */
 class EnergyGrid : public interface::IEnergyGrid {
  public:
-  //   EnergyGrid(EnergyGridConfig &&data);
   EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap = true);
   void initDrawables() override;
   void update() override {
@@ -123,11 +135,8 @@ class EnergyGrid : public interface::IEnergyGrid {
   void updateDrawables() override;
   void updateTime(int timestep) override;
 
-//   void setColorMap(const opencover::ColorMap &colorMap) override;
-//   TODO: remove this later => what a fucking mess
-//   HACK: bullshit code
-  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap) override;
-  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false) override;
+  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
+  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {
@@ -176,4 +185,3 @@ class EnergyGrid : public interface::IEnergyGrid {
   std::vector<std::unique_ptr<InfoboardSensor>> m_infoboards;
   bool m_ignoreOverlap;
 };
-#endif

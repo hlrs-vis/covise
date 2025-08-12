@@ -1,6 +1,4 @@
-#ifndef _DATE_H
-#define _DATE_H
-
+#pragma once
 #include <chrono>
 #include <string>
 
@@ -33,4 +31,3 @@ struct date {
       const std::chrono::system_clock::time_point &timePoint, const char *format);
 };
 }  // namespace ennovatis
-#endif

@@ -56,9 +56,12 @@ bool sax_channelid_parser::string(string_t &val) {
 bool sax_channelid_parser::key(string_t &val) {
   if constexpr (debug) m_debugLogs.push_back("key(val=" + val + ")");
 
+  m_isLat = val == "latitude";
+  m_isLon = val == "longitude";
   if (m_isObj) {
     m_isBuilding = val == "building";
     m_isChannel = val == "channel";
+
     m_isObj = false;
   }
   m_isBuildingID = val == "buildingID";
@@ -94,6 +97,13 @@ bool sax_channelid_parser::number_float(number_float_t val, const string_t &s) {
   if constexpr (debug)
     m_debugLogs.push_back("number_float(val=" + std::to_string(val) + ", s=" + s +
                           ")");
+  if (m_isLat) {
+    m_buildings->back().setY(val);
+    m_isLat = false;
+  } else if (m_isLon) {
+    m_buildings->back().setX(val);
+    m_isLon = false;
+  }
   return true;
 }
 

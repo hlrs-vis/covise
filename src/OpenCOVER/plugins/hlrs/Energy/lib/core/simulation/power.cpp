@@ -3,12 +3,10 @@
 namespace core::simulation::power {
 
 void PowerSimulation::computeParameters() {
-  // TODO: rewrite to use factorypattern
-  computeParameter(m_buses, 0.0f);
-  computeParameter(m_generators);
-  computeParameter(m_transformators);
-  computeParameter(m_buildings, 0.0f);
-  computeParameter(m_cables, 0.0f);  // no trimming for cables
+  computeParameter(
+      {std::ref(m_buses), std::ref(m_generators), std::ref(m_transformators),
+       std::ref(m_buildings), std::ref(m_cables)},
+      0.0f);
 }
 
 const std::vector<double> *PowerSimulation::getTimedependentScalar(

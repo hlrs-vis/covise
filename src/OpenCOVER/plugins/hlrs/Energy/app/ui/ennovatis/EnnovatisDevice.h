@@ -1,6 +1,4 @@
-#ifndef _ENNOVATISDEVICE_H
-#define _ENNOVATISDEVICE_H
-
+#pragma once
 // core
 #include <lib/core/interfaces/IBuilding.h>
 #include <lib/core/interfaces/IInfoboard.h>
@@ -30,6 +28,36 @@
 // std
 #include <memory>
 
+/**
+ * @class EnnovatisDevice
+ * @brief Represents a device in the Ennovatis energy management system, providing visualization and interaction capabilities.
+ *
+ * This class encapsulates the logic for managing and visualizing an Ennovatis device, including its building information,
+ * associated channels, sensor data, and UI elements. It interacts with REST APIs to fetch data, updates visual representations
+ * based on time steps, and manages user interactions through selection lists and info boards.
+ *
+ * Dependencies:
+ * - Ennovatis core and REST interfaces
+ * - OpenCOVER UI and visualization components
+ * - OpenSceneGraph (OSG) for 3D graphics
+ *
+ * Key Responsibilities:
+ * - Initialize and manage device visualization
+ * - Fetch and handle data from REST endpoints
+ * - Update UI elements such as selection lists and info boards
+ * - Visualize sensor data through color and height changes
+ * - Synchronize state across multiple VR clients
+ *
+ * @constructor
+ * @param building Reference to the Ennovatis building object
+ * @param channelList Pointer to the UI selection list for channels
+ * @param req Shared pointer to the REST request object
+ * @param channelGroup Shared pointer to the channel group
+ * @param infoBoard Unique pointer to the info board interface
+ * @param drawableBuilding Unique pointer to the drawable building interface
+ *
+ * @note This class is not copyable or movable.
+ */
 class EnnovatisDevice {
  public:
   EnnovatisDevice(
@@ -90,4 +118,3 @@ class EnnovatisDevice {
   SensorData m_sensorData;
   float m_consumptionPerArea = 0.0f;
 };
-#endif

@@ -86,7 +86,6 @@ void CityGMLBuilding::setDataInShader(const std::vector<double> &data, float min
 
   for (auto i = 0; i < m_shaders.size(); ++i) {
     auto shader = m_shaders[i];
-    // osg::ref_ptr<osg::Geode> geo = dynamic_cast<osg::Geode *>(m_drawables[i].get());
     osg::ref_ptr<osg::Geode> geo = m_drawables[i]->asGeode();
     if (!shader || !geo) {
       std::cerr << "CityGMLBuilding::setData: "
