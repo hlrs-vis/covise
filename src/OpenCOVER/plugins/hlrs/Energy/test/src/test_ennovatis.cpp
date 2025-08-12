@@ -135,6 +135,15 @@ TEST(Ennovatis, ValidChannelCompare)
     EXPECT_FALSE(cmp(c1, c1));
 }
 
+TEST(Ennovatis, ValidChannelChannelGroupToStringConstExpr)
+{
+    EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::Strom), "Strom");
+    EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::Wasser), "Wasser");
+    EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::Waerme), "Waerme");
+    EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::Kaelte), "Kaelte");
+    EXPECT_EQ(ChannelGroupToStringConstExpr(ChannelGroup::None), "None");
+}
+
 TEST(Ennovatis, ValidDateTimeStrConversion)
 {
     std::string ref_string = "01.01.2000";
