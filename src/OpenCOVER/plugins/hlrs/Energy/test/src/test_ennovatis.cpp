@@ -310,7 +310,7 @@ TEST(Ennovatis, ValidRestRequestStr)
 }
 
 /**************** SAX tests ****************/
-TEST(Ennovatis, ValidJSONSAXParsing)
+TEST(Ennovatis, ValidSaxParsing)
 {
     std::ifstream pokemonFilestream(pokemonJSON);
     sax_channelid_parser slp;
@@ -319,7 +319,7 @@ TEST(Ennovatis, ValidJSONSAXParsing)
     pokemonFilestream.close();
 }
 
-TEST(Ennovatis, ValidLogging)
+TEST(Ennovatis, ValidSaxLogging)
 {
     std::ifstream pokemonFilestream(pokemonJSON);
     std::ifstream resultFilestream(pathToJSON + "/test_pokemon_logging.txt");
