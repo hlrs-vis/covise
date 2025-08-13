@@ -230,6 +230,35 @@ TEST(Ennovatis, ValidJsonFromJson)
     EXPECT_EQ(obj.Values[1], 100.0f);
 }
 
+TEST(Ennovatis, ValidJsonFromString)
+{
+    std::string jsonStr = R"({
+        "Average": 7,
+        "MaxTime": "maxT",
+        "MaxValue": 77,
+        "MinTime": "minT",
+        "MinValue": 3,
+        "StandardDeviation": 1,
+        "Times": ["a", "b"],
+        "Values": [3.14, 2.71]
+    })";
+    json_parser parser;
+    auto objPtr = parser(jsonStr);
+    ASSERT_NE(objPtr, nullptr);
+    EXPECT_EQ(objPtr->Average, 7);
+    EXPECT_EQ(objPtr->MaxTime, "maxT");
+    EXPECT_EQ(objPtr->MaxValue, 77);
+    EXPECT_EQ(objPtr->MinTime, "minT");
+    EXPECT_EQ(objPtr->MinValue, 3);
+    EXPECT_EQ(objPtr->StandardDeviation, 1);
+    EXPECT_EQ(objPtr->Times.size(), 2);
+    EXPECT_EQ(objPtr->Times[0], "a");
+    EXPECT_EQ(objPtr->Times[1], "b");
+    EXPECT_EQ(objPtr->Values.size(), 2);
+    EXPECT_EQ(objPtr->Values[0], 3.14f);
+    EXPECT_EQ(objPtr->Values[1], 2.71f);
+}
+
 TEST(Ennovatis, ValidRequestStr)
 {
     rest_request req;
