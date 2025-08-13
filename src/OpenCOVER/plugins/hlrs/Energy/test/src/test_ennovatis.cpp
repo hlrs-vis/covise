@@ -288,7 +288,9 @@ TEST(Ennovatis, ValidJsonParserFromJson)
     EXPECT_EQ(objPtr->Values[1], 2.5f);
 }
 
-TEST(Ennovatis, ValidRequestStr)
+/**************** rest test ****************/
+
+TEST(Ennovatis, ValidRestRequestStr)
 {
     rest_request req;
     req.url = "https://wurstbrot.com/v0/item";
