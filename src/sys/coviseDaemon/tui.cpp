@@ -6,7 +6,7 @@
 #include <iostream>
 
 CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autostart)
-    : m_autostart(autostart), m_cinNotifier(0, QSocketNotifier::Type::Read) //on std in
+    : m_autostart(autostart)
 {
     qRegisterMetaType<covise::Program>();
     qRegisterMetaType<std::vector<std::string>>();
@@ -41,7 +41,7 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
                         }
                         else if (arg == "n" || arg == "no")
                         {
-                            m_launcher.answerPermissionRequest(p, clientID, true);
+                            m_launcher.answerPermissionRequest(p, clientID, false);
                             return;
                         }
                         else
@@ -58,12 +58,52 @@ CommandLineUi::CommandLineUi(const vrb::VrbCredentials &credentials, bool autost
     m_launcher.connect(credentials);
     createCommands();
 
-    connect(&m_cinNotifier, &QSocketNotifier::activated, this, [this]()
-            {
-                std::string command;
-                std::cin >> command;
-                handleCommand(command);
-            });
+    m_inputThread = std::thread([this]() {
+        std::string command;
+        while (m_running) {
+            std::cout << "> " << std::flush;
+            if (std::getline(std::cin, command)) {
+                if (!command.empty()) {
+                    // Thread-safe queue the command
+                    {
+                        std::lock_guard<std::mutex> lock(m_queueMutex);
+                        m_commandQueue.push(command);
+                    }
+                    
+                    // Process commands in main thread using Qt's signal system
+                    QMetaObject::invokeMethod(this, &CommandLineUi::processQueuedCommands, Qt::QueuedConnection);
+                }
+            }
+            
+            if (std::cin.eof()) {
+                // Handle Ctrl+D or EOF
+                m_running = false;
+                QMetaObject::invokeMethod(QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection);
+                break;
+            }
+        }
+    });
+    
+    std::cerr << "Type 'help' for available commands." << std::endl;
+}
+
+void CommandLineUi::processQueuedCommands()
+{
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    while (!m_commandQueue.empty()) {
+        std::string command = m_commandQueue.front();
+        m_commandQueue.pop();
+        handleCommand(command);
+    }
+}
+
+// Add destructor to clean up thread
+CommandLineUi::~CommandLineUi()
+{
+    m_running = false;
+    if (m_inputThread.joinable()) {
+        m_inputThread.join();
+    }
 }
 
 void CommandLineUi::handleCommand(const std::string &command)
@@ -81,7 +121,7 @@ void CommandLineUi::createCommands()
                                                                        }}));
     m_commands.push_back(std::unique_ptr<CommandInterface>(new Command{{"close", "quit", "terminate", "exit"}, "terminate this application", [this]()
                                                                        {
-                                                                           QApplication::quit();
+                                                                           QCoreApplication::quit();
                                                                        }}));
     m_commands.push_back(std::unique_ptr<CommandInterface>(new Command{{"print", "client", "clients", "info", "partner"}, "print list of available clients", [this]()
                                                                        {

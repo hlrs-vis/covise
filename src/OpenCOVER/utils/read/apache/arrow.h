@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "export.h"
 #include "enums.h"
 
 namespace apache {
@@ -37,7 +38,7 @@ namespace apache {
  * @method initReadableFile() Initializes the reader using readable file IO.
  * @method openFile() Opens the file and prepares the reader.
  */
-class ArrowReader {
+class ARROWUTIL ArrowReader {
  public:
   ArrowReader(const std::string &filepath, IO io = IO::MEM_MAP);
 

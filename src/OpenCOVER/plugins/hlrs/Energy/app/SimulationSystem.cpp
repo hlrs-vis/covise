@@ -5,7 +5,8 @@
 // QT_ANNOTATE_ACCESS_SPECIFIER(qt_signal)
 // By simply put the includes for arrow before qt
 // includes. In our case before everything else we can resolve the issue.
-#include <lib/apache/arrow.h>
+// utils
+#include <utils/read/apache/arrow.h>
 #include "SimulationSystem.h"
 
 // cover

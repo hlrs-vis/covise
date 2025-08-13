@@ -80,8 +80,10 @@ void UMeshReader::initField(int index, int timeStep)
 
   UnstructuredField &field = fields[timeStep][index];
 
-  field.dataRange.x = FLT_MAX;
-  field.dataRange.y = -FLT_MAX;
+  field.vertexData.resize(1);
+
+  field.vertexData[0].range.x = FLT_MAX;
+  field.vertexData[0].range.y = -FLT_MAX;
   // offset for slot-combined indices:
   uint64_t slotOffset = 0;
 
@@ -114,9 +116,9 @@ void UMeshReader::initField(int index, int timeStep)
         value = mesh->perVertex->values[i];
       else
         throw std::runtime_error("value not present!");
-      field.vertexData.push_back(value);
-      field.dataRange.x = std::min(field.dataRange.x, value);
-      field.dataRange.y = std::max(field.dataRange.y, value);
+      field.vertexData[0].array.push_back(value);
+      field.vertexData[0].range.x = std::min(field.vertexData[0].range.x, value);
+      field.vertexData[0].range.y = std::max(field.vertexData[0].range.y, value);
     }
 
     // cells
@@ -175,8 +177,8 @@ void UMeshReader::initField(int index, int timeStep)
       for (size_t s = 0; s < numScalars; ++s) {
         float value = mesh->gridScalars[grid.scalarsOffset + s];
         gridData.values[s] = value;
-        field.dataRange.x = std::min(field.dataRange.x, value);
-        field.dataRange.y = std::max(field.dataRange.y, value);
+        field.vertexData[0].range.x = std::min(field.vertexData[0].range.x, value);
+        field.vertexData[0].range.y = std::max(field.vertexData[0].range.y, value);
       }
 
       field.gridData.push_back(gridData);

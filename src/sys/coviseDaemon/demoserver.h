@@ -13,7 +13,6 @@
 class DemoServer
 {
 public:
-    DemoServer();
     void run();
     void stop();
 
@@ -27,9 +26,6 @@ private:
         int id = -1;
     } m_runningProcess;
 
-    std::map<std::string, std::string> m_apps;
-
-    nlohmann::json loadDemos();
     nlohmann::json findDemoById(int id);
     int launchProcess(const std::string& program, const std::vector<std::string>& args);
     bool isPidRunning(int pid);
@@ -37,6 +33,7 @@ private:
     void monitorProcess(int pid, const std::string& appName);
 
     void setupRoutes(crow::SimpleApp& app);
+    std::unique_ptr<crow::SimpleApp> m_app;
 };
 
 #endif // COVISE_DAEMON_DEMO_H

@@ -31,7 +31,6 @@
 #include <time.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <termio.h>
 #include <termios.h>
 #include <sys/types.h>
 #include <sys/resource.h>

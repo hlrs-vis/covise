@@ -21,6 +21,10 @@
 #include <QSystemTrayIcon>
 #include <QTextBrowser>
 #include <QTextStream>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QClipboard>
+#include <QToolButton>
 
 #include <iostream>
 #include <fstream>
@@ -37,6 +41,8 @@
 
 #include <config/coConfigGroup.h>
 #include <config/coConfig.h>
+#include <net/covise_host.h>
+#include <demo.h>
 
 using namespace vrb;
 
@@ -223,7 +229,7 @@ void MainWindow::initUi(const vrb::VrbCredentials &credentials)
 	connect(ui->exitBtn, &QPushButton::clicked, QApplication::quit);
 	connect(&m_progressBarTimer, &QTimer::timeout, this, &MainWindow::updateStatusBar);
 	setStackedWidget(ui->InfoStackedWidget, 1);
-
+	setupDemoClientAction();
 	initOutputModes();
 }
 
@@ -491,6 +497,66 @@ void MainWindow::removePermissionRequest(covise::Program p, int clientID)
 std::vector<std::string> MainWindow::parseCmdArgsInput()
 {
 	return covise::parseCmdArgString(ui->cmdArgsInput->text().toStdString());
+}
+
+void MainWindow::setupDemoClientAction()
+{
+    // Connect the demo client action
+    connect(ui->actionDemoClient, &QAction::triggered, this, &MainWindow::openDemoClient);
+    
+    // Set up custom context menu for right-click functionality
+    // We need to get the actual toolbar button for the action
+    QTimer::singleShot(0, this, [this]() {
+        // Find the toolbar button for our action
+        QList<QToolButton*> toolButtons = ui->toolBar->findChildren<QToolButton*>();
+        for (QToolButton* button : toolButtons) {
+            if (button->defaultAction() == ui->actionDemoClient) {
+                button->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(button, &QToolButton::customContextMenuRequested, 
+                        this, &MainWindow::showDemoClientContextMenu);
+                break;
+            }
+        }
+    });
+}
+
+void MainWindow::openDemoClient()
+{
+    QString demoUrl = getDemoClientUrl();
+    QDesktopServices::openUrl(QUrl(demoUrl));
+}
+
+void MainWindow::showDemoClientContextMenu()
+{
+    QMenu contextMenu(tr("Demo Client"), this);
+    
+    QAction *openAction = contextMenu.addAction("🌐 Open Demo Client");
+    QAction *copyAction = contextMenu.addAction("📋 Copy Link to Clipboard");
+    
+    // Style the menu actions
+    openAction->setIcon(QIcon(":/images/demo.png")); // if you have an icon
+    
+    connect(openAction, &QAction::triggered, this, &MainWindow::openDemoClient);
+    connect(copyAction, &QAction::triggered, this, &MainWindow::copyDemoLinkToClipboard);
+    
+    // Show menu at the toolbar button position
+    QPoint globalPos = QCursor::pos();
+    contextMenu.exec(globalPos);
+}
+
+void MainWindow::copyDemoLinkToClipboard()
+{
+    QString demoUrl = getDemoClientUrl();
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(demoUrl);
+    
+    // Show confirmation in status bar
+    ui->statusbar->showMessage("Demo client link copied to clipboard", 3000);
+}
+
+QString MainWindow::getDemoClientUrl()
+{
+    return QString("http://%1:%2").arg(covise::Host::getHostaddress().c_str()).arg(demo::port);
 }
 
 // free functions
