@@ -230,7 +230,7 @@ TEST(Ennovatis, ValidJsonFromJson)
     EXPECT_EQ(obj.Values[1], 100.0f);
 }
 
-TEST(Ennovatis, ValidJsonFromString)
+TEST(Ennovatis, ValidJsonParserFromString)
 {
     std::string jsonStr = R"({
         "Average": 7,
@@ -257,6 +257,35 @@ TEST(Ennovatis, ValidJsonFromString)
     EXPECT_EQ(objPtr->Values.size(), 2);
     EXPECT_EQ(objPtr->Values[0], 3.14f);
     EXPECT_EQ(objPtr->Values[1], 2.71f);
+}
+
+TEST(Ennovatis, ValidJsonParserFromJson)
+{
+    nlohmann::json j = {
+        {"Average", 10},
+        {"MaxTime", "max"},
+        {"MaxValue", 20},
+        {"MinTime", "min"},
+        {"MinValue", 1},
+        {"StandardDeviation", 2},
+        {"Times", {"t1", "t2"}},
+        {"Values", {1.5, 2.5}}
+    };
+    json_parser parser;
+    auto objPtr = parser(j);
+    ASSERT_NE(objPtr, nullptr);
+    EXPECT_EQ(objPtr->Average, 10);
+    EXPECT_EQ(objPtr->MaxTime, "max");
+    EXPECT_EQ(objPtr->MaxValue, 20);
+    EXPECT_EQ(objPtr->MinTime, "min");
+    EXPECT_EQ(objPtr->MinValue, 1);
+    EXPECT_EQ(objPtr->StandardDeviation, 2);
+    EXPECT_EQ(objPtr->Times.size(), 2);
+    EXPECT_EQ(objPtr->Times[0], "t1");
+    EXPECT_EQ(objPtr->Times[1], "t2");
+    EXPECT_EQ(objPtr->Values.size(), 2);
+    EXPECT_EQ(objPtr->Values[0], 1.5f);
+    EXPECT_EQ(objPtr->Values[1], 2.5f);
 }
 
 TEST(Ennovatis, ValidRequestStr)
