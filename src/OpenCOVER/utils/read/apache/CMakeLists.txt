@@ -125,13 +125,13 @@ remove_definitions(-DBYTESWAP)
 include(FetchContent)
 
 FetchContent_Declare(
-    Arrow
+    arrow
     GIT_REPOSITORY "https://github.com/apache/arrow.git"
     GIT_TAG "apache-arrow-21.0.0"
     GIT_SHALLOW TRUE #copy version and not git history
 	SOURCE_SUBDIR "cpp"
 )
-FetchContent_MakeAvailable(Arrow)
+FetchContent_MakeAvailable(arrow)
 
 # --- Diagnostic Code ---
 if(TARGET arrow::arrow_shared)
@@ -162,8 +162,8 @@ target_link_libraries(${Name} ${ARROW_TARGET_NAME})
 target_include_directories(${Name}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        $<BUILD_INTERFACE:${arrow_SOURCE_DIR}/cpp/src>
-        $<BUILD_INTERFACE:${arrow_BINARY_DIR}/src>
+        #$<BUILD_INTERFACE:${arrow_SOURCE_DIR}/cpp/src>
+        #$<BUILD_INTERFACE:${arrow_BINARY_DIR}/src>
 )
 COVISE_INSTALL_TARGET(${Name})
 COVISE_INSTALL_HEADERS(${Name} ${HEADERS})
