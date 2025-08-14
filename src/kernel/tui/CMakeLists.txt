@@ -4,6 +4,10 @@
 #
 # @author Blasius Czink
 
+if(NOT COVISE_USE_QT)
+    return()
+endif()
+
 USING(Virvo:transfunc optional) # for transfer function editor
 USING(WiringPi optional)
 
