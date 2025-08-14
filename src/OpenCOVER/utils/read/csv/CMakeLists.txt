@@ -1,5 +1,7 @@
-cmake_policy(SET CMP0167 NEW)
-find_package(Boost REQUIRED COMPONENTS filesystem)
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
+covise_find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "Boost not found, please install Boost libraries")
