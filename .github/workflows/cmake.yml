@@ -127,6 +127,11 @@ jobs:
         docker-images: true
         swap-storage: true
 
+    - name: Checkout repository's master branch
+      uses: actions/checkout@v4
+      with:
+        ref: 'master'
+
     - name: Sync and update submodules recursive
       uses: actions/checkout@v4
       with:
