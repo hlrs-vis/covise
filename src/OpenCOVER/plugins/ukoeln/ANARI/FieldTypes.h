@@ -57,17 +57,19 @@ struct UnstructuredField
   {
     float x, y, z;
   };
-  std::vector<vec3f> vertexPosition;
-  std::vector<float> vertexData;
-  std::vector<uint64_t> index;
-  bool indexPrefixed{false};
-  std::vector<uint64_t> cellIndex;
-  // std::vector<float> cellData;
-  std::vector<uint8_t> cellType;
-  struct
+  struct DataArray
   {
-    float x, y;
-  } dataRange;
+    std::vector<float> array;
+    struct {
+      float x, y;
+    } range;
+  };
+  std::vector<vec3f> vertexPosition;
+  std::vector<DataArray> vertexData;
+  std::vector<uint32_t> index;
+  std::vector<DataArray> cellData;
+  std::vector<uint32_t> cellIndex;
+  std::vector<uint8_t> cellType;
 
   // unstructured meshes can optionally store
   // vertex-centered grids

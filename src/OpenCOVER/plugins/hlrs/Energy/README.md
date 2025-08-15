@@ -14,7 +14,7 @@ The main purpose of this plugin is to visualize geo data in VR from different so
 
 Since its a plugin for OpenCOVER you will need to compile COVER first. Please follow the instructions in the README.md in the root folder of this github repository to compile and install OpenCOVER on your system.
 
-The plugin will be automatically compiled and installed if all requirements are found by CMake.
+The plugin will be automatically compiled and installed if all requirements are found by CMake and if the CMakeOption **BUILD_ENERGY** is **ON**.
 
 ## Software Design
 

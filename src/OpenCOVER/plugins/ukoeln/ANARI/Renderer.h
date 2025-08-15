@@ -22,7 +22,9 @@
 #include "readFlash.h"
 #endif
 #include "readUMesh.h"
+#ifdef HAVE_VTK
 #include "readVTK.h"
+#endif
 #include "ui_anari.h"
 #include "Param.h"
 #include "Projection.h"
