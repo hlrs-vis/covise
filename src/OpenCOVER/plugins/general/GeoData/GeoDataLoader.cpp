@@ -152,10 +152,94 @@ bool GeoDataLoader::init()
 
     geoDataMenu = new ui::Menu("GeoData", this);
     geoDataMenu->setText("GeoData");
+    terrainMenu = new ui::Menu(geoDataMenu, "Terrain");
+    terrainMenu->setText("Terrain");
+    buildingMenu = new ui::Menu(geoDataMenu, "Buildings");
+    buildingMenu->setText("Buildings");
     rootNode = new osg::MatrixTransform();
     skyRootNode = new osg::MatrixTransform();
     cover->getObjectsRoot()->addChild(rootNode);
     cover->getScene()->addChild(skyRootNode);
+
+    // create Button for each terrain file in config
+    std::map<std::string, ui::Button*> terrainButtons;
+    std::map<std::string, ui::Button*> buildingButtons;
+
+    auto configFile = config();
+    auto terrainFiles = configFile->entries("terrain");
+
+    for (const auto& terrainFile : terrainFiles)
+    {   
+        std::vector<std::string> defaultArray = {"", "", ""};
+        std::vector<std::string> terrainArray = configStringArray("terrain", terrainFile, defaultArray)->value();
+        
+        std::string terrain_name = terrainArray[0];
+        std::string terrain_path = terrainArray[1];
+        std::string lod_path = terrainArray[2];
+
+        if (terrain_path != "")
+        {
+            ui::Button* terrainButton = new ui::Button(terrainMenu, terrain_name);
+            terrainButton->setText(terrain_name);
+            terrainButton->setState(false);
+            terrainButton->setCallback([this, terrain_path, terrain_name](bool state)
+            {
+                if (state)
+                {
+                    if (loadedTerrains.find(terrain_name) == loadedTerrains.end())
+                    {
+                        osg::ref_ptr<osg::Node> terrainNode = loadTerrain(terrain_path,osg::Vec3d(0,0,0));
+                        if (terrainNode)
+                        {
+                            loadedTerrains[terrain_name] = terrainNode;
+                            rootNode->addChild(terrainNode);
+                        }
+                    }
+                }
+                else
+                {
+                    if (loadedTerrains.find(terrain_name) != loadedTerrains.end())
+                    {
+                        rootNode->removeChild(loadedTerrains[terrain_name]);
+                        loadedTerrains.erase(terrain_name);
+                    }
+                }
+            });
+            terrainButtons[terrain_name] = terrainButton;
+        }
+        
+        if (lod_path != "")
+        {
+            ui::Button* buildingButton = new ui::Button(buildingMenu, terrain_name);
+            buildingButton->setText(terrain_name);
+            buildingButton->setState(false);
+            buildingButton->setCallback([this, lod_path, terrain_name](bool state)
+            {
+                if (state)
+                {
+                    if(loadedBuildings.find(terrain_name) == loadedBuildings.end())
+                    {
+                        osg::ref_ptr<osg::Node> buildingNode = loadTerrain(lod_path,osg::Vec3d(0,0,0));
+                        if (buildingNode)
+                        {
+                            loadedBuildings[terrain_name] = buildingNode;
+                            rootNode->addChild(buildingNode);
+                        }
+                    }
+                }
+                else
+                {
+                    if (loadedBuildings.find(terrain_name) != loadedBuildings.end())
+                    {
+                        rootNode->removeChild(loadedBuildings[terrain_name]);
+                        loadedBuildings.erase(terrain_name);
+                    }
+                }
+            });
+            buildingButtons[terrain_name] = buildingButton;
+        }
+    }
+
     //Restart Button
     skyButton = new ui::Button(geoDataMenu, "Sky");
     skyButton->setText("Sky");
@@ -209,9 +293,6 @@ bool GeoDataLoader::init()
             std::string coord = getCoordinates(val);
             parseCoordinates(coord);
         });
-
-    terrainFile = configString("terrain","file", "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive")->value();
-    loadTerrain(terrainFile,osg::Vec3d(0,0,0));
     return true;
 }
 
@@ -275,7 +356,7 @@ GeoDataLoader *GeoDataLoader::instance()
 }
 
 
-bool GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d offset)
+osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d offset)
 {
     VRViewer *viewer = VRViewer::instance();
     osgDB::DatabasePager *pager = viewer->getDatabasePager();
@@ -354,16 +435,14 @@ bool GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d offset)
         terrainTransform->addChild(terrain);
         terrainTransform->setPosition(-offset);
 
-        rootNode->addChild(terrainTransform);
-
         const osg::BoundingSphere &terrainBS = terrain->getBound();
         std::cout << "Terrain BB: center: (" << terrainBS.center()[0] << ", " << terrainBS.center()[1] << ", " << terrainBS.center()[2] << "), radius: " << terrainBS.radius() << std::endl;
 
-        return true;
+        return terrainTransform;
     }
     else
     {
-        return false;
+        return nullptr;
     }
 }
 

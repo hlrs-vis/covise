@@ -3,4 +3,18 @@ skyDir = "/data/Geodata/sky"
 defaultSky = 6
 
 [terrain]
-file = "D:/QSync/visnas/Data/Suedlink/out/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive"
+# entry = ["name", "path/to/terrain/file", "path/to/lod/file"]
+entry1 = ["Baden-Württemberg", "/data/Geodata/BW/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", "/data/Geodata/BW/lod2/LoD2.ive"]
+entry2 = ["Bayern", "/data/Geodata/Bayern/vpb_DGM1m_FDOP10/vpb_DGM1m_FDOP10.ive", "/data/Geodata/Bayern/lod2/lod2.ive"]
+entry3 = ["Bremen", "",""]
+entry4 = ["Hamburg", "/data/Geodata/Hamburg/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/data/Geodata/Hamburg/lod2/lod2.ive"]
+entry5 = ["Hessen", "/data/Geodata/HE/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive",""]
+entry6 = ["Niedersachsen", "/mnt/medium/geodata/NI/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/data/Geodata/NI/lod2/lod2.ive"]
+entry7 = ["Nordrhein-Westfalen", "/mnt/medium/geodata/NW/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/mnt/medium/geodata/NW/lod/lod2.ive"]
+entry8 = ["Rheinland-Pfalz", "/data/Geodata/RP/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/data/Geodata/RP/lod2/gml/lod2.ive"]
+entry9 = ["Saarland", "/mnt/medium/geodata/SL/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/mnt/medium/geodata/SL/lod/unzipped/lod2.ive"]
+entry10 = ["Sachsen-Anhalt", "/data/Geodata/ST/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/data/Geodata/ST/lod2/unzipped/lod2.ive"]
+entry11 = ["Schleswig-Holstein", "/data/Geodata/SH/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", "/data/Geodata/SH/lod2/unzipped/lod2.ive"]
+entry12 = ["Thüringen", "/data/Geodata/TH/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive","/data/Geodata/TH/lod2/unzipped/lod2.ive"]
+entry13 = ["Brandenburg", "/data/Geodata/Brandenburg/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", ""]
+entry14 = ["Schweiz", "/mnt/medium/geodata/Schweiz/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", "/mnt/medium/geodata/Schweiz/lod/unzipped/lod2.ive"]

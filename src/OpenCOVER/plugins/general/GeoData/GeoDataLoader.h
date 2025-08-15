@@ -13,7 +13,7 @@
  ** Description: GeoDataLoader Plugin                                        **
  **                                                                          **
  **                                                                          **
- ** Author: Uwe Wössner 		                                             **
+ ** Author: Uwe Wï¿½ssner 		                                             **
  **                                                                          **
  ** History:  								                                 **
  **                                                                          **
@@ -50,7 +50,7 @@ public:
     bool init();
     ~GeoDataLoader();
 
-    bool loadTerrain(std::string filename, osg::Vec3d offset);
+    osg::ref_ptr<osg::Node> loadTerrain(std::string filename, osg::Vec3d offset);
     bool addLayer(std::string filename);
 
     static GeoDataLoader *instance();
@@ -70,7 +70,11 @@ private:
     osg::ref_ptr<osg::MatrixTransform> rootNode;
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Node> skyNode;
+    std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
+    std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
     opencover::ui::Menu* geoDataMenu;
+    opencover::ui::Menu* terrainMenu;
+    opencover::ui::Menu* buildingMenu;
     opencover::ui::Button* skyButton;
     opencover::ui::EditField* location;
     opencover::ui::SelectionList* skys;
