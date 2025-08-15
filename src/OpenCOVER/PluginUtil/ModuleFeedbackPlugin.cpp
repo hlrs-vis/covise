@@ -8,10 +8,16 @@
 #include "ModuleFeedbackPlugin.h"
 #include "ModuleFeedbackManager.h"
 
+#include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coInteractor.h>
 #include <list>
 #include <algorithm>
+
+#include <grmsg/coGRObjVisMsg.h>
+#include <grmsg/coGRObjMoveInterMsg.h>
+#include <grmsg/coGRObjSetCaseMsg.h>
+#include <grmsg/coGRObjSetNameMsg.h>
 
 using namespace opencover;
 
@@ -62,6 +68,59 @@ void ModuleFeedbackPlugin::newInteractor(const RenderObject *container, coIntera
     if (mgr)
     {
         mgr->addColorbarInteractor(i);
+    }
+}
+
+void
+ModuleFeedbackPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg) 
+{
+    using namespace grmsg;
+    if (cover->debugLevel(3))
+    {
+        fprintf(stderr, "\n--- ModuleFeedbackPlugin:: guiToRenderMsg\n");
+    }
+    if (msg.isValid())
+    {
+        switch (msg.getType())
+        {
+        case coGRMsg::GEO_VISIBLE:
+        {
+            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
+            const char *objectName = geometryVisibleMsg.getObjName();
+
+            if (cover->debugLevel(3))
+                fprintf(stderr, "ModuleFeedbackPlugin::guiToRenderMsg coGRMsg::GEO_VISIBLE object=%s visible=%d\n", objectName, geometryVisibleMsg.isVisible());
+
+            handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible());
+        }
+        break;
+        case coGRMsg::SET_CASE:
+        {
+            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
+            const char *objectName = setCaseMsg.getObjName();
+            if (cover->debugLevel(3))
+                fprintf(stderr, "ModuleFeedbackPlugin::guiToRenderMsg coGRMsg::SET_CASE object=%s\n", objectName);
+            const char *caseName = setCaseMsg.getCaseName();
+            handleSetCaseMsg(objectName, caseName);
+        }
+        break;
+        case coGRMsg::SET_NAME:
+        {
+            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
+            const char *coviseObjectName = setNameMsg.getObjName();
+            const char *newName = setNameMsg.getNewName();
+            if (cover->debugLevel(3))
+                fprintf(stderr, "ModuleFeedbackPlugin::guiToRenderMsg coGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
+            handleSetNameMsg(coviseObjectName, newName);
+        }
+        break;
+        default:
+        {
+            if (cover->debugLevel(3))
+                fprintf(stderr, "ModuleFeedbackPlugin::guiToRenderMsg NOT-USED\n");
+        }
+        break;
+        }
     }
 }
 

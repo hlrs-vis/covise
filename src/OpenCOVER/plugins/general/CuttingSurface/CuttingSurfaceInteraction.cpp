@@ -394,7 +394,7 @@ CuttingSurfaceInteraction::deleteMenu()
 {
 }
 
-void CuttingSurfaceInteraction::updatePickInteractorVisibility()
+void CuttingSurfaceInteraction::updateInteractorVisibility()
 {
     //fprintf(stderr,"updatePickInteractorVisibility\n");
     // if geometry is hidden, hide also interactor

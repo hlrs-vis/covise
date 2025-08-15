@@ -78,20 +78,9 @@ CuttingSurfacePlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
     }
     if (msg.isValid())
     {
+        ModuleFeedbackPlugin::guiToRenderMsg(msg);
         switch (msg.getType())
         {
-        case coGRMsg::GEO_VISIBLE:
-        {
-            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
-            const char *objectName = geometryVisibleMsg.getObjName();
-
-            if (cover->debugLevel(3))
-                fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::GEO_VISIBLE object=%s visible=%d\n", objectName, geometryVisibleMsg.isVisible());
-
-            handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible());
-            updateInteractorVisibility(objectName);
-        }
-        break;
         case coGRMsg::INTERACTOR_VISIBLE:
         {
             auto &interactorVisibleMsg = msg.as<coGRObjVisMsg>();
@@ -99,27 +88,6 @@ CuttingSurfacePlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
             if (cover->debugLevel(3))
                 fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::INTERACTOR_VISIBLE object=%s\n", objectName);
             handleInteractorVisibleMsg(objectName, interactorVisibleMsg.isVisible());
-        }
-        break;
-        case coGRMsg::SET_CASE:
-        {
-            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
-            const char *objectName = setCaseMsg.getObjName();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg coGRMsg::SET_CASE object=%s\n", objectName);
-            const char *caseName = setCaseMsg.getCaseName();
-            handleSetCaseMsg(objectName, caseName);
-            handleInteractorSetCaseMsg(objectName, caseName);
-        }
-        break;
-        case coGRMsg::SET_NAME:
-        {
-            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
-            const char *coviseObjectName = setNameMsg.getObjName();
-            const char *newName = setNameMsg.getNewName();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "CuttingSurfacePlugin::guiToRenderMsg oGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
-            handleSetNameMsg(coviseObjectName, newName);
         }
         break;
         case coGRMsg::MOVE_INTERACTOR:
@@ -184,23 +152,6 @@ CuttingSurfacePlugin::~CuttingSurfacePlugin()
         fprintf(stderr, "\nCuttingSurfacePlugin::~CuttingSurfacePlugin\n");
 }
 
-void
-CuttingSurfacePlugin::updateInteractorVisibility(const char *objectName)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "CuttingSurfacePlugin::updateInteractorVisibility(%s)\n", objectName);
-
-    for (auto *i: myInteractions_)
-    {
-        if (i->compare(objectName))
-        {
-            ((CuttingSurfaceInteraction *)i)->updatePickInteractorVisibility();
-            //((CuttingSurfaceInteraction*)i)->updateDirectInteractorVisibility();
-            break;
-        }
-    }
-}
-
 ModuleFeedbackManager *
 CuttingSurfacePlugin::NewModuleFeedbackManager(const RenderObject *container, coInteractor *interactor, const RenderObject *, const char *pluginName)
 {
@@ -221,21 +172,6 @@ CuttingSurfacePlugin::handleInteractorVisibleMsg(const char *objectName, bool sh
         {
             ((CuttingSurfaceInteraction *)i)->setShowInteractorFromGui(show);
             break;
-        }
-    }
-}
-
-void
-CuttingSurfacePlugin::handleInteractorSetCaseMsg(const char *objectName, const char *caseName)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "CuttingSurfacePlugin::handleInteractorSetCaseMsg(%s, %s)\n", objectName, caseName);
-
-    for (auto *i: myInteractions_)
-    {
-        if (i->compare(objectName))
-        {
-            ((CuttingSurfaceInteraction *)i)->interactorSetCaseFromGui(caseName);
         }
     }
 }

@@ -57,8 +57,8 @@ public:
 
     // if msg arrives from gui
     //      void setShowInteractorFromGui(bool state);
-    void updatePickInteractorVisibility();
-    void interactorSetCaseFromGui(const char *interactorCasename);
+    void updateInteractorVisibility() override;
+    void interactorSetCaseFromGui(const char *interactorCasename) override;
     void setInteractorPointFromGui(float x, float y, float z);
     void setInteractorNormalFromGui(float x, float y, float z);
     void setRestrictXFromGui();

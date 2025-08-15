@@ -701,7 +701,7 @@ TracerInteraction::displaySmoke()
 #endif
 }
 
-void TracerInteraction::updatePickInteractorVisibility()
+void TracerInteraction::updateInteractorVisibility()
 {
 
     // if geometry is hidden, hide also interactor
@@ -849,7 +849,7 @@ TracerInteraction::setShowSmokeFromGui(bool state)
         //       smokeVisibleAtStart_=true;
     }
 
-    updatePickInteractorVisibility();
+    updateInteractorVisibility();
 }
 
 void

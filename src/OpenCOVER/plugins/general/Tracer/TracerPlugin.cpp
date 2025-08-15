@@ -126,20 +126,9 @@ TracerPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
         
     if (msg.isValid())
     {
+        ModuleFeedbackPlugin::guiToRenderMsg(msg);
         switch (msg.getType())
         {
-        case coGRMsg::GEO_VISIBLE:
-        {
-            auto &geometryVisibleMsg = msg.as<coGRObjVisMsg>();
-            const char *objectName = geometryVisibleMsg.getObjName();
-
-            if (cover->debugLevel(3))
-                fprintf(stderr, "\tcoGRMsg::GEO_VISIBLE object=%s visible=%d\n", objectName, geometryVisibleMsg.isVisible());
-
-            handleGeoVisibleMsg(objectName, geometryVisibleMsg.isVisible() != 0);
-            updateInteractorVisibility(objectName);
-        }
-        break;
         case coGRMsg::INTERACTOR_VISIBLE:
         {
             auto &interactorVisibleMsg = msg.as<coGRObjVisMsg>();
@@ -188,31 +177,6 @@ TracerPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
             handleUseInteractorMsg(objectName, interactorUsedMsg.isVisible() != 0);
         }
         break;
-        case coGRMsg::SET_CASE:
-        {
-            auto &setCaseMsg = msg.as<coGRObjSetCaseMsg>();
-            const char *objectName = setCaseMsg.getObjName();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "\tcoGRMsg::SET_CASE object=%s\n", objectName);
-            const char *caseName = setCaseMsg.getCaseName();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "\tcoGRMsg::SET_CASE object=%s case=%s\n", objectName, caseName);
-
-            handleSetCaseMsg(objectName, caseName);
-            handleInteractorSetCaseMsg(objectName, caseName);
-        }
-        break;
-                case coGRMsg::SET_NAME:
-        {
-            auto &setNameMsg = msg.as<coGRObjSetNameMsg>();
-            const char *coviseObjectName = setNameMsg.getObjName();
-            const char *newName = setNameMsg.getNewName();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "\toGRMsg::SET_NAME object=%s name=%s\n", coviseObjectName, newName);
-            handleSetNameMsg(coviseObjectName, newName);
-        }
-        break;
-        
         default:
         {
             if (cover->debugLevel(3))
@@ -281,23 +245,6 @@ TracerPlugin::removeSmoke(const char *objName)
         if (i->compare(objName))
         {
             ((TracerInteraction *)i)->addSmoke(NULL, NULL);
-            break;
-        }
-    }
-}
-
-void
-TracerPlugin::updateInteractorVisibility(const char *objectName)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "TracerPlugin::updateInteractorVisibility(%s)\n", objectName);
-
-    for (auto *i: myInteractions_)
-    {
-        if (i->compare(objectName))
-        {
-            ((TracerInteraction *)i)->updatePickInteractorVisibility();
-            //((TracerInteraction*)i)->updateDirectInteractorVisibility();
             break;
         }
     }
@@ -381,23 +328,6 @@ TracerPlugin::handleUseInteractorMsg(const char * /*objectName*/, bool /*use*/)
     //      break;
     //   }
     //}
-}
-
-void
-TracerPlugin::handleInteractorSetCaseMsg(const char *objectName, const char *caseName)
-{
-    (void)objectName;
-    (void)caseName;
-
-    //fprintf(stderr,"TracerPlugin::handleInteractorSetCaseMsg(%s, %s)\n", objectName, caseName);
-
-    for (auto *i: myInteractions_)
-    {
-        if (i->compare(objectName))
-        {
-            ((TracerInteraction *)i)->interactorSetCaseFromGui(caseName);
-        }
-    }
 }
 
 COVERPLUGIN(TracerPlugin)

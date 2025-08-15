@@ -31,8 +31,6 @@ protected:
 
     // called if msg from gui arrives
     void handleInteractorVisibleMsg(const char *objectName, bool show);
-    void updateInteractorVisibility(const char *objectName);
-    void handleInteractorSetCaseMsg(const char *objectName, const char *caseName);
     void handleMoveInteractorMsg(const char *objectName, const char *interactorName, float x, float y, float z);
     void handleRestrictAxisMsg(const char *objectName, const char *axisName);
     void handleAttachedClipPlaneMsg(const char *objectName, int clipPlaneIndex, float offset, bool flip);

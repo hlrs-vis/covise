@@ -57,14 +57,14 @@ public:
     //void setNew();
 
     // hide also interactors if geometry is hidden
-    void updatePickInteractorVisibility();
+    void updateInteractorVisibility() override;
 
     // mgs from gui
     void setStartpoint1FromGui(float x, float y, float z);
     void setStartpoint2FromGui(float x, float y, float z);
     void setDirectionFromGui(float x, float y, float z);
     void setShowSmokeFromGui(bool state);
-    void interactorSetCaseFromGui(const char *interactorCasename);
+    void interactorSetCaseFromGui(const char *interactorCasename) override;
     //    void setUseInteractorFromGui(bool use);
     //    void interactorSetCaseFromGui(const char *interactorCasename);
 

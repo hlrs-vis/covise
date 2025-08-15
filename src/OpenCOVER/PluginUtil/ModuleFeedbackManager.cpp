@@ -802,7 +802,9 @@ ModuleFeedbackManager::setHideFromGui(bool hide)
     //fprintf(stderr,"ModuleFeedbackManager::setHideFromGui %d\n", hide);
     hideCheckbox_->setState(hide);
     hideGeometry(hide);
+    updateInteractorVisibility();
 }
+
 void
 ModuleFeedbackManager::setCaseFromGui(const char *casename)
 {
@@ -849,6 +851,7 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
         if (!myNode)
         {
             fprintf(stderr, "ModuleFeedbackManager::setCaseFromGui ERROR: Didn't find my Node\n");
+            interactorSetCaseFromGui(casename);
             return;
         }
         //else
@@ -863,6 +866,7 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
         if (!dcs)
         {
             fprintf(stderr, "node is not a dcs adding it to case anyway\n");
+            interactorSetCaseFromGui(casename);
             return;
         }
         addNodeToCase(myNode);
@@ -871,7 +875,7 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
     {
         // nothing to do at the moment, because we assume it can change only once
     }
-
+    interactorSetCaseFromGui(casename);
     //fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui done\n");
 }
 

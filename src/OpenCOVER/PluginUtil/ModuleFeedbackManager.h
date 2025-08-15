@@ -119,6 +119,9 @@ protected:
     //std::string suggestMenuName();
     std::string getMenuName() const;
 
+    virtual void interactorSetCaseFromGui(const char *casename){};
+    virtual void updateInteractorVisibility(){};
+    
     ui::Menu *menu_ = nullptr; // the menu for the interaction of the module managed by the instance of this class
     ui::Button *hideCheckbox_ = nullptr; // hide geometry
     ui::Button *syncCheckbox_ = nullptr; // sync interaction

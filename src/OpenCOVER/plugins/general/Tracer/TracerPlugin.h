@@ -38,11 +38,9 @@ public:
 protected:
     virtual ModuleFeedbackManager *NewModuleFeedbackManager(const RenderObject *, coInteractor *, const RenderObject *, const char *);
     // msg from gui
-    void updateInteractorVisibility(const char *objectName);
     void handleSmokeVisibleMsg(const char *objectName, bool show);
     void handleInteractorVisibleMsg(const char *objectName, bool show);
     void handleMoveInteractorMsg(const char *objectName, const char *interactorName, float x, float y, float z);
     void handleUseInteractorMsg(const char *objectName, bool use);
-    void handleInteractorSetCaseMsg(const char *objectName, const char *caseName);
 };
 #endif

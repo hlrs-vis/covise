@@ -64,6 +64,7 @@ public:
     // handle adding interactors to colorbars
     void newInteractor(const RenderObject *container, coInteractor *i);
 
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) override;
 protected:
     // factory method that returns pointers to object of derived classes of
     // ModuleFeedbackManager
