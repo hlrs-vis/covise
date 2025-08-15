@@ -28,6 +28,8 @@ jobs:
         use_deskvox: [OFF]
         BUILD_energy: [ON]
         build_arrow: [ON]
+        test_energy: [ON]
+        debug_ennovatis: [ON]
         drivingsim: [OFF]
         include:
           - os: 'ubuntu-latest'
@@ -174,6 +176,8 @@ jobs:
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
         -DBUILD_ENERGY=${{matrix.build_energy}}
         -DBUILD_ARROW=${{matrix.build_arrow}}
+        -DTEST_ENERGYCAMPUS=${{matrix.test_energy}}
+        -DDEBUG_ENNOVATIS=${{matrix.debug_ennovatis}}
         -Wno-dev
 
     - name: Build
@@ -181,3 +185,9 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config ${{matrix.build_type}}
+
+    - name: Run Energy Tests
+      working-directory: ${{runner.workspace}}/build/src/OpenCOVER/plugins/hlrs/Energy/test
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: ctest .
