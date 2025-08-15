@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 /**************************************************************************\ 
- **                                                           (C)2002 RUS  **
+ **                                                           (C)2025 GER  **
  **                                                                        **
  ** Description: Read volume files in formats supported by Virvo.          **
  **                                                                        **
@@ -16,12 +16,12 @@
  **                                                                        **
  ** Author:                                                                **
  **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
+ **                     Pierre Colin Nürnberger                            **
+ **           University of Cologne - Institute of Physics I               **
+ **                        Zülpicher Straße 77                             **
+ **                            50937 Köln                                  **
  **                                                                        **
- ** Cration Date: 28.10.2000                                               **
+ ** Cration Date: 28.05.2025                                               **
 \**************************************************************************/
 
 #include <sstream>
@@ -329,8 +329,13 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   piSequence = addInt32VectorParam("Sequence", "First, last and increment in file number", 3);
   piSequence->setValue(0, 0, 1);
 
+  // Particles
   pfGetParticles = addBooleanParam("Particles", "Return particle positions at the last output port");
   pfGetParticles->setValue(false);
+
+  // Removed, now determined using data from the stored scalars
+  //pfPartProperties = addInt32Param("NumPartProp", "Number of particle properties (-1 = guessing)");
+  //pfPartProperties->setValue(-1);
 
   // Region selection
   pfSelectRegion = addBooleanParam("useRegion", "Enable a region selection with xmin, xmax...");
@@ -347,7 +352,7 @@ coReadFlash::coReadFlash(int argc, char *argv[])
 
   pfLevels = addInt32VectorParam("ref_lvls", "Common lower and upper refinement level", 2);
   pfLevels->setValue(0, -1);
-  pfLevels->setValue(1, 20);
+  pfLevels->setValue(1, 8);
 
   // Variables
   for (int i = 0; i < MAX_CHANNELS; ++i)
@@ -454,7 +459,7 @@ int coReadFlash::compute(const char *)
     flashReader.setMinLevel(pfLevels->getValue(0));}
     flashReader.setMaxLevel(pfLevels->getValue(1));
 
-    // Check if fields are active by string length
+    // Check if fields are active by checking string length
     for (int i = 0; i < MAX_CHANNELS; ++i)
     {
       if (strlen(var_names[i]->getValue()) > 0)
@@ -470,8 +475,9 @@ int coReadFlash::compute(const char *)
         // Store the data
         dataOut.push_back(data);
       
-        // Check if last channel is 
-        if (i+1 == MAX_CHANNELS && retPart)
+        // Check if last channel is already used
+        // when particle data is requested
+        if (i + 1 == MAX_CHANNELS && retPart)
         {
           std::cout << "Last channel already occupied for a different field\n";
           retPart = false;
@@ -482,7 +488,22 @@ int coReadFlash::compute(const char *)
     // Store particle if flag is still active
     if (retPart)
     {
-      particles = flashReader.getSinkList();
+      // Read number of particles in list from "integer scalar" field
+      int nr_sink_part = -1;
+      // Loop over all entries within the field
+      for (int i = 0; i < flashReader.scalar_parameters.nr_integers; ++i)
+      {
+        // Convert string for comparison
+        std::string str(flashReader.scalar_parameters.dset_ints[i].name);
+        // Check if keyword exist in current string
+        if (str.find("hs_slcs") != std::string::npos)
+        {
+          // Get number of sink entires
+          nr_sink_part = flashReader.scalar_parameters.dset_ints[i].value;
+        }
+      }
+      std::cout << "Found number of particles in integer scalars: " << nr_sink_part << "\n";
+      particles = flashReader.getSinkList(nr_sink_part);
       particleOut.push_back(particles);
     }
 
@@ -832,7 +853,7 @@ int coReadFlash::compute(const char *)
 
         for (size_t pid = 0; pid < npart; ++pid)
         {
-          std::cout << "Partcile position\n";
+          std::cout << "Particle position\n";
           std::cout << dat.particlePosition[pid].x / pc2cm;
           std::cout << " " << dat.particlePosition[pid].y / pc2cm;
           std::cout << " " << dat.particlePosition[pid].z / pc2cm << "\n";
