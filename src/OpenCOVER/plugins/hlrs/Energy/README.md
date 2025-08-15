@@ -133,8 +133,8 @@ Further adjustments to the period of time fetched from ennovatis can be made by 
 
 - **app**: presentation and ui logic (what happens when clicking a building for example)
 - **lib**: buisness logic
-- **test**: some tests (at the moment only for Ennovatis)
-- **doc**: README
+- **test**: some tests 
+- **resources**: images
 
 ## TODO's
 
