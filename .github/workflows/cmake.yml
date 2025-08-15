@@ -1,4 +1,4 @@
-name: CMake Build Status
+name: CMake Build and Test
 
 on:
   push:
