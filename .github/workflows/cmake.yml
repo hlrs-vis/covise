@@ -51,7 +51,12 @@ jobs:
       if: runner.os == 'Linux'
       run: >
         sudo apt-get clean && sudo rm -rf /etc/apt/sources.list.d/microsoft-prod.list && sudo rm -rf /var/lib/apt/lists/* && sudo rm -f /etc/apt/sources.list.d/archive_uri-* && sudo apt-get clean
-
+    
+    - name: Install Arrow
+      if: runner.os == 'Linux'
+      run: >
+        sudo apt install -y -V ca-certificates lsb-release wget && UBUNTU_VERSION=$(lsb_release --codename --short) && wget "https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-${UBUNTU_VERSION}.deb" && sudo apt install -y -V "./apache-arrow-apt-source-latest-${UBUNTU_VERSION}.deb" && sudo apt update && sudo apt install libarrow-dev  
+        
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
       run: >
