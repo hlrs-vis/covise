@@ -1,4 +1,4 @@
-[![CMake Build Status](https://img.shields.io/github/actions/workflow/status/hlrs-vis/covise/cmake.yml?branch=CI/CD)](https://github.com/hlrs-vis/covise/actions/workflows/cmake.yml)
+[![CMake Build Status](https://img.shields.io/github/actions/workflow/status/hlrs-vis/covise/cmake.yml?branch=master)](https://github.com/hlrs-vis/covise/actions/workflows/cmake.yml)
 
 Table of Contents
 =================
