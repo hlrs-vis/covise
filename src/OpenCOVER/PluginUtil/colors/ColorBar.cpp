@@ -135,11 +135,9 @@ void ColorBar::init()
                 colorbar_ = std::make_unique<coColorBar>(name_, map_);
                 vve->m_menuItem = colorbar_.get();
                 },
-                [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
+                [](ui::SpecialElement *se, ui::View::ViewElement *ve){
                 auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
                 assert(vve);
-                assert(!colorbar_ || !vve->m_menuItem || vve->m_menuItem == colorbar_.get());
-                colorbar_.reset();
                 vve->m_menuItem = nullptr;
                 });
     }
@@ -652,7 +650,9 @@ ColorMap CoviseColorBar::parseAttribute(const char *attrib)
         attribs >> colors[i].r() >> colors[i].g() >> colors[i].b() >> colors[i].a();
         samplingPoints[i] = static_cast<float>(i) / (numColors - 1);
     }
-    return ColorMap(BaseColorMap{colors, samplingPoints, s.data()}, min, max); 
+    ColorMap cm(BaseColorMap{colors, samplingPoints, "unknown"}, min, max); 
+    cm.setSpecies(s.data());
+    return cm;
 }
 
 
