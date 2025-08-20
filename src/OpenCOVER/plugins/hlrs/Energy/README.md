@@ -14,7 +14,7 @@ The main purpose of this plugin is to visualize geo data in VR from different so
 
 Since its a plugin for OpenCOVER you will need to compile COVER first. Please follow the instructions in the README.md in the root folder of this github repository to compile and install OpenCOVER on your system.
 
-The plugin will be automatically compiled and installed if all requirements are found by CMake.
+The plugin will be automatically compiled and installed if all requirements are found by CMake and if the CMakeOption **BUILD_ENERGY** is **ON**.
 
 ## Software Design
 
@@ -133,8 +133,8 @@ Further adjustments to the period of time fetched from ennovatis can be made by 
 
 - **app**: presentation and ui logic (what happens when clicking a building for example)
 - **lib**: buisness logic
-- **test**: some tests (at the moment only for Ennovatis)
-- **doc**: README
+- **test**: some tests 
+- **resources**: images
 
 ## TODO's
 
