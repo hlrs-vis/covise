@@ -1,0 +1,104 @@
+# Maintainer: Marko Djuric <hpcmdjur@hlrs.de>
+
+_pkgname=covise
+_pkgBuildDir=build.covise
+_installDir=/usr
+_gitRep=https://github.com/hlrs-vis/covise.git
+pkgname=$_pkgname-arch
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="COVISE - COllaborative Visualization and Simulation Environment for VR/AR - HLRS"
+arch=(x86_64)
+url="https://www.hlrs.de/covise/"
+license=('LGPL')
+depends=(
+    xerces-c
+    qt6-base
+    qt6-tools
+    qt6-connectivity
+    qt6-datavis3d
+    qt6-declarative
+    qt6-imageformats
+    qt6-location
+    qt6-multimedia
+    qt6-networkauth
+    qt6-quick3d
+    qt6-sensors
+    qt6-serialbus
+    qt6-serialport
+    qt6-speech
+    qt6-svg
+    qt6-translations
+    qt6-virtualkeyboard
+    qt6-wayland
+    qt6-webchannel
+    qt6-webengine
+    qt6-websockets
+    qt6-webview
+    boost
+    boost-libs
+    glew
+    libjpeg-turbo
+    libtiff
+    openmpi
+    libpng
+    giflib
+    assimp
+    swig
+    ffmpeg
+    hdf5-openmpi
+    netcdf-openmpi
+    netcdf-cxx
+    cgns
+    freealut
+    freetype2
+    libarchive
+    libzip
+    fftw
+    openscenegraph
+    cfitsio
+    snappy
+    audiofile
+    proj
+    gdal
+    eigen
+    hidapi
+    sdl
+    sdl2
+    blas
+    libvncserver
+)
+makedepends=(git cmake ninja)
+provides=(covise COVER opencover)
+conflicts=(covise COVER opencover)
+source=("git+$_gitRep")
+md5sums=('SKIP')
+
+pkgver() {
+    cd "$srcdir/$_pkgname"
+    git describe --tags --abbrev=0
+}
+
+prepare() {
+    cd "$_pkgname"
+    git submodule sync --recursive
+    git submodule update --init --recursive
+    source .covise.sh
+}
+
+build() {
+    cmake -B "$_pkgBuildDir" -S "$_pkgname" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCOVISE_BUILD_DRIVINGSIM=off \
+        -DCOVISE_USE_QT5=off \
+        -DCOVISE_USE_CUDA=off \
+        -DCOVISE_USE_DESKVOX=off \
+        -DCMAKE_INSTALL_PREFIX="$_installDir" \
+        -G Ninja \
+        -Wno-dev
+    ninja -C "$_pkgBuildDir" ${MAKEFLAGS} 
+}
+
+package() {
+    DESTDIR="${pkgdir}" ninja -C "$_pkgBuildDir" install
+}
