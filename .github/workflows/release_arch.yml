@@ -1,0 +1,44 @@
+name: Build Arch Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Arch Package Build
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - name: Install build environment
+        run: >
+          pacman -Sy --noconfirm && pacman -S --noconfirm base-devel git cmake ninja sudo
+
+      - name: Init environment
+        run: >
+          useradd --create-home builder && usermod -aG wheel builder && echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Change permission for covise
+        run: |
+          chmod -R 777 $GITHUB_WORKSPACE
+
+      - name: Build Package
+        run: |
+          sudo -u builder bash -c "cd '$GITHUB_WORKSPACE/archive/arch' && makepkg --noconfirm -s"
+      
+      - name: Release Package
+        uses: softprops/action-gh-release@v1
+        with:
+          files: 'archive/arch/*.pkg.tar.zst'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
