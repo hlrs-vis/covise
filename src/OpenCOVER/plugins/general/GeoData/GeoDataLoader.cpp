@@ -73,6 +73,23 @@ namespace opencover
 using namespace covise;
 using namespace opencover;
 
+skyEntry::skyEntry(const std::string& n, const std::string& fn)
+{
+    name = n;
+    fileName = fn;
+}
+skyEntry::~skyEntry()
+{
+
+}
+skyEntry::skyEntry(const skyEntry& se)
+{
+    name = se.name;
+    fileName = se.fileName;
+    skyNode = se.skyNode;
+}
+
+
 std::string getCoordinates(const std::string& address) {
     using namespace opencover::httpclient::curl;
     std::string readBuffer;
@@ -246,10 +263,10 @@ bool GeoDataLoader::init()
     skyButton->setState(true);
     skyButton->setCallback([this](bool state) 
         {
-            if (state && skyNode.get()!=nullptr &&  skyNode->getNumParents()==0)
-                skyRootNode->addChild(skyNode.get());
-            else if(!state && skyNode.get()!=nullptr) 
-                skyRootNode->removeChild(skyNode.get());
+            if (state && currentSkyNode.get()!=nullptr && currentSkyNode->getNumParents()==0)
+                skyRootNode->addChild(currentSkyNode.get());
+            else if(!state && currentSkyNode.get()!=nullptr)
+                skyRootNode->removeChild(currentSkyNode.get());
         });
     skys = new ui::SelectionList(geoDataMenu, "Skys");
     skys->append("None");
@@ -261,12 +278,15 @@ bool GeoDataLoader::init()
         {
             if (entry.is_regular_file() && entry.path().extension() == ".wrl") {
                 std::string name = entry.path().filename().string();
+                skyEntry se(name.substr(0, name.length() - 4),entry.path().string());
+                skyEntries.push_back(se);
+                skys->append(se.name);
                 if (skyNumber == defaultSky)
                 {
-                    skyNode = coVRFileManager::instance()->loadFile(entry.path().string().c_str(), nullptr, skyRootNode);
+                    currentSkyNode = coVRFileManager::instance()->loadFile(entry.path().string().c_str(), nullptr, skyRootNode);
+                    se.skyNode = currentSkyNode;
                 }
                 skyNumber++;
-                skys->append(name.substr(0,name.length()-4));
             }
         }
     }
@@ -320,20 +340,59 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void* data)
 }
 void GeoDataLoader::setSky(int selection)
 {
-    if (skyNode.get() != nullptr)
-        skyRootNode->removeChild(skyNode.get());
-    if (selection == 0)
+    while (skyRootNode->getNumChildren())
+        skyRootNode->removeChild(skyRootNode->getChild(0));
+
+    currentSkyNode = nullptr;
+    if (selection != 0)
     {
-        skyNode = nullptr;
-    }
-    else
-    {
-        if (skyNode.get() != nullptr)
-            skyRootNode->removeChild(skyNode.get());
-        skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + skys->items()[selection] + ".wrl").c_str(), nullptr, skyRootNode);
-        cover->getScene()->addChild(skyRootNode);
+
+
+        int n = 1;
+        for( auto& sky : skyEntries)
+        {
+            if (n == selection)
+            {
+                if (sky.skyNode != nullptr)
+                {
+                    skyRootNode->addChild(sky.skyNode);
+                    currentSkyNode = sky.skyNode;
+                }
+                else
+                {
+                    sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + skys->items()[selection] + ".wrl").c_str(), nullptr, skyRootNode);
+
+                    currentSkyNode = sky.skyNode;
+                }
+            }
+            n++;
+        }
 
     }
+}
+
+void GeoDataLoader::setSky(std::string fileName)
+{
+    int n = 0;
+    for (const auto& sky : skyEntries)
+    {
+        if (sky.fileName == fileName)// already have this file in the list
+        {
+            setSky(n+1); 
+        }
+        n++;
+    }
+    std::filesystem::path path(fileName);
+    std::string fn = path.filename().string();
+    skyEntry se(fn.substr(0, fn.length() - 4), fileName);
+    skyEntries.push_back(se);
+    skys->append(se.name);
+}
+
+void GeoDataLoader::setOffset(osg::Vec3 off)
+{
+    offset = off;
+    rootNode->setMatrix(osg::Matrix::translate(-offset));
 }
 
 bool GeoDataLoader::update()

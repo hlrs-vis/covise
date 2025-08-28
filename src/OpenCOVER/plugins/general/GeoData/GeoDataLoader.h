@@ -41,7 +41,16 @@ namespace fs = std::filesystem;
 #define RAD_TO_DEG    57.295779513082321
 #define DEG_TO_RAD   .017453292519943296
 #endif
-
+class skyEntry
+{
+public:
+    skyEntry(const std::string& n, const std::string& fn);
+    ~skyEntry();
+    skyEntry(const skyEntry &se);
+    std::string name;
+    std::string fileName;
+    osg::ref_ptr<osg::Node> skyNode;
+};
 
 class  GeoDataLoader: public opencover::coVRPlugin, public opencover::ui::Owner
 {
@@ -60,6 +69,8 @@ public:
     virtual bool update();
     virtual void message(int toWhom, int type, int length, const void* data);
     void setSky(int num);
+    void setSky(std::string fileName);
+    void setOffset(osg::Vec3 off);
 
 
 private:
@@ -69,7 +80,7 @@ private:
 
     osg::ref_ptr<osg::MatrixTransform> rootNode;
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
-    osg::ref_ptr<osg::Node> skyNode;
+    osg::ref_ptr<osg::Node> currentSkyNode;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
     opencover::ui::Menu* geoDataMenu;
@@ -78,6 +89,7 @@ private:
     opencover::ui::Button* skyButton;
     opencover::ui::EditField* location;
     opencover::ui::SelectionList* skys;
+    std::list<skyEntry> skyEntries;
     float northAngle;
     std::string terrainFile;
     std::string skyPath;
