@@ -158,9 +158,9 @@ ToolParameterSettings::addParamUI(unsigned int paramIndex, ToolParameter *p)
             }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-            connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::textChanged), [&name, this](const QString &text) { onEditingFinished(name); });
+            connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::textChanged), [name, this](const QString &text) { onEditingFinished(name); });
 #else
-            connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::valueChanged), [&name, this](const QString &text) { onEditingFinished(name); });
+            connect(doubleSpinBox, QOverload<const QString &>::of(&QDoubleSpinBox::valueChanged), [name, this](const QString &text) { onEditingFinished(name); });
 #endif
 
             spinBox = doubleSpinBox;

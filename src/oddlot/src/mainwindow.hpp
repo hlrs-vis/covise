@@ -19,6 +19,7 @@
 #include <QMainWindow>
 #include <QTreeWidgetItem>
 #include <QUndoView>
+#include <QSettings>
 
 #include <src/util/odd.hpp>
 
@@ -60,6 +61,7 @@ class COVERConnection;
 #include "src/gui/importsettings.hpp"
 #include "src/gui/exportsettings.hpp"
 #include "src/gui/lodsettings.hpp"
+#include "src/gui/apisettings.hpp"
 #include "src/gui/oscsettings.hpp"
 #include "src/cover/coverconnection.hpp"
 #include "src/gui/filesettings.hpp"
@@ -203,6 +205,8 @@ public:
     void hideParameterSettings();
 
 
+    QSettings appSettings;
+
 private:
     // Init functions //
     //
@@ -237,7 +241,8 @@ private:
     OSCSettings *oscSettings;
     ImportSettings *importSettings;
     ExportSettings *exportSettings;
-    LODSettings *lodSettings;
+    LODSettings* lodSettings;
+    APISettings* apiSettings;
 
     FileSettings *fileSettings;
 

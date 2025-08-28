@@ -23,6 +23,7 @@
 
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/lodsettings.hpp"
+#include "src/gui/apisettings.hpp"
 
 class QAction;
 
@@ -41,6 +42,7 @@ class CatalogWidget;
 class CatalogTreeWidget;
 class ProjectSettings;
 class LODSettings;
+class APISettings;
 class OSCSettings;
 
 class ToolAction;
@@ -178,6 +180,10 @@ public:
     {
         return lodSettings;
     }
+    APISettings* getAPISettings() const
+    {
+        return apiSettings;
+    }
 
     void setEditor(ODD::EditorId id);
 
@@ -191,7 +197,8 @@ public:
 
 protected:
     ProjectionSettings *projectionSettings;
-    LODSettings *lodSettings;
+    APISettings* apiSettings;
+    LODSettings* lodSettings;
     OSCSettings *oscSettings;
     std::vector<double> SlopeVector;
     std::vector<double> SVector; // S on road for each segment

@@ -107,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
     importSettings = new ImportSettings();
     exportSettings = new ExportSettings();
     lodSettings = new LODSettings();
+    apiSettings = new APISettings(this);
     oscSettings = new OSCSettings(covisedir_ + "/share/covise/catalogs/");
 
     //---------------------------------------//
@@ -404,6 +405,7 @@ MainWindow::createFileSettings()
     fileSettings->addTab(importSettings);
     fileSettings->addTab(oscSettings);
     fileSettings->addTab(lodSettings);
+    fileSettings->addTab(apiSettings);
 #ifdef COVER_CONNECTION
     fileSettings->addTab(coverConnection);
 #endif
