@@ -39,7 +39,7 @@ linuxarm        Generic aarch64 Linux
 rhel8           Red Hat Enterprise Linux/CentOS 8 with updates on x86_64 (64 bit mode)
 rhel9           Red Hat Enterprise Linux/CentOS/Rocky 9 with updates on x86_64 (64 bit mode)
 jammy           Ubuntu 22.04 Jammy Jellyfish on x86_64 (64 bit mode)
-noble		Ubuntu 24.04 Noble Numbat on x86_64 (64 bit mode)
+noble           Ubuntu 24.04 Noble Numbat on x86_64 (64 bit mode)
 
 darwin          Generic macOS
 macos           macOS, x86_64 or arm64 with libc++
@@ -153,7 +153,7 @@ lucid           Ubuntu 10.04 Lucid Lynx on ia32
 maverick        Ubuntu 10.10 Maverick Meerkat on ia32
 natty           Ubuntu 11.04 Natty Narwhal on ia32
 oneiric         Ubuntu 11.10 Natty Narwhal on ia32
-precise		    Ubuntu 12.04 LTS Precise Pangolin on ia32
+precise         Ubuntu 12.04 LTS Precise Pangolin on ia32
 drake           Ubuntu 6.06 Dapper Drake on x86_64 (64 bit mode)
 eft             Ubuntu 6.10 Edgy Eft on x86_64 (64 bit mode)
 fawn            Ubuntu 7.04 Feisty Fawn on x86_64 (64 bit mode)
