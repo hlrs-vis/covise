@@ -122,7 +122,7 @@ bool TacxFTMS::init() {
                 if (!udpAlpine->isBad()) {
                     alpinefound = true;
                 } else {
-                    std::cerr << "TacxFTMS: failed to open local UDP port"
+                    std::cerr << "Alpine: failed to open local UDP port"
                               << localPortAlpine << std::endl;
                     alpinefound = false;
                 }
@@ -277,7 +277,8 @@ void TacxFTMS::updateThread() {
                       << status << ", got=" << status << std::endl;
             return;
         }
-    } else if (udpAlpine) {
+    }
+    if (udpAlpine) {
         char tmpBuf[10000];
         int status;
         status = udpAlpine->receive(&tmpBuf, 10000);
