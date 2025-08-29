@@ -48,8 +48,10 @@ typedef unsigned long in_addr_t;
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 bool UDPComm::error_SW = true;
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++  Constructorsq
+// ++  Constructors
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+static const int MaxPort = 0x7fff; // avoid ephemeral ports - might start at 0x8000
 
 UDPComm::UDPComm(const char *hostname, int port, int localPort, const char *mcastif, int mcastttl)
 {
@@ -82,10 +84,10 @@ UDPComm::UDPComm(int port, const char *hostname)
     d_error[0] = '\0';
 
     // port numbers - must be correct
-    if (port <= 0 || port > 32767)
+    if (port <= 0 || port > MaxPort)
     {
-        strcpy(d_error,"Port number out of range [0..32767]");
-        fprintf(stderr, "Port number out of range [0..32767]");
+        snprintf(d_error, sizeof(d_error), "Port number out of range [1..%d]", MaxPort);
+        fprintf(stderr, "%s\n", d_error);
         return;
     }
 #ifdef _WIN32
@@ -195,10 +197,10 @@ void UDPComm::setup(const char *hostname, int port, int localPort,
     d_error[0] = '\0';
 
     // port numbers - must be correct
-    if (port <= 0 || port > 332767)
+    if (port <= 0 || port > MaxPort)
     {
-        strcpy(d_error,"Port number out of range [0..32767]");
-        fprintf(stderr, "Port number out of range [0..32767]");
+        snprintf(d_error, sizeof(d_error), "Port number out of range [1..%d]", MaxPort);
+        fprintf(stderr, "%s\n", d_error);
         return;
     }
 #ifdef _WIN32
