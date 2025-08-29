@@ -162,6 +162,7 @@ bool TacxFTMS::update() {
             osg::Vec3 V(0, s, 0);
             float rotAngle = 0.0;
             float wheelAngle = getAngle() / 10.0;
+            fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
 
             if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001) {
                 rotAngle = 0;
