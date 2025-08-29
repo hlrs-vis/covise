@@ -225,6 +225,13 @@ void TacxFTMS::setEnabled(bool flag) {
             udpNeo->send("stop");
         }
     }
+    if (udpAlpine) {
+        if (flag) {
+            udpAlpine->send("start");
+        } else {
+            udpAlpine->send("stop");
+        }
+    }
     // WakeUp TacxFTMS
     Initialize();
 }
