@@ -288,11 +288,15 @@ void TacxFTMS::updateThread() {
             {
                 std::cerr << "Alpine::update: error while reading data"
                           << std::endl;
+                if (udpAlpine)  // try to wake up the trainer (if the first start UDP
+                          // message was lost)
+                    udpAlpine->send("start");
             }
             return;
         } else if (status >= sizeof(AlpineData)) {
             if (!isEnabled()) {
-                // still receiving data, send stop
+                if (udpAlpine)  // still receiving data, send stop
+                    udpAlpine->send("stop");
             }
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             memcpy(&alpineData, tmpBuf, sizeof(AlpineData));
