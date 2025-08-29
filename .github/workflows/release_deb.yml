@@ -30,18 +30,10 @@ jobs:
           libpng-dev
           swig
           libopenscenegraph-dev
-          libtbb-dev
-          libjpeg-dev
-          libtiff-dev
-          libopenmpi-dev
           libassimp-dev
           libboost-all-dev
           libcgal-dev
           libtinyxml2-dev
-          libturbojpeg0-dev
-          libfftw3-dev
-          libarchive-dev
-          libbotan-2-dev
           libavcodec-dev
           libcfitsio-dev
           libsnappy-dev
@@ -52,11 +44,8 @@ jobs:
           libblas-dev
           libvncserver-dev
           libaudiofile-dev
-          libavformat-dev
-          libavutil-dev
-          libswscale-dev
-          libhdf5-openmpi-dev
-          libnetcdf-mpi-dev
+          libhdf5-dev
+          libnetcdf-dev
           libnetcdf-c++4-dev
           libcgns-dev
           libalut-dev
