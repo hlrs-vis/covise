@@ -262,7 +262,6 @@ void TacxFTMS::updateThread() {
                           // message was lost)
                     udpNeo->send("start");
             }
-            return;
         } else if (status >= sizeof(FTMSBikeData)) {
             if (!isEnabled()) {
                 if (udpNeo)  // still receiving data, send stop
@@ -275,7 +274,6 @@ void TacxFTMS::updateThread() {
         } else {
             std::cerr << "TacxFTMS::update: received invalid no. of bytes: recv="
                       << status << ", got=" << status << std::endl;
-            return;
         }
     }
     if (udpAlpine) {
@@ -293,7 +291,6 @@ void TacxFTMS::updateThread() {
                           // message was lost)
                     udpAlpine->send("start");
             }
-            return;
         } else if (status >= sizeof(AlpineData)) {
             if (!isEnabled()) {
                 if (udpAlpine)  // still receiving data, send stop
@@ -305,12 +302,12 @@ void TacxFTMS::updateThread() {
         } else {
             std::cerr << "Alpine::update: received invalid no. of bytes: recv="
                       << status << ", got=" << status << std::endl;
-            return;
         }
     } 
     else {
         usleep(5000);
     }
+    return;
 }
 
 void TacxFTMS::Initialize() {
