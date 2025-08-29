@@ -161,7 +161,7 @@ bool TacxFTMS::update() {
 
             osg::Vec3 V(0, s, 0);
             float rotAngle = 0.0;
-            float wheelAngle = getAngle();
+            float wheelAngle = getAngle() / 10.0;
 
             if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001) {
                 rotAngle = 0;
@@ -269,7 +269,33 @@ void TacxFTMS::updateThread() {
                       << status << ", got=" << status << std::endl;
             return;
         }
-    } else {
+    } else if (udpAlpine) {
+        char tmpBuf[10000];
+        int status;
+        status = udpAlpine->receive(&tmpBuf, 10000);
+
+        if (status == -1) {
+            if (isEnabled())  // otherwise we are not supposed to receive
+                              // anything
+            {
+                std::cerr << "Alpine::update: error while reading data"
+                          << std::endl;
+            }
+            return;
+        } else if (status >= sizeof(AlpineData)) {
+            if (!isEnabled()) {
+                // still receiving data, send stop
+            }
+            OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+            memcpy(&alpineData, tmpBuf, sizeof(AlpineData));
+
+        } else {
+            std::cerr << "Alpine::update: received invalid no. of bytes: recv="
+                      << status << ", got=" << status << std::endl;
+            return;
+        }
+    } 
+    else {
         usleep(5000);
     }
 }
