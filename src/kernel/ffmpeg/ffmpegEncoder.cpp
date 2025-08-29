@@ -270,6 +270,5 @@ FFmpegEncoder::~FFmpegEncoder()
             av_freep(&m_oc->streams[i]);
         }
     }
-    avcodec_close(m_outCodecContext);
     avcodec_free_context(&m_outCodecContext);
 }

@@ -429,14 +429,16 @@ VideoStream::~VideoStream()
         SDL_CloseAudio();
         SDL_Quit();
 
-        if (audioCodec)
-            avcodec_close(audioCodecCtx);
+        if (audioCodecCtx)
+            avcodec_free_context(&audioCodecCtx);
+        audioCodecCtx = nullptr;
     }
     delete pq;
 #endif
 
-    if (codec)
-        avcodec_close(codecCtx);
+    if (codecCtx)
+        avcodec_free_context(&codecCtx);
+    codecCtx = nullptr;
 #if FF_API_CLOSE_INPUT_FILE
     if (oc)
         av_close_input_file(oc);
