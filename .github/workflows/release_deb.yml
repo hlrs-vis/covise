@@ -1,0 +1,140 @@
+name: Build Ubuntu Deb Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Ubuntu Package Build
+    # ubuntu:latest = current LTS version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: >
+          sudo apt-get update && sudo apt-get install
+          build-essential
+          cmake
+          ninja-build
+          debhelper
+          devscripts
+          jq
+          lsb-release
+          libglew-dev
+          libxerces-c-dev
+          libpng-dev
+          swig
+          libopenscenegraph-dev
+          libtbb-dev
+          libjpeg-dev
+          libtiff-dev
+          libopenmpi-dev
+          libassimp-dev
+          libboost-all-dev
+          libcgal-dev
+          libtinyxml2-dev
+          libturbojpeg0-dev
+          libfftw3-dev
+          libarchive-dev
+          libbotan-2-dev
+          libavcodec-dev
+          libcfitsio-dev
+          libsnappy-dev
+          libproj-dev
+          libgdal-dev
+          libeigen3-dev
+          libsdl2-dev
+          libblas-dev
+          libvncserver-dev
+          libaudiofile-dev
+          libavformat-dev
+          libavutil-dev
+          libswscale-dev
+          libhdf5-openmpi-dev
+          libnetcdf-mpi-dev
+          libnetcdf-c++4-dev
+          libcgns-dev
+          libalut-dev
+          libfreetype-dev
+          libomp-dev
+          nlohmann-json3-dev
+          qt6-base-dev
+          qt6-tools-dev
+          qt6-connectivity-dev
+          qt6-declarative-dev
+          qt6-multimedia-dev
+          qt6-networkauth-dev
+          qt6-quick3d-dev
+          qt6-sensors-dev
+          qt6-serialbus-dev
+          qt6-serialport-dev
+          qt6-speech-dev
+          qt6-svg-dev
+          qt6-virtualkeyboard-dev
+          qt6-wayland-dev
+          qt6-webengine-dev
+          qt6-websockets-dev
+          qt6-webview-dev
+
+      - name: Free disk space
+        if: runner.os == 'Linux'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: true
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Sync and update submodules recursive
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Copy debian dir to root src dir
+        run: |
+          cp -r $GITHUB_WORKSPACE/archive/debian $GITHUB_WORKSPACE/
+
+      - name: Update changelog with GitHub release info
+        run: |
+          # Get the release message (body) and the version from the tag
+          RELEASE_BODY=$(curl -s -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} \
+            | jq -r '.body')
+
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          
+          # Set maintainer info for the changelog entry
+          export DEBFULLNAME="${{ github.actor }}"
+          export DEBEMAIL="${{ github.actor }}@users.noreply.github.com"
+          
+          # The distribution is set to noble since ubuntu-latest is 24.04 (Noble Numbat)
+          dch --newversion "${VERSION}-1" --distribution noble "${RELEASE_BODY}"
+
+      - name: Build deb
+        run: |
+          source $GITHUB_WORKSPACE/.covise.sh && dpkg-buildpackage -uc -us -j$(nproc) 
+
+      - name: Rename Deb
+        run: |
+          mv $GITHUB_WORKSPACE/../*.deb "covise-${{ github.ref_name }}-$(lsb_release -c -s).deb"          
+      - name: Release Package
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '*.deb'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
