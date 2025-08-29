@@ -82,7 +82,7 @@ UDPComm::UDPComm(int port, const char *hostname)
     d_error[0] = '\0';
 
     // port numbers - must be correct
-    if (port <= 0 || port > 332767)
+    if (port <= 0 || port > 32767)
     {
         strcpy(d_error,"Port number out of range [0..32767]");
         fprintf(stderr, "Port number out of range [0..32767]");
