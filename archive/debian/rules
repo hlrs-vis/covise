@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+# debian/rules
+
+# This rules file uses the 'cmake' build system.
+# It relies on dh to manage all build stages.
+
+# This line tells dh to run the full sequence of debhelper commands.
+%:
+	dh $@ --buildsystem=cmake --parallel
