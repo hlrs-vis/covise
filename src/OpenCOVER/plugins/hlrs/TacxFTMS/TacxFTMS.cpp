@@ -83,7 +83,7 @@ bool TacxFTMS::init() {
     unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
     unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
 
-    unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31325)->value();
+    unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31319)->value();
     unsigned short localPortAlpine = configInt("Alpine", "localPort", 31328)->value();
 
 
@@ -100,6 +100,7 @@ bool TacxFTMS::init() {
         std::string host = "";
         for (const auto& i :
              opencover::Input::instance()->discovery()->getDevices()) {
+                std::cerr << "Devicename found" << i->deviceName << std::endl;
             if (i->deviceName == "TacxNeo") {
                 host = i->address;
                 std::cerr << "TacxFTMS config: UDP: TacxHost: " << host
@@ -121,6 +122,7 @@ bool TacxFTMS::init() {
                 udpAlpine = new UDPComm(host.c_str(), serverPortAlpine, localPortAlpine);
                 if (!udpAlpine->isBad()) {
                     alpinefound = true;
+                    start();
                 } else {
                     std::cerr << "Alpine: failed to open local UDP port"
                               << localPortAlpine << std::endl;
@@ -271,6 +273,10 @@ void TacxFTMS::updateThread() {
             memcpy(&ftmsData, tmpBuf, sizeof(FTMSBikeData));
 
             sendIndoorBikeSimulationParameters();
+        } else if (status >= sizeof(AlpineData)) {
+
+            OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+            memcpy(&alpineData, tmpBuf, sizeof(AlpineData));
         } else {
             std::cerr << "TacxFTMS::update: received invalid no. of bytes: recv="
                       << status << ", got=" << status << std::endl;
