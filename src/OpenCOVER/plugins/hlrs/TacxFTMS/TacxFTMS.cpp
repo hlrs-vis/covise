@@ -100,7 +100,7 @@ bool TacxFTMS::init() {
         std::string host = "";
         for (const auto& i :
              opencover::Input::instance()->discovery()->getDevices()) {
-            if (i->pluginName == "TacxNeo") {
+            if (i->deviceName == "TacxNeo") {
                 host = i->address;
                 std::cerr << "TacxFTMS config: UDP: TacxHost: " << host
                           << std::endl;
@@ -114,11 +114,11 @@ bool TacxFTMS::init() {
                     ftmsfound = false;
                 }
             }
-            else if (i->pluginName == "Alpine") {
+            else if (i->deviceName == "Alpine") {
                 host = i->address;
                 std::cerr << "TacxFTMS config: UDP: AlpineHost: " << host
                           << std::endl;
-                udpAlpine = new UDPComm(host.c_str(), 10020, 10021);
+                udpAlpine = new UDPComm(host.c_str(), serverPortAlpine, localPortAlpine);
                 if (!udpAlpine->isBad()) {
                     alpinefound = true;
                 } else {
