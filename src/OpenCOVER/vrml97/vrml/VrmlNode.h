@@ -54,7 +54,7 @@ class Viewer;
 class VrmlNode;
 class VrmlNodeUpdateRegistry;
 
-std::ostream &VRMLEXPORT operator<<(std::ostream &os, const VrmlNode &f);
+VRMLEXPORT std::ostream &operator<<(std::ostream &os, const VrmlNode &f);
 
 class VRMLEXPORT VrmlNode
 {
