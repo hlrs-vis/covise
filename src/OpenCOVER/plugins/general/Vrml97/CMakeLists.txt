@@ -86,7 +86,6 @@ IF(NOT (${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.9"))
 ENDIF()
 
 cover_add_plugin(Vrml97)
-COVISE_WNOERROR(Vrml97 BASEARCH intrepid tuatara)
 TARGET_LINK_LIBRARIES(Vrml97 Vrml97Cover ${COVISE_GRMSG_LIBRARY} ${EXTRA_LIBS})
 if(NOT MSVC)
    add_covise_compile_flags(Vrml97 "-Wno-deprecated-declarations")

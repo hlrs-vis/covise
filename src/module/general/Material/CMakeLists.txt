@@ -6,16 +6,6 @@ ADD_DEFINITIONS(-DMATERIAL)
 
 # TODO: cmakeify use ADD_CUSTOM_COMMAND()
 
-# unix:!macx{
-# !contains(BASEARCHSUFFIX,cayman) {
-    # filegenerator.target = $$OBJECTS_DIR/file_generator
-    # filegenerator.depends = $$IN_PWD/file_generator.cpp
-    # filegenerator.commands = $(CXX) $(CXXFLAGS) $(INCPATH) -I$$(COVISEDIR)/src/sys $< -o $@
-    # QMAKE_EXTRA_TARGETS += filegenerator
-    # POST_TARGETDEPS += $$OBJECTS_DIR/file_generator
-  # }
-# }
-
 SET(HEADERS
   
 )
