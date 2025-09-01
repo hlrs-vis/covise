@@ -31,6 +31,9 @@ jobs:
           swig
           bison
           flex
+          libtinygltf-dev
+          libhidapi-dev
+          libvtk9-dev
           libopenscenegraph-dev
           libassimp-dev
           libtbb-dev
