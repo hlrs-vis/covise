@@ -1,0 +1,12 @@
+Source: covise
+Section: devel
+Priority: optional
+Maintainer: Marko Djuric <marko.djuric@hlrs.de>
+Build-Depends: debhelper-compat (= 13), cmake, ninja-build
+Standards-Version: 4.6.0
+Homepage: https://www.hlrs.de/solutions/types-of-computing/visualization
+
+Package: covise
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: "COVISE - COllaborative Visualization and Simulation Environment for VR/AR - HLRS"

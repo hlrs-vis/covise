@@ -927,9 +927,9 @@ void coVRShader::setUniformesFromAttribute(const char *uniformValues)
 
 osg::Uniform *coVRShader::getUniform(const std::string &name)
 {
-    auto u = getcoVRUniform(name);
-    if (u)
-        return u ? u->uniform.get() : nullptr;
+    if (auto u = getcoVRUniform(name))
+        return u->uniform.get();
+    return nullptr;
 }
 
 coVRUniform *coVRShader::getcoVRUniform(const std::string &name)

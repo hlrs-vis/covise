@@ -1,0 +1,16 @@
+USING(Pthreads)
+using(VRML)
+
+if(APPLE)
+   return()
+endif()
+
+SET(HEADERS
+  TacxFTMS.h
+)
+SET(SOURCES
+  TacxFTMS.cpp
+)
+cover_add_plugin(TacxFTMS)
+TARGET_LINK_LIBRARIES(TacxFTMS ${EXTRA_LIBS})
+#COVER_INSTALL_PLUGIN(TacxFTMS)

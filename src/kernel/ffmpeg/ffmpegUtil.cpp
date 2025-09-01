@@ -3,13 +3,17 @@
 #include <array>
 using namespace covise;
 
+#ifndef AV_PROFILE_UNKNOWN
+#define AV_PROFILE_UNKNOWN FF_PROFILE_UNKNOWN
+#endif
+
 CodecListEntry::CodecListEntry(const AVCodec *codec)
     : codec(codec)
 {
     if (codec && codec->profiles)
     {
         for (const AVProfile *pro = codec->profiles;
-             pro->profile != FF_PROFILE_UNKNOWN;
+             pro->profile != AV_PROFILE_UNKNOWN;
              ++pro)
         {
             profiles.push_back(pro->name);

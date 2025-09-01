@@ -75,6 +75,7 @@ SET(ODDLOT_SOURCES
      src/gui/importsettings.cpp
      src/gui/exportsettings.cpp
 	 src/gui/lodsettings.cpp
+	 src/gui/apisettings.cpp
 	 src/data/projectdata.cpp
 	 src/data/roadsystem/roadsystem.cpp
 	 src/data/roadsystem/rsystemelement.cpp
@@ -499,6 +500,7 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/handles/baselanemovehandle.hpp
     src/gui/exportsettings.hpp
     src/gui/importsettings.hpp
+    src/gui/apisettings.hpp
     src/gui/lodsettings.hpp
     src/gui/oscsettings.hpp
     src/gui/osmimport.hpp
@@ -615,6 +617,7 @@ SET(ODDLOT_FORMS
          src/cover/coverconnection.ui
          src/gui/filesettings.ui
 
+	 src/gui/apisettings.ui
 	 src/gui/lodsettings.ui
 	 src/gui/tools/TrackRibbon.ui
 	 src/gui/tools/TypeRibbon.ui

@@ -624,7 +624,7 @@ GraphView::loadGoogleMap()
         //system(qPrintable(XMLlocationCommand));
 
         QString tmpDir = topviewGraph_->getProjectData()->tempDir.path() + "/";
-        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
+        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key="+ APISettings::instance()->GoogleAPIKey);
 
         QString lat = "48.73964";
         QString lon = "9.09725";
@@ -695,7 +695,7 @@ GraphView::loadGoogleMap()
         QString style = "&style=feature:all|element:labels|visibility:off";
         //QString uploadPrefix = "wget -O ";
         QString uploadPrefix2 = "https://maps.googleapis.com/maps/api/staticmap?center=";
-        QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc";
+        QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key="+ APISettings::instance()->GoogleAPIKey;
 
 
         //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
@@ -842,7 +842,7 @@ GraphView::loadBingMap()
 
        // system(qPrintable(XMLlocationCommand));
 
-        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
+        downloadFile(tmpDir + "location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=" + APISettings::instance()->GoogleAPIKey);
 
         QString lat = "48.73964";
         QString lon = "9.09725";
@@ -911,7 +911,7 @@ GraphView::loadBingMap()
 
         //system(qPrintable(XMLlocationCommandBing));
 
-        downloadFile("locationBing.xml", "http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm");
+        downloadFile("locationBing.xml", "http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=" + APISettings::instance()->BINGAPIKey);
 
 
 
@@ -1017,7 +1017,7 @@ GraphView::loadBingMap()
 
             QString uploadPrefix = "wget -O ";
             QString uploadPrefix2 = "http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
-            QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm";
+            QString uploadPostfix = "/19?mapSize=1500,1500&key=" + APISettings::instance()->BINGAPIKey;
 
 
 

@@ -2425,7 +2425,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                                     newLaneSection = new LaneSection(0.0, false);
                                     spiralPrototype->addLaneSection(newLaneSection);
                                 }
-                                Lane::LaneType lastType = startLanes.value(0)->getLaneType();
+                                Lane::LaneType lastType = startLanes.first()->getLaneType();
 
 
                                 for (int lr = 0; lr < 2; lr++)

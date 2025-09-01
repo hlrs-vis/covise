@@ -1,8 +1,9 @@
 
-using(OpenSceneGraph)
-using(GDAL)
+USING(OpenSceneGraph)
+USING(GDAL)
 USING(PROJ)
 USING(CURL)
+USING(VRML)
 
 covise_find_package(OpenSceneGraph 3.2.0 QUIET COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
@@ -14,11 +15,13 @@ ENDIF()
 set(HEADERS
     CutGeometry.h
     GeoDataLoader.h
+	VrmlNodeGeoData.h
 )
 
 set(SOURCES
     CutGeometry.cpp
     GeoDataLoader.cpp
+	VrmlNodeGeoData.cpp
 )
 
 

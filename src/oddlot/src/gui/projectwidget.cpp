@@ -146,6 +146,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     splitter->setOrientation(Qt::Vertical);
     layout->addWidget(splitter);
 
+
     // Project Handling //
     //
     projectMenuAction_ = new QAction(this); // text will be set later
@@ -237,6 +238,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
     projectionSettings = mainWindow->getProjectionSettings();
     lodSettings = LODSettings::instance();
+    apiSettings = APISettings::instance();
 
     oscSettings = OSCSettings::instance();
     connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));

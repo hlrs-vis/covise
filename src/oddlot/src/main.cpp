@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
     std::cout << "\n\nStarting...\n  ODDlot: The OpenDRIVE Designer for Lanes, Objects and Tracks.\n" << std::endl;
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
+    a.setOrganizationName("HLRS");
+    a.setApplicationName("OddLOT");
+    a.setApplicationDisplayName("OddLOT");
     MainWindow w;
     QIcon icon(":/icons/oddlot.png");
     w.setWindowIcon(icon);
