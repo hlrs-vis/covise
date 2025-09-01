@@ -32,6 +32,8 @@ jobs:
           bison
           flex
           libtinygltf-dev
+          libgdal-dev
+          libgeotiff-dev
           libhidapi-dev
           libvtk9-dev
           libopenscenegraph-dev
