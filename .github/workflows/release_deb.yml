@@ -29,6 +29,8 @@ jobs:
           libxerces-c-dev
           libpng-dev
           swig
+          bison
+          flex
           libopenscenegraph-dev
           libassimp-dev
           libtbb-dev
