@@ -5,7 +5,7 @@ _pkgBuildDir=build.covise
 _installDir=/usr
 _gitRep=https://github.com/hlrs-vis/covise.git
 pkgname=$_pkgname-arch
-pkgver=1.0.0
+pkgver=v2025.8
 pkgrel=1
 pkgdesc="COVISE - COllaborative Visualization and Simulation Environment for VR/AR - HLRS"
 arch=(x86_64)
@@ -38,8 +38,16 @@ depends=(
     boost
     boost-libs
     glew
+    vtk
+    tinyxml2
+    flex
+    bison
+    gdal
+    hidapi
+    cgal
     libjpeg-turbo
     libtiff
+    libgeotiff
     openmpi
     libpng
     giflib
