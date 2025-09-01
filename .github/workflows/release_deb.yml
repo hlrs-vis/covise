@@ -31,6 +31,15 @@ jobs:
           swig
           libopenscenegraph-dev
           libassimp-dev
+          libtbb-dev
+          libjpeg-dev
+          libtiff-dev
+          libturbojpeg0-dev
+          libfftw3-dev
+          libarchive-dev
+          libswscale-dev
+          libavformat-dev
+          libavutil-dev
           libboost-all-dev
           libcgal-dev
           libtinyxml2-dev
