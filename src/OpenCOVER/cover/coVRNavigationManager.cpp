@@ -51,8 +51,8 @@
 #include "coVRLabel.h"
 #include "coVRSelectionManager.h"
 #include "coIntersection.h"
-#include <input/input.h>
-#include <input/coMousePointer.h>
+#include "input/input.h"
+#include "input/coMousePointer.h"
 #include <OpenVRUI/coNavInteraction.h>
 #include <OpenVRUI/coMouseButtonInteraction.h>
 #include <OpenVRUI/coRelativeInputInteraction.h>
@@ -61,12 +61,12 @@
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include "coVRAnimationManager.h"
-#include <ui/Menu.h>
-#include <ui/Action.h>
-#include <ui/Button.h>
-#include <ui/ButtonGroup.h>
-#include <ui/Slider.h>
-#include <ui/View.h>
+#include "ui/Menu.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/ButtonGroup.h"
+#include "ui/Slider.h"
+#include "ui/View.h"
 #include "coVRIntersectionInteractorManager.h"
 #include "coMeasurement.h"
 
