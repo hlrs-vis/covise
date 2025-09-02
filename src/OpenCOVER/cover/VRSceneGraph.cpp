@@ -49,8 +49,8 @@
 #include "coVRLabel.h"
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
-#include <input/VRKeys.h>
-#include <input/input.h>
+#include "input/VRKeys.h"
+#include "input/input.h"
 #include "coVRConfig.h"
 #include <OpenVRUI/coJoystickManager.h>
 #include "coVRIntersectionInteractorManager.h"

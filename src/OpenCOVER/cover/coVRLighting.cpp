@@ -43,10 +43,10 @@
 #include <osg/StateAttribute>
 #include <iostream>
 
-#include <ui/Button.h>
-#include <ui/Menu.h>
-#include <ui/SelectionList.h>
-#include <ui/Slider.h>
+#include "ui/Button.h"
+#include "ui/Menu.h"
+#include "ui/SelectionList.h"
+#include "ui/Slider.h"
 
 using namespace opencover;
 using covise::coCoviseConfig;

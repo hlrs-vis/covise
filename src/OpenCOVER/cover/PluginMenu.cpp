@@ -13,8 +13,8 @@
 #include "coVRPluginSupport.h"
 #include <cassert>
 
-#include <ui/Button.h>
-#include <ui/Menu.h>
+#include "ui/Button.h"
+#include "ui/Menu.h"
 
 using covise::coDirectory;
 

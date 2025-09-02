@@ -35,8 +35,8 @@
 #include "coHud.h"
 #include <osgDB/WriteFile>
 #include <osg/ClipNode>
-#include <input/input.h>
-#include <input/inputdevice.h>
+#include "input/input.h"
+#include "input/inputdevice.h"
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
 
 //#define PRESENTATION

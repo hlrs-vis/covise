@@ -26,7 +26,7 @@
 
 #include <OpenVRUI/util/vruiLog.h>
 
-#include <input/input.h>
+#include "input/input.h"
 
 #include "coVRNavigationManager.h"
 #include "coVRIntersectionInteractorManager.h"

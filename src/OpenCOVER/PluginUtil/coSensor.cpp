@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include <coSensor.h>
+#include "coSensor.h"
 #include <cassert>
 
 // undef this to get no START/END messaged

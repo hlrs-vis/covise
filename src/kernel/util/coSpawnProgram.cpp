@@ -1,6 +1,6 @@
 #include "coSpawnProgram.h"
 #include "coLog.h"
-#include <string_util.h>
+#include "string_util.h"
 #include <stdio.h>
 #ifdef _WIN32
 #include <process.h>

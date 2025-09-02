@@ -84,9 +84,9 @@
 #include "QuitDialog.h"
 #include "Deletable.h"
 
-#include <input/input.h>
-#include <input/coMousePointer.h>
-#include <input/deviceDiscovery.h>
+#include "input/input.h"
+#include "input/coMousePointer.h"
+#include "input/deviceDiscovery.h"
 #include "ui/VruiView.h"
 #include "ui/TabletView.h"
 #include "ui/Action.h"
