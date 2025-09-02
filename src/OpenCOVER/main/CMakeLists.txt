@@ -28,7 +28,7 @@ SET(EXTRASOURCES
   
 )
 
-add_covise_module(Renderer OpenCOVER )
+add_covise_module(Renderer OpenCOVER ${SOURCES} ${HEADERS})
 # old CONFIG: qt warn_on release incremental link_prl yacrenderer wnooverloadedvirtual qt osg tiff colib coutil coappl covrbclient werror opencoverlib osgvrui thread ssd wiimote cogrmsg jpeg
 # old LIBS: 
 # old links: 
