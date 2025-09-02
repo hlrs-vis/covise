@@ -6,7 +6,7 @@ endif()
 using(GLEW)
 include_directories(${GLEW_INCLUDE_DIR} ${LIBVNCSERVER_INCLUDE_DIR})
 
-set(EXTRA_LIBS ${EXTRA_LIBS} ${GLEW_LIBRARY})
+set(EXTRA_LIBS ${EXTRA_LIBS} GLEW::GLEW)
   
 set(HEADERS
   VncServer.h

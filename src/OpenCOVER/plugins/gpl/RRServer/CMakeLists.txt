@@ -26,7 +26,7 @@ add_definitions(-DRR_COVISE)
 
 include_directories(${GLEW_INCLUDE_DIR} ${JPEGTURBO_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 
-set(EXTRA_LIBS ${EXTRA_LIBS} ${TURBOJPEG_LIBRARIES} ${GLEW_LIBRARY})
+set(EXTRA_LIBS ${EXTRA_LIBS} ${TURBOJPEG_LIBRARIES} GLEW::GLEW)
   
 include_directories(vgl/include vgl/rr vgl/util)
 
