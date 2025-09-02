@@ -13,9 +13,9 @@ namespace vrb
 ID  Name     Email                                    Hostname         
 2   visent   covise-users@listserv.uni-stuttgart.de   visent.hlrs.de
 */
-VRBCLIENTEXPORT void printClientInfo(const std::vector<const RemoteClient*> &clients);
-VRBCLIENTEXPORT void printClientInfo(const std::vector<RemoteClient> &clients);
-VRBCLIENTEXPORT void printClientInfo(const std::vector<std::unique_ptr<RemoteClient>> &clients);
+VRBEXPORT void printClientInfo(const std::vector<const RemoteClient*> &clients);
+VRBEXPORT void printClientInfo(const std::vector<RemoteClient> &clients);
+VRBEXPORT void printClientInfo(const std::vector<std::unique_ptr<RemoteClient>> &clients);
 
 }
 
