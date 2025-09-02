@@ -22,6 +22,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(
   ..
 )
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 SET(JS_SOURCES
   jsapi.c jsarena.c jsarray.c jsatom.c jsbool.c jscntxt.c jsdate.c jsdbgapi.c
