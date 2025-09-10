@@ -22,6 +22,8 @@
 #include <OpenThreads/Mutex>
 #include <util/UDPComm.h>
 
+#include <sigslot/signal.hpp>
+
 
 namespace opencover
 {
@@ -56,6 +58,7 @@ namespace opencover
 
         // only to be used from main thread
         const std::vector<const deviceInfo *> &getDevices() const;
+        sigslot::signal<const deviceInfo *> deviceAdded;
 
     private:
         std::vector<const deviceInfo *> devices;
