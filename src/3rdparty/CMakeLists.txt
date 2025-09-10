@@ -97,4 +97,5 @@ target_include_directories(PalSigslot INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 install(TARGETS PalSigslot EXPORT covise-targets)
+covise_export_target(PalSigslot)
 add_library(Pal::Sigslot ALIAS PalSigslot)
