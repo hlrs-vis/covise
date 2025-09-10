@@ -19,7 +19,7 @@
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRPlugin.h>
 #include <OpenThreads/Thread>
-
+#include <cover/input/deviceDiscovery.h>
 
 
 #define MAX_CALLSIGN_LEN        8
@@ -69,11 +69,14 @@ public:
     bool doStop;
 
 private:
+    bool ftmsfound = false;
+    bool alpinefound = false;
     float stepSizeUp;
     float stepSizeDown;
     const float BrakeThreshold = 1.0;
     bool braking = true;
     bool init();
+    void addDevice(const opencover::deviceInfo *dev);
     float getYAcceleration();
     float getGrade();
     float resistance;

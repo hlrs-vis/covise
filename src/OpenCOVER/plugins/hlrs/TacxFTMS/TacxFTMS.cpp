@@ -48,6 +48,8 @@ TacxFTMS::TacxFTMS()
     stepSizeDown = 2000;
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
+
+    opencover::Input::instance()->discovery()->deviceAdded.connect(&TacxFTMS::addDevice, this);
 }
 
 TacxFTMS::~TacxFTMS() {
@@ -77,22 +79,12 @@ bool TacxFTMS::init() {
 
     MAKE_EULER_MAT(TacxFTMSPos, h, p, r);
     TacxFTMSPos.postMultTranslate(osg::Vec3(x, y, z));
-    
-    
-    //const std::string host = configString("TacxFTMS", "severHost", "192.168.178.36")->value();
-    unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
-    unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
-
-    unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31319)->value();
-    unsigned short localPortAlpine = configInt("Alpine", "localPort", 31328)->value();
 
 
     /*std::cerr << "TacxFTMS config: UDP: serverHost: " << host
               << ", localPort: " << localPort << ", serverPort: " << serverPort
               << std::endl;*/
-    bool bothfound = false;
-    bool ftmsfound = false;
-    bool alpinefound = false;
+    bool supportedDeviceFound = false;
 
     bool ret = false;
 
@@ -102,42 +94,80 @@ bool TacxFTMS::init() {
              opencover::Input::instance()->discovery()->getDevices()) {
                 std::cerr << "Devicename found" << i->deviceName << std::endl;
             if (i->deviceName == "TacxNeo") {
-                host = i->address;
-                std::cerr << "TacxFTMS config: UDP: TacxHost: " << host
-                          << std::endl;
-                udpNeo = new UDPComm(host.c_str(), serverPortNeo, localPortNeo);
-                if (!udpNeo->isBad()) {
-                    ftmsfound = true;
-                    start();
-                } else {
-                    std::cerr << "TacxFTMS: failed to open local UDP port"
-                              << localPortNeo << std::endl;
-                    ftmsfound = false;
-                }
+                supportedDeviceFound = true;
             }
-            else if (i->deviceName == "Alpine") {
-                host = i->address;
-                std::cerr << "TacxFTMS config: UDP: AlpineHost: " << host
-                          << std::endl;
-                udpAlpine = new UDPComm(host.c_str(), serverPortAlpine, localPortAlpine);
-                if (!udpAlpine->isBad()) {
-                    alpinefound = true;
-                    start();
-                } else {
-                    std::cerr << "Alpine: failed to open local UDP port"
-                              << localPortAlpine << std::endl;
-                    alpinefound = false;
-                }
+            else if (i->deviceName == "Alpine")
+            {
+                supportedDeviceFound = true;
+            }
+        }
+        ret = supportedDeviceFound;
+        coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster(&ret, sizeof(ret));
+    }
+    std::cerr << "Init FTMS done";
+
+    return ret;
+}
+
+void TacxFTMS::addDevice(const opencover::deviceInfo *i)
+{
+    //const std::string host = configString("TacxFTMS", "severHost", "192.168.178.36")->value();
+    unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
+    unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
+
+    unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31319)->value();
+    unsigned short localPortAlpine = configInt("Alpine", "localPort", 31328)->value();
+
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        std::string host = "";
+        std::cerr << "Devicename found" << i->deviceName << std::endl;
+        if (i->deviceName == "TacxNeo")
+        {
+            host = i->address;
+            std::cerr << "TacxFTMS config: UDP: TacxHost: " << host << std::endl;
+            udpNeo = new UDPComm(host.c_str(), serverPortNeo, localPortNeo);
+            if (!udpNeo->isBad())
+            {
+                ftmsfound = true;
+                start();
+            }
+            else
+            {
+                std::cerr << "TacxFTMS: failed to open local UDP port" << localPortNeo << std::endl;
+                ftmsfound = false;
+            }
+        }
+        else if (i->deviceName == "Alpine")
+        {
+            host = i->address;
+            std::cerr << "TacxFTMS config: UDP: AlpineHost: " << host << std::endl;
+            udpAlpine = new UDPComm(host.c_str(), serverPortAlpine, localPortAlpine);
+            if (!udpAlpine->isBad())
+            {
+                alpinefound = true;
+                start();
+            }
+            else
+            {
+                std::cerr << "Alpine: failed to open local UDP port" << localPortAlpine << std::endl;
+                alpinefound = false;
             }
         }
         ret = ftmsfound || alpinefound;
         coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
-    } else {
+    }
+    else
+    {
         coVRMSController::instance()->readMaster(&ret, sizeof(ret));
-    }    
-    std::cerr << "Init FTMS done";
-
-    return ret;
+    }
+    ftmsfound = coVRMSController::instance()->syncBool(ftmsfound);
+    alpinefound = coVRMSController::instance()->syncBool(alpinefound);
 }
 
 bool TacxFTMS::update() {
