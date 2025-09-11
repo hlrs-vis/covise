@@ -59,6 +59,10 @@
   </System>
 
   <COVER>
+      <NumScreens value="0" />
+      <NumWindows value="0" />
+      <NumScreens RANK="0" value="1" />
+      <NumWindows RANK="0" value="1" />
       <DefaultScaleFactor value="1000" />
       <Stereo value="false" />
       <File options="usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject minlod 1" /> <!-- srcSRS EPSG:32632 destSRS EPSG:31467 -->
