@@ -174,7 +174,7 @@ bool TacxFTMS::update() {
     if (isEnabled()) {
         if (coVRMSController::instance()->isMaster()) {
             float speed = getSpeed();
-            fprintf(stderr, "speed: %f\n", speed);
+            //fprintf(stderr, "speed: %f\n", speed);
 
             double dT = cover->frameDuration();
 
@@ -194,7 +194,7 @@ bool TacxFTMS::update() {
             osg::Vec3 V(0, s, 0);
             float rotAngle = 0.0;
             float wheelAngle = getAngle() / 10.0;
-            fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
+            //fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
 
             if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001) {
                 rotAngle = 0;
@@ -244,7 +244,7 @@ float TacxFTMS::getGrade() {
         grade = (rise / run) * 100.0f;
     }
 
-    fprintf(stderr, "grade: %.2f%%\n", grade);
+    //fprintf(stderr, "grade: %.2f%%\n", grade);
     return grade;
 }
 
@@ -288,7 +288,7 @@ void TacxFTMS::updateThread() {
             if (isEnabled())  // otherwise we are not supposed to receive
                               // anything
             {
-                std::cerr << "TacxFTMS::update: error while reading data"
+                std::cerr << "TacxFTMS::update: error while reading Neo data"
                           << std::endl;
                 if (udpNeo)  // try to wake up the trainer (if the first start UDP
                           // message was lost)
@@ -321,7 +321,7 @@ void TacxFTMS::updateThread() {
             if (isEnabled())  // otherwise we are not supposed to receive
                               // anything
             {
-                std::cerr << "Alpine::update: error while reading data"
+                std::cerr << "Alpine::update: error while reading Alpine data"
                           << std::endl;
                 if (udpAlpine)  // try to wake up the trainer (if the first start UDP
                           // message was lost)
@@ -341,7 +341,7 @@ void TacxFTMS::updateThread() {
         }
     } 
     else {
-        usleep(5000);
+        usleep(5);
     }
     return;
 }
