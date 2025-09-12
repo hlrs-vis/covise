@@ -162,9 +162,14 @@ macro(covise_find_component comp)
        set(complib coVtk)
        set(compvar VTK)
        covise_find_package(VTK
-           COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel
-           NO_MODULE
-           QUIET)
+           COMPONENTS IOLegacy FiltersCore CommonCore ImagingCore CommonDataModel CommonExecutionModel
+           NO_MODULE)
+       if (NOT VTK_FOUND)
+           covise_find_package(VTK
+               COMPONENTS vtkIOLegacy vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel
+               NO_MODULE
+               QUIET)
+       endif()
        if (VTK_FOUND)
           set(ADD_LIBS ${VTK_LIBRARIES})
        endif()
