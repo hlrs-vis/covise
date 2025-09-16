@@ -85,8 +85,9 @@ private:
     osg::Matrix TacxFTMSPos;
     virtual void setEnabled(bool);
     void updateThread();
-    UDPComm* udpNeo;
+    UDPComm* udpNeo; 
     UDPComm* udpAlpine;
+    UDPComm* udpListen; // for listening to all devices
     FTMSBikeData ftmsData;
     FTMSControlData ftmsControl;
     AlpineData alpineData;
