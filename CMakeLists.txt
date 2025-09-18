@@ -367,9 +367,9 @@ if (NOT COVISE_BUILD_ONLY_FILE)
 endif()
 
 if (NOT COVISE_BUILD_ONLY_ODDLOT AND NOT COVISE_BUILD_ONLY_COVER)
-    covise_find_package(VTK COMPONENTS IOLegacy IOXML FiltersCore CommonCore ImagingCore CommonDataModel CommonExecutionModel NO_MODULE)
-    if (NOT VTK_FOUND)
         covise_find_package(VTK COMPONENTS vtkIOLegacy vtkIOXML vtkFiltersCore vtkCommonCore vtkImagingCore vtkCommonDataModel vtkCommonExecutionModel NO_MODULE)
+    if (NOT VTK_FOUND)
+    covise_find_package(VTK COMPONENTS IOLegacy IOXML FiltersCore CommonCore ImagingCore CommonDataModel CommonExecutionModel NO_MODULE)
     endif()
 endif()
 
