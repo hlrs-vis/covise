@@ -53,6 +53,8 @@ struct itemProps
     int remove; //remove Material
     int trans;
     float matrix[16];
+    bool showInteractor = false;
+    float interactorSize = 1.0;
 };
 
 class TextureItem : public QListWidgetItem
@@ -185,7 +187,8 @@ private:
     float _emissive[4];
     float _uniform4[4];
     QMatrix4x4 _matrix;
-
+    bool _showInteractor = false;
+    float _interactorSize = 1.0;
     QString _shaderName;
     QString _uniformName;
 
@@ -301,7 +304,8 @@ private:
     QLineEdit *stringH;
     QLineEdit *stringP;
     QLineEdit *stringR;
-
+    QCheckBox *showInteractorBtn;
+    QSlider *interactorSizeSlider;
     QWidget *page3;
     QMatrix4x4 vrmlToOsg;
     QMatrix4x4 osgToVrml;
@@ -336,6 +340,6 @@ private slots:
     void onHPRChanged();
     void onHPREdited();
     void onDeltaRotChanged();
-void sliderChanged(int ival);
+    void sliderChanged(int ival);
 };
 #endif

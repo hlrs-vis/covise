@@ -798,6 +798,25 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     page4Layout->addWidget(stringP, 7, 3, Qt::AlignLeft);
     page4Layout->addWidget(stringR, 7, 5, Qt::AlignLeft);
 
+    showInteractorBtn = new QCheckBox("Interactor", page4);
+    page4Layout->addWidget(showInteractorBtn, 8, 0, Qt::AlignRight);
+    connect(showInteractorBtn, &QCheckBox::toggled, this, [this](bool checked){
+        _showInteractor = checked;
+        emit apply();
+    });
+
+    interactorSizeSlider = new QSlider(page4);
+    interactorSizeSlider->setOrientation(Qt::Horizontal);
+    interactorSizeSlider->setMinimum(0.02);
+    interactorSizeSlider->setMaximum(20.0);
+    interactorSizeSlider->setValue(1.0);
+    page4Layout->addWidget(interactorSizeSlider, 8, 1, Qt::AlignLeft);
+    connect(interactorSizeSlider, &QSlider::valueChanged, this, [this](int value){
+        _interactorSize = value;
+        emit apply();
+    });
+
+
     sliderH->setMinimum(0);
     sliderH->setMaximum(1000);
     sliderP->setMinimum(0);
@@ -1526,6 +1545,7 @@ void PropertyDialog::onHPRChanged()
 void PropertyDialog::onHPREdited()
 {
 }
+
 void PropertyDialog::sliderChanged(int ival)
 {
     float H,P,R;
@@ -2075,6 +2095,12 @@ void PropertyDialog::updateGUI(itemProps prop)
 
     if (!(color.red() == 0 && color.blue() == 0 && color.green() == 0))
         colorchooser->setColor(color);
+
+    _showInteractor = prop.showInteractor;
+    _interactorSize = prop.interactorSize;
+    showInteractorBtn->setChecked(_showInteractor);
+    interactorSizeSlider->setValue(_interactorSize);
+    
     updateIcons();
 }
 
@@ -2164,7 +2190,8 @@ itemProps PropertyDialog::getProperties()
     {
         prop.matrix[i] = _matrix.data()[i];
     }
-
+    prop.showInteractor = _showInteractor;
+    prop.interactorSize = _interactorSize;
     return prop;
 }
 

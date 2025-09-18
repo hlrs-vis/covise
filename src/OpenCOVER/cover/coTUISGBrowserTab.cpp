@@ -347,34 +347,7 @@ void coTUISGBrowserTab::sendEnd()
     tui()->send(tb);
 }
 
-void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent)
-{
-    if (!tui()->isConnected())
-        return;
-    TokenBuffer tb;
-    int i;
-    const char *currentPath = path.c_str();
-    const char *currentpPath = pPath.c_str();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_PROPERTIES;
-    tb << ID;
-    tb << currentPath;
-    tb << currentpPath;
-    tb << mode;
-    tb << transparent;
-    for (i = 0; i < 4; i++)
-        tb << diffuse[i];
-    for (i = 0; i < 4; i++)
-        tb << specular[i];
-    for (i = 0; i < 4; i++)
-        tb << ambient[i];
-    for (i = 0; i < 4; i++)
-        tb << emissive[i];
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[])
+void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[], bool interactorVisible, float interactorSize)
 {
     if (!tui()->isConnected())
         return;
@@ -402,7 +375,8 @@ void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int 
     {
         tb << mat[i];
     }
-
+    tb << interactorVisible;
+    tb << interactorSize;
     tui()->send(tb);
 }
 

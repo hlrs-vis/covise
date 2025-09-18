@@ -26,6 +26,10 @@
 #include <cover/coVRSelectionManager.h>
 #include <cover/coVRShader.h>
 
+#include <map>
+#include <memory>
+#include <PluginUtil/coVR3DTransformInteractor.h>
+
 #include "vrml97/vrml/VrmlNodeTexture.h"
 #include "vrml97/vrml/VrmlMFString.h"
 #include "vrml97/vrml/VrmlSFBool.h"
@@ -131,6 +135,7 @@ public:
     bool pickedObjChanged() override;
     //_____________________________this will be called in PreFrame_____________________________
     void preFrame() override;
+    void applyInteraction(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair);
     void message(int toWhom, int type, int len, const void *buf) override;
     void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode) override;
     void addNode(osg::Node *node, const RenderObject *obj) override;
@@ -181,5 +186,11 @@ private:
 
     osg::ref_ptr<osg::Node> pickedObject;
     std::set<osg::ref_ptr<osg::Switch>> nodesToRemove;
+    // map from MatrixTransform node to its 3D interactor
+    std::map<osg::MatrixTransform *, std::unique_ptr<opencover::coVR3DTransformInteractor>> m_transformInteractors;
+
+    // helper to create/destroy interactor for a MatrixTransform
+    std::map<osg::MatrixTransform *, std::unique_ptr<opencover::coVR3DTransformInteractor>>::iterator addInteractorFor(osg::MatrixTransform *mt);
+    void removeInteractorFor(osg::MatrixTransform *mt);
 };
 #endif

@@ -561,8 +561,9 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
                     {
                         tb >> prop.matrix[i];
                     }
+                    tb >> prop.showInteractor;
+                    tb >> prop.interactorSize;
                 }
-
                 propertyDialog->setProperties(prop);
             }
 
@@ -2104,10 +2105,11 @@ void TUISGBrowserTab::handleApply()
         const char *parentPath;
 
         pI = item->parent();
+        QByteArray baP;
         if (pI)
         {
             str = pI->text(8);
-            QByteArray baP = str.toUtf8();
+            baP = str.toUtf8();
             parentPath = baP.data();
         }
         else
@@ -2154,7 +2156,8 @@ void TUISGBrowserTab::handleApply()
         {
             tb << prop.matrix[i];
         }
-
+        tb << prop.showInteractor;
+        tb << prop.interactorSize;
         TUIMain::getInstance()->send(tb);
 
         if (prop.type == "Switch")

@@ -247,6 +247,65 @@ SGBrowser::SGBrowser()
     plugin = this;
 }
 
+osg::Matrix localToWorld(osg::Node *node, osg::Node *world)
+{
+    std::vector<osg::MatrixTransform*> transforms;
+    osg::Node* current = node;
+    while (current != world && current != nullptr)
+    {
+        if (auto mt = dynamic_cast<osg::MatrixTransform*>(current))
+            transforms.push_back(mt);
+        if (current->getNumParents() > 0)
+            current = current->getParent(0);
+        else
+            break;
+    }
+    osg::Matrix result = osg::Matrix::identity();
+    for (auto it = transforms.rbegin(); it != transforms.rend(); ++it)
+        result.preMult((*it)->getMatrix());
+    return result;    
+}
+
+std::map<osg::MatrixTransform *, std::unique_ptr<opencover::coVR3DTransformInteractor>>::iterator SGBrowser::addInteractorFor(osg::MatrixTransform *mt)
+{
+    if (!mt)
+        return m_transformInteractors.end();
+
+    // create an interactor positioned at the node's world matrix
+    osg::Matrix m = mt->getMatrix();
+    try
+    {
+        auto inter = std::make_unique<opencover::coVR3DTransformInteractor>(-1, vrui::coInteraction::InteractionType::ButtonA, "transform", "sgbrowser_interactor", vrui::coInteraction::InteractionPriority::Medium);
+        inter->enableIntersection();
+
+        auto worldMat = localToWorld(mt, cover->getObjectsRoot());
+        inter->updateTransform(worldMat);
+        auto it = m_transformInteractors.emplace(mt, std::move(inter)).first;
+        it->second->setTransformChangedCallback([this, it](const osg::Matrix &newMat) {
+            applyInteraction(*it);
+            it->second->resetChangeFlags();
+        });
+        return it;
+    }
+    catch (...) {
+        std::cerr << "SGBrowser::addInteractorFor: failed to create interactor" << std::endl;
+    }
+    return m_transformInteractors.end();
+}
+
+void SGBrowser::removeInteractorFor(osg::MatrixTransform *mt)
+{
+    if (!mt)
+        return;
+
+    auto it = m_transformInteractors.find(mt);
+    if (it != m_transformInteractors.end())
+    {
+        // unique_ptr destructor will delete the interactor
+        m_transformInteractors.erase(it);
+    }
+}
+
 bool SGBrowser::init()
 {
     std::cerr << "SGBrowser: #tuis = " <<  OpenCOVER::instance()->numTuis() << std::endl;
@@ -479,6 +538,10 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                     tb >> sGBrowserTab->matrix[j];
                     ;
                 }
+                bool showInteractor;
+                float interactorSize;
+                tb >> showInteractor;
+                tb >> interactorSize;
 
                 _tb << path;
                 _tb << pPath;
@@ -500,7 +563,8 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                     _tb << sGBrowserTab->matrix[j];
                     ;
                 }
-
+                _tb << showInteractor;
+                _tb << interactorSize;
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetProperties,
                                    _tb.getData().length(), _tb.getData().data());
             }
@@ -853,7 +917,49 @@ void SGBrowser::removeNode(Node *node, bool /*isGroup*/, Node * /*realNode*/)
 
 void SGBrowser::preFrame()
 {
+    // iterate all active interactors and sync their transforms back to the target MatrixTransforms
+    if (!m_transformInteractors.empty())
+    {
+        for (auto &pair : m_transformInteractors)
+        {
+            assert(pair.first && pair.second);
+            pair.second->preFrame();
+        }
+    }
 }
+
+void SGBrowser::applyInteraction(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair)
+{
+    osg::MatrixTransform *mt = pair.first;
+    auto &inter = pair.second;
+    auto firstSharedParent = cover->getObjectsScale();
+    // interactor provides a world-space matrix, but the scale is handled separately
+    osg::Matrix interWorld = inter->getMatrix();
+    auto scale = inter->getScale();
+    interWorld.preMultScale(scale);
+    // convert to local matrix
+    const auto localToWorld = ::localToWorld(mt->getParent(0), firstSharedParent);
+    const auto worldToLocal = osg::Matrix::inverse(localToWorld);    
+    const auto interLocal = interWorld * worldToLocal;
+
+    mt->setMatrix(interLocal);
+
+    // notify all tuis about updated matrix
+    std::string path = selectionManager->generatePath(mt);
+    std::string pPath = "";
+    if (mt->getNumParents() > 0)
+        pPath = selectionManager->generatePath(mt->getParent(0));
+    float mat[16];
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+            mat[i * 4 + j] = interLocal(i, j);
+
+    for (auto &t : tuis)
+    {
+        t.tab->sendProperties(path, pPath, 0, 0, mat, true, std::sqrt(inter->getInteractorSize()));
+    }
+}
+
 void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 {
     TokenBuffer tb((const char *)buf, len);
@@ -1410,10 +1516,9 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         std::string _children = std::string(children);
 
         propNode = selectionManager->validPath(_path);
-
         float matrix[16];
         osg::MatrixTransform *osgTMatrix = dynamic_cast<osg::MatrixTransform *>(propNode);
-        if (osgTMatrix != NULL)
+        if (osgTMatrix)
         {
             for (int i = 0; i < 16; ++i)
             {
@@ -1421,7 +1526,31 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             }
 
             osgTMatrix->setMatrix(osg::Matrix(matrix));
-        }
+            bool showInteractor = false;
+            tb >> showInteractor;
+            float interactorSize = 3.5f;
+            tb >> interactorSize;
+            if (showInteractor)
+            {
+                // add interactor if not present
+                auto interIt = m_transformInteractors.find(osgTMatrix);
+                if (interIt == m_transformInteractors.end())
+                {
+                    interIt = addInteractorFor(osgTMatrix);
+                }
+                interIt->second->setInteractorSize(interactorSize * interactorSize);
+            }
+            else
+            {
+                // remove interactor if present
+                auto it = m_transformInteractors.find(osgTMatrix);
+                if (it != m_transformInteractors.end())
+                {
+                    removeInteractorFor(osgTMatrix);
+                }
+            }
+        } else
+            std::cerr << "SGBrowser::setProperties: not a MatrixTransform " << propNode->className() << std::endl;
 
         Geode *geode = dynamic_cast<Geode *>(propNode);
         if (propNode)
@@ -1571,7 +1700,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             {
                 stateset = propNode->getOrCreateStateSet();
             }
-
+            bool showInteractor = false;
+            float interactorSize = 3.5f;
             if (stateset)
             {
                 StateAttribute *stateAttrib = stateset->getAttribute(StateAttribute::MATERIAL);
@@ -1633,9 +1763,15 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
                             matrix[i * 4 + j] = osgMat(i, j);
                         }
                 }
+                auto it = m_transformInteractors.find(osgTMatrix);
+                if (it != m_transformInteractors.end())
+                {
+                    showInteractor = true;
+                    interactorSize = std::sqrt(it->second->getInteractorSize());
+                } 
             }
             for (auto t: tuis)
-                t.tab->sendProperties(_path, _pPath, depthMode, transparent, matrix);
+                t.tab->sendProperties(_path, _pPath, depthMode, transparent, matrix, showInteractor, interactorSize);
         }
     }
     if ((type == PluginMessageTypes::SGBrowserHideNode) || (type == PluginMessageTypes::SGBrowserShowNode))

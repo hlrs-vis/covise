@@ -885,8 +885,7 @@ public:
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     virtual void sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren = 0);
     virtual void sendEnd();
-    virtual void sendProperties(std::string path, std::string pPath, int mode, int transparent);
-    virtual void sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[]);
+    virtual void sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[], bool interactorVisible, float interactorSize);
     virtual void sendCurrentNode(osg::Node *node, std::string);
     virtual void sendRemoveNode(std::string path, std::string parentPath);
     virtual void sendShader(std::string name);
