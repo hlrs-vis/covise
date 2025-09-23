@@ -820,14 +820,14 @@
   ],
   "RECOM": [
     {
-      "description": "Combustion chamber in a cole power plant",
+      "description": "combustion in a boiler of a cole power plant",
       "headline": "HKW2 Altbach",
       "id": 1,
       "image": "HKW2Altbach.png",
       "launch": [
         {
           "args": [
-            "data/recom/SWB/Praesentation/Cavepraesentation-SWBremen.wrl"
+            "/data/recom/HKW2-SM5-SE-V3a_und_SM4/Cavepraesentation-SM4_und_SM5-SE-V3a.wrl"
           ],
           "program": "opencover"
         }
@@ -860,7 +860,7 @@
       ]
     },
     {
-      "description": "Combustion chamber in a cole power plant",
+      "description": "Combustion in a district heating plant burning gas",
       "headline": "SWA Augsburg",
       "id": 3,
       "image": "SWAAugsburg.png",
