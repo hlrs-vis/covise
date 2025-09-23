@@ -12,6 +12,7 @@ ENDIF(LAMURE_INCLUDE_DIR)
 FIND_PATH(LAMURE_INCLUDE_DIR "lamure/config.h"
   PATHS
   $ENV{LAMURE_HOME}/include
+  $ENV{EXTERNLIBS}/lamure/include
   $ENV{EXTERNLIBS}/Lamure/include
   ~/Library/Frameworks/include
   /Library/Frameworks/include

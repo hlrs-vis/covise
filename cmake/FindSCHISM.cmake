@@ -22,35 +22,17 @@ SET(SCHISM_LIBRARY_SEARCH_DIRS
 # check for schism
 ##############################################################################
 
-IF ( NOT SCHISM_INCLUDE_DIRS )
-
-    FOREACH(_SEARCH_DIR ${SCHISM_INCLUDE_SEARCH_DIRS})
-        FIND_PATH(_CUR_SEARCH
-                NAMES scm_gl_core/src/scm/gl_core.h scm/gl_core.h
-                PATHS ${_SEARCH_DIR}
+    MESSAGE("SEARCHING")
+        FIND_PATH(SCHISM_INCLUDE_DIR
+                NAMES scm_gl_core/src/scm/gl_core.h
+                PATHS ${SCHISM_INCLUDE_SEARCH_DIRS}
                 NO_DEFAULT_PATH)
-        IF (_CUR_SEARCH)
-            LIST(APPEND _SCHISM_FOUND_INC_DIRS ${_CUR_SEARCH})
-        ENDIF(_CUR_SEARCH)
-        SET(_CUR_SEARCH _CUR_SEARCH-NOTFOUND CACHE INTERNAL "internal use")
-    ENDFOREACH(_SEARCH_DIR ${SCHISM_INCLUDE_SEARCH_DIRS})
-
-
-    FOREACH(_INC_DIR ${_SCHISM_FOUND_INC_DIRS})
-        LIST(APPEND _SCHISM_INCLUDE_DIRS ${_INC_DIR}/scm_cl_core/src)
-        LIST(APPEND _SCHISM_INCLUDE_DIRS ${_INC_DIR}/scm_core/src)
-        LIST(APPEND _SCHISM_INCLUDE_DIRS ${_INC_DIR}/scm_gl_core/src)
-        LIST(APPEND _SCHISM_INCLUDE_DIRS ${_INC_DIR}/scm_gl_util/src)
-        LIST(APPEND _SCHISM_INCLUDE_DIRS ${_INC_DIR}/scm_input/src)
-    ENDFOREACH(_INC_DIR ${_BOOST_FOUND_INC_DIRS})
-
-    IF (_SCHISM_FOUND_INC_DIRS)
-        SET(SCHISM_INCLUDE_DIRS ${_SCHISM_INCLUDE_DIRS} CACHE PATH "path to schism headers.")
-    ENDIF (_SCHISM_FOUND_INC_DIRS)
-
-ENDIF ( NOT SCHISM_INCLUDE_DIRS )
-
-# release libraries
+        LIST(APPEND SCHISM_INCLUDE_DIRS ${SCHISM_INCLUDE_SEARCH_DIRS}/scm_cl_core/src)
+        LIST(APPEND SCHISM_INCLUDE_DIRS ${SCHISM_INCLUDE_SEARCH_DIRS}/scm_core/src)
+        LIST(APPEND SCHISM_INCLUDE_DIRS ${SCHISM_INCLUDE_SEARCH_DIRS}/scm_gl_core/src)
+        LIST(APPEND SCHISM_INCLUDE_DIRS ${SCHISM_INCLUDE_SEARCH_DIRS}/scm_gl_util/src)
+        LIST(APPEND SCHISM_INCLUDE_DIRS ${SCHISM_INCLUDE_SEARCH_DIRS}/scm_input/src)
+ 
 find_library(SCHISM_CORE_LIBRARY 
              NAMES scm_core libscm_core
              PATHS ${SCHISM_LIBRARY_SEARCH_DIRS}

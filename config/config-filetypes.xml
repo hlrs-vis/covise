@@ -12,7 +12,7 @@
         <FileType name="gpx" plugin="GPS" />
         <FileType name="top" plugin="Amber" />
         <FileType name="trj" plugin="Amber" />
-        <FileType name="bvh" plugin="Lamure" />
+        <FileType name="bvh" plugin="LamurePointCloud" />
         <FileType name="ifc" plugin="IFC" />
         <FileType name="stp" plugin="IFC" />
         <FileType name="step" plugin="IFC" />
