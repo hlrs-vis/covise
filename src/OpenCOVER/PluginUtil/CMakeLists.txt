@@ -13,10 +13,16 @@ ADD_DEFINITIONS(-DCOVISE_PLUGIN_UTIL)
 
 
 if(COVISE_USE_CUDA)
-   if(CUDA_FOUND)
-      include_directories(${CUDA_INCLUDE_DIRS})
-      set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
-   endif()
+  if(CUDA_FOUND)
+    include_directories(${CUDA_INCLUDE_DIRS})
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
+  endif()
+  covise_find_package(CCCL CONFIG)
+  if(CCCL_FOUND)
+    set(EXTRA_LIBS ${EXTRA_LIBS} Thrust::Thrust)
+    covise_export_target(_Thrust_Thrust _Thrust_libcudacxx)
+    covise_install_target(_Thrust_Thrust _Thrust_libcudacxx)
+  endif()
 endif()
 
 SET(PLUGINUTIL_HEADERS

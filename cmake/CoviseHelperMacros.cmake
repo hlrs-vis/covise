@@ -1151,6 +1151,7 @@ MACRO(COVISE_FIND_CUDA)
               set(CUDA_NVCC_FLAGS "-g ${CUDA_NVCC_FLAGS}")
           endif()
       endif()
+      covise_find_package(CCCL CONFIG)
   ENDIF()
 ENDMACRO(COVISE_FIND_CUDA)
 
