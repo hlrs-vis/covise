@@ -2159,10 +2159,7 @@ void coVRNavigationManager::startPointNav() {
     modifiedVSize = 2.0 * tan(alphaY) * fabsf(yValObject - yValViewer);
     float alphaX = fabs(atan(mouseScreenWidth() / (2.0 * yValViewer)));
     modifiedHSize = 2.0 * tan(alphaX) * fabsf(yValObject - yValViewer);
-    osg::Vec3 viewerPos = cover->getViewerMat().getTrans();
-    transXRel = viewerPos[0];
-    transYRel = viewerPos[1];
-    transZRel = viewerPos[2];
+    transRel = cover->getViewerMat().getTrans();
     shiftMouseNav = shiftEnabled;
 }
 
