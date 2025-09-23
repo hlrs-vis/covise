@@ -315,6 +315,8 @@ run_marienplatz_mobilitaetswoche() {
 }
 demo 140 "Zweite mobilitaetswoche" run_marienplatz_mobilitaetswoche 
 
+demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/workflows/tracer_cluster_plane.vsl
+
 # Vistle
 category="Vistle"
 demo 24 "Klima MPAS" vistle /data/MPAS/MPAS_full.vsl
