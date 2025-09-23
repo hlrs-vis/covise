@@ -1,0 +1,59 @@
+// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
+// This Software is distributed under the Modified BSD License, see license.txt.
+//
+// Virtual Reality and Visualization Research Group 
+// Faculty of Media, Bauhaus-Universitaet Weimar
+// http://www.uni-weimar.de/medien/vr
+
+#version 420 core
+
+uniform mat4 mvp_matrix;
+uniform mat4 model_view_matrix;
+
+layout(points) in;
+layout(triangle_strip, max_vertices = 4) out;
+
+in VertexData
+{
+    vec3 position;
+    vec3 normal;
+    vec3 pass_ms_u;
+    vec3 pass_ms_v;
+}
+VertexIn[];
+
+out VertexData
+{
+    vec3 pass_position;
+    vec3 pass_normal;
+    vec2 pass_uv_coords;
+}
+VertexOut;
+
+void main()
+{
+    VertexOut.pass_position = VertexIn[0].position;
+    VertexOut.pass_normal = VertexIn[0].normal;
+
+    // --------------------------- common attributes -----------------------------------
+    vec3 s_pos_ms = gl_in[0].gl_Position.xyz; // position of surfel in model space
+    vec3 step_u = VertexIn[0].pass_ms_u;
+    vec3 step_v = VertexIn[0].pass_ms_v;
+
+    const float index_arr[8] = {-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
+
+    // ---------------------------------------------------------------------------------
+    for(int idx = 0; idx < 4; ++idx)
+    {
+        float u_multiplier = index_arr[idx];
+        float v_multiplier = index_arr[idx + 4];
+
+        VertexOut.pass_uv_coords = vec2(u_multiplier, v_multiplier);
+        vec4 q_pos_ms = vec4(((s_pos_ms + (u_multiplier * step_u)) + (v_multiplier * step_v)), 1.0);
+
+        gl_Position = mvp_matrix * q_pos_ms;
+        EmitVertex();
+    }
+
+    EndPrimitive();
+}

@@ -1,0 +1,56 @@
+// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
+// This Software is distributed under the Modified BSD License, see license.txt.
+//
+// Virtual Reality and Visualization Research Group 
+// Faculty of Media, Bauhaus-Universitaet Weimar
+// http://www.uni-weimar.de/medien/vr
+
+#version 440 core
+
+uniform mat4 mvp_matrix;
+uniform mat4 model_view_matrix;
+
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+in VertexData {
+  //input from vertex shader
+  vec3 pass_ms_u;
+  vec3 pass_ms_v;
+  flat uint pass_global_surfel_id;
+} VertexIn[];
+
+out VertexData {
+  //output to fragment shader
+  vec2 pass_uv_coords;
+  float es_depth;
+  flat uint pass_further_global_surfel_id;
+} VertexOut;
+
+const float index_arr[8] = {-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
+
+void main() {
+    // -------------------------common_attributes------------------------------
+
+    mat3x3 step_uv = mat3x3(gl_in[0].gl_Position.xyz,
+                            VertexIn[0].pass_ms_u,
+                            VertexIn[0].pass_ms_v);
+
+    // ------------------------------------------------------------------------
+    for (int idx = 0; idx < 4; ++idx) {
+      vec3 uv_multiplier = vec3(1.0, index_arr[idx], index_arr[idx + 4]);
+
+      VertexOut.pass_uv_coords       = uv_multiplier.yz;
+      vec4 q_pos_ms                  = vec4( (step_uv * uv_multiplier) , 1.0);
+      gl_Position                    = mvp_matrix * q_pos_ms;
+
+      float es_linear_depth_corner = (model_view_matrix * q_pos_ms).z;
+      VertexOut.es_depth = -es_linear_depth_corner;
+
+      VertexOut.pass_further_global_surfel_id = VertexIn[0].pass_global_surfel_id;;
+
+      EmitVertex();
+    }
+
+    EndPrimitive();
+}

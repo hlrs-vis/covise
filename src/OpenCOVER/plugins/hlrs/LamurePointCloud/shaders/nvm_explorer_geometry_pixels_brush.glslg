@@ -1,0 +1,62 @@
+// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
+// This Software is distributed under the Modified BSD License, see license.txt.
+//
+// Virtual Reality and Visualization Research Group 
+// Faculty of Media, Bauhaus-Universitaet Weimar
+// http://www.uni-weimar.de/medien/vr
+
+#version 420 core
+
+uniform mat4 matrix_model;
+uniform mat4 matrix_view;
+uniform mat4 matrix_perspective;
+uniform float scale;
+
+layout(points) in;
+layout(triangle_strip, max_vertices = 14) out;
+
+in VertexData { vec3 position; }
+VertexIn[];
+
+const int ordered_line_strip_indices[14] = {3, 2, 6, 7, 4, 2, 0, 3, 1, 6, 5, 4, 1, 0};
+
+void main()
+{
+    vec3 cube_object_space_center = VertexIn[0].position;
+    float cube_half_side_length = scale / 2.0f;
+    float depth_of_pixel = 0.02 / cube_half_side_length;
+
+    vec3 cube_vertex_object_space_positions[8] = {
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, 1.0, -depth_of_pixel),   // vertex 0
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, 1.0, -depth_of_pixel),  // vertex 1
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, 1.0, depth_of_pixel),    // vertex 2
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, 1.0, depth_of_pixel),   // vertex 3
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, -1.0, -depth_of_pixel),  // vertex 4
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, -1.0, -depth_of_pixel), // vertex 5
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, -1.0, depth_of_pixel),  // vertex 6
+        cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, -1.0, depth_of_pixel),   // vertex 7
+    };
+
+    // vec4 cube_vertex_object_space_positions[8] = {
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, 1.0, -1.0)), 1.0),   // vertex 0
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, 1.0, -1.0)), 1.0),  // vertex 1
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, 1.0, 1.0)), 1.0),    // vertex 2
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, 1.0, 1.0)), 1.0),   // vertex 3
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, -1.0, -1.0)), 1.0),  // vertex 4
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, -1.0, -1.0)), 1.0), // vertex 5
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(-1.0, -1.0, 1.0)), 1.0),  // vertex 6
+    //     vec4(vec3(cube_object_space_center + vec3(cube_half_side_length) * vec3(1.0, -1.0, 1.0)), 1.0),   // vertex 7
+    // };
+
+    for(int v_idx = 0; v_idx < 14; ++v_idx)
+    {
+        // gl_Position = matrix_perspective * matrix_view * matrix_model * cube_vertex_object_space_positions[ordered_line_strip_indices[v_idx]];
+        gl_Position = matrix_perspective * matrix_view * matrix_model * vec4(cube_vertex_object_space_positions[ordered_line_strip_indices[v_idx]], 1.0);
+        EmitVertex();
+    }
+    EndPrimitive();
+
+    // vec4 position_image_space = matrix_model * vec4(VertexIn[0].position, 1.0);
+    // vec4 position_front_image_space = position_image_space + (matrix_model * vec4(0.0, 0.0, -1.0, 1.0)) * factor;
+    // vec4 position_back_image_space = position_image_space + (matrix_model * vec4(0.0, 0.0, 1.0, 1.0)) * factor;
+}

@@ -1,0 +1,77 @@
+// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
+// This Software is distributed under the Modified BSD License, see license.txt.
+//
+// Virtual Reality and Visualization Research Group 
+// Faculty of Media, Bauhaus-Universitaet Weimar
+// http://www.uni-weimar.de/medien/vr
+
+#version 420 core
+
+uniform mat4 mvp_matrix;
+uniform mat4 model_view_matrix;
+
+uniform float far_plane;
+
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+in VertexData {
+  //input from vertex shader
+  vec3 pass_ms_u;
+  vec3 pass_ms_v;
+
+  vec3 pass_point_color;
+  vec3 pass_normal;
+  OPTIONAL_BEGIN
+    vec3 mv_vertex_position;
+  OPTIONAL_END
+} VertexIn[];
+
+out VertexData {
+  //output to fragment shader
+  vec3 pass_point_color;
+  vec3 pass_normal;
+  vec2 pass_uv_coords;
+  OPTIONAL_BEGIN
+    vec3 mv_vertex_position;
+  OPTIONAL_END
+} VertexOut;
+
+void main() {
+  
+  VertexOut.pass_point_color = VertexIn[0].pass_point_color;
+  VertexOut.pass_normal = VertexIn[0].pass_normal; 
+  OPTIONAL_BEGIN
+    VertexOut.mv_vertex_position = VertexIn[0].mv_vertex_position; 
+  OPTIONAL_END
+  
+  vec3 s_pos_ms = gl_in[0].gl_Position.xyz; // position of surfel in model space
+  vec3 step_u   = VertexIn[0].pass_ms_u;
+  vec3 step_v   = VertexIn[0].pass_ms_v;
+
+  float es_linear_depth_center = (model_view_matrix * vec4(s_pos_ms,1.0)).z;
+  float es_shift = 0.0;
+  float es_shift_scale = 2.0;
+
+  const float index_arr[8] = {-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
+
+  for(int idx = 0; idx < 4; ++idx ) {
+    float u_multiplier = index_arr[idx];
+    float v_multiplier = index_arr[idx + 4];
+
+    VertexOut.pass_uv_coords        = vec2(u_multiplier, v_multiplier);
+    vec4 q_pos_ms         = vec4( ( (s_pos_ms + (u_multiplier * step_u) ) + (v_multiplier * step_v) ) ,1.0);
+    gl_Position           = mvp_matrix * q_pos_ms;
+    float es_linear_depth_corner = (model_view_matrix * q_pos_ms).z;
+
+    es_shift       = abs(es_linear_depth_corner - es_linear_depth_center) * es_shift_scale;
+    gl_Position.z  = ( ( -(es_linear_depth_corner + es_shift ) ) / far_plane);
+    gl_Position.z  = (gl_Position.z - 0.5) * 2.0;
+    gl_Position.z  *= gl_Position.w;
+
+    EmitVertex();
+  }
+
+  EndPrimitive();
+  
+}

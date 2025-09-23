@@ -1,0 +1,8 @@
+Microsoft Consolas:
+http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=17879
+
+DejaVu Fonts:
+http://dejavu-fonts.org/wiki/Main_Page
+
+Ubuntu Fonts:
+http://font.ubuntu.com/

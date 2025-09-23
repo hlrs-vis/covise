@@ -1,0 +1,97 @@
+// ===================== Geometry Shader =====================
+#version 420 core
+
+layout(points) in;
+layout(triangle_strip, max_vertices = 4) out;
+
+in VertexData {
+    vec3  pass_ms_u;         // Halbachse U (WS, Radius)
+    vec3  pass_ms_v;         // Halbachse V (WS, Radius)
+    vec3  pass_point_color;
+    vec3  pass_world_pos;
+    vec3  pass_normal_ws;
+    vec3  pass_vs_pos;
+    vec3  pass_vs_normal;
+    float pass_radius_ws;    // Durchmesser (WS) vor Pixel-CLAMP (0 bei Cut)
+} VertexIn[];
+
+uniform mat4  mvp_matrix;
+
+// Pixel-CLAMP
+uniform float min_screen_size;     // Pixel-Durchmesser
+uniform float max_screen_size;     // Pixel-Durchmesser
+uniform float scale_projection;  // Welt -> Pixel (nutzt |w| am Zentrum)
+
+out FS_IN {
+    vec3  pass_point_color;
+    vec2  pass_uv_coords;
+    vec3  pass_world_pos;
+    vec3  pass_normal_ws;
+    vec3  pass_vs_pos;
+    vec3  pass_vs_normal;
+    float pass_radius_ws;    // effektiver WS-Durchmesser nach Pixel-CLAMP
+    float pass_screen_size;  // Pixel-Durchmesser nach Pixel-CLAMP
+} gOut;
+
+void main() {
+    const float EPS = 1e-6;
+
+    // Weiterreichen (flat)
+    gOut.pass_point_color = VertexIn[0].pass_point_color;
+    gOut.pass_world_pos   = VertexIn[0].pass_world_pos;
+    gOut.pass_normal_ws   = VertexIn[0].pass_normal_ws;
+    gOut.pass_vs_pos      = VertexIn[0].pass_vs_pos;
+    gOut.pass_vs_normal   = VertexIn[0].pass_vs_normal;
+
+    // Quad in Welt
+    vec3 center = VertexIn[0].pass_world_pos;
+    vec3 step_u = VertexIn[0].pass_ms_u; // Radius
+    vec3 step_v = VertexIn[0].pass_ms_v; // Radius
+
+    // Degeneriert? → nichts emittieren
+    if (all(lessThanEqual(abs(step_u) + abs(step_v), vec3(EPS)))) {
+        return;
+    }
+
+    // Projektionsfaktor am Mittelpunkt
+    vec4 Pc  = mvp_matrix * vec4(center, 1.0);
+    float w0 = max(EPS, abs(Pc.w));
+
+    // Ausgangs-WS-Durchmesser & Pixel-Durchmesser
+    float r_ws = length(step_u);
+    float d_ws = 2.0 * r_ws;
+    float d_px = (d_ws * scale_projection) / w0;
+
+    // Pixel-CLAMP (Durchmesser) + isotrope Skalierung der Halbachsen
+    float d_pxC = clamp(d_px, min_screen_size, max_screen_size);
+    if (d_pxC <= EPS) return; // optional: unsichtbar -> skip
+
+    float s = (d_px > EPS) ? (d_pxC / d_px) : 1.0;
+    step_u *= s;
+    step_v *= s;
+
+    // Werte für FS
+    gOut.pass_radius_ws   = length(step_u); // effektiver WS-Radius nach Pixel-CLAMP
+    gOut.pass_screen_size = d_pxC;          // Pixel-Durchmesser nach Pixel-CLAMP
+
+    // Quad-Ecken & UVs
+    vec3 offs[4] = vec3[4](
+        -step_u - step_v,
+         step_u - step_v,
+        -step_u + step_v,
+         step_u + step_v
+    );
+    vec2 uvs[4] = vec2[4](
+        vec2(-1.0, -1.0),
+        vec2( 1.0, -1.0),
+        vec2(-1.0,  1.0),
+        vec2( 1.0,  1.0)
+    );
+
+    for (int i = 0; i < 4; ++i) {
+        gOut.pass_uv_coords = uvs[i];
+        gl_Position = mvp_matrix * vec4(center + offs[i], 1.0);
+        EmitVertex();
+    }
+    EndPrimitive();
+}

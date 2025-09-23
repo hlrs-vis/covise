@@ -81,6 +81,9 @@ public:
         NavOther=-1,
         NavNone,
         XForm,
+        Point,
+        PointRotate,
+        PointTranslate,
         Scale,
         Fly,
         Glide,
@@ -183,6 +186,9 @@ public:
     void startFly();
     void doFly();
     void stopFly();
+    void stopPointNav();
+    void doPointNav();
+    void startPointNav();
     void doMouseFly();
     void doMouseXform();
     void doMouseScale();
@@ -296,7 +302,7 @@ private:
     float x0, y0, relx0, rely0;
     float oldRotx, newRotx, oldRoty, newRoty;
     float modifiedVSize, modifiedHSize, yValViewer, yValObject;
-    osg::Vec3 transRel;
+    float transXRel, transYRel, transZRel;
     float originX, originY;
 
     int wiiFlag;
@@ -351,11 +357,11 @@ private:
     vrui::coRowMenu *nameMenu_;
     vrui::coButtonMenuItem *nameButton_;
     ui::Menu *navMenu_ = nullptr;
-    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr, *m_viewVisible=nullptr;
+    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
     ui::Group *navModes_ = nullptr;
     ui::ButtonGroup *navGroup_ = nullptr;
     ui::Button *noNavButton_=nullptr;
-    ui::Button *xformButton_=nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
+    ui::Button *xformButton_=nullptr,*pointButton_ = nullptr, *scaleButton_=nullptr, *flyButton_=nullptr, *walkButton_=nullptr, *driveButton_=nullptr;
     ui::Button *xformRotButton_=nullptr, *xformTransButton_=nullptr, *selectButton_=nullptr, *showNameButton_=nullptr;
     ui::Button *selectInteractButton_=nullptr;
     ui::Button *measureButton_=nullptr, *traverseInteractorButton_=nullptr;
@@ -378,7 +384,7 @@ private:
     void initMenu();
     void initShowName();
     void initMeasure();
-
+    
     osg::Vec3 getCenter() const;
     void centerView();
     osg::Vec3 mouseNavCenter;
