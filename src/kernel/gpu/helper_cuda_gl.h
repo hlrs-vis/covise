@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 // includes, graphics
-#if defined (__APPLE__) || defined(MACOSX)
+#if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
@@ -62,7 +62,7 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
         dev = 0;
     }
 
-    if (dev > deviceCount-1)
+    if (dev > deviceCount - 1)
     {
         fprintf(stderr, "\n");
         fprintf(stderr, ">> %d CUDA capable GPU device(s) detected. <<\n", deviceCount);
@@ -74,11 +74,14 @@ inline int gpuGLDeviceInit(int ARGC, const char **ARGV)
     cudaDeviceProp deviceProp;
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
 
+#if CUDART_VERSION < 13000
     if (deviceProp.computeMode == cudaComputeModeProhibited)
     {
-        fprintf(stderr, "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice().\n");
+        fprintf(stderr,
+                "Error: device is running in <Compute Mode Prohibited>, no threads can use ::cudaSetDevice().\n");
         return -1;
     }
+#endif
 
     if (deviceProp.major < 1)
     {
@@ -128,8 +131,7 @@ inline int findCudaGLDevice(int argc, const char **argv)
 //! @note The GL error is listed on stderr
 //! @note This function should be used via the CHECK_ERROR_GL() macro
 ////////////////////////////////////////////////////////////////////////////
-inline bool
-sdkCheckErrorGL(const char *file, const int line)
+inline bool sdkCheckErrorGL(const char *file, const int line)
 {
     bool ret_val = true;
 
@@ -153,10 +155,11 @@ sdkCheckErrorGL(const char *file, const int line)
     return ret_val;
 }
 
-#define SDK_CHECK_ERROR_GL()                                              \
-    if( false == sdkCheckErrorGL( __FILE__, __LINE__)) {                  \
-        DEVICE_RESET                                                      \
-        exit(EXIT_FAILURE);                                               \
+#define SDK_CHECK_ERROR_GL() \
+    if (false == sdkCheckErrorGL(__FILE__, __LINE__)) \
+    { \
+        DEVICE_RESET \
+        exit(EXIT_FAILURE); \
     }
 #endif
 
