@@ -1,6 +1,8 @@
 ﻿#include "osg_util.h"
 #include "gl_state.h"
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -350,7 +352,7 @@ void osg_util::dumpStateSetOld(const osg::StateSet* ss)
     {
         const std::string& name = kv.first;
         const auto& pair = kv.second;
-        osg::UniformBase* ub = pair.first.get();
+        auto ub = pair.first.get();
         auto ov = pair.second;
 
         std::cout << "  " << name
@@ -792,7 +794,11 @@ void osg_util::waitForOpenGLContext() {
 	auto start_time = std::chrono::steady_clock::now();
 	bool context_ready = false;
 	while (!context_ready) {
+#ifdef WIN32
 		if (wglGetCurrentContext() != nullptr) {
+#else
+		if (glXGetCurrentContext() != nullptr) {
+#endif
 			context_ready = true;
 			break;
 		}

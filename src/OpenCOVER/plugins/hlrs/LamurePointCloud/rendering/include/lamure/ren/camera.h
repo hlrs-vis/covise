@@ -109,7 +109,7 @@ class camera
 
     scm::gl::frustum const get_frustum() const;
     std::vector<scm::math::vec3d> get_frustum_corners() const;
-    std::vector<scm::math::vec3d> camera::get_frustum_corners_by_model(scm::math::mat4d const& model) const;
+    std::vector<scm::math::vec3d> get_frustum_corners_by_model(scm::math::mat4d const& model) const;
 
     void    write_view_matrix(std::ofstream& matrix_stream);
     void    set_trackball_center_of_rotation(const scm::math::vec3f& cor);

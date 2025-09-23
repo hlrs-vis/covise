@@ -202,7 +202,10 @@ scm::gl::frustum const camera::get_frustum_by_model(scm::math::mat4f const& mode
     switch (cam_state_)
     {
     case CAM_STATE_LAMURE:
-        return scm::gl::frustum(scm::math::mat4f(projection_matrix_ * trackball_.transform()) * model);
+        {
+        scm::math::mat4d tr = trackball_.transform();
+        return scm::gl::frustum(scm::math::mat4f(projection_matrix_ * tr) * model);
+        }
         break;
 
     case CAM_STATE_GUA:
@@ -349,7 +352,8 @@ std::vector<scm::math::vec3d> camera::get_frustum_corners_by_model(scm::math::ma
     scm::math::mat4d inverse_transform;
 
     if (CAM_STATE_LAMURE == cam_state_) {
-        inverse_transform = scm::math::mat4f(scm::math::inverse(projection_matrix_ * trackball_.transform() * model));
+        scm::math::mat4d tr = trackball_.transform();
+        inverse_transform = scm::math::mat4f(scm::math::inverse(projection_matrix_ * tr * model));
     }
     else if (CAM_STATE_GUA == cam_state_) {
         inverse_transform = scm::math::mat4d(scm::math::inverse(projection_matrix_ * view_matrix_ * model));
@@ -377,7 +381,8 @@ std::vector<scm::math::vec3d> camera::get_frustum_corners() const {
     scm::math::mat4d inverse_transform;
 
     if(CAM_STATE_LAMURE == cam_state_) {
-        inverse_transform = scm::math::mat4f(scm::math::inverse(projection_matrix_ * trackball_.transform()));
+        scm::math::mat4d tr = trackball_.transform();
+        inverse_transform = scm::math::mat4f(scm::math::inverse(projection_matrix_ * tr));
     }
     else if(CAM_STATE_GUA == cam_state_) {
         inverse_transform = scm::math::mat4d(scm::math::inverse(projection_matrix_ * view_matrix_));

@@ -6,6 +6,7 @@
 //boost
 #include <boost/regex.hpp>
 
+#include <string> // For std::string
 #include <fstream> // For std::ifstream
 #include <sstream> // For std::stringstream
 #include <iomanip> // For std::setprecision
@@ -121,21 +122,21 @@ scm::math::mat3f matConv4to3F(scm::math::mat4d& m) {
 	);
 }
 
-bool LamureUtil::readIndexedMatrix(const std::string& in, osg::Matrixd& M){
+bool readIndexedMatrix(const std::string& in, osg::Matrixd& M){
 	std::string s=in; for(char& c: s) if(c=='['||c==']'||c==','||c==';') c=' ';
 	std::istringstream is(s); double v[16]; for(int i=0;i<16;++i){ if(!(is>>v[i])) return false; }
 	M=osg::Matrixd(v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7], v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]); return true;
 }
 
 
-std::string LamureUtil::getConfigEntry(std::string scope) {
+std::string getConfigEntry(std::string scope) {
 	std::cout << "getConfigEntry(scope): ";
 	covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries(scope);
 	for (const auto& entry : entries)
 	{ return entry.second; }
 	return "";
 }
-std::string LamureUtil::getConfigEntry(std::string scope, std::string name) {
+std::string getConfigEntry(std::string scope, std::string name) {
 	std::cout << "getConfigEntry(scope, name): ";
 	covise::coCoviseConfig::ScopeEntries entries = covise::coCoviseConfig::getScopeEntries(scope);
 	for (const auto& entry : entries) {
@@ -260,20 +261,20 @@ void APIENTRY openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLen
 	std::cerr << "---------------------" << std::endl;
 }
 
-float *LamureUtil::gl_mat_to_array(GLdouble mat[16])
+float *gl_mat_to_array(GLdouble mat[16])
 {
     scm::math::mat4d gl_mat = scm::math::mat4d(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
     float *gl_array = scm::math::mat4f(gl_mat).data_array;
     return gl_array;
 }
 
-scm::math::mat4d LamureUtil::gl_mat(GLdouble mat[16])
+scm::math::mat4d gl_mat(GLdouble mat[16])
 {
     scm::math::mat4d gl_mat = scm::math::mat4d(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
     return gl_mat;
 }
 
-std::vector<float> LamureUtil::getBoxCorners(scm::gl::boxf box)
+std::vector<float> getBoxCorners(scm::gl::boxf box)
 {
     std::vector<float> corners = {
         box.corner(0).data_array[0],
@@ -304,7 +305,7 @@ std::vector<float> LamureUtil::getBoxCorners(scm::gl::boxf box)
     return corners;
 }
 
-std::vector<std::vector<float>> LamureUtil::getSerializedBvhMinMax(const std::vector<scm::gl::box> &bounding_boxes)
+std::vector<std::vector<float>> getSerializedBvhMinMax(const std::vector<scm::gl::box> &bounding_boxes)
 {
     std::vector<std::vector<float>> vecOfVec;
     for (uint64_t node_id = 0; node_id < bounding_boxes.size(); ++node_id)

@@ -5,6 +5,7 @@
 // Faculty of Media, Bauhaus-Universitaet Weimar
 // http://www.uni-weimar.de/medien/vr
 
+#include <cmath>
 #include <lamure/vt/pre/DeltaECalculator.h>
 
 namespace vt {

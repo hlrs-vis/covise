@@ -89,13 +89,16 @@ scm::math::mat4d lmr_camera::get_hp_projection_matrix() {
 
 scm::math::mat4 lmr_camera::calc_get_projection_matrix(float opening_angle, float aspect_ratio, float nearplane, float farplane) {
     scm::math::mat4 temp_matrix = scm::math::mat4::identity();
-    scm::math::perspective_matrix(scm::math::mat4f(temp_matrix), opening_angle, aspect_ratio, nearplane, farplane);
+    scm::math::perspective_matrix(temp_matrix, opening_angle, aspect_ratio, nearplane, farplane);
     return temp_matrix;
 }
 
 
 void lmr_camera::set_projection_matrix(float opening_angle, float aspect_ratio, float nearplane, float farplane) {
-    scm::math::perspective_matrix(scm::math::mat4f(projection_matrix_), opening_angle, aspect_ratio, nearplane, farplane);
+    scm::math::mat4f temp_matrix;
+    for(int i=0;i<16;i++)
+        temp_matrix[i] = (float)projection_matrix_[i];
+    scm::math::perspective_matrix(temp_matrix, opening_angle, aspect_ratio, nearplane, farplane);
 
     near_plane_value_ = nearplane;
     far_plane_value_ = farplane;

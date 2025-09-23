@@ -5,7 +5,7 @@
 // Faculty of Media, Bauhaus-Universitaet Weimar
 // http://www.uni-weimar.de/medien/vr
 
-#include <lamure/qm/color_converter.h>
+#include "color_converter.h"
 
 namespace lamure {
 namespace qm {

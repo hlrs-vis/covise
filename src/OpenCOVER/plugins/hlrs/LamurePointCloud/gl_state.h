@@ -10,7 +10,11 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#ifdef WIN32
 #include <windows.h>
+#else
+#include <GL/glx.h>
+#endif
 #include <sstream>
 
 // -----------------------------------------------------------------------------

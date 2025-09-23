@@ -1,5 +1,7 @@
-﻿
+﻿#ifdef WIN32
+#include <winbase.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 //local
 #include "LamurePointCloud.h"
 #include "gl_state.h"
@@ -22,7 +24,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <winbase.h>
 #include <mutex>
 #include <filesystem>
 

@@ -518,6 +518,11 @@ bool Renderer::
 initialize_schism_device_and_shaders(int resX, int resY)
 {
     std::string root_path = LAMURE_SHADERS_DIR;
+    char * val;
+        val = getenv( "COVISEDIR" );
+        root_path=val;
+        root_path=root_path+"/share/covise/shaders";
+
 
     std::string node_visibility_vs_source;
     std::string node_visibility_gs_source;

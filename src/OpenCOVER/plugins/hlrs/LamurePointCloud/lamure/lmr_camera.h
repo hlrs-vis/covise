@@ -33,7 +33,7 @@ public:
 
 
 
-    lmr_camera::lmr_camera(
+   lmr_camera(
         lamure::view_t view_id,
         scm::math::mat4d view_matrix,
         scm::math::mat4d projection_matrix,
@@ -65,13 +65,13 @@ public:
 
     const lamure::view_t view_id() const { return view_id_; };
 
-    scm::math::mat4 lmr_camera::calc_get_projection_matrix(float opening_angle, float aspect_ratio, float nearplane, float farplane);
+    scm::math::mat4 calc_get_projection_matrix(float opening_angle, float aspect_ratio, float nearplane, float farplane);
 
-    void lmr_camera::set_trackball_matrix(scm::math::mat4d const& tb_matrix);
+    void set_trackball_matrix(scm::math::mat4d const& tb_matrix);
 
-    void lmr_camera::set_projection_matrix(float opening_angle, float aspect_ratio, float near, float far);
+    void set_projection_matrix(float opening_angle, float aspect_ratio, float near, float far);
 
-    void lmr_camera::calc_view_to_screen_space_matrix(scm::math::vec2f const &win_dimensions);
+    void calc_view_to_screen_space_matrix(scm::math::vec2f const &win_dimensions);
 
     scm::math::vec3d get_cam_pos();
     scm::math::mat4f get_cam_matrix();
@@ -91,7 +91,7 @@ public:
     std::vector<scm::math::vec3d> get_frustum_corners() const;
 
     //set projection and view matrix previously
-    void lmr_camera::calc_set_frustum();
+    void calc_set_frustum();
     scm::gl::frustum calc_get_frustum();
 
     void set_frustum(scm::gl::frustum frustum);
@@ -102,10 +102,10 @@ public:
     scm::math::mat4d get_hp_view_matrix();
     scm::math::mat4d get_hp_projection_matrix();
 
-    void lmr_camera::set_hp_view_matrix(scm::math::mat4d m);
-    void lmr_camera::set_hp_projection_matrix(scm::math::mat4d m);
+    void set_hp_view_matrix(scm::math::mat4d m);
+    void set_hp_projection_matrix(scm::math::mat4d m);
 
-    void lmr_camera::set_lookat_matrix(scm::math::mat4d m);
+    void set_lookat_matrix(scm::math::mat4d m);
 
     void write_view_matrix(std::ofstream& matrix_stream);
 

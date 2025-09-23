@@ -1,5 +1,8 @@
-﻿#define GLFW_EXPOSE_NATIVE_WIN32
-//local
+﻿//local
+#ifdef WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <winbase.h>
+#endif
 #include "Lamure.h" 
 #include "gl_state.h"
 #include "osg_util.h"
@@ -21,7 +24,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
-#include <winbase.h>
 #include <mutex>
 #include <filesystem>
 #include <memory>
@@ -58,6 +60,7 @@
 #include <cover/coVRNavigationManager.h>
 
 
+#ifdef WIN32
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,12 +69,13 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#endif
 
 COVERPLUGIN(Lamure)
 Lamure* Lamure::plugin = nullptr;
 //static opencover::FileHandler handler = {NULL, Lamure::loadLMR, Lamure::unloadLMR, "lmr"};
 
-Lamure::Lamure() : opencover::ui::Owner("Lamure", opencover::cover->ui)
+Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("Lamure", opencover::cover->ui)
 {
 	//opencover::coVRFileManager::instance()->registerFileHandler(&handler);
 	plugin = this;
