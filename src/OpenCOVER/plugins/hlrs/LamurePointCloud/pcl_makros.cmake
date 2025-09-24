@@ -7,8 +7,8 @@ macro(pcl_project_files)
     get_filename_component(src_path     ${SRC_DIR} ABSOLUTE)
     get_filename_component(search_path  ${search_dir} ABSOLUTE)
 
-    message(${src_path})
-    message(${search_path})
+    #message(${src_path})
+    #message(${search_path})
 
     # remove the leading output and input variable
     list(REMOVE_AT in_glob_expr 0 1)
@@ -25,7 +25,7 @@ macro(pcl_project_files)
                 file(TO_CMAKE_PATH ${rel_path} rel_path)
             endif (rel_path)
 
-            message(${rel_path} " " ${proj_file})
+            # message(${rel_path} " " ${proj_file})
 
             list(APPEND out_proj_files ${proj_file})
 
