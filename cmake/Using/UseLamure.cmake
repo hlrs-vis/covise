@@ -1,7 +1,6 @@
 MACRO(USE_LAMURE)
     COVISE_FIND_PACKAGE(LAMURE)
     IF ((NOT LAMURE_FOUND)  AND (${ARGC} LESS 1))
-        MESSAGE("Lamure FOUND")
         USING_MESSAGE("Skipping because of missing Lamure")
         RETURN()
     ENDIF((NOT LAMURE_FOUND) AND (${ARGC} LESS 1))
