@@ -121,12 +121,18 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
         std::cout << "##### " << policy->render_budget_in_mb() << " MB will be used for the render budget #####" << std::endl;
     }
     long node_size_total = database->get_slot_size();
-    render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
+    if(node_size_total==0)
+        render_budget_in_nodes_ = 0;
+    else
+        render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
 
     size_t max_upload_budget_in_mb = policy->max_upload_budget_in_mb();
     max_upload_budget_in_mb = max_upload_budget_in_mb < LAMURE_MIN_UPLOAD_BUDGET ? LAMURE_MIN_UPLOAD_BUDGET : max_upload_budget_in_mb;
     max_upload_budget_in_mb = max_upload_budget_in_mb > video_ram_free_in_mb * 0.125 ? video_ram_free_in_mb * 0.125 : max_upload_budget_in_mb;
 
+    if(node_size_total==0)
+    upload_budget_in_nodes_ = 0;
+    else
     upload_budget_in_nodes_ = (max_upload_budget_in_mb * 1024u * 1024u) / node_size_total;
 
 
