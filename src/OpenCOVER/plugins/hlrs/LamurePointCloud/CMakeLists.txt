@@ -69,10 +69,6 @@ pcl_project_files(HEADER_FILES      ${SRC_DIR}/lamure						                    *
 
 SET(HEADERS 
   ${HEADER_FILES}
-  #LamurePointCloud.h
-  #LamurePointCloudInteractor.h
-  #LamureGeometry.h
-  #LamureDrawable.h
   gl_state.h
   osg_util.h
   Lamure.h
@@ -85,10 +81,6 @@ SET(HEADERS
 
 SET(SOURCES 
   ${SOURCE_FILES}
-  #LamurePointCloud.cpp
-  #LamurePointCloudInteractor.cpp
-  #LamureGeometry.cpp
-  #LamureDrawable.cpp
   gl_state.cpp
   osg_util.cpp
   Lamure.cpp

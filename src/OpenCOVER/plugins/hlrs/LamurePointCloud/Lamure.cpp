@@ -57,6 +57,7 @@
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+#include <cover/coVRPluginList.h>
 #include <cover/coVRNavigationManager.h>
 
 
@@ -73,11 +74,10 @@ extern "C" {
 
 COVERPLUGIN(Lamure)
 Lamure* Lamure::plugin = nullptr;
-//static opencover::FileHandler handler = {NULL, Lamure::loadLMR, Lamure::unloadLMR, "lmr"};
-
+static opencover::FileHandler handler = {NULL, Lamure::loadBvh, Lamure::unloadBvh, "bvh"};
 Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("Lamure", opencover::cover->ui)
 {
-	//opencover::coVRFileManager::instance()->registerFileHandler(&handler);
+    opencover::coVRFileManager::instance()->registerFileHandler(&handler);
 	plugin = this;
     m_ui = std::make_unique<LamureUI>(this, "LamureUI");
     m_renderer = std::make_unique<LamureRenderer>(this);
@@ -91,13 +91,51 @@ Lamure* Lamure::instance()
 Lamure::~Lamure()
 {
 	fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
-	//opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
-	//opencover::cover->getObjectsRoot()->removeChild(LamureGroup);
+	opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
-int Lamure::unloadLMR(const char* filename, const char* covise_key)
+int Lamure::loadBvh(const char* filename, osg::Group* parent, const char* covise_key) 
 {
-	return 1;
+    std::string bvh_file = filename ? std::string(filename) : std::string();
+#ifdef _WIN32
+    std::replace(bvh_file.begin(), bvh_file.end(), '\\', '/');
+#endif
+
+    if (bvh_file.empty())
+        return 0;
+
+    auto &s = plugin->getSettings();
+
+    if (std::find(s.models.begin(), s.models.end(), bvh_file) == s.models.end())
+        s.models.push_back(bvh_file);
+
+    s.num_models = static_cast<int>(s.models.size());
+    return 1;
+}
+
+int Lamure::unloadBvh(const char* filename, const char* covise_key)
+{
+    std::string path = filename ? std::string(filename) : std::string();
+#ifdef _WIN32
+    std::replace(path.begin(), path.end(), '\\', '/');
+#endif
+    if (path.empty()) return 0;
+
+    if (!Lamure::plugin) return 0; // schon weg
+
+    auto &s = Lamure::plugin->getSettings();
+    s.models.erase(std::remove(s.models.begin(), s.models.end(), path), s.models.end());
+    s.num_models = static_cast<int>(s.models.size());
+
+    std::printf("[Lamure] unloadBvh '%s' -> num_models=%d\n", path.c_str(), s.num_models);
+
+    if (s.models.empty()) {
+        // Instanz-Zeiger über PluginList holen und entladen -> ~Lamure() läuft
+        if (auto *p = opencover::coVRPluginList::instance()->getPlugin("Lamure")) {
+            opencover::coVRPluginList::instance()->unload(p);  // Destruktor wird hier aufgerufen
+            // Danach NICHT mehr auf Lamure::plugin zugreifen.
+        }
+    }
 }
 
 namespace {
@@ -562,9 +600,6 @@ bool Lamure::init2() {
     m_renderer->init();
     opencover::cover->getObjectsRoot()->addChild(m_renderer->getGroup());
     applyShaderToRendererFromSettings();
-	//interactor = new LamurePointCloudInteractor();
-	//osg::ref_ptr<opencover::IntersectionHandler> handler = interactor;
-	//opencover::coIntersection::instance()->addHandler(handler);
     opencover::coVRNavigationManager::instance()->setNavMode("Point");
     if (m_settings.use_initial_view || m_settings.use_initial_navigation)
         plugin->applyInitialTransforms();

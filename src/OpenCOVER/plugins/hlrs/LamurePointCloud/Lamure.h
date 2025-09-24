@@ -79,8 +79,6 @@ struct ScopedMark {
     ~ScopedMark();
 };
 
-
-
 #define LM_CAT_IMPL(a,b) a##b
 #define LM_CAT(a,b) LM_CAT_IMPL(a,b)
 
@@ -253,8 +251,8 @@ public:
 
     static Lamure* instance();
     bool init2();
-    static int loadLMR(const char* filename, osg::Group* parent, const char* ck = "");
-    static int unloadLMR(const char* filename, const char* ck = "");
+    static int loadBvh(const char* filename, osg::Group* parent, const char* ck = "");
+    static int unloadBvh(const char* filename, const char* ck = "");
     void loadSettingsFromCovise();
     void preFrame();
     void startMeasurement();
@@ -301,15 +299,15 @@ private:
     osgViewer::ViewerBase::FrameScheme  rendering_scheme{};
     std::unique_ptr<LamureMeasurement>  m_measurement;
     std::vector<osg::Vec3>              _path;
-    float                                _speed{1.0f};
-    bool                                 measurement_running{false};
-    bool                                 prov_valid{false};
-    bool                                 m_silenceMeasureToggle{false};
-    float        prev_frame_rate_ = 0.0f;
-    unsigned int prev_vsync_frames_ = 0;
-    bool         fps_cap_modified_ = false;
-    bool         vsync_modified_   = false;
-    FrameMarks                           m_marks;
+    float                               _speed{1.0f};
+    bool                                measurement_running{false};
+    bool                                prov_valid{false};
+    bool                                m_silenceMeasureToggle{false};
+    float                               prev_frame_rate_ = 0.0f;
+    unsigned int                        prev_vsync_frames_ = 0;
+    bool                                fps_cap_modified_ = false;
+    bool                                vsync_modified_   = false;
+    FrameMarks                          m_marks;
 
     std::bitset<512> m_keyDown_;
 
