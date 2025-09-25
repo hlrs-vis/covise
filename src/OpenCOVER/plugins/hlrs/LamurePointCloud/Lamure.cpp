@@ -71,7 +71,7 @@ COVERPLUGIN(Lamure)
 Lamure* Lamure::plugin = nullptr;
 //static opencover::FileHandler handler = {NULL, Lamure::loadLMR, Lamure::unloadLMR, "lmr"};
 
-Lamure::Lamure() : opencover::ui::Owner("Lamure", opencover::cover->ui)
+Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("Lamure", opencover::cover->ui)
 {
 	//opencover::coVRFileManager::instance()->registerFileHandler(&handler);
 	plugin = this;

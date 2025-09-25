@@ -5,7 +5,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 include(${SRC_DIR}/pcl_makros.cmake)
 
 # Using the LamurePointCloud target
-using(LamurePointCloud)
+using(Lamure)
 
 # Include directories for Lamure
 set(LAMURE_INCLUDE_DIRS

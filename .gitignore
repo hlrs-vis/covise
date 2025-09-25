@@ -285,3 +285,5 @@ compile_commands.json
 /lionopt
 /libc++
 /libc++opt
+/cmake/Using/UseLamurePointCloud.cmake
+/config/config.desktop-ems6jn8.xml
