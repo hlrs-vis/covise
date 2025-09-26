@@ -18,7 +18,7 @@
 #define ZONE_H_
 
 #include <vector>
-#include <string>
+//#include <string>
 #include <cgnslib.h>
 #include <do/coDoUnstructuredGrid.h> //for grid element types
 #include <do/coDoData.h>
@@ -29,9 +29,9 @@ using namespace covise;
 
 class zone
 {
-    //from COMODULE
-
+    /// Error return for CGNS lib
     int error;
+    //from COMODULE
     enum
     {
         FAIL = -1,

@@ -30,8 +30,7 @@ typedef int cgsize_t;
  *  Constructor
  *-----------------------------*/
 
-zone::zone(int i_file, int i_base, int i_zone, params _p)
-{
+zone::zone(int i_file, int i_base, int i_zone, params _p) : error(0), zonesize{0,0,0}, zonename{""}, zonetype(ZoneType_t::ZoneTypeNull) {
     index_file = i_file;
     ibase = i_base;
     izone = i_zone;
@@ -75,7 +74,11 @@ int zone::read()
     cout << "zone::read(): Number of sections:" << numsections << endl;
 
     vector<int> sections; //array of selected section indices
-    select_sections(sections);
+    error = select_sections(sections);
+    if (error==FAIL) {
+        cerr<<"zone::select_sections() failed"<<endl;
+        return FAIL;
+    }
 
     int sectionsread = 0; //How many sections we have read?
     for (int ind = 0; ind < sections.size(); ++ind) // for_each ?
@@ -324,8 +327,10 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
 
     char elemsectname[100];
     int bdry = 0, parentflg = 0;
-    cgsize_t start = 0, end = 0, eldatasize = 0;
-    CGNS_ENUMV(ElementType_t) etype;
+    cgsize_t start = 0; /// Start section element idx (usially 1)
+    cgsize_t end = 0;   /// End section element idx (usually number of elements-1)
+    cgsize_t eldatasize = 0;  /// Element connectivity array size
+    CGNS_ENUMV(ElementType_t) etype; /// Section element type
 
     //Reading Section (reading Connectivity, then creating Type list and element list)
     error = cg_section_read(index_file, ibase, izone, isection, elemsectname, &etype, &start, &end, &bdry, &parentflg);
@@ -339,9 +344,25 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
     size_t connfirst = conn.size(); //Index of first conn. element (in this iteration) for tl and elem creation.
 
     vector<cgsize_t> conntemp; // temporary array for cleaned connectivity for this iteration
+    vector<cgsize_t> elem_offset_tmp; // temporary element offset array for mixed-size element section
     conntemp.insert(conntemp.begin(), eldatasize, 0);
-    error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
-
+    if (etype != CGNS_ENUMV(MIXED)) {
+        error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
+        if (error) {
+            cout<< cout_red<<"Zone::read_one_section: cg_elements_read failed! Possibly mixed-size element section, etype = "<<etype<<cout_norm<<endl;
+            return FAIL;
+        }
+    } else {
+        // Fix for libcgns 3.4+: CPEX 41 NGON modification proposal:
+        // Must use new cg_poly_elements_read function for MIXED and NGON section
+        // Elements data is the same even in new format, they just added offset array
+        elem_offset_tmp.insert(elem_offset_tmp.begin(), end+1, 0);
+        error = cg_poly_elements_read(index_file,ibase,izone,isection,conntemp.data(),elem_offset_tmp.data(),nullptr);
+        if (error) {
+            cout<< cout_red<<"Zone::read_one_section: cg_poly_elements_read failed! etype = "<<etype<<cout_norm<<endl;
+            return FAIL;
+        }
+    }
     // creating elements and types array for COVISE unstructured grid
     switch (etype)
     {
@@ -360,14 +381,14 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
         cout << "zone::read_one_section(): Section " << isection << " has CG_TETRA_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
         break;
-    case CGNS_ENUMV(QUAD_4):
+    case CGNS_ENUMV(QUAD_4): //=7
         tl.insert(tl.end(), end - start + 1, TYPE_QUAD);
         for (int i = 0; i < end - start + 1; ++i)
             elem.push_back((int)(connfirst + 4 * i)); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
         cout << "zone::read_one_section(): Section " << isection << " has CG_QUAD_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
         break;
-    case CGNS_ENUMV(TRI_3):
+    case CGNS_ENUMV(TRI_3): //=5
         tl.insert(tl.end(), end - start + 1, TYPE_TRIANGLE);
         for (int i = 0; i < end - start + 1; ++i)
             elem.push_back(connfirst + 3 * i); // indices begin from connfirst
@@ -457,7 +478,6 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
 // Selects grid sections that we want to load
 // returns vector <int> &section -- array of section indices to load
 //----------------------------------------------------------------------------------------
-
 int zone::select_sections(vector<int> &sections)
 {
     int numsections = 0;
@@ -509,7 +529,8 @@ int zone::select_sections(vector<int> &sections)
 
             char elemsectname[100];
             int bdry = 0, parentflg = 0;
-            cgsize_t start = 0, end = 0;
+            cgsize_t start = 0; /// Start section element idx (usually 1)
+            cgsize_t end = 0; /// End section element idx (usually number of elements-1)
             CGNS_ENUMT(ElementType_t) etype;
 
             //Reading Section (reading Connectivity, then creating Type list and element list)
@@ -552,7 +573,13 @@ int zone::select_sections(vector<int> &sections)
                 cgsize_t eldatasize = 0;
                 error = cg_ElementDataSize(index_file, ibase, izone, isection, &eldatasize);
                 conntemp.insert(conntemp.begin(), eldatasize, 0);
-                error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
+
+                //error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
+                vector<cgsize_t> connect_offset_temp(end+1);
+                // Fix for libcgns 3.4+: CPEX 41 NGON modification proposal:
+                // must use new cg_poly_elements_read function for MIXED and NGON section
+                error = cg_poly_elements_read(index_file, ibase, izone, isection, conntemp.data(), connect_offset_temp.data(),nullptr);
+
                 if (error)
                 {
                     CoviseBase::sendError("zone::select_sections(): Cannot load MIXED-type array!");
@@ -566,13 +593,11 @@ int zone::select_sections(vector<int> &sections)
                     sectnames.push_back(s);
                     cout << "zone::select_sections(): Mixed Section " << isection << " is 2D , adding ..." << endl;
                 }
-                if ((is3d) && (!p.b_load_2d))
-                {
+                if ((is3d) && (!p.b_load_2d)) {
                     sections.push_back(isection);
                     sectnames.push_back(s);
                     cout << "zone::select_sections(): Mixed Section " << isection << " is 3D , adding ..." << endl;
                 }
-                conntemp.clear(); //don't needed???
             }
             break;
             default:
