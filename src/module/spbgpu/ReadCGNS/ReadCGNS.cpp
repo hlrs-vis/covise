@@ -44,6 +44,12 @@ string int2str(int n)
     o << n;
     return o.str();
 }
+
+void err_callback(int error, char *errmsg) {
+    cout<<"CGNS Error: code= "<<error<<", msg= "<<errmsg<<endl;
+
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++
@@ -96,6 +102,7 @@ ReadCGNS::ReadCGNS(int argc, char *argv[])
     out_float[3] = addOutputPort("Steam_Quality", "Float", "Steam Quality");
 
     out_velocity = addOutputPort("Velocity", "Vec3", "Velocity");
+    cg_configure(CG_CONFIG_ERROR,(void*)err_callback);
 }
 
 void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
@@ -190,6 +197,8 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
         //			sendWarning("param: xv=%d ; yv=%d",param_vx->getValue(),param_vy->getValue());
 
         int parm = -1;
+
+
 
         //sendWarning ("Setting params %s",stparams[0].c_str());
         parm = param_vx->getValue();
