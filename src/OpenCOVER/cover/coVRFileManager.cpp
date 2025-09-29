@@ -693,6 +693,8 @@ const char *coVRFileManager::buildFileName(const char *texture)
 {
     const char *name = getName(texture);
     std::string look;
+    // If caller already provided an extension (e.g. .png/.jpg/.rgb) and a bare filename (no path),
+    // first try share/covise/icons/texture/<filename>
     if (name == NULL)
     {
         look = coCoviseConfig::getEntry("COVER.LookAndFeel");
@@ -706,8 +708,13 @@ const char *coVRFileManager::buildFileName(const char *texture)
     }
     if (name == NULL)
     {
+        const char *dot = strrchr(texture, '.');
+        // simple heuristic: has an extension and not a path
         char *fn = new char[strlen(texture) + 50];
-        sprintf(fn, "share/covise/icons/%s.rgb", texture);
+        if (dot && !strchr(texture,'/') && !strchr(texture,'\\'))
+            sprintf(fn, "share/covise/icons/%s", texture);
+        else
+            sprintf(fn, "share/covise/icons/%s.rgb", texture);
         name = getName(fn);
         delete[] fn;
     }
