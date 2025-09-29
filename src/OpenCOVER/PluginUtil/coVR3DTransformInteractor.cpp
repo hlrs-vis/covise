@@ -6,24 +6,33 @@
  * License: LGPL 2+ */
 
 #include "coVR3DTransformInteractor.h"
-#include <cover/coVRPluginSupport.h>
-#include <osg/ShapeDrawable>
-#include <osg/Geometry>
-#include <osg/Geode>
-#include <osg/MatrixTransform>
-#include <osg/Material>
-#include <osg/PolygonMode>
-#include <osg/LineWidth>
-#include <osg/BlendFunc>
 #include <cmath>
-#include <cover/coVRNavigationManager.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRNavigationManager.h>
+#include <cover/coVRPluginSupport.h>
+#include <osg/AlphaFunc>
+#include <osg/BlendFunc>
+#include <osg/Geode>
+#include <osg/Geometry>
+#include <osg/Group>
+#include <osg/Image>
+#include <osg/LineWidth>
+#include <osg/Material>
+#include <osg/MatrixTransform>
+#include <osg/PolygonMode>
+#include <osg/ShapeDrawable>
+#include <osg/Texture2D>
+#include <osgDB/FileUtils>
+#include <osgDB/ReadFile>
 
 using namespace opencover;
 
 const osg::Vec4 xColor = osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f);         // Red
 const osg::Vec4 yColor = osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f);         // Green
 const osg::Vec4 zColor = osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f);         // Blue
+
+const std::array<osg::Vec4, 3> axisColors = {xColor, yColor, zColor};
 
 const osg::Vec4 hoverColor = osg::Vec4(0.6f, 0.6f, 0.0f, 1.0f);     // Yellow
 const osg::Vec4 interactionColor = osg::Vec4(1.0, 0.3, 0.0, 1.0f);  // Orange
@@ -32,8 +41,11 @@ const osg::Vec4 centerColor = osg::Vec4(0.8f, 0.8f, 0.8f, 1.0f);    // Gray
 const osg::Vec4 uniformScaleColor = centerColor; 
 
 constexpr float highlightFactor = 0.7f; // Factor to reduce color brightness
-constexpr float arrowLength = 0.8f; 
+constexpr float arrowLength = 10.0f; 
+constexpr float ringRadius = arrowLength * 0.7f;  // rotate gizmo ring radius
 constexpr int maxSegments = 128; 
+
+const std::array<osg::Vec3, 3> coordAxes = {osg::X_AXIS, osg::Y_AXIS, osg::Z_AXIS};
 
 osg::Vec3 transformDeltaToLocalAxes(const osg::Vec3& worldDelta, const osg::Matrix& transformMatrix)
 {
@@ -98,22 +110,25 @@ std::pair<osg::Vec3, osg::Vec3> getPerpendicularPlane(const osg::Vec3 &axis)
 {
     osg::Vec3 u, v;
     if (fabs(axis.x()) > 0.9f) {
-        u = osg::Vec3(0, 1, 0);  v = osg::Vec3(0, 0, 1);
+        u = osg::Vec3(0, 0, 1);  v = osg::Vec3(0, 1, 0);
     } else if (fabs(axis.y()) > 0.9f) {
         u = osg::Vec3(1, 0, 0);  v = osg::Vec3(0, 0, 1);
     } else {
-        u = osg::Vec3(1, 0, 0);  v = osg::Vec3(0, 1, 0);
+        u = osg::Vec3(0, 1, 0);  v = osg::Vec3(1, 0, 0);
     }
     return {u, v};
 }
 
 coVR3DTransformInteractor::coVR3DTransformInteractor(float size, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority)
     : coVRIntersectionInteractor(size, type, iconName, interactorName, priority, false)
-    , m_currentMode(TRANSLATE)
+    , m_interactionMode(TRANSLATE)
+    , m_root(new osg::MatrixTransform)
+    , m_Arrows({detail::Arrow{m_root, osg::Vec3(1, 0, 0), xColor}, detail::Arrow{m_root, osg::Vec3(0, 1, 0), yColor}, detail::Arrow{m_root, osg::Vec3(0, 0, 1), zColor}})
 {
     createGeometry();
     _standardHL = true;
 }
+
 coVR3DTransformInteractor::~coVR3DTransformInteractor()
 {
     hide();
@@ -122,10 +137,9 @@ coVR3DTransformInteractor::~coVR3DTransformInteractor()
 void coVR3DTransformInteractor::createGeometry()
 {
     // Create root node for all gizmos
-    m_root = new osg::MatrixTransform;
     m_root->setName("TransformInteractorRoot");
     
-    createArrows();
+    createTranslateGizmos();
     CreateRotationTori(); 
     
     // Set this as the geometry node for the base class
@@ -135,6 +149,8 @@ void coVR3DTransformInteractor::createGeometry()
     // Set initial arrow colors
     updateArrowColors();
     createRotationVisualization();
+    createModeCube();
+    updateGizmoAppearance();
 }
 
 
@@ -147,13 +163,72 @@ void setMaterial(osg::Geode* geode, const osg::Vec4 &color)
     material->setShininess(osg::Material::FRONT_AND_BACK, 10.0f);
     material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
     material->setColorMode(osg::Material::OFF);
-    geode->getOrCreateStateSet()->setAttributeAndModes(material);
-    geode->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::ON);
-    
-    // Store original color as user data
-    geode->setUserValue("originalColor", color);
+    auto ss = geode->getOrCreateStateSet();
+    ss->setAttributeAndModes(material);
+    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+    ss->setMode(GL_LIGHTING, osg::StateAttribute::ON);
 }
 
+
+detail::Arrow::Arrow(osg::Group *parent, const osg::Vec3 &direction, const osg::Vec4 &color)
+: parent(parent)
+, shaft(new osg::Geode)
+, tip(new osg::Geode)
+, tipTransform(new osg::MatrixTransform)
+, shaftTransform(new osg::MatrixTransform)
+, direction(direction)
+{
+    
+    shaftTransform->setMatrix(osg::Matrix::translate(direction * 0.5f));
+    tipTransform->setMatrix(osg::Matrix::translate(direction));
+
+    // Add geodes to their respective transforms
+    tipTransform->addChild(tip);
+    shaftTransform->addChild(shaft);
+
+    osg::Quat rot;
+    rot.makeRotate(osg::Vec3(0, 0, 1), direction);
+    
+    // Arrow shaft (cylinder) - create at origin with base dimensions
+    osg::ref_ptr<osg::Cylinder> cylinder = new osg::Cylinder(
+        osg::Vec3(0, 0, 0),   // At origin - transform will position it
+        arrowLength * 0.02f,         // Thickness
+        arrowLength);         // Base length
+    cylinder->setRotation(rot);
+    cylinder->setName("ArrowShaft");
+
+    osg::ref_ptr<osg::ShapeDrawable> shaftDrawable = new osg::ShapeDrawable(cylinder);
+    shaftDrawable->setName("ArrowShaft");
+    shaft->addDrawable(shaftDrawable);
+    
+    // Arrow head (cone) - create at origin
+    osg::ref_ptr<osg::Cone> head = new osg::Cone(
+        osg::Vec3(0, 0, 0),   // At origin - transform will position it
+        arrowLength * 0.10f,         // Width
+        arrowLength * 0.3f);         // Length
+    head->setRotation(rot);
+    head->setName("ArrowTip");
+
+    osg::ref_ptr<osg::ShapeDrawable> headDrawable = new osg::ShapeDrawable(head);
+    headDrawable->setName("ArrowTip");
+    tip->addDrawable(headDrawable);
+    
+    // Set initial transforms
+    // Shaft positioned at its center
+    osg::Matrix shaftMatrix;
+    shaftMatrix.makeTranslate(direction * arrowLength * 0.5f);
+    shaftTransform->setMatrix(shaftMatrix);
+    
+    // Tip positioned at end of shaft
+    osg::Matrix tipMatrix;
+    tipMatrix.makeTranslate(direction * arrowLength);
+    tipTransform->setMatrix(tipMatrix);
+
+    setMaterial(shaft.get(), color);
+    setMaterial(tip.get(), color);
+
+    setVisible(true);
+}
 
 void detail::Arrow::setScale(float scale)
 {
@@ -169,7 +244,7 @@ void detail::Arrow::setScale(float scale)
     
     // Also translate the shaft center to account for the scaling
     // When scaling, the center moves, so we need to adjust position
-    osg::Vec3 newCenter = direction * baseSize * 0.4f * scale;
+    osg::Vec3 newCenter = direction * arrowLength * 0.5f * scale;
     osg::Matrix translateMatrix;
     translateMatrix.makeTranslate(newCenter);
     
@@ -179,234 +254,300 @@ void detail::Arrow::setScale(float scale)
     
     // Position tip at the end of the scaled shaft using tipTransform
     osg::Matrix tipMatrix;
-    tipMatrix.makeTranslate(direction * baseSize * arrowLength * scale);
+    tipMatrix.makeTranslate(direction * arrowLength * scale);
     tipTransform->setMatrix(tipMatrix);
 }
 
-detail::Arrow createArrow(const osg::Vec3 &direction, const osg::Vec4 &color, float size)
+void detail::Arrow::setVisible(bool on)
 {
-    detail::Arrow arrow;
-    arrow.shaft = new osg::Geode;
-    arrow.tip = new osg::Geode;
-    arrow.tipTransform = new osg::MatrixTransform;
-    arrow.shaftTransform = new osg::MatrixTransform;
-    
-    // Store parameters for later scaling
-    arrow.direction = direction;
-    arrow.baseSize = size;
-
-    // Add geodes to their respective transforms
-    arrow.tipTransform->addChild(arrow.tip);
-    arrow.shaftTransform->addChild(arrow.shaft);
-    
-    osg::Quat rot;
-    rot.makeRotate(osg::Vec3(0, 0, 1), direction);
-    
-    // Arrow shaft (cylinder) - create at origin with base dimensions
-    osg::ref_ptr<osg::Cylinder> shaft = new osg::Cylinder(
-        osg::Vec3(0, 0, 0),   // At origin - transform will position it
-        size * 0.02f,         // Thickness
-        size * arrowLength);         // Base length
-    shaft->setRotation(rot);
-    shaft->setName("ArrowShaft");
-
-    osg::ref_ptr<osg::ShapeDrawable> shaftDrawable = new osg::ShapeDrawable(shaft);
-    shaftDrawable->setName("ArrowShaft");
-    arrow.shaft->addDrawable(shaftDrawable);
-    
-    // Arrow head (cone) - create at origin
-    osg::ref_ptr<osg::Cone> head = new osg::Cone(
-        osg::Vec3(0, 0, 0),   // At origin - transform will position it
-        size * 0.12f,         // Width
-        size * 0.2f);         // Length
-    head->setRotation(rot);
-    head->setName("ArrowTip");
-
-    osg::ref_ptr<osg::ShapeDrawable> headDrawable = new osg::ShapeDrawable(head);
-    headDrawable->setName("ArrowTip");
-    arrow.tip->addDrawable(headDrawable);
-    
-    // Set initial transforms
-    // Shaft positioned at its center
-    osg::Matrix shaftMatrix;
-    shaftMatrix.makeTranslate(direction * size * 0.4f);
-    arrow.shaftTransform->setMatrix(shaftMatrix);
-    
-    // Tip positioned at end of shaft
-    osg::Matrix tipMatrix;
-    tipMatrix.makeTranslate(direction * size * arrowLength);
-    arrow.tipTransform->setMatrix(tipMatrix);
-
-    setMaterial(arrow.shaft, color);
-    setMaterial(arrow.tip, color);
-    return arrow;
+    if (on)
+    {
+        if (parent && !parent->containsNode(shaftTransform))
+            parent->addChild(shaftTransform);
+        if (parent && !parent->containsNode(tipTransform))
+            parent->addChild(tipTransform);
+    }
+    else
+    {
+        parent->removeChild(shaftTransform);
+        parent->removeChild(tipTransform);
+    }
 }
 
-void coVR3DTransformInteractor::createArrows()
+int axisToIndex(const osg::Vec3 &axis)
 {
-    // Create arrows for each axis
-    m_xArrow = createArrow(osg::Vec3(1, 0, 0), xColor, _interSize);
-    m_yArrow = createArrow(osg::Vec3(0, 1, 0), yColor, _interSize);
-    m_zArrow = createArrow(osg::Vec3(0, 0, 1), zColor, _interSize);
-    
-    // Create plane handles
-    m_xyPlane = createPlane(osg::Vec3(0, 0, 1), osg::Vec4(0.5f, 0.5f, 0.0f, 0.3f));
-    m_xzPlane = createPlane(osg::Vec3(0, 1, 0), osg::Vec4(0.5f, 0.0f, 0.5f, 0.3f));
-    m_yzPlane = createPlane(osg::Vec3(1, 0, 0), osg::Vec4(0.0f, 0.5f, 0.5f, 0.3f));
-    
-    // Center sphere for free movement
-    m_centerSphere = createSphere(_interSize * 0.05f, centerColor);
+    for (size_t i = 0; i < coordAxes.size(); i++)
+    {
+        if (axis == coordAxes[i]) return i;
+    }
+    return -1; // Invalid axis
+}
 
-    //todo: test replacement with moveTransform
-    m_root->addChild(m_xArrow.shaftTransform);
-    m_root->addChild(m_yArrow.shaftTransform);
-    m_root->addChild(m_zArrow.shaftTransform);
-    m_root->addChild(m_xArrow.tipTransform);
-    m_root->addChild(m_yArrow.tipTransform);
-    m_root->addChild(m_zArrow.tipTransform);
-    m_root->addChild(m_xyPlane);
-    m_root->addChild(m_xzPlane);
-    m_root->addChild(m_yzPlane);
+void detail::Arrow::resetColor(bool uniformScale)
+{
+    if (uniformScale)
+        setMaterial(tip, uniformScaleColor);
+    else
+        setMaterial(tip,  axisColors[axisToIndex(direction)]);
+
+    setMaterial(shaft, axisColors[axisToIndex(direction)]);
+}
+
+std::vector<osg::Geode*> detail::Arrow::hit(const osg::Node *node) const
+{
+    std::vector<osg::Geode*> geodes;
+    if (node == shaft.get())
+        geodes.push_back(shaft.get());
+    if (node == tip.get())
+        geodes.push_back(tip.get());
+    return geodes;
+}
+
+bool detail::Arrow::isTip(osg::Node* node) const
+{
+    return node == tip.get();
+}
+
+void coVR3DTransformInteractor::createTranslateGizmos()
+{
+    for (size_t i = 0; i < m_gizmoPlanes.size(); i++)
+    {
+        m_gizmoPlanes[i] = createPlane(coordAxes[2 - i], axisColors[2 - i]);
+        m_root->addChild(m_gizmoPlanes[i]);
+    }
+
+    // Center sphere for free movement
+    m_centerSphere = createSphere(arrowLength * 0.08f, centerColor);
     m_root->addChild(m_centerSphere);
-    
 }
 
 void coVR3DTransformInteractor::CreateRotationTori()
 {
-    // Create rotation rings for each axis
-    m_xRotRing = createRotationRing(osg::Vec3(1, 0, 0), xColor);
-    m_yRotRing = createRotationRing(osg::Vec3(0, 1, 0), yColor);
-    m_zRotRing = createRotationRing(osg::Vec3(0, 0, 1), zColor);
+    for (size_t i = 0; i < m_gizmoRings.size(); i++)
+    {
+        m_gizmoRings[i] = createRotationRing(coordAxes[i], axisColors[i]);
+        m_root->addChild(m_gizmoRings[i]);
+    }
+}
 
-    m_root->addChild(m_xRotRing);
-    m_root->addChild(m_yRotRing);
-    m_root->addChild(m_zRotRing);
-    
+osg::Texture2D* loadTexture(const std::string &filePath)
+{
+    auto texture = coVRFileManager::instance()->loadTexture(filePath.c_str());
+    assert(texture && "Failed to load texture");
+    texture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+    texture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+    texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
+    texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+    return texture;
 }
 
 osg::Geode* coVR3DTransformInteractor::createPlane(const osg::Vec3 &normal, const osg::Vec4 &color)
 {
     osg::Geode* geode = new osg::Geode;
-    
-    // Create a small square plane handle
-    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-    
-    float planeSize = _interSize * 0.15f;
-    // Calculate plane vectors perpendicular to normal
+    // Procedural 4-way move icon built from triangles (no texture) + invisible pick quad.
+    float planeSize = arrowLength * 0.3f; // scale reference kept
     auto [u, v] = getPerpendicularPlane(normal);
-    
-    osg::Vec3 center = (u + v) * _interSize * 0.2f;
-    
-    vertices->push_back(center);
-    vertices->push_back(center + u * planeSize);
-    vertices->push_back(center + u * planeSize + v * planeSize);
-    vertices->push_back(center + v * planeSize);
-    
-    geometry->setVertexArray(vertices);
-    geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
-    
-    geode->addDrawable(geometry);
-    setMaterial(geode, color);
-    
+    // Rotate the local 2D basis (u,v) by 45 degrees around the plane normal to twist the cross
+    osg::Vec3 squareMinCorner = (u + v) * arrowLength * 0.3f;
+    osg::Vec3 offset = normal * (arrowLength * 0.002f);
+    osg::Vec3 iconCenter = squareMinCorner + (u + v) * (planeSize * 0.5f) + offset;
+    {
+        const float ang = osg::PI_4; // 45 deg
+        osg::Vec3 uR =  u * cosf(ang) + v * sinf(ang);
+        osg::Vec3 vR = -u * sinf(ang) + v * cosf(ang);
+        u = uR; v = vR;
+    }
+
+    // Geometric parameters for "crossing double arrows" look:
+    const float baseHalf        = planeSize;      // reference scale
+    const float armHalfLength   = baseHalf * 0.60f; // length from center to start of arrow head
+    const float shaftHalfWidth  = baseHalf * 0.12f; // slimmer shaft
+    const float arrowHeadLength = baseHalf * 0.55f; // slightly longer heads
+    const float arrowBaseFactor = 2.5f;             // how much wider arrow head base is vs shaft
+    const float arrowBaseHalfWidth = shaftHalfWidth * arrowBaseFactor;
+
+    // Invisible pick quad first (slightly behind)
+    {
+        osg::ref_ptr<osg::Geometry> pickGeom = new osg::Geometry;
+        osg::ref_ptr<osg::Vec3Array> pVerts = new osg::Vec3Array;
+        osg::ref_ptr<osg::Vec3Array> pNormals = new osg::Vec3Array;
+        osg::ref_ptr<osg::Vec4Array> pColors = new osg::Vec4Array;
+        float pickHalf = armHalfLength + arrowHeadLength;
+        osg::Vec3 pickCenter = iconCenter - normal * (arrowLength * 0.001f);
+        osg::Vec3 p0 = pickCenter - u * pickHalf - v * pickHalf;
+        osg::Vec3 p1 = pickCenter + u * pickHalf - v * pickHalf;
+        osg::Vec3 p2 = pickCenter + u * pickHalf + v * pickHalf;
+        osg::Vec3 p3 = pickCenter - u * pickHalf + v * pickHalf;
+        pVerts->push_back(p0); pVerts->push_back(p1); pVerts->push_back(p2); pVerts->push_back(p3);
+        pNormals->push_back(normal);
+        pColors->push_back(osg::Vec4(0,0,0,0));
+        pickGeom->setVertexArray(pVerts.get());
+        pickGeom->setNormalArray(pNormals.get(), osg::Array::BIND_OVERALL);
+        pickGeom->setColorArray(pColors.get(), osg::Array::BIND_OVERALL);
+        osg::ref_ptr<osg::DrawElementsUShort> pickIdx = new osg::DrawElementsUShort(GL_TRIANGLES);
+        pickIdx->push_back(0); pickIdx->push_back(1); pickIdx->push_back(2);
+        pickIdx->push_back(0); pickIdx->push_back(2); pickIdx->push_back(3);
+        pickGeom->addPrimitiveSet(pickIdx.get());
+        osg::StateSet *pss = pickGeom->getOrCreateStateSet();
+        pss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        pss->setMode(GL_BLEND, osg::StateAttribute::ON);
+        // use alpha func to avoid sorting issues
+        osg::ref_ptr<osg::AlphaFunc> alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.05f);
+        pss->setAttributeAndModes(alphaFunc.get(), osg::StateAttribute::ON);
+        pss->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+        pss->removeAttribute(osg::StateAttribute::MATERIAL);
+        geode->addDrawable(pickGeom.get());
+    }
+
+    osg::ref_ptr<osg::Geometry> iconGeom = new osg::Geometry;
+    osg::ref_ptr<osg::Vec3Array> verts = new osg::Vec3Array;
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+    auto P = [&](float x, float y){ return iconCenter + u * x + v * y; };
+
+    // Shaft rectangles (horizontal A-D, vertical E-H)
+    osg::Vec2 A(-armHalfLength, -shaftHalfWidth);
+    osg::Vec2 B( armHalfLength, -shaftHalfWidth);
+    osg::Vec2 C( armHalfLength,  shaftHalfWidth);
+    osg::Vec2 D(-armHalfLength,  shaftHalfWidth);
+    osg::Vec2 E(-shaftHalfWidth, -armHalfLength);
+    osg::Vec2 F( shaftHalfWidth, -armHalfLength);
+    osg::Vec2 G( shaftHalfWidth,  armHalfLength);
+    osg::Vec2 H(-shaftHalfWidth,  armHalfLength);
+
+    // Arrowhead base lines are wider than shaft (use arrowBaseHalfWidth)
+    osg::Vec2 RB1( armHalfLength, -arrowBaseHalfWidth); // right base lower
+    osg::Vec2 RB2( armHalfLength,  arrowBaseHalfWidth); // right base upper
+    osg::Vec2 LB1(-armHalfLength, -arrowBaseHalfWidth); // left base lower
+    osg::Vec2 LB2(-armHalfLength,  arrowBaseHalfWidth); // left base upper
+    osg::Vec2 UB1(-arrowBaseHalfWidth,  armHalfLength); // up base left
+    osg::Vec2 UB2( arrowBaseHalfWidth,  armHalfLength); // up base right
+    osg::Vec2 DB1(-arrowBaseHalfWidth, -armHalfLength); // down base left
+    osg::Vec2 DB2( arrowBaseHalfWidth, -armHalfLength); // down base right
+
+    // Tips
+    osg::Vec2 tipR( armHalfLength + arrowHeadLength, 0.0f);
+    osg::Vec2 tipL(-armHalfLength - arrowHeadLength, 0.0f);
+    osg::Vec2 tipU(0.0f, armHalfLength + arrowHeadLength);
+    osg::Vec2 tipD(0.0f, -armHalfLength - arrowHeadLength);
+
+    verts->reserve(3 * 12);
+    auto addTri = [&](const osg::Vec2 &p1, const osg::Vec2 &p2, const osg::Vec2 &p3){
+        verts->push_back(P(p1.x(), p1.y()));
+        verts->push_back(P(p2.x(), p2.y()));
+        verts->push_back(P(p3.x(), p3.y()));
+    };
+    // Horizontal arm
+    addTri(A, B, C); addTri(A, C, D);
+    // Vertical arm
+    addTri(E, F, G); addTri(E, G, H);
+    // Arrow heads (widened bases)
+    addTri(RB1, RB2, tipR); // right
+    addTri(LB2, LB1, tipL); // left (order chosen for consistent normal orientation)
+    addTri(UB2, UB1, tipU); // up
+    addTri(DB1, DB2, tipD); // down
+
+    normals->push_back(normal);
+    iconGeom->setVertexArray(verts.get());
+    iconGeom->setNormalArray(normals.get(), osg::Array::BIND_OVERALL);
+    iconGeom->addPrimitiveSet(new osg::DrawArrays(GL_TRIANGLES, 0, verts->size()));
+
+    osg::StateSet *iss = iconGeom->getOrCreateStateSet();
+    iss->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+    iss->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    geode->addDrawable(iconGeom.get());
+
+    setMaterial(geode, color); // enables highlight changes
     return geode;
 }
 
-osg::Geode* coVR3DTransformInteractor::createRotationRing(const osg::Vec3 &axis, const osg::Vec4 &color)
+osg::Geode* coVR3DTransformInteractor::createRotationRing(const osg::Vec3 &torusNormal, const osg::Vec4 &color)
 {
     osg::Geode* geode = new osg::Geode;
     
-    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
-    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-    
-    const int ringSegments = 64;  // Number of segments around the ring
-    const int tubeSegments = 16;  // Number of segments around the tube cross-section
-    const float majorRadius = _interSize * 0.6f;  // Ring radius
-    const float minorRadius = _interSize * 0.03f; // Tube thickness radius
-    
-    // Create a proper coordinate system for the torus
-    osg::Vec3 torusNormal = axis;  // The axis is the normal to the torus plane
-    torusNormal.normalize();
-    
-    // Create two perpendicular vectors in the torus plane
-    osg::Vec3 u, v;
-    if (fabs(torusNormal.x()) < 0.9f) {
-        u = torusNormal ^ osg::Vec3(1, 0, 0);
-    } else {
-        u = torusNormal ^ osg::Vec3(0, 1, 0);
-    }
-    u.normalize();
-    v = torusNormal ^ u;
-    v.normalize();
-    
-    // Generate torus vertices and normals
-    for (int i = 0; i < ringSegments; ++i) {
-        float theta = 2.0f * osg::PI * i / ringSegments;  // Angle around the major radius
-        
-        // Point on the major radius circle (center of the tube at this position)
-        osg::Vec3 majorCirclePoint = u * cos(theta) * majorRadius + v * sin(theta) * majorRadius;
-        
-        // Direction vectors for the tube cross-section
-        osg::Vec3 tubeU = u * cos(theta) + v * sin(theta);  // Radial direction from torus center
-        osg::Vec3 tubeV = torusNormal;                       // Axial direction
-        
-        // Generate the tube cross-section
-        for (int j = 0; j < tubeSegments; ++j) {
-            float phi = 2.0f * osg::PI * j / tubeSegments;  // Angle around the tube cross-section
-            
-            // Point on the tube circumference
-            osg::Vec3 tubeOffset = (tubeU * cos(phi) + tubeV * sin(phi)) * minorRadius;
-            osg::Vec3 vertex = majorCirclePoint + tubeOffset;
-            
-            // Normal points outward from the tube center
-            osg::Vec3 normal = tubeOffset;
-            normal.normalize();
-            
-            vertices->push_back(vertex);
-            normals->push_back(normal);
+    auto makeTorusGeom = [](const osg::Vec3 &torusNormal,
+                            const osg::Vec3 &u, const osg::Vec3 &v,
+                            int ringSegments, int tubeSegments,
+                            float majorRadius, float minorRadius)
+    {
+        osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+        osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+        osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+
+        for (int i = 0; i < ringSegments; ++i) {
+            float theta = 2.0f * osg::PI * i / ringSegments;
+            osg::Vec3 majorCirclePoint = u * cos(theta) * majorRadius + v * sin(theta) * majorRadius;
+            osg::Vec3 tubeU = u * cos(theta) + v * sin(theta);
+            osg::Vec3 tubeV = torusNormal;
+            for (int j = 0; j < tubeSegments; ++j) {
+                float phi = 2.0f * osg::PI * j / tubeSegments;
+                osg::Vec3 tubeOffset = (tubeU * cos(phi) + tubeV * sin(phi)) * minorRadius;
+                osg::Vec3 vertex = majorCirclePoint + tubeOffset;
+                osg::Vec3 normal = tubeOffset;
+                normal.normalize();
+                vertices->push_back(vertex);
+                normals->push_back(normal);
+            }
         }
-    }
-    
-    // Generate triangle indices
-    osg::ref_ptr<osg::DrawElementsUInt> indices = new osg::DrawElementsUInt(GL_TRIANGLES);
-    
-    for (int i = 0; i < ringSegments; ++i) {
-        int nextI = (i + 1) % ringSegments;
-        
-        for (int j = 0; j < tubeSegments; ++j) {
-            int nextJ = (j + 1) % tubeSegments;
-            
-            // Calculate vertex indices for the current quad
-            int v0 = i * tubeSegments + j;
-            int v1 = i * tubeSegments + nextJ;
-            int v2 = nextI * tubeSegments + nextJ;
-            int v3 = nextI * tubeSegments + j;
-            
-            // Create two triangles for each quad
-            // Triangle 1: v0 -> v1 -> v2
-            indices->push_back(v0);
-            indices->push_back(v1);
-            indices->push_back(v2);
-            
-            // Triangle 2: v0 -> v2 -> v3
-            indices->push_back(v0);
-            indices->push_back(v2);
-            indices->push_back(v3);
+
+        osg::ref_ptr<osg::DrawElementsUInt> indices = new osg::DrawElementsUInt(GL_TRIANGLES);
+        for (int i = 0; i < ringSegments; ++i) {
+            int nextI = (i + 1) % ringSegments;
+            for (int j = 0; j < tubeSegments; ++j) {
+                int nextJ = (j + 1) % tubeSegments;
+                int v0 = i * tubeSegments + j;
+                int v1 = i * tubeSegments + nextJ;
+                int v2 = nextI * tubeSegments + nextJ;
+                int v3 = nextI * tubeSegments + j;
+                indices->push_back(v0); indices->push_back(v1); indices->push_back(v2);
+                indices->push_back(v0); indices->push_back(v2); indices->push_back(v3);
+            }
         }
-    }
-    
-    geometry->setVertexArray(vertices);
-    geometry->setNormalArray(normals);
-    geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    geometry->addPrimitiveSet(indices);
-    
-    // Enable smooth shading
-    geometry->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
-    
-    geode->addDrawable(geometry);
-    setMaterial(geode, color);
-    
+
+        geometry->setVertexArray(vertices.get());
+        geometry->setNormalArray(normals.get());
+        geometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+        geometry->addPrimitiveSet(indices.get());
+        return geometry.release();
+    };
+
+    const int ringSegments = 64;
+    const int tubeSegments = 16;
+    const float majorRadius = ringRadius;
+    const float minorRadius = arrowLength * 0.02f;
+
+    // Build orthonormal basis in torus plane
+    auto [u, v] = getPerpendicularPlane(torusNormal);
+
+
+    // Visible torus (as before)
+    osg::Geometry* visGeom = makeTorusGeom(torusNormal, u, v, ringSegments, tubeSegments, majorRadius, minorRadius);
+    geode->addDrawable(visGeom);
+    setMaterial(geode, color); // keep existing material for visible part
+
+    // Invisible (by default) slightly larger torus used only for hit detection
+    const float hitScale = 4.0f; // increase hit radius without changing visual size
+    osg::ref_ptr<osg::Geometry> hitGeom = makeTorusGeom(torusNormal, u, v, ringSegments/4, tubeSegments/4, majorRadius, minorRadius * hitScale);
+
+    // Color the hit geometry. When not compiling with SHOW_EXTENDED_ROTATION_RINGS
+    // the hit geometry is fully transparent so it remains invisible but pickable.
+    osg::ref_ptr<osg::Vec4Array> hitColor = new osg::Vec4Array;
+
+    hitColor->push_back(osg::Vec4(0.0f, 0.0f, 0.0f, 0.0f)); // invisible
+    hitGeom->setColorArray(hitColor.get(), osg::Array::BIND_OVERALL);
+
+    osg::StateSet* ss = hitGeom->getOrCreateStateSet();
+    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+    osg::ref_ptr<osg::AlphaFunc> alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.05f);
+    ss->setAttributeAndModes(alphaFunc.get(), osg::StateAttribute::ON);
+    // ensure it doesn't get a material/shading that would make it visible
+    ss->removeAttribute(osg::StateAttribute::MATERIAL);
+
+    geode->addDrawable(hitGeom.get());
+
+    // Keep smooth shading off for the combined geode
+    visGeom->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+
     return geode;
 }
 
@@ -425,7 +566,7 @@ osg::Geode* coVR3DTransformInteractor::createSphere(float radius, const osg::Vec
 
 void coVR3DTransformInteractor::highlightComponent(ComponentColor component, HighlightType type)
 {
-    if (!component.node || !component.color) return;
+    if (!component || !component.color) return;
     
     osg::Vec4 color;
     switch (type)
@@ -439,36 +580,29 @@ void coVR3DTransformInteractor::highlightComponent(ComponentColor component, Hig
         case HIGHLIGHT_NONE:
         default:
             // Use mode-appropriate color
-            if (m_scaleMode == SCALE_UNIFORM && isArrowTip(component.node))
-            {
+            if (m_gizmoMode == SCALE && m_scaleMode == SCALE_UNIFORM && component.nodes.size()==1 && isArrowTip(component.nodes.front()))
                 color = uniformScaleColor;
-            }
             else
-            {
                 color = *component.color; // Original color
-            }
             break;
     }
-    
-    setMaterial(component.node, color);
+    for(auto *g: component.nodes)
+        setMaterial(g, color);
 }
 
 coVR3DTransformInteractor::ComponentColor coVR3DTransformInteractor::getComponentFromNode(osg::Node* node)
 {
-    // Check which component was hit
-    if (node == m_xArrow.shaft.get()) return {m_xArrow.shaft.get(), &xColor};
-    if (node == m_yArrow.shaft.get()) return {m_yArrow.shaft.get(), &yColor};
-    if (node == m_zArrow.shaft.get()) return {m_zArrow.shaft.get(), &zColor};
-    if (node == m_xArrow.tip.get()) return {m_xArrow.tip.get(), &xColor};
-    if (node == m_yArrow.tip.get()) return {m_yArrow.tip.get(), &yColor};
-    if (node == m_zArrow.tip.get()) return {m_zArrow.tip.get(), &zColor};
-    if (node == m_xyPlane.get()) return {m_xyPlane.get(), &xColor};
-    if (node == m_xzPlane.get()) return {m_xzPlane.get(), &xColor};
-    if (node == m_yzPlane.get()) return {m_yzPlane.get(), &yColor};
+    for (size_t i = 0; i < m_Arrows.size(); i++)
+    {
+        auto nodes = m_Arrows[i].hit(node);
+        if(!nodes.empty()) return {nodes, &axisColors[i]};
+        if(node == m_gizmoPlanes[i].get()) return {m_gizmoPlanes[i], &axisColors[2 - i]};
+        if(node == m_gizmoRings[i].get()) return {m_gizmoRings[i], &axisColors[i]};
+    }
     if (node == m_centerSphere.get()) return {m_centerSphere.get(), &centerColor};
-    if (node == m_xRotRing.get()) return {m_xRotRing.get(), &xColor};
-    if (node == m_yRotRing.get()) return {m_yRotRing.get(), &yColor};
-    if (node == m_zRotRing.get()) return {m_zRotRing.get(), &zColor};
+    if (node == m_modeCubeGeode.get()|| 
+       node->getParent(0)->getParent(0) == m_modeCubeIconsGroup.get()) //the icons)
+        return {m_modeCubeGeode.get(), &m_cubeColor};
     // Remove scale box checks
     
     return {nullptr, nullptr};
@@ -476,42 +610,101 @@ coVR3DTransformInteractor::ComponentColor coVR3DTransformInteractor::getComponen
 
 coVR3DTransformInteractor::TransformMode coVR3DTransformInteractor::determineActiveMode(osg::Node* hitNode)
 {
-    if (hitNode == m_xRotRing.get() || hitNode == m_yRotRing.get() || hitNode == m_zRotRing.get())
+    if(std::find(m_gizmoRings.begin(), m_gizmoRings.end(), hitNode) != m_gizmoRings.end())
     {
         return ROTATE;
     }
-    if (hitNode == m_xArrow.tip.get() || hitNode == m_yArrow.tip.get() || hitNode == m_zArrow.tip.get())
+
+    if (m_gizmoMode == SCALE && std::find_if(m_Arrows.begin(), m_Arrows.end(), [hitNode](const detail::Arrow& arrow){ return !arrow.hit(hitNode).empty(); }) != m_Arrows.end())
     {
         return SCALE;
     }
-
     return TRANSLATE; // Default to translate mode (shaft hit)
 }
 
 osg::Vec3 coVR3DTransformInteractor::determineActiveAxis(osg::Node* hitNode)
 {
     // Check which component was hit
-    if (hitNode == m_xArrow.shaft.get()) return osg::X_AXIS;
-    if (hitNode == m_yArrow.shaft.get()) return osg::Y_AXIS;
-    if (hitNode == m_zArrow.shaft.get()) return osg::Z_AXIS;
-    if (hitNode == m_xArrow.tip.get()) return osg::X_AXIS;
-    if (hitNode == m_yArrow.tip.get()) return osg::Y_AXIS;
-    if (hitNode == m_zArrow.tip.get()) return osg::Z_AXIS;
-    if (hitNode == m_xyPlane.get()) return osg::X_AXIS + osg::Y_AXIS; // XY plane
-    if (hitNode == m_xzPlane.get()) return osg::X_AXIS + osg::Z_AXIS; // XZ plane
-    if (hitNode == m_yzPlane.get()) return osg::Y_AXIS + osg::Z_AXIS; // YZ plane
-    if (hitNode == m_centerSphere.get()) return osg::X_AXIS + osg::Y_AXIS + osg::Z_AXIS; // XYZ axis
-    if (hitNode == m_xRotRing.get()) return osg::X_AXIS;
-    if (hitNode == m_yRotRing.get()) return osg::Y_AXIS;
-    if (hitNode == m_zRotRing.get()) return osg::Z_AXIS;
-    // Remove scale box checks
+    
+    if (hitNode == m_centerSphere.get()) return {1,1,1}; // XYZ axis
+    for (size_t i = 0; i < m_Arrows.size(); i++)
+    {
+        if (m_Arrows[i].hit(hitNode).size() > 0 || m_gizmoRings[i].get() == hitNode) return coordAxes[i];
+        auto [u, v] = getPerpendicularPlane(coordAxes[2 - i]);
+        if(m_gizmoPlanes[i].get() == hitNode) return u + v; // Plane between two coordAxes
+    }
+    return {1,1,1}; // Default to free movement
+}
 
-    return osg::X_AXIS + osg::Y_AXIS + osg::Z_AXIS; // Default to free movement
+static inline double determinant3x3(const osg::Matrix &m)
+{
+    return m(0,0)*(m(1,1)*m(2,2)-m(1,2)*m(2,1))
+         - m(0,1)*(m(1,0)*m(2,2)-m(1,2)*m(2,0))
+         + m(0,2)*(m(1,0)*m(2,1)-m(1,1)*m(2,0));
+}
+
+osg::Matrix extractRotation(const osg::Matrix &m)
+{
+    
+    auto noTrans = m;
+    noTrans.setTrans(osg::Vec3(0,0,0));
+    // Extract 3x3 block
+
+    // Quick check: if already orthonormal (rotation) then return early
+    {
+        auto noTranstransposed = noTrans;
+        noTranstransposed.transpose(noTrans);
+        auto ATA = noTranstransposed * noTrans;
+
+        // check deviation from identity
+        double maxDev = 0.0;
+        for (int r=0;r<3;++r)
+            for (int c=0;c<3;++c)
+                maxDev = std::max(maxDev, fabs(ATA(r,c) - (r==c ? 1.0 : 0.0)));
+        if (maxDev < 1e-6) // already rotation
+            return noTrans;
+    }
+
+    // Newton iteration for polar decomposition: X_{k+1} = 0.5 * (X_k + inv(transpose(X_k)))
+    auto x = noTrans;
+
+    const int maxIter = 12;
+    for (int iter = 0; iter < maxIter; ++iter)
+    {
+        auto invX = osg::Matrix::inverse(x);
+        // transpose(invX)
+        auto Tinv = invX;
+        Tinv.transpose(invX);
+
+        double maxDiff = 0.0;
+        for (int r=0;r<3;++r)
+            for (int c=0;c<3;++c)
+            {
+                double next = 0.5 * (x(r,c) + Tinv(r,c));
+                maxDiff = std::max(maxDiff, fabs(next - x(r,c)));
+                x(r,c) = next;
+            }
+        if (maxDiff < 1e-9) break;
+    }
+
+    // Fix handedness if necessary
+    double d = determinant3x3(x);
+    if (d < 0.0)
+        for (int c=0;c<3;++c) x(0,c) = -x(0,c);
+    return x;
 }
 
 void coVR3DTransformInteractor::updateTransform(const osg::Matrix &matrix)
 {
-    moveTransform->setMatrix(matrix);
+    // build a matrix that keeps rotation (orthonormalized) and translation, but removes scale
+    auto rot = extractRotation(matrix);
+    auto rotAndTrans = rot;
+    rotAndTrans.setTrans(matrix.getTrans());
+    moveTransform->setMatrix(rotAndTrans);
+
+    // Extract scale factors from the original matrix along the local axes
+    m_scaleVector = (matrix * osg::Matrix::inverse(rot)).getScale();
+    m_oldScaleVector = m_scaleVector;
 }
 
 void coVR3DTransformInteractor::updateScale(const osg::Vec3 &scale)
@@ -534,8 +727,6 @@ float coVR3DTransformInteractor::calculateCurrentRotationAngle()
 
     return projectedAngle;
 }
-
-
 
 static inline float wrapAngle0to2Pi(float a)
 {
@@ -578,9 +769,18 @@ void coVR3DTransformInteractor::startInteraction()
 
     m_activeComponent = getComponentFromNode(_hitNode.get());
     
-
+    if(_hitNode == m_modeCubeGeode.get() || 
+       _hitNode->getParent(0)->getParent(0) == m_modeCubeIconsGroup.get()) //the icons
+    {
+        // Cycle display (gizmo) mode and refresh cube icons/colors
+        m_gizmoMode = static_cast<TransformMode>((m_gizmoMode + 1) % MODE_CUBE);
+        updateModeCubeAppearance();
+        updateGizmoAppearance();
+        m_interactionMode = MODE_CUBE;
+        return; // Don't start interaction when clicking mode cube
+    }
     
-    m_currentMode = determineActiveMode(_hitNode.get());
+    m_interactionMode = determineActiveMode(_hitNode.get());
     
     // Clear hover highlighting and apply active highlighting
     if (m_hoveredComponent && m_hoveredComponent != m_activeComponent)
@@ -595,7 +795,7 @@ void coVR3DTransformInteractor::startInteraction()
     }
     
     // Store the initial absolute rotation angle for snapping offset
-    if (m_currentMode == ROTATE)
+    if (m_interactionMode == ROTATE)
     {
         m_initialRotationAngle = calculateCurrentRotationAngle();
         m_firstRotationFrame = true;
@@ -634,13 +834,10 @@ void coVR3DTransformInteractor::startInteraction()
         {
             m_grabStartAngle = 0.0f;
         }
-        std::cerr << "Grab start angle: " << m_grabStartAngle * 180.0f / osg::PI << std::endl;
     }
-    if (m_currentMode == SCALE)
+    if (m_interactionMode == SCALE)
     {
-        m_activeArrow = m_activeAxis == osg::X_AXIS ? &m_xArrow :
-                        m_activeAxis == osg::Y_AXIS ? &m_yArrow : &m_zArrow;
-        
+        m_activeArrow = &m_Arrows[axisToIndex(m_activeAxis)];
     }
 }
 
@@ -651,15 +848,15 @@ void coVR3DTransformInteractor::doInteraction()
     osg::Matrix w_to_o = cover->getInvBaseMat();
     osg::Matrix currHandMat_o = currHandMat * w_to_o;
 
-    if (m_currentMode == TransformMode::ROTATE)
+    if (m_interactionMode == TransformMode::ROTATE)
     {
         handleRotation(currHandMat_o);
     }
-    else if(m_currentMode == TransformMode::SCALE)
+    else if(m_interactionMode == TransformMode::SCALE)
     {
         handleScale(currHandMat_o);
     }
-    else
+    else if(m_interactionMode == TransformMode::TRANSLATE)
     {
         handleTranslation(currHandMat_o);
     }
@@ -668,7 +865,7 @@ void coVR3DTransformInteractor::doInteraction()
 void coVR3DTransformInteractor::stopInteraction()
 {
     // Check for toggle if we were in scale mode
-    if (m_currentMode == SCALE)
+    if (m_interactionMode == SCALE)
     {
         auto interactionDuration = std::chrono::steady_clock::now() - m_interactionStartTime;
         
@@ -680,27 +877,11 @@ void coVR3DTransformInteractor::stopInteraction()
         }
         else
         {
-            // Apply the scale transformation
-            if (m_scaleMode == SCALE_UNIFORM)
-            {
-                // Apply uniform scale to all axes
-                float scaleFactor = m_activeArrow->currentScale;
-                m_scaleVector.x() *= scaleFactor;
-                m_scaleVector.y() *= scaleFactor;
-                m_scaleVector.z() *= scaleFactor;
-            }
-            else
-            {
-                // Apply per-axis scale
-                auto scaleMatrix = osg::Matrix::scale(m_activeAxis * m_activeArrow->currentScale + osg::Vec3(1.0f, 1.0f, 1.0f) - m_activeAxis);
-                m_scaleVector = scaleMatrix * m_scaleVector;
-            }
+            m_oldScaleVector = m_scaleVector;             
         }
         
-        // Reset all arrows to original scale
-        m_xArrow.setScale(1.0f);
-        m_yArrow.setScale(1.0f);
-        m_zArrow.setScale(1.0f);
+        for(auto &arrow : m_Arrows)
+            arrow.setScale(1.0f);
         m_activeArrow = nullptr;
     }
     
@@ -744,6 +925,150 @@ int coVR3DTransformInteractor::hit(vrui::vruiHit *hit)
     
     return result;
 }
+
+void coVR3DTransformInteractor::createModeCube()
+{
+    m_modeCubeTransform = new osg::MatrixTransform;
+    float displacement = arrowLength * 0.7f;
+    osg::Matrix T; T.makeTranslate(displacement, displacement, displacement);
+    m_modeCubeTransform->setMatrix(T);
+    m_modeCubeGeode = new osg::Geode;
+    m_modeCubeGeode->setName("ModeCube");
+    float side = 2.0f; // full side length
+    osg::ref_ptr<osg::Box> boxShape = new osg::Box(osg::Vec3(0,0,0), side);
+    boxShape->setName("ModeCubeBox");
+    osg::ref_ptr<osg::ShapeDrawable> boxDrawable = new osg::ShapeDrawable(boxShape);
+    boxDrawable->setName("DrawableModeCubeBox");
+    boxDrawable->setColor(osg::Vec4(0.9f,0.9f,0.9f,1.0f));
+    m_modeCubeGeode->addDrawable(boxDrawable.get());
+    m_modeCubeGeode->setUserValue("originalColor", osg::Vec4(1,1,1,1));
+    m_modeCubeTransform->addChild(m_modeCubeGeode.get());
+    m_root->addChild(m_modeCubeTransform.get());
+    m_modeCubeIconsGroup = new osg::Group;
+    m_modeCubeTransform->addChild(m_modeCubeIconsGroup.get());
+
+    // Create icons for each face (6) oriented outward
+    struct FaceInfo { osg::Vec3 normal; osg::Quat rot; osg::Vec3 pos; };
+    std::vector<FaceInfo> faces = {
+        { osg::Vec3(0,0,1), osg::Quat(), osg::Vec3(0,0, side*0.5f+0.01f)}, // front
+        { osg::Vec3(0,0,-1), osg::Quat(osg::PI, osg::Vec3(0,1,0)), osg::Vec3(0,0,-side*0.5f-0.01f)}, // back
+        { osg::Vec3(0,1,0), osg::Quat(-osg::PI_2, osg::Vec3(1,0,0)), osg::Vec3(0, side*0.5f+0.01f,0)}, // top
+        { osg::Vec3(0,-1,0), osg::Quat(osg::PI_2, osg::Vec3(1,0,0)), osg::Vec3(0,-side*0.5f-0.01f,0)}, // bottom
+        { osg::Vec3(1,0,0), osg::Quat(-osg::PI_2, osg::Vec3(0,1,0)), osg::Vec3(side*0.5f+0.01f,0,0)}, // right
+        { osg::Vec3(-1,0,0), osg::Quat(osg::PI_2, osg::Vec3(0,1,0)), osg::Vec3(-side*0.5f-0.01f,0,0)}  // left
+    };
+
+    // Load PNG icons from "share/covise/icons/" folder;
+    std::string iconNames[4] = {"moveAndRotate.png", "move.png", "rotate.png", "scale.png"};
+    osg::ref_ptr<osg::Image> img;
+    for (size_t i = 0; i < 4; i++)
+        m_modeCubeFaceTextures[i] = loadTexture(iconNames[i]);
+    osg::ref_ptr<osg::Geode> g = new osg::Geode;
+        
+    // textured quad centered at origin (z=0), size slightly smaller than face
+    float h = side*0.4f;
+    osg::ref_ptr<osg::Geometry> quad = new osg::Geometry;
+    osg::ref_ptr<osg::Vec3Array> verts = new osg::Vec3Array;
+    verts->push_back(osg::Vec3(-h,-h,0)); verts->push_back(osg::Vec3(h,-h,0)); verts->push_back(osg::Vec3(h,h,0)); verts->push_back(osg::Vec3(-h,h,0));
+    quad->setVertexArray(verts.get());
+    osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
+    texcoords->push_back(osg::Vec2(0,0)); texcoords->push_back(osg::Vec2(1,0)); texcoords->push_back(osg::Vec2(1,1)); texcoords->push_back(osg::Vec2(0,1));
+    quad->setTexCoordArray(0, texcoords.get());
+    quad->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
+    g->addDrawable(quad.get());
+
+    m_modeCubeFaceStateSet = g->getOrCreateStateSet();
+    m_modeCubeFaceStateSet->setTextureAttributeAndModes(0, m_modeCubeFaceTextures[0].get(), osg::StateAttribute::ON);
+    m_modeCubeFaceStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    osg::ref_ptr<osg::AlphaFunc> alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.05f);
+    m_modeCubeFaceStateSet->setAttributeAndModes(alphaFunc.get(), osg::StateAttribute::ON);
+    m_modeCubeFaceStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+
+    for(const auto &f: faces)
+    {
+        osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
+        osg::Matrix M; M.makeRotate(f.rot); M.setTrans(f.pos); mt->setMatrix(M);
+
+        // offset quad slightly outward to avoid z-fighting
+        mt->addChild(g.get());
+        m_modeCubeIconsGroup->addChild(mt.get());
+    }
+    // Build initial icons
+    updateModeCubeAppearance();
+}
+
+void coVR3DTransformInteractor::setMode(TransformMode mode)
+{
+    m_interactionMode = mode;
+    updateArrowColors();
+}
+
+void coVR3DTransformInteractor::updateModeCubeAppearance()
+{
+    if (!m_modeCubeGeode) return;
+    // Colors per mode
+    switch(m_gizmoMode)
+    {
+        case TRANSFORM: m_cubeColor = osg::Vec4(0.9f,0.9f,0.9f,1.0f); break; // light gray
+        case TRANSLATE: m_cubeColor = osg::Vec4(0.55f,0.35f,0.85f,1.0f); break; // purple
+        case ROTATE:    m_cubeColor = osg::Vec4(1.0f,0.55f,0.15f,1.0f); break; // orange
+        case SCALE:     m_cubeColor = osg::Vec4(0.1f,0.75f,0.65f,1.0f); break; // teal
+        default: m_cubeColor = osg::Vec4(1,1,1,1); break;
+
+    }
+    setMaterial(m_modeCubeGeode.get(), m_cubeColor);
+    m_modeCubeFaceStateSet->setTextureAttributeAndModes(0, m_modeCubeFaceTextures[m_gizmoMode].get(), osg::StateAttribute::ON);
+}
+void coVR3DTransformInteractor::updateGizmoAppearance()
+{
+    switch (m_gizmoMode)
+    {
+    case TRANSFORM:
+    {
+        for (size_t i = 0; i < m_Arrows.size(); i++)
+        {
+            m_Arrows[i].setVisible(true);
+            m_gizmoRings[i]->setNodeMask(~0);
+            m_gizmoPlanes[i]->setNodeMask(0);
+        }
+        
+    }
+    break;
+    case TRANSLATE:
+    {
+        for (size_t i = 0; i < m_Arrows.size(); i++)
+        {
+            m_Arrows[i].setVisible(true);
+            m_gizmoRings[i]->setNodeMask(0);
+            m_gizmoPlanes[i]->setNodeMask(~0);
+        }
+    }
+    break;
+    case ROTATE:
+    {
+        for (size_t i = 0; i < m_Arrows.size(); i++)
+        {
+            m_Arrows[i].setVisible(false);
+            m_gizmoRings[i]->setNodeMask(~0);
+            m_gizmoPlanes[i]->setNodeMask(0);
+        }
+    }
+    break;
+    case SCALE:
+    {
+        for (size_t i = 0; i < m_Arrows.size(); i++)
+        {
+            m_Arrows[i].setVisible(true);
+            m_gizmoRings[i]->setNodeMask(0);
+            m_gizmoPlanes[i]->setNodeMask(0);
+        }
+    }
+    break;
+    default:
+        break;
+    }
+}
+
 
 void coVR3DTransformInteractor::miss()
 {
@@ -800,7 +1125,7 @@ void coVR3DTransformInteractor::handleTranslation(const osg::Matrix &currHandMat
     osg::Matrix interactorXformMat_o = m_oldInteractorXformMat_o;
     interactorXformMat_o.setTrans(newPos_w);
 
-    updateTransform(interactorXformMat_o);
+    moveTransform->setMatrix(interactorXformMat_o);
     m_posChanged = true;
     // _oldInteractorXformMat_o = interactorXformMat_o;
 }
@@ -848,7 +1173,7 @@ void coVR3DTransformInteractor::handleScale(const osg::Matrix &currHandMat_o)
     auto currentDistance_o = (interactionPoint - centerPos).length();
 
     // Reference distance is the default arrow length
-    float referenceDistance = _interSize * arrowLength * _scale;
+    float referenceDistance = arrowLength * _scale;
     float scaleFactor = currentDistance_o / referenceDistance;
     scaleFactor = std::max(0.1f, scaleFactor); // Prevent scaling below 10% of original size
 
@@ -857,10 +1182,13 @@ void coVR3DTransformInteractor::handleScale(const osg::Matrix &currHandMat_o)
     {
         // In uniform mode, scale all arrows together
         setUniformScale(scaleFactor);
+        m_scaleVector = m_oldScaleVector * scaleFactor;
     }
     else
     {
         m_activeArrow->setScale(scaleFactor);
+        auto scaleMatrix = osg::Matrix::scale(m_activeAxis * scaleFactor + osg::Vec3(1.0f, 1.0f, 1.0f) - m_activeAxis);
+        m_scaleVector = scaleMatrix * m_oldScaleVector;
     }
     m_scaleChanged = true;
 }
@@ -877,7 +1205,7 @@ void coVR3DTransformInteractor::handleRotation(const osg::Matrix &currHandMat_o)
     osg::Vec3 currentIntersection = calculatePlaneIntersection(getPointerMat(), m_activeAxis_world, rotCenter_o);
     
     // Check if current pointer is inside the interactor circle
-    float interactorRadius = _interSize * 0.6f * scaleTransform->getMatrix().getScale().x();
+    float interactorRadius = ringRadius * _scale;
     
     // Calculate distance in the PLANE
     osg::Vec3 vectorToIntersection = currentIntersection - rotCenter_o;
@@ -983,13 +1311,10 @@ void coVR3DTransformInteractor::handleRotation(const osg::Matrix &currHandMat_o)
     interactorXformMat_o.makeRotate(newRotation);
     interactorXformMat_o.setTrans(translation);
     
-    // Update the transformation
-    updateTransform(interactorXformMat_o);
-
+    moveTransform->setMatrix(interactorXformMat_o);
 
     updateRotationVisualization(finalAngle);
     m_rotChanged = true;
-
 }
 
 void coVR3DTransformInteractor::toggleScaleMode()
@@ -1000,38 +1325,20 @@ void coVR3DTransformInteractor::toggleScaleMode()
 
 void coVR3DTransformInteractor::updateArrowColors()
 {
-    if (m_scaleMode == SCALE_UNIFORM)
-    {
-        // Set all arrow tips to gray
-        setMaterial(m_xArrow.tip, uniformScaleColor);
-        setMaterial(m_yArrow.tip, uniformScaleColor);
-        setMaterial(m_zArrow.tip, uniformScaleColor);
-    }
-    else
-    {
-        // Restore original colors
-        setMaterial(m_xArrow.tip, xColor);
-        setMaterial(m_yArrow.tip, yColor);
-        setMaterial(m_zArrow.tip, zColor);
-    }
-    
-    // Keep shaft colors unchanged
-    setMaterial(m_xArrow.shaft, xColor);
-    setMaterial(m_yArrow.shaft, yColor);
-    setMaterial(m_zArrow.shaft, zColor);
+    for(auto &arrow : m_Arrows)
+        arrow.resetColor(m_gizmoMode == SCALE && m_scaleMode == SCALE_UNIFORM);
 }
 
 void coVR3DTransformInteractor::setUniformScale(float scale)
 {
     // Scale all arrows together in uniform mode
-    m_xArrow.setScale(scale);
-    m_yArrow.setScale(scale);
-    m_zArrow.setScale(scale);
+    for(auto &arrow : m_Arrows)
+        arrow.setScale(scale);
 }
 
 bool coVR3DTransformInteractor::isArrowTip(osg::Node* node)
 {
-    return (node == m_xArrow.tip.get() || node == m_yArrow.tip.get() || node == m_zArrow.tip.get());
+    return std::find_if(m_Arrows.begin(), m_Arrows.end(), [node](const detail::Arrow& arrow){ return arrow.isTip(node); }) != m_Arrows.end();
 }
 
 osg::ref_ptr<osg::Geode> createRotationVisualization(osg::MatrixTransform *transform, bool cw, float size)
@@ -1048,7 +1355,7 @@ osg::ref_ptr<osg::Geode> createRotationVisualization(osg::MatrixTransform *trans
     // Center vertex
     vertices->push_back(osg::Vec3(0, 0, 0));
     colors->push_back(grayColor);
-    const float radius = size * 0.55f;
+    const float radius = ringRadius;
     
     // Create full circle vertices in XY plane
     if (cw) {
@@ -1094,8 +1401,8 @@ osg::ref_ptr<osg::Geode> createRotationVisualization(osg::MatrixTransform *trans
 void coVR3DTransformInteractor::createRotationVisualization()
 {
     m_rotationVisualizationTransform = new osg::MatrixTransform;
-    m_rotationVisualizationCCW = ::createRotationVisualization(m_rotationVisualizationTransform.get(), false, _interSize);
-    m_rotationVisualizationCW = ::createRotationVisualization(m_rotationVisualizationTransform.get(), true, _interSize);
+    m_rotationVisualizationCCW = ::createRotationVisualization(m_rotationVisualizationTransform.get(), false, _scale);
+    m_rotationVisualizationCW = ::createRotationVisualization(m_rotationVisualizationTransform.get(), true, _scale);
 
     m_root->addChild(m_rotationVisualizationTransform.get());
 }
@@ -1119,14 +1426,6 @@ osg::Matrix coVR3DTransformInteractor::calculateRotationToActiveAxis()
 
     // final basis mapping matrix
     return R1 * R2;    
-}
-
-int axisToIndex(const osg::Vec3 &axis)
-{
-    if (axis == osg::X_AXIS) return 0;
-    if (axis == osg::Y_AXIS) return 1;
-    if (axis == osg::Z_AXIS) return 2;
-    return -1; // Invalid axis
 }
 
 const std::array<osg::Matrix, 3> visRotationCounterClockWise{

@@ -8,26 +8,38 @@
 #ifndef TRANSFORM_INTERACTOR_H
 #define TRANSFORM_INTERACTOR_H
 
+#include <array>
+#include <chrono> 
+#include <vector>
 #include <cover/coVRIntersectionInteractor.h>
-#include <osg/MatrixTransform>
+#include <osg/AutoTransform>
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/ShapeDrawable>
 #include <osg/Material>
-#include <chrono>  // Add this include
+#include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
+#include <osg/Texture2D>
+#include <osgText/Text>
 
 namespace opencover
 {
 namespace detail
 {
-struct PLUGIN_UTILEXPORT Arrow{
+class PLUGIN_UTILEXPORT Arrow {
+public:
+    Arrow(osg::Group *parent, const osg::Vec3 &direction, const osg::Vec4 &color);
+    void setScale(float scale);
+    void setVisible(bool on);
+    void resetColor(bool uniformScale);
+    bool isTip(osg::Node* node) const;
+    std::vector<osg::Geode*> hit(const osg::Node *node) const;
+private:
     osg::ref_ptr<osg::Geode> shaft;
     osg::ref_ptr<osg::Geode> tip;
     osg::ref_ptr<osg::MatrixTransform> tipTransform, shaftTransform;
-    void setScale(float scale);
     osg::Vec3 direction;
-    float baseSize;
     float currentScale = 1.0f;
+    osg::Group* parent = nullptr;
 };
 }
 class PLUGIN_UTILEXPORT coVR3DTransformInteractor : public coVRIntersectionInteractor
@@ -45,9 +57,11 @@ private:
 
     enum TransformMode
     {
+        TRANSFORM, //actually translate and rotate
         TRANSLATE,
         ROTATE, 
-        SCALE
+        SCALE,
+        MODE_CUBE
     };
     enum ScaleMode {
         SCALE_PER_AXIS,
@@ -59,16 +73,19 @@ private:
         HIGHLIGHT_HOVER,
         HIGHLIGHT_ACTIVE
     };
+    //todo: test replacement of m_root with moveTransform
+    osg::ref_ptr<osg::MatrixTransform> m_root;
 
-    detail::Arrow m_xArrow, m_yArrow, m_zArrow;
+    std::array<detail::Arrow, 3> m_Arrows;
+
     detail::Arrow* m_activeArrow = nullptr;
-    osg::ref_ptr<osg::Geode> m_xyPlane, m_xzPlane, m_yzPlane;
-    osg::ref_ptr<osg::Geode> m_xRotRing, m_yRotRing, m_zRotRing;
+    std::array<osg::ref_ptr<osg::Geode>, 3> m_gizmoPlanes; //xy,xz,yz
+    std::array<osg::ref_ptr<osg::Geode>, 3> m_gizmoRings;
     osg::Vec3 m_scaleVector = osg::Vec3(1.0f, 1.0f, 1.0f);
+    osg::Vec3 m_oldScaleVector = osg::Vec3(1.0f, 1.0f, 1.0f);
 
     osg::ref_ptr<osg::Geode> m_centerSphere;
-    osg::ref_ptr<osg::MatrixTransform> m_root;
-    TransformMode m_currentMode;
+    TransformMode m_interactionMode, m_gizmoMode = TRANSFORM;
     
     // Interaction state
     osg::Vec3 m_activeAxis;
@@ -88,21 +105,18 @@ private:
     osg::ref_ptr<osg::DrawElementsUShort> m_rotationFan;
     struct ComponentColor
     {
-        osg::Geode* node = nullptr;  // Changed from 'component' to 'node' to match implementation
-        const osg::Vec4 *color = nullptr;  // Changed from 'originalColor' to 'color'
-        bool operator==(const ComponentColor& other) const
-        {
-            return node == other.node && color == other.color;
+        std::vector<osg::Geode*> nodes;   // one or many geodes making up the component
+        const osg::Vec4 *color = nullptr; // original base color pointer (shared for all nodes)
+
+        ComponentColor() = default;
+        ComponentColor(osg::Geode *single, const osg::Vec4 *c) : nodes{single}, color(c) {}
+        ComponentColor(const std::vector<osg::Geode*> &many, const osg::Vec4 *c) : nodes(many), color(c) {}
+
+        bool operator==(const ComponentColor& other) const {
+            return color == other.color && nodes == other.nodes;
         }
-        
-        bool operator!=(const ComponentColor& other) const
-        {
-            return !(*this == other);
-        }
-        explicit operator bool() const
-        {
-            return node != nullptr;
-        }
+        bool operator!=(const ComponentColor& other) const { return !(*this == other); }
+        explicit operator bool() const { return !nodes.empty(); }
     };
     // Current highlighting state
     ComponentColor m_hoveredComponent;
@@ -133,7 +147,7 @@ private:
     void resetState() override {} 
 
     // Geometry creation helpers
-    void createArrows();
+    void createTranslateGizmos();
     void CreateRotationTori();
     osg::Geode* createPlane(const osg::Vec3 &normal, const osg::Vec4 &color);
     osg::Geode* createRotationRing(const osg::Vec3 &axis, const osg::Vec4 &color);
@@ -181,6 +195,19 @@ private:
     void updateArrowColors();
     void setUniformScale(float scale);
     bool isArrowTip(osg::Node* node);  // Add this missing declaration
+
+    // Mode cube (uniform cube with icon that changes per mode)
+    void createModeCube();
+    void setMode(TransformMode mode);
+    void updateModeCubeAppearance();
+    void updateGizmoAppearance();
+    osg::ref_ptr<osg::MatrixTransform> m_modeCubeTransform; // placement
+    osg::ref_ptr<osg::Geode> m_modeCubeGeode; // the cube itself
+    osg::ref_ptr<osg::Geode> m_modeCubeIconGeode; // icon overlay (recreated per mode)
+    osg::ref_ptr<osg::Group> m_modeCubeIconsGroup; // all face icons
+    std::array<osg::ref_ptr<osg::Texture2D>, 4> m_modeCubeFaceTextures;
+    osg::StateSet * m_modeCubeFaceStateSet = nullptr;
+    osg::Vec4 m_cubeColor;
 };
 
 }
