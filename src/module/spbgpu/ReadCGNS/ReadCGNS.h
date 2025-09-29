@@ -40,7 +40,7 @@ class base
 
     params p; //UI params
 
-    int error;
+    int error{0};
     enum
     {
         FAIL = -1,
@@ -53,7 +53,7 @@ public:
     base(int i_file, int i_base, params p);
     int read();
 
-    bool is_single_zone();
+    [[nodiscard]] bool is_single_zone() const;
 
     coDistributedObject *create_do(const char *name, int type, int scal_no = 0);
     coDoSet *create_do_set(const char *name, int type, int scal_no = 0);
@@ -66,7 +66,7 @@ private:
     //////////  member functions
 
     /// this module has only the compute call-back
-    virtual int compute(const char *port);
+    int compute(const char *port) override;
 
     coFileBrowserParam *param_file;
 
@@ -99,7 +99,7 @@ private:
     coOutputPort *out_velocity;
 
     void params_out();
-    bool indexed_file_name(char *s, int n);
+    bool indexed_file_name(char *s, int n) const;
 
     // ReadCGNS functions
     int read_params(params &p);
@@ -110,8 +110,8 @@ private:
     int set_output_objs(out_objs &objs);
 
     //coModule functions
-    virtual void param(const char *paramName, bool inMapLoading);
-    virtual void postInst();
+    void param(const char *paramName, bool inMapLoading) override;
+    void postInst() override;
 
 public:
     ReadCGNS(int argc, char *argv[]);
