@@ -30,7 +30,7 @@ typedef int cgsize_t;
  *  Constructor
  *-----------------------------*/
 
-zone::zone(int i_file, int i_base, int i_zone, params _p) : zonesize{0,0,0}, zonename{""}, zonetype(ZoneType_t::ZoneTypeNull) {
+zone::zone(int i_file, int i_base, int i_zone, params _p) : zonesize{0,0,0}, zonename{""}, zonetype(CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(ZoneTypeNull)) {
     index_file = i_file;
     ibase = i_base;
     izone = i_zone;
@@ -50,7 +50,7 @@ int zone::read()
 
     CoviseBase::sendInfo(" zone::read() started: name=%s , type=%d, num=%d", zonename, zonetype, izone);
 
-    if (zonetype==ZoneType_t::Structured) {
+    if (zonetype==CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(Structured)) {
         cout<<cout_red<<"Error: Zone `" << zonename << "' is structured. Structured grids aren't supported yet."<<cout_norm<<endl;
         return FAIL;
     }
