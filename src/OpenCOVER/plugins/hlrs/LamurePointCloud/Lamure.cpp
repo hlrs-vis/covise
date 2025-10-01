@@ -1,16 +1,8 @@
 ﻿//local
-#ifdef WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <winbase.h>
-#endif
+
 #include "Lamure.h" 
 #include "gl_state.h"
 #include "osg_util.h"
-//#include "LamurePointCloudInteractor.h"
-
-#include <lamure/imgui.h>
-#include <lamure/imgui_internal.h>
-#include <lamure/imgui_impl_glfw_gl3.h>
 
 // std
 #include <iostream>
@@ -29,6 +21,10 @@
 #include <memory>
 #include <algorithm>
 #include <cmath>
+#ifdef WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <winbase.h>
+#endif
 
 //boost
 #include <boost/regex.hpp>
@@ -91,7 +87,6 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #ifdef __cplusplus
 }
-#endif
 #endif
 
 COVERPLUGIN(Lamure)
