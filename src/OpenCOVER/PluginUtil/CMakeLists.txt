@@ -12,19 +12,6 @@ ADD_DEFINITIONS(-DCOVISE_PLUGIN_UTIL)
 
 
 
-if(COVISE_USE_CUDA)
-  if(CUDA_FOUND)
-    include_directories(${CUDA_INCLUDE_DIRS})
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
-  endif()
-  covise_find_package(CCCL CONFIG)
-  if(CCCL_FOUND)
-    set(EXTRA_LIBS ${EXTRA_LIBS} Thrust::Thrust)
-    covise_export_target(_Thrust_Thrust _Thrust_libcudacxx)
-    covise_install_target(_Thrust_Thrust _Thrust_libcudacxx)
-  endif()
-endif()
-
 SET(PLUGINUTIL_HEADERS
   BoxSelection.h
   BoxSelectionInteractor.h
@@ -112,16 +99,28 @@ SET(SOURCES
 
 
 
+set(PRIVATE_EXTRA_LIBS ${EXTRA_LIBS})
+set(EXTRA_LIBS)
 ADD_COVISE_LIBRARY(coOpenPluginUtil SHARED )
-TARGET_LINK_LIBRARIES(coOpenPluginUtil coOpenCOVER coOpenVRUI coOSGVRUI
+TARGET_LINK_LIBRARIES(coOpenPluginUtil PUBLIC coOpenCOVER coOpenVRUI coOSGVRUI
    ${COVISE_GRMSG_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
 
 COVISE_WNOERROR(coOpenPluginUtil BASEARCH zebu)
 TARGET_INCLUDE_DIRECTORIES(coOpenPluginUtil PUBLIC ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
+if(COVISE_USE_CUDA)
+  if(CUDA_FOUND)
+    target_include_directories(coOpenPluginUtil SYSTEM PUBLIC ${CUDA_INCLUDE_DIRS})
+    target_link_libraries( coOpenPluginUtil PUBLIC ${CUDA_LIBRARIES})
+    if(TARGET Thrust::Thrust)
+      target_link_libraries(coOpenPluginUtil PRIVATE Thrust::Thrust)
+    endif()
+  endif()
+endif()
 
 
 
-TARGET_LINK_LIBRARIES(coOpenPluginUtil ${EXTRA_LIBS})
+
+TARGET_LINK_LIBRARIES(coOpenPluginUtil PRIVATE ${PRIVATE_EXTRA_LIBS})
 COVISE_INSTALL_TARGET(coOpenPluginUtil)
 COVISE_INSTALL_HEADERS(PluginUtil ${PLUGINUTIL_HEADERS})
