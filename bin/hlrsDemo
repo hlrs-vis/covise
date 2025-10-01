@@ -315,7 +315,9 @@ run_marienplatz_mobilitaetswoche() {
 }
 demo 140 "Zweite mobilitaetswoche" run_marienplatz_mobilitaetswoche 
 
-demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/workflows/tracer_cluster_plane.vsl
+demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/workflows/tracer_cluster.vsl
+
+demo 142 "EuropaPark" cover /data/mack-research/Europa-Park-Twin/presentation.wrl
 
 # Vistle
 category="Vistle"
