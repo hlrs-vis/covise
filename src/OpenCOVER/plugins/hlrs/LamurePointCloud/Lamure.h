@@ -16,6 +16,7 @@
 #include <bitset>
 #include <initializer_list>
 #include <algorithm>
+#include <atomic>
 
 #include <osg/Timer>
 #include <osg/Matrix>
@@ -43,7 +44,6 @@ namespace opencover {
         class Button;
     } }
 
-class LamurePointCloudInteractor;
 class Lamure;
 
 struct FrameMarks {
@@ -139,8 +139,8 @@ public:
         bool show_pvs{0};
         int32_t channel{0};
         scm::math::vec3f point_light_pos{0.0f, 1000.0f, 0.0f};
-        float point_light_intensity{1.2f};
-        float ambient_intensity{0.6f};
+        float point_light_intensity{0.6f};
+        float ambient_intensity{0.0f};
         float specular_intensity{0.1f};
         float shininess{1};
         float gamma{1};
@@ -157,19 +157,17 @@ public:
         std::string pvs{};
         std::string background_image{};
         std::vector<std::string> models;
+        std::vector<bool> model_visible;
         std::vector<uint32_t> initial_selection;
         std::map<uint32_t, scm::math::mat4d> transforms;
-        std::map<uint32_t, std::shared_ptr<lamure::prov::octree>> octrees;
-        std::map<uint32_t, std::vector<lamure::prov::aux::view>> views;
-        std::map<uint32_t, std::string> aux;
-        float scale_radius{1.5f};
+        float scale_radius{0.05f};
         float scale_radius_gamma{0.5f};
         float scale_element{1.0f};
         float scale_point{1.0f};
         float scale_surfel{2.0f};
         float min_radius{0.0f};
         float max_radius{std::min(std::numeric_limits<float>::max(), 0.1f)};
-        float min_screen_size{0.0f};
+        float min_screen_size{1.0f};
         float max_screen_size{std::min(std::numeric_limits<float>::max(), 0.1f)};
         float max_radius_cut{10.0f};
         float depth_range{2.0f};
@@ -271,21 +269,28 @@ public:
     bool getProvValid() const { return prov_valid; }
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
 
-    LamurePointCloudInteractor* interactor{};
 
     void loadSettings(const std::string &filename);
     bool writeSettingsJson(const Lamure::Settings& s, const std::string& outPath);
     bool rendering_{false};
     void dumpSettings(const char* tag = "");
-    void key(int type, int keySym, int mod) override;
 
     void beginFrameMarks() noexcept { m_marks.reset(); }
     void addMarkMs(MarkField f, double ms) noexcept;
     const FrameMarks& getFrameMarks() const noexcept { return m_marks; }
 
+    bool m_bootstrapLoad = false;
+    std::vector<osg::ref_ptr<osg::Group>> m_modelRoots;
+    std::unordered_map<std::string,uint16_t> m_pathToIndex;
+
+    void setModelVisible(uint16_t idx, bool v);
+    bool isModelVisible(uint16_t idx) const;
 
 private:
     static Lamure* plugin;
+
+    bool m_initialized = false;
+    std::vector<bool> m_visible;
 
     std::unique_ptr<LamureRenderer> m_renderer;
     std::unique_ptr<LamureUI>       m_ui;
@@ -308,8 +313,18 @@ private:
     bool                                fps_cap_modified_ = false;
     bool                                vsync_modified_   = false;
     FrameMarks                          m_marks;
+    std::unordered_map<std::string, uint16_t> m_file2idx;
 
     std::bitset<512> m_keyDown_;
+
+    bool m_hotkeyDown_ = false;       // entprellt KEYDOWN (Key-Repeat ignorieren)
+    int  m_hotkeyKey_  = 'm';         // Default: Taste 'm'
+
+    void toggleMeasurementButton() {
+        if (!m_ui || !m_ui->getMeasureButton()) return;
+        const bool newState = !m_ui->getMeasureButton()->state();
+        m_ui->getMeasureButton()->setState(newState); // ruft den Button-Callback auf
+    }
 
     static inline int  clampKeyIndex(int sym) { return (sym & 0x1FF); }
     inline bool        held(int sym) const { return m_keyDown_.test(clampKeyIndex(sym)); }

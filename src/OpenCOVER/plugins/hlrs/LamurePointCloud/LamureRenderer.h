@@ -581,6 +581,8 @@ public:
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
 
+    void onModelAdded(lamure::model_t model_id, const std::string& path);
+
     void init();
 
     osg::ref_ptr<osg::Group> getGroup() { return m_group; }
