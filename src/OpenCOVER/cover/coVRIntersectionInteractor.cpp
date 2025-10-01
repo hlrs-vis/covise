@@ -48,7 +48,7 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     if (s < 0.f)
         s *= -1.f * cover->getSceneSize() / 70.f;
     _interSize = s;
-    float interScale = _interSize / cover->getScale();
+    float interScale = _interSize;
 
     // initialize flags
     _hit = false;

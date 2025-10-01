@@ -38,12 +38,11 @@
 #include <string>
 #include <sstream>
 
-string int2str(int n)
-{
-    std::ostringstream o;
-    o << n;
-    return o.str();
+void err_callback(int error, char *errmsg) {
+    cout<<"CGNS Error: code= "<<error<<", msg= "<<errmsg<<endl;
+
 }
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++
@@ -96,6 +95,7 @@ ReadCGNS::ReadCGNS(int argc, char *argv[])
     out_float[3] = addOutputPort("Steam_Quality", "Float", "Steam Quality");
 
     out_velocity = addOutputPort("Velocity", "Vec3", "Velocity");
+    cg_configure(CG_CONFIG_ERROR,(void*)err_callback);
 }
 
 void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
@@ -103,7 +103,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
 
     //TODO:Optimize param()
 
-    string fileParam = "SGNS_File"; //,float1param="float_1";
+    const string fileParam = "SGNS_File"; //,float1param="float_1";
     //sendInfo("ReadCGNS::param()=====Parameter changed:%s , %d",paramName,(int)inMapLoading);
 
     //if (true/*(fileParam==paramName)*//*&&(!inMapLoading)*/) //need to check every param
@@ -113,7 +113,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
     if (param_use_file_timesteps->getValue())
     {
         char fname[300];
-        indexed_file_name(fname, param_first_file_idx->getValue());
+        indexed_file_name(fname, static_cast<int>(param_first_file_idx->getValue()));
         sendWarning("ReadCGNS::param(): Multifile. Using name '%s'", fname);
         error = cg_open(fname, CG_MODE_READ, &index_file);
     }
@@ -135,7 +135,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
         int numzones = 0;
 
         //for the first zone
-        cgsize_t zonesize[3]; //3 sizes for unstructured grid
+        cgsize_t zonesize[9]; //3 sizes for unstructured grid; max 9 sizes for 3d structured grid
         char zonename[100];
         CGNS_ENUMT(ZoneType_t) zonetype;
 
@@ -144,7 +144,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
         //1. How many bases do we have
         cg_nbases(index_file, &numbases);
 
-        // I should cycle the bases , but now i'll use the first one.
+        // I should cycle the bases , but now I'll use the first one.
         // However, multiple bases=multiple cases, so numbases >1 is very rare.
 
         // 2. read base info
@@ -155,8 +155,8 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
         error = cg_nzones(index_file, ibase, &numzones);
         if (error)
             sendInfo("param: nzones error=%d", error);
-        error = cg_zone_read(index_file, ibase, izone, zonename, zonesize);
-        error = cg_zone_type(index_file, ibase, izone, &zonetype);
+        cg_zone_read(index_file, ibase, izone, zonename, zonesize);
+        cg_zone_type(index_file, ibase, izone, &zonetype);
         //	sendInfo("param: Zones:%d.     Zone#1: name=%s , type=%d",numzones,zonename,zonetype);
         //	sendInfo("param: Sizes for unstructured grid: Verts=%d Elements=%d BoundVerts=%d",zonesize[0],zonesize[1],zonesize[2]);
 
@@ -164,18 +164,18 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
 
         int nsols = 0;
         int isol = 1;
-        error = cg_nsols(index_file, ibase, izone, &nsols); //check the number of existing solutions
+        cg_nsols(index_file, ibase, izone, &nsols); //check the number of existing solutions
         //sendInfo("param: Solutions: %d",nsols);
 
         int nfields = 0;
-        error = cg_nfields(index_file, ibase, izone, isol, &nfields); //check the number of existing fields
+        cg_nfields(index_file, ibase, izone, isol, &nfields); //check the number of existing fields
         //			sendInfo("param: Number of fields: %d",nfields);
 
         char fieldname[100];
         CGNS_ENUMT(DataType_t) fieldtype;
 
         vector<string> stparams;
-        stparams.push_back("None");
+        stparams.emplace_back("None");
 
         for (int i = 1; i <= nfields; ++i)
         {
@@ -185,25 +185,25 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
                 sendError("param: Cannot read solution %d field info", i);
                 return;
             }
-            stparams.push_back(fieldname);
+            stparams.emplace_back(fieldname);
         }
         //			sendWarning("param: xv=%d ; yv=%d",param_vx->getValue(),param_vy->getValue());
 
-        int parm = -1;
+
 
         //sendWarning ("Setting params %s",stparams[0].c_str());
-        parm = param_vx->getValue();
+        int parm = param_vx->getValue();
         if (parm == -1)
             parm = 0;
-        param_vx->setValue((int)stparams.size(), stparams, parm);
+        param_vx->setValue(static_cast<int>(stparams.size()), stparams, parm);
         parm = param_vy->getValue();
         if (parm == -1)
             parm = 0;
-        param_vy->setValue((int)stparams.size(), stparams, parm);
+        param_vy->setValue(static_cast<int>(stparams.size()), stparams, parm);
         parm = param_vz->getValue();
         if (parm == -1)
             parm = 0;
-        param_vz->setValue((int)stparams.size(), stparams, parm);
+        param_vz->setValue(static_cast<int>(stparams.size()), stparams, parm);
 
         for (int i = 0; i < 4; ++i)
         {
@@ -211,7 +211,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
 
             if (parm == -1)
                 parm = 0;
-            param_f[i]->setValue((int)stparams.size(), stparams, parm);
+            param_f[i]->setValue(static_cast<int>(stparams.size()), stparams, parm);
 
             //TODO: Not important. change port description when variable changes.
             //Maybe this has to be done at initialisation, it doesn't work here
@@ -220,7 +220,7 @@ void ReadCGNS::param(const char *paramName, bool /*inMapLoading*/)
             //sendWarning("setting port info");
         }
 
-        error = cg_close(index_file);
+        cg_close(index_file);
         //		sendInfo("ReadCGNS::param(): cg_close: error=%d ",error);
     } // cgns file open
     else
@@ -255,11 +255,18 @@ int ReadCGNS::read_params(params &p)
     return 0;
 }
 
-bool ReadCGNS::indexed_file_name(char *s, int n)
-{
-    if (sprintf(s, param_file->getValue(), n) < 0)
-        return false;
-    return true;
+
+/**
+ * Writes an indexed file name to s.
+ * For example, if file param is "file%03d.cgns" and n=4,
+ * s will be "file004.cgns".
+ *
+ * @param s Output char array of sufficient size
+ * @param n Index number
+ * @return True if it writes something
+ */
+bool ReadCGNS::indexed_file_name(char *s, const int n) const {
+    return (sprintf(s, param_file->getValue(), n) > 0);
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -289,8 +296,8 @@ int ReadCGNS::compute(const char *port)
     {
         sendInfo("CGNS reader started, reading multiple files");
 
-        idxlo = param_first_file_idx->getValue();
-        idxhi = param_last_file_idx->getValue();
+        idxlo = static_cast<int>(param_first_file_idx->getValue());
+        idxhi = static_cast<int>(param_last_file_idx->getValue());
         numtimesteps = idxhi - idxlo + 1;
         if ((idxlo < 1) || (idxhi < 1) || (numtimesteps < 1))
         {
@@ -363,7 +370,7 @@ int ReadCGNS::compute(const char *port)
             return FAIL;
         }
         //Creating COVISE objects and ports from arrays
-        out_objs bo;
+        out_objs bo{};
         create_base_objs(b, bo, -1);
         set_output_objs(bo);
     }
@@ -417,7 +424,7 @@ int ReadCGNS::compute(const char *port)
                 //for file-based animation ibase=1
 
                 //Creating COVISE objects and ports from arrays
-                out_objs bo;
+                out_objs bo{};
                 create_base_objs(b, bo, timestep);
 
                 gridobj[timestep] = bo.gridobj;
@@ -427,31 +434,29 @@ int ReadCGNS::compute(const char *port)
             } //-----deleting base-----------
         } //for
         //terminating arrays
-        gridobj[numtimesteps] = NULL;
+        gridobj[numtimesteps] = nullptr;
         for (int i = 0; i < 4; ++i)
-            floatobj[i][numtimesteps] = NULL;
-        velobj[numtimesteps] = NULL;
+            floatobj[i][numtimesteps] = nullptr;
+        velobj[numtimesteps] = nullptr;
 
         sendWarning("Creating TIMESTEPS coDoSet");
 
-        out_objs mod_out;
+        out_objs mod_out{};
         const char *name;
 
-        string attrval = string("0 ") + int2str(numtimesteps - 1);
+        string attrval = string("0 ") + std::to_string(numtimesteps - 1);
 
         name = out_mesh->getObjName();
 
-        mod_out.gridobj = NULL;
-        if (gridobj[0] != NULL)
+        if (gridobj[0] != nullptr)
         {
             mod_out.gridobj = new coDoSet(name, &gridobj[0]);
             mod_out.gridobj->addAttribute("TIMESTEP", attrval.c_str());
-            if (mod_out.gridobj == NULL)
-                sendError("Cannot create coDoSet!");
+            // if (mod_out.gridobj == nullptr)
+            //     sendError("Cannot create coDoSet!");
         }
 
-        mod_out.velobj = NULL;
-        if (velobj[0] != NULL)
+        if (velobj[0] != nullptr)
         {
             name = out_velocity->getObjName();
             mod_out.velobj = new coDoSet(name, &velobj[0]);
@@ -460,8 +465,7 @@ int ReadCGNS::compute(const char *port)
 
         for (int i = 0; i < 4; ++i)
         {
-            mod_out.floatobj[i] = NULL;
-            if (floatobj[i][0] != NULL)
+            if (floatobj[i][0] != nullptr)
             {
                 name = out_float[i]->getObjName();
                 mod_out.floatobj[i] = new coDoSet(name, &floatobj[i][0]);
@@ -485,27 +489,24 @@ int ReadCGNS::compute(const char *port)
  * Creates distributed objects of a base
  * base 	&b 		-- source base
  * out_objs &objs	-- structure with resulting objects
- * int 		nubmer	-- number to add to name (for output
+ * int 		number	-- number to add to name (for output
  *         TIMESTEP coDoSet, (-1) == don't add anything)
  *---------------------------------------------------------*/
-int ReadCGNS::create_base_objs(base &b, out_objs &objs, int number)
+int ReadCGNS::create_base_objs(base &b, out_objs &objs, const int number)
 {
     //creating COVISE objects with correct names
     /////////////////////////
     //creating float object
     for (int i = 0; i < 4; ++i)
     {
-        objs.floatobj[i] = NULL;
-        const char *floatobjname;
+        objs.floatobj[i] = nullptr;
 
         string str;
         str.append(out_float[i]->getObjName());
         if (number != -1)
-            str.append(string("_") + int2str(number));
+            str.append(string("_") + std::to_string(number));
 
-        floatobjname = str.c_str();
-
-        if (floatobjname)
+        if (const char *floatobjname = str.c_str())
         {
             sendInfo("ReadCGNS::create_base_objs(): float objname=%s", floatobjname);
             if (b.is_single_zone())
@@ -519,16 +520,14 @@ int ReadCGNS::create_base_objs(base &b, out_objs &objs, int number)
 
     //creating COVISE vector object for velocity
 
-    objs.velobj = NULL;
-    const char *velobjname;
+    objs.velobj = nullptr;
 
     string str;
     str.append(out_velocity->getObjName());
     if (number != -1)
-        str.append(string("_") + int2str(number));
+        str.append(string("_") + std::to_string(number));
 
-    velobjname = str.c_str();
-    if (velobjname)
+    if (const char *velobjname = str.c_str())
     {
         sendInfo("ReadCGNS::create_base_objs(): vel objname=%s", velobjname);
         if (b.is_single_zone())
@@ -540,16 +539,14 @@ int ReadCGNS::create_base_objs(base &b, out_objs &objs, int number)
     //Preparing COVISE object for grid
 
     //-----creating unstructured grid object and set it for output---
-    objs.gridobj = NULL;
-    const char *usgobjname;
+    objs.gridobj = nullptr;
 
     str.clear();
     str.append(out_mesh->getObjName());
     if (number != -1)
-        str.append(string("_") + int2str(number));
+        str.append(string("_") + std::to_string(number));
 
-    usgobjname = str.c_str();
-    if (usgobjname)
+    if (const char *usgobjname = str.c_str())
     {
         sendInfo("ReadCGNS::create_base_objs(): usg objname=%s", usgobjname);
         if (b.is_single_zone())
@@ -599,12 +596,9 @@ void ReadCGNS::params_out()
  * i_base -- base no
  * _p -- parameters structure
  *-------------------------------------*/
-base::base(int i_file, int i_base, params _p)
+base::base(const int i_file, const int i_base, params _p):
+index_file(i_file),ibase(i_base),cell_dim(0),phys_dim(0),basename{},p(_p)
 {
-    p = _p;
-    index_file = i_file;
-    ibase = i_base;
-
     // read(); good only without error handling
 }
 
@@ -614,7 +608,7 @@ base::base(int i_file, int i_base, params _p)
  *---------------------------------------------------*/
 int base::read()
 {
-    if (zones.size() != 0) // if the base has been already read (that must not happen!)
+    if (!zones.empty()) // if the base has been already read (that must not happen!)
     {
         zones.clear();
         CoviseBase::sendWarning("base::read(): WARNING! Reading the base that's already read, clearing zones.");
@@ -644,7 +638,7 @@ int base::read()
     //============read zones(temp!!!)
     for (int i = 0; i < numzones; ++i)
     {
-        zones.push_back(zone(index_file, ibase, i + 1, p));
+        zones.emplace_back(index_file, ibase, i + 1, p);
         if (zones[i].read() == FAIL)
         {
             CoviseBase::sendError("base::read(): ERROR! Cannot read zone no %d", i);
@@ -675,19 +669,19 @@ coDoSet *base::create_do_set(const char *name, int type, int scal_no)
     for (int i = 0; i < zones.size(); ++i)
 
     {
-        s = string(name) + "_doset_" + int2str(i);
+        s = string(name) + "_doset_" + std::to_string(i);
         cout << s << endl;
         d_obj[i] = zones[i].create_do(s.c_str(), type, scal_no);
     }
-    d_obj[zones.size()] = NULL;
+    d_obj[zones.size()] = nullptr;
 
-    if (d_obj[0] == NULL)
+    if (d_obj[0] == nullptr)
     {
         cout << cout_red << "base::create_do_set(): ERROR! First DO ptr is NULL." << cout_norm << endl;
-        return NULL;
+        return nullptr;
     }
 
-    coDoSet *do_set = new coDoSet(name, &d_obj[0]);
+    auto *do_set = new coDoSet(name, &d_obj[0]);
 
     return do_set;
 }
@@ -707,8 +701,7 @@ coDistributedObject *base::create_do(const char *name, int type, int scal_no)
  *  bool base::single_zone()
  * returns true if the base has only one zone
  *--------------------------------------------*/
-bool base::is_single_zone()
-{
+bool base::is_single_zone() const {
     return zones.size() == 1;
 }
 

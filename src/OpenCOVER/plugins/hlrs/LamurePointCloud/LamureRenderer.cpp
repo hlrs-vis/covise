@@ -1718,7 +1718,8 @@ void LamureRenderer::initLamureShader()
         char * val;
         val = getenv( "COVISEDIR" );
         shader_root_path=val;
-        shader_root_path=shader_root_path+"/share/covise/shaders";
+        shader_root_path=shader_root_path+"/src/OpenCOVER/plugins/hlrs/LamurePointCloud/shaders";
+        //shader_root_path=shader_root_path+"/share/covise/shaders";
         if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||
             !readShader(shader_root_path + "/vis/vis_point.glslf", vis_point_fs_source) ||
             !readShader(shader_root_path + "/vis/vis_point_color.glslv", vis_point_color_vs_source) ||

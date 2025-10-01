@@ -18,7 +18,7 @@
 #define ZONE_H_
 
 #include <vector>
-#include <string>
+//#include <string>
 #include <cgnslib.h>
 #include <do/coDoUnstructuredGrid.h> //for grid element types
 #include <do/coDoData.h>
@@ -29,59 +29,58 @@ using namespace covise;
 
 class zone
 {
-    //from COMODULE
+    int error{0}; /// Error return for CGNS lib
 
-    int error;
+    //from COMODULE
     enum
     {
         FAIL = -1,
         SUCCESS = 0 //return values
     };
 
-    //vars
-    int index_file;
-    int ibase;
-    int izone;
+    //CGNS indices for zone
+
+    int index_file;  /// CGNS file index
+    int ibase;      /// CGNS base index
+    int izone;      /// CGNS zone index
     params p;
 
-    //coords array
-    vector<float> fx;
-    vector<float> fy;
-    vector<float> fz;
+    vector<float> fx; /// COVISE X coord array
+    vector<float> fy; /// COVISE Y coord array
+    vector<float> fz; /// COVISE Z coord array
 
-    vector<int> conn; //connectivity array
-    vector<int> tl; //type list arraay
-    vector<int> elem; //element list array
+    vector<int> conn; /// COVISE connectivity array
+    vector<int> tl;   /// COVISE type list arraay
+    vector<int> elem; /// COVISE element list array
 
-    //4 float fields
-    vector<float> scalar[4];
+    vector<float> scalar[4]; /// COVISE scalar fields
 
     //velocity vector
-    vector<float> fvx;
-    vector<float> fvy;
-    vector<float> fvz;
 
-    cgsize_t zonesize[3]; //3 sizes for unstructured grid
+    vector<float> fvx;  /// COVISE velocity x
+    vector<float> fvy;  /// COVISE velocity y
+    vector<float> fvz;  /// COVISE velocity z
 
-    char zonename[100];
+    cgsize_t zonesize[9]; /// CGNS 3 sizes for unstructured grid; max 9 for 3d structured
 
-    CGNS_ENUMT(ZoneType_t) zonetype;
+    char zonename[100];  /// CGNS zone name
+
+    CGNS_ENUMT(ZoneType_t) zonetype; /// CGNS zone type
 
     //solution-related
     int read_field(int isol, int ifield, cgsize_t start, cgsize_t end, vector<float> &fvar);
 
     //coord related
-    int read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz);
+    int read_coords();
 
     //section related
-    int read_one_section(int isection, vector<int> &conn, vector<int> &elem, vector<int> &tl);
+    int read_one_section(int isection);
     int select_sections(vector<int> &sections);
-    bool IsMixed3D(const vector<cgsize_t> &conntemp);
+    static bool IsMixed3D(const vector<cgsize_t> &conntemp);
 
 public:
     //zone ();
     zone(int i_file, int i_base, int i_zone, params _p);
-    //int read (int index_file,int ibase,int izone);
     int read();
 
     coDoUnstructuredGrid *create_do_grid(const char *usgobjname);

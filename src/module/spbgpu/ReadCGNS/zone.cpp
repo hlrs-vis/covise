@@ -30,8 +30,7 @@ typedef int cgsize_t;
  *  Constructor
  *-----------------------------*/
 
-zone::zone(int i_file, int i_base, int i_zone, params _p)
-{
+zone::zone(int i_file, int i_base, int i_zone, params _p) : zonesize{0,0,0}, zonename{""}, zonetype(CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(ZoneTypeNull)) {
     index_file = i_file;
     ibase = i_base;
     izone = i_zone;
@@ -51,6 +50,11 @@ int zone::read()
 
     CoviseBase::sendInfo(" zone::read() started: name=%s , type=%d, num=%d", zonename, zonetype, izone);
 
+    if (zonetype==CGNS_ENUMT(ZoneType_t)::CGNS_ENUMV(Structured)) {
+        cout<<cout_red<<"Error: Zone `" << zonename << "' is structured. Structured grids aren't supported yet."<<cout_norm<<endl;
+        return FAIL;
+    }
+
     cout << cout_cyan << cout_underln << "==============zone::read() started======================" << endl
          << "zone::read() name=" << zonename << ", type=" << zonetype << ", no=" << izone << cout_norm << endl;
 
@@ -58,12 +62,7 @@ int zone::read()
 
     //4,5  Reading coords
 
-    fx.insert(fx.begin(), zonesize[0], 0);
-    fy.insert(fy.begin(), zonesize[0], 0);
-    fz.insert(fz.begin(), zonesize[0], 0);
-
-    //cout << "LALALALALAL!!!!!!!!!!!!!!!!!!!!!!!"<<endl<<fx.size()<<"="<<zonesize[0]<<endl;
-    if ((error = read_coords(fx, fy, fz)))
+    if (read_coords()==FAIL)
         return FAIL;
 
     //6. Reading Grid data (Sections)
@@ -75,14 +74,16 @@ int zone::read()
     cout << "zone::read(): Number of sections:" << numsections << endl;
 
     vector<int> sections; //array of selected section indices
-    select_sections(sections);
+    error = select_sections(sections);
+    if (error==FAIL) {
+        cerr<<"zone::select_sections() failed"<<endl;
+        return FAIL;
+    }
 
     int sectionsread = 0; //How many sections we have read?
-    for (int ind = 0; ind < sections.size(); ++ind) // for_each ?
-    {
-        int isection = sections[ind];
+    for (const int isection : sections) {
         sectionsread++;
-        if ((error = read_one_section(isection, conn, elem, tl)))
+        if (read_one_section(isection)==FAIL)
             return FAIL;
     }
     cout << "zone::read():" << sectionsread << " sections read.";
@@ -94,9 +95,9 @@ int zone::read()
     }
 
     // connectivity indices should be decremented after loading
-    for (int i = 0; i < conn.size(); ++i)
-        conn[i]--; //decrementing for C++ Covise indexes from zero
-    cout << "zone::read(): Connectivities after decrement: conn[0]=" << conn[0] << ", conn[9]=" << conn[8] << ", conn[" << (int)conn.size() - 1 << "]=" << conn.back() << endl;
+    for (int & i : conn)
+        i--; //decrementing for C++ Covise indexes from zero
+    cout << "zone::read(): Connectivities after decrement: conn[0]=" << conn[0] << ", conn[9]=" << conn[8] << ", conn[" << conn.size() - 1 << "]=" << conn.back() << endl;
 
     //7. Reading Solution
 
@@ -120,23 +121,23 @@ int zone::read()
 
     //is solution is  vertex based, load from rmin to rmax (=zonesize[3])
 
-    size_t solmin = 0, solmax = 0;
+    cgsize_t solmin = 0, solmax = 0;
 
     switch (solloc)
     {
     case CGNS_ENUMV(Vertex): //vertex based
-        solmax = fx.size();
+        solmax = static_cast<cgsize_t>(fx.size());
         solmin = 1;
         cout << "zone::read(): Solution is vertex based" << endl;
         break;
     case CGNS_ENUMV(CellCenter): //cell based
         solmin = 1; //universal
-        solmax = tl.size();
+        solmax = static_cast<cgsize_t>(tl.size());
         cout << "zone::read(): Solution is cell based" << endl;
         break;
 
     default:
-        CoviseBase::sendError("zone::read(): Solution location type %d is not supported", (int)solloc);
+        CoviseBase::sendError("zone::read(): Solution location type %d is not supported", static_cast<int>(solloc));
         cout << cout_red << cout_underln << "zone::read(): Solution location type " << (int)solloc << " is not supported" << cout_norm << endl;
         return FAIL;
     }
@@ -148,7 +149,6 @@ int zone::read()
     {
         scalar[i].insert(scalar[i].begin(), solmax - solmin + 1, 0);
         //check!  field load func. needs right size of arrays.
-        int error = 0;
         error = read_field(isol, p.param_f[i], solmin, solmax, scalar[i]);
         if (error)
         {
@@ -206,11 +206,32 @@ int zone::read()
  * index_file,ibase,izone -- obsolete, not used now!
  * vectors -- float vectors with size=zonesize[0] (number of points). Don't use empty vectors!
  */
-int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
+
+
+/**
+ * Read the coordinates array members (fx,fy,fz).
+ *
+ * The arrays will be cleaned before reading into them.
+ *
+ *  A zone has only one set of coord arrays,
+ *  so this function should be called once.
+ *
+ * zonesize member must be set and contain array sizes!
+ *
+ * @return SUCCESS or FAIL
+ */
+int zone::read_coords()
 {
+    // prepare the arrays
+    fx.clear();
+    fy.clear();
+    fz.clear();
+
+    fx.insert(fx.begin(), zonesize[0], 0);
+    fy.insert(fy.begin(), zonesize[0], 0);
+    fz.insert(fz.begin(), zonesize[0], 0);
     //=========GridCoordinates_t=========
-    int error = 0;
-    int numgrids = 0, igrid = 1; //i know that I have 1 "grid"
+    int numgrids = 0, igrid = 1; //I know that I have 1 "grid"
     char gridname[100];
 
     cout << cout_cyan << "zone::read_coords():==========read_coords started================" << cout_norm << endl;
@@ -260,7 +281,7 @@ int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
 
     cgsize_t rmin = 1; //minimal CGNS index of coord array
     //int rmax=zonesize[0]; //maximal CGNS index of coord array
-    cgsize_t rmax = (cgsize_t)fx.size(); // vector size MUST be = zonesize(0)
+    auto rmax = static_cast<cgsize_t>(fx.size()); // vector size MUST be = zonesize(0)
 
     //Datatypes must be the same now for every coord array; function reads 3 first arrays as X,Y,Z
 
@@ -273,8 +294,8 @@ int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
         vector<double> z(fz.size());
 
         error = cg_coord_read(index_file, ibase, izone, coordnames[0].c_str(), CGNS_ENUMV(RealDouble), &rmin, &rmax, &x[0]);
-        error = cg_coord_read(index_file, ibase, izone, coordnames[1].c_str(), CGNS_ENUMV(RealDouble), &rmin, &rmax, &y[0]);
-        error = cg_coord_read(index_file, ibase, izone, coordnames[2].c_str(), CGNS_ENUMV(RealDouble), &rmin, &rmax, &z[0]);
+        cg_coord_read(index_file, ibase, izone, coordnames[1].c_str(), CGNS_ENUMV(RealDouble), &rmin, &rmax, &y[0]);
+        cg_coord_read(index_file, ibase, izone, coordnames[2].c_str(), CGNS_ENUMV(RealDouble), &rmin, &rmax, &z[0]);
 
         copy(x.begin(), x.end(), fx.begin());
         copy(y.begin(), y.end(), fy.begin());
@@ -284,8 +305,8 @@ int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
     case CGNS_ENUMV(RealSingle):
         cout << "zone::read_coords(): Reading Float type coordinates:" << endl;
         error = cg_coord_read(index_file, ibase, izone, coordnames[0].c_str(), CGNS_ENUMV(RealSingle), &rmin, &rmax, &fx[0]);
-        error = cg_coord_read(index_file, ibase, izone, coordnames[1].c_str(), CGNS_ENUMV(RealSingle), &rmin, &rmax, &fy[0]);
-        error = cg_coord_read(index_file, ibase, izone, coordnames[2].c_str(), CGNS_ENUMV(RealSingle), &rmin, &rmax, &fz[0]);
+        cg_coord_read(index_file, ibase, izone, coordnames[1].c_str(), CGNS_ENUMV(RealSingle), &rmin, &rmax, &fy[0]);
+        cg_coord_read(index_file, ibase, izone, coordnames[2].c_str(), CGNS_ENUMV(RealSingle), &rmin, &rmax, &fz[0]);
         break;
     default:
         CoviseBase::sendError("zone::read_coords(): type %d is not supported.", (int)datatypes[0]);
@@ -302,30 +323,26 @@ int zone::read_coords(vector<float> &fx, vector<float> &fy, vector<float> &fz)
         return FAIL;
     }
 
-    cout << "read_coords: X [0]=" << fx[0] << "; [" << (int)fx.size() - 1 << "]=" << fx.back() << endl;
-    cout << "read_coords: Y [0]=" << fy[0] << "; [" << (int)fy.size() - 1 << "]=" << fy.back() << endl;
-    cout << "read_coords: Z [0]=" << fz[0] << "; [" << (int)fz.size() - 1 << "]=" << fz.back() << endl;
+    cout << "read_coords: X [0]=" << fx[0] << "; [" << fx.size() - 1 << "]=" << fx.back() << endl;
+    cout << "read_coords: Y [0]=" << fy[0] << "; [" << fy.size() - 1 << "]=" << fy.back() << endl;
+    cout << "read_coords: Z [0]=" << fz[0] << "; [" << fz.size() - 1 << "]=" << fz.back() << endl;
 
     return SUCCESS;
 }
 
-/*------------------------------------------------------------------------------------
- * int zone::read_one_section(int index_file, int ibase, int izone, // obs.!
- * int isection, vector <int> &conn, vector <int> &elem, vector <int> &tl)
- *
- * Reads an USG section and INSERTS it into 3 vectors (which can be not empty)
- *
- * index_file,ibase,izone,isection -- as usual for CGNS functions
- *  conn, elem, tl -- vectors to INSERT an USG section
- *------------------------------------------------------------------------------------*/
-
-int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, vector<int> &tl)
+/**
+ * Reads an USG section and INSERTS it into 3 member arrays (conn, elem, tl), which can be not empty
+ * @param isection CGNS section number
+ * @return SUCCESS or FAIL
+ */
+int zone::read_one_section(const int isection)
 {
-
     char elemsectname[100];
     int bdry = 0, parentflg = 0;
-    cgsize_t start = 0, end = 0, eldatasize = 0;
-    CGNS_ENUMV(ElementType_t) etype;
+    cgsize_t start = 0; /// Start section element idx (usially 1)
+    cgsize_t end = 0;   /// End section element idx (usually number of elements-1)
+    cgsize_t eldatasize = 0;  /// Element connectivity array size
+    CGNS_ENUMV(ElementType_t) etype; /// Section element type
 
     //Reading Section (reading Connectivity, then creating Type list and element list)
     error = cg_section_read(index_file, ibase, izone, isection, elemsectname, &etype, &start, &end, &bdry, &parentflg);
@@ -339,9 +356,25 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
     size_t connfirst = conn.size(); //Index of first conn. element (in this iteration) for tl and elem creation.
 
     vector<cgsize_t> conntemp; // temporary array for cleaned connectivity for this iteration
+    vector<cgsize_t> elem_offset_tmp; // temporary element offset array for mixed-size element section
     conntemp.insert(conntemp.begin(), eldatasize, 0);
-    error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
-
+    if (etype != CGNS_ENUMV(MIXED)) {
+        error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], nullptr);
+        if (error) {
+            cout<< cout_red<<"Zone::read_one_section: cg_elements_read failed! Possibly mixed-size element section, etype = "<<etype<<cout_norm<<endl;
+            return FAIL;
+        }
+    } else {
+        // Fix for libcgns 3.4+: CPEX 41 NGON modification proposal:
+        // Must use new cg_poly_elements_read function for MIXED and NGON section
+        // Elements data is the same even in new format, they just added offset array
+        elem_offset_tmp.insert(elem_offset_tmp.begin(), end+1, 0);
+        error = cg_poly_elements_read(index_file,ibase,izone,isection,conntemp.data(),elem_offset_tmp.data(),nullptr);
+        if (error) {
+            cout<< cout_red<<"Zone::read_one_section: cg_poly_elements_read failed! etype = "<<etype<<cout_norm<<endl;
+            return FAIL;
+        }
+    }
     // creating elements and types array for COVISE unstructured grid
     switch (etype)
     {
@@ -351,28 +384,28 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
         for (int i = 0; i < end - start + 1; i++)
             elem.push_back((int)(connfirst + 8 * i)); //all elements (hexaeders) are of size 8
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
-        cout << "zone::read_one_section(): Section " << isection << " has CG_HEXA_8 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
+        cout << "zone::read_one_section(): Section " << isection << " has CG_HEXA_8 type, sizes=tl:" << tl.size() << " elem:" << elem.size() << endl;
         break;
     case CGNS_ENUMV(TETRA_4): //=10
         tl.insert(tl.end(), end - start + 1, TYPE_TETRAHEDER);
         for (int i = 0; i < end - start + 1; ++i)
             elem.push_back((int)(connfirst + 4 * i)); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
-        cout << "zone::read_one_section(): Section " << isection << " has CG_TETRA_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
+        cout << "zone::read_one_section(): Section " << isection << " has CG_TETRA_4 type, sizes=tl:" << tl.size() << " elem:" << elem.size() << endl;
         break;
-    case CGNS_ENUMV(QUAD_4):
+    case CGNS_ENUMV(QUAD_4): //=7
         tl.insert(tl.end(), end - start + 1, TYPE_QUAD);
         for (int i = 0; i < end - start + 1; ++i)
             elem.push_back((int)(connfirst + 4 * i)); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
-        cout << "zone::read_one_section(): Section " << isection << " has CG_QUAD_4 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
+        cout << "zone::read_one_section(): Section " << isection << " has CG_QUAD_4 type, sizes=tl:" << tl.size() << " elem:" << elem.size() << endl;
         break;
-    case CGNS_ENUMV(TRI_3):
+    case CGNS_ENUMV(TRI_3): //=5
         tl.insert(tl.end(), end - start + 1, TYPE_TRIANGLE);
         for (int i = 0; i < end - start + 1; ++i)
-            elem.push_back(connfirst + 3 * i); // indices begin from connfirst
+            elem.push_back((int)connfirst + 3 * i); // indices begin from connfirst
         conn.insert(conn.end(), conntemp.begin(), conntemp.end());
-        cout << "zone::read_one_section(): Section " << isection << " has CG_TRI_3 type, sizes=tl:" << (int)tl.size() << " elem:" << (int)elem.size() << endl;
+        cout << "zone::read_one_section(): Section " << isection << " has CG_TRI_3 type, sizes=tl:" << tl.size() << " elem:" << elem.size() << endl;
         break;
     case CGNS_ENUMV(MIXED): // =20 ; now loads with conn. type member deletion
     {
@@ -388,28 +421,28 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
                 tl.push_back(TYPE_HEXAEDER); //pushing one more element_type into type list
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 8);
-                elem.push_back((int)(connfirst + i + 1 - erases)); //pushing 1st element member (cleaned conn) index into element list
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases)); //pushing 1st element member (cleaned conn) index into element list
                 i += 9; // 8+1					// goto next element_type connectivity element
                 break;
             case CGNS_ENUMV(TETRA_4): //CG_TETRA_4 = 10
                 tl.push_back(TYPE_TETRAHEDER);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 4);
-                elem.push_back((int)(connfirst + i + 1 - erases));
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases));
                 i += 5; //4+1
                 break;
             case CGNS_ENUMV(PYRA_5): //CG_PYRA_5 = 12
                 tl.push_back(TYPE_PYRAMID);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 5);
-                elem.push_back((int)(connfirst + i + 1 - erases));
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases));
                 i += 6;
                 break;
             case CGNS_ENUMV(PENTA_6): //CG_PENTA_6=14
                 tl.push_back(TYPE_PRISM);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 6);
-                elem.push_back((int)(connfirst + i + 1 - erases));
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases));
                 i += 7;
                 break;
             //	2D primitives
@@ -417,14 +450,14 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
                 tl.push_back(TYPE_TRIANGLE);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 3);
-                elem.push_back((int)(connfirst + i + 1 - erases));
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases));
                 i += 4;
                 break;
             case CGNS_ENUMV(QUAD_4): //=7
                 tl.push_back(TYPE_QUAD);
                 erases++;
                 conn.insert(conn.end(), &conntemp[i + 1], (&conntemp[i + 1]) + 4);
-                elem.push_back((int)(connfirst + i + 1 - erases));
+                elem.push_back(static_cast<int>(connfirst + i + 1 - erases));
                 i += 5;
                 break;
 
@@ -457,7 +490,6 @@ int zone::read_one_section(int isection, vector<int> &conn, vector<int> &elem, v
 // Selects grid sections that we want to load
 // returns vector <int> &section -- array of section indices to load
 //----------------------------------------------------------------------------------------
-
 int zone::select_sections(vector<int> &sections)
 {
     int numsections = 0;
@@ -472,8 +504,8 @@ int zone::select_sections(vector<int> &sections)
     if (p.b_use_string) //using sections string
     {
         cout << "zone::select_sections(): Using section string" << endl;
-        string paramstr; //,tempstr;
-        paramstr = p.sections_string;
+
+        string paramstr = p.sections_string;
 
         cout << "zone::select_sections(): string= " << paramstr << endl;
 
@@ -487,7 +519,7 @@ int zone::select_sections(vector<int> &sections)
             if (tempstr >> isection)
             {
                 sections.push_back(isection);
-                sectnames.push_back(int2str(isection)); //temp!!!
+                sectnames.push_back(std::to_string(isection)); //temp!!!
             }
             else
             {
@@ -498,7 +530,7 @@ int zone::select_sections(vector<int> &sections)
     } //use sections string
     else //loading only 2d or only 3d
     {
-        bool need2d = p.b_load_2d;
+        const bool need2d = p.b_load_2d;
         if (need2d)
             cout << "zone::select_sections(): Loading only 2D meshes" << endl;
         else
@@ -509,7 +541,8 @@ int zone::select_sections(vector<int> &sections)
 
             char elemsectname[100];
             int bdry = 0, parentflg = 0;
-            cgsize_t start = 0, end = 0;
+            cgsize_t start = 0; /// Start section element idx (usually 1)
+            cgsize_t end = 0; /// End section element idx (usually number of elements-1)
             CGNS_ENUMT(ElementType_t) etype;
 
             //Reading Section (reading Connectivity, then creating Type list and element list)
@@ -552,7 +585,13 @@ int zone::select_sections(vector<int> &sections)
                 cgsize_t eldatasize = 0;
                 error = cg_ElementDataSize(index_file, ibase, izone, isection, &eldatasize);
                 conntemp.insert(conntemp.begin(), eldatasize, 0);
-                error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
+
+                //error = cg_elements_read(index_file, ibase, izone, isection, &conntemp[0], NULL);
+                vector<cgsize_t> connect_offset_temp(end+1);
+                // Fix for libcgns 3.4+: CPEX 41 NGON modification proposal:
+                // must use new cg_poly_elements_read function for MIXED and NGON section
+                error = cg_poly_elements_read(index_file, ibase, izone, isection, conntemp.data(), connect_offset_temp.data(),nullptr);
+
                 if (error)
                 {
                     CoviseBase::sendError("zone::select_sections(): Cannot load MIXED-type array!");
@@ -566,13 +605,11 @@ int zone::select_sections(vector<int> &sections)
                     sectnames.push_back(s);
                     cout << "zone::select_sections(): Mixed Section " << isection << " is 2D , adding ..." << endl;
                 }
-                if ((is3d) && (!p.b_load_2d))
-                {
+                if ((is3d) && (!p.b_load_2d)) {
                     sections.push_back(isection);
                     sectnames.push_back(s);
                     cout << "zone::select_sections(): Mixed Section " << isection << " is 3D , adding ..." << endl;
                 }
-                conntemp.clear(); //don't needed???
             }
             break;
             default:
@@ -601,7 +638,7 @@ int zone::select_sections(vector<int> &sections)
 
 bool zone::IsMixed3D(const vector<cgsize_t> &conntemp)
 {
-    cgsize_t i = 0;
+    size_t i = 0;
     while (i < conntemp.size())
     {
         switch (conntemp[i]) //cycling through element_type connectivity array elements
@@ -631,31 +668,12 @@ bool zone::IsMixed3D(const vector<cgsize_t> &conntemp)
             break;
 
         default:
-            CoviseBase::sendError("IsMixed3D: Element of mixed unstructured grid is not supported: %ld, i=%ld", (long)conntemp[i], (long)i);
+            CoviseBase::sendError("IsMixed3D: Element of mixed unstructured grid is not supported: %ld, i=%ld", static_cast<long>(conntemp[i]), i);
             return false;
         } //switch conntemp
     } //while conntemp
     return false;
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++          Solution reading functions              +++
-//+++                                                  +++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//  for_each() function
-/*
-
-struct func_copyd2f // for STL for_each
-{
-	const double *dbl;
-	float *flt;
-	func_copyd2f(const double *_dbl, float *_flt): dbl(_dbl),flt(_flt) {}
-	void operator () (int i) {flt[i]=dbl[i];}
-};
-*/
 
 /*========================================================================
  * Loading the ifield plot field
@@ -673,12 +691,11 @@ struct func_copyd2f // for STL for_each
  * -1 if isol=0 or solution type is not supported
  * cgns error value on reading error
  *=========================================================================*/
-int zone::read_field(int isol, int ifield, cgsize_t start, cgsize_t end, vector<float> &fvar)
+int zone::read_field(const int isol, const int ifield, const cgsize_t start, const cgsize_t end, vector<float> &fvar)
 {
 
     char fieldname[100];
     CGNS_ENUMT(DataType_t) fieldtype;
-    int error = 0;
 
     cout << cout_cyan << "zone::read_field() started. zone=" << izone << " field=" << ifield << cout_norm << endl;
 
@@ -760,7 +777,7 @@ coDistributedObject *zone::create_do(const char *name, int type, int scal_no)
         break;
     default:
         cout << cout_red << "zone::create_do(): ERROR! Invalid object type." << cout_norm << endl;
-        return NULL;
+        return nullptr;
     }
     return d_obj;
 }
@@ -773,10 +790,9 @@ coDistributedObject *zone::create_do(const char *name, int type, int scal_no)
  *----------------------------------------------------------------------*/
 coDoUnstructuredGrid *zone::create_do_grid(const char *usgobjname)
 {
-    coDoUnstructuredGrid *gridobj;
-    gridobj = new coDoUnstructuredGrid(usgobjname, elem.size(), conn.size(), zonesize[0],
-                                       &elem[0], &conn[0], &fx[0], &fy[0], &fz[0], &tl[0]);
-    return gridobj;
+    return new coDoUnstructuredGrid(usgobjname,
+        static_cast<int>(elem.size()),  static_cast<int>(conn.size()), static_cast<int>(zonesize[0]),
+        &elem[0], &conn[0], &fx[0], &fy[0], &fz[0], &tl[0]);
 }
 
 /*-------------------------------------------------------
@@ -787,14 +803,12 @@ coDoUnstructuredGrid *zone::create_do_grid(const char *usgobjname)
  *-------------------------------------------------------*/
 coDoVec3 *zone::create_do_vec(const char *velobjname)
 {
-    if (fvx.size() == 0)
-    {
+    if (fvx.empty()) {
         cout << cout_magenta << "zone::create_do_vec(): WARNING! Empty VECTOR array, returning NULL. "
              << "Zone=" << izone << "; size=" << fvx.size() << cout_norm << endl;
-        return NULL;
+        return nullptr;
     }
-    coDoVec3 *velobj;
-    velobj = new coDoVec3(velobjname, (int)fvx.size(), &fvx[0], &fvy[0], &fvz[0]);
+    auto *velobj = new coDoVec3(velobjname, static_cast<int>(fvx.size()), &fvx[0], &fvy[0], &fvz[0]);
     return velobj;
 }
 /*---------------------------------------------------------
@@ -804,22 +818,22 @@ coDoVec3 *zone::create_do_vec(const char *velobjname)
  * const char * usgobjname -- object name
  * n -- number of scalar field (0-3)
  */
-coDoFloat *zone::create_do_scalar(const char *floatobjname, int n)
+coDoFloat *zone::create_do_scalar(const char *floatobjname, const int n)
 {
     if ((n < 0) || (n > 3))
     {
         cout << "zone::create_do_scalar(): ERROR! scalar index is out of range!" << endl;
-        return NULL;
+        return nullptr;
     }
-    if (scalar[n].size() == 0)
+    if (scalar[n].empty())
     {
         cout << cout_magenta << "zone::create_do_scalar(): WARNING! Empty SCALAR array, returning NULL;"
              << "Zone=" << izone << " no=" << n + 1 << "; size=" << scalar[n].size() << cout_norm << endl;
 
-        return NULL;
+        return nullptr;
     }
-    coDoFloat *floatobj = NULL;
-    floatobj = new coDoFloat(floatobjname, (int)scalar[n].size(), &scalar[n][0]);
+    coDoFloat *floatobj = nullptr;
+    floatobj = new coDoFloat(floatobjname, static_cast<int>(scalar[n].size()), &scalar[n][0]);
 
     //cout<<"zone::create_do_scalar(): zone="<<izone<<" no="<<n+1<<"; size="<<scalar[n].size()<<"; floatobj="<<floatobj<<endl;
     return floatobj;
