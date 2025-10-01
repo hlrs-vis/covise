@@ -77,8 +77,6 @@ IF(APPLE)
   MARK_AS_ADVANCED(APP_SERVICES_LIBRARY)
 ENDIF(APPLE)
 
-COVISE_FIND_CUDA()
-
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
    osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow REQUIRED)
 
