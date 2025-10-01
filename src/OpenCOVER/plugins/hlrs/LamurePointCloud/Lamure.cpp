@@ -80,6 +80,7 @@ namespace {
 } // namespace
 
 
+#if 0
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,6 +88,7 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 #ifdef __cplusplus
 }
+#endif
 #endif
 
 COVERPLUGIN(Lamure)
