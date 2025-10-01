@@ -14,6 +14,7 @@
 #include <OpenVRUI/osg/OSGVruiNode.h>
 #include <osg/MatrixTransform>
 #include <memory>
+#include <functional>
 
 namespace osg
 {
@@ -90,13 +91,26 @@ protected:
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
     std::unique_ptr<vrb::SharedStateBase> m_sharedState;
+
+    // --- Change tracking state ---
+    osg::Matrix m_lastMoveMatrix{osg::Matrix::identity()};
+    float m_lastScale = 1.f;
+    bool m_posChanged = false;
+    bool m_rotChanged = false;
+    bool m_scaleChanged = false;
+    bool m_transformChanged = false;
+
+    // --- Change callbacks ---
+    std::function<void(const osg::Vec3 &)> m_onPositionChanged;
+    std::function<void(const osg::Quat &)> m_onRotationChanged;
+    std::function<void(float)> m_onScaleChanged;
+    std::function<void(const osg::Matrix &)> m_onTransformChanged;
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
     // scale sphere to keep the size when the world scaling changes
     virtual void keepSize();
     float getScale() const;
-
     osg::Vec3 restrictToVisibleScene(osg::Vec3);
 
     const osg::Matrix &getPointerMat() const;
@@ -147,6 +161,8 @@ public:
 
     // make the interactor invisible
     void hide();
+
+    void setInteractorSize(float s);
 
     // gives information whether this item has been initialized through a sharedState call
     bool isInitializedThroughSharedState();
@@ -210,7 +226,28 @@ public:
         return moveTransform->getMatrix();
     }
 
+    float getInteractorSize() const
+    {
+        return _interSize;
+    }
+    
     void setCaseTransform(osg::MatrixTransform *);
+
+    // --- Change tracking API ---
+    // Derived classes have to mark the corresponding flags when interaction happens for this to work
+    // Return whether the respective transform component changed.
+    // When reset=true (default), the flag is cleared after reading.
+    bool positionChanged(bool reset = true);
+    bool rotationChanged(bool reset = true);
+    bool scaleChanged(bool reset = true);
+    bool changed(bool reset = true);
+    void resetChangeFlags();
+
+    // Register callbacks invoked when a change is detected in preFrame.
+    void setPositionChangedCallback(std::function<void(const osg::Vec3 &)> cb);
+    void setRotationChangedCallback(std::function<void(const osg::Quat &)> cb);
+    void setScaleChangedCallback(std::function<void(float)> cb);
+    void setTransformChangedCallback(std::function<void(const osg::Matrix &)> cb);
 };
 }
 #endif

@@ -24,8 +24,6 @@
 #include <OpenVRUI/osg/OSGVruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
 
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-
 using namespace vrui;
 using namespace opencover;
 
@@ -122,6 +120,10 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     firstTime = true;
 
     _wasHit = false;
+
+    // initialize change tracking baselines
+    m_lastMoveMatrix = moveTransform->getMatrix();
+    m_lastScale = _scale;
 }
 
 coVRIntersectionInteractor::~coVRIntersectionInteractor()
@@ -516,8 +518,8 @@ void coVRIntersectionInteractor::keepSize()
                 sx = bb._max.x() - bb._min.x();
                 sy = bb._max.y() - bb._min.y();
                 sz = bb._max.z() - bb._min.z();
-                iconSize_ = max(sx, sy);
-                iconSize_ = max(iconSize_, sz);
+                iconSize_ = std::max(sx, sy);
+                iconSize_ = std::max(iconSize_, sz);
                 firstTime = false;
             }
         }
@@ -532,11 +534,45 @@ float coVRIntersectionInteractor::getScale() const
     return _scale;
 }
 
+void coVRIntersectionInteractor::setInteractorSize(float s)
+{
+    if (s < 0.f)
+        s *= -1.f * cover->getSceneSize() / 70.f;
+    _interSize = s;
+    keepSize();
+}
+
 void coVRIntersectionInteractor::preFrame()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVRIntersectionInteractor::preFrame\n");
     keepSize();
+
+    // Detect changes since last frame
+    const osg::Matrix curMove = moveTransform->getMatrix();
+    const float curScale = _scale;
+
+    // Decompose matrices to compare components
+    osg::Vec3d tPrev = m_lastMoveMatrix.getTrans();
+    osg::Vec3d tCur = curMove.getTrans();
+    osg::Quat qPrev = m_lastMoveMatrix.getRotate();
+    osg::Quat qCur = curMove.getRotate();
+
+    m_transformChanged = m_posChanged || m_rotChanged || m_scaleChanged;
+
+    // Fire callbacks
+    if (m_transformChanged && m_onTransformChanged)
+        m_onTransformChanged(curMove);
+    if (m_posChanged && m_onPositionChanged)
+        m_onPositionChanged(tCur);
+    if (m_rotChanged && m_onRotationChanged)
+        m_onRotationChanged(qCur);
+    if (m_scaleChanged && m_onScaleChanged)
+        m_onScaleChanged(curScale);
+
+    // Update baselines at end of frame
+    m_lastMoveMatrix = curMove;
+    m_lastScale = curScale;
 
     // update label pos
     if (label_)
@@ -767,4 +803,63 @@ void coVRIntersectionInteractor::setCaseTransform(osg::MatrixTransform *m)
         if (cover->debugLevel(5))
             fprintf(stderr, "---coVRIntersectionInteractor::setCaseDCS dcs=NULL\n");
     }
+}
+
+// ---- Change tracking public API implementations ----
+
+bool coVRIntersectionInteractor::positionChanged(bool reset)
+{
+    bool changed = m_posChanged;
+    if (reset)
+        m_posChanged = false;
+    return changed;
+}
+
+bool coVRIntersectionInteractor::rotationChanged(bool reset)
+{
+    bool changed = m_rotChanged;
+    if (reset)
+        m_rotChanged = false;
+    return changed;
+}
+
+bool coVRIntersectionInteractor::scaleChanged(bool reset)
+{
+    bool changed = m_scaleChanged;
+    if (reset)
+        m_scaleChanged = false;
+    return changed;
+}
+
+bool coVRIntersectionInteractor::changed(bool reset)
+{
+    bool changed = m_transformChanged;
+    if (reset)
+        m_transformChanged = false;
+    return changed;
+}
+
+void coVRIntersectionInteractor::resetChangeFlags()
+{
+    m_posChanged = m_rotChanged = m_scaleChanged = m_transformChanged = false;
+}
+
+void coVRIntersectionInteractor::setPositionChangedCallback(std::function<void(const osg::Vec3 &)> cb)
+{
+    m_onPositionChanged = std::move(cb);
+}
+
+void coVRIntersectionInteractor::setRotationChangedCallback(std::function<void(const osg::Quat &)> cb)
+{
+    m_onRotationChanged = std::move(cb);
+}
+
+void coVRIntersectionInteractor::setScaleChangedCallback(std::function<void(float)> cb)
+{
+    m_onScaleChanged = std::move(cb);
+}
+
+void coVRIntersectionInteractor::setTransformChangedCallback(std::function<void(const osg::Matrix &)> cb)
+{
+    m_onTransformChanged = std::move(cb);
 }

@@ -801,6 +801,7 @@ void coVR3DTransformInteractor::handleTranslation(const osg::Matrix &currHandMat
     interactorXformMat_o.setTrans(newPos_w);
 
     updateTransform(interactorXformMat_o);
+    m_posChanged = true;
     // _oldInteractorXformMat_o = interactorXformMat_o;
 }
 
@@ -861,6 +862,7 @@ void coVR3DTransformInteractor::handleScale(const osg::Matrix &currHandMat_o)
     {
         m_activeArrow->setScale(scaleFactor);
     }
+    m_scaleChanged = true;
 }
 
 void coVR3DTransformInteractor::handleRotation(const osg::Matrix &currHandMat_o)
@@ -986,6 +988,7 @@ void coVR3DTransformInteractor::handleRotation(const osg::Matrix &currHandMat_o)
 
 
     updateRotationVisualization(finalAngle);
+    m_rotChanged = true;
 
 }
 
