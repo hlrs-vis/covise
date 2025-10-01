@@ -1655,6 +1655,7 @@ std::string coVRFileManager::getFilterList()
     extensions += "*.dae;";
     extensions += "*.md2;";
     extensions += "*.geo;";
+    extensions += "*.bvh;";
     extensions += "*";
 
     return extensions;

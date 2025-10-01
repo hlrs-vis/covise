@@ -18,7 +18,7 @@ LamureUI::~LamureUI()
 
 void LamureUI::setupUi() {
     std::cout << "LamureUI::setupUi()" << std::endl;
-    m_lamure_menu = new opencover::ui::Menu("Lamure", m_plugin);
+    m_lamure_menu = new opencover::ui::Menu("Lamure", this);
     m_lamure_menu->setText("Lamure");
     m_lamure_menu->allowRelayout(true);
 
@@ -66,27 +66,6 @@ void LamureUI::setupUi() {
     m_splat_button->setState(m_plugin->getSettings().splatting);
 
 
-    m_model_menu = new opencover::ui::Menu(m_lamure_menu, "Models");
-
-    m_model_buttons.clear();
-    m_model_visible.clear();
-
-    for (uint16_t m_id = 0; m_id < m_plugin->getSettings().num_models; m_id++)
-    {
-        std::filesystem::path pathObj(m_plugin->getSettings().models[m_id]);
-        std::string filename = pathObj.filename().string();
-        std::string filename_strip = pathObj.stem().string();
-        opencover::ui::Button *file_button = new opencover::ui::Button(m_model_menu, filename_strip, nullptr, m_id);
-        //m_model_group->add(file_button);
-        file_button->setShared(true);
-        bool checked = m_plugin->getSettings().initial_selection.empty() ||
-            (std::find(m_plugin->getSettings().initial_selection.begin(), 
-                m_plugin->getSettings().initial_selection.end(), m_id) != m_plugin->getSettings().initial_selection.end());
-        file_button->setState(checked);
-        m_model_visible.push_back(checked);
-        m_model_buttons.push_back(file_button);
-        file_button->setCallback([this, m_id](bool state) { m_model_visible[m_id] = state; });
-    }
 
     m_lod_menu = new opencover::ui::Menu(m_lamure_menu, "LOD");
 

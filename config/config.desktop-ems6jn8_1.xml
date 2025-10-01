@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+<INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+<INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+
+  <GLOBAL>
+    <COVER>
+      <WelcomeMessage value="Welcome to OpenCOVER with custom config file" />
+      <Multisample value="off" numSamples="1" numBuffers="1" mode="DONT_CARE" />
+      <NavigationMode value="XForm" />
+      <CollisionDist value="1500" />
+      <Background r="0.5" g="0.5" b="0.5" /> 
+      <MultiThreaded value="false" />
+      <ShowGeodeName enable="on" value="on"/>
+      <LODScale value="1" />
+      <RotationSpeed value="1" />
+      <REGISTER_RAW_SCENEGRAPH value="off" />
+      <ScaleAll value="on" />
+      <CoordAxis value="off" />
+      <Freeze value="off" />
+      <FPS value="on" />
+      <ConstantInteractorSize value="off"/>
+      <Restrict value="off" />
+      <ScaleWithInteractors value="on"/>
+      <TwoSide value="on" />
+      <EnvMapMode value="NONE" />
+      <TransparencyMode value="sorted_blended" />
+      <Headlight value="on" />
+      <RenderOnMaster value="on" />
+      <Statistics value="off" />
+      <DebugLevel value="0" />
+      <ContinuousRendering value="on" />
+      <trackedHMD value="off" />
+      <HMDMode value="off" />
+      <DebugTUI value="off" />
+      <stereoMode value="none" />
+      <NumChannels value="1" />
+      <NumScreens value="1" />
+      <NumViewports value="1" />
+      <NumWindows value="1" />
+      <NumBlendingTextures value="0" />
+      <NumPBOs value="0" />
+      <Stereo value="off" />
+      <Stencil value="off" />
+      <CheckForOpenGLErrors value="off" />
+      <StencilBits value="8" />
+      <Notify value="INFO" />
+
+      <Turntable value="off"/>
+      <Near value="10" />
+      <Far value="100000" />
+      <SceneSize value="2000" />
+      <ViewerPosition x="0.0" y="-2000.0" z="30.0"/>
+      <showRotationPoint value="off"/>
+      <rotationPointSize value="0.2f"/>
+      <DefaultScaleFactor value="200" />
+      <SmallSceneAxis value="off">
+        <FontSize value="50"/>
+      </SmallSceneAxis>
+      
+      <!--GLVersion value="3.2" /> -->
+      
+      <TabletUI value="off" host="localhost" /> 
+      
+      <PipeConfig>
+        <Pipe name="0" useDISPLAY="false" />
+      </PipeConfig>
+
+
+      
+      <WindowConfig>
+        <Window type="Qt" arch="windows" width="1920" height="1080" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" /> 
+        <!-- <Window type="Qt" arch="windows" width="1920" height="1080" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" />  -->
+        <!-- <Window arch="windows" width="2560" height="1600" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" /> -->
+      </WindowConfig>
+      
+      <ScreenConfig>
+        <Screen width="2560" height="1600" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" p="0.0" r="0.0" name="0" screen="0" />
+      </ScreenConfig>
+      
+      <ChannelConfig>
+        <Channel windowIndex="0" stereoMode="MONO" viewportIndex="0" screenIndex="0" name="0" />
+      </ChannelConfig>
+      
+      <ViewportConfig>
+        <Viewport mode="channel" width="1" height="1" windowIndex="0" channelIndex="0" />
+      </ViewportConfig>
+      
+      <PBOConfig>
+        <PBO width="2560" height="1600" windowIndex="0" />
+      </PBOConfig>
+      
+      
+      <UI>
+        <VRUI toolbar="false" />
+        <Qt toolbar="false" />
+      </UI>
+      
+      <Input>  
+        <DebugButtons value="true" />
+        <ButtonSystem value="MOUSE" />
+        <TrackingSystem value="MOUSE" />
+        <MouseNav value="on" />
+      </Input>
+      
+
+      <Menu>
+        <Visible value="false" />
+        <Position x="900" y="0" z="700" />
+        <Size value=".7" />
+      </Menu>
+
+      
+      <VRB>
+        <Server value="off" />
+        <RemoteFetch value="off" />
+      </VRB>
+      
+      
+      <Plugin>
+        <Vrml97 value="off" />
+        <Annotation value="off" />
+        <Move value="off" />
+        <LamurePointCloud value="off" />
+        <DistortViewer value="off" />
+        <Revit value="off" />
+        <HMI value="off" />
+        <ClipPlane value="off" />
+        <FileBrowser value="off" />
+        <PDB value="off" />
+        <AirCurrents value="off" />
+        <OssimPlanet value="off" />
+        <Image value="off" />
+        <PointModel value="off" />
+        <MipMapVideo value="off" />
+        <MultiVolume value="off" />
+        <Volume value="off" />
+        <ArtifactVis value="off" />
+        <Talha value="off" />
+        <WebMonitor value="off" />
+        <Seismic value="off" /> 
+        <StructView value="off" />
+        <ModelLoader value="off" />
+        <PhotosynthVR value="off" />
+        <Hotspot value="off" />
+        <HPWRENViewer value="off" />
+        <ThreadedLoader value="off" />
+      </Plugin>
+      
+      <Plugin>
+        <LamurePointCloud>
+            <!-- Modelle: Semikolon-getrennte Liste; alternativ ein Ordner -->
+            <!--<models value="C:/data/a.bvh;C:/data/b.bvh"/> -->
+            <!-- <lmr value="C:/src/covise/src/OpenCOVER/plugins/hlrs/LamurePointCloud/Config.lmr" />  -->
+            <!-- <data_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin"/> -->
+            <!-- <data_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_vis"/> -->
+            
+            <!-- Auswahl  -->
+            <initial_selection value="0,1,2"/>
+            
+
+            <point_light_intensity value="0.6"/>
+            <ambient_intensity value="0.6"/>
+            <shininess value="0.1"/>
+            <specular_intensity value="0.1"/>
+            <gamma value="1.0"/>
+            <point_light_pos_x value="300"/>
+            <point_light_pos_y value="300"/>
+            <point_light_pos_z value="1000"/>
+
+            <point value="on"/>
+            <surfel value="off"/>
+            <splatting value="off"/>
+            
+            <lod_error value="3.0"/>
+
+            <scale_radius value="0.05"/>
+            <scale_radius_gamma value="0.5"/>
+            <max_radius_cut value="1.45"/>
+            <max_radius value="1.0"/>
+            <min_radius value="0.0"/>
+            <max_screen_size value="10000.0"/>
+            <min_screen_size value="1.0"/>
+            <scale_points value="1.0"/>
+            <scale_surfel value="1.75"/>
+            
+            <lighting value="off"/>
+            <color value="off"/>
+            <color_mode value="accuracy"/> <!-- normals, accuracy, derivation, sensitivity -->
+            
+            <!-- Visuals -->
+            <show_pointcloud value="on"/>
+            <show_boundingbox value="off"/>
+            <show_frustum value="off"/>
+            <show_coord value="off"/>
+            <show_text value="off"/>
+            <show_sync value="on"/>
+            <show_notify value="off"/>
+
+            <!-- Budgets -->
+            <frame_div value="1"/>
+            <!-- <vram value="1024"/> -->
+            <!-- <ram value="4096"/> -->
+            <!-- <upload value="32"/> -->
+
+            <!-- Startpose -->
+
+            <!-- Measurement Struktur: Segment  = dx,dy,dz | rx,ry,rz | v_trans | v_rot -->
+            <!--
+              0,-15,0|0,0,-90|0|22.5;
+              15,0,0|0,0,-90|0|22.5;
+              0,15,0|0,0,-90|0|22.5;
+              -15,0,0|0,0,-90|0|22.5;
+              0,45,-50|90,0,0|0|22.5;
+            -->
+            <measurement_segments value="
+              0,-15,0|0,0,-90|0|22.5;
+              15,0,0|0,0,-90|0|22.5;
+              0,15,0|0,0,-90|0|22.5;
+              -15,0,0|0,0,-90|0|22.5;
+              0,45,-50|90,0,0|0|22.5;
+            "/>
+            <measurement_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Measurement/all/"/>
+
+        </LamurePointCloud>
+
+        <AKToolbar value="false" menu="false">
+          <Attachment value="TOP" />
+          <Scale value=".7" />
+          <MinClickTime value="0.2" />
+          <Position x="-900" y="0" z="360" />
+          <ShortCut value="viewall" name="viewall" />
+          <ShortCut value="scale" name="scale" />
+          <ShortCut value="xform" name="xform" />
+          <ShortCut value="walk" name="walk" />
+          <ShortCut value="drive" name="drive" />
+          <ShortCut value="fly" name="fly" />
+        </AKToolbar>
+      </Plugin>
+      
+    </COVER>
+    
+    <System>
+      <CRB>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/IvRenderer" arch="x11"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="windows"/>
+        <ModuleAlias name="Renderer/Renderer" value="Renderer/QtRenderer" arch="mac"/>
+        <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+        <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+        <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+        <ModuleAlias value="Renderer/OpenCOVER"  name="Renderer/VRRenderer" />
+        <ModuleAlias value="Renderer/OpenCOVER"  name="Renderer/COVER_VRML" />
+      </CRB>
+
+    </System>
+    
+  </GLOBAL>
+ 
+</COCONFIG>
