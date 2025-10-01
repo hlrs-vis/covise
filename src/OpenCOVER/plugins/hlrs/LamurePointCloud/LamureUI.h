@@ -15,7 +15,7 @@
 
 class Lamure;
 
-class LamureUI : public opencover::ui::Owner {
+class LamureUI {
 public:
     LamureUI(Lamure* lamure_plugin, const std::string& name);
     ~LamureUI();

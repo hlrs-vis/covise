@@ -266,6 +266,7 @@ public:
     ModelInfo&  getModelInfo()  { return m_model_info; }
     RenderInfo& getRenderInfo() { return m_render_info; }
     Trackball&  getTrackball()  { return m_trackball; }
+    bool initialized = false;
     bool getProvValid() const { return prov_valid; }
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
 

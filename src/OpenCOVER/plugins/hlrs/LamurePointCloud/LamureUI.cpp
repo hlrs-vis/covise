@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <iostream>
 
-LamureUI::LamureUI(Lamure* plugin, const std::string& name) : opencover::ui::Owner(name, opencover::cover->ui), m_plugin(plugin) 
+LamureUI::LamureUI(Lamure* plugin, const std::string& name) : m_plugin(plugin) 
 {
 
 }
@@ -18,7 +18,7 @@ LamureUI::~LamureUI()
 
 void LamureUI::setupUi() {
     std::cout << "LamureUI::setupUi()" << std::endl;
-    m_lamure_menu = new opencover::ui::Menu("Lamure", this);
+    m_lamure_menu = new opencover::ui::Menu("Lamure", m_plugin);
     m_lamure_menu->setText("Lamure");
     m_lamure_menu->allowRelayout(true);
 

@@ -102,7 +102,7 @@ static opencover::FileHandler handler = {
 };
 
 
-Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("Lamure", opencover::cover->ui)
+Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("LamurePlugin", opencover::cover->ui)
 {
     fprintf(stderr, "LamurePlugin\n");
     opencover::coVRFileManager::instance()->registerFileHandler(&handler);
@@ -214,6 +214,9 @@ int Lamure::unloadBvh(const char* filename, const char* covise_key)
 
 
 bool Lamure::init2() {
+    if(initialized)
+        return false;
+    initialized = true;
     std::cout << "init2()" << std::endl;
 
     plugin->loadSettingsFromCovise();
@@ -257,6 +260,7 @@ bool Lamure::init2() {
     opencover::coVRNavigationManager::instance()->setNavMode("Point");
     if (m_settings.use_initial_view || m_settings.use_initial_navigation)
         plugin->applyInitialTransforms();
+    return true;
 }
 
 
