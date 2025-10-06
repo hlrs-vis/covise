@@ -911,7 +911,7 @@
             "-e",
             "/data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl"
           ],
-          "program": "Vistle"
+          "program": "vistle"
         },
         {
           "args": [

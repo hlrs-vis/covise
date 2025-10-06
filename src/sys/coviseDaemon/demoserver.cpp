@@ -126,7 +126,7 @@ void clean()
     const std::array<const char*, 4> apps{"opencover", "covise", "vistle", "sumo"};
     
     for (const auto& app : apps) {
-        std::string command = "killall " + std::string(app);
+        std::string command = "killall -9 " + std::string(app);
         std::system(command.c_str());
     }
 }
@@ -270,7 +270,7 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
                             "Multiple (" + std::to_string(launched_programs.size()) + " processes)");
 
     // Start monitoring thread for all processes
-    std::thread([this, demo_id]() { monitorAllProcesses(); }).detach();
+    std::thread([this]() { monitorAllProcesses(); }).detach();
 
     if (any_failed) {
         return crow::response(200, R"({"status":"partial_success","message":"Some processes failed to launch"})");
@@ -455,26 +455,45 @@ void DemoServer::run() {
     updateDemoIds();
     m_app = std::make_unique<crow::SimpleApp>();
     crow::SimpleApp &app = *m_app;
-    
+
     // Disable Crow's logging completely
     app.loglevel(crow::LogLevel::Critical);
-    
+
     setupRoutes(app);
-    
-    auto server_future = std::async(std::launch::async, [&](){
-        app.port(demo::port).multithreaded().run();
-    });
-    
-    while (m_running) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // Directly run the server here. main() already runs DemoServer::run()
+    // in a separate thread, so we don't need to spawn another thread.
+    try {
+        std::cerr << "Starting server on port " << demo::port << std::endl;
+        app.port(demo::port).multithreaded().run(); // blocks until stop() causes it to return
+    } catch (const std::exception &e) {
+        std::cerr << "Server run exception: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Server run unknown exception" << std::endl;
     }
-    
-    std::cerr << "Stopping server..." << std::endl;
-    app.stop();
-    server_future.wait();
+
+    // ensure any launched demo processes are terminated
+    terminateProcesses(m_runningDemo.pids);
+    clean();
+    // Destroy app to close sockets and other resources
+    m_app.reset();
+
+    // small pause to allow OS to release the port (if needed)
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    std::cerr << "Stopped server..." << std::endl;
 }
 
 void DemoServer::stop() {
     m_running = false;
-    m_app->stop(); // Stop Crow server
+    // Request Crow to stop; app.stop() should cause run() to return
+    if (m_app) {
+        try {
+            m_app->stop();
+        } catch (const std::exception &e) {
+            std::cerr << "Exception calling app.stop(): " << e.what() << std::endl;
+        } catch (...) {
+            std::cerr << "Unknown exception calling app.stop()" << std::endl;
+        }
+    }
 }
