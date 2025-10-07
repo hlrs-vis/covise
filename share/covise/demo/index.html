@@ -143,6 +143,21 @@
                 height: auto;
             }
         }
+
+        .termination-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            text-align: center;
+            padding: 2em;
+        }
     </style>
 </head>
 <div id="demo-fullscreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#222;color:#fff;">
@@ -154,6 +169,19 @@
 </div>
 
 <body>
+    <!-- add just after opening <body> (before toolbar) -->
+    <div id="termination-overlay" class="termination-overlay">
+        <div class="spinner-border text-info" role="status" style="width:4rem;height:4rem;">
+            <span class="visually-hidden">Terminating...</span>
+        </div>
+        <div style="margin-top:1.5em;font-size:1.2em;font-weight:600;">
+            Terminating demo...
+        </div>
+        <div style="margin-top:.5em;font-size:.9em;opacity:.8;">
+            Please wait
+        </div>
+    </div>
+
     <!-- Toolbar -->
     <nav class="toolbar d-flex align-items-center px-2 py-2">
         <div class="toolbar-current me-2" id="toolbar-current"></div>
@@ -770,6 +798,11 @@
 
         function launchDemoWithCheck(demo) {
             if (demo._editing) return;
+            // If this demo is already running, just reopen it fullscreen instead of asking to start
+            if (window.runningDemoId && Number(window.runningDemoId) === Number(demo.id)) {
+                showDemoFullscreen(demo);
+                return;
+            }
 
             fetch('/running_process')
                 .then(r => r.json())
@@ -795,6 +828,8 @@
                 .then(() => {
                     highlightRunningDemo();
                     showDemoFullscreen(demo);
+                    // Begin continuous polling until termination
+                    startDemoTerminationWatcher();
                 })
                 .catch(console.error);
         }
@@ -993,16 +1028,75 @@
             };
         }
 
-        function terminateDemo() {
-            fetch('/terminate_process', { method: 'POST' })
-                .then(() => {
-                    highlightRunningDemo();
-                    // exit fullscreen if open
-                    if (document.getElementById('demo-fullscreen').style.display === 'block') {
-                        document.getElementById('demo-fullscreen').style.display = 'none';
-                    }
-                });
+        function showTerminationOverlay() {
+            const ov = document.getElementById('termination-overlay');
+            if (ov) ov.style.display = 'flex';
         }
+        function hideTerminationOverlay() {
+            const ov = document.getElementById('termination-overlay');
+            if (ov) ov.style.display = 'none';
+        }
+
+        let terminationPollTimer = null;
+        let terminationPollingActive = false;
+        function pollTerminationNotification(){
+            if (!terminationPollingActive) return;
+            fetch('/termination_notification')
+              .then(r=>r.json())
+              .then(data=>{
+                  if (data.terminated){
+                      terminationPollingActive = false;
+                      if (terminationPollTimer){ clearTimeout(terminationPollTimer); terminationPollTimer=null; }
+                      hideTerminationOverlay();
+                      // Return to overview (close fullscreen if open)
+                      const fs = document.getElementById('demo-fullscreen');
+                      if (fs && fs.style.display === 'block') fs.style.display='none';
+                      highlightRunningDemo();
+                      return;
+                  }
+                  // Continue polling while we still expect a termination notification
+                  terminationPollTimer = setTimeout(pollTerminationNotification, 1000);
+              })
+              .catch(err=>{
+                  console.error('termination_notification poll failed',err);
+                  terminationPollTimer = setTimeout(pollTerminationNotification, 2000);
+              });
+        }
+
+        function terminateDemo(){
+            showTerminationOverlay();
+            // Ensure polling is active (even if already)
+            if (!terminationPollingActive){
+                terminationPollingActive = true;
+                pollTerminationNotification();
+            }
+            fetch('/terminate_process',{method:'POST'})
+              .then(r=>r.json().catch(()=>({})))
+              .then(resp=>{
+                  if (resp.status === 'error'){ // failed request
+                      hideTerminationOverlay();
+                      terminationPollingActive = false;
+                      if (terminationPollTimer){ clearTimeout(terminationPollTimer); terminationPollTimer=null; }
+                  }
+              })
+              .catch(err=>{ console.error('Terminate request failed',err); hideTerminationOverlay(); });
+        }
+
+        // After launching a demo, begin passive polling so fullscreen auto-closes when finished
+        function startDemoTerminationWatcher(){
+            // Restart continuous polling from scratch
+            if (terminationPollTimer){ clearTimeout(terminationPollTimer); terminationPollTimer=null; }
+            terminationPollingActive = true;
+            pollTerminationNotification();
+        }
+
+        // Optional: clear timer on page unload
+        window.addEventListener('beforeunload', () => {
+            if (terminationPollTimer) clearTimeout(terminationPollTimer);
+        });
+
+        // Ensure fullscreen terminate button still calls terminateDemo
+        // (If showDemoFullscreen redefines it, no change needed)
     </script>
 </body>
 

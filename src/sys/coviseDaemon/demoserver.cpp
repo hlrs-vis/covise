@@ -67,6 +67,7 @@ int DemoServer::launchProcess(const std::string &program, const std::vector<std:
         for (const auto &arg : args)
             argv.push_back(const_cast<char *>(arg.c_str()));
         argv.push_back(nullptr);
+        setenv("COVER_TERMINATE_SESSION", "1", 1); // Used for demos
         execvp(program.c_str(), argv.data());
         std::exit(1);
     }
@@ -82,21 +83,31 @@ bool isPidRunning(int pid)
     CloseHandle(process);
     return ret == WAIT_TIMEOUT;
 #else
+    int status; 
+    auto r = waitpid(pid, &status, WNOHANG); // Reap zombie processes
+    if (r == pid) {
+        // child was reaped -> not running anymore
+        return false;
+    }
+    // r == 0 => still running, r == -1 => error (treat as not running if ESRCH)
+    if (r == -1) {
+        return false; // no such process
+    }    
     return (kill(pid, 0) == 0);
 #endif
 }
 
-bool arePidsRunning(const std::vector<int> &pids)  // Changed parameter type
+bool isAnyPidRunning(const std::vector<int> &pids)  // Changed parameter type
 {
     for (const auto &pid : pids)
     {
-        if (!isPidRunning(pid))  // No need for .load() anymore
-            return false;
+        if (isPidRunning(pid))  // No need for .load() anymore
+            return true;
     }
-    return true;
+    return false;
 }
 
-bool terminateProcess(int pid)
+bool terminateProcess(int pid, bool force = false)
 {
     #ifdef _WIN32
     HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
@@ -106,75 +117,19 @@ bool terminateProcess(int pid)
     CloseHandle(h);
     return ok;
     #else
-    return kill(pid, SIGTERM) == 0;
+    return kill(pid, force ? SIGKILL : SIGTERM) == 0;
     #endif
 }
 
-bool terminateProcesses(const std::vector<int> &pids)  // Changed parameter type
+bool terminateProcesses(const std::vector<int> &pids, bool force = false)  // Changed parameter type
 {
     bool retval = true;
     for (const auto &pid : pids)
     {
-        if (!terminateProcess(pid))  // No need for .load() anymore
+        if (!terminateProcess(pid, force))
             retval = false;
     }
     return retval;
-}
-
-void clean()
-{
-    const std::array<const char*, 4> apps{"opencover", "covise", "vistle", "sumo"};
-    
-    for (const auto& app : apps) {
-        std::string command = "killall -9 " + std::string(app);
-        std::system(command.c_str());
-    }
-}
-
-void DemoServer::monitorAllProcesses()
-{
-    // Wait for any process to exit
-    while (true) {
-        bool any_running = false;
-        
-        // Use mutex to protect access to pids vector
-        {
-            std::lock_guard<std::mutex> lock(m_runningDemo.pids_mutex);
-            
-            if (m_runningDemo.pids.empty()) {
-                break;
-            }
-            
-            // Check if any processes are still running
-            for (auto it = m_runningDemo.pids.begin(); it != m_runningDemo.pids.end();) {
-                int pid = *it;  // No need for .load() anymore
-                if (!isPidRunning(pid)) {
-                    std::cerr << "Process " << pid << " has terminated" << std::endl;
-                    it = m_runningDemo.pids.erase(it);  // This now works!
-                } else {
-                    any_running = true;
-                    ++it;
-                }
-            }
-        }
-        
-        if (!any_running) {
-            break;
-        }
-        
-        // Sleep for a short time before checking again
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-    
-    // All processes have terminated
-    std::cerr << "All demo processes have terminated" << std::endl;
-    {
-        std::lock_guard<std::mutex> lock(m_runningDemo.pids_mutex);
-        m_runningDemo.pids.clear();
-    }
-    m_runningDemo.program.clear();
-    m_runningDemo.headline.clear();
-    m_runningDemo.id = -1;
 }
 
 void DemoServer::setupRoutes(crow::SimpleApp &app)
@@ -205,7 +160,6 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     // POST /launch_demo
     CROW_ROUTE(app, "/launch_demo").methods("POST"_method)([this](const crow::request &req)
                                                        {
-    clean();
     auto data = json::parse(req.body, nullptr, false);
     if (!data.is_object() || !data.contains("id"))
         return crow::response(400, R"({"status":"error","message":"Missing id"})");
@@ -269,8 +223,6 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
                            (launched_programs.size() == 1 ? launched_programs[0] : 
                             "Multiple (" + std::to_string(launched_programs.size()) + " processes)");
 
-    // Start monitoring thread for all processes
-    std::thread([this]() { monitorAllProcesses(); }).detach();
 
     if (any_failed) {
         return crow::response(200, R"({"status":"partial_success","message":"Some processes failed to launch"})");
@@ -283,7 +235,7 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     CROW_ROUTE(app, "/running_process").methods("GET"_method)([this]()
                                                               {
         json resp;
-        if (!m_runningDemo.pids.empty() && arePidsRunning(m_runningDemo.pids)) {
+        if (!m_runningDemo.pids.empty() && isAnyPidRunning(m_runningDemo.pids)) {
             resp["running"] = true;
             resp["program"] = m_runningDemo.program;
             resp["headline"] = m_runningDemo.headline;
@@ -296,18 +248,46 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     // POST /terminate_process
     CROW_ROUTE(app, "/terminate_process").methods("POST"_method)([this](const crow::request &)
                                                                  {
-        if (!m_runningDemo.pids.empty() && arePidsRunning(m_runningDemo.pids)) {
+        std::cerr << "Terminate request received for demo id " << m_runningDemo.id << std::endl;
+        if (!m_runningDemo.pids.empty() && isAnyPidRunning(m_runningDemo.pids)) {
+            std::cerr << "Terminating processes for demo id " << m_runningDemo.id << std::endl;
             if (terminateProcesses(m_runningDemo.pids)) {
-                m_runningDemo.pids.clear();
-                m_runningDemo.program.clear();
-                m_runningDemo.headline.clear();
-                m_runningDemo.id = -1;
-                return crow::response(R"({"status":"terminated"})");
+                m_runningDemo.toTerminate = true;
+                m_runningDemo.terminationNotificationPending = true;
+                m_runningDemo.terminationTime = std::chrono::steady_clock::now();
+                // Keep program/headline/id until processes actually exit so client can still show info
+                return crow::response(R"({"status":"terminating"})");
             } else {
                 return crow::response(500, R"({"status":"error","message":"Failed to terminate"})");
             }
         }
         return crow::response(R"({"status":"no_process"})"); });
+
+    // GET /termination_notification - client polls this while a demo is/was running
+    CROW_ROUTE(app, "/termination_notification").methods("GET"_method)([this]()
+                                                                        {
+
+        json resp;
+        auto anyRunning = isAnyPidRunning(m_runningDemo.pids);
+        resp["terminated"] = !anyRunning;
+        resp["id"] = m_runningDemo.id;
+
+        if (anyRunning &&
+            m_runningDemo.toTerminate && std::chrono::steady_clock::now() - m_runningDemo.terminationTime > std::chrono::seconds(10)) {
+                terminateProcesses(m_runningDemo.pids, true);
+        }
+
+        if (!anyRunning && m_runningDemo.terminationNotificationPending) {
+            m_runningDemo = {};
+        }
+        std::cerr << "Termination notification polled, terminated=" << resp["terminated"] << ", id=" << resp["id"] << std::endl;
+        for (auto id : m_runningDemo.pids)
+        {
+            std::cerr << " - " << id << std::endl;
+        }
+        std::cerr << std::endl;
+        
+        return crow::response(resp.dump()); });
 
 
     // POST /update_description
@@ -474,7 +454,6 @@ void DemoServer::run() {
 
     // ensure any launched demo processes are terminated
     terminateProcesses(m_runningDemo.pids);
-    clean();
     // Destroy app to close sockets and other resources
     m_app.reset();
 
