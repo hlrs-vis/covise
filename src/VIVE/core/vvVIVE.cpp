@@ -1317,7 +1317,7 @@ vvVIVE::requestQuit()
 {
     setExitFlag(true);
      bool terminateOnCoverQuit = coCoviseConfig::isOn("VIVE.TerminateCoviseOnQuit", false);
-    if (getenv("COVISE_TERMINATE_ON_QUIT"))
+    if (getenv("COVER_TERMINATE_SESSION"))
     {
         terminateOnCoverQuit = true;
     }
