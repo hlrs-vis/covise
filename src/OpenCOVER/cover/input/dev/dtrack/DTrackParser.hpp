@@ -2,7 +2,7 @@
  *
  * Functions to process DTrack UDP packets (ASCII protocol).
  *
- * Copyright (c) 2013-2022 Advanced Realtime Tracking GmbH & Co. KG
+ * Copyright (c) 2013-2023 Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -90,13 +90,40 @@ public:
 	unsigned int getFrameCounter() const;
 
 	/**
-	 * \brief Get timestamp.
+	 * \brief Get timestamp since midnight.
 	 *
 	 * Refers to last received frame.
 	 *
-	 * @return Timestamp (-1 if information not available)
+	 * @return Timestamp in seconds (-1 if information not available)
 	 */
 	double getTimeStamp() const;
+
+	/**
+	 * \brief Get timestamp since Unix epoch (1970-01-01 00:00:00), seconds.
+	 *
+	 * Refers to last received frame.
+	 *
+	 * @return Time in seconds (0 if information not available)
+	 */
+	unsigned int getTimeStampSec() const;
+
+	/**
+	 * \brief Get timestamp since Unix epoch (1970-01-01 00:00:00), microseconds.
+	 *
+	 * Refers to last received frame.
+	 *
+	 * @return Time in microseconds
+	 */
+	unsigned int getTimeStampUsec() const;
+
+	/**
+	 * \brief Get latency (delay between exposure and sending UDP data in Controller).
+	 *
+	 * Refers to last received frame.
+	 *
+	 * @return Latency in microseconds (0 if information not available)
+	 */
+	unsigned int getLatencyUsec() const;
 
 	/**
 	 * \brief Get number of calibrated standard bodies (as far as known).
@@ -292,6 +319,16 @@ private:
 	bool parseLine_ts( char **line );
 
 	/**
+	 * \brief Parses a single line of extended timestamp data in one tracking data packet.
+	 *
+	 * Updates internal data structures.
+	 *
+	 * @param[in,out] line Line of 'ts2' data in one tracking data packet
+	 * @return             Parsing succeeded?
+	 */
+	bool parseLine_ts2( char **line );
+
+	/**
 	 * \brief Parses a single line of additional information about number of calibrated bodies in one tracking data packet.
 	 *
 	 * Updates internal data structures.
@@ -434,7 +471,11 @@ private:
 private:
 
 	unsigned int act_framecounter;                    //!< Frame counter
-	double act_timestamp;                             //!< Timestamp (-1, if information not available)
+	double act_timestamp;                             //!< Timestamp since midnight (-1, if information not available)
+	unsigned int act_timestamp_sec;                   //!< Timestamp since Unix epoch, seconds (0, if not available)
+	unsigned int act_timestamp_usec;                  //!< Timestamp since Unix epoch, microseconds
+	unsigned int act_latency_usec;                    //!< Latency of current frame (0, if not available)
+
 	int act_num_body;                                 //!< Number of calibrated standard bodies (as far as known)
 	std::vector< DTrackBody > act_body;               //!< Array containing standard body data
 	int act_num_flystick;                             //!< Number of calibrated Flysticks

@@ -3,7 +3,7 @@
  * Functions to receive and process DTrack UDP packets (ASCII protocol), as
  * well as to exchange DTrack2/DTRACK3 TCP command strings.
  *
- * Copyright (c) 2007-2022 Advanced Realtime Tracking GmbH & Co. KG
+ * Copyright (c) 2007-2024 Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * Version v2.8.0
+ * Version v2.9.0
  *
  * Purpose:
  *  - receives DTrack UDP packets (ASCII protocol) and converts them into easier to handle data
@@ -46,9 +46,7 @@
 #include <cstdlib>
 #include <clocale>
 
-#if defined( _MSC_VER )
-	#define strdup _strdup  // use Visual Studio specific method to avoid warnings
-#else
+#if ! defined( _MSC_VER )
 	#define strcpy_s( a, b, c )  strcpy( a, c )  // map 'strcpy_s' if not Visual Studio
 #endif
 
@@ -61,23 +59,54 @@ using namespace DTrackSDK_Parse;
  */
 DTrackSDK::DTrackSDK( const std::string& connection )
 {
+	std::vector< std::string > args;  // parse connection string
+	size_t ind = 0;
+	while ( true )
+	{
+		size_t ind1 = connection.find_first_of( ':', ind );
+		if ( ind1 == std::string::npos )
+		{
+			args.push_back( connection.substr( ind ) );
+			break;
+		}
+		else
+		{
+			args.push_back( connection.substr( ind, ind1 - ind ) );
+			ind = ind1 + 1;
+
+			if ( ind >= connection.length() )
+			{
+				args.push_back( std::string() );
+				break;
+			}
+		}
+	}
+	if ( ( args.size() == 0 ) || ( args.size() > 3 ) )  return;  // invalid connection string
+
 	std::string host;
 	std::istringstream portstream;
+	bool isFw = false;
 
-	size_t ind = connection.find_last_of( ':' );
-	if ( ind != std::string::npos )
+	if ( args.size() == 1 )  // argument "<data port>"
 	{
-		host = connection.substr( 0, ind );
-		portstream.str( connection.substr( ind + 1 ) );
+		portstream.str( args[ 0 ] );
 	}
-	else
+	else  // arguments at least "<ip/host>:<data port>"
 	{
-		portstream.str( connection );
+		host = args[ 0 ];
+		portstream.str( args[ 1 ] );
+
+		if ( args.size() == 3 )  // arguments "<ip/host>:<data port>:fw"
+		{
+			if ( args[ 2 ].compare( "fw" ) != 0 )  return;  // invalid suffix in connection string
+
+			isFw = true;
+		}
 	}
 
 	unsigned short port;
 	portstream >> port;  // data port
-	if ( portstream.fail() )  return;  // invalid port number
+	if ( portstream.fail() || ( ! portstream.eof() ) )  return;  // invalid port number
 
 	if ( host.empty() )
 	{
@@ -85,7 +114,18 @@ DTrackSDK::DTrackSDK( const std::string& connection )
 	}
 	else
 	{
-		init( host, 0, port, SYS_DTRACK_2 );
+		if ( isFw )
+		{
+			init( "", 0, port, SYS_DTRACK_UNKNOWN );
+
+			d_udpSenderIp = ip_name2ip( host.c_str() );
+
+			sendStatefulFirewallPacket();  // try enabling UDP connection at once
+		}
+		else
+		{
+			init( host, 0, port, SYS_DTRACK_2 );
+		}
 	}
 }
 
@@ -167,6 +207,8 @@ void DTrackSDK::init( const std::string& server_host, unsigned short server_port
 
 	d_remoteIp = 0;
 	d_remoteDT1Port = 0;
+	d_udpSenderIp = 0;
+	d_udpSenderPort = DTRACK2_PORT_UDPSENDER;
 
 	net_init();
 
@@ -177,7 +219,10 @@ void DTrackSDK::init( const std::string& server_host, unsigned short server_port
 
 	bool isMulticast = false;
 	if ( ( remoteIp & 0xf0000000 ) == 0xe0000000 )  // check if multicast IP
+	{
 		isMulticast = true;
+		rsType = SYS_DTRACK_UNKNOWN;
+	}
 
 	// create UDP socket:
 	
@@ -193,6 +238,7 @@ void DTrackSDK::init( const std::string& server_host, unsigned short server_port
 	if ( ( remoteIp != 0 ) && ( ! isMulticast ) )  // IP of Controller/DTrack1 PC is known
 	{
 		d_remoteIp = remoteIp;
+		d_udpSenderIp = remoteIp;
 
 		if ( rsType == SYS_DTRACK )  // server is DTrack1 PC
 		{
@@ -214,6 +260,8 @@ void DTrackSDK::init( const std::string& server_host, unsigned short server_port
 			{
 				rsType = SYS_DTRACK_2;  // TCP connection up, should be DTrack2/DTRACK3
 			}
+
+			sendStatefulFirewallPacket();  // try enabling UDP connection at once
 		}
 	}
 
@@ -237,6 +285,22 @@ DTrackSDK::~DTrackSDK()
 	delete d_udp;
 	delete d_tcp;
 	net_exit();
+}
+
+
+/*
+ * Returns if constructor was successful due to the wanted mode.
+ */
+bool DTrackSDK::isValid()
+{
+	if ( ! isDataInterfaceValid() )  return false;
+
+	if ( rsType == SYS_DTRACK_2 )
+	{
+		if ( ! isCommandInterfaceFullAccess() )  return false;  // calls also isCommandInterfaceValid()
+	}
+
+	return true;
 }
 
 
@@ -352,6 +416,22 @@ bool DTrackSDK::setDataBufferSize( int bufSize )
 		d_udpbuf = (char *)malloc( d_udpbufsize );
 	}
 	return ( d_udpbuf != NULL );
+}
+
+
+/*
+ * Enable UDP connection through a stateful firewall.
+ */
+bool DTrackSDK::enableStatefulFirewallConnection( const std::string& senderHost, unsigned short senderPort )
+{
+	if ( ! senderHost.empty() )
+		d_udpSenderIp = ip_name2ip( senderHost.c_str() );
+
+	d_udpSenderPort = senderPort;
+
+	sendStatefulFirewallPacket();  // try enabling UDP connection
+
+	return ( d_udpSenderIp != 0 );
 }
 
 
@@ -521,6 +601,8 @@ bool DTrackSDK::startMeasurement()
 
 		return sendDTrack1Command( "dtrack 31" );
 	}
+
+	sendStatefulFirewallPacket();  // try enabling UDP connection
 
 	// start tracking, 1 means answer "dtrack2 ok"
 	return (1 == sendDTrack2Command("dtrack2 tracking start"));
@@ -695,6 +777,31 @@ int DTrackSDK::sendDTrack2Command(const std::string& command, std::string* answe
 
 
 /*
+ * Send dummy UDP packet for stateful firewall.
+ */
+bool DTrackSDK::sendStatefulFirewallPacket()
+{
+	int err;
+
+	if ( ! isDataInterfaceValid() )
+		return false;
+
+	if ( d_udpSenderIp == 0 )  return false;
+
+	const char* txt = "fw4dtsdkc";
+
+	err = d_udp->send( ( void* )txt, ( int )strlen( txt ) + 1, d_udpSenderIp, d_udpSenderPort, d_udptimeout_us );
+	if ( err != 0 )
+	{
+		lastDataError = ERR_NET;
+		return false;
+	}
+
+	return true;
+}
+
+
+/*
  * Set DTrack2/DTRACK3 parameter.
  */
 bool DTrackSDK::setParam(const std::string& category, const std::string& name, const std::string& value)
@@ -725,37 +832,29 @@ bool DTrackSDK::getParam(const std::string& category, const std::string& name, s
 /*
  * Get DTrack2/DTRACK3 parameter using a string containing parameter category and name.
  */
-bool DTrackSDK::getParam(const std::string& parameter, std::string& value)
+bool DTrackSDK::getParam( const std::string& parameter, std::string& value )
 {
-	// Params via TCP are not supported in DTrack
-	if (rsType != SYS_DTRACK_2)
-		return false;
-	
 	std::string res;
-	// expected answer is "dtrack2 set" -> return value 0
-	if (0 != sendDTrack2Command("dtrack2 get " + parameter, &res))
+	if ( sendDTrack2Command( "dtrack2 get " + parameter, &res ) != 0 )  // checks also for 'err' answer
 		return false;
-	
-	// parse parameter from answer
-	if (0 == strncmp(res.c_str(), "dtrack2 set ", 12)) {
-		char *str = strdup(res.c_str() + 12);
-		char *s = str;
 
-		s = string_cmp_parameter( s, parameter.c_str() );
-		if ( s == NULL )
-		{
-			free(str);
-			lastServerError = ERR_PARSE;
-			return false;
-		}
-
-		// assign result
-		value = s;
-		free(str);
-		return true;
+	// parse parameter from answer (expected answer starts with "dtrack2 set")
+	if ( res.compare( 0, 12, "dtrack2 set " ) != 0 )
+	{
+		lastServerError = ERR_PARSE;
+		return false;
 	}
-	
-	return false;
+
+	size_t pos = string_cmp_parameter( res, 12, parameter );
+	if ( pos == std::string::npos )
+	{
+		lastServerError = ERR_PARSE;
+		return false;
+	}
+
+	// assign result
+	value = res.substr( pos );
+	return true;
 }
 
 
