@@ -51,7 +51,8 @@ class PLUGIN_UTILEXPORT ColorBar: public ui::Owner
 {
 protected:
     vrui::vruiMatrix *floatingMat_ = nullptr;
-    std::unique_ptr<coColorBar> colorbar_, hudbar_;
+    std::unique_ptr<coColorBar> colorbar_; // the colorbar in vrui
+    std::unique_ptr<coColorBar> hudbar_; // the hud for the desktop
     ui::Group *colorsMenu_ = nullptr;
     std::string title_;
     std::string name_;
