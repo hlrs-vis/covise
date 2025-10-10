@@ -106,52 +106,52 @@ class Lamure : public opencover::coVRPlugin, public opencover::ui::Owner
 public:
     struct Settings
     {
-        int32_t frame_div{1};
-        int32_t vram{1024};
-        int32_t ram{4096};
-        int32_t upload{32};
-        bool provenance{1};
-        bool create_aux_resources{1};
-        bool face_eye{0};
-        int32_t gui{1};
-        int32_t travel{2};
-        float travel_speed{20.5f};
-        int32_t max_brush_size{4096};
-        bool lod_update{1};
-        float lod_error{1.0f};
-        LamureRenderer::ShaderType shader_type {LamureRenderer::ShaderType::Point};
-        bool use_pvs{0};
-        bool pvs_culling{0};
-        float aux_point_size{1.0f};
-        float aux_point_distance{0.5f};
-        float aux_point_scale{1.0f};
-        float aux_focal_length{1.0f};
-        int32_t vis{0};
-        int32_t show_normals{0};
-        bool show_accuracy{0};
-        bool show_radius_deviation{0};
-        bool show_output_sensitivity{0};
-        bool show_sparse{0};
-        bool show_views{0};
-        bool show_photos{0};
-        bool show_octrees{0};
-        bool show_bvhs{0};
-        bool show_pvs{0};
-        int32_t channel{0};
-        scm::math::vec3f point_light_pos{0.0f, 1000.0f, 0.0f};
-        float point_light_intensity{0.6f};
-        float ambient_intensity{0.0f};
-        float specular_intensity{0.1f};
-        float shininess{1};
-        float gamma{1};
-        bool use_tone_mapping{0};
-        bool heatmap{0};
-        float heatmap_min{0.0f};
-        float heatmap_max{0.05f};
+        int32_t frame_div{ 1 };
+        int32_t vram{ 1024 };
+        int32_t ram{ 4096 };
+        int32_t upload{ 32 };
+        bool provenance{ 1 };
+        bool create_aux_resources{ 1 };
+        bool face_eye{ 0 };
+        int32_t gui{ 1 };
+        int32_t travel{ 2 };
+        float travel_speed{ 20.5f };
+        int32_t max_brush_size{ 4096 };
+        bool lod_update{ 1 };
+        float lod_error{ 1.0f };
+        LamureRenderer::ShaderType shader_type{ LamureRenderer::ShaderType::Point };
+        bool use_pvs{ 0 };
+        bool pvs_culling{ 0 };
+        float aux_point_size{ 1.0f };
+        float aux_point_distance{ 0.5f };
+        float aux_point_scale{ 1.0f };
+        float aux_focal_length{ 1.0f };
+        int32_t vis{ 0 };
+        int32_t show_normals{ 0 };
+        bool show_accuracy{ 0 };
+        bool show_radius_deviation{ 0 };
+        bool show_output_sensitivity{ 0 };
+        bool show_sparse{ 0 };
+        bool show_views{ 0 };
+        bool show_photos{ 0 };
+        bool show_octrees{ 0 };
+        bool show_bvhs{ 0 };
+        bool show_pvs{ 0 };
+        int32_t channel{ 0 };
+        scm::math::vec3f point_light_pos{ 0.0f, 1000.0f, 0.0f };
+        float point_light_intensity{ 0.6f };
+        float ambient_intensity{ 0.0f };
+        float specular_intensity{ 0.1f };
+        float shininess{ 1 };
+        float gamma{ 1 };
+        bool use_tone_mapping{ 0 };
+        bool heatmap{ 0 };
+        float heatmap_min{ 0.0f };
+        float heatmap_max{ 0.05f };
         std::string shader{};
-        scm::math::vec3f background_color{68.0f/255.0f, 0.0f, 84.0f/255.0f};
-        scm::math::vec3f heatmap_color_min{68.0f/255.0f, 0.0f, 84.0f/255.0f};
-        scm::math::vec3f heatmap_color_max{251.f/255.f, 231.f/255.f, 35.f/255.f};
+        scm::math::vec3f background_color{ 68.0f / 255.0f, 0.0f, 84.0f / 255.0f };
+        scm::math::vec3f heatmap_color_min{ 68.0f / 255.0f, 0.0f, 84.0f / 255.0f };
+        scm::math::vec3f heatmap_color_max{ 251.f / 255.f, 231.f / 255.f, 35.f / 255.f };
         std::string atlas_file{};
         std::string json{};
         std::string pvs{};
@@ -160,45 +160,46 @@ public:
         std::vector<bool> model_visible;
         std::vector<uint32_t> initial_selection;
         std::map<uint32_t, scm::math::mat4d> transforms;
-        float scale_radius{0.05f};
-        float scale_radius_gamma{0.5f};
-        float scale_element{1.0f};
-        float scale_point{1.0f};
-        float scale_surfel{2.0f};
-        float min_radius{0.0f};
-        float max_radius{std::min(std::numeric_limits<float>::max(), 0.1f)};
-        float min_screen_size{1.0f};
-        float max_screen_size{std::min(std::numeric_limits<float>::max(), 0.1f)};
-        float max_radius_cut{10.0f};
-        float depth_range{2.0f};
-        float flank_lift{0.0f};
-        std::vector<float> bvh_color{1.0f, 1.0f, 0.0f, 1.0f};
-        std::vector<float> frustum_color{0.0f, 0.0f, 0.0f, 1.0f};
+        float scale_radius{ 0.05f };
+        float scale_radius_gamma{ 0.5f };
+        float scale_element{ 1.0f };
+        float scale_point{ 1.0f };
+        float scale_surfel{ 2.0f };
+        float min_radius{ 0.0f };
+        float max_radius{ std::min(std::numeric_limits<float>::max(), 0.1f) };
+        float min_screen_size{ 1.0f };
+        float max_screen_size{ std::min(std::numeric_limits<float>::max(), 0.1f) };
+        float max_radius_cut{ 10.0f };
+        float depth_range{ 2.0f };
+        float flank_lift{ 0.0f };
+        std::vector<float> bvh_color{ 1.0f, 1.0f, 0.0f, 1.0f };
+        std::vector<float> frustum_color{ 0.0f, 0.0f, 0.0f, 1.0f };
         uint16_t num_models{};
-        bool show_pointcloud{true};
-        bool show_boundingbox{false};
-        bool show_frustum{false};
-        bool show_coord{false};
-        bool show_text{false};
-        bool show_sync{true};
-        bool show_notify{true};
-        bool use_initial_navigation{false};
+        bool show_pointcloud{ true };
+        bool show_boundingbox{ false };
+        bool show_frustum{ false };
+        bool show_coord{ false };
+        bool show_text{ false };
+        bool show_sync{ true };
+        bool show_notify{ true };
+        bool use_initial_navigation{ false };
         osg::Matrix initial_navigation;
-        bool use_initial_view{false};
+        bool use_initial_view{ false };
         osg::Matrix initial_view;
-        bool initial_tf_overrides{false};
+        bool initial_tf_overrides{ false };
         std::vector<LamureMeasurement::Segment> measurement_segments;
         std::string measurement_dir;
         std::string measurement_name;
-        bool coloring{false};
-        bool lighting{false};
-        bool point{false};
-        bool surfel{false};
-        bool splatting{false};
-        bool measure_off{false};
-        bool measure_light{false};
-        bool measure_full{true};                  
-        int32_t measure_sample{1};         
+        bool coloring{ false };
+        bool lighting{ false };
+        bool point{ false };
+        bool surfel{ false };
+        bool splatting{ false };
+        bool measure_off{ false };
+        bool measure_light{ false };
+        bool measure_full{ true };
+        int32_t measure_sample{ 1 };
+        int32_t pause_frames{2};
     };
 
     struct ModelInfo
@@ -270,8 +271,6 @@ public:
     bool getProvValid() const { return prov_valid; }
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
 
-
-    void loadSettings(const std::string &filename);
     bool writeSettingsJson(const Lamure::Settings& s, const std::string& outPath);
     bool rendering_{false};
     void dumpSettings(const char* tag = "");
@@ -287,12 +286,22 @@ public:
     void setModelVisible(uint16_t idx, bool v);
     bool isModelVisible(uint16_t idx) const;
 
+    struct PendingModel {
+        std::string path;
+        uint16_t mid;
+    };
+    std::deque<PendingModel> m_pending;
+    std::unordered_map<std::string,uint16_t> m_model_idx;
+    osg::ref_ptr<osg::Group> m_pluginRootGroup;
+
+    osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
+
 private:
     static Lamure* plugin;
 
     bool m_initialized = false;
-    std::vector<bool> m_visible;
 
+    std::map<uint16_t, std::unique_ptr<LamureRenderer>> m_rendererMap;
     std::unique_ptr<LamureRenderer> m_renderer;
     std::unique_ptr<LamureUI>       m_ui;
 
@@ -314,7 +323,7 @@ private:
     bool                                fps_cap_modified_ = false;
     bool                                vsync_modified_   = false;
     FrameMarks                          m_marks;
-    std::unordered_map<std::string, uint16_t> m_file2idx;
+    osg::ref_ptr<osg::Group>            m_lamure_grp;
 
     std::bitset<512> m_keyDown_;
 

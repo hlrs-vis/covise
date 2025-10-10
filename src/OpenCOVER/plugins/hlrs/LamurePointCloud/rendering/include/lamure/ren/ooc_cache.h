@@ -35,6 +35,7 @@ class ooc_cache : public cache
 
     static ooc_cache *get_instance(Data_Provenance const &data_provenance);
     static ooc_cache *get_instance();
+    static void destroy_instance();
 
     void register_node(const model_t model_id, const node_t node_id, const int32_t priority);
     char *node_data(const model_t model_id, const node_t node_id);

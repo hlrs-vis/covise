@@ -52,6 +52,7 @@ ooc_cache::~ooc_cache()
     std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
+    single_ = nullptr;
 
     if(pool_ != nullptr)
     {
@@ -206,6 +207,22 @@ ooc_cache *ooc_cache::get_instance()
     {
         return single_;
     }
+}
+
+void ooc_cache::destroy_instance()
+{
+    ooc_cache* instance = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!is_instanced_)
+            return;
+
+        instance = single_;
+        single_ = nullptr;
+        is_instanced_ = false;
+    }
+
+    delete instance;
 }
 
 void ooc_cache::register_node(const model_t model_id, const node_t node_id, const int32_t priority)

@@ -23,6 +23,7 @@ controller::~controller()
     std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
+    single_ = nullptr;
 
     for(auto &cut_update_pool_it : cut_update_pools_)
     {
@@ -65,6 +66,22 @@ controller *controller::get_instance()
     {
         return single_;
     }
+}
+
+void controller::destroy_instance()
+{
+    controller* instance = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!is_instanced_)
+            return;
+
+        instance = single_;
+        single_ = nullptr;
+        is_instanced_ = false;
+    }
+
+    delete instance;
 }
 
 const context_t controller::num_contexts_registered()

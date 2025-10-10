@@ -28,6 +28,7 @@ cut_database::
     std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
+    single_ = nullptr;
 
     for (auto& record_it : records_) {
         cut_database_record* record = record_it.second;
@@ -55,6 +56,23 @@ get_instance() {
     else {
         return single_;
     }
+}
+
+void cut_database::
+destroy_instance()
+{
+    cut_database* instance = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!is_instanced_)
+            return;
+
+        instance = single_;
+        single_ = nullptr;
+        is_instanced_ = false;
+    }
+
+    delete instance;
 }
 
 void cut_database::

@@ -19,7 +19,7 @@
 #include <mutex>
 #include <filesystem>
 #include <memory>
-#include <algorithm>
+#include <thread>
 #include <cmath>
 #ifdef WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -55,6 +55,7 @@
 #include <GLFW/glfw3native.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRNavigationManager.h>
+#include <numeric>
 
 
 namespace {
@@ -77,6 +78,29 @@ namespace {
     inline bool getOn(const char* path, bool def){
         return covise::coCoviseConfig::isOn(std::string("value"), std::string(path), def);
     }
+
+    class RenderPauseGuard {
+    public:
+        RenderPauseGuard(LamureRenderer* renderer, uint32_t extraDrainFrames)
+            : m_renderer(renderer)
+        {
+            if (m_renderer)
+                m_shouldResume = m_renderer->pauseAndWaitForIdle(extraDrainFrames);
+        }
+
+        ~RenderPauseGuard()
+        {
+            if (m_renderer && m_shouldResume)
+                m_renderer->resumeRendering();
+        }
+
+        RenderPauseGuard(const RenderPauseGuard&) = delete;
+        RenderPauseGuard& operator=(const RenderPauseGuard&) = delete;
+
+    private:
+        LamureRenderer* m_renderer;
+        bool m_shouldResume{false};
+    };
 } // namespace
 
 
@@ -120,151 +144,208 @@ Lamure* Lamure::instance()
 
 Lamure::~Lamure()
 {
-	fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
-	opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
+    fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
+    opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
 
 void Lamure::setModelVisible(uint16_t idx, bool v) {
-    if (idx >= m_visible.size()) return;
-    m_visible[idx] = v;
+    if (idx >= m_settings.model_visible.size()) return;
+    m_settings.model_visible[idx] = v;
 }
 
 bool Lamure::isModelVisible(uint16_t idx) const {
-    return idx < m_visible.size() ? m_visible[idx] : false;
+    return idx < m_settings.model_visible.size() ? m_settings.model_visible[idx] : false;
 }
 
 
-int Lamure::loadBvh(const char* filename, osg::Group*, const char*)
+int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 {
-    if (!filename) return 0;
+    std::cout << "[Notify] unloadBvh(): filename = " << (filename ? filename : "null") << std::endl;
+    if (!filename || !Lamure::plugin) return 0;
 
-    // path 
-    std::string bvh = std::filesystem::absolute(std::filesystem::path(filename)).string();
-#ifdef _WIN32
-    std::replace(bvh.begin(), bvh.end(), '\\', '/');
-#endif
-
-    auto& s = plugin->getSettings();
-
-    // known file
-    if (auto it = plugin->m_file2idx.find(bvh); it != plugin->m_file2idx.end()) {
-        const uint16_t knownIdx = it->second;
-        plugin->setModelVisible(knownIdx, true);
-        return 1;
-    }
-    if (auto vit = std::find(s.models.begin(), s.models.end(), bvh); vit != s.models.end()) {
-        const uint16_t knownIdx = static_cast<uint16_t>(std::distance(s.models.begin(), vit));
-        plugin->setModelVisible(knownIdx, true);
-        plugin->m_file2idx[bvh] = knownIdx;
-        return 1;
-    }
-    // objects
-    auto* database   = lamure::ren::model_database::get_instance();
-    auto* controller = lamure::ren::controller::get_instance();
-    const uint16_t mid      = static_cast<uint16_t>(s.models.size());
-    const std::string labelStr = std::to_string(mid);
-
-    lamure::model_t model_id = 0;
-    model_id = database->add_model(bvh, labelStr);
-
-    if (plugin->m_settings.transforms.find(mid) == plugin->m_settings.transforms.end()) {
-        plugin->m_settings.transforms[mid] = scm::math::mat4d::identity();
-    }
-
-    // trafo
-    const auto model_trafo =
-        plugin->m_settings.transforms[mid] *
-        scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
-    plugin->m_model_info.model_transformations.push_back(model_trafo);
-
-    // models
-    s.models.push_back(bvh);
-    s.num_models = static_cast<int>(s.models.size());
-
-
-    // visibility
-    if (plugin->m_visible.size() < s.models.size())
-        plugin->m_visible.resize(s.models.size(), true);
-    plugin->m_visible[model_id] = true;
-    plugin->m_file2idx.emplace(bvh, model_id);
-
-    plugin->m_renderer->initBoxResources();
-    return 1;
-}
-
-int Lamure::unloadBvh(const char* filename, const char* covise_key)
-{
-    std::string path = filename ? std::string(filename) : std::string();
+    std::string path(filename);
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '\\', '/');
 #endif
-    if (path.empty() || !Lamure::plugin) return 0;
-    auto &s = Lamure::plugin->getSettings();
-    s.models.erase(std::remove(s.models.begin(), s.models.end(), path), s.models.end());
-    s.num_models = static_cast<int>(s.models.size());
-    std::printf("[Lamure] unloadBvh '%s' -> num_models=%d\n", path.c_str(), s.num_models);
-    if (s.models.empty()) {
-        if (auto *p = opencover::coVRPluginList::instance()->getPlugin("LamurePointCloud")) {
-            opencover::coVRPluginList::instance()->unload(p);
+    if (path.empty()) return 0;
+
+    auto& plugin   = *Lamure::plugin;
+    auto& settings = plugin.getSettings();
+
+    // 1) Index per Map (Fallback: lineare Suche)
+    uint16_t idx = std::numeric_limits<uint16_t>::max();
+    if (auto it = plugin.m_model_idx.find(path); it != plugin.m_model_idx.end()) {
+        idx = it->second;
+    } else {
+        auto vit = std::find(settings.models.begin(), settings.models.end(), path);
+        if (vit == settings.models.end()) {
+            std::printf("[Lamure] unloadBvh: '%s' not found (no-op)\n", path.c_str());
+            return 0;
         }
+        idx = static_cast<uint16_t>(std::distance(settings.models.begin(), vit));
     }
+
+    const bool in_settings = idx < settings.model_visible.size();
+    if (!in_settings) {
+        std::printf("[Lamure] unloadBvh: index %u out of range (no-op)\n", unsigned(idx));
+        return 0;
+    }
+
+    settings.model_visible[idx]   = false;
+    std::printf("[Lamure] unloadBvh '%s' -> index=%u, visible=false\n", path.c_str(), unsigned(idx));
+    return 1;
+}
+
+
+int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
+{
+    std::cout << "[Notify] loadBvh(): " << (filename ? filename : "null") << std::endl;
+    if (!filename || !plugin)
+        return 0;
+
+    std::string file = std::filesystem::absolute(std::filesystem::path(filename)).string();
+#ifdef _WIN32
+    std::replace(file.begin(), file.end(), '\\', '/');
+#endif
+
+    // Bereits bekannt? -> Sichtbar schalten und fertig.
+    if (auto it = plugin->m_model_idx.find(file); it != plugin->m_model_idx.end()) {
+        plugin->setModelVisible(it->second, true);
+        std::cout << "already known file: " << file << std::endl;
+        return 1;
+    }
+    else if (plugin->initialized) {
+
+        std::cout << "new file:" << file << std::endl;
+
+        // Stop rendering and wait until the draw callback finished its current frame
+        RenderPauseGuard pause(plugin->m_renderer.get(), plugin->m_settings.pause_frames);
+
+        // shut down renderer and lamure objects
+        std::cout << "before renderer shutdown" << std::endl;
+        plugin->m_renderer->shutdown();
+        std::cout << "after renderer shutdown" << std::endl;
+
+        // settings and visibility
+        auto& models = plugin->m_settings.models;
+        models.push_back(file);
+        const uint16_t newIdx = static_cast<uint16_t>(models.size() - 1);
+
+        if (plugin->m_settings.model_visible.size() < models.size()) {
+            plugin->m_settings.model_visible.resize(models.size(), true);
+        }
+        else {
+            plugin->m_settings.model_visible[newIdx] = true;
+        }
+
+        plugin->m_model_idx.clear();
+        plugin->m_model_info.model_transformations.clear();
+        plugin->m_model_info.root_bb_min.clear();
+        plugin->m_model_info.root_bb_max.clear();
+        plugin->m_model_info.root_center.clear();
+
+        lamure::ren::policy* policy = lamure::ren::policy::get_instance();
+        policy->set_max_upload_budget_in_mb(plugin->m_settings.upload);
+        policy->set_render_budget_in_mb(plugin->m_settings.vram);
+        policy->set_out_of_core_budget_in_mb(plugin->m_settings.ram);
+
+        lamure::ren::model_database* database   = lamure::ren::model_database::get_instance();
+        lamure::ren::cut_database*   cuts       = lamure::ren::cut_database::get_instance();
+        lamure::ren::controller*     controller = lamure::ren::controller::get_instance();
+        (void)cuts;
+        (void)controller;
+
+        const uint16_t N = static_cast<uint16_t>(models.size());
+        for (uint16_t mid = 0; mid < N; ++mid) {
+            const std::string& model_path = models[mid];
+            plugin->m_model_idx.emplace(model_path, mid);
+
+            lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
+            const auto trafo_initial = plugin->m_settings.transforms.find(mid);
+            const auto trafo_user = trafo_initial != plugin->m_settings.transforms.end() ? trafo_initial->second : scm::math::mat4d::identity();
+            const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
+            plugin->m_model_info.model_transformations.push_back(trafo_user * trafo_bvh);
+        }
+
+        plugin->m_settings.num_models = N;
+
+        plugin->m_renderer->init();
+        plugin->applyShaderToRendererFromSettings();
+
+        return 1;
+    }
+
+    const uint16_t mid = static_cast<uint16_t>(plugin->m_model_idx.size());
+    plugin->m_model_idx.emplace(file, mid);
+    if (plugin->m_settings.model_visible.size() <= mid) plugin->m_settings.model_visible.resize(mid + 1, false);
+    plugin->m_settings.model_visible[mid] = true;
+
+    lamure::ren::model_database* database   = lamure::ren::model_database::get_instance();
+    lamure::ren::cut_database*   cuts       = lamure::ren::cut_database::get_instance();
+    lamure::ren::controller*     controller = lamure::ren::controller::get_instance();
+
+    lamure::model_t model_id = database->add_model(file, std::to_string(mid));
+
+    const auto itTrafo = plugin->m_settings.transforms.find(mid);
+    const auto trafo_user = itTrafo != plugin->m_settings.transforms.end() ? itTrafo->second : scm::math::mat4d::identity();
+    const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
+    plugin->m_model_info.model_transformations.push_back(trafo_user * trafo_bvh);
+
     return 1;
 }
 
 
 bool Lamure::init2() {
-    if(initialized)
-        return false;
-    initialized = true;
     std::cout << "init2()" << std::endl;
 
-    plugin->loadSettingsFromCovise();
-    if (plugin->m_settings.provenance && plugin->m_settings.json != "") {
-        std::cout << "json: " << plugin->m_settings.json << std::endl;
-        if (plugin->m_settings.provenance && !plugin->m_settings.json.empty()) {
-            std::cout << "Provenance data is valid. Loading from: " << plugin->m_settings.json << std::endl;
-            plugin->m_data_provenance = lamure::ren::Data_Provenance::parse_json(plugin->m_settings.json);
-            std::cout << "size of provenance: " << plugin->m_data_provenance.get_size_in_bytes() << std::endl;
-        }
-        else { std::cout << "Provenance data not found or incomplete. Disabling provenance-based shaders." << std::endl; }
-    }
+    if (initialized)
+        return false;
+
+    loadSettingsFromCovise();
+
+    m_lamure_grp = new osg::Group();
+    opencover::cover->getObjectsRoot()->addChild(m_lamure_grp.get());
+
     const osg::GraphicsContext::Traits* traits = opencover::coVRConfig::instance()->windows[0].context->getTraits();
-    uint32_t render_width = traits->width / plugin->m_settings.frame_div;
-    uint32_t render_height = traits->height / plugin->m_settings.frame_div;
+    uint32_t render_width  = traits->width  / m_settings.frame_div;
+    uint32_t render_height = traits->height / m_settings.frame_div;
 
     lamure::ren::policy* policy = lamure::ren::policy::get_instance();
-    policy->set_max_upload_budget_in_mb(plugin->m_settings.upload);
-    policy->set_render_budget_in_mb(plugin->m_settings.vram);
-    policy->set_out_of_core_budget_in_mb(plugin->m_settings.ram);
+    policy->set_max_upload_budget_in_mb(m_settings.upload);
+    policy->set_render_budget_in_mb(m_settings.vram);
+    policy->set_out_of_core_budget_in_mb(m_settings.ram);
     policy->set_window_width(render_width);
     policy->set_window_height(render_height);
 
-    lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
-    lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
-    lamure::ren::controller* controller = lamure::ren::controller::get_instance();
+    for (const std::string& file : m_settings.models) { std::cout << file << std::endl; }
+    m_model_idx.clear();
+    m_model_info.model_transformations.clear();
+    m_settings.model_visible.assign(m_settings.models.size(), true);
 
-    uint16_t num_models = 0;
-    for (const auto& input_file : plugin->m_settings.models)
-    {
-        lamure::model_t model_id = database->add_model(input_file, std::to_string(num_models));
-        plugin->m_model_info.model_transformations.push_back(plugin->m_settings.transforms[model_id] * 
-            scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation())));
-        ++num_models;
+    auto *fm = opencover::coVRFileManager::instance();
+    const uint16_t N = static_cast<uint16_t>(m_settings.models.size());
+    for (uint16_t mid = 0; mid < N; ++mid) {
+        const std::string& input_file = m_settings.models[mid];
+        fm->loadFile(input_file.c_str(), nullptr, m_lamure_grp.get(), "");
     }
-    plugin->m_settings.num_models = num_models;
+    m_settings.num_models = N;
+
     m_ui->setupUi();
     m_renderer->init();
-    opencover::cover->getObjectsRoot()->addChild(m_renderer->getGroup());
+
     applyShaderToRendererFromSettings();
+
     opencover::coVRNavigationManager::instance()->setNavMode("Point");
     if (m_settings.use_initial_view || m_settings.use_initial_navigation)
-        plugin->applyInitialTransforms();
+        applyInitialTransforms();
+
+    initialized = true;
     return true;
 }
 
 
-void Lamure::loadSettingsFromCovise(){
+void Lamure::loadSettingsFromCovise() {
     auto& s = m_settings;
     const char* root = "COVER.Plugin.LamurePointCloud";
 
@@ -273,6 +354,7 @@ void Lamure::loadSettingsFromCovise(){
     s.vram      = getNum<int>("value", (std::string(root) + ".vram").c_str(),      s.vram);
     s.ram       = getNum<int>("value", (std::string(root) + ".ram").c_str(),       s.ram);
     s.upload    = getNum<int>("value", (std::string(root) + ".upload").c_str(),    s.upload);
+    s.pause_frames = static_cast<uint32_t>(std::max(0, getNum<int>("value", (std::string(root) + ".pause_frames").c_str(), s.pause_frames)));
     s.lod_error = getNum<float>("value", (std::string(root) + ".lod_error").c_str(), s.lod_error);
 
     // ---- Tuning / Flags ----
@@ -409,7 +491,7 @@ void Lamure::loadSettingsFromCovise(){
     s.models.clear();
     const std::string models_list = getStr((std::string(root) + ".models").c_str(), "");
     const std::string data_dir    = getStr((std::string(root) + ".data_dir").c_str(), "");
-    
+
     for (const auto& m : LamureUtil::splitSemicolons(models_list)) {
         s.models.push_back(m);
     }
@@ -417,8 +499,24 @@ void Lamure::loadSettingsFromCovise(){
         for (auto& e : std::filesystem::recursive_directory_iterator(data_dir)){
             if (e.is_regular_file() && e.path().extension() == ".bvh")
                 s.models.push_back(std::filesystem::absolute(e.path()).string());
-
         }
+    }
+
+    {
+        std::vector<std::string> norm;
+        norm.reserve(s.models.size());
+        std::unordered_set<std::string> seen;
+        seen.reserve(s.models.size()*2);
+
+        for (const auto &mp : s.models) {
+            std::string abs = std::filesystem::absolute(std::filesystem::path(mp)).string();
+#ifdef _WIN32
+            std::replace(abs.begin(), abs.end(), '\\', '/');
+#endif
+            if (seen.insert(abs).second)   // nur erster Fund bleibt erhalten (Index-Stabilität)
+                norm.push_back(std::move(abs));
+        }
+        s.models = std::move(norm);
     }
 
     const std::string sel = getStr((std::string(root) + ".initial_selection").c_str(), "");
@@ -440,6 +538,16 @@ void Lamure::loadSettingsFromCovise(){
         };
     s.initial_selection = parseIndices(sel, s.models.size());
 
+    if (!s.initial_selection.empty()) {
+        std::vector<std::string> selModels;
+        selModels.reserve(s.initial_selection.size());
+        for (auto idx : s.initial_selection) {
+            if (idx < s.models.size())
+                selModels.push_back(s.models[idx]);
+        }
+        s.models = std::move(selModels);
+        s.initial_selection.clear();
+    }
 
     // ---- Initial matrices ----
     {
@@ -698,7 +806,6 @@ void Lamure::preFrame() {
         lastF9 = now;
     }
 #endif
-
     opencover::VRSceneGraph::instance()->getTransform()->setMatrix(m);
 }
 

@@ -31,6 +31,7 @@ public:
     virtual             ~cut_database();
 
     static cut_database* get_instance();
+    static void destroy_instance();
 
     void                reset();
 

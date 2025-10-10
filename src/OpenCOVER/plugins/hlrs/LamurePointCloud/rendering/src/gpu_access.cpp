@@ -27,7 +27,6 @@ gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots
       is_mapped_provenance_(false), 
       has_layout_(create_layout)
 {
-    std::cout << "gpu access constructor " << std::endl;
     assert(device);
     assert(sizeof(float) == 4);
 

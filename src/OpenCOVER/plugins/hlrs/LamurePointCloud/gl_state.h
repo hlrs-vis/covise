@@ -111,8 +111,8 @@ private:
     GLint       m_vertexArrayBinding;
     GLint       m_arrayBufferBinding;
     GLint       m_elementArrayBufferBinding;
-    GLint       m_arrayBufferSize;
-    GLint       m_elementArrayBufferSize;
+    GLint64       m_arrayBufferSize;
+    GLint64       m_elementArrayBufferSize;
 
     // Enable‑Flags -----------------------------------------------------------
     GLboolean   m_cullFaceEnabled;
@@ -155,6 +155,7 @@ private:
     GLint       m_textureBinding2D;
     GLint       m_framebufferBinding;
     GLint       m_renderbufferBinding;
+
 
     // Buffer‑ und Attrib‑Listen ---------------------------------------------
     std::vector<GLBufferInfo>        m_bufferInfos;

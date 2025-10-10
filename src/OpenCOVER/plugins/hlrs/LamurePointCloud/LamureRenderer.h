@@ -16,6 +16,8 @@
 #include <map>
 #include <string>
 #include <cstdint>
+#include <mutex>
+#include <condition_variable>
 
 #include <scm/core/math.h>
 #include <osg/Geometry>
@@ -38,9 +40,14 @@ private:
     Lamure* m_plugin;
     LamureRenderer* m_renderer;
 
-    osg::ref_ptr<osg::Group> m_group;
+    //osg::ref_ptr<osg::Group> m_group;
 
     bool m_rendering;
+    mutable std::mutex m_renderMutex;
+    std::condition_variable m_renderCondition;
+    bool m_renderingAllowed{true};
+    bool m_pauseRequested{false};
+    uint32_t m_framesPendingDrain{0};
 
     // Private methods
     bool readShader(const std::string& pathString, std::string& shaderString, bool keepOptionalShaderCode);
@@ -82,8 +89,8 @@ private:
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint max_radius_loc            {-1}; // float max_radius
         GLint min_radius_loc            {-1}; // float min_radius
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1}; // float scale_radius
@@ -581,17 +588,23 @@ public:
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
 
-    void init();
+    void shutdown();
 
-    osg::ref_ptr<osg::Group> getGroup() { return m_group; }
+    void init();
 
     std::map<uint32_t, std::vector<uint32_t>> m_bvh_node_vertex_offsets;
 
-    void initBoxResources();
+    bool beginFrame();
+    void endFrame();
+    bool pauseAndWaitForIdle(uint32_t extraDrainFrames);
+    void resumeRendering();
+    bool isRendering() const;
+
     void initFrustumResources();
     void initLamureShader();
     void initSchismObjects();
     void initUniforms();
+    void initBoxResources();
     void initPclResources();
     bool ensurePclFboSizeUpToDate();
 

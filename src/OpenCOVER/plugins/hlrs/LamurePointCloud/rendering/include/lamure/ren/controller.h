@@ -31,6 +31,7 @@ class controller
     typedef std::string gua_model_desc_t;
 
     static controller *get_instance();
+    static void destroy_instance();
 
     controller(const controller &) = delete;
     controller &operator=(const controller &) = delete;

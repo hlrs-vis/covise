@@ -174,45 +174,45 @@ GLState GLState::capture()
     GLState s;
 
     // --- Basis-Bindungen ----------------------------------------------------
-    glGetIntegerv(GL_CURRENT_PROGRAM,            &s.m_currentProgram);
-    glGetIntegerv(GL_VERTEX_ARRAY_BINDING,       &s.m_vertexArrayBinding);
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING,       &s.m_arrayBufferBinding);
-    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &s.m_elementArrayBufferBinding);
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING,        &s.m_framebufferBinding);
-    glGetIntegerv(GL_RENDERBUFFER_BINDING,       &s.m_renderbufferBinding);
-    glGetIntegerv(GL_ACTIVE_TEXTURE,             &s.m_activeTexture);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D,         &s.m_textureBinding2D);
+    glGetIntegerv(GL_CURRENT_PROGRAM,               &s.m_currentProgram);
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING,          &s.m_vertexArrayBinding);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING,          &s.m_arrayBufferBinding);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING,  &s.m_elementArrayBufferBinding);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING,           &s.m_framebufferBinding);
+    glGetIntegerv(GL_RENDERBUFFER_BINDING,          &s.m_renderbufferBinding);
+    glGetIntegerv(GL_ACTIVE_TEXTURE,                &s.m_activeTexture);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D,            &s.m_textureBinding2D);
 
     // --- Enable-Flags -------------------------------------------------------
-    s.m_cullFaceEnabled       = glIsEnabled(GL_CULL_FACE);
-    s.m_depthTestEnabled      = glIsEnabled(GL_DEPTH_TEST);
-    s.m_blendEnabled          = glIsEnabled(GL_BLEND);
-    s.m_polyOffsetFillEnabled = glIsEnabled(GL_POLYGON_OFFSET_FILL);
-    s.m_polyOffsetLineEnabled = glIsEnabled(GL_POLYGON_OFFSET_LINE);
+    s.m_cullFaceEnabled        = glIsEnabled(GL_CULL_FACE);
+    s.m_depthTestEnabled       = glIsEnabled(GL_DEPTH_TEST);
+    s.m_blendEnabled           = glIsEnabled(GL_BLEND);
+    s.m_polyOffsetFillEnabled  = glIsEnabled(GL_POLYGON_OFFSET_FILL);
+    s.m_polyOffsetLineEnabled  = glIsEnabled(GL_POLYGON_OFFSET_LINE);
 
     // --- Rasterizer ---------------------------------------------------------
-    glGetIntegerv(GL_CULL_FACE_MODE, &s.m_cullFaceMode);
-    glGetIntegerv(GL_FRONT_FACE,     &s.m_frontFace);
-    glGetIntegerv(GL_POLYGON_MODE,    s.m_polygonMode);      // [0]=Front,[1]=Back
-    glGetFloatv (GL_LINE_WIDTH,      &s.m_lineWidth);
-    glGetFloatv (GL_POINT_SIZE,      &s.m_pointSize);
+    glGetIntegerv(GL_CULL_FACE_MODE,   &s.m_cullFaceMode);
+    glGetIntegerv(GL_FRONT_FACE,       &s.m_frontFace);
+    glGetIntegerv(GL_POLYGON_MODE,      s.m_polygonMode);   // [0]=Front,[1]=Back
+    glGetFloatv (GL_LINE_WIDTH,        &s.m_lineWidth);
+    glGetFloatv (GL_POINT_SIZE,        &s.m_pointSize);
     glGetFloatv (GL_POLYGON_OFFSET_FACTOR, &s.m_polygonOffsetFactor);
     glGetFloatv (GL_POLYGON_OFFSET_UNITS,  &s.m_polygonOffsetUnits);
 
     // --- Depth --------------------------------------------------------------
-    glGetIntegerv(GL_DEPTH_FUNC,     &s.m_depthFunc);
-    glGetBooleanv(GL_DEPTH_WRITEMASK,&s.m_depthMask);
+    glGetIntegerv(GL_DEPTH_FUNC,       &s.m_depthFunc);
+    glGetBooleanv(GL_DEPTH_WRITEMASK,  &s.m_depthMask);
     glGetFloatv (GL_DEPTH_CLEAR_VALUE, &s.m_clearDepth);
-    glGetFloatv (GL_DEPTH_RANGE,      s.m_depthRange);       // [0]=near,[1]=far
+    glGetFloatv (GL_DEPTH_RANGE,        s.m_depthRange);    // [0]=near,[1]=far
 
     // --- Blend --------------------------------------------------------------
-    glGetFloatv (GL_BLEND_COLOR,          s.m_blendColor);
-    glGetIntegerv(GL_BLEND_SRC_RGB,      &s.m_blendSrcRGB);
-    glGetIntegerv(GL_BLEND_DST_RGB,      &s.m_blendDstRGB);
-    glGetIntegerv(GL_BLEND_SRC_ALPHA,    &s.m_blendSrcAlpha);
-    glGetIntegerv(GL_BLEND_DST_ALPHA,    &s.m_blendDstAlpha);
-    glGetIntegerv(GL_BLEND_EQUATION_RGB, &s.m_blendEquationRGB);
-    glGetIntegerv(GL_BLEND_EQUATION_ALPHA,&s.m_blendEquationAlpha);
+    glGetFloatv (GL_BLEND_COLOR,            s.m_blendColor);
+    glGetIntegerv(GL_BLEND_SRC_RGB,        &s.m_blendSrcRGB);
+    glGetIntegerv(GL_BLEND_DST_RGB,        &s.m_blendDstRGB);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA,      &s.m_blendSrcAlpha);
+    glGetIntegerv(GL_BLEND_DST_ALPHA,      &s.m_blendDstAlpha);
+    glGetIntegerv(GL_BLEND_EQUATION_RGB,   &s.m_blendEquationRGB);
+    glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &s.m_blendEquationAlpha);
 
     // --- Viewport / Scissor / Clear ----------------------------------------
     glGetIntegerv(GL_VIEWPORT,     s.m_viewport);
@@ -222,11 +222,54 @@ GLState GLState::capture()
     // --- Vertex-Attrib Arrays ----------------------------------------------
     s.m_vertexAttribInfos = captureVertexAttribState();
 
-    // --- Puffer-Größen (optional) ------------------------------------------
-    // [Ihre bisherige Logik beibehalten]
+    // --- Puffer-Größen (robust, 64-Bit) ------------------------------------
+    // ELEMENT_ARRAY_BUFFER ist VAO-lokal: zum Abfragen muss das passende VAO gebunden sein.
+    auto getBufSize64 = [](GLenum target) -> GLint64 {
+        GLint64 sz = 0;
+        glGetBufferParameteri64v(target, GL_BUFFER_SIZE, &sz);
+        return sz;
+        };
+
+    // Ursprungs-Bindings merken
+    GLint prevVAO   = 0;
+    GLint prevArray = 0;
+    GLint prevElem  = 0;
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING,         &prevVAO);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING,         &prevArray);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &prevElem);
+
+    // ARRAY_BUFFER (global, nicht VAO-lokal)
+    if (s.m_arrayBufferBinding != 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, s.m_arrayBufferBinding);
+        s.m_arrayBufferSize = getBufSize64(GL_ARRAY_BUFFER);
+    } else {
+        s.m_arrayBufferSize = 0;
+    }
+
+    // ELEMENT_ARRAY_BUFFER (VAO-lokal)
+    if (s.m_vertexArrayBinding != 0) {
+        glBindVertexArray(s.m_vertexArrayBinding);
+
+        GLint ebo = 0;
+        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo);
+        if (ebo != 0) {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+            s.m_elementArrayBufferSize = getBufSize64(GL_ELEMENT_ARRAY_BUFFER);
+        } else {
+            s.m_elementArrayBufferSize = 0;
+        }
+    } else {
+        s.m_elementArrayBufferSize = 0;
+    }
+
+    // Ursprungs-Bindings wiederherstellen
+    glBindBuffer(GL_ARRAY_BUFFER,         prevArray);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prevElem);
+    glBindVertexArray(prevVAO);
 
     return s;
 }
+
 
 void GLState::restore() const
 {
@@ -266,21 +309,21 @@ void GLState::restore() const
     // --- Blend --------------------------------------------------------------
     glBlendColor (m_blendColor[0], m_blendColor[1], m_blendColor[2], m_blendColor[3]);
     glBlendFuncSeparate(m_blendSrcRGB,  m_blendDstRGB,
-                        m_blendSrcAlpha,m_blendDstAlpha);
+        m_blendSrcAlpha,m_blendDstAlpha);
     glBlendEquationSeparate(m_blendEquationRGB, m_blendEquationAlpha);
 
     // --- Viewport / Scissor / Clear ----------------------------------------
     glViewport (m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
     glScissor  (m_scissorBox[0], m_scissorBox[1],
-                m_scissorBox[2], m_scissorBox[3]);
+        m_scissorBox[2], m_scissorBox[3]);
     glClearColor(m_clearColor[0], m_clearColor[1],
-                 m_clearColor[2], m_clearColor[3]);
+        m_clearColor[2], m_clearColor[3]);
 
     // --- Vertex-Attrib Arrays ----------------------------------------------
     for (const auto& a : m_vertexAttribInfos) {
         glBindBuffer(GL_ARRAY_BUFFER, a.bufferBinding);
         glVertexAttribPointer(a.index, a.size, a.type,
-                              a.normalized, a.stride, a.pointer);
+            a.normalized, a.stride, a.pointer);
         glVertexAttribDivisor(a.index, a.divisor);
         if (a.enabled) glEnableVertexAttribArray(a.index);
         else           glDisableVertexAttribArray(a.index);
@@ -296,217 +339,263 @@ inline void GLState::setEnable(GLenum cap, GLboolean enabled) const
     else         glDisable(cap);
 }
 
-// ----- 3) Vergleich zweier States -----
+
 void GLState::compare(const GLState& before,
     const GLState& after,
     const std::string& info)
 {
-    // VAO Binding
-    if (before.m_vertexArrayBinding != after.m_vertexArrayBinding)
-        std::cout << "GL_VERTEX_ARRAY_BINDING changed: "
-        << before.m_vertexArrayBinding
-        << " -> "
-        << after.m_vertexArrayBinding << std::endl;
+    std::ostringstream log;
+    bool any = false;
 
-    // Vertex-Attrib-Anzahl
-    if (before.m_vertexAttribInfos.size() != after.m_vertexAttribInfos.size()) {
-        std::cout << "Number of vertex attrib entries changed: "
-            << before.m_vertexAttribInfos.size() << " -> "
-            << after.m_vertexAttribInfos.size() << std::endl;
+    // kleiner Helfer: gibt einen Stream zurück und setzt "any=true"
+    auto L = [&]() -> std::ostream& { any = true; return log; };
+
+    auto onoff = [](GLboolean b){ return b ? "enabled" : "disabled"; };
+
+    // sicherer Größen-Logger
+    auto logSizeChange = [&](const char* label, GLint64 a, GLint64 b){
+        if (a != b) {
+            L() << label << " size changed: " << a << " -> " << b << " bytes\n";
+        }
+        };
+
+    // --- Kern-Bindings ------------------------------------------------------
+    if (before.m_currentProgram != after.m_currentProgram)
+        L() << "GL_CURRENT_PROGRAM changed: "
+        << before.m_currentProgram << " -> " << after.m_currentProgram << "\n";
+
+    if (before.m_vertexArrayBinding != after.m_vertexArrayBinding)
+        L() << "GL_VERTEX_ARRAY_BINDING changed: "
+        << before.m_vertexArrayBinding << " -> " << after.m_vertexArrayBinding << "\n";
+
+    if (before.m_arrayBufferBinding != after.m_arrayBufferBinding)
+        L() << "GL_ARRAY_BUFFER_BINDING changed: "
+        << before.m_arrayBufferBinding << " -> " << after.m_arrayBufferBinding << "\n";
+
+    if (before.m_elementArrayBufferBinding != after.m_elementArrayBufferBinding)
+        L() << "GL_ELEMENT_ARRAY_BUFFER_BINDING changed: "
+        << before.m_elementArrayBufferBinding << " -> " << after.m_elementArrayBufferBinding << "\n";
+
+    // --- Buffer-Größen (ruhig & korrekt) -----------------------------------
+    if (before.m_arrayBufferBinding != 0 &&
+        before.m_arrayBufferBinding == after.m_arrayBufferBinding)
+    {
+        logSizeChange("GL_ARRAY_BUFFER", before.m_arrayBufferSize, after.m_arrayBufferSize);
     }
-    else {
-        for (size_t i = 0; i < before.m_vertexAttribInfos.size(); ++i) {
-            const auto& b = before.m_vertexAttribInfos[i];
-            const auto& a = after.m_vertexAttribInfos[i];
-            if (b.enabled != a.enabled ||
-                b.size != a.size ||
-                b.type != a.type ||
-                b.normalized != a.normalized ||
-                b.stride != a.stride ||
-                b.bufferBinding != a.bufferBinding ||
-                b.pointer != a.pointer) {
-                std::cout << "Vertex Attrib " << b.index << " changed:" << std::endl;
-                std::cout << "  Before: enabled=" << b.enabled
+
+    if (before.m_vertexArrayBinding != 0 &&
+        before.m_vertexArrayBinding == after.m_vertexArrayBinding &&
+        before.m_elementArrayBufferBinding != 0 &&
+        before.m_elementArrayBufferBinding == after.m_elementArrayBufferBinding)
+    {
+        logSizeChange("GL_ELEMENT_ARRAY_BUFFER",
+            before.m_elementArrayBufferSize, after.m_elementArrayBufferSize);
+    }
+
+    // --- Vertex-Attribute ---------------------------------------------------
+    if (before.m_vertexAttribInfos.size() != after.m_vertexAttribInfos.size()) {
+        L() << "VertexAttrib count changed: "
+            << before.m_vertexAttribInfos.size() << " -> "
+            << after.m_vertexAttribInfos.size() << "\n";
+    }
+
+    auto byIndex = [](const GLVertexAttribInfo& a, const GLVertexAttribInfo& b){
+        return a.index < b.index;
+        };
+    std::vector<GLVertexAttribInfo> vb = before.m_vertexAttribInfos;
+    std::vector<GLVertexAttribInfo> va = after.m_vertexAttribInfos;
+    std::sort(vb.begin(), vb.end(), byIndex);
+    std::sort(va.begin(), va.end(), byIndex);
+
+    size_t ib = 0, ia = 0;
+    while (ib < vb.size() || ia < va.size()) {
+        if (ib < vb.size() && ia < va.size() && vb[ib].index == va[ia].index) {
+            const auto& b = vb[ib];
+            const auto& a = va[ia];
+            if (b.enabled      != a.enabled      ||
+                b.size         != a.size         ||
+                b.type         != a.type         ||
+                b.normalized   != a.normalized   ||
+                b.stride       != a.stride       ||
+                b.bufferBinding!= a.bufferBinding||
+                b.pointer      != a.pointer      ||
+                b.divisor      != a.divisor)
+            {
+                L() << "VertexAttrib[" << b.index << "] changed:\n"
+                    << "  Before: enabled=" << (b.enabled ? "YES":"NO")
                     << ", size=" << b.size
                     << ", type=" << b.type
-                    << ", normalized=" << (b.normalized ? "YES" : "NO")
+                    << ", normalized=" << (b.normalized ? "YES":"NO")
                     << ", stride=" << b.stride
-                    << ", bufferBinding=" << b.bufferBinding
-                    << ", pointer=" << b.pointer << std::endl;
-                std::cout << "  After : enabled=" << a.enabled
+                    << ", buffer=" << b.bufferBinding
+                    << ", pointer=" << b.pointer
+                    << ", divisor=" << b.divisor << "\n"
+                    << "  After : enabled=" << (a.enabled ? "YES":"NO")
                     << ", size=" << a.size
                     << ", type=" << a.type
-                    << ", normalized=" << (a.normalized ? "YES" : "NO")
+                    << ", normalized=" << (a.normalized ? "YES":"NO")
                     << ", stride=" << a.stride
-                    << ", bufferBinding=" << a.bufferBinding
-                    << ", pointer=" << a.pointer << std::endl;
+                    << ", buffer=" << a.bufferBinding
+                    << ", pointer=" << a.pointer
+                    << ", divisor=" << a.divisor << "\n";
             }
+            ++ib; ++ia;
+        } else if (ia < va.size() && (ib == vb.size() || va[ia].index < vb[ib].index)) {
+            const auto& a = va[ia++];
+            L() << "VertexAttrib[" << a.index << "] ADDED: "
+                << "enabled=" << (a.enabled ? "YES":"NO")
+                << ", size=" << a.size
+                << ", type=" << a.type
+                << ", normalized=" << (a.normalized ? "YES":"NO")
+                << ", stride=" << a.stride
+                << ", buffer=" << a.bufferBinding
+                << ", pointer=" << a.pointer
+                << ", divisor=" << a.divisor << "\n";
+        } else {
+            const auto& b = vb[ib++];
+            L() << "VertexAttrib[" << b.index << "] REMOVED: "
+                << "enabled=" << (b.enabled ? "YES":"NO")
+                << ", size=" << b.size
+                << ", type=" << b.type
+                << ", normalized=" << (b.normalized ? "YES":"NO")
+                << ", stride=" << b.stride
+                << ", buffer=" << b.bufferBinding
+                << ", pointer=" << b.pointer
+                << ", divisor=" << b.divisor << "\n";
         }
     }
 
-    // Buffer-Vergleich
-    auto cmpBuf = [](const GLBufferInfo& x, const GLBufferInfo& y) {
-        if (x.id != y.id)
-            return x.id < y.id;
-        return x.target < y.target;
-        };
-    std::vector<GLBufferInfo> sb = before.m_bufferInfos;
-    std::vector<GLBufferInfo> sa = after.m_bufferInfos;
-    std::sort(sb.begin(), sb.end(), cmpBuf);
-    std::sort(sa.begin(), sa.end(), cmpBuf);
-
-    size_t i = 0, j = 0;
-    while (i < sb.size() || j < sa.size()) {
-        if (i < sb.size() && j < sa.size()) {
-            const auto& b = sb[i];
-            const auto& a = sa[j];
-            if (b.id == a.id && b.target == a.target) {
-                if (b.size != a.size) {
-                    std::cout << "Buffer modified: ID=" << b.id
-                        << ", Target=" << b.target
-                        << ", Size changed: " << b.size
-                        << " -> " << a.size << " bytes" << std::endl;
-                }
-                ++i; ++j;
-            }
-            else if ((b.id < a.id) || (b.id == a.id && b.target < a.target)) {
-                std::cout << "Buffer removed: ID=" << b.id
-                    << ", Target=" << b.target
-                    << ", Size=" << b.size << " bytes" << std::endl;
-                ++i;
-            }
-            else {
-                std::cout << "New buffer created: ID=" << a.id
-                    << ", Target=" << a.target
-                    << ", Size=" << a.size << " bytes" << std::endl;
-                ++j;
-            }
-        }
-        else if (j < sa.size()) {
-            const auto& a = sa[j++];
-            std::cout << "New buffer created: ID=" << a.id
-                << ", Target=" << a.target
-                << ", Size=" << a.size << " bytes" << std::endl;
-        }
-        else {
-            const auto& b = sb[i++];
-            std::cout << "Buffer removed: ID=" << b.id
-                << ", Target=" << b.target
-                << ", Size=" << b.size << " bytes" << std::endl;
-        }
-    }
-
-    // Program
-    if (before.m_currentProgram != after.m_currentProgram) {
-        std::cout << info << std::endl
-            << "GL_CURRENT_PROGRAM changed: "
-            << before.m_currentProgram
-            << " -> "
-            << after.m_currentProgram << std::endl;
-    }
-
-    // Array-Buffer Binding & Size
-    if (before.m_arrayBufferBinding != after.m_arrayBufferBinding)
-        std::cout << "GL_ARRAY_BUFFER_BINDING changed: "
-        << before.m_arrayBufferBinding
-        << " -> "
-        << after.m_arrayBufferBinding << std::endl;
-    if (before.m_arrayBufferSize != after.m_arrayBufferSize)
-        std::cout << "GL_ARRAY_BUFFER size changed: "
-        << before.m_arrayBufferSize
-        << " -> "
-        << after.m_arrayBufferSize
-        << " bytes" << std::endl;
-
-    // Element-Array-Buffer Binding & Size
-    if (before.m_elementArrayBufferBinding != after.m_elementArrayBufferBinding)
-        std::cout << "GL_ELEMENT_ARRAY_BUFFER_BINDING changed: "
-        << before.m_elementArrayBufferBinding
-        << " -> "
-        << after.m_elementArrayBufferBinding << std::endl;
-    if (before.m_elementArrayBufferSize != after.m_elementArrayBufferSize)
-        std::cout << "GL_ELEMENT_ARRAY_BUFFER size changed: "
-        << before.m_elementArrayBufferSize
-        << " -> "
-        << after.m_elementArrayBufferSize
-        << " bytes" << std::endl;
-
-    // Simple Enable/Disable States
+    // --- Enables ------------------------------------------------------------
     if (before.m_cullFaceEnabled != after.m_cullFaceEnabled)
-        std::cout << "GL_CULL_FACE state changed: "
-        << (before.m_cullFaceEnabled ? "enabled" : "disabled")
-        << " -> "
-        << (after.m_cullFaceEnabled ? "enabled" : "disabled") << std::endl;
+        L() << "GL_CULL_FACE " << onoff(before.m_cullFaceEnabled)
+        << " -> " << onoff(after.m_cullFaceEnabled) << "\n";
     if (before.m_depthTestEnabled != after.m_depthTestEnabled)
-        std::cout << "GL_DEPTH_TEST state changed: "
-        << (before.m_depthTestEnabled ? "enabled" : "disabled")
-        << " -> "
-        << (after.m_depthTestEnabled ? "enabled" : "disabled") << std::endl;
+        L() << "GL_DEPTH_TEST " << onoff(before.m_depthTestEnabled)
+        << " -> " << onoff(after.m_depthTestEnabled) << "\n";
     if (before.m_blendEnabled != after.m_blendEnabled)
-        std::cout << "GL_BLEND state changed: "
-        << (before.m_blendEnabled ? "enabled" : "disabled")
-        << " -> "
-        << (after.m_blendEnabled ? "enabled" : "disabled") << std::endl;
+        L() << "GL_BLEND " << onoff(before.m_blendEnabled)
+        << " -> " << onoff(after.m_blendEnabled) << "\n";
+    if (before.m_polyOffsetFillEnabled != after.m_polyOffsetFillEnabled)
+        L() << "GL_POLYGON_OFFSET_FILL " << onoff(before.m_polyOffsetFillEnabled)
+        << " -> " << onoff(after.m_polyOffsetFillEnabled) << "\n";
+    if (before.m_polyOffsetLineEnabled != after.m_polyOffsetLineEnabled)
+        L() << "GL_POLYGON_OFFSET_LINE " << onoff(before.m_polyOffsetLineEnabled)
+        << " -> " << onoff(after.m_polyOffsetLineEnabled) << "\n";
 
-    // Polygon Mode
-    if (before.m_polygonMode[0] != after.m_polygonMode[0] || before.m_polygonMode[1] != after.m_polygonMode[1])
-        std::cout << "GL_POLYGON_MODE changed: (" << before.m_polygonMode[0] << ", " << before.m_polygonMode[1] << ") -> (" << after.m_polygonMode[0] << ", " << after.m_polygonMode[1] << ")" << std::endl;
+    // --- Rasterizer/Depth/Blend/Viewport/Scissor/Clear ---------------------
+    if (before.m_polygonMode[0] != after.m_polygonMode[0] ||
+        before.m_polygonMode[1] != after.m_polygonMode[1])
+        L() << "GL_POLYGON_MODE changed: ("
+        << before.m_polygonMode[0] << ", " << before.m_polygonMode[1]
+        << ") -> ("
+        << after.m_polygonMode[0]  << ", " << after.m_polygonMode[1]  << ")\n";
 
-    // Viewport & Scissor
-    bool vpChanged = false; for (int k = 0; k < 4; ++k) if (before.m_viewport[k] != after.m_viewport[k]) { vpChanged = true; break; }
-    if (vpChanged)
-        std::cout << "GL_VIEWPORT changed: (" << before.m_viewport[0] << ", " << before.m_viewport[1] << ", " << before.m_viewport[2] << ", " << before.m_viewport[3] << ") -> (" << after.m_viewport[0] << ", " << after.m_viewport[1] << ", " << after.m_viewport[2] << ", " << after.m_viewport[3] << ")" << std::endl;
-    bool scChanged = false; for (int k = 0; k < 4; ++k) if (before.m_scissorBox[k] != after.m_scissorBox[k]) { scChanged = true; break; }
-    if (scChanged)
-        std::cout << "GL_SCISSOR_BOX changed: (" << before.m_scissorBox[0] << ", " << before.m_scissorBox[1] << ", " << before.m_scissorBox[2] << ", " << before.m_scissorBox[3] << ") -> (" << after.m_scissorBox[0] << ", " << after.m_scissorBox[1] << ", " << after.m_scissorBox[2] << ", " << after.m_scissorBox[3] << ")" << std::endl;
+    if (before.m_cullFaceMode != after.m_cullFaceMode)
+        L() << "GL_CULL_FACE_MODE changed: "
+        << before.m_cullFaceMode << " -> " << after.m_cullFaceMode << "\n";
 
-    // Clear Colors & Depth
-    bool ccChanged = false; for (int k = 0; k < 4; ++k) if (before.m_clearColor[k] != after.m_clearColor[k]) { ccChanged = true; break; }
-    if (ccChanged)
-        std::cout << "GL_COLOR_CLEAR_VALUE changed: (" << before.m_clearColor[0] << ", " << before.m_clearColor[1] << ", " << before.m_clearColor[2] << ", " << before.m_clearColor[3] << ") -> (" << after.m_clearColor[0] << ", " << after.m_clearColor[1] << ", " << after.m_clearColor[2] << ", " << after.m_clearColor[3] << ")" << std::endl;
-    if (before.m_clearDepth != after.m_clearDepth)
-        std::cout << "GL_DEPTH_CLEAR_VALUE changed: " << before.m_clearDepth << " -> " << after.m_clearDepth << std::endl;
+    if (before.m_frontFace != after.m_frontFace)
+        L() << "GL_FRONT_FACE changed: "
+        << before.m_frontFace << " -> " << after.m_frontFace << "\n";
 
-    // Blend Color & Equations & Factors
-    bool bcChanged = false; for (int k = 0; k < 4; ++k) if (before.m_blendColor[k] != after.m_blendColor[k]) { bcChanged = true; break; }
-    if (bcChanged)
-        std::cout << "GL_BLEND_COLOR changed: (" << before.m_blendColor[0] << ", " << before.m_blendColor[1] << ", " << before.m_blendColor[2] << ", " << before.m_blendColor[3] << ") -> (" << after.m_blendColor[0] << ", " << after.m_blendColor[1] << ", " << after.m_blendColor[2] << ", " << after.m_blendColor[3] << ")" << std::endl;
-    if (before.m_blendSrcRGB != after.m_blendSrcRGB)
-        std::cout << "GL_BLEND_SRC_RGB changed: " << before.m_blendSrcRGB << " -> " << after.m_blendSrcRGB << std::endl;
-    if (before.m_blendDstRGB != after.m_blendDstRGB)
-        std::cout << "GL_BLEND_DST_RGB changed: " << before.m_blendDstRGB << " -> " << after.m_blendDstRGB << std::endl;
-    if (before.m_blendSrcAlpha != after.m_blendSrcAlpha)
-        std::cout << "GL_BLEND_SRC_ALPHA changed: " << before.m_blendSrcAlpha << " -> " << after.m_blendSrcAlpha << std::endl;
-    if (before.m_blendDstAlpha != after.m_blendDstAlpha)
-        std::cout << "GL_BLEND_DST_ALPHA changed: " << before.m_blendDstAlpha << " -> " << after.m_blendDstAlpha << std::endl;
-    if (before.m_blendEquationRGB != after.m_blendEquationRGB)
-        std::cout << "GL_BLEND_EQUATION_RGB changed: " << before.m_blendEquationRGB << " -> " << after.m_blendEquationRGB << std::endl;
-    if (before.m_blendEquationAlpha != after.m_blendEquationAlpha)
-        std::cout << "GL_BLEND_EQUATION_ALPHA changed: " << before.m_blendEquationAlpha << " -> " << after.m_blendEquationAlpha << std::endl;
+    if (before.m_depthFunc != after.m_depthFunc)
+        L() << "GL_DEPTH_FUNC changed: "
+        << before.m_depthFunc << " -> " << after.m_depthFunc << "\n";
 
-    // Rest: Depth Range, Line Width, Point Size...
-    if (before.m_depthRange[0] != after.m_depthRange[0] || before.m_depthRange[1] != after.m_depthRange[1])
-        std::cout << "GL_DEPTH_RANGE changed: (" << before.m_depthRange[0] << ", " << before.m_depthRange[1] << ") -> (" << after.m_depthRange[0] << ", " << after.m_depthRange[1] << ")" << std::endl;
+    if (before.m_depthMask != after.m_depthMask)
+        L() << "GL_DEPTH_WRITEMASK changed: "
+        << (before.m_depthMask ? "true" : "false") << " -> "
+        << (after.m_depthMask  ? "true" : "false") << "\n";
+
     if (before.m_lineWidth != after.m_lineWidth)
-        std::cout << "GL_LINE_WIDTH changed: " << before.m_lineWidth << " -> " << after.m_lineWidth << std::endl;
+        L() << "GL_LINE_WIDTH changed: "
+        << before.m_lineWidth << " -> " << after.m_lineWidth << "\n";
+
     if (before.m_pointSize != after.m_pointSize)
-        std::cout << "GL_POINT_SIZE changed: " << before.m_pointSize << " -> " << after.m_pointSize << std::endl;
-    if (before.m_polygonOffsetFactor != after.m_polygonOffsetFactor)
-        std::cout << "GL_POLYGON_OFFSET_FACTOR changed: " << before.m_polygonOffsetFactor << " -> " << after.m_polygonOffsetFactor << std::endl;
-    if (before.m_polygonOffsetUnits != after.m_polygonOffsetUnits)
-        std::cout << "GL_POLYGON_OFFSET_UNITS changed: " << before.m_polygonOffsetUnits << " -> " << after.m_polygonOffsetUnits << std::endl;
+        L() << "GL_POINT_SIZE changed: "
+        << before.m_pointSize << " -> " << after.m_pointSize << "\n";
 
-    // Texture + FBO + RBO Bindings
+    if (before.m_polygonOffsetFactor != after.m_polygonOffsetFactor ||
+        before.m_polygonOffsetUnits  != after.m_polygonOffsetUnits)
+        L() << "GL_POLYGON_OFFSET changed: factor "
+        << before.m_polygonOffsetFactor << " -> " << after.m_polygonOffsetFactor
+        << ", units " << before.m_polygonOffsetUnits << " -> " << after.m_polygonOffsetUnits << "\n";
+
+    if (before.m_depthRange[0] != after.m_depthRange[0] ||
+        before.m_depthRange[1] != after.m_depthRange[1])
+        L() << "GL_DEPTH_RANGE changed: ("
+        << before.m_depthRange[0] << ", " << before.m_depthRange[1] << ") -> ("
+        << after.m_depthRange[0]  << ", " << after.m_depthRange[1]  << ")\n";
+
+    auto any4 = [](const GLfloat a[4], const GLfloat b[4]){
+        return a[0]!=b[0] || a[1]!=b[1] || a[2]!=b[2] || a[3]!=b[3];
+        };
+    if (any4(before.m_blendColor, after.m_blendColor))
+        L() << "GL_BLEND_COLOR changed\n";
+    if (before.m_blendSrcRGB != after.m_blendSrcRGB)
+        L() << "GL_BLEND_SRC_RGB changed: "
+        << before.m_blendSrcRGB << " -> " << after.m_blendSrcRGB << "\n";
+    if (before.m_blendDstRGB != after.m_blendDstRGB)
+        L() << "GL_BLEND_DST_RGB changed: "
+        << before.m_blendDstRGB << " -> " << after.m_blendDstRGB << "\n";
+    if (before.m_blendSrcAlpha != after.m_blendSrcAlpha)
+        L() << "GL_BLEND_SRC_ALPHA changed: "
+        << before.m_blendSrcAlpha << " -> " << after.m_blendSrcAlpha << "\n";
+    if (before.m_blendDstAlpha != after.m_blendDstAlpha)
+        L() << "GL_BLEND_DST_ALPHA changed: "
+        << before.m_blendDstAlpha << " -> " << after.m_blendDstAlpha << "\n";
+    if (before.m_blendEquationRGB != after.m_blendEquationRGB)
+        L() << "GL_BLEND_EQUATION_RGB changed: "
+        << before.m_blendEquationRGB << " -> " << after.m_blendEquationRGB << "\n";
+    if (before.m_blendEquationAlpha != after.m_blendEquationAlpha)
+        L() << "GL_BLEND_EQUATION_ALPHA changed: "
+        << before.m_blendEquationAlpha << " -> " << after.m_blendEquationAlpha << "\n";
+
+    if (before.m_viewport[0] != after.m_viewport[0] ||
+        before.m_viewport[1] != after.m_viewport[1] ||
+        before.m_viewport[2] != after.m_viewport[2] ||
+        before.m_viewport[3] != after.m_viewport[3])
+        L() << "GL_VIEWPORT changed: ("
+        << before.m_viewport[0] << ", " << before.m_viewport[1] << ", "
+        << before.m_viewport[2] << ", " << before.m_viewport[3] << ") -> ("
+        << after.m_viewport[0]  << ", " << after.m_viewport[1]  << ", "
+        << after.m_viewport[2]  << ", " << after.m_viewport[3]  << ")\n";
+
+    if (before.m_scissorBox[0] != after.m_scissorBox[0] ||
+        before.m_scissorBox[1] != after.m_scissorBox[1] ||
+        before.m_scissorBox[2] != after.m_scissorBox[2] ||
+        before.m_scissorBox[3] != after.m_scissorBox[3])
+        L() << "GL_SCISSOR_BOX changed: ("
+        << before.m_scissorBox[0] << ", " << before.m_scissorBox[1] << ", "
+        << before.m_scissorBox[2] << ", " << before.m_scissorBox[3] << ") -> ("
+        << after.m_scissorBox[0]  << ", " << after.m_scissorBox[1]  << ", "
+        << after.m_scissorBox[2]  << ", " << after.m_scissorBox[3]  << ")\n";
+
+    if (any4(before.m_clearColor, after.m_clearColor))
+        L() << "GL_COLOR_CLEAR_VALUE changed\n";
+    if (before.m_clearDepth != after.m_clearDepth)
+        L() << "GL_DEPTH_CLEAR_VALUE changed: "
+        << before.m_clearDepth << " -> " << after.m_clearDepth << "\n";
+
     if (before.m_activeTexture != after.m_activeTexture)
-        std::cout << "GL_ACTIVE_TEXTURE changed: " << before.m_activeTexture << " -> " << after.m_activeTexture << std::endl;
+        L() << "GL_ACTIVE_TEXTURE changed: "
+        << before.m_activeTexture << " -> " << after.m_activeTexture << "\n";
     if (before.m_textureBinding2D != after.m_textureBinding2D)
-        std::cout << "GL_TEXTURE_BINDING_2D changed: " << before.m_textureBinding2D << " -> " << after.m_textureBinding2D << std::endl;
+        L() << "GL_TEXTURE_BINDING_2D changed: "
+        << before.m_textureBinding2D << " -> " << after.m_textureBinding2D << "\n";
     if (before.m_framebufferBinding != after.m_framebufferBinding)
-        std::cout << "GL_FRAMEBUFFER_BINDING changed: " << before.m_framebufferBinding << " -> " << after.m_framebufferBinding << std::endl;
+        L() << "GL_FRAMEBUFFER_BINDING changed: "
+        << before.m_framebufferBinding << " -> " << after.m_framebufferBinding << "\n";
     if (before.m_renderbufferBinding != after.m_renderbufferBinding)
-        std::cout << "GL_RENDERBUFFER_BINDING changed: " << before.m_renderbufferBinding << " -> " << after.m_renderbufferBinding << std::endl;
-}
+        L() << "GL_RENDERBUFFER_BINDING changed: "
+        << before.m_renderbufferBinding << " -> " << after.m_renderbufferBinding << "\n";
 
+    // --- Ausgabe nur bei Änderungen -----------------------------------------
+    if (any) {
+        if (!info.empty()) std::cout << info << "\n";
+        std::cout << log.str();
+    }
+}
 
 
 void GLState::printAllExistingBuffers(GLuint maxID) {

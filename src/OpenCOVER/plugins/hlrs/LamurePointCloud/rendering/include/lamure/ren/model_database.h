@@ -31,6 +31,7 @@ public:
     virtual             ~model_database();
 
     static model_database* get_instance();
+    static void destroy_instance();
 
     const model_t       add_model(const std::string& filepath, const std::string& model_key);
     dataset*            get_model(const model_t model_id);

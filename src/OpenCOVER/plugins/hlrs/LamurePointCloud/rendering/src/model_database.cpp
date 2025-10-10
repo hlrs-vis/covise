@@ -34,6 +34,7 @@ model_database::
     std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
+    single_ = nullptr;
 
     for (const auto& model_it : datasets_) {
         dataset* model = model_it.second;
@@ -61,6 +62,23 @@ get_instance() {
     else {
         return single_;
     }
+}
+
+void model_database::
+destroy_instance()
+{
+    model_database* instance = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!is_instanced_)
+            return;
+
+        instance = single_;
+        single_ = nullptr;
+        is_instanced_ = false;
+    }
+
+    delete instance;
 }
 
 void model_database::
