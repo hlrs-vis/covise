@@ -549,7 +549,7 @@
       "description": "",
       "headline": "Magnetgetriebe",
       "id": 74,
-      "image": "",
+      "image": "Magnetgetriebe.png",
       "launch": [
         {
           "args": [
@@ -560,7 +560,7 @@
         }
       ],
       "tags": [
-        "broken"
+        "electromagnetics"
       ]
     },
     {
