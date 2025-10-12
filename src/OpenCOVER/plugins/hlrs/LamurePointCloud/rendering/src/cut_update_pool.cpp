@@ -52,12 +52,21 @@ cut_update_pool::cut_update_pool(const context_t context_id, const node_t upload
 
 cut_update_pool::~cut_update_pool()
 {
+    shutdown();
+}
+
+void cut_update_pool::shutdown()
+{
     {
         std::lock_guard<std::mutex> lock(mutex_);
-
+        if (shutdown_) return;
         shutdown_ = true;
         semaphore_.shutdown();
         master_semaphore_.shutdown();
+    }
+
+    for (uint32_t i = 0; i < num_threads_; ++i) {
+        semaphore_.signal(1);
     }
 
     for(auto &thread : threads_)
@@ -67,7 +76,24 @@ cut_update_pool::~cut_update_pool()
     }
     threads_.clear();
 
-    shutdown();
+    // local shutdown, not calling destructor of members
+    if(gpu_cache_ != nullptr)
+    {
+        delete gpu_cache_;
+        gpu_cache_ = nullptr;
+    }
+
+    if(index_ != nullptr)
+    {
+        delete index_;
+        index_ = nullptr;
+    }
+
+    current_gpu_storage_A_ = nullptr;
+    current_gpu_storage_B_ = nullptr;
+
+    current_gpu_storage_A_provenance_ = nullptr;
+    current_gpu_storage_B_provenance_ = nullptr;
 }
 
 void cut_update_pool::initialize(bool provenance)
@@ -98,29 +124,6 @@ void cut_update_pool::initialize(bool provenance)
     std::cout << "lamure: num models: " << index_->num_models() << std::endl;
     std::cout << "lamure: ooc-cache size (MB): " << policy->out_of_core_budget_in_mb() << std::endl;
 #endif
-}
-
-void cut_update_pool::shutdown()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    if(gpu_cache_ != nullptr)
-    {
-        delete gpu_cache_;
-        gpu_cache_ = nullptr;
-    }
-
-    if(index_ != nullptr)
-    {
-        delete index_;
-        index_ = nullptr;
-    }
-
-    current_gpu_storage_A_ = nullptr;
-    current_gpu_storage_B_ = nullptr;
-
-    current_gpu_storage_A_provenance_ = nullptr;
-    current_gpu_storage_B_provenance_ = nullptr;
 }
 
 bool cut_update_pool::is_shutdown()
@@ -1486,6 +1489,23 @@ const float cut_update_pool::calculate_node_error(const view_t view_id, const mo
 
     return error;
 }
-} // namespace ren
 
+void cut_update_pool::
+
+wait_for_idle()
+
+{
+
+    std::cout << "[Debug] cut_update_pool::wait_for_idle() - waiting..." << std::endl;
+
+    while (is_running()) {
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    }
+
+    std::cout << "[Debug] cut_update_pool::wait_for_idle() - ...done" << std::endl;
+
+}
+} // namespace ren
 } // namespace lamure

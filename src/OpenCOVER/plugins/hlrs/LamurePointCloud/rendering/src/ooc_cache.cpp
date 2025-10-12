@@ -49,7 +49,7 @@ ooc_cache::ooc_cache(const slot_t num_slots) : cache(num_slots), maintenance_cou
 
 ooc_cache::~ooc_cache()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    //std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
     single_ = nullptr;
@@ -211,18 +211,14 @@ ooc_cache *ooc_cache::get_instance()
 
 void ooc_cache::destroy_instance()
 {
-    ooc_cache* instance = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (!is_instanced_)
-            return;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!is_instanced_)
+        return;
 
-        instance = single_;
-        single_ = nullptr;
-        is_instanced_ = false;
-    }
+    delete single_;
 
-    delete instance;
+    single_ = nullptr;
+    is_instanced_ = false;
 }
 
 void ooc_cache::register_node(const model_t model_id, const node_t node_id, const int32_t priority)
@@ -307,6 +303,23 @@ void ooc_cache::unlock_pool() { pool_->unlock(); }
 void ooc_cache::begin_measure() { pool_->begin_measure(); }
 
 void ooc_cache::end_measure() { pool_->end_measure(); }
+
+void ooc_cache::wait_for_idle()
+{
+    if (pool_ != nullptr)
+    {
+        refresh();
+        pool_->wait_for_idle();
+    }
+}
+
+void ooc_cache::shutdown_pool()
+{
+    if (pool_ != nullptr)
+    {
+        pool_->shutdown();
+    }
+}
 
 } // namespace ren
 

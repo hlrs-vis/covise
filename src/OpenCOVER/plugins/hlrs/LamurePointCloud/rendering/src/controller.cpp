@@ -20,7 +20,7 @@ controller::controller() : num_contexts_registered_(0), num_models_registered_(0
 
 controller::~controller()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    //std::lock_guard<std::mutex> lock(mutex_);
 
     is_instanced_ = false;
     single_ = nullptr;
@@ -70,18 +70,14 @@ controller *controller::get_instance()
 
 void controller::destroy_instance()
 {
-    controller* instance = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (!is_instanced_)
-            return;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!is_instanced_)
+        return;
 
-        instance = single_;
-        single_ = nullptr;
-        is_instanced_ = false;
-    }
+    delete single_;
 
-    delete instance;
+    single_ = nullptr;
+    is_instanced_ = false;
 }
 
 const context_t controller::num_contexts_registered()
@@ -557,6 +553,26 @@ scm::gl::vertex_array_ptr controller::get_context_memory(const context_t context
     }
 
     return gpu_context_it->second->get_context_memory(type, device, data_provenance);
+}
+
+void controller::wait_for_idle(const context_t context_id)
+{
+    auto cut_update_it = cut_update_pools_.find(context_id);
+    if (cut_update_it != cut_update_pools_.end() && cut_update_it->second != nullptr)
+    {
+        cut_update_it->second->wait_for_idle();
+    }
+}
+
+void controller::shutdown_pools()
+{
+    for (auto& pool_it : cut_update_pools_)
+    {
+        if (pool_it.second != nullptr)
+        {
+            pool_it.second->shutdown();
+        }
+    }
 }
 
 } // namespace ren

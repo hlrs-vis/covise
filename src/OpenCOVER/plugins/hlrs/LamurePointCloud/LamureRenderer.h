@@ -42,12 +42,16 @@ private:
 
     //osg::ref_ptr<osg::Group> m_group;
 
+    void flushGlCommands();
+    void releaseSceneGraph();
+
     bool m_rendering;
     mutable std::mutex m_renderMutex;
     std::condition_variable m_renderCondition;
     bool m_renderingAllowed{true};
     bool m_pauseRequested{false};
     uint32_t m_framesPendingDrain{0};
+    mutable std::mutex m_sceneMutex;
 
     // Private methods
     bool readShader(const std::string& pathString, std::string& shaderString, bool keepOptionalShaderCode);
@@ -666,6 +670,7 @@ public:
     void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport);
     void setModelUniforms(const scm::math::mat4& mvp_matrix);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id);
+    void resetLamureSystemAndWait();
 
     void print_active_uniforms(GLuint programID, const std::string& shaderName);
     std::string glTypeToString(GLenum type);

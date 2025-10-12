@@ -32,6 +32,8 @@
 #include <lamure/ren/cache_queue.h>
 #include <lamure/ren/cache_index.h>
 
+#include <atomic>
+
 namespace lamure {
 namespace ren {
 
@@ -52,6 +54,11 @@ class ooc_pool
     void resolve_cache_history(cache_index *index);
     void perform_queue_maintenance(cache_index *index);
 
+    void shutdown();
+
+
+    void wait_for_idle();
+
     void lock();
     void unlock();
 
@@ -63,6 +70,7 @@ class ooc_pool
     bool is_shutdown();
 
   private:
+    std::atomic<uint32_t> active_threads_;
     bool locked_;
     semaphore semaphore_;
     size_t size_of_slot_;
@@ -71,6 +79,11 @@ class ooc_pool
 
     uint32_t num_threads_;
     std::vector<std::thread> threads_;
+
+    std::vector<size_t> node_stride_by_model_;
+    std::vector<size_t> prims_per_node_by_model_;
+    std::vector<std::string> lod_files_;
+    std::vector<std::string> prov_files_;
 
     bool shutdown_;
 

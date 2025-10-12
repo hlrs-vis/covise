@@ -52,6 +52,10 @@ class controller
     void dispatch(const context_t context_id, scm::gl::render_device_ptr device);
     void dispatch(const context_t context_id, scm::gl::render_device_ptr device, Data_Provenance const& data_provenance);
 
+    void wait_for_idle(const context_t context_id);
+
+    void shutdown_pools();
+
     const bool is_cut_update_in_progress(const context_t context_id);
     const bool is_cut_update_in_progress(const context_t context_id, Data_Provenance const& data_provenanc);
 

@@ -28,7 +28,7 @@ public:
 
                         model_database(const model_database&) = delete;
                         model_database& operator=(const model_database&) = delete;
-    virtual             ~model_database();
+    virtual             ~model_database() noexcept;
 
     static model_database* get_instance();
     static void destroy_instance();
@@ -56,6 +56,7 @@ protected:
 
 private:
     static std::mutex   mutex_;
+    mutable std::mutex state_mutex_;
 
     std::unordered_map<model_t, dataset*> datasets_;
 

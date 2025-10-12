@@ -51,6 +51,10 @@ class ooc_cache : public cache
     void begin_measure();
     void end_measure();
 
+    void wait_for_idle();
+
+    void shutdown_pool();
+
   protected:
     ooc_cache(const size_t num_slots);
     ooc_cache(const size_t num_slots, Data_Provenance const &data_provenance);

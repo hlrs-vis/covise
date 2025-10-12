@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
+﻿// Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
 // This Software is distributed under the Modified BSD License, see license.txt.
 //
 // Virtual Reality and Visualization Research Group 
@@ -26,16 +26,14 @@ model_database()
   num_datasets_pending_(0),
   primitives_per_node_(0),
   primitives_per_node_pending_(0) {
-
+    std::cout << "[Debug] model_database::CONSTRUCTOR" << std::endl;
 }
 
-model_database::
-~model_database() {
-    std::lock_guard<std::mutex> lock(mutex_);
-
+model_database::~model_database() {
+    std::cout << "[Debug] model_database::DESTRUCTOR - entered" << std::endl;
+    //std::lock_guard<std::mutex> lock(mutex_); // This lock causes a deadlock and is removed.
     is_instanced_ = false;
     single_ = nullptr;
-
     for (const auto& model_it : datasets_) {
         dataset* model = model_it.second;
         if (model != nullptr) {
@@ -43,41 +41,29 @@ model_database::
             model = nullptr;
         }
     }
-
     datasets_.clear();
+    std::cout << "[Debug] model_database::DESTRUCTOR - finished" << std::endl;
 }
 
-model_database* model_database::
-get_instance() {
+model_database* model_database::get_instance() {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!is_instanced_) {
-        std::lock_guard<std::mutex> lock(mutex_);
-
-        if (!is_instanced_) { //double-checked locking
-            single_ = new model_database();
-            is_instanced_ = true;
-        }
-
-        return single_;
+        single_ = new model_database();
+        is_instanced_ = true;
     }
-    else {
-        return single_;
-    }
+    return single_;
 }
 
-void model_database::
-destroy_instance()
+void model_database::destroy_instance()
 {
-    model_database* instance = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (!is_instanced_)
-            return;
+    std::lock_guard<std::mutex> lock(mutex_);
 
-        instance = single_;
-        single_ = nullptr;
-        is_instanced_ = false;
-    }
+    if (!is_instanced_ || single_ == nullptr)
+        return;
 
+    model_database* instance = single_;
+    single_       = nullptr;
+    is_instanced_ = false;
     delete instance;
 }
 

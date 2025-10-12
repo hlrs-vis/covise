@@ -44,6 +44,10 @@ class cut_update_pool
     // void                    dispatch_cut_update(char* current_gpu_storage_A, char* current_gpu_storage_B);
     const bool is_running();
 
+    void wait_for_idle();
+
+    void shutdown();
+
   protected:
     void initialize(bool provenance = false);
     const bool prepare();
@@ -59,7 +63,6 @@ class cut_update_pool
     const float calculate_node_error(const view_t view_id, const model_t model_id, const node_t node_id);
 
     /*virtual*/ void run();
-    void shutdown();
 
     void cut_master();
     void cut_analysis(view_t view_id, model_t model_id);

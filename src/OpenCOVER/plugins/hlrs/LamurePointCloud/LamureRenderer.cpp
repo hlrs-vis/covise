@@ -32,6 +32,9 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <thread>
+#include <stdexcept>
+
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <cover/coVRNavigationManager.h>
@@ -941,6 +944,8 @@ void LamureRenderer::init()
 {
     if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::init()" << std::endl; }
 
+    std::lock_guard<std::mutex> sceneLock(m_sceneMutex);
+
     initCamera();
 
     if (auto* vs = opencover::VRViewer::instance()->getViewerStats()) {
@@ -993,10 +998,10 @@ void LamureRenderer::init()
     m_frustum_geode->setStateSet(m_frustum_stateset.get());
     m_text_geode->setStateSet(m_text_stateset.get());
 
-    osg::ref_ptr<osg::MatrixTransform> frustumTransform = new osg::MatrixTransform;
-    auto updateFrustum = [frustumTransform](const osg::Vec3 &pos) { frustumTransform->setMatrix(osg::Matrix::translate(pos)); };
-    updateFrustum(osg::Vec3(m_scm_camera->get_cam_pos()[0], m_scm_camera->get_cam_pos()[1], m_scm_camera->get_cam_pos()[2]));
-    m_plugin->getGroup()->addChild(frustumTransform);
+    //osg::ref_ptr<osg::MatrixTransform> frustumTransform = new osg::MatrixTransform;
+    //auto updateFrustum = [frustumTransform](const osg::Vec3 &pos) { frustumTransform->setMatrix(osg::Matrix::translate(pos)); };
+    //updateFrustum(osg::Vec3(m_scm_camera->get_cam_pos()[0], m_scm_camera->get_cam_pos()[1], m_scm_camera->get_cam_pos()[2]));
+    //m_plugin->getGroup()->addChild(frustumTransform);
     m_plugin->getGroup()->addChild(m_frustum_geode);
     m_plugin->getGroup()->addChild(m_boundingbox_geode);
     m_plugin->getGroup()->addChild(m_pointcloud_geode);
@@ -1014,12 +1019,25 @@ void LamureRenderer::init()
     m_frustum_geode->addDrawable(m_frustum_geometry);
 }
 
-
 void LamureRenderer::shutdown()
 {
     if (m_plugin->getUI()->getNotifyButton()->state()) {
-        std::cout << "[Notify] LamureRenderer::shutdown()" << std::endl;
+        std::cout << "[Notify] LamureRenderer::prepareForModelReload()" << std::endl;
     }
+
+    // Explicitly shut down all worker threads before cleaning up resources.
+    std::cout << "[Debug] shutdown: Shutting down controller pools..." << std::endl;
+    if (auto* ctrl = lamure::ren::controller::get_instance()) {
+        ctrl->shutdown_pools();
+    }
+    std::cout << "[Debug] shutdown: ...controller pools down." << std::endl;
+
+    std::cout << "[Debug] shutdown: Shutting down ooc_cache pool..." << std::endl;
+    if (auto* cache = lamure::ren::ooc_cache::get_instance()) {
+        cache->shutdown_pool();
+    }
+    std::cout << "[Debug] shutdown: ...ooc_cache pool down." << std::endl;
+
 
     if (m_pointcloud_geometry.valid()) m_pointcloud_geometry->setDrawCallback(nullptr);
     if (m_boundingbox_geometry.valid()) m_boundingbox_geometry->setDrawCallback(nullptr);
@@ -1105,44 +1123,29 @@ void LamureRenderer::shutdown()
     vis_debug_vs_source.clear();
     vis_debug_fs_source.clear();
 
-    if (m_plugin->getUI()->getNotifyButton()->state()) {
-        std::cout << "[Notify] after clear sources" << std::endl;
-    }
-
-
-    if (auto* ctrl = lamure::ren::controller::get_instance()) {
-        auto* policy = lamure::ren::policy::get_instance();
-        if (policy && policy->size_of_provenance() > 0)
-            ctrl->reset_system(m_plugin->getDataProvenance());
-        else
-            ctrl->reset_system();
-    }
-    glFinish();
-
-    lamure::ren::controller::destroy_instance();
-    if (m_plugin->getUI()->getNotifyButton()->state())
-        std::cout << "[Notify] after delete controller." << std::endl;
-
-    lamure::ren::cut_database::destroy_instance();
-    if (m_plugin->getUI()->getNotifyButton()->state())
-        std::cout << "[Notify] after delete cut_database." << std::endl;
-
-    lamure::ren::ooc_cache::destroy_instance();
-    if (m_plugin->getUI()->getNotifyButton()->state())
-        std::cout << "[Notify] after delete ooc_cache." << std::endl;
-
-    lamure::ren::model_database::destroy_instance();
-    if (m_plugin->getUI()->getNotifyButton()->state())
-        std::cout << "[Notify] after delete model_database." << std::endl;
-
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after clear sources" << std::endl; }
 
     m_device.reset();
     m_context.reset();
 
-    if (m_plugin->getUI()->getNotifyButton()->state()) {
-        std::cout << "[Notify] after reset device" << std::endl;
-    }
-}
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after reset device" << std::endl; }
+
+    std::cout << "[Debug] shutdown: Destroying controller..." << std::endl;
+    lamure::ren::controller::destroy_instance();
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after delete controller." << std::endl; }
+
+    std::cout << "[Debug] shutdown: Destroying ooc_cache..." << std::endl;
+    lamure::ren::ooc_cache::destroy_instance();
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after delete ooc_cache." << std::endl; }
+
+    std::cout << "[Debug] shutdown: Destroying cut_database..." << std::endl;
+    lamure::ren::cut_database::destroy_instance();
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after delete cut_database." << std::endl; }
+
+    std::cout << "[Debug] shutdown: Destroying model_database..." << std::endl;
+    lamure::ren::model_database::destroy_instance();
+    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] after delete model_database." << std::endl; }
+} 
 
 bool LamureRenderer::beginFrame()
 {
