@@ -112,7 +112,7 @@ namespace ren {
 #ifdef LAMURE_CUT_UPDATE_ENABLE_CUT_UPDATE_EXPERIMENTAL_MODE
 #undef LAMURE_CUT_UPDATE_ENABLE_SPLIT_AGAIN_MODE
 #endif
-
+  
 
 
 } } // namespace lamure

@@ -103,6 +103,8 @@ namespace {
     };
 } // namespace
 
+static std::mutex g_settings_mutex;
+
 
 #if 0
 #ifdef __cplusplus
@@ -150,18 +152,23 @@ Lamure::~Lamure()
 
 
 void Lamure::setModelVisible(uint16_t idx, bool v) {
+    std::lock_guard<std::mutex> lock(g_settings_mutex);
     if (idx >= m_settings.model_visible.size()) return;
     m_settings.model_visible[idx] = v;
 }
 
 bool Lamure::isModelVisible(uint16_t idx) const {
+    std::lock_guard<std::mutex> lock(g_settings_mutex);
     return idx < m_settings.model_visible.size() ? m_settings.model_visible[idx] : false;
 }
 
 
 int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 {
-    std::cout << "[Notify] unloadBvh(): filename = " << (filename ? filename : "null") << std::endl;
+    if (plugin->getUI()->getNotifyButton()->state()) { 
+        std::cout << "[Notify] unloadBvh(): filename = " << (filename ? filename : "null") << std::endl; 
+    }
+    
     if (!filename || !Lamure::plugin) return 0;
 
     std::string path(filename);
@@ -170,30 +177,40 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 #endif
     if (path.empty()) return 0;
 
-    auto& plugin   = *Lamure::plugin;
-    auto& settings = plugin.getSettings();
+    auto& plugin_ref = *Lamure::plugin;
 
-    // 1) Index per Map (Fallback: lineare Suche)
-    uint16_t idx = std::numeric_limits<uint16_t>::max();
-    if (auto it = plugin.m_model_idx.find(path); it != plugin.m_model_idx.end()) {
-        idx = it->second;
-    } else {
-        auto vit = std::find(settings.models.begin(), settings.models.end(), path);
-        if (vit == settings.models.end()) {
-            std::printf("[Lamure] unloadBvh: '%s' not found (no-op)\n", path.c_str());
-            return 0;
-        }
-        idx = static_cast<uint16_t>(std::distance(settings.models.begin(), vit));
-    }
+    std::lock_guard<std::mutex> lock(g_settings_mutex);
 
-    const bool in_settings = idx < settings.model_visible.size();
-    if (!in_settings) {
-        std::printf("[Lamure] unloadBvh: index %u out of range (no-op)\n", unsigned(idx));
+    // Find model index
+    auto it_idx = plugin_ref.m_model_idx.find(path);
+    if (it_idx == plugin_ref.m_model_idx.end()) {
+        std::printf("[Lamure] unloadBvh: '%s' not found in index map (no-op)\n", path.c_str());
         return 0;
     }
+    uint16_t idx = it_idx->second;
 
-    settings.model_visible[idx]   = false;
-    std::printf("[Lamure] unloadBvh '%s' -> index=%u, visible=false\n", path.c_str(), unsigned(idx));
+    // Set internal visibility to false
+    if (idx < plugin_ref.m_settings.model_visible.size()) {
+        plugin_ref.m_settings.model_visible[idx] = false;
+    }
+    std::printf("[Lamure] unloadBvh '%s' -> unloading index=%u\n", path.c_str(), unsigned(idx));
+
+    // Find and remove the scene graph node
+    auto it_node = plugin_ref.m_model_nodes.find(path);
+    if (it_node != plugin_ref.m_model_nodes.end()) {
+        osg::Group* node = it_node->second.get();
+        if (node && node->getNumParents() > 0) {
+            node->getParent(0)->removeChild(node);
+        }
+        plugin_ref.m_model_nodes.erase(it_node);
+    }
+
+    // Remove from internal tracking so it can be fully reloaded
+    plugin_ref.m_model_idx.erase(it_idx);
+    
+    // Note: The model is not removed from the main m_settings.models vector to avoid re-indexing issues.
+    // It will be fully purged on the next dynamic load of a *new* model, which triggers a full system reset.
+
     return 1;
 }
 
@@ -209,77 +226,42 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
     std::replace(file.begin(), file.end(), '\\', '/');
 #endif
 
-    // Bereits bekannt? -> Sichtbar schalten und fertig.
+    // Check if model is already loaded
     if (auto it = plugin->m_model_idx.find(file); it != plugin->m_model_idx.end()) {
+        // This case should ideally not be hit if unloadBvh cleans up properly,
+        // but as a fallback, we make it visible again.
         plugin->setModelVisible(it->second, true);
-        std::cout << "already known file: " << file << std::endl;
-        return 1;
-    }
-    else if (plugin->initialized) {
-
-        std::cout << "new file:" << file << std::endl;
-
-        // Stop rendering and wait until the draw callback finished its current frame
-        RenderPauseGuard pause(plugin->m_renderer.get(), plugin->m_settings.pause_frames);
-
-        // shut down renderer and lamure objects
-        std::cout << "before renderer shutdown" << std::endl;
-        plugin->m_renderer->shutdown();
-        std::cout << "after renderer shutdown" << std::endl;
-
-        // settings and visibility
-        auto& models = plugin->m_settings.models;
-        models.push_back(file);
-        const uint16_t newIdx = static_cast<uint16_t>(models.size() - 1);
-
-        if (plugin->m_settings.model_visible.size() < models.size()) {
-            plugin->m_settings.model_visible.resize(models.size(), true);
-        }
-        else {
-            plugin->m_settings.model_visible[newIdx] = true;
-        }
-
-        plugin->m_model_idx.clear();
-        plugin->m_model_info.model_transformations.clear();
-        plugin->m_model_info.root_bb_min.clear();
-        plugin->m_model_info.root_bb_max.clear();
-        plugin->m_model_info.root_center.clear();
-
-        lamure::ren::policy* policy = lamure::ren::policy::get_instance();
-        policy->set_max_upload_budget_in_mb(plugin->m_settings.upload);
-        policy->set_render_budget_in_mb(plugin->m_settings.vram);
-        policy->set_out_of_core_budget_in_mb(plugin->m_settings.ram);
-
-        lamure::ren::model_database* database   = lamure::ren::model_database::get_instance();
-        lamure::ren::cut_database*   cuts       = lamure::ren::cut_database::get_instance();
-        lamure::ren::controller*     controller = lamure::ren::controller::get_instance();
-        (void)cuts;
-        (void)controller;
-
-        const uint16_t N = static_cast<uint16_t>(models.size());
-        for (uint16_t mid = 0; mid < N; ++mid) {
-            const std::string& model_path = models[mid];
-            plugin->m_model_idx.emplace(model_path, mid);
-
-            lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
-            const auto trafo_initial = plugin->m_settings.transforms.find(mid);
-            const auto trafo_user = trafo_initial != plugin->m_settings.transforms.end() ? trafo_initial->second : scm::math::mat4d::identity();
-            const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
-            plugin->m_model_info.model_transformations.push_back(trafo_user * trafo_bvh);
-        }
-
-        plugin->m_settings.num_models = N;
-
-        plugin->m_renderer->init();
-        plugin->applyShaderToRendererFromSettings();
-
+        std::cout << "[Lamure] Model already known, setting to visible: " << file << std::endl;
         return 1;
     }
 
+    // --- This is a new model ---
+
+    // Create a node for the file manager to track.
+    osg::ref_ptr<osg::Group> modelNode = new osg::Group();
+    modelNode->setName(file);
+    if (parent) {
+        parent->addChild(modelNode.get());
+    }
+    
+    {
+        std::lock_guard<std::mutex> lock(g_settings_mutex);
+        plugin->m_model_nodes[file] = modelNode;
+    }
+
+    // If not loaded, and plugin is initialized, trigger async reload
+    if (plugin->initialized) {
+        plugin->m_file_to_load = file;
+        plugin->m_reload_imminent = true;
+        plugin->m_frames_to_wait = 3; // Wait 3 frames
+        plugin->m_renderer->detachCallbacks();
+        return 1;
+    }
+
+    // This path is for initial loading at startup
     const uint16_t mid = static_cast<uint16_t>(plugin->m_model_idx.size());
     plugin->m_model_idx.emplace(file, mid);
-    if (plugin->m_settings.model_visible.size() <= mid) plugin->m_settings.model_visible.resize(mid + 1, false);
-    plugin->m_settings.model_visible[mid] = true;
+    plugin->setModelVisible(mid, true);
 
     lamure::ren::model_database* database   = lamure::ren::model_database::get_instance();
     lamure::ren::cut_database*   cuts       = lamure::ren::cut_database::get_instance();
@@ -769,6 +751,73 @@ void Lamure::dumpSettings(const char* tag){
 }
 
 void Lamure::preFrame() {
+
+    if (m_reload_imminent) {
+        if (m_frames_to_wait > 0) {
+            m_frames_to_wait--;
+        }
+        else {
+            m_reload_imminent = false;
+            if (!m_settings.models.empty()) {
+                m_renderer->shutdown();
+                lamure::ren::cut_database::get_instance()->reset();
+            }
+
+            // settings and visibility
+            auto& models = m_settings.models;
+            models.push_back(m_file_to_load);
+            const uint16_t newIdx = static_cast<uint16_t>(models.size() - 1);
+
+            {
+                std::lock_guard<std::mutex> lock(g_settings_mutex);
+                if (m_settings.model_visible.size() < models.size()) {
+                    m_settings.model_visible.resize(models.size(), true);
+                }
+                else {
+                    m_settings.model_visible[newIdx] = true;
+                }
+            }
+
+                            m_model_idx.clear();            m_model_info.model_transformations.clear();
+            m_model_info.root_bb_min.clear();
+            m_model_info.root_bb_max.clear();
+            m_model_info.root_center.clear();
+
+            lamure::ren::policy* policy = lamure::ren::policy::get_instance();
+            policy->set_max_upload_budget_in_mb(m_settings.upload);
+            policy->set_render_budget_in_mb(m_settings.vram);
+            policy->set_out_of_core_budget_in_mb(m_settings.ram);
+
+            lamure::ren::model_database* database   = lamure::ren::model_database::get_instance();
+            lamure::ren::cut_database*   cuts       = lamure::ren::cut_database::get_instance();
+            lamure::ren::controller* controller = lamure::ren::controller::get_instance();
+
+            const uint16_t N = static_cast<uint16_t>(models.size());
+            for (uint16_t mid = 0; mid < N; ++mid) {
+                const std::string& model_path = models[mid];
+                m_model_idx.emplace(model_path, mid);
+
+                lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
+
+                const auto trafo_initial = m_settings.transforms.find(mid);
+                const auto trafo_user = trafo_initial != m_settings.transforms.end() ? trafo_initial->second : scm::math::mat4d::identity();
+                const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
+                const auto final_trafo = trafo_user * trafo_bvh;
+
+                m_model_info.model_transformations.push_back(final_trafo);
+            }
+
+            database->apply(); // This is the crucial step to update internal model sizes.
+
+            m_settings.num_models = N;
+
+            m_renderer->init();
+            applyShaderToRendererFromSettings();
+
+            lamure::ren::controller::get_instance()->signal_system_reset();
+        }
+    }
+
     if (m_measurement && !m_measurement->isActive()) {
         stopMeasurement();
     }

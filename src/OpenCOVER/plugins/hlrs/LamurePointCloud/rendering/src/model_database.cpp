@@ -26,11 +26,9 @@ model_database()
   num_datasets_pending_(0),
   primitives_per_node_(0),
   primitives_per_node_pending_(0) {
-    std::cout << "[Debug] model_database::CONSTRUCTOR" << std::endl;
 }
 
 model_database::~model_database() {
-    std::cout << "[Debug] model_database::DESTRUCTOR - entered" << std::endl;
     //std::lock_guard<std::mutex> lock(mutex_); // This lock causes a deadlock and is removed.
     is_instanced_ = false;
     single_ = nullptr;
@@ -42,7 +40,6 @@ model_database::~model_database() {
         }
     }
     datasets_.clear();
-    std::cout << "[Debug] model_database::DESTRUCTOR - finished" << std::endl;
 }
 
 model_database* model_database::get_instance() {
@@ -73,6 +70,21 @@ apply() {
 
     num_datasets_ = num_datasets_pending_;
     primitives_per_node_ = primitives_per_node_pending_;
+}
+
+void model_database::
+reset() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto& model_it : datasets_) {
+        delete model_it.second;
+    }
+    datasets_.clear();
+    num_datasets_ = 0;
+    num_datasets_pending_ = 0;
+    primitives_per_node_ = 0;
+    primitives_per_node_pending_ = 0;
+    contains_only_compressed_data_ = true;
+    contains_trimesh_ = false;
 }
 
 const model_t model_database::
@@ -125,7 +137,7 @@ add_model(const std::string& filepath, const std::string& model_key) {
             num_datasets_ = num_datasets_pending_;
             primitives_per_node_ = primitives_per_node_pending_;
 
-            controller::get_instance()->signal_system_reset();
+            //controller::get_instance()->signal_system_reset();
         }
 
         switch (bvh->get_primitive()) {

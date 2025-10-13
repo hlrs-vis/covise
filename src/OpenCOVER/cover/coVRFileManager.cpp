@@ -1649,6 +1649,7 @@ std::string coVRFileManager::getFilterList()
         extensions += (*it)->extension;
         extensions += ";";
     }
+    extensions += "*.bvh;";
     extensions += "*.wrl;";
     extensions += "*.osg *.ive;";
     extensions += "*.osgb *.osgt *.osgx;";
@@ -1662,7 +1663,6 @@ std::string coVRFileManager::getFilterList()
     extensions += "*.dae;";
     extensions += "*.md2;";
     extensions += "*.geo;";
-    extensions += "*.bvh;";
     extensions += "*";
 
     return extensions;

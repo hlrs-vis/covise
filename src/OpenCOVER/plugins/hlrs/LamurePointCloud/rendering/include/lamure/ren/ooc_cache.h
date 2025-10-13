@@ -64,8 +64,6 @@ class ooc_cache : public cache
   private:
     static std::mutex mutex_;
 
-    char *cache_data_;
-    char *cache_data_provenance_;
     uint32_t maintenance_counter_;
     ooc_pool *pool_;
 };

@@ -45,6 +45,9 @@ public:
     void                release_slot(const view_t view_id, const model_t model_id, const node_t node_id);
     const bool          release_slot_invalidate(const view_t view_id, const model_t model_id, const node_t node_id);
 
+public:
+    void                reset();
+
 private:
 
     model_t             num_models_;

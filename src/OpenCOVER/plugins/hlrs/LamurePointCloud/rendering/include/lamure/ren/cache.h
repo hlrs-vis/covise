@@ -55,9 +55,7 @@ protected:
     cache_index*        index_;
     std::mutex          mutex_;
 
-private:
-    /* data */
-
+protected:
     slot_t              num_slots_;
     node_t              num_nodes_;
     size_t              slot_size_;

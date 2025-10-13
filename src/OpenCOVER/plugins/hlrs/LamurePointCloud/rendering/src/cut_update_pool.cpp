@@ -1384,7 +1384,12 @@ const bool cut_update_pool::is_no_node_in_frustum(const view_t view_id, const mo
     return true;
 }
 
-const float cut_update_pool::calculate_node_error(const view_t view_id, const model_t model_id, const node_t  node_id)
+
+
+
+
+
+const float cut_update_pool::calculate_node_error(const view_t view_id, const model_t model_id, const node_t  node_id) 
 {
     model_database *database = model_database::get_instance();
     auto bvh = database->get_model(model_id)->get_bvh();
@@ -1490,22 +1495,12 @@ const float cut_update_pool::calculate_node_error(const view_t view_id, const mo
     return error;
 }
 
-void cut_update_pool::
-
-wait_for_idle()
-
-{
-
-    std::cout << "[Debug] cut_update_pool::wait_for_idle() - waiting..." << std::endl;
-
+void cut_update_pool::wait_for_idle() {
     while (is_running()) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     }
-
-    std::cout << "[Debug] cut_update_pool::wait_for_idle() - ...done" << std::endl;
-
 }
 } // namespace ren
 } // namespace lamure

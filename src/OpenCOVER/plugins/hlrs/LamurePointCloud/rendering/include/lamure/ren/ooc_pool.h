@@ -56,6 +56,8 @@ class ooc_pool
 
     void shutdown();
 
+    void reset();
+
 
     void wait_for_idle();
 

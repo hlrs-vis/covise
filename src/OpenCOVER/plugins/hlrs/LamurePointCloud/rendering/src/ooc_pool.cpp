@@ -22,11 +22,9 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
 {
     assert(num_threads_ > 0);
 
-    // Semaphore konfigurieren
     semaphore_.set_min_signal_count(1);
     semaphore_.set_max_signal_count(std::numeric_limits<size_t>::max());
 
-    // Einmaliger Snapshot aller ben�tigten Metadaten & Pfade
     model_database* database = model_database::get_instance();
     const model_t N = database->num_models();
 
@@ -35,7 +33,7 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
     node_stride_by_model_.resize(N);
     prims_per_node_by_model_.resize(N);
     lod_files_.resize(N);
-    prov_files_.clear(); // keine Provenance in diesem CTOR
+    prov_files_.clear();
 
     for (model_t m = 0; m < N; ++m) {
         node_stride_by_model_[m]    = database->get_node_size(m);
@@ -44,18 +42,16 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
         const std::string bvh_filename = database->get_model(m)->get_bvh()->get_filename();
         const std::string base_name    = bvh_filename.substr(0, bvh_filename.find_last_of(".") + 1);
         const std::string file_ext     = bvh_filename.substr(base_name.size());
-        const std::string bvh_suffix   = file_ext.substr(3); // nach ".bvh"
+        const std::string bvh_suffix   = file_ext.substr(3);
         lod_files_[m] = base_name + "lod" + bvh_suffix;
     }
 
-    // Worker starten
     threads_.reserve(num_threads_);
     for (uint32_t i = 0; i < num_threads_; ++i) {
         threads_.push_back(std::thread(&ooc_pool::run, this));
     }
 }
 
-// --- Konstruktor mit Provenance --------------------------------------------
 ooc_pool::ooc_pool(const uint32_t num_threads,
     const size_t size_of_slot_in_bytes,
     const size_t size_of_slot_provenance,
@@ -75,7 +71,6 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
     semaphore_.set_min_signal_count(1);
     semaphore_.set_max_signal_count(std::numeric_limits<size_t>::max());
 
-    // Einmaliger Snapshot aller ben�tigten Metadaten & Pfade
     model_database* database = model_database::get_instance();
     const model_t N = database->num_models();
 
@@ -84,7 +79,7 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
     node_stride_by_model_.resize(N);
     prims_per_node_by_model_.resize(N);
     lod_files_.resize(N);
-    prov_files_.resize(N); // mit Provenance: gleiche Gr��e wie N
+    prov_files_.resize(N);
 
     for (model_t m = 0; m < N; ++m) {
         node_stride_by_model_[m]    = database->get_node_size(m);
@@ -98,7 +93,6 @@ ooc_pool::ooc_pool(const uint32_t num_threads,
         prov_files_[m] = bvh_filename.substr(0, bvh_filename.size() - 3) + "prov";
     }
 
-    // Worker starten
     threads_.reserve(num_threads_);
     for (uint32_t i = 0; i < num_threads_; ++i) {
         threads_.push_back(std::thread(&ooc_pool::run, this));
@@ -114,21 +108,22 @@ void ooc_pool::shutdown()
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (shutdown_) return;
+        if (shutdown_) {
+            return;
+        }
         shutdown_ = true;
         semaphore_.shutdown();
     }
 
-    // Wake up all threads explicitly to ensure they exit the wait state
     for (size_t i = 0; i < threads_.size(); ++i) {
         semaphore_.signal(1);
     }
 
-    for(auto &thread : threads_)
+    for(size_t i = 0; i < threads_.size(); ++i)
     {
-        if(thread.joinable())
+        if(threads_[i].joinable())
         {
-            thread.join();
+            threads_[i].join();
         }
     }
     threads_.clear();
@@ -166,7 +161,6 @@ void ooc_pool::end_measure()
 
 void ooc_pool::run()
 {
-    // --- Fallback: Metadaten/Pfade ggf. einmalig bef�llen (Kompatibilit�t) ---
     if (lod_files_.empty() || node_stride_by_model_.empty() ||
         (_data_provenance.get_size_in_bytes() > 0 &&
             (prov_files_.empty() || prims_per_node_by_model_.empty())))
@@ -203,15 +197,12 @@ void ooc_pool::run()
         }
     }
 
-    // --- Lokale Buffers ---
     std::unique_ptr<char[]> local_cache(new char[size_of_slot_]);
-
     std::unique_ptr<char[]> local_cache_provenance;
     if (_data_provenance.get_size_in_bytes() > 0) {
         local_cache_provenance.reset(new char[size_of_slot_provenance_]);
     }
 
-    // --- Worker-Loop (ohne DB-Zugriffe) ---
     while (true)
     {
         semaphore_.wait();
@@ -224,7 +215,6 @@ void ooc_pool::run()
 
         active_threads_++;
 
-        // Bounds pr�fen (robust gegen inkonsistenten Zustand)
         if (job.model_id_ >= node_stride_by_model_.size() ||
             job.model_id_ >= lod_files_.size())
         {
@@ -235,7 +225,6 @@ void ooc_pool::run()
         const size_t stride_in_bytes = node_stride_by_model_[job.model_id_];
         const size_t offset_in_bytes = job.node_id_ * stride_in_bytes;
 
-        // LOD-Daten laden
         lod_stream access;
         access.open(lod_files_[job.model_id_]);
         access.read(local_cache.get(), offset_in_bytes, stride_in_bytes);
@@ -254,7 +243,6 @@ void ooc_pool::run()
             history_.push_back(job);
         }
 
-        // Provenance optional
         if (_data_provenance.get_size_in_bytes() > 0 &&
             job.model_id_ < prims_per_node_by_model_.size() &&
             job.model_id_ < prov_files_.size() &&
@@ -330,11 +318,9 @@ void ooc_pool::acknowledge_update(const model_t model_id, const node_t node_id, 
 
 void ooc_pool::wait_for_idle()
 {
-    std::cout << "[Debug] ooc_pool::wait_for_idle() - waiting..." << std::endl;
     while (priority_queue_.num_jobs() > 0 || active_threads_ > 0) {
          std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << "[Debug] ooc_pool::wait_for_idle() - ...done" << std::endl;
 }
 } // namespace ren
 

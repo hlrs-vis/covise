@@ -593,6 +593,7 @@ public:
     ~LamureRenderer();
 
     void shutdown();
+    void detachCallbacks();
 
     void init();
 

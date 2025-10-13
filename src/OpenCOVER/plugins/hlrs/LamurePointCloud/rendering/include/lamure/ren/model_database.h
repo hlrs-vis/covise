@@ -36,6 +36,7 @@ public:
     const model_t       add_model(const std::string& filepath, const std::string& model_key);
     dataset*            get_model(const model_t model_id);
     void                apply();
+    void                reset();
 
     const model_t       num_models() const { return num_datasets_; };
 

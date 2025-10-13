@@ -292,11 +292,16 @@ public:
     };
     std::deque<PendingModel> m_pending;
     std::unordered_map<std::string,uint16_t> m_model_idx;
+    std::map<std::string, osg::ref_ptr<osg::Group>> m_model_nodes;
     osg::ref_ptr<osg::Group> m_pluginRootGroup;
 
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
 private:
+    std::string m_file_to_load;
+    bool m_reload_imminent = false;
+    int m_frames_to_wait = 0;
+
     static Lamure* plugin;
 
     bool m_initialized = false;
