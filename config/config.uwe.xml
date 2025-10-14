@@ -33,7 +33,7 @@
     <UseVertexBufferObjects value="false" />
    <Input>
         <MouseNav value="true" />
-        <Device>
+        <!--Device>
 
 
            <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
@@ -114,7 +114,7 @@
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
-        </Persons>
+        </Persons-->
      </Input>
   <Plugin>
    <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
