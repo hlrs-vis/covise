@@ -197,7 +197,7 @@ void ColorBar::updateTitle()
     {
         title_ += ": " + map_.species();
     }
-    if(!map_.unit().empty() && map_.unit() != "NoUnit")
+    if(!map_.unit().empty())
     {
         title_ += " (" + map_.unit() + ")";
     }
