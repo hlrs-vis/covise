@@ -200,7 +200,7 @@ ShowLanguageDialog=yes
 [Types]
 Name: standard; Description: COVISE Standard Installation
 Name: custom; Description: Custom Installation; Flags: iscustom
-Name: retistry; Description: Registry only, don�t install any files
+Name: retistry; Description: Registry only, don t install any files
 [Components]
 
 Name: core; Description: COVISE core system; Types: standard custom
@@ -352,6 +352,7 @@ Source: {#CUDAPATH}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist;
 Source: {#FFMPEG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#BOOST}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#INTEL}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\all\libfbxsdk.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 
 Source: {#SYS}; DestDir: {#DLIB}; Flags: recursesubdirs; Components: core
 ;Source: {#XERCES}\bin\*.exe; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
@@ -590,7 +591,7 @@ Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Par
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
-; don�t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
+; don t run because environment is not yet up to date...Filename: {app}\{#ARCHSUFFIX}\bin\coviseDaemon.exe; Parameters: ; Description: Start COVISE Daemon; Flags: nowait postinstall shellexec
           
 [UninstallDelete]   
 Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2023\OpenFOAMInterface.addin"

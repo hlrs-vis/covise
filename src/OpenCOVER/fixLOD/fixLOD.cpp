@@ -39,10 +39,14 @@ int fixLOD(float factor, const std::string& filename)
         {
             nrl.push_back(ranges[i]);
         }
-        nrl[0].first = factor*plod->getRadius();
+        double newRad = factor * plod->getRadius();
+        nrl[0].first = newRad;
         nrl[0].second = 1.0E10;
-        nrl[1].first = 0.0;
-        nrl[1].second = factor*plod->getRadius();
+        for (int i = 1; i< (int)ranges.size(); i++)
+        {
+            nrl[i].first = 0.0;
+            nrl[i].second = newRad;
+        }
         plod->setRangeList(nrl);
         osgDB::writeNodeFile(*root, fn.c_str(), options);
     }
