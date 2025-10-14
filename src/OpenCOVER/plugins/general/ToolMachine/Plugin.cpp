@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <cover/ui/VectorEditField.h>
 
-#include <OpcUaClient/opcua.h>
 #include <osgDB/ReadFile>
 
 #include <vrml97/vrml/VrmlNamespace.h>

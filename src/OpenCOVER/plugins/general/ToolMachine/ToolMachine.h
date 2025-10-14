@@ -4,7 +4,8 @@
 #include "ToolChanger/ToolChanger.h"
 #include "VrmlMachine.h"
 
-#include <OpcUaClient/opcua.h>
+#include <DataClient/DataClient.h>
+#include <DataClient/ObserverHandle.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 
@@ -18,8 +19,8 @@ public:
 private:
     bool m_rdy = false;
     MachineNodeBase *m_machineNode = nullptr;
-    opencover::opcua::Client *m_client = nullptr;
-    std::vector<opencover::opcua::ObserverHandle> m_valueIds;
+    opencover::dataclient::Client *m_client = nullptr;
+    std::vector<opencover::dataclient::ObserverHandle> m_valueIds;
     size_t m_index = 0;
     std::unique_ptr<SelfDeletingTool> m_tool;
     opencover::ui::Menu *m_menu = nullptr;

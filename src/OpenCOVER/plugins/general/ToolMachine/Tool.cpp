@@ -2,6 +2,8 @@
 #include <cassert>
 #include <cover/ui/Action.h>
 #include <cover/coVRPluginSupport.h>
+#include <OpcUaClient/opcua.h>
+
 using namespace opencover;
 
 
@@ -47,7 +49,6 @@ Tool::Tool(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadN
     m_customAttribute->setUpdater([this](){
         observeCustomAttributes();
     });
-    m_client = opcua::getClient(group->name());
     assert(m_client);
 }
 
@@ -63,7 +64,7 @@ osg::Vec3 Tool::toolHeadInTableCoords()
 }
 
 
-void Tool::update(const opencover::opcua::MultiDimensionalArray<double> &data)
+void Tool::update(const opencover::dataclient::MultiDimensionalArray<double> &data)
 {
     if(!m_tableNode || !m_toolHeadNode)
         return;
@@ -84,8 +85,8 @@ void Tool::update()
 void Tool::updateAttributes(){
     switch (m_client->statusChanged(this))
     {
-    case opcua::Client::Connected:
-    case opcua::Client::Disconnected:
+    case dataclient::Client::Connected:
+    case dataclient::Client::Disconnected:
     {
         auto attributes = getAttributes();
         attributes.push_back("custom");

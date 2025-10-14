@@ -8,10 +8,8 @@
 #include <osg/StateSet>
 #include <osgDB/StreamOperator>
 #include <PluginUtil/colors/ColorMaterials.h>
-
-
 #include <PluginUtil/coShaderUtil.h>
-#include <OpcUaClient/opcua.h>
+
 using namespace opencover;
 
 
@@ -69,7 +67,7 @@ void Currents::initGeo()
 
 }
 
-void Currents::updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data)
+void Currents::updateGeo(bool paused, const opencover::dataclient::MultiDimensionalArray<double> &data)
 {
     std::cerr << "updateGeo not implemented for currents tool" << std::endl;
 }
