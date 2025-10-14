@@ -404,6 +404,7 @@ vruiMatrix *vvVruiRenderInterface::createMatrix()
         //VRUILOG("vvVruiRenderInterface::createMatrix: info: stack matrix " << matrixStack.size())
         vruiMatrix *matrix = matrixStack.top();
         matrixStack.pop();
+        matrix->makeIdentity();
         return matrix;
     }
 }

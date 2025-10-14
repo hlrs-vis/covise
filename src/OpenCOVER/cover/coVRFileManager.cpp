@@ -692,32 +692,37 @@ osg::Texture2D *coVRFileManager::loadTexture(const char *texture)
 const char *coVRFileManager::buildFileName(const char *texture)
 {
     const char *name = getName(texture);
-    std::string look;
+    if (name)
+    {
+        return name;
+    }
+
     // If caller already provided an extension (e.g. .png/.jpg/.rgb) and a bare filename (no path),
     // first try share/covise/icons/texture/<filename>
-    if (name == NULL)
+    std::string look = coCoviseConfig::getEntry("COVER.LookAndFeel");
+    char *fn = new char[strlen(texture) + strlen(look.c_str()) + 50];
+    if (!look.empty())
     {
-        look = coCoviseConfig::getEntry("COVER.LookAndFeel");
-        if (!look.empty())
+        sprintf(fn, "share/covise/icons/%s/%s", look.c_str(), texture);
+        name = getName(fn);
+        if (!name)
         {
-            char *fn = new char[strlen(texture) + strlen(look.c_str()) + 50];
-            sprintf(fn, "share/covise/icons/%s/%s.rgb", look.c_str(), texture);
+            strcat(fn, ".rgb");
             name = getName(fn);
-            delete[] fn;
         }
     }
+
     if (name == NULL)
     {
-        const char *dot = strrchr(texture, '.');
-        // simple heuristic: has an extension and not a path
-        char *fn = new char[strlen(texture) + 50];
-        if (dot && !strchr(texture,'/') && !strchr(texture,'\\'))
-            sprintf(fn, "share/covise/icons/%s", texture);
-        else
-            sprintf(fn, "share/covise/icons/%s.rgb", texture);
+        sprintf(fn, "share/covise/icons/%s", texture);
         name = getName(fn);
-        delete[] fn;
+        if (!name)
+        {
+            strcat(fn, ".rgb");
+            name = getName(fn);
+        }
     }
+    delete[] fn;
 
     return name;
 }
@@ -1649,7 +1654,6 @@ std::string coVRFileManager::getFilterList()
         extensions += (*it)->extension;
         extensions += ";";
     }
-    extensions += "*.bvh;";
     extensions += "*.wrl;";
     extensions += "*.osg *.ive;";
     extensions += "*.osgb *.osgt *.osgx;";
@@ -1663,6 +1667,7 @@ std::string coVRFileManager::getFilterList()
     extensions += "*.dae;";
     extensions += "*.md2;";
     extensions += "*.geo;";
+    extensions += "*.bvh;";
     extensions += "*";
 
     return extensions;

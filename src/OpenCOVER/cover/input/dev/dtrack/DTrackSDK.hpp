@@ -3,7 +3,7 @@
  * Functions to receive and process DTrack UDP packets (ASCII protocol), as
  * well as to exchange DTrack2/DTRACK3 TCP command strings.
  *
- * Copyright (c) 2007-2022 Advanced Realtime Tracking GmbH & Co. KG
+ * Copyright (c) 2007-2024 Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Version v2.8.0
+ * Version v2.9.0
  *
  * Purpose:
  *  - receives DTrack UDP packets (ASCII protocol) and converts them into easier to handle data
@@ -105,8 +105,9 @@ public:
 	 * - "224.0.1.0:5000" : Multicast IP and port number (UDP), use for multicast listening mode.
 	 * - "atc-301422002:5000" : Hostname of Controller and port number (UDP), use for communicating mode.
 	 * - "192.168.0.1:5000" : IP address of Controller and port number (UDP), use for communicating mode.
+	 * - "atc-301422002:5000:fw" : Hostname of C. and port number (UDP), use for listening mode with stateful firewall.
 	 *
-	 * @param[in] connection Connection string ("<data port>" or "<ip/host>:<data port>")
+	 * @param[in] connection Connection string ("<data port>" or "<ip/host>:<data port>" or "<ip/host>:<data port>:fw")
 	 */
 	DTrackSDK( const std::string& connection );
 
@@ -170,6 +171,19 @@ public:
 	 */
 	~DTrackSDK();
 
+
+	/**
+	 * \brief Returns if constructor was successful due to the wanted mode.
+	 *
+	 * Convenience routine, checks:
+	 * - isDataInterfaceValid() (for all modes)
+	 * - isCommandInterfaceValid() and isCommandInterfaceFullAccess() (for communicating mode)
+	 *
+	 * To get more information about a failure call above routines separately.
+	 *
+	 * @return Successful?
+	 */
+	bool isValid();
 
 	/**
 	 * \brief Returns if UDP socket is open to receive tracking data on local machine.
@@ -269,6 +283,18 @@ public:
 	 * @return            Success? (i.e. valid size)
 	 */
 	bool setDataBufferSize( int bufSize );
+
+	/**
+	 * \brief Enable UDP connection through a stateful firewall.
+	 *
+	 * In order to enable UDP traffic through a stateful firewall. Just necessary for listening modes, will be done
+	 * automatically for communicating mode. Default port is working just for DTrack3 v3.1.1 or newer.
+	 *
+	 * @param[in] senderHost Hostname or IP address of Controller
+	 * @param[in] senderPort Port number from which Controller is sending tracking data
+	 * @return               Success? (i.e. valid address)
+	 */
+	bool enableStatefulFirewallConnection( const std::string& senderHost, unsigned short senderPort = DTRACK2_PORT_UDPSENDER );
 
 
 	/**
@@ -536,6 +562,7 @@ public:
 private:
 
 	static const unsigned short DTRACK2_PORT_COMMAND = 50105;  //!< Controller port number (TCP) for 'dtrack2' commands
+	static const unsigned short DTRACK2_PORT_UDPSENDER = 50107;  //!< Controller port number (UDP) of tracking data sender
 	static const unsigned short DTRACK2_PORT_FEEDBACK = 50110;  //!< Controller port number (UDP) for feedback commands
 
 	static const int DEFAULT_TCP_TIMEOUT = 10000000;  //!< default TCP timeout (in us)
@@ -562,6 +589,15 @@ private:
 	           RemoteSystemType remote_type );
 
 	/**
+	 * \brief Send dummy UDP packet for stateful firewall.
+	 *
+	 * Sends a packet to the Controller, in order to enable UDP traffic through a stateful firewall.
+	 *
+	 * @return Sending packet succeeded? If not, a DTrack error is available
+	 */
+	bool sendStatefulFirewallPacket();
+
+	/**
 	 * \brief Send feedback command via UDP.
 	 *
 	 * @param[in] command Command string
@@ -583,6 +619,8 @@ private:
 	unsigned int d_remoteIp;            //!< IP address of Controller/DTrack1 PC (0 if unknown)
 	unsigned short d_remoteDT1Port;     //!< Port number (UDP) of DTrack1 PC to send commands to (0 if unknown)
 	int d_udptimeout_us;                //!< timeout for receiving UDP data
+	unsigned int d_udpSenderIp;         //!< IP address of Controller that is sending tracking data (0 if unknown)
+	unsigned short d_udpSenderPort;     //<! Port number from which Controller is sending tracking data
 
 	int d_udpbufsize;                   //!< size of UDP buffer
 	char* d_udpbuf;                     //!< UDP buffer

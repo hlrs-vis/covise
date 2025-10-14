@@ -2,7 +2,7 @@
  *
  * Functions to process DTrack UDP packets (ASCII protocol).
  *
- * Copyright (c) 2013-2023 Advanced Realtime Tracking GmbH & Co. KG
+ * Copyright (c) 2013-2024 Advanced Realtime Tracking GmbH & Co. KG
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,7 +66,10 @@ DTrackParser::DTrackParser()
 	// reset actual DTrack data:
 	act_framecounter = 0;
 	act_timestamp = -1;
-	
+	act_timestamp_sec = 0;
+	act_timestamp_usec = 0;
+	act_latency_usec = 0;
+
 	act_num_body = act_num_flystick = act_num_meatool = act_num_mearef = act_num_hand = act_num_human = 0;
 	act_num_inertial = 0;
 	act_num_marker = 0;
@@ -91,6 +94,9 @@ void DTrackParser::startFrame()
 {
 	act_framecounter = 0;
 	act_timestamp = -1;   // i.e. not available
+	act_timestamp_sec = 0;
+	act_timestamp_usec = 0;
+	act_latency_usec = 0;
 	act_is_status_available = false;
 
 	loc_num_bodycal = loc_num_handcal = -1;  // i.e. not available
@@ -147,19 +153,28 @@ bool DTrackParser::parseLine(char **line)
 		*line += 3;
 		return parseLine_fr(line);
 	}
-	
+
 	// line of timestamp:
-	if (!strncmp(*line, "ts ", 3)) {
+	if ( strncmp( *line, "ts ", 3 ) == 0 )
+	{
 		*line += 3;
-		return parseLine_ts(line);
+		return parseLine_ts( line );
 	}
-	
-	// line of additional inofmation about number of calibrated bodies:
-	if (!strncmp(*line, "6dcal ", 6)) {
+
+	// line of extended timestamp:
+	if ( strncmp( *line, "ts2 ", 4 ) == 0 )
+	{
+		*line += 4;
+		return parseLine_ts2( line );
+	}
+
+	// line of additional information about number of calibrated bodies:
+	if ( strncmp( *line, "6dcal ", 6 ) == 0 )
+	{
 		*line += 6;
-		return parseLine_6dcal(line);
+		return parseLine_6dcal( line );
 	}
-	
+
 	// line of standard body data:
 	if (!strncmp(*line, "6d ", 3)) {
 		*line += 3;
@@ -262,7 +277,7 @@ bool DTrackParser::parseLine_fr(char **line)
 /*
  * Parses a single line of timestamp data in one tracking data packet.
  */
-bool DTrackParser::parseLine_ts(char **line)
+bool DTrackParser::parseLine_ts( char **line )
 {
 	*line = string_get_d( *line, &act_timestamp );
 	if ( *line == NULL )
@@ -276,14 +291,41 @@ bool DTrackParser::parseLine_ts(char **line)
 
 
 /*
+ * Parses a single line of extended timestamp data in one tracking data packet.
+ */
+bool DTrackParser::parseLine_ts2( char **line )
+{
+	*line = string_get_ui( *line, &act_timestamp_sec );
+
+	if ( *line != NULL )
+		*line = string_get_ui( *line, &act_timestamp_usec );
+
+	if ( *line != NULL )
+		*line = string_get_ui( *line, &act_latency_usec );
+
+	if ( *line == NULL )
+	{
+		act_timestamp_sec = 0;
+		act_timestamp_usec = 0;
+		act_latency_usec = 0;
+		return false;
+	}
+
+	act_timestamp = ( double )( act_timestamp_sec % ( 24 * 3600 ) ) + ( double )act_timestamp_usec / 1000000.0;
+
+	return true;
+}
+
+
+/*
  * Parses a single line of additional information about number of calibrated bodies in one tracking data packet.
  */
-bool DTrackParser::parseLine_6dcal(char **line)
+bool DTrackParser::parseLine_6dcal( char **line )
 {
 	*line = string_get_i( *line, &loc_num_bodycal );
-	if ( *line == 0 )
+	if ( *line == NULL )
 		return false;
-	
+
 	return true;
 }
 
@@ -1240,11 +1282,38 @@ unsigned int DTrackParser::getFrameCounter() const
 
 
 /*
- * Get timestamp.
+ * Get timestamp since midnight.
  */
 double DTrackParser::getTimeStamp() const
 {
 	return act_timestamp;
+}
+
+
+/*
+ * Get timestamp since Unix epoch, seconds.
+ */
+unsigned int DTrackParser::getTimeStampSec() const
+{
+	return act_timestamp_sec;
+}
+
+
+/*
+ * Get timestamp since Unix epoch, microseconds.
+ */
+unsigned int DTrackParser::getTimeStampUsec() const
+{
+	return act_timestamp_usec;
+}
+
+
+/*
+ * Get latency.
+ */
+unsigned int DTrackParser::getLatencyUsec() const
+{
+	return act_latency_usec;
 }
 
 

@@ -787,7 +787,7 @@ void CTRLHandler::handleQuit(const std::unique_ptr<Message> &msg)
     if (msg->send_type == RENDERER)
     {
         bool terminateOnCoverQuit = coCoviseConfig::isOn("COVER.TerminateCoviseOnQuit", false);
-        if (getenv("COVISE_TERMINATE_ON_QUIT"))
+        if (getenv("COVER_TERMINATE_SESSION"))
         {
             terminateOnCoverQuit = true;
         }
@@ -799,8 +799,6 @@ void CTRLHandler::handleQuit(const std::unique_ptr<Message> &msg)
                 if (auto renderer = dynamic_cast<const Renderer *>(mod))
                 {
                     const string &name = renderer->info().name;
-
-                    if (name == "VRRenderer" || name == "OpenCOVER" || name == "COVER" || name == "COVER_VRML")
                         terminateForCover = true;
                 }
             }

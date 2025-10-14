@@ -33,14 +33,10 @@
     <UseVertexBufferObjects value="false" />
    <Input>
         <MouseNav value="true" />
-        <!--<Device>
+        <Device>
 
-           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
-              <Offset x="0" y="-4075" z="-1260" />
-              <Orientation h="0" p="0" r="0" />
-           </DTrackCaveOutside>
 
-           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.78">
+           <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
               <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
@@ -117,9 +113,8 @@
            <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="CameraOutside" eyeDistance="0.0" head="CaveCameraOutside" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
-        </Persons>-->
+        </Persons>
      </Input>
   <Plugin>
    <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
@@ -381,16 +376,12 @@
         <MouseNav value="true" />
         <Device>
 
-           <DTrackCaveOutside driver="dtrack" port="5001" serverHost="visir.hlrs.de">
+           <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
               <!--Offset x="-86" y="-3080" z="-1260" /-->
               <Offset x="0" y="-4075" z="-1260" />
               <Orientation h="0" p="0" r="0" />
-           </DTrackCaveOutside>
-
-           <DTrackCave driver="dtrack" port="5000" serverHost="141.58.8.78">
-              <Offset x="0" y="-0" z="-1327" />
-              <Orientation h="0" p="0" r="0" />
            </DTrackCave>
+
 
            <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>

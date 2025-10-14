@@ -46,65 +46,6 @@ static const char V_BLENDWITHMATERIAL[] = "blend_with_material";
 using namespace  vrui;
 using namespace  opencover;
 
-// namespace opencover
-// {
-
-    // opencover::ColorMap interpolateColorMap(const opencover::ColorMap &cm)
-    // {
-    //     if(cm.steps()  == cm.r.size())
-    //         return cm;
-    //     int numSteps = cm.steps;
-    //     opencover::ColorMap interpolatedMap = cm;
-    //     interpolatedMap.r.resize(numSteps);
-    //     interpolatedMap.g.resize(numSteps);
-    //     interpolatedMap.b.resize(numSteps);
-    //     interpolatedMap.a.resize(numSteps);
-    //     interpolatedMap.samplingPoints.resize(numSteps);
-
-    //     auto numColors = cm.samplingPoints.size();
-    //     double delta = 1.0 / (numSteps - 1);
-    //     int idx = 0;
-
-    //     for (int i = 0; i < numSteps - 1; i++)
-    //     {
-    //         double x = i * delta;
-    //         while (cm.samplingPoints[idx + 1] <= x)
-    //         {
-    //             idx++;
-    //             if (idx > numColors - 2)
-    //             {
-    //                 idx = numColors - 2;
-    //                 break;
-    //             }
-    //         }
-
-    //         double d = (x - cm.samplingPoints[idx]) / (cm.samplingPoints[idx + 1] - cm.samplingPoints[idx]);
-    //         interpolatedMap.r[i] = static_cast<float>((1 - d) * cm.r[idx] + d * cm.r[idx + 1]);
-    //         interpolatedMap.g[i] = static_cast<float>((1 - d) * cm.g[idx] + d * cm.g[idx + 1]);
-    //         interpolatedMap.b[i] = static_cast<float>((1 - d) * cm.b[idx] + d * cm.b[idx + 1]);
-    //         interpolatedMap.a[i] = static_cast<float>((1 - d) * cm.a[idx] + d * cm.a[idx + 1]);
-    //         interpolatedMap.samplingPoints[i] = static_cast<float>(i) / (numSteps - 1);
-    //     }
-
-    //     interpolatedMap.r[numSteps - 1] = cm.r[numColors - 1];
-    //     interpolatedMap.g[numSteps - 1] = cm.g[numColors - 1];
-    //     interpolatedMap.b[numSteps - 1] = cm.b[numColors - 1];
-    //     interpolatedMap.a[numSteps - 1] = cm.a[numColors - 1];
-    //     interpolatedMap.samplingPoints[numSteps - 1] = 1.0f;
-
-    //     interpolatedMap.steps = numSteps;
-
-    //     return interpolatedMap;
-    // }
-
-// ColorBar::ColorBar(ui::Menu *menu)
-// : ui::Owner(std::string("ColorBar"), menu)
-// , colorsMenu_(menu)
-// , map_(menu->name())
-// {
-//     init();
-// }
-
 ColorBar::ColorBar(ui::Group *group)
 : ui::Owner(std::string("ColorBar"), group)
 , colorsMenu_(group)
@@ -476,7 +417,7 @@ void ColorBar::show(bool state)
     {
         if(!hudbar_)
         {
-            hudbar_ = std::make_unique<coColorBar>(name_, map_);
+            hudbar_ = std::make_unique<coColorBar>(name_, map_, false);
             hudbar_->getUIElement()->createGeometry();
         }
         auto vtr = hudbar_->getUIElement()->getDCS();

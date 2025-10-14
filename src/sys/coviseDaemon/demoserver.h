@@ -21,16 +21,19 @@ private:
     std::atomic<bool> m_running{true};
 
     struct RunningDemo {
-        std::vector<int> pids;  // Changed from std::vector<std::atomic<int>>
-        std::mutex pids_mutex;  // Add mutex for thread safety
+        std::vector<int> pids;
         std::string program;
         std::string headline;
         int id = -1;
+        bool toTerminate = false;
+        bool terminated = false;
+        std::chrono::steady_clock::time_point terminationTime;
+        // termination notification
+        bool terminationNotificationPending = false; // set true when all processes terminated
     } m_runningDemo;
 
     nlohmann::json findDemoById(int id);
     int launchProcess(const std::string& program, const std::vector<std::string>& args);
-    void monitorAllProcesses();
     void setupRoutes(crow::SimpleApp& app);
     std::unique_ptr<crow::SimpleApp> m_app;
 };

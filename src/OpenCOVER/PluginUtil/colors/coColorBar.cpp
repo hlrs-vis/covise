@@ -347,18 +347,15 @@ const char *coColorBar::getName() const
 void
 coColorBar::makeImage(const ColorMap &m, bool swapped)
 {
-    unsigned char *cur;
-    int x, y, idx;
-
-    cur = image_.data();
-    for (y = 0; y < 256; y++)
+    unsigned char *cur = image_.data();
+    for (int y = 0; y < 256; y++)
     {
-        for (x = 0; x < 2; x++)
+        for (int x = 0; x < 2; x++)
         {
-            idx = (int)(((float)y / 256.0) * m.steps());
+            int idx = (int)(((float)y / 256.0) * m.steps());
             if (swapped)
                 idx = m.steps() - idx - 1;
-            auto c = m.getColorPerStep(idx);
+            auto c = idx >= 0 && idx < m.steps() ? m.getColorPerStep(idx) : osg::Vec4(0, y<128, y>=128, 1);
             for (size_t i = 0; i < 4; i++)
             {
                 *cur = (unsigned char)(255.0 * c[i]);
