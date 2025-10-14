@@ -146,6 +146,11 @@
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
    
+   <LamurePointCloud>
+   <upload value="64" />
+   <vram value="2000" />
+   <ram value="10000" />
+   </LamurePointCloud>
    <RhrClient mpiThread="false" />
    <Browser menu="true" logLevel="1" logFile="/tmp/browserlog.txt" />
 
