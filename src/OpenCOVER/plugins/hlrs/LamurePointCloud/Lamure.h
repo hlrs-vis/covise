@@ -298,7 +298,7 @@ public:
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
 private:
-    std::string m_file_to_load;
+    std::vector<std::string> m_files_to_load;
     bool m_reload_imminent = false;
     int m_frames_to_wait = 0;
 

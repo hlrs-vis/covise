@@ -251,7 +251,7 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
 
     // If not loaded, and plugin is initialized, trigger async reload
     if (plugin->initialized) {
-        plugin->m_file_to_load = file;
+        plugin->m_files_to_load.push_back(file);
         plugin->m_reload_imminent = true;
         plugin->m_frames_to_wait = 3; // Wait 3 frames
         plugin->m_renderer->detachCallbacks();
@@ -312,6 +312,8 @@ bool Lamure::init2() {
         fm->loadFile(input_file.c_str(), nullptr, m_lamure_grp.get(), "");
     }
     m_settings.num_models = N;
+
+    //lamure::ren::model_database::get_instance()->apply();
 
     m_ui->setupUi();
     m_renderer->init();
@@ -763,18 +765,30 @@ void Lamure::preFrame() {
                 lamure::ren::cut_database::get_instance()->reset();
             }
 
-            // settings and visibility
+            if (m_files_to_load.empty()) {
+                m_reload_imminent = false;
+                return;
+            }
+
             auto& models = m_settings.models;
-            models.push_back(m_file_to_load);
-            const uint16_t newIdx = static_cast<uint16_t>(models.size() - 1);
+            for (const auto& file_to_load : m_files_to_load) {
+                bool found = false;
+                for (const auto& existing_model : models) {
+                    if (existing_model == file_to_load) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    models.push_back(file_to_load);
+                }
+            }
+            m_files_to_load.clear();
 
             {
                 std::lock_guard<std::mutex> lock(g_settings_mutex);
                 if (m_settings.model_visible.size() < models.size()) {
                     m_settings.model_visible.resize(models.size(), true);
-                }
-                else {
-                    m_settings.model_visible[newIdx] = true;
                 }
             }
 
