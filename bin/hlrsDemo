@@ -317,7 +317,10 @@ demo 140 "Zweite mobilitaetswoche" run_marienplatz_mobilitaetswoche
 
 demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/workflows/tracer_cluster.vsl
 
-demo 142 "EuropaPark" cover /data/mack-research/Europa-Park-Twin/presentation.wrl
+run_EP() {
+opencover opencover://plugin/GeoData /data/mack-research/Europa-Park-Twin/presentation.wrl
+}
+demo 142 "EuropaPark" run_EP
 
 # Vistle
 category="Vistle"
