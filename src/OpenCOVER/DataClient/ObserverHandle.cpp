@@ -1,6 +1,7 @@
-#include "observerHandle.h"
-#include "opcuaClient.h"
-using namespace opencover::opcua;
+#include "ObserverHandle.h"
+#include "DataClient.h"
+
+using namespace opencover::dataclient;
 
 ObserverHandle::ObserverHandle(size_t id,  Client *client) : m_deleter(std::make_shared<Deleter>()){
     m_deleter->m_id = id;

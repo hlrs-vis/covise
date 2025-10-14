@@ -16,7 +16,7 @@ private:
     void applyShader(const opencover::ColorMap& map) override;
     std::vector<std::string> getAttributes() override;
     void initGeo();
-    void updateGeo(bool paused, const opencover::opcua::MultiDimensionalArray<double> &data) override;
+    void updateGeo(bool paused, const opencover::dataclient::MultiDimensionalArray<double> &data) override;
     void attributeChanged(float value) override;
 
     osg::ref_ptr<osg::Geometry> m_traceLine;

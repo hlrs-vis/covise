@@ -1,9 +1,13 @@
 #ifndef COVER_OPCUA_TYPES_H
 #define COVER_OPCUA_TYPES_H
-#include <open62541/types.h>
-#include <open62541/types_generated.h>
+
+#include "export.h"
+
 #include <algorithm>
 #include <array>
+#include <open62541/types_generated.h>
+#include <open62541/types.h>
+
 namespace opencover{namespace opcua{namespace detail{
 
 struct InvalidType
@@ -79,6 +83,8 @@ void for_(F func)
 {
   for_(func, std::make_index_sequence<N>());
 }
+
+int toTypeId(const UA_DataType *type);
 
 }}}
 #endif // COVER_OPCUA_TYPES_H

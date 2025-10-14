@@ -1,7 +1,7 @@
 #include "ToolMachine.h"
 #include "Currents.h"
 #include "Oct.h"
-
+#include <OpcUaClient/opcua.h>
 #include <vrml97/vrml/VrmlScene.h>
 
 using namespace covise;
@@ -32,9 +32,8 @@ Machine::Machine(opencover::ui::Menu *menu, opencover::config::File *file, Machi
 
 void Machine::connectOpcua()
 {
-
     if(!m_client)
-        m_client = opcua::connect(m_machineNode->machineName.get());
+    m_client = opcua::connect(m_machineNode->machineName.get());
     if(!m_client || !m_client->isConnected())
         return;
     m_mathExpressionObserver = std::make_unique<MathExpressionObserver>(m_client);
@@ -151,7 +150,7 @@ bool Machine::updateMachine(bool haveTool)
         auto numUpdates = m_client->numNodeUpdates(arrayMode->opcuaArrayName.get());
         for (size_t update = 0; update < numUpdates; update++)
         {
-            auto v = m_client->getArray<UA_Double>(arrayMode->opcuaArrayName.get());
+            auto v = m_client->getArray<double>(arrayMode->opcuaArrayName.get());
             for (size_t i = 0; i < 3; i++)
             {
                 move(i, v.data[i] + m_machineNode->offsets[i]);

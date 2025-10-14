@@ -1,15 +1,23 @@
-#ifndef COVER_OPCUA_REGISTER_ID_H
-#define COVER_OPCUA_REGISTER_ID_H
+#ifndef COVER_DATACLIENT_OBSERVERHANDLE_H
+#define COVER_DATACLIENT_OBSERVERHANDLE_H
 
+#include "export.h"
+
+#include <algorithm>
+#include <deque>
+#include <map>
 #include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
-namespace opencover{namespace opcua{
+namespace opencover{namespace dataclient{
 
 class Client;
-class ClientNode;
+
 
 //automativally unobserves the node on deletion
-class ObserverHandle{
+class DATACLIENTEXPORT ObserverHandle{
     public:
         friend class Client;
         ObserverHandle() = default;
@@ -24,9 +32,9 @@ class ObserverHandle{
             Client *m_client = nullptr;
         };
         std::shared_ptr<Deleter> m_deleter;
-        opencover::opcua::ClientNode *m_node = nullptr; 
+        // ClientNode *m_node = nullptr; 
     };
 
 }}
 
-#endif // COVER_OPCUA_REGISTER_ID_H
+#endif // COVER_DATACLIENT_OBSERVERHANDLE_H
