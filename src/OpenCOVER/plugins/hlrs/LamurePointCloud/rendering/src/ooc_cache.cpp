@@ -124,7 +124,10 @@ ooc_cache *ooc_cache::get_instance(Data_Provenance const &data_provenance)
 
             size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
             size_t node_size_total = database->get_primitives_per_node() * data_provenance.get_size_in_bytes() + database->get_slot_size();
-            size_t out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
+            size_t out_of_core_budget_in_nodes = 0;
+            if (node_size_total > 0) {
+                out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
+            }
 
             if(data_provenance.get_size_in_bytes() > 0)
             {
@@ -190,7 +193,10 @@ ooc_cache *ooc_cache::get_instance()
 
             size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
             size_t node_size_total = database->get_slot_size();
-            size_t out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
+            size_t out_of_core_budget_in_nodes = 0;
+            if (node_size_total > 0) {
+                out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
+            }
 
             single_ = new ooc_cache(out_of_core_budget_in_nodes);
             is_instanced_ = true;

@@ -1202,12 +1202,21 @@ void cut_update_pool::compile_transfer_list()
             char *node_data = ooc_cache->node_data(model_id, node_id);
             char *node_data_provenance = ooc_cache->node_data_provenance(model_id, node_id);
 
-            memcpy(current_gpu_storage_ + slot_count * database->get_slot_size(), node_data, database->get_slot_size());
+            const size_t global_slot_size = database->get_slot_size();
+            const size_t actual_node_size = database->get_node_size(model_id);
+            char* dest_ptr = current_gpu_storage_ + slot_count * global_slot_size;
+            
+            memset(dest_ptr, 0, global_slot_size);
+            memcpy(dest_ptr, node_data, actual_node_size);
 
             if(_data_provenance.get_size_in_bytes() > 0)
             {
-                memcpy(current_gpu_storage_provenance_ + slot_count * database->get_primitives_per_node() * _data_provenance.get_size_in_bytes(), node_data_provenance,
-                       database->get_primitives_per_node() * _data_provenance.get_size_in_bytes());
+                const size_t max_provenance_size = database->get_primitives_per_node() * _data_provenance.get_size_in_bytes();
+                const size_t actual_provenance_size = database->get_primitives_per_node(model_id) * _data_provenance.get_size_in_bytes();
+                char* dest_ptr_provenance = current_gpu_storage_provenance_ + slot_count * max_provenance_size;
+
+                memset(dest_ptr_provenance, 0, max_provenance_size);
+                memcpy(dest_ptr_provenance, node_data_provenance, actual_provenance_size);
             }
 
             transfer_list_.push_back(cut_database_record::slot_update_desc(slot_count, slot_id));

@@ -285,8 +285,7 @@ void ooc_pool::perform_queue_maintenance(cache_index *index)
 {
     assert(locked_);
 
-    size_t num_jobs = priority_queue_.num_jobs();
-    for(size_t i = 0; i < num_jobs; ++i)
+    while (priority_queue_.num_jobs() > 0)
     {
         cache_queue::job job = priority_queue_.top_job();
 

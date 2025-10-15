@@ -1012,9 +1012,7 @@ struct PointsGeometry : public osg::Geometry
 void LamureRenderer::init()
 {
     if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::init()" << std::endl; }
-
     std::lock_guard<std::mutex> sceneLock(m_sceneMutex);
-
     initCamera();
 
     if (auto* vs = opencover::VRViewer::instance()->getViewerStats()) {
