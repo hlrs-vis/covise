@@ -49,7 +49,6 @@ TacxFTMS::TacxFTMS()
     stepSizeDown = 2000;
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
-
     opencover::Input::instance()->discovery()->deviceAdded.connect(&TacxFTMS::addDevice, this);
 }
 
@@ -104,7 +103,6 @@ bool TacxFTMS::init() {
             }
         }
         ret = supportedDeviceFound;
-        coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
         if (supportedDeviceFound)
         {
             unsigned short listeningPort = configInt("Listening", "Port", 31322)->value();
@@ -113,37 +111,32 @@ bool TacxFTMS::init() {
             udpListen = new UDPComm(listeningPort);
             if (!udpListen->isBad())
             {
-            std::cerr << "TacxFTMS config: UDP: start listening on port: " << listeningPort << std::endl;
+                std::cerr << "TacxFTMS config: UDP: start listening on port: " << listeningPort << std::endl;
 
             }
-            else
-            {
-                //std::cerr << "TacxFTMS: failed to open local UDP port" << localPortNeo << std::endl;
-                ftmsfound = false;
-            }
+
         }
     }
-    else
-    {
-        coVRMSController::instance()->readMaster(&ret, sizeof(ret));
-    }
-    std::cerr << "Init FTMS done";
 
-    return ret;
+    std::cerr << "Init FTMS done";
+    auto retval = coVRMSController::instance()->syncBool(ret);
+    std::cerr << "Init FTMS done retval: " << retval << std::endl;
+    return retval;
 }
 
 void TacxFTMS::addDevice(const opencover::deviceInfo *i)
 {
-    //const std::string host = configString("TacxFTMS", "severHost", "192.168.178.36")->value();
-    unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
-    //unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
-
-    unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31319)->value();
-    //unsigned short localPortAlpine = configInt("Alpine", "localPort", 31322)->value();
-
-
+    
+    std::cerr << "TacxFTMS::addDevice called" << std::endl;
+    
     if (coVRMSController::instance()->isMaster())
     {
+        //const std::string host = configString("TacxFTMS", "severHost", "192.168.178.36")->value();
+        unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
+        //unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
+    
+        unsigned short serverPortAlpine = configInt("Alpine", "serverPort", 31319)->value();
+        //unsigned short localPortAlpine = configInt("Alpine", "localPort", 31322)->value();
         std::string host = "";
         std::cerr << "Devicename found" << i->deviceName << std::endl;
         if (i->deviceName == "TacxNeo")
@@ -153,13 +146,11 @@ void TacxFTMS::addDevice(const opencover::deviceInfo *i)
             udpNeo = new UDPComm(serverPortNeo, host.c_str());
             if (!udpNeo->isBad())
             {
-                ftmsfound = true;
                 start();
             }
             else
             {
                 //std::cerr << "TacxFTMS: failed to open local UDP port" << localPortNeo << std::endl;
-                ftmsfound = false;
             }
         }
         else if (i->deviceName == "Alpine")
@@ -169,29 +160,27 @@ void TacxFTMS::addDevice(const opencover::deviceInfo *i)
             udpAlpine = new UDPComm(serverPortAlpine, host.c_str());
             if (!udpAlpine->isBad())
             {
-                alpinefound = true;
                 start();
             }
             else
             {
                 //std::cerr << "Alpine: failed to open local UDP port" << localPortAlpine << std::endl;
-                alpinefound = false;
             }
         }
-        ret = ftmsfound || alpinefound;
-        coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
     }
-    else
-    {
-        coVRMSController::instance()->readMaster(&ret, sizeof(ret));
-    }
-    ftmsfound = coVRMSController::instance()->syncBool(ftmsfound);
-    alpinefound = coVRMSController::instance()->syncBool(alpinefound);
+
+}
+
+void TacxFTMS::preFrame() {
+    std::cerr << "TacxFTMS::preFrame() on" << std::endl;
 }
 
 bool TacxFTMS::update() {
-    if (isEnabled()) {
+
+    std::cerr  << "TacxFTMS::update() on" << std::endl;
+    if (coVRMSController::instance()->syncBool(isEnabled())) {
         if (coVRMSController::instance()->isMaster()) {
+            OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             float speed = getSpeed();
             //fprintf(stderr, "speed: %f\n", speed);
 
@@ -237,16 +226,19 @@ bool TacxFTMS::update() {
             auto mat = getMatrix();
 
             TransformMat = mat * relTrans * relRot;
-
+            std::cerr << "TacxFTMS::update: master sending matrix" << std::endl;
             coVRMSController::instance()->sendSlaves((char*)TransformMat.ptr(),
                                                      sizeof(TransformMat));
         } else {
+            std::cerr << "TacxFTMS::update: slave receiving matrix" << std::endl;
             coVRMSController::instance()->readMaster((char*)TransformMat.ptr(),
                                                      sizeof(TransformMat));
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
         coVRCollaboration::instance()->SyncXform();
     }
+    std::cerr  << "TacxFTMS::update() off" << std::endl;
+    usleep(5000);
     return false;
 }
 
@@ -285,7 +277,6 @@ void TacxFTMS::setEnabled(bool flag) {
         }
     }
     // WakeUp TacxFTMS
-    Initialize();
 }
 
 void TacxFTMS::run() {
@@ -299,10 +290,14 @@ void TacxFTMS::run() {
 }
 
 void TacxFTMS::updateThread() {
+    std::cerr  << "TacxFTMS::updateThread() on" << std::endl;
     if (udpListen) {
         char tmpBuf[10000];
         int status;
+        std::cerr << "TacxFTMS::updateThread: trying to receive data" << std::endl;
+
         status = udpListen->receive(&tmpBuf, 10000);
+        std::cerr << "TacxFTMS::updateThread: received " << status << " bytes" << std::endl;
 
         if (status == -1) {
             if (isEnabled())  // otherwise we are not supposed to receive
@@ -321,8 +316,16 @@ void TacxFTMS::updateThread() {
             }
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             memcpy(&ftmsData, tmpBuf, sizeof(FTMSBikeData));
-
+            std::cerr << "TacxFTMS::update: received speed=" << ftmsData.speed
+                      << ", cadence=" << ftmsData.cadence
+                      << ", power=" << ftmsData.power << std::endl;
             sendIndoorBikeSimulationParameters();
+            std::cerr << "TacxFTMS::update: sent control: grade=" << ftmsControl.grade
+                      << ", crr=" << ftmsControl.crr
+                      << ", cw=" << ftmsControl.cw
+                      << ", weight=" << ftmsControl.weight
+                      << ", wind_speed=" << ftmsControl.wind_speed
+                      << std::endl;
         } else if (status >= sizeof(AlpineData)) {
 
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
@@ -333,27 +336,21 @@ void TacxFTMS::updateThread() {
         }
     }
     else {
-        usleep(5);
+        usleep(5000);
     }
+    std::cerr  << "TacxFTMS::updateThread() off" << std::endl;
+
     return;
 }
 
-void TacxFTMS::Initialize() {
-    if (coVRMSController::instance()->isMaster()) {
 
-        /*fluxControl.cmd = 1;
-
-        ret = udpNeo->send(&fluxControl, sizeof(FluxCtrlData));*/
-    }
-}
-
-float TacxFTMS::getSpeed() {
+float TacxFTMS::getSpeed() const {
     return ftmsData.speed / 3.6;  // speed in m/s
 }
 
-float TacxFTMS::getAngle() { return alpineData.steering_angle; }
+float TacxFTMS::getAngle() const{ return alpineData.steering_angle; }
 
-float TacxFTMS::getBrakeForce() {
+float TacxFTMS::getBrakeForce() const{
     // prevents brake force to be negative
     /*if (ftmsData.brake < 0) {
         return 0;
@@ -361,7 +358,7 @@ float TacxFTMS::getBrakeForce() {
     return 0;
 }
 
-float TacxFTMS::getAccelleration() {
+float TacxFTMS::getAccelleration() const {
     // prevents brake force to be negative
     /*if (fluxData.brake < 0) {
         return 0;
@@ -405,7 +402,7 @@ osgUtil::LineSegmentIntersector::Intersection getFirstIntersection(
     return intersector->getFirstIntersection();
 }
 
-osg::Matrix TacxFTMS::getMatrix() {
+osg::Matrix TacxFTMS::getMatrix() const{
     float wheelDis = wheelBase * 1000;
     osg::Vec3 pos = TacxFTMSPos.getTrans();
     osg::Vec3d y{TacxFTMSPos(1, 0), TacxFTMSPos(1, 1), TacxFTMSPos(1, 2)};
