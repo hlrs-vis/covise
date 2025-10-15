@@ -16,12 +16,14 @@
 #include <filesystem>
 
 
-int fixLOD(float factor, const std::string& filename)
+int fixLOD(float factor, const std::string& filename, bool includeData)
 {
 
     osgDB::Options *options= new osgDB::Options;
-
-    options->setOptionString("WriteImageHint=IncludeFile");
+    if (includeData)
+        options->setOptionString("WriteImageHint=IncludeData");
+    else
+        options->setOptionString("WriteImageHint=IncludeFile");
     osg::Node *root=nullptr;
     std::filesystem::path p;
     p = filename;
@@ -40,7 +42,10 @@ int fixLOD(float factor, const std::string& filename)
             nrl.push_back(ranges[i]);
         }
         double newRad = factor * plod->getRadius();
-        nrl[0].first = newRad;
+        if((int)ranges.size()==1)
+            nrl[0].first = 0;
+        else
+            nrl[0].first = newRad;
         nrl[0].second = 1.0E10;
         for (int i = 1; i< (int)ranges.size(); i++)
         {
@@ -96,19 +101,28 @@ int fixLOD(float factor, const std::string& filename)
 }
 
 int main(int argc, char **argv) {
+    int argOffset = 0;
+    bool writeAsData = false;
+    if (argc > 1 && strcmp(argv[1], "data") == 0)
+    {
+        argc--;
+        argOffset++;
+        writeAsData = true;
+    }
     if (argc == 2)
     {
-        std::string filename = argv[1];
-        return fixLOD(5.0, filename);
+        std::string filename = argv[1+ argOffset];
+        return fixLOD(5.0, filename, writeAsData);
     }
     else if (argc == 3)
     {
-        std::string filename = argv[2];
-        return fixLOD(atof(argv[1]), filename);
+        std::string filename = argv[2 + argOffset];
+        return fixLOD(atof(argv[1 + argOffset]), filename, writeAsData);
     }
     else
     {
-        std::cerr << "Usage: fixLOD [scaleFactor] [file.osgb]" << std::endl;
+        std::cerr << "Usage: fixLOD [data] [scaleFactor] [file.osgb]" << std::endl;
+        std::cerr << "if pictures are missing, use data option" << std::endl;
     }
 
     return 0;
