@@ -146,8 +146,8 @@ private:
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint max_radius_loc            {-1};
         GLint min_radius_loc            {-1};
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1};
@@ -171,6 +171,7 @@ private:
     struct SurfelShader {
         GLuint program{0};
         GLint  mvp_matrix_loc{-1};
+        GLint  model_view_matrix_loc {-1};
         GLint  max_radius_loc{-1};
         GLint  min_radius_loc{-1};
         GLint max_screen_size_loc{-1};
@@ -183,14 +184,15 @@ private:
     SurfelShader m_surfel_shader;
 
     struct SurfelColorShader {
-        GLuint program{0};
+        GLuint program                   {0};
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
         GLint view_matrix_loc           {-1}; // mat4 view_matrix
+        GLint model_view_matrix_loc     {-1};
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_radius_loc            {-1}; // float max_radius
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1}; // float scale_radius
@@ -209,10 +211,11 @@ private:
         GLuint program{0};
         GLint mvp_matrix_loc            {-1}; // mat4 mvp_matrix
         GLint view_matrix_loc           {-1}; // mat4 view_matrix
+        GLint model_view_matrix_loc     {-1};
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint max_radius_loc            {-1}; // float max_radius
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
         GLint min_radius_loc            {-1}; // float min_radius
         GLint scale_radius_loc          {-1}; // float scale_radius
         GLint scale_radius_gamma_loc    {-1};
@@ -244,8 +247,8 @@ private:
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_radius_loc            {-1}; // float max_radius
-        GLint min_screen_size_loc         {-1};
-        GLint max_screen_size_loc         {-1};
+        GLint min_screen_size_loc       {-1};
+        GLint max_screen_size_loc       {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1}; // float scale_radius
@@ -669,7 +672,7 @@ public:
     const std::vector<ShaderInfo>& getPclShader() const { return pcl_shader; }
 
     void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport);
-    void setModelUniforms(const scm::math::mat4& mvp_matrix);
+    void setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_view_matrix);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id);
     void resetLamureSystemAndWait();
 

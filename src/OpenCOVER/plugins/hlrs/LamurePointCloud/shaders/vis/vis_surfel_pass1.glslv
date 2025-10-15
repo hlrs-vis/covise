@@ -1,5 +1,7 @@
 #version 420 core
 
+INCLUDE vis_surfel_util.glsl
+
 uniform float max_radius;          // WS-CLAMP (Radius)
 uniform float min_radius;          // WS-CLAMP (Radius)
 uniform float scale_radius;        // RAW-Radius -> WS-Radius
@@ -27,43 +29,36 @@ out VsOut {
 void main() {
     const float EPS = 1e-6;
 
-    // --- RAW-Radius & Cut im RAW-Domain ---
-    float r_raw = max(0.0, in_radius);
-    bool cut = (max_radius_cut > 0.0) && (r_raw > max_radius_cut);
+    // 1. Calculate world-space radius using the utility function
+    float r_ws = calculate_world_space_radius(
+        in_radius,
+        max_radius_cut,
+        scale_radius_gamma,
+        scale_radius,
+        min_radius,
+        max_radius
+    );
 
-    // --- WS-Radius mit Gamma/Scale, danach CLAMP im WS (Radius) ---
-    float r_ws = 0.0;
-    if (!cut) {
-        float gamma = (scale_radius_gamma > 0.0) ? scale_radius_gamma : 1.0;
-        float r_ws_unclamped = scale_radius * pow(r_raw, gamma); // WS-Radius
-        r_ws = clamp(r_ws_unclamped, min_radius, max_radius);    // CLAMP im WS (Radius)
-    }
+    // 2. Calculate orthonormal basis using the utility function
+    vec3 u, v;
+    calculate_orthonormal_basis(in_normal, u, v);
 
-    // Orthonormale Tangenten
-    vec3 n_ws = normalize((length(in_normal) > EPS) ? in_normal : vec3(0,0,1));
-    vec3 ref  = (abs(n_ws.x)>abs(n_ws.y) && abs(n_ws.x)>abs(n_ws.z)) ? vec3(0,1,0)
-               : (abs(n_ws.y)>abs(n_ws.z) ? vec3(0,0,1) : vec3(1,0,0));
-    vec3 ms_u = normalize(cross(ref, n_ws));
-    vec3 ms_v = normalize(cross(n_ws, ms_u));
-
-    // nach View-Space
+    // 3. Transform to view-space
     vec3 vs_center = (model_view_matrix * vec4(in_position, 1.0)).xyz;
-    vec3 vs_half_u = (model_view_matrix * vec4(ms_u * r_ws, 0.0)).xyz; // Radius!
-    vec3 vs_half_v = (model_view_matrix * vec4(ms_v * r_ws, 0.0)).xyz;
+    vec3 vs_half_u_unscaled = (model_view_matrix * vec4(u * r_ws, 0.0)).xyz;
+    vec3 vs_half_v_unscaled = (model_view_matrix * vec4(v * r_ws, 0.0)).xyz;
 
-    // --- Screenspace-CLAMP auf Pixel-DURCHMESSER + isotrope Skalierung ---
-    float w0   = max(EPS, abs((projection_matrix * vec4(vs_center, 1.0)).w));
-    float d_px = (2.0 * r_ws * scale_projection) / w0;          // Pixel-Durchmesser
-    float d_pxC = clamp(d_px, min_screen_size, max_screen_size); // Clamp (Durchmesser)
-    float s    = (d_px > EPS) ? (d_pxC / d_px) : 1.0;
+    // 4. Apply screen-space scaling and clamping (with Euclidean distance)
+    float distance = length(vs_center);
+    float w0 = max(EPS, distance);
+    float d_px = (2.0 * r_ws * scale_projection) / w0;
+    float d_pxC = clamp(d_px, min_screen_size, max_screen_size);
+    float s = (d_px > EPS) ? (d_pxC / d_px) : 1.0;
 
-    vs_half_u *= s;  // Radien isotrop skalieren
-    vs_half_v *= s;
-
-    // Output
+    // 5. Output to geometry shader
     vs_out.vs_center = vs_center;
-    vs_out.vs_half_u = vs_half_u;
-    vs_out.vs_half_v = vs_half_v;
+    vs_out.vs_half_u = vs_half_u_unscaled * s;
+    vs_out.vs_half_v = vs_half_v_unscaled * s;
 
     gl_Position = projection_matrix * vec4(vs_center, 1.0);
 }

@@ -490,6 +490,7 @@ void Lamure::loadSettingsFromCovise() {
     // ---- Modelle: models (Semikolon), optional data_dir (rekursiv .bvh) ----
     // Check if the plugin itself is set to 'on' (via value attribute) and no command-line models exist.
     bool load_from_config = getOn((std::string(root)).c_str(), false);
+    std::cout << load_from_config << std::endl;
     if (load_from_config && s.models.empty()) {
         const std::string models_list = getStr((std::string(root) + ".models").c_str(), "");
         const std::string data_dir    = getStr((std::string(root) + ".data_dir").c_str(), "");
@@ -516,8 +517,8 @@ void Lamure::loadSettingsFromCovise() {
 #ifdef _WIN32
             std::replace(abs.begin(), abs.end(), '\\', '/');
 #endif
-            if (seen.insert(abs).second)   // nur erster Fund bleibt erhalten (Index-Stabilität)
-                norm.push_back(std::move(abs));
+        if (seen.insert(abs).second)   // nur erster Fund bleibt erhalten (Index-Stabilität)
+            norm.push_back(std::move(abs));
         }
         s.models = std::move(norm);
     }
@@ -667,8 +668,6 @@ void Lamure::dumpSettings(const char* tag){
         ? static_cast<double>(opencover::cover->getScale())
         : static_cast<double>(covise::coCoviseConfig::getFloat("value","COVER.DefaultScaleFactor",1.0f));
 
-    std::cout << "--- Lamure::Settings " << (tag?tag:"") << " ---\n";
-
     // Modelle
     std::cout << "models: " << s.models.size() << " (loaded=" << s.num_models << ")\n";
     for(size_t i=0;i<std::min<size_t>(s.models.size(),3);++i)
@@ -806,6 +805,17 @@ void Lamure::preFrame() {
 
             {
                 std::lock_guard<std::mutex> lock(g_settings_mutex);
+
+                // Ensure scene graph nodes exist for all models after a reload
+                //for (const auto& model_path : models) {
+                //    if (m_model_nodes.find(model_path) == m_model_nodes.end()) {
+                //        osg::ref_ptr<osg::Group> modelNode = new osg::Group();
+                //        modelNode->setName(model_path);
+                //        m_lamure_grp->addChild(modelNode.get());
+                //        m_model_nodes[model_path] = modelNode;
+                //    }
+                //}
+
                 if (m_settings.model_visible.size() < models.size()) {
                     m_settings.model_visible.resize(models.size(), true);
                 }
