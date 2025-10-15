@@ -25,7 +25,7 @@ PLUGIN_UTILEXPORT ColorMaps &ConfigColorMaps();
 
 class PLUGIN_UTILEXPORT ColorMap {
 public:
-  ColorMap(const std::string &species, const std::string &unit = "NoUnit",
+  ColorMap(const std::string &species, const std::string &unit = std::string(),
     float min = 0.0, float max = 1.0, int steps = 64);
   ColorMap(const BaseColorMap &map, float min = 0.0, float max = 1.0);
 
@@ -54,7 +54,7 @@ private:
   float m_min = 0.0, m_max = 1.0;
   int m_steps = 32;
   std::string m_species = "default";
-  std::string m_unit = "NoUnit";
+  std::string m_unit;
   BaseColorMap m_interpolatedMap;
   BaseColorMap *m_colorMap = nullptr;
 

@@ -204,7 +204,6 @@ IF(NOT COVISE_CONFIGURED_ONCE)
   # SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "Flags used by the compiler during all build types" FORCE)
 
   IF(CMAKE_COMPILER_IS_GNUCC)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99" CACHE STRING "Flags used by the compiler during all build types" FORCE)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined"
        CACHE STRING "Flags used by the linker for shared objects" FORCE)
   ENDIF()
