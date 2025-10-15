@@ -49,7 +49,7 @@ public:
 
     //register nodes to get updates pushed by the server
     //keep the ObserverHandle as long as you want to observe
-    virtual [[nodiscard]] ObserverHandle observeNode(const std::string &name) = 0;
+    [[nodiscard]] virtual ObserverHandle observeNode(const std::string &name) = 0;
 
     // Pull-style access
     virtual double getNumericScalar(const std::string &name, double *timestep = nullptr) = 0;
