@@ -357,7 +357,7 @@ private:
     vrui::coRowMenu *nameMenu_;
     vrui::coButtonMenuItem *nameButton_;
     ui::Menu *navMenu_ = nullptr;
-    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr;
+    ui::Action *m_viewAll=nullptr, *m_resetView=nullptr, *m_viewVisible=nullptr;
     ui::Group *navModes_ = nullptr;
     ui::ButtonGroup *navGroup_ = nullptr;
     ui::Button *noNavButton_=nullptr;
@@ -384,7 +384,7 @@ private:
     void initMenu();
     void initShowName();
     void initMeasure();
-    
+
     osg::Vec3 getCenter() const;
     void centerView();
     osg::Vec3 mouseNavCenter;
