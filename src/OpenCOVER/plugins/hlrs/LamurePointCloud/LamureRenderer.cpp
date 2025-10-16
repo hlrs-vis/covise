@@ -651,7 +651,8 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         const scm::math::mat4d viewport_scale = scm::math::make_scale(opencover::coVRConfig::instance()->windows[0].context->getTraits()->width * 0.5, opencover::coVRConfig::instance()->windows[0].context->getTraits()->height * 0.5, 0.5);
         const scm::math::mat4d viewport_translate = scm::math::make_translation(1.0, 1.0, 1.0);
 
-        scm::math::vec2 viewport = scm::math::vec2f(opencover::coVRConfig::instance()->windows[0].context->getTraits()->width, opencover::coVRConfig::instance()->windows[0].context->getTraits()->height);
+        const osg::Viewport* osg_viewport = renderInfo.getCurrentCamera()->getViewport();
+        scm::math::vec2 viewport(osg_viewport->width(), osg_viewport->height());
         SDStats sd = makeSDStats(meas, viewport, projection_matrix, settings);
         uint64_t rendered_primitives = 0;
         uint64_t rendered_nodes = 0;
@@ -943,7 +944,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
                 scm::math::mat4 mvp_matrix = projection_matrix * model_view_matrix;
                 scm::gl::frustum frustum = _renderer->getScmCamera()->get_frustum_by_model(model_matrix);
 
-                _renderer->setModelUniforms(mvp_matrix, model_view_matrix);
+                _renderer->setModelUniforms(mvp_matrix);
                 for (auto const& node_slot_aggregate : renderable) {
 
                     if (_renderer->getScmCamera()->cull_against_frustum(frustum, bounding_box_vector[node_slot_aggregate.node_id_]) != 1) {
@@ -1349,7 +1350,6 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_shader.program);
     m_surfel_shader.mvp_matrix_loc          = glGetUniformLocation(m_surfel_shader.program, "mvp_matrix");
-    m_surfel_shader.model_view_matrix_loc   = glGetUniformLocation(m_surfel_shader.program, "model_view_matrix");
     m_surfel_shader.max_radius_loc          = glGetUniformLocation(m_surfel_shader.program, "max_radius");
     m_surfel_shader.min_radius_loc          = glGetUniformLocation(m_surfel_shader.program, "min_radius");
     m_surfel_shader.max_screen_size_loc          = glGetUniformLocation(m_surfel_shader.program, "max_screen_size");
@@ -1362,7 +1362,6 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_color_shader.program);
     m_surfel_color_shader.mvp_matrix_loc    = glGetUniformLocation(m_surfel_color_shader.program, "mvp_matrix");
-    m_surfel_color_shader.model_view_matrix_loc = glGetUniformLocation(m_surfel_color_shader.program, "model_view_matrix");
     m_surfel_color_shader.view_matrix_loc         = glGetUniformLocation(m_surfel_color_shader.program, "view_matrix");
     m_surfel_color_shader.normal_matrix_loc       = glGetUniformLocation(m_surfel_color_shader.program, "normal_matrix");
     m_surfel_color_shader.max_radius_loc    = glGetUniformLocation(m_surfel_color_shader.program, "max_radius");
@@ -1384,7 +1383,6 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_color_lighting_shader.program);
     m_surfel_color_lighting_shader.mvp_matrix_loc          = glGetUniformLocation(m_surfel_color_lighting_shader.program, "mvp_matrix");
-    m_surfel_color_lighting_shader.model_view_matrix_loc   = glGetUniformLocation(m_surfel_color_lighting_shader.program, "model_view_matrix");
     m_surfel_color_lighting_shader.view_matrix_loc         = glGetUniformLocation(m_surfel_color_lighting_shader.program, "view_matrix");
     m_surfel_color_lighting_shader.normal_matrix_loc       = glGetUniformLocation(m_surfel_color_lighting_shader.program, "normal_matrix");
     m_surfel_color_lighting_shader.max_radius_loc          = glGetUniformLocation(m_surfel_color_lighting_shader.program, "max_radius");
@@ -1781,7 +1779,6 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
 
         auto& prog2 = m_surfel_pass2_shader;
         glUseProgram(prog2.program);
-        //coco->nearClip(), coco->farClip()
         glUniform1f(prog2.near_plane_loc, m_plugin->getRenderer()->getScmCamera()->near_plane_value());
         glUniform1f(prog2.max_radius_loc, s.max_radius);
         glUniform1f(prog2.min_radius_loc, s.min_radius);
@@ -1806,30 +1803,15 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
     }
 }
 
-void LamureRenderer::setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_view_matrix) {
+void LamureRenderer::setModelUniforms(const scm::math::mat4& mvp_matrix) {
     switch (m_plugin->getSettings().shader_type) {
     case ShaderType::Point:       glUniformMatrix4fv(m_point_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
     case ShaderType::PointColor:  glUniformMatrix4fv(m_point_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
     case ShaderType::PointColorLighting: glUniformMatrix4fv(m_point_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
     case ShaderType::PointProv:   glUniformMatrix4fv(m_point_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::Surfel:      
-        glUniformMatrix4fv(m_surfel_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); 
-        if (m_surfel_shader.model_view_matrix_loc >= 0) {
-            glUniformMatrix4fv(m_surfel_shader.model_view_matrix_loc, 1, GL_FALSE, model_view_matrix.data_array);
-        }
-        break;
-    case ShaderType::SurfelColor: 
-        glUniformMatrix4fv(m_surfel_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); 
-        if (m_surfel_color_shader.model_view_matrix_loc >= 0) {
-            glUniformMatrix4fv(m_surfel_color_shader.model_view_matrix_loc, 1, GL_FALSE, model_view_matrix.data_array);
-        }
-        break;
-    case ShaderType::SurfelColorLighting: 
-        glUniformMatrix4fv(m_surfel_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); 
-        if (m_surfel_color_lighting_shader.model_view_matrix_loc >= 0) {
-            glUniformMatrix4fv(m_surfel_color_lighting_shader.model_view_matrix_loc, 1, GL_FALSE, model_view_matrix.data_array);
-        }
-        break;
+    case ShaderType::Surfel:      glUniformMatrix4fv(m_surfel_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
+    case ShaderType::SurfelColor: glUniformMatrix4fv(m_surfel_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
+    case ShaderType::SurfelColorLighting: glUniformMatrix4fv(m_surfel_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
     case ShaderType::SurfelProv:  glUniformMatrix4fv(m_surfel_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
     case ShaderType::SurfelMultipass: break;
     }

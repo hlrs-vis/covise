@@ -490,7 +490,6 @@ void Lamure::loadSettingsFromCovise() {
     // ---- Modelle: models (Semikolon), optional data_dir (rekursiv .bvh) ----
     // Check if the plugin itself is set to 'on' (via value attribute) and no command-line models exist.
     bool load_from_config = getOn((std::string(root)).c_str(), false);
-    std::cout << load_from_config << std::endl;
     if (load_from_config && s.models.empty()) {
         const std::string models_list = getStr((std::string(root) + ".models").c_str(), "");
         const std::string data_dir    = getStr((std::string(root) + ".data_dir").c_str(), "");
@@ -498,7 +497,7 @@ void Lamure::loadSettingsFromCovise() {
         for (const auto& m : LamureUtil::splitSemicolons(models_list)) {
             s.models.push_back(m);
         }
-        if (!data_dir.empty()) {
+        if (!data_dir.empty() && std::filesystem::is_directory(data_dir)) {
             for (auto& e : std::filesystem::recursive_directory_iterator(data_dir)){
                 if (e.is_regular_file() && e.path().extension() == ".bvh")
                     s.models.push_back(std::filesystem::absolute(e.path()).string());
@@ -513,12 +512,17 @@ void Lamure::loadSettingsFromCovise() {
         seen.reserve(s.models.size()*2);
 
         for (const auto &mp : s.models) {
-            std::string abs = std::filesystem::absolute(std::filesystem::path(mp)).string();
+            std::string abs_path_str = std::filesystem::absolute(std::filesystem::path(mp)).string();
 #ifdef _WIN32
-            std::replace(abs.begin(), abs.end(), '\\', '/');
+            std::replace(abs_path_str.begin(), abs_path_str.end(), '\\', '/');
 #endif
-        if (seen.insert(abs).second)   // nur erster Fund bleibt erhalten (Index-Stabilität)
-            norm.push_back(std::move(abs));
+            if (std::filesystem::exists(abs_path_str)) {
+                if (seen.insert(abs_path_str).second) { // nur erster Fund bleibt erhalten (Index-Stabilität)
+                    norm.push_back(std::move(abs_path_str));
+                }
+            } else {
+                std::cerr << "[Lamure] Warning: Model path from config not found, skipping: " << abs_path_str << std::endl;
+            }
         }
         s.models = std::move(norm);
     }

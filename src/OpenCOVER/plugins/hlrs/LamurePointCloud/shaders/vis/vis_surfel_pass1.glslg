@@ -5,7 +5,6 @@ uniform mat4 projection_matrix; // P
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
 
-// MUSS zu deinem VS passen:
 in VsOut {
     vec3 vs_center;  // View-space
     vec3 vs_half_u;  // Radius-Vektor (bereits geclampt)

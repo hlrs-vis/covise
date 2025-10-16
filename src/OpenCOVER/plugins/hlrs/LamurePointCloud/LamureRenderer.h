@@ -672,7 +672,7 @@ public:
     const std::vector<ShaderInfo>& getPclShader() const { return pcl_shader; }
 
     void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport);
-    void setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_view_matrix);
+    void setModelUniforms(const scm::math::mat4& mvp_matrix);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id);
     void resetLamureSystemAndWait();
 

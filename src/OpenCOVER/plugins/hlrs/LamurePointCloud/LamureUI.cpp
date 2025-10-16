@@ -128,7 +128,7 @@ void LamureUI::setupUi() {
 
     m_min_radius_slider = new opencover::ui::Slider(m_point_size_menu, "min_radius");
     m_min_radius_slider->setText("Min. Radius (world)");
-    m_min_radius_slider->setBounds(0.0f, std::max(m_plugin->getSettings().min_radius, 0.5f));
+    m_min_radius_slider->setBounds(0.0f, std::max(m_plugin->getSettings().min_radius, 0.1f));
     m_min_radius_slider->setValue(m_plugin->getSettings().min_radius);
     m_min_radius_slider->setShared(true);
     m_min_radius_slider->setCallback([this](double value, bool /*released*/) {
