@@ -254,6 +254,7 @@ public:
     static int unloadBvh(const char* filename, const char* ck = "");
     void loadSettingsFromCovise();
     void preFrame();
+    void perform_system_reset();
     void startMeasurement();
     void stopMeasurement();
     void applyInitialTransforms();
@@ -306,6 +307,9 @@ private:
 
     bool m_initialized = false;
 
+    bool m_first_frame = true;
+    bool m_models_from_config = false;
+
     std::map<uint16_t, std::unique_ptr<LamureRenderer>> m_rendererMap;
     std::unique_ptr<LamureRenderer> m_renderer;
     std::unique_ptr<LamureUI>       m_ui;
@@ -350,6 +354,18 @@ private:
     std::vector<LamureMeasurement::Segment> parseMeasurementSegments(const std::string& cfg) const;
     std::string buildMeasurementOutputPath() const;
     void applyShaderToRendererFromSettings();
+
+    // Centralized model resolution and post-processing
+    std::vector<std::string> resolveAndNormalizeModels();
+    void updateModelDependentSettings();
+
+    // Bootstrap file collection before initialization
+    std::vector<std::string> m_bootstrap_files;
+
+    // Reset state machine for safer multi-frame shutdown/rebuild
+    bool m_reset_in_progress{false};
+    bool m_renderer_paused_for_reset{false};
+    int  m_post_shutdown_delay{0};
 };
 
 inline ScopedMark::~ScopedMark() {

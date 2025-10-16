@@ -46,6 +46,12 @@ void LamureUI::setupUi() {
     m_notify_button->setShared(true);
     m_dump_button->setShared(true);
 
+    // Initialize notify button from settings and keep it in sync
+    m_notify_button->setState(m_plugin->getSettings().show_notify);
+    m_notify_button->setCallback([this](bool on){
+        m_plugin->getSettings().show_notify = on;
+    });
+
 
 
     m_primitives_group = new opencover::ui::Group(m_lamure_menu, "Primitives");

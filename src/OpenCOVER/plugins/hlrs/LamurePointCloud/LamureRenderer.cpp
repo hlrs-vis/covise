@@ -42,6 +42,10 @@
 std::string shader_root_path = LAMURE_SHADERS_DIR;
 std::string font_root_path = LAMURE_FONTS_DIR;
 
+namespace {
+    inline bool notifyOn(Lamure* p) { return p && p->getSettings().show_notify; }
+}
+
 
 
 namespace {
@@ -191,7 +195,7 @@ LamureRenderer::~LamureRenderer()
 struct InitCullCallback : public osg::Drawable::CullCallback {
     InitCullCallback(Lamure* plugin) : _plugin(plugin), _initialized(false)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] InitDrawCallback()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] InitDrawCallback()" << std::endl; }
         _renderer = _plugin->getRenderer();
     }
 
@@ -244,7 +248,7 @@ struct InitCullCallback : public osg::Drawable::CullCallback {
 
 struct InitGeometry : public osg::Geometry {
     InitGeometry(Lamure* plugin) : _plugin(plugin) {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] InitGeometry()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] InitGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -327,7 +331,7 @@ struct TextGeode : public osg::Geode
 {
     TextGeode(Lamure* plugin)
     {
-        if (plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] TextGeode()" << std::endl; }
+        if (notifyOn(plugin)) { std::cout << "[Lamure] TextGeode()" << std::endl; }
         osg::Quat rotation(osg::DegreesToRadians(90.0f), osg::Vec3(1.0f, 0.0f, 0.0f));
         osg::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
         std::string font = opencover::coVRFileManager::instance()->getFontFile(NULL);
@@ -384,7 +388,7 @@ struct FrustumDrawCallback : public osg::Drawable::DrawCallback
     FrustumDrawCallback(Lamure* plugin)
         : _plugin(plugin)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] FrustumDrawCallback()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] FrustumDrawCallback()" << std::endl; }
         _renderer = _plugin->getRenderer();
     }
 
@@ -423,7 +427,7 @@ struct FrustumGeometry : public osg::Geometry
 {
     FrustumGeometry(Lamure* _plugin)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] FrustumGeometry()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] FrustumGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -436,7 +440,7 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
     BoundingBoxDrawCallback(Lamure* plugin)
         : _plugin(plugin), _initialized(false)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] BoundingBoxDrawCallback()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] BoundingBoxDrawCallback()" << std::endl; }
         _renderer = _plugin->getRenderer();
     }
 
@@ -556,9 +560,9 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
         _plugin->getRenderInfo().rendered_bounding_boxes = rendered_bounding_boxes;
         before.restore();
 
-        if (_plugin->getUI()->getNotifyButton()->state()) {
+        if (notifyOn(_plugin)) {
             GLState after = GLState::capture();
-            GLState::compare(before, after, "[Notify] BoundingBoxDrawCallback::drawImplementation()");
+            GLState::compare(before, after, "[Lamure] BoundingBoxDrawCallback::drawImplementation()");
         }
 
     };
@@ -571,7 +575,7 @@ struct BoundingBoxGeometry : public osg::Geometry
 {
     BoundingBoxGeometry(Lamure* plugin)
     {
-        if (plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] BoundingBoxGeometry()" << std::endl; }
+        if (notifyOn(plugin)) { std::cout << "[Lamure] BoundingBoxGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -584,7 +588,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
     PointsDrawCallback(Lamure* plugin)
         : _plugin(plugin), _initialized(false)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] PointsDrawCallback()" << std::endl; } 
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] PointsDrawCallback()" << std::endl; } 
         _renderer = _plugin->getRenderer();
     }
 
@@ -974,9 +978,9 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         }
 
         before.restore();
-        if (_plugin->getUI()->getNotifyButton()->state()) {
+        if (notifyOn(_plugin)) {
             GLState after = GLState::capture();
-            GLState::compare(before, after, "[Notify] PointsDrawCallback::drawImplementation()");
+            GLState::compare(before, after, "[Lamure] PointsDrawCallback::drawImplementation()");
         }
     }
     Lamure* _plugin;
@@ -989,7 +993,7 @@ struct PointsGeometry : public osg::Geometry
 {
     PointsGeometry(Lamure* plugin) : _plugin(plugin)
     {
-        if (_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] PointsGeometry()" << std::endl; }
+        if (notifyOn(_plugin)) { std::cout << "[Lamure] PointsGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -1012,7 +1016,7 @@ struct PointsGeometry : public osg::Geometry
 
 void LamureRenderer::init()
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::init()" << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::init()" << std::endl; }
     std::lock_guard<std::mutex> sceneLock(m_sceneMutex);
     initCamera();
 
@@ -1097,12 +1101,16 @@ void LamureRenderer::detachCallbacks()
 
 void LamureRenderer::shutdown()
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) {
-    }
+    // Wait for pools to idle before shutdown to avoid races
     if (auto* ctrl = lamure::ren::controller::get_instance()) {
+        if (m_osg_camera.valid() && m_osg_camera->getGraphicsContext() && m_osg_camera->getGraphicsContext()->getState()) {
+            lamure::context_t ctx = m_osg_camera->getGraphicsContext()->getState()->getContextID();
+            ctrl->wait_for_idle(ctx);
+        }
         ctrl->shutdown_pools();
     }
     if (auto* cache = lamure::ren::ooc_cache::get_instance()) {
+        cache->wait_for_idle();
         cache->shutdown_pool();
     }
 
@@ -1256,7 +1264,7 @@ bool LamureRenderer::isRendering() const
 
 void LamureRenderer::initUniforms() 
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::initUniforms()" << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initUniforms()" << std::endl; }
     glUseProgram(m_point_shader.program);
     m_point_shader.mvp_matrix_loc   = glGetUniformLocation(m_point_shader.program, "mvp_matrix");
     m_point_shader.max_radius_loc   = glGetUniformLocation(m_point_shader.program, "max_radius");
@@ -1967,7 +1975,7 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
 
 void LamureRenderer::initLamureShader()
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::initLamureShader()" << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initLamureShader()" << std::endl; }
 
     // Clear shader strings to prevent appending on reload
     vis_point_vs_source.clear();
@@ -2065,7 +2073,7 @@ void LamureRenderer::initLamureShader()
 
 void LamureRenderer::initSchismObjects()
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::initSchismObjects()" << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initSchismObjects()" << std::endl; }
     if (!m_device)
     {
         m_device.reset(new scm::gl::render_device());
@@ -2086,7 +2094,7 @@ void LamureRenderer::initSchismObjects()
 
 void LamureRenderer::initCamera()
 {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] LamureRenderer::initCamera()" << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initCamera()" << std::endl; }
     m_osg_camera = opencover::VRViewer::instance()->getCamera();
     lamure::context_t lmr_ctx = m_osg_camera->getGraphicsContext()->getState()->getContextID();
     double look_dist = 1.0;
@@ -2251,7 +2259,7 @@ GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string 
 
 
 void LamureRenderer::initFrustumResources() {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] create_frustum_resources() " << std::endl; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] create_frustum_resources() " << std::endl; }
     std::vector<scm::math::vec3d> corner_values = m_renderer->getScmCamera()->get_frustum_corners();
     for (size_t i = 0; i < corner_values.size(); ++i) {
         auto vv = scm::math::vec3f(corner_values[i]);
@@ -2279,7 +2287,7 @@ void LamureRenderer::initFrustumResources() {
 }
 
 void LamureRenderer::initBoxResources() {
-    if (m_plugin->getUI()->getNotifyButton()->state()) { std::cout << "[Notify] init_box_resources()\n"; }
+    if (notifyOn(m_plugin)) { std::cout << "[Lamure] init_box_resources()\n"; }
 
     if (!m_plugin->getSettings().models.size())
         return;
@@ -2390,7 +2398,7 @@ void LamureRenderer::print_active_uniforms(GLuint programID, const std::string& 
 
 
 void LamureRenderer::initPclResources(){
-    if(m_plugin->getUI()->getNotifyButton()->state()) std::cout<<"[Notify] initPclResources()\n";
+    if(notifyOn(m_plugin)) std::cout<<"[Lamure] initPclResources()\n";
 
     int width=0,height=0;
     if(osg::ref_ptr<osg::Camera> cam=getOsgCamera()){
@@ -2464,8 +2472,8 @@ void LamureRenderer::initPclResources(){
     const GLenum status=glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status!=GL_FRAMEBUFFER_COMPLETE){
         std::cerr<<"ERROR::FRAMEBUFFER incomplete ("<<std::hex<<status<<std::dec<<") "<<width<<"x"<<height<<"\n";
-    }else if(m_plugin->getUI()->getNotifyButton()->state()){
-        std::cout<<"[Notify] FBO ready "<<width<<"x"<<height<<"\n";
+    }else if(notifyOn(m_plugin)){
+        std::cout<<"[Lamure] FBO ready "<<width<<"x"<<height<<"\n";
     }
 
     // Unbind sauber
@@ -2497,6 +2505,6 @@ bool LamureRenderer::ensurePclFboSizeUpToDate(){
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texW);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texH);
     glBindTexture(GL_TEXTURE_2D,prevTex);
-    if(texW!=curW||texH!=curH){ if(m_plugin->getUI()->getNotifyButton()->state()) std::cout<<"[Notify] FBO resize "<<texW<<"x"<<texH<<" -> "<<curW<<"x"<<curH<<"\n"; initPclResources(); return true; }
+    if(texW!=curW||texH!=curH){ if(notifyOn(m_plugin)) std::cout<<"[Lamure] FBO resize "<<texW<<"x"<<texH<<" -> "<<curW<<"x"<<curH<<"\n"; initPclResources(); return true; }
     return false;
 }
