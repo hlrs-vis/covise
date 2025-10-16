@@ -228,11 +228,11 @@ bool TacxFTMS::update() {
             TransformMat = mat * relTrans * relRot;
             std::cerr << "TacxFTMS::update: master sending matrix" << std::endl;
             coVRMSController::instance()->sendSlaves((char*)TransformMat.ptr(),
-                                                     sizeof(TransformMat));
+                                                     sizeof(*TransformMat.ptr()));
         } else {
             std::cerr << "TacxFTMS::update: slave receiving matrix" << std::endl;
             coVRMSController::instance()->readMaster((char*)TransformMat.ptr(),
-                                                     sizeof(TransformMat));
+                                                     sizeof(*TransformMat.ptr()));
         }
         VRSceneGraph::instance()->getTransform()->setMatrix(TransformMat);
         coVRCollaboration::instance()->SyncXform();
