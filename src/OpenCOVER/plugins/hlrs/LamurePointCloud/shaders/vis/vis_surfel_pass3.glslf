@@ -8,6 +8,13 @@ layout(location = 0) out vec4 out_color;
 
 uniform vec3 background_color;
 uniform bool lighting;
+uniform vec3  point_light_pos_vs;
+uniform float point_light_intensity;
+uniform float ambient_intensity;
+uniform float specular_intensity;
+uniform float shininess;
+uniform float gamma;
+uniform bool  use_tone_mapping;
 
 in VsOut {
     vec2 uv;  // 0..1
@@ -33,8 +40,19 @@ void main()
     vec3 normal_vs = normalize(accumulated_normal / max(sum_w, 1e-8));
     vec3 pos_vs    = accumulated_pos_vs     / max(sum_w, 1e-8);
 
+    LightingParams lighting_params = LightingParams(
+        point_light_pos_vs,
+        point_light_intensity,
+        ambient_intensity,
+        specular_intensity,
+        shininess,
+        gamma,
+        use_tone_mapping
+    );
+
     // Debug-Modi umgehen Beleuchtung
-    vec3 shaded = (lighting) ? shade_blinn_phong(pos_vs, normal_vs, albedo) : albedo;
+    vec3 shaded = lighting ? shade_blinn_phong(pos_vs, normal_vs, albedo, lighting_params)
+                           : albedo;
 
     // Voll deckende Ausgabe (keine Transparenz, kein Blend nötig)
     out_color = vec4(shaded, 1.0);

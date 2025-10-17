@@ -1,4 +1,5 @@
 #version 420 core
+INCLUDE vis_surfel_util.glsl
 
 uniform float max_radius;
 uniform float min_radius;
@@ -22,12 +23,13 @@ uniform float max_screen_size;
 uniform float scale_projection;
 uniform float scale_radius_gamma; 
 uniform float max_radius_cut;
+uniform bool  use_aniso;
 
 layout(location = 0) in vec3  in_position;
 layout(location = 1) in float in_r;
 layout(location = 2) in float in_g;
 layout(location = 3) in float in_b;
-layout(location = 5) in float in_radius;   // Roh-Wert, wird zu DURCHMESSER skaliert
+layout(location = 5) in float in_radius;   // Roh-RADIUS aus Vorverarbeitung
 layout(location = 6) in vec3  in_normal;
 
 INCLUDE ../common/heatmapping/wavelength_to_rainbow.glsl
@@ -89,36 +91,47 @@ vec3 get_output_sensitivity_color(float screen_size) {
 void main() {
     const float EPS = 1e-6;
 
-    // --- RAW-Radius & Cut im RAW-Domain ---
-    float r_raw = max(0.0, in_radius);
-    bool cut = (max_radius_cut > 0.0) && (r_raw > max_radius_cut);
-
-    // --- WS-Radius mit Gamma/Scale, danach CLAMP im WS ---
-    float r_ws = 0.0;
-    if (!cut) {
-        float gamma = (scale_radius_gamma > 0.0) ? scale_radius_gamma : 1.0;
-        float r_ws_unclamped = scale_radius * pow(r_raw, gamma); // WS-Radius
-        r_ws = clamp(r_ws_unclamped, min_radius, max_radius);    // << CLAMP NACH Skalierung (WS)
-    }
+    float r_ws = map_raw_to_world_radius(
+        in_radius,
+        max_radius_cut,
+        scale_radius_gamma,
+        scale_radius,
+        min_radius,
+        max_radius);
 
     vec3 n_ws = normalize((length(in_normal) > EPS) ? in_normal : vec3(0,0,1));
-    vec3 ref  = (abs(n_ws.x)>abs(n_ws.y) && abs(n_ws.x)>abs(n_ws.z)) ? vec3(0,1,0)
-               : (abs(n_ws.y)>abs(n_ws.z) ? vec3(0,0,1) : vec3(1,0,0));
-    vec3 ms_u = normalize(cross(ref, n_ws));
-    vec3 ms_v = normalize(cross(n_ws, ms_u));
+    vec3 ms_u, ms_v;
+    onb_from_normal(n_ws, ms_u, ms_v);
 
-    vec3 vs_center = (model_view_matrix * vec4(in_position, 1.0)).xyz;
-    vec3 vs_half_u = (model_view_matrix * vec4(ms_u * r_ws, 0.0)).xyz; // Radius!
-    vec3 vs_half_v = (model_view_matrix * vec4(ms_v * r_ws, 0.0)).xyz;
+    vec3 center_ws = in_position;
+    vec3 half_u_ws = ms_u * r_ws;
+    vec3 half_v_ws = ms_v * r_ws;
 
-    // --- Pixel-RADIUS clamp + isotrope Skalierung ---
-    float w0   = max(EPS, abs((projection_matrix * vec4(vs_center, 1.0)).w));
-    float Rpx  = (r_ws * scale_projection) / w0;                 // Pixel-RADIUS
-    float RpxC = clamp(Rpx, min_screen_size, max_screen_size);
-    float s    = (Rpx > EPS) ? (RpxC / Rpx) : 1.0;
+    mat4 mv  = model_view_matrix;
+    mat4 mvp = projection_matrix * mv;
 
-    vs_half_u *= s;
-    vs_half_v *= s;
+    float pixel_diameter = 0.0;
+    bool ok = false;
+    if (use_aniso) {
+        ok = scale_anisotropic_pixels(center_ws, half_u_ws, half_v_ws,
+                                      mvp, viewport,
+                                      min_screen_size, max_screen_size,
+                                      pixel_diameter);
+    } else {
+        ok = scale_isotropic_pixels(center_ws, half_u_ws, half_v_ws,
+                                    mvp, viewport,
+                                    min_screen_size, max_screen_size,
+                                    scale_projection,
+                                    pixel_diameter);
+    }
+    if (!ok) {
+        half_u_ws = vec3(0.0);
+        half_v_ws = vec3(0.0);
+    }
+
+    vec3 vs_center = (mv * vec4(center_ws, 1.0)).xyz;
+    vec3 vs_half_u = (mv * vec4(half_u_ws, 0.0)).xyz;
+    vec3 vs_half_v = (mv * vec4(half_v_ws, 0.0)).xyz;
 
     vec3 base_color = vec3(in_r, in_g, in_b);
     vec3 vs_normal  = normalize(normal_matrix * in_normal);

@@ -180,6 +180,8 @@ private:
         GLint scale_projection_loc      {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
+        GLint viewport_loc              {-1};
+        GLint use_aniso_loc             {-1};
     };
     SurfelShader m_surfel_shader;
 
@@ -204,6 +206,7 @@ private:
         GLint accuracy_loc              {-1}; // float accuracy
         GLint average_radius_loc        {-1}; // float average_radius
         GLint scale_projection_loc      {-1};
+        GLint use_aniso_loc             {-1};
     };
     SurfelColorShader m_surfel_color_shader;
 
@@ -237,6 +240,7 @@ private:
         GLint point_light_intensity_loc {-1};
         GLint point_light_pos_vs_loc    {-1};
         GLint gamma_loc                 {-1};
+        GLint use_aniso_loc             {-1};
     };
     SurfelColorLightingShader m_surfel_color_lighting_shader;
 
@@ -280,6 +284,7 @@ private:
         GLint near_plane_loc{-1};           // float near_plane
         GLint far_plane_loc{-1};            // float far_plane
         GLint viewport_loc {-1};
+        GLint use_aniso_loc{-1};
         GLint scale_projection_loc      {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
@@ -307,6 +312,7 @@ private:
         GLint far_plane_loc{-1};
         GLint near_plane_loc{-1};
         GLint viewport_loc {-1};
+        GLint use_aniso_loc{-1};
         GLint scale_projection_loc      {-1};
         // Scaling uniforms (from VS)
         GLint max_radius_loc{-1};

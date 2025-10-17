@@ -43,7 +43,7 @@ private:
 
     //opencover::ui::Label* m_shader_label = nullptr;
 
-    // Shader Options
+    // Shader options
     opencover::ui::Group*  m_shader_options_group   = nullptr;
     opencover::ui::Button* m_check_point            = nullptr;
     opencover::ui::Button* m_check_surfel           = nullptr;
@@ -51,14 +51,14 @@ private:
     opencover::ui::Button* m_check_coloring         = nullptr;
     opencover::ui::Button* m_check_lighting         = nullptr;
 
-    // Modelle
+    // Models
     std::vector<opencover::ui::Button*> m_model_buttons;
     std::vector<bool>                   m_model_visible;
 
     opencover::ui::SelectionList *m_mode_choice     = nullptr;
     opencover::ui::SelectionList *m_shader_choice   = nullptr;
 
-    // Haupt-Buttons
+    // Main buttons
     opencover::ui::Button* m_pointcloud_button   = nullptr;
     opencover::ui::Button* m_boundingbox_button  = nullptr;
     opencover::ui::Button* m_frustum_button      = nullptr;
@@ -68,7 +68,7 @@ private:
     opencover::ui::Button* m_dump_button         = nullptr;
     opencover::ui::Button* m_prov_button         = nullptr;
 
-    // Gruppen und Menu
+    // Groups and menus
     opencover::ui::Menu*   m_lamure_menu        = nullptr;
     opencover::ui::Group*  m_selection_group    = nullptr;
     opencover::ui::Group*  m_misc_group         = nullptr;
@@ -87,7 +87,7 @@ private:
     opencover::ui::Button* m_measure_off         = nullptr;
     opencover::ui::Slider* m_measure_sample      = nullptr;
 
-    // Slider
+    // Scaling/LOD sliders and controls
     opencover::ui::Slider* m_scale_radius_slider       = nullptr;
     opencover::ui::Slider* m_scale_surfel_slider       = nullptr;
     opencover::ui::Slider* m_min_radius_slider         = nullptr;
@@ -100,8 +100,14 @@ private:
     opencover::ui::Slider* m_video_memory_budget_slider= nullptr;
     opencover::ui::Slider* m_depth_range_slider        = nullptr;
     opencover::ui::Slider* m_flank_lift_slider         = nullptr;
+    // Anisotropic scaling mode (exclusive buttons)
+    opencover::ui::Group*  m_aniso_mode_group          = nullptr;
+    opencover::ui::Button* m_aniso_off_btn             = nullptr;
+    opencover::ui::Button* m_aniso_auto_btn            = nullptr;
+    opencover::ui::Button* m_aniso_on_btn              = nullptr;
 
-    opencover::ui::Menu*    m_point_size_menu = nullptr;
+    opencover::ui::Menu*    m_scaling_menu    = nullptr;
+    opencover::ui::Group*   m_scaling_group   = nullptr;
 
     opencover::ui::Menu*   m_lod_menu       = nullptr;
     opencover::ui::Group*  m_lod_group      = nullptr;
@@ -122,7 +128,7 @@ private:
     opencover::ui::Slider* m_light_pos_z_slider             = nullptr;
     opencover::ui::Button* m_tone_mapping_button            = nullptr;
 
-    // Shader Button
+    // Primitive selection
     opencover::ui::Group*  m_primitives_group   = nullptr;
     opencover::ui::Button* m_point_button       = nullptr;
     opencover::ui::Button* m_surfel_button      = nullptr;

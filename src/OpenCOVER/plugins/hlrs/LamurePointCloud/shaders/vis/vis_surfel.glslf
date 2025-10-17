@@ -5,7 +5,7 @@ in FS_IN {
     vec3  pass_point_color;
     vec2  pass_uv_coords;
     vec3  pass_world_pos;
-    float pass_radius_ws;   // effektiver Durchmesser (WS) nach Pixel-Clamp
+    float pass_radius_ws;   // effektiver Radius (WS) nach Pixel-Clamp
     float pass_screen_size; // effektiver Durchmesser in Pixeln
 } fsIn;
 

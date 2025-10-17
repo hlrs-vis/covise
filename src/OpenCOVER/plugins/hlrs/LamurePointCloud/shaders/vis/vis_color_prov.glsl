@@ -3,31 +3,31 @@
 INCLUDE ../common/heatmapping/wavelength_to_rainbow.glsl
 INCLUDE ../common/heatmapping/colormap.glsl
 
-uniform bool  show_normals;
-uniform bool  show_accuracy;
-uniform bool  show_radius_deviation;
-uniform bool  show_output_sensitivity;
-
-uniform float accuracy;
-uniform float average_radius;
-
-uniform int   channel;
-uniform bool  heatmap;
-uniform float heatmap_min;
-uniform float heatmap_max;
-uniform vec3  heatmap_min_color;
-uniform vec3  heatmap_max_color;
-
+struct ColorProvDebugParams {
+    bool  show_normals;
+    bool  show_accuracy;
+    bool  show_radius_deviation;
+    bool  show_output_sensitivity;
+    float accuracy;
+    float average_radius;
+    int   channel;
+    bool  heatmap;
+    float heatmap_min;
+    float heatmap_max;
+    vec3  heatmap_min_color;
+    vec3  heatmap_max_color;
+};
 
 // ---- Hilfsfunktionen ----
 vec3 quick_interp(vec3 c1, vec3 c2, float v) {
     return c1 + (c2 - c1) * clamp(v, 0.0, 1.0);
 }
 
-vec3 prov_to_color(float prov_value) {
-    float value = (prov_value - heatmap_min) / (heatmap_max - heatmap_min);
-    if (heatmap) {
-        return quick_interp(heatmap_min_color, heatmap_max_color, value);
+vec3 prov_to_color(float prov_value, in ColorProvDebugParams dbg) {
+    float range = max(dbg.heatmap_max - dbg.heatmap_min, 1e-8);
+    float value = (prov_value - dbg.heatmap_min) / range;
+    if (dbg.heatmap) {
+        return quick_interp(dbg.heatmap_min_color, dbg.heatmap_max_color, value);
     } else {
         init_colormap();
         return get_colormap_value(value);
@@ -46,45 +46,46 @@ vec3 get_color(in vec3 position,
                in vec3 base_color,
                in float radius,
                in float screen_size,
-               in float prov1, 
-               in float prov2, 
+               in float prov1,
+               in float prov2,
                in float prov3,
-               in float prov4, 
-               in float prov5, 
-               in float prov6) {
+               in float prov4,
+               in float prov5,
+               in float prov6,
+               in ColorProvDebugParams dbg) {
 
-    vec3  view_color = vec3(0.0);
+    vec3 view_color = vec3(0.0);
 
-    if (show_normals) {
+    if (dbg.show_normals) {
         vec3 n = normal;
         if (n.z < 0.0) n *= -1.0;
         view_color = n * 0.5 + 0.5;
     }
-    else if (show_output_sensitivity) {
+    else if (dbg.show_output_sensitivity) {
         view_color = get_output_sensitivity_color(screen_size);
     }
-    else if (show_radius_deviation) {
+    else if (dbg.show_radius_deviation) {
         float max_fac  = 2.0;
-        float safe_avg = max(1e-8, average_radius);
+        float safe_avg = max(1e-8, dbg.average_radius);
         view_color = vec3(min(max_fac, radius / safe_avg) / max_fac);
     }
-    else if (channel == 0) {
+    else if (dbg.channel == 0) {
         view_color = base_color;
     }
     else {
         float pv = 0.0;
-        if      (channel == 1) pv = prov1;
-        else if (channel == 2) pv = prov2;
-        else if (channel == 3) pv = prov3;
-        else if (channel == 4) pv = prov4;
-        else if (channel == 5) pv = prov5;
-        else if (channel == 6) pv = prov6;
+        if      (dbg.channel == 1) pv = prov1;
+        else if (dbg.channel == 2) pv = prov2;
+        else if (dbg.channel == 3) pv = prov3;
+        else if (dbg.channel == 4) pv = prov4;
+        else if (dbg.channel == 5) pv = prov5;
+        else if (dbg.channel == 6) pv = prov6;
 
-        view_color = prov_to_color(pv);
+        view_color = prov_to_color(pv, dbg);
     }
 
-    if (show_accuracy) {
-        view_color += vec3(accuracy, 0.0, 0.0);
+    if (dbg.show_accuracy) {
+        view_color += vec3(dbg.accuracy, 0.0, 0.0);
     }
 
     return view_color;

@@ -127,7 +127,7 @@ public:
         float aux_point_scale{ 1.0f };
         float aux_focal_length{ 1.0f };
         int32_t vis{ 0 };
-        int32_t show_normals{ 0 };
+        int32_t show_normals{ 1 };
         bool show_accuracy{ 0 };
         bool show_radius_deviation{ 0 };
         bool show_output_sensitivity{ 0 };
@@ -170,6 +170,10 @@ public:
         float min_screen_size{ 1.0f };
         float max_screen_size{ std::min(std::numeric_limits<float>::max(), 0.1f) };
         float max_radius_cut{ 10.0f };
+        // Surfel scaling mode: 0=off (isotropic), 1=auto (default), 2=on (anisotropic)
+        int32_t anisotropic_surfel_scaling{ 1 };
+        // Auto-mode off-axis sensitivity threshold (max(|col2.x|,|col2.y|))
+        float anisotropic_auto_threshold{ 0.05f };
         float depth_range{ 2.0f };
         float flank_lift{ 0.0f };
         std::vector<float> bvh_color{ 1.0f, 1.0f, 0.0f, 1.0f };

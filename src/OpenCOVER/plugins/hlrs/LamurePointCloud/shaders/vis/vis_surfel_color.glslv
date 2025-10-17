@@ -1,5 +1,6 @@
 // ===================== Vertex Shader =====================
 #version 420 core
+INCLUDE vis_surfel_util.glsl
 
 layout(location = 0)  in vec3  in_position;
 layout(location = 1)  in float in_r;
@@ -13,10 +14,10 @@ uniform mat4  mvp_matrix;
 uniform mat4  view_matrix;
 uniform mat3  normal_matrix;
 
-uniform float min_radius;         // Welt-CLAMP (Durchmesser)
-uniform float max_radius;         // Welt-CLAMP (Durchmesser)
-uniform float scale_radius;       // Roh -> Welt (Durchmesser)
-uniform float scale_radius_gamma; // Gamma-Shaping (auf Roh-Durchmesser)
+uniform float min_radius;         // Welt-CLAMP (Radius)
+uniform float max_radius;         // Welt-CLAMP (Radius)
+uniform float scale_radius;       // Roh -> Welt (Radius)
+uniform float scale_radius_gamma; // Gamma-Shaping (auf Roh-Radius)
 uniform float max_radius_cut;     // CUT-Schwelle im Roh-RADIUS (vor Scaling!)
 
 out VertexData {
@@ -33,30 +34,23 @@ out VertexData {
 void main() {
     const float EPS = 1e-6;
 
-    // --- RAW-Radius & Cut im RAW-Domain ---
-    float r_raw = max(0.0, in_radius);
-    bool cut = (max_radius_cut > 0.0) && (r_raw > max_radius_cut);
-
-    // --- WS-Radius mit Gamma/Scale, danach CLAMP im WS ---
-    float r_ws = 0.0;
-    if (!cut) {
-        float gamma = (scale_radius_gamma > 0.0) ? scale_radius_gamma : 1.0;
-        float r_ws_unclamped = scale_radius * pow(r_raw, gamma); // WS-Radius
-        r_ws = clamp(r_ws_unclamped, min_radius, max_radius);    // << CLAMP NACH Skalierung (WS)
-    }
+    // Map raw radius to world radius
+    float r_ws = map_raw_to_world_radius(
+        in_radius,
+        max_radius_cut,
+        scale_radius_gamma,
+        scale_radius,
+        min_radius,
+        max_radius);
 
     // Normale (WS/VS)
     vec3 n_ws = normalize(in_normal);
     vec3 n_vs = normalize(normal_matrix * in_normal);
     if (length(n_vs) < EPS) n_vs = vec3(0,0,1);
 
-    // Orthonormale Tangentenbasis (WS)
-    vec3 ref = (abs(n_ws.x) > abs(n_ws.y) && abs(n_ws.x) > abs(n_ws.z))
-             ? vec3(0.0, 1.0, 0.0)
-             : (abs(n_ws.y) > abs(n_ws.z) ? vec3(0.0, 0.0, 1.0)
-                                          : vec3(1.0, 0.0, 0.0));
-    vec3 u = normalize(cross(ref, n_ws));
-    vec3 v = normalize(cross(n_ws, u));
+    // Orthonormalbasis (Frisvad)
+    vec3 u, v;
+    onb_frisvad(n_ws, u, v);
 
 
     // Outputs

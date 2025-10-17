@@ -1,5 +1,6 @@
 // ===================== Geometry Shader =====================
 #version 420 core
+INCLUDE vis_surfel_util.glsl
 
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
@@ -16,11 +17,13 @@ in VertexData {
 } VertexIn[];
 
 uniform mat4  mvp_matrix;
+uniform vec2  viewport;
 
 // Pixel-CLAMP
 uniform float min_screen_size;     // Pixel-Durchmesser
 uniform float max_screen_size;     // Pixel-Durchmesser
-uniform float scale_projection;  // Welt -> Pixel (nutzt |w| am Zentrum)
+uniform float scale_projection;    // Welt -> Pixel (nutzt |w| am Zentrum)
+uniform bool  use_aniso;           // anisotrope Skalierung aktiv
 
 out FS_IN {
     vec3  pass_point_color;
@@ -53,22 +56,22 @@ void main() {
         return;
     }
 
-    // Projektionsfaktor am Mittelpunkt
-    vec4 Pc  = mvp_matrix * vec4(center, 1.0);
-    float w0 = max(EPS, abs(Pc.w));
-
-    // Ausgangs-WS-Durchmesser & Pixel-Durchmesser
-    float r_ws = length(step_u);
-    float d_ws = 2.0 * r_ws;
-    float d_px = (d_ws * scale_projection) / w0;
-
-    // Pixel-CLAMP (Durchmesser) + isotrope Skalierung der Halbachsen
-    float d_pxC = clamp(d_px, min_screen_size, max_screen_size);
-    if (d_pxC <= EPS) return; // optional: unsichtbar -> skip
-
-    float s = (d_px > EPS) ? (d_pxC / d_px) : 1.0;
-    step_u *= s;
-    step_v *= s;
+    // Anisotrope (exakt) oder isotrope Skalierung über Utils (Depth wird oben gesetzt)
+    float d_pxC = 0.0;
+    bool ok = false;
+    if (use_aniso) {
+        ok = scale_anisotropic_pixels(center, step_u, step_v,
+                                      mvp_matrix, viewport,
+                                      min_screen_size, max_screen_size,
+                                      d_pxC);
+    } else {
+        ok = scale_isotropic_pixels(center, step_u, step_v,
+                                    mvp_matrix, viewport,
+                                    min_screen_size, max_screen_size,
+                                    scale_projection,
+                                    d_pxC);
+    }
+    if (!ok) return;
 
     // Werte für FS
     gOut.pass_radius_ws   = length(step_u); // effektiver WS-Radius nach Pixel-CLAMP

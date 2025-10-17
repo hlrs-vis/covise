@@ -712,6 +712,18 @@ void Lamure::loadSettingsFromCovise() {
     s.depth_range = getNum<float>("value", (std::string(root) + ".depth_range").c_str(), s.depth_range);
     s.flank_lift  = getNum<float>("value", (std::string(root) + ".flank_lift").c_str(),  s.flank_lift);
 
+    // ---- Surfel anisotropic scaling ----
+    {
+        const std::string key = std::string(root) + ".anisotropic_surfel_scaling";
+        std::string mode = getStr(key.c_str(), "auto");
+        for (auto &c : mode) c = static_cast<char>(::tolower(static_cast<unsigned char>(c)));
+        if (mode == "off" || mode == "0") s.anisotropic_surfel_scaling = 0;
+        else if (mode == "on" || mode == "2" || mode == "true") s.anisotropic_surfel_scaling = 2;
+        else s.anisotropic_surfel_scaling = 1; // auto (default)
+        // Optional threshold for auto mode; defaults to 0.05 if unset
+        s.anisotropic_auto_threshold = getNum<float>("value", (std::string(root) + ".anisotropic_auto_threshold").c_str(), s.anisotropic_auto_threshold);
+    }
+
     // ---- Dateien / Pfade ----
     s.pvs              = getStr((std::string(root) + ".pvs").c_str(),              s.pvs);
     s.background_image = getStr((std::string(root) + ".background_image").c_str(), s.background_image);

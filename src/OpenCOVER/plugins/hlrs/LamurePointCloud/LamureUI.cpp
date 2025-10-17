@@ -21,7 +21,7 @@ void LamureUI::setupUi() {
     m_lamure_menu->setText("Lamure");
     m_lamure_menu->allowRelayout(true);
 
-    // --- Rendering ---
+    // Rendering visibility toggles
     m_rendering_group = new opencover::ui::Group(m_lamure_menu, "Rendering");
 
     m_pointcloud_button  = new opencover::ui::Button(m_rendering_group, "Pointcloud");
@@ -35,7 +35,7 @@ void LamureUI::setupUi() {
     m_text_button->setShared(true);
 
 
-    // --- Misc ---
+    // Miscellaneous options
     m_misc_group = new opencover::ui::Group(m_lamure_menu, "Misc");
 
     m_sync_button        = new opencover::ui::Button(m_misc_group, "Sync");
@@ -46,14 +46,14 @@ void LamureUI::setupUi() {
     m_notify_button->setShared(true);
     m_dump_button->setShared(true);
 
-    // Initialize notify button from settings and keep it in sync
+    // Keep notify setting in sync with UI
     m_notify_button->setState(m_plugin->getSettings().show_notify);
     m_notify_button->setCallback([this](bool on){
         m_plugin->getSettings().show_notify = on;
     });
 
 
-
+    // Primitives group (as before)
     m_primitives_group = new opencover::ui::Group(m_lamure_menu, "Primitives");
 
     m_point_button = new opencover::ui::Button(m_primitives_group, "point_button");
@@ -94,9 +94,67 @@ void LamureUI::setupUi() {
         });
 
 
-    m_point_size_menu = new opencover::ui::Menu(m_lamure_menu, "Scaling");
+    m_scaling_menu = new opencover::ui::Menu(m_lamure_menu, "Scaling");
 
-    m_scale_radius_slider = new opencover::ui::Slider(m_point_size_menu, "scale_radius");
+    // Anisotropic scaling mode (Off / Auto / On) at top of Scaling
+    m_aniso_mode_group = new opencover::ui::Group(m_scaling_menu, "");
+    m_aniso_auto_btn = new opencover::ui::Button(m_aniso_mode_group, "Auto");
+    m_aniso_off_btn  = new opencover::ui::Button(m_aniso_mode_group, "Off");
+    m_aniso_on_btn   = new opencover::ui::Button(m_aniso_mode_group, "On");
+    m_aniso_off_btn->setShared(true);
+    m_aniso_auto_btn->setShared(true);
+    m_aniso_on_btn->setShared(true);
+
+    // Exclusive selection helper
+    auto selectAniso = [this](int idx){
+        auto &st = m_plugin->getSettings();
+        // idx: 0=Off, 1=Auto, 2=On
+        switch (idx) {
+            case 0: st.anisotropic_surfel_scaling = 0; break;
+            case 2: st.anisotropic_surfel_scaling = 2; break;
+            default: st.anisotropic_surfel_scaling = 1; break;
+        }
+        if (m_aniso_off_btn)  m_aniso_off_btn->setState(idx == 0);
+        if (m_aniso_auto_btn) m_aniso_auto_btn->setState(idx == 1);
+        if (m_aniso_on_btn)   m_aniso_on_btn->setState(idx == 2);
+    };
+
+    // Initial state from settings
+    {
+        int v = std::max(0, std::min(2, m_plugin->getSettings().anisotropic_surfel_scaling));
+        int idx = (v == 0 ? 0 : (v == 2 ? 2 : 1));
+        selectAniso(idx);
+    }
+
+    // Callbacks enforcing radio behavior
+    m_aniso_off_btn->setCallback([this, selectAniso](bool on){
+        auto &st = m_plugin->getSettings();
+        if (!on) {
+            if (st.anisotropic_surfel_scaling == 0) m_aniso_off_btn->setState(true);
+            return;
+        }
+        selectAniso(0);
+    });
+    m_aniso_auto_btn->setCallback([this, selectAniso](bool on){
+        auto &st = m_plugin->getSettings();
+        if (!on) {
+            if (st.anisotropic_surfel_scaling == 1) m_aniso_auto_btn->setState(true);
+            return;
+        }
+        selectAniso(1);
+    });
+    m_aniso_on_btn->setCallback([this, selectAniso](bool on){
+        auto &st = m_plugin->getSettings();
+        if (!on) {
+            if (st.anisotropic_surfel_scaling == 2) m_aniso_on_btn->setState(true);
+            return;
+        }
+        selectAniso(2);
+    });
+
+    // Scaling sliders (grouped, similar to LOD)
+    m_scaling_group = new opencover::ui::Group(m_scaling_menu, "");
+    m_scale_radius_slider = new opencover::ui::Slider(m_scaling_group, "scale_radius");
     m_scale_radius_slider->setText("Scale Radius");
     m_scale_radius_slider->setBounds(0.0001f, 1.0f);
     m_scale_radius_slider->setScale(opencover::ui::Slider::Logarithmic);
@@ -108,7 +166,7 @@ void LamureUI::setupUi() {
     m_scale_radius_slider->setCallback([this](double value, bool released)
         { m_plugin->getSettings().scale_radius = static_cast<float>(value); });
 
-    m_scale_radius_gamma_slider = new opencover::ui::Slider(m_point_size_menu, "scale_radius_gamma");
+    m_scale_radius_gamma_slider = new opencover::ui::Slider(m_scaling_group, "scale_radius_gamma");
     m_scale_radius_gamma_slider->setText("Scale Gamma");
     m_scale_radius_gamma_slider->setBounds(0.0f, 1.0f);
     m_scale_radius_gamma_slider->setValue(m_plugin->getSettings().scale_radius_gamma);
@@ -116,7 +174,7 @@ void LamureUI::setupUi() {
     m_scale_radius_gamma_slider->setCallback([this](double value, bool released)
         { m_plugin->getSettings().scale_radius_gamma = static_cast<float>(value); });
 
-    m_max_radius_cut_slider = new opencover::ui::Slider(m_point_size_menu, "max_radius_cut");
+    m_max_radius_cut_slider = new opencover::ui::Slider(m_scaling_group, "max_radius_cut");
     m_max_radius_cut_slider->setText("Cut Radius (world)");
     m_max_radius_cut_slider->setBounds(0.0f, std::max(m_plugin->getSettings().max_radius_cut, 10.0f));
     m_max_radius_cut_slider->setValue(m_plugin->getSettings().max_radius_cut);
@@ -124,7 +182,7 @@ void LamureUI::setupUi() {
     m_max_radius_cut_slider->setCallback([this](double value, bool released)
         { m_plugin->getSettings().max_radius_cut = static_cast<float>(value); });
 
-    m_max_radius_slider = new opencover::ui::Slider(m_point_size_menu, "max_radius");
+    m_max_radius_slider = new opencover::ui::Slider(m_scaling_group, "max_radius");
     m_max_radius_slider->setText("Max. Radius (world)");
     m_max_radius_slider->setBounds(0.0f, std::max(m_plugin->getSettings().max_radius, 3.0f));
     m_max_radius_slider->setValue(m_plugin->getSettings().max_radius);
@@ -132,7 +190,7 @@ void LamureUI::setupUi() {
     m_max_radius_slider->setCallback([this](double value, bool released)
         { m_plugin->getSettings().max_radius = static_cast<float>(value); });
 
-    m_min_radius_slider = new opencover::ui::Slider(m_point_size_menu, "min_radius");
+    m_min_radius_slider = new opencover::ui::Slider(m_scaling_group, "min_radius");
     m_min_radius_slider->setText("Min. Radius (world)");
     m_min_radius_slider->setBounds(0.0f, std::max(m_plugin->getSettings().min_radius, 0.1f));
     m_min_radius_slider->setValue(m_plugin->getSettings().min_radius);
@@ -141,7 +199,7 @@ void LamureUI::setupUi() {
         m_plugin->getSettings().min_radius = static_cast<float>(value);
         });
 
-    m_max_screen_size_slider = new opencover::ui::Slider(m_point_size_menu, "max_screen_size");
+    m_max_screen_size_slider = new opencover::ui::Slider(m_scaling_group, "max_screen_size");
     m_max_screen_size_slider->setText("Max. Radius (screen)");
     m_max_screen_size_slider->setBounds(1.0f, std::max(m_plugin->getSettings().max_screen_size, 10000.0f));
     m_max_screen_size_slider->setScale(opencover::ui::Slider::Logarithmic);
@@ -150,7 +208,7 @@ void LamureUI::setupUi() {
     m_max_screen_size_slider->setCallback([this](double value, bool released)
         { m_plugin->getSettings().max_screen_size = static_cast<float>(value); });
 
-    m_min_screen_size_slider = new opencover::ui::Slider(m_point_size_menu, "min_screen_size");
+    m_min_screen_size_slider = new opencover::ui::Slider(m_scaling_group, "min_screen_size");
     m_min_screen_size_slider->setText("Min. Radius (screen)");
     m_min_screen_size_slider->setBounds(0.0f, std::max(m_plugin->getSettings().min_screen_size, 10.0f));
     m_min_screen_size_slider->setValue(m_plugin->getSettings().min_screen_size);
@@ -159,7 +217,7 @@ void LamureUI::setupUi() {
         m_plugin->getSettings().min_screen_size = static_cast<float>(value);
         });
 
-    m_scale_surfel_slider = new opencover::ui::Slider(m_point_size_menu, "scale_surfel");
+    m_scale_surfel_slider = new opencover::ui::Slider(m_scaling_group, "scale_surfel");
     m_scale_surfel_slider->setText("Surfel Scale Multiplier");
     m_scale_surfel_slider->setBounds(0.1f, 5.0f);
     m_scale_surfel_slider->setValue(m_plugin->getSettings().scale_surfel);
@@ -171,8 +229,10 @@ void LamureUI::setupUi() {
             st.scale_element = st.scale_surfel;
         });
 
+    // (SelectionList removed in favor of atomic checkboxes)
+
     // --- Multi-Pass Blending Sliders ---
-    m_depth_range_slider = new opencover::ui::Slider(m_point_size_menu, "depth_range");
+    m_depth_range_slider = new opencover::ui::Slider(m_scaling_group, "depth_range");
     m_depth_range_slider->setText("Depth Range");
     m_depth_range_slider->setBounds(0.0f, 10.0f);
     m_depth_range_slider->setValue(m_plugin->getSettings().depth_range);
@@ -181,7 +241,7 @@ void LamureUI::setupUi() {
         m_plugin->getSettings().depth_range = static_cast<float>(value);
         });
 
-    m_flank_lift_slider = new opencover::ui::Slider(m_point_size_menu, "flank_lift");
+    m_flank_lift_slider = new opencover::ui::Slider(m_scaling_group, "flank_lift");
     m_flank_lift_slider->setText("Flank Lift");
     m_flank_lift_slider->setBounds(0.0f, 1.0f);
     m_flank_lift_slider->setValue(m_plugin->getSettings().flank_lift);
@@ -191,14 +251,12 @@ void LamureUI::setupUi() {
         });
 
 
+    // Coloring options
     m_coloring_menu = new opencover::ui::Menu(m_lamure_menu, "Coloring");
     m_coloring_button = new opencover::ui::Button(m_coloring_menu, "coloring_button");
     m_coloring_button->setText("Coloring");
     m_coloring_button->setShared(true);
     m_coloring_button->setState(m_plugin->getSettings().coloring);
-
-    //m_mode_choice = new opencover::ui::SelectionList(m_coloring_menu, "Mode");
-    //m_mode_choice->setShared(true);
 
     m_mode_group = new opencover::ui::Group(m_coloring_menu, "Modes");
 
@@ -212,7 +270,7 @@ void LamureUI::setupUi() {
     m_mode_radius_dev_btn->setShared(true);
     m_mode_output_sens_btn->setShared(true);
 
-    // Helper für exklusives Umschalten (UI + Settings)
+    // Exclusive mode selection (UI + Settings)
     auto selectMode = [this](int idx){
         auto &st = m_plugin->getSettings();
         st.show_normals            = (idx == 0);
@@ -227,7 +285,7 @@ void LamureUI::setupUi() {
         if (m_mode_output_sens_btn)  m_mode_output_sens_btn->setState(idx == 3);
         };
 
-    // Initialzustand aus Settings (Fallback: Normals)
+    // Initialize mode from settings (fallback: Normals)
     auto &s = m_plugin->getSettings();
     int initial_mode_idx = 0;
     if      (s.show_accuracy)           initial_mode_idx = 1;
@@ -235,7 +293,7 @@ void LamureUI::setupUi() {
     else if (s.show_output_sensitivity) initial_mode_idx = 3;
     selectMode(initial_mode_idx);
 
-    // Callbacks (Radio-Verhalten: ein Button immer aktiv)
+    // Radio-style callbacks (ensure at least one active)
     m_mode_normals_btn->setCallback([this, selectMode](bool on){
         auto &st = m_plugin->getSettings();
         if (!on) { // verhindern, dass gar nichts aktiv ist
