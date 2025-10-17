@@ -28,6 +28,7 @@
 #include <chrono>
 #include <algorithm>
 #include <iomanip>
+#include <limits>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -302,11 +303,12 @@ struct TextCullCallback : public osg::Drawable::CullCallback
                 fpsAvg = 1.0 / fd;
             }
 
+            const double primMio = static_cast<double>(_render_info->rendered_primitives) / 1e6;
             value_ss << "\n"
                 << std::fixed << std::setprecision(2) 
                 << fpsAvg << "\n"
                 << _render_info->rendered_nodes << "\n"                
-                << _render_info->rendered_primitives << "\n"                
+                << primMio << "\n"                
                 << _render_info->rendered_bounding_boxes << "\n\n\n"
                 << pos.x << "\n"
                 << pos.y << "\n"
@@ -332,39 +334,42 @@ struct TextGeode : public osg::Geode
     TextGeode(Lamure* plugin)
     {
         if (notifyOn(plugin)) { std::cout << "[Lamure] TextGeode()" << std::endl; }
-        osg::Quat rotation(osg::DegreesToRadians(90.0f), osg::Vec3(1.0f, 0.0f, 0.0f));
         osg::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
         std::string font = opencover::coVRFileManager::instance()->getFontFile(NULL);
-        float characterSize = 20.0f;
+        float characterSize = 18.0f;
         const osg::GraphicsContext::Traits* traits = opencover::coVRConfig::instance()->windows[0].context->getTraits();
-        osg::Vec3 pos_label(+traits->width * 0.5 * 0.475f, 0.0f, traits->height * 0.5 * 0.7f);
-        osg::Vec3 pos_value = pos_label + osg::Vec3(100.0f, 0.0f, 0.0f);
+        const float marginX = 12.f, marginY = 12.f;
+        osg::Vec3 pos_label(traits->width - marginX - 160.f, traits->height - marginY, 0.0f);
+        osg::Vec3 pos_value(traits->width - marginX,          traits->height - marginY, 0.0f);
         osg::ref_ptr<osgText::Text> label = new osgText::Text();
-        label->setRotation(rotation);
         label->setColor(color);
         label->setFont(font);
+        label->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS);
         label->setCharacterSize(characterSize);
+        label->setAlignment(osgText::TextBase::RIGHT_TOP);
+        label->setAutoRotateToScreen(false);
         label->setPosition(pos_label);
         std::stringstream label_ss;
-        label_ss << "Rendering" << "\n"
-            << "FPS:" << "\n"
+        label_ss << "FPS:" << "\n"
             << "Nodes:" << "\n"
-            << "Primitive:" << "\n"
+            << "Primitives (Mio):" << "\n"
             << "Boxes:" << "\n\n"
             << "Frustum Position" << "\n"
             << "X:" << "\n"
             << "Y:" << "\n"
             << "Z:" << "\n\n\n"
-            << "ModelView:" << "\n\n\n\n\n\n"
-            << "Projection:" << "\n\n\n\n\n\n"
-            << "MVP:" << "\n\n\n\n\n\n";
+            << "ModelView" << "\n\n\n\n\n\n"
+            << "Projection" << "\n\n\n\n\n\n"
+            << "MVP" << "\n\n\n\n\n\n";
         label->setText(label_ss.str(), osgText::String::ENCODING_UTF8);
 
         osg::ref_ptr<osgText::Text> value = new osgText::Text();
-        value->setRotation(rotation);
         value->setColor(color);
         value->setFont(font);
+        value->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS);
         value->setCharacterSize(characterSize);
+        value->setAlignment(osgText::TextBase::RIGHT_TOP);
+        value->setAutoRotateToScreen(false);
         value->setPosition(pos_value);
         std::stringstream value_ss;
         value_ss << "\n"
@@ -483,10 +488,14 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
             pvs->set_viewer_position(cam_pos);
         }
 
-        if (_plugin->getSettings().lod_update) {
-            if (lamure::ren::policy::get_instance()->size_of_provenance() > 0)
-            { controller->dispatch(context_id, _renderer->getDevice(), _plugin->getDataProvenance()); }
-            else { controller->dispatch(context_id, _renderer->getDevice()); }
+        if (_plugin->getSettings().lod_update && !_plugin->isResetInProgress()) {
+            try {
+                if (lamure::ren::policy::get_instance()->size_of_provenance() > 0)
+                { controller->dispatch(context_id, _renderer->getDevice(), _plugin->getDataProvenance()); }
+                else { controller->dispatch(context_id, _renderer->getDevice()); }
+            } catch (const std::exception &e) {
+                if (notifyOn(_plugin)) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
+            }
         }
 
         glBindVertexArray(_renderer->getBoxResource().vao);
@@ -606,10 +615,14 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         osg::State* state = renderInfo.getState();
         state->setCheckForGLErrors(osg::State::CheckForGLErrors::ONCE_PER_ATTRIBUTE);
 
-        //scm::math::mat4 view_matrix = scm::math::mat4(_renderer->getModelViewMatrix());
-        //scm::math::mat4 projection_matrix = scm::math::mat4(_renderer->getProjectionMatrix());
+
         scm::math::mat4 view_matrix = LamureUtil::matConv4F(state->getModelViewMatrix());
         scm::math::mat4 projection_matrix = LamureUtil::matConv4F(state->getProjectionMatrix());
+        // Keep lamure camera in sync with current OSG state to avoid culling mismatches
+        _renderer->getScmCamera()->set_projection_matrix(scm::math::mat4d(projection_matrix));
+        if (_plugin->getUI()->getSyncButton()->state() == 1) {
+            _renderer->getScmCamera()->set_view_matrix(scm::math::mat4d(view_matrix));
+        }
         lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
         lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
         lamure::ren::controller* controller = lamure::ren::controller::get_instance();
@@ -622,12 +635,17 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         lamure::view_t    view_id = controller->deduce_view_id(context_id, _renderer->getScmCamera()->view_id());
         size_t surfels_per_node = database->get_primitives_per_node();
 
+        if (database->num_models() == 0) { _renderer->endFrame(); before.restore(); return; }
         for (lamure::model_t model_id = 0; model_id < settings.models.size(); ++model_id) {
+            if (model_id < _plugin->getSettings().model_visible.size() && !_plugin->getSettings().model_visible[model_id])
+                continue;
             lamure::model_t m_id = controller->deduce_model_id(std::to_string(model_id));
-            cuts->send_transform(context_id, m_id, scm::math::mat4(_plugin->getModelInfo().model_transformations[m_id]));
+            if (m_id >= database->num_models()) continue;
+            const auto &trafo = _plugin->getModelInfo().model_transformations[m_id];
+            cuts->send_transform(context_id, m_id, scm::math::mat4(trafo));
             cuts->send_threshold(context_id, m_id, _plugin->getSettings().lod_error);
             cuts->send_rendered(context_id, m_id);
-            database->get_model(m_id)->set_transform(scm::math::mat4(_plugin->getModelInfo().model_transformations[m_id]));
+            database->get_model(m_id)->set_transform(scm::math::mat4(trafo));
         }
         cuts->send_camera(context_id, view_id, *(_renderer->getScmCamera()));
         std::vector<scm::math::vec3d> corner_values = _renderer->getScmCamera()->get_frustum_corners();
@@ -940,6 +958,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
                 lamure::ren::cut& cut = cuts->get_cut(context_id, _renderer->getOsgCamera()->getGraphicsContext()->getState()->getContextID(), m_id);
                 std::vector<lamure::ren::cut::node_slot_aggregate> renderable = cut.complete_set();
 
+                if (m_id >= database->num_models()) continue;
                 const lamure::ren::bvh* bvh = database->get_model(m_id)->get_bvh();
                 std::vector<scm::gl::boxf>const& bounding_box_vector = bvh->get_bounding_boxes();
 
@@ -950,7 +969,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
                 _renderer->setModelUniforms(mvp_matrix);
                 for (auto const& node_slot_aggregate : renderable) {
-
+                    
                     if (_renderer->getScmCamera()->cull_against_frustum(frustum, bounding_box_vector[node_slot_aggregate.node_id_]) != 1) {
                         _renderer->setNodeUniforms(bvh, node_slot_aggregate.node_id_);
                         accumulate_node_area_px(sd, bvh, node_slot_aggregate.node_id_, projection_matrix*model_view_matrix, settings, surfels_per_node, meas.sampleThisFrame);
@@ -1080,6 +1099,16 @@ void LamureRenderer::init()
     m_plugin->getGroup()->addChild(m_init_geode);
     m_hud_camera->addChild(m_text_geode.get());
 
+    // Configure HUD camera for screen-space text (ortho 2D in pixels)
+    if (m_hud_camera.valid())
+    {
+        m_hud_camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+        m_hud_camera->setViewMatrix(osg::Matrix::identity());
+        int W = opencover::coVRConfig::instance()->windows[0].context->getTraits()->width;
+        int H = opencover::coVRConfig::instance()->windows[0].context->getTraits()->height;
+        m_hud_camera->setProjectionMatrix(osg::Matrix::ortho2D(0.0, double(W), 0.0, double(H)));
+    }
+
     m_init_geometry = new InitGeometry(m_plugin);
     m_pointcloud_geometry = new PointsGeometry(m_plugin);
     m_boundingbox_geometry = new BoundingBoxGeometry(m_plugin);
@@ -1089,6 +1118,10 @@ void LamureRenderer::init()
     m_pointcloud_geode->addDrawable(m_pointcloud_geometry);
     m_boundingbox_geode->addDrawable(m_boundingbox_geometry);
     m_frustum_geode->addDrawable(m_frustum_geometry);
+
+    // Avoid OSG frustum-culling for lamure point cloud; lamure does its own culling
+    if (m_pointcloud_geode.valid())
+        m_pointcloud_geode->setCullingActive(false);
 }
 
 void LamureRenderer::detachCallbacks()
@@ -2299,6 +2332,10 @@ void LamureRenderer::initBoxResources() {
     auto* db   = lamure::ren::model_database::get_instance();
 
     const auto modelCount = static_cast<uint32_t>(m_plugin->getSettings().models.size());
+    // Prepare aggregation for scene AABB (optional meta)
+    const float fmax = std::numeric_limits<float>::max();
+    scm::math::vec3f global_min(fmax, fmax, fmax);
+    scm::math::vec3f global_max(-fmax, -fmax, -fmax);
     for (uint32_t model_idx = 0; model_idx < modelCount; ++model_idx) {
         const lamure::model_t m_id = ctrl->deduce_model_id(std::to_string(model_idx));
         const auto* bvh = db->get_model(m_id)->get_bvh();
@@ -2313,6 +2350,43 @@ void LamureRenderer::initBoxResources() {
             all_box_vertices.insert(all_box_vertices.end(), corners.begin(), corners.end());
         }
         m_bvh_node_vertex_offsets[m_id] = std::move(current_offsets);
+
+        // Compute per-model root AABB in world (exact axis-aligned AABB via 8 corners)
+        if (!boxes.empty()) {
+            const auto &M4d = m_plugin->getModelInfo().model_transformations[m_id];
+            const scm::math::mat4f M = scm::math::mat4f(M4d);
+
+            const auto corners = LamureUtil::getBoxCorners(boxes[0]); // 8 corners * 3 floats
+            const float inf = std::numeric_limits<float>::infinity();
+            scm::math::vec3f bbw_min(+inf, +inf, +inf);
+            scm::math::vec3f bbw_max(-inf, -inf, -inf);
+            for (size_t i = 0; i < 8; ++i) {
+                const size_t k = i * 3;
+                scm::math::vec4f v(corners[k+0], corners[k+1], corners[k+2], 1.f);
+                const scm::math::vec4f tv = M * v;
+                bbw_min.x = std::min(bbw_min.x, tv.x);
+                bbw_min.y = std::min(bbw_min.y, tv.y);
+                bbw_min.z = std::min(bbw_min.z, tv.z);
+                bbw_max.x = std::max(bbw_max.x, tv.x);
+                bbw_max.y = std::max(bbw_max.y, tv.y);
+                bbw_max.z = std::max(bbw_max.z, tv.z);
+            }
+            scm::math::vec3f Cw = (bbw_min + bbw_max) * 0.5f;
+
+            // Store into plugin meta (keeps vectors aligned with models)
+            auto &mi = m_plugin->getModelInfo();
+            if (mi.root_bb_min.size() <= m_id) {
+                mi.root_bb_min.resize(m_id+1);
+                mi.root_bb_max.resize(m_id+1);
+                mi.root_center.resize(m_id+1);
+            }
+            mi.root_bb_min[m_id] = bbw_min;
+            mi.root_bb_max[m_id] = bbw_max;
+            mi.root_center[m_id]  = Cw;
+
+            global_min = scm::math::vec3f(std::min(global_min.x, bbw_min.x), std::min(global_min.y, bbw_min.y), std::min(global_min.z, bbw_min.z));
+            global_max = scm::math::vec3f(std::max(global_max.x, bbw_max.x), std::max(global_max.y, bbw_max.y), std::max(global_max.z, bbw_max.z));
+        }
     }
 
     GLuint vao = 0, vbo = 0, ibo = 0;
@@ -2341,6 +2415,13 @@ void LamureRenderer::initBoxResources() {
     m_box_resource.ibo = ibo;
 
     glBindVertexArray(0);
+
+    // Write aggregated scene AABB
+    m_plugin->getModelInfo().models_min = global_min;
+    m_plugin->getModelInfo().models_max = global_max;
+    m_plugin->getModelInfo().models_center = scm::math::vec3d( (global_min.x + global_max.x) * 0.5,
+                                                              (global_min.y + global_max.y) * 0.5,
+                                                              (global_min.z + global_max.z) * 0.5 );
 }
 
 

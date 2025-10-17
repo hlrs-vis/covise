@@ -128,6 +128,7 @@ ooc_cache *ooc_cache::get_instance(Data_Provenance const &data_provenance)
             if (node_size_total > 0) {
                 out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
             }
+            if (out_of_core_budget_in_nodes == 0) out_of_core_budget_in_nodes = 1; // avoid zero-slot cache
 
             if(data_provenance.get_size_in_bytes() > 0)
             {
@@ -197,6 +198,7 @@ ooc_cache *ooc_cache::get_instance()
             if (node_size_total > 0) {
                 out_of_core_budget_in_nodes = out_of_core_budget_in_bytes / node_size_total;
             }
+            if (out_of_core_budget_in_nodes == 0) out_of_core_budget_in_nodes = 1; // avoid zero-slot cache
 
             single_ = new ooc_cache(out_of_core_budget_in_nodes);
             is_instanced_ = true;
@@ -225,6 +227,12 @@ void ooc_cache::destroy_instance()
 void ooc_cache::register_node(const model_t model_id, const node_t node_id, const int32_t priority)
 {
     if(is_node_resident(model_id, node_id))
+    {
+        return;
+    }
+
+    // Avoid asserting inside cache_index when cache is full; skip request this frame
+    if (index_->num_free_slots() == 0)
     {
         return;
     }
@@ -267,6 +275,8 @@ char *ooc_cache::node_data_provenance(const model_t model_id, const node_t node_
 {
     model_database *database = model_database::get_instance();
     Data_Provenance data_provenance;
+    if (cache_data_provenance_ == nullptr || data_provenance.get_size_in_bytes() == 0)
+        return nullptr;
     return cache_data_provenance_ + index_->get_slot(model_id, node_id) * database->get_primitives_per_node() * data_provenance.get_size_in_bytes();
 }
 

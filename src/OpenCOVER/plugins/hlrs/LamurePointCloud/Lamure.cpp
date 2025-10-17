@@ -254,13 +254,38 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
     std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
 
     // Prüfen, ob das Modell bereits geladen oder in der Warteschlange ist, um Duplikate zu vermeiden.
-    if (plugin->m_model_idx.count(file) || 
+    if (plugin->m_model_idx.count(file) ||
         std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end()) {
 
+        // Modell existiert bereits: Knoten gezielt bereinigen/anhängen, ohne Reset/Listenänderung
         if (plugin->m_model_idx.count(file)) {
-            plugin->setModelVisible(plugin->m_model_idx.at(file), true);
+            // Sichtbarkeit nicht überschreiben; nur Scenegraph konsistent halten
+            auto itNode = plugin->m_model_nodes.find(file);
+            if (itNode != plugin->m_model_nodes.end()) {
+                osg::Group *node = itNode->second.get();
+                // Ziel-Parent priorisiert: übergebener parent, sonst Plugingruppe
+                osg::Group *targetParent = parent ? parent : (plugin->m_lamure_grp ? plugin->m_lamure_grp.get() : nullptr);
+                if (node) {
+                    if (targetParent) {
+                        bool hasTarget = false;
+                        for (unsigned i = 0; i < node->getNumParents(); ++i) {
+                            if (node->getParent(i) == targetParent) { hasTarget = true; break; }
+                        }
+                        if (!hasTarget) targetParent->addChild(node);
+                    }
+
+                    if (plugin->m_settings.prefer_parent && targetParent) {
+                        // Entferne alle anderen Parents außer dem Ziel-Parent
+                        for (int i = static_cast<int>(node->getNumParents()) - 1; i >= 0; --i) {
+                            osg::Group *p = node->getParent(i);
+                            if (p == targetParent) continue;
+                            if (p) p->removeChild(node);
+                        }
+                    }
+                }
+            }
         }
-        return 1;
+        return 0; // signal no new load to prevent duplicate entries
     }
 
     // OSG-Knoten für das neue dynamische Modell erstellen.
@@ -351,6 +376,8 @@ void Lamure::preFrame() {
     if (m_reset_in_progress) {
         perform_system_reset();
     }
+
+    // no sanitize pass here by default
 
     // Dynamic loading after start
     if (!m_files_to_load.empty()) {
@@ -466,6 +493,12 @@ void Lamure::perform_system_reset()
     lamure::ren::controller* controller = lamure::ren::controller::get_instance();
 
     const uint16_t N = static_cast<uint16_t>(models.size());
+    scm::math::vec3f global_min( std::numeric_limits<float>::max()
+                               , std::numeric_limits<float>::max()
+                               , std::numeric_limits<float>::max());
+    scm::math::vec3f global_max(-std::numeric_limits<float>::max()
+                               ,-std::numeric_limits<float>::max()
+                               ,-std::numeric_limits<float>::max());
     for (uint16_t mid = 0; mid < N; ++mid) {
         const std::string &model_path = models[mid];
         m_model_idx.emplace(model_path, mid);
@@ -475,11 +508,44 @@ void Lamure::perform_system_reset()
         const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
         const auto final_trafo = trafo_user * trafo_bvh;
         m_model_info.model_transformations.push_back(final_trafo);
+
+        // Compute transformed root bbox min/max/center (approx)
+        const auto &boxes = database->get_model(model_id)->get_bvh()->get_bounding_boxes();
+        if (!boxes.empty()) {
+            const auto &bb = boxes[0];
+            const scm::math::vec4f min4(bb.min_vertex().x, bb.min_vertex().y, bb.min_vertex().z, 1.f);
+            const scm::math::vec4f max4(bb.max_vertex().x, bb.max_vertex().y, bb.max_vertex().z, 1.f);
+            const scm::math::vec4f cen4(bb.center().x,     bb.center().y,     bb.center().z,     1.f);
+
+            const auto M = scm::math::mat4f(final_trafo);
+            const auto tmin = M * min4;
+            const auto tmax = M * max4;
+            const auto tcen = M * cen4;
+
+            scm::math::vec3f bbmin(tmin.x, tmin.y, tmin.z);
+            scm::math::vec3f bbmax(tmax.x, tmax.y, tmax.z);
+            m_model_info.root_bb_min.push_back(bbmin);
+            m_model_info.root_bb_max.push_back(bbmax);
+            m_model_info.root_center.push_back(scm::math::vec3f(tcen.x, tcen.y, tcen.z));
+
+            global_min = scm::math::vec3f(std::min(global_min.x, bbmin.x), std::min(global_min.y, bbmin.y), std::min(global_min.z, bbmin.z));
+            global_max = scm::math::vec3f(std::max(global_max.x, bbmax.x), std::max(global_max.y, bbmax.y), std::max(global_max.z, bbmax.z));
+        } else {
+            m_model_info.root_bb_min.push_back(scm::math::vec3f(0.f));
+            m_model_info.root_bb_max.push_back(scm::math::vec3f(0.f));
+            m_model_info.root_center.push_back(scm::math::vec3f(0.f));
+        }
     }
 
     database->apply();
     m_settings.num_models = N;
     m_settings.model_visible.assign(N, true);
+    // Store aggregated bounds and center
+    m_model_info.models_min = global_min;
+    m_model_info.models_max = global_max;
+    m_model_info.models_center = scm::math::vec3d( (global_min.x + global_max.x) * 0.5,
+                                                  (global_min.y + global_max.y) * 0.5,
+                                                  (global_min.z + global_max.z) * 0.5 );
 
     if (m_renderer) {
         m_renderer->init();
@@ -492,11 +558,16 @@ void Lamure::perform_system_reset()
         m_renderer->resumeRendering();
     }
 
-    if (m_settings.show_notify)
-        std::cout << "[Lamure] Reset: rebuilt " << static_cast<int>(N) << " models" << std::endl;
+    if (m_settings.show_notify) {
+        if (!m_did_initial_build)
+            std::cout << "[Lamure] Built " << static_cast<int>(N) << " models" << std::endl;
+        else
+            std::cout << "[Lamure] Reset: rebuilt " << static_cast<int>(N) << " models" << std::endl;
+    }
 
     m_reset_in_progress = false;
     g_is_resetting = false;
+    m_did_initial_build = true;
 }
 
 
@@ -534,6 +605,9 @@ void Lamure::loadSettingsFromCovise() {
     s.show_octrees            = getOn((std::string(root) + ".show_octrees").c_str(),           s.show_octrees);
     s.show_bvhs               = getOn((std::string(root) + ".show_bvhs").c_str(),              s.show_bvhs);
     s.show_pvs                = getOn((std::string(root) + ".show_pvs").c_str(),               s.show_pvs);
+
+    // ---- Attachment behavior ----
+    s.prefer_parent           = getOn((std::string(root) + ".prefer_parent").c_str(),          s.prefer_parent);
 
     // ---- Lighting / ToneMapping ----
     s.point_light_intensity = getNum<float>("value", (std::string(root) + ".point_light_intensity").c_str(), s.point_light_intensity);

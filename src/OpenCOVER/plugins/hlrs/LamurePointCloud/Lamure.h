@@ -200,6 +200,7 @@ public:
         bool measure_full{ true };
         int32_t measure_sample{ 1 };
         int32_t pause_frames{2};
+        bool prefer_parent{ true };
     };
 
     struct ModelInfo
@@ -358,6 +359,7 @@ private:
     // Centralized model resolution and post-processing
     std::vector<std::string> resolveAndNormalizeModels();
     void updateModelDependentSettings();
+    void adjustOsgCameraClipping();
 
     // Bootstrap file collection before initialization
     std::vector<std::string> m_bootstrap_files;
@@ -366,6 +368,9 @@ private:
     bool m_reset_in_progress{false};
     bool m_renderer_paused_for_reset{false};
     int  m_post_shutdown_delay{0};
+    bool m_did_initial_build{false};
+public:
+    bool isResetInProgress() const noexcept { return m_reset_in_progress; }
 };
 
 inline ScopedMark::~ScopedMark() {
