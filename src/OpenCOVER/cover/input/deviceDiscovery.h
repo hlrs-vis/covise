@@ -58,6 +58,7 @@ namespace opencover
 
         // only to be used from main thread
         const std::vector<const deviceInfo *> &getDevices() const;
+        // only called on master, slaves don't know about devices
         sigslot::signal<const deviceInfo *> deviceAdded;
 
     private:
