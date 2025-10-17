@@ -60,12 +60,11 @@ public:
     TacxFTMS();
     ~TacxFTMS();
     bool update() override;
-    void preFrame() override;
     float getAngle() const;
     float getBrakeForce() const;
     float getAccelleration() const;
     float getSpeed() const;
-    volatile bool running;
+    std::atomic<bool> running;
     void run() override;
     bool doStop;
 
@@ -84,9 +83,9 @@ private:
     osg::Matrix TacxFTMSPos;
     void setEnabled(bool) override;
     void updateThread();
-    UDPComm* udpNeo; 
-    UDPComm* udpAlpine;
-    UDPComm* udpListen; // for listening to all devices
+    std::unique_ptr<UDPComm> udpNeo; 
+    std::unique_ptr<UDPComm> udpAlpine;
+    std::unique_ptr<UDPComm> udpListen; // for listening to all devices
     FTMSBikeData ftmsData;
     FTMSControlData ftmsControl;
     AlpineData alpineData;
