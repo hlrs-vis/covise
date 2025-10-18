@@ -262,7 +262,17 @@ void ModuleFeedbackManager::createMenu()
         });
     }
 #endif
-    if (!covise || !covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
+    if (!covise)
+    {
+        executeAction_ = new ui::Action(menu_, "Execute");
+        executeAction_->setCallback(
+            [this]()
+            {
+                inExecute_ = true;
+                inter_->executeModule();
+            });
+    }
+    else if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){
