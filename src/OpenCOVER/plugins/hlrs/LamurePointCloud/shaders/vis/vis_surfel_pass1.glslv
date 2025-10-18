@@ -9,8 +9,6 @@ uniform float max_radius_cut;      // CUT im RAW-RADIUS (vor Skalierung!)
 
 uniform mat4  model_view_matrix;
 uniform mat4  projection_matrix;
-uniform mat3  normal_matrix;
-
 uniform float min_screen_size;
 uniform float max_screen_size;
 uniform float scale_projection;

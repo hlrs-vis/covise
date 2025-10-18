@@ -14,7 +14,9 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
+#include <functional>
 #include <cstdint>
 #include <mutex>
 #include <condition_variable>
@@ -277,7 +279,6 @@ private:
     struct SurfelPass1Shader {
         GLuint program{0};
         GLint mvp_matrix_loc{-1};           // mat4 mvp_matrix
-        GLint normal_matrix_loc{-1};    
         GLint projection_matrix_loc{-1};    
         GLint model_view_matrix_loc{-1};
         GLint model_matrix_loc{-1};         // mat4 model_matrix
@@ -405,27 +406,37 @@ private:
         };
 
         GLuint vao = 0;
-
-        GLuint fbo = 0;
-        GLuint texture_color   = 0; // GL_COLOR_ATTACHMENT0: akk. Farbe (RGB) + Gewicht (A)
-        GLuint texture_normal  = 0; // GL_COLOR_ATTACHMENT1: akk. Normalen
-        GLuint texture_position= 0; // GL_COLOR_ATTACHMENT2: akk. View-Space-Position
-        GLuint depth_texture   = 0; // GL_DEPTH_ATTACHMENT  : Depth-Textur (z.B. D24)
-
-        int msaa_samples = 0;
-        GLuint msaa_fbo       = 0;
-        GLuint msaa_color_rbo   = 0; // RBO für Farbe (multisampled)
-        GLuint msaa_normal_rbo  = 0; // RBO für Normal (multisampled)
-        GLuint msaa_position_rbo= 0; // RBO für Position (multisampled)
-        GLuint msaa_depth_rbo   = 0; // RBO für Depth (multisampled)
-
-        GLuint resolve_fbo     = 0;
-        GLuint resolve_color   = 0;
-        GLuint resolve_normal  = 0;
-        GLuint resolve_position= 0;
     };
 
     PclResource m_pcl_resource;
+
+    struct MultipassTarget {
+        GLuint fbo = 0;
+        GLuint texture_color = 0;
+        GLuint texture_normal = 0;
+        GLuint texture_position = 0;
+        GLuint depth_texture = 0;
+        int width = 0;
+        int height = 0;
+    };
+
+    struct MultipassTargetKey {
+        lamure::context_t context = 0;
+        const osg::Camera* camera = nullptr;
+        bool operator==(const MultipassTargetKey& other) const noexcept {
+            return context == other.context && camera == other.camera;
+        }
+    };
+
+    struct MultipassTargetKeyHash {
+        std::size_t operator()(const MultipassTargetKey& key) const noexcept {
+            std::size_t h1 = static_cast<std::size_t>(key.context);
+            std::size_t h2 = std::hash<const void*>{}(static_cast<const void*>(key.camera));
+            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+        }
+    };
+
+    std::unordered_map<MultipassTargetKey, MultipassTarget, MultipassTargetKeyHash> m_multipass_targets;
 
 
     struct BoxResource {
@@ -620,7 +631,10 @@ public:
     void initUniforms();
     void initBoxResources();
     void initPclResources();
-    bool ensurePclFboSizeUpToDate();
+    MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
+    void releaseMultipassTargets();
+    void initializeMultipassTarget(MultipassTarget& target, int width, int height);
+    void destroyMultipassTarget(MultipassTarget& target);
 
     bool getRendering() { return m_rendering; };
     void setRendering(bool rendering) { m_rendering = rendering; };
