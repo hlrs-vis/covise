@@ -11,12 +11,17 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/Group.h>
+#include <config/CoviseConfig.h>
 #include <osg/Material>
+#include <osg/CullFace>
 #include <osgDB/ReadFile>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 
+using namespace covise;
 using namespace opencover;
 
 ColorAnimPlugin::ColorAnimPlugin()
@@ -26,6 +31,10 @@ ColorAnimPlugin::ColorAnimPlugin()
 , currentFrame(0.0f)
 , animationSpeed(1.0f)
 , isPlaying(false)
+, isPingPong(false)
+, animationDirection(1.0f)
+, normalsFlipped(false)
+, interpolationMode(LINEAR)
 {
 }
 
@@ -69,15 +78,63 @@ bool ColorAnimPlugin::init()
 
     // Speed slider
     speedSlider = new ui::Slider(animMenu, "Speed");
-    speedSlider->setBounds(0.1, 10.0);
+    speedSlider->setBounds(0.001, 0.1);
     speedSlider->setValue(1.0);
     speedSlider->setCallback([this](double value, bool released) {
         animationSpeed = (float)value;
     });
 
+    // Ping-pong mode button
+    pingPongButton = new ui::Button(animMenu, "Ping-Pong Mode");
+    pingPongButton->setState(false);
+    pingPongButton->setCallback([this](bool state) {
+        isPingPong = state;
+    });
+
+    // Flip normals button
+    flipNormalsButton = new ui::Button(animMenu, "Flip Normals (Inside View)");
+    flipNormalsButton->setState(false);
+    flipNormalsButton->setCallback([this](bool state) {
+        flipNormals();
+        normalsFlipped = state;
+    });
+
     // Frame label
     frameLabel = new ui::Label(animMenu, "Frame");
     frameLabel->setText("Frame: 0 / 275");
+
+    // Interpolation mode selection
+    interpGroup = new ui::Group(animMenu, "Interpolation");
+
+    interpLinear = new ui::Button(interpGroup, "Linear");
+    interpLinear->setState(true);
+    interpLinear->setCallback([this](bool state) {
+        if (state) setInterpolationMode(LINEAR);
+    });
+
+    interpSmoothstep = new ui::Button(interpGroup, "Smoothstep");
+    interpSmoothstep->setState(false);
+    interpSmoothstep->setCallback([this](bool state) {
+        if (state) setInterpolationMode(SMOOTHSTEP);
+    });
+
+    interpSmootherstep = new ui::Button(interpGroup, "Smootherstep");
+    interpSmootherstep->setState(false);
+    interpSmootherstep->setCallback([this](bool state) {
+        if (state) setInterpolationMode(SMOOTHERSTEP);
+    });
+
+    interpEaseInOut = new ui::Button(interpGroup, "Ease In-Out");
+    interpEaseInOut->setState(false);
+    interpEaseInOut->setCallback([this](bool state) {
+        if (state) setInterpolationMode(EASE_IN_OUT);
+    });
+
+    interpCubic = new ui::Button(interpGroup, "Cubic");
+    interpCubic->setState(false);
+    interpCubic->setCallback([this](bool state) {
+        if (state) setInterpolationMode(CUBIC);
+    });
 
     // Load brain models
     std::string brainPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ModelPath", "");
@@ -120,16 +177,9 @@ bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
 
     // Try to load the first model to get geometry
     std::ostringstream firstPath;
-    firstPath << basePath << "_001.obj";
+    firstPath << basePath << "highres_cortex_001.ply";
 
     osg::ref_ptr<osg::Node> firstModel = osgDB::readNodeFile(firstPath.str());
-    if (!firstModel.valid())
-    {
-        // Try alternative naming
-        firstPath.str("");
-        firstPath << basePath << "_0.obj";
-        firstModel = osgDB::readNodeFile(firstPath.str());
-    }
 
     if (!firstModel.valid())
     {
@@ -181,17 +231,9 @@ bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
     for (int i = 0; i < numFrames; ++i)
     {
         std::ostringstream modelPath;
-        modelPath << basePath << "_" << std::setfill('0') << std::setw(3) << (i + 1) << ".obj";
+        modelPath << basePath << "highres_cortex_" << std::setfill('0') << std::setw(3) << (i + 1) << ".ply";
 
         osg::ref_ptr<osg::Node> model = osgDB::readNodeFile(modelPath.str());
-
-        // Try alternative naming if failed
-        if (!model.valid())
-        {
-            modelPath.str("");
-            modelPath << basePath << "_" << i << ".obj";
-            model = osgDB::readNodeFile(modelPath.str());
-        }
 
         if (!model.valid())
         {
@@ -284,16 +326,72 @@ osg::Vec4Array* ColorAnimPlugin::interpolateColors(int frame1, int frame2, float
 
     osg::Vec4Array *result = new osg::Vec4Array();
 
+    // Apply interpolation curve
+    float t_curved = applyInterpolationCurve(t);
+
     size_t numColors = std::min(colors1->size(), colors2->size());
     for (size_t i = 0; i < numColors; ++i)
     {
         osg::Vec4 c1 = (*colors1)[i];
         osg::Vec4 c2 = (*colors2)[i];
-        osg::Vec4 interpolated = c1 * (1.0f - t) + c2 * t;
+        osg::Vec4 interpolated = c1 * (1.0f - t_curved) + c2 * t_curved;
         result->push_back(interpolated);
     }
 
     return result;
+}
+
+float ColorAnimPlugin::applyInterpolationCurve(float t)
+{
+    // Clamp t to [0, 1]
+    if (t < 0.0f) t = 0.0f;
+    if (t > 1.0f) t = 1.0f;
+
+    switch (interpolationMode)
+    {
+    case LINEAR:
+        return t;
+
+    case SMOOTHSTEP:
+        // Smoothstep: 3t^2 - 2t^3
+        return t * t * (3.0f - 2.0f * t);
+
+    case SMOOTHERSTEP:
+        // Smootherstep: 6t^5 - 15t^4 + 10t^3
+        return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+
+    case EASE_IN_OUT:
+        // Cosine-based ease in-out
+        return 0.5f - 0.5f * std::cos(t * M_PI);
+
+    case CUBIC:
+        // Cubic ease in-out
+        if (t < 0.5f)
+            return 4.0f * t * t * t;
+        else
+        {
+            float f = (2.0f * t - 2.0f);
+            return 0.5f * f * f * f + 1.0f;
+        }
+
+    default:
+        return t;
+    }
+}
+
+void ColorAnimPlugin::setInterpolationMode(InterpolationMode mode)
+{
+    interpolationMode = mode;
+
+    // Update button states
+    interpLinear->setState(mode == LINEAR);
+    interpSmoothstep->setState(mode == SMOOTHSTEP);
+    interpSmootherstep->setState(mode == SMOOTHERSTEP);
+    interpEaseInOut->setState(mode == EASE_IN_OUT);
+    interpCubic->setState(mode == CUBIC);
+
+    // Immediately update colors to show the effect
+    updateColors();
 }
 
 void ColorAnimPlugin::preFrame()
@@ -302,16 +400,90 @@ void ColorAnimPlugin::preFrame()
         return;
 
     // Update animation
-    float frameIncrement = animationSpeed * cover->frameDuration() * 30.0f; // 30 fps base
+    float frameIncrement = animationSpeed * animationDirection * cover->frameDuration() * 30.0f; // 30 fps base
     currentFrame += frameIncrement;
 
-    // Loop animation
-    if (currentFrame >= (float)colorFrames.size())
+    // Handle animation boundaries
+    if (isPingPong)
     {
-        currentFrame = 0.0f;
+        // Ping-pong mode: reverse direction at boundaries
+        if (currentFrame >= (float)colorFrames.size())
+        {
+            currentFrame = (float)colorFrames.size() - 0.01f;
+            animationDirection = -1.0f;
+        }
+        else if (currentFrame < 0.0f)
+        {
+            currentFrame = 0.0f;
+            animationDirection = 1.0f;
+        }
+    }
+    else
+    {
+        // Loop mode: wrap around at end
+        if (currentFrame >= (float)colorFrames.size())
+        {
+            currentFrame = 0.0f;
+        }
+        else if (currentFrame < 0.0f)
+        {
+            currentFrame = (float)colorFrames.size() - 0.01f;
+        }
     }
 
     updateColors();
+}
+
+void ColorAnimPlugin::flipNormals()
+{
+    if (!brainGeometry.valid())
+        return;
+
+    osg::Vec3Array *normals = dynamic_cast<osg::Vec3Array*>(brainGeometry->getNormalArray());
+    if (!normals)
+        return;
+
+    // Flip all normals
+    for (size_t i = 0; i < normals->size(); ++i)
+    {
+        (*normals)[i] = -(*normals)[i];
+    }
+
+    // Mark the array as modified
+    normals->dirty();
+    brainGeometry->dirtyBound();
+
+    // Also toggle backface culling to see the flipped geometry properly
+    osg::StateSet *stateSet = brainGeometry->getOrCreateStateSet();
+    osg::CullFace *cullFace = dynamic_cast<osg::CullFace*>(
+        stateSet->getAttribute(osg::StateAttribute::CULLFACE));
+
+    if (normalsFlipped)
+    {
+        // When flipping back to normal, cull back faces (default)
+        if (!cullFace)
+        {
+            cullFace = new osg::CullFace(osg::CullFace::BACK);
+            stateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+        }
+        else
+        {
+            cullFace->setMode(osg::CullFace::BACK);
+        }
+    }
+    else
+    {
+        // When viewing from inside, cull front faces or disable culling
+        if (!cullFace)
+        {
+            cullFace = new osg::CullFace(osg::CullFace::FRONT);
+            stateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+        }
+        else
+        {
+            cullFace->setMode(osg::CullFace::FRONT);
+        }
+    }
 }
 
 COVERPLUGIN(ColorAnimPlugin)

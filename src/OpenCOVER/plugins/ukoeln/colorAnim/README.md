@@ -4,9 +4,9 @@
 This OpenCover plugin animates vertex colors across 275 brain models. It loads the models, extracts their vertex colors, and provides smooth animation with configurable playback speed.
 
 ## Brain Model Requirements
-- 275 3D models (OBJ format)
+- 275 3D models (PLY format, binary little endian)
 - Each model: 7501 vertices, 14998 faces
-- Models differ only in vertex colors
+- Models differ only in vertex colors (RGB as uchar)
 - Same geometry structure across all models
 
 ## Configuration
@@ -24,8 +24,7 @@ Add to your COVISE config file:
 ```
 
 The plugin expects files named:
-- `brain_001.obj`, `brain_002.obj`, ..., `brain_275.obj`
-- OR `brain_0.obj`, `brain_1.obj`, ..., `brain_274.obj`
+- `cortex_001.ply`, `cortex_002.ply`, ..., `cortex_275.ply` (all with 3-digit padding)
 
 ## UI Controls
 
@@ -33,7 +32,15 @@ The plugin adds a "Brain Color Animation" menu with:
 
 - **Play/Pause** button - Start/stop the animation
 - **Reset** button - Jump back to frame 0
-- **Speed** slider - Control animation speed (0.1x to 10x)
+- **Speed** slider - Control animation speed (0.001x to 0.1x, very slow to slow)
+- **Ping-Pong Mode** button - Toggle between loop mode and back-and-forth mode
+- **Flip Normals (Inside View)** button - Flip normals to view brain from inside
+- **Interpolation** group - Select color interpolation mode:
+  - **Linear** - Standard linear interpolation (default)
+  - **Smoothstep** - Smooth acceleration/deceleration (3t² - 2t³)
+  - **Smootherstep** - Even smoother curve (6t⁵ - 15t⁴ + 10t³)
+  - **Ease In-Out** - Cosine-based smooth easing
+  - **Cubic** - Cubic ease in-out with sharp acceleration
 - **Frame** label - Shows current frame number
 
 ## Usage

@@ -4,4 +4,4 @@ SET(HEADERS
 SET(SOURCES
   ColorAnimPlugin.cpp
 )
-cover_add_plugin(colorAnim ${HEADERS} ${SOURCES})
+cover_add_plugin(ColorAnim ${HEADERS} ${SOURCES})

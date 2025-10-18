@@ -15,7 +15,7 @@
 #include <osg/MatrixTransform>
 #include <vector>
 #include <string>
-
+ 
 namespace opencover
 {
 namespace ui
@@ -24,6 +24,7 @@ class Button;
 class Menu;
 class Slider;
 class Label;
+class Group;
 }
 }
 
@@ -32,6 +33,15 @@ using namespace opencover;
 class ColorAnimPlugin : public coVRPlugin, public ui::Owner
 {
 public:
+    enum InterpolationMode
+    {
+        LINEAR = 0,
+        SMOOTHSTEP,
+        SMOOTHERSTEP,
+        EASE_IN_OUT,
+        CUBIC
+    };
+
     ColorAnimPlugin();
     ~ColorAnimPlugin();
 
@@ -44,7 +54,15 @@ private:
     ui::Slider *speedSlider = nullptr;
     ui::Button *playButton = nullptr;
     ui::Button *resetButton = nullptr;
+    ui::Button *pingPongButton = nullptr;
+    ui::Button *flipNormalsButton = nullptr;
     ui::Label *frameLabel = nullptr;
+    ui::Group *interpGroup = nullptr;
+    ui::Button *interpLinear = nullptr;
+    ui::Button *interpSmoothstep = nullptr;
+    ui::Button *interpSmootherstep = nullptr;
+    ui::Button *interpEaseInOut = nullptr;
+    ui::Button *interpCubic = nullptr;
 
     // Scene graph elements
     osg::ref_ptr<osg::MatrixTransform> brainTransform;
@@ -57,11 +75,18 @@ private:
     float currentFrame;
     float animationSpeed;
     bool isPlaying;
+    bool isPingPong;
+    float animationDirection; // 1.0 for forward, -1.0 for backward
+    bool normalsFlipped;
+    InterpolationMode interpolationMode;
 
     // Helper methods
     bool loadBrainModels(const std::string &path);
     void updateColors();
     osg::Vec4Array* interpolateColors(int frame1, int frame2, float t);
+    void flipNormals();
+    float applyInterpolationCurve(float t);
+    void setInterpolationMode(InterpolationMode mode);
 };
 
 #endif
