@@ -29,9 +29,9 @@
 [submodule "src/3rdparty/nlohmann_json"]
 	path = src/3rdparty/nlohmann_json
 	url = https://github.com/nlohmann/json.git
-[submodule "src/3rdparty/crow"]
-	path = src/3rdparty/crow
-	url = https://github.com/CrowCpp/Crow.git
 [submodule "src/3rdparty/sigslot"]
 	path = src/3rdparty/sigslot
 	url = https://github.com/palacaze/sigslot.git
+[submodule "src/3rdparty/crow"]
+	path = src/3rdparty/crow
+	url = https://github.com/CrowCpp/Crow.git

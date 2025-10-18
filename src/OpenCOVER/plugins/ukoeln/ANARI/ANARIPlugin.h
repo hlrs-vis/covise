@@ -52,6 +52,9 @@ public:
     static int loadUMeshVTK(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadUMeshVTK(const char *fileName, const char *);
 
+    static int loadPlyFile(const char *fileName, osg::Group *loadParent, const char *);
+    static int unloadPlyFile(const char *fileName, const char *);
+
     static int loadPointCloud(const char *fileName, osg::Group *loadParent, const char *);
     static int unloadPointCloud(const char *fileName, const char *);
 
