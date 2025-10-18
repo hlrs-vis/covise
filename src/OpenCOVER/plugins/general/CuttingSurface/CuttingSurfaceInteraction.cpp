@@ -209,6 +209,8 @@ CuttingSurfaceInteraction::getParameters()
     int numoptions;
     char **labels;
     inter_->getChoiceParam(OPTION, numoptions, labels, option_);
+
+    inter_->getBooleanParam("flip", flip_);
 }
 
 void CuttingSurfaceInteraction::createMenu(bool invertClip)
@@ -221,15 +223,11 @@ void CuttingSurfaceInteraction::createMenu(bool invertClip)
         clipInvertCheckbox_->setCallback(
             [this](bool state)
             {
+                plugin->getSyncInteractors(inter_);
                 plugin->setBooleanParam("flip", state);
                 plugin->executeModule();
-
-                if (clipPlaneFlipCheckbox_)
-                {
-                    bool flip = clipPlaneFlipCheckbox_->state();
-                    clipPlaneFlipCheckbox_->setState(!flip);
-                }
             });
+        clipInvertCheckbox_->setState(flip_ != 0);
     }
 
     optionChoice_ = new ui::SelectionList(menu_, "SurfaceStyle");
@@ -285,6 +283,7 @@ void CuttingSurfaceInteraction::createMenu(bool invertClip)
                     break;
                 }
             }
+            plugin->getSyncInteractors(inter_);
             plugin->executeModule();
         }
     });
@@ -383,6 +382,11 @@ CuttingSurfaceInteraction::updateMenu()
             clipPlaneMenu_->setVisible(false);
         }
         break;
+    }
+
+    if (clipInvertCheckbox_)
+    {
+        clipInvertCheckbox_->setState(flip_ != 0);
     }
 
     updatePickInteractors(showPickInteractor_);
