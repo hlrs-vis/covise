@@ -40,6 +40,7 @@ ColorMaps &opencover::ConfigColorMaps()
   static ColorMaps maps;
   if (maps.empty())
     maps = readColorMaps();
+  assert(!maps.empty());
   return maps;
 }
 
@@ -47,13 +48,13 @@ ColorMaps opencover::readColorMaps() {
   // read the name of all colormaps in file
 
   auto colorMapEntries = covise::coCoviseConfig::getScopeEntries("Colormaps");
-  ColorMaps colorMaps;
 #ifdef NO_COLORMAP_PARAM
   colorMapEntries["COVISE"];
 #else
   // colorMapEntries["Editable"];
 #endif
 
+  ColorMaps colorMaps;
   for (const auto &map : colorMapEntries) {
     string name = "Colormaps." + map.first;
 
@@ -76,6 +77,12 @@ ColorMaps opencover::readColorMaps() {
     }
     colorMaps.push_back(BaseColorMap{colors, samplingPoints, map.first});
   }
+
+  if (colorMaps.empty())
+  {
+    colorMaps.push_back(BaseColorMap{{osg::Vec4(0,0,1,1), osg::Vec4(1,0,0,1), osg::Vec4(1,1,0,1)}, {0.0, 0.5, 1.0}, "COVISE" });
+  }
+
   return colorMaps;
 }
 
